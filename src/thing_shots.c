@@ -111,18 +111,16 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         explosion_affecting_area(shotng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets, shotst->damage_type);
     }
-   
     create_used_effect_or_element(&shotng->mappos, shotst->explode.effect1_model, shotng->owner);
     create_used_effect_or_element(&shotng->mappos, shotst->explode.effect2_model, shotng->owner);
     if (shotst->explode.around_effect1_model != 0)
     {
         create_effect_around_thing(shotng, shotst->explode.around_effect1_model);
     }
-    if (shotst->explode.around_effect2_model > 0)
+    if (shotst->explode.around_effect2_model != 0)
     {
         create_effect_around_thing(shotng, shotst->explode.around_effect2_model);
     }
-
     //TODO CONFIG shot model dependency, make config option instead
     switch (shotng->model)
     {
@@ -445,8 +443,8 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
 struct Thing *create_shot_hit_effect(struct Coord3d *effpos, long effowner, long eff_kind, long snd_idx, long snd_range)
 {
     struct Thing* efftng = INVALID_THING;
-    if (eff_kind > 0) {
-        efftng = create_effect(effpos, eff_kind, effowner);
+    if (eff_kind != 0) {
+        efftng = create_used_effect_or_element(effpos, eff_kind, effowner);
         TRACE_THING(efftng);
     }
     if (snd_idx > 0)
@@ -634,13 +632,12 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
         if (!thing_is_invalid(doortng))
         {
             // If the shot hit is supposed to create effect thing
-            int n = shotst->hit_door.effect_model;
-            if (n > 0)
+            if (shotst->hit_door.effect_model != 0)
             {
-                efftng = create_effect(&shotng->mappos, n, shotng->owner);
+                efftng = create_used_effect_or_element(&shotng->mappos, shotst->hit_door.effect_model, shotng->owner);
             }
             // If the shot hit is supposed to create sound
-            n = shotst->hit_door.sndsample_idx;
+            int n = shotst->hit_door.sndsample_idx;
             int i;
             if (n > 0)
             {
@@ -812,12 +809,7 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     {
         if (shotst->hit_heart.effect_model != 0)
         {
-            if (shotst->hit_heart.effect_model > 0)
-            {
-                create_effect(&shotng->mappos, shotst->hit_heart.effect_model, shotng->owner);
-            } else {
-                create_effect_element(&shotng->mappos, shotst->hit_heart.effect_model, shotng->owner);
-            }
+            create_used_effect_or_element(&shotng->mappos, shotst->hit_heart.effect_model, shotng->owner);
         }
         if (shotst->hit_heart.sndsample_idx > 0)
         {
@@ -1167,6 +1159,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     {
         if ((get_creature_model_flags(trgtng) & CMF_ImmuneToBoulder) != 0)
         {
+            // TODO make this configurable somehow.
             struct Thing* efftng = create_effect(&trgtng->mappos, TngEff_WoPExplosion, trgtng->owner);
             if (!thing_is_invalid(efftng)) {
                 efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
@@ -1576,13 +1569,9 @@ TngUpdateRet update_shot(struct Thing *thing)
                     pos1.x.val = thing->mappos.x.val - UNSYNC_RANDOM(shotst->visual.random_range) + (shotst->visual.random_range / 2);
                     pos1.y.val = thing->mappos.y.val - UNSYNC_RANDOM(shotst->visual.random_range) + (shotst->visual.random_range / 2);
                     pos1.z.val = thing->mappos.z.val - UNSYNC_RANDOM(shotst->visual.random_range) + (shotst->visual.random_range / 2);
-                    if (shotst->visual.effect_model > 0)
+                    if (shotst->visual.effect_model != 0)
                     {
-                        create_effect(&pos1, shotst->visual.effect_model, thing->owner);
-                    }
-                    if (shotst->visual.effect_model < 0)
-                    {
-                        create_effect_element(&pos1, ~(shotst->visual.effect_model) + 1, thing->owner);
+                        create_used_effect_or_element(&pos1, shotst->visual.effect_model, thing->owner);
                     }
                 }
             }
