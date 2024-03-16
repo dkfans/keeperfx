@@ -168,6 +168,10 @@ void turn_off_all_panel_menus(void)
   {
     turn_off_menu(GMnu_ROOM);
   }
+  if ( menu_is_active(GMnu_ROOM2) )
+  {
+    turn_off_menu(GMnu_ROOM2);
+  }
   if ( menu_is_active(GMnu_SPELL) )
   {
     turn_off_menu(GMnu_SPELL);
@@ -302,14 +306,18 @@ void turn_on_main_panel_menu(void)
   {
     turn_on_menu(GMnu_QUERY);
   } else
-  if (room_tag != 0)
+  if (room_tag == 1)
   {
     turn_on_menu(GMnu_ROOM);
+  } else
+  if (room_tag == 2)
+  {
+    turn_on_menu(GMnu_ROOM2);
   } else
   if (spell_tag == 1)
   {
     turn_on_menu(GMnu_SPELL);
-  }   else
+  } else
   if (spell_tag == 2)
   {
     turn_on_menu(GMnu_SPELL2);

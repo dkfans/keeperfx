@@ -879,7 +879,37 @@ short get_status_panel_keyboard_action_inputs(void)
   if (is_key_pressed(KC_2, KMod_NONE))
   {
     clear_key_pressed(KC_2);
-    fake_button_click(BID_ROOM_TAB);
+    struct GuiButton *gbtn = get_gui_button(BID_ROOM_NXPG);
+    if (gbtn != NULL)
+    {
+        if ((gbtn->flags & (LbBtnF_Visible|LbBtnF_Enabled)) != 0)
+        {
+            if (menu_is_active(GMnu_ROOM))
+            {
+                turn_off_menu(GMnu_ROOM);
+                turn_on_menu(GMnu_ROOM2);
+                fake_button_click(BID_ROOM_NXPG);
+            }
+            else if (menu_is_active(GMnu_ROOM2))
+            {
+                turn_off_menu(GMnu_ROOM2);
+                turn_on_menu(GMnu_ROOM);
+                fake_button_click(BID_ROOM_NXPG);
+            }
+            else
+            {
+                fake_button_click(BID_ROOM_TAB);
+            }
+        }
+        else
+        {
+            fake_button_click(BID_ROOM_TAB);
+        }
+    }
+    else
+    {
+        fake_button_click(BID_ROOM_TAB);
+    }
   }
   if (is_key_pressed(KC_3, KMod_NONE))
   {

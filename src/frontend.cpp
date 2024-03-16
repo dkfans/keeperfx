@@ -202,6 +202,7 @@ struct GuiMenu *menu_list[] = {
     &frontend_select_mappack_menu,
     &message_box,
     &spell_menu2,
+    &room_menu2,
     NULL,
 };
 
@@ -2044,6 +2045,7 @@ short is_toggleable_menu(short mnu_idx)
   {
   case GMnu_MAIN:
   case GMnu_ROOM:
+  case GMnu_ROOM2:
   case GMnu_SPELL:
   case GMnu_SPELL2:
   case GMnu_TRAP:
@@ -2352,6 +2354,7 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
 unsigned long toggle_status_menu(short visible)
 {
   static TbBool room_on = false;
+  static TbBool room_2_on = false;
   static TbBool spell_on = false;
   static TbBool spell_2_on = false;
   static TbBool spell_lost_on = false;
@@ -2379,6 +2382,8 @@ unsigned long toggle_status_menu(short visible)
       set_menu_visible_on(GMnu_MAIN);
       if ( room_on )
         set_menu_visible_on(GMnu_ROOM);
+      if ( room_2_on )
+        set_menu_visible_on(GMnu_ROOM2);
       if ( spell_on )
         set_menu_visible_on(GMnu_SPELL);
       if ( spell_2_on )
@@ -2415,6 +2420,11 @@ unsigned long toggle_status_menu(short visible)
       if (k >= 0)
         room_on = get_active_menu(k)->is_turned_on;
       set_menu_visible_off(GMnu_ROOM);
+      
+      k = menu_id_to_number(GMnu_ROOM2);
+      if (k >= 0)
+        room_2_on = get_active_menu(k)->is_turned_on;
+      set_menu_visible_off(GMnu_ROOM2);
 
       k = menu_id_to_number(GMnu_SPELL);
       if (k >= 0)
@@ -2616,7 +2626,18 @@ void initialise_tab_tags(MenuID menu_id)
 {
     info_tag =  (menu_id == GMnu_QUERY) || (menu_id == GMnu_CREATURE_QUERY1) ||
         (menu_id == GMnu_CREATURE_QUERY2) || (menu_id == GMnu_CREATURE_QUERY3) || (menu_id == GMnu_CREATURE_QUERY4);
-    room_tag = (menu_id == GMnu_ROOM);
+    if (menu_id == GMnu_ROOM)
+    {
+        room_tag = 1;
+    }
+    else if (menu_id == GMnu_ROOM2)
+    {
+        room_tag = 2;
+    }
+    else
+    {
+        room_tag = 0;
+    }
     if (menu_id == GMnu_SPELL)
     {
         spell_tag = 1;
@@ -3267,6 +3288,13 @@ void draw_menu_spangle(struct GuiMenu *gmnu)
                 if ( (game.flash_button_index >= BID_POWER_TD17) && (game.flash_button_index <= BID_POWER_TD32) )
                 {
                     idx = GMnu_SPELL2;
+                }
+            }
+            else if (idx == GMnu_ROOM)
+            {
+                if ( (game.flash_button_index >= BID_ROOM_TD17) && (game.flash_button_index <= BID_ROOM_TD32) )
+                {
+                    idx = GMnu_ROOM2;
                 }
             }
             if (!menu_is_active(idx))

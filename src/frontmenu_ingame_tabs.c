@@ -176,7 +176,7 @@ short button_designation_to_tab_designation(short btn_designt_id)
 {
     if ((btn_designt_id >= BID_QRY_IMPRSN) && (btn_designt_id <= BID_QRY_BTN3))
         return BID_INFO_TAB;
-    if ((btn_designt_id >= BID_ROOM_TD01) && (btn_designt_id <= BID_ROOM_TD16))
+    if ( ( ((btn_designt_id >= BID_ROOM_TD01) && (btn_designt_id <= BID_ROOM_TD16)) ) || ((btn_designt_id >= BID_ROOM_TD17) && (btn_designt_id <= BID_ROOM_TD32)) )
         return BID_ROOM_TAB;
     if ( ((btn_designt_id >= BID_POWER_TD01) && (btn_designt_id <= BID_POWER_TD16)) || ((btn_designt_id >= BID_POWER_TD17) && (btn_designt_id <= BID_POWER_TD32)) )
         return BID_SPELL_TAB;
@@ -2305,13 +2305,22 @@ void update_room_tab_to_config(void)
 {
     SYNCDBG(8, "Starting");
     int i;
+    struct GuiButtonInit* ibtn;
     // Clear 4x4 area of buttons, but skip "sell" button at end
-    for (i=0; i < 4*4-1; i++)
+    for (i=0; i < 15; i++)
     {
-        struct GuiButtonInit* ibtn = &room_menu.buttons[i];
+        ibtn = &room_menu.buttons[i];
         ibtn->sprite_idx = 24;
         ibtn->tooltip_stridx = GUIStr_Empty;
-        ibtn->content.lval = 0;
+        ibtn->content.lval = RoK_NONE;
+        ibtn->click_event = NULL;
+        ibtn->rclick_event = NULL;
+        ibtn->ptover_event = NULL;
+        ibtn->draw_call = gui_area_new_null_button;
+        ibtn = &room_menu2.buttons[i];
+        ibtn->sprite_idx = 24;
+        ibtn->tooltip_stridx = GUIStr_Empty;
+        ibtn->content.lval = RoK_NONE;
         ibtn->click_event = NULL;
         ibtn->rclick_event = NULL;
         ibtn->ptover_event = NULL;
@@ -2322,7 +2331,14 @@ void update_room_tab_to_config(void)
         struct RoomConfigStats* roomst = &game.conf.slab_conf.room_cfgstats[i];
         if (roomst->panel_tab_idx < 1)
             continue;
-        struct GuiButtonInit* ibtn = &room_menu.buttons[roomst->panel_tab_idx - 1];
+        if (roomst->panel_tab_idx <= 16)
+        {
+            ibtn = &room_menu.buttons[roomst->panel_tab_idx - 1];
+        }
+        else
+        {
+            ibtn = &room_menu2.buttons[roomst->panel_tab_idx - 17];
+        }
         ibtn->sprite_idx = roomst->medsym_sprite_idx;
         ibtn->tooltip_stridx = roomst->tooltip_stridx;
         ibtn->content.lval = i;
@@ -2496,6 +2512,20 @@ void maintain_spell_next_page_button(struct GuiButton *gbtn)
     {
         struct GuiButtonInit* ibtn = &spell_menu2.buttons[i];
         if (is_power_obtainable(my_player_number, ibtn->content.lval))
+        {
+            gbtn->flags |= (LbBtnF_Visible|LbBtnF_Enabled);
+            return;
+        }
+    }
+    gbtn->flags &= ~(LbBtnF_Visible|LbBtnF_Enabled);
+}
+
+void maintain_room_next_page_button(struct GuiButton *gbtn)
+{
+    for (int i=0; i < 16; i++)
+    {
+        struct GuiButtonInit* ibtn = &room_menu2.buttons[i];
+        if (is_room_obtainable(my_player_number, ibtn->content.lval))
         {
             gbtn->flags |= (LbBtnF_Visible|LbBtnF_Enabled);
             return;
