@@ -71,6 +71,7 @@ extern struct TiledSprite status_panel;
 extern struct Around const draw_square[];
 extern struct GuiMenu spell_menu2;
 extern struct GuiMenu room_menu2;
+extern struct GuiMenu trap_menu2;
 
 #define AROUND_2x2_PIXEL      4
 #define AROUND_3x3_PIXEL      9
@@ -110,6 +111,7 @@ void gui_query_next_creature_of_owner(struct GuiButton *gbtn);
 
 void maintain_spell_next_page_button(struct GuiButton *gbtn);
 void maintain_room_next_page_button(struct GuiButton *gbtn);
+void maintain_trap_next_page_button(struct GuiButton *gbtn);
 /******************************************************************************/
 #ifdef __cplusplus
 }

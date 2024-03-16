@@ -184,6 +184,10 @@ void turn_off_all_panel_menus(void)
   {
     turn_off_menu(GMnu_TRAP);
   }
+  if ( menu_is_active(GMnu_TRAP2) )
+  {
+    turn_off_menu(GMnu_TRAP2);
+  }
   if ( menu_is_active(GMnu_QUERY) )
   {
     turn_off_menu(GMnu_QUERY);
@@ -322,9 +326,13 @@ void turn_on_main_panel_menu(void)
   {
     turn_on_menu(GMnu_SPELL2);
   } else
-  if (trap_tag != 0)
+  if (trap_tag == 1)
   {
     turn_on_menu(GMnu_TRAP);
+  } else
+  if (trap_tag == 2)
+  {
+    turn_on_menu(GMnu_TRAP2);
   } else
   if (creature_tag != 0)
   {

@@ -203,6 +203,7 @@ struct GuiMenu *menu_list[] = {
     &message_box,
     &spell_menu2,
     &room_menu2,
+    &trap_menu2,
     NULL,
 };
 
@@ -2049,6 +2050,7 @@ short is_toggleable_menu(short mnu_idx)
   case GMnu_SPELL:
   case GMnu_SPELL2:
   case GMnu_TRAP:
+  case GMnu_TRAP2:
   case GMnu_CREATURE:
   case GMnu_EVENT:
   case GMnu_QUERY:
@@ -2359,6 +2361,7 @@ unsigned long toggle_status_menu(short visible)
   static TbBool spell_2_on = false;
   static TbBool spell_lost_on = false;
   static TbBool trap_on = false;
+  static TbBool trap_2_on = false;
   static TbBool creat_on = false;
   static TbBool event_on = false;
   static TbBool query_on = false;
@@ -2392,6 +2395,8 @@ unsigned long toggle_status_menu(short visible)
         set_menu_visible_on(GMnu_SPELL_LOST);
       if ( trap_on )
         set_menu_visible_on(GMnu_TRAP);
+    if ( trap_2_on )
+        set_menu_visible_on(GMnu_TRAP2);
       if ( event_on )
         set_menu_visible_on(GMnu_EVENT);
       if ( query_on )
@@ -2445,6 +2450,11 @@ unsigned long toggle_status_menu(short visible)
       if (k >= 0)
       trap_on = get_active_menu(k)->is_turned_on;
       set_menu_visible_off(GMnu_TRAP);
+      
+      k = menu_id_to_number(GMnu_TRAP2);
+      if (k >= 0)
+        trap_2_on = get_active_menu(k)->is_turned_on;
+      set_menu_visible_off(GMnu_TRAP2);
 
       k = menu_id_to_number(GMnu_CREATURE);
       if (k >= 0)
@@ -2650,7 +2660,18 @@ void initialise_tab_tags(MenuID menu_id)
     {
         spell_tag = 0;
     }
-    trap_tag = (menu_id == GMnu_TRAP);
+    if (menu_id == GMnu_TRAP)
+    {
+        trap_tag = 1;
+    }
+    else if (menu_id == GMnu_TRAP2)
+    {
+        trap_tag = 2;
+    }
+    else
+    {
+        trap_tag = 0;
+    }
     creature_tag = (menu_id == GMnu_CREATURE);
 }
 
@@ -3295,6 +3316,13 @@ void draw_menu_spangle(struct GuiMenu *gmnu)
                 if ( (game.flash_button_index >= BID_ROOM_TD17) && (game.flash_button_index <= BID_ROOM_TD32) )
                 {
                     idx = GMnu_ROOM2;
+                }
+            }
+            else if (idx == GMnu_TRAP)
+            {
+                if ( (game.flash_button_index >= BID_MNFCT_TD17) && (game.flash_button_index <= BID_MNFCT_TD32) )
+                {
+                    idx = GMnu_TRAP2;
                 }
             }
             if (!menu_is_active(idx))
