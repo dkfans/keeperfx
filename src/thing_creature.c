@@ -2245,11 +2245,11 @@ long move_creature(struct Thing *thing)
         }
         cctrl->flgfield_1 |= CCFlg_Unknown08;
     }
-    if ((get_creature_model_flags(thing) & CMF_TremblingFat) != 0)
+    if ((get_creature_model_flags(thing) & CMF_Fat) != 0)
     {
-      if (creature_is_ambulating(thing))
+        if (creature_is_ambulating(thing))
         {
-            if (thing->current_frame > 3)
+            if (thing->current_frame > (keepersprite_frames(thing->anim_sprite)/2))
             {
                 velo_y = 0;
                 velo_x = 0;
