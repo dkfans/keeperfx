@@ -49,20 +49,14 @@ int steam_api_init()
         return 1;
     }
 
-    // Check if 'steam_api.dll' exists
-    if (!LbFileExists("steam_api.dll"))
+    // Check if the required files are present
+    if (!LbFileExists("steam_api.dll") || !LbFileExists("steam_appid.txt"))
     {
+        ERRORLOG("The Steam API requires the 'steam_api.dll' and 'steam_appid.txt' files to be present");
         return 1;
     }
 
-    JUSTLOG("'steam_api.dll' found");
-
-    // Check if 'steam_appid.txt' exists
-    if (!LbFileExists("steam_appid.txt"))
-    {
-        ERRORLOG("The Steam API requires the 'steam_appid.txt' file to be present");
-        return 1;
-    }
+    JUSTLOG("'steam_api.dll' and 'steam_appid.txt' found");
 
     // Load the Steam API library
     // This file is included with the Steam SDK download
