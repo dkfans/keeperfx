@@ -142,6 +142,7 @@ const struct NamedCommand conf_commands[] = {
   {"MUSIC_FROM_DISK"               , 29},
   {"HAND_SIZE"                     , 30},
   {"LINE_BOX_SIZE"                 , 31},
+  {"DISPLAY_PORTAL_LIMIT"          , 32},
   {NULL,                   0},
   };
 
@@ -1303,6 +1304,19 @@ short load_configuration(void)
           } else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }
+          break;
+      case 32: // DISPLAY_PORTAL_LIMIT
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1)
+              features_enabled |= Ft_DisplayPortalLimit;
+          else
+              features_enabled &= ~Ft_DisplayPortalLimit;
           break;
       case 0: // comment
           break;
