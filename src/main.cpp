@@ -118,6 +118,7 @@
 #include "config_settings.h"
 #include "game_legacy.h"
 #include "room_list.h"
+#include "steam_api.hpp"
 #include "game_loop.h"
 #include "music_player.h"
 
@@ -4259,6 +4260,8 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     short retval;
     retval=0;
     LbErrorLogSetup("/", log_file_name, 5);
+
+    init_steam_api();
 
     retval = process_command_line(argc,argv);
     if (retval < 1)
