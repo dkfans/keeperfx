@@ -7829,11 +7829,13 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     long cutoff;
     SYNCDBG(17, "At (%d,%d) opts %d %d %d %d", (int)x, (int)y, (int)kspr_base, (int)kspr_angle, (int)sprgroup, (int)scale);
     player = get_my_player();
+    creature_sprites = keepersprite_array(kspr_base);
 
-    if (((kspr_angle & 0x7FF) <= 1151) || ((kspr_angle & 0x7FF) >= 1919) )
+    if (((kspr_angle & 0x7FF) <= 1151) || ((kspr_angle & 0x7FF) >= 1919) || (creature_sprites->Rotable != 2) )
         needs_xflip = 0;
     else
         needs_xflip = 1;
+
     if ( needs_xflip )
       lbDisplay.DrawFlags |= Lb_SPRITE_FLIP_HORIZ;
     else
@@ -7843,7 +7845,6 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     sprite_rot = llabs(lltemp);
     kspr_idx = keepersprite_index(kspr_base);
     global_scaler = scale;
-    creature_sprites = keepersprite_array(kspr_base);
     scaled_x = ((scale * (long)creature_sprites->offset_x) >> 5) + (long)x;
     scaled_y = ((scale * (long)creature_sprites->offset_y) >> 5) + (long)y;
     SYNCDBG(17,"Scaled (%d,%d)",(int)scaled_x,(int)scaled_y);
@@ -8506,8 +8507,6 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
         }
         point_b += delta;
     }
-    
-    struct PlayerInfo *player = get_my_player();
 }
 
 void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, TbBool single_subtile, long line_color)

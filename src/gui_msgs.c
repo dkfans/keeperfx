@@ -23,6 +23,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_sprfnt.h"
+#include "bflib_vidraw.h"
 #include "config_spritecolors.h"
 #include "creature_graphics.h"
 #include "creature_instances.h"
@@ -42,9 +43,10 @@ void message_draw(void)
     SYNCDBG(7,"Starting");
     LbTextSetFont(winfont);
     int ps_units_per_px;
+    struct TbSprite* spr;
     {
         //just used for height, color irrelevant here
-        struct TbSprite* spr = &gui_panel_sprites[GPS_plyrsym_symbol_player_red_std_b];
+        spr = &gui_panel_sprites[GPS_plyrsym_symbol_player_red_std_b];
         ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
     }
     TbBool low_res = (MyScreenHeight < 400);
@@ -133,7 +135,15 @@ void message_draw(void)
             }
             if (gameadd.messages[i].plyr_idx != 127)
             {
-                draw_gui_panel_sprite_left_player(x, y, ps_units_per_px, spr_idx, plyr_idx);
+                if (plyr_idx >= 0)
+                {
+                    draw_gui_panel_sprite_left_player(x, y, ps_units_per_px, spr_idx, plyr_idx);
+                }
+                else
+                {
+                    spr = &gui_panel_sprites[spr_idx];
+                    LbSpriteDrawResized(x, y, ps_units_per_px, spr);
+                }
             }
             y += (h*units_per_pixel/16) << (unsigned char)low_res;
             if (NotPlayer)
