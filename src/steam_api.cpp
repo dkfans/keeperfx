@@ -57,6 +57,13 @@ int steam_api_init()
 
     JUSTLOG("'steam_api.dll' found");
 
+    // Check if 'steam_appid.txt' exists
+    if (!LbFileExists("steam_appid.txt"))
+    {
+        ERRORLOG("The Steam API requires the 'steam_appid.txt' file to be present");
+        return 1;
+    }
+
     // Load the Steam API library
     // This file is included with the Steam SDK download
     try
