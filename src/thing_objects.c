@@ -1260,6 +1260,7 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
             heartng->sprite_size = i * (long)objst->sprite_size_max >> 8;
             heartng->solid_size_xy = i * (long)objst->size_xy >> 8;
             heartng->solid_size_z = i * (long)objst->size_z >> 8;
+            heartng->clipbox_size_z = heartng->solid_size_z;
         }
     }
     else if (!dungeon_invalid(dungeon) && (heartng->index == dungeon->dnheart_idx))

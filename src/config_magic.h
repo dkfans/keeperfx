@@ -292,7 +292,7 @@ struct ShotConfigStats {
     short size_z;
     unsigned char fall_acceleration;
     unsigned char cast_spell_kind;
-    unsigned char push_on_hit;
+    char push_on_hit;
     unsigned char hidden_projectile;
     unsigned char destroy_on_first_hit;
     short experience_given_to_shooter;
@@ -310,6 +310,8 @@ struct ShotConfigStats {
     unsigned char unshaded;
     unsigned char soft_landing;
     EffectOrEffElModel effect_id;
+    EffectOrEffElModel effect_bleeding;
+    EffectOrEffElModel effect_frozen;
     unsigned char fire_logic; // see enum ShotFireLogics
     unsigned char update_logic; // see enum ShotUpdateLogics
     unsigned short effect_spacing;
