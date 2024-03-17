@@ -8507,8 +8507,6 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
         }
         point_b += delta;
     }
-    
-    struct PlayerInfo *player = get_my_player();
 }
 
 void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, TbBool single_subtile, long line_color)

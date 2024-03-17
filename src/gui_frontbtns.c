@@ -959,6 +959,20 @@ void gui_set_menu_mode(struct GuiButton *gbtn)
             mnu_idx = GMnu_SPELL2;
         }
     }
+    else if (mnu_idx == GMnu_ROOM)
+    {
+        if (menu_is_active(GMnu_ROOM2))
+        {
+            mnu_idx = GMnu_ROOM2;
+        }
+    }
+    else if (mnu_idx == GMnu_TRAP)
+    {
+        if (menu_is_active(GMnu_TRAP2))
+        {
+            mnu_idx = GMnu_TRAP2;
+        }
+    }
     set_menu_mode(mnu_idx);
 }
 
