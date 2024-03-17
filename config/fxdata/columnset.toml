@@ -1,5 +1,5 @@
 [common]
-ColumnsCount = 1264
+ColumnsCount = 1265
 
 [column0]
 Lintel = 0
@@ -10112,3 +10112,11 @@ SolidMask = 1
 FloorTexture = 29
 Orientation = 0
 Cubes = [43, 0, 0, 0, 0, 0, 0, 0]
+
+[column1264]
+Lintel = 0
+Height = 5
+SolidMask = 31
+FloorTexture = 27
+Orientation = 0
+Cubes = [38, 441, 441, 441, 441, 0, 0, 0]
