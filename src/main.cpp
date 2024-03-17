@@ -4261,8 +4261,6 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     retval=0;
     LbErrorLogSetup("/", log_file_name, 5);
 
-    init_steam_api();
-
     retval = process_command_line(argc,argv);
     if (retval < 1)
     {
@@ -4282,6 +4280,8 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
 #ifdef FUNCTESTING
     ftest_srand();
 #endif // FUNCTESTING
+
+    steam_api_init();
 
     if (!retval)
     {
@@ -4335,7 +4335,9 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     {
         SYNCDBG(0,"finished properly");
     }
+
     LbErrorLogClose();
+    steam_api_shutdown();
     return 0;
 }
 

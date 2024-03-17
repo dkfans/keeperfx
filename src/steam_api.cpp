@@ -30,7 +30,13 @@ static HMODULE steam_lib;
 #include "bflib_fileio.h"
 #include "post_inc.h"
 
-int init_steam_api()
+typedef int (*SteamApiInitFunc)(char *err);
+SteamApiInitFunc SteamAPI_Init;
+
+typedef void (*SteamApiShutdownFunc)();
+SteamApiShutdownFunc SteamAPI_Shutdown;
+
+int steam_api_init()
 {
 #ifndef _WIN32
     // Windows only
@@ -38,7 +44,7 @@ int init_steam_api()
 #else
 
     // Make sure the library is not loaded twice
-    if (steam_lib)
+    if (steam_lib != NULL || SteamAPI_Init != NULL)
     {
         return 1;
     }
@@ -70,19 +76,28 @@ int init_steam_api()
 
     JUSTLOG("'steam_api.dll' library loaded");
 
-    // Get the address of the function
+    // Get the address of the Init function
     // The 'Flat' version can be used instead of SteamAPI_Init when dynamically linking to the DLL
-    FARPROC funcAddress = GetProcAddress(steam_lib, "SteamAPI_InitFlat");
-    if (funcAddress == NULL)
+    FARPROC funcAddressInit = GetProcAddress(steam_lib, "SteamAPI_InitFlat");
+    if (funcAddressInit == NULL)
     {
-        ERRORLOG("Failed to get proc address: SteamAPI_InitFlat");
+        ERRORLOG("Failed to get proc address for 'SteamAPI_InitFlat' in 'steam_api.dll'");
         FreeLibrary(steam_lib);
         return 1;
     }
 
-    // Typedef the function so we can call it from our code
-    typedef int (*SteamApiInitFunc)(char *err);
-    SteamApiInitFunc SteamAPI_Init = (SteamApiInitFunc)funcAddress;
+    // Get the address of the Shutdown function
+    FARPROC funcAddressShutdown = GetProcAddress(steam_lib, "SteamAPI_Shutdown");
+    if (funcAddressShutdown == NULL)
+    {
+        ERRORLOG("Failed to get proc address for 'SteamAPI_Shutdown' in 'steam_api.dll'");
+        FreeLibrary(steam_lib);
+        return 1;
+    }
+
+    // Load the functions so we can use them
+    SteamAPI_Init = (SteamApiInitFunc)funcAddressInit;
+    SteamAPI_Shutdown = (SteamApiShutdownFunc)funcAddressShutdown;
 
     // Initialize the Steam API
     // This notifies Steam that we are running the game
@@ -105,4 +120,12 @@ int init_steam_api()
     return 0;
 
 #endif
+}
+
+void steam_api_shutdown()
+{
+    if (SteamAPI_Shutdown != NULL)
+    {
+        SteamAPI_Shutdown();
+    }
 }
