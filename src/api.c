@@ -18,7 +18,6 @@
 #include "keeperfx.hpp"
 
 #define API_SERVER_BUFFER 1024
-#define API_MAX_MESSAGES_PER_TURN 1000
 
 struct ApiGlobals
 {
@@ -566,38 +565,26 @@ void api_update_server()
 
             if (SDLNet_SocketReady(api.activeSocket))
             {
-                int received;
-                int message_count = 0;
-
-                do
+                int received = SDLNet_TCP_Recv(api.activeSocket, buffer, API_SERVER_BUFFER);
+                if (received > 0)
                 {
-                    received = SDLNet_TCP_Recv(api.activeSocket, buffer, API_SERVER_BUFFER);
-
-                    if (received > 0)
+                    // Remove any possible trailing newline from the data
+                    // This makes it work with a Telnet connection as well
+                    if (strlen(buffer) > 0 && buffer[strlen(buffer) - 1] == '\n')
                     {
-                        // Remove any possible trailing newline from the data
-                        // This makes it work with a Telnet connection as well
-                        if (strlen(buffer) > 0 && buffer[strlen(buffer) - 1] == '\n')
-                        {
-                            buffer[strlen(buffer) - 1] = '\0';
-                        }
-
-                        JUSTLOG("Received message from client: %s", buffer);
-                        api_process_buffer(buffer, received);
-                    }
-                    else
-                    {
-                        WARNLOG("API connection closed");
-                        SDLNet_TCP_DelSocket(api.socketSet, api.activeSocket);
-                        SDLNet_TCP_Close(api.activeSocket);
-                        api.activeSocket = 0;
-
-                        break;
+                        buffer[strlen(buffer) - 1] = '\0';
                     }
 
-                    message_count++;
-
-                } while (received != 0 && message_count <= API_MAX_MESSAGES_PER_TURN);
+                    JUSTLOG("Received message from client: %s", buffer);
+                    api_process_buffer(buffer, received);
+                }
+                else
+                {
+                    WARNLOG("API connection closed");
+                    SDLNet_TCP_DelSocket(api.socketSet, api.activeSocket);
+                    SDLNet_TCP_Close(api.activeSocket);
+                    api.activeSocket = 0;
+                }
             } // \activeSocket
         }
     } while (numReady > 0); // To have break instead of goto
