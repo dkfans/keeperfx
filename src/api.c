@@ -585,6 +585,10 @@ void api_update_server()
                     SDLNet_TCP_Close(api.activeSocket);
                     api.activeSocket = 0;
                 }
+
+                // Clear buffer
+                memset(buffer, 0, API_SERVER_BUFFER);
+
             } // \activeSocket
         }
     } while (numReady > 0); // To have break instead of goto
