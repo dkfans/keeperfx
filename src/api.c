@@ -331,6 +331,68 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         return;
     }
 
+    // Handle get all player flags command
+    if (strcasecmp("get_all_player_flags", action) == 0)
+    {
+
+        // Create flag data to return to client
+        VALUE flag_data_real;
+        VALUE *flag_data = &flag_data_real;
+        value_init_dict(flag_data);
+
+        for (int player_index = 0; player_index < 9; player_index++)
+        {
+            char *player_string[32];
+
+            // Create the player string for this player
+            if (player_index == 4)
+            {
+                strcpy(player_string, "PLAYER_GOOD");
+            }
+            else if (player_index == 5)
+            {
+                strcpy(player_string, "PLAYER_NEUTRAL");
+            }
+            else
+            {
+
+                // After PLAYER_GOOD and PLAYER_NEUTRAL we have to move the number back to PLAYER4
+                int player_string_number = player_index;
+                if (player_index > 5)
+                {
+                    player_string_number -= 2;
+                }
+
+                // Create string
+                char *player_new_string[8];
+                snprintf(player_new_string, sizeof(player_new_string), "PLAYER%d", player_string_number);
+                strcpy(player_string, player_new_string);
+            }
+
+            // Create object for this player
+            VALUE *player_info = value_dict_add(flag_data, player_string);
+            value_init_dict(player_info);
+
+            for (int flag_index = 0; flag_index < 8; flag_index++)
+            {
+                // Get flag value
+                long flag_value = get_condition_value(player_id, SVar_FLAG, flag_index);
+
+                // Add flag to player flag
+                char *flag_string[6];
+                snprintf(flag_string, sizeof(flag_string), "FLAG%d", flag_index);
+                value_init_int32(value_dict_add(player_info, flag_string), flag_value);
+            }
+        }
+
+        // Return data to client
+        api_return_data(flag_data_real);
+
+        // End
+        value_fini(&data);
+        return;
+    }
+
     // Handle read var command
     if (strcasecmp("read_var", action) == 0)
     {
