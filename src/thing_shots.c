@@ -48,7 +48,7 @@
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
-
+#include "math.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -984,10 +984,25 @@ void shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
     kill_creature(creatng, killertng, shotng->owner, dieflags);
 }
 
+double weight_calculated_push_strenght(int weight, int push_strength)
+{
+    double weight_factor = 1.0; // Standard-Gewichtsfaktor ohne Gewichtsberechnung
+        JUSTLOG("weight ist an push_strength ist %d", push_strength);
+
+    weight_factor = 1.0 - ((weight - 6) / 594.0);
+        JUSTLOG("weight ist an weight_factor ist %f", weight_factor);
+    weight_factor = fmax(0.0, fmin(1.0, weight_factor));
+        JUSTLOG("weight ist an weight_factor ist %f", weight_factor);
+    double adjusted_push_strength = push_strength * weight_factor;
+        JUSTLOG("weight ist an adjusted_throw_strength ist %f", adjusted_push_strength);
+    return adjusted_push_strength;
+}
+
 long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     long throw_strength = shotst->push_on_hit;
+    double adjusted_throw_strength;
     long n;
     if (trgtng->health < 0)
         return 0;
@@ -1043,20 +1058,32 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
       if (shotst->target_hitstop_turns != 0) {
           tgcctrl->frozen_on_hit = shotst->target_hitstop_turns;
       }
-      if ( shotst->push_on_hit || creature_is_being_unconscious(trgtng))
-      {
-          if (creature_is_being_unconscious(trgtng)) 
-          {
-              if (throw_strength == 0)
-              {
-                  throw_strength++;
-              }
-              throw_strength *= 10;
-          }
-          trgtng->veloc_push_add.x.val += (throw_strength * (long)shotng->velocity.x.val) / 16;
-          trgtng->veloc_push_add.y.val += (throw_strength * (long)shotng->velocity.y.val) / 16;
+
+      adjusted_throw_strength = throw_strength;
+      if (game.conf.rules.magic.weight_calculate_push == 1)
+    {
+            JUSTLOG("weight ist an %i", game.conf.rules.magic.weight_calculate_push);
+        int weight = compute_creature_weight(trgtng);
+            JUSTLOG("weight ist an weight ist %i", weight);
+        adjusted_throw_strength = weight_calculated_push_strenght(weight, throw_strength);
+    }
+
+    if (shotst->push_on_hit || creature_is_being_unconscious(trgtng)) {
+    if (creature_is_being_unconscious(trgtng)) {
+        if (adjusted_throw_strength == 0) {
+            adjusted_throw_strength++;
+        }
+        adjusted_throw_strength *= 10;
+    }
+JUSTLOG("weight ist an adjusted_throw_strength ist %f", adjusted_throw_strength);
+          trgtng->veloc_push_add.x.val += (adjusted_throw_strength * (long)shotng->velocity.x.val) / 16;
+           JUSTLOG("throw veloc_push_addx ist %f", trgtng->veloc_push_add.x.val);
+          trgtng->veloc_push_add.y.val += (adjusted_throw_strength * (long)shotng->velocity.y.val) / 16;
+            JUSTLOG("throw veloc_push_addy ist %f", trgtng->veloc_push_add.y.val);
           trgtng->state_flags |= TF1_PushAdd;
-      }
+    
+}
+
       if (trgtng->health >= 0)
       {
           if (trgtng->owner != shotng->owner) {
@@ -1101,8 +1128,10 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
 {
     long i;
     long n;
+    double adjusted_push_strength;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
-    long throw_strength = shotst->push_on_hit;
+    long push_strength = shotst->push_on_hit;
+    SYNCMSG("push_on_hit ist %d", shotst->push_on_hit);
     struct Thing* shooter = INVALID_THING;
     if (shotng->parent_idx != shotng->index) {
         shooter = thing_get(shotng->parent_idx);
@@ -1214,25 +1243,42 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             WARNDBG(8,"The %s index %d owner %d cannot group; invalid parent",thing_model_name(shotng),(int)shotng->index,(int)shotng->owner);
         }
     }
-    if (throw_strength != 0 )
+
+    adjusted_push_strength = push_strength;
+    if (game.conf.rules.magic.weight_calculate_push == 1)
     {
-        i = throw_strength * shotng->velocity.x.val;
+            JUSTLOG("weight ist an %i", game.conf.rules.magic.weight_calculate_push);
+        int weight = compute_creature_weight(trgtng);
+            JUSTLOG("weight ist an weight ist %i", weight);
+        adjusted_push_strength = weight_calculated_push_strenght(weight, push_strength);
+    }
+
+    if (push_strength != 0 )
+    {
+            JUSTLOG("weight ist an adjusted_push_strength ist %f", adjusted_push_strength);
+        i = adjusted_push_strength * shotng->velocity.x.val;
+            JUSTLOG("push move_x ist %f", i);
         trgtng->veloc_push_add.x.val += i / 16;
-        i = throw_strength * shotng->velocity.y.val;
+            JUSTLOG("push veloc_push_addx ist %f", trgtng->veloc_push_add.x.val);
+        i = adjusted_push_strength * shotng->velocity.y.val;
+            JUSTLOG("push move_y ist %f", i);
         trgtng->veloc_push_add.y.val += i / 16;
+            JUSTLOG("push veloc_push_addy ist %f", trgtng->veloc_push_add.y.val);
         trgtng->state_flags |= TF1_PushAdd;
     }
+
     if (creature_is_being_unconscious(trgtng))
     {
-        if (throw_strength == 0)
-            throw_strength++;
+        if (push_strength == 0)
+            push_strength++;
         if (game.conf.rules.game.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)
         {
-            throw_strength *= 5;
-            i = throw_strength * shotng->velocity.x.val;
-            trgtng->veloc_push_add.x.val += i / 16;
-            i = throw_strength * shotng->velocity.y.val;
-            trgtng->veloc_push_add.y.val += i / 16;
+        push_strength *= 5;
+        int move_x = push_strength * shotng->velocity.x.val / 16.0;
+        int move_y = push_strength * shotng->velocity.y.val / 16.0;
+
+            trgtng->veloc_push_add.x.val += move_x;
+            trgtng->veloc_push_add.y.val += move_y;
             trgtng->state_flags |= TF1_PushAdd;
             if (shotst->hit_creature.sndsample_idx != 0)
             {
@@ -1246,26 +1292,26 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             {
                 if (abs(shotng->velocity.x.val) >= abs(shotng->velocity.y.val))
                 {
-                    i = throw_strength * shotng->velocity.x.val;
+                    i = push_strength * shotng->velocity.x.val;
                     trgtng->veloc_push_add.x.val += i / 64;
-                    i = throw_strength * shotng->velocity.x.val * (CREATURE_RANDOM(shotng, 3) - 1);
+                    i = push_strength * shotng->velocity.x.val * (CREATURE_RANDOM(shotng, 3) - 1);
                     trgtng->veloc_push_add.y.val += i / 64;
                 }
                 else
                 {
-                    i = throw_strength * shotng->velocity.y.val;
+                    i = push_strength * shotng->velocity.y.val;
                     trgtng->veloc_push_add.y.val += i / 64;
-                    i = throw_strength * shotng->velocity.y.val * (CREATURE_RANDOM(shotng, 3) - 1);
+                    i = push_strength * shotng->velocity.y.val * (CREATURE_RANDOM(shotng, 3) - 1);
                     trgtng->veloc_push_add.x.val += i / 64;
                 }
                 trgtng->state_flags |= TF1_PushAdd;
             }
             else // Normal shots blast unconscious units out of the way
             {
-                throw_strength *= 5;
-                i = throw_strength * shotng->velocity.x.val;
+                push_strength *= 5;
+                i = push_strength * shotng->velocity.x.val;
                 trgtng->veloc_push_add.x.val += i / 16;
-                i = throw_strength * shotng->velocity.y.val;
+                i = push_strength * shotng->velocity.y.val;
                 trgtng->veloc_push_add.y.val += i / 16;
                 trgtng->state_flags |= TF1_PushAdd;
             }

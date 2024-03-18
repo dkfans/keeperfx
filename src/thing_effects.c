@@ -24,7 +24,7 @@
 #include "bflib_math.h"
 #include "bflib_sound.h"
 #include "bflib_planar.h"
-
+#include "math.h"
 #include "thing_objects.h"
 #include "thing_list.h"
 #include "thing_stats.h"
@@ -1033,20 +1033,38 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 }
             } else // Explosions move creatures and other things
             {
+                double adjusted_blow_strength = blow_strength;
+                if (game.conf.rules.magic.weight_calculate_push == 1)
+                {
+                        JUSTLOG("weight ist an %i", game.conf.rules.magic.weight_calculate_push);
+                    int weight = compute_creature_weight(tngdst);
+                        JUSTLOG("explosion weight ist %i", weight);
+                    adjusted_blow_strength = weight_calculated_push_strenght(weight, blow_strength);
+                        JUSTLOG("explosion adjusted_blow_strength ist %f", adjusted_blow_strength);
+                }
+            
+                
                 long move_angle = get_angle_xy_to(pos, &tngdst->mappos);
                 long move_dist = 0;
+               // long adjusted_max_dist = max_dist;
                 if (blow_strength > 0)
                 {
-                    move_dist = get_radially_decaying_value(blow_strength, max_dist / 4, max_dist * 3 / 4, distance);
+                        JUSTLOG("explosion adjusted_blow_strength ist %f", adjusted_blow_strength);
+                    move_dist = get_radially_decaying_value(adjusted_blow_strength, adjusted_blow_strength / 4, max_dist  * 3 / 4, distance);
+                        JUSTLOG("push move ist %f", move_dist);
                 }
                 else
                 {
-                    move_dist = get_radially_growing_value(blow_strength, max_dist / 4, max_dist * 3 / 4, distance, tngdst->inertia_floor);
+                     JUSTLOG("explosion adjusted_blow_strength ist %f", adjusted_blow_strength);
+                    move_dist = get_radially_growing_value(adjusted_blow_strength, adjusted_blow_strength / 4, max_dist  * 3 / 4, distance, tngdst->inertia_floor);
+                JUSTLOG("push move ist %f", move_dist);
                 }
                 if (move_dist != 0)
                 {
                     tngdst->veloc_push_add.x.val += distance_with_angle_to_coord_x(move_dist, move_angle);
+                     JUSTLOG("Explosion veloc_push_addx ist %f", tngdst->veloc_push_add.x.val);
                     tngdst->veloc_push_add.y.val += distance_with_angle_to_coord_y(move_dist, move_angle);
+                    JUSTLOG("push veloc_push_addy ist %f", tngdst->veloc_push_add.y.val);
                     tngdst->state_flags |= TF1_PushAdd;
                     affected = true;
                 }

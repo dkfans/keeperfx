@@ -133,6 +133,7 @@ struct MagicRulesConfig {
     long friendly_fight_area_damage_permil;
     long friendly_fight_area_range_permil;
     TbBool armageddon_teleport_neutrals;
+    TbBool weight_calculate_push;
 };
 
 struct RoomRulesConfig {
