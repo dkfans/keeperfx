@@ -291,6 +291,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           trapst->placeonbridge = 0;
           // Default destroyed_effect is TngEffElm_Blast2.
           trapst->destroyed_effect = -39;
+          trapst->initial_delay = 0;
 
           game.conf.trap_stats[i].health = 0;
           game.conf.trap_stats[i].sprite_anim_idx = 0;
