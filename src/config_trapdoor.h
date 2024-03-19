@@ -86,7 +86,6 @@ struct TrapConfigStats {
     short unsellable;
     short placeonbridge;
     EffectOrEffElModel destroyed_effect;
-    unsigned char initial_delay;
 };
 
 /**
