@@ -291,7 +291,6 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           trapst->placeonbridge = 0;
           // Default destroyed_effect is TngEffElm_Blast2.
           trapst->destroyed_effect = -39;
-          trapst->initial_delay = 0;
 
           game.conf.trap_stats[i].health = 0;
           game.conf.trap_stats[i].sprite_anim_idx = 0;
@@ -318,6 +317,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           game.conf.trap_stats[i].shot_shift_x = 0;
           game.conf.trap_stats[i].shot_shift_y = 0;
           game.conf.trap_stats[i].shot_shift_z = 0;
+          game.conf.trap_stats[i].initial_delay = 0;
 
           if (i < game.conf.trapdoor_conf.trap_types_count)
           {
@@ -1093,7 +1093,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  trapst->initial_delay = k;
+                  game.conf.trap_stats[i].initial_delay = k;
                   n++;
               }
           }
