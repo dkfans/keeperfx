@@ -401,7 +401,7 @@ long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent 
             }
         }
     }
-    if (!(create_task_magic_speed_up(comp, fightng, cevent->param1) || create_task_magic_flight_up(comp, fightng, cevent->param1) || create_task_magic_vision_up(comp, fightng, cevent->param1)))
+    if (!create_task_magic_speed_up(comp, fightng, cevent->param1))
     {
         return 4;
     }

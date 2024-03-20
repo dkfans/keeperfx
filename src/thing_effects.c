@@ -899,6 +899,7 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     thing->inertia_air = 0;
     thing->rendering_flags |= TRF_Unknown01;
     thing->health = effcst->start_health;
+    thing->shot_effect.hit_type = effcst->effect_hit_type;
     if (effcst->ilght.radius != 0)
     {
         struct InitLight ilght;
@@ -1373,7 +1374,7 @@ TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, 
             case AAffT_GasDamage:
                 if (max_damage > 0) {
                     HitPoints damage;
-                    damage = get_radially_decaying_value(max_damage,3*max_dist/4,max_dist/4,distance)+1;
+                    damage = get_radially_decaying_value(max_damage,max_dist/4, 3*max_dist/4,distance)+1;
                     SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
                     apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, tngsrc->owner);
                 }

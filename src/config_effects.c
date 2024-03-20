@@ -51,6 +51,7 @@ const struct NamedCommand effect_generator_commands[] = {
     {"ACCELERATIONMIN",         8},
     {"ACCELERATIONMAX",         9},
     {"SOUND",                  10},
+    {"HITTYPE",                11},
     {NULL,                      0},
 };
 
@@ -94,11 +95,12 @@ static void load_effects(VALUE *value, unsigned short flags)
             CONDITIONAL_ASSIGN_INT(section,"AreaAffectType",effcst->area_affect_type);
             CONDITIONAL_ASSIGN_INT(section,"Sound"         ,effcst->effect_sound    );
             CONDITIONAL_ASSIGN_INT(section,"AffectedByWind",effcst->affected_by_wind);
-            CONDITIONAL_ASSIGN_INT(section,"LightRadius"   ,effcst->ilght.radius    );
+            CONDITIONAL_ASSIGN_INT_SCALED(section,"LightRadius"   ,effcst->ilght.radius, COORD_PER_STL);
             CONDITIONAL_ASSIGN_INT(section,"LightIntensity",effcst->ilght.intensity );
             CONDITIONAL_ASSIGN_INT(section,"LightFlags"    ,effcst->ilght.flags   );
             CONDITIONAL_ASSIGN_INT(section,"ElementsCount" ,effcst->elements_count  );
             CONDITIONAL_ASSIGN_INT(section,"AlwaysGenerate",effcst->always_generate );
+            CONDITIONAL_ASSIGN_INT(section,"HitType",effcst->effect_hit_type);
         }
     }
 }
@@ -187,7 +189,7 @@ static void load_effectelements(VALUE *value, unsigned short flags)
                 CONDITIONAL_ASSIGN_BOOL(section,"LavaDestroyOnImpact", effelcst->lava_destroy_on_impact);
             }
             CONDITIONAL_ASSIGN_INT(section,"TransformModel", effelcst->transform_model  );
-            CONDITIONAL_ASSIGN_INT(section,"LightRadius",    effelcst->light_radius     );
+            CONDITIONAL_ASSIGN_INT_SCALED(section,"LightRadius",    effelcst->light_radius, COORD_PER_STL);
             CONDITIONAL_ASSIGN_INT(section,"LightIntensity", effelcst->light_intensity  );
             CONDITIONAL_ASSIGN_INT(section,"LightFlags",     effelcst->light_flags   );
             CONDITIONAL_ASSIGN_INT(section,"AffectedByWind", effelcst->affected_by_wind );

@@ -265,20 +265,26 @@ long get_radially_decaying_value(long magnitude,long decay_start,long decay_leng
  */
 long get_radially_growing_value(long magnitude, long decay_start, long decay_length, long distance, long friction)
 {
-    if (distance >= decay_start + decay_length)
-        return 0; //Outside the max range, nothing is pulled inwards
-
-    if (distance >= decay_start) //too far away to pull with full power
-        magnitude = magnitude * (decay_length - (distance - decay_start)) / decay_length;
-        
-    long total_distance = abs((COORD_PER_STL / friction * magnitude + magnitude) / 2); // The intended distance to push the thing
-
-    if (total_distance > distance) // Never return a value that would go past the epicentre
+    if (distance >= decay_start + decay_length) {
+        return 0; // Outside the max range, nothing is pulled inwards.
+    }
+    if (distance >= decay_start) // Too far away to pull with full power.
     {
-        short factor = COORD_PER_STL / friction * 3 / 4; // Creatures slide so move further then expected
+        if (decay_length == 0) {
+            decay_length = 1;
+        }
+        magnitude = magnitude * (decay_length - (distance - decay_start)) / decay_length;
+    }
+    long total_distance = abs((COORD_PER_STL / friction * magnitude + magnitude) / 2); // The intended distance to push the thing.
+    if (total_distance > distance) // Never return a value that would go past the epicentre.
+    {
+        short factor = COORD_PER_STL / friction * 3 / 4; // Creatures slide so move further then expected.
+        if (factor == 0) {
+            factor = 1;
+        }
         return -(distance / factor);
     }
-    return magnitude ;
+    return magnitude;
 }
 
 long compute_creature_kind_score(ThingModel crkind, unsigned short crlevel)
@@ -1067,7 +1073,7 @@ long compute_creature_weight(const struct Thing* creatng)
         weight = weight * 3 / 2;
     }
 
-    if ((get_creature_model_flags(creatng) & CMF_TremblingFat) != 0)
+    if ((get_creature_model_flags(creatng) & CMF_Trembling) != 0)
     {
         weight = weight * 3 / 2;
     }
