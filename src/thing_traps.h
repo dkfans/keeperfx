@@ -65,7 +65,7 @@ enum TrapActivationTypes {
     TrpAcT_Power
 };
 
-struct Thing;//what is this?
+struct Thing;
 
 struct TrapStats {
   unsigned long health;
