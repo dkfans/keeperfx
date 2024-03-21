@@ -287,14 +287,28 @@ struct CreatureStats *creature_stats_get(ThingModel crstat_idx)
 }
 
 /**
+ * Returns specific CreatureStats for dungeon
+ */
+struct CreatureStats *creature_stats_dungeon_get(PlayerNumber player, ThingModel crstat_idx)
+{
+    if ((crstat_idx < 1) || (crstat_idx >= CREATURE_TYPES_MAX))
+        return &game.conf.creature_stats[0];
+    struct Dungeon *dungeon = get_dungeon(player);
+    return &dungeon->creature_stats[crstat_idx];
+}
+
+/**
  * Returns CreatureStats assigned to given thing.
  * Thing must be a creature.
  */
 struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing)
 {
-  if ((thing->model < 1) || (thing->model >= game.conf.crtr_conf.model_count))
-    return &game.conf.creature_stats[0];
-  return &game.conf.creature_stats[thing->model];
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    if (cctrl->creature_stats != NULL)
+        return cctrl->creature_stats;
+    if ((thing->model < 1) || (thing->model >= game.conf.crtr_conf.model_count))
+        return &game.conf.creature_stats[0];
+    return &game.conf.creature_stats[thing->model];
 }
 
 /**

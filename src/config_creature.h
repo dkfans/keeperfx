@@ -279,6 +279,7 @@ extern struct NamedCommand creaturejob_desc[];
 extern struct NamedCommand attackpref_desc[];
 extern struct NamedCommand instance_desc[];
 extern const struct NamedCommand creatmodel_attributes_commands[];
+extern const struct NamedCommand creatmodel_experience_commands[];
 extern const struct NamedCommand creatmodel_jobs_commands[];
 
 extern const struct NamedCommand creature_graphics_desc[];
@@ -287,6 +288,8 @@ extern const struct NamedCommand creature_graphics_desc[];
 /******************************************************************************/
 struct CreatureStats *creature_stats_get(ThingModel crstat_idx);
 struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing);
+struct CreatureStats *creature_stats_dungeon_get(PlayerNumber player, ThingModel crstat_idx);
+
 TbBool creature_stats_invalid(const struct CreatureStats *crstat);
 void check_and_auto_fix_stats(void);
 const char *creature_code_name(ThingModel crmodel);

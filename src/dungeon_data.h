@@ -191,7 +191,6 @@ struct Dungeon {
     short creatures_scavenge_lost;
     long scavenge_turn_points[CREATURE_TYPES_MAX];
     short scavenge_targets[CREATURE_TYPES_MAX];
-    int creature_max_level[CREATURE_TYPES_MAX];
     unsigned short creatures_annoyed;
     unsigned short battles_lost;
     unsigned short battles_won;
@@ -277,7 +276,10 @@ struct Dungeon {
     /** Index of last creature picked up of given GUI Job. */
     unsigned short selected_creatures_of_gui_job[CREATURE_GUI_JOBS_COUNT];
     unsigned char texture_pack;
-    unsigned char color_idx;
+    /** Is per-dungeon stats used instead of global stats */
+    TbBool                creature_stats_in_use[CREATURE_TYPES_MAX];
+    struct CreatureStats  creature_stats[CREATURE_TYPES_MAX];
+    unsigned char         color_idx;
     struct Modifiers      modifier;
     struct TrapInfo       mnfct_info;
     struct BoxInfo        box_info;

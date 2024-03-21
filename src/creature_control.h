@@ -157,7 +157,7 @@ struct CreatureControl {
     unsigned short players_next_creature_idx;
     unsigned short slap_turns;
     unsigned char explevel;
-    long exp_points;
+    unsigned long exp_points;
     long prev_exp_points;
     struct Coord3d moveto_pos;
     long hunger_level;
@@ -416,6 +416,7 @@ unsigned char sound_flag;
     GameTurn unsummon_turn;
     ThingIndex summoner_idx;
     ThingIndex familiar_idx[FAMILIAR_MAX];
+    struct CreatureStats *creature_stats;
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields
@@ -526,6 +527,8 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short lair_object;
     short status_offset;
     struct CreaturePickedUpOffset creature_picked_up_offset;
+    uint8_t grow_up_from_level;
+    uint8_t max_level;
 };
 
 struct Persons {

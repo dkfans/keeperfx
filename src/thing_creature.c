@@ -1022,7 +1022,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     } else
     if (spell_idx == SplK_Light)
     {
-        crstat = creature_stats_get(thing->model);
+        crstat = creature_stats_get_from_thing(thing);
         if (!crstat->illuminated)
         {
             if (i != -1)
@@ -1269,7 +1269,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         cctrl->countdown_282 = 10;
         break;
     case SplK_Light:
-    crstat = creature_stats_get(thing->model);
+    crstat = creature_stats_get_from_thing(thing);
     if (!crstat->illuminated)
     {
         if (thing->light_id != 0)
@@ -3922,7 +3922,7 @@ TbBool remove_creature_lair(struct Thing *thing)
 
 void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
 {
-    struct Dungeon *dungeon;
+    struct Dungeon *dungeon = get_dungeon(creatng->owner);
     SYNCDBG(6,"Starting for %s, owner %d to %d",thing_model_name(creatng),(int)creatng->owner,(int)nowner);
     // Remove the creature from old owner
     if (creatng->light_id != 0) {
@@ -3936,7 +3936,6 @@ void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
     }
     if (!is_neutral_thing(creatng))
     {
-        dungeon = get_dungeon(creatng->owner);
         dungeon->score -= get_creature_thing_score(creatng);
         if (anger_is_creature_angry(creatng))
             dungeon->creatures_annoyed--;
@@ -3946,18 +3945,29 @@ void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
     creatng->owner = nowner;
     set_first_creature(creatng);
     set_start_state(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     if (!is_neutral_thing(creatng))
     {
-        dungeon = get_dungeon(creatng->owner);
         dungeon->score += get_creature_thing_score(creatng);
         if ( anger_is_creature_angry(creatng) )
             dungeon->creatures_annoyed++;
+    }
+    if (!dungeon_invalid(dungeon) && dungeon->creature_stats_in_use[creatng->model])
+    {
+        cctrl->creature_stats = creature_stats_dungeon_get(nowner, creatng->model);
+    }
+    else
+    {
+        cctrl->creature_stats = NULL;
     }
 }
 
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner)
 {
     struct CreatureStats* crstat = creature_stats_get(model);
+    struct Dungeon *dungeon = get_dungeon(owner);
+    if (!dungeon_invalid(dungeon) && dungeon->creature_stats_in_use[model])
+            crstat = creature_stats_dungeon_get(owner, model);
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
         ERRORDBG(3,"Cannot create %s for player %d. There are too many things allocated.",creature_code_name(model),(int)owner);
@@ -4025,6 +4035,14 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     if (crstat->flying) {
         crtng->movement_flags |= TMvF_Flying;
     }
+    if (!dungeon_invalid(dungeon) && dungeon->creature_stats_in_use[model])
+    {
+        cctrl->creature_stats = creature_stats_dungeon_get(owner, model);
+    }
+    else
+    {
+        cctrl->creature_stats = NULL;
+    }
     set_creature_level(crtng, 0);
     crtng->health = cctrl->max_health;
     add_thing_to_its_class_list(crtng);
@@ -4048,8 +4066,8 @@ TbBool creature_increase_level(struct Thing *thing)
       ERRORLOG("Invalid creature control; no action");
       return false;
   }
-  struct Dungeon* dungeon = get_dungeon(thing->owner);
-  if (dungeon->creature_max_level[thing->model] > cctrl->explevel)
+  struct CreatureStats *stat = creature_stats_get_from_thing(thing);
+  if (stat->max_level > cctrl->explevel)
   {
       struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
       if ((cctrl->explevel < CREATURE_MAX_LEVEL-1) || (crstat->grow_up != 0))
@@ -4069,15 +4087,14 @@ TbBool creature_change_multiple_levels(struct Thing *thing, int count)
         ERRORLOG("Invalid creature control; no action");
         return false;
     }
-    struct Dungeon* dungeon = get_dungeon(thing->owner);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     int k = 0;
     if (count > 0)
     {
         for (int i = 0; i < count; i++)
         {
-            if (dungeon->creature_max_level[thing->model] > cctrl->explevel)
+            if (crstat->max_level > cctrl->explevel)
             {
-                struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
                 if ((cctrl->explevel < CREATURE_MAX_LEVEL - 1) || (crstat->grow_up != 0))
                 {
                     cctrl->spell_flags |= CSAfF_ExpLevelUp;
@@ -5508,15 +5525,16 @@ long update_creature_levels(struct Thing *thing)
     if ((cctrl->spell_flags & CSAfF_ExpLevelUp) == 0)
         return 0;
     cctrl->spell_flags &= ~CSAfF_ExpLevelUp;
+    // If it is highest level, maybe we should transform the creature?
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+
     // If a creature is not on highest level, just update the level
-    if (cctrl->explevel+1 < CREATURE_MAX_LEVEL)
+    if ((crstat->grow_up_from_level != cctrl->explevel + 1) && (cctrl->explevel+1 < CREATURE_MAX_LEVEL))
     {
         remove_creature_score_from_owner(thing); // the opposite is in set_creature_level()
         set_creature_level(thing, cctrl->explevel+1);
         return 1;
     }
-    // If it is highest level, maybe we should transform the creature?
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     if (crstat->grow_up == 0) {
         return 0;
     }
@@ -5588,10 +5606,10 @@ long update_creature_levels(struct Thing *thing)
     remove_creature_score_from_owner(thing); // kill_creature() doesn't call this
     if (thing_is_picked_up_by_player(thing,thing->owner))
     {
-        struct Dungeon* dungeon = get_dungeon(thing->owner);
         short i = get_thing_in_hand_id(thing, thing->owner);
         if (i >= 0)
         {
+            struct Dungeon* dungeon = get_dungeon(thing->owner);
             dungeon->things_in_hand[i] = newtng->index;
             remove_thing_from_limbo(thing);
             place_thing_in_limbo(newtng);
