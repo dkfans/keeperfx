@@ -1846,6 +1846,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct InstanceInfo* inst_inf;
+    unsigned char i;
     if (creature_would_benefit_from_healing(thing))
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_HEAL);
@@ -1857,7 +1858,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
         {
             INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
         }
-        for (short i = 0; i < game.conf.crtr_conf.instances_count; i++)
+        for (i = 0; i < game.conf.crtr_conf.instances_count; i++)
         {
             if (i == CrInst_HEAL)
                 continue;
@@ -1868,10 +1869,6 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
                 {
                     INSTANCE_RET_IF_AVAIL(thing, i);
                 }
-            }
-            if ((inst_inf->flags & InstPF_OutOfBattle))
-            {
-                INSTANCE_RET_IF_AVAIL(thing, i);
             }
         }
     }
@@ -1909,6 +1906,22 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
             if (state_type != CrStTyp_Idle)
             {
                 INSTANCE_RET_IF_AVAIL(thing, CrInst_FAMILIAR);
+            }
+        }
+        for (i = 0; i < game.conf.crtr_conf.instances_count; i++)
+        {
+            inst_inf = creature_instance_info_get(i);
+            if (!creature_is_kept_in_custody(thing))
+            {
+                if ((inst_inf->flags & InstPF_OutOfBattle))
+                {
+                    INSTANCE_RET_IF_AVAIL(thing, i);
+                }
+            } else {
+                if ((inst_inf->flags & InstPF_CastOnCustody))
+                {
+                    INSTANCE_RET_IF_AVAIL(thing, i);
+                }
             }
         }
     }
