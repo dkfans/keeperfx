@@ -400,7 +400,7 @@ long net_speed_index_active;
 long net_number_of_players;
 long net_number_of_enum_players;
 long net_map_slap_frame;
-long net_level_hilighted;
+long net_level_highlighted;
 struct NetMessage net_message[NET_MESSAGES_COUNT];
 long net_number_of_messages;
 long net_message_scroll_offset;
