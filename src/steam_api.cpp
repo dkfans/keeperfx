@@ -118,7 +118,17 @@ int steam_api_init()
     // Initialize the Steam API
     // This notifies Steam that we are running the game
     char error[1024];
-    int result = SteamAPI_Init(error);
+    int result;
+    try
+    {
+        result = SteamAPI_Init(error);
+    }
+    catch (...)
+    {
+        ERRORLOG("Failed to call 'SteamAPI_Init'");
+        FreeLibrary(steam_lib);
+        return 1;
+    }
 
     // SteamAPI_Init return code:
     // - 0 -> OK
