@@ -49,17 +49,32 @@ int steam_api_init()
         return 1;
     }
 
-    // Check if the required files are present
-    if (!LbFileExists("steam_api.dll") || !LbFileExists("steam_appid.txt"))
+    // Make sure we're not running KeeperFX under Wine.
+    // Even if we load 'libsteam_api.so' while in a Wine environment,
+    // it will be unable to determine a Steam binary running on the Linux host.
+    if (is_running_under_wine == true)
     {
-        ERRORLOG("The Steam API requires the 'steam_api.dll' and 'steam_appid.txt' files to be present");
+        return -1;
+    }
+
+    // If only one of the 2 required files is present, we'll log a message for the user.
+    if (
+        (LbFileExists("steam_api.dll") == true && LbFileExists("steam_appid.txt") == false) ||
+        (LbFileExists("steam_api.dll") == false && LbFileExists("steam_appid.txt") == true))
+    {
+        ERRORLOG("The Steam API requires both the 'steam_api.dll' and 'steam_appid.txt' files to be present");
+        return 1;
+    }
+
+    // If both files are not present we can't continue
+    if (LbFileExists("steam_api.dll") == false && LbFileExists("steam_appid.txt") == false)
+    {
         return 1;
     }
 
     JUSTLOG("'steam_api.dll' and 'steam_appid.txt' found");
 
     // Load the Steam API library
-    // This file is included with the Steam SDK download
     try
     {
         steam_lib = LoadLibraryA("steam_api.dll");

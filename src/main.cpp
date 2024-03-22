@@ -148,6 +148,7 @@ unsigned char *dog_palette;
 unsigned char *vampire_palette;
 unsigned char exit_keeper;
 unsigned char quit_game;
+unsigned char is_running_under_wine = false;
 int continue_game_option_available;
 long last_mouse_x;
 long last_mouse_y;
@@ -1073,6 +1074,7 @@ short setup_game(void)
           if (wine_get_version)
           {
               SYNCMSG("Running on Wine v%s", wine_get_version());
+              is_running_under_wine = true;
           }
 
           // Get Wine host OS
