@@ -144,4 +144,12 @@ void steam_api_shutdown()
     {
         SteamAPI_Shutdown();
     }
+
+    SteamAPI_Shutdown = NULL;
+    SteamAPI_Init = NULL;
+
+    if (steam_lib != NULL)
+    {
+        FreeLibrary(steam_lib);
+    }
 }
