@@ -131,6 +131,7 @@ const struct NamedCommand magic_shot_commands[] = {
   {"HITHEARTSOUND",         54},
   {"BLEEDINGEFFECT",        55},
   {"FROZENEFFECT",          56},
+  {"PERIODICAL",            57},
   {NULL,                     0},
   };
 
@@ -885,6 +886,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
             shotst->inertia_floor = 0;
             shotst->target_hitstop_turns = 0;
             shotst->soft_landing = 0;
+            shotst->periodical = 0;
         }
     }
   // Load the file
@@ -1849,6 +1851,19 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           {
               CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 57: // PERIODICAL
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            shotst->periodical = k;
+            n++;
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
       case 0: // comment
