@@ -141,6 +141,7 @@ enum ShotModelFlags {
     ShMF_Exploding      = 0x2000,
     ShMF_BlocksRebirth  = 0x4000,
     ShMF_Penetrating    = 0x8000,
+    ShMF_Intangible     = 0x10000,
 };
 
 enum PowerCanCastFlags {
@@ -384,6 +385,7 @@ struct SpellConfig {
     short duration;
     short aura_effect;
     unsigned short spell_flags;
+    unsigned char caster_sounds_count;
 };
 
 struct MagicStats {

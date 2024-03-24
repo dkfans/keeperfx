@@ -198,6 +198,7 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"DISARMING",           18},
   {"BLOCKS_REBIRTH",      19},
   {"PENETRATING",         20},
+  {"INTANGIBLE",          21},
   {NULL,                   0},
   };
 
@@ -626,7 +627,13 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
               spconf->caster_affect_sound = k;
               n++;
           }
-          if (n < 2)
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              spconf->caster_sounds_count = k;
+              n++;
+          }
+          if (n < 3)
           {
               CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
@@ -1117,6 +1124,10 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 break;
             case 20: // Penetrating
                 shotst->model_flags |= ShMF_Penetrating;
+                n++;
+                break;
+            case 21: // INTANGIBLE
+                shotst->model_flags |= ShMF_Intangible;
                 n++;
                 break;
             default:
