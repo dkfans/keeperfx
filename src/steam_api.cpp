@@ -58,18 +58,18 @@ int steam_api_init()
         return -1;
     }
 
-    // If only one of the 2 required files is present, we'll log a message for the user.
-    if (
-        (LbFileExists("steam_api.dll") == true && LbFileExists("steam_appid.txt") == false) ||
-        (LbFileExists("steam_api.dll") == false && LbFileExists("steam_appid.txt") == true))
+    // Make sure both files are present
+    if (LbFileExists("steam_api.dll") == false || LbFileExists("steam_appid.txt") == false)
     {
-        ERRORLOG("The Steam API requires both the 'steam_api.dll' and 'steam_appid.txt' files to be present");
-        return 1;
-    }
 
-    // If both files are not present we can't continue
-    if (LbFileExists("steam_api.dll") == false && LbFileExists("steam_appid.txt") == false)
-    {
+        // If only one of the 2 required files is present, we'll log a message for the user.
+        if (
+            (LbFileExists("steam_api.dll") == true && LbFileExists("steam_appid.txt") == false) ||
+            (LbFileExists("steam_api.dll") == false && LbFileExists("steam_appid.txt") == true))
+        {
+            ERRORLOG("The Steam API requires both the 'steam_api.dll' and 'steam_appid.txt' files to be present");
+        }
+
         return 1;
     }
 
