@@ -75,18 +75,10 @@ int steam_api_init()
     JUSTLOG("'steam_api.dll' and 'steam_appid.txt' found");
 
     // Load the Steam API library
-    try
+    steam_lib = LoadLibraryA("steam_api.dll");
+    if (!steam_lib)
     {
-        steam_lib = LoadLibraryA("steam_api.dll");
-        if (!steam_lib)
-        {
-            ERRORLOG("Unable to load 'steam_api.dll' library");
-            return 1;
-        }
-    }
-    catch (...)
-    {
-        ERRORLOG("Error while loading 'steam_api.dll' library");
+        ERRORLOG("Unable to load 'steam_api.dll' library");
         return 1;
     }
 
@@ -118,17 +110,7 @@ int steam_api_init()
     // Initialize the Steam API
     // This notifies Steam that we are running the game
     char error[1024];
-    int result;
-    try
-    {
-        result = SteamAPI_Init(error);
-    }
-    catch (...)
-    {
-        ERRORLOG("Failed to call 'SteamAPI_Init'");
-        FreeLibrary(steam_lib);
-        return 1;
-    }
+    int result = SteamAPI_Init(error);
 
     // SteamAPI_Init return code:
     // - 0 -> OK
