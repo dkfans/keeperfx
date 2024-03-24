@@ -140,6 +140,7 @@ int steam_api_init()
 
 void steam_api_shutdown()
 {
+#ifdef _WIN32
     if (SteamAPI_Shutdown != NULL)
     {
         SteamAPI_Shutdown();
@@ -152,4 +153,5 @@ void steam_api_shutdown()
     {
         FreeLibrary(steam_lib);
     }
+#endif
 }
