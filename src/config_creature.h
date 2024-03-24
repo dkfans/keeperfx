@@ -149,7 +149,7 @@ enum InstancePropertiesFlags {
     InstPF_Disarming          = 0x0100,
     InstPF_UsesSwipe          = 0x0200,
     InstPF_OutOfBattle        = 0x0400,
-    InstPF_CastOnCustody      = 0x0800,
+    InstPF_WhileImprisoned    = 0x0800,
 };
 
 enum CreatureDeathKind {

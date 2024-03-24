@@ -1911,16 +1911,19 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
         for (i = 0; i < game.conf.crtr_conf.instances_count; i++)
         {
             inst_inf = creature_instance_info_get(i);
-            if (!creature_is_kept_in_custody(thing))
+            if (!creature_affected_by_spell(thing, inst_inf->func_params[1]))
             {
-                if ((inst_inf->flags & InstPF_OutOfBattle))
+                if (!creature_is_kept_in_custody(thing))
                 {
-                    INSTANCE_RET_IF_AVAIL(thing, i);
-                }
-            } else {
-                if ((inst_inf->flags & InstPF_CastOnCustody))
-                {
-                    INSTANCE_RET_IF_AVAIL(thing, i);
+                    if ((inst_inf->flags & InstPF_OutOfBattle))
+                    {
+                        INSTANCE_RET_IF_AVAIL(thing, i);
+                    }
+                } else {
+                    if ((inst_inf->flags & InstPF_WhileImprisoned))
+                    {
+                        INSTANCE_RET_IF_AVAIL(thing, i);
+                    }
                 }
             }
         }
