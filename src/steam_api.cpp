@@ -30,10 +30,11 @@ static HMODULE steam_lib;
 #include "bflib_fileio.h"
 #include "post_inc.h"
 
-typedef int (*__cdecl SteamApiInitFunc)(char *err);
-SteamApiInitFunc SteamAPI_Init;
-
+typedef char SteamErrMsg[1024];
+typedef int (*__cdecl SteamApiInitFunc)(SteamErrMsg *err);
 typedef void (*SteamApiShutdownFunc)();
+
+SteamApiInitFunc SteamAPI_Init;
 SteamApiShutdownFunc SteamAPI_Shutdown;
 
 int steam_api_init()
@@ -109,8 +110,8 @@ int steam_api_init()
 
     // Initialize the Steam API
     // This notifies Steam that we are running the game
-    char error[1024];
-    int result = SteamAPI_Init(error);
+    SteamErrMsg error;
+    int result = SteamAPI_Init(&error);
 
     // SteamAPI_Init return code:
     // - 0 -> OK
