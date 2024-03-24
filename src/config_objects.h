@@ -75,7 +75,7 @@ struct ObjectConfigStats {
     long genre;
     long name_stridx;
     long map_icon;
-    long health;
+    HitPoints health;
     char fall_acceleration;
     char light_unaffected;
     char immobile;

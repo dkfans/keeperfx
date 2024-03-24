@@ -4052,7 +4052,7 @@ void create_effect_around_thing(struct Thing *thing, long eff_kind)
     }
 }
 
-void remove_health_from_thing_and_display_health(struct Thing *thing, long delta)
+void remove_health_from_thing_and_display_health(struct Thing *thing, HitPoints delta)
 {
     if ((thing->health >= 0) && (delta > 0))
     {

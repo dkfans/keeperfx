@@ -77,12 +77,12 @@ struct GameRulesConfig {
     GoldAmount gold_per_hoard;
     GoldAmount bag_gold_hold;
     unsigned short food_life_out_of_hatchery;
-    long boulder_reduce_health_wall;
-    long boulder_reduce_health_slap;
-    long boulder_reduce_health_room;
+    HitPoints boulder_reduce_health_wall;
+    HitPoints boulder_reduce_health_slap;
+    HitPoints boulder_reduce_health_room;
     GameTurnDelta pay_day_gap;
     unsigned long dungeon_heart_heal_time;
-    long dungeon_heart_heal_health;
+    HitPoints dungeon_heart_heal_health;
     unsigned long hero_door_wait_time;
     unsigned long classic_bugs_flags;
     unsigned long gem_effectiveness;
@@ -164,10 +164,10 @@ struct WorkersRulesConfig {
 };
 
 struct HealthRulesConfig {
-    unsigned short hunger_health_loss;
+    HitPoints hunger_health_loss;
     unsigned short turns_per_hunger_health_loss;
-    unsigned short food_health_gain;
-    unsigned short torture_health_loss;
+    HitPoints food_health_gain;
+    HitPoints torture_health_loss;
     unsigned short turns_per_torture_health_loss;
 };
 
