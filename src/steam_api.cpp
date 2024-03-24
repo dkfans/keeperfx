@@ -52,18 +52,11 @@ int steam_api_init()
     return -1;
 #else
 
-    // Make sure the library is not loaded twice
+    // Make sure the steam API is not initialized multiple times
     if (steam_lib != NULL || SteamAPI_Init != NULL)
     {
+        WARNLOG("Steam API already initialized");
         return 1;
-    }
-
-    // Make sure we're not running KeeperFX under Wine.
-    // Even if we load 'libsteam_api.so' while in a Wine environment,
-    // it will be unable to determine a Steam binary running on the Linux host.
-    if (is_running_under_wine == true)
-    {
-        return -1;
     }
 
     // Make sure both files are present
@@ -82,6 +75,17 @@ int steam_api_init()
     }
 
     JUSTLOG("'steam_api.dll' and 'steam_appid.txt' found");
+
+    // Make sure we're not running KeeperFX under Wine.
+    // Even if we instead load 'libsteam_api.so' while in a Wine environment,
+    // it will be unable to determine a Steam binary running on the Linux host.
+    // We do this check after looking for the files so there's only something in
+    // the log when the user is trying to enable the Steam API.
+    if (is_running_under_wine == true)
+    {
+        WARNLOG("Using the Steam API under Wine is not supported");
+        return -1;
+    }
 
     // Load the Steam API library
     steam_lib = LoadLibraryA("steam_api.dll");
