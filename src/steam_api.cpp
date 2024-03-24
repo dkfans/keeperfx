@@ -30,7 +30,7 @@ static HMODULE steam_lib;
 #include "bflib_fileio.h"
 #include "post_inc.h"
 
-typedef int (*SteamApiInitFunc)(char *err);
+typedef int (*__cdecl SteamApiInitFunc)(char *err);
 SteamApiInitFunc SteamAPI_Init;
 
 typedef void (*SteamApiShutdownFunc)();
