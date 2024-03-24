@@ -745,14 +745,10 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
         GFS_hugebutton_a03l,
         GFS_hugebutton_a02l,
     };
-    unsigned int febtn_idx;
     unsigned int spridx;
     int fntidx;
-    long x;
-    long y;
-    int h;
     SYNCDBG(9,"Drawing type %d, text \"%s\"",(int)btntype,text);
-    febtn_idx = (unsigned int)gbtn->content;
+    unsigned int febtn_idx = (unsigned int)gbtn->content;
     if ((gbtn->flags & LbBtnF_Enabled) == 0)
     {
         fntidx = 3;
@@ -768,10 +764,9 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
     }
     struct TbSprite *spr;
     // Detect scaling factor
-    int units_per_px;
-    units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_hugebutton_a05l, 100);
-    x = gbtn->scr_pos_x;
-    y = gbtn->scr_pos_y;
+    int units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_hugebutton_a05l, 100);
+    ScreenCoord x = gbtn->scr_pos_x;
+    ScreenCoord y = gbtn->scr_pos_y;
     switch (btntype)
     {
      case 1:
@@ -805,11 +800,22 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
         lbDisplay.DrawFlags = drw_flags;
         LbTextSetFont(frontend_font[fntidx]);
         spr = &frontend_sprite[spridx];
-        h = LbTextHeight(text) * units_per_px / 16;
-        x = gbtn->scr_pos_x + ((40*units_per_px/16) >> 1);
+        int tx_units_per_px;
+        if ( (dbc_language == 1) && (gbtn->id_num == BID_MENU_TITLE) )
+        {
+            tx_units_per_px = scale_value_by_horizontal_resolution(16);
+            int w = LbTextStringWidthM(text, tx_units_per_px);
+            x = gbtn->scr_pos_x + ((spr->SWidth*units_per_px/16 - w) >> 1);
+        }
+        else
+        {
+            tx_units_per_px = units_per_px;
+            x = gbtn->scr_pos_x + ((40*units_per_px/16) >> 1);
+        }
+        int h = LbTextHeight(text) * units_per_px / 16;
         y = gbtn->scr_pos_y + ((spr->SHeight*units_per_px/16 - h) >> 1);
         LbTextSetWindow(x, y, gbtn->width-40*units_per_px/16, h);
-        LbTextDrawResized(0, 0, units_per_px, text);
+        LbTextDrawResized(0, 0, tx_units_per_px, text);
     }
 }
 
