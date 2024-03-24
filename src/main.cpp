@@ -4283,8 +4283,6 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     ftest_srand();
 #endif // FUNCTESTING
 
-    steam_api_init();
-
     if (!retval)
     {
         static const char *msg_text="Basic engine initialization failed.\n";
@@ -4294,6 +4292,10 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     }
 
     retval = setup_game();
+    if (retval)
+    {
+        steam_api_init();
+    }
     if (retval)
     {
       if ((install_info.lang_id == Lang_Japanese) ||
