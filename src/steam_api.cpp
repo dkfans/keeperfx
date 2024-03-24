@@ -30,6 +30,7 @@ static HMODULE steam_lib;
 #include "bflib_fileio.h"
 #include "post_inc.h"
 
+// Result from the dynamically loaded SteamAPI_Init function
 enum ESteamAPIInitResult
 {
     k_ESteamAPIInitResult_OK = 0,
@@ -38,10 +39,12 @@ enum ESteamAPIInitResult
     k_ESteamAPIInitResult_VersionMismatch = 3, // Steam client appears to be out of date
 };
 
+// Typedefs for the functions and data types in the Steam API
 typedef char SteamErrMsg[1024];
 typedef ESteamAPIInitResult(__cdecl *SteamApiInitFunc)(SteamErrMsg *err);
 typedef void(__cdecl *SteamApiShutdownFunc)();
 
+// Variables
 SteamApiInitFunc SteamAPI_Init;
 SteamApiShutdownFunc SteamAPI_Shutdown;
 
