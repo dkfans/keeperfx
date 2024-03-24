@@ -30,9 +30,17 @@ static HMODULE steam_lib;
 #include "bflib_fileio.h"
 #include "post_inc.h"
 
+enum ESteamAPIInitResult
+{
+    k_ESteamAPIInitResult_OK = 0,
+    k_ESteamAPIInitResult_FailedGeneric = 1,   // Some other failure
+    k_ESteamAPIInitResult_NoSteamClient = 2,   // We cannot connect to Steam, steam probably isn't running
+    k_ESteamAPIInitResult_VersionMismatch = 3, // Steam client appears to be out of date
+};
+
 typedef char SteamErrMsg[1024];
-typedef int (*__cdecl SteamApiInitFunc)(SteamErrMsg *err);
-typedef void (*SteamApiShutdownFunc)();
+typedef ESteamAPIInitResult(__cdecl *SteamApiInitFunc)(SteamErrMsg *err);
+typedef void(__cdecl *SteamApiShutdownFunc)();
 
 SteamApiInitFunc SteamAPI_Init;
 SteamApiShutdownFunc SteamAPI_Shutdown;
@@ -87,8 +95,8 @@ int steam_api_init()
 
     // Get the address of the Init function
     // The 'Flat' version can be used instead of SteamAPI_Init when dynamically linking to the DLL
-    FARPROC funcAddressInit = GetProcAddress(steam_lib, "SteamAPI_InitFlat");
-    if (funcAddressInit == NULL)
+    SteamAPI_Init = (SteamApiInitFunc)GetProcAddress(steam_lib, "SteamAPI_InitFlat");
+    if (SteamAPI_Init == NULL)
     {
         ERRORLOG("Failed to get proc address for 'SteamAPI_InitFlat' in 'steam_api.dll'");
         FreeLibrary(steam_lib);
@@ -96,29 +104,21 @@ int steam_api_init()
     }
 
     // Get the address of the Shutdown function
-    FARPROC funcAddressShutdown = GetProcAddress(steam_lib, "SteamAPI_Shutdown");
-    if (funcAddressShutdown == NULL)
+    SteamAPI_Shutdown = (SteamApiShutdownFunc)GetProcAddress(steam_lib, "SteamAPI_Shutdown");
+    if (SteamAPI_Shutdown == NULL)
     {
         ERRORLOG("Failed to get proc address for 'SteamAPI_Shutdown' in 'steam_api.dll'");
         FreeLibrary(steam_lib);
         return 1;
     }
 
-    // Load the functions so we can use them
-    SteamAPI_Init = (SteamApiInitFunc)funcAddressInit;
-    SteamAPI_Shutdown = (SteamApiShutdownFunc)funcAddressShutdown;
-
     // Initialize the Steam API
     // This notifies Steam that we are running the game
     SteamErrMsg error;
-    int result = SteamAPI_Init(&error);
+    ESteamAPIInitResult result = SteamAPI_Init(&error);
 
-    // SteamAPI_Init return code:
-    // - 0 -> OK
-    // - 1 -> FailedGeneric: Some other failure
-    // - 2 -> NoSteamClient: We cannot connect to Steam, steam probably isn't running
-    // - 3 -> VersionMismatch: Steam client appears to be out of date
-    if (result != 0)
+    // Check if initialization is successful
+    if (result != ESteamAPIInitResult::k_ESteamAPIInitResult_OK)
     {
         JUSTLOG("Steam API Failure: %s", error);
         FreeLibrary(steam_lib);
