@@ -420,6 +420,15 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "turn %ld", game.play_gameturn);
         return true;
     }
+    else if (strcasecmp(parstr, "pause") == 0)
+    {
+        toggle_flag(game.operation_flags, GOF_Paused);
+    }
+    else if (strcasecmp(parstr, "step") == 0)
+    {
+        game.frame_step = true;
+        clear_flag(game.operation_flags, GOF_Paused);
+    }
     else if (strcasecmp(parstr, "game.save") == 0)
     {
         long slot_num = atoi(pr2str);

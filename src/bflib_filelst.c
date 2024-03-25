@@ -63,7 +63,7 @@ short LbDataFree(struct TbLoadFiles *load_file)
   return 1;
 }
 
-short LbDataFreeAll(struct TbLoadFiles load_files[])
+void LbDataFreeAll(struct TbLoadFiles load_files[])
 {
     struct TbLoadFiles* t_lfile = &load_files[0];
     // note that t_lfile->Start is not NULL even if the buffer is allocated
@@ -72,10 +72,23 @@ short LbDataFreeAll(struct TbLoadFiles load_files[])
         LbDataFree(t_lfile);
         t_lfile++;
   }
-  return 1;
 }
 
-short LbDataLoad(struct TbLoadFiles *load_file)
+void LbDataFreeAllV2(struct TbLoadFilesV2 load_files[])
+{
+    struct TbLoadFilesV2* t_lfile = &load_files[0];
+    struct TbLoadFiles tmp = {0};
+    // note that t_lfile->Start is not NULL even if the buffer is allocated
+    while (t_lfile->Start != NULL)
+    {
+        strncpy(tmp.FName, t_lfile->FName, sizeof(tmp.FName));
+        tmp.Start = t_lfile->Start;
+        LbDataFree(&tmp);
+        t_lfile++;
+    }
+}
+
+int LbDataLoad(struct TbLoadFiles *load_file, LoadFilesGetSizeFunc get_size_fn, LoadFilesUnpackFunc unpack_fn)
 {
   LbMemorySetup();
   MemAllocFunc *alloc_func;
@@ -102,16 +115,16 @@ short LbDataLoad(struct TbLoadFiles *load_file)
 #ifdef __DEBUG
     LbJustLog("LbDataLoad: filelength %ld for file \"%s\"\n",slength,fname);
 #endif
-    load_file->SLength = slength;
+    load_file->SLength = get_size_fn? get_size_fn(slength): slength;
     if (slength <= 0)
         return -101;
     if (!is_static)
     {
-        *(load_file->Start) = alloc_func(slength + 512);
+        *(load_file->Start) = alloc_func(load_file->SLength + 512);
     }
     if ((*(load_file->Start)) == NULL)
         return -100;
-    if (LbFileLoadAt(fname, *(load_file->Start)) != load_file->SLength)
+    if (LbFileLoadAt(fname, *(load_file->Start)) != slength)
     {
         *(load_file->Start) = 0;
         if (load_file->SEnd != NULL)
@@ -119,6 +132,8 @@ short LbDataLoad(struct TbLoadFiles *load_file)
         load_file->SLength = 0;
         return -101;
     }
+    if (unpack_fn)
+        unpack_fn(*(load_file->Start), slength);
   }
   if (load_file->SEnd != NULL)
     *(load_file->SEnd) = *(load_file->Start) + load_file->SLength;
@@ -131,7 +146,7 @@ short LbDataLoad(struct TbLoadFiles *load_file)
  * * - prefix means no file to open
  * @return Returns amount of entries failed, or 0 on success.
  */
-short LbDataLoadAll(struct TbLoadFiles load_files[])
+int LbDataLoadAll(struct TbLoadFiles load_files[])
 {
   LbMemorySetup();
   LbDataFreeAll(load_files);
@@ -140,21 +155,47 @@ short LbDataLoadAll(struct TbLoadFiles load_files[])
   struct TbLoadFiles* t_lfile = &load_files[i];
   while (t_lfile->Start != NULL)
   {
-      int ret_val = LbDataLoad(t_lfile);
-      if (ret_val == -100)
-      {
+        int ret_val = LbDataLoad(t_lfile, NULL, NULL);
+        if (ret_val == -100)
+        {
           ERRORLOG("Can't allocate memory for \"%s\"", t_lfile->FName);
           ferror++;
-    } else
-    if ( ret_val == -101 )
-    {
-      ERRORLOG("Can't load file \"%s\"", t_lfile->FName);
-      ferror++;
-    }
-    i++;
-    t_lfile = &load_files[i];
+        }
+        else if ( ret_val == -101 )
+        {
+          ERRORLOG("Can't load file \"%s\"", t_lfile->FName);
+          ferror++;
+        }
+        i++;
+        t_lfile = &load_files[i];
   }
   return ferror;
+}
+
+int LbDataLoadAllV2(struct TbLoadFilesV2 load_files[])
+{
+    LbDataFreeAllV2(load_files);
+    int ferror = 0;
+    struct TbLoadFilesV2* t_lfile = &load_files[0];
+    while (t_lfile->Start != NULL)
+    {
+        struct TbLoadFiles tmp = {.Start = t_lfile->Start, .SLength = t_lfile->SLength, 0};
+        strncpy(tmp.FName, t_lfile->FName, sizeof(tmp.FName));
+
+        int ret_val = LbDataLoad(&tmp, t_lfile->GetSizeFunc, t_lfile->UnpackFunc);
+        if (ret_val == -100)
+        {
+            ERRORLOG("Can't allocate memory for \"%s\"", t_lfile->FName);
+            ferror++;
+        }
+        else if ( ret_val == -101 )
+        {
+            ERRORLOG("Can't load file \"%s\"", t_lfile->FName);
+            ferror++;
+        }
+        t_lfile++;
+    }
+    return ferror;
 }
 
 ModifyDataLoadFnameFunc *LbDataLoadSetModifyFilenameFunction(ModifyDataLoadFnameFunc *newfunc)

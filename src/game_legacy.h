@@ -232,6 +232,7 @@ unsigned int packet_file_pos;
     struct CreaturePool pool;
     long frame_skip;
     TbBool frame_step;
+    TbBool paused_at_gameturn;
     GameTurnDelta pay_day_progress;
     TbBool no_intro;
     GameTurn armageddon_cast_turn;
