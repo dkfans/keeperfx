@@ -5458,7 +5458,7 @@ static void reset_action_point_check(const struct ScriptLine* scline)
         return;
     }
     value->arg0 = scline->np[0];
-    PlayerNumber plyr_idx = (scline->tp[1] == '\0') ? ALL_PLAYERS : get_id(player_desc, scline->tp[1]);
+    PlayerNumber plyr_idx = (scline->tp[1][0] == '\0') ? ALL_PLAYERS : get_id(player_desc, scline->tp[1]);
     if (plyr_idx == -1)
     {
         SCRPTERRLOG("Invalid player: %s", scline->tp[1]);
