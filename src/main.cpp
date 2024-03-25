@@ -4014,6 +4014,9 @@ short process_command_line(unsigned short argc, char *argv[])
 
       if (strcasecmp(parstr, "v") == 0 || strcasecmp(parstr, "version") == 0)
       {
+        #ifdef _WIN32
+            AttachConsole(-1);
+        #endif
         printf("%s %s\n", PRODUCT_NAME, PRODUCT_VERSION);
         fflush(stdout);
         exit(0);
