@@ -11,6 +11,7 @@
 #include "lvl_script_value.h"
 #include "dungeon_data.h"
 #include "player_data.h"
+#include "player_instances.h"
 #include "game_legacy.h"
 #include "console_cmd.h"
 #include "post_inc.h"
@@ -340,7 +341,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         VALUE *flag_data = &flag_data_real;
         value_init_dict(flag_data);
 
-        for (int player_index = 0; player_index < 9; player_index++)
+        for (int player_index = 0; player_index < ALL_PLAYERS; player_index++)
         {
             char *player_string[32];
 
