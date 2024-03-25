@@ -5448,6 +5448,32 @@ static void set_creature_max_level_process(struct ScriptContext* context)
     }
 }
 
+static void reset_action_point_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    if (scline->np[0] > ACTN_POINTS_COUNT)
+    {
+        SCRPTERRLOG("Invalid Action Point number. Maximum: %u", ACTN_POINTS_COUNT);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->arg0 = scline->np[0];
+    PlayerNumber plyr_idx = (scline->tp[1] == '\0') ? ALL_PLAYERS : get_id(player_desc, scline->tp[1]);
+    if (plyr_idx == -1)
+    {
+        SCRPTERRLOG("Invalid player: %s", scline->tp[1]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->chars[4] = plyr_idx;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void reset_action_point_process(struct ScriptContext* context)
+{
+    action_point_reset_idx(context->value->arg0, context->value->chars[4]);
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -5488,7 +5514,7 @@ const struct CommandDesc command_desc[] = {
   {"DISPLAY_INFORMATION_WITH_POS",      "NNN     ", Cmd_DISPLAY_INFORMATION_WITH_POS, NULL, NULL},
   {"ADD_TUNNELLER_PARTY_TO_LEVEL",      "PAAANNN ", Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_POOL",              "CN      ", Cmd_ADD_CREATURE_TO_POOL, NULL, NULL},
-  {"RESET_ACTION_POINT",                "N       ", Cmd_RESET_ACTION_POINT, NULL, NULL},
+  {"RESET_ACTION_POINT",                "Na      ", Cmd_RESET_ACTION_POINT, &reset_action_point_check, &reset_action_point_process},
   {"SET_CREATURE_MAX_LEVEL",            "PC!N    ", Cmd_SET_CREATURE_MAX_LEVEL, &set_creature_max_level_check, &set_creature_max_level_process},
   {"SET_MUSIC",                         "A       ", Cmd_SET_MUSIC, &set_music_check, &set_music_process},
   {"TUTORIAL_FLASH_BUTTON",             "NN      ", Cmd_TUTORIAL_FLASH_BUTTON, NULL, NULL},
