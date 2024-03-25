@@ -48,6 +48,14 @@ typedef void(__cdecl *SteamApiShutdownFunc)();
 SteamApiInitFunc SteamAPI_Init;
 SteamApiShutdownFunc SteamAPI_Shutdown;
 
+/**
+ * @brief Initializes the Steam API in KeeperFX.
+ *
+ * This function loads the necessary Steam API library and initializes it.
+ * It also performs checks for required files and compatibility.
+ *
+ * @return Returns 0 on success, non-zero on failure.
+ */
 int steam_api_init()
 {
 #ifndef _WIN32
@@ -138,6 +146,11 @@ int steam_api_init()
 #endif
 }
 
+/**
+ * @brief Shuts down the Steam API in KeeperFX.
+ *
+ * This function shuts down the initialized Steam API and unloads the library.
+ */
 void steam_api_shutdown()
 {
 #ifdef _WIN32
