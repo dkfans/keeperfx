@@ -34,7 +34,6 @@
 #include "bflib_sound.h"
 #include "map_blocks.h"
 #include "room_util.h"
-#include "player_instances.h"
 
 #include "lvl_script_lib.h"
 #include "post_inc.h"
@@ -506,9 +505,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       break;
   case Cmd_ADD_CREATURE_TO_POOL:
       add_creature_to_pool(val2, val3, 0);
-      break;
-  case Cmd_RESET_ACTION_POINT:
-      action_point_reset_idx(val2, ALL_PLAYERS);
       break;
   case Cmd_TUTORIAL_FLASH_BUTTON:
       gui_set_button_flashing(val2, val3);
