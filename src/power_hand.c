@@ -80,12 +80,12 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long owner)
     objtng = INVALID_THING;
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(owner);
-    struct PlayerInfoAdd* playeradd = get_playeradd(dungeon->owner);
+    struct PlayerInfo* player = get_player(dungeon->owner);
     if (dungeon->gold_hoard_for_pickup != thing->index)
     {
         dungeon->gold_hoard_for_pickup = thing->index;
         GoldAmount gold_req;
-        if (playeradd->pickup_all_gold)
+        if (player->pickup_all_gold)
         {
             gold_req = thing->valuable.gold_stored;
         }
@@ -102,7 +102,7 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long owner)
     pos.y.val = thing->mappos.y.val;
     pos.z.val = thing->mappos.z.val;
 
-    if (playeradd->pickup_all_gold)
+    if (player->pickup_all_gold)
     {
         dungeon->gold_pickup_amount = thing->valuable.gold_stored;
     }
@@ -150,6 +150,9 @@ unsigned long object_is_pickable_by_hand_for_use(const struct Thing *thing, long
     return false;
 }
 
+/**
+ * @param In a player hand or in limbo (out through hero gate)
+  */
 TbBool thing_is_picked_up(const struct Thing *thing)
 {
     return (((thing->alloc_flags & TAlF_IsInLimbo) != 0) || ((thing->state_flags & TF1_InCtrldLimbo) != 0));
@@ -157,7 +160,7 @@ TbBool thing_is_picked_up(const struct Thing *thing)
 
 TbBool thing_is_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
 {
-    if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->state_flags & TF1_InCtrldLimbo) == 0))
+    if ((thing->alloc_flags & TAlF_IsInLimbo) == 0)
         return false;
     if (thing_is_in_power_hand_list(thing, plyr_idx))
         return true;
@@ -171,9 +174,9 @@ TbBool thing_is_picked_up_by_owner(const struct Thing *thing)
 
 TbBool thing_is_picked_up_by_enemy(const struct Thing *thing)
 {
-    if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->state_flags & TF1_InCtrldLimbo) == 0))
+    if ((thing->alloc_flags & TAlF_IsInLimbo) == 0)
         return false;
-    return !thing_is_in_power_hand_list(thing, thing->owner) && !thing_is_in_computer_power_hand_list(thing, thing->owner);
+    return !thing_is_in_power_hand_list(thing, thing->owner) && !thing_is_in_computer_power_hand_list(thing, thing->owner) && ((thing->state_flags & TF1_InCtrldLimbo) == 0);
 }
 
 /**

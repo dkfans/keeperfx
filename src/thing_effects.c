@@ -55,7 +55,8 @@ extern "C" {
 
 long const bounce_table[] = { -160, -160, -120, -120, -80, -40, -20, 0, 20, 40, 80, 120, 120, 160, 160, 160 };
 /** Effects used when creating new imps. Every player color has different index. */
-const int birth_effect_element[] = { TngEffElm_RedPuff, TngEffElm_BluePuff, TngEffElm_GreenPuff, TngEffElm_YellowPuff, TngEffElm_WhitePuff, TngEffElm_WhitePuff, };
+const int birth_effect_element[] = { TngEffElm_RedPuff, TngEffElm_BluePuff, TngEffElm_GreenPuff, TngEffElm_YellowPuff, TngEffElm_WhitePuff, TngEffElm_WhitePuff,
+                                     TngEffElm_PurplePuff,TngEffElm_BlackPuff,TngEffElm_OrangePuff };
 /******************************************************************************/
 TbBool thing_is_effect(const struct Thing *thing)
 {
@@ -167,7 +168,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
         ilght.radius = eestat->light_radius;
         ilght.intensity = eestat->light_intensity;
         ilght.is_dynamic = 1;
-        ilght.field_3 = eestat->light_field_3D;
+        ilght.flags = eestat->light_flags;
         thing->light_id = light_create_light(&ilght);
         if (thing->light_id <= 0) {
             SYNCDBG(8,"Cannot allocate dynamic light to %s.",thing_model_name(thing));
@@ -308,7 +309,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             if ((dturn % 2) == 0) {
                 effeltng = create_effect_element(&thing->mappos, birth_effect_element[get_player_color_idx(thing->owner)], thing->owner);
             }
-            creature_turn_to_face_angle(thing, thing->move_angle_xy + crstat->max_angle_change);
+            creature_turn_to_face_angle(thing, thing->move_angle_xy + crstat->max_turning_speed);
         }
     }
 
@@ -319,7 +320,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             effeltng = create_effect_element(&thing->mappos, birth_effect_element[get_player_color_idx(thing->owner)], thing->owner);
         }
         struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-        creature_turn_to_face_angle(thing, thing->move_angle_xy + crstat->max_angle_change);
+        creature_turn_to_face_angle(thing, thing->move_angle_xy + crstat->max_turning_speed);
         if ((dturn > 32) || thing_touching_floor(thing)) {
             cctrl->spell_flags &= ~CSAfF_MagicFall;
         }
@@ -890,6 +891,7 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     thing->inertia_air = 0;
     thing->rendering_flags |= TRF_Unknown01;
     thing->health = effcst->start_health;
+    thing->shot_effect.hit_type = effcst->effect_hit_type;
     if (effcst->ilght.radius != 0)
     {
         struct InitLight ilght;
@@ -1364,7 +1366,7 @@ TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, 
             case AAffT_GasDamage:
                 if (max_damage > 0) {
                     HitPoints damage;
-                    damage = get_radially_decaying_value(max_damage,3*max_dist/4,max_dist/4,distance)+1;
+                    damage = get_radially_decaying_value(max_damage,max_dist/4, 3*max_dist/4,distance)+1;
                     SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
                     apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, tngsrc->owner);
                 }

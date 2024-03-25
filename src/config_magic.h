@@ -33,7 +33,6 @@ extern "C" {
 #define MAGIC_ITEMS_MAX        255
 #define SPELL_MAX_LEVEL         8
 #define MAGIC_OVERCHARGE_LEVELS (SPELL_MAX_LEVEL+1)
-#define MAGIC_TYPES_COUNT      30
 #define POWER_TYPES_MAX      64
 
 enum SpellKinds {
@@ -115,7 +114,11 @@ enum PowerKinds {
     PwrK_PICKUPCRTR, // 20
     PwrK_PICKUPGOLD,
     PwrK_PICKUPFOOD,
-    PwrK_REBOUND, // 23
+    PwrK_REBOUND,
+    PwrK_FREEZE,
+    PwrK_SLOW, // 25
+    PwrK_FLIGHT,
+    PwrK_VISION,
 };
 
 /** Contains properties of a shot model, to be stored in ShotConfigStats.
@@ -275,6 +278,7 @@ struct ShotConfigStats {
     struct ShotHitConfig hit_lava;
     struct ShotHitConfig hit_creature;
     struct ShotHitConfig dig;
+    struct ShotHitConfig hit_heart;
     struct ShotDetonateConfig explode;
     struct ShotVisualConfig visual;
     short firing_sound;
@@ -288,7 +292,7 @@ struct ShotConfigStats {
     short size_z;
     unsigned char fall_acceleration;
     unsigned char cast_spell_kind;
-    unsigned char push_on_hit;
+    char push_on_hit;
     unsigned char hidden_projectile;
     unsigned char destroy_on_first_hit;
     short experience_given_to_shooter;
@@ -306,11 +310,12 @@ struct ShotConfigStats {
     unsigned char unshaded;
     unsigned char soft_landing;
     EffectOrEffElModel effect_id;
+    EffectOrEffElModel effect_bleeding;
+    EffectOrEffElModel effect_frozen;
     unsigned char fire_logic; // see enum ShotFireLogics
     unsigned char update_logic; // see enum ShotUpdateLogics
-    unsigned char effect_spacing;
+    unsigned short effect_spacing;
     unsigned char effect_amount;
-
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);
@@ -323,7 +328,7 @@ struct PowerConfigStats {
     ThingModel artifact_model;
     unsigned long long can_cast_flags;
     unsigned long config_flags;
-    Expand_Check_Func overcharge_check;
+    unsigned char overcharge_check_idx;
     long work_state;
     PowerKind parent_power;
     /** Sprite index of big symbol icon representing the power. */
@@ -348,6 +353,7 @@ struct SpecialConfigStats {
     TextStringId tooltip_stridx;
     short speech;
     short effect_id;
+    short value;
 };
 
  /**
@@ -371,6 +377,9 @@ struct SpellConfig {
     /** Sprite index of medium symbol icon representing the spell. */
     short medsym_sprite_idx;
     short cast_sound;
+    short crtr_summon_model;
+    short crtr_summon_level;
+    short crtr_summon_amount;
     short linked_power;
     short duration;
     short aura_effect;

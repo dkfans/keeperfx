@@ -48,7 +48,7 @@
 struct Thing *create_room_surrounding_flame(struct Room *room, const struct Coord3d *pos,
     unsigned short eetype, PlayerNumber owner)
 {
-    struct Thing* eething = create_effect_element(pos, room_effect_elements[eetype & 7], owner);
+    struct Thing* eething = create_effect_element(pos, room_effect_elements[eetype], owner);
     if (!thing_is_invalid(eething))
     {
         eething->mappos.z.val = get_thing_height_at(eething, &eething->mappos);
@@ -261,7 +261,7 @@ void recreate_rooms_from_room_slabs(struct Room *room, unsigned char gnd_slab)
     room->slabs_count = 0;
 }
 
-TbBool delete_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char is_destroyed)
+TbBool delete_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, TbBool is_destroyed)
 {
     struct Room* room = slab_room_get(slb_x, slb_y);
     if (room_is_invalid(room))

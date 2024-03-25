@@ -72,6 +72,12 @@ const struct NamedCommand objects_object_commands[] = {
   {"INITIALSTATE",      24},
   {"RANDOMSTARTFRAME",  25},
   {"TRANSPARENCYFLAGS", 26},
+  {"EFFECTBEAM",        27},
+  {"EFFECTPARTICLE",    28},
+  {"EFFECTEXPLOSION1",  29},
+  {"EFFECTEXPLOSION2",  30},
+  {"EFFECTSPACING",     31},
+  {"EFFECTSOUND",       32},
   {NULL,                 0},
   };
 
@@ -512,7 +518,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = atoi(word_buf);
-                    objst->ilght.radius = n << 8; //Mystery bit shift. Remove it to get divide by 0 errors.
+                    objst->ilght.radius = n * COORD_PER_STL;
                     n++;
                 }
                 if (n <= 0)
@@ -656,7 +662,99 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
-            case 0: // comment
+            case 27: // EFFECTBEAM
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = effect_or_effect_element_id(word_buf);
+                    objst->effect.beam = n;
+                    n++;
+                }
+                if (n == 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 28: // EFFECTPARTICLE
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = effect_or_effect_element_id(word_buf);
+                    objst->effect.particle = n;
+                    n++;
+                }
+                if (n == 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 29: // EFFECTEXPLOSION1
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = effect_or_effect_element_id(word_buf);
+                    objst->effect.explosion1 = n;
+                    n++;
+                }
+                if (n == 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 30: // EFFECTEXPLOSION2
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = effect_or_effect_element_id(word_buf);
+                    objst->effect.explosion2 = n;
+                    n++;
+                }
+                if (n == 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 31: // EFFECTSPACING
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    objst->effect.spacing = n;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 32: // EFFECTSOUND
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    if ( (!SoundDisabled) && ( (n < 0) || (n > (samples_in_bank - 1)) ) )
+                    {
+                        CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    }
+                    else
+                    {
+                        objst->effect.sound_idx = n;
+                    }
+                }
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    if ((!SoundDisabled) && ((n < 0) || (n > (samples_in_bank - 1))))
+                    {
+                        objst->effect.sound_range = 1;
+                    }
+                    else
+                    {
+                        objst->effect.sound_range = n;
+                    }
+                }
+                break;
+           case 0: // comment
                 break;
             case -1: // end of buffer
                 break;
@@ -716,7 +814,7 @@ void update_all_object_stats()
     for (int i = slist->index; i > 0;)
     {
         struct Thing* thing = thing_get(i);
-        i = thing->next_of_class
+        i = thing->next_of_class;
             TRACE_THING(thing);
         struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
         int start_frame = 0;
@@ -753,7 +851,7 @@ void update_all_object_stats()
             LbMemoryCopy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
             ilight.radius = objst->ilght.radius;
             ilight.intensity = objst->ilght.intensity;
-            ilight.field_3 = objst->ilght.field_3;
+            ilight.flags = objst->ilght.flags;
             ilight.is_dynamic = objst->ilght.is_dynamic;
             thing->light_id = light_create_light(&ilight);
         }
@@ -863,11 +961,11 @@ int get_required_room_capacity_for_object(RoomRole room_role, ThingModel objmode
 
 void init_objects(void)
 {
-    game.conf.object_conf.object_cfgstats[ObjMdl_Torch].ilght.field_3 = 5;
-    game.conf.object_conf.object_cfgstats[ObjMdl_HeroGate].ilght.field_3 = 5;
-    game.conf.object_conf.object_cfgstats[ObjMdl_StatueLit].ilght.field_3 = 5;
-    game.conf.object_conf.object_cfgstats[ObjMdl_SoulCountainer].ilght.field_3 = 5;
-    game.conf.object_conf.object_cfgstats[ObjMdl_Candlestick].ilght.field_3 = 5;
+    game.conf.object_conf.object_cfgstats[ObjMdl_Torch].ilght.flags = 5;
+    game.conf.object_conf.object_cfgstats[ObjMdl_HeroGate].ilght.flags = 5;
+    game.conf.object_conf.object_cfgstats[ObjMdl_StatueLit].ilght.flags = 5;
+    game.conf.object_conf.object_cfgstats[ObjMdl_SoulCountainer].ilght.flags = 5;
+    game.conf.object_conf.object_cfgstats[ObjMdl_Candlestick].ilght.flags = 5;
 }
 
 /******************************************************************************/

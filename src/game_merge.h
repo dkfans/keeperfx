@@ -120,8 +120,6 @@ enum GameFlags2 {
 /******************************************************************************/
 #pragma pack(1)
 
-struct PlayerInfo;
-
 /** Structure which stores state of scrollable message with text.
  */
 struct TextScrollWindow {
@@ -177,7 +175,6 @@ struct GameAdd {
     long heart_lost_message_target;
     unsigned char slab_ext_data[MAX_TILES_X*MAX_TILES_Y];
     unsigned char slab_ext_data_initial[MAX_TILES_X*MAX_TILES_Y];
-    struct PlayerInfoAdd players[PLAYERS_COUNT];
     float delta_time;
     long double process_turn_time;
     float flash_button_time;

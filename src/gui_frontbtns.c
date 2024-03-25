@@ -442,17 +442,17 @@ void gui_round_glass_background(struct GuiMenu *gmnu)
     case 3:
         px = gmnu->pos_x;
         py = fade_h * (gmnu->menu_init->fade_time - gmnu->fade_time) + gmnu->pos_y;
-        draw_round_slab64k(px, py, units_per_pixel, gmnu->width, gmnu->height);
+        draw_round_slab64k(px, py, units_per_pixel, gmnu->width, gmnu->height, ROUNDSLAB64K_LIGHT);
         break;
     case 1:
         px = gmnu->pos_x;
         py = MyScreenHeight - fade_h * (gmnu->menu_init->fade_time - gmnu->fade_time);
-        draw_round_slab64k(px, py, units_per_pixel, gmnu->width, gmnu->height);
+        draw_round_slab64k(px, py, units_per_pixel, gmnu->width, gmnu->height, ROUNDSLAB64K_LIGHT);
         break;
     default:
         px = gmnu->pos_x;
         py = gmnu->pos_y;
-        draw_round_slab64k(px, py, units_per_pixel, gmnu->width, gmnu->height);
+        draw_round_slab64k(px, py, units_per_pixel, gmnu->width, gmnu->height, ROUNDSLAB64K_LIGHT);
         break;
     }
 }
@@ -853,56 +853,187 @@ void frontend_draw_scroll_box_tab(struct GuiButton *gbtn)
 
 void frontend_draw_scroll_box(struct GuiButton *gbtn)
 {
-    struct TbSprite *spr;
-    long pos_x;
-    long pos_y;
-    long height_lines;
-    long draw_scrollbar;
-    long spr_idx;
-    long secspr_idx;
-    long i;
-    long delta;
-    pos_y = gbtn->scr_pos_y;
+    int height_lines;
+    TbBool draw_scrollbar;
     switch ( (long)gbtn->content )
     {
       case 24:
         height_lines = 2;
-        draw_scrollbar = 1;
+        draw_scrollbar = true;
         break;
       case 25:
         height_lines = 3;
-        draw_scrollbar = 1;
+        draw_scrollbar = true;
         break;
       case 26:
         height_lines = 7;
-        draw_scrollbar = 1;
+        draw_scrollbar = true;
         break;
       case 89:
         height_lines = 3;
-        draw_scrollbar = 0;
+        draw_scrollbar = false;
         break;
       case 90:
         height_lines = 4;
-        draw_scrollbar = 0;
+        draw_scrollbar = false;
         break;
       case 91:
         height_lines = 4;
-        draw_scrollbar = 1;
+        draw_scrollbar = true;
         break;
       case 94:
         height_lines = 10;
-        draw_scrollbar = 1;
+        draw_scrollbar = true;
         break;
       default:
         height_lines = 0;
-        draw_scrollbar = 0;
+        draw_scrollbar = false;
         break;
     }
+    gui_draw_scroll_box(gbtn, height_lines, draw_scrollbar);
+}
+
+void frontend_draw_slider_button(struct GuiButton *gbtn)
+{
+    long spr_idx;
+    long btn_id;
+    if ((gbtn->flags & LbBtnF_Enabled) != 0)
+    {
+        btn_id = (long)gbtn->content;
+        if ( (btn_id != 0) && (frontend_mouse_over_button == btn_id) )
+        {
+            if ( (btn_id == 17) || (btn_id == 36) || (btn_id == 38) ) {
+                spr_idx = GFS_scrollbar_toparrow_act;
+            } else {
+                spr_idx = GFS_scrollbar_btmarrow_act;
+            }
+        } else
+        {
+            if ( (btn_id == 17) || (btn_id == 36) || (btn_id == 38) ) {
+                spr_idx = GFS_scrollbar_toparrow_std;
+            } else {
+                spr_idx = GFS_scrollbar_btmarrow_std;
+            }
+        }
+    } else
+    {
+      spr_idx = 0;
+    }
+    if (spr_idx > 0)
+    {
+        // Detect scaling factor
+        int units_per_px;
+        units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, spr_idx, 100);
+        draw_frontend_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, units_per_px, spr_idx);
+    }
+}
+
+void gui_area_null(struct GuiButton *gbtn)
+{
+    int bs_units_per_px;
+    bs_units_per_px = simple_button_sprite_height_units_per_px(gbtn, gbtn->sprite_idx, 100);
+    if ((gbtn->flags & LbBtnF_Enabled) != 0)
+    {
+        draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->sprite_idx);
+    } else
+    {
+        draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->sprite_idx);
+    }
+}
+
+void reset_scroll_window(struct GuiMenu *gmnu)
+{
+    game.evntbox_scroll_window.start_y = 0;
+    game.evntbox_scroll_window.action = 0;
+    game.evntbox_scroll_window.text_height = 0;
+    game.evntbox_scroll_window.window_height = 0;
+}
+
+void gui_set_menu_mode(struct GuiButton *gbtn)
+{
+    long mnu_idx = gbtn->btype_value & LbBFeF_IntValueMask;
+    if (mnu_idx == GMnu_SPELL)
+    {
+        if (menu_is_active(GMnu_SPELL2))
+        {
+            mnu_idx = GMnu_SPELL2;
+        }
+    }
+    else if (mnu_idx == GMnu_ROOM)
+    {
+        if (menu_is_active(GMnu_ROOM2))
+        {
+            mnu_idx = GMnu_ROOM2;
+        }
+    }
+    else if (mnu_idx == GMnu_TRAP)
+    {
+        if (menu_is_active(GMnu_TRAP2))
+        {
+            mnu_idx = GMnu_TRAP2;
+        }
+    }
+    set_menu_mode(mnu_idx);
+}
+
+void gui_area_flash_cycle_button(struct GuiButton *gbtn)
+{
+    SYNCDBG(10,"Starting");
+    int spr_idx;
+    spr_idx = gbtn->sprite_idx;
+    int ps_units_per_px;
+    ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, spr_idx, 113);
+    if ((gbtn->flags & LbBtnF_Enabled) != 0)
+    {
+        if ((!gbtn->gbactn_1) && (!gbtn->gbactn_2))
+        {
+            // If function is active, the button should blink
+            unsigned char *ctptr;
+            ctptr = (unsigned char *)gbtn->content;
+            if ((ctptr != NULL) && (*ctptr > 0))
+            {
+                if (game.play_gameturn & 1) {
+                    spr_idx += 2;
+                }
+            }
+        }
+        if ((!gbtn->gbactn_1) && (!gbtn->gbactn_2)) {
+            spr_idx++;
+        }
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
+    } else
+    {
+        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 12);
+    }
+    SYNCDBG(12,"Finished");
+}
+
+struct GuiButton* get_gui_button(int btn_idx)
+{
+    for (int i=0; i < ACTIVE_BUTTONS_COUNT; i++)
+    {
+        struct GuiButton *gbtn = &active_buttons[i];
+        if (gbtn->id_num == btn_idx)
+        {
+            return gbtn;
+        }
+    }
+    return NULL;
+}
+
+void gui_draw_scroll_box(struct GuiButton *gbtn, int height_lines, TbBool draw_scrollbar)
+{
+    struct TbSprite *spr;
+    long pos_x;
+    long pos_y = gbtn->scr_pos_y;
+    long spr_idx;
+    long secspr_idx;
+    long i;
+    long delta;
     // Detect scaling factor is quite complicated for this item
     int units_per_px;
     {
-        int orig_size;
-        orig_size = 0;
+        int orig_size = 0;
         spr = &frontend_sprite[GFS_hugearea_thn_cor_ml];
         for (i=0; i < 6; i++)
         {
@@ -972,120 +1103,6 @@ void frontend_draw_scroll_box(struct GuiButton *gbtn)
         pos_x = gbtn->scr_pos_x + gbtn->width;
         draw_frontend_sprite_left(pos_x, pos_y, units_per_px, GFS_scrollbar_btmarrow_std);
     }
-}
-
-void frontend_draw_slider_button(struct GuiButton *gbtn)
-{
-    long spr_idx;
-    long btn_id;
-    if ((gbtn->flags & LbBtnF_Enabled) != 0)
-    {
-        btn_id = (long)gbtn->content;
-        if ( (btn_id != 0) && (frontend_mouse_over_button == btn_id) )
-        {
-            if ( (btn_id == 17) || (btn_id == 36) || (btn_id == 38) ) {
-                spr_idx = GFS_scrollbar_toparrow_act;
-            } else {
-                spr_idx = GFS_scrollbar_btmarrow_act;
-            }
-        } else
-        {
-            if ( (btn_id == 17) || (btn_id == 36) || (btn_id == 38) ) {
-                spr_idx = GFS_scrollbar_toparrow_std;
-            } else {
-                spr_idx = GFS_scrollbar_btmarrow_std;
-            }
-        }
-    } else
-    {
-      spr_idx = 0;
-    }
-    if (spr_idx > 0)
-    {
-        // Detect scaling factor
-        int units_per_px;
-        units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, spr_idx, 100);
-        draw_frontend_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, units_per_px, spr_idx);
-    }
-}
-
-void gui_area_null(struct GuiButton *gbtn)
-{
-    int bs_units_per_px;
-    bs_units_per_px = simple_button_sprite_height_units_per_px(gbtn, gbtn->sprite_idx, 100);
-    if ((gbtn->flags & LbBtnF_Enabled) != 0)
-    {
-        draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->sprite_idx);
-    } else
-    {
-        draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->sprite_idx);
-    }
-}
-
-void reset_scroll_window(struct GuiMenu *gmnu)
-{
-    game.evntbox_scroll_window.start_y = 0;
-    game.evntbox_scroll_window.action = 0;
-    game.evntbox_scroll_window.text_height = 0;
-    game.evntbox_scroll_window.window_height = 0;
-}
-
-void gui_set_menu_mode(struct GuiButton *gbtn)
-{
-    long mnu_idx = gbtn->btype_value & LbBFeF_IntValueMask;
-    if (mnu_idx == GMnu_SPELL)
-    {
-        if (menu_is_active(GMnu_SPELL2))
-        {
-            mnu_idx = GMnu_SPELL2;
-        }
-    }
-    set_menu_mode(mnu_idx);
-}
-
-void gui_area_flash_cycle_button(struct GuiButton *gbtn)
-{
-    SYNCDBG(10,"Starting");
-    int spr_idx;
-    spr_idx = gbtn->sprite_idx;
-    int ps_units_per_px;
-    ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, spr_idx, 113);
-    if ((gbtn->flags & LbBtnF_Enabled) != 0)
-    {
-        if ((!gbtn->gbactn_1) && (!gbtn->gbactn_2))
-        {
-            // If function is active, the button should blink
-            unsigned char *ctptr;
-            ctptr = (unsigned char *)gbtn->content;
-            if ((ctptr != NULL) && (*ctptr > 0))
-            {
-                if (game.play_gameturn & 1) {
-                    spr_idx += 2;
-                }
-            }
-        }
-        if ((!gbtn->gbactn_1) && (!gbtn->gbactn_2)) {
-            spr_idx++;
-        }
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
-    } else
-    {
-        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 12);
-    }
-    SYNCDBG(12,"Finished");
-}
-
-struct GuiButton* get_gui_button(int btn_idx)
-{
-    for (int i=0; i < ACTIVE_BUTTONS_COUNT; i++)
-    {
-        struct GuiButton *gbtn = &active_buttons[i];
-        if (gbtn->id_num == btn_idx)
-        {
-            return gbtn;
-        }
-    }
-    return NULL;
 }
 
 /******************************************************************************/

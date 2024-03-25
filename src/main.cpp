@@ -272,7 +272,7 @@ long get_foot_creature_has_down(struct Thing *thing)
     int n;
     cctrl = creature_control_get_from_thing(thing);
     val = thing->current_frame;
-    if (val == (cctrl->field_CE >> 8))
+    if (val == (cctrl->anim_time >> 8))
         return 0;
     unsigned short frame = (creature_is_dragging_something(thing)) ? CGI_Drag : CGI_Ambulate;
     n = get_creature_model_graphics(thing->model, frame);
@@ -651,6 +651,8 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
   int delta_x;
   int delta_y;
   int delta_z;
+  if (delta_step <= 0)
+      delta_step = 1;
   if (dist_x >= 0)
   {
       delta_x = delta_step;
@@ -757,6 +759,8 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
     int delta_x;
     int delta_y;
     int delta_z;
+    if (eeinterspace <= 0)
+        eeinterspace = 1;
     if (dist_x >= 0) {
         delta_x = eeinterspace;
     } else {
@@ -901,7 +905,7 @@ void update_thing_animation(struct Thing *thing)
     {
       cctrl = creature_control_get_from_thing(thing);
       if (!creature_control_invalid(cctrl))
-        cctrl->field_CE = thing->anim_time;
+        cctrl->anim_time = thing->anim_time;
     }
     if ((thing->anim_speed != 0) && (thing->max_frames != 0))
     {
@@ -1312,8 +1316,7 @@ TbBool players_cursor_is_at_top_of_view(struct PlayerInfo *player)
 
 TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, long *map_x, long *map_y)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
+    struct PlayerInfo *player = get_my_player();
     *map_x = 0;
     *map_y = 0;
     if ( (pointer_x >= 0) && (pointer_y >= 0)
@@ -1457,6 +1460,10 @@ void reset_gui_based_on_player_mode(void)
     if (player->view_type == PVT_CreatureContrl)
     {
         turn_on_menu(vid_change_query_menu);
+        if (player->victory_state == VicS_LostLevel)
+        {
+            turn_off_query_menus();
+        }
     }
     else if (player->view_type == PVT_CreaturePasngr)
     {
@@ -2203,10 +2210,9 @@ void clear_lookups(void)
 void interp_fix_mouse_light_off_map(struct PlayerInfo *player)
 {
     // This fixes the interpolation issue of moving the mouse off map in one position then back onto the map far elsewhere.
-    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
     struct Light* light = &game.lish.lights[player->cursor_light_idx];
 
-    if (playeradd->mouse_is_offmap == true) {
+    if (player->mouse_on_map == false) {
         light->disable_interp_for_turns = 2;
     }
     if (light->disable_interp_for_turns > 0) {
@@ -3178,7 +3184,6 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
 
 void update_blocks_pointed(void)
 {
-    TbBool out_of_bounds = false;
     long x;
     long y;
     long x_frac;
@@ -3225,18 +3230,11 @@ void update_blocks_pointed(void)
           if ((x >= 0) && (x < gameadd.map_subtiles_x) && (y >= 0) && (y < gameadd.map_subtiles_y))
           {
               update_block_pointed(i,x,x_frac,y,y_frac);
-          } else {
-                out_of_bounds = true;
           }
           hori_ptr_y -= hori_hdelta_y;
           vert_ptr_y -= vert_hdelta_y;
         }
     }
-
-    struct PlayerInfo *player = get_my_player();
-    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
-    playeradd->mouse_is_offmap = out_of_bounds;
-
     SYNCDBG(19,"Finished");
 }
 
@@ -3401,6 +3399,27 @@ TbBool keeper_wait_for_screen_focus(void)
 
 void gameplay_loop_logic()
 {
+    if(flag_is_set(start_params.debug_flags, DFlg_PauseAtGameTurn))
+    {
+        static TbBool paused_at_gameturn = false;
+        static GameTurn previous_gameturn = 0;
+        if(game.play_gameturn >= start_params.pause_at_gameturn && game.play_gameturn != previous_gameturn)
+        {
+            if(!paused_at_gameturn)
+            {
+                paused_at_gameturn = true;
+
+                game.frame_skip = 0;
+                if(game.packet_load_enable)
+                {
+                    disable_packet_mode();
+                }
+                set_packet_pause_toggle();
+            }
+        }
+        previous_gameturn = game.play_gameturn;
+    }
+
     if (is_feature_on(Ft_DeltaTime) == true) {
         if (gameadd.process_turn_time < 1.0) {
             return;
@@ -3432,6 +3451,12 @@ void gameplay_loop_logic()
     input();
     update();
     frametime_end_measurement(Frametime_Logic);
+
+    if(game.frame_step)
+    {
+        game.frame_step = false;
+        set_packet_pause_toggle();
+    }
 }
 
 void gameplay_loop_draw()
@@ -3894,6 +3919,7 @@ void game_loop(void)
       StopMusicPlayer();
       free_custom_music();
       free_sound_chunks();
+      memset(&game.loaded_sound,0,DISKPATH_SIZE * EXTERNAL_SOUNDS_COUNT+1);
       turn_off_all_menus();
       delete_all_structures();
       clear_mapwho();
@@ -4061,6 +4087,7 @@ short process_command_line(unsigned short argc, char *argv[])
          start_params.packet_load_enable = true;
          start_params.packet_save_enable = false;
          snprintf(start_params.packet_fname, sizeof(start_params.packet_fname), "%s", pr2str);
+         set_flag(start_params.debug_flags, DFlg_ShowGameTurns | DFlg_FrameStep);
          narg++;
       } else
       if (strcasecmp(parstr,"packetsave") == 0)
@@ -4070,6 +4097,12 @@ short process_command_line(unsigned short argc, char *argv[])
          start_params.packet_load_enable = false;
          start_params.packet_save_enable = true;
          snprintf(start_params.packet_fname, sizeof(start_params.packet_fname), "%s", pr2str);
+         narg++;
+      } else
+      if (strcasecmp(parstr,"pause_at_gameturn") == 0)
+      {
+         set_flag(start_params.debug_flags, DFlg_ShowGameTurns | DFlg_FrameStep | DFlg_PauseAtGameTurn);
+         start_params.pause_at_gameturn = atoi(pr2str);
          narg++;
       } else
       if (strcasecmp(parstr,"q") == 0)
@@ -4082,11 +4115,15 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr, "dbgshots") == 0)
       {
-          start_params.debug_flags |= DFlg_ShotsDamage;
+          set_flag(start_params.debug_flags, DFlg_ShotsDamage);
       } else
       if (strcasecmp(parstr, "dbgpathfind") == 0)
       {
-	      start_params.debug_flags |= DFlg_CreatrPaths;
+          set_flag(start_params.debug_flags, DFlg_CreatrPaths);
+      } else
+      if (strcasecmp(parstr, "show_game_turns") == 0)
+      {
+          set_flag(start_params.debug_flags, DFlg_ShowGameTurns);
       } else
       if (strcasecmp(parstr, "compuchat") == 0)
       {
@@ -4122,6 +4159,10 @@ short process_command_line(unsigned short argc, char *argv[])
       {
          start_params.frame_skip = atoi(pr2str);
          narg++;
+      } else
+      if (strcasecmp(parstr,"framestep") == 0)
+      {
+         set_flag(start_params.debug_flags, DFlg_ShowGameTurns | DFlg_FrameStep);
       }
       else if (strcasecmp(parstr, "timer") == 0)
       {

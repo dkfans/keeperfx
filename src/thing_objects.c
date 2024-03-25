@@ -83,6 +83,7 @@ const struct NamedCommand object_update_functions_desc[] = {
   {"UPDATE_OBJECT_SCALE",    4},
   {"UPDATE_POWER_SIGHT",     5},
   {"UPDATE_POWER_LIGHTNING", 6},
+  {"NULL",                   0},
   {NULL,                  0},
   };
 
@@ -98,12 +99,14 @@ static Thing_Class_Func object_update_functions[] = {
 
 /** Guard flag objects model per player index. Originally named guard_post_objects.
  */
-unsigned short player_guardflag_objects[] = {ObjMdl_GuardFlagRed, ObjMdl_GuardFlagBlue, ObjMdl_GuardFlagGreen, ObjMdl_GuardFlagYellow,  ObjMdl_GuardFlagWhite, ObjMdl_GuardFlagPole};
+unsigned short player_guardflag_objects[] = {ObjMdl_GuardFlagRed, ObjMdl_GuardFlagBlue, ObjMdl_GuardFlagGreen, ObjMdl_GuardFlagYellow,  ObjMdl_GuardFlagWhite, ObjMdl_GuardFlagPole,
+                                             ObjMdl_GuardFlagPurple,ObjMdl_GuardFlagBlack,ObjMdl_GuardFlagOrange};
 /** Dungeon Heart flame objects model per player index.
  */
-unsigned short dungeon_flame_objects[] =    {ObjMdl_HeartFlameRed, ObjMdl_HeartFlameBlue, ObjMdl_HeartFlameGreen, ObjMdl_HeartFlameYellow,  ObjMdl_HeartFlameWhite,   0};
-unsigned short lightning_spangles[] =   {TngEffElm_RedTwinkle3, TngEffElm_BlueTwinke2, TngEffElm_GreenTwinkle2, TngEffElm_YellowTwinkle2, TngEffElm_WhiteTwinkle2, TngEffElm_None};
-unsigned short twinkle_eff_elements[] = {TngEffElm_RedTwinkle,  TngEffElm_BlueTwinkle, TngEffElm_GreenTwinkle,  TngEffElm_YellowTwinkle,  TngEffElm_WhiteTwinkle,  TngEffElm_None};
+unsigned short dungeon_flame_objects[] =    {ObjMdl_HeartFlameRed, ObjMdl_HeartFlameBlue, ObjMdl_HeartFlameGreen, ObjMdl_HeartFlameYellow,  ObjMdl_HeartFlameWhite,   0,
+                                             ObjMdl_HeartFlamePurple, ObjMdl_HeartFlameBlack, ObjMdl_HeartFlameOrange};
+unsigned short lightning_spangles[] =   {TngEffElm_RedTwinkle3, TngEffElm_BlueTwinke2, TngEffElm_GreenTwinkle2, TngEffElm_YellowTwinkle2, TngEffElm_WhiteTwinkle2, TngEffElm_None,TngEffElm_PurpleTwinkle2,TngEffElm_BlackTwinkle2,TngEffElm_OrangeTwinkle2,};
+unsigned short twinkle_eff_elements[] = {TngEffElm_RedTwinkle,  TngEffElm_BlueTwinkle, TngEffElm_GreenTwinkle,  TngEffElm_YellowTwinkle,  TngEffElm_WhiteTwinkle,  TngEffElm_None,TngEffElm_PurpleTwinkle, TngEffElm_BlackTwinkle, TngEffElm_OrangeTwinkle, };
 
 unsigned short gold_hoard_objects[] = {ObjMdl_GoldPile, ObjMdl_GoldPile, ObjMdl_GoldHorde1, ObjMdl_GoldHorde2, ObjMdl_GoldHorde3, ObjMdl_GoldHorde4};
 unsigned short food_grow_objects[] = {ObjMdl_ChickenStb, ObjMdl_ChickenWob, ObjMdl_ChickenCrk};
@@ -176,7 +179,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
         LbMemoryCopy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
         ilight.radius = objst->ilght.radius;
         ilight.intensity = objst->ilght.intensity;
-        ilight.field_3 = objst->ilght.field_3;
+        ilight.flags = objst->ilght.flags;
         ilight.is_dynamic = objst->ilght.is_dynamic;
         thing->light_id = light_create_light(&ilight);
         if (thing->light_id == 0) {
@@ -341,7 +344,11 @@ TbBool thing_is_hardcoded_special_box(const struct Thing* thing)
     case ObjMdl_SpecboxMultiply:
     case ObjMdl_SpecboxIncreaseLevel:
     case ObjMdl_SpecboxMakeSafe:
+    case ObjMdl_SpecboxMakeUnsafe:
     case ObjMdl_SpecboxHiddenWorld:
+    case ObjMdl_SpecboxHealAll:
+    case ObjMdl_SpecboxGetGold:
+    case ObjMdl_SpecboxMakeAngry:
         return true;
     default:
         return false;
@@ -490,6 +497,9 @@ TbBool object_is_guard_flag(const struct Thing *thing)
       case ObjMdl_GuardFlagBlue:
       case ObjMdl_GuardFlagGreen:
       case ObjMdl_GuardFlagYellow:
+      case ObjMdl_GuardFlagPurple:
+      case ObjMdl_GuardFlagBlack:
+      case ObjMdl_GuardFlagOrange:
       case ObjMdl_GuardFlagPole:
           return true;
       default:
@@ -1248,7 +1258,9 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
             long long k = ((heartng->health << 8) / objst->health) << 7;
             long i = (saturate_set_signed(k, 32) >> 8) + 128;
             heartng->sprite_size = i * (long)objst->sprite_size_max >> 8;
-            heartng->clipbox_size_xy = i * (long)objst->size_xy >> 8;
+            heartng->solid_size_xy = i * (long)objst->size_xy >> 8;
+            heartng->solid_size_z = i * (long)objst->size_z >> 8;
+            heartng->clipbox_size_z = heartng->solid_size_z;
         }
     }
     else if (!dungeon_invalid(dungeon) && (heartng->index == dungeon->dnheart_idx))
@@ -1268,10 +1280,10 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
         if (heartng->health <= 0)
         {
             struct Thing* efftng;
-            efftng = create_effect(&heartng->mappos, TngEff_Explosion4, heartng->owner);
+            efftng = create_used_effect_or_element(&heartng->mappos, objst->effect.explosion1, heartng->owner);
             if (!thing_is_invalid(efftng))
                 efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
-            efftng = create_effect(&heartng->mappos, TngEff_WoPExplosion, heartng->owner);
+            efftng = create_used_effect_or_element(&heartng->mappos, objst->effect.explosion2, heartng->owner);
             if (!thing_is_invalid(efftng))
                 efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
             destroy_dungeon_heart_room(heartng->owner, heartng);

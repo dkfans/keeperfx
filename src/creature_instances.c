@@ -403,10 +403,10 @@ void process_creature_instance(struct Thing *thing)
         if (cctrl->inst_turn == cctrl->inst_action_turns)
         {
             struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->instance_id);
-            if (inst_inf->func_cb != NULL)
+            if (creature_instances_func_list[inst_inf->func_idx] != NULL)
             {
                 SYNCDBG(18,"Executing %s for %s index %d.",creature_instance_code_name(cctrl->instance_id),thing_model_name(thing),(int)thing->index);
-                inst_inf->func_cb(thing, inst_inf->func_params);
+                creature_instances_func_list[inst_inf->func_idx](thing, inst_inf->func_params);
             }
         }
         if (cctrl->inst_turn >= cctrl->inst_total_turns)
@@ -701,6 +701,7 @@ long instf_attack_room_slab(struct Thing *creatng, long *param)
     {
         event_create_event_or_update_nearby_existing_event(coord_slab(creatng->mappos.x.val), coord_slab(creatng->mappos.y.val), EvKind_RoomLost, room->owner, room->kind);
     }
+    long z = get_floor_filled_subtiles_at(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
     if (!delete_room_slab(coord_slab(creatng->mappos.x.val), coord_slab(creatng->mappos.y.val), 1))
     {
         ERRORLOG("Cannot delete %s room tile destroyed by %s index %d", room_code_name(room->kind), thing_model_name(creatng), (int)creatng->index);
@@ -708,6 +709,13 @@ long instf_attack_room_slab(struct Thing *creatng, long *param)
     }
     create_effect(&creatng->mappos, TngEff_Explosion3, creatng->owner);
     thing_play_sample(creatng, 47, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    if (z > 0)
+    {
+        for (long k = 0; k < AROUND_TILES_COUNT; k++)
+        {
+            create_dirt_rubble_for_dug_block(creatng->mappos.x.stl.num + around[k].delta_x, creatng->mappos.y.stl.num + around[k].delta_y, z, room->owner);
+        }
+    }
     return 1;
 }
 
@@ -805,8 +813,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
         ahead_stl_x++;
         ahead_slb_x++;
     }
-    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
-    if ( (playeradd->selected_fp_thing_pickup != 0) || (cctrl->dragtng_idx != 0) )
+    if ( (player->selected_fp_thing_pickup != 0) || (cctrl->dragtng_idx != 0) )
     {
         set_players_packet_action(player, PckA_DirectCtrlDragDrop, 0, 0, 0, 0);
         return 1;
@@ -839,7 +846,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     slb = get_slabmap_block(slb_x, slb_y);
     if ( check_place_to_convert_excluding(creatng, slb_x, slb_y) )
     {
-        if (!playeradd->first_person_dig_claim_mode)
+        if (!player->first_person_dig_claim_mode)
         {
             struct SlabAttr* slbattr = get_slab_attrs(slb);
             instf_destroy(creatng, NULL);
@@ -877,7 +884,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
             return 1;
         }
     }
-    else if (playeradd->first_person_dig_claim_mode)
+    else if (player->first_person_dig_claim_mode)
     {
         if (slabmap_owner(slb) == creatng->owner)
         {

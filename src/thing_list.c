@@ -33,6 +33,7 @@
 #include "thing_stats.h"
 #include "thing_physics.h"
 #include "thing_creature.h"
+#include "thing_navigate.h"
 #include "creature_senses.h"
 #include "spdigger_stack.h"
 #include "power_hand.h"
@@ -788,27 +789,40 @@ long anywhere_thing_filter_is_creature_of_model_training_and_owned_by(const stru
 }
 
 /**
+ * returns if a specific creature model matches a target model, considering all the wildcards.
+ * @param creatng_model The creature model being checked.
+ * @param plyr_idx The player id so we can exclude diggers and spectators.
+ * @param target_model model to compare it to, possible wildcard.
+ */
+TbBool creature_model_matches_model(ThingModel creatng_model, PlayerNumber plyr_idx, ThingModel target_model)
+{
+    if (!is_creature_model_wildcard(target_model))
+        return target_model == creatng_model;
+    else if (target_model == CREATURE_ANY)
+        return (creatng_model != get_players_spectator_model(plyr_idx)); //we can assume we do not want to cast on the floating spirit
+    else if (target_model == CREATURE_NONE)
+        return false;
+    if (target_model == CREATURE_DIGGER)
+        return creature_kind_is_for_dungeon_diggers_list(plyr_idx, creatng_model);
+    else if (target_model == CREATURE_NOT_A_DIGGER)
+        return ((!creature_kind_is_for_dungeon_diggers_list(plyr_idx, creatng_model)) && (creatng_model != get_players_spectator_model(plyr_idx)));
+    else
+        ERRORLOG("Invalid model wildcard detected: %d", target_model);
+    return false;
+}
+
+/**
  * returns if the creature thing matches the model from the filter, considering possible wildcards.
  * @param creatng The creature being checked.
  * @param crmodel model to compare it to, possible wildcard.
-  */
-TbBool creature_matches_model(const struct Thing* creatng, long crmodel)
+ */
+TbBool creature_matches_model(const struct Thing* creatng, ThingModel crmodel)
 {
     if (creatng->class_id != TCls_Creature)
+    {
         return false;
-    if (!is_creature_model_wildcard(crmodel))
-        return crmodel == creatng->model;
-    else if (crmodel == CREATURE_ANY)
-        return (creatng->model != get_players_spectator_model(creatng->owner)); //we can assume we do not want to cast on the floating spirit
-    else if (crmodel == CREATURE_NONE)
-        return false;
-    if (crmodel == CREATURE_DIGGER)
-        return creature_kind_is_for_dungeon_diggers_list(creatng->owner, crmodel);
-    else if (crmodel == CREATURE_NOT_A_DIGGER)
-        return ((!creature_kind_is_for_dungeon_diggers_list(creatng->owner, crmodel)) && (creatng->model != get_players_spectator_model(creatng->owner)));
-    else
-        ERRORLOG("Invalid model wildcard detected: %d", crmodel);
-    return false;
+    }
+    return creature_model_matches_model(creatng->model, creatng->owner, crmodel);
 }
 
 /**
@@ -1931,7 +1945,7 @@ long creature_of_model_find_first(ThingModel crmodel)
         }
         i = thing->next_of_class;
         // Thing list loop body
-        if ((crmodel == 0) || (crmodel == CREATURE_ANY) || (thing->model == crmodel))
+        if (thing_matches_model(thing,crmodel))
         {
             return i;
         }
@@ -1961,7 +1975,7 @@ struct Thing *creature_of_model_in_prison_or_tortured(ThingModel crmodel)
         }
         i = thing->next_of_class;
         // Thing list loop body
-        if ((crmodel == 0) || (crmodel == CREATURE_ANY) || (thing->model == crmodel))
+        if (thing_matches_model(thing,crmodel))
         {
           if (creature_is_kept_in_prison(thing) || creature_is_being_tortured(thing))
               return thing;
@@ -1999,7 +2013,7 @@ TbBool lord_of_the_land_in_prison_or_tortured(void)
 
 struct Thing *lord_of_the_land_find(void)
 {
-    for (long crtr_model = 0; crtr_model < game.conf.crtr_conf.model_count; crtr_model++)
+    for (long crtr_model = 1; crtr_model < game.conf.crtr_conf.model_count; crtr_model++)
     {
         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_model];
         if ((crconf->model_flags & CMF_IsLordOTLand) != 0)
@@ -2165,7 +2179,7 @@ long do_on_player_list_all_creatures_of_model(long thing_idx, int crmodel,
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         i = cctrl->players_next_creature_idx;
         // Per creature code
-        if ((thing->model == crmodel) || (crmodel == 0) || (crmodel == CREATURE_ANY))
+        if (thing_matches_model(thing, crmodel))
         {
             if (do_cb(thing))
                 n++;
@@ -2299,7 +2313,7 @@ long count_player_list_creatures_of_model(long thing_idx, ThingModel crmodel)
         }
         i = cctrl->players_next_creature_idx;
         // Per creature code
-        if ((crmodel == CREATURE_ANY) || (thing->model == crmodel))
+        if (thing_matches_model(thing,crmodel))
         {
             count++;
         }
@@ -2331,7 +2345,7 @@ long count_player_list_creatures_of_model_on_territory(long thing_idx, ThingMode
         i = cctrl->players_next_creature_idx;
         // Per creature code
         int slbwnr = get_slab_owner_thing_is_on(thing);
-        if ( ((thing->model == crmodel) || (crmodel == CREATURE_ANY)) &&
+        if ( thing_matches_model(thing, crmodel) &&
             ( (players_are_enemies(thing->owner,slbwnr) && (friendly == 0)) ||
               (players_are_mutual_allies(thing->owner,slbwnr) && (friendly == 1)) ||
               (slbwnr == game.neutral_player_num && (friendly == 2)) ) )
@@ -2371,7 +2385,7 @@ struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel c
       struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
       i = cctrl->players_next_creature_idx;
       // Per creature code
-      if ((crmodel == 0) || (crmodel == CREATURE_ANY) || (thing->model == crmodel))
+      if (thing_matches_model(thing,crmodel))
           crtr_idx--;
       if (crtr_idx == -1)
           return thing;
@@ -2382,6 +2396,37 @@ struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel c
         ERRORLOG("Infinite loop detected when sweeping things list");
         return INVALID_THING;
       }
+    }
+    ERRORLOG("Tried to get creature of index exceeding list");
+    return INVALID_THING;
+}
+
+struct Thing* get_player_list_nth_creature_with_property(long thing_idx, unsigned long crmodelflag, long crtr_idx)
+{
+    long i = thing_idx;
+    unsigned long k = 0;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            return INVALID_THING;
+        }
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        i = cctrl->players_next_creature_idx;
+        // Per creature code
+        if ((get_creature_model_flags(thing) & crmodelflag) == 0)
+            crtr_idx--;
+        if (crtr_idx == -1)
+            return thing;
+        // Per creature code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            return INVALID_THING;
+        }
     }
     ERRORLOG("Tried to get creature of index exceeding list");
     return INVALID_THING;
@@ -2431,7 +2476,7 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
             }
         }
 
-        if (((crmodel == 0) || (crmodel == CREATURE_ANY) || (thing->model == crmodel)) && (match == 1))
+        if ((thing_matches_model(thing, crmodel)) && (match == 1))
         {
             nth_creature = thing; 
             crtr_idx--;
@@ -2445,6 +2490,15 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
         }
     }
     return nth_creature;
+}
+
+/**
+ * Counts player creatures (not diggers) which are kept out of players control.
+ * @param plyr_idx
+ */
+long count_player_creatures_for_transfer(PlayerNumber plyr_idx)
+{
+    return count_player_list_creatures_of_model_matching_bool_filter(plyr_idx, CREATURE_NOT_A_DIGGER, creature_can_be_transferred);
 }
 
 /**
@@ -2734,7 +2788,7 @@ struct Thing *get_player_list_random_creature_with_filter(ThingIndex thing_idx, 
         return retng;
     unsigned long k = 0;
     // Get random index of a thing in list
-    struct Thing* thing = get_player_list_nth_creature_of_model(thing_idx, 0, PLAYER_RANDOM(plyr_idx, total_count));
+    struct Thing* thing = get_player_list_nth_creature_of_model(thing_idx, CREATURE_ANY, PLAYER_RANDOM(plyr_idx, total_count));
     long i = thing->index;
     while (k < total_count)
     {
@@ -3589,7 +3643,7 @@ TbBool gold_pile_with_maximum_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
   return false;
 }
 
-struct Thing* get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range)
+struct Thing* get_player_creature_in_range_around_any_enemy_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range)
 {
     int n = GAME_RANDOM(PLAYERS_COUNT);
     for (int i = 0; i < PLAYERS_COUNT; i++, n = (n + 1) % PLAYERS_COUNT)
@@ -3605,6 +3659,19 @@ struct Thing* get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_
             }
         }
     }
+    return INVALID_THING;
+}
+
+struct Thing* get_player_creature_in_range_around_own_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range)
+{
+        struct Thing* heartng = get_player_soul_container(plyr_idx); //todo backup hearts
+        if (thing_exists(heartng))
+        {
+            struct Thing* creatng = get_creature_in_range_of_model_owned_and_controlled_by(heartng->mappos.x.val, heartng->mappos.y.val, range, crmodel, plyr_idx);
+            if (!thing_is_invalid(creatng)) {
+                return creatng;
+            }
+        }
     return INVALID_THING;
 }
 
@@ -4203,26 +4270,19 @@ void break_mapwho_infinite_chain(const struct Map *mapblk)
 ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_creature, PlayerNumber owner, ThingModel crmodel, struct PlayerInfo *player)
 {
     unsigned long k = 0;
-    struct Thing* thing = current_creature;
-    ThingIndex i;
-    unsigned char loops = 0;
+    ThingIndex i = current_creature->index;
     do
     {
-        i = thing->prev_of_class;
-        if (i == 0)
+        i++;
+        if (i >= THINGS_COUNT)
         {
-            loops++;
-            if (loops > 1)
-            {
-                break;
-            }
-            i = get_index_of_first_creature_of_owner_and_model(owner, crmodel);
+            i = 1;
         }
         else if (i == current_creature->index)
         {
-            return i;
+            break;
         }
-        thing = thing_get(i);
+        struct Thing* thing = thing_get(i);
         if (thing_is_creature(thing))
         {
             if ( (thing->owner == owner) || (owner == -1) )
@@ -4247,32 +4307,74 @@ ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_c
     return current_creature->index;
 }
 
-ThingIndex get_index_of_first_creature_of_owner_and_model(PlayerNumber owner, ThingModel crmodel)
+struct Thing* get_timebomb_target(struct Thing *creatng)
 {
-    unsigned long k = 0;
-    ThingIndex i = 1;
-    while (i != 0)
+    struct Thing *retng = NULL;
+    MapCoordDelta dist, new_dist;
+    struct Thing* thing;
+    struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
+    if (slist != NULL) 
     {
-        struct Thing *thing = thing_get(i);
-        if (thing_is_creature(thing))
+        dist = LONG_MAX;
+        unsigned long i = slist->index;
+        unsigned long k = 0;
+        while (i != 0)
         {
-            if ( (thing->owner == owner) || (owner == -1) )
+            thing = thing_get(i);
+            if (thing_is_invalid(thing))
             {
-                if ( (thing->model == crmodel) || (crmodel == 0) )
+                ERRORLOG("Jump to invalid thing detected");
+                break;
+            }
+            if (players_are_enemies(creatng->owner, thing->owner))
+            {
+                if (creature_will_attack_creature(creatng, thing))
                 {
-                    return thing->index;
+                    new_dist = get_2d_distance(&creatng->mappos, &thing->mappos);
+                    if (new_dist < dist)
+                    {
+                        if (creature_can_navigate_to(creatng, &thing->mappos, NavRtF_Default))
+                        {
+                            dist = new_dist;
+                            retng = thing;
+                        }
+                    }
+                }
+            }
+            // Per-thing code ends
+            k++;
+            if (k > slist->count)
+            {
+                ERRORLOG("Infinite loop detected when sweeping things list");
+                break;
+            }
+            i = thing->next_of_class;
+        }
+    }
+    if (thing_is_invalid(retng))
+    {
+        dist = LONG_MAX;
+        for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+        {
+            if (players_are_enemies(creatng->owner, plyr_idx))
+            {
+                thing = get_player_soul_container(plyr_idx);
+                if (thing_exists(thing))
+                {
+                    new_dist = get_2d_distance(&creatng->mappos, &thing->mappos);
+                    if (new_dist < dist)
+                    {
+                        if (creature_can_navigate_to(creatng, &thing->mappos, NavRtF_Default))
+                        {
+                            dist = new_dist;
+                            retng = thing;
+                        }
+                    }
                 }
             }
         }
-        k++;
-        if (k > THINGS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping things list");
-            break;
-        }
-        i++;
     }
-    return 0;
+    return retng;
 }
 /******************************************************************************/
 #ifdef __cplusplus

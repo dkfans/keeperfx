@@ -29,15 +29,15 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define PLAYERS_COUNT           5
-#define PLAYERS_EXT_COUNT       6
+#define PLAYERS_COUNT           9
+#define PLAYERS_EXT_COUNT       9
+#define COLOURS_COUNT       9
 /** This acts as default value for neutral_player_number */
 #define NEUTRAL_PLAYER          5
 /** This acts as default value for hero_player_number */
 #define HERO_PLAYER             4
 
 #define INVALID_PLAYER (&bad_player)
-#define INVALID_PLAYER_ADD (&bad_playeradd)
 
 #define PLAYER_MP_MESSAGE_LEN  64
 
@@ -142,6 +142,15 @@ struct Wander
   struct SubtileXY points[WANDER_POINTS_COUNT];
 };
 
+struct CheatSelection
+{
+    SlabKind chosen_terrain_kind;
+    PlayerNumber chosen_player;
+    unsigned char chosen_creature_kind;
+    unsigned char chosen_hero_kind;
+    unsigned char chosen_experience_level;
+};
+
 struct PlayerInfo {
     unsigned char allocflags;
     TbBool tooltips_restore; /**< Used to store/restore the value of settings.tooltips_on when transitioning to/from the map. */
@@ -157,7 +166,6 @@ struct PlayerInfo {
     unsigned char packet_num;
     long hand_animationId;
     unsigned int hand_busy_until_turn;
-unsigned char field_14;
     char player_name[20];
     unsigned char victory_state;
     PlayerBitFlags allied_players;
@@ -225,18 +233,6 @@ short cursor_light_idx;
     unsigned long isometric_view_zoom_level;
     unsigned long frontview_zoom_level;
     unsigned char hand_idx;
-    };
-
-struct CheatSelection
-{
-    SlabKind chosen_terrain_kind;
-    PlayerNumber chosen_player;
-    unsigned char chosen_creature_kind;
-    unsigned char chosen_hero_kind;
-    unsigned char chosen_experience_level;
-};
-
-struct PlayerInfoAdd {
     struct CheatSelection cheatselection;
     TbBool first_person_dig_claim_mode;
     unsigned char teleport_destination;
@@ -261,12 +257,12 @@ struct PlayerInfoAdd {
     MapSubtlCoord cursor_subtile_y;
     MapSubtlCoord previous_cursor_subtile_x;
     MapSubtlCoord previous_cursor_subtile_y;
-    TbBool mouse_is_offmap;
+    TbBool mouse_on_map;
     TbBool roomspace_drag_paint_mode;
     unsigned char roomspace_l_shape;
     TbBool roomspace_horizontal_first;
     TbBool pickup_all_gold;
-};
+    };
 
 /******************************************************************************/
 
@@ -279,18 +275,16 @@ extern TbPixel player_path_colours[];
 extern TbPixel player_room_colours[];
 extern TbPixel player_flash_colours[];
 extern TbPixel player_highlight_colours[];
+extern TbPixel possession_hit_colours[];
 extern unsigned short const player_cubes[];
 extern long neutral_player_number;
 extern long hero_player_number;
 extern struct PlayerInfo bad_player;
-extern struct PlayerInfoAdd bad_playeradd;
+extern struct PlayerInfo bad_player;
 /******************************************************************************/
 struct PlayerInfo *get_player_f(long plyr_idx,const char *func_name);
-struct PlayerInfoAdd *get_playeradd_f(long plyr_idx,const char *func_name);
 #define get_player(plyr_idx) get_player_f(plyr_idx,__func__)
 #define get_my_player() get_player_f(my_player_number,__func__)
-#define get_playeradd(plyr_idx) get_playeradd_f(plyr_idx,__func__)
-#define get_my_playeradd() get_playeradd_f(my_player_number,__func__)
 TbBool player_invalid(const struct PlayerInfo *player);
 TbBool player_exists(const struct PlayerInfo *player);
 TbBool is_my_player(const struct PlayerInfo *player);

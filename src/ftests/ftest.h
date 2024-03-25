@@ -56,11 +56,17 @@ struct FTestActionArgs
     void* data;
 };
 
+typedef enum FTestActionResult
+{
+    FTRs_Repeat_Current_Action = 0,
+    FTRs_Go_To_Next_Action = 1
+} FTestActionResult;
+
 /**
  * @brief Function Test Action Func -
  * Your test will be comprised of these actions, append them inside your init func using ftest_append_action
  */
-typedef TbBool (*FTest_Action_Func)(struct FTestActionArgs* const args);
+typedef FTestActionResult (*FTest_Action_Func)(struct FTestActionArgs* const args);
 
 typedef enum FTestFrameworkState
 {

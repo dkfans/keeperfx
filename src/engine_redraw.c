@@ -836,7 +836,7 @@ TbBool draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, MapSubt
         set_pointer_graphic(MousePG_DenyMark);
         return false;
     }
-    Expand_Check_Func chkfunc = powerst->overcharge_check;
+    Expand_Check_Func chkfunc = powermodel_expand_check_func_list[powerst->overcharge_check_idx];
     if (chkfunc != NULL)
     {
         if (chkfunc())
@@ -980,8 +980,12 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     case PSt_FreeTurnChicken:
     case PSt_FreeCtrlPassngr:
     case PSt_FreeCtrlDirect:
-    case PSt_TimeBomb:
     case PSt_Rebound:
+    case PSt_Freeze:
+    case PSt_Slow:
+    case PSt_Flight:
+    case PSt_Vision:
+    case PSt_TimeBomb:
         draw_spell_cursor(player->work_state, 0, game.mouse_light_pos.x.stl.num, game.mouse_light_pos.y.stl.num);
         break;
     case PSt_CreatrQuery:
@@ -1003,8 +1007,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         break;
     case PSt_PlaceTerrain:
     {
-        struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
-        i = get_place_terrain_pointer_graphics(playeradd->cheatselection.chosen_terrain_kind);
+        i = get_place_terrain_pointer_graphics(player->cheatselection.chosen_terrain_kind);
         set_pointer_graphic(i);
         break;
     }
@@ -1144,6 +1147,10 @@ void redraw_display(void)
     {
         draw_script_timer(gameadd.script_player, gameadd.script_timer_id, gameadd.script_timer_limit, gameadd.timer_real);
     }
+    if (gameturn_timer_enabled())
+    {
+        draw_gameturn_timer();
+    }
     if (display_variable_enabled())
     {
         draw_script_variable(gameadd.script_player, gameadd.script_value_type, gameadd.script_value_id, gameadd.script_variable_target, gameadd.script_variable_target_type);
@@ -1155,6 +1162,10 @@ void redraw_display(void)
     if (frametime_enabled())
     {
         draw_frametime();
+    }
+    if (consolelog_enabled())
+    {
+        draw_consolelog();
     }
 
     if (((game.operation_flags & GOF_Paused) != 0) && ((game.operation_flags & GOF_WorldInfluence) == 0))

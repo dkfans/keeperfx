@@ -52,8 +52,9 @@ enum ThingFlags1 {
 };
 
 enum ThingFlags2 {
-    TF2_Unkn01         = 0x01,
-    TF2_Spectator      = 0x02,
+    TF2_Unkn01              = 0x01,
+    TF2_Spectator           = 0x02,
+    TF2_SummonedCreature    = 0x04,
 };
 
 enum ThingRenderingFlags {
@@ -217,8 +218,10 @@ struct Thing {
 //TCls_Trap
       struct {
         unsigned char num_shots;
-        long rearm_turn;
+        GameTurn rearm_turn;
         unsigned char revealed;
+        GameTurn shooting_finished_turn;
+        TbBool wait_for_rearm;
       } trap;
 //TCls_Door
       struct {

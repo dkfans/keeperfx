@@ -129,7 +129,7 @@ const struct TaskFunctions task_function[] = {
     {"COMPUTER_WAIT_FOR_BRIDGE",  task_wait_for_bridge},
     {"COMPUTER_ATTACK_MAGIC",     task_attack_magic},
     {"COMPUTER_SELL_TRAPS_AND_DOORS", task_sell_traps_and_doors},
-    {"COMPUTER_MOVE_GOLD_TO_TREASURY",task_move_gold_to_treasury},
+    {"COMPUTER_MOVE_GOLD_TO_TREASURY", task_move_gold_to_treasury},
 };
 
 const struct TrapDoorSelling trapdoor_sell[] = {
@@ -386,6 +386,12 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     case GA_UsePwrConceal:
         thing = thing_get(param1);
         return magic_use_available_power_on_thing(plyr_idx, PwrK_CONCEAL, alevel, stl_x, stl_y, thing, PwMod_Default);
+    case GA_UsePwrFlight:
+        thing = thing_get(param1);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_FLIGHT, alevel, stl_x, stl_y, thing, PwMod_Default);
+    case GA_UsePwrVision:
+        thing = thing_get(param1);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_VISION, alevel, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrHoldAudnc:
         return magic_use_available_power_on_level(plyr_idx, PwrK_HOLDAUDNC, alevel, PwMod_Default);
     case GA_UsePwrDisease:
@@ -394,6 +400,12 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     case GA_UsePwrChicken:
         thing = thing_get(param1);
         return magic_use_available_power_on_thing(plyr_idx, PwrK_CHICKEN, alevel, stl_x, stl_y, thing, PwMod_Default);
+    case GA_UsePwrFreeze:
+        thing = thing_get(param1);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_FREEZE, alevel, stl_x, stl_y, thing, PwMod_Default);
+    case GA_UsePwrSlow:
+        thing = thing_get(param1);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_SLOW, alevel, stl_x, stl_y, thing, PwMod_Default);
     case GA_UseSlap:
     case GA_UsePwrSlap:
         thing = thing_get(param1);
@@ -2317,7 +2329,9 @@ static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBo
     {
         struct CreatureControl *cctrl = creature_control_get_from_thing(i);
 
-        if ( any_flag_is_set(i->alloc_flags, (TAlF_IsInLimbo|TAlF_IsInMapWho)) )
+        if ( flag_is_set(i->alloc_flags, TAlF_IsInLimbo) )
+            continue;
+        if (flag_is_set(i->state_flags, TF1_InCtrldLimbo) )
             continue;
         if ( i->active_state == CrSt_CreatureUnconscious )
             continue;
@@ -3097,7 +3111,7 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
         {
             k = 1;
         }
-    } 
+    }
     else if (computer_able_to_use_power(comp, PwrK_PROTECT, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_PROTECT))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrArmour, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
@@ -3108,6 +3122,20 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
     else if (computer_able_to_use_power(comp, PwrK_REBOUND, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_REBOUND))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrRebound, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
+        {
+            k = 1;
+        }
+    }
+    if (computer_able_to_use_power(comp, PwrK_FLIGHT, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_FLIGHT))
+    {
+        if (try_game_action(comp, dungeon->owner, GA_UsePwrFlight, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
+        {
+            k = 1;
+        }
+    }
+    if (computer_able_to_use_power(comp, PwrK_VISION, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_VISION))
+    {
+        if (try_game_action(comp, dungeon->owner, GA_UsePwrVision, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
             k = 1;
         }
@@ -3790,8 +3818,8 @@ TbBool create_task_slap_imps(struct Computer2 *comp, long creatrs_num)
     return true;
 }
 
-//task is named 'speed up', but it's generated from 'check fighter' event and all round buffs units. Not to be confused
-//with check_for_accelerate which cast speed outside of combat
+//Task is named 'speed up', but it's generated from 'check fighter' event and all round buffs units.
+//Not to be confused with check_for_accelerate which cast speed outside of combat.
 TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *creatng, long splevel)
 {
     struct ComputerTask *ctask;
@@ -3801,7 +3829,7 @@ TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *cr
         return false;
     }
     if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
-        message_add_fmt(comp->dungeon->owner, "I should buff my fighters.");
+        message_add_fmt(comp->dungeon->owner, "I should speed up my fighters.");
     }
     ctask->ttype = CTT_MagicSpeedUp;
     ctask->attack_magic.target_thing_idx = creatng->index;

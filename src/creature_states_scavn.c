@@ -73,9 +73,9 @@ short at_scavenger_room(struct Thing *thing)
         return 0;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    GoldAmount scavenger_cost = calculate_correct_creature_scavenging_cost(thing);
     struct Dungeon* dungeon = get_dungeon(thing->owner);
-    if (crstat->scavenger_cost >= dungeon->total_money_owned)
+    if (scavenger_cost >= dungeon->total_money_owned)
     {
         if (is_my_player_number(thing->owner))
             output_message(SMsg_NoGoldToScavenge, MESSAGE_DELAY_TREASURY, true);
@@ -119,7 +119,7 @@ struct Thing *get_random_fellow_not_hated_creature(struct Thing *creatng)
         if ((n <= 0) && (thing->index != creatng->index))
         {
             struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-            if (creature_model_is_lair_enemy(crstat->lair_enemy, creatng->model))
+            if (!creature_model_is_lair_enemy(crstat->lair_enemy, creatng->model))
             {
                 return thing;
             }
@@ -224,8 +224,8 @@ short creature_scavenged_reappear(struct Thing *thing)
 TbBool player_can_afford_to_scavenge_creature(const struct Thing *creatng)
 {
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    return (crstat->scavenger_cost < dungeon->total_money_owned);
+    GoldAmount scavenger_cost = calculate_correct_creature_scavenging_cost(creatng);
+    return (scavenger_cost < dungeon->total_money_owned);
 }
 
 TbBool reset_scavenge_counts(struct Dungeon *dungeon)
@@ -543,10 +543,11 @@ CrCheckRet process_scavenge_function(struct Thing *calltng)
     if (callctrl->turns_at_job > game.conf.rules.rooms.scavenge_cost_frequency)
     {
         callctrl->turns_at_job -= game.conf.rules.rooms.scavenge_cost_frequency;
-        if (take_money_from_dungeon(calltng->owner, crstat->scavenger_cost, 1) < 0) {
-            ERRORLOG("Cannot take %d gold from dungeon %d",(int)crstat->scavenger_cost,(int)calltng->owner);
+        GoldAmount scavenger_cost = calculate_correct_creature_scavenging_cost(calltng);
+        if (take_money_from_dungeon(calltng->owner, scavenger_cost, 1) < 0) {
+            ERRORLOG("Cannot take %d gold from dungeon %d",(int)scavenger_cost,(int)calltng->owner);
         }
-        create_price_effect(&calltng->mappos, calltng->owner, crstat->scavenger_cost);
+        create_price_effect(&calltng->mappos, calltng->owner, scavenger_cost);
     }
     return 0;
 }

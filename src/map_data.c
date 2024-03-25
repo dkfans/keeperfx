@@ -203,6 +203,15 @@ TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber p
     return map_block_revealed(mapblk, plyr_idx);
 }
 
+/**
+ * Checks if the subtile is revealed without taking into consideration allied vision
+ */
+TbBool subtile_revealed_directly(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
+{
+    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    return map_block_revealed_directly(mapblk, plyr_idx);
+}
+
 void reveal_map_block(struct Map *mapblk, PlayerNumber plyr_idx)
 {
     set_flag(mapblk->revealed, to_flag(plyr_idx));
@@ -324,6 +333,17 @@ TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
     }
     return false;
 }
+
+
+TbBool map_block_revealed_directly(const struct Map* mapblk, PlayerNumber plyr_idx)
+{
+    if (map_block_invalid(mapblk))
+        return false;
+    if (flag_is_set(mapblk->revealed, to_flag(plyr_idx)))
+        return true;
+    return false;
+}
+
 
 TbBool valid_dig_position(PlayerNumber plyr_idx, long stl_x, long stl_y)
 {

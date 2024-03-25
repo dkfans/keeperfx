@@ -310,7 +310,7 @@ void all_players_untag_blocks_for_digging_in_area(MapSlabCoord slb_x, MapSlabCoo
 
 TbBool set_slab_explored(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    if ( (plyr_idx == game.neutral_player_num) || subtile_revealed(slab_subtile_center(slb_x), slab_subtile_center(slb_y), plyr_idx) )
+    if ( (plyr_idx == game.neutral_player_num) || subtile_revealed_directly(slab_subtile_center(slb_x), slab_subtile_center(slb_y), plyr_idx) )
     {
         return false;
     }
@@ -858,7 +858,7 @@ void place_slab_columns(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl
 {
     struct SlabAttr *slbattr;
     slbattr = get_slab_kind_attrs(slbkind);
-    if (slbattr->wlb_type != 3)
+    if (slbattr->wlb_type != WlbT_Bridge)
     {
         struct SlabMap *slb;
         slb = get_slabmap_for_subtile(stl_x, stl_y);
@@ -948,9 +948,9 @@ void place_slab_object(SlabCodedCoords slb_num, MapSubtlCoord stl_x,MapSubtlCoor
                 ilght.mappos.x.val = pos.x.val;
                 ilght.mappos.y.val = pos.y.val;
                 ilght.mappos.z.val = pos.z.val;
-                ilght.radius = sobj->range << 8;
+                ilght.radius = sobj->range * COORD_PER_STL;
                 ilght.intensity = sobj->model;
-                ilght.field_3 = 0;
+                ilght.flags = 0;
                 ilght.is_dynamic = 0;
                 long lgt_id;
                 lgt_id = light_create_light(&ilght);

@@ -61,19 +61,21 @@ const struct NamedCommand creaturetype_common_commands[] = {
   };
 
 const struct NamedCommand creaturetype_experience_commands[] = {
-  {"PAYINCREASEONEXP",            1},
-  {"SPELLDAMAGEINCREASEONEXP",    2},
-  {"RANGEINCREASEONEXP",          3},
-  {"JOBVALUEINCREASEONEXP",       4},
-  {"HEALTHINCREASEONEXP",         5},
-  {"STRENGTHINCREASEONEXP",       6},
-  {"DEXTERITYINCREASEONEXP",      7},
-  {"DEFENSEINCREASEONEXP",        8},
-  {"LOYALTYINCREASEONEXP",        9},
-  {"ARMOURINCREASEONEXP",        10},
-  {"SIZEINCREASEONEXP",          11},
-  {"EXPFORHITTINGINCREASEONEXP", 12},
-  {NULL,                          0},
+  {"PAYINCREASEONEXP",             1},
+  {"SPELLDAMAGEINCREASEONEXP",     2},
+  {"RANGEINCREASEONEXP",           3},
+  {"JOBVALUEINCREASEONEXP",        4},
+  {"HEALTHINCREASEONEXP",          5},
+  {"STRENGTHINCREASEONEXP",        6},
+  {"DEXTERITYINCREASEONEXP",       7},
+  {"DEFENSEINCREASEONEXP",         8},
+  {"LOYALTYINCREASEONEXP",         9},
+  {"ARMOURINCREASEONEXP",         10},
+  {"SIZEINCREASEONEXP",           11},
+  {"EXPFORHITTINGINCREASEONEXP",  12},
+  {"TRAININGCOSTINCREASEONEXP",   13},
+  {"SCAVENGINGCOSTINCREASEONEXP", 14},
+  {NULL,                           0},
   };
 
 const struct NamedCommand creaturetype_instance_commands[] = {
@@ -329,7 +331,7 @@ void check_and_auto_fix_stats(void)
             ERRORLOG("Creature model %d (%s) SleepSlab set but SleepExperience = 0 - Fixing", (int)model, creature_code_name(model));
             crstat->sleep_exp_slab = 0;
         }
-        if ((crstat->grow_up >= game.conf.crtr_conf.model_count) && !(crstat->grow_up == CREATURE_ANY))
+        if ((crstat->grow_up >= game.conf.crtr_conf.model_count) && !(crstat->grow_up == CREATURE_NOT_A_DIGGER))
         {
             ERRORLOG("Creature model %d (%s) Invalid GrowUp model - Fixing", (int)model, creature_code_name(model));
             crstat->grow_up = 0;
@@ -627,6 +629,8 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
         game.conf.crtr_conf.exp.loyalty_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
         game.conf.crtr_conf.exp.exp_on_hitting_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
         game.conf.crtr_conf.exp.armour_increase_on_exp = 0;
+        game.conf.crtr_conf.exp.training_cost_increase_on_exp = 0;
+        game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp = 0;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -806,6 +810,32 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
+        case 13: // TRAININGCOSTINCREASEONEXP
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                game.conf.crtr_conf.exp.training_cost_increase_on_exp = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 14: // SCAVENGINGCOSTINCREASEONEXP
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
         case 0: // comment
             break;
         case -1: // end of buffer
@@ -853,7 +883,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                 game.conf.magic_conf.instance_info[i].flags = 0;
                 game.conf.magic_conf.instance_info[i].force_visibility = 0;
                 game.conf.magic_conf.instance_info[i].primary_target = 0;
-                game.conf.magic_conf.instance_info[i].func_cb = 0;
+                game.conf.magic_conf.instance_info[i].func_idx = 0;
                 game.conf.magic_conf.instance_info[i].func_params[0] = 0;
                 game.conf.magic_conf.instance_info[i].func_params[1] = 0;
                 game.conf.magic_conf.instance_info[i].symbol_spridx = 0;
@@ -1061,7 +1091,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             k = recognize_conf_parameter(buf,&pos,len,creature_instances_func_type);
             if (k > 0)
             {
-                inst_inf->func_cb = creature_instances_func_list[k];
+                inst_inf->func_idx = k;
                 n++;
                 //JUSTLOG("Function = %s %s %d",creature_instances_func_type[k-1].name,spell_code_name(inst_inf->func_params[0]),inst_inf->func_params[1]);
             }

@@ -1235,7 +1235,7 @@ CrAttackType find_fellow_creature_to_fight_in_room(struct Thing *fightng, struct
         {
             if (crmodel[j] == 0)
                 break;
-            if (thing_is_creature(thing) && (thing->model == crmodel[j]) && (cctrl->combat_flags == 0))
+            if (thing_is_creature(thing) && (thing_matches_model(thing,crmodel[j])) && (cctrl->combat_flags == 0))
             {
                 if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing)
                     && !creature_is_being_unconscious(thing) && !creature_is_dying(thing))
@@ -1826,6 +1826,8 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_FLY);
     }
+    INSTANCE_RET_IF_AVAIL(thing, CrInst_SUMMON);
+    INSTANCE_RET_IF_AVAIL(thing, CrInst_FAMILIAR);
     for (int i = CrInst_LISTEND; i < game.conf.crtr_conf.instances_count; i++)
     {
         inst_inf = creature_instance_info_get(i);
@@ -1880,7 +1882,6 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
             INSTANCE_RET_IF_AVAIL(thing, CrInst_SIGHT);
         }
 
-        long state_type = get_creature_state_type(thing);
         if (!creature_is_kept_in_custody(thing))
         {
             // casting wind when under influence of gas
@@ -1888,6 +1889,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
             {
                 INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
             }
+            long state_type = get_creature_state_type(thing);
             if (!creature_affected_by_spell(thing, SplK_Speed) && (state_type != CrStTyp_Idle))
             {
                 INSTANCE_RET_IF_AVAIL(thing, CrInst_SPEED);
@@ -1900,6 +1902,10 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
             if (!creature_affected_by_spell(thing, SplK_Invisibility) && (state_type != CrStTyp_Idle))
             {
                 INSTANCE_RET_IF_AVAIL(thing, CrInst_INVISIBILITY);
+            }
+            if (state_type != CrStTyp_Idle)
+            {
+                INSTANCE_RET_IF_AVAIL(thing, CrInst_FAMILIAR);
             }
         }
     }

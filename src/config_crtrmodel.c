@@ -114,6 +114,10 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"IMMUNE_TO_DISEASE", 25},
   {"ILLUMINATED",       26},
   {"ALLURING_SCVNGR",   27},
+  {"NO_RESURRECT",      28},
+  {"NO_TRANSFER",       29},
+  {"TREMBLING",         30},
+  {"FAT",               31},
   {NULL,                 0},
   };
 
@@ -709,7 +713,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 n++;
                 break;
             case 20: // TREMBLING_FAT
-                crconf->model_flags |= CMF_TremblingFat;
+                crconf->model_flags |= CMF_Trembling;
+                crconf->model_flags |= CMF_Fat;
                 n++;
                 break;
             case 21: // FEMALE
@@ -738,6 +743,22 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 break;
             case 27: // ALLURING_SCVNGR
                 crstat->entrance_force = true;
+                n++;
+                break;
+            case 28: // NO_RESURRECT
+                crconf->model_flags |= CMF_NoResurrect;
+                n++;
+                break;
+            case 29: // NO_TRANSFER
+                crconf->model_flags |= CMF_NoTransfer;
+                n++;
+                break;
+            case 30: // TREMBLING
+                crconf->model_flags |= CMF_Trembling;
+                n++;
+                break;
+            case 31: // FAT
+                crconf->model_flags |= CMF_Fat;
                 n++;
                 break;
             default:
@@ -1305,6 +1326,11 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
                         crstat->lair_enemy[i] = k;
                         n++;
                     }
+                    else if (0 == strcmp(word_buf, "ANY_CREATURE"))
+                    {
+                        crstat->lair_enemy[i] = CREATURE_ANY;
+                        n++;
+                    }
                     else
                     {
                         crstat->lair_enemy[i] = 0;
@@ -1387,7 +1413,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
         crstat->base_eye_height = 0;
         crstat->field_of_view = 0;
         crstat->eye_effect = 0;
-        crstat->max_angle_change = 1;
+        crstat->max_turning_speed = 1;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -1472,7 +1498,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
               k = atoi(word_buf);
               if (k > 0)
               {
-                  crstat->max_angle_change = (k * LbFPMath_PI) / 180;
+                  crstat->max_turning_speed = (k * LbFPMath_PI) / 180;
                   n++;
               }
             }

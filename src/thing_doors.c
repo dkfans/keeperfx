@@ -304,11 +304,9 @@ TbBool subtile_has_locked_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 
 TbBool thing_is_deployed_door(const struct Thing *thing)
 {
-    if (thing_is_invalid(thing))
+    if (!thing_exists(thing))
         return false;
-    if (thing->class_id != TCls_Door)
-        return false;
-    return true;
+    return (thing->class_id == TCls_Door);
 }
 
 TbBool thing_is_sellable_door(const struct Thing* thing)
@@ -659,7 +657,7 @@ void update_all_door_stats()
     for(int i = slist->index; i > 0;)
     {
         struct Thing* thing = thing_get(i);
-        i = thing->next_of_class
+        i = thing->next_of_class;
         TRACE_THING(thing);
         struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
         thing->health = doorst->health;

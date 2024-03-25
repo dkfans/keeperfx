@@ -248,17 +248,8 @@ TbBool thing_create_thing_adv(VALUE *init_data)
         ERRORLOG("Thing Ownership is not set");
         return false;
     }
-    else if (owner == 7)
-    {
-        ERRORLOG("Invalid owning player %d, fixing to %d", owner, (int)game.hero_player_num);
-        owner = game.hero_player_num;
-    }
-    else if (owner == 8)
-    {
-        ERRORLOG("Invalid owning player %d, fixing to %d", owner, (int)game.neutral_player_num);
-        owner = game.neutral_player_num;
-    }
-    if (owner > 5)
+
+    if (owner > PLAYERS_COUNT)
     {
         ERRORLOG("Invalid owning player %d, thing discarded", owner);
         return false;
@@ -454,11 +445,11 @@ struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct C
         if (light_rand == 1)
         {
             ilght.intensity = 48;
-            ilght.field_3 = 5;
+            ilght.flags = 5;
         } else
         {
             ilght.intensity = 36;
-            ilght.field_3 = 1;
+            ilght.flags = 1;
         }
         ilght.is_dynamic = 1;
         ilght.radius = 2560;
