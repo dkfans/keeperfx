@@ -213,12 +213,14 @@ static void api_ok()
 /**
  * @brief Return data to the API client.
  *
- * This function takes ownership of the provided value.
+ * This function takes ownership of the provided value and constructs a JSON response
+ * indicating the success status along with the provided value.
  *
+ * @param success The success status of the operation, true for success, false for failure.
  * @param value The value to be returned to the API client.
  *              Ownership is transferred to this function.
  */
-static void api_return_data(VALUE value)
+static void api_return_data(TbBool success, VALUE value)
 {
     // Do nothing if API server is not active
     if (!api.activeSocket)
@@ -233,7 +235,7 @@ static void api_return_data(VALUE value)
 
     // Create success key
     VALUE *val_success = value_dict_add(json_root, "success");
-    value_init_bool(val_success, true);
+    value_init_bool(val_success, success);
 
     // Create data key
     VALUE *val_data = value_dict_add(json_root, "data");
@@ -287,7 +289,7 @@ static void api_return_data_string(const char *data)
  *
  * @param data The long integer data to be sent to the API client.
  */
-static void api_return_data_long(long data)
+static void api_return_data_number(long data)
 {
     // Do nothing if API server is not active
     if (!api.activeSocket)
@@ -480,7 +482,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         }
 
         // Return data to client
-        api_return_data(flag_data_real);
+        api_return_data(true, flag_data_real);
 
         // End
         value_fini(&data);
@@ -512,7 +514,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         long variable_value = get_condition_value(player_id, variable_type, variable_id);
 
         // Return the variable to the user
-        api_return_data_long(variable_value);
+        api_return_data_number(variable_value);
 
         // End
         value_fini(&data);
@@ -620,7 +622,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         value_init_bool(value_dict_add(data_campaign_info, "is_map_pack"), is_map_pack());
 
         // Return data to client
-        api_return_data(data_level_info_real);
+        api_return_data(true, data_level_info_real);
 
         // End
         value_fini(&data);
@@ -639,7 +641,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         value_init_int32(value_dict_add(data_current_game_info, "game_turn"), get_gameturn());
 
         // Return data to client
-        api_return_data(data_current_game_info_real);
+        api_return_data(true, data_current_game_info_real);
 
         // End
         value_fini(&data);
@@ -658,7 +660,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         value_init_string(value_dict_add(data_kfx_info, "kfx_version"), VER_STRING);
 
         // Return data to client
-        api_return_data(data_kfx_info_real);
+        api_return_data(true, data_kfx_info_real);
 
         // End
         value_fini(&data);
