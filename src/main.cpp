@@ -4018,14 +4018,13 @@ short process_command_line(unsigned short argc, char *argv[])
             // Get handle to console
             // We need to do this manually because KeeperFX is not a console application
             HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
-            if (hStdout == INVALID_HANDLE_VALUE) {
-                fprintf(stderr, "Failed to get stdout handle!\n");
+            if (hStdout != INVALID_HANDLE_VALUE) {
+                // Write to the stdout console handle
+                DWORD bytesWritten;
+                char message[256];
+                snprintf(message, sizeof(message), "%s %s\n", PRODUCT_NAME, PRODUCT_VERSION);
+                WriteFile(hStdout, message, strlen(message), &bytesWritten, NULL);
             }
-            // Write to the stdout console handle
-            DWORD bytesWritten;
-            char message[256];
-            snprintf(message, sizeof(message), "%s %s\n", PRODUCT_NAME, PRODUCT_VERSION);
-            WriteFile(hStdout, message, strlen(message), &bytesWritten, NULL);
         #else
             // On non Windows operating systems we can simply write to stdout
             printf("%s %s\n", PRODUCT_NAME, PRODUCT_VERSION);
