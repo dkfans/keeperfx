@@ -4015,10 +4015,21 @@ short process_command_line(unsigned short argc, char *argv[])
       if (strcasecmp(parstr, "v") == 0 || strcasecmp(parstr, "version") == 0)
       {
         #ifdef _WIN32
-            AttachConsole(-1);
+            // Get handle to console
+            // We need to do this manually because KeeperFX is not a console application
+            HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+            if (hStdout == INVALID_HANDLE_VALUE) {
+                fprintf(stderr, "Failed to get stdout handle!\n");
+            }
+            // Write to the stdout console handle
+            DWORD bytesWritten;
+            char message[256];
+            snprintf(message, sizeof(message), "%s %s\n", PRODUCT_NAME, PRODUCT_VERSION);
+            WriteFile(hStdout, message, strlen(message), &bytesWritten, NULL);
+        #else
+            // On non Windows operating systems we can simply write to stdout
+            printf("%s %s\n", PRODUCT_NAME, PRODUCT_VERSION);
         #endif
-        printf("%s %s\n", PRODUCT_NAME, PRODUCT_VERSION);
-        fflush(stdout);
         exit(0);
       } else
       if (strcasecmp(parstr, "nointro") == 0)
