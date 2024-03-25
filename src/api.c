@@ -198,7 +198,7 @@ static void api_err(const char *err)
 
     // Create error key
     VALUE *val_err = value_dict_add(json_root, "error");
-    value_init_bool(val_err, err);
+    value_init_string(val_err, err);
 
     // Create JSON response
     char json_string[1024];
