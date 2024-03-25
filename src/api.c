@@ -20,19 +20,45 @@
 
 #define API_SERVER_BUFFER 1024
 
+/**
+ * @brief Structure to hold API global variables.
+ *
+ * This structure defines global variables related to the API, including the server socket,
+ * active client socket (only one client at a time), and a socket set for managing sockets.
+ */
 struct ApiGlobals
 {
-    TCPsocket serverSocket;
-    TCPsocket activeSocket; // Only one client each time
-    SDLNet_SocketSet socketSet;
-} api = {0};
+    TCPsocket serverSocket;     /**< Server socket for API communication. */
+    TCPsocket activeSocket;     /**< Active client socket (only one client at a time). */
+    SDLNet_SocketSet socketSet; /**< Socket set for managing sockets. */
+} api = {0};                    /**< Global instance of the API global variables initialized with zeros. */
 
+/**
+ * @brief Structure to hold the state of a dump buffer.
+ *
+ * This structure holds the state of a dump buffer, which is used by functions
+ * for writing JSON data. It includes a pointer to the output buffer and the
+ * remaining space available in the buffer.
+ */
 struct dump_buf_state
 {
-    char *out;
-    int out_space;
+    char *out;     /**< Pointer to the output buffer. */
+    int out_space; /**< Remaining space available in the output buffer. */
 };
 
+/**
+ * @brief Callback function for writing JSON value dump.
+ *
+ * This function is a callback used by the JSON library for writing JSON value dump.
+ * It copies the JSON data into a buffer, tracking the buffer space available.
+ *
+ * @param str Pointer to the buffer containing the JSON data.
+ * @param size Size of the JSON data in bytes.
+ * @param dbs Pointer to the dump buffer state structure.
+ *            It holds information about the output buffer and available space.
+ *
+ * @return 0 on success, -1 if the buffer is too small.
+ */
 static int json_value_dump_writer(const unsigned char *str, size_t size, void *dbs)
 {
     // @author: https://github.com/wolfSSL/wolfsentry/blob/857c85d1b3a6c7b297efa2bbb6ea89817aea7b4b/src/kv.c#L395
@@ -52,7 +78,15 @@ static int json_value_dump_writer(const unsigned char *str, size_t size, void *d
     return 0;
 }
 
-// Initialize the TCP API server
+/**
+ * @brief Initialize the TCP API server.
+ *
+ * This function initializes the TCP API server by opening a socket on the specified port.
+ * It also initializes SDLNet library and sets up necessary data structures.
+ * If the server is already active or the API is not enabled, it does nothing.
+ *
+ * @return 0 on success, 1 on failure.
+ */
 int api_init_server()
 {
     // Ignore if server is already active
@@ -115,6 +149,14 @@ int api_init_server()
     return 0;
 }
 
+/**
+ * @brief Send an API event message.
+ *
+ * This function sends an event message to the API client over the active socket.
+ * If the API server is not active, this function does nothing.
+ *
+ * @param event_name A null-terminated string representing the name of the event to be sent.
+ */
 void api_event(const char *event_name)
 {
     // Do nothing if API server is not active
@@ -129,6 +171,14 @@ void api_event(const char *event_name)
     SDLNet_TCP_Send(api.activeSocket, buf, len);
 }
 
+/**
+ * @brief Send an API error message.
+ *
+ * This function sends an error message to the API client over the active socket.
+ * If the API server is not active, this function does nothing.
+ *
+ * @param err A null-terminated string representing the error message to be sent.
+ */
 static void api_err(const char *err)
 {
     // Do nothing if API server is not active
@@ -142,6 +192,12 @@ static void api_err(const char *err)
     SDLNet_TCP_Send(api.activeSocket, buf, len);
 }
 
+/**
+ * @brief Send an API success message.
+ *
+ * This function sends a success message to the API client over the active socket.
+ * If the API server is not active, this function does nothing.
+ */
 static void api_ok()
 {
     // Do nothing if API server is not active
@@ -154,6 +210,14 @@ static void api_ok()
     SDLNet_TCP_Send(api.activeSocket, msg, strlen(msg));
 }
 
+/**
+ * @brief Return data to the API client.
+ *
+ * This function takes ownership of the provided value.
+ *
+ * @param value The value to be returned to the API client.
+ *              Ownership is transferred to this function.
+ */
 static void api_return_data(VALUE value)
 {
     // Do nothing if API server is not active
@@ -192,9 +256,17 @@ static void api_return_data(VALUE value)
     value_fini(json_root);
 }
 
-static void api_return_data_string(char data)
+/**
+ * @brief Send a string data response to the API client.
+ *
+ * This function sends a string data response to the API client over the active socket.
+ * If the API server is not active, this function does nothing.
+ *
+ * @param data The string data to be sent to the API client.
+ */
+static void api_return_data_string(const char *data)
 {
-    // Do nothing if API server is not active
+    // Do nothing if the API server is not active
     if (!api.activeSocket)
     {
         return;
@@ -205,6 +277,16 @@ static void api_return_data_string(char data)
     SDLNet_TCP_Send(api.activeSocket, buf, len);
 }
 
+/**
+ * @brief Send a long integer data response to the API client.
+ *
+ * This is useful for sending numeric values.
+ *
+ * This function sends a long integer data response to the API client over the active socket.
+ * If the API server is not active, this function does nothing.
+ *
+ * @param data The long integer data to be sent to the API client.
+ */
 static void api_return_data_long(long data)
 {
     // Do nothing if API server is not active
@@ -218,6 +300,17 @@ static void api_return_data_long(long data)
     SDLNet_TCP_Send(api.activeSocket, buf, len);
 }
 
+/**
+ * @brief Process the incoming buffer from the API client.
+ *
+ * This function processes the incoming buffer from the API client, parsing the JSON object
+ * and executing the corresponding action. It handles various actions such as map commands,
+ * console commands, getting player flags, reading and setting variables, and retrieving
+ * level information.
+ *
+ * @param buffer The buffer containing the JSON data sent by the client.
+ * @param buf_size The size of the buffer.
+ */
 static void api_process_buffer(const char *buffer, size_t buf_size)
 {
     VALUE data, *value = &data;
@@ -577,6 +670,12 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
     value_fini(&data);
 }
 
+/**
+ * @brief Update the API server and handle all pending packets.
+ *
+ * This function updates the API server by checking for incoming connections and messages.
+ * It accepts new client connections, processes incoming messages, and handles disconnections.
+ */
 void api_update_server()
 {
     // Return if the TCP server is not listening
@@ -657,6 +756,12 @@ void api_update_server()
     } while (numReady > 0); // To have break instead of goto
 }
 
+/**
+ * @brief Close the API server.
+ *
+ * This function stops the API server by closing the server socket and active client socket,
+ * and frees the socket set. It also shuts down the SDLNet library.
+ */
 void api_close_server()
 {
     JUSTLOG("API server stopped listening to messages");
