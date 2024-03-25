@@ -268,7 +268,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
     }
     else if (value_type(player) == VALUE_STRING)
     {
-        player_id = get_rid(player_desc, (char *)value_string(player));
+        player_id = get_id(player_desc, (char *)value_string(player));
     }
 
     // Handle map command
