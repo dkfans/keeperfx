@@ -187,9 +187,34 @@ static void api_err(const char *err)
         return;
     }
 
-    char buf[256];
-    int len = snprintf(buf, sizeof(buf) - 1, "{\"success\":false,\"error\":\"%s\"}\n", err);
-    SDLNet_TCP_Send(api.activeSocket, buf, len);
+    // Create JSON response object
+    VALUE json_root_real;
+    VALUE *json_root = &json_root_real;
+    value_init_dict(json_root);
+
+    // Create success key
+    VALUE *val_success = value_dict_add(json_root, "success");
+    value_init_bool(val_success, false);
+
+    // Create error key
+    VALUE *val_err = value_dict_add(json_root, "error");
+    value_init_bool(val_err, err);
+
+    // Create JSON response
+    char json_string[1024];
+    struct dump_buf_state dump_state = {json_string, sizeof(json_string) - 1};
+    int json_dump_return_value = json_dom_dump(json_root, json_value_dump_writer, &dump_state, 0, JSON_DOM_DUMP_MINIMIZE);
+
+    // *dump_state.out = 0;
+    if (json_dump_return_value != 0)
+    {
+        api_err("failed to create json response");
+        value_fini(json_root);
+        return;
+    }
+
+    SDLNet_TCP_Send(api.activeSocket, json_string, dump_state.out - json_string);
+    value_fini(json_root);
 }
 
 /**
@@ -206,6 +231,7 @@ static void api_ok()
         return;
     }
 
+    // We can simply send back this data as a string without using JSON functions.
     const char msg[] = "{\"success\":true}\n";
     SDLNet_TCP_Send(api.activeSocket, msg, strlen(msg));
 }
@@ -274,9 +300,12 @@ static void api_return_data_string(const char *data)
         return;
     }
 
-    char buf[1024];
-    int len = snprintf(buf, sizeof(buf) - 1, "{\"success\":true,\"data\":\"%s\"}\n", data);
-    SDLNet_TCP_Send(api.activeSocket, buf, len);
+    // Create value to send back
+    VALUE dataValue, *value = &dataValue;
+    value_init_string(value, data);
+
+    // Send the data
+    api_return_data(true, dataValue);
 }
 
 /**
@@ -297,6 +326,7 @@ static void api_return_data_number(long data)
         return;
     }
 
+    // Send back the JSON as a string. A number should never be able to break the syntax.
     char buf[256];
     int len = snprintf(buf, sizeof(buf) - 1, "{\"success\":true,\"data\":%ld}\n", data);
     SDLNet_TCP_Send(api.activeSocket, buf, len);
