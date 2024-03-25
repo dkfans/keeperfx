@@ -31,10 +31,10 @@
 extern "C" {
 #endif
 
-#define CREATURE_NONE 255
-#define CREATURE_ANY  254
-#define CREATURE_NOT_A_DIGGER  253
-#define CREATURE_DIGGER  252
+#define CREATURE_NONE            255
+#define CREATURE_ANY             254
+#define CREATURE_NOT_A_DIGGER    253
+#define CREATURE_DIGGER          252
 
 /** Percentage of creature parameter increase for every experience level.
  *  Used as default value, should be replaced in config file. */
@@ -148,8 +148,18 @@ enum InstancePropertiesFlags {
     InstPF_Quick              = 0x0080,
     InstPF_Disarming          = 0x0100,
     InstPF_UsesSwipe          = 0x0200,
-    InstPF_OutOfBattle        = 0x0400,
-    InstPF_WhileImprisoned    = 0x0800,
+};
+
+enum InstanceActivationFlags {
+    InstAF_None                = 0x00000,
+    InstAF_Digging             = 0x00001,
+    InstAF_Fighting            = 0x00002,
+    InstAF_Idling              = 0x00004,
+    InstAF_Working             = 0x00008,
+    InstAF_WhileImprisoned     = 0x00010,
+    InstAF_WhileInjured        = 0x00020,
+    InstAF_WhileUnderGas       = 0x00040,
+    InstAF_OnToxicTerrain      = 0x00080,
 };
 
 enum CreatureDeathKind {

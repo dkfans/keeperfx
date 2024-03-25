@@ -109,6 +109,7 @@ struct InstanceInfo {
     long range_max;
     long symbol_spridx;
     short tooltip_stridx;
+    unsigned long activation_flags;
 };
 
 /******************************************************************************/

@@ -96,22 +96,33 @@ const struct NamedCommand creaturetype_instance_commands[] = {
   {"PROPERTIES",     15},
   {"FPINSTANTCAST",  16},
   {"PRIMARYTARGET",  17},
+  {"ACTIVATION",     18},
   {NULL,              0},
   };
 
 const struct NamedCommand creaturetype_instance_properties[] = {
-  {"REPEAT_TRIGGER",       InstPF_RepeatTrigger},
-  {"RANGED_ATTACK",        InstPF_RangedAttack},
-  {"MELEE_ATTACK",         InstPF_MeleeAttack},
-  {"RANGED_DEBUFF",        InstPF_RangedDebuff},
-  {"SELF_BUFF",            InstPF_SelfBuff},
-  {"DANGEROUS",            InstPF_Dangerous},
-  {"DESTRUCTIVE",          InstPF_Destructive},
-  {"QUICK",                InstPF_Quick},
-  {"DISARMING",            InstPF_Disarming},
-  {"DISPLAY_SWIPE",        InstPF_UsesSwipe},
-  {"OUT_OF_BATTLE",        InstPF_OutOfBattle},
-  {"WHILE_IMPRISONED",     InstPF_WhileImprisoned},
+  {"REPEAT_TRIGGER",         InstPF_RepeatTrigger},
+  {"RANGED_ATTACK",          InstPF_RangedAttack},
+  {"MELEE_ATTACK",           InstPF_MeleeAttack},
+  {"RANGED_DEBUFF",          InstPF_RangedDebuff},
+  {"SELF_BUFF",              InstPF_SelfBuff},
+  {"DANGEROUS",              InstPF_Dangerous},
+  {"DESTRUCTIVE",            InstPF_Destructive},
+  {"QUICK",                  InstPF_Quick},
+  {"DISARMING",              InstPF_Disarming},
+  {"DISPLAY_SWIPE",          InstPF_UsesSwipe},
+  {NULL,                     0},
+  };
+
+const struct NamedCommand creaturetype_instance_activation[] = {
+  {"DIGGING",                InstAF_Digging},
+  {"FIGHTING",               InstAF_Fighting},
+  {"IDLING",                 InstAF_Idling},
+  {"WORKING",                InstAF_Working},
+  {"WHILE_IMPRISONED",       InstAF_WhileImprisoned},
+  {"WHILE_INJURED",          InstAF_WhileInjured},
+  {"WHILE_UNDERGAS",         InstAF_WhileUnderGas},
+  {"ON_TOXIC_TERRAIN",       InstAF_OnToxicTerrain},
   {NULL,                     0},
   };
 
@@ -1211,6 +1222,22 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             {
                 CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
+        case 18: // ACTIVATION
+            inst_inf->activation_flags = 0;
+            while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = get_id(creaturetype_instance_activation, word_buf);
+                if (k > 0)
+                {
+                    inst_inf->activation_flags |= k;
+                  n++;
+                } else {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                    break;
+                }
             }
             break;
         case 0: // comment

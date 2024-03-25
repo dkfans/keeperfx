@@ -1798,45 +1798,31 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
 {
     struct InstanceInfo* inst_inf;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
-    {
-        INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
-    }
-    if (!creature_affected_by_spell(thing, SplK_Invisibility))
-    {
-        INSTANCE_RET_IF_AVAIL(thing, CrInst_INVISIBILITY);
-    }
-    if (creature_requires_healing(thing))
-    {
-        INSTANCE_RET_IF_AVAIL(thing, CrInst_HEAL);
-    }
-    if (!creature_affected_by_spell(thing, SplK_Armour))
-    {
-        INSTANCE_RET_IF_AVAIL(thing, CrInst_ARMOUR);
-    }
-    if (!creature_affected_by_spell(thing, SplK_Speed))
-    {
-        INSTANCE_RET_IF_AVAIL(thing, CrInst_SPEED);
-    }
-    if (!creature_affected_by_spell(thing, SplK_Rebound))
-    {
-        INSTANCE_RET_IF_AVAIL(thing, CrInst_REBOUND);
-    }
-    if (!creature_affected_by_spell(thing, SplK_Fly))
-    {
-        INSTANCE_RET_IF_AVAIL(thing, CrInst_FLY);
-    }
-    INSTANCE_RET_IF_AVAIL(thing, CrInst_SUMMON);
-    INSTANCE_RET_IF_AVAIL(thing, CrInst_FAMILIAR);
-    for (int i = CrInst_LISTEND; i < game.conf.crtr_conf.instances_count; i++)
+    int i;
+    for (i = 0; i < game.conf.crtr_conf.instances_count; i++)
     {
         inst_inf = creature_instance_info_get(i);
-        if ((inst_inf->flags & InstPF_SelfBuff))
+        if ((inst_inf->activation_flags & InstAF_Fighting) && (!creature_affected_by_spell(thing, inst_inf->func_params[1])))
         {
-            if (!creature_affected_by_spell(thing, inst_inf->func_params[1]))
+            if (inst_inf->activation_flags & InstAF_WhileInjured)
             {
-                INSTANCE_RET_IF_AVAIL(thing, i);
+                if (creature_requires_healing(thing))
+                {
+                    INSTANCE_RET_IF_AVAIL(thing, i);
+                } else {
+                    continue;
+                }
             }
+            if (inst_inf->activation_flags & InstAF_WhileUnderGas)
+            {
+                if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
+                {
+                    INSTANCE_RET_IF_AVAIL(thing, i);
+                } else {
+                    continue;
+                }
+            }
+            INSTANCE_RET_IF_AVAIL(thing, i);
         }
     }
     return CrInst_NULL;
@@ -1844,87 +1830,128 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
 
 CrInstance get_self_spell_casting(const struct Thing *thing)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct InstanceInfo* inst_inf;
-    unsigned char i;
-    if (creature_would_benefit_from_healing(thing))
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    long state_type = get_creature_state_type(thing);
+    int i;
+    for (i = 0; i < game.conf.crtr_conf.instances_count; i++)
     {
-        INSTANCE_RET_IF_AVAIL(thing, CrInst_HEAL);
-    }
-    if (thing_is_creature_special_digger(thing) && creature_is_doing_digger_activity(thing))
-    {   
-        // Casting wind when under influence of gas.
-        if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
+        inst_inf = creature_instance_info_get(i);
+        if (!creature_affected_by_spell(thing, inst_inf->func_params[1]))
         {
-            INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
-        }
-        for (i = 0; i < game.conf.crtr_conf.instances_count; i++)
-        {
-            if (i == CrInst_HEAL)
-                continue;
-            inst_inf = creature_instance_info_get(i);
-            if ((inst_inf->flags & InstPF_SelfBuff))
+            if (!creature_is_kept_in_custody(thing))
             {
-                if (!creature_affected_by_spell(thing, inst_inf->func_params[1]))
+                if ((inst_inf->activation_flags & InstAF_Digging) && (thing_is_creature_special_digger(thing)) && (creature_is_doing_digger_activity(thing)))
                 {
+                    if (inst_inf->activation_flags & InstAF_WhileInjured)
+                    {
+                        if (creature_would_benefit_from_healing(thing))
+                        {
+                            INSTANCE_RET_IF_AVAIL(thing, i);
+                        } else {
+                            continue;
+                        }
+                    }
+                    if (inst_inf->activation_flags & InstAF_WhileUnderGas)
+                    {
+                        if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
+                        {
+                            INSTANCE_RET_IF_AVAIL(thing, i);
+                        } else {
+                            continue;
+                        }
+                    }
+                    INSTANCE_RET_IF_AVAIL(thing, i);
+                }
+                if ((inst_inf->activation_flags & InstAF_Idling) && (state_type == CrStTyp_Idle))
+                {
+                    if (inst_inf->activation_flags & InstAF_WhileInjured)
+                    {
+                        if (creature_would_benefit_from_healing(thing))
+                        {
+                            INSTANCE_RET_IF_AVAIL(thing, i);
+                        } else {
+                            continue;
+                        }
+                    }
+                    if (inst_inf->activation_flags & InstAF_WhileUnderGas)
+                    {
+                        if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
+                        {
+                            INSTANCE_RET_IF_AVAIL(thing, i);
+                        } else {
+                            continue;
+                        }
+                    }
+                    INSTANCE_RET_IF_AVAIL(thing, i);
+                }
+                if ((inst_inf->activation_flags & InstAF_Working) && (state_type != CrStTyp_Idle))
+                {
+                    if (inst_inf->activation_flags & InstAF_WhileInjured)
+                    {
+                        if (creature_would_benefit_from_healing(thing))
+                        {
+                            INSTANCE_RET_IF_AVAIL(thing, i);
+                        } else {
+                            continue;
+                        }
+                    }
+                    if (inst_inf->activation_flags & InstAF_WhileUnderGas)
+                    {
+                        if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
+                        {
+                            INSTANCE_RET_IF_AVAIL(thing, i);
+                        } else {
+                            continue;
+                        }
+                    }
+                    INSTANCE_RET_IF_AVAIL(thing, i);
+                }
+            } else {
+                if (inst_inf->activation_flags & InstAF_WhileImprisoned)
+                {
+                    if (inst_inf->activation_flags & InstAF_WhileInjured)
+                    {
+                        if (creature_would_benefit_from_healing(thing))
+                        {
+                            INSTANCE_RET_IF_AVAIL(thing, i);
+                        } else {
+                            continue;
+                        }
+                    }
+                    if (inst_inf->activation_flags & InstAF_WhileUnderGas)
+                    {
+                        if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
+                        {
+                            INSTANCE_RET_IF_AVAIL(thing, i);
+                        } else {
+                            continue;
+                        }
+                    }
                     INSTANCE_RET_IF_AVAIL(thing, i);
                 }
             }
-        }
-    }
-    else
-    {
-        if (!creature_affected_by_spell(thing, SplK_Light))
-        {
-            INSTANCE_RET_IF_AVAIL(thing, CrInst_LIGHT);
-        }
-        if (!creature_affected_by_spell(thing, SplK_Sight))
-        {
-            INSTANCE_RET_IF_AVAIL(thing, CrInst_SIGHT);
-        }
-        if (!creature_is_kept_in_custody(thing))
-        {
-            // Casting wind when under influence of gas.
-            if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
+            if ((inst_inf->activation_flags & InstAF_OnToxicTerrain) && (terrain_toxic_for_creature_at_position(thing, coord_subtile(thing->mappos.x.val), coord_subtile(thing->mappos.y.val))))
             {
-                INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
-            }
-            long state_type = get_creature_state_type(thing);
-            if (!creature_affected_by_spell(thing, SplK_Speed) && (state_type != CrStTyp_Idle))
-            {
-                INSTANCE_RET_IF_AVAIL(thing, CrInst_SPEED);
-            }
-            if (!creature_affected_by_spell(thing, SplK_Fly) && ((state_type != CrStTyp_Idle) || terrain_toxic_for_creature_at_position(thing, coord_subtile(thing->mappos.x.val), coord_subtile(thing->mappos.y.val))))
-            {
-                INSTANCE_RET_IF_AVAIL(thing, CrInst_FLY);
-            }
-            // TODO CREATURE_AI: allow using invisibility when creature is being attacked or escaping.
-            if (!creature_affected_by_spell(thing, SplK_Invisibility) && (state_type != CrStTyp_Idle))
-            {
-                INSTANCE_RET_IF_AVAIL(thing, CrInst_INVISIBILITY);
-            }
-            if (state_type != CrStTyp_Idle)
-            {
-                INSTANCE_RET_IF_AVAIL(thing, CrInst_FAMILIAR);
-            }
-        }
-        for (i = 0; i < game.conf.crtr_conf.instances_count; i++)
-        {
-            inst_inf = creature_instance_info_get(i);
-            if (!creature_affected_by_spell(thing, inst_inf->func_params[1]))
-            {
-                if (!creature_is_kept_in_custody(thing))
+                if (inst_inf->activation_flags & InstAF_WhileInjured)
                 {
-                    if ((inst_inf->flags & InstPF_OutOfBattle))
+                    if (creature_would_benefit_from_healing(thing))
                     {
                         INSTANCE_RET_IF_AVAIL(thing, i);
-                    }
-                } else {
-                    if ((inst_inf->flags & InstPF_WhileImprisoned))
-                    {
-                        INSTANCE_RET_IF_AVAIL(thing, i);
+                    } else {
+                        continue;
                     }
                 }
+                if (inst_inf->activation_flags & InstAF_WhileUnderGas)
+                {
+                    if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
+                    {
+                        INSTANCE_RET_IF_AVAIL(thing, i);
+                    } else {
+                        continue;
+                    }
+                }
+                INSTANCE_RET_IF_AVAIL(thing, i);
             }
         }
     }
