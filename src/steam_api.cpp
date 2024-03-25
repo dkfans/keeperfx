@@ -102,7 +102,7 @@ int steam_api_init()
 
     // Get the address of the Init function
     // The 'Flat' version can be used instead of SteamAPI_Init when dynamically linking to the DLL
-    SteamAPI_Init = (SteamApiInitFunc)GetProcAddress(steam_lib, "SteamAPI_InitFlat");
+    SteamAPI_Init = reinterpret_cast<SteamApiInitFunc>(GetProcAddress(steam_lib, "SteamAPI_InitFlat"));
     if (SteamAPI_Init == NULL)
     {
         ERRORLOG("Failed to get proc address for 'SteamAPI_InitFlat' in 'steam_api.dll'");
@@ -111,7 +111,7 @@ int steam_api_init()
     }
 
     // Get the address of the Shutdown function
-    SteamAPI_Shutdown = (SteamApiShutdownFunc)GetProcAddress(steam_lib, "SteamAPI_Shutdown");
+    SteamAPI_Shutdown = reinterpret_cast<SteamApiShutdownFunc>(GetProcAddress(steam_lib, "SteamAPI_Shutdown"));
     if (SteamAPI_Shutdown == NULL)
     {
         ERRORLOG("Failed to get proc address for 'SteamAPI_Shutdown' in 'steam_api.dll'");
