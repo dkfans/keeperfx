@@ -5457,7 +5457,7 @@ static void reset_action_point_check(const struct ScriptLine* scline)
         SCRPTERRLOG("Non-existing Action Point, no %d", scline->np[0]);
         return;
     }
-    value->arg0 = scline->np[0];
+    value->arg0 = apt_idx;
     PlayerNumber plyr_idx = (scline->tp[1][0] == '\0') ? ALL_PLAYERS : get_id(player_desc, scline->tp[1]);
     if (plyr_idx == -1)
     {
