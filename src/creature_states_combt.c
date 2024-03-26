@@ -1775,10 +1775,6 @@ long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, MapCoordDelta
       && creature_instance_has_reset(thing, inst_id)) { \
         return inst_id; \
     }
-#define INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, inst_id) \
-    if (creature_instance_is_available(thing, inst_id)) { \
-        return -inst_id; \
-    }
 
 TbBool creature_would_benefit_from_healing(const struct Thing* thing)
 {
@@ -1963,27 +1959,20 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
 
 CrInstance get_best_quick_range_instance_to_use(const struct Thing *thing)
 {
-    INSTANCE_RET_IF_AVAIL(thing, CrInst_FIREBALL);
-    INSTANCE_RET_IF_AVAIL(thing, CrInst_FIRE_ARROW);
-    INSTANCE_RET_IF_AVAIL(thing, CrInst_MISSILE);
-    INSTANCE_RET_IF_AVAIL(thing, CrInst_NAVIGATING_MISSILE);
-    INSTANCE_RET_IF_AVAIL(thing, CrInst_LIGHTNING);
-    INSTANCE_RET_IF_AVAIL(thing, CrInst_HAILSTORM);
-    INSTANCE_RET_IF_AVAIL(thing, CrInst_GRENADE);
-    INSTANCE_RET_IF_AVAIL(thing, CrInst_POISON_CLOUD);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_FIREBALL);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_FIRE_ARROW);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_MISSILE);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_NAVIGATING_MISSILE);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_LIGHTNING);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_HAILSTORM);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_GRENADE);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_POISON_CLOUD);
+    struct InstanceInfo* inst_inf;
+    int i;
+    for (i = 0; i < game.conf.crtr_conf.instances_count; i++)
+    {
+        inst_inf = creature_instance_info_get(i);
+        if (flag_is_set(inst_inf->flags, InstPF_Quick))
+        {
+            INSTANCE_RET_IF_AVAIL(thing, i);
+        }
+    }
     return CrInst_NULL;
 }
 
 #undef INSTANCE_RET_IF_AVAIL
-#undef INSTANCE_RET_NEG_IF_AVAIL_ONLY
 
 /**
  * Gives combat weapon instance from given array which matches given distance.
