@@ -44,6 +44,13 @@ typedef char SteamErrMsg[1024];
 typedef ESteamAPIInitResult(__cdecl *SteamApiInitFunc)(SteamErrMsg *err);
 typedef void(__cdecl *SteamApiShutdownFunc)();
 
+// Type Punning union for the Steam API Init function to go from __cdecl to __stdcall
+union SteamApiInitUnion
+{
+    FARPROC farProc;
+    SteamApiInitFunc steamApiInitFunc;
+};
+
 // Variables
 SteamApiInitFunc SteamAPI_Init;
 SteamApiShutdownFunc SteamAPI_Shutdown;
@@ -114,13 +121,17 @@ int steam_api_init()
 
     // Get the address of the Init function
     // The 'Flat' version can be used instead of SteamAPI_Init when dynamically linking to the DLL
-    SteamAPI_Init = reinterpret_cast<SteamApiInitFunc>(GetProcAddress(steam_lib, "SteamAPI_InitFlat"));
-    if (SteamAPI_Init == NULL)
+    SteamApiInitUnion SteamApiInit;
+    SteamApiInit.farProc = GetProcAddress(steam_lib, "SteamAPI_InitFlat");
+    if (SteamApiInit.farProc == NULL)
     {
         ERRORLOG("Failed to get proc address for 'SteamAPI_InitFlat' in 'steam_api.dll'");
         FreeLibrary(steam_lib);
         return 1;
     }
+
+    // Unionize the Init function address type to our local function type
+    SteamAPI_Init = SteamApiInit.steamApiInitFunc;
 
     // Get the address of the Shutdown function
     SteamAPI_Shutdown = reinterpret_cast<SteamApiShutdownFunc>(GetProcAddress(steam_lib, "SteamAPI_Shutdown"));
