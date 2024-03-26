@@ -69,9 +69,6 @@ pkg/campgns/origplus/text_pol.dat \
 pkg/campgns/origplus/text_rus.dat \
 pkg/campgns/origplus/text_spa.dat \
 pkg/campgns/origplus/text_swe.dat \
-pkg/campgns/ncastles/text_eng.dat \
-pkg/campgns/ncastles/text_pol.dat \
-pkg/campgns/ncastles/text_chi.dat \
 pkg/campgns/revlord/text_eng.dat \
 pkg/campgns/revlord/text_chi.dat \
 pkg/campgns/revlord/text_ger.dat \

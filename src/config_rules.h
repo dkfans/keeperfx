@@ -106,11 +106,11 @@ struct ComputerRulesConfig {
 
 struct CreatureRulesConfig {
     unsigned char recovery_frequency;
-    unsigned short fight_max_hate;
-    unsigned short fight_borderline;
-    unsigned short fight_max_love;
+    short fight_max_hate;
+    short fight_borderline;
+    short fight_max_love;
     unsigned short body_remains_for;
-    unsigned short fight_hate_kill_value;
+    short fight_hate_kill_value;
     unsigned long flee_zone_radius;
     GameTurnDelta game_turns_in_flee;
     unsigned short game_turns_unconscious;
