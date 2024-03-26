@@ -117,7 +117,7 @@ const struct NamedCommand creaturetype_instance_properties[] = {
 const struct NamedCommand creaturetype_instance_activation[] = {
   {"DIGGING",                InstAF_Digging},
   {"FIGHTING",               InstAF_Fighting},
-  {"ROAMING",                InstAF_Roaming},
+  {"WAITING",                InstAF_Waiting},
   {"OUT_OF_BATTLE",          InstAF_OutOfBattle},
   {"WHILE_IMPRISONED",       InstAF_WhileImprisoned},
   {"WHILE_INJURED",          InstAF_WhileInjured},

@@ -1882,7 +1882,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
                         }
                         INSTANCE_RET_IF_AVAIL(thing, i);
                     } else {
-                        if ((flag_is_set(inst_inf->activation_flags, InstAF_Roaming) || (get_creature_state_type(thing) != CrStTyp_Idle)))
+                        if ((flag_is_set(inst_inf->activation_flags, InstAF_Waiting) || (get_creature_state_type(thing) != CrStTyp_Idle)))
                         {
                             if (flag_is_set(inst_inf->activation_flags, InstAF_WhileInjured))
                             {

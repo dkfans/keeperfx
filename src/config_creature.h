@@ -154,7 +154,7 @@ enum InstanceActivationFlags {
     InstAF_None                = 0x00000,
     InstAF_Digging             = 0x00001,
     InstAF_Fighting            = 0x00002,
-    InstAF_Roaming             = 0x00004,
+    InstAF_Waiting             = 0x00004,
     InstAF_OutOfBattle         = 0x00008,
     InstAF_WhileImprisoned     = 0x00010,
     InstAF_WhileInjured        = 0x00020,
