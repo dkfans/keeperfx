@@ -5455,6 +5455,7 @@ static void reset_action_point_check(const struct ScriptLine* scline)
     if (!action_point_exists_idx(apt_idx))
     {
         SCRPTERRLOG("Non-existing Action Point, no %d", scline->np[0]);
+        DEALLOCATE_SCRIPT_VALUE
         return;
     }
     value->arg0 = apt_idx;
