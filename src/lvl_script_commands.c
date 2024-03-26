@@ -5451,10 +5451,10 @@ static void set_creature_max_level_process(struct ScriptContext* context)
 static void reset_action_point_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
-    if (scline->np[0] > ACTN_POINTS_COUNT)
+    long apt_idx = action_point_number_to_index(scline->np[0]);
+    if (!action_point_exists_idx(apt_idx))
     {
-        SCRPTERRLOG("Invalid Action Point number. Maximum: %u", ACTN_POINTS_COUNT);
-        DEALLOCATE_SCRIPT_VALUE
+        SCRPTERRLOG("Non-existing Action Point, no %d", scline->np[0]);
         return;
     }
     value->arg0 = scline->np[0];
