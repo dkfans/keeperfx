@@ -61,7 +61,7 @@ SteamApiShutdownFunc SteamAPI_Shutdown;
  * This function loads the necessary Steam API library and initializes it.
  * It also performs checks for required files and compatibility.
  *
- * @return Returns 0 on success, non-zero on failure.
+ * @return Returns 0 on success, -1 when not on Windows, and 1 (or higher) on failure.
  */
 int steam_api_init()
 {
