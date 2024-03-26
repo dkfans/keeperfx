@@ -115,10 +115,6 @@ int steam_api_init()
 
     JUSTLOG("'steam_api.dll' library loaded");
 
-// At this point we should disable warnings for function type casting
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-function-type"
-
     // Get the address of the Init function
     // The 'Flat' version can be used instead of SteamAPI_Init when dynamically linking to the DLL
     SteamApiInitUnion SteamApiInit;
@@ -141,9 +137,6 @@ int steam_api_init()
         FreeLibrary(steam_lib);
         return 1;
     }
-
-// Enable warnings for function type casting again
-#pragma GCC diagnostic pop
 
     // Initialize the Steam API
     // This notifies Steam that we are running the game
