@@ -1858,7 +1858,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
                     }
                     INSTANCE_RET_IF_AVAIL(thing, i);
                 }
-                if (flag_is_set(inst_inf->activation_flags, InstAF_OutOfBattle))
+                if ((flag_is_set(inst_inf->activation_flags, InstAF_OutOfBattle)) && ((get_creature_state_type(thing) != CrStTyp_FightCrtr) && (get_creature_state_type(thing) != CrStTyp_FightDoor) && (get_creature_state_type(thing) != CrStTyp_FightObj)))
                 {
                     if (!is_hero_thing(thing))
                     {
