@@ -682,6 +682,14 @@ TbBool creature_is_being_summoned(const struct Thing *thing)
     return false;
 }
 
+TbBool creature_is_fighting(const struct Thing *thing)
+{
+    CrtrStateId i = get_creature_state_type(thing);
+    if ((i == CrStTyp_FightCrtr) || (i == CrStTyp_FightDoor) || (i == CrStTyp_FightObj))
+        return true;
+    return false;
+}
+
 TbBool creature_is_training(const struct Thing *thing)
 {
     CrtrStateId i = get_creature_state_besides_interruptions(thing);

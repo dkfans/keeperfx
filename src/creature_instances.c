@@ -517,9 +517,6 @@ long process_creature_self_spell_casting(struct Thing* creatng)
     if (cctrl->instance_id != CrInst_NULL) {
         return 0;
     }
-    //if (cctrl->combat_flags != 0) {
-    //    return 0;
-    //}
     long inst_idx = get_self_spell_casting(creatng);
     if (inst_idx == CrInst_NULL) {
         return 0;
