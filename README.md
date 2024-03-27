@@ -40,7 +40,7 @@ Currently the whole codebase of Dungeon Keeper is remade and all code has been r
 Installation instructions and a FAQ can be found on the [Github Wiki](https://github.com/dkfans/keeperfx/wiki).
 
 You will need the original Dungeon Keeper files, either from an old CD or from the digital edition available on
-[EA](https://www.ea.com/en-gb/games/dungeon-keeper/dungeon-keeper),
+[EA](https://www.ea.com/games/dungeon-keeper/dungeon-keeper),
 [GOG](https://www.gog.com/game/dungeon_keeper)
 or [Steam](https://store.steampowered.com/app/1996630/Dungeon_Keeper_Gold/).
 
