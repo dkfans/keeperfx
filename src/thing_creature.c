@@ -2245,11 +2245,11 @@ long move_creature(struct Thing *thing)
         }
         cctrl->flgfield_1 |= CCFlg_Unknown08;
     }
-    if ((get_creature_model_flags(thing) & CMF_TremblingFat) != 0)
+    if ((get_creature_model_flags(thing) & CMF_Fat) != 0)
     {
-      if (creature_is_ambulating(thing))
+        if (creature_is_ambulating(thing))
         {
-            if (thing->current_frame > 3)
+            if (thing->current_frame > (keepersprite_frames(thing->anim_sprite)/2))
             {
                 velo_y = 0;
                 velo_x = 0;
@@ -3233,9 +3233,9 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
             shotng->move_angle_xy = angle_xy;
             shotng->move_angle_z = angle_yz;
         }
-        if (shotst->speed_deviaton)
+        if (shotst->speed_deviation)
         {
-            speed = (short)(shotst->speed + CREATURE_RANDOM(firing, shotst->speed_deviaton));
+            speed = (short)(shotst->speed + CREATURE_RANDOM(firing, shotst->speed_deviation));
         }
         else
         {
@@ -5535,6 +5535,31 @@ long get_creature_thing_score(const struct Thing *thing)
     return game.creature_scores[crmodel].value[exp];
 }
 
+void transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)
+{
+    struct CreatureControl* oldcctrl = creature_control_get_from_thing(oldtng);
+    struct CreatureControl* newcctrl = creature_control_get_from_thing(newtng);
+    struct CreatureStats* ncrstat = creature_stats_get_from_thing(newtng);
+
+    strcpy(newcctrl->creature_name, oldcctrl->creature_name);
+    newcctrl->blood_type = oldcctrl->blood_type;
+    newcctrl->kills_num = oldcctrl->kills_num;
+    newcctrl->joining_age = oldcctrl->joining_age;
+    newtng->creation_turn = oldtng->creation_turn;
+
+    if (ncrstat->gold_hold >= oldtng->creature.gold_carried)
+    {
+        newtng->creature.gold_carried += oldtng->creature.gold_carried;
+        oldtng->creature.gold_carried = 0;
+    }
+    else
+    {
+        newtng->creature.gold_carried = ncrstat->gold_hold;
+        oldtng->creature.gold_carried -= ncrstat->gold_hold;
+    }
+    return;
+}
+
 long update_creature_levels(struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
@@ -5557,7 +5582,7 @@ long update_creature_levels(struct Thing *thing)
     // Transforming
     struct CreatureModelConfig* oriconf = &game.conf.crtr_conf.model[thing->model];
     ThingModel model = crstat->grow_up;
-    if (model == CREATURE_ANY)
+    if (model == CREATURE_NOT_A_DIGGER)
     {
         while (1) {
             model = GAME_RANDOM(game.conf.crtr_conf.model_count) + 1;
@@ -5597,6 +5622,7 @@ long update_creature_levels(struct Thing *thing)
         return 0;
     }
     set_creature_level(newtng, crstat->grow_up_level-1);
+    transfer_creature_data_and_gold(thing, newtng);// Transfer the blood type, creature name, kill count, joined age and carried gold to the new creature.
     update_creature_health_to_max(newtng);
     cctrl = creature_control_get_from_thing(thing);
     cctrl->countdown_282 = 50;
@@ -5780,6 +5806,7 @@ TngUpdateRet update_creature(struct Thing *thing)
             pvpos.z.val = tngpos->z.val;
 
             move_thing_in_map(tngp, &pvpos);
+            tngp->move_angle_xy = thing->move_angle_xy; //corpse gets rotated along with creature
         }
     }
     if (update_creature_levels(thing) == -1)
@@ -5935,6 +5962,8 @@ TbBool creature_stats_debug_dump(void)
             case CrSt_CreatureSearchForGoldToStealInRoom2:
             case CrSt_GoodArrivedAtAttackRoom:
             case CrSt_GoodArrivedAtSabotageRoom:
+            case CrSt_GoodWanderToCreatureCombat:
+            case CrSt_GoodWanderToObjectCombat:
                 ERRORLOG("Player %d %s index %d is in Good-only state %d",(int)thing->owner,thing_model_name(thing),(int)thing->index,(int)crstate);
                 result = true;
                 break;

@@ -463,6 +463,10 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
     0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Sleep, 0, 0, 1, 0, GBS_creature_states_sleep, 1, 0, 1},
   {creature_timebomb, cleanup_timebomb, NULL, NULL,
     1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1,  CrStTyp_Move, 1, 0, 1, 0, 0, 1, 0, 0},
+  { good_arrived_at_combat, NULL, NULL, move_check_attack_any_door,  // [150]
+    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, GBS_creature_states_angry, 1, 0, 1 },
+  { good_arrived_at_attack_dungeon_heart, NULL, NULL, move_check_attack_any_door,
+    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, GBS_creature_states_angry, 1, 0, 1 },
 };
 
 /** GUI States of creatures - from "Creatures" Tab in UI.
@@ -1447,8 +1451,8 @@ short creature_being_dropped(struct Thing *creatng)
     // Most tasks are disabled while creature is a chicken
     if (!creature_affected_by_spell(creatng, SplK_Chicken))
     {
-        // For creatures with trembling fat and not changed to chickens, tremble the camera
-        if ((get_creature_model_flags(creatng) & CMF_TremblingFat) != 0)
+        // For creatures with trembling and not changed to chickens, tremble the camera
+        if ((get_creature_model_flags(creatng) & CMF_Trembling) != 0)
         {
             struct Dungeon* dungeon = get_dungeon(creatng->owner);
             if (!dungeon_invalid(dungeon)) {
@@ -4071,11 +4075,15 @@ TbBool process_creature_hunger(struct Thing *thing)
     cctrl->hunger_level++;
     if (!hunger_is_creature_hungry(thing))
         return false;
-    // Make sure every creature loses health on different turn
-    if (((game.play_gameturn + thing->index) % game.conf.rules.health.turns_per_hunger_health_loss) == 0) {
-        SYNCDBG(9,"The %s index %d lost %d health due to hunger",thing_model_name(thing), (int)thing->index, (int)game.conf.rules.health.hunger_health_loss);
-        remove_health_from_thing_and_display_health(thing, game.conf.rules.health.hunger_health_loss);
-        return true;
+    // HungerHealthLoss is disabled if set to 0 on rules.cfg.
+    if (game.conf.rules.health.turns_per_hunger_health_loss > 0)
+    {
+        // Make sure every creature loses health on different turn.
+        if (((game.play_gameturn + thing->index) % game.conf.rules.health.turns_per_hunger_health_loss) == 0) {
+            SYNCDBG(9,"The %s index %d lost %d health due to hunger",thing_model_name(thing), (int)thing->index, (int)game.conf.rules.health.hunger_health_loss);
+            remove_health_from_thing_and_display_health(thing, game.conf.rules.health.hunger_health_loss);
+            return true;
+        }
     }
     return false;
 }

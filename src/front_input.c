@@ -879,7 +879,37 @@ short get_status_panel_keyboard_action_inputs(void)
   if (is_key_pressed(KC_2, KMod_NONE))
   {
     clear_key_pressed(KC_2);
-    fake_button_click(BID_ROOM_TAB);
+    struct GuiButton *gbtn = get_gui_button(BID_ROOM_NXPG);
+    if (gbtn != NULL)
+    {
+        if ((gbtn->flags & (LbBtnF_Visible|LbBtnF_Enabled)) != 0)
+        {
+            if (menu_is_active(GMnu_ROOM))
+            {
+                turn_off_menu(GMnu_ROOM);
+                turn_on_menu(GMnu_ROOM2);
+                fake_button_click(BID_ROOM_NXPG);
+            }
+            else if (menu_is_active(GMnu_ROOM2))
+            {
+                turn_off_menu(GMnu_ROOM2);
+                turn_on_menu(GMnu_ROOM);
+                fake_button_click(BID_ROOM_NXPG);
+            }
+            else
+            {
+                fake_button_click(BID_ROOM_TAB);
+            }
+        }
+        else
+        {
+            fake_button_click(BID_ROOM_TAB);
+        }
+    }
+    else
+    {
+        fake_button_click(BID_ROOM_TAB);
+    }
   }
   if (is_key_pressed(KC_3, KMod_NONE))
   {
@@ -919,7 +949,37 @@ short get_status_panel_keyboard_action_inputs(void)
   if (is_key_pressed(KC_4, KMod_NONE))
   {
     clear_key_pressed(KC_4);
-    fake_button_click(BID_MNFCT_TAB);
+    struct GuiButton *gbtn = get_gui_button(BID_MNFCT_NXPG);
+    if (gbtn != NULL)
+    {
+        if ((gbtn->flags & (LbBtnF_Visible|LbBtnF_Enabled)) != 0)
+        {
+            if (menu_is_active(GMnu_TRAP))
+            {
+                turn_off_menu(GMnu_TRAP);
+                turn_on_menu(GMnu_TRAP2);
+                fake_button_click(BID_MNFCT_NXPG);
+            }
+            else if (menu_is_active(GMnu_TRAP2))
+            {
+                turn_off_menu(GMnu_TRAP2);
+                turn_on_menu(GMnu_TRAP);
+                fake_button_click(BID_MNFCT_NXPG);
+            }
+            else
+            {
+                fake_button_click(BID_MNFCT_TAB);
+            }
+        }
+        else
+        {
+            fake_button_click(BID_MNFCT_TAB);
+        }
+    }
+    else
+    {
+        fake_button_click(BID_MNFCT_TAB);
+    }
   }
   if (is_key_pressed(KC_5, KMod_NONE))
   {
@@ -2763,40 +2823,59 @@ void process_cheat_mode_selection_inputs()
     }
     if (is_key_pressed(KC_NUMPAD0, KMod_DONTCARE))
     {
-        new_value = 0;
+        new_value = PLAYER0;
         set_players_packet_action(player, PckA_CheatSwitchPlayer, new_value, 0, 0, 0);
         clear_key_pressed(KC_NUMPAD0);
     }
     else if (is_key_pressed(KC_NUMPAD1, KMod_DONTCARE))
     {
-        new_value = 1;
+        new_value = PLAYER1;
         set_players_packet_action(player, PckA_CheatSwitchPlayer, new_value, 0, 0, 0);
         clear_key_pressed(KC_NUMPAD1);
     }
     else if (is_key_pressed(KC_NUMPAD2, KMod_DONTCARE))
     {
-        new_value = 2;
+        new_value = PLAYER2;
         set_players_packet_action(player, PckA_CheatSwitchPlayer, new_value, 0, 0, 0);
         clear_key_pressed(KC_NUMPAD2);
     }
     else if (is_key_pressed(KC_NUMPAD3, KMod_DONTCARE))
     {
-        new_value = 3;
+        new_value = PLAYER3;
         set_players_packet_action(player, PckA_CheatSwitchPlayer, new_value, 0, 0, 0);
         clear_key_pressed(KC_NUMPAD3);
     }
     else if (is_key_pressed(KC_NUMPAD4, KMod_DONTCARE))
     {
-        new_value = game.hero_player_num;
+        new_value = PLAYER4;
         set_players_packet_action(player, PckA_CheatSwitchPlayer, new_value, 0, 0, 0);
         clear_key_pressed(KC_NUMPAD4);
     }
     else if (is_key_pressed(KC_NUMPAD5, KMod_DONTCARE))
     {
-        new_value = game.neutral_player_num;
+        new_value = PLAYER5;
         set_players_packet_action(player, PckA_CheatSwitchPlayer, new_value, 0, 0, 0);
         clear_key_pressed(KC_NUMPAD5);
     }
+    else if (is_key_pressed(KC_NUMPAD6, KMod_DONTCARE))
+    {
+        new_value = PLAYER6;
+        set_players_packet_action(player, PckA_CheatSwitchPlayer, new_value, 0, 0, 0);
+        clear_key_pressed(KC_NUMPAD6);
+    }
+    else if (is_key_pressed(KC_NUMPAD7, KMod_DONTCARE))
+    {
+        new_value = PLAYER_GOOD;
+        set_players_packet_action(player, PckA_CheatSwitchPlayer, new_value, 0, 0, 0);
+        clear_key_pressed(KC_NUMPAD7);
+    }
+    else if (is_key_pressed(KC_NUMPAD8, KMod_DONTCARE))
+    {
+        new_value = PLAYER_NEUTRAL;
+        set_players_packet_action(player, PckA_CheatSwitchPlayer, new_value, 0, 0, 0);
+        clear_key_pressed(KC_NUMPAD8);
+    }
+
     INPUTS:
     // state-specific inputs
     switch (player->work_state)

@@ -74,6 +74,9 @@ const struct NamedCommand player_desc[] = {
   {"PLAYER_GOOD",      PLAYER_GOOD},
   {"ALL_PLAYERS",      ALL_PLAYERS},
   {"PLAYER_NEUTRAL",   PLAYER_NEUTRAL},
+  {"PLAYER4",          PLAYER4},
+  {"PLAYER5",          PLAYER5},
+  {"PLAYER6",          PLAYER6},
   {NULL,               0},
 };
 
@@ -242,6 +245,7 @@ const struct NamedCommand trap_config_desc[] = {
   {"TriggerSound",        38},
   {"RechargeAnimationID", 39},
   {"AttackAnimationID",   40},
+  {"DestroyedEffect",     41},
   {NULL,                   0},
 };
 
@@ -1042,6 +1046,17 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
+    else if (trapvar == 41)  // DestroyedEffect
+    {
+        newvalue = effect_or_effect_element_id(valuestring);
+        if ((newvalue == 0) && (!parameter_is_number(valuestring)))
+        {
+            SCRPTERRLOG("Unknown effect or effect element: '%s'", valuestring);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        value->uarg1 = newvalue;
+    }
     else if ((trapvar != 4) && (trapvar != 12) && (trapvar != 39) && (trapvar != 40))  // PointerSprites && AnimationIDs
     {
         if (parameter_is_number(valuestring))
@@ -1060,7 +1075,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
             newvalue = get_id(object_desc, valuestring);
             if ((newvalue > SHRT_MAX) || (newvalue < 0))
             {
-                SCRPTERRLOG("Unknown crate object: %s", valuestring);
+                SCRPTERRLOG("Unknown crate object: '%s'", valuestring);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
@@ -1140,7 +1155,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
         if (parameter_is_number(valuestring))
         {
             newvalue = atoi(valuestring);
-            if ((newvalue > 16) || (newvalue < 0))
+            if ((newvalue > 32) || (newvalue < 0))
             {
                 SCRPTERRLOG("Value out of range: %d", newvalue);
                 DEALLOCATE_SCRIPT_VALUE
@@ -1576,6 +1591,9 @@ static void new_trap_type_check(const struct ScriptLine* scline)
     trapst->unsellable = 0;
     trapst->notify = 0;
     trapst->placeonbridge = 0;
+    trapst->place_sound_idx = 117; 
+    trapst->trigger_sound_idx = 176;
+    trapst->destroyed_effect = -39;
 
     game.conf.trap_stats[i].health = 0;
     game.conf.trap_stats[i].sprite_anim_idx = 0;
@@ -1833,6 +1851,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 40: // AttackAnimationID
             trapstat->attack_sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
+            break;
+        case 41: // DestroyedEffect
+            trapst->destroyed_effect = value;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
@@ -2272,9 +2293,8 @@ static void set_door_configuration_process(struct ScriptContext *context)
 static void create_effect_process(struct ScriptContext *context)
 {
     struct Coord3d pos;
-    pos.x.stl.num = (MapSubtlCoord)context->value->bytes[1];
-    pos.y.stl.num = (MapSubtlCoord)context->value->bytes[2];
-    pos.z.val = get_floor_height(pos.x.stl.num, pos.y.stl.num);
+    set_coords_to_subtile_center(&pos, context->value->bytes[1], context->value->bytes[2], 0);
+    pos.z.val += get_floor_height(pos.x.stl.num, pos.y.stl.num);
     TbBool Price = (context->value->chars[0] == -(TngEffElm_Price));
     if (Price)
     {
@@ -2469,20 +2489,13 @@ static void create_effects_line_check(const struct ScriptLine *scline)
     value->chars[8] = scline->np[2]; // curvature
     value->bytes[9] = scline->np[3]; // spatial stepping
     value->bytes[10] = scline->np[4]; // temporal stepping
-
     const char* effect_name = scline->tp[5];
-    long effct_id = get_rid(effect_desc, effect_name);
-    if (effct_id == -1)
+
+    long effct_id = effect_or_effect_element_id(effect_name);
+    if (effct_id == 0)
     {
-        if (parameter_is_number(effect_name))
-        {
-            effct_id = atoi(effect_name);
-        }
-        else
-        {
-            SCRPTERRLOG("Unrecognised effect: %s", effect_name);
-            return;
-        }
+        SCRPTERRLOG("Unrecognised effect: %s", effect_name);
+        return;
     }
 
     value->chars[11] = effct_id; // effect
@@ -3129,18 +3142,11 @@ static void create_effect_check(const struct ScriptLine *scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     TbMapLocation location;
     const char *effect_name = scline->tp[0];
-    long effct_id = get_rid(effect_desc, effect_name);
-    if (effct_id == -1)
+    long effct_id = effect_or_effect_element_id(effect_name);
+    if (effct_id == 0)
     {
-        if (parameter_is_number(effect_name))
-        {
-            effct_id = atoi(effect_name);
-        }
-        else
-        {
-            SCRPTERRLOG("Unrecognised effect: %s", effect_name);
-            return;
-        }
+        SCRPTERRLOG("Unrecognised effect: %s", effect_name);
+        return;
     }
     value->chars[0] = effct_id;
     const char *locname = scline->tp[1];
@@ -3161,18 +3167,11 @@ static void create_effect_at_pos_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     const char *effect_name = scline->tp[0];
-    long effct_id = get_rid(effect_desc, effect_name);
-    if (effct_id == -1)
+    long effct_id = effect_or_effect_element_id(effect_name);
+    if (effct_id == 0)
     {
-        if (parameter_is_number(effect_name))
-        {
-            effct_id = atoi(effect_name);
-        }
-        else
-        {
-            SCRPTERRLOG("Unrecognised effect: %s", effect_name);
-            return;
-        }
+        SCRPTERRLOG("Unrecognised effect: %s", effect_name);
+        return;
     }
     value->chars[0] = effct_id;
     if (subtile_coords_invalid(scline->np[1], scline->np[2]))
@@ -5449,6 +5448,33 @@ static void set_creature_max_level_process(struct ScriptContext* context)
     }
 }
 
+static void reset_action_point_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    long apt_idx = action_point_number_to_index(scline->np[0]);
+    if (!action_point_exists_idx(apt_idx))
+    {
+        SCRPTERRLOG("Non-existing Action Point, no %d", scline->np[0]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->arg0 = apt_idx;
+    PlayerNumber plyr_idx = (scline->tp[1][0] == '\0') ? ALL_PLAYERS : get_id(player_desc, scline->tp[1]);
+    if (plyr_idx == -1)
+    {
+        SCRPTERRLOG("Invalid player: %s", scline->tp[1]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->chars[4] = plyr_idx;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void reset_action_point_process(struct ScriptContext* context)
+{
+    action_point_reset_idx(context->value->arg0, context->value->chars[4]);
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -5489,7 +5515,7 @@ const struct CommandDesc command_desc[] = {
   {"DISPLAY_INFORMATION_WITH_POS",      "NNN     ", Cmd_DISPLAY_INFORMATION_WITH_POS, NULL, NULL},
   {"ADD_TUNNELLER_PARTY_TO_LEVEL",      "PAAANNN ", Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_POOL",              "CN      ", Cmd_ADD_CREATURE_TO_POOL, NULL, NULL},
-  {"RESET_ACTION_POINT",                "N       ", Cmd_RESET_ACTION_POINT, NULL, NULL},
+  {"RESET_ACTION_POINT",                "Na      ", Cmd_RESET_ACTION_POINT, &reset_action_point_check, &reset_action_point_process},
   {"SET_CREATURE_MAX_LEVEL",            "PC!N    ", Cmd_SET_CREATURE_MAX_LEVEL, &set_creature_max_level_check, &set_creature_max_level_process},
   {"SET_MUSIC",                         "A       ", Cmd_SET_MUSIC, &set_music_check, &set_music_process},
   {"TUTORIAL_FLASH_BUTTON",             "NN      ", Cmd_TUTORIAL_FLASH_BUTTON, NULL, NULL},
@@ -5526,7 +5552,7 @@ const struct CommandDesc command_desc[] = {
   {"KILL_CREATURE",                     "PC!AN   ", Cmd_KILL_CREATURE, NULL, NULL},
   {"COMPUTER_DIG_TO_LOCATION",          "PLL     ", Cmd_COMPUTER_DIG_TO_LOCATION, NULL, NULL},
   {"USE_POWER_ON_CREATURE",             "PC!APANN", Cmd_USE_POWER_ON_CREATURE, NULL, NULL},
-  {"USE_POWER_ON_PLAYERS_CREATURES",    "PC!PANN ", Cmd_USE_SPELL_ON_PLAYERS_CREATURES, &use_power_on_players_creatures_check, &use_power_on_players_creatures_process },
+  {"USE_POWER_ON_PLAYERS_CREATURES",    "PC!PANN ", Cmd_USE_POWER_ON_PLAYERS_CREATURES, &use_power_on_players_creatures_check, &use_power_on_players_creatures_process },
   {"USE_POWER_AT_POS",                  "PNNANN  ", Cmd_USE_POWER_AT_POS, NULL, NULL},
   {"USE_POWER_AT_SUBTILE",              "PNNANN  ", Cmd_USE_POWER_AT_POS, NULL, NULL},  //todo: Remove after mapmakers have received time to use USE_POWER_AT_POS
   {"USE_POWER_AT_LOCATION",             "PLANN   ", Cmd_USE_POWER_AT_LOCATION, NULL, NULL},
@@ -5639,7 +5665,7 @@ const struct CommandDesc dk1_command_desc[] = {
   {"DISPLAY_INFORMATION_WITH_POS", "NNN     ", Cmd_DISPLAY_INFORMATION_WITH_POS, NULL, NULL},
   {"ADD_TUNNELLER_PARTY_TO_LEVEL", "PAAANNN ", Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_POOL",         "CN      ", Cmd_ADD_CREATURE_TO_POOL, NULL, NULL},
-  {"RESET_ACTION_POINT",           "N       ", Cmd_RESET_ACTION_POINT, NULL, NULL},
+  {"RESET_ACTION_POINT",           "N       ", Cmd_RESET_ACTION_POINT, &reset_action_point_check, &reset_action_point_process},
   {"SET_CREATURE_MAX_LEVEL",       "PC!N    ", Cmd_SET_CREATURE_MAX_LEVEL, &set_creature_max_level_check, &set_creature_max_level_process},
   {"SET_MUSIC",                    "N       ", Cmd_SET_MUSIC, NULL, NULL},
   {"TUTORIAL_FLASH_BUTTON",        "NN      ", Cmd_TUTORIAL_FLASH_BUTTON, NULL, NULL},
