@@ -3065,13 +3065,13 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
             if (!firing->trap.volley_fire)
             {
                 firing->trap.volley_fire = true;
-                firing->trap.volley_repeat = shotst->volley_size - 1; // N x shots + (N - 1) x pauses and one shot is this one
-                firing->trap.volley_delay = shotst->volley_delay;
+                firing->trap.volley_repeat = shotst->effect_amount - 1; // N x shots + (N - 1) x pauses and one shot is this one
+                firing->trap.volley_delay = shotst->effect_spacing;
                 firing->trap.firing_at = thing_is_invalid(target)? 0 : target->index;
             }
             else
             {
-                firing->trap.volley_delay = shotst->volley_delay;
+                firing->trap.volley_delay = shotst->effect_spacing;
                 if (firing->trap.volley_repeat == 0)
                     return;
                 firing->trap.volley_repeat--;
@@ -3097,12 +3097,12 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
             if (!firing->creature.volley_fire)
             {
                 firing->creature.volley_fire = true;
-                firing->creature.volley_repeat = shotst->volley_size - 1; // N x shots + (N - 1) x pauses and one shot is this one
-                cctrl->inst_action_turns += shotst->volley_delay + 1; // because of post
+                firing->creature.volley_repeat = shotst->effect_amount - 1; // N x shots + (N - 1) x pauses and one shot is this one
+                cctrl->inst_action_turns += shotst->effect_spacing + 1; // because of post check
             }
             else
             {
-                cctrl->inst_action_turns += shotst->volley_delay + 1;
+                cctrl->inst_action_turns += shotst->effect_spacing + 1;
                 if (firing->creature.volley_repeat == 0)
                     return;
                 firing->creature.volley_repeat--;

@@ -131,11 +131,9 @@ const struct NamedCommand magic_shot_commands[] = {
   {"HITHEARTSOUND",         54},
   {"BLEEDINGEFFECT",        55},
   {"FROZENEFFECT",          56},
-  {"VOLLEYSIZE",            57},
-  {"VOLLEYDELAY",           58},
-  {"SPEEDDEVIATION",        59},
-  {"SPREAD_XY",             60},
-  {"SPREAD_Z",              61},
+  {"SPEEDDEVIATION",        57},
+  {"SPREAD_XY",             58},
+  {"SPREAD_Z",              59},
   {NULL,                     0},
   };
 
@@ -1856,33 +1854,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 57: // VOLLEYSIZE
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->volley_size = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 58: // VOLLEYDELAY
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->volley_delay = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 59: // SPEEDDEVIATION
+      case 57: // SPEEDDEVIATION
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1895,7 +1867,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 60: // SPREAD_XY
+      case 58: // SPREAD_XY
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1908,7 +1880,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 61: // SPREAD_Z
+      case 59: // SPREAD_Z
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
