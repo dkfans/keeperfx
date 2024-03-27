@@ -313,6 +313,11 @@ struct ShotConfigStats {
     unsigned char update_logic; // see enum ShotUpdateLogics
     unsigned short effect_spacing;
     unsigned char effect_amount;
+    unsigned char volley_size;
+    unsigned char volley_delay; // delay between shots in turns
+    short spread_xy;
+    short spread_z;
+    short speed_deviaton;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);

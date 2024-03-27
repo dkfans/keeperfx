@@ -127,6 +127,11 @@ const struct NamedCommand magic_shot_commands[] = {
   {"UPDATELOGIC",           50},
   {"EFFECTSPACING",         51},
   {"EFFECTAMOUNT",          52},
+  {"VOLLEYSIZE",            53},
+  {"VOLLEYDELAY",           54},
+  {"SPEEDDEVIATION",        55},
+  {"SPREAD_XY",             56},
+  {"SPREAD_Z",              57},
   {NULL,                     0},
   };
 
@@ -1787,6 +1792,71 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           {
               CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 53: //VOLLEYSIZE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->volley_size = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 54: //VOLLEYDELAY
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->volley_delay = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 55: //SPEEDDEVIATION
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->speed_deviaton = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 56: //SPREADXY
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->spread_xy = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 57: //SPREADZ
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->spread_z = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
       case 0: // comment
