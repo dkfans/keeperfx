@@ -788,15 +788,14 @@ TngUpdateRet update_trap(struct Thing *traptng)
 {
     SYNCDBG(18,"Starting");
     TRACE_THING(traptng);
-    struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
     if (traptng->health < 0)
     {
         destroy_trap(traptng);
         return TUFRet_Deleted;
     }
+    struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
     if (traptng->trap.wait_for_rearm == true) // Trap rearming, so either 'shooting' anim or 'recharch' anim.
     {
-        struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
         if ((traptng->trap.rearm_turn <= game.play_gameturn)) // Recharge complete, rearm.
         {
             // Back to regular anim.
