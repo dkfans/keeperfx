@@ -343,9 +343,9 @@ unsigned char sound_flag;
     short roll;
     unsigned long anim_time;
     unsigned char instance_id;
-    unsigned char inst_repeat;
+    unsigned char inst_repeat; /* Seems used on dragon flame sometimes */
     unsigned short inst_turn;
-    unsigned short inst_action_turns;
+    unsigned short inst_action_turns; /* Turn when instance should be fired*/
     unsigned short inst_total_turns;
     unsigned short targtng_idx;
     MapSubtlCoord targtstl_x;

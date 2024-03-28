@@ -132,6 +132,9 @@ const struct NamedCommand magic_shot_commands[] = {
   {"BLEEDINGEFFECT",        55},
   {"FROZENEFFECT",          56},
   {"PERIODICAL",            57},
+  {"SPEEDDEVIATION",        58},
+  {"SPREAD_XY",             59},
+  {"SPREAD_Z",              60},
   {NULL,                     0},
   };
 
@@ -1864,6 +1867,45 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           {
             CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 58: // SPEEDDEVIATION
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->speed_deviation = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 59: // SPREAD_XY
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->spread_xy = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 60: // SPREAD_Z
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->spread_z = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
       case 0: // comment

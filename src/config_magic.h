@@ -317,6 +317,9 @@ struct ShotConfigStats {
     unsigned short effect_spacing;
     unsigned char effect_amount;
     unsigned short periodical;
+    short spread_xy;
+    short spread_z;
+    short speed_deviation;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);
