@@ -246,6 +246,7 @@ const struct NamedCommand trap_config_desc[] = {
   {"RechargeAnimationID", 39},
   {"AttackAnimationID",   40},
   {"DestroyedEffect",     41},
+  {"InitialDelay",        42},
   {NULL,                   0},
 };
 
@@ -1083,7 +1084,6 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
         }
         else
         {
-
             SCRPTERRLOG("Trap property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
             DEALLOCATE_SCRIPT_VALUE
             return;
@@ -1854,6 +1854,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 41: // DestroyedEffect
             trapst->destroyed_effect = value;
+            break;
+        case 42: // InitialDelay
+            trapstat->initial_delay = value;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
