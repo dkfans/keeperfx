@@ -96,7 +96,7 @@ msgstr "¡Cavo fuerte! Cavo tuvo coraje de golpear a un enano en cabeza. Con man
 msgctxt "Level introduction"
 msgid "Land called Springwater River. Keeper kill naughty knights. Naughty knights! Naughty knights! Hope Keeper enjoy! Dug give hint: Not attack right away. Wait for attacks first. If Keeper not get creatures strong in time, then dig around. Keeper find something useful maybe. Dug say bye! Work work work."
 msgstr ""
-"Tierra llamarse Río Aguaprimaveral. El guardan matar caballeros traviesos. ¡Caballeros traviesos! "
+"Tierra llamarse Río Aguaprimaveral. El guardian matar caballeros traviesos. ¡Caballeros traviesos! "
 "¡Caballeros traviesos! ¡Espero que el guardian disfrute! Cavo dar pista: no atacar de inmediato. Espera los ataques "
 "primero. Si no lograr que las criaturas sean fuertes a tiempo, investigar. Guardián podría encontrar algo útil. Cavo decir "
 "hasta luego! Trabajo, trabajo y más trabajo."
