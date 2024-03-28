@@ -54,6 +54,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/******************************************************************************/
+#define PRIORITY_MAX 10
 /******************************************************************************/
 TbBool combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta enmdist);
 /******************************************************************************/
@@ -1794,7 +1797,7 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
 {
     struct InstanceInfo* inst_inf;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    for (int p = 8; p > 0; p--)
+    for (int p = PRIORITY_MAX; p >= 0; p--)
     {
         for (int i = 0; i < game.conf.crtr_conf.instances_count; i++)
         {
