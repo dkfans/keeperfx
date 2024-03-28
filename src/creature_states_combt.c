@@ -1883,8 +1883,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
 CrInstance get_best_quick_range_instance_to_use(const struct Thing *thing)
 {
     struct InstanceInfo* inst_inf;
-    int i;
-    for (i = 0; i < game.conf.crtr_conf.instances_count; i++)
+    for (int i = 0; i < game.conf.crtr_conf.instances_count; i++)
     {
         inst_inf = creature_instance_info_get(i);
         if (flag_is_set(inst_inf->flags, InstPF_Quick))
