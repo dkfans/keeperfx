@@ -462,19 +462,6 @@ void activate_trap_effect_on_trap(struct Thing *traptng)
         efftng->parent_idx = traptng->index;
         SYNCDBG(18,"Created %s",thing_model_name(efftng));
     }
-    if (trapstat->created_itm_model == TngEff_WoPExplosion) //Word of Power trap
-    { 
-        struct ShotConfigStats* shotst = get_shot_model_stats(ShM_TrapWordOfPower);
-        if (shotst->firing_sound > 0) 
-        {
-            thing_play_sample(traptng, shotst->firing_sound+UNSYNC_RANDOM(shotst->firing_sound_variants),
-                NORMAL_PITCH, 0, 3, 0, 6, FULL_LOUDNESS);
-        }
-        if (shotst->shot_sound > 0) 
-        {
-            thing_play_sample(efftng, shotst->shot_sound, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        }
-    }
 }
 
 void activate_trap_shot_on_trap(struct Thing *traptng)
