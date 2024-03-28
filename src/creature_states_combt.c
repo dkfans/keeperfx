@@ -1794,30 +1794,35 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
 {
     struct InstanceInfo* inst_inf;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    for (int i = 0; i < game.conf.crtr_conf.instances_count; i++)
+    for (int p = 8; p > 0; p--)
     {
-        inst_inf = creature_instance_info_get(i);
-        if ((flag_is_set(inst_inf->flags, InstPF_SelfBuff)) && (!creature_affected_by_spell(thing, inst_inf->func_params[1])))
+        for (int i = 0; i < game.conf.crtr_conf.instances_count; i++)
         {
-            if (flag_is_set(inst_inf->flags, InstPF_OnlyInjured))
+            inst_inf = creature_instance_info_get(i);
+            if (inst_inf->priority < p)
+                continue;
+            if ((flag_is_set(inst_inf->flags, InstPF_SelfBuff)) && (!creature_affected_by_spell(thing, inst_inf->func_params[1])))
             {
-                if (creature_requires_healing(thing))
+                if (flag_is_set(inst_inf->flags, InstPF_OnlyInjured))
                 {
-                    INSTANCE_RET_IF_AVAIL(thing, i);
-                } else {
-                    continue;
+                    if (creature_requires_healing(thing))
+                    {
+                        INSTANCE_RET_IF_AVAIL(thing, i);
+                    } else {
+                        continue;
+                    }
                 }
-            }
-            if (flag_is_set(inst_inf->flags, InstPF_OnlyUnderGas))
-            {
-                if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
+                if (flag_is_set(inst_inf->flags, InstPF_OnlyUnderGas))
                 {
-                    INSTANCE_RET_IF_AVAIL(thing, i);
-                } else {
-                    continue;
+                    if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
+                    {
+                        INSTANCE_RET_IF_AVAIL(thing, i);
+                    } else {
+                        continue;
+                    }
                 }
+                INSTANCE_RET_IF_AVAIL(thing, i);
             }
-            INSTANCE_RET_IF_AVAIL(thing, i);
         }
     }
     return CrInst_NULL;
