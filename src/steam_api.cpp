@@ -176,6 +176,7 @@ void steam_api_shutdown()
     if (steam_lib != NULL)
     {
         FreeLibrary(steam_lib);
+        steam_lib = NULL;
     }
 #endif
 }
