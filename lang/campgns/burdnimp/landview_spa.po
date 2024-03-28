@@ -51,7 +51,7 @@ msgstr ""
 #: landview:21
 msgctxt "Level summary"
 msgid "Dug proud to have Master. Master good for Dug and Dug good for Master. Dug got shiny pebble!"
-msgstr "Cavo orgulloso de tener maestro. Maestro bueno para Cavo y Cavo bueno para maestro. Cavo tiene una piedrecita brillante!"
+msgstr "Cavo orgulloso de tener maestro. Maestro bueno para Cavo y Cavo bueno para maestro. ¡Cavo tiene una piedrecita brillante!"
 
 #: landview:30
 msgctxt "Level introduction"
@@ -98,8 +98,8 @@ msgid "Land called Springwater River. Keeper kill naughty knights. Naughty knigh
 msgstr ""
 "Tierra llamarse Río Aguaprimaveral. El guardian matar caballeros traviesos. ¡Caballeros traviesos! "
 "¡Caballeros traviesos! ¡Espero que el guardian disfrute! Cavo dar pista: no atacar de inmediato. Espera los ataques "
-"primero. Si no lograr que las criaturas sean fuertes a tiempo, investigar. Guardián podría encontrar algo útil. Cavo decir "
-"hasta luego! Trabajo, trabajo y más trabajo."
+"primero. Si no lograr que las criaturas sean fuertes a tiempo, excavar alrededor. Guardián podría encontrar algo útil. ¡Cavo decir "
+"adiós! Trabajo, trabajo y más trabajo."
 
 #: landview:61
 msgctxt "Level summary"
