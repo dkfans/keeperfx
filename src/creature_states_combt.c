@@ -1802,7 +1802,7 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
         for (int i = 0; i < game.conf.crtr_conf.instances_count; i++)
         {
             inst_inf = creature_instance_info_get(i);
-            if (inst_inf->priority < p)
+            if (inst_inf->priority < p) // Instances with low priority are used last.
                 continue;
             if ((flag_is_set(inst_inf->flags, InstPF_SelfBuff)) && (!creature_affected_by_spell(thing, inst_inf->func_params[1])))
             {
@@ -1836,12 +1836,16 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
     struct InstanceInfo* inst_inf;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     CrtrStateId state_type = get_creature_state_type(thing);
-    for (int i = 0; i < game.conf.crtr_conf.instances_count; i++)
+    for (int p = PRIORITY_MAX; p >= 0; p--)
     {
-        inst_inf = creature_instance_info_get(i);
-        if (!creature_affected_by_spell(thing, inst_inf->func_params[1]))
+        for (int i = 0; i < game.conf.crtr_conf.instances_count; i++)
         {
-            if ( // Start of the condition block.
+            inst_inf = creature_instance_info_get(i);
+            if (inst_inf->priority < p) // Instances with low priority are used last.
+                continue;
+            if (!creature_affected_by_spell(thing, inst_inf->func_params[1]))
+            {
+                if ( // Start of the condition block.
 ((!creature_is_kept_in_custody(thing)) && // Not on custody condition block start here.
     (      // Digging activities.
         ((flag_is_set(inst_inf->flags, InstPF_DiggerTask)) && (thing_is_creature_special_digger(thing)) && (creature_is_doing_digger_activity(thing)))
@@ -1856,27 +1860,28 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
     ) // Not on custody condition block end here.
 ) // Then if on custody then check if WhileImprisoned flag is set.
 || ((creature_is_kept_in_custody(thing)) && (flag_is_set(inst_inf->flags, InstPF_WhileImprisoned)))
-                ) // End of the condition block.
-            {
-                if (flag_is_set(inst_inf->flags, InstPF_OnlyInjured))
+                    ) // End of the condition block.
                 {
-                    if (creature_would_benefit_from_healing(thing))
+                    if (flag_is_set(inst_inf->flags, InstPF_OnlyInjured))
                     {
-                        INSTANCE_RET_IF_AVAIL(thing, i);
-                    } else {
-                        continue;
+                        if (creature_would_benefit_from_healing(thing))
+                        {
+                            INSTANCE_RET_IF_AVAIL(thing, i);
+                        } else {
+                            continue;
+                        }
                     }
-                }
-                if (flag_is_set(inst_inf->flags, InstPF_OnlyUnderGas))
-                {
-                    if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
+                    if (flag_is_set(inst_inf->flags, InstPF_OnlyUnderGas))
                     {
-                        INSTANCE_RET_IF_AVAIL(thing, i);
-                    } else {
-                        continue;
+                        if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
+                        {
+                            INSTANCE_RET_IF_AVAIL(thing, i);
+                        } else {
+                            continue;
+                        }
                     }
+                    INSTANCE_RET_IF_AVAIL(thing, i);
                 }
-                INSTANCE_RET_IF_AVAIL(thing, i);
             }
         }
     }
@@ -1886,12 +1891,17 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
 CrInstance get_best_quick_range_instance_to_use(const struct Thing *thing)
 {
     struct InstanceInfo* inst_inf;
-    for (int i = 0; i < game.conf.crtr_conf.instances_count; i++)
+    for (int p = PRIORITY_MAX; p >= 0; p--)
     {
-        inst_inf = creature_instance_info_get(i);
-        if (flag_is_set(inst_inf->flags, InstPF_Quick))
+        for (int i = 0; i < game.conf.crtr_conf.instances_count; i++)
         {
-            INSTANCE_RET_IF_AVAIL(thing, i);
+            inst_inf = creature_instance_info_get(i);
+            if (inst_inf->priority < p) // Instances with low priority are used last.
+                continue;
+            if (flag_is_set(inst_inf->flags, InstPF_Quick))
+            {
+                INSTANCE_RET_IF_AVAIL(thing, i);
+            }
         }
     }
     return CrInst_NULL;
@@ -1911,27 +1921,31 @@ CrInstance get_best_combat_weapon_instance_to_use(const struct Thing *thing, lon
 {
     CrInstance inst_id = CrInst_NULL;
     struct InstanceInfo* inst_inf;
-    for (int i = 0; i < game.conf.crtr_conf.instances_count; i++)
+    for (int p = PRIORITY_MAX; p >= 0; p--)
     {
-        inst_inf = creature_instance_info_get(i);
-        if (inst_inf->range_min < 0) // Instance is not a combat weapon.
-            continue;
-
-        if (creature_instance_is_available(thing, i))
+        for (int i = 0; i < game.conf.crtr_conf.instances_count; i++)
         {
-            if ( ( ((inst_inf->flags & (InstPF_RangedAttack | InstPF_RangedDebuff | InstPF_MeleeAttack)) && (atktype & InstPF_RangedAttack)) ||
-                   ((inst_inf->flags & (InstPF_MeleeAttack | InstPF_RangedDebuff))  && (atktype & InstPF_MeleeAttack)) ) &&
-                 (!(inst_inf->flags & InstPF_Dangerous)   || !(atktype & InstPF_Dangerous)) &&
-                 ((inst_inf->flags & InstPF_Destructive)  >=  (atktype & InstPF_Destructive)) )
+            inst_inf = creature_instance_info_get(i);
+            if (inst_inf->range_min < 0) // Instance is not a combat weapon.
+                continue;
+            if (inst_inf->priority < p) // Instances with low priority are used last.
+                continue;
+            if (creature_instance_is_available(thing, i))
             {
-                if (creature_instance_has_reset(thing, i))
+                if ( ( ((inst_inf->flags & (InstPF_RangedAttack | InstPF_RangedDebuff | InstPF_MeleeAttack)) && (atktype & InstPF_RangedAttack)) ||
+                       ((inst_inf->flags & (InstPF_MeleeAttack | InstPF_RangedDebuff))  && (atktype & InstPF_MeleeAttack)) ) &&
+                     (!(inst_inf->flags & InstPF_Dangerous)   || !(atktype & InstPF_Dangerous)) &&
+                     ((inst_inf->flags & InstPF_Destructive)  >=  (atktype & InstPF_Destructive)) )
                 {
-                    if ((inst_inf->range_min <= dist) && (inst_inf->range_max >= dist)) {
-                        return i;
+                    if (creature_instance_has_reset(thing, i))
+                    {
+                        if ((inst_inf->range_min <= dist) && (inst_inf->range_max >= dist)) {
+                            return i;
+                        }
                     }
-                }
-                if (inst_id == CrInst_NULL) {
-                    inst_id = -i;
+                    if (inst_id == CrInst_NULL) {
+                        inst_id = -i;
+                    }
                 }
             }
         }
@@ -1943,28 +1957,32 @@ CrInstance get_best_combat_weapon_instance_to_use_versus_trap(const struct Thing
 {
     CrInstance inst_id = CrInst_NULL;
     struct InstanceInfo* inst_inf;
-    for (int i = 0; i < game.conf.crtr_conf.instances_count; i++)
+    for (int p = PRIORITY_MAX; p >= 0; p--)
     {
-        inst_inf = creature_instance_info_get(i);
-        if (inst_inf->range_min < 0) // Instance is not a combat weapon.
-            continue;
-
-        if (creature_instance_is_available(thing, i))
+        for (int i = 0; i < game.conf.crtr_conf.instances_count; i++)
         {
-            if ((((inst_inf->flags & (InstPF_RangedAttack | InstPF_RangedDebuff | InstPF_MeleeAttack)) && (atktype & InstPF_RangedAttack)) ||
-                ((inst_inf->flags & (InstPF_MeleeAttack | InstPF_RangedDebuff)) && (atktype & InstPF_MeleeAttack))) &&
-                (!(inst_inf->flags & InstPF_Dangerous) || !(atktype & InstPF_Dangerous)) &&
-                ((inst_inf->flags & InstPF_Destructive) >= (atktype & InstPF_Destructive)) &&
-                (inst_inf->flags & InstPF_Disarming) )
+            inst_inf = creature_instance_info_get(i);
+            if (inst_inf->range_min < 0) // Instance is not a combat weapon.
+                continue;
+            if (inst_inf->priority < p) // Instances with low priority are used last.
+                continue;
+            if (creature_instance_is_available(thing, i))
             {
-                if (creature_instance_has_reset(thing, i))
+                if ((((inst_inf->flags & (InstPF_RangedAttack | InstPF_RangedDebuff | InstPF_MeleeAttack)) && (atktype & InstPF_RangedAttack)) ||
+                    ((inst_inf->flags & (InstPF_MeleeAttack | InstPF_RangedDebuff)) && (atktype & InstPF_MeleeAttack))) &&
+                    (!(inst_inf->flags & InstPF_Dangerous) || !(atktype & InstPF_Dangerous)) &&
+                    ((inst_inf->flags & InstPF_Destructive) >= (atktype & InstPF_Destructive)) &&
+                    (inst_inf->flags & InstPF_Disarming) )
                 {
-                    if ((inst_inf->range_min <= dist) && (inst_inf->range_max >= dist)) {
-                        return i;
+                    if (creature_instance_has_reset(thing, i))
+                    {
+                        if ((inst_inf->range_min <= dist) && (inst_inf->range_max >= dist)) {
+                            return i;
+                        }
                     }
-                }
-                if (inst_id == CrInst_NULL) {
-                    inst_id = -i;
+                    if (inst_id == CrInst_NULL) {
+                        inst_id = -i;
+                    }
                 }
             }
         }
