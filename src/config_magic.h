@@ -318,6 +318,7 @@ struct ShotConfigStats {
     unsigned char update_logic; // see enum ShotUpdateLogics
     unsigned short effect_spacing;
     unsigned char effect_amount;
+    unsigned short periodical;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);
