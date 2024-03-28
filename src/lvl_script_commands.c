@@ -246,6 +246,7 @@ const struct NamedCommand trap_config_desc[] = {
   {"RechargeAnimationID", 39},
   {"AttackAnimationID",   40},
   {"DestroyedEffect",     41},
+  {"InitialDelay",        42},
   {NULL,                   0},
 };
 
@@ -1083,7 +1084,6 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
         }
         else
         {
-
             SCRPTERRLOG("Trap property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
             DEALLOCATE_SCRIPT_VALUE
             return;
@@ -1854,6 +1854,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 41: // DestroyedEffect
             trapst->destroyed_effect = value;
+            break;
+        case 42: // InitialDelay
+            trapstat->initial_delay = value;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
@@ -5448,6 +5451,33 @@ static void set_creature_max_level_process(struct ScriptContext* context)
     }
 }
 
+static void reset_action_point_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    long apt_idx = action_point_number_to_index(scline->np[0]);
+    if (!action_point_exists_idx(apt_idx))
+    {
+        SCRPTERRLOG("Non-existing Action Point, no %d", scline->np[0]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->arg0 = apt_idx;
+    PlayerNumber plyr_idx = (scline->tp[1][0] == '\0') ? ALL_PLAYERS : get_id(player_desc, scline->tp[1]);
+    if (plyr_idx == -1)
+    {
+        SCRPTERRLOG("Invalid player: %s", scline->tp[1]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->chars[4] = plyr_idx;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void reset_action_point_process(struct ScriptContext* context)
+{
+    action_point_reset_idx(context->value->arg0, context->value->chars[4]);
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -5488,7 +5518,7 @@ const struct CommandDesc command_desc[] = {
   {"DISPLAY_INFORMATION_WITH_POS",      "NNN     ", Cmd_DISPLAY_INFORMATION_WITH_POS, NULL, NULL},
   {"ADD_TUNNELLER_PARTY_TO_LEVEL",      "PAAANNN ", Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_POOL",              "CN      ", Cmd_ADD_CREATURE_TO_POOL, NULL, NULL},
-  {"RESET_ACTION_POINT",                "N       ", Cmd_RESET_ACTION_POINT, NULL, NULL},
+  {"RESET_ACTION_POINT",                "Na      ", Cmd_RESET_ACTION_POINT, &reset_action_point_check, &reset_action_point_process},
   {"SET_CREATURE_MAX_LEVEL",            "PC!N    ", Cmd_SET_CREATURE_MAX_LEVEL, &set_creature_max_level_check, &set_creature_max_level_process},
   {"SET_MUSIC",                         "A       ", Cmd_SET_MUSIC, &set_music_check, &set_music_process},
   {"TUTORIAL_FLASH_BUTTON",             "NN      ", Cmd_TUTORIAL_FLASH_BUTTON, NULL, NULL},
@@ -5638,7 +5668,7 @@ const struct CommandDesc dk1_command_desc[] = {
   {"DISPLAY_INFORMATION_WITH_POS", "NNN     ", Cmd_DISPLAY_INFORMATION_WITH_POS, NULL, NULL},
   {"ADD_TUNNELLER_PARTY_TO_LEVEL", "PAAANNN ", Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_POOL",         "CN      ", Cmd_ADD_CREATURE_TO_POOL, NULL, NULL},
-  {"RESET_ACTION_POINT",           "N       ", Cmd_RESET_ACTION_POINT, NULL, NULL},
+  {"RESET_ACTION_POINT",           "N       ", Cmd_RESET_ACTION_POINT, &reset_action_point_check, &reset_action_point_process},
   {"SET_CREATURE_MAX_LEVEL",       "PC!N    ", Cmd_SET_CREATURE_MAX_LEVEL, &set_creature_max_level_check, &set_creature_max_level_process},
   {"SET_MUSIC",                    "N       ", Cmd_SET_MUSIC, NULL, NULL},
   {"TUTORIAL_FLASH_BUTTON",        "NN      ", Cmd_TUTORIAL_FLASH_BUTTON, NULL, NULL},
