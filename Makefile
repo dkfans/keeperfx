@@ -91,6 +91,7 @@ endif
 OBJS = \
 $(DEPS) \
 obj/actionpt.o \
+obj/api.o \
 obj/ariadne.o \
 obj/ariadne_edge.o \
 obj/ariadne_findcache.o \
