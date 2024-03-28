@@ -70,20 +70,21 @@ TbBool is_mouse_on_map(struct Packet* pckt)
     return true;
 }
 
+TbBool tag_between = false;
 void remember_cursor_subtile(struct PlayerInfo *player) {
     struct Packet* pckt = get_packet_direct(player->packet_num);
-    TbBool badPacket = (pckt->pos_x == 0) && (pckt->pos_y == 0);
-    
-    player->previous_cursor_subtile_x = player->cursor_subtile_x;
-    player->previous_cursor_subtile_y = player->cursor_subtile_y;
-    player->cursor_subtile_x = coord_subtile((pckt->pos_x));
-    player->cursor_subtile_y = coord_subtile((pckt->pos_y));
-
-    // Off field
-    if (player->mouse_on_map == false || badPacket == true) {
+    if (tag_between == true) {
+        player->previous_cursor_subtile_x = player->cursor_subtile_x;
+        player->previous_cursor_subtile_y = player->cursor_subtile_y;
+        player->cursor_subtile_x = coord_subtile((pckt->pos_x));
+        player->cursor_subtile_y = coord_subtile((pckt->pos_y));
+    } else {
+        player->cursor_subtile_x = coord_subtile((pckt->pos_x));
+        player->cursor_subtile_y = coord_subtile((pckt->pos_y));
         player->previous_cursor_subtile_x = player->cursor_subtile_x;
         player->previous_cursor_subtile_y = player->cursor_subtile_y;
     }
+    tag_between = player->mouse_on_map;
 }
 
 void set_tag_untag_mode(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)

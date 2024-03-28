@@ -625,17 +625,6 @@ static void command_add_creature_to_pool(const char *crtr_name, long amount)
     command_add_value(Cmd_ADD_CREATURE_TO_POOL, ALL_PLAYERS, crtr_id, amount, 0);
 }
 
-static void command_reset_action_point(long apt_num)
-{
-    long apt_idx = action_point_number_to_index(apt_num);
-    if (!action_point_exists_idx(apt_idx))
-    {
-        SCRPTERRLOG("Non-existing Action Point, no %d", apt_num);
-        return;
-  }
-  command_add_value(Cmd_RESET_ACTION_POINT, ALL_PLAYERS, apt_idx, 0, 0);
-}
-
 static void command_set_music(long val)
 {
   if (get_script_current_condition() != CONDITION_ALWAYS)
@@ -1660,9 +1649,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_ADD_CREATURE_TO_POOL:
         command_add_creature_to_pool(scline->tp[0], scline->np[1]);
-        break;
-    case Cmd_RESET_ACTION_POINT:
-        command_reset_action_point(scline->np[0]);
         break;
     case Cmd_TUTORIAL_FLASH_BUTTON:
         command_tutorial_flash_button(scline->np[0], scline->np[1]);
