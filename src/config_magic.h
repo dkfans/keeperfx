@@ -316,6 +316,7 @@ struct ShotConfigStats {
     unsigned char update_logic; // see enum ShotUpdateLogics
     unsigned short effect_spacing;
     unsigned char effect_amount;
+    unsigned short periodical;
     short spread_xy;
     short spread_z;
     short speed_deviation;
