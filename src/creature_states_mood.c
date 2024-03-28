@@ -504,7 +504,7 @@ TbBool process_job_causes_going_postal(struct Thing *creatng, struct Room *room,
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     CrInstance inst_use = get_best_quick_range_instance_to_use(creatng);
-    if (inst_use <= 0) {
+    if (inst_use == CrInst_NULL) {
         SYNCDBG(8,"The %s index %d cannot go postal during %s; no ranged instance",thing_model_name(creatng),(int)creatng->index,creature_job_code_name(going_postal_job));
         return false;
     }

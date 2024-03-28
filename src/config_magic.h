@@ -41,31 +41,33 @@ enum SpellKinds {
     SplK_FireBomb,
     SplK_Freeze,
     SplK_Armour,
-    SplK_Lightning,
+    SplK_Lightning, // 5
     SplK_Rebound,
     SplK_Heal,
     SplK_PoisonCloud,
     SplK_Invisibility,
-    SplK_Teleport,//[10]
+    SplK_Teleport, // 10
     SplK_Speed,
     SplK_Slow,
     SplK_Drain,
     SplK_Fear,
-    SplK_Missile,//[15]
+    SplK_Missile, // 15
     SplK_NavigMissile,
     SplK_FlameBreath,
     SplK_Wind,
     SplK_Light,
-    SplK_Fly,//[20]
+    SplK_Fly, // 20
     SplK_Sight,
     SplK_Grenade,
     SplK_Hailstorm,
-    SplK_WordOfPower,//[24]
-    SplK_CrazyGas,
+    SplK_WordOfPower,
+    SplK_CrazyGas, // 25
     SplK_Disease,
     SplK_Chicken,
-    SplK_TimeBomb,//[28]
+    SplK_TimeBomb,
     SplK_Lizard,
+    SplK_Familiar, // 30
+    SplK_Summon,
 };
 
 enum CreatureSpellAffectedFlags {

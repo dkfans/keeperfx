@@ -376,6 +376,7 @@ TbBool creature_is_doing_anger_job(const struct Thing *thing);
 TbBool creature_is_doing_garden_activity(const struct Thing *thing);
 TbBool creature_is_taking_salary_activity(const struct Thing *thing);
 TbBool creature_is_doing_temple_pray_activity(const struct Thing *thing);
+TbBool creature_is_fighting(const struct Thing *thing);
 TbBool creature_is_training(const struct Thing *thing);
 TbBool creature_is_being_scavenged(const struct Thing *thing);
 TbBool creature_is_scavengering(const struct Thing *thing);
