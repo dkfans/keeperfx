@@ -904,7 +904,9 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     }
     if (trapstat->initial_delay != 0)
     {
+        struct ManfctrConfig *mconf = &game.conf.traps_config[trpkind];
         thing->trap.wait_for_rearm = true;
+        thing->trap.rearm_turn += mconf->shots_delay;
     }
     add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);
