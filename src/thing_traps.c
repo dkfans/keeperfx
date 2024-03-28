@@ -735,11 +735,12 @@ void process_trap_charge(struct Thing* traptng)
     }
 }
 
-TngUpdateRet update_trap_trigger(struct Thing* traptng)
+void update_trap_trigger(struct Thing* traptng)
 {
     struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
-    if (traptng->trap.num_shots <= 0) {
-        return TUFRet_Unchanged;
+    if (traptng->trap.num_shots <= 0)
+    {
+        return;
     }
     TbBool do_trig;
     switch (trapstat->trigger_type)
@@ -771,9 +772,7 @@ TngUpdateRet update_trap_trigger(struct Thing* traptng)
     if (do_trig)
     {
         process_trap_charge(traptng);
-        return TUFRet_Modified;
     }
-    return TUFRet_Unchanged;
 }
 
 TbBool rearm_trap(struct Thing *traptng)
@@ -794,9 +793,9 @@ TngUpdateRet update_trap(struct Thing *traptng)
         destroy_trap(traptng);
         return TUFRet_Deleted;
     }
+    struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
     if (traptng->trap.wait_for_rearm == true) // Trap rearming, so either 'shooting' anim or 'recharch' anim.
     {
-        struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
         if ((traptng->trap.rearm_turn <= game.play_gameturn)) // Recharge complete, rearm.
         {
             // Back to regular anim.
@@ -823,6 +822,19 @@ TngUpdateRet update_trap(struct Thing *traptng)
                 traptng->anim_sprite = convert_td_iso(trapstat->sprite_anim_idx);
             }
             traptng->max_frames = get_lifespan_of_animation(traptng->anim_sprite, trapstat->anim_speed);
+        }
+    }
+    if (trapstat->activation_type == TrpAcT_CreatureShot)
+    {
+        if (traptng->trap.volley_delay > 0)
+        {
+            traptng->trap.volley_delay--;
+            return TUFRet_Modified;
+        }
+        if (traptng->trap.volley_repeat > 0)
+        {
+            thing_fire_shot(traptng, thing_get(traptng->trap.firing_at) , trapstat->created_itm_model, 1, THit_CrtrsNObjcts);
+            return TUFRet_Modified;
         }
     }
     if (trap_is_active(traptng))

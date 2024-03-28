@@ -69,7 +69,8 @@ enum ShotFireLogics {
     ShFL_Beam,
     ShFL_Breathe,
     ShFL_Hail,
-    ShFL_Lizard
+    ShFL_Lizard,
+    ShFL_Volley,
 };
 
 enum ShotUpdateLogics {
