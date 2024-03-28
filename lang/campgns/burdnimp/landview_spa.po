@@ -126,7 +126,7 @@ msgid "Keeper arrive at Dreamweave Caverns with Dug. Wizards cast spell on Dug f
 msgstr ""
 "Maestro llegar a Cavernas Tejesueños con Cavo. ¡Cuatro magos lanzaron un hechizo a los amigos de Cavo!. "
 "Doce duendes huyeron al norte de estas cuevas. ¡Encuentra a ocho de los amigos de Cavo y protégelos! También se perdierón los hechizos."
-"¡Los amigos de Dug los escondieron del enemigo! Tú los encuentras."
+"¡Los amigos de Cavo los escondieron del enemigo! Tú los encuentras."
 
 #: landview:81
 msgctxt "Level summary"
