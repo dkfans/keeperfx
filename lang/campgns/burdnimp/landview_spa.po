@@ -26,20 +26,20 @@
 msgctxt "Campaign introduction"
 msgid "Me Dug! Dug is imp leader. Master find new lands. Many heroes. Very dangerous! Dug show lands to Keeper. Keeper can show skill!"
 msgstr ""
-"Yo Cavo. Cavo es tu duende líder. El maestro encuentra nuevas tierras. Muchos héroes. ¡Muy peligrosos! Paso excavado las tierras. "
+"Yo Cavo. Cavo es tu duende líder. El maestro encuentra nuevas tierras. Muchos héroes. ¡Muy peligrosos! Cavo mostrar las tierras al Guardian. "
 "El Guardián puede mostrar habilidad."
 
 #: landview:10
 msgctxt "Level introduction"
 msgid "Moonshadow Keep. Keep full of good knights and wizards. Piss Master off. Kill knights and wizards and make new home for Keeper!"
 msgstr ""
-"Torreón Sombraluna. Avanza hacia los buenos de los caballeros y magos. Que no se enoje el maestro. Mata caballeros, magos y crea "
-"un nuevo hogar para el guardián."
+"Torreón Sombraluna. Avanza hacia los buenos de los caballeros y magos. Que no se enfade el maestro. ¡Mata caballeros, magos y crea "
+"un nuevo hogar para el guardián!"
 
 #: landview:11
 msgctxt "Level summary"
 msgid "Ha ha ha, Lord of Land is fried for supper! Ha ha! Dug has great appetite!"
-msgstr "Ja, ja, ja, el Señor de la Tierra está siendo freído, ja, ja."
+msgstr "Ja, ja, ja, el Señor de la Tierra está siendo freído, ja, ja. ¡Cavo tiene mucho apetito!"
 
 #: landview:20
 msgctxt "Level introduction"
@@ -51,7 +51,7 @@ msgstr ""
 #: landview:21
 msgctxt "Level summary"
 msgid "Dug proud to have Master. Master good for Dug and Dug good for Master. Dug got shiny pebble!"
-msgstr "Cavo orgulloso de tener maestro. Maestro bueno para Cavo y Cavo bueno para maestro."
+msgstr "Cavo orgulloso de tener maestro. Maestro bueno para Cavo y Cavo bueno para maestro. Cavo tiene una piedrecita brillante!"
 
 #: landview:30
 msgctxt "Level introduction"
@@ -72,7 +72,7 @@ msgid "Master take you to Raven's Claw. Cave with four evil bad bad magic people
 msgstr ""
 "El maestro llegar a Garra Cuervo. ¡Cueva con cuatro personas malvadas, malas, malas y mágicas! El Guardián "
 "necesitar pasar por el torreón embrujado. Cavo piensa miedo. Maestro piensa divertido. El Maestro agradece "
-"a los Guardianes por la bolsa de alimentación. Corre ahora."
+"al Guardian por la bolsa de comida de Cavo. Corre ahora."
 
 #: landview:41
 msgctxt "Level summary"
@@ -83,7 +83,7 @@ msgstr "Cavo bien en excavación y el pico estar oscilante. Cavo estará encanta
 msgctxt "Level introduction"
 msgid "Master find more land. It called Silversong Fall. People live in ground. That Keeper domain. Kill intruders. Destroy underground village! Master tired from travelling. Not find new land soon. Work not stop for Dug! Dug go dig!"
 msgstr ""
-"Maestro encuentrar una tierra más. Llamar Caída de Cantoplata. Personas vivir en suelo. El dominio es de un Guardián. Matar "
+"Maestro encuentra una tierra más. Llamar Caída de Cantoplata. Personas vivir en suelo. El dominio es de un Guardián. Matar "
 "intrusos. ¡Destruir pueblo subterráneo! Maestro cansado de viajar. No buscar tierras nuevas de prisa. ¡El trabajo no se "
 "detiene para Cavo! ¡Cavo ir a cavar!"
 
@@ -96,8 +96,8 @@ msgstr "¡Cavo fuerte! Cavo tuvo coraje de golpear a un enano en cabeza. Con man
 msgctxt "Level introduction"
 msgid "Land called Springwater River. Keeper kill naughty knights. Naughty knights! Naughty knights! Hope Keeper enjoy! Dug give hint: Not attack right away. Wait for attacks first. If Keeper not get creatures strong in time, then dig around. Keeper find something useful maybe. Dug say bye! Work work work."
 msgstr ""
-"Tierra llamarse Río Aguaprimaveral. Los guardianes necesitar matar a los caballeros traviesos. ¡Caballeros traviesos! "
-"¡Caballeros traviesos! ¡Espero que los guardianes disfruten! Cavo dar pista: no atacar de inmediato. Espera los ataques "
+"Tierra llamarse Río Aguaprimaveral. El guardan matar caballeros traviesos. ¡Caballeros traviesos! "
+"¡Caballeros traviesos! ¡Espero que el guardian disfrute! Cavo dar pista: no atacar de inmediato. Espera los ataques "
 "primero. Si no lograr que las criaturas sean fuertes a tiempo, investigar. Guardián podría encontrar algo útil. Cavo decir "
 "hasta luego! Trabajo, trabajo y más trabajo."
 
@@ -124,9 +124,9 @@ msgstr "Cavo querer ir a cavar. Pero no quedar tierra, arghh!"
 msgctxt "Level introduction"
 msgid "Keeper arrive at Dreamweave Caverns with Dug. Wizards cast spell on Dug friends! Twelve friends run to north caves! Find eight of Dug friends and protect! Spells also lost. Dug friends hid them from enemy! You find."
 msgstr ""
-"El octavo nivel se llama Cavernas Tejesueños. Cuatro magos han lanzado un hechizo de miedo sobre tus sirvientes, Guardián. "
-"Doce duendes huyeron a la parte norte de estas cuevas. Encuentra al menos ocho de ellos y asegúrate de que vivan. Oh, tus "
-"sirvientes también se llevaron tus libros de hechizos. Es hora de hacer una búsqueda exhaustiva."
+"Maestro llegar a Cavernas Tejesueños con Cavo. ¡Cuatro magos lanzaron un hechizo a los amigos de Cavo!. "
+"Doce duendes huyeron al norte de estas cuevas. ¡Encuentra a ocho de los amigos de Cavo y protégelos! También se perdierón los hechizos."
+"¡Los amigos de Dug los escondieron del enemigo! Tú los encuentras."
 
 #: landview:81
 msgctxt "Level summary"
