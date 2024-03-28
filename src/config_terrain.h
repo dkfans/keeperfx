@@ -153,7 +153,7 @@ struct RoomConfigStats {
     long msg_too_small;
     long msg_no_route;
     short cost;
-    unsigned short health;
+    HitPoints health;
     int update_total_capacity_idx;
     int update_storage_in_room_idx;
     int update_workers_in_room_idx;

@@ -54,7 +54,7 @@ struct DoorConfigStats {
     long pointer_sprite_idx;
     long place_sound_idx;
     unsigned short slbkind[2];
-    long health;
+    HitPoints health;
     unsigned short open_speed;
     unsigned short model_flags;
     short unsellable;

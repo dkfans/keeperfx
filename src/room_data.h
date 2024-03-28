@@ -92,7 +92,7 @@ struct Room {
     MapSubtlCoord central_stl_x;
     MapSubtlCoord central_stl_y;
     RoomKind kind;
-    unsigned short health;
+    HitPoints health;
     unsigned short total_capacity;
     unsigned short used_capacity;
     /* Informs whether players are interested in that room.
