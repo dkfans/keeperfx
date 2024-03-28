@@ -6845,9 +6845,19 @@ msgstr "ゴールド増加：財宝でゴールドを生成します。"
 #: guitext:1061
 msgctxt "Dungeon special decription"
 msgid "Make Unhappy: All creatures of the enemy become upset."
-msgstr "不幸にする： 敵のすべてのクリーチャーが不幸になります。"
+msgstr "不幸にする：敵のすべてのクリーチャーが不幸になります。"
 
 #: guitext:1062
 msgctxt "Dungeon special decription"
 msgid "Weaken Walls: Destroys the fortifications of enemy walls."
 msgstr "壁を弱める：敵の城壁の防御施設を破壊します。"
+
+#: guitext:1063
+msgctxt "Keeper spell name"
+msgid "Rage"
+msgstr "怒り"
+
+#: guitext:1064
+msgctxt "Creature spell"
+msgid "Rage: Makes the creature attack recklessly, hitting harder and faster without dodging."
+msgstr "怒り：クリーチャーを無謀に攻撃させ、回避せずにより強くより速く攻撃します。"

@@ -6599,3 +6599,13 @@ msgstr "使不高兴：敌人的所有生物变得不高兴。"
 msgctxt "Dungeon special decription"
 msgid "Weaken Walls: Destroys the fortifications of enemy walls."
 msgstr "削弱城墙: 摧毁敌方城墙的防御工事。"
+
+#: guitext:1063
+msgctxt "Keeper spell name"
+msgid "Rage"
+msgstr "愤怒"
+
+#: guitext:1064
+msgctxt "Creature spell"
+msgid "Rage: Makes the creature attack recklessly, hitting harder and faster without dodging."
+msgstr "愤怒: 使该生物鲁莽地攻击，攻击更猛烈、更快且不闪避。"
