@@ -3982,6 +3982,7 @@ TbBool remove_creature_lair(struct Thing *thing)
 void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
 {
     struct Dungeon *dungeon;
+    struct CreatureControl* cctrl;
     SYNCDBG(6,"Starting for %s, owner %d to %d",thing_model_name(creatng),(int)creatng->owner,(int)nowner);
     // Remove the creature from old owner
     if (creatng->light_id != 0) {
@@ -4011,6 +4012,9 @@ void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
         dungeon->score += get_creature_thing_score(creatng);
         if ( anger_is_creature_angry(creatng) )
             dungeon->creatures_annoyed++;
+        cctrl = creature_control_get_from_thing(creatng);
+        cctrl->paydays_owed = 0;
+        cctrl->paydays_advanced = 0;
     }
 }
 
