@@ -151,7 +151,7 @@ int steam_api_init()
         return 1;
     }
 
-    FreeLibrary(steam_lib);
+    // FreeLibrary(steam_lib);
     return 0;
 
 #endif
