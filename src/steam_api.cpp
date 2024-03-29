@@ -132,7 +132,7 @@ int steam_api_init()
     SteamAPI_Init = SteamApiInit.steamApiInitFunc;
 
     // Get the address of the ManualDispatch_Init function
-    SteamAPI_RunCallbacks = reinterpret_cast<SteamApiRunCallbacksFunc>(GetProcAddress(steam_lib, "SteamAPI_RunCallbacks"));
+    SteamAPI_RunCallbacks = (SteamApiRunCallbacksFunc)GetProcAddress(steam_lib, "SteamAPI_RunCallbacks");
     if (SteamAPI_RunCallbacks == NULL)
     {
         ERRORLOG("Failed to get proc address for 'SteamAPI_RunCallbacks' in 'steam_api.dll'");
@@ -141,7 +141,7 @@ int steam_api_init()
     }
 
     // Get the address of the Shutdown function
-    SteamAPI_Shutdown = reinterpret_cast<SteamApiShutdownFunc>(GetProcAddress(steam_lib, "SteamAPI_Shutdown"));
+    SteamAPI_Shutdown = (SteamApiShutdownFunc)GetProcAddress(steam_lib, "SteamAPI_Shutdown");
     if (SteamAPI_Shutdown == NULL)
     {
         ERRORLOG("Failed to get proc address for 'SteamAPI_Shutdown' in 'steam_api.dll'");
