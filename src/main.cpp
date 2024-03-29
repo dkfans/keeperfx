@@ -4271,6 +4271,8 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
         return 0;
     }
 
+    steam_api_init();
+
     retval = true;
     retval &= (LbTimerInit() != Lb_FAIL);
     retval &= (LbScreenInitialize() != Lb_FAIL);
@@ -4293,10 +4295,6 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     }
 
     retval = setup_game();
-    if (retval)
-    {
-        steam_api_init();
-    }
     if (retval)
     {
       if ((install_info.lang_id == Lang_Japanese) ||
