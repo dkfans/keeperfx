@@ -42,6 +42,7 @@ enum ESteamAPIInitResult
 // Typedefs for the functions and data types in the Steam API
 typedef char SteamErrMsg[1024];
 typedef ESteamAPIInitResult(__cdecl *SteamApiInitFunc)(SteamErrMsg *err);
+typedef void(__cdecl *SteamApiManualDispatchFunc)();
 typedef void(__cdecl *SteamApiShutdownFunc)();
 
 // Type Punning union for the Steam API Init function to go from __cdecl to __stdcall
@@ -53,6 +54,7 @@ union SteamApiInitUnion
 
 // Variables
 SteamApiInitFunc SteamAPI_Init;
+SteamApiManualDispatchFunc SteamAPI_ManualDispatch_Init;
 SteamApiShutdownFunc SteamAPI_Shutdown;
 
 /**
@@ -129,6 +131,15 @@ int steam_api_init()
     // Unionize the Init function address type to our local function type
     SteamAPI_Init = SteamApiInit.steamApiInitFunc;
 
+    // Get the address of the ManualDispatch_Init function
+    SteamAPI_ManualDispatch_Init = reinterpret_cast<SteamApiManualDispatchFunc>(GetProcAddress(steam_lib, "SteamAPI_ManualDispatch_Init"));
+    if (SteamAPI_ManualDispatch_Init == NULL)
+    {
+        ERRORLOG("Failed to get proc address for 'SteamAPI_ManualDispatch_Init' in 'steam_api.dll'");
+        FreeLibrary(steam_lib);
+        return 1;
+    }
+
     // Get the address of the Shutdown function
     SteamAPI_Shutdown = reinterpret_cast<SteamApiShutdownFunc>(GetProcAddress(steam_lib, "SteamAPI_Shutdown"));
     if (SteamAPI_Shutdown == NULL)
@@ -151,7 +162,11 @@ int steam_api_init()
         return 1;
     }
 
-    // FreeLibrary(steam_lib);
+    // Inform the API that we wish to use manual event dispatch.
+    // This makes the Steam API be idle until we want to interact with it.
+    // Must be called after SteamAPI_Init.
+    SteamAPI_ManualDispatch_Init();
+
     return 0;
 
 #endif
@@ -171,6 +186,7 @@ void steam_api_shutdown()
     }
 
     SteamAPI_Shutdown = NULL;
+    SteamAPI_ManualDispatch_Init = NULL;
     SteamAPI_Init = NULL;
 
     if (steam_lib != NULL)
