@@ -235,7 +235,6 @@
     <ClCompile Include="src\slab_data.c" />
     <ClCompile Include="src\sounds.c" />
     <ClCompile Include="src\spdigger_stack.c" />
-    <ClCompile Include="src\steam_api.cpp" />
     <ClCompile Include="src\tasks_list.c" />
     <ClCompile Include="src\thing_corpses.c" />
     <ClCompile Include="src\thing_creature.c" />
@@ -455,7 +454,6 @@
     <ClInclude Include="src\sounds.h" />
     <ClInclude Include="src\spdigger_stack.h" />
     <ClInclude Include="src\sprites.h" />
-    <ClInclude Include="src\steam_api.hpp" />
     <ClInclude Include="src\tasks_list.h" />
     <ClInclude Include="src\thing_corpses.h" />
     <ClInclude Include="src\thing_creature.h" />

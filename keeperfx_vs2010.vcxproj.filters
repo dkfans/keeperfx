@@ -741,9 +741,6 @@
     <ClCompile Include="src\config_spritecolors.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\steam_api.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actionpt.h">
@@ -1392,9 +1389,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\config_spritecolors.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\steam_api.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

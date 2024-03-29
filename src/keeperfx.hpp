@@ -162,7 +162,6 @@ extern unsigned char *dog_palette;
 extern unsigned char *vampire_palette;
 extern unsigned char exit_keeper;
 extern unsigned char quit_game;
-extern unsigned char is_running_under_wine;
 extern int continue_game_option_available;
 extern long last_mouse_x;
 extern long last_mouse_y;
