@@ -3938,7 +3938,6 @@ void game_loop(void)
       close_packet_file();
       game.packet_load_enable = false;
       game.packet_save_enable = false;
-      steam_api_run_callbacks();
     } // end while
 
     ShutdownMusicPlayer();
