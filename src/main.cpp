@@ -3453,6 +3453,7 @@ void gameplay_loop_logic()
     input_eastegg();
     input();
     update();
+    steam_api_run_callbacks();
     frametime_end_measurement(Frametime_Logic);
 
     if(game.frame_step)
@@ -3535,7 +3536,6 @@ void keeper_gameplay_loop(void)
         gameplay_loop_logic();
         gameplay_loop_draw();
         gameplay_loop_timestep();
-        steam_api_run_callbacks();
         frametime_end_measurement(Frametime_FullFrame);
     } // end while
     SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
