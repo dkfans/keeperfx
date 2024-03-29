@@ -108,7 +108,7 @@ int steam_api_init()
     }
 
     // Load the Steam API library
-    steam_lib = LoadLibraryA("steam_api.dll");
+    steam_lib = LoadLibrary("steam_api.dll");
     if (!steam_lib)
     {
         ERRORLOG("Unable to load 'steam_api.dll' library");
