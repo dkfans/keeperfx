@@ -23,13 +23,13 @@ extern "C" {
 #define FTESTLOG(format, ...) LbFTestLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
 
 #define FTEST_FAIL_TEST(format, ...) { \
-    set_flag_byte(&start_params.functest_flags, FTF_TestFailed, true); \
+    set_flag(start_params.functest_flags, FTF_TestFailed); \
     FTESTLOG("Failing test"); \
     FTESTLOG(format, ##__VA_ARGS__); \
 }
 
 #define FTEST_FRAMEWORK_ABORT(format, ...) { \
-    set_flag_byte(&start_params.functest_flags, FTF_Abort, true); \
+    set_flag(start_params.functest_flags, FTF_Abort); \
     FTESTLOG("Framework error, aborting..."); \
     FTESTLOG(format, ##__VA_ARGS__); \
 }
@@ -56,11 +56,17 @@ struct FTestActionArgs
     void* data;
 };
 
+typedef enum FTestActionResult
+{
+    FTRs_Repeat_Current_Action = 0,
+    FTRs_Go_To_Next_Action = 1
+} FTestActionResult;
+
 /**
  * @brief Function Test Action Func -
  * Your test will be comprised of these actions, append them inside your init func using ftest_append_action
  */
-typedef TbBool (*FTest_Action_Func)(struct FTestActionArgs* const args);
+typedef FTestActionResult (*FTest_Action_Func)(struct FTestActionArgs* const args);
 
 typedef enum FTestFrameworkState
 {
@@ -128,6 +134,7 @@ struct FTestConfig {
 struct ftest_onlyappendtests__config
 {
     struct FTestConfig tests_list[FTEST_MAX_TESTS];
+    struct FTestConfig long_running_tests_list[FTEST_MAX_TESTS];
 };
 extern struct ftest_onlyappendtests__config ftest_onlyappendtests__conf;
 
@@ -188,6 +195,11 @@ FTestFrameworkState ftest_update(FTestFrameworkState* const out_prev_state);
  */
 void ftest_restart_actions();
 
+/**
+ * @brief Returns the current test config (some tests may want to modify it... meta!)
+ * 
+ */
+struct FTestConfig* ftest_get_current_test_config();
 
 #ifdef __cplusplus
 }

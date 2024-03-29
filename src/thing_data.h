@@ -52,16 +52,17 @@ enum ThingFlags1 {
 };
 
 enum ThingFlags2 {
-    TF2_Unkn01         = 0x01,
-    TF2_Spectator      = 0x02,
+    TF2_Unkn01              = 0x01,
+    TF2_Spectator           = 0x02,
+    TF2_SummonedCreature    = 0x04,
 };
 
 enum ThingRenderingFlags {
     TRF_Unknown01     = 0x01, /** Not Drawn **/
     TRF_Unshaded     = 0x02, // Not shaded
 
-    TRF_Unknown04     = 0x04, // Tint1 (used to draw enemy creatures when they are blinking to owners color)
-    TRF_Unknown08     = 0x08, // Tint2 (not used?)
+    TRF_Tint_1        = 0x04, // Tint1 (used to draw enemy creatures when they are blinking to owners color)
+    TRF_Tint_2        = 0x08, // Tint2 (not used?)
     TRF_Tint_Flags    = 0x0C, // Tint flags
 
     TRF_Transpar_8     = 0x10, // Used on chicken effect when creature is turned to chicken
@@ -199,6 +200,8 @@ struct Thing {
       struct {
         long gold_carried;
         short health_bar_turns;
+        short volley_repeat;
+        TbBool volley_fire;
       } creature;
 //TCls_Effect
       struct {
@@ -217,8 +220,14 @@ struct Thing {
 //TCls_Trap
       struct {
         unsigned char num_shots;
-        long rearm_turn;
         unsigned char revealed;
+        TbBool wait_for_rearm;
+        TbBool volley_fire;
+        GameTurn rearm_turn;
+        GameTurn shooting_finished_turn;
+        short volley_repeat;
+        unsigned short volley_delay;
+        unsigned short firing_at;
       } trap;
 //TCls_Door
       struct {

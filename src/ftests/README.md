@@ -65,10 +65,10 @@ They also skip the trademark/cutscene by default for super fast launch.
         - `ftest_append_action( ftest_template_action001__spawn_warlock,            100, NULL );`
         - `ftest_append_action( ftest_template_action002__drop_chicken_on_warlock,  100, NULL );`
     - actions are executed:
-        - **sequentially**: `action002` will not execute until the previous action `returns true`
+        - **sequentially**: `action002` will not execute until the previous action returns `FTRs_Go_To_Next_Action`
         - **after the `game turn delay`**: provided to `ftest_append_action(<test_action>, <game_turn_delay>)`
         
-         this means if an action always `returns false` it will never finish and the `test will run forever`
+         this means if an action always returns `FTRs_Repeat_Current_Action` it will never finish and the `test will run forever`
      
 5. Add your test to the test list [ftest_list.c](./ftest_list.c)
     - add the include for your tests header file
@@ -112,7 +112,7 @@ They also skip the trademark/cutscene by default for super fast launch.
 2. Init function is called for the current active test, which creates a list of actions to perform accordingly.
     - NOTE: You can also call one-time logic here, like altering the map before the test actions are executed.
 3. The game loop will call each action in the list after the desired GameTurn delay.
-    - actions are counted as completed when they `return true`, if they `return false`, the action will be executed again next game turn.
+    - actions are counted as completed when they return `FTRs_Go_To_Next_Action`, if they return `FTRs_Repeat_Current_Action`, the action will be executed again next game turn.
     - by default, if a test fails, the next test will be ran, unless you use the `-exitonfailedtest` flag.
     - (optional) when using the `-exitonfailedtest` flag if there is a failure at any stage (you decide this with your test, using the [FTEST_FAIL_TEST](./ftest.h#L24) macro) the test exits immediately, closing the program.
         - exit code 0 == `test success`
@@ -120,6 +120,7 @@ They also skip the trademark/cutscene by default for super fast launch.
         - optionally view the keeperfx.log to view details on why the test failed
             - example failure message: `FTest: [20] ftest_template_action001__spawn_imp: Failed to level up imp`
             - the above message tells us that at game turn 20, the test failed at function `ftest_template_action001__spawn_imp` because `Failed to level up imp`
+    - (optional) when using the `-includelongtests` flag, extra tests from `long_running_tests_list` will be included in the test search.
 
 
 Seeds are overriden when using the functional tests. This means tests should perform the same every time for random events.

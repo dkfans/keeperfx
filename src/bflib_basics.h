@@ -33,12 +33,14 @@ extern "C" {
 #define LINEMSG_SIZE     160
 #define READ_BUFSIZE     256
 #define LOOPED_FILE_LEN 4096
-#define COMMAND_WORD_LEN  32
+#define COMMAND_WORD_LEN  64
 
 // Max length of any processed string
 #define MAX_TEXT_LENGTH 4096
 // Smaller buffer, also widely used
 #define TEXT_BUFFER_LENGTH 2048
+
+#define MAX_CONSOLE_LOG_COUNT 1000   // Maximum number of log messages
 
 enum TbErrorLogFlags {
         Lb_ERROR_LOG_APPEND = 0,
@@ -129,9 +131,15 @@ struct DebugMessage {
 extern struct DebugMessage * debug_messages_head;
 extern struct DebugMessage ** debug_messages_tail;
 
+
+
 #pragma pack()
 /******************************************************************************/
 extern const char *log_file_name;
+extern int debug_display_consolelog;
+extern char consoleLogArray[MAX_CONSOLE_LOG_COUNT][MAX_TEXT_LENGTH];
+extern size_t consoleLogArraySize;
+
 // High level functions - DK specific
 void error(const char *codefile,const int ecode,const char *message);
 short warning_dialog(const char *codefile,const int ecode,const char *message);
@@ -170,18 +178,10 @@ unsigned long blong (unsigned char *p);
 unsigned long llong (unsigned char *p);
 unsigned long bword (unsigned char *p);
 unsigned long lword (unsigned char *p);
-void set_flag_byte(unsigned char *flags,unsigned char mask,short value);
-void set_flag_word(unsigned short *flags,unsigned short mask,short value);
-void set_flag_dword(unsigned long *flags,unsigned long mask,short value);
-void toggle_flag_byte(unsigned char *flags,unsigned char mask);
-void toggle_flag_word(unsigned short *flags,unsigned short mask);
-void toggle_flag_dword(unsigned long *flags,unsigned long mask);
 long saturate_set_signed(long long val,unsigned short nbits);
 unsigned long saturate_set_unsigned(unsigned long long val,unsigned short nbits);
 void make_lowercase(char *);
 void make_uppercase(char *);
-
-// TODO: refactor usage of set_flag_* and toggle_flag_* functions to use the following macros instead
 
 /**
  * Converts an index number to a flag - by creating a bitmask where only the nth bit is set to 1.
@@ -226,6 +226,15 @@ void make_uppercase(char *);
 #define flag_is_set(flags,mask) ((flags & mask) == mask)
 
 /** 
+ * Check if any of the given flags is set - by checking if any of the given masked bits are set to 1 in the given flags variable.
+ * 
+ * @param flags The flags variable we want to check.
+ * @param mask Bitmask, containing 1 (or more) masked bits, representing the bit flags we want to check in the "flags" parameter.
+ * @return Returns TRUE if any of the given masked bits are set to 1 in the given flags variable.
+ */
+#define any_flag_is_set(flags,mask) ((flags & mask) != 0)
+
+/** 
  * Check if all of the flags are set - by checking if all of the bits are set to 1 in the given flags variable.
  * For example: all 6 players set in a flags variable would be 0b111111.
  * 
@@ -234,6 +243,15 @@ void make_uppercase(char *);
  * @return Returns TRUE if all bits are set to 1 in the given flags variable.
  */
 #define all_flags_are_set(flags,count) ((1 << count) - flags == 1)
+
+/** 
+ * Set a flag* - by setting the given masked bit(s) to "bool value" in the given flags variable. *Can set multiple flags.
+ * 
+ * @param flags The flags variable we want to change.
+ * @param mask Bitmask, containing 1 (or more) masked bits, representing the flag(s) we want to set.
+ * @param value If value == 0, then set the masked bit(s) to 0 in "flags". If value != 0, then set the masked bit(s) to 1 in "flags".
+ */
+#define set_flag_value(flags,mask,value) ((value) ? (set_flag(flags,mask)) : (clear_flag(flags,mask)))
 /******************************************************************************/
 #ifdef __cplusplus
 }

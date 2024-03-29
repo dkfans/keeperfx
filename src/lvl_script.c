@@ -206,18 +206,18 @@ const struct CommandDesc *get_next_word(char **line, char *param, int *para_leve
  */
 TbBool script_is_preloaded_command(long cmnd_index)
 {
-  switch (cmnd_index)
-  {
-  case Cmd_SWAP_CREATURE:
-  case Cmd_LEVEL_VERSION:
-  case Cmd_NEW_TRAP_TYPE:
-  case Cmd_NEW_OBJECT_TYPE:
-  case Cmd_NEW_ROOM_TYPE:
-  case Cmd_NEW_CREATURE_TYPE:
-      return true;
-  default:
-      return false;
-  }
+    switch (cmnd_index)
+    {
+        case Cmd_SWAP_CREATURE:
+        case Cmd_LEVEL_VERSION:
+        case Cmd_NEW_TRAP_TYPE:
+        case Cmd_NEW_OBJECT_TYPE:
+        case Cmd_NEW_ROOM_TYPE:
+        case Cmd_NEW_CREATURE_TYPE:
+            return true;
+        default:
+            return false;
+    }
 }
 
 #define get_players_range(plr_range_id, plr_start, plr_end) get_players_range_f(plr_range_id, plr_start, plr_end, __func__, text_line_number)
@@ -348,7 +348,7 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
             {
                 if (0 == strcmp(scline->tp[idx], "ANY_CREATURE"))
                 {
-                    crtr_id = 0;
+                    crtr_id = CREATURE_ANY;
                 }
             }
         }
@@ -1018,7 +1018,7 @@ void process_check_new_creature_partys(void)
             {
                 process_party(pr_trig);
                 if ((pr_trig->flags & TrgF_REUSABLE) == 0)
-                    set_flag_byte(&pr_trig->flags, TrgF_DISABLED, true);
+                    set_flag(pr_trig->flags, TrgF_DISABLED);
             }
       }
     }
@@ -1101,7 +1101,7 @@ void process_values(void)
             {
                 script_process_value(value->valtype, value->plyr_range, value->arg0, value->arg1, value->arg2, value);
                 if ((value->flags & TrgF_REUSABLE) == 0)
-                  set_flag_byte(&value->flags, TrgF_DISABLED, true);
+                  set_flag(value->flags, TrgF_DISABLED);
             }
         }
     }

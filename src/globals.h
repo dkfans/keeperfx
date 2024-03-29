@@ -183,7 +183,7 @@ typedef int RealScreenCoord;
 /** Player identification number, or owner of in-game thing/room/slab. */
 typedef signed char PlayerNumber;
 /** bitflags where each bit represents a player (e.g. player id 0 = 0b000001, player id 1 = 0b000010, player id 2 = 0b000100). */
-typedef unsigned char PlayerBitFlags;
+typedef unsigned short PlayerBitFlags;
 /** Type which stores thing class. */
 typedef unsigned char ThingClass;
 /** Type which stores thing model. */
@@ -286,60 +286,62 @@ typedef unsigned short SpDiggerTaskType;
 typedef unsigned char NaviRouteFlags;
 /** data used for navigating contains floor height, locked doors per player, unsafe surfaces */
 typedef unsigned short NavColour;
+/** Either North (0), East (1), South (2), or West (3). */
+typedef signed char SmallAroundIndex;
 
-
-
-/* Stores a 2d coordinate (x,y).
-
-Members:
-.val - coord position (relative to whole map)
-.stl.pos - coord position (relative to subtile)
-.stl.num - subtile position (relative to whole map)
-*/
+/**
+ * Stores a 2d coordinate (x,y).
+ * 
+ * Members:
+ * .val - coord position (relative to whole map)
+ * .stl.pos - coord position (relative to subtile)
+ * .stl.num - subtile position (relative to whole map)
+ */
 struct Coord2d {
     union { // x position
-      unsigned long val; // x.val - coord x position (relative to whole map)
+      unsigned long val; /**< x.val - coord x position (relative to whole map) */
       struct { // subtile
-        unsigned char pos; // x.stl.pos - coord x position (relative to subtile)
-        unsigned short num; // x.stl.num - subtile x position (relative to whole map)
+        unsigned char pos; /**< x.stl.pos - coord x position (relative to subtile) */
+        unsigned short num; /**< x.stl.num - subtile x position (relative to whole map) */
         } stl;
     } x; 
     union { // y position
-      unsigned long val; // y.val - coord y position (relative to whole map)
+      unsigned long val; /**< y.val - coord y position (relative to whole map) */
       struct { // subtile
-        unsigned char pos; // y.stl.pos - coord y position (relative to subtile)
-        unsigned short num; // y.stl.num - subtile y position (relative to whole map)
+        unsigned char pos; /**< y.stl.pos - coord y position (relative to subtile) */
+        unsigned short num; /**< y.stl.num - subtile y position (relative to whole map) */
         } stl;
     } y;
 };
 
-/* Stores a 3d coordinate (x,y,z).
-
-Members:
-.val - coord position (relative to whole map)
-.stl.pos - coord position (relative to subtile)
-.stl.num - subtile position (relative to whole map)
-*/
+/**
+ * Stores a 3d coordinate (x,y).
+ * 
+ * Members:
+ * .val - coord position (relative to whole map)
+ * .stl.pos - coord position (relative to subtile)
+ * .stl.num - subtile position (relative to whole map)
+ */
 struct Coord3d {
     union { // x position
-      long val; // x.val - coord x position (relative to whole map)
+      long val; /**< x.val - coord x position (relative to whole map) */
       struct { // subtile
-        unsigned char pos; // x.stl.pos - coord x position (relative to subtile)
-        unsigned short num; // x.stl.num - subtile x position (relative to whole map)
+        unsigned char pos; /**< x.stl.pos - coord x position (relative to subtile) */
+        unsigned short num; /**< x.stl.num - subtile x position (relative to whole map) */
         } stl;
     } x;
     union { // y position
-      long val; // y.val - coord y position (relative to whole map)
+      long val; /**< y.val - coord y position (relative to whole map) */
       struct { // subtile
-        unsigned char pos; // y.stl.pos - coord y position (relative to subtile)
-        unsigned short num; // y.stl.num - subtile y position (relative to whole map)
+        unsigned char pos; // y.stl.pos - coord y position (relative to subtile) */
+        unsigned short num; // y.stl.num - subtile y position (relative to whole map) */
         } stl;
     } y;
     union { // z position
-      long val; // z.val - coord z position (relative to whole map)
+      long val; /**< z.val - coord z position (relative to whole map) */
       struct { // subtile
-        unsigned char pos; // z.stl.pos - coord z position (relative to subtile)
-        unsigned short num; // z.stl.num - subtile z position (relative to whole map)
+        unsigned char pos; /**< z.stl.pos - coord z position (relative to subtile) */
+        unsigned short num; /**< z.stl.num - subtile z position (relative to whole map) */
         } stl;
     } z;
 };

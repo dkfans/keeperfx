@@ -43,9 +43,9 @@ struct ftest_bug_pathing_stair_treasury__variables ftest_bug_pathing_stair_treas
 
 
 // forward declarations - tests
-TbBool ftest_bug_pathing_stair_treasury_action001__map_setup(struct FTestActionArgs* const args);
-TbBool ftest_bug_pathing_stair_treasury_action002__second_dig_imps_stuck(struct FTestActionArgs* const args);
-TbBool ftest_bug_pathing_stair_treasury_action003__check_imps_stuck(struct FTestActionArgs* const args);
+FTestActionResult ftest_bug_pathing_stair_treasury_action001__map_setup(struct FTestActionArgs* const args);
+FTestActionResult ftest_bug_pathing_stair_treasury_action002__second_dig_imps_stuck(struct FTestActionArgs* const args);
+FTestActionResult ftest_bug_pathing_stair_treasury_action003__check_imps_stuck(struct FTestActionArgs* const args);
 
 TbBool ftest_bug_pathing_stair_treasury_init()
 {
@@ -61,7 +61,7 @@ TbBool ftest_bug_pathing_stair_treasury_init()
 /**
  * @brief This action will be a sub-test, it will setup the situation of a single tunneler digging towards you, and replicate getting stuck on a pillar (portal?)
  */
-TbBool ftest_bug_pathing_stair_treasury_action001__map_setup(struct FTestActionArgs* const args)
+FTestActionResult ftest_bug_pathing_stair_treasury_action001__map_setup(struct FTestActionArgs* const args)
 {
     struct ftest_bug_pathing_stair_treasury__variables* const vars = args->data;
 
@@ -87,16 +87,16 @@ TbBool ftest_bug_pathing_stair_treasury_action001__map_setup(struct FTestActionA
     if (markForDigResult != Lb_OK && markForDigResult != Lb_SUCCESS)
     {
         FTEST_FAIL_TEST("Failed to mark the gold block for digging");
-        return true;
+        return FTRs_Go_To_Next_Action;
     }
 
     // focus camera on dig site
     ftest_util_move_camera_to_slab(stair_x+1, stair_y-1, PLAYER0);
 
-    return true; //proceed to next test action
+    return FTRs_Go_To_Next_Action; //proceed to next test action
 }
 
-TbBool ftest_bug_pathing_stair_treasury_action002__second_dig_imps_stuck(struct FTestActionArgs* const args)
+FTestActionResult ftest_bug_pathing_stair_treasury_action002__second_dig_imps_stuck(struct FTestActionArgs* const args)
 {
     struct ftest_bug_pathing_stair_treasury__variables* const vars = args->data;
 
@@ -105,16 +105,16 @@ TbBool ftest_bug_pathing_stair_treasury_action002__second_dig_imps_stuck(struct 
     if (markForDigResult != Lb_OK && markForDigResult != Lb_SUCCESS)
     {
         FTEST_FAIL_TEST("Failed to mark the block for digging");
-        return true;
+        return FTRs_Go_To_Next_Action;
     }
 
     // focus camera on dig site
     ftest_util_move_camera_to_slab(vars->slb_x_second_dig_action, vars->slb_y_second_dig_action, PLAYER0);
 
-    return true;
+    return FTRs_Go_To_Next_Action;
 }
 
-TbBool ftest_bug_pathing_stair_treasury_action003__check_imps_stuck(struct FTestActionArgs* const args)
+FTestActionResult ftest_bug_pathing_stair_treasury_action003__check_imps_stuck(struct FTestActionArgs* const args)
 {
     struct ftest_bug_pathing_stair_treasury__variables* const vars = args->data;
 
@@ -124,17 +124,17 @@ TbBool ftest_bug_pathing_stair_treasury_action003__check_imps_stuck(struct FTest
     // allow camera to sit for a moment so we can view the imps behaviour
     if(game.play_gameturn < args->actual_started_at_game_turn + 100)
     {
-        return false;
+        return FTRs_Repeat_Current_Action;
     }
 
     // if the second block isn't reached/dug then the imps are stuck in the stairs...
     if(ftest_util_do_any_slabs_match(vars->slb_x_second_dig_action, vars->slb_y_second_dig_action, vars->slb_x_second_dig_action, vars->slb_y_second_dig_action, SlbT_WALLWWOMAN))
     {
         FTEST_FAIL_TEST("Imps failed to dig second site, they are stuck in the treasury stairs!");
-        return true;
+        return FTRs_Go_To_Next_Action;
     }
 
-    return true;
+    return FTRs_Go_To_Next_Action;
 }
 
 #endif

@@ -83,7 +83,7 @@ enum ThingEffectKind {
     TngEff_DeathIceExplosion,
     TngEff_RockChips, // less dirt
     TngEff_DirtRubble,
-    TngEff_Unknown27, // more dirt
+    TngEff_DirtRubbleBig, // more dirt
     TngEff_ImpSpangleRed,
     TngEff_Drip4, // ice drip?
     TngEff_Cloud, // super long cloud?
@@ -125,7 +125,15 @@ enum ThingEffectKind {
     TngEff_Blood7, // blood splat
     TngEff_SpecialBox,
     TngEff_BoulderSink, // boulder sink
-    TngEff_Unknown69,
+    TngEff_ImpSpangleWhite,
+    TngEff_ImpSpanglePurple,
+    TngEff_BallPuffPurple,
+    TngEff_ImpSpangleBlack,
+    TngEff_BallPuffBlack,
+    TngEff_ImpSpangleOrange,
+    TngEff_BallPuffOrange,
+    TngEff_FallingIceBlocks,
+    TngEff_SlowKeeperPower,
 };
 
 enum ThingEffectElements {
@@ -225,6 +233,25 @@ enum ThingEffectElements {
     TngEffElm_RedDot,
     TngEffElm_IceMelt3,
     TngEffElm_DiseaseFly,
+    TngEffElm_WhiteTwinkle,
+    TngEffElm_WhiteTwinkle2,
+    TngEffElm_WhiteFlame,
+    TngEffElm_WhiteSmokePuff,
+    TngEffElm_PurpleFlame,
+    TngEffElm_PurpleSmokePuff,
+    TngEffElm_PurpleTwinkle,
+    TngEffElm_PurpleTwinkle2,
+    TngEffElm_PurplePuff,
+    TngEffElm_BlackFlame,
+    TngEffElm_BlackSmokePuff,
+    TngEffElm_BlackTwinkle,
+    TngEffElm_BlackTwinkle2,
+    TngEffElm_BlackPuff,
+    TngEffElm_OrangeFlame,
+    TngEffElm_OrangeSmokePuff,
+    TngEffElm_OrangeTwinkle,
+    TngEffElm_OrangeTwinkle2,
+    TngEffElm_OrangePuff
 };
 
 /******************************************************************************/

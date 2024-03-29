@@ -183,6 +183,8 @@ enum CreatureStates {
     CrSt_GoodArrivedAtAttackRoom,
     CrSt_CreatureGoingToSafetyForToking,
     CrSt_Timebomb,
+    CrSt_GoodWanderToCreatureCombat,
+    CrSt_GoodWanderToObjectCombat,
     CrSt_ListEnd,
 };
 
@@ -241,34 +243,34 @@ typedef short (*CreatureStateFunc1)(struct Thing *);
 typedef char (*CreatureStateFunc2)(struct Thing *);
 typedef CrCheckRet (*CreatureStateCheck)(struct Thing *);
 
-struct StateInfo { // sizeof = 41
+struct StateInfo {
     CreatureStateFunc1 process_state;
     CreatureStateFunc1 cleanup_state;
     CreatureStateFunc2 move_from_slab;
     CreatureStateCheck move_check; /**< Check function to be used when the creature is in moving sub-state during that state. */
-    unsigned char override_feed;
-    unsigned char override_own_needs;
-    unsigned char override_sleep;
-    unsigned char override_fight_crtr;
-    unsigned char override_gets_salary;
-    unsigned char override_captive;
-    unsigned char override_transition;
-    unsigned char override_escape;
-    unsigned char override_unconscious;
-    unsigned char override_anger_job;
-    unsigned char override_fight_object;
-    unsigned char override_fight_door;
-    unsigned char override_call2arms;
-    unsigned char override_follow;
+    TbBool override_feed;
+    TbBool override_own_needs;
+    TbBool override_sleep;
+    TbBool override_fight_crtr;
+    TbBool override_gets_salary;
+    TbBool override_captive;
+    TbBool override_transition;
+    TbBool override_escape;
+    TbBool override_unconscious;
+    TbBool override_anger_job;
+    TbBool override_fight_object;
+    TbBool override_fight_door;
+    TbBool override_call2arms;
+    TbBool override_follow;
     unsigned char state_type;
-  unsigned char captive;
-  unsigned char transition;
-  unsigned short follow_behavior;
-  unsigned char blocks_all_state_changes;
+    TbBool captive;
+    TbBool transition;
+    unsigned short follow_behavior;
+    TbBool blocks_all_state_changes;
     unsigned short sprite_idx;
-  unsigned char display_thought_bubble;
-  unsigned char sneaky;
-  unsigned char react_to_cta;
+    TbBool display_thought_bubble;
+    TbBool sneaky;
+    TbBool react_to_cta;
 };
 
 /******************************************************************************/
@@ -359,6 +361,8 @@ TbBool person_get_somewhere_adjacent_in_room_around_borders_f(struct Thing *thin
 void place_thing_in_creature_controlled_limbo(struct Thing *thing);
 void remove_thing_from_creature_controlled_limbo(struct Thing *thing);
 TbBool get_random_position_in_dungeon_for_creature(PlayerNumber plyr_idx, unsigned char wandr_select, struct Thing *thing, struct Coord3d *pos);
+
+struct Room* get_room_for_thing_salary(struct Thing* creatng, unsigned char *navtype);
 /******************************************************************************/
 TbBool creature_is_dying(const struct Thing *thing);
 TbBool creature_is_being_dropped(const struct Thing *thing);

@@ -181,7 +181,6 @@ unsigned char sound_flag;
     unsigned short lair_room_id;
     /** Lair object thing index. */
     unsigned short lairtng_idx;
-    short view_angle;
     /** Index of a thing being dragged by the creature, or index of a thing which is dragging this thing.
      *  Specific case is determined by flags. */
     short dragtng_idx;
@@ -341,12 +340,12 @@ unsigned char sound_flag;
     short max_health;
     short move_speed;
     short orthogn_speed;
-    short field_CC;
-    unsigned long field_CE;
+    short roll;
+    unsigned long anim_time;
     unsigned char instance_id;
-    unsigned char inst_repeat;
+    unsigned char inst_repeat; /* Seems used on dragon flame sometimes */
     unsigned short inst_turn;
-    unsigned short inst_action_turns;
+    unsigned short inst_action_turns; /* Turn when instance should be fired*/
     unsigned short inst_total_turns;
     unsigned short targtng_idx;
     MapSubtlCoord targtstl_x;
@@ -359,7 +358,7 @@ unsigned char sound_flag;
     unsigned char shot_model;
     struct CastedSpellData casted_spells[CREATURE_MAX_SPELLS_CASTED_AT];
     /** Current active skill instance. */
-    char active_instance_id;
+    unsigned char active_instance_id;
     char head_bob;
     struct Navigation navi;
     /* Creature movement path data. */
@@ -368,7 +367,7 @@ unsigned char sound_flag;
     unsigned char active_state_bkp;
     /* State backup when a creature temporarily changes its state due to being slapped. */
     unsigned char continue_state_bkp;
-unsigned char cowers_from_slap_turns;
+    unsigned char cowers_from_slap_turns;
     short conscious_back_turns;
     short countdown_282; // signed
     unsigned short damage_wall_coords;
@@ -414,6 +413,9 @@ unsigned char cowers_from_slap_turns;
     ThingIndex timebomb_countdown_id;
     ThingIndex timebomb_target_id;
     TbBool timebomb_death;
+    GameTurn unsummon_turn;
+    ThingIndex summoner_idx;
+    ThingIndex familiar_idx[FAMILIAR_MAX];
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields
@@ -449,7 +451,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short grow_up;
     unsigned char grow_up_level;
     TbBool entrance_force;
-    short max_angle_change;
+    short max_turning_speed;
     short base_eye_height;
     unsigned short size_xy;
     unsigned short size_z;

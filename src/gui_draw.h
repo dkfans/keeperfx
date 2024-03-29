@@ -36,7 +36,8 @@
 #define POS_SCRCTR  -997
 #define POS_SCRBTM  -996
 #define POS_GAMECTR  999
-
+#define ROUNDSLAB64K_LIGHT 0
+#define ROUNDSLAB64K_DARK 1
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -77,7 +78,7 @@ void draw_lit_bar64k(long pos_x, long pos_y, int units_per_px, long width);
 void draw_slab64k(long pos_x, long pos_y, int units_per_px, long width, long height);
 void draw_ornate_slab64k(long pos_x, long pos_y, int units_per_px, long width, long height);
 void draw_ornate_slab_outline64k(long pos_x, long pos_y, int units_per_px, long width, long height);
-void draw_round_slab64k(long pos_x, long pos_y, int units_per_px, long width, long height);
+void draw_round_slab64k(long pos_x, long pos_y, int units_per_px, long width, long height, long style_type);
 void draw_string64k(long x, long y, int units_per_px, const char * text);
 
 void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text);
@@ -87,7 +88,8 @@ int scroll_box_get_units_per_px(struct GuiButton *gbtn);
 
 #define draw_gui_panel_sprite_left(x, y, units_per_px, spridx) draw_gui_panel_sprite_left_player(x, y, units_per_px, spridx, my_player_number) 
 void draw_gui_panel_sprite_left_player(long x, long y, int units_per_px, long spridx, PlayerNumber plyr_idx);
-void draw_gui_panel_sprite_rmleft(long x, long y, int units_per_px, long spridx, unsigned long remap);
+#define draw_gui_panel_sprite_rmleft(x, y, units_per_px, spridx, remap) draw_gui_panel_sprite_rmleft_player(x, y, units_per_px, spridx, remap, my_player_number)
+void draw_gui_panel_sprite_rmleft_player(long x, long y, int units_per_px, long spridx, unsigned long remap, PlayerNumber plyr_idx);
 void draw_gui_panel_sprite_ocleft(long x, long y, int units_per_px, long spridx, TbPixel color);
 void draw_gui_panel_sprite_centered(long x, long y, int units_per_px, long spridx);
 void draw_gui_panel_sprite_occentered(long x, long y, int units_per_px, long spridx, TbPixel color);

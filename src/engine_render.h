@@ -36,7 +36,7 @@ extern "C" {
 
 #define KEEPSPRITE_LENGTH 9149
 #define KEEPERSPRITE_ADD_OFFSET 16384
-#define KEEPERSPRITE_ADD_NUM 8192
+#define KEEPERSPRITE_ADD_NUM 16383
 
 struct EngineCoord { // sizeof = 28
   long view_width; // X screen position, probably not a width
@@ -97,6 +97,7 @@ extern unsigned char *poly_pool_end;
 extern long cells_away;
 extern float hud_scale;
 extern int creature_status_size;
+extern int line_box_size;
 
 extern struct MapVolumeBox map_volume_box;
 extern long view_height_over_2;

@@ -6099,3 +6099,53 @@ msgstr ""
 msgctxt "Slab description"
 msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr ""
+
+#: guitext:1053
+msgctxt "Keeper spell name"
+msgid "Rebound"
+msgstr ""
+
+#: guitext:1054
+msgctxt "Keeper spell name"
+msgid "Freeze"
+msgstr ""
+
+#: guitext:1055
+msgctxt "Keeper spell name"
+msgid "Slow"
+msgstr ""
+
+#: guitext:1056
+msgctxt "Keeper spell name"
+msgid "Flight"
+msgstr ""
+
+#: guitext:1057
+msgctxt "Keeper spell name"
+msgid "Illumination"
+msgstr ""
+
+#: guitext:1058
+msgctxt "Keeper spell name"
+msgid "Sight"
+msgstr ""
+
+#: guitext:1059
+msgctxt "Dungeon special decription"
+msgid "Heal All: Restore full health to all your creatures."
+msgstr ""
+
+#: guitext:1060
+msgctxt "Dungeon special decription"
+msgid "Increase Gold: Generates gold in your treasury."
+msgstr ""
+
+#: guitext:1061
+msgctxt "Dungeon special decription"
+msgid "Make Unhappy: All creatures of the enemy become upset."
+msgstr ""
+
+#: guitext:1062
+msgctxt "Dungeon special decription"
+msgid "Weaken Walls: Destroys the fortifications of enemy walls."
+msgstr ""

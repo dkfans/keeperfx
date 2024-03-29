@@ -56,9 +56,9 @@ struct NamedCommand cube_desc[CUBE_ITEMS_MAX];
 /******************************************************************************/
 struct CubeConfigStats *get_cube_model_stats(long cumodel)
 {
-    if ((cumodel < 0) || (cumodel >= gameadd.cube_conf.cube_types_count))
-        return &gameadd.cube_conf.cube_cfgstats[0];
-    return &gameadd.cube_conf.cube_cfgstats[cumodel];
+    if ((cumodel < 0) || (cumodel >= game.conf.cube_conf.cube_types_count))
+        return &game.conf.cube_conf.cube_cfgstats[0];
+    return &game.conf.cube_conf.cube_cfgstats[cumodel];
 }
 
 TbBool parse_cubes_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
@@ -67,7 +67,7 @@ TbBool parse_cubes_common_blocks(char *buf, long len, const char *config_textnam
     // Initialize block data
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        gameadd.cube_conf.cube_types_count = 1;
+        game.conf.cube_conf.cube_types_count = 1;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -98,7 +98,7 @@ TbBool parse_cubes_common_blocks(char *buf, long len, const char *config_textnam
               k = atoi(word_buf);
               if ((k > 0) && (k <= CUBE_ITEMS_MAX))
               {
-                  gameadd.cube_conf.cube_types_count = k;
+                  game.conf.cube_conf.cube_types_count = k;
                   n++;
               }
             }
@@ -133,12 +133,12 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
     int arr_size;
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        arr_size = sizeof(gameadd.cube_conf.cube_cfgstats)/sizeof(gameadd.cube_conf.cube_cfgstats[0]);
+        arr_size = sizeof(game.conf.cube_conf.cube_cfgstats)/sizeof(game.conf.cube_conf.cube_cfgstats[0]);
         for (i=0; i < arr_size; i++)
         {
-            objst = &gameadd.cube_conf.cube_cfgstats[i];
+            objst = &game.conf.cube_conf.cube_cfgstats[i];
             LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
-            if (i < gameadd.cube_conf.cube_types_count)
+            if (i < game.conf.cube_conf.cube_types_count)
             {
                 cube_desc[i].name = objst->code_name;
                 cube_desc[i].num = i;
@@ -150,7 +150,7 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
         }
     }
     // Load the file
-    arr_size = gameadd.cube_conf.cube_types_count;
+    arr_size = game.conf.cube_conf.cube_types_count;
     for (i=0; i < arr_size; i++)
     {
         char block_buf[COMMAND_WORD_LEN];
@@ -165,7 +165,7 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
             }
             continue;
         }
-        objst = &gameadd.cube_conf.cube_cfgstats[i];
+        objst = &game.conf.cube_conf.cube_cfgstats[i];
         struct CubeConfigStats* cubed = get_cube_model_stats(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(cubes_cube_commands,cmd_num)
         while (pos<len)
@@ -233,14 +233,14 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
                     }
 
                     k = get_id(cmpgn_human_player_options, word_buf);
-                    if (k < 0 || k >= PLAYERS_EXT_COUNT)
+                    if (k < 0 || k >= COLOURS_COUNT)
                     {
                       CONFWRNLOG("invalid player in [%s] block of %s file.",block_buf,config_textname);
                       cubed->ownershipGroup = 0;
                       break;
                     }
                     cubed->owner = k;
-                    gameadd.cube_conf.cube_bits[cubed->ownershipGroup][k] = i;
+                    game.conf.cube_conf.cube_bits[cubed->ownershipGroup][k] = i;
                     n++;
                 }
                 break;
@@ -338,9 +338,9 @@ const char *cube_code_name(long model)
  */
 ThingModel cube_model_id(const char * code_name)
 {
-    for (int i = 0; i < gameadd.cube_conf.cube_types_count; ++i)
+    for (int i = 0; i < game.conf.cube_conf.cube_types_count; ++i)
     {
-        if (strncasecmp(gameadd.cube_conf.cube_cfgstats[i].code_name, code_name,
+        if (strncasecmp(game.conf.cube_conf.cube_cfgstats[i].code_name, code_name,
                 COMMAND_WORD_LEN) == 0) {
             return i;
         }
@@ -351,7 +351,7 @@ ThingModel cube_model_id(const char * code_name)
 
 void clear_cubes(void)
 {
-    memset(&gameadd.cube_conf,0,sizeof(gameadd.cube_conf));
+    memset(&game.conf.cube_conf,0,sizeof(game.conf.cube_conf));
 }
 
 /******************************************************************************/

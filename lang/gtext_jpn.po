@@ -6801,3 +6801,53 @@ msgstr "基盤岩： 誰の所有でもない岩石の地面。それを占領�
 msgctxt "Slab description"
 msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "濃い金鉱： 手下インプが採掘する莫大な富。"
+
+#: guitext:1053
+msgctxt "Keeper spell name"
+msgid "Rebound"
+msgstr "反射"
+
+#: guitext:1054
+msgctxt "Keeper spell name"
+msgid "Freeze"
+msgstr "凍結"
+
+#: guitext:1055
+msgctxt "Keeper spell name"
+msgid "Slow"
+msgstr "減速"
+
+#: guitext:1056
+msgctxt "Keeper spell name"
+msgid "Flight"
+msgstr "飛行"
+
+#: guitext:1057
+msgctxt "Keeper spell name"
+msgid "Illumination"
+msgstr "照明"
+
+#: guitext:1058
+msgctxt "Keeper spell name"
+msgid "Sight"
+msgstr "照準"
+
+#: guitext:1059
+msgctxt "Dungeon special decription"
+msgid "Heal All: Restore full health to all your creatures."
+msgstr "全員回復：すべてのクリーチャーが回復します。"
+
+#: guitext:1060
+msgctxt "Dungeon special decription"
+msgid "Increase Gold: Generates gold in your treasury."
+msgstr "ゴールド増加：財宝でゴールドを生成します。"
+
+#: guitext:1061
+msgctxt "Dungeon special decription"
+msgid "Make Unhappy: All creatures of the enemy become upset."
+msgstr "不幸にする： 敵のすべてのクリーチャーが不幸になります。"
+
+#: guitext:1062
+msgctxt "Dungeon special decription"
+msgid "Weaken Walls: Destroys the fortifications of enemy walls."
+msgstr "壁を弱める：敵の城壁の防御施設を破壊します。"

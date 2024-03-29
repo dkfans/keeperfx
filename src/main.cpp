@@ -118,6 +118,7 @@
 #include "config_settings.h"
 #include "game_legacy.h"
 #include "room_list.h"
+#include "steam_api.hpp"
 #include "game_loop.h"
 #include "music_player.h"
 
@@ -147,6 +148,7 @@ unsigned char *dog_palette;
 unsigned char *vampire_palette;
 unsigned char exit_keeper;
 unsigned char quit_game;
+unsigned char is_running_under_wine = false;
 int continue_game_option_available;
 long last_mouse_x;
 long last_mouse_y;
@@ -215,7 +217,7 @@ TbBool TimerFreeze = false;
 
 TbPixel get_player_path_colour(unsigned short owner)
 {
-  return player_path_colours[player_colors_map[owner % PLAYERS_EXT_COUNT]];
+  return player_path_colours[get_player_color_idx(owner % PLAYERS_EXT_COUNT)];
 }
 
 void setup_stuff(void)
@@ -272,7 +274,7 @@ long get_foot_creature_has_down(struct Thing *thing)
     int n;
     cctrl = creature_control_get_from_thing(thing);
     val = thing->current_frame;
-    if (val == (cctrl->field_CE >> 8))
+    if (val == (cctrl->anim_time >> 8))
         return 0;
     unsigned short frame = (creature_is_dragging_something(thing)) ? CGI_Drag : CGI_Ambulate;
     n = get_creature_model_graphics(thing->model, frame);
@@ -531,7 +533,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
     {
       if ( (thing->model != ShM_SolidBoulder) && (collide == 0) )
       {
-        thing->health -= game.boulder_reduce_health_wall;
+        thing->health -= game.conf.rules.game.boulder_reduce_health_wall;
       }
       slide_thing_against_wall_at(thing, &pos, blocked_flags);
       if ( blocked_flags & SlbBloF_WalledX )
@@ -618,7 +620,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
             }
             if (boulder->model != ShM_SolidBoulder) // Solid Boulder (shot20) takes no damage when destroying guardposts
             {
-                boulder->health -= game.boulder_reduce_health_room; // decrease boulder health
+                boulder->health -= game.conf.rules.game.boulder_reduce_health_room; // decrease boulder health
             }
             return 1; // guardpost destroyed
         }
@@ -651,6 +653,8 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
   int delta_x;
   int delta_y;
   int delta_z;
+  if (delta_step <= 0)
+      delta_step = 1;
   if (dist_x >= 0)
   {
       delta_x = delta_step;
@@ -757,6 +761,8 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
     int delta_x;
     int delta_y;
     int delta_z;
+    if (eeinterspace <= 0)
+        eeinterspace = 1;
     if (dist_x >= 0) {
         delta_x = eeinterspace;
     } else {
@@ -901,7 +907,7 @@ void update_thing_animation(struct Thing *thing)
     {
       cctrl = creature_control_get_from_thing(thing);
       if (!creature_control_invalid(cctrl))
-        cctrl->field_CE = thing->anim_time;
+        cctrl->anim_time = thing->anim_time;
     }
     if ((thing->anim_speed != 0) && (thing->max_frames != 0))
     {
@@ -985,7 +991,7 @@ void init_keeper(void)
     init_top_texture_to_cube_table();
     game.neutral_player_num = neutral_player_number;
     if (game.generate_speed <= 0)
-      game.generate_speed = game.default_generate_speed;
+      game.generate_speed = game.conf.rules.rooms.default_generate_speed;
     poly_pool_end = &poly_pool[sizeof(poly_pool)-128];
     lbDisplay.GlassMap = pixmap.ghost;
     lbDisplay.DrawColour = colours[15][15][15];
@@ -1068,6 +1074,7 @@ short setup_game(void)
           if (wine_get_version)
           {
               SYNCMSG("Running on Wine v%s", wine_get_version());
+              is_running_under_wine = true;
           }
 
           // Get Wine host OS
@@ -1312,8 +1319,7 @@ TbBool players_cursor_is_at_top_of_view(struct PlayerInfo *player)
 
 TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, long *map_x, long *map_y)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
+    struct PlayerInfo *player = get_my_player();
     *map_x = 0;
     *map_y = 0;
     if ( (pointer_x >= 0) && (pointer_y >= 0)
@@ -1392,7 +1398,7 @@ void update_creatr_model_activities_list(void)
     int num_breeds;
     num_breeds = no_of_breeds_owned;
     // Add to breed activities
-    for (crmodel=1; crmodel < gameadd.crtr_conf.model_count; crmodel++)
+    for (crmodel=1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
     {
         if ((dungeon->owned_creatures_of_model[crmodel] > 0)
             && (crmodel != get_players_spectator_model(my_player_number)))
@@ -1413,7 +1419,7 @@ void update_creatr_model_activities_list(void)
         }
     }
     // Remove from breed activities
-    for (crmodel=1; crmodel < gameadd.crtr_conf.model_count; crmodel++)
+    for (crmodel=1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
     {
         if ((dungeon->owned_creatures_of_model[crmodel] <= 0)
           && (crmodel != get_players_special_digger_model(my_player_number)))
@@ -1439,7 +1445,7 @@ void update_creatr_model_activities_list(void)
 void toggle_hero_health_flowers(void)
 {
     const char *statstr;
-    toggle_flag_byte(&game.flags_cd,MFlg_NoHeroHealthFlower);
+    toggle_flag(game.flags_cd, MFlg_NoHeroHealthFlower);
     if (game.flags_cd & MFlg_NoHeroHealthFlower)
     {
       statstr = "off";
@@ -1457,6 +1463,10 @@ void reset_gui_based_on_player_mode(void)
     if (player->view_type == PVT_CreatureContrl)
     {
         turn_on_menu(vid_change_query_menu);
+        if (player->victory_state == VicS_LostLevel)
+        {
+            turn_off_query_menus();
+        }
     }
     else if (player->view_type == PVT_CreaturePasngr)
     {
@@ -1659,14 +1669,14 @@ TbBool set_default_startup_parameters(void)
 {
     memset(&start_params, 0, sizeof(struct StartupParameters));
     start_params.packet_checksum_verify = 1;
-    set_flag_byte(&start_params.flags_font,FFlg_unk01,false);
+    clear_flag(start_params.flags_font, FFlg_unk01);
     // Set levels to 0, as we may not have the campaign loaded yet
     start_params.selected_level_number = 0;
     start_params.num_fps = 20;
     start_params.one_player = 1;
     start_params.computer_chat_flags = CChat_None;
-    set_flag_byte(&start_params.flags_cd,MFlg_IsDemoMode,false);
-    set_flag_byte(&start_params.flags_cd,MFlg_unk40,true);
+    clear_flag(start_params.flags_cd, MFlg_IsDemoMode);
+    set_flag(start_params.flags_cd, MFlg_unk40);
     start_params.force_ppro_poly = 0;
     return true;
 }
@@ -1750,8 +1760,8 @@ void clear_players_for_save(void)
       memset(player, 0, sizeof(struct PlayerInfo));
       player->id_number = id_mem;
       player->is_active = mem2;
-      set_flag_byte(&player->allocflags,PlaF_Allocated,((memflg & PlaF_Allocated) != 0));
-      set_flag_byte(&player->allocflags,PlaF_CompCtrl,((memflg & PlaF_CompCtrl) != 0));
+      set_flag_value(player->allocflags, PlaF_Allocated, ((memflg & PlaF_Allocated) != 0));
+      set_flag_value(player->allocflags, PlaF_CompCtrl, ((memflg & PlaF_CompCtrl) != 0));
       LbMemoryCopy(&player->cameras[CamIV_FirstPerson],&cammem,sizeof(struct Camera));
       player->acamera = &player->cameras[CamIV_FirstPerson];
     }
@@ -1818,7 +1828,6 @@ void clear_game(void)
     clear_things_and_persons_data();
     ceiling_set_info(12, 4, 1);
     init_animating_texture_maps();
-    init_thing_objects();
     clear_slabsets();
 }
 
@@ -1830,7 +1839,7 @@ void clear_game_for_save(void)
     clear_mapwho();
     game.entrance_room_id = 0;
     game.action_rand_seed = 0;
-    set_flag_byte(&game.operation_flags,GOF_Unkn04,false);
+    clear_flag(game.operation_flags, GOF_Unkn04);
     clear_columns();
     clear_players_for_save();
     clear_dungeons();
@@ -1844,7 +1853,7 @@ void reset_creature_max_levels(void)
     {
         struct Dungeon *dungeon;
         dungeon = get_dungeon(i);
-        for (k=1; k < gameadd.crtr_conf.model_count; k++)
+        for (k=1; k < game.conf.crtr_conf.model_count; k++)
         {
             dungeon->creature_max_level[k] = CREATURE_MAX_LEVEL+1;
         }
@@ -1853,11 +1862,11 @@ void reset_creature_max_levels(void)
 
 void reset_hand_rules(void)
 {
-    struct DungeonAdd* dungeonadd;
+    struct Dungeon* dungeon;
     for (int i = 0; i < DUNGEONS_COUNT; i++)
     {
-        dungeonadd = get_dungeonadd(i);
-        memset(dungeonadd->hand_rules, 0, sizeof(dungeonadd->hand_rules));
+        dungeon = get_dungeon(i);
+        memset(dungeon->hand_rules, 0, sizeof(dungeon->hand_rules));
     }
 }
 
@@ -2204,10 +2213,9 @@ void clear_lookups(void)
 void interp_fix_mouse_light_off_map(struct PlayerInfo *player)
 {
     // This fixes the interpolation issue of moving the mouse off map in one position then back onto the map far elsewhere.
-    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
     struct Light* light = &game.lish.lights[player->cursor_light_idx];
 
-    if (playeradd->mouse_is_offmap == true) {
+    if (player->mouse_on_map == false) {
         light->disable_interp_for_turns = 2;
     }
     if (light->disable_interp_for_turns > 0) {
@@ -2283,16 +2291,16 @@ void check_players_lost(void)
   long i;
   SYNCDBG(8,"Starting");
   struct PlayerInfo* player;
-  struct DungeonAdd* dungeonadd;
+  struct Dungeon* dungeon;
   for (i=0; i < PLAYERS_COUNT; i++)
   {
       player = get_player(i);
-      dungeonadd = get_players_dungeonadd(player);
+      dungeon = get_players_dungeon(player);
       if (player_exists(player) && (player->is_active == 1))
       {
           struct Thing *heartng;
           heartng = get_player_soul_container(i);
-          if ((!thing_exists(heartng) || ((heartng->active_state == ObSt_BeingDestroyed) && !(dungeonadd->backup_heart_idx > 0))) && (player->victory_state == VicS_Undecided))
+          if ((!thing_exists(heartng) || ((heartng->active_state == ObSt_BeingDestroyed) && !(dungeon->backup_heart_idx > 0))) && (player->victory_state == VicS_Undecided))
           {
             event_kill_all_players_events(i);
             set_player_as_lost_level(player);
@@ -2421,7 +2429,7 @@ void count_players_creatures_being_paid(int *creatures_count)
 
 void process_payday(void)
 {
-    game.pay_day_progress = game.pay_day_progress + (gameadd.pay_day_speed / 100);
+    game.pay_day_progress = game.pay_day_progress + (game.conf.rules.game.pay_day_speed / 100);
     PlayerNumber plyr_idx;
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
@@ -2436,7 +2444,7 @@ void process_payday(void)
             compute_and_update_player_backpay_total(plyr_idx);
         }
     }
-    if (game.pay_day_gap <= game.pay_day_progress)
+    if (game.conf.rules.game.pay_day_gap <= game.pay_day_progress)
     {
         output_message(SMsg_Payday, 0, true);
         game.pay_day_progress = 0;
@@ -2622,9 +2630,9 @@ int clear_active_dungeons_stats(void)
       dungeon = get_dungeon(i);
       if (dungeon_invalid(dungeon))
           break;
-      memset((char *)dungeon->field_64, 0, gameadd.crtr_conf.model_count * 15 * sizeof(unsigned short));
-      memset((char *)dungeon->guijob_all_creatrs_count, 0, gameadd.crtr_conf.model_count *3*sizeof(unsigned short));
-      memset((char *)dungeon->guijob_angry_creatrs_count, 0, gameadd.crtr_conf.model_count *3*sizeof(unsigned short));
+      memset((char *)dungeon->field_64, 0, game.conf.crtr_conf.model_count * 15 * sizeof(unsigned short));
+      memset((char *)dungeon->guijob_all_creatrs_count, 0, game.conf.crtr_conf.model_count *3*sizeof(unsigned short));
+      memset((char *)dungeon->guijob_angry_creatrs_count, 0, game.conf.crtr_conf.model_count *3*sizeof(unsigned short));
   }
   return i;
 }
@@ -2714,7 +2722,7 @@ long update_cave_in(struct Thing *thing)
         create_effect(&pos, TngEff_HarmlessGas4, owner);
     }
 
-    if ((turns_alive % game.turns_per_collapse_dngn_dmg) == 0)
+    if ((turns_alive % game.conf.rules.magic.turns_per_collapse_dngn_dmg) == 0)
     {
         pos.x.val = thing->mappos.x.val;
         pos.y.val = thing->mappos.y.val;
@@ -2725,7 +2733,7 @@ long update_cave_in(struct Thing *thing)
         param.class_id = 0;
         param.model_id = 0;
         param.num1 = thing->owner;
-        param.num2 = game.collapse_dungeon_damage;
+        param.num2 = game.conf.rules.magic.collapse_dungeon_damage;
         param.ptr3 = 0;
         do_cb = damage_creatures_with_physical_force;
         do_to_things_with_param_around_map_block(&pos, do_cb, &param);
@@ -2792,7 +2800,7 @@ void update(void)
         if (player->additional_flags & PlaAF_LightningPaletteIsActive)
         {
             PaletteSetPlayerPalette(player, engine_palette);
-            set_flag_byte(&player->additional_flags,PlaAF_LightningPaletteIsActive,false);
+            clear_flag(player->additional_flags, PlaAF_LightningPaletteIsActive);
         }
         clear_active_dungeons_stats();
         update_creature_pool_state();
@@ -3179,7 +3187,6 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
 
 void update_blocks_pointed(void)
 {
-    TbBool out_of_bounds = false;
     long x;
     long y;
     long x_frac;
@@ -3226,18 +3233,11 @@ void update_blocks_pointed(void)
           if ((x >= 0) && (x < gameadd.map_subtiles_x) && (y >= 0) && (y < gameadd.map_subtiles_y))
           {
               update_block_pointed(i,x,x_frac,y,y_frac);
-          } else {
-                out_of_bounds = true;
           }
           hori_ptr_y -= hori_hdelta_y;
           vert_ptr_y -= vert_hdelta_y;
         }
     }
-
-    struct PlayerInfo *player = get_my_player();
-    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
-    playeradd->mouse_is_offmap = out_of_bounds;
-
     SYNCDBG(19,"Finished");
 }
 
@@ -3402,6 +3402,27 @@ TbBool keeper_wait_for_screen_focus(void)
 
 void gameplay_loop_logic()
 {
+    if(flag_is_set(start_params.debug_flags, DFlg_PauseAtGameTurn))
+    {
+        static TbBool paused_at_gameturn = false;
+        static GameTurn previous_gameturn = 0;
+        if(game.play_gameturn >= start_params.pause_at_gameturn && game.play_gameturn != previous_gameturn)
+        {
+            if(!paused_at_gameturn)
+            {
+                paused_at_gameturn = true;
+
+                game.frame_skip = 0;
+                if(game.packet_load_enable)
+                {
+                    disable_packet_mode();
+                }
+                set_packet_pause_toggle();
+            }
+        }
+        previous_gameturn = game.play_gameturn;
+    }
+
     if (is_feature_on(Ft_DeltaTime) == true) {
         if (gameadd.process_turn_time < 1.0) {
             return;
@@ -3433,6 +3454,12 @@ void gameplay_loop_logic()
     input();
     update();
     frametime_end_measurement(Frametime_Logic);
+
+    if(game.frame_step)
+    {
+        game.frame_step = false;
+        set_packet_pause_toggle();
+    }
 }
 
 void gameplay_loop_draw()
@@ -3713,7 +3740,7 @@ static TbBool wait_at_frontend(void)
     try_restore_frontend_error_box();
 
     short finish_menu = 0;
-    set_flag_byte(&game.flags_cd,MFlg_unk40,false);
+    clear_flag(game.flags_cd, MFlg_unk40);
     // TODO move to separate function
     // Begin the frontend loop
     long fe_last_loop_time = LbTimerClock();
@@ -3793,13 +3820,13 @@ static TbBool wait_at_frontend(void)
     case FeSt_START_KPRLEVEL:
           my_player_number = default_loc_player;
           game.game_kind = GKind_LocalGame;
-          set_flag_byte(&game.system_flags,GSF_NetworkActive,false);
+          clear_flag(game.system_flags, GSF_NetworkActive);
           player = get_my_player();
           player->is_active = 1;
           startup_network_game(&loop, true);
           break;
     case FeSt_START_MPLEVEL:
-          set_flag_byte(&game.system_flags,GSF_NetworkActive,true);
+          set_flag(game.system_flags, GSF_NetworkActive);
           game.game_kind = GKind_MultiGame;
           player = get_my_player();
           player->is_active = 1;
@@ -3807,7 +3834,7 @@ static TbBool wait_at_frontend(void)
           break;
     case FeSt_LOAD_GAME:
           flgmem = game.numfield_15;
-          set_flag_byte(&game.system_flags,GSF_NetworkActive,false);
+          clear_flag(game.system_flags, GSF_NetworkActive);
           LbScreenClear(0);
           LbScreenSwap();
           if (!load_game(game.numfield_15))
@@ -3821,7 +3848,7 @@ static TbBool wait_at_frontend(void)
           game.flags_cd |= MFlg_IsDemoMode;
           startup_saved_packet_game();
           set_gui_visible(false);
-          set_flag_byte(&game.operation_flags,GOF_ShowPanel,false);
+          clear_flag(game.operation_flags, GOF_ShowPanel);
           break;
     }
 
@@ -3867,7 +3894,7 @@ void game_loop(void)
         } else
         {
           game.numfield_15 = -1;
-          set_flag_byte(&game.operation_flags,GOF_Paused,false);
+          clear_flag(game.operation_flags, GOF_Paused);
         }
       } else {
           toggle_status_menu(1); // Required when skipping PI_HeartZoom
@@ -3895,6 +3922,7 @@ void game_loop(void)
       StopMusicPlayer();
       free_custom_music();
       free_sound_chunks();
+      memset(&game.loaded_sound,0,DISKPATH_SIZE * EXTERNAL_SOUNDS_COUNT+1);
       turn_off_all_menus();
       delete_all_structures();
       clear_mapwho();
@@ -4030,7 +4058,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if ( strcasecmp(parstr,"level") == 0 )
       {
-        set_flag_byte(&start_params.operation_flags,GOF_SingleLevel,true);
+        set_flag(start_params.operation_flags, GOF_SingleLevel);
         level_num = atoi(pr2str);
         narg++;
       } else
@@ -4056,6 +4084,7 @@ short process_command_line(unsigned short argc, char *argv[])
          start_params.packet_load_enable = true;
          start_params.packet_save_enable = false;
          snprintf(start_params.packet_fname, sizeof(start_params.packet_fname), "%s", pr2str);
+         set_flag(start_params.debug_flags, DFlg_ShowGameTurns | DFlg_FrameStep);
          narg++;
       } else
       if (strcasecmp(parstr,"packetsave") == 0)
@@ -4067,21 +4096,31 @@ short process_command_line(unsigned short argc, char *argv[])
          snprintf(start_params.packet_fname, sizeof(start_params.packet_fname), "%s", pr2str);
          narg++;
       } else
+      if (strcasecmp(parstr,"pause_at_gameturn") == 0)
+      {
+         set_flag(start_params.debug_flags, DFlg_ShowGameTurns | DFlg_FrameStep | DFlg_PauseAtGameTurn);
+         start_params.pause_at_gameturn = atoi(pr2str);
+         narg++;
+      } else
       if (strcasecmp(parstr,"q") == 0)
       {
-         set_flag_byte(&start_params.operation_flags,GOF_SingleLevel,true);
+         set_flag(start_params.operation_flags, GOF_SingleLevel);
       } else
       if (strcasecmp(parstr,"lightconvert") == 0)
       {
-         set_flag_byte(&start_params.operation_flags,GOF_LightConvert,true);
+         set_flag(start_params.operation_flags, GOF_LightConvert);
       } else
       if (strcasecmp(parstr, "dbgshots") == 0)
       {
-          start_params.debug_flags |= DFlg_ShotsDamage;
+          set_flag(start_params.debug_flags, DFlg_ShotsDamage);
       } else
       if (strcasecmp(parstr, "dbgpathfind") == 0)
       {
-	      start_params.debug_flags |= DFlg_CreatrPaths;
+          set_flag(start_params.debug_flags, DFlg_CreatrPaths);
+      } else
+      if (strcasecmp(parstr, "show_game_turns") == 0)
+      {
+          set_flag(start_params.debug_flags, DFlg_ShowGameTurns);
       } else
       if (strcasecmp(parstr, "compuchat") == 0)
       {
@@ -4101,7 +4140,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr,"alex") == 0)
       {
-         set_flag_byte(&start_params.flags_font,FFlg_AlexCheat,true);
+         set_flag(start_params.flags_font, FFlg_AlexCheat);
       } else
       if (strcasecmp(parstr,"connect") == 0)
       {
@@ -4117,6 +4156,10 @@ short process_command_line(unsigned short argc, char *argv[])
       {
          start_params.frame_skip = atoi(pr2str);
          narg++;
+      } else
+      if (strcasecmp(parstr,"framestep") == 0)
+      {
+         set_flag(start_params.debug_flags, DFlg_ShowGameTurns | DFlg_FrameStep);
       }
       else if (strcasecmp(parstr, "timer") == 0)
       {
@@ -4149,7 +4192,7 @@ short process_command_line(unsigned short argc, char *argv[])
         }
 
 #ifdef FUNCTESTING
-        ftest_init(); // initialise test framework on ftest build
+        set_flag(start_params.functest_flags, FTF_Enabled);
 #else
         WARNLOG("Flag '%s' disabled for release builds.", parstr);
 #endif // FUNCTESTING
@@ -4157,7 +4200,15 @@ short process_command_line(unsigned short argc, char *argv[])
       else if(strcasecmp(parstr, "exitonfailedtest") == 0)
       {
 #ifdef FUNCTESTING
-        set_flag_byte(&start_params.functest_flags, FTF_ExitOnTestFailure, true);
+        set_flag(start_params.functest_flags, FTF_ExitOnTestFailure);
+#else
+       WARNLOG("Flag '%s' disabled for release builds.", parstr);
+#endif // FUNCTESTING
+      }
+      else if(strcasecmp(parstr, "includelongtests") == 0)
+      {
+#ifdef FUNCTESTING
+        set_flag(start_params.functest_flags, FTF_IncludeLongTests);
 #else
        WARNLOG("Flag '%s' disabled for release builds.", parstr);
 #endif // FUNCTESTING
@@ -4191,6 +4242,10 @@ short process_command_line(unsigned short argc, char *argv[])
   }
   start_params.selected_level_number = level_num;
   my_player_number = default_loc_player;
+
+#ifdef FUNCTESTING
+  ftest_init(); // initialise test framework on ftest build
+#endif
 
   if(bad_param != 0)
   {
@@ -4239,6 +4294,10 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     retval = setup_game();
     if (retval)
     {
+        steam_api_init();
+    }
+    if (retval)
+    {
       if ((install_info.lang_id == Lang_Japanese) ||
           (install_info.lang_id == Lang_ChineseInt) ||
           (install_info.lang_id == Lang_ChineseTra) ||
@@ -4280,7 +4339,9 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     {
         SYNCDBG(0,"finished properly");
     }
+
     LbErrorLogClose();
+    steam_api_shutdown();
     return 0;
 }
 

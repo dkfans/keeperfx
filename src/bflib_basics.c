@@ -32,6 +32,11 @@
 #include "bflib_fileio.h"
 #include "post_inc.h"
 
+
+char consoleLogArray[MAX_CONSOLE_LOG_COUNT][MAX_TEXT_LENGTH];
+size_t consoleLogArraySize = 0;
+int debug_display_consolelog = 0;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -75,93 +80,6 @@ unsigned long lword (unsigned char *p)
     unsigned long n = p[1];
     n = (n << 8) + p[0];
     return n;
-}
-
-/**
- * Toggles a masked bit in the flags field to the value.
- * This version assumes the flag field is 1 byte long.
- * @param flags Pointer to the flags byte.
- * @param mask Bitmask for the flag.
- */
-void toggle_flag_byte(unsigned char *flags,unsigned char mask)
-{
-  if ((*flags & mask) == 0)
-    *flags |= mask;
-  else
-    *flags ^= mask;
-}
-
-/**
- * Toggles a masked bit in the flags field to the value.
- * This version assumes the flag field is 2 bytes long.
- * @param flags Pointer to the flags byte.
- * @param mask Bitmask for the flag.
- */
-void toggle_flag_word(unsigned short *flags,unsigned short mask)
-{
-  if ((*flags & mask) == 0)
-    *flags |= mask;
-  else
-    *flags ^= mask;
-}
-
-/**
- * Toggles a masked bit in the flags field to the value.
- * This version assumes the flag field is 4 bytes long.
- * @param flags Pointer to the flags byte.
- * @param mask Bitmask for the flag.
- */
-void toggle_flag_dword(unsigned long *flags,unsigned long mask)
-{
-  if ((*flags & mask) == 0)
-    *flags |= mask;
-  else
-    *flags ^= mask;
-}
-
-/**
- * Sets a masked bit in the flags field to the value.
- * This version assumes the flag field is 2 bytes long.
- * @param flags Pointer to the flags byte.
- * @param mask Bitmask for the flag.
- * @param value The new logic value.
- */
-void set_flag_word(unsigned short *flags,unsigned short mask,short value)
-{
-  if (value)
-    *flags |= mask;
-  else
-    *flags ^= *flags & mask;
-}
-
-/**
- * Sets a masked bit in the flags field to the value.
- * This version assumes the flag field is 1 byte long.
- * @param flags Pointer to the flags byte.
- * @param mask Bitmask for the flag.
- * @param value The new logic value.
- */
-void set_flag_byte(unsigned char *flags,unsigned char mask,short value)
-{
-  if (value)
-    *flags |= mask;
-  else
-    *flags ^= *flags & mask;
-}
-
-/**
- * Sets a masked bit in the flags field to the value.
- * This version assumes the flag field is 4 bytes long.
- * @param flags Pointer to the flags byte.
- * @param mask Bitmask for the flag.
- * @param value The new logic value.
- */
-void set_flag_dword(unsigned long *flags,unsigned long mask,short value)
-{
-  if (value)
-    *flags |= mask;
-  else
-    *flags ^= *flags & mask;
 }
 
 /**
@@ -440,6 +358,25 @@ void LbCloseLog()
     file = NULL;
 }
 
+void write_log_to_array_for_live_viewing(const char* fmt_str, va_list args, const char* add_log_prefix) {
+    if (consoleLogArraySize >= MAX_CONSOLE_LOG_COUNT) {
+        // Array is full - so clear it. This is a bit of a stopgap solution, it will lose us the older entries.
+        memset(consoleLogArray, 0, sizeof(consoleLogArray));
+        consoleLogArraySize = 0;
+    }
+
+    char formattedString[MAX_TEXT_LENGTH];
+    vsnprintf(formattedString, sizeof(formattedString), fmt_str, args);
+
+    char buffer[MAX_TEXT_LENGTH];
+    snprintf(buffer, sizeof(buffer), "%s%s", add_log_prefix, formattedString); // merge prefix and formatted string
+
+    // Add the combined message to the array
+    strncpy(consoleLogArray[consoleLogArraySize], buffer, MAX_TEXT_LENGTH);
+    consoleLogArray[consoleLogArraySize][MAX_TEXT_LENGTH - 1] = '\0';
+    consoleLogArraySize++;
+}
+
 int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
 {
   enum Header {
@@ -535,8 +472,13 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
         fprintf(file, "%02d:%02d:%02d ",
             curr_time.Hour,curr_time.Minute,curr_time.Second);
     }
-    if (log->prefix[0] != '\0')
+  if (log->prefix[0] != '\0') {
       fputs(log->prefix, file);
+  }
+
+  // Write formatted message to the array
+  write_log_to_array_for_live_viewing(fmt_str, arg, log->prefix);
+
   vfprintf(file, fmt_str, arg);
   log->position = ftell(file);
   // fclose is slow and automatically happens on normal program exit.
