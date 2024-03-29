@@ -42,7 +42,7 @@ enum ESteamAPIInitResult
 // Typedefs for the functions and data types in the Steam API
 typedef char SteamErrMsg[1024];
 typedef ESteamAPIInitResult(__cdecl *SteamApiInitFunc)(SteamErrMsg *err);
-typedef void(__cdecl *SteamApiManualDispatchFunc)();
+typedef void(__cdecl *SteamApiRunCallbacksFunc)();
 typedef void(__cdecl *SteamApiShutdownFunc)();
 
 // Type Punning union for the Steam API Init function to go from __cdecl to __stdcall
@@ -54,7 +54,7 @@ union SteamApiInitUnion
 
 // Variables
 SteamApiInitFunc SteamAPI_Init;
-SteamApiManualDispatchFunc SteamAPI_ManualDispatch_Init;
+SteamApiRunCallbacksFunc SteamAPI_RunCallbacks;
 SteamApiShutdownFunc SteamAPI_Shutdown;
 
 /**
@@ -132,10 +132,10 @@ int steam_api_init()
     SteamAPI_Init = SteamApiInit.steamApiInitFunc;
 
     // Get the address of the ManualDispatch_Init function
-    SteamAPI_ManualDispatch_Init = reinterpret_cast<SteamApiManualDispatchFunc>(GetProcAddress(steam_lib, "SteamAPI_ManualDispatch_Init"));
-    if (SteamAPI_ManualDispatch_Init == NULL)
+    SteamAPI_RunCallbacks = reinterpret_cast<SteamApiRunCallbacksFunc>(GetProcAddress(steam_lib, "SteamAPI_RunCallbacks"));
+    if (SteamAPI_RunCallbacks == NULL)
     {
-        ERRORLOG("Failed to get proc address for 'SteamAPI_ManualDispatch_Init' in 'steam_api.dll'");
+        ERRORLOG("Failed to get proc address for 'SteamAPI_RunCallbacks' in 'steam_api.dll'");
         FreeLibrary(steam_lib);
         return 1;
     }
@@ -162,13 +162,29 @@ int steam_api_init()
         return 1;
     }
 
-    // Inform the API that we wish to use manual event dispatch.
-    // This makes the Steam API be idle until we want to interact with it.
-    // Must be called after SteamAPI_Init.
-    SteamAPI_ManualDispatch_Init();
-
+    // Success!
+    JUSTLOG("Steam API initialized");
     return 0;
 
+#endif
+}
+
+/**
+ * @brief Dispatches callbacks and call results to all of the registered Steam API listeners.
+ *
+ * It's best to call this at >10Hz, the more time between calls, the more potential latency between receiving events or results from the Steamworks API.
+ * Most games call this once per render-frame. All registered listener functions will be invoked during this call, in the callers thread context.
+ *
+ * SteamAPI_RunCallbacks is safe to call from multiple threads simultaneously, but if you choose to do this, callback code could be executed on any thread.
+ * One alternative is to call SteamAPI_RunCallbacks from the main thread only, and call SteamAPI_ReleaseCurrentThreadMemory regularly on other threads.
+ */
+void steam_api_run_callbacks()
+{
+#ifdef _WIN32
+    if (SteamAPI_RunCallbacks != NULL)
+    {
+        SteamAPI_RunCallbacks();
+    }
 #endif
 }
 
@@ -186,7 +202,7 @@ void steam_api_shutdown()
     }
 
     SteamAPI_Shutdown = NULL;
-    SteamAPI_ManualDispatch_Init = NULL;
+    SteamAPI_RunCallbacks = NULL;
     SteamAPI_Init = NULL;
 
     if (steam_lib != NULL)
