@@ -3535,6 +3535,7 @@ void keeper_gameplay_loop(void)
         gameplay_loop_logic();
         gameplay_loop_draw();
         gameplay_loop_timestep();
+        steam_api_run_callbacks();
         frametime_end_measurement(Frametime_FullFrame);
     } // end while
     SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
@@ -3937,7 +3938,6 @@ void game_loop(void)
       close_packet_file();
       game.packet_load_enable = false;
       game.packet_save_enable = false;
-      steam_api_run_callbacks();
     } // end while
 
     ShutdownMusicPlayer();
