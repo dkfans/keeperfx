@@ -984,17 +984,39 @@ void shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
     kill_creature(creatng, killertng, shotng->owner, dieflags);
 }
 
-double weight_calculated_push_strenght(int weight, int push_strength)
+/*
+ * Calculate the adjusted push strength based on the weight of the creature.
+ * @param weight The weight of the creature.
+ * @param push_strength The original push strength.
+ * @return The adjusted push strength.
+ */
+int weight_calculated_push_strenght(int weight, int push_strength)
 {
-    double weight_factor = 1.0; // Standard-Gewichtsfaktor ohne Gewichtsberechnung
-        JUSTLOG("weight ist an push_strength ist %d", push_strength);
+    const int min_weight = 6; // Minimum weight threshold for the creature.
+    const int max_weight = 600; // Maximum weight threshold for the creature.
+    const int percent_factor = 1000; // Factor used to scale the weight factor to a percentage.
 
-    weight_factor = 1.0 - ((weight - 6) / 594.0);
-        JUSTLOG("weight ist an weight_factor ist %f", weight_factor);
-    weight_factor = fmax(0.0, fmin(1.0, weight_factor));
-        JUSTLOG("weight ist an weight_factor ist %f", weight_factor);
-    double adjusted_push_strength = push_strength * weight_factor;
-        JUSTLOG("weight ist an adjusted_throw_strength ist %f", adjusted_push_strength);
+    // Ensure that the weight is within the valid range of min_weight to max_weight.
+    if (weight < min_weight) {
+        weight = min_weight;
+    } else if (weight > max_weight) {
+        weight = max_weight;
+    }
+
+    // Calculate the weight factor based on the creature's weight.
+    int weight_factor = percent_factor - ((weight - min_weight) * percent_factor / (max_weight - min_weight));
+
+    // Ensure the weight factor is within the valid range of 0 to @percent_factor.
+    if (weight_factor < 0) {
+        weight_factor = 0;
+    } else if (weight_factor > percent_factor) {
+        weight_factor = percent_factor;
+    }
+
+// Calculate the adjusted push strength based on the weight factor.     
+    int adjusted_push_strength = (push_strength * weight_factor) / percent_factor;
+
+
     return adjusted_push_strength;
 }
 
@@ -1002,7 +1024,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     long throw_strength = shotst->push_on_hit;
-    double adjusted_throw_strength;
+    int adjusted_throw_strength;
     long n;
     if (trgtng->health < 0)
         return 0;
@@ -1062,9 +1084,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
       adjusted_throw_strength = throw_strength;
       if (game.conf.rules.magic.weight_calculate_push == 1)
     {
-            JUSTLOG("weight ist an %i", game.conf.rules.magic.weight_calculate_push);
         int weight = compute_creature_weight(trgtng);
-            JUSTLOG("weight ist an weight ist %i", weight);
         adjusted_throw_strength = weight_calculated_push_strenght(weight, throw_strength);
     }
 
@@ -1075,11 +1095,8 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
         }
         adjusted_throw_strength *= 10;
     }
-JUSTLOG("weight ist an adjusted_throw_strength ist %f", adjusted_throw_strength);
           trgtng->veloc_push_add.x.val += (adjusted_throw_strength * (long)shotng->velocity.x.val) / 16;
-           JUSTLOG("throw veloc_push_addx ist %f", trgtng->veloc_push_add.x.val);
           trgtng->veloc_push_add.y.val += (adjusted_throw_strength * (long)shotng->velocity.y.val) / 16;
-            JUSTLOG("throw veloc_push_addy ist %f", trgtng->veloc_push_add.y.val);
           trgtng->state_flags |= TF1_PushAdd;
     
 }
@@ -1128,10 +1145,9 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
 {
     long i;
     long n;
-    double adjusted_push_strength;
+    int adjusted_push_strength;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     long push_strength = shotst->push_on_hit;
-    SYNCMSG("push_on_hit ist %d", shotst->push_on_hit);
     struct Thing* shooter = INVALID_THING;
     if (shotng->parent_idx != shotng->index) {
         shooter = thing_get(shotng->parent_idx);
@@ -1247,23 +1263,16 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     adjusted_push_strength = push_strength;
     if (game.conf.rules.magic.weight_calculate_push == 1)
     {
-            JUSTLOG("weight ist an %i", game.conf.rules.magic.weight_calculate_push);
         int weight = compute_creature_weight(trgtng);
-            JUSTLOG("weight ist an weight ist %i", weight);
         adjusted_push_strength = weight_calculated_push_strenght(weight, push_strength);
     }
 
     if (push_strength != 0 )
     {
-            JUSTLOG("weight ist an adjusted_push_strength ist %f", adjusted_push_strength);
         i = adjusted_push_strength * shotng->velocity.x.val;
-            JUSTLOG("push move_x ist %f", i);
         trgtng->veloc_push_add.x.val += i / 16;
-            JUSTLOG("push veloc_push_addx ist %f", trgtng->veloc_push_add.x.val);
         i = adjusted_push_strength * shotng->velocity.y.val;
-            JUSTLOG("push move_y ist %f", i);
         trgtng->veloc_push_add.y.val += i / 16;
-            JUSTLOG("push veloc_push_addy ist %f", trgtng->veloc_push_add.y.val);
         trgtng->state_flags |= TF1_PushAdd;
     }
 

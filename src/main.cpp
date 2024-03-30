@@ -329,8 +329,10 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
     if ((thing->index == shotng->index) || (thing->index == shotng->parent_idx)) {
         return TUFRet_Unchanged;
     }
-    MapCoordDelta dist;
-    dist = LONG_MAX;
+    struct CreatureControl* cctrl;
+    long blow_distance = param->num1;
+    MapCoordDelta creature_distance;
+    creature_distance = LONG_MAX;
     TbBool apply_velocity;
     apply_velocity = false;
     if (thing->class_id == TCls_Creature)
@@ -339,15 +341,25 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
         {
             struct CreatureStats *crstat;
             crstat = creature_stats_get_from_thing(thing);
-            dist = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
-            if ((dist < param->num1) && crstat->affected_by_wind)
+            cctrl = creature_control_get_from_thing(thing);
+            long weight = compute_creature_weight(thing);
+            blow_distance = weight_calculated_push_strenght(weight, 100); //blow_distance - (3 * weight);
+            JUSTLOG("blow_distance ist %i", blow_distance);
+            JUSTLOG("schussposition? %i und Kreaturen position %i", &shotng->mappos, &thing->mappos);
+            creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
+                    if (thing->class_id == TCls_Creature){
+            JUSTLOG("(creature_distance %i < blow_distance %i) && crstat->affected_by_wind ist %i && cctrl->wind_affected ist %i", creature_distance,blow_distance, crstat->affected_by_wind, cctrl->wind_affected); 
+                    }
+            if ((creature_distance < blow_distance) && crstat->affected_by_wind && !cctrl->wind_affected)           
             {
                 set_start_state(thing);
-                struct CreatureControl *cctrl;
-                cctrl = creature_control_get_from_thing(thing);
                 cctrl->idle.start_gameturn = game.play_gameturn;
                 apply_velocity = true;
             }
+            else if (creature_distance >= blow_distance){
+                    cctrl->wind_affected = 1;
+                    JUSTLOG("wind_affected ist %i", cctrl->wind_affected);
+                }
         }
     } else
     if (thing->class_id == TCls_EffectElem)
@@ -356,8 +368,8 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
         {
             struct EffectElementConfigStats *eestat;
             eestat = get_effect_element_model_stats(thing->model);
-            dist = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
-            if ((dist < param->num1) && eestat->affected_by_wind)
+            creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
+            if ((creature_distance < blow_distance) && eestat->affected_by_wind)
             {
                 apply_velocity = true;
             }
@@ -369,8 +381,8 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
         {
             struct ShotConfigStats *shotst;
             shotst = get_shot_model_stats(thing->model);
-            dist = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
-            if ((dist < param->num1) && !shotst->wind_immune)
+            creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
+            if ((creature_distance < blow_distance) && !shotst->wind_immune)
             {
                 apply_velocity = true;
             }
@@ -383,21 +395,29 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
 
             struct EffectConfigStats *effcst;
             effcst = get_effect_model_stats(thing->model);
-            dist = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
-            if ((dist < param->num1) && effcst->affected_by_wind)
+            creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
+            if ((creature_distance < blow_distance) && effcst->affected_by_wind)
             {
                 apply_velocity = true;
             }
+        }
+        else if (thing->class_id == TCls_Creature){
+            JUSTLOG("Nope");  
         }
     }
     if (apply_velocity)
     {
         struct ComponentVector wind_push;
-        wind_push.x = (shotng->veloc_base.x.val * param->num1) / dist;
-        wind_push.y = (shotng->veloc_base.y.val * param->num1) / dist;
-        wind_push.z = (shotng->veloc_base.z.val * param->num1) / dist;
+        wind_push.x = (shotng->veloc_base.x.val * blow_distance) / creature_distance;
+        wind_push.y = (shotng->veloc_base.y.val * blow_distance) / creature_distance;
+        wind_push.z = (shotng->veloc_base.z.val * blow_distance) / creature_distance;
         SYNCDBG(8,"Applying (%d,%d,%d) to %s index %d",(int)wind_push.x,(int)wind_push.y,(int)wind_push.z,thing_model_name(thing),(int)thing->index);
         apply_transitive_velocity_to_thing(thing, &wind_push);
+        if (thing->class_id == TCls_Creature){
+        JUSTLOG("wind_push.x ist %i mit (veloc_base.x.val %i * blow_distance %i) / creature_distance %i", wind_push.x, shotng->veloc_base.x.val, blow_distance, creature_distance );
+        JUSTLOG("wind_push.x ist %i mit (veloc_base.y.val %i * blow_distance %i) / creature_distance %i", wind_push.y, shotng->veloc_base.y.val, blow_distance, creature_distance );
+        JUSTLOG("wind_push.x ist %i mit (veloc_base.z.val %i * blow_distance %i) / creature_distance %i", wind_push.z, shotng->veloc_base.z.val, blow_distance, creature_distance );
+        }
         return TUFRet_Modified;
     }
     return TUFRet_Unchanged;
