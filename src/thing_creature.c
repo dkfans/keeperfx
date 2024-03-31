@@ -3196,6 +3196,14 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         shot_set_start_pos(firing, shotst, &pos1);
         for (i = 0; i < shotst->effect_amount; i++)
         {
+            if (shotst->speed_deviation)
+            {
+                speed = (short)(shotst->speed - (shotst->speed_deviation/2) + (CREATURE_RANDOM(firing, shotst->speed_deviation)));
+            }
+            else
+            {
+                speed = shotst->speed;
+            }
             tmptng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
             if (thing_is_invalid(tmptng))
               break;
@@ -3203,7 +3211,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
             shotng->shot.hit_type = hit_type;
             shotng->move_angle_xy = (short)((angle_xy + CREATURE_RANDOM(firing, 2 * shotst->spread_xy + 1) - shotst->spread_xy) & LbFPMath_AngleMask);
             shotng->move_angle_z = (short)((angle_yz + CREATURE_RANDOM(firing, 2 * shotst->spread_z + 1) - shotst->spread_z) & LbFPMath_AngleMask);
-            angles_to_vector(shotng->move_angle_xy, shotng->move_angle_z, shotst->speed, &cvect);
+            angles_to_vector(shotng->move_angle_xy, shotng->move_angle_z, speed, &cvect);
             shotng->veloc_push_add.x.val += cvect.x;
             shotng->veloc_push_add.y.val += cvect.y;
             shotng->veloc_push_add.z.val += cvect.z;
@@ -3235,7 +3243,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         }
         if (shotst->speed_deviation)
         {
-            speed = (short)(shotst->speed + CREATURE_RANDOM(firing, shotst->speed_deviation));
+            speed = (short)(shotst->speed - (shotst->speed_deviation / 2) + (CREATURE_RANDOM(firing, shotst->speed_deviation)));
         }
         else
         {
