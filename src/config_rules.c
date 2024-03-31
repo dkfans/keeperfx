@@ -138,8 +138,8 @@ const struct NamedField rules_magic_named_fields[] = {
   {"COLLAPSEDUNGEONDAMAGE",         &game.conf.rules.magic.collapse_dungeon_damage,           var_type(game.conf.rules.magic.collapse_dungeon_damage           ),LONG_MIN,LONG_MAX},
   {"TURNSPERCOLLAPSEDUNGEONDAMAGE", &game.conf.rules.magic.turns_per_collapse_dngn_dmg,       var_type(game.conf.rules.magic.turns_per_collapse_dngn_dmg       ),LONG_MIN,LONG_MAX},
   {"POWERHANDGOLDGRABAMOUNT",       &game.conf.rules.magic.power_hand_gold_grab_amount,       var_type(game.conf.rules.magic.power_hand_gold_grab_amount       ),LONG_MIN,LONG_MAX},
-  {"FRIENDLYFIGHTAREARANGEPERCENT", &game.conf.rules.magic.friendly_fight_area_range_permil,  var_type(game.conf.rules.magic.friendly_fight_area_range_permil  ),LONG_MIN,LONG_MAX},
-  {"FRIENDLYFIGHTAREADAMAGEPERCENT",&game.conf.rules.magic.friendly_fight_area_damage_permil, var_type(game.conf.rules.magic.friendly_fight_area_damage_permil ),LONG_MIN,LONG_MAX},
+  {"FRIENDLYFIGHTAREARANGEPERCENT", &game.conf.rules.magic.friendly_fight_area_range_percent, var_type(game.conf.rules.magic.friendly_fight_area_range_percent ),LONG_MIN,LONG_MAX},
+  {"FRIENDLYFIGHTAREADAMAGEPERCENT",&game.conf.rules.magic.friendly_fight_area_damage_percent,var_type(game.conf.rules.magic.friendly_fight_area_damage_percent),LONG_MIN,LONG_MAX},
   {NULL,                            NULL,0,0,0 },
   };
 
