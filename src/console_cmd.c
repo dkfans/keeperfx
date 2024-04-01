@@ -1591,9 +1591,10 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             if (pr2str != NULL)
             {
                 unsigned char ap = atoi(pr2str);
+                PlayerNumber player_idx = (pr3str == NULL) ? ALL_PLAYERS : atoi(pr3str);
                 if (action_point_exists_idx(ap))
                 {
-                    return action_point_reset_idx(ap);
+                    return action_point_reset_idx(ap, player_idx);
                 }
             }
         }

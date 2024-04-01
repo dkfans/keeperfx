@@ -223,7 +223,7 @@ CREATE_PARTY(SORC_TWO)
 REM ----------------------- Win/Lose conditions/Objectives
 
 DISPLAY_OBJECTIVE(51,ALL_PLAYERS)
-REM QUICK_OBJECTIVE(0,"Four distinct mages are currently researching ways of becoming a Keeper such as yourself. If they would succeed there would be four more keepers threatening your land. Flush them out while they are still simple mortals. They are holed up in a cave called the Raven's Claw, past an ancient monastery.",PLAYER0)
+REM QUICK_OBJECTIVE(0,"Four distinct mages are currently researching ways of becoming a Keeper such as yourself. If they would succeed, there would be four more Keepers threatening your land. Flush them out while they are still simple mortals. They are holed up in a cave called the Raven's Claw, past an ancient monastery.",PLAYER0)
 
 IF(PLAYER_GOOD,VAMPIRE == 0)
     SET_FLAG(PLAYER0,FLAG1,1)
@@ -234,7 +234,7 @@ ENDIF
 IF(PLAYER_GOOD,WITCH == 0)
     SET_FLAG(PLAYER0,FLAG2,1)
     DISPLAY_INFORMATION(54,ALL_PLAYERS)
-    REM QUICK_INFORMATION(4,"Shakara, voodoo witch extraordinaire. She also majored in the summoning of various types of demons. It is almost a shame to see such a talent wasted... Almost.")
+    REM QUICK_INFORMATION(4,"Shakara, voodoo witch extraordinaire. She also majored in the summoning of various types of demons. It is almost a shame to see such talent wasted... Almost.")
 ENDIF
 
 IF(PLAYER_GOOD,WIZARD == 0)
@@ -246,7 +246,7 @@ ENDIF
 IF(PLAYER_GOOD,SORCEROR == 0)
     SET_FLAG(PLAYER0,FLAG4,1)
     DISPLAY_INFORMATION(56,ALL_PLAYERS)
-    REM QUICK_INFORMATION(6,"Xaan, once a warlock of great stature. Now he lies on the floor in his own pool of blood. And his 'stature' died with him. That old fool.")
+    REM QUICK_INFORMATION(6,"Xaan, once a warlock of great stature. Now he lies on the floor in his own pool of blood, and his stature died with him. That old fool.")
 ENDIF
 
 IF(PLAYER0,FLAG1 == 1)
