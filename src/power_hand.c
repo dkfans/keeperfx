@@ -888,7 +888,8 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
     droptng->mappos.x.val = dstpos->x.val;
     droptng->mappos.y.val = dstpos->y.val;
     long ceiling_height = get_ceiling_height_at(&droptng->mappos);
-    long fall_dist = ceiling_height - get_floor_height_at(&droptng->mappos);
+    long floor_height = get_floor_height_at(&droptng->mappos);
+    long fall_dist = ceiling_height - floor_height;
     if (fall_dist < 0) {
         fall_dist = 0;
     } else
@@ -896,7 +897,7 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
         fall_dist = subtile_coord(3,0);
     }
     long max_height = ceiling_height - droptng->clipbox_size_z;
-    droptng->mappos.z.val = fall_dist + get_floor_height_at(&droptng->mappos);
+    droptng->mappos.z.val = fall_dist + floor_height;
     if (droptng->mappos.z.val > max_height)
     {
         droptng->mappos.z.val = max_height;
