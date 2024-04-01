@@ -79,15 +79,15 @@ extern "C"
     // GetModuleHandleExA(0,"WSND7R",&hModule); seems not to work
 
     /**
-     * Initialize the Miles Sound System library
+     * Initialize the Miles Sound System library.
      *
      * When sounds have been disabled by the user, the library will not be loaded.
-     * The seperate functions can still be called and will silently return 0;
+     * The seperate functions can still be called and will silently return 0 in that case.
      *
      * If the library is successfuly loaded it's possible that the functions have not.
      * In that case it will simply log an error and continue execution.
      *
-     * @returns -1 when sound is disabled, 0 if the library failed to load, 1 if the library
+     * @returns -1 when sound is disabled, 0 if the library failed to load, 1 if the library is loaded
      */
     int init_miles_sound_system()
     {
