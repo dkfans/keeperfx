@@ -2240,11 +2240,8 @@ long move_creature(struct Thing *thing)
         nxpos.x.val = tngpos->x.val;
         nxpos.y.val = tngpos->y.val;
         nxpos.z.val = tngpos->z.val;
-        if (!creature_is_being_dropped(thing))
-        {
-            if (get_nearest_valid_position_for_creature_at(thing, &nxpos)) {
-                move_thing_in_map(thing, &nxpos);
-            }
+        if (get_nearest_valid_position_for_creature_at(thing, &nxpos)) {
+            move_thing_in_map(thing, &nxpos);
         }
         cctrl->flgfield_1 |= CCFlg_Unknown08;
     }
