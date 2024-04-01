@@ -112,6 +112,7 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"RECHARGEANIMATIONID",  40},
   {"ATTACKANIMATIONID",    41},
   {"DESTROYEDEFFECT",      42},
+  {"INITIALDELAY",         43},
   {NULL,                    0},
 };
 
@@ -316,6 +317,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           game.conf.trap_stats[i].shot_shift_x = 0;
           game.conf.trap_stats[i].shot_shift_y = 0;
           game.conf.trap_stats[i].shot_shift_z = 0;
+          game.conf.trap_stats[i].initial_delay = 0;
 
           if (i < game.conf.trapdoor_conf.trap_types_count)
           {
@@ -1076,6 +1078,22 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               else if (parameter_is_number(word_buf))
               {
                   //No error when it is set to 0
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 43: // INITIALDELAY
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  game.conf.trap_stats[i].initial_delay = k;
                   n++;
               }
           }
