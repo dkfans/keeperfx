@@ -4344,6 +4344,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
 
     LbErrorLogClose();
     steam_api_shutdown();
+    unload_miles_sound_system();
     return 0;
 }
 

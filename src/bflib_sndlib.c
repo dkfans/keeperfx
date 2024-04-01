@@ -457,6 +457,39 @@ extern "C"
         return 0;
     }
 
+    void unload_miles_sound_system()
+    {
+        if (WSND7R != NULL)
+        {
+            FreeLibrary(WSND7R);
+            WSND7R = NULL;
+        }
+
+        _FreeAudio = NULL;
+        _SetRedbookVolume = NULL;
+        _SetSoundMasterVolume = NULL;
+        _SetMusicMasterVolume = NULL;
+        _GetSoundInstalled = NULL;
+        _PlayRedbookTrack = NULL;
+        _PauseRedbookTrack = NULL;
+        _ResumeRedbookTrack = NULL;
+        _MonitorStreamedSoundTrack = NULL;
+        _StopRedbookTrack = NULL;
+        _GetSoundDriver = NULL;
+        _StopAllSamples = NULL;
+        _GetFirstSampleInfoStructure = NULL;
+        _InitAudio = NULL;
+        _SetupAudioOptionDefaults = NULL;
+        _IsSamplePlaying = NULL;
+        _GetLastSampleInfoStructure = NULL;
+        _GetCurrentSoundMasterVolume = NULL;
+        _StopSample = NULL;
+        _SetSampleVolume = NULL;
+        _SetSamplePan = NULL;
+        _SetSamplePitch = NULL;
+        _PlaySampleFromAddress = NULL;
+    }
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
