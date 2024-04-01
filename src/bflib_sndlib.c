@@ -225,6 +225,8 @@ extern "C"
         {
             ERRORLOG("Can't get address of PlaySampleFromAddress function; skipped.");
         }
+
+        return 1;
     }
 
     int FreeAudio(void)
