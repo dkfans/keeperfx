@@ -570,9 +570,9 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
     return true;
 }
 
-long parse_creature_name(const char *creature_name)
+ThingModel parse_creature_name(const char *creature_name)
 {
-    long ret = get_rid(creature_desc, creature_name);
+    ThingModel ret = get_rid(creature_desc, creature_name);
     if (ret == -1)
     {
         if (0 == strcasecmp(creature_name, "ANY_CREATURE"))
@@ -2494,14 +2494,14 @@ static void create_effects_line_check(const struct ScriptLine *scline)
     value->bytes[10] = scline->np[4]; // temporal stepping
     const char* effect_name = scline->tp[5];
 
-    long effct_id = effect_or_effect_element_id(effect_name);
+    EffectOrEffElModel effct_id = effect_or_effect_element_id(effect_name);
     if (effct_id == 0)
     {
         SCRPTERRLOG("Unrecognised effect: %s", effect_name);
         return;
     }
 
-    value->chars[11] = effct_id; // effect
+    value->shorts[6] = effct_id; // effect
 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -2526,10 +2526,10 @@ static void create_effects_line_process(struct ScriptContext *context)
     }
     find_location_pos(context->value->arg0, context->player_idx, &fx_line->from, __func__);
     find_location_pos(context->value->arg1, context->player_idx, &fx_line->to, __func__);
-    fx_line->curvature = context->value->chars[8];
+    fx_line->curvature = (int)context->value->chars[8];
     fx_line->spatial_step = context->value->bytes[9] * 32;
     fx_line->steps_per_turn = context->value->bytes[10];
-    fx_line->effect = context->value->chars[11];
+    fx_line->effect = context->value->shorts[6];
     fx_line->here = fx_line->from;
     fx_line->step = 0;
 
@@ -4456,7 +4456,7 @@ static void add_effectgen_to_level_check(const struct ScriptLine* scline)
     long range = scline->np[2];
 
     TbMapLocation location;
-    long gen_id;
+    ThingModel gen_id;
     if (parameter_is_number(generator_name))
     {
         gen_id = atoi(generator_name);
@@ -4484,7 +4484,7 @@ static void add_effectgen_to_level_check(const struct ScriptLine* scline)
         DEALLOCATE_SCRIPT_VALUE;
         return;
     }
-    value->shorts[0] = (short)gen_id;
+    value->shorts[0] = gen_id;
     value->shorts[1] = location;
     value->shorts[2] = range;
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -4492,7 +4492,7 @@ static void add_effectgen_to_level_check(const struct ScriptLine* scline)
 
 static void add_effectgen_to_level_process(struct ScriptContext* context)
 {
-    short gen_id = context->value->shorts[0];
+    ThingModel gen_id = context->value->shorts[0];
     short location = context->value->shorts[1];
     short range = context->value->shorts[2];
     if (get_script_current_condition() == CONDITION_ALWAYS)
@@ -4522,7 +4522,7 @@ static void set_effectgen_configuration_check(const struct ScriptLine* scline)
     const char* property = scline->tp[1];
     short value1 = 0;
 
-    long effgen_id = get_id(effectgen_desc, effgenname);
+    ThingModel effgen_id = get_id(effectgen_desc, effgenname);
     if (effgen_id == -1)
     {
         SCRPTERRLOG("Unknown effect generator, '%s'", effgenname);
@@ -4582,7 +4582,7 @@ static void set_effectgen_configuration_check(const struct ScriptLine* scline)
 
 
     SCRIPTDBG(7, "Setting effect generator %s property %s to %d", effectgenerator_code_name(effgen_id), property, value1);
-    value->shorts[0] = (short)effgen_id;
+    value->shorts[0] = effgen_id;
     value->shorts[1] = property_id;
     value->shorts[2] = value1;
     value->shorts[3] = scline->np[3];
@@ -4593,7 +4593,7 @@ static void set_effectgen_configuration_check(const struct ScriptLine* scline)
 
 static void set_effectgen_configuration_process(struct ScriptContext* context)
 {
-    short effgen_id = context->value->shorts[0];
+    ThingModel effgen_id = context->value->shorts[0];
     short property_id = context->value->shorts[1];
 
     struct EffectGeneratorConfigStats* effgencst = &game.conf.effects_conf.effectgen_cfgstats[effgen_id];
