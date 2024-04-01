@@ -2669,7 +2669,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
     creature_throw_out_gold(thing);
     remove_parent_thing_from_things_in_list(&game.thing_lists[TngList_Shots],thing->index);
 
-    long crmodel = thing->model;
+    ThingModel crmodel = thing->model;
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     if (!thing_exists(thing)) {
         flags |= CrDed_NoEffects;
@@ -5534,7 +5534,7 @@ void init_creature_scores(void)
 long get_creature_thing_score(const struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    long crmodel = thing->model;
+    ThingModel crmodel = thing->model;
     if (crmodel >= game.conf.crtr_conf.model_count)
         crmodel = 0;
     if (crmodel < 0)

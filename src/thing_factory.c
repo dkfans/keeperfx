@@ -49,7 +49,7 @@
 #include "post_inc.h"
 
 /******************************************************************************/
-struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsigned short owner)
+struct Thing *create_cave_in(struct Coord3d *pos, ThingModel cimodel, unsigned short owner)
 {
     if ( !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots) )
     {
@@ -85,7 +85,7 @@ struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsign
     return thing;
 }
 
-struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, unsigned short tngmodel, unsigned short owner, long parent_idx)
+struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, ThingModel tngmodel, unsigned short owner, long parent_idx)
 {
     struct Thing* thing = INVALID_THING;
     switch (tngclass)

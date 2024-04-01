@@ -355,7 +355,7 @@ unsigned char sound_flag;
     unsigned short instance_anim_step_turns;
     SubtlCodedCoords collided_door_subtile;
     char fighting_player_idx;
-    unsigned char shot_model;
+    ThingModel shot_model;
     struct CastedSpellData casted_spells[CREATURE_MAX_SPELLS_CASTED_AT];
     /** Current active skill instance. */
     unsigned char active_instance_id;
@@ -448,7 +448,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char scavenge_value;
     unsigned long to_level[CREATURE_MAX_LEVEL];
     unsigned char base_speed;
-    short grow_up;
+    ThingModel grow_up;
     unsigned char grow_up_level;
     TbBool entrance_force;
     short max_turning_speed;

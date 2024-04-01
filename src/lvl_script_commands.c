@@ -2296,18 +2296,18 @@ static void set_door_configuration_process(struct ScriptContext *context)
 static void create_effect_process(struct ScriptContext *context)
 {
     struct Coord3d pos;
-    set_coords_to_subtile_center(&pos, context->value->bytes[1], context->value->bytes[2], 0);
+    set_coords_to_subtile_center(&pos, context->value->shorts[1], context->value->shorts[2], 0);
     pos.z.val += get_floor_height(pos.x.stl.num, pos.y.stl.num);
-    TbBool Price = (context->value->chars[0] == -(TngEffElm_Price));
+    TbBool Price = (context->value->shorts[0] == -(TngEffElm_Price));
     if (Price)
     {
         pos.z.val += 128;
     }
     else
     {
-        pos.z.val += context->value->arg1;
+        pos.z.val += context->value->arg2;
     }
-    struct Thing* efftng = create_used_effect_or_element(&pos, context->value->chars[0], game.neutral_player_num);
+    struct Thing* efftng = create_used_effect_or_element(&pos, context->value->shorts[0], game.neutral_player_num);
     if (!thing_is_invalid(efftng))
     {
         if (thing_in_wall_at(efftng, &efftng->mappos))
@@ -2316,7 +2316,7 @@ static void create_effect_process(struct ScriptContext *context)
         }
         if (Price)
         {
-            efftng->price_effect.number = context->value->arg1;
+            efftng->price_effect.number = context->value->arg2;
         }
     }
 }
@@ -3151,7 +3151,7 @@ static void create_effect_check(const struct ScriptLine *scline)
         SCRPTERRLOG("Unrecognised effect: %s", effect_name);
         return;
     }
-    value->chars[0] = effct_id;
+    value->shorts[0] = effct_id;
     const char *locname = scline->tp[1];
     if (!get_map_location_id(locname, &location))
     {
@@ -3160,9 +3160,9 @@ static void create_effect_check(const struct ScriptLine *scline)
     long stl_x;
     long stl_y;
     find_map_location_coords(location, &stl_x, &stl_y, 0, __func__);
-    value->bytes[1] = stl_x;
-    value->bytes[2] = stl_y;
-    value->arg1 = scline->np[2];
+    value->shorts[1] = stl_x;
+    value->shorts[2] = stl_y;
+    value->arg2 = scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -3176,15 +3176,15 @@ static void create_effect_at_pos_check(const struct ScriptLine *scline)
         SCRPTERRLOG("Unrecognised effect: %s", effect_name);
         return;
     }
-    value->chars[0] = effct_id;
+    value->shorts[0] = effct_id;
     if (subtile_coords_invalid(scline->np[1], scline->np[2]))
     {
         SCRPTERRLOG("Invalid coordinates: %ld, %ld", scline->np[1], scline->np[2]);
         return;
     }
-    value->bytes[1] = scline->np[1];
-    value->bytes[2] = scline->np[2];
-    value->arg1 = scline->np[3];
+    value->shorts[1] = scline->np[1];
+    value->shorts[2] = scline->np[2];
+    value->arg2 = scline->np[3];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -4463,7 +4463,7 @@ static void add_effectgen_to_level_check(const struct ScriptLine* scline)
     }
     else
     {
-        gen_id = get_rid(effectgen_desc, generator_name);
+        gen_id = get_id(effectgen_desc, generator_name);
     }
     if (gen_id <= 0)
     {
@@ -4484,7 +4484,7 @@ static void add_effectgen_to_level_check(const struct ScriptLine* scline)
         DEALLOCATE_SCRIPT_VALUE;
         return;
     }
-    value->shorts[0] = gen_id;
+    value->shorts[0] = (short)gen_id;
     value->shorts[1] = location;
     value->shorts[2] = range;
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -4522,7 +4522,7 @@ static void set_effectgen_configuration_check(const struct ScriptLine* scline)
     const char* property = scline->tp[1];
     short value1 = 0;
 
-    char effgen_id = get_id(effectgen_desc, effgenname);
+    long effgen_id = get_id(effectgen_desc, effgenname);
     if (effgen_id == -1)
     {
         SCRPTERRLOG("Unknown effect generator, '%s'", effgenname);
@@ -4582,7 +4582,7 @@ static void set_effectgen_configuration_check(const struct ScriptLine* scline)
 
 
     SCRIPTDBG(7, "Setting effect generator %s property %s to %d", effectgenerator_code_name(effgen_id), property, value1);
-    value->shorts[0] = effgen_id;
+    value->shorts[0] = (short)effgen_id;
     value->shorts[1] = property_id;
     value->shorts[2] = value1;
     value->shorts[3] = scline->np[3];
