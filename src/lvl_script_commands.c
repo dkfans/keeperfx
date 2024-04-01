@@ -4484,7 +4484,7 @@ static void add_effectgen_to_level_check(const struct ScriptLine* scline)
         DEALLOCATE_SCRIPT_VALUE;
         return;
     }
-    value->shorts[0] = gen_id;
+    value->shorts[0] = (short)gen_id;
     value->shorts[1] = location;
     value->shorts[2] = range;
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -4582,7 +4582,7 @@ static void set_effectgen_configuration_check(const struct ScriptLine* scline)
 
 
     SCRIPTDBG(7, "Setting effect generator %s property %s to %d", effectgenerator_code_name(effgen_id), property, value1);
-    value->shorts[0] = effgen_id;
+    value->shorts[0] = (short)effgen_id;
     value->shorts[1] = property_id;
     value->shorts[2] = value1;
     value->shorts[3] = scline->np[3];
