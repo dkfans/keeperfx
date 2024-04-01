@@ -80,6 +80,11 @@ extern "C"
 
     int init_miles_sound_system()
     {
+        if (SoundDisabled == true)
+        {
+            return -1;
+        }
+
         WSND7R = LoadLibrary("WSND7R");
 
         if (WSND7R == NULL)
