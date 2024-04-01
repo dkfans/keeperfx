@@ -1498,6 +1498,18 @@ static TbBool hand_rule_age_higher(struct HandRule *hand_rule, const struct Thin
     return (game.play_gameturn - thing->creation_turn < hand_rule->param) ? !hand_rule->allow : !!hand_rule->allow;
 }
 
+static TbBool hand_rule_dropped_time_lower(struct HandRule* hand_rule, const struct Thing* thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    return (((game.play_gameturn - cctrl->dropped_turn) <= hand_rule->param) && (cctrl->dropped_turn != 0)) ? !hand_rule->allow : !!hand_rule->allow;
+}
+
+static TbBool hand_rule_dropped_time_higher(struct HandRule* hand_rule, const struct Thing* thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    return ((game.play_gameturn - cctrl->dropped_turn) >= hand_rule->param) ? !hand_rule->allow : !!hand_rule->allow;
+}
+
 static TbBool hand_rule_lvl_lower(struct HandRule *hand_rule, const struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -1554,6 +1566,8 @@ static HandTestFn hand_rule_test_fns[] = {
     hand_rule_wandering,
     hand_rule_working,
     hand_rule_fighting,
+    hand_rule_dropped_time_higher,
+    hand_rule_dropped_time_lower,
 };
 
 TbBool eval_hand_rule_for_thing(struct HandRule *rule, const struct Thing *thing_to_pick)
