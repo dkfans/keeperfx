@@ -4277,6 +4277,8 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     LbSetIcon(1);
     LbScreenSetDoubleBuffering(true);
 
+    init_miles_sound_system();
+
     srand(LbTimerClock());
 
 #ifdef FUNCTESTING

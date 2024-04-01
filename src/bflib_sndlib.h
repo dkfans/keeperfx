@@ -56,6 +56,8 @@ struct SampleInfo { // sizeof = 29
 /******************************************************************************/
 // Exported functions
 
+int init_miles_sound_system();
+
 int FreeAudio(void);
 int SetRedbookVolume(int volume);
 int SetSoundMasterVolume(int volume);

@@ -32,232 +32,430 @@
 #include "post_inc.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
-/******************************************************************************/
-// Global variables
+    /******************************************************************************/
+    // Global variables
 
-typedef int (WINAPI *FARPROCI)(int);
-typedef int (WINAPI *FARPROCII)(int,int);
-typedef int (WINAPI *FARPROCIII)(int,int,int);
-typedef int (WINAPI *FARPROCS)(const char *);
-typedef int (WINAPI *FARPROCP)(const void *);
-typedef int (WINAPI *FARPROCSIII)(const char *,int,int,int);
-typedef int (WINAPI *FARPROCIIII)(int,int,int,int);
-typedef struct SampleInfo * (WINAPI *FARPROC_PLAY1)(int,int,int,int,int,unsigned char,unsigned char, void *, int);
+    typedef int(WINAPI *FARPROCI)(int);
+    typedef int(WINAPI *FARPROCII)(int, int);
+    typedef int(WINAPI *FARPROCIII)(int, int, int);
+    typedef int(WINAPI *FARPROCS)(const char *);
+    typedef int(WINAPI *FARPROCP)(const void *);
+    typedef int(WINAPI *FARPROCSIII)(const char *, int, int, int);
+    typedef int(WINAPI *FARPROCIIII)(int, int, int, int);
+    typedef struct SampleInfo *(WINAPI *FARPROC_PLAY1)(int, int, int, int, int, unsigned char, unsigned char, void *, int);
 
-/******************************************************************************/
-// Functions
+    HMODULE WSND7R;
 
-// GetModuleHandleExA(0,"WSND7R",&hModule); seems not to work
+    FARPROC _FreeAudio;
+    FARPROC _SetRedbookVolume;
+    FARPROC _SetSoundMasterVolume;
+    FARPROC _SetMusicMasterVolume;
+    FARPROC _GetSoundInstalled;
+    FARPROC _PlayRedbookTrack;
+    FARPROC _PauseRedbookTrack;
+    FARPROC _ResumeRedbookTrack;
+    FARPROC _MonitorStreamedSoundTrack;
+    FARPROC _StopRedbookTrack;
+    FARPROC _GetSoundDriver;
+    FARPROC _StopAllSamples;
+    FARPROC _GetFirstSampleInfoStructure;
+    FARPROC _InitAudio;
+    FARPROC _SetupAudioOptionDefaults;
+    FARPROC _IsSamplePlaying;
+    FARPROC _GetLastSampleInfoStructure;
+    FARPROC _GetCurrentSoundMasterVolume;
+    FARPROC _StopSample;
+    FARPROC _SetSampleVolume;
+    FARPROC _SetSamplePan;
+    FARPROC _SetSamplePitch;
+    FARPROC _PlaySampleFromAddress;
 
-int FreeAudio(void)
-{
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_FreeAudio@0");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of FreeAudio function; skipped."); return 0; }
-    return proc();
-}
+    /******************************************************************************/
+    // Functions
 
-int SetRedbookVolume(int volume)
-{
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_SetRedbookVolume@4");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of SetRedbookVolume function; skipped."); return 0; }
-    return ((FARPROCI)proc)(volume);
-}
+    // GetModuleHandleExA(0,"WSND7R",&hModule); seems not to work
 
-int SetSoundMasterVolume(int volume)
-{
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_SetSoundMasterVolume@4");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of SetSoundMasterVolume function; skipped."); return 0; }
-    return ((FARPROCI)proc)(volume);
-}
+    int init_miles_sound_system()
+    {
+        WSND7R = LoadLibrary("WSND7R");
 
-int SetMusicMasterVolume(int volume)
-{
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_SetMusicMasterVolume@4");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of SetMusicMasterVolume function; skipped."); return 0; }
-    return ((FARPROCI)proc)(volume);
-}
+        if (WSND7R == NULL)
+        {
+            ERRORLOG("Failed to load Miles Sound System");
+            return 0;
+        }
 
-int GetSoundInstalled(void)
-{
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_GetSoundInstalled@0");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of GetSoundInstalled function; skipped."); return 0; }
-    return proc();
-}
+        _FreeAudio = GetProcAddress(WSND7R, "_FreeAudio@0");
+        if (_FreeAudio == NULL)
+        {
+            ERRORLOG("Can't get address of FreeAudio function; skipped.");
+        }
 
-int PlayRedbookTrack(int track)
-{
-    SYNCDBG(18,"Starting");
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_PlayRedbookTrack@4");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of PlayRedbookTrack function; skipped."); return 0; }
-    return ((FARPROCI)proc)(track);
-}
+        _SetRedbookVolume = GetProcAddress(WSND7R, "_SetRedbookVolume@4");
+        if (_SetRedbookVolume == NULL)
+        {
+            ERRORLOG("Can't get address of SetRedbookVolume function; skipped.");
+        }
 
-int PauseRedbookTrack(void)
-{
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_PauseRedbookTrack@0");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of PauseRedbookTrack function; skipped."); return 0; }
-    return proc();
-}
+        _SetSoundMasterVolume = GetProcAddress(WSND7R, "_SetSoundMasterVolume@4");
+        if (_SetSoundMasterVolume == NULL)
+        {
+            ERRORLOG("Can't get address of SetSoundMasterVolume function; skipped.");
+        }
 
-int ResumeRedbookTrack(void)
-{
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_ResumeRedbookTrack@0");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of ResumeRedbookTrack function; skipped."); return 0; }
-    return proc();
-}
+        _SetMusicMasterVolume = GetProcAddress(WSND7R, "_SetMusicMasterVolume@4");
+        if (_SetMusicMasterVolume == NULL)
+        {
+            ERRORLOG("Can't get address of SetMusicMasterVolume function; skipped.");
+        }
 
-int MonitorStreamedSoundTrack(void)
-{
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_MonitorStreamedSoundTrack@0");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of MonitorStreamedSoundTrack function; skipped."); return 0; }
-    return proc();
-}
+        _GetSoundInstalled = GetProcAddress(WSND7R, "_GetSoundInstalled@0");
+        if (_GetSoundInstalled == NULL)
+        {
+            ERRORLOG("Can't get address of GetSoundInstalled function; skipped.");
+        }
 
-int StopRedbookTrack(void)
-{
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_StopRedbookTrack@0");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of StopRedbookTrack function; skipped."); return 0; }
-    return proc();
-}
+        _PlayRedbookTrack = GetProcAddress(WSND7R, "_PlayRedbookTrack@4");
+        if (_PlayRedbookTrack == NULL)
+        {
+            ERRORLOG("Can't get address of PlayRedbookTrack function; skipped.");
+        }
 
-void * GetSoundDriver(void)
-{
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_GetSoundDriver@0");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of GetSoundDriver function; skipped."); return 0; }
-    return (void *)proc();
-}
+        _PauseRedbookTrack = GetProcAddress(WSND7R, "_PauseRedbookTrack@0");
+        if (_PauseRedbookTrack == NULL)
+        {
+            ERRORLOG("Can't get address of PauseRedbookTrack function; skipped.");
+        }
 
-int StopAllSamples(void)
-{
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_StopAllSamples@0");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of StopAllSamples function; skipped."); return 0; }
-    return proc();
-}
+        _ResumeRedbookTrack = GetProcAddress(WSND7R, "_ResumeRedbookTrack@0");
+        if (_ResumeRedbookTrack == NULL)
+        {
+            ERRORLOG("Can't get address of ResumeRedbookTrack function; skipped.");
+        }
 
-struct SampleInfo * GetFirstSampleInfoStructure(void)
-{
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_GetFirstSampleInfoStructure@0");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of GetFirstSampleInfoStructure function; skipped."); return 0; }
-    return (struct SampleInfo *)proc();
-}
+        _MonitorStreamedSoundTrack = GetProcAddress(WSND7R, "_MonitorStreamedSoundTrack@0");
+        if (_MonitorStreamedSoundTrack == NULL)
+        {
+            ERRORLOG("Can't get address of MonitorStreamedSoundTrack function; skipped.");
+        }
 
-int InitAudio(void *i)
-{
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_InitAudio@4");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of InitAudio function; skipped."); return 0; }
-    return ((FARPROCP)proc)(i);
-}
+        _StopRedbookTrack = GetProcAddress(WSND7R, "_StopRedbookTrack@0");
+        if (_StopRedbookTrack == NULL)
+        {
+            ERRORLOG("Can't get address of StopRedbookTrack function; skipped.");
+        }
 
-int SetupAudioOptionDefaults(void *i)
-{
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_SetupAudioOptionDefaults@4");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of SetupAudioOptionDefaults function; skipped."); return 0; }
-    return ((FARPROCP)proc)(i);
-}
+        _GetSoundDriver = GetProcAddress(WSND7R, "_GetSoundDriver@0");
+        if (_GetSoundDriver == NULL)
+        {
+            ERRORLOG("Can't get address of GetSoundDriver function; skipped.");
+        }
 
-int IsSamplePlaying(int a1, int a2, int a3)
-{
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_IsSamplePlaying@12");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of IsSamplePlaying function; skipped."); return 0; }
-    return (unsigned char)((FARPROCIII)proc)(a1, a2, a3);
-}
+        _StopAllSamples = GetProcAddress(WSND7R, "_StopAllSamples@0");
+        if (_StopAllSamples == NULL)
+        {
+            ERRORLOG("Can't get address of StopAllSamples function; skipped.");
+        }
 
-struct SampleInfo * GetLastSampleInfoStructure(void)
-{
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_GetLastSampleInfoStructure@0");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of GetLastSampleInfoStructure function; skipped."); return 0; }
-    return (struct SampleInfo *)proc();
-}
+        _GetFirstSampleInfoStructure = GetProcAddress(WSND7R, "_GetFirstSampleInfoStructure@0");
+        if (_GetFirstSampleInfoStructure == NULL)
+        {
+            ERRORLOG("Can't get address of GetFirstSampleInfoStructure function; skipped.");
+        }
 
-int GetCurrentSoundMasterVolume(void)
-{
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_GetCurrentSoundMasterVolume@0");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of GetCurrentSoundMasterVolume function; skipped."); return 0; }
-    return proc();
-}
+        _InitAudio = GetProcAddress(WSND7R, "_InitAudio@4");
+        if (_InitAudio == NULL)
+        {
+            ERRORLOG("Can't get address of InitAudio function; skipped.");
+        }
 
-int StopSample(SoundEmitterID emit_id, long smptbl_id)
-{
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_StopSample@8");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of StopSample function; skipped."); return 0; }
-    return ((FARPROCII)proc)(emit_id,smptbl_id);
-}
+        _SetupAudioOptionDefaults = GetProcAddress(WSND7R, "_SetupAudioOptionDefaults@4");
+        if (_SetupAudioOptionDefaults == NULL)
+        {
+            ERRORLOG("Can't get address of SetupAudioOptionDefaults function; skipped.");
+        }
 
-int SetSampleVolume(SoundEmitterID emit_id, long smptbl_id,long volume,long d)
-{
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_SetSampleVolume@16");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of SetSampleVolume function; skipped."); return 0; }
-    return ((FARPROCIIII)proc)(emit_id,smptbl_id,volume,d);
-}
+        _IsSamplePlaying = GetProcAddress(WSND7R, "_IsSamplePlaying@12");
+        if (_IsSamplePlaying == NULL)
+        {
+            ERRORLOG("Can't get address of IsSamplePlaying function; skipped.");
+        }
 
-int SetSamplePan(SoundEmitterID emit_id, long smptbl_id,long pan,int d)
-{
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_SetSamplePan@16");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of SetSamplePan function; skipped."); return 0; }
-    return ((FARPROCIIII)proc)(emit_id,smptbl_id,pan,d);
-}
+        _GetLastSampleInfoStructure = GetProcAddress(WSND7R, "_GetLastSampleInfoStructure@0");
+        if (_GetLastSampleInfoStructure == NULL)
+        {
+            ERRORLOG("Can't get address of GetLastSampleInfoStructure function; skipped.");
+        }
 
-int SetSamplePitch(SoundEmitterID emit_id, long smptbl_id,long pitch,int d)
-{
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_SetSamplePitch@16");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of SetSamplePitch function; skipped."); return 0; }
-    return ((FARPROCIIII)proc)(emit_id,smptbl_id,pitch,d);
-}
+        _GetCurrentSoundMasterVolume = GetProcAddress(WSND7R, "_GetCurrentSoundMasterVolume@0");
+        if (_GetCurrentSoundMasterVolume == NULL)
+        {
+            ERRORLOG("Can't get address of GetCurrentSoundMasterVolume function; skipped.");
+        }
 
-struct SampleInfo * PlaySampleFromAddress(SoundEmitterID emit_id, int smpl_idx, int a3, int a4, int a5, unsigned char a6, unsigned char a7, void * buf, int sfxid)
-{
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_PlaySampleFromAddress@36");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of PlaySampleFromAddress function; skipped."); return 0; }
-    return ((FARPROC_PLAY1)(void *)proc)(emit_id, smpl_idx, a3, a4, a5, a6, a7, buf, sfxid);
-}
+        _StopSample = GetProcAddress(WSND7R, "_StopSample@8");
+        if (_StopSample == NULL)
+        {
+            ERRORLOG("Can't get address of StopSample function; skipped.");
+        }
+
+        _SetSampleVolume = GetProcAddress(WSND7R, "_SetSampleVolume@16");
+        if (_SetSampleVolume == NULL)
+        {
+            ERRORLOG("Can't get address of SetSampleVolume function; skipped.");
+        }
+
+        _SetSamplePan = GetProcAddress(WSND7R, "_SetSamplePan@16");
+        if (_SetSamplePan == NULL)
+        {
+            ERRORLOG("Can't get address of SetSamplePan function; skipped.");
+        }
+
+        _SetSamplePitch = GetProcAddress(WSND7R, "_SetSamplePitch@16");
+        if (_SetSamplePitch == NULL)
+        {
+            ERRORLOG("Can't get address of SetSamplePitch function; skipped.");
+        }
+
+        _PlaySampleFromAddress = GetProcAddress(WSND7R, "_PlaySampleFromAddress@36");
+        if (_PlaySampleFromAddress == NULL)
+        {
+            ERRORLOG("Can't get address of PlaySampleFromAddress function; skipped.");
+        }
+    }
+
+    int FreeAudio(void)
+    {
+        if (_FreeAudio != NULL)
+        {
+            return _FreeAudio();
+        }
+
+        return 0;
+    }
+
+    int SetRedbookVolume(int volume)
+    {
+        if (_SetRedbookVolume != NULL)
+        {
+            return ((FARPROCI)_SetRedbookVolume)(volume);
+        }
+
+        return 0;
+    }
+
+    int SetSoundMasterVolume(int volume)
+    {
+        if (_SetSoundMasterVolume != NULL)
+        {
+            return ((FARPROCI)_SetSoundMasterVolume)(volume);
+        }
+
+        return 0;
+    }
+
+    int SetMusicMasterVolume(int volume)
+    {
+        if (_SetMusicMasterVolume != NULL)
+        {
+            return ((FARPROCI)_SetMusicMasterVolume)(volume);
+        }
+
+        return 0;
+    }
+
+    int GetSoundInstalled(void)
+    {
+        if (_GetSoundInstalled != NULL)
+        {
+            return _GetSoundInstalled();
+        }
+
+        return 0;
+    }
+
+    int PlayRedbookTrack(int track)
+    {
+        if (_PlayRedbookTrack != NULL)
+        {
+            return ((FARPROCI)_PlayRedbookTrack)(track);
+        }
+
+        return 0;
+    }
+
+    int PauseRedbookTrack(void)
+    {
+        if (_PauseRedbookTrack != NULL)
+        {
+            return _PauseRedbookTrack();
+        }
+
+        return 0;
+    }
+
+    int ResumeRedbookTrack(void)
+    {
+        if (_ResumeRedbookTrack != NULL)
+        {
+            return _ResumeRedbookTrack();
+        }
+
+        return 0;
+    }
+
+    int MonitorStreamedSoundTrack(void)
+    {
+        if (_MonitorStreamedSoundTrack != NULL)
+        {
+            return _MonitorStreamedSoundTrack();
+        }
+
+        return 0;
+    }
+
+    int StopRedbookTrack(void)
+    {
+        if (_StopRedbookTrack != NULL)
+        {
+            return _StopRedbookTrack();
+        }
+
+        return 0;
+    }
+
+    void *GetSoundDriver(void)
+    {
+        if (_GetSoundDriver != NULL)
+        {
+            return (void *)_GetSoundDriver();
+        }
+
+        return 0;
+    }
+
+    int StopAllSamples(void)
+    {
+        if (_StopAllSamples != NULL)
+        {
+            return _StopAllSamples();
+        }
+
+        return 0;
+    }
+
+    struct SampleInfo *GetFirstSampleInfoStructure(void)
+    {
+        if (_GetFirstSampleInfoStructure != NULL)
+        {
+            return (struct SampleInfo *)_GetFirstSampleInfoStructure();
+        }
+
+        return 0;
+    }
+
+    int InitAudio(void *i)
+    {
+        if (_InitAudio != NULL)
+        {
+            return ((FARPROCP)_InitAudio)(i);
+        }
+
+        return 0;
+    }
+
+    int SetupAudioOptionDefaults(void *i)
+    {
+        if (_SetupAudioOptionDefaults != NULL)
+        {
+            return ((FARPROCP)_SetupAudioOptionDefaults)(i);
+        }
+
+        return 0;
+    }
+
+    int IsSamplePlaying(int a1, int a2, int a3)
+    {
+        if (_IsSamplePlaying != NULL)
+        {
+            return (unsigned char)((FARPROCIII)_IsSamplePlaying)(a1, a2, a3);
+        }
+
+        return 0;
+    }
+
+    struct SampleInfo *GetLastSampleInfoStructure(void)
+    {
+        if (_GetLastSampleInfoStructure != NULL)
+        {
+            return (struct SampleInfo *)_GetLastSampleInfoStructure();
+        }
+
+        return 0;
+    }
+
+    int GetCurrentSoundMasterVolume(void)
+    {
+        if (_GetCurrentSoundMasterVolume != NULL)
+        {
+            return _GetCurrentSoundMasterVolume();
+        }
+
+        return 0;
+    }
+
+    int StopSample(SoundEmitterID emit_id, long smptbl_id)
+    {
+        if (_StopSample != NULL)
+        {
+            return ((FARPROCII)_StopSample)(emit_id, smptbl_id);
+        }
+
+        return 0;
+    }
+
+    int SetSampleVolume(SoundEmitterID emit_id, long smptbl_id, long volume, long d)
+    {
+        if (_SetSampleVolume != NULL)
+        {
+            return ((FARPROCIIII)_SetSampleVolume)(emit_id, smptbl_id, volume, d);
+        }
+
+        return 0;
+    }
+
+    int SetSamplePan(SoundEmitterID emit_id, long smptbl_id, long pan, int d)
+    {
+        if (_SetSamplePan != NULL)
+        {
+            return ((FARPROCIIII)_SetSamplePan)(emit_id, smptbl_id, pan, d);
+        }
+
+        return 0;
+    }
+
+    int SetSamplePitch(SoundEmitterID emit_id, long smptbl_id, long pitch, int d)
+    {
+        if (_SetSamplePitch != NULL)
+        {
+            return ((FARPROCIIII)_SetSamplePitch)(emit_id, smptbl_id, pitch, d);
+        }
+
+        return 0;
+    }
+
+    struct SampleInfo *PlaySampleFromAddress(SoundEmitterID emit_id, int smpl_idx, int a3, int a4, int a5, unsigned char a6, unsigned char a7, void *buf, int sfxid)
+    {
+        if (_PlaySampleFromAddress != NULL)
+        {
+            return ((FARPROC_PLAY1)(void *)_PlaySampleFromAddress)(emit_id, smpl_idx, a3, a4, a5, a6, a7, buf, sfxid);
+        }
+
+        return 0;
+    }
 
 /******************************************************************************/
 #ifdef __cplusplus
