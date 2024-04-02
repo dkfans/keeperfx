@@ -1285,7 +1285,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       case 21: //VISUALEFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              k = effect_or_effect_element_id(word_buf);
               shotst->visual.effect_model = k;
               n++;
           }
@@ -1796,7 +1796,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       case 53: //HITHEARTEFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              k = effect_or_effect_element_id(word_buf);
               shotst->hit_heart.effect_model = k;
               n++;
           }
