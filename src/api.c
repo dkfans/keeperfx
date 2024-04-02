@@ -503,7 +503,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
 
         for (int player_index = 0; player_index < ALL_PLAYERS; player_index++)
         {
-            char *player_string[32];
+            char player_string[32];
 
             // Create the player string for this player
             if (player_index == 4)
@@ -525,7 +525,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
                 }
 
                 // Create string
-                char *player_new_string[8];
+                char player_new_string[8];
                 snprintf(player_new_string, sizeof(player_new_string), "PLAYER%d", player_string_number);
                 strcpy(player_string, player_new_string);
             }
@@ -540,7 +540,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
                 long flag_value = get_condition_value(player_id, SVar_FLAG, flag_index);
 
                 // Add flag to player flag
-                char *flag_string[6];
+                char flag_string[6];
                 snprintf(flag_string, sizeof(flag_string), "FLAG%d", flag_index);
                 value_init_int32(value_dict_add(player_info, flag_string), flag_value);
             }
