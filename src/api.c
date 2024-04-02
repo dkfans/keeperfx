@@ -820,6 +820,14 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
     // Handle map command
     if (strcasecmp("map_command", action) == 0)
     {
+        // Do not allow this command when the game is paused
+        if ((game.operation_flags & GOF_Paused) != 0)
+        {
+            api_err("GAME_IS_PAUSED");
+            value_fini(&data);
+            return;
+        }
+
         // Get map command
         char *map_command = (char *)value_string(value_dict_get(value, "command"));
         if (map_command == NULL)
@@ -847,6 +855,14 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
     // Handle console command
     if (strcasecmp("console_command", action) == 0)
     {
+        // Do not allow this command when the game is paused
+        if ((game.operation_flags & GOF_Paused) != 0)
+        {
+            api_err("GAME_IS_PAUSED");
+            value_fini(&data);
+            return;
+        }
+
         // Get console command
         char *console_command = (char *)value_string(value_dict_get(value, "command"));
         if (console_command == NULL || strlen(console_command) < 1)
