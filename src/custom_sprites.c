@@ -61,8 +61,6 @@ struct KeeperSprite creature_table_add[KEEPERSPRITE_ADD_NUM] = {
         {0}
 };
 
-struct KeeperSpriteExt creatures_table_ext[KEEPERSPRITE_ADD_NUM] = {{0}};
-
 struct SpriteContext
 {
     struct TbHugeSprite sprite;
@@ -876,10 +874,15 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
 
     READ_WITH_DEFAULT(FrameWidth, "frame_w", "fp_frame_w", "td_frame_w", dst_w, value_uint32)
     READ_WITH_DEFAULT(FrameHeight, "frame_h", "fp_frame_h", "td_frame_h", dst_h, value_uint32)
-    READ_WITH_DEFAULT(FrameOffsW, "offset_w", "fp_offset_w", "td_offset_w", 0, value_uint32)
-    READ_WITH_DEFAULT(FrameOffsH, "offset_h", "fp_offset_h", "td_offset_h", 0, value_uint32)
+    READ_WITH_DEFAULT(FrameOffsW, "offset_w", "fp_offset_w", "td_offset_w", 0, value_int32)
+    READ_WITH_DEFAULT(FrameOffsH, "offset_h", "fp_offset_h", "td_offset_h", 0, value_int32)
     READ_WITH_DEFAULT(offset_x, "offset_x", "fp_offset_x", "td_offset_x", -dst_w / 2, -value_int32)
     READ_WITH_DEFAULT(offset_y, "offset_y", "fp_offset_y", "td_offset_y", 1 - dst_h, -value_int32)
+
+    READ_WITH_DEFAULT(shadow_offset, "shadow_offset", "fp_shadow_offset", "td_shadow_offset",
+                      (1 - ksprite->offset_y), value_int32)
+
+    READ_WITH_DEFAULT(frame_flags, "frame_flags", "fp_frame_flags", "td_frame_flags", 0, value_uint32)
 
 #undef READ_WITH_DEFAULT
 

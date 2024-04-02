@@ -280,8 +280,8 @@ void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, 
           *unsc_w = kspr->FrameOffsW;
           *unsc_h = kspr->FrameOffsH;
         }
-    } else
-    if (kspr->Rotable == 2)
+    }
+    else if (kspr->Rotable == 2)
     {
         kspr += frame + abs(4 - (((angle + 128) & 0x7FF) >> 8)) * kspr->FramesCount;
         *orig_w = kspr->SWidth;
@@ -540,6 +540,41 @@ void set_creature_graphic(struct Thing *thing)
     // Update tint
     update_creature_graphic_tint(thing);
 }
+
+size_t creature_table_load_get_size(size_t disk_size)
+{
+    size_t items = disk_size / sizeof(struct KeeperSpriteDisk);
+    if (items * sizeof(struct KeeperSpriteDisk) != disk_size)
+    {
+        ERRORLOG("Unexpected creature.tab");
+    }
+    return items * sizeof(struct KeeperSprite);
+}
+
+void creature_table_load_unpack(unsigned char *src_buf, size_t disk_size)
+{
+    size_t items = disk_size / sizeof(struct KeeperSpriteDisk);
+    struct KeeperSpriteDisk* src = (struct KeeperSpriteDisk*)src_buf;
+    struct KeeperSprite *tmp = malloc(items * sizeof(struct KeeperSprite));
+    for (int i = 0; i < items; i++, src++)
+    {
+        tmp[i].DataOffset = src->DataOffset;
+        tmp[i].SWidth = src->SWidth;
+        tmp[i].SHeight = src->SHeight;
+        tmp[i].FrameWidth = src->FrameWidth;
+        tmp[i].FrameHeight = src->FrameHeight;
+        tmp[i].Rotable = src->Rotable;
+        tmp[i].FramesCount = src->FramesCount;
+        tmp[i].FrameOffsW = src->FrameOffsW;
+        tmp[i].FrameOffsH = src->FrameOffsH;
+        tmp[i].offset_x = src->offset_x;
+        tmp[i].offset_y = src->offset_y;
+        tmp[i].shadow_offset = 0;
+    }
+    memcpy(src_buf, tmp, items * sizeof(struct KeeperSprite));
+    free(tmp);
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
