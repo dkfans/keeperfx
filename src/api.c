@@ -198,14 +198,14 @@ static void api_err(const char *err)
 
     // Create error key
     VALUE *val_err = value_dict_add(json_root, "error");
-    value_init_string(val_err, err);
+    value_init_string(val_err, (char *)err);
 
     // Create JSON response
     char json_string[1024];
     struct dump_buf_state dump_state = {json_string, sizeof(json_string) - 1};
     int json_dump_return_value = json_dom_dump(json_root, json_value_dump_writer, &dump_state, 0, JSON_DOM_DUMP_MINIMIZE);
 
-    // *dump_state.out = 0;
+    *dump_state.out = 0;
     if (json_dump_return_value != 0)
     {
         api_err("FAILED_TO_CREATE_JSON");
@@ -213,6 +213,11 @@ static void api_err(const char *err)
         return;
     }
 
+    // Add newline to end of data
+    dump_state.out[0] = '\n';
+    dump_state.out++;
+
+    // Send data to client
     SDLNet_TCP_Send(api.activeSocket, json_string, dump_state.out - json_string);
     value_fini(json_root);
 }
@@ -272,7 +277,7 @@ static void api_return_data(TbBool success, VALUE value)
     struct dump_buf_state dump_state = {json_string, sizeof(json_string) - 1};
     int json_dump_return_value = json_dom_dump(json_root, json_value_dump_writer, &dump_state, 0, JSON_DOM_DUMP_MINIMIZE);
 
-    // *dump_state.out = 0;
+    *dump_state.out = 0;
     if (json_dump_return_value != 0)
     {
         api_err("FAILED_TO_CREATE_JSON");
@@ -280,6 +285,11 @@ static void api_return_data(TbBool success, VALUE value)
         return;
     }
 
+    // Add newline to end of data
+    dump_state.out[0] = '\n';
+    dump_state.out++;
+
+    // Send data to client
     SDLNet_TCP_Send(api.activeSocket, json_string, dump_state.out - json_string);
     value_fini(json_root);
 }
