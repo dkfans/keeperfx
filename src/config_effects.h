@@ -30,9 +30,9 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-#define EFFECTS_TYPES_MAX 128
+#define EFFECTS_TYPES_MAX 255
 #define EFFECTSGEN_TYPES_MAX 64
-#define EFFECTSELLEMENTS_TYPES_MAX 128
+#define EFFECTSELLEMENTS_TYPES_MAX 255
 
 /******************************************************************************/
 
