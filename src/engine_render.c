@@ -3965,8 +3965,7 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
 
         // near and far are measured from origin of thing
         int near_x = base_y2 * sh_angle_sin;
-        int near_yr = base_y2 * sh_angle_cos;
-        int near_y2 = base_y * sh_angle_cos;
+        int near_y = base_y2 * sh_angle_cos;
 
         int left_x = base_z2 * sh_angle_cos;
         int left_y = base_z2 * sh_angle_sin;
@@ -3978,7 +3977,7 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
         // near/left
         ecor1.x = base_x + FROM_FIXED(left_x - near_x);
         ecor1.y = base_y;
-        ecor1.z = base_z - FROM_FIXED(left_y + near_y2);
+        ecor1.z = base_z - FROM_FIXED(left_y + near_y);
 
         // far/left
         ecor2.x = base_x + FROM_FIXED(left_x - far_x);
@@ -3993,8 +3992,9 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
         // near/right
         ecor4.x = base_x + FROM_FIXED(right_x - near_x);
         ecor4.y = base_y;
-        ecor4.z = base_z - FROM_FIXED(right_y + near_yr);
+        ecor4.z = base_z - FROM_FIXED(right_y + near_y);
     }
+
     rotpers(&ecor1, &camera_matrix);
     rotpers(&ecor2, &camera_matrix);
     rotpers(&ecor3, &camera_matrix);
