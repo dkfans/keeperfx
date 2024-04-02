@@ -1099,6 +1099,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
     }
 
     // Return unknown action
+    // TODO: we should do this check before...
     api_err("UNKNOWN_ACTION");
     value_fini(&data);
 }
