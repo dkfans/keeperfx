@@ -57,9 +57,9 @@ struct dump_buf_state
  * @param dbs Pointer to the dump buffer state structure.
  *            It holds information about the output buffer and available space.
  *
- * @return 0 on success, -1 if the buffer is too small.
+ * @return 0 on success, JSON_ERR_OUTOFMEMORY (-2) if the buffer is too small.
  */
-static int json_value_dump_writer(const unsigned char *str, size_t size, void *dbs)
+static int json_value_dump_writer(const char *str, size_t size, void *dbs)
 {
     // @author: https://github.com/wolfSSL/wolfsentry/blob/857c85d1b3a6c7b297efa2bbb6ea89817aea7b4b/src/kv.c#L395
 
@@ -67,7 +67,7 @@ static int json_value_dump_writer(const unsigned char *str, size_t size, void *d
     if (size > (size_t)((struct dump_buf_state *)dbs)->out_space)
     {
         JUSTLOG("buffer too small");
-        return -1;
+        return JSON_ERR_OUTOFMEMORY;
     }
 
     // Copy data into current part of buffer
