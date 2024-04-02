@@ -38,7 +38,7 @@ static int find_column_height_including_lintels(struct Column *col)
     unsigned char i;
     if (!col->solidmask)
         return 0;
-    for (i = 7; !col->cubes[i]; --i)
+    for (i = COLUMN_STACK_HEIGHT - 1; !col->cubes[i]; i--)
         ;
     return i + 1;
 }
