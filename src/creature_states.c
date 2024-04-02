@@ -1503,7 +1503,6 @@ short creature_being_dropped(struct Thing *creatng)
                 {
                     SYNCDBG(3, "The %s index %d owner %d found digger job at (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,(int)stl_x,(int)stl_y);
                     cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
-                    crstat = creature_stats_get(creatng->model);
                     if (crstat->heal_requirement == 0)
                     {
                         delay_heal_sleep(creatng);
@@ -4783,6 +4782,11 @@ long process_creature_needs_to_heal_critical(struct Thing *creatng)
             {
                 return 0;
             }
+            struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+            if (crstat->toking_recovery <= 0)
+            {
+                return 0;
+            }
             if (external_set_thing_state(creatng, CrSt_CreatureGoingToSafetyForToking)) {
                 creatng->continue_state = CrSt_ImpDoingNothing;
                 cctrl->countdown_282 = 200;
@@ -5099,6 +5103,11 @@ long process_creature_needs_to_heal(struct Thing *creatng, const struct Creature
     if (!creature_can_do_healing_sleep(creatng)) {
         if(creature_free_for_toking(creatng))
         {
+            struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+            if (crstat->toking_recovery <= 0)
+            {
+                return 0;
+            }
             if (external_set_thing_state(creatng, CrSt_CreatureGoingToSafetyForToking))
             {
                 creatng->continue_state = CrSt_ImpDoingNothing;
