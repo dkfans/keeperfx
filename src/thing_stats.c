@@ -783,11 +783,7 @@ long calculate_correct_creature_scavenge_required(const struct Thing *thing, Pla
     struct Dungeon* dungeon = get_dungeon(callplyr_idx);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    long scavngpts = (dungeon->creatures_scavenged[thing->model] + 1) * compute_creature_max_loyalty(crstat->scavenge_require, cctrl->explevel);
-    if (!is_neutral_thing(thing)) {
-        unsigned short modifier = dungeon->modifier.loyalty;
-        scavngpts = (scavngpts * modifier) / 100;
-    }
+    long scavngpts = (dungeon->creatures_scavenged[thing->model] + 1) * calculate_correct_creature_loyalty(thing);
     return scavngpts;
 }
 
