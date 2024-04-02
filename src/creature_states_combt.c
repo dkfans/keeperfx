@@ -1804,7 +1804,7 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
             inst_inf = creature_instance_info_get(i);
             if (inst_inf->priority < p) // Instances with low priority are used last.
                 continue;
-            if ((flag_is_set(inst_inf->flags, InstPF_SelfBuff)) && ((inst_inf->func_idx != CrInstFn_creature_cast_spell) || (!creature_affected_by_spell(thing, inst_inf->func_params[0]))))
+            if ((flag_is_set(inst_inf->flags, InstPF_SelfBuff)) && ((inst_inf->func_idx != 2) || (!creature_affected_by_spell(thing, inst_inf->func_params[0]))))
             {
                 if (flag_is_set(inst_inf->flags, InstPF_OnlyInjured))
                 {
@@ -1843,7 +1843,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
             inst_inf = creature_instance_info_get(i);
             if (inst_inf->priority < p) // Instances with low priority are used last.
                 continue;
-            if ((inst_inf->func_idx != CrInstFn_creature_cast_spell) || (!creature_affected_by_spell(thing, inst_inf->func_params[0])))
+            if ((inst_inf->func_idx != 2) || (!creature_affected_by_spell(thing, inst_inf->func_params[0])))
             {
                 if ( // Start of the condition block.
 ((!creature_is_kept_in_custody(thing)) && // Not on custody condition block start here.
