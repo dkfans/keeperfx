@@ -1220,7 +1220,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       case 16: //SPELLEFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              k = effect_or_effect_element_id(word_buf);
               shotst->cast_spell_kind = k;
               n++;
           }
@@ -1337,7 +1337,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       case 25: //HITWALLEFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              k = effect_or_effect_element_id(word_buf);
               shotst->hit_generic.effect_model = k;
               n++;
           }
