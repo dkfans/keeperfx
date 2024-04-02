@@ -205,13 +205,15 @@ void ceiling_partially_recompute_heights(MapSubtlCoord sx, MapSubtlCoord sy, Map
                     MapSubtlCoord unk2_stl_y;
                     struct MapOffset *spir = spiral_step;
                     long ceiling_search_index = 0;
+                    long height;
                     while (1)
                     {
                         unk2_stl_x = unk_stl_x + spir->h;
                         unk2_stl_y = unk_stl_y + spir->v;
                         if (unk2_stl_x >= 0 && unk2_stl_x < gameadd.map_subtiles_x && unk2_stl_y >= 0 && unk2_stl_y < gameadd.map_subtiles_y)
                         {
-                            if (ceiling_cache[get_subtile_number(unk2_stl_x, unk2_stl_y)] > -1)
+                            height = ceiling_cache[get_subtile_number(unk2_stl_x, unk2_stl_y)];
+                            if (height > -1)
                             {
                                 break;
                             }
@@ -223,6 +225,7 @@ void ceiling_partially_recompute_heights(MapSubtlCoord sx, MapSubtlCoord sy, Map
                         }
                         spir++;
                     }
+                    new_height = height;
                     number_of_steps = chessboard_distance(unk_stl_x, unk_stl_y, unk2_stl_x, unk2_stl_y);
                     calculate = true;
                 }
@@ -240,7 +243,7 @@ void ceiling_partially_recompute_heights(MapSubtlCoord sx, MapSubtlCoord sy, Map
                     new_height = game.ceiling_height_max;
                 }
             }
-            struct Map *mapblk = get_map_block_at(unk_stl_x,unk_stl_y);
+            struct Map *mapblk = get_map_block_at_pos(stl_num2);
             struct Column *col = get_map_column(mapblk);
             col->bitfields &= CLF_FLOOR_MASK;
             set_mapblk_filled_subtiles(mapblk, new_height);
