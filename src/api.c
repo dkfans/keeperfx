@@ -386,7 +386,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
     }
 
     // ==================================================================================================================================
-    // Map is not loaded
+    // Commands that always work
     // ==================================================================================================================================
 
     // Handle get KeeperFX info command
@@ -409,7 +409,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
     }
 
     // ==================================================================================================================================
-    // Map is loaded
+    // Commands that only work when a map is loaded
     // ==================================================================================================================================
 
     // At this point our game needs to be a LOCAL game before we do anything
