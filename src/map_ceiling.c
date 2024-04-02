@@ -278,13 +278,11 @@ static int get_ceiling_or_floor_filled_subtiles(SubtlCodedCoords stl_num)
     }
 }
 
-long ceiling_init(unsigned long a1, unsigned long a2)
+void ceiling_init()
 {
-    MapSubtlCoord stl_x;
-    MapSubtlCoord stl_y;
-    for (stl_y=0; stl_y < gameadd.map_subtiles_y; stl_y++)
+    for (MapSubtlCoord stl_y=0; stl_y < gameadd.map_subtiles_y; stl_y++)
     {
-        for (stl_x=0; stl_x < gameadd.map_subtiles_x; stl_x++)
+        for (MapSubtlCoord stl_x=0; stl_x < gameadd.map_subtiles_x; stl_x++)
         {
             int filled_h;
             if (map_pos_solid_at_ceiling(stl_x, stl_y))
@@ -313,16 +311,12 @@ long ceiling_init(unsigned long a1, unsigned long a2)
               }
               else
               {
-                int i;
-                i = 0;
+                int i = 0;
                 while ( 1 )
                 {
-                    struct MapOffset *sstep;
-                    sstep = &spiral_step[i];
-                    MapSubtlCoord cstl_x;
-                    MapSubtlCoord cstl_y;
-                    cstl_x = stl_x + sstep->h;
-                    cstl_y = stl_y + sstep->v;
+                    struct MapOffset *sstep = &spiral_step[i];
+                    MapSubtlCoord cstl_x = stl_x + sstep->h;
+                    MapSubtlCoord cstl_y = stl_y + sstep->v;
                     if ((cstl_x >= 0) && (cstl_x <= gameadd.map_subtiles_x))
                     {
                         if ((cstl_y >= 0) && (cstl_y <= gameadd.map_subtiles_y))
@@ -330,29 +324,27 @@ long ceiling_init(unsigned long a1, unsigned long a2)
                             filled_h = ceiling_block_is_solid_including_corners_return_height(get_subtile_number(stl_x + sstep->v ,stl_y + sstep->h), cstl_x, cstl_y);
                             if (filled_h > -1)
                             {
-                                int delta_tmp;
-                                int delta_max;
-                                delta_tmp = abs(stl_x - cstl_x);
-                                delta_max = abs(stl_y - cstl_y);
-                                if (delta_max <= delta_tmp)
+                                int delta_tmp = abs(stl_x - cstl_x);
+                                int delta_max = abs(stl_y - cstl_y);
+                                if (delta_max < delta_tmp)
                                     delta_max = delta_tmp;
                                 if (filled_h < game.ceiling_height_max)
                                 {
                                     filled_h += game.ceiling_step * delta_max;
-                                    if (filled_h >= game.ceiling_height_max)
+                                    if (filled_h > game.ceiling_height_max)
                                         filled_h = game.ceiling_height_max;
                                 } else
                                 if ( filled_h > game.ceiling_height_max )
                                 {
                                     filled_h -= game.ceiling_step * delta_max;
-                                    if (filled_h <= game.ceiling_height_min)
+                                    if (filled_h < game.ceiling_height_min)
                                         filled_h = game.ceiling_height_min;
                                 }
                                 break;
                             }
                         }
                     }
-                    ++i;
+                    i++;
                     if (i >= game.ceiling_search_dist) {
                         filled_h = game.ceiling_height_max;
                         break;
@@ -360,12 +352,10 @@ long ceiling_init(unsigned long a1, unsigned long a2)
                 }
               }
             }
-            struct Map *mapblk;
-            mapblk = get_map_block_at(stl_x,stl_y);
+            struct Map *mapblk = get_map_block_at(stl_x,stl_y);
             set_mapblk_filled_subtiles(mapblk, filled_h);
         }
     }
-    return 1;
 }
 
 short ceiling_set_info(long height_max, long height_min, long step)
