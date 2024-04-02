@@ -109,6 +109,23 @@ Creature_Instf_Func creature_instances_func_list[] = {
   NULL,
 };
 
+enum creature_instances_func {
+  CrInstFn_none = 0,
+  CrInstFn_attack_room_slab = 1,
+  CrInstFn_creature_cast_spell = 2,
+  CrInstFn_creature_fire_shot = 3,
+  CrInstFn_damage_wall = 4,
+  CrInstFn_destroy = 5,
+  CrInstFn_dig = 6,
+  CrInstFn_eat = 7,
+  CrInstFn_fart = 8,
+  CrInstFn_first_person_do_imp_tasK = 9,
+  CrInstFn_pretty_path = 10,
+  CrInstFn_reinforce = 11,
+  CrInstFn_tortured = 12,
+  CrInstFn_tunnel = 13,
+};
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
