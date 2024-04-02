@@ -788,6 +788,9 @@ void api_update_server()
                 int received = SDLNet_TCP_Recv(api.activeSocket, buffer, API_SERVER_BUFFER);
                 if (received > 0)
                 {
+                    // TODO: non nullbyte terminated buffers can crash
+                    // For example: when pressing Ctrl C when conneted over telnet
+
                     // Remove any possible trailing newline from the data
                     // This makes it work with a Telnet connection as well
                     if (strlen(buffer) > 0 && buffer[strlen(buffer) - 1] == '\n')
