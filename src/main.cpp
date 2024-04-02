@@ -118,6 +118,7 @@
 #include "config_settings.h"
 #include "game_legacy.h"
 #include "room_list.h"
+#include "steam_api.hpp"
 #include "game_loop.h"
 #include "music_player.h"
 
@@ -147,6 +148,7 @@ unsigned char *dog_palette;
 unsigned char *vampire_palette;
 unsigned char exit_keeper;
 unsigned char quit_game;
+unsigned char is_running_under_wine = false;
 int continue_game_option_available;
 long last_mouse_x;
 long last_mouse_y;
@@ -651,6 +653,8 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
   int delta_x;
   int delta_y;
   int delta_z;
+  if (delta_step <= 0)
+      delta_step = 1;
   if (dist_x >= 0)
   {
       delta_x = delta_step;
@@ -1070,6 +1074,7 @@ short setup_game(void)
           if (wine_get_version)
           {
               SYNCMSG("Running on Wine v%s", wine_get_version());
+              is_running_under_wine = true;
           }
 
           // Get Wine host OS
@@ -2210,7 +2215,7 @@ void interp_fix_mouse_light_off_map(struct PlayerInfo *player)
     // This fixes the interpolation issue of moving the mouse off map in one position then back onto the map far elsewhere.
     struct Light* light = &game.lish.lights[player->cursor_light_idx];
 
-    if (player->mouse_is_offmap == true) {
+    if (player->mouse_on_map == false) {
         light->disable_interp_for_turns = 2;
     }
     if (light->disable_interp_for_turns > 0) {
@@ -3182,7 +3187,6 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
 
 void update_blocks_pointed(void)
 {
-    TbBool out_of_bounds = false;
     long x;
     long y;
     long x_frac;
@@ -3229,17 +3233,11 @@ void update_blocks_pointed(void)
           if ((x >= 0) && (x < gameadd.map_subtiles_x) && (y >= 0) && (y < gameadd.map_subtiles_y))
           {
               update_block_pointed(i,x,x_frac,y,y_frac);
-          } else {
-                out_of_bounds = true;
           }
           hori_ptr_y -= hori_hdelta_y;
           vert_ptr_y -= vert_hdelta_y;
         }
     }
-
-    struct PlayerInfo *player = get_my_player();
-    player->mouse_is_offmap = out_of_bounds;
-
     SYNCDBG(19,"Finished");
 }
 
@@ -4282,6 +4280,8 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     LbSetIcon(1);
     LbScreenSetDoubleBuffering(true);
 
+    init_miles_sound_system();
+
     srand(LbTimerClock());
 
 #ifdef FUNCTESTING
@@ -4297,6 +4297,10 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     }
 
     retval = setup_game();
+    if (retval)
+    {
+        steam_api_init();
+    }
     if (retval)
     {
       if ((install_info.lang_id == Lang_Japanese) ||
@@ -4340,7 +4344,10 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     {
         SYNCDBG(0,"finished properly");
     }
+
     LbErrorLogClose();
+    steam_api_shutdown();
+    unload_miles_sound_system();
     return 0;
 }
 

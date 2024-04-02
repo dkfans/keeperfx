@@ -783,21 +783,21 @@ long pinstfs_zoom_to_position(struct PlayerInfo *player, long *n)
     int dt_y = (player->zoom_to_pos_y - (int)cam->mappos.y.val) / 8;
     if (dt_x < 0)
     {
-      if (dt_x >= -256)
+      if (dt_x > -256)
         dt_x = -256;
     } else
     {
-      if (dt_x <= 256)
+      if (dt_x < 256)
         dt_x = 256;
     }
     player->zoom_to_movement_x = dt_x;
     if (dt_y < 0)
     {
-        if (dt_y >= -256)
+        if (dt_y > -256)
           dt_y = -256;
     } else
     {
-        if (dt_y <= 256)
+        if (dt_y < 256)
           dt_y = 256;
     }
     player->zoom_to_movement_y = dt_y;
@@ -806,9 +806,10 @@ long pinstfs_zoom_to_position(struct PlayerInfo *player, long *n)
 
 long pinstfm_zoom_to_position(struct PlayerInfo *player, long *n)
 {
-    long x;
-    long y;
+    MapCoord x, y;
     struct Camera* cam = player->acamera;
+    cam->inertia_x = 0;
+    cam->inertia_y = 0;
     if (abs(cam->mappos.x.val - player->zoom_to_pos_x) >= abs(player->zoom_to_movement_x))
       x = player->zoom_to_movement_x + cam->mappos.x.val;
     else

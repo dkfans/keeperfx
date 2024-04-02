@@ -200,6 +200,8 @@ struct Thing {
       struct {
         long gold_carried;
         short health_bar_turns;
+        short volley_repeat;
+        TbBool volley_fire;
       } creature;
 //TCls_Effect
       struct {
@@ -218,10 +220,14 @@ struct Thing {
 //TCls_Trap
       struct {
         unsigned char num_shots;
-        GameTurn rearm_turn;
         unsigned char revealed;
-        GameTurn shooting_finished_turn;
         TbBool wait_for_rearm;
+        TbBool volley_fire;
+        GameTurn rearm_turn;
+        GameTurn shooting_finished_turn;
+        short volley_repeat;
+        unsigned short volley_delay;
+        unsigned short firing_at;
       } trap;
 //TCls_Door
       struct {

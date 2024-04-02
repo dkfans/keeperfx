@@ -891,6 +891,7 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     thing->inertia_air = 0;
     thing->rendering_flags |= TRF_Unknown01;
     thing->health = effcst->start_health;
+    thing->shot_effect.hit_type = effcst->effect_hit_type;
     if (effcst->ilght.radius != 0)
     {
         struct InitLight ilght;
@@ -989,8 +990,8 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
     {
         // Friendly fire usually causes less damage and at smaller distance
         if ((tngdst->class_id == TCls_Creature) && (tngdst->owner == owner)) {
-            max_dist = max_dist * game.conf.rules.magic.friendly_fight_area_range_permil / 1000;
-            max_damage = max_damage * game.conf.rules.magic.friendly_fight_area_damage_permil / 1000;
+            max_dist = max_dist * game.conf.rules.magic.friendly_fight_area_range_percent / 100;
+            max_damage = max_damage * game.conf.rules.magic.friendly_fight_area_damage_percent / 100;
         }
         MapCoordDelta distance = get_2d_distance(pos, &tngdst->mappos);
         if (distance <= max_dist)

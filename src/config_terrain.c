@@ -1357,6 +1357,26 @@ TbBool is_room_available(PlayerNumber plyr_idx, RoomKind rkind)
     return false;
 }
 
+/**
+ * Returns if the room can be or already is obtained by a player.
+ */
+TbBool is_room_obtainable(PlayerNumber plyr_idx, RoomKind rkind)
+{
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    // Check if the player even has a dungeon
+    if (dungeon_invalid(dungeon)) {
+        return false;
+    }
+    // Player must have dungeon heart to build rooms
+    if (!player_has_heart(plyr_idx)) {
+        return false;
+    }
+    if (rkind >= game.conf.slab_conf.room_types_count) {
+        ERRORLOG("Incorrect power %ld (player %ld)",rkind, plyr_idx);
+        return false;
+    }
+    return ( (dungeon->room_buildable[rkind]) || (dungeon->room_resrchable[rkind]) );
+}
 
 /**
  * Returns if a room that has role can be built by a player.

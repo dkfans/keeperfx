@@ -506,9 +506,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_ADD_CREATURE_TO_POOL:
       add_creature_to_pool(val2, val3, 0);
       break;
-  case Cmd_RESET_ACTION_POINT:
-      action_point_reset_idx(val2);
-      break;
   case Cmd_TUTORIAL_FLASH_BUTTON:
       gui_set_button_flashing(val2, val3);
       break;
@@ -684,11 +681,13 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 20: // TREMBLING_FAT
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_TremblingFat;
+              crconf->model_flags |= CMF_Trembling;
+              crconf->model_flags |= CMF_Fat;
           }
           else
           {
-              crconf->model_flags ^= CMF_TremblingFat;
+              crconf->model_flags ^= CMF_Trembling;
+              crconf->model_flags ^= CMF_Fat;
           }
           break;
       case 21: // FEMALE
@@ -746,6 +745,26 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           break;
       case 27: // ALLURING_SCVNGR
           crstat->entrance_force = val4;
+          break;
+      case 30: // TREMBLING
+          if (val4 >= 1)
+          {
+              crconf->model_flags |= CMF_Trembling;
+          }
+          else
+          {
+              crconf->model_flags ^= CMF_Trembling;
+          }
+          break;
+      case 31: // FAT
+          if (val4 >= 1)
+          {
+              crconf->model_flags |= CMF_Fat;
+          }
+          else
+          {
+              crconf->model_flags ^= CMF_Fat;
+          }
           break;
       default:
           SCRPTERRLOG("Unknown creature property '%d'", val3);
