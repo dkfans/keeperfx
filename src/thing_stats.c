@@ -781,8 +781,6 @@ GoldAmount calculate_correct_creature_scavenging_cost(const struct Thing *thing)
 long calculate_correct_creature_scavenge_required(const struct Thing *thing, PlayerNumber callplyr_idx)
 {
     struct Dungeon* dungeon = get_dungeon(callplyr_idx);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long scavngpts = (dungeon->creatures_scavenged[thing->model] + 1) * calculate_correct_creature_loyalty(thing);
     return scavngpts;
 }
