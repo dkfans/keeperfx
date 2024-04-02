@@ -410,7 +410,7 @@ TbBool process_scavenge_creature_from_level(struct Thing *scavtng, struct Thing 
     // If we're starting to scavenge a new creature, do the switch
     if (calldngn->scavenge_targets[calltng->model] != scavtng->index)
     {
-        calldngn->scavenge_turn_points[calltng->model] = work_value;
+        calldngn->scavenge_turn_points[calltng->model] += work_value;
         if (calldngn->scavenge_targets[calltng->model] > 0)
         {
             // Stop scavenging old creature
