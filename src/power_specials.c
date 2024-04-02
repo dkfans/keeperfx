@@ -42,6 +42,8 @@
 #include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
+#include "api.h"
+#include "lvl_script_lib.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
