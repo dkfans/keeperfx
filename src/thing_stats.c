@@ -275,6 +275,9 @@ long get_radially_growing_value(long magnitude, long decay_start, long decay_len
         }
         magnitude = magnitude * (decay_length - (distance - decay_start)) / decay_length;
     }
+    if (friction == 0) {
+        friction = 1;
+    }
     long total_distance = abs((COORD_PER_STL / friction * magnitude + magnitude) / 2); // The intended distance to push the thing.
     if (total_distance > distance) // Never return a value that would go past the epicentre.
     {
@@ -1074,7 +1077,7 @@ long compute_creature_weight(const struct Thing* creatng)
         weight = weight * 3 / 2;
     }
 
-    if ((get_creature_model_flags(creatng) & CMF_TremblingFat) != 0)
+    if ((get_creature_model_flags(creatng) & CMF_Trembling) != 0)
     {
         weight = weight * 3 / 2;
     }
