@@ -208,7 +208,7 @@ static void api_err(const char *err)
     // *dump_state.out = 0;
     if (json_dump_return_value != 0)
     {
-        api_err("failed to create json response");
+        api_err("FAILED_TO_CREATE_JSON");
         value_fini(json_root);
         return;
     }
@@ -275,7 +275,7 @@ static void api_return_data(TbBool success, VALUE value)
     // *dump_state.out = 0;
     if (json_dump_return_value != 0)
     {
-        api_err("failed to create json response");
+        api_err("FAILED_TO_CREATE_JSON");
         value_fini(json_root);
         return;
     }
@@ -356,7 +356,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
     // Check if something is actually sent
     if (strlen(buffer) < 1)
     {
-        api_err("no json sent");
+        api_err("NO_JSON");
         return;
     }
 
@@ -364,14 +364,14 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
     int ret = json_dom_parse(buffer, buf_size, NULL, 0, value, NULL);
     if (ret != 0)
     {
-        api_err("invalid json");
+        api_err("INVALID_JSON");
         return;
     }
 
     // Make sure we have a json object
     if (value_type(value) != VALUE_DICT)
     {
-        api_err("invalid json object");
+        api_err("INVALID_JSON_OBJECT");
         value_fini(&data);
         return;
     }
@@ -380,7 +380,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
     const char *action = value_string(value_dict_get(value, "action"));
     if (action == NULL)
     {
-        api_err("an 'action' must be given");
+        api_err("MISSING_ACTION");
         value_fini(&data);
         return;
     }
@@ -404,7 +404,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         char *map_command = (char *)value_string(value_dict_get(value, "command"));
         if (map_command == NULL)
         {
-            api_err("a 'command' must be given when using the 'map_command' action");
+            api_err("MISSING_COMMAND");
             value_fini(&data);
             return;
         }
@@ -416,7 +416,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         }
         else
         {
-            api_err("failed to execute map command");
+            api_err("FAILED_TO_EXECUTE_MAP_COMMAND");
         }
 
         // End
@@ -431,7 +431,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         char *console_command = (char *)value_string(value_dict_get(value, "command"));
         if (console_command == NULL || strlen(console_command) < 1)
         {
-            api_err("a 'command' must be given when using the 'console_command' action");
+            api_err("MISSING_COMMAND");
             value_fini(&data);
             return;
         }
@@ -449,7 +449,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         }
         else
         {
-            api_err("failed to execute console command");
+            api_err("FAILED_TO_EXECUTE_CONSOLE_COMMAND");
         }
 
         // End
@@ -526,7 +526,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         char *variable_name = (char *)value_string(value_dict_get(value, "var"));
         if (variable_name == NULL || strlen(variable_name) < 1)
         {
-            api_err("a 'var' must be given when using the 'read_var' action");
+            api_err("MISSING_VAR");
             value_fini(&data);
             return;
         }
@@ -535,7 +535,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         long variable_id, variable_type;
         if (parse_get_varib(variable_name, &variable_id, &variable_type) == false)
         {
-            api_err("unknown variable");
+            api_err("UNKNOWN_VAR");
             value_fini(&data);
             return;
         }
@@ -558,7 +558,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         char *variable_name = (char *)value_string(value_dict_get(value, "var"));
         if (variable_name == NULL || strlen(variable_name) < 1)
         {
-            api_err("a 'var' must be given when using the 'set_var' action");
+            api_err("MISSING_VAR");
             value_fini(&data);
             return;
         }
@@ -567,7 +567,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         long variable_id, variable_type;
         if (parse_get_varib(variable_name, &variable_id, &variable_type) == false)
         {
-            api_err("unknown variable");
+            api_err("UNKNOWN_VAR");
             value_fini(&data);
             return;
         }
@@ -580,7 +580,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
             variable_type != SVar_SACRIFICED &&
             variable_type != SVar_REWARDED)
         {
-            api_err("setting this variable is not possible");
+            api_err("UNABLE_TO_SET_VAR");
             value_fini(&data);
             return;
         }
@@ -589,7 +589,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         VALUE *new_value = value_dict_get(value, "value");
         if (new_value == NULL || value_type(new_value) != VALUE_INT32)
         {
-            api_err("a 'value' of type int must be given when using the 'set_var' action");
+            api_err("VALUE_MUST_BE_INT");
             value_fini(&data);
             return;
         }
@@ -698,7 +698,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
     }
 
     // Return unknown action
-    api_err("unknown action");
+    api_err("UNKNOWN_ACTION");
     value_fini(&data);
 }
 
