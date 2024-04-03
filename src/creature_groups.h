@@ -63,8 +63,7 @@ struct MemberPos {
 
 struct PartyMember { // sizeof = 13
   unsigned char flags;
-  unsigned char field_65;
-  unsigned char crtr_kind;
+  ThingModel crtr_kind;
   unsigned char objectv;
   long countdown;
   unsigned char crtr_level;

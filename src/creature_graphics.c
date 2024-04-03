@@ -159,7 +159,7 @@ static const unsigned short creature_list[CREATURE_FRAMELIST_LENGTH] = {
 /******************************************************************************/
 struct CreaturePickedUpOffset *get_creature_picked_up_offset(struct Thing *thing)
 {
-    int crmodel = thing->model;
+    ThingModel crmodel = thing->model;
     if ((crmodel < 1) || (crmodel >= game.conf.crtr_conf.model_count))
         crmodel = 0;
     struct CreatureStats* crstat = creature_stats_get(crmodel);

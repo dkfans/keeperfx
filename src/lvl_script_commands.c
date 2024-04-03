@@ -570,9 +570,9 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
     return true;
 }
 
-long parse_creature_name(const char *creature_name)
+ThingModel parse_creature_name(const char *creature_name)
 {
-    long ret = get_rid(creature_desc, creature_name);
+    ThingModel ret = get_rid(creature_desc, creature_name);
     if (ret == -1)
     {
         if (0 == strcasecmp(creature_name, "ANY_CREATURE"))
@@ -894,7 +894,7 @@ static void conceal_map_rect_process(struct ScriptContext *context)
  * @param criteria the creature selection criterion
  * @param count the amount of units to transfer
  */
-short script_transfer_creature(long plyr_idx, long crmodel, long criteria, int count)
+static int script_transfer_creature(PlayerNumber plyr_idx, ThingModel crmodel, long criteria, int count)
 {
     short transferred = 0;
     struct Thing* thing;
@@ -2296,18 +2296,18 @@ static void set_door_configuration_process(struct ScriptContext *context)
 static void create_effect_process(struct ScriptContext *context)
 {
     struct Coord3d pos;
-    set_coords_to_subtile_center(&pos, context->value->bytes[1], context->value->bytes[2], 0);
+    set_coords_to_subtile_center(&pos, context->value->shorts[1], context->value->shorts[2], 0);
     pos.z.val += get_floor_height(pos.x.stl.num, pos.y.stl.num);
-    TbBool Price = (context->value->chars[0] == -(TngEffElm_Price));
+    TbBool Price = (context->value->shorts[0] == -(TngEffElm_Price));
     if (Price)
     {
         pos.z.val += 128;
     }
     else
     {
-        pos.z.val += context->value->arg1;
+        pos.z.val += context->value->arg2;
     }
-    struct Thing* efftng = create_used_effect_or_element(&pos, context->value->chars[0], game.neutral_player_num);
+    struct Thing* efftng = create_used_effect_or_element(&pos, context->value->shorts[0], game.neutral_player_num);
     if (!thing_is_invalid(efftng))
     {
         if (thing_in_wall_at(efftng, &efftng->mappos))
@@ -2316,7 +2316,7 @@ static void create_effect_process(struct ScriptContext *context)
         }
         if (Price)
         {
-            efftng->price_effect.number = context->value->arg1;
+            efftng->price_effect.number = context->value->arg2;
         }
     }
 }
@@ -2494,14 +2494,14 @@ static void create_effects_line_check(const struct ScriptLine *scline)
     value->bytes[10] = scline->np[4]; // temporal stepping
     const char* effect_name = scline->tp[5];
 
-    long effct_id = effect_or_effect_element_id(effect_name);
+    EffectOrEffElModel effct_id = effect_or_effect_element_id(effect_name);
     if (effct_id == 0)
     {
         SCRPTERRLOG("Unrecognised effect: %s", effect_name);
         return;
     }
 
-    value->chars[11] = effct_id; // effect
+    value->shorts[6] = effct_id; // effect
 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -2526,10 +2526,10 @@ static void create_effects_line_process(struct ScriptContext *context)
     }
     find_location_pos(context->value->arg0, context->player_idx, &fx_line->from, __func__);
     find_location_pos(context->value->arg1, context->player_idx, &fx_line->to, __func__);
-    fx_line->curvature = context->value->chars[8];
+    fx_line->curvature = (int)context->value->chars[8];
     fx_line->spatial_step = context->value->bytes[9] * 32;
     fx_line->steps_per_turn = context->value->bytes[10];
-    fx_line->effect = context->value->chars[11];
+    fx_line->effect = context->value->shorts[6];
     fx_line->here = fx_line->from;
     fx_line->step = 0;
 
@@ -3151,7 +3151,7 @@ static void create_effect_check(const struct ScriptLine *scline)
         SCRPTERRLOG("Unrecognised effect: %s", effect_name);
         return;
     }
-    value->chars[0] = effct_id;
+    value->shorts[0] = effct_id;
     const char *locname = scline->tp[1];
     if (!get_map_location_id(locname, &location))
     {
@@ -3160,9 +3160,9 @@ static void create_effect_check(const struct ScriptLine *scline)
     long stl_x;
     long stl_y;
     find_map_location_coords(location, &stl_x, &stl_y, 0, __func__);
-    value->bytes[1] = stl_x;
-    value->bytes[2] = stl_y;
-    value->arg1 = scline->np[2];
+    value->shorts[1] = stl_x;
+    value->shorts[2] = stl_y;
+    value->arg2 = scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -3176,15 +3176,15 @@ static void create_effect_at_pos_check(const struct ScriptLine *scline)
         SCRPTERRLOG("Unrecognised effect: %s", effect_name);
         return;
     }
-    value->chars[0] = effct_id;
+    value->shorts[0] = effct_id;
     if (subtile_coords_invalid(scline->np[1], scline->np[2]))
     {
         SCRPTERRLOG("Invalid coordinates: %ld, %ld", scline->np[1], scline->np[2]);
         return;
     }
-    value->bytes[1] = scline->np[1];
-    value->bytes[2] = scline->np[2];
-    value->arg1 = scline->np[3];
+    value->shorts[1] = scline->np[1];
+    value->shorts[2] = scline->np[2];
+    value->arg2 = scline->np[3];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -4456,14 +4456,14 @@ static void add_effectgen_to_level_check(const struct ScriptLine* scline)
     long range = scline->np[2];
 
     TbMapLocation location;
-    long gen_id;
+    ThingModel gen_id;
     if (parameter_is_number(generator_name))
     {
         gen_id = atoi(generator_name);
     }
     else
     {
-        gen_id = get_rid(effectgen_desc, generator_name);
+        gen_id = get_id(effectgen_desc, generator_name);
     }
     if (gen_id <= 0)
     {
@@ -4492,7 +4492,7 @@ static void add_effectgen_to_level_check(const struct ScriptLine* scline)
 
 static void add_effectgen_to_level_process(struct ScriptContext* context)
 {
-    short gen_id = context->value->shorts[0];
+    ThingModel gen_id = context->value->shorts[0];
     short location = context->value->shorts[1];
     short range = context->value->shorts[2];
     if (get_script_current_condition() == CONDITION_ALWAYS)
@@ -4522,7 +4522,7 @@ static void set_effectgen_configuration_check(const struct ScriptLine* scline)
     const char* property = scline->tp[1];
     short value1 = 0;
 
-    char effgen_id = get_id(effectgen_desc, effgenname);
+    ThingModel effgen_id = get_id(effectgen_desc, effgenname);
     if (effgen_id == -1)
     {
         SCRPTERRLOG("Unknown effect generator, '%s'", effgenname);
@@ -4593,7 +4593,7 @@ static void set_effectgen_configuration_check(const struct ScriptLine* scline)
 
 static void set_effectgen_configuration_process(struct ScriptContext* context)
 {
-    short effgen_id = context->value->shorts[0];
+    ThingModel effgen_id = context->value->shorts[0];
     short property_id = context->value->shorts[1];
 
     struct EffectGeneratorConfigStats* effgencst = &game.conf.effects_conf.effectgen_cfgstats[effgen_id];
