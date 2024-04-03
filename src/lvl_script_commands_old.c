@@ -1146,7 +1146,7 @@ static void command_level_up_creature(long plr_range_id, const char *crtr_name, 
         SCRPTERRLOG("Bad count, %d", count);
         return;
     }
-    long crtr_id = parse_creature_name(crtr_name);
+    ThingModel crtr_id = parse_creature_name(crtr_name);
     if (crtr_id == CREATURE_NONE)
     {
         SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
@@ -1181,7 +1181,7 @@ static void command_use_power_on_creature(long plr_range_id, const char *crtr_na
     SCRPTERRLOG("Unknown magic, '%s'", magname);
     return;
   }
-  long crtr_id = parse_creature_name(crtr_name);
+  ThingModel crtr_id = parse_creature_name(crtr_name);
   if (crtr_id == CREATURE_NONE) {
     SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;

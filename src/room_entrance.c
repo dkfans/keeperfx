@@ -411,7 +411,7 @@ TbBool update_creature_pool_state(void)
     return true;
 }
 
-void add_creature_to_pool(long kind, long amount, unsigned long a3)
+void add_creature_to_pool(ThingModel kind, long amount, unsigned long a3)
 {
     long prev_amount;
     kind %= game.conf.crtr_conf.model_count;

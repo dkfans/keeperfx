@@ -187,10 +187,10 @@ typedef unsigned short PlayerBitFlags;
 /** Type which stores thing class. */
 typedef unsigned char ThingClass;
 /** Type which stores thing model. */
-typedef unsigned char ThingModel;
+typedef short ThingModel;
 /** Type which stores thing index. */
 typedef unsigned short ThingIndex;
-/** Type which stores effectModels on positive or EffectElements on Negative. */
+/** Type which stores effectModels on positive or EffectElements on Negative. Should be as big as ThingModel */
 typedef short EffectOrEffElModel;
 /** Type which stores creature state index. */
 typedef unsigned short CrtrStateId;

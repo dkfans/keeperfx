@@ -158,9 +158,9 @@ struct ScriptValue {
         char param;
         char victims[MAX_SACRIFICE_VICTIMS];
     } sac;
-    unsigned char bytes[12];
-    char chars[12];
-    short shorts[6];
+    unsigned char bytes[16];
+    char chars[16];
+    short shorts[8];
   };
 };
 

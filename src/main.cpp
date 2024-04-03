@@ -1018,7 +1018,7 @@ TbBool initial_setup(void)
     MinimalResolutionSetup = true;
     // Set size of static textures buffer
     game_load_files[1].SLength = max((ulong)TEXTURE_BLOCKS_STAT_COUNT_A*block_dimension*block_dimension,(ulong)LANDVIEW_MAP_WIDTH*LANDVIEW_MAP_HEIGHT);
-    if (LbDataLoadAll(game_load_files))
+    if (LbDataLoadAllV2(game_load_files))
     {
         ERRORLOG("Unable to load game_load_files");
         return false;
@@ -3407,13 +3407,12 @@ void gameplay_loop_logic()
 {
     if(flag_is_set(start_params.debug_flags, DFlg_PauseAtGameTurn))
     {
-        static TbBool paused_at_gameturn = false;
         static GameTurn previous_gameturn = 0;
         if(game.play_gameturn >= start_params.pause_at_gameturn && game.play_gameturn != previous_gameturn)
         {
-            if(!paused_at_gameturn)
+            if(!game.paused_at_gameturn)
             {
-                paused_at_gameturn = true;
+                game.paused_at_gameturn = true;
 
                 game.frame_skip = 0;
                 if(game.packet_load_enable)
@@ -3964,7 +3963,7 @@ short reset_game(void)
     LbMouseSuspend();
     LbIKeyboardClose();
     LbScreenReset(false);
-    LbDataFreeAll(game_load_files);
+    LbDataFreeAllV2(game_load_files);
     free_gui_strings_data();
     FreeAudio();
     return LbMemoryReset();
@@ -4083,8 +4082,12 @@ short process_command_line(unsigned short argc, char *argv[])
       {
           SYNCLOG("Mouse auto reset disabled");
           lbMouseGrab = false;
-      } else
-      if (strcasecmp(parstr,"packetload") == 0)
+      }
+      else if (strcasecmp(parstr, "ungrab") == 0)
+      {
+          start_params.ungrab_mouse = true;
+      }
+      else if (strcasecmp(parstr,"packetload") == 0)
       {
          if (start_params.packet_save_enable)
             WARNMSG("PacketSave disabled to enable PacketLoad.");

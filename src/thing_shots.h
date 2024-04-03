@@ -94,7 +94,7 @@ struct Coord3d;
 #pragma pack()
 /******************************************************************************/
 /******************************************************************************/
-struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned short owner);
+struct Thing *create_shot(struct Coord3d *pos, ThingModel model, unsigned short owner);
 TngUpdateRet update_shot(struct Thing *thing);
 TbBool thing_is_shot(const struct Thing *thing);
 
