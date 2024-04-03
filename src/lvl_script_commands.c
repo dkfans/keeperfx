@@ -5453,7 +5453,7 @@ static void set_creature_max_level_process(struct ScriptContext* context)
 
 static void reset_action_point_check(const struct ScriptLine* scline)
 {
-    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     long apt_idx = action_point_number_to_index(scline->np[0]);
     if (!action_point_exists_idx(apt_idx))
     {
