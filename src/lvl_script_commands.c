@@ -894,7 +894,7 @@ static void conceal_map_rect_process(struct ScriptContext *context)
  * @param criteria the creature selection criterion
  * @param count the amount of units to transfer
  */
-short script_transfer_creature(long plyr_idx, long crmodel, long criteria, int count)
+static int script_transfer_creature(PlayerNumber plyr_idx, ThingModel crmodel, long criteria, int count)
 {
     short transferred = 0;
     struct Thing* thing;

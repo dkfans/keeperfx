@@ -565,7 +565,7 @@ struct CreatureControl *allocate_free_control_structure(void);
 void delete_control_structure(struct CreatureControl *cctrl);
 void delete_all_control_structures(void);
 
-struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, long a2, struct Coord3d *pos);
+struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, ThingModel crmodel, struct Coord3d *pos);
 
 TbBool disband_creatures_group(struct Thing *thing);
 struct Thing *get_group_last_member(struct Thing *thing);

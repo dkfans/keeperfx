@@ -228,7 +228,7 @@ TbBool thing_create_thing_adv(VALUE *init_data)
 {
     int owner = value_int32(value_dict_get(init_data, "Ownership"));
     int oclass = value_parse_class(value_dict_get(init_data, "ThingType"));
-    int model = value_parse_model(oclass, value_dict_get(init_data, "Subtype"));
+    ThingModel model = value_parse_model(oclass, value_dict_get(init_data, "Subtype"));
     struct Coord3d mappos;
     mappos.x.val = value_read_stl_coord(value_dict_get(init_data, "SubtileX"));
     mappos.y.val = value_read_stl_coord(value_dict_get(init_data, "SubtileY"));
@@ -307,7 +307,7 @@ TbBool thing_create_thing_adv(VALUE *init_data)
             struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
             if (thing_is_invalid(thing))
             {
-                ERRORLOG("Couldn't create creature model %d (%s)", model, creature_code_name(model));
+                ERRORLOG("Couldn't create creature model %d (%s)", (int)model, creature_code_name(model));
                 return false;
             }
             {
@@ -406,7 +406,7 @@ TbBool thing_create_thing_adv(VALUE *init_data)
     return true;
 }
 
-struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct Coord3d *pos, unsigned char tngclass, unsigned char tngmodel, unsigned char tngowner)
+struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct Coord3d *pos, unsigned char tngclass, ThingModel tngmodel, unsigned char tngowner)
 {
     struct Thing* thing = create_thing(pos, tngclass, tngmodel, tngowner, -1);
     if (thing_is_invalid(thing))
