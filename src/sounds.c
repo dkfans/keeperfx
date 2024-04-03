@@ -315,9 +315,9 @@ void update_player_sounds(void)
     if (game.play_gameturn != 0)
     {
         // Rare message easter egg
-        if ((game.play_gameturn % 20000) == 0)
+        if (game.conf.rules.game.easter_egg_speech_interval != 0 && (game.play_gameturn % game.conf.rules.game.easter_egg_speech_interval) == 0)
         {
-            if (UNSYNC_RANDOM(2000) == 0)
+            if (game.conf.rules.game.easter_egg_speech_chance != 0 && UNSYNC_RANDOM(game.conf.rules.game.easter_egg_speech_chance) == 0)
             {
               k = UNSYNC_RANDOM(10);
               SYNCDBG(9,"Rare message condition met, selected %d",(int)k);
