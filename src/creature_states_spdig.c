@@ -814,7 +814,7 @@ long check_out_available_spdigger_drop_tasks(struct Thing *spdigtng)
     if ( check_out_unreinforced_drop_place(spdigtng) )
     {
         cctrl->digger.task_repeats = 0;
-        cctrl->digger.last_did_job = SDLstJob_ReinforceWall9;
+        cctrl->digger.last_did_job = SDLstJob_ReinforceWallAssigned;
         return 1;
     }
     if ( check_out_crates_to_arm_trap_in_room(spdigtng) )
