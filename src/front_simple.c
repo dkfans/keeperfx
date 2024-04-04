@@ -44,52 +44,67 @@ extern "C" {
 #endif
 /******************************************************************************/
 #ifdef SPRITE_FORMAT_V2
+
+// Format: <name> <width> <height> <bits per pixel> <file load location> <raw file> <palette file>
 struct RawBitmap bitmaps_1280[] = {
-  {"Empty Image",    1280, 960, 8, FGrp_Main,     NULL,               NULL},
-  {"Loading Image",  1280, 960, 8, FGrp_StdData,  "loading-128.raw",  "loading-128.pal",},
-  {"NoCD Image",      320, 200, 8, FGrp_StdData,  "nocd-32.raw",      "nocd-32.pal",},
-  {"DK Legal Splash",1280, 960, 8, FGrp_StdData,  "legal-128.raw",    "legal-128.pal",},
-  {"KeeperFX Splash",1280, 960, 8, FGrp_StdData,  "startfx-128.raw",  "startfx-128.pal",},
+  {"Empty Image",                   1280, 960, 8, FGrp_Main,    NULL,                 NULL},
+  {"Loading Image",                 1280, 960, 8, FGrp_StdData, "loading-128.raw",    "loading-128.pal",},
+  {"NoCD Image",                     320, 200, 8, FGrp_StdData, "nocd-32.raw",        "nocd-32.pal",},
+  {"DK Legal Splash",               1280, 960, 8, FGrp_StdData, "legal-128.raw",      "legal-128.pal",},
+  {"KeeperFX Splash",               1280, 960, 8, FGrp_StdData, "startfx-128.raw",    "startfx-128.pal",},
+  {"DK Legal Splash (Wide Screen)", 1708, 960, 8, FGrp_StdData, "legal-128-wide.raw", "legal-128-wide.pal",},
+  {"DK Legal Splash (Wide Screen)", 1708, 960, 8, FGrp_StdData, "legal-128-wide.raw", "legal-128-wide.pal",},
 };
 
+// Format: <name> <width> <height> <bits per pixel> <file load location> <raw file> <palette file>
 struct RawBitmap bitmaps_640[] = {
-  {"Empty Image",     640, 480, 8, FGrp_Main,     NULL,               NULL},
-  {"Loading Image",   640, 480, 8, FGrp_StdData,  "loading-64.raw",   "loading-64.pal",},
-  {"NoCD Image",      320, 200, 8, FGrp_StdData,  "nocd-32.raw",      "nocd-32.pal",},
-  {"DK Legal Splash", 640, 480, 8, FGrp_StdData,  "legal-64.raw",     "legal-64.pal",},
-  {"KeeperFX Splash", 640, 480, 8, FGrp_StdData,  "startfx-64.raw",   "startfx-64.pal",},
+  {"Empty Image",                   640, 480, 8, FGrp_Main,     NULL,               NULL},
+  {"Loading Image",                 640, 480, 8, FGrp_StdData,  "loading-64.raw",   "loading-64.pal",},
+  {"NoCD Image",                    320, 200, 8, FGrp_StdData,  "nocd-32.raw",      "nocd-32.pal",},
+  {"DK Legal Splash",               640, 480, 8, FGrp_StdData,  "legal-64.raw",     "legal-64.pal",},
+  {"KeeperFX Splash",               640, 480, 8, FGrp_StdData,  "startfx-64.raw",   "startfx-64.pal",},
+  {"DK Legal Splash (Wide Screen)", 854, 480, 8, FGrp_StdData, "legal-64-wide.raw", "legal-64-wide.pal",}, // If this crashes, use 855 as the width instead
 };
 
+// Format: <name> <width> <height> <bits per pixel> <file load location> <raw file> <palette file>
 struct RawBitmap bitmaps_320[] = {
-  {"Empty Image",     320, 200, 8, FGrp_Main,     NULL,               NULL},
-  {"Loading Image",   320, 200, 8, FGrp_StdData,  "loading-32.raw",   "loading-32.pal",},
-  {"NoCD Image",      320, 200, 8, FGrp_StdData,  "nocd-32.raw",      "nocd-32.pal",},
-  {"DK Legal Splash", 320, 200, 8, FGrp_StdData,  "legal-32.raw",     "legal-32.pal",},
-  {"KeeperFX Splash", 320, 200, 8, FGrp_StdData,  "startfx-32.raw",   "startfx-32.pal",},
+  {"Empty Image",                   320, 200, 8, FGrp_Main,     NULL,               NULL},
+  {"Loading Image",                 320, 200, 8, FGrp_StdData,  "loading-32.raw",   "loading-32.pal",},
+  {"NoCD Image",                    320, 200, 8, FGrp_StdData,  "nocd-32.raw",      "nocd-32.pal",},
+  {"DK Legal Splash",               320, 200, 8, FGrp_StdData,  "legal-32.raw",     "legal-32.pal",},
+  {"KeeperFX Splash",               320, 200, 8, FGrp_StdData,  "startfx-32.raw",   "startfx-32.pal",},
+  {"DK Legal Splash (Wide Screen)", 356, 200, 8, FGrp_StdData, "legal-32-wide.raw", "legal-32-wide.pal",}, // If this crashes, use 357 as the width instead
 };
 #else
+
+// Format: <name> <width> <height> <bits per pixel> <file load location> <raw file> <palette file>
 struct RawBitmap bitmaps_1280[] = {
-  {"Empty Image",     640, 480, 8, FGrp_Main,     NULL,               NULL},
-  {"Loading Image",   640, 480, 8, FGrp_StdData,  "loading64.raw",    "loading64.pal",},
-  {"NoCD Image",      320, 200, 8, FGrp_StdData,  "nocd.raw",         "nocd.pal",},
-  {"DK Legal Splash", 640, 480, 8, FGrp_StdData,  "legal64.raw",      "legal64.pal",},
-  {"KeeperFX Splash", 640, 480, 8, FGrp_StdData,  "startfx64.raw",    "startfx64.pal",},
+  {"Empty Image",                    640, 480, 8, FGrp_Main,    NULL,                 NULL},
+  {"Loading Image",                  640, 480, 8, FGrp_StdData, "loading64.raw",      "loading64.pal",},
+  {"NoCD Image",                     320, 200, 8, FGrp_StdData, "nocd.raw",           "nocd.pal",},
+  {"DK Legal Splash",                640, 480, 8, FGrp_StdData, "legal64.raw",        "legal64.pal",},
+  {"KeeperFX Splash",                640, 480, 8, FGrp_StdData, "startfx64.raw",      "startfx64.pal",},
+  {"DK Legal Splash (Wide Screen)", 1708, 960, 8, FGrp_StdData, "legal-128-wide.raw", "legal-128-wide.pal",},
 };
 
+// Format: <name> <width> <height> <bits per pixel> <file load location> <raw file> <palette file>
 struct RawBitmap bitmaps_640[] = {
-  {"Empty Image",     640, 480, 8, FGrp_Main,     NULL,               NULL},
-  {"Loading Image",   640, 480, 8, FGrp_StdData,  "loading64.raw",    "loading64.pal",},
-  {"NoCD Image",      320, 200, 8, FGrp_StdData,  "nocd.raw",         "nocd.pal",},
-  {"DK Legal Splash", 640, 480, 8, FGrp_StdData,  "legal64.raw",      "legal64.pal",},
-  {"KeeperFX Splash", 640, 480, 8, FGrp_StdData,  "startfx64.raw",    "startfx64.pal",},
+  {"Empty Image",                   640, 480, 8, FGrp_Main,    NULL,                NULL},
+  {"Loading Image",                 640, 480, 8, FGrp_StdData, "loading64.raw",     "loading64.pal",},
+  {"NoCD Image",                    320, 200, 8, FGrp_StdData, "nocd.raw",          "nocd.pal",},
+  {"DK Legal Splash",               640, 480, 8, FGrp_StdData, "legal64.raw",       "legal64.pal",},
+  {"KeeperFX Splash",               640, 480, 8, FGrp_StdData, "startfx64.raw",     "startfx64.pal",},
+  {"DK Legal Splash (Wide Screen)", 854, 480, 8, FGrp_StdData, "legal-64-wide.raw", "legal-64-wide.pal",}, // If this crashes, use 855 as the width instead
 };
 
+// Format: <name> <width> <height> <bits per pixel> <file load location> <raw file> <palette file>
 struct RawBitmap bitmaps_320[] = {
-  {"Empty Image",     320, 200, 8, FGrp_Main,     NULL,               NULL},
-  {"Loading Image",   320, 200, 8, FGrp_StdData,  "loading32.raw",    "loading32.pal",},
-  {"NoCD Image",      320, 200, 8, FGrp_StdData,  "nocd.raw",         "nocd.pal",},
-  {"DK Legal Splash", 320, 200, 8, FGrp_StdData,  "legal32.raw",      "legal32.pal",},
-  {"KeeperFX Splash", 320, 200, 8, FGrp_StdData,  "startfx32.raw",    "startfx32.pal",},
+  {"Empty Image",                   320, 200, 8, FGrp_Main,    NULL,                NULL},
+  {"Loading Image",                 320, 200, 8, FGrp_StdData, "loading32.raw",     "loading32.pal",},
+  {"NoCD Image",                    320, 200, 8, FGrp_StdData, "nocd.raw",          "nocd.pal",},
+  {"DK Legal Splash",               320, 200, 8, FGrp_StdData, "legal32.raw",       "legal32.pal",},
+  {"KeeperFX Splash",               320, 200, 8, FGrp_StdData, "startfx32.raw",     "startfx32.pal",},
+  {"DK Legal Splash (Wide Screen)", 356, 200, 8, FGrp_StdData, "legal-32-wide.raw", "legal-32-wide.pal",}, // If this crashes, use 357 as the width instead
 };
 #endif
 struct ActiveBitmap astd_bmp;
@@ -103,6 +118,7 @@ unsigned char palette_buf[PALETTE_SIZE];
 }
 #endif
 /******************************************************************************/
+
 /** Copies the given RAW image at given point of screen buffer.
  *
  * @param dst_buf Destination screen buffer.
@@ -265,14 +281,15 @@ short free_bitmap_screen(struct ActiveBitmap *actv_bmp)
 TbBool init_bitmap_screen(struct ActiveBitmap *actv_bmp,int stype)
 {
   struct RawBitmap *rbmp;
-  // Set startup parameters
+
+  // Decide best image to show based on the width of the screen
   if (LbGraphicsScreenWidth() >= 1280)
     rbmp = &bitmaps_1280[stype];
-  else
-  if (LbGraphicsScreenWidth() >= 640)
+  else if (LbGraphicsScreenWidth() >= 640)
     rbmp = &bitmaps_640[stype];
   else
     rbmp = &bitmaps_320[stype];
+
   clear_bitmap_screen(actv_bmp);
   actv_bmp->name = rbmp->name;
   actv_bmp->width = rbmp->width;
