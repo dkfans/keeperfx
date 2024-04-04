@@ -130,125 +130,122 @@ static int ceiling_calculate_height_from_nearest_walls(int result, int number_of
 
 void ceiling_partially_recompute_heights(MapSubtlCoord sx, MapSubtlCoord sy, MapSubtlCoord ex, MapSubtlCoord ey)
 {
-    long new_height;
-    long ceil_dist = (game.ceiling_dist > 4) ? 4 : game.ceiling_dist;
+    unsigned long *p_data;
+    int v22;
+    int v23;
+    struct MapOffset *spir;
+    MapSubtlCoord unk2_stl_x;
+    MapSubtlCoord unk2_stl_y;
+    int v27;
+    int v31;
+    char v33;
+    int v35;
+    unsigned int number_of_steps;
+    int v38;
+    int *v48;
+    int ceil_dist = game.ceiling_dist;
+    if (game.ceiling_dist > 4)
+        ceil_dist = 4;
     MapSubtlCoord unk_start_stl_x = sx - ceil_dist;
-    if (unk_start_stl_x < 0)
-    {
+    if (unk_start_stl_x <= 0)
         unk_start_stl_x = 0;
-    }
     MapSubtlCoord unk_start_stl_y = sy - ceil_dist;
-    if (sy - ceil_dist < 0)
-    {
+    if (sy - ceil_dist <= 0)
         unk_start_stl_y = 0;
-    }
 
     MapSubtlCoord unk_end_stl_x = ex + ceil_dist;
-    if (unk_end_stl_x > (gameadd.map_subtiles_x + 1))
-    {
+    if (ex + ceil_dist >= (gameadd.map_subtiles_x + 1))
         unk_end_stl_x = (gameadd.map_subtiles_x + 1);
-    }
     MapSubtlCoord unk_end_stl_y = ey + ceil_dist;
-    if (unk_end_stl_y > (gameadd.map_subtiles_y + 1))
-    {
+    if (unk_end_stl_y >= (gameadd.map_subtiles_y + 1))
         unk_end_stl_y = (gameadd.map_subtiles_y + 1);
-    }
 
     //ceiling_cache = (signed char*)scratch;
 
     MapSubtlCoord solid_check_start_stl_x = unk_start_stl_x - game.ceiling_dist;
-    if (solid_check_start_stl_x < 0)
-    {
+    if (solid_check_start_stl_x <= 0)
         solid_check_start_stl_x = 0;
-    }
 
     MapSubtlCoord solid_check_start_stl_y = unk_start_stl_y - game.ceiling_dist;
-    if (solid_check_start_stl_y < 0)
-    {
+    if (solid_check_start_stl_y <= 0)
         solid_check_start_stl_y = 0;
-    }
 
     MapSubtlCoord solid_check_end_stl_x = unk_end_stl_x + game.ceiling_dist;
-    if (solid_check_end_stl_x > (gameadd.map_subtiles_x + 1))
-    {
+    if (solid_check_end_stl_x >= (gameadd.map_subtiles_x + 1))
         solid_check_end_stl_x = (gameadd.map_subtiles_x + 1);
-    }
     MapSubtlCoord solid_check_end_stl_y = unk_end_stl_y + game.ceiling_dist;
-    if (solid_check_end_stl_y > (gameadd.map_subtiles_y + 1))
-    {
+    if (solid_check_end_stl_y >= (gameadd.map_subtiles_y + 1))
         solid_check_end_stl_y = (gameadd.map_subtiles_y + 1);
-    }
 
-    for (MapSubtlCoord cstl_y = solid_check_start_stl_y; cstl_y < solid_check_end_stl_y; cstl_y++)
+    MapSubtlCoord cstl_y = solid_check_start_stl_y;   
+    while (cstl_y < solid_check_end_stl_y)
     {
-        for (MapSubtlCoord cstl_x = solid_check_start_stl_x; cstl_x < solid_check_end_stl_x; cstl_x++)
+        MapSubtlCoord cstl_x = solid_check_start_stl_x;
+        while (cstl_x < solid_check_end_stl_x)
         {
             SubtlCodedCoords stl_num = get_subtile_number(cstl_x,cstl_y);
             ceiling_cache[stl_num] = ceiling_block_is_solid_including_corners_return_height(stl_num,cstl_x,cstl_y);
+            cstl_x++;
         }
-        
+        cstl_y++;
     }
 
-    for (MapSubtlCoord unk_stl_y = unk_start_stl_y; unk_stl_y < unk_end_stl_y; unk_stl_y++)
+    MapSubtlCoord unk_stl_y = unk_start_stl_y;
+    while (unk_stl_y < unk_end_stl_y)
     {
-        for (MapSubtlCoord unk_stl_x = unk_start_stl_x; unk_end_stl_x > unk_stl_x; unk_stl_x++)
+        MapSubtlCoord unk_stl_x = unk_start_stl_x;
+        while (unk_end_stl_x > unk_stl_x)
         {
             SubtlCodedCoords stl_num2 = get_subtile_number(unk_stl_x,unk_stl_y);
-            new_height = ceiling_cache[stl_num2];
-            if (new_height <= -1)
+            v22 = ceiling_cache[stl_num2];
+            v38 = v22;
+            if (v22 <= -1)
             {
-                unsigned int number_of_steps;
-                TbBool calculate;
+                v48 = &v38;
+                v23 = 0;
+                spir = spiral_step;
                 if (game.ceiling_search_dist > 0)
                 {
-                    MapSubtlCoord unk2_stl_x;
-                    MapSubtlCoord unk2_stl_y;
-                    struct MapOffset *spir = spiral_step;
-                    long ceiling_search_index = 0;
-                    long height;
                     while (1)
                     {
                         unk2_stl_x = unk_stl_x + spir->h;
                         unk2_stl_y = unk_stl_y + spir->v;
                         if (unk2_stl_x >= 0 && unk2_stl_x < gameadd.map_subtiles_x && unk2_stl_y >= 0 && unk2_stl_y < gameadd.map_subtiles_y)
                         {
-                            height = ceiling_cache[get_subtile_number(unk2_stl_x, unk2_stl_y)];
-                            if (height > -1)
-                            {
+                            v27 = ceiling_cache[get_subtile_number(unk2_stl_x ,unk2_stl_y)];
+                            if (v27 > -1)
                                 break;
-                            }
                         }
-                        ceiling_search_index++;
-                        if (ceiling_search_index >= game.ceiling_search_dist)
-                        {
+                        ++v23;
+                        ++spir;
+                        if (v23 >= game.ceiling_search_dist)
                             goto LABEL_43;
-                        }
-                        spir++;
                     }
-                    new_height = height;
+                    *v48 = v27;
                     number_of_steps = chessboard_distance(unk_stl_x, unk_stl_y, unk2_stl_x, unk2_stl_y);
-                    calculate = true;
+                    v31 = 1;
                 }
                 else
                 {
-                    calculate = false;
+                LABEL_43:
+                    v31 = 0;
                 }
-                if (calculate)
-                {
-                    new_height = ceiling_calculate_height_from_nearest_walls(new_height, number_of_steps);
-                }
+                if (v31)
+                    v22 = ceiling_calculate_height_from_nearest_walls(v38, number_of_steps);
                 else
-                {
-                    LABEL_43:
-                    new_height = game.ceiling_height_max;
-                }
+                    v22 = game.ceiling_height_max;
             }
-            struct Map *mapblk = get_map_block_at_pos(stl_num2);
-            struct Column *col = get_map_column(mapblk);
-            col->bitfields &= CLF_FLOOR_MASK;
-            set_mapblk_filled_subtiles(mapblk, new_height);
+
+            p_data = &game.map[stl_num2].data;
+            v33 = *((char *)p_data + 3) & CLF_FLOOR_MASK;
+            
+            *((char *)p_data + 3) = v33;
+            v35 = ((v22 & 0xF) << 24) | *p_data;
+            *p_data = v35;
+            unk_stl_x++;
         }
-    }
+        unk_stl_y ++;
+    }  
 }
 
 static long get_ceiling_filled_subtiles_from_cubes(const struct Column *col)
