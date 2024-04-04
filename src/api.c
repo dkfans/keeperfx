@@ -852,6 +852,96 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         return;
     }
 
+    // Handle subscribe var command
+    if (strcasecmp("unsubscribe_var", action) == 0)
+    {
+        // Get variable name
+        char *variable_name = (char *)value_string(value_dict_get(value, "var"));
+        if (variable_name == NULL || strlen(variable_name) < 1)
+        {
+            api_err("MISSING_VAR");
+            value_fini(&data);
+            return;
+        }
+
+        // Recognize variable
+        long variable_id, variable_type;
+        if (parse_get_varib(variable_name, &variable_id, &variable_type) == false)
+        {
+            api_err("UNKNOWN_VAR");
+            value_fini(&data);
+            return;
+        }
+
+        // Try to subscribe to the variable
+        if (api_unsubscribe_var(player_id, variable_type, variable_id))
+        {
+            api_ok();
+        }
+        else
+        {
+            api_err("SUB_FAILED");
+        }
+
+        // End
+        value_fini(&data);
+        return;
+    }
+
+    // Handle subscribe var command
+    if (strcasecmp("subscribe_event", action) == 0)
+    {
+        // Get event name
+        char *event_name = (char *)value_string(value_dict_get(value, "event"));
+        if (event_name == NULL || strlen(event_name) < 1)
+        {
+            api_err("MISSING_EVENT");
+            value_fini(&data);
+            return;
+        }
+
+        // Try to subscribe to the variable
+        if (api_subscribe_event(event_name))
+        {
+            api_ok();
+        }
+        else
+        {
+            api_err("SUB_FAILED");
+        }
+
+        // End
+        value_fini(&data);
+        return;
+    }
+
+    // Handle subscribe var command
+    if (strcasecmp("unsubscribe_event", action) == 0)
+    {
+        // Get event name
+        char *event_name = (char *)value_string(value_dict_get(value, "event"));
+        if (event_name == NULL || strlen(event_name) < 1)
+        {
+            api_err("MISSING_EVENT");
+            value_fini(&data);
+            return;
+        }
+
+        // Try to subscribe to the variable
+        if (api_unsubscribe_event(event_name))
+        {
+            api_ok();
+        }
+        else
+        {
+            api_err("SUB_FAILED");
+        }
+
+        // End
+        value_fini(&data);
+        return;
+    }
+
     // ==================================================================================================================================
     // Commands that only work when a map is loaded
     // ==================================================================================================================================
