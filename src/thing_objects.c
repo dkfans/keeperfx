@@ -1880,11 +1880,13 @@ struct Thing *create_gold_pot_at(long pos_x, long pos_y, PlayerNumber plyr_idx)
  */
 int get_wealth_size_of_gold_hoard_model(ThingModel objmodel)
 {
-    // Find position of the hoard size
+    // Check gold_hoard_objects array to determine wealth_size of the hoard model
     for (int i = get_wealth_size_types_count(); i > 0; i--)
     {
-        if (gold_hoard_objects[i] == objmodel)
-            return i;
+        if (gold_hoard_objects[i] == objmodel) {
+            int wealth_size = i+1;
+            return wealth_size;
+        }
     }
     return 0;
 }
@@ -1903,12 +1905,8 @@ int get_wealth_size_of_gold_hoard_object(const struct Thing *objtng)
 int get_wealth_size_of_gold_amount(GoldAmount value)
 {
     long wealth_size_holds = game.conf.rules.game.gold_per_hoard / (get_wealth_size_types_count());
-    int wealth_size = (value + wealth_size_holds - 1) / wealth_size_holds;
-    if (wealth_size > get_wealth_size_types_count()) {
-        WARNLOG("Gold hoard with %d gold would be oversized",(int)value);
-        wealth_size = get_wealth_size_types_count();
-    }
-    return wealth_size-1;
+    int wealth_size = (value / wealth_size_holds);
+    return wealth_size;
 }
 
 /**
@@ -1916,6 +1914,7 @@ int get_wealth_size_of_gold_amount(GoldAmount value)
  */
 int get_wealth_size_types_count(void)
 {
+    // This will return a value of 5 because there's 5 items in gold_hoard_objects array
     return sizeof(gold_hoard_objects)/sizeof(gold_hoard_objects[0]);
 }
 
@@ -1933,7 +1932,7 @@ struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber p
     if (value >= game.conf.rules.game.gold_per_hoard)
         value = game.conf.rules.game.gold_per_hoard;
     int wealth_size = get_wealth_size_of_gold_amount(value);
-    struct Thing* gldtng = create_object(pos, gold_hoard_objects[wealth_size], plyr_idx, -1);
+    struct Thing* gldtng = create_object(pos, gold_hoard_objects[wealth_size-1], plyr_idx, -1);
     if (thing_is_invalid(gldtng))
         return INVALID_THING;
     gldtng->valuable.gold_stored = value;
@@ -2010,7 +2009,7 @@ long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amou
     wealth_size = get_wealth_size_of_gold_amount(gldtng->valuable.gold_stored);
     room->used_capacity += wealth_size;
     // switch hoard object model
-    gldtng->model = gold_hoard_objects[wealth_size];
+    gldtng->model = gold_hoard_objects[wealth_size-1];
     // Set visual appearance
     struct ObjectConfigStats* objst = get_object_model_stats(gldtng->model);
     unsigned short i = objst->sprite_anim_idx;
@@ -2062,7 +2061,7 @@ long remove_gold_from_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount
     wealth_size = get_wealth_size_of_gold_amount(gldtng->valuable.gold_stored);
     room->used_capacity += wealth_size;
     // switch hoard object model
-    gldtng->model = gold_hoard_objects[wealth_size];
+    gldtng->model = gold_hoard_objects[wealth_size-1];
     // Set visual appearance
     struct ObjectConfigStats* objst = get_object_model_stats(gldtng->model);
     unsigned short i = objst->sprite_anim_idx;
