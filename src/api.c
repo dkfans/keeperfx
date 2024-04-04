@@ -1154,6 +1154,7 @@ void api_update_server()
         return;
     }
 
+    // Create a buffer to read from the socket
     char buffer[API_SERVER_BUFFER];
     memset(buffer, 0, API_SERVER_BUFFER);
 
