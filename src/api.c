@@ -50,6 +50,7 @@ struct SubscribedVariable
     PlayerNumber player_id;
     unsigned char type;
     unsigned char id;
+    long val;
 };
 
 /**
@@ -74,11 +75,6 @@ struct Subscription
  * This is done for performance reasons.
  */
 int api_sub_count = 0;
-
-struct StaticSubscription
-{
-    TbBool game_turn;
-} static_subscription;
 
 /**
  * Structure to hold the state of a dump buffer.
@@ -126,17 +122,6 @@ static int json_value_dump_writer(const char *str, size_t size, void *dbs)
 }
 
 /**
- * Load the static subscription configuration.
- *
- * These are simple booleans for more unique subscriptions
- * that should not be done using the dynamic list of subscriptions for performance reasons.
- */
-void load_static_subs()
-{
-    static_subscription.game_turn = false;
-}
-
-/**
  * Initialize the TCP API server.
  *
  * This function initializes the TCP API server by opening a socket on the specified port.
@@ -162,9 +147,6 @@ int api_init_server()
     {
         JUSTLOG("API server starting on port: %ld", api_port);
     }
-
-    // Load the static subscription configuration
-    load_static_subs();
 
     if (SDLNet_Init() < 0)
     {
@@ -365,6 +347,59 @@ static void api_return_data_string(const char *data)
     api_return_data(true, dataValue);
 }
 
+void api_return_var_update(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx, long value)
+{
+    // Do nothing if API server is not active
+    if (!api.activeSocket)
+    {
+        return;
+    }
+
+    // Create JSON response object
+    VALUE json_root_real;
+    VALUE *json_root = &json_root_real;
+    value_init_dict(json_root);
+
+    // Create event key
+    VALUE *val_event = value_dict_add(json_root, "event");
+    value_init_string(val_event, "VAR_UPDATE");
+
+    // Create var change object
+    VALUE *val_var = value_dict_add(json_root, "var");
+    value_init_dict(val_var);
+
+    // Data of the var change
+    VALUE *val_var_player = value_dict_add(val_var, "player");
+    value_init_int32(val_var_player, plyr_idx);
+    VALUE *val_var_type = value_dict_add(val_var, "type");
+    value_init_int32(val_var_type, valtype);
+    VALUE *val_var_id = value_dict_add(val_var, "id");
+    value_init_int32(val_var_id, validx);
+    VALUE *val_var_new_val = value_dict_add(val_var, "new_val");
+    value_init_int32(val_var_new_val, value);
+
+    // Create JSON response
+    char json_string[1024];
+    struct dump_buf_state dump_state = {json_string, sizeof(json_string) - 1};
+    int json_dump_return_value = json_dom_dump(json_root, json_value_dump_writer, &dump_state, 0, JSON_DOM_DUMP_MINIMIZE);
+
+    *dump_state.out = 0;
+    if (json_dump_return_value != 0)
+    {
+        api_err("FAILED_TO_CREATE_JSON");
+        value_fini(json_root);
+        return;
+    }
+
+    // Add newline to end of data
+    dump_state.out[0] = '\n';
+    dump_state.out++;
+
+    // Send data to client
+    SDLNet_TCP_Send(api.activeSocket, json_string, dump_state.out - json_string);
+    value_fini(json_root);
+}
+
 /**
  * Send a long integer data response to the API client.
  *
@@ -393,12 +428,11 @@ int api_is_subscribed_to_event(const char *event_name)
 {
     // Look up if we are subscribed to this event
     int api_sub_found_count = 0;
-    for (int i = 0; i <= API_SUBSCRIBE_LIST_SIZE; i++)
+    for (int i = 0; i < API_SUBSCRIBE_LIST_SIZE; i++)
     {
-        // Cancel this subscription search if we are:
-        // - At the end of the subscription list
-        // - Or we have seen the same amount of subscriptions as we are subscribed to
-        if (i == API_SUBSCRIBE_LIST_SIZE || api_sub_count == api_sub_found_count)
+        // Cancel this subscription search if we have
+        // seen the same amount of subscriptions as we are subscribed to
+        if (api_sub_count == api_sub_found_count)
         {
             return false;
         }
@@ -447,13 +481,8 @@ int api_subscribe_event(const char *event_name)
     }
 
     // Loop trough the list of subscription slots to find an empty slot and create a subscription
-    for (int i = 0; i <= API_SUBSCRIBE_LIST_SIZE; i++)
+    for (int i = 0; i < API_SUBSCRIBE_LIST_SIZE; i++)
     {
-        // Cancel this subscription search if we are at the end of the subscription list
-        if (i == API_SUBSCRIBE_LIST_SIZE)
-        {
-            return false;
-        }
 
         // If this subscription slot is inactive we'll use it
         if (api_subscriptions[i].type == API_SUBSCRIBE_INACTIVE)
@@ -477,13 +506,8 @@ int api_unsubscribe_event(const char *event_name)
     }
 
     // Loop trough the list of subscription slots to find an empty slot and create a subscription
-    for (int i = 0; i <= API_SUBSCRIBE_LIST_SIZE; i++)
+    for (int i = 0; i < API_SUBSCRIBE_LIST_SIZE; i++)
     {
-        // Cancel this subscription search if we are at the end of the subscription list
-        if (i == API_SUBSCRIBE_LIST_SIZE)
-        {
-            return false;
-        }
 
         // If this subscription slot is not an event we'll skip it
         if (api_subscriptions[i].type != API_SUBSCRIBE_EVENT)
@@ -508,12 +532,11 @@ int api_is_subscribed_to_var(PlayerNumber plyr_idx, unsigned char valtype, unsig
 {
     // Look up if we are subscribed to updates of this variable
     int api_sub_found_count = 0;
-    for (int i = 0; i <= API_SUBSCRIBE_LIST_SIZE; i++)
+    for (int i = 0; i < API_SUBSCRIBE_LIST_SIZE; i++)
     {
-        // Cancel this subscription search if we are:
-        // - At the end of the subscription list
-        // - Or we have seen the same amount of subscriptions as we are subscribed to
-        if (i == API_SUBSCRIBE_LIST_SIZE || api_sub_count == api_sub_found_count)
+        // Cancel this subscription search if we have
+        // seen the same amount of subscriptions as we are subscribed to
+        if (api_sub_count == api_sub_found_count)
         {
             return false;
         }
@@ -562,13 +585,8 @@ int api_subscribe_var(PlayerNumber plyr_idx, unsigned char valtype, unsigned cha
     }
 
     // Loop trough the list of subscription slots to find an empty slot and create a subscription
-    for (int i = 0; i <= API_SUBSCRIBE_LIST_SIZE; i++)
+    for (int i = 0; i < API_SUBSCRIBE_LIST_SIZE; i++)
     {
-        // Cancel this subscription search if we are at the end of the subscription list
-        if (i == API_SUBSCRIBE_LIST_SIZE)
-        {
-            return false;
-        }
 
         // If this subscription slot is inactive we'll use it
         if (api_subscriptions[i].type == API_SUBSCRIBE_INACTIVE)
@@ -578,6 +596,7 @@ int api_subscribe_var(PlayerNumber plyr_idx, unsigned char valtype, unsigned cha
             sub_var.player_id = plyr_idx;
             sub_var.type = valtype;
             sub_var.id = validx;
+            sub_var.val = get_condition_value(plyr_idx, valtype, validx);
 
             api_subscriptions[i].type = API_SUBSCRIBE_VAR;
             api_subscriptions[i].var = sub_var;
@@ -599,13 +618,8 @@ int api_unsubscribe_var(PlayerNumber plyr_idx, unsigned char valtype, unsigned c
     }
 
     // Loop trough the list of subscription slots to find an empty slot and create a subscription
-    for (int i = 0; i <= API_SUBSCRIBE_LIST_SIZE; i++)
+    for (int i = 0; i < API_SUBSCRIBE_LIST_SIZE; i++)
     {
-        // Cancel this subscription search if we are at the end of the subscription list
-        if (i == API_SUBSCRIBE_LIST_SIZE)
-        {
-            return false;
-        }
 
         // If this subscription slot is not an event we'll skip it
         if (api_subscriptions[i].type != API_SUBSCRIBE_VAR)
@@ -629,7 +643,7 @@ int api_unsubscribe_var(PlayerNumber plyr_idx, unsigned char valtype, unsigned c
     return false;
 }
 
-void api_var_update(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx, long new_val)
+void api_check_var_update()
 {
     // Do nothing if API server is not active
     if (!api.activeSocket)
@@ -637,78 +651,52 @@ void api_var_update(PlayerNumber plyr_idx, unsigned char valtype, unsigned char 
         return;
     }
 
-    // Do nothing if we are not subscribed to this var update
-    if (api_is_subscribed_to_var(plyr_idx, valtype, validx) == false)
+    // Loop trough all our subscriptions
+    int api_sub_found_count = 0;
+    for (int i = 0; i < API_SUBSCRIBE_LIST_SIZE; i++)
     {
-        JUSTLOG("not subbed: %d, %d, %d", plyr_idx, valtype, validx);
-        return;
+        // Cancel this subscription search if we have
+        // seen the same amount of subscriptions as we are subscribed to
+        if (api_sub_count == api_sub_found_count)
+        {
+            return false;
+        }
+
+        // If this subscription slot is inactive we can skip it
+        if (api_subscriptions[i].type == API_SUBSCRIBE_INACTIVE)
+        {
+            continue;
+        }
+
+        api_sub_found_count++;
+
+        // Ignore if this subscription slot is not for a var
+        if (api_subscriptions[i].type != API_SUBSCRIBE_VAR)
+        {
+            continue;
+        }
+
+        // Get the variable value
+        long variable_value = get_condition_value(
+            api_subscriptions[i].var.player_id,
+            api_subscriptions[i].var.type,
+            api_subscriptions[i].var.id);
+
+        // Check if variable has changed
+        if (api_subscriptions[i].var.val != variable_value)
+        {
+
+            // Update the remembered value
+            api_subscriptions[i].var.val = variable_value;
+
+            // Send notification to client
+            api_return_var_update(
+                api_subscriptions[i].var.player_id,
+                api_subscriptions[i].var.type,
+                api_subscriptions[i].var.id,
+                api_subscriptions[i].var.val);
+        }
     }
-
-    JUSTLOG("subbed: %d, %d, %d", plyr_idx, valtype, validx);
-
-    // Create JSON response object
-    VALUE json_root_real;
-    VALUE *json_root = &json_root_real;
-    value_init_dict(json_root);
-
-    // Create event key
-    VALUE *val_event = value_dict_add(json_root, "event");
-    value_init_string(val_event, "VAR_UPDATE");
-
-    // Create var change object
-    VALUE *val_var = value_dict_add(json_root, "var");
-    value_init_dict(val_var);
-
-    // Data of the var change
-    VALUE *val_var_player = value_dict_add(val_var, "player");
-    value_init_int32(val_var_player, plyr_idx);
-    VALUE *val_var_type = value_dict_add(val_var, "type");
-    value_init_int32(val_var_type, valtype);
-    VALUE *val_var_id = value_dict_add(val_var, "id");
-    value_init_int32(val_var_id, validx);
-    VALUE *val_var_new_val = value_dict_add(val_var, "new_val");
-    value_init_int32(val_var_new_val, new_val);
-
-    // Create JSON response
-    char json_string[1024];
-    struct dump_buf_state dump_state = {json_string, sizeof(json_string) - 1};
-    int json_dump_return_value = json_dom_dump(json_root, json_value_dump_writer, &dump_state, 0, JSON_DOM_DUMP_MINIMIZE);
-
-    *dump_state.out = 0;
-    if (json_dump_return_value != 0)
-    {
-        api_err("FAILED_TO_CREATE_JSON");
-        value_fini(json_root);
-        return;
-    }
-
-    // Add newline to end of data
-    dump_state.out[0] = '\n';
-    dump_state.out++;
-
-    // Send data to client
-    SDLNet_TCP_Send(api.activeSocket, json_string, dump_state.out - json_string);
-    value_fini(json_root);
-}
-
-void api_gameturn_update()
-{
-    // Do nothing if API server is not active
-    if (!api.activeSocket)
-    {
-        return;
-    }
-
-    // Do nothing if we are not subscribed to gameturn updates
-    if (static_subscription.game_turn == false)
-    {
-        return;
-    }
-
-    // Send back the JSON as a string. A number should never be able to break the syntax.
-    char buf[256];
-    int len = snprintf(buf, sizeof(buf) - 1, "{\"event\":\"GAME_TURN\",\"turn\":%ld}\n", game.play_gameturn);
-    SDLNet_TCP_Send(api.activeSocket, buf, len);
 }
 
 /**
@@ -862,28 +850,6 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         // End
         value_fini(&data);
         return;
-    }
-
-    // Handle subscribe and unsubscribe command
-    if (strcasecmp("subscribe", action) == 0 || strcasecmp("unsubscribe", action) == 0)
-    {
-        // Get the new static subscription value
-        TbBool subscribed = (strcasecmp("subscribe", action) == 0);
-
-        // Get the var
-        char *var = (char *)value_string(value_dict_get(value, "var"));
-        if (var == NULL || strlen(var) < 1)
-        {
-            api_err("MISSING_VAR");
-            value_fini(&data);
-            return;
-        }
-
-        // Game turns
-        if (strcasecmp("GAME_TURN", var) == 0)
-        {
-            static_subscription.game_turn = subscribed;
-        }
     }
 
     // ==================================================================================================================================
@@ -1290,8 +1256,8 @@ void api_update_server()
         }
     } while (numReady > 0); // To have break instead of goto
 
-    // Handle gameturn update events
-    api_gameturn_update();
+    // Handle variable subscriptions
+    api_check_var_update();
 }
 
 /**

@@ -11,7 +11,6 @@ extern "C"
     void api_close_server();
 
     void api_event(const char *event_name);
-    void api_var_update(signed char plyr_idx, unsigned char valtype, unsigned char validx, long new_val);
 
 #ifdef __cplusplus
 }

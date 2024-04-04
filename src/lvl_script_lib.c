@@ -24,7 +24,6 @@
 #include "lvl_filesdk1.h"
 #include "creature_states_pray.h"
 #include "magic.h"
-#include "api.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -234,8 +233,6 @@ void set_variable(int player_idx, long var_type, long var_idx, long new_val)
     default:
         WARNLOG("Unexpected type:%d",(int)var_type);
     }
-
-    api_var_update(player_idx, var_type, var_idx, new_val);
 }
 
 long parse_criteria(const char *criteria)
