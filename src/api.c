@@ -7,6 +7,7 @@
 #include "config.h"
 #include "config_campaigns.h"
 #include "lvl_script.h"
+#include "lvl_script_commands.h"
 #include "lvl_script_lib.h"
 #include "lvl_script_value.h"
 #include "dungeon_data.h"
@@ -48,6 +49,7 @@ struct ApiGlobals
 struct SubscribedVariable
 {
     PlayerNumber player_id;
+    const char *name;
     unsigned char type;
     unsigned char id;
     long val;
@@ -119,6 +121,16 @@ static int json_value_dump_writer(const char *str, size_t size, void *dbs)
     ((struct dump_buf_state *)dbs)->out_space -= (int)size;
 
     return 0;
+}
+
+size_t get_max_flags()
+{
+    size_t num = 0;
+    while (flag_desc[num].name != NULL)
+    {
+        num++;
+    }
+    return num;
 }
 
 /**
@@ -347,7 +359,7 @@ static void api_return_data_string(const char *data)
     api_return_data(true, dataValue);
 }
 
-void api_return_var_update(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx, long value)
+void api_return_var_update(PlayerNumber plyr_idx, const char *var_name, long value)
 {
     // Do nothing if API server is not active
     if (!api.activeSocket)
@@ -368,14 +380,17 @@ void api_return_var_update(PlayerNumber plyr_idx, unsigned char valtype, unsigne
     VALUE *val_var = value_dict_add(json_root, "var");
     value_init_dict(val_var);
 
-    // Data of the var change
+    // Add player string
     VALUE *val_var_player = value_dict_add(val_var, "player");
-    value_init_int32(val_var_player, plyr_idx);
-    VALUE *val_var_type = value_dict_add(val_var, "type");
-    value_init_int32(val_var_type, valtype);
-    VALUE *val_var_id = value_dict_add(val_var, "id");
-    value_init_int32(val_var_id, validx);
-    VALUE *val_var_new_val = value_dict_add(val_var, "new_val");
+    value_init_string(val_var_player, player_code_name(plyr_idx));
+
+    // Add variable name
+    VALUE *val_var_type = value_dict_add(val_var, "var");
+    value_init_string(val_var_type, var_name);
+    // value_init_string(val_var_type, parse_get_var_name_from_type_and_id(valtype, validx));
+
+    // Add the new value
+    VALUE *val_var_new_val = value_dict_add(val_var, "value");
     value_init_int32(val_var_new_val, value);
 
     // Create JSON response
@@ -567,7 +582,7 @@ int api_is_subscribed_to_var(PlayerNumber plyr_idx, unsigned char valtype, unsig
     return false;
 }
 
-int api_subscribe_var(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx)
+int api_subscribe_var(PlayerNumber plyr_idx, const char *var_name, unsigned char valtype, unsigned char validx)
 {
     JUSTLOG("Sub: %d, %d, %d", plyr_idx, valtype, validx);
 
@@ -593,6 +608,7 @@ int api_subscribe_var(PlayerNumber plyr_idx, unsigned char valtype, unsigned cha
         {
 
             struct SubscribedVariable sub_var;
+            sub_var.name = var_name;
             sub_var.player_id = plyr_idx;
             sub_var.type = valtype;
             sub_var.id = validx;
@@ -692,8 +708,7 @@ void api_check_var_update()
             // Send notification to client
             api_return_var_update(
                 api_subscriptions[i].var.player_id,
-                api_subscriptions[i].var.type,
-                api_subscriptions[i].var.id,
+                api_subscriptions[i].var.name,
                 api_subscriptions[i].var.val);
         }
     }
@@ -820,7 +835,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
     if (strcasecmp("subscribe_var", action) == 0)
     {
         // Get variable name
-        char *variable_name = (char *)value_string(value_dict_get(value, "var"));
+        const char *variable_name = (char *)value_string(value_dict_get(value, "var"));
         if (variable_name == NULL || strlen(variable_name) < 1)
         {
             api_err("MISSING_VAR");
@@ -838,7 +853,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         }
 
         // Try to subscribe to the variable
-        if (api_subscribe_var(player_id, variable_type, variable_id))
+        if (api_subscribe_var(player_id, variable_name, variable_type, variable_id))
         {
             api_ok();
         }
@@ -1041,45 +1056,17 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
 
         for (int player_index = 0; player_index < ALL_PLAYERS; player_index++)
         {
-            char player_string[32];
-
-            // Create the player string for this player
-            if (player_index == 4)
-            {
-                strcpy(player_string, "PLAYER_GOOD");
-            }
-            else if (player_index == 5)
-            {
-                strcpy(player_string, "PLAYER_NEUTRAL");
-            }
-            else
-            {
-
-                // After PLAYER_GOOD and PLAYER_NEUTRAL we have to move the number back to PLAYER4
-                int player_string_number = player_index;
-                if (player_index > 5)
-                {
-                    player_string_number -= 2;
-                }
-
-                // Create string
-                char player_new_string[8];
-                snprintf(player_new_string, sizeof(player_new_string), "PLAYER%d", player_string_number);
-                strcpy(player_string, player_new_string);
-            }
-
             // Create object for this player
-            VALUE *player_info = value_dict_add(flag_data, player_string);
+            VALUE *player_info = value_dict_add(flag_data, player_code_name(player_index));
             value_init_dict(player_info);
 
-            for (int flag_index = 0; flag_index < 8; flag_index++)
+            for (int flag_index = 0; flag_index < get_max_flags(); flag_index++)
             {
                 // Get flag value
                 long flag_value = get_condition_value(player_id, SVar_FLAG, flag_index);
 
                 // Add flag to player flag
-                char flag_string[6];
-                snprintf(flag_string, sizeof(flag_string), "FLAG%d", flag_index);
+                const char *flag_string = get_conf_parameter_text(flag_desc, flag_index);
                 value_init_int32(value_dict_add(player_info, flag_string), flag_value);
             }
         }
