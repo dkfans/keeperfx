@@ -53,7 +53,6 @@ struct RawBitmap bitmaps_1280[] = {
   {"DK Legal Splash",               1280, 960, 8, FGrp_StdData, "legal-128.raw",      "legal-128.pal",},
   {"KeeperFX Splash",               1280, 960, 8, FGrp_StdData, "startfx-128.raw",    "startfx-128.pal",},
   {"DK Legal Splash (Wide Screen)", 1708, 960, 8, FGrp_StdData, "legal-128-wide.raw", "legal-128-wide.pal",},
-  {"DK Legal Splash (Wide Screen)", 1708, 960, 8, FGrp_StdData, "legal-128-wide.raw", "legal-128-wide.pal",},
 };
 
 // Format: <name> <width> <height> <bits per pixel> <file load location> <raw file> <palette file>
