@@ -202,6 +202,7 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"DISARMING",           18},
   {"BLOCKS_REBIRTH",      19},
   {"PENETRATING",         20},
+  {"NEVER_BLOCK",         21},
   {NULL,                   0},
   };
 
@@ -1122,6 +1123,10 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 break;
             case 20: // Penetrating
                 shotst->model_flags |= ShMF_Penetrating;
+                n++;
+                break;
+            case 21: // NeverBlock
+                shotst->model_flags |= ShMF_NeverBlock;
                 n++;
                 break;
             default:

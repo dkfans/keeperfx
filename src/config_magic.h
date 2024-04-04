@@ -141,6 +141,7 @@ enum ShotModelFlags {
     ShMF_Exploding      = 0x2000,
     ShMF_BlocksRebirth  = 0x4000,
     ShMF_Penetrating    = 0x8000,
+    ShMF_NeverBlock     = 0x10000,
 };
 
 enum PowerCanCastFlags {
