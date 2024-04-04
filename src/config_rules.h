@@ -98,8 +98,8 @@ struct GameRulesConfig {
     short torture_payday;
     short torture_training_cost;
     short torture_scavenging_cost;
-    long easter_egg_speech_chance;
-    long easter_egg_speech_interval;
+    unsigned long easter_egg_speech_chance;
+    unsigned long easter_egg_speech_interval;
 };
 
 struct ComputerRulesConfig {
