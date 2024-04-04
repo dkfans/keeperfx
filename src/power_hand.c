@@ -288,11 +288,11 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
       remove_food_from_food_room_if_possible(thing);
       picktng = thing;
       break;
-    case ObjMdl_GoldPile:
     case ObjMdl_GoldHorde1:
     case ObjMdl_GoldHorde2:
     case ObjMdl_GoldHorde3:
     case ObjMdl_GoldHorde4:
+    case ObjMdl_GoldHorde5:
       picktng = create_gold_for_hand_grab(thing, plyr_idx);
       break;
     case ObjMdl_SpecboxRevealMap:
