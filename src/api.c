@@ -385,8 +385,8 @@ void api_return_var_update(PlayerNumber plyr_idx, const char *var_name, long val
     value_init_string(val_var_player, player_code_name(plyr_idx));
 
     // Add variable name
-    VALUE *val_var_type = value_dict_add(val_var, "name");
-    value_init_string(val_var_type, var_name);
+    VALUE *val_var_name = value_dict_add(val_var, "name");
+    value_init_string(val_var_name, var_name);
 
     // Add the new value
     VALUE *val_var_new_val = value_dict_add(val_var, "value");
