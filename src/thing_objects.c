@@ -1900,12 +1900,22 @@ int get_wealth_size_of_gold_hoard_object(const struct Thing *objtng)
 }
 
 /**
- * For given gold amount, returns ceiling wealth size which would fit it, scaled 0..max_size+1.
+ * For gold amount, returns the weath size, which is the size of the hoard.
+ For example:
+ 400 gold = 1 wealth size
+ 800 gold = 2 wealth size
+ 1200 gold = 3 wealth size
+ 1600 gold = 4 wealth size
+ 2000 gold = 5 wealth size
  */
 int get_wealth_size_of_gold_amount(GoldAmount value)
 {
-    long wealth_size_holds = game.conf.rules.game.gold_per_hoard / (get_wealth_size_types_count());
-    int wealth_size = (value / wealth_size_holds);
+    long wealth_size_holds = game.conf.rules.game.gold_per_hoard / get_wealth_size_types_count();
+    int wealth_size = (value + wealth_size_holds - 1) / wealth_size_holds;
+    if (wealth_size > get_wealth_size_types_count()) {
+        WARNLOG("Gold hoard with %d gold would be oversized",(int)value);
+        wealth_size = get_wealth_size_types_count();
+    }
     return wealth_size;
 }
 
