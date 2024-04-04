@@ -75,6 +75,11 @@ struct Subscription
  */
 int api_sub_count = 0;
 
+struct StaticSubscription
+{
+    TbBool game_turn;
+} static_subscription;
+
 /**
  * Structure to hold the state of a dump buffer.
  *
@@ -121,6 +126,17 @@ static int json_value_dump_writer(const char *str, size_t size, void *dbs)
 }
 
 /**
+ * Load the static subscription configuration.
+ *
+ * These are simple booleans for more unique subscriptions
+ * that should not be done using the dynamic list of subscriptions for performance reasons.
+ */
+void load_static_subs()
+{
+    static_subscription.game_turn = false;
+}
+
+/**
  * Initialize the TCP API server.
  *
  * This function initializes the TCP API server by opening a socket on the specified port.
@@ -146,6 +162,9 @@ int api_init_server()
     {
         JUSTLOG("API server starting on port: %ld", api_port);
     }
+
+    // Load the static subscription configuration
+    load_static_subs();
 
     if (SDLNet_Init() < 0)
     {
@@ -672,6 +691,26 @@ void api_var_update(PlayerNumber plyr_idx, unsigned char valtype, unsigned char 
     value_fini(json_root);
 }
 
+void api_gameturn_update()
+{
+    // Do nothing if API server is not active
+    if (!api.activeSocket)
+    {
+        return;
+    }
+
+    // Do nothing if we are not subscribed to gameturn updates
+    if (static_subscription.game_turn == false)
+    {
+        return;
+    }
+
+    // Send back the JSON as a string. A number should never be able to break the syntax.
+    char buf[256];
+    int len = snprintf(buf, sizeof(buf) - 1, "{\"event\":\"GAME_TURN\",\"turn\":%ld}\n", game.play_gameturn);
+    SDLNet_TCP_Send(api.activeSocket, buf, len);
+}
+
 /**
  * Send an API event message.
  *
@@ -823,6 +862,28 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         // End
         value_fini(&data);
         return;
+    }
+
+    // Handle subscribe and unsubscribe command
+    if (strcasecmp("subscribe", action) == 0 || strcasecmp("unsubscribe", action) == 0)
+    {
+        // Get the new static subscription value
+        TbBool subscribed = (strcasecmp("subscribe", action) == 0);
+
+        // Get the var
+        char *var = (char *)value_string(value_dict_get(value, "var"));
+        if (var == NULL || strlen(var) < 1)
+        {
+            api_err("MISSING_VAR");
+            value_fini(&data);
+            return;
+        }
+
+        // Game turns
+        if (strcasecmp("GAME_TURN", var) == 0)
+        {
+            static_subscription.game_turn = subscribed;
+        }
     }
 
     // ==================================================================================================================================
@@ -1228,6 +1289,9 @@ void api_update_server()
             } // \activeSocket
         }
     } while (numReady > 0); // To have break instead of goto
+
+    // Handle gameturn update events
+    api_gameturn_update();
 }
 
 /**
