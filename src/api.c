@@ -789,7 +789,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         return;
     }
 
-    // Handle read var command
+    // Handle subscribe var command
     if (strcasecmp("subscribe_var", action) == 0)
     {
         // Get variable name
