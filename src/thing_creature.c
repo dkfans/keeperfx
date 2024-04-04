@@ -3441,6 +3441,9 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primar
                                 case 8:
                                     is_valid_target = true;
                                     break;
+                                case 9:
+                                    is_valid_target = (((thing_is_creature(i) && !creature_is_being_unconscious(i)) || thing_is_dungeon_heart(i) || thing_is_deployed_trap(i)) && i->owner != thing->owner);
+                                    break;
                                 default:
                                     ERRORLOG("Illegal primary target type for shot: %d", (int)primary_target);
                                     is_valid_target = false;
