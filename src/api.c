@@ -343,21 +343,21 @@ static void api_return_data(TbBool success, VALUE value)
  *
  * @param data The string data to be sent to the API client.
  */
-static void api_return_data_string(const char *data)
-{
-    // Do nothing if the API server is not active
-    if (!api.activeSocket)
-    {
-        return;
-    }
+// static void api_return_data_string(const char *data)
+// {
+//     // Do nothing if the API server is not active
+//     if (!api.activeSocket)
+//     {
+//         return;
+//     }
 
-    // Create value to send back
-    VALUE dataValue, *value = &dataValue;
-    value_init_string(value, data);
+//     // Create value to send back
+//     VALUE dataValue, *value = &dataValue;
+//     value_init_string(value, data);
 
-    // Send the data
-    api_return_data(true, dataValue);
-}
+//     // Send the data
+//     api_return_data(true, dataValue);
+// }
 
 void api_return_var_update(PlayerNumber plyr_idx, const char *var_name, long value)
 {
