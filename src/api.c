@@ -49,7 +49,7 @@ struct ApiGlobals
 struct SubscribedVariable
 {
     PlayerNumber player_id;
-    const char *name;
+    char name[MAX_TEXT_LENGTH];
     unsigned char type;
     unsigned char id;
     long val;
@@ -607,11 +607,11 @@ int api_subscribe_var(PlayerNumber plyr_idx, const char *var_name, unsigned char
         {
 
             struct SubscribedVariable sub_var;
-            sub_var.name = var_name;
             sub_var.player_id = plyr_idx;
             sub_var.type = valtype;
             sub_var.id = validx;
             sub_var.val = get_condition_value(plyr_idx, valtype, validx);
+            strncpy(sub_var.name, var_name, sizeof(sub_var.name) - 1);
 
             api_subscriptions[i].type = API_SUBSCRIBE_VAR;
             api_subscriptions[i].var = sub_var;
