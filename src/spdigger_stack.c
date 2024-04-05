@@ -2611,17 +2611,13 @@ long check_out_available_imp_tasks(struct Thing *thing)
 
 long check_out_imp_tokes(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    long i;
-    SYNCDBG(19,"Starting");
-    cctrl = creature_control_get_from_thing(thing);
-    i = CREATURE_RANDOM(thing, 64);
+    SYNCDBG(19, "Starting");
+    long i = CREATURE_RANDOM(thing, 64);
     // small chance of changing state
     if (i != 0)
       return 0;
     internal_set_thing_state(thing, CrSt_ImpToking);
     thing->continue_state = CrSt_ImpDoingNothing;
-    cctrl->countdown_282 = 200;
     return 1;
 }
 
@@ -2699,7 +2695,7 @@ long check_out_imp_last_did(struct Thing *creatng)
           return true;
       }
       break;
-  case SDLstJob_ReinforceWall3:
+  case SDLstJob_ReinforceWallUnprompted:
       dungeon = get_dungeon(creatng->owner);
       imp_stack_update(creatng);
       if (creature_task_needs_check_out_after_digger_stack_change(creatng))
@@ -2712,13 +2708,13 @@ long check_out_imp_last_did(struct Thing *creatng)
       if (check_out_unreinforced_place(creatng))
       {
           cctrl->digger.task_repeats++;
-          cctrl->digger.last_did_job = SDLstJob_ReinforceWall3;
+          cctrl->digger.last_did_job = SDLstJob_ReinforceWallUnprompted;
           return true;
       }
       if (check_out_unreinforced_area(creatng))
       {
           cctrl->digger.task_repeats++;
-          cctrl->digger.last_did_job = SDLstJob_ReinforceWall3;
+          cctrl->digger.last_did_job = SDLstJob_ReinforceWallUnprompted;
           return true;
       }
       break;
@@ -2732,17 +2728,17 @@ long check_out_imp_last_did(struct Thing *creatng)
           }
       }
       break;
-  case SDLstJob_ReinforceWall9:
+  case SDLstJob_ReinforceWallAssigned:
       if (check_out_unreinforced_place(creatng))
       {
           cctrl->digger.task_repeats++;
-          cctrl->digger.last_did_job = SDLstJob_ReinforceWall9;
+          cctrl->digger.last_did_job = SDLstJob_ReinforceWallAssigned;
           return true;
       }
       if (check_out_unreinforced_area(creatng))
       {
           cctrl->digger.task_repeats++;
-          cctrl->digger.last_did_job = SDLstJob_ReinforceWall9;
+          cctrl->digger.last_did_job = SDLstJob_ReinforceWallAssigned;
           return true;
       }
       break;
@@ -2875,7 +2871,7 @@ long check_out_worker_reinforce_wall(struct Thing *thing, struct DiggerStack *ds
     thing->continue_state = CrSt_ImpArrivesAtReinforce;
     cctrl->digger.consecutive_reinforcements = 0;
     cctrl->digger.working_stl = dstack->stl_num;
-    cctrl->digger.last_did_job = SDLstJob_ReinforceWall3;
+    cctrl->digger.last_did_job = SDLstJob_ReinforceWallUnprompted;
     return 1;
 }
 
