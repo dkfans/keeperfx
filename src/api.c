@@ -533,7 +533,7 @@ int api_unsubscribe_event(const char *event_name)
         if (strcmp(api_subscriptions[i].event, event_name) == 0)
         {
             api_subscriptions[i].type = API_SUBSCRIBE_INACTIVE;
-            memset(api_subscriptions[i].event, '\0', sizeof(api_subscriptions[i].event));
+            memset(api_subscriptions[i].event, 0, sizeof(api_subscriptions[i].event));
             api_sub_count--;
             return true;
         }
@@ -647,9 +647,8 @@ int api_unsubscribe_var(PlayerNumber plyr_idx, unsigned char valtype, unsigned c
             api_subscriptions[i].var.type == valtype &&
             api_subscriptions[i].var.id == validx)
         {
-            struct SubscribedVariable sub_var;
             api_subscriptions[i].type = API_SUBSCRIBE_INACTIVE;
-            api_subscriptions[i].var = sub_var;
+            memset(&api_subscriptions[i].var, 0, sizeof(struct SubscribedVariable));
             api_sub_count--;
             return true;
         }
