@@ -81,7 +81,7 @@ void LbDataFreeAllV2(struct TbLoadFilesV2 load_files[])
     // note that t_lfile->Start is not NULL even if the buffer is allocated
     while (t_lfile->Start != NULL)
     {
-        strncpy(tmp.FName, t_lfile->FName, sizeof(tmp.FName));
+        strncpy(tmp.FName, t_lfile->FName, sizeof(tmp.FName) - 1);
         tmp.Start = t_lfile->Start;
         LbDataFree(&tmp);
         t_lfile++;
@@ -180,7 +180,7 @@ int LbDataLoadAllV2(struct TbLoadFilesV2 load_files[])
     while (t_lfile->Start != NULL)
     {
         struct TbLoadFiles tmp = {.Start = t_lfile->Start, .SLength = t_lfile->SLength, 0};
-        strncpy(tmp.FName, t_lfile->FName, sizeof(tmp.FName));
+        strncpy(tmp.FName, t_lfile->FName, sizeof(tmp.FName) - 1);
 
         int ret_val = LbDataLoad(&tmp, t_lfile->GetSizeFunc, t_lfile->UnpackFunc);
         if (ret_val == -100)
