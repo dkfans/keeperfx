@@ -49,7 +49,7 @@ struct ApiGlobals
 struct SubscribedVariable
 {
     PlayerNumber player_id;
-    char name[MAX_TEXT_LENGTH];
+    char name[COMMAND_WORD_LEN];
     unsigned char type;
     unsigned char id;
     long val;
@@ -65,7 +65,7 @@ struct SubscribedVariable
 struct Subscription
 {
     struct SubscribedVariable var;
-    char event[MAX_TEXT_LENGTH];
+    char event[COMMAND_WORD_LEN];
     int type;
 } api_subscriptions[API_SUBSCRIBE_LIST_SIZE];
 
@@ -915,7 +915,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         }
 
         // Make sure event name is not too long
-        if (strlen(event_name) > MAX_TEXT_LENGTH)
+        if (strlen(event_name) > COMMAND_WORD_LEN)
         {
             api_err("STRING_TOO_LONG");
             value_fini(&data);
