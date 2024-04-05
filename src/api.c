@@ -673,7 +673,7 @@ void api_check_var_update()
         // seen the same amount of subscriptions as we are subscribed to
         if (api_sub_count == api_sub_found_count)
         {
-            return false;
+            return;
         }
 
         // If this subscription slot is inactive we can skip it
