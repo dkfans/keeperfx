@@ -2611,11 +2611,8 @@ long check_out_available_imp_tasks(struct Thing *thing)
 
 long check_out_imp_tokes(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    long i;
-    SYNCDBG(19,"Starting");
-    cctrl = creature_control_get_from_thing(thing);
-    i = CREATURE_RANDOM(thing, 64);
+    SYNCDBG(19, "Starting");
+    long i = CREATURE_RANDOM(thing, 64);
     // small chance of changing state
     if (i != 0)
       return 0;
