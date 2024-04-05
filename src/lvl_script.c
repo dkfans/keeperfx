@@ -66,13 +66,18 @@ struct CommandToken {
 char* get_next_token(char *data, struct CommandToken *token)
 {
     char *p = data;
-    for (; *p != 0; p++)
+    while (*p != 0)
     {
-        if ((*p == '\r') || (*p == '\n') || (*p == '\r') || (*p == ' ') || (*p == '\t') )
-            continue;
-        if (*p < 0) // Erase non ASCII stuff from commands
-            continue;
-        break;
+        size_t step = strspn(p, "\n\r \t");
+        if (step == 0)
+        {
+            if (*p >= 0) // Erase non ASCII stuff from commands
+            {
+                break;
+            }
+            step = 1;
+        }
+        p += step;
     }
     token->start = p;
     if (isalnum(*p))
@@ -83,7 +88,7 @@ char* get_next_token(char *data, struct CommandToken *token)
         }
         token->type = TkCommand;
     }
-    else if (*p == '-') // Eiter operator or digit
+    else if (*p == '-') // Either operator or digit
     {
         p++;
         if (isdigit(*p))
