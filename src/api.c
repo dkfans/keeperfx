@@ -65,7 +65,7 @@ struct SubscribedVariable
 struct Subscription
 {
     struct SubscribedVariable var;
-    const char *event;
+    char event[MAX_TEXT_LENGTH];
     int type;
 } api_subscriptions[API_SUBSCRIBE_LIST_SIZE];
 
@@ -502,7 +502,7 @@ int api_subscribe_event(const char *event_name)
         if (api_subscriptions[i].type == API_SUBSCRIBE_INACTIVE)
         {
             api_subscriptions[i].type = API_SUBSCRIBE_EVENT;
-            api_subscriptions[i].event = event_name;
+            strncpy(api_subscriptions[i].event, event_name, sizeof(api_subscriptions[i].event) - 1);
             api_sub_count++;
             return true;
         }
@@ -533,7 +533,7 @@ int api_unsubscribe_event(const char *event_name)
         if (strcmp(api_subscriptions[i].event, event_name) == 0)
         {
             api_subscriptions[i].type = API_SUBSCRIBE_INACTIVE;
-            api_subscriptions[i].event = NULL;
+            memset(api_subscriptions[i].event, '\0', sizeof(api_subscriptions[i].event));
             api_sub_count--;
             return true;
         }
