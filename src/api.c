@@ -914,6 +914,14 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
             return;
         }
 
+        // Make sure event name is not too long
+        if (strlen(event_name) > MAX_TEXT_LENGTH)
+        {
+            api_err("STRING_TOO_LONG");
+            value_fini(&data);
+            return;
+        }
+
         // Try to subscribe to the variable
         if (api_subscribe_event(event_name))
         {
