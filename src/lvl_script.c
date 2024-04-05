@@ -68,7 +68,9 @@ char* get_next_token(char *data, struct CommandToken *token)
     char *p = data;
     for (; *p != 0; p++)
     {
-        if ((*p == '\n') || (*p == '\r') || (*p == ' '))
+        if ((*p == '\r') || (*p == '\n') || (*p == '\r') || (*p == ' ') || (*p == '\t') )
+            continue;
+        if (*p < 0) // Erase non ASCII stuff from commands
             continue;
         break;
     }
@@ -148,6 +150,10 @@ char* get_next_token(char *data, struct CommandToken *token)
     else if (*p == 0)
     {
         token->type = TkEnd;
+    }
+    else
+    {
+        token->type = TkInvalid;
     }
     token->end = p;
     return p;
@@ -816,7 +822,13 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
         else
         {
             *line = get_next_token(funline, &token);
-            if ((token.type == TkClose) && ((chr == ' ') || (chr == 0)))
+            if (token.type == TkInvalid)
+            {
+                SCRPTERRLOG("Invalid token at %s", *line);
+                dst--;
+                return -1;
+            }
+            else if ((token.type == TkClose) && ((chr == ' ') || (chr == 0)))
             {
                 break;
             }
@@ -1029,6 +1041,7 @@ static char* process_multiline_comment(char *buf, char *buf_end)
 
 static void parse_txt_data(char *script_data, long script_len)
 {// Process the file lines
+    text_line_number = 1;
     char* buf = script_data;
     char* buf_end = script_data + script_len;
     while (buf < buf_end)
@@ -1066,7 +1079,6 @@ TbBool preload_script(long lvnum)
   SYNCDBG(7,"Starting");
   set_script_current_condition(CONDITION_ALWAYS);
   next_command_reusable = 0;
-  text_line_number = 1;
   level_file_version = DEFAULT_LEVEL_VERSION;
   clear_quick_messages();
   // Load the file
@@ -1110,26 +1122,25 @@ short load_script(long lvnum)
     {
         buf = process_multiline_comment(buf, buf_end);
       // Find end of the line
-      int lnlen = 0;
-      while (&buf[lnlen] < buf_end)
+      char* p = buf;
+      for (;p < buf_end; p++)
       {
-        if ((buf[lnlen] == '\r') || (buf[lnlen] == '\n'))
+        if (*p == '\n')
           break;
-        lnlen++;
       }
       // Get rid of the next line characters
-      buf[lnlen] = 0;
-      lnlen++;
-      if (&buf[lnlen] < buf_end)
+      *p = 0;
+      p++;
+      if (p > buf)
       {
-        if ((buf[lnlen] == '\r') || (buf[lnlen] == '\n'))
-          lnlen++;
+        if (p[-1] == '\r')
+          p[-1] = 0;
       }
       // Analyze the line
       script_scan_line(buf, false);
       // Set new line start
       text_line_number++;
-      buf += lnlen;
+      buf = p;
     }
     LbMemoryFree(script_data);
     if (gameadd.script.win_conditions_num == 0)
