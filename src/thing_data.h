@@ -245,10 +245,10 @@ struct Thing {
         unsigned char x;
         unsigned char y;
         short time;
-        unsigned char model;
+        ThingModel model;
       }cave_in;
     };
-    unsigned char model;
+    ThingModel model;
     unsigned short index;
     /** Parent index. The parent may either be a thing, or a slab index.
      * What it means depends on thing class, ie. it's thing index for shots
