@@ -602,9 +602,9 @@ static int count_required_parameters(const char *args)
     return required;
 }
 
-int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, struct ScriptLine *scline, int *para_level, int expect_level);
+static int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, struct ScriptLine *scline, int *para_level, int expect_level, long file_version);
 
-static TbBool process_subfunc(char **line, struct ScriptLine *scline, const struct CommandDesc *cmd_desc, const struct CommandDesc *funcmd_desc, int *para_level, int src, int dst)
+static TbBool process_subfunc(char **line, struct ScriptLine *scline, const struct CommandDesc *cmd_desc, const struct CommandDesc *funcmd_desc, int *para_level, int src, int dst, long file_version)
 {
     struct CommandToken token;
     struct ScriptLine* funscline = (struct ScriptLine*)LbMemoryAlloc(sizeof(struct ScriptLine));
@@ -622,7 +622,7 @@ static TbBool process_subfunc(char **line, struct ScriptLine *scline, const stru
         return false;
     }
     *line = nxt;
-    int args_count = script_recognize_params(line, funcmd_desc, funscline, para_level, *para_level);
+    int args_count = script_recognize_params(line, funcmd_desc, funscline, para_level, *para_level, file_version);
     if (args_count < 0)
     {
         LbMemoryFree(funscline);
@@ -796,7 +796,7 @@ static TbBool process_subfunc(char **line, struct ScriptLine *scline, const stru
     return true;
 }
 
-int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, struct ScriptLine *scline, int *para_level, int expect_level)
+static int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, struct ScriptLine *scline, int *para_level, int expect_level, long file_version)
 {
     int dst, src;
     TbBool reparse = false;
@@ -851,7 +851,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
 
             if (funcmd_desc != NULL)
             {
-                int r = process_subfunc(line, scline, cmd_desc, funcmd_desc, para_level, src, dst);
+                int r = process_subfunc(line, scline, cmd_desc, funcmd_desc, para_level, src, dst, file_version);
                 if (r == -1)
                     return -1;
             }
@@ -897,7 +897,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
     return dst;
 }
 
-static void script_scan_line(char *line, TbBool preloaded)
+TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
 {
     const struct CommandDesc *cmd_desc;
     struct CommandToken token = { 0 };
@@ -906,7 +906,7 @@ static void script_scan_line(char *line, TbBool preloaded)
     if (scline == NULL)
     {
       SCRPTERRLOG("Can't allocate buffer to recognize line");
-      return;
+      return false;
     }
     int para_level = 0;
     LbMemorySet(scline, 0, sizeof(struct ScriptLine));
@@ -916,16 +916,16 @@ static void script_scan_line(char *line, TbBool preloaded)
     line = get_next_token(line, &token);
     if (token.type == TkEnd)
     {
-        return;
+        return false;
     }
     if (token.type != TkCommand)
     {
         SCRPTERRLOG("Syntax error: Script command expected");
         LbMemoryFree(scline);
-        return;
+        return false;
     }
     memcpy(scline->tcmnd, token.start, min((token.end - token.start), MAX_TEXT_LENGTH));
-    if (level_file_version > 0)
+    if (file_version > 0)
     {
         cmd_desc = find_command_desc(&token, command_desc);
     } else
@@ -935,17 +935,17 @@ static void script_scan_line(char *line, TbBool preloaded)
     if (cmd_desc == NULL)
     {
         if (isalnum(scline->tcmnd[0])) {
-            SCRPTERRLOG("Invalid command, '%s' (lev ver %d)", scline->tcmnd,level_file_version);
+          SCRPTERRLOG("Invalid command, '%s' (lev ver %d)", scline->tcmnd, file_version);
         }
         LbMemoryFree(scline);
-        return;
+        return false;
     }
     SCRIPTDBG(12,"Executing command %lu",cmd_desc->index);
     // Handling comments
     if (cmd_desc->index == Cmd_REM)
     {
         LbMemoryFree(scline);
-        return;
+        return false;
     }
     line = get_next_token(line, &token);
     scline->command = cmd_desc->index;
@@ -953,7 +953,7 @@ static void script_scan_line(char *line, TbBool preloaded)
     if (script_is_preloaded_command(cmd_desc->index) != preloaded)
     {
         LbMemoryFree(scline);
-        return;
+        return true;
     }
     int args_count;
     if (token.type == TkEnd)
@@ -963,18 +963,18 @@ static void script_scan_line(char *line, TbBool preloaded)
     else if (token.type == TkOpen)
     {
         // Recognizing parameters
-        args_count = script_recognize_params(&line, cmd_desc, scline, &para_level, 0);
+        args_count = script_recognize_params(&line, cmd_desc, scline, &para_level, 0, file_version);
         if (args_count < 0)
         {
             LbMemoryFree(scline);
-            return;
+            return false;
         }
     }
     else
     {
         SCRPTERRLOG("Syntax error: ( expected");
         LbMemoryFree(scline);
-        return;
+        return false;
     }
     if (args_count < COMMANDDESC_ARGS_COUNT)
     {
@@ -983,7 +983,7 @@ static void script_scan_line(char *line, TbBool preloaded)
         {
             SCRPTERRLOG("Not enough parameters for \"%s\", got only %d", cmd_desc->textptr,(int)args_count);
             LbMemoryFree(scline);
-            return;
+            return false;
         }
     }
     if (token.type != TkEnd)
@@ -994,11 +994,12 @@ static void script_scan_line(char *line, TbBool preloaded)
     {
         SCRPTERRLOG("Syntax error: Unexpected end of line");
         LbMemoryFree(scline);
-        return;
+        return false;
     }
-    script_add_command(cmd_desc, scline);
+    script_add_command(cmd_desc, scline, file_version);
     LbMemoryFree(scline);
     SCRIPTDBG(13,"Finished");
+    return true;
 }
 
 short clear_script(void)
@@ -1044,7 +1045,7 @@ static char* process_multiline_comment(char *buf, char *buf_end)
     return buf;
 }
 
-static void parse_txt_data(char *script_data, long script_len)
+static void parse_txt_data(char *script_data, long script_len, long file_version)
 {// Process the file lines
     text_line_number = 1;
     char* buf = script_data;
@@ -1071,7 +1072,7 @@ static void parse_txt_data(char *script_data, long script_len)
       }
       //SCRPTLOG("Analyse");
       // Analyze the line
-      script_scan_line(buf, true);
+      script_scan_line(buf, true, file_version);
       // Set new line start
       text_line_number++;
       buf += lnlen;
@@ -1094,7 +1095,7 @@ TbBool preload_script(long lvnum)
       // Here we could load lua instead
       return false;
   }
-  parse_txt_data(script_data, script_len);
+  parse_txt_data(script_data, script_len, level_file_version);
   SYNCDBG(8,"Finished");
   return true;
 }
@@ -1142,7 +1143,7 @@ short load_script(long lvnum)
           p[-1] = 0;
       }
       // Analyze the line
-      script_scan_line(buf, false);
+      script_scan_line(buf, false, level_file_version);
       // Set new line start
       text_line_number++;
       buf = p;
