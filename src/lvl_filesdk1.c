@@ -1385,13 +1385,13 @@ static void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum,
     {
         return;
     }
-    char* fname = prepare_file_fmtpath(fgroup, "map%05lu.%s", (unsigned long)lvnum, get_language_lwrstr(install_info.lang_id));
+    char* fname = prepare_file_fmtpath(fgroup, "map%05lu.%s.dat", (unsigned long)lvnum, get_language_lwrstr(install_info.lang_id));
     if (!LbFileExists(fname))
     {
         SYNCMSG("Map string file %s doesn't exist.", fname);
         char buf[2048];
         memcpy(&buf, fname, 2048);
-        fname = prepare_file_fmtpath(fgroup, "map%05lu.%s", (unsigned long)lvnum, get_language_lwrstr(campgn->default_language));
+        fname = prepare_file_fmtpath(fgroup, "map%05lu.%s.dat", (unsigned long)lvnum, get_language_lwrstr(campgn->default_language));
         if (strcasecmp(fname, buf) == 0)
         {
             return;
