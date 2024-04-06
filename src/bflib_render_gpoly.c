@@ -2441,6 +2441,138 @@ gpo_loc_10D9:         # EA7\n \
 #endif
 }
 
+#if 0
+// IDA decompilation
+void draw_gpoly_sub3b()
+{
+  int v0; // ecx
+  int v1; // ebx
+  char v2; // sf
+  int v3; // eax
+  int v4; // eax
+  int v5; // ecx
+  int v6; // ebx
+  int v7; // eax
+  int v8; // eax
+  int v9; // ecx
+  int v10; // ebx
+  int v11; // eax
+  int v12; // eax
+
+  if ( factor_chk < 0 )
+  {
+    v9 = gploc_pt_cy - gploc_pt_ay;
+    if ( gploc_pt_cy - gploc_pt_ay > 255 )
+      v10 = 0x7FFFFFFF / v9;
+    else
+      v10 = gpoly_reptable[v9];
+    HIWORD(v11) = (unsigned int)(v10 * 2 * (gploc_140 - gploc_170)) >> 16;
+    LOWORD(v11) = (unsigned __int64)(v10 * (__int64)(2 * (gploc_140 - gploc_170))) >> 32;
+    v12 = __ROL4__(v11, 16);
+    if ( v2 )
+      ++v12;
+    gploc_point_c = v12;
+  }
+  else
+  {
+    v0 = gploc_pt_by - gploc_pt_ay;
+    if ( gploc_pt_by - gploc_pt_ay > 255 )
+      v1 = 0x7FFFFFFF / v0;
+    else
+      v1 = gpoly_reptable[v0];
+    HIWORD(v3) = (unsigned int)(v1 * 2 * (gploc_158 - gploc_170)) >> 16;
+    LOWORD(v3) = (unsigned __int64)(v1 * (__int64)(2 * (gploc_158 - gploc_170))) >> 32;
+    v4 = __ROL4__(v3, 16);
+    if ( v2 )
+      ++v4;
+    gploc_point_c = v4;
+    v5 = gploc_pt_cy - gploc_pt_by;
+    if ( gploc_pt_cy - gploc_pt_by > 255 )
+      v6 = 0x7FFFFFFF / v5;
+    else
+      v6 = gpoly_reptable[v5];
+    HIWORD(v7) = (unsigned int)(v6 * 2 * (gploc_140 - gploc_158)) >> 16;
+    LOWORD(v7) = (unsigned __int64)(v6 * (__int64)(2 * (gploc_140 - gploc_158))) >> 32;
+    v8 = __ROL4__(v7, 16);
+    if ( v2 )
+      ++v8;
+    gploc_1A0 = v8;
+  }
+  gploc_58 = gploc_170 << 16;
+  gploc_4C = gploc_158 << 16;
+}
+
+// GPT-4 refactored
+void draw_gpoly_sub3b()
+{
+    int delta;
+    int result;
+
+    if (factor_chk < 0)
+    {
+        delta = gploc_pt_cy - gploc_pt_ay;
+        int v10 = (delta > 255) ? (0x7FFFFFFF / delta) : gpoly_reptable[delta];
+        int calculation = v10 * 2 * (gploc_140 - gploc_170);
+        result = (calculation >> 16) & 0xFFFF; // Take HiWord of the calculation
+        // If the original code used a check (v2) to conditionally increment result, assume similar logic is needed
+        gploc_point_c = result;
+    }
+    else
+    {
+        // Branch when the factor_chk is >= 0
+        delta = gploc_pt_by - gploc_pt_ay;
+        int v1 = (delta > 255) ? (0x7FFFFFFF / delta) : gpoly_reptable[delta];
+        int calculation = v1 * 2 * (gploc_158 - gploc_170);
+        result = (calculation >> 16) & 0xFFFF; // Take HiWord
+        gploc_point_c = result;
+
+        delta = gploc_pt_cy - gploc_pt_by;
+        int v6 = (delta > 255) ? (0x7FFFFFFF / delta) : gpoly_reptable[delta];
+        calculation = v6 * 2 * (gploc_140 - gploc_158);
+        result = (calculation >> 16) & 0xFFFF; // Take HiWord
+        gploc_1A0 = result;
+    }
+
+    // Direct assignments to global variables, assuming these are correctly calculating a shifted value
+    gploc_58 = gploc_170 << 16;
+    gploc_4C = gploc_158 << 16;
+}
+
+// More refactoring
+void calculateVertexAttributeAdjustments()
+{
+    int deltaY;
+    int attributeAdjustmentResult;
+
+    if (conditionFactor < 0) // Negative condition factor logic
+    {
+        deltaY = vertexC_Y - vertexA_Y;
+        int scaleCorrection = (deltaY > 255) ? (INT_MAX / deltaY) : repetitionScaleTable[deltaY];
+        int intermediateCalculation = scaleCorrection * 2 * (vertexAdjustment_C - vertexAdjustment_A);
+        attributeAdjustmentResult = (intermediateCalculation >> 16) & 0xFFFF; // Extracting higher word
+        adjustedAttribute_vertexC = attributeAdjustmentResult; // Adjusted attribute result for vertex C
+    }
+    else // Non-negative condition factor logic
+    {
+        deltaY = vertexB_Y - vertexA_Y;
+        int scaleCorrectionBtoA = (deltaY > 255) ? (INT_MAX / deltaY) : repetitionScaleTable[deltaY];
+        int intermediateCalcBtoA = scaleCorrectionBtoA * 2 * (vertexAdjustment_B - vertexAdjustment_A);
+        attributeAdjustmentResult = (intermediateCalcBtoA >> 16) & 0xFFFF; // Extracting higher word
+        adjustedAttribute_vertexC = attributeAdjustmentResult; // Adjusted attribute result for vertex C variant
+
+        deltaY = vertexC_Y - vertexB_Y;
+        int scaleCorrectionCtoB = (deltaY > 255) ? (INT_MAX / deltaY) : repetitionScaleTable[deltaY];
+        int intermediateCalcCtoB = scaleCorrectionCtoB * 2 * (vertexAdjustment_C - vertexAdjustment_B);
+        attributeAdjustmentResult = (intermediateCalcCtoB >> 16) & 0xFFFF; // Extracting higher word again
+        adjustedAttribute_other = attributeAdjustmentResult; // Another adjusted attribute, potentially for a different vertex or property
+    }
+
+    // Assigning shifted attribute values, likely preparing for further processing or rendering
+    shiftedAttribute_A = vertexAdjustment_A << 16;
+    shiftedAttribute_B = vertexAdjustment_B << 16;
+}
+#endif
+
 void draw_gpoly_sub4()
 {
 #if __GNUC__
