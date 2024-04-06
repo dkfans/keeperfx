@@ -136,7 +136,7 @@ void delete_all_control_structures(void)
     }
 }
 
-struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, long crmodel, struct Coord3d *pos)
+struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, ThingModel crmodel, struct Coord3d *pos)
 {
     SYNCDBG(6,"Request for model %ld (%s) at (%d,%d,%d)",crmodel, creature_code_name(crmodel),(int)pos->x.val,(int)pos->y.val,(int)pos->z.val);
     struct Thing* thing = create_creature(pos, crmodel, player->id_number);
@@ -225,7 +225,7 @@ TbBool disband_creatures_group(struct Thing *thing)
 
 struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx)
 {
-    unsigned int cmodel = thing->model;
+    ThingModel cmodel = thing->model;
     if ((cmodel < 1) || (cmodel >= game.conf.crtr_conf.model_count))
     {
         ERRORLOG("Trying to get sound for undefined creature type %d",(int)cmodel);

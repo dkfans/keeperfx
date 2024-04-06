@@ -82,7 +82,7 @@ struct LegacyCoord2d {
 struct LegacyInitThing { // sizeof=0x15
     struct LegacyCoord3d mappos;
     unsigned char oclass;
-    unsigned char model;
+    unsigned char model; // Converted to ThingModel on read
     unsigned char owner;
     unsigned short range;
     unsigned short index;

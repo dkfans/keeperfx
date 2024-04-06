@@ -158,9 +158,9 @@ struct ScriptValue {
         char param;
         char victims[MAX_SACRIFICE_VICTIMS];
     } sac;
-    unsigned char bytes[12];
-    char chars[12];
-    short shorts[6];
+    unsigned char bytes[16];
+    char chars[16];
+    short shorts[8];
   };
 };
 
@@ -230,6 +230,7 @@ extern const struct NamedCommand player_desc[];
 /******************************************************************************/
 short clear_script(void);
 short load_script(long lvl_num);
+long script_scan_line(char *line,TbBool preloaded, long file_version);
 TbBool preload_script(long lvnum);
 /******************************************************************************/
 
