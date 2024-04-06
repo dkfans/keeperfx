@@ -2246,6 +2246,98 @@ gpo_loc_100B:         # E10\n \
 #endif
 }
 
+#if 0
+// IDA decompilation
+void draw_gpoly_sub3a()
+{
+  int v0; // eax
+  int v1; // ecx
+  int v2; // ebx
+  bool v4; // sf
+  int v5; // eax
+
+  v0 = gploc_pt_cy - gploc_pt_ay;
+  v1 = (gploc_pt_bx - gploc_pt_ax) * (gploc_pt_cy - gploc_pt_ay);
+  if ( factor_chk >= 0 )
+    v1 = v1 - v0 - v0;
+  v2 = (gploc_pt_cx - gploc_pt_ax) * (gploc_pt_by - gploc_pt_ay) - (v0 + v1);
+  if ( v2 )
+  {
+    _RAX = ((gploc_pt_by - gploc_pt_ay) * (gploc_140 - gploc_170) - (gploc_pt_cy - gploc_pt_ay)
+                                                                  * (gploc_158 - gploc_170))
+         * (__int64)(0x7FFFFFFF / v2);
+    LODWORD(_RAX) = 2 * _RAX;
+    v4 = (int)_RAX < 0;
+    __asm { rcl     edx, 1 }
+    LOWORD(_RAX) = WORD2(_RAX);
+    v5 = __ROL4__(_RAX, 16);
+    if ( v4 )
+      ++v5;
+    gploc_A8 = v5;
+  }
+  else
+  {
+    gploc_A8 = 0;
+  }
+}
+
+// GPT-4 refactoring
+void draw_gpoly_sub3a()
+{
+    int delta_ay_cy = gploc_pt_cy - gploc_pt_ay; // Change in Y from A to C
+    int calculation = (gploc_pt_bx - gploc_pt_ax) * delta_ay_cy; // Initial calculation using differences in X (B to A) and Y (C to A)
+
+    // Adjust calculation based on factor_chk
+    if (factor_chk >= 0)
+        calculation -= 2 * delta_ay_cy;
+
+    int result_factor = (gploc_pt_cx - gploc_pt_ax) * (gploc_pt_by - gploc_pt_ay) - (delta_ay_cy + calculation);
+
+    if (result_factor != 0)
+    {
+        int64_t part_result = ((int64_t)(gploc_pt_by - gploc_pt_ay) * (gploc_140 - gploc_170) -
+                              (int64_t)delta_ay_cy * (gploc_158 - gploc_170)) * (0x7FFFFFFF / result_factor);
+
+        part_result *= 2; // Double the part_result as per original logic
+
+        // Since we want to preserve the high 32 bits of the result into gploc_A8, perform a right shift
+        gploc_A8 = (int)(part_result >> 32); // Casting to int ensures we're working with 32-bit precision
+    }
+    else
+    {
+        gploc_A8 = 0;
+    }
+}
+
+// More refactoring
+void calculateAttributeAdjustmentForVertexA()
+{
+    int deltaY_AC = vertexC_Y - vertexA_Y; // Change in Y from vertex A to C
+    int preliminaryCalculation = (vertexB_X - vertexA_X) * deltaY_AC; // Preliminary calculation using delta X (B to A) and delta Y (C to A)
+
+    // Adjust preliminaryCalculation based on 'conditionFactor'
+    if (conditionFactor >= 0)
+        preliminaryCalculation -= 2 * deltaY_AC;
+
+    int adjustedFactor = (vertexC_X - vertexA_X) * (vertexB_Y - vertexA_Y) - (deltaY_AC + preliminaryCalculation);
+
+    if (adjustedFactor != 0)
+    {
+        int64_t scaledResult = ((int64_t)(vertexB_Y - vertexA_Y) * (adjustmentValue_C - adjustmentValue_A) -
+                               (int64_t)deltaY_AC * (adjustmentValue_B - adjustmentValue_A)) * (INT_MAX / adjustedFactor);
+
+        scaledResult *= 2; // Double the scaledResult to adhere to original logic
+
+        // Preserving the higher 32 bits of scaledResult into adjustmentAttribute_A
+        adjustmentAttribute_A = (int)(scaledResult >> 32); // Casting to int to ensure 32-bit precision is maintained
+    }
+    else
+    {
+        adjustmentAttribute_A = 0;
+    }
+}
+#endif
+
 void draw_gpoly_sub3b()
 {
 #if __GNUC__
