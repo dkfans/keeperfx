@@ -84,7 +84,7 @@ char* get_next_token(char *data, struct CommandToken *token)
     {
         for (;isalnum(*p) || (*p == '[') || (*p == ']') || (*p == '_'); p++)
         {
-            // empty
+            *p = (char)toupper(*p);
         }
         token->type = TkCommand;
     }
