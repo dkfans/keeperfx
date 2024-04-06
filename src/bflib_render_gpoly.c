@@ -837,6 +837,131 @@ gpo_loc_05C8:         # 3C6\n \
 #endif
 }
 
+#if 0
+// Primitive IDA decompilation
+void start()
+{
+  int v0; // eax
+  int v1; // ecx
+  int v2; // ebx
+  bool v4; // sf
+  int v5; // eax
+  int v7; // eax
+
+  v0 = gploc_pt_cy - gploc_pt_ay;
+  v1 = (gploc_pt_bx - gploc_pt_ax) * (gploc_pt_cy - gploc_pt_ay);
+  if ( factor_chk >= 0 )
+    v1 = v1 - v0 - v0;
+  v2 = (gploc_pt_cx - gploc_pt_ax) * (gploc_pt_by - gploc_pt_ay) - (v0 + v1);
+  if ( v2 )
+  {
+    _RAX = ((gploc_pt_by - gploc_pt_ay) * (gploc_13C - gploc_16C) - (gploc_pt_cy - gploc_pt_ay)
+                                                                  * (gploc_154 - gploc_16C))
+         * (__int64)(0x7FFFFFFF / v2);
+    LODWORD(_RAX) = 2 * _RAX;
+    v4 = (int)_RAX < 0;
+    __asm { rcl     edx, 1 }
+    LOWORD(_RAX) = WORD2(_RAX);
+    v5 = __ROL4__(_RAX, 16);
+    if ( v4 )
+      ++v5;
+    gploc_B0 = v5;
+    _RAX = ((gploc_pt_by - gploc_pt_ay) * (gploc_138 - gploc_168) - (gploc_pt_cy - gploc_pt_ay)
+                                                                  * (gploc_150 - gploc_168))
+         * (__int64)(0x7FFFFFFF / v2);
+    LODWORD(_RAX) = 2 * _RAX;
+    v4 = (int)_RAX < 0;
+    __asm { rcl     edx, 1 }
+    LOWORD(_RAX) = WORD2(_RAX);
+    v7 = __ROL4__(_RAX, 16);
+    if ( v4 )
+      ++v7;
+    gploc_AC = v7;
+  }
+  else
+  {
+    gploc_B0 = 0;
+    gploc_AC = 0;
+  }
+}
+
+// GPT-4 rewrite
+void start()
+{
+    int dy_ac = gploc_pt_cy - gploc_pt_ay; // Delta Y from A to C
+    int dx_ab = gploc_pt_bx - gploc_pt_ax; // Delta X from A to B
+    int dx_ac = gploc_pt_cx - gploc_pt_ax; // Delta X from A to C
+    int dy_ab = gploc_pt_by - gploc_pt_ay; // Delta Y from A to B
+
+    int delta1 = dx_ab * dy_ac;
+    int adjustment = factor_chk >= 0 ? -(dy_ac + dy_ac) : dy_ac; // Conditionally adjust based on factor_chk
+    int v2 = dx_ac * dy_ab - (delta1 + adjustment);
+
+    if (v2 != 0)
+    {
+        int64_t scale_factor = 0x7FFFFFFF / v2;
+
+        int calc1 = ((dy_ab * (gploc_13C - gploc_16C)) - (dy_ac * (gploc_154 - gploc_16C))) * scale_factor;
+        calc1 *= 2;
+        if(calc1 < 0) {
+            calc1 += 1 << 16; // Adjusting similar to RCL and ROL instructions
+        }
+        gploc_B0 = (calc1 >> 16) & 0xFFFF; // Accessing the higher word (ignoring potential overflow issues)
+
+        int calc2 = ((dy_ab * (gploc_138 - gploc_168)) - (dy_ac * (gploc_150 - gploc_168))) * scale_factor;
+        calc2 *= 2;
+        if(calc2 < 0) {
+            calc2 += 1 << 16;
+        }
+        gploc_AC = (calc2 >> 16) & 0xFFFF;
+    }
+    else
+    {
+        gploc_B0 = 0;
+        gploc_AC = 0;
+    }
+}
+
+// Better variable naming
+void calculateVertexScaleFactors()
+{
+    int deltaY_AC = vertex_C_Y - vertex_A_Y; // Delta Y from vertex A to C
+    int deltaX_AB = vertex_B_X - vertex_A_X; // Delta X from vertex A to B
+    int deltaX_AC = vertex_C_X - vertex_A_X; // Delta X from vertex A to C
+    int deltaY_AB = vertex_B_Y - vertex_A_Y; // Delta Y from vertex A to B
+
+    int edgeDifference = deltaX_AB * deltaY_AC;
+    int adjustment = edgeAdjustmentFactor >= 0 ? -(deltaY_AC + deltaY_AC) : deltaY_AC;
+    int determinant = deltaX_AC * deltaY_AB - (edgeDifference + adjustment);
+
+    if (determinant != 0)
+    {
+        int64_t scaleFactor = 0x7FFFFFFF / determinant;
+
+        int scaleFactorA = ((deltaY_AB * (globalValue_13C - globalValue_16C)) -
+                            (deltaY_AC * (globalValue_154 - globalValue_16C))) * scaleFactor;
+        scaleFactorA *= 2;
+        if (scaleFactorA < 0) {
+            scaleFactorA += 1 << 16; // Adjustment for scaling
+        }
+        globalResult_A = (scaleFactorA >> 16) & 0xFFFF; // Extracting scaled factor for vertex A
+
+        int scaleFactorB = ((deltaY_AB * (globalValue_138 - globalValue_168)) -
+                            (deltaY_AC * (globalValue_150 - globalValue_168))) * scaleFactor;
+        scaleFactorB *= 2;
+        if (scaleFactorB < 0) {
+            scaleFactorB += 1 << 16; // Adjustment for scaling
+        }
+        globalResult_B = (scaleFactorB >> 16) & 0xFFFF; // Extracting scaled factor for vertex B
+    }
+    else
+    {
+        globalResult_A = 0;
+        globalResult_B = 0;
+    }
+}
+#endif
+
 void draw_gpoly_sub1b()
 {
 #if __GNUC__
@@ -1020,6 +1145,186 @@ gpo_loc_07B0:         # 520\n \
 " : : : "memory", "cc");
 #endif
 }
+
+#if 0
+// IDA decompilation
+void start()
+{
+  int v0; // ecx
+  int v1; // ebx
+  char v2; // sf
+  int v3; // eax
+  int v4; // eax
+  int v5; // eax
+  int v6; // eax
+  int v7; // ecx
+  int v8; // ebx
+  int v9; // eax
+  int v10; // eax
+  int v11; // eax
+  int v12; // eax
+  int v13; // eax
+  int v14; // ecx
+  int v15; // ebx
+  int v16; // eax
+  int v17; // eax
+  int v18; // eax
+  int v19; // eax
+  int v20; // eax
+
+  if ( factor_chk < 0 )
+  {
+    v14 = gploc_pt_cy - gploc_pt_ay;
+    if ( gploc_pt_cy - gploc_pt_ay > 255 )
+      v15 = 0x7FFFFFFF / v14;
+    else
+      v15 = gpoly_reptable[v14];
+    HIWORD(v16) = (unsigned int)(v15 * 2 * (gploc_13C - gploc_16C)) >> 16;
+    LOWORD(v16) = (unsigned __int64)(v15 * (__int64)(2 * (gploc_13C - gploc_16C))) >> 32;
+    v17 = __ROL4__(v16, 16);
+    if ( v2 )
+      ++v17;
+    gploc_194 = v17;
+    HIWORD(v18) = (unsigned int)(v15 * 2 * (gploc_138 - gploc_168)) >> 16;
+    LOWORD(v18) = (unsigned __int64)(v15 * (__int64)(2 * (gploc_138 - gploc_168))) >> 32;
+    v19 = __ROL4__(v18, 16);
+    if ( v2 )
+      ++v19;
+    gploc_188 = v19;
+    HIWORD(v20) = (unsigned int)(gploc_B0 * factor_ca) >> 16;
+    LOWORD(v20) = (unsigned __int64)(gploc_B0 * (__int64)factor_ca) >> 32;
+    gploc_194 -= __ROL4__(v20, 16);
+    HIWORD(v20) = (unsigned int)(gploc_AC * factor_ca) >> 16;
+    LOWORD(v20) = (unsigned __int64)(gploc_AC * (__int64)factor_ca) >> 32;
+    gploc_188 -= __ROL4__(v20, 16);
+    HIWORD(v20) = (unsigned int)(gploc_A8 * factor_ca) >> 16;
+    LOWORD(v20) = (unsigned __int64)(gploc_A8 * (__int64)factor_ca) >> 32;
+    gploc_point_c -= __ROL4__(v20, 16);
+  }
+  else
+  {
+    v0 = gploc_pt_by - gploc_pt_ay;
+    if ( gploc_pt_by - gploc_pt_ay > 255 )
+      v1 = 0x7FFFFFFF / v0;
+    else
+      v1 = gpoly_reptable[v0];
+    HIWORD(v3) = (unsigned int)(v1 * 2 * (gploc_154 - gploc_16C)) >> 16;
+    LOWORD(v3) = (unsigned __int64)(v1 * (__int64)(2 * (gploc_154 - gploc_16C))) >> 32;
+    v4 = __ROL4__(v3, 16);
+    if ( v2 )
+      ++v4;
+    gploc_194 = v4;
+    HIWORD(v5) = (unsigned int)(v1 * 2 * (gploc_150 - gploc_168)) >> 16;
+    LOWORD(v5) = (unsigned __int64)(v1 * (__int64)(2 * (gploc_150 - gploc_168))) >> 32;
+    v6 = __ROL4__(v5, 16);
+    if ( v2 )
+      ++v6;
+    gploc_188 = v6;
+    v7 = gploc_pt_cy - gploc_pt_by;
+    if ( gploc_pt_cy - gploc_pt_by > 255 )
+      v8 = 0x7FFFFFFF / v7;
+    else
+      v8 = gpoly_reptable[v7];
+    HIWORD(v9) = (unsigned int)(v8 * 2 * (gploc_13C - gploc_154)) >> 16;
+    LOWORD(v9) = (unsigned __int64)(v8 * (__int64)(2 * (gploc_13C - gploc_154))) >> 32;
+    v10 = __ROL4__(v9, 16);
+    if ( v2 )
+      ++v10;
+    gploc_198 = v10;
+    HIWORD(v11) = (unsigned int)(v8 * 2 * (gploc_138 - gploc_150)) >> 16;
+    LOWORD(v11) = (unsigned __int64)(v8 * (__int64)(2 * (gploc_138 - gploc_150))) >> 32;
+    v12 = __ROL4__(v11, 16);
+    if ( v2 )
+      ++v12;
+    gploc_18C = v12;
+    HIWORD(v13) = (unsigned int)(gploc_B0 * gploc_point_a) >> 16;
+    LOWORD(v13) = (unsigned __int64)(gploc_B0 * (__int64)gploc_point_a) >> 32;
+    gploc_194 -= __ROL4__(v13, 16);
+    HIWORD(v13) = (unsigned int)(gploc_AC * gploc_point_a) >> 16;
+    LOWORD(v13) = (unsigned __int64)(gploc_AC * (__int64)gploc_point_a) >> 32;
+    gploc_188 -= __ROL4__(v13, 16);
+    HIWORD(v13) = (unsigned int)(gploc_A8 * gploc_point_a) >> 16;
+    LOWORD(v13) = (unsigned __int64)(gploc_A8 * (__int64)gploc_point_a) >> 32;
+    gploc_point_c -= __ROL4__(v13, 16);
+    HIWORD(v13) = (unsigned int)(gploc_B0 * gploc_point_b) >> 16;
+    LOWORD(v13) = (unsigned __int64)(gploc_B0 * (__int64)gploc_point_b) >> 32;
+    gploc_198 -= __ROL4__(v13, 16);
+    HIWORD(v13) = (unsigned int)(gploc_AC * gploc_point_b) >> 16;
+    LOWORD(v13) = (unsigned __int64)(gploc_AC * (__int64)gploc_point_b) >> 32;
+    gploc_18C -= __ROL4__(v13, 16);
+    HIWORD(v13) = (unsigned int)(gploc_A8 * gploc_point_b) >> 16;
+    LOWORD(v13) = (unsigned __int64)(gploc_A8 * (__int64)gploc_point_b) >> 32;
+    gploc_1A0 -= __ROL4__(v13, 16);
+  }
+}
+
+// GPT-4 refactor
+void draw_gpoly_sub1b()
+{
+    int delta;
+    int scale_factor;
+    int v16, v18, v20;
+
+    if (factor_chk < 0)
+    {
+        delta = gploc_pt_cy - gploc_pt_ay;
+        scale_factor = (delta > 255) ? (0x7FFFFFFF / delta) : gpoly_reptable[delta];
+
+        v16 = ((scale_factor * (gploc_13C - gploc_16C)) << 1) >> 16;
+        gploc_194 = v16;
+
+        v18 = ((scale_factor * (gploc_138 - gploc_168)) << 1) >> 16;
+        gploc_188 = v18;
+
+        v20 = (gploc_B0 * factor_ca) >> 16;
+        gploc_194 -= v20;
+
+        v20 = (gploc_AC * factor_ca) >> 16;
+        gploc_188 -= v20;
+
+        v20 = (gploc_A8 * factor_ca) >> 16;
+        gploc_point_c -= v20;
+    }
+    else
+    {
+        delta = gploc_pt_by - gploc_pt_ay;
+        scale_factor = (delta > 255) ? (0x7FFFFFFF / delta) : gpoly_reptable[delta];
+
+        v16 = ((scale_factor * (gploc_154 - gploc_16C)) << 1) >> 16;
+        gploc_194 = v16;
+
+        v18 = ((scale_factor * (gploc_150 - gploc_168)) << 1) >> 16;
+        gploc_188 = v18;
+
+        delta = gploc_pt_cy - gploc_pt_by;
+        scale_factor = (delta > 255) ? (0x7FFFFFFF / delta) : gpoly_reptable[delta];
+
+        v16 = ((scale_factor * (gploc_13C - gploc_154)) << 1) >> 16;
+        gploc_198 = v16;
+
+        v18 = ((scale_factor * (gploc_138 - gploc_150)) << 1) >> 16;
+        gploc_18C = v18;
+
+        v20 = (gploc_B0 * gploc_point_a) >> 16;
+        gploc_194 -= v20;
+
+        v20 = (gploc_AC * gploc_point_a) >> 16;
+        gploc_188 -= v20;
+
+        v20 = (gploc_A8 * gploc_point_a) >> 16;
+        gploc_point_c -= v20;
+
+        v20 = (gploc_B0 * gploc_point_b) >> 16;
+        gploc_198 -= v20;
+
+        v20 = (gploc_AC * gploc_point_b) >> 16;
+        gploc_18C -= v20;
+
+        v20 = (gploc_A8 * gploc_point_b) >> 16;
+        gploc_1A0 -= v20;
+    }
+}
+#endif
 
 void draw_gpoly_sub1c()
 {
