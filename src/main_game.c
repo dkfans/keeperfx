@@ -47,6 +47,7 @@
 #include "custom_sprites.h"
 #include "gui_boxmenu.h"
 #include "sounds.h"
+#include "api.h"
 
 #ifdef FUNCTESTING
   #include "ftests/ftest.h"
@@ -216,6 +217,8 @@ static void init_level(void)
     game.manufactr_spridx = 0;
     game.manufactr_tooltip = 0;
     JUSTMSG("Started level %d from %s", get_selected_level_number(), campaign.name);
+
+    api_event("GAME_STARTED");
 }
 
 static void post_init_level(void)
