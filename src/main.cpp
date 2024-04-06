@@ -65,7 +65,7 @@
 #include "thing_list.h"
 #include "player_instances.h"
 #include "player_utils.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "player_computer.h"
 #include "game_heap.h"
 #include "game_saves.h"
@@ -218,7 +218,7 @@ TbBool TimerFreeze = false;
 
 TbPixel get_player_path_colour(unsigned short owner)
 {
-  return player_path_colours[get_player_color_idx(owner % PLAYERS_EXT_COUNT)];
+  return player_path_colours[get_player_color_idx(owner % PLAYERS_COUNT)];
 }
 
 void setup_stuff(void)
@@ -250,7 +250,7 @@ void clear_creature_pool(void)
     game.pool.is_empty = true;
 }
 
-void give_shooter_drained_health(struct Thing *shooter, long health_delta)
+void give_shooter_drained_health(struct Thing *shooter, HitPoints health_delta)
 {
     struct CreatureControl *cctrl;
     HitPoints max_health;
@@ -665,7 +665,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
         if (subtile_has_door_thing_on(stl_x, stl_y)) // Collide with Doors
         {
             struct Thing *doortng = get_door_for_position(stl_x, stl_y);
-            short door_health = doortng->health;
+            HitPoints door_health = doortng->health;
             doortng->health -= boulder->health; // decrease door health
             boulder->health -= door_health; // decrease boulder health
             if (doortng->health <= 0)
@@ -1021,10 +1021,8 @@ void init_keeper(void)
     load_stats_files();
     check_and_auto_fix_stats();
     init_creature_scores();
-    // Load graphics structures
-    load_cubes_config(CnfLd_Standard);
     init_top_texture_to_cube_table();
-    game.neutral_player_num = neutral_player_number;
+    game.neutral_player_num = PLAYER_NEUTRAL;
     if (game.generate_speed <= 0)
       game.generate_speed = game.conf.rules.rooms.default_generate_speed;
     poly_pool_end = &poly_pool[sizeof(poly_pool)-128];
@@ -1216,7 +1214,7 @@ short setup_game(void)
   {
     // View second splash screen
     result = init_actv_bitmap_screen(RBmp_SplashFx);
-    if ( result )
+    if ( result == 1 )
     {
         result = show_actv_bitmap_screen(4000);
         free_actv_bitmap_screen();
@@ -1246,48 +1244,52 @@ short setup_game(void)
       }
   }
 
-  if ( result )
+  if (result == 1)
   {
       draw_clear_screen();
-      result = wait_for_cd_to_be_available();
+      if (wait_for_installation_files())
+      {
+          //result = -1; // Helps with better warning message later
+      }
   }
 
   game.frame_skip = start_params.frame_skip;
 
-  if ( result && (!game.no_intro) )
+  if ( (result == 1) && (!game.no_intro) )
   {
      result = intro_replay();
   }
   // Intro problems shouldn't force the game to quit,
   // so we're re-setting the result flag
-  result = 1;
+  if (result == 0)
+      result = 1;
 
-  if ( result )
+  if (result == 1)
   {
       display_loading_screen();
   }
   LbDataFreeAll(legal_load_files);
 
-  if ( result )
+  if (result == 1)
   {
       if ( !initial_setup() )
         result = 0;
   }
 
-  if ( result )
+  if (result == 1)
   {
     load_settings();
     if ( !setup_gui_strings_data() )
       result = 0;
   }
 
-  if ( result )
+  if (result == 1)
   {
     if ( !setup_heaps() )
       result = 0;
   }
 
-  if ( result )
+  if (result == 1)
   {
       init_keeper();
       switch (start_params.force_ppro_poly)
@@ -1317,10 +1319,10 @@ short setup_game(void)
       setup_3d();
       setup_stuff();
       init_lookups();
-      result = 1;
   }
 
-  if (result) {
+  if (result == 1)
+  {
       KEEPERSPEECH_REASON reason = KeeperSpeechInit();
       if (reason == KSR_NO_LIB_INSTALLED) {
           SYNCLOG("Speech recognition disabled: %s",
@@ -1773,7 +1775,7 @@ void init_keepers_map_exploration(void)
     for (i=0; i < PLAYERS_COUNT; i++)
     {
       player = get_player(i);
-      if (player_exists(player) && (player->is_active == 1))
+      if ((player_exists(player) && (player->is_active == 1)) || player_is_roaming(i))
       {
           // Additional init - the main one is in init_player()
           if ((player->allocflags & PlaF_CompCtrl) != 0) {
@@ -2441,7 +2443,7 @@ void count_players_creatures_being_paid(int *creatures_count)
         }
         i = thing->next_of_class;
         // Per-thing code
-        if ((thing->owner != game.hero_player_num) && (thing->owner != game.neutral_player_num))
+        if (!player_is_roaming(thing->owner) && (thing->owner != game.neutral_player_num))
         {
             struct CreatureStats *crstat;
             crstat = creature_stats_get_from_thing(thing);
@@ -2475,7 +2477,7 @@ void process_payday(void)
     PlayerNumber plyr_idx;
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-        if ((plyr_idx == game.hero_player_num) || (plyr_idx == game.neutral_player_num)) {
+        if (player_is_roaming(plyr_idx) || (plyr_idx == game.neutral_player_num)) {
             continue;
         }
         struct PlayerInfo *player;
@@ -2491,15 +2493,15 @@ void process_payday(void)
         output_message(SMsg_Payday, 0, true);
         game.pay_day_progress = 0;
         // Prepare a list which counts how many creatures of each owner needs pay
-        int player_paid_creatures_count[PLAYERS_EXT_COUNT];
+        int player_paid_creatures_count[PLAYERS_COUNT];
 
-        for (plyr_idx=0; plyr_idx < PLAYERS_EXT_COUNT; plyr_idx++)
+        for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
         {
             player_paid_creatures_count[plyr_idx] = 0;
         }
         count_players_creatures_being_paid(player_paid_creatures_count);
         // Players which have creatures being paid, should get payday notification
-        for (plyr_idx=0; plyr_idx < PLAYERS_EXT_COUNT; plyr_idx++)
+        for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
         {
             if (player_paid_creatures_count[plyr_idx] > 0)
             {
@@ -2667,7 +2669,7 @@ int clear_active_dungeons_stats(void)
 {
   struct Dungeon *dungeon;
   int i;
-  for (i=0; i <= game.hero_player_num; i++)
+  for (i=0; i < PLAYERS_COUNT; i++)
   {
       dungeon = get_dungeon(i);
       if (dungeon_invalid(dungeon))
@@ -2723,7 +2725,7 @@ TbBool valid_cave_in_position(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
 long update_cave_in(struct Thing *thing)
 {
     thing->health--;
-    thing->rendering_flags |= TRF_Unknown01;
+    thing->rendering_flags |= TRF_Invisible;
     if (thing->health < 1)
     {
         delete_thing_structure(thing, 0);
@@ -2820,6 +2822,35 @@ long update_cave_in(struct Thing *thing)
     return 1;
 }
 
+/**
+ * Checks if a gamerule for lighting has changed and updates the lights if they are.
+ * This function also refreshes the light status of the map.
+*/
+void update_global_lighting()
+{
+    // Check if any values have changed
+    if (
+        game.conf.rules.game.global_ambient_light != game.lish.global_ambient_light ||
+        game.conf.rules.game.light_enabled != game.lish.light_enabled
+    ){
+
+        // GlobalAmbientLight
+        if (game.conf.rules.game.global_ambient_light != game.lish.global_ambient_light)
+        {
+            game.lish.global_ambient_light = game.conf.rules.game.global_ambient_light;
+        }
+
+        // LightEnabled
+        if (game.conf.rules.game.light_enabled != game.lish.light_enabled)
+        {
+            game.lish.light_enabled = game.conf.rules.game.light_enabled;
+        }
+
+        // Refresh the lights
+        light_stat_refresh();
+    }
+}
+
 void update(void)
 {
     struct PlayerInfo *player;
@@ -2871,6 +2902,7 @@ void update(void)
         update_footsteps_nearest_camera(player->acamera);
         PaletteFadePlayer(player);
         process_armageddon();
+        update_global_lighting();
 #if (BFDEBUG_LEVEL > 9)
         lights_stats_debug_dump();
         things_stats_debug_dump();
@@ -4345,11 +4377,11 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     }
 
     retval = setup_game();
-    if (retval)
+    if (retval == 1)
     {
         steam_api_init();
     }
-    if (retval)
+    if (retval == 1)
     {
       if ((install_info.lang_id == Lang_Japanese) ||
           (install_info.lang_id == Lang_ChineseInt) ||
@@ -4377,16 +4409,21 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
         }
       }
     }
-    if ( retval )
+    if ( retval == 1 )
     {
         api_init_server();
         game_loop();
     }
     reset_game();
     LbScreenReset(true);
-    if ( !retval )
+    if ( retval == 0 )
     {
         static const char *msg_text="Setting up game failed.\n";
+        error_dialog_fatal(__func__, 2, msg_text);
+    } else
+    if (retval == -1)
+    {
+        static const char* msg_text = " Game files which have to be copied from original DK are not present.\n\n";
         error_dialog_fatal(__func__, 2, msg_text);
     }
     else

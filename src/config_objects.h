@@ -30,7 +30,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define OBJECT_TYPES_MAX  256
+#define OBJECT_TYPES_MAX  2000
 
 enum ObjectCategoryIndex {
     OCtg_Unknown = 0,
@@ -69,13 +69,24 @@ struct Effects {
     unsigned char sound_range;
 };
 
+struct FlameProperties {
+    unsigned short animation_id;
+    short anim_speed;
+    int sprite_size;
+    int td_add_x;
+    int td_add_y;
+    int fp_add_x;
+    int fp_add_y;
+    unsigned char transparency_flags;
+};
+
 struct ObjectConfigStats {
     char code_name[COMMAND_WORD_LEN];
     unsigned long model_flags;
     long genre;
     long name_stridx;
     long map_icon;
-    long health;
+    HitPoints health;
     char fall_acceleration;
     char light_unaffected;
     char immobile;
@@ -96,8 +107,9 @@ struct ObjectConfigStats {
     unsigned char updatefn_idx;
     unsigned char initial_state;
     unsigned char random_start_frame;
-    unsigned char transparancy_flags;  // Lower 2 bits are transparency flags.
+    unsigned char transparency_flags;  // Lower 2 bits are transparency flags.
     struct Effects effect;
+    struct FlameProperties flame;
 };
 
 struct ObjectsConfig {

@@ -41,7 +41,7 @@
 #include "frontmenu_ingame_evnt.h"
 #include "scrcapt.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "config_trapdoor.h"
@@ -875,6 +875,26 @@ short get_status_panel_keyboard_action_inputs(void)
   {
     clear_key_pressed(KC_1);
     fake_button_click(BID_INFO_TAB);
+    struct GuiButton* gbtn = get_gui_button(BID_QUERY_2);
+    if (gbtn != NULL)
+    {
+        if ((gbtn->flags & (LbBtnF_Visible | LbBtnF_Enabled)) != 0)
+        {
+            if (menu_is_active(GMnu_QUERY))
+            {
+                gui_switch_players_visible(gbtn);
+                fake_button_click(BID_QUERY_2);
+            }
+            else
+            {
+                fake_button_click(BID_INFO_TAB);
+            }
+        }
+        else
+        {
+            fake_button_click(BID_ROOM_TAB);
+        }
+    }
   }
   if (is_key_pressed(KC_2, KMod_NONE))
   {
@@ -2742,7 +2762,7 @@ short get_gui_inputs(short gameplay_on)
           if ((fmmenu_idx == -1) || (gbtn->gmenu_idx == fmmenu_idx))
           {
             gmbtn_idx = gidx;
-            gbtn->flags |= LbBtnF_Unknown10;
+            gbtn->flags |= LbBtnF_MouseOver;
             busy_doing_gui = 1;
             callback = gbtn->ptover_event;
             if (callback != NULL)
@@ -2753,11 +2773,11 @@ short get_gui_inputs(short gameplay_on)
                 nx_over_slider_button = gidx;
           } else
           {
-            gbtn->flags &= ~LbBtnF_Unknown10;
+            gbtn->flags &= ~LbBtnF_MouseOver;
           }
       } else
       {
-          gbtn->flags &= ~LbBtnF_Unknown10;
+          gbtn->flags &= ~LbBtnF_MouseOver;
       }
       if (gbtn->gbtype == LbBtnT_HorizSlider)
       {
@@ -3121,9 +3141,9 @@ void process_cheat_mode_selection_inputs()
     }
 }
 
-TbBool process_cheat_heart_health_inputs(short *value, long max_health)
+TbBool process_cheat_heart_health_inputs(HitPoints *value, HitPoints max_health)
 {
-   short new_health = *value;
+   HitPoints new_health = *value;
    if ( (is_key_pressed(KC_ADD, KMod_ALT)) || (is_key_pressed(KC_EQUALS, KMod_SHIFT)) || (is_key_pressed(KC_EQUALS, KMod_NONE)) )
    {
         if (new_health < max_health) 

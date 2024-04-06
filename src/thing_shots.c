@@ -25,6 +25,7 @@
 #include "bflib_math.h"
 #include "bflib_sound.h"
 #include "creature_states.h"
+#include "creature_states_combt.h"
 #include "thing_data.h"
 #include "thing_factory.h"
 #include "thing_effects.h"
@@ -121,7 +122,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
         }
         else
         {
-            damage = compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel, shotng);
+            damage = compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel, castng);
         }
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         explosion_affecting_area(shotng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets, shotst->damage_type);
@@ -152,7 +153,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
         {
             spell_level = SPELL_MAX_LEVEL;
         }
-        magic_use_power_destroy_walls(shotng->owner, shotng->mappos.x.stl.num, shotng->mappos.y.stl.num, spell_level, PwMod_CastForFree);
+        magic_use_power_direct(shotng->owner, PwrK_DESTRWALLS, spell_level, shotng->mappos.x.stl.num, shotng->mappos.y.stl.num,INVALID_THING, PwMod_CastForFree);
         break;
     default:
         break;
@@ -262,7 +263,7 @@ TbBool give_gold_to_creature_or_drop_on_map_when_digging(struct Thing *creatng, 
     return true;
 }
 
-SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_flags, short *health)
+SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_flags, HitPoints *health)
 {
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
@@ -496,7 +497,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     long blocked_flags = get_thing_blocked_flags_at(shotng, pos);
     TbBool digging = (shotst->model_flags & ShMF_Digging);
     SubtlCodedCoords hit_stl_num;
-    short old_health;
+    HitPoints old_health;
     EffectOrEffElModel eff_kind;
     short smpl_idx;
     unsigned char range;
@@ -995,7 +996,7 @@ void shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
         dieflags = CrDed_DiedInBattle | ((shotst->model_flags & ShMF_NoStun)?CrDed_NoUnconscious:0) | ((shotst->model_flags & ShMF_BlocksRebirth)? CrDed_NoRebirth : 0);
     }
     // Friendly fire should kill the creature, not knock out
-    if ((shotng->owner == creatng->owner) &! (game.conf.rules.game.classic_bugs_flags & ClscBug_FriendlyFaint))
+    if (players_creatures_tolerate_each_other(shotng->owner,creatng->owner) &! (game.conf.rules.game.classic_bugs_flags & ClscBug_FriendlyFaint))
     {
         dieflags |= CrDed_NoUnconscious;
     }
@@ -1179,6 +1180,10 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     if (thing_is_creature(shooter) && thing_is_creature(trgtng))
     {
         apply_shot_experience_from_hitting_creature(shooter, trgtng, shotng->model);
+    }
+    if (thing_is_deployed_trap(shooter) && thing_is_creature(trgtng))
+    {
+        creature_start_combat_with_trap_if_available(trgtng, shooter);
     }
     if (((shotst->model_flags & ShMF_NoHit) != 0) || (trgtng->health < 0)) {
         return 0;
@@ -1782,7 +1787,7 @@ struct Thing *create_shot(struct Coord3d *pos, ThingModel model, unsigned short 
     set_thing_draw(thing, shotst->sprite_anim_idx, 256, shotst->sprite_size_max, 0, 0, ODC_Default);
     thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Unshaded * shotst->unshaded) & TRF_Unshaded;
     thing->rendering_flags ^= thing->rendering_flags ^ ((thing->rendering_flags ^ TRF_Transpar_8 * shotst->animation_transparency) & (TRF_Transpar_Flags));
-    thing->rendering_flags ^= (thing->rendering_flags ^ shotst->hidden_projectile) & TRF_Unknown01;
+    thing->rendering_flags ^= (thing->rendering_flags ^ shotst->hidden_projectile) & TRF_Invisible;
     thing->clipbox_size_xy = shotst->size_xy;
     thing->clipbox_size_z = shotst->size_z;
     thing->solid_size_xy = shotst->size_xy;

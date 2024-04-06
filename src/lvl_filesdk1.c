@@ -40,6 +40,7 @@
 #include "engine_textures.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "player_instances.h"
 
 #include <toml.h>
 #include "post_inc.h"
@@ -125,7 +126,6 @@ unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum,const char *fext
 {
   short fgroup = get_level_fgroup(lvnum);
   char* fname = prepare_file_fmtpath(fgroup, "map%05lu.%s", lvnum, fext);
-  wait_for_cd_to_be_available();
   long fsize = LbFileLengthRnc(fname);
   if (fsize < *ldsize)
   {
@@ -682,12 +682,7 @@ TbBool load_column_file(LevelNumber lv_num)
       WARNMSG("Only %d columns supported, CLM file has %ld.",COLUMNS_COUNT,total);
       total = COLUMNS_COUNT;
     }
-    // Read and validate second amount
-    game.columns_used = llong(&buf[i]);
-    if (game.columns_used >= COLUMNS_COUNT)
-    {
-      game.columns_used = COLUMNS_COUNT - 1;
-    }
+    // The second lot of 4 bytes here are ignored.
     i += 4;
     // Fill the columns
     for (long k = 0; k < total; k++)
@@ -1138,7 +1133,7 @@ short load_map_ownership_file(LevelNumber lv_num)
             set_slab_owner(subtile_slab(x),subtile_slab(y),buf[i]);
         }
         else
-            set_slab_owner(subtile_slab(x),subtile_slab(y),NEUTRAL_PLAYER);
+            set_slab_owner(subtile_slab(x),subtile_slab(y),PLAYER_NEUTRAL);
         i++;
       }
     LbMemoryFree(buf);
@@ -1378,7 +1373,7 @@ static void load_ext_slabs(LevelNumber lvnum)
     memcpy(&gameadd.slab_ext_data_initial,&gameadd.slab_ext_data, sizeof(gameadd.slab_ext_data));
 }
 
-static void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short fgroup)
+void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short fgroup)
 {
     if (campgn->strings_data == NULL)
     {
@@ -1421,7 +1416,6 @@ static TbBool load_level_file(LevelNumber lvnum)
     TbBool new_format = true;
     short fgroup = get_level_fgroup(lvnum);
     char* fname = prepare_file_fmtpath(fgroup, "map%05lu.slb", (unsigned long)lvnum);
-    wait_for_cd_to_be_available();
     if (LbFileExists(fname))
     {
         result = true;

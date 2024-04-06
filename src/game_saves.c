@@ -45,6 +45,7 @@
 #include "gui_boxmenu.h"
 #include "keeperfx.hpp"
 #include "api.h"
+#include "lvl_filesdk1.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -208,6 +209,12 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
                     ERRORLOG("Unable to load campaign");
                     return GLoad_Failed;
                 }
+                struct GameCampaign *campgn = &campaign;
+                if (reload_campaign_strings)
+                {
+                    setup_campaign_strings_data(campgn);
+                }
+                load_map_string_data(campgn, centry->level_num, get_level_fgroup(centry->level_num));
                 // Load configs which may have per-campaign part, and even be modified within a level
                 init_custom_sprites(centry->level_num);
                 load_computer_player_config(CnfLd_Standard);
@@ -365,8 +372,6 @@ TbBool load_game(long slot_num)
     {
         // Use fname only here - it is overwritten by next use of prepare_file_fmtpath()
         char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
-        if (!wait_for_cd_to_be_available())
-          return false;
         fh = LbFileOpen(fname,Lb_FILE_MODE_READ_ONLY);
         if (fh == -1)
         {
