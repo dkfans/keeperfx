@@ -1885,6 +1885,268 @@ gpo_loc_0CB0:         # A07\n \
 #endif
 }
 
+#if 0
+// IDA decompilation
+void draw_gpoly_sub2b()
+{
+  int v0; // ecx
+  int v1; // ebx
+  char v2; // sf
+  int v3; // eax
+  int v4; // eax
+  int v5; // eax
+  int v6; // eax
+  int v7; // eax
+  int v8; // eax
+  int v9; // ecx
+  int v10; // ebx
+  int v11; // eax
+  int v12; // eax
+  int v13; // eax
+  int v14; // eax
+  int v15; // eax
+  int v16; // eax
+  int v17; // eax
+  int v18; // ecx
+  int v19; // ebx
+  int v20; // eax
+  int v21; // eax
+  int v22; // eax
+  int v23; // eax
+  int v24; // eax
+  int v25; // eax
+  int v26; // eax
+
+  if ( factor_chk < 0 )
+  {
+    v18 = gploc_pt_cy - gploc_pt_ay;
+    if ( gploc_pt_cy - gploc_pt_ay > 255 )
+      v19 = 0x7FFFFFFF / v18;
+    else
+      v19 = gpoly_reptable[v18];
+    HIWORD(v20) = (unsigned int)(v19 * 2 * (gploc_140 - gploc_170)) >> 16;
+    LOWORD(v20) = (unsigned __int64)(v19 * (__int64)(2 * (gploc_140 - gploc_170))) >> 32;
+    v21 = __ROL4__(v20, 16);
+    if ( v2 )
+      ++v21;
+    gploc_point_c = v21;
+    HIWORD(v22) = (unsigned int)(v19 * 2 * (gploc_13C - gploc_16C)) >> 16;
+    LOWORD(v22) = (unsigned __int64)(v19 * (__int64)(2 * (gploc_13C - gploc_16C))) >> 32;
+    v23 = __ROL4__(v22, 16);
+    if ( v2 )
+      ++v23;
+    gploc_194 = v23;
+    HIWORD(v24) = (unsigned int)(v19 * 2 * (gploc_138 - gploc_168)) >> 16;
+    LOWORD(v24) = (unsigned __int64)(v19 * (__int64)(2 * (gploc_138 - gploc_168))) >> 32;
+    v25 = __ROL4__(v24, 16);
+    if ( v2 )
+      ++v25;
+    gploc_188 = v25;
+    HIWORD(v26) = (unsigned int)(gploc_B0 * factor_ca) >> 16;
+    LOWORD(v26) = (unsigned __int64)(gploc_B0 * (__int64)factor_ca) >> 32;
+    gploc_194 -= __ROL4__(v26, 16);
+    HIWORD(v26) = (unsigned int)(gploc_AC * factor_ca) >> 16;
+    LOWORD(v26) = (unsigned __int64)(gploc_AC * (__int64)factor_ca) >> 32;
+    gploc_188 -= __ROL4__(v26, 16);
+    HIWORD(v26) = (unsigned int)(gploc_A8 * factor_ca) >> 16;
+    LOWORD(v26) = (unsigned __int64)(gploc_A8 * (__int64)factor_ca) >> 32;
+    gploc_point_c -= __ROL4__(v26, 16);
+  }
+  else
+  {
+    v0 = gploc_pt_by - gploc_pt_ay;
+    if ( gploc_pt_by - gploc_pt_ay > 255 )
+      v1 = 0x7FFFFFFF / v0;
+    else
+      v1 = gpoly_reptable[v0];
+    HIWORD(v3) = (unsigned int)(v1 * 2 * (gploc_158 - gploc_170)) >> 16;
+    LOWORD(v3) = (unsigned __int64)(v1 * (__int64)(2 * (gploc_158 - gploc_170))) >> 32;
+    v4 = __ROL4__(v3, 16);
+    if ( v2 )
+      ++v4;
+    gploc_point_c = v4;
+    HIWORD(v5) = (unsigned int)(v1 * 2 * (gploc_154 - gploc_16C)) >> 16;
+    LOWORD(v5) = (unsigned __int64)(v1 * (__int64)(2 * (gploc_154 - gploc_16C))) >> 32;
+    v6 = __ROL4__(v5, 16);
+    if ( v2 )
+      ++v6;
+    gploc_194 = v6;
+    HIWORD(v7) = (unsigned int)(v1 * 2 * (gploc_150 - gploc_168)) >> 16;
+    LOWORD(v7) = (unsigned __int64)(v1 * (__int64)(2 * (gploc_150 - gploc_168))) >> 32;
+    v8 = __ROL4__(v7, 16);
+    if ( v2 )
+      ++v8;
+    gploc_188 = v8;
+    v9 = gploc_pt_cy - gploc_pt_by;
+    if ( gploc_pt_cy - gploc_pt_by > 255 )
+      v10 = 0x7FFFFFFF / v9;
+    else
+      v10 = gpoly_reptable[v9];
+    HIWORD(v11) = (unsigned int)(v10 * 2 * (gploc_140 - gploc_158)) >> 16;
+    LOWORD(v11) = (unsigned __int64)(v10 * (__int64)(2 * (gploc_140 - gploc_158))) >> 32;
+    v12 = __ROL4__(v11, 16);
+    if ( v2 )
+      ++v12;
+    gploc_1A0 = v12;
+    HIWORD(v13) = (unsigned int)(v10 * 2 * (gploc_13C - gploc_154)) >> 16;
+    LOWORD(v13) = (unsigned __int64)(v10 * (__int64)(2 * (gploc_13C - gploc_154))) >> 32;
+    v14 = __ROL4__(v13, 16);
+    if ( v2 )
+      ++v14;
+    gploc_198 = v14;
+    HIWORD(v15) = (unsigned int)(v10 * 2 * (gploc_138 - gploc_150)) >> 16;
+    LOWORD(v15) = (unsigned __int64)(v10 * (__int64)(2 * (gploc_138 - gploc_150))) >> 32;
+    v16 = __ROL4__(v15, 16);
+    if ( v2 )
+      ++v16;
+    gploc_18C = v16;
+    HIWORD(v17) = (unsigned int)(v10 * gploc_B0) >> 16;
+    LOWORD(v17) = (unsigned __int64)(v10 * (__int64)gploc_B0) >> 32;
+    gploc_194 -= __ROL4__(v17, 16);
+    HIWORD(v17) = (unsigned int)(gploc_AC * gploc_point_a) >> 16;
+    LOWORD(v17) = (unsigned __int64)(gploc_AC * (__int64)gploc_point_a) >> 32;
+    gploc_188 -= __ROL4__(v17, 16);
+    HIWORD(v17) = (unsigned int)(gploc_A8 * gploc_point_a) >> 16;
+    LOWORD(v17) = (unsigned __int64)(gploc_A8 * (__int64)gploc_point_a) >> 32;
+    gploc_point_c -= __ROL4__(v17, 16);
+    HIWORD(v17) = (unsigned int)(gploc_B0 * gploc_point_b) >> 16;
+    LOWORD(v17) = (unsigned __int64)(gploc_B0 * (__int64)gploc_point_b) >> 32;
+    gploc_198 -= __ROL4__(v17, 16);
+    HIWORD(v17) = (unsigned int)(gploc_AC * gploc_point_b) >> 16;
+    LOWORD(v17) = (unsigned __int64)(gploc_AC * (__int64)gploc_point_b) >> 32;
+    gploc_18C -= __ROL4__(v17, 16);
+    HIWORD(v17) = (unsigned int)(gploc_A8 * gploc_point_b) >> 16;
+    LOWORD(v17) = (unsigned __int64)(gploc_A8 * (__int64)gploc_point_b) >> 32;
+    gploc_1A0 -= __ROL4__(v17, 16);
+  }
+}
+
+// GPT-4 cleaned up version
+void draw_gpoly_sub2b()
+{
+    int delta; // Variable to store differences computed
+    int scale_factor;
+    int result;
+
+    if (factor_chk < 0)
+    {
+        delta = gploc_pt_cy - gploc_pt_ay;
+        scale_factor = (delta > 255) ? (0x7FFFFFFF / delta) : gpoly_reptable[delta];
+
+        // For gploc_point_c
+        result = ((scale_factor * 2 * (gploc_140 - gploc_170)) >> 16);
+        gploc_point_c = result;
+
+        // For gploc_194
+        result = ((scale_factor * 2 * (gploc_13C - gploc_16C)) >> 16);
+        gploc_194 = result;
+
+        // For gploc_188
+        result = ((scale_factor * 2 * (gploc_138 - gploc_168)) >> 16);
+        gploc_188 = result;
+
+        gploc_194 -= ((gploc_B0 * factor_ca) >> 16);
+        gploc_188 -= ((gploc_AC * factor_ca) >> 16);
+        gploc_point_c -= ((gploc_A8 * factor_ca) >> 16);
+    }
+    else
+    {
+        delta = gploc_pt_by - gploc_pt_ay;
+        scale_factor = (delta > 255) ? (0x7FFFFFFF / delta) : gpoly_reptable[delta];
+
+        // For gploc_point_c
+        result = ((scale_factor * 2 * (gploc_158 - gploc_170)) >> 16);
+        gploc_point_c = result;
+
+        // For gploc_194
+        result = ((scale_factor * 2 * (gploc_154 - gploc_16C)) >> 16);
+        gploc_194 = result;
+
+        // For gploc_188
+        result = ((scale_factor * 2 * (gploc_150 - gploc_168)) >> 16);
+        gploc_188 = result;
+
+        delta = gploc_pt_cy - gploc_pt_by;
+        scale_factor = (delta > 255) ? (0x7FFFFFFF / delta) : gpoly_reptable[delta];
+
+        gploc_1A0 = ((scale_factor * 2 * (gploc_140 - gploc_158)) >> 16);
+        gploc_198 = ((scale_factor * 2 * (gploc_13C - gploc_154)) >> 16);
+        gploc_18C = ((scale_factor * 2 * (gploc_138 - gploc_150)) >> 16);
+
+        gploc_194 -= ((scale_factor * gploc_B0) >> 16);
+        gploc_188 -= ((gploc_AC * scale_factor) >> 16);
+        gploc_point_c -= ((gploc_A8 * scale_factor) >> 16);
+        gploc_198 -= ((gploc_B0 * scale_factor) >> 16);
+        gploc_18C -= ((gploc_AC * scale_factor) >> 16);
+        gploc_1A0 -= ((gploc_A8 * scale_factor) >> 16);
+    }
+}
+
+// Further cleanup
+void adjustVertexAttributesBasedOnFactor()
+{
+    int deltaY; // Variable to store differences computed along Y-axis
+    int scaleFactor; // Variable to store the computed scale factor
+    int adjustmentResult; // Result after applying the scale factor
+
+    if (conditionFactor < 0) // This likely indicates a particular geometric or rendering condition
+    {
+        deltaY = vertexC_Y - vertexA_Y;
+        scaleFactor = (deltaY > 255) ? (INT_MAX / deltaY) : repeatScaleTable[deltaY];
+
+        // Adjust attribute for vertex C
+        adjustmentResult = ((scaleFactor * 2 * (textureAdjustment_C - textureAdjustment_A)) >> 16);
+        attribute_vertexC = adjustmentResult;
+
+        // Adjust attribute 1
+        adjustmentResult = ((scaleFactor * 2 * (textureCoord_C_U - textureCoord_A_U)) >> 16);
+        adjustment_global1 = adjustmentResult;
+
+        // Adjust attribute 2
+        adjustmentResult = ((scaleFactor * 2 * (textureCoord_C_V - textureCoord_A_V)) >> 16);
+        adjustment_global2 = adjustmentResult;
+
+        // Applying final adjustments based on another scale factor
+        adjustment_global1 -= ((globalFactor_B * scaleCondition) >> 16);
+        adjustment_global2 -= ((globalFactor_A * scaleCondition) >> 16);
+        attribute_vertexC -= ((globalAdjustment_C * scaleCondition) >> 16);
+    }
+    else
+    {
+        deltaY = vertexB_Y - vertexA_Y;
+        scaleFactor = (deltaY > 255) ? (INT_MAX / deltaY) : repeatScaleTable[deltaY];
+
+        // Adjust attribute for vertex C
+        adjustmentResult = ((scaleFactor * 2 * (textureAdjustment_B - textureAdjustment_A)) >> 16);
+        attribute_vertexC = adjustmentResult;
+
+        // Adjust attribute 1
+        adjustmentResult = ((scaleFactor * 2 * (textureCoord_B_U - textureCoord_A_U)) >> 16);
+        adjustment_global1 = adjustmentResult;
+
+        // Adjust attribute 2
+        adjustmentResult = ((scaleFactor * 2 * (textureCoord_B_V - textureCoord_A_V)) >> 16);
+        adjustment_global2 = adjustmentResult;
+
+        deltaY = vertexC_Y - vertexB_Y;
+        scaleFactor = (deltaY > 255) ? (INT_MAX / deltaY) : repeatScaleTable[deltaY];
+
+        // Additional adjustments considering vertex B to C changes
+        adjustment_vertexBtoC = ((scaleFactor * 2 * (textureAdjustment_C - textureAdjustment_B)) >> 16);
+        adjustment_global3 = ((scaleFactor * 2 * (textureCoord_C_U - textureCoord_B_U)) >> 16);
+        adjustment_global4 = ((scaleFactor * 2 * (textureCoord_C_V - textureCoord_B_V)) >> 16);
+
+        // Applying final adjustments based on the newly computed scale factor
+        adjustment_global1 -= ((globalFactor_B * scaleFactor) >> 16);
+        adjustment_global2 -= ((globalFactor_A * scaleFactor) >> 16);
+        attribute_vertexC -= ((globalAdjustment_C * scaleFactor) >> 16);
+        adjustment_global3 -= ((globalFactor_B * scaleFactor) >> 16);
+        adjustment_global4 -= ((globalFactor_A * scaleFactor) >> 16);
+        adjustment_vertexBtoC -= ((globalAdjustment_C * scaleFactor) >> 16);
+    }
+}
+#endif
+
 void draw_gpoly_sub2c()
 {
     gploc_58 = (gploc_170 << 16) + gploc_A8;
