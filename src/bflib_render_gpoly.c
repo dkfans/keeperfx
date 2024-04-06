@@ -1324,6 +1324,63 @@ void draw_gpoly_sub1b()
         gploc_1A0 -= v20;
     }
 }
+
+// Further cleanups
+void draw_gpoly_adjustedScaling()
+{
+    int scaleDifference;
+    int scaleFactor;
+    int adjustedValue1, adjustedValue2, adjustedValueForC;
+
+    if (conditionFactor < 0) // conditionFactor seems related to 'factor_chk'
+    {
+        scaleDifference = vertexC_Y - vertexA_Y;
+        scaleFactor = (scaleDifference > 255) ? (INT_MAX / scaleDifference) : repetitionScale[scaleDifference];
+
+        adjustedValue1 = ((scaleFactor * (textureCoordC_U - textureCoordA_U)) << 1) >> 16;
+        globalAdjusted_U = adjustedValue1;
+
+        adjustedValue2 = ((scaleFactor * (textureCoordC_V - textureCoordA_V)) << 1) >> 16;
+        globalAdjusted_V = adjustedValue2;
+
+        adjustedValueForC = (precomputedValue1 * scaleConditionFactor) >> 16;
+        globalAdjusted_U -= adjustedValueForC;
+
+        adjustedValueForC = (precomputedValue2 * scaleConditionFactor) >> 16;
+        globalAdjusted_V -= adjustedValueForC;
+
+        adjustedValueForC = (precomputedValue3 * scaleConditionFactor) >> 16;
+        adjustedVertexC -= adjustedValueForC;
+    }
+    else
+    {
+        scaleDifference = vertexB_Y - vertexA_Y;
+        scaleFactor = (scaleDifference > 255) ? (INT_MAX / scaleDifference) : repetitionScale[scaleDifference];
+
+        adjustedValue1 = ((scaleFactor * (textureCoordB_U - textureCoordA_U)) << 1) >> 16;
+        globalAdjusted_U = adjustedValue1;
+
+        adjustedValue2 = ((scaleFactor * (textureCoordB_V - textureCoordA_V)) << 1) >> 16;
+        globalAdjusted_V = adjustedValue2;
+
+        scaleDifference = vertexC_Y - vertexB_Y;
+        scaleFactor = (scaleDifference > 255) ? (INT_MAX / scaleDifference) : repetitionScale[scaleDifference];
+
+        adjustedValue1 = ((scaleFactor * (textureCoordC_U - textureCoordB_U)) << 1) >> 16;
+        globalAdjusted_U_Next = adjustedValue1;
+
+        adjustedValue2 = ((scaleFactor * (textureCoordC_V - textureCoordB_V)) << 1) >> 16;
+        globalAdjusted_V_Next = adjustedValue2;
+
+        // Adjust based on precomputed values and specific scaling factors
+        // Pattern repeats with variants for B -> A, C -> A, including adjustedVertexC
+
+        adjustedValueForC = (precomputedValue1 * initialPointFactor) >> 16;
+        globalAdjusted_U -= adjustedValueForC;
+
+        // Repeat adjustments for V coordinates and possibly other variables
+    }
+}
 #endif
 
 void draw_gpoly_sub1c()
@@ -1461,6 +1518,155 @@ gpo_loc_0A7D:         # 87\n \
 " : : : "memory", "cc");
 #endif
 }
+
+#if 0
+// IDA decompilation
+void draw_gpoly_sub2a()
+{
+  int v0; // eax
+  int v1; // ecx
+  int v2; // ebx
+  int v3; // ebp
+  int v4; // esi
+  int v5; // edi
+  bool v7; // sf
+  int v8; // eax
+  int v10; // eax
+  int v12; // eax
+
+  v0 = gploc_pt_cy - gploc_pt_ay;
+  v1 = (gploc_pt_bx - gploc_pt_ax) * (gploc_pt_cy - gploc_pt_ay);
+  if ( factor_chk >= 0 )
+    v1 = v1 - v0 - v0;
+  v2 = (gploc_pt_cx - gploc_pt_ax) * (gploc_pt_by - gploc_pt_ay) - (v0 + v1);
+  if ( v2 )
+  {
+    v3 = 0x7FFFFFFF / v2;
+    v4 = gploc_pt_cy - gploc_pt_ay;
+    v5 = gploc_pt_by - gploc_pt_ay;
+    _RAX = ((gploc_pt_by - gploc_pt_ay) * (gploc_140 - gploc_170) - (gploc_pt_cy - gploc_pt_ay)
+                                                                  * (gploc_158 - gploc_170))
+         * (__int64)(0x7FFFFFFF / v2);
+    LODWORD(_RAX) = 2 * _RAX;
+    v7 = (int)_RAX < 0;
+    __asm { rcl     edx, 1 }
+    LOWORD(_RAX) = WORD2(_RAX);
+    v8 = __ROL4__(_RAX, 16);
+    if ( v7 )
+      ++v8;
+    gploc_A8 = v8;
+    _RAX = (v5 * (gploc_13C - gploc_16C) - v4 * (gploc_154 - gploc_16C)) * (__int64)v3;
+    LODWORD(_RAX) = 2 * _RAX;
+    v7 = (int)_RAX < 0;
+    __asm { rcl     edx, 1 }
+    LOWORD(_RAX) = WORD2(_RAX);
+    v10 = __ROL4__(_RAX, 16);
+    if ( v7 )
+      ++v10;
+    gploc_B0 = v10;
+    _RAX = (v5 * (gploc_138 - gploc_168) - v4 * (gploc_150 - gploc_168)) * (__int64)v3;
+    LODWORD(_RAX) = 2 * _RAX;
+    v7 = (int)_RAX < 0;
+    __asm { rcl     edx, 1 }
+    LOWORD(_RAX) = WORD2(_RAX);
+    v12 = __ROL4__(_RAX, 16);
+    if ( v7 )
+      ++v12;
+    gploc_AC = v12;
+  }
+  else
+  {
+    gploc_A8 = 0;
+    gploc_B0 = 0;
+    gploc_AC = 0;
+  }
+}
+
+// GPT-4 refactor
+void draw_gpoly_sub2a()
+{
+    int delta_ay_cy = gploc_pt_cy - gploc_pt_ay; // Difference in Y between points A and C
+    int composite1 = (gploc_pt_bx - gploc_pt_ax) * delta_ay_cy; // Composite calculation 1
+    if (factor_chk >= 0)
+    {
+        composite1 = composite1 - delta_ay_cy - delta_ay_cy;
+    }
+    int composite2 = (gploc_pt_cx - gploc_pt_ax) * (gploc_pt_by - gploc_pt_ay) - (delta_ay_cy + composite1); // Composite calculation 2
+    if (composite2 != 0)
+    {
+        int v3 = 0x7FFFFFFF / composite2;
+        int delta_by_ay = gploc_pt_by - gploc_pt_ay; // Difference in Y between points B and A
+
+        // For gploc_A8
+        int64_t calculation_A8 = ((int64_t)delta_by_ay * (gploc_140 - gploc_170) - (int64_t)delta_ay_cy * (gploc_158 - gploc_170)) * v3;
+        calculation_A8 *= 2; // Doubling the result
+        gploc_A8 = (calculation_A8 >> 16) & 0xFFFFFFFF; // Taking upper 32 bits
+
+        // For gploc_B0
+        int64_t calculation_B0 = ((int64_t)delta_by_ay * (gploc_13C - gploc_16C) - (int64_t)delta_ay_cy * (gploc_154 - gploc_16C)) * v3;
+        calculation_B0 *= 2; // Doubling the result
+        gploc_B0 = (calculation_B0 >> 16) & 0xFFFFFFFF; // Taking upper 32 bits
+
+        // For gploc_AC
+        int64_t calculation_AC = ((int64_t)delta_by_ay * (gploc_138 - gploc_168) - (int64_t)delta_ay_cy * (gploc_150 - gploc_168)) * v3;
+        calculation_AC *= 2; // Doubling the result
+        gploc_AC = (calculation_AC >> 16) & 0xFFFFFFFF; // Taking upper 32 bits
+    }
+    else
+    {
+        gploc_A8 = 0;
+        gploc_B0 = 0;
+        gploc_AC = 0;
+    }
+}
+
+// More refactoring
+void calculateAdjustedTextureFactors()
+{
+    int deltaY_AtoC = vertexC_Y - vertexA_Y; // Difference in Y between vertices A and C
+    int combinedFactor1 = (vertexB_X - vertexA_X) * deltaY_AtoC; // Preliminary composite calculation 1
+
+    // Adjust combinedFactor1 based on a condition factor determined earlier
+    if (conditionFactor >= 0)
+    {
+        combinedFactor1 -= (deltaY_AtoC * 2);
+    }
+
+    // Further combined calculation, taking into account differences along both axes
+    int combinedFactor2 = (vertexC_X - vertexA_X) * (vertexB_Y - vertexA_Y) - (deltaY_AtoC + combinedFactor1);
+
+    if (combinedFactor2 != 0) // Ensure that the denominator in the subsequent division isn't zero
+    {
+        int scalingFactor = INT_MAX / combinedFactor2;  // Use a large constant to scale the division result
+        int deltaY_BtoA = vertexB_Y - vertexA_Y; // Difference in Y between points B and A
+
+        // Calculate adjusted factor for gploc_A8 considering the differences in Y coordinates and scaled
+        int64_t calculation_A8 = ((int64_t)deltaY_BtoA * (adjustmentFactor_CtoA - adjustmentFactor_A) -
+                                  (int64_t)deltaY_AtoC * (adjustmentFactor_BtoA - adjustmentFactor_A)) * scalingFactor;
+        calculation_A8 *= 2; // Doubling the result
+        gploc_A8 = (calculation_A8 >> 16) & 0xFFFFFFFF; // Retain upper 32 bits
+
+        // Similar calculation for gploc_B0
+        int64_t calculation_B0 = ((int64_t)deltaY_BtoA * (textureCoord_C_U - textureCoord_A_U) -
+                                  (int64_t)deltaY_AtoC * (textureCoord_B_U - textureCoord_A_U)) * scalingFactor;
+        calculation_B0 *= 2;  // Doubling the result
+        gploc_B0 = (calculation_B0 >> 16) & 0xFFFFFFFF; // Retain upper 32 bits
+
+        // Similar calculation for gploc_AC
+        int64_t calculation_AC = ((int64_t)deltaY_BtoA * (textureCoord_C_V - textureCoord_A_V) -
+                                  (int64_t)deltaY_AtoC * (textureCoord_B_V - textureCoord_A_V)) * scalingFactor;
+        calculation_AC *= 2;  // Doubling the result
+        gploc_AC = (calculation_AC >> 16) & 0xFFFFFFFF; // Retain upper 32 bits
+    }
+    else
+    {
+        // In case combinedFactor2 equals to zero (to prevent division by zero), reset values
+        gploc_A8 = 0;
+        gploc_B0 = 0;
+        gploc_AC = 0;
+    }
+}
+#endif
 
 void draw_gpoly_sub2b()
 {
