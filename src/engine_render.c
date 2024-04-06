@@ -4045,7 +4045,9 @@ static void add_draw_status_box(struct Thing *thing, struct EngineCoord *ecor)
 {
     struct EngineCoord coord = *ecor;
     const struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    coord.y += thing->clipbox_size_z + crstat->status_offset; 
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    short offset = (crstat->status_offset + (crstat->status_offset * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
+    coord.y += thing->clipbox_size_z + offset;
     rotpers(&coord, &camera_matrix);
 
     int z_val = coord.z;
