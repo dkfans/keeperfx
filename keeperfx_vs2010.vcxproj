@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\actionpt.c" />
+    <ClCompile Include="src\api.c" />
     <ClCompile Include="src\ariadne.c" />
     <ClCompile Include="src\ariadne_edge.c" />
     <ClCompile Include="src\ariadne_findcache.c" />
@@ -257,6 +258,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actionpt.h" />
+    <ClInclude Include="src\api.h" />
     <ClInclude Include="src\ariadne.h" />
     <ClInclude Include="src\ariadne_edge.h" />
     <ClInclude Include="src\ariadne_findcache.h" />
