@@ -443,9 +443,11 @@ TbBool process_scavenge_creature_from_level(struct Thing *scavtng, struct Thing 
     if ((scavpts << 8) < calldngn->scavenge_turn_points[calltng->model])
     {
         SYNCDBG(8,"The %s index %d owner %d accumulated enough points to turn to scavenger",thing_model_name(scavtng),(int)scavtng->index,(int)scavtng->owner);
-        turn_creature_to_scavenger(scavtng, calltng);
-        calldngn->scavenge_turn_points[calltng->model] = 0;
-        return true;
+        if (turn_creature_to_scavenger(scavtng, calltng))
+        {
+            calldngn->scavenge_turn_points[calltng->model] = 0;
+            return true;
+        }
     }
     return false;
 }
@@ -491,9 +493,11 @@ TbBool process_scavenge_creature_from_pool(struct Thing *calltng, long work_valu
     long scavpts = calculate_correct_creature_scavenge_required(calltng, calltng->owner);
     if ((scavpts << 8) < calldngn->scavenge_turn_points[calltng->model])
     {
-        creature_scavenge_from_creature_pool(calltng);
-        calldngn->scavenge_turn_points[calltng->model] = 0;
-        return true;
+        if (creature_scavenge_from_creature_pool(calltng))
+        {
+            calldngn->scavenge_turn_points[calltng->model] = 0;
+            return true;
+        }
     }
     return false;
 }
