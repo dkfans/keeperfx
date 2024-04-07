@@ -97,6 +97,8 @@ enum HandRuleType {
     HandRule_Wandering,
     HandRule_Working,
     HandRule_Fighting,
+    HandRule_DroppedTimeHigher,
+    HandRule_DroppedTimeLower
 };
 
 enum HandRuleAction {
