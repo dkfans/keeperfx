@@ -21,6 +21,7 @@
 #define DK_GAMEMERGE_H
 
 #include "bflib_basics.h"
+#include "bflib_math.h"
 #include "globals.h"
 
 #include "actionpt.h"
