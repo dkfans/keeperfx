@@ -1045,7 +1045,7 @@ static char* process_multiline_comment(char *buf, char *buf_end)
     return buf;
 }
 
-static void parse_txt_data(char *script_data, long script_len, long file_version)
+static void parse_txt_data(char *script_data, long script_len)
 {// Process the file lines
     text_line_number = 1;
     char* buf = script_data;
@@ -1072,7 +1072,7 @@ static void parse_txt_data(char *script_data, long script_len, long file_version
       }
       //SCRPTLOG("Analyse");
       // Analyze the line
-      script_scan_line(buf, true, file_version);
+      script_scan_line(buf, true, level_file_version);
       // Set new line start
       text_line_number++;
       buf += lnlen;
@@ -1095,7 +1095,7 @@ TbBool preload_script(long lvnum)
       // Here we could load lua instead
       return false;
   }
-  parse_txt_data(script_data, script_len, level_file_version);
+  parse_txt_data(script_data, script_len);
   SYNCDBG(8,"Finished");
   return true;
 }
