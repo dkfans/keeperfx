@@ -887,17 +887,21 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
 {
     droptng->mappos.x.val = dstpos->x.val;
     droptng->mappos.y.val = dstpos->y.val;
-    droptng->mappos.z.val = subtile_coord(8,0);
-    long fall_dist;
-    fall_dist = get_ceiling_height_at(&droptng->mappos) - get_floor_height_at(&droptng->mappos);
-    struct CreatureStats* crstat;
+    long ceiling_height = get_ceiling_height_at(&droptng->mappos);
+    long floor_height = get_floor_height_at(&droptng->mappos);
+    long fall_dist = ceiling_height - floor_height;
     if (fall_dist < 0) {
         fall_dist = 0;
     } else
     if (fall_dist > subtile_coord(3,0)) {
         fall_dist = subtile_coord(3,0);
     }
-    droptng->mappos.z.val = fall_dist + get_floor_height_at(&droptng->mappos);
+    long max_height = ceiling_height - droptng->clipbox_size_z;
+    droptng->mappos.z.val = fall_dist + floor_height;
+    if (droptng->mappos.z.val > max_height)
+    {
+        droptng->mappos.z.val = max_height;
+    }
     remove_thing_from_limbo(droptng);
     if (thing_is_creature(droptng))
     {
@@ -907,7 +911,7 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
             play_creature_sound(droptng, 6, 3, 0);
         }
         dungeon->last_creature_dropped_gameturn = game.play_gameturn;
-        crstat = creature_stats_get(droptng->model);
+        struct CreatureStats* crstat = creature_stats_get(droptng->model);
         if ( (crstat->illuminated) || (creature_affected_by_spell(droptng, SplK_Light)) )
         {
             illuminate_creature(droptng);
