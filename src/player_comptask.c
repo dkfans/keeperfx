@@ -3249,7 +3249,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
     const struct TrapDoorSelling *tdsell;
     TbBool item_sold;
     long value;
-    long model;
+    ThingModel model;
     long i;
 
     if (dungeon_invalid(dungeon)) {

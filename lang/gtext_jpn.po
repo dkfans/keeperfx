@@ -1262,7 +1262,7 @@ msgid ""
 "designs on this dark domain. Expect no quarter from your rivals."
 msgstr ""
 "お前は流行を作り出したようだ。 他の２人のダンジョンキーパーが、 この暗黒の領"
-"地のデザインを真似ている。 しかし連中から金はとれないぞ。"
+"地を狙っている。 連中から容赦されることはない。"
 
 #. Level Woodly Rhyme information
 #: guitext:114

@@ -202,7 +202,7 @@ TbBool summon_creature(long model, struct Coord3d *pos, long owner, long expleve
     return true;
 }
 
-TbBool add_anger_to_all_creatures_of_player(long plyr_idx, short percentage)
+TbBool add_anger_to_all_creatures_of_player(PlayerNumber plyr_idx, short percentage)
 {
     SYNCDBG(8, "Starting");
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
@@ -290,7 +290,7 @@ long force_complete_current_manufacturing(long plyr_idx)
     return 0;
 }
 
-void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, long crmodel, long spl_idx, long overchrg)
+void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, ThingModel crmodel, long spl_idx, long overchrg)
 {
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
