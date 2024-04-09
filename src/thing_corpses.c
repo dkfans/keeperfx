@@ -486,7 +486,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
  */
 struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long crpscondition)
 {
-    long crmodel = thing->model;
+    ThingModel crmodel = thing->model;
     TbBool memf1 = ((thing->alloc_flags & TAlF_IsControlled) != 0);
     struct Coord3d pos;
     pos.x.val = thing->mappos.x.val;

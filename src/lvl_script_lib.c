@@ -47,7 +47,7 @@ void command_init_value(struct ScriptValue* value, unsigned long var_index, unsi
     value->condit_idx = get_script_current_condition();
 }
 
-struct Thing *script_process_new_object(long tngmodel, TbMapLocation location, long arg, unsigned long plr_range_id)
+struct Thing *script_process_new_object(ThingModel tngmodel, TbMapLocation location, long arg, unsigned long plr_range_id)
 {
     
     int tngowner = plr_range_id;
@@ -99,7 +99,7 @@ struct Thing *script_process_new_object(long tngmodel, TbMapLocation location, l
     return thing;
 }
 
-struct Thing* script_process_new_effectgen(long tngmodel, TbMapLocation location, long range)
+struct Thing* script_process_new_effectgen(ThingModel tngmodel, TbMapLocation location, long range)
 {
     struct Coord3d pos;
     const unsigned char tngclass = TCls_EffectGen;
@@ -289,7 +289,7 @@ static long filter_criteria_loc(long desc_type)
     return desc_type >> 4;
 }
 
-struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmodel, long criteria)
+struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, ThingModel crmodel, long criteria)
 {
     switch (filter_criteria_type(criteria))
     {

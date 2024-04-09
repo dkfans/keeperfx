@@ -85,11 +85,11 @@ enum ObjectModels
     ObjMdl_SpinningKey = 44,
     ObjMdl_HeroGate = 49,
     ObjMdl_LightBall =  51,
-    ObjMdl_GoldPile = 52,
-    ObjMdl_GoldHorde1 = 53,
-    ObjMdl_GoldHorde2 = 54,
-    ObjMdl_GoldHorde3 = 55,
-    ObjMdl_GoldHorde4 = 56,
+    ObjMdl_GoldHoard1 = 52,
+    ObjMdl_GoldHoard2 = 53,
+    ObjMdl_GoldHoard3 = 54,
+    ObjMdl_GoldHoard4 = 55,
+    ObjMdl_GoldHoard5 = 56,
     ObjMdl_SpecboxRevealMap = 86,
     ObjMdl_SpecboxResurect = 87,
     ObjMdl_SpecboxTransfer = 88,
@@ -159,7 +159,7 @@ extern unsigned short dungeon_flame_objects[];
 extern const struct NamedCommand object_update_functions_desc[];
 
 /******************************************************************************/
-struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx);
+struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigned short owner, long parent_idx);
 void destroy_object(struct Thing *thing);
 TngUpdateRet update_object(struct Thing *thing);
 TbBool thing_is_object(const struct Thing *thing);
