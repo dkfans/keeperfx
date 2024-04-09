@@ -331,7 +331,7 @@ static TbBool cmd_magic_instance(PlayerNumber plyr_idx, char* creature_str, cons
 TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
 {
     SYNCDBG(2,"Command %d: %s",(int)plyr_idx, msg);
-    char * parstr = msg + 1;
+    char * parstr = msg;
     char * pr2str = cmd_strtok(msg + 1);
     char * pr3str = (pr2str != NULL) ? cmd_strtok(pr2str + 1) : NULL;
     char * pr4str = (pr3str != NULL) ? cmd_strtok(pr3str + 1) : NULL;
@@ -419,6 +419,15 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     {
         targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "turn %ld", game.play_gameturn);
         return true;
+    }
+    else if (strcasecmp(parstr, "pause") == 0)
+    {
+        toggle_flag(game.operation_flags, GOF_Paused);
+    }
+    else if (strcasecmp(parstr, "step") == 0)
+    {
+        game.frame_step = true;
+        clear_flag(game.operation_flags, GOF_Paused);
     }
     else if (strcasecmp(parstr, "game.save") == 0)
     {
@@ -789,6 +798,44 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     if (parameter_is_number(pr2str))
                     {
                         crmodel = atoi(pr2str);
+                    }
+                }
+                if ((crmodel <= CREATURE_ANY) && (crmodel >= 249))
+                {
+                    TbBool evil = false;
+                    TbBool good = false;
+                    if (crmodel == 250)
+                    {
+                        evil = true;
+                    }
+                    if (crmodel == 249)
+                    {
+                        good = true;
+                    }
+                    while (1) {
+                        crmodel = GAME_RANDOM(game.conf.crtr_conf.model_count) + 1;
+                        // Accept only evil creatures
+                        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crmodel];
+                        if ((crconf->model_flags & CMF_IsSpectator) != 0) {
+                            continue;
+                        }
+                        if (evil) // evil
+                        {
+                            if ((crconf->model_flags & CMF_IsEvil) != 0) {
+                                break;
+                            }
+                        }
+                        else
+                        if (good) // hero
+                        {
+                            if ((crconf->model_flags & CMF_IsEvil) == 0) {
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
                 }
                 if ((crmodel > 0) && (crmodel < game.conf.crtr_conf.model_count))
@@ -1553,9 +1600,10 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             if (pr2str != NULL)
             {
                 unsigned char ap = atoi(pr2str);
+                PlayerNumber player_idx = (pr3str == NULL) ? ALL_PLAYERS : atoi(pr3str);
                 if (action_point_exists_idx(ap))
                 {
-                    return action_point_reset_idx(ap);
+                    return action_point_reset_idx(ap, player_idx);
                 }
             }
         }
@@ -1661,6 +1709,18 @@ long get_creature_model_for_command(char *msg)
         else if ( (strcasecmp(msg, "spirit") == 0) || (strcasecmp(msg, "floatingspirit") == 0) )
         {
             return 31;
+        }
+        else if ( (strcasecmp (msg, "any_creature") == 0) || (strcasecmp(msg, "any") == 0))
+        {
+            return CREATURE_ANY;
+        }
+        else if ( (strcasecmp(msg, "evil_creature") == 0) || (strcasecmp(msg, "evil") == 0))
+        {
+            return 250;
+        }
+        else if ( (strcasecmp(msg, "good_creature") == 0) || (strcasecmp(msg, "good") == 0) || (strcasecmp(msg, "hero") == 0))
+        {
+            return 249;
         }
         else
         {

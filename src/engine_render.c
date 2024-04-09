@@ -66,6 +66,9 @@
 extern "C" {
 #endif
 
+#define TO_FIXED(x)    ((x) << 16)
+#define FROM_FIXED(x)    ((x) >> 16)
+
 enum QKinds {
     QK_PolygonStandard = 0,
     QK_PolygonSimple,
@@ -946,6 +949,31 @@ struct WibbleTable *get_wibble_from_table(struct Camera *cam, long table_index, 
         }
     }
     return &blank_wibble_table[table_index];
+}
+
+static struct BasicQ *get_bucket_item(int min_cor_z, enum QKinds kind, size_t size)
+{
+    if (getpoly >= poly_pool_end)
+    {
+        return NULL;
+    }
+
+    int bckt_idx = min_cor_z / BUCKETS_STEP;
+    if (bckt_idx < 0)
+    {
+        bckt_idx = 0;
+    }
+    else if (bckt_idx > BUCKETS_COUNT-2)
+    {
+        bckt_idx = BUCKETS_COUNT-2;
+    }
+    struct BasicQ * kspr;
+    kspr = (struct BasicQ *)getpoly;
+    getpoly += size;
+    kspr->next = buckets[bckt_idx];
+    kspr->kind = kind;
+    buckets[bckt_idx] = (struct BasicQ *)kspr;
+    return kspr;
 }
 
 static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bstl_y, struct MinMax *mm)
@@ -3882,170 +3910,132 @@ static long find_closest_lights(const struct Coord3d* pos, struct NearestLights*
     return count;
 }
 
+static long find_fade_S(struct EngineCoord *ecor)
+{
+    if (ecor->field_C <= fade_min) {
+        return ecor->field_A << 8;
+    }
+    else if (ecor->field_C >= fade_max) {
+        return 32768;
+    } else {
+        return ecor->field_A * (fade_scaler - ecor->field_C) / fade_range + 32768;
+    }
+}
+
 static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct Coord3d *pos)
 {
     short mv_angle;
     short sh_angle;
-    short angle;
+    short sprite_angle;
     long dist_sq;
     struct EngineCoord ecor1;
     struct EngineCoord ecor2;
     struct EngineCoord ecor3;
     struct EngineCoord ecor4;
 
+    struct KeeperSprite *spr = keepersprite_array(thing->anim_sprite);
+
     mv_angle = thing->move_angle_xy;
     sh_angle = get_angle_xy_to(pos, &thing->mappos);
-    angle = (mv_angle - sh_angle) & LbFPMath_AngleMask;
+    sprite_angle = (mv_angle - sh_angle) & LbFPMath_AngleMask;
     dist_sq = (get_2d_distance_squared(&thing->mappos, pos) >> 17) + 16;
     if (dist_sq < 16) {
         dist_sq = 16;
-    } else
-    if (dist_sq > 31) {
+    }
+    else if (dist_sq > 31) {
         dist_sq = 31;
     }
     short dim_ow;
     short dim_oh;
     short dim_th;
     short dim_tw;
-    get_keepsprite_unscaled_dimensions(thing->anim_sprite, angle, thing->current_frame, &dim_ow, &dim_oh, &dim_tw, &dim_th);
+    get_keepsprite_unscaled_dimensions(thing->anim_sprite, sprite_angle, thing->current_frame, &dim_ow, &dim_oh, &dim_tw, &dim_th);
     {
-        int base_x;
-        int base_y;
-        int base_z;
-        int angle_sin;
-        int angle_cos;
-        base_z = 8 * dim_tw;
-        base_y = 8 * (6 - dim_oh - dim_th);
-        angle_cos = LbCosL(sh_angle);
-        angle_sin = LbSinL(sh_angle);
-        int base_th;
-        int base_tw;
-        int shift_a;
-        int shift_b;
-        int shift_c;
-        int shift_d;
-        int shift_e;
-        int shift_f;
-        int shift_g;
-        int shift_h;
-        shift_a = base_z * angle_cos;
-        shift_b = base_y * angle_sin;
-        base_x = ecor->x;
-        ecor1.x = base_x + ((shift_a - shift_b) >> 16);
-        shift_c = base_y * angle_cos;
-        shift_d = base_z * angle_sin;
-        base_z = ecor->z;
-        ecor1.z = base_z + (-(base_y * angle_cos + shift_d) >> 16);
-        base_y = ecor->y;
+        int sh_angle_sin = LbSinL(sh_angle);
+        int sh_angle_cos = LbCosL(sh_angle);
+
+        int base_y2 = 8 * (6 - dim_oh - dim_th + spr->shadow_offset);
+        int base_z2 = 8 * dim_tw;
+        int base_th = 8 * (dim_th - 4 * dist_sq) + 560;
+        int base_tw = 8 * (dim_tw + dim_ow);
+
+        int base_x = ecor->x;
+        int base_y = ecor->y;
+        int base_z = ecor->z;
+
+        // near and far are measured from origin of thing
+        int near_x = base_y2 * sh_angle_sin;
+        int near_y = base_y2 * sh_angle_cos;
+
+        int left_x = base_z2 * sh_angle_cos;
+        int left_y = base_z2 * sh_angle_sin;
+        int far_x = base_th * sh_angle_sin;
+        int far_y = base_th * sh_angle_cos;
+        int right_x = base_tw * sh_angle_cos;
+        int right_y = base_tw * sh_angle_sin;
+
+        // near/left
+        ecor1.x = base_x + FROM_FIXED(left_x - near_x);
         ecor1.y = base_y;
-        base_th = 8 * (dim_th - 4 * dist_sq) + 560;
-        shift_e = base_th * angle_sin;
-        ecor2.x = base_x + ((shift_a - shift_e) >> 16);
-        shift_f = base_th * angle_cos;
-        ecor2.z = base_z + (-(shift_f + shift_d) >> 16);
+        ecor1.z = base_z - FROM_FIXED(left_y + near_y);
+
+        // far/left
+        ecor2.x = base_x + FROM_FIXED(left_x - far_x);
         ecor2.y = base_y;
-        base_tw = 8 * (dim_tw + dim_ow);
-        shift_g = base_tw * angle_cos;
-        shift_h = base_tw * angle_sin;
-        ecor3.x = base_x + ((shift_g - shift_e) >> 16);
-        ecor3.z = base_z + (-(shift_h + shift_f) >> 16);
+        ecor2.z = base_z - FROM_FIXED(left_y + far_y);
+
+        // far/right
+        ecor3.x = base_x + FROM_FIXED(right_x - far_x);
         ecor3.y = base_y;
+        ecor3.z = base_z - FROM_FIXED(right_y + far_y);
+
+        // near/right
+        ecor4.x = base_x + FROM_FIXED(right_x - near_x);
         ecor4.y = base_y;
-        ecor4.x = base_x + ((shift_g - shift_b) >> 16);
-        ecor4.z = base_z + (-(shift_h + shift_c) >> 16);
+        ecor4.z = base_z - FROM_FIXED(right_y + near_y);
     }
+
     rotpers(&ecor1, &camera_matrix);
     rotpers(&ecor2, &camera_matrix);
     rotpers(&ecor3, &camera_matrix);
     rotpers(&ecor4, &camera_matrix);
-    int min_cor_z;
-    min_cor_z = min(min(ecor1.z,ecor2.z),min(ecor3.z,ecor4.z));
-    if (getpoly >= poly_pool_end) {
-        return;
-    }
-    int bckt_idx;
-    bckt_idx = min_cor_z / 16;
-    if (bckt_idx < 0) {
-        bckt_idx = 0;
-    } else
-    if (bckt_idx > BUCKETS_COUNT-2) {
-        bckt_idx = BUCKETS_COUNT-2;
-    }
-    struct BucketKindCreatureShadow * kspr;
-    kspr = (struct BucketKindCreatureShadow *)getpoly;
-    getpoly += sizeof(struct BucketKindCreatureShadow);
-    kspr->b.next = buckets[bckt_idx];
-    kspr->b.kind = QK_CreatureShadow;
-    buckets[bckt_idx] = (struct BasicQ *)kspr;
 
-    int pdim_w;
-    int pdim_h;
-    pdim_w = 0;
-    pdim_h = (dim_oh - 1) << 16;
+    int min_cor_z = min(min(ecor1.z,ecor2.z),min(ecor3.z,ecor4.z));
+    struct BucketKindCreatureShadow *kspr = (struct BucketKindCreatureShadow *)get_bucket_item(min_cor_z, QK_CreatureShadow, sizeof(struct BucketKindCreatureShadow));
+    if (kspr == NULL)
+        return;
+
+    // P1
     kspr->p1.X = ecor1.view_width;
     kspr->p1.Y = ecor1.view_height;
-    kspr->p1.U = pdim_w;
-    kspr->p1.V = pdim_h;
-    if (ecor1.field_C <= fade_min) {
-        kspr->p1.S = ecor1.field_A << 8;
-    } else
-    if (ecor1.field_C >= fade_max) {
-        kspr->p1.S = 32768;
-    } else {
-        kspr->p1.S = ecor1.field_A * (fade_scaler - ecor1.field_C) / fade_range + 32768;
-    }
+    kspr->p1.U = 0;
+    kspr->p1.V = TO_FIXED(dim_oh - 1);
+    kspr->p1.S = find_fade_S(&ecor1);
 
-    pdim_w = 0;
-    pdim_h = 0;
+    // P2
     kspr->p2.X = ecor2.view_width;
     kspr->p2.Y = ecor2.view_height;
-    kspr->p2.U = pdim_w;
-    kspr->p2.V = pdim_h;
-    if (fade_min >= ecor2.field_C)
-    {
-        kspr->p2.S = ecor2.field_A << 8;
-    } else
-    if (fade_max <= ecor2.field_C)
-    {
-        kspr->p2.S = 32768;
-    } else {
-        kspr->p2.S = ecor2.field_A * (fade_scaler - ecor2.field_C) / fade_range + 32768;
-    }
+    kspr->p2.U = 0;
+    kspr->p2.V = 0;
+    kspr->p2.S = find_fade_S(&ecor2);
 
-    pdim_w = (dim_ow - 1)  << 16;
-    pdim_h = 0;
+    // P3
     kspr->p3.X = ecor3.view_width;
     kspr->p3.Y = ecor3.view_height;
-    kspr->p3.U = pdim_w;
-    kspr->p3.V = pdim_h;
-    if (ecor3.field_C <= fade_min)
-    {
-        kspr->p3.S = ecor3.field_A << 8;
-    } else
-    if (ecor3.field_C >= fade_max)
-    {
-        kspr->p3.S = 32768;
-    } else {
-        kspr->p3.S = ecor3.field_A * (fade_scaler - ecor3.field_C) / fade_range + 32768;
-    }
+    kspr->p3.U = TO_FIXED(dim_ow - 1);
+    kspr->p3.V = 0;
+    kspr->p3.S = find_fade_S(&ecor3);
 
-    pdim_h = (dim_oh - 1) << 16;
-    pdim_w = (dim_ow - 1) << 16;
+    // P4
     kspr->p4.X = ecor4.view_width;
     kspr->p4.Y = ecor4.view_height;
-    kspr->p4.U = pdim_w;
-    kspr->p4.V = pdim_h;
-    if (ecor4.field_C <= fade_min) {
-        kspr->p4.S = ecor4.field_A << 8;
-    } else
-    if (ecor4.field_C >= fade_max) {
-        kspr->p4.S = 32768;
-    } else {
-        kspr->p4.S = ecor4.field_A * (fade_scaler - ecor4.field_C) / fade_range + 32768;
-    }
+    kspr->p4.U = TO_FIXED(dim_ow - 1);
+    kspr->p4.V = TO_FIXED(dim_oh - 1);
+    kspr->p4.S = find_fade_S(&ecor4);
 
+    // overall
     kspr->p1.S = dist_sq;
-    kspr->angle = angle;
+    kspr->angle = sprite_angle;
     kspr->anim_sprite = thing->anim_sprite;
     kspr->current_frame = thing->current_frame;
 }
@@ -4055,25 +4045,20 @@ static void add_draw_status_box(struct Thing *thing, struct EngineCoord *ecor)
 {
     struct EngineCoord coord = *ecor;
     const struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    coord.y += thing->clipbox_size_z + crstat->status_offset; 
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    short offset = thing->clipbox_size_z + crstat->status_offset;
+    offset += (offset * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+    coord.y += offset;
     rotpers(&coord, &camera_matrix);
-    if (getpoly >= poly_pool_end)
-        return;
-    int bckt_idx = coord.z / 16;
-    if (!lens_mode)
-        bckt_idx = 1;
-    if (bckt_idx < 0)
-        bckt_idx = 0;
-    else if (bckt_idx > BUCKETS_COUNT-2)
-        bckt_idx = BUCKETS_COUNT-2;
 
-    struct BucketKindCreatureStatus* poly = (struct BucketKindCreatureStatus*)getpoly;
-    if (getpoly >= poly_pool_end)
+    int z_val = coord.z;
+    if (!lens_mode)
+        z_val = BUCKETS_STEP; // should get into bucket 1
+
+    struct BucketKindCreatureStatus* poly = (struct BucketKindCreatureStatus*)get_bucket_item(z_val, QK_CreatureStatus, sizeof(struct BucketKindCreatureStatus));
+    if (poly == NULL)
         return;
-    getpoly += sizeof(struct BucketKindCreatureStatus);
-    poly->b.next = buckets[bckt_idx];
-    poly->b.kind = QK_CreatureStatus;
-    buckets[bckt_idx] = (struct BasicQ *)poly;
+
     poly->thing = thing;
     poly->x = coord.view_width;
     poly->y = coord.view_height;
@@ -6674,6 +6659,7 @@ static void display_drawlist(void) // Draws isometric and 1st person view. Not f
                 draw_jonty_mapwho(item.jontySprite);
                 break;
             case QK_CreatureShadow: // Shadows of creatures in isometric and 1st person view
+                // TODO: this could be cached
                 draw_keepsprite_unscaled_in_buffer(item.creatureShadow->anim_sprite, item.creatureShadow->angle, item.creatureShadow->current_frame, big_scratch);
                 vec_map = big_scratch;
                 vec_mode = VM_Unknown10;
@@ -8841,9 +8827,15 @@ static void do_map_who_for_thing(struct Thing *thing)
         {
             int count;
             int i;
-            count = find_closest_lights(&thing->mappos, &nearlgt);
-            for (i=0; i < count; i++) {
-                create_shadows(thing, &ecor, &nearlgt.coord[i]);
+
+            struct KeeperSprite *spr = keepersprite_array(thing->anim_sprite);
+            if ((spr->frame_flags & FFL_NoShadows) == 0)
+            {
+                count = find_closest_lights(&thing->mappos, &nearlgt);
+                for (i = 0; i < count; i++)
+                {
+                    create_shadows(thing, &ecor, &nearlgt.coord[i]);
+                }
             }
         }
         // Height movement, falling or going up steps. This is applied after shadows, because shadows are always drawn at the floor height.
