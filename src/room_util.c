@@ -453,7 +453,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
     {
         room = get_room_thing_is_on(thing);
         long wealth_size_holds = game.conf.rules.game.gold_per_hoard / get_wealth_size_types_count();
-        unsigned long gold_value = wealth_size_holds * (get_wealth_size_of_gold_hoard_object(thing) + 1);
+        unsigned long gold_value = wealth_size_holds * max(1, get_wealth_size_of_gold_hoard_object(thing));
         unsigned long value_left;
         unsigned long value_added;
         if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_GoldStorage))

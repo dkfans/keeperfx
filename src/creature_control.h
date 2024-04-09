@@ -343,9 +343,9 @@ unsigned char sound_flag;
     short roll;
     unsigned long anim_time;
     unsigned char instance_id;
-    unsigned char inst_repeat;
+    unsigned char inst_repeat; /* Seems used on dragon flame sometimes */
     unsigned short inst_turn;
-    unsigned short inst_action_turns;
+    unsigned short inst_action_turns; /* Turn when instance should be fired*/
     unsigned short inst_total_turns;
     unsigned short targtng_idx;
     MapSubtlCoord targtstl_x;
@@ -355,7 +355,7 @@ unsigned char sound_flag;
     unsigned short instance_anim_step_turns;
     SubtlCodedCoords collided_door_subtile;
     char fighting_player_idx;
-    unsigned char shot_model;
+    ThingModel shot_model;
     struct CastedSpellData casted_spells[CREATURE_MAX_SPELLS_CASTED_AT];
     /** Current active skill instance. */
     unsigned char active_instance_id;
@@ -448,7 +448,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char scavenge_value;
     unsigned long to_level[CREATURE_MAX_LEVEL];
     unsigned char base_speed;
-    short grow_up;
+    ThingModel grow_up;
     unsigned char grow_up_level;
     TbBool entrance_force;
     short max_turning_speed;
@@ -565,7 +565,7 @@ struct CreatureControl *allocate_free_control_structure(void);
 void delete_control_structure(struct CreatureControl *cctrl);
 void delete_all_control_structures(void);
 
-struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, long a2, struct Coord3d *pos);
+struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, ThingModel crmodel, struct Coord3d *pos);
 
 TbBool disband_creatures_group(struct Thing *thing);
 struct Thing *get_group_last_member(struct Thing *thing);

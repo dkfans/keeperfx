@@ -186,7 +186,7 @@ struct Creatures { // sizeof = 16
 
 /******************************************************************************/
 extern struct Creatures creatures[CREATURE_TYPES_MAX];
-extern unsigned short breed_activities[CREATURE_TYPES_MAX];
+extern ThingModel breed_activities[CREATURE_TYPES_MAX];
 #pragma pack()
 /******************************************************************************/
 

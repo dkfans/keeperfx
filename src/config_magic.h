@@ -141,6 +141,7 @@ enum ShotModelFlags {
     ShMF_Exploding      = 0x2000,
     ShMF_BlocksRebirth  = 0x4000,
     ShMF_Penetrating    = 0x8000,
+    ShMF_NeverBlock     = 0x10000,
 };
 
 enum PowerCanCastFlags {
@@ -232,21 +233,21 @@ struct SpellConfigStats {
 
 
 struct ShotHitConfig {
-    short effect_model; /**< Effect kind to be created when the shot hits. */
+    ThingModel effect_model; /**< Effect kind to be created when the shot hits. */
     short sndsample_idx; /**< Base sound sample to be played on hit. */
     unsigned char sndsample_range; /**< Range for random sound sample selection. */
     unsigned char withstand; /**< Whether the shot can withstand a hit without getting destroyed; could be converted to flags. */
 };
 
 struct ShotDetonateConfig {
-    short effect1_model;
-    short effect2_model; 
+    EffectOrEffElModel effect1_model;
+    EffectOrEffElModel effect2_model;
     short around_effect1_model;
     short around_effect2_model;
 };
 
 struct ShotVisualConfig {
-    short effect_model;
+    EffectOrEffElModel effect_model;
     unsigned char amount;
     short random_range;
     HitPoints shot_health;
@@ -317,6 +318,9 @@ struct ShotConfigStats {
     unsigned short effect_spacing;
     unsigned char effect_amount;
     unsigned short periodical;
+    short spread_xy;
+    short spread_z;
+    short speed_deviation;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);
@@ -366,11 +370,11 @@ struct SpellConfig {
     /** Informs if the spell can be targeted on a thing. */
     unsigned char cast_at_thing;
     /** Shot model to be fired while casting. */
-    unsigned char shot_model;
+    ThingModel shot_model;
     /** Informs if caster is affected by the spell. */
     unsigned char caster_affected;
     /** Effect model created while casting. */
-    short cast_effect_model;
+    EffectOrEffElModel cast_effect_model;
     /** If caster is affected by the spell, indicates sound sample to be played. */
     unsigned short caster_affect_sound;
     /** Sprite index of big symbol icon representing the spell. */
@@ -378,7 +382,7 @@ struct SpellConfig {
     /** Sprite index of medium symbol icon representing the spell. */
     short medsym_sprite_idx;
     short cast_sound;
-    short crtr_summon_model;
+    ThingModel crtr_summon_model;
     short crtr_summon_level;
     short crtr_summon_amount;
     short linked_power;

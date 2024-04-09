@@ -38,6 +38,7 @@
 #include "bflib_network.h"
 #include "bflib_planar.h"
 
+#include "api.h"
 #include "custom_sprites.h"
 #include "version.h"
 #include "front_simple.h"
@@ -118,6 +119,7 @@
 #include "config_settings.h"
 #include "game_legacy.h"
 #include "room_list.h"
+#include "steam_api.hpp"
 #include "game_loop.h"
 #include "music_player.h"
 
@@ -147,6 +149,7 @@ unsigned char *dog_palette;
 unsigned char *vampire_palette;
 unsigned char exit_keeper;
 unsigned char quit_game;
+unsigned char is_running_under_wine = false;
 int continue_game_option_available;
 long last_mouse_x;
 long last_mouse_y;
@@ -1015,7 +1018,7 @@ TbBool initial_setup(void)
     MinimalResolutionSetup = true;
     // Set size of static textures buffer
     game_load_files[1].SLength = max((ulong)TEXTURE_BLOCKS_STAT_COUNT_A*block_dimension*block_dimension,(ulong)LANDVIEW_MAP_WIDTH*LANDVIEW_MAP_HEIGHT);
-    if (LbDataLoadAll(game_load_files))
+    if (LbDataLoadAllV2(game_load_files))
     {
         ERRORLOG("Unable to load game_load_files");
         return false;
@@ -1072,6 +1075,7 @@ short setup_game(void)
           if (wine_get_version)
           {
               SYNCMSG("Running on Wine v%s", wine_get_version());
+              is_running_under_wine = true;
           }
 
           // Get Wine host OS
@@ -2781,6 +2785,8 @@ void update(void)
     SYNCDBG(4,"Starting for turn %ld",(long)game.play_gameturn);
 
     process_packets();
+    api_update_server();
+
     if (quit_game || exit_keeper) {
         return;
     }
@@ -3401,13 +3407,12 @@ void gameplay_loop_logic()
 {
     if(flag_is_set(start_params.debug_flags, DFlg_PauseAtGameTurn))
     {
-        static TbBool paused_at_gameturn = false;
         static GameTurn previous_gameturn = 0;
         if(game.play_gameturn >= start_params.pause_at_gameturn && game.play_gameturn != previous_gameturn)
         {
-            if(!paused_at_gameturn)
+            if(!game.paused_at_gameturn)
             {
-                paused_at_gameturn = true;
+                game.paused_at_gameturn = true;
 
                 game.frame_skip = 0;
                 if(game.packet_load_enable)
@@ -3535,6 +3540,7 @@ void keeper_gameplay_loop(void)
         frametime_end_measurement(Frametime_FullFrame);
     } // end while
     SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
+    api_event("GAME_ENDED");
 }
 
 TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx)
@@ -3793,6 +3799,9 @@ static TbBool wait_at_frontend(void)
         LbSleepUntil(fe_last_loop_time + 30);
       }
       fe_last_loop_time = LbTimerClock();
+
+      api_update_server();
+
     } while (!finish_menu);
 
     LbPaletteFade(0, 8, Lb_PALETTE_FADE_CLOSED);
@@ -3954,7 +3963,7 @@ short reset_game(void)
     LbMouseSuspend();
     LbIKeyboardClose();
     LbScreenReset(false);
-    LbDataFreeAll(game_load_files);
+    LbDataFreeAllV2(game_load_files);
     free_gui_strings_data();
     FreeAudio();
     return LbMemoryReset();
@@ -4073,8 +4082,12 @@ short process_command_line(unsigned short argc, char *argv[])
       {
           SYNCLOG("Mouse auto reset disabled");
           lbMouseGrab = false;
-      } else
-      if (strcasecmp(parstr,"packetload") == 0)
+      }
+      else if (strcasecmp(parstr, "ungrab") == 0)
+      {
+          start_params.ungrab_mouse = true;
+      }
+      else if (strcasecmp(parstr,"packetload") == 0)
       {
          if (start_params.packet_save_enable)
             WARNMSG("PacketSave disabled to enable PacketLoad.");
@@ -4274,6 +4287,8 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     LbSetIcon(1);
     LbScreenSetDoubleBuffering(true);
 
+    init_miles_sound_system();
+
     srand(LbTimerClock());
 
 #ifdef FUNCTESTING
@@ -4289,6 +4304,10 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     }
 
     retval = setup_game();
+    if (retval)
+    {
+        steam_api_init();
+    }
     if (retval)
     {
       if ((install_info.lang_id == Lang_Japanese) ||
@@ -4319,6 +4338,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     }
     if ( retval )
     {
+        api_init_server();
         game_loop();
     }
     reset_game();
@@ -4332,7 +4352,10 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     {
         SYNCDBG(0,"finished properly");
     }
+
     LbErrorLogClose();
+    steam_api_shutdown();
+    unload_miles_sound_system();
     return 0;
 }
 
