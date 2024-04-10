@@ -483,11 +483,14 @@ enum CampaignStrings {
 };
 
 /******************************************************************************/
+extern TbBool reload_campaign_strings;
+/******************************************************************************/
 TbBool setup_gui_strings_data(void);
 TbBool free_gui_strings_data(void);
 TbBool reset_strings(char **strings, int max);
 const char * get_string(TextStringId stridx);
 TbBool setup_campaign_strings_data(struct GameCampaign *campgn);
+TbBool create_strings_list(char **strings,char *strings_data,char *strings_data_end, int max);
 /******************************************************************************/
 #ifdef __cplusplus
 }
