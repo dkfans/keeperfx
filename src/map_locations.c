@@ -79,7 +79,7 @@ TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_i
     
     SYNCDBG(7,"Starting with loc:%ld", i);
     struct Coord3d *src;
-    struct Coord3d* targetpos = {0};
+    struct Coord3d targetpos = {0};
     PlayerNumber loc_player = i & 0xF;
     if (loc_player == 15) // CURRENT_PLAYER
         loc_player = gameadd.script_current_player;
@@ -95,15 +95,12 @@ TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_i
         src = &dungeon->last_combat_location;
         break;
     case MML_ACTIVE_CTA:
-        targetpos = malloc(sizeof(struct Coord3d));
-        if (targetpos == NULL) {
-            // Handle memory allocation failure
+        if ((dungeon->cta_stl_x == 0) && (dungeon->cta_stl_y == 0))
             return false;
-        }
-        targetpos->x.val = subtile_coord_center(dungeon->cta_stl_x);
-        targetpos->y.val = subtile_coord_center(dungeon->cta_stl_y);
-        targetpos->z.val = get_floor_height_at(pos);
-        src = targetpos; 
+        targetpos.x.val = subtile_coord_center(dungeon->cta_stl_x);
+        targetpos.y.val = subtile_coord_center(dungeon->cta_stl_y);
+        targetpos.z.val = get_floor_height_at(pos);
+        src = &targetpos; 
         break;
     default:
         return false;
@@ -112,7 +109,6 @@ TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_i
     pos->x.val = src->x.val + PLAYER_RANDOM(target_plyr_idx, 33) - 16;
     pos->y.val = src->y.val + PLAYER_RANDOM(target_plyr_idx, 33) - 16;
     pos->z.val = src->z.val;
-    free(targetpos);
     return true;
     
 }
