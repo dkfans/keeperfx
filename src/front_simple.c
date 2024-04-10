@@ -62,7 +62,7 @@ struct RawBitmap bitmaps_640[] = {
   {"NoCD Image",                     320, 200, 8, FGrp_StdData, "nocd-32.raw",         "nocd-32.pal",},
   {"DK Legal Splash",                640, 480, 8, FGrp_StdData, "legal-64.raw",        "legal-64.pal",},
   {"KeeperFX Splash",                640, 480, 8, FGrp_StdData, "startfx-64.raw",      "startfx-64.pal",},
-  {"DK Legal Splash (Wide Screen)", 1280, 720, 8, FGrp_StdData, "legal-720p-wide.raw", "legal-720p-wide.pal",}, // If this crashes, use 855 as the width instead
+  {"DK Legal Splash (Wide Screen)", 1280, 720, 8, FGrp_StdData, "legal-720p-wide.raw", "legal-720p-wide.pal",},
 };
 
 // Format: <name> <width> <height> <bits per pixel> <file load location> <raw file> <palette file>
@@ -72,7 +72,7 @@ struct RawBitmap bitmaps_320[] = {
   {"NoCD Image",                     320, 200, 8, FGrp_StdData, "nocd-32.raw",         "nocd-32.pal",},
   {"DK Legal Splash",                320, 200, 8, FGrp_StdData, "legal-32.raw",        "legal-32.pal",},
   {"KeeperFX Splash",                320, 200, 8, FGrp_StdData, "startfx-32.raw",      "startfx-32.pal",},
-  {"DK Legal Splash (Wide Screen)", 1280, 720, 8, FGrp_StdData, "legal-720p-wide.raw", "legal-720p-wide.pal",}, // If this crashes, use 357 as the width instead
+  {"DK Legal Splash (Wide Screen)", 1280, 720, 8, FGrp_StdData, "legal-720p-wide.raw", "legal-720p-wide.pal",},
 };
 #else
 
@@ -93,7 +93,7 @@ struct RawBitmap bitmaps_640[] = {
   {"NoCD Image",                     320, 200, 8, FGrp_StdData, "nocd.raw",            "nocd.pal",},
   {"DK Legal Splash",                640, 480, 8, FGrp_StdData, "legal64.raw",         "legal64.pal",},
   {"KeeperFX Splash",                640, 480, 8, FGrp_StdData, "startfx64.raw",       "startfx64.pal",},
-  {"DK Legal Splash (Wide Screen)", 1280, 720, 8, FGrp_StdData, "legal-720p-wide.raw", "legal-720p-wide.pal",}, // If this crashes, use 855 as the width instead
+  {"DK Legal Splash (Wide Screen)", 1280, 720, 8, FGrp_StdData, "legal-720p-wide.raw", "legal-720p-wide.pal",},
 };
 
 // Format: <name> <width> <height> <bits per pixel> <file load location> <raw file> <palette file>
@@ -103,7 +103,7 @@ struct RawBitmap bitmaps_320[] = {
   {"NoCD Image",                     320, 200, 8, FGrp_StdData, "nocd.raw",            "nocd.pal",},
   {"DK Legal Splash",                320, 200, 8, FGrp_StdData, "legal32.raw",         "legal32.pal",},
   {"KeeperFX Splash",                320, 200, 8, FGrp_StdData, "startfx32.raw",       "startfx32.pal",},
-  {"DK Legal Splash (Wide Screen)", 1280, 720, 8, FGrp_StdData, "legal-720p-wide.raw", "legal-720p-wide.pal",}, // If this crashes, use 357 as the width instead
+  {"DK Legal Splash (Wide Screen)", 1280, 720, 8, FGrp_StdData, "legal-720p-wide.raw", "legal-720p-wide.pal",},
 };
 
 #endif
