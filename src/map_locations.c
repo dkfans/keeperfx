@@ -346,6 +346,7 @@ void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos
 #define get_map_location_id(locname, location) get_map_location_id_f(locname, location, __func__, text_line_number)
 TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const char *func_name, long ln_num)
 {
+    char player_string[COMMAND_WORD_LEN];
     // If there's no locname, then coordinates are set directly as (x,y)
     if (locname == NULL || *locname == '\0')
     {
@@ -388,10 +389,46 @@ TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const
             | MLoc_METALOCATION;
         return true;
     }
-    else if (strcmp(locname, "COMBAT") == 0)
+    else if (strncmp(locname, "COMBAT", strlen("COMBAT")) == 0)
     {
+        if (strcmp(locname, "COMBAT") == 0)
+        {
+            if (game.game_kind == GKind_MultiGame)
+            {
+                WARNLOG(" %s (line %lu) : LOCATION = '%s' cannot be used on Multiplayer maps", func_name, ln_num, locname);
+                i = PLAYER0;
+            }
+            else
+            {
+                i = my_player_number;
+            }
+        }
+        else
+        {
+            const char* start = strchr(locname, '[');
+            if (start == NULL) {
+                // Square bracket not found
+                ERRORMSG("%s(line %lu): Invalid LOCATION = '%s'", func_name, ln_num, locname);
+                *location = MLoc_NONE;
+                return false;
+            }
+
+            start++; // Move past '['
+            const char* end = strchr(start, ']');
+            if (end == NULL) {
+                // Closing square bracket not found
+                ERRORMSG("%s(line %lu): Invalid LOCATION = '%s'", func_name, ln_num, locname);
+                *location = MLoc_NONE;
+                return false;
+            }
+
+            // Extract the player number string
+            strncpy(player_string, start, min(end - start, sizeof(player_string) - 1));
+            player_string[end - start] = '\0';
+            i = get_rid(player_desc, player_string);
+        }
         *location = (((unsigned long)MML_RECENT_COMBAT) << 12)
-            | ((unsigned long)my_player_number << 4)
+            | ((unsigned long)i << 4)
             | MLoc_METALOCATION;
         return true;
     }
