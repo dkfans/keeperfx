@@ -335,6 +335,32 @@ void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos
   SYNCDBG(15,"From %s; Location %ld, pos(%ld,%ld)",func_name, location, pos->x.stl.num, pos->y.stl.num);
 }
 
+/**
+ * Returns playernumber included withing brackets from location string from script.
+ * @param locname
+ * @return Playernumber, or -1 on error.
+ */
+PlayerNumber get_player_name_from_location_string(const char* locname)
+{
+    char player_string[COMMAND_WORD_LEN];
+    const char* start = strchr(locname, '[');
+    if (start == NULL) {
+        // Square bracket not found
+        return -1;
+    }
+
+    start++; // Move past '['
+    const char* end = strchr(start, ']');
+    if (end == NULL) {
+        // Closing square bracket not found
+        return -1;
+    }
+
+    // Extract the player number string
+    strncpy(player_string, start, min(end - start, sizeof(player_string) - 1));
+    player_string[end - start] = '\0';
+    return get_rid(player_desc, player_string);
+}
 
 /**
  * Returns location id for 1-param location from script.
@@ -346,7 +372,6 @@ void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos
 #define get_map_location_id(locname, location) get_map_location_id_f(locname, location, __func__, text_line_number)
 TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const char *func_name, long ln_num)
 {
-    char player_string[COMMAND_WORD_LEN];
     // If there's no locname, then coordinates are set directly as (x,y)
     if (locname == NULL || *locname == '\0')
     {
@@ -405,31 +430,11 @@ TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const
         }
         else
         {
-            const char* start = strchr(locname, '[');
-            if (start == NULL) {
-                // Square bracket not found
-                ERRORMSG("%s(line %lu): Invalid LOCATION = '%s'", func_name, ln_num, locname);
-                *location = MLoc_NONE;
-                return false;
-            }
-
-            start++; // Move past '['
-            const char* end = strchr(start, ']');
-            if (end == NULL) {
-                // Closing square bracket not found
-                ERRORMSG("%s(line %lu): Invalid LOCATION = '%s'", func_name, ln_num, locname);
-                *location = MLoc_NONE;
-                return false;
-            }
-
-            // Extract the player number string
-            strncpy(player_string, start, min(end - start, sizeof(player_string) - 1));
-            player_string[end - start] = '\0';
-            i = get_rid(player_desc, player_string);
+            i = get_player_name_from_location_string(locname);
             if (i == -1)
             {
-                *location = MLoc_NONE;
                 ERRORMSG("%s(line %lu): Invalid LOCATION = '%s'", func_name, ln_num, locname);
+                *location = MLoc_NONE;
                 return false;
             }
         }
@@ -454,31 +459,11 @@ TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const
         }
         else
         {
-            const char* start = strchr(locname, '[');
-            if (start == NULL) {
-                // Square bracket not found
-                ERRORMSG("%s(line %lu): Invalid LOCATION = '%s'", func_name, ln_num, locname);
-                *location = MLoc_NONE;
-                return false;
-            }
-
-            start++; // Move past '['
-            const char* end = strchr(start, ']');
-            if (end == NULL) {
-                // Closing square bracket not found
-                ERRORMSG("%s(line %lu): Invalid LOCATION = '%s'", func_name, ln_num, locname);
-                *location = MLoc_NONE;
-                return false;
-            }
-
-            // Extract the player number string
-            strncpy(player_string, start, min(end - start, sizeof(player_string) - 1));
-            player_string[end - start] = '\0';
-            i = get_rid(player_desc, player_string);
+            i = get_player_name_from_location_string(locname);
             if (i == -1)
             {
-                *location = MLoc_NONE;
                 ERRORMSG("%s(line %lu): Invalid LOCATION = '%s'", func_name, ln_num, locname);
+                *location = MLoc_NONE;
                 return false;
             }
         }
