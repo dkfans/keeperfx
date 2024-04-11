@@ -19,8 +19,6 @@
 #include "pre_inc.h"
 #include "front_simple.h"
 
-// #include <math.h>
-
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_memory.h"
@@ -228,10 +226,6 @@ TbBool copy_raw8_image_to_screen_center(const unsigned char *buf, const int img_
     // This should be good enough for almost all cases
     int scaled_width = (int)((img_width * ratio) + 0.999999999f);
     int scaled_height = (int)((img_height * ratio) + 0.999999999f);
-
-    // Calculate the scaled dimensions and round up
-    // int scaled_width = ceil(img_width * ratio);
-    // int scaled_height = ceil(img_height * ratio);
 
     // Calculate starting point coordinates to center the image
     int coord_x = (screen_width - scaled_width) >> 1;
