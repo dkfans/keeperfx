@@ -19,6 +19,8 @@
 #include "pre_inc.h"
 #include "front_simple.h"
 
+// #include <math.h>
+
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_memory.h"
@@ -193,34 +195,71 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
 }
 
 /**
- * Copies the given RAW image at center of screen buffer and swaps video
+ * Copies the given RAW image to the center of the screen buffer and swaps video
  * buffers to make the image visible.
- * @return Returns true on success.
+ * 
+ * This function will also scale the image while maintaing its aspect ratio.
+ * 
+ * @param buf Pointer to the RAW image data.
+ * @param img_width Width of the RAW image.
+ * @param img_height Height of the RAW image.
+ * 
+ * @return Returns true if the operation succeeds.
  */
-TbBool copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_width,const int img_height)
+TbBool copy_raw8_image_to_screen_center(const unsigned char *buf, const int img_width, const int img_height)
 {
     // Only 8bpp supported for now
     if (LbGraphicsScreenBPP() != 8)
         return false;
-    // Compute scaling ratio
-    int units_per_px;
-    {
-        int width = LbScreenWidth();
-        int height = LbScreenHeight();
-        units_per_px = (width>height?width:height)/((img_width>img_height?img_width:img_height)/16);
-    }
-    SYNCDBG(18,"Starting; src %d,%d scale %d",(int)img_width,(int)img_height,(int)units_per_px);
-    // Locking screen
+
+    // Get screen dimensions
+    int screen_width = LbScreenWidth();
+    int screen_height = LbScreenHeight();
+
+    // Get the scaling ratios
+    float width_ratio = (float)screen_width / (float)img_width;
+    float height_ratio = (float)screen_height / (float)img_height;
+
+    // Choose the smaller ratio to maintain the aspect ratio and fit the entire image
+    float ratio = width_ratio < height_ratio ? width_ratio : height_ratio;
+
+    // Calculate the scaled dimensions and round up
+    // We do a little trick here so we don't have to use ceil()
+    // This should be good enough for almost all cases
+    int scaled_width = (int)((img_width * ratio) + 0.999999999f);
+    int scaled_height = (int)((img_height * ratio) + 0.999999999f);
+
+    // Calculate the scaled dimensions and round up
+    // int scaled_width = ceil(img_width * ratio);
+    // int scaled_height = ceil(img_height * ratio);
+
+    // Calculate starting point coordinates to center the image
+    int coord_x = (screen_width - scaled_width) >> 1;
+    int coord_y = (screen_height - scaled_height) >> 1;
+
+    // Debuglog
+    SYNCDBG(18, "Starting; src %d,%d dest %d,%d pos %d,%d",
+        (int)img_width, (int)img_height,
+        (int)scaled_width,  (int)scaled_height,
+        (int)coord_x,  (int)coord_y);
+
+    // Lock the screen
     if (LbScreenLock() != Lb_SUCCESS)
-      return false;
-    // Starting point coords
-    int spx = (LbScreenWidth() - img_width * units_per_px / 16) >> 1;
-    int spy = (LbScreenHeight() - img_height * units_per_px / 16) >> 1;
-    copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
-        img_width*units_per_px/16,img_height*units_per_px/16,spx,spy,buf,img_width,img_height);
+        return false;
+
+    // Copy image buffer to screen buffer
+    copy_raw8_image_buffer(lbDisplay.WScreen, LbGraphicsScreenWidth(), LbGraphicsScreenHeight(),
+                           scaled_width, scaled_height, coord_x, coord_y, buf, img_width, img_height);
+
+    // Perform any screen capturing
     perform_any_screen_capturing();
+
+    // Unlock the screen
     LbScreenUnlock();
+
+    // Swap video buffers to make the image visible
     LbScreenSwap();
+
     return true;
 }
 
