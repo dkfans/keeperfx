@@ -436,11 +436,6 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
         wind_push.z = (shotng->veloc_base.z.val * blow_distance) / creature_distance;
         SYNCDBG(8,"Applying (%d,%d,%d) to %s index %d",(int)wind_push.x,(int)wind_push.y,(int)wind_push.z,thing_model_name(thing),(int)thing->index);
         apply_transitive_velocity_to_thing(thing, &wind_push);
-        if (thing->class_id == TCls_Creature){
-        JUSTLOG("wind_push.x ist %i mit (veloc_base.x.val %i * blow_distance %i) / creature_distance %i", wind_push.x, shotng->veloc_base.x.val, blow_distance, creature_distance );
-        JUSTLOG("wind_push.x ist %i mit (veloc_base.y.val %i * blow_distance %i) / creature_distance %i", wind_push.y, shotng->veloc_base.y.val, blow_distance, creature_distance );
-        JUSTLOG("wind_push.x ist %i mit (veloc_base.z.val %i * blow_distance %i) / creature_distance %i", wind_push.z, shotng->veloc_base.z.val, blow_distance, creature_distance );
-        }
         return TUFRet_Modified;
     }
     return TUFRet_Unchanged;
