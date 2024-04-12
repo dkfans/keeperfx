@@ -144,7 +144,9 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
     }
     if (destroy)
     {
-        delete_thing_structure(shotng, 0);
+        if(shotst->update_logic == ShUL_Wind){
+        }
+         delete_thing_structure(shotng, 0);
     }
     return true;
 }
@@ -1013,9 +1015,8 @@ int weight_calculated_push_strenght(int weight, int push_strength)
         weight_factor = percent_factor;
     }
 
-// Calculate the adjusted push strength based on the weight factor.     
+    // Calculate the adjusted push strength based on the weight factor.     
     int adjusted_push_strength = (push_strength * weight_factor) / percent_factor;
-
 
     return adjusted_push_strength;
 }
@@ -1082,6 +1083,8 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
       }
 
       adjusted_throw_strength = throw_strength;
+
+
       if (game.conf.rules.magic.weight_calculate_push == 1)
     {
         int weight = compute_creature_weight(trgtng);
@@ -1741,6 +1744,8 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->class_id = TCls_Shot;
     thing->model = model;
     memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
+    // save the origin of the shot
+    memcpy(&thing->shot.originpos,pos,sizeof(struct Coord3d));
     thing->parent_idx = thing->index;
     thing->owner = owner;
     thing->bounce_angle = shotst->bounce_angle;

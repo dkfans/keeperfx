@@ -132,6 +132,7 @@
 #endif
 
 int test_variable;
+int count;
 
 char cmndline[CMDLN_MAXLEN+1];
 unsigned short bf_argc;
@@ -330,7 +331,10 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
         return TUFRet_Unchanged;
     }
     struct CreatureControl* cctrl;
+    // param->num1 = 2048 from affect_nearby_enemy_creatures_with_wind
     long blow_distance = param->num1;
+    // default distance? of the wind Spell
+    int stdtdistance = 6169;
     MapCoordDelta creature_distance;
     creature_distance = LONG_MAX;
     TbBool apply_velocity;
@@ -342,23 +346,39 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
             struct CreatureStats *crstat;
             crstat = creature_stats_get_from_thing(thing);
             cctrl = creature_control_get_from_thing(thing);
-            long weight = compute_creature_weight(thing);
-            blow_distance = weight_calculated_push_strenght(weight, 100); //blow_distance - (3 * weight);
-            JUSTLOG("blow_distance ist %i", blow_distance);
-            JUSTLOG("schussposition? %i und Kreaturen position %i", &shotng->mappos, &thing->mappos);
-            creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
-                    if (thing->class_id == TCls_Creature){
-            JUSTLOG("(creature_distance %i < blow_distance %i) && crstat->affected_by_wind ist %i && cctrl->wind_affected ist %i", creature_distance,blow_distance, crstat->affected_by_wind, cctrl->wind_affected); 
+            int creatureAlreadyAffected = 0;
+
+            // distance between creature and aktuelly position of the projectil
+            creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;    
+
+            // if weight-affect-push-rule is on
+            if (game.conf.rules.magic.weight_calculate_push == 1){
+                long weight = compute_creature_weight(thing);
+                //max push distance
+                blow_distance = stdtdistance - (stdtdistance - weight_calculated_push_strenght(weight, stdtdistance)); 
+                // distance between startposition and actuelly poistion of the projectile
+                int origin_distance = get_chessboard_distance(&shotng->shot.originpos, &thing->mappos) + 1;
+                creature_distance = origin_distance;
+
+                // Check the the spell instance for already affected creatures
+                for (int i = 0; i < shotng->shot.numWindAffected; i++) {
+                    if (shotng->shot.WindaffectedCreatures[i] == cctrl->index) {
+                        creatureAlreadyAffected = 1;
+                        break;
                     }
-            if ((creature_distance < blow_distance) && crstat->affected_by_wind && !cctrl->wind_affected)           
+                }
+            }
+
+            if ((creature_distance < blow_distance) && crstat->affected_by_wind && !creatureAlreadyAffected)           
             {
                 set_start_state(thing);
                 cctrl->idle.start_gameturn = game.play_gameturn;
                 apply_velocity = true;
             }
-            else if (creature_distance >= blow_distance){
-                    cctrl->wind_affected = 1;
-                    JUSTLOG("wind_affected ist %i", cctrl->wind_affected);
+               // if weight-affect-push-rule is on
+            else if (game.conf.rules.magic.weight_calculate_push == 1 && creature_distance >= blow_distance && !creatureAlreadyAffected){
+                // add creature ID to allready-wind-affected-creature-array
+                shotng->shot.WindaffectedCreatures[shotng->shot.numWindAffected++] = cctrl->index;                  
                 }
         }
     } else
