@@ -416,7 +416,6 @@ unsigned char sound_flag;
     GameTurn unsummon_turn;
     ThingIndex summoner_idx;
     ThingIndex familiar_idx[FAMILIAR_MAX];
-    TbBool wind_affected;
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields

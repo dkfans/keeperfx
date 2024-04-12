@@ -48,7 +48,7 @@
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
-#include "math.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

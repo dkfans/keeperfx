@@ -134,7 +134,6 @@
 #endif
 
 int test_variable;
-int count;
 
 char cmndline[CMDLN_MAXLEN+1];
 unsigned short bf_argc;
