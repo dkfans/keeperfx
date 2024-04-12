@@ -98,6 +98,8 @@ struct GameRulesConfig {
     short torture_payday;
     short torture_training_cost;
     short torture_scavenging_cost;
+    unsigned long easter_egg_speech_chance;
+    unsigned long easter_egg_speech_interval;
 };
 
 struct ComputerRulesConfig {
@@ -130,8 +132,8 @@ struct MagicRulesConfig {
     long collapse_dungeon_damage;
     GameTurnDelta turns_per_collapse_dngn_dmg;
     GoldAmount power_hand_gold_grab_amount;
-    long friendly_fight_area_damage_permil;
-    long friendly_fight_area_range_permil;
+    long friendly_fight_area_damage_percent;
+    long friendly_fight_area_range_percent;
     TbBool armageddon_teleport_neutrals;
     TbBool weight_calculate_push;
 };

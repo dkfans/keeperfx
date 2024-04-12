@@ -814,7 +814,7 @@ long check_out_available_spdigger_drop_tasks(struct Thing *spdigtng)
     if ( check_out_unreinforced_drop_place(spdigtng) )
     {
         cctrl->digger.task_repeats = 0;
-        cctrl->digger.last_did_job = SDLstJob_ReinforceWall9;
+        cctrl->digger.last_did_job = SDLstJob_ReinforceWallAssigned;
         return 1;
     }
     if ( check_out_crates_to_arm_trap_in_room(spdigtng) )
@@ -1118,6 +1118,7 @@ short imp_doing_nothing(struct Thing *spdigtng)
     if (check_out_imp_last_did(spdigtng)) {
         return 1;
     }
+    cctrl->healing_sleep_check_turn = game.play_gameturn; //imp is now free to check if he needs healing, since there is no assigned job to do.
     if (check_out_available_imp_tasks(spdigtng)) {
         return 1;
     }
@@ -1396,26 +1397,19 @@ short imp_toking(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->countdown_282 > 0)
+    if (!creature_would_benefit_from_healing(creatng))
     {
-        cctrl->countdown_282--;
-    } else
-    {
-        if (cctrl->instance_id == CrInst_NULL) {
-          internal_set_thing_state(creatng, creatng->continue_state);
-          return 1;
-        }
+        internal_set_thing_state(creatng, creatng->continue_state);
+        return 0;
     }
-    if (cctrl->countdown_282 > 0)
+    if (cctrl->instance_id == CrInst_NULL)
     {
-        if (cctrl->instance_id == CrInst_NULL)
-        {
-            if ( CREATURE_RANDOM(creatng, 8) )
-                set_creature_instance(creatng, CrInst_RELAXING, 0, 0);
-            else
-                set_creature_instance(creatng, CrInst_TOKING, 0, 0);
-        }
+        if ( CREATURE_RANDOM(creatng, 8) )
+            set_creature_instance(creatng, CrInst_RELAXING, 0, 0);
+        else
+            set_creature_instance(creatng, CrInst_TOKING, 0, 0);
     }
+    
     if ((cctrl->instance_id == CrInst_TOKING) && (cctrl->inst_turn == cctrl->inst_action_turns))
     {
         struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);

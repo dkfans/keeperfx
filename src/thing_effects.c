@@ -74,7 +74,7 @@ struct EffectElementConfigStats *get_effect_element_model_stats(ThingModel tngmo
     return &game.conf.effects_conf.effectelement_cfgstats[tngmodel];
 }
 
-struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short eelmodel, PlayerNumber owner)
+struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmodel, PlayerNumber owner)
 {
     long i;
     if (!i_can_allocate_free_thing_structure(FTAF_Default)) {
@@ -336,7 +336,7 @@ void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct C
     {
         struct Thing* efftng = thing;
         long cube_id = get_top_cube_at(next_pos->x.stl.num, next_pos->y.stl.num, NULL);
-        unsigned short effmodel;
+        ThingModel effmodel;
         if (cube_is_water(cube_id))
         {
           effmodel = eestat->water_effmodel;
@@ -548,7 +548,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     return TUFRet_Modified;
 }
 
-struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short model, unsigned short range, unsigned short owner, long parent_idx)
+struct Thing *create_effect_generator(struct Coord3d *pos, ThingModel model, unsigned short range, unsigned short owner, long parent_idx)
 {
 
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
@@ -990,8 +990,8 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
     {
         // Friendly fire usually causes less damage and at smaller distance
         if ((tngdst->class_id == TCls_Creature) && (tngdst->owner == owner)) {
-            max_dist = max_dist * game.conf.rules.magic.friendly_fight_area_range_permil / 1000;
-            max_damage = max_damage * game.conf.rules.magic.friendly_fight_area_damage_permil / 1000;
+            max_dist = max_dist * game.conf.rules.magic.friendly_fight_area_range_percent / 100;
+            max_damage = max_damage * game.conf.rules.magic.friendly_fight_area_damage_percent / 100;
         }
         MapCoordDelta distance = get_2d_distance(pos, &tngdst->mappos);
         if (distance <= max_dist)

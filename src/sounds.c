@@ -314,24 +314,35 @@ void update_player_sounds(void)
     }
     if (game.play_gameturn != 0)
     {
-        // Rare message easter egg
-        if ((game.play_gameturn % 20000) == 0)
+        // Easter Egg Speeches
+
+        // Interval for easter egg speeches. Original DK value was 20000 (16.6 minutes)
+        if (game.conf.rules.game.easter_egg_speech_interval != 0 && (game.play_gameturn % game.conf.rules.game.easter_egg_speech_interval) == 0)
         {
-            if (UNSYNC_RANDOM(2000) == 0)
+            // The chance for the easter egg speech to trigger. Original DK value was 1/2000
+            if (game.conf.rules.game.easter_egg_speech_chance != 0 && UNSYNC_RANDOM(game.conf.rules.game.easter_egg_speech_chance) == 0)
             {
-              k = UNSYNC_RANDOM(10);
-              SYNCDBG(9,"Rare message condition met, selected %d",(int)k);
-              if (k == 7)
-              {
-            output_message(SMsg_PantsTooTight, 0, true);
-              } else
-              {
-                output_message(SMsg_FunnyMessages+k, 0, true);
-              }
+                // Select a random Easter egg speech
+                k = UNSYNC_RANDOM(10);
+                SYNCDBG(9,"Rare message condition met, selected %d",(int)k);
+
+                if (k == 7)
+                {
+                    // Replace SMsg_Glaagh with SMsg_PantsTooTight
+                    // Most likely because 'Glaagh' is a bit negative in this scenario
+                    output_message(SMsg_PantsTooTight, 0, true);
+                }
+                else
+                {
+                    // Play one of the speeches
+                    output_message(SMsg_FunnyMessages+k, 0, true);
+                }
             }
-        // Atmospheric background sound, replaces AWE soundfont
-        } else
+
+        }
+        else
         {
+            // Atmospheric background sound, replaces AWE soundfont
             if ( atmos_sounds_enabled() )
             {
                 //Plays a sound on repeat, default sound sample 1013(water drops), with a small chance of a random other sound from the range.

@@ -44,13 +44,13 @@ enum SpecialLastJobKinds {
     SDLstJob_None = 0,
     SDLstJob_DigOrMine,
     SDLstJob_ConvImprDungeon,
-    SDLstJob_ReinforceWall3,
+    SDLstJob_ReinforceWallUnprompted,
     SDLstJob_NonDiggerTask,
     SDLstJob_Unkn5,
     SDLstJob_Unkn6,
     SDLstJob_Unkn7,
     SDLstJob_Unkn8,
-    SDLstJob_ReinforceWall9,
+    SDLstJob_ReinforceWallAssigned,
 };
 
 enum SpecialDiggerDigTaskKinds {
