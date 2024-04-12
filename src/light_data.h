@@ -23,7 +23,7 @@
 #include "bflib_basics.h"
 
 #define LIGHT_MAX_RANGE       256 // Large enough to cover the whole map
-#define LIGHTS_COUNT          400
+#define LIGHTS_COUNT         2048
 #define MINIMUM_LIGHTNESS    8192
 
 #ifdef __cplusplus
@@ -50,28 +50,28 @@ enum LightFlags {
     LgtF_Unkn80       = 0x80,
 };
 
+enum LightFlags2 {
+    LgtF2_InList    = 0x01,
+};
+
 struct Light {
   unsigned char flags;
   unsigned char flags2;
   unsigned char intensity;
-  unsigned char field_3;
-  unsigned char field_4;
+  unsigned char intensity_toggling_field;//toggles between 1 and 2 when flags has LgtF_Unkn20
+  unsigned char intensity_delta;//seems never assigned
   unsigned char range;
   unsigned char field_6;
-  unsigned char field_7;
-  unsigned char field_8_unused;
+  unsigned char max_intensity;//seems never assigned
   unsigned char min_radius;
-  unsigned char field_A_unused[4];
   unsigned short index;
   unsigned short shadow_index;
   long attached_slb;
   unsigned short radius;
-  short field_18_unused;
-  short field_1A_unused;
   unsigned short field_1C;
-  unsigned short field_1E;
-  unsigned short field_20;
-  unsigned short field_22;
+  unsigned short radius_delta;//seems never assigned
+  unsigned short max_radius;//seems never assigned
+  unsigned short min_radius2;//seems never assigned
   unsigned short min_intensity;
   unsigned short next_in_list;
   struct Coord3d mappos;
@@ -85,7 +85,7 @@ struct Light {
 struct InitLight { // sizeof=0x14
     short radius;
     unsigned char intensity;
-    unsigned char field_3;
+    unsigned char flags;
     struct Coord3d mappos;
     unsigned char is_dynamic;
     SlabCodedCoords attached_slb;

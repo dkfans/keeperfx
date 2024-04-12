@@ -491,11 +491,6 @@ msgstr "圣者又一次回来了，还带领着一支强大的军队！为最后
 msgid ""
 msgstr ""
 
-#: guitext:201
-msgctxt "Level name"
-msgid "Syndika"
-msgstr "辛迪加"
-
 #: guitext:202
 msgctxt "Level name"
 msgid "Kzelbatu"
@@ -540,3 +535,8 @@ msgstr "英雄的入侵"
 msgctxt "Level name"
 msgid "Skybird's Other Side"
 msgstr "太阳鸟鸣反向对战"
+
+#: guitext:211
+msgctxt "Level name"
+msgid "Syndika"
+msgstr "辛迪加"

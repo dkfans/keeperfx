@@ -968,7 +968,7 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              cpt->field_1C = k;
+              cpt->drop_delay = k;
               n++;
             }
             if (n < 7)
@@ -1085,6 +1085,7 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
 
 TbBool load_computer_player_config(unsigned short flags)
 {
+    SYNCDBG(8, "Starting");
     static const char *textname = "Computer Player";
     init_computer_process_lists();
     // Load the config file

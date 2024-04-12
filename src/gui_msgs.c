@@ -23,6 +23,8 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_sprfnt.h"
+#include "bflib_vidraw.h"
+#include "config_spritecolors.h"
 #include "creature_graphics.h"
 #include "creature_instances.h"
 #include "gui_draw.h"
@@ -41,8 +43,10 @@ void message_draw(void)
     SYNCDBG(7,"Starting");
     LbTextSetFont(winfont);
     int ps_units_per_px;
+    struct TbSprite* spr;
     {
-        struct TbSprite* spr = &gui_panel_sprites[488];
+        //just used for height, color irrelevant here
+        spr = &gui_panel_sprites[GPS_plyrsym_symbol_player_red_std_b];
         ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
     }
     TbBool low_res = (MyScreenHeight < 400);
@@ -62,7 +66,7 @@ void message_draw(void)
         {
             long x = 148 * units_per_pixel / 16;
             LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
-            set_flag_word(&lbDisplay.DrawFlags,Lb_TEXT_ONE_COLOR,false);
+            clear_flag(lbDisplay.DrawFlags, Lb_TEXT_ONE_COLOR);
             LbTextDrawResized(x+32*units_per_pixel/16, y, tx_units_per_px, gameadd.messages[i].text);
             unsigned long spr_idx = 0;
             TbBool IsCreature = false;
@@ -71,6 +75,7 @@ void message_draw(void)
             TbBool IsKeeperSpell = false;
             TbBool IsQuery = false;
             TbBool NotPlayer = ((char)gameadd.messages[i].plyr_idx < 0);
+            PlayerNumber plyr_idx = gameadd.messages[i].plyr_idx;
             if (NotPlayer)
             {
                 IsCreature = ( ((char)gameadd.messages[i].plyr_idx >= -31) && ((char)gameadd.messages[i].plyr_idx <= -1) );
@@ -116,24 +121,29 @@ void message_draw(void)
             {
                 if (gameadd.messages[i].plyr_idx == game.hero_player_num)
                 {
-                    spr_idx = GPS_plyrsym_symbol_player_white_std;
+                    spr_idx = GPS_plyrsym_symbol_player_red_std_b;
                 }
                 else if (gameadd.messages[i].plyr_idx == game.neutral_player_num)
                 {
                     spr_idx = ((game.play_gameturn >> 1) & 3) + GPS_plyrsym_symbol_player_red_std_b;
+                    plyr_idx = 0;
                 }
                 else
                 {
-                    if (player_has_heart(gameadd.messages[i].plyr_idx)) {
-                        spr_idx = GPS_plyrsym_symbol_player_red_std_b + gameadd.messages[i].plyr_idx;
-                    } else {
-                        spr_idx = GPS_plyrsym_symbol_player_red_dead + gameadd.messages[i].plyr_idx;
-                    }
+                    spr_idx = (player_has_heart(gameadd.messages[i].plyr_idx)) ? GPS_plyrsym_symbol_player_red_std_b : GPS_plyrsym_symbol_player_red_dead;
                 }
             }
             if (gameadd.messages[i].plyr_idx != 127)
             {
-                draw_gui_panel_sprite_left(x, y, ps_units_per_px, spr_idx);
+                if (plyr_idx >= 0)
+                {
+                    draw_gui_panel_sprite_left_player(x, y, ps_units_per_px, spr_idx, plyr_idx);
+                }
+                else
+                {
+                    spr = &gui_panel_sprites[spr_idx];
+                    LbSpriteDrawResized(x, y, ps_units_per_px, spr);
+                }
             }
             y += (h*units_per_pixel/16) << (unsigned char)low_res;
             if (NotPlayer)

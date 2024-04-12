@@ -33,6 +33,7 @@ extern "C" {
 /******************************************************************************/
 #define CREATURE_TYPES_COUNT  32
 #define DEAD_CREATURES_MAX_COUNT 64
+#define CREATURE_NAME_MAX 25
 /** The standard altitude at which a creature is flying.
  * Should be over one tile, to allow flying creatures leave water areas. */
 #define NORMAL_FLYING_ALTITUDE (256+16)
@@ -62,15 +63,15 @@ enum CreatureDeathFlags {
     CrDed_DiedInBattle   = 0x02, /**< Set if the creature died during a battle. */
     CrDed_NoUnconscious  = 0x04, /**< Set if the creature isn't allowed to become unconscious. */
     CrDed_NotReallyDying = 0x08, /**< Set if it's not really death, it either transforms or leaves. */
+    CrDed_NoRebirth      = 0x10, /**< Set if the death blocks it from resurrecting */
 };
 
 struct CreatureStorage {
-  unsigned char model;
-  unsigned char explevel : 4;
-  unsigned char count : 4;
+  ThingModel model;
+  unsigned char explevel;
+  unsigned char count;
+  char creature_name[CREATURE_NAME_MAX];
 };
-
-static_assert(sizeof(struct CreatureStorage) == 2, "");
 
 #pragma pack()
 /******************************************************************************/
@@ -81,7 +82,7 @@ extern unsigned long creature_create_errors;
 /******************************************************************************/
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner);
 long move_creature(struct Thing *thing);
-TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
+struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng,
     PlayerNumber killer_plyr_idx, CrDeathFlags flags);
 void update_creature_count(struct Thing *thing);
 TngUpdateRet process_creature_state(struct Thing *thing);
@@ -91,7 +92,7 @@ TbBool create_random_hero_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
 struct Thing *create_owned_special_digger(MapCoord x, MapCoord y, PlayerNumber owner);
 
 TbBool creature_increase_level(struct Thing *thing);
-TbBool creature_increase_multiple_levels(struct Thing *thing, int count);
+TbBool creature_change_multiple_levels(struct Thing *thing, int count);
 void set_creature_level(struct Thing *thing, long nlvl);
 void init_creature_level(struct Thing *thing, long nlev);
 long get_creature_speed(const struct Thing *thing);
@@ -110,7 +111,7 @@ long creature_available_for_combat_this_turn(struct Thing *thing);
 TbBool set_creature_object_combat(struct Thing *crthing, struct Thing *obthing);
 TbBool set_creature_object_snipe(struct Thing* crthing, struct Thing* obthing);
 TbBool set_creature_door_combat(struct Thing *crthing, struct Thing *obthing);
-void creature_fire_shot(struct Thing *firing,struct  Thing *target, ThingModel shot_model, char shot_lvl, unsigned char hit_type);
+void thing_fire_shot(struct Thing *firing,struct  Thing *target, ThingModel shot_model, char shot_lvl, unsigned char hit_type);
 void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long a3, long a4);
 void creature_cast_spell(struct Thing *caster, long trg_x, long trg_y, long a4, long a5);
 unsigned int get_creature_blocked_flags_at(struct Thing *thing, struct Coord3d *newpos);
@@ -145,6 +146,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind);
 void process_thing_spell_effects(struct Thing *thing);
 void process_thing_spell_effects_while_blocked(struct Thing *thing);
 void delete_effects_attached_to_creature(struct Thing *creatng);
+void delete_familiars_attached_to_creature(struct Thing* sumntng);
 TbBool thing_affected_by_spell(const struct Thing *thing, SpellKind spkind);
 GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, SpellKind spkind, const char *func_name);
 #define get_spell_duration_left_on_thing(thing, spkind) get_spell_duration_left_on_thing_f(thing, spkind, __func__)
@@ -188,6 +190,9 @@ struct Thing *controlled_get_trap_to_rearm(struct Thing *creatng);
 void controlled_continue_looking_excluding_diagonal(struct Thing *creatng, MapSubtlCoord *stl_x, MapSubtlCoord *stl_y);
 
 short get_creature_eye_height(const struct Thing *creatng);
+
+void query_creature(struct PlayerInfo *player, ThingIndex index, TbBool reset, TbBool zoom);
+TbBool creature_can_be_queried(struct PlayerInfo *player, struct Thing *creatng);
 /******************************************************************************/
 TbBool thing_is_creature(const struct Thing *thing);
 TbBool thing_is_dead_creature(const struct Thing *thing);
@@ -195,12 +200,15 @@ TbBool thing_is_creature_special_digger(const struct Thing *thing);
 TbBool creature_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx);
 TbBool creature_is_invisible(const struct Thing *thing);
 TbBool creature_can_see_invisible(const struct Thing *thing);
+TbBool creature_can_be_transferred(const struct Thing* thing);
 int get_creature_health_permil(const struct Thing *thing);
 /******************************************************************************/
 struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long carried_gold, long crtr_level);
 struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location);
-void script_process_new_creatures(PlayerNumber plyr_idx, long crmodel, long location, long copies_num, long carried_gold, long crtr_level);
+void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, long location, long copies_num, long carried_gold, long crtr_level);
 PlayerNumber get_appropriate_player_for_creature(struct Thing *creatng);
+/******************************************************************************/
+void throw_out_gold(struct Thing* thing, long amount);
 /******************************************************************************/
 #ifdef __cplusplus
 }

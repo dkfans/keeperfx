@@ -46,6 +46,7 @@ enum SacrificeAction {
 enum UniqueFunctions {
     UnqF_None = 0,
     UnqF_MkAllAngry,
+    UnqF_MkAllVerAngry,
     UnqF_ComplResrch,
     UnqF_ComplManufc,
     UnqF_KillChickns,
@@ -66,6 +67,127 @@ struct SacrificeRecipe {
     long action;
     long param;
 };
+
+struct GameRulesConfig {
+    GoldAmount gold_per_gold_block;
+    GoldAmount pot_of_gold_holds;
+    GoldAmount chest_gold_hold;
+    GoldAmount gold_pile_value;
+    GoldAmount gold_pile_maximum;
+    GoldAmount gold_per_hoard;
+    GoldAmount bag_gold_hold;
+    unsigned short food_life_out_of_hatchery;
+    long boulder_reduce_health_wall;
+    long boulder_reduce_health_slap;
+    long boulder_reduce_health_room;
+    GameTurnDelta pay_day_gap;
+    unsigned long dungeon_heart_heal_time;
+    long dungeon_heart_heal_health;
+    unsigned long hero_door_wait_time;
+    unsigned long classic_bugs_flags;
+    unsigned long gem_effectiveness;
+    long door_sale_percent;
+    long room_sale_percent;
+    long trap_sale_percent;
+    unsigned long pay_day_speed;
+    TbBool place_traps_on_subtiles;
+    TbBool allies_share_vision;
+    TbBool allies_share_drop;
+    TbBool allies_share_cta;
+    unsigned char max_things_in_hand;
+    short torture_payday;
+    short torture_training_cost;
+    short torture_scavenging_cost;
+    unsigned long easter_egg_speech_chance;
+    unsigned long easter_egg_speech_interval;
+};
+
+struct ComputerRulesConfig {
+    unsigned short disease_to_temple_pct;
+};
+
+struct CreatureRulesConfig {
+    unsigned char recovery_frequency;
+    short fight_max_hate;
+    short fight_borderline;
+    short fight_max_love;
+    unsigned short body_remains_for;
+    short fight_hate_kill_value;
+    unsigned long flee_zone_radius;
+    GameTurnDelta game_turns_in_flee;
+    unsigned short game_turns_unconscious;
+    long critical_health_permil;
+    unsigned char stun_enemy_chance_evil;
+    unsigned char stun_enemy_chance_good;
+};
+
+struct MagicRulesConfig {
+    GameTurnDelta hold_audience_time;
+    unsigned long armageddon_teleport_your_time_gap;
+    unsigned long armageddon_teleport_enemy_time_gap;
+    unsigned char disease_transfer_percentage;
+    unsigned char disease_lose_percentage_health;
+    unsigned char disease_lose_health_time;
+    MapSubtlDelta min_distance_for_teleport;
+    long collapse_dungeon_damage;
+    GameTurnDelta turns_per_collapse_dngn_dmg;
+    GoldAmount power_hand_gold_grab_amount;
+    long friendly_fight_area_damage_percent;
+    long friendly_fight_area_range_percent;
+    TbBool armageddon_teleport_neutrals;
+};
+
+struct RoomRulesConfig {
+    GameTurnDelta scavenge_cost_frequency;
+    unsigned long temple_scavenge_protection_turns;
+    GameTurnDelta train_cost_frequency;
+    unsigned char ghost_convert_chance;
+    unsigned short default_generate_speed;
+    unsigned long default_max_crtrs_gen_entrance;
+    GameTurnDelta food_generation_speed;
+    unsigned char prison_skeleton_chance;
+    unsigned char bodies_for_vampire;
+    unsigned short graveyard_convert_time;
+    short barrack_max_party_size;
+    unsigned short training_room_max_level;
+    TbBool scavenge_good_allowed;
+    TbBool scavenge_neutral_allowed;
+    unsigned long time_between_prison_break;
+    unsigned char prison_break_chance;
+    unsigned char torture_death_chance;
+    unsigned char torture_convert_chance;
+    unsigned long time_in_prison_without_break;
+};
+struct WorkersRulesConfig {
+    unsigned char hits_per_slab;
+    unsigned long default_imp_dig_damage;
+    unsigned long default_imp_dig_own_damage;
+    long digger_work_experience;
+};
+
+struct HealthRulesConfig {
+    unsigned short hunger_health_loss;
+    unsigned short turns_per_hunger_health_loss;
+    unsigned short food_health_gain;
+    unsigned short torture_health_loss;
+    unsigned short turns_per_torture_health_loss;
+};
+
+struct SacrificesRulesConfig {
+    struct SacrificeRecipe sacrifice_recipes[MAX_SACRIFICE_RECIPES];
+    /** The creature model used for determining amount of sacrifices which decrease digger cost. */
+    ThingModel cheaper_diggers_sacrifice_model;
+};
+struct RulesConfig {
+    struct GameRulesConfig game;
+    struct ComputerRulesConfig computer;
+    struct CreatureRulesConfig creature;
+    struct MagicRulesConfig magic;
+    struct RoomRulesConfig rooms;
+    struct WorkersRulesConfig workers;
+    struct HealthRulesConfig health;
+    struct SacrificesRulesConfig sacrifices;
+};
 /******************************************************************************/
 extern const char keeper_rules_file[];
 extern const struct NamedCommand research_desc[];
@@ -79,6 +201,15 @@ const char *player_code_name(PlayerNumber plyr_idx);
 
 extern const struct NamedCommand rules_sacrifices_commands[];
 extern const struct NamedCommand sacrifice_unique_desc[];
+
+extern const struct NamedField rules_magic_named_fields[];
+extern const struct NamedField rules_rooms_named_fields[];
+extern const struct NamedField rules_game_named_fields[];
+extern const struct NamedField rules_creatures_named_fields[];
+extern const struct NamedField rules_computer_named_fields[];
+extern const struct NamedField rules_workers_named_fields[];
+extern const struct NamedField rules_health_named_fields[];
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

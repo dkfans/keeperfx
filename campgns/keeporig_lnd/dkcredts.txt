@@ -19,7 +19,7 @@ JONTY BARNES
 ALEX PETERS
  
  
-*1363
+*363
 PETER MOLYNEUX
  
  
@@ -293,17 +293,23 @@ ALAN WRIGHT
 Tomasz Lis aka Mefistotelis
 
 AdamP
+Bl4ckj4r
 Eddebaby
+Kxvv
 Loobinex
 OrsonMaxwell
 Mu Mu
 PetterH
+PieterVdc
+Rainlizard
 Real Gecko
 Spartahawk
 Schizz
 TheSim
 Trass3r
 Trotim
+Walt253
+Xtremeqg
 
 #Graphics
 Chagui
