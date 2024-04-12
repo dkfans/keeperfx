@@ -774,6 +774,11 @@ long pinstfe_fade_from_map(struct PlayerInfo *player, long *n)
 
 void set_player_zoom_to_position(struct PlayerInfo *player,struct Coord3d *pos)
 {
+    // Make sure we are in the normal Dungeon Top view
+    if(player->view_type != PVT_DungeonTop)
+        return;
+
+    // Make sure we are not in some weird instance
     if(player->instance_num == PI_DirctCtrl ||
        player->instance_num == PI_PsngrCtrl ||
        player->instance_num == PI_HeartZoom ||
@@ -783,9 +788,11 @@ void set_player_zoom_to_position(struct PlayerInfo *player,struct Coord3d *pos)
        player->instance_num == PI_MapFadeFrom)
         return;
 
+    // Set zoom position
     player->zoom_to_pos_x = pos->x.val;
     player->zoom_to_pos_y = pos->y.val;
 
+    // Make player zoom to location
     set_player_instance(player, PI_ZoomToPos, 0);
 }
 
