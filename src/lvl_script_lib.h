@@ -91,7 +91,6 @@ enum TbScriptCommands {
     Cmd_PRINT                              = 76, // from beta
     Cmd_SWAP_CREATURE                      = 77,
   // New commands propositions - KeeperFX only
-    Cmd_MOVE_PLAYER_CAMERA_TO             = 158,
     Cmd_CHANGE_SLAB_TYPE                   = 78,
     Cmd_CHANGE_SLAB_OWNER                  = 79,
     Cmd_IF_SLAB_TYPE                       = 80,
@@ -185,6 +184,7 @@ enum TbScriptCommands {
     Cmd_SET_PLAYER_MODIFIER                = 171,
     Cmd_ADD_TO_PLAYER_MODIFIER             = 172,
     Cmd_USE_POWER_ON_PLAYERS_CREATURES     = 173,
+    Cmd_MOVE_PLAYER_CAMERA_TO              = 174,
 };
 
 struct ScriptLine {
