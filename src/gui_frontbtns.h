@@ -59,6 +59,7 @@ void gui_area_null(struct GuiButton *gbtn);
 void gui_area_flash_cycle_button(struct GuiButton *gbtn);
 
 void gui_draw_tab(struct GuiButton *gbtn);
+void gui_draw_scroll_box(struct GuiButton *gbtn, int height_lines, TbBool draw_scrollbar);
 void frontend_over_button(struct GuiButton *gbtn);
 void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const char *text, unsigned int drw_flags);
 void frontend_draw_large_menu_button(struct GuiButton *gbtn);
@@ -78,6 +79,8 @@ void init_menu_buttons(struct GuiMenu *gmnu);
 void kill_button_area_input(void);
 void kill_button(struct GuiButton *gbtn);
 void setup_radio_buttons(struct GuiMenu *gmnu);
+
+struct GuiButton* get_gui_button(int btn_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

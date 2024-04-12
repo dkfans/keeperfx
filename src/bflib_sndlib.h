@@ -56,6 +56,9 @@ struct SampleInfo { // sizeof = 29
 /******************************************************************************/
 // Exported functions
 
+int init_miles_sound_system();
+void unload_miles_sound_system();
+
 int FreeAudio(void);
 int SetRedbookVolume(int volume);
 int SetSoundMasterVolume(int volume);
@@ -71,11 +74,7 @@ int StopAllSamples(void);
 struct SampleInfo * GetFirstSampleInfoStructure(void);
 int InitAudio(void *);
 int SetupAudioOptionDefaults(void *);
-int PlayStreamedSample(char *fname, int sample_type, int a3, int a4);
 int IsSamplePlaying(int a1, int a2, int a3);
-int StopStreamedSample(void);
-int StreamedSampleFinished(void);
-int SetStreamedSampleVolume(int);
 struct SampleInfo * GetLastSampleInfoStructure(void);
 int GetCurrentSoundMasterVolume(void);
 int StopSample(SoundEmitterID emit_id, long smptbl_id);

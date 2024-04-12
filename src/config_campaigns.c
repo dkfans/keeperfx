@@ -30,6 +30,7 @@
 #include "config_strings.h"
 #include "lvl_filesdk1.h"
 #include "frontmenu_ingame_tabs.h"
+#include "map_data.h"
 
 #include "game_merge.h"
 #include "post_inc.h"
@@ -110,6 +111,10 @@ const struct NamedCommand cmpgn_human_player_options[] = {
   {"GREEN",      2},
   {"YELLOW",     3},
   {"WHITE",      4},
+  {"NEUTRAL",    5},
+  {"PURPLE",     6},
+  {"BLACK",      7},
+  {"ORANGE",     8},
   {NULL,         0},
   };
 
@@ -150,8 +155,8 @@ void clear_level_info(struct LevelInformation *lvinfo)
   lvinfo->options = LvOp_None;
   lvinfo->state = LvSt_Hidden;
   lvinfo->location = LvLc_VarLevels;
-  lvinfo->mapsize_x = 85;
-  lvinfo->mapsize_y = 85;
+  lvinfo->mapsize_x = DEFAULT_MAP_SIZE;
+  lvinfo->mapsize_y = DEFAULT_MAP_SIZE;
 }
 
 /**
@@ -394,6 +399,7 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
   LbMemoryFree(campgn->hiscore_table);
   campgn->hiscore_table = NULL;
   campgn->hiscore_count = VISIBLE_HIGH_SCORES_COUNT;
+  campgn->human_player = 0;
   // Find the block
   char block_buf[32];
   sprintf(block_buf, "common");
@@ -720,6 +726,10 @@ short parse_campaign_strings_blocks(struct GameCampaign *campgn,char *buf,long l
   {
       // Finding command number in this line
       int cmd_num = recognize_conf_command(buf, &pos, len, lang_type);
+      if (n == 0)
+      {
+          campgn->default_language = (cmd_num >= 0) ? cmd_num : 0;
+      }
       // Now store the config item in correct place
       if (cmd_num == -3) break; // if next block starts
       if (cmd_num <= 0)
@@ -1289,21 +1299,38 @@ void sort_campaigns_quicksort(struct CampaignsList *clist, int beg, int end)
   }
 }
 
-void sort_campaigns(struct CampaignsList *clist,const char *fname_first)
+void sort_campaigns(struct CampaignsList *clist,const char* sort_fname)
 {
-    int beg = 0;
-    for (int i = 0; i < clist->items_num; i++)
+
+    FILE *fp = fopen(sort_fname, "r");
+
+    if( !fp )
     {
-        if (strcasecmp(clist->items[i].fname,fname_first) == 0)
+        ERRORLOG("failed to read %s",sort_fname);
+        return;
+    }
+    int beg = 0;
+
+    char line[DISKPATH_SIZE];
+    while(fgets(line, DISKPATH_SIZE, fp)) {
+       
+        //cut off trailing \n
+        line[strlen(line)-1] = 0;
+
+        for (int i = 0; i < clist->items_num; i++)
         {
-            if (i > 0)
+            if (strcasecmp(clist->items[i].fname,line) == 0)
             {
-                swap_campaigns_in_list(clist, 0, i);
+                if (i != beg)
+                {
+                    swap_campaigns_in_list(clist, beg, i);
+                }
+                beg++;
+                break;
             }
-            beg++;
-            break;
         }
     }
+    fclose(fp);
     sort_campaigns_quicksort(clist, beg, clist->items_num);
 }
 
@@ -1329,7 +1356,8 @@ TbBool load_campaigns_list(void)
     }
     LbFileFindEnd(&fileinfo);
     SYNCDBG(0,"Found %d campaign files, properly loaded %d.",cnum_all,cnum_ok);
-    sort_campaigns(&campaigns_list,keeper_campaign_file);
+    const char* ordfname = prepare_file_path(FGrp_Campgn, "campgn_order.txt");
+    sort_campaigns(&campaigns_list,ordfname);
     return (campaigns_list.items_num > 0);
 }
 
@@ -1359,7 +1387,8 @@ TbBool load_mappacks_list(void)
     }
     LbFileFindEnd(&fileinfo);
     SYNCDBG(0,"Found %d map pack files, properly loaded %d.",cnum_all,cnum_ok);
-    sort_campaigns(&mappacks_list,deeper_mappack_file);
+    const char* ordfname = prepare_file_path(FGrp_VarLevels, "mappck_order.txt");
+    sort_campaigns(&mappacks_list,ordfname);
     return (mappacks_list.items_num > 0);
 }
 

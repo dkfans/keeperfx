@@ -486,11 +486,6 @@ msgctxt "In-game message"
 msgid "Moo"
 msgstr "Meuh"
 
-#: guitext:201
-msgctxt "Level name"
-msgid "Syndika"
-msgstr "Syndika"
-
 #: guitext:202
 msgctxt "Level name"
 msgid "Kzelbatu"
@@ -535,3 +530,8 @@ msgstr "Invasion Héroïque"
 msgctxt "Level name"
 msgid "Skybird's Other Side"
 msgstr "L'autre côté de Lyons-Perruche"
+
+#: guitext:211
+msgctxt "Level name"
+msgid "Syndika"
+msgstr "Syndika"

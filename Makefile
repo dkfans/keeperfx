@@ -75,9 +75,23 @@ obj/centitoml/toml_api.o \
 obj/unzip.o \
 obj/ioapi.o
 
+# functional test debugging flags/objs
+FTEST_DEBUG ?= 0
+ifeq ($(FTEST_DEBUG), 1)
+  FTEST_DBGFLAGS = -DFUNCTESTING=1
+  FTEST_OBJS = obj/ftests/ftest.o \
+  			   obj/ftests/ftest_util.o \
+			   obj/ftests/ftest_list.o
+  FTEST_OBJS += $(patsubst src/ftests/tests/%,obj/ftests/tests/%,$(patsubst %.c,%.o,$(wildcard src/ftests/tests/ftest*.c)))
+else
+  FTEST_DBGFLAGS =
+  FTEST_OBJS =
+endif
+
 OBJS = \
 $(DEPS) \
 obj/actionpt.o \
+obj/api.o \
 obj/ariadne.o \
 obj/ariadne_edge.o \
 obj/ariadne_findcache.o \
@@ -142,15 +156,18 @@ obj/config_crtrmodel.o \
 obj/config_crtrstates.o \
 obj/config_lenses.o \
 obj/config_magic.o \
-obj/config_magic_data.o \
 obj/config_objects.o \
 obj/config_players.o \
+obj/config_powerhands.o \
 obj/config_rules.o \
 obj/config_settings.o \
+obj/config_slabsets.o \
 obj/config_strings.o \
 obj/config_terrain.o \
 obj/config_cubes.o \
+obj/config_textures.o \
 obj/config_trapdoor.o \
+obj/config_spritecolors.o \
 obj/console_cmd.o \
 obj/custom_sprites.o \
 obj/creature_battle.o \
@@ -187,7 +204,6 @@ obj/engine_redraw.o \
 obj/engine_render.o \
 obj/engine_render_data.o \
 obj/engine_textures.o \
-obj/event_monitoring.o \
 obj/front_credits.o \
 obj/front_credits_data.o \
 obj/front_easter.o \
@@ -294,6 +310,7 @@ obj/scrcapt.o \
 obj/slab_data.o \
 obj/sounds.o \
 obj/spdigger_stack.o \
+obj/steam_api.o \
 obj/tasks_list.o \
 obj/thing_corpses.o \
 obj/thing_creature.o \
@@ -314,6 +331,7 @@ obj/vidfade.o \
 obj/vidmode_data.o \
 obj/vidmode.o \
 obj/KeeperSpeechImp.o \
+$(FTEST_OBJS) \
 $(RES)
 
 MAIN_OBJ = obj/main.o
@@ -335,8 +353,8 @@ CU_OBJS = \
 
 # include and library directories
 LINKLIB =  -L"sdl/lib" -mwindows obj/enet.a \
-	-lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net \
-	-L"deps/zlib" -lz -lws2_32
+	-lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net -lSDL2_image \
+	-L"deps/zlib" -lz -lws2_32 -ldbghelp
 INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include" -I"deps/centijson/src" -I"deps/centitoml"
 CXXINCS =  $(INCS)
 
@@ -357,11 +375,11 @@ INCFLAGS =
 CV2PDB := $(shell PATH=`pwd`:$$PATH command -v cv2pdb.exe 2> /dev/null)
 DEBUG ?= 0
 ifeq ($(DEBUG), 1)
-  OPTFLAGS = -march=i686 -Og -fno-omit-frame-pointer
+  OPTFLAGS = -march=x86-64 -fno-omit-frame-pointer -O0
   DBGFLAGS = -g -DDEBUG
 else
   # frame pointer is required for ASM code to work
-  OPTFLAGS = -march=i686 -fno-omit-frame-pointer -O3
+  OPTFLAGS = -march=x86-64 -fno-omit-frame-pointer -O3
   # if we can create a separate debug info file then do it
   ifdef CV2PDB
     DBGFLAGS = -g
@@ -372,13 +390,13 @@ endif
 
 # logging level flags
 STLOGFLAGS = -DBFDEBUG_LEVEL=0
-HVLOGFLAGS = -DBFDEBUG_LEVEL=10 -DAUTOTESTING=1
+HVLOGFLAGS = -DBFDEBUG_LEVEL=10
 # compiler warning generation flags
 WARNFLAGS = -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing -Wno-unknown-pragmas
 # disabled warnings: -Wextra -Wtype-limits
-CXXFLAGS = $(CXXINCS) -c -std=gnu++1y -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
-CFLAGS = $(INCS) -c -std=gnu11 -fmessage-length=0 $(WARNFLAGS) -Werror=implicit $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
-LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LINKFLAGS) -Wl,-Map,"$(@:%.exe=%.map)"
+CXXFLAGS = $(CXXINCS) -c -std=gnu++1y -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(FTEST_DBGFLAGS) $(INCFLAGS)
+CFLAGS = $(INCS) -c -std=gnu11 -fmessage-length=0 $(WARNFLAGS) -Werror=implicit $(DEPFLAGS) $(FTEST_DBGFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
+LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(FTEST_DBGFLAGS) $(LINKFLAGS) -Wl,-Map,"$(@:%.exe=%.map)"
 
 ifeq ($(USE_PRE_FILE), 1)
 CXXFLAGS += -DUSE_PRE_FILE=1
@@ -410,7 +428,22 @@ include prebuilds.mk
 -include $(filter %.d,$(STDOBJS:%.o=%.d))
 -include $(filter %.d,$(HVLOGOBJS:%.o=%.d))
 
-all: clean standard
+
+# 'make all' calculates the current checksum of all .h and .hpp files, storing the checksum in a file. Then it decides whether to run 'make clean' or 'make standard' based on whether any .h and .hpp files have been altered
+HEADER_CHECKSUM_FILE=.header_checksum
+
+all:
+	@start_time=$$(date +%s.%N); \
+	get_header_cksum=$$(find ./src/ -type f \( -name "*.h" -o -name "*.hpp" \) -print0 | sort -z | xargs -0 cksum | cksum | awk '{print $$1}'); \
+	current_checksum=$$(echo $$get_header_cksum $(DEBUG) | cksum | awk '{print $$1}'); \
+	if [ ! -f $(HEADER_CHECKSUM_FILE) ] || [ "$$(cat $(HEADER_CHECKSUM_FILE))" != "$$current_checksum" ]; then \
+		$(MAKE) clean; \
+	fi; \
+	$(MAKE) standard || exit 1; \
+	echo "$$current_checksum" > $(HEADER_CHECKSUM_FILE); \
+	end_time=$$(date +%s.%N); \
+	duration=$$(awk "BEGIN {print $$end_time - $$start_time}"); \
+	printf "\033[97mCompiled in: %0.2f seconds\033[0m\n" $$duration;
 
 standard: CXXFLAGS += $(STLOGFLAGS)
 standard: CFLAGS += $(STLOGFLAGS)
@@ -422,10 +455,13 @@ heavylog: hvlog-before $(HVLOGBIN) hvlog-after
 
 # not nice but necessary for make -j to work
 FOLDERS = bin obj/std obj/hvlog \
+obj/std/ftests \
+obj/std/ftests/tests \
 obj/tests obj/cu \
 obj/std/json obj/hvlog/json \
 obj/std/centitoml obj/hvlog/centitoml \
-obj/enet
+obj/enet \
+sdl/for_final_package
 
 $(shell $(MKDIR) $(FOLDERS))
 
@@ -440,7 +476,8 @@ docs: docsdox
 docsdox: docs/doxygen.conf
 	VERSION=$(VER_STRING) $(DOXYTOOL) docs/doxygen.conf
 
-deep-clean: deep-clean-tools deep-clean-libexterns deep-clean-package
+deep-clean: deep-clean-tools deep-clean-package
+	$(MAKE) -f libexterns.mk deep-clean-libexterns
 
 clean: submodule clean-build clean-tools clean-libexterns clean-package
 
@@ -507,12 +544,12 @@ obj/std/ioapi.o obj/hvlog/ioapi.o: deps/zlib/contrib/minizip/ioapi.c
 	$(CC) $(CFLAGS) -I"deps/zlib" -o"$@" "$<"
 	-$(ECHO) ' '
 
-obj/std/lvl_filesdk1.o obj/hvlog/lvl_filesdk1.o: src/lvl_filesdk1.c deps/zlib/contrib/minizip/unzip.c
+obj/std/lvl_filesdk1.o obj/hvlog/lvl_filesdk1.o: src/lvl_filesdk1.c deps/zlib/contrib/minizip/unzip.c $(GENSRC)
 	-$(ECHO) 'Building file: $<'
 	$(CC) $(CFLAGS) -I"deps/zlib" -I"deps/zlib/contrib/minizip" -o"$@" "$<"
 	-$(ECHO) ' '
 
-obj/std/custom_sprites.o obj/hvlog/custom_sprites.o: src/custom_sprites.c deps/zlib/contrib/minizip/unzip.c
+obj/std/custom_sprites.o obj/hvlog/custom_sprites.o: src/custom_sprites.c deps/zlib/contrib/minizip/unzip.c $(GENSRC)
 	-$(ECHO) 'Building file: $<'
 	$(CC) $(CFLAGS) -I"deps/libspng/spng" -I"deps/zlib" -I"deps/zlib/contrib/minizip" -o"$@" "$<"
 	-$(ECHO) ' '
@@ -530,15 +567,15 @@ obj/cu/%.o: $(CU_DIR)/Sources/Basic/%.c
 
 obj/std/%.o obj/hvlog/%.o: src/%.cpp libexterns $(GENSRC)
 	-$(ECHO) 'Building file: $<'
-	@grep -E "#include \"pre_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"pre_inc.h\" as first include\n\n" >&2 | false
-	@grep -E "#include \"post_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"post_inc.h\" as last include\n\n" >&2 | false
+	@grep -E "#include \"(\.\./)?(\.\./)?pre_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"pre_inc.h\" as first include\n\n" >&2 | false
+	@grep -E "#include \"(\.\./)?(\.\./)?post_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"post_inc.h\" as last include\n\n" >&2 | false
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 	-$(ECHO) ' '
 
 obj/std/%.o obj/hvlog/%.o: src/%.c libexterns $(GENSRC)
 	-$(ECHO) 'Building file: $<'
-	@grep -E "#include \"pre_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"pre_inc.h\" as first include\n\n" >&2 | false
-	@grep -E "#include \"post_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"post_inc.h\" as last include\n\n" >&2 | false
+	@grep -E "#include \"(\.\./)?(\.\./)?pre_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"pre_inc.h\" as first include\n\n" >&2 | false
+	@grep -E "#include \"(\.\./)?(\.\./)?post_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"post_inc.h\" as last include\n\n" >&2 | false
 	$(CC) $(CFLAGS) -o"$@" "$<"
 	-$(ECHO) ' '
 
@@ -583,6 +620,7 @@ deps/zlib/contrib/minizip/unzip.c deps/zlib/contrib/minizip/ioapi.c: build-befor
 
 deps/zlib/configure.log:
 	git submodule sync && git submodule update --init
+	touch deps/zlib/configure.log
 	cd deps/zlib && ./configure --static
 
 deps/zlib/libz.a: deps/zlib/configure.log

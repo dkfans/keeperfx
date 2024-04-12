@@ -558,11 +558,6 @@ msgctxt "In-game message"
 msgid "Moo"
 msgstr ""
 
-#: guitext:201
-msgctxt "Level name"
-msgid "Syndika"
-msgstr ""
-
 #: guitext:202
 msgctxt "Level name"
 msgid "Kzelbatu"
@@ -606,4 +601,9 @@ msgstr ""
 #: guitext:210
 msgctxt "Level name"
 msgid "Skybird's Other Side"
+msgstr ""
+
+#: guitext:211
+msgctxt "Level name"
+msgid "Syndika"
 msgstr ""

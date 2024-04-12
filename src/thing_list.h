@@ -156,7 +156,7 @@ typedef TbBool (*Thing_Bool_Modifier)(struct Thing *);
 struct CompoundTngFilterParam {
      long plyr_idx;
      long class_id;
-     long model_id;
+     ThingModel model_id;
      union {
      long num1;
      void *ptr1;
@@ -205,6 +205,7 @@ long count_player_list_creatures_of_model_matching_bool_filter(PlayerNumber plyr
 // Final routines to select creature anywhere on map but belonging to given player
 struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel crmodel, long crtr_idx);
 struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx, ThingModel crmodel, long crtr_idx, int friendly);
+struct Thing* get_player_list_nth_creature_with_property(long thing_idx, unsigned long crmodelflag, long crtr_idx);
 struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingModel crmodel);
 struct Thing *get_random_players_creature_of_model_on_territory(PlayerNumber plyr_idx, ThingModel crmodel,int friendly);
 struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check);
@@ -220,7 +221,8 @@ long count_player_diggers_not_counting_to_total(PlayerNumber plyr_idx);
 struct Thing *get_thing_on_map_block_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param, long *maximizer);
 struct Thing *get_thing_near_revealed_map_block_with_filter(MapCoord x, MapCoord y, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
 struct Thing *get_thing_spiral_near_map_block_with_filter(MapCoord x, MapCoord y, long spiral_len, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
-struct Thing* get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range);
+struct Thing* get_player_creature_in_range_around_any_enemy_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range);
+struct Thing* get_player_creature_in_range_around_own_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range);
 long count_things_spiral_near_map_block_with_filter(MapCoord x, MapCoord y, long spiral_len, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
 long do_to_things_on_map_block(long thing_idx, Thing_Bool_Modifier do_cb);
 long do_to_things_with_param_on_map_block(ThingIndex thing_idx, Thing_Modifier_Func do_cb, ModTngFilterParam param);
@@ -243,8 +245,8 @@ struct Thing *get_object_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, M
 struct Thing *get_cavein_at_subtile_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 struct Thing *get_object_around_owned_by_and_matching_bool_filter(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx, Thing_Bool_Filter matcher_cb);
 struct Thing *get_food_at_subtile_available_to_eat_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx);
-struct Thing *get_trap_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long model, long plyr_idx);
-struct Thing *get_trap_around_of_model_and_owned_by(MapCoord pos_x, MapCoord pos_y, long model, PlayerNumber plyr_idx);
+struct Thing *get_trap_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel model, long plyr_idx);
+struct Thing *get_trap_around_of_model_and_owned_by(MapCoord pos_x, MapCoord pos_y, ThingModel model, PlayerNumber plyr_idx);
 struct Thing *get_door_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Thing *get_door_for_position_for_trap_placement(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool slab_has_door_thing_on(MapSlabCoord slb_x, MapSlabCoord slb_y);
@@ -277,7 +279,8 @@ struct Thing* get_nearest_enemy_object_possible_to_attack_by(struct Thing* creat
 long count_creatures_in_dungeon_of_model_flags(const struct Dungeon *dungeon, unsigned long need_mdflags, unsigned long excl_mdflags);
 long count_creatures_in_dungeon_controlled_and_of_model_flags(const struct Dungeon *dungeon, unsigned long need_mdflags, unsigned long excl_mdflags);
 
-TbBool creature_matches_model(const struct Thing* creatng, long crmodel);
+TbBool creature_matches_model(const struct Thing* creatng, ThingModel crmodel);
+TbBool creature_model_matches_model(ThingModel creatng_model, PlayerNumber plyr_idx, ThingModel target_model);
 TbBool thing_matches_model(const struct Thing* thing, long crmodel);
 unsigned long update_things_sounds_in_list(struct StructureList *list);
 void stop_all_things_playing_samples(void);
@@ -288,11 +291,13 @@ void init_player_start(struct PlayerInfo *player, TbBool keep_prev);
 void setup_computer_players(void);
 void setup_zombie_players(void);
 void init_all_creature_states(void);
+TbBool update_creature_speed(struct Thing *thing);
 
 TbBool perform_action_on_all_creatures_in_group(struct Thing *thing, Thing_Bool_Modifier action);
 
 struct Thing *creature_of_model_in_prison_or_tortured(ThingModel crmodel);
 long count_player_creatures_of_model(PlayerNumber plyr_idx, int crmodel);
+long count_player_creatures_for_transfer(PlayerNumber plyr_idx);
 long count_player_creatures_of_model_in_action_point(PlayerNumber plyr_idx, int crmodel, long apt_index);
 long count_player_list_creatures_of_model(long thing_idx, ThingModel crmodel);
 long count_player_list_creatures_of_model_on_territory(long thing_idx, ThingModel crmodel, int friendly);
@@ -329,8 +334,12 @@ TbBool update_thing(struct Thing *thing);
 TbBigChecksum get_thing_checksum(const struct Thing *thing);
 short update_thing_sound(struct Thing *thing);
 struct Thing* find_players_dungeon_heart(PlayerNumber plyridx);
+struct Thing* find_players_backup_dungeon_heart(PlayerNumber plyridx);
 
 struct Thing *find_random_thing_in_room(ThingClass tngclass, ThingModel tngmodel,struct Room *room);
+
+ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_creature, PlayerNumber owner, ThingModel crmodel, struct PlayerInfo *player);
+struct Thing* get_timebomb_target(struct Thing *creatng);
 /******************************************************************************/
 #ifdef __cplusplus
 }

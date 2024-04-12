@@ -32,6 +32,7 @@
 #include "creature_instances.h"
 #include "config_creature.h"
 #include "config_crtrstates.h"
+#include "config_powerhands.h"
 #include "thing_stats.h"
 #include "light_data.h"
 #include "thing_effects.h"
@@ -56,6 +57,7 @@
 #include "config_magic.h"
 #include "thing_shots.h"
 #include "bflib_inputctrl.h"
+#include "map_blocks.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -131,11 +133,9 @@ struct PlayerInstanceInfo player_instance_info[PLAYER_INSTANCES_COUNT] = {
 long pinstfs_hand_grab(struct PlayerInfo *player, long *n)
 {
     struct Thing* thing = thing_get(player->hand_thing_idx);
-    struct Objects* objdat;
     if (!thing_is_invalid(thing))
     {
-        objdat = get_objects_data(ObjMdl_PowerHandGrab);
-        set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx, objdat->anim_speed);
+        set_power_hand_graphic(player->id_number, HndA_Hover);
     }
     return 0;
 }
@@ -145,7 +145,6 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
     SYNCDBG(8,"Starting");
     struct Thing* dsttng = thing_get(player->influenced_thing_idx);
     struct Thing* grabtng = thing_get(player->hand_thing_idx);
-    struct Objects* objdat;
     if (dsttng->creation_turn != player->influenced_thing_creation) {
         WARNLOG("The thing index %d is no longer the same",(int)player->influenced_thing_idx);
         player->influenced_thing_creation = 0;
@@ -161,8 +160,7 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
     // Update sprites for the creature in hand, and power hand itself
     if (!thing_is_invalid(grabtng))
     {
-        objdat = get_objects_data(ObjMdl_PowerHandGrab);
-        set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx+1, objdat->anim_speed);
+        set_power_hand_graphic(player->id_number, HndA_Hold);
     }
     return 0;
 }
@@ -171,12 +169,10 @@ long pinstfs_hand_drop(struct PlayerInfo *player, long *n)
 {
     struct Dungeon* dungeon = get_players_dungeon(player);
     struct Thing* thing = thing_get(player->hand_thing_idx);
-    struct Objects* objdat;
     player->influenced_thing_idx = dungeon->things_in_hand[0];
     if (!thing_is_invalid(thing))
     {
-        objdat = get_objects_data(ObjMdl_PowerHandGrab);
-        set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx, -objdat->anim_speed);
+        set_power_hand_graphic(player->id_number, HndA_Pickup);
     }
     return 0;
 }
@@ -184,11 +180,9 @@ long pinstfs_hand_drop(struct PlayerInfo *player, long *n)
 long pinstfe_hand_drop(struct PlayerInfo *player, long *n)
 {
     struct Thing* thing = thing_get(player->hand_thing_idx);
-    struct Objects* objdat;
     if (!thing_is_invalid(thing))
     {
-        objdat = get_objects_data(ObjMdl_PowerHand);
-        set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx, objdat->anim_speed);
+        set_power_hand_graphic(player->id_number, HndA_Hover);
     }
     player->influenced_thing_idx = 0;
     return 0;
@@ -197,11 +191,9 @@ long pinstfe_hand_drop(struct PlayerInfo *player, long *n)
 long pinstfs_hand_whip(struct PlayerInfo *player, long *n)
 {
     struct Thing* thing = thing_get(player->hand_thing_idx);
-    struct Objects* objdat;
     if (!thing_is_invalid(thing))
     {
-        objdat = get_objects_data(ObjMdl_PowerHandWhip);
-        set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx+1, objdat->anim_speed);
+        set_power_hand_graphic(player->id_number, HndA_Slap);
     }
     return 0;
 }
@@ -231,7 +223,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
           slap_creature(player, thing);
           pos.x.val = thing->mappos.x.val;
           pos.y.val = thing->mappos.y.val;
-          pos.z.val = thing->mappos.z.val + (thing->clipbox_size_yz >> 1);
+          pos.z.val = thing->mappos.z.val + (thing->clipbox_size_z >> 1);
           if ( creature_model_bleeds(thing->model) )
               create_effect(&pos, TngEff_HitBleedingUnit, thing->owner);
           thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
@@ -251,15 +243,15 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
           thing->move_angle_xy = player->acamera->orient_a;
           if (thing->model != ShM_SolidBoulder) //TODO CONFIG shot model dependency, make config option instead
           {
-              thing->health -= game.boulder_reduce_health_slap;
+              thing->health -= game.conf.rules.game.boulder_reduce_health_slap;
           }
       } else
       {
-          detonate_shot(thing);
+          detonate_shot(thing,true);
       }
       break;
   case TCls_Trap:
-      trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
+      trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
       if ((trapst->slappable == 1) && trap_is_active(thing))
       {
           external_activate_trap_shot_at_angle(thing, player->acamera->orient_a, thing_get(player->hand_thing_idx));
@@ -285,11 +277,9 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
 long pinstfs_hand_whip_end(struct PlayerInfo *player, long *n)
 {
     struct Thing* thing = thing_get(player->hand_thing_idx);
-    struct Objects* objdat;
     if (!thing_is_invalid(thing))
     {
-        objdat = get_objects_data(ObjMdl_PowerHandWhip);
-        set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx + 2, objdat->anim_speed);
+        set_power_hand_graphic(player->id_number, HndA_SideSlap);
     }
     return 0;
 }
@@ -297,11 +287,9 @@ long pinstfs_hand_whip_end(struct PlayerInfo *player, long *n)
 long pinstfe_hand_whip_end(struct PlayerInfo *player, long *n)
 {
     struct Thing* thing = thing_get(player->hand_thing_idx);
-    struct Objects* objdat;
     if (!thing_is_invalid(thing))
     {
-        objdat = get_objects_data(ObjMdl_PowerHandWhip);
-        set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx, objdat->anim_speed);
+        set_power_hand_graphic(player->id_number, HndA_SideHover);
     }
     return 0;
 }
@@ -315,7 +303,6 @@ long pinstfs_passenger_control_creature(struct PlayerInfo *player, long *n)
     turn_off_all_window_menus();
     turn_off_menu(GMnu_CREATURE_QUERY1);
     turn_off_menu(GMnu_CREATURE_QUERY2);
-    game.flags_font |= FFlg_unk04;
   }
   struct Camera* cam = player->acamera;
   player->allocflags |= PlaF_KeyboardInputDisabled;
@@ -430,10 +417,11 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
         return 0;
     }
     set_player_instance(player, PI_CrCtrlFade, false);
+    TbBool my_player = (is_my_player(player));
     if (thing->class_id == TCls_Creature)
     {
         load_swipe_graphic_for_creature(thing);
-        if (is_my_player(player))
+        if (my_player)
         {
             if (creature_affected_by_spell(thing, SplK_Freeze)) {
                 PaletteSetPlayerPalette(player, blue_palette);
@@ -441,8 +429,10 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
         }
         creature_choose_first_available_instance(thing);
     }
-    if (is_my_player(player))
-      turn_on_menu(GMnu_CREATURE_QUERY1);
+    if (my_player)
+    {
+        turn_on_menu(GMnu_CREATURE_QUERY1);
+    }
     return 0;
 }
 
@@ -455,6 +445,13 @@ long pinstfe_passenger_control_creature(struct PlayerInfo *player, long *n)
         control_creature_as_passenger(player, thing);
     }
     set_player_instance(player, PI_CrCtrlFade, false);
+    if (is_my_player(player))
+    {
+        if (thing->class_id == TCls_Creature)
+        {
+            turn_on_menu(GMnu_CREATURE_QUERY1);
+        }
+    }
     return 0;
 }
 
@@ -475,7 +472,7 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, long *n)
       turn_off_all_window_menus();
       turn_off_query_menus();
       turn_on_main_panel_menu();
-      set_flag_byte(&game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
+      set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
       LbGrabMouseCheck(MG_OnPossessionLeave);
   }
   thing = thing_get(player->influenced_thing_idx);
@@ -517,7 +514,7 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, long *n)
     turn_off_query_menus();
     turn_off_all_panel_menus();
     turn_on_main_panel_menu();
-    set_flag_byte(&game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
+    set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
   }
   leave_creature_as_passenger(player, thing);
   player->allocflags |= PlaF_KeyboardInputDisabled;
@@ -586,7 +583,7 @@ long pinstfm_zoom_to_heart(struct PlayerInfo *player, long *n)
         struct Coord3d pos;
         pos.x.val = thing->mappos.x.val;
         pos.y.val = thing->mappos.y.val - subtile_coord(7, 0) / 16;
-        pos.z.val = thing->mappos.z.val + subtile_coord(1, 0) / 8;
+        pos.z.val = thing->mappos.z.val + (thing->solid_size_z / 2);
         move_thing_in_map(thing, &pos);
   }
   if (player->instance_remain_rurns <= 8)
@@ -627,7 +624,7 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
     cam->zoom = player->frontview_zoom_level;
   } else
   {
-    cam->mappos.y.val = thing->mappos.y.val - (thing->clipbox_size_yz >> 1) -  thing->mappos.z.val;
+    cam->mappos.y.val = thing->mappos.y.val - (thing->clipbox_size_z >> 1) -  thing->mappos.z.val;
     cam->zoom = 24000;
   }
   cam->orient_a = 0;
@@ -652,12 +649,12 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
         {
           cam->zoom -= (24000 - player->isometric_view_zoom_level) / 16;
           cam->orient_a += LbFPMath_PI/64;
-          addval = (thing->clipbox_size_yz >> 1);
+          addval = (thing->clipbox_size_z >> 1);
           deltax = distance_with_angle_to_coord_x((long)thing->mappos.z.val+addval, cam->orient_a);
           deltay = distance_with_angle_to_coord_y((long)thing->mappos.z.val+addval, cam->orient_a);
         } else
         {
-          addval = (thing->clipbox_size_yz >> 1);
+          addval = (thing->clipbox_size_z >> 1);
           deltax = addval;
           deltay = -addval;
         }
@@ -720,9 +717,9 @@ long pinstfs_fade_to_map(struct PlayerInfo *player, long *n)
     player->view_mode_restore = cam->view_mode;
     if (is_my_player(player))
     {
-        set_flag_byte(&player->field_1, 0x02, settings.tooltips_on);
-        settings.tooltips_on = 0;
-        set_flag_byte(&player->field_1, 0x01, toggle_status_menu(0));
+        player->tooltips_restore = settings.tooltips_on; // store tooltips setting before starting the fade
+        settings.tooltips_on = false; // don't show tooltips during the fade
+        player->status_menu_restore = toggle_status_menu(0); // store current status menu visibility, and hide the status menu (when the map is visible)
   }
   set_engine_view(player, PVM_ParchFadeIn);
   return 0;
@@ -738,7 +735,7 @@ long pinstfe_fade_to_map(struct PlayerInfo *player, long *n)
 {
   set_player_mode(player, PVT_MapScreen);
   if (is_my_player(player))
-    settings.tooltips_on = ((player->field_1 & 0x02) != 0);
+    settings.tooltips_on = player->tooltips_restore; // restore tooltips setting after the fade is completed
   player->allocflags &= ~PlaF_MouseInputDisabled;
   return 0;
 }
@@ -748,8 +745,8 @@ long pinstfs_fade_from_map(struct PlayerInfo *player, long *n)
   player->allocflags |= PlaF_MouseInputDisabled;
   if (is_my_player(player))
   {
-    set_flag_byte(&player->field_1, 0x02, settings.tooltips_on);
-    settings.tooltips_on = 0;
+    player->tooltips_restore = settings.tooltips_on; // store tooltips setting before starting the fade
+    settings.tooltips_on = false; // don't show tooltips during the fade
     game.operation_flags &= ~GOF_ShowPanel;
   }
   player->field_4BD = 32;
@@ -768,8 +765,8 @@ long pinstfe_fade_from_map(struct PlayerInfo *player, long *n)
     struct PlayerInfo* myplyr = get_player(my_player_number);
     set_engine_view(player, player->view_mode_restore);
     if (player->id_number == myplyr->id_number) {
-        settings.tooltips_on = ((player->field_1 & 2) != 0);
-        toggle_status_menu(player->field_1 & 1);
+        settings.tooltips_on = player->tooltips_restore; // restore tooltips setting after the fade is completed
+        toggle_status_menu(player->status_menu_restore); // restore the status menu visiblity now that the map is no longer visible
     }
     player->allocflags &= ~PlaF_MouseInputDisabled;
     return 0;
@@ -777,6 +774,11 @@ long pinstfe_fade_from_map(struct PlayerInfo *player, long *n)
 
 void set_player_zoom_to_position(struct PlayerInfo *player,struct Coord3d *pos)
 {
+    // Make sure we are in the normal Dungeon Top view
+    if(player->view_type != PVT_DungeonTop)
+        return;
+
+    // Make sure we are not in some weird instance
     if(player->instance_num == PI_DirctCtrl ||
        player->instance_num == PI_PsngrCtrl ||
        player->instance_num == PI_HeartZoom ||
@@ -786,9 +788,11 @@ void set_player_zoom_to_position(struct PlayerInfo *player,struct Coord3d *pos)
        player->instance_num == PI_MapFadeFrom)
         return;
 
+    // Set zoom position
     player->zoom_to_pos_x = pos->x.val;
     player->zoom_to_pos_y = pos->y.val;
 
+    // Make player zoom to location
     set_player_instance(player, PI_ZoomToPos, 0);
 }
 
@@ -803,21 +807,21 @@ long pinstfs_zoom_to_position(struct PlayerInfo *player, long *n)
     int dt_y = (player->zoom_to_pos_y - (int)cam->mappos.y.val) / 8;
     if (dt_x < 0)
     {
-      if (dt_x >= -256)
+      if (dt_x > -256)
         dt_x = -256;
     } else
     {
-      if (dt_x <= 256)
+      if (dt_x < 256)
         dt_x = 256;
     }
     player->zoom_to_movement_x = dt_x;
     if (dt_y < 0)
     {
-        if (dt_y >= -256)
+        if (dt_y > -256)
           dt_y = -256;
     } else
     {
-        if (dt_y <= 256)
+        if (dt_y < 256)
           dt_y = 256;
     }
     player->zoom_to_movement_y = dt_y;
@@ -826,9 +830,10 @@ long pinstfs_zoom_to_position(struct PlayerInfo *player, long *n)
 
 long pinstfm_zoom_to_position(struct PlayerInfo *player, long *n)
 {
-    long x;
-    long y;
+    MapCoord x, y;
     struct Camera* cam = player->acamera;
+    cam->inertia_x = 0;
+    cam->inertia_y = 0;
     if (abs(cam->mappos.x.val - player->zoom_to_pos_x) >= abs(player->zoom_to_movement_x))
       x = player->zoom_to_movement_x + cam->mappos.x.val;
     else
@@ -848,6 +853,10 @@ long pinstfe_zoom_to_position(struct PlayerInfo *player, long *n)
 {
     player->allocflags &= ~PlaF_MouseInputDisabled;
     player->allocflags &= ~PlaF_KeyboardInputDisabled;
+    if ( (player->work_state == PSt_CreatrInfo) || (player->work_state == PSt_CreatrInfoAll) )
+    {
+        player->controlled_thing_idx = player->influenced_thing_idx;
+    }
     return 0;
 }
 
@@ -1140,8 +1149,7 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
             room_code_name(rkind),(int)stl_x,(int)stl_y);
         if (is_my_player(player))
         {
-            struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
-            if (!playeradd->roomspace.is_active)
+            if (!player->roomspace.is_active)
             {
                 play_non_3d_sample(119);
             }
@@ -1181,8 +1189,15 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
     struct Room* room = place_room(plyr_idx, rkind, stl_x, stl_y);
     if (!room_is_invalid(room))
     {
-      if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava))
-        dungeon->lvstats.bridges_built++;
+        if (room_role_matches(rkind, RoRoF_PassWater | RoRoF_PassLava))
+        {
+            if ((player->allocflags & PlaF_CompCtrl) != 0)
+            {
+                //Computer players need sight to build more bridge tiles
+                set_explored_around(subtile_slab(stl_x), subtile_slab(stl_y), plyr_idx);
+            }
+            dungeon->lvstats.bridges_built++;
+        }
       if (is_my_player(player))
       {
           play_non_3d_sample(77);
@@ -1204,7 +1219,7 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     }
     struct Coord3d pos;
     struct PlayerInfo* player = get_player(plyr_idx);
-    if ((player->chosen_trap_kind == TngTrp_Boulder) || (!gameadd.place_traps_on_subtiles))
+    if ((player->chosen_trap_kind == TngTrp_Boulder) || (!game.conf.rules.game.place_traps_on_subtiles))
     {
         set_coords_to_slab_center(&pos,subtile_slab(stl_x),subtile_slab(stl_y));
     }
@@ -1230,7 +1245,8 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     dungeon->camera_deviate_jump = 192;
     if (is_my_player_number(plyr_idx))
     {
-        play_non_3d_sample(117);
+        struct TrapConfigStats* trap_cfg = get_trap_model_stats(tngmodel);    
+        play_non_3d_sample(trap_cfg->place_sound_idx);
     }
     return true;
 }
@@ -1247,7 +1263,6 @@ TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     create_door(&pos, tngmodel, orient, plyr_idx, 0);
     do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     int crate_source = remove_workshop_item_from_amount_stored(plyr_idx, TCls_Door, tngmodel, WrkCrtF_Default);
     switch (crate_source)
     {
@@ -1260,13 +1275,14 @@ TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
         break;
     default:
         WARNLOG("Placeable door %s amount for player %d was incorrect; fixed",door_code_name(tngmodel),(int)dungeon->owner);
-        dungeonadd->mnfct_info.door_amount_placeable[tngmodel] = 0;
+        dungeon->mnfct_info.door_amount_placeable[tngmodel] = 0;
         break;
     }
     dungeon->camera_deviate_jump = 192;
     if (is_my_player_number(plyr_idx))
     {
-        play_non_3d_sample(117);
+        struct DoorConfigStats* door_cfg = get_door_model_stats(tngmodel);
+        play_non_3d_sample(door_cfg->place_sound_idx);
     }
     return 1;
 }

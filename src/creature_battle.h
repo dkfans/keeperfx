@@ -61,6 +61,7 @@ BattleIndex find_next_battle_of_mine(PlayerNumber plyr_idx, BattleIndex prev_idx
 BattleIndex find_previous_battle_of_mine(PlayerNumber plyr_idx, BattleIndex next_idx);
 BattleIndex find_next_battle_of_mine_excluding_current_list(PlayerNumber plyr_idx, BattleIndex prev_idx);
 BattleIndex find_previous_battle_of_mine_excluding_current_list(PlayerNumber plyr_idx, BattleIndex next_idx);
+unsigned long count_active_battles(PlayerNumber plyr_idx);
 
 TbBool has_melee_combat_attackers(struct Thing *victim);
 TbBool can_add_melee_combat_attacker(struct Thing *victim);
