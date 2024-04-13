@@ -24,6 +24,7 @@
 #include "lvl_filesdk1.h"
 #include "creature_states_pray.h"
 #include "magic.h"
+#include "config_creature.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -466,8 +467,17 @@ void get_player_number_from_value(const char* txt, char* id, char* type)
                         }
                         else
                         {
-                            *id = atoi(txt);
-                            *type = 0;
+                            idx = get_id(instance_desc, txt);
+                            if (idx != -1)
+                            {
+                                *id = idx;
+                                *type = 7;
+                            }
+                            else
+                            {
+                                *id = atoi(txt);
+                                *type = 0;
+                            }
                         }
                     }
                 }
