@@ -98,8 +98,8 @@ void message_draw(void)
                 }
                 case 2: // creature spell
                 {
-                    struct SpellConfig* spellst = get_spell_config(gameadd.messages[i].plyr_idx);
-                    spr_idx = spellst->medsym_sprite_idx;
+                    struct SpellConfig* spconf = get_spell_config(gameadd.messages[i].plyr_idx);
+                    spr_idx = spconf->medsym_sprite_idx;
                     x -= (10 * units_per_pixel / 16);
                     y -= (10 * units_per_pixel / 16);
                     break;
