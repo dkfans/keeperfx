@@ -73,6 +73,7 @@
 #include "player_states.h"
 #include "power_hand.h"
 #include "power_process.h"
+#include "room_data.h"
 #include "room_graveyard.h"
 #include "room_jobs.h"
 #include "room_library.h"
@@ -1306,7 +1307,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
     RoomKind rkind = 0;
     long i;
     TbBool allowed = true;
-    clear_messages_from_player(-45);
+    clear_messages_from_player(7, CrInst_TELEPORT);
     if (cspell->duration == spconf->duration / 2)
     {
         PlayerNumber plyr_idx = get_appropriate_player_for_creature(thing);
@@ -6189,8 +6190,8 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
     {
         creature_drop_dragged_object(creatng, droptng);
     }
-    clear_messages_from_player(-81);
-    clear_messages_from_player(-86);
+    clear_messages_from_player(3, RoK_LIBRARY);
+    clear_messages_from_player(3, RoK_WORKSHOP);
     unsigned short smpl_idx, pitch;
     if (subtile_has_water_on_top(droptng->mappos.x.stl.num, droptng->mappos.y.stl.num))
     {
@@ -6459,22 +6460,26 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
 {
     char id;
     char str[255] = {'\0'};
+    char type;
     if (thing_is_trap_crate(picktng))
     {
         struct TrapConfigStats* trapst = get_trap_model_stats(crate_thing_to_workshop_item_model(picktng));
         strcat(str, get_string(trapst->name_stridx));
-        id = -86;
+        id = RoK_WORKSHOP;
+        type = 3;
     }
     else if (thing_is_door_crate(picktng))
     {
         struct DoorConfigStats* doorst = get_door_model_stats(crate_thing_to_workshop_item_model(picktng));
         strcat(str, get_string(doorst->name_stridx));
-        id = -86;
+        id = RoK_WORKSHOP;
+        type = 3;
     }
     else if (thing_is_spellbook(picktng))
     {
         strcat(str, get_string(get_power_name_strindex(book_thing_to_power_kind(picktng))));
-        id = -81;
+        id = RoK_LIBRARY;
+        type = 3;
     }
     else if (thing_is_special_box(picktng))
     {
@@ -6504,7 +6509,8 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
             strcpy(msg_buf, str);
             snprintf(str, sizeof(str), "%s", strtok(msg_buf, ":"));
         }
-        id = -81;
+        id = RoK_LIBRARY;
+        type = 3;
     }
     else if (object_is_gold_pile(picktng))
     {
@@ -6524,17 +6530,20 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
                 sprintf(str, "%ld", picktng->creature.gold_carried);
             }
         }
-        id = -116;
+        id = 3;
+        type = 5;
     }
     else if (thing_is_creature(picktng))
     {
         id = picktng->owner;
+        type = 0;
         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[picktng->model];
         sprintf(str, "%s", get_string(crconf->namestr_idx));
     }
     else if (picktng->class_id == TCls_DeadCreature)
     {
-        id = -89;
+        id = RoK_GRAVEYARD;
+        type = 3;
         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[picktng->model];
         sprintf(str, "%s", get_string(crconf->namestr_idx));
     }
@@ -6543,7 +6552,7 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
         return;
     }
     zero_messages();
-    targeted_message_add(id, plyr_idx, timeout, str);
+    targeted_message_add(type, id, plyr_idx, timeout, str);
 }
 
 struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)

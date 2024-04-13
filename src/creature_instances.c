@@ -860,7 +860,6 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                 room = room_get(slb->room_index);
                 if (!room_is_invalid(room))
                 {
-                    char id = ((~room->kind) + 1) - 78;
                     if (room->owner != creatng->owner)
                     {
                         MapCoord coord_x = subtile_coord_center(room->central_stl_x);
@@ -873,15 +872,15 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                         }
                         if (game.active_messages_count > 0)
                         {
-                            clear_messages_from_player(id);
+                            clear_messages_from_player(3, room->kind);
                         }
-                        targeted_message_add(id, player->id_number, 50, "%d/%d", room->health, compute_room_max_health(room->slabs_count, room->efficiency));
+                        targeted_message_add(3, room->kind, player->id_number, 50, "%d/%d", room->health, compute_room_max_health(room->slabs_count, room->efficiency));
                     }
                     else
                     {
                         if (game.active_messages_count > 0)
                         {
-                            clear_messages_from_player(id);
+                            clear_messages_from_player(3, room->kind);
                         }
                     }
                 }

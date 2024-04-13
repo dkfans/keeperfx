@@ -115,7 +115,7 @@ FTestActionResult ftest_template_action002__slap_imp_to_death(struct FTestAction
     // slap hehehe
     if(game_action(PLAYER0, GA_UsePwrSlap, 0, 0, 0, vars->target_imp->index, 0) > Lb_OK)
     {
-        message_add_fmt(PLAYER0, "Slap %d", ++vars->slap_counter);
+        message_add_fmt(0, PLAYER0, "Slap %d", ++vars->slap_counter);
 
         vars->turn_delay_counter = game.play_gameturn + 20;
         return FTRs_Repeat_Current_Action;
@@ -123,7 +123,7 @@ FTestActionResult ftest_template_action002__slap_imp_to_death(struct FTestAction
 
     if (vars->target_imp->health <= 0)
     {
-        message_add_fmt(PLAYER0, "Oops...");
+        message_add_fmt(0, PLAYER0, "Oops...");
         return FTRs_Go_To_Next_Action;
     }
 

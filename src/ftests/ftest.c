@@ -445,7 +445,7 @@ FTestFrameworkState ftest_update(FTestFrameworkState* const out_prev_state)
 
         if(vars->pending_init != NULL)
         {
-            message_add_fmt(PLAYER0, "Initializing Functional Test %s", vars->pending_init->test_name);
+            message_add_fmt(0, PLAYER0, "Initializing Functional Test %s", vars->pending_init->test_name);
             FTESTLOG("Initializing Functional Test %s", vars->pending_init->test_name);
             if(vars->pending_init->init_func)
             {

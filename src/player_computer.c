@@ -1650,7 +1650,7 @@ void setup_computer_players2(void)
         setup_a_computer_player(i, skirmish_AI_type);
         if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0)
         {
-            message_add_fmt(i, "Ai model %d", skirmish_AI_type);
+            message_add_fmt(0, i, "Ai model %d", skirmish_AI_type);
         }
         if (i != game.local_plyr_idx)
         {

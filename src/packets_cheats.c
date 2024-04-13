@@ -73,8 +73,8 @@ TbBool packets_process_cheats(
         case PSt_MkDigger:
         player->render_roomspace = create_box_roomspace(player->render_roomspace, 1, 1, slb_x, slb_y);
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
-        clear_messages_from_player(player->cheatselection.chosen_player);
-        targeted_message_add(player->cheatselection.chosen_player, plyr_idx, 1, "%d", player->cheatselection.chosen_experience_level + 1);
+        clear_messages_from_player(0, player->cheatselection.chosen_player);
+        targeted_message_add(0, player->cheatselection.chosen_player, plyr_idx, 1, "%d", player->cheatselection.chosen_experience_level + 1);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (allowed)
@@ -94,7 +94,7 @@ TbBool packets_process_cheats(
         case PSt_MkGoodCreatr:
         player->render_roomspace = create_box_roomspace(player->render_roomspace, 1, 1, slb_x, slb_y);
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
-        clear_messages_from_player(player->cheatselection.chosen_player);
+        clear_messages_from_player(0, player->cheatselection.chosen_player);
         if (player->cheatselection.chosen_hero_kind == 0)
         {
             sprintf(str, "?");
@@ -104,7 +104,7 @@ TbBool packets_process_cheats(
             struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[player->cheatselection.chosen_hero_kind];
             sprintf(str, "%s %d", get_string(crconf->namestr_idx), player->cheatselection.chosen_experience_level + 1);
         }
-        targeted_message_add(player->cheatselection.chosen_player, plyr_idx, 1, "%s", str);
+        targeted_message_add(0, player->cheatselection.chosen_player, plyr_idx, 1, "%s", str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (allowed)
@@ -251,7 +251,7 @@ TbBool packets_process_cheats(
         case PSt_MkBadCreatr:
         player->render_roomspace = create_box_roomspace(player->render_roomspace, 1, 1, slb_x, slb_y);
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
-        clear_messages_from_player(player->cheatselection.chosen_player);
+        clear_messages_from_player(0, player->cheatselection.chosen_player);
         if (player->cheatselection.chosen_creature_kind == 0)
         {
             sprintf(str, "?");
@@ -261,7 +261,7 @@ TbBool packets_process_cheats(
             struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[player->cheatselection.chosen_creature_kind];
             sprintf(str, "%s %d", get_string(crconf->namestr_idx), player->cheatselection.chosen_experience_level + 1);
         }
-        targeted_message_add(player->cheatselection.chosen_player, plyr_idx, 1, "%s", str);
+        targeted_message_add(0, player->cheatselection.chosen_player, plyr_idx, 1, "%s", str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (allowed)
@@ -335,7 +335,7 @@ TbBool packets_process_cheats(
             }
             break;
         case PSt_StealRoom:
-        clear_messages_from_player(player->cheatselection.chosen_player);
+        clear_messages_from_player(0, player->cheatselection.chosen_player);
         slb = get_slabmap_block(slb_x, slb_y);
         room = room_get(slb->room_index);
         allowed = ( (room_exists(room)) && (room->owner != player->cheatselection.chosen_player) );
@@ -343,7 +343,7 @@ TbBool packets_process_cheats(
         {
             snprintf(str, sizeof(str), "%s", get_string(419));
         }
-        targeted_message_add(player->cheatselection.chosen_player, plyr_idx, 1, str);
+        targeted_message_add(0, player->cheatselection.chosen_player, plyr_idx, 1, str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (allowed)
@@ -355,13 +355,13 @@ TbBool packets_process_cheats(
         }
         break;
         case PSt_DestroyRoom:
-        clear_messages_from_player(-127);
+        clear_messages_from_player(6, -1);
         slb = get_slabmap_block(slb_x, slb_y);
         room = room_get(slb->room_index);
         allowed = (room_exists(room));
         if (allowed)
         {
-            targeted_message_add(-127, plyr_idx, 1, get_string(419));
+            targeted_message_add(6, 0, plyr_idx, 1, get_string(419));
         }
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
@@ -392,8 +392,8 @@ TbBool packets_process_cheats(
             }
             break;
         case PSt_ConvertCreatr:
-        clear_messages_from_player(player->cheatselection.chosen_player);
-        targeted_message_add(player->cheatselection.chosen_player, plyr_idx, 1, str);
+        clear_messages_from_player(0, player->cheatselection.chosen_player);
+        targeted_message_add(0, player->cheatselection.chosen_player, plyr_idx, 1, str);
         thing = get_creature_near(x, y);
         if ((!thing_is_creature(thing)) || (thing->owner == player->cheatselection.chosen_player))
         {
@@ -412,8 +412,8 @@ TbBool packets_process_cheats(
         case PSt_StealSlab:
         player->render_roomspace = create_box_roomspace(player->render_roomspace, 1, 1, slb_x, slb_y);
         allowed = tag_cursor_blocks_steal_slab(plyr_idx, stl_x, stl_y);
-        clear_messages_from_player(player->cheatselection.chosen_player);
-        targeted_message_add(player->cheatselection.chosen_player, plyr_idx, 1, str);
+        clear_messages_from_player(0, player->cheatselection.chosen_player);
+        targeted_message_add(0, player->cheatselection.chosen_player, plyr_idx, 1, str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (allowed)
@@ -519,11 +519,11 @@ TbBool packets_process_cheats(
             }
             break;
         case PSt_KillPlayer:
-          clear_messages_from_player(player->cheatselection.chosen_player);
+          clear_messages_from_player(0, player->cheatselection.chosen_player);
           struct PlayerInfo* PlayerToKill = get_player(player->cheatselection.chosen_player);
           if (player_exists(PlayerToKill))
           {
-              targeted_message_add(player->cheatselection.chosen_player, plyr_idx, 1, str);
+              targeted_message_add(0, player->cheatselection.chosen_player, plyr_idx, 1, str);
               if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
               {
                 set_packet_action(pckt, PckA_CheatKillPlayer, PlayerToKill->id_number, 0, 0, 0);
@@ -532,12 +532,12 @@ TbBool packets_process_cheats(
           }
         break;
         case PSt_HeartHealth:
-        clear_messages_from_player(player->cheatselection.chosen_player);
+        clear_messages_from_player(0, player->cheatselection.chosen_player);
         thing = get_player_soul_container(player->cheatselection.chosen_player);
         struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
         if (!thing_is_invalid(thing))
         {
-            targeted_message_add(thing->owner, plyr_idx, 1, "%d/%d", thing->health, objst->health);
+            targeted_message_add(0, thing->owner, plyr_idx, 1, "%d/%d", thing->health, objst->health);
         }
         else
         {
@@ -654,7 +654,7 @@ TbBool packets_process_cheats(
             player->render_roomspace = create_box_roomspace(player->render_roomspace, 1, 1, slb_x, slb_y);
             tag_cursor_blocks_place_terrain(plyr_idx, stl_x, stl_y);
             struct SlabConfigStats* slab_cfgstats;
-            clear_messages_from_player(player->cheatselection.chosen_player);
+            clear_messages_from_player(0, player->cheatselection.chosen_player);
             struct SlabAttr *slbattr = get_slab_kind_attrs(player->cheatselection.chosen_terrain_kind);
             if (slab_kind_has_no_ownership(player->cheatselection.chosen_terrain_kind))
             {
@@ -670,15 +670,15 @@ TbBool packets_process_cheats(
                     dis_msg = malloc(strlen(str) + 1);
                     strcpy(dis_msg, str);
                 }
-                targeted_message_add(player->cheatselection.chosen_player, plyr_idx, 1, dis_msg);
+                targeted_message_add(0, player->cheatselection.chosen_player, plyr_idx, 1, dis_msg);
                 free(dis_msg);
             }
             else
             {
                 slab_cfgstats = get_slab_kind_stats(player->cheatselection.chosen_terrain_kind);
-                targeted_message_add(player->cheatselection.chosen_player, plyr_idx, 1, slab_cfgstats->code_name);
+                targeted_message_add(0, player->cheatselection.chosen_player, plyr_idx, 1, slab_cfgstats->code_name);
             }
-            clear_messages_from_player(-127);
+            clear_messages_from_player(6, -1);
             if (is_key_pressed(KC_RSHIFT, KMod_DONTCARE))
             {
                 terrain_details ^= 1;
@@ -688,7 +688,7 @@ TbBool packets_process_cheats(
             {
                 slb = get_slabmap_block(slb_x, slb_y);
                 slab_cfgstats = get_slab_kind_stats(slb->kind);
-                targeted_message_add(-127, plyr_idx, 1, "%s (%d) %d %d (%d) %d %d (%d)", slab_cfgstats->code_name, slabmap_owner(slb), slb_x, slb_y, get_slab_number(slb_x, slb_y), stl_x, stl_y, get_subtile_number(stl_x, stl_y));
+                targeted_message_add(6, 0, plyr_idx, 1, "%s (%d) %d %d (%d) %d %d (%d)", slab_cfgstats->code_name, slabmap_owner(slb), slb_x, slb_y, get_slab_number(slb_x, slb_y), stl_x, stl_y, get_subtile_number(stl_x, stl_y));
             }
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {
@@ -816,7 +816,7 @@ TbBool process_players_global_cheats_packet_action(PlayerNumber plyr_idx, struct
             player->cheatselection.chosen_terrain_kind = pckt->actn_par1;
             if (slab_kind_has_no_ownership(player->cheatselection.chosen_terrain_kind))
             {
-               clear_messages_from_player(player->cheatselection.chosen_player);
+               clear_messages_from_player(0, player->cheatselection.chosen_player);
                player->cheatselection.chosen_player = game.neutral_player_num;
             }
             return false;
@@ -824,7 +824,7 @@ TbBool process_players_global_cheats_packet_action(PlayerNumber plyr_idx, struct
       case PckA_CheatSwitchPlayer:
         {
             struct PlayerInfo* player = get_player(plyr_idx);
-            clear_messages_from_player(player->cheatselection.chosen_player);
+            clear_messages_from_player(0, player->cheatselection.chosen_player);
             player->cheatselection.chosen_player = pckt->actn_par1;
             return false;
         }
