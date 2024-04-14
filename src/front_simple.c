@@ -19,6 +19,8 @@
 #include "pre_inc.h"
 #include "front_simple.h"
 
+#include <math.h>
+
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_memory.h"
@@ -44,53 +46,68 @@ extern "C" {
 #endif
 /******************************************************************************/
 #ifdef SPRITE_FORMAT_V2
+
+// Format: <name> <width> <height> <bits per pixel> <file load location> <raw file> <palette file>
 struct RawBitmap bitmaps_1280[] = {
-  {"Empty Image",    1280, 960, 8, FGrp_Main,     NULL,               NULL},
-  {"Loading Image",  1280, 960, 8, FGrp_StdData,  "loading-128.raw",  "loading-128.pal",},
-  {"NoCD Image",      320, 200, 8, FGrp_StdData,  "nocd-32.raw",      "nocd-32.pal",},
-  {"DK Legal Splash",1280, 960, 8, FGrp_StdData,  "legal-128.raw",    "legal-128.pal",},
-  {"KeeperFX Splash",1280, 960, 8, FGrp_StdData,  "startfx-128.raw",  "startfx-128.pal",},
+  {"Empty Image",                   1280,  960, 8, FGrp_Main,    NULL,                   NULL},
+  {"Loading Image",                 1280,  960, 8, FGrp_StdData, "loading-128.raw",      "loading-128.pal",},
+  {"NoCD Image",                     320,  200, 8, FGrp_StdData, "nocd-32.raw",          "nocd-32.pal",},
+  {"DK Legal Splash",               1280,  960, 8, FGrp_StdData, "legal-128.raw",        "legal-128.pal",},
+  {"KeeperFX Splash",               1280,  960, 8, FGrp_StdData, "startfx-128.raw",      "startfx-128.pal",},
+  {"DK Legal Splash (Wide Screen)", 1920, 1080, 8, FGrp_StdData, "legal-1080p-wide.raw", "legal-1080p-wide.pal",},
 };
 
+// Format: <name> <width> <height> <bits per pixel> <file load location> <raw file> <palette file>
 struct RawBitmap bitmaps_640[] = {
-  {"Empty Image",     640, 480, 8, FGrp_Main,     NULL,               NULL},
-  {"Loading Image",   640, 480, 8, FGrp_StdData,  "loading-64.raw",   "loading-64.pal",},
-  {"NoCD Image",      320, 200, 8, FGrp_StdData,  "nocd-32.raw",      "nocd-32.pal",},
-  {"DK Legal Splash", 640, 480, 8, FGrp_StdData,  "legal-64.raw",     "legal-64.pal",},
-  {"KeeperFX Splash", 640, 480, 8, FGrp_StdData,  "startfx-64.raw",   "startfx-64.pal",},
+  {"Empty Image",                    640, 480, 8, FGrp_Main,    NULL,                  NULL},
+  {"Loading Image",                  640, 480, 8, FGrp_StdData, "loading-64.raw",      "loading-64.pal",},
+  {"NoCD Image",                     320, 200, 8, FGrp_StdData, "nocd-32.raw",         "nocd-32.pal",},
+  {"DK Legal Splash",                640, 480, 8, FGrp_StdData, "legal-64.raw",        "legal-64.pal",},
+  {"KeeperFX Splash",                640, 480, 8, FGrp_StdData, "startfx-64.raw",      "startfx-64.pal",},
+  {"DK Legal Splash (Wide Screen)", 1280, 720, 8, FGrp_StdData, "legal-720p-wide.raw", "legal-720p-wide.pal",},
 };
 
+// Format: <name> <width> <height> <bits per pixel> <file load location> <raw file> <palette file>
 struct RawBitmap bitmaps_320[] = {
-  {"Empty Image",     320, 200, 8, FGrp_Main,     NULL,               NULL},
-  {"Loading Image",   320, 200, 8, FGrp_StdData,  "loading-32.raw",   "loading-32.pal",},
-  {"NoCD Image",      320, 200, 8, FGrp_StdData,  "nocd-32.raw",      "nocd-32.pal",},
-  {"DK Legal Splash", 320, 200, 8, FGrp_StdData,  "legal-32.raw",     "legal-32.pal",},
-  {"KeeperFX Splash", 320, 200, 8, FGrp_StdData,  "startfx-32.raw",   "startfx-32.pal",},
+  {"Empty Image",                    320, 200, 8, FGrp_Main,    NULL,                  NULL},
+  {"Loading Image",                  320, 200, 8, FGrp_StdData, "loading-32.raw",      "loading-32.pal",},
+  {"NoCD Image",                     320, 200, 8, FGrp_StdData, "nocd-32.raw",         "nocd-32.pal",},
+  {"DK Legal Splash",                320, 200, 8, FGrp_StdData, "legal-32.raw",        "legal-32.pal",},
+  {"KeeperFX Splash",                320, 200, 8, FGrp_StdData, "startfx-32.raw",      "startfx-32.pal",},
+  {"DK Legal Splash (Wide Screen)", 1280, 720, 8, FGrp_StdData, "legal-720p-wide.raw", "legal-720p-wide.pal",},
 };
 #else
+
+// Format: <name> <width> <height> <bits per pixel> <file load location> <raw file> <palette file>
 struct RawBitmap bitmaps_1280[] = {
-  {"Empty Image",     640, 480, 8, FGrp_Main,     NULL,               NULL},
-  {"Loading Image",   640, 480, 8, FGrp_StdData,  "loading64.raw",    "loading64.pal",},
-  {"NoCD Image",      320, 200, 8, FGrp_StdData,  "nocd.raw",         "nocd.pal",},
-  {"DK Legal Splash", 640, 480, 8, FGrp_StdData,  "legal64.raw",      "legal64.pal",},
-  {"KeeperFX Splash", 640, 480, 8, FGrp_StdData,  "startfx64.raw",    "startfx64.pal",},
+  {"Empty Image",                    640,  480, 8, FGrp_Main,    NULL,                   NULL},
+  {"Loading Image",                  640,  480, 8, FGrp_StdData, "loading64.raw",        "loading64.pal",},
+  {"NoCD Image",                     320,  200, 8, FGrp_StdData, "nocd.raw",             "nocd.pal",},
+  {"DK Legal Splash",                640,  480, 8, FGrp_StdData, "legal64.raw",          "legal64.pal",},
+  {"KeeperFX Splash",                640,  480, 8, FGrp_StdData, "startfx64.raw",        "startfx64.pal",},
+  {"DK Legal Splash (Wide Screen)", 1920, 1080, 8, FGrp_StdData, "legal-1080p-wide.raw", "legal-1080p-wide.pal",},
 };
 
+// Format: <name> <width> <height> <bits per pixel> <file load location> <raw file> <palette file>
 struct RawBitmap bitmaps_640[] = {
-  {"Empty Image",     640, 480, 8, FGrp_Main,     NULL,               NULL},
-  {"Loading Image",   640, 480, 8, FGrp_StdData,  "loading64.raw",    "loading64.pal",},
-  {"NoCD Image",      320, 200, 8, FGrp_StdData,  "nocd.raw",         "nocd.pal",},
-  {"DK Legal Splash", 640, 480, 8, FGrp_StdData,  "legal64.raw",      "legal64.pal",},
-  {"KeeperFX Splash", 640, 480, 8, FGrp_StdData,  "startfx64.raw",    "startfx64.pal",},
+  {"Empty Image",                    640, 480, 8, FGrp_Main,    NULL,                  NULL},
+  {"Loading Image",                  640, 480, 8, FGrp_StdData, "loading64.raw",       "loading64.pal",},
+  {"NoCD Image",                     320, 200, 8, FGrp_StdData, "nocd.raw",            "nocd.pal",},
+  {"DK Legal Splash",                640, 480, 8, FGrp_StdData, "legal64.raw",         "legal64.pal",},
+  {"KeeperFX Splash",                640, 480, 8, FGrp_StdData, "startfx64.raw",       "startfx64.pal",},
+  {"DK Legal Splash (Wide Screen)", 1280, 720, 8, FGrp_StdData, "legal-720p-wide.raw", "legal-720p-wide.pal",},
 };
 
+// Format: <name> <width> <height> <bits per pixel> <file load location> <raw file> <palette file>
 struct RawBitmap bitmaps_320[] = {
-  {"Empty Image",     320, 200, 8, FGrp_Main,     NULL,               NULL},
-  {"Loading Image",   320, 200, 8, FGrp_StdData,  "loading32.raw",    "loading32.pal",},
-  {"NoCD Image",      320, 200, 8, FGrp_StdData,  "nocd.raw",         "nocd.pal",},
-  {"DK Legal Splash", 320, 200, 8, FGrp_StdData,  "legal32.raw",      "legal32.pal",},
-  {"KeeperFX Splash", 320, 200, 8, FGrp_StdData,  "startfx32.raw",    "startfx32.pal",},
+  {"Empty Image",                    320, 200, 8, FGrp_Main,    NULL,                  NULL},
+  {"Loading Image",                  320, 200, 8, FGrp_StdData, "loading32.raw",       "loading32.pal",},
+  {"NoCD Image",                     320, 200, 8, FGrp_StdData, "nocd.raw",            "nocd.pal",},
+  {"DK Legal Splash",                320, 200, 8, FGrp_StdData, "legal32.raw",         "legal32.pal",},
+  {"KeeperFX Splash",                320, 200, 8, FGrp_StdData, "startfx32.raw",       "startfx32.pal",},
+  {"DK Legal Splash (Wide Screen)", 1280, 720, 8, FGrp_StdData, "legal-720p-wide.raw", "legal-720p-wide.pal",},
 };
+
 #endif
 struct ActiveBitmap astd_bmp;
 struct ActiveBitmap nocd_bmp;
@@ -103,6 +120,7 @@ unsigned char palette_buf[PALETTE_SIZE];
 }
 #endif
 /******************************************************************************/
+
 /** Copies the given RAW image at given point of screen buffer.
  *
  * @param dst_buf Destination screen buffer.
@@ -177,34 +195,65 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
 }
 
 /**
- * Copies the given RAW image at center of screen buffer and swaps video
+ * Copies the given RAW image to the center of the screen buffer and swaps video
  * buffers to make the image visible.
- * @return Returns true on success.
+ * 
+ * This function will also scale the image while maintaing its aspect ratio.
+ * 
+ * @param buf Pointer to the RAW image data.
+ * @param img_width Width of the RAW image.
+ * @param img_height Height of the RAW image.
+ * 
+ * @return Returns true if the operation succeeds.
  */
-TbBool copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_width,const int img_height)
+TbBool copy_raw8_image_to_screen_center(const unsigned char *buf, const int img_width, const int img_height)
 {
     // Only 8bpp supported for now
     if (LbGraphicsScreenBPP() != 8)
         return false;
-    // Compute scaling ratio
-    int units_per_px;
-    {
-        int width = LbScreenWidth();
-        int height = LbScreenHeight();
-        units_per_px = (width>height?width:height)/((img_width>img_height?img_width:img_height)/16);
-    }
-    SYNCDBG(18,"Starting; src %d,%d scale %d",(int)img_width,(int)img_height,(int)units_per_px);
-    // Locking screen
+
+    // Get screen dimensions
+    int screen_width = LbScreenWidth();
+    int screen_height = LbScreenHeight();
+
+    // Get the scaling ratios
+    float width_ratio = (float)screen_width / (float)img_width;
+    float height_ratio = (float)screen_height / (float)img_height;
+
+    // Choose the smaller ratio to maintain the aspect ratio and fit the entire image
+    float ratio = width_ratio < height_ratio ? width_ratio : height_ratio;
+
+    // Calculate the scaled dimensions and round up
+    int scaled_width = ceil(img_width * ratio);
+    int scaled_height = ceil(img_height * ratio);
+
+    // Calculate starting point coordinates to center the image
+    int coord_x = (screen_width - scaled_width) >> 1;
+    int coord_y = (screen_height - scaled_height) >> 1;
+
+    // Debuglog
+    SYNCDBG(18, "Starting; src %d,%d dest %d,%d pos %d,%d",
+        (int)img_width, (int)img_height,
+        (int)scaled_width,  (int)scaled_height,
+        (int)coord_x,  (int)coord_y);
+
+    // Lock the screen
     if (LbScreenLock() != Lb_SUCCESS)
-      return false;
-    // Starting point coords
-    int spx = (LbScreenWidth() - img_width * units_per_px / 16) >> 1;
-    int spy = (LbScreenHeight() - img_height * units_per_px / 16) >> 1;
-    copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
-        img_width*units_per_px/16,img_height*units_per_px/16,spx,spy,buf,img_width,img_height);
+        return false;
+
+    // Copy image buffer to screen buffer
+    copy_raw8_image_buffer(lbDisplay.WScreen, LbGraphicsScreenWidth(), LbGraphicsScreenHeight(),
+                           scaled_width, scaled_height, coord_x, coord_y, buf, img_width, img_height);
+
+    // Perform any screen capturing
     perform_any_screen_capturing();
+
+    // Unlock the screen
     LbScreenUnlock();
+
+    // Swap video buffers to make the image visible
     LbScreenSwap();
+
     return true;
 }
 
@@ -265,14 +314,15 @@ short free_bitmap_screen(struct ActiveBitmap *actv_bmp)
 TbBool init_bitmap_screen(struct ActiveBitmap *actv_bmp,int stype)
 {
   struct RawBitmap *rbmp;
-  // Set startup parameters
+
+  // Decide best image to show based on the width of the screen
   if (LbGraphicsScreenWidth() >= 1280)
     rbmp = &bitmaps_1280[stype];
-  else
-  if (LbGraphicsScreenWidth() >= 640)
+  else if (LbGraphicsScreenWidth() >= 640)
     rbmp = &bitmaps_640[stype];
   else
     rbmp = &bitmaps_320[stype];
+
   clear_bitmap_screen(actv_bmp);
   actv_bmp->name = rbmp->name;
   actv_bmp->width = rbmp->width;

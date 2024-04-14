@@ -35,6 +35,7 @@ enum RawBitmaps {
     RBmp_WaitNoCD           =  0x02,
     RBmp_SplashLegal        =  0x03,
     RBmp_SplashFx           =  0x04,
+    RBmp_SplashLegalWide    =  0x05,
 };
 
 struct RawBitmap {

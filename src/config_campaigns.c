@@ -726,6 +726,10 @@ short parse_campaign_strings_blocks(struct GameCampaign *campgn,char *buf,long l
   {
       // Finding command number in this line
       int cmd_num = recognize_conf_command(buf, &pos, len, lang_type);
+      if (n == 0)
+      {
+          campgn->default_language = (cmd_num >= 0) ? cmd_num : 0;
+      }
       // Now store the config item in correct place
       if (cmd_num == -3) break; // if next block starts
       if (cmd_num <= 0)

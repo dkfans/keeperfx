@@ -50,6 +50,7 @@ enum MapLocationTypes {
 enum MetaLocation {
   MML_LAST_EVENT = 1,
   MML_RECENT_COMBAT,
+  MML_ACTIVE_CTA,
 };
 
 /******************************************************************************/
