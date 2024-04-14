@@ -597,7 +597,7 @@ int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,lon
       break;
     dst[i]=buf[*pos];
     (*pos)++;
-    if ((*pos) >= buflen) break;
+    if ((*pos) > buflen) break;
   }
   dst[i]='\0';
   return i;
