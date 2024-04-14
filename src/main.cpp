@@ -329,14 +329,15 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
     }
     struct Thing *shotng;
     shotng = (struct Thing *)param->ptr3;
+    struct ShotConfigStats *shotst = get_shot_model_stats(shotng->model);
     if ((thing->index == shotng->index) || (thing->index == shotng->parent_idx)) {
         return TUFRet_Unchanged;
     }
     struct CreatureControl* cctrl;
     // param->num1 = 2048 from affect_nearby_enemy_creatures_with_wind
     long blow_distance = param->num1;
-    // default distance? of the wind Spell
-    int stdtdistance = 6169;
+    // calculate max distance
+    int maxdistance = shotst->health * shotst->speed;
     MapCoordDelta creature_distance;
     creature_distance = LONG_MAX;
     TbBool apply_velocity;
@@ -357,7 +358,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
             if (game.conf.rules.magic.weight_calculate_push == 1){
                 long weight = compute_creature_weight(thing);
                 //max push distance
-                blow_distance = stdtdistance - (stdtdistance - weight_calculated_push_strenght(weight, stdtdistance)); 
+                blow_distance = maxdistance - (maxdistance - weight_calculated_push_strenght(weight, maxdistance)); 
                 // distance between startposition and actuelly poistion of the projectile
                 int origin_distance = get_chessboard_distance(&shotng->shot.originpos, &thing->mappos) + 1;
                 creature_distance = origin_distance;
@@ -401,10 +402,9 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
     {
         if (!thing_is_picked_up(thing))
         {
-            struct ShotConfigStats *shotst;
-            shotst = get_shot_model_stats(thing->model);
+            struct ShotConfigStats *thingshotst = get_shot_model_stats(shotng->model);
             creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
-            if ((creature_distance < blow_distance) && !shotst->wind_immune)
+            if ((creature_distance < blow_distance) && !thingshotst->wind_immune)
             {
                 apply_velocity = true;
             }

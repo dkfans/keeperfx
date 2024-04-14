@@ -144,8 +144,6 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
     }
     if (destroy)
     {
-        if(shotst->update_logic == ShUL_Wind){
-        }
          delete_thing_structure(shotng, 0);
     }
     return true;
