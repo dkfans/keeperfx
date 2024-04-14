@@ -6191,8 +6191,8 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
     {
         creature_drop_dragged_object(creatng, droptng);
     }
-    clear_messages_from_player(3, RoK_LIBRARY);
-    clear_messages_from_player(3, RoK_WORKSHOP);
+    clear_messages_from_player(MsgType_Room, RoK_LIBRARY);
+    clear_messages_from_player(MsgType_Room, RoK_WORKSHOP);
     unsigned short smpl_idx, pitch;
     if (subtile_has_water_on_top(droptng->mappos.x.stl.num, droptng->mappos.y.stl.num))
     {
@@ -6467,20 +6467,20 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
         struct TrapConfigStats* trapst = get_trap_model_stats(crate_thing_to_workshop_item_model(picktng));
         strcat(str, get_string(trapst->name_stridx));
         id = RoK_WORKSHOP;
-        type = 3;
+        type = MsgType_Room;
     }
     else if (thing_is_door_crate(picktng))
     {
         struct DoorConfigStats* doorst = get_door_model_stats(crate_thing_to_workshop_item_model(picktng));
         strcat(str, get_string(doorst->name_stridx));
         id = RoK_WORKSHOP;
-        type = 3;
+        type = MsgType_Room;
     }
     else if (thing_is_spellbook(picktng))
     {
         strcat(str, get_string(get_power_name_strindex(book_thing_to_power_kind(picktng))));
         id = RoK_LIBRARY;
-        type = 3;
+        type = MsgType_Room;
     }
     else if (thing_is_special_box(picktng))
     {
@@ -6511,7 +6511,7 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
             snprintf(str, sizeof(str), "%s", strtok(msg_buf, ":"));
         }
         id = RoK_LIBRARY;
-        type = 3;
+        type = MsgType_Room;
     }
     else if (object_is_gold_pile(picktng))
     {
@@ -6532,19 +6532,19 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
             }
         }
         id = 3;
-        type = 5;
+        type = MsgType_Query;
     }
     else if (thing_is_creature(picktng))
     {
         id = picktng->owner;
-        type = 0;
+        type = MsgType_Player;
         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[picktng->model];
         sprintf(str, "%s", get_string(crconf->namestr_idx));
     }
     else if (picktng->class_id == TCls_DeadCreature)
     {
         id = RoK_GRAVEYARD;
-        type = 3;
+        type = MsgType_Room;
         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[picktng->model];
         sprintf(str, "%s", get_string(crconf->namestr_idx));
     }

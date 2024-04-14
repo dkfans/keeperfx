@@ -655,7 +655,7 @@ TbBool packets_process_cheats(
             player->render_roomspace = create_box_roomspace(player->render_roomspace, 1, 1, slb_x, slb_y);
             tag_cursor_blocks_place_terrain(plyr_idx, stl_x, stl_y);
             struct SlabConfigStats* slab_cfgstats;
-            clear_messages_from_player(0, player->cheatselection.chosen_player);
+            clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
             struct SlabAttr *slbattr = get_slab_kind_attrs(player->cheatselection.chosen_terrain_kind);
             if (slab_kind_has_no_ownership(player->cheatselection.chosen_terrain_kind))
             {
@@ -817,7 +817,7 @@ TbBool process_players_global_cheats_packet_action(PlayerNumber plyr_idx, struct
             player->cheatselection.chosen_terrain_kind = pckt->actn_par1;
             if (slab_kind_has_no_ownership(player->cheatselection.chosen_terrain_kind))
             {
-               clear_messages_from_player(0, player->cheatselection.chosen_player);
+               clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
                player->cheatselection.chosen_player = game.neutral_player_num;
             }
             return false;
@@ -825,7 +825,7 @@ TbBool process_players_global_cheats_packet_action(PlayerNumber plyr_idx, struct
       case PckA_CheatSwitchPlayer:
         {
             struct PlayerInfo* player = get_player(plyr_idx);
-            clear_messages_from_player(0, player->cheatselection.chosen_player);
+            clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
             player->cheatselection.chosen_player = pckt->actn_par1;
             return false;
         }
