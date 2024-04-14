@@ -66,7 +66,7 @@ void message_add(char type, PlayerNumber plyr_idx, const char *text);
 void message_add_fmt(char type, PlayerNumber plyr_idx, const char *fmt_str, ...);
 void show_game_time_taken(unsigned long fps, unsigned long turns);
 void show_real_time_taken(void);
-void clear_messages_from_player(char type, char plyr_idx);
+void clear_messages_from_player(char type, PlayerNumber plyr_idx);
 void delete_message(unsigned char msg_idx);
 void targeted_message_add(char type, PlayerNumber plyr_idx, PlayerNumber target_idx, unsigned long timeout, const char *fmt_str, ...);
 /******************************************************************************/

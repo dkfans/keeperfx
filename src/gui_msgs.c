@@ -221,11 +221,11 @@ void zero_messages(void)
     }
 }
 
-void clear_messages_from_player(char type, char plyr_idx)
+void clear_messages_from_player(char type, PlayerNumber plyr_idx)
 {
     for (int i = 0; i < game.active_messages_count; i++)
     {
-        if ( (gameadd.messages[i].type == type) || (type == -1) )
+        if (gameadd.messages[i].type == type)
         {
             if ( (gameadd.messages[i].plyr_idx == plyr_idx) || (plyr_idx == -1) )
             {
