@@ -72,7 +72,7 @@ void message_draw(void)
             PlayerNumber plyr_idx = gameadd.messages[i].plyr_idx;
             switch (gameadd.messages[i].type)
             {
-                case 0: // player
+                case MsgType_Player:
                 {
                     if (gameadd.messages[i].plyr_idx == game.hero_player_num)
                     {
@@ -89,14 +89,14 @@ void message_draw(void)
                     }
                     break;
                 }
-                case 1: // creature
+                case MsgType_Creature:
                 {
                     spr_idx = get_creature_model_graphics(gameadd.messages[i].plyr_idx, CGI_HandSymbol);
                     x -= (7 * units_per_pixel / 16);
                     y -= (20 * units_per_pixel / 16);
                     break;
                 }
-                case 2: // creature spell
+                case MsgType_CreatureSpell:
                 {
                     struct SpellConfig* spconf = get_spell_config(gameadd.messages[i].plyr_idx);
                     spr_idx = spconf->medsym_sprite_idx;
@@ -104,7 +104,7 @@ void message_draw(void)
                     y -= (10 * units_per_pixel / 16);
                     break;
                 }
-                case 3: // room
+                case MsgType_Room:
                 {
                     const struct RoomConfigStats* roomst = get_room_kind_stats(gameadd.messages[i].plyr_idx);
                     spr_idx = roomst->medsym_sprite_idx;
@@ -112,7 +112,7 @@ void message_draw(void)
                     y -= (10 * units_per_pixel / 16);
                     break;
                 }
-                case 4: // Keeper spell
+                case MsgType_KeeperSpell:
                 {
                     struct PowerConfigStats* powerst = get_power_model_stats(gameadd.messages[i].plyr_idx);
                     spr_idx = powerst->medsym_sprite_idx;
@@ -120,18 +120,18 @@ void message_draw(void)
                     y -= (10 * units_per_pixel / 16);
                     break;
                 }
-                case 5: // query
+                case MsgType_Query:
                 {
                     spr_idx = (gameadd.messages[i].plyr_idx + GPS_plyrsym_symbol_room_yellow_std_a);
                     x -= (10 * units_per_pixel / 16);
                     y -= (10 * units_per_pixel / 16);
                     break;
                 }
-                case 6: // none
+                case MsgType_Blank:
                 {
                     break;
                 }
-                case 7: // creature instance
+                case MsgType_CreatureInstance:
                 {
                     struct InstanceInfo* inst_inf = creature_instance_info_get(gameadd.messages[i].plyr_idx);
                     spr_idx = inst_inf->symbol_spridx;
@@ -147,22 +147,22 @@ void message_draw(void)
             }
             switch (gameadd.messages[i].type)
             {
-                case 0:
+                case MsgType_Player:
                 {
                     draw_gui_panel_sprite_left_player(x, y, ps_units_per_px, spr_idx, plyr_idx);
                     break;
                 }
-                case 1:
+                case MsgType_Creature:
                 {
                     spr = &gui_panel_sprites[spr_idx];
                     LbSpriteDrawResized(x, y, ps_units_per_px, spr);
                     break;
                 }
-                case 2:
-                case 3:
-                case 4:
-                case 5:
-                case 7:
+                case MsgType_CreatureSpell:
+                case MsgType_Room:
+                case MsgType_KeeperSpell:
+                case MsgType_Query:
+                case MsgType_CreatureInstance:
                 {
                     spr = &gui_panel_sprites[spr_idx];
                     LbSpriteDrawResized(x, y, ps_units_per_px, spr);
@@ -172,20 +172,20 @@ void message_draw(void)
             y += (h*units_per_pixel/16) << (unsigned char)low_res;
             switch (gameadd.messages[i].type)
             {
-                case 0:
+                case MsgType_Player:
                 {
                     break;
                 }
-                case 1:
+                case MsgType_Creature:
                 {
                     y += (20 * units_per_pixel / 16) << (unsigned char)low_res;
                     break;
                 }
-                case 2:
-                case 3:
-                case 4:
-                case 5:
-                case 7:
+                case MsgType_CreatureSpell:
+                case MsgType_Room:
+                case MsgType_KeeperSpell:
+                case MsgType_Query:
+                case MsgType_CreatureInstance:
                 {
                     y += (10 * units_per_pixel / 16) << (unsigned char)low_res;
                     break;

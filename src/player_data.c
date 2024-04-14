@@ -32,6 +32,7 @@
 #include "frontend.h"
 #include "thing_objects.h"
 #include "power_hand.h"
+#include "gui_msgs.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -337,12 +338,12 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
       player->chosen_door_kind = chosen_kind;
       break;
   case PSt_MkGoodCreatr:
-      clear_messages_from_player(0, player->cheatselection.chosen_player);
+      clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
         player->cheatselection.chosen_player = game.hero_player_num;
         break;
     case PSt_MkBadCreatr:
     case PSt_MkDigger:
-    clear_messages_from_player(0, player->cheatselection.chosen_player);
+    clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
         player->cheatselection.chosen_player = player->id_number;
         break;
   default:

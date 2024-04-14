@@ -61,6 +61,7 @@
 #include "frontmenu_ingame_tabs.h"
 #include "game_legacy.h"
 #include "gui_frontmenu.h"
+#include "gui_msgs.h"
 #include "gui_soundmsgs.h"
 #include "gui_topmsg.h"
 #include "kjm_input.h"
@@ -1307,7 +1308,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
     RoomKind rkind = 0;
     long i;
     TbBool allowed = true;
-    clear_messages_from_player(7, CrInst_TELEPORT);
+    clear_messages_from_player(MsgType_CreatureInstance, CrInst_TELEPORT);
     if (cspell->duration == spconf->duration / 2)
     {
         PlayerNumber plyr_idx = get_appropriate_player_for_creature(thing);

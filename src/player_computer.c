@@ -47,6 +47,7 @@
 #include "game_legacy.h"
 #include "game_merge.h"
 #include "keeperfx.hpp"
+#include "gui_msgs.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -1650,7 +1651,7 @@ void setup_computer_players2(void)
         setup_a_computer_player(i, skirmish_AI_type);
         if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0)
         {
-            message_add_fmt(0, i, "Ai model %d", skirmish_AI_type);
+            message_add_fmt(MsgType_Player, i, "Ai model %d", skirmish_AI_type);
         }
         if (i != game.local_plyr_idx)
         {

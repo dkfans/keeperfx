@@ -25,6 +25,7 @@
 #include "creature_states_pray.h"
 #include "magic.h"
 #include "config_creature.h"
+#include "gui_msgs.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -363,67 +364,67 @@ void get_player_number_from_value(const char* txt, char* id, char* type)
     if (strcasecmp(txt, "None") == 0)
     {
         *id = 0;
-        *type = 6;
+        *type = MsgType_Blank;
         return;
     }
     else if (strcasecmp(txt, "Kills") == 0)
     {
         *id = 1;
-        *type = 5;
+        *type = MsgType_Query;
         return;
     }
     else if (strcasecmp(txt, "Strength") == 0)
     {
         *id = 2;
-        *type = 5;
+        *type = MsgType_Query;
         return;
     }
     else if (strcasecmp(txt, "Gold") == 0)
     {
         *id = 3;
-        *type = 5;
+        *type = MsgType_Query;
         return;
     }
     else if (strcasecmp(txt, "Wage") == 0)
     {
         *id = 4;
-        *type = 5;
+        *type = MsgType_Query;
         return;
     }
     else if (strcasecmp(txt, "Armour") == 0)
     {
         *id = 5;
-        *type = 5;
+        *type = MsgType_Query;
         return;
     }
     else if (strcasecmp(txt, "Time") == 0)
     {
         *id = 6;
-        *type = 5;
+        *type = MsgType_Query;
         return;
     }
     else if (strcasecmp(txt, "Dexterity") == 0)
     {
         *id = 7;
-        *type = 5;
+        *type = MsgType_Query;
         return;
     }
     else if (strcasecmp(txt, "Defence") == 0)
     {
         *id = 8;
-        *type = 5;
+        *type = MsgType_Query;
         return;
     }
     else if (strcasecmp(txt, "Luck") == 0)
     {
         *id = 9;
-        *type = 5;
+        *type = MsgType_Query;
         return;
     }
     else if (strcasecmp(txt, "Blood") == 0)
     {
         *id = 10;
-        *type = 5;
+        *type = MsgType_Query;
         return;
     }
     else
@@ -439,7 +440,7 @@ void get_player_number_from_value(const char* txt, char* id, char* type)
             if (idx != -1)
             {
                 *id = idx;
-                *type = 1;
+                *type = MsgType_Creature;
             }
             else
             {
@@ -447,7 +448,7 @@ void get_player_number_from_value(const char* txt, char* id, char* type)
                 if (idx != -1)
                 {
                     *id = idx;
-                    *type = 2;
+                    *type = MsgType_CreatureSpell;
                 }
                 else
                 {
@@ -455,7 +456,7 @@ void get_player_number_from_value(const char* txt, char* id, char* type)
                     if (idx != -1)
                     {
                         *id = idx;
-                        *type = 3;
+                        *type = MsgType_Room;
                     }
                     else
                     {
@@ -463,7 +464,7 @@ void get_player_number_from_value(const char* txt, char* id, char* type)
                         if (idx != -1)
                         {
                             *id = idx;
-                            *type = 4;
+                            *type = MsgType_KeeperSpell;
                         }
                         else
                         {
@@ -471,12 +472,12 @@ void get_player_number_from_value(const char* txt, char* id, char* type)
                             if (idx != -1)
                             {
                                 *id = idx;
-                                *type = 7;
+                                *type = MsgType_CreatureInstance;
                             }
                             else
                             {
                                 *id = atoi(txt);
-                                *type = 0;
+                                *type = MsgType_Player;
                             }
                         }
                     }
@@ -487,7 +488,7 @@ void get_player_number_from_value(const char* txt, char* id, char* type)
     else
     {
         *id = idx;
-        *type = 0;
+        *type = MsgType_Player;
     }
 }
 

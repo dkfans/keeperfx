@@ -49,6 +49,7 @@
 #include "sounds.h"
 #include "game_legacy.h"
 #include "player_instances.h"
+#include "gui_msgs.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -872,15 +873,15 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                         }
                         if (game.active_messages_count > 0)
                         {
-                            clear_messages_from_player(3, room->kind);
+                            clear_messages_from_player(MsgType_Room, room->kind);
                         }
-                        targeted_message_add(3, room->kind, player->id_number, 50, "%d/%d", room->health, compute_room_max_health(room->slabs_count, room->efficiency));
+                        targeted_message_add(MsgType_Room, room->kind, player->id_number, 50, "%d/%d", room->health, compute_room_max_health(room->slabs_count, room->efficiency));
                     }
                     else
                     {
                         if (game.active_messages_count > 0)
                         {
-                            clear_messages_from_player(3, room->kind);
+                            clear_messages_from_player(MsgType_Room, room->kind);
                         }
                     }
                 }

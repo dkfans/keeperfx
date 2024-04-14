@@ -1657,9 +1657,9 @@ short get_creature_control_action_inputs(void)
         {
             if (game.active_messages_count > 0)
             {
-                clear_messages_from_player(7, CrInst_TELEPORT);
+                clear_messages_from_player(MsgType_CreatureInstance, CrInst_TELEPORT);
             }
-            message_add(7, CrInst_TELEPORT, get_string(StrID));
+            message_add(MsgType_CreatureInstance, CrInst_TELEPORT, get_string(StrID));
         }
         if (is_game_key_pressed(Gkey_CrtrContrlMod, &val, false))
         {

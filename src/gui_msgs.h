@@ -30,6 +30,17 @@ extern "C" {
 #endif
 
 /******************************************************************************/
+enum MessageTypes {
+    MsgType_Player = 0,
+    MsgType_Creature,
+    MsgType_CreatureSpell,
+    MsgType_Room,
+    MsgType_KeeperSpell,
+    MsgType_Query, //5
+    MsgType_Blank,
+    MsgType_CreatureInstance,
+};
+/******************************************************************************/
 #pragma pack(1)
 
 struct GuiMessage_OLD { // sizeof = 0x45 (69)
