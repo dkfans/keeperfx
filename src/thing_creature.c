@@ -3913,18 +3913,14 @@ TbBool thing_is_creature(const struct Thing *thing)
 {
   if (thing_is_invalid(thing))
     return false;
-  if (thing->class_id != TCls_Creature)
-    return false;
-  return true;
+  return (thing->class_id == TCls_Creature);
 }
 
 TbBool thing_is_dead_creature(const struct Thing *thing)
 {
   if (thing_is_invalid(thing))
     return false;
-  if (thing->class_id != TCls_DeadCreature)
-    return false;
-  return true;
+  return (thing->class_id == TCls_DeadCreature);
 }
 
 /** Returns if a thing is special digger creature.
@@ -3934,9 +3930,7 @@ TbBool thing_is_dead_creature(const struct Thing *thing)
  */
 TbBool thing_is_creature_special_digger(const struct Thing *thing)
 {
-  if (thing_is_invalid(thing))
-    return false;
-  if (thing->class_id != TCls_Creature)
+  if (!thing_is_creature(thing))
     return false;
   return ((get_creature_model_flags(thing) & CMF_IsSpecDigger) != 0);
 }
