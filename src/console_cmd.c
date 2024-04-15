@@ -759,12 +759,32 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             if ((pr2str != NULL) && (plyr_idx == my_player_number))
             {
+                make_uppercase(pr2str);
                 long room_id = get_id(room_desc, pr2str);
                 if (room_id != -1)
                 {
-                    go_to_my_next_room_of_type_and_select(room_id);
+                    go_to_my_next_room_of_type(room_id);
                     process_players_global_packet_action(plyr_idx); // Dirty hack
                     return true;
+                }
+                long crmodel = get_id(creature_desc, pr2str);
+                if(crmodel != -1)
+                {
+                    go_to_next_creature_of_model_and_gui_job(crmodel, CrGUIJob_Any, TPF_OrderedPick);
+                    process_players_global_packet_action(plyr_idx); // Dirty hack
+                    return true;
+                }
+                TbMapLocation loc = {0};
+                if (get_map_location_id(pr2str, &loc))
+                {
+                    player = get_player(plyr_idx);
+                    if (get_map_location_type(loc) == MLoc_METALOCATION)
+                    {
+                        long stl_x, stl_y;
+                        find_map_location_coords(loc, &stl_x, &stl_y, plyr_idx, __func__);
+                        set_players_packet_action(player, PckA_ZoomToPosition, subtile_coord_center(stl_x), subtile_coord_center(stl_y), 0, 0);
+                        process_players_global_packet_action(plyr_idx); // Dirty hack
+                    }
                 }
             }
         }
