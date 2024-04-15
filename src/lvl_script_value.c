@@ -157,7 +157,7 @@ TbResult script_use_power_on_creature_matching_criterion(PlayerNumber plyr_idx, 
  * @param fmcl_bytes encoded bytes: f=cast for free flag,m=power kind,c=caster player index,l=spell level.
  * @return TbResult whether the spell was successfully cast
  */
-TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long criteria, long fmcl_bytes)
+TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel, long criteria, long fmcl_bytes)
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
@@ -505,9 +505,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       break;
   case Cmd_ADD_CREATURE_TO_POOL:
       add_creature_to_pool(val2, val3, 0);
-      break;
-  case Cmd_RESET_ACTION_POINT:
-      action_point_reset_idx(val2);
       break;
   case Cmd_TUTORIAL_FLASH_BUTTON:
       gui_set_button_flashing(val2, val3);
@@ -941,16 +938,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           intralvl.campaign_flags[i][val4] = get_condition_value(i, val2, val3);
       }
       break;
-  case Cmd_QUICK_MESSAGE:
-  {
-      message_add_fmt(val2, "%s", gameadd.quick_messages[val3]);
-      break;
-  }
-  case Cmd_DISPLAY_MESSAGE:
-  {
-        message_add_fmt(val2, "%s", get_string(val3));
-        break;
-  }
   case Cmd_CREATURE_ENTRANCE_LEVEL:
   {
     if (val2 > 0)

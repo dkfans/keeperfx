@@ -44,6 +44,7 @@
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "cursor_tag.h"
+#include "gui_msgs.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -195,17 +196,70 @@ long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
     }
     return CTaskRet_Unk4;
 }
+// 100 percent_to_reassign = num_to_move is high and creatures are moved around more
+// 0 percent_to_reassign = num_to_move is 0 and all creatures do their default jobs
+int calculate_number_of_creatures_to_move(struct Dungeon *dungeon, int percent_to_reassign)
+{
+    int creatures_doing_primary_or_secondary_job = 0;
+    int creatures_doing_other_jobs = 0;
+
+    for (int i = dungeon->creatr_list_start; i != 0;)
+    {
+        struct Thing* thing = thing_get(i);
+        TRACE_THING(thing);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+
+        if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing))
+        {
+            struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+            if ((cctrl->job_assigned == crstat->job_primary) || (cctrl->job_assigned == crstat->job_secondary))
+            {
+                creatures_doing_primary_or_secondary_job += 1;
+            } else {
+                creatures_doing_other_jobs += 1;
+            }
+        }
+
+        i = cctrl->players_next_creature_idx;
+    }
+
+    int work_capable_creatures = creatures_doing_primary_or_secondary_job + creatures_doing_other_jobs;
+    if (work_capable_creatures == 0) {
+        return 0;
+    }
+    
+    int percent_doing_other_jobs = (creatures_doing_other_jobs * 100) / work_capable_creatures;
+    int num_to_move = work_capable_creatures * (percent_to_reassign - percent_doing_other_jobs) / 100;
+    if (num_to_move <= 0) {return 0;}
+
+    //JUSTLOG("-----", 0);
+    //JUSTLOG("total creatures = %d", dungeon->num_active_creatrs);
+    //JUSTLOG("work_capable_creatures = %d", work_capable_creatures);
+    //JUSTLOG("cfg percent to reassign = %d percent should do other jobs", percent_to_reassign);
+    //JUSTLOG("creatures_doing_primary_or_secondary_job = %d", creatures_doing_primary_or_secondary_job);
+    //JUSTLOG("creatures_doing_other_jobs = %d", creatures_doing_other_jobs);
+    return num_to_move;
+}
+
 
 long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct ComputerCheck * check)
 {
     struct Dungeon* dungeon = comp->dungeon;
     SYNCDBG(8,"Starting for player %d",(int)dungeon->owner);
-    int num_to_move = check->param1 * dungeon->num_active_creatrs / 100;
+    
+    int num_to_move = calculate_number_of_creatures_to_move(dungeon, check->param1);
+    
     if (num_to_move <= 0) {
         SYNCDBG(8,"No player %d creatures to move, active %d percentage %d",
             (int)dungeon->owner,(int)dungeon->num_active_creatrs,(int)check->param1);
         return CTaskRet_Unk4;
     }
+
     if (!computer_able_to_use_power(comp, PwrK_HAND, 1, num_to_move)) {
         return CTaskRet_Unk4;
     }
@@ -225,7 +279,7 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
 {
     struct Dungeon* dungeon = comp->dungeon;
     SYNCDBG(8,"Checking player %d for move to %s", (int)dungeon->owner, room_code_name(check->param2));
-    int num_to_move = check->param1 * dungeon->num_active_creatrs / 100;
+    int num_to_move = calculate_number_of_creatures_to_move(dungeon, check->param1);
     if (num_to_move <= 0) {
         SYNCDBG(8,"No creatures to move, active %d percentage %d", (int)dungeon->num_active_creatrs, (int)check->param1);
         return CTaskRet_Unk4;
@@ -514,7 +568,7 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
             if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
                 struct PowerConfigStats* powerst = get_power_model_stats(PwrK_MKDIGGER);
                 struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[get_players_special_digger_model(dungeon->owner)];
-                message_add_fmt(comp->dungeon->owner, "My %s count is only %d, casting %s!",get_string(crconf->namestr_idx),(int)controlled_diggers,get_string(powerst->name_stridx));
+                message_add_fmt(MsgType_Player, comp->dungeon->owner, "My %s count is only %d, casting %s!",get_string(crconf->namestr_idx),(int)controlled_diggers,get_string(powerst->name_stridx));
             }
             if (try_game_action(comp, dungeon->owner, GA_UseMkDigger, 0, stl_x, stl_y, 1, 1) > Lb_OK) {
                 return CTaskRet_Unk1;

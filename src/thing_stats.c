@@ -275,6 +275,9 @@ long get_radially_growing_value(long magnitude, long decay_start, long decay_len
         }
         magnitude = magnitude * (decay_length - (distance - decay_start)) / decay_length;
     }
+    if (friction == 0) {
+        friction = 1;
+    }
     long total_distance = abs((COORD_PER_STL / friction * magnitude + magnitude) / 2); // The intended distance to push the thing.
     if (total_distance > distance) // Never return a value that would go past the epicentre.
     {
@@ -778,13 +781,7 @@ GoldAmount calculate_correct_creature_scavenging_cost(const struct Thing *thing)
 long calculate_correct_creature_scavenge_required(const struct Thing *thing, PlayerNumber callplyr_idx)
 {
     struct Dungeon* dungeon = get_dungeon(callplyr_idx);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    long scavngpts = (dungeon->creatures_scavenged[thing->model] + 1) * compute_creature_max_loyalty(crstat->scavenge_require, cctrl->explevel);
-    if (!is_neutral_thing(thing)) {
-        unsigned short modifier = dungeon->modifier.loyalty;
-        scavngpts = (scavngpts * modifier) / 100;
-    }
+    long scavngpts = (dungeon->creatures_scavenged[thing->model] + 1) * calculate_correct_creature_loyalty(thing);
     return scavngpts;
 }
 

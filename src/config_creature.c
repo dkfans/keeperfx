@@ -206,7 +206,7 @@ struct NamedCommand creaturejob_desc[INSTANCE_TYPES_MAX];
 struct NamedCommand angerjob_desc[INSTANCE_TYPES_MAX];
 struct NamedCommand attackpref_desc[INSTANCE_TYPES_MAX];
 
-unsigned short breed_activities[CREATURE_TYPES_MAX];
+ThingModel breed_activities[CREATURE_TYPES_MAX];
 /******************************************************************************/
 extern const struct NamedCommand creature_job_player_assign_func_type[];
 extern Creature_Job_Player_Check_Func creature_job_player_check_func_list[];
@@ -1963,10 +1963,28 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
         required_kind_flags |= JoKF_AssignOnAreaBorder;
     }
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
+    struct Room* room = get_room_thing_is_on(creatng);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     if (creatng->owner == slabmap_owner(slb))
     {
-        if (creatng->model == get_players_special_digger_model(creatng->owner)) {
+        if (thing_is_creature_special_digger(creatng)) {
+            if (!room_is_invalid(room)) {
+                if (room_role_matches(room->kind,RoRoF_GoldStorage))
+                {
+                    if (creatng->creature.gold_carried == 0)
+                    {
+                        if (crstat->pay > 0)
+                        {
+                            return get_job_for_room(room->kind, required_kind_flags | JoKF_OwnedCreatures, crstat->job_primary | crstat->job_secondary);
+                        }
+                    }
+                }
+            }
             required_kind_flags |= JoKF_OwnedDiggers;
+            if (creatng->model != get_players_special_digger_model(creatng->owner))
+            {
+                required_kind_flags |= JoKF_OwnedCreatures;
+            }
         } else {
             required_kind_flags |= JoKF_OwnedCreatures;
         }
@@ -1978,9 +1996,7 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
             required_kind_flags |= JoKF_EnemyCreatures;
         }
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     RoomKind rkind;
-    struct Room* room = get_room_thing_is_on(creatng);
     if (!room_is_invalid(room)) {
         required_kind_flags |= JoKF_AssignAreaWithinRoom;
         rkind = room->kind;

@@ -111,18 +111,16 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         explosion_affecting_area(shotng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets, shotst->damage_type);
     }
-   
     create_used_effect_or_element(&shotng->mappos, shotst->explode.effect1_model, shotng->owner);
     create_used_effect_or_element(&shotng->mappos, shotst->explode.effect2_model, shotng->owner);
     if (shotst->explode.around_effect1_model != 0)
     {
         create_effect_around_thing(shotng, shotst->explode.around_effect1_model);
     }
-    if (shotst->explode.around_effect2_model > 0)
+    if (shotst->explode.around_effect2_model != 0)
     {
         create_effect_around_thing(shotng, shotst->explode.around_effect2_model);
     }
-
     //TODO CONFIG shot model dependency, make config option instead
     switch (shotng->model)
     {
@@ -442,11 +440,11 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
     return result;
 }
 
-struct Thing *create_shot_hit_effect(struct Coord3d *effpos, long effowner, long eff_kind, long snd_idx, long snd_range)
+struct Thing *create_shot_hit_effect(struct Coord3d *effpos, long effowner, EffectOrEffElModel eff_kind, long snd_idx, long snd_range)
 {
     struct Thing* efftng = INVALID_THING;
-    if (eff_kind > 0) {
-        efftng = create_effect(effpos, eff_kind, effowner);
+    if (eff_kind != 0) {
+        efftng = create_used_effect_or_element(effpos, eff_kind, effowner);
         TRACE_THING(efftng);
     }
     if (snd_idx > 0)
@@ -484,7 +482,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     TbBool digging = (shotst->model_flags & ShMF_Digging);
     SubtlCodedCoords hit_stl_num;
     short old_health;
-    short eff_kind;
+    EffectOrEffElModel eff_kind;
     short smpl_idx;
     unsigned char range;
     struct SlabMap* slb;
@@ -634,13 +632,12 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
         if (!thing_is_invalid(doortng))
         {
             // If the shot hit is supposed to create effect thing
-            int n = shotst->hit_door.effect_model;
-            if (n > 0)
+            if (shotst->hit_door.effect_model != 0)
             {
-                efftng = create_effect(&shotng->mappos, n, shotng->owner);
+                efftng = create_used_effect_or_element(&shotng->mappos, shotst->hit_door.effect_model, shotng->owner);
             }
             // If the shot hit is supposed to create sound
-            n = shotst->hit_door.sndsample_idx;
+            int n = shotst->hit_door.sndsample_idx;
             int i;
             if (n > 0)
             {
@@ -812,12 +809,7 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     {
         if (shotst->hit_heart.effect_model != 0)
         {
-            if (shotst->hit_heart.effect_model > 0)
-            {
-                create_effect(&shotng->mappos, shotst->hit_heart.effect_model, shotng->owner);
-            } else {
-                create_effect_element(&shotng->mappos, shotst->hit_heart.effect_model, shotng->owner);
-            }
+            create_used_effect_or_element(&shotng->mappos, shotst->hit_heart.effect_model, shotng->owner);
         }
         if (shotst->hit_heart.sndsample_idx > 0)
         {
@@ -868,8 +860,11 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     return damage_done > 0;
 }
 
-long get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target)
+long get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target, TbBool NeverBlock)
 {
+    if (NeverBlock)
+        return shotng->shot.damage;
+
     const struct CreatureStats* tgcrstat = creature_stats_get_from_thing(target);
     const struct CreatureControl* tgcctrl = creature_control_get_from_thing(target);
     long crdefense = compute_creature_max_defense(tgcrstat->defense, tgcctrl->explevel);
@@ -913,51 +908,34 @@ long project_damage_of_melee_shot(long shot_dexterity, long shot_damage, const s
 
 void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct Thing *target)
 {
-    struct Thing* efftng = INVALID_THING;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     if (target->class_id == TCls_Creature)
     {
         thing_play_sample(target, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        efftng = create_effect(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner);
-        switch (shotng->model)
+        if (shotst->hit_creature.effect_model != 0) {
+            create_used_effect_or_element(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner);
+        }
+        if (creature_affected_by_spell(target, SplK_Freeze))
         {
-        case ShM_PoisonCloud:
-            if ( !thing_is_invalid(efftng) ) {
-                efftng->shot_effect.hit_type = THit_CrtrsOnly;
+            if (shotst->effect_frozen != 0) {
+                create_used_effect_or_element(&shotng->mappos, shotst->effect_frozen, shotng->owner);
             }
-            break;
-        case ShM_Arrow:
-        case ShM_SwingSword:
-        case ShM_SwingFist:
-            if (creature_affected_by_spell(target, SplK_Freeze)) {
-                efftng = create_effect(&shotng->mappos, TngEff_HitFrozenUnit, shotng->owner);
-            } else
-            if (creature_model_bleeds(target->model)) {
-                efftng = create_effect(&shotng->mappos, TngEff_HitBleedingUnit, shotng->owner);
+        } else
+        if (creature_model_bleeds(target->model))
+        {
+            if (shotst->effect_bleeding != 0) {
+                create_used_effect_or_element(&shotng->mappos, shotst->effect_bleeding, shotng->owner);
             }
-            break;
         }
     }
     if (target->class_id == TCls_Trap)
     {
-        //todo introduce trap/object hit
+        // TODO for a later PR: introduces trap/object hit, for now it uses the on hit creature sound and effect.
         thing_play_sample(target, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        efftng = create_effect(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner);
-        switch (shotng->model)
-        {
-
-        case ShM_PoisonCloud:
-            if (!thing_is_invalid(efftng)) {
-                efftng->shot_effect.hit_type = THit_CrtrsOnly;
-            }
-            break;
-        case ShM_NaviMissile:
-        case ShM_Missile:
-            efftng = create_effect(&shotng->mappos, TngEff_Blood3, shotng->owner);
-            break;
+        if (shotst->hit_creature.effect_model != 0) {
+            create_used_effect_or_element(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner);
         }
     }
-    TRACE_THING(efftng);
 }
 
 long check_hit_when_attacking_door(struct Thing *thing)
@@ -1020,7 +998,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
     if (shotng->parent_idx != shotng->index)
         shooter = thing_get(shotng->parent_idx);
     struct CreatureControl* tgcctrl = creature_control_get_from_thing(trgtng);
-    long damage = get_damage_of_melee_shot(shotng, trgtng);
+    long damage = get_damage_of_melee_shot(shotng, trgtng, flag_is_set(shotst->model_flags, ShMF_NeverBlock));
     if (damage > 0)
     {
       if (shotst->hit_creature.sndsample_idx > 0)
@@ -1175,7 +1153,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         }
         return 1;
     }
-    if ((shotst->model_flags & ShMF_StrengthBased) != 0)
+    if (flag_is_set(shotst->model_flags,ShMF_StrengthBased))
     {
         return melee_shot_hit_creature_at(shotng, trgtng, pos);
     }
@@ -1184,6 +1162,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     {
         if ((get_creature_model_flags(trgtng) & CMF_ImmuneToBoulder) != 0)
         {
+            // TODO make this configurable somehow.
             struct Thing* efftng = create_effect(&trgtng->mappos, TngEff_WoPExplosion, trgtng->owner);
             if (!thing_is_invalid(efftng)) {
                 efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
@@ -1593,15 +1572,17 @@ TngUpdateRet update_shot(struct Thing *thing)
                     pos1.x.val = thing->mappos.x.val - UNSYNC_RANDOM(shotst->visual.random_range) + (shotst->visual.random_range / 2);
                     pos1.y.val = thing->mappos.y.val - UNSYNC_RANDOM(shotst->visual.random_range) + (shotst->visual.random_range / 2);
                     pos1.z.val = thing->mappos.z.val - UNSYNC_RANDOM(shotst->visual.random_range) + (shotst->visual.random_range / 2);
-                    if (shotst->visual.effect_model > 0)
+                    if (shotst->visual.effect_model != 0)
                     {
-                        create_effect(&pos1, shotst->visual.effect_model, thing->owner);
-                    }
-                    if (shotst->visual.effect_model < 0)
-                    {
-                        create_effect_element(&pos1, ~(shotst->visual.effect_model) + 1, thing->owner);
+                        create_used_effect_or_element(&pos1, shotst->visual.effect_model, thing->owner);
                     }
                 }
+            }
+        }
+        if (shotst->periodical > 0) {
+            unsigned short frequency = shotst->periodical;
+            if (((game.play_gameturn + thing->index) % frequency) == 0) {
+                detonate_shot(thing, false);
             }
         }
         switch (shotst->update_logic)
@@ -1695,7 +1676,7 @@ TngUpdateRet update_shot(struct Thing *thing)
     return move_shot(thing);
 }
 
-struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned short owner)
+struct Thing *create_shot(struct Coord3d *pos, ThingModel model, unsigned short owner)
 {
     if ( !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots) )
     {

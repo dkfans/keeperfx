@@ -47,6 +47,7 @@
 #include "custom_sprites.h"
 #include "gui_boxmenu.h"
 #include "sounds.h"
+#include "api.h"
 
 #ifdef FUNCTESTING
   #include "ftests/ftest.h"
@@ -139,6 +140,7 @@ static void init_level(void)
     free_swipe_graphic();
     game.loaded_swipe_idx = -1;
     game.play_gameturn = 0;
+    game.paused_at_gameturn = false;
     game_flags2 &= (GF2_PERSISTENT_FLAGS | GF2_Timer);
     clear_game();
     reset_heap_manager();
@@ -215,6 +217,8 @@ static void init_level(void)
     game.manufactr_spridx = 0;
     game.manufactr_tooltip = 0;
     JUSTMSG("Started level %d from %s", get_selected_level_number(), campaign.name);
+
+    api_event("GAME_STARTED");
 }
 
 static void post_init_level(void)
