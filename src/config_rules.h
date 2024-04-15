@@ -119,6 +119,8 @@ struct CreatureRulesConfig {
     long critical_health_permil;
     unsigned char stun_enemy_chance_evil;
     unsigned char stun_enemy_chance_good;
+    unsigned char max_meele_opponents;
+    unsigned char max_ranged_opponents;
 };
 
 struct MagicRulesConfig {
