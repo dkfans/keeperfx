@@ -344,6 +344,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     struct Packet* pckt;
     struct SlabMap *slb;
     struct Coord3d pos = {0};
+    MapSubtlCoord stl_x, stl_y;
     if (strcasecmp(parstr, "stats") == 0)
     {
       targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Now time is %d, last loop time was %d",LbTimerClock(),last_loop_time);
@@ -596,8 +597,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             {
                 int r2 = r / 2;
                 pckt = get_packet_direct(player->packet_num);
-                MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
-                MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
+                stl_x = coord_subtile(pckt->pos_x);
+                stl_y = coord_subtile(pckt->pos_y);
                 clear_dig_for_map_rect(player->id_number,
                                        subtile_slab(stl_x - r2),
                                        subtile_slab(stl_x + r - r2),
@@ -625,8 +626,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             {
                 int r2 = r / 2;
                 pckt = get_packet_direct(player->packet_num);
-                MapSubtlCoord stl_x = coord_subtile((pckt->pos_x));
-                MapSubtlCoord stl_y = coord_subtile((pckt->pos_y));
+                stl_x = coord_subtile((pckt->pos_x));
+                stl_y = coord_subtile((pckt->pos_y));
                 conceal_map_area(player->id_number, stl_x - r2, stl_x + r - r2, stl_y - r2, stl_y + r - r2, false);
             }
             else
@@ -741,8 +742,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     }
                     thing->valuable.gold_stored = atoi(pr2str);
                     add_gold_to_pile(thing, 0);
-                    MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
-                    MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
+                    stl_x = coord_subtile(pckt->pos_x);
+                    stl_y = coord_subtile(pckt->pos_y);
                     room = subtile_room_get(stl_x, stl_y);
                     if (room_exists(room))
                     {
@@ -778,10 +779,9 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 if (get_map_location_id(pr2str, &loc))
                 {
                     player = get_player(plyr_idx);
-                    if (get_map_location_type(loc) == MLoc_METALOCATION)
+                    find_map_location_coords(loc, &stl_x, &stl_y, plyr_idx, __func__);
+                    if ((stl_x != 0) || (stl_y != 0))
                     {
-                        long stl_x, stl_y;
-                        find_map_location_coords(loc, &stl_x, &stl_y, plyr_idx, __func__);
                         set_players_packet_action(player, PckA_ZoomToPosition, subtile_coord_center(stl_x), subtile_coord_center(stl_y), 0, 0);
                         process_players_global_packet_action(plyr_idx); // Dirty hack
                     }
@@ -876,8 +876,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 {
                     player = get_player(plyr_idx);
                     pckt = get_packet_direct(player->packet_num);
-                    MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
-                    MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
+                    stl_x = coord_subtile(pckt->pos_x);
+                    stl_y = coord_subtile(pckt->pos_y);
                     PlayerNumber id = get_player_number_for_command(pr5str);
                     if (!subtile_coords_invalid(stl_x, stl_y))
                     {
@@ -986,8 +986,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             {
                 player = get_player(plyr_idx);
                 pckt = get_packet_direct(player->packet_num);
-                MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
-                MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
+                stl_x = coord_subtile(pckt->pos_x);
+                stl_y = coord_subtile(pckt->pos_y);
                 MapSlabCoord slb_x = subtile_slab(stl_x);
                 MapSlabCoord slb_y = subtile_slab(stl_y);
                 slb = get_slabmap_block(slb_x, slb_y);
@@ -1338,8 +1338,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             player = get_player(plyr_idx);
             pckt = get_packet_direct(player->packet_num);
-            MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
-            MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
+            stl_x = coord_subtile(pckt->pos_x);
+            stl_y = coord_subtile(pckt->pos_y);
             thing = (pr2str != NULL) ? thing_get(atoi(pr2str)) : get_nearest_thing_at_position(stl_x, stl_y);
             if (!thing_is_invalid(thing))
             {
@@ -1426,8 +1426,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             player = get_player(plyr_idx);
             pckt = get_packet_direct(player->packet_num);
-            MapSubtlCoord stl_x = coord_subtile((pckt->pos_x));
-            MapSubtlCoord stl_y = coord_subtile((pckt->pos_y));
+            stl_x = coord_subtile((pckt->pos_x));
+            stl_y = coord_subtile((pckt->pos_y));
             room = (pr2str != NULL) ? room_get(atoi(pr2str)) : subtile_room_get(stl_x, stl_y);
             if (room_exists(room))
             {
@@ -1458,8 +1458,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             player = get_player(plyr_idx);
             pckt = get_packet_direct(player->packet_num);
-            MapSubtlCoord stl_x = coord_subtile((pckt->pos_x));
-            MapSubtlCoord stl_y = coord_subtile((pckt->pos_y));
+            stl_x = coord_subtile((pckt->pos_x));
+            stl_y = coord_subtile((pckt->pos_y));
             slb = get_slabmap_for_subtile(stl_x, stl_y);
             if (!slabmap_block_invalid(slb))
             {
@@ -1568,8 +1568,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             if ( (pr2str != NULL) && (pr3str != NULL) )
             {
-                MapSubtlCoord stl_x = atoi(pr2str);
-                MapSubtlCoord stl_y = atoi(pr3str);
+                stl_x = atoi(pr2str);
+                stl_y = atoi(pr3str);
                 if (!subtile_coords_invalid(stl_x, stl_y))
                 {
                     player = get_player(plyr_idx);
