@@ -1070,6 +1070,10 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
           shot_kill_creature(shotng,trgtng);
       }
     }
+    if (shotst->area_range != 0)
+    {
+        detonate_shot(shotng, shotst->destroy_on_first_hit);
+    }
     if (shotst->destroy_on_first_hit) {
         delete_thing_structure(shotng, 0);
     }
