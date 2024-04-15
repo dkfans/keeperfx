@@ -1147,7 +1147,14 @@ short setup_game(void)
 
   if (is_feature_on(Ft_SkipSplashScreens) == false)
   {
-      result = init_actv_bitmap_screen(RBmp_SplashLegal);
+
+      if(is_ar_wider_than_original(LbGraphicsScreenWidth(), LbGraphicsScreenHeight()))
+      {
+        result = init_actv_bitmap_screen(RBmp_SplashLegalWide);
+      } else {
+        result = init_actv_bitmap_screen(RBmp_SplashLegal);
+      }
+
       if ( result )
       {
           result = show_actv_bitmap_screen(3000);
