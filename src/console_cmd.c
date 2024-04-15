@@ -73,6 +73,7 @@ extern "C" {
 #endif
 
 extern void render_set_sprite_debug(int level);
+extern TbBool process_players_global_packet_action(PlayerNumber plyr_idx);
 
 static struct GuiBoxOption cmd_comp_procs_data[COMPUTER_PROCESSES_COUNT + 3] = {
   {"!", 1, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0 }
@@ -750,6 +751,19 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                             count_gold_hoardes_in_room(room);
                         }
                     }
+                    return true;
+                }
+            }
+        }
+        else if ((strcasecmp(parstr, "look") == 0))
+        {
+            if ((pr2str != NULL) && (plyr_idx == my_player_number))
+            {
+                long room_id = get_id(room_desc, pr2str);
+                if (room_id != -1)
+                {
+                    go_to_my_next_room_of_type_and_select(room_id);
+                    process_players_global_packet_action(plyr_idx); // Dirty hack
                     return true;
                 }
             }
