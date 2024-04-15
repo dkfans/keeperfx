@@ -1231,8 +1231,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             thing = thing_get(thing_id);
             targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "first_thing:%d %s", thing_id,
                                  thing_class_and_model_name(thing->class_id, thing->model));
-            targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "flags: %02x, data: %04lx", block->flags,
-                                 block->data);
+            targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "flags: %02x, filled: %04ld, wibble: %d, col: %04ld, mapwho: %04ld, revealed: %d, ", block->flags,
+                                 block->filled_subtiles, block->wibble_value, block->col_idx, block->mapwho, block->revealed);
             targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "stl_x: %d, stl_y:%d", pos.x.stl.num,
                                  pos.y.stl.num);
         }
