@@ -99,7 +99,7 @@ TbBool has_melee_combat_attackers(struct Thing *victim)
 TbBool can_add_melee_combat_attacker(struct Thing *victim)
 {
     struct CreatureControl* vicctrl = creature_control_get_from_thing(victim);
-    return (vicctrl->opponents_melee_count < game.conf.rules.creature.max_meele_opponents);
+    return (vicctrl->opponents_melee_count < game.conf.rules.creature.max_melee_opponents);
 }
 
 TbBool has_ranged_combat_attackers(const struct Thing *victim)

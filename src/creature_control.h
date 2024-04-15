@@ -41,7 +41,7 @@ extern "C" {
 #define CREATURE_MAX_SPELLS_CASTED_AT 5
 /** Max amount of creatures supported on any map. */
 #define CREATURES_COUNT       256
-/** absolute max number of possible melee combat opponents. actual max is game.conf.rules.creature.max_meele_opponents  */
+/** absolute max number of possible melee combat opponents. actual max is game.conf.rules.creature.max_melee_opponents  */
 #define COMBAT_MELEE_OPPONENTS_LIMIT       32
 /** absolute max number of possible range combat opponents. actual max is game.conf.rules.creature.max_ranged_opponents */
 #define COMBAT_RANGED_OPPONENTS_LIMIT      32
