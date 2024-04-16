@@ -94,6 +94,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
     struct Thing* castng = INVALID_THING;
     struct PlayerInfo* myplyr = get_my_player();
     short spell_level;
+    long damage;
     // Identify the creator of the shot
     if (shotng->index != shotng->parent_idx) {
         castng = thing_get(shotng->parent_idx);
@@ -107,7 +108,21 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
         // But currently shot do not store its level, so we don't really have a choice
         struct CreatureControl* cctrl = creature_control_get_from_thing(castng);
         long dist = compute_creature_attack_range(shotst->area_range * COORD_PER_STL, crstat->luck, cctrl->explevel);
-        long damage = compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel, shotng);
+        if (flag_is_set(shotst->model_flags, ShMF_StrengthBased))
+        {
+            if (shotst->area_damage == 0)
+            {
+                damage = shotng->shot.damage;
+            }
+            else
+            {
+                damage = (shotst->area_damage * shotng->shot.damage) / 100;
+            }
+        }
+        else
+        {
+            damage = compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel, shotng);
+        }
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         explosion_affecting_area(shotng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets, shotst->damage_type);
     }
@@ -1001,80 +1016,86 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
     long damage = get_damage_of_melee_shot(shotng, trgtng, flag_is_set(shotst->model_flags, ShMF_NeverBlock));
     if (damage > 0)
     {
-      if (shotst->hit_creature.sndsample_idx > 0)
-      {
-          play_creature_sound(trgtng, CrSnd_Hurt, 3, 0);
-      }
-      create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
-      if (!thing_is_invalid(shooter)) {
-          damage = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, shooter->owner);
-      } else {
-          damage = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, -1);
-      }
-      if (shotst->model_flags & ShMF_LifeDrain)
-      {
-          give_shooter_drained_health(shooter, damage / 2);
-      }
-      if (shotst->cast_spell_kind != 0)
-      {
-          struct CreatureControl* scctrl = creature_control_get_from_thing(shooter);
-          if (!creature_control_invalid(scctrl)) {
-              n = scctrl->explevel;
-          }
-          else {
-              n = 0;
-          }
-          if (shotst->cast_spell_kind == SplK_Disease)
-          {
-              tgcctrl->disease_caster_plyridx = shotng->owner;
-          }
-          apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, n);
-      }
-      if (shotst->model_flags & ShMF_GroupUp)
-      {
-          if (thing_is_creature(shooter))
-          {
-              if (get_no_creatures_in_group(shooter) < GROUP_MEMBERS_COUNT) {
-                  add_creature_to_group(trgtng, shooter);
-              }
-          }
-          else
-          {
-              WARNDBG(8, "The %s index %d owner %d cannot group; invalid parent", thing_model_name(shotng), (int)shotng->index, (int)shotng->owner);
-          }
-      }
-      if (shotst->target_hitstop_turns != 0) {
-          tgcctrl->frozen_on_hit = shotst->target_hitstop_turns;
-      }
-      if ( shotst->push_on_hit || creature_is_being_unconscious(trgtng))
-      {
-          if (creature_is_being_unconscious(trgtng)) 
-          {
-              if (throw_strength == 0)
-              {
-                  throw_strength++;
-              }
-              throw_strength *= 10;
-          }
-          trgtng->veloc_push_add.x.val += (throw_strength * (long)shotng->velocity.x.val) / 16;
-          trgtng->veloc_push_add.y.val += (throw_strength * (long)shotng->velocity.y.val) / 16;
-          trgtng->state_flags |= TF1_PushAdd;
-      }
-      if (trgtng->health >= 0)
-      {
-          if (trgtng->owner != shotng->owner) {
-              check_hit_when_attacking_door(trgtng);
-          }
-      } else
-      {
-          shot_kill_creature(shotng,trgtng);
-      }
+        if (shotst->damage != 0)
+        {
+            damage = (damage * shotst->damage) / 100;
+        }
+        if (shotst->hit_creature.sndsample_idx > 0)
+        {
+            play_creature_sound(trgtng, CrSnd_Hurt, 3, 0);
+        }
+        create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
+        if (!thing_is_invalid(shooter)) {
+            apply_damage_to_thing_and_display_health(trgtng, damage, shotst->damage_type, shooter->owner);
+        } else {
+            apply_damage_to_thing_and_display_health(trgtng, damage, shotst->damage_type, -1);
+        }
+        if (shotst->model_flags & ShMF_LifeDrain)
+        {
+            give_shooter_drained_health(shooter, damage / 2);
+        }
+        if (shotst->cast_spell_kind != 0)
+        {
+            struct CreatureControl* scctrl = creature_control_get_from_thing(shooter);
+            if (!creature_control_invalid(scctrl)) {
+                n = scctrl->explevel;
+            }
+            else {
+                n = 0;
+            }
+            if (shotst->cast_spell_kind == SplK_Disease)
+            {
+                tgcctrl->disease_caster_plyridx = shotng->owner;
+            }
+            apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, n);
+        }
+        if (shotst->model_flags & ShMF_GroupUp)
+        {
+            if (thing_is_creature(shooter))
+            {
+                if (get_no_creatures_in_group(shooter) < GROUP_MEMBERS_COUNT) {
+                    add_creature_to_group(trgtng, shooter);
+                }
+            }
+            else
+            {
+                WARNDBG(8, "The %s index %d owner %d cannot group; invalid parent", thing_model_name(shotng), (int)shotng->index, (int)shotng->owner);
+            }
+        }
+        if (shotst->target_hitstop_turns != 0) {
+            tgcctrl->frozen_on_hit = shotst->target_hitstop_turns;
+        }
+        if ( shotst->push_on_hit || creature_is_being_unconscious(trgtng))
+        {
+            if (creature_is_being_unconscious(trgtng)) 
+            {
+                if (throw_strength == 0)
+                {
+                    throw_strength++;
+                }
+                throw_strength *= 10;
+            }
+            trgtng->veloc_push_add.x.val += (throw_strength * (long)shotng->velocity.x.val) / 16;
+            trgtng->veloc_push_add.y.val += (throw_strength * (long)shotng->velocity.y.val) / 16;
+            trgtng->state_flags |= TF1_PushAdd;
+        }
+        if (trgtng->health >= 0)
+        {
+            if (trgtng->owner != shotng->owner) {
+                check_hit_when_attacking_door(trgtng);
+            }
+        } else
+        {
+            shot_kill_creature(shotng,trgtng);
+        }
+    
+        if (shotst->area_range != 0)
+        {
+            detonate_shot(shotng, shotst->destroy_on_first_hit);
+        }
     }
-    if (shotst->area_range != 0)
+    if (shotst->destroy_on_first_hit)
     {
-        detonate_shot(shotng, shotst->destroy_on_first_hit);
-    }
-    if (shotst->destroy_on_first_hit) {
         delete_thing_structure(shotng, 0);
     }
     return 1;
