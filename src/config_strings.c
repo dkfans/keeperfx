@@ -133,7 +133,7 @@ TbBool setup_campaign_strings_data(struct GameCampaign *campgn)
   long filelen = LbFileLengthRnc(fname);
   if (filelen <= 0)
   {
-    ERRORLOG("Campaign Strings file does not exist or can't be opened");
+    ERRORLOG("Campaign Strings file %s does not exist or can't be opened", campgn->strings_fname);
     return false;
   }
   campgn->strings_data = (char *)LbMemoryAlloc(filelen + 256);

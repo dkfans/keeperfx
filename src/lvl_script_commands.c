@@ -5503,6 +5503,47 @@ static void reset_action_point_process(struct ScriptContext* context)
     action_point_reset_idx(context->value->arg0, context->value->chars[4]);
 }
 
+static void quick_message_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    if ((scline->np[0] < 0) || (scline->np[0] >= QUICK_MESSAGES_COUNT))
+    {
+        SCRPTERRLOG("Invalid information ID number (%d)", scline->np[0]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    if (strlen(scline->tp[1]) > MESSAGE_TEXT_LEN)
+    {
+        SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
+    }
+    if ((gameadd.quick_messages[scline->np[0]][0] != '\0') && (strcmp(gameadd.quick_messages[scline->np[0]],scline->tp[1]) != 0))
+    {
+        SCRPTWRNLOG("Quick Message no %d overwritten by different text", scline->np[0]);
+    }
+    snprintf(gameadd.quick_messages[scline->np[0]], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
+    value->uarg0 = scline->np[0];
+    get_player_number_from_value(scline->tp[2], &value->chars[4], &value->chars[5]);
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void quick_message_process(struct ScriptContext* context)
+{
+    message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", gameadd.quick_messages[context->value->uarg0]);
+}
+
+static void display_message_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    value->uarg0 = scline->np[0];
+    get_player_number_from_value(scline->tp[1], &value->chars[4], &value->chars[5]);
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void display_message_process(struct ScriptContext* context)
+{
+    message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", get_string(context->value->uarg0));
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -5617,8 +5658,8 @@ const struct CommandDesc command_desc[] = {
   {"CREATE_EFFECTS_LINE",               "LLNNNA  ", Cmd_CREATE_EFFECTS_LINE, &create_effects_line_check, &create_effects_line_process},
   {"IF_SLAB_OWNER",                     "NNP     ", Cmd_IF_SLAB_OWNER, NULL, NULL},
   {"IF_SLAB_TYPE",                      "NNS     ", Cmd_IF_SLAB_TYPE, NULL, NULL},
-  {"QUICK_MESSAGE",                     "NAA     ", Cmd_QUICK_MESSAGE, NULL, NULL},
-  {"DISPLAY_MESSAGE",                   "NA      ", Cmd_DISPLAY_MESSAGE, NULL, NULL},
+  {"QUICK_MESSAGE",                     "NAA     ", Cmd_QUICK_MESSAGE, &quick_message_check, &quick_message_process},
+  {"DISPLAY_MESSAGE",                   "NA      ", Cmd_DISPLAY_MESSAGE, &display_message_check, &display_message_process},
   {"USE_SPELL_ON_CREATURE",             "PC!AAn  ", Cmd_USE_SPELL_ON_CREATURE, NULL, NULL},
   {"USE_SPELL_ON_PLAYERS_CREATURES",    "PC!An   ", Cmd_USE_SPELL_ON_PLAYERS_CREATURES, &use_spell_on_players_creatures_check, &use_spell_on_players_creatures_process },
   {"SET_HEART_HEALTH",                  "PN      ", Cmd_SET_HEART_HEALTH, &set_heart_health_check, &set_heart_health_process},

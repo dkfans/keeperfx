@@ -2502,9 +2502,8 @@ long element_top_face_texture(struct Map *mapblk)
 {
     struct Column *col;
     struct CubeConfigStats* cubed;
-    unsigned int data = mapblk->data;
     TbBool visible = map_block_revealed(mapblk, my_player_number);
-    int result = data & 0x7FF;
+    int result = mapblk->col_idx;
 
     if ( !visible || (result != 0) )
     {
