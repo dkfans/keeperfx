@@ -4555,6 +4555,111 @@ void draw_gpoly_sub7_subfunc2()
     gploc_7C = (gploc_48 << 8) | BYTE2(gploc_44);
   }
 }
+
+// GPT-4 cleanups
+void draw_gpoly_sub7_subfunc1()
+{
+    int deltaY = gploc_pt_cy - gploc_pt_ay;
+    int term1 = (gploc_pt_bx - gploc_pt_ax) * deltaY;
+    if (factor_chk >= 0)
+        term1 = term1 - deltaY - deltaY;
+    int v2 = (gploc_pt_cx - gploc_pt_ax) * (gploc_pt_by - gploc_pt_ay) - (deltaY + term1);
+
+    if (v2 != 0)
+    {
+        int invV2 = 0x7FFFFFFF / v2;
+        int deltaY_A = gploc_pt_cy - gploc_pt_ay;
+        int deltaY_B = gploc_pt_by - gploc_pt_ay;
+        int abResult, bcResult, caResult;
+
+        // A Result Calculation
+        long long tempA = (long long)deltaY_B * (gploc_140 - gploc_170);
+        tempA -= (long long)deltaY_A * (gploc_158 - gploc_170);
+        abResult = ((int)(2 * tempA * invV2) + (int)(tempA < 0)) >> 16;
+        gploc_A8 = abResult;
+
+        // B Result Calculation
+        long long tempB = (long long)deltaY_B * (gploc_13C - gploc_16C);
+        tempB -= (long long)deltaY_A * (gploc_154 - gploc_16C);
+        bcResult = ((int)(2 * tempB * invV2) + (int)(tempB < 0)) >> 16;
+        gploc_B0 = bcResult;
+
+        // C Result Calculation
+        long long tempC = (long long)deltaY_B * (gploc_138 - gploc_168);
+        tempC -= (long long)deltaY_A * (gploc_150 - gploc_168);
+        caResult = ((int)(2 * tempC * invV2) + (int)(tempC < 0)) >> 16;
+        gploc_AC = caResult;
+    }
+    else
+    {
+        gploc_A8 = 0;
+        gploc_B0 = 0;
+        gploc_AC = 0;
+    }
+}
+
+void draw_gpoly_sub7_subfunc2() {
+    // Assume all integers unless specified
+    int v0, v1, deltaA, deltaB, deltaC;
+    int resultA, resultB, resultC;
+    int factor;
+    bool negativeCondition;
+    int prodResult;
+    __int64 extendedResult;
+
+    if (factor_chk < 0) {
+        deltaA = gploc_pt_cy - gploc_pt_ay;
+        factor = (deltaA > 255) ? (0x7FFFFFFF / deltaA) : gpoly_reptable[deltaA];
+        // Using function to mimic rotation operation and conditional increment
+        gploc_point_c = calculateResult(factor, gploc_140 - gploc_170);
+        gploc_194 = calculateResult(factor, gploc_13C - gploc_16C);
+        gploc_188 = calculateResult(factor, gploc_138 - gploc_168);
+    } else {
+        deltaB = gploc_pt_by - gploc_pt_ay;
+        factor = (deltaB > 255) ? (0x7FFFFFFF / deltaB) : gpoly_reptable[deltaB];
+        gploc_point_c = calculateResult(factor, gploc_158 - gploc_170);
+        gploc_194 = calculateResult(factor, gploc_154 - gploc_16C);
+        gploc_188 = calculateResult(factor, gploc_150 - gploc_168);
+
+        deltaC = gploc_pt_cy - gploc_pt_by;
+        factor = (deltaC > 255) ? (0x7FFFFFFF / deltaC) : gpoly_reptable[deltaC];
+        gploc_1A0 = calculateResult(factor, gploc_140 - gploc_158);
+        gploc_198 = calculateResult(factor, gploc_13C - gploc_154);
+        gploc_18C = calculateResult(factor, gploc_138 - gploc_150);
+    }
+
+    gploc_58 = gploc_170 << 16;
+    gploc_54 = gploc_16C << 16;
+    gploc_50 = gploc_168 << 16;
+    gploc_4C = gploc_158 << 16;
+    gploc_48 = gploc_154 << 16;
+    gploc_44 = gploc_150 << 16;
+
+    // Processing results with presumed utility functions to handle the bit manipulations
+    // These functions will require definition based on specific handling or masking requirements observed in original code
+    gploc_BC = processResult(gploc_AC, gploc_A8);
+    gploc_B8 = processResult(gploc_B0);
+    gploc_5C = processResult(gploc_AC, gploc_A8);
+    gploc_2C = processResult(gploc_B0);
+    gploc_A4 = processResult(gploc_188, gploc_point_c);
+    gploc_A0 = processResult(gploc_194);
+    gploc_8C = processCombinedResults(gploc_58, gploc_50);
+    gploc_88 = processCombinedResults(gploc_54, gploc_50);
+
+    if (factor_chk >= 0) {
+        gploc_98 = processResult(gploc_18C, gploc_1A0);
+        gploc_94 = processResult(gploc_198);
+        gploc_80 = processCombinedResults(gploc_4C, gploc_44);
+        gploc_7C = processCombinedResults(gploc_48, gploc_44);
+    }
+}
+
+int calculateResult(int factor, int delta) {
+    int result = ((factor * (2 * delta) + (factor < 0)) >> 16);  // Assuming rotate-like behavior and sign correction
+    return result;  // Return rollover-adjusted and conditionally incremented result
+}
+
+// Hypothetical function definitions will need the actual implementation specifics.
 #endif
 
 void draw_gpoly_sub11() {
