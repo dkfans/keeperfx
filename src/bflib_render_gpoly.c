@@ -3967,7 +3967,14 @@ static void draw_gpoly_sub7_subfunc2() {
 }
 
 void draw_gpoly_sub7() {
-#if __GNUC__
+  draw_gpoly_sub7_subfunc1();
+  draw_gpoly_sub7_subfunc2();
+}
+
+#if 0
+// Legacy implementation
+void draw_gpoly_sub7() {
+#  if __GNUC__
   asm volatile(
       " \
     pusha   \n \
@@ -4079,9 +4086,9 @@ gpo_loc_1DBD:\n \
       :
       :
       : "memory", "cc");
-#endif
+#  endif
 
-#if __GNUC__
+#  if __GNUC__
   asm volatile(
       " \
     pusha   \n \
@@ -4405,8 +4412,9 @@ gpo_case69_break:\n \
       :
       :
       : "memory", "cc");
-#endif
+#  endif
 }
+#endif  // End legacy implementation
 
 #if 0
 // IDA
