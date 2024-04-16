@@ -731,7 +731,7 @@ static void unk_update_gpoly1_tri16b(long *vout0, long *vout1, long *vout2, long
 
 void draw_gpoly_sub1a() {
   JUSTLOG(
-      "draw_gpoly_sub1a inputs: gploc_pt_bx=%d, factor_chk=%d, gploc_pt_ax=%d, gploc_pt_cx=%d, "
+      "inputs: gploc_pt_bx=%d, factor_chk=%d, gploc_pt_ax=%d, gploc_pt_cx=%d, "
       "gploc_pt_ay=%d, gploc_pt_by=%d, gploc_pt_cy=%d, gploc_16C=%d, gploc_13C=%d, gploc_154=%d",
       gploc_pt_bx, factor_chk, gploc_pt_ax, gploc_pt_cx, gploc_pt_ay, gploc_pt_by, gploc_pt_cy,
       gploc_16C, gploc_13C, gploc_154);
@@ -828,7 +828,7 @@ gpo_loc_05C8:         # 3C6\n \
       :
       : "memory", "cc");
 #endif
-  JUSTLOG("draw_gpoly_sub1a outputs: gploc_B0=%d, gploc_AC=%d", gploc_B0, gploc_AC);
+  JUSTLOG("outputs: gploc_B0=%d, gploc_AC=%d", gploc_B0, gploc_AC);
 }
 
 #if 0
