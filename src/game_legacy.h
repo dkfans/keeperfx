@@ -167,7 +167,7 @@ char numfield_1A;
     struct Room rooms[ROOMS_COUNT];
     struct Dungeon dungeon[DUNGEONS_COUNT];
     struct StructureList thing_lists[13];
-    unsigned int unrevealed_column_idx;
+    ColumnIndex unrevealed_column_idx;
     unsigned char packet_save_enable;
     unsigned char packet_load_enable;
     char packet_fname[150];
