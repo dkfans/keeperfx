@@ -4298,6 +4298,265 @@ gpo_case69_break:\n \
 #endif
 }
 
+#if 0
+// IDA
+void __stdcall draw_gpoly_sub7()
+{
+  draw_gpoly_sub7_subfunc1();
+  draw_gpoly_sub7_subfunc2();
+}
+
+void draw_gpoly_sub7_subfunc1()
+{
+  int v0; // eax
+  int v1; // ecx
+  int v2; // ebx
+  int v3; // ebp
+  int v4; // esi
+  int v5; // edi
+  bool v7; // sf
+  int v8; // eax
+  int v10; // eax
+  int v12; // eax
+
+  v0 = gploc_pt_cy - gploc_pt_ay;
+  v1 = (gploc_pt_bx - gploc_pt_ax) * (gploc_pt_cy - gploc_pt_ay);
+  if ( factor_chk >= 0 )
+    v1 = v1 - v0 - v0;
+  v2 = (gploc_pt_cx - gploc_pt_ax) * (gploc_pt_by - gploc_pt_ay) - (v0 + v1);
+  if ( v2 )
+  {
+    v3 = 0x7FFFFFFF / v2;
+    v4 = gploc_pt_cy - gploc_pt_ay;
+    v5 = gploc_pt_by - gploc_pt_ay;
+    _RAX = ((gploc_pt_by - gploc_pt_ay) * (gploc_140 - gploc_170) - (gploc_pt_cy - gploc_pt_ay)
+                                                                  * (gploc_158 - gploc_170))
+         * (__int64)(0x7FFFFFFF / v2);
+    LODWORD(_RAX) = 2 * _RAX;
+    v7 = (int)_RAX < 0;
+    __asm { rcl     edx, 1 }
+    LOWORD(_RAX) = WORD2(_RAX);
+    v8 = __ROL4__(_RAX, 16);
+    if ( v7 )
+      ++v8;
+    gploc_A8 = v8;
+    _RAX = (v5 * (gploc_13C - gploc_16C) - v4 * (gploc_154 - gploc_16C)) * (__int64)v3;
+    LODWORD(_RAX) = 2 * _RAX;
+    v7 = (int)_RAX < 0;
+    __asm { rcl     edx, 1 }
+    LOWORD(_RAX) = WORD2(_RAX);
+    v10 = __ROL4__(_RAX, 16);
+    if ( v7 )
+      ++v10;
+    gploc_B0 = v10;
+    _RAX = (v5 * (gploc_138 - gploc_168) - v4 * (gploc_150 - gploc_168)) * (__int64)v3;
+    LODWORD(_RAX) = 2 * _RAX;
+    v7 = (int)_RAX < 0;
+    __asm { rcl     edx, 1 }
+    LOWORD(_RAX) = WORD2(_RAX);
+    v12 = __ROL4__(_RAX, 16);
+    if ( v7 )
+      ++v12;
+    gploc_AC = v12;
+  }
+  else
+  {
+    gploc_A8 = 0;
+    gploc_B0 = 0;
+    gploc_AC = 0;
+  }
+}
+
+void draw_gpoly_sub7_subfunc2()
+{
+  int v0; // ecx
+  int v1; // ebx
+  char v2; // sf
+  int v3; // eax
+  int v4; // eax
+  int v5; // eax
+  int v6; // eax
+  int v7; // eax
+  int v8; // eax
+  int v9; // ecx
+  int v10; // ebx
+  int v11; // eax
+  int v12; // eax
+  int v13; // eax
+  int v14; // eax
+  int v15; // eax
+  int v16; // eax
+  int v17; // ecx
+  int v18; // ebx
+  int v19; // eax
+  int v20; // eax
+  int v21; // eax
+  int v22; // eax
+  int v23; // eax
+  int v24; // eax
+  __int64 v25; // rax
+  int v26; // ebx
+  __int64 v27; // rax
+  __int64 v28; // rax
+  int v29; // ebx
+  __int64 v30; // rax
+  __int64 v31; // rax
+  int v32; // ebx
+  __int64 v33; // rax
+  __int64 v34; // rax
+  int v35; // ebx
+  __int64 v36; // rax
+
+  if ( factor_chk < 0 )
+  {
+    v17 = gploc_pt_cy - gploc_pt_ay;
+    if ( gploc_pt_cy - gploc_pt_ay > 255 )
+      v18 = 0x7FFFFFFF / v17;
+    else
+      v18 = gpoly_reptable[v17];
+    HIWORD(v19) = (unsigned int)(v18 * 2 * (gploc_140 - gploc_170)) >> 16;
+    LOWORD(v19) = (unsigned __int64)(v18 * (__int64)(2 * (gploc_140 - gploc_170))) >> 32;
+    v20 = __ROL4__(v19, 16);
+    if ( v2 )
+      ++v20;
+    gploc_point_c = v20;
+    HIWORD(v21) = (unsigned int)(v18 * 2 * (gploc_13C - gploc_16C)) >> 16;
+    LOWORD(v21) = (unsigned __int64)(v18 * (__int64)(2 * (gploc_13C - gploc_16C))) >> 32;
+    v22 = __ROL4__(v21, 16);
+    if ( v2 )
+      ++v22;
+    gploc_194 = v22;
+    HIWORD(v23) = (unsigned int)(v18 * 2 * (gploc_138 - gploc_168)) >> 16;
+    LOWORD(v23) = (unsigned __int64)(v18 * (__int64)(2 * (gploc_138 - gploc_168))) >> 32;
+    v24 = __ROL4__(v23, 16);
+    if ( v2 )
+      ++v24;
+    gploc_188 = v24;
+  }
+  else
+  {
+    v0 = gploc_pt_by - gploc_pt_ay;
+    if ( gploc_pt_by - gploc_pt_ay > 255 )
+      v1 = 0x7FFFFFFF / v0;
+    else
+      v1 = gpoly_reptable[v0];
+    HIWORD(v3) = (unsigned int)(v1 * 2 * (gploc_158 - gploc_170)) >> 16;
+    LOWORD(v3) = (unsigned __int64)(v1 * (__int64)(2 * (gploc_158 - gploc_170))) >> 32;
+    v4 = __ROL4__(v3, 16);
+    if ( v2 )
+      ++v4;
+    gploc_point_c = v4;
+    HIWORD(v5) = (unsigned int)(v1 * 2 * (gploc_154 - gploc_16C)) >> 16;
+    LOWORD(v5) = (unsigned __int64)(v1 * (__int64)(2 * (gploc_154 - gploc_16C))) >> 32;
+    v6 = __ROL4__(v5, 16);
+    if ( v2 )
+      ++v6;
+    gploc_194 = v6;
+    HIWORD(v7) = (unsigned int)(v1 * 2 * (gploc_150 - gploc_168)) >> 16;
+    LOWORD(v7) = (unsigned __int64)(v1 * (__int64)(2 * (gploc_150 - gploc_168))) >> 32;
+    v8 = __ROL4__(v7, 16);
+    if ( v2 )
+      ++v8;
+    gploc_188 = v8;
+    v9 = gploc_pt_cy - gploc_pt_by;
+    if ( gploc_pt_cy - gploc_pt_by > 255 )
+      v10 = 0x7FFFFFFF / v9;
+    else
+      v10 = gpoly_reptable[v9];
+    HIWORD(v11) = (unsigned int)(v10 * 2 * (gploc_140 - gploc_158)) >> 16;
+    LOWORD(v11) = (unsigned __int64)(v10 * (__int64)(2 * (gploc_140 - gploc_158))) >> 32;
+    v12 = __ROL4__(v11, 16);
+    if ( v2 )
+      ++v12;
+    gploc_1A0 = v12;
+    HIWORD(v13) = (unsigned int)(v10 * 2 * (gploc_13C - gploc_154)) >> 16;
+    LOWORD(v13) = (unsigned __int64)(v10 * (__int64)(2 * (gploc_13C - gploc_154))) >> 32;
+    v14 = __ROL4__(v13, 16);
+    if ( v2 )
+      ++v14;
+    gploc_198 = v14;
+    HIWORD(v15) = (unsigned int)(v10 * 2 * (gploc_138 - gploc_150)) >> 16;
+    LOWORD(v15) = (unsigned __int64)(v10 * (__int64)(2 * (gploc_138 - gploc_150))) >> 32;
+    v16 = __ROL4__(v15, 16);
+    if ( v2 )
+      ++v16;
+    gploc_18C = v16;
+  }
+  gploc_58 = gploc_170 << 16;
+  gploc_54 = gploc_16C << 16;
+  gploc_50 = gploc_168 << 16;
+  gploc_4C = gploc_158 << 16;
+  gploc_48 = gploc_154 << 16;
+  gploc_44 = gploc_150 << 16;
+  LODWORD(v25) = gploc_AC << 16;
+  HIDWORD(v25) = gploc_AC >> 16;
+  gploc_30 = gploc_A8 << 24;
+  v26 = gploc_A8 >> 8;
+  if ( gploc_A8 >> 8 < 0 )
+  {
+    v26 = (unsigned __int16)(gploc_A8 >> 8);
+    v25 -= 0x10000LL;
+  }
+  v27 = (unsigned int)v26 + v25;
+  gploc_BC = v27;
+  LODWORD(v27) = gploc_B0;
+  if ( v27 < 0 )
+    LODWORD(v27) = gploc_B0 - 1;
+  gploc_B8 = ((_DWORD)v27 << 8) | BYTE4(v27);
+  LODWORD(v28) = gploc_AC << 16;
+  HIDWORD(v28) = gploc_AC >> 16;
+  v29 = gploc_A8 >> 8;
+  if ( gploc_A8 >> 8 < 0 )
+  {
+    v29 = (unsigned __int16)(gploc_A8 >> 8);
+    v28 -= 0xFFFFLL;
+  }
+  v30 = (unsigned int)v29 + v28;
+  gploc_5C = v30;
+  LODWORD(v30) = gploc_B0;
+  if ( v30 < 0 )
+    LODWORD(v30) = gploc_B0 - 1;
+  gploc_2C = ((_DWORD)v30 << 8) | BYTE4(v30);
+  LODWORD(v31) = gploc_188 << 16;
+  HIDWORD(v31) = gploc_188 >> 16;
+  gploc_68 = gploc_point_c << 24;
+  v32 = gploc_point_c >> 8;
+  if ( gploc_point_c >> 8 < 0 )
+  {
+    v32 = (unsigned __int16)(gploc_point_c >> 8);
+    v31 -= 0x10000LL;
+  }
+  v33 = (unsigned int)v32 + v31;
+  gploc_A4 = v33;
+  LODWORD(v33) = gploc_194;
+  if ( v33 < 0 )
+    LODWORD(v33) = gploc_194 - 1;
+  gploc_A0 = ((_DWORD)v33 << 8) | BYTE4(v33);
+  gploc_8C = ((unsigned int)gploc_58 >> 8) | (gploc_50 << 16);
+  gploc_88 = (gploc_54 << 8) | BYTE2(gploc_50);
+  if ( factor_chk >= 0 )
+  {
+    LODWORD(v34) = gploc_18C << 16;
+    HIDWORD(v34) = gploc_18C >> 16;
+    gploc_64 = gploc_1A0 << 24;
+    v35 = gploc_1A0 >> 8;
+    if ( gploc_1A0 >> 8 < 0 )
+    {
+      v35 = (unsigned __int16)(gploc_1A0 >> 8);
+      v34 -= 0x10000LL;
+    }
+    v36 = (unsigned int)v35 + v34;
+    gploc_98 = v36;
+    LODWORD(v36) = gploc_198;
+    if ( v36 < 0 )
+      LODWORD(v36) = gploc_198 - 1;
+    gploc_94 = ((_DWORD)v36 << 8) | BYTE4(v36);
+    gploc_80 = ((unsigned int)gploc_4C >> 8) | (gploc_44 << 16);
+    gploc_7C = (gploc_48 << 8) | BYTE2(gploc_44);
+  }
+}
+#endif
+
 void draw_gpoly_sub11() {
 #if __GNUC__
   asm volatile(
