@@ -786,7 +786,9 @@ void set_player_zoom_to_position(struct PlayerInfo *player,struct Coord3d *pos)
        player->instance_num == PI_CrCtrlFade ||
        player->instance_num == PI_MapFadeTo ||
        player->instance_num == PI_MapFadeFrom ||
-       player->instance_num == PI_ZoomToPos)
+       player->instance_num == PI_ZoomToPos ||
+       player->instance_num == PI_Unknown17 ||
+       player->instance_num == PI_Unknown18)
         return;
 
     // Set zoom position
