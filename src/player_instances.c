@@ -785,7 +785,8 @@ void set_player_zoom_to_position(struct PlayerInfo *player,struct Coord3d *pos)
        player->instance_num == PI_HeartZoomOut ||
        player->instance_num == PI_CrCtrlFade ||
        player->instance_num == PI_MapFadeTo ||
-       player->instance_num == PI_MapFadeFrom)
+       player->instance_num == PI_MapFadeFrom ||
+       player->instance_num == PI_ZoomToPos)
         return;
 
     // Set zoom position
