@@ -1061,32 +1061,6 @@ static void command_message(const char *msgtext, unsigned char kind)
   SCRPTWRNLOG("Command '%s' is only supported in Dungeon Keeper Beta", cmd);
 }
 
-static void command_quick_message(int idx, const char *msgtext, const char *range_id)
-{
-  if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
-  {
-      SCRPTERRLOG("Invalid information ID number (%d)", idx);
-      return;
-  }
-  if (strlen(msgtext) > MESSAGE_TEXT_LEN)
-  {
-      SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
-  }
-  if ((gameadd.quick_messages[idx][0] != '\0') && (strcmp(gameadd.quick_messages[idx],msgtext) != 0))
-  {
-      SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
-  }
-  snprintf(gameadd.quick_messages[idx], MESSAGE_TEXT_LEN, "%s", msgtext);
-  char id = get_player_number_from_value(range_id);
-  command_add_value(Cmd_QUICK_MESSAGE, 0, id, idx, 0);
-}
-
-static void command_display_message(int msg_num, const char *range_id)
-{
-    char id = get_player_number_from_value(range_id);
-    command_add_value(Cmd_DISPLAY_MESSAGE, 0, id, msg_num, 0);
-}
-
 static void command_swap_creature(const char *ncrt_name, const char *crtr_name)
 {
     long ncrt_id = get_rid(newcrtr_desc, ncrt_name);
@@ -1733,12 +1707,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_PRINT:
         command_message(scline->tp[0],80);
-        break;
-    case Cmd_QUICK_MESSAGE:
-        command_quick_message(scline->np[0], scline->tp[1], scline->tp[2]);
-        break;
-    case Cmd_DISPLAY_MESSAGE:
-        command_display_message(scline->np[0], scline->tp[1]);
         break;
     case Cmd_MESSAGE:
         command_message(scline->tp[0],68);

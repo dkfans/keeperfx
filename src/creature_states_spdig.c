@@ -822,6 +822,20 @@ long check_out_available_spdigger_drop_tasks(struct Thing *spdigtng)
         cctrl->digger.task_repeats = 0;
         return 1;
     }
+    struct Room* room = get_room_thing_is_on(spdigtng);
+    if (!room_is_invalid(room))
+    {
+        if (room->owner == spdigtng->owner)
+        {
+            if (room_role_matches(room->kind,RoRoF_GoldStorage))
+            {
+                if (check_out_imp_has_money_for_treasure_room(spdigtng))
+                {
+                    return 1;
+                }
+            }
+        }
+    }
     cctrl->digger.task_repeats = 0;
     cctrl->digger.last_did_job = SDLstJob_None;
     return 0;

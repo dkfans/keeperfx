@@ -1655,12 +1655,11 @@ short get_creature_control_action_inputs(void)
         struct Thing* creatng = thing_get(player->controlled_thing_idx);
         if ( (StrID != 0) && (creature_instance_is_available(creatng, CrInst_TELEPORT)) )
         {
-            char CrInst = -45;
             if (game.active_messages_count > 0)
             {
-                clear_messages_from_player(CrInst);
+                clear_messages_from_player(MsgType_CreatureInstance, CrInst_TELEPORT);
             }
-            message_add(CrInst, get_string(StrID));
+            message_add(MsgType_CreatureInstance, CrInst_TELEPORT, get_string(StrID));
         }
         if (is_game_key_pressed(Gkey_CrtrContrlMod, &val, false))
         {
