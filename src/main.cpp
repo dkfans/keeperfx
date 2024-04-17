@@ -355,17 +355,20 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
             creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;    
 
             // if weight-affect-push-rule is on
-            if (game.conf.rules.magic.weight_calculate_push == 1){
+            if (game.conf.rules.magic.weight_calculate_push == 1)
+            {
                 long weight = compute_creature_weight(thing);
                 //max push distance
                 blow_distance = maxdistance - (maxdistance - weight_calculated_push_strenght(weight, maxdistance)); 
-                // distance between startposition and actuelly poistion of the projectile
+                // distance between startposition and actual position of the projectile
                 int origin_distance = get_chessboard_distance(&shotng->shot.originpos, &thing->mappos) + 1;
                 creature_distance = origin_distance;
 
                 // Check the the spell instance for already affected creatures
-                for (int i = 0; i < shotng->shot.numWindAffected; i++) {
-                    if (shotng->shot.WindaffectedCreatures[i] == cctrl->index) {
+                for (int i = 0; i < shotng->shot.num_wind_affected; i++)
+                {
+                    if (shotng->shot.wind_affected_creature[i] == cctrl->index)
+                    {
                         creatureAlreadyAffected = 1;
                         break;
                     }
@@ -381,7 +384,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
                // if weight-affect-push-rule is on
             else if (game.conf.rules.magic.weight_calculate_push == 1 && creature_distance >= blow_distance && !creatureAlreadyAffected){
                 // add creature ID to allready-wind-affected-creature-array
-                shotng->shot.WindaffectedCreatures[shotng->shot.numWindAffected++] = cctrl->index;                  
+                shotng->shot.wind_affected_creature[shotng->shot.num_wind_affected++] = cctrl->index;                  
                 }
         }
     } else

@@ -184,12 +184,9 @@ struct Thing {
         unsigned char hit_type;
         short target_idx;
         unsigned char spell_level;
-        //used for weight affect Wind
-        //used to determine the traveled distance
         struct Coord3d originpos;
-        //list of wind affected Creatures
-        int WindaffectedCreatures[CREATURES_COUNT];
-        int numWindAffected;
+        int num_wind_affected;
+        int wind_affected_creature[CREATURES_COUNT];  //list of wind affected Creatures
       } shot;
       struct {
         long x;
