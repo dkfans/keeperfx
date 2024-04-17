@@ -3902,6 +3902,11 @@ int calculateParameter(int diff1, int diff2, int scaleFactor, int deltaY_B_A, in
 }
 
 void calculateTriangleProperties() {
+  //   #### Variable Renaming Suggestions:
+  // 1. **Vertices related (`gploc_pt_*`)**:
+  //    - `gploc_pt_ax`, `gploc_pt_ay` -> `vertexA_x`, `vertexA_y`
+  //    - `gploc_pt_bx`, `gploc_pt_by` -> `vertexB_x`, `vertexB_y`
+  //    - `gploc_pt_cx`, `gploc_pt_cy` -> `vertexC_x`, `vertexC_y`
   int deltaY_C_A = gploc_pt_cy - gploc_pt_ay;
   int deltaX_B_A = gploc_pt_bx - gploc_pt_ax;
   int deltaY_B_A = gploc_pt_by - gploc_pt_ay;
