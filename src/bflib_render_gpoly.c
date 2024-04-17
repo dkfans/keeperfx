@@ -3856,6 +3856,7 @@ gpo_loc_1CAA:\n \
 #endif
 }
 
+#if 0
 static void draw_gpoly_sub7_subfunc1() {
   int deltaY = gploc_pt_cy - gploc_pt_ay;
   int term1 = (gploc_pt_bx - gploc_pt_ax) * deltaY;
@@ -3889,6 +3890,44 @@ static void draw_gpoly_sub7_subfunc1() {
     gploc_A8 = 0;
     gploc_B0 = 0;
     gploc_AC = 0;
+  }
+}
+#endif
+
+int calculateParameter(int diff1, int diff2, int scaleFactor, int deltaY_B_A, int deltaY_C_A) {
+  long long mult = (long long)scaleFactor * (diff1 * deltaY_B_A - diff2 * deltaY_C_A);
+  int result = (int)(mult << 1);
+  if (result < 0) result++;
+  return (result >> 16) | ((result & 0xFFFF) << 16);
+}
+
+void calculateTriangleProperties() {
+  int deltaY_C_A = gploc_pt_cy - gploc_pt_ay;
+  int deltaX_B_A = gploc_pt_bx - gploc_pt_ax;
+  int deltaY_B_A = gploc_pt_by - gploc_pt_ay;
+  int deltaX_C_A = gploc_pt_cx - gploc_pt_ax;
+
+  int tempCalculation = deltaY_C_A * deltaX_B_A;
+
+  if (factor_chk >= 0) {
+    tempCalculation = tempCalculation - deltaY_C_A - deltaY_C_A;
+  }
+
+  int determinant = deltaY_B_A * deltaX_C_A - (tempCalculation + deltaY_C_A);
+
+  if (determinant == 0) {
+    gploc_A8 = 0;
+    gploc_B0 = 0;
+    gploc_AC = 0;
+  } else {
+    int scaleFactor = 0x7FFFFFFF / determinant;
+
+    gploc_A8 = calculateParameter(gploc_140 - gploc_170, gploc_158 - gploc_170, scaleFactor,
+                                  deltaY_B_A, deltaY_C_A);
+    gploc_B0 = calculateParameter(gploc_13C - gploc_16C, gploc_154 - gploc_16C, scaleFactor,
+                                  deltaY_B_A, deltaY_C_A);
+    gploc_AC = calculateParameter(gploc_138 - gploc_168, gploc_150 - gploc_168, scaleFactor,
+                                  deltaY_B_A, deltaY_C_A);
   }
 }
 
@@ -3967,7 +4006,7 @@ static void draw_gpoly_sub7_subfunc2() {
 }
 
 void draw_gpoly_sub7() {
-  draw_gpoly_sub7_subfunc1();
+  calculateTriangleProperties();
   draw_gpoly_sub7_subfunc2();
 }
 
