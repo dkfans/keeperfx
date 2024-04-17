@@ -4118,6 +4118,66 @@ void calculateTriangleProperties() {
   }
 }
 
+//  1. **Global Vertex Coordinates**:
+//     - `gploc_pt_ax`, `gploc_pt_ay`
+//     - `gploc_pt_bx`, `gploc_pt_by`
+//     - `gploc_pt_cx`, `gploc_pt_cy`
+
+// 2. **Global Control Variables**:
+//    - `gploc_140`, `gploc_170`
+//    - `gploc_158`
+//    - `gploc_13C`, `gploc_16C`
+//    - `gploc_138`, `gploc_168`
+//    - `gploc_154`
+
+// 3. **Condition Check Variable**:
+//    - `factor_chk`: Determines an adaptation in the computation of `tempCalculation`.
+
+// These global variables will need to be defined and initialized appropriately for tests. Since
+// they are external to the function, it might be beneficial to encapsulate them or pass them as
+// parameters for a more testable, self-contained function.
+
+// ### Output Variables:
+// The function primarily alters three global variables, which are the direct outputs:
+// - `gploc_A8`
+// - `gploc_B0`
+// - `gploc_AC`
+void test_calculateTriangleProperties() {
+  JUSTLOG("Starting tests");
+
+  for (int i = 0; i < 300; i++) {
+    gploc_pt_ax = test_gploc_pt_ax[i];
+    gploc_pt_ay = test_gploc_pt_ay[i];
+    gploc_pt_bx = test_gploc_pt_bx[i];
+    gploc_pt_by = test_gploc_pt_by[i];
+    gploc_pt_cx = test_gploc_pt_cx[i];
+    gploc_pt_cy = test_gploc_pt_cy[i];
+    gploc_140 = test_gploc_140[i];
+    gploc_170 = test_gploc_170[i];
+    gploc_158 = test_gploc_158[i];
+    gploc_13C = test_gploc_13C[i];
+    gploc_16C = test_gploc_16C[i];
+    gploc_138 = test_gploc_138[i];
+    gploc_168 = test_gploc_168[i];
+    gploc_154 = test_gploc_154[i];
+    factor_chk = test_factor_chk[i];
+
+    calculateTriangleProperties();
+
+    if (gploc_A8 != test_gploc_A8[i]) {
+      JUSTLOG("Test %d failed for gploc_A8. Expected=%d, Got=%d", i, test_gploc_A8[i], gploc_A8);
+    }
+
+    if (gploc_B0 != test_gploc_B0[i]) {
+      JUSTLOG("Test %d failed for gploc_B0. Expected=%d, Got=%d", i, test_gploc_B0[i], gploc_B0);
+    }
+
+    if (gploc_AC != test_gploc_AC[i]) {
+      JUSTLOG("Test %d failed for gploc_AC. Expected=%d, Got=%d", i, test_gploc_AC[i], gploc_AC);
+    }
+  }
+}
+
 static int calculateInterpolatedResult(int factor, int difference) {
   long long temp = factor * (long long)(difference * 2);
   int result = ((int)(temp >> 16)
@@ -4200,30 +4260,6 @@ void draw_gpoly_sub7() {
 #endif
 
 // #if 0
-//  1. **Global Vertex Coordinates**:
-//     - `gploc_pt_ax`, `gploc_pt_ay`
-//     - `gploc_pt_bx`, `gploc_pt_by`
-//     - `gploc_pt_cx`, `gploc_pt_cy`
-
-// 2. **Global Control Variables**:
-//    - `gploc_140`, `gploc_170`
-//    - `gploc_158`
-//    - `gploc_13C`, `gploc_16C`
-//    - `gploc_138`, `gploc_168`
-//    - `gploc_154`
-
-// 3. **Condition Check Variable**:
-//    - `factor_chk`: Determines an adaptation in the computation of `tempCalculation`.
-
-// These global variables will need to be defined and initialized appropriately for tests. Since
-// they are external to the function, it might be beneficial to encapsulate them or pass them as
-// parameters for a more testable, self-contained function.
-
-// ### Output Variables:
-// The function primarily alters three global variables, which are the direct outputs:
-// - `gploc_A8`
-// - `gploc_B0`
-// - `gploc_AC`
 // Legacy implementation
 void draw_gpoly_sub7() {
   // JUSTLOG(
