@@ -22,6 +22,9 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
+/** Max amount of creatures supported on any map. */
+#define CREATURES_COUNT       256
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -185,7 +188,7 @@ struct Thing {
         //used to determine the traveled distance
         struct Coord3d originpos;
         //list of wind affected Creatures
-        int WindaffectedCreatures[256];
+        int WindaffectedCreatures[CREATURES_COUNT];
         int numWindAffected;
       } shot;
       struct {
