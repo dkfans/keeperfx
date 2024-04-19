@@ -1185,7 +1185,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     {
                         if (get_random_position_in_dungeon_for_creature(id, CrWaS_WithinDungeon, thing, &pos))
                         {
-                            targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Creature %s %d will dig to %s", thing_model_name(thing), player_code_name(id));
+                            targeted_message_add(MsgType_Player,plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Creature %s %d will dig to %s", thing_model_name(thing), player_code_name(id));
                             return send_tunneller_to_point_in_dungeon(thing, id, &pos);
                         }
                     }
@@ -1195,7 +1195,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 {
                     if (get_random_position_in_dungeon_for_creature(id, CrWaS_WithinDungeon, thing, &pos))
                     {
-                        targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Creature %s %d will dig to %s", thing_model_name(thing), player_code_name(id));
+                        targeted_message_add(MsgType_Player,plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Creature %s %d will dig to %s", thing_model_name(thing), player_code_name(id));
                         return send_tunneller_to_point_in_dungeon(thing, id, &pos);
                     }
                 }
