@@ -1062,9 +1062,9 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
         }
         create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
         if (!thing_is_invalid(shooter)) {
-            damage = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, shooter->owner);
+            damage = apply_damage_to_thing_and_display_health(trgtng, damage, shotst->damage_type, shooter->owner);
         } else {
-            damage = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, -1);
+            damage = apply_damage_to_thing_and_display_health(trgtng, damage, shotst->damage_type, -1);
         }
         if (shotst->model_flags & ShMF_LifeDrain)
         {
