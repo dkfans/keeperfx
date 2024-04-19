@@ -351,7 +351,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
             cctrl = creature_control_get_from_thing(thing);
             int creatureAlreadyAffected = 0;
 
-            // distance between creature and aktuelly position of the projectil
+            // distance between creature and actual position of the projectile
             creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;    
 
             // if weight-affect-push-rule is on
