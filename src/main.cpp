@@ -355,7 +355,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
             creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;    
 
             // if weight-affect-push-rule is on
-            if (game.conf.rules.magic.weight_calculate_push == 1)
+            if (game.conf.rules.magic.weight_calculate_push > 0)
             {
                 long weight = compute_creature_weight(thing);
                 //max push distance
@@ -382,7 +382,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
                 apply_velocity = true;
             }
                // if weight-affect-push-rule is on
-            else if (game.conf.rules.magic.weight_calculate_push == 1 && creature_distance >= blow_distance && !creatureAlreadyAffected){
+            else if (game.conf.rules.magic.weight_calculate_push > 0 && creature_distance >= blow_distance && !creatureAlreadyAffected){
                 // add creature ID to allready-wind-affected-creature-array
                 shotng->shot.wind_affected_creature[shotng->shot.num_wind_affected++] = cctrl->index;                  
                 }

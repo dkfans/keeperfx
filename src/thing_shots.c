@@ -159,7 +159,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
     }
     if (destroy)
     {
-         delete_thing_structure(shotng, 0);
+        delete_thing_structure(shotng, 0);
     }
     return true;
 }
@@ -1011,7 +1011,7 @@ void shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
 int weight_calculated_push_strenght(int weight, int push_strength)
 {
     const int min_weight = 6; // Minimum weight threshold for the creature.
-    const int max_weight = 600; // Maximum weight threshold for the creature.
+    const int max_weight = game.conf.rules.magic.weight_calculate_push; // Maximum weight threshold for the creature.
     const int percent_factor = 1000; // Factor used to scale the weight factor to a percentage.
 
     // Ensure that the weight is within the valid range of min_weight to max_weight.
@@ -1107,7 +1107,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
         adjusted_throw_strength = throw_strength;
 
 
-        if (game.conf.rules.magic.weight_calculate_push == 1)
+        if (game.conf.rules.magic.weight_calculate_push > 0)
         {
             int weight = compute_creature_weight(trgtng);
             adjusted_throw_strength = weight_calculated_push_strenght(weight, throw_strength);
@@ -1291,7 +1291,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     }
 
     adjusted_push_strength = push_strength;
-    if (game.conf.rules.magic.weight_calculate_push == 1)
+    if (game.conf.rules.magic.weight_calculate_push > 0)
     {
         int weight = compute_creature_weight(trgtng);
         adjusted_push_strength = weight_calculated_push_strenght(weight, push_strength);

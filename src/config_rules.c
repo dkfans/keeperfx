@@ -142,8 +142,7 @@ const struct NamedField rules_magic_named_fields[] = {
   {"POWERHANDGOLDGRABAMOUNT",       &game.conf.rules.magic.power_hand_gold_grab_amount,       var_type(game.conf.rules.magic.power_hand_gold_grab_amount       ),LONG_MIN,LONG_MAX},
   {"FRIENDLYFIGHTAREARANGEPERCENT", &game.conf.rules.magic.friendly_fight_area_range_percent, var_type(game.conf.rules.magic.friendly_fight_area_range_percent ),LONG_MIN,LONG_MAX},
   {"FRIENDLYFIGHTAREADAMAGEPERCENT",&game.conf.rules.magic.friendly_fight_area_damage_percent,var_type(game.conf.rules.magic.friendly_fight_area_damage_percent),LONG_MIN,LONG_MAX},
-  {"WEIGHTCALCULATEPUSH",           &game.conf.rules.magic.weight_calculate_push,             var_type(game.conf.rules.magic.weight_calculate_push             ),0,1},
-
+  {"WEIGHTCALCULATEPUSH",           &game.conf.rules.magic.weight_calculate_push,             var_type(game.conf.rules.magic.weight_calculate_push             ),       0,SHRT_MAX},
   {NULL,                            NULL,0,0,0 },
   };
 
