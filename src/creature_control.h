@@ -39,8 +39,6 @@ extern "C" {
 #define MAX_SIZEXY            768
 /** Max amount of spells casted at the creature at once. */
 #define CREATURE_MAX_SPELLS_CASTED_AT 5
-/** Max amount of creatures supported on any map. */
-#define CREATURES_COUNT       256
 /** Number of possible melee combat opponents. */
 #define COMBAT_MELEE_OPPONENTS_LIMIT       4
 /** Number of possible range combat opponents. */

@@ -52,6 +52,7 @@ extern "C" {
 struct Thing;
 
 enum ThingPickFlags {
+    TPF_None             = 0x00,
     TPF_PickableCheck    = 0x01,
     TPF_OrderedPick      = 0x02,
     TPF_ReverseOrder     = 0x04,

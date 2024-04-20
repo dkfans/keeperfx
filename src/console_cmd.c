@@ -1175,14 +1175,27 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             PlayerNumber id = get_player_number_for_command(pr2str);
             player = get_player(plyr_idx);
             thing = thing_get(player->influenced_thing_idx);
-            if (thing_is_creature(thing))
+            ThingModel model = get_players_special_digger_model(thing->owner);
+            player = get_player(id);
+            if (player_exists(player))
             {
-                if (thing->model == get_players_special_digger_model(thing->owner))
+                if (thing_is_creature(thing))
                 {
-                    player = get_player(id);
-                    if (player_exists(player))
+                    if (thing->model == model)
                     {
-                        get_random_position_in_dungeon_for_creature(id, CrWaS_WithinDungeon, thing, &pos);
+                        if (get_random_position_in_dungeon_for_creature(id, CrWaS_WithinDungeon, thing, &pos))
+                        {
+                            targeted_message_add(MsgType_Player,plyr_idx, plyr_idx, GUI_MESSAGES_DELAY,"%s %d will dig to %s", thing_model_name(thing), thing->index, player_code_name(id));
+                            return send_tunneller_to_point_in_dungeon(thing, id, &pos);
+                        }
+                    }
+                }
+                thing = find_players_next_creature_of_breed_and_gui_job(get_players_special_digger_model(thing->owner), -1, plyr_idx, TPF_None);
+                if (!thing_is_invalid(thing))
+                {
+                    if (get_random_position_in_dungeon_for_creature(id, CrWaS_WithinDungeon, thing, &pos))
+                    {
+                        targeted_message_add(MsgType_Player,plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s %d will dig to %s", thing_model_name(thing),thing->index, player_code_name(id));
                         return send_tunneller_to_point_in_dungeon(thing, id, &pos);
                     }
                 }
