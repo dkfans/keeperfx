@@ -4103,10 +4103,10 @@ software algorithm, or to pack multiple small values into a single integer for p
 */
 static void calculateTriangleProperties() {
   int deltaProduct;
-  int deltaY_C_A;
-  int deltaX_B_A;
-  int deltaY_B_A;
-  int deltaX_C_A;
+  int deltaX_B_A;  // Delta X from vertex A to vertex B
+  int deltaY_B_A;  // Delta Y from vertex A to vertex B
+  int deltaX_C_A;  // Delta X from vertex A to vertex C
+  int deltaY_C_A;  // Delta Y from vertex A to vertex C
   int determinant;
   int scaleFactor;
 
@@ -4135,6 +4135,19 @@ static void calculateTriangleProperties() {
     gploc_AC = 0;
   } else {
     scaleFactor = (int)(MAX_INT_DIV / (long long int)determinant);
+    // Variable rename suggestions:
+    // gploc_140 -> vertexC_s
+    // gploc_170 -> vertexA_s
+    // gploc_158 -> vertexB_s
+    // gploc_13C -> vertexC_u
+    // gploc_16C -> vertexA_u
+    // gploc_154 -> vertexB_u
+    // gploc_138 -> vertexC_v
+    // gploc_168 -> vertexA_v
+    // gploc_150 -> vertexB_v
+    // gploc_A8 -> factorS
+    // gploc_B0 -> factorU
+    // gploc_AC -> factorV
     gploc_A8 = calculateParameter(scaleFactor, gploc_140 - gploc_170, gploc_158 - gploc_170,
                                   deltaY_B_A, deltaY_C_A);
     gploc_B0 = calculateParameter(scaleFactor, gploc_13C - gploc_16C, gploc_154 - gploc_16C,
