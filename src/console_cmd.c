@@ -1190,7 +1190,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                         }
                     }
                 }
-                thing = find_players_next_creature_of_breed_and_gui_job(get_players_special_digger_model(thing->owner), -1, plyr_idx, TPF_OrderedPick);
+                thing = find_players_next_creature_of_breed_and_gui_job(get_players_special_digger_model(thing->owner), -1, plyr_idx, TPF_None);
                 if (!thing_is_invalid(thing))
                 {
                     if (get_random_position_in_dungeon_for_creature(id, CrWaS_WithinDungeon, thing, &pos))
