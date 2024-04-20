@@ -4038,9 +4038,19 @@ const int test_gploc_AC[] = {
     -108837,  -145115,  -94493,   -126976,  -101581, -126976, -119507, -101581,  -85541,  -119507,
     -80460,   -101581,  -81264,   -101581,  -101581, -81264,  -65839,  -101581,  -64060,  -75245};
 
-// Concatenates 2 bytes with 2 bytes to make 4 bytes (Inherited from Ghidra)
-static uint32_t CONCAT22(uint16_t high, uint16_t low) {
-  return ((uint32_t)high << 16) | (uint32_t)low;
+const int BIT_SHIFT_16 = 16;
+const int BIT_SHIFT_32 = 32;
+const int MAX_INT_DIV = 0x7FFFFFFF;  // Max int value for normalization/division
+
+/**
+ * Concatenates two 16-bit integers into a 32-bit integer.
+ *
+ * @param high The high 16 bits.
+ * @param low The low 16 bits.
+ * @return The combined 32-bit integer.
+ */
+static inline uint32_t combineHighLowBits(uint16_t high, uint16_t low) {
+  return ((uint32_t)high << BIT_SHIFT_16) | (uint32_t)low;
 }
 
 static int calculateParameter(int scaleFactor, int delta1, int delta2, int deltaY_B_A,
@@ -4054,10 +4064,11 @@ static int calculateParameter(int scaleFactor, int delta1, int delta2, int delta
   lVar1 = (long long int)scaleFactor * (long long int)(delta1 * deltaY_B_A - delta2 * deltaY_C_A);
   iVar5 = (int)lVar1;
   iVar2 = iVar5 << 1;
-  upperHalf = (ushort)((uint)iVar2 >> 0x10);
-  result = CONCAT22(upperHalf, (ushort)((int)((unsigned long long int)lVar1 >> 0x20) << 1)
-                                   | (ushort)(iVar5 < 0))
-               << 0x10
+  upperHalf = (ushort)((uint)iVar2 >> BIT_SHIFT_16);
+  result = combineHighLowBits(upperHalf,
+                              (ushort)((int)((unsigned long long int)lVar1 >> BIT_SHIFT_32) << 1)
+                                  | (ushort)(iVar5 < 0))
+               << BIT_SHIFT_16
            | (uint)upperHalf;
   if (iVar2 < 0) {
     result++;
@@ -4065,8 +4076,6 @@ static int calculateParameter(int scaleFactor, int delta1, int delta2, int delta
 
   return result;
 }
-
-const int MAX_INT_DIV = 0x7FFFFFFF;  // Max int value for normalization/division
 
 /*
 ### Algorithm Insights
