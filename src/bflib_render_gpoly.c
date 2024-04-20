@@ -4076,6 +4076,7 @@ static void draw_gpoly_sub7_subfunc1() {
 }
 #endif
 
+#if 0
 int calculateParameter(int diff1, int diff2, int scaleFactor, int deltaY_B_A, int deltaY_C_A) {
   long long mult = (long long)scaleFactor * (diff1 * deltaY_B_A - diff2 * deltaY_C_A);
   int result = (int)(mult << 1);
@@ -4116,6 +4117,74 @@ void calculateTriangleProperties() {
     gploc_AC = calculateParameter(gploc_138 - gploc_168, gploc_150 - gploc_168, scaleFactor,
                                   deltaY_B_A, deltaY_C_A);
   }
+}
+#endif
+
+static uint32_t CONCAT22(uint16_t high, uint16_t low) {
+  return ((uint32_t)high << 16) | (uint32_t)low;
+}
+
+static void calculateTriangleProperties() {
+  long long int lVar1;
+  int iVar2;
+  ushort uVar3;
+  int iVar4;
+  int iVar5;
+  int iVar6;
+  int iVar7;
+
+  iVar4 = gploc_pt_cy - gploc_pt_ay;
+  iVar5 = iVar4 * (gploc_pt_bx - gploc_pt_ax);
+  if (-1 < factor_chk) {
+    iVar5 = (iVar5 - iVar4) - iVar4;
+  }
+  iVar4 = (gploc_pt_by - gploc_pt_ay) * (gploc_pt_cx - gploc_pt_ax) - (iVar5 + iVar4);
+  if (iVar4 == 0) {
+    gploc_A8 = 0;
+    gploc_B0 = 0;
+    gploc_AC = 0;
+  } else {
+    iVar4 = (int)(0x7fffffff / (long long int)iVar4);
+    iVar6 = gploc_pt_cy - gploc_pt_ay;
+    iVar7 = gploc_pt_by - gploc_pt_ay;
+    lVar1 = (long long int)iVar4
+            * (long long int)((gploc_140 - gploc_170) * iVar7 - (gploc_158 - gploc_170) * iVar6);
+    iVar5 = (int)lVar1;
+    iVar2 = iVar5 << 1;
+    uVar3 = (ushort)((uint)iVar2 >> 0x10);
+    gploc_A8 = CONCAT22(uVar3, (ushort)((int)((unsigned long long int)lVar1 >> 0x20) << 1)
+                                   | (ushort)(iVar5 < 0))
+                   << 0x10
+               | (uint)uVar3;
+    if (iVar2 < 0) {
+      gploc_A8 = gploc_A8 + 1;
+    }
+    lVar1 = (long long int)iVar4
+            * (long long int)((gploc_13C - gploc_16C) * iVar7 - (gploc_154 - gploc_16C) * iVar6);
+    iVar5 = (int)lVar1;
+    iVar2 = iVar5 << 1;
+    uVar3 = (ushort)((uint)iVar2 >> 0x10);
+    gploc_B0 = CONCAT22(uVar3, (ushort)((int)((unsigned long long int)lVar1 >> 0x20) << 1)
+                                   | (ushort)(iVar5 < 0))
+                   << 0x10
+               | (uint)uVar3;
+    if (iVar2 < 0) {
+      gploc_B0 = gploc_B0 + 1;
+    }
+    lVar1 = (long long int)iVar4
+            * (long long int)((gploc_138 - gploc_168) * iVar7 - (gploc_150 - gploc_168) * iVar6);
+    iVar4 = (int)lVar1;
+    iVar5 = iVar4 << 1;
+    uVar3 = (ushort)((uint)iVar5 >> 0x10);
+    gploc_AC = CONCAT22(uVar3, (ushort)((int)((unsigned long long int)lVar1 >> 0x20) << 1)
+                                   | (ushort)(iVar4 < 0))
+                   << 0x10
+               | (uint)uVar3;
+    if (iVar5 < 0) {
+      gploc_AC = gploc_AC + 1;
+    }
+  }
+  return;
 }
 
 /*
