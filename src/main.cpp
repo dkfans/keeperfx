@@ -426,9 +426,6 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
                 apply_velocity = true;
             }
         }
-        else if (thing->class_id == TCls_Creature){
-            JUSTLOG("Nope");  
-        }
     }
     if (apply_velocity)
     {
