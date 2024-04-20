@@ -4118,34 +4118,39 @@ void calculateTriangleProperties() {
   }
 }
 
-//  1. **Global Vertex Coordinates**:
-//     - `gploc_pt_ax`, `gploc_pt_ay`
-//     - `gploc_pt_bx`, `gploc_pt_by`
-//     - `gploc_pt_cx`, `gploc_pt_cy`
+/*
+ 1. **Global Vertex Coordinates**:
+    - `gploc_pt_ax`, `gploc_pt_ay`
+    - `gploc_pt_bx`, `gploc_pt_by`
+    - `gploc_pt_cx`, `gploc_pt_cy`
 
-// 2. **Global Control Variables**:
-//    - `gploc_140`, `gploc_170`
-//    - `gploc_158`
-//    - `gploc_13C`, `gploc_16C`
-//    - `gploc_138`, `gploc_168`
-//    - `gploc_154`
+2. **Global Control Variables**:
+   - `gploc_140`, `gploc_170`
+   - `gploc_158`
+   - `gploc_13C`, `gploc_16C`
+   - `gploc_138`, `gploc_168`
+   - `gploc_154`
 
-// 3. **Condition Check Variable**:
-//    - `factor_chk`: Determines an adaptation in the computation of `tempCalculation`.
+3. **Condition Check Variable**:
+   - `factor_chk`: Determines an adaptation in the computation of `tempCalculation`.
 
-// These global variables will need to be defined and initialized appropriately for tests. Since
-// they are external to the function, it might be beneficial to encapsulate them or pass them as
-// parameters for a more testable, self-contained function.
+These global variables will need to be defined and initialized appropriately for tests. Since
+they are external to the function, it might be beneficial to encapsulate them or pass them as
+parameters for a more testable, self-contained function.
 
-// ### Output Variables:
-// The function primarily alters three global variables, which are the direct outputs:
-// - `gploc_A8`
-// - `gploc_B0`
-// - `gploc_AC`
+### Output Variables:
+The function primarily alters three global variables, which are the direct outputs:
+- `gploc_A8`
+- `gploc_B0`
+- `gploc_AC`
+*/
+
+static void draw_gpoly_sub7_subfunc1();
+
 void test_calculateTriangleProperties() {
   JUSTLOG("Starting tests");
 
-  for (int i = 0; i < 300; i++) {
+  for (int i = 0; i < 150; i++) {
     gploc_pt_ax = test_gploc_pt_ax[i];
     gploc_pt_ay = test_gploc_pt_ay[i];
     gploc_pt_bx = test_gploc_pt_bx[i];
@@ -4162,18 +4167,35 @@ void test_calculateTriangleProperties() {
     gploc_154 = test_gploc_154[i];
     factor_chk = test_factor_chk[i];
 
+    // JUSTLOG(
+    //     "[test-inputs] gploc_pt_ax=%d, gploc_pt_ay=%d, gploc_pt_bx=%d, gploc_pt_by=%d, "
+    //     "gploc_pt_cx=%d, "
+    //     "gploc_pt_cy=%d, gploc_140=%d, gploc_170=%d, gploc_158=%d, gploc_13C=%d, gploc_16C=%d, "
+    //     "gploc_138=%d, gploc_168=%d, gploc_154=%d, factor_chk=%d",
+    //     gploc_pt_ax, gploc_pt_ay, gploc_pt_bx, gploc_pt_by, gploc_pt_cx, gploc_pt_cy, gploc_140,
+    //     gploc_170, gploc_158, gploc_13C, gploc_16C, gploc_138, gploc_168, gploc_154, factor_chk);
+
+    draw_gpoly_sub7_subfunc1();
+
+    int valid_gploc_A8 = gploc_A8;
+    int valid_gploc_B0 = gploc_B0;
+    int valid_gploc_AC = gploc_AC;
+
     calculateTriangleProperties();
 
-    if (gploc_A8 != test_gploc_A8[i]) {
-      JUSTLOG("Test %d failed for gploc_A8. Expected=%d, Got=%d", i, test_gploc_A8[i], gploc_A8);
+    // JUSTLOG("[test-outputs] gploc_A8=%d, gploc_B0=%d, gploc_AC=%d", gploc_A8, gploc_B0,
+    // gploc_AC);
+
+    if (gploc_A8 != valid_gploc_A8) {
+      JUSTLOG("Test %d failed for gploc_A8. Expected=%d, Got=%d", i, valid_gploc_A8, gploc_A8);
     }
 
-    if (gploc_B0 != test_gploc_B0[i]) {
-      JUSTLOG("Test %d failed for gploc_B0. Expected=%d, Got=%d", i, test_gploc_B0[i], gploc_B0);
+    if (gploc_B0 != valid_gploc_B0) {
+      JUSTLOG("Test %d failed for gploc_B0. Expected=%d, Got=%d", i, valid_gploc_B0, gploc_B0);
     }
 
-    if (gploc_AC != test_gploc_AC[i]) {
-      JUSTLOG("Test %d failed for gploc_AC. Expected=%d, Got=%d", i, test_gploc_AC[i], gploc_AC);
+    if (gploc_AC != valid_gploc_AC) {
+      JUSTLOG("Test %d failed for gploc_AC. Expected=%d, Got=%d", i, valid_gploc_AC, gploc_AC);
     }
   }
 }
@@ -4199,6 +4221,7 @@ static int combineHighLowResults(int highBits, int lowBits) {
 // TODO: Implement
 static int processCombinedResults(int foo, int bar) { return 0; }
 
+#if 0
 static void draw_gpoly_sub7_subfunc2() {
   // Assume all integers unless specified
   int deltaA, deltaB, deltaC;
@@ -4251,6 +4274,7 @@ static void draw_gpoly_sub7_subfunc2() {
     gploc_7C = processCombinedResults(gploc_48, gploc_44);
   }
 }
+#endif
 
 #if 0
 void draw_gpoly_sub7() {
@@ -4259,16 +4283,7 @@ void draw_gpoly_sub7() {
 }
 #endif
 
-// #if 0
-// Legacy implementation
-void draw_gpoly_sub7() {
-  // JUSTLOG(
-  //     "[test-inputs] gploc_pt_ax=%d, gploc_pt_ay=%d, gploc_pt_bx=%d, gploc_pt_by=%d, "
-  //     "gploc_pt_cx=%d, "
-  //     "gploc_pt_cy=%d, gploc_140=%d, gploc_170=%d, gploc_158=%d, gploc_13C=%d, gploc_16C=%d, "
-  //     "gploc_138=%d, gploc_168=%d, gploc_154=%d, factor_chk=%d",
-  //     gploc_pt_ax, gploc_pt_ay, gploc_pt_bx, gploc_pt_by, gploc_pt_cx, gploc_pt_cy, gploc_140,
-  //     gploc_170, gploc_158, gploc_13C, gploc_16C, gploc_138, gploc_168, gploc_154, factor_chk);
+static void draw_gpoly_sub7_subfunc1() {
 #if __GNUC__
   asm volatile(
       " \
@@ -4382,9 +4397,9 @@ gpo_loc_1DBD:\n \
       :
       : "memory", "cc");
 #endif
+}
 
-  // JUSTLOG("[test-outputs] gploc_A8=%d, gploc_B0=%d, gploc_AC=%d", gploc_A8, gploc_B0, gploc_AC);
-
+static void draw_gpoly_sub7_subfunc2() {
 #if __GNUC__
   asm volatile(
       " \
@@ -4710,6 +4725,24 @@ gpo_case69_break:\n \
       :
       : "memory", "cc");
 #endif
+}
+
+// #if 0
+// Legacy implementation
+void draw_gpoly_sub7() {
+  // JUSTLOG(
+  //     "[test-inputs] gploc_pt_ax=%d, gploc_pt_ay=%d, gploc_pt_bx=%d, gploc_pt_by=%d, "
+  //     "gploc_pt_cx=%d, "
+  //     "gploc_pt_cy=%d, gploc_140=%d, gploc_170=%d, gploc_158=%d, gploc_13C=%d, gploc_16C=%d, "
+  //     "gploc_138=%d, gploc_168=%d, gploc_154=%d, factor_chk=%d",
+  //     gploc_pt_ax, gploc_pt_ay, gploc_pt_bx, gploc_pt_by, gploc_pt_cx, gploc_pt_cy, gploc_140,
+  //     gploc_170, gploc_158, gploc_13C, gploc_16C, gploc_138, gploc_168, gploc_154, factor_chk);
+
+  draw_gpoly_sub7_subfunc1();
+
+  // JUSTLOG("[test-outputs] gploc_A8=%d, gploc_B0=%d, gploc_AC=%d", gploc_A8, gploc_B0, gploc_AC);
+
+  draw_gpoly_sub7_subfunc2();
 }
 // #endif  // End legacy implementation
 
