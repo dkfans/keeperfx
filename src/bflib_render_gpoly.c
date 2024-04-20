@@ -4053,7 +4053,32 @@ static inline uint32_t combineHighLowBits(uint16_t high, uint16_t low) {
   return ((uint32_t)high << BIT_SHIFT_16) | (uint32_t)low;
 }
 
-static int calculateParameter(int scaleFactor, int delta1, int delta2, int deltaY_B_A,
+#if 0
+void calculateBarycentricCoords(double& u, double& v, double& w, const Point2D& point) const {
+  const Vector2D v0 = this->v2 - this->v1, v1 = this->v3 - this->v1, v2 = point - this->v1;
+  double d00 = v0 * v0;
+  double d01 = v0 * v1;
+  double d11 = v1 * v1;
+  double d20 = v2 * v0;
+  double d21 = v2 * v1;
+  double denom = d00 * d11 - d01 * d01;
+  v = (d11 * d20 - d01 * d21) / denom;
+  w = (d00 * d21 - d01 * d20) / denom;
+  u = 1.0f - v - w;
+}
+#endif
+
+/**
+ * Calculates the barycentric coordinates for affine texture mapping
+ *
+ * @param scaleFactor The inverse determinant (for multiplication instead of divide).
+ * @param deltaP_C_A The delta parameter from vertex A to vertex C.
+ * @param deltaP_B_A The delta parameter from vertex A to vertex B.
+ * @param deltaY_B_A The delta Y from vertex A to vertex B.
+ * @param deltaY_C_A The delta Y from vertex A to vertex C.
+ * @return The calculated thingy.
+ */
+static int calculateParameter(int scaleFactor, int deltaP_C_A, int deltaP_B_A, int deltaY_B_A,
                               int deltaY_C_A) {
   long long int lVar1;
   int iVar5;
@@ -4061,7 +4086,8 @@ static int calculateParameter(int scaleFactor, int delta1, int delta2, int delta
   ushort upperHalf;
   int result;
 
-  lVar1 = (long long int)scaleFactor * (long long int)(delta1 * deltaY_B_A - delta2 * deltaY_C_A);
+  lVar1 = (long long int)scaleFactor
+          * (long long int)(deltaP_C_A * deltaY_B_A - deltaP_B_A * deltaY_C_A);
   iVar5 = (int)lVar1;
   iVar2 = iVar5 << 1;
   upperHalf = (ushort)((uint)iVar2 >> BIT_SHIFT_16);
@@ -4100,6 +4126,36 @@ coordinate computation or a direct calculation for interpolating vertex attribut
 - **Bit Manipulation for Result Adjustment**: This ensures that calculated values are properly
 aligned and formatted, likely adjusting for specific requirements of the rasterization hardware or
 software algorithm, or to pack multiple small values into a single integer for performance reasons.
+
+### Detailed Algorithm Insights:
+
+Each vertex seems to be associated with three parameters: S, U, and V. While U and V are
+traditionally used in graphics programming to represent texture coordinates mapped onto a 3D model's
+surface, S could potentially be another dimension or attribute used in texturing (like a secondary
+set of texture coordinates or special shading/scaling factor). However, without further context,
+it's conjecture.
+
+1. **Affine Texture Mapping**: The algorithm apparently performs calculations required for affine
+texture mapping by computing transformed parameters (S, U, V) to apply textures to a 2D projection
+of a 3D triangle. The affine transformation ensures that texture coordinates change linearly over
+the triangle’s surface.
+
+2. **Barycentric Coordinate Computation**:
+   - The computation carried out in `calculateParameter` looks like a form of barycentric coordinate
+computation which is used for interpolating vertex attributes like textures across the surface of a
+triangle.
+   - Barycentric coordinates allow an arbitrary point within a triangle to be expressed as a sum of
+scaled vertex positions. Here, `delta1`, `delta2`, `deltaY_B_A`, `deltaY_C_A` likely assist in
+calculating how much each vertex contributes to the final pixel position in the transformed texture
+space.
+
+3. **Bit Manipulations**:
+   - The use of bit shifts and combinations (`combineHighLowBits`) within `calculateParameter` might
+be needed to accommodate precision requirements or hardware-specific optimization. These operations
+might package the outputs into a format that's suitable for quick retrieval and use by a rasterizer
+or texture mapping unit in a graphics pipeline.
+
+https://mtrebi.github.io/2017/03/15/texture-mapping-affine-perspective.html
 */
 static void calculateTriangleProperties() {
   int deltaProduct;
