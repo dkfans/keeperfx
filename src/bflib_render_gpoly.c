@@ -4086,8 +4086,21 @@ static int calculateParameter(int scaleFactor, int deltaP_C_A, int deltaP_B_A, i
   ushort upperHalf;
   int result;
 
+  // This line computes a scaled difference concerning both the Y-deltas between the vertex A and
+  // the other vertices B and C. This kind of operation is reminiscent of how weights are calculated
+  // in barycentric coordinates or how gradients are derived in affine texture mapping. This
+  // particular multiplication can be seen as determining the influence of the vertex position
+  // deltas on the texture coordinates, modified by the scaleFactor (related to the determinant
+  // which, in graphical terms, could relate to the area of the triangle or a similar geometric
+  // factor influencing texture coordinate scaling).
   lVar1 = (long long int)scaleFactor
           * (long long int)(deltaP_C_A * deltaY_B_A - deltaP_B_A * deltaY_C_A);
+
+  // The resulting value `lVar1` serves as an intermediary step that could relate to an incremental
+  // differential area calculation concerning texturing, which might then be used to establish
+  // actual texture coordinate mappings across the triangle by offsetting base coordinates by these
+  // computed values.
+
   iVar5 = (int)lVar1;
   iVar2 = iVar5 << 1;
   upperHalf = (ushort)((uint)iVar2 >> BIT_SHIFT_16);
@@ -4096,6 +4109,8 @@ static int calculateParameter(int scaleFactor, int deltaP_C_A, int deltaP_B_A, i
                                   | (ushort)(iVar5 < 0))
                << BIT_SHIFT_16
            | (uint)upperHalf;
+
+  // Correction step
   if (iVar2 < 0) {
     result++;
   }
