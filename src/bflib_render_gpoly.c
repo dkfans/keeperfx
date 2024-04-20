@@ -4124,14 +4124,15 @@ static uint32_t CONCAT22(uint16_t high, uint16_t low) {
   return ((uint32_t)high << 16) | (uint32_t)low;
 }
 
-static int helper(int iVar4, int delta1, int delta2, int deltaY_B_A, int deltaY_C_A) {
+static int calculateParameter(int scaleFactor, int delta1, int delta2, int deltaY_B_A,
+                              int deltaY_C_A) {
   long long int lVar1;
   int iVar5;
   int iVar2;
   ushort uVar3;
   int result;
 
-  lVar1 = (long long int)iVar4 * (long long int)(delta1 * deltaY_B_A - delta2 * deltaY_C_A);
+  lVar1 = (long long int)scaleFactor * (long long int)(delta1 * deltaY_B_A - delta2 * deltaY_C_A);
   iVar5 = (int)lVar1;
   iVar2 = iVar5 << 1;
   uVar3 = (ushort)((uint)iVar2 >> 0x10);
@@ -4147,12 +4148,13 @@ static int helper(int iVar4, int delta1, int delta2, int deltaY_B_A, int deltaY_
 }
 
 static void calculateTriangleProperties() {
-  int iVar4;
   int iVar5;
   int deltaY_C_A;
   int deltaX_B_A;
   int deltaY_B_A;
   int deltaX_C_A;
+  int determinant;
+  int scaleFactor;
 
   deltaX_B_A = gploc_pt_bx - gploc_pt_ax;
   deltaY_B_A = gploc_pt_by - gploc_pt_ay;
@@ -4162,16 +4164,19 @@ static void calculateTriangleProperties() {
   if (-1 < factor_chk) {
     iVar5 = (iVar5 - deltaY_C_A) - deltaY_C_A;
   }
-  iVar4 = deltaY_B_A * deltaX_C_A - (iVar5 + deltaY_C_A);
-  if (iVar4 == 0) {
+  determinant = deltaY_B_A * deltaX_C_A - (iVar5 + deltaY_C_A);
+  if (determinant == 0) {
     gploc_A8 = 0;
     gploc_B0 = 0;
     gploc_AC = 0;
   } else {
-    iVar4 = (int)(0x7fffffff / (long long int)iVar4);
-    gploc_A8 = helper(iVar4, gploc_140 - gploc_170, gploc_158 - gploc_170, deltaY_B_A, deltaY_C_A);
-    gploc_B0 = helper(iVar4, gploc_13C - gploc_16C, gploc_154 - gploc_16C, deltaY_B_A, deltaY_C_A);
-    gploc_AC = helper(iVar4, gploc_138 - gploc_168, gploc_150 - gploc_168, deltaY_B_A, deltaY_C_A);
+    scaleFactor = (int)(0x7fffffff / (long long int)determinant);
+    gploc_A8 = calculateParameter(scaleFactor, gploc_140 - gploc_170, gploc_158 - gploc_170,
+                                  deltaY_B_A, deltaY_C_A);
+    gploc_B0 = calculateParameter(scaleFactor, gploc_13C - gploc_16C, gploc_154 - gploc_16C,
+                                  deltaY_B_A, deltaY_C_A);
+    gploc_AC = calculateParameter(scaleFactor, gploc_138 - gploc_168, gploc_150 - gploc_168,
+                                  deltaY_B_A, deltaY_C_A);
   }
 }
 
@@ -4795,7 +4800,7 @@ void draw_gpoly_sub7() {
   //     gploc_pt_ax, gploc_pt_ay, gploc_pt_bx, gploc_pt_by, gploc_pt_cx, gploc_pt_cy, gploc_140,
   //     gploc_170, gploc_158, gploc_13C, gploc_16C, gploc_138, gploc_168, gploc_154, factor_chk);
 
-  draw_gpoly_sub7_subfunc1();
+  calculateTriangleProperties();
 
   // JUSTLOG("[test-outputs] gploc_A8=%d, gploc_B0=%d, gploc_AC=%d", gploc_A8, gploc_B0, gploc_AC);
 
