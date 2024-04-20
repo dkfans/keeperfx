@@ -4053,21 +4053,6 @@ static inline uint32_t combineHighLowBits(uint16_t high, uint16_t low) {
   return ((uint32_t)high << BIT_SHIFT_16) | (uint32_t)low;
 }
 
-#if 0
-void calculateBarycentricCoords(double& u, double& v, double& w, const Point2D& point) const {
-  const Vector2D v0 = this->v2 - this->v1, v1 = this->v3 - this->v1, v2 = point - this->v1;
-  double d00 = v0 * v0;
-  double d01 = v0 * v1;
-  double d11 = v1 * v1;
-  double d20 = v2 * v0;
-  double d21 = v2 * v1;
-  double denom = d00 * d11 - d01 * d01;
-  v = (d11 * d20 - d01 * d21) / denom;
-  w = (d00 * d21 - d01 * d20) / denom;
-  u = 1.0f - v - w;
-}
-#endif
-
 /**
  * Calculates the barycentric coordinates for affine texture mapping
  *
@@ -4383,13 +4368,6 @@ static void draw_gpoly_sub7_subfunc2() {
     gploc_80 = processCombinedResults(gploc_4C, gploc_44);
     gploc_7C = processCombinedResults(gploc_48, gploc_44);
   }
-}
-#endif
-
-#if 0
-void draw_gpoly_sub7() {
-  calculateTriangleProperties();
-  draw_gpoly_sub7_subfunc2();
 }
 #endif
 
@@ -4857,136 +4835,6 @@ void draw_gpoly_sub7() {
 // #endif  // End legacy implementation
 
 #if 0
-// IDA
-void __stdcall draw_gpoly_sub7()
-{
-  draw_gpoly_sub7_subfunc1();
-  draw_gpoly_sub7_subfunc2();
-}
-
-// IDA
-void draw_gpoly_sub7_subfunc1()
-{
-  int v0; // eax
-  int v1; // ecx
-  int v2; // ebx
-  int v3; // ebp
-  int v4; // esi
-  int v5; // edi
-  bool v7; // sf
-  int v8; // eax
-  int v10; // eax
-  int v12; // eax
-
-  v0 = gploc_pt_cy - gploc_pt_ay;
-  v1 = (gploc_pt_bx - gploc_pt_ax) * (gploc_pt_cy - gploc_pt_ay);
-  if ( factor_chk >= 0 )
-    v1 = v1 - v0 - v0;
-  v2 = (gploc_pt_cx - gploc_pt_ax) * (gploc_pt_by - gploc_pt_ay) - (v0 + v1);
-  if ( v2 )
-  {
-    v3 = 0x7FFFFFFF / v2;
-    v4 = gploc_pt_cy - gploc_pt_ay;
-    v5 = gploc_pt_by - gploc_pt_ay;
-    _RAX = ((gploc_pt_by - gploc_pt_ay) * (gploc_140 - gploc_170) - (gploc_pt_cy - gploc_pt_ay)
-                                                                  * (gploc_158 - gploc_170))
-         * (__int64)(0x7FFFFFFF / v2);
-    LODWORD(_RAX) = 2 * _RAX;
-    v7 = (int)_RAX < 0;
-    __asm { rcl     edx, 1 }
-    LOWORD(_RAX) = WORD2(_RAX);
-    v8 = __ROL4__(_RAX, 16);
-    if ( v7 )
-      ++v8;
-    gploc_A8 = v8;
-    _RAX = (v5 * (gploc_13C - gploc_16C) - v4 * (gploc_154 - gploc_16C)) * (__int64)v3;
-    LODWORD(_RAX) = 2 * _RAX;
-    v7 = (int)_RAX < 0;
-    __asm { rcl     edx, 1 }
-    LOWORD(_RAX) = WORD2(_RAX);
-    v10 = __ROL4__(_RAX, 16);
-    if ( v7 )
-      ++v10;
-    gploc_B0 = v10;
-    _RAX = (v5 * (gploc_138 - gploc_168) - v4 * (gploc_150 - gploc_168)) * (__int64)v3;
-    LODWORD(_RAX) = 2 * _RAX;
-    v7 = (int)_RAX < 0;
-    __asm { rcl     edx, 1 }
-    LOWORD(_RAX) = WORD2(_RAX);
-    v12 = __ROL4__(_RAX, 16);
-    if ( v7 )
-      ++v12;
-    gploc_AC = v12;
-  }
-  else
-  {
-    gploc_A8 = 0;
-    gploc_B0 = 0;
-    gploc_AC = 0;
-  }
-}
-
-// Ghidra
-void __fastcall draw_gpoly_sub7_subfunc1(void)
-
-{
-  longlong lVar1;
-  int iVar2;
-  ushort uVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
-  int iVar7;
-  
-  iVar4 = gploc_pt_cy - gploc_pt_ay;
-  iVar5 = iVar4 * (gploc_pt_bx - gploc_pt_ax);
-  if (-1 < factor_chk) {
-    iVar5 = (iVar5 - iVar4) - iVar4;
-  }
-  iVar4 = (gploc_pt_by - gploc_pt_ay) * (gploc_pt_cx - gploc_pt_ax) - (iVar5 + iVar4);
-  if (iVar4 == 0) {
-    gploc_A8 = 0;
-    gploc_B0 = 0;
-    gploc_AC = 0;
-  }
-  else {
-    iVar4 = (int)(0x7fffffff / (longlong)iVar4);
-    iVar6 = gploc_pt_cy - gploc_pt_ay;
-    iVar7 = gploc_pt_by - gploc_pt_ay;
-    lVar1 = (longlong)iVar4 *
-            (longlong)((gploc_140 - gploc_170) * iVar7 - (gploc_158 - gploc_170) * iVar6);
-    iVar5 = (int)lVar1;
-    iVar2 = iVar5 << 1;
-    uVar3 = (ushort)((uint)iVar2 >> 0x10);
-    gploc_A8 = CONCAT22(uVar3,(ushort)((int)((ulonglong)lVar1 >> 0x20) << 1) | (ushort)(iVar5 < 0))
-               << 0x10 | (uint)uVar3;
-    if (iVar2 < 0) {
-      gploc_A8 = gploc_A8 + 1;
-    }
-    lVar1 = (longlong)iVar4 *
-            (longlong)((gploc_13C - gploc_16C) * iVar7 - (gploc_154 - gploc_16C) * iVar6);
-    iVar5 = (int)lVar1;
-    iVar2 = iVar5 << 1;
-    uVar3 = (ushort)((uint)iVar2 >> 0x10);
-    gploc_B0 = CONCAT22(uVar3,(ushort)((int)((ulonglong)lVar1 >> 0x20) << 1) | (ushort)(iVar5 < 0))
-               << 0x10 | (uint)uVar3;
-    if (iVar2 < 0) {
-      gploc_B0 = gploc_B0 + 1;
-    }
-    lVar1 = (longlong)iVar4 *
-            (longlong)((gploc_138 - gploc_168) * iVar7 - (gploc_150 - gploc_168) * iVar6);
-    iVar4 = (int)lVar1;
-    iVar5 = iVar4 << 1;
-    uVar3 = (ushort)((uint)iVar5 >> 0x10);
-    gploc_AC = CONCAT22(uVar3,(ushort)((int)((ulonglong)lVar1 >> 0x20) << 1) | (ushort)(iVar4 < 0))
-               << 0x10 | (uint)uVar3;
-    if (iVar5 < 0) {
-      gploc_AC = gploc_AC + 1;
-    }
-  }
-  return;
-}
-
 void draw_gpoly_sub7_subfunc2()
 {
   int v0; // ecx
@@ -5174,48 +5022,6 @@ void draw_gpoly_sub7_subfunc2()
     gploc_80 = ((unsigned int)gploc_4C >> 8) | (gploc_44 << 16);
     gploc_7C = (gploc_48 << 8) | BYTE2(gploc_44);
   }
-}
-
-// GPT-4 cleanups
-void draw_gpoly_sub7_subfunc1()
-{
-    int deltaY = gploc_pt_cy - gploc_pt_ay;
-    int term1 = (gploc_pt_bx - gploc_pt_ax) * deltaY;
-    if (factor_chk >= 0)
-        term1 = term1 - deltaY - deltaY;
-    int v2 = (gploc_pt_cx - gploc_pt_ax) * (gploc_pt_by - gploc_pt_ay) - (deltaY + term1);
-
-    if (v2 != 0)
-    {
-        int invV2 = 0x7FFFFFFF / v2;
-        int deltaY_A = gploc_pt_cy - gploc_pt_ay;
-        int deltaY_B = gploc_pt_by - gploc_pt_ay;
-        int abResult, bcResult, caResult;
-
-        // A Result Calculation
-        long long tempA = (long long)deltaY_B * (gploc_140 - gploc_170);
-        tempA -= (long long)deltaY_A * (gploc_158 - gploc_170);
-        abResult = ((int)(2 * tempA * invV2) + (int)(tempA < 0)) >> 16;
-        gploc_A8 = abResult;
-
-        // B Result Calculation
-        long long tempB = (long long)deltaY_B * (gploc_13C - gploc_16C);
-        tempB -= (long long)deltaY_A * (gploc_154 - gploc_16C);
-        bcResult = ((int)(2 * tempB * invV2) + (int)(tempB < 0)) >> 16;
-        gploc_B0 = bcResult;
-
-        // C Result Calculation
-        long long tempC = (long long)deltaY_B * (gploc_138 - gploc_168);
-        tempC -= (long long)deltaY_A * (gploc_150 - gploc_168);
-        caResult = ((int)(2 * tempC * invV2) + (int)(tempC < 0)) >> 16;
-        gploc_AC = caResult;
-    }
-    else
-    {
-        gploc_A8 = 0;
-        gploc_B0 = 0;
-        gploc_AC = 0;
-    }
 }
 
 void draw_gpoly_sub7_subfunc2() {
