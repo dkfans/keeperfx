@@ -4038,88 +4038,7 @@ const int test_gploc_AC[] = {
     -108837,  -145115,  -94493,   -126976,  -101581, -126976, -119507, -101581,  -85541,  -119507,
     -80460,   -101581,  -81264,   -101581,  -101581, -81264,  -65839,  -101581,  -64060,  -75245};
 
-#if 0
-static void draw_gpoly_sub7_subfunc1() {
-  int deltaY = gploc_pt_cy - gploc_pt_ay;
-  int term1 = (gploc_pt_bx - gploc_pt_ax) * deltaY;
-  if (factor_chk >= 0) term1 = term1 - deltaY - deltaY;
-  int v2 = (gploc_pt_cx - gploc_pt_ax) * (gploc_pt_by - gploc_pt_ay) - (deltaY + term1);
-
-  if (v2 != 0) {
-    int invV2 = 0x7FFFFFFF / v2;
-    int deltaY_A = gploc_pt_cy - gploc_pt_ay;
-    int deltaY_B = gploc_pt_by - gploc_pt_ay;
-    int abResult, bcResult, caResult;
-
-    // A Result Calculation
-    long long tempA = (long long)deltaY_B * (gploc_140 - gploc_170);
-    tempA -= (long long)deltaY_A * (gploc_158 - gploc_170);
-    abResult = ((int)(2 * tempA * invV2) + (int)(tempA < 0)) >> 16;
-    gploc_A8 = abResult;
-
-    // B Result Calculation
-    long long tempB = (long long)deltaY_B * (gploc_13C - gploc_16C);
-    tempB -= (long long)deltaY_A * (gploc_154 - gploc_16C);
-    bcResult = ((int)(2 * tempB * invV2) + (int)(tempB < 0)) >> 16;
-    gploc_B0 = bcResult;
-
-    // C Result Calculation
-    long long tempC = (long long)deltaY_B * (gploc_138 - gploc_168);
-    tempC -= (long long)deltaY_A * (gploc_150 - gploc_168);
-    caResult = ((int)(2 * tempC * invV2) + (int)(tempC < 0)) >> 16;
-    gploc_AC = caResult;
-  } else {
-    gploc_A8 = 0;
-    gploc_B0 = 0;
-    gploc_AC = 0;
-  }
-}
-#endif
-
-#if 0
-int calculateParameter(int diff1, int diff2, int scaleFactor, int deltaY_B_A, int deltaY_C_A) {
-  long long mult = (long long)scaleFactor * (diff1 * deltaY_B_A - diff2 * deltaY_C_A);
-  int result = (int)(mult << 1);
-  if (result < 0) result++;
-  return (result >> 16) | ((result & 0xFFFF) << 16);
-}
-
-void calculateTriangleProperties() {
-  //   #### Variable Renaming Suggestions:
-  // 1. **Vertices related (`gploc_pt_*`)**:
-  //    - `gploc_pt_ax`, `gploc_pt_ay` -> `vertexA_x`, `vertexA_y`
-  //    - `gploc_pt_bx`, `gploc_pt_by` -> `vertexB_x`, `vertexB_y`
-  //    - `gploc_pt_cx`, `gploc_pt_cy` -> `vertexC_x`, `vertexC_y`
-  int deltaY_C_A = gploc_pt_cy - gploc_pt_ay;
-  int deltaX_B_A = gploc_pt_bx - gploc_pt_ax;
-  int deltaY_B_A = gploc_pt_by - gploc_pt_ay;
-  int deltaX_C_A = gploc_pt_cx - gploc_pt_ax;
-
-  int tempCalculation = deltaY_C_A * deltaX_B_A;
-
-  if (factor_chk >= 0) {
-    tempCalculation = tempCalculation - deltaY_C_A - deltaY_C_A;
-  }
-
-  int determinant = deltaY_B_A * deltaX_C_A - (tempCalculation + deltaY_C_A);
-
-  if (determinant == 0) {
-    gploc_A8 = 0;
-    gploc_B0 = 0;
-    gploc_AC = 0;
-  } else {
-    int scaleFactor = 0x7FFFFFFF / determinant;
-
-    gploc_A8 = calculateParameter(gploc_140 - gploc_170, gploc_158 - gploc_170, scaleFactor,
-                                  deltaY_B_A, deltaY_C_A);
-    gploc_B0 = calculateParameter(gploc_13C - gploc_16C, gploc_154 - gploc_16C, scaleFactor,
-                                  deltaY_B_A, deltaY_C_A);
-    gploc_AC = calculateParameter(gploc_138 - gploc_168, gploc_150 - gploc_168, scaleFactor,
-                                  deltaY_B_A, deltaY_C_A);
-  }
-}
-#endif
-
+// Concatenates 2 bytes with 2 bytes to make 4 bytes (Inherited from Ghidra)
 static uint32_t CONCAT22(uint16_t high, uint16_t low) {
   return ((uint32_t)high << 16) | (uint32_t)low;
 }
@@ -4129,17 +4048,17 @@ static int calculateParameter(int scaleFactor, int delta1, int delta2, int delta
   long long int lVar1;
   int iVar5;
   int iVar2;
-  ushort uVar3;
+  ushort upperHalf;
   int result;
 
   lVar1 = (long long int)scaleFactor * (long long int)(delta1 * deltaY_B_A - delta2 * deltaY_C_A);
   iVar5 = (int)lVar1;
   iVar2 = iVar5 << 1;
-  uVar3 = (ushort)((uint)iVar2 >> 0x10);
-  result = CONCAT22(uVar3, (ushort)((int)((unsigned long long int)lVar1 >> 0x20) << 1)
-                               | (ushort)(iVar5 < 0))
+  upperHalf = (ushort)((uint)iVar2 >> 0x10);
+  result = CONCAT22(upperHalf, (ushort)((int)((unsigned long long int)lVar1 >> 0x20) << 1)
+                                   | (ushort)(iVar5 < 0))
                << 0x10
-           | (uint)uVar3;
+           | (uint)upperHalf;
   if (iVar2 < 0) {
     result++;
   }
@@ -4147,8 +4066,34 @@ static int calculateParameter(int scaleFactor, int delta1, int delta2, int delta
   return result;
 }
 
+const int MAX_INT_DIV = 0x7FFFFFFF;  // Max int value for normalization/division
+
+/*
+### Algorithm Insights
+
+The code calculates properties for triangle rasterization, possibly interpolation values or
+coordinates using affine or similar transformations based on triangle vertex positions. This process
+typically involves the following steps in graphical computations:
+
+- **Determinant Calculation**: The determinant essentially informs about the orientation and the
+area spanned by the triangle in 2D space. A zero determinant indicates collinear points, hence no
+valid triangle.
+
+- **Scaling and Interpolation**:
+   - **Scale Factor Calculation**: This involves normalization with `0x7FFFFFFF`, possibly to
+maintain precision or manage overflow in subsequent calculations. This scale factor is then used to
+determine how the linear interpolation should be scaled across the triangle’s area.
+   - **Interpolation Calculation**: `calculateParameter()` uses affine transformations or similar
+math to project properties (like texture coordinates, colors, etc.) across the rasterized triangle.
+The combination of subtraction and multiplication likely corresponds to a form of barycentric
+coordinate computation or a direct calculation for interpolating vertex attributes.
+
+- **Bit Manipulation for Result Adjustment**: This ensures that calculated values are properly
+aligned and formatted, likely adjusting for specific requirements of the rasterization hardware or
+software algorithm, or to pack multiple small values into a single integer for performance reasons.
+*/
 static void calculateTriangleProperties() {
-  int iVar5;
+  int deltaProduct;
   int deltaY_C_A;
   int deltaX_B_A;
   int deltaY_B_A;
@@ -4156,21 +4101,31 @@ static void calculateTriangleProperties() {
   int determinant;
   int scaleFactor;
 
+  //   #### Variable Renaming Suggestions:
+  // 1. **Vertices related (`gploc_pt_*`)**:
+  //    - `gploc_pt_ax`, `gploc_pt_ay` -> `vertexA_x`, `vertexA_y`
+  //    - `gploc_pt_bx`, `gploc_pt_by` -> `vertexB_x`, `vertexB_y`
+  //    - `gploc_pt_cx`, `gploc_pt_cy` -> `vertexC_x`, `vertexC_y`
+
+  // Calculate triangle delta values
   deltaX_B_A = gploc_pt_bx - gploc_pt_ax;
   deltaY_B_A = gploc_pt_by - gploc_pt_ay;
   deltaX_C_A = gploc_pt_cx - gploc_pt_ax;
   deltaY_C_A = gploc_pt_cy - gploc_pt_ay;
-  iVar5 = deltaY_C_A * deltaX_B_A;
+
+  deltaProduct = deltaY_C_A * deltaX_B_A;
   if (-1 < factor_chk) {
-    iVar5 = (iVar5 - deltaY_C_A) - deltaY_C_A;
+    deltaProduct = (deltaProduct - deltaY_C_A) - deltaY_C_A;
   }
-  determinant = deltaY_B_A * deltaX_C_A - (iVar5 + deltaY_C_A);
-  if (determinant == 0) {
+
+  // Calculate determinant
+  determinant = deltaY_B_A * deltaX_C_A - (deltaProduct + deltaY_C_A);
+  if (determinant == 0) {  // Invalid triangle
     gploc_A8 = 0;
     gploc_B0 = 0;
     gploc_AC = 0;
   } else {
-    scaleFactor = (int)(0x7fffffff / (long long int)determinant);
+    scaleFactor = (int)(MAX_INT_DIV / (long long int)determinant);
     gploc_A8 = calculateParameter(scaleFactor, gploc_140 - gploc_170, gploc_158 - gploc_170,
                                   deltaY_B_A, deltaY_C_A);
     gploc_B0 = calculateParameter(scaleFactor, gploc_13C - gploc_16C, gploc_154 - gploc_16C,
