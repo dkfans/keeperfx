@@ -2464,7 +2464,7 @@ void clear_dig_and_set_explored_can_see_y(MapSlabCoord slb_x, MapSlabCoord slb_y
 
 void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    if (is_neutral_thing(creatng) || is_hero_thing(creatng))
+    if (is_neutral_thing(creatng) || is_hero_thing(creatng) || thing_is_invalid(creatng))
         return;
     struct Coord3d pos;
     pos.x.val = subtile_coord_center(stl_x);
@@ -2489,13 +2489,16 @@ void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoor
 
     int can_see_slabs;
     can_see_slabs = get_explore_sight_distance_in_slabs(creatng);
-    if (!player_cannot_win(creatng->owner) && ((get_creature_model_flags(creatng) & CMF_IsSpectator) == 0)) {
-        claim_neutral_creatures_in_sight(creatng, &pos, can_see_slabs);
+    if (can_see_slabs > 0)
+    {
+        clear_dig_and_set_explored_can_see_x(slb_x, slb_y, creatng->owner, can_see_slabs);
+        clear_dig_and_set_explored_can_see_y(slb_x, slb_y, creatng->owner, can_see_slabs);
+        if (!player_cannot_win(creatng->owner) && ((get_creature_model_flags(creatng) & CMF_IsSpectator) == 0)) {
+            claim_neutral_creatures_in_sight(creatng, &pos, can_see_slabs);
+        }
     }
     clear_slab_dig(slb_x, slb_y, creatng->owner);
     set_slab_explored(creatng->owner, slb_x, slb_y);
-    clear_dig_and_set_explored_can_see_x(slb_x, slb_y, creatng->owner, can_see_slabs);
-    clear_dig_and_set_explored_can_see_y(slb_x, slb_y, creatng->owner, can_see_slabs);
 }
 
 long element_top_face_texture(struct Map *mapblk)
