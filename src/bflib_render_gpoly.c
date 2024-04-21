@@ -4379,6 +4379,62 @@ static inline bool CARRY4(uint32_t a, uint32_t b) {
   return a > UINT32_MAX - b;
 }
 
+/*
+### Global Input Variables
+These are variables that are read within the function to compute other values or influence decision paths:
+
+1. `factor_chk`
+2. `gploc_pt_cy`
+3. `gploc_pt_ay`
+4. `gploc_140`
+5. `gploc_170`
+6. `gploc_13C`
+7. `gploc_16C`
+8. `gploc_138`
+9. `gploc_168`
+10. `gploc_pt_by`
+11. `gploc_158`
+12. `gploc_154`
+13. `gploc_150`
+14. `gploc_AC`
+15. `gploc_A8`
+16. `gploc_B0`
+17. `gploc_188`
+18. `gploc_point_c`
+19. `gploc_194`
+20. `gploc_1A0`
+21. `gploc_198`
+22. `gploc_18C`
+
+### Global Output Variables
+These are variables that are written or potentially modified by the function:
+
+1. `gploc_point_c`
+2. `gploc_194`
+3. `gploc_188`
+4. `gploc_58`
+5. `gploc_54`
+6. `gploc_50`
+7. `gploc_4C`
+8. `gploc_48`
+9. `gploc_44`
+10. `gploc_BC`
+11. `gploc_B8`
+12. `gploc_5C`
+13. `gploc_2C`
+14. `gploc_A4`
+15. `gploc_A0`
+16. `gploc_8C`
+17. `gploc_88`
+18. `gploc_98`
+19. `gploc_94`
+20. `gploc_80`
+21. `gploc_7C`
+22. `gploc_64`
+23. `gploc_1A0` (conditional overwrite based on branch conditions)
+24. `gploc_198` (conditional overwrite)
+25. `gploc_18C` (conditional overwrite)
+*/
 void draw_gpoly_sub7_subfunc2_refactor(void) {
   long long int lVar1;
   int iVar2;
