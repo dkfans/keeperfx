@@ -4371,7 +4371,7 @@ static void draw_gpoly_sub7_subfunc2() {
 }
 #endif
 
-void draw_gpoly_sub7_subfunc2(void) {
+void draw_gpoly_sub7_subfunc2_refactor(void) {
   long long int lVar1;
   int iVar2;
   ushort uVar4;
@@ -4396,7 +4396,7 @@ void draw_gpoly_sub7_subfunc2(void) {
                         << 0x10
                     | (uint)uVar4;
     if (iVar2 < 0) {
-      gploc_point_c = gploc_point_c + 1;
+      gploc_point_c++;
     }
     iVar2 = (gploc_13C - gploc_16C) * 2;
     lVar1 = (long long int)iVar2 * (long long int)iVar5;
@@ -4404,7 +4404,7 @@ void draw_gpoly_sub7_subfunc2(void) {
     gploc_194 = combineHighLowBits(uVar4, (short)((unsigned long long int)lVar1 >> 0x20)) << 0x10
                 | (uint)uVar4;
     if (iVar2 < 0) {
-      gploc_194 = gploc_194 + 1;
+      gploc_194++;
     }
     iVar2 = (gploc_138 - gploc_168) * 2;
     lVar1 = (long long int)iVar2 * (long long int)iVar5;
@@ -4412,7 +4412,7 @@ void draw_gpoly_sub7_subfunc2(void) {
     gploc_188 = combineHighLowBits(uVar4, (short)((unsigned long long int)lVar1 >> 0x20)) << 0x10
                 | (uint)uVar4;
     if (iVar2 < 0) {
-      gploc_188 = gploc_188 + 1;
+      gploc_188++;
     }
   } else {
     iVar5 = gploc_pt_by - gploc_pt_ay;
@@ -4428,7 +4428,7 @@ void draw_gpoly_sub7_subfunc2(void) {
                         << 0x10
                     | (uint)uVar4;
     if (iVar2 < 0) {
-      gploc_point_c = gploc_point_c + 1;
+      gploc_point_c++;
     }
     iVar2 = (gploc_154 - gploc_16C) * 2;
     lVar1 = (long long int)iVar2 * (long long int)iVar5;
@@ -4436,7 +4436,7 @@ void draw_gpoly_sub7_subfunc2(void) {
     gploc_194 = combineHighLowBits(uVar4, (short)((unsigned long long int)lVar1 >> 0x20)) << 0x10
                 | (uint)uVar4;
     if (iVar2 < 0) {
-      gploc_194 = gploc_194 + 1;
+      gploc_194++;
     }
     iVar2 = (gploc_150 - gploc_168) * 2;
     lVar1 = (long long int)iVar2 * (long long int)iVar5;
@@ -4444,7 +4444,7 @@ void draw_gpoly_sub7_subfunc2(void) {
     gploc_188 = combineHighLowBits(uVar4, (short)((unsigned long long int)lVar1 >> 0x20)) << 0x10
                 | (uint)uVar4;
     if (iVar2 < 0) {
-      gploc_188 = gploc_188 + 1;
+      gploc_188++;
     }
     iVar5 = gploc_pt_cy - gploc_pt_by;
     if (iVar5 < 0x100) {
@@ -4458,7 +4458,7 @@ void draw_gpoly_sub7_subfunc2(void) {
     gploc_1A0 = combineHighLowBits(uVar4, (short)((unsigned long long int)lVar1 >> 0x20)) << 0x10
                 | (uint)uVar4;
     if (iVar2 < 0) {
-      gploc_1A0 = gploc_1A0 + 1;
+      gploc_1A0++;
     }
     iVar2 = (gploc_13C - gploc_154) * 2;
     lVar1 = (long long int)iVar2 * (long long int)iVar5;
@@ -4466,7 +4466,7 @@ void draw_gpoly_sub7_subfunc2(void) {
     gploc_198 = combineHighLowBits(uVar4, (short)((unsigned long long int)lVar1 >> 0x20)) << 0x10
                 | (uint)uVar4;
     if (iVar2 < 0) {
-      gploc_198 = gploc_198 + 1;
+      gploc_198++;
     }
     iVar2 = (gploc_138 - gploc_150) * 2;
     lVar1 = (long long int)iVar2 * (long long int)iVar5;
@@ -4474,7 +4474,7 @@ void draw_gpoly_sub7_subfunc2(void) {
     gploc_18C = combineHighLowBits(uVar4, (short)((unsigned long long int)lVar1 >> 0x20)) << 0x10
                 | (uint)uVar4;
     if (iVar2 < 0) {
-      gploc_18C = gploc_18C + 1;
+      gploc_18C++;
     }
   }
   gploc_58 = gploc_170 << 0x10;
@@ -4501,7 +4501,7 @@ void draw_gpoly_sub7_subfunc2(void) {
   if ((int)uVar6 < 0) {
     iVar5 = gploc_B0 + -1;
   }
-  gploc_B8 = uVar6 & 0xff | iVar5 << 8;
+  gploc_B8 = (uVar6 & 0xff) | iVar5 << 8;
   uVar8 = gploc_AC * 0x10000;
   if ((int)uVar7 < 0) {
     uVar7 = uVar7 & 0xffff;
@@ -4513,9 +4513,9 @@ void draw_gpoly_sub7_subfunc2(void) {
   gploc_5C = uVar8 + uVar7;
   iVar5 = gploc_B0;
   if ((int)uVar3 < 0) {
-    iVar5 = gploc_B0 + -1;
+    iVar5 = gploc_B0 - 1;
   }
-  gploc_2C = uVar3 & 0xff | iVar5 << 8;
+  gploc_2C = (uVar3 & 0xff) | iVar5 << 8;
   uVar8 = gploc_188 * 0x10000;
   iVar5 = (int)gploc_188 >> 0x10;
   // gploc_68 = gploc_point_c << 0x18;  // TODO: Fix this
@@ -4532,9 +4532,9 @@ void draw_gpoly_sub7_subfunc2(void) {
   if ((int)uVar7 < 0) {
     uVar8 = gploc_194 - 1;
   }
-  gploc_A0 = uVar7 & 0xff | uVar8 << 8;
+  gploc_A0 = (uVar7 & 0xff) | uVar8 << 8;
   gploc_8C = (uint)(gploc_170 << 0x10) >> 8;
-  gploc_88 = gploc_168 & 0xff | gploc_16C << 0x18;
+  gploc_88 = (gploc_168 & 0xff) | gploc_16C << 0x18;
   if (-1 < factor_chk) {
     uVar8 = gploc_18C * 0x10000;
     iVar5 = (int)gploc_18C >> 0x10;
@@ -4552,9 +4552,9 @@ void draw_gpoly_sub7_subfunc2(void) {
     if ((int)uVar3 < 0) {
       uVar8 = gploc_198 - 1;
     }
-    gploc_94 = uVar3 & 0xff | uVar8 << 8;
+    gploc_94 = (uVar3 & 0xff) | uVar8 << 8;
     gploc_80 = (uint)(gploc_158 << 0x10) >> 8;
-    gploc_7C = gploc_150 & 0xff | gploc_154 << 0x18;
+    gploc_7C = (gploc_150 & 0xff) | gploc_154 << 0x18;
   }
 }
 
