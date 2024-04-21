@@ -4381,7 +4381,8 @@ static inline bool CARRY4(uint32_t a, uint32_t b) {
 
 /*
 ### Global Input Variables
-These are variables that are read within the function to compute other values or influence decision paths:
+These are variables that are read within the function to compute other values or influence decision
+paths:
 
 1. `factor_chk`
 2. `gploc_pt_cy`
@@ -4435,7 +4436,7 @@ These are variables that are written or potentially modified by the function:
 24. `gploc_198` (conditional overwrite)
 25. `gploc_18C` (conditional overwrite)
 */
-void draw_gpoly_sub7_subfunc2_refactor(void) {
+void draw_gpoly_sub7_subfunc2_refactor() {
   long long int lVar1;
   int iVar2;
   ushort uVar4;
@@ -4444,7 +4445,7 @@ void draw_gpoly_sub7_subfunc2_refactor(void) {
   uint uVar6;
   uint uVar7;
   uint uVar8;
-  uint8_t bVar9;  // bool
+  bool bVar9;
 
   if (factor_chk < 0) {
     iVar5 = gploc_pt_cy - gploc_pt_ay;
@@ -4456,11 +4457,12 @@ void draw_gpoly_sub7_subfunc2_refactor(void) {
     iVar2 = (gploc_140 - gploc_170) * 2;
     lVar1 = (long long int)iVar2 * (long long int)iVar5;
     uVar4 = (ushort)((unsigned long long int)lVar1 >> 0x10);
-    gploc_point_c = combineHighLowBits(uVar4, (short)((unsigned long long int)lVar1 >> 0x20))
-                        << 0x10
-                    | (uint)uVar4;
+    gploc_point_c = (struct PolyPoint *)(combineHighLowBits(
+                                             uVar4, (short)((unsigned long long int)lVar1 >> 0x20))
+                                             << 0x10
+                                         | (uint)uVar4);
     if (iVar2 < 0) {
-      gploc_point_c++;
+      gploc_point_c = (struct PolyPoint *)((int)&gploc_point_c->X + 1);
     }
     iVar2 = (gploc_13C - gploc_16C) * 2;
     lVar1 = (long long int)iVar2 * (long long int)iVar5;
@@ -4488,11 +4490,12 @@ void draw_gpoly_sub7_subfunc2_refactor(void) {
     iVar2 = (gploc_158 - gploc_170) * 2;
     lVar1 = (long long int)iVar2 * (long long int)iVar5;
     uVar4 = (ushort)((unsigned long long int)lVar1 >> 0x10);
-    gploc_point_c = combineHighLowBits(uVar4, (short)((unsigned long long int)lVar1 >> 0x20))
-                        << 0x10
-                    | (uint)uVar4;
+    gploc_point_c = (struct PolyPoint *)(combineHighLowBits(
+                                             uVar4, (short)((unsigned long long int)lVar1 >> 0x20))
+                                             << 0x10
+                                         | (uint)uVar4);
     if (iVar2 < 0) {
-      gploc_point_c++;
+      gploc_point_c = (struct PolyPoint *)((int)&gploc_point_c->X + 1);
     }
     iVar2 = (gploc_154 - gploc_16C) * 2;
     lVar1 = (long long int)iVar2 * (long long int)iVar5;
@@ -4563,7 +4566,7 @@ void draw_gpoly_sub7_subfunc2_refactor(void) {
   gploc_BC = uVar3 + uVar8;
   iVar5 = gploc_B0;
   if ((int)uVar6 < 0) {
-    iVar5 = gploc_B0 + -1;
+    iVar5 = gploc_B0 - 1;
   }
   gploc_B8 = (uVar6 & 0xff) | iVar5 << 8;
   uVar8 = gploc_AC * 0x10000;
@@ -4582,7 +4585,7 @@ void draw_gpoly_sub7_subfunc2_refactor(void) {
   gploc_2C = (uVar3 & 0xff) | iVar5 << 8;
   uVar8 = gploc_188 * 0x10000;
   iVar5 = (int)gploc_188 >> 0x10;
-  // gploc_68 = gploc_point_c << 0x18;  // TODO: Fix this
+  gploc_68 = (int)gploc_point_c << 0x18;
   uVar3 = (int)gploc_point_c >> 8;
   if ((int)uVar3 < 0) {
     uVar3 = uVar3 & 0xffff;
