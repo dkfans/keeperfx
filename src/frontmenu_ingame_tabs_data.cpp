@@ -37,6 +37,7 @@
 #include "frontmenu_ingame_evnt.h"
 #include "frontmenu_ingame_opts.h"
 #include "sprites.h"
+#include "player_instances.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -126,6 +127,7 @@ void gui_area_player_room_info(struct GuiButton *gbtn);
 void spell_lost_first_person(struct GuiButton *gbtn);
 void gui_set_tend_to(struct GuiButton *gbtn);
 void gui_set_query(struct GuiButton *gbtn);
+void gui_switch_players_visible(struct GuiButton *gbtn);
 /******************************************************************************/
 struct GuiButtonInit main_menu_buttons[] = {
   {LbBtnT_NormalBtn,    BID_OPTIONS, 0, 0,                 NULL,           NULL,  NULL,               0,  68,   0,  68,   0, 68, 16, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_quit_act, GUIStr_MnuOptionsDesc,&options_menu, {0},        0, NULL },
@@ -342,7 +344,8 @@ struct GuiButtonInit creature_menu_buttons[] = {
 };
 
 struct GuiButtonInit query_menu_buttons[] = {
-  {LbBtnT_NormalBtn,    BID_DEFAULT,      0, 0, gui_set_query,   NULL, NULL, 0,  44, 374,  44, 374, 52, 20, gui_area_new_normal_button,    GPS_rpanel_rpanel_btn_crinfo_act,      GUIStr_GoToQueryMode,        0,       {0},            0, NULL },
+  {LbBtnT_NormalBtn,    BID_DEFAULT,      0, 0, gui_set_query,                NULL, NULL, 0,  14, 374,  14, 374, 52, 20, gui_area_new_normal_button,    GPS_rpanel_rpanel_btn_crinfo_act,      GUIStr_GoToQueryMode,        0,       {0},            0, NULL },
+  {LbBtnT_NormalBtn,    BID_DEFAULT,      0, 0, gui_switch_players_visible,   NULL, NULL, 0,  74, 374,  74, 374, 52, 20, gui_area_new_normal_button,    GPS_rpanel_rpanel_btn_crinfo_act,      GUIStr_GoToQueryMode,        0,       {0},            0, NULL },
   {LbBtnT_ToggleBtn,    BID_QRY_IMPRSN,   0, 0, gui_set_tend_to, NULL, NULL, 1,  36, 190,  36, 190, 32, 26, gui_area_flash_cycle_button,   GPS_rpanel_tendency_prisne_act,        GUIStr_CreatureImprisonDesc, 0,{(long)&game.creatures_tend_imprison}, 1, maintain_prison_bar },
   {LbBtnT_ToggleBtn,    BID_QRY_FLEE,     0, 0, gui_set_tend_to, NULL, NULL, 2,  74, 190,  74, 190, 32, 26, gui_area_flash_cycle_button,   GPS_rpanel_tendency_fleee_act,         GUIStr_CreatureFleeDesc,     0,{(long)&game.creatures_tend_flee}, 1, NULL },
   {LbBtnT_NormalBtn,    BID_DEFAULT,      0, 0, NULL,            NULL, NULL, 0,   4, 216,   4, 222,132, 24, gui_area_payday_button,        GPS_rpanel_rpanel_payday_counter,      GUIStr_PayTimeDesc,          0,       {0},            0, NULL },
