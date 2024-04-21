@@ -4738,7 +4738,8 @@ TbBool external_set_thing_state_f(struct Thing *thing, CrtrStateId state, const 
 
 TbBool creature_free_for_sleep(const struct Thing *thing,  CrtrStateId state)
 {
-    if (creature_affected_by_slap(thing) || creature_is_called_to_arms(thing))
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if ((creature_affected_by_slap(thing) || creature_is_called_to_arms(thing)) && (cctrl->dropped_turn != game.play_gameturn))
         return false;
     return can_change_from_state_to(thing, thing->active_state, state);
 }
