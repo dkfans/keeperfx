@@ -1147,13 +1147,6 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
     return 1;
 }
 
-void clear_thing_acceleration(struct Thing *thing)
-{
-    thing->veloc_push_add.x.val = 0;
-    thing->veloc_push_add.y.val = 0;
-    thing->veloc_push_add.z.val = 0;
-}
-
 void set_thing_acceleration_angles(struct Thing *thing, long angle_xy, long angle_yz)
 {
     thing->move_angle_xy = angle_xy;

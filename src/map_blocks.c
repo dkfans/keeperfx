@@ -42,6 +42,7 @@
 #include "engine_render.h"
 #include "thing_navigate.h"
 #include "thing_physics.h"
+#include "config_spritecolors.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -968,11 +969,11 @@ void place_slab_object(SlabCodedCoords slb_num, MapSubtlCoord stl_x,MapSubtlCoor
                 {
                     ThingModel tngmodel;
                     tngmodel = sobj->model;
-                    if (tngmodel == dungeon_flame_objects[0]) {
-                        tngmodel = dungeon_flame_objects[get_player_color_idx(plyr_idx)];
-                    } else
-                    if (tngmodel == player_guardflag_objects[0]) {
-                        tngmodel = player_guardflag_objects[get_player_color_idx(plyr_idx)];
+
+                    ThingModel base_model = get_coloured_object_base_model(tngmodel);
+                    if(base_model != 0)
+                    {
+                        tngmodel = get_player_colored_object_model(base_model,plyr_idx);
                     }
                     if (tngmodel <= 0)
                         continue;

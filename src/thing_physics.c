@@ -785,6 +785,20 @@ void apply_transitive_velocity_to_thing(struct Thing *thing, struct ComponentVec
     thing->state_flags |= TF1_PushOnce;
 }
 
+void clear_thing_acceleration(struct Thing* thing)
+{
+    thing->veloc_push_add.x.val = 0;
+    thing->veloc_push_add.y.val = 0;
+    thing->veloc_push_add.z.val = 0;
+}
+
+void clear_thing_velocity(struct Thing* thing)
+{
+    thing->veloc_base.x.val = 0;
+    thing->veloc_base.y.val = 0;
+    thing->veloc_base.z.val = 0;
+}
+
 /**
  * Returns if things will collide if first moves to given position.
  * @param firstng

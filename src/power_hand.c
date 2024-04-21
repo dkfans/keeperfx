@@ -1314,6 +1314,7 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
         }
     }
     insert_thing_into_power_hand_list(thing, plyr_idx);
+    clear_thing_velocity(thing);
     place_thing_in_limbo(thing);
     return true;
 }

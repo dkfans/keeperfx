@@ -54,3 +54,11 @@ animationIds = [
     [ 868, 868,874,880,886,"CTA_WHITE_ACTIVE",    0,"CTA_PURPLE_ACTIVE",    "CTA_BLACK_ACTIVE",    "CTA_ORANGE_ACTIVE"    ],#cta_alive_anim_idx
     [ 869, 869,875,881,887,"CTA_WHITE_DEACTIVATE",0,"CTA_PURPLE_DEACTIVATE","CTA_BLACK_DEACTIVATE","CTA_ORANGE_DEACTIVATE"],#cta_leave_anim_idx
 ]
+
+objects = [
+    [ 115, 115,116,117,118,119,161,164,166,168],#guardflag
+    [ 111, 111,120,121,122,  0,162,165,167,169],#heartflame
+]
+
+
+    

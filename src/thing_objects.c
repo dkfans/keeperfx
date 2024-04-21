@@ -51,6 +51,7 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "game_loop.h"
+#include "config_spritecolors.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -97,14 +98,6 @@ static Thing_Class_Func object_update_functions[] = {
     object_update_power_lightning,
 };
 
-/** Guard flag objects model per player index. Originally named guard_post_objects.
- */
-unsigned short player_guardflag_objects[] = {ObjMdl_GuardFlagRed, ObjMdl_GuardFlagBlue, ObjMdl_GuardFlagGreen, ObjMdl_GuardFlagYellow,  ObjMdl_GuardFlagWhite, ObjMdl_GuardFlagPole,
-                                             ObjMdl_GuardFlagPurple,ObjMdl_GuardFlagBlack,ObjMdl_GuardFlagOrange};
-/** Dungeon Heart flame objects model per player index.
- */
-unsigned short dungeon_flame_objects[] =    {ObjMdl_HeartFlameRed, ObjMdl_HeartFlameBlue, ObjMdl_HeartFlameGreen, ObjMdl_HeartFlameYellow,  ObjMdl_HeartFlameWhite,   0,
-                                             ObjMdl_HeartFlamePurple, ObjMdl_HeartFlameBlack, ObjMdl_HeartFlameOrange};
 unsigned short lightning_spangles[] =   {TngEffElm_RedTwinkle3, TngEffElm_BlueTwinke2, TngEffElm_GreenTwinkle2, TngEffElm_YellowTwinkle2, TngEffElm_WhiteTwinkle2, TngEffElm_None,TngEffElm_PurpleTwinkle2,TngEffElm_BlackTwinkle2,TngEffElm_OrangeTwinkle2,};
 unsigned short twinkle_eff_elements[] = {TngEffElm_RedTwinkle,  TngEffElm_BlueTwinkle, TngEffElm_GreenTwinkle,  TngEffElm_YellowTwinkle,  TngEffElm_WhiteTwinkle,  TngEffElm_None,TngEffElm_PurpleTwinkle, TngEffElm_BlackTwinkle, TngEffElm_OrangeTwinkle, };
 
@@ -505,6 +498,17 @@ TbBool object_is_guard_flag(const struct Thing *thing)
       default:
           return false;
     }
+}
+
+
+/**
+ * Returns if given thing is a coloured object.
+ * @param thing
+ * @return
+ */
+TbBool object_is_coloured_object(const struct Thing *thing)
+{
+    return (get_coloured_object_base_model(thing->model) != 0);
 }
 
 /**
@@ -1838,23 +1842,19 @@ TngUpdateRet update_object(struct Thing *thing)
 }
 
 /**
- * Creates a guard post flag object.
- * @param pos Position where the guard post flag is to be created.
+ * Creates a coloured object.
+ * @param pos Position where the object is to be created.
  * @param plyr_idx Player who will own the flag.
  * @param parent_idx Slab number associated with the flag.
- * @return Guard flag object thing.
+ * @return object thing.
  */
-struct Thing *create_guard_flag_object(const struct Coord3d *pos, PlayerNumber plyr_idx, long parent_idx)
+struct Thing *create_coloured_object(const struct Coord3d *pos, PlayerNumber plyr_idx, long parent_idx, ThingModel base_model)
 {
-    ThingModel grdflag_kind;
-    if (plyr_idx >= sizeof(player_guardflag_objects)/sizeof(player_guardflag_objects[0]))
-        grdflag_kind = player_guardflag_objects[NEUTRAL_PLAYER];
-    else
-        grdflag_kind = player_guardflag_objects[get_player_color_idx(plyr_idx)];
-    if (grdflag_kind <= 0)
+    ThingModel model = get_player_colored_object_model(base_model,plyr_idx);
+    if (model <= 0)
         return INVALID_THING;
     // Guard posts have slab number set as parent
-    struct Thing* thing = create_object(pos, grdflag_kind, plyr_idx, parent_idx);
+    struct Thing* thing = create_object(pos, model, plyr_idx, parent_idx);
     if (thing_is_invalid(thing))
         return INVALID_THING;
     return thing;
