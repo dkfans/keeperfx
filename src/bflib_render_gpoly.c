@@ -4371,6 +4371,14 @@ static void draw_gpoly_sub7_subfunc2() {
 }
 #endif
 
+#include <stdbool.h>  // TODO: Move this
+
+// Emulate CARRY4 by checking for overflow after adding two 32-bit integers
+static inline bool CARRY4(uint32_t a, uint32_t b) {
+  uint32_t result = a + b;
+  return a > UINT32_MAX - b;
+}
+
 void draw_gpoly_sub7_subfunc2_refactor(void) {
   long long int lVar1;
   int iVar2;
