@@ -51,6 +51,7 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "game_loop.h"
+#include "config_spritecolors.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -97,24 +98,16 @@ static Thing_Class_Func object_update_functions[] = {
     object_update_power_lightning,
 };
 
-/** Guard flag objects model per player index. Originally named guard_post_objects.
- */
-unsigned short player_guardflag_objects[] = {ObjMdl_GuardFlagRed, ObjMdl_GuardFlagBlue, ObjMdl_GuardFlagGreen, ObjMdl_GuardFlagYellow,  ObjMdl_GuardFlagWhite, ObjMdl_GuardFlagPole,
-                                             ObjMdl_GuardFlagPurple,ObjMdl_GuardFlagBlack,ObjMdl_GuardFlagOrange};
-/** Dungeon Heart flame objects model per player index.
- */
-unsigned short dungeon_flame_objects[] =    {ObjMdl_HeartFlameRed, ObjMdl_HeartFlameBlue, ObjMdl_HeartFlameGreen, ObjMdl_HeartFlameYellow,  ObjMdl_HeartFlameWhite,   0,
-                                             ObjMdl_HeartFlamePurple, ObjMdl_HeartFlameBlack, ObjMdl_HeartFlameOrange};
 unsigned short lightning_spangles[] =   {TngEffElm_RedTwinkle3, TngEffElm_BlueTwinke2, TngEffElm_GreenTwinkle2, TngEffElm_YellowTwinkle2, TngEffElm_WhiteTwinkle2, TngEffElm_None,TngEffElm_PurpleTwinkle2,TngEffElm_BlackTwinkle2,TngEffElm_OrangeTwinkle2,};
 unsigned short twinkle_eff_elements[] = {TngEffElm_RedTwinkle,  TngEffElm_BlueTwinkle, TngEffElm_GreenTwinkle,  TngEffElm_YellowTwinkle,  TngEffElm_WhiteTwinkle,  TngEffElm_None,TngEffElm_PurpleTwinkle, TngEffElm_BlackTwinkle, TngEffElm_OrangeTwinkle, };
 
-unsigned short gold_hoard_objects[] = {ObjMdl_GoldPile, ObjMdl_GoldPile, ObjMdl_GoldHorde1, ObjMdl_GoldHorde2, ObjMdl_GoldHorde3, ObjMdl_GoldHorde4};
+unsigned short gold_hoard_objects[] = {ObjMdl_GoldHoard1, ObjMdl_GoldHoard2, ObjMdl_GoldHoard3, ObjMdl_GoldHoard4, ObjMdl_GoldHoard5};
 unsigned short food_grow_objects[] = {ObjMdl_ChickenStb, ObjMdl_ChickenWob, ObjMdl_ChickenCrk};
 
 struct CallToArmsGraphics call_to_arms_graphics[10];
 
 /******************************************************************************/
-struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx)
+struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigned short owner, long parent_idx)
 {
     long i;
     long start_frame;
@@ -505,6 +498,17 @@ TbBool object_is_guard_flag(const struct Thing *thing)
       default:
           return false;
     }
+}
+
+
+/**
+ * Returns if given thing is a coloured object.
+ * @param thing
+ * @return
+ */
+TbBool object_is_coloured_object(const struct Thing *thing)
+{
+    return (get_coloured_object_base_model(thing->model) != 0);
 }
 
 /**
@@ -1838,23 +1842,19 @@ TngUpdateRet update_object(struct Thing *thing)
 }
 
 /**
- * Creates a guard post flag object.
- * @param pos Position where the guard post flag is to be created.
+ * Creates a coloured object.
+ * @param pos Position where the object is to be created.
  * @param plyr_idx Player who will own the flag.
  * @param parent_idx Slab number associated with the flag.
- * @return Guard flag object thing.
+ * @return object thing.
  */
-struct Thing *create_guard_flag_object(const struct Coord3d *pos, PlayerNumber plyr_idx, long parent_idx)
+struct Thing *create_coloured_object(const struct Coord3d *pos, PlayerNumber plyr_idx, long parent_idx, ThingModel base_model)
 {
-    ThingModel grdflag_kind;
-    if (plyr_idx >= sizeof(player_guardflag_objects)/sizeof(player_guardflag_objects[0]))
-        grdflag_kind = player_guardflag_objects[NEUTRAL_PLAYER];
-    else
-        grdflag_kind = player_guardflag_objects[get_player_color_idx(plyr_idx)];
-    if (grdflag_kind <= 0)
+    ThingModel model = get_player_colored_object_model(base_model,plyr_idx);
+    if (model <= 0)
         return INVALID_THING;
     // Guard posts have slab number set as parent
-    struct Thing* thing = create_object(pos, grdflag_kind, plyr_idx, parent_idx);
+    struct Thing* thing = create_object(pos, model, plyr_idx, parent_idx);
     if (thing_is_invalid(thing))
         return INVALID_THING;
     return thing;
@@ -1880,11 +1880,13 @@ struct Thing *create_gold_pot_at(long pos_x, long pos_y, PlayerNumber plyr_idx)
  */
 int get_wealth_size_of_gold_hoard_model(ThingModel objmodel)
 {
-    // Find position of the hoard size
+    // Check gold_hoard_objects array to determine wealth_size of the hoard model
     for (int i = get_wealth_size_types_count(); i > 0; i--)
     {
-        if (gold_hoard_objects[i] == objmodel)
-            return i;
+        if (gold_hoard_objects[i] == objmodel) {
+            int wealth_size = i+1;
+            return wealth_size;
+        }
     }
     return 0;
 }
@@ -1898,7 +1900,13 @@ int get_wealth_size_of_gold_hoard_object(const struct Thing *objtng)
 }
 
 /**
- * For given gold amount, returns ceiling wealth size which would fit it, scaled 0..max_size+1.
+ * For gold amount, returns the weath size, which is the size of the hoard.
+ For example:
+ 400 gold = 1 wealth size
+ 800 gold = 2 wealth size
+ 1200 gold = 3 wealth size
+ 1600 gold = 4 wealth size
+ 2000 gold = 5 wealth size
  */
 int get_wealth_size_of_gold_amount(GoldAmount value)
 {
@@ -1916,7 +1924,8 @@ int get_wealth_size_of_gold_amount(GoldAmount value)
  */
 int get_wealth_size_types_count(void)
 {
-    return sizeof(gold_hoard_objects)/sizeof(gold_hoard_objects[0])-1;
+    // This will return a value of 5 because there's 5 items in gold_hoard_objects array
+    return sizeof(gold_hoard_objects)/sizeof(gold_hoard_objects[0]);
 }
 
 /**
@@ -1933,7 +1942,7 @@ struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber p
     if (value >= game.conf.rules.game.gold_per_hoard)
         value = game.conf.rules.game.gold_per_hoard;
     int wealth_size = get_wealth_size_of_gold_amount(value);
-    struct Thing* gldtng = create_object(pos, gold_hoard_objects[wealth_size], plyr_idx, -1);
+    struct Thing* gldtng = create_object(pos, gold_hoard_objects[wealth_size-1], plyr_idx, -1);
     if (thing_is_invalid(gldtng))
         return INVALID_THING;
     gldtng->valuable.gold_stored = value;
@@ -2010,7 +2019,7 @@ long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amou
     wealth_size = get_wealth_size_of_gold_amount(gldtng->valuable.gold_stored);
     room->used_capacity += wealth_size;
     // switch hoard object model
-    gldtng->model = gold_hoard_objects[wealth_size];
+    gldtng->model = gold_hoard_objects[wealth_size-1];
     // Set visual appearance
     struct ObjectConfigStats* objst = get_object_model_stats(gldtng->model);
     unsigned short i = objst->sprite_anim_idx;
@@ -2062,7 +2071,7 @@ long remove_gold_from_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount
     wealth_size = get_wealth_size_of_gold_amount(gldtng->valuable.gold_stored);
     room->used_capacity += wealth_size;
     // switch hoard object model
-    gldtng->model = gold_hoard_objects[wealth_size];
+    gldtng->model = gold_hoard_objects[wealth_size-1];
     // Set visual appearance
     struct ObjectConfigStats* objst = get_object_model_stats(gldtng->model);
     unsigned short i = objst->sprite_anim_idx;

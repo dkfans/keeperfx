@@ -69,7 +69,8 @@ enum ShotFireLogics {
     ShFL_Beam,
     ShFL_Breathe,
     ShFL_Hail,
-    ShFL_Lizard
+    ShFL_Lizard,
+    ShFL_Volley,
 };
 
 enum ShotUpdateLogics {
@@ -93,13 +94,14 @@ struct Coord3d;
 #pragma pack()
 /******************************************************************************/
 /******************************************************************************/
-struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned short owner);
+struct Thing *create_shot(struct Coord3d *pos, ThingModel model, unsigned short owner);
 TngUpdateRet update_shot(struct Thing *thing);
 TbBool thing_is_shot(const struct Thing *thing);
 
-long get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target);
+long get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target, TbBool NeverBlock);
 long project_damage_of_melee_shot(long shot_dexterity, long shot_damage, const struct Thing *target);
 void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct Thing *target);
+int weight_calculated_push_strenght(int weight, int push_strength);
 
 TbBool shot_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx);
 TbBool shot_model_is_navigable(long tngmodel);

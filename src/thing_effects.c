@@ -24,7 +24,7 @@
 #include "bflib_math.h"
 #include "bflib_sound.h"
 #include "bflib_planar.h"
-
+#include "math.h"
 #include "thing_objects.h"
 #include "thing_list.h"
 #include "thing_stats.h"
@@ -74,7 +74,7 @@ struct EffectElementConfigStats *get_effect_element_model_stats(ThingModel tngmo
     return &game.conf.effects_conf.effectelement_cfgstats[tngmodel];
 }
 
-struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short eelmodel, PlayerNumber owner)
+struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmodel, PlayerNumber owner)
 {
     long i;
     if (!i_can_allocate_free_thing_structure(FTAF_Default)) {
@@ -336,7 +336,7 @@ void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct C
     {
         struct Thing* efftng = thing;
         long cube_id = get_top_cube_at(next_pos->x.stl.num, next_pos->y.stl.num, NULL);
-        unsigned short effmodel;
+        ThingModel effmodel;
         if (cube_is_water(cube_id))
         {
           effmodel = eestat->water_effmodel;
@@ -548,7 +548,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     return TUFRet_Modified;
 }
 
-struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short model, unsigned short range, unsigned short owner, long parent_idx)
+struct Thing *create_effect_generator(struct Coord3d *pos, ThingModel model, unsigned short range, unsigned short owner, long parent_idx)
 {
 
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
@@ -854,7 +854,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
             elemtng->state_flags |= TF1_PushAdd;
             if (egenstat->sound_sample_idx > 0)
             {
-                struct Thing* sectng = create_effect(&elemtng->mappos, TngEff_DamageBlood, thing->owner);
+                struct Thing* sectng = create_effect(&elemtng->mappos, TngEff_Dummy, thing->owner);
                 TRACE_THING(sectng);
                 if (!thing_is_invalid(sectng)) {
                     thing_play_sample(sectng, egenstat->sound_sample_idx + EFFECT_RANDOM(thing, egenstat->sound_sample_rng), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
@@ -990,8 +990,8 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
     {
         // Friendly fire usually causes less damage and at smaller distance
         if ((tngdst->class_id == TCls_Creature) && (tngdst->owner == owner)) {
-            max_dist = max_dist * game.conf.rules.magic.friendly_fight_area_range_permil / 1000;
-            max_damage = max_damage * game.conf.rules.magic.friendly_fight_area_damage_permil / 1000;
+            max_dist = max_dist * game.conf.rules.magic.friendly_fight_area_range_percent / 100;
+            max_damage = max_damage * game.conf.rules.magic.friendly_fight_area_damage_percent / 100;
         }
         MapCoordDelta distance = get_2d_distance(pos, &tngdst->mappos);
         if (distance <= max_dist)
@@ -1033,15 +1033,24 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 }
             } else // Explosions move creatures and other things
             {
+                int adjusted_blow_strength = blow_strength;
+                if (game.conf.rules.magic.weight_calculate_push > 0)
+                {
+                    int weight = compute_creature_weight(tngdst);
+                    adjusted_blow_strength = weight_calculated_push_strenght(weight, blow_strength);
+                }
+            
+                
                 long move_angle = get_angle_xy_to(pos, &tngdst->mappos);
                 long move_dist = 0;
+               // long adjusted_max_dist = max_dist;
                 if (blow_strength > 0)
                 {
-                    move_dist = get_radially_decaying_value(blow_strength, max_dist / 4, max_dist * 3 / 4, distance);
+                    move_dist = get_radially_decaying_value(adjusted_blow_strength, adjusted_blow_strength / 4, max_dist  * 3 / 4, distance);
                 }
                 else
                 {
-                    move_dist = get_radially_growing_value(blow_strength, max_dist / 4, max_dist * 3 / 4, distance, tngdst->inertia_floor);
+                    move_dist = get_radially_growing_value(adjusted_blow_strength, adjusted_blow_strength / 4, max_dist  * 3 / 4, distance, tngdst->inertia_floor);
                 }
                 if (move_dist != 0)
                 {

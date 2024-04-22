@@ -24,6 +24,8 @@
 #include "lvl_filesdk1.h"
 #include "creature_states_pray.h"
 #include "magic.h"
+#include "config_creature.h"
+#include "gui_msgs.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -47,7 +49,7 @@ void command_init_value(struct ScriptValue* value, unsigned long var_index, unsi
     value->condit_idx = get_script_current_condition();
 }
 
-struct Thing *script_process_new_object(long tngmodel, TbMapLocation location, long arg, unsigned long plr_range_id)
+struct Thing *script_process_new_object(ThingModel tngmodel, TbMapLocation location, long arg, unsigned long plr_range_id)
 {
     
     int tngowner = plr_range_id;
@@ -99,7 +101,7 @@ struct Thing *script_process_new_object(long tngmodel, TbMapLocation location, l
     return thing;
 }
 
-struct Thing* script_process_new_effectgen(long tngmodel, TbMapLocation location, long range)
+struct Thing* script_process_new_effectgen(ThingModel tngmodel, TbMapLocation location, long range)
 {
     struct Coord3d pos;
     const unsigned char tngclass = TCls_EffectGen;
@@ -289,7 +291,7 @@ static long filter_criteria_loc(long desc_type)
     return desc_type >> 4;
 }
 
-struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmodel, long criteria)
+struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, ThingModel crmodel, long criteria)
 {
     switch (filter_criteria_type(criteria))
     {
@@ -356,98 +358,138 @@ struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmode
     }
 }
 
-char get_player_number_from_value(const char* txt)
+void get_player_number_from_value(const char* txt, char* id, char* type)
 {
-    char id;
+    char idx;
     if (strcasecmp(txt, "None") == 0)
     {
-        id = 127;
+        *id = 0;
+        *type = MsgType_Blank;
+        return;
     }
     else if (strcasecmp(txt, "Kills") == 0)
     {
-        id = -114;
+        *id = 1;
+        *type = MsgType_Query;
+        return;
     }
     else if (strcasecmp(txt, "Strength") == 0)
     {
-        id = -115;
+        *id = 2;
+        *type = MsgType_Query;
+        return;
     }
     else if (strcasecmp(txt, "Gold") == 0)
     {
-        id = -116;
+        *id = 3;
+        *type = MsgType_Query;
+        return;
     }
     else if (strcasecmp(txt, "Wage") == 0)
     {
-        id = -117;
+        *id = 4;
+        *type = MsgType_Query;
+        return;
     }
     else if (strcasecmp(txt, "Armour") == 0)
     {
-        id = -118;
+        *id = 5;
+        *type = MsgType_Query;
+        return;
     }
     else if (strcasecmp(txt, "Time") == 0)
     {
-        id = -119;
+        *id = 6;
+        *type = MsgType_Query;
+        return;
     }
     else if (strcasecmp(txt, "Dexterity") == 0)
     {
-        id = -120;
+        *id = 7;
+        *type = MsgType_Query;
+        return;
     }
     else if (strcasecmp(txt, "Defence") == 0)
     {
-        id = -121;
+        *id = 8;
+        *type = MsgType_Query;
+        return;
     }
     else if (strcasecmp(txt, "Luck") == 0)
     {
-        id = -122;
+        *id = 9;
+        *type = MsgType_Query;
+        return;
     }
     else if (strcasecmp(txt, "Blood") == 0)
     {
-        id = -123;
+        *id = 10;
+        *type = MsgType_Query;
+        return;
     }
     else
     {
-        id = get_rid(player_desc, txt);
+        idx = get_id(player_desc, txt);
     }
-    if (id == -1)
+    if (idx == -1)
     {
-        id = get_rid(cmpgn_human_player_options, txt);
-        if (id == -1)
+        idx = get_id(cmpgn_human_player_options, txt);
+        if (idx == -1)
         {
-            id = get_rid(creature_desc, txt);
-            if (id != -1)
+            idx = get_id(creature_desc, txt);
+            if (idx != -1)
             {
-                id = (~id) + 1;
+                *id = idx;
+                *type = MsgType_Creature;
             }
             else
             {
-                id = get_rid(spell_desc, txt);
-                if (id != -1)
+                idx = get_id(spell_desc, txt);
+                if (idx != -1)
                 {
-                    id = -35 - id;
+                    *id = idx;
+                    *type = MsgType_CreatureSpell;
                 }
                 else
                 {
-                    id = get_rid(room_desc, txt);
-                    if (id != -1)
+                    idx = get_id(room_desc, txt);
+                    if (idx != -1)
                     {
-                        id = -78 - id;
+                        *id = idx;
+                        *type = MsgType_Room;
                     }
                     else
                     {
-                        id = get_rid(power_desc, txt);
-                        if (id != -1)
+                        idx = get_id(power_desc, txt);
+                        if (idx != -1)
                         {
-                            id = -94 - id;
+                            *id = idx;
+                            *type = MsgType_KeeperSpell;
                         }
                         else
                         {
-                            id = atoi(txt);
+                            idx = get_id(instance_desc, txt);
+                            if (idx != -1)
+                            {
+                                *id = idx;
+                                *type = MsgType_CreatureInstance;
+                            }
+                            else
+                            {
+                                *id = atoi(txt);
+                                *type = MsgType_Player;
+                            }
                         }
                     }
                 }
             }
         }
     }
-    return id;
+    else
+    {
+        *id = idx;
+        *type = MsgType_Player;
+    }
 }
 
 #define get_player_id(plrname, plr_range_id) get_player_id_f(plrname, plr_range_id, __func__, text_line_number)

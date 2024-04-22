@@ -147,6 +147,7 @@ struct StartupParameters {
     TbBool overrides[CMDLINE_OVERRIDES];
     char config_file[CMDLN_MAXLEN+1];
     GameTurn pause_at_gameturn;
+    TbBool ungrab_mouse;
 #ifdef FUNCTESTING
     unsigned char functest_flags;
     char functest_name[FTEST_MAX_NAME_LENGTH];
@@ -162,6 +163,7 @@ extern unsigned char *dog_palette;
 extern unsigned char *vampire_palette;
 extern unsigned char exit_keeper;
 extern unsigned char quit_game;
+extern unsigned char is_running_under_wine;
 extern int continue_game_option_available;
 extern long last_mouse_x;
 extern long last_mouse_y;

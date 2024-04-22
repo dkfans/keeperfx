@@ -118,7 +118,7 @@ unsigned long get_navigation_map_floor_height(MapSubtlCoord stl_x, MapSubtlCoord
 long get_ceiling_height(const struct Coord3d *pos)
 {
     long i = get_subtile_number(pos->x.stl.num, pos->y.stl.num);
-    return ((game.map[i].data & 0xF000000u) >> 24) << 8;
+    return game.map[i].filled_subtiles * COORD_PER_STL;
 }
 
 ThingIndex get_mapwho_thing_index(const struct Map *mapblk)
@@ -133,19 +133,12 @@ void set_mapwho_thing_index(struct Map *mapblk, ThingIndex thing_idx)
 
 long get_mapblk_column_index(const struct Map *mapblk)
 {
-  return ((mapblk->data) & 0x7FF);
+  return (mapblk->col_idx);
 }
 
 void set_mapblk_column_index(struct Map *mapblk, long column_idx)
 {
-  // Check if new value is correct
-  if ((unsigned long)column_idx > 0x7FF)
-  {
-      ERRORLOG("Tried to set invalid column %ld",column_idx);
-      return;
-  }
-  // Clear previous and set new
-  mapblk->data ^= (mapblk->data ^ ((unsigned long)column_idx)) & 0x7FF;
+    mapblk->col_idx = column_idx;
 }
 
 /**
@@ -155,7 +148,7 @@ void set_mapblk_column_index(struct Map *mapblk, long column_idx)
  */
 long get_mapblk_filled_subtiles(const struct Map *mapblk)
 {
-    return ((mapblk->data & 0xF000000u) >> 24);
+    return mapblk->filled_subtiles;
 }
 
 /**
@@ -165,7 +158,7 @@ long get_mapblk_filled_subtiles(const struct Map *mapblk)
  */
 long get_mapblk_wibble_value(const struct Map *mapblk)
 {
-    return ((mapblk->data & 0xC00000u) >> 22);
+    return mapblk->wibble_value;
 }
 
 /**
@@ -175,7 +168,7 @@ long get_mapblk_wibble_value(const struct Map *mapblk)
  */
 void set_mapblk_wibble_value(struct Map *mapblk, long wib)
 {
-    mapblk->data ^= ((mapblk->data ^ (wib << 22)) & 0xC00000);
+    mapblk->wibble_value = wib;
 }
 
 /**
@@ -187,8 +180,7 @@ void set_mapblk_filled_subtiles(struct Map *mapblk, long height)
 {
     if (height <  0) height = 0;
     if (height > 15) height = 15;
-    mapblk->data &= ~(0xF000000);
-    mapblk->data |= (height << 24) & 0xF000000;
+    mapblk->filled_subtiles = height;
 }
 
 void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)

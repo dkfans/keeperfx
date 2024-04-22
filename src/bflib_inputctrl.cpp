@@ -30,6 +30,7 @@
 #include "config.h"
 #include "sounds.h"
 #include "game_legacy.h" // needed for paused and possession_mode below - maybe there is a neater way than this...
+#include "keeperfx.hpp" // for start_params
 #include <SDL2/SDL.h>
 #include "post_inc.h"
 
@@ -549,7 +550,8 @@ void LbGrabMouseCheck(long grab_event)
                 }
                 break;
             case MG_InitMouse:
-                grab_cursor = true;
+                if (!start_params.ungrab_mouse)
+                    grab_cursor = true;
                 break;
             case MG_OnFocusGained:
                 grab_cursor = lbMouseGrab;

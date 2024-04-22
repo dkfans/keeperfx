@@ -625,17 +625,6 @@ static void command_add_creature_to_pool(const char *crtr_name, long amount)
     command_add_value(Cmd_ADD_CREATURE_TO_POOL, ALL_PLAYERS, crtr_id, amount, 0);
 }
 
-static void command_reset_action_point(long apt_num)
-{
-    long apt_idx = action_point_number_to_index(apt_num);
-    if (!action_point_exists_idx(apt_idx))
-    {
-        SCRPTERRLOG("Non-existing Action Point, no %d", apt_num);
-        return;
-  }
-  command_add_value(Cmd_RESET_ACTION_POINT, ALL_PLAYERS, apt_idx, 0, 0);
-}
-
 static void command_set_music(long val)
 {
   if (get_script_current_condition() != CONDITION_ALWAYS)
@@ -1072,32 +1061,6 @@ static void command_message(const char *msgtext, unsigned char kind)
   SCRPTWRNLOG("Command '%s' is only supported in Dungeon Keeper Beta", cmd);
 }
 
-static void command_quick_message(int idx, const char *msgtext, const char *range_id)
-{
-  if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
-  {
-      SCRPTERRLOG("Invalid information ID number (%d)", idx);
-      return;
-  }
-  if (strlen(msgtext) > MESSAGE_TEXT_LEN)
-  {
-      SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
-  }
-  if ((gameadd.quick_messages[idx][0] != '\0') && (strcmp(gameadd.quick_messages[idx],msgtext) != 0))
-  {
-      SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
-  }
-  snprintf(gameadd.quick_messages[idx], MESSAGE_TEXT_LEN, "%s", msgtext);
-  char id = get_player_number_from_value(range_id);
-  command_add_value(Cmd_QUICK_MESSAGE, 0, id, idx, 0);
-}
-
-static void command_display_message(int msg_num, const char *range_id)
-{
-    char id = get_player_number_from_value(range_id);
-    command_add_value(Cmd_DISPLAY_MESSAGE, 0, id, msg_num, 0);
-}
-
 static void command_swap_creature(const char *ncrt_name, const char *crtr_name)
 {
     long ncrt_id = get_rid(newcrtr_desc, ncrt_name);
@@ -1157,7 +1120,7 @@ static void command_level_up_creature(long plr_range_id, const char *crtr_name, 
         SCRPTERRLOG("Bad count, %d", count);
         return;
     }
-    long crtr_id = parse_creature_name(crtr_name);
+    ThingModel crtr_id = parse_creature_name(crtr_name);
     if (crtr_id == CREATURE_NONE)
     {
         SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
@@ -1192,7 +1155,7 @@ static void command_use_power_on_creature(long plr_range_id, const char *crtr_na
     SCRPTERRLOG("Unknown magic, '%s'", magname);
     return;
   }
-  long crtr_id = parse_creature_name(crtr_name);
+  ThingModel crtr_id = parse_creature_name(crtr_name);
   if (crtr_id == CREATURE_NONE) {
     SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;
@@ -1564,7 +1527,7 @@ static void command_compute_flag(long plr_range_id, const char *flgname, const c
  * @param cmd_desc
  * @param scline
  */
-void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptLine *scline)
+void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptLine *scline, long file_version)
 {
     if (cmd_desc->check_fn != NULL)
     {
@@ -1601,7 +1564,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_room_available(scline->np[0], scline->tp[1], scline->np[2], scline->np[3]);
         break;
     case Cmd_CREATURE_AVAILABLE:
-        if (level_file_version > 0) {
+        if (file_version > 0) {
             command_creature_available(scline->np[0], scline->tp[1], scline->np[2], scline->np[3]);
         } else {
             command_creature_available(scline->np[0], scline->tp[1], scline->np[3], 0);
@@ -1650,7 +1613,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_door_available(scline->np[0], scline->tp[1], scline->np[2], scline->np[3]);
         break;
     case Cmd_DISPLAY_INFORMATION:
-        if (level_file_version > 0)
+        if (file_version > 0)
           command_display_information(scline->np[0], scline->tp[1], 0, 0);
         else
           command_display_information(scline->np[0], "ALL_PLAYERS", 0, 0);
@@ -1660,9 +1623,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_ADD_CREATURE_TO_POOL:
         command_add_creature_to_pool(scline->tp[0], scline->np[1]);
-        break;
-    case Cmd_RESET_ACTION_POINT:
-        command_reset_action_point(scline->np[0]);
         break;
     case Cmd_TUTORIAL_FLASH_BUTTON:
         command_tutorial_flash_button(scline->np[0], scline->np[1]);
@@ -1680,7 +1640,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_set_creature_armour(scline->tp[0], scline->np[1]);
         break;
     case Cmd_SET_CREATURE_FEAR_WOUNDED:
-        if (level_file_version > 0)
+        if (file_version > 0)
             command_set_creature_fear_wounded(scline->tp[0], scline->np[1]);
         else
             command_set_creature_fear_wounded(scline->tp[0], 101*scline->np[1]/255); // old fear was scaled 0..255
@@ -1713,7 +1673,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_set_computer_process(scline->np[0], scline->tp[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6]);
         break;
     case Cmd_ALLY_PLAYERS:
-        if (level_file_version > 0)
+        if (file_version > 0)
             command_ally_players(scline->np[0], scline->np[1], scline->np[2]);
         else
             command_ally_players(scline->np[0], scline->np[1], true);
@@ -1731,7 +1691,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_quick_objective(scline->np[0], scline->tp[1], scline->tp[2], 0, 0);
         break;
     case Cmd_QUICK_INFORMATION:
-        if (level_file_version > 0)
+        if (file_version > 0)
           command_quick_information(scline->np[0], scline->tp[1], scline->tp[2], 0, 0);
         else
           command_quick_information(scline->np[0], scline->tp[1], "ALL_PLAYERS", 0, 0);
@@ -1747,12 +1707,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_PRINT:
         command_message(scline->tp[0],80);
-        break;
-    case Cmd_QUICK_MESSAGE:
-        command_quick_message(scline->np[0], scline->tp[1], scline->tp[2]);
-        break;
-    case Cmd_DISPLAY_MESSAGE:
-        command_display_message(scline->np[0], scline->tp[1]);
         break;
     case Cmd_MESSAGE:
         command_message(scline->tp[0],68);
