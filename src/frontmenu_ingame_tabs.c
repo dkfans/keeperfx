@@ -2016,6 +2016,60 @@ void gui_toggle_ally(struct GuiButton *gbtn)
     }
 }
 
+void maintain_player_page2(struct GuiButton *gbtn)
+{
+    unsigned char current_players_count = 0;
+    for (size_t i = 0; i < PLAYERS_COUNT; i++)
+    {
+        struct PlayerInfo* player = get_player(i);
+        if(player_exists(player))
+            current_players_count++;
+    }
+    if(current_players_count > 4)
+    {
+
+        gbtn->pos_x = scale_ui_value(74);
+        gbtn->pos_y = scale_ui_value(374);
+        gbtn->scr_pos_x = scale_ui_value(74);
+        gbtn->scr_pos_y = scale_ui_value(374);
+        gbtn->width = scale_ui_value(52);
+        gbtn->height = scale_ui_value(20);
+    }
+    else
+    {
+        gbtn->pos_x = 0;
+        gbtn->pos_y = 0;
+        gbtn->scr_pos_x = 0;
+        gbtn->scr_pos_y = 0;
+        gbtn->width = 0;
+        gbtn->height = 0;
+    }
+    
+}
+
+void maintain_query_button(struct GuiButton *gbtn)
+{
+    unsigned char current_players_count = 0;
+    for (size_t i = 0; i < PLAYERS_COUNT; i++)
+    {
+        struct PlayerInfo* player = get_player(i);
+        if(player_exists(player))
+            current_players_count++;
+    }
+
+    if(current_players_count > 4)
+    {
+        gbtn->pos_x = scale_ui_value(14);
+        gbtn->scr_pos_x = scale_ui_value(14);
+    }
+    else
+    {
+        gbtn->pos_x = scale_ui_value(44);
+        gbtn->scr_pos_x = scale_ui_value(44);
+    }
+    
+}
+
 void maintain_ally(struct GuiButton *gbtn)
 {
     PlayerNumber plyr_idx = info_panel_pos_to_player_number((int)gbtn->content);
@@ -2218,7 +2272,6 @@ void gui_area_player_room_info(struct GuiButton *gbtn)
     {
         draw_gui_panel_sprite_left_player(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_plyrsym_symbol_room_red_std_a, plyr_idx);
         long i = dungeon->total_rooms;
-    JUSTLOG("totrom %d",i);
         char* text = buf_sprintf("%ld", i);
         draw_button_string(gbtn, 60, text);
     }
