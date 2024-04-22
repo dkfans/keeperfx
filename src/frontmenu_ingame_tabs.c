@@ -2043,9 +2043,9 @@ void maintain_player_page2(struct GuiButton *gbtn)
     if(current_players_count > 4)
     {
 
-        gbtn->pos_x = scale_ui_value(74);
+        gbtn->pos_x = scale_ui_value(14);
         gbtn->pos_y = scale_ui_value(374);
-        gbtn->scr_pos_x = scale_ui_value(74);
+        gbtn->scr_pos_x = scale_ui_value(14);
         gbtn->scr_pos_y = scale_ui_value(374);
         gbtn->width = scale_ui_value(52);
         gbtn->height = scale_ui_value(20);
@@ -2074,8 +2074,8 @@ void maintain_query_button(struct GuiButton *gbtn)
 
     if(current_players_count > 4)
     {
-        gbtn->pos_x = scale_ui_value(14);
-        gbtn->scr_pos_x = scale_ui_value(14);
+        gbtn->pos_x = scale_ui_value(74);
+        gbtn->scr_pos_x = scale_ui_value(74);
     }
     else
     {
