@@ -85,6 +85,7 @@ const struct NamedField rules_game_named_fields[] = {
   {"ALLIESSHAREVISION",          &game.conf.rules.game.allies_share_vision,        var_type(game.conf.rules.game.allies_share_vision       ),       0,       1},
   {"ALLIESSHAREDROP",            &game.conf.rules.game.allies_share_drop,          var_type(game.conf.rules.game.allies_share_drop         ),       0,       1},
   {"ALLIESSHARECTA",             &game.conf.rules.game.allies_share_cta,           var_type(game.conf.rules.game.allies_share_cta          ),       0,       1},
+  {"DISPLAYPORTALLIMIT",         &game.conf.rules.game.display_portal_limit,       var_type(game.conf.rules.game.display_portal_limit      ),       0,       1},
   {"MAXTHINGSINHAND",            &game.conf.rules.game.max_things_in_hand,         var_type(game.conf.rules.game.max_things_in_hand        ),       0,MAX_THINGS_IN_HAND},
   {"TORTUREPAYDAY",              &game.conf.rules.game.torture_payday,             var_type(game.conf.rules.game.torture_payday            ),SHRT_MIN,SHRT_MAX},
   {"TORTURETRAININGCOST",        &game.conf.rules.game.torture_training_cost,      var_type(game.conf.rules.game.torture_training_cost     ),SHRT_MIN,SHRT_MAX},
