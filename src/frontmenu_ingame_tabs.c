@@ -106,7 +106,7 @@ static PlayerNumber info_panel_pos_to_player_number(int idx)
     idx += info_page * 3;
     for (size_t i = 0; i < PLAYERS_COUNT; i++)
     {
-        if(i == my_player_number)
+        if(i == my_player_number || i == game.hero_player_num)
             continue;
 
         struct PlayerInfo* player = get_player(i);
