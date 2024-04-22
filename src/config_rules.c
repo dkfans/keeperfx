@@ -91,6 +91,8 @@ const struct NamedField rules_game_named_fields[] = {
   {"TORTURESCAVENGINGCOST",      &game.conf.rules.game.torture_scavenging_cost,    var_type(game.conf.rules.game.torture_scavenging_cost   ),SHRT_MIN,SHRT_MAX},
   {"EASTEREGGSPEECHCHANCE",      &game.conf.rules.game.easter_egg_speech_chance,   var_type(game.conf.rules.game.easter_egg_speech_chance  ),       0,LONG_MAX},
   {"EASTEREGGSPEECHINTERVAL",    &game.conf.rules.game.easter_egg_speech_interval, var_type(game.conf.rules.game.easter_egg_speech_interval),       0,LONG_MAX},
+  {"HANDLIGHTRADIUS",            &game.conf.rules.game.hand_light_radius,          var_type(game.conf.rules.game.hand_light_radius         ),       0,SHRT_MAX},
+  {"HANDLIGHTINTENSITY",         &game.conf.rules.game.hand_light_intensity,       var_type(game.conf.rules.game.hand_light_intensity      ),       0,UCHAR_MAX},
   {NULL,                            NULL,0,0,0 },
 };
 
