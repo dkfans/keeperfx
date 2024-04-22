@@ -98,10 +98,25 @@ static unsigned char info_page;
 /******************************************************************************/
 static PlayerNumber info_panel_pos_to_player_number(int idx)
 {
-    if (info_page == 0)
-        return idx;
-    else 
-        return idx + 5; 
+    if(idx == 0)
+        return my_player_number;
+
+    unsigned char current_players_count = 0;
+
+    idx += info_page * 3;
+    for (size_t i = 0; i < PLAYERS_COUNT; i++)
+    {
+        if(i == my_player_number)
+            continue;
+
+        struct PlayerInfo* player = get_player(i);
+        if(player_exists(player))
+            current_players_count++;
+
+        if(idx == current_players_count)
+          return i;
+    }
+    return -1;
 }
 
 short scale_pixel(long basic_zoom)
