@@ -130,16 +130,13 @@ static int ceiling_calculate_height_from_nearest_walls(int result, int number_of
 
 void ceiling_partially_recompute_heights(MapSubtlCoord sx, MapSubtlCoord sy, MapSubtlCoord ex, MapSubtlCoord ey)
 {
-    unsigned long *p_data;
-    int v22;
+    int ceiling_height;
     int v23;
     struct MapOffset *spir;
     MapSubtlCoord unk2_stl_x;
     MapSubtlCoord unk2_stl_y;
     int v27;
-    int v31;
-    char v33;
-    int v35;
+    TbBool near_wall;
     unsigned int number_of_steps;
     int v38;
     int *v48;
@@ -197,9 +194,9 @@ void ceiling_partially_recompute_heights(MapSubtlCoord sx, MapSubtlCoord sy, Map
         while (unk_end_stl_x > unk_stl_x)
         {
             SubtlCodedCoords stl_num2 = get_subtile_number(unk_stl_x,unk_stl_y);
-            v22 = ceiling_cache[stl_num2];
-            v38 = v22;
-            if (v22 <= -1)
+            ceiling_height = ceiling_cache[stl_num2];
+            v38 = ceiling_height;
+            if (ceiling_height <= -1)
             {
                 v48 = &v38;
                 v23 = 0;
@@ -223,25 +220,21 @@ void ceiling_partially_recompute_heights(MapSubtlCoord sx, MapSubtlCoord sy, Map
                     }
                     *v48 = v27;
                     number_of_steps = chessboard_distance(unk_stl_x, unk_stl_y, unk2_stl_x, unk2_stl_y);
-                    v31 = 1;
+                    near_wall = true;
                 }
                 else
                 {
                 LABEL_43:
-                    v31 = 0;
+                    near_wall = false;
                 }
-                if (v31)
-                    v22 = ceiling_calculate_height_from_nearest_walls(v38, number_of_steps);
+                if (near_wall)
+                    ceiling_height = ceiling_calculate_height_from_nearest_walls(v38, number_of_steps);
                 else
-                    v22 = game.ceiling_height_max;
+                    ceiling_height = game.ceiling_height_max;
             }
 
-            p_data = &game.map[stl_num2].data;
-            v33 = *((char *)p_data + 3) & CLF_FLOOR_MASK;
-            
-            *((char *)p_data + 3) = v33;
-            v35 = ((v22 & 0xF) << 24) | *p_data;
-            *p_data = v35;
+            struct Map* mapblk = get_map_block_at_pos(stl_num2);
+            mapblk->filled_subtiles = ceiling_height;
             unk_stl_x++;
         }
         unk_stl_y ++;

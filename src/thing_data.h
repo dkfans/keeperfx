@@ -22,6 +22,9 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
+/** Max amount of creatures supported on any map. */
+#define CREATURES_COUNT       256
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -181,6 +184,9 @@ struct Thing {
         unsigned char hit_type;
         short target_idx;
         unsigned char spell_level;
+        struct Coord3d originpos;
+        int num_wind_affected;
+        int wind_affected_creature[CREATURES_COUNT];  //list of wind affected Creatures
       } shot;
       struct {
         long x;

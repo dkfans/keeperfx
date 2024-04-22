@@ -154,8 +154,6 @@ struct CallToArmsGraphics {
 };
 
 /******************************************************************************/
-extern unsigned short player_guardflag_objects[];
-extern unsigned short dungeon_flame_objects[];
 extern const struct NamedCommand object_update_functions_desc[];
 
 /******************************************************************************/
@@ -189,6 +187,7 @@ TbBool object_is_gold_pile(const struct Thing *thing);
 TbBool object_is_gold_hoard(const struct Thing *thing);
 TbBool object_is_gold_laying_on_ground(const struct Thing *thing);
 TbBool object_is_guard_flag(const struct Thing *thing);
+TbBool object_is_coloured_object(const struct Thing *thing);
 TbBool thing_is_gold_hoard(const struct Thing *thing);
 TbBool thing_is_spellbook(const struct Thing *thing);
 TbBool thing_is_lair_totem(const struct Thing *thing);
@@ -203,7 +202,7 @@ TbBool thing_is_custom_special_box(const struct Thing* thing);
 TbBool creature_remove_lair_totem_from_room(struct Thing *creatng, struct Room *room);
 TbBool delete_lair_totem(struct Thing *lairtng);
 
-struct Thing *create_guard_flag_object(const struct Coord3d *pos, PlayerNumber plyr_idx, long parent_idx);
+struct Thing *create_coloured_object(const struct Coord3d *pos, PlayerNumber plyr_idx, long parent_idx, ThingModel base_model);
 
 int get_wealth_size_of_gold_hoard_object(const struct Thing *objtng);
 int get_wealth_size_of_gold_hoard_model(ThingModel objmodel);
