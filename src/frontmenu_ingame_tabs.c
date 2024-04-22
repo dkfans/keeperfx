@@ -2037,7 +2037,7 @@ void maintain_player_page2(struct GuiButton *gbtn)
     for (size_t i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
-        if(player_exists(player))
+        if(player_exists(player) && i != game.hero_player_num)
             current_players_count++;
     }
     if(current_players_count > 4)
@@ -2068,7 +2068,7 @@ void maintain_query_button(struct GuiButton *gbtn)
     for (size_t i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
-        if(player_exists(player))
+        if(player_exists(player) && i != game.hero_player_num)
             current_players_count++;
     }
 
