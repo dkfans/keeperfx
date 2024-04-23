@@ -8,7 +8,7 @@
 #  @par Comment:
 #      Use this file to improve the translation for specific language.
 #  @author   KeeperFX Team
-#  @date     25 Aug 2012 - 02 Oct 2012 // Improved Translation in 2024 by Walter253.
+#  @date     25 Aug 2012 - 02 Oct 2012
 #  @par  Copying and copyrights:
 #      This program is free software; you can redistribute it and/or modify
 #      it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 "Date: 2012-09-02 01:12+0200\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
 "PO-Revision-Date: 2024-01-01 21:00+0100\n"
+"Last-Translator: Walter253\n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
