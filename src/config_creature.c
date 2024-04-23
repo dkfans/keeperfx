@@ -1965,7 +1965,6 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     struct Room* room = get_room_thing_is_on(creatng);
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    CreatureJob jobpref;
     RoomKind rkind;
     if (!room_is_invalid(room)) 
     {
@@ -1987,7 +1986,7 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
             }
             else
             {
-                jobpref = get_job_for_room(rkind, required_kind_flags | JoKF_OwnedDiggers, crstat->job_primary | crstat->job_secondary);
+                CreatureJob jobpref = get_job_for_room(rkind, required_kind_flags | JoKF_OwnedDiggers, crstat->job_primary | crstat->job_secondary);
                 if (jobpref == Job_NULL)
                 {
                     return get_job_for_room(rkind, required_kind_flags | JoKF_OwnedCreatures, crstat->job_primary | crstat->job_secondary);
@@ -2010,8 +2009,7 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
             required_kind_flags |= JoKF_EnemyCreatures;
         }
     }
-    jobpref = get_job_for_room(rkind, required_kind_flags, crstat->job_primary | crstat->job_secondary);
-    return jobpref;
+    return get_job_for_room(rkind, required_kind_flags, crstat->job_primary | crstat->job_secondary);
 }
 
 /**
