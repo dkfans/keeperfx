@@ -321,7 +321,7 @@ void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_id
         return;
     }
     long i = UNSYNC_RANDOM(crsound->count);
-    struct Thing* efftng = create_effect(&thing->mappos, TngEff_DamageBlood, thing->owner);
+    struct Thing* efftng = create_effect(&thing->mappos, TngEff_Dummy, thing->owner);
     if (!thing_is_invalid(efftng)) {
         thing_play_sample(efftng, crsound->index+i, NORMAL_PITCH, 0, 3, 0, a2, FULL_LOUDNESS);
     }
