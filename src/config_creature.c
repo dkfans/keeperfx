@@ -1966,6 +1966,7 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
     struct Room* room = get_room_thing_is_on(creatng);
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     CreatureJob jobpref;
+    RoomKind rkind;
     if (creatng->owner == slabmap_owner(slb))
     {
         if (thing_is_creature_special_digger(creatng)) 
@@ -1976,7 +1977,7 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
             }
             else
             {
-                RoomKind rkind;
+                
                 if (!room_is_invalid(room)) 
                 {
                     required_kind_flags |= JoKF_AssignAreaWithinRoom;
@@ -2010,7 +2011,6 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
             required_kind_flags |= JoKF_EnemyCreatures;
         }
     }
-    RoomKind rkind;
     if (!room_is_invalid(room)) {
         required_kind_flags |= JoKF_AssignAreaWithinRoom;
         rkind = room->kind;
