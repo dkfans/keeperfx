@@ -1967,25 +1967,37 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     if (creatng->owner == slabmap_owner(slb))
     {
-        if (thing_is_creature_special_digger(creatng)) {
-            if (!room_is_invalid(room)) {
-                if (room_role_matches(room->kind,RoRoF_GoldStorage))
+        if (thing_is_creature_special_digger(creatng)) 
+        {
+            if (creatng->model == get_players_special_digger_model(creatng->owner))
+            {
+                required_kind_flags |= JoKF_OwnedDiggers;
+            }
+            else
+            {
+                if (!room_is_invalid(room)) 
                 {
-                    if (creatng->creature.gold_carried == 0)
+                    if (room_role_matches(room->kind,RoRoF_GoldStorage))
                     {
-                        if (crstat->pay > 0)
+                        if (creatng->creature.gold_carried == 0)
                         {
-                            return get_job_for_room(room->kind, required_kind_flags | JoKF_OwnedCreatures, crstat->job_primary | crstat->job_secondary);
+                            if (crstat->pay > 0)
+                            {
+                                return get_job_for_room(room->kind, required_kind_flags | JoKF_OwnedCreatures, crstat->job_primary | crstat->job_secondary);
+                            }
                         }
                     }
+                    else if (room_role_matches(room->kind,RoRoF_CrPoolLeave))
+                    {
+                        return get_job_for_room(room->kind, required_kind_flags | JoKF_OwnedCreatures, crstat->job_primary | crstat->job_secondary);
+                    }
                 }
-            }
-            required_kind_flags |= JoKF_OwnedDiggers;
-            if (creatng->model != get_players_special_digger_model(creatng->owner))
-            {
+                required_kind_flags |= JoKF_OwnedDiggers;
                 required_kind_flags |= JoKF_OwnedCreatures;
             }
-        } else {
+        } 
+        else 
+        {
             required_kind_flags |= JoKF_OwnedCreatures;
         }
     } else
