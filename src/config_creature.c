@@ -1987,6 +1987,16 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
                             }
                         }
                     }
+                    else if (room_role_matches(room->kind,RoRoF_CratesStorage))
+                    {
+                        if (room->capacity_used_for_storage == 0)
+                        {
+                            if (room_role_matches(room->kind,RoRoF_CratesManufctr))
+                            {
+                                return get_job_for_room(room->kind, required_kind_flags | JoKF_OwnedCreatures, crstat->job_primary | crstat->job_secondary);
+                            }
+                        }
+                    }
                     else if (room_role_matches(room->kind,RoRoF_CrPoolLeave))
                     {
                         return get_job_for_room(room->kind, required_kind_flags | JoKF_OwnedCreatures, crstat->job_primary | crstat->job_secondary);
