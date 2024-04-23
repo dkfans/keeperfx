@@ -4044,6 +4044,8 @@ const int MAX_INT_DIV = 0x7FFFFFFF;  // Max int value for normalization/division
 
 /**
  * Concatenates two 16-bit integers into a 32-bit integer.
+ * 
+ * This most likely builds a 16.16 fixed point number from a whole and fractional part.
  *
  * @param high The high 16 bits.
  * @param low The low 16 bits.
@@ -4379,63 +4381,6 @@ static inline bool CARRY4(uint32_t a, uint32_t b) {
   return a > UINT32_MAX - b;
 }
 
-/*
-### Global Input Variables
-These are variables that are read within the function to compute other values or influence decision
-paths:
-
-1. `factor_chk`
-2. `gploc_pt_cy`
-3. `gploc_pt_ay`
-4. `gploc_140`
-5. `gploc_170`
-6. `gploc_13C`
-7. `gploc_16C`
-8. `gploc_138`
-9. `gploc_168`
-10. `gploc_pt_by`
-11. `gploc_158`
-12. `gploc_154`
-13. `gploc_150`
-14. `gploc_AC`
-15. `gploc_A8`
-16. `gploc_B0`
-17. `gploc_188`
-18. `gploc_point_c`
-19. `gploc_194`
-20. `gploc_1A0`
-21. `gploc_198`
-22. `gploc_18C`
-
-### Global Output Variables
-These are variables that are written or potentially modified by the function:
-
-1. `gploc_point_c`
-2. `gploc_194`
-3. `gploc_188`
-4. `gploc_58`
-5. `gploc_54`
-6. `gploc_50`
-7. `gploc_4C`
-8. `gploc_48`
-9. `gploc_44`
-10. `gploc_BC`
-11. `gploc_B8`
-12. `gploc_5C`
-13. `gploc_2C`
-14. `gploc_A4`
-15. `gploc_A0`
-16. `gploc_8C`
-17. `gploc_88`
-18. `gploc_98`
-19. `gploc_94`
-20. `gploc_80`
-21. `gploc_7C`
-22. `gploc_64`
-23. `gploc_1A0` (conditional overwrite based on branch conditions)
-24. `gploc_198` (conditional overwrite)
-25. `gploc_18C` (conditional overwrite)
-*/
 void draw_gpoly_sub7_subfunc2_refactor() {
   long long int lVar1;
   int iVar2;
@@ -4447,6 +4392,20 @@ void draw_gpoly_sub7_subfunc2_refactor() {
   uint uVar8;
   bool bVar9;
 
+  // Variable rename suggestions:
+    // gploc_140 -> vertexC_s
+    // gploc_170 -> vertexA_s
+    // gploc_158 -> vertexB_s
+    // gploc_13C -> vertexC_u
+    // gploc_16C -> vertexA_u
+    // gploc_154 -> vertexB_u
+    // gploc_138 -> vertexC_v
+    // gploc_168 -> vertexA_v
+    // gploc_150 -> vertexB_v
+    // gploc_A8 -> factorS
+    // gploc_B0 -> factorU
+    // gploc_AC -> factorV
+
   if (factor_chk < 0) {
     iVar5 = gploc_pt_cy - gploc_pt_ay;
     if (iVar5 < 0x100) {
@@ -4455,8 +4414,8 @@ void draw_gpoly_sub7_subfunc2_refactor() {
       iVar5 = (int)(0x7fffffff / (long long int)iVar5);
     }
     iVar2 = (gploc_140 - gploc_170) * 2;
-    lVar1 = (long long int)iVar2 * (long long int)iVar5;
-    uVar4 = (ushort)((unsigned long long int)lVar1 >> 0x10);
+    lVar1 = (long long int)iVar2 * (long long int)iVar5;  // Multiply two 16.16 fixed point numbers which results in 32.32
+    uVar4 = (ushort)((unsigned long long int)lVar1 >> 0x10);  // Normalize it back into 16.16 and isolate the fractional part
     gploc_point_c = (struct PolyPoint *)(combineHighLowBits(
                                              uVar4, (short)((unsigned long long int)lVar1 >> 0x20))
                                              << 0x10
@@ -5083,6 +5042,64 @@ void draw_gpoly_sub7() {
   calculateTriangleProperties();
 
   // JUSTLOG("[test-outputs] gploc_A8=%d, gploc_B0=%d, gploc_AC=%d", gploc_A8, gploc_B0, gploc_AC);
+
+/*
+### Global Input Variables
+These are variables that are read within the function to compute other values or influence decision
+paths:
+
+1. `factor_chk`
+2. `gploc_pt_cy`
+3. `gploc_pt_ay`
+4. `gploc_140`
+5. `gploc_170`
+6. `gploc_13C`
+7. `gploc_16C`
+8. `gploc_138`
+9. `gploc_168`
+10. `gploc_pt_by`
+11. `gploc_158`
+12. `gploc_154`
+13. `gploc_150`
+14. `gploc_AC`
+15. `gploc_A8`
+16. `gploc_B0`
+17. `gploc_188`
+18. `gploc_point_c`
+19. `gploc_194`
+20. `gploc_1A0`
+21. `gploc_198`
+22. `gploc_18C`
+
+### Global Output Variables
+These are variables that are written or potentially modified by the function:
+
+1. `gploc_point_c`
+2. `gploc_194`
+3. `gploc_188`
+4. `gploc_58`
+5. `gploc_54`
+6. `gploc_50`
+7. `gploc_4C`
+8. `gploc_48`
+9. `gploc_44`
+10. `gploc_BC`
+11. `gploc_B8`
+12. `gploc_5C`
+13. `gploc_2C`
+14. `gploc_A4`
+15. `gploc_A0`
+16. `gploc_8C`
+17. `gploc_88`
+18. `gploc_98`
+19. `gploc_94`
+20. `gploc_80`
+21. `gploc_7C`
+22. `gploc_64`
+23. `gploc_1A0` (conditional overwrite based on branch conditions)
+24. `gploc_198` (conditional overwrite)
+25. `gploc_18C` (conditional overwrite)
+*/
 
   draw_gpoly_sub7_subfunc2();
 }
