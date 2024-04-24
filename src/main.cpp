@@ -2818,19 +2818,31 @@ long update_cave_in(struct Thing *thing)
     return 1;
 }
 
+/**
+ * Checks if a gamerule for lighting has changed and updates the lights if they are.
+ * This function also refreshes the light status of the map.
+*/
 void update_global_lighting()
 {
-    // Handle change of lighting
-    if (game.conf.rules.game.global_ambient_light != game.lish.global_ambient_light || game.conf.rules.game.light_enabled != game.lish.light_enabled)
-    {
+    // Check if any values have changed
+    if (
+        game.conf.rules.game.global_ambient_light != game.lish.global_ambient_light ||
+        game.conf.rules.game.light_enabled != game.lish.light_enabled
+    ){
+
+        // GlobalAmbientLight
         if (game.conf.rules.game.global_ambient_light != game.lish.global_ambient_light)
         {
             game.lish.global_ambient_light = game.conf.rules.game.global_ambient_light;
         }
+
+        // LightEnabled
         if (game.conf.rules.game.light_enabled != game.lish.light_enabled)
         {
             game.lish.light_enabled = game.conf.rules.game.light_enabled;
         }
+
+        // Refresh the lights
         light_stat_refresh();
     }
 }
