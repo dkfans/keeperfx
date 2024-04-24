@@ -42,6 +42,7 @@
 #include "engine_render.h"
 #include "thing_navigate.h"
 #include "thing_physics.h"
+#include "config_spritecolors.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -968,11 +969,11 @@ void place_slab_object(SlabCodedCoords slb_num, MapSubtlCoord stl_x,MapSubtlCoor
                 {
                     ThingModel tngmodel;
                     tngmodel = sobj->model;
-                    if (tngmodel == dungeon_flame_objects[0]) {
-                        tngmodel = dungeon_flame_objects[get_player_color_idx(plyr_idx)];
-                    } else
-                    if (tngmodel == player_guardflag_objects[0]) {
-                        tngmodel = player_guardflag_objects[get_player_color_idx(plyr_idx)];
+
+                    ThingModel base_model = get_coloured_object_base_model(tngmodel);
+                    if(base_model != 0)
+                    {
+                        tngmodel = get_player_colored_object_model(base_model,plyr_idx);
                     }
                     if (tngmodel <= 0)
                         continue;
@@ -2464,7 +2465,7 @@ void clear_dig_and_set_explored_can_see_y(MapSlabCoord slb_x, MapSlabCoord slb_y
 
 void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    if (is_neutral_thing(creatng) || is_hero_thing(creatng))
+    if (is_neutral_thing(creatng) || is_hero_thing(creatng) || thing_is_invalid(creatng))
         return;
     struct Coord3d pos;
     pos.x.val = subtile_coord_center(stl_x);
@@ -2489,22 +2490,24 @@ void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoor
 
     int can_see_slabs;
     can_see_slabs = get_explore_sight_distance_in_slabs(creatng);
-    if (!player_cannot_win(creatng->owner) && ((get_creature_model_flags(creatng) & CMF_IsSpectator) == 0)) {
-        claim_neutral_creatures_in_sight(creatng, &pos, can_see_slabs);
+    if (can_see_slabs > 0)
+    {
+        clear_dig_and_set_explored_can_see_x(slb_x, slb_y, creatng->owner, can_see_slabs);
+        clear_dig_and_set_explored_can_see_y(slb_x, slb_y, creatng->owner, can_see_slabs);
+        if (!player_cannot_win(creatng->owner) && ((get_creature_model_flags(creatng) & CMF_IsSpectator) == 0)) {
+            claim_neutral_creatures_in_sight(creatng, &pos, can_see_slabs);
+        }
     }
     clear_slab_dig(slb_x, slb_y, creatng->owner);
     set_slab_explored(creatng->owner, slb_x, slb_y);
-    clear_dig_and_set_explored_can_see_x(slb_x, slb_y, creatng->owner, can_see_slabs);
-    clear_dig_and_set_explored_can_see_y(slb_x, slb_y, creatng->owner, can_see_slabs);
 }
 
 long element_top_face_texture(struct Map *mapblk)
 {
     struct Column *col;
     struct CubeConfigStats* cubed;
-    unsigned int data = mapblk->data;
     TbBool visible = map_block_revealed(mapblk, my_player_number);
-    int result = data & 0x7FF;
+    int result = mapblk->col_idx;
 
     if ( !visible || (result != 0) )
     {

@@ -82,6 +82,7 @@
 #include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
 #include "gui_parchment.h"
+#include "gui_msgs.h"
 #include "net_game.h"
 #include "net_sync.h"
 #include "game_legacy.h"
@@ -677,10 +678,10 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       if (player->mp_message_text[0] == cmd_char)
       {
           if ( (!cmd_exec(player->id_number, player->mp_message_text + 1)) || ((game.system_flags & GSF_NetworkActive) != 0) )
-              message_add(player->id_number, player->mp_message_text);
+              message_add(MsgType_Player, player->id_number, player->mp_message_text);
       }
       else if (player->mp_message_text[0] != '\0')
-          message_add(player->id_number, player->mp_message_text);
+          message_add(MsgType_Player, player->id_number, player->mp_message_text);
       LbMemorySet(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
       return 0;
   case PckA_PlyrMsgClear:
@@ -1429,7 +1430,7 @@ static void replace_with_ai(int old_active_players)
             struct PlayerInfo *player = get_player(i);
             if (!network_player_active(player->packet_num))
             {
-                message_add(player->id_number, "I am the computer now!");
+                message_add(MsgType_Player, player->id_number, "I am the computer now!");
                 JUSTLOG("p:%d I am the computer now!", player->id_number);
 
                 player->allocflags |= PlaF_CompCtrl;

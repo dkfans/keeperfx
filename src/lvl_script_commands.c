@@ -49,6 +49,7 @@
 #include "post_inc.h"
 #include "music_player.h"
 #include "bflib_sound.h"
+#include "config_spritecolors.h"
 #include "sounds.h"
 
 #ifdef __cplusplus
@@ -4977,19 +4978,46 @@ static void set_player_color_process(struct ScriptContext *context)
                 struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
                 if (slabmap_owner(slb) == plyr_idx)
                 {
-
-                    if (slab_kind_is_animated(slb->kind))
-                    {
-                        place_animating_slab_type_on_map(slb->kind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
-                    }
-                    else
-                    {
-                        place_slab_type_on_map(slb->kind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
-                    }
+                    redraw_slab_map_elements(slb_x,slb_y);
                 }
+
             }
         }
-    }  
+
+        const struct StructureList *slist;
+        slist = get_list_for_thing_class(TCls_Object);
+        int k = 0;
+        unsigned long i = slist->index;
+        while (i > 0)
+        {
+            struct Thing *thing;
+            thing = thing_get(i);
+            TRACE_THING(thing);
+            if (thing_is_invalid(thing)) {
+                ERRORLOG("Jump to invalid thing detected");
+                break;
+            }
+            i = thing->next_of_class;
+            // Per-thing code
+            
+            if (thing->owner == plyr_idx)
+            {
+                ThingModel base_model = get_coloured_object_base_model(thing->model);
+                if(base_model != 0)
+                {
+                    create_coloured_object(&thing->mappos, plyr_idx, thing->parent_idx,base_model);
+                    delete_thing_structure(thing, 0);
+                }
+            }
+            // Per-thing code ends
+            k++;
+            if (k > slist->count)
+            {
+                ERRORLOG("Infinite loop detected when sweeping things list");
+                break;
+            }
+        }
+    }
 }
 
 static void set_game_rule_check(const struct ScriptLine* scline)
@@ -5480,6 +5508,47 @@ static void reset_action_point_process(struct ScriptContext* context)
     action_point_reset_idx(context->value->arg0, context->value->chars[4]);
 }
 
+static void quick_message_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    if ((scline->np[0] < 0) || (scline->np[0] >= QUICK_MESSAGES_COUNT))
+    {
+        SCRPTERRLOG("Invalid information ID number (%d)", scline->np[0]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    if (strlen(scline->tp[1]) > MESSAGE_TEXT_LEN)
+    {
+        SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
+    }
+    if ((gameadd.quick_messages[scline->np[0]][0] != '\0') && (strcmp(gameadd.quick_messages[scline->np[0]],scline->tp[1]) != 0))
+    {
+        SCRPTWRNLOG("Quick Message no %d overwritten by different text", scline->np[0]);
+    }
+    snprintf(gameadd.quick_messages[scline->np[0]], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
+    value->uarg0 = scline->np[0];
+    get_player_number_from_value(scline->tp[2], &value->chars[4], &value->chars[5]);
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void quick_message_process(struct ScriptContext* context)
+{
+    message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", gameadd.quick_messages[context->value->uarg0]);
+}
+
+static void display_message_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    value->uarg0 = scline->np[0];
+    get_player_number_from_value(scline->tp[1], &value->chars[4], &value->chars[5]);
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void display_message_process(struct ScriptContext* context)
+{
+    message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", get_string(context->value->uarg0));
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -5594,8 +5663,8 @@ const struct CommandDesc command_desc[] = {
   {"CREATE_EFFECTS_LINE",               "LLNNNA  ", Cmd_CREATE_EFFECTS_LINE, &create_effects_line_check, &create_effects_line_process},
   {"IF_SLAB_OWNER",                     "NNP     ", Cmd_IF_SLAB_OWNER, NULL, NULL},
   {"IF_SLAB_TYPE",                      "NNS     ", Cmd_IF_SLAB_TYPE, NULL, NULL},
-  {"QUICK_MESSAGE",                     "NAA     ", Cmd_QUICK_MESSAGE, NULL, NULL},
-  {"DISPLAY_MESSAGE",                   "NA      ", Cmd_DISPLAY_MESSAGE, NULL, NULL},
+  {"QUICK_MESSAGE",                     "NAA     ", Cmd_QUICK_MESSAGE, &quick_message_check, &quick_message_process},
+  {"DISPLAY_MESSAGE",                   "NA      ", Cmd_DISPLAY_MESSAGE, &display_message_check, &display_message_process},
   {"USE_SPELL_ON_CREATURE",             "PC!AAn  ", Cmd_USE_SPELL_ON_CREATURE, NULL, NULL},
   {"USE_SPELL_ON_PLAYERS_CREATURES",    "PC!An   ", Cmd_USE_SPELL_ON_PLAYERS_CREATURES, &use_spell_on_players_creatures_check, &use_spell_on_players_creatures_process },
   {"SET_HEART_HEALTH",                  "PN      ", Cmd_SET_HEART_HEALTH, &set_heart_health_check, &set_heart_health_process},
