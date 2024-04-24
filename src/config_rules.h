@@ -96,7 +96,7 @@ struct GameRulesConfig {
     TbBool allies_share_cta;
     TbBool display_portal_limit;
     unsigned char max_things_in_hand;
-    short torture_payday;
+    unsigned short torture_payday;
     short torture_training_cost;
     short torture_scavenging_cost;
     unsigned long easter_egg_speech_chance;
@@ -134,7 +134,6 @@ struct MagicRulesConfig {
     MapSubtlDelta min_distance_for_teleport;
     long collapse_dungeon_damage;
     GameTurnDelta turns_per_collapse_dngn_dmg;
-    GoldAmount power_hand_gold_grab_amount;
     long friendly_fight_area_damage_percent;
     long friendly_fight_area_range_percent;
     TbBool armageddon_teleport_neutrals;
