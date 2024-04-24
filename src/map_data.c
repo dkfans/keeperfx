@@ -118,7 +118,7 @@ unsigned long get_navigation_map_floor_height(MapSubtlCoord stl_x, MapSubtlCoord
 long get_ceiling_height(const struct Coord3d *pos)
 {
     long i = get_subtile_number(pos->x.stl.num, pos->y.stl.num);
-    return ((game.map[i].data & 0xF000000u) >> 24) << 8;
+    return game.map[i].filled_subtiles * COORD_PER_STL;
 }
 
 ThingIndex get_mapwho_thing_index(const struct Map *mapblk)
@@ -133,19 +133,12 @@ void set_mapwho_thing_index(struct Map *mapblk, ThingIndex thing_idx)
 
 long get_mapblk_column_index(const struct Map *mapblk)
 {
-  return ((mapblk->data) & 0x7FF);
+  return (mapblk->col_idx);
 }
 
 void set_mapblk_column_index(struct Map *mapblk, long column_idx)
 {
-  // Check if new value is correct
-  if ((unsigned long)column_idx > 0x7FF)
-  {
-      ERRORLOG("Tried to set invalid column %ld",column_idx);
-      return;
-  }
-  // Clear previous and set new
-  mapblk->data ^= (mapblk->data ^ ((unsigned long)column_idx)) & 0x7FF;
+    mapblk->col_idx = column_idx;
 }
 
 /**
@@ -155,7 +148,7 @@ void set_mapblk_column_index(struct Map *mapblk, long column_idx)
  */
 long get_mapblk_filled_subtiles(const struct Map *mapblk)
 {
-    return ((mapblk->data & 0xF000000u) >> 24);
+    return mapblk->filled_subtiles;
 }
 
 /**
@@ -165,7 +158,7 @@ long get_mapblk_filled_subtiles(const struct Map *mapblk)
  */
 long get_mapblk_wibble_value(const struct Map *mapblk)
 {
-    return ((mapblk->data & 0xC00000u) >> 22);
+    return mapblk->wibble_value;
 }
 
 /**
@@ -175,7 +168,7 @@ long get_mapblk_wibble_value(const struct Map *mapblk)
  */
 void set_mapblk_wibble_value(struct Map *mapblk, long wib)
 {
-    mapblk->data ^= ((mapblk->data ^ (wib << 22)) & 0xC00000);
+    mapblk->wibble_value = wib;
 }
 
 /**
@@ -187,8 +180,7 @@ void set_mapblk_filled_subtiles(struct Map *mapblk, long height)
 {
     if (height <  0) height = 0;
     if (height > 15) height = 15;
-    mapblk->data &= ~(0xF000000);
-    mapblk->data |= (height << 24) & 0xF000000;
+    mapblk->filled_subtiles = height;
 }
 
 void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
@@ -201,6 +193,15 @@ TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber p
 {
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     return map_block_revealed(mapblk, plyr_idx);
+}
+
+/**
+ * Checks if the subtile is revealed without taking into consideration allied vision
+ */
+TbBool subtile_revealed_directly(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
+{
+    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    return map_block_revealed_directly(mapblk, plyr_idx);
 }
 
 void reveal_map_block(struct Map *mapblk, PlayerNumber plyr_idx)
@@ -306,7 +307,7 @@ TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
 {
     if (map_block_invalid(mapblk))
         return false;
-    if (gameadd.allies_share_vision)
+    if (game.conf.rules.game.allies_share_vision)
     {
         for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
         {
@@ -324,6 +325,17 @@ TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
     }
     return false;
 }
+
+
+TbBool map_block_revealed_directly(const struct Map* mapblk, PlayerNumber plyr_idx)
+{
+    if (map_block_invalid(mapblk))
+        return false;
+    if (flag_is_set(mapblk->revealed, to_flag(plyr_idx)))
+        return true;
+    return false;
+}
+
 
 TbBool valid_dig_position(PlayerNumber plyr_idx, long stl_x, long stl_y)
 {
@@ -630,7 +642,7 @@ void reveal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord e
   clear_dig_for_map_rect(plyr_idx,subtile_slab(start_x),subtile_slab(end_x),
       subtile_slab(start_y),subtile_slab(end_y));
   reveal_map_rect(plyr_idx,start_x,end_x,start_y,end_y);
-  pannel_map_update(start_x,start_y,end_x,end_y);
+  panel_map_update(start_x,start_y,end_x,end_y);
 }
 
 void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y, TbBool all)
@@ -662,7 +674,7 @@ void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord 
             conceal_map_block(mapblk, plyr_idx);
         }
     }
-    pannel_map_update(start_x,start_y,end_x,end_y);
+    panel_map_update(start_x,start_y,end_x,end_y);
 }
 /**
  * Returns if given map position is unsafe (contains a terrain which may lead to creature death).

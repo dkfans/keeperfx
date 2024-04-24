@@ -23,6 +23,7 @@
 #include "config_creature.h"
 #include "globals.h"
 #include "config_creature.h"
+#include "player_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,7 +31,7 @@ extern "C" {
 
 #define ROOM_TYPES_COUNT_OLD      17
 #define SLAB_AROUND_COUNT      4
-#define ROOMS_COUNT          150
+#define ROOMS_COUNT          255
 /******************************************************************************/
 enum RoomFlags {
     RoF_Allocated           = 0x01,
@@ -90,13 +91,13 @@ struct Room {
     RoomIndex next_of_owner;
     MapSubtlCoord central_stl_x;
     MapSubtlCoord central_stl_y;
-    unsigned short kind;
+    RoomKind kind;
     unsigned short health;
     unsigned short total_capacity;
     unsigned short used_capacity;
     /* Informs whether players are interested in that room.
      * Usually used for neutral rooms, set if a player is starting to dig to that room. */
-    unsigned char player_interested[5];
+    unsigned char player_interested[PLAYERS_COUNT];
     union {
     /** For rooms which can store things, amount of storage space, or sum of gold, used by them.
      *  Rooms which can store things are workshops, libraries, treasure rooms etc. */
@@ -232,7 +233,7 @@ long count_slabs_of_room_type(PlayerNumber plyr_idx, RoomKind rkind);
 long claim_enemy_room(struct Room *room,struct Thing *claimtng);
 long claim_room(struct Room *room,struct Thing *claimtng);
 long take_over_room(struct Room* room, PlayerNumber newowner);
-void destroy_room_leaving_unclaimed_ground(struct Room *room);
+void destroy_room_leaving_unclaimed_ground(struct Room *room, TbBool create_rubble);
 TbBool create_effects_on_room_slabs(struct Room *room, ThingModel effkind, long effrange, PlayerNumber effowner);
 TbBool clear_dig_on_room_slabs(struct Room *room, PlayerNumber plyr_idx);
 void do_room_integration(struct Room *room);
@@ -249,6 +250,8 @@ struct Room *find_nearest_room_of_role_for_thing_with_spare_item_capacity(struct
 struct Room *find_random_room_of_role_for_thing(struct Thing *thing, PlayerNumber owner, RoomRole rkind, unsigned char nav_flags);
 struct Room *find_random_room_of_role_for_thing_with_spare_room_item_capacity(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags);
 struct Room *pick_random_room_of_role(PlayerNumber plyr_idx, RoomRole rrole);
+
+void redraw_slab_map_elements(MapSlabCoord slb_x, MapSlabCoord slb_y);
 /******************************************************************************/
 #ifdef __cplusplus
 }

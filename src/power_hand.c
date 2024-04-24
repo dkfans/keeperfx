@@ -80,12 +80,12 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long owner)
     objtng = INVALID_THING;
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(owner);
-    struct PlayerInfoAdd* playeradd = get_playeradd(dungeon->owner);
+    struct PlayerInfo* player = get_player(dungeon->owner);
     if (dungeon->gold_hoard_for_pickup != thing->index)
     {
         dungeon->gold_hoard_for_pickup = thing->index;
         GoldAmount gold_req;
-        if (playeradd->pickup_all_gold)
+        if (player->pickup_all_gold)
         {
             gold_req = thing->valuable.gold_stored;
         }
@@ -102,7 +102,7 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long owner)
     pos.y.val = thing->mappos.y.val;
     pos.z.val = thing->mappos.z.val;
 
-    if (playeradd->pickup_all_gold)
+    if (player->pickup_all_gold)
     {
         dungeon->gold_pickup_amount = thing->valuable.gold_stored;
     }
@@ -150,6 +150,9 @@ unsigned long object_is_pickable_by_hand_for_use(const struct Thing *thing, long
     return false;
 }
 
+/**
+ * @param In a player hand or in limbo (out through hero gate)
+  */
 TbBool thing_is_picked_up(const struct Thing *thing)
 {
     return (((thing->alloc_flags & TAlF_IsInLimbo) != 0) || ((thing->state_flags & TF1_InCtrldLimbo) != 0));
@@ -157,7 +160,7 @@ TbBool thing_is_picked_up(const struct Thing *thing)
 
 TbBool thing_is_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
 {
-    if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->state_flags & TF1_InCtrldLimbo) == 0))
+    if ((thing->alloc_flags & TAlF_IsInLimbo) == 0)
         return false;
     if (thing_is_in_power_hand_list(thing, plyr_idx))
         return true;
@@ -171,9 +174,9 @@ TbBool thing_is_picked_up_by_owner(const struct Thing *thing)
 
 TbBool thing_is_picked_up_by_enemy(const struct Thing *thing)
 {
-    if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->state_flags & TF1_InCtrldLimbo) == 0))
+    if ((thing->alloc_flags & TAlF_IsInLimbo) == 0)
         return false;
-    return !thing_is_in_power_hand_list(thing, thing->owner) && !thing_is_in_computer_power_hand_list(thing, thing->owner);
+    return !thing_is_in_power_hand_list(thing, thing->owner) && !thing_is_in_computer_power_hand_list(thing, thing->owner) && ((thing->state_flags & TF1_InCtrldLimbo) == 0);
 }
 
 /**
@@ -285,11 +288,11 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
       remove_food_from_food_room_if_possible(thing);
       picktng = thing;
       break;
-    case ObjMdl_GoldPile:
-    case ObjMdl_GoldHorde1:
-    case ObjMdl_GoldHorde2:
-    case ObjMdl_GoldHorde3:
-    case ObjMdl_GoldHorde4:
+    case ObjMdl_GoldHoard1:
+    case ObjMdl_GoldHoard2:
+    case ObjMdl_GoldHoard3:
+    case ObjMdl_GoldHoard4:
+    case ObjMdl_GoldHoard5:
       picktng = create_gold_for_hand_grab(thing, plyr_idx);
       break;
     case ObjMdl_SpecboxRevealMap:
@@ -318,8 +321,8 @@ void set_power_hand_graphic(unsigned char plyr_idx, long HandAnimationID)
   struct Thing *thing;
   player = get_player(plyr_idx);
 
-  short anim_idx   = game.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_idx[HandAnimationID];
-  short anim_speed = game.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_speed[HandAnimationID];
+  short anim_idx   = game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_idx[HandAnimationID];
+  short anim_speed = game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_speed[HandAnimationID];
 
   if (player->hand_busy_until_turn >= game.play_gameturn)
   {
@@ -334,10 +337,10 @@ void set_power_hand_graphic(unsigned char plyr_idx, long HandAnimationID)
       thing = thing_get(player->hand_thing_idx);
       if ((HandAnimationID == HndA_Hover) || (HandAnimationID == HndA_HoldGold))
       {
-        set_thing_draw(thing, anim_idx, anim_speed, gameadd.crtr_conf.sprite_size, 0, 0, ODC_Default);
+        set_thing_draw(thing, anim_idx, anim_speed, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
       } else
       {
-        set_thing_draw(thing, anim_idx, anim_speed, gameadd.crtr_conf.sprite_size, 1, 0, ODC_Default);
+        set_thing_draw(thing, anim_idx, anim_speed, game.conf.crtr_conf.sprite_size, 1, 0, ODC_Default);
       }
     }
   }
@@ -354,7 +357,7 @@ TbBool power_hand_is_full(const struct PlayerInfo *player)
 {
     const struct Dungeon *dungeon;
   dungeon = get_dungeon(player->id_number);
-  return (dungeon->num_things_in_hand >= gameadd.max_things_in_hand);
+  return (dungeon->num_things_in_hand >= game.conf.rules.game.max_things_in_hand);
 }
 
 struct Thing *get_first_thing_in_power_hand(struct PlayerInfo *player)
@@ -377,8 +380,8 @@ TbBool remove_first_thing_from_power_hand_list(PlayerNumber plyr_idx)
   long num_in_hand;
   dungeon = get_dungeon(plyr_idx);
   num_in_hand = dungeon->num_things_in_hand;
-  if (num_in_hand > gameadd.max_things_in_hand)
-      num_in_hand = gameadd.max_things_in_hand;
+  if (num_in_hand > game.conf.rules.game.max_things_in_hand)
+      num_in_hand = game.conf.rules.game.max_things_in_hand;
   if (num_in_hand > 0)
   {
       for (i = 0; i < num_in_hand-1; i++)
@@ -406,8 +409,8 @@ TbBool remove_thing_from_power_hand_list(struct Thing *thing, PlayerNumber plyr_
     long num_in_hand;
     dungeon = get_dungeon(plyr_idx);
     num_in_hand = dungeon->num_things_in_hand;
-    if (num_in_hand > gameadd.max_things_in_hand)
-        num_in_hand = gameadd.max_things_in_hand;
+    if (num_in_hand > game.conf.rules.game.max_things_in_hand)
+        num_in_hand = game.conf.rules.game.max_things_in_hand;
     for (i = 0; i < num_in_hand; i++)
     {
         if (dungeon->things_in_hand[i] == thing->index)
@@ -437,10 +440,10 @@ TbBool insert_thing_into_power_hand_list(struct Thing *thing, PlayerNumber plyr_
     long i;
     struct PowerConfigStats *powerst;
     dungeon = get_dungeon(plyr_idx);
-    if (dungeon->num_things_in_hand >= gameadd.max_things_in_hand)
+    if (dungeon->num_things_in_hand >= game.conf.rules.game.max_things_in_hand)
       return false;
     // Move all things in list up, to free position 0
-    for (i = gameadd.max_things_in_hand-1; i > 0; i--)
+    for (i = game.conf.rules.game.max_things_in_hand-1; i > 0; i--)
     {
       dungeon->things_in_hand[i] = dungeon->things_in_hand[i-1];
     }
@@ -543,7 +546,7 @@ void draw_power_hand(void)
     }
     // Now draw
     if (((game.operation_flags & GOF_ShowGui) != 0) && (game.small_map_state != 2)
-      && mouse_is_over_pannel_map(player->minimap_pos_x, player->minimap_pos_y))
+      && mouse_is_over_panel_map(player->minimap_pos_x, player->minimap_pos_y))
     {
         MapSubtlCoord stl_x;
         MapSubtlCoord stl_y;
@@ -859,7 +862,7 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
     anger_apply_anger_to_creature_all_types(creatng, (crstat->annoy_got_wage * tribute / salary * 2));
-    if (gameadd.classic_bugs_flags & ClscBug_FullyHappyWithGold)
+    if (game.conf.rules.game.classic_bugs_flags & ClscBug_FullyHappyWithGold)
     {
         anger_set_creature_anger_all_types(creatng, 0);
     }
@@ -884,17 +887,21 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
 {
     droptng->mappos.x.val = dstpos->x.val;
     droptng->mappos.y.val = dstpos->y.val;
-    droptng->mappos.z.val = subtile_coord(8,0);
-    long fall_dist;
-    fall_dist = get_ceiling_height_at(&droptng->mappos) - get_floor_height_at(&droptng->mappos);
-    struct CreatureStats* crstat;
+    long ceiling_height = get_ceiling_height_at(&droptng->mappos);
+    long floor_height = get_floor_height_at(&droptng->mappos);
+    long fall_dist = ceiling_height - floor_height;
     if (fall_dist < 0) {
         fall_dist = 0;
     } else
     if (fall_dist > subtile_coord(3,0)) {
         fall_dist = subtile_coord(3,0);
     }
-    droptng->mappos.z.val = fall_dist + get_floor_height_at(&droptng->mappos);
+    long max_height = ceiling_height - droptng->clipbox_size_z;
+    droptng->mappos.z.val = fall_dist + floor_height;
+    if (droptng->mappos.z.val > max_height)
+    {
+        droptng->mappos.z.val = max_height;
+    }
     remove_thing_from_limbo(droptng);
     if (thing_is_creature(droptng))
     {
@@ -904,7 +911,7 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
             play_creature_sound(droptng, 6, 3, 0);
         }
         dungeon->last_creature_dropped_gameturn = game.play_gameturn;
-        crstat = creature_stats_get(droptng->model);
+        struct CreatureStats* crstat = creature_stats_get(droptng->model);
         if ( (crstat->illuminated) || (creature_affected_by_spell(droptng, SplK_Light)) )
         {
             illuminate_creature(droptng);
@@ -1026,7 +1033,7 @@ void clear_things_in_hand(struct PlayerInfo *player)
   struct Dungeon *dungeon;
   long i;
   dungeon = get_dungeon(player->id_number);
-  for (i=0; i < gameadd.max_things_in_hand; i++)
+  for (i=0; i < game.conf.rules.game.max_things_in_hand; i++)
     dungeon->things_in_hand[i] = 0;
 }
 
@@ -1112,8 +1119,8 @@ void draw_mini_things_in_hand(long x, long y)
     expshift_x = scale_ui_value(abs(i)) / 2;
     for (i = dungeon->num_things_in_hand-1; i >= 0; i--)
     {
-        unsigned char ratio = (gameadd.max_things_in_hand / 2);
-        if (gameadd.max_things_in_hand % 2)
+        unsigned char ratio = (game.conf.rules.game.max_things_in_hand / 2);
+        if (game.conf.rules.game.max_things_in_hand % 2)
         {
             ratio ++;
         }
@@ -1233,7 +1240,7 @@ long prepare_thing_for_power_hand(unsigned short tng_idx, PlayerNumber plyr_idx)
     if (player->hand_thing_idx == 0) {
         create_power_hand(plyr_idx);
     }
-    if (dungeon->num_things_in_hand >= gameadd.max_things_in_hand) {
+    if (dungeon->num_things_in_hand >= game.conf.rules.game.max_things_in_hand) {
       return 0;
     }
     struct Thing *thing;
@@ -1256,7 +1263,7 @@ void add_creature_to_sacrifice_list(PlayerNumber plyr_idx, long model, long expl
     ERRORLOG("Player %d cannot sacrifice %s",(int)plyr_idx,thing_class_and_model_name(TCls_Creature, model));
     return;
   }
-  if ((model < 0) || (model >= gameadd.crtr_conf.model_count))
+  if ((model < 0) || (model >= game.conf.crtr_conf.model_count))
   {
     ERRORLOG("Tried to sacrifice invalid creature model %d",(int)model);
     return;
@@ -1307,6 +1314,7 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
         }
     }
     insert_thing_into_power_hand_list(thing, plyr_idx);
+    clear_thing_velocity(thing);
     place_thing_in_limbo(thing);
     return true;
 }
@@ -1439,7 +1447,7 @@ TbBool can_drop_thing_here(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumbe
         return false;
     struct SlabMap *slb;
     slb = get_slabmap_for_subtile(stl_x, stl_y);
-    if (gameadd.allies_share_drop)
+    if (game.conf.rules.game.allies_share_drop)
     {
         for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
         {
@@ -1493,6 +1501,18 @@ static TbBool hand_rule_age_lower(struct HandRule *hand_rule, const struct Thing
 static TbBool hand_rule_age_higher(struct HandRule *hand_rule, const struct Thing *thing)
 {
     return (game.play_gameturn - thing->creation_turn < hand_rule->param) ? !hand_rule->allow : !!hand_rule->allow;
+}
+
+static TbBool hand_rule_dropped_time_lower(struct HandRule* hand_rule, const struct Thing* thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    return (((game.play_gameturn - cctrl->dropped_turn) <= hand_rule->param) && (cctrl->dropped_turn != 0)) ? !hand_rule->allow : !!hand_rule->allow;
+}
+
+static TbBool hand_rule_dropped_time_higher(struct HandRule* hand_rule, const struct Thing* thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    return ((game.play_gameturn - cctrl->dropped_turn) >= hand_rule->param) ? !hand_rule->allow : !!hand_rule->allow;
 }
 
 static TbBool hand_rule_lvl_lower(struct HandRule *hand_rule, const struct Thing *thing)
@@ -1551,6 +1571,8 @@ static HandTestFn hand_rule_test_fns[] = {
     hand_rule_wandering,
     hand_rule_working,
     hand_rule_fighting,
+    hand_rule_dropped_time_higher,
+    hand_rule_dropped_time_lower,
 };
 
 TbBool eval_hand_rule_for_thing(struct HandRule *rule, const struct Thing *thing_to_pick)

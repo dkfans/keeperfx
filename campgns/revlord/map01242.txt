@@ -12,6 +12,9 @@ REM Lowered maximal amounts of troops, wizards and fairies in particular are lim
 REM ********************************************
 LEVEL_VERSION(1)
 
+SET_PLAYER_COLOR(PLAYER0,WHITE)
+SET_PLAYER_COLOR(PLAYER_GOOD,RED)
+
 SET_GENERATE_SPEED(500)
 
 MAX_CREATURES(PLAYER0,15)

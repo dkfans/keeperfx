@@ -50,6 +50,7 @@
 #include "game_legacy.h"
 #include "frontmenu_ingame_map.h"
 #include "keeperfx.hpp"
+#include "config_spritecolors.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -105,7 +106,8 @@ unsigned char const slabs_to_centre_pieces[] = {
  21, 22, 23, 24, 25,
 };
 
-unsigned short const room_effect_elements[] = { TngEffElm_RedFlame, TngEffElm_BlueFlame, TngEffElm_GreenFlame, TngEffElm_YellowFlame, TngEffElm_None, TngEffElm_None };
+unsigned short const room_effect_elements[] = { TngEffElm_RedFlame, TngEffElm_BlueFlame, TngEffElm_GreenFlame, TngEffElm_YellowFlame, TngEffElm_WhiteFlame, 
+                                                TngEffElm_None, TngEffElm_PurpleFlame, TngEffElm_BlackFlame, TngEffElm_OrangeFlame };
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -213,7 +215,7 @@ long get_room_of_role_slabs_count(PlayerNumber plyr_idx, RoomRole rrole)
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     long count = 0;
 
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if(!room_role_matches(rkind,rrole))
         {
@@ -449,7 +451,7 @@ void count_gold_hoardes_in_room(struct Room *room)
 {
     GoldAmount all_gold_amount = 0;
     int all_wealth_size = 0;
-    long wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
+    long wealth_size_holds = game.conf.rules.game.gold_per_hoard / get_wealth_size_types_count();
     GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
     // First, set the values to something big; this will prevent logging warnings on add/remove_gold_from_hoarde()
     room->used_capacity = room->total_capacity;
@@ -1232,7 +1234,7 @@ TbBool rectreate_repositioned_body_in_room_on_subtile(struct Room *room, MapSubt
             if (!thing_is_invalid(bodytng))
             {
                 bodytng->corpse.laid_to_rest = 1;
-                bodytng->health = game.graveyard_convert_time;
+                bodytng->health = game.conf.rules.rooms.graveyard_convert_time;
                 rrepos->used--;
                 rrepos->models[ri] = 0;
                 rrepos->explevels[ri] = 0;
@@ -1573,7 +1575,7 @@ void count_lair_occupants_on_slab(struct Room *room,MapSlabCoord slb_x, MapSlabC
             int required_cap = get_required_room_capacity_for_object(RoRoF_LairStorage, 0, creatng->model);
             if (room->used_capacity + required_cap > room->total_capacity)
             {
-                create_effect(&lairtng->mappos, imp_spangle_effects[lairtng->owner], lairtng->owner);
+                create_effect(&lairtng->mappos, imp_spangle_effects[get_player_color_idx(lairtng->owner)], lairtng->owner);
                 delete_lair_totem(lairtng);
             } else
             {
@@ -1873,7 +1875,7 @@ TbBool add_room_to_players_list(struct Room *room, PlayerNumber plyr_idx)
     if (plyr_idx == game.neutral_player_num) {
         return false;
     }
-    if (room->kind >= game.slab_conf.room_types_count) {
+    if (room->kind >= game.conf.slab_conf.room_types_count) {
         ERRORLOG("Room index %d has invalid kind %d",(int)room->index,(int)room->kind);
         return false;
     }
@@ -1904,7 +1906,7 @@ TbBool remove_room_from_players_list(struct Room *room, PlayerNumber plyr_idx)
     if (plyr_idx == game.neutral_player_num) {
         return false;
     }
-    if (room->kind >= game.slab_conf.room_types_count) {
+    if (room->kind >= game.conf.slab_conf.room_types_count) {
         ERRORLOG("Room index %d has invalid kind %d",(int)room->index,(int)room->kind);
         return false;
     }
@@ -2193,7 +2195,7 @@ long reinitialise_rooms_of_kind(RoomKind rkind)
  */
 void reinitialise_map_rooms(void)
 {
-    for (RoomKind rkind = 1; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 1; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         reinitialise_rooms_of_kind(rkind);
     }
@@ -2263,7 +2265,7 @@ short room_grow_food(struct Room *room)
         count_food_in_room(room);
     }
     if ((room->used_capacity >= room->total_capacity)
-      || game.play_gameturn % ((game.food_generation_speed / room->total_capacity) + 1))
+      || game.play_gameturn % ((game.conf.rules.rooms.food_generation_speed / room->total_capacity) + 1))
     {
         return 0;
     }
@@ -2404,7 +2406,7 @@ long calculate_room_efficiency(const struct Room *room)
  */
 unsigned long compute_room_max_health(unsigned short slabs_count,unsigned short efficiency)
 {
-  unsigned long max_health = game.hits_per_slab * slabs_count;
+  unsigned long max_health = game.conf.rules.workers.hits_per_slab * slabs_count;
   return saturate_set_unsigned(max_health, 16);
 }
 
@@ -2431,7 +2433,7 @@ TbBool link_room_health(struct Room* linkroom, struct Room* oldroom)
 TbBool recalculate_room_health(struct Room* room)
 {
     SYNCDBG(7, "Starting for %s index %d", room_code_name(room->kind), (int)room->index);
-    int newhealth = (room->health + game.hits_per_slab);
+    int newhealth = (room->health + game.conf.rules.workers.hits_per_slab);
     int maxhealth = compute_room_max_health(room->slabs_count, room->efficiency);
     
     if ((newhealth <= maxhealth) && (newhealth >= 0))
@@ -2818,7 +2820,7 @@ struct Room *find_room_of_role_with_spare_room_item_capacity(PlayerNumber plyr_i
     struct Room* room;
     if (dungeon_invalid(dungeon))
         return INVALID_ROOM;
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,rrole))
         {
@@ -2836,7 +2838,7 @@ struct Room *find_room_of_role_for_thing_with_used_capacity(const struct Thing *
     SYNCDBG(18,"Starting");
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     unsigned long k = 0;
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if(!room_role_matches(rkind,rrole))
         {
@@ -2893,7 +2895,7 @@ struct Room *find_room_of_role_with_spare_capacity(PlayerNumber owner, RoomRole 
     struct Dungeon* dungeon = get_dungeon(owner);
     if (dungeon_invalid(dungeon))
         return INVALID_ROOM;
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,rrole))
         {
@@ -2981,7 +2983,7 @@ struct Room *find_room_of_role_with_most_spare_capacity(const struct Dungeon *du
     long max_spare_cap = 0;
     unsigned long k = 0;
 
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,rrole))
         {
@@ -3097,7 +3099,7 @@ struct Room *find_nearest_room_of_role_for_thing_with_spare_capacity(struct Thin
     struct Room* nearoom = INVALID_ROOM;
     long neardistance = LONG_MAX;
 
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,rrole))
         {
@@ -3156,7 +3158,7 @@ static long count_rooms_with_used_capacity_creature_can_navigate_to(struct Thing
     struct Dungeon* dungeon = get_dungeon(owner);
     long count = 0;
     unsigned long k = 0;
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,rrole))
         {
@@ -3301,7 +3303,7 @@ struct Room *find_nth_room_with_used_capacity_creature_can_navigate_to(struct Th
 {
     struct Dungeon* dungeon = get_dungeon(owner);
     unsigned long k = 0;
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,rrole))
         {
@@ -3351,7 +3353,7 @@ struct Room *find_nth_room_with_used_capacity_creature_can_navigate_to(struct Th
  */
 TbBool creature_can_get_to_any_of_players_rooms(struct Thing *thing, PlayerNumber owner)
 {
-    for (RoomKind rkind = 1; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 1; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         struct Room* room = find_room_of_kind_creature_can_navigate_to(thing, owner, rkind, NavRtF_NoOwner);
         if (!room_is_invalid(room))
@@ -3490,7 +3492,7 @@ struct Room *get_room_of_given_role_for_thing(const struct Thing *thing, const s
 {
     long retdist = LONG_MAX;
     struct Room* retroom = INVALID_ROOM;
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if (!room_role_matches(rkind, rrole)) {
             continue;
@@ -3587,7 +3589,7 @@ long count_rooms_for_thing(struct Thing *thing, PlayerNumber owner, RoomKind rki
 long count_rooms_of_role_for_thing(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags)
 {
     long result = 0;
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,rrole))
         {
@@ -3647,7 +3649,7 @@ struct Room *find_nth_room_for_thing(struct Thing *thing, PlayerNumber owner, Ro
 struct Room* find_first_room_of_role(PlayerNumber owner, RoomRole rrole)
 {
     struct Dungeon* dungeon = get_dungeon(owner);
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if (room_role_matches(rkind, rrole))
         {
@@ -3674,7 +3676,7 @@ struct Room *find_nth_room_of_role_for_thing(struct Thing *thing, PlayerNumber o
 {
     struct Dungeon* dungeon = get_dungeon(owner);
     unsigned long k = 0;
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,rrole))
         {
@@ -3739,7 +3741,7 @@ static long count_rooms_of_role_for_thing_with_spare_room_item_capacity(struct T
     struct Dungeon* dungeon = get_dungeon(owner);
     long count = 0;
     unsigned long k = 0;
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if(!room_role_matches(rkind,rrole))
         {
@@ -3790,7 +3792,7 @@ static struct Room *find_nth_room_of_role_for_thing_with_spare_room_item_capacit
 {
     struct Dungeon* dungeon = get_dungeon(owner);
     unsigned long k = 0;
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if(!room_role_matches(rkind,rrole))
         {
@@ -4581,7 +4583,7 @@ struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x,
         struct Dungeon* dungeon = get_dungeon(owner);
         dungeon->lvstats.rooms_constructed++;
     }
-    pannel_map_update(stl_x, stl_y, STL_PER_SLB, STL_PER_SLB);
+    panel_map_update(stl_x, stl_y, STL_PER_SLB, STL_PER_SLB);
     return room;
 }
 
@@ -4591,7 +4593,7 @@ struct Room *find_nearest_room_of_role_for_thing_with_spare_item_capacity(struct
     struct Room* retroom = INVALID_ROOM;
 
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,rrole))
         {
@@ -4644,7 +4646,7 @@ struct Room * pick_random_room_of_role(PlayerNumber plyr_idx, RoomRole rrole)
 
     int rand = PLAYER_RANDOM(plyr_idx, count_player_slabs_of_rooms_with_role(plyr_idx, rrole));
 
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if (room_role_matches(rkind, rrole))
         {
@@ -4718,10 +4720,11 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
     // Handle specific things in rooms for which we have a special re-creation code
     PlayerNumber oldowner;
 
-    // Guard post owns only flag, and it must be re-created
-    if (object_is_guard_flag(thing))
+    // coloured objects must be recreated when owner changes, and it must be re-created
+    ThingModel base_model = get_coloured_object_base_model(thing->model);
+    if (base_model != 0)
     {
-        create_guard_flag_object(&thing->mappos, newowner, parent_idx);
+        create_coloured_object(&thing->mappos, newowner, parent_idx,base_model);
         delete_thing_structure(thing, 0);
         return;
     }
@@ -4812,7 +4815,7 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
         destroy_object(thing);
         return;
     }
-    if ((gameadd.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) {
+    if ((game.conf.rules.game.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) {
         // Preserve classic bug - object is claimed with the room
         thing->owner = newowner;
         return;
@@ -4961,7 +4964,7 @@ static void change_room_map_element_ownership(struct Room *room, PlayerNumber pl
                 change_room_subtile_things_ownership(room, stl_x, stl_y, plyr_idx);
             }
         }
-        pannel_map_update(start_stl_x, start_stl_y, STL_PER_SLB, STL_PER_SLB);
+        panel_map_update(start_stl_x, start_stl_y, STL_PER_SLB, STL_PER_SLB);
         // Per-slab code ends
         k++;
         if (k > room->slabs_count)
@@ -5188,31 +5191,34 @@ long take_over_room(struct Room* room, PlayerNumber newowner)
  * @param room The room structure which slabs are to be destroyed.
  * @note The room structure is freed before this function end.
  */
-void destroy_room_leaving_unclaimed_ground(struct Room *room)
+void destroy_room_leaving_unclaimed_ground(struct Room *room, TbBool create_rubble)
 {
     unsigned long k = 0;
-    long i = room->slabs_list;
+    unsigned long count = room->slabs_count;
+    SlabCodedCoords* slbs = malloc(count * sizeof(SlabCodedCoords));
+    SlabCodedCoords i = room->slabs_list;
     while (i != 0)
     {
-        long slb_x = slb_num_decode_x(i);
-        long slb_y = slb_num_decode_y(i);
+        slbs[k] = i;
         i = get_next_slab_number_in_room(i);
-        // Per room tile code
+        k++;
+    }
+    for (k = 0; k < count; k++)
+    {
         if (room->owner != game.neutral_player_num)
         {
             struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
             dungeon->rooms_destroyed++;
         }
-        delete_room_slab(slb_x, slb_y, 1); // Note that this function might also delete the whole room
-        create_dirt_rubble_for_dug_slab(slb_x, slb_y);
-        // Per room tile code ends
-        k++;
-        if (k > gameadd.map_tiles_x*gameadd.map_tiles_y) // we can't use room->slabs_count as room may be deleted
+        MapSlabCoord slb_x = slb_num_decode_x(slbs[k]);
+        MapSlabCoord slb_y = slb_num_decode_y(slbs[k]);
+        if (create_rubble)
         {
-            ERRORLOG("Room slabs list length exceeded when sweeping");
-            break;
+            create_dirt_rubble_for_dug_slab(slb_x, slb_y);
         }
+        delete_room_slab(slb_x, slb_y, 1); // Note that this function might also delete the whole room 
     }
+    free(slbs);
 }
 
 void destroy_dungeon_heart_room(PlayerNumber plyr_idx, const struct Thing *heartng)
@@ -5233,6 +5239,6 @@ void destroy_dungeon_heart_room(PlayerNumber plyr_idx, const struct Thing *heart
         return;
     }
     remove_room_from_players_list(room, plyr_idx);
-    destroy_room_leaving_unclaimed_ground(room);
+    destroy_room_leaving_unclaimed_ground(room, true);
 }
 /******************************************************************************/

@@ -470,7 +470,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             // Otherwise, put creature type in it.
             if (!thing_is_invalid(thing))
             {
-                crconf = &gameadd.crtr_conf.model[thing->model];
+                crconf = &game.conf.crtr_conf.model[thing->model];
                 i = crconf->namestr_idx;
                 text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, get_string(i));
                 snprintf(game.evntbox_scroll_window.text,MESSAGE_TEXT_LEN, "%s", text);
@@ -507,7 +507,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             // Otherwise, put creature type in it.
             if (!thing_is_invalid(thing))
             {
-                crconf = &gameadd.crtr_conf.model[thing->model];
+                crconf = &game.conf.crtr_conf.model[thing->model];
                 i = crconf->namestr_idx;
                 text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, get_string(i));
                 snprintf(game.evntbox_scroll_window.text,MESSAGE_TEXT_LEN, "%s", text);
@@ -554,7 +554,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             // Otherwise, put creature type in it.
             if (!thing_is_invalid(thing))
             {
-                crconf = &gameadd.crtr_conf.model[thing->model];
+                crconf = &game.conf.crtr_conf.model[thing->model];
                 i = crconf->namestr_idx;
                 text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, get_string(i));
                 snprintf(game.evntbox_scroll_window.text,MESSAGE_TEXT_LEN, "%s", text);

@@ -316,7 +316,7 @@ void gui_set_sound_volume(struct GuiButton *gbtn)
     save_settings();
     SetSoundMasterVolume(settings.sound_volume);
     SetMusicMasterVolume(settings.sound_volume);
-    for (int i = 0; i < EXTERNAL_SOUNDS_COUNT; i++)
+    for (int i = 0; i <= EXTERNAL_SOUNDS_COUNT; i++)
     {
         if (Ext_Sounds[i] != NULL)
         {

@@ -58,7 +58,7 @@ struct Light {
   unsigned char flags;
   unsigned char flags2;
   unsigned char intensity;
-  unsigned char field_3;
+  unsigned char intensity_toggling_field;//toggles between 1 and 2 when flags has LgtF_Unkn20
   unsigned char intensity_delta;//seems never assigned
   unsigned char range;
   unsigned char field_6;
@@ -85,7 +85,7 @@ struct Light {
 struct InitLight { // sizeof=0x14
     short radius;
     unsigned char intensity;
-    unsigned char field_3;
+    unsigned char flags;
     struct Coord3d mappos;
     unsigned char is_dynamic;
     SlabCodedCoords attached_slb;
@@ -123,6 +123,7 @@ void light_set_light_never_cache(long lgt_id);
 TbBool light_is_invalid(const struct Light *lgt);
 long light_is_light_allocated(long lgt_id);
 void light_set_light_position(long lgt_id, struct Coord3d *pos);
+void light_stat_refresh();
 void light_set_lights_on(char state);
 void light_set_light_minimum_size_to_cache(long lgt_id, long a2, long a3);
 void light_signal_update_in_area(long sx, long sy, long ex, long ey);

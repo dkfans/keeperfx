@@ -21,15 +21,10 @@
 #define DK_GAMEMERGE_H
 
 #include "bflib_basics.h"
+#include "bflib_math.h"
 #include "globals.h"
 
 #include "actionpt.h"
-#include "config_cubes.h"
-#include "config_creature.h"
-#include "config_crtrmodel.h"
-#include "config_effects.h"
-#include "config_objects.h"
-#include "config_rules.h"
 #include "creature_control.h"
 #include "dungeon_data.h"
 #include "gui_msgs.h"
@@ -126,8 +121,6 @@ enum GameFlags2 {
 /******************************************************************************/
 #pragma pack(1)
 
-struct PlayerInfo;
-
 /** Structure which stores state of scrollable message with text.
  */
 struct TextScrollWindow {
@@ -153,53 +146,12 @@ struct IntralevelData {
  */
 struct GameAdd {
     unsigned long turn_last_checked_for_gold;
-    unsigned long flee_zone_radius;
-    unsigned long time_between_prison_break;
-    unsigned long time_in_prison_without_break;
-    unsigned char prison_break_chance;
-    unsigned short game_turns_unconscious;
-    unsigned char stun_enemy_chance_evil;
-    unsigned char stun_enemy_chance_good;
-    long critical_health_permil;
-    long friendly_fight_area_damage_permil;
-    long friendly_fight_area_range_permil;
-    unsigned char torture_death_chance;
-    unsigned char torture_convert_chance;
-    unsigned short bag_gold_hold;
-    TbBool scavenge_good_allowed;
-    TbBool scavenge_neutral_allowed;
     long scavenge_effectiveness_evil; //unused
     long scavenge_effectiveness_good; //unused
-    TbBool armegeddon_teleport_neutrals;
-    unsigned long classic_bugs_flags;
     unsigned short computer_chat_flags;
-    /** The creature model used for determining amount of sacrifices which decrease digger cost. */
-    ThingModel cheaper_diggers_sacrifice_model;
     char quick_messages[QUICK_MESSAGES_COUNT][MESSAGE_TEXT_LEN];
     struct GuiMessage messages[GUI_MESSAGES_COUNT];
-    struct SacrificeRecipe sacrifice_recipes[MAX_SACRIFICE_RECIPES];
     struct LightSystemState lightst;
-    long digger_work_experience;
-    unsigned long gem_effectiveness;
-    long door_sale_percent;
-    long room_sale_percent;
-    long trap_sale_percent;
-    unsigned long pay_day_speed;
-    unsigned short disease_to_temple_pct;
-    TbBool place_traps_on_subtiles;
-    unsigned long gold_per_hoard;
-
-    struct CubesConfig cube_conf;
-    struct ManfctrConfig traps_config[TRAPDOOR_TYPES_MAX];
-    struct ManfctrConfig doors_config[TRAPDOOR_TYPES_MAX];
-    struct TrapStats trap_stats[TRAPDOOR_TYPES_MAX];
-    struct TrapDoorConfig trapdoor_conf;
-    struct EffectsConfig effects_conf;
-    struct CreatureStats creature_stats[CREATURE_TYPES_MAX];
-    struct CreatureConfig crtr_conf;
-    struct ObjectsConfig object_conf;
-    struct CreatureModelConfig swap_creature_models[SWAP_CREATURE_TYPES_MAX];
-
     uint8_t               max_custom_box_kind;
     unsigned long         current_player_turn; // Actually it is a hack. We need to rewrite scripting for current player
     int                   script_current_player;
@@ -224,13 +176,9 @@ struct GameAdd {
     long heart_lost_message_target;
     unsigned char slab_ext_data[MAX_TILES_X*MAX_TILES_Y];
     unsigned char slab_ext_data_initial[MAX_TILES_X*MAX_TILES_Y];
-    struct PlayerInfoAdd players[PLAYERS_COUNT];
     float delta_time;
     long double process_turn_time;
     float flash_button_time;
-    TbBool allies_share_vision;
-    TbBool allies_share_drop;
-    TbBool allies_share_cta;
     MapSubtlCoord map_subtiles_x;
     MapSubtlCoord map_subtiles_y;
     MapSlabCoord map_tiles_x;
@@ -241,7 +189,6 @@ struct GameAdd {
     short around_slab[AROUND_SLAB_LENGTH];
     short around_slab_eight[AROUND_SLAB_EIGHT_LENGTH];
     short small_around_slab[SMALL_AROUND_SLAB_LENGTH];
-    unsigned char max_things_in_hand;
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level

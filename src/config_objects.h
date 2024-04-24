@@ -59,6 +59,16 @@ enum ObjectModelFlags {
 
 
 /******************************************************************************/
+struct Effects {
+    EffectOrEffElModel beam;
+    EffectOrEffElModel particle;
+    EffectOrEffElModel explosion1;
+    EffectOrEffElModel explosion2;
+    unsigned short spacing;
+    unsigned short sound_idx;
+    unsigned char sound_range;
+};
+
 struct ObjectConfigStats {
     char code_name[COMMAND_WORD_LEN];
     unsigned long model_flags;
@@ -79,14 +89,15 @@ struct ObjectConfigStats {
     unsigned char draw_class; /**< See enum ObjectsDrawClasses. */
     unsigned char destroy_on_lava;
     /** Creature model related to the object, ie for lairs - which creature lair it is. */
-    unsigned char related_creatr_model;
+    ThingModel related_creatr_model;
     unsigned char persistence;
     unsigned char destroy_on_liquid;
     unsigned char rotation_flag;
     unsigned char updatefn_idx;
     unsigned char initial_state;
     unsigned char random_start_frame;
-    unsigned char transparancy_flags;  // Lower 2 bits are transparency flags
+    unsigned char transparancy_flags;  // Lower 2 bits are transparency flags.
+    struct Effects effect;
 };
 
 struct ObjectsConfig {

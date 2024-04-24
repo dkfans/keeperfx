@@ -33,12 +33,14 @@ extern "C" {
 #define LINEMSG_SIZE     160
 #define READ_BUFSIZE     256
 #define LOOPED_FILE_LEN 4096
-#define COMMAND_WORD_LEN  32
+#define COMMAND_WORD_LEN  64
 
 // Max length of any processed string
 #define MAX_TEXT_LENGTH 4096
 // Smaller buffer, also widely used
 #define TEXT_BUFFER_LENGTH 2048
+
+#define MAX_CONSOLE_LOG_COUNT 1000   // Maximum number of log messages
 
 enum TbErrorLogFlags {
         Lb_ERROR_LOG_APPEND = 0,
@@ -129,9 +131,15 @@ struct DebugMessage {
 extern struct DebugMessage * debug_messages_head;
 extern struct DebugMessage ** debug_messages_tail;
 
+
+
 #pragma pack()
 /******************************************************************************/
 extern const char *log_file_name;
+extern int debug_display_consolelog;
+extern char consoleLogArray[MAX_CONSOLE_LOG_COUNT][MAX_TEXT_LENGTH];
+extern size_t consoleLogArraySize;
+
 // High level functions - DK specific
 void error(const char *codefile,const int ecode,const char *message);
 short warning_dialog(const char *codefile,const int ecode,const char *message);
@@ -216,6 +224,15 @@ void make_uppercase(char *);
  * @return Returns TRUE if the given masked bits are set to 1 in the given flags variable.
  */
 #define flag_is_set(flags,mask) ((flags & mask) == mask)
+
+/** 
+ * Check if any of the given flags is set - by checking if any of the given masked bits are set to 1 in the given flags variable.
+ * 
+ * @param flags The flags variable we want to check.
+ * @param mask Bitmask, containing 1 (or more) masked bits, representing the bit flags we want to check in the "flags" parameter.
+ * @return Returns TRUE if any of the given masked bits are set to 1 in the given flags variable.
+ */
+#define any_flag_is_set(flags,mask) ((flags & mask) != 0)
 
 /** 
  * Check if all of the flags are set - by checking if all of the bits are set to 1 in the given flags variable.

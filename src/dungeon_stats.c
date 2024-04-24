@@ -40,6 +40,7 @@
 /******************************************************************************/
 TbBool load_stats_files(void)
 {
+    SYNCDBG(8, "Starting");
     TbBool result = true;
     clear_research_for_all_players();
     if (!load_creaturetypes_config(keeper_creaturetp_file,CnfLd_ListOnly))
@@ -85,9 +86,10 @@ TbBool load_stats_files(void)
       result = false;
     if (!load_spritecolors_config(keeper_spritecolors_file,CnfLd_Standard))
       result = false;
-
+    if (!load_cubes_config(CnfLd_Standard))
+      result = false;
     
-    for (int i = 1; i < gameadd.crtr_conf.model_count; i++)
+    for (int i = 1; i < game.conf.crtr_conf.model_count; i++)
     {
       if (!load_creaturemodel_config(i,0))
         result = false;
@@ -152,8 +154,8 @@ unsigned long compute_dungeon_rooms_variety_score(long room_types, long total_ar
 {
     if (room_types < 0)
         room_types = 0;
-    if (room_types > game.slab_conf.room_types_count)
-        room_types = game.slab_conf.room_types_count;
+    if (room_types > game.conf.slab_conf.room_types_count)
+        room_types = game.conf.slab_conf.room_types_count;
     if (total_area < 0)
         total_area = 0;
     if (total_area >= 512)
@@ -238,13 +240,13 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
     {
         // Compute amount of different types of rooms built
         unsigned long room_types = 0;
-        for (i=0; i < game.slab_conf.room_types_count; i++)
+        for (i=0; i < game.conf.slab_conf.room_types_count; i++)
         {
             if (dungeon->room_slabs_count[i] > 0)
                 room_types++;
         }
         manage_efficiency += 40 * compute_dungeon_rooms_variety_score(room_types, dungeon->total_area);
-        max_manage_efficiency += 40 * compute_dungeon_rooms_variety_score(game.slab_conf.room_types_count, LONG_MAX);
+        max_manage_efficiency += 40 * compute_dungeon_rooms_variety_score(game.conf.slab_conf.room_types_count, LONG_MAX);
     }
     {
         manage_efficiency += compute_dungeon_train_research_manufctr_wealth_score(dungeon->total_experience_creatures_gained,

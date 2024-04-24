@@ -96,6 +96,22 @@ void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pit
     }
 }
 
+void play_sound_if_close_to_receiver(struct Coord3d *soundpos, short smptbl_idx)
+{
+    if (SoundDisabled)
+        return;
+    if (GetCurrentSoundMasterVolume() <= 0)
+        return;
+    struct Coord3d rcpos;
+    rcpos.x.val = Receiver.pos.val_x;
+    rcpos.y.val = Receiver.pos.val_y;
+    rcpos.z.val = Receiver.pos.val_z;
+    if (get_chessboard_3d_distance(&rcpos, soundpos) < MaxSoundDistance)
+    {
+        play_non_3d_sample(smptbl_idx);
+    }
+}
+
 void play_thing_walking(struct Thing *thing)
 {
     struct PlayerInfo* myplyr = get_my_player();
@@ -115,11 +131,15 @@ void play_thing_walking(struct Thing *thing)
         return;
     }
     long loudness = (myplyr->view_mode == PVM_CreatureView) ? (FULL_LOUDNESS) : (FULL_LOUDNESS / 5);
-    // Flying diptera has a buzzing noise sound
-    if ((get_creature_model_flags(thing) & CMF_IsDiptera) && ((thing->movement_flags & TMvF_Flying) != 0) && (thing->floor_height < (int)thing->mappos.z.val))
+    if (((thing->movement_flags & TMvF_Flying) != 0) && (thing->floor_height < (int)thing->mappos.z.val))
     {
-        if ( !S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25, 0) ) {
-            thing_play_sample(thing, 25, 100, -1, 2, 0, 2, loudness);
+        // Flying diptera has a buzzing noise sound
+        if (get_creature_model_flags(thing) & CMF_IsDiptera)
+        {
+            if (!S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25, 0))
+            {
+                thing_play_sample(thing, 25, 100, -1, 2, 0, 2, loudness);
+            }
         }
     }
     else
@@ -222,7 +242,7 @@ void find_nearest_rooms_for_ambient_sound(void)
             struct Room* room = subtile_room_get(stl_x, stl_y);
             if (room_is_invalid(room))
                 continue;
-            struct RoomConfigStats* roomst = &game.slab_conf.room_cfgstats[room->kind];
+            struct RoomConfigStats* roomst = &game.conf.slab_conf.room_cfgstats[room->kind];
             long k = roomst->ambient_snd_smp_id;
             if (k > 0)
             {
@@ -294,24 +314,35 @@ void update_player_sounds(void)
     }
     if (game.play_gameturn != 0)
     {
-        // Rare message easter egg
-        if ((game.play_gameturn % 20000) == 0)
+        // Easter Egg Speeches
+
+        // Interval for easter egg speeches. Original DK value was 20000 (16.6 minutes)
+        if (game.conf.rules.game.easter_egg_speech_interval != 0 && (game.play_gameturn % game.conf.rules.game.easter_egg_speech_interval) == 0)
         {
-            if (UNSYNC_RANDOM(2000) == 0)
+            // The chance for the easter egg speech to trigger. Original DK value was 1/2000
+            if (game.conf.rules.game.easter_egg_speech_chance != 0 && UNSYNC_RANDOM(game.conf.rules.game.easter_egg_speech_chance) == 0)
             {
-              k = UNSYNC_RANDOM(10);
-              SYNCDBG(9,"Rare message condition met, selected %d",(int)k);
-              if (k == 7)
-              {
-            output_message(SMsg_PantsTooTight, 0, true);
-              } else
-              {
-                output_message(SMsg_FunnyMessages+k, 0, true);
-              }
+                // Select a random Easter egg speech
+                k = UNSYNC_RANDOM(10);
+                SYNCDBG(9,"Rare message condition met, selected %d",(int)k);
+
+                if (k == 7)
+                {
+                    // Replace SMsg_Glaagh with SMsg_PantsTooTight
+                    // Most likely because 'Glaagh' is a bit negative in this scenario
+                    output_message(SMsg_PantsTooTight, 0, true);
+                }
+                else
+                {
+                    // Play one of the speeches
+                    output_message(SMsg_FunnyMessages+k, 0, true);
+                }
             }
-        // Atmospheric background sound, replaces AWE soundfont
-        } else
+
+        }
+        else
         {
+            // Atmospheric background sound, replaces AWE soundfont
             if ( atmos_sounds_enabled() )
             {
                 //Plays a sound on repeat, default sound sample 1013(water drops), with a small chance of a random other sound from the range.
@@ -635,7 +666,7 @@ void sound_reinit_after_load(void)
     ambient_sound_stop();
     init_messages();
     free_sound_chunks();
-    for (unsigned int sample = 0; sample < EXTERNAL_SOUNDS_COUNT; sample++)
+    for (unsigned int sample = 0; sample <= EXTERNAL_SOUNDS_COUNT; sample++)
     {
         char *sound = &game.loaded_sound[sample][0];
         if (sound[0] != '\0')
@@ -741,7 +772,7 @@ void update_first_person_object_ambience(struct Thing *thing)
              objtng = thing_get(objtng->next_of_class))
         {
             objst = get_object_model_stats(objtng->model);
-            if ((objst->fp_smpl_idx != 0) && !thing_is_in_limbo(objtng))
+            if ((objst->fp_smpl_idx != 0) && !thing_is_picked_up(objtng))
             {
                 new_distance = get_chessboard_distance(&thing->mappos, &objtng->mappos);
                 if (new_distance <= hearing_range)
@@ -821,7 +852,7 @@ void ShutDownSDLAudio()
 void free_sound_chunks()
 {
     Mix_HaltChannel(-1);
-    for (int i = 0; i < EXTERNAL_SOUNDS_COUNT; i++)
+    for (int i = 0; i <= EXTERNAL_SOUNDS_COUNT; i++)
     {
         if (Ext_Sounds[i] != NULL)
         {

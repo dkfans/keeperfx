@@ -38,6 +38,7 @@
 #include "bflib_network.h"
 #include "bflib_planar.h"
 
+#include "api.h"
 #include "custom_sprites.h"
 #include "version.h"
 #include "front_simple.h"
@@ -118,6 +119,7 @@
 #include "config_settings.h"
 #include "game_legacy.h"
 #include "room_list.h"
+#include "steam_api.hpp"
 #include "game_loop.h"
 #include "music_player.h"
 
@@ -147,6 +149,7 @@ unsigned char *dog_palette;
 unsigned char *vampire_palette;
 unsigned char exit_keeper;
 unsigned char quit_game;
+unsigned char is_running_under_wine = false;
 int continue_game_option_available;
 long last_mouse_x;
 long last_mouse_y;
@@ -215,7 +218,7 @@ TbBool TimerFreeze = false;
 
 TbPixel get_player_path_colour(unsigned short owner)
 {
-  return player_path_colours[player_colors_map[owner % PLAYERS_EXT_COUNT]];
+  return player_path_colours[get_player_color_idx(owner % PLAYERS_EXT_COUNT)];
 }
 
 void setup_stuff(void)
@@ -272,7 +275,7 @@ long get_foot_creature_has_down(struct Thing *thing)
     int n;
     cctrl = creature_control_get_from_thing(thing);
     val = thing->current_frame;
-    if (val == (cctrl->field_CE >> 8))
+    if (val == (cctrl->anim_time >> 8))
         return 0;
     unsigned short frame = (creature_is_dragging_something(thing)) ? CGI_Drag : CGI_Ambulate;
     n = get_creature_model_graphics(thing->model, frame);
@@ -326,11 +329,17 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
     }
     struct Thing *shotng;
     shotng = (struct Thing *)param->ptr3;
+    struct ShotConfigStats *shotst = get_shot_model_stats(shotng->model);
     if ((thing->index == shotng->index) || (thing->index == shotng->parent_idx)) {
         return TUFRet_Unchanged;
     }
-    MapCoordDelta dist;
-    dist = LONG_MAX;
+    struct CreatureControl* cctrl;
+    // param->num1 = 2048 from affect_nearby_enemy_creatures_with_wind
+    long blow_distance = param->num1;
+    // calculate max distance
+    int maxdistance = shotst->health * shotst->speed;
+    MapCoordDelta creature_distance;
+    creature_distance = LONG_MAX;
     TbBool apply_velocity;
     apply_velocity = false;
     if (thing->class_id == TCls_Creature)
@@ -339,15 +348,44 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
         {
             struct CreatureStats *crstat;
             crstat = creature_stats_get_from_thing(thing);
-            dist = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
-            if ((dist < param->num1) && crstat->affected_by_wind)
+            cctrl = creature_control_get_from_thing(thing);
+            int creatureAlreadyAffected = 0;
+
+            // distance between creature and actual position of the projectile
+            creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;    
+
+            // if weight-affect-push-rule is on
+            if (game.conf.rules.magic.weight_calculate_push > 0)
+            {
+                long weight = compute_creature_weight(thing);
+                //max push distance
+                blow_distance = maxdistance - (maxdistance - weight_calculated_push_strenght(weight, maxdistance)); 
+                // distance between startposition and actual position of the projectile
+                int origin_distance = get_chessboard_distance(&shotng->shot.originpos, &thing->mappos) + 1;
+                creature_distance = origin_distance;
+
+                // Check the the spell instance for already affected creatures
+                for (int i = 0; i < shotng->shot.num_wind_affected; i++)
+                {
+                    if (shotng->shot.wind_affected_creature[i] == cctrl->index)
+                    {
+                        creatureAlreadyAffected = 1;
+                        break;
+                    }
+                }
+            }
+
+            if ((creature_distance < blow_distance) && crstat->affected_by_wind && !creatureAlreadyAffected)           
             {
                 set_start_state(thing);
-                struct CreatureControl *cctrl;
-                cctrl = creature_control_get_from_thing(thing);
                 cctrl->idle.start_gameturn = game.play_gameturn;
                 apply_velocity = true;
             }
+               // if weight-affect-push-rule is on
+            else if (game.conf.rules.magic.weight_calculate_push > 0 && creature_distance >= blow_distance && !creatureAlreadyAffected){
+                // add creature ID to allready-wind-affected-creature-array
+                shotng->shot.wind_affected_creature[shotng->shot.num_wind_affected++] = cctrl->index;                  
+                }
         }
     } else
     if (thing->class_id == TCls_EffectElem)
@@ -356,8 +394,8 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
         {
             struct EffectElementConfigStats *eestat;
             eestat = get_effect_element_model_stats(thing->model);
-            dist = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
-            if ((dist < param->num1) && eestat->affected_by_wind)
+            creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
+            if ((creature_distance < blow_distance) && eestat->affected_by_wind)
             {
                 apply_velocity = true;
             }
@@ -367,10 +405,9 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
     {
         if (!thing_is_picked_up(thing))
         {
-            struct ShotConfigStats *shotst;
-            shotst = get_shot_model_stats(thing->model);
-            dist = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
-            if ((dist < param->num1) && !shotst->wind_immune)
+            struct ShotConfigStats *thingshotst = get_shot_model_stats(shotng->model);
+            creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
+            if ((creature_distance < blow_distance) && !thingshotst->wind_immune)
             {
                 apply_velocity = true;
             }
@@ -383,8 +420,8 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
 
             struct EffectConfigStats *effcst;
             effcst = get_effect_model_stats(thing->model);
-            dist = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
-            if ((dist < param->num1) && effcst->affected_by_wind)
+            creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
+            if ((creature_distance < blow_distance) && effcst->affected_by_wind)
             {
                 apply_velocity = true;
             }
@@ -393,9 +430,9 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
     if (apply_velocity)
     {
         struct ComponentVector wind_push;
-        wind_push.x = (shotng->veloc_base.x.val * param->num1) / dist;
-        wind_push.y = (shotng->veloc_base.y.val * param->num1) / dist;
-        wind_push.z = (shotng->veloc_base.z.val * param->num1) / dist;
+        wind_push.x = (shotng->veloc_base.x.val * blow_distance) / creature_distance;
+        wind_push.y = (shotng->veloc_base.y.val * blow_distance) / creature_distance;
+        wind_push.z = (shotng->veloc_base.z.val * blow_distance) / creature_distance;
         SYNCDBG(8,"Applying (%d,%d,%d) to %s index %d",(int)wind_push.x,(int)wind_push.y,(int)wind_push.z,thing_model_name(thing),(int)thing->index);
         apply_transitive_velocity_to_thing(thing, &wind_push);
         return TUFRet_Modified;
@@ -531,7 +568,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
     {
       if ( (thing->model != ShM_SolidBoulder) && (collide == 0) )
       {
-        thing->health -= game.boulder_reduce_health_wall;
+        thing->health -= game.conf.rules.game.boulder_reduce_health_wall;
       }
       slide_thing_against_wall_at(thing, &pos, blocked_flags);
       if ( blocked_flags & SlbBloF_WalledX )
@@ -618,7 +655,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
             }
             if (boulder->model != ShM_SolidBoulder) // Solid Boulder (shot20) takes no damage when destroying guardposts
             {
-                boulder->health -= game.boulder_reduce_health_room; // decrease boulder health
+                boulder->health -= game.conf.rules.game.boulder_reduce_health_room; // decrease boulder health
             }
             return 1; // guardpost destroyed
         }
@@ -651,6 +688,8 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
   int delta_x;
   int delta_y;
   int delta_z;
+  if (delta_step <= 0)
+      delta_step = 1;
   if (dist_x >= 0)
   {
       delta_x = delta_step;
@@ -757,6 +796,8 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
     int delta_x;
     int delta_y;
     int delta_z;
+    if (eeinterspace <= 0)
+        eeinterspace = 1;
     if (dist_x >= 0) {
         delta_x = eeinterspace;
     } else {
@@ -901,7 +942,7 @@ void update_thing_animation(struct Thing *thing)
     {
       cctrl = creature_control_get_from_thing(thing);
       if (!creature_control_invalid(cctrl))
-        cctrl->field_CE = thing->anim_time;
+        cctrl->anim_time = thing->anim_time;
     }
     if ((thing->anim_speed != 0) && (thing->max_frames != 0))
     {
@@ -980,12 +1021,10 @@ void init_keeper(void)
     load_stats_files();
     check_and_auto_fix_stats();
     init_creature_scores();
-    // Load graphics structures
-    load_cubes_config(CnfLd_Standard);
     init_top_texture_to_cube_table();
     game.neutral_player_num = neutral_player_number;
     if (game.generate_speed <= 0)
-      game.generate_speed = game.default_generate_speed;
+      game.generate_speed = game.conf.rules.rooms.default_generate_speed;
     poly_pool_end = &poly_pool[sizeof(poly_pool)-128];
     lbDisplay.GlassMap = pixmap.ghost;
     lbDisplay.DrawColour = colours[15][15][15];
@@ -1011,7 +1050,7 @@ TbBool initial_setup(void)
     MinimalResolutionSetup = true;
     // Set size of static textures buffer
     game_load_files[1].SLength = max((ulong)TEXTURE_BLOCKS_STAT_COUNT_A*block_dimension*block_dimension,(ulong)LANDVIEW_MAP_WIDTH*LANDVIEW_MAP_HEIGHT);
-    if (LbDataLoadAll(game_load_files))
+    if (LbDataLoadAllV2(game_load_files))
     {
         ERRORLOG("Unable to load game_load_files");
         return false;
@@ -1068,6 +1107,7 @@ short setup_game(void)
           if (wine_get_version)
           {
               SYNCMSG("Running on Wine v%s", wine_get_version());
+              is_running_under_wine = true;
           }
 
           // Get Wine host OS
@@ -1139,7 +1179,14 @@ short setup_game(void)
 
   if (is_feature_on(Ft_SkipSplashScreens) == false)
   {
-      result = init_actv_bitmap_screen(RBmp_SplashLegal);
+
+      if(is_ar_wider_than_original(LbGraphicsScreenWidth(), LbGraphicsScreenHeight()))
+      {
+        result = init_actv_bitmap_screen(RBmp_SplashLegalWide);
+      } else {
+        result = init_actv_bitmap_screen(RBmp_SplashLegal);
+      }
+
       if ( result )
       {
           result = show_actv_bitmap_screen(3000);
@@ -1312,8 +1359,7 @@ TbBool players_cursor_is_at_top_of_view(struct PlayerInfo *player)
 
 TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, long *map_x, long *map_y)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
+    struct PlayerInfo *player = get_my_player();
     *map_x = 0;
     *map_y = 0;
     if ( (pointer_x >= 0) && (pointer_y >= 0)
@@ -1392,7 +1438,7 @@ void update_creatr_model_activities_list(void)
     int num_breeds;
     num_breeds = no_of_breeds_owned;
     // Add to breed activities
-    for (crmodel=1; crmodel < gameadd.crtr_conf.model_count; crmodel++)
+    for (crmodel=1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
     {
         if ((dungeon->owned_creatures_of_model[crmodel] > 0)
             && (crmodel != get_players_spectator_model(my_player_number)))
@@ -1413,7 +1459,7 @@ void update_creatr_model_activities_list(void)
         }
     }
     // Remove from breed activities
-    for (crmodel=1; crmodel < gameadd.crtr_conf.model_count; crmodel++)
+    for (crmodel=1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
     {
         if ((dungeon->owned_creatures_of_model[crmodel] <= 0)
           && (crmodel != get_players_special_digger_model(my_player_number)))
@@ -1457,6 +1503,10 @@ void reset_gui_based_on_player_mode(void)
     if (player->view_type == PVT_CreatureContrl)
     {
         turn_on_menu(vid_change_query_menu);
+        if (player->victory_state == VicS_LostLevel)
+        {
+            turn_off_query_menus();
+        }
     }
     else if (player->view_type == PVT_CreaturePasngr)
     {
@@ -1843,7 +1893,7 @@ void reset_creature_max_levels(void)
     {
         struct Dungeon *dungeon;
         dungeon = get_dungeon(i);
-        for (k=1; k < gameadd.crtr_conf.model_count; k++)
+        for (k=1; k < game.conf.crtr_conf.model_count; k++)
         {
             dungeon->creature_max_level[k] = CREATURE_MAX_LEVEL+1;
         }
@@ -2203,10 +2253,9 @@ void clear_lookups(void)
 void interp_fix_mouse_light_off_map(struct PlayerInfo *player)
 {
     // This fixes the interpolation issue of moving the mouse off map in one position then back onto the map far elsewhere.
-    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
     struct Light* light = &game.lish.lights[player->cursor_light_idx];
 
-    if (playeradd->mouse_is_offmap == true) {
+    if (player->mouse_on_map == false) {
         light->disable_interp_for_turns = 2;
     }
     if (light->disable_interp_for_turns > 0) {
@@ -2420,7 +2469,7 @@ void count_players_creatures_being_paid(int *creatures_count)
 
 void process_payday(void)
 {
-    game.pay_day_progress = game.pay_day_progress + (gameadd.pay_day_speed / 100);
+    game.pay_day_progress = game.pay_day_progress + (game.conf.rules.game.pay_day_speed / 100);
     PlayerNumber plyr_idx;
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
@@ -2435,7 +2484,7 @@ void process_payday(void)
             compute_and_update_player_backpay_total(plyr_idx);
         }
     }
-    if (game.pay_day_gap <= game.pay_day_progress)
+    if (game.conf.rules.game.pay_day_gap <= game.pay_day_progress)
     {
         output_message(SMsg_Payday, 0, true);
         game.pay_day_progress = 0;
@@ -2621,9 +2670,9 @@ int clear_active_dungeons_stats(void)
       dungeon = get_dungeon(i);
       if (dungeon_invalid(dungeon))
           break;
-      memset((char *)dungeon->field_64, 0, gameadd.crtr_conf.model_count * 15 * sizeof(unsigned short));
-      memset((char *)dungeon->guijob_all_creatrs_count, 0, gameadd.crtr_conf.model_count *3*sizeof(unsigned short));
-      memset((char *)dungeon->guijob_angry_creatrs_count, 0, gameadd.crtr_conf.model_count *3*sizeof(unsigned short));
+      memset((char *)dungeon->field_64, 0, game.conf.crtr_conf.model_count * 15 * sizeof(unsigned short));
+      memset((char *)dungeon->guijob_all_creatrs_count, 0, game.conf.crtr_conf.model_count *3*sizeof(unsigned short));
+      memset((char *)dungeon->guijob_angry_creatrs_count, 0, game.conf.crtr_conf.model_count *3*sizeof(unsigned short));
   }
   return i;
 }
@@ -2713,7 +2762,7 @@ long update_cave_in(struct Thing *thing)
         create_effect(&pos, TngEff_HarmlessGas4, owner);
     }
 
-    if ((turns_alive % game.turns_per_collapse_dngn_dmg) == 0)
+    if ((turns_alive % game.conf.rules.magic.turns_per_collapse_dngn_dmg) == 0)
     {
         pos.x.val = thing->mappos.x.val;
         pos.y.val = thing->mappos.y.val;
@@ -2724,7 +2773,7 @@ long update_cave_in(struct Thing *thing)
         param.class_id = 0;
         param.model_id = 0;
         param.num1 = thing->owner;
-        param.num2 = game.collapse_dungeon_damage;
+        param.num2 = game.conf.rules.magic.collapse_dungeon_damage;
         param.ptr3 = 0;
         do_cb = damage_creatures_with_physical_force;
         do_to_things_with_param_around_map_block(&pos, do_cb, &param);
@@ -2769,12 +2818,43 @@ long update_cave_in(struct Thing *thing)
     return 1;
 }
 
+/**
+ * Checks if a gamerule for lighting has changed and updates the lights if they are.
+ * This function also refreshes the light status of the map.
+*/
+void update_global_lighting()
+{
+    // Check if any values have changed
+    if (
+        game.conf.rules.game.global_ambient_light != game.lish.global_ambient_light ||
+        game.conf.rules.game.light_enabled != game.lish.light_enabled
+    ){
+
+        // GlobalAmbientLight
+        if (game.conf.rules.game.global_ambient_light != game.lish.global_ambient_light)
+        {
+            game.lish.global_ambient_light = game.conf.rules.game.global_ambient_light;
+        }
+
+        // LightEnabled
+        if (game.conf.rules.game.light_enabled != game.lish.light_enabled)
+        {
+            game.lish.light_enabled = game.conf.rules.game.light_enabled;
+        }
+
+        // Refresh the lights
+        light_stat_refresh();
+    }
+}
+
 void update(void)
 {
     struct PlayerInfo *player;
     SYNCDBG(4,"Starting for turn %ld",(long)game.play_gameturn);
 
     process_packets();
+    api_update_server();
+
     if (quit_game || exit_keeper) {
         return;
     }
@@ -2818,6 +2898,7 @@ void update(void)
         update_footsteps_nearest_camera(player->acamera);
         PaletteFadePlayer(player);
         process_armageddon();
+        update_global_lighting();
 #if (BFDEBUG_LEVEL > 9)
         lights_stats_debug_dump();
         things_stats_debug_dump();
@@ -3178,7 +3259,6 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
 
 void update_blocks_pointed(void)
 {
-    TbBool out_of_bounds = false;
     long x;
     long y;
     long x_frac;
@@ -3225,18 +3305,11 @@ void update_blocks_pointed(void)
           if ((x >= 0) && (x < gameadd.map_subtiles_x) && (y >= 0) && (y < gameadd.map_subtiles_y))
           {
               update_block_pointed(i,x,x_frac,y,y_frac);
-          } else {
-                out_of_bounds = true;
           }
           hori_ptr_y -= hori_hdelta_y;
           vert_ptr_y -= vert_hdelta_y;
         }
     }
-
-    struct PlayerInfo *player = get_my_player();
-    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
-    playeradd->mouse_is_offmap = out_of_bounds;
-
     SYNCDBG(19,"Finished");
 }
 
@@ -3401,6 +3474,26 @@ TbBool keeper_wait_for_screen_focus(void)
 
 void gameplay_loop_logic()
 {
+    if(flag_is_set(start_params.debug_flags, DFlg_PauseAtGameTurn))
+    {
+        static GameTurn previous_gameturn = 0;
+        if(game.play_gameturn >= start_params.pause_at_gameturn && game.play_gameturn != previous_gameturn)
+        {
+            if(!game.paused_at_gameturn)
+            {
+                game.paused_at_gameturn = true;
+
+                game.frame_skip = 0;
+                if(game.packet_load_enable)
+                {
+                    disable_packet_mode();
+                }
+                set_packet_pause_toggle();
+            }
+        }
+        previous_gameturn = game.play_gameturn;
+    }
+
     if (is_feature_on(Ft_DeltaTime) == true) {
         if (gameadd.process_turn_time < 1.0) {
             return;
@@ -3432,6 +3525,12 @@ void gameplay_loop_logic()
     input();
     update();
     frametime_end_measurement(Frametime_Logic);
+
+    if(game.frame_step)
+    {
+        game.frame_step = false;
+        set_packet_pause_toggle();
+    }
 }
 
 void gameplay_loop_draw()
@@ -3510,6 +3609,7 @@ void keeper_gameplay_loop(void)
         frametime_end_measurement(Frametime_FullFrame);
     } // end while
     SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
+    api_event("GAME_ENDED");
 }
 
 TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx)
@@ -3768,6 +3868,9 @@ static TbBool wait_at_frontend(void)
         LbSleepUntil(fe_last_loop_time + 30);
       }
       fe_last_loop_time = LbTimerClock();
+
+      api_update_server();
+
     } while (!finish_menu);
 
     LbPaletteFade(0, 8, Lb_PALETTE_FADE_CLOSED);
@@ -3894,6 +3997,7 @@ void game_loop(void)
       StopMusicPlayer();
       free_custom_music();
       free_sound_chunks();
+      memset(&game.loaded_sound,0,DISKPATH_SIZE * EXTERNAL_SOUNDS_COUNT+1);
       turn_off_all_menus();
       delete_all_structures();
       clear_mapwho();
@@ -3928,7 +4032,7 @@ short reset_game(void)
     LbMouseSuspend();
     LbIKeyboardClose();
     LbScreenReset(false);
-    LbDataFreeAll(game_load_files);
+    LbDataFreeAllV2(game_load_files);
     free_gui_strings_data();
     FreeAudio();
     return LbMemoryReset();
@@ -4047,14 +4151,19 @@ short process_command_line(unsigned short argc, char *argv[])
       {
           SYNCLOG("Mouse auto reset disabled");
           lbMouseGrab = false;
-      } else
-      if (strcasecmp(parstr,"packetload") == 0)
+      }
+      else if (strcasecmp(parstr, "ungrab") == 0)
+      {
+          start_params.ungrab_mouse = true;
+      }
+      else if (strcasecmp(parstr,"packetload") == 0)
       {
          if (start_params.packet_save_enable)
             WARNMSG("PacketSave disabled to enable PacketLoad.");
          start_params.packet_load_enable = true;
          start_params.packet_save_enable = false;
          snprintf(start_params.packet_fname, sizeof(start_params.packet_fname), "%s", pr2str);
+         set_flag(start_params.debug_flags, DFlg_ShowGameTurns | DFlg_FrameStep);
          narg++;
       } else
       if (strcasecmp(parstr,"packetsave") == 0)
@@ -4064,6 +4173,12 @@ short process_command_line(unsigned short argc, char *argv[])
          start_params.packet_load_enable = false;
          start_params.packet_save_enable = true;
          snprintf(start_params.packet_fname, sizeof(start_params.packet_fname), "%s", pr2str);
+         narg++;
+      } else
+      if (strcasecmp(parstr,"pause_at_gameturn") == 0)
+      {
+         set_flag(start_params.debug_flags, DFlg_ShowGameTurns | DFlg_FrameStep | DFlg_PauseAtGameTurn);
+         start_params.pause_at_gameturn = atoi(pr2str);
          narg++;
       } else
       if (strcasecmp(parstr,"q") == 0)
@@ -4076,11 +4191,15 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr, "dbgshots") == 0)
       {
-          start_params.debug_flags |= DFlg_ShotsDamage;
+          set_flag(start_params.debug_flags, DFlg_ShotsDamage);
       } else
       if (strcasecmp(parstr, "dbgpathfind") == 0)
       {
-	      start_params.debug_flags |= DFlg_CreatrPaths;
+          set_flag(start_params.debug_flags, DFlg_CreatrPaths);
+      } else
+      if (strcasecmp(parstr, "show_game_turns") == 0)
+      {
+          set_flag(start_params.debug_flags, DFlg_ShowGameTurns);
       } else
       if (strcasecmp(parstr, "compuchat") == 0)
       {
@@ -4116,6 +4235,10 @@ short process_command_line(unsigned short argc, char *argv[])
       {
          start_params.frame_skip = atoi(pr2str);
          narg++;
+      } else
+      if (strcasecmp(parstr,"framestep") == 0)
+      {
+         set_flag(start_params.debug_flags, DFlg_ShowGameTurns | DFlg_FrameStep);
       }
       else if (strcasecmp(parstr, "timer") == 0)
       {
@@ -4148,7 +4271,7 @@ short process_command_line(unsigned short argc, char *argv[])
         }
 
 #ifdef FUNCTESTING
-        ftest_init(); // initialise test framework on ftest build
+        set_flag(start_params.functest_flags, FTF_Enabled);
 #else
         WARNLOG("Flag '%s' disabled for release builds.", parstr);
 #endif // FUNCTESTING
@@ -4157,6 +4280,14 @@ short process_command_line(unsigned short argc, char *argv[])
       {
 #ifdef FUNCTESTING
         set_flag(start_params.functest_flags, FTF_ExitOnTestFailure);
+#else
+       WARNLOG("Flag '%s' disabled for release builds.", parstr);
+#endif // FUNCTESTING
+      }
+      else if(strcasecmp(parstr, "includelongtests") == 0)
+      {
+#ifdef FUNCTESTING
+        set_flag(start_params.functest_flags, FTF_IncludeLongTests);
 #else
        WARNLOG("Flag '%s' disabled for release builds.", parstr);
 #endif // FUNCTESTING
@@ -4191,6 +4322,10 @@ short process_command_line(unsigned short argc, char *argv[])
   start_params.selected_level_number = level_num;
   my_player_number = default_loc_player;
 
+#ifdef FUNCTESTING
+  ftest_init(); // initialise test framework on ftest build
+#endif
+
   if(bad_param != 0)
   {
     int res = 0;
@@ -4221,6 +4356,8 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     LbSetIcon(1);
     LbScreenSetDoubleBuffering(true);
 
+    init_miles_sound_system();
+
     srand(LbTimerClock());
 
 #ifdef FUNCTESTING
@@ -4236,6 +4373,10 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     }
 
     retval = setup_game();
+    if (retval)
+    {
+        steam_api_init();
+    }
     if (retval)
     {
       if ((install_info.lang_id == Lang_Japanese) ||
@@ -4266,6 +4407,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     }
     if ( retval )
     {
+        api_init_server();
         game_loop();
     }
     reset_game();
@@ -4279,7 +4421,10 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     {
         SYNCDBG(0,"finished properly");
     }
+
     LbErrorLogClose();
+    steam_api_shutdown();
+    unload_miles_sound_system();
     return 0;
 }
 

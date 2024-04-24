@@ -184,7 +184,7 @@ void remove_task_from_all_other_players_digger_stacks(PlayerNumber skip_plyr_idx
 TbBool imp_will_soon_be_working_at_excluding(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     SYNCDBG(19,"Starting");
-    TRACE_THING(thing);
+    TRACE_THING(creatng);
     struct Coord3d pos2;
     pos2.x.val = subtile_coord_center(stl_x);
     pos2.y.val = subtile_coord_center(stl_y);
@@ -1355,14 +1355,11 @@ long add_to_reinforce_stack_if_need_to(long slb_x, long slb_y, struct Dungeon *d
     return (r_stackpos < DIGGER_TASK_MAX_COUNT - dungeon->digger_stack_length);
 }
 
-long add_to_pretty_to_imp_stack_if_need_to(long slb_x, long slb_y, struct Dungeon *dungeon, int *remain_num)
+long add_to_pretty_to_imp_stack_if_need_to(MapSlabCoord slb_x, MapSlabCoord slb_y, struct Dungeon *dungeon, int *remain_num)
 {
-    MapSubtlCoord stl_x;
-    MapSubtlCoord stl_y;
-    stl_x = slab_subtile_center(slb_x);
-    stl_y = slab_subtile_center(slb_y);
-    const struct SlabMap *slb;
-    slb = get_slabmap_block(slb_x, slb_y);
+    MapSubtlCoord stl_x = slab_subtile_center(slb_x);
+    MapSubtlCoord stl_y = slab_subtile_center(slb_y);
+    const struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
     if (slb->kind == SlbT_PATH)
     {
         if (subtile_revealed(stl_x, stl_y, dungeon->owner) && slab_by_players_land(dungeon->owner, slb_x, slb_y)) {
@@ -1379,15 +1376,15 @@ long add_to_pretty_to_imp_stack_if_need_to(long slb_x, long slb_y, struct Dungeo
                 return add_to_imp_stack_using_pos(get_subtile_number_at_slab_center(slb_x, slb_y), DigTsk_ConvertDungeon, dungeon);
             }
         }
-    }
+    } else 
     if (slab_is_door(slb_x, slb_y)) // Door is in the way of claiming
     {
-        struct Thing* doortng = get_door_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+        struct Thing* doortng = get_door_for_position(stl_x, stl_y);
         if (!thing_is_invalid(doortng))
         {
-            if (players_are_enemies(doortng->owner, dungeon->owner))
+            if ((players_are_enemies(doortng->owner, dungeon->owner)) && (slab_by_players_land(dungeon->owner, slb_x, slb_y)))
             {
-                event_create_event_or_update_old_event(doortng->mappos.x.val, doortng->mappos.y.val, EvKind_EnemyDoor, dungeon->owner, doortng->index);
+                event_create_event_or_update_same_target_existing_event(doortng->mappos.x.val, doortng->mappos.y.val, EvKind_EnemyDoor, dungeon->owner, doortng->index);
             }
         }
     }
@@ -2614,17 +2611,13 @@ long check_out_available_imp_tasks(struct Thing *thing)
 
 long check_out_imp_tokes(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    long i;
-    SYNCDBG(19,"Starting");
-    cctrl = creature_control_get_from_thing(thing);
-    i = CREATURE_RANDOM(thing, 64);
+    SYNCDBG(19, "Starting");
+    long i = CREATURE_RANDOM(thing, 64);
     // small chance of changing state
     if (i != 0)
       return 0;
     internal_set_thing_state(thing, CrSt_ImpToking);
     thing->continue_state = CrSt_ImpDoingNothing;
-    cctrl->countdown_282 = 200;
     return 1;
 }
 
@@ -2702,7 +2695,7 @@ long check_out_imp_last_did(struct Thing *creatng)
           return true;
       }
       break;
-  case SDLstJob_ReinforceWall3:
+  case SDLstJob_ReinforceWallUnprompted:
       dungeon = get_dungeon(creatng->owner);
       imp_stack_update(creatng);
       if (creature_task_needs_check_out_after_digger_stack_change(creatng))
@@ -2715,13 +2708,13 @@ long check_out_imp_last_did(struct Thing *creatng)
       if (check_out_unreinforced_place(creatng))
       {
           cctrl->digger.task_repeats++;
-          cctrl->digger.last_did_job = SDLstJob_ReinforceWall3;
+          cctrl->digger.last_did_job = SDLstJob_ReinforceWallUnprompted;
           return true;
       }
       if (check_out_unreinforced_area(creatng))
       {
           cctrl->digger.task_repeats++;
-          cctrl->digger.last_did_job = SDLstJob_ReinforceWall3;
+          cctrl->digger.last_did_job = SDLstJob_ReinforceWallUnprompted;
           return true;
       }
       break;
@@ -2735,17 +2728,17 @@ long check_out_imp_last_did(struct Thing *creatng)
           }
       }
       break;
-  case SDLstJob_ReinforceWall9:
+  case SDLstJob_ReinforceWallAssigned:
       if (check_out_unreinforced_place(creatng))
       {
           cctrl->digger.task_repeats++;
-          cctrl->digger.last_did_job = SDLstJob_ReinforceWall9;
+          cctrl->digger.last_did_job = SDLstJob_ReinforceWallAssigned;
           return true;
       }
       if (check_out_unreinforced_area(creatng))
       {
           cctrl->digger.task_repeats++;
-          cctrl->digger.last_did_job = SDLstJob_ReinforceWall9;
+          cctrl->digger.last_did_job = SDLstJob_ReinforceWallAssigned;
           return true;
       }
       break;
@@ -2878,7 +2871,7 @@ long check_out_worker_reinforce_wall(struct Thing *thing, struct DiggerStack *ds
     thing->continue_state = CrSt_ImpArrivesAtReinforce;
     cctrl->digger.consecutive_reinforcements = 0;
     cctrl->digger.working_stl = dstack->stl_num;
-    cctrl->digger.last_did_job = SDLstJob_ReinforceWall3;
+    cctrl->digger.last_did_job = SDLstJob_ReinforceWallUnprompted;
     return 1;
 }
 

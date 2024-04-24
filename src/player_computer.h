@@ -42,7 +42,7 @@ extern "C" {
 #define COMPUTER_TRAP_LOC_COUNT      20
 
 #define COMPUTER_PROCESS_TYPES_COUNT 26
-#define COMPUTER_CHECKS_TYPES_COUNT  51
+#define COMPUTER_CHECKS_TYPES_COUNT  52
 #define COMPUTER_EVENTS_TYPES_COUNT  31
 #define COMPUTER_SPARK_POSITIONS_COUNT 64
 #define COMPUTER_SOE_GRID_SIZE        8
@@ -56,6 +56,12 @@ extern "C" {
 #define COMPUTER_DIG_ROOM_TIMEOUT 7500
 #define COMPUTER_URGENT_BRIDGE_TIMEOUT 1200
 #define COMPUTER_TOOL_DIG_LIMIT 356
+#define COMPUTER_TOOL_FAILED_DIG_LIMIT 10
+
+/** Holds the return values for the CPU "mark for digging" functions. (see enum ToolDigResults) */
+typedef signed char ToolDigResult;
+/** Flags to enable actions (e.g. dig gold, build bridge) for the CPU player whilst "marking for digging" (see enum ToolDigFlags). */
+typedef signed char DigFlags;
 
 #define COMPUTER_REDROP_DELAY 80
 
@@ -70,7 +76,7 @@ enum ComputerTaskTypes {
     CTT_DigToAttack,
     CTT_MagicCallToArms,
     CTT_PickupForAttack,
-    CTT_MoveCreatureToRoom, // 10
+    CTT_MoveCreatureToRoom,     // 10
     CTT_MoveCreatureToPos,
     CTT_MoveCreaturesToDefend,
     CTT_SlapDiggers,
@@ -114,10 +120,15 @@ enum GameActionTypes {
     GA_UsePwrLightning,
     GA_UsePwrSpeedUp,
     GA_UsePwrArmour,
+    GA_UsePwrRebound,
     GA_UsePwrConceal,
+    GA_UsePwrFlight,
+    GA_UsePwrVision,
     GA_UsePwrHoldAudnc,
     GA_UsePwrDisease,
     GA_UsePwrChicken,
+    GA_UsePwrFreeze,
+    GA_UsePwrSlow,
     GA_Unk27,
     GA_UsePwrSlap,
     GA_SellTrap,
@@ -125,19 +136,26 @@ enum GameActionTypes {
 };
 
 enum ToolDigFlags {
-    ToolDig_BasicOnly = 0x00, /**< Allows to dig only through basic earth slabs. */
-    ToolDig_AllowValuable = 0x01, /**< Allows to dig through valuable slabs. */
-    ToolDig_AllowLiquidWBridge = 0x02, /**< Allows to dig through liquid slabs, if only player has ability to build bridges through them.
-                                            Also allows to dig through valuable slabs(which should be later changed)). */
+    ToolDig_BasicOnly = 0x00, /**< Allows digging through basic earth slabs (default: always applies). */
+    ToolDig_AllowValuable = 0x01, /**< Allows digging through valuable slabs. */
+    ToolDig_AllowLiquidWBridge = 0x02, /**< Allows bridging over liquid (bridges must be available to the player for this to have an effect). */
+};
+
+/** These are the possible return values for the CPU player's "mark for digging" functions */
+enum ToolDigResults {
+    TDR_BuildBridgeOnSlab = -5,
+    TDR_ToolDigError = -2,
+    TDR_ReachedDestination = -1,
+    TDR_DigSlab = 0,
 };
 
 enum CompProcessFlags {
     ComProc_Unkn0001 = 0x0001,
-    ComProc_Unkn0002 = 0x0002, /* Last? */
-    ComProc_Unkn0004 = 0x0004, /* Finished */
-    ComProc_Unkn0008 = 0x0008, /* Done (for subprocesses) */
+    ComProc_Unkn0002 = 0x0002, /**< Last? */
+    ComProc_Unkn0004 = 0x0004, /**< Finished */
+    ComProc_Unkn0008 = 0x0008, /**< Done (for subprocesses) */
     ComProc_Unkn0010 = 0x0010,
-    ComProc_Unkn0020 = 0x0020, /* Suspended */
+    ComProc_Unkn0020 = 0x0020, /**< Suspended (Ed: I think this flag is RoomBuildActive...) */
     ComProc_Unkn0040 = 0x0040,
     ComProc_Unkn0080 = 0x0080,
     ComProc_Unkn0100 = 0x0100,
@@ -147,8 +165,8 @@ enum CompProcessFlags {
 };
 
 enum CompCheckFlags {
-    ComChk_Unkn0001 = 0x0001, /* Disabled */
-    ComChk_Unkn0002 = 0x0002, /* Last */
+    ComChk_Unkn0001 = 0x0001, /**< Disabled */
+    ComChk_Unkn0002 = 0x0002, /**< Last */
     ComChk_Unkn0004 = 0x0004,
     ComChk_Unkn0008 = 0x0008,
     ComChk_Unkn0010 = 0x0010,
@@ -162,9 +180,9 @@ enum CompCheckFlags {
 };
 
 enum CompTaskFlags {
-    ComTsk_Unkn0001 = 0x0001, /** task is disabled**/
+    ComTsk_Unkn0001 = 0x0001, /**< task is disabled */
     ComTsk_Unkn0002 = 0x0002,
-    ComTsk_AddTrapLocation = 0x0004,
+    ComTsk_AddTrapLocation = 0x0004, /** if enabled, dug slabs will be added to the computer's list of potential trap positions */
     ComTsk_Unkn0008 = 0x0008,
     ComTsk_Unkn0010 = 0x0010,
     ComTsk_Unkn0020 = 0x0020,
@@ -182,10 +200,10 @@ enum CompTaskStates {
 /** Return values for computer task functions. */
 enum CompTaskRet {
     CTaskRet_Unk0 = 0,
-    CTaskRet_Unk1, /* CONTINUE */
+    CTaskRet_Unk1, /**< CONTINUE */
     CTaskRet_Unk2,
     CTaskRet_Unk3,
-    CTaskRet_Unk4, /* FAIL? Wait? */
+    CTaskRet_Unk4, /**< FAIL? Wait? */
 };
 
 /** Return values for computer process functions. */
@@ -254,7 +272,7 @@ struct ComputerProcess { // sizeof = 72
   // Signed process config values
   long confval_2;
   long confval_3;
-  long confval_4;
+  long confval_4; /**< room kind or amount of creatures or gameturn or count of slabs */
   long confval_5;
   Comp_Process_Func func_check;
   Comp_Process_Func func_setup;
@@ -274,7 +292,7 @@ struct ComputerProcess { // sizeof = 72
 
 struct ComputerCheck { // sizeof = 32
   char *name;
-  unsigned long flags;
+  unsigned long flags; /**< Values from ComChk_* enumeration. */
   long turns_interval;
   Comp_Check_Func func;
   long param1;
@@ -294,7 +312,7 @@ struct ComputerEvent { // sizeof = 44
   long param1;
   long param2;
   long param3;
-  long last_test_gameturn; // event last checked time
+  long last_test_gameturn; /**< event last checked time */
 };
 
 struct ValidRooms { // sizeof = 8
@@ -316,32 +334,36 @@ struct ComputerEventMnemonic {
   char name[16];
   struct ComputerEvent *event;
 };
-
-struct ComputerDig { // sizeof = 78
-    struct Coord3d pos_E;
-    struct Coord3d pos_dest;
-    struct Coord3d pos_begin;
-    struct Coord3d pos_next;
-    long distance;
-    unsigned char hug_side;
-    unsigned char direction_around;
-    unsigned long subfield_2C;
-    long subfield_30;
-    long subfield_34;
-    long subfield_38;
-    long subfield_3C; // dig direction index
-    long subfield_40;
-    long subfield_44; // marked tiles so far
-    long subfield_48;
-    long sub4C_stl_x;
-    long sub4C_stl_y;
-    long calls_count;
-    /** Amount of valuable slabs tagged for digging during this dig process. */
-    long valuable_slabs_tagged;
+struct ComputerDig {
+    struct Coord3d pos_E; /**< used by dig to position - set to pos_begin when a dig action fails ?? */
+    struct Coord3d pos_dest; /**< used by dig to position - the destination */
+    struct Coord3d pos_begin; /**< used by dig to position (the start of the path) and for room dig/place (the centre of the room) */
+    struct Coord3d pos_next; /**< used by dig to position - the next position in the path to check */
+    long distance; /**< used by dig to position - the distance between a given position and the destination */
+    unsigned char hug_side; /**< used by dig to position - the rule to follow when hugging the wall (left-hand rule/side or right-hand rule/side) */
+    SmallAroundIndex direction_around; /**< used by dig to position - the forwards direction of the path */
+    unsigned long subfield_2C; /**< this is always set to 1... but it's value is used to create a bool test: did action fail */
+    long number_of_failed_actions; /**< used by dig to position (incremented when gold is found but digflags is 0, or a mark for digging action failed) */
+    MapSubtlCoord last_backwards_step_stl_x; /**< used by dig to position - ?? when a dig action fails, we step backwards, this is this the X coordinate of the slab we stepped back in to */
+    MapSubtlCoord last_backwards_step_stl_y; /**< used by dig to position - ?? when a dig action fails, we step backwards, this is this the Y coordinate of the slab we stepped back in to */
+    long calls_count; /**< used by dig to position */
+    long valuable_slabs_tagged; /**< used by dig to position - Amount of valuable slabs tagged for digging during this dig process. */
+    /** Variables for digging (or placing) a room. */
+	struct { 
+		long area; /**< The number of slabs in the room. */
+		long slabs_processed; /**< The number of slabs marked for digging or converted in to a room. */
+        /** Variables for the spiral used to dig slabs/place rooms. */
+		struct {
+			SmallAroundIndex forward_direction; /**< The current direction we are moving through the spiral. */
+			long turns_made; /**< The number of turns made in the spiral. */
+			long steps_to_take_before_turning; /**< The number of steps to take before the next turn in the spiral. */
+			long steps_remaining_before_turn; /**< The number of steps we have left to take before we need to turn in the spiral. */
+		} spiral;
+	} room;
 };
 
-struct ComputerTask { // sizeof = 148
-    unsigned char flags;
+struct ComputerTask {
+    unsigned char flags; /**< Values from ComTsk_* enumeration. */
     unsigned char task_state;
     unsigned char ttype;
     unsigned char ottype;
@@ -395,7 +417,7 @@ struct ComputerTask { // sizeof = 148
         struct Coord3d pos_70;
         struct Coord3d target_pos;
         long repeat_num;
-        long long_80;
+        long long_80; /**< unused */
         short field_84;
         short word_86;
         long field_88;
@@ -496,13 +518,13 @@ struct ComputerTask { // sizeof = 148
         struct Coord3d endpos;
         short width;
         short height;
-        long long_80;
+        RoomKind kind;
         short word_84;
         long area;
         short word_8A;
     } create_room;
     };
-    unsigned short field_8C; /* CProcessId */
+    unsigned short cproc_idx; /**< CProcessId */
     long field_8E;
     unsigned short next_task;
 };
@@ -625,7 +647,7 @@ void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const
 long move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *pos, long max_amount);
 long move_imp_to_mine_here(struct Computer2 *comp, struct Coord3d *pos, long max_amount);
 void get_opponent(struct Computer2 *comp, struct THate hate[]);
-long add_to_trap_location(struct Computer2 *, struct Coord3d *);
+long add_to_trap_locations(struct Computer2 *, struct Coord3d *);
 /******************************************************************************/
 long set_next_process(struct Computer2 *comp);
 void computer_check_events(struct Computer2 *comp);
@@ -658,9 +680,11 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thi
 TbBool create_task_dig_to_attack(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, PlayerNumber victim_plyr_idx, long parent_cproc_idx);
 TbBool create_task_slap_imps(struct Computer2 *comp, long creatrs_num);
 TbBool create_task_dig_to_neutral(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos);
-TbBool create_task_dig_to_gold(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, long parent_cproc_idx, long par1, long gold_lookup_idx);
+TbBool create_task_dig_to_gold(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, long parent_cproc_idx, long count_slabs_to_dig, long gold_lookup_idx);
 TbBool create_task_dig_to_entrance(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, long parent_cproc_idx, long entroom_idx);
 TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *creatng, long splevel);
+TbBool create_task_magic_flight_up(struct Computer2 *comp, const struct Thing *creatng, long splevel);
+TbBool create_task_magic_vision_up(struct Computer2 *comp, const struct Thing *creatng, long splevel);
 TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *creatng, PowerKind pwkind, int repeat_num, int splevel, int gaction);
 
 TbBool computer_able_to_use_power(struct Computer2 *comp, PowerKind pwkind, long pwlevel, long amount);
@@ -673,7 +697,8 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);
 TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);
-short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, unsigned short digflags, const char *func_name);
+ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, DigFlags digflags, const char *func_name);
+TbBool add_trap_location_if_requested(struct Computer2 *comp, struct ComputerTask *ctask, TbBool is_task_dig_to_attack);
 #define tool_dig_to_pos2(comp,cdig,simulation,digflags) tool_dig_to_pos2_f(comp,cdig,simulation,digflags,__func__)
 #define search_spiral(pos, owner, area_total, cb) search_spiral_f(pos, owner, area_total, cb, __func__)
 int search_spiral_f(struct Coord3d *pos, PlayerNumber owner, int area_total, long (*cb)(MapSubtlCoord, MapSubtlCoord, long), const char *func_name);

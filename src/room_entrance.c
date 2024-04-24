@@ -249,7 +249,7 @@ static int calculate_creature_to_generate_for_dungeon(const struct Dungeon * dun
     long gen_count = 0;
     long crtr_freq[CREATURE_TYPES_MAX];
     crtr_freq[0] = 0;
-    for (crmodel = 1; crmodel < gameadd.crtr_conf.model_count; crmodel++)
+    for (crmodel = 1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
     {
         if (creature_will_generate_for_dungeon(dungeon, crmodel))
         {
@@ -282,7 +282,7 @@ static int calculate_creature_to_generate_for_dungeon(const struct Dungeon * dun
             while (rnd >= crtr_freq[crmodel])
             {
                 crmodel++;
-                if (crmodel >= gameadd.crtr_conf.model_count) {
+                if (crmodel >= game.conf.crtr_conf.model_count) {
                     ERRORLOG("Internal problem; got outside of cummulative range.");
                     return 0;
                 }
@@ -403,7 +403,7 @@ TbBool update_creature_pool_state(void)
 {
     int i;
     game.pool.is_empty = true;
-    for (i=1; i < gameadd.crtr_conf.model_count; i++)
+    for (i=1; i < game.conf.crtr_conf.model_count; i++)
     {
         if (game.pool.crtr_kind[i] > 0)
         { game.pool.is_empty = false; break; }
@@ -411,10 +411,10 @@ TbBool update_creature_pool_state(void)
     return true;
 }
 
-void add_creature_to_pool(long kind, long amount, unsigned long a3)
+void add_creature_to_pool(ThingModel kind, long amount, unsigned long a3)
 {
     long prev_amount;
-    kind %= gameadd.crtr_conf.model_count;
+    kind %= game.conf.crtr_conf.model_count;
     prev_amount = game.pool.crtr_kind[kind];
     if ((a3 == 0) || (prev_amount != -1))
     {

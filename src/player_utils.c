@@ -25,6 +25,7 @@
 #include "bflib_math.h"
 #include "bflib_sound.h"
 
+#include "api.h"
 #include "player_data.h"
 #include "player_instances.h"
 #include "player_states.h"
@@ -104,6 +105,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
   struct Dungeon* dungeon = get_dungeon(player->id_number);
   if (my_player)
   {
+      api_event("WIN_GAME");
       frontstats_initialise();
       if ( timer_enabled() )
       {
@@ -151,6 +153,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     SYNCLOG("Player %d lost",(int)player->id_number);
     if (is_my_player(player))
     {
+      api_event("LOSE_GAME");
         frontstats_initialise();
     }
     player->victory_state = VicS_LostLevel;
@@ -163,7 +166,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
         turn_off_all_menus();
         clear_transfered_creatures();
     }
-    if ((gameadd.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0) {
+    if ((game.conf.rules.game.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0) {
         clear_things_in_hand(player);
         dungeon->num_things_in_hand = 0;
     }
@@ -177,7 +180,20 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     }
     if (is_my_player(player))
         gui_set_button_flashing(0, 0);
-    set_player_mode(player, PVT_DungeonTop);
+    if (player->view_type == PVT_CreatureContrl)
+    {
+        struct Thing *thing = thing_get(player->controlled_thing_idx);
+        leave_creature_as_controller(player, thing);
+    }
+    else if (player->view_type == PVT_CreaturePasngr)
+    {
+        struct Thing *thing = thing_get(player->controlled_thing_idx);
+        leave_creature_as_passenger(player, thing);
+    }
+    else
+    {
+        set_player_mode(player, PVT_DungeonTop);
+    }
     set_player_state(player, PSt_CtrlDungeon, 0);
     if ((game.system_flags & GSF_NetworkActive) == 0)
         player->display_objective_turn = game.play_gameturn + 300;
@@ -314,7 +330,7 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
         dungeon->offmap_money_owned = 0;
     }
 
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,RoRoF_GoldStorage))
         {
@@ -670,7 +686,7 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
             }
         }
     }
-    pannel_map_update(0, 0, 256, 256);
+    panel_map_update(0, 0, 256, 256);
     
 }
 
@@ -709,7 +725,7 @@ void init_player_as_single_keeper(struct PlayerInfo *player)
     player->field_4CD = 0;
     ilght.radius = 2560;
     ilght.intensity = 48;
-    ilght.field_3 = 5;
+    ilght.flags = 5;
     ilght.is_dynamic = 1;
     unsigned short idx = light_create_light(&ilght);
     player->cursor_light_idx = idx;
@@ -730,7 +746,6 @@ void init_player(struct PlayerInfo *player, short no_explore)
     setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
     player->continue_work_state = PSt_CtrlDungeon;
     player->work_state = PSt_CtrlDungeon;
-    player->field_14 = 2;
     player->main_palette = engine_palette;
     player->minimap_zoom = settings.minimap_zoom;
     player->isometric_view_zoom_level = settings.isometric_view_zoom_level;
@@ -1018,7 +1033,7 @@ void post_init_player(struct PlayerInfo *player)
         }
         break;
     }
-    pannel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
+    panel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
 }
 
 void post_init_players(void)
@@ -1145,7 +1160,7 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     struct Computer2* comp = get_computer_player(plyr_idx);
     if (!computer_player_invalid(comp))
     {
-        add_to_trap_location(comp, &pos);
+        add_to_trap_locations(comp, &pos);
     }
     return true;
 }
@@ -1162,7 +1177,7 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
 
 	struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
 	dungeon->camera_deviate_jump = 192;
-    long sell_value = compute_value_percentage(gameadd.doors_config[thing->model].selling_value, gameadd.door_sale_percent);
+    long sell_value = compute_value_percentage(game.conf.doors_config[thing->model].selling_value, game.conf.rules.game.door_sale_percent);
 
 	dungeon->doors_sold++;
 	dungeon->manufacture_gold += sell_value;
@@ -1180,7 +1195,7 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     { // Add the trap location to related computer player, in case we'll want to place a trap again
         struct Computer2* comp = get_computer_player(plyr_idx);
         if (!computer_player_invalid(comp)) {
-            add_to_trap_location(comp, &pos);
+            add_to_trap_locations(comp, &pos);
         }
     }
     return true;

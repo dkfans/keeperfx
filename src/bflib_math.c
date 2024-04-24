@@ -26,6 +26,10 @@
 #include <intrin.h>
 #endif // _MSC_VER
 
+#ifdef FUNCTESTING
+  #include "ftests/ftest.h"
+#endif
+
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -768,7 +772,9 @@ unsigned long LbRandomSeries(unsigned long range, unsigned long *seed, const cha
   if (range == 0)
     return 0;
   unsigned long i = 9377 * (*seed) + 9439;
+#ifndef FUNCTESTING // don't modify seeds when functional testing is enabled
   *seed = (i >> 13) | (i << ((sizeof(long) * 8) - 13));
+#endif // FUNCTESTING
   i = (*seed) % range;
   return i;
 }
@@ -830,15 +836,8 @@ float lerp(float a, float b, float f)
     return (a * (1.0 - f)) + (b * f);
 }
 
-long lerp_angle(long from, long to, float weight)
-{
-    long difference = (to - from) % LbFPMath_TAU;
-    long distance = ((2 * difference) % LbFPMath_TAU) - difference;
-    long new = from + (distance * weight);
-    if (new < 0) {
-      new = LbFPMath_TAU + new;
-    }
-    return new % LbFPMath_TAU;
+long lerp_angle(long from, long to, float weight) {
+    return (from + (long)((((to - from + (LbFPMath_TAU >> 1)) & (LbFPMath_TAU - 1)) - (LbFPMath_TAU >> 1)) * weight)) & (LbFPMath_TAU - 1);
 }
 
 double fastPow(double a, double b)

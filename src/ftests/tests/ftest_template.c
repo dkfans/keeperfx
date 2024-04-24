@@ -10,6 +10,7 @@
 #include "../../game_legacy.h"
 #include "../../keeperfx.hpp"
 #include "../../player_instances.h"
+#include "../../gui_msgs.h"
 
 #include "../../post_inc.h"
 
@@ -37,9 +38,9 @@ struct ftest_template__variables ftest_template__vars = {
 };
 
 // forward declarations - tests
-TbBool ftest_template_action001__spawn_imp(struct FTestActionArgs* const args);
-TbBool ftest_template_action002__slap_imp_to_death(struct FTestActionArgs* const args);
-TbBool ftest_template_action003__end_test(struct FTestActionArgs* const args);
+FTestActionResult ftest_template_action001__spawn_imp(struct FTestActionArgs* const args);
+FTestActionResult ftest_template_action002__slap_imp_to_death(struct FTestActionArgs* const args);
+FTestActionResult ftest_template_action003__end_test(struct FTestActionArgs* const args);
 
 TbBool ftest_template_init()
 {
@@ -53,7 +54,7 @@ TbBool ftest_template_init()
     return true;
 }
 
-TbBool ftest_template_action001__spawn_imp(struct FTestActionArgs* const args)
+FTestActionResult ftest_template_action001__spawn_imp(struct FTestActionArgs* const args)
 {
     // to make the test variable names shorter, use a pointer!
     // in this case we are grabbing the data from the argument, allowing different action setups!
@@ -77,22 +78,22 @@ TbBool ftest_template_action001__spawn_imp(struct FTestActionArgs* const args)
     if(thing_is_invalid(vars->target_imp))
     {
         FTEST_FAIL_TEST("Failed to create imp");
-        return true;
+        return FTRs_Go_To_Next_Action;
     }
 
     // level up the imp a couple times for fun
     if(!creature_change_multiple_levels(vars->target_imp, 2))
     {
         FTEST_FAIL_TEST("Failed to level up imp");
-        return true;
+        return FTRs_Go_To_Next_Action;
     }
 
     ftest_util_move_camera_to_slab(vars->slb_x_spawn_imp, vars->slb_y_spawn_imp, PLAYER0);
 
-    return true; //proceed to next test action
+    return FTRs_Go_To_Next_Action; //proceed to next test action
 }
 
-TbBool ftest_template_action002__slap_imp_to_death(struct FTestActionArgs* const args)
+FTestActionResult ftest_template_action002__slap_imp_to_death(struct FTestActionArgs* const args)
 {
     // to make the test variable names shorter, use a pointer!
     // in this case we are grabbing the data from the argument, allowing different action setups!
@@ -101,13 +102,13 @@ TbBool ftest_template_action002__slap_imp_to_death(struct FTestActionArgs* const
     // delay the test for a bit as an example
     if(game.play_gameturn < 100)
     {
-        return false;
+        return FTRs_Repeat_Current_Action;
     }
 
     // delay the test after each slap
     if(game.play_gameturn < vars->turn_delay_counter)
     {
-        return false;
+        return FTRs_Repeat_Current_Action;
     }
 
     ftest_util_move_camera_to_thing(vars->target_imp, PLAYER0);
@@ -115,22 +116,22 @@ TbBool ftest_template_action002__slap_imp_to_death(struct FTestActionArgs* const
     // slap hehehe
     if(game_action(PLAYER0, GA_UsePwrSlap, 0, 0, 0, vars->target_imp->index, 0) > Lb_OK)
     {
-        message_add_fmt(PLAYER0, "Slap %d", ++vars->slap_counter);
+        message_add_fmt(MsgType_Player, PLAYER0, "Slap %d", ++vars->slap_counter);
 
         vars->turn_delay_counter = game.play_gameturn + 20;
-        return false;
+        return FTRs_Repeat_Current_Action;
     }
 
     if (vars->target_imp->health <= 0)
     {
-        message_add_fmt(PLAYER0, "Oops...");
-        return true;
+        message_add_fmt(MsgType_Player, PLAYER0, "Oops...");
+        return FTRs_Go_To_Next_Action;
     }
 
-    return true;
+    return FTRs_Go_To_Next_Action;
 }
 
-TbBool ftest_template_action003__end_test(struct FTestActionArgs* const args)
+FTestActionResult ftest_template_action003__end_test(struct FTestActionArgs* const args)
 {
     // to make the test variable names shorter, use a pointer!
     // in this case we are grabbing the data from the argument, allowing different action setups!
@@ -139,9 +140,10 @@ TbBool ftest_template_action003__end_test(struct FTestActionArgs* const args)
     if(vars->slap_counter != 26)
     {
         FTEST_FAIL_TEST("Expected 26 slaps for level 3 imp, only counted %d", vars->slap_counter);
+        return FTRs_Go_To_Next_Action;
     }
 
-    return true;
+    return FTRs_Go_To_Next_Action;
 }
 
 #endif

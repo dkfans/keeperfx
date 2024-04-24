@@ -15,6 +15,9 @@ REM ********************************************
 REM ********************************************
 LEVEL_VERSION(1)
 
+SET_PLAYER_COLOR(PLAYER0,WHITE)
+SET_PLAYER_COLOR(PLAYER_GOOD,RED)
+
 SET_GENERATE_SPEED(400)
 
 COMPUTER_PLAYER(PLAYER2,5)
