@@ -3472,6 +3472,21 @@ void gameplay_loop_logic()
     }
 
     frametime_start_measurement(Frametime_Logic);
+
+    // Handle change of lighting
+    if (game.conf.rules.game.global_ambient_light != game.lish.global_ambient_light || game.conf.rules.game.light_enabled != game.lish.light_enabled)
+    {
+        if (game.conf.rules.game.global_ambient_light != game.lish.global_ambient_light)
+        {
+            game.lish.global_ambient_light = game.conf.rules.game.global_ambient_light;
+        }
+        if (game.conf.rules.game.light_enabled != game.lish.light_enabled)
+        {
+            game.lish.light_enabled = game.conf.rules.game.light_enabled;
+        }
+        light_stat_refresh();
+    }
+
     if ((game.flags_font & FFlg_unk10) != 0)
     {
         if (game.play_gameturn == 4)
