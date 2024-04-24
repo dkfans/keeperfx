@@ -259,7 +259,7 @@ static int long_compare_fn(const void *ptr_a, const void *ptr_b)
 
 static void set_defaults()
 {
-    // game block.
+    // Game block.
     game.conf.rules.game.gold_per_gold_block = 1000;
     game.conf.rules.game.pot_of_gold_holds = 1000;
     game.conf.rules.game.gold_pile_value = 500;
@@ -285,7 +285,7 @@ static void set_defaults()
     game.conf.rules.game.torture_payday = 50;
     game.conf.rules.game.torture_training_cost = 100;
     game.conf.rules.game.torture_scavenging_cost = 100;
-    // creature block
+    // Creature block.
     game.conf.rules.creature.recovery_frequency = 10;
     game.conf.rules.creature.fight_max_hate = 200;
     game.conf.rules.creature.fight_borderline = 0;
@@ -298,7 +298,7 @@ static void set_defaults()
     game.conf.rules.creature.critical_health_permil = 125;
     game.conf.rules.creature.stun_enemy_chance_good = 100;
     game.conf.rules.creature.stun_enemy_chance_evil = 100;
-    // magic block
+    // Magic block.
     game.conf.rules.magic.hold_audience_time = 500;
     game.conf.rules.magic.armageddon_teleport_your_time_gap = 10;
     game.conf.rules.magic.armageddon_teleport_enemy_time_gap = 10;
@@ -311,13 +311,13 @@ static void set_defaults()
     game.conf.rules.magic.collapse_dungeon_damage = 10;
     game.conf.rules.magic.turns_per_collapse_dngn_dmg = 4;
     game.conf.rules.magic.weight_calculate_push = 0;
-    // health block
+    // Health block.
     game.conf.rules.health.hunger_health_loss = 1;
     game.conf.rules.health.turns_per_hunger_health_loss = 100;
     game.conf.rules.health.food_health_gain = 10;
     game.conf.rules.health.torture_health_loss = 5;
     game.conf.rules.health.turns_per_torture_health_loss = 100;
-    // rooms block
+    // Rooms block.
     game.conf.rules.rooms.scavenge_cost_frequency = 64;
     game.conf.rules.rooms.temple_scavenge_protection_turns = 1000;
     game.conf.rules.rooms.train_cost_frequency = 64;
@@ -333,9 +333,9 @@ static void set_defaults()
     game.conf.rules.rooms.scavenge_good_allowed = 1;
     game.conf.rules.rooms.scavenge_neutral_allowed = 1;
     game.conf.rules.rooms.time_between_prison_break = 64;
-    // computer block - maybe it should be moved to computer config on a later PR?
+    // Computer block - maybe it should be moved to computer config on a later PR?
     game.conf.rules.computer.disease_to_temple_pct = 500;
-    // workers block
+    // Workers block.
     game.conf.rules.workers.hits_per_slab = 2;
     game.conf.rules.workers.default_imp_dig_damage = 1;
     game.conf.rules.workers.default_imp_dig_own_damage = 2;
