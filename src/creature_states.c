@@ -463,10 +463,10 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
     0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Sleep, 0, 0, 1, 0, GBS_creature_states_sleep, 1, 0, 1},
   {creature_timebomb, cleanup_timebomb, NULL, NULL,
     1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1,  CrStTyp_Move, 1, 0, 1, 0, 0, 1, 0, 0},
-  { good_arrived_at_combat, NULL, NULL, move_check_attack_any_door,  // [150]
-    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, GBS_creature_states_angry, 1, 0, 1 },
+  { good_arrived_at_combat,               NULL, NULL, move_check_attack_any_door,
+   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_Idle,     0, 0, 1, 0,  0,                        0, 0, 1 },
   { good_arrived_at_attack_dungeon_heart, NULL, NULL, move_check_attack_any_door,
-    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, GBS_creature_states_angry, 1, 0, 1 },
+   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_Idle,     0, 0, 1, 0,  0,                        0, 0, 1 },
 };
 
 /** GUI States of creatures - from "Creatures" Tab in UI.
