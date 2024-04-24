@@ -39,7 +39,9 @@ enum MapCoordClipFlags {
 
 struct Map {
       unsigned char flags; // flags in enum SlabAttrFlags
-      unsigned long data; // 4b unused 4b filled_subtiles 2b wibble_value 11b unused 11b column
+      unsigned char filled_subtiles;
+      unsigned char wibble_value;
+      ColumnIndex col_idx;
       ThingIndex mapwho;
       PlayerBitFlags revealed;
 };

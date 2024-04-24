@@ -22,6 +22,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "config_campaigns.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,6 +45,8 @@ TbBool find_and_load_lof_files(void);
 long convert_old_column_file(LevelNumber lv_num);
 
 TbBool load_map_file(LevelNumber lvnum);
+
+void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short fgroup);
 /******************************************************************************/
 #ifdef __cplusplus
 }

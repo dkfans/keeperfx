@@ -938,16 +938,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           intralvl.campaign_flags[i][val4] = get_condition_value(i, val2, val3);
       }
       break;
-  case Cmd_QUICK_MESSAGE:
-  {
-      message_add_fmt(val2, "%s", gameadd.quick_messages[val3]);
-      break;
-  }
-  case Cmd_DISPLAY_MESSAGE:
-  {
-        message_add_fmt(val2, "%s", get_string(val3));
-        break;
-  }
   case Cmd_CREATURE_ENTRANCE_LEVEL:
   {
     if (val2 > 0)
