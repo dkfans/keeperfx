@@ -97,8 +97,8 @@ struct GameRulesConfig {
     TbBool display_portal_limit;
     unsigned char max_things_in_hand;
     unsigned short torture_payday;
-    unsigned short torture_training_cost;
-    unsigned short torture_scavenging_cost;
+    short torture_training_cost;
+    short torture_scavenging_cost;
     unsigned long easter_egg_speech_chance;
     unsigned long easter_egg_speech_interval;
 };
