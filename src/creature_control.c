@@ -136,9 +136,9 @@ void delete_all_control_structures(void)
     }
 }
 
-struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, long crmodel, struct Coord3d *pos)
+struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, ThingModel crmodel, struct Coord3d *pos)
 {
-    SYNCDBG(6,"Request for model %ld at (%d,%d,%d)",crmodel,(int)pos->x.val,(int)pos->y.val,(int)pos->z.val);
+    SYNCDBG(6,"Request for model %ld (%s) at (%d,%d,%d)",crmodel, creature_code_name(crmodel),(int)pos->x.val,(int)pos->y.val,(int)pos->z.val);
     struct Thing* thing = create_creature(pos, crmodel, player->id_number);
     if (thing_is_invalid(thing))
       return INVALID_THING;
@@ -168,9 +168,9 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     ilght.mappos.y.val = thing->mappos.y.val;
     ilght.mappos.z.val = thing->mappos.z.val;
     ilght.intensity = 36;
-    ilght.field_3 = 1;
+    ilght.flags = 1;
     ilght.is_dynamic = 1;
-    ilght.radius = 2560;
+    ilght.radius = 10 * COORD_PER_STL;
     thing->light_id = light_create_light(&ilght);
     if (thing->light_id != 0)
     {
@@ -225,40 +225,40 @@ TbBool disband_creatures_group(struct Thing *thing)
 
 struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx)
 {
-    unsigned int cmodel = thing->model;
-    if ((cmodel < 1) || (cmodel >= gameadd.crtr_conf.model_count))
+    ThingModel cmodel = thing->model;
+    if ((cmodel < 1) || (cmodel >= game.conf.crtr_conf.model_count))
     {
         ERRORLOG("Trying to get sound for undefined creature type %d",(int)cmodel);
         // Return dummy element
-        return &gameadd.crtr_conf.creature_sounds[0].foot;
+        return &game.conf.crtr_conf.creature_sounds[0].foot;
     }
     switch (snd_idx)
     {
     case CrSnd_Hurt:
-        return &gameadd.crtr_conf.creature_sounds[cmodel].hurt;
+        return &game.conf.crtr_conf.creature_sounds[cmodel].hurt;
     case CrSnd_Hit:
-        return &gameadd.crtr_conf.creature_sounds[cmodel].hit;
+        return &game.conf.crtr_conf.creature_sounds[cmodel].hit;
     case CrSnd_Happy:
-        return &gameadd.crtr_conf.creature_sounds[cmodel].happy;
+        return &game.conf.crtr_conf.creature_sounds[cmodel].happy;
     case CrSnd_Sad:
-        return &gameadd.crtr_conf.creature_sounds[cmodel].sad;
+        return &game.conf.crtr_conf.creature_sounds[cmodel].sad;
     case CrSnd_Hang:
-        return &gameadd.crtr_conf.creature_sounds[cmodel].hang;
+        return &game.conf.crtr_conf.creature_sounds[cmodel].hang;
     case CrSnd_Drop:
-        return &gameadd.crtr_conf.creature_sounds[cmodel].drop;
+        return &game.conf.crtr_conf.creature_sounds[cmodel].drop;
     case CrSnd_Torture:
-        return &gameadd.crtr_conf.creature_sounds[cmodel].torture;
+        return &game.conf.crtr_conf.creature_sounds[cmodel].torture;
     case CrSnd_Slap:
-        return &gameadd.crtr_conf.creature_sounds[cmodel].slap;
+        return &game.conf.crtr_conf.creature_sounds[cmodel].slap;
     case CrSnd_Die:
-        return &gameadd.crtr_conf.creature_sounds[cmodel].die;
+        return &game.conf.crtr_conf.creature_sounds[cmodel].die;
     case CrSnd_Foot:
-        return &gameadd.crtr_conf.creature_sounds[cmodel].foot;
+        return &game.conf.crtr_conf.creature_sounds[cmodel].foot;
     case CrSnd_Fight:
-        return &gameadd.crtr_conf.creature_sounds[cmodel].fight;
+        return &game.conf.crtr_conf.creature_sounds[cmodel].fight;
     default:
         // Return dummy element
-        return &gameadd.crtr_conf.creature_sounds[0].foot;
+        return &game.conf.crtr_conf.creature_sounds[0].foot;
     }
 }
 

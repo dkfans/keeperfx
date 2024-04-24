@@ -61,18 +61,21 @@ const struct NamedCommand creaturetype_common_commands[] = {
   };
 
 const struct NamedCommand creaturetype_experience_commands[] = {
-  {"PAYINCREASEONEXP",         1},
-  {"SPELLDAMAGEINCREASEONEXP", 2},
-  {"RANGEINCREASEONEXP",       3},
-  {"JOBVALUEINCREASEONEXP",    4},
-  {"HEALTHINCREASEONEXP",      5},
-  {"STRENGTHINCREASEONEXP",    6},
-  {"DEXTERITYINCREASEONEXP",   7},
-  {"DEFENSEINCREASEONEXP",     8},
-  {"LOYALTYINCREASEONEXP",     9},
-  {"ARMOURINCREASEONEXP",     10},
-  {"SIZEINCREASEONEXP",       11},
-  {NULL,                       0},
+  {"PAYINCREASEONEXP",             1},
+  {"SPELLDAMAGEINCREASEONEXP",     2},
+  {"RANGEINCREASEONEXP",           3},
+  {"JOBVALUEINCREASEONEXP",        4},
+  {"HEALTHINCREASEONEXP",          5},
+  {"STRENGTHINCREASEONEXP",        6},
+  {"DEXTERITYINCREASEONEXP",       7},
+  {"DEFENSEINCREASEONEXP",         8},
+  {"LOYALTYINCREASEONEXP",         9},
+  {"ARMOURINCREASEONEXP",         10},
+  {"SIZEINCREASEONEXP",           11},
+  {"EXPFORHITTINGINCREASEONEXP",  12},
+  {"TRAININGCOSTINCREASEONEXP",   13},
+  {"SCAVENGINGCOSTINCREASEONEXP", 14},
+  {NULL,                           0},
   };
 
 const struct NamedCommand creaturetype_instance_commands[] = {
@@ -105,6 +108,8 @@ const struct NamedCommand creaturetype_instance_properties[] = {
   {"DANGEROUS",            InstPF_Dangerous},
   {"DESTRUCTIVE",          InstPF_Destructive},
   {"QUICK",                InstPF_Quick},
+  {"DISARMING",            InstPF_Disarming},
+  {"DISPLAY_SWIPE",        InstPF_UsesSwipe},
   {NULL,                     0},
   };
 
@@ -187,6 +192,12 @@ const struct NamedCommand creature_graphics_desc[] = {
   {NULL,                 0},
   };
 
+const struct NamedCommand instance_range_desc[] = {
+  {"MAX",          INT_MAX},
+  {"MIN",                0},
+  {NULL,                -1},
+};
+
 /******************************************************************************/
 struct NamedCommand creature_desc[CREATURE_TYPES_MAX];
 struct NamedCommand newcrtr_desc[SWAP_CREATURE_TYPES_MAX];
@@ -195,7 +206,7 @@ struct NamedCommand creaturejob_desc[INSTANCE_TYPES_MAX];
 struct NamedCommand angerjob_desc[INSTANCE_TYPES_MAX];
 struct NamedCommand attackpref_desc[INSTANCE_TYPES_MAX];
 
-unsigned short breed_activities[CREATURE_TYPES_MAX];
+ThingModel breed_activities[CREATURE_TYPES_MAX];
 /******************************************************************************/
 extern const struct NamedCommand creature_job_player_assign_func_type[];
 extern Creature_Job_Player_Check_Func creature_job_player_check_func_list[];
@@ -271,8 +282,8 @@ const char *name_consonants[] = {
 struct CreatureStats *creature_stats_get(ThingModel crstat_idx)
 {
   if ((crstat_idx < 1) || (crstat_idx >= CREATURE_TYPES_MAX))
-    return &gameadd.creature_stats[0];
-  return &gameadd.creature_stats[crstat_idx];
+    return &game.conf.creature_stats[0];
+  return &game.conf.creature_stats[crstat_idx];
 }
 
 /**
@@ -281,9 +292,9 @@ struct CreatureStats *creature_stats_get(ThingModel crstat_idx)
  */
 struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing)
 {
-  if ((thing->model < 1) || (thing->model >= gameadd.crtr_conf.model_count))
-    return &gameadd.creature_stats[0];
-  return &gameadd.creature_stats[thing->model];
+  if ((thing->model < 1) || (thing->model >= game.conf.crtr_conf.model_count))
+    return &game.conf.creature_stats[0];
+  return &game.conf.creature_stats[thing->model];
 }
 
 /**
@@ -291,51 +302,51 @@ struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing)
  */
 TbBool creature_stats_invalid(const struct CreatureStats *crstat)
 {
-  return (crstat <= &gameadd.creature_stats[0]) || (crstat == NULL);
+  return (crstat <= &game.conf.creature_stats[0]) || (crstat == NULL);
 }
 
 void check_and_auto_fix_stats(void)
 {
-    SYNCDBG(8,"Starting for %d models",(int)gameadd.crtr_conf.model_count);
-    for (long model = 0; model < gameadd.crtr_conf.model_count; model++)
+    SYNCDBG(8,"Starting for %d models",(int)game.conf.crtr_conf.model_count);
+    for (long model = 0; model < game.conf.crtr_conf.model_count; model++)
     {
         struct CreatureStats* crstat = creature_stats_get(model);
         if ( (crstat->lair_size <= 0) && (crstat->toking_recovery <= 0) && (crstat->heal_requirement != 0) )
         {
-            ERRORLOG("Creature model %d has no LairSize and no TokingRecovery but has HealRequirment - Fixing", (int)model);
+            ERRORLOG("Creature model %d (%s) has no LairSize and no TokingRecovery but has HealRequirment - Fixing", (int)model, creature_code_name(model));
             crstat->heal_requirement = 0;
         }
         if (crstat->heal_requirement > crstat->heal_threshold)
         {
-            ERRORLOG("Creature model %d Heal Requirment > Heal Threshold - Fixing", (int)model);
+            ERRORLOG("Creature model %d (%s) Heal Requirment > Heal Threshold - Fixing", (int)model, creature_code_name(model));
             crstat->heal_threshold = crstat->heal_requirement;
         }
         if ( (crstat->hunger_rate != 0) && (crstat->hunger_fill == 0) )
         {
-            ERRORLOG("Creature model %d HungerRate > 0 & Hunger Fill = 0 - Fixing", (int)model);
+            ERRORLOG("Creature model %d (%s) HungerRate > 0 & Hunger Fill = 0 - Fixing", (int)model, creature_code_name(model));
             crstat->hunger_fill = 1;
         }
         if ( (crstat->sleep_exp_slab != 0) && (crstat->sleep_experience == 0) )
         {
-            ERRORLOG("Creature model %d SleepSlab set but SleepExperience = 0 - Fixing", (int)model);
+            ERRORLOG("Creature model %d (%s) SleepSlab set but SleepExperience = 0 - Fixing", (int)model, creature_code_name(model));
             crstat->sleep_exp_slab = 0;
         }
-        if (crstat->grow_up >= gameadd.crtr_conf.model_count)
+        if ((crstat->grow_up >= game.conf.crtr_conf.model_count) && !(crstat->grow_up == CREATURE_NOT_A_DIGGER))
         {
-            ERRORLOG("Creature model %d Invalid GrowUp model - Fixing", (int)model);
+            ERRORLOG("Creature model %d (%s) Invalid GrowUp model - Fixing", (int)model, creature_code_name(model));
             crstat->grow_up = 0;
         }
         if (crstat->grow_up > 0)
         {
           if ( (crstat->grow_up_level < 1) || (crstat->grow_up_level > CREATURE_MAX_LEVEL) )
           {
-              ERRORLOG("Creature model %d GrowUp & GrowUpLevel invalid - Fixing", (int)model);
+              ERRORLOG("Creature model %d (%s) GrowUp & GrowUpLevel invalid - Fixing", (int)model, creature_code_name(model));
               crstat->grow_up_level = 1;
           }
         }
         if (crstat->rebirth > CREATURE_MAX_LEVEL)
         {
-            ERRORLOG("Creature model %d Rebirth Invalid - Fixing", (int)model);
+            ERRORLOG("Creature model %d (%s) Rebirth Invalid - Fixing", (int)model, creature_code_name(model));
             crstat->rebirth = 0;
         }
         for (long i = 0; i < LEARNED_INSTANCES_COUNT; i++)
@@ -345,14 +356,14 @@ void check_and_auto_fix_stats(void)
             {
                 if ((n < 1) || (n > CREATURE_MAX_LEVEL))
                 {
-                    ERRORLOG("Creature model %d Learn Level for Instance slot %d Invalid - Fixing", (int)model, (int)(i+1));
+                    ERRORLOG("Creature model %d (%s) Learn Level for Instance slot %d Invalid - Fixing", (int)model, creature_code_name(model), (int)(i+1));
                     crstat->learned_instance_level[i] = 1;
                 }
             } else
             {
                 if (n != 0)
                 {
-                    ERRORLOG("Creature model %d Learn Level for Empty Instance slot %d - Fixing", (int)model, (int)(i+1));
+                    ERRORLOG("Creature model %d (%s) Learn Level for Empty Instance slot %d - Fixing", (int)model, creature_code_name(model), (int)(i+1));
                     crstat->learned_instance_level[i] = 0;
                 }
             }
@@ -400,9 +411,9 @@ const char* new_creature_code_name(ThingModel crmodel)
  */
 long creature_model_id(const char * name)
 {
-    for (int i = 0; i < gameadd.crtr_conf.model_count; ++i)
+    for (int i = 0; i < game.conf.crtr_conf.model_count; ++i)
     {
-        if (strncmp(name, gameadd.crtr_conf.model[i].name, COMMAND_WORD_LEN) == 0) {
+        if (strncmp(name, game.conf.crtr_conf.model[i].name, COMMAND_WORD_LEN) == 0) {
             return i + 1;
         }
     }
@@ -414,24 +425,24 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
 {
     // Block name and parameter word store variables
     // Initialize block data
+    int k = sizeof(game.conf.crtr_conf.model) / sizeof(game.conf.crtr_conf.model[0]);
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        gameadd.crtr_conf.model_count = 1;
-        gameadd.crtr_conf.instances_count = 1;
-        gameadd.crtr_conf.jobs_count = 1;
-        gameadd.crtr_conf.angerjobs_count = 1;
-        gameadd.crtr_conf.attacktypes_count = 1;
-        gameadd.crtr_conf.special_digger_good = 0;
-        gameadd.crtr_conf.special_digger_evil = 0;
-        gameadd.crtr_conf.spectator_breed = 0;
-        gameadd.crtr_conf.sprite_size = 300;
+        game.conf.crtr_conf.model_count = 1;
+        game.conf.crtr_conf.instances_count = 1;
+        game.conf.crtr_conf.jobs_count = 1;
+        game.conf.crtr_conf.angerjobs_count = 1;
+        game.conf.crtr_conf.attacktypes_count = 1;
+        game.conf.crtr_conf.special_digger_good = 0;
+        game.conf.crtr_conf.special_digger_evil = 0;
+        game.conf.crtr_conf.spectator_breed = 0;
+        game.conf.crtr_conf.sprite_size = 300;
+        for (int i = 0; i < k; i++)
+        {
+          LbMemorySet(game.conf.crtr_conf.model[i].name, 0, COMMAND_WORD_LEN);
+        }
     }
-    int k = sizeof(gameadd.crtr_conf.model) / sizeof(gameadd.crtr_conf.model[0]);
-    for (int i = 0; i < k; i++)
-    {
-      LbMemorySet(gameadd.crtr_conf.model[i].name, 0, COMMAND_WORD_LEN);
-    }
-    LbStringCopy(gameadd.crtr_conf.model[0].name, "NOCREATURE", COMMAND_WORD_LEN);
+    LbStringCopy(game.conf.crtr_conf.model[0].name, "NOCREATURE", COMMAND_WORD_LEN);
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
     sprintf(block_buf, "common");
@@ -455,9 +466,9 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
         switch (cmd_num)
         {
         case 1: // CREATURES
-            while (get_conf_parameter_single(buf,&pos,len,gameadd.crtr_conf.model[n+1].name,COMMAND_WORD_LEN) > 0)
+            while (get_conf_parameter_single(buf,&pos,len,game.conf.crtr_conf.model[n+1].name,COMMAND_WORD_LEN) > 0)
             {
-              creature_desc[n].name = gameadd.crtr_conf.model[n+1].name;
+              creature_desc[n].name = game.conf.crtr_conf.model[n+1].name;
               creature_desc[n].num = n+1;
               n++;
               if (n+1 >= CREATURE_TYPES_MAX)
@@ -467,7 +478,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
                 break;
               }
             }
-            gameadd.crtr_conf.model_count = n+1;
+            game.conf.crtr_conf.model_count = n+1;
             while (n < CREATURE_TYPES_MAX)
             {
               creature_desc[n].name = NULL;
@@ -481,7 +492,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
               k = atoi(word_buf);
               if ((k > 0) && (k <= INSTANCE_TYPES_MAX))
               {
-                gameadd.crtr_conf.instances_count = k;
+                game.conf.crtr_conf.instances_count = k;
                 n++;
               }
             }
@@ -497,7 +508,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
               k = atoi(word_buf);
               if ((k > 0) && (k <= INSTANCE_TYPES_MAX))
               {
-                gameadd.crtr_conf.jobs_count = k;
+                game.conf.crtr_conf.jobs_count = k;
                 n++;
               }
             }
@@ -513,7 +524,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
               k = atoi(word_buf);
               if ((k > 0) && (k <= INSTANCE_TYPES_MAX))
               {
-                gameadd.crtr_conf.angerjobs_count = k;
+                game.conf.crtr_conf.angerjobs_count = k;
                 n++;
               }
             }
@@ -529,7 +540,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
               k = atoi(word_buf);
               if ((k > 0) && (k <= INSTANCE_TYPES_MAX))
               {
-                gameadd.crtr_conf.attacktypes_count = k;
+                game.conf.crtr_conf.attacktypes_count = k;
                 n++;
               }
             }
@@ -545,7 +556,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
                 k = atoi(word_buf);
                 if ((k > 0) && (k <= 1024))
                 {
-                    gameadd.crtr_conf.sprite_size = k;
+                    game.conf.crtr_conf.sprite_size = k;
                     n++;
                 }
             }
@@ -556,9 +567,9 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
             }
             break;
         case 7: // SWAPCREATURES
-            while (get_conf_parameter_single(buf, &pos, len, gameadd.swap_creature_models[n + 1].name, COMMAND_WORD_LEN) > 0)
+            while (get_conf_parameter_single(buf, &pos, len, game.conf.swap_creature_models[n + 1].name, COMMAND_WORD_LEN) > 0)
             {
-                newcrtr_desc[n].name = gameadd.swap_creature_models[n + 1].name;
+                newcrtr_desc[n].name = game.conf.swap_creature_models[n + 1].name;
                 newcrtr_desc[n].num = n + 1;
                 n++;
                 if (n + 1 >= SWAP_CREATURE_TYPES_MAX)
@@ -592,7 +603,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
         skip_conf_to_next_line(buf,&pos,len);
     }
 #undef COMMAND_TEXT
-    if (gameadd.crtr_conf.model_count < 1)
+    if (game.conf.crtr_conf.model_count < 1)
     {
         WARNLOG("No creature species defined in [%s] block of %s file.",
             block_buf,config_textname);
@@ -606,17 +617,20 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
     // Initialize block data
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        gameadd.crtr_conf.exp.size_increase_on_exp = 0;
-        gameadd.crtr_conf.exp.pay_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
-        gameadd.crtr_conf.exp.spell_damage_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
-        gameadd.crtr_conf.exp.range_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
-        gameadd.crtr_conf.exp.job_value_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
-        gameadd.crtr_conf.exp.health_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
-        gameadd.crtr_conf.exp.strength_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
-        gameadd.crtr_conf.exp.dexterity_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
-        gameadd.crtr_conf.exp.defense_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
-        gameadd.crtr_conf.exp.loyalty_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
-        gameadd.crtr_conf.exp.armour_increase_on_exp = 0;
+        game.conf.crtr_conf.exp.size_increase_on_exp = 0;
+        game.conf.crtr_conf.exp.pay_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
+        game.conf.crtr_conf.exp.spell_damage_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
+        game.conf.crtr_conf.exp.range_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
+        game.conf.crtr_conf.exp.job_value_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
+        game.conf.crtr_conf.exp.health_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
+        game.conf.crtr_conf.exp.strength_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
+        game.conf.crtr_conf.exp.dexterity_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
+        game.conf.crtr_conf.exp.defense_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
+        game.conf.crtr_conf.exp.loyalty_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
+        game.conf.crtr_conf.exp.exp_on_hitting_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
+        game.conf.crtr_conf.exp.armour_increase_on_exp = 0;
+        game.conf.crtr_conf.exp.training_cost_increase_on_exp = 0;
+        game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp = 0;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -644,7 +658,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.crtr_conf.exp.pay_increase_on_exp = k;
+                game.conf.crtr_conf.exp.pay_increase_on_exp = k;
                 n++;
             }
             if (n < 1)
@@ -657,7 +671,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.crtr_conf.exp.spell_damage_increase_on_exp = k;
+                game.conf.crtr_conf.exp.spell_damage_increase_on_exp = k;
                 n++;
             }
             if (n < 1)
@@ -670,7 +684,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.crtr_conf.exp.range_increase_on_exp = k;
+                game.conf.crtr_conf.exp.range_increase_on_exp = k;
                 n++;
             }
             if (n < 1)
@@ -683,7 +697,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.crtr_conf.exp.job_value_increase_on_exp = k;
+                game.conf.crtr_conf.exp.job_value_increase_on_exp = k;
                 n++;
             }
             if (n < 1)
@@ -696,7 +710,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.crtr_conf.exp.health_increase_on_exp = k;
+                game.conf.crtr_conf.exp.health_increase_on_exp = k;
                 n++;
             }
             if (n < 1)
@@ -709,7 +723,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.crtr_conf.exp.strength_increase_on_exp = k;
+                game.conf.crtr_conf.exp.strength_increase_on_exp = k;
                 n++;
             }
             if (n < 1)
@@ -722,7 +736,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.crtr_conf.exp.dexterity_increase_on_exp = k;
+                game.conf.crtr_conf.exp.dexterity_increase_on_exp = k;
                 n++;
             }
             if (n < 1)
@@ -735,7 +749,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.crtr_conf.exp.defense_increase_on_exp = k;
+                game.conf.crtr_conf.exp.defense_increase_on_exp = k;
                 n++;
             }
             if (n < 1)
@@ -748,7 +762,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.crtr_conf.exp.loyalty_increase_on_exp = k;
+                game.conf.crtr_conf.exp.loyalty_increase_on_exp = k;
                 n++;
             }
             if (n < 1)
@@ -761,7 +775,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.crtr_conf.exp.armour_increase_on_exp = k;
+                game.conf.crtr_conf.exp.armour_increase_on_exp = k;
                 n++;
             }
             if (n < 1)
@@ -774,13 +788,52 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.crtr_conf.exp.size_increase_on_exp = k;
+                game.conf.crtr_conf.exp.size_increase_on_exp = k;
                 n++;
             }
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
+        case 12: // EXPFORHITTINGINCREASEONEXP
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                game.conf.crtr_conf.exp.exp_on_hitting_increase_on_exp = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
+        case 13: // TRAININGCOSTINCREASEONEXP
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                game.conf.crtr_conf.exp.training_cost_increase_on_exp = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 14: // SCAVENGINGCOSTINCREASEONEXP
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 0: // comment
@@ -795,7 +848,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
         skip_conf_to_next_line(buf,&pos,len);
     }
 #undef COMMAND_TEXT
-    if (gameadd.crtr_conf.model_count < 1)
+    if (game.conf.crtr_conf.model_count < 1)
     {
         WARNLOG("No creature species defined in [%s] block of %s file.",
             block_buf,config_textname);
@@ -805,29 +858,49 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
 
 TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
+    struct InstanceInfo* inst_inf;
     int i;
     // Block name and parameter word store variables
-    int arr_size;
     // Initialize the array
-    if ((flags & CnfLd_AcceptPartial) == 0)
+    int arr_size = sizeof(game.conf.crtr_conf.instances) / sizeof(game.conf.crtr_conf.instances[0]);
+    for (i = 0; i < arr_size; i++)
     {
-        arr_size = sizeof(gameadd.crtr_conf.instances)/sizeof(gameadd.crtr_conf.instances[0]);
-        for (i=0; i < arr_size; i++)
+        if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(game.conf.crtr_conf.instances[i].name) <= 0))
         {
-            LbMemorySet(gameadd.crtr_conf.instances[i].name, 0, COMMAND_WORD_LEN);
-            if (i < gameadd.crtr_conf.instances_count)
+            LbMemorySet(game.conf.crtr_conf.instances[i].name, 0, COMMAND_WORD_LEN);
+            if (i < game.conf.crtr_conf.instances_count)
             {
-                instance_desc[i].name = gameadd.crtr_conf.instances[i].name;
+                instance_desc[i].name = game.conf.crtr_conf.instances[i].name;
                 instance_desc[i].num = i;
-            } else
+                game.conf.magic_conf.instance_info[i].instant = 0;
+                game.conf.magic_conf.instance_info[i].time = 0;
+                game.conf.magic_conf.instance_info[i].fp_time = 0;
+                game.conf.magic_conf.instance_info[i].action_time = 0;
+                game.conf.magic_conf.instance_info[i].fp_action_time = 0;
+                game.conf.magic_conf.instance_info[i].reset_time = 0;
+                game.conf.magic_conf.instance_info[i].fp_reset_time = 0;
+                game.conf.magic_conf.instance_info[i].graphics_idx = 0;
+                game.conf.magic_conf.instance_info[i].flags = 0;
+                game.conf.magic_conf.instance_info[i].force_visibility = 0;
+                game.conf.magic_conf.instance_info[i].primary_target = 0;
+                game.conf.magic_conf.instance_info[i].func_idx = 0;
+                game.conf.magic_conf.instance_info[i].func_params[0] = 0;
+                game.conf.magic_conf.instance_info[i].func_params[1] = 0;
+                game.conf.magic_conf.instance_info[i].symbol_spridx = 0;
+                game.conf.magic_conf.instance_info[i].tooltip_stridx = 0;
+                game.conf.magic_conf.instance_info[i].range_min = -1;
+                game.conf.magic_conf.instance_info[i].range_max = -1;
+
+            }
+            else
             {
                 instance_desc[i].name = NULL;
                 instance_desc[i].num = 0;
             }
         }
     }
-    arr_size = gameadd.crtr_conf.instances_count;
     // Load the file blocks
+    arr_size = game.conf.crtr_conf.instances_count;
     for (i=0; i < arr_size; i++)
     {
         char block_buf[COMMAND_WORD_LEN];
@@ -842,8 +915,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                 return false;
             }
             continue;
-      }
-      struct InstanceInfo* inst_inf = creature_instance_info_get(i);
+        }
+        inst_inf = creature_instance_info_get(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creaturetype_instance_commands,cmd_num)
       while (pos<len)
       {
@@ -862,11 +935,16 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
         switch (cmd_num)
         {
         case 1: // NAME
-            if (get_conf_parameter_single(buf,&pos,len,gameadd.crtr_conf.instances[i].name,COMMAND_WORD_LEN) <= 0)
+            if (get_conf_parameter_single(buf,&pos,len,game.conf.crtr_conf.instances[i].name,COMMAND_WORD_LEN) <= 0)
             {
                 CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
                 break;
+            }
+            if (instance_desc[i].name == NULL)
+            {
+                instance_desc[i].name = game.conf.crtr_conf.instances[i].name;;
+                instance_desc[i].num = i;
             }
             n++;
             break;
@@ -967,9 +1045,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
               k = atoi(word_buf);
               if (k > 0)
               {
-                  //TODO CONFIG Add when InstanceInfo can be changed
-                  //inst_inf->tooltip_stridx = k;
-                  instance_button_init[i].tooltip_stridx = k;
+                  inst_inf->tooltip_stridx = k;
                   n++;
               }
             }
@@ -985,9 +1061,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
               k = get_icon_id(word_buf);
               if (k >= 0)
               {
-                  //TODO CONFIG Add when InstanceInfo can be changed
-                  //inst_inf->symbol_spridx = k;
-                  instance_button_init[i].symbol_spridx = k;
+                  inst_inf->symbol_spridx = k;
                   n++;
               }
             }
@@ -1017,7 +1091,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             k = recognize_conf_parameter(buf,&pos,len,creature_instances_func_type);
             if (k > 0)
             {
-                inst_inf->func_cb = creature_instances_func_list[k];
+                inst_inf->func_idx = k;
                 n++;
                 //JUSTLOG("Function = %s %s %d",creature_instances_func_type[k-1].name,spell_code_name(inst_inf->func_params[0]),inst_inf->func_params[1]);
             }
@@ -1062,57 +1136,39 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             }
             break;
         case 13: //RANGEMIN
-                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              int j = 0;
-              int l = 0;
-              for (j=0; j < 23; j++) // Size of offensive_weapon
-              {
-                  if (offensive_weapon[j].inst_id == i)
-                  {
-                      l = 1;
-                      break;
-                  }
-              }
-              if (l == 1)
-              {
-                  k = atoi(word_buf);
-                  offensive_weapon[j].range_min = k;
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = get_id(instance_range_desc, word_buf);
+                if (k < 0)
+                {
+                    k = atoi(word_buf);
+                }
+                inst_inf->range_min = k;
+                n++;
+            }
+            if (n < 1)
+            {
                 CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-                   break;
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
         case 14: //RANGEMAX
-                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              int j = 0;
-              int l = 0;
-              for (j=0; j < 23; j++) // Size of offensive_weapon
-              {
-                  if (offensive_weapon[j].inst_id == i)
-                  {
-                      l = 1;
-                      break;
-                  }
-              }
-              if (l == 1)
-              {
-                  k = atoi(word_buf);
-                  offensive_weapon[j].range_max = k;
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = get_id(instance_range_desc, word_buf);
+                if (k < 0)
+                {
+                    k = atoi(word_buf);
+                }
+                inst_inf->range_max = k;
+                n++;
+            }
+            if (n < 1)
+            {
                 CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-                   break;
+            }
+            break;
         case 15: // PROPERTIES
             inst_inf->flags = 0;
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -1180,10 +1236,10 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
     // Initialize the array
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        arr_size = sizeof(gameadd.crtr_conf.jobs)/sizeof(gameadd.crtr_conf.jobs[0]);
+        arr_size = sizeof(game.conf.crtr_conf.jobs)/sizeof(game.conf.crtr_conf.jobs[0]);
         for (i=0; i < arr_size; i++)
         {
-            jobcfg = &gameadd.crtr_conf.jobs[i];
+            jobcfg = &game.conf.crtr_conf.jobs[i];
             LbMemorySet(jobcfg->name, 0, COMMAND_WORD_LEN);
             jobcfg->room_role = RoRoF_None;
             jobcfg->initial_crstate = CrSt_Unused;
@@ -1193,9 +1249,9 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
             jobcfg->func_plyr_assign_idx = 0;
             jobcfg->func_cord_check_idx = 0;
             jobcfg->func_cord_assign_idx = 0;
-            if (i < gameadd.crtr_conf.jobs_count)
+            if (i < game.conf.crtr_conf.jobs_count)
             {
-                creaturejob_desc[i].name = gameadd.crtr_conf.jobs[i].name;
+                creaturejob_desc[i].name = game.conf.crtr_conf.jobs[i].name;
                 if (i > 0)
                     creaturejob_desc[i].num = (1 << (i-1));
                 else
@@ -1207,7 +1263,7 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
             }
         }
     }
-    arr_size = gameadd.crtr_conf.jobs_count;
+    arr_size = game.conf.crtr_conf.jobs_count;
     // Load the file blocks
     for (i=0; i < arr_size; i++)
     {
@@ -1223,7 +1279,7 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
             }
             continue;
         }
-        jobcfg = &gameadd.crtr_conf.jobs[i];
+        jobcfg = &game.conf.crtr_conf.jobs[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creaturetype_job_commands,cmd_num)
         while (pos<len)
         {
@@ -1242,7 +1298,7 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
             switch (cmd_num)
             {
             case 1: // NAME
-                if (get_conf_parameter_single(buf,&pos,len,gameadd.crtr_conf.jobs[i].name,COMMAND_WORD_LEN) <= 0)
+                if (get_conf_parameter_single(buf,&pos,len,game.conf.crtr_conf.jobs[i].name,COMMAND_WORD_LEN) <= 0)
                 {
                     CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num),block_buf,config_textname);
@@ -1436,14 +1492,14 @@ TbBool parse_creaturetype_angerjob_blocks(char *buf, long len, const char *confi
     // Initialize the array
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        arr_size = sizeof(gameadd.crtr_conf.angerjobs)/sizeof(gameadd.crtr_conf.angerjobs[0]);
+        arr_size = sizeof(game.conf.crtr_conf.angerjobs)/sizeof(game.conf.crtr_conf.angerjobs[0]);
         for (i=0; i < arr_size; i++)
         {
-            agjobcfg = &gameadd.crtr_conf.angerjobs[i];
+            agjobcfg = &game.conf.crtr_conf.angerjobs[i];
             LbMemorySet(agjobcfg->name, 0, COMMAND_WORD_LEN);
-            if (i < gameadd.crtr_conf.angerjobs_count)
+            if (i < game.conf.crtr_conf.angerjobs_count)
             {
-                angerjob_desc[i].name = gameadd.crtr_conf.angerjobs[i].name;
+                angerjob_desc[i].name = game.conf.crtr_conf.angerjobs[i].name;
                 if (i > 0)
                     angerjob_desc[i].num = (1 << (i-1));
                 else
@@ -1455,7 +1511,7 @@ TbBool parse_creaturetype_angerjob_blocks(char *buf, long len, const char *confi
             }
         }
     }
-    arr_size = gameadd.crtr_conf.angerjobs_count;
+    arr_size = game.conf.crtr_conf.angerjobs_count;
     // Load the file blocks
     for (i=0; i < arr_size; i++)
     {
@@ -1471,7 +1527,7 @@ TbBool parse_creaturetype_angerjob_blocks(char *buf, long len, const char *confi
             }
             continue;
         }
-        agjobcfg = &gameadd.crtr_conf.angerjobs[i];
+        agjobcfg = &game.conf.crtr_conf.angerjobs[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creaturetype_angerjob_commands,cmd_num)
         while (pos<len)
         {
@@ -1489,7 +1545,7 @@ TbBool parse_creaturetype_angerjob_blocks(char *buf, long len, const char *confi
             switch (cmd_num)
             {
             case 1: // NAME
-                if (get_conf_parameter_single(buf,&pos,len,gameadd.crtr_conf.angerjobs[i].name,COMMAND_WORD_LEN) <= 0)
+                if (get_conf_parameter_single(buf,&pos,len,game.conf.crtr_conf.angerjobs[i].name,COMMAND_WORD_LEN) <= 0)
                 {
                     CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num),block_buf,config_textname);
@@ -1521,13 +1577,13 @@ TbBool parse_creaturetype_attackpref_blocks(char *buf, long len, const char *con
     // Initialize the array
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        arr_size = sizeof(gameadd.crtr_conf.attacktypes)/sizeof(gameadd.crtr_conf.attacktypes[0]);
+        arr_size = sizeof(game.conf.crtr_conf.attacktypes)/sizeof(game.conf.crtr_conf.attacktypes[0]);
         for (i=0; i < arr_size; i++)
         {
-            LbMemorySet(gameadd.crtr_conf.attacktypes[i].text, 0, COMMAND_WORD_LEN);
-            if (i < gameadd.crtr_conf.attacktypes_count)
+            LbMemorySet(game.conf.crtr_conf.attacktypes[i].text, 0, COMMAND_WORD_LEN);
+            if (i < game.conf.crtr_conf.attacktypes_count)
             {
-                attackpref_desc[i].name = gameadd.crtr_conf.attacktypes[i].text;
+                attackpref_desc[i].name = game.conf.crtr_conf.attacktypes[i].text;
                 attackpref_desc[i].num = i;
             } else
             {
@@ -1536,7 +1592,7 @@ TbBool parse_creaturetype_attackpref_blocks(char *buf, long len, const char *con
             }
         }
     }
-    arr_size = gameadd.crtr_conf.attacktypes_count;
+    arr_size = game.conf.crtr_conf.attacktypes_count;
     // Load the file blocks
     for (i=0; i < arr_size; i++)
     {
@@ -1569,7 +1625,7 @@ TbBool parse_creaturetype_attackpref_blocks(char *buf, long len, const char *con
             switch (cmd_num)
             {
             case 1: // NAME
-                if (get_conf_parameter_single(buf,&pos,len,gameadd.crtr_conf.attacktypes[i].text,COMMAND_WORD_LEN) <= 0)
+                if (get_conf_parameter_single(buf,&pos,len,game.conf.crtr_conf.attacktypes[i].text,COMMAND_WORD_LEN) <= 0)
                 {
                     CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num),block_buf,config_textname);
@@ -1667,6 +1723,7 @@ TbBool load_creaturetypes_config(const char *conf_fname, unsigned short flags)
 {
     static const char config_global_textname[] = "global creature types config";
     static const char config_campgn_textname[] = "campaign creature types config";
+    static const char config_level_textname[] = "level creature types config";
     char* fname = prepare_file_path(FGrp_FxData, conf_fname);
     TbBool result = load_creaturetypes_config_file(config_global_textname, fname, flags);
     fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
@@ -1674,22 +1731,27 @@ TbBool load_creaturetypes_config(const char *conf_fname, unsigned short flags)
     {
         load_creaturetypes_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
+    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
+    if (strlen(fname) > 0)
+    {
+        load_creaturetypes_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
     //Freeing and exiting
     return result;
 }
 
-unsigned short get_creature_model_flags(const struct Thing *thing)
+unsigned long get_creature_model_flags(const struct Thing *thing)
 {
-    if ((thing->model < 1) || (thing->model >= gameadd.crtr_conf.model_count))
+    if ((thing->model < 1) || (thing->model >= game.conf.crtr_conf.model_count))
       return 0;
-  return gameadd.crtr_conf.model[thing->model].model_flags;
+  return game.conf.crtr_conf.model[thing->model].model_flags;
 }
 
-ThingModel get_creature_model_with_model_flags(unsigned short needflags)
+ThingModel get_creature_model_with_model_flags(unsigned long needflags)
 {
-    for (ThingModel crmodel = 0; crmodel < gameadd.crtr_conf.model_count; crmodel++)
+    for (ThingModel crmodel = 0; crmodel < game.conf.crtr_conf.model_count; crmodel++)
     {
-        if ((gameadd.crtr_conf.model[crmodel].model_flags & needflags) == needflags) {
+        if ((game.conf.crtr_conf.model[crmodel].model_flags & needflags) == needflags) {
             return crmodel;
         }
     }
@@ -1708,7 +1770,7 @@ TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, long
         ERRORDBG(11,"Cannot set %s availability; player %d has no dungeon.",thing_class_and_model_name(TCls_Creature, crtr_model),(int)plyr_idx);
         return false;
     }
-    if ((crtr_model < 1) || (crtr_model >= gameadd.crtr_conf.model_count)) {
+    if ((crtr_model < 1) || (crtr_model >= game.conf.crtr_conf.model_count)) {
         ERRORDBG(4,"Cannot set creature availability; invalid model %d.",(int)plyr_idx,(int)crtr_model);
         return false;
     }
@@ -1727,19 +1789,19 @@ ThingModel get_players_special_digger_model(PlayerNumber plyr_idx)
     ThingModel crmodel;
     if (plyr_idx == hero_player_number)
     {
-        crmodel = gameadd.crtr_conf.special_digger_good;
+        crmodel = game.conf.crtr_conf.special_digger_good;
         if (crmodel == 0)
         {
             WARNLOG("Heroes (player %d) have no digger breed!",(int)plyr_idx);
-            crmodel = gameadd.crtr_conf.special_digger_evil;
+            crmodel = game.conf.crtr_conf.special_digger_evil;
         }
     } else
     {
-        crmodel = gameadd.crtr_conf.special_digger_evil;
+        crmodel = game.conf.crtr_conf.special_digger_evil;
         if (crmodel == 0)
         {
             WARNLOG("Keepers have no digger breed!");
-            crmodel = gameadd.crtr_conf.special_digger_good;
+            crmodel = game.conf.crtr_conf.special_digger_good;
         }
     }
     return crmodel;
@@ -1747,11 +1809,11 @@ ThingModel get_players_special_digger_model(PlayerNumber plyr_idx)
 
 ThingModel get_players_spectator_model(PlayerNumber plyr_idx)
 {
-    ThingModel breed = gameadd.crtr_conf.spectator_breed;
+    ThingModel breed = game.conf.crtr_conf.spectator_breed;
     if (breed == 0)
     {
         WARNLOG("There is no spectator breed for player %d!",(int)plyr_idx);
-        breed = gameadd.crtr_conf.special_digger_good;
+        breed = game.conf.crtr_conf.special_digger_good;
     }
     return breed;
 }
@@ -1768,9 +1830,13 @@ const char *creature_own_name(const struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     char *text;
     if ((get_creature_model_flags(creatng) & CMF_OneOfKind) != 0) {
-        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[creatng->model];
+        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[creatng->model];
         text = buf_sprintf("%s",get_string(crconf->namestr_idx));
         return text;
+    }
+    if (cctrl->creature_name[0] > 0)
+    {
+        return cctrl->creature_name;
     }
     const char ** starts;
     long starts_len;
@@ -1795,7 +1861,6 @@ const char *creature_own_name(const struct Thing *creatng)
         end_consonants_len = sizeof(name_consonants)/sizeof(name_consonants[0]);
     }
     {
-        //TODO CREATURE store creature name seed somewhere in CreatureControl instead making it from other parameters
         unsigned long seed = creatng->creation_turn + creatng->index + (cctrl->blood_type << 8);
         // Get amount of nucleus
         int name_len;
@@ -1842,15 +1907,16 @@ const char *creature_own_name(const struct Thing *creatng)
             strcat(text,part);
         }
     }
+    strcpy(cctrl->creature_name, text);
     return text;
 }
 
 struct CreatureInstanceConfig *get_config_for_instance(CrInstance inst_id)
 {
-    if ((inst_id < 0) || (inst_id >= gameadd.crtr_conf.instances_count)) {
-        return &gameadd.crtr_conf.instances[0];
+    if ((inst_id < 0) || (inst_id >= game.conf.crtr_conf.instances_count)) {
+        return &game.conf.crtr_conf.instances[0];
     }
-    return &gameadd.crtr_conf.instances[inst_id];
+    return &game.conf.crtr_conf.instances[inst_id];
 }
 
 /**
@@ -1874,10 +1940,10 @@ struct CreatureJobConfig *get_config_for_job(CreatureJob job_flags)
         k >>= 1;
         i++;
     }
-    if (i >= gameadd.crtr_conf.jobs_count) {
-        return &gameadd.crtr_conf.jobs[0];
+    if (i >= game.conf.crtr_conf.jobs_count) {
+        return &game.conf.crtr_conf.jobs[0];
     }
-    return &gameadd.crtr_conf.jobs[i];
+    return &game.conf.crtr_conf.jobs[i];
 }
 
 /**
@@ -1897,10 +1963,28 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
         required_kind_flags |= JoKF_AssignOnAreaBorder;
     }
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
+    struct Room* room = get_room_thing_is_on(creatng);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     if (creatng->owner == slabmap_owner(slb))
     {
-        if (creatng->model == get_players_special_digger_model(creatng->owner)) {
+        if (thing_is_creature_special_digger(creatng)) {
+            if (!room_is_invalid(room)) {
+                if (room_role_matches(room->kind,RoRoF_GoldStorage))
+                {
+                    if (creatng->creature.gold_carried == 0)
+                    {
+                        if (crstat->pay > 0)
+                        {
+                            return get_job_for_room(room->kind, required_kind_flags | JoKF_OwnedCreatures, crstat->job_primary | crstat->job_secondary);
+                        }
+                    }
+                }
+            }
             required_kind_flags |= JoKF_OwnedDiggers;
+            if (creatng->model != get_players_special_digger_model(creatng->owner))
+            {
+                required_kind_flags |= JoKF_OwnedCreatures;
+            }
         } else {
             required_kind_flags |= JoKF_OwnedCreatures;
         }
@@ -1912,9 +1996,7 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
             required_kind_flags |= JoKF_EnemyCreatures;
         }
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     RoomKind rkind;
-    struct Room* room = get_room_thing_is_on(creatng);
     if (!room_is_invalid(room)) {
         required_kind_flags |= JoKF_AssignAreaWithinRoom;
         rkind = room->kind;
@@ -1938,9 +2020,9 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
  */
 CreatureJob get_job_for_room_role(RoomRole rrole, unsigned long required_kind_flags, CreatureJob has_jobs)
 {
-    for (long i = 0; i < gameadd.crtr_conf.jobs_count; i++)
+    for (long i = 0; i < game.conf.crtr_conf.jobs_count; i++)
     {
-        struct CreatureJobConfig* jobcfg = &gameadd.crtr_conf.jobs[i];
+        struct CreatureJobConfig* jobcfg = &game.conf.crtr_conf.jobs[i];
         if ((jobcfg->job_flags & required_kind_flags) == required_kind_flags)
         {
             CreatureJob new_job = 1 << (i - 1);
@@ -1982,9 +2064,9 @@ CreatureJob get_job_which_qualify_for_room_role(RoomRole rrole, unsigned long qu
     if (rrole == RoRoF_None) {
         return Job_NULL;
     }
-    for (long i = 0; i < gameadd.crtr_conf.jobs_count; i++)
+    for (long i = 0; i < game.conf.crtr_conf.jobs_count; i++)
     {
-        struct CreatureJobConfig* jobcfg = &gameadd.crtr_conf.jobs[i];
+        struct CreatureJobConfig* jobcfg = &game.conf.crtr_conf.jobs[i];
         if ((jobcfg->job_flags & qualify_flags) != 0)
         {
             if ((jobcfg->job_flags & prevent_flags) == 0)
@@ -2018,9 +2100,9 @@ CreatureJob get_job_which_qualify_for_room(RoomKind rkind, unsigned long qualify
 CreatureJob get_jobs_enemies_may_do_in_room_role(RoomRole rrole)
 {
     CreatureJob jobpref = Job_NULL;
-    for (long i = 0; i < gameadd.crtr_conf.jobs_count; i++)
+    for (long i = 0; i < game.conf.crtr_conf.jobs_count; i++)
     {
-        struct CreatureJobConfig* jobcfg = &gameadd.crtr_conf.jobs[i];
+        struct CreatureJobConfig* jobcfg = &game.conf.crtr_conf.jobs[i];
         // Accept only jobs in given room
         if ((jobcfg->room_role & rrole) != 0)
         {
@@ -2054,7 +2136,7 @@ CreatureJob get_jobs_enemies_may_do_in_room(RoomKind rkind)
 RoomKind get_first_room_kind_for_job(CreatureJob job_flags)
 {
     struct CreatureJobConfig* jobcfg = get_config_for_job(job_flags);
-    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if (room_role_matches(rkind, jobcfg->room_role))
             return rkind;
@@ -2132,9 +2214,9 @@ CreatureJob get_job_for_creature_state(CrtrStateId crstat_id)
     if (crstat_id == CrSt_Unused) {
         return Job_NULL;
     }
-    for (long i = 0; i < gameadd.crtr_conf.jobs_count; i++)
+    for (long i = 0; i < game.conf.crtr_conf.jobs_count; i++)
     {
-        struct CreatureJobConfig* jobcfg = &gameadd.crtr_conf.jobs[i];
+        struct CreatureJobConfig* jobcfg = &game.conf.crtr_conf.jobs[i];
         //TODO CREATURE_JOBS Add other job-related states here
         if ((jobcfg->initial_crstate == crstat_id)
          || (jobcfg->continue_crstate == crstat_id)) {
@@ -2210,10 +2292,10 @@ CreatureJob get_creature_job_causing_going_postal(CreatureJob job_flags, RoomKin
 const char *attack_type_job_code_name(CrAttackType attack_type)
 {
     const struct CommandWord * attack_type_info;
-    if (attack_type < gameadd.crtr_conf.attacktypes_count) {
-        attack_type_info = &gameadd.crtr_conf.attacktypes[attack_type];
+    if (attack_type < game.conf.crtr_conf.attacktypes_count) {
+        attack_type_info = &game.conf.crtr_conf.attacktypes[attack_type];
     } else {
-        attack_type_info = &gameadd.crtr_conf.attacktypes[0];
+        attack_type_info = &game.conf.crtr_conf.attacktypes[0];
     }
     const char* name = attack_type_info->text;
     if (name[0] != '\0')

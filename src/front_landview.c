@@ -112,8 +112,8 @@ extern struct TbSetupSprite netmap_flag_setup_sprites[];
 void draw_map_screen(void)
 {
     copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
-        LANDVIEW_MAP_WIDTH*units_per_pixel/16,LANDVIEW_MAP_HEIGHT*units_per_pixel/16,
-        -map_info.screen_shift_x*units_per_pixel/16,-map_info.screen_shift_y*units_per_pixel/16,
+        scale_value_landview(LANDVIEW_MAP_WIDTH), scale_value_landview(LANDVIEW_MAP_HEIGHT),
+        -scale_value_landview(map_info.screen_shift_x), -scale_value_landview(map_info.screen_shift_y),
         map_screen,LANDVIEW_MAP_WIDTH,LANDVIEW_MAP_HEIGHT);
 }
 
@@ -134,8 +134,8 @@ struct TbSprite *get_map_ensign(long idx)
  */
 short is_over_ensign(const struct LevelInformation *lvinfo, long scr_x, long scr_y)
 {
-    long map_x = map_info.screen_shift_x + scr_x * 16 / units_per_pixel;
-    long map_y = map_info.screen_shift_y + scr_y * 16 / units_per_pixel;
+    long map_x = map_info.screen_shift_x + scr_x * 16 / units_per_pixel_landview;
+    long map_y = map_info.screen_shift_y + scr_y * 16 / units_per_pixel_landview;
     const struct TbSprite* spr = get_map_ensign(10);
     long spr_w = spr->SWidth;
     long spr_h = spr->SHeight;
@@ -152,8 +152,8 @@ short is_over_ensign(const struct LevelInformation *lvinfo, long scr_x, long scr
  */
 short is_ensign_in_screen_rect(const struct LevelInformation *lvinfo)
 {
-    if ((lvinfo->ensign_zoom_x >= map_info.screen_shift_x) && (lvinfo->ensign_zoom_x < map_info.screen_shift_x+lbDisplay.PhysicalScreenWidth*16/units_per_pixel))
-      if ((lvinfo->ensign_zoom_y >= map_info.screen_shift_y) && (lvinfo->ensign_zoom_y < map_info.screen_shift_y+lbDisplay.PhysicalScreenHeight*16/units_per_pixel))
+    if ((lvinfo->ensign_zoom_x >= map_info.screen_shift_x) && (lvinfo->ensign_zoom_x < map_info.screen_shift_x+lbDisplay.PhysicalScreenWidth*16/units_per_pixel_landview))
+      if ((lvinfo->ensign_zoom_y >= map_info.screen_shift_y) && (lvinfo->ensign_zoom_y < map_info.screen_shift_y+lbDisplay.PhysicalScreenHeight*16/units_per_pixel_landview))
         return true;
     return false;
 }
@@ -273,16 +273,16 @@ void update_frontmap_ambient_sound(void)
           long i = compute_sound_good_to_bad_factor();
           SYNCDBG(18, "Volume factor is %ld", i);
           SetSampleVolume(0, campaign.ambient_good, map_sound_fade * (i) / 256, 0);
-          SetSampleVolume(0, campaign.ambient_bad, map_sound_fade * (127 - i) / 256, 0);
+          SetSampleVolume(0, campaign.ambient_bad, map_sound_fade * (settings.sound_volume - i) / 256, 0);
     } else
     if (lvidx > 13)
     {
-      SetSampleVolume(0, campaign.ambient_bad, 127*map_sound_fade/256, 0);
+      SetSampleVolume(0, campaign.ambient_bad, settings.sound_volume *map_sound_fade/256, 0);
     } else
     {
-      SetSampleVolume(0, campaign.ambient_good, 127*map_sound_fade/256, 0);
+      SetSampleVolume(0, campaign.ambient_good, settings.sound_volume *map_sound_fade/256, 0);
     }
-    SetStreamedSampleVolume(127*map_sound_fade/256);
+    Mix_VolumeChunk(streamed_sample, settings.sound_volume *map_sound_fade/256);
     SetMusicPlayerVolume(map_sound_fade*(long)settings.redbook_volume/256);
   } else
   {
@@ -292,7 +292,7 @@ void update_frontmap_ambient_sound(void)
       SetSampleVolume(0, campaign.ambient_bad, 0, 0);
     }
     SetMusicPlayerVolume(0);
-    SetStreamedSampleVolume(0);
+    Mix_VolumeChunk(streamed_sample, 0);
   }
 }
 
@@ -408,7 +408,7 @@ void draw_map_level_ensigns(void)
       {
           long x = lvinfo->ensign_x - map_info.screen_shift_x - (int)(spr->SWidth >> 1);
           long y = lvinfo->ensign_y - map_info.screen_shift_y - (int)(spr->SHeight);
-          LbSpriteDrawResized(x*units_per_pixel/16, y*units_per_pixel/16, units_per_pixel, spr);
+          LbSpriteDrawResized(scale_value_landview(x), scale_value_landview(y), units_per_pixel_landview, spr);
       }
       lvinfo = get_prev_level_info(lvinfo);
     }
@@ -428,11 +428,11 @@ void set_map_info_screen_shift_raw(long map_x, long map_y)
     long delta_x;
     long delta_y;
     if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0) {
-        delta_x = (lbDisplay.PhysicalScreenWidth*(256 - map_info.fade_pos)*16/units_per_pixel) / 256;
-        delta_y = (lbDisplay.PhysicalScreenHeight*(256 - map_info.fade_pos)*16/units_per_pixel) / 256;
+        delta_x = (lbDisplay.PhysicalScreenWidth*(256 - map_info.fade_pos)*16/units_per_pixel_landview) / 256;
+        delta_y = (lbDisplay.PhysicalScreenHeight*(256 - map_info.fade_pos)*16/units_per_pixel_landview) / 256;
     } else {
-        delta_x = (lbDisplay.PhysicalScreenWidth*16/units_per_pixel);
-        delta_y = (lbDisplay.PhysicalScreenHeight*16/units_per_pixel);
+        delta_x = (lbDisplay.PhysicalScreenWidth*16/units_per_pixel_landview);
+        delta_y = (lbDisplay.PhysicalScreenHeight*16/units_per_pixel_landview);
     }
     if (map_info.screen_shift_x > LANDVIEW_MAP_WIDTH - delta_x)
         map_info.screen_shift_x = LANDVIEW_MAP_WIDTH - delta_x;
@@ -451,8 +451,8 @@ void set_map_info_screen_shift_raw(long map_x, long map_y)
  */
 void set_map_info_screen_shift(long map_x, long map_y)
 {
-    long delta_x = (lbDisplay.PhysicalScreenWidth * 16 / units_per_pixel) / 2;
-    long delta_y = (lbDisplay.PhysicalScreenHeight * 16 / units_per_pixel) / 2;
+    long delta_x = (lbDisplay.PhysicalScreenWidth * 16 / units_per_pixel_landview) / 2;
+    long delta_y = (lbDisplay.PhysicalScreenHeight * 16 / units_per_pixel_landview) / 2;
     set_map_info_screen_shift_raw(map_x - delta_x, map_y - delta_y);
     // Reset precise shifts, which are often used for screen shift update
     // The reset is here so that new values have correct clipping applied
@@ -478,20 +478,20 @@ void set_map_info_visible_hotspot_raw(long map_x,long map_y)
 {
     map_info.hotspot_shift_x = map_x;
     map_info.hotspot_shift_y = map_y;
-    if (map_info.hotspot_shift_x > LANDVIEW_MAP_WIDTH - lbDisplay.PhysicalScreenWidth*16/units_per_pixel)
-        map_info.hotspot_shift_x = LANDVIEW_MAP_WIDTH - lbDisplay.PhysicalScreenWidth*16/units_per_pixel;
+    if (map_info.hotspot_shift_x > LANDVIEW_MAP_WIDTH - lbDisplay.PhysicalScreenWidth*16/units_per_pixel_landview)
+        map_info.hotspot_shift_x = LANDVIEW_MAP_WIDTH - lbDisplay.PhysicalScreenWidth*16/units_per_pixel_landview;
     if (map_info.hotspot_shift_x < 0)
         map_info.hotspot_shift_x = 0;
-    if (map_info.hotspot_shift_y > LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel)
-        map_info.hotspot_shift_y = LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel;
+    if (map_info.hotspot_shift_y > LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel_landview)
+        map_info.hotspot_shift_y = LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel_landview;
     if (map_info.hotspot_shift_y < 0)
         map_info.hotspot_shift_y = 0;
 }
 
 void set_map_info_visible_hotspot(long map_x,long map_y)
 {
-    long delta_x = (lbDisplay.PhysicalScreenWidth * 16 / units_per_pixel) / 2;
-    long delta_y = (lbDisplay.PhysicalScreenHeight * 16 / units_per_pixel) / 2;
+    long delta_x = (lbDisplay.PhysicalScreenWidth * 16 / units_per_pixel_landview) / 2;
+    long delta_y = (lbDisplay.PhysicalScreenHeight * 16 / units_per_pixel_landview) / 2;
     set_map_info_visible_hotspot_raw(map_x - delta_x, map_y - delta_y);
 }
 
@@ -543,8 +543,8 @@ void frontmap_zoom_out_init(LevelNumber prev_lvnum, LevelNumber next_lvnum)
     {
         // Shift towards next flag, but not too much - old flag pos must be on screen all the time
         // otherwise draw function will clip its coordinates
-        long maxdelta_x = (lbDisplay.PhysicalScreenWidth * 16 / units_per_pixel) / 2;
-        long maxdelta_y = (lbDisplay.PhysicalScreenHeight * 16 / units_per_pixel) / 2;
+        long maxdelta_x = (lbDisplay.PhysicalScreenWidth * 16 / units_per_pixel_landview) / 2;
+        long maxdelta_y = (lbDisplay.PhysicalScreenHeight * 16 / units_per_pixel_landview) / 2;
         long dt_x = (next_lvinfo->ensign_zoom_x - map_info.hotspot_imgpos_x) / 2;
         if (dt_x > maxdelta_x)
             dt_x = maxdelta_x;
@@ -645,7 +645,7 @@ TbBool stop_description_speech(void)
         playing_good_descriptive_speech = 0;
         playing_bad_descriptive_speech = 0;
         playing_speech_lvnum = SINGLEPLAYER_NOTSTARTED;
-        StopStreamedSample();
+        stop_streamed_sample();
         return true;
     }
     return false;
@@ -672,20 +672,40 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
       if (lvinfo->speech_before[0] == '\0')
         return false;
       stop_description_speech();
-      fname = prepare_file_fmtpath(FGrp_AtlSound,"%s.wav",lvinfo->speech_before);
+      if (strchr(lvinfo->speech_before, '.') == NULL)
+      {
+          WARNLOG("No extension specified for good speech file; defaulting to '.wav'.");
+          char path[DISKPATH_SIZE];
+          sprintf(path, "%s.wav", lvinfo->speech_before);
+          fname = prepare_file_fmtpath(FGrp_AtlSound, "%s", path);
+      }
+      else
+      {
+          fname = prepare_file_fmtpath(FGrp_AtlSound,"%s",lvinfo->speech_before);
+      }
       playing_good_descriptive_speech = 1;
     } else
     {
       if (lvinfo->speech_after[0] == '\0')
         return false;
       stop_description_speech();
-      fname = prepare_file_fmtpath(FGrp_AtlSound,"%s.wav",lvinfo->speech_after);
+      if (strchr(lvinfo->speech_after, '.') == NULL)
+      {
+          WARNLOG("No extension specified for evil speech file; defaulting to '.wav'.");
+          char path[DISKPATH_SIZE];
+          sprintf(path, "%s.wav", lvinfo->speech_after);
+          fname = prepare_file_fmtpath(FGrp_AtlSound, "%s", path);
+      }
+      else
+      {
+          fname = prepare_file_fmtpath(FGrp_AtlSound,"%s",lvinfo->speech_after);
+      }
       playing_bad_descriptive_speech = 1;
     }
     playing_speech_lvnum = lvnum;
-    SetStreamedSampleVolume(127);
-    PlayStreamedSample(fname, 1622, 0, 1);
-    return true;
+    SYNCMSG("Playing %s", fname);
+    //volume is overwritten in update_frontmap_ambient_sound
+    return play_streamed_sample(fname, settings.sound_volume, 0);
 }
 
 TbBool set_pointer_graphic_spland(long frame)
@@ -703,16 +723,16 @@ void frontzoom_to_point(long map_x, long map_y, long zoom)
     long bpos_x;
     long x;
     long y;
-    long src_delta = (256 - zoom) * 16 / units_per_pixel;
-    long smap_x = map_x * units_per_pixel / 16;
-    long smap_y = map_y * units_per_pixel / 16;
+    long src_delta = (256 - zoom) * 16 / units_per_pixel_landview;
+    long smap_x = scale_value_landview(map_x);
+    long smap_y = scale_value_landview(map_y);
     // Initializing variables used for all quadres of screen
     // First find a quadres division place - coords bounding the quadres
     // Make sure each quadre is at least one pixel wide and high
-    long scr_x = smap_x - map_info.screen_shift_x * units_per_pixel / 16;
+    long scr_x = smap_x - scale_value_landview(map_info.screen_shift_x);
     if (scr_x > lbDisplay.PhysicalScreenWidth-1) scr_x = lbDisplay.PhysicalScreenWidth-1;
     if (scr_x < 1) scr_x = 1;
-    long scr_y = smap_y - map_info.screen_shift_y * units_per_pixel / 16;
+    long scr_y = smap_y - scale_value_landview(map_info.screen_shift_y);
     if (scr_y > lbDisplay.PhysicalScreenHeight-1) scr_y = lbDisplay.PhysicalScreenHeight-1;
     if (scr_y < 1) scr_y = 1;
     unsigned char* src_buf = &map_screen[LANDVIEW_MAP_WIDTH * map_y + map_x];
@@ -787,15 +807,16 @@ void frontzoom_to_point(long map_x, long map_y, long zoom)
         bpos_y += src_delta;
     }
 }
-
+/** Draw the window frame on the campaign map (land view). */
 void compressed_window_draw(void)
 {
     SYNCDBG(18,"Starting");
-    long xshift = map_info.screen_shift_x / 2;
-    long yshift = map_info.screen_shift_y / 2;
+    long default_movement_scale = 1024;
+    long xshift = map_info.screen_shift_x * landview_frame_movement_scale_x / default_movement_scale / 2; // X speed is slower on aspect ratios wider than 4:3
+    long yshift = map_info.screen_shift_y *landview_frame_movement_scale_y / default_movement_scale / 2; // Y speed is slower on aspect ratios taller than 4:3
     LbHugeSpriteDraw(&map_window, map_window_len,
         lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth, lbDisplay.PhysicalScreenHeight,
-        xshift, yshift, units_per_pixel);
+        xshift, yshift, units_per_pixel_landview_frame);
 }
 
 void unload_map_and_window(void)
@@ -1256,8 +1277,8 @@ void update_velocity(void)
     if (map_info.velocity_x != 0)
     {
       map_info.screen_shift_x += map_info.velocity_x / 4;
-      if (map_info.screen_shift_x > LANDVIEW_MAP_WIDTH - lbDisplay.PhysicalScreenWidth*16/units_per_pixel)
-        map_info.screen_shift_x = LANDVIEW_MAP_WIDTH - lbDisplay.PhysicalScreenWidth*16/units_per_pixel;
+      if (map_info.screen_shift_x > LANDVIEW_MAP_WIDTH - lbDisplay.PhysicalScreenWidth*16/units_per_pixel_landview)
+        map_info.screen_shift_x = LANDVIEW_MAP_WIDTH - lbDisplay.PhysicalScreenWidth*16/units_per_pixel_landview;
       if (map_info.screen_shift_x < 0)
         map_info.screen_shift_x = 0;
       if (map_info.velocity_x < 0)
@@ -1268,8 +1289,8 @@ void update_velocity(void)
     if (map_info.velocity_y != 0)
     {
       map_info.screen_shift_y += map_info.velocity_y / 4;
-      if (map_info.screen_shift_y > LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel)
-        map_info.screen_shift_y = LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel;
+      if (map_info.screen_shift_y > LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel_landview)
+        map_info.screen_shift_y = LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel_landview;
       if (map_info.screen_shift_y < 0)
         map_info.screen_shift_y = 0;
       if (map_info.velocity_y < 0)
@@ -1335,7 +1356,7 @@ void draw_netmap_players_hands(void)
         }
         x += nspck->field_6 - map_info.screen_shift_x - 18;
         y += nspck->field_8 - map_info.screen_shift_y - 25;
-        LbSpriteDrawResized(x*units_per_pixel/16, y*units_per_pixel/16, units_per_pixel, spr);
+        LbSpriteDrawResized(scale_value_landview(x), scale_value_landview(y), units_per_pixel_landview, spr);
         w = LbTextStringWidth(plyr_nam);
         if (w > 0)
         {
@@ -1343,8 +1364,8 @@ void draw_netmap_players_hands(void)
           h = LbTextHeight(level_name);
           y += 32;
           x += 32;
-          LbDrawBox((x-4)*units_per_pixel/16, y*units_per_pixel/16, (w+8)*units_per_pixel/16, h*units_per_pixel/16, colr);
-          LbTextDrawResized(x*units_per_pixel/16, y*units_per_pixel/16, units_per_pixel, plyr_nam);
+          LbDrawBox(scale_value_landview(x-4), scale_value_landview(y), scale_value_landview(w+8), scale_value_landview(h), colr);
+          LbTextDrawResized(scale_value_landview(x), scale_value_landview(y), units_per_pixel_landview, plyr_nam);
         }
       }
   }
@@ -1378,8 +1399,8 @@ void draw_map_level_descriptions(void)
     long x = lvinfo->ensign_x - map_info.screen_shift_x;
     long y = lvinfo->ensign_y - map_info.screen_shift_y - 8;
     long h = LbTextHeight(level_name);
-    LbDrawBox((x-4)*units_per_pixel/16, y*units_per_pixel/16, (w+8)*units_per_pixel/16, h*units_per_pixel/16, 0);
-    LbTextDrawResized(x*units_per_pixel/16, y*units_per_pixel/16, units_per_pixel, level_name);
+    LbDrawBox(scale_value_landview(x-4), scale_value_landview(y), scale_value_landview(w+8), scale_value_landview(h), 0);
+    LbTextDrawResized(scale_value_landview(x), scale_value_landview(y), units_per_pixel_landview, level_name);
   }
 }
 
@@ -1502,8 +1523,8 @@ void frontnetmap_input(void)
         {
             lvinfo = get_level_info(fe_net_level_selected);
             if (lvinfo != NULL) {
-              LbMouseSetPosition((lvinfo->ensign_x - map_info.screen_shift_x)*units_per_pixel/16,
-                  (lvinfo->ensign_y - map_info.screen_shift_y)*units_per_pixel/16);
+              LbMouseSetPosition(scale_value_landview(lvinfo->ensign_x - map_info.screen_shift_x),
+                  scale_value_landview(lvinfo->ensign_y - map_info.screen_shift_y));
             }
             fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
         }
@@ -1576,7 +1597,7 @@ long frontmap_update(void)
   }
   if (playing_good_descriptive_speech)
   {
-    if (StreamedSampleFinished())
+    if (!Mix_Playing(DESCRIPTION_CHANNEL))
     {
       playing_good_descriptive_speech = 0;
 //      playing_speech_lvnum = SINGLEPLAYER_NOTSTARTED;
@@ -1661,8 +1682,8 @@ TbBool frontmap_exchange_screen_packet(void)
     }
     else if (net_map_slap_frame > 0)
     {
-        nspck->field_6 = GetMouseX()*16/units_per_pixel + map_info.screen_shift_x;
-        nspck->field_8 = GetMouseY()*16/units_per_pixel + map_info.screen_shift_y;
+        nspck->field_6 = GetMouseX()*16/units_per_pixel_landview + map_info.screen_shift_x;
+        nspck->field_8 = GetMouseY()*16/units_per_pixel_landview + map_info.screen_shift_y;
         if (net_map_slap_frame <= 16)
         {
           nspck->field_4 = (nspck->field_4 & 0x07) | 0x08;
@@ -1676,8 +1697,8 @@ TbBool frontmap_exchange_screen_packet(void)
     }
     else
     {
-        nspck->field_6 = GetMouseX()*16/units_per_pixel + map_info.screen_shift_x;
-        nspck->field_8 = GetMouseY()*16/units_per_pixel + map_info.screen_shift_y;
+        nspck->field_6 = GetMouseX()*16/units_per_pixel_landview + map_info.screen_shift_x;
+        nspck->field_8 = GetMouseY()*16/units_per_pixel_landview + map_info.screen_shift_y;
     }
     if (fe_network_active)
     {
@@ -1717,8 +1738,7 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
             nmps->tmp1++;
         } else
         {
-            //TODO FRONTEND This is so wrong - remove casting when param1 is changed to int
-            LevelNumber pckt_lvnum = (unsigned char)nspck->param1;
+            LevelNumber pckt_lvnum = nspck->param1;
             scratch[pckt_lvnum]++;
             if (scratch[pckt_lvnum] == tmp2)
             {

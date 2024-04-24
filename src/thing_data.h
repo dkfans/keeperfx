@@ -52,16 +52,17 @@ enum ThingFlags1 {
 };
 
 enum ThingFlags2 {
-    TF2_Unkn01         = 0x01,
-    TF2_Spectator      = 0x02,
+    TF2_Unkn01              = 0x01,
+    TF2_Spectator           = 0x02,
+    TF2_SummonedCreature    = 0x04,
 };
 
 enum ThingRenderingFlags {
     TRF_Unknown01     = 0x01, /** Not Drawn **/
-    TRF_Unknown02     = 0x02, // Not shaded
+    TRF_Unshaded     = 0x02, // Not shaded
 
-    TRF_Unknown04     = 0x04, // Tint1 (used to draw enemy creatures when they are blinking to owners color)
-    TRF_Unknown08     = 0x08, // Tint2 (not used?)
+    TRF_Tint_1        = 0x04, // Tint1 (used to draw enemy creatures when they are blinking to owners color)
+    TRF_Tint_2        = 0x08, // Tint2 (not used?)
     TRF_Tint_Flags    = 0x0C, // Tint flags
 
     TRF_Transpar_8     = 0x10, // Used on chicken effect when creature is turned to chicken
@@ -69,8 +70,19 @@ enum ThingRenderingFlags {
     TRF_Transpar_Alpha = 0x30,
     TRF_Transpar_Flags = 0x30,
 
-    TRF_Unmoving       = 0x40,
+    TRF_AnimateOnce    = 0x40,
     TRF_BeingHit       = 0x80,    // Being hit (draw red sometimes)
+};
+
+ /**
+  * Used for EffectElementConfigStats->size_change and Thing->size_change.
+  * 
+  * See effect_element_stats[] for setting of size_change.
+  */
+enum ThingSizeChange {
+  TSC_DontChangeSize         = 0x00, /**< Default behaviour. */
+  TSC_ChangeSize             = 0x01, /**< Used when creature changing to/from chicken, and by TngEffElm_Cloud3. */
+  TSC_ChangeSizeContinuously = 0x02, /**< Used by TngEffElm_IceShard. */
 };
 
 enum FreeThingAllocFlags {
@@ -84,10 +96,10 @@ enum ThingMovementFlags {
     TMvF_IsOnWater          = 0x01,
     TMvF_IsOnLava           = 0x02,
     TMvF_BeingSacrificed    = 0x04,
-    TMvF_Unknown08          = 0x08,
+    TMvF_Unknown08          = 0x08, // thing->veloc_base.z.val = 0
     TMvF_Unknown10          = 0x10, //Stopped by walls?
     TMvF_Flying             = 0x20,
-    TMvF_Unknown40          = 0x40,
+    TMvF_Immobile           = 0x40,
     TMvF_IsOnSnow           = 0x80,
 };
 
@@ -188,6 +200,8 @@ struct Thing {
       struct {
         long gold_carried;
         short health_bar_turns;
+        short volley_repeat;
+        TbBool volley_fire;
       } creature;
 //TCls_Effect
       struct {
@@ -206,8 +220,14 @@ struct Thing {
 //TCls_Trap
       struct {
         unsigned char num_shots;
-        long rearm_turn;
         unsigned char revealed;
+        TbBool wait_for_rearm;
+        TbBool volley_fire;
+        GameTurn rearm_turn;
+        GameTurn shooting_finished_turn;
+        short volley_repeat;
+        unsigned short volley_delay;
+        unsigned short firing_at;
       } trap;
 //TCls_Door
       struct {
@@ -215,6 +235,7 @@ struct Thing {
       unsigned char opening_counter;
       short closing_counter;
       unsigned char is_locked;
+      PlayerBitFlags revealed;
       } door;
 //TCls_Unkn10
 //TCls_Unkn11
@@ -224,10 +245,10 @@ struct Thing {
         unsigned char x;
         unsigned char y;
         short time;
-        unsigned char model;
+        ThingModel model;
       }cave_in;
     };
-    unsigned char model;
+    ThingModel model;
     unsigned short index;
     /** Parent index. The parent may either be a thing, or a slab index.
      * What it means depends on thing class, ie. it's thing index for shots
@@ -237,8 +258,8 @@ struct Thing {
     unsigned char class_id;
     unsigned char fall_acceleration;
     unsigned char bounce_angle;
-    unsigned char inertia_floor;
-    unsigned char inertia_air;
+    short inertia_floor;
+    short inertia_air;
     unsigned char movement_flags;
     struct CoordDelta3d veloc_push_once;
     struct CoordDelta3d veloc_base;
@@ -256,14 +277,15 @@ unsigned char max_frames;
 unsigned short sprite_size_min;
 unsigned short sprite_size_max;
     unsigned char rendering_flags;
-    unsigned char field_50; // control rendering process (draw_class << 2) + (growth/shrink continiously) + (shrink/grow then stop)
+    unsigned char draw_class; /**< See enum ObjectsDrawClasses for valid values. */
+    unsigned char size_change; /**< See enum ThingSizeChange for valid values. */
 unsigned char tint_colour;
     short move_angle_xy;
     short move_angle_z;
     unsigned short clipbox_size_xy;
-    unsigned short clipbox_size_yz;
+    unsigned short clipbox_size_z;
     unsigned short solid_size_xy;
-    unsigned short solid_size_yz;
+    unsigned short solid_size_z;
     long health;
 unsigned short floor_height;
     unsigned short light_id;
@@ -271,6 +293,19 @@ unsigned short floor_height;
     unsigned char snd_emitter_id;
     short next_of_class;
     short prev_of_class;
+    unsigned long flags; //ThingAddFlags
+    long last_turn_drawn;
+    float time_spent_displaying_hurt_colour; // Used for delta time interpolated render position
+    unsigned short previous_floor_height;
+    unsigned short interp_floor_height;
+    struct Coord3d previous_mappos;
+    struct Coord3d interp_mappos;
+    long interp_minimap_pos_x;
+    long interp_minimap_pos_y;
+    long previous_minimap_pos_x;
+    long previous_minimap_pos_y;
+    long interp_minimap_update_turn;
+    PlayerNumber holding_player;
 };
 
 #define INVALID_THING (game.things.lookup[0])
@@ -281,29 +316,10 @@ unsigned short floor_height;
  */
 #define TRACE_THING(thing)
 
-enum ThingAddFlags
+enum ThingAddFlags //named this way because they were part of the ThingAdd structure
 {
     TAF_ROTATED_SHIFT = 16,
     TAF_ROTATED_MASK = 0x070000,
-};
-
-struct ThingAdd // Additional thing data
-{
-    unsigned long flags; //ThingAddFlags
-    long last_turn_drawn;
-    float time_spent_displaying_hurt_colour;
-    // Used for delta time interpolated render position
-    unsigned short previous_floor_height;
-    unsigned short interp_floor_height;
-    struct Coord3d previous_mappos;
-    struct Coord3d interp_mappos;
-    
-    long interp_minimap_pos_x;
-    long interp_minimap_pos_y;
-    long previous_minimap_pos_x;
-    long previous_minimap_pos_y;
-    long interp_minimap_update_turn;
-    PlayerNumber holding_player;
 };
 
 #pragma pack()
@@ -322,10 +338,11 @@ TbBool thing_exists(const struct Thing *thing);
 short thing_is_invalid(const struct Thing *thing);
 long thing_get_index(const struct Thing *thing);
 
+TbBool thing_is_in_limbo(const struct Thing* thing);
 TbBool thing_is_dragged_or_pulled(const struct Thing *thing);
 struct PlayerInfo *get_player_thing_is_controlled_by(const struct Thing *thing);
 
-void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char a5, char start_frame, unsigned char draw_class);
+void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char animate_once, char start_frame, unsigned char draw_class);
 
 void query_thing(struct Thing *thing);
 /******************************************************************************/

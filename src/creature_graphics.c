@@ -22,6 +22,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
+#include "player_data.h"
 #include "thing_creature.h"
 #include "config_creature.h"
 #include "creature_instances.h"
@@ -42,41 +43,6 @@ extern "C" {
 /******************************************************************************/
 
 struct KeeperSprite *creature_table;
-
-struct CreaturePickedUpOffset creature_picked_up_offset[] = {
-  {  0,   0,  0,  0},
-  {  6, 122,  0,  0},
-  { 38, 134,  0,  0},
-  {  0,  82,  0,  0},
-  { -1,  69,  0,  0},
-  { 14,  44,  0,  0},
-  {  8,  64,  0,  0},
-  { 14,  76,  0,  0},
-  { 12,  50,  0,  0},
-  {  6,  74,  0,  0},
-  { 10,  90,  0,  0},
-  {  8, 116,  0,  0},
-  { 10, 102,  0,  0},
-  {  4, 104,  0,  0},
-  {  4, 128,  0,  0},
-  { -5,  54,  0,  0},
-  {  4,  96,  0,  0},
-  { 14, 120,  0,  0},
-  {  0,  50,  0,  0},
-  { 14,  68,  0,  0},
-  { -6, 126,  0,  0},
-  { -8,  84,  0,  0},
-  { -8,  76,  0,  0},
-  { -2,  46,  0,  0},
-  { 22,  60,  0,  0},
-  {  0,  70,  0,  0},
-  {  2,  44,  0,  0},
-  {-12,  80,  0,  0},
-  { -8,  60,  0,  0},
-  {  0,  74,  0,  0},
-  {  5, 121,  0,  0},
-  {  0,   0,  0,  0},
-};
 
 /******************************************************************************/
 static const unsigned short creature_list[CREATURE_FRAMELIST_LENGTH] = {
@@ -189,14 +155,15 @@ static const unsigned short creature_list[CREATURE_FRAMELIST_LENGTH] = {
     9101, 9109, 9117, 9125, 9133, 9141
 };
 /******************************************************************************/
-extern struct CreaturePickedUpOffset creature_picked_up_offset[];
+
 /******************************************************************************/
 struct CreaturePickedUpOffset *get_creature_picked_up_offset(struct Thing *thing)
 {
-    int crmodel = thing->model;
-    if ((crmodel < 1) || (crmodel >= gameadd.crtr_conf.model_count))
+    ThingModel crmodel = thing->model;
+    if ((crmodel < 1) || (crmodel >= game.conf.crtr_conf.model_count))
         crmodel = 0;
-    return &creature_picked_up_offset[crmodel];
+    struct CreatureStats* crstat = creature_stats_get(crmodel);
+    return &crstat->creature_picked_up_offset;
 }
 
 unsigned char keepersprite_frames(unsigned short n)
@@ -266,9 +233,14 @@ unsigned long keepersprite_index(unsigned short n)
     return creature_list[n];
 }
 
-long get_lifespan_of_animation(long ani, long frameskip)
+long get_lifespan_of_animation(long ani, long speed)
 {
-    return (keepersprite_frames(ani) << 8) / frameskip;
+    if (speed == 0)
+    {
+        WARNLOG("Animation %d has no speed value", ani);
+        return keepersprite_frames(ani);
+    }
+    return (keepersprite_frames(ani) << 8) / speed;
 }
 
 static struct KeeperSprite* sprite_by_frame(long kspr_frame)
@@ -308,8 +280,8 @@ void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, 
           *unsc_w = kspr->FrameOffsW;
           *unsc_h = kspr->FrameOffsH;
         }
-    } else
-    if (kspr->Rotable == 2)
+    }
+    else if (kspr->Rotable == 2)
     {
         kspr += frame + abs(4 - (((angle + 128) & 0x7FF) >> 8)) * kspr->FramesCount;
         *orig_w = kspr->SWidth;
@@ -336,11 +308,11 @@ short get_creature_model_graphics(long crmodel, unsigned short seq_idx)
       ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
       seq_idx = 0;
   }
-  if ((crmodel < 0) || (crmodel >= gameadd.crtr_conf.model_count)) {
+  if ((crmodel < 0) || (crmodel >= game.conf.crtr_conf.model_count)) {
       ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
       crmodel = 0;
   }
-  return gameadd.crtr_conf.creature_graphics[crmodel][seq_idx];
+  return game.conf.crtr_conf.creature_graphics[crmodel][seq_idx];
 }
 
 void set_creature_model_graphics(long crmodel, unsigned short seq_idx, unsigned long val)
@@ -349,11 +321,11 @@ void set_creature_model_graphics(long crmodel, unsigned short seq_idx, unsigned 
         ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
         return;
     }
-    if ((crmodel < 0) || (crmodel >= gameadd.crtr_conf.model_count)) {
+    if ((crmodel < 0) || (crmodel >= game.conf.crtr_conf.model_count)) {
         ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
         return;
     }
-    gameadd.crtr_conf.creature_graphics[crmodel][seq_idx] = val;
+    game.conf.crtr_conf.creature_graphics[crmodel][seq_idx] = val;
 }
 
 short get_creature_anim(struct Thing *thing, unsigned short seq_idx)
@@ -365,12 +337,12 @@ short get_creature_anim(struct Thing *thing, unsigned short seq_idx)
 void untint_thing(struct Thing *thing)
 {
     thing->tint_colour = 0;
-    thing->rendering_flags &= ~(TRF_Unknown04|TRF_Unknown08);
+    thing->rendering_flags &= ~(TRF_Tint_1|TRF_Tint_2);
 }
 
 void tint_thing(struct Thing *thing, TbPixel colour, unsigned char tint)
 {
-    thing->rendering_flags ^= (thing->rendering_flags ^ (tint << 2)) & (TRF_Unknown04|TRF_Unknown08);
+    thing->rendering_flags ^= (thing->rendering_flags ^ (tint << 2)) & (TRF_Tint_1|TRF_Tint_2);
     thing->tint_colour = colour;
 }
 
@@ -379,7 +351,7 @@ TbBool update_creature_anim(struct Thing *thing, long speed, long seq_idx)
     unsigned long i = get_creature_anim(thing, seq_idx);
     if (i != thing->anim_sprite)
     {
-        set_thing_draw(thing, i, speed, -1, -1, 0, 2);
+        set_thing_draw(thing, i, speed, -1, -1, 0, ODC_Default);
         return true;
     }
     return false;
@@ -390,7 +362,7 @@ TbBool update_creature_anim_td(struct Thing *thing, long speed, long td_idx)
     unsigned long i = convert_td_iso(td_idx);
     if (i != thing->anim_sprite)
     {
-        set_thing_draw(thing, i, speed, -1, -1, 0, 2);
+        set_thing_draw(thing, i, speed, -1, -1, 0, ODC_Default);
         return true;
     }
     return false;
@@ -401,7 +373,7 @@ void update_creature_rendering_flags(struct Thing *thing)
     // Clear related flags
     thing->rendering_flags &= ~TRF_Unknown01;
     thing->rendering_flags &= ~TRF_Transpar_Flags;
-    thing->rendering_flags &= ~TRF_Unmoving;
+    thing->rendering_flags &= ~TRF_AnimateOnce;
     // Now set only those that should be
     if ( (is_thing_directly_controlled_by_player(thing, my_player_number)) || (is_thing_passenger_controlled_by_player(thing, my_player_number)) )
     {
@@ -446,9 +418,9 @@ void update_creature_graphic_anim(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
 
-    if ((thing->field_50 & 0x01) != 0)
+    if ((thing->size_change & TSC_ChangeSize) != 0)
     {
-      thing->field_50 &= ~0x01;
+      thing->size_change &= ~TSC_ChangeSize;
     } else
     if ((thing->active_state == CrSt_CreatureHeroEntering) && (cctrl->countdown_282 >= 0))
     {
@@ -467,50 +439,50 @@ void update_creature_graphic_anim(struct Thing *thing)
         } else
         if ((cctrl->frozen_on_hit != 0) || creature_is_dying(thing) || creature_affected_by_spell(thing, SplK_Freeze))
         {
-            update_creature_anim(thing, 256, 8);
+            update_creature_anim(thing, 256, CGI_GotHit);
         } else
         if ((cctrl->stateblock_flags & CCSpl_ChickenRel) != 0)
         {
-            update_creature_anim(thing, 256, 0);
+            update_creature_anim(thing, 256, CGI_Stand);
         } else
         if (thing->active_state == CrSt_CreatureSlapCowers)
         {
-            update_creature_anim(thing, 256, 10);
+            update_creature_anim(thing, 256, CGI_GotSlapped);
         } else
         if ((thing->active_state == CrSt_CreaturePiss) || (thing->active_state == CrSt_CreatureRoar))
         {
-            update_creature_anim(thing, 128, 4);
+            update_creature_anim(thing, 128, CGI_Dig);
         } else
         if (thing->active_state == CrSt_CreatureUnconscious)
         {
-            update_creature_anim(thing, 64, 16);
-            thing->rendering_flags |= TRF_Unmoving;
+            update_creature_anim(thing, 64, CGI_DropDead);
+            thing->rendering_flags |= TRF_AnimateOnce;
         } else
         if (thing->active_state == CrSt_CreatureSleep)
         {
             thing->rendering_flags &= ~(TRF_Transpar_Flags);
-            update_creature_anim(thing, 128, 12);
+            update_creature_anim(thing, 128, CGI_Sleep);
         } else
         if (cctrl->distance_to_destination == 0)
         {
-            update_creature_anim(thing, 256, 0);
+            update_creature_anim(thing, 256, CGI_Stand);
         } else
         if (thing->floor_height < thing->mappos.z.val)
         {
-            update_creature_anim(thing, 256, 0);
+            update_creature_anim(thing, 256, CGI_Stand);
         } else
         if ((cctrl->dragtng_idx != 0) && (thing_get(cctrl->dragtng_idx)->state_flags & TF1_IsDragged1))
         {
             i = (((long)cctrl->distance_to_destination) << 8) / (crstat->walking_anim_speed+1);
-            update_creature_anim(thing, i, 2);
+            update_creature_anim(thing, i, CGI_Drag);
         } else
         if (creatures[thing->model].field_6 == 4)
         {
-            update_creature_anim(thing, 256, 1);
+            update_creature_anim(thing, 256, CGI_Ambulate);
         } else
         {
             i = (((long)cctrl->distance_to_destination) << 8) / (crstat->walking_anim_speed+1);
-            if (!update_creature_anim(thing, i, 1))
+            if (!update_creature_anim(thing, i, CGI_Ambulate))
             {
                 thing->anim_speed = i;
             }
@@ -552,29 +524,12 @@ void update_creature_graphic_tint(struct Thing *thing)
     {
         untint_thing(thing);
     } else
-    if ((game.play_gameturn % 3) == 0)
+    if (((game.play_gameturn % 3) == 0) || is_hero_thing(thing))
     {
         untint_thing(thing);
     } else
     {
-        switch (thing->owner) //TODO: move player colors to array
-        {
-        case 0:
-            tint_thing(thing, colours[15][0][0], 1);
-            break;
-        case 1:
-            tint_thing(thing, colours[0][0][15], 1);
-            break;
-        case 2:
-            tint_thing(thing, colours[0][15][0], 1);
-            break;
-        case 3:
-            tint_thing(thing, colours[13][13][2], 1);
-            break;
-        default:
-            untint_thing(thing);
-            break;
-        }
+        tint_thing(thing, possession_hit_colours[get_player_color_idx(thing->owner)], 1);
     }
 }
 
@@ -585,6 +540,41 @@ void set_creature_graphic(struct Thing *thing)
     // Update tint
     update_creature_graphic_tint(thing);
 }
+
+size_t creature_table_load_get_size(size_t disk_size)
+{
+    size_t items = disk_size / sizeof(struct KeeperSpriteDisk);
+    if (items * sizeof(struct KeeperSpriteDisk) != disk_size)
+    {
+        ERRORLOG("Unexpected creature.tab");
+    }
+    return items * sizeof(struct KeeperSprite);
+}
+
+void creature_table_load_unpack(unsigned char *src_buf, size_t disk_size)
+{
+    size_t items = disk_size / sizeof(struct KeeperSpriteDisk);
+    struct KeeperSpriteDisk* src = (struct KeeperSpriteDisk*)src_buf;
+    struct KeeperSprite *tmp = malloc(items * sizeof(struct KeeperSprite));
+    for (int i = 0; i < items; i++, src++)
+    {
+        tmp[i].DataOffset = src->DataOffset;
+        tmp[i].SWidth = src->SWidth;
+        tmp[i].SHeight = src->SHeight;
+        tmp[i].FrameWidth = src->FrameWidth;
+        tmp[i].FrameHeight = src->FrameHeight;
+        tmp[i].Rotable = src->Rotable;
+        tmp[i].FramesCount = src->FramesCount;
+        tmp[i].FrameOffsW = src->FrameOffsW;
+        tmp[i].FrameOffsH = src->FrameOffsH;
+        tmp[i].offset_x = src->offset_x;
+        tmp[i].offset_y = src->offset_y;
+        tmp[i].shadow_offset = 0;
+    }
+    memcpy(src_buf, tmp, items * sizeof(struct KeeperSprite));
+    free(tmp);
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

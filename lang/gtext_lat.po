@@ -819,7 +819,7 @@ msgstr ""
 #: guitext:90
 msgctxt "In-game message"
 msgid ""
-"You have a manufactured a Boulder Trap. Place it in a corridor and howl "
+"You have manufactured a Boulder Trap. Place it in a corridor and howl "
 "deliriously as it rumbles inexorably towards unwary trespassers."
 msgstr ""
 
@@ -5602,10 +5602,38 @@ msgid ""
 "become the horror stories of generations."
 msgstr ""
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "Ostium secretum"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
 msgstr ""
+"Ostium secretum: Ostium speciale, hostibus occultum, maculosum esse potest cum inspiciendo, vel cum unitates tuae aperiunt cum hoste aspiciendo. RMB zoom."
+
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret Door discovered: LMB toggle. RMB delete."
+msgstr "Secretum ostium inventum"
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret Door discovered"
+msgstr "Secretum ostium inventum"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
+msgstr "Hostis maculosus secretas ianuas tuas"
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "Hostis maculosus secretas ianuas tuas"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
@@ -5953,7 +5981,6 @@ msgctxt "In-game interface item"
 msgid "Ambience"
 msgstr ""
 
-msgstr ""
 #: guitext:1010
 msgctxt "Unused"
 msgid "Moo4"
@@ -5961,7 +5988,7 @@ msgstr ""
 
 #: guitext:1011
 msgctxt "Menu interface item""
-msgid "Dungeon Keeper original campaign"
+msgid "Dungeon Keeper - Original Campaign"
 msgstr ""
 
 #: guitext:1012
@@ -6041,7 +6068,7 @@ msgstr ""
 
 #: guitext:1027
 msgctxt "Menu interface item""
-msgid "A Dungeon Keeper - New Game+"
+msgid "Dungeon Keeper - NG+"
 msgstr ""
 
 #: guitext:1028
@@ -6072,4 +6099,66 @@ msgstr ""
 #: guitext:1033
 msgctxt "Menu interface item""
 msgid "Undead Keeper campaign"
+msgstr ""
+
+#: guitext:1034 guitext:1035
+msgctxt "Unused"
+msgid "Moo5"
+msgstr ""
+
+#: guitext:1036
+msgctxt "Trap names"
+msgid "Demolition Trap"
+msgstr ""
+
+#: guitext:1037
+msgctxt "Trap description"
+msgid ""
+"Demolition Trap: An explosive with unrivaled destructive power."
+msgstr ""
+
+#: guitext:1038
+msgctxt "Trap description"
+msgid ""
+"Sentry Trap: Stands guard and shoots at enemies in sight."
+msgstr ""
+
+#: guitext:1039 guitext:1040
+msgctxt "Unused"
+msgid "Moo6"
+msgstr ""
+
+#: guitext:1041
+msgctxt "Creature name"
+msgid "Spirit"
+msgstr ""
+
+#: guitext:1042
+msgctxt "Creature name"
+msgid "Druid"
+msgstr ""
+
+#: guitext:1043
+msgctxt "Creature name"
+msgid "Time Mage"
+msgstr ""
+
+#: guitext:1044 guitext:1045 guitext:1046 guitext:1047 guitext:1048 guitext:1049
+msgctxt "Unused"
+msgid "Moo7"
+msgstr ""
+
+#: guitext:1050
+msgctxt "Slab description"
+msgid "Rock Formation."
+msgstr ""
+
+#: guitext:1051
+msgctxt "Slab description"
+msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
+msgstr ""
+
+#: guitext:1052
+msgctxt "Slab description"
+msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr ""

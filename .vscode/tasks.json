@@ -1,0 +1,154 @@
+{
+	"version": "2.0.0",
+	"inputs": [
+		{
+			"id": "debugChoice",
+			"type": "pickString",
+			"description": "Choose the debug option:",
+			"options": [
+				"DEBUG=1\t\t\t(debug symbols ON)",
+				"DEBUG=0\t[default]\t(debug symbols OFF)",
+				"FTEST_DEBUG=1\t\t(debug symbols ON, functional tests ON)",
+				"FTEST_DEBUG=0\t\t(debug symbols OFF, functional tests ON)"
+			],
+			"default": "DEBUG=0"
+		}
+	],
+	"tasks": [
+		{
+			"label": "Default task",
+			"type": "shell",
+			"windows": {
+				"command": [
+					"$script = '{0}' -f '${workspaceFolder}\\.vscode\\default_task.ps1';",
+					"$compileSettingsFile = '{0}' -f '${workspaceFolder}\\.vscode\\compile_settings.cfg';",
+					"powershell -ExecutionPolicy Bypass -File \\\"${script}\\\" -workspaceFolder \\\"${workspaceFolder}\\\" -compileSettingsFile \\\"${compileSettingsFile}\\\" -debugChoice \\\"${input:debugChoice}\\\";",
+				]
+			},
+			"linux": {
+				"command": [
+					"chmod +x '${workspaceFolder}/.vscode/linuxscript.sh';",
+					"'${workspaceFolder}/.vscode/linuxscript.sh' '${workspaceFolder}'"
+				]
+			},
+			"problemMatcher": "$gcc",
+			"group": {"kind": "build","isDefault": true},
+			"presentation": {
+				"clear": true,
+				"echo": false,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared",
+				"showReuseMessage": false
+			}
+		},
+		{
+			// Called by launch.json
+			"label": "Compile, Copy Files",
+			"type": "shell",
+			"windows": {
+				"command": [
+					"$script = '{0}' -f '${workspaceFolder}\\.vscode\\compile_and_copy_files.ps1';",
+					"$launchJsonFile = '{0}' -f '${workspaceFolder}\\.vscode\\launch.json';",
+					"$compileSettingsFile = '{0}' -f '${workspaceFolder}\\.vscode\\compile_settings.cfg';",
+					"powershell -ExecutionPolicy Bypass -File \\\"${script}\\\" -workspaceFolder \\\"${workspaceFolder}\\\" -launchJsonFile \\\"${launchJsonFile}\\\" -compileSettingsFile \\\"${compileSettingsFile}\\\";",
+				],
+			},
+			"linux": {"command": []},
+			"problemMatcher": "$gcc",
+			"group": "build",
+			"presentation": {
+				"clear": true,
+				"echo": false,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared",
+				"showReuseMessage": false
+			}
+		},
+		{
+			// After the project is first opened, settings.json and launch.json will be created
+			"label": "Create settings.json and launch.json",
+			"type": "shell",
+			"windows": {
+				"command": [
+					"$script = '{0}' -f '${workspaceFolder}\\.vscode\\create_settings_and_launch_files.ps1';",
+					"$templateSettingsFile = '{0}' -f '${workspaceFolder}\\.vscode\\defaultsettings';",
+					"$templateLaunchFile = '{0}' -f '${workspaceFolder}\\.vscode\\defaultlaunch';",
+					"$settingsJsonFile = '{0}' -f '${workspaceFolder}\\.vscode\\settings.json';",
+					"$launchJsonFile = '{0}' -f '${workspaceFolder}\\.vscode\\launch.json';",
+					"powershell -ExecutionPolicy Bypass -File \\\"${script}\\\" -workspaceFolder \\\"${workspaceFolder}\\\" -templateSettingsFile \\\"${templateSettingsFile}\\\" -templateLaunchFile \\\"${templateLaunchFile}\\\" -settingsJsonFile \\\"${settingsJsonFile}\\\" -launchJsonFile \\\"${launchJsonFile}\\\" ;",
+				]
+			},
+			"linux": {
+				"command": [
+					"if [ ! -f \"${workspaceFolder}/.vscode/settings.json\" ]; then",
+					"    cp \"${workspaceFolder}/.vscode/defaultsettings\" \"${workspaceFolder}/.vscode/settings.json\";",
+					"    echo \"/.vscode/settings.json was created.\";",
+					"fi;",
+					"if [ ! -f \"${workspaceFolder}/.vscode/launch.json\" ]; then",
+					"    cp \"${workspaceFolder}/.vscode/defaultlaunch\" \"${workspaceFolder}/.vscode/launch.json\";",
+					"    echo \"/.vscode/launch.json was created, but it won't work on linux. Use Ctrl+Shift+B instead.\";",
+					"fi;",
+					"if [ ! -f \"${workspaceFolder}/.vscode/linuxscript.sh\" ]; then",
+					"    cp \"${workspaceFolder}/.vscode/defaultlinuxscript\" \"${workspaceFolder}/.vscode/linuxscript.sh\";",
+					"    echo \"/.vscode/linuxscript.sh was created, please edit it and fill in your game directories.\";",
+					"fi"
+				]
+			},
+			"problemMatcher": "$gcc",
+			"runOptions": {"runOn": "folderOpen"},
+			"group": "build",
+			"presentation": {
+				"echo": false,
+				"focus": true,
+				"panel": "shared",
+				"showReuseMessage": false
+			}
+		},
+		{
+			"label": "Log",
+			"type": "shell",
+			"windows": {
+				"command": [
+					"$gameDir = (Get-Content -Raw '${workspaceFolder}\\.vscode\\launch.json' | Select-String -Pattern '\\\"cwd\\\"\\s*:\\s*\\\"(.*?)\\\"').Matches[0].Groups[1].Value.Replace('\\', '/');",
+					"cd $gameDir;",
+					"Clear-Content keeperfx.log;",
+					"Get-Content keeperfx.log -Wait"
+				]
+			},
+			"linux": {},
+			"problemMatcher": "$gcc",
+			"dependsOn": "Check For Game Directory",
+			"group": "build"
+		},
+		{
+			"label": "Clean",
+			"type": "shell",
+			"windows": {
+				"command": "wsl make clean -j`nproc`"
+			},
+			"linux": {
+				"command": "make clean -j`nproc`"
+			},
+			"problemMatcher": "$gcc",
+			"group": "build"
+		},
+		{
+			"label": "Generate compile_commands.json",
+			"type": "shell",
+			"windows": {
+				"command": [
+					"wsl make clean-build clean-tools;",
+					"wsl bear -- make -j2 standard"
+				]
+			},
+			"linux": {
+				"command": "make clean-build clean-tools && bear -- make -j2 standard"
+			},
+			"problemMatcher": "$gcc",
+			"group": "build",
+			"dependsOn": "Compile",
+		},
+	],
+}

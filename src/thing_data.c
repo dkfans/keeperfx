@@ -90,9 +90,6 @@ struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const ch
     game.free_things_start_index++;
     TRACE_THING(thing);
 
-    struct ThingAdd* thingadd = get_thingadd(thing->index);
-    LbMemorySet(thingadd, 0, sizeof(struct ThingAdd)); // Clear any previously used ThingAdd stuff
-    
     return thing;
 }
 
@@ -117,7 +114,7 @@ TbBool i_can_allocate_free_thing_structure(unsigned char allocflags)
     }
     if ((game.free_things_start_index > THINGS_COUNT - 2) && ((allocflags & FTAF_FreeEffectIfNoSlots) != 0))
     {
-        show_onscreen_msg(2 * game.num_fps, "Warning: Cannot create thing, %d/%d thing slots used.", game.free_things_start_index + 1, THINGS_COUNT);
+        show_onscreen_msg(2 * game_num_fps, "Warning: Cannot create thing, %d/%d thing slots used.", game.free_things_start_index + 1, THINGS_COUNT);
     }
     return false;
 }
@@ -145,6 +142,8 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
     }
     if (!a2)
     {
+        delete_effects_attached_to_creature(thing);
+        delete_familiars_attached_to_creature(thing);
         if (thing->light_id != 0) {
             light_delete_light(thing->light_id);
             thing->light_id = 0;
@@ -228,6 +227,14 @@ TbBool thing_exists(const struct Thing *thing)
     return true;
 }
 
+/**
+ * @param In a player hand, excludes creature controlled limbo like hero gates
+  */
+TbBool thing_is_in_limbo(const struct Thing* thing)
+{
+    return (thing->alloc_flags & TAlF_IsInLimbo);
+}
+
 TbBool thing_is_dragged_or_pulled(const struct Thing *thing)
 {
     return ((thing->state_flags & TF1_IsDragged1) != 0) || ((thing->alloc_flags & TAlF_IsDragged) != 0);
@@ -240,21 +247,25 @@ struct PlayerInfo *get_player_thing_is_controlled_by(const struct Thing *thing)
     return get_player(thing->owner);
 }
 
-void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char a5, char start_frame, unsigned char draw_class)
+void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char animate_once, char start_frame, unsigned char draw_class)
 {
     unsigned long i;
     thing->anim_sprite = convert_td_iso(anim);
-    thing->field_50 &= 0x03;
-    thing->field_50 |= (draw_class << 2);
+    thing->draw_class = draw_class;
     thing->max_frames = keepersprite_frames(thing->anim_sprite);
     if (speed != -1) {
         thing->anim_speed = speed;
     }
-    if (scale != -1) {
+    if (scale != -1)
+    {
         thing->sprite_size = scale;
+        if (object_is_gold_pile(thing))
+        {
+            add_gold_to_pile(thing, 0); //makes sure scale is correct based on gold value
+        }
     }
-    if (a5 != -1) {
-        set_flag_byte(&thing->rendering_flags, TRF_Unmoving, a5);
+    if (animate_once != -1) {
+        set_flag_value(thing->rendering_flags, TRF_AnimateOnce, animate_once);
     }
     if (start_frame == -2)
     {
@@ -278,7 +289,7 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
 void query_thing(struct Thing *thing)
 {
     struct Thing *querytng;
-    if ( (thing->class_id == TCls_Object) && (thing->model == 44) && (!is_key_pressed(KC_LALT, KMod_DONTCARE)) )
+    if ( (thing->class_id == TCls_Object) && (thing->model == ObjMdl_SpinningKey) && (!is_key_pressed(KC_LALT, KMod_DONTCARE)) )
     {
         querytng = get_door_for_position(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     }   
@@ -292,7 +303,7 @@ void query_thing(struct Thing *thing)
         const char* name = thing_model_name(querytng);
         const char owner[24]; 
         const char health[24];
-        const char position[24];
+        const char position[29];
         const char amount[24] = "\0";
         char output[36];
         sprintf((char*)title, "Thing ID: %d", querytng->index);
@@ -300,29 +311,29 @@ void query_thing(struct Thing *thing)
         sprintf((char*)position, "Pos: X:%d Y:%d Z:%d", querytng->mappos.x.stl.num, querytng->mappos.y.stl.num, querytng->mappos.z.stl.num);
         if (querytng->class_id == TCls_Trap)
         {
-            struct ManfctrConfig *mconf = &gameadd.traps_config[querytng->model];
-            sprintf((char*)health, "Shots: %d/%d", querytng->trap.num_shots, mconf->shots);
+            struct ManfctrConfig *mconf = &game.conf.traps_config[querytng->model];
+            sprintf((char*)health, "Health: %ld", querytng->health);
+            sprintf((char*)amount, "Shots: %d/%d", querytng->trap.num_shots, mconf->shots);
         }
         else
         {
             if (querytng->class_id == TCls_Object)
             {
+                struct ObjectConfigStats* objst = get_object_model_stats(querytng->model);
                 if (object_is_gold(querytng))
                 {
                     sprintf((char*)amount, "Amount: %ld", querytng->valuable.gold_stored);   
                 }
+                sprintf((char*)health, "Health: %ld/%ld", querytng->health, objst->health);
             }  
-            sprintf((char*)health, "Health: %ld", querytng->health);
+            else 
             if (querytng->class_id == TCls_Door)
             {
-                sprintf(output, "%s/%ln", health, &gameadd.trapdoor_conf.door_cfgstats[querytng->model].health);
+                sprintf(output, "%s/%ln", health, &game.conf.trapdoor_conf.door_cfgstats[querytng->model].health);
             }
-            else if (querytng->class_id == TCls_Object)
+            else
             {
-                if (querytng->model == 5)  //todo make model independent
-                {
-                    sprintf(output, "%s/%ld", health, game.dungeon_heart_health);
-                }
+                sprintf((char*)health, "Health: %ld", querytng->health);
             }
         }
         create_message_box((const char*)&title, name, (const char*)&owner, (const char*)&health, (const char*)&position, (const char*)&amount);

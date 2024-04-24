@@ -26,12 +26,14 @@
 #include "bflib_fileio.h"
 #include "bflib_memory.h"
 #include "bflib_math.h"
+#include "bflib_planar.h"
 #include "bflib_bufrw.h"
 #include "engine_render.h"
 #include "map_utils.h"
 #include "engine_camera.h"
 #include "gui_soundmsgs.h"
 #include "gui_topmsg.h"
+#include "front_landview.h"
 #include "frontmenu_ingame_evnt.h"
 #include "thing_data.h"
 #include "thing_navigate.h"
@@ -45,6 +47,7 @@
 #include "creature_states.h"
 #include "thing_objects.h"
 #include "config.h"
+#include "lvl_script_commands.h"
 
 #include "keeperfx.hpp"
 #include "game_heap.h"
@@ -63,8 +66,10 @@ const char foot_down_sound_sample_variant[] = {
 char sound_dir[64] = "SOUND";
 int atmos_sound_frequency = 800;
 static char ambience_timer;
+int sdl_flags = 0;
+Mix_Chunk* streamed_sample;
 /******************************************************************************/
-void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pitch, char a4, unsigned char a5, unsigned char a6, long a7, long loudness)
+void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pitch, char a4, unsigned char a5, unsigned char a6, long priority, long loudness)
 {
     if (SoundDisabled)
         return;
@@ -76,18 +81,34 @@ void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pit
     rcpos.x.val = Receiver.pos.val_x;
     rcpos.y.val = Receiver.pos.val_y;
     rcpos.z.val = Receiver.pos.val_z;
-    if (get_3d_box_distance(&rcpos, &thing->mappos) < MaxSoundDistance)
+    if (get_chessboard_3d_distance(&rcpos, &thing->mappos) < MaxSoundDistance)
     {
         long eidx = thing->snd_emitter_id;
         if (eidx > 0)
         {
-            S3DAddSampleToEmitterPri(eidx, smptbl_idx, 0, pitch, loudness, a4, a5, a6 | 0x01, a7);
+            S3DAddSampleToEmitterPri(eidx, smptbl_idx, 0, pitch, loudness, a4, a5, a6 | 0x01, priority);
         } else
         {
             eidx = S3DCreateSoundEmitterPri(thing->mappos.x.val, thing->mappos.y.val, thing->mappos.z.val,
-               smptbl_idx, 0, pitch, loudness, a4, a6 | 0x01, a7);
+               smptbl_idx, 0, pitch, loudness, a4, a6 | 0x01, priority);
            thing->snd_emitter_id = eidx;
         }
+    }
+}
+
+void play_sound_if_close_to_receiver(struct Coord3d *soundpos, short smptbl_idx)
+{
+    if (SoundDisabled)
+        return;
+    if (GetCurrentSoundMasterVolume() <= 0)
+        return;
+    struct Coord3d rcpos;
+    rcpos.x.val = Receiver.pos.val_x;
+    rcpos.y.val = Receiver.pos.val_y;
+    rcpos.z.val = Receiver.pos.val_z;
+    if (get_chessboard_3d_distance(&rcpos, soundpos) < MaxSoundDistance)
+    {
+        play_non_3d_sample(smptbl_idx);
     }
 }
 
@@ -110,11 +131,15 @@ void play_thing_walking(struct Thing *thing)
         return;
     }
     long loudness = (myplyr->view_mode == PVM_CreatureView) ? (FULL_LOUDNESS) : (FULL_LOUDNESS / 5);
-    // Flying diptera has a buzzing noise sound
-    if ((get_creature_model_flags(thing) & CMF_IsDiptera) && ((thing->movement_flags & TMvF_Flying) != 0) && (thing->floor_height < (int)thing->mappos.z.val))
+    if (((thing->movement_flags & TMvF_Flying) != 0) && (thing->floor_height < (int)thing->mappos.z.val))
     {
-        if ( !S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25, 0) ) {
-            thing_play_sample(thing, 25, 100, -1, 2, 0, 2, loudness);
+        // Flying diptera has a buzzing noise sound
+        if (get_creature_model_flags(thing) & CMF_IsDiptera)
+        {
+            if (!S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25, 0))
+            {
+                thing_play_sample(thing, 25, 100, -1, 2, 0, 2, loudness);
+            }
         }
     }
     else
@@ -217,7 +242,7 @@ void find_nearest_rooms_for_ambient_sound(void)
             struct Room* room = subtile_room_get(stl_x, stl_y);
             if (room_is_invalid(room))
                 continue;
-            struct RoomConfigStats* roomst = &slab_conf.room_cfgstats[room->kind];
+            struct RoomConfigStats* roomst = &game.conf.slab_conf.room_cfgstats[room->kind];
             long k = roomst->ambient_snd_smp_id;
             if (k > 0)
             {
@@ -269,10 +294,7 @@ void update_player_sounds(void)
         process_messages();
         if (!SoundDisabled)
         {
-            if (game.audiotrack >= FIRST_TRACK && game.audiotrack <= max_track)
-            {
-                PlayMusicPlayer(game.audiotrack);
-            }
+            PlayMusicPlayer(game.audiotrack);
             update_3d_sound_receiver(player);
         }
         game.play_gameturn++;
@@ -282,31 +304,45 @@ void update_player_sounds(void)
     int k = (game.bonus_time - game.play_gameturn) / 2;
     if (bonus_timer_enabled())
     {
-      if ((game.bonus_time == game.play_gameturn) ||
-         ((game.bonus_time > game.play_gameturn) && (((k <= 100) && ((k % 10) == 0)) ||
-          ((k<=300) && ((k % 50) == 0)) || ((k % 250) == 0))) )
+        if ((game.bonus_time == game.play_gameturn) ||
+            ((game.bonus_time > game.play_gameturn) &&
+            (   ((k <= 100)  && ((k % 10) == 0)) ||
+                ((k <= 300)  && ((k % 50) == 0)) ||
+                ((k <= 5000) && ((k % 250) == 0)) ||
+                                ((k % 5000) == 0)    )  ))
         play_non_3d_sample(89);
     }
     if (game.play_gameturn != 0)
     {
-        // Rare message easter egg
-        if ((game.play_gameturn % 20000) == 0)
+        // Easter Egg Speeches
+
+        // Interval for easter egg speeches. Original DK value was 20000 (16.6 minutes)
+        if (game.conf.rules.game.easter_egg_speech_interval != 0 && (game.play_gameturn % game.conf.rules.game.easter_egg_speech_interval) == 0)
         {
-            if (UNSYNC_RANDOM(2000) == 0)
+            // The chance for the easter egg speech to trigger. Original DK value was 1/2000
+            if (game.conf.rules.game.easter_egg_speech_chance != 0 && UNSYNC_RANDOM(game.conf.rules.game.easter_egg_speech_chance) == 0)
             {
-              k = UNSYNC_RANDOM(10);
-              SYNCDBG(9,"Rare message condition met, selected %d",(int)k);
-              if (k == 7)
-              {
-            output_message(SMsg_PantsTooTight, 0, true);
-              } else
-              {
-                output_message(SMsg_FunnyMessages+k, 0, true);
-              }
+                // Select a random Easter egg speech
+                k = UNSYNC_RANDOM(10);
+                SYNCDBG(9,"Rare message condition met, selected %d",(int)k);
+
+                if (k == 7)
+                {
+                    // Replace SMsg_Glaagh with SMsg_PantsTooTight
+                    // Most likely because 'Glaagh' is a bit negative in this scenario
+                    output_message(SMsg_PantsTooTight, 0, true);
+                }
+                else
+                {
+                    // Play one of the speeches
+                    output_message(SMsg_FunnyMessages+k, 0, true);
+                }
             }
-        // Atmospheric background sound, replaces AWE soundfont
-        } else
+
+        }
+        else
         {
+            // Atmospheric background sound, replaces AWE soundfont
             if ( atmos_sounds_enabled() )
             {
                 //Plays a sound on repeat, default sound sample 1013(water drops), with a small chance of a random other sound from the range.
@@ -358,6 +394,9 @@ void process_sound_heap(void)
     long i = 0;
     SYNCDBG(9,"Starting");
     struct SampleInfo* smpinfo_last = GetLastSampleInfoStructure();
+    if (smpinfo_last == NULL) {
+        return;
+    }
     for (struct SampleInfo* smpinfo = GetFirstSampleInfoStructure(); smpinfo <= smpinfo_last; smpinfo++)
     {
       if ( (smpinfo->field_0 != 0) && ((smpinfo->flags_17 & 0x01) != 0) )
@@ -480,6 +519,7 @@ TbBool init_sound(void)
     snd_settng->redbook_enable = IsRedbookMusicActive();
     snd_settng->sound_system = 0;
     InitAudio(snd_settng);
+    sdl_flags = InitialiseSDLAudio();
     InitializeMusicPlayer();
     if (!GetSoundInstalled())
     {
@@ -625,6 +665,26 @@ void sound_reinit_after_load(void)
     }
     ambient_sound_stop();
     init_messages();
+    free_sound_chunks();
+    for (unsigned int sample = 0; sample <= EXTERNAL_SOUNDS_COUNT; sample++)
+    {
+        char *sound = &game.loaded_sound[sample][0];
+        if (sound[0] != '\0')
+        {
+            char *fname = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", sound);
+            Ext_Sounds[sample] = Mix_LoadWAV(fname);
+            if (Ext_Sounds[sample] != NULL)
+            {
+                Mix_VolumeChunk(Ext_Sounds[sample], settings.sound_volume);
+                SYNCLOG("Loaded sound file %s into slot %u.", fname, sample);
+                game.sounds_count++;
+            }
+            else
+            {
+                ERRORLOG("Could not reload sound %s (slot %u): %s", fname, sample, Mix_GetError());
+            }
+        }
+    }
 }
 
 void stop_thing_playing_sample(struct Thing *thing, short smpl_idx)
@@ -690,7 +750,7 @@ void update_first_person_object_ambience(struct Thing *thing)
     ThingIndex nearest_sounds[3];
     MapCoordDelta sound_distances[3];
     long hearing_range;
-    struct Objects* objdat;
+    struct ObjectConfigStats* objst;
     if (thing->class_id == TCls_Creature)
     {
         struct CreatureStats* crstat = creature_stats_get(thing->model);
@@ -711,10 +771,10 @@ void update_first_person_object_ambience(struct Thing *thing)
              !thing_is_invalid(objtng);
              objtng = thing_get(objtng->next_of_class))
         {
-            objdat = get_objects_data_for_thing(objtng);
-            if (objdat->fp_smpl_idx != 0)
+            objst = get_object_model_stats(objtng->model);
+            if ((objst->fp_smpl_idx != 0) && !thing_is_picked_up(objtng))
             {
-                new_distance = get_2d_box_distance(&thing->mappos, &objtng->mappos);
+                new_distance = get_chessboard_distance(&thing->mappos, &objtng->mappos);
                 if (new_distance <= hearing_range)
                 {
                     if (new_distance <= sound_distances[0])
@@ -731,7 +791,7 @@ void update_first_person_object_ambience(struct Thing *thing)
                 }
                 else
                 {
-                    stop_thing_playing_sample(objtng, objdat->fp_smpl_idx);
+                    stop_thing_playing_sample(objtng, objst->fp_smpl_idx);
                 }
             }
         }
@@ -740,16 +800,114 @@ void update_first_person_object_ambience(struct Thing *thing)
             audtng = thing_get(nearest_sounds[i]);
             if (!thing_is_invalid(audtng))
             {
-                objdat = get_objects_data_for_thing(audtng);
-                if (!S3DEmitterIsPlayingSample(audtng->snd_emitter_id, objdat->fp_smpl_idx, 0))
+                objst = get_object_model_stats(audtng->model);
+                if (!S3DEmitterIsPlayingSample(audtng->snd_emitter_id, objst->fp_smpl_idx, 0))
                 {
                     long volume = line_of_sight_2d(&thing->mappos, &audtng->mappos) ? FULL_LOUDNESS : 128;
-                    thing_play_sample(audtng, objdat->fp_smpl_idx, NORMAL_PITCH, -1, 3, 1, 2, volume);
+                    thing_play_sample(audtng, objst->fp_smpl_idx, NORMAL_PITCH, -1, 3, 1, 2, volume);
                 }
             }
         }
     }
     ambience_timer = (ambience_timer + 1) % 4;
+}
+
+int InitialiseSDLAudio()
+{
+    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+        ERRORLOG("Unable to initialise SDL audio subsystem: %s", SDL_GetError());
+        return 0;
+    }
+    int flags = Mix_Init(MIX_INIT_OGG|MIX_INIT_MP3);
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) < 0)
+    {
+        ERRORLOG("Could not open audio device for SDL mixer: %s", Mix_GetError());
+        Mix_Quit();
+        return 0;
+    }
+    Mix_ReserveChannels(1); // reserve for external speech samples
+    return flags;
+}
+
+void ShutDownSDLAudio()
+{
+    int frequency, channels;
+    unsigned short format;
+    int i = Mix_QuerySpec(&frequency, &format, &channels);
+    if (i == 0)
+    {
+        ERRORLOG("Could not query SDL mixer: %s", Mix_GetError());
+    }
+    while (i > 0)
+    {
+        Mix_CloseAudio();
+        i--;
+    }
+    while (Mix_Init(0))
+    {
+        Mix_Quit();
+    }
+}
+
+void free_sound_chunks()
+{
+    Mix_HaltChannel(-1);
+    for (int i = 0; i <= EXTERNAL_SOUNDS_COUNT; i++)
+    {
+        if (Ext_Sounds[i] != NULL)
+        {
+            Mix_FreeChunk(Ext_Sounds[i]);
+            Ext_Sounds[i] = NULL;
+        }
+    }
+    game.sounds_count = 0;
+}
+
+void play_external_sound_sample(unsigned char smpl_id)
+{
+    if (Mix_PlayChannel(-1, Ext_Sounds[smpl_id], 0) == -1)
+    {
+        ERRORLOG("Could not play sound %s: %s", &game.loaded_sound[smpl_id][0], Mix_GetError());
+    }
+}
+
+TbBool play_streamed_sample(char* fname, int volume, int loops)
+{
+    if (!SoundDisabled)
+    {
+        if (streamed_sample != NULL)
+        {
+            WARNLOG("Overwriting loaded sample.");
+            stop_streamed_sample();
+        }
+        streamed_sample = Mix_LoadWAV(fname);
+        if (streamed_sample != NULL)
+        {
+            Mix_VolumeChunk(streamed_sample, volume);
+            if (Mix_PlayChannel(DESCRIPTION_CHANNEL, streamed_sample, loops) == -1)
+            {
+                ERRORLOG("Could not play sound %s: %s", fname, Mix_GetError());
+                return false;
+            }
+        }
+        else
+        {
+            ERRORLOG("Could not load sound %s: %s", fname, Mix_GetError());
+            return false;
+        }
+        return true;
+    }
+    return false;
+}
+
+void stop_streamed_sample()
+{
+    Mix_HaltChannel(DESCRIPTION_CHANNEL);
+    if (streamed_sample != NULL)
+    {
+        Mix_FreeChunk(streamed_sample);
+        streamed_sample = NULL;
+    }
 }
 /******************************************************************************/
 #ifdef __cplusplus

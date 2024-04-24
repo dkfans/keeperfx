@@ -20,6 +20,7 @@
 #define DK_DNGN_DATA_H
 
 #include "bflib_basics.h"
+#include "config_magic.h"
 #include "config_trapdoor.h"
 #include "config_terrain.h"
 #include "player_computer.h"
@@ -41,11 +42,10 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define DUNGEONS_COUNT              5
+#define DUNGEONS_COUNT              9
 #define DIGGER_TASK_MAX_COUNT       64
-#define DUNGEON_RESEARCH_COUNT      34
-#define MAX_THINGS_IN_HAND          8
-#define KEEPER_POWERS_COUNT         20
+#define DUNGEON_RESEARCH_COUNT      64
+#define MAX_THINGS_IN_HAND          64
 #define TURN_TIMERS_COUNT           8
 #define SCRIPT_FLAGS_COUNT          8
 #define MAX_SOE_RADIUS              13
@@ -54,7 +54,6 @@ extern "C" {
 #define FX_LINES_COUNT              32
 
 #define INVALID_DUNGEON (&bad_dungeon)
-#define INVALID_DUNGEON_ADD (&bad_dungeonadd)
 
 enum CreatureGUIJob {
     CrGUIJob_Any        =-1,
@@ -83,10 +82,8 @@ enum DungeonManufactureBuildFlags {
 };
 
 /******************************************************************************/
-#pragma pack(1)
-
 struct DiggerStack {
-      unsigned short stl_num;
+      SubtlCodedCoords stl_num;
       SpDiggerTaskType task_type;
 };
 
@@ -101,6 +98,50 @@ struct TurnTimer {
   unsigned char state;
 };
 
+struct TrapInfo
+{
+    unsigned char trap_amount_offmap[TRAPDOOR_TYPES_MAX];
+    unsigned char trap_amount_stored[TRAPDOOR_TYPES_MAX];
+    /** Stores flag information about players manufacture of traps of specific kind. */
+    unsigned char trap_build_flags[TRAPDOOR_TYPES_MAX];
+    /** Amount of traps of every kind for which we can place blueprints. This include both off-map traps and on-map trap boxes.*/
+    unsigned char trap_amount_placeable[TRAPDOOR_TYPES_MAX];
+    /** Amount of doors of every kind which are stored in workshops. Only on-map door crates which exist in workshop are mentioned here.*/
+
+    unsigned char door_amount_offmap[TRAPDOOR_TYPES_MAX];
+    unsigned char door_amount_stored[TRAPDOOR_TYPES_MAX];
+    /** Stored flag information about players manufacture of doors of specific kind. */
+    unsigned char door_build_flags[TRAPDOOR_TYPES_MAX];
+    /** Stored information whether player can place blueprints of doors of specific kind (actually, doors are placed instantly). */
+    unsigned char door_amount_placeable[TRAPDOOR_TYPES_MAX];
+
+};
+
+struct BoxInfo
+{
+    uint8_t               activated[CUSTOM_BOX_COUNT];
+};
+
+struct ComputerInfo
+{
+    struct ComputerEvent events[COMPUTER_EVENTS_COUNT];
+    struct ComputerCheck checks[COMPUTER_CHECKS_COUNT];
+};
+
+/** Used to set player modifier with script command. */
+struct Modifiers
+{
+    unsigned short health;
+    unsigned short strength;
+    unsigned short armour;
+    unsigned short spell_damage;
+    unsigned short speed;
+    unsigned short pay;
+    unsigned short training_cost;
+    unsigned short scavenging_cost;
+    unsigned short loyalty;
+};
+
 struct Dungeon {
     unsigned short dnheart_idx;
     struct Coord3d mappos;
@@ -108,7 +149,7 @@ struct Dungeon {
     unsigned char computer_enabled;
     short creatr_list_start;
     short digger_list_start;
-    short things_in_hand[MAX_THINGS_IN_HAND];
+    ThingIndex things_in_hand[MAX_THINGS_IN_HAND];
     unsigned char num_things_in_hand;
     unsigned short field_64[CREATURE_TYPES_MAX][15];
     unsigned short guijob_all_creatrs_count[CREATURE_TYPES_MAX][3];
@@ -116,13 +157,14 @@ struct Dungeon {
     int sight_casted_gameturn;
     short sight_casted_thing_idx;
     unsigned char sight_casted_splevel;
-    unsigned char sight_casted_stl_x;
-    unsigned char sight_casted_stl_y;
+    MapSubtlCoord sight_casted_stl_x;
+    MapSubtlCoord sight_casted_stl_y;
     unsigned char soe_explored_flags[2*MAX_SOE_RADIUS][2*MAX_SOE_RADIUS];
-    unsigned char cta_stl_x;
-    unsigned char cta_stl_y;
+    MapSubtlCoord cta_stl_x;
+    MapSubtlCoord cta_stl_y;
     unsigned char cta_splevel;
     unsigned long cta_start_turn;
+    TbBool cta_free;
     unsigned long must_obey_turn;
     int hold_audience_cast_turn;
     int scavenge_counters_turn;
@@ -186,8 +228,8 @@ struct Dungeon {
      * Allowed creatures can join a dungeon if whether attraction condition is met
      * or force-enabled amount isn't reached. */
     unsigned char creature_allowed[CREATURE_TYPES_MAX];
-    unsigned char magic_level[KEEPER_POWERS_COUNT];
-    unsigned char magic_resrchable[KEEPER_POWERS_COUNT];
+    unsigned char magic_level[POWER_TYPES_MAX];
+    unsigned char magic_resrchable[POWER_TYPES_MAX];
     struct TurnTimer turn_timers[TURN_TIMERS_COUNT];
     long max_creatures_attracted;
     unsigned char heart_destroy_state;
@@ -228,48 +270,15 @@ struct Dungeon {
     unsigned char devastation_centr_y;
     unsigned long devastation_turn;
     long creatures_total_pay;
-unsigned short field_14BC;
-unsigned long field_14BE;
+    unsigned short gold_hoard_for_pickup;
+    unsigned long gold_pickup_amount;
     /** Index of last creature picked up of given model. */
     unsigned short selected_creatures_of_model[CREATURE_TYPES_MAX];
     /** Index of last creature picked up of given GUI Job. */
     unsigned short selected_creatures_of_gui_job[CREATURE_GUI_JOBS_COUNT];
-    };
-
-#pragma pack()
-
-struct TrapInfo
-{
-    unsigned char trap_amount_offmap[TRAPDOOR_TYPES_MAX];
-    unsigned char trap_amount_stored[TRAPDOOR_TYPES_MAX];
-    /** Stores flag information about players manufacture of traps of specific kind. */
-    unsigned char trap_build_flags[TRAPDOOR_TYPES_MAX];
-    /** Amount of traps of every kind for which we can place blueprints. This include both off-map traps and on-map trap boxes.*/
-    unsigned char trap_amount_placeable[TRAPDOOR_TYPES_MAX];
-    /** Amount of doors of every kind which are stored in workshops. Only on-map door crates which exist in workshop are mentioned here.*/
-
-    unsigned char door_amount_offmap[TRAPDOOR_TYPES_MAX];
-    unsigned char door_amount_stored[TRAPDOOR_TYPES_MAX];
-    /** Stored flag information about players manufacture of doors of specific kind. */
-    unsigned char door_build_flags[TRAPDOOR_TYPES_MAX];
-    /** Stored information whether player can place blueprints of doors of specific kind (actually, doors are placed instantly). */
-    unsigned char door_amount_placeable[TRAPDOOR_TYPES_MAX];
-
-};
-
-struct BoxInfo
-{
-    uint8_t               activated[CUSTOM_BOX_COUNT];
-};
-
-struct ComputerInfo
-{
-    struct ComputerEvent events[COMPUTER_EVENTS_COUNT];
-    struct ComputerCheck checks[COMPUTER_CHECKS_COUNT];
-};
-
-struct DungeonAdd
-{
+    unsigned char texture_pack;
+    unsigned char color_idx;
+    struct Modifiers      modifier;
     struct TrapInfo       mnfct_info;
     struct BoxInfo        box_info;
     struct Coord3d        last_combat_location;
@@ -291,27 +300,21 @@ struct DungeonAdd
     unsigned char         room_resrchable[TERRAIN_ITEMS_MAX];
     unsigned char         room_slabs_count[TERRAIN_ITEMS_MAX+1];
     unsigned short        backup_heart_idx;
+    unsigned short        free_soul_idx;
     struct HandRule       hand_rules[CREATURE_TYPES_MAX][HAND_RULE_SLOTS_COUNT];
 };
 /******************************************************************************/
 extern struct Dungeon bad_dungeon;
-extern struct DungeonAdd bad_dungeonadd;
 /******************************************************************************/
 struct Dungeon *get_players_num_dungeon_f(long plyr_idx,const char *func_name);
 struct Dungeon *get_players_dungeon_f(const struct PlayerInfo *player,const char *func_name);
-struct DungeonAdd *get_players_dungeonadd_f(const struct PlayerInfo *player,const char *func_name);
 struct Dungeon *get_dungeon_f(PlayerNumber plyr_num,const char *func_name);
-struct DungeonAdd *get_dungeonadd_f(PlayerNumber plyr_num,const char *func_name);
 #define get_players_num_dungeon(plyr_idx) get_players_num_dungeon_f(plyr_idx,__func__)
 #define get_players_dungeon(player) get_players_dungeon_f(player,__func__)
-#define get_players_dungeonadd(player) get_players_dungeonadd_f(player,__func__)
 #define get_dungeon(plyr_idx) get_dungeon_f(plyr_idx,__func__)
-#define get_dungeonadd(plyr_idx) get_dungeonadd_f(plyr_idx,__func__)
 #define get_my_dungeon() get_players_num_dungeon_f(my_player_number,__func__)
-struct DungeonAdd *get_dungeonadd_by_dungeon(const struct Dungeon *dungeon);
 
 TbBool dungeon_invalid(const struct Dungeon *dungeon);
-TbBool dungeonadd_invalid(const struct DungeonAdd *dungeonadd);
 
 void clear_dungeons(void);
 void init_dungeons(void);

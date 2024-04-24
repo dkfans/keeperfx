@@ -121,36 +121,6 @@ void set_previous_camera_values(struct PlayerInfo* player) {
     }
 }
 
-MapCoordDelta get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
-{
-    long dist_y = abs(pos2->y.val - (long)pos1->y.val);
-    long dist_x = abs(pos2->x.val - (long)pos1->x.val);
-    if (dist_y <= dist_x)
-        dist_y = dist_x;
-    long dist_z = abs(pos2->z.val - (long)pos1->z.val);
-    if (dist_y <= dist_z)
-        dist_y = dist_z;
-    return dist_y;
-}
-
-MapCoordDelta get_2d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
-{
-    long dist_y = abs((long)pos1->y.val - (long)pos2->y.val);
-    long dist_x = abs((long)pos1->x.val - (long)pos2->x.val);
-    if (dist_y <= dist_x)
-        return dist_x;
-    return dist_y;
-}
-
-MapCoordDelta get_2d_box_distance_xy(long pos1_x, long pos1_y, long pos2_x, long pos2_y)
-{
-    long dist_x = abs((long)pos1_x - (long)pos2_x);
-    long dist_y = abs((long)pos1_y - (long)pos2_y);
-    if (dist_y <= dist_x)
-      return dist_x;
-    return dist_y;
-}
-
 void angles_to_vector(short angle_xy, short angle_yz, long dist, struct ComponentVector *cvect)
 {
     long long cos_yz = LbCosL(angle_yz) >> 2;
@@ -454,7 +424,7 @@ void init_player_cameras(struct PlayerInfo *player)
     } else {
         cam->view_mode = PVM_IsoWibbleView;
     }
-    cam->zoom = settings.isometric_view_zoom_level;
+    cam->zoom = player->isometric_view_zoom_level;
 
     cam = &player->cameras[CamIV_Parchment];
     cam->mappos.x.val = 0;
@@ -469,7 +439,7 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->mappos.z.val = 32;
     cam->horizontal_fov = 94;
     cam->view_mode = PVM_FrontView;
-    cam->zoom = settings.frontview_zoom_level;
+    cam->zoom = player->frontview_zoom_level;
 
     reset_interpolation_of_camera(player);
 }
@@ -535,11 +505,11 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
             cam->mappos.z.val = thing->mappos.z.val + eye_height;
             cam->orient_a = thing->move_angle_xy;
             cam->orient_b = thing->move_angle_z;
-            cam->orient_c = cctrl->field_CC;
+            cam->orient_c = cctrl->roll;
         }
         else
         {
-            cam->mappos.z.val = cam->mappos.z.val + (thing->mappos.z.val + cctrl->head_bob - cam->mappos.z.val + eye_height) / 2;
+            cam->mappos.z.val = cam->mappos.z.val + ((int64_t)thing->mappos.z.val + cctrl->head_bob - cam->mappos.z.val + eye_height) / 2;
             cam->orient_a = thing->move_angle_xy;
             cam->orient_b = thing->move_angle_z;
             cam->orient_c = 0;
@@ -650,7 +620,7 @@ void view_move_camera_left(struct Camera *cam, long distance)
         if ( parchment_pos_x > gameadd.map_subtiles_x * COORD_PER_STL )
             parchment_pos_x = gameadd.map_subtiles_x * COORD_PER_STL - 1;
 
-        cam->mappos.x.stl.pos = parchment_pos_x;
+        cam->mappos.x.val = parchment_pos_x;
 
     }
 
@@ -695,7 +665,7 @@ void view_move_camera_right(struct Camera *cam, long distance)
         if ( parchment_pos_x > gameadd.map_subtiles_x * COORD_PER_STL )
             parchment_pos_x = gameadd.map_subtiles_x * COORD_PER_STL - 1;
 
-        cam->mappos.x.stl.pos = parchment_pos_x;
+        cam->mappos.x.val = parchment_pos_x;
 
     }
 
@@ -739,7 +709,7 @@ void view_move_camera_up(struct Camera *cam, long distance)
         if ( parchment_pos_y > gameadd.map_subtiles_y * COORD_PER_STL )
             parchment_pos_y = gameadd.map_subtiles_y * COORD_PER_STL - 1;
 
-        cam->mappos.y.stl.pos = parchment_pos_y;
+        cam->mappos.y.val = parchment_pos_y;
 
     }
 }
@@ -783,7 +753,7 @@ void view_move_camera_down(struct Camera *cam, long distance)
         if ( parchment_pos_y > gameadd.map_subtiles_y * COORD_PER_STL )
             parchment_pos_y = gameadd.map_subtiles_y * COORD_PER_STL - 1;
 
-        cam->mappos.y.stl.pos = parchment_pos_y;
+        cam->mappos.y.val = parchment_pos_y;
 
     }
 

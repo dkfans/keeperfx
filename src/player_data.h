@@ -29,15 +29,15 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define PLAYERS_COUNT           5
-#define PLAYERS_EXT_COUNT       6
+#define PLAYERS_COUNT           9
+#define PLAYERS_EXT_COUNT       9
+#define COLOURS_COUNT       9
 /** This acts as default value for neutral_player_number */
 #define NEUTRAL_PLAYER          5
 /** This acts as default value for hero_player_number */
 #define HERO_PLAYER             4
 
 #define INVALID_PLAYER (&bad_player)
-#define INVALID_PLAYER_ADD (&bad_playeradd)
 
 #define PLAYER_MP_MESSAGE_LEN  64
 
@@ -119,8 +119,8 @@ enum PlayerAdditionalFlags {
 #pragma pack(1)
 
 struct SubtileXY {
-    unsigned char stl_x;
-    unsigned char stl_y;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
 };
 
 struct Wander
@@ -137,14 +137,25 @@ struct Wander
   unsigned char wdrfield_14;
   unsigned char wandr_slot;
   unsigned char plyr_idx;
-  unsigned char plyr_bit;
+  PlayerBitFlags plyr_bit; // unused?
   /** Array of points where the creatures could go wander. */
   struct SubtileXY points[WANDER_POINTS_COUNT];
 };
 
+struct CheatSelection
+{
+    SlabKind chosen_terrain_kind;
+    PlayerNumber chosen_player;
+    unsigned char chosen_creature_kind;
+    unsigned char chosen_hero_kind;
+    unsigned char chosen_experience_level;
+};
+
 struct PlayerInfo {
     unsigned char allocflags;
-    unsigned char field_1;
+    TbBool tooltips_restore; /**< Used to store/restore the value of settings.tooltips_on when transitioning to/from the map. */
+    TbBool status_menu_restore; /**< Used to store/restore the current status menu visibility when the map is shown/hidden. */
+    TbBool swipe_sprite_drawLR; /**< Used to decide whether to draw the swipe sprite left to right (TRUE), or [default] right to left (FALSE). */
     unsigned char boxsize; //field_2 seems to be used in DK, so now renamed and used in KeeperFX
     unsigned char additional_flags; // Uses PlayerAdditionalFlags
     unsigned char input_crtr_control;
@@ -153,15 +164,14 @@ struct PlayerInfo {
     unsigned char *lens_palette;
     /** Index of packet slot associated with this player. */
     unsigned char packet_num;
-    long field_C;
+    long hand_animationId;
     unsigned int hand_busy_until_turn;
-unsigned char field_14;
-    char field_15[20]; //size may be shorter
+    char player_name[20];
     unsigned char victory_state;
-    unsigned char allied_players; // bit 0-4 (allies), bit 5-7 (locked allies)
+    PlayerBitFlags allied_players;
+    PlayerBitFlags players_with_locked_ally_status;
     unsigned char id_number;
     unsigned char is_active;
-    unsigned char field_2D[2];
     short controlled_thing_idx;
     long controlled_thing_creatrn;
     short thing_under_hand;
@@ -169,13 +179,12 @@ unsigned char field_14;
     /** Pointer to the currently active camera. */
     struct Camera *acamera;
     struct Camera cameras[4];
-    unsigned short zoom_to_pos_x;
-    unsigned short zoom_to_pos_y;
-char field_E8[2];
+    MapCoord zoom_to_pos_x;
+    MapCoord zoom_to_pos_y;
     struct Wander wandr_within;
     struct Wander wandr_outside;
     short hand_thing_idx;
-    short field_43C;
+    short cta_flag_idx;
     short influenced_thing_idx;
     long influenced_thing_creation;
     short engine_window_width;
@@ -190,18 +199,15 @@ char field_E8[2];
     unsigned char primary_cursor_state;
     unsigned char secondary_cursor_state;
     unsigned char continue_work_state;
-char field_457[8];
 char field_45F;
 short cursor_light_idx;
-char field_462;
     char mp_message_text[PLAYER_MP_MESSAGE_LEN];
     unsigned char chosen_room_kind;
     unsigned char full_slab_cursor; // 0 for subtile sized cursor, 1 for slab sized cursor
     char chosen_trap_kind;
     char chosen_door_kind;
-    char field_4A7[4];
-    short cursor_clicked_subtile_x; // x coord of subtile clicked by mouse cursor
-    short cursor_clicked_subtile_y; // y coord of subtile clicked by mouse cursor
+    MapSubtlCoord cursor_clicked_subtile_x; // x coord of subtile clicked by mouse cursor
+    MapSubtlCoord cursor_clicked_subtile_y; // y coord of subtile clicked by mouse cursor
     unsigned char cursor_button_down; // left or right button down (whilst using the bounding box cursor)
     /** Player instance, from PlayerInstanceNum enum. */
     unsigned char instance_num;
@@ -209,7 +215,6 @@ char field_462;
     /** If view mode is temporarily covered by another, the original mode which is to be restored later will be saved here.*/
     char view_mode_restore;
     long dungeon_camera_zoom;
-    char field_4BA[3];
     long field_4BD;
     long palette_fade_step_pain;
     long palette_fade_step_possession;
@@ -220,23 +225,14 @@ char field_462;
     long cast_expand_level;
     long field_4D6;
     char video_cluedo_mode;
-    long field_4DB;
-    long field_4DF;
-    long field_4E3;
-    long field_4E7;
-    long field_4EB;
-    };
-
-struct CheatSelection
-{
-    SlabKind chosen_terrain_kind;
-    PlayerNumber chosen_player;
-    unsigned char chosen_creature_kind;
-    unsigned char chosen_hero_kind;
-    unsigned char chosen_experience_level;
-};
-
-struct PlayerInfoAdd {
+    MapCoordDelta zoom_to_movement_x;
+    MapCoordDelta zoom_to_movement_y;
+    GameTurn power_of_cooldown_turn;
+    long game_version;
+    GameTurn display_objective_turn;
+    unsigned long isometric_view_zoom_level;
+    unsigned long frontview_zoom_level;
+    unsigned char hand_idx;
     struct CheatSelection cheatselection;
     TbBool first_person_dig_claim_mode;
     unsigned char teleport_destination;
@@ -257,17 +253,19 @@ struct PlayerInfoAdd {
     char swap_to_untag_mode; // 0 = no, 1 = maybe, 2= yes, -1 = disable
     unsigned char roomspace_highlight_mode;
     TbBool roomspace_no_default;
-    short cursor_subtile_x;
-    short cursor_subtile_y;
-    short previous_cursor_subtile_x;
-    short previous_cursor_subtile_y;
-    TbBool mouse_is_offmap;
+    MapSubtlCoord cursor_subtile_x;
+    MapSubtlCoord cursor_subtile_y;
+    MapSubtlCoord previous_cursor_subtile_x;
+    MapSubtlCoord previous_cursor_subtile_y;
+    TbBool mouse_on_map;
     TbBool roomspace_drag_paint_mode;
     unsigned char roomspace_l_shape;
     TbBool roomspace_horizontal_first;
-};
+    TbBool pickup_all_gold;
+    };
 
 /******************************************************************************/
+
 extern unsigned char my_player_number;
 
 #pragma pack()
@@ -277,18 +275,16 @@ extern TbPixel player_path_colours[];
 extern TbPixel player_room_colours[];
 extern TbPixel player_flash_colours[];
 extern TbPixel player_highlight_colours[];
+extern TbPixel possession_hit_colours[];
 extern unsigned short const player_cubes[];
 extern long neutral_player_number;
 extern long hero_player_number;
 extern struct PlayerInfo bad_player;
-extern struct PlayerInfoAdd bad_playeradd;
+extern struct PlayerInfo bad_player;
 /******************************************************************************/
 struct PlayerInfo *get_player_f(long plyr_idx,const char *func_name);
-struct PlayerInfoAdd *get_playeradd_f(long plyr_idx,const char *func_name);
 #define get_player(plyr_idx) get_player_f(plyr_idx,__func__)
 #define get_my_player() get_player_f(my_player_number,__func__)
-#define get_playeradd(plyr_idx) get_playeradd_f(plyr_idx,__func__)
-#define get_my_playeradd() get_playeradd_f(my_player_number,__func__)
 TbBool player_invalid(const struct PlayerInfo *player);
 TbBool player_exists(const struct PlayerInfo *player);
 TbBool is_my_player(const struct PlayerInfo *player);
@@ -298,10 +294,10 @@ TbBool players_are_enemies(long plyr1_idx, long plyr2_idx);
 TbBool players_are_mutual_allies(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx);
 TbBool players_creatures_tolerate_each_other(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx);
 TbBool player_is_friendly_or_defeated(PlayerNumber check_plyr_idx, PlayerNumber origin_plyr_idx);
-TbBool set_ally_with_player(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool state);
-void toggle_ally_with_player(long plyridx, unsigned int allyidx);
-TbBool is_player_ally_locked(PlayerNumber plyridx, PlayerNumber ally_idx);
-void set_player_ally_locked(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool value);
+TbBool set_ally_with_player(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool make_ally);
+void toggle_ally_with_player(PlayerNumber plyr_idx, PlayerNumber ally_idx);
+TbBool is_player_ally_locked(PlayerNumber plyr_idx, PlayerNumber ally_idx);
+void set_player_ally_locked(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool lock_alliance);
 
 void set_player_state(struct PlayerInfo *player, short a1, long a2);
 void set_player_mode(struct PlayerInfo *player, unsigned short nview);
@@ -309,7 +305,9 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nview);
 
 void clear_players(void);
 
-PlayerNumber player_bit_to_player_number(unsigned char plyr_bit);
+unsigned char rotate_mode_to_view_mode(unsigned char mode);
+
+unsigned char get_player_color_idx(PlayerNumber plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

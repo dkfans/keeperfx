@@ -21,6 +21,7 @@
 #include "globals.h"
 
 #include "bflib_math.h"
+#include "bflib_planar.h"
 #include "thing_list.h"
 #include "creature_control.h"
 #include "creature_instances.h"
@@ -45,6 +46,7 @@
 #include "room_util.h"
 #include "room_list.h"
 #include "tasks_list.h"
+#include "map_data.h"
 #include "map_events.h"
 #include "map_blocks.h"
 #include "map_utils.h"
@@ -60,6 +62,7 @@
 #include "magic.h"
 #include "sounds.h"
 #include "game_legacy.h"
+#include "sprites.h"
 
 #include "creature_states_gardn.h"
 #include "creature_states_hero.h"
@@ -131,6 +134,7 @@ CrCheckRet move_check_near_dungeon_heart(struct Thing *creatng);
 CrCheckRet move_check_on_head_for_room(struct Thing *creatng);
 CrCheckRet move_check_persuade(struct Thing *creatng);
 CrCheckRet move_check_wait_at_door_for_wage(struct Thing *creatng);
+short cleanup_timebomb(struct Thing *creatng);
 
 short move_to_position(struct Thing *creatng);
 char new_slab_tunneller_check_for_breaches(struct Thing *creatng);
@@ -148,6 +152,7 @@ short state_cleanup_unconscious(struct Thing *creatng);
 short state_cleanup_wait_at_door(struct Thing* creatng);
 short creature_search_for_spell_to_steal_in_room(struct Thing *creatng);
 short creature_pick_up_spell_to_steal(struct Thing *creatng);
+short creature_timebomb(struct Thing *creatng);
 
 /******************************************************************************/
 #ifdef __cplusplus
@@ -155,8 +160,8 @@ short creature_pick_up_spell_to_steal(struct Thing *creatng);
 #endif
 /******************************************************************************/
 //process_state, cleanup_state, move_from_slab, move_check,
-//override_feed, override_own_needs, override_sleep, override_fight_crtr, override_gets_salary, override_prev_fld1F, override_prev_fld20, override_escape, override_unconscious, override_anger_job, override_fight_object, override_fight_door, override_call2arms, override_follow,
-    //state_type, field_1F, field_20, field_21, field_23, sprite_idx, field_26, field_27, react_to_cta
+//override_feed, override_own_needs, override_sleep, override_fight_crtr, override_gets_salary, override_captive, override_transition, override_escape, override_unconscious, override_anger_job, override_fight_object, override_fight_door, override_call2arms, override_follow,
+    //state_type, captive, transition, follow_behavior, blocks_all_state_changes, sprite_idx, display_thought_bubble, sneaky, react_to_cta
 struct StateInfo states[CREATURE_STATES_COUNT] = {
   {NULL, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 0},
@@ -195,23 +200,23 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
   {creature_doing_nothing, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 1},
   {creature_to_garden, NULL, NULL, NULL,
-    0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Feed, 0, 0, 1, 0, 59, 1, 0, 1},
+    0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Feed, 0, 0, 1, 0, GBS_creature_states_hungry, 1, 0, 1},
   {creature_arrived_at_garden, state_cleanup_in_room, NULL, move_check_on_head_for_room,
-    0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Feed, 0, 0, 2, 0, 59, 1, 0, 1},
+    0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Feed, 0, 0, 2, 0, GBS_creature_states_hungry, 1, 0, 1},
   {creature_wants_a_home, NULL, NULL, NULL, // [20]
-    0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 1, 0, 58, 1, 0, 1},
+    0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 1, 0, GBS_creature_states_lair, 1, 0, 1},
   {creature_choose_room_for_lair_site, NULL, NULL, NULL,
-    0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 1, 0, 58, 1, 0, 1},
+    0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 1, 0, GBS_creature_states_lair, 1, 0, 1},
   {creature_at_new_lair, NULL, NULL, NULL,
-    0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 1, 0, 58, 1, 0, 1},
+    0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 1, 0, GBS_creature_states_lair, 1, 0, 1},
   {person_sulk_head_for_lair, NULL, NULL, NULL,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 1, 0, 55, 1, 0, 1},
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 1, 0, GBS_creature_states_angry, 1, 0, 1},
   {person_sulk_at_lair, NULL, NULL, NULL,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 1, 0, 55, 1, 0, 1},
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 1, 0, GBS_creature_states_angry, 1, 0, 1},
   {creature_going_home_to_sleep, NULL, NULL, NULL,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Sleep, 0, 0, 1, 0, 54, 1, 0, 1},
+    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,  CrStTyp_Sleep, 0, 0, 1, 0, GBS_creature_states_sleep, 1, 0, 1},
   {creature_sleep, cleanup_sleep, NULL, NULL,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Sleep, 0, 0, 2, 0, 54, 1, 0, 1},
+    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Sleep, 0, 0, 2, 0, GBS_creature_states_sleep, 1, 0, 1},
   {NULL, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 1, 0,  0, 0, 0, 1},
   {tunnelling, NULL, new_slab_tunneller_check_for_breaches, NULL,
@@ -219,13 +224,13 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
   {NULL, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 1, 0,  0, 0, 0, 1},
   {at_research_room, NULL, NULL, move_check_on_head_for_room, // [30]
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 1, 0, 56, 1, 0, 1},
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 1, 0, GBS_creature_states_resrch, 1, 0, 1},
   {researching, state_cleanup_in_room, NULL, process_research_function,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 2, 0, 56, 1, 0, 1},
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 2, 0, GBS_creature_states_resrch, 1, 0, 1},
   {at_training_room, NULL, NULL, move_check_on_head_for_room,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 1, 0, 57, 1, 0, 1},
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 1, 0, GBS_creature_states_train, 1, 0, 1},
   {training, state_cleanup_in_room, NULL, NULL,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 2, 0, 57, 1, 0, 1},
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 2, 0, GBS_creature_states_train, 1, 0, 1},
   {good_doing_nothing, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 1, 0,  0, 0, 0, 1},
   {good_returns_to_start, NULL, NULL, NULL,
@@ -237,31 +242,31 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
   {NULL, NULL, NULL, NULL,
     1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,  CrStTyp_Work, 0, 1, 1, 0,  0, 0, 0, 0},
   {arrive_at_call_to_arms, NULL, NULL, NULL,
-    1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_Called2Arms, 0, 0, 1, 0, 62, 1, 0, 0},
+    1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_Called2Arms, 0, 0, 1, 0, GBS_creature_states_cta, 1, 0, 0},
   {creature_arrived_at_prison, state_cleanup_unable_to_fight, NULL, move_check_on_head_for_room, // [40]
-    1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1,  CrStTyp_OwnNeeds, 1, 0, 0, 0, 66, 1, 0, 0},
+    1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1,  CrStTyp_OwnNeeds, 1, 0, 0, 0, GBS_creature_states_prison, 1, 0, 0},
   {creature_in_prison, cleanup_prison, NULL, process_prison_function,
-    1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1,  CrStTyp_OwnNeeds, 1, 0, 0, 0, 66, 1, 0, 0},
+    1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1,  CrStTyp_OwnNeeds, 1, 0, 0, 0, GBS_creature_states_prison, 1, 0, 0},
   {at_torture_room, state_cleanup_unable_to_fight, NULL, move_check_on_head_for_room,
-    1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1,  CrStTyp_OwnNeeds, 1, 0, 0, 0, 65, 1, 0, 0},
+    1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1,  CrStTyp_OwnNeeds, 1, 0, 0, 0, GBS_creatr_state_tortr, 1, 0, 0},
   {torturing, cleanup_torturing, NULL, process_torture_function,
-    1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1,  CrStTyp_OwnNeeds, 1, 0, 0, 0, 65, 1, 0, 0},
+    1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1,  CrStTyp_OwnNeeds, 1, 0, 0, 0, GBS_creatr_state_tortr, 1, 0, 0},
   {at_workshop_room, NULL, NULL, move_check_on_head_for_room,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 1, 0, 67, 1, 0, 1},
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 1, 0, GBS_creature_states_manufct, 1, 0, 1},
   {manufacturing, state_cleanup_in_room, NULL, NULL,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 2, 0, 67, 1, 0, 1},
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 2, 0, GBS_creature_states_manufct, 1, 0, 1},
   {at_scavenger_room, NULL, NULL, move_check_on_head_for_room,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 1, 0, 69, 1, 0, 1},
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 1, 0, GBS_creature_states_scavng, 1, 0, 1},
   {scavengering, state_cleanup_in_room, NULL, process_scavenge_function,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 2, 0, 69, 1, 0, 1},
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 2, 0, GBS_creature_states_scavng, 1, 0, 1},
   {creature_dormant, NULL, NULL, move_check_near_dungeon_heart,
     1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1,  CrStTyp_Idle, 0, 0, 1, 0,  0, 0, 0, 1},
   {creature_in_combat, cleanup_combat, NULL, NULL,
-    1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1,  CrStTyp_FightCrtr, 0, 0, 1, 1, 51, 1, 0, 0},
+    1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1,  CrStTyp_FightCrtr, 0, 0, 1, 1, GBS_creature_states_attack, 1, 0, 0},
   {creature_leaving_dungeon, NULL, NULL, NULL, // [50]
-    0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 1, 1, 1, 0, 61, 1, 0, 1},
+    0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 1, 1, 1, 0, GBS_creature_states_livid, 1, 0, 1},
   {creature_leaves, NULL, NULL, NULL,
-    0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 1, 1, 1, 0, 61, 1, 0, 1},
+    0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 1, 1, 1, 0, GBS_creature_states_livid, 1, 0, 1},
   {creature_in_hold_audience, cleanup_hold_audience, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 1, 0,  0, 0, 0, 1},
   {patrol_here, NULL, NULL, NULL,
@@ -277,19 +282,19 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
   {NULL, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 1, 0,  0, 0, 0, 1},
   {creature_kill_creatures, NULL, NULL, move_check_kill_creatures,
-    0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 1, 0, 61, 1, 0, 1},
+    0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 1, 0, GBS_creature_states_livid, 1, 0, 1},
   {NULL, NULL, NULL, NULL, // [60]
     1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 0, 0,  0, 0, 0, 1},
   {person_sulking, NULL, NULL, NULL,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 1, 0, 55, 1, 0, 1},
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 1, 0, GBS_creature_states_angry, 1, 0, 1},
   {NULL, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 1},
   {NULL, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 1},
   {at_barrack_room, NULL, NULL, move_check_on_head_for_room,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 1, 0, 63, 1, 0, 1},
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 1, 0, GBS_creature_states_fight, 1, 0, 1},
   {barracking, state_cleanup_in_room, NULL, NULL,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 1, 0, 63, 1, 0, 1},
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 1, 0, GBS_creature_states_fight, 1, 0, 1},
   {creature_slap_cowers, NULL, NULL, NULL,
     1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,  CrStTyp_Work, 0, 1, 0, 0,  0, 0, 0, 1},
   {creature_unconscious, state_cleanup_unconscious, NULL, NULL,
@@ -309,37 +314,37 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
   {imp_converts_dungeon, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 0, 0,  0, 0, 0, 1},
   {creature_wants_salary, NULL, NULL, NULL,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_GetsSalary, 0, 0, 1, 0, 52, 1, 0, 1},
+    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_GetsSalary, 0, 0, 1, 0, GBS_creature_states_getgold, 1, 0, 1},
   {creature_take_salary, NULL, NULL, move_check_wait_at_door_for_wage,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_GetsSalary, 0, 0, 1, 0, 52, 1, 0, 1},
+    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_GetsSalary, 0, 0, 1, 0, GBS_creature_states_getgold, 1, 0, 1},
   {tunneller_doing_nothing, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 1, 0,  0, 0, 0, 1},
   {creature_object_combat, cleanup_object_combat, NULL, NULL,
-    1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, CrStTyp_FightObj, 0, 0, 1, 0, 51, 1, 0, 0},
-  {NULL, NULL, NULL, NULL,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 1},
+    1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, CrStTyp_FightObj, 0, 0, 1, 0, GBS_creature_states_attack, 1, 0, 0},
+  {creature_object_combat, cleanup_object_combat, NULL, NULL,
+    1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, CrStTyp_AngerJob, 1, 0, 1, 0, GBS_creature_states_attack, 1, 0, 0},
   {creature_change_lair, NULL, NULL, move_check_on_head_for_room, // [80]
-    0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 1, 0, 58, 1, 0, 1},
+    0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 1, 0, GBS_creature_states_lair, 1, 0, 1},
   {imp_birth, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 1},
   {at_temple, NULL, NULL, move_check_on_head_for_room,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 1, 0, 68, 1, 0, 1},
+    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 1, 0, GBS_creature_states_unk059, 1, 0, 1},
   {praying_in_temple, state_cleanup_in_temple, NULL, process_temple_function,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 2, 0, 68, 1, 0, 1},
+    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 2, 0, GBS_creature_states_unk059, 1, 0, 1},
   {NULL, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 1},
   {creature_follow_leader, NULL, NULL, NULL,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_Follow, 0, 0, 0, 0,  0, 0, 0, 0},
+    0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_Follow, 0, 0, 0, 0,  0, 0, 0, 0},
   {creature_door_combat, cleanup_door_combat, NULL, NULL,
-    1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, CrStTyp_FightDoor, 0, 0, 3, 0, 51, 1, 0, 0},
+    1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, CrStTyp_FightDoor, 0, 0, 3, 0, GBS_creature_states_attack, 1, 0, 0},
   {creature_combat_flee, NULL, NULL, NULL,
-    1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1,  CrStTyp_Idle, 0, 0, 0, 0, 53, 1, 0, 0},
+    1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1,  CrStTyp_Idle, 0, 0, 0, 0, GBS_creature_states_retreat, 1, 0, 0},
   {creature_sacrifice, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 1, 1, 0, 0,  0, 0, 0, 0},
   {at_lair_to_sleep, NULL, NULL, NULL,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Sleep, 0, 0, 2, 0, 54, 1, 0, 1},
+    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Sleep, 0, 0, 2, 0, GBS_creature_states_sleep, 1, 0, 1},
   {creature_exempt, NULL, NULL, NULL, // [90]
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Escape, 0, 0, 0, 0, 61, 1, 0, 1},
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Escape, 0, 0, 0, 0, GBS_creature_states_livid, 1, 0, 1},
   {creature_being_dropped, state_cleanup_unable_to_fight, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 1, 1, 0, 0,  0, 0, 0, 1},
   {creature_being_sacrificed, cleanup_sacrifice, NULL, NULL,
@@ -357,7 +362,7 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
   {imp_reinforces, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 0, 0,  0, 0, 0, 1},
   {arrive_at_alarm, NULL, NULL, NULL,
-    1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 1, 0, 62, 1, 0, 0},
+    1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 1, 0, GBS_creature_states_cta, 1, 0, 0},
   {creature_picks_up_spell_object, NULL, NULL, NULL, // [100]
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Move, 0, 0, 1, 0,  0, 0, 0, 1},
   {creature_drops_spell_object_in_library, state_cleanup_dragging_object, NULL, NULL,
@@ -367,11 +372,11 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
   {creature_drops_corpse_in_graveyard, state_cleanup_dragging_object, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 1, 0,  0, 0, 0, 1},
   {at_guard_post_room, NULL, NULL, move_check_on_head_for_room,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 1, 0, 50, 1, 0, 0},
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 1, 0, GBS_creature_states_defend, 1, 0, 0},
   {guarding, state_cleanup_in_room, NULL, NULL,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 2, 0, 50, 1, 0, 0},
+    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 2, 0, GBS_creature_states_defend, 1, 0, 0},
   {creature_eat, NULL, NULL, NULL,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 1, 1, 1, 0, 59, 1, 0, 1},
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 1, 1, 1, 0, GBS_creature_states_hungry, 1, 0, 1},
   {creature_evacuate_room, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 1, 0,  0, 0, 0, 1},
   {creature_wait_at_treasure_room_door,  state_cleanup_wait_at_door, NULL, NULL,
@@ -381,23 +386,23 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
   {kinky_torturing, cleanup_torturing, NULL, process_kinky_function, /// [110]
     1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 1},
   {mad_killing_psycho, NULL, NULL, NULL,
-    0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, 68, 1, 0, 1},
+    0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, GBS_creature_states_psycho, 1, 0, 1},
   {creature_search_for_gold_to_steal_in_room, NULL, NULL, move_check_attack_any_door,
-    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, 55, 1, 0, 1},
+    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, GBS_creature_states_angry, 1, 0, 1},
   {creature_vandalise_rooms, NULL, NULL, move_check_attack_any_door,
-    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, 55, 1, 0, 1},
+    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, GBS_creature_states_angry, 1, 0, 1},
   {creature_steal_gold, NULL, NULL, move_check_attack_any_door,
-    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, 55, 1, 0, 1},
+    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, GBS_creature_states_angry, 1, 0, 1},
   {seek_the_enemy, cleanup_seek_the_enemy, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 1},
   {already_at_call_to_arms, NULL, NULL, NULL,
-    1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_Called2Arms, 0, 0, 1, 0, 62, 1, 0, 0},
+    1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_Called2Arms, 0, 0, 1, 0, GBS_creature_states_cta, 1, 0, 0},
   {creature_damage_walls, NULL, NULL, NULL,
     0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0,  0, 0, 0, 1},
   {creature_attempt_to_damage_walls, NULL, NULL, move_check_can_damage_wall,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, 55, 1, 0, 1},
+    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, GBS_creature_states_angry, 1, 0, 1},
   {creature_persuade, NULL, NULL, move_check_persuade,
-    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 1, 0, 55, 1, 0, 1},
+    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 1, 0, GBS_creature_states_angry, 1, 0, 1},
   {creature_change_to_chicken, NULL, NULL, NULL, // [120]
     1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,  CrStTyp_Idle, 1, 1, 0, 0,  0, 0, 0, 0},
   {creature_change_from_chicken, NULL, NULL, NULL,
@@ -409,7 +414,7 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
   {creature_piss, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 1, 0,  0, 0, 0, 1},
   {creature_roar, NULL, NULL, NULL,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 1, 0, 55, 1, 0, 1},
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 1, 0, GBS_creature_states_angry, 1, 0, 1},
   {creature_at_changed_lair, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 1, 0,  0, 0, 0, 1},
   {creature_be_happy, NULL, NULL, NULL,
@@ -421,41 +426,47 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
   {good_attack_room, NULL, NULL, NULL, // [130]
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 1, 1, 0, 0,  0, 0, 0, 1},
   {creature_search_for_gold_to_steal_in_room, NULL, NULL, NULL,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 1, 1, 0, 0,  0, 0, 0, 1},
-  {good_attack_room, NULL, NULL, NULL,
-    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_Idle, 1, 1, 0, 0,  0, 0, 0, 1},
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0,  0, 0, 1, 1},
+  {good_arrived_at_attack_room, NULL, NULL, move_check_attack_any_door,
+    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, GBS_creature_states_angry, 1, 1, 1},
   {creature_pretend_chicken_setup_move, NULL, NULL, NULL,
     1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,  CrStTyp_Idle, 1, 1, 0, 0,  0, 0, 0, 0},
   {creature_pretend_chicken_move, NULL, NULL, NULL,
     1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,  CrStTyp_Idle, 1, 1, 0, 0,  0, 0, 0, 0},
   {creature_attack_rooms, NULL, NULL, move_check_attack_any_door,
-    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, 51, 1, 0, 0},
+    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, GBS_creature_states_attack, 1, 0, 0},
   {creature_freeze_prisoners, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 1},
   {creature_explore_dungeon, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 1},
   {creature_eating_at_garden, NULL, NULL, NULL,
-    0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Feed, 0, 0, 2, 0, 59, 1, 0, 1},
+    0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Feed, 0, 0, 2, 0, GBS_creature_states_hungry, 1, 0, 1},
   {creature_leaves_or_dies, NULL, NULL, NULL,
-    1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1,  CrStTyp_OwnNeeds, 1, 1, 1, 0, 61, 1, 0, 0},
+    1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1,  CrStTyp_OwnNeeds, 1, 1, 1, 0, GBS_creature_states_livid, 1, 0, 0},
   {creature_moan, NULL, NULL, NULL, // [140]
     1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 1, 0,  0, 0, 0, 1},
   {creature_set_work_room_based_on_position, NULL, NULL, NULL,
     1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,  CrStTyp_Work, 1, 1,  0, 0, 0, 0, 0, 1},
   {creature_being_scavenged, NULL, NULL, NULL,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 0, 0, 64, 1, 0, 0},
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 0, 0, GBS_creatr_state_scavngd, 1, 0, 0},
   {creature_escaping_death, NULL, NULL, NULL,
     1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1,  CrStTyp_Escape, 1, 0, 0, 0,  0, 1, 0, 0},
   {creature_present_to_dungeon_heart, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 1},
   {creature_search_for_spell_to_steal_in_room, NULL, NULL, move_check_attack_any_door,
-    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, 55, 1, 0, 1},
+    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, GBS_creature_states_angry, 1, 1, 1},
   {creature_pick_up_spell_to_steal, NULL, NULL, move_check_attack_any_door,
-    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, 55, 1, 0, 1},
+    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, GBS_creature_states_angry, 1, 0, 1},
   {good_arrived_at_attack_room, NULL, NULL, move_check_attack_any_door,
-    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, 55, 1, 0, 1},
+    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, GBS_creature_states_angry, 1, 0, 1},
   {creature_going_to_safety_for_toking, NULL, NULL, NULL,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Sleep, 0, 0, 1, 0, 54, 1, 0, 1},
+    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Sleep, 0, 0, 1, 0, GBS_creature_states_sleep, 1, 0, 1},
+  {creature_timebomb, cleanup_timebomb, NULL, NULL,
+    1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1,  CrStTyp_Move, 1, 0, 1, 0, 0, 1, 0, 0},
+  { good_arrived_at_combat, NULL, NULL, move_check_attack_any_door,  // [150]
+    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, GBS_creature_states_angry, 1, 0, 1 },
+  { good_arrived_at_attack_dungeon_heart, NULL, NULL, move_check_attack_any_door,
+    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, GBS_creature_states_angry, 1, 0, 1 },
 };
 
 /** GUI States of creatures - from "Creatures" Tab in UI.
@@ -544,7 +555,7 @@ TbBool creature_model_bleeds(unsigned long crmodel)
         // If censorship is on, only evil creatures can have blood
         if (!crstat->bleeds)
             return false;
-        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crmodel];
+        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crmodel];
         return ((crconf->model_flags & CMF_IsEvil) != 0);
   }
   return crstat->bleeds;
@@ -558,27 +569,27 @@ TbBool creature_model_bleeds(unsigned long crmodel)
 long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
 {
   long state_type;
-  long state = thing->active_state;
-  if ( (state > 0) && (state < sizeof(states)/sizeof(states[0])) )
+  unsigned long state = thing->active_state;
+  if ( (state > 0) && (state < CREATURE_STATES_COUNT) )
   {
       state_type = states[state].state_type;
   } else
   {
       state_type = states[0].state_type;
-      WARNLOG("%s: The %s index %d active state %d is out of range",func_name,thing_model_name(thing),(int)thing->index,(int)state);
+      WARNLOG("%s: The %s index %d active state %u (%s) is out of range",func_name,thing_model_name(thing),(int)thing->index,state,creature_state_code_name(state));
   }
   if (state_type == CrStTyp_Move)
   {
       state = thing->continue_state;
-      if ( (state > 0) && (state < sizeof(states)/sizeof(states[0])) )
+      if ( (state > 0) && (state < CREATURE_STATES_COUNT) )
       {
           state_type = states[state].state_type;
       } else
       {
           state_type = states[0].state_type;
           // Show message with text name of active state - it's good as the state was checked before
-          WARNLOG("%s: The %s index %d owner %d continue state %d is out of range; active state %s",func_name,
-              thing_model_name(thing),(int)thing->index,(int)thing->owner,(int)state,creature_state_code_name(thing->active_state));
+          WARNLOG("%s: The %s index %d owner %d continue state %u (%s) is out of range; active state %u (%s)",func_name,
+              thing_model_name(thing),(int)thing->index,(int)thing->owner,state,creature_state_code_name(state),thing->active_state,creature_state_code_name(thing->active_state));
       }
   }
   return state_type;
@@ -811,10 +822,16 @@ TbBool creature_is_kept_in_custody_by_enemy(const struct Thing *thing)
         creature_is_being_dropped(thing))
     {
         struct Room* room = get_room_thing_is_on(thing);
-        if (room_is_invalid(room)) {
-            // This must mean we're being dropped outside of room, or sold/destroyed the room
-            // so not kept in custody - freed
-            return false;
+        if (room_is_invalid(room)) 
+        {
+            //If the creature is not inside a room, or moving 
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+            room = get_room_at_pos(&cctrl->moveto_pos);
+            if (room_is_invalid(room))
+            {
+                // This must mean we're being dropped outside of room, or sold/destroyed the room so not kept in custody - freed
+                return false;
+            }
         }
         if (thing->owner != room->owner) {
             // We're in a room, and it's not our own - must be enemy
@@ -842,9 +859,13 @@ TbBool creature_is_kept_in_custody_by_player(const struct Thing *thing, PlayerNu
     {
         struct Room* room = get_room_thing_is_on(thing);
         if (room_is_invalid(room)) {
-            // This must mean we're being dropped outside of room, or sold/destroyed the room
-            // so not kept in custody - freed
-            return false;
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+            room = get_room_at_pos(&cctrl->moveto_pos);
+            if (room_is_invalid(room))
+            {
+                // This must mean we're being dropped outside of room, or sold/destroyed the room so not kept in custody - freed
+                return false;
+            }
         }
         if (room->owner == plyr_idx) {
             // We're in a room, and it's the player we asked for
@@ -878,9 +899,13 @@ short player_keeping_creature_in_custody(const struct Thing* thing)
     {
         struct Room* room = get_room_thing_is_on(thing);
         if (room_is_invalid(room)) {
-            // This must mean we're being dropped outside of room, or sold/destroyed the room
-            // so not kept in custody - freed
-            return -1;
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+            room = get_room_at_pos(&cctrl->moveto_pos);
+            if (room_is_invalid(room))
+            {
+                // This must mean we're being dropped outside of room, or sold/destroyed the room so not kept in custody - freed
+                return -1;
+            }
         }
         if (room->owner != thing->owner) {
             // We're in a room, and it's not the unit owner
@@ -997,10 +1022,16 @@ short arrive_at_call_to_arms(struct Thing *creatng)
         set_start_state(creatng);
         return 1;
     }
-    struct Thing* doortng = check_for_door_to_fight(creatng);
-    if (!thing_is_invalid(doortng))
+    struct Thing* cmbttng = check_for_door_to_fight(creatng);
+    if (!thing_is_invalid(cmbttng))
     {
-        set_creature_door_combat(creatng, doortng);
+        set_creature_door_combat(creatng, cmbttng);
+        return 2;
+    }
+    cmbttng = check_for_object_to_fight(creatng);
+    if (!thing_is_invalid(cmbttng))
+    {
+        set_creature_object_combat(creatng, cmbttng);
         return 2;
     }
     if (!attempt_to_destroy_enemy_room(creatng, dungeon->cta_stl_x, dungeon->cta_stl_y))
@@ -1114,7 +1145,7 @@ struct Room *get_room_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
  */
 TbBool fill_moveable_small_around_slabs_array_in_room(TbBool *avail, const struct Thing *thing, const struct Room *room)
 {
-    long slab_base = get_slab_number(subtile_slab_fast(thing->mappos.x.stl.num), subtile_slab_fast(thing->mappos.y.stl.num));
+    long slab_base = get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num));
     // Fill the avail[] array
     for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
@@ -1163,8 +1194,8 @@ TbBool set_position_at_slab_for_thing(struct Coord3d *pos, const struct Thing *t
 TbBool person_get_somewhere_adjacent_in_room_f(struct Thing *thing, const struct Room *room, struct Coord3d *pos, const char *func_name)
 {
     SYNCDBG(17,"%s: Starting for %s index %d",func_name,thing_model_name(thing),(int)thing->index);
-    MapSlabCoord slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
-    MapSlabCoord slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
+    MapSlabCoord slb_x = subtile_slab(thing->mappos.x.stl.num);
+    MapSlabCoord slb_y = subtile_slab(thing->mappos.y.stl.num);
     long slab_base = get_slab_number(slb_x, slb_y);
 
     int start_stl = CREATURE_RANDOM(thing, AROUND_MAP_LENGTH);
@@ -1191,8 +1222,8 @@ TbBool person_get_somewhere_adjacent_in_room_f(struct Thing *thing, const struct
     }
     // Cannot find a good position - but at least move within the same slab we're on
     {
-        slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
-        slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
+        slb_x = subtile_slab(thing->mappos.x.stl.num);
+        slb_y = subtile_slab(thing->mappos.y.stl.num);
         {
             if (set_position_at_slab_for_thing(pos, thing, slb_x, slb_y, start_stl))
             {
@@ -1225,7 +1256,7 @@ TbBool person_get_somewhere_adjacent_in_room_around_borders_f(struct Thing *thin
         pos->z.val = subtile_coord(1,0);
         return false;
     }
-    long slab_base = get_slab_number(subtile_slab_fast(thing->mappos.x.stl.num), subtile_slab_fast(thing->mappos.y.stl.num));
+    long slab_base = get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num));
     long start_stl = CREATURE_RANDOM(thing, STL_PER_SLB * STL_PER_SLB);
     // If the room is too small - don't try selecting adjacent slab
     if (room->slabs_count > 1)
@@ -1371,10 +1402,14 @@ short cleanup_seek_the_enemy(struct Thing *creatng)
     return 1;
 }
 
-void set_flee_delay(struct Thing* creatng)
+short cleanup_timebomb(struct Thing *creatng)
 {
+    TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    cctrl->wait_to_turn = game.play_gameturn + FIGHT_FEAR_DELAY;
+    cctrl->max_speed = calculate_correct_creature_maxspeed(creatng);
+    cctrl->timebomb_target_id = 0;
+    cctrl->timebomb_death = false;
+    return 0;
 }
 
 short creature_being_dropped(struct Thing *creatng)
@@ -1382,11 +1417,10 @@ short creature_being_dropped(struct Thing *creatng)
     TRACE_THING(creatng);
     SYNCDBG(17,"Starting for %s index %d",thing_model_name(creatng),(long)creatng->index);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct CreatureStats* crstat;
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
     // Cannot teleport for a few turns after being dropped
     delay_teleport(creatng);
-    set_flee_delay(creatng);
+    cctrl->dropped_turn = game.play_gameturn;
     MapSubtlCoord stl_x = creatng->mappos.x.stl.num;
     MapSubtlCoord stl_y = creatng->mappos.y.stl.num;
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
@@ -1404,9 +1438,8 @@ short creature_being_dropped(struct Thing *creatng)
     set_start_state(creatng);
     // Check job which we can do after dropping at these coordinates
     CreatureJob new_job;
-    struct ThingAdd* creatngadd = get_thingadd(creatng->index);
     struct Room* room = room_get(slb->room_index);
-    if ((!room_is_invalid(room)) && (room->owner != creatngadd->holding_player))
+    if ((!room_is_invalid(room)) && (room->owner != creatng->holding_player))
     {
         new_job = Job_NULL;
     }
@@ -1417,8 +1450,8 @@ short creature_being_dropped(struct Thing *creatng)
     // Most tasks are disabled while creature is a chicken
     if (!creature_affected_by_spell(creatng, SplK_Chicken))
     {
-        // For creatures with trembling fat and not changed to chickens, tremble the camera
-        if ((get_creature_model_flags(creatng) & CMF_TremblingFat) != 0)
+        // For creatures with trembling and not changed to chickens, tremble the camera
+        if ((get_creature_model_flags(creatng) & CMF_Trembling) != 0)
         {
             struct Dungeon* dungeon = get_dungeon(creatng->owner);
             if (!dungeon_invalid(dungeon)) {
@@ -1448,7 +1481,7 @@ short creature_being_dropped(struct Thing *creatng)
             {
                 if (!thing_is_picked_up(leadtng))
                 {
-                    if (get_2d_box_distance(&creatng->mappos, &leadtng->mappos) > subtile_coord(9,0)) {
+                    if (get_chessboard_distance(&creatng->mappos, &leadtng->mappos) > subtile_coord(9,0)) {
                         SYNCDBG(3,"Removing %s index %d owned by player %d from group",
                             thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
                         remove_creature_from_group(creatng);
@@ -1469,11 +1502,7 @@ short creature_being_dropped(struct Thing *creatng)
                 {
                     SYNCDBG(3, "The %s index %d owner %d found digger job at (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,(int)stl_x,(int)stl_y);
                     cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
-                    crstat = creature_stats_get(creatng->model);
-                    if (crstat->heal_requirement == 0)
-                    {
-                        delay_heal_sleep(creatng);
-                    }
+                    delay_heal_sleep(creatng);
                     return 2;
                 }
                 else
@@ -1495,6 +1524,10 @@ short creature_being_dropped(struct Thing *creatng)
             }
             if (creature_look_for_enemy_door_combat(creatng)) {
                 SYNCDBG(3,"The %s index %d owner %d found enemy combat at (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,(int)stl_x,(int)stl_y);
+                return 2;
+            }
+            if (creature_look_for_enemy_object_combat(creatng)) {
+                SYNCDBG(3, "The %s index %d owner %d found enemy combat at (%d,%d)", thing_model_name(creatng), (int)creatng->index, (int)creatng->owner, (int)stl_x, (int)stl_y);
                 return 2;
             }
         }
@@ -1553,7 +1586,7 @@ short creature_cannot_find_anything_to_do(struct Thing *creatng)
 		return 0;
 	}
 	if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
-		creatng->continue_state = 123;
+		creatng->continue_state = CrSt_CreatureCannotFindAnythingToDo;
 	return 1;
 }
 
@@ -1562,10 +1595,10 @@ void set_creature_size_stuff(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (creature_affected_by_spell(creatng, SplK_Chicken))
     {
-      creatng->sprite_size = gameadd.crtr_conf.sprite_size;
+      creatng->sprite_size = game.conf.crtr_conf.sprite_size;
     } else
     {
-      creatng->sprite_size = gameadd.crtr_conf.sprite_size + (gameadd.crtr_conf.sprite_size * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+      creatng->sprite_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
     }
 }
 
@@ -1579,13 +1612,13 @@ short creature_change_from_chicken(struct Thing *creatng)
     if (cctrl->countdown_282 > 0)
     { // Changing under way - gradually modify size of the creature
         creatng->rendering_flags |= TRF_Unknown01;
-        creatng->field_50 |= 0x01;
+        creatng->size_change |= TSC_ChangeSize;
         struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
         if (!thing_is_invalid(efftng))
         {
-            long n = (10 - cctrl->countdown_282) * (gameadd.crtr_conf.sprite_size + (gameadd.crtr_conf.sprite_size * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) / 10;
+            long n = (10 - cctrl->countdown_282) * (game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) / 10;
             unsigned long k = get_creature_anim(creatng, 0);
-            set_thing_draw(efftng, k, 256, n, -1, 0, 2);
+            set_thing_draw(efftng, k, 256, n, -1, 0, ODC_Default);
             efftng->rendering_flags &= ~TRF_Transpar_Flags;
             efftng->rendering_flags |= TRF_Transpar_8;
         }
@@ -1610,13 +1643,13 @@ short creature_change_to_chicken(struct Thing *creatng)
         cctrl->countdown_282--;
     if (cctrl->countdown_282 > 0)
     {
-      creatng->field_50 |= 0x01;
+      creatng->size_change |= TSC_ChangeSize;
       creatng->rendering_flags |= TRF_Unknown01;
       struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
       if (!thing_is_invalid(efftng))
       {
           unsigned long k = convert_td_iso(819);
-          set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown_282 / 10 + gameadd.crtr_conf.sprite_size, -1, 0, 2);
+          set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown_282 / 10 + game.conf.crtr_conf.sprite_size, -1, 0, ODC_Default);
           efftng->rendering_flags &= ~TRF_Transpar_Flags;
           efftng->rendering_flags |= TRF_Transpar_8;
       }
@@ -1804,7 +1837,7 @@ TbBool slab_is_valid_for_creature_choose_move(const struct Thing *thing, MapSlab
     struct Thing* doortng = get_door_for_position(stl_x, stl_y);
     if (!thing_is_invalid(doortng))
     {
-      if ((doortng->owner == thing->owner) && (!doortng->door.is_locked))
+      if (door_will_open_for_thing(doortng,thing))
           return true;
     }
     return false;
@@ -1813,8 +1846,8 @@ TbBool slab_is_valid_for_creature_choose_move(const struct Thing *thing, MapSlab
 TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *thing)
 {
     SYNCDBG(17,"Starting for %s index %d",thing_model_name(thing),(long)thing->index);
-    MapSlabCoord slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
-    MapSlabCoord slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
+    MapSlabCoord slb_x = subtile_slab(thing->mappos.x.stl.num);
+    MapSlabCoord slb_y = subtile_slab(thing->mappos.y.stl.num);
     long slab_base = get_slab_number(slb_x, slb_y);
 
     MapSubtlCoord start_stl = CREATURE_RANDOM(thing, 9);
@@ -1831,7 +1864,7 @@ TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *t
             {
                 if (setup_person_move_to_coord(thing, &locpos, NavRtF_Default))
                 {
-                    SYNCDBG(8,"Moving thing %s from (%d,%d) to (%d,%d)", thing_model_name(thing),
+                    SYNCDBG(8,"Moving thing %s index %d from (%d,%d) to (%d,%d)", thing_model_name(thing),
                         (int)thing->index, (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num,
                         (int)locpos.x.stl.num, (int)locpos.y.stl.num);
                     return true;
@@ -1842,8 +1875,8 @@ TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *t
     }
     // Cannot find a good position - but at least move within the same slab we're on
     {
-        slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
-        slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
+        slb_x = subtile_slab(thing->mappos.x.stl.num);
+        slb_y = subtile_slab(thing->mappos.y.stl.num);
         struct Coord3d locpos;
         if (creature_find_any_position_to_move_within_slab(&locpos, thing, slb_x, slb_y, start_stl))
         {
@@ -2062,7 +2095,7 @@ short creature_follow_leader(struct Thing *creatng)
         return 0;
     }
     cctrl->following_leader_since = game.play_gameturn;
-    MapCoordDelta distance_to_follower_pos = get_2d_box_distance(&creatng->mappos, &follwr_pos);
+    MapCoordDelta distance_to_follower_pos = get_chessboard_distance(&creatng->mappos, &follwr_pos);
     TbBool cannot_reach_leader = creature_cannot_move_directly_to(creatng, &leadtng->mappos);
     int speed = get_creature_speed(leadtng);
     // If we're too far from the designated position, do a speed run
@@ -2177,7 +2210,7 @@ short creature_in_hold_audience(struct Thing *creatng)
     } else
     {
         cctrl->turns_at_job = 1;
-        set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 1, 0, 0);
+        set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 0, 0);
     }
     return 1;
 }
@@ -2191,7 +2224,7 @@ short creature_kill_creatures(struct Thing *creatng)
         return 0;
     }
     long crtr_idx = CREATURE_RANDOM(creatng, dungeon->num_active_creatrs);
-    struct Thing* thing = get_player_list_nth_creature_of_model(dungeon->creatr_list_start, 0, crtr_idx);
+    struct Thing* thing = get_player_list_nth_creature_of_model(dungeon->creatr_list_start, CREATURE_ANY, crtr_idx);
     if (thing_is_invalid(thing)) {
         set_start_state(creatng);
         return 0;
@@ -2412,13 +2445,15 @@ void creature_drop_dragged_object(struct Thing *creatng, struct Thing *dragtng)
 
 TbBool creature_is_dragging_something(const struct Thing *creatng)
 {
-    const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->dragtng_idx == 0) {
         return false;
     }
     const struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
-    if (!thing_exists(dragtng)) {
-        ERRORLOG("The %s is dragging non-existing thing",thing_model_name(creatng));
+    if (!thing_exists(dragtng))
+    {
+        ERRORLOG("The %s is dragging non-existing thing with ID %d",thing_model_name(creatng), cctrl->dragtng_idx);
+        cctrl->dragtng_idx = 0;
         return false;
     }
     return true;
@@ -2448,14 +2483,15 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
         ERRORLOG("Invalid room or number of slabs is zero");
         return false;
     }
+    struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
     long selected = CREATURE_RANDOM(thing, room->slabs_count);
     unsigned long n = 0;
     long i = room->slabs_list;
     // Get the selected index
     while (i != 0)
     {
-        struct PlayerInfoAdd *playeradd = get_playeradd(room->owner);
-        if (playeradd->roomspace.is_active)
+        struct PlayerInfo *player = get_player(room->owner);
+        if (player->roomspace.is_active)
         {
             MapSlabCoord slb_x = slb_num_decode_x(i);
             MapSlabCoord slb_y = slb_num_decode_y(i);
@@ -2510,7 +2546,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
         {
             MapSubtlCoord x = start_stl % 3 + stl_x;
             MapSubtlCoord y = start_stl / 3 + stl_y;
-            if (get_floor_filled_subtiles_at(x, y) == 1)
+            if ((roomst->storage_height < 0) || (get_floor_filled_subtiles_at(x, y) == roomst->storage_height))
             {
                 struct Thing* objtng = find_base_thing_on_mapwho(TCls_Object, 0, x, y);
                 if (thing_is_invalid(objtng))
@@ -2523,7 +2559,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
                     }
                 }
             }
-            start_stl = (start_stl + 1) % 9;
+            start_stl = (start_stl + 1) % AROUND_TILES_COUNT;
         }
         // Per room tile code ends
         if (n+1 >= room->slabs_count)
@@ -2552,7 +2588,8 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
             {
                 MapSubtlCoord astl_x = stl_x + around[nround].delta_x;
                 MapSubtlCoord astl_y = stl_y + around[nround].delta_y;
-                if (get_floor_filled_subtiles_at(astl_x, astl_y) == 1)
+
+                if ((roomst->storage_height < 0) || (get_floor_filled_subtiles_at(astl_x, astl_y) == roomst->storage_height))
                 {
                     struct Thing* objtng = find_base_thing_on_mapwho(TCls_Object, 0, astl_x, astl_y);
                     if (thing_is_invalid(objtng))
@@ -2582,7 +2619,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
 short creature_present_to_dungeon_heart(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
+    create_effect(&creatng->mappos, imp_spangle_effects[get_player_color_idx(creatng->owner)], creatng->owner);
     thing_play_sample(creatng, 76, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     if ( !external_set_thing_state(creatng, CrSt_CreatureDoingNothing) )
       set_start_state(creatng);
@@ -2750,7 +2787,7 @@ TbBool init_creature_state(struct Thing *creatng)
     // Check job which we can do after dropping at these coordinates
     if (is_neutral_thing(creatng))
     {
-        if ((gameadd.classic_bugs_flags & ClscBug_PassiveNeutrals))
+        if ((game.conf.rules.game.classic_bugs_flags & ClscBug_PassiveNeutrals))
         {
             SYNCDBG(3,"Trying to assign initial job at (%d,%d) for neutral %s index %d owner %d",stl_x,stl_y,thing_model_name(creatng),creatng->index,creatng->owner);
             return false;
@@ -2813,10 +2850,10 @@ short creature_slap_cowers(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     TRACE_THING(creatng);
-    if (cctrl->field_27F > 0) {
-        cctrl->field_27F--;
+    if (cctrl->cowers_from_slap_turns > 0) {
+        cctrl->cowers_from_slap_turns--;
     }
-    if (cctrl->field_27F > 0) {
+    if (cctrl->cowers_from_slap_turns > 0) {
         return 0;
     }
     restore_backup_state(creatng, cctrl->active_state_bkp, cctrl->continue_state_bkp);
@@ -2870,7 +2907,7 @@ short creature_pick_up_spell_to_steal(struct Thing *creatng)
     struct Thing* picktng = thing_get(cctrl->pickup_object_id);
     TRACE_THING(picktng);
     if ( thing_is_invalid(picktng) || ((picktng->state_flags & TF1_IsDragged1) != 0)
-      || (get_2d_box_distance(&creatng->mappos, &picktng->mappos) >= 512))
+      || (get_chessboard_distance(&creatng->mappos, &picktng->mappos) >= 512))
     {
         set_start_state(creatng);
         return 0;
@@ -2931,7 +2968,7 @@ short creature_take_salary(struct Thing *creatng)
     set_start_state(creatng);
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct Thing* efftng = create_price_effect(&creatng->mappos, creatng->owner, received);
-    if (!(gameadd.classic_bugs_flags & ClscBug_FullyHappyWithGold))
+    if (!(game.conf.rules.game.classic_bugs_flags & ClscBug_FullyHappyWithGold))
     {
         anger_apply_anger_to_creature_all_types(creatng, crstat->annoy_got_wage);
     }
@@ -2966,8 +3003,9 @@ void make_creature_unconscious(struct Thing *creatng)
     TRACE_THING(creatng);
     SYNCDBG(18,"Starting");
     clear_creature_instance(creatng);
+    set_creature_size_stuff(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (gameadd.classic_bugs_flags & ClscBug_ResurrectRemoved)
+    if (game.conf.rules.game.classic_bugs_flags & ClscBug_ResurrectRemoved)
     {
         // If the classic bug is enabled, fainted units are also added to resurrect creature.
         update_dead_creatures_list_for_owner(creatng);
@@ -2975,7 +3013,7 @@ void make_creature_unconscious(struct Thing *creatng)
     creatng->active_state = CrSt_CreatureUnconscious;
     cctrl->flgfield_1 |= CCFlg_PreventDamage;
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
-    cctrl->conscious_back_turns = gameadd.game_turns_unconscious;
+    cctrl->conscious_back_turns = game.conf.rules.creature.game_turns_unconscious;
 }
 
 void make_creature_conscious_without_changing_state(struct Thing *creatng)
@@ -3033,7 +3071,7 @@ short creature_vandalise_rooms(struct Thing *creatng)
     }
     if (cctrl->instance_id == CrInst_NULL)
     {
-        set_creature_instance(creatng, CrInst_ATTACK_ROOM_SLAB, 1, 0, 0);
+        set_creature_instance(creatng, CrInst_ATTACK_ROOM_SLAB, 0, 0);
     }
     return 1;
 }
@@ -3080,9 +3118,43 @@ short creature_wait_at_treasure_room_door(struct Thing *creatng)
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing *doortng;
-    if (cctrl->blocking_door_id > 0) {
+    if (cctrl->blocking_door_id > 0) 
+    {
+        struct Room *room = room_get(cctrl->target_room_id);
+        if (!room_is_invalid(room))
+        {   
+            // if there's another route to the current target room, take it
+            struct Coord3d roompos;
+            roompos.x.val = subtile_coord_center(room->central_stl_x);
+            roompos.y.val = subtile_coord_center(room->central_stl_y);
+            roompos.z.val = get_floor_height_at(&roompos);
+            if (creature_can_navigate_to(creatng, &roompos, NavRtF_Default))
+            {
+                cctrl->blocking_door_id = 0;
+                internal_set_thing_state(creatng, creatng->continue_state);
+                return 1;
+            }
+            else
+            {
+                // look for another Treasure Room
+                unsigned char navtype;
+                room = get_room_for_thing_salary(creatng, &navtype);
+                if (!room_is_invalid(room))
+                {
+                    if (room->index != cctrl->target_room_id)
+                    {
+                        cctrl->target_room_id = room->index;
+                        cctrl->collided_door_subtile = 0;
+                        internal_set_thing_state(creatng, creatng->continue_state);
+                        return CrCkRet_Continue;
+                    }
+                }
+            }
+        }
         doortng = thing_get(cctrl->blocking_door_id);
-    } else {
+    } 
+    else 
+    {
         doortng = INVALID_THING;
     }
     if (!thing_is_deployed_door(doortng) || ((game.play_gameturn - doortng->creation_turn) <= 3) || !doortng->door.is_locked)
@@ -3259,7 +3331,7 @@ long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
     struct Thing* gldtng = find_gold_hoarde_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
 
     // If the random slab has enough space to drop all gold, go there to drop it
-    long wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
+    long wealth_size_holds = game.conf.rules.game.gold_per_hoard / get_wealth_size_types_count();
     GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
     if((max_hoard_size_in_room - gldtng->valuable.gold_stored) >= thing->creature.gold_carried)
     {
@@ -3600,14 +3672,45 @@ CrCheckRet move_check_wait_at_door_for_wage(struct Thing *creatng)
   struct Room *room;
   if (cctrl->collided_door_subtile != 0)
   {
-    doortng = get_door_for_position(stl_num_decode_x(cctrl->collided_door_subtile), stl_num_decode_y(cctrl->collided_door_subtile));
-    if (!thing_is_invalid(doortng))
-    {
-      internal_set_thing_state(creatng, CrSt_CreatureWaitAtTreasureRoomDoor);
-      cctrl->blocking_door_id = doortng->index;
-      cctrl->collided_door_subtile = 0;
-      return CrCkRet_Continue;
-    }
+      room = room_get(cctrl->target_room_id);
+      if (!room_is_invalid(room))
+      {   
+          // if there's another route to the current target room, take it
+          struct Coord3d roompos;
+          roompos.x.val = subtile_coord_center(room->central_stl_x);
+          roompos.y.val = subtile_coord_center(room->central_stl_y);
+          roompos.z.val = get_floor_height_at(&roompos);
+          if (creature_can_navigate_to(creatng, &roompos, NavRtF_Default))
+          {
+              cctrl->collided_door_subtile = 0;
+              internal_set_thing_state(creatng, creatng->continue_state);
+              return CrCkRet_Continue;
+          }
+          else
+          {
+              // look for another Treasure Room
+              unsigned char navtype;
+              room = get_room_for_thing_salary(creatng, &navtype);
+              if (!room_is_invalid(room))
+              {
+                  if (room->index != cctrl->target_room_id)
+                  {
+                      cctrl->target_room_id = room->index;
+                      cctrl->collided_door_subtile = 0;
+                      internal_set_thing_state(creatng, creatng->continue_state);
+                      return CrCkRet_Continue;
+                  }
+              }
+          }
+      }
+      doortng = get_door_for_position(stl_num_decode_x(cctrl->collided_door_subtile), stl_num_decode_y(cctrl->collided_door_subtile));
+      if (!thing_is_invalid(doortng))
+      {
+        internal_set_thing_state(creatng, CrSt_CreatureWaitAtTreasureRoomDoor);
+        cctrl->blocking_door_id = doortng->index;
+        cctrl->collided_door_subtile = 0;
+        return CrCkRet_Continue;
+      }
   }
   else if ( cctrl->target_room_id != 0 )
   {
@@ -3643,7 +3746,7 @@ char new_slab_tunneller_check_for_breaches(struct Thing *creatng)
             continue;
 
         // Player dungeon already broken into
-        if (cctrl->party.player_broken_into_flags & (1 << i))
+        if (flag_is_set(cctrl->party.player_broken_into_flags, to_flag(i)))
             continue;
 
         if (!subtile_revealed(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, i))
@@ -3658,7 +3761,7 @@ char new_slab_tunneller_check_for_breaches(struct Thing *creatng)
         if (!creature_can_navigate_to(creatng, &game.things.lookup[dgn->dnheart_idx]->mappos, NavRtF_Default))
             continue;
 
-        cctrl->party.player_broken_into_flags |= 1 << i;
+        set_flag(cctrl->party.player_broken_into_flags, to_flag(i));
         ++dgn->times_broken_into;
         event_create_event_or_update_nearby_existing_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_Breach, i, 0);
         if (is_my_player_number(i))
@@ -3823,7 +3926,7 @@ short person_sulking(struct Thing *creatng)
           cctrl->turns_at_job = 0;
         } else
         if (cctrl->instance_id == CrInst_NULL) {
-            set_creature_instance(creatng, CrInst_MOAN, 1, 0, 0);
+            set_creature_instance(creatng, CrInst_MOAN, 0, 0);
         }
     }
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
@@ -3923,7 +4026,7 @@ void create_effect_around_thing(struct Thing *thing, long eff_kind)
     MapCoord coord_z_beg = (MapCoord)thing->mappos.z.val;
     if (coord_z_beg < 0)
         coord_z_beg = 0;
-    MapCoord coord_z_end = (MapCoord)thing->mappos.z.val + thing->clipbox_size_yz;
+    MapCoord coord_z_end = (MapCoord)thing->mappos.z.val + thing->clipbox_size_z;
     if (coord_z_end >= subtile_coord(map_subtiles_z, 0) - 1)
         coord_z_end = subtile_coord(map_subtiles_z, 0) - 1;
     struct Coord3d pos;
@@ -3936,7 +4039,10 @@ void create_effect_around_thing(struct Thing *thing, long eff_kind)
             pos.z.val = coord_z_beg;
             while (pos.z.val <= coord_z_end)
             {
-                create_effect(&pos, eff_kind, thing->owner);
+                if (eff_kind != 0)
+                {
+                    create_used_effect_or_element(&pos, eff_kind, thing->owner);
+                }
                 pos.z.val += COORD_PER_STL;
             }
             pos.y.val += COORD_PER_STL;
@@ -3964,11 +4070,15 @@ TbBool process_creature_hunger(struct Thing *thing)
     cctrl->hunger_level++;
     if (!hunger_is_creature_hungry(thing))
         return false;
-    // Make sure every creature loses health on different turn
-    if (((game.play_gameturn + thing->index) % game.turns_per_hunger_health_loss) == 0) {
-        SYNCDBG(9,"The %s index %d lost %d health due to hunger",thing_model_name(thing), (int)thing->index, (int)game.hunger_health_loss);
-        remove_health_from_thing_and_display_health(thing, game.hunger_health_loss);
-        return true;
+    // HungerHealthLoss is disabled if set to 0 on rules.cfg.
+    if (game.conf.rules.health.turns_per_hunger_health_loss > 0)
+    {
+        // Make sure every creature loses health on different turn.
+        if (((game.play_gameturn + thing->index) % game.conf.rules.health.turns_per_hunger_health_loss) == 0) {
+            SYNCDBG(9,"The %s index %d lost %d health due to hunger",thing_model_name(thing), (int)thing->index, (int)game.conf.rules.health.hunger_health_loss);
+            remove_health_from_thing_and_display_health(thing, game.conf.rules.health.hunger_health_loss);
+            return true;
+        }
     }
     return false;
 }
@@ -4154,7 +4264,7 @@ static TbBool wander_point_get_random_pos(const struct Wander *wandr, const stru
           long irnd = CREATURE_RANDOM(thing, wandr->points_count);
           MapSubtlCoord stl_x = wandr->points[irnd].stl_x;
           MapSubtlCoord stl_y = wandr->points[irnd].stl_y;
-          MapSubtlCoord dist = get_2d_box_distance_xy(stl_x, stl_y, prevpos->x.stl.num, prevpos->y.stl.num);
+          MapSubtlCoord dist = chessboard_distance(stl_x, stl_y, prevpos->x.stl.num, prevpos->y.stl.num);
           // Move at least 2 slabs, and prefer distance around 7 slabs
           // If previously selected selected_dist is too low, allow any place
           if (((dist > 6) && (abs(dist-21) < abs(selected_dist-21))) || (selected_dist <= 6))
@@ -4250,8 +4360,8 @@ long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, u
     for (int i = 0; i < path.waypoints_num; ++i)
     {
         struct Coord3d pos2;
-        pos2.x.val = (uint16_t)path.waypoints[i].x;
-        pos2.y.val = (uint16_t)path.waypoints[i].y;
+        pos2.x.val = path.waypoints[i].x;
+        pos2.y.val = path.waypoints[i].y;
         distance += get_2d_distance(&pos1, (struct Coord3d*)&pos2);
         pos1 = pos2;
     }
@@ -4269,33 +4379,35 @@ short seek_the_enemy(struct Thing *creatng)
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* enemytng = thing_update_enemy_to_fight_with(creatng);
+    struct CreatureSound* crsound;
     if (!thing_is_invalid(enemytng))
     {
-        MapCoordDelta dist = get_2d_box_distance(&enemytng->mappos, &creatng->mappos);
+        MapCoordDelta dist = get_chessboard_distance(&enemytng->mappos, &creatng->mappos);
         if (creature_can_hear_within_distance(creatng, dist))
         {
             if (cctrl->instance_id == CrInst_NULL)
             {
-              if ((dist < 2304) && (game.play_gameturn-cctrl->countdown_282 < 20))
-              {
-                set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 1, 0, 0);
-                thing_play_sample(creatng, 168+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-                return 1;
-              }
-              if (CREATURE_RANDOM(creatng, 4) != 0)
-              {
-                  if (setup_person_move_close_to_position(creatng, enemytng->mappos.x.stl.num, enemytng->mappos.y.stl.num, NavRtF_Default))
-                  {
+                if ((dist < 2304) && (game.play_gameturn-cctrl->countdown_282 < 20))
+                {
+                    crsound = get_creature_sound(creatng, CrSnd_Fight);
+                    thing_play_sample(creatng, crsound->index + UNSYNC_RANDOM(crsound->count), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+                    set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 0, 0);
+                    return 1;
+                }
+                if (CREATURE_RANDOM(creatng, 4) != 0)
+                {
+                    if (setup_person_move_close_to_position(creatng, enemytng->mappos.x.stl.num, enemytng->mappos.y.stl.num, NavRtF_Default))
+                    {
+                        creatng->continue_state = CrSt_SeekTheEnemy;
+                        cctrl->countdown_282 = game.play_gameturn;
+                        return 1;
+                    }
+                }
+                if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
+                {
                     creatng->continue_state = CrSt_SeekTheEnemy;
                     cctrl->countdown_282 = game.play_gameturn;
-                    return 1;
-                  }
-              }
-              if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
-              {
-                  creatng->continue_state = CrSt_SeekTheEnemy;
-                  cctrl->countdown_282 = game.play_gameturn;
-              }
+                }
             }
             return 1;
         }
@@ -4490,6 +4602,7 @@ TbBool cleanup_creature_state_and_interactions(struct Thing *creatng)
     }
     remove_events_thing_is_attached_to(creatng);
     delete_effects_attached_to_creature(creatng);
+    delete_familiars_attached_to_creature(creatng);
     state_cleanup_dragging_body(creatng);
     state_cleanup_dragging_object(creatng);
     return true;
@@ -4508,60 +4621,43 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
             return false;
         }
     }
-    if ((curr_stati->field_20) && (!next_stati->override_prev_fld20))
+    if (curr_state == CrSt_Timebomb)
+    {
+        if (next_stati->state_type == CrStTyp_FightDoor)
+        {
+            return true;
+        }
+    }
+    if ((curr_stati->transition) && (!next_stati->override_transition))
         return false;
-    if ((curr_stati->field_1F) && (!next_stati->override_prev_fld1F))
+    if ((curr_stati->captive) && (!next_stati->override_captive))
         return false;
     switch (curr_stati->state_type)
     {
     case CrStTyp_OwnNeeds:
-        if (next_stati->override_own_needs)
-            return true;
-        break;
+        return (next_stati->override_own_needs);
     case CrStTyp_Sleep:
-        if (next_stati->override_sleep)
-            return true;
-        break;
+        return (next_stati->override_sleep);
     case CrStTyp_Feed:
-        if (next_stati->override_feed)
-            return true;
-        break;
+        return (next_stati->override_feed);
     case CrStTyp_FightCrtr:
-        if (next_stati->override_fight_crtr)
-            return true;
-        break;
+        return (next_stati->override_fight_crtr);
     case CrStTyp_GetsSalary:
-        if (next_stati->override_gets_salary)
-            return true;
-        break;
+        return (next_stati->override_gets_salary);
     case CrStTyp_Escape:
-        if (next_stati->override_escape)
-            return true;
-        break;
+        return (next_stati->override_escape);
     case CrStTyp_Unconscious:
-        if (next_stati->override_unconscious)
-            return true;
-        break;
+        return (next_stati->override_unconscious);
     case CrStTyp_AngerJob:
-        if (next_stati->override_anger_job)
-            return true;
-        break;
+        return (next_stati->override_anger_job);
     case CrStTyp_FightDoor:
-        if (next_stati->override_fight_door)
-            return true;
-        break;
+        return (next_stati->override_fight_door);
     case CrStTyp_FightObj:
-        if (next_stati->override_fight_object)
-            return true;
-        break;
+        return (next_stati->override_fight_object);
     case CrStTyp_Called2Arms:
-        if (next_stati->override_call2arms)
-            return true;
-        break;
+        return (next_stati->override_call2arms);
     case CrStTyp_Follow:
-        if (next_stati->override_follow)
-            return true;
-        break;
+        return (next_stati->override_follow);
     default:
         return true;
     }
@@ -4585,6 +4681,12 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
         initialise_thing_state(thing, CrSt_CreaturePretendChickenSetupMove);
         return thing->active_state;
     }
+    if (creature_affected_by_spell(thing, SplK_TimeBomb))
+    {
+        cleanup_current_thing_state(thing);
+        initialise_thing_state(thing, CrSt_Timebomb);
+        return thing->active_state;
+    }
     if (is_neutral_thing(thing))
     {
         cleanup_current_thing_state(thing);
@@ -4593,7 +4695,7 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
     }
     if (is_hero_thing(thing))
     {
-        i = creatures[thing->model%gameadd.crtr_conf.model_count].good_start_state;
+        i = creatures[thing->model%game.conf.crtr_conf.model_count].good_start_state;
         cleanup_current_thing_state(thing);
         initialise_thing_state(thing, i);
         return thing->active_state;
@@ -4608,11 +4710,15 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
     }
     if (player->victory_state == VicS_LostLevel)
     {
-        cleanup_current_thing_state(thing);
-        initialise_thing_state(thing, CrSt_LeavesBecauseOwnerLost);
-        return thing->active_state;
+        // TODO: Correctly deal with possession of creatures not owned by the player
+        if (thing->model != get_players_special_digger_model(player->id_number))
+        {
+            cleanup_current_thing_state(thing);
+            initialise_thing_state(thing, CrSt_LeavesBecauseOwnerLost);
+            return thing->active_state;
+        }
     }
-    i = creatures[thing->model%gameadd.crtr_conf.model_count].evil_start_state;
+    i = creatures[thing->model%game.conf.crtr_conf.model_count].evil_start_state;
     cleanup_current_thing_state(thing);
     initialise_thing_state(thing, i);
     return thing->active_state;
@@ -4620,7 +4726,6 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
 
 TbBool external_set_thing_state_f(struct Thing *thing, CrtrStateId state, const char *func_name)
 {
-    EVM_CREATURE_EVENT_WITH_TARGET("ext_state", thing->owner, thing, state);
     if (!can_change_from_state_to(thing, thing->active_state, state))
     {
         WARNDBG(4,"%s: State change %s to %s for %s not allowed",func_name,creature_state_code_name(thing->active_state),
@@ -4661,7 +4766,7 @@ long creature_free_for_toking(struct Thing* creatng)
 long process_creature_needs_to_heal_critical(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (get_creature_health_permil(creatng) >= gameadd.critical_health_permil) {
+    if (get_creature_health_permil(creatng) >= game.conf.rules.creature.critical_health_permil) {
         return 0;
     }
     if (game.play_gameturn >= cctrl->healing_sleep_check_turn)
@@ -4673,9 +4778,13 @@ long process_creature_needs_to_heal_critical(struct Thing *creatng)
             {
                 return 0;
             }
+            struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+            if (crstat->toking_recovery <= 0)
+            {
+                return 0;
+            }
             if (external_set_thing_state(creatng, CrSt_CreatureGoingToSafetyForToking)) {
                 creatng->continue_state = CrSt_ImpDoingNothing;
-                cctrl->countdown_282 = 200;
                 return 1;
             }
         }
@@ -4791,6 +4900,7 @@ char creature_free_for_lunchtime(struct Thing *creatng)
 long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureStats *crstat)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    RoomKind rkind;
     if ((crstat->hunger_rate == 0) || (cctrl->hunger_level <= (long)crstat->hunger_rate)) {
         return 0;
     }
@@ -4809,7 +4919,8 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureS
 
     if (!player_has_room_of_role(creatng->owner, RoRoF_FoodStorage))
     {
-        output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_GARDEN, OMsg_RoomNeeded);
+        rkind = find_first_roomkind_with_role(RoRoF_FoodStorage);
+        output_message_room_related_from_computer_or_player_action(creatng->owner, rkind, OMsg_RoomNeeded);
         anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, AngR_Hungry, 1);
         return 0;
     }
@@ -4826,11 +4937,12 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureS
         if (room_is_invalid(nroom))
         {
             // There seem to be a correct room, but we can't reach it
-            output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_GARDEN, OMsg_RoomNoRoute);
+            rkind = find_first_roomkind_with_role(RoRoF_FoodStorage);
+            output_message_room_related_from_computer_or_player_action(creatng->owner, rkind, OMsg_RoomNoRoute);
         } else
         {
             // The room is reachable, so it probably has just no food
-            output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_GARDEN, OMsg_RoomTooSmall);
+            output_message_room_related_from_computer_or_player_action(creatng->owner, nroom->kind, OMsg_RoomTooSmall);
         }
     }
     if (room_is_invalid(nroom)) {
@@ -4883,17 +4995,15 @@ long anger_process_creature_anger(struct Thing *creatng, const struct CreatureSt
     if (is_my_player_number(creatng->owner))
     {
         struct Dungeon* dungeon;
-        struct DungeonAdd* dungeonadd;
         AnnoyMotive anger_motive = anger_get_creature_anger_type(creatng);
         switch (anger_motive)
         {
         case AngR_NotPaid:
             dungeon = get_players_num_dungeon(creatng->owner);
-            dungeonadd = get_dungeonadd(creatng->owner);
             struct Room* room = find_nearest_room_of_role_for_thing(creatng, creatng->owner, RoRoF_GoldStorage, NavRtF_Default);
             if (cctrl->paydays_advanced < 0)
             {
-                if ((dungeon->total_money_owned >= dungeonadd->creatures_total_backpay) && !room_is_invalid(room))
+                if ((dungeon->total_money_owned >= dungeon->creatures_total_backpay) && !room_is_invalid(room))
                 {
                     cctrl->paydays_advanced++;
                     if (cctrl->paydays_owed < SCHAR_MAX)
@@ -4982,38 +5092,45 @@ long anger_process_creature_anger(struct Thing *creatng, const struct CreatureSt
 long process_creature_needs_to_heal(struct Thing *creatng, const struct CreatureStats *crstat)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (!creature_requires_healing(creatng)) {
-        return 0;
-    }
-    if (!creature_can_do_healing_sleep(creatng)) {
-        if(creature_free_for_toking(creatng))
-        {
-            if (external_set_thing_state(creatng, CrSt_CreatureGoingToSafetyForToking))
+    if (game.play_gameturn >= cctrl->healing_sleep_check_turn)
+    {
+        if (!creature_requires_healing(creatng)) {
+            return 0;
+        }
+        if (!creature_can_do_healing_sleep(creatng)) {
+            if (creature_free_for_toking(creatng))
             {
-                creatng->continue_state = CrSt_ImpDoingNothing;
-                cctrl->countdown_282 = 200;
+                if (crstat->toking_recovery <= 0)
+                {
+                    return 0;
+                }
+                if (external_set_thing_state(creatng, CrSt_CreatureGoingToSafetyForToking))
+                {
+                    creatng->continue_state = CrSt_ImpDoingNothing;
+                    return 1;
+                }
+            }
+            return 0;
+        }
+        if (creature_is_doing_lair_activity(creatng)) {
+            return 1;
+        }
+        if (!creature_free_for_sleep(creatng, CrSt_CreatureGoingHomeToSleep)) {
+            return 0;
+        }
+        if (((game.play_gameturn - cctrl->healing_sleep_check_turn) > 128)
+            && ((cctrl->lair_room_id != 0) || !room_is_invalid(get_best_new_lair_for_creature(creatng))))
+        {
+            if (external_set_thing_state(creatng, CrSt_CreatureGoingHomeToSleep)) {
                 return 1;
             }
         }
-        return 0;
-    }
-    if (creature_is_doing_lair_activity(creatng)) {
-        return 1;
-    }
-    if (!creature_free_for_sleep(creatng, CrSt_CreatureGoingHomeToSleep)) {
-        return 0;
-    }
-    if (((game.play_gameturn - cctrl->healing_sleep_check_turn) > 128)
-      && ((cctrl->lair_room_id != 0) || !room_is_invalid(get_best_new_lair_for_creature(creatng))))
-    {
-        if (external_set_thing_state(creatng, CrSt_CreatureGoingHomeToSleep)) {
-            return 1;
+        else
+        {
+            anger_apply_anger_to_creature(creatng, crstat->annoy_no_lair, AngR_NoLair, 1);
         }
-    } else
-    {
-      anger_apply_anger_to_creature(creatng, crstat->annoy_no_lair, AngR_NoLair, 1);
+        cctrl->healing_sleep_check_turn = game.play_gameturn;
     }
-    cctrl->healing_sleep_check_turn = game.play_gameturn;
     return 0;
 }
 
@@ -5038,14 +5155,14 @@ long process_training_need(struct Thing *thing, const struct CreatureStats *crst
 long process_piss_need(struct Thing *thing, const struct CreatureStats *crstat)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (cctrl->field_B9 == 0) {
+    if (cctrl->corpse_to_piss_on == 0) {
         return 0;
     }
-    struct Thing* pisstng = thing_get(cctrl->field_B9);
+    struct Thing* pisstng = thing_get(cctrl->corpse_to_piss_on);
     if ((pisstng->owner == thing->owner) || !crstat->piss_on_dead) {
         return 0;
     }
-    if (game.play_gameturn - cctrl->field_B2 <= 200) {
+    if (game.play_gameturn - cctrl->last_piss_turn <= 200) {
         return 0;
     }
     if (!external_set_thing_state(thing, CrSt_CreaturePiss))
@@ -5053,7 +5170,7 @@ long process_piss_need(struct Thing *thing, const struct CreatureStats *crstat)
         return 0;
     }
     cctrl->countdown_282 = 50;
-    cctrl->field_B2 = game.play_gameturn;
+    cctrl->last_piss_turn = game.play_gameturn;
     return 1;
 }
 
@@ -5246,6 +5363,43 @@ TbBool setup_move_out_of_cave_in(struct Thing* thing)
         }
     }
     return false;
+}
+
+short creature_timebomb(struct Thing *creatng)
+{
+    SYNCDBG(18,"Starting");
+    TRACE_THING(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("Invalid creature control; no action");
+        return CrStRet_Unchanged;
+    }
+    if ((creatng->alloc_flags & TAlF_IsControlled) == 0)
+    {
+        struct Thing* trgtng = get_timebomb_target(creatng);
+        if (!thing_is_invalid(trgtng))
+        {
+            cctrl->timebomb_target_id = trgtng->index;
+            cctrl->moveto_pos.x.val = trgtng->mappos.x.val;
+            cctrl->moveto_pos.y.val = trgtng->mappos.y.val;
+            cctrl->moveto_pos.z.val = trgtng->mappos.z.val;
+            cctrl->move_flags = NavRtF_Default;
+            struct Thing *enmtng = thing_get(cctrl->combat.battle_enemy_idx);
+            if (!thing_is_deployed_door(enmtng))
+            {
+                creature_move_to(creatng, &cctrl->moveto_pos, cctrl->max_speed, NavRtF_Default, false);
+            }
+        }
+        else
+        {
+            cctrl->timebomb_target_id = 0;
+            creature_choose_random_destination_on_valid_adjacent_slab(creatng);
+        }
+        creatng->continue_state = CrSt_Timebomb;
+        return CrStRet_Modified;
+    }
+    return CrStRet_Unchanged;
 }
 
 /******************************************************************************/

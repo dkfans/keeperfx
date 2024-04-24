@@ -33,6 +33,7 @@ struct Thing;
 struct Room;
 #pragma pack()
 /******************************************************************************/
+TbBool creature_is_doing_digger_activity(const struct Thing* thing);
 short imp_arrives_at_convert_dungeon(struct Thing *thing);
 short imp_arrives_at_dig_or_mine(struct Thing *thing);
 short imp_arrives_at_improve_dungeon(struct Thing *thing);

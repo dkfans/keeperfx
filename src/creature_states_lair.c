@@ -149,7 +149,7 @@ long process_lair_enemy(struct Thing *thing, struct Room *room)
     }
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     // End if the creature has no lair enemy
-    if (crstat->lair_enemy == 0)
+    if (crstat->lair_enemy[0] == 0)
     {
         return 0;
     }
@@ -159,7 +159,7 @@ long process_lair_enemy(struct Thing *thing, struct Room *room)
         return 0;
     }
     struct Thing* enemytng;
-    long combat_factor = find_fellow_creature_to_fight_in_room(thing, room, crstat->lair_enemy, &enemytng);
+    long combat_factor = find_fellow_creature_to_fight_in_room(thing, room, crstat->lair_enemy, &enemytng); 
     if (combat_factor < 1)
         return 0;
     if (!set_creature_in_combat_to_the_death(thing, enemytng, combat_factor))
@@ -167,14 +167,14 @@ long process_lair_enemy(struct Thing *thing, struct Room *room)
     return 1;
 }
 
-long creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
+CrStateRet creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
 {
     if (!room_has_enough_free_capacity_for_creature_job(room, creatng, Job_TAKE_SLEEP))
-        return 0;
+        return CrStRet_ResetFail;
     // Make sure we don't already have a lair on that position
     struct Thing* lairtng = find_creature_lair_totem_at_subtile(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, 0);
     if (!thing_is_invalid(lairtng))
-        return 0;
+        return CrStRet_Unchanged;
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     room->content_per_model[creatng->model]++;
     room->used_capacity += get_required_room_capacity_for_object(RoRoF_LairStorage, 0, creatng->model);
@@ -196,25 +196,26 @@ long creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
         ERRORLOG("Could not create lair totem");
         remove_thing_from_mapwho(creatng);
         place_thing_in_mapwho(creatng);
-        return 1; // Return that so we won't try to redo the action over and over
+        return CrStRet_Modified; // Return that so we won't try to redo the action over and over
     }
+    lairtng->move_angle_xy = CREATURE_RANDOM(creatng, 2048);
     lairtng->mappos.z.val = get_thing_height_at(lairtng, &lairtng->mappos);
     // Associate creature with the lair
     cctrl->lairtng_idx = lairtng->index;
     lairtng->lair.belongs_to = creatng->index;
     lairtng->lair.cssize = 1;
     // Lair size depends on creature level
-    lairtng->lair.spr_size = gameadd.crtr_conf.sprite_size + (gameadd.crtr_conf.sprite_size * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+    lairtng->lair.spr_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
     lairtng->move_angle_xy = CREATURE_RANDOM(creatng, 2*LbFPMath_PI);
-    struct Objects* objdat = get_objects_data_for_thing(lairtng);
-    unsigned long i = convert_td_iso(objdat->sprite_anim_idx);
-    set_thing_draw(lairtng, i, objdat->anim_speed, lairtng->lair.cssize, 0, -1, objdat->draw_class);
+    struct ObjectConfigStats* objst = get_object_model_stats(lairtng->model);
+    unsigned long i = convert_td_iso(objst->sprite_anim_idx);
+    set_thing_draw(lairtng, i, objst->anim_speed, lairtng->lair.cssize, 0, -1, objst->draw_class);
     thing_play_sample(creatng, 158, NORMAL_PITCH, 0, 3, 1, 2, FULL_LOUDNESS);
-    create_effect(&pos, imp_spangle_effects[creatng->owner], creatng->owner);
+    create_effect(&pos, imp_spangle_effects[get_player_color_idx(creatng->owner)], creatng->owner);
     anger_set_creature_anger(creatng, 0, AngR_NoLair);
     remove_thing_from_mapwho(creatng);
     place_thing_in_mapwho(creatng);
-    return 1;
+    return CrStRet_ResetOk;
 }
 
 CrStateRet creature_at_changed_lair(struct Thing *creatng)
@@ -232,9 +233,13 @@ CrStateRet creature_at_changed_lair(struct Thing *creatng)
         set_start_state(creatng);
         return CrStRet_ResetFail;
     }
-    if (!creature_add_lair_to_room(creatng, room)) {
-        internal_set_thing_state(creatng, CrSt_CreatureChooseRoomForLairSite);
-        return CrStRet_Modified;
+
+    CrStateRet laircreated = creature_add_lair_to_room(creatng, room);
+    if (laircreated != CrStRet_ResetOk)
+    {
+        if (laircreated != CrStRet_Modified)
+            internal_set_thing_state(creatng, CrSt_CreatureChooseRoomForLairSite);
+        return laircreated;
     }
     // All done - finish the state
     set_start_state(creatng);
@@ -251,11 +256,15 @@ CrStateRet creature_at_new_lair(struct Thing *creatng)
         set_start_state(creatng);
         return CrStRet_ResetFail;
     }
-    if (!creature_add_lair_to_room(creatng, room))
+
+    CrStateRet laircreated = creature_add_lair_to_room(creatng, room);
+    if (laircreated != CrStRet_ResetOk)
     {
-        internal_set_thing_state(creatng, CrSt_CreatureChooseRoomForLairSite);
-        return CrStRet_Modified;
+        if (laircreated != CrStRet_Modified)
+            internal_set_thing_state(creatng, CrSt_CreatureChooseRoomForLairSite);
+        return laircreated;
     }
+    // All done - finish the state
     set_start_state(creatng);
     return CrStRet_ResetOk;
 }
@@ -359,6 +368,7 @@ short creature_choose_room_for_lair_site(struct Thing *thing)
 short at_lair_to_sleep(struct Thing *thing)
 {
     TRACE_THING(thing);
+    reset_interpolation_of_thing(thing); // Fixes rendering bug 'Creatures behind their lair in straight view'
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct Thing* lairtng = thing_get(cctrl->lairtng_idx);
     TRACE_THING(lairtng);
@@ -457,10 +467,14 @@ short creature_sleep(struct Thing *thing)
     }
     thing->movement_flags &= ~0x0020;
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    if (((game.play_gameturn + thing->index) % game.recovery_frequency) == 0)
+    // Recovery is disabled if frequency is set to 0 on rules.cfg.
+    if (game.conf.rules.creature.recovery_frequency > 0)
     {
-        HitPoints recover = compute_creature_max_health(crstat->sleep_recovery, cctrl->explevel);
-        apply_health_to_thing_and_display_health(thing, recover);
+        if (((game.play_gameturn + thing->index) % game.conf.rules.creature.recovery_frequency) == 0)
+        {
+            HitPoints recover = compute_creature_max_health(crstat->sleep_recovery, cctrl->explevel, thing->owner);
+            apply_health_to_thing_and_display_health(thing, recover);
+        }
     }
     anger_set_creature_anger(thing, 0, AngR_NoLair);
     anger_apply_anger_to_creature(thing, crstat->annoy_sleeping, AngR_Other, 1);

@@ -21,6 +21,7 @@
 #include "globals.h"
 
 #include "bflib_math.h"
+#include "bflib_planar.h"
 #include "creature_states.h"
 #include "creature_instances.h"
 #include "thing_list.h"
@@ -76,7 +77,7 @@ void person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *
 {
     thing_play_sample(creatng, 112+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     internal_set_thing_state(creatng, CrSt_CreatureEat);
-    set_creature_instance(creatng, CrInst_EAT, 1, 0, 0);
+    set_creature_instance(creatng, CrInst_EAT, 0, 0);
     creatng->continue_state = CrSt_CreatureToGarden;
     {
         // TODO ANGER Maybe better either zero the hunger anger or apply annoy_eat_food points, based on the annoy_eat_food value?
@@ -122,7 +123,7 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
             struct Thing* thing = get_food_at_subtile_available_to_eat_and_owned_by(x, y, -1);
             if (!thing_is_invalid(thing))
             {
-                long dist = get_2d_box_distance(&creatng->mappos, &thing->mappos);
+                long dist = get_chessboard_distance(&creatng->mappos, &thing->mappos);
                 if (near_food_dist > dist)
                 {
                     near_food_dist = dist;

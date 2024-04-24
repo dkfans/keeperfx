@@ -27,6 +27,7 @@
 #include "bflib_netsession.h"
 #include "bflib_netsp.hpp"
 #include "bflib_netsp_ipx.hpp"
+#include "bflib_sound.h"
 #include "globals.h"
 #include <assert.h>
 #include <ctype.h>
@@ -44,7 +45,6 @@ extern "C" {
 /******************************************************************************/
 // Local functions definition
 TbError AddAPlayer(struct TbNetworkPlayerNameEntry *plyrname);
-static TbError GenericIPXInit(void *init_data);
 void *MultiPlayerCallback(unsigned long a1, unsigned long a2, unsigned long a3, void *a4);
 void MultiPlayerReqExDataMsgCallback(unsigned long a1, unsigned long a2, void *a3);
 void AddMsgCallback(unsigned long, char *, void *);
@@ -264,64 +264,6 @@ static void SendUserUpdate(NetUserId dest, NetUserId updated_user)
         ptr - netstate.msg_buffer);
 }
 
-static void SendClientFrame(const char * send_buf, size_t buf_size, int seq_nbr) //seq_nbr because it isn't necessarily determined
-{
-    char * ptr;
-
-    NETDBG(9, "Starting");
-
-    ptr = netstate.msg_buffer;
-
-    *ptr = NETMSG_FRAME;
-    ptr += 1;
-
-    *(int *) ptr = seq_nbr;
-    ptr += 4;
-
-    LbMemoryCopy(ptr, send_buf, buf_size);
-    ptr += buf_size;
-
-    netstate.sp->sendmsg_single(SERVER_ID, netstate.msg_buffer,
-        ptr - netstate.msg_buffer);
-}
-
-static int CountLoggedInClients()
-{
-    NetUserId id;
-    int count;
-
-    for (count = 0, id = 0; id < netstate.max_players; ++id)
-    {
-        if (netstate.users[id].progress == USER_LOGGEDIN)
-        {
-            count++;
-        }
-    }
-
-    return count;
-}
-
-static void SendServerFrame(const void *send_buf, size_t frame_size, int num_frames)
-{
-    char * ptr;
-
-    NETDBG(9, "Starting");
-
-    ptr = netstate.msg_buffer;
-    *ptr = NETMSG_FRAME;
-    ptr += sizeof(char);
-
-    *(int *) ptr = netstate.seq_nbr;
-    ptr += sizeof(int);
-
-    *ptr = num_frames;
-    ptr += sizeof(char);
-
-    LbMemoryCopy(ptr, send_buf, frame_size * num_frames);
-    ptr += frame_size * num_frames;
-
-    netstate.sp->sendmsg_all(netstate.msg_buffer, ptr - netstate.msg_buffer);
-}
 
 static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
 {
@@ -364,6 +306,7 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
     //presume login successful from here
     NETMSG("User %s successfully logged in", netstate.users[source].name);
     netstate.users[source].progress = USER_LOGGEDIN;
+    play_non_3d_sample(76);
 
     //send reply
     ptr = netstate.msg_buffer;
@@ -676,25 +619,6 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
   // Initialising the service provider object
   switch (srvcindex)
   {
-  case NS_Serial_OLD:
-      NETMSG("Selecting Serial SP");
-        res = Lb_FAIL;
-      break;
-  case NS_Modem_OLD:
-      NETMSG("Selecting Modem SP");
-        res = Lb_FAIL;
-      break;
-  case NS_IPX:
-      NETMSG("Selecting IPX SP");
-      if (GenericIPXInit(init_data) == Lb_OK)
-      {
-        res = Lb_OK;
-      } else
-      {
-        WARNLOG("Failure on IPX Initialization");
-        res = Lb_FAIL;
-      }
-      break;
   case NS_TCP_IP:
       NETMSG("Selecting TCP/IP SP");
       /*if (GenericTCPInit(init_data) == Lb_OK) {
@@ -909,20 +833,6 @@ static void ProcessMessagesUntilNextLoginReply(TbClockMSec timeout, void *server
     }
 }
 
-static void ConsumeServerFrame(void *server_buf, int frame_size)
-{
-    NetFrame * frame;
-
-    frame = netstate.exchg_queue;
-    NETDBG(8, "Consuming Server frame %d of size %u", frame->seq_nbr, frame->size);
-
-    netstate.exchg_queue = frame->next;
-    netstate.seq_nbr = frame->seq_nbr;
-    LbMemoryCopy(server_buf, frame->buffer, frame->size);
-    LbMemoryFree(frame->buffer);
-    LbMemoryFree(frame);
-}
-
 void *LbNetwork_AddPacket_f(unsigned char kind, unsigned long turn, short size, const char* func)
 {
     // TODO optimize somehow
@@ -1106,13 +1016,6 @@ TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr)
   struct TbNetworkCallbackData netcdat = {};
 
   SYNCDBG(7, "Starting");
-
-  strcpy(netcdat.svc_name, "Serial");
-  callback(&netcdat, ptr);
-  strcpy(netcdat.svc_name, "Modem");
-  callback(&netcdat, ptr);
-  strcpy(netcdat.svc_name, "IPX");
-  callback(&netcdat, ptr);
   strcpy(netcdat.svc_name, "TCP");
   callback(&netcdat, ptr);
   strcpy(netcdat.svc_name, "ENET/UDP");

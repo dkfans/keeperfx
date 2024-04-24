@@ -16,8 +16,6 @@
 #      (at your option) any later version.
 #
 # ******************************************************************************
-msgid ""
-msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
@@ -961,7 +959,7 @@ msgid ""
 "everything under control, because their feeble magical power impresses the "
 "locals. But you're not from these parts..."
 msgstr ""
-"Vier Tovenaars heersen over dit rijk en denken alles onder controle te "
+"Vier Magiërs heersen over dit rijk en denken alles onder controle te "
 "hebben, omdat ze de bevolking met hun magische krachten snel wisten te "
 "beïnvloeden. Tja, jij komt niet uit deze streek..."
 
@@ -1062,7 +1060,7 @@ msgstr ""
 #: guitext:90
 msgctxt "In-game message"
 msgid ""
-"You have a manufactured a Boulder Trap. Place it in a corridor and howl "
+"You have manufactured a Boulder Trap. Place it in a corridor and howl "
 "deliriously as it rumbles inexorably towards unwary trespassers."
 msgstr ""
 "Er is een ROLSTEENVAL gemaakt. Plaats de val in een gang en begin waanzinnig "
@@ -2778,6 +2776,7 @@ msgid ""
 "Impenetrable Rock: Your Imps cannot dig through this, the only solution is "
 "to go round. It is visible even if far from your territory."
 msgstr ""
+"Harde rots: Je Dondersteentjes kunnen hier niet doorheen graven."
 
 #: guitext:325
 #, fuzzy
@@ -6363,10 +6362,38 @@ msgstr ""
 "Je prestaties zijn legendarisch, Keeper. Jouw terreur en sluwheid zullen "
 "generaties lang als griezelverhalen voortleven."
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "Moo2"
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "Geheime deur"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
+msgstr ""
+"Geheime deur: Deze deur blijft verborgen voor vijanden tenzij ze hem goed observeren of zien openen. RKM: inzoomen"
+
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret Door discovered: LMB toggle. RMB delete."
+msgstr "Geheime deur ontdekt: LMK: bladeren. RMK: wissen."
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret Door discovered"
+msgstr "Geheime deur ontdekt"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
+msgstr "Vijand heeft je geheime deur gezien: LMK: bladeren. RMK: wissen."
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "Vijand heeft je geheime deur gezien"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
@@ -6712,7 +6739,6 @@ msgctxt "In-game interface item"
 msgid "Ambience"
 msgstr "Atmosfeer"
 
-msgstr ""
 #: guitext:1010
 msgctxt "Unused"
 msgid "Moo4"
@@ -6720,8 +6746,8 @@ msgstr ""
 
 #: guitext:1011
 msgctxt "Menu interface item""
-msgid "Dungeon Keeper original campaign"
-msgstr "Dungeon Keeper oorspronkelijke campagne"
+msgid "Dungeon Keeper - Original Campaign"
+msgstr "Dungeon Keeper - Originele Campagne"
 
 #: guitext:1012
 msgctxt "Menu interface item""
@@ -6800,7 +6826,7 @@ msgstr "Nikolais Kasteel"
 
 #: guitext:1027
 msgctxt "Menu interface item""
-msgid "A Dungeon Keeper - New Game+"
+msgid "Dungeon Keeper - NG+"
 msgstr ""
 
 #: guitext:1028
@@ -6832,3 +6858,115 @@ msgstr ""
 msgctxt "Menu interface item""
 msgid "Undead Keeper campaign"
 msgstr ""
+
+#: guitext:1034 guitext:1035
+msgctxt "Unused"
+msgid "Moo5"
+msgstr ""
+
+#: guitext:1036
+msgctxt "Trap names"
+msgid "Demolition Trap"
+msgstr ""
+
+#: guitext:1037
+msgctxt "Trap description"
+msgid ""
+"Demolition Trap: An explosive with unrivaled destructive power."
+msgstr "Sloop-val: Een explosief met ongeëvenaarde vernietigende kracht."
+
+#: guitext:1038
+msgctxt "Trap description"
+msgid ""
+"Sentry Trap: Stands guard and shoots at enemies in sight."
+msgstr "Schildwacht-val: Houdt de wacht en schiet op vijanden in zicht."
+
+#: guitext:1039 guitext:1040
+msgctxt "Unused"
+msgid "Moo6"
+msgstr ""
+
+#: guitext:1041
+msgctxt "Creature name"
+msgid "Spirit"
+msgstr "Geest"
+
+#: guitext:1042
+msgctxt "Creature name"
+msgid "Druid"
+msgstr "Druïde"
+
+#: guitext:1043
+msgctxt "Creature name"
+msgid "Time Mage"
+msgstr "Tijdmagiër"
+
+#: guitext:1044 guitext:1045 guitext:1046 guitext:1047 guitext:1048 guitext:1049
+msgctxt "Unused"
+msgid "Moo7"
+msgstr ""
+
+#: guitext:1050
+msgctxt "Slab description"
+msgid "Rock Formation."
+msgstr "Rotsformatie."
+
+#: guitext:1051
+msgctxt "Slab description"
+msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
+msgstr "Grondgesteente: Ongeclaimde rotsvloer. Je kunt het niet opeisen of erop bouwen."
+
+#: guitext:1052
+msgctxt "Slab description"
+msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
+msgstr "Dichte Goudader: Bevat veel rijkdom voor je Dondersteentjes om te delven."
+
+#: guitext:1053
+msgctxt "Keeper spell name"
+msgid "Rebound"
+msgstr "Terugkaatsen"
+
+#: guitext:1054
+msgctxt "Keeper spell name"
+msgid "Freeze"
+msgstr "Bevriezen"
+
+#: guitext:1055
+msgctxt "Keeper spell name"
+msgid "Slow"
+msgstr "Vertragen"
+
+#: guitext:1056
+msgctxt "Keeper spell name"
+msgid "Flight"
+msgstr "Vliegen"
+
+#: guitext:1057
+msgctxt "Keeper spell name"
+msgid "Illumination"
+msgstr "Verlichting"
+
+#: guitext:1058
+msgctxt "Keeper spell name"
+msgid "Sight"
+msgstr "Duivelsoog"
+
+#: guitext:1059
+msgctxt "Dungeon special decription"
+msgid "Heal All: Restore full health to all your creatures."
+msgstr "Genees Allen: Al jouw wezens worden genezen."
+
+#: guitext:1060
+msgctxt "Dungeon special decription"
+msgid "Increase Gold: Generates gold in your treasury."
+msgstr "Verhoog Goud: Genereert goud in jouw schatkist."
+
+#: guitext:1061
+msgctxt "Dungeon special decription"
+msgid "Make Unhappy: All creatures of the enemy become upset."
+msgstr "Maak Ongelukkig: Alle wezens van de vijand worden ongelukkig."
+
+#: guitext:1062
+msgctxt "Dungeon special decription"
+msgid "Weaken Walls: Destroys the fortifications of enemy walls."
+msgstr "Zwakke Muren: Vernietigt de versterkingen van vijandelijke muren."

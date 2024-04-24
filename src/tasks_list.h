@@ -33,9 +33,9 @@ extern "C" {
 
 struct Dungeon;
 
-struct MapTask { // sizeof = 3
+struct MapTask {
   unsigned char kind;
-  unsigned short coords;
+  SubtlCodedCoords coords;
 };
 
 #pragma pack()

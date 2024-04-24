@@ -79,11 +79,12 @@ TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_i
     
     SYNCDBG(7,"Starting with loc:%ld", i);
     struct Coord3d *src;
+    struct Coord3d targetpos = {0};
     PlayerNumber loc_player = i & 0xF;
     if (loc_player == 15) // CURRENT_PLAYER
         loc_player = gameadd.script_current_player;
 
-    struct DungeonAdd* dungeonadd = get_dungeonadd(loc_player);
+    struct Dungeon* dungeon = get_dungeon(loc_player);
 
     switch (i >> 8)
     {
@@ -91,7 +92,15 @@ TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_i
         src = &gameadd.triggered_object_location;
         break;
     case MML_RECENT_COMBAT:
-        src = &dungeonadd->last_combat_location;
+        src = &dungeon->last_combat_location;
+        break;
+    case MML_ACTIVE_CTA:
+        if ((dungeon->cta_stl_x == 0) && (dungeon->cta_stl_y == 0))
+            return false;
+        targetpos.x.val = subtile_coord_center(dungeon->cta_stl_x);
+        targetpos.y.val = subtile_coord_center(dungeon->cta_stl_y);
+        targetpos.z.val = get_floor_height_at(pos);
+        src = &targetpos; 
         break;
     default:
         return false;
@@ -100,7 +109,6 @@ TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_i
     pos->x.val = src->x.val + PLAYER_RANDOM(target_plyr_idx, 33) - 16;
     pos->y.val = src->y.val + PLAYER_RANDOM(target_plyr_idx, 33) - 16;
     pos->z.val = src->z.val;
-
     return true;
     
 }
@@ -327,6 +335,32 @@ void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos
   SYNCDBG(15,"From %s; Location %ld, pos(%ld,%ld)",func_name, location, pos->x.stl.num, pos->y.stl.num);
 }
 
+/**
+ * Returns playernumber included withing brackets from location string from script.
+ * @param locname
+ * @return Playernumber, or -1 on error.
+ */
+PlayerNumber get_player_name_from_location_string(const char* locname)
+{
+    char player_string[COMMAND_WORD_LEN];
+    const char* start = strchr(locname, '[');
+    if (start == NULL) {
+        // Square bracket not found
+        return -1;
+    }
+
+    start++; // Move past '['
+    const char* end = strchr(start, ']');
+    if (end == NULL) {
+        // Closing square bracket not found
+        return -1;
+    }
+
+    // Extract the player number string
+    strncpy(player_string, start, min(end - start, sizeof(player_string) - 1));
+    player_string[end - start] = '\0';
+    return get_rid(player_desc, player_string);
+}
 
 /**
  * Returns location id for 1-param location from script.
@@ -380,10 +414,61 @@ TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const
             | MLoc_METALOCATION;
         return true;
     }
-    else if (strcmp(locname, "COMBAT") == 0)
+    else if (strncmp(locname, "COMBAT", strlen("COMBAT")) == 0)
     {
+        if (strcmp(locname, "COMBAT") == 0)
+        {
+            if (game.game_kind == GKind_MultiGame)
+            {
+                WARNLOG(" %s (line %lu) : LOCATION = '%s' cannot be used on Multiplayer maps", func_name, ln_num, locname);
+                i = PLAYER0;
+            }
+            else
+            {
+                i = my_player_number;
+            }
+        }
+        else
+        {
+            i = get_player_name_from_location_string(locname);
+            if (i == -1)
+            {
+                ERRORMSG("%s(line %lu): Invalid LOCATION = '%s'", func_name, ln_num, locname);
+                *location = MLoc_NONE;
+                return false;
+            }
+        }
         *location = (((unsigned long)MML_RECENT_COMBAT) << 12)
-            | ((unsigned long)my_player_number << 4)
+            | ((unsigned long)i << 4)
+            | MLoc_METALOCATION;
+        return true;
+    }
+    else if (strncmp(locname, "CTA", strlen("CTA")) == 0)
+    {
+        if (strcmp(locname, "CTA") == 0)
+        {
+            if (game.game_kind == GKind_MultiGame)
+            {
+                WARNLOG(" %s (line %lu) : LOCATION = '%s' cannot be used on Multiplayer maps", func_name, ln_num, locname);
+                i = PLAYER0;
+            }
+            else
+            {
+                i = my_player_number;
+            }
+        }
+        else
+        {
+            i = get_player_name_from_location_string(locname);
+            if (i == -1)
+            {
+                ERRORMSG("%s(line %lu): Invalid LOCATION = '%s'", func_name, ln_num, locname);
+                *location = MLoc_NONE;
+                return false;
+            }
+        }
+        *location = (((unsigned long)MML_ACTIVE_CTA) << 12)
+            | ((unsigned long)i << 4)
             | MLoc_METALOCATION;
         return true;
     }

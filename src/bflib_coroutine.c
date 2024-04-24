@@ -19,6 +19,7 @@
 
 #include "bflib_basics.h"
 #include "bflib_coroutine.h"
+#include <string.h>
 #include "post_inc.h"
 
 // add a new coroutine to the list
