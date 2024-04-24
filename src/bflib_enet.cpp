@@ -185,6 +185,7 @@ namespace
                 NETDBG(1, "enet_host -> %d", ret);
                 return ret;
             }
+            WARNLOG("Enet event: %d", ev.type);
             switch (ev.type)
             {
                 case ENET_EVENT_TYPE_CONNECT:
@@ -228,12 +229,13 @@ namespace
      * Checks for new connections.
      * @param new_user Call back if a new user has connected.
      */
-    void bf_enet_update(NetNewUserCallback new_user)
+    TbError bf_enet_update(NetNewUserCallback new_user)
     {
         while (bf_enet_read_event(new_user, 0))
         {
             // Loop
         }
+        return Lb_OK;
     }
 
     /**
