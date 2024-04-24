@@ -655,18 +655,20 @@ TbBool good_can_move_to_dungeon_heart(struct Thing *creatng, PlayerNumber plyr_i
     return creature_can_navigate_to(creatng, &heartng->mappos, NavRtF_Default);
 }
 
-short good_arrived_at_attack_dungeon_heart(struct Thing* thing)
+short good_arrived_at_attack_dungeon_heart(struct Thing* creatng)
 {
-    if (creature_look_for_enemy_heart_combat(thing))
+    creatng->continue_state = CrSt_GoodDoingNothing;
+    if (creature_look_for_enemy_heart_combat(creatng))
     {
         return true;
     }
     return false;
 }
 
-short good_arrived_at_combat(struct Thing* thing)
+short good_arrived_at_combat(struct Thing* creatng)
 {
-    if (creature_look_for_combat(thing))
+    creatng->continue_state = CrSt_GoodDoingNothing;
+    if (creature_look_for_combat(creatng))
     {
         return true;
     }
