@@ -1378,7 +1378,7 @@ static void load_ext_slabs(LevelNumber lvnum)
     memcpy(&gameadd.slab_ext_data_initial,&gameadd.slab_ext_data, sizeof(gameadd.slab_ext_data));
 }
 
-static void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short fgroup)
+void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short fgroup)
 {
     if (campgn->strings_data == NULL)
     {

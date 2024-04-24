@@ -45,6 +45,7 @@
 #include "gui_boxmenu.h"
 #include "keeperfx.hpp"
 #include "api.h"
+#include "lvl_filesdk1.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -208,6 +209,7 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
                     ERRORLOG("Unable to load campaign");
                     return GLoad_Failed;
                 }
+                load_map_string_data(&campaign, centry->level_num, get_level_fgroup(centry->level_num));
                 // Load configs which may have per-campaign part, and even be modified within a level
                 init_custom_sprites(centry->level_num);
                 load_computer_player_config(CnfLd_Standard);

@@ -2267,8 +2267,13 @@ void gui_area_player_creature_info(struct GuiButton *gbtn)
         {
             draw_gui_panel_sprite_rmleft_player(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_plyrsym_symbol_player_red_std_a, 44, plyr_idx);
         }
-        long i = dungeon->num_active_creatrs;
-        char* text = buf_sprintf("%ld", i);
+        char* text;
+        if (game.conf.rules.game.display_portal_limit == true) 
+        {
+            text = buf_sprintf(" %ld/%ld", dungeon->num_active_creatrs, dungeon->max_creatures_attracted);
+        } else {
+            text = buf_sprintf("%ld", dungeon->num_active_creatrs);
+        }
         draw_button_string(gbtn, 60, text);
     }
 }

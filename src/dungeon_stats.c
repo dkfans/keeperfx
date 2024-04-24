@@ -86,7 +86,8 @@ TbBool load_stats_files(void)
       result = false;
     if (!load_spritecolors_config(keeper_spritecolors_file,CnfLd_Standard))
       result = false;
-
+    if (!load_cubes_config(CnfLd_Standard))
+      result = false;
     
     for (int i = 1; i < game.conf.crtr_conf.model_count; i++)
     {

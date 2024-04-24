@@ -94,12 +94,15 @@ struct GameRulesConfig {
     TbBool allies_share_vision;
     TbBool allies_share_drop;
     TbBool allies_share_cta;
+    TbBool display_portal_limit;
     unsigned char max_things_in_hand;
     short torture_payday;
     short torture_training_cost;
     short torture_scavenging_cost;
     unsigned long easter_egg_speech_chance;
     unsigned long easter_egg_speech_interval;
+    long global_ambient_light;
+    TbBool light_enabled;
 };
 
 struct ComputerRulesConfig {
