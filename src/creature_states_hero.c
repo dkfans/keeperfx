@@ -660,9 +660,9 @@ short good_arrived_at_attack_dungeon_heart(struct Thing* creatng)
     creatng->continue_state = CrSt_GoodDoingNothing;
     if (creature_look_for_enemy_heart_combat(creatng))
     {
-        return true;
+        return CrStRet_Modified;
     }
-    return false;
+    return move_to_position(creatng);
 }
 
 short good_arrived_at_combat(struct Thing* creatng)
@@ -670,9 +670,9 @@ short good_arrived_at_combat(struct Thing* creatng)
     creatng->continue_state = CrSt_GoodDoingNothing;
     if (creature_look_for_combat(creatng))
     {
-        return true;
+        return CrStRet_Modified;
     }
-    return false;
+    return move_to_position(creatng);
 }
 
 TbBool good_setup_wander_to_dungeon_heart(struct Thing *creatng, PlayerNumber plyr_idx)
