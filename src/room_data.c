@@ -50,6 +50,7 @@
 #include "game_legacy.h"
 #include "frontmenu_ingame_map.h"
 #include "keeperfx.hpp"
+#include "config_spritecolors.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -4719,10 +4720,11 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
     // Handle specific things in rooms for which we have a special re-creation code
     PlayerNumber oldowner;
 
-    // Guard post owns only flag, and it must be re-created
-    if (object_is_guard_flag(thing))
+    // coloured objects must be recreated when owner changes, and it must be re-created
+    ThingModel base_model = get_coloured_object_base_model(thing->model);
+    if (base_model != 0)
     {
-        create_guard_flag_object(&thing->mappos, newowner, parent_idx);
+        create_coloured_object(&thing->mappos, newowner, parent_idx,base_model);
         delete_thing_structure(thing, 0);
         return;
     }

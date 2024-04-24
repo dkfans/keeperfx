@@ -464,9 +464,9 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
   {creature_timebomb, cleanup_timebomb, NULL, NULL,
     1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1,  CrStTyp_Move, 1, 0, 1, 0, 0, 1, 0, 0},
   { good_arrived_at_combat, NULL, NULL, move_check_attack_any_door,  // [150]
-    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, GBS_creature_states_angry, 1, 0, 1 },
+    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_Move, 0, 0, 0, 0, 0, 0, 0, 1 },
   { good_arrived_at_attack_dungeon_heart, NULL, NULL, move_check_attack_any_door,
-    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, GBS_creature_states_angry, 1, 0, 1 },
+    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_Move, 0, 0, 0, 0, 0, 0, 0, 1 },
 };
 
 /** GUI States of creatures - from "Creatures" Tab in UI.
@@ -4738,7 +4738,8 @@ TbBool external_set_thing_state_f(struct Thing *thing, CrtrStateId state, const 
 
 TbBool creature_free_for_sleep(const struct Thing *thing,  CrtrStateId state)
 {
-    if (creature_affected_by_slap(thing) || creature_is_called_to_arms(thing))
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if ((creature_affected_by_slap(thing) || creature_is_called_to_arms(thing)) && (cctrl->dropped_turn != game.play_gameturn))
         return false;
     return can_change_from_state_to(thing, thing->active_state, state);
 }
