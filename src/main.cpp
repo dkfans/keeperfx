@@ -2818,6 +2818,23 @@ long update_cave_in(struct Thing *thing)
     return 1;
 }
 
+void update_global_lighting()
+{
+    // Handle change of lighting
+    if (game.conf.rules.game.global_ambient_light != game.lish.global_ambient_light || game.conf.rules.game.light_enabled != game.lish.light_enabled)
+    {
+        if (game.conf.rules.game.global_ambient_light != game.lish.global_ambient_light)
+        {
+            game.lish.global_ambient_light = game.conf.rules.game.global_ambient_light;
+        }
+        if (game.conf.rules.game.light_enabled != game.lish.light_enabled)
+        {
+            game.lish.light_enabled = game.conf.rules.game.light_enabled;
+        }
+        light_stat_refresh();
+    }
+}
+
 void update(void)
 {
     struct PlayerInfo *player;
@@ -2869,6 +2886,7 @@ void update(void)
         update_footsteps_nearest_camera(player->acamera);
         PaletteFadePlayer(player);
         process_armageddon();
+        update_global_lighting();
 #if (BFDEBUG_LEVEL > 9)
         lights_stats_debug_dump();
         things_stats_debug_dump();
@@ -3472,21 +3490,6 @@ void gameplay_loop_logic()
     }
 
     frametime_start_measurement(Frametime_Logic);
-
-    // Handle change of lighting
-    if (game.conf.rules.game.global_ambient_light != game.lish.global_ambient_light || game.conf.rules.game.light_enabled != game.lish.light_enabled)
-    {
-        if (game.conf.rules.game.global_ambient_light != game.lish.global_ambient_light)
-        {
-            game.lish.global_ambient_light = game.conf.rules.game.global_ambient_light;
-        }
-        if (game.conf.rules.game.light_enabled != game.lish.light_enabled)
-        {
-            game.lish.light_enabled = game.conf.rules.game.light_enabled;
-        }
-        light_stat_refresh();
-    }
-
     if ((game.flags_font & FFlg_unk10) != 0)
     {
         if (game.play_gameturn == 4)
