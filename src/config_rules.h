@@ -101,6 +101,8 @@ struct GameRulesConfig {
     short torture_scavenging_cost;
     unsigned long easter_egg_speech_chance;
     unsigned long easter_egg_speech_interval;
+    long global_ambient_light;
+    TbBool light_enabled;
 };
 
 struct ComputerRulesConfig {
