@@ -5561,7 +5561,7 @@ static void change_slab_texture_check(const struct ScriptLine* scline)
     long texture_id = get_id(texture_pack_desc, scline->tp[2]);
     if (texture_id == -1)
     {
-        texture_id = atoi(scline->tp[2]);
+        texture_id = atol(scline->tp[2]);
     }
     if ( (scline->np[2] < 0) || (scline->np[2] >= TEXTURE_VARIATIONS_COUNT) )
     {
