@@ -231,7 +231,7 @@ long computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *ceve
             break;
         if (cproc->parent == cevent->process)
         {
-            clear_flag(cproc->flags, (ComProc_Unkn0008|ComProc_Unkn0001));
+            clear_flag(cproc->flags, (ComProc_Unkn0008|ComProc_Unkn0001|ComProc_Unkn0004));
             cproc->last_run_turn = 0;
             cproc_idx = 1;
         }
