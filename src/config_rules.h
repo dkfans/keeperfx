@@ -46,6 +46,7 @@ enum SacrificeAction {
 enum UniqueFunctions {
     UnqF_None = 0,
     UnqF_MkAllAngry,
+    UnqF_MkAllVerAngry,
     UnqF_ComplResrch,
     UnqF_ComplManufc,
     UnqF_KillChickns,
@@ -93,7 +94,15 @@ struct GameRulesConfig {
     TbBool allies_share_vision;
     TbBool allies_share_drop;
     TbBool allies_share_cta;
+    TbBool display_portal_limit;
     unsigned char max_things_in_hand;
+    unsigned short torture_payday;
+    short torture_training_cost;
+    short torture_scavenging_cost;
+    unsigned long easter_egg_speech_chance;
+    unsigned long easter_egg_speech_interval;
+    long global_ambient_light;
+    TbBool light_enabled;
 };
 
 struct ComputerRulesConfig {
@@ -102,11 +111,11 @@ struct ComputerRulesConfig {
 
 struct CreatureRulesConfig {
     unsigned char recovery_frequency;
-    unsigned short fight_max_hate;
-    unsigned short fight_borderline;
-    unsigned short fight_max_love;
+    short fight_max_hate;
+    short fight_borderline;
+    short fight_max_love;
     unsigned short body_remains_for;
-    unsigned short fight_hate_kill_value;
+    short fight_hate_kill_value;
     unsigned long flee_zone_radius;
     GameTurnDelta game_turns_in_flee;
     unsigned short game_turns_unconscious;
@@ -117,18 +126,18 @@ struct CreatureRulesConfig {
 
 struct MagicRulesConfig {
     GameTurnDelta hold_audience_time;
-    unsigned long armagedon_teleport_your_time_gap;
-    unsigned long armagedon_teleport_enemy_time_gap;
+    unsigned long armageddon_teleport_your_time_gap;
+    unsigned long armageddon_teleport_enemy_time_gap;
     unsigned char disease_transfer_percentage;
     unsigned char disease_lose_percentage_health;
     unsigned char disease_lose_health_time;
     MapSubtlDelta min_distance_for_teleport;
     long collapse_dungeon_damage;
     GameTurnDelta turns_per_collapse_dngn_dmg;
-    GoldAmount power_hand_gold_grab_amount;
-    long friendly_fight_area_damage_permil;
-    long friendly_fight_area_range_permil;
-    TbBool armegeddon_teleport_neutrals;
+    long friendly_fight_area_damage_percent;
+    long friendly_fight_area_range_percent;
+    TbBool armageddon_teleport_neutrals;
+    short weight_calculate_push;
 };
 
 struct RoomRulesConfig {
@@ -195,6 +204,15 @@ const char *player_code_name(PlayerNumber plyr_idx);
 
 extern const struct NamedCommand rules_sacrifices_commands[];
 extern const struct NamedCommand sacrifice_unique_desc[];
+
+extern const struct NamedField rules_magic_named_fields[];
+extern const struct NamedField rules_rooms_named_fields[];
+extern const struct NamedField rules_game_named_fields[];
+extern const struct NamedField rules_creatures_named_fields[];
+extern const struct NamedField rules_computer_named_fields[];
+extern const struct NamedField rules_workers_named_fields[];
+extern const struct NamedField rules_health_named_fields[];
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

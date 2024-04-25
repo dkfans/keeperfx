@@ -31,6 +31,7 @@
 #include "config.h"
 #include "config_campaigns.h"
 #include "config_slabsets.h"
+#include "config_strings.h"
 #include "config_terrain.h"
 #include "light_data.h"
 #include "map_ceiling.h"
@@ -82,7 +83,7 @@ struct LegacyCoord2d {
 struct LegacyInitThing { // sizeof=0x15
     struct LegacyCoord3d mappos;
     unsigned char oclass;
-    unsigned char model;
+    unsigned char model; // Converted to ThingModel on read
     unsigned char owner;
     unsigned short range;
     unsigned short index;
@@ -718,8 +719,7 @@ TbBool load_map_data_file(LevelNumber lv_num)
         for (x=0; x < (gameadd.map_subtiles_x+1); x++)
         {
             mapblk = get_map_block_at(x,y);
-            unsigned long n = -lword(&buf[i]);
-            mapblk->data ^= (mapblk->data ^ n) & 0x7FF;
+            mapblk->col_idx = -lword(&buf[i]);
             i += 2;
         }
     }
@@ -733,7 +733,7 @@ TbBool load_map_data_file(LevelNumber lv_num)
             unsigned short* wptr = &game.lish.subtile_lightness[get_subtile_number(x, y)];
             *wptr = 32;
             mapblk->mapwho = 0;
-            mapblk->data &= ~0x0F000000; //filled subtiles
+            mapblk->filled_subtiles = 0;
             mapblk->revealed = 0;
         }
     }
@@ -1134,7 +1134,9 @@ short load_map_ownership_file(LevelNumber lv_num)
       for (x=0; x < (gameadd.map_subtiles_x+1); x++)
       {
         if ((x < gameadd.map_subtiles_x) && (y < gameadd.map_subtiles_y))
+        {
             set_slab_owner(subtile_slab(x),subtile_slab(y),buf[i]);
+        }
         else
             set_slab_owner(subtile_slab(x),subtile_slab(y),NEUTRAL_PLAYER);
         i++;
@@ -1376,9 +1378,46 @@ static void load_ext_slabs(LevelNumber lvnum)
     memcpy(&gameadd.slab_ext_data_initial,&gameadd.slab_ext_data, sizeof(gameadd.slab_ext_data));
 }
 
+void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short fgroup)
+{
+    if (campgn->strings_data == NULL)
+    {
+        return;
+    }
+    char* fname = prepare_file_fmtpath(fgroup, "map%05lu.%s.dat", (unsigned long)lvnum, get_language_lwrstr(install_info.lang_id));
+    if (!LbFileExists(fname))
+    {
+        SYNCMSG("Map string file %s doesn't exist.", fname);
+        char buf[2048];
+        memcpy(&buf, fname, 2048);
+        fname = prepare_file_fmtpath(fgroup, "map%05lu.%s.dat", (unsigned long)lvnum, get_language_lwrstr(campgn->default_language));
+        if (strcasecmp(fname, buf) == 0)
+        {
+            return;
+        }
+        if (!LbFileExists(fname))
+        {
+            SYNCMSG("Map string file %s doesn't exist.", fname);
+            return;
+        }
+    }
+    long filelen = LbFileLengthRnc(fname);
+    char* strings_data_end = campgn->strings_data + filelen + 255;
+    long loaded_size = LbFileLoadAt(fname, campgn->strings_data);
+    if (loaded_size > 0)
+    {
+        TbBool result = create_strings_list(campgn->strings, campgn->strings_data, strings_data_end, STRINGS_MAX);
+        if (result)
+        {
+            SYNCLOG("Loaded strings from %s", fname);
+            reload_campaign_strings = true;
+        }
+    }
+}
+
 static TbBool load_level_file(LevelNumber lvnum)
 {
-    short result;
+    TbBool result;
     TbBool new_format = true;
     short fgroup = get_level_fgroup(lvnum);
     char* fname = prepare_file_fmtpath(fgroup, "map%05lu.slb", (unsigned long)lvnum);
@@ -1386,6 +1425,12 @@ static TbBool load_level_file(LevelNumber lvnum)
     if (LbFileExists(fname))
     {
         result = true;
+        struct GameCampaign *campgn = &campaign;
+        if (reload_campaign_strings)
+        {
+            setup_campaign_strings_data(campgn);
+        }
+        load_map_string_data(campgn, lvnum, fgroup);
         load_map_data_file(lvnum);
         load_map_flag_file(lvnum);
         load_column_file(lvnum);
@@ -1422,7 +1467,7 @@ static TbBool load_level_file(LevelNumber lvnum)
             result = load_thing_file(lvnum);
         }
         reinitialise_map_rooms();
-        ceiling_init(0, 1);
+        ceiling_init();
         if (result)
         {
             load_ext_slabs(lvnum);

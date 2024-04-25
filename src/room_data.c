@@ -50,6 +50,7 @@
 #include "game_legacy.h"
 #include "frontmenu_ingame_map.h"
 #include "keeperfx.hpp"
+#include "config_spritecolors.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -4719,10 +4720,11 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
     // Handle specific things in rooms for which we have a special re-creation code
     PlayerNumber oldowner;
 
-    // Guard post owns only flag, and it must be re-created
-    if (object_is_guard_flag(thing))
+    // coloured objects must be recreated when owner changes, and it must be re-created
+    ThingModel base_model = get_coloured_object_base_model(thing->model);
+    if (base_model != 0)
     {
-        create_guard_flag_object(&thing->mappos, newowner, parent_idx);
+        create_coloured_object(&thing->mappos, newowner, parent_idx,base_model);
         delete_thing_structure(thing, 0);
         return;
     }
@@ -5189,31 +5191,34 @@ long take_over_room(struct Room* room, PlayerNumber newowner)
  * @param room The room structure which slabs are to be destroyed.
  * @note The room structure is freed before this function end.
  */
-void destroy_room_leaving_unclaimed_ground(struct Room *room)
+void destroy_room_leaving_unclaimed_ground(struct Room *room, TbBool create_rubble)
 {
     unsigned long k = 0;
-    long i = room->slabs_list;
+    unsigned long count = room->slabs_count;
+    SlabCodedCoords* slbs = malloc(count * sizeof(SlabCodedCoords));
+    SlabCodedCoords i = room->slabs_list;
     while (i != 0)
     {
-        long slb_x = slb_num_decode_x(i);
-        long slb_y = slb_num_decode_y(i);
+        slbs[k] = i;
         i = get_next_slab_number_in_room(i);
-        // Per room tile code
+        k++;
+    }
+    for (k = 0; k < count; k++)
+    {
         if (room->owner != game.neutral_player_num)
         {
             struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
             dungeon->rooms_destroyed++;
         }
-        delete_room_slab(slb_x, slb_y, 1); // Note that this function might also delete the whole room
-        create_dirt_rubble_for_dug_slab(slb_x, slb_y);
-        // Per room tile code ends
-        k++;
-        if (k > gameadd.map_tiles_x*gameadd.map_tiles_y) // we can't use room->slabs_count as room may be deleted
+        MapSlabCoord slb_x = slb_num_decode_x(slbs[k]);
+        MapSlabCoord slb_y = slb_num_decode_y(slbs[k]);
+        if (create_rubble)
         {
-            ERRORLOG("Room slabs list length exceeded when sweeping");
-            break;
+            create_dirt_rubble_for_dug_slab(slb_x, slb_y);
         }
+        delete_room_slab(slb_x, slb_y, 1); // Note that this function might also delete the whole room 
     }
+    free(slbs);
 }
 
 void destroy_dungeon_heart_room(PlayerNumber plyr_idx, const struct Thing *heartng)
@@ -5234,6 +5239,6 @@ void destroy_dungeon_heart_room(PlayerNumber plyr_idx, const struct Thing *heart
         return;
     }
     remove_room_from_players_list(room, plyr_idx);
-    destroy_room_leaving_unclaimed_ground(room);
+    destroy_room_leaving_unclaimed_ground(room, true);
 }
 /******************************************************************************/

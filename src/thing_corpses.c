@@ -398,6 +398,11 @@ TbBool update_dead_creatures_list(struct Dungeon *dungeon, const struct Thing *t
     return add_item_to_dead_creature_list(dungeon, thing->model, cctrl->explevel);
 }
 
+TbBool creature_can_be_resurrected(const struct Thing* thing)
+{
+    return ((get_creature_model_flags(thing) & CMF_NoResurrect) == 0);
+}
+
 TbBool update_dead_creatures_list_for_owner(const struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
@@ -406,6 +411,10 @@ TbBool update_dead_creatures_list_for_owner(const struct Thing *thing)
         dungeon = get_players_num_dungeon(thing->owner);
     }
     if (dungeon_invalid(dungeon)) {
+        return false;
+    }
+    if (!creature_can_be_resurrected(thing))
+    {
         return false;
     }
     return update_dead_creatures_list(dungeon, thing);
@@ -477,7 +486,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
  */
 struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long crpscondition)
 {
-    long crmodel = thing->model;
+    ThingModel crmodel = thing->model;
     TbBool memf1 = ((thing->alloc_flags & TAlF_IsControlled) != 0);
     struct Coord3d pos;
     pos.x.val = thing->mappos.x.val;
@@ -485,6 +494,7 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long crpsc
     pos.z.val = thing->mappos.z.val;
     long owner = thing->owner;
     long prev_idx = thing->index;
+    short angle = thing->move_angle_xy;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     long explevel = cctrl->explevel;
     struct PlayerInfo* player = NULL;
@@ -496,6 +506,7 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long crpsc
         ERRORLOG("Could not create dead thing while killing %s index %d owned by player %d.",creature_code_name(crmodel),(int)prev_idx,(int)owner);
         return INVALID_THING;
     }
+    deadtng->move_angle_xy = angle;
     set_flag_value(deadtng->alloc_flags, TAlF_IsControlled, memf1);
     if (owner != game.neutral_player_num)
     {

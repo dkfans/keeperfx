@@ -60,6 +60,35 @@ struct InterpMinimap
     long get_previous;
 };
 /******************************************************************************/
+enum PanelColourIds
+{
+    PnC_Wall          = 1,
+    PnC_Rock          = 2,
+    PnC_Unexplored    = 3,
+    PnC_Tagged_Gold   = 4,
+    PnC_Gold          = 5,
+    PnC_Lava          = 6,
+    PnC_Water         = 7,
+    PnC_purplePath    = 8,
+    PnC_RockFloor     = 9,
+    PnC_Tagged_Gems   = 10,
+    PnC_Gems          = 11,
+    //12-255 left free for future use
+    PnC_RoomsStart    = 256,  //rooms 256-2559  (9*256 entries) TERRAIN_ITEMS_MAX
+    PnC_DoorsStart    = 2560, //doors 2560-4863 (9*128*2 entries) TRAPDOOR_TYPES_MAX
+    PnC_DoorsStartLocked  = 2569,
+    PnC_PathStart = 4864, //path (9 entries)
+    PnC_End = 4873,
+};
+
+enum TbPixelsColours
+{
+    Tbp_OpenDoor   = 60,
+    Tbp_LockedDoor = 79,
+    Tbp_DoorHighlighted = 31
+
+};
+/**************************/
 /**
  * Background behind the map area.
  */
@@ -69,19 +98,22 @@ static long *MapShapeEnd = NULL;
 
 static long PanelMapY;
 static long PanelMapX;
-static long NoBackColours;
+static long NumBackColours;
 static long PrevPixelSize;
 static unsigned char MapBackColours[256];
-static unsigned char PanelColours[4096];
+static unsigned char PanelColours[16*PnC_End];
 static long PrevRoomHighlight;
 static long PrevDoorHighlight;
-static unsigned char PanelMap[MAX_SUBTILES_X*MAX_SUBTILES_Y];//map subtiles x*y
+static unsigned short PanelMap[MAX_SUBTILES_X*MAX_SUBTILES_Y];
 static struct InterpMinimap interp_minimap;
 
 long clicked_on_small_map;
 unsigned char grabbed_small_map;
 long MapDiagonalLength = 0;
 TbBool reset_all_minimap_interpolation = false;
+
+
+
 /******************************************************************************/
 
 void panel_map_draw_pixel(RealScreenCoord x, RealScreenCoord y, TbPixel col)
@@ -699,18 +731,15 @@ void panel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
     struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
     int col = 0;
     int owner_col = slabmap_owner(slb);
-    if (owner_col > 6) {
-        owner_col -= 3;
-    }
     if ((mapblk->flags & SlbAtFlg_Unexplored) != 0)
     {
-        col = 3;
+        col = PnC_Unexplored;
     }
     else if (map_block_revealed(mapblk, plyr_idx))
     {
         if (slb->kind == SlbT_GOLD)
         {
-            col = 5;
+            col = PnC_Gold;
             if ((mapblk->flags & SlbAtFlg_TaggedValuable) != 0)
             {
                 col--;
@@ -718,7 +747,7 @@ void panel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
         } else
         if (slb->kind == SlbT_GEMS)
         {
-            col = 178;
+            col = PnC_Gems;
             if ((mapblk->flags & SlbAtFlg_TaggedValuable) != 0)
             {
                 col--;
@@ -729,28 +758,20 @@ void panel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
         {
             struct Room *room;
             room = room_get(slb->room_index);
-
-            //TODO support roomkinds over 16
-            RoomKind rkind;
-            if(room->kind > 16)
-                rkind = 0;
-            else
-                rkind = room->kind;
-
-            col = owner_col + 6 * rkind + 8;
+            col = owner_col + PLAYERS_COUNT * room->kind + PnC_RoomsStart;
         } else
         if (slb->kind == SlbT_ROCK)
         {
-            col = 2;
+            col = PnC_Rock;
         } else
         if (slb->kind == SlbT_ROCK_FLOOR)
         {
-            col = 2;
+            col = PnC_RockFloor;
         }
         else
         if ((mapblk->flags & SlbAtFlg_Filled) != 0)
         {
-            col = 1;
+            col = PnC_Wall;
         } else
         if ((mapblk->flags & SlbAtFlg_IsDoor) != 0)
         {
@@ -759,39 +780,32 @@ void panel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
             if (!thing_is_invalid(doortng)) {
                 if(door_is_hidden_to_player(doortng,plyr_idx))
                 {
-                    col = 1;
+                    col = PnC_Wall;
                 }
                 else
                 {
-                    //TODO support doors over 4
-                    int model;
-                    if(doortng->model>4)
-                        model = 0;
-                    else
-                        model = doortng->model;
-
-                    col = owner_col + 6 * ((doortng->door.is_locked == 1) + 2 * model ) + 110;
+                    col = owner_col + PLAYERS_COUNT * ((doortng->door.is_locked == 1) + 2 * doortng->model ) + PnC_DoorsStart;
                 }
             }
         } else
         if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
         {
             if (slb->kind == SlbT_LAVA) {
-                col = 6;
+                col = PnC_Lava;
             } else
             if (slb->kind == SlbT_WATER) {
-                col = 7;
+                col = PnC_Water;
             }  else
             if (slb->kind == SlbT_PURPLE)
             {
-                col = 176;
+                col = PnC_purplePath;
             } else {
-                col = owner_col + 170;
+                col = owner_col + PnC_PathStart;
             }
         }
 
     }
-    TbPixel *mapptr = &PanelMap[stl_num];
+    ushort *mapptr = &PanelMap[stl_num];
     *mapptr = col;
 }
 
@@ -991,7 +1005,7 @@ void setup_background(long units_per_px)
         bkgnd_pos += MapDiagonalLength;
         out += out_scanline;
     }
-    NoBackColours = num_colours;
+    NumBackColours = num_colours;
 }
 
 void setup_panel_colors(void)
@@ -1003,7 +1017,7 @@ void setup_panel_colors(void)
     int bkcol_idx;
     int pncol_idx;
     pncol_idx = 0;
-    for (bkcol_idx=0; bkcol_idx < NoBackColours; bkcol_idx++)
+    for (bkcol_idx=0; bkcol_idx < NumBackColours; bkcol_idx++)
     {
         unsigned int bkcol;
         bkcol = MapBackColours[bkcol_idx];
@@ -1011,62 +1025,69 @@ void setup_panel_colors(void)
         n = pncol_idx;
         if (frame != 0)
         {
-            PanelColours[n + 3] = pixmap.ghost[bkcol + 26*256];
-            PanelColours[n + 4] = pixmap.ghost[bkcol + 140*256];
-            PanelColours[n + 177] = 102 + (pixmap.ghost[bkcol] >> 6);
+            PanelColours[n + PnC_Unexplored] = pixmap.ghost[bkcol + 26*256];
+            PanelColours[n + PnC_Tagged_Gold] = pixmap.ghost[bkcol + 140*256];
+            PanelColours[n + PnC_Gems] = 102 + (pixmap.ghost[bkcol] >> 6);
         } else //as this is during setup at gameturn 1, the else looks like it is never used.
         {
-            PanelColours[n + 3] = bkcol;
-            PanelColours[n + 4] = bkcol;
-            PanelColours[n + 177] = 104 + (pixmap.ghost[bkcol] >> 6);
+            PanelColours[n + PnC_Unexplored] = bkcol;
+            PanelColours[n + PnC_Tagged_Gold] = bkcol;
+            PanelColours[n + PnC_Tagged_Gems] = 104 + (pixmap.ghost[bkcol] >> 6);
         }
         PanelColours[n + 0] = bkcol;
-        PanelColours[n + 1] = pixmap.ghost[bkcol + 16*256];
-        PanelColours[n + 2] = 0;
-        PanelColours[n + 5] = pixmap.ghost[bkcol + 140*256];
-        PanelColours[n + 6] = 146;
-        PanelColours[n + 7] = 85;
-        PanelColours[n + 176] = 255;
-        PanelColours[n + 178] = 102 + (pixmap.ghost[bkcol] >> 6);
-        n = pncol_idx + 8;
+        PanelColours[n + PnC_Wall]    = pixmap.ghost[bkcol + 16*256];
+        PanelColours[n + PnC_Rock]      = 0;
+        PanelColours[n + PnC_Gold]      = pixmap.ghost[bkcol + 140*256];
+        PanelColours[n + PnC_Lava]      = 146;
+        PanelColours[n + PnC_Water]     = 85;
+        PanelColours[n + PnC_purplePath]    = 255;
+        PanelColours[n + PnC_Gems]      = 102 + (pixmap.ghost[bkcol] >> 6);
+        PanelColours[n + PnC_RockFloor] = 145;
+
+        n = pncol_idx + PnC_RoomsStart;
         int i;
         int k;
+        for (i=TERRAIN_ITEMS_MAX; i > 0; i--)
+        {
+            PanelColours[n + 0] = player_room_colours[get_player_color_idx(PLAYER0)];
+            PanelColours[n + 1] = player_room_colours[get_player_color_idx(PLAYER1)];
+            PanelColours[n + 2] = player_room_colours[get_player_color_idx(PLAYER2)];
+            PanelColours[n + 3] = player_room_colours[get_player_color_idx(PLAYER3)];
+            PanelColours[n + 4] = player_room_colours[get_player_color_idx(PLAYER_GOOD)];
+            PanelColours[n + 5] = frcol;
+            PanelColours[n + 6] = player_room_colours[get_player_color_idx(PLAYER4)];
+            PanelColours[n + 7] = player_room_colours[get_player_color_idx(PLAYER5)];
+            PanelColours[n + 8] = player_room_colours[get_player_color_idx(PLAYER6)];
+            n += PLAYERS_COUNT;
+        }
 
-
-        for (i=17; i > 0; i--)
+        n = pncol_idx + PnC_PathStart;
         {
-            PanelColours[n + 0] = (get_player_color_idx(0) == NEUTRAL_PLAYER)?frcol:player_room_colours[get_player_color_idx(0)];
-            PanelColours[n + 1] = (get_player_color_idx(1) == NEUTRAL_PLAYER)?frcol:player_room_colours[get_player_color_idx(1)];
-            PanelColours[n + 2] = (get_player_color_idx(2) == NEUTRAL_PLAYER)?frcol:player_room_colours[get_player_color_idx(2)];
-            PanelColours[n + 3] = (get_player_color_idx(3) == NEUTRAL_PLAYER)?frcol:player_room_colours[get_player_color_idx(3)];
-            PanelColours[n + 4] = (get_player_color_idx(4) == NEUTRAL_PLAYER)?frcol:player_room_colours[get_player_color_idx(4)];
-            PanelColours[n + 5] = (get_player_color_idx(5) == NEUTRAL_PLAYER)?frcol:player_room_colours[get_player_color_idx(5)];
-            n += 6;
+            PanelColours[n + 0] = player_path_colours[get_player_color_idx(PLAYER0)];
+            PanelColours[n + 1] = player_path_colours[get_player_color_idx(PLAYER1)];
+            PanelColours[n + 2] = player_path_colours[get_player_color_idx(PLAYER2)];
+            PanelColours[n + 3] = player_path_colours[get_player_color_idx(PLAYER3)];
+            PanelColours[n + 4] = player_path_colours[get_player_color_idx(PLAYER_GOOD)];
+            PanelColours[n + 5] = player_path_colours[PLAYER_NEUTRAL];
+            PanelColours[n + 6] = player_path_colours[get_player_color_idx(PLAYER4)];
+            PanelColours[n + 7] = player_path_colours[get_player_color_idx(PLAYER5)];
+            PanelColours[n + 8] = player_path_colours[get_player_color_idx(PLAYER6)];
         }
-        n = pncol_idx + 8 + 17*6 + 12*5;
+        n = pncol_idx + PnC_DoorsStart;
+        for (i=TRAPDOOR_TYPES_MAX; i > 0; i--)
         {
-            PanelColours[n + 0] = player_path_colours[get_player_color_idx(0)];
-            PanelColours[n + 1] = player_path_colours[get_player_color_idx(1)];
-            PanelColours[n + 2] = player_path_colours[get_player_color_idx(2)];
-            PanelColours[n + 3] = player_path_colours[get_player_color_idx(3)];
-            PanelColours[n + 4] = player_path_colours[get_player_color_idx(4)];
-            PanelColours[n + 5] = player_path_colours[get_player_color_idx(5)];
-        }
-        n = pncol_idx + 8 + 17*6;
-        for (i=5; i > 0; i--)
-        {
-            for (k=0; k < 6; k++)
+            for (k=0; k < PLAYERS_COUNT; k++)
             {
-              PanelColours[n + k] = 60;
+              PanelColours[n + k] = Tbp_OpenDoor;
             }
-            n += 6;
-            for (k=0; k < 6; k++)
+            n += PLAYERS_COUNT;
+            for (k=0; k < PLAYERS_COUNT; k++)
             {
-              PanelColours[n + k] = 79;
+              PanelColours[n + k] = Tbp_LockedDoor;
             }
-            n += 6;
+            n += PLAYERS_COUNT;
         }
-        pncol_idx += 256;
+        pncol_idx += PnC_End;
     }
 }
 
@@ -1074,21 +1095,21 @@ void update_panel_color_player_color(PlayerNumber plyr_idx, unsigned char color_
 {
     int n = 0;
     int pncol_idx = 0;
-    for (int bkcol_idx=0; bkcol_idx < NoBackColours; bkcol_idx++)
+    for (int bkcol_idx=0; bkcol_idx < NumBackColours; bkcol_idx++)
     {
-        n = pncol_idx + 8;
+        n = pncol_idx + PnC_RoomsStart;
 
-        for (int i=17; i > 0; i--)
+        for (int i=TERRAIN_ITEMS_MAX; i > 0; i--)
         {
             PanelColours[n + plyr_idx] = player_room_colours[color_idx];
-            n += 6;
+            n += PLAYERS_COUNT;
         }
-        n = pncol_idx + 8 + 17*6 + 12*5;
+        n = pncol_idx + PnC_PathStart;
         {
             PanelColours[n + plyr_idx] = player_path_colours[color_idx];
         }
 
-        pncol_idx += 256;
+        pncol_idx += PnC_End;
     }
 }
 
@@ -1101,7 +1122,7 @@ void update_panel_colors(void)
     int bkcol_idx;
     int pncol_idx;
     pncol_idx = 0;
-    for (bkcol_idx=0; bkcol_idx < NoBackColours; bkcol_idx++)
+    for (bkcol_idx=0; bkcol_idx < NumBackColours; bkcol_idx++)
     {
         unsigned int bkcol;
         bkcol = MapBackColours[bkcol_idx];
@@ -1109,23 +1130,23 @@ void update_panel_colors(void)
         n = pncol_idx;
         if (frame != 0)
         {
-            PanelColours[n + 3] = pixmap.ghost[bkcol + 26*256];
-            PanelColours[n + 4] = pixmap.ghost[bkcol + 140*256];
-            PanelColours[n + 177] = 102 + (pixmap.ghost[bkcol] >> 6);
+            PanelColours[n + PnC_Unexplored] = pixmap.ghost[bkcol + 26*256];
+            PanelColours[n + PnC_Tagged_Gold] = pixmap.ghost[bkcol + 140*256];
+            PanelColours[n + PnC_Tagged_Gems] = 102 + (pixmap.ghost[bkcol] >> 6);
         } else
         {
-            PanelColours[n + 3] = bkcol;
-            PanelColours[n + 4] = bkcol;
-            PanelColours[n + 177] = 100 + (pixmap.ghost[bkcol] >> 6);
+            PanelColours[n + PnC_Unexplored] = bkcol;
+            PanelColours[n + PnC_Tagged_Gold] = bkcol;
+            PanelColours[n + PnC_Tagged_Gems] = 100 + (pixmap.ghost[bkcol] >> 6);
         }
-        n = pncol_idx + 8;
+        n = pncol_idx + PnC_RoomsStart;
         int i;
-        for (i=17; i > 0; i--)
+        for (i=TERRAIN_ITEMS_MAX; i > 0; i--)
         {
-            PanelColours[n + 5] = frcol;
-            n += 6;
+            PanelColours[n + PLAYER_NEUTRAL] = frcol;
+            n += PLAYERS_COUNT;
         }
-        pncol_idx += 256;
+        pncol_idx += PnC_End;
     }
 
     int highlight;
@@ -1135,28 +1156,32 @@ void update_panel_colors(void)
         highlight = -1;
     if (PrevRoomHighlight != highlight)
     {
-        if ((PrevRoomHighlight >= 0) && (NoBackColours > 0))
+        if ((PrevRoomHighlight >= 0) && (NumBackColours > 0))
         {
             int i;
             int n;
-            n = 6 * PrevRoomHighlight + 8;
-            for (i=NoBackColours; i > 0; i--)
+            n = PLAYERS_COUNT * PrevRoomHighlight + PnC_RoomsStart;
+            for (i=NumBackColours; i > 0; i--)
             {
-                PanelColours[n + 0] = (get_player_color_idx(0) == NEUTRAL_PLAYER)?frcol:player_room_colours[get_player_color_idx(0)];;
-                PanelColours[n + 1] = (get_player_color_idx(1) == NEUTRAL_PLAYER)?frcol:player_room_colours[get_player_color_idx(1)];;
-                PanelColours[n + 2] = (get_player_color_idx(2) == NEUTRAL_PLAYER)?frcol:player_room_colours[get_player_color_idx(2)];;
-                PanelColours[n + 3] = (get_player_color_idx(3) == NEUTRAL_PLAYER)?frcol:player_room_colours[get_player_color_idx(3)];;
-                PanelColours[n + 4] = (get_player_color_idx(4) == NEUTRAL_PLAYER)?frcol:player_room_colours[get_player_color_idx(4)];;
-                PanelColours[n + 5] = (get_player_color_idx(5) == NEUTRAL_PLAYER)?frcol:player_room_colours[get_player_color_idx(5)];;
-                n += 256;
+                PanelColours[n + 0] = player_room_colours[get_player_color_idx(0)];
+                PanelColours[n + 1] = player_room_colours[get_player_color_idx(1)];
+                PanelColours[n + 2] = player_room_colours[get_player_color_idx(2)];
+                PanelColours[n + 3] = player_room_colours[get_player_color_idx(3)];
+                PanelColours[n + 4] = player_room_colours[get_player_color_idx(4)];
+                PanelColours[n + 5] = frcol;
+                PanelColours[n + 6] = player_room_colours[get_player_color_idx(6)];
+                PanelColours[n + 7] = player_room_colours[get_player_color_idx(7)];
+                PanelColours[n + 8] = player_room_colours[get_player_color_idx(8)];
+                n += PnC_End;
             }
         }
-        if ((highlight >= 0) && (NoBackColours > 0))
+        
+        if ((highlight >= 0) && (NumBackColours > 0))
         {
             int i;
             int n;
-            n = 6 * highlight + 8;
-            for (i=NoBackColours; i > 0; i--)
+            n = PLAYERS_COUNT * highlight + PnC_RoomsStart;
+            for (i=NumBackColours; i > 0; i--)
             {
                 PanelColours[n + 0] = 31;
                 PanelColours[n + 1] = 31;
@@ -1164,9 +1189,13 @@ void update_panel_colors(void)
                 PanelColours[n + 3] = 31;
                 PanelColours[n + 4] = 31;
                 PanelColours[n + 5] = 31;
-                n += 256;
+                PanelColours[n + 6] = 31;
+                PanelColours[n + 7] = 31;
+                PanelColours[n + 8] = 31;
+                n += PnC_End;
             }
         }
+        
         PrevRoomHighlight = highlight;
     }
 
@@ -1175,36 +1204,36 @@ void update_panel_colors(void)
         highlight = -1;
     if (highlight != PrevDoorHighlight)
     {
-        if ((PrevDoorHighlight >= 0) && (PrevDoorHighlight != 5) && (NoBackColours > 0))
+        if ((PrevDoorHighlight >= 0) && (PrevDoorHighlight != TRAPDOOR_TYPES_MAX) && (NumBackColours > 0))
         {
             int i;
             int n;
-            n = 12 * PrevDoorHighlight;
-            for (i=NoBackColours; i > 0; i--)
+            n = 2 * PLAYERS_COUNT * PrevDoorHighlight;
+            for (i=NumBackColours; i > 0; i--)
             {
                 int k;
-                for (k=0; k < 6; k+=2)
+                for (k=0; k < PLAYERS_COUNT; k+=2)
                 {
-                  PanelColours[n + 110 + k] = 60;
-                  PanelColours[n + 116 + k] = 79;
+                  PanelColours[n + PnC_DoorsStart       + k] = Tbp_OpenDoor;
+                  PanelColours[n + PnC_DoorsStartLocked + k] = Tbp_LockedDoor;
                 }
-                n += 256;
+                n += PnC_End;
             }
         }
-        if ((highlight >= 0) && (NoBackColours > 0))
+        if ((highlight >= 0) && (NumBackColours > 0))
         {
             int i;
             int n;
-            n = 12 * highlight;
-            for (i = NoBackColours; i > 0; i--)
+            n = 2 * PLAYERS_COUNT * highlight;
+            for (i = NumBackColours; i > 0; i--)
             {
                 int k;
-                for (k=0; k < 6; k+=2)
+                for (k=0; k < PLAYERS_COUNT; k+=2)
                 {
-                  PanelColours[n + 110 + k] = 31;
-                  PanelColours[n + 116 + k] = 31;
+                  PanelColours[n + PnC_DoorsStart       + k] = Tbp_DoorHighlighted;
+                  PanelColours[n + PnC_DoorsStartLocked + k] = Tbp_DoorHighlighted;
                 }
-                n += 256;
+                n += PnC_End;
             }
         }
         PrevDoorHighlight = highlight;
@@ -1309,10 +1338,10 @@ void panel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
         for (w = end_w-start_w; w > 0; w--)
         {
             int pnmap_idx;
-            //formula will have to be redone if maps bigger then 256, but works for smallerAD
             pnmap_idx = ((precor_x>>16)) + (((precor_y>>16)) * (gameadd.map_subtiles_x + 1) );
             int pncol_idx;
-            pncol_idx = PanelMap[pnmap_idx] | (*bkgnd << 8);
+            //TODO reenable background
+            pncol_idx = PanelMap[pnmap_idx] + (*bkgnd * PnC_End);
             *out = PanelColours[pncol_idx];
             precor_x += shift_y;
             precor_y -= shift_x;

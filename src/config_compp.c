@@ -1085,6 +1085,7 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
 
 TbBool load_computer_player_config(unsigned short flags)
 {
+    SYNCDBG(8, "Starting");
     static const char *textname = "Computer Player";
     init_computer_process_lists();
     // Load the config file

@@ -202,6 +202,37 @@ TbBool summon_creature(long model, struct Coord3d *pos, long owner, long expleve
     return true;
 }
 
+TbBool add_anger_to_all_creatures_of_player(PlayerNumber plyr_idx, short percentage)
+{
+    SYNCDBG(8, "Starting");
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    unsigned long k = 0;
+    int i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        TRACE_THING(thing);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        anger_give_creatures_annoyance_percentage(thing, percentage, AngR_Other);
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    SYNCDBG(19, "Finished");
+    return true;
+}
+
 TbBool make_all_players_creatures_angry(long plyr_idx)
 {
     SYNCDBG(8,"Starting");
@@ -220,7 +251,7 @@ TbBool make_all_players_creatures_angry(long plyr_idx)
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        anger_make_creature_angry(thing, 4);
+        anger_make_creature_angry(thing, AngR_Other);
         // Thing list loop body ends
         k++;
         if (k > CREATURES_COUNT)
@@ -259,7 +290,7 @@ long force_complete_current_manufacturing(long plyr_idx)
     return 0;
 }
 
-void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, long crmodel, long spl_idx, long overchrg)
+void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, ThingModel crmodel, long spl_idx, long overchrg)
 {
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
@@ -406,6 +437,9 @@ long create_sacrifice_unique_award(struct Coord3d *pos, PlayerNumber plyr_idx, l
   {
   case UnqF_MkAllAngry:
       make_all_players_creatures_angry(plyr_idx);
+      return SacR_Punished;
+  case UnqF_MkAllVerAngry:
+      add_anger_to_all_creatures_of_player(plyr_idx,201);
       return SacR_Punished;
   case UnqF_ComplResrch:
       force_complete_current_research(plyr_idx);

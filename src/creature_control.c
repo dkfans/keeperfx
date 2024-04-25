@@ -136,7 +136,7 @@ void delete_all_control_structures(void)
     }
 }
 
-struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, long crmodel, struct Coord3d *pos)
+struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, ThingModel crmodel, struct Coord3d *pos)
 {
     SYNCDBG(6,"Request for model %ld (%s) at (%d,%d,%d)",crmodel, creature_code_name(crmodel),(int)pos->x.val,(int)pos->y.val,(int)pos->z.val);
     struct Thing* thing = create_creature(pos, crmodel, player->id_number);
@@ -170,7 +170,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     ilght.intensity = 36;
     ilght.flags = 1;
     ilght.is_dynamic = 1;
-    ilght.radius = 2560;
+    ilght.radius = 10 * COORD_PER_STL;
     thing->light_id = light_create_light(&ilght);
     if (thing->light_id != 0)
     {
@@ -225,7 +225,7 @@ TbBool disband_creatures_group(struct Thing *thing)
 
 struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx)
 {
-    unsigned int cmodel = thing->model;
+    ThingModel cmodel = thing->model;
     if ((cmodel < 1) || (cmodel >= game.conf.crtr_conf.model_count))
     {
         ERRORLOG("Trying to get sound for undefined creature type %d",(int)cmodel);
@@ -321,7 +321,7 @@ void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_id
         return;
     }
     long i = UNSYNC_RANDOM(crsound->count);
-    struct Thing* efftng = create_effect(&thing->mappos, TngEff_DamageBlood, thing->owner);
+    struct Thing* efftng = create_effect(&thing->mappos, TngEff_Dummy, thing->owner);
     if (!thing_is_invalid(efftng)) {
         thing_play_sample(efftng, crsound->index+i, NORMAL_PITCH, 0, 3, 0, a2, FULL_LOUDNESS);
     }

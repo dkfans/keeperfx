@@ -980,8 +980,12 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     case PSt_FreeTurnChicken:
     case PSt_FreeCtrlPassngr:
     case PSt_FreeCtrlDirect:
-    case PSt_TimeBomb:
     case PSt_Rebound:
+    case PSt_Freeze:
+    case PSt_Slow:
+    case PSt_Flight:
+    case PSt_Vision:
+    case PSt_TimeBomb:
         draw_spell_cursor(player->work_state, 0, game.mouse_light_pos.x.stl.num, game.mouse_light_pos.y.stl.num);
         break;
     case PSt_CreatrQuery:
@@ -1142,6 +1146,10 @@ void redraw_display(void)
     else if (script_timer_enabled())
     {
         draw_script_timer(gameadd.script_player, gameadd.script_timer_id, gameadd.script_timer_limit, gameadd.timer_real);
+    }
+    if (gameturn_timer_enabled())
+    {
+        draw_gameturn_timer();
     }
     if (display_variable_enabled())
     {

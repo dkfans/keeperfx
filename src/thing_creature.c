@@ -31,64 +31,67 @@
 #include "bflib_sound.h"
 #include "bflib_fileio.h"
 
-#include "engine_lenses.h"
-#include "engine_arrays.h"
 #include "config_creature.h"
-#include "config_effects.h"
-#include "config_terrain.h"
-#include "config_lenses.h"
 #include "config_crtrstates.h"
+#include "config_effects.h"
+#include "config_lenses.h"
 #include "config_magic.h"
-#include "creature_states.h"
-#include "creature_states_combt.h"
-#include "creature_states_lair.h"
-#include "creature_states_mood.h"
-#include "creature_states_gardn.h"
-#include "creature_states_train.h"
-#include "creature_states_spdig.h"
-#include "creature_states_hero.h"
-#include "creature_states_prisn.h"
-#include "creature_instances.h"
-#include "creature_graphics.h"
+#include "config_terrain.h"
 #include "creature_battle.h"
+#include "creature_graphics.h"
 #include "creature_groups.h"
+#include "creature_instances.h"
 #include "creature_jobs.h"
 #include "creature_senses.h"
-#include "thing_stats.h"
-#include "thing_factory.h"
-#include "thing_effects.h"
-#include "thing_objects.h"
-#include "thing_navigate.h"
-#include "thing_shots.h"
-#include "thing_creature.h"
-#include "thing_corpses.h"
-#include "thing_physics.h"
-#include "lens_api.h"
-#include "light_data.h"
-#include "room_list.h"
-#include "room_jobs.h"
-#include "room_graveyard.h"
-#include "room_library.h"
-#include "map_utils.h"
-#include "map_blocks.h"
-#include "gui_topmsg.h"
+#include "creature_states.h"
+#include "creature_states_combt.h"
+#include "creature_states_gardn.h"
+#include "creature_states_hero.h"
+#include "creature_states_lair.h"
+#include "creature_states_mood.h"
+#include "creature_states_prisn.h"
+#include "creature_states_spdig.h"
+#include "creature_states_train.h"
+#include "engine_arrays.h"
+#include "engine_lenses.h"
+#include "engine_redraw.h"
+#include "front_input.h"
 #include "front_simple.h"
 #include "frontend.h"
+#include "frontmenu_ingame_tabs.h"
+#include "game_legacy.h"
+#include "gui_frontmenu.h"
+#include "gui_msgs.h"
+#include "gui_soundmsgs.h"
+#include "gui_topmsg.h"
+#include "kjm_input.h"
+#include "lens_api.h"
+#include "light_data.h"
 #include "magic.h"
+#include "map_blocks.h"
+#include "map_utils.h"
 #include "player_instances.h"
 #include "player_states.h"
 #include "power_hand.h"
 #include "power_process.h"
-#include "gui_frontmenu.h"
-#include "gui_soundmsgs.h"
-#include "engine_redraw.h"
+#include "room_data.h"
+#include "room_graveyard.h"
+#include "room_jobs.h"
+#include "room_library.h"
+#include "room_list.h"
 #include "sounds.h"
-#include "game_legacy.h"
-#include "kjm_input.h"
-#include "front_input.h"
-#include "frontmenu_ingame_tabs.h"
-#include "thing_navigate.h"
 #include "spdigger_stack.h"
+#include "thing_corpses.h"
+#include "thing_creature.h"
+#include "thing_effects.h"
+#include "thing_factory.h"
+#include "thing_navigate.h"
+#include "thing_navigate.h"
+#include "thing_objects.h"
+#include "thing_physics.h"
+#include "thing_shots.h"
+#include "thing_stats.h"
+#include "thing_traps.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -927,8 +930,8 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     if (spconf->linked_power == 0)
     {
         duration = spconf->duration;
-    } else
-    if (pwrdynst->duration == 0)
+    }
+    else if (pwrdynst->duration == 0)
     {
         duration = pwrdynst->strength[spell_lev];
     }
@@ -1062,10 +1065,10 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         case SplK_Freeze:
             cctrl->stateblock_flags |= CCSpl_Freeze;
             if ((thing->movement_flags & TMvF_Flying) != 0)
-            {
-                cctrl->spell_flags |= CSAfF_Grounded;
-                thing->movement_flags &= ~TMvF_Flying;
-            }
+                {
+                    cctrl->spell_flags |= CSAfF_Grounded;
+                    thing->movement_flags &= ~TMvF_Flying;
+                }
             creature_set_speed(thing, 0);
             break;
         case SplK_Armour:
@@ -1305,7 +1308,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
     RoomKind rkind = 0;
     long i;
     TbBool allowed = true;
-    clear_messages_from_player(-45);
+    clear_messages_from_player(MsgType_CreatureInstance, CrInst_TELEPORT);
     if (cspell->duration == spconf->duration / 2)
     {
         PlayerNumber plyr_idx = get_appropriate_player_for_creature(thing);
@@ -1337,7 +1340,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
                     newpos = dungeon_get_essential_pos(thing->owner);
                     break;
                 }
-                case 15: // Fight
+                case 16: // Fight
                 {
                     if (active_battle_exists(thing->owner))
                     {
@@ -1386,12 +1389,12 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
                     }
                     break;
                 }
-                case 16: // Last work room
+                case 17: // Last work room
                 {
                     room = room_get(cctrl->last_work_room_id);
                     break;
                 }
-                case 17: // Call to Arms
+                case 18: // Call to Arms
                 {
                     struct Coord3d cta_pos;
                     cta_pos.x.val = subtile_coord_center(dungeon->cta_stl_x);
@@ -1407,7 +1410,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
                     }
                     break;
                 }
-                case 18: // Lair
+                case 19: // Lair
                 {
                     desttng = thing_get(cctrl->lairtng_idx);
                     break;
@@ -1509,7 +1512,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
             thing->veloc_push_add.z.val += CREATURE_RANDOM(thing, 96) + 40;
             thing->state_flags |= TF1_PushAdd;
         }
-        player->teleport_destination = 18;
+        player->teleport_destination = 19;
     }
 }
 
@@ -1627,6 +1630,116 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
 }
 
 /**
+ * Spell creates creatures to help the caster. When the creatures have a limited duration they will group up with caster.
+ * @param model The creature kind to be creates.
+ * @param level The creature experience level.
+ * @param count How many creatures are created.
+ * @param duration How many gameturns the creatures will live. Set to 0 for infinite.
+ */
+void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, char level, char count, GameTurn duration)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct Thing* famlrtng;
+    struct CreatureControl* famcctrl;
+    short sumxp = level - 1;
+    if (level <= 0)
+    {
+        sumxp = cctrl->explevel + level;
+    }
+    if (duration == 0)
+    {
+        famlrtng = activate_trap_spawn_creature(creatng, model);
+    }
+    else
+    {
+        for (int j = 0; j < count; j++)
+        {
+            if (j > FAMILIAR_MAX)
+            {
+                WARNLOG("Trying to summon creature beyond max %d", FAMILIAR_MAX);
+                break;
+            }
+            if (cctrl->familiar_idx[j] == 0)
+            {
+                famlrtng = activate_trap_spawn_creature(creatng, model);
+                if (!thing_is_invalid(famlrtng))
+                {
+                    cctrl->familiar_idx[j] = famlrtng->index;
+                    famcctrl = creature_control_get_from_thing(famlrtng);
+                    famcctrl->summoner_idx = creatng->index;
+                    creature_change_multiple_levels(famlrtng, sumxp);
+                    remove_first_creature(famlrtng); //temporary units are not real creatures
+                    famcctrl->unsummon_turn = game.play_gameturn + duration;
+                    set_flag(famcctrl->flgfield_2, TF2_SummonedCreature);
+                    struct Thing* leadtng = get_group_leader(creatng);
+                    if (leadtng == creatng)
+                    {
+                        if (get_no_creatures_in_group(creatng) < GROUP_MEMBERS_COUNT)
+                        {
+                            add_creature_to_group(famlrtng, creatng);
+                        }
+                    }
+                    else
+                    {
+                        if (get_no_creatures_in_group(creatng) == 0) //Only make the caster a party leader if he is not already a member of another party
+                        {
+                            add_creature_to_group_as_leader(creatng, famlrtng);
+                        }
+                        if (get_no_creatures_in_group(creatng) < GROUP_MEMBERS_COUNT)
+                        {
+                            add_creature_to_group(famlrtng, creatng);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                //reset the creature duration
+                famlrtng = thing_get(cctrl->familiar_idx[j]);
+                if (thing_is_creature(famlrtng))
+                {
+                    if (famlrtng->model == model)
+                    {
+                        famcctrl = creature_control_get_from_thing(famlrtng);
+                        famcctrl->unsummon_turn = game.play_gameturn + duration;
+                        char expdiff = sumxp - famcctrl->explevel;
+                        if (expdiff > 0)
+                        {
+                            creature_change_multiple_levels(famlrtng, expdiff);
+                        }
+                        if ((famcctrl->follow_leader_fails > 0) || (get_chessboard_distance(&creatng->mappos, &famlrtng->mappos) > subtile_coord(12, 0))) // if it's not getting to the summoner, teleport it there
+                        {
+                            create_effect(&famlrtng->mappos, imp_spangle_effects[get_player_color_idx(famlrtng->owner)], famlrtng->owner);
+                            move_thing_in_map(famlrtng, &creatng->mappos);
+                            cleanup_current_thing_state(famlrtng);
+                            reset_interpolation_of_thing(famlrtng);
+
+                            famlrtng->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
+                            famlrtng->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
+                            famlrtng->veloc_push_add.z.val += 0;
+                            famlrtng->state_flags |= TF1_PushAdd;
+                            famcctrl->spell_flags |= CSAfF_MagicFall;
+                            famlrtng->move_angle_xy = 0;
+                        }
+                    }
+                    else
+                    {
+                        // there's multiple summon types on this creature.
+                        count++;
+                    }
+                }
+                else
+                {
+                    //creature has already died, clear it and go again.
+                    cctrl->familiar_idx[j] = 0;
+                    j--;
+                }
+            }
+        }
+    }
+}
+
+/**
  * Casts a spell by caster creature targeted at given coordinates, most likely using shot to transfer the spell.
  * @param castng The caster creature.
  * @param spl_idx Spell index to be casted.
@@ -1655,13 +1768,17 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
         else
           i = THit_CrtrsOnlyNotOwn;
         thing_fire_shot(castng, INVALID_THING, spconf->shot_model, shot_lvl, i);
-    } else
+    }
     // Check if the spell can be self-casted
-    if (spconf->caster_affected)
+    else if (spconf->caster_affected)
     {
         if (spconf->caster_affect_sound > 0)
           thing_play_sample(castng, spconf->caster_affect_sound, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
         apply_spell_effect_to_thing(castng, spl_idx, cctrl->explevel);
+    }
+    if (spconf->crtr_summon_model > 0)
+    {
+        thing_summon_temporary_creature(castng, spconf->crtr_summon_model, spconf->crtr_summon_level, spconf->crtr_summon_amount, spconf->duration);
     }
     // Check if the spell has an effect associated
     if (spconf->cast_effect_model != 0)
@@ -1679,6 +1796,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
 void update_creature_count(struct Thing *creatng)
 {
     TRACE_THING(creatng);
+    struct CreatureControl* cctrl;
     if (!thing_exists(creatng)) {
         return;
     }
@@ -1686,6 +1804,10 @@ void update_creature_count(struct Thing *creatng)
         return;
     }
     if (thing_is_picked_up(creatng) || creature_is_being_unconscious(creatng)) {
+        return;
+    }
+    cctrl = creature_control_get_from_thing(creatng);
+    if (flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature)){
         return;
     }
     struct Dungeon* dungeon = get_players_num_dungeon(creatng->owner);
@@ -2125,11 +2247,11 @@ long move_creature(struct Thing *thing)
         }
         cctrl->flgfield_1 |= CCFlg_Unknown08;
     }
-    if ((get_creature_model_flags(thing) & CMF_TremblingFat) != 0)
+    if ((get_creature_model_flags(thing) & CMF_Fat) != 0)
     {
-      if (creature_is_ambulating(thing))
+        if (creature_is_ambulating(thing))
         {
-            if (thing->current_frame > 3)
+            if (thing->current_frame > (keepersprite_frames(thing->anim_sprite)/2))
             {
                 velo_y = 0;
                 velo_x = 0;
@@ -2259,12 +2381,11 @@ void creature_rebirth_at_lair(struct Thing *thing)
     if (creature_affected_by_spell(thing, SplK_TimeBomb))
     {
         cctrl->spell_flags &= ~CSAfF_Timebomb;
-        cctrl->timebomb_target_id = 0;
-        cctrl->timebomb_death = false;
         thing->veloc_push_add.x.val = 0;
         thing->veloc_push_add.y.val = 0;
         thing->state_flags &= ~TF1_PushAdd;
         cleanup_current_thing_state(thing);
+        set_start_state(thing);
     }
     if (thing_is_invalid(lairtng))
         return;
@@ -2274,17 +2395,12 @@ void creature_rebirth_at_lair(struct Thing *thing)
     create_effect(&lairtng->mappos, TngEff_HarmlessGas2, thing->owner);
 }
 
-void throw_out_gold(struct Thing *thing)
+void throw_out_gold(struct Thing* thing, long amount)
 {
-    if (thing->creature.gold_carried <= 0)
-    {
-        return;
-    }
-
     int num_pots_to_drop;
     // Compute if we want bags or pots
     int dropject = 6; //GOLD object
-    if ((game.conf.rules.game.pot_of_gold_holds > game.conf.rules.game.bag_gold_hold) && (thing->creature.gold_carried <= game.conf.rules.game.bag_gold_hold))
+    if ((game.conf.rules.game.pot_of_gold_holds > game.conf.rules.game.bag_gold_hold) && (amount <= game.conf.rules.game.bag_gold_hold))
     {
             dropject = 136; //Drop GOLD_BAG object when we're dealing with small amounts
             num_pots_to_drop = 1;
@@ -2292,7 +2408,7 @@ void throw_out_gold(struct Thing *thing)
     else //drop pots
     {
         // Compute how many pots we want to drop
-        num_pots_to_drop = ((thing->creature.gold_carried + game.conf.rules.game.pot_of_gold_holds - 1) / game.conf.rules.game.pot_of_gold_holds);
+        num_pots_to_drop = ((amount + game.conf.rules.game.pot_of_gold_holds - 1) / game.conf.rules.game.pot_of_gold_holds);
         if (num_pots_to_drop > 8)
         {
             num_pots_to_drop = 8;
@@ -2317,12 +2433,21 @@ void throw_out_gold(struct Thing *thing)
         gldtng->veloc_push_add.z.val += CREATURE_RANDOM(thing, 64) + 96;
         gldtng->state_flags |= TF1_PushAdd;
         // Set the amount of gold and mark that we've dropped that gold
-        GoldAmount delta = (thing->creature.gold_carried - gold_dropped) / (num_pots_to_drop - npot);
+        GoldAmount delta = (amount - gold_dropped) / (num_pots_to_drop - npot);
         gldtng->valuable.gold_stored = delta;
         // Update size of the gold object
         add_gold_to_pile(gldtng, 0);
         gold_dropped += delta;
     }
+}
+
+void creature_throw_out_gold(struct Thing* creatng)
+{
+    if (creatng->creature.gold_carried <= 0)
+    {
+        return;
+    }
+    throw_out_gold(creatng, creatng->creature.gold_carried);
 }
 
 struct Thing* thing_death_normal(struct Thing *thing)
@@ -2543,10 +2668,10 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     anger_set_creature_anger_all_types(thing, 0);
-    throw_out_gold(thing);
+    creature_throw_out_gold(thing);
     remove_parent_thing_from_things_in_list(&game.thing_lists[TngList_Shots],thing->index);
 
-    long crmodel = thing->model;
+    ThingModel crmodel = thing->model;
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     if (!thing_exists(thing)) {
         flags |= CrDed_NoEffects;
@@ -2654,8 +2779,26 @@ void delete_effects_attached_to_creature(struct Thing *creatng)
     }
 }
 
-struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng,
-    PlayerNumber killer_plyr_idx, CrDeathFlags flags)
+void delete_familiars_attached_to_creature(struct Thing* sumntng)
+{
+    struct Thing* famlrtng;
+    struct CreatureControl* scctrl = creature_control_get_from_thing(sumntng);
+    struct CreatureControl* fcctrl;
+    if (creature_control_invalid(scctrl)) {
+        return;
+    }
+    for (short i = 0; i < FAMILIAR_MAX; i++)
+    {
+        if (scctrl->familiar_idx[i])
+        {
+            famlrtng = thing_get(scctrl->familiar_idx[i]);
+            fcctrl = creature_control_get_from_thing(famlrtng);
+            fcctrl->unsummon_turn = game.play_gameturn;
+        }
+    }
+}
+
+struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng, PlayerNumber killer_plyr_idx, CrDeathFlags flags)
 {
     SYNCDBG(18,"Starting");
     TRACE_THING(creatng);
@@ -2832,7 +2975,7 @@ long project_melee_damage(const struct Thing *creatng)
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     long strength = compute_creature_max_strength(crstat->strength, cctrl->explevel);
-    return project_creature_attack_melee_damage(strength, crstat->luck, cctrl->explevel);
+    return project_creature_attack_melee_damage(strength, crstat->luck, cctrl->explevel, creatng);
 }
 
 /**
@@ -2864,13 +3007,40 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
     {
         // Project melee damage
         long strength = compute_creature_max_strength(crstat->strength, cctrl->explevel);
-        damage = project_creature_attack_melee_damage(strength, crstat->luck, cctrl->explevel);
+        damage = project_creature_attack_melee_damage(strength, crstat->luck, cctrl->explevel, thing);
     } else
     {
         // Project shot damage
-        damage = project_creature_attack_spell_damage(shotst->damage, crstat->luck, cctrl->explevel);
+        damage = project_creature_attack_spell_damage(shotst->damage, crstat->luck, cctrl->explevel, thing);
     }
     return damage;
+}
+
+static void shot_init_lizard(const struct Thing *target, short angle_xy, unsigned char dexterity, struct Thing *shotng)
+{
+    if (!thing_is_invalid(target))
+    {
+        long range = 2200 - (dexterity * 19);
+        range = range < 1 ? 1 : range;
+        long rnd = (CREATURE_RANDOM(firing, 2 * range) - range);
+        rnd = rnd < (range / 3) && rnd > 0 ? (CREATURE_RANDOM(firing, range / 2) + (range / 2)) + 200 : rnd + 200;
+        rnd = rnd > -(range / 3) && rnd < 0 ? -(CREATURE_RANDOM(firing, range / 3) + (range / 3)) : rnd;
+        long x = move_coord_with_angle_x(target->mappos.x.val, rnd, angle_xy);
+        long y = move_coord_with_angle_y(target->mappos.y.val, rnd, angle_xy);
+        int posint = y / game.conf.crtr_conf.sprite_size;
+        shotng->shot_lizard.x = x;
+        shotng->shot_lizard.posint = posint;
+        shotng->shot_lizard2.range = range / 10;
+    }
+}
+
+static void shot_set_start_pos(const struct Thing *firing, const struct ShotConfigStats *shotst, struct Coord3d *pos1)
+{
+    if (map_is_solid_at_height(pos1->x.stl.num, pos1->y.stl.num, pos1->z.val, pos1->z.val + shotst->size_z))
+    {
+        pos1->x.val = firing->mappos.x.val;
+        pos1->y.val = firing->mappos.y.val;
+    }
 }
 
 void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot_model, char shot_lvl, unsigned char hit_type)
@@ -2879,6 +3049,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
     struct Thing *tmptng;
     short angle_xy;
     short angle_yz;
+    short speed;
     long damage;
     unsigned char dexterity, max_dexterity;
 
@@ -2891,6 +3062,23 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
     pos1.z.val = firing->mappos.z.val;
     if (firing->class_id == TCls_Trap)
     {
+        if (shotst->fire_logic == ShFL_Volley)
+        {
+            if (!firing->trap.volley_fire)
+            {
+                firing->trap.volley_fire = true;
+                firing->trap.volley_repeat = shotst->effect_amount - 1; // N x shots + (N - 1) x pauses and one shot is this one
+                firing->trap.volley_delay = shotst->effect_spacing;
+                firing->trap.firing_at = thing_is_invalid(target)? 0 : target->index;
+            }
+            else
+            {
+                firing->trap.volley_delay = shotst->effect_spacing;
+                if (firing->trap.volley_repeat == 0)
+                    return;
+                firing->trap.volley_repeat--;
+            }
+        }
         struct TrapStats* trapstat = &game.conf.trap_stats[firing->model];
         firing->move_angle_xy = get_angle_xy_to(&firing->mappos, &target->mappos); //visually rotates the trap
         pos1.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_x, firing->move_angle_xy + LbFPMath_PI / 2);
@@ -2906,6 +3094,23 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(firing);
         struct CreatureStats* crstat = creature_stats_get_from_thing(firing);
+        if (shotst->fire_logic == ShFL_Volley)
+        {
+            if (!firing->creature.volley_fire)
+            {
+                firing->creature.volley_fire = true;
+                firing->creature.volley_repeat = shotst->effect_amount - 1; // N x shots + (N - 1) x pauses and one shot is this one
+                cctrl->inst_action_turns += shotst->effect_spacing + 1; // because of post check
+            }
+            else
+            {
+                cctrl->inst_action_turns += shotst->effect_spacing + 1;
+                if (firing->creature.volley_repeat == 0)
+                    return;
+                firing->creature.volley_repeat--;
+            }
+        }
+
         dexterity = compute_creature_max_dexterity(crstat->dexterity, cctrl->explevel);
         max_dexterity = crstat->dexterity + ((crstat->dexterity * cctrl->explevel * game.conf.crtr_conf.exp.dexterity_increase_on_exp) / 100);
 
@@ -2981,7 +3186,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
           return;
-        
+
         draw_flame_breath(&pos1, &pos2, shotst->effect_spacing, shotst->effect_amount,shotst->effect_id);
         shotng->health = shotst->health;
         shotng->shot.damage = damage;
@@ -2990,21 +3195,25 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
     case ShFL_Hail:
     {
         long i;
-        if (map_is_solid_at_height(pos1.x.stl.num, pos1.y.stl.num, pos1.z.val, (pos1.z.val + shotst->size_z)))
-        {
-            pos1.x.val = firing->mappos.x.val;
-            pos1.y.val = firing->mappos.y.val;
-        }
+        shot_set_start_pos(firing, shotst, &pos1);
         for (i = 0; i < shotst->effect_amount; i++)
         {
+            if (shotst->speed_deviation)
+            {
+                speed = (short)(shotst->speed - (shotst->speed_deviation/2) + (CREATURE_RANDOM(firing, shotst->speed_deviation)));
+            }
+            else
+            {
+                speed = shotst->speed;
+            }
             tmptng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
             if (thing_is_invalid(tmptng))
               break;
             shotng = tmptng;
             shotng->shot.hit_type = hit_type;
-            shotng->move_angle_xy = (angle_xy + CREATURE_RANDOM(firing, 101) - 50) & LbFPMath_AngleMask;
-            shotng->move_angle_z = (angle_yz + CREATURE_RANDOM(firing, 101) - 50) & LbFPMath_AngleMask;
-            angles_to_vector(shotng->move_angle_xy, shotng->move_angle_z, shotst->speed, &cvect);
+            shotng->move_angle_xy = (short)((angle_xy + CREATURE_RANDOM(firing, 2 * shotst->spread_xy + 1) - shotst->spread_xy) & LbFPMath_AngleMask);
+            shotng->move_angle_z = (short)((angle_yz + CREATURE_RANDOM(firing, 2 * shotst->spread_z + 1) - shotst->spread_z) & LbFPMath_AngleMask);
+            angles_to_vector(shotng->move_angle_xy, shotng->move_angle_z, speed, &cvect);
             shotng->veloc_push_add.x.val += cvect.x;
             shotng->veloc_push_add.y.val += cvect.y;
             shotng->veloc_push_add.z.val += cvect.z;
@@ -3015,20 +3224,34 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         }
         break;
     }
+    case ShFL_Volley:
+        // fallthrough
     case ShFL_Lizard:
     case ShFL_Default:
     default:
-        if (map_is_solid_at_height(pos1.x.stl.num, pos1.y.stl.num, pos1.z.val, (pos1.z.val + shotst->size_z)))
-        {
-            pos1.x.val = firing->mappos.x.val;
-            pos1.y.val = firing->mappos.y.val;
-        }
+        shot_set_start_pos(firing, shotst, &pos1);
         shotng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
             return;
-        shotng->move_angle_xy = angle_xy;
-        shotng->move_angle_z = angle_yz;
-        angles_to_vector(shotng->move_angle_xy, shotng->move_angle_z, shotst->speed, &cvect);
+        if (shotst->spread_xy || shotst->spread_z)
+        {
+            shotng->move_angle_xy = (short)((angle_xy + CREATURE_RANDOM(firing, 2 * shotst->spread_xy + 1) - shotst->spread_xy) & LbFPMath_AngleMask);
+            shotng->move_angle_z = (short)((angle_yz + CREATURE_RANDOM(firing, 2 * shotst->spread_z + 1) - shotst->spread_z) & LbFPMath_AngleMask);
+        }
+        else
+        {
+            shotng->move_angle_xy = angle_xy;
+            shotng->move_angle_z = angle_yz;
+        }
+        if (shotst->speed_deviation)
+        {
+            speed = (short)(shotst->speed - (shotst->speed_deviation / 2) + (CREATURE_RANDOM(firing, shotst->speed_deviation)));
+        }
+        else
+        {
+            speed = shotst->speed;
+        }
+        angles_to_vector(shotng->move_angle_xy, shotng->move_angle_z, speed, &cvect);
         shotng->veloc_push_add.x.val += cvect.x;
         shotng->veloc_push_add.y.val += cvect.y;
         shotng->veloc_push_add.z.val += cvect.z;
@@ -3038,23 +3261,10 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         shotng->parent_idx = firing->index;
         shotng->shot.target_idx = target_idx;
         shotng->shot.dexterity = dexterity;
-            if (shotst->fire_logic == ShFL_Lizard)
-            {
-                if (!thing_is_invalid(target))
-                {
-                    long range = 2200 - (dexterity * 19);
-                    range = range < 1 ? 1 : range;
-                    long rnd = (CREATURE_RANDOM(firing, 2 * range) - range);
-                    rnd = rnd < (range / 3) && rnd > 0 ? (CREATURE_RANDOM(firing, range / 2) + (range / 2)) + 200 : rnd + 200;
-                    rnd = rnd > -(range / 3) && rnd < 0 ? -(CREATURE_RANDOM(firing, range / 3) + (range / 3)) : rnd;
-                    long x = move_coord_with_angle_x(target->mappos.x.val, rnd, angle_xy);
-                    long y = move_coord_with_angle_y(target->mappos.y.val, rnd, angle_xy);
-                    int posint = y / game.conf.crtr_conf.sprite_size;
-                    shotng->shot_lizard.x = x;
-                    shotng->shot_lizard.posint = posint;
-                    shotng->shot_lizard2.range = range / 10;
-                }
-            }
+        if (shotst->fire_logic == ShFL_Lizard)
+        {
+            shot_init_lizard(target, angle_xy, dexterity, shotng);
+        }
         break;
     }
     if (!thing_is_invalid(shotng))
@@ -3100,11 +3310,11 @@ void set_creature_level(struct Thing *thing, long nlvl)
         ERRORLOG("Level %d too low, bounding",(int)nlvl);
         nlvl = 0;
     }
-    long old_max_health = compute_creature_max_health(crstat->health, cctrl->explevel);
+    long old_max_health = compute_creature_max_health(crstat->health, cctrl->explevel, thing->owner);
     if (old_max_health < 1)
         old_max_health = 1;
     cctrl->explevel = nlvl;
-    long max_health = compute_creature_max_health(crstat->health, cctrl->explevel);
+    long max_health = compute_creature_max_health(crstat->health, cctrl->explevel, thing->owner);
     cctrl->max_health = max_health;
     set_creature_size_stuff(thing);
     if (old_max_health > 0)
@@ -3595,10 +3805,10 @@ void set_first_creature(struct Thing *creatng)
             cctrl->players_prev_creature_idx = 0;
             dungeon->creatr_list_start = creatng->index;
         }
-        if ((cctrl->flgfield_2 & TF2_Spectator) == 0)
+        if (!flag_is_set(cctrl->flgfield_2,TF2_Spectator) && !(flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature)))
         {
-            dungeon->num_active_creatrs++;
             dungeon->owned_creatures_of_model[creatng->model]++;
+            dungeon->num_active_creatrs++;
         }
         creatng->alloc_flags |= TAlF_InDungeonList;
     }
@@ -3620,8 +3830,11 @@ void set_first_creature(struct Thing *creatng)
             cctrl->players_prev_creature_idx = 0;
             dungeon->digger_list_start = creatng->index;
         }
-        dungeon->num_active_diggers++;
-        dungeon->owned_creatures_of_model[creatng->model]++;
+        if (!flag_is_set(cctrl->flgfield_2, TF2_Spectator) && !(flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature)))
+        {
+            dungeon->num_active_diggers++;
+            dungeon->owned_creatures_of_model[creatng->model]++;
+        }
         creatng->alloc_flags |= TAlF_InDungeonList;
     }
 }
@@ -3667,10 +3880,10 @@ void remove_first_creature(struct Thing *creatng)
             secctrl = creature_control_get_from_thing(sectng);
             secctrl->players_prev_creature_idx = cctrl->players_prev_creature_idx;
         }
-        if ((cctrl->flgfield_2 & TF2_Spectator) == 0)
+        if (!flag_is_set(cctrl->flgfield_2, TF2_Spectator) && !flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature))
         {
-            dungeon->num_active_diggers--;
             dungeon->owned_creatures_of_model[creatng->model]--;
+            dungeon->num_active_diggers--;  
         }
     } else
     {
@@ -3687,10 +3900,10 @@ void remove_first_creature(struct Thing *creatng)
             secctrl = creature_control_get_from_thing(sectng);
             secctrl->players_prev_creature_idx = cctrl->players_prev_creature_idx;
         }
-        if ((cctrl->flgfield_2 & TF2_Spectator) == 0)
+        if (!flag_is_set(cctrl->flgfield_2, TF2_Spectator) && !flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature))
         {
-            dungeon->num_active_creatrs--;
             dungeon->owned_creatures_of_model[creatng->model]--;
+            dungeon->num_active_creatrs--;
         }
     }
     cctrl->players_prev_creature_idx = 0;
@@ -3702,18 +3915,14 @@ TbBool thing_is_creature(const struct Thing *thing)
 {
   if (thing_is_invalid(thing))
     return false;
-  if (thing->class_id != TCls_Creature)
-    return false;
-  return true;
+  return (thing->class_id == TCls_Creature);
 }
 
 TbBool thing_is_dead_creature(const struct Thing *thing)
 {
   if (thing_is_invalid(thing))
     return false;
-  if (thing->class_id != TCls_DeadCreature)
-    return false;
-  return true;
+  return (thing->class_id == TCls_DeadCreature);
 }
 
 /** Returns if a thing is special digger creature.
@@ -3723,9 +3932,7 @@ TbBool thing_is_dead_creature(const struct Thing *thing)
  */
 TbBool thing_is_creature_special_digger(const struct Thing *thing)
 {
-  if (thing_is_invalid(thing))
-    return false;
-  if (thing->class_id != TCls_Creature)
+  if (!thing_is_creature(thing))
     return false;
   return ((get_creature_model_flags(thing) & CMF_IsSpecDigger) != 0);
 }
@@ -3779,6 +3986,7 @@ TbBool remove_creature_lair(struct Thing *thing)
 void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
 {
     struct Dungeon *dungeon;
+    struct CreatureControl* cctrl;
     SYNCDBG(6,"Starting for %s, owner %d to %d",thing_model_name(creatng),(int)creatng->owner,(int)nowner);
     // Remove the creature from old owner
     if (creatng->light_id != 0) {
@@ -3808,6 +4016,9 @@ void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
         dungeon->score += get_creature_thing_score(creatng);
         if ( anger_is_creature_angry(creatng) )
             dungeon->creatures_annoyed++;
+        cctrl = creature_control_get_from_thing(creatng);
+        cctrl->paydays_owed = 0;
+        cctrl->paydays_advanced = 0;
     }
 }
 
@@ -3860,7 +4071,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     set_thing_draw(crtng, i, 256, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
     cctrl->explevel = 1;
     crtng->health = crstat->health;
-    cctrl->max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
+    cctrl->max_health = compute_creature_max_health(crstat->health,cctrl->explevel, owner);
     crtng->owner = owner;
     crtng->mappos.x.val = pos->x.val;
     crtng->mappos.y.val = pos->y.val;
@@ -5319,7 +5530,7 @@ void init_creature_scores(void)
 long get_creature_thing_score(const struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    long crmodel = thing->model;
+    ThingModel crmodel = thing->model;
     if (crmodel >= game.conf.crtr_conf.model_count)
         crmodel = 0;
     if (crmodel < 0)
@@ -5330,6 +5541,31 @@ long get_creature_thing_score(const struct Thing *thing)
     if (exp < 0)
         exp = 0;
     return game.creature_scores[crmodel].value[exp];
+}
+
+void transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)
+{
+    struct CreatureControl* oldcctrl = creature_control_get_from_thing(oldtng);
+    struct CreatureControl* newcctrl = creature_control_get_from_thing(newtng);
+    struct CreatureStats* ncrstat = creature_stats_get_from_thing(newtng);
+
+    strcpy(newcctrl->creature_name, oldcctrl->creature_name);
+    newcctrl->blood_type = oldcctrl->blood_type;
+    newcctrl->kills_num = oldcctrl->kills_num;
+    newcctrl->joining_age = oldcctrl->joining_age;
+    newtng->creation_turn = oldtng->creation_turn;
+
+    if (ncrstat->gold_hold >= oldtng->creature.gold_carried)
+    {
+        newtng->creature.gold_carried += oldtng->creature.gold_carried;
+        oldtng->creature.gold_carried = 0;
+    }
+    else
+    {
+        newtng->creature.gold_carried = ncrstat->gold_hold;
+        oldtng->creature.gold_carried -= ncrstat->gold_hold;
+    }
+    return;
 }
 
 long update_creature_levels(struct Thing *thing)
@@ -5354,7 +5590,7 @@ long update_creature_levels(struct Thing *thing)
     // Transforming
     struct CreatureModelConfig* oriconf = &game.conf.crtr_conf.model[thing->model];
     ThingModel model = crstat->grow_up;
-    if (model == CREATURE_ANY)
+    if (model == CREATURE_NOT_A_DIGGER)
     {
         while (1) {
             model = GAME_RANDOM(game.conf.crtr_conf.model_count) + 1;
@@ -5394,6 +5630,7 @@ long update_creature_levels(struct Thing *thing)
         return 0;
     }
     set_creature_level(newtng, crstat->grow_up_level-1);
+    transfer_creature_data_and_gold(thing, newtng);// Transfer the blood type, creature name, kill count, joined age and carried gold to the new creature.
     update_creature_health_to_max(newtng);
     cctrl = creature_control_get_from_thing(thing);
     cctrl->countdown_282 = 50;
@@ -5455,6 +5692,12 @@ TngUpdateRet update_creature(struct Thing *thing)
     {
         WARNLOG("Killing %s index %d with invalid control.",thing_model_name(thing),(int)thing->index);
         kill_creature(thing, INVALID_THING, -1, CrDed_Default);
+        return TUFRet_Deleted;
+    }
+    if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn < game.play_gameturn))
+    {
+        create_effect_around_thing(thing, (TngEff_BallPuffRed + thing->owner));
+        kill_creature(thing, INVALID_THING, -1, CrDed_NotReallyDying| CrDed_NoEffects);
         return TUFRet_Deleted;
     }
     process_armageddon_influencing_creature(thing);
@@ -5547,6 +5790,17 @@ TngUpdateRet update_creature(struct Thing *thing)
             leader_find_positions_for_followers(thing);
         }
     }
+    else
+    {
+        if (((game.play_gameturn + thing->index) % 41) == 0) //Check sometimes to move the familiar back into the group
+        {
+            if (cctrl->summoner_idx > 0)
+            {
+                struct Thing* summoner = thing_get(cctrl->summoner_idx);
+                add_creature_to_group(thing, summoner);
+            }
+        }
+    }
 
     if (cctrl->dragtng_idx > 0)
     {
@@ -5560,6 +5814,7 @@ TngUpdateRet update_creature(struct Thing *thing)
             pvpos.z.val = tngpos->z.val;
 
             move_thing_in_map(tngp, &pvpos);
+            tngp->move_angle_xy = thing->move_angle_xy; //corpse gets rotated along with creature
         }
     }
     if (update_creature_levels(thing) == -1)
@@ -5715,6 +5970,8 @@ TbBool creature_stats_debug_dump(void)
             case CrSt_CreatureSearchForGoldToStealInRoom2:
             case CrSt_GoodArrivedAtAttackRoom:
             case CrSt_GoodArrivedAtSabotageRoom:
+            case CrSt_GoodWanderToCreatureCombat:
+            case CrSt_GoodWanderToObjectCombat:
                 ERRORLOG("Player %d %s index %d is in Good-only state %d",(int)thing->owner,thing_model_name(thing),(int)thing->index,(int)crstate);
                 result = true;
                 break;
@@ -5880,7 +6137,7 @@ struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmod
     return creatng;
 }
 
-void script_process_new_creatures(PlayerNumber plyr_idx, long crmodel, long location, long copies_num, long carried_gold, long crtr_level)
+void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, long location, long copies_num, long carried_gold, long crtr_level)
 {
     for (long i = 0; i < copies_num; i++)
     {
@@ -5928,8 +6185,8 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
     {
         creature_drop_dragged_object(creatng, droptng);
     }
-    clear_messages_from_player(-81);
-    clear_messages_from_player(-86);
+    clear_messages_from_player(MsgType_Room, RoK_LIBRARY);
+    clear_messages_from_player(MsgType_Room, RoK_WORKSHOP);
     unsigned short smpl_idx, pitch;
     if (subtile_has_water_on_top(droptng->mappos.x.stl.num, droptng->mappos.y.stl.num))
     {
@@ -6198,22 +6455,26 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
 {
     char id;
     char str[255] = {'\0'};
+    char type;
     if (thing_is_trap_crate(picktng))
     {
         struct TrapConfigStats* trapst = get_trap_model_stats(crate_thing_to_workshop_item_model(picktng));
         strcat(str, get_string(trapst->name_stridx));
-        id = -86;
+        id = RoK_WORKSHOP;
+        type = MsgType_Room;
     }
     else if (thing_is_door_crate(picktng))
     {
         struct DoorConfigStats* doorst = get_door_model_stats(crate_thing_to_workshop_item_model(picktng));
         strcat(str, get_string(doorst->name_stridx));
-        id = -86;
+        id = RoK_WORKSHOP;
+        type = MsgType_Room;
     }
     else if (thing_is_spellbook(picktng))
     {
         strcat(str, get_string(get_power_name_strindex(book_thing_to_power_kind(picktng))));
-        id = -81;
+        id = RoK_LIBRARY;
+        type = MsgType_Room;
     }
     else if (thing_is_special_box(picktng))
     {
@@ -6243,7 +6504,8 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
             strcpy(msg_buf, str);
             snprintf(str, sizeof(str), "%s", strtok(msg_buf, ":"));
         }
-        id = -81;
+        id = RoK_LIBRARY;
+        type = MsgType_Room;
     }
     else if (object_is_gold_pile(picktng))
     {
@@ -6263,17 +6525,20 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
                 sprintf(str, "%ld", picktng->creature.gold_carried);
             }
         }
-        id = -116;
+        id = 3;
+        type = MsgType_Query;
     }
     else if (thing_is_creature(picktng))
     {
         id = picktng->owner;
+        type = MsgType_Player;
         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[picktng->model];
         sprintf(str, "%s", get_string(crconf->namestr_idx));
     }
     else if (picktng->class_id == TCls_DeadCreature)
     {
-        id = -89;
+        id = RoK_GRAVEYARD;
+        type = MsgType_Room;
         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[picktng->model];
         sprintf(str, "%s", get_string(crconf->namestr_idx));
     }
@@ -6282,7 +6547,7 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
         return;
     }
     zero_messages();
-    targeted_message_add(id, plyr_idx, timeout, str);
+    targeted_message_add(type, id, plyr_idx, timeout, str);
 }
 
 struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
@@ -6539,6 +6804,11 @@ TbBool creature_can_be_queried(struct PlayerInfo *player, struct Thing *creatng)
         }
     }
     return true;
+}
+
+TbBool creature_can_be_transferred(const struct Thing* thing)
+{
+    return ((get_creature_model_flags(thing) & CMF_NoTransfer) == 0);
 }
 
 /******************************************************************************/

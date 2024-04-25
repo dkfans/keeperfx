@@ -22,6 +22,9 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
+/** Max amount of creatures supported on any map. */
+#define CREATURES_COUNT       256
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -52,8 +55,9 @@ enum ThingFlags1 {
 };
 
 enum ThingFlags2 {
-    TF2_Unkn01         = 0x01,
-    TF2_Spectator      = 0x02,
+    TF2_Unkn01              = 0x01,
+    TF2_Spectator           = 0x02,
+    TF2_SummonedCreature    = 0x04,
 };
 
 enum ThingRenderingFlags {
@@ -180,6 +184,9 @@ struct Thing {
         unsigned char hit_type;
         short target_idx;
         unsigned char spell_level;
+        struct Coord3d originpos;
+        int num_wind_affected;
+        int wind_affected_creature[CREATURES_COUNT];  //list of wind affected Creatures
       } shot;
       struct {
         long x;
@@ -199,6 +206,8 @@ struct Thing {
       struct {
         long gold_carried;
         short health_bar_turns;
+        short volley_repeat;
+        TbBool volley_fire;
       } creature;
 //TCls_Effect
       struct {
@@ -217,8 +226,14 @@ struct Thing {
 //TCls_Trap
       struct {
         unsigned char num_shots;
-        long rearm_turn;
         unsigned char revealed;
+        TbBool wait_for_rearm;
+        TbBool volley_fire;
+        GameTurn rearm_turn;
+        GameTurn shooting_finished_turn;
+        short volley_repeat;
+        unsigned short volley_delay;
+        unsigned short firing_at;
       } trap;
 //TCls_Door
       struct {
@@ -236,10 +251,10 @@ struct Thing {
         unsigned char x;
         unsigned char y;
         short time;
-        unsigned char model;
+        ThingModel model;
       }cave_in;
     };
-    unsigned char model;
+    ThingModel model;
     unsigned short index;
     /** Parent index. The parent may either be a thing, or a slab index.
      * What it means depends on thing class, ie. it's thing index for shots

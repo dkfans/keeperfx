@@ -59,6 +59,7 @@
 #include "power_process.h"
 #include "game_legacy.h"
 #include "cursor_tag.h"
+#include "gui_msgs.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -129,7 +130,7 @@ const struct TaskFunctions task_function[] = {
     {"COMPUTER_WAIT_FOR_BRIDGE",  task_wait_for_bridge},
     {"COMPUTER_ATTACK_MAGIC",     task_attack_magic},
     {"COMPUTER_SELL_TRAPS_AND_DOORS", task_sell_traps_and_doors},
-    {"COMPUTER_MOVE_GOLD_TO_TREASURY",task_move_gold_to_treasury},
+    {"COMPUTER_MOVE_GOLD_TO_TREASURY", task_move_gold_to_treasury},
 };
 
 const struct TrapDoorSelling trapdoor_sell[] = {
@@ -386,6 +387,12 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     case GA_UsePwrConceal:
         thing = thing_get(param1);
         return magic_use_available_power_on_thing(plyr_idx, PwrK_CONCEAL, alevel, stl_x, stl_y, thing, PwMod_Default);
+    case GA_UsePwrFlight:
+        thing = thing_get(param1);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_FLIGHT, alevel, stl_x, stl_y, thing, PwMod_Default);
+    case GA_UsePwrVision:
+        thing = thing_get(param1);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_VISION, alevel, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrHoldAudnc:
         return magic_use_available_power_on_level(plyr_idx, PwrK_HOLDAUDNC, alevel, PwMod_Default);
     case GA_UsePwrDisease:
@@ -394,6 +401,12 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     case GA_UsePwrChicken:
         thing = thing_get(param1);
         return magic_use_available_power_on_thing(plyr_idx, PwrK_CHICKEN, alevel, stl_x, stl_y, thing, PwMod_Default);
+    case GA_UsePwrFreeze:
+        thing = thing_get(param1);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_FREEZE, alevel, stl_x, stl_y, thing, PwMod_Default);
+    case GA_UsePwrSlow:
+        thing = thing_get(param1);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_SLOW, alevel, stl_x, stl_y, thing, PwMod_Default);
     case GA_UseSlap:
     case GA_UsePwrSlap:
         thing = thing_get(param1);
@@ -1086,7 +1099,7 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
     if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         struct RoomConfigStats *roomst;
         roomst = &game.conf.slab_conf.room_cfgstats[ctask->rkind];
-        message_add_fmt(comp->dungeon->owner, "Now I can place the %s.",get_string(roomst->name_stridx));
+        message_add_fmt(MsgType_Player, comp->dungeon->owner, "Now I can place the %s.",get_string(roomst->name_stridx));
     }
     ctask->ttype = CTT_PlaceRoom;
     setup_computer_dig_room(&ctask->dig, &ctask->new_room_pos, ctask->create_room.area);
@@ -1515,7 +1528,7 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
         if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
             struct RoomConfigStats *roomst;
             roomst = &game.conf.slab_conf.room_cfgstats[rkind];
-            message_add_fmt(comp->dungeon->owner, "It is time to build %s.",get_string(roomst->name_stridx));
+            message_add_fmt(MsgType_Player, comp->dungeon->owner, "It is time to build %s.",get_string(roomst->name_stridx));
         }
         ctask->ttype = CTT_DigRoomPassage;
         ctask->rkind = rkind;
@@ -2317,7 +2330,9 @@ static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBo
     {
         struct CreatureControl *cctrl = creature_control_get_from_thing(i);
 
-        if ( any_flag_is_set(i->alloc_flags, (TAlF_IsInLimbo|TAlF_IsInMapWho)) )
+        if ( flag_is_set(i->alloc_flags, TAlF_IsInLimbo) )
+            continue;
+        if (flag_is_set(i->state_flags, TF1_InCtrldLimbo) )
             continue;
         if ( i->active_state == CrSt_CreatureUnconscious )
             continue;
@@ -3097,7 +3112,7 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
         {
             k = 1;
         }
-    } 
+    }
     else if (computer_able_to_use_power(comp, PwrK_PROTECT, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_PROTECT))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrArmour, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
@@ -3108,6 +3123,20 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
     else if (computer_able_to_use_power(comp, PwrK_REBOUND, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_REBOUND))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrRebound, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
+        {
+            k = 1;
+        }
+    }
+    if (computer_able_to_use_power(comp, PwrK_FLIGHT, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_FLIGHT))
+    {
+        if (try_game_action(comp, dungeon->owner, GA_UsePwrFlight, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
+        {
+            k = 1;
+        }
+    }
+    if (computer_able_to_use_power(comp, PwrK_VISION, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_VISION))
+    {
+        if (try_game_action(comp, dungeon->owner, GA_UsePwrVision, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
             k = 1;
         }
@@ -3211,7 +3240,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
     const struct TrapDoorSelling *tdsell;
     TbBool item_sold;
     long value;
-    long model;
+    ThingModel model;
     long i;
 
     if (dungeon_invalid(dungeon)) {
@@ -3438,35 +3467,35 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thi
         switch (dst_state)
         {
         case CrSt_ImpImprovesDungeon:
-            message_add_fmt(comp->dungeon->owner, "This %s should go claiming.",get_string(crconf->namestr_idx));
+            message_add_fmt(MsgType_Player, comp->dungeon->owner, "This %s should go claiming.",get_string(crconf->namestr_idx));
             break;
         case CrSt_ImpDigsDirt:
-            message_add_fmt(comp->dungeon->owner, "This %s should go digging.",get_string(crconf->namestr_idx));
+            message_add_fmt(MsgType_Player, comp->dungeon->owner, "This %s should go digging.",get_string(crconf->namestr_idx));
             break;
         case CrSt_ImpMinesGold:
-            message_add_fmt(comp->dungeon->owner, "This %s should go mining.",get_string(crconf->namestr_idx));
+            message_add_fmt(MsgType_Player, comp->dungeon->owner, "This %s should go mining.",get_string(crconf->namestr_idx));
             break;
         case CrSt_CreatureDoingNothing:
         case CrSt_ImpDoingNothing:
-            message_add_fmt(comp->dungeon->owner, "This %s should stop doing that.",get_string(crconf->namestr_idx));
+            message_add_fmt(MsgType_Player, comp->dungeon->owner, "This %s should stop doing that.",get_string(crconf->namestr_idx));
             break;
         case CrSt_CreatureSacrifice:
             if (thing->model == game.conf.rules.sacrifices.cheaper_diggers_sacrifice_model) {
                 struct PowerConfigStats *powerst;
                 powerst = get_power_model_stats(PwrK_MKDIGGER);
-                message_add_fmt(comp->dungeon->owner, "Sacrificing %s to reduce %s price.",get_string(crconf->namestr_idx),get_string(powerst->name_stridx));
+                message_add_fmt(MsgType_Player, comp->dungeon->owner, "Sacrificing %s to reduce %s price.",get_string(crconf->namestr_idx),get_string(powerst->name_stridx));
                 break;
             }
-            message_add_fmt(comp->dungeon->owner, "This %s will be sacrificed.",get_string(crconf->namestr_idx));
+            message_add_fmt(MsgType_Player, comp->dungeon->owner, "This %s will be sacrificed.",get_string(crconf->namestr_idx));
             break;
         case CrSt_Torturing:
-            message_add_fmt(comp->dungeon->owner, "This %s should be tortured.", get_string(crconf->namestr_idx));
+            message_add_fmt(MsgType_Player, comp->dungeon->owner, "This %s should be tortured.", get_string(crconf->namestr_idx));
             break;
         case CrSt_CreatureDoorCombat:
-            message_add_fmt(comp->dungeon->owner, "This %s should attack a door.", get_string(crconf->namestr_idx));
+            message_add_fmt(MsgType_Player, comp->dungeon->owner, "This %s should attack a door.", get_string(crconf->namestr_idx));
             break;
         default:
-            message_add_fmt(comp->dungeon->owner, "This %s should go there.",get_string(crconf->namestr_idx));
+            message_add_fmt(MsgType_Player, comp->dungeon->owner, "This %s should go there.",get_string(crconf->namestr_idx));
             break;
         }
     }
@@ -3489,7 +3518,7 @@ TbBool create_task_move_creatures_to_defend(struct Computer2 *comp, struct Coord
         return false;
     }
     if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
-        message_add_fmt(comp->dungeon->owner, "Minions, defend this place!");
+        message_add_fmt(MsgType_Player, comp->dungeon->owner, "Minions, defend this place!");
     }
     ctask->ttype = CTT_MoveCreaturesToDefend;
     ctask->move_to_defend.target_pos.x.val = pos->x.val;
@@ -3517,10 +3546,10 @@ TbBool create_task_move_creatures_to_room(struct Computer2 *comp, int room_idx, 
         if (room_exists(room)) {
             struct RoomConfigStats *roomst;
             roomst = &game.conf.slab_conf.room_cfgstats[room->kind];
-            message_add_fmt(comp->dungeon->owner, "Time to put some creatures into %s.",get_string(roomst->name_stridx));
+            message_add_fmt(MsgType_Player, comp->dungeon->owner, "Time to put some creatures into %s.",get_string(roomst->name_stridx));
         } else {
             if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksFrequent))
-                message_add_fmt(comp->dungeon->owner, "Time to put some creatures into rooms.");
+                message_add_fmt(MsgType_Player, comp->dungeon->owner, "Time to put some creatures into rooms.");
         }
     }
     ctask->ttype = CTT_MoveCreatureToRoom;
@@ -3540,7 +3569,7 @@ TbBool create_task_pickup_for_attack(struct Computer2 *comp, struct Coord3d *pos
         return false;
     }
     if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
-        message_add_fmt(comp->dungeon->owner, "Minions, attack now!");
+        message_add_fmt(MsgType_Player, comp->dungeon->owner, "Minions, attack now!");
     }
     ctask->ttype = CTT_PickupForAttack;
     ctask->pickup_for_attack.target_pos.x.val = pos->x.val;
@@ -3562,7 +3591,7 @@ TbBool create_task_magic_battle_call_to_arms(struct Computer2 *comp, struct Coor
         return false;
     }
     if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
-        message_add_fmt(comp->dungeon->owner, "Minions, call to arms! Join the battle!");
+        message_add_fmt(MsgType_Player, comp->dungeon->owner, "Minions, call to arms! Join the battle!");
     }
     ctask->ttype = CTT_MagicCallToArms;
     ctask->task_state = CTaskSt_None;
@@ -3587,7 +3616,7 @@ TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coo
         return false;
     }
     if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
-        message_add_fmt(comp->dungeon->owner, "Minions, call to arms! Attack!");
+        message_add_fmt(MsgType_Player, comp->dungeon->owner, "Minions, call to arms! Attack!");
     }
     ctask->ttype = CTT_MagicCallToArms;
     ctask->task_state = CTaskSt_None;
@@ -3622,7 +3651,7 @@ TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long num_to_sell
         return false;
     }
     if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
-        message_add_fmt(dungeon->owner, "I will sell some traps and doors.");
+        message_add_fmt(MsgType_Player, dungeon->owner, "I will sell some traps and doors.");
     }
     ctask->ttype = CTT_SellTrapsAndDoors;
     ctask->created_turn = game.play_gameturn;
@@ -3653,7 +3682,7 @@ TbBool create_task_move_gold_to_treasury(struct Computer2 *comp, long num_to_mov
         return false;
     }
     if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksFrequent)) {
-        message_add_fmt(comp->dungeon->owner, "Gold should not lay around outside treasury.");
+        message_add_fmt(MsgType_Player, comp->dungeon->owner, "Gold should not lay around outside treasury.");
     }
     ctask->ttype = CTT_MoveGoldToTreasury;
     ctask->created_turn = game.play_gameturn;
@@ -3675,7 +3704,7 @@ TbBool create_task_dig_to_attack(struct Computer2 *comp, const struct Coord3d st
         return false;
     }
     if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
-        message_add_fmt(comp->dungeon->owner, "Player %d looks like he need a kick.",(int)victim_plyr_idx);
+        message_add_fmt(MsgType_Player, comp->dungeon->owner, "Player %d looks like he need a kick.",(int)victim_plyr_idx);
     }
     ctask->ttype = CTT_DigToAttack;
     ctask->dig_somewhere.startpos.x.val = startpos.x.val;
@@ -3702,7 +3731,7 @@ TbBool create_task_dig_to_neutral(struct Computer2 *comp, const struct Coord3d s
         return false;
     }
     if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
-        message_add_fmt(comp->dungeon->owner, "Localized neutral place, hopefully with loot.");
+        message_add_fmt(MsgType_Player, comp->dungeon->owner, "Localized neutral place, hopefully with loot.");
     }
     ctask->ttype = CTT_DigToNeutral;
     ctask->dig_somewhere.byte_80 = 0;
@@ -3727,7 +3756,7 @@ TbBool create_task_dig_to_gold(struct Computer2 *comp, const struct Coord3d star
         return false;
     }
     if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
-        message_add_fmt(comp->dungeon->owner, "Time to dig more gold.");
+        message_add_fmt(MsgType_Player, comp->dungeon->owner, "Time to dig more gold.");
     }
     ctask->ttype = CTT_DigToGold;
     set_flag(ctask->flags, ComTsk_AddTrapLocation);
@@ -3756,7 +3785,7 @@ TbBool create_task_dig_to_entrance(struct Computer2 *comp, const struct Coord3d 
     if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         struct RoomConfigStats *roomst;
         roomst = &game.conf.slab_conf.room_cfgstats[RoK_ENTRANCE];
-        message_add_fmt(comp->dungeon->owner, "I will take that %s.",get_string(roomst->name_stridx));
+        message_add_fmt(MsgType_Player, comp->dungeon->owner, "I will take that %s.",get_string(roomst->name_stridx));
     }
     ctask->ttype = CTT_DigToEntrance;
     set_flag(ctask->flags, (ComTsk_AddTrapLocation|ComTsk_Urgent));
@@ -3782,7 +3811,7 @@ TbBool create_task_slap_imps(struct Computer2 *comp, long creatrs_num)
         return false;
     }
     if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksFrequent)) {
-        message_add_fmt(comp->dungeon->owner, "Work harder, minions!");
+        message_add_fmt(MsgType_Player, comp->dungeon->owner, "Work harder, minions!");
     }
     ctask->ttype = CTT_SlapDiggers;
     ctask->attack_magic.repeat_num = creatrs_num;
@@ -3790,8 +3819,8 @@ TbBool create_task_slap_imps(struct Computer2 *comp, long creatrs_num)
     return true;
 }
 
-//task is named 'speed up', but it's generated from 'check fighter' event and all round buffs units. Not to be confused
-//with check_for_accelerate which cast speed outside of combat
+//Task is named 'speed up', but it's generated from 'check fighter' event and all round buffs units.
+//Not to be confused with check_for_accelerate which cast speed outside of combat.
 TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *creatng, long splevel)
 {
     struct ComputerTask *ctask;
@@ -3801,7 +3830,7 @@ TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *cr
         return false;
     }
     if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
-        message_add_fmt(comp->dungeon->owner, "I should buff my fighters.");
+        message_add_fmt(MsgType_Player, comp->dungeon->owner, "I should speed up my fighters.");
     }
     ctask->ttype = CTT_MagicSpeedUp;
     ctask->attack_magic.target_thing_idx = creatng->index;
@@ -3822,7 +3851,7 @@ TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *crea
         struct PowerConfigStats *powerst;
         powerst = get_power_model_stats(pwkind);
         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[creatng->model];
-        message_add_fmt(comp->dungeon->owner, "Casting %s on %s!",get_string(powerst->name_stridx),get_string(crconf->namestr_idx));
+        message_add_fmt(MsgType_Player, comp->dungeon->owner, "Casting %s on %s!",get_string(powerst->name_stridx),get_string(crconf->namestr_idx));
     }
     ctask->ttype = CTT_AttackMagic;
     ctask->attack_magic.target_thing_idx = creatng->index;

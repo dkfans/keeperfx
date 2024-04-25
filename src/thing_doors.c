@@ -215,7 +215,7 @@ long destroy_door(struct Thing *doortng)
         create_dirt_rubble_for_dug_block(stl_x + 1, stl_y, 4, plyr_idx);
         create_dirt_rubble_for_dug_block(stl_x - 1, stl_y, 4, plyr_idx);
     }
-    struct Thing* efftng = create_effect(&pos, TngEff_DamageBlood, plyr_idx);
+    struct Thing* efftng = create_effect(&pos, TngEff_Dummy, plyr_idx);
     if (!thing_is_invalid(efftng)) {
         thing_play_sample(efftng, 72 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
     }
@@ -304,11 +304,9 @@ TbBool subtile_has_locked_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 
 TbBool thing_is_deployed_door(const struct Thing *thing)
 {
-    if (thing_is_invalid(thing))
+    if (!thing_exists(thing))
         return false;
-    if (thing->class_id != TCls_Door)
-        return false;
-    return true;
+    return (thing->class_id == TCls_Door);
 }
 
 TbBool thing_is_sellable_door(const struct Thing* thing)

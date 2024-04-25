@@ -52,6 +52,7 @@ extern "C" {
 struct Thing;
 
 enum ThingPickFlags {
+    TPF_None             = 0x00,
     TPF_PickableCheck    = 0x01,
     TPF_OrderedPick      = 0x02,
     TPF_ReverseOrder     = 0x04,
@@ -67,7 +68,7 @@ enum CreatureDeathFlags {
 };
 
 struct CreatureStorage {
-  unsigned char model;
+  ThingModel model;
   unsigned char explevel;
   unsigned char count;
   char creature_name[CREATURE_NAME_MAX];
@@ -146,6 +147,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind);
 void process_thing_spell_effects(struct Thing *thing);
 void process_thing_spell_effects_while_blocked(struct Thing *thing);
 void delete_effects_attached_to_creature(struct Thing *creatng);
+void delete_familiars_attached_to_creature(struct Thing* sumntng);
 TbBool thing_affected_by_spell(const struct Thing *thing, SpellKind spkind);
 GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, SpellKind spkind, const char *func_name);
 #define get_spell_duration_left_on_thing(thing, spkind) get_spell_duration_left_on_thing_f(thing, spkind, __func__)
@@ -199,12 +201,15 @@ TbBool thing_is_creature_special_digger(const struct Thing *thing);
 TbBool creature_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx);
 TbBool creature_is_invisible(const struct Thing *thing);
 TbBool creature_can_see_invisible(const struct Thing *thing);
+TbBool creature_can_be_transferred(const struct Thing* thing);
 int get_creature_health_permil(const struct Thing *thing);
 /******************************************************************************/
 struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long carried_gold, long crtr_level);
 struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location);
-void script_process_new_creatures(PlayerNumber plyr_idx, long crmodel, long location, long copies_num, long carried_gold, long crtr_level);
+void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, long location, long copies_num, long carried_gold, long crtr_level);
 PlayerNumber get_appropriate_player_for_creature(struct Thing *creatng);
+/******************************************************************************/
+void throw_out_gold(struct Thing* thing, long amount);
 /******************************************************************************/
 #ifdef __cplusplus
 }

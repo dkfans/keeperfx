@@ -29,8 +29,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define PLAYERS_COUNT           5
-#define PLAYERS_EXT_COUNT       6
+#define PLAYERS_COUNT           9
+#define PLAYERS_EXT_COUNT       9
 #define COLOURS_COUNT       9
 /** This acts as default value for neutral_player_number */
 #define NEUTRAL_PLAYER          5
@@ -166,7 +166,6 @@ struct PlayerInfo {
     unsigned char packet_num;
     long hand_animationId;
     unsigned int hand_busy_until_turn;
-unsigned char field_14;
     char player_name[20];
     unsigned char victory_state;
     PlayerBitFlags allied_players;
@@ -258,7 +257,7 @@ short cursor_light_idx;
     MapSubtlCoord cursor_subtile_y;
     MapSubtlCoord previous_cursor_subtile_x;
     MapSubtlCoord previous_cursor_subtile_y;
-    TbBool mouse_is_offmap;
+    TbBool mouse_on_map;
     TbBool roomspace_drag_paint_mode;
     unsigned char roomspace_l_shape;
     TbBool roomspace_horizontal_first;

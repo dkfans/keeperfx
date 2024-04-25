@@ -40,6 +40,7 @@
 /******************************************************************************/
 TbBool load_stats_files(void)
 {
+    SYNCDBG(8, "Starting");
     TbBool result = true;
     clear_research_for_all_players();
     if (!load_creaturetypes_config(keeper_creaturetp_file,CnfLd_ListOnly))
@@ -85,7 +86,8 @@ TbBool load_stats_files(void)
       result = false;
     if (!load_spritecolors_config(keeper_spritecolors_file,CnfLd_Standard))
       result = false;
-
+    if (!load_cubes_config(CnfLd_Standard))
+      result = false;
     
     for (int i = 1; i < game.conf.crtr_conf.model_count; i++)
     {

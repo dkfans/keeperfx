@@ -44,6 +44,8 @@
 #include "frontmenu_ingame_map.h"
 #include "gui_boxmenu.h"
 #include "keeperfx.hpp"
+#include "api.h"
+#include "lvl_filesdk1.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -207,6 +209,12 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
                     ERRORLOG("Unable to load campaign");
                     return GLoad_Failed;
                 }
+                struct GameCampaign *campgn = &campaign;
+                if (reload_campaign_strings)
+                {
+                    setup_campaign_strings_data(campgn);
+                }
+                load_map_string_data(campgn, centry->level_num, get_level_fgroup(centry->level_num));
                 // Load configs which may have per-campaign part, and even be modified within a level
                 init_custom_sprites(centry->level_num);
                 load_computer_player_config(CnfLd_Standard);
@@ -331,6 +339,7 @@ TbBool save_game(long slot_num)
         return false;
     }
     LbFileClose(handle);
+    api_event("GAME_SAVED");
     return true;
 }
 
@@ -445,6 +454,9 @@ TbBool load_game(long slot_num)
     }
     game.loaded_swipe_idx = -1;
     JUSTMSG("Loaded level %d from %s", game.continue_level_number, campaign.name);
+
+    api_event("GAME_LOADED");
+
     return true;
 }
 

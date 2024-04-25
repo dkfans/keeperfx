@@ -33,6 +33,7 @@
 #include "thing_stats.h"
 #include "thing_physics.h"
 #include "thing_creature.h"
+#include "thing_navigate.h"
 #include "creature_senses.h"
 #include "spdigger_stack.h"
 #include "power_hand.h"
@@ -788,27 +789,40 @@ long anywhere_thing_filter_is_creature_of_model_training_and_owned_by(const stru
 }
 
 /**
+ * returns if a specific creature model matches a target model, considering all the wildcards.
+ * @param creatng_model The creature model being checked.
+ * @param plyr_idx The player id so we can exclude diggers and spectators.
+ * @param target_model model to compare it to, possible wildcard.
+ */
+TbBool creature_model_matches_model(ThingModel creatng_model, PlayerNumber plyr_idx, ThingModel target_model)
+{
+    if (!is_creature_model_wildcard(target_model))
+        return target_model == creatng_model;
+    else if (target_model == CREATURE_ANY)
+        return (creatng_model != get_players_spectator_model(plyr_idx)); //we can assume we do not want to cast on the floating spirit
+    else if (target_model == CREATURE_NONE)
+        return false;
+    if (target_model == CREATURE_DIGGER)
+        return creature_kind_is_for_dungeon_diggers_list(plyr_idx, creatng_model);
+    else if (target_model == CREATURE_NOT_A_DIGGER)
+        return ((!creature_kind_is_for_dungeon_diggers_list(plyr_idx, creatng_model)) && (creatng_model != get_players_spectator_model(plyr_idx)));
+    else
+        ERRORLOG("Invalid model wildcard detected: %d", target_model);
+    return false;
+}
+
+/**
  * returns if the creature thing matches the model from the filter, considering possible wildcards.
  * @param creatng The creature being checked.
  * @param crmodel model to compare it to, possible wildcard.
-  */
-TbBool creature_matches_model(const struct Thing* creatng, long crmodel)
+ */
+TbBool creature_matches_model(const struct Thing* creatng, ThingModel crmodel)
 {
     if (creatng->class_id != TCls_Creature)
+    {
         return false;
-    if (!is_creature_model_wildcard(crmodel))
-        return crmodel == creatng->model;
-    else if (crmodel == CREATURE_ANY)
-        return (creatng->model != get_players_spectator_model(creatng->owner)); //we can assume we do not want to cast on the floating spirit
-    else if (crmodel == CREATURE_NONE)
-        return false;
-    if (crmodel == CREATURE_DIGGER)
-        return creature_kind_is_for_dungeon_diggers_list(creatng->owner, creatng->model);
-    else if (crmodel == CREATURE_NOT_A_DIGGER)
-        return ((!creature_kind_is_for_dungeon_diggers_list(creatng->owner, creatng->model)) && (creatng->model != get_players_spectator_model(creatng->owner)));
-    else
-        ERRORLOG("Invalid model wildcard detected: %d", crmodel);
-    return false;
+    }
+    return creature_model_matches_model(creatng->model, creatng->owner, crmodel);
 }
 
 /**
@@ -2067,8 +2081,8 @@ TbBool electricity_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, c
     }
     // Friendly fire usually causes less damage and at smaller distance
     if ((tngdst->class_id == TCls_Creature) && (tngdst->owner == owner)) {
-        max_dist = max_dist * game.conf.rules.magic.friendly_fight_area_range_permil / 1000;
-        max_damage = max_damage * game.conf.rules.magic.friendly_fight_area_damage_permil / 1000;
+        max_dist = max_dist * game.conf.rules.magic.friendly_fight_area_range_percent / 100;
+        max_damage = max_damage * game.conf.rules.magic.friendly_fight_area_damage_percent / 100;
     }
     MapCoordDelta distance = get_chessboard_distance(pos, &tngdst->mappos);
     if (distance < max_dist)
@@ -2387,6 +2401,37 @@ struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel c
     return INVALID_THING;
 }
 
+struct Thing* get_player_list_nth_creature_with_property(long thing_idx, unsigned long crmodelflag, long crtr_idx)
+{
+    long i = thing_idx;
+    unsigned long k = 0;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            return INVALID_THING;
+        }
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        i = cctrl->players_next_creature_idx;
+        // Per creature code
+        if ((get_creature_model_flags(thing) & crmodelflag) == 0)
+            crtr_idx--;
+        if (crtr_idx == -1)
+            return thing;
+        // Per creature code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            return INVALID_THING;
+        }
+    }
+    ERRORLOG("Tried to get creature of index exceeding list");
+    return INVALID_THING;
+}
+
 struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx, ThingModel crmodel, long crtr_idx, int friendly)
 {
     long i = thing_idx;
@@ -2445,6 +2490,15 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
         }
     }
     return nth_creature;
+}
+
+/**
+ * Counts player creatures (not diggers) which are kept out of players control.
+ * @param plyr_idx
+ */
+long count_player_creatures_for_transfer(PlayerNumber plyr_idx)
+{
+    return count_player_list_creatures_of_model_matching_bool_filter(plyr_idx, CREATURE_NOT_A_DIGGER, creature_can_be_transferred);
 }
 
 /**
@@ -3896,7 +3950,7 @@ struct Thing *get_food_at_subtile_available_to_eat_and_owned_by(MapSubtlCoord st
     return get_thing_on_map_block_with_filter(i, filter, &param, &n);
 }
 
-struct Thing *get_trap_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long model, long plyr_idx)
+struct Thing *get_trap_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel model, long plyr_idx)
 {
     SYNCDBG(19,"Starting");
     Thing_Maximizer_Filter filter = anywhere_thing_filter_is_of_class_and_model_and_owned_by;
@@ -3921,7 +3975,7 @@ struct Thing *get_trap_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, Map
  * @param plyr_idx Player whose creature or allied creature will be returned.
  * @return The creature thing pointer, or invalid thing pointer if not found.
  */
-struct Thing *get_trap_around_of_model_and_owned_by(MapCoord pos_x, MapCoord pos_y, long model, PlayerNumber plyr_idx)
+struct Thing *get_trap_around_of_model_and_owned_by(MapCoord pos_x, MapCoord pos_y, ThingModel model, PlayerNumber plyr_idx)
 {
     SYNCDBG(19,"Starting");
     Thing_Maximizer_Filter filter = anywhere_thing_filter_is_of_class_and_model_and_owned_by;
@@ -4216,26 +4270,19 @@ void break_mapwho_infinite_chain(const struct Map *mapblk)
 ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_creature, PlayerNumber owner, ThingModel crmodel, struct PlayerInfo *player)
 {
     unsigned long k = 0;
-    struct Thing* thing = current_creature;
-    ThingIndex i;
-    unsigned char loops = 0;
+    ThingIndex i = current_creature->index;
     do
     {
-        i = thing->prev_of_class;
-        if (i == 0)
+        i++;
+        if (i >= THINGS_COUNT)
         {
-            loops++;
-            if (loops > 1)
-            {
-                break;
-            }
-            i = get_index_of_first_creature_of_owner_and_model(owner, crmodel);
+            i = 1;
         }
         else if (i == current_creature->index)
         {
-            return i;
+            break;
         }
-        thing = thing_get(i);
+        struct Thing* thing = thing_get(i);
         if (thing_is_creature(thing))
         {
             if ( (thing->owner == owner) || (owner == -1) )
@@ -4260,32 +4307,74 @@ ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_c
     return current_creature->index;
 }
 
-ThingIndex get_index_of_first_creature_of_owner_and_model(PlayerNumber owner, ThingModel crmodel)
+struct Thing* get_timebomb_target(struct Thing *creatng)
 {
-    unsigned long k = 0;
-    ThingIndex i = 1;
-    while (i != 0)
+    struct Thing *retng = NULL;
+    MapCoordDelta dist, new_dist;
+    struct Thing* thing;
+    struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
+    if (slist != NULL) 
     {
-        struct Thing *thing = thing_get(i);
-        if (thing_is_creature(thing))
+        dist = LONG_MAX;
+        unsigned long i = slist->index;
+        unsigned long k = 0;
+        while (i != 0)
         {
-            if ( (thing->owner == owner) || (owner == -1) )
+            thing = thing_get(i);
+            if (thing_is_invalid(thing))
             {
-                if ( (thing->model == crmodel) || (crmodel == 0) )
+                ERRORLOG("Jump to invalid thing detected");
+                break;
+            }
+            if (players_are_enemies(creatng->owner, thing->owner))
+            {
+                if (creature_will_attack_creature(creatng, thing))
                 {
-                    return thing->index;
+                    new_dist = get_2d_distance(&creatng->mappos, &thing->mappos);
+                    if (new_dist < dist)
+                    {
+                        if (creature_can_navigate_to(creatng, &thing->mappos, NavRtF_Default))
+                        {
+                            dist = new_dist;
+                            retng = thing;
+                        }
+                    }
+                }
+            }
+            // Per-thing code ends
+            k++;
+            if (k > slist->count)
+            {
+                ERRORLOG("Infinite loop detected when sweeping things list");
+                break;
+            }
+            i = thing->next_of_class;
+        }
+    }
+    if (thing_is_invalid(retng))
+    {
+        dist = LONG_MAX;
+        for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+        {
+            if (players_are_enemies(creatng->owner, plyr_idx))
+            {
+                thing = get_player_soul_container(plyr_idx);
+                if (thing_exists(thing))
+                {
+                    new_dist = get_2d_distance(&creatng->mappos, &thing->mappos);
+                    if (new_dist < dist)
+                    {
+                        if (creature_can_navigate_to(creatng, &thing->mappos, NavRtF_Default))
+                        {
+                            dist = new_dist;
+                            retng = thing;
+                        }
+                    }
                 }
             }
         }
-        k++;
-        if (k > THINGS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping things list");
-            break;
-        }
-        i++;
     }
-    return 0;
+    return retng;
 }
 /******************************************************************************/
 #ifdef __cplusplus
