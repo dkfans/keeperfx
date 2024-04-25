@@ -5558,6 +5558,11 @@ static void change_slab_texture_check(const struct ScriptLine* scline)
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
+    long texture_id = get_id(texture_pack_desc, scline->tp[2]);
+    if (texture_id == -1)
+    {
+        texture_id = atoi(scline->tp[2]);
+    }
     if ( (scline->np[2] < 0) || (scline->np[2] >= TEXTURE_VARIATIONS_COUNT) )
     {
         SCRPTERRLOG("Invalid texture ID: %d", scline->np[2]);
@@ -5566,7 +5571,7 @@ static void change_slab_texture_check(const struct ScriptLine* scline)
     }
     value->shorts[0] = scline->np[0];
     value->shorts[1] = scline->np[1];
-    value->bytes[4] = scline->np[2];
+    value->bytes[4] = (unsigned char)texture_id;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -5732,7 +5737,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_INCREASE_ON_EXPERIENCE",        "AN      ", Cmd_SET_INCREASE_ON_EXPERIENCE, &set_increase_on_experience_check, &set_increase_on_experience_process},
   {"SET_PLAYER_MODIFIER",               "PAN     ", Cmd_SET_PLAYER_MODIFIER, &set_player_modifier_check, &set_player_modifier_process},
   {"ADD_TO_PLAYER_MODIFIER",            "PAN     ", Cmd_ADD_TO_PLAYER_MODIFIER, &add_to_player_modifier_check, &add_to_player_modifier_process},
-  {"CHANGE_SLAB_TEXTURE",               "NNN     ", Cmd_CHANGE_SLAB_TEXTURE , &change_slab_texture_check, &change_slab_texture_process},
+  {"CHANGE_SLAB_TEXTURE",               "NNA     ", Cmd_CHANGE_SLAB_TEXTURE , &change_slab_texture_check, &change_slab_texture_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
