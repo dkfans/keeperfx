@@ -5572,7 +5572,9 @@ static void change_slab_texture_check(const struct ScriptLine* scline)
 
 static void change_slab_texture_process(struct ScriptContext* context)
 {
-    gameadd.slab_ext_data[get_slab_number(context->value->shorts[0], context->value->shorts[1])] = context->value->bytes[4];
+    SlabCodedCoords slb_num = get_slab_number(context->value->shorts[0], context->value->shorts[1]);
+    gameadd.slab_ext_data[slb_num] = context->value->bytes[4];
+    gameadd.slab_ext_data_initial[slb_num] = context->value->bytes[4];
 }
 
 /**
