@@ -5564,15 +5564,15 @@ static void change_slab_texture_check(const struct ScriptLine* scline)
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-    value->shorts[0] = scline->np[0];
-    value->shorts[1] = scline->np[1];
-    value->bytes[3] = scline->np[2];
+    value->arg0 = scline->np[0];
+    value->arg1 = scline->np[1];
+    value->bytes[8] = scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void change_slab_texture_process(struct ScriptContext* context)
 {
-    gameadd.slab_ext_data[get_slab_number(context->value->shorts[0], context->value->shorts[1])] = context->value->bytes[3];
+    gameadd.slab_ext_data[get_slab_number(context->value->arg0, context->value->arg1)] = context->value->bytes[8];
 }
 
 /**
