@@ -132,10 +132,6 @@ void increase_dungeon_area(PlayerNumber plyr_idx, long value)
 
 void player_add_offmap_gold(PlayerNumber plyr_idx, GoldAmount value)
 {
-    if (plyr_idx == game.neutral_player_num) {
-        WARNLOG("Cannot give gold to neutral player %d",(int)plyr_idx);
-        return;
-    }
     // note that we can't get_players_num_dungeon() because players
     // may be uninitialized yet when this is called.
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
