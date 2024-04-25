@@ -60,6 +60,8 @@ short good_wait_in_exit_door(struct Thing *thing);
 short creature_hero_entering(struct Thing *thing);
 short tunneller_doing_nothing(struct Thing *creatng);
 short tunnelling(struct Thing *creatng);
+short good_arrived_at_attack_dungeon_heart(struct Thing* thing);
+short good_arrived_at_combat(struct Thing* thing);
 
 TbBool good_setup_wander_to_exit(struct Thing *creatng);
 short setup_person_tunnel_to_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char a4);

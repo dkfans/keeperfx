@@ -32,23 +32,22 @@
 #include "frontend.h"
 #include "thing_objects.h"
 #include "power_hand.h"
+#include "gui_msgs.h"
 #include "post_inc.h"
 
 /******************************************************************************/
-/******************************************************************************/
-unsigned short player_colors_map[] = {0, 1, 2, 3, 4, 5, 0, 0, 0, };
-
-TbPixel player_path_colours[]  = {131, 90, 163, 181,  20,   4, };
-TbPixel player_room_colours[]  = {132, 92, 164, 183,  21, 132, };
-TbPixel player_flash_colours[] = {133, 94, 167, 142,  31,  15, };
-TbPixel player_highlight_colours[] = {31, 31, 31, 31,  31,  31, };
+TbPixel player_path_colours[]  =     {131, 90, 163, 181,  20,   4, 106,  52,  42};
+TbPixel player_room_colours[]  =     {132, 92, 164, 183,  21, 132, 108,  54,  44};
+TbPixel player_flash_colours[] =     {133, 94, 167, 142,  31,  15, 110,  54,  46};
+TbPixel player_highlight_colours[] = {31,  31,  31,  31,  31,  31,  31,  31,  31};
+TbPixel possession_hit_colours[] =   {133, 89, 167, 141,  31,  31, 110,  54,  46};
 
 unsigned short const player_cubes[] = {0x00C0, 0x00C1, 0x00C2, 0x00C3, 0x00C7, 0x00C6 };
 
 long neutral_player_number = NEUTRAL_PLAYER;
 long hero_player_number = HERO_PLAYER;
 struct PlayerInfo bad_player;
-struct PlayerInfoAdd bad_playeradd;
+struct PlayerInfo bad_player;
 
 /** The current player's number. */
 unsigned char my_player_number;
@@ -215,11 +214,8 @@ void clear_players(void)
         struct PlayerInfo* player = &game.players[i];
         LbMemorySet(player, 0, sizeof(struct PlayerInfo));
         player->id_number = PLAYERS_COUNT;
-        struct PlayerInfoAdd* playeradd = &gameadd.players[i];
-        LbMemorySet(playeradd, 0, sizeof(struct PlayerInfoAdd));
     }
     LbMemorySet(&bad_player, 0, sizeof(struct PlayerInfo));
-    LbMemorySet(&bad_playeradd, 0, sizeof(struct PlayerInfoAdd));
     bad_player.id_number = PLAYERS_COUNT;
     game.hero_player_num = hero_player_number;
     game.active_players_count = 0;
@@ -278,7 +274,6 @@ void set_player_ally_locked(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool
 
 void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_kind)
 {
-  struct PlayerInfoAdd* playeradd;
   SYNCDBG(6,"Player %d state %s to %s",(int)player->id_number,player_state_code_name(player->work_state),player_state_code_name(nwrk_state));
   // Selecting the same state again - update only 2nd parameter
   if (player->work_state == nwrk_state)
@@ -343,15 +338,13 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
       player->chosen_door_kind = chosen_kind;
       break;
   case PSt_MkGoodCreatr:
-      playeradd = get_playeradd(player->id_number);
-      clear_messages_from_player(playeradd->cheatselection.chosen_player);
-        playeradd->cheatselection.chosen_player = game.hero_player_num;
+      clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
+        player->cheatselection.chosen_player = game.hero_player_num;
         break;
     case PSt_MkBadCreatr:
     case PSt_MkDigger:
-    playeradd = get_playeradd(player->id_number);
-    clear_messages_from_player(playeradd->cheatselection.chosen_player);
-        playeradd->cheatselection.chosen_player = player->id_number;
+    clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
+        player->cheatselection.chosen_player = player->id_number;
         break;
   default:
       break;
@@ -451,23 +444,6 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nview)
   }
 }
 
-struct PlayerInfoAdd *get_playeradd_f(long plyr_idx,const char *func_name)
-{
-    if ((plyr_idx >= 0) && (plyr_idx < PLAYERS_COUNT))
-    {
-        return &gameadd.players[plyr_idx];
-    }
-    if (plyr_idx == game.neutral_player_num) // Suppress error for never existing but valid neutral 'player'
-    {
-        SYNCDBG(3, "%s: Tried to get neutral player!",func_name);
-    }
-    else
-    {
-        ERRORMSG("%s: Tried to get non-existing player %d!",func_name,(int)plyr_idx);
-    }
-    return INVALID_PLAYER_ADD;
-}
-
 unsigned char rotate_mode_to_view_mode(unsigned char mode)
 {
     switch (mode) {
@@ -476,5 +452,14 @@ unsigned char rotate_mode_to_view_mode(unsigned char mode)
         case 2: return PVM_FrontView;
         default: ERRORLOG("Unrecognised video rotate mode: %u", mode); return PVM_IsoWibbleView;
     }
+}
+
+unsigned char get_player_color_idx(PlayerNumber plyr_idx)
+{
+    //neutral has no dungeon to store this in
+    if(plyr_idx == NEUTRAL_PLAYER)
+        return plyr_idx;
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    return dungeon->color_idx;
 }
 /******************************************************************************/

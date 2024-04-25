@@ -97,6 +97,8 @@ enum HandRuleType {
     HandRule_Wandering,
     HandRule_Working,
     HandRule_Fighting,
+    HandRule_DroppedTimeHigher,
+    HandRule_DroppedTimeLower
 };
 
 enum HandRuleAction {
@@ -115,6 +117,7 @@ struct HandRule {
 
 TbBool eval_hand_rule_for_thing(struct HandRule *rule, const struct Thing *thing_to_pick);
 
+extern float global_hand_scale;
 /******************************************************************************/
 #ifdef __cplusplus
 }

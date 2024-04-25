@@ -505,7 +505,7 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
             cam->mappos.z.val = thing->mappos.z.val + eye_height;
             cam->orient_a = thing->move_angle_xy;
             cam->orient_b = thing->move_angle_z;
-            cam->orient_c = cctrl->field_CC;
+            cam->orient_c = cctrl->roll;
         }
         else
         {

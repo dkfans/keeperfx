@@ -73,7 +73,7 @@ struct TbSetupSprite setup_sprites[] = {
   {&winfont,              &end_winfonts,          &winfont_data},
   {&button_sprite,        &end_button_sprites,    &button_sprite_data}, // 215 Sprites
   {&port_sprite,          &end_port_sprites,      &port_sprite_data}, // 0 Sprites
-  {&gui_panel_sprites_ptr,    &end_gui_panel_sprites, &gui_panel_sprite_data}, // 600 Sprites
+  {&gui_panel_sprites_ptr,    &end_gui_panel_sprites, &gui_panel_sprite_data}, // 700 Sprites
   {NULL,                  NULL,                   NULL},
 };
 
@@ -168,12 +168,6 @@ struct TbLoadFiles front_load_files_minimal_640[] = {
   {"",                     NULL,                                  NULL,                                           0, 0, 0},
 };
 
-struct TbLoadFiles pointer_load_files_320[] = {
-  {"data/pointer-32.dat",(unsigned char **)&pointer_data,        NULL,                                          0, 0, 0},
-  {"data/pointer-32.tab",(unsigned char **)&pointer_sprites,     (unsigned char **)&end_pointer_sprites,        0, 0, 0},
-  {"",                   NULL,                                   NULL,                                          0, 0, 0},
-};
-
 struct TbLoadFiles pointer_small_load_files_320[] = {
   {"data/pointsm-32.dat",(unsigned char **)&pointer_data,        NULL,                                          0, 0, 0},
   {"data/pointsm-32.tab",(unsigned char **)&pointer_sprites,     (unsigned char **)&end_pointer_sprites,        0, 0, 0},
@@ -207,29 +201,12 @@ struct TbLoadFiles front_load_files_minimal_640[] = {
   {"",                   NULL,                                  NULL,                                           0, 0, 0},
 };
 
-struct TbLoadFiles pointer_load_files_320[] = {
-  {"data/pointer32.dat", (unsigned char **)&pointer_data,        NULL,                                          0, 0, 0},
-  {"data/pointer32.tab", (unsigned char **)&pointer_sprites,     (unsigned char **)&end_pointer_sprites,        0, 0, 0},
-  {"",                   NULL,                                   NULL,                                          0, 0, 0},
-};
-
-struct TbLoadFiles pointer_small_load_files_320[] = {
-  {"data/points32.dat",  (unsigned char **)&pointer_data,        NULL,                                          0, 0, 0},
-  {"data/points32.tab",  (unsigned char **)&pointer_sprites,     (unsigned char **)&end_pointer_sprites,        0, 0, 0},
-  {"",                   NULL,                                   NULL,                                          0, 0, 0},
-};
-
 struct TbLoadFiles pointer_load_files_640[] = {
   {"data/pointer64.dat", (unsigned char **)&pointer_data,        NULL,                                          0, 0, 0},
   {"data/pointer64.tab", (unsigned char **)&pointer_sprites,     (unsigned char **)&end_pointer_sprites,        0, 0, 0},
   {"",                   NULL,                                   NULL,                                          0, 0, 0},
 };
 
-struct TbLoadFiles pointer_small_load_files_640[] = {
-  {"data/points64.dat",  (unsigned char **)&pointer_data,        NULL,                                          0, 0, 0},
-  {"data/points64.tab",  (unsigned char **)&pointer_sprites,     (unsigned char **)&end_pointer_sprites,        0, 0, 0},
-  {"",                   NULL,                                   NULL,                                          0, 0, 0},
-};
 #endif
 
 struct TbLoadFiles legal_load_files[] = {
@@ -238,21 +215,21 @@ struct TbLoadFiles legal_load_files[] = {
     {"",                 NULL,                                   NULL,                                          0, 0, 0},
 };
 
-struct TbLoadFiles game_load_files[] = {
-    {"*SCRATCH",         &scratch,                               NULL,                                    0x10000, 0, 0},
-    {"*TEXTURE_PAGE",    (unsigned char **)&block_mem, NULL, max(sizeof(block_mem), size_t(960*720)), 0, 0},// Store whole texture image or land view image
+struct TbLoadFilesV2 game_load_files[] = {
+    {"*SCRATCH",         &scratch,                                                                   0x10000, nullptr, nullptr},
+    {"*TEXTURE_PAGE",    (unsigned char **)&block_mem,  max(sizeof(block_mem), size_t(960*720)), nullptr, nullptr},// Store whole texture image or land view image
 #ifdef SPRITE_FORMAT_V2
-    {"data/thingspr-32.tab",(unsigned char**)&creature_table,    NULL,                                          0, 0, 0},
+    {"data/thingspr-32.tab",(unsigned char**)&creature_table,                                              0, nullptr, nullptr},
 #else
-    {"data/creature.tab",(unsigned char**)&creature_table,       NULL,                                          0, 0, 0},
+    {"data/creature.tab",(unsigned char**)&creature_table,                                               0, &creature_table_load_get_size, &creature_table_load_unpack},
 #endif
-    {"data/palette.dat", &engine_palette,                        NULL,                                          0, 0, 0},
-    {"data/bluepal.dat", &blue_palette,                          NULL,                                          0, 0, 0},
-    {"data/redpall.dat", &red_palette,                           NULL,                                          0, 0, 0},
-    {"data/lightng.pal", &lightning_palette,                     NULL,                                          0, 0, 0},
-    {"data/dogpal.pal",  &dog_palette,                           NULL,                                          0, 0, 0},
-    {"data/vampal.pal",  &vampire_palette,                       NULL,                                          0, 0, 0},
-    {"",                 NULL,                                   NULL,                                          0, 0, 0},
+    {"data/palette.dat", &engine_palette,                                                                  0, nullptr, nullptr},
+    {"data/bluepal.dat", &blue_palette,                                                                    0, nullptr, nullptr},
+    {"data/redpall.dat", &red_palette,                                                                     0, nullptr, nullptr},
+    {"data/lightng.pal", &lightning_palette,                                                               0, nullptr, nullptr},
+    {"data/dogpal.pal",  &dog_palette,                                                                     0, nullptr, nullptr},
+    {"data/vampal.pal",  &vampire_palette,                                                                 0, nullptr, nullptr},
+    {"",                 NULL,                                                                             0, nullptr, nullptr},
 };
 
 struct TbLoadFiles map_flag_load_files[] = {

@@ -603,7 +603,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         lbDrawSurface = SDL_CreateRGBSurface(0, mdinfo->Width, mdinfo->Height, lbEngineBPP, 0, 0, 0, 0);
         if (lbDrawSurface == NULL) {
             ERRORLOG("Can't create secondary surface for mode %d (%s): %s", (int)mode, mdinfo->Desc, SDL_GetError());
-            LbScreenReset();
+            LbScreenReset(false);
             return Lb_FAIL;
         }
         lbHasSecondSurface = true;
@@ -643,7 +643,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         }
     }
 
-    setup_bflib_render(lbDisplay.GraphicsScreenWidth, lbDisplay.GraphicsScreenHeight);
+    reset_bflib_render();
     SYNCDBG(8,"Finished");
     return Lb_SUCCESS;
 }
@@ -769,7 +769,7 @@ TbBool LbScreenIsLocked(void)
     return (lbDisplay.WScreen != NULL);
 }
 
-TbResult LbScreenReset(void)
+TbResult LbScreenReset(TbBool exiting_application)
 {
     if (!lbScreenInitialised)
       return Lb_FAIL;
@@ -778,12 +778,16 @@ TbResult LbScreenReset(void)
         SDL_FreeSurface(lbDrawSurface);
     }
     //do not free screen surface, it is freed automatically on SDL_Quit or next call to set video mode
-    finish_bflib_render();
     lbHasSecondSurface = false;
     lbDrawSurface = NULL;
     lbScreenSurface = NULL;
     // Mark as not initialized
     lbScreenInitialised = false;
+    if (exiting_application)
+    {
+        // we get here when we are actually closing the application
+        finish_bflib_render();
+    }
     return Lb_SUCCESS;
 }
 

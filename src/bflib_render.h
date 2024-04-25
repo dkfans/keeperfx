@@ -75,10 +75,10 @@ struct GtBlock { // sizeof = 48
   unsigned char *field_0;
   unsigned long field_4;
   unsigned long field_8;
-  unsigned long field_C;
-  unsigned long field_10;
-  unsigned long field_14;
-  unsigned long field_18;
+  unsigned long lightness0;
+  unsigned long lightness1;
+  unsigned long lightness3;
+  unsigned long lightness2;
   unsigned long field_1C;
   unsigned long field_20;
   unsigned long field_24;
@@ -115,7 +115,8 @@ void gtblock_draw(struct GtBlock *gtb);
 /******************************************************************************/
 void trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c);
 /******************************************************************************/
-void setup_bflib_render(long width, long height);
+void setup_bflib_render();
+void reset_bflib_render();
 void finish_bflib_render();
 
 #ifdef __cplusplus

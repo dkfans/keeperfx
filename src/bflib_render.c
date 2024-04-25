@@ -49,13 +49,15 @@ void draw_quad(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Poly
     draw_gpoly(point_a, point_b, point_d);
 }
 
-void setup_bflib_render(long width, long height)
+void setup_bflib_render()
 {
-    if (polyscans)
-    {
-        free(polyscans);
-    }
-    polyscans = malloc(sizeof(struct PolyPoint) * height);
+    polyscans = malloc(sizeof(struct PolyPoint) * 4096);
+    memset(polyscans, 0, sizeof(struct PolyPoint) * 4096);
+}
+
+void reset_bflib_render()
+{
+    memset(polyscans, 0, sizeof(struct PolyPoint) * 4096);
 }
 
 void finish_bflib_render()

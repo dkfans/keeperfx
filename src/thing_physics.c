@@ -785,6 +785,20 @@ void apply_transitive_velocity_to_thing(struct Thing *thing, struct ComponentVec
     thing->state_flags |= TF1_PushOnce;
 }
 
+void clear_thing_acceleration(struct Thing* thing)
+{
+    thing->veloc_push_add.x.val = 0;
+    thing->veloc_push_add.y.val = 0;
+    thing->veloc_push_add.z.val = 0;
+}
+
+void clear_thing_velocity(struct Thing* thing)
+{
+    thing->veloc_base.x.val = 0;
+    thing->veloc_base.y.val = 0;
+    thing->veloc_base.z.val = 0;
+}
+
 /**
  * Returns if things will collide if first moves to given position.
  * @param firstng
@@ -880,6 +894,12 @@ unsigned short push_thingz_against_wall_at(const struct Thing *thing, const stru
 
 TbBool move_object_to_nearest_free_position(struct Thing *thing)
 {
+    TRACE_THING(thing)
+    if (!thing_exists(thing))
+    {
+        ERRORLOG("Attempt to move non-existing object out of wall.");
+        return false;
+    }
     struct Coord3d pos;
     MapCoordDelta nav_radius = thing_nav_sizexy(thing) / 2;
 

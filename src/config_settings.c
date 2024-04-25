@@ -101,7 +101,7 @@ void setup_default_settings(void)
           {KC_MOUSEWHEEL_UP, KMod_NONE},     // Gkey_RoomSpaceDecSize
           {KC_LALT, KMod_NONE},              // Gkey_SellTrapOnSubtile
      },                         // kbkeys
-     1,                         // tooltips_on
+     true,                      // tooltips_on
      0,                         // first_person_move_invert
      6,                         // first_person_move_sensitivity
      256,                       // minimap_zoom

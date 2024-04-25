@@ -170,7 +170,7 @@ void unlock_door(struct Thing *thing)
     game.map_changed_for_nagivation = 1;
     update_navigation_triangulation(thing->mappos.x.stl.num-1, thing->mappos.y.stl.num-1,
       thing->mappos.x.stl.num+1, thing->mappos.y.stl.num+1);
-    pannel_map_update(thing->mappos.x.stl.num-1, thing->mappos.y.stl.num-1, STL_PER_SLB, STL_PER_SLB);
+    panel_map_update(thing->mappos.x.stl.num-1, thing->mappos.y.stl.num-1, STL_PER_SLB, STL_PER_SLB);
     if (!remove_key_on_door(thing)) {
         WARNMSG("Cannot remove keyhole when unlocking door.");
     }
@@ -187,7 +187,7 @@ void lock_door(struct Thing *doortng)
     game.map_changed_for_nagivation = 1;
     place_animating_slab_type_on_map(doorst->slbkind[doortng->door.orientation], 0, stl_x, stl_y, doortng->owner);
     update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);
-    pannel_map_update(stl_x-1, stl_y-1, STL_PER_SLB, STL_PER_SLB);
+    panel_map_update(stl_x-1, stl_y-1, STL_PER_SLB, STL_PER_SLB);
     if (!add_key_on_door(doortng)) {
         WARNMSG("Cannot create a keyhole when locking a door.");
     }
@@ -215,7 +215,7 @@ long destroy_door(struct Thing *doortng)
         create_dirt_rubble_for_dug_block(stl_x + 1, stl_y, 4, plyr_idx);
         create_dirt_rubble_for_dug_block(stl_x - 1, stl_y, 4, plyr_idx);
     }
-    struct Thing* efftng = create_effect(&pos, TngEff_DamageBlood, plyr_idx);
+    struct Thing* efftng = create_effect(&pos, TngEff_Dummy, plyr_idx);
     if (!thing_is_invalid(efftng)) {
         thing_play_sample(efftng, 72 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
     }
@@ -304,11 +304,25 @@ TbBool subtile_has_locked_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 
 TbBool thing_is_deployed_door(const struct Thing *thing)
 {
+    if (!thing_exists(thing))
+        return false;
+    return (thing->class_id == TCls_Door);
+}
+
+TbBool thing_is_sellable_door(const struct Thing* thing)
+{
     if (thing_is_invalid(thing))
         return false;
     if (thing->class_id != TCls_Door)
         return false;
-    return true;
+    struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
+    return (doorst->unsellable == 0);
+}
+
+TbBool slab_has_sellable_door(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    struct Thing* doortng = get_door_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+    return thing_is_sellable_door(doortng);
 }
 
 TbBool door_can_stand(struct Thing *thing)
@@ -405,7 +419,7 @@ void reveal_secret_door_to_player(struct Thing *doortng,PlayerNumber plyr_idx)
     MapSubtlCoord stl_x = doortng->mappos.x.stl.num;
     MapSubtlCoord stl_y = doortng->mappos.y.stl.num;
     update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);
-    pannel_map_update(stl_x-1, stl_y-1, STL_PER_SLB, STL_PER_SLB);
+    panel_map_update(stl_x-1, stl_y-1, STL_PER_SLB, STL_PER_SLB);
 
 }
 
@@ -643,7 +657,7 @@ void update_all_door_stats()
     for(int i = slist->index; i > 0;)
     {
         struct Thing* thing = thing_get(i);
-        i = thing->next_of_class
+        i = thing->next_of_class;
         TRACE_THING(thing);
         struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
         thing->health = doorst->health;

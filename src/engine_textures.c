@@ -133,8 +133,8 @@ static TbBool load_one_file(unsigned long tmapidx,char letter, void *dst)
         WARNMSG("Texture file \"%s\" doesn't exist.",fname);
         return false;
     }
-    // The texture file has always over 500kb
-    if (LbFileLoadAt(fname, dst) < 65536)
+    
+    if (LbFileLoadAt(fname, dst) < 1024)
     {
         WARNMSG("Texture file \"%s\" can't be loaded or is too small.",fname);
         return false;
