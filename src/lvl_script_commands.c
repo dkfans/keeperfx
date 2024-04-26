@@ -5596,7 +5596,7 @@ static void change_slab_texture_process(struct ScriptContext* context)
         MapSlabCoord slb_x = context->value->shorts[0];
         MapSlabCoord slb_y = context->value->shorts[1];
         struct CompoundCoordFilterParam iter_param;
-        iter_param.num1 = context->value->bytes[4]; // target texture
+        iter_param.num1 = context->value->bytes[4]; // new texture
         iter_param.num2 = context->value->chars[5]; // fill type
         iter_param.num3 = get_slabmap_block(slb_x, slb_y)->kind;
         slabs_fill_iterate_from_slab(slb_x, slb_y, slabs_change_texture, &iter_param);
