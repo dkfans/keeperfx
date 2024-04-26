@@ -5591,17 +5591,19 @@ static void change_slab_texture_check(const struct ScriptLine* scline)
 
 static void change_slab_texture_process(struct ScriptContext* context)
 {
-    SlabCodedCoords slb_num = get_slab_number(context->value->shorts[0], context->value->shorts[1]);
     if (context->value->chars[5] > 0)
     {
+        MapSlabCoord slb_x = context->value->shorts[0];
+        MapSlabCoord slb_y = context->value->shorts[1];
         struct CompoundCoordFilterParam iter_param;
-        iter_param.num1 = context->value->bytes[4];
-        iter_param.num2 = context->value->chars[5];
-        iter_param.num3 = get_slabmap_block(context->value->shorts[0], context->value->shorts[1])->kind;
-        slabs_fill_iterate_from_slab(context->value->shorts[0], context->value->shorts[1], slabs_change_texture, &iter_param);
+        iter_param.num1 = context->value->bytes[4]; // target texture
+        iter_param.num2 = context->value->chars[5]; // fill type
+        iter_param.num3 = get_slabmap_block(slb_x, slb_y)->kind;
+        slabs_fill_iterate_from_slab(slb_x, slb_y, slabs_change_texture, &iter_param);
     } 
     else
     {
+        SlabCodedCoords slb_num = get_slab_number(context->value->shorts[0], context->value->shorts[1]);
         gameadd.slab_ext_data[slb_num] = context->value->bytes[4];
         gameadd.slab_ext_data_initial[slb_num] = context->value->bytes[4];
     }
