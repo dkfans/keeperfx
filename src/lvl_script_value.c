@@ -585,7 +585,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           else
           {
-              crconf->model_flags ^= CMF_IsSpecDigger;
+              crconf->model_flags &= ~CMF_IsSpecDigger;
           }
           break;
       case 11: // ARACHNID
@@ -595,7 +595,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           else
           {
-              crconf->model_flags ^= CMF_IsArachnid;
+              crconf->model_flags &= ~CMF_IsArachnid;
           }
           break;
       case 12: // DIPTERA
@@ -605,7 +605,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           else
           {
-              crconf->model_flags ^= CMF_IsDiptera;
+              crconf->model_flags &= ~CMF_IsDiptera;
           }
           break;
       case 13: // LORD
@@ -615,7 +615,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           else
           {
-              crconf->model_flags ^= CMF_IsLordOTLand;
+              crconf->model_flags &= ~CMF_IsLordOTLand;
           }
           break;
       case 14: // SPECTATOR
@@ -625,7 +625,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           else
           {
-              crconf->model_flags ^= CMF_IsSpectator;
+              crconf->model_flags &= ~CMF_IsSpectator;
           }
           break;
       case 15: // EVIL
@@ -635,7 +635,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           else
           {
-              crconf->model_flags ^= CMF_IsEvil;
+              crconf->model_flags &= ~CMF_IsEvil;
           }
           break;
       case 16: // NEVER_CHICKENS
@@ -645,7 +645,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           else
           {
-              crconf->model_flags ^= CMF_NeverChickens;
+              crconf->model_flags &= ~CMF_NeverChickens;
           }
           break;
       case 17: // IMMUNE_TO_BOULDER
@@ -655,7 +655,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           else
           {
-              crconf->model_flags ^= CMF_ImmuneToBoulder;
+              crconf->model_flags &= ~CMF_ImmuneToBoulder;
           }
           break;
       case 18: // NO_CORPSE_ROTTING
@@ -665,7 +665,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           else
           {
-              crconf->model_flags ^= CMF_NoCorpseRotting;
+              crconf->model_flags &= ~CMF_NoCorpseRotting;
           }
           break;
       case 19: // NO_ENMHEART_ATTCK
@@ -675,7 +675,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           else
           {
-              crconf->model_flags ^= CMF_NoEnmHeartAttack;
+              crconf->model_flags &= ~CMF_NoEnmHeartAttack;
           }
           break;
       case 20: // TREMBLING_FAT
@@ -686,8 +686,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           else
           {
-              crconf->model_flags ^= CMF_Trembling;
-              crconf->model_flags ^= CMF_Fat;
+              crconf->model_flags &= ~CMF_Trembling;
+              crconf->model_flags &= ~CMF_Fat;
           }
           break;
       case 21: // FEMALE
@@ -697,7 +697,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           else
           {
-              crconf->model_flags ^= CMF_Female;
+              crconf->model_flags &= ~CMF_Female;
           }
           break;
       case 22: // INSECT
@@ -707,7 +707,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           else
           {
-              crconf->model_flags ^= CMF_Insect;
+              crconf->model_flags &= ~CMF_Insect;
           }
           break;
       case 23: // ONE_OF_KIND
@@ -717,7 +717,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           else
           {
-              crconf->model_flags ^= CMF_OneOfKind;
+              crconf->model_flags &= ~CMF_OneOfKind;
           }
           break;
       case 24: // NO_IMPRISONMENT
@@ -727,7 +727,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           else
           {
-              crconf->model_flags ^= CMF_NoImprisonment;
+              crconf->model_flags &= ~CMF_NoImprisonment;
           }
           break;
       case 25: // NEVER_SICK
@@ -737,7 +737,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           else
           {
-              crconf->model_flags ^= CMF_NeverSick;
+              crconf->model_flags &= ~CMF_NeverSick;
           }
           break;
       case 26: // ILLUMINATED
@@ -753,7 +753,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           else
           {
-              crconf->model_flags ^= CMF_Trembling;
+              crconf->model_flags &= ~CMF_Trembling;
           }
           break;
       case 31: // FAT
@@ -763,7 +763,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           else
           {
-              crconf->model_flags ^= CMF_Fat;
+              crconf->model_flags &= ~CMF_Fat;
           }
           break;
       default:
