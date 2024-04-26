@@ -2648,10 +2648,13 @@ void maintain_room_next_page_button(struct GuiButton *gbtn)
     for (int i=0; i < 16; i++)
     {
         struct GuiButtonInit* ibtn = &room_menu2.buttons[i];
-        if (is_room_obtainable(my_player_number, ibtn->content.lval))
+        if (ibtn->content.lval != RoK_NONE)
         {
-            gbtn->flags |= (LbBtnF_Visible|LbBtnF_Enabled);
-            return;
+            if (is_room_obtainable(my_player_number, ibtn->content.lval))
+            {
+                gbtn->flags |= (LbBtnF_Visible|LbBtnF_Enabled);
+                return;
+            }
         }
     }
     gbtn->flags &= ~(LbBtnF_Visible|LbBtnF_Enabled);
