@@ -716,7 +716,7 @@ static TbBool get_against(PlayerNumber agnst_plyr_idx, SlabKind agnst_slbkind, M
     struct SlabAttr *agnst_slbattr;
     agnst_slbattr = get_slab_kind_attrs(agnst_slbkind);
     return (slbattr->slb_id != agnst_slbattr->slb_id)
-            || ((slabmap_owner(slb) != agnst_plyr_idx) && (slabmap_owner(slb) != game.neutral_player_num));
+    || ((slabmap_owner(slb) != agnst_plyr_idx));
 }
 
 void delete_column(ColumnIndex col_idx)
