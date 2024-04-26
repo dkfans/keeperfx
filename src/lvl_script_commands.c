@@ -5581,14 +5581,30 @@ static void change_slab_texture_check(const struct ScriptLine* scline)
     value->shorts[0] = scline->np[0];
     value->shorts[1] = scline->np[1];
     value->bytes[4] = (unsigned char)texture_id;
+    value->chars[5] = get_id(fill_desc, scline->tp[3]);
+    if ((scline->tp[3] != NULL) && (strcmp(scline->tp[3],"") != 0) && (value->chars[5] == -1))
+    {
+        SCRPTWRNLOG("Fill type %s not recognized", scline->tp[3]);
+    }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void change_slab_texture_process(struct ScriptContext* context)
 {
     SlabCodedCoords slb_num = get_slab_number(context->value->shorts[0], context->value->shorts[1]);
-    gameadd.slab_ext_data[slb_num] = context->value->bytes[4];
-    gameadd.slab_ext_data_initial[slb_num] = context->value->bytes[4];
+    if (context->value->chars[5] > 0)
+    {
+        struct CompoundCoordFilterParam iter_param;
+        iter_param.num1 = context->value->bytes[4];
+        iter_param.num2 = context->value->chars[5];
+        iter_param.num3 = get_slabmap_block(context->value->shorts[0], context->value->shorts[1])->kind;
+        slabs_fill_iterate_from_slab(context->value->shorts[0], context->value->shorts[1], slabs_change_texture, &iter_param);
+    } 
+    else
+    {
+        gameadd.slab_ext_data[slb_num] = context->value->bytes[4];
+        gameadd.slab_ext_data_initial[slb_num] = context->value->bytes[4];
+    }
 }
 
 /**
@@ -5746,7 +5762,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_INCREASE_ON_EXPERIENCE",        "AN      ", Cmd_SET_INCREASE_ON_EXPERIENCE, &set_increase_on_experience_check, &set_increase_on_experience_process},
   {"SET_PLAYER_MODIFIER",               "PAN     ", Cmd_SET_PLAYER_MODIFIER, &set_player_modifier_check, &set_player_modifier_process},
   {"ADD_TO_PLAYER_MODIFIER",            "PAN     ", Cmd_ADD_TO_PLAYER_MODIFIER, &add_to_player_modifier_check, &add_to_player_modifier_process},
-  {"CHANGE_SLAB_TEXTURE",               "NNA     ", Cmd_CHANGE_SLAB_TEXTURE , &change_slab_texture_check, &change_slab_texture_process},
+  {"CHANGE_SLAB_TEXTURE",               "NNAa    ", Cmd_CHANGE_SLAB_TEXTURE , &change_slab_texture_check, &change_slab_texture_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
