@@ -5549,6 +5549,66 @@ static void display_message_process(struct ScriptContext* context)
     message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", get_string(context->value->uarg0));
 }
 
+static void change_slab_texture_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    if ( (scline->np[0] < 0) || (scline->np[0] >= gameadd.map_tiles_x) || (scline->np[1] < 0) || (scline->np[1] >= gameadd.map_tiles_y) )
+    {
+        SCRPTERRLOG("Invalid co-ordinates: %d, %d", scline->np[0], scline->np[1]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    long texture_id = get_id(texture_pack_desc, scline->tp[2]);
+    if (texture_id == -1)
+    {
+        if (parameter_is_number(scline->tp[2]))
+        {
+            texture_id = atol(scline->tp[2]) + 1;
+        }
+        else
+        {
+            SCRPTERRLOG("Invalid texture pack: '%s'", scline->tp[2]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+    }
+    if ( (scline->np[2] < 0) || (scline->np[2] >= TEXTURE_VARIATIONS_COUNT) )
+    {
+        SCRPTERRLOG("Invalid texture ID: %d", scline->np[2]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->shorts[0] = scline->np[0];
+    value->shorts[1] = scline->np[1];
+    value->bytes[4] = (unsigned char)texture_id;
+    value->chars[5] = get_id(fill_desc, scline->tp[3]);
+    if ((scline->tp[3] != NULL) && (strcmp(scline->tp[3],"") != 0) && (value->chars[5] == -1))
+    {
+        SCRPTWRNLOG("Fill type %s not recognized", scline->tp[3]);
+    }
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void change_slab_texture_process(struct ScriptContext* context)
+{
+    if (context->value->chars[5] > 0)
+    {
+        MapSlabCoord slb_x = context->value->shorts[0];
+        MapSlabCoord slb_y = context->value->shorts[1];
+        struct CompoundCoordFilterParam iter_param;
+        iter_param.num1 = context->value->bytes[4]; // new texture
+        iter_param.num2 = context->value->chars[5]; // fill type
+        iter_param.num3 = get_slabmap_block(slb_x, slb_y)->kind;
+        slabs_fill_iterate_from_slab(slb_x, slb_y, slabs_change_texture, &iter_param);
+    } 
+    else
+    {
+        SlabCodedCoords slb_num = get_slab_number(context->value->shorts[0], context->value->shorts[1]);
+        gameadd.slab_ext_data[slb_num] = context->value->bytes[4];
+        gameadd.slab_ext_data_initial[slb_num] = context->value->bytes[4];
+    }
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -5704,6 +5764,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_INCREASE_ON_EXPERIENCE",        "AN      ", Cmd_SET_INCREASE_ON_EXPERIENCE, &set_increase_on_experience_check, &set_increase_on_experience_process},
   {"SET_PLAYER_MODIFIER",               "PAN     ", Cmd_SET_PLAYER_MODIFIER, &set_player_modifier_check, &set_player_modifier_process},
   {"ADD_TO_PLAYER_MODIFIER",            "PAN     ", Cmd_ADD_TO_PLAYER_MODIFIER, &add_to_player_modifier_check, &add_to_player_modifier_process},
+  {"CHANGE_SLAB_TEXTURE",               "NNAa    ", Cmd_CHANGE_SLAB_TEXTURE , &change_slab_texture_check, &change_slab_texture_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

@@ -303,6 +303,22 @@ TbBool slabs_change_type(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterP
     return false;
 }
 
+TbBool slabs_change_texture(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterParam param)
+{
+    unsigned char target_slab_texture = param->num1;
+    long fill_type = param->num2;
+    SlabKind orig_slab_kind = param->num3;
+    SlabKind current_kind = get_slabmap_block(slb_x, slb_y)->kind; // current kind
+    if (slabs_iter_will_change(orig_slab_kind, current_kind, fill_type))
+    {
+        SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
+        gameadd.slab_ext_data[slb_num] = target_slab_texture;
+        gameadd.slab_ext_data_initial[slb_num] = target_slab_texture;
+        return true;
+    }
+    return false;
+}
+
 TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
 {
     if (map_block_invalid(mapblk))
