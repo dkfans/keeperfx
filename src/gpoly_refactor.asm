@@ -236,8 +236,107 @@ handle:
     calcend:
     ;-------- END CLIP_CHECK MACRO
 	
-	SORT_POLYPOINTS
-	GET_POINT_DATA CalcShade, CalcText
+	;-------- SORT_POLYPOINTS MACRO
+    	LOCAL dontswaptop1, dontswaptop2, dontswapmiddle
+	
+    assume eax:PTR PolyPoint
+    assume edx:PTR PolyPoint
+    assume ebx:PTR PolyPoint
+        
+        mov ecx, [eax].Y             ;Sort points
+        cmp ecx, [edx].Y
+        jle dontswaptop1
+        mov ecx, [edx].Y
+        xchg eax, edx
+        
+    dontswaptop1:
+        cmp ecx, [ebx].Y
+        jle dontswaptop2
+        mov ecx, [ebx].Y
+        xchg eax, ebx
+        
+    dontswaptop2:
+        mov ecx, [edx].Y
+        cmp ecx, [ebx].Y
+        jle dontswapmiddle
+        xchg edx, ebx
+        
+    dontswapmiddle:
+        mov ecx, [eax].Y
+        cmp ecx, [ebx].Y
+        je reject
+    ;-------- END SORT_POLYPOINTS MACRO
+
+    ;-------- GET_POINT_DATA MACRO
+	; Assume ShadeOn = 1 and TextOn = 1
+    assume eax:PTR PolyPoint
+    assume edx:PTR PolyPoint
+    assume ebx:PTR PolyPoint
+        
+        mov ecx, [eax].X             ;load point data into point variables
+        mov ebp, [eax].Y
+        mov point1x, ecx
+        mov point1y, ebp
+        shl ecx, 16
+        mov point1xfp, ecx
+        
+        mov ecx, [edx].X
+        mov ebp, [edx].Y
+        mov point2x, ecx
+        mov point2y, ebp
+        shl ecx, 16
+        mov point2xfp, ecx
+        
+        mov ecx, [ebx].X
+        mov ebp, [ebx].Y
+        mov point3x, ecx
+        mov point3y, ebp
+        shl ecx, 16
+        mov point3xfp, ecx
+        
+        ;-------- Shading on
+        IF ShadeOn
+            mov edi, [eax].Shade
+            mov ebp, [edx].Shade
+            mov ecx, [ebx].Shade
+            shr edi, 16
+            shr ebp, 16
+            shr ecx, 16
+            mov point1shade, edi
+            mov point2shade, ebp
+            mov point3shade, ecx
+        ENDIF
+        ;-------- End shading on
+        
+        ;-------- Texturing on
+        IF TextOn
+            mov edi, [eax].TMapX
+            mov ebp, [eax].TMapY
+            mov ecx, [edx].TMapX
+            mov esi, [edx].TMapY
+            shr edi, 16
+            shr ebp, 16
+            shr ecx, 16
+            shr esi, 16
+            mov point1mapx, edi
+            mov point1mapy, ebp
+            mov point2mapx, ecx
+            mov point2mapy, esi
+            mov ecx, [ebx].TMapX
+            mov esi, [ebx].TMapY
+            shr ecx, 16
+            shr esi, 16
+            mov point3mapx, ecx
+            mov point3mapy, esi
+        ENDIF
+        ;-------- End texturing on
+        
+        
+    assume eax:SLONG
+    assume edx:SLONG
+    assume ebx:SLONG
+    ;-------- END GET_POINT_DATA MACRO
+
 	CALC_XVELS
 	CALC_CREASE_LEN
 	
