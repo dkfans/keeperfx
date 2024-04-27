@@ -1878,6 +1878,8 @@ void gui_scroll_activity_down(struct GuiButton *gbtn)
 void gui_area_ally(struct GuiButton *gbtn)
 {
     PlayerNumber plyr_idx = info_panel_pos_to_player_number((int)gbtn->content);
+    if(plyr_idx == -1)
+        return;
 
     int spr_idx = GPS_plyrsym_symbol_player_any_dis;
     if ((gbtn->flags & LbBtnF_Enabled) == 0) {
@@ -2025,6 +2027,8 @@ void maintain_event_button(struct GuiButton *gbtn)
 void gui_toggle_ally(struct GuiButton *gbtn)
 {
     PlayerNumber plyr_idx = info_panel_pos_to_player_number((int)gbtn->content);
+    if(plyr_idx == -1)
+        return;
     if ((gbtn->flags & LbBtnF_Enabled) != 0) {
         struct Packet* pckt = get_packet(my_player_number);
         set_packet_action(pckt, PckA_PlyrToggleAlly, plyr_idx, 0, 0, 0);
@@ -2088,6 +2092,9 @@ void maintain_query_button(struct GuiButton *gbtn)
 void maintain_ally(struct GuiButton *gbtn)
 {
     PlayerNumber plyr_idx = info_panel_pos_to_player_number((int)gbtn->content);
+    if(plyr_idx == -1)
+        return;
+
     struct PlayerInfo* player = get_player(plyr_idx);
     if (!is_my_player_number(plyr_idx) && ((player->allocflags & PlaF_Allocated) != 0))
     {
@@ -2252,6 +2259,8 @@ void gui_area_workshop_bar(struct GuiButton *gbtn)
 void gui_area_player_creature_info(struct GuiButton *gbtn)
 {
     PlayerNumber plyr_idx = info_panel_pos_to_player_number((int)gbtn->content);
+    if(plyr_idx == -1)
+        return;
 
     int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_rpanel_frame_rect_wide_up, 100);
     struct PlayerInfo* player = get_player(plyr_idx);
@@ -2281,7 +2290,8 @@ void gui_area_player_creature_info(struct GuiButton *gbtn)
 void gui_area_player_room_info(struct GuiButton *gbtn)
 {
     PlayerNumber plyr_idx = info_panel_pos_to_player_number((int)gbtn->content);
-
+    if(plyr_idx == -1)
+        return;
 
     int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_rpanel_frame_rect_wide_up, 100);
     struct PlayerInfo* player = get_player(plyr_idx);
