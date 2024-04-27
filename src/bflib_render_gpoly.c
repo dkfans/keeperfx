@@ -5085,7 +5085,6 @@ void draw_gpoly_sub7() {
   15. `gploc_A8`
   16. `gploc_B0`
   17. `gploc_188`
-  18. `gploc_point_c`
   19. `gploc_194`
   20. `gploc_1A0`
   21. `gploc_198`
@@ -5120,6 +5119,16 @@ void draw_gpoly_sub7() {
   24. `gploc_198` (conditional overwrite)
   25. `gploc_18C` (conditional overwrite)
   */
+
+  JUSTLOG(
+      "[test-inputs] factor_chk=%d, gploc_pt_cy=%d, gploc_pt_ay=%d, gploc_140=%d, gploc_170=%d, "
+      "gploc_13C=%d, "
+      "gploc_16C=%d, gploc_138=%d, gploc_168=%d, gploc_pt_by=%d, gploc_158=%d, gploc_154=%d, "
+      "gploc_150=%d, gploc_AC=%d, gploc_A8=%d, gploc_B0=%d, gploc_188=%d, gploc_194=%d, "
+      "gploc_1A0=%d, gploc_198=%d, gploc_18C=%d",
+      factor_chk, gploc_pt_cy, gploc_pt_ay, gploc_140, gploc_170, gploc_13C, gploc_16C, gploc_138,
+      gploc_168, gploc_pt_by, gploc_158, gploc_154, gploc_150, gploc_AC, gploc_A8, gploc_B0,
+      gploc_188, gploc_194, gploc_1A0, gploc_198, gploc_18C);
 
   draw_gpoly_sub7_subfunc2();
 }
