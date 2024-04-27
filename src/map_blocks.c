@@ -706,17 +706,14 @@ static void delete_attached_things_on_slab(long slb_x, long slb_y)
 
 static TbBool get_against(PlayerNumber agnst_plyr_idx, SlabKind agnst_slbkind, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    struct SlabMap *slb;
-    slb = get_slabmap_block(slb_x, slb_y);
+    struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
     if (slabmap_block_invalid(slb)) {
         return 1;
     }
-    struct SlabAttr *slbattr;
-    slbattr = get_slab_attrs(slb);
-    struct SlabAttr *agnst_slbattr;
-    agnst_slbattr = get_slab_kind_attrs(agnst_slbkind);
+    struct SlabAttr *slbattr = get_slab_attrs(slb);
+    struct SlabAttr *agnst_slbattr = get_slab_kind_attrs(agnst_slbkind);
     return (slbattr->slb_id != agnst_slbattr->slb_id)
-            || ((slabmap_owner(slb) != agnst_plyr_idx) && (slabmap_owner(slb) != game.neutral_player_num));
+    || ((slabmap_owner(slb) != agnst_plyr_idx) && ((slabmap_owner(slb) != game.neutral_player_num) || (slb->kind == SlbT_CLAIMED) ));
 }
 
 void delete_column(ColumnIndex col_idx)
