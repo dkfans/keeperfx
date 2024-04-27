@@ -113,7 +113,7 @@ struct Ariadne { // sizeof = 102
   struct Coord3d pos_59;
   unsigned char manoeuvre_state;
   short wallhug_angle;
-  long field_62;
+  long distance_to_waypoint;
 };
 
 struct PathWayPoint { // sizeof = 8

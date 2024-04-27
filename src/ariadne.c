@@ -1984,7 +1984,7 @@ void ariadne_init_current_waypoint(const struct Thing *thing, struct Ariadne *ar
 {
     ariadne_pull_out_waypoint(thing, arid, arid->current_waypoint, &arid->current_waypoint_pos);
     arid->current_waypoint_pos.z.val = get_thing_height_at(thing, &arid->current_waypoint_pos);
-    arid->field_62 = get_2d_distance(&thing->mappos, &arid->current_waypoint_pos);
+    arid->distance_to_waypoint = get_2d_distance(&thing->mappos, &arid->current_waypoint_pos);
 }
 
 long angle_to_quadrant(long angle)
@@ -2249,6 +2249,7 @@ AriadneReturn ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, st
     arid->pos_12.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, arid->wallhug_angle);
     arid->pos_12.z.val = get_thing_height_at(thing, &arid->pos_12);
     arid->pos_18 = thing->mappos;
+    //arid->field_24 = arid->wallhug_angle;
     if (ariadne_check_forward_for_wallhug_gap(thing, arid, &arid->pos_12, arid->wallhug_angle))
     {
         arid->pos_53.x.val = arid->pos_12.x.val;
@@ -2798,8 +2799,8 @@ AriadneReturn ariadne_update_state_manoeuvre_to_position(struct Thing *thing, st
         }
     }
     dist = get_2d_distance(&thing->mappos, &arid->current_waypoint_pos);
-    if (arid->field_62 > dist)
-        arid->field_62 = dist;
+    if (arid->distance_to_waypoint > dist)
+        arid->distance_to_waypoint = dist;
     if ((thing->mappos.x.val != arid->pos_53.x.val)
      || (thing->mappos.y.val != arid->pos_53.y.val))
     {
@@ -2833,7 +2834,7 @@ AriadneReturn ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *
     NAVIDBG(19,"Starting");
     angle = get_angle_xy_to(&thing->mappos, &arid->current_waypoint_pos);
     distance = get_2d_distance(&thing->mappos, &arid->current_waypoint_pos);
-    if ((distance - arid->field_62) > 4*COORD_PER_STL)
+    if ((distance - arid->distance_to_waypoint) > 4*COORD_PER_STL)
     {
         struct Coord3d pos;
         arid->pos_12.x.val = thing->mappos.x.val;
@@ -2860,8 +2861,8 @@ AriadneReturn ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *
             arid->pos_12.z.val = get_thing_height_at(thing, &arid->pos_12);
         }
     }
-    if (arid->field_62 > distance) {
-        arid->field_62 = distance;
+    if (arid->distance_to_waypoint > distance) {
+        arid->distance_to_waypoint = distance;
     }
     if (ariadne_creature_blocked_by_wall_at(thing, &arid->pos_12))
     {
@@ -3030,7 +3031,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
     NAVIDBG(18,"Route for %s index %d from %3d,%3d to %3d,%3d", thing_model_name(thing),(int)thing->index,
         (int)thing->mappos.x.val, (int)thing->mappos.y.val, (int)arid->current_waypoint_pos.x.val, (int)arid->current_waypoint_pos.y.val);
     distance = get_2d_distance(&thing->mappos, &arid->current_waypoint_pos);
-    if ((distance - arid->field_62) > 4*COORD_PER_STL)
+    if ((distance - arid->distance_to_waypoint) > 4*COORD_PER_STL)
     {
         struct Coord3d pos;
         arid->pos_12.x.val = thing->mappos.x.val;
@@ -3086,7 +3087,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
             ariadne_init_movement_to_current_waypoint(thing, arid);
             return 0;
         }
-        if (distance < arid->field_62)
+        if (distance < arid->distance_to_waypoint)
         {
             if (ariadne_creature_can_continue_direct_line_to_waypoint(thing, arid, arid->move_speed)) {
                 if (ariadne_init_movement_to_current_waypoint(thing, arid) < 1) {
@@ -3094,7 +3095,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
                 }
                 return AridRet_OK;
             }
-            arid->field_62 = distance;
+            arid->distance_to_waypoint = distance;
         }
         long hug_angle;
         hug_angle = ariadne_get_wallhug_angle(thing, arid);
