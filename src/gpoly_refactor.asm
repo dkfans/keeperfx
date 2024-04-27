@@ -9,7 +9,7 @@
 	draw_gpoly_ PROC NEAR SYSCALL
 	
 	
-	; LOCAL_VARS MACRO
+	;-------- LOCAL_VARS MACRO
         xvel13 equ <(0 * 4)[esp]>
         xvel12 equ <(1 * 4)[esp]>
         xvel23 equ <(2 * 4)[esp]>
@@ -126,9 +126,9 @@
         packedhstep38bs equ <(98 * 4)[esp]>
         
         SPACE_FOR_VARS equ 100 * 4
-    ; END LOCAL_VARS MACRO
+    ;-------- END LOCAL_VARS MACRO
 
-	; PRAMDEF MACRO
+	;-------- PRAMDEF MACRO
         PixFixOn equ 1
         PixFixOff equ 0
         
@@ -140,7 +140,7 @@
         
         HClipOn equ 1
         HClipOff equ 0
-    ; END PRAMDEF MACRO
+    ;-------- END PRAMDEF MACRO
 	
 	pusha
 	
@@ -150,7 +150,91 @@
 	mov gpoly_mode, ecx
 	
 handle:
-	CLIP_CHECK
+	;-------- CLIP_CHECK MACRO
+    	LOCAL clip, okx, oky
+	
+    assume eax:PTR PolyPoint
+    assume edx:PTR PolyPoint
+    assume ebx:PTR PolyPoint
+        
+        ;-------- Fast clip offscreen polys (off by default)
+        if FAST_CLIP_OFF_SCREEN_POLYS
+            mov ebp, [eax].X
+            and ebp, [edx].X
+            and ebp, [ebx].X
+            js reject
+            
+            mov ebp, [eax].Y
+            and ebp, [edx].Y
+            and ebp, [ebx].Y
+            js reject
+            
+            mov ebp, gpoly_clip_width
+            cmp ebp, [eax].X
+            jg okx
+            cmp ebp, [edx].X
+            jg okx
+            cmp ebp, [ebx].X
+            jle reject
+            
+        okx:
+            mov ebp, gpoly_clip_height
+            cmp ebp, [eax].Y
+            jg oky
+            cmp ebp, [edx].Y
+            jg oky
+            cmp ebp, [ebx].Y
+            jle reject
+            
+        oky:
+        endif
+        ;-------- End fast clip offscreen polys
+        
+        ;-------- Back face culling (off by default)
+        if BACK_FACE_CULL
+            mov ebp, [edx].X
+            sub ebp, [eax].X
+            mov esi, [ebx].Y
+            sub esi, [eax].Y
+            imul esi, ebp
+            mov ebp, [ebx].X
+            sub ebp, [eax].X
+            mov ecx, [edx].Y
+            sub ecx, [eax].Y
+            imul ecx, ebp
+            sub ecx, esi
+            jns reject
+        endif
+        ;-------- End back face culling
+        
+        mov ebp, [eax].X
+        or ebp, [edx].X
+        or ebp, [ebx].X
+        js clip
+        
+        mov ecx, gpoly_clip_width
+        mov esi, [eax].X
+        cmp esi, ecx
+        jg clip
+        
+        mov esi, [edx].X
+        cmp esi, ecx
+        jg clip
+        
+        mov esi, [ebx].X
+        cmp esi, ecx
+        jg clip
+        
+        mov ebp, 0
+        mov needclip, ebp
+        jmp calcend
+        
+    clip:
+        mov ebp, 1
+        mov needclip, ebp
+        
+    calcend:
+    ;-------- END CLIP_CHECK MACRO
 	
 	SORT_POLYPOINTS
 	GET_POINT_DATA CalcShade, CalcText
