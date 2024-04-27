@@ -331,14 +331,114 @@ handle:
         ENDIF
         ;-------- End texturing on
         
-        
     assume eax:SLONG
     assume edx:SLONG
     assume ebx:SLONG
     ;-------- END GET_POINT_DATA MACRO
 
-	CALC_XVELS
-	CALC_CREASE_LEN
+    ;-------- CALC_XVELS MACRO
+    ; Calculates the vectors needed to step down each triangle edge
+        LOCAL xv13calc, xv12calc, xv23calc
+        LOCAL xvlarge13, xvlarge12, xvlarge23, calcend
+        
+        mov ecx, point3y             ;Calculate Xvel from points 1 to 3
+        sub ecx, point1y
+        je calcend
+        
+        mov eax, point3x
+        sub eax, point1x
+        
+        test ecx, - 32
+        jne xvlarge13
+        
+        cmp eax, - 32
+        jl xvlarge13
+        
+        cmp eax, 31
+        jg xvlarge13
+        
+        mov ebx, ecx                 ;use table for small triangle
+        shl ebx, 8
+        mov eax, [eax * 4 + ebx + _gpoly_divtable + 32 * 4]
+        mov xvel13, eax
+        
+    xv12calc:                     ;calculate shade vel form point 1 to 3
+        mov ecx, point2y             ;calculate for point 1 to 2
+        sub ecx, point1y
+        je xv23calc                  ;ignore if flat top
+        
+        mov eax, point2x
+        sub eax, point1x
+        test ecx, - 32
+        jne xvlarge12
+        
+        cmp eax, - 32
+        jl xvlarge12
+        
+        cmp eax, 31
+        jg xvlarge12
+        
+        mov ebx, ecx
+        shl ebx, 8
+        mov eax, [eax * 4 + ebx + _gpoly_divtable + 32 * 4]
+        mov xvel12, eax
+        
+    xv23calc:
+        mov ecx, point3y             ;calculate for points 2 to 3
+        sub ecx, point2y
+        je calcend                   ;ignore if flat bottom
+        
+        mov eax, point3x
+        sub eax, point2x
+        test ecx, - 32
+        jne xvlarge23
+        
+        cmp eax, - 32
+        jl xvlarge23
+        
+        cmp eax, 31
+        jg xvlarge23
+        
+        mov ebx, ecx
+        shl ebx, 8
+        mov eax, [eax * 4 + ebx + _gpoly_divtable + 32 * 4]
+        mov xvel23, eax
+        jmp calcend
+        
+    xvlarge13:
+        shl eax, 16                  ;use division if triangle too big
+        cdq
+        idiv ecx
+        mov xvel13, eax
+        jmp xv12calc
+        
+    xvlarge12:
+        shl eax, 16
+        cdq
+        idiv ecx
+        mov xvel12, eax
+        jmp xv23calc
+        
+    xvlarge23:
+        shl eax, 16
+        cdq
+        idiv ecx
+        mov xvel23, eax
+        
+    calcend:
+    ;-------- END CALC_XVELS MACRO
+
+    ;-------- CALC_CREASE_LEN MACRO
+    ; Calculates the length of the widest point of the triangle
+        mov ecx, point2y
+        sub ecx, point1y
+        mov ebp, xvel13
+        mov esi, point1xfp
+        imul ebp, ecx
+        add esi, ebp
+        sub esi, point2xfp
+        mov creaselen, esi
+    ;-------- END CALC_CREASE_LEN MACRO
 	
 	mov ecx, gpoly_mode
 	jmp setupfortextshade
