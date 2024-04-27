@@ -2318,7 +2318,6 @@ AriadneReturn ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, st
     arid->pos_12.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, arid->wallhug_angle);
     arid->pos_12.z.val = get_thing_height_at(thing, &arid->pos_12);
     arid->pos_18 = thing->mappos;
-    arid->field_24 = arid->wallhug_angle;
     if (ariadne_check_forward_for_wallhug_gap(thing, arid, &arid->pos_12, arid->wallhug_angle))
     {
         arid->pos_53.x.val = arid->pos_12.x.val;
