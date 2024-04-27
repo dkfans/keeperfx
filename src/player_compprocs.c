@@ -1393,6 +1393,21 @@ void suspend_process(struct Computer2 *comp, struct ComputerProcess *cproc)
     }
 }
 
+TbBool reactivate_build_process(struct Computer2* comp, RoomKind rkind)
+{
+    for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
+    {
+        struct ComputerProcess* cproc = &comp->processes[i];
+        if ((cproc->func_check == &computer_check_any_room) && (cproc->confval_4 == rkind))
+        {
+            clear_flag(cproc->flags, ComProc_Unkn0004);
+            cproc->last_run_turn = 0;
+            return true;
+        }
+    }
+    return false;
+}
+
 void reset_process(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
   if (cproc != NULL)
