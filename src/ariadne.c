@@ -3196,7 +3196,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
             pos.y.val = arid->endpos.y.val;
             pos.z.val = arid->endpos.z.val;
             if (ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->route_flags) >= 1) {
-                return 3;
+                return AridRet_PartOK;
             }
             return AridRet_OK;
         }
@@ -3224,7 +3224,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
             pos.y.val = arid->endpos.y.val;
             pos.z.val = arid->endpos.z.val;
             if (ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->route_flags)) {
-                return 3;
+                return AridRet_PartOK;
             }
             return AridRet_OK;
           }
