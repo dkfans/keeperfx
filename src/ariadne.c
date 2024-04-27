@@ -2487,7 +2487,7 @@ long ariadne_init_movement_to_current_waypoint(struct Thing *thing, struct Ariad
       || (((blk_flags & SlbBloF_WalledY) != 0) && (thing->mappos.y.val == fixed_pos.y.val)) )
     {
         ariadne_init_wallhug(thing, arid, &requested_pos);
-        arid->field_22 = 1;
+        arid->touching_wall = 1;
         return 1;
     }
     arid->pos_53.x.val = fixed_pos.x.val;
@@ -3174,7 +3174,7 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
         (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num, (int)finalpos->x.stl.num, (int)finalpos->y.stl.num);
     cctrl = creature_control_get_from_thing(thing);
     arid = &cctrl->arid;
-    arid->field_22 = 0;
+    arid->touching_wall = 0;
     if ((finalpos->x.val != arid->endpos.x.val)
      || (finalpos->y.val != arid->endpos.y.val)
      || (arid->move_speed != speed))
@@ -3184,7 +3184,7 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
             return AridRet_Val2;
         }
         arid->move_speed = speed;
-        if (arid->field_22)
+        if (arid->touching_wall)
         {
             nextpos->x.val = arid->pos_12.x.val;
             nextpos->y.val = arid->pos_12.y.val;
