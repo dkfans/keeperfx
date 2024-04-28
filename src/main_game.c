@@ -106,6 +106,7 @@ void init_player_types()
             player->allocflags |= PlaF_Allocated;
             player->allocflags |= PlaF_CompCtrl;
             player->player_type = PT_Roaming;
+            player->id_number = plr_idx;
             break;
         case PLAYER_NEUTRAL:
             player->player_type = PT_Neutral;
