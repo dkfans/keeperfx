@@ -5654,11 +5654,10 @@ static void computer_player_check(const struct ScriptLine* scline)
     {
         for (long i = plr_start; i < plr_end; i++)
         {
-            script_support_setup_player_as_computer_keeper(i, comp_model);
+            script_support_setup_player_as_computer_keeper(i, atoi(comp_model));
         }
     }
-    else
-    if(strcasecmp(comp_model,"ROAMING"))
+    else if(strcasecmp(comp_model,"ROAMING"))
     {
         for (long i = plr_start; i < plr_end; i++)
         {
@@ -5668,6 +5667,10 @@ static void computer_player_check(const struct ScriptLine* scline)
             player->allocflags |= PlaF_CompCtrl;
             player->id_number = i;
         }
+    }
+    else
+    {
+        ERRORLOG("invalid COMPUTER_PLAYER param '%s'",comp_model);
     }
 }
 
