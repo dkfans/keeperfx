@@ -210,9 +210,8 @@ static void init_level(void)
             if(player_is_roaming(i))
             {
                 struct PlayerInfo *player;
-                player = get_player(PLAYER_GOOD);
+                player = get_player(i);
                 init_player_start(player, false);
-
             }
         }
     }
