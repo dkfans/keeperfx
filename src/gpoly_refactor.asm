@@ -586,7 +586,70 @@ setupfortextshade:
         or esi, esi
         js bendonright
         
-        CALC_DATA_FOR_EDGE ShadeOn, TextOn, 1, 2, top
+        ; CALC_DATA_FOR_EDGE ShadeOn, TextOn, 1, 2, top
+        CALC_DATA_FOR_EDGE MACRO ShadeOn, TextOn, pt1, pt2, sec
+            LOCAL largey, smally, posshade, posmapx, posmapy
+            
+            mov ecx, point&pt2&y
+            sub ecx, point&pt1&y
+            cmp ecx, 255
+            jg largey
+            
+            mov ebx, _gpoly_reptable[ecx * 4]
+            jmp smally
+            
+        largey:
+            mov edx, 0
+            mov eax, 32768 * 65536 - 1
+            idiv ecx
+            mov ebx, eax
+            
+        smally:
+            
+            IF ShadeOn
+            mov eax, point&pt2&shade
+            sub eax, point&pt1&shade
+            shl eax, 1
+            imul ebx
+            mov ax, dx
+            rol eax, 16
+            jns posshade
+            
+            inc eax
+            
+        posshade:
+            mov shadevel&sec, eax
+            
+            ENDIF
+            
+            IF TextOn
+            mov eax, point&pt2&mapx
+            sub eax, point&pt1&mapx
+            shl eax, 1
+            imul ebx
+            mov ax, dx
+            rol eax, 16
+            jns posmapx
+            
+            inc eax
+            
+        posmapx:
+            mov mapxvel&sec, eax
+            mov eax, point&pt2&mapy
+            sub eax, point&pt1&mapy
+            shl eax, 1
+            imul ebx
+            mov ax, dx
+            rol eax, 16
+            jns posmapy
+            
+            inc eax
+            
+        posmapy:
+            mov mapyvel&sec, eax
+            ENDIF
+        ;-------- END CALC_DATA_FOR_EDGE MACRO
+
         CALC_DATA_FOR_EDGE ShadeOn, TextOn, 2, 3, bottom
         
         IF PixFix

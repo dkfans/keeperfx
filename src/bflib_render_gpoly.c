@@ -4735,7 +4735,8 @@ static void draw_gpoly_sub7_subfunc2() {
     pusha   \n \
     movl    _crease_len,%%esi\n \
     orl %%esi,%%esi\n \
-    js  gpo_loc_1EAF\n \
+    js  bendonright1\n \
+\n \
     movl    _gploc_pt_by,%%ecx\n \
     subl    _gploc_pt_ay,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
@@ -4835,7 +4836,7 @@ gpo_loc_1EA9:         # 1CB6\n \
     jmp gpo_loc_1F21\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-gpo_loc_1EAF:         # 1BD3\n \
+bendonright1:         # 1BD3\n \
     movl    _gploc_pt_cy,%%ecx\n \
     subl    _gploc_pt_ay,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
