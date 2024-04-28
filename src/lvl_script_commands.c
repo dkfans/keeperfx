@@ -5635,6 +5635,26 @@ static void set_special_digger_process(struct ScriptContext* context)
     }
 }
 
+static void computer_player_check(const struct ScriptLine* scline)
+{
+    long plr_range_id = scline->np[0];
+    long comp_model = scline->np[1];
+
+    if (get_script_current_condition() != CONDITION_ALWAYS)
+    {
+        SCRPTWRNLOG("Computer player setup inside conditional block; condition ignored");
+    }
+    int plr_start;
+    int plr_end;
+    if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
+        SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
+        return;
+    }
+    for (long i = plr_start; i < plr_end; i++)
+    {
+        script_support_setup_player_as_computer_keeper(i, comp_model);
+    }
+}
 
 /**
  * Descriptions of script commands for parser.
@@ -5661,7 +5681,7 @@ const struct CommandDesc command_desc[] = {
   {"TRAP_AVAILABLE",                    "PANN    ", Cmd_TRAP_AVAILABLE, NULL, NULL},
   {"RESEARCH",                          "PAAN    ", Cmd_RESEARCH, NULL, NULL},
   {"RESEARCH_ORDER",                    "PAAN    ", Cmd_RESEARCH_ORDER, NULL, NULL},
-  {"COMPUTER_PLAYER",                   "PN      ", Cmd_COMPUTER_PLAYER, NULL, NULL},
+  {"COMPUTER_PLAYER",                   "PN      ", Cmd_COMPUTER_PLAYER, &computer_player_check, NULL},
   {"SET_TIMER",                         "PA      ", Cmd_SET_TIMER, NULL, NULL},
   {"ADD_TUNNELLER_TO_LEVEL",            "PAANNN  ", Cmd_ADD_TUNNELLER_TO_LEVEL, NULL, NULL},
   {"WIN_GAME",                          "        ", Cmd_WIN_GAME, NULL, NULL},
