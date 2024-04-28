@@ -41,6 +41,7 @@
 #include "room_list.h"
 #include "power_specials.h"
 #include "player_data.h"
+#include "player_instances.h"
 #include "player_utils.h"
 #include "vidfade.h"
 #include "vidmode.h"
@@ -97,11 +98,9 @@ void reset_script_timers_and_flags(void)
 void init_good_player_as(PlayerNumber plr_idx)
 {
     struct PlayerInfo *player;
-    game.hero_player_num = plr_idx;
     player = get_player(plr_idx);
     player->allocflags |= PlaF_Allocated;
     player->allocflags |= PlaF_CompCtrl;
-    player->id_number = game.hero_player_num;
 }
 
 /******************************************************************************/
@@ -160,7 +159,7 @@ static void init_level(void)
 
     init_creature_scores();
 
-    init_good_player_as(hero_player_number);
+    init_good_player_as(PLAYER_GOOD);
     light_set_lights_on(1);
     start_rooms = &game.rooms[1];
     end_rooms = &game.rooms[ROOMS_COUNT];
@@ -192,9 +191,16 @@ static void init_level(void)
     LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
     light_set_lights_on(1);
     {
-        struct PlayerInfo *player;
-        player = get_player(game.hero_player_num);
-        init_player_start(player, false);
+        for (size_t i = 0; i < PLAYERS_COUNT; i++)
+        {
+            if(player_is_roaming(i))
+            {
+                struct PlayerInfo *player;
+                player = get_player(PLAYER_GOOD);
+                init_player_start(player, false);
+
+            }
+        }
     }
     game.numfield_D |= GNFldD_Unkn04;
     //LbMemoryCopy(&game.intralvl.transferred_creature,&transfer_mem,sizeof(struct CreatureStorage));

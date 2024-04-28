@@ -1245,8 +1245,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     struct ComputerProcess *newproc;
     struct ComputerCheck *newchk;
     long i;
-    if ((plyr_idx >= PLAYERS_COUNT) || (plyr_idx == game.hero_player_num)
-        || (plyr_idx == game.neutral_player_num)) {
+    if ((plyr_idx >= PLAYERS_COUNT) || !player_is_keeper(plyr_idx)) {
         WARNLOG("Tried to setup player %d which can't be used this way",(int)plyr_idx);
         return false;
     }

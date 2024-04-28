@@ -106,7 +106,7 @@ static PlayerNumber info_panel_pos_to_player_number(int idx)
     idx += info_page * 3;
     for (size_t i = 0; i < PLAYERS_COUNT; i++)
     {
-        if(i == my_player_number || i == game.hero_player_num)
+        if(i == my_player_number || player_is_roaming(i))
             continue;
 
         struct PlayerInfo* player = get_player(i);
@@ -2041,7 +2041,7 @@ void maintain_player_page2(struct GuiButton *gbtn)
     for (size_t i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
-        if(player_exists(player) && i != game.hero_player_num)
+        if(player_exists(player) && player_is_keeper(i))
             current_players_count++;
     }
     if(current_players_count > 4)
@@ -2072,7 +2072,7 @@ void maintain_query_button(struct GuiButton *gbtn)
     for (size_t i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
-        if(player_exists(player) && i != game.hero_player_num)
+        if(player_exists(player) && player_is_keeper(i))
             current_players_count++;
     }
 
