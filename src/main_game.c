@@ -78,7 +78,6 @@ void reset_script_timers_and_flags(void)
         add_power_to_player(PwrK_SLAP, plyr_idx);
         add_power_to_player(PwrK_POSSESS, plyr_idx);
         dungeon = get_dungeon(plyr_idx);
-        dungeon = get_dungeon(plyr_idx);
         for (k=0; k<TURN_TIMERS_COUNT; k++)
         {
             memset(&dungeon->turn_timers[k], 0, sizeof(struct TurnTimer));
@@ -95,12 +94,27 @@ void reset_script_timers_and_flags(void)
     }
 }
 
-void init_good_player_as(PlayerNumber plr_idx)
+void init_player_types()
 {
-    struct PlayerInfo *player;
-    player = get_player(plr_idx);
-    player->allocflags |= PlaF_Allocated;
-    player->allocflags |= PlaF_CompCtrl;
+    for (size_t plr_idx = 0; plr_idx < PLAYERS_COUNT; plr_idx++)
+    {
+        struct PlayerInfo *player;
+        player = get_player(plr_idx);
+        switch (plr_idx)
+        {
+        case PLAYER_GOOD:
+            player->allocflags |= PlaF_Allocated;
+            player->allocflags |= PlaF_CompCtrl;
+            player->player_type = PT_Roaming;
+            break;
+        case PLAYER_NEUTRAL:
+            player->player_type = PT_Neutral;
+            break;
+        default:
+            player->player_type = PT_Keeper;
+            break;
+        }
+    }
 }
 
 /******************************************************************************/
@@ -159,7 +173,7 @@ static void init_level(void)
 
     init_creature_scores();
 
-    init_good_player_as(PLAYER_GOOD);
+    init_player_types();
     light_set_lights_on(1);
     start_rooms = &game.rooms[1];
     end_rooms = &game.rooms[ROOMS_COUNT];
