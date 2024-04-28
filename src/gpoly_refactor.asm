@@ -444,8 +444,168 @@ handle:
 	jmp setupfortextshade
 	
 setupfortextshade:
-	CALC_HSTEP CalcShade, CalcText
-	CALC_DATA_EDGE_STEP CalcShade, CalcText, PixFixOff
+    ;-------- CALC_HSTEP MACRO
+    ; Calculates the vectors needed to step across the triangle
+    ; returns vel variables
+    	LOCAL calcend, posshade, posmapx, posmapy, zerocalc, bendonright
+	
+        mov esi, point2x
+        mov edi, creaselen
+        
+        or edi, edi
+        ;js bendonright
+        
+        sub esi, 2 * 0
+        
+        ;bendonright:
+        add esi, 1 * 0
+        mov eax, point1x             ;find denom cross product
+        sub esi, eax
+        mov edi, point3x
+        sub edi, eax
+        mov eax, point1y
+        mov ebx, point2y
+        sub ebx, eax
+        mov ecx, point3y
+        sub ecx, eax
+        mov eax, ecx
+        ;sar eax, 1
+        imul ecx, esi
+        mov ebp, creaselen
+        or ebp, ebp
+        js bendonright
+        
+        sub ecx, eax
+        sub ecx, eax
+        
+    bendonright:
+        add ecx, eax
+        
+        imul ebx, edi
+        sub ebx, ecx
+        je zerocalc
+        
+        xor edx, edx
+        mov eax, 32768 * 65536 - 1
+        idiv ebx
+        mov ebp, eax
+        mov eax, point1y
+        mov esi, point3y
+        sub esi, eax
+        mov edi, point2y
+        sub edi, eax
+        
+        IF ShadeOn
+        mov eax, ebp
+        mov edx, point1shade         ;calc x shade step
+        mov ebx, point3shade
+        sub ebx, edx
+        mov ecx, point2shade
+        sub ecx, edx
+        imul ecx, esi
+        imul ebx, edi
+        sub ebx, ecx
+        imul ebx
+        shl eax, 1
+        rcl edx, 1
+        mov ax, dx
+        rol eax, 16
+        jns posshade
+        
+        inc eax
+        
+    posshade:
+        mov shadehstep, eax
+        ENDIF
+        
+        IF TextOn
+        mov eax, ebp
+        mov edx, point1mapx          ;calc x mapx step
+        mov ebx, point3mapx
+        sub ebx, edx
+        mov ecx, point2mapx
+        sub ecx, edx
+        imul ecx, esi
+        imul ebx, edi
+        sub ebx, ecx
+        imul ebx
+        shl eax, 1
+        rcl edx, 1
+        mov ax, dx
+        rol eax, 16
+        jns posmapx
+        
+        inc eax
+        
+    posmapx:
+        mov mapxhstep, eax
+        mov eax, ebp
+        mov edx, point1mapy          ;calc x mapy step
+        mov ebx, point3mapy
+        sub ebx, edx
+        mov ecx, point2mapy
+        sub ecx, edx
+        imul ecx, esi
+        imul ebx, edi
+        sub ebx, ecx
+        imul ebx
+        shl eax, 1
+        rcl edx, 1
+        mov ax, dx
+        rol eax, 16
+        jns posmapy
+        
+        inc eax
+        
+    posmapy:
+        mov mapyhstep, eax
+        
+        ENDIF
+        
+        jmp calcend
+        
+    zerocalc:
+        xor eax, eax
+        IF ShadeOn
+        mov shadehstep, eax
+        ENDIF
+        
+        IF TextOn
+        mov mapxhstep, eax
+        mov mapyhstep, eax
+        ENDIF
+        
+    calcend:
+    ;-------- END CALC_HSTEP MACRO
+
+    ;-------- CALC_DATA_EDGE_STEP MACRO
+	; CALC_DATA_EDGE_STEP CalcShade, CalcText, PixFixOff
+    	LOCAL bendonright, calcend
+	
+        mov esi, creaselen
+        or esi, esi
+        js bendonright
+        
+        CALC_DATA_FOR_EDGE ShadeOn, TextOn, 1, 2, top
+        CALC_DATA_FOR_EDGE ShadeOn, TextOn, 2, 3, bottom
+        
+        IF PixFix
+        CALC_ERROR_FIX 12, top
+        CALC_ERROR_FIX 23, bottom
+        ENDIF
+        
+        jmp calcend
+        
+    bendonright:
+        CALC_DATA_FOR_EDGE ShadeOn, TextOn, 1, 3, top
+        
+        IF PixFix
+        CALC_ERROR_FIX 13, top
+        ENDIF
+        
+    calcend:
+    ;-------- END CALC_DATA_EDGE_STEP MACRO
+
 	CALC_STARTPOS CalcShade, CalcText, PixFixOff
 	PACK_DATA textshade
 	jmp setupmodeend
