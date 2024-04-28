@@ -28,6 +28,7 @@
 #include "config.h"
 #include "player_computer.h"
 #include "thing_data.h"
+#include "game_merge.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -1083,13 +1084,11 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
     return 1;
 }
 
-TbBool load_computer_player_config(unsigned short flags)
+TbBool load_computer_player_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     SYNCDBG(8, "Starting");
-    static const char *textname = "Computer Player";
     init_computer_process_lists();
     // Load the config file
-    const char* fname = prepare_file_path(FGrp_FxData, keeper_compplayer_file);
     long len = LbFileLengthRnc(fname);
     if (len < 2)
     {
@@ -1117,6 +1116,27 @@ TbBool load_computer_player_config(unsigned short flags)
     //Freeing and exiting
     LbMemoryFree(buf);
     return true;
+}
+
+
+TbBool load_computer_player_config(unsigned short flags)
+{
+    static const char config_global_textname[] = "global Computer Player config";
+    static const char config_campgn_textname[] = "campaign Computer Player config";
+    static const char config_level_textname[] = "level Computer Player config";
+    char* fname = prepare_file_path(FGrp_FxData, keeper_compplayer_file);
+    TbBool result = load_computer_player_config_file(config_global_textname, fname, flags);
+    fname = prepare_file_path(FGrp_CmpgConfig,keeper_compplayer_file);
+    if (strlen(fname) > 0)
+    {
+        load_computer_player_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), keeper_compplayer_file);
+    if (strlen(fname) > 0)
+    {
+        load_computer_player_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+    return result;
 }
 
 /******************************************************************************/
