@@ -5657,7 +5657,7 @@ static void computer_player_check(const struct ScriptLine* scline)
             script_support_setup_player_as_computer_keeper(i, atoi(comp_model));
         }
     }
-    else if(strcasecmp(comp_model,"ROAMING"))
+    else if(strcasecmp(comp_model,"ROAMING") == 0)
     {
         for (long i = plr_start; i < plr_end; i++)
         {
