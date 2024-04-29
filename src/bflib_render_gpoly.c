@@ -4206,12 +4206,12 @@ static void calculateTriangleProperties() {
     // shadehstep -> factorS
     // mapxhstep -> factorU
     // mapyhstep -> factorV
-    shadehstep = calculateParameter(scaleFactor, point3shade - point1shade, point2shade - point1shade,
-                                  deltaY_B_A, deltaY_C_A);
+    shadehstep = calculateParameter(scaleFactor, point3shade - point1shade,
+                                    point2shade - point1shade, deltaY_B_A, deltaY_C_A);
     mapxhstep = calculateParameter(scaleFactor, point3mapx - point1mapx, point2mapx - point1mapx,
-                                  deltaY_B_A, deltaY_C_A);
+                                   deltaY_B_A, deltaY_C_A);
     mapyhstep = calculateParameter(scaleFactor, point3mapy - point1mapy, point2mapy - point1mapy,
-                                  deltaY_B_A, deltaY_C_A);
+                                   deltaY_B_A, deltaY_C_A);
   }
 }
 
@@ -4267,10 +4267,11 @@ void test_calculateTriangleProperties() {
     // JUSTLOG(
     //     "[test-inputs] gploc_pt_ax=%d, gploc_pt_ay=%d, gploc_pt_bx=%d, gploc_pt_by=%d, "
     //     "gploc_pt_cx=%d, "
-    //     "gploc_pt_cy=%d, point3shade=%d, point1shade=%d, point2shade=%d, point3mapx=%d, point1mapx=%d, "
-    //     "point3mapy=%d, point1mapy=%d, point2mapx=%d, crease_len=%d",
-    //     gploc_pt_ax, gploc_pt_ay, gploc_pt_bx, gploc_pt_by, gploc_pt_cx, gploc_pt_cy, point3shade,
-    //     point1shade, point2shade, point3mapx, point1mapx, point3mapy, point1mapy, point2mapx, crease_len);
+    //     "gploc_pt_cy=%d, point3shade=%d, point1shade=%d, point2shade=%d, point3mapx=%d,
+    //     point1mapx=%d, " "point3mapy=%d, point1mapy=%d, point2mapx=%d, crease_len=%d",
+    //     gploc_pt_ax, gploc_pt_ay, gploc_pt_bx, gploc_pt_by, gploc_pt_cx, gploc_pt_cy,
+    //     point3shade, point1shade, point2shade, point3mapx, point1mapx, point3mapy, point1mapy,
+    //     point2mapx, crease_len);
 
     calc_hstep();
 
@@ -4284,7 +4285,8 @@ void test_calculateTriangleProperties() {
     // mapyhstep);
 
     if (shadehstep != valid_shadehstep) {
-      JUSTLOG("Test %d failed for shadehstep. Expected=%d, Got=%d", i, valid_shadehstep, shadehstep);
+      JUSTLOG("Test %d failed for shadehstep. Expected=%d, Got=%d", i, valid_shadehstep,
+              shadehstep);
     }
 
     if (mapxhstep != valid_mapxhstep) {
@@ -4435,9 +4437,9 @@ void draw_gpoly_sub7_subfunc2_refactor() {
     uVar4 = (ushort)((unsigned long long int)lVar1
                      >> 0x10);  // Normalize it back into 16.16 and isolate the fractional part
     shadeveltop = (struct PolyPoint *)(combineHighLowBits(
-                                             uVar4, (short)((unsigned long long int)lVar1 >> 0x20))
-                                             << 0x10
-                                         | (uint)uVar4);
+                                           uVar4, (short)((unsigned long long int)lVar1 >> 0x20))
+                                           << 0x10
+                                       | (uint)uVar4);
     // uint32_t fixedPointResult = processFixedPointMultiplication(step1Diff, diffModifier);
     // shadeveltop = fixedPointResult;  // Now as a uint32_t, not a pointer
     if (iVar2 < 0) {
@@ -4447,7 +4449,7 @@ void draw_gpoly_sub7_subfunc2_refactor() {
     lVar1 = (long long int)iVar2 * (long long int)iVar5;
     uVar4 = (ushort)((unsigned long long int)lVar1 >> 0x10);
     mapxveltop = combineHighLowBits(uVar4, (short)((unsigned long long int)lVar1 >> 0x20)) << 0x10
-                | (uint)uVar4;
+                 | (uint)uVar4;
     if (iVar2 < 0) {
       mapxveltop++;
     }
@@ -4455,7 +4457,7 @@ void draw_gpoly_sub7_subfunc2_refactor() {
     lVar1 = (long long int)iVar2 * (long long int)iVar5;
     uVar4 = (ushort)((unsigned long long int)lVar1 >> 0x10);
     mapyveltop = combineHighLowBits(uVar4, (short)((unsigned long long int)lVar1 >> 0x20)) << 0x10
-                | (uint)uVar4;
+                 | (uint)uVar4;
     if (iVar2 < 0) {
       mapyveltop++;
     }
@@ -4470,9 +4472,9 @@ void draw_gpoly_sub7_subfunc2_refactor() {
     lVar1 = (long long int)iVar2 * (long long int)iVar5;
     uVar4 = (ushort)((unsigned long long int)lVar1 >> 0x10);
     shadeveltop = (struct PolyPoint *)(combineHighLowBits(
-                                             uVar4, (short)((unsigned long long int)lVar1 >> 0x20))
-                                             << 0x10
-                                         | (uint)uVar4);
+                                           uVar4, (short)((unsigned long long int)lVar1 >> 0x20))
+                                           << 0x10
+                                       | (uint)uVar4);
     if (iVar2 < 0) {
       shadeveltop = (struct PolyPoint *)((int)&shadeveltop->X + 1);
     }
@@ -4480,7 +4482,7 @@ void draw_gpoly_sub7_subfunc2_refactor() {
     lVar1 = (long long int)iVar2 * (long long int)iVar5;
     uVar4 = (ushort)((unsigned long long int)lVar1 >> 0x10);
     mapxveltop = combineHighLowBits(uVar4, (short)((unsigned long long int)lVar1 >> 0x20)) << 0x10
-                | (uint)uVar4;
+                 | (uint)uVar4;
     if (iVar2 < 0) {
       mapxveltop++;
     }
@@ -4488,7 +4490,7 @@ void draw_gpoly_sub7_subfunc2_refactor() {
     lVar1 = (long long int)iVar2 * (long long int)iVar5;
     uVar4 = (ushort)((unsigned long long int)lVar1 >> 0x10);
     mapyveltop = combineHighLowBits(uVar4, (short)((unsigned long long int)lVar1 >> 0x20)) << 0x10
-                | (uint)uVar4;
+                 | (uint)uVar4;
     if (iVar2 < 0) {
       mapyveltop++;
     }
@@ -4501,24 +4503,27 @@ void draw_gpoly_sub7_subfunc2_refactor() {
     iVar2 = (point3shade - point2shade) * 2;
     lVar1 = (long long int)iVar2 * (long long int)iVar5;
     uVar4 = (ushort)((unsigned long long int)lVar1 >> 0x10);
-    shadevelbottom = combineHighLowBits(uVar4, (short)((unsigned long long int)lVar1 >> 0x20)) << 0x10
-                | (uint)uVar4;
+    shadevelbottom = combineHighLowBits(uVar4, (short)((unsigned long long int)lVar1 >> 0x20))
+                         << 0x10
+                     | (uint)uVar4;
     if (iVar2 < 0) {
       shadevelbottom++;
     }
     iVar2 = (point3mapx - point2mapx) * 2;
     lVar1 = (long long int)iVar2 * (long long int)iVar5;
     uVar4 = (ushort)((unsigned long long int)lVar1 >> 0x10);
-    mapxvelbottom = combineHighLowBits(uVar4, (short)((unsigned long long int)lVar1 >> 0x20)) << 0x10
-                | (uint)uVar4;
+    mapxvelbottom = combineHighLowBits(uVar4, (short)((unsigned long long int)lVar1 >> 0x20))
+                        << 0x10
+                    | (uint)uVar4;
     if (iVar2 < 0) {
       mapxvelbottom++;
     }
     iVar2 = (point3mapy - point2mapy) * 2;
     lVar1 = (long long int)iVar2 * (long long int)iVar5;
     uVar4 = (ushort)((unsigned long long int)lVar1 >> 0x10);
-    mapyvelbottom = combineHighLowBits(uVar4, (short)((unsigned long long int)lVar1 >> 0x20)) << 0x10
-                | (uint)uVar4;
+    mapyvelbottom = combineHighLowBits(uVar4, (short)((unsigned long long int)lVar1 >> 0x20))
+                        << 0x10
+                    | (uint)uVar4;
     if (iVar2 < 0) {
       mapyvelbottom++;
     }
@@ -5068,14 +5073,15 @@ void draw_gpoly_sub7() {
   // JUSTLOG(
   //     "[test-inputs] gploc_pt_ax=%d, gploc_pt_ay=%d, gploc_pt_bx=%d, gploc_pt_by=%d, "
   //     "gploc_pt_cx=%d, "
-  //     "gploc_pt_cy=%d, point3shade=%d, point1shade=%d, point2shade=%d, point3mapx=%d, point1mapx=%d, "
-  //     "point3mapy=%d, point1mapy=%d, point2mapx=%d, crease_len=%d",
-  //     gploc_pt_ax, gploc_pt_ay, gploc_pt_bx, gploc_pt_by, gploc_pt_cx, gploc_pt_cy, point3shade,
-  //     point1shade, point2shade, point3mapx, point1mapx, point3mapy, point1mapy, point2mapx, crease_len);
+  //     "gploc_pt_cy=%d, point3shade=%d, point1shade=%d, point2shade=%d, point3mapx=%d,
+  //     point1mapx=%d, " "point3mapy=%d, point1mapy=%d, point2mapx=%d, crease_len=%d", gploc_pt_ax,
+  //     gploc_pt_ay, gploc_pt_bx, gploc_pt_by, gploc_pt_cx, gploc_pt_cy, point3shade, point1shade,
+  //     point2shade, point3mapx, point1mapx, point3mapy, point1mapy, point2mapx, crease_len);
 
   calculateTriangleProperties();
 
-  // JUSTLOG("[test-outputs] shadehstep=%d, mapxhstep=%d, mapyhstep=%d", shadehstep, mapxhstep, mapyhstep);
+  // JUSTLOG("[test-outputs] shadehstep=%d, mapxhstep=%d, mapyhstep=%d", shadehstep, mapxhstep,
+  // mapyhstep);
 
   /*
   ### Global Input Variables
@@ -5135,14 +5141,15 @@ void draw_gpoly_sub7() {
   */
 
   JUSTLOG(
-      "[test-inputs] crease_len=%d, gploc_pt_cy=%d, gploc_pt_ay=%d, point3shade=%d, point1shade=%d, "
+      "[test-inputs] crease_len=%d, gploc_pt_cy=%d, gploc_pt_ay=%d, point3shade=%d, "
+      "point1shade=%d, "
       "point3mapx=%d, "
       "point1mapx=%d, point3mapy=%d, point1mapy=%d, gploc_pt_by=%d, point2shade=%d, point2mapx=%d, "
       "point2mapy=%d, mapyhstep=%d, shadehstep=%d, mapxhstep=%d, mapyveltop=%d, mapxveltop=%d, "
       "shadevelbottom=%d, mapxvelbottom=%d, mapyvelbottom=%d",
-      crease_len, gploc_pt_cy, gploc_pt_ay, point3shade, point1shade, point3mapx, point1mapx, point3mapy,
-      point1mapy, gploc_pt_by, point2shade, point2mapx, point2mapy, mapyhstep, shadehstep, mapxhstep,
-      mapyveltop, mapxveltop, shadevelbottom, mapxvelbottom, mapyvelbottom);
+      crease_len, gploc_pt_cy, gploc_pt_ay, point3shade, point1shade, point3mapx, point1mapx,
+      point3mapy, point1mapy, gploc_pt_by, point2shade, point2mapx, point2mapy, mapyhstep,
+      shadehstep, mapxhstep, mapyveltop, mapxveltop, shadevelbottom, mapxvelbottom, mapyvelbottom);
 
   draw_gpoly_sub7_subfunc2();
 }
