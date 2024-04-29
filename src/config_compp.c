@@ -390,7 +390,10 @@ short parse_computer_player_process_blocks(char *buf, long len, const char *conf
         int k = find_conf_block(buf, &pos, len, block_buf);
         if (k < 0)
         {
-            WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
+            if((flags & CnfLd_AcceptPartial) == 0)
+            {
+                WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
+            }
             continue;
       }
       struct ComputerProcess* cproc = computer_process_config_list[i].process;
