@@ -5661,6 +5661,10 @@ static void computer_player_check(const struct ScriptLine* scline)
     {
         for (long i = plr_start; i < plr_end; i++)
         {
+            if(i == PLAYER_NEUTRAL)
+            {
+                continue;
+            }
             struct PlayerInfo* player = get_player(i);
             player->player_type = PT_Roaming;
             player->allocflags |= PlaF_Allocated;

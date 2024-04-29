@@ -1344,7 +1344,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
 TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyridx, long comp_model)
 {
     struct PlayerInfo* player = get_player(plyridx);
-    if (player_invalid(player)) {
+    if (player_invalid(player) || player_is_neutral(plyridx)) {
         SCRPTWRNLOG("Tried to set up invalid player %d",(int)plyridx);
         return false;
     }
