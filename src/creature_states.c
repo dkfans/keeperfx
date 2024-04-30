@@ -475,8 +475,8 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
  * - 1: Working.
  * - 2: Fighting.
  */
-long const state_type_to_gui_state[] = {
-    0, 1, 0, 0, 0, 2, 0, 0, 1, 0, 0, 2, 2, 1, 1, 0,
+long const state_type_to_gui_state[STATE_TYPES_COUNT] = {
+    0, 1, 0, 0, 0, 2, 0, 0, 1, 0, 0, 2, 2, 1, 1,
 };
 
 /******************************************************************************/

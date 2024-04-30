@@ -1815,7 +1815,7 @@ void update_creature_count(struct Thing *creatng)
         return;
     }
     int statyp = get_creature_state_type(creatng);
-    dungeon->field_64[creatng->model][statyp]++;
+    dungeon->crmodel_state_type_count[creatng->model][statyp]++;
     int job_idx = get_creature_gui_job(creatng);
     if (can_thing_be_picked_up_by_player(creatng, creatng->owner))
     {
