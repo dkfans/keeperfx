@@ -26,7 +26,7 @@
 #define CREATURE_STATES_COUNT CrSt_ListEnd
 
 #define FIGHT_FEAR_DELAY 160
-#define STATE_TYPES_COUNT 15
+#define STATE_TYPES_COUNT CrStTyp_ListEnd
 
 #ifdef __cplusplus
 extern "C" {
