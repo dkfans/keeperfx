@@ -566,14 +566,18 @@ short parse_computer_player_check_blocks(char *buf, long len, const char *config
     // Block name and parameter word store variables
     // Initialize the checks array
     const int arr_size = sizeof(computer_check_config_list)/sizeof(computer_check_config_list[0]);
-    for (i=0; i < arr_size; i++)
+    if((flags & CnfLd_AcceptPartial) == 0)
     {
-      ccheck = &computer_checks[i];
-      computer_check_config_list[i].name[0] = '\0';
-      computer_check_config_list[i].check = ccheck;
-      ccheck->name = computer_check_names[i];
-      LbMemorySet(computer_check_names[i], 0, LINEMSG_SIZE);
+      for (i=0; i < arr_size; i++)
+      {
+        ccheck = &computer_checks[i];
+        computer_check_config_list[i].name[0] = '\0';
+        computer_check_config_list[i].check = ccheck;
+        ccheck->name = computer_check_names[i];
+        LbMemorySet(computer_check_names[i], 0, LINEMSG_SIZE);
+      }
     }
+
     strcpy(computer_check_names[0],"INCORRECT CHECK");
     // Load the file
     for (i=1; i < arr_size; i++)
@@ -584,7 +588,8 @@ short parse_computer_player_check_blocks(char *buf, long len, const char *config
         int k = find_conf_block(buf, &pos, len, block_buf);
         if (k < 0)
         {
-            WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
+            if((flags & CnfLd_AcceptPartial) == 0)
+              WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
             continue;
       }
       ccheck = computer_check_config_list[i].check;
@@ -707,15 +712,19 @@ short parse_computer_player_event_blocks(char *buf, long len, const char *config
     // Block name and parameter word store variables
     // Initialize the events array
     const int arr_size = (int)(sizeof(computer_event_config_list)/sizeof(computer_event_config_list[0]));
-    for (i=0; i < arr_size; i++)
+    if((flags & CnfLd_AcceptPartial) == 0)
     {
-      cevent = &computer_events[i];
-      computer_event_config_list[i].name[0] = '\0';
-      computer_event_config_list[i].event = cevent;
-      cevent->name = computer_event_names[i];
-      LbMemorySet(computer_event_names[i], 0, LINEMSG_SIZE);
+      for (i=0; i < arr_size; i++)
+      {
+        cevent = &computer_events[i];
+        computer_event_config_list[i].name[0] = '\0';
+        computer_event_config_list[i].event = cevent;
+        cevent->name = computer_event_names[i];
+        LbMemorySet(computer_event_names[i], 0, LINEMSG_SIZE);
+      }
+      strcpy(computer_event_names[0],"INCORRECT EVENT");
     }
-    strcpy(computer_event_names[0],"INCORRECT EVENT");
+
     // Load the file
     for (i=1; i < arr_size; i++)
     {
@@ -725,7 +734,8 @@ short parse_computer_player_event_blocks(char *buf, long len, const char *config
         int k = find_conf_block(buf, &pos, len, block_buf);
         if (k < 0)
         {
-            WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
+            if((flags & CnfLd_AcceptPartial) == 0)
+              WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
             continue;
       }
       cevent = computer_event_config_list[i].event;
@@ -903,9 +913,10 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
         int k = find_conf_block(buf, &pos, len, block_buf);
         if (k < 0)
         {
-            WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
+            if((flags & CnfLd_AcceptPartial) == 0)
+              WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
             continue;
-      }
+        }
       struct ComputerProcessTypes* cpt = &ComputerProcessLists[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(compp_computer_commands,cmd_num)
       while (pos<len)
