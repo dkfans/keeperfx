@@ -262,6 +262,7 @@ short cursor_light_idx;
     unsigned char roomspace_l_shape;
     TbBool roomspace_horizontal_first;
     TbBool pickup_all_gold;
+    ThingModel special_digger;
     };
 
 /******************************************************************************/

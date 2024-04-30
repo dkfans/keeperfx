@@ -1786,6 +1786,11 @@ TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, long
 
 ThingModel get_players_special_digger_model(PlayerNumber plyr_idx)
 {
+    struct PlayerInfo* player = get_player(plyr_idx);
+
+    if(player->special_digger != 0)
+        return player->special_digger;
+
     ThingModel crmodel;
     if (plyr_idx == hero_player_number)
     {
