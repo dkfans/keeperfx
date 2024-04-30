@@ -5609,32 +5609,6 @@ static void change_slab_texture_process(struct ScriptContext* context)
     }
 }
 
-
-static void set_special_digger_check(const struct ScriptLine* scline)
-{
-    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
-    ThingModel crtr_id = get_rid(creature_desc, scline->tp[1]);
-   
-    if (crtr_id == -1)
-    {
-        SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
-        return;
-    }
-
-    value->shorts[0] = crtr_id;
-    PROCESS_SCRIPT_VALUE(scline->command);
-}
-
-static void set_special_digger_process(struct ScriptContext* context)
-{
-    for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
-    {
-        struct PlayerInfo* player = get_player(plyr_idx);
-
-        player->special_digger = context->value->shorts[0];
-    }
-}
-
 static void computer_player_check(const struct ScriptLine* scline)
 {
     long plr_range_id = scline->np[0];
@@ -5834,7 +5808,6 @@ const struct CommandDesc command_desc[] = {
   {"SET_PLAYER_MODIFIER",               "PAN     ", Cmd_SET_PLAYER_MODIFIER, &set_player_modifier_check, &set_player_modifier_process},
   {"ADD_TO_PLAYER_MODIFIER",            "PAN     ", Cmd_ADD_TO_PLAYER_MODIFIER, &add_to_player_modifier_check, &add_to_player_modifier_process},
   {"CHANGE_SLAB_TEXTURE",               "NNAa    ", Cmd_CHANGE_SLAB_TEXTURE , &change_slab_texture_check, &change_slab_texture_process},
-  {"SET_SPECIAL_DIGGER",                "PC      ", Cmd_SET_SPECIAL_DIGGER , &set_special_digger_check, &set_special_digger_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

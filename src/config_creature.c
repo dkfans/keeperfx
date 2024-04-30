@@ -1788,11 +1788,6 @@ ThingModel get_players_special_digger_model(PlayerNumber plyr_idx)
 {
     ThingModel crmodel;
 
-    struct PlayerInfo* player = get_player(plyr_idx);
-
-    if(player->special_digger != 0)
-        return player->special_digger;
-
     if (player_is_roaming(plyr_idx))
     {
         crmodel = game.conf.crtr_conf.special_digger_good;
