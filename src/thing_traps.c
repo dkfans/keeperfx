@@ -1012,7 +1012,7 @@ unsigned long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl
     return total;
 }
 
-void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct Thing *hand)
+void external_activate_trap_shot_at_angle(struct Thing *thing, short angle, struct Thing *trgtng)
 {
     struct TrapStats* trapstat = &game.conf.trap_stats[thing->model];
     if (trapstat->created_itm_model <= 0) {
@@ -1022,7 +1022,7 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct T
     if ((trapstat->activation_type != TrpAcT_CreatureShot)
         && (trapstat->activation_type != TrpAcT_HeadforTarget90))
     {
-        activate_trap(thing, hand);
+        activate_trap(thing, trgtng);
         process_trap_charge(thing);
         if (thing->trap.num_shots != INFINITE_CHARGES)
         {
@@ -1035,20 +1035,14 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct T
         }
         return;
     }
-    struct Thing* shotng = create_shot(&thing->mappos, trapstat->created_itm_model, thing->owner);
-    if (thing_is_invalid(shotng)) {
-        return;
+    if (!thing_is_invalid(trgtng))
+    {
+        thing_fire_shot(thing, trgtng, trapstat->created_itm_model, 1, trapstat->hit_type);
     }
-    struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
-    shotng->move_angle_xy = a2;
-    shotng->move_angle_z = 0;
-    struct ComponentVector cvect;
-    angles_to_vector(shotng->move_angle_xy, 0, shotst->speed, &cvect);
-    shotng->veloc_push_add.x.val += cvect.x;
-    shotng->veloc_push_add.y.val += cvect.y;
-    shotng->veloc_push_add.z.val += cvect.z;
-    shotng->state_flags |= TF1_PushAdd;
-    shotng->shot.hit_type = trapstat->hit_type;
+    else
+    {
+        trap_fire_shot_without_target(thing, trapstat->created_itm_model, 1, angle);
+    }
     const struct ManfctrConfig* mconf = &game.conf.traps_config[thing->model];
     thing->trap.rearm_turn = game.play_gameturn + mconf->shots_delay;
     if (thing->trap.num_shots != INFINITE_CHARGES)
@@ -1127,6 +1121,101 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
         }
     }
     return false;
+}
+
+void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, char shot_lvl, short angle_xy)
+{
+    struct Thing* shotng;
+    struct ComponentVector cvect;
+    struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
+    struct TrapStats* trapstat = &game.conf.trap_stats[firing->model];
+    switch (shotst->fire_logic)
+    {
+        case ShFL_Beam:
+        {
+            struct Coord3d pos2;
+            long damage;      
+            // Prepare source position
+            struct Coord3d pos1;
+            pos1.x.val = firing->mappos.x.val;
+            pos1.y.val = firing->mappos.y.val;
+            pos1.z.val = firing->mappos.z.val;
+            if (shotst->fire_logic == ShFL_Volley)
+            {
+                if (!firing->trap.volley_fire)
+                {
+                    firing->trap.volley_fire = true;
+                    firing->trap.volley_repeat = shotst->effect_amount - 1; // N x shots + (N - 1) x pauses and one shot is this one
+                    firing->trap.volley_delay = shotst->effect_spacing;
+                    firing->trap.firing_at = 0;
+                }
+                else
+                {
+                    firing->trap.volley_delay = shotst->effect_spacing;
+                    if (firing->trap.volley_repeat == 0)
+                        return;
+                    firing->trap.volley_repeat--;
+                }
+            }
+            firing->move_angle_xy = angle_xy; //visually rotates the trap
+            pos1.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_x, firing->move_angle_xy + LbFPMath_PI / 2);
+            pos1.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_x, firing->move_angle_xy + LbFPMath_PI / 2);
+            pos1.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_y, firing->move_angle_xy);
+            pos1.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_y, firing->move_angle_xy);
+            pos1.z.val += trapstat->shot_shift_z;
+            // Compute launch angles
+            pos2.x.val = 0;
+            pos2.y.val = 0;
+            pos2.z.val = 0;
+            if (((shotst->model_flags & ShMF_StrengthBased) != 0) && ((shotst->model_flags & ShMF_ReboundImmune) != 0))
+            {
+                pos1.z.val = pos2.z.val;
+            }
+            // Compute shot damage
+            if (shotst->fixed_damage == 0)
+            {
+                if ((shotst->model_flags & ShMF_StrengthBased) != 0)
+                {
+                    damage = calculate_melee_damage(firing);
+                }
+                else
+                {
+                    damage = calculate_shot_damage(firing, shot_model);
+                }
+            }
+            else
+            {
+                damage = shotst->damage;
+            }
+            if (get_2d_distance(&firing->mappos, &pos2) > shotst->max_range)
+            {
+                project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, COORD_PER_STL, shotst->max_range/COORD_PER_STL);
+            }
+            shotng = create_shot(&pos2, shot_model, firing->owner);
+            if (thing_is_invalid(shotng))
+              return;
+            draw_lightning(&pos1, &pos2, shotst->effect_spacing, shotst->effect_id);
+            shotng->health = shotst->health;
+            shotng->shot.damage = damage;
+            shotng->parent_idx = firing->index;
+            break;
+        }
+        default:
+            shotng = create_shot(&firing->mappos, shot_model, firing->owner);
+            if (thing_is_invalid(shotng)) {
+                return;
+            }
+            shotst = get_shot_model_stats(shotng->model);
+            shotng->move_angle_xy = angle_xy;
+            shotng->move_angle_z = 0;
+            angles_to_vector(shotng->move_angle_xy, 0, shotst->speed, &cvect);
+            shotng->veloc_push_add.x.val += cvect.x;
+            shotng->veloc_push_add.y.val += cvect.y;
+            shotng->veloc_push_add.z.val += cvect.z;
+            shotng->state_flags |= TF1_PushAdd;
+            shotng->shot.hit_type = trapstat->hit_type;
+            break;
+    }
 }
 
 /******************************************************************************/
