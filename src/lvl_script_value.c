@@ -276,7 +276,7 @@ TbResult script_use_power_at_pos(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
 
     unsigned long spell_flags = PwCast_AllGround | PwCast_Unrevealed;
     if (is_free)
-        spell_flags,PwMod_CastForFree;
+        set_flag(spell_flags,PwMod_CastForFree);
 
     return magic_use_power_on_subtile(plyr_idx, powerKind, splevel, stl_x, stl_y, spell_flags);
 }
@@ -786,10 +786,10 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_BONUS_LEVEL_TIME:
       if (val2 > 0) {
           game.bonus_time = game.play_gameturn + val2;
-          game.flags_gui,GGUI_CountdownTimer;
+          set_flag(game.flags_gui,GGUI_CountdownTimer);
       } else {
           game.bonus_time = 0;
-          game.flags_gui &= ~GGUI_CountdownTimer;
+          clear_flag(game.flags_gui,GGUI_CountdownTimer);
       }
       if (level_file_version > 0)
       {
