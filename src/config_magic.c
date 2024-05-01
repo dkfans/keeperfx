@@ -152,7 +152,7 @@ const struct NamedCommand magic_power_commands[] = {
   {"PANELTABINDEX",  12},
   {"SOUNDSAMPLES",   13},
   {"PROPERTIES",     14},
-  {"FUNCTIONS",      15},
+  {"OVERCHARGECHECK",15},
   {"PLAYERSTATE",    16},
   {"PARENTPOWER",    17},
   {"SOUNDPLAYED",    18},
@@ -269,11 +269,11 @@ const struct NamedCommand shotmodel_damagetype_commands[] = {
   };
 
 const struct NamedCommand powermodel_expand_check_func_type[] = {
-  {"general_expand",           1},
-  {"sight_of_evil_expand",     2},
-  {"call_to_arms_expand",      3},
-  {"do_not_expand",            4},
-  {NULL,                       0},
+  {"general_expand",           OcC_General_expand},
+  {"sight_of_evil_expand",     OcC_SightOfEvil_expand},
+  {"call_to_arms_expand",      OcC_CallToArms_expand},
+  {"do_not_expand",            OcC_do_not_expand},
+  {NULL,                       OcC_Null},
 };
 
 const Expand_Check_Func powermodel_expand_check_func_list[] = {
@@ -2223,7 +2223,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               }
           }
           break;
-      case 15: // FUNCTIONS
+      case 15: // OverchargeCheck
           powerst->overcharge_check_idx = 0;
           k = recognize_conf_parameter(buf,&pos,len,powermodel_expand_check_func_type);
           if (k > 0)
