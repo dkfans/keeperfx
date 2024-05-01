@@ -254,7 +254,9 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
       if ((trapst->slappable == 1) && trap_is_active(thing))
       {
-          struct Thing* trgtng = get_nearest_enemy_creature_in_sight_and_range_of_trap(thing);
+          struct TrapStats* trapstat = &game.conf.trap_stats[thing->model];
+          shotst = get_shot_model_stats(trapstat->created_itm_model);
+          struct Thing* trgtng = ((shotst->model_flags & ShMF_Boulder) != 0) ? INVALID_THING : get_nearest_enemy_creature_in_sight_and_range_of_trap(thing);
           external_activate_trap_shot_at_angle(thing, player->acamera->orient_a, trgtng);
       }
       break;
