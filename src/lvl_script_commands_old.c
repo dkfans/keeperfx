@@ -1251,12 +1251,6 @@ static void command_use_power(long plr_range_id, const char *magname, char free)
         SCRPTERRLOG("Unknown magic, '%s'", magname);
         return;
     }
-    PowerKind pwr = mag_id;
-    if (pwr == PwrK_ARMAGEDDON && (PlayerNumber) plr_range_id > PLAYER3)
-    {
-        SCRPTERRLOG("Only players 0-3 can cast %s", magname);
-        return;
-    }
     command_add_value(Cmd_USE_POWER, plr_range_id, mag_id, free, 0);
 }
 
