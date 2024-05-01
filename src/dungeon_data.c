@@ -24,6 +24,7 @@
 #include "bflib_memory.h"
 #include "config_terrain.h"
 #include "game_legacy.h"
+#include "player_instances.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -505,10 +506,10 @@ void init_dungeons(void)
 {
     for (int i = 0; i < DUNGEONS_COUNT; i++)
     {
-        struct Dungeon* dungeon = get_dungeon(game.hero_player_num);
+        struct Dungeon* dungeon = get_dungeon(PLAYER_GOOD);
         dungeon->hates_player[i] = game.conf.rules.creature.fight_max_hate;
         dungeon = get_dungeon(i);
-        dungeon->hates_player[game.hero_player_num%DUNGEONS_COUNT] = game.conf.rules.creature.fight_max_hate;
+        dungeon->hates_player[PLAYER_GOOD] = game.conf.rules.creature.fight_max_hate;
         dungeon->num_active_diggers = 0;
         dungeon->num_active_creatrs = 0;
         dungeon->creatr_list_start = 0;
