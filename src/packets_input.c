@@ -887,6 +887,8 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         case PSt_Flight:
         case PSt_Vision:
         case PSt_TimeBomb:
+        case PSt_CastDisease:
+        case PSt_TurnChicken:
             thing = get_creature_near_to_be_keeper_power_target(x, y, pwkind, plyr_idx);
             if (thing_is_invalid(thing))
             {
@@ -913,36 +915,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
             break;
-        case PSt_CastDisease:
-            thing = get_creature_near_to_be_keeper_power_target(x, y, pwkind, plyr_idx);
-            if (thing_is_invalid(thing))
-            {
-                player->thing_under_hand = 0;
-                break;
-            }
-            player->thing_under_hand = thing->index;
-            if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
-            {
-                i = get_power_overcharge_level(player);
-                magic_use_available_power_on_thing(plyr_idx, pwkind, i, stl_x, stl_y, thing, PwMod_Default);
-                unset_packet_control(pckt, PCtr_LBtnRelease);
-            }
-            break;
-        case PSt_TurnChicken:
-            thing = get_creature_near_to_be_keeper_power_target(x, y, pwkind, plyr_idx);
-            if (thing_is_invalid(thing))
-            {
-                player->thing_under_hand = 0;
-                break;
-            }
-            player->thing_under_hand = thing->index;
-            if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
-            {
-                i = get_power_overcharge_level(player);
-                magic_use_available_power_on_thing(plyr_idx, pwkind, i, stl_x, stl_y, thing, PwMod_Default);
-                unset_packet_control(pckt, PCtr_LBtnRelease);
-            }
-            break;
+
         default:
             if (!packets_process_cheats(plyr_idx, x, y, pckt,
                                         stl_x, stl_y, slb_x, slb_y))
