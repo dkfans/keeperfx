@@ -34,6 +34,7 @@ extern "C" {
 struct PlayerStateConfigStats {
     char code_name[COMMAND_WORD_LEN];
     PowerKind power_kind;
+    unsigned char pointer_group;
 };
 
 struct PlayerStateConfig {
@@ -97,6 +98,22 @@ enum PlayerStates {
     PSt_Flight,
     PSt_Vision,
     PSt_ListEnd
+};
+
+enum PlayerStatePointerGroup {
+    PsPg_None,
+    PsPg_CtrlDungeon,
+    PsPg_BuildRoom,
+    PsPg_Invisible,
+    PsPg_Spell,
+    PsPg_Query,
+    PsPg_PlaceTrap,
+    PsPg_PlaceDoor,
+    PsPg_Sell,
+    PsPg_PlaceTerrain,
+    PsPg_MkDigger,
+    PsPg_MkCreatr,
+    PsPg_OrderCreatr
 };
 
 /******************************************************************************/

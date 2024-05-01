@@ -1,209 +1,275 @@
-
 [playerstate0]
 Name = "PLAYER_STATE_NONE" 
 #associated power in magic.cfg
 PowerKind = ""
+PointerGroup = "NONE"
 
 [playerstate1]
 Name = "PLAYER_STATE_CTRLDUNGEON"
 PowerKind = ""
+PointerGroup = "CTRLDUNGEON"
 
 [playerstate2]
 Name = "PLAYER_STATE_BUILDROOM"
 PowerKind = ""
+PointerGroup = "BUILDROOM"
 
 [playerstate3]
 Name = "PLAYER_STATE_MKGOODDIGGER"
 PowerKind = ""
+PointerGroup = "MAKEDIGGER"
 
 [playerstate4]
 Name = "PLAYER_STATE_MKGOODCREATR"
 PowerKind = ""
+PointerGroup = "MAKECREATURE"
 
 [playerstate5]
 Name = "PLAYER_STATE_HOLDINHAND"
 PowerKind = ""
+PointerGroup = "INVISIBLE"
 
 [playerstate6]
 Name = "PLAYER_STATE_CALLTOARMS"
 PowerKind = "POWER_CALL_TO_ARMS"
+PointerGroup = "SPELL"
 
 [playerstate7]
 Name = "PLAYER_STATE_CAVEIN"
 PowerKind = "POWER_CAVE_IN"
+PointerGroup = "SPELL"
 
 [playerstate8]
 Name = "PLAYER_STATE_SIGHTOFEVIL"
 PowerKind = "POWER_SIGHT"
+PointerGroup = "SPELL"
 
 [playerstate9]
 Name = "PLAYER_STATE_SLAP"
 PowerKind = ""
+PointerGroup = "INVISIBLE"
 
 [playerstate10]
 Name = "PLAYER_STATE_CTRLPASSNGR"
 PowerKind = "POWER_POSSESS"
+PointerGroup = "SPELL"
 
 [playerstate11]
 Name = "PLAYER_STATE_CTRLDIRECT"
 PowerKind = "POWER_POSSESS"
+PointerGroup = "SPELL"
 
 [playerstate12]
 Name = "PLAYER_STATE_CREATRQUERY"
 PowerKind = ""
+PointerGroup = "QUERY"
 
 [playerstate13]
 Name = "PLAYER_STATE_ORDERCREATR"
 PowerKind = ""
+PointerGroup = "ORDERCREATURE"
 
 [playerstate14]
 Name = "PLAYER_STATE_MKBADCREATR"
 PowerKind = ""
+PointerGroup = "MAKECREATURE"
 
 [playerstate15]
 Name = "PLAYER_STATE_CREATRINFO"
 PowerKind = ""
+PointerGroup = "QUERY"
 
 [playerstate16]
 Name = "PLAYER_STATE_PLACETRAP"
 PowerKind = ""
+PointerGroup = "PLACETRAP"
 
 [playerstate17]
 Name = "PLAYER_STATE_LIGHTNING"
 PowerKind = "POWER_LIGHTNING"
+PointerGroup = "SPELL"
 
 [playerstate18]
 Name = "PLAYER_STATE_PLACEDOOR"
 PowerKind = ""
+PointerGroup = "PLACEDOOR"
 
 [playerstate19]
 Name = "PLAYER_STATE_SPEEDUP"
 PowerKind = "POWER_SPEED"
+PointerGroup = "SPELL"
 
 [playerstate20]
 Name = "PLAYER_STATE_ARMOUR"
 PowerKind = "POWER_PROTECT"
+PointerGroup = "SPELL"
 
 [playerstate21]
 Name = "PLAYER_STATE_CONCEAL"
 PowerKind = "POWER_CONCEAL"
+PointerGroup = "SPELL"
 
 [playerstate22]
 Name = "PLAYER_STATE_HEAL"
 PowerKind = "POWER_HEAL_CREATURE"
+PointerGroup = "SPELL"
 
 [playerstate23]
 Name = "PLAYER_STATE_SELL"
 PowerKind = ""
+PointerGroup = "SELL"
 
 [playerstate24]
 Name = "PLAYER_STATE_CREATEDIGGER"
 PowerKind = "POWER_IMP"
+PointerGroup = "SPELL"
 
 [playerstate25]
 Name = "PLAYER_STATE_DESTROYWALLS"
 PowerKind = "POWER_DESTROY_WALLS"
+PointerGroup = "SPELL"
 
 [playerstate26]
 Name = "PLAYER_STATE_CASTDISEASE"
 PowerKind = "POWER_DISEASE"
+PointerGroup = "SPELL"
 
 [playerstate27]
 Name = "PLAYER_STATE_TURNCHICKEN"
 PowerKind = "POWER_CHICKEN"
+PointerGroup = "SPELL"
 
 [playerstate28]
 Name = "PLAYER_STATE_MKGOLDPOT"
 PowerKind = ""
+PointerGroup = "NONE"
 
 [playerstate29]
 Name = "PLAYER_STATE_TIMEBOMB"
-PowerKind = ""
+PowerKind = "POWER_TIMEBOMB"
+PointerGroup = "SPELL"
 
 [playerstate30]
 Name = "PLAYER_STATE_FREEDESTROYWALLS"
 PowerKind = "POWER_DESTROY_WALLS"
+PointerGroup = "SPELL"
 
 [playerstate31]
 Name = "PLAYER_STATE_FREECASTDISEASE"
 PowerKind = "POWER_DISEASE"
+PointerGroup = "SPELL"
 
 [playerstate32]
 Name = "PLAYER_STATE_FREETURNCHICKEN"
 PowerKind = "POWER_CHICKEN"
+PointerGroup = "SPELL"
 
 [playerstate33]
 Name = "PLAYER_STATE_FREECTRLPASSNGR"
-PowerKind = ""
+PowerKind = "POWER_POSSESS"
+PointerGroup = "SPELL"
 
 [playerstate34]
 Name = "PLAYER_STATE_FREECTRLDIRECT"
-PowerKind = ""
+PowerKind = "POWER_POSSESS"
+PointerGroup = "SPELL"
 
 [playerstate35]
 Name = "PLAYER_STATE_STEALROOM"
 PowerKind = ""
+PointerGroup = "NONE"
 
 [playerstate36]
 Name = "PLAYER_STATE_DESTROYROOM"
 PowerKind = ""
+PointerGroup = "NONE"
 
 [playerstate37]
 Name = "PLAYER_STATE_KILLCREATURE"
 PowerKind = ""
+PointerGroup = "NONE"
 
 [playerstate38]
 Name = "PLAYER_STATE_CONVERTCREATURE"
 PowerKind = ""
+PointerGroup = "NONE"
 
 [playerstate39]
 Name = "PLAYER_STATE_STEALSLAB"
 PowerKind = ""
+PointerGroup = "NONE"
 
 [playerstate40]
 Name = "PLAYER_STATE_LEVELCREATUREUP"
 PowerKind = ""
+PointerGroup = "NONE"
 
 [playerstate41]
-Name = "PLAYER_STATE_KILLPLAYER"
+Name = "PLAYER_STATE_LEVELCREATUREDOWN"
 PowerKind = ""
+PointerGroup = "NONE"
 
 [playerstate42]
-Name = "PLAYER_STATE_HEARTHEALTH"
+Name = "PLAYER_STATE_KILLPLAYER"
 PowerKind = ""
+PointerGroup = "NONE"
 
 [playerstate43]
-Name = "PLAYER_STATE_CREATRQUERYALL"
+Name = "PLAYER_STATE_HEARTHEALTH"
 PowerKind = ""
+PointerGroup = "NONE"
 
 [playerstate44]
-Name = "PLAYER_STATE_MAKEHAPPY"
+Name = "PLAYER_STATE_CREATRQUERYALL"
 PowerKind = ""
+PointerGroup = "QUERY"
 
 [playerstate45]
-Name = "PLAYER_STATE_MAKEANGRY"
+Name = "PLAYER_STATE_MAKEHAPPY"
 PowerKind = ""
+PointerGroup = "NONE"
 
 [playerstate46]
-Name = "PLAYER_STATE_PLACETERRAIN"
+Name = "PLAYER_STATE_MAKEANGRY"
 PowerKind = ""
+PointerGroup = "NONE"
 
 [playerstate47]
-Name = "PLAYER_STATE_REBOUND"
-PowerKind = "POWER_REBOUND"
+Name = "PLAYER_STATE_PLACETERRAIN"
+PowerKind = ""
+PointerGroup = "PLACETERRAIN"
 
 [playerstate48]
-Name = "PLAYER_STATE_FREEZE"
-PowerKind = "POWER_FREEZE"
+Name = "PLAYER_STATE_DESTROY_THING"
+PowerKind = ""
+PointerGroup = "NONE"
 
 [playerstate49]
-Name = "PLAYER_STATE_SLOW"
-PowerKind = "POWER_SLOW"
+Name = "PLAYER_STATE_CREATURE_INFO_ALL"
+PowerKind = ""
+PointerGroup = "QUERY"
 
 [playerstate50]
-Name = "PLAYER_STATE_FLIGHT"
-PowerKind = "POWER_FLIGHT"
+Name = "PLAYER_STATE_REBOUND"
+PowerKind = "POWER_REBOUND"
+PointerGroup = "SPELL"
 
 [playerstate51]
+Name = "PLAYER_STATE_FREEZE"
+PowerKind = "POWER_FREEZE"
+PointerGroup = "SPELL"
+
+[playerstate52]
+Name = "PLAYER_STATE_SLOW"
+PowerKind = "POWER_SLOW"
+PointerGroup = "SPELL"
+
+[playerstate53]
+Name = "PLAYER_STATE_FLIGHT"
+PowerKind = "POWER_FLIGHT"
+PointerGroup = "SPELL"
+
+[playerstate54]
 Name = "PLAYER_STATE_VISION"
 PowerKind = "POWER_VISION"
+PointerGroup = "SPELL"
