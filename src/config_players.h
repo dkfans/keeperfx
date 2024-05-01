@@ -35,6 +35,7 @@ struct PlayerStateConfigStats {
     char code_name[COMMAND_WORD_LEN];
     PowerKind power_kind;
     unsigned char pointer_group;
+    TbBool stop_own_units;
 };
 
 struct PlayerStateConfig {

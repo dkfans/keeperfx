@@ -53,8 +53,7 @@ extern TbBool packets_process_cheats(
           MapCoord x, MapCoord y,
           struct Packet *packet,
           MapSubtlCoord stl_x, MapSubtlCoord stl_y,
-          MapSlabCoord slb_x, MapSlabCoord slb_y,
-          short *influence_own_creatures);
+          MapSlabCoord slb_x, MapSlabCoord slb_y);
 
 extern void update_double_click_detection(long plyr_idx);
 
@@ -693,7 +692,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
 
-    short influence_own_creatures = false;
     long i;
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
@@ -703,7 +701,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     switch (player->work_state)
     {
         case PSt_CtrlDungeon:
-            influence_own_creatures = 1;
             process_dungeon_control_packet_dungeon_control(plyr_idx);
             break;
         case PSt_BuildRoom:
@@ -720,7 +717,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             }
             break;
         case PSt_Slap:
-            influence_own_creatures = 1;
             thing = get_creature_near_to_be_keeper_power_target(x, y, PwrK_SLAP, plyr_idx);
             if (thing_is_invalid(thing)) {
                 player->thing_under_hand = 0;
@@ -735,7 +731,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             break;
         case PSt_CtrlPassngr:
         case PSt_FreeCtrlPassngr:
-            influence_own_creatures = 1;
             if (player->work_state == PSt_CtrlPassngr)
                 thing = get_creature_near_and_owned_by(x, y, plyr_idx, -1);
             else
@@ -764,7 +759,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             break;
         case PSt_CtrlDirect:
         case PSt_FreeCtrlDirect:
-            influence_own_creatures = 1;
             if (player->work_state == PSt_CtrlDirect)
                 thing = get_creature_near_for_controlling(plyr_idx, x, y);
             else
@@ -792,7 +786,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             break;
         case PSt_CreatrQuery:
         case PSt_CreatrInfo:
-            influence_own_creatures = 1;
             thing = get_creature_near(x, y);
             TbBool CanQuery = false;
             if (thing_is_creature(thing))
@@ -894,7 +887,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         case PSt_Flight:
         case PSt_Vision:
         case PSt_TimeBomb:
-            influence_own_creatures = true;
             thing = get_creature_near_to_be_keeper_power_target(x, y, pwkind, plyr_idx);
             if (thing_is_invalid(thing))
             {
@@ -937,7 +929,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             }
             break;
         case PSt_TurnChicken:
-            influence_own_creatures = true;
             thing = get_creature_near_to_be_keeper_power_target(x, y, pwkind, plyr_idx);
             if (thing_is_invalid(thing))
             {
@@ -954,7 +945,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             break;
         default:
             if (!packets_process_cheats(plyr_idx, x, y, pckt,
-                                        stl_x, stl_y, slb_x, slb_y, &influence_own_creatures))
+                                        stl_x, stl_y, slb_x, slb_y))
             {
                 ERRORLOG("Unrecognized player %d work state: %d", (int) plyr_idx, (int) player->work_state);
                 ret = false;
@@ -976,7 +967,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             }
         }
     }
-    if (((pckt->control_flags & PCtr_HeldAnyButton) != 0) && (influence_own_creatures))
+    if (((pckt->control_flags & PCtr_HeldAnyButton) != 0) && (plrst_cfg_stat->stop_own_units))
     {
         if (((player->secondary_cursor_state == CSt_DefaultArrow) || (player->secondary_cursor_state == CSt_PowerHand)) && (!player->one_click_lock_cursor))
             stop_creatures_around_hand(plyr_idx, stl_x, stl_y);

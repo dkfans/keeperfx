@@ -58,8 +58,7 @@ TbBool packets_process_cheats(
         MapCoord x, MapCoord y,
         struct Packet* pckt,
         MapSubtlCoord stl_x, MapSubtlCoord stl_y,
-        MapSlabCoord slb_x, MapSlabCoord slb_y,
-        short *influence_own_creatures)
+        MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct Thing *thing;
     struct Room* room = NULL;
@@ -186,7 +185,6 @@ TbBool packets_process_cheats(
         }
         break;
         case PSt_OrderCreatr:
-        *influence_own_creatures = 1;
         thing = get_creature_near(x, y);
         if (!thing_is_creature(thing))
             player->thing_under_hand = 0;
@@ -555,7 +553,6 @@ TbBool packets_process_cheats(
         break;
         case PSt_QueryAll:
         case PSt_CreatrInfoAll:
-            *influence_own_creatures = 1;
             thing = get_creature_near(x, y);
             TbBool CanQuery = false;
             if (thing_is_creature(thing))
@@ -627,7 +624,6 @@ TbBool packets_process_cheats(
             break;
         case PSt_MkHappy:
         case PSt_MkAngry:
-            *influence_own_creatures = 1;
             thing = get_creature_near(x, y);
             if (!thing_is_creature(thing))
             {

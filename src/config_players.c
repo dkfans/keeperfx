@@ -85,13 +85,16 @@ TbBool load_playerstate_config_file(const char *textname, const char *fname, uns
             SET_NAME(section,player_state_commands,plrst_cfg_stat->code_name);
             VALUE *power_kind_val = value_dict_get(section, "PowerKind");
             plrst_cfg_stat->power_kind = get_id(power_desc,value_string(power_kind_val));
+
             VALUE *pointer_group_val = value_dict_get(section, "PointerGroup");
             plrst_cfg_stat->pointer_group = get_id(pointer_group_commands,value_string(pointer_group_val));
-            
 
+            VALUE *stop_own_units_val = value_dict_get(section, "StopOwnUnits");
+            plrst_cfg_stat->stop_own_units = value_bool(stop_own_units_val);
         }
     }
     value_fini(&file_root);
+    
     
     return true;
 }
