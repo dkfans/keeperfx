@@ -729,6 +729,7 @@ TbBool thing_is_in_computer_power_hand_list(const struct Thing *thing, PlayerNum
 struct Thing* find_creature_for_defend_pickup(struct Computer2* comp);
 
 TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyridx, long comp_model);
+TbBool reactivate_build_process(struct Computer2* comp, RoomKind rkind);
 /******************************************************************************/
 #ifdef __cplusplus
 }
