@@ -101,6 +101,7 @@ enum PlayerStates {
 
 /******************************************************************************/
 extern struct NamedCommand player_state_commands[];
+extern const char keeper_playerstates_file[];
 
 /******************************************************************************/
 const char *player_state_code_name(int wrkstate);

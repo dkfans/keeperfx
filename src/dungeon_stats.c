@@ -60,7 +60,7 @@ TbBool load_stats_files(void)
       result = false;
     if (!load_creaturestates_config(creature_states_file,CnfLd_ListOnly))
       result = false;
-    if (!load_playerstate_config(creature_states_file,CnfLd_ListOnly))
+    if (!load_playerstate_config(keeper_playerstates_file,CnfLd_ListOnly))
       result = false;
     if (!load_terrain_config(keeper_terrain_file,CnfLd_Standard))
       result = false;
@@ -91,7 +91,7 @@ TbBool load_stats_files(void)
       result = false;
     if (!load_cubes_config(CnfLd_Standard))
       result = false;
-    if (!load_playerstate_config(creature_states_file,CnfLd_Standard))
+    if (!load_playerstate_config(keeper_playerstates_file,CnfLd_Standard))
       result = false;
     
     for (int i = 1; i < game.conf.crtr_conf.model_count; i++)
