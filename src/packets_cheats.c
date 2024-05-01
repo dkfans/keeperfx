@@ -19,7 +19,7 @@
 #include "pre_inc.h"
 #include "packets.h"
 #include "player_data.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "thing_creature.h"
 #include "player_utils.h"
 #include "game_legacy.h"
@@ -312,7 +312,9 @@ TbBool packets_process_cheats(
             break;
         case PSt_FreeTurnChicken:
         case PSt_FreeCastDisease:
-            pwkind = player_state_to_power_kind[player->work_state];
+        {
+            struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
+            pwkind = plrst_cfg_stat->power_kind;
             thing = get_creature_near_to_be_keeper_power_target(x, y, pwkind, plyr_idx);
             if (thing_is_invalid(thing))
             {
@@ -335,6 +337,7 @@ TbBool packets_process_cheats(
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
             break;
+        }
         case PSt_StealRoom:
         clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
         slb = get_slabmap_block(slb_x, slb_y);

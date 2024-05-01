@@ -52,7 +52,7 @@
 #include "config_settings.h"
 #include "player_instances.h"
 #include "player_data.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "player_utils.h"
 #include "thing_physics.h"
 #include "thing_doors.h"

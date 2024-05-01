@@ -50,7 +50,7 @@
 #include "config_effects.h"
 #include "config_powerhands.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "kjm_input.h"
 #include "front_input.h"
 #include "frontend.h"

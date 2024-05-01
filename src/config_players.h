@@ -28,15 +28,84 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#pragma pack(1)
 
+#define PLAYER_STATES_COUNT_MAX    255
 
-#pragma pack()
+struct PlayerStateConfigStats {
+    char code_name[COMMAND_WORD_LEN];
+    PowerKind power_kind;
+};
+
+struct PlayerStateConfig {
+    struct PlayerStateConfigStats plrst_cfg_stats[PLAYER_STATES_COUNT_MAX];
+};
+
+enum PlayerStates {
+    PSt_None = 0,
+    PSt_CtrlDungeon,
+    PSt_BuildRoom,
+    PSt_MkDigger,
+    PSt_MkGoodCreatr,
+    PSt_HoldInHand, // 5
+    PSt_CallToArms,
+    PSt_CaveIn,
+    PSt_SightOfEvil,
+    PSt_Slap,
+    PSt_CtrlPassngr, // 10
+    PSt_CtrlDirect,
+    PSt_CreatrQuery,
+    PSt_OrderCreatr,
+    PSt_MkBadCreatr,
+    PSt_CreatrInfo, // 15
+    PSt_PlaceTrap,
+    PSt_Lightning,
+    PSt_PlaceDoor,
+    PSt_SpeedUp,
+    PSt_Armour, // 20
+    PSt_Conceal,
+    PSt_Heal,
+    PSt_Sell,
+    PSt_CreateDigger,
+    PSt_DestroyWalls, // 25
+    PSt_CastDisease,
+    PSt_TurnChicken,
+    PSt_MkGoldPot,
+    PSt_TimeBomb,
+    PSt_FreeDestroyWalls, // 30
+    PSt_FreeCastDisease,
+    PSt_FreeTurnChicken,
+    PSt_FreeCtrlPassngr,
+    PSt_FreeCtrlDirect,
+    PSt_StealRoom, // 35
+    PSt_DestroyRoom,
+    PSt_KillCreatr,
+    PSt_ConvertCreatr,
+    PSt_StealSlab,
+    PSt_LevelCreatureUp, // 40
+    PSt_LevelCreatureDown,
+    PSt_KillPlayer,
+    PSt_HeartHealth,
+    PSt_QueryAll,
+    PSt_MkHappy, // 45
+    PSt_MkAngry,
+    PSt_PlaceTerrain,
+    PSt_DestroyThing,
+    PSt_CreatrInfoAll,
+    PSt_Rebound, // 50
+    PSt_Freeze,
+    PSt_Slow,
+    PSt_Flight,
+    PSt_Vision,
+    PSt_ListEnd
+};
+
 /******************************************************************************/
-extern const struct NamedCommand player_state_commands[];
+extern struct NamedCommand player_state_commands[];
+
 /******************************************************************************/
 const char *player_state_code_name(int wrkstate);
-
+struct PlayerStateConfigStats *get_player_state_stats(PlayerState plr_state);
+TbBool load_playerstate_config(const char *conf_fname,unsigned short flags);
 /******************************************************************************/
 #ifdef __cplusplus
 }

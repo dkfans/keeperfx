@@ -57,7 +57,7 @@
 #include "config_terrain.h"
 #include "config_creature.h"
 #include "keeperfx.hpp"
-#include "player_states.h"
+#include "config_players.h"
 #include "custom_sprites.h"
 #include "sprites.h"
 #include "post_inc.h"

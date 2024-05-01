@@ -1,0 +1,209 @@
+
+[playerstate0]
+Name = "PLAYER_STATE_NONE" 
+#associated power in magic.cfg
+PowerKind = ""
+
+[playerstate1]
+Name = "PLAYER_STATE_CTRLDUNGEON"
+PowerKind = ""
+
+[playerstate2]
+Name = "PLAYER_STATE_BUILDROOM"
+PowerKind = ""
+
+[playerstate3]
+Name = "PLAYER_STATE_MKGOODDIGGER"
+PowerKind = ""
+
+[playerstate4]
+Name = "PLAYER_STATE_MKGOODCREATR"
+PowerKind = ""
+
+[playerstate5]
+Name = "PLAYER_STATE_HOLDINHAND"
+PowerKind = ""
+
+[playerstate6]
+Name = "PLAYER_STATE_CALLTOARMS"
+PowerKind = "POWER_CALL_TO_ARMS"
+
+[playerstate7]
+Name = "PLAYER_STATE_CAVEIN"
+PowerKind = "POWER_CAVE_IN"
+
+[playerstate8]
+Name = "PLAYER_STATE_SIGHTOFEVIL"
+PowerKind = "POWER_SIGHT"
+
+[playerstate9]
+Name = "PLAYER_STATE_SLAP"
+PowerKind = ""
+
+[playerstate10]
+Name = "PLAYER_STATE_CTRLPASSNGR"
+PowerKind = "POWER_POSSESS"
+
+[playerstate11]
+Name = "PLAYER_STATE_CTRLDIRECT"
+PowerKind = "POWER_POSSESS"
+
+[playerstate12]
+Name = "PLAYER_STATE_CREATRQUERY"
+PowerKind = ""
+
+[playerstate13]
+Name = "PLAYER_STATE_ORDERCREATR"
+PowerKind = ""
+
+[playerstate14]
+Name = "PLAYER_STATE_MKBADCREATR"
+PowerKind = ""
+
+[playerstate15]
+Name = "PLAYER_STATE_CREATRINFO"
+PowerKind = ""
+
+[playerstate16]
+Name = "PLAYER_STATE_PLACETRAP"
+PowerKind = ""
+
+[playerstate17]
+Name = "PLAYER_STATE_LIGHTNING"
+PowerKind = "POWER_LIGHTNING"
+
+[playerstate18]
+Name = "PLAYER_STATE_PLACEDOOR"
+PowerKind = ""
+
+[playerstate19]
+Name = "PLAYER_STATE_SPEEDUP"
+PowerKind = "POWER_SPEED"
+
+[playerstate20]
+Name = "PLAYER_STATE_ARMOUR"
+PowerKind = "POWER_PROTECT"
+
+[playerstate21]
+Name = "PLAYER_STATE_CONCEAL"
+PowerKind = "POWER_CONCEAL"
+
+[playerstate22]
+Name = "PLAYER_STATE_HEAL"
+PowerKind = "POWER_HEAL_CREATURE"
+
+[playerstate23]
+Name = "PLAYER_STATE_SELL"
+PowerKind = ""
+
+[playerstate24]
+Name = "PLAYER_STATE_CREATEDIGGER"
+PowerKind = "POWER_IMP"
+
+[playerstate25]
+Name = "PLAYER_STATE_DESTROYWALLS"
+PowerKind = "POWER_DESTROY_WALLS"
+
+[playerstate26]
+Name = "PLAYER_STATE_CASTDISEASE"
+PowerKind = "POWER_DISEASE"
+
+[playerstate27]
+Name = "PLAYER_STATE_TURNCHICKEN"
+PowerKind = "POWER_CHICKEN"
+
+[playerstate28]
+Name = "PLAYER_STATE_MKGOLDPOT"
+PowerKind = ""
+
+[playerstate29]
+Name = "PLAYER_STATE_TIMEBOMB"
+PowerKind = ""
+
+[playerstate30]
+Name = "PLAYER_STATE_FREEDESTROYWALLS"
+PowerKind = "POWER_DESTROY_WALLS"
+
+[playerstate31]
+Name = "PLAYER_STATE_FREECASTDISEASE"
+PowerKind = "POWER_DISEASE"
+
+[playerstate32]
+Name = "PLAYER_STATE_FREETURNCHICKEN"
+PowerKind = "POWER_CHICKEN"
+
+[playerstate33]
+Name = "PLAYER_STATE_FREECTRLPASSNGR"
+PowerKind = ""
+
+[playerstate34]
+Name = "PLAYER_STATE_FREECTRLDIRECT"
+PowerKind = ""
+
+[playerstate35]
+Name = "PLAYER_STATE_STEALROOM"
+PowerKind = ""
+
+[playerstate36]
+Name = "PLAYER_STATE_DESTROYROOM"
+PowerKind = ""
+
+[playerstate37]
+Name = "PLAYER_STATE_KILLCREATURE"
+PowerKind = ""
+
+[playerstate38]
+Name = "PLAYER_STATE_CONVERTCREATURE"
+PowerKind = ""
+
+[playerstate39]
+Name = "PLAYER_STATE_STEALSLAB"
+PowerKind = ""
+
+[playerstate40]
+Name = "PLAYER_STATE_LEVELCREATUREUP"
+PowerKind = ""
+
+[playerstate41]
+Name = "PLAYER_STATE_KILLPLAYER"
+PowerKind = ""
+
+[playerstate42]
+Name = "PLAYER_STATE_HEARTHEALTH"
+PowerKind = ""
+
+[playerstate43]
+Name = "PLAYER_STATE_CREATRQUERYALL"
+PowerKind = ""
+
+[playerstate44]
+Name = "PLAYER_STATE_MAKEHAPPY"
+PowerKind = ""
+
+[playerstate45]
+Name = "PLAYER_STATE_MAKEANGRY"
+PowerKind = ""
+
+[playerstate46]
+Name = "PLAYER_STATE_PLACETERRAIN"
+PowerKind = ""
+
+[playerstate47]
+Name = "PLAYER_STATE_REBOUND"
+PowerKind = "POWER_REBOUND"
+
+[playerstate48]
+Name = "PLAYER_STATE_FREEZE"
+PowerKind = "POWER_FREEZE"
+
+[playerstate49]
+Name = "PLAYER_STATE_SLOW"
+PowerKind = "POWER_SLOW"
+
+[playerstate50]
+Name = "PLAYER_STATE_FLIGHT"
+PowerKind = "POWER_FLIGHT"
+
+[playerstate51]
+Name = "PLAYER_STATE_VISION"
+PowerKind = "POWER_VISION"

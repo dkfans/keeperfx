@@ -31,7 +31,7 @@
 #include "player_instances.h"
 #include "power_hand.h"
 #include "frontend.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "magic.h"
 #include "player_utils.h"
 #include "thing_physics.h"
@@ -697,6 +697,9 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     long i;
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
+    struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
+    pwkind = plrst_cfg_stat->power_kind;
+
     switch (player->work_state)
     {
         case PSt_CtrlDungeon:
@@ -711,7 +714,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         case PSt_SightOfEvil:
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {
-                pwkind = player_state_to_power_kind[player->work_state];
                 i = get_power_overcharge_level(player);
                 magic_use_available_power_on_subtile(plyr_idx, pwkind, i, stl_x, stl_y, PwCast_None);
                 unset_packet_control(pckt, PCtr_LBtnRelease);
@@ -893,7 +895,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         case PSt_Vision:
         case PSt_TimeBomb:
             influence_own_creatures = true;
-            pwkind = player_state_to_power_kind[player->work_state];
             thing = get_creature_near_to_be_keeper_power_target(x, y, pwkind, plyr_idx);
             if (thing_is_invalid(thing))
             {
@@ -915,14 +916,12 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         case PSt_DestroyWalls:
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {
-                pwkind = player_state_to_power_kind[player->work_state];
                 i = get_power_overcharge_level(player);
                 magic_use_available_power_on_subtile(plyr_idx, pwkind, i, stl_x, stl_y, PwCast_None);
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
             break;
         case PSt_CastDisease:
-            pwkind = player_state_to_power_kind[player->work_state];
             thing = get_creature_near_to_be_keeper_power_target(x, y, pwkind, plyr_idx);
             if (thing_is_invalid(thing))
             {
@@ -939,7 +938,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             break;
         case PSt_TurnChicken:
             influence_own_creatures = true;
-            pwkind = player_state_to_power_kind[player->work_state];
             thing = get_creature_near_to_be_keeper_power_target(x, y, pwkind, plyr_idx);
             if (thing_is_invalid(thing))
             {

@@ -77,7 +77,7 @@
 #include "magic.h"
 #include "player_instances.h"
 #include "player_utils.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "gui_frontmenu.h"
 #include "gui_frontbtns.h"
 #include "gui_soundmsgs.h"
@@ -732,9 +732,11 @@ short game_is_busy_doing_gui(void)
       return true;
     PowerKind pwkind;
     pwkind = 0;
-    if (player->work_state < PLAYER_STATES_COUNT)
-      pwkind = player_state_to_power_kind[player->work_state];
+    if (player->work_state < PLAYER_STATES_COUNT_MAX)
     {
+        struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
+        pwkind = plrst_cfg_stat->power_kind;
+
         struct Thing *thing;
         thing = thing_get(battle_creature_over);
         if (can_cast_power_on_thing(player->id_number, thing, pwkind))
@@ -1007,7 +1009,7 @@ void activate_room_build_mode(RoomKind rkind, TextStringId tooltip_id)
     game.chosen_room_tooltip = tooltip_id;
 }
 
-long player_state_to_packet(long work_state, PowerKind pwkind, TbBool already_in)
+long player_state_to_packet(PlayerState work_state, PowerKind pwkind, TbBool already_in)
 {
     switch (work_state)
     {

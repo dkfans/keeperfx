@@ -2248,7 +2248,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect object model \"%s\" in [%s] block of %s file.",
+              CONFWRNLOG("Incorrect player state \"%s\" in [%s] block of %s file.",
                   word_buf,block_buf,config_textname);
               break;
           }
@@ -2264,7 +2264,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect object model \"%s\" in [%s] block of %s file.",
+              CONFWRNLOG("Incorrect Keeper Power \"%s\" in [%s] block of %s file.",
                   word_buf,block_buf,config_textname);
               break;
           }

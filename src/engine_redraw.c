@@ -32,7 +32,7 @@
 #include "player_data.h"
 #include "dungeon_data.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "kjm_input.h"
 #include "gui_parchment.h"
 #include "gui_draw.h"
@@ -814,12 +814,15 @@ int get_place_door_pointer_graphics(ThingModel drmodel)
  *
  * @return Gives true if cursor spell was drawn, false if the spell wasn't available and either no cursor or block cursor was drawn.
  */
-TbBool draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbBool draw_spell_cursor(PlayerState wrkstate, ThingIndex tng_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     long i;
     long pwkind = -1;
-    if (wrkstate < PLAYER_STATES_COUNT)
-      pwkind = player_state_to_power_kind[wrkstate];
+    if (wrkstate < PLAYER_STATES_COUNT_MAX)
+    {
+        struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(wrkstate);
+        pwkind = plrst_cfg_stat->power_kind;
+    }
     SYNCDBG(5,"Starting for power %d",(int)pwkind);
     if (pwkind <= 0)
     {
@@ -882,8 +885,11 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     if (battle_creature_over > 0)
     {
         PowerKind pwkind = 0;
-        if (player->work_state < PLAYER_STATES_COUNT)
-            pwkind = player_state_to_power_kind[player->work_state];
+        if (player->work_state < PLAYER_STATES_COUNT_MAX)
+        {
+            struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
+            pwkind = plrst_cfg_stat->power_kind;
+        }
         thing = thing_get(battle_creature_over);
         TRACE_THING(thing);
         if (can_cast_spell(player->id_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))
@@ -922,7 +928,9 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
             TRACE_THING(thing);
             if ((player->input_crtr_control) && (!thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand))
             {
-                if (can_cast_spell(player->id_number, player_state_to_power_kind[PSt_CtrlDirect],
+                struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(PSt_CtrlDirect);
+                PowerKind pwkind = plrst_cfg_stat->power_kind;
+                if (can_cast_spell(player->id_number, pwkind,
                   thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
                     // The condition above makes can_cast_spell() within draw_spell_cursor() to never fail; this is intentional
                     draw_spell_cursor(PSt_CtrlDirect, 0, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
