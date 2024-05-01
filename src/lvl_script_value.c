@@ -276,7 +276,7 @@ TbResult script_use_power_at_pos(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
 
     unsigned long spell_flags = PwCast_AllGround | PwCast_Unrevealed;
     if (is_free)
-        spell_flags |= PwMod_CastForFree;
+        spell_flags,PwMod_CastForFree;
 
     return magic_use_power_on_subtile(plyr_idx, powerKind, splevel, stl_x, stl_y, spell_flags);
 }
@@ -581,163 +581,163 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 10: // SPECIAL_DIGGER
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_IsSpecDigger;
+              set_flag(crconf->model_flags,CMF_IsSpecDigger);
           }
           else
           {
-              crconf->model_flags &= ~CMF_IsSpecDigger;
+              clear_flag(crconf->model_flags,CMF_IsSpecDigger);
           }
           break;
       case 11: // ARACHNID
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_IsArachnid;
+              set_flag(crconf->model_flags,CMF_IsArachnid);
           }
           else
           {
-              crconf->model_flags &= ~CMF_IsArachnid;
+              clear_flag(crconf->model_flags,CMF_IsArachnid);
           }
           break;
       case 12: // DIPTERA
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_IsDiptera;
+              set_flag(crconf->model_flags,CMF_IsDiptera);
           }
           else
           {
-              crconf->model_flags &= ~CMF_IsDiptera;
+              clear_flag(crconf->model_flags,CMF_IsDiptera);
           }
           break;
       case 13: // LORD
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_IsLordOTLand;
+              set_flag(crconf->model_flags,CMF_IsLordOTLand);
           }
           else
           {
-              crconf->model_flags &= ~CMF_IsLordOTLand;
+              clear_flag(crconf->model_flags,CMF_IsLordOTLand);
           }
           break;
       case 14: // SPECTATOR
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_IsSpectator;
+              set_flag(crconf->model_flags,CMF_IsSpectator);
           }
           else
           {
-              crconf->model_flags &= ~CMF_IsSpectator;
+              clear_flag(crconf->model_flags,CMF_IsSpectator);
           }
           break;
       case 15: // EVIL
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_IsEvil;
+              set_flag(crconf->model_flags,CMF_IsEvil);
           }
           else
           {
-              crconf->model_flags &= ~CMF_IsEvil;
+              clear_flag(crconf->model_flags,CMF_IsEvil);
           }
           break;
       case 16: // NEVER_CHICKENS
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_NeverChickens;
+              set_flag(crconf->model_flags,CMF_NeverChickens);
           }
           else
           {
-              crconf->model_flags &= ~CMF_NeverChickens;
+              clear_flag(crconf->model_flags,CMF_NeverChickens);
           }
           break;
       case 17: // IMMUNE_TO_BOULDER
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_ImmuneToBoulder;
+              set_flag(crconf->model_flags,CMF_ImmuneToBoulder);
           }
           else
           {
-              crconf->model_flags &= ~CMF_ImmuneToBoulder;
+              clear_flag(crconf->model_flags,CMF_ImmuneToBoulder);
           }
           break;
       case 18: // NO_CORPSE_ROTTING
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_NoCorpseRotting;
+              set_flag(crconf->model_flags,CMF_NoCorpseRotting);
           }
           else
           {
-              crconf->model_flags &= ~CMF_NoCorpseRotting;
+              clear_flag(crconf->model_flags,CMF_NoCorpseRotting);
           }
           break;
       case 19: // NO_ENMHEART_ATTCK
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_NoEnmHeartAttack;
+              set_flag(crconf->model_flags,CMF_NoEnmHeartAttack);
           }
           else
           {
-              crconf->model_flags &= ~CMF_NoEnmHeartAttack;
+              clear_flag(crconf->model_flags,CMF_NoEnmHeartAttack);
           }
           break;
       case 20: // TREMBLING_FAT
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_Trembling;
-              crconf->model_flags |= CMF_Fat;
+              set_flag(crconf->model_flags,CMF_Trembling);
+              set_flag(crconf->model_flags,CMF_Fat);
           }
           else
           {
-              crconf->model_flags &= ~CMF_Trembling;
-              crconf->model_flags &= ~CMF_Fat;
+              clear_flag(crconf->model_flags,CMF_Trembling);
+              clear_flag(crconf->model_flags,CMF_Fat);
           }
           break;
       case 21: // FEMALE
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_Female;
+              set_flag(crconf->model_flags,CMF_Female);
           }
           else
           {
-              crconf->model_flags &= ~CMF_Female;
+              clear_flag(crconf->model_flags,CMF_Female);
           }
           break;
       case 22: // INSECT
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_Insect;
+              set_flag(crconf->model_flags,CMF_Insect);
           }
           else
           {
-              crconf->model_flags &= ~CMF_Insect;
+              clear_flag(crconf->model_flags,CMF_Insect);
           }
           break;
       case 23: // ONE_OF_KIND
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_OneOfKind;
+              set_flag(crconf->model_flags,CMF_OneOfKind);
           }
           else
           {
-              crconf->model_flags &= ~CMF_OneOfKind;
+              clear_flag(crconf->model_flags,CMF_OneOfKind);
           }
           break;
       case 24: // NO_IMPRISONMENT
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_NoImprisonment;
+              set_flag(crconf->model_flags,CMF_NoImprisonment);
           }
           else
           {
-              crconf->model_flags &= ~CMF_NoImprisonment;
+              clear_flag(crconf->model_flags,CMF_NoImprisonment);
           }
           break;
       case 25: // NEVER_SICK
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_NeverSick;
+              set_flag(crconf->model_flags,CMF_NeverSick);
           }
           else
           {
-              crconf->model_flags &= ~CMF_NeverSick;
+              clear_flag(crconf->model_flags,CMF_NeverSick);
           }
           break;
       case 26: // ILLUMINATED
@@ -749,21 +749,21 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 30: // TREMBLING
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_Trembling;
+              set_flag(crconf->model_flags,CMF_Trembling);
           }
           else
           {
-              crconf->model_flags &= ~CMF_Trembling;
+              clear_flag(crconf->model_flags,CMF_Trembling);
           }
           break;
       case 31: // FAT
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_Fat;
+              set_flag(crconf->model_flags,CMF_Fat);
           }
           else
           {
-              crconf->model_flags &= ~CMF_Fat;
+              clear_flag(crconf->model_flags,CMF_Fat);
           }
           break;
       default:
@@ -786,7 +786,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_BONUS_LEVEL_TIME:
       if (val2 > 0) {
           game.bonus_time = game.play_gameturn + val2;
-          game.flags_gui |= GGUI_CountdownTimer;
+          game.flags_gui,GGUI_CountdownTimer;
       } else {
           game.bonus_time = 0;
           game.flags_gui &= ~GGUI_CountdownTimer;
