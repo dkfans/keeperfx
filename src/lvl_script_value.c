@@ -944,7 +944,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
     {
         if (plr_range_id == ALL_PLAYERS)
         {
-            for (i = PLAYER3; i >= PLAYER0; i--)
+            for (i = 0; i < PLAYERS_COUNT; i++)
             {
                 dungeon = get_dungeon(i);
                 if (!dungeon_invalid(dungeon))
