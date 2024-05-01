@@ -709,6 +709,9 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         case PSt_CallToArms:
         case PSt_CaveIn:
         case PSt_SightOfEvil:
+        case PSt_Lightning:
+        case PSt_CreateDigger:
+        case PSt_DestroyWalls:
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {
                 i = get_power_overcharge_level(player);
@@ -845,15 +848,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         case PSt_PlaceTrap:
             process_dungeon_control_packet_dungeon_place_trap(plyr_idx);
             break;
-        case PSt_Lightning:
-            player->thing_under_hand = 0;
-            if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
-            {
-                i = get_power_overcharge_level(player);
-                magic_use_available_power_on_subtile(plyr_idx, PwrK_LIGHTNING, i, stl_x, stl_y, PwCast_None);
-                unset_packet_control(pckt, PCtr_LBtnRelease);
-            }
-            break;
         case PSt_PlaceDoor:
         {
             if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
@@ -906,16 +900,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         case PSt_Sell:
             process_dungeon_control_packet_sell_operation(plyr_idx);
             break;
-        case PSt_CreateDigger:
-        case PSt_DestroyWalls:
-            if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
-            {
-                i = get_power_overcharge_level(player);
-                magic_use_available_power_on_subtile(plyr_idx, pwkind, i, stl_x, stl_y, PwCast_None);
-                unset_packet_control(pckt, PCtr_LBtnRelease);
-            }
-            break;
-
         default:
             if (!packets_process_cheats(plyr_idx, x, y, pckt,
                                         stl_x, stl_y, slb_x, slb_y))
