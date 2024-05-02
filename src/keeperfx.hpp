@@ -237,7 +237,7 @@ void process_payday(void);
 TbBool toggle_computer_player(PlayerNumber plyr_idx);
 void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal);
 void set_player_cameras_position(struct PlayerInfo *player, long pos_x, long pos_y);
-void init_good_player_as(PlayerNumber plr_idx);
+void init_player_types();
 void init_keepers_map_exploration(void);
 void clear_creature_pool(void);
 void reset_creature_max_levels(void);

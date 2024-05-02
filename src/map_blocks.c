@@ -295,7 +295,7 @@ void all_players_untag_blocks_for_digging_in_area(MapSlabCoord slb_x, MapSlabCoo
     mapblk = get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
     for (plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-        if ((plyr_idx == game.hero_player_num) || (plyr_idx == game.neutral_player_num))
+        if (!player_is_keeper(plyr_idx))
             continue;
         struct PlayerInfo *player;
         player = get_player(plyr_idx);

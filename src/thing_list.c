@@ -4175,7 +4175,7 @@ TbBool setup_creature_die_if_not_in_custody(struct Thing *thing)
 
 void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx)
 {
-    if ((plyr_idx == game.hero_player_num) || (plyr_idx == game.neutral_player_num)) {
+    if (!player_is_keeper(plyr_idx)) {
         // Don't affect heroes and neutral creatures
         return;
     }

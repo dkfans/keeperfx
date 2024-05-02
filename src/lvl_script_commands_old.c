@@ -401,24 +401,6 @@ static void command_if_slab_type(MapSlabCoord slb_x, MapSlabCoord slb_y, long sl
     command_add_condition(slb_x, 1, SVar_SLAB_TYPE, slb_y, slab_type);
 }
 
-static void command_computer_player(long plr_range_id, long comp_model)
-{
-    if (get_script_current_condition() != CONDITION_ALWAYS)
-    {
-        SCRPTWRNLOG("Computer player setup inside conditional block; condition ignored");
-    }
-    int plr_start;
-    int plr_end;
-    if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
-        SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
-        return;
-    }
-    for (long i = plr_start; i < plr_end; i++)
-    {
-        script_support_setup_player_as_computer_keeper(i, comp_model);
-    }
-}
-
 static void command_set_timer(long plr_range_id, const char *timrname)
 {
     long timr_id = get_rid(timer_desc, timrname);
@@ -1575,9 +1557,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_RESEARCH_ORDER:
         command_research_order(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
-        break;
-    case Cmd_COMPUTER_PLAYER:
-        command_computer_player(scline->np[0], scline->np[1]);
         break;
     case Cmd_SET_TIMER:
         command_set_timer(scline->np[0], scline->tp[1]);

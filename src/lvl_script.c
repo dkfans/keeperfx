@@ -368,18 +368,6 @@ long get_players_range_f(long plr_range_id, int *plr_start, int *plr_end, const 
         *plr_end = PLAYERS_COUNT;
         return plr_range_id;
     } else
-    if (plr_range_id == PLAYER_GOOD)
-    {
-        *plr_start = game.hero_player_num;
-        *plr_end = game.hero_player_num+1;
-        return plr_range_id;
-    } else
-    if (plr_range_id == PLAYER_NEUTRAL)
-    {
-        *plr_start = game.neutral_player_num;
-        *plr_end = game.neutral_player_num+1;
-        return plr_range_id;
-    } else
     if (plr_range_id < PLAYERS_COUNT)
     {
         *plr_start = plr_range_id;

@@ -268,12 +268,6 @@ long get_players_range_single_f(long plr_range_id, const char *func_name, long l
     if (plr_range_id == ALL_PLAYERS) {
         return -3;
     }
-    if (plr_range_id == PLAYER_GOOD) {
-        return game.hero_player_num;
-    }
-    if (plr_range_id == PLAYER_NEUTRAL) {
-        return game.neutral_player_num;
-    }
     if (plr_range_id < PLAYERS_COUNT)
     {
         return plr_range_id;

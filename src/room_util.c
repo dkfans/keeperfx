@@ -88,7 +88,7 @@ void room_update_surrounding_flames(struct Room *room, const struct Coord3d *pos
 void process_room_surrounding_flames(struct Room *room)
 {
     SYNCDBG(19,"Starting");
-    if(room->owner == game.hero_player_num)
+    if(player_is_roaming(room->owner))
     {
         return;
     }

@@ -1223,7 +1223,7 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
                             pos->x.stl.pos = 0;
                             pos->y.stl.num = stl_y_current;
                             pos->y.stl.pos = 0;
-                            if (all_flags_are_set(potential_opponents, PLAYERS_EXT_COUNT)) // exit early if every player is a potential opponent
+                            if (all_flags_are_set(potential_opponents, PLAYERS_COUNT)) // exit early if every player is a potential opponent
                                 return potential_opponents;
                         }
                     }

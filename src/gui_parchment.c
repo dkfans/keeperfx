@@ -57,6 +57,7 @@
 #include "frontmenu_ingame_tabs.h"
 #include "vidfade.h"
 #include "sprites.h"
+#include "player_instances.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -247,7 +248,7 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
       } else
       {
         unsigned char color_idx = get_player_color_idx(owner);
-        if (color_idx == NEUTRAL_PLAYER)
+        if (color_idx == PLAYER_NEUTRAL)
         {
             pixval = player_room_colours[game.play_gameturn & 3];
         } else
