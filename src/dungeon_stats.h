@@ -28,7 +28,7 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-struct LevelStats { // sizeof = 392
+struct LevelStats {
   unsigned long things_researched;
   unsigned long creatures_attracted;
   unsigned long gold_mined;
