@@ -1205,6 +1205,7 @@ void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, 
             if (thing_is_invalid(shotng)) {
                 return;
             }
+            firing->move_angle_xy = angle_xy; //visually rotates the trap
             shotst = get_shot_model_stats(shotng->model);
             shotng->move_angle_xy = angle_xy;
             shotng->move_angle_z = 0;
