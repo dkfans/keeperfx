@@ -364,7 +364,7 @@ long gploc_D8, gploc_D4, gploc_CC, gploc_C8, gploc_C4, gploc_C0, gploc_BC, gploc
     mapxhstep, mapyhstep, gploc_A7, shadehstep, gploc_A4, gploc_A0, gploc_9C;
 long gploc_98, gploc_94, gploc_90, gploc_8C, gploc_88, gploc_84, gploc_80, gploc_7C, gploc_78,
     gploc_74, gploc_68, gploc_64, gploc_60;
-long gploc_5C, gploc_58, gploc_54, gploc_50, gploc_4C, gploc_48, gploc_44, gploc_34, gploc_30,
+long gploc_5C, startposshadetop, startposmapxtop, startposmapytop, startposshadebottom, startposmapxbottom, startposmapybottom, gploc_34, gploc_30,
     gploc_2C, gploc_28;
 /******************************************************************************/
 void gpoly_enable_pentium_pro(TbBool state) {
@@ -1381,10 +1381,10 @@ void draw_gpoly_adjustedScaling()
 #endif
 
 void draw_gpoly_sub1c() {
-  gploc_54 = (point1mapx << 16) + mapxhstep;
-  gploc_50 = (point1mapy << 16) + mapyhstep;
-  gploc_48 = (point2mapx << 16) + mapxhstep;
-  gploc_44 = (point2mapy << 16) + mapyhstep;
+  startposmapxtop = (point1mapx << 16) + mapxhstep;
+  startposmapytop = (point1mapy << 16) + mapyhstep;
+  startposmapxbottom = (point2mapx << 16) + mapxhstep;
+  startposmapybottom = (point2mapy << 16) + mapyhstep;
 
   gploc_BC = (mapxhstep << 16);
   gploc_B8 = (mapxhstep >> 16);
@@ -1392,12 +1392,12 @@ void draw_gpoly_sub1c() {
   gploc_A4 = (mapxveltop << 16);
   gploc_A0 = (mapxveltop >> 16);
   unk_update_gpoly1_tri8a(&gploc_9C, &gploc_A0, gploc_A0, mapyveltop, 256);
-  unk_update_gpoly1_tri8b(&gploc_84, &gploc_88, &gploc_8C, gploc_50, gploc_54);
+  unk_update_gpoly1_tri8b(&gploc_84, &gploc_88, &gploc_8C, startposmapytop, startposmapxtop);
   if (crease_len >= 0) {
     gploc_98 = (mapxvelbottom << 16);
     gploc_94 = (mapxvelbottom >> 16);
     unk_update_gpoly1_tri8a(&gploc_90, &gploc_94, gploc_94, mapyvelbottom, 256);
-    unk_update_gpoly1_tri8b(&gploc_78, &gploc_7C, &gploc_80, gploc_44, gploc_48);
+    unk_update_gpoly1_tri8b(&gploc_78, &gploc_7C, &gploc_80, startposmapybottom, startposmapxbottom);
   }
 }
 
@@ -2149,12 +2149,12 @@ void adjustVertexAttributesBasedOnFactor()
 #endif
 
 void draw_gpoly_sub2c() {
-  gploc_58 = (point1shade << 16) + shadehstep;
-  gploc_54 = (point1mapx << 16) + mapxhstep;
-  gploc_50 = (point1mapy << 16) + mapyhstep;
-  gploc_4C = (point2shade << 16) + shadehstep;
-  gploc_48 = (point2mapx << 16) + mapxhstep;
-  gploc_44 = (point2mapy << 16) + mapyhstep;
+  startposshadetop = (point1shade << 16) + shadehstep;
+  startposmapxtop = (point1mapx << 16) + mapxhstep;
+  startposmapytop = (point1mapy << 16) + mapyhstep;
+  startposshadebottom = (point2shade << 16) + shadehstep;
+  startposmapxbottom = (point2mapx << 16) + mapxhstep;
+  startposmapybottom = (point2mapy << 16) + mapyhstep;
 
   unk_update_gpoly1_tri16a(&gploc_B8, &gploc_BC, gploc_word03, mapxhstep, 65536);
   unk_update_gpoly1_tri8a(&gploc_B4, &gploc_B8, gploc_B8, mapyhstep, 256);
@@ -2162,12 +2162,12 @@ void draw_gpoly_sub2c() {
   unk_update_gpoly1_tri8a(&gploc_28, &gploc_2C, gploc_2C, mapyhstep, 256);
   unk_update_gpoly1_tri16a(&gploc_A0, &gploc_A4, gploc_word01, mapxveltop, 65536);
   unk_update_gpoly1_tri8a(&gploc_9C, &gploc_A0, gploc_A0, mapyveltop, 256);
-  unk_update_gpoly1_tri16b(&gploc_84, &gploc_88, &gploc_8C, gploc_50, gploc_54, gploc_58);
+  unk_update_gpoly1_tri16b(&gploc_84, &gploc_88, &gploc_8C, startposmapytop, startposmapxtop, startposshadetop);
 
   if (crease_len >= 0) {
     unk_update_gpoly1_tri16a(&gploc_94, &gploc_98, gploc_word02, mapxvelbottom, 65536);
     unk_update_gpoly1_tri8a(&gploc_90, &gploc_94, gploc_94, mapyvelbottom, 256);
-    unk_update_gpoly1_tri16b(&gploc_78, &gploc_7C, &gploc_80, gploc_44, gploc_48, gploc_4C);
+    unk_update_gpoly1_tri16b(&gploc_78, &gploc_7C, &gploc_80, startposmapybottom, startposmapxbottom, startposshadebottom);
   }
 }
 
@@ -2433,10 +2433,10 @@ gpo_loc_10D5:         # EE2\n \
 gpo_loc_10D9:         # EA7\n \
     movl    _point1shade,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_58\n \
+    movl    %%eax,_startposshadetop\n \
     movl    _point2shade,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_4C\n \
+    movl    %%eax,_startposshadebottom\n \
     popa    \n \
 "
       :
@@ -2502,8 +2502,8 @@ void draw_gpoly_sub3b()
       ++v8;
     shadevelbottom = v8;
   }
-  gploc_58 = point1shade << 16;
-  gploc_4C = point2shade << 16;
+  startposshadetop = point1shade << 16;
+  startposshadebottom = point2shade << 16;
 }
 
 // GPT-4 refactored
@@ -2538,8 +2538,8 @@ void draw_gpoly_sub3b()
     }
 
     // Direct assignments to global variables, assuming these are correctly calculating a shifted value
-    gploc_58 = point1shade << 16;
-    gploc_4C = point2shade << 16;
+    startposshadetop = point1shade << 16;
+    startposshadebottom = point2shade << 16;
 }
 
 // More refactoring
@@ -2798,16 +2798,16 @@ gpo_loc_12E2:         # 10E\n \
 gpo_loc_12E6:         # 109B\n \
     movl    _point1mapx,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_54\n \
+    movl    %%eax,_startposmapxtop\n \
     movl    _point1mapy,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_50\n \
+    movl    %%eax,_startposmapytop\n \
     movl    _point2mapx,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_48\n \
+    movl    %%eax,_startposmapxbottom\n \
     movl    _point2mapy,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_44\n \
+    movl    %%eax,_startposmapybottom\n \
     movl    _mapxhstep,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
@@ -2846,8 +2846,8 @@ gpo_loc_1362:         # 1168\n \
 gpo_loc_13AB:         # 11B\n \
     movl    %%eax,_gploc_A0\n \
     movl    %%edx,_gploc_9C\n \
-    movl    _gploc_54,%%ecx\n \
-    movl    _gploc_50,%%edx\n \
+    movl    _startposmapxtop,%%ecx\n \
+    movl    _startposmapytop,%%edx\n \
     movl    %%ecx,%%eax\n \
     shll    $0x10,%%ecx\n \
     shrl    $0x10,%%eax\n \
@@ -2882,8 +2882,8 @@ gpo_loc_13AB:         # 11B\n \
 gpo_loc_143B:         # 124\n \
     movl    %%eax,_gploc_94\n \
     movl    %%edx,_gploc_90\n \
-    movl    _gploc_48,%%ecx\n \
-    movl    _gploc_44,%%edx\n \
+    movl    _startposmapxbottom,%%ecx\n \
+    movl    _startposmapybottom,%%edx\n \
     movl    %%ecx,%%eax\n \
     shll    $0x10,%%ecx\n \
     shrl    $0x10,%%eax\n \
@@ -3039,10 +3039,10 @@ void draw_gpoly_sub4()
       ++v20;
     mapyvelbottom = v20;
   }
-  gploc_54 = point1mapx << 16;
-  gploc_50 = point1mapy << 16;
-  gploc_48 = point2mapx << 16;
-  gploc_44 = point2mapy << 16;
+  startposmapxtop = point1mapx << 16;
+  startposmapytop = point1mapy << 16;
+  startposmapxbottom = point2mapx << 16;
+  startposmapybottom = point2mapy << 16;
   v27 = (__int64)mapxhstep << 16;
   gploc_B8 = HIDWORD(v27);
   gploc_BC = v27;
@@ -3071,11 +3071,11 @@ void draw_gpoly_sub4()
   }
   gploc_A0 = v33;
   gploc_9C = v32;
-  gploc_8C = gploc_54 << 16;
-  v34 = gploc_50 << 16;
-  LOBYTE(v34) = (unsigned __int64)(unsigned int)gploc_54 >> 16;
+  gploc_8C = startposmapxtop << 16;
+  v34 = startposmapytop << 16;
+  LOBYTE(v34) = (unsigned __int64)(unsigned int)startposmapxtop >> 16;
   gploc_88 = v34;
-  gploc_84 = (unsigned int)(gploc_50 << 8) >> 24 << 8;
+  gploc_84 = (unsigned int)(startposmapytop << 8) >> 24 << 8;
   if ( crease_len >= 0 )
   {
     v35 = (__int64)mapxvelbottom << 16;
@@ -3092,11 +3092,11 @@ void draw_gpoly_sub4()
     }
     gploc_94 = v37;
     gploc_90 = v36;
-    gploc_80 = gploc_48 << 16;
-    v38 = gploc_44 << 16;
-    LOBYTE(v38) = (unsigned __int64)(unsigned int)gploc_48 >> 16;
+    gploc_80 = startposmapxbottom << 16;
+    v38 = startposmapybottom << 16;
+    LOBYTE(v38) = (unsigned __int64)(unsigned int)startposmapxbottom >> 16;
     gploc_7C = v38;
-    gploc_78 = (unsigned int)(gploc_44 << 8) >> 24 << 8;
+    gploc_78 = (unsigned int)(startposmapybottom << 8) >> 24 << 8;
   }
   return a1;
 }
@@ -3323,16 +3323,16 @@ gpo_loc_1671:         # 147E\n \
 gpo_loc_1675:         # 142A\n \
     movl    _point1mapx,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_54\n \
+    movl    %%eax,_startposmapxtop\n \
     movl    _point1mapy,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_50\n \
+    movl    %%eax,_startposmapytop\n \
     movl    _point2mapx,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_48\n \
+    movl    %%eax,_startposmapxbottom\n \
     movl    _point2mapy,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_44\n \
+    movl    %%eax,_startposmapybottom\n \
     movl    _mapyhstep,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
@@ -3363,11 +3363,11 @@ gpo_loc_16FA:         # 1507\n \
     andl    $0x0FF,%%edx\n \
     orl %%eax,%%edx\n \
     movl    %%edx,_gploc_A0\n \
-    movl    _gploc_50,%%eax\n \
+    movl    _startposmapytop,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
     movl    %%eax,_gploc_8C\n \
-    movl    _gploc_54,%%eax\n \
+    movl    _startposmapxtop,%%eax\n \
     shll    $8,%%eax\n \
     shrl    $0x10,%%edx\n \
     andl    $0x0FF,%%edx\n \
@@ -3391,11 +3391,11 @@ gpo_loc_175F:         # 156C\n \
     andl    $0x0FF,%%edx\n \
     orl %%eax,%%edx\n \
     movl    %%edx,_gploc_94\n \
-    movl    _gploc_44,%%eax\n \
+    movl    _startposmapybottom,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
     movl    %%eax,_gploc_80\n \
-    movl    _gploc_48,%%eax\n \
+    movl    _startposmapxbottom,%%eax\n \
     shll    $8,%%eax\n \
     shrl    $0x10,%%edx\n \
     andl    $0x0FF,%%edx\n \
@@ -3685,22 +3685,22 @@ gpo_loc_1A16:         # 1823\n \
 gpo_loc_1A1A:         # 17B6\n \
     movl    _point1shade,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_58\n \
+    movl    %%eax,_startposshadetop\n \
     movl    _point1mapx,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_54\n \
+    movl    %%eax,_startposmapxtop\n \
     movl    _point1mapy,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_50\n \
+    movl    %%eax,_startposmapytop\n \
     movl    _point2shade,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_4C\n \
+    movl    %%eax,_startposshadebottom\n \
     movl    _point2mapx,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_48\n \
+    movl    %%eax,_startposmapxbottom\n \
     movl    _point2mapy,%%eax\n \
     shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_44\n \
+    movl    %%eax,_startposmapybottom\n \
     movl    _mapxhstep,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
@@ -3779,9 +3779,9 @@ gpo_loc_1B5A:         # 1960\n \
 gpo_loc_1B89:         # 198\n \
     movl    %%eax,_gploc_A0\n \
     movl    %%edx,_gploc_9C\n \
-    movl    _gploc_58,%%ebx\n \
-    movl    _gploc_54,%%ecx\n \
-    movl    _gploc_50,%%edx\n \
+    movl    _startposshadetop,%%ebx\n \
+    movl    _startposmapxtop,%%ecx\n \
+    movl    _startposmapytop,%%edx\n \
     movb    %%bl,_gploc_84\n \
     shrl    $8,%%ebx\n \
     movl    %%ecx,%%eax\n \
@@ -3827,9 +3827,9 @@ gpo_loc_1C17:         # 1A1D\n \
 gpo_loc_1C46:         # 1A4C\n \
     movl    %%eax,_gploc_94\n \
     movl    %%edx,_gploc_90\n \
-    movl    _gploc_4C,%%ebx\n \
-    movl    _gploc_48,%%ecx\n \
-    movl    _gploc_44,%%edx\n \
+    movl    _startposshadebottom,%%ebx\n \
+    movl    _startposmapxbottom,%%ecx\n \
+    movl    _startposmapybottom,%%edx\n \
     movb    %%bl,_gploc_78\n \
     shrl    $8,%%ebx\n \
     movl    %%ecx,%%eax\n \
@@ -4347,12 +4347,12 @@ static void draw_gpoly_sub7_subfunc2() {
     mapyvelbottom = calculateInterpolatedResult(factor, point3mapy - point2mapy);
   }
 
-  gploc_58 = point1shade << 16;
-  gploc_54 = point1mapx << 16;
-  gploc_50 = point1mapy << 16;
-  gploc_4C = point2shade << 16;
-  gploc_48 = point2mapx << 16;
-  gploc_44 = point2mapy << 16;
+  startposshadetop = point1shade << 16;
+  startposmapxtop = point1mapx << 16;
+  startposmapytop = point1mapy << 16;
+  startposshadebottom = point2shade << 16;
+  startposmapxbottom = point2mapx << 16;
+  startposmapybottom = point2mapy << 16;
 
   // Processing results with presumed utility functions to handle the bit manipulations
   // These functions will require definition based on specific handling or masking requirements
@@ -4363,14 +4363,14 @@ static void draw_gpoly_sub7_subfunc2() {
   gploc_2C = processHighLowBits(mapxhstep);
   gploc_A4 = combineHighLowResults(mapyveltop, shadeveltop);
   gploc_A0 = processHighLowBits(mapxveltop);
-  gploc_8C = processCombinedResults(gploc_58, gploc_50);
-  gploc_88 = processCombinedResults(gploc_54, gploc_50);
+  gploc_8C = processCombinedResults(startposshadetop, startposmapytop);
+  gploc_88 = processCombinedResults(startposmapxtop, startposmapytop);
 
   if (crease_len >= 0) {
     gploc_98 = combineHighLowResults(mapyvelbottom, shadevelbottom);
     gploc_94 = processHighLowBits(mapxvelbottom);
-    gploc_80 = processCombinedResults(gploc_4C, gploc_44);
-    gploc_7C = processCombinedResults(gploc_48, gploc_44);
+    gploc_80 = processCombinedResults(startposshadebottom, startposmapybottom);
+    gploc_7C = processCombinedResults(startposmapxbottom, startposmapybottom);
   }
 }
 #endif
@@ -4528,12 +4528,12 @@ void draw_gpoly_sub7_subfunc2_refactor() {
       mapyvelbottom++;
     }
   }
-  gploc_58 = point1shade << 0x10;
-  gploc_54 = point1mapx << 0x10;
-  gploc_50 = point1mapy << 0x10;
-  gploc_4C = point2shade << 0x10;
-  gploc_48 = point2mapx << 0x10;
-  gploc_44 = point2mapy << 0x10;
+  startposshadetop = point1shade << 0x10;
+  startposmapxtop = point1mapx << 0x10;
+  startposmapytop = point1mapy << 0x10;
+  startposshadebottom = point2shade << 0x10;
+  startposmapxbottom = point2mapx << 0x10;
+  startposmapybottom = point2mapy << 0x10;
   uVar3 = mapyhstep * 0x10000;
   iVar2 = mapyhstep >> 0x10;
   gploc_30 = shadehstep << 0x18;
@@ -4835,10 +4835,10 @@ posmapx2:\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    jns gpo_loc_1EA9\n \
+    jns posmapy2\n \
     incl    %%eax\n \
 \n \
-gpo_loc_1EA9:\n \
+posmapy2:\n \
     movl    %%eax,_mapyvelbottom\n \
     #-------- END CALC_DATA_FOR_EDGE MACRO\n \
 \n \
@@ -4847,6 +4847,7 @@ gpo_loc_1EA9:\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 bendonright1:\n \
+    #-------- CALC_DATA_FOR_EDGE MACRO\n \
     movl    _gploc_pt_cy,%%ecx\n \
     subl    _gploc_pt_ay,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
@@ -4895,26 +4896,34 @@ gpo_loc_1F04:\n \
 \n \
 gpo_loc_1F1D:\n \
     movl    %%eax,_mapyveltop\n \
+    #-------- END CALC_DATA_FOR_EDGE MACRO\n \
 \n \
 calcend1:\n \
-    movl    _point1shade,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_58\n \
-    movl    _point1mapx,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_54\n \
-    movl    _point1mapy,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_50\n \
-    movl    _point2shade,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_4C\n \
-    movl    _point2mapx,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_48\n \
-    movl    _point2mapy,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_gploc_44\n \
+    #-------- CALC_STARTPOS MACRO\n \
+      #-------- CALC_STARTPOS_SEC MACRO\n \
+      movl    _point1shade,%%eax\n \
+      shll    $0x10,%%eax\n \
+      movl    %%eax,_startposshadetop\n \
+      movl    _point1mapx,%%eax\n \
+      shll    $0x10,%%eax\n \
+      movl    %%eax,_startposmapxtop\n \
+      movl    _point1mapy,%%eax\n \
+      shll    $0x10,%%eax\n \
+      movl    %%eax,_startposmapytop\n \
+      #-------- END CALC_STARTPOS_SEC MACRO\n \
+      #-------- CALC_STARTPOS_SEC MACRO\n \
+      movl    _point2shade,%%eax\n \
+      shll    $0x10,%%eax\n \
+      movl    %%eax,_startposshadebottom\n \
+      movl    _point2mapx,%%eax\n \
+      shll    $0x10,%%eax\n \
+      movl    %%eax,_startposmapxbottom\n \
+      movl    _point2mapy,%%eax\n \
+      shll    $0x10,%%eax\n \
+      movl    %%eax,_startposmapybottom\n \
+      #-------- END CALC_STARTPOS_SEC MACRO\n \
+    #-------- END CALC_STARTPOS MACRO\n \
+    #-------- PACK_DATA MACRO\n \
     movl    _mapyhstep,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
@@ -4999,14 +5008,14 @@ gpo_loc_2078:\n \
     andl    $0x0FF,%%edx\n \
     orl %%eax,%%edx\n \
     movl    %%edx,_gploc_A0\n \
-    movl    _gploc_50,%%eax\n \
+    movl    _startposmapytop,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
-    movl    _gploc_58,%%ebx\n \
+    movl    _startposshadetop,%%ebx\n \
     shrl    $8,%%ebx\n \
     orl %%ebx,%%eax\n \
     movl    %%eax,_gploc_8C\n \
-    movl    _gploc_54,%%eax\n \
+    movl    _startposmapxtop,%%eax\n \
     shll    $8,%%eax\n \
     shrl    $0x10,%%edx\n \
     andl    $0x0FF,%%edx\n \
@@ -5044,14 +5053,14 @@ gpo_loc_2119:\n \
     andl    $0x0FF,%%edx\n \
     orl %%eax,%%edx\n \
     movl    %%edx,_gploc_94\n \
-    movl    _gploc_44,%%eax\n \
+    movl    _startposmapybottom,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
-    movl    _gploc_4C,%%ebx\n \
+    movl    _startposshadebottom,%%ebx\n \
     shrl    $8,%%ebx\n \
     orl %%ebx,%%eax\n \
     movl    %%eax,_gploc_80\n \
-    movl    _gploc_48,%%eax\n \
+    movl    _startposmapxbottom,%%eax\n \
     shll    $8,%%eax\n \
     shrl    $0x10,%%edx\n \
     andl    $0x0FF,%%edx\n \
@@ -5116,12 +5125,12 @@ void draw_gpoly_sub7() {
   1. `shadeveltop`
   2. `mapxveltop`
   3. `mapyveltop`
-  4. `gploc_58`
-  5. `gploc_54`
-  6. `gploc_50`
-  7. `gploc_4C`
-  8. `gploc_48`
-  9. `gploc_44`
+  4. `startposshadetop`
+  5. `startposmapxtop`
+  6. `startposmapytop`
+  7. `startposshadebottom`
+  8. `startposmapxbottom`
+  9. `startposmapybottom`
   10. `gploc_BC`
   11. `gploc_B8`
   12. `gploc_5C`
@@ -5271,12 +5280,12 @@ void draw_gpoly_sub7_subfunc2()
       ++v16;
     mapyvelbottom = v16;
   }
-  gploc_58 = point1shade << 16;
-  gploc_54 = point1mapx << 16;
-  gploc_50 = point1mapy << 16;
-  gploc_4C = point2shade << 16;
-  gploc_48 = point2mapx << 16;
-  gploc_44 = point2mapy << 16;
+  startposshadetop = point1shade << 16;
+  startposmapxtop = point1mapx << 16;
+  startposmapytop = point1mapy << 16;
+  startposshadebottom = point2shade << 16;
+  startposmapxbottom = point2mapx << 16;
+  startposmapybottom = point2mapy << 16;
   LODWORD(v25) = mapyhstep << 16;
   HIDWORD(v25) = mapyhstep >> 16;
   gploc_30 = shadehstep << 24;
@@ -5321,8 +5330,8 @@ void draw_gpoly_sub7_subfunc2()
   if ( v33 < 0 )
     LODWORD(v33) = mapxveltop - 1;
   gploc_A0 = ((_DWORD)v33 << 8) | BYTE4(v33);
-  gploc_8C = ((unsigned int)gploc_58 >> 8) | (gploc_50 << 16);
-  gploc_88 = (gploc_54 << 8) | BYTE2(gploc_50);
+  gploc_8C = ((unsigned int)startposshadetop >> 8) | (startposmapytop << 16);
+  gploc_88 = (startposmapxtop << 8) | BYTE2(startposmapytop);
   if ( crease_len >= 0 )
   {
     LODWORD(v34) = mapyvelbottom << 16;
@@ -5340,8 +5349,8 @@ void draw_gpoly_sub7_subfunc2()
     if ( v36 < 0 )
       LODWORD(v36) = mapxvelbottom - 1;
     gploc_94 = ((_DWORD)v36 << 8) | BYTE4(v36);
-    gploc_80 = ((unsigned int)gploc_4C >> 8) | (gploc_44 << 16);
-    gploc_7C = (gploc_48 << 8) | BYTE2(gploc_44);
+    gploc_80 = ((unsigned int)startposshadebottom >> 8) | (startposmapybottom << 16);
+    gploc_7C = (startposmapxbottom << 8) | BYTE2(startposmapybottom);
   }
 }
 
@@ -5375,12 +5384,12 @@ void draw_gpoly_sub7_subfunc2() {
         mapyvelbottom = calculateResult(factor, point3mapy - point2mapy);
     }
 
-    gploc_58 = point1shade << 16;
-    gploc_54 = point1mapx << 16;
-    gploc_50 = point1mapy << 16;
-    gploc_4C = point2shade << 16;
-    gploc_48 = point2mapx << 16;
-    gploc_44 = point2mapy << 16;
+    startposshadetop = point1shade << 16;
+    startposmapxtop = point1mapx << 16;
+    startposmapytop = point1mapy << 16;
+    startposshadebottom = point2shade << 16;
+    startposmapxbottom = point2mapx << 16;
+    startposmapybottom = point2mapy << 16;
 
     // Processing results with presumed utility functions to handle the bit manipulations
     // These functions will require definition based on specific handling or masking requirements observed in original code
@@ -5390,14 +5399,14 @@ void draw_gpoly_sub7_subfunc2() {
     gploc_2C = processResult(mapxhstep);
     gploc_A4 = processResult(mapyveltop, shadeveltop);
     gploc_A0 = processResult(mapxveltop);
-    gploc_8C = processCombinedResults(gploc_58, gploc_50);
-    gploc_88 = processCombinedResults(gploc_54, gploc_50);
+    gploc_8C = processCombinedResults(startposshadetop, startposmapytop);
+    gploc_88 = processCombinedResults(startposmapxtop, startposmapytop);
 
     if (crease_len >= 0) {
         gploc_98 = processResult(mapyvelbottom, shadevelbottom);
         gploc_94 = processResult(mapxvelbottom);
-        gploc_80 = processCombinedResults(gploc_4C, gploc_44);
-        gploc_7C = processCombinedResults(gploc_48, gploc_44);
+        gploc_80 = processCombinedResults(startposshadebottom, startposmapybottom);
+        gploc_7C = processCombinedResults(startposmapxbottom, startposmapybottom);
     }
 }
 

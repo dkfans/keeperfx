@@ -650,7 +650,8 @@ setupfortextshade:
             ENDIF
         ;-------- END CALC_DATA_FOR_EDGE MACRO
 
-        CALC_DATA_FOR_EDGE ShadeOn, TextOn, 2, 3, bottom
+        ;CALC_DATA_FOR_EDGE ShadeOn, TextOn, 2, 3, bottom
+        ; Code ommited - See above
         
         IF PixFix
         CALC_ERROR_FIX 12, top
@@ -660,7 +661,7 @@ setupfortextshade:
         jmp calcend
         
     bendonright:
-        CALC_DATA_FOR_EDGE ShadeOn, TextOn, 1, 3, top
+        ; CALC_DATA_FOR_EDGE ShadeOn, TextOn, 1, 3, top
         
         IF PixFix
         CALC_ERROR_FIX 13, top
@@ -669,8 +670,96 @@ setupfortextshade:
     calcend:
     ;-------- END CALC_DATA_EDGE_STEP MACRO
 
-	CALC_STARTPOS CalcShade, CalcText, PixFixOff
-	PACK_DATA textshade
+	; CALC_STARTPOS CalcShade, CalcText, PixFixOff
+    CALC_STARTPOS MACRO ShadeOn, TextOn, PixFix
+	
+	    ;CALC_STARTPOS_SEC ShadeOn, TextOn, 1, top, PixFix
+        CALC_STARTPOS_SEC MACRO ShadeOn, TextOn, pt, sec, PixFix
+            IF ShadeOn
+                mov eax, point&pt&shade
+                shl eax, 16
+                
+                IF PixFix
+                    add eax, shadehstep
+                ENDIF
+                
+                mov startposshade&sec, eax
+            ENDIF
+            
+            IF TextOn
+                mov eax, point&pt&mapx
+                shl eax, 16
+                
+                IF PixFix
+                    add eax, mapxhstep
+                ENDIF
+                
+                mov startposmapx&sec, eax
+                
+                mov eax, point&pt&mapy
+                shl eax, 16
+                
+                IF PixFix
+                    add eax, mapyhstep
+                ENDIF
+                
+                mov startposmapy&sec, eax
+            ENDIF
+        ;-------- END CALC_STARTPOS_SEC MACRO
+
+	    ;CALC_STARTPOS_SEC ShadeOn, TextOn, 2, bottom, PixFix
+        CALC_STARTPOS_SEC MACRO ShadeOn, TextOn, pt, sec, PixFix
+            IF ShadeOn
+                mov eax, point&pt&shade
+                shl eax, 16
+                
+                IF PixFix
+                    add eax, shadehstep
+                ENDIF
+                
+                mov startposshade&sec, eax
+            ENDIF
+            
+            IF TextOn
+                mov eax, point&pt&mapx
+                shl eax, 16
+                
+                IF PixFix
+                    add eax, mapxhstep
+                ENDIF
+                
+                mov startposmapx&sec, eax
+                
+                mov eax, point&pt&mapy
+                shl eax, 16
+                
+                IF PixFix
+                    add eax, mapyhstep
+                ENDIF
+                
+                mov startposmapy&sec, eax
+            ENDIF
+        ;-------- END CALC_STARTPOS_SEC MACRO
+	
+	;-------- END CALC_STARTPOS MACRO
+
+	;PACK_DATA textshade
+    PACK_DATA MACRO packtype
+        LOCAL calcend, bendonright
+        
+        PACK_HSTEP_&packtype
+        PACK_EDGE_&packtype top
+        PACK_STARTPOS_&packtype top
+        mov esi, creaselen
+        or esi, esi
+        js calcend
+        
+        PACK_EDGE_&packtype bottom
+        PACK_STARTPOS_&packtype bottom
+        
+    calcend:
+    ;-------- END PACK_DATA MACRO
+
 	jmp setupmodeend
 	
 setupmodeend:
