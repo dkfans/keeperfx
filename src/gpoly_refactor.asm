@@ -747,15 +747,137 @@ setupfortextshade:
     PACK_DATA MACRO packtype
         LOCAL calcend, bendonright
         
-        PACK_HSTEP_&packtype
+        ;PACK_HSTEP_&packtype
+        PACK_HSTEP_textshade MACRO
+            
+            LOCAL posshade1, posmapx1, posshade2, posmapx2
+            
+            mov eax, mapxhstep
+            mov edx, eax
+            shl eax, 16
+            sar edx, 16
+            mov ax, shadehstep + 1
+            or ax, ax
+            jns posshade1
+            
+            sub eax, 65536
+            sbb dl, 0
+            
+            
+        posshade1:
+            mov packedhstep1, eax
+            mov packedhstep2, edx
+            mov eax, mapyhstep
+            shl eax, 16
+            mov edx, mapyhstep
+            sar edx, 16
+            mov al, packedhstep2
+            or al, al
+            jns posmapx1
+            
+            sub eax, 256
+            sbb dl, 0
+            
+        posmapx1:
+            mov packedhstep2, eax
+            mov packedhstep3, edx
+            
+            
+            mov eax, mapxhstep           ;less accurate version for inner loop
+            mov edx, eax
+            shl eax, 16
+            sar edx, 16
+            mov ax, shadehstep + 1
+            or ax, ax
+            jns posshade2
+            
+            sub eax, 65536 - 1
+            sbb dl, 0
+            
+        posshade2:
+            mov packedhstep18bs, eax
+            mov packedhstep28bs, edx
+            mov eax, mapyhstep
+            shl eax, 16
+            mov edx, mapyhstep
+            sar edx, 16
+            mov al, packedhstep28bs
+            or al, al
+            jns posmapx2
+            
+            sub eax, 256
+            sbb dl, 0
+            
+        posmapx2:
+            mov packedhstep28bs, eax
+            mov packedhstep38bs, edx
+        ;-------- END PACK_HSTEP_textshade MACRO
+
         PACK_EDGE_&packtype top
         PACK_STARTPOS_&packtype top
         mov esi, creaselen
         or esi, esi
         js calcend
         
-        PACK_EDGE_&packtype bottom
-        PACK_STARTPOS_&packtype bottom
+        ;PACK_EDGE_&packtype bottom
+        PACK_EDGE_textshade MACRO sec	
+            LOCAL posshade1, posmapx1
+            
+            mov eax, mapxvel&sec
+            mov edx, eax
+            shl eax, 16
+            sar edx, 16
+            mov ax, shadevel&sec + 1
+            or ax, ax
+            jns posshade1
+            
+            sub eax, 65536
+            sbb dl, 0
+            
+        posshade1:
+            mov packedxvel1&sec, eax
+            mov packedxvel2&sec, edx
+            mov eax, mapyvel&sec
+            shl eax, 16
+            mov edx, mapyvel&sec
+            sar edx, 16
+            mov al, packedxvel2&sec
+            or al, al
+            jns posmapx1
+            
+            sub eax, 256
+            sbb dl, 0
+            
+            
+        posmapx1:
+            mov packedxvel2&sec, eax
+            mov packedxvel3&sec, edx
+        ;-------- END PACK_EDGE_textshade MACRO
+
+        ;PACK_STARTPOS_&packtype bottom
+        PACK_STARTPOS_textshade MACRO sec	
+            mov ebx, startposshade&sec
+            mov ecx, startposmapx&sec
+            mov edx, startposmapy&sec
+            
+            mov packedstartpos3&sec, bl
+            shr ebx, 8
+            mov eax, ecx
+            shl ecx, 16
+            shr eax, 16
+            mov cx, bx
+            mov packedstartpos1&sec, ecx
+            
+            mov ecx, edx
+            shl ecx, 16
+            shl edx, 8
+            shr edx, 24
+            shl edx, 8
+            mov cl, al
+            mov packedstartpos2&sec, ecx
+            mov dl, packedstartpos3&sec
+            mov packedstartpos3&sec, edx
+        ;-------- END PACK_STARTPOS_textshade MACRO
         
     calcend:
     ;-------- END PACK_DATA MACRO

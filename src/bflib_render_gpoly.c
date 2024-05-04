@@ -5023,51 +5023,56 @@ gpo_loc_2078:\n \
     movl    %%edx,_gploc_88\n \
     movl    _crease_len,%%esi\n \
     orl %%esi,%%esi\n \
-    js  gpo_case69_break\n \
-    movl    _mapyvelbottom,%%eax\n \
-    movl    %%eax,%%edx\n \
-    shll    $0x10,%%eax\n \
-    sarl    $0x10,%%edx\n \
-    movl    _shadevelbottom,%%ebx\n \
-    shll    $0x18,%%ebx\n \
-    movl    %%ebx,_gploc_64\n \
-    movl    _shadevelbottom,%%ebx\n \
-    sarl    $8,%%ebx\n \
-    orl %%ebx,%%ebx\n \
-    jns gpo_loc_2104\n \
-    andl    $0x0FFFF,%%ebx\n \
-    subl    $0x10000,%%eax\n \
-    sbbl    $0,%%edx\n \
+    js  pack_data_calcend\n \
+      #-------- PACK_EDGE_textshade bottom MACRO\n \
+        movl    _mapyvelbottom,%%eax\n \
+        movl    %%eax,%%edx\n \
+        shll    $0x10,%%eax\n \
+        sarl    $0x10,%%edx\n \
+        movl    _shadevelbottom,%%ebx\n \
+        shll    $0x18,%%ebx\n \
+        movl    %%ebx,_gploc_64\n \
+        movl    _shadevelbottom,%%ebx\n \
+        sarl    $8,%%ebx\n \
+        orl %%ebx,%%ebx\n \
+        jns gpo_loc_2104\n \
+        andl    $0x0FFFF,%%ebx\n \
+        subl    $0x10000,%%eax\n \
+        sbbl    $0,%%edx\n \
+    \n \
+    gpo_loc_2104:\n \
+        addl    %%ebx,%%eax\n \
+        adcl    $0,%%edx\n \
+        movl    %%eax,_gploc_98\n \
+        movl    _mapxvelbottom,%%eax\n \
+        orl %%edx,%%edx\n \
+        jns gpo_loc_2119\n \
+        decl    %%eax\n \
+    \n \
+    gpo_loc_2119:\n \
+        shll    $8,%%eax\n \
+        andl    $0x0FF,%%edx\n \
+        orl %%eax,%%edx\n \
+        movl    %%edx,_gploc_94\n \
+      #-------- END PACK_EDGE_textshade MACRO\n \
+      #-------- PACK_STARTPOS_textshade bottom MACRO\n \
+        movl    _startposmapybottom,%%eax\n \
+        movl    %%eax,%%edx\n \
+        shll    $0x10,%%eax\n \
+        movl    _startposshadebottom,%%ebx\n \
+        shrl    $8,%%ebx\n \
+        orl %%ebx,%%eax\n \
+        movl    %%eax,_gploc_80\n \
+        movl    _startposmapxbottom,%%eax\n \
+        shll    $8,%%eax\n \
+        shrl    $0x10,%%edx\n \
+        andl    $0x0FF,%%edx\n \
+        orl %%eax,%%edx\n \
+        movl    %%edx,_gploc_7C\n \
+      #-------- END PACK_STARTPOS_textshade MACRO\n \
 \n \
-gpo_loc_2104:\n \
-    addl    %%ebx,%%eax\n \
-    adcl    $0,%%edx\n \
-    movl    %%eax,_gploc_98\n \
-    movl    _mapxvelbottom,%%eax\n \
-    orl %%edx,%%edx\n \
-    jns gpo_loc_2119\n \
-    decl    %%eax\n \
-\n \
-gpo_loc_2119:\n \
-    shll    $8,%%eax\n \
-    andl    $0x0FF,%%edx\n \
-    orl %%eax,%%edx\n \
-    movl    %%edx,_gploc_94\n \
-    movl    _startposmapybottom,%%eax\n \
-    movl    %%eax,%%edx\n \
-    shll    $0x10,%%eax\n \
-    movl    _startposshadebottom,%%ebx\n \
-    shrl    $8,%%ebx\n \
-    orl %%ebx,%%eax\n \
-    movl    %%eax,_gploc_80\n \
-    movl    _startposmapxbottom,%%eax\n \
-    shll    $8,%%eax\n \
-    shrl    $0x10,%%edx\n \
-    andl    $0x0FF,%%edx\n \
-    orl %%eax,%%edx\n \
-    movl    %%edx,_gploc_7C\n \
-\n \
-gpo_case69_break:\n \
+pack_data_calcend:\n \
+    #-------- END PACK_DATA MACRO\n \
     popa    \n \
 "
       :
