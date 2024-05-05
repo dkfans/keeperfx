@@ -90,7 +90,6 @@ struct GameRulesConfig {
     long room_sale_percent;
     long trap_sale_percent;
     unsigned long pay_day_speed;
-    TbBool place_traps_on_subtiles;
     TbBool allies_share_vision;
     TbBool allies_share_drop;
     TbBool allies_share_cta;

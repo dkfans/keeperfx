@@ -80,7 +80,6 @@ const struct NamedField rules_game_named_fields[] = {
   {"ROOMSELLGOLDBACKPERCENT",    &game.conf.rules.game.room_sale_percent,          var_type(game.conf.rules.game.room_sale_percent         ),       0,LONG_MAX},
   {"DOORSELLVALUEPERCENT",       &game.conf.rules.game.door_sale_percent,          var_type(game.conf.rules.game.door_sale_percent         ),       0,LONG_MAX},
   {"TRAPSELLVALUEPERCENT",       &game.conf.rules.game.trap_sale_percent,          var_type(game.conf.rules.game.trap_sale_percent         ),       0,LONG_MAX},
-  {"PLACETRAPSONSUBTILES",       &game.conf.rules.game.place_traps_on_subtiles,    var_type(game.conf.rules.game.place_traps_on_subtiles   ),       0,       1},
   {"BAGGOLDHOLD",                &game.conf.rules.game.bag_gold_hold,              var_type(game.conf.rules.game.bag_gold_hold             ),LONG_MIN,LONG_MAX},
   {"ALLIESSHAREVISION",          &game.conf.rules.game.allies_share_vision,        var_type(game.conf.rules.game.allies_share_vision       ),       0,       1},
   {"ALLIESSHAREDROP",            &game.conf.rules.game.allies_share_drop,          var_type(game.conf.rules.game.allies_share_drop         ),       0,       1},
@@ -282,7 +281,6 @@ static void set_defaults()
     game.conf.rules.game.trap_sale_percent = 100;
     game.conf.rules.game.gem_effectiveness = 17;
     game.conf.rules.game.pay_day_speed = 100;
-    game.conf.rules.game.place_traps_on_subtiles = false;
     game.conf.rules.game.gold_per_hoard = 2000;
     game.conf.rules.game.torture_payday = 50;
     game.conf.rules.game.torture_training_cost = 100;
