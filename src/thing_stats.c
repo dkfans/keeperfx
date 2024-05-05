@@ -229,7 +229,7 @@ TbBool is_neutral_thing(const struct Thing *thing)
 
 TbBool is_hero_thing(const struct Thing *thing)
 {
-    return (thing->owner == game.hero_player_num);
+    return (player_is_roaming(thing->owner));
 }
 
 /**
