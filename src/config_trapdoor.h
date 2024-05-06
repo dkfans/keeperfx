@@ -78,13 +78,14 @@ struct TrapConfigStats {
     long pointer_sprite_idx;
     short place_sound_idx;
     short trigger_sound_idx;
-    short hidden;
+    TbBool hidden;
     short slappable;
     short destructible;
     short unstable;
-    short notify;
-    short unsellable;
-    short placeonbridge;
+    TbBool notify;
+    TbBool unsellable;
+    TbBool placeonbridge;
+    TbBool placeonsubtile;
     EffectOrEffElModel destroyed_effect;
 };
 
