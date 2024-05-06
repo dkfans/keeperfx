@@ -72,7 +72,7 @@ TbBool trap_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
     if (thing->owner == plyr_idx)
     {
         trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
-        return (trapst->slappable > 0) && trap_is_active(thing);
+        return (trapst->slappable == 1) && trap_is_active(thing);
     }
     return false;
 }
