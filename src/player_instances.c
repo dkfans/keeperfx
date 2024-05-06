@@ -252,7 +252,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       break;
   case TCls_Trap:
       trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
-      if (trap_is_active(thing))
+      if ((trapst->slappable > 0) && trap_is_active(thing))
       {
           struct TrapStats* trapstat = &game.conf.trap_stats[thing->model];
           struct Thing* trgtng = INVALID_THING;
