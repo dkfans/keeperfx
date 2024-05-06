@@ -2268,13 +2268,14 @@ void gui_area_player_creature_info(struct GuiButton *gbtn)
     struct Dungeon* dungeon = get_players_dungeon(player);
     if (player_exists(player) && !dungeon_invalid(dungeon))
     {
+        unsigned long spr_idx = get_player_colored_icon_idx(player_has_heart(plyr_idx) ? GPS_plyrsym_symbol_player_red_std_a : GPS_plyrsym_symbol_player_red_dead, plyr_idx);
         if (((dungeon->num_active_creatrs < dungeon->max_creatures_attracted) && (!game.pool.is_empty))
             || ((game.play_gameturn & 1) != 0))
         {
-            draw_gui_panel_sprite_left_player(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_plyrsym_symbol_player_red_std_a, plyr_idx);
+            draw_gui_panel_sprite_left_player(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, plyr_idx);
         } else
         {
-            draw_gui_panel_sprite_rmleft_player(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_plyrsym_symbol_player_red_std_a, 44, plyr_idx);
+            draw_gui_panel_sprite_rmleft_player(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 44, plyr_idx);
         }
         char* text;
         if (game.conf.rules.game.display_portal_limit == true) 
