@@ -179,7 +179,7 @@ StopOwnUnits = false
 
 [playerstate29]
 Name = "PLAYER_STATE_TIMEBOMB"
-PowerKind = "POWER_TIMEBOMB"
+PowerKind = "POWER_TIME_BOMB"
 PointerGroup = "SPELL"
 StopOwnUnits = true
 
