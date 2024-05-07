@@ -88,7 +88,7 @@ void room_update_surrounding_flames(struct Room *room, const struct Coord3d *pos
 void process_room_surrounding_flames(struct Room *room)
 {
     SYNCDBG(19,"Starting");
-    if(room->owner == game.hero_player_num)
+    if(player_is_roaming(room->owner))
     {
         return;
     }
@@ -635,7 +635,7 @@ void query_room(struct Room *room)
     const char efficiency[26] = "\0";
     sprintf((char*)title, "Room ID: %d", room->index);
     sprintf((char*)owner, "Owner: %d", room->owner);
-    sprintf((char*)health, "Health: %d", room->health);
+    sprintf((char*)health, "Health: %d", (int)room->health);
     sprintf((char*)capacity, "Capacity: %d/%d", room->used_capacity, room->total_capacity);
     float room_efficiency_percent = ((float)room->efficiency / (float)ROOM_EFFICIENCY_MAX) * 100;
     sprintf((char*)efficiency, "Efficiency: %d", (unsigned char)round(room_efficiency_percent));
