@@ -35,10 +35,18 @@
 ---@alias object_type string
 
 
+---@class creaturefields
+---@field TUNNELLER integer
+---@field WITCH integer
+---@field GIANT integer
+---...
+
+---@class roomfields
+---@field TREASURE integer
+---...
 
 
-
----@class Player
+---@class Player: creaturefields,roomfields
 ---@field private name string
 ---@field MONEY integer
 ---@field GAME_TURN integer
@@ -91,11 +99,12 @@
 ---@field TOTAL_SCORE integer
 ---@field BONUS_TIME integer
 ---@field CREATURES_TRANSFERRED integer
-
 local Player = {}
 Player.__index = Player -- failed table lookups on the instances should fallback to the class table, to get methods
 
 ---@class Thing
+---@field idx integer
+---@field creation_turn integer
 local Thing = {}
 Thing.__index = Thing -- failed table lookups on the instances should fallback to the class table, to get methods
 
