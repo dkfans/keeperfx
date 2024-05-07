@@ -604,7 +604,7 @@ void update_battle_events(BattleIndex battle_id)
     }
     for (i=0; i < PLAYERS_COUNT; i++)
     {
-        if ((i == game.hero_player_num) || (i == game.neutral_player_num))
+        if (!player_is_keeper(i))
             continue;
         if (flag_is_set(owner_flags, to_flag(i)))
         {

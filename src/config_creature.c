@@ -1810,7 +1810,8 @@ TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, long
 ThingModel get_players_special_digger_model(PlayerNumber plyr_idx)
 {
     ThingModel crmodel;
-    if (plyr_idx == hero_player_number)
+
+    if (player_is_roaming(plyr_idx))
     {
         crmodel = game.conf.crtr_conf.special_digger_good;
         if (crmodel == 0)

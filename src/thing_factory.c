@@ -132,16 +132,6 @@ struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, ThingMo
 
 TbBool thing_create_thing(struct InitThing *itng)
 {
-    if (itng->owner == 7)
-    {
-        ERRORLOG("Invalid owning player %d, fixing to %d", (int)itng->owner, (int)game.hero_player_num);
-        itng->owner = game.hero_player_num;
-    } else
-    if (itng->owner == 8)
-    {
-        ERRORLOG("Invalid owning player %d, fixing to %d", (int)itng->owner, (int)game.neutral_player_num);
-        itng->owner = game.neutral_player_num;
-    }
     if (itng->owner > 5)
     {
         ERRORLOG("Invalid owning player %d, thing discarded", (int)itng->owner);

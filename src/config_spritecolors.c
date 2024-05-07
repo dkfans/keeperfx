@@ -174,7 +174,7 @@ short get_player_colored_pointer_icon_idx(short base_icon_idx,PlayerNumber plyr_
 short get_player_colored_button_sprite_idx(const short base_icon_idx,const PlayerNumber plyr_idx)
 {
     unsigned char color_idx;
-    if (plyr_idx == NEUTRAL_PLAYER)
+    if (plyr_idx == PLAYER_NEUTRAL)
     {
         color_idx = game.play_gameturn & 3;
     }
