@@ -60,6 +60,7 @@
 #include "config_players.h"
 #include "custom_sprites.h"
 #include "sprites.h"
+#include "player_instances.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -5361,7 +5362,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     if ((thing->lair.spr_size > 0) && (health_spridx > 0) && ((game.play_gameturn & 1) != 0))
     {
         int flash_color = get_player_color_idx(thing->owner);
-        if (flash_color == NEUTRAL_PLAYER) {
+        if (flash_color == PLAYER_NEUTRAL) {
             flash_color = game.play_gameturn & 3;
         }
         spr = get_button_sprite_for_player(health_spridx, thing->owner);

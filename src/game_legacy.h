@@ -217,7 +217,6 @@ unsigned int packet_file_pos;
     struct Coord3d mouse_light_pos;
     struct Packet packets[PACKETS_COUNT];
     char active_players_count;
-    PlayerNumber hero_player_num;
     PlayerNumber neutral_player_num;
     struct GoldLookup gold_lookup[GOLD_LOOKUP_COUNT];
     unsigned short ambient_sound_thing_idx;
