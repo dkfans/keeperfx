@@ -571,7 +571,7 @@ struct Computer2 { // sizeof = 5322
           struct ComputerEvent *events;
       };
   };
-  struct OpponentRelation opponent_relations[PLAYERS_EXT_COUNT];
+  struct OpponentRelation opponent_relations[PLAYERS_COUNT];
   // TODO we could use coord2d for trap locations
   struct Coord3d trap_locations[COMPUTER_TRAP_LOC_COUNT];
   /** Stores Sight Of Evil target points data. */

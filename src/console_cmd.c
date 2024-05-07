@@ -534,8 +534,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             {
                 for (int i = 0; i < PLAYERS_COUNT; i++)
                 {
-                    if ((i == game.hero_player_num)
-                        || (plyr_idx == game.neutral_player_num))
+                    if (!player_is_keeper(i))
                         continue;
                     struct Computer2 *comp = get_computer_player(i);
                     if (player_exists(get_player(i)) && (!computer_player_invalid(comp)))
@@ -1133,7 +1132,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 }
                 else
                 {
-                    short Health = atoi(pr3str);
+                    HitPoints Health = atoi(pr3str);
                     thing->health = Health;
                     return true;
                 }

@@ -83,7 +83,7 @@ long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel);
 GoldAmount compute_creature_max_pay(GoldAmount base_pay,unsigned short crlevel);
 GoldAmount compute_creature_max_training_cost(GoldAmount base_training_cost,unsigned short crlevel);
 GoldAmount compute_creature_max_scavenging_cost(GoldAmount base_scavenging_cost,unsigned short crlevel);
-long compute_creature_max_health(long base_health,unsigned short crlevel, PlayerNumber plyr_idx);
+long compute_creature_max_health(HitPoints base_health,unsigned short crlevel, PlayerNumber plyr_idx);
 long compute_creature_attack_melee_damage(long base_param,long luck,unsigned short crlevel, struct Thing* thing);
 long compute_creature_attack_spell_damage(long base_param,long luck,unsigned short crlevel, struct Thing* thing);
 long project_creature_attack_melee_damage(long base_param,long luck,unsigned short crlevel, const struct Thing* thing);
@@ -125,8 +125,8 @@ long get_radially_growing_value(long magnitude, long decay_start, long decay_len
 
 TbBool update_creature_health_to_max(struct Thing *thing);
 TbBool set_creature_health_to_max_with_heal_effect(struct Thing* thing);
-TbBool apply_health_to_thing(struct Thing *thing, long amount);
-void apply_health_to_thing_and_display_health(struct Thing *thing, long amount);
+TbBool apply_health_to_thing(struct Thing *thing, HitPoints amount);
+void apply_health_to_thing_and_display_health(struct Thing *thing, HitPoints amount);
 HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType damage_type, PlayerNumber dealing_plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus

@@ -445,7 +445,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     TRACE_THING(elemtng);
     struct EffectElementConfigStats* eestats = get_effect_element_model_stats(elemtng->model);
     // Check if effect health dropped to zero; delete it, or decrease health for the next check
-    long health = elemtng->health;
+    HitPoints health = elemtng->health;
     if (health <= 0)
     {
         if (eestats->transform_model != 0)
@@ -734,7 +734,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
         for (long i=0; i < effcst->elements_count; i++)
         {
             long n = effcst->kind_min + EFFECT_RANDOM(thing, effcst->kind_max - effcst->kind_min + 1);
-            long mag = effcst->start_health - thing->health;
+            HitPoints mag = effcst->start_health - thing->health;
             arg = (mag << 7) + k/effcst->elements_count;
             set_coords_to_cylindric_shift(&pos, &thing->mappos, mag, arg, 0);
             elemtng = create_effect_element(&pos, n, thing->owner);
@@ -751,7 +751,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
         for (long i=0; i < effcst->elements_count; i++)
         {
             long n = effcst->kind_min + EFFECT_RANDOM(thing, effcst->kind_max - effcst->kind_min + 1);
-            long mag = thing->health;
+            HitPoints mag = thing->health;
             arg = (mag << 7) + k/effcst->elements_count;
             set_coords_to_cylindric_shift(&pos, &thing->mappos, 16*mag, arg, 0);
             elemtng = create_effect_element(&pos, n, thing->owner);
@@ -764,7 +764,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
     {
         if (thing->model != 48) // CaveIn only
             break;
-        long i = effcst->start_health / 2;
+        HitPoints i = effcst->start_health / 2;
         struct PlayerInfo* player;
         if (thing->health == effcst->start_health)
         {
