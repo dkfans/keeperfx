@@ -4386,6 +4386,11 @@ static inline bool CARRY4(uint32_t a, uint32_t b) {
   return a > UINT32_MAX - b;
 }
 
+static inline void pack_startpos_textshade_bottom() {
+  gploc_80 = startposmapybottom << 0x10 | startposshadebottom >> 8;
+  gploc_7C = startposmapybottom >> 0x10 & 0xff | startposmapxbottom << 8;
+}
+
 /*
 static inline uint32_t processFixedPointMultiplication(int operand1, int operand2) {
     long long int product = (long long int)operand1 * (long long int)operand2;
