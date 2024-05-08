@@ -4388,7 +4388,7 @@ static inline bool CARRY4(uint32_t a, uint32_t b) {
 
 static inline void pack_startpos_textshade_bottom() {
   gploc_80 = startposmapybottom << 0x10 | startposshadebottom >> 8;
-  gploc_7C = startposmapybottom >> 0x10 & 0xff | startposmapxbottom << 8;
+  gploc_7C = startposmapybottom >> (0x10 & 0xff) | startposmapxbottom << 8;
 }
 
 /*
@@ -5100,7 +5100,8 @@ void draw_gpoly_sub7() {
   //     gploc_pt_ay, gploc_pt_bx, gploc_pt_by, gploc_pt_cx, gploc_pt_cy, point3shade, point1shade,
   //     point2shade, point3mapx, point1mapx, point3mapy, point1mapy, point2mapx, crease_len);
 
-  calculateTriangleProperties();
+  // calculateTriangleProperties();
+  calc_hstep();
 
   // JUSTLOG("[test-outputs] shadehstep=%d, mapxhstep=%d, mapyhstep=%d", shadehstep, mapxhstep,
   // mapyhstep);
@@ -5162,16 +5163,16 @@ void draw_gpoly_sub7() {
   25. `mapyvelbottom` (conditional overwrite)
   */
 
-  JUSTLOG(
-      "[test-inputs] crease_len=%d, gploc_pt_cy=%d, gploc_pt_ay=%d, point3shade=%d, "
-      "point1shade=%d, "
-      "point3mapx=%d, "
-      "point1mapx=%d, point3mapy=%d, point1mapy=%d, gploc_pt_by=%d, point2shade=%d, point2mapx=%d, "
-      "point2mapy=%d, mapyhstep=%d, shadehstep=%d, mapxhstep=%d, mapyveltop=%d, mapxveltop=%d, "
-      "shadevelbottom=%d, mapxvelbottom=%d, mapyvelbottom=%d",
-      crease_len, gploc_pt_cy, gploc_pt_ay, point3shade, point1shade, point3mapx, point1mapx,
-      point3mapy, point1mapy, gploc_pt_by, point2shade, point2mapx, point2mapy, mapyhstep,
-      shadehstep, mapxhstep, mapyveltop, mapxveltop, shadevelbottom, mapxvelbottom, mapyvelbottom);
+  // JUSTLOG(
+  //     "[test-inputs] crease_len=%d, gploc_pt_cy=%d, gploc_pt_ay=%d, point3shade=%d, "
+  //     "point1shade=%d, "
+  //     "point3mapx=%d, "
+  //     "point1mapx=%d, point3mapy=%d, point1mapy=%d, gploc_pt_by=%d, point2shade=%d,
+  //     point2mapx=%d, " "point2mapy=%d, mapyhstep=%d, shadehstep=%d, mapxhstep=%d, mapyveltop=%d,
+  //     mapxveltop=%d, " "shadevelbottom=%d, mapxvelbottom=%d, mapyvelbottom=%d", crease_len,
+  //     gploc_pt_cy, gploc_pt_ay, point3shade, point1shade, point3mapx, point1mapx, point3mapy,
+  //     point1mapy, gploc_pt_by, point2shade, point2mapx, point2mapy, mapyhstep, shadehstep,
+  //     mapxhstep, mapyveltop, mapxveltop, shadevelbottom, mapxvelbottom, mapyvelbottom);
 
   draw_gpoly_sub7_subfunc2();
 }
