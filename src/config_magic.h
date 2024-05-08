@@ -250,7 +250,7 @@ struct ShotVisualConfig {
     EffectOrEffElModel effect_model;
     unsigned char amount;
     short random_range;
-    short shot_health;
+    HitPoints shot_health;
 };
 
 /**

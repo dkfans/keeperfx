@@ -2412,7 +2412,7 @@ long calculate_room_efficiency(const struct Room *room)
  */
 unsigned long compute_room_max_health(unsigned short slabs_count,unsigned short efficiency)
 {
-  unsigned long max_health = game.conf.rules.workers.hits_per_slab * slabs_count;
+  HitPoints max_health = game.conf.rules.workers.hits_per_slab * slabs_count;
   return saturate_set_unsigned(max_health, 16);
 }
 
@@ -2425,8 +2425,8 @@ TbBool update_room_total_health(struct Room *room)
 
 TbBool link_room_health(struct Room* linkroom, struct Room* oldroom)
 {
-    int newhealth = linkroom->health + oldroom->health;
-    int maxhealth = compute_room_max_health(linkroom->slabs_count, linkroom->efficiency);
+    HitPoints newhealth = linkroom->health + oldroom->health;
+    HitPoints maxhealth = compute_room_max_health(linkroom->slabs_count, linkroom->efficiency);
 
     if ((newhealth > maxhealth) || (newhealth <= 0))
     {
@@ -2439,8 +2439,8 @@ TbBool link_room_health(struct Room* linkroom, struct Room* oldroom)
 TbBool recalculate_room_health(struct Room* room)
 {
     SYNCDBG(7, "Starting for %s index %d", room_code_name(room->kind), (int)room->index);
-    int newhealth = (room->health + game.conf.rules.workers.hits_per_slab);
-    int maxhealth = compute_room_max_health(room->slabs_count, room->efficiency);
+    HitPoints newhealth = (room->health + game.conf.rules.workers.hits_per_slab);
+    HitPoints maxhealth = compute_room_max_health(room->slabs_count, room->efficiency);
     
     if ((newhealth <= maxhealth) && (newhealth >= 0))
     {

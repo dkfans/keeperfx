@@ -107,7 +107,7 @@ struct Thing;
 
 struct SlabMap {
       SlabCodedCoords next_in_room;
-      short health;
+      HitPoints health;
       SlabKind kind;
       unsigned char room_index;
       unsigned char wlb_type;

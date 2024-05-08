@@ -1132,7 +1132,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 }
                 else
                 {
-                    short Health = atoi(pr3str);
+                    HitPoints Health = atoi(pr3str);
                     thing->health = Health;
                     return true;
                 }

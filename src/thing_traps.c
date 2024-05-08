@@ -572,7 +572,7 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
     traptng->trap.revealed = 1;
     const struct TrapStats *trapstat = &game.conf.trap_stats[traptng->model];
     struct TrapConfigStats *trapst = &game.conf.trapdoor_conf.trap_cfgstats[traptng->model];
-    if (trapst->notify == 1)
+    if (trapst->notify == true)
     {
         event_create_event(traptng->mappos.x.val, traptng->mappos.y.val, EvKind_AlarmTriggered, traptng->owner, 0);
     }
@@ -1077,6 +1077,8 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     struct PlayerInfo* player = get_player(plyr_idx);
     TbBool HasTrap = true;
     TbBool HasDoor = true;
+    struct TrapConfigStats* trap_cfg = get_trap_model_stats(trpkind);
+
     if (!subtile_revealed(stl_x, stl_y, plyr_idx)) {
         return false;
     }
@@ -1088,14 +1090,9 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     }
     if ((slabmap_owner(slb) == plyr_idx) && (((slb->kind == SlbT_BRIDGE) && (trap_on_bridge(trpkind))) || (slb->kind == SlbT_CLAIMED) || (slab_is_door(slb_x, slb_y))))
     {
-        if ((!game.conf.rules.game.place_traps_on_subtiles))
+        if (trap_cfg->placeonsubtile == false)
         {
                 HasTrap = slab_has_trap_on(slb_x, slb_y);
-                HasDoor = slab_is_door(slb_x, slb_y);
-        }
-        else if ( (game.conf.rules.game.place_traps_on_subtiles) && (player->chosen_trap_kind == TngTrp_Boulder) ) 
-        {
-                HasTrap = subtile_has_trap_on(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
                 HasDoor = slab_is_door(slb_x, slb_y);
         }
         else

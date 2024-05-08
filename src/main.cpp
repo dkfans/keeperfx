@@ -250,7 +250,7 @@ void clear_creature_pool(void)
     game.pool.is_empty = true;
 }
 
-void give_shooter_drained_health(struct Thing *shooter, long health_delta)
+void give_shooter_drained_health(struct Thing *shooter, HitPoints health_delta)
 {
     struct CreatureControl *cctrl;
     HitPoints max_health;
@@ -665,7 +665,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
         if (subtile_has_door_thing_on(stl_x, stl_y)) // Collide with Doors
         {
             struct Thing *doortng = get_door_for_position(stl_x, stl_y);
-            short door_health = doortng->health;
+            HitPoints door_health = doortng->health;
             doortng->health -= boulder->health; // decrease door health
             boulder->health -= door_health; // decrease boulder health
             if (doortng->health <= 0)

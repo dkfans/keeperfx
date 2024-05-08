@@ -2638,7 +2638,7 @@ TbBool make_all_creatures_free(void)
 /**
  * Changes max health of creatures, and updates all creatures to max.
  */
-TbBool change_max_health_of_creature_kind(ThingModel crmodel, long new_max)
+TbBool change_max_health_of_creature_kind(ThingModel crmodel, HitPoints new_max)
 {
     struct CreatureStats* crstat = creature_stats_get(crmodel);
     if (creature_stats_invalid(crstat)) {

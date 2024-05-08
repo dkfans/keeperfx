@@ -75,8 +75,6 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
     if (room->owner != game.neutral_player_num)
     {
         dungeon->lvstats.creatures_attracted++;
-        dungeon->lvstats.field_8++;
-        dungeon->lvstats.field_88 = crkind;
     }
     struct Thing* heartng = get_player_soul_container(room->owner);
     TRACE_THING(heartng);

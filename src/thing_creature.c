@@ -1148,7 +1148,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         break;
     case SplK_Heal:
     {
-        long i = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev], 16);
+        HitPoints i = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev], 16);
         if (i < 0)
         {
           thing->health = 0;
@@ -3310,11 +3310,11 @@ void set_creature_level(struct Thing *thing, long nlvl)
         ERRORLOG("Level %d too low, bounding",(int)nlvl);
         nlvl = 0;
     }
-    long old_max_health = compute_creature_max_health(crstat->health, cctrl->explevel, thing->owner);
+    HitPoints old_max_health = compute_creature_max_health(crstat->health, cctrl->explevel, thing->owner);
     if (old_max_health < 1)
         old_max_health = 1;
     cctrl->explevel = nlvl;
-    long max_health = compute_creature_max_health(crstat->health, cctrl->explevel, thing->owner);
+    HitPoints max_health = compute_creature_max_health(crstat->health, cctrl->explevel, thing->owner);
     cctrl->max_health = max_health;
     set_creature_size_stuff(thing);
     if (old_max_health > 0)

@@ -1591,9 +1591,10 @@ static void new_trap_type_check(const struct ScriptLine* scline)
     trapst->slappable = 0;
     trapst->destructible = 0;
     trapst->unstable = 0;
-    trapst->unsellable = 0;
-    trapst->notify = 0;
-    trapst->placeonbridge = 0;
+    trapst->unsellable = false;
+    trapst->notify = false;
+    trapst->placeonbridge = false;
+    trapst->placeonsubtile = false;
     trapst->place_sound_idx = 117; 
     trapst->trigger_sound_idx = 176;
     trapst->destroyed_effect = -39;

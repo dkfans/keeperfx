@@ -335,7 +335,7 @@ unsigned char sound_flag;
     unsigned char bloody_footsteps_turns;
     short kills_num;
     short max_speed;
-    short max_health;
+    HitPoints max_health;
     short move_speed;
     short orthogn_speed;
     short roll;
@@ -421,7 +421,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned short job_secondary;
     unsigned short jobs_not_do;
     unsigned char eye_effect;
-    unsigned short health;
+    HitPoints health;
     unsigned char heal_requirement;
     unsigned char heal_threshold;
     unsigned char strength;

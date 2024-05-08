@@ -304,7 +304,7 @@ long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel)
 /**
  * Computes max health of a creature on given level.
  */
-long compute_creature_max_health(long base_health,unsigned short crlevel, PlayerNumber plyr_idx)
+long compute_creature_max_health(HitPoints base_health,unsigned short crlevel, PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon;
     if (base_health < -100000)
@@ -313,7 +313,7 @@ long compute_creature_max_health(long base_health,unsigned short crlevel, Player
         base_health = 100000;
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
-    long max_health = base_health + (game.conf.crtr_conf.exp.health_increase_on_exp * base_health * (long)crlevel) / 100;
+    HitPoints max_health = base_health + (game.conf.crtr_conf.exp.health_increase_on_exp * base_health * (long)crlevel) / 100;
     if (plyr_idx != game.neutral_player_num) {
         dungeon = get_dungeon(plyr_idx);
         unsigned short modifier = dungeon->modifier.health;
@@ -865,7 +865,7 @@ TbBool set_creature_health_to_max_with_heal_effect(struct Thing* thing)
     return true;
 }
 
-TbBool apply_health_to_thing(struct Thing *thing, long amount)
+TbBool apply_health_to_thing(struct Thing *thing, HitPoints amount)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     HitPoints new_health = thing->health;
@@ -880,7 +880,7 @@ TbBool apply_health_to_thing(struct Thing *thing, long amount)
     return false;
 }
 
-void apply_health_to_thing_and_display_health(struct Thing *thing, long amount)
+void apply_health_to_thing_and_display_health(struct Thing *thing, HitPoints amount)
 {
     if (apply_health_to_thing(thing, amount)) {
         thing->creature.health_bar_turns = 8;
