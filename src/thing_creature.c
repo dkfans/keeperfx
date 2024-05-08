@@ -4619,14 +4619,14 @@ long player_list_creature_filter_of_gui_job_and_pickable2(const struct Thing *th
  * Returns a creature in fight which gives highest score value.
  * @return The thing in fight, or invalid thing if not found.
  */
-struct Thing *find_players_highest_score_creature_in_fight_not_affected_by_spell(PlayerNumber plyr_idx, PowerKind pwkind)
+struct Thing *find_players_highest_score_creature_in_fight_not_affected_by_spell(PlayerNumber plyr_idx, SpellKind spell_kind)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     struct CompoundTngFilterParam param;
     param.plyr_idx = -1;
     param.class_id = 0;
     param.model_id = CREATURE_ANY;
-    param.num1 = pwkind;
+    param.num1 = spell_kind;
     Thing_Maximizer_Filter filter = player_list_creature_filter_in_fight_and_not_affected_by_spell;
     struct Thing* creatng = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
     if (thing_is_invalid(creatng)) {
