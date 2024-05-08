@@ -165,41 +165,34 @@ TbResult script_use_power_on_creature(struct Thing* thing, short pwkind, short s
     switch (pwkind)
     {
     case PwrK_HEALCRTR:
-        return magic_use_power_heal(caster, thing, 0, 0, splevel, spell_flags);
+        return magic_use_power_heal(pwkind, caster, thing, 0, 0, splevel, spell_flags);
     case PwrK_SPEEDCRTR:
-        return magic_use_power_speed(caster, thing, 0, 0, splevel, spell_flags);
     case PwrK_PROTECT:
-        return magic_use_power_armour(caster, thing, 0, 0, splevel, spell_flags);
     case PwrK_REBOUND:
-        return magic_use_power_rebound(caster, thing, 0, 0, splevel, spell_flags);
     case PwrK_CONCEAL:
-        return magic_use_power_conceal(caster, thing, 0, 0, splevel, spell_flags);
-    case PwrK_DISEASE:
-        return magic_use_power_disease(caster, thing, 0, 0, splevel, spell_flags);
-    case PwrK_CHICKEN:
-        return magic_use_power_chicken(caster, thing, 0, 0, splevel, spell_flags);
-    case PwrK_FREEZE:
-        return magic_use_power_freeze(caster, thing, 0, 0, splevel, spell_flags);
     case PwrK_SLOW:
-        return magic_use_power_slow(caster, thing, 0, 0, splevel, spell_flags);
     case PwrK_FLIGHT:
-        return magic_use_power_flight(caster, thing, 0, 0, splevel, spell_flags);
     case PwrK_VISION:
-        return magic_use_power_vision(caster, thing, 0, 0, splevel, spell_flags);
+    case PwrK_FREEZE:
+        return magic_use_power_apply_spell(pwkind, caster, thing, 0, 0, splevel, spell_flags);
+    case PwrK_DISEASE:
+        return magic_use_power_disease(pwkind, caster, thing, 0, 0, splevel, spell_flags);
+    case PwrK_CHICKEN:
+        return magic_use_power_chicken(pwkind, caster, thing, 0, 0, splevel, spell_flags);
     case PwrK_SLAP:
-        return magic_use_power_slap_thing(caster, thing, spell_flags);
+        return magic_use_power_slap_thing(pwkind, caster, thing, spell_flags);
     case PwrK_CALL2ARMS:
-        return magic_use_power_call_to_arms(caster, stl_x, stl_y, splevel, spell_flags);
+        return magic_use_power_call_to_arms(pwkind, caster, stl_x, stl_y, splevel, spell_flags);
     case PwrK_LIGHTNING:
-        return magic_use_power_lightning(caster, stl_x, stl_y, splevel, spell_flags);
+        return magic_use_power_lightning(pwkind, caster, stl_x, stl_y, splevel, spell_flags);
     case PwrK_CAVEIN:
-        return magic_use_power_cave_in(caster, stl_x, stl_y, splevel, spell_flags);
+        return magic_use_power_cave_in(pwkind, caster, stl_x, stl_y, splevel, spell_flags);
     case PwrK_MKDIGGER:
-        return magic_use_power_imp(caster, stl_x, stl_y, spell_flags);
+        return magic_use_power_imp(pwkind, caster, stl_x, stl_y, spell_flags);
     case PwrK_SIGHT:
-        return magic_use_power_sight(caster, stl_x, stl_y, splevel, spell_flags);
+        return magic_use_power_sight(pwkind, caster, stl_x, stl_y, splevel, spell_flags);
     case PwrK_TIMEBOMB:
-        return magic_use_power_time_bomb(caster, thing, splevel, spell_flags);
+        return magic_use_power_time_bomb(pwkind, caster, thing, splevel, spell_flags);
     default:
         SCRPTERRLOG("Power not supported for this command: %s", power_code_name(pwkind));
         return Lb_FAIL;

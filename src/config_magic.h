@@ -355,6 +355,8 @@ struct PowerConfigStats {
     long panel_tab_idx;
     unsigned short select_sound_idx;
     short cast_cooldown;
+    SpellKind spell_idx;
+    EffectOrEffElModel effect_id;
 };
 
 /**

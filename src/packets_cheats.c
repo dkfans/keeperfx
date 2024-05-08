@@ -303,8 +303,10 @@ TbBool packets_process_cheats(
         case PSt_FreeDestroyWalls:
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {
+                struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
+                pwkind = plrst_cfg_stat->power_kind;
                 i = get_power_overcharge_level(player);
-                magic_use_power_destroy_walls(plyr_idx, stl_x, stl_y, i, PwMod_CastForFree);
+                magic_use_power_destroy_walls(pwkind,plyr_idx, stl_x, stl_y, i, PwMod_CastForFree);
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
             break;
@@ -326,10 +328,10 @@ TbBool packets_process_cheats(
                 switch (pwkind)
                 {
                     case PwrK_DISEASE:
-                        magic_use_power_disease(plyr_idx, thing, stl_x, stl_y, i, PwMod_CastForFree);
+                        magic_use_power_disease(pwkind,plyr_idx, thing, stl_x, stl_y, i, PwMod_CastForFree);
                         break;
                     case PwrK_CHICKEN:
-                        magic_use_power_chicken(plyr_idx, thing, stl_x, stl_y, i, PwMod_CastForFree);
+                        magic_use_power_chicken(pwkind,plyr_idx, thing, stl_x, stl_y, i, PwMod_CastForFree);
                         break;
                 }
                 unset_packet_control(pckt, PCtr_LBtnRelease);

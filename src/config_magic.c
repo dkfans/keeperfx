@@ -157,6 +157,8 @@ const struct NamedCommand magic_power_commands[] = {
   {"PARENTPOWER",    17},
   {"SOUNDPLAYED",    18},
   {"COOLDOWN",       19},
+  {"SPELL",          20},
+  {"EFFECT",         21},
   {NULL,              0},
   };
 
@@ -2294,6 +2296,35 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
                       powerst->cast_cooldown = k;
                       n++;
                   }
+              }
+              if (n < 1)
+              {
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                      COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              }
+              break;
+          case 20: //SPELL
+              if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+              {
+                  k = get_id(spell_desc,word_buf);
+                  if (k >= 0)
+                  {
+                      powerst->spell_idx = k;
+                      n++;
+                  }
+              }
+              if (n < 1)
+              {
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                      COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              }
+              break;
+          case 21: //EFFECT
+              if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+              {
+                  k = effect_or_effect_element_id(word_buf);
+                  powerst->effect_id = k;
+                  n++;
               }
               if (n < 1)
               {
