@@ -364,8 +364,8 @@ long gploc_D8, gploc_D4, gploc_CC, gploc_C8, gploc_C4, gploc_C0, gploc_BC, gploc
     mapxhstep, mapyhstep, gploc_A7, shadehstep, gploc_A4, gploc_A0, gploc_9C;
 long gploc_98, gploc_94, gploc_90, gploc_8C, gploc_88, gploc_84, gploc_80, gploc_7C, gploc_78,
     gploc_74, gploc_68, gploc_64, gploc_60;
-long gploc_5C, startposshadetop, startposmapxtop, startposmapytop, startposshadebottom, startposmapxbottom, startposmapybottom, gploc_34, gploc_30,
-    gploc_2C, gploc_28;
+long gploc_5C, startposshadetop, startposmapxtop, startposmapytop, startposshadebottom,
+    startposmapxbottom, startposmapybottom, gploc_34, gploc_30, gploc_2C, gploc_28;
 /******************************************************************************/
 void gpoly_enable_pentium_pro(TbBool state) {
   SYNCMSG("Pentium Pro polygon rendering %s", state ? "on" : "off");
@@ -1397,7 +1397,8 @@ void draw_gpoly_sub1c() {
     gploc_98 = (mapxvelbottom << 16);
     gploc_94 = (mapxvelbottom >> 16);
     unk_update_gpoly1_tri8a(&gploc_90, &gploc_94, gploc_94, mapyvelbottom, 256);
-    unk_update_gpoly1_tri8b(&gploc_78, &gploc_7C, &gploc_80, startposmapybottom, startposmapxbottom);
+    unk_update_gpoly1_tri8b(&gploc_78, &gploc_7C, &gploc_80, startposmapybottom,
+                            startposmapxbottom);
   }
 }
 
@@ -2162,12 +2163,14 @@ void draw_gpoly_sub2c() {
   unk_update_gpoly1_tri8a(&gploc_28, &gploc_2C, gploc_2C, mapyhstep, 256);
   unk_update_gpoly1_tri16a(&gploc_A0, &gploc_A4, gploc_word01, mapxveltop, 65536);
   unk_update_gpoly1_tri8a(&gploc_9C, &gploc_A0, gploc_A0, mapyveltop, 256);
-  unk_update_gpoly1_tri16b(&gploc_84, &gploc_88, &gploc_8C, startposmapytop, startposmapxtop, startposshadetop);
+  unk_update_gpoly1_tri16b(&gploc_84, &gploc_88, &gploc_8C, startposmapytop, startposmapxtop,
+                           startposshadetop);
 
   if (crease_len >= 0) {
     unk_update_gpoly1_tri16a(&gploc_94, &gploc_98, gploc_word02, mapxvelbottom, 65536);
     unk_update_gpoly1_tri8a(&gploc_90, &gploc_94, gploc_94, mapyvelbottom, 256);
-    unk_update_gpoly1_tri16b(&gploc_78, &gploc_7C, &gploc_80, startposmapybottom, startposmapxbottom, startposshadebottom);
+    unk_update_gpoly1_tri16b(&gploc_78, &gploc_7C, &gploc_80, startposmapybottom,
+                             startposmapxbottom, startposshadebottom);
   }
 }
 
