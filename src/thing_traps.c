@@ -1059,7 +1059,7 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, short angle, stru
 TbBool trap_on_bridge(ThingModel trpkind)
 {
     struct TrapConfigStats* trapst = &game.conf.trapdoor_conf.trap_cfgstats[trpkind];
-    return trapst->placeonbridge;
+    return trapst->place_on_bridge;
 }
 
 TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel trpkind)
@@ -1084,7 +1084,7 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     }
     if ((slabmap_owner(slb) == plyr_idx) && (((slb->kind == SlbT_BRIDGE) && (trap_on_bridge(trpkind))) || (slb->kind == SlbT_CLAIMED) || (slab_is_door(slb_x, slb_y))))
     {
-        if (trap_cfg->placeonsubtile == false)
+        if (trap_cfg->place_on_subtile == false)
         {
                 HasTrap = slab_has_trap_on(slb_x, slb_y);
                 HasDoor = slab_is_door(slb_x, slb_y);

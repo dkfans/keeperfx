@@ -1207,7 +1207,7 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     struct TrapConfigStats* trap_cfg = get_trap_model_stats(tngmodel);
     struct Coord3d pos;
     struct PlayerInfo* player = get_player(plyr_idx);
-    if (trap_cfg->placeonsubtile)
+    if (trap_cfg->place_on_subtile)
     {
         set_coords_to_subtile_center(&pos, stl_x, stl_y, 1);
     }
