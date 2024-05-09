@@ -29,6 +29,9 @@ MAX_CREATURES(PLAYER2,25)
 REM The AI will try attacking you. Maybe. If you don't wall in.
 COMPUTER_PLAYER(PLAYER2,0)
 
+REM The AI should not force his way into the enemy dungeon
+SET_COMPUTER_EVENT(PLAYER2,"EVENT ENEMY DOOR", 400, 30, 2500, 2, 0)
+
 REM Creature diversity got seriously expanded... now you have nearly full lineup. Wizards/witches are still shy though, so Fairies are still the fashion.
 ADD_CREATURE_TO_POOL(THIEF,8)
 ADD_CREATURE_TO_POOL(DWARFA,20)
