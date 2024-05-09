@@ -274,26 +274,26 @@ struct Thing {
     // Push when moving; needs to be signed
     short anim_speed;
     long anim_time; // animation time (measured in 1/256 of a frame)
-unsigned short anim_sprite;
+    unsigned short anim_sprite;
     unsigned short sprite_size;
 
-unsigned char current_frame;
-unsigned char max_frames;
+    unsigned char current_frame;
+    unsigned char max_frames;
     char transformation_speed;
-unsigned short sprite_size_min;
-unsigned short sprite_size_max;
+    unsigned short sprite_size_min;
+    unsigned short sprite_size_max;
     unsigned char rendering_flags;
     unsigned char draw_class; /**< See enum ObjectsDrawClasses for valid values. */
     unsigned char size_change; /**< See enum ThingSizeChange for valid values. */
-unsigned char tint_colour;
+    unsigned char tint_colour;
     short move_angle_xy;
     short move_angle_z;
     unsigned short clipbox_size_xy;
     unsigned short clipbox_size_z;
     unsigned short solid_size_xy;
     unsigned short solid_size_z;
-    long health;
-unsigned short floor_height;
+    HitPoints health;
+    unsigned short floor_height;
     unsigned short light_id;
     short ccontrol_idx;
     unsigned char snd_emitter_id;
