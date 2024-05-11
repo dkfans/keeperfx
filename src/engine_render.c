@@ -60,6 +60,7 @@
 #include "player_states.h"
 #include "custom_sprites.h"
 #include "sprites.h"
+#include "player_instances.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -5361,7 +5362,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     if ((thing->lair.spr_size > 0) && (health_spridx > 0) && ((game.play_gameturn & 1) != 0))
     {
         int flash_color = get_player_color_idx(thing->owner);
-        if (flash_color == NEUTRAL_PLAYER) {
+        if (flash_color == PLAYER_NEUTRAL) {
             flash_color = game.play_gameturn & 3;
         }
         spr = get_button_sprite_for_player(health_spridx, thing->owner);
@@ -8960,6 +8961,8 @@ static void do_map_who(short tnglist_idx)
         if (k > THINGS_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
+            struct Map* mapblk = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+            break_mapwho_infinite_chain(mapblk);
             break;
         }
     }
