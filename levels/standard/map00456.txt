@@ -20,6 +20,7 @@ SET_GENERATE_SPEED(850)
 COMPUTER_PLAYER(PLAYER1,0)
 COMPUTER_PLAYER(PLAYER2,0)
 COMPUTER_PLAYER(PLAYER3,0)
+COMPUTER_PLAYER(PLAYER5,ROAMING)
 
 ALLY_PLAYERS(PLAYER1,PLAYER2,1)
 ALLY_PLAYERS(PLAYER1,PLAYER3,1)
@@ -309,7 +310,7 @@ ENDIF
 
 REM Enable claiming north-west corner when blue is destroyed. Tunneler will clear white wall blocking path. Also new tentacles added.
 IF(PLAYER1,DUNGEON_DESTROYED == 1)
-	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,TENTACLE,8,3,5,500)
+	ADD_CREATURE_TO_LEVEL(PLAYER5,TENTACLE,8,3,5,500)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PrisonFood,3,2)
 	SET_TIMER(PLAYER1,TIMER1)
 ENDIF
@@ -425,7 +426,6 @@ REM Win game
 REM ****************************************************************************
 
 IF(PLAYER0,ALL_DUNGEONS_DESTROYED >= 1)
-	KILL_CREATURE(PLAYER_GOOD,TENTACLE,MOST_EXPERIENCED,10)
 	IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES <= 0)
 		IF(PLAYER0,FLAG2 >= 1)
 			REM	"I give your performance 2 out of 5 spleens. But I guess it's the result that counts. Victory!"
