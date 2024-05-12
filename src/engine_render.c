@@ -8961,6 +8961,8 @@ static void do_map_who(short tnglist_idx)
         if (k > THINGS_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
+            struct Map* mapblk = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+            break_mapwho_infinite_chain(mapblk);
             break;
         }
     }
