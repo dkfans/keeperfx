@@ -3019,7 +3019,6 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                             memcpy(&triangle_bucket_near_4->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_4->p3));
                             memcpy(&triangle_bucket_near_4->p2, &triangle_bucket_near_1->p2, sizeof(triangle_bucket_near_4->p2));
 
-                            // Don't know what this is.
                             int z_ratio_1 = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
 
                             triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((z_ratio_1 * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
@@ -3029,10 +3028,7 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                             triangle_bucket_near_1->p3.U += (z_ratio_1 * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p3.U)) >> 8;
                             triangle_bucket_near_1->p3.V += (z_ratio_1 * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p3.V)) >> 8;
 
-                            // ?
                             int light_factor_1 = triangle_bucket_near_1->p3.S;
-
-                            // ?
                             int light_delta_1 = (z_ratio_1 * (triangle_bucket_near_1->p1.S - light_factor_1)) >> 8;
 
                             polypoint3 = &triangle_bucket_near_1->p3;
@@ -3046,7 +3042,6 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                             triangle_bucket_near_4->c2.y = engine_coordinate_2->y;
                             triangle_bucket_near_4->c2.z = engine_coordinate_2->z;
 
-                            // ?
                             int z_ratio_2 = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
 
                             triangle_bucket_near_4->c3.x = engine_coordinate_3->x + ((z_ratio_2 * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
@@ -3076,7 +3071,6 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         memcpy(&triangle_bucket_near_3->p2, &triangle_bucket_near_1->p2, sizeof(triangle_bucket_near_3->p2));
                         memcpy(&triangle_bucket_near_3->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_3->p3));
 
-                        // ?
                         int z_split_1 = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_1->z - engine_coordinate_2->z);
 
                         triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((z_split_1 * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
@@ -3086,9 +3080,7 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_1->p2.U += (z_split_1 * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p2.U)) >> 8;
                         triangle_bucket_near_1->p2.V += (z_split_1 * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p2.V)) >> 8;
 
-                        // ?
                         int light_base_1 = triangle_bucket_near_1->p2.S;
-                        // ?
                         int light_delta_2 = (z_split_1 * (triangle_bucket_near_1->p1.S - light_base_1)) >> 8;
 
                         polypoint2 = &triangle_bucket_near_1->p2;
@@ -3102,7 +3094,6 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_3->c3.y = engine_coordinate_3->y;
                         triangle_bucket_near_3->c3.z = engine_coordinate_3->z;
 
-                        // ?
                         int z_ratio_3 = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
 
                         triangle_bucket_near_3->c2.x = engine_coordinate_2->x + ((z_ratio_3 * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
@@ -3115,7 +3106,6 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                     }
                     else
                     {
-                        // ?
                         int z_split_2 = ((32 - coordinate_2_z) << 8) / (coordinate_1_z - coordinate_2_z);
 
                         triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((z_split_2 * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
@@ -3126,7 +3116,6 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_1->p2.V += (z_split_2 * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p2.V)) >> 8;
                         triangle_bucket_near_1->p2.S += (z_split_2 * (triangle_bucket_near_1->p1.S - triangle_bucket_near_1->p2.S)) >> 8;
 
-                        // ?
                         int z_ratio_4 = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
 
                         triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((z_ratio_4 * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
@@ -3136,9 +3125,7 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_1->p3.U += (z_ratio_4 * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p3.U)) >> 8;
                         triangle_bucket_near_1->p3.V += (z_ratio_4 * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p3.V)) >> 8;
 
-                        // ?
                         int light_base_2 = triangle_bucket_near_1->p1.S;
-                        // ?
                         int light_base_3 = triangle_bucket_near_1->p3.S;
 
                         xyz2 = &triangle_bucket_near_1->c1;
@@ -3168,7 +3155,6 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         memcpy(&triangle_bucket_near_2->p1, &triangle_bucket_near_1->p1, sizeof(triangle_bucket_near_2->p1));
                         memcpy(&triangle_bucket_near_2->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_2->p3));
 
-                        // ?
                         int z_split_3 = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
 
                         triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((z_split_3 * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
@@ -3178,9 +3164,7 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_1->p1.U += (z_split_3 * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p1.U)) >> 8;
                         triangle_bucket_near_1->p1.V += (z_split_3 * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p1.V)) >> 8;
 
-                        // ?
                         int light_base_4 = triangle_bucket_near_1->p1.S;
-                        // ?
                         int light_delta_3 = (z_split_3 * (triangle_bucket_near_1->p2.S - light_base_4)) >> 8;
 
                         polypoint1 = &triangle_bucket_near_1->p1;
@@ -3194,7 +3178,6 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_2->c3.y = engine_coordinate_3->y;
                         triangle_bucket_near_2->c3.z = engine_coordinate_3->z;
 
-                        // ?
                         int z_ratio_5 = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
 
                         triangle_bucket_near_2->c1.x = engine_coordinate_1->x + ((z_ratio_5 * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
@@ -3211,7 +3194,6 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_1->c2.y = engine_coordinate_2->y;
                         triangle_bucket_near_1->c2.z = engine_coordinate_2->z;
 
-                        // ?
                         int z_split_4 = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
 
                         triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((z_split_4 * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
@@ -3222,7 +3204,6 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_1->p1.V += (z_split_4 * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p1.V)) >> 8;
                         triangle_bucket_near_1->p1.S += (z_split_4 * (triangle_bucket_near_1->p2.S - triangle_bucket_near_1->p1.S)) >> 8;
 
-                        // ?
                         int z_ratio_6 = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
 
                         triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((z_ratio_6 * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
@@ -3240,7 +3221,6 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                     triangle_bucket_near_1->c3.y = engine_coordinate_3->y;
                     triangle_bucket_near_1->c3.z = engine_coordinate_3->z;
 
-                    // ?
                     int z_ratio_7 = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
 
                     triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((z_ratio_7 * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
@@ -3251,7 +3231,6 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                     triangle_bucket_near_1->p1.V += (z_ratio_7 * (triangle_bucket_near_1->p3.V - triangle_bucket_near_1->p1.V)) >> 8;
                     triangle_bucket_near_1->p1.S += (z_ratio_7 * (triangle_bucket_near_1->p3.S - triangle_bucket_near_1->p1.S)) >> 8;
 
-                    // ?
                     int z_ratio_8 = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
 
                     triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((z_ratio_8 * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
@@ -3510,7 +3489,6 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                             memcpy(&triangle_bucket_near_4->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_4->p3));
                             memcpy(&triangle_bucket_near_4->p2, &triangle_bucket_near_1->p2, sizeof(triangle_bucket_near_4->p2));
 
-                            // ?
                             int z_ratio_1 = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
 
                             triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((z_ratio_1 * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
@@ -3520,10 +3498,7 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                             triangle_bucket_near_1->p3.U += (z_ratio_1 * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p3.U)) >> 8;
                             triangle_bucket_near_1->p3.V += (z_ratio_1 * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p3.V)) >> 8;
 
-                            // ?
                             int light_factor_1 = triangle_bucket_near_1->p3.S;
-
-                            // ?
                             int light_delta_1 = (z_ratio_1 * (triangle_bucket_near_1->p1.S - light_factor_1)) >> 8;
 
                             polypoint3 = &triangle_bucket_near_1->p3;
@@ -3537,7 +3512,6 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                             triangle_bucket_near_4->c2.y = engine_coordinate_2->y;
                             triangle_bucket_near_4->c2.z = engine_coordinate_2->z;
 
-                            // ?
                             int z_ratio_2 = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
 
                             triangle_bucket_near_4->c3.x = engine_coordinate_3->x + ((z_ratio_2 * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
@@ -3567,7 +3541,6 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         memcpy(&triangle_bucket_near_3->p2, &triangle_bucket_near_1->p2, sizeof(triangle_bucket_near_3->p2));
                         memcpy(&triangle_bucket_near_3->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_3->p3));
 
-                        // ?
                         int z_split_1 = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_1->z - engine_coordinate_2->z);
 
                         triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((z_split_1 * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
@@ -3577,9 +3550,7 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_1->p2.U += (z_split_1 * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p2.U)) >> 8;
                         triangle_bucket_near_1->p2.V += (z_split_1 * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p2.V)) >> 8;
 
-                        // ?
                         int light_base_1 = triangle_bucket_near_1->p2.S;
-                        // ?
                         int light_delta_2 = (z_split_1 * (triangle_bucket_near_1->p1.S - light_base_1)) >> 8;
 
                         polypoint2 = &triangle_bucket_near_1->p2;
@@ -3593,7 +3564,6 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_3->c3.y = engine_coordinate_3->y;
                         triangle_bucket_near_3->c3.z = engine_coordinate_3->z;
 
-                        // ?
                         int z_ratio_3 = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
 
                         triangle_bucket_near_3->c2.x = engine_coordinate_2->x + ((z_ratio_3 * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
@@ -3606,7 +3576,6 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                     }
                     else
                     {
-                        // ?
                         int z_split_2 = ((32 - coordinate_2_z) << 8) / (coordinate_1_z - coordinate_2_z);
 
                         triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((z_split_2 * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
@@ -3617,7 +3586,6 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_1->p2.V += (z_split_2 * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p2.V)) >> 8;
                         triangle_bucket_near_1->p2.S += (z_split_2 * (triangle_bucket_near_1->p1.S - triangle_bucket_near_1->p2.S)) >> 8;
 
-                        // ?
                         int z_ratio_4 = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
 
                         triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((z_ratio_4 * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
@@ -3627,9 +3595,7 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_1->p3.U += (z_ratio_4 * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p3.U)) >> 8;
                         triangle_bucket_near_1->p3.V += (z_ratio_4 * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p3.V)) >> 8;
 
-                        // ?
                         int light_base_2 = triangle_bucket_near_1->p1.S;
-                        // ?
                         int light_base_3 = triangle_bucket_near_1->p3.S;
 
                         xyz2 = &triangle_bucket_near_1->c1;
@@ -3659,7 +3625,6 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         memcpy(&triangle_bucket_near_2->p1, &triangle_bucket_near_1->p1, sizeof(triangle_bucket_near_2->p1));
                         memcpy(&triangle_bucket_near_2->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_2->p3));
 
-                        // ?
                         int z_split_3 = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
 
                         triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((z_split_3 * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
@@ -3669,9 +3634,7 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_1->p1.U += (z_split_3 * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p1.U)) >> 8;
                         triangle_bucket_near_1->p1.V += (z_split_3 * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p1.V)) >> 8;
 
-                        // ?
                         int light_base_4 = triangle_bucket_near_1->p1.S;
-                        // ?
                         int light_delta_3 = (z_split_3 * (triangle_bucket_near_1->p2.S - light_base_4)) >> 8;
 
                         polypoint1 = &triangle_bucket_near_1->p1;
@@ -3685,7 +3648,6 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_2->c3.y = engine_coordinate_3->y;
                         triangle_bucket_near_2->c3.z = engine_coordinate_3->z;
 
-                        // ?
                         int z_ratio_5 = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
 
                         triangle_bucket_near_2->c1.x = engine_coordinate_1->x + ((z_ratio_5 * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
@@ -3702,7 +3664,6 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_1->c2.y = engine_coordinate_2->y;
                         triangle_bucket_near_1->c2.z = engine_coordinate_2->z;
 
-                        // ?
                         int z_split_4 = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
 
                         triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((z_split_4 * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
@@ -3713,7 +3674,6 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_1->p1.V += (z_split_4 * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p1.V)) >> 8;
                         triangle_bucket_near_1->p1.S += (z_split_4 * (triangle_bucket_near_1->p2.S - triangle_bucket_near_1->p1.S)) >> 8;
 
-                        // ?
                         int z_ratio_6 = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
 
                         triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((z_ratio_6 * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
@@ -3731,7 +3691,6 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                     triangle_bucket_near_1->c3.y = engine_coordinate_3->y;
                     triangle_bucket_near_1->c3.z = engine_coordinate_3->z;
 
-                    // ?
                     int z_ratio_7 = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
 
                     triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((z_ratio_7 * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
@@ -3742,7 +3701,6 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                     triangle_bucket_near_1->p1.V += (z_ratio_7 * (triangle_bucket_near_1->p3.V - triangle_bucket_near_1->p1.V)) >> 8;
                     triangle_bucket_near_1->p1.S += (z_ratio_7 * (triangle_bucket_near_1->p3.S - triangle_bucket_near_1->p1.S)) >> 8;
 
-                    // ?
                     int z_ratio_8 = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
 
                     triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((z_ratio_8 * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
