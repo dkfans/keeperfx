@@ -1593,8 +1593,8 @@ static void new_trap_type_check(const struct ScriptLine* scline)
     trapst->unstable = 0;
     trapst->unsellable = false;
     trapst->notify = false;
-    trapst->placeonbridge = false;
-    trapst->placeonsubtile = false;
+    trapst->place_on_bridge = false;
+    trapst->place_on_subtile = false;
     trapst->place_sound_idx = 117; 
     trapst->trigger_sound_idx = 176;
     trapst->destroyed_effect = -39;
@@ -1836,7 +1836,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             trapst->unsellable = value;
             break;
         case 35: // PlaceOnBridge
-            trapst->placeonbridge = value;
+            trapst->place_on_bridge = value;
             break;
         case 36: // ShotOrigin
             trapstat->shot_shift_x = value;

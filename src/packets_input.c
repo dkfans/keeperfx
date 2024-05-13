@@ -631,7 +631,7 @@ TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
         return false;
     }
     struct TrapConfigStats *trapst = get_trap_model_stats(player->chosen_trap_kind);
-    player->full_slab_cursor = (trapst->placeonsubtile == false);
+    player->full_slab_cursor = (trapst->place_on_subtile == false);
     long i = tag_cursor_blocks_place_trap(player->id_number, stl_x, stl_y, player->full_slab_cursor, player->chosen_trap_kind);
     if ((pckt->control_flags & PCtr_LBtnClick) == 0)
     {
