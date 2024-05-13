@@ -3019,25 +3019,21 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                             memcpy(&triangle_bucket_near_4->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_4->p3));
                             memcpy(&triangle_bucket_near_4->p2, &triangle_bucket_near_1->p2, sizeof(triangle_bucket_near_4->p2));
 
-                            // Don't know what this is.
-                            int toast = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
+                            int z_ratio_1 = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
 
-                            triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((toast * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
-                            triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((toast * (engine_coordinate_1->y - engine_coordinate_3->y)) >> 8);
+                            triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((z_ratio_1 * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
+                            triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((z_ratio_1 * (engine_coordinate_1->y - engine_coordinate_3->y)) >> 8);
                             triangle_bucket_near_1->c3.z = 32;
                             perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
-                            triangle_bucket_near_1->p3.U += (toast * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p3.U)) >> 8;
-                            triangle_bucket_near_1->p3.V += (toast * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p3.V)) >> 8;
+                            triangle_bucket_near_1->p3.U += (z_ratio_1 * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p3.U)) >> 8;
+                            triangle_bucket_near_1->p3.V += (z_ratio_1 * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p3.V)) >> 8;
 
-                            // ?
-                            int popcorn = triangle_bucket_near_1->p3.S;
-
-                            // ?
-                            int almond = (toast * (triangle_bucket_near_1->p1.S - popcorn)) >> 8;
+                            int light_factor_1 = triangle_bucket_near_1->p3.S;
+                            int light_delta_1 = (z_ratio_1 * (triangle_bucket_near_1->p1.S - light_factor_1)) >> 8;
 
                             polypoint3 = &triangle_bucket_near_1->p3;
                             xyz4 = &triangle_bucket_near_1->c3;
-                            xyz4[-3].z = popcorn + almond;
+                            xyz4[-3].z = light_factor_1 + light_delta_1;
                             memcpy(&triangle_bucket_near_4->p1, polypoint3, sizeof(triangle_bucket_near_4->p1));
                             triangle_bucket_near_4->c1.x = xyz4->x;
                             triangle_bucket_near_4->c1.y = xyz4->y;
@@ -3046,16 +3042,15 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                             triangle_bucket_near_4->c2.y = engine_coordinate_2->y;
                             triangle_bucket_near_4->c2.z = engine_coordinate_2->z;
 
-                            // ?
-                            int lemon = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
+                            int z_ratio_2 = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
 
-                            triangle_bucket_near_4->c3.x = engine_coordinate_3->x + ((lemon * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
-                            triangle_bucket_near_4->c3.y = engine_coordinate_3->y + ((lemon * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
+                            triangle_bucket_near_4->c3.x = engine_coordinate_3->x + ((z_ratio_2 * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
+                            triangle_bucket_near_4->c3.y = engine_coordinate_3->y + ((z_ratio_2 * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
                             triangle_bucket_near_4->c3.z = 32;
                             perspective(&triangle_bucket_near_4->c3, &triangle_bucket_near_4->p3);
-                            triangle_bucket_near_4->p3.U += (lemon * (triangle_bucket_near_4->p2.U - triangle_bucket_near_4->p3.U)) >> 8;
-                            triangle_bucket_near_4->p3.V += (lemon * (triangle_bucket_near_4->p2.V - triangle_bucket_near_4->p3.V)) >> 8;
-                            triangle_bucket_near_4->p3.S += (lemon * (triangle_bucket_near_4->p2.S - triangle_bucket_near_4->p3.S)) >> 8;
+                            triangle_bucket_near_4->p3.U += (z_ratio_2 * (triangle_bucket_near_4->p2.U - triangle_bucket_near_4->p3.U)) >> 8;
+                            triangle_bucket_near_4->p3.V += (z_ratio_2 * (triangle_bucket_near_4->p2.V - triangle_bucket_near_4->p3.V)) >> 8;
+                            triangle_bucket_near_4->p3.S += (z_ratio_2 * (triangle_bucket_near_4->p2.S - triangle_bucket_near_4->p3.S)) >> 8;
                         }
                     }
                     else if (coordinate_3_z >= 32)
@@ -3076,24 +3071,21 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         memcpy(&triangle_bucket_near_3->p2, &triangle_bucket_near_1->p2, sizeof(triangle_bucket_near_3->p2));
                         memcpy(&triangle_bucket_near_3->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_3->p3));
 
-                        // ?
-                        int lettuce = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_1->z - engine_coordinate_2->z);
+                        int z_split_1 = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_1->z - engine_coordinate_2->z);
 
-                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((lettuce * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
-                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((lettuce * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
+                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((z_split_1 * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
+                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((z_split_1 * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
                         triangle_bucket_near_1->c2.z = 32;
                         perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
-                        triangle_bucket_near_1->p2.U += (lettuce * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p2.U)) >> 8;
-                        triangle_bucket_near_1->p2.V += (lettuce * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p2.V)) >> 8;
+                        triangle_bucket_near_1->p2.U += (z_split_1 * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p2.U)) >> 8;
+                        triangle_bucket_near_1->p2.V += (z_split_1 * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p2.V)) >> 8;
 
-                        // ?
-                        int sandwich = triangle_bucket_near_1->p2.S;
-                        // ?
-                        int walnut = (lettuce * (triangle_bucket_near_1->p1.S - sandwich)) >> 8;
+                        int light_base_1 = triangle_bucket_near_1->p2.S;
+                        int light_delta_2 = (z_split_1 * (triangle_bucket_near_1->p1.S - light_base_1)) >> 8;
 
                         polypoint2 = &triangle_bucket_near_1->p2;
                         xyz3 = &triangle_bucket_near_1->c2;
-                        xyz3[-3].x = sandwich + walnut;
+                        xyz3[-3].x = light_base_1 + light_delta_2;
                         memcpy(&triangle_bucket_near_3->p1, polypoint2, sizeof(triangle_bucket_near_3->p1));
                         triangle_bucket_near_3->c1.x = xyz3->x;
                         triangle_bucket_near_3->c1.y = xyz3->y;
@@ -3102,47 +3094,42 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_3->c3.y = engine_coordinate_3->y;
                         triangle_bucket_near_3->c3.z = engine_coordinate_3->z;
 
-                        // ?
-                        int avocado = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
+                        int z_ratio_3 = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
 
-                        triangle_bucket_near_3->c2.x = engine_coordinate_2->x + ((avocado * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
-                        triangle_bucket_near_3->c2.y = engine_coordinate_2->y + ((avocado * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
+                        triangle_bucket_near_3->c2.x = engine_coordinate_2->x + ((z_ratio_3 * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
+                        triangle_bucket_near_3->c2.y = engine_coordinate_2->y + ((z_ratio_3 * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
                         triangle_bucket_near_3->c2.z = 32;
                         perspective(&triangle_bucket_near_3->c2, &triangle_bucket_near_3->p2);
-                        triangle_bucket_near_3->p2.U += (avocado * (triangle_bucket_near_3->p3.U - triangle_bucket_near_3->p2.U)) >> 8;
-                        triangle_bucket_near_3->p2.V += (avocado * (triangle_bucket_near_3->p3.V - triangle_bucket_near_3->p2.V)) >> 8;
-                        triangle_bucket_near_3->p2.S += (avocado * (triangle_bucket_near_3->p3.S - triangle_bucket_near_3->p2.S)) >> 8;
+                        triangle_bucket_near_3->p2.U += (z_ratio_3 * (triangle_bucket_near_3->p3.U - triangle_bucket_near_3->p2.U)) >> 8;
+                        triangle_bucket_near_3->p2.V += (z_ratio_3 * (triangle_bucket_near_3->p3.V - triangle_bucket_near_3->p2.V)) >> 8;
+                        triangle_bucket_near_3->p2.S += (z_ratio_3 * (triangle_bucket_near_3->p3.S - triangle_bucket_near_3->p2.S)) >> 8;
                     }
                     else
                     {
-                        // ?
-                        int steak = ((32 - coordinate_2_z) << 8) / (coordinate_1_z - coordinate_2_z);
+                        int z_split_2 = ((32 - coordinate_2_z) << 8) / (coordinate_1_z - coordinate_2_z);
 
-                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((steak * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
-                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((steak * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
+                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((z_split_2 * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
+                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((z_split_2 * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
                         triangle_bucket_near_1->c2.z = 32;
                         perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
-                        triangle_bucket_near_1->p2.U += (steak * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p2.U)) >> 8;
-                        triangle_bucket_near_1->p2.V += (steak * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p2.V)) >> 8;
-                        triangle_bucket_near_1->p2.S += (steak * (triangle_bucket_near_1->p1.S - triangle_bucket_near_1->p2.S)) >> 8;
+                        triangle_bucket_near_1->p2.U += (z_split_2 * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p2.U)) >> 8;
+                        triangle_bucket_near_1->p2.V += (z_split_2 * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p2.V)) >> 8;
+                        triangle_bucket_near_1->p2.S += (z_split_2 * (triangle_bucket_near_1->p1.S - triangle_bucket_near_1->p2.S)) >> 8;
 
-                        // ?
-                        int tomato = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
+                        int z_ratio_4 = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
 
-                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((tomato * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
-                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((tomato * (engine_coordinate_1->y - engine_coordinate_3->y)) >> 8);
+                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((z_ratio_4 * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
+                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((z_ratio_4 * (engine_coordinate_1->y - engine_coordinate_3->y)) >> 8);
                         triangle_bucket_near_1->c3.z = 32;
                         perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
-                        triangle_bucket_near_1->p3.U += (tomato * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p3.U)) >> 8;
-                        triangle_bucket_near_1->p3.V += (tomato * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p3.V)) >> 8;
+                        triangle_bucket_near_1->p3.U += (z_ratio_4 * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p3.U)) >> 8;
+                        triangle_bucket_near_1->p3.V += (z_ratio_4 * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p3.V)) >> 8;
 
-                        // ?
-                        int cabbage = triangle_bucket_near_1->p1.S;
-                        // ?
-                        int coconut = triangle_bucket_near_1->p3.S;
+                        int light_base_2 = triangle_bucket_near_1->p1.S;
+                        int light_base_3 = triangle_bucket_near_1->p3.S;
 
                         xyz2 = &triangle_bucket_near_1->c1;
-                        xyz2[-1].z = coconut + ((tomato * (cabbage - coconut)) >> 8);
+                        xyz2[-1].z = light_base_3 + ((z_ratio_4 * (light_base_2 - light_base_3)) >> 8);
                         xyz2->x = engine_coordinate_1->x;
                         xyz2->y = engine_coordinate_1->y;
                         xyz2->z = engine_coordinate_1->z;
@@ -3168,24 +3155,21 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         memcpy(&triangle_bucket_near_2->p1, &triangle_bucket_near_1->p1, sizeof(triangle_bucket_near_2->p1));
                         memcpy(&triangle_bucket_near_2->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_2->p3));
 
-                        // ?
-                        int prawns = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
+                        int z_split_3 = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
 
-                        triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((prawns * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
-                        triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((prawns * (engine_coordinate_2->y - engine_coordinate_1->y)) >> 8);
+                        triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((z_split_3 * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
+                        triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((z_split_3 * (engine_coordinate_2->y - engine_coordinate_1->y)) >> 8);
                         triangle_bucket_near_1->c1.z = 32;
                         perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
-                        triangle_bucket_near_1->p1.U += (prawns * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p1.U)) >> 8;
-                        triangle_bucket_near_1->p1.V += (prawns * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p1.V)) >> 8;
+                        triangle_bucket_near_1->p1.U += (z_split_3 * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p1.U)) >> 8;
+                        triangle_bucket_near_1->p1.V += (z_split_3 * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p1.V)) >> 8;
 
-                        // ?
-                        int cauliflower = triangle_bucket_near_1->p1.S;
-                        // ?
-                        int paprika = (prawns * (triangle_bucket_near_1->p2.S - cauliflower)) >> 8;
+                        int light_base_4 = triangle_bucket_near_1->p1.S;
+                        int light_delta_3 = (z_split_3 * (triangle_bucket_near_1->p2.S - light_base_4)) >> 8;
 
                         polypoint1 = &triangle_bucket_near_1->p1;
                         xyz1 = &triangle_bucket_near_1->c1;
-                        xyz1[-4].y = cauliflower + paprika;
+                        xyz1[-4].y = light_base_4 + light_delta_3;
                         memcpy(&triangle_bucket_near_2->p2, polypoint1, sizeof(triangle_bucket_near_2->p2));
                         triangle_bucket_near_2->c2.x = xyz1->x;
                         triangle_bucket_near_2->c2.y = xyz1->y;
@@ -3194,16 +3178,15 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_2->c3.y = engine_coordinate_3->y;
                         triangle_bucket_near_2->c3.z = engine_coordinate_3->z;
 
-                        // ?
-                        int sausage = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
+                        int z_ratio_5 = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
 
-                        triangle_bucket_near_2->c1.x = engine_coordinate_1->x + ((sausage * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
-                        triangle_bucket_near_2->c1.y = engine_coordinate_1->y + ((sausage * (engine_coordinate_3->y - engine_coordinate_1->y)) >> 8);
+                        triangle_bucket_near_2->c1.x = engine_coordinate_1->x + ((z_ratio_5 * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
+                        triangle_bucket_near_2->c1.y = engine_coordinate_1->y + ((z_ratio_5 * (engine_coordinate_3->y - engine_coordinate_1->y)) >> 8);
                         triangle_bucket_near_2->c1.z = 32;
                         perspective(&triangle_bucket_near_2->c1, &triangle_bucket_near_2->p1);
-                        triangle_bucket_near_2->p1.U += (sausage * (triangle_bucket_near_2->p3.U - triangle_bucket_near_2->p1.U)) >> 8;
-                        triangle_bucket_near_2->p1.V += (sausage * (triangle_bucket_near_2->p3.V - triangle_bucket_near_2->p1.V)) >> 8;
-                        triangle_bucket_near_2->p1.S += (sausage * (triangle_bucket_near_2->p3.S - triangle_bucket_near_2->p1.S)) >> 8;
+                        triangle_bucket_near_2->p1.U += (z_ratio_5 * (triangle_bucket_near_2->p3.U - triangle_bucket_near_2->p1.U)) >> 8;
+                        triangle_bucket_near_2->p1.V += (z_ratio_5 * (triangle_bucket_near_2->p3.V - triangle_bucket_near_2->p1.V)) >> 8;
+                        triangle_bucket_near_2->p1.S += (z_ratio_5 * (triangle_bucket_near_2->p3.S - triangle_bucket_near_2->p1.S)) >> 8;
                     }
                     else
                     {
@@ -3211,27 +3194,25 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_1->c2.y = engine_coordinate_2->y;
                         triangle_bucket_near_1->c2.z = engine_coordinate_2->z;
 
-                        // ?
-                        int cherries = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
+                        int z_split_4 = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
 
-                        triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((cherries * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
-                        triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((cherries * (engine_coordinate_2->y - engine_coordinate_1->y)) >> 8);
+                        triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((z_split_4 * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
+                        triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((z_split_4 * (engine_coordinate_2->y - engine_coordinate_1->y)) >> 8);
                         triangle_bucket_near_1->c1.z = 32;
                         perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
-                        triangle_bucket_near_1->p1.U += (cherries * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p1.U)) >> 8;
-                        triangle_bucket_near_1->p1.V += (cherries * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p1.V)) >> 8;
-                        triangle_bucket_near_1->p1.S += (cherries * (triangle_bucket_near_1->p2.S - triangle_bucket_near_1->p1.S)) >> 8;
+                        triangle_bucket_near_1->p1.U += (z_split_4 * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p1.U)) >> 8;
+                        triangle_bucket_near_1->p1.V += (z_split_4 * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p1.V)) >> 8;
+                        triangle_bucket_near_1->p1.S += (z_split_4 * (triangle_bucket_near_1->p2.S - triangle_bucket_near_1->p1.S)) >> 8;
 
-                        // ?
-                        int mushroom = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
+                        int z_ratio_6 = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
 
-                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((mushroom * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
-                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((mushroom * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
+                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((z_ratio_6 * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
+                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((z_ratio_6 * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
                         triangle_bucket_near_1->c3.z = 32;
                         perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
-                        triangle_bucket_near_1->p3.U += (mushroom * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p3.U)) >> 8;
-                        triangle_bucket_near_1->p3.V += (mushroom * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p3.V)) >> 8;
-                        triangle_bucket_near_1->p3.S += (mushroom * (triangle_bucket_near_1->p2.S - triangle_bucket_near_1->p3.S)) >> 8;
+                        triangle_bucket_near_1->p3.U += (z_ratio_6 * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p3.U)) >> 8;
+                        triangle_bucket_near_1->p3.V += (z_ratio_6 * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p3.V)) >> 8;
+                        triangle_bucket_near_1->p3.S += (z_ratio_6 * (triangle_bucket_near_1->p2.S - triangle_bucket_near_1->p3.S)) >> 8;
                     }
                 }
                 else
@@ -3240,27 +3221,25 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                     triangle_bucket_near_1->c3.y = engine_coordinate_3->y;
                     triangle_bucket_near_1->c3.z = engine_coordinate_3->z;
 
-                    // ?
-                    int olives = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
+                    int z_ratio_7 = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
 
-                    triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((olives * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
-                    triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((olives * (engine_coordinate_3->y - engine_coordinate_1->y)) >> 8);
+                    triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((z_ratio_7 * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
+                    triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((z_ratio_7 * (engine_coordinate_3->y - engine_coordinate_1->y)) >> 8);
                     triangle_bucket_near_1->c1.z = 32;
                     perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
-                    triangle_bucket_near_1->p1.U += (olives * (triangle_bucket_near_1->p3.U - triangle_bucket_near_1->p1.U)) >> 8;
-                    triangle_bucket_near_1->p1.V += (olives * (triangle_bucket_near_1->p3.V - triangle_bucket_near_1->p1.V)) >> 8;
-                    triangle_bucket_near_1->p1.S += (olives * (triangle_bucket_near_1->p3.S - triangle_bucket_near_1->p1.S)) >> 8;
+                    triangle_bucket_near_1->p1.U += (z_ratio_7 * (triangle_bucket_near_1->p3.U - triangle_bucket_near_1->p1.U)) >> 8;
+                    triangle_bucket_near_1->p1.V += (z_ratio_7 * (triangle_bucket_near_1->p3.V - triangle_bucket_near_1->p1.V)) >> 8;
+                    triangle_bucket_near_1->p1.S += (z_ratio_7 * (triangle_bucket_near_1->p3.S - triangle_bucket_near_1->p1.S)) >> 8;
 
-                    // ?
-                    int macaroni = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
+                    int z_ratio_8 = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
 
-                    triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((macaroni * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
-                    triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((macaroni * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
+                    triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((z_ratio_8 * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
+                    triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((z_ratio_8 * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
                     triangle_bucket_near_1->c2.z = 32;
                     perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
-                    triangle_bucket_near_1->p2.U += (macaroni * (triangle_bucket_near_1->p3.U - triangle_bucket_near_1->p2.U)) >> 8;
-                    triangle_bucket_near_1->p2.V += (macaroni * (triangle_bucket_near_1->p3.V - triangle_bucket_near_1->p2.V)) >> 8;
-                    triangle_bucket_near_1->p2.S += (macaroni * (triangle_bucket_near_1->p3.S - triangle_bucket_near_1->p2.S)) >> 8;
+                    triangle_bucket_near_1->p2.U += (z_ratio_8 * (triangle_bucket_near_1->p3.U - triangle_bucket_near_1->p2.U)) >> 8;
+                    triangle_bucket_near_1->p2.V += (z_ratio_8 * (triangle_bucket_near_1->p3.V - triangle_bucket_near_1->p2.V)) >> 8;
+                    triangle_bucket_near_1->p2.S += (z_ratio_8 * (triangle_bucket_near_1->p3.S - triangle_bucket_near_1->p2.S)) >> 8;
                 }
             }
             else
@@ -3510,25 +3489,21 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                             memcpy(&triangle_bucket_near_4->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_4->p3));
                             memcpy(&triangle_bucket_near_4->p2, &triangle_bucket_near_1->p2, sizeof(triangle_bucket_near_4->p2));
 
-                            // ?
-                            int toast = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
+                            int z_ratio_1 = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
 
-                            triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((toast * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
-                            triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((toast * (engine_coordinate_1->y - engine_coordinate_3->y)) >> 8);
+                            triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((z_ratio_1 * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
+                            triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((z_ratio_1 * (engine_coordinate_1->y - engine_coordinate_3->y)) >> 8);
                             triangle_bucket_near_1->c3.z = 32;
                             perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
-                            triangle_bucket_near_1->p3.U += (toast * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p3.U)) >> 8;
-                            triangle_bucket_near_1->p3.V += (toast * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p3.V)) >> 8;
+                            triangle_bucket_near_1->p3.U += (z_ratio_1 * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p3.U)) >> 8;
+                            triangle_bucket_near_1->p3.V += (z_ratio_1 * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p3.V)) >> 8;
 
-                            // ?
-                            int popcorn = triangle_bucket_near_1->p3.S;
-
-                            // ?
-                            int almond = (toast * (triangle_bucket_near_1->p1.S - popcorn)) >> 8;
+                            int light_factor_1 = triangle_bucket_near_1->p3.S;
+                            int light_delta_1 = (z_ratio_1 * (triangle_bucket_near_1->p1.S - light_factor_1)) >> 8;
 
                             polypoint3 = &triangle_bucket_near_1->p3;
                             xyz4 = &triangle_bucket_near_1->c3;
-                            xyz4[-3].z = popcorn + almond;
+                            xyz4[-3].z = light_factor_1 + light_delta_1;
                             memcpy(&triangle_bucket_near_4->p1, polypoint3, sizeof(triangle_bucket_near_4->p1));
                             triangle_bucket_near_4->c1.x = xyz4->x;
                             triangle_bucket_near_4->c1.y = xyz4->y;
@@ -3537,16 +3512,15 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                             triangle_bucket_near_4->c2.y = engine_coordinate_2->y;
                             triangle_bucket_near_4->c2.z = engine_coordinate_2->z;
 
-                            // ?
-                            int lemon = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
+                            int z_ratio_2 = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
 
-                            triangle_bucket_near_4->c3.x = engine_coordinate_3->x + ((lemon * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
-                            triangle_bucket_near_4->c3.y = engine_coordinate_3->y + ((lemon * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
+                            triangle_bucket_near_4->c3.x = engine_coordinate_3->x + ((z_ratio_2 * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
+                            triangle_bucket_near_4->c3.y = engine_coordinate_3->y + ((z_ratio_2 * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
                             triangle_bucket_near_4->c3.z = 32;
                             perspective(&triangle_bucket_near_4->c3, &triangle_bucket_near_4->p3);
-                            triangle_bucket_near_4->p3.U += (lemon * (triangle_bucket_near_4->p2.U - triangle_bucket_near_4->p3.U)) >> 8;
-                            triangle_bucket_near_4->p3.V += (lemon * (triangle_bucket_near_4->p2.V - triangle_bucket_near_4->p3.V)) >> 8;
-                            triangle_bucket_near_4->p3.S += (lemon * (triangle_bucket_near_4->p2.S - triangle_bucket_near_4->p3.S)) >> 8;
+                            triangle_bucket_near_4->p3.U += (z_ratio_2 * (triangle_bucket_near_4->p2.U - triangle_bucket_near_4->p3.U)) >> 8;
+                            triangle_bucket_near_4->p3.V += (z_ratio_2 * (triangle_bucket_near_4->p2.V - triangle_bucket_near_4->p3.V)) >> 8;
+                            triangle_bucket_near_4->p3.S += (z_ratio_2 * (triangle_bucket_near_4->p2.S - triangle_bucket_near_4->p3.S)) >> 8;
                         }
                     }
                     else if (coordinate_3_z >= 32)
@@ -3567,24 +3541,21 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         memcpy(&triangle_bucket_near_3->p2, &triangle_bucket_near_1->p2, sizeof(triangle_bucket_near_3->p2));
                         memcpy(&triangle_bucket_near_3->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_3->p3));
 
-                        // ?
-                        int lettuce = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_1->z - engine_coordinate_2->z);
+                        int z_split_1 = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_1->z - engine_coordinate_2->z);
 
-                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((lettuce * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
-                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((lettuce * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
+                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((z_split_1 * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
+                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((z_split_1 * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
                         triangle_bucket_near_1->c2.z = 32;
                         perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
-                        triangle_bucket_near_1->p2.U += (lettuce * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p2.U)) >> 8;
-                        triangle_bucket_near_1->p2.V += (lettuce * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p2.V)) >> 8;
+                        triangle_bucket_near_1->p2.U += (z_split_1 * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p2.U)) >> 8;
+                        triangle_bucket_near_1->p2.V += (z_split_1 * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p2.V)) >> 8;
 
-                        // ?
-                        int sandwich = triangle_bucket_near_1->p2.S;
-                        // ?
-                        int walnut = (lettuce * (triangle_bucket_near_1->p1.S - sandwich)) >> 8;
+                        int light_base_1 = triangle_bucket_near_1->p2.S;
+                        int light_delta_2 = (z_split_1 * (triangle_bucket_near_1->p1.S - light_base_1)) >> 8;
 
                         polypoint2 = &triangle_bucket_near_1->p2;
                         xyz3 = &triangle_bucket_near_1->c2;
-                        xyz3[-3].x = sandwich + walnut;
+                        xyz3[-3].x = light_base_1 + light_delta_2;
                         memcpy(&triangle_bucket_near_3->p1, polypoint2, sizeof(triangle_bucket_near_3->p1));
                         triangle_bucket_near_3->c1.x = xyz3->x;
                         triangle_bucket_near_3->c1.y = xyz3->y;
@@ -3593,47 +3564,42 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_3->c3.y = engine_coordinate_3->y;
                         triangle_bucket_near_3->c3.z = engine_coordinate_3->z;
 
-                        // ?
-                        int avocado = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
+                        int z_ratio_3 = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
 
-                        triangle_bucket_near_3->c2.x = engine_coordinate_2->x + ((avocado * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
-                        triangle_bucket_near_3->c2.y = engine_coordinate_2->y + ((avocado * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
+                        triangle_bucket_near_3->c2.x = engine_coordinate_2->x + ((z_ratio_3 * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
+                        triangle_bucket_near_3->c2.y = engine_coordinate_2->y + ((z_ratio_3 * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
                         triangle_bucket_near_3->c2.z = 32;
                         perspective(&triangle_bucket_near_3->c2, &triangle_bucket_near_3->p2);
-                        triangle_bucket_near_3->p2.U += (avocado * (triangle_bucket_near_3->p3.U - triangle_bucket_near_3->p2.U)) >> 8;
-                        triangle_bucket_near_3->p2.V += (avocado * (triangle_bucket_near_3->p3.V - triangle_bucket_near_3->p2.V)) >> 8;
-                        triangle_bucket_near_3->p2.S += (avocado * (triangle_bucket_near_3->p3.S - triangle_bucket_near_3->p2.S)) >> 8;
+                        triangle_bucket_near_3->p2.U += (z_ratio_3 * (triangle_bucket_near_3->p3.U - triangle_bucket_near_3->p2.U)) >> 8;
+                        triangle_bucket_near_3->p2.V += (z_ratio_3 * (triangle_bucket_near_3->p3.V - triangle_bucket_near_3->p2.V)) >> 8;
+                        triangle_bucket_near_3->p2.S += (z_ratio_3 * (triangle_bucket_near_3->p3.S - triangle_bucket_near_3->p2.S)) >> 8;
                     }
                     else
                     {
-                        // ?
-                        int steak = ((32 - coordinate_2_z) << 8) / (coordinate_1_z - coordinate_2_z);
+                        int z_split_2 = ((32 - coordinate_2_z) << 8) / (coordinate_1_z - coordinate_2_z);
 
-                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((steak * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
-                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((steak * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
+                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((z_split_2 * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
+                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((z_split_2 * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
                         triangle_bucket_near_1->c2.z = 32;
                         perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
-                        triangle_bucket_near_1->p2.U += (steak * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p2.U)) >> 8;
-                        triangle_bucket_near_1->p2.V += (steak * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p2.V)) >> 8;
-                        triangle_bucket_near_1->p2.S += (steak * (triangle_bucket_near_1->p1.S - triangle_bucket_near_1->p2.S)) >> 8;
+                        triangle_bucket_near_1->p2.U += (z_split_2 * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p2.U)) >> 8;
+                        triangle_bucket_near_1->p2.V += (z_split_2 * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p2.V)) >> 8;
+                        triangle_bucket_near_1->p2.S += (z_split_2 * (triangle_bucket_near_1->p1.S - triangle_bucket_near_1->p2.S)) >> 8;
 
-                        // ?
-                        int tomato = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
+                        int z_ratio_4 = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
 
-                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((tomato * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
-                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((tomato * (engine_coordinate_1->y - engine_coordinate_3->y)) >> 8);
+                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((z_ratio_4 * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
+                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((z_ratio_4 * (engine_coordinate_1->y - engine_coordinate_3->y)) >> 8);
                         triangle_bucket_near_1->c3.z = 32;
                         perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
-                        triangle_bucket_near_1->p3.U += (tomato * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p3.U)) >> 8;
-                        triangle_bucket_near_1->p3.V += (tomato * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p3.V)) >> 8;
+                        triangle_bucket_near_1->p3.U += (z_ratio_4 * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p3.U)) >> 8;
+                        triangle_bucket_near_1->p3.V += (z_ratio_4 * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p3.V)) >> 8;
 
-                        // ?
-                        int cabbage = triangle_bucket_near_1->p1.S;
-                        // ?
-                        int coconut = triangle_bucket_near_1->p3.S;
+                        int light_base_2 = triangle_bucket_near_1->p1.S;
+                        int light_base_3 = triangle_bucket_near_1->p3.S;
 
                         xyz2 = &triangle_bucket_near_1->c1;
-                        xyz2[-1].z = coconut + ((tomato * (cabbage - coconut)) >> 8);
+                        xyz2[-1].z = light_base_3 + ((z_ratio_4 * (light_base_2 - light_base_3)) >> 8);
                         xyz2->x = engine_coordinate_1->x;
                         xyz2->y = engine_coordinate_1->y;
                         xyz2->z = engine_coordinate_1->z;
@@ -3659,24 +3625,21 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         memcpy(&triangle_bucket_near_2->p1, &triangle_bucket_near_1->p1, sizeof(triangle_bucket_near_2->p1));
                         memcpy(&triangle_bucket_near_2->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_2->p3));
 
-                        // ?
-                        int prawns = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
+                        int z_split_3 = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
 
-                        triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((prawns * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
-                        triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((prawns * (engine_coordinate_2->y - engine_coordinate_1->y)) >> 8);
+                        triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((z_split_3 * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
+                        triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((z_split_3 * (engine_coordinate_2->y - engine_coordinate_1->y)) >> 8);
                         triangle_bucket_near_1->c1.z = 32;
                         perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
-                        triangle_bucket_near_1->p1.U += (prawns * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p1.U)) >> 8;
-                        triangle_bucket_near_1->p1.V += (prawns * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p1.V)) >> 8;
+                        triangle_bucket_near_1->p1.U += (z_split_3 * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p1.U)) >> 8;
+                        triangle_bucket_near_1->p1.V += (z_split_3 * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p1.V)) >> 8;
 
-                        // ?
-                        int cauliflower = triangle_bucket_near_1->p1.S;
-                        // ?
-                        int paprika = (prawns * (triangle_bucket_near_1->p2.S - cauliflower)) >> 8;
+                        int light_base_4 = triangle_bucket_near_1->p1.S;
+                        int light_delta_3 = (z_split_3 * (triangle_bucket_near_1->p2.S - light_base_4)) >> 8;
 
                         polypoint1 = &triangle_bucket_near_1->p1;
                         xyz1 = &triangle_bucket_near_1->c1;
-                        xyz1[-4].y = cauliflower + paprika;
+                        xyz1[-4].y = light_base_4 + light_delta_3;
                         memcpy(&triangle_bucket_near_2->p2, polypoint1, sizeof(triangle_bucket_near_2->p2));
                         triangle_bucket_near_2->c2.x = xyz1->x;
                         triangle_bucket_near_2->c2.y = xyz1->y;
@@ -3685,16 +3648,15 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_2->c3.y = engine_coordinate_3->y;
                         triangle_bucket_near_2->c3.z = engine_coordinate_3->z;
 
-                        // ?
-                        int sausage = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
+                        int z_ratio_5 = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
 
-                        triangle_bucket_near_2->c1.x = engine_coordinate_1->x + ((sausage * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
-                        triangle_bucket_near_2->c1.y = engine_coordinate_1->y + ((sausage * (engine_coordinate_3->y - engine_coordinate_1->y)) >> 8);
+                        triangle_bucket_near_2->c1.x = engine_coordinate_1->x + ((z_ratio_5 * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
+                        triangle_bucket_near_2->c1.y = engine_coordinate_1->y + ((z_ratio_5 * (engine_coordinate_3->y - engine_coordinate_1->y)) >> 8);
                         triangle_bucket_near_2->c1.z = 32;
                         perspective(&triangle_bucket_near_2->c1, &triangle_bucket_near_2->p1);
-                        triangle_bucket_near_2->p1.U += (sausage * (triangle_bucket_near_2->p3.U - triangle_bucket_near_2->p1.U)) >> 8;
-                        triangle_bucket_near_2->p1.V += (sausage * (triangle_bucket_near_2->p3.V - triangle_bucket_near_2->p1.V)) >> 8;
-                        triangle_bucket_near_2->p1.S += (sausage * (triangle_bucket_near_2->p3.S - triangle_bucket_near_2->p1.S)) >> 8;
+                        triangle_bucket_near_2->p1.U += (z_ratio_5 * (triangle_bucket_near_2->p3.U - triangle_bucket_near_2->p1.U)) >> 8;
+                        triangle_bucket_near_2->p1.V += (z_ratio_5 * (triangle_bucket_near_2->p3.V - triangle_bucket_near_2->p1.V)) >> 8;
+                        triangle_bucket_near_2->p1.S += (z_ratio_5 * (triangle_bucket_near_2->p3.S - triangle_bucket_near_2->p1.S)) >> 8;
                     }
                     else
                     {
@@ -3702,27 +3664,25 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_1->c2.y = engine_coordinate_2->y;
                         triangle_bucket_near_1->c2.z = engine_coordinate_2->z;
 
-                        // ?
-                        int cherries = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
+                        int z_split_4 = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
 
-                        triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((cherries * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
-                        triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((cherries * (engine_coordinate_2->y - engine_coordinate_1->y)) >> 8);
+                        triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((z_split_4 * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
+                        triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((z_split_4 * (engine_coordinate_2->y - engine_coordinate_1->y)) >> 8);
                         triangle_bucket_near_1->c1.z = 32;
                         perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
-                        triangle_bucket_near_1->p1.U += (cherries * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p1.U)) >> 8;
-                        triangle_bucket_near_1->p1.V += (cherries * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p1.V)) >> 8;
-                        triangle_bucket_near_1->p1.S += (cherries * (triangle_bucket_near_1->p2.S - triangle_bucket_near_1->p1.S)) >> 8;
+                        triangle_bucket_near_1->p1.U += (z_split_4 * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p1.U)) >> 8;
+                        triangle_bucket_near_1->p1.V += (z_split_4 * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p1.V)) >> 8;
+                        triangle_bucket_near_1->p1.S += (z_split_4 * (triangle_bucket_near_1->p2.S - triangle_bucket_near_1->p1.S)) >> 8;
 
-                        // ?
-                        int mushroom = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
+                        int z_ratio_6 = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
 
-                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((mushroom * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
-                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((mushroom * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
+                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((z_ratio_6 * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
+                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((z_ratio_6 * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
                         triangle_bucket_near_1->c3.z = 32;
                         perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
-                        triangle_bucket_near_1->p3.U += (mushroom * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p3.U)) >> 8;
-                        triangle_bucket_near_1->p3.V += (mushroom * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p3.V)) >> 8;
-                        triangle_bucket_near_1->p3.S += (mushroom * (triangle_bucket_near_1->p2.S - triangle_bucket_near_1->p3.S)) >> 8;
+                        triangle_bucket_near_1->p3.U += (z_ratio_6 * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p3.U)) >> 8;
+                        triangle_bucket_near_1->p3.V += (z_ratio_6 * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p3.V)) >> 8;
+                        triangle_bucket_near_1->p3.S += (z_ratio_6 * (triangle_bucket_near_1->p2.S - triangle_bucket_near_1->p3.S)) >> 8;
                     }
                 }
                 else
@@ -3731,27 +3691,25 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                     triangle_bucket_near_1->c3.y = engine_coordinate_3->y;
                     triangle_bucket_near_1->c3.z = engine_coordinate_3->z;
 
-                    // ?
-                    int olives = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
+                    int z_ratio_7 = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
 
-                    triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((olives * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
-                    triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((olives * (engine_coordinate_3->y - engine_coordinate_1->y)) >> 8);
+                    triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((z_ratio_7 * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
+                    triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((z_ratio_7 * (engine_coordinate_3->y - engine_coordinate_1->y)) >> 8);
                     triangle_bucket_near_1->c1.z = 32;
                     perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
-                    triangle_bucket_near_1->p1.U += (olives * (triangle_bucket_near_1->p3.U - triangle_bucket_near_1->p1.U)) >> 8;
-                    triangle_bucket_near_1->p1.V += (olives * (triangle_bucket_near_1->p3.V - triangle_bucket_near_1->p1.V)) >> 8;
-                    triangle_bucket_near_1->p1.S += (olives * (triangle_bucket_near_1->p3.S - triangle_bucket_near_1->p1.S)) >> 8;
+                    triangle_bucket_near_1->p1.U += (z_ratio_7 * (triangle_bucket_near_1->p3.U - triangle_bucket_near_1->p1.U)) >> 8;
+                    triangle_bucket_near_1->p1.V += (z_ratio_7 * (triangle_bucket_near_1->p3.V - triangle_bucket_near_1->p1.V)) >> 8;
+                    triangle_bucket_near_1->p1.S += (z_ratio_7 * (triangle_bucket_near_1->p3.S - triangle_bucket_near_1->p1.S)) >> 8;
 
-                    // ?
-                    int macaroni = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
+                    int z_ratio_8 = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
 
-                    triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((macaroni * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
-                    triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((macaroni * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
+                    triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((z_ratio_8 * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
+                    triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((z_ratio_8 * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
                     triangle_bucket_near_1->c2.z = 32;
                     perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
-                    triangle_bucket_near_1->p2.U += (macaroni * (triangle_bucket_near_1->p3.U - triangle_bucket_near_1->p2.U)) >> 8;
-                    triangle_bucket_near_1->p2.V += (macaroni * (triangle_bucket_near_1->p3.V - triangle_bucket_near_1->p2.V)) >> 8;
-                    triangle_bucket_near_1->p2.S += (macaroni * (triangle_bucket_near_1->p3.S - triangle_bucket_near_1->p2.S)) >> 8;
+                    triangle_bucket_near_1->p2.U += (z_ratio_8 * (triangle_bucket_near_1->p3.U - triangle_bucket_near_1->p2.U)) >> 8;
+                    triangle_bucket_near_1->p2.V += (z_ratio_8 * (triangle_bucket_near_1->p3.V - triangle_bucket_near_1->p2.V)) >> 8;
+                    triangle_bucket_near_1->p2.S += (z_ratio_8 * (triangle_bucket_near_1->p3.S - triangle_bucket_near_1->p2.S)) >> 8;
                 }
             }
             else
