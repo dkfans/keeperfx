@@ -1285,17 +1285,14 @@ static TbResult magic_use_power_heal(PowerKind power_kind, PlayerNumber plyr_idx
     struct PowerConfigStats *powerst;
     powerst = get_power_model_stats(power_kind);
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-    apply_spell_effect_to_thing(thing, SplK_Heal, splevel);
+    apply_spell_effect_to_thing(thing, powerst->spell_idx, splevel);
     return Lb_SUCCESS;
 }
 
 static TbResult magic_use_power_apply_spell(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
-    JUSTLOG("applyspell");
     struct PowerConfigStats *powerst;
     powerst = get_power_model_stats(power_kind);
-    JUSTLOG("power_kind %d",power_kind);
-    JUSTLOG("powerst->spell_idx %d",powerst->spell_idx);
 
     // If this spell is already casted at that creature, do nothing
     if (thing_affected_by_spell(thing, powerst->spell_idx)) {
