@@ -3228,7 +3228,7 @@ TbResult creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng
     MapCoordDelta dist_x = enmtng->mappos.x.val - (MapCoordDelta)figtng->mappos.x.val;
     MapCoordDelta dist_y = enmtng->mappos.y.val - (MapCoordDelta)figtng->mappos.y.val;
 
-    if (a4 && ((figctrl->combat_flags & (CmbtF_ObjctFight|CmbtF_DoorFight)) == 0))
+    if (a4 && !any_flag_is_set(figctrl->combat_flags,(CmbtF_ObjctFight|CmbtF_DoorFight)))
     {
         pos.x.val = figtng->mappos.x.val - dist_x;
         pos.y.val = figtng->mappos.y.val - dist_y;
@@ -3273,10 +3273,21 @@ TbResult creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng
     else
       pos.y.val += 3 * COORD_PER_STL * i;
     pos.z.val = get_thing_height_at(figtng, &pos);
-    if (setup_person_move_backwards_to_coord(figtng, &pos, NavRtF_Default))
+    if (flag_is_set(figctrl->combat_flags, CmbtF_DoorFight))
     {
-        figtng->continue_state = continue_state;
-        return Lb_SUCCESS;
+        if (setup_person_move_to_coord(figtng, &pos, NavRtF_Default))
+        {
+            figtng->continue_state = continue_state;
+            return Lb_SUCCESS;
+        }
+    }
+    else
+    {
+        if (setup_person_move_backwards_to_coord(figtng, &pos, NavRtF_Default))
+        {
+            figtng->continue_state = continue_state;
+            return Lb_SUCCESS;
+        }
     }
     return Lb_FAIL;
 }
