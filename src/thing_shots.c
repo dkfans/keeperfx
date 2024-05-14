@@ -152,7 +152,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
         {
             spell_level = SPELL_MAX_LEVEL;
         }
-        magic_use_power_destroy_walls(PwrK_DESTRWALLS, shotng->owner, shotng->mappos.x.stl.num, shotng->mappos.y.stl.num, spell_level, PwMod_CastForFree);
+        magic_use_power_on_subtile_direct(shotng->owner, PwrK_DESTRWALLS, spell_level, shotng->mappos.x.stl.num, shotng->mappos.y.stl.num, PwMod_CastForFree);
         break;
     default:
         break;

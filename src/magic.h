@@ -64,22 +64,10 @@ int get_power_overcharge_level(struct PlayerInfo *player);
 TbBool update_power_overcharge(struct PlayerInfo *player, int spl_idx);
 void process_dungeon_power_magic(void);
 
-TbResult magic_use_power_chicken(      PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
-TbResult magic_use_power_disease(      PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
-TbResult magic_use_power_destroy_walls(PowerKind power_kind, PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
-TbResult magic_use_power_imp(          PowerKind power_kind, PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long mod_flags);
-TbResult magic_use_power_heal(         PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
-TbResult magic_use_power_apply_spell(  PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
-TbResult magic_use_power_lightning(    PowerKind power_kind, PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
-TbResult magic_use_power_time_bomb(    PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, long splevel, unsigned long mod_flags);
-TbResult magic_use_power_sight(        PowerKind power_kind, PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
-TbResult magic_use_power_cave_in(      PowerKind power_kind, PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
-TbResult magic_use_power_call_to_arms( PowerKind power_kind, PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
-TbResult magic_use_power_slap_thing(   PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, unsigned long mod_flags);
-TbResult magic_use_power_possess_thing(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, unsigned long mod_flags);
-TbResult magic_use_power_hold_audience(PowerKind power_kind, PlayerNumber plyr_idx, unsigned long mod_flags);
-TbResult magic_use_power_armageddon(   PowerKind power_kind, PlayerNumber plyr_idx, unsigned long mod_flags);
-TbResult magic_use_power_obey(         PowerKind power_kind, PlayerNumber plyr_idx, unsigned long mod_flags);
+TbResult magic_use_power_on_subtile_direct(PlayerNumber plyr_idx, PowerKind pwkind,
+    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags);
+TbResult magic_use_power_on_thing_direct(PlayerNumber plyr_idx, PowerKind pwkind,
+    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags);
 
 TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind spl_idx,
     unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags);

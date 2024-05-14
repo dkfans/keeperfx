@@ -306,7 +306,7 @@ TbBool packets_process_cheats(
                 struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
                 pwkind = plrst_cfg_stat->power_kind;
                 i = get_power_overcharge_level(player);
-                magic_use_power_destroy_walls(pwkind,plyr_idx, stl_x, stl_y, i, PwMod_CastForFree);
+                magic_use_power_on_subtile_direct(plyr_idx,pwkind,i,stl_x, stl_y, PwMod_CastForFree);
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
             break;
@@ -324,16 +324,8 @@ TbBool packets_process_cheats(
             player->thing_under_hand = thing->index;
             if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
             {
-                i = get_power_overcharge_level(player);
-                switch (pwkind)
-                {
-                    case PwrK_DISEASE:
-                        magic_use_power_disease(pwkind,plyr_idx, thing, stl_x, stl_y, i, PwMod_CastForFree);
-                        break;
-                    case PwrK_CHICKEN:
-                        magic_use_power_chicken(pwkind,plyr_idx, thing, stl_x, stl_y, i, PwMod_CastForFree);
-                        break;
-                }
+                unsigned short splevel = get_power_overcharge_level(player);
+                magic_use_power_on_thing_direct(plyr_idx,pwkind,splevel,stl_x,stl_y,thing,PwMod_CastForFree);
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
             break;
@@ -345,7 +337,7 @@ TbBool packets_process_cheats(
         allowed = ( (room_exists(room)) && (room->owner != player->cheatselection.chosen_player) );
         if (allowed)
         {
-            snprintf(str, sizeof(str), "%s", get_string(419));
+            snprintf(str, sizeof(str), "%s", get_string(GUIStr_MnuOk));
         }
         targeted_message_add(MsgType_Player, player->cheatselection.chosen_player, plyr_idx, 1, str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
@@ -365,7 +357,7 @@ TbBool packets_process_cheats(
         allowed = (room_exists(room));
         if (allowed)
         {
-            targeted_message_add(MsgType_Blank, 0, plyr_idx, 1, get_string(419));
+            targeted_message_add(MsgType_Blank, 0, plyr_idx, 1, get_string(GUIStr_MnuOk));
         }
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
