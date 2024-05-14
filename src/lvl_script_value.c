@@ -816,7 +816,14 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               val2 = SENSIBLE_GOLD;
               SCRPTWRNLOG("Gold added to player %d reduced to %d", (int)plr_range_id, SENSIBLE_GOLD);
           }
-          player_add_offmap_gold(i, val2);
+          if (val2 >= 0)
+          {
+              player_add_offmap_gold(i, val2);
+          }
+          else
+          {
+              take_money_from_dungeon(i, -val2, 0);
+          }
       }
       break;
   case Cmd_SET_CREATURE_TENDENCIES:
