@@ -3269,9 +3269,9 @@ TbResult creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng
     else
         i = -1;
     if (abs(dist_y) >= abs(dist_x))
-      pos.x.val += 768 * i;
+      pos.x.val += 3 * COORD_PER_STL * i;
     else
-      pos.y.val += 768 * i;
+      pos.y.val += 3 * COORD_PER_STL * i;
     pos.z.val = get_thing_height_at(figtng, &pos);
     if (setup_person_move_backwards_to_coord(figtng, &pos, NavRtF_Default))
     {
