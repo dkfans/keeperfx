@@ -24,7 +24,8 @@
 ---@alias texture_pack "NONE"|"STANDARD"|"ANCIENT"|"WINTER"|"SNAKE_KEY"|"STONE_FACE"|"VOLUPTUOUS"|"BIG_BREASTS"|"ROUGH_ANCIENT"|"SKULL_RELIEF"|"DESERT_TOMB"|"GYPSUM"|"LILAC_STONE"|"SWAMP_SERPENT"|"LAVA_CAVERN"
 ---@alias head_for "ACTION_POINT"|"DUNGEON"|"DUNGEON_HEART"|"APPROPIATE_DUNGEON"
 ---@alias creature_propery "BLEEDS"|"UNAFFECTED_BY_WIND"|"IMMUNE_TO_GAS"|"HUMANOID_SKELETON"|"PISS_ON_DEAD"|"FLYING"|"SEE_INVISIBLE"|"PASS_LOCKED_DOORS"|"SPECIAL_DIGGER"|"ARACHNID"|"DIPTERA"|"LORD"|"SPECTATOR"|"EVIL"|"NEVER_CHICKENS"|"IMMUNE_TO_BOULDER"|"NO_CORPSE_ROTTING"|"NO_ENMHEART_ATTCK"|"TREMBLING_FAT"|"FEMALE"|"INSECT"|"ONE_OF_KIND"|"NO_IMPRISONMENT"|"IMMUNE_TO_DISEASE"|"ILLUMINATED"|"ALLURING_SCVNGR"
----@alias location playersingle|integer|"LAST_EVENT"|"COMBAT"
+---@alias actionpoint integer
+---@alias location playersingle|actionpoint|"LAST_EVENT"|"COMBAT"
 
 ---followning options come from cfg files, but these are the defaults, if you added them correctly to cfg, errors the ide gives can be ignored
 ---@alias creature_type "WIZARD"|"BARBARIAN"|"ARCHER"|"MONK"|"DWARFA"|"KNIGHT"|"AVATAR"|"TUNNELLER"|"WITCH"|"GIANT"|"FAIRY"|"THIEF"|"SAMURAI"|"HORNY"|"SKELETON"|"TROLL"|"DRAGON"|"DEMONSPAWN"|"FLY"|"DARK_MISTRESS"|"SORCEROR"|"BILE_DEMON"|"IMP"|"BUG"|"VAMPIRE"|"SPIDER"|"HELL_HOUND"|"GHOST"|"TENTACLE"|"ORC"|"FLOATING_SPIRIT"|"DRUID"|"TIME_MAGE"
@@ -36,10 +37,39 @@
 
 
 ---@class creaturefields
+---@field WIZARD integer
+---@field BARBARIAN integer
+---@field ARCHER integer
+---@field MONK integer
+---@field DWARFA integer
+---@field KNIGHT integer
+---@field AVATAR integer
 ---@field TUNNELLER integer
 ---@field WITCH integer
 ---@field GIANT integer
----...
+---@field FAIRY integer
+---@field THIEF integer
+---@field SAMURAI integer
+---@field HORNY integer
+---@field SKELETON integer
+---@field TROLL integer
+---@field DRAGON integer
+---@field DEMONSPAWN integer
+---@field FLY integer
+---@field DARK_MISTRESS integer
+---@field SORCEROR integer
+---@field BILE_DEMON integer
+---@field IMP integer
+---@field BUG integer
+---@field VAMPIRE integer
+---@field SPIDER integer
+---@field HELL_HOUND integer
+---@field GHOST integer
+---@field TENTACLE integer
+---@field ORC integer
+---@field FLOATING_SPIRIT integer
+---@field DRUID integer
+---@field TIME_MAGE integer
 
 ---@class roomfields
 ---@field TREASURE integer
@@ -127,7 +157,7 @@ function Thing.new(idx,creation_turn)
   end
 
 
-local flags = {"FLAG0","FLAG1","FLAG2","FLAG3","FLAG4","FLAG5","FLAG6","FLAG7",
+local flagsnames = {"FLAG0","FLAG1","FLAG2","FLAG3","FLAG4","FLAG5","FLAG6","FLAG7",
 "CAMPAIGN_FLAG0","CAMPAIGN_FLAG1","CAMPAIGN_FLAG2","CAMPAIGN_FLAG3","CAMPAIGN_FLAG4","CAMPAIGN_FLAG5","CAMPAIGN_FLAG6","CAMPAIGN_FLAG7"}
 
 ---check if the table contains an element with value val
@@ -146,7 +176,7 @@ end
 
 
 function Player:__newindex( index, value )
-    if has_value(flags,index) then
+    if has_value(flagsnames,index) then
         self.members[index] = value
         print( "Set member " .. index .. " to " .. value )
     else
@@ -173,6 +203,9 @@ PLAYER0 = Player.new("PLAYER0")
 PLAYER1 = Player.new("PLAYER1")
 PLAYER2 = Player.new("PLAYER2")
 PLAYER3 = Player.new("PLAYER3")
+PLAYER4 = Player.new("PLAYER4")
+PLAYER5 = Player.new("PLAYER5")
+PLAYER6 = Player.new("PLAYER6")
 PLAYER_GOOD = Player.new("PLAYER_GOOD")
 PLAYER_NEUTRAL = Player.new("PLAYER_NEUTRAL")
 
@@ -189,7 +222,7 @@ function SET_GENERATE_SPEED(interval) end
 
 ---If you have placed down an enemy dungeon heart (not a hero dungeon heart), this command tells Dungeon Keeper that a computer player needs to be assigned.
 ---@param player playersingle
----@param attitude integer
+---@param attitude integer|"ROAMING"
 function COMPUTER_PLAYER(player,attitude) end
 
 ---How much gold each player has at the start of the level.
@@ -454,40 +487,6 @@ function SWAP_CREATURE() end
 ---@param max_level integer the max level they should train to
 function SET_CREATURE_MAX_LEVEL(player,creature_type,max_level) end
 
----This command sets the strength of all the creatures of that type on the level.
----Each creature has a default strength which can be found in the creature.txt file, e.g. the BILE_DEMON has a strength level of 80.
----@param creature_type creature_type  creaturetype eg. BILE_DEMON
----@param strength integer The new strength of that creature. The strength must be between 0 and 255.
-function SET_CREATURE_STRENGTH(creature_type,strength) end
-
----This command sets the health of all the creatures of that type on the level.
----Each creature has a default full health level which can be found in the creature.txt file, e.g. the DRAGON has a full health level of 900.
----@param creature_type creature_type  creaturetype eg. BILE_DEMON
----@param health integer The new health level of that creature. The health level must be between 0 and 7895. 
-function SET_CREATURE_HEALTH(creature_type,health) end
-
----This command sets the armour of all the creatures of that type on the level.
----Each creature has a default armour level which can be found in the creature.txt file, e.g. the Dark Mistress has a armour level of 50.
----@param creature_type creature_type  creaturetype eg. BILE_DEMON
----@param armor integer The new armour level of that creature. The armour level must be between 0 and 255.
-function SET_CREATURE_ARMOUR(creature_type,armor) end
-
----@param creature_type creature_type
----@param fear integer
-function SET_CREATURE_FEAR_WOUNDED(creature_type,fear) end
-
----@param creature_type creature_type
----@param fear integer
-function SET_CREATURE_FEAR_STRONGER(creature_type,fear) end
-
----Modifies this value from the creature config for a creature type.
----It determines how much more or less intimidating a unit is compared to what you would expect from looking at his Strength and Health values.
----Creatures with lots of spells tend to have a value above 100.
----Use this command when you've modified a unit type in the level script and need a fear response to match.
----@param creature_type creature_type
----@param fearsome_factor integer The new 'fearsome factor' for the creature type.
-function SET_CREATURE_FEARSOME_FACTOR(creature_type,fearsome_factor) end
-
 ---comment
 ---@param creature_type creature_type The creature name, e.g. BILE_DEMON.
 ---@param property creature_propery The name of the creature property you want to set, e.g. NEVER_CHICKENS. See imp.cfg for options.
@@ -522,7 +521,7 @@ function CHANGE_CREATURE_OWNER(creature,new_owner) end
 --Manipulating all Creatures of a type--
 ----------------------------------------
 
----comment
+---Can set, increase or decrease the happiness level of all your units.
 ---@param player playerrange
 ---@param creature creature_type
 ---@param operation any
@@ -533,8 +532,15 @@ function CHANGE_CREATURES_ANNOYANCE(player,creature,operation,annoyance) end
 --Tweaking computer players--
 -----------------------------
 
----This command is not fully documented yet. Sorry.
-function SET_COMPUTER_GLOBALS(player,a,a,a,a,a,a) end
+---Allows the player to configure the behavior of an AI for specific criteria.
+---@param player playersingle the AI player affected
+---@param processes_time integer game turns between performing processes
+---@param click_rate integer game turns between actions: each room tile placed, each dirt highlighted, each unit dropped
+---@param max_room_build_tasks integer how many rooms can be built at once
+---@param turn_begin integer game turns until AI initializes
+---@param sim_before_dig integer simulate outcome before starting action
+---@param min_drop_delay integer when the click rate is faster, take this as a minimum delay between dropping units
+function SET_COMPUTER_GLOBALS(player,processes_time,click_rate,max_room_build_tasks,turn_begin,sim_before_dig,min_drop_delay) end
 
 ---If no importand event is occuring, the computer player searches for things that need to be done using checks.
 ---Checks are similar to IF commands which allows computer player to undertake a process under some circumstances determined by values of variables.
@@ -675,9 +681,7 @@ function GetCreatureNear() end
 function SendChatMessage() end
 function GetThingByIdx() end
 
----comment
----@param player playersingle
----@param varname variable
----@param alt? boolean If set to true, creature flags will be interpreted as in IF_CONTROLS and rooms/doors/traps as in IF_AVAILABLE. Set it to 0 and it takes the value as IF uses it.
----@return integer
-function VAR(player,varname,alt) return 0 end
+
+
+
+
