@@ -547,7 +547,7 @@ TbBool packets_process_cheats(
         {
             break;
         }
-        short new_health = thing->health;
+        HitPoints new_health = thing->health;
         if (process_cheat_heart_health_inputs(&new_health, objst->health))
         {
             set_packet_action(pckt, PckA_CheatHeartHealth, player->cheatselection.chosen_player, new_health, 0, 0);

@@ -252,9 +252,20 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       break;
   case TCls_Trap:
       trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
-      if ((trapst->slappable == 1) && trap_is_active(thing))
+      if ((trapst->slappable > 0) && trap_is_active(thing))
       {
-          external_activate_trap_shot_at_angle(thing, player->acamera->orient_a, thing_get(player->hand_thing_idx));
+          struct TrapStats* trapstat = &game.conf.trap_stats[thing->model];
+          struct Thing* trgtng = INVALID_THING;
+          shotst = get_shot_model_stats(trapstat->created_itm_model);
+          if (trapst->slappable == 1)
+          {
+              external_activate_trap_shot_at_angle(thing, player->acamera->orient_a, trgtng);
+          } else
+          if (trapst->slappable == 2)
+          {
+              trgtng = get_nearest_enemy_creature_in_sight_and_range_of_trap(thing);
+              external_activate_trap_shot_at_angle(thing, player->acamera->orient_a, trgtng);
+          }
       }
       break;
   case TCls_Object:
@@ -1193,15 +1204,15 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
         WARNLOG("Player %d tried to build %s but has none to place",(int)plyr_idx,trap_code_name(tngmodel));
         return false;
     }
+    struct TrapConfigStats* trap_cfg = get_trap_model_stats(tngmodel);
     struct Coord3d pos;
-    struct PlayerInfo* player = get_player(plyr_idx);
-    if ((player->chosen_trap_kind == TngTrp_Boulder) || (!game.conf.rules.game.place_traps_on_subtiles))
+    if (trap_cfg->place_on_subtile)
     {
-        set_coords_to_slab_center(&pos,subtile_slab(stl_x),subtile_slab(stl_y));
+        set_coords_to_subtile_center(&pos, stl_x, stl_y, 1);
     }
     else
     {
-        set_coords_to_subtile_center(&pos,stl_x,stl_y,1);
+        set_coords_to_slab_center(&pos, subtile_slab(stl_x), subtile_slab(stl_y));
     }
     delete_room_slabbed_objects(get_slab_number(subtile_slab(stl_x),subtile_slab(stl_y)));
     struct Thing* traptng = create_trap(&pos, tngmodel, plyr_idx);
@@ -1221,7 +1232,6 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     dungeon->camera_deviate_jump = 192;
     if (is_my_player_number(plyr_idx))
     {
-        struct TrapConfigStats* trap_cfg = get_trap_model_stats(tngmodel);    
         play_non_3d_sample(trap_cfg->place_sound_idx);
     }
     return true;
