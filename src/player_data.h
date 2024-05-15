@@ -42,7 +42,7 @@ enum PlayerInitFlags {
     PlaF_Allocated               = 0x01,
     PlaF_Unknown2                = 0x02,
     PlaF_NewMPMessage            = 0x04,
-    PlaF_Unknown8                = 0x08,
+    PlaF_Unknown8                = 0x08, // Passenger
     PlaF_KeyboardInputDisabled   = 0x10,
     PlaF_ChosenSlabHasActiveTask = 0x20, // Enabled when there are active tasks for the current slab. Used to determine if a high slab is tagged for digging (or not).
     PlaF_CompCtrl                = 0x40,
@@ -286,6 +286,7 @@ struct PlayerInfo *get_player_f(long plyr_idx,const char *func_name);
 #define get_my_player() get_player_f(my_player_number,__func__)
 TbBool player_invalid(const struct PlayerInfo *player);
 TbBool player_exists(const struct PlayerInfo *player);
+TbBool is_human_player(const struct PlayerInfo *player);
 TbBool is_my_player(const struct PlayerInfo *player);
 TbBool is_my_player_number(PlayerNumber plyr_num);
 TbBool player_allied_with(const struct PlayerInfo *player, PlayerNumber ally_idx);
@@ -311,6 +312,13 @@ void clear_players(void);
 unsigned char rotate_mode_to_view_mode(unsigned char mode);
 
 unsigned char get_player_color_idx(PlayerNumber plyr_idx);
+PlayerNumber player_bit_to_player_number(unsigned char plyr_bit);
+
+inline TbBool is_active_net_player(const struct PlayerInfo *player)
+{
+    // TOOD: separate players and net_users
+    return is_human_player(player);
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

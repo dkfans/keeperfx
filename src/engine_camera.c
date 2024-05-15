@@ -842,7 +842,7 @@ void update_all_players_cameras(void)
   for (i=0; i<PLAYERS_COUNT; i++)
   {
     player = get_player(i);
-    if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
+    if (is_human_player(player))
     {
           update_player_camera(player);
     }

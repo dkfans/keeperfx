@@ -84,8 +84,9 @@ struct NetSP // new version
     /**
      * Checks for new connections.
      * @param new_user Call back if a new user has connected.
+     * @return Lb_FAIL or Lb_OK Lb_FAIL on "serious fail"
      */
-    void    (*update)(NetNewUserCallback new_user);
+    TbError   (*update)(NetNewUserCallback new_user);
 
     /**
      * Sends a message buffer to a certain user.
@@ -106,14 +107,11 @@ struct NetSP // new version
      * Asks if a message has finished reception and get be read through readmsg.
      * May block under some circumstances but shouldn't unless it can be presumed
      * a whole message is on the way.
-     * TODO NET this definition is due to how SDL Net handles sockets.. see if it can
-     *  be improved - ideally this function shouldn't block at all
-     * @param source The source user.
      * @param timeout If non-zero, this method will wait this number of milliseconds
      *  for a message to arrive before returning.
      * @return The size of the message waiting if there is a message, otherwise 0.
      */
-    size_t  (*msgready)(NetUserId source, unsigned timeout);
+    size_t  (*msgready)(unsigned timeout);
 
     /**
      * Completely reads a message. Blocks until entire message has been read.
@@ -124,7 +122,7 @@ struct NetSP // new version
      * @return The actual size of the message received, <= max_size. If 0, an
      *  error occurred.
      */
-    size_t  (*readmsg)(NetUserId source, char * buffer, size_t max_size);
+    size_t  (*readmsg)(NetUserId *source, char * buffer, size_t max_size);
 
     /**
      * Disconnects a user.
@@ -159,18 +157,17 @@ struct ConfigInfo {
 };
 
 struct TbNetworkPlayerInfo {
-char name[32];
-long active;
+    char name[32];
+    long active;
+    uint8_t last_packet_tick;
+    long version_packed;
+    TbBool hand_shown;
 };
 
 struct TbNetworkCallbackData {
   char svc_name[12];
   char plyr_name[20];
   char field_20[32];
-};
-
-struct TbNetworkPlayerName {
-  char name[20];
 };
 
 struct TbNetworkPlayerNameEntry {
@@ -224,10 +221,24 @@ void    LbNetwork_InitSessionsFromCmdLine(const char * str);
 TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data);
 TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, long *playr_num, void *optns);
 TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns);
-TbError LbNetwork_ExchangeServer(void *server_buf, size_t buf_size);
-TbError LbNetwork_ExchangeClient(void *send_buf, void *server_buf, size_t buf_size);
-TbError LbNetwork_Exchange(void *send_buf, void *server_buf, size_t buf_size);
-TbBool  LbNetwork_Resync(void * buf, size_t len);
+
+/* This function allocates new packet of requested size and enqueues it
+   kind is a value from PckA_*
+*/
+#define LbNetwork_AddPacket(kind, turn, size) LbNetwork_AddPacket_f(kind, turn, size, __func__)
+void *LbNetwork_AddPacket_f(unsigned char kind, unsigned long turn, short size, const char* func);
+/*  This is a callback that process all enqueued packets from all players
+    Ordered by turn then by plyr_idx
+
+    All packet pointers should be valid till exit from LbNetwork_Exchange
+*/
+typedef TbBool (*LbNetwork_Packet_Callback) (
+        void *context, unsigned long turn, int net_player_idx, unsigned char kind, void *packet_data, short size);
+
+TbError LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback callback);
+
+TbBool LbNetwork_IsServer();
+
 void    LbNetwork_ChangeExchangeTimeout(unsigned long tmout);
 TbError LbNetwork_EnableNewPlayers(TbBool allow);
 TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *a2);

@@ -22,6 +22,7 @@
 #include "globals.h"
 #include "bflib_guibtns.h"
 #include "gui_frontmenu.h"
+#include "bflib_coroutine.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -250,23 +251,19 @@ extern char input_string[8][16];
 extern char gui_error_text[256];
 extern long net_service_scroll_offset;
 extern long net_number_of_services;
-extern long net_number_of_players;
 extern long net_number_of_enum_players;
-extern long net_map_slap_frame;
 extern long net_level_hilighted;
 extern struct NetMessage net_message[NET_MESSAGES_COUNT];
 extern long net_number_of_messages;
 extern long net_message_scroll_offset;
-extern long net_session_index_active_id;
 extern long net_session_scroll_offset;
 extern long net_player_scroll_offset;
 extern struct GuiButton active_buttons[ACTIVE_BUTTONS_COUNT];
 extern long frontend_mouse_over_button_start_time;
 extern short old_menu_mouse_x;
 extern short old_menu_mouse_y;
-extern unsigned char menu_ids[3];
 extern unsigned char new_objective;
-extern int frontend_menu_state;
+extern FrontendMenuState frontend_menu_state;
 extern int load_game_scroll_offset;
 extern unsigned char video_gamma_correction;
 extern MenuID vid_change_query_menu;
@@ -419,7 +416,7 @@ FrontendMenuState frontend_set_state(FrontendMenuState nstate);
 FrontendMenuState get_startup_menu_state(void);
 FrontendMenuState get_menu_state_when_back_from_substate(FrontendMenuState substate);
 void frontend_input(void);
-void frontend_update(short *finish_menu);
+void frontend_update(CoroutineLoop *context, short *finish_menu);
 short frontend_draw(void);
 void create_frontend_error_box(long showTime, const char * text);
 void try_restore_frontend_error_box(); // Restore error box if frontend state was switched
@@ -431,8 +428,8 @@ short game_is_busy_doing_gui(void);
 void set_gui_visible(TbBool visible);
 void toggle_gui(void);
 void add_message(long plyr_idx, char *msg);
-TbBool validate_versions(void);
-void versions_different_error(void);
+int validate_versions();
+void versions_different_error(long version_last, int failed_client);
 unsigned long toggle_status_menu(short visib);
 TbBool toggle_first_person_menu(TbBool visible);
 void toggle_gui_overlay_map(void);

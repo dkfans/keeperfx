@@ -148,28 +148,28 @@ int LbDataLoad(struct TbLoadFiles *load_file, LoadFilesGetSizeFunc get_size_fn, 
  */
 int LbDataLoadAll(struct TbLoadFiles load_files[])
 {
-  LbMemorySetup();
-  LbDataFreeAll(load_files);
-  int ferror = 0;
-  int i = 0;
-  struct TbLoadFiles* t_lfile = &load_files[i];
-  while (t_lfile->Start != NULL)
-  {
+    LbMemorySetup();
+    LbDataFreeAll(load_files);
+    int ferror = 0;
+    int i = 0;
+    struct TbLoadFiles* t_lfile = &load_files[i];
+    while (t_lfile->Start != NULL)
+    {
         int ret_val = LbDataLoad(t_lfile, NULL, NULL);
         if (ret_val == -100)
         {
-          ERRORLOG("Can't allocate memory for \"%s\"", t_lfile->FName);
-          ferror++;
+            ERRORLOG("Can't allocate memory for \"%s\"", t_lfile->FName);
+            ferror++;
         }
         else if ( ret_val == -101 )
         {
-          ERRORLOG("Can't load file \"%s\"", t_lfile->FName);
-          ferror++;
+            ERRORLOG("Can't load file \"%s\"", t_lfile->FName);
+            ferror++;
         }
         i++;
         t_lfile = &load_files[i];
-  }
-  return ferror;
+    }
+    return ferror;
 }
 
 int LbDataLoadAllV2(struct TbLoadFilesV2 load_files[])

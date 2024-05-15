@@ -66,7 +66,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 struct NetMapPlayersState {
-    long tmp1;
     LevelNumber lvnum;
     TbBool is_selected;
 };
@@ -74,17 +73,22 @@ struct NetMapPlayersState {
 /******************************************************************************/
 #define WINDOW_X_SIZE 960
 #define WINDOW_Y_SIZE 720
+
+static long net_number_of_players;
 TbPixel net_player_colours[] = { 251, 58, 182, 11};
 const long hand_limp_xoffset[] = { 32,  31,  30,  29,  28,  27,  26,  24,  22,  19,  15,  9, };
 const long hand_limp_yoffset[] = {-11, -10,  -9,  -8,  -7,  -6,  -5,  -4,  -3,  -2,  -1,  0, };
 struct TbSprite dummy_sprite = {0, 0, 0};
 
-long limp_hand_x = 0;
-long limp_hand_y = 0;
-LevelNumber mouse_over_lvnum;
-LevelNumber playing_speech_lvnum;
-struct TbHugeSprite map_window;
-long map_window_len = 0;
+static long limp_hand_x = 0;
+static long limp_hand_y = 0;
+static long net_map_slap_frame;
+static LevelNumber mouse_over_lvnum;
+
+static LevelNumber playing_speech_lvnum;
+
+static struct TbHugeSprite map_window;
+static long map_window_len = 0;
 
 TbClockMSec play_desc_speech_time;
 unsigned long played_bad_descriptive_speech;
@@ -96,7 +100,11 @@ struct TbSprite *end_map_flag;
 struct TbSprite *map_font;
 struct TbSprite *map_hand;
 long map_sound_fade;
-unsigned char *map_screen;
+
+#define MAX_MAP_IMG_SIZE 1228997
+static unsigned char *map_screen;
+unsigned char land_map_start[MAX_MAP_IMG_SIZE];
+
 long fe_net_level_selected;
 long net_map_limp_time;
 struct ScreenPacket net_screen_packet[NET_PLAYERS_COUNT];
@@ -829,15 +837,14 @@ void unload_map_and_window(void)
     clear_rooms();
     clear_dungeons();
     LbMemoryCopy(frontend_palette, frontend_backup_palette, PALETTE_SIZE);
-    map_window_len = 0;
 }
 
 TbBool load_map_and_window(LevelNumber lvnum)
 {
     SYNCDBG(8,"Starting");
     // Select proper land view image for the level
-    char* land_view = NULL;
-    char* land_window = NULL;
+    const char* land_view = NULL;
+    const char* land_window = NULL;
     if (lvnum == SINGLEPLAYER_NOTSTARTED)
     {
         land_view = campaign.land_view_start;
@@ -860,10 +867,37 @@ TbBool load_map_and_window(LevelNumber lvnum)
             land_window = campaign.land_window_start;
         }
     }
-    if ((land_view == NULL) || (land_window == NULL))
+    if ((!land_view) || (!land_window) || (!land_view[0]) || (!land_window[0]))
     {
-        ERRORLOG("No Land View file names for level %d",lvnum);
-        return false;
+        memset(land_map_start, 9 , sizeof (land_map_start));
+        map_screen = land_map_start;
+        map_window.Lines = (long *)&block_mem[0];
+        for (int i = 0; i < WINDOW_Y_SIZE; i++)
+        {
+            map_window.Lines[i] = 0;
+        }
+        map_window.Data = &block_mem[WINDOW_Y_SIZE*sizeof(long)];
+        ((long *)map_window.Data)[0] = 2; // borders
+        memset(map_window.Data + sizeof(long), 0 , 2);
+        ((long *)&map_window.Data[2])[1] = WINDOW_X_SIZE - 4;
+        ((long *)&map_window.Data[2])[2] = 2;
+        memset(map_window.Data + sizeof(long) * 3 + 2, 0 , 2);
+
+        // Prepare pointer to window data
+        // Fill the rest of huge sprite
+        map_window.SWidth = WINDOW_X_SIZE;
+        map_window.SHeight = WINDOW_Y_SIZE;
+        map_window_len = 32;
+        memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE); // maybe this is Bad Omen
+        land_view = "campgns/keeporig_lnd/rgmap00.pal";
+        if (LbFileLoadAt(land_view, frontend_palette) != PALETTE_SIZE)
+        {
+            ERRORLOG("Unable to load Land Map palette \"%s.pal\"",land_view);
+            unload_map_and_window();
+            return false;
+        }
+        ERRORLOG("No Land View file names for level %d", lvnum);
+        return true;
     }
     // Prepare full file name and load the image
     char* fname = prepare_file_fmtpath(FGrp_LandView, "%s.raw", land_view);
@@ -878,15 +912,15 @@ TbBool load_map_and_window(LevelNumber lvnum)
         ERRORLOG("Not enough memory in game structure for Land Map background \"%s.raw\"",land_view);
         return false;
     }
-    if (LbFileLoadAt(fname, &game.land_map_start) != flen)
+    if (LbFileLoadAt(fname, land_map_start) != flen)
     {
         ERRORLOG("Unable to load Land Map background \"%s.raw\"",land_view);
         return false;
     }
-    map_screen = &game.land_map_start;
+    map_screen = land_map_start;
     // Texture blocks memory isn't used here, so reuse it instead of allocating
     unsigned char* ptr = block_mem;
-    memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE);
+    memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE); // maybe this is Bad Omen
     // Now prepare window sprite file name and load the file
     fname = prepare_file_fmtpath(FGrp_LandView,"%s.dat",land_window);
     wait_for_cd_to_be_available();
@@ -919,15 +953,19 @@ TbBool load_map_and_window(LevelNumber lvnum)
     return true;
 }
 
-void frontnet_init_level_descriptions(void)
+void frontnet_init_view(void)
 {
     //TODO NETWORK Don't allow campaigns besides original - we don't have per-campaign MP yet
-    //if (!is_campaign_loaded())
+    if (!is_campaign_loaded())
     {
-        if (!change_campaign("")) {
-            return;
-        }
+        ERRORLOG("Campaign is not loaded!");
     }
+    // Cleanup from session
+    for (int i = 0; i < NET_PLAYERS_COUNT; i++)
+    {
+        net_player_info->hand_shown = 0;
+    }
+    LbMemorySet(net_screen_packet, 0, sizeof(net_screen_packet));
 }
 
 void frontnetmap_unload(void)
@@ -984,7 +1022,7 @@ TbBool frontnetmap_load(void)
     }
     LbSpriteSetupAll(netmap_flag_setup_sprites);
     frontend_load_data_reset();
-    frontnet_init_level_descriptions();
+    frontnet_init_view();
     frontmap_zoom_skip_init(SINGLEPLAYER_NOTSTARTED);
     fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
     net_level_hilighted = SINGLEPLAYER_NOTSTARTED;
@@ -999,8 +1037,10 @@ TbBool frontnetmap_load(void)
         for (long i = 0; i < 4; i++)
         {
             struct ScreenPacket* nspck = &net_screen_packet[i];
-            if ((nspck->field_4 & 0x01) != 0)
-              net_number_of_players++;
+            if ((nspck->flags & 0x01) != 0)
+            {
+                net_number_of_players++;
+            }
         }
     } else
     {
@@ -1179,7 +1219,7 @@ TbBool test_hand_slap_collides(PlayerNumber plyr_idx)
   if (is_my_player_number(plyr_idx))
     return false;
   struct ScreenPacket* nspck = &net_screen_packet[my_player_number];
-  if ((nspck->field_4 >> 3) == 0x02)
+  if (nspck->event == 0x02)
     return false;
   // Rectangle of given player
   nspck = &net_screen_packet[(int)plyr_idx];
@@ -1190,14 +1230,14 @@ TbBool test_hand_slap_collides(PlayerNumber plyr_idx)
   rcta.bottom = rcta.top + 20;
   // Rectangle of local player
   nspck = &net_screen_packet[my_player_number];
-  if ((nspck->field_4 >> 3) == 0x01)
+  if (nspck->event == 0x01)
   {
     rctb.left = nspck->field_6 - 31;
     rctb.top = nspck->field_8 - 27;
     rctb.right = map_hand[9].SWidth + rctb.left;
     rctb.bottom = rctb.top + map_hand[9].SHeight;
-  } else
-  if (nspck->param1 != SINGLEPLAYER_NOTSTARTED)
+  }
+  else if (nspck->lvl != 0)
   {
     rctb.left = nspck->field_6 - 20;
     rctb.top = nspck->field_8 - 14;
@@ -1312,61 +1352,61 @@ void draw_netmap_players_hands(void)
   const char *plyr_nam;
   struct TbSprite *spr;
   TbPixel colr;
-  long x;
-  long y;
   long w;
   long h;
-  long i;
-  long k;
-  long n;
-  for (i=0; i < NET_PLAYERS_COUNT; i++)
+  long hand_anim_frame;
+  for (int i = 0; i < NET_PLAYERS_COUNT; i++)
   {
       nspck = &net_screen_packet[i];
       plyr_nam = network_player_name(i);
       colr = net_player_colours[i];
-      if ((nspck->field_4 & 0x01) != 0)
+
+      if (net_player_info[i].hand_shown)
       {
-        x = 0;
-        y = 0;
-        n = nspck->field_4 & 0xF8;
-        if (n == 8)
-        {
-          k = (unsigned char)nspck->param1;
-          spr = &map_hand[k];
-        } else
-        if (n == 16)
-        {
-          k = nspck->param2;
-          if (k > 11)
-            k = 11;
-          if (k < 0)
-            k = 0;
-          x = hand_limp_xoffset[k];
-          y = hand_limp_yoffset[k];
-          spr = &map_hand[21];
-        } else
-        if (nspck->param1 == SINGLEPLAYER_NOTSTARTED)
-        {
-            k = LbTimerClock() / 150;
-            spr = &map_hand[1 + (k%8)];
-        } else
-        {
-            k = LbTimerClock() / 150;
-            spr = &map_hand[17 + (k%4)];
-        }
-        x += nspck->field_6 - map_info.screen_shift_x - 18;
-        y += nspck->field_8 - map_info.screen_shift_y - 25;
-        LbSpriteDrawResized(scale_value_landview(x), scale_value_landview(y), units_per_pixel_landview, spr);
-        w = LbTextStringWidth(plyr_nam);
-        if (w > 0)
-        {
-          lbDisplay.DrawFlags = 0;
-          h = LbTextHeight(level_name);
-          y += 32;
-          x += 32;
-          LbDrawBox(scale_value_landview(x-4), scale_value_landview(y), scale_value_landview(w+8), scale_value_landview(h), colr);
-          LbTextDrawResized(scale_value_landview(x), scale_value_landview(y), units_per_pixel_landview, plyr_nam);
-        }
+          long x = nspck->field_6 - map_info.screen_shift_x - 18;
+          long y = nspck->field_8 - map_info.screen_shift_y - 25;
+          if (nspck->event == 1)
+          {
+              hand_anim_frame = (unsigned char) nspck->param1;
+              spr = &map_hand[hand_anim_frame];
+          }
+          else if (nspck->event == 2) // Hand is slapped?
+          {
+              hand_anim_frame = nspck->param2;
+              if (hand_anim_frame > 11)
+                  hand_anim_frame = 11;
+              if (hand_anim_frame < 0)
+                  hand_anim_frame = 0;
+              x += hand_limp_xoffset[hand_anim_frame];
+              y += hand_limp_yoffset[hand_anim_frame];
+              spr = &map_hand[21];
+          }
+          else
+          {
+              if (nspck->lvl == 0)
+              {
+                  hand_anim_frame = LbTimerClock() / 150;
+                  spr = &map_hand[1 + (hand_anim_frame % 8)];
+              }
+              else
+              {
+                  hand_anim_frame = LbTimerClock() / 150;
+                  spr = &map_hand[17 + (hand_anim_frame % 4)];
+              }
+          }
+
+          LbSpriteDrawResized(x * units_per_pixel / 16, y * units_per_pixel / 16, units_per_pixel, spr);
+          w = LbTextStringWidth(plyr_nam);
+          if (w > 0)
+          {
+              lbDisplay.DrawFlags = 0;
+              h = LbTextHeight(level_name);
+              y += 32;
+              x += 32;
+              LbDrawBox((x - 4) * units_per_pixel / 16, y * units_per_pixel / 16, (w + 8) * units_per_pixel / 16,
+                        h * units_per_pixel / 16, colr);
+              LbTextDrawResized(x * units_per_pixel / 16, y * units_per_pixel / 16, units_per_pixel, plyr_nam);
+          }
       }
   }
 }
@@ -1501,7 +1541,8 @@ void frontnetmap_input(void)
 {
   if (lbKeyOn[KC_ESCAPE])
   {
-      fe_net_level_selected = LEVELNUMBER_ERROR;
+      struct ScreenPacket* nspck = &net_screen_packet[my_player_number];
+      nspck->event = 4;
       lbKeyOn[KC_ESCAPE] = 0;
       SYNCLOG("Escaped from level selection");
       return;
@@ -1608,15 +1649,65 @@ long frontmap_update(void)
   return 0;
 }
 
+TbBool frontmap_exchange_screen_packet_srv_cb(void *context, unsigned long turn, int net_player_idx,
+                                       unsigned char kind, void *packet_data, short size)
+{
+    if (kind == PckA_LandviewFrame)
+    {
+        if (net_player_idx == SERVER_ID)
+        {
+            return true;
+        }
+        // Server wants only one packet
+        memcpy(&net_screen_packet[net_player_idx], packet_data, sizeof(struct ScreenPacket));
+    }
+    else if (kind == PckA_SessionViewFrame)
+    {
+        // We would send him PckA_LandviewFrame and it will start himself
+        NETLOG("Delayed packet from:%d", net_player_idx);
+    }
+    else
+    {
+        WARNLOG("Unexpected packet kind %d", kind);
+    }
+    return false;
+}
+
+TbBool frontmap_exchange_screen_packet_cb(void *context, unsigned long turn, int net_player_idx,
+                                          unsigned char kind, void *packet_data, short size)
+{
+    if (kind == PckA_LandviewFrame)
+    {
+        if (net_player_idx != SERVER_ID) // Want only server data
+        {
+            return true;
+        }
+        // Client wants packets from server for all players except his own
+        struct ScreenPacket old = net_screen_packet[my_player_number];
+        memcpy(&net_screen_packet, packet_data, sizeof(net_screen_packet));
+        net_screen_packet[my_player_number] = old;
+    }
+    else
+    {
+        WARNLOG("Unexpected packet kind %d", kind);
+    }
+    return false;
+}
+
 TbBool frontmap_exchange_screen_packet(void)
 {
-    LbMemorySet(net_screen_packet, 0, sizeof(net_screen_packet));
     struct ScreenPacket* nspck = &net_screen_packet[my_player_number];
-    nspck->field_4 |= 0x01;
-    nspck->param1 = fe_net_level_selected;
+    LbNetwork_Packet_Callback cb;
+
+    nspck->flags |= 0x01;
+    nspck->event = 0;
+    nspck->param1 = 0;
+    nspck->param2 = 0;
+
+    nspck->lvl = fe_net_level_selected;
     if (net_map_limp_time > 0)
     {
-      nspck->field_4 = (nspck->field_4 & 0x07) | 0x10;
+      nspck->event = 0x2;
       nspck->field_6 = limp_hand_x;
       nspck->field_8 = limp_hand_y;
       net_map_limp_time--;
@@ -1627,8 +1718,8 @@ TbBool frontmap_exchange_screen_packet(void)
             limp_hand_x + hand_limp_xoffset[0] - map_info.screen_shift_x,
             limp_hand_y + hand_limp_yoffset[0] - map_info.screen_shift_y);
       }
-    } else
-    if (fe_net_level_selected > 0)
+    }
+    else if (fe_net_level_selected > 0)
     {
         struct TbSprite* spr = get_map_ensign(1);
         struct LevelInformation* lvinfo = get_level_info(fe_net_level_selected);
@@ -1637,51 +1728,84 @@ TbBool frontmap_exchange_screen_packet(void)
             nspck->field_6 = lvinfo->ensign_x + my_player_number * ((long)spr->SWidth);
             nspck->field_8 = lvinfo->ensign_y - 48;
         }
-    } else
-    if (net_map_slap_frame > 0)
+    }
+    else if (net_map_slap_frame > 0)
     {
         nspck->field_6 = GetMouseX()*16/units_per_pixel_landview + map_info.screen_shift_x;
         nspck->field_8 = GetMouseY()*16/units_per_pixel_landview + map_info.screen_shift_y;
         if (net_map_slap_frame <= 16)
         {
-          nspck->field_4 = (nspck->field_4 & 0x07) | 0x08;
+          nspck->event = 0x1;
           nspck->param1 = net_map_slap_frame;
           net_map_slap_frame++;
-        } else
+        }
+        else
         {
           net_map_slap_frame = 0;
         }
-    } else
+    }
+    else
     {
         nspck->field_6 = GetMouseX()*16/units_per_pixel_landview + map_info.screen_shift_x;
         nspck->field_8 = GetMouseY()*16/units_per_pixel_landview + map_info.screen_shift_y;
     }
-    if (fe_network_active)
+    if (fe_network_active) // 1player has this 0
     {
-      if ( LbNetwork_Exchange(nspck, &net_screen_packet, sizeof(struct ScreenPacket)) )
-      {
+        void *outgoing;
+        if (LbNetwork_IsServer())
+        {
+            outgoing = LbNetwork_AddPacket(PckA_LandviewFrame, 0, sizeof(net_screen_packet));
+            memcpy(outgoing, net_screen_packet, sizeof(net_screen_packet));
+            cb = &frontmap_exchange_screen_packet_srv_cb;
+        }
+        else
+        {
+            outgoing = LbNetwork_AddPacket(PckA_LandviewFrame, 0, sizeof(struct ScreenPacket));
+            memcpy(outgoing, nspck, sizeof(struct ScreenPacket));
+            cb = &frontmap_exchange_screen_packet_cb;
+        }
+        if ( LbNetwork_Exchange(0, cb) )
+        {
           ERRORLOG("LbNetwork_Exchange failed");
           return false;
-      }
+        }
     }
     return true;
 }
 
 TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
 {
-    LbMemorySet(scratch, 0, PALETTE_SIZE);
-    long tmp2 = -1;
+    LevelNumber candidate = -1;
+    int votes_count = 1;
+    int players_count = 0;
+    int map_rejected = 0;
+
     for (long i = 0; i < NET_PLAYERS_COUNT; i++)
     {
         struct ScreenPacket* nspck = &net_screen_packet[i];
-        if ((nspck->field_4 & 0x01) == 0)
-          continue;
-        if (nspck->param1 == LEVELNUMBER_ERROR)
+        if (net_player_info[i].active)
+        {
+            players_count++;
+        }
+        else
+        {
+            continue;
+        }
+        if ((nspck->flags & 0x01) == 0)
+        {
+            continue;
+        }
+
+        net_player_info[i].hand_shown = 1;
+
+        if (nspck->event == 4) // Leaving
         {
             if (fe_network_active)
             {
               if (LbNetwork_EnableNewPlayers(1))
-                ERRORLOG("Unable to enable new players joining exchange");
+              {
+                  ERRORLOG("Unable to enable new players joining exchange");
+              }
               frontend_set_state(FeSt_NET_START);
             } else
             {
@@ -1689,38 +1813,52 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
             }
             return false;
         }
-        if ((nspck->param1 == SINGLEPLAYER_NOTSTARTED) || ((nspck->field_4 & 0xF8) == 8))
+        else if ( nspck->event == 1)
         {
-            nmps->tmp1++;
-        } else
-        {
-            LevelNumber pckt_lvnum = nspck->param1;
-            scratch[pckt_lvnum]++;
-            if (scratch[pckt_lvnum] == tmp2)
+            map_rejected++;
+            if (nspck->param1 == 13)
             {
-                nmps->is_selected = false;
-            } else
-            if (scratch[pckt_lvnum] > tmp2)
-            {
-                nmps->lvnum = pckt_lvnum;
-                tmp2 = scratch[pckt_lvnum];
-                nmps->is_selected = true;
+                if (test_hand_slap_collides(i))
+                {
+                    net_map_limp_time = 12;
+                    fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
+                    net_map_slap_frame = 0;
+                    limp_hand_x = nspck->field_6;
+                    limp_hand_y = nspck->field_8;
+                    nspck->event = 0x2;
+                    SYNCLOG("Slapped out of level");
+                }
             }
         }
-        if (((nspck->field_4 & 0xF8) == 0x08) && (nspck->param1 == 13))
+        else if (nspck->event == 2)
         {
-            if ( test_hand_slap_collides(i) )
+        }
+        else if (nspck->lvl == 0)
+        {
+            map_rejected++;
+        }
+        else
+        {
+            if (candidate == nspck->lvl)
             {
-                net_map_limp_time = 12;
-                fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
-                net_map_slap_frame = 0;
-                limp_hand_x = nspck->field_6;
-                limp_hand_y = nspck->field_8;
-                nspck->field_4 = (nspck->field_4 & 7) | 0x10;
-                SYNCLOG("Slapped out of level");
+                votes_count++;
+            }
+            else
+            {
+                candidate = nspck->lvl;
             }
         }
     }
+    nmps->lvnum = candidate;
+    if (map_rejected > 0)
+    {
+        nmps->is_selected = false;
+    }
+    else
+    {
+        nmps->is_selected = votes_count == players_count;
+    }
+
     return true;
 }
 
@@ -1738,7 +1876,6 @@ TbBool frontnetmap_update(void)
     SetMusicPlayerVolume(i);
 
     struct NetMapPlayersState nmps;
-    nmps.tmp1 = 0;
     nmps.lvnum = SINGLEPLAYER_NOTSTARTED;
     nmps.is_selected = false;
     if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0)
@@ -1750,10 +1887,15 @@ TbBool frontnetmap_update(void)
         }
     } else
     {
-        frontmap_exchange_screen_packet();
+        if (!frontmap_exchange_screen_packet())
+        {
+            frontend_set_state(FeSt_NET_SERVICE);
+            // TODO: server disconnected message here
+            return false;
+        }
         frontnetmap_update_players(&nmps);
     }
-    if ((!nmps.tmp1) && (nmps.lvnum > 0) && (nmps.is_selected))
+    if ((nmps.lvnum > 0) && (nmps.is_selected))
     {
         set_selected_level_number(nmps.lvnum);
         sprintf(level_name, "%s %d", get_string(GUIStr_MnuLevel), (int)nmps.lvnum);

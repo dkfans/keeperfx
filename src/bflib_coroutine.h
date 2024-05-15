@@ -25,6 +25,7 @@ extern "C" {
 
 #define COROUTINE_MAX_NUM 8
 #define COROUTINE_ARGS 2
+#define COROUTINE_VARS 2
 
 /*
  * It is a list of functions with some common state (args)
@@ -39,17 +40,20 @@ typedef enum CoroutineLoopStateS
     CLS_REPEAT,
     CLS_CONTINUE,
     CLS_RETURN,
+    CLS_ERROR,
 } CoroutineLoopState;
 
 typedef CoroutineLoopState (*CoroutineFn)(struct CoroutineLoopS *loop_context);
 
 typedef struct CoroutineLoopS
 {
-    void        *context;
     int         read_idx;
     int         write_idx;
     CoroutineFn fns[COROUTINE_MAX_NUM];
-    int         args[COROUTINE_MAX_NUM * COROUTINE_ARGS];
+    intptr_t    args[COROUTINE_MAX_NUM * COROUTINE_ARGS];
+    void*       guard_1;
+    intptr_t    vars[COROUTINE_VARS];
+    void*       guard_2;
     TbBool      error;
 } CoroutineLoop;
 
@@ -57,12 +61,13 @@ typedef struct CoroutineLoopS
 extern void coroutine_add(CoroutineLoop *context, CoroutineFn fn);
 // add a new coroutine to the list with args
 extern void coroutine_add_args(CoroutineLoop *context, CoroutineFn fn, int args[COROUTINE_ARGS]);
-// remove all remaining coroutines from list (i.e. in case of error)
-extern void coroutine_clear(CoroutineLoop *context, TbBool error);
+// Init coroutine state
+extern void coroutine_reset(CoroutineLoop *context);
 // exec all coroutines from the list
 extern void coroutine_process(CoroutineLoop *context);
 
-extern int *coroutine_args(CoroutineLoop *context);
+extern intptr_t *coroutine_args(CoroutineLoop *context);
+extern intptr_t *coroutine_vars(CoroutineLoop *context);
 
 #ifdef __cplusplus
 }

@@ -85,15 +85,24 @@ TbBool player_exists(const struct PlayerInfo *player)
     return ((player->allocflags & PlaF_Allocated) != 0);
 }
 
+TbBool is_human_player(const struct PlayerInfo *player)
+{
+    if (player_invalid(player))
+        return false;
+    return ((player->allocflags & PlaF_Allocated) != 0) && ((player->allocflags & PlaF_CompCtrl) == 0);
+}
+
 TbBool is_my_player(const struct PlayerInfo *player)
 {
-    struct PlayerInfo* myplyr = &game.players[my_player_number % PLAYERS_COUNT];
+    assert( my_player_number < PLAYERS_COUNT);
+    struct PlayerInfo* myplyr = &game.players[my_player_number];
     return (player == myplyr);
 }
 
 TbBool is_my_player_number(PlayerNumber plyr_num)
 {
-    struct PlayerInfo* myplyr = &game.players[my_player_number % PLAYERS_COUNT];
+    assert( my_player_number < PLAYERS_COUNT);
+    struct PlayerInfo* myplyr = &game.players[my_player_number];
     return (plyr_num == myplyr->id_number);
 }
 

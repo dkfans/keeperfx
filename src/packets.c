@@ -26,59 +26,35 @@
 #include "bflib_video.h"
 #include "bflib_sprite.h"
 #include "bflib_keybrd.h"
-#include "bflib_vidraw.h"
-#include "bflib_fileio.h"
-#include "bflib_dernc.h"
 #include "bflib_network.h"
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
-#include "bflib_sprfnt.h"
-#include "bflib_planar.h"
 
 #include "kjm_input.h"
-#include "front_input.h"
 #include "front_simple.h"
-#include "front_landview.h"
-#include "front_network.h"
-#include "frontmenu_net.h"
 #include "frontend.h"
 #include "vidmode.h"
-#include "config.h"
 #include "config_creature.h"
-#include "config_crtrmodel.h"
-#include "config_effects.h"
 #include "config_terrain.h"
-#include "config_players.h"
 #include "config_settings.h"
 #include "player_instances.h"
 #include "player_data.h"
 #include "player_states.h"
-#include "player_utils.h"
-#include "thing_physics.h"
-#include "thing_doors.h"
 #include "thing_effects.h"
 #include "thing_objects.h"
-#include "thing_navigate.h"
 #include "thing_creature.h"
 #include "creature_states.h"
 #include "creature_instances.h"
-#include "creature_groups.h"
 #include "console_cmd.h"
 #include "dungeon_data.h"
-#include "tasks_list.h"
 #include "power_specials.h"
 #include "power_hand.h"
 #include "room_util.h"
-#include "room_workshop.h"
 #include "room_data.h"
 #include "thing_stats.h"
 #include "thing_traps.h"
 #include "magic.h"
-#include "map_blocks.h"
-#include "map_utils.h"
 #include "light_data.h"
-#include "gui_draw.h"
-#include "gui_topmsg.h"
 #include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
 #include "gui_parchment.h"
@@ -87,9 +63,6 @@
 #include "net_sync.h"
 #include "game_legacy.h"
 #include "engine_redraw.h"
-#include "frontmenu_ingame_tabs.h"
-#include "vidfade.h"
-#include "spdigger_stack.h"
 #include "frontmenu_ingame_map.h"
 
 #include "keeperfx.hpp"
@@ -617,7 +590,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   int i;
   switch (pckt->action)
   {
-  case PckA_Unknown001:
+  case PckA_Quit_1:
       if (is_my_player(player))
       {
         turn_off_all_menus();
@@ -627,7 +600,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       player->flgfield_6 |= PlaF6_PlyrHasQuit;
       process_quit_packet(player, 0);
       return 1;
-  case PckA_Unknown003:
+  case PckA_Quit_3:
       if (is_my_player(player))
       {
         turn_off_all_menus();
@@ -1412,81 +1385,197 @@ void process_players_creature_control_packet_action(long plyr_idx)
   }
 }
 
-static void replace_with_ai(int old_active_players)
+static int count_active_players()
 {
-    int k = 0;
+    int active_players = 0;
     for (int i = 0; i < NET_PLAYERS_COUNT; i++)
     {
         if (network_player_active(i))
-            k++;
+        {
+            active_players++;
+        }
     }
-    if (old_active_players != k)
+    return active_players;
+}
+
+static void process_lost_players(int old_active_players)
+{
+    int new_active_players = count_active_players();
+    if (old_active_players != new_active_players)
     {
         for (int i = 0; i < NET_PLAYERS_COUNT; i++)
         {
             struct PlayerInfo *player = get_player(i);
             if (!network_player_active(player->packet_num))
             {
-                message_add(MsgType_Player, player->id_number, "I am the computer now!");
-                JUSTLOG("p:%d I am the computer now!", player->id_number);
-
-                player->allocflags |= PlaF_CompCtrl;
-                toggle_computer_player(i);
+                NETLOG("Player %d lost", i);
+                // TODO: do something instead of silent AI
+                player->is_active = 0;
+                message_add(MsgType_Query, player->id_number, "<Player lost>");
+                // TODO: do we need an option to turn players into computers
+                //message_add(MsgType_Player, player->id_number, "I am the computer now!");
+                //JUSTLOG("p:%d I am the computer now!", player->id_number);
+                //player->allocflags |= PlaF_CompCtrl;
+                //toggle_computer_player(i);
             }
         }
     }
 }
 
+static TbBool process_packets_cb(void *context, unsigned long turn, int net_player_idx, unsigned char kind, void *packet_data, short size)
+{
+    if (kind == PckA_FrameSrv)
+    {
+        assert(size <= sizeof(game.packets));
+        memcpy(game.packets, packet_data, size);
+
+        for (int i = 0; i < NET_PLAYERS_COUNT; i++)
+        {
+            struct Packet* pckt = get_packet_direct(i);
+            pckt->net_flags |= PACKET_IS_NEW;
+        }
+    }
+    else if (kind == PckA_Frame)
+    {
+        assert( net_player_idx == my_player_number);
+        struct Packet* pckt = get_packet_direct(net_player_idx);
+        pckt->net_flags |= PACKET_IS_NEW;
+        return false;
+    }
+    else if (kind == PckA_Resync)
+    {
+        if (net_player_idx == SERVER_ID)
+        {
+            game.system_flags |= GSF_NetGameNoSync;
+            NETLOG("Forced to resync");
+            return resync_callback(NULL, turn, net_player_idx, kind, packet_data, size);
+        }
+        // Client wants other client to resync?
+    }
+    else
+    {
+        WARNLOG("Unexpected packet kind %d", kind);
+    }
+    return false;
+}
+
+static TbBool process_packets_server_cb(void *context, unsigned long turn, int net_player_idx, unsigned char kind, void *packet_data, short size)
+{
+    if (kind == PckA_Frame)
+    {
+        assert(size == sizeof(struct Packet));
+        memcpy(&game.packets[net_player_idx], packet_data, size);
+        struct Packet *pckt = &game.packets[net_player_idx];
+
+        pckt->net_flags |= PACKET_IS_NEW;
+    }
+    else if (kind == PckA_FrameSrv)
+    {
+        assert(size <= sizeof(game.packets));
+        struct Packet* pckt = get_packet_direct(net_player_idx);
+        pckt->net_flags |= PACKET_IS_NEW;
+    }
+    else if (kind == PckA_LevelExactCheck)
+    {
+        // It seems delayed packet.
+        return false;
+    }
+    else
+    {
+        WARNLOG("Unexpected packet kind %d", kind);
+    }
+    return false;
+}
 /**
  * Exchange packets if MP game, then process all packets influencing local game state.
  */
 void process_packets(void)
 {
-    int i;
     struct PlayerInfo* player;
     SYNCDBG(5, "Starting");
     // Do the network data exchange
-    lbDisplay.DrawColour = colours[15][15][15];
+    if (game.system_flags & GSF_NetGameNoSync)
+    {
+        SYNCDBG(0,"Resyncing");
+        resync_game();
+        return;
+    }
     // Exchange packets with the network
     if (game.game_kind != GKind_LocalGame)
     {
         player = get_my_player();
-        int old_active_players = 0;
-        for (i = 0; i < NET_PLAYERS_COUNT; i++)
+        int old_active_players = count_active_players();
+        if (!game.packet_load_enable)
         {
-            if (network_player_active(i))
-                old_active_players++;
-        }
-        if (!game.packet_load_enable || game.numfield_149F47)
-        {
-            struct Packet* pckt = get_packet_direct(player->packet_num);
-            if (LbNetwork_Exchange(pckt, game.packets, sizeof(struct Packet)) != 0)
+            for (int i = 0; i < NET_PLAYERS_COUNT; i++)
             {
-                ERRORLOG("LbNetwork_Exchange failed");
+                struct Packet *pckt = get_packet_direct(i);
+                pckt->net_flags &= ~PACKET_IS_NEW;
+            }
+            struct Packet *outgoing;
+            if (LbNetwork_IsServer())
+            {
+                outgoing = LbNetwork_AddPacket(PckA_FrameSrv, game.play_gameturn,
+                                               sizeof(struct Packet) * NET_PLAYERS_COUNT);
+                memcpy(outgoing, game.packets, sizeof(struct Packet) * NET_PLAYERS_COUNT);
+                if (LbNetwork_Exchange(game.packets, process_packets_server_cb) != 0)
+                {
+                    ERRORLOG("LbNetwork_Exchange failed");
+                }
+            }
+            else
+            {
+                struct Packet *pckt = get_packet_direct(player->packet_num);
+                outgoing = LbNetwork_AddPacket(PckA_Frame, game.play_gameturn, sizeof(struct Packet));
+                memcpy(outgoing, pckt, sizeof(struct Packet));
+                if (LbNetwork_Exchange(game.packets, process_packets_cb) != 0)
+                {
+                    ERRORLOG("LbNetwork_Exchange failed");
+                }
+            }
+            if (game.system_flags & GSF_NetGameNoSync)
+            {
+                // We were forced to resync
+                if ((game.packet_save_enable) && (game.packet_fopened))
+                    save_packets();
+                return;
             }
         }
-        replace_with_ai(old_active_players);
+        process_lost_players(old_active_players);
+        // Count players
+        int cnt = 0;
+        for (int i = 0; i < PLAYERS_COUNT; i++)
+        {
+            struct Packet *pckt = get_packet_direct(i);
+            if (network_player_active(i))
+            {
+                if (pckt->net_flags & PACKET_IS_NEW)
+                {
+                    cnt++;
+                }
+            }
+        }
+
+        if (cnt < network_num_clients())
+        {
+            // We need ALL packets
+            return;
+        }
+        // Setting checksum problem flags
+        if (checksums_different())
+        {
+            set_flag(game.system_flags, GSF_NetGameNoSync);
+        }
+        else
+        {
+            game_flags2 |= GF2_NextTurn;
+        }
     }
-  // Setting checksum problem flags
-  switch (checksums_different())
-  {
-  case 1:
-      set_flag(game.system_flags, GSF_NetGameNoSync);
-      clear_flag(game.system_flags, GSF_NetSeedNoSync);
-    break;
-  case 2:
-      clear_flag(game.system_flags, GSF_NetGameNoSync);
-      set_flag(game.system_flags, GSF_NetSeedNoSync);
-    break;
-  case 3:
-      set_flag(game.system_flags, GSF_NetGameNoSync);
-      set_flag(game.system_flags, GSF_NetSeedNoSync);
-    break;
-  default:
-      clear_flag(game.system_flags, GSF_NetGameNoSync);
-      clear_flag(game.system_flags, GSF_NetSeedNoSync);
-    break;
-  }
+    else
+    {
+        // Single player should always have next turn
+        game_flags2 |= GF2_NextTurn;
+    }
   // Write packets into file, if requested
   if ((game.packet_save_enable) && (game.packet_fopened))
     save_packets();
@@ -1495,177 +1584,21 @@ void process_packets(void)
   write_debug_packets();
 #endif
   // Process the packets
-  for (i=0; i<PACKETS_COUNT; i++)
+  for (int i = 0; i < PACKETS_COUNT; i++)
   {
     player = get_player(i);
-    if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
+    if (is_human_player(player))
+    {
       process_players_packet(i);
+    }
   }
   // Clear all packets
   clear_packets();
-  if (((game.system_flags & GSF_NetGameNoSync) != 0)
-   || ((game.system_flags & GSF_NetSeedNoSync) != 0))
+  if (game.system_flags & GSF_NetGameNoSync)
   {
     SYNCDBG(0,"Resyncing");
     resync_game();
   }
   SYNCDBG(7,"Finished");
 }
-
-void process_frontend_packets(void)
-{
-  long i;
-  for (i=0; i < NET_PLAYERS_COUNT; i++)
-  {
-    net_screen_packet[i].field_4 &= ~0x01;
-  }
-  struct ScreenPacket* nspckt = &net_screen_packet[my_player_number];
-  set_flag(nspckt->field_4, 0x01);
-  nspckt->frontend_alliances = frontend_alliances;
-  set_flag(nspckt->field_4, 0x01);
-  nspckt->field_4 ^= ((nspckt->field_4 ^ (fe_computer_players << 1)) & 0x06);
-  nspckt->field_6 = VersionMajor;
-  nspckt->field_8 = VersionMinor;
-  if (LbNetwork_Exchange(nspckt, &net_screen_packet, sizeof(struct ScreenPacket)))
-  {
-      ERRORLOG("LbNetwork_Exchange failed");
-      net_service_index_selected = -1; // going to quit
-  }
-  if (frontend_should_all_players_quit())
-  {
-    i = frontnet_number_of_players_in_session();
-    if (players_currently_in_session < i)
-    {
-      players_currently_in_session = i;
-    }
-    if (players_currently_in_session > i)
-    {
-      if (frontend_menu_state == FeSt_NET_SESSION)
-      {
-          if (LbNetwork_Stop())
-          {
-            ERRORLOG("LbNetwork_Stop() failed");
-            return;
-          }
-          frontend_set_state(FeSt_MAIN_MENU);
-      } else if (frontend_menu_state == FeSt_NET_START)
-      {
-          if (LbNetwork_Stop())
-          {
-            ERRORLOG("LbNetwork_Stop() failed");
-            return;
-          }
-          if (setup_network_service(net_service_index_selected))
-          {
-            frontend_set_state(FeSt_NET_SESSION);
-          }
-          else
-          {
-            frontend_set_state(FeSt_MAIN_MENU);
-          }
-      }
-    }
-  }
-#if DEBUG_NETWORK_PACKETS
-  write_debug_screenpackets();
-#endif
-  for (i=0; i < NET_PLAYERS_COUNT; i++)
-  {
-    nspckt = &net_screen_packet[i];
-    struct PlayerInfo* player = get_player(i);
-    if ((nspckt->field_4 & 0x01) != 0)
-    {
-        long k;
-        switch (nspckt->field_4 >> 3)
-        {
-        case 2:
-            add_message(i, (char*)&nspckt->param1);
-            break;
-        case 3:
-            if (!validate_versions())
-            {
-                versions_different_error();
-                break;
-            }
-            fe_network_active = 1;
-            frontend_set_state(FeSt_NETLAND_VIEW);
-            break;
-        case 4:
-            frontend_set_alliance(nspckt->param1, nspckt->param2);
-            break;
-        case 7:
-            fe_computer_players = nspckt->param1;
-            break;
-        case 8:
-        {
-            k = strlen(player->mp_message_text);
-            unsigned short c;
-            if (nspckt->param1 == KC_BACK)
-            {
-                if (k > 0)
-                {
-                    k--;
-                    player->mp_message_text[k] = '\0';
-                }
-            }
-            else if (nspckt->param1 == KC_RETURN)
-            {
-                if (k > 0)
-                {
-                    add_message(i, player->mp_message_text);
-                    k = 0;
-                    player->mp_message_text[k] = '\0';
-                }
-            }
-            else
-            {
-                c = key_to_ascii(nspckt->param1, nspckt->param2);
-                if ((c != 0) && (frontend_font_char_width(1, c) > 1) && (k < 62))
-                {
-                    player->mp_message_text[k] = c;
-                    k++;
-                    player->mp_message_text[k] = '\0';
-                }
-            }
-            if (frontend_font_string_width(1, player->mp_message_text) >= 420)
-            {
-                if (k > 0)
-                {
-                    k--;
-                    player->mp_message_text[k] = '\0';
-                }
-            }
-            break;
-        }
-      default:
-        break;
-      }
-      if (frontend_alliances == -1)
-      {
-        if (nspckt->frontend_alliances != -1)
-          frontend_alliances = nspckt->frontend_alliances;
-      }
-      if (fe_computer_players == 2)
-      {
-        k = ((nspckt->field_4 & 0x06) >> 1);
-        if (k != 2)
-          fe_computer_players = k;
-      }
-      player->game_version = nspckt->field_8 + (nspckt->field_6 << 8);
-    }
-    nspckt->field_4 &= 0x07;
-  }
-  if (frontend_alliances == -1)
-    frontend_alliances = 0;
-  for (i=0; i < NET_PLAYERS_COUNT; i++)
-  {
-    nspckt = &net_screen_packet[i];
-    if ((nspckt->field_4 & 0x01) == 0)
-    {
-      if (frontend_is_player_allied(my_player_number, i))
-        frontend_set_alliance(my_player_number, i);
-    }
-  }
-}
-
 /******************************************************************************/

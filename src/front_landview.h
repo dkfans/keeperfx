@@ -65,13 +65,18 @@ struct MapLevelInfo { // sizeof = 56
 };
 
 struct ScreenPacket {
-  unsigned char field_0[4];
-  unsigned char field_4;
-  char frontend_alliances;
-  short field_6;
-  short field_8;
-  short param1;
-  unsigned char param2;
+    unsigned char tick; // to remove duplication
+    unsigned char flags;
+    unsigned char event;
+    unsigned char computer_players;
+    char frontend_alliances;
+    long field_6;
+    long field_8;
+    char param1;
+    unsigned short lvl;
+    unsigned char param2;
+    unsigned char key;
+    TbBool shift;
 };
 
 /******************************************************************************/
@@ -85,7 +90,6 @@ extern struct TbSprite *end_map_flag;
 extern struct TbSprite *map_font;
 extern struct TbSprite *map_hand;
 extern long map_sound_fade;
-extern unsigned char *map_screen;
 extern long fe_net_level_selected;
 extern long net_map_limp_time;
 extern struct ScreenPacket net_screen_packet[NET_PLAYERS_COUNT];
@@ -101,7 +105,6 @@ extern TbSpriteData map_hand_data;
 extern TbSpriteData end_map_hand_data;
 extern struct MapLevelInfo map_info;
 
-extern long map_window_len;
 /******************************************************************************/
 void frontnetmap_unload(void);
 TbBool frontnetmap_load(void);
@@ -115,7 +118,7 @@ void frontmap_unload(void);
 long frontmap_update(void);
 void frontzoom_to_point(long a1, long a2, long a3);
 void compressed_window_draw(void);
-void frontnet_init_level_descriptions(void);
+void frontnet_init_view(void);
 
 TbBool initialize_description_speech(void);
 TbBool play_current_description_speech(short play_good);

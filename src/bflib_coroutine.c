@@ -33,23 +33,39 @@ void coroutine_add_args(CoroutineLoop *context, CoroutineFn fn, int args[COROUTI
 {
     assert(context->write_idx < COROUTINE_MAX_NUM);
     context->fns[context->write_idx] = fn;
-    memcpy(&context->args[context->write_idx * COROUTINE_ARGS], args, COROUTINE_ARGS * sizeof(int));
+    memcpy(&context->args[context->write_idx * COROUTINE_ARGS], args, COROUTINE_ARGS * sizeof(intptr_t));
     context->write_idx++;
 }
 
-// exec all coroutines from the list
+// exec all coroutines from the list starting from first
 void coroutine_process(CoroutineLoop *context)
 {
     context->read_idx = 0;
+    memset(context->vars, 0, sizeof(context->vars));
+
     CoroutineFn fn = context->fns[context->read_idx];
+    if ((context->guard_2 != &context->guard_2) || (context->guard_1 != &context->guard_1))
+    {
+        LbSyncLog("Coroutine damaged");
+        context->guard_1 = &context->guard_1;
+        context->guard_2 = &context->guard_2;
+    }
     while (fn)
     {
         CoroutineLoopState ret = fn(context);
+        if ((context->guard_2 != &context->guard_2) || (context->guard_1 != &context->guard_1))
+        {
+            LbSyncLog("Coroutine damaged 2");
+            context->guard_1 = &context->guard_1;
+            context->guard_2 = &context->guard_2;
+        }
+
         if (ret == CLS_CONTINUE)
         {
             context->fns[context->read_idx] = 0;
             context->read_idx++;
             fn = context->fns[context->read_idx];
+            memset(context->vars, 0, sizeof(context->vars));
         }
         else if (ret == CLS_ABORT)
         {
@@ -61,22 +77,31 @@ void coroutine_process(CoroutineLoop *context)
         {
             return;
         }
+        else if (ret == CLS_ERROR)
+        {
+            context->error = 1;
+            context->write_idx = 0;
+            context->read_idx = 0;
+            return;
+        }
     }
     context->write_idx = 0;
     context->read_idx = 0;
 }
 
-int *coroutine_args(CoroutineLoop *context)
+intptr_t *coroutine_args(CoroutineLoop *context)
 {
     return &context->args[context->read_idx * COROUTINE_ARGS];
 }
 
-void coroutine_clear(CoroutineLoop *context, TbBool error)
+intptr_t *coroutine_vars(CoroutineLoop *context)
 {
-    for (int i = 0; i < context->write_idx; i++)
-    {
-        context->fns[i] = 0;
-    }
-    context->write_idx = 0;
-    context->error |= error;
+    return context->vars;
+}
+
+void coroutine_reset(CoroutineLoop *context)
+{
+    memset(context, 0, sizeof(CoroutineLoop));
+    context->guard_1 = &context->guard_1;
+    context->guard_2 = &context->guard_2;
 }

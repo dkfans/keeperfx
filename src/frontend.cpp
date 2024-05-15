@@ -97,7 +97,7 @@
 extern "C" {
 #endif
 
-extern void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr);
+extern void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, TbBool is_new);
 /******************************************************************************/
 TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
@@ -395,25 +395,19 @@ char input_string[8][16];
 char gui_error_text[256];
 long net_service_scroll_offset;
 long net_number_of_services;
-long net_comport_index_active;
-long net_speed_index_active;
-long net_number_of_players;
 long net_number_of_enum_players;
-long net_map_slap_frame;
 long net_level_hilighted;
 struct NetMessage net_message[NET_MESSAGES_COUNT];
 long net_number_of_messages;
 long net_message_scroll_offset;
-long net_session_index_active_id;
 long net_session_scroll_offset;
 long net_player_scroll_offset;
 struct GuiButton active_buttons[ACTIVE_BUTTONS_COUNT];
 long frontend_mouse_over_button_start_time;
 short old_menu_mouse_x;
 short old_menu_mouse_y;
-unsigned char menu_ids[3];
 unsigned char new_objective;
-int frontend_menu_state;
+FrontendMenuState frontend_menu_state;
 int load_game_scroll_offset;
 unsigned char video_gamma_correction;
 
@@ -626,35 +620,31 @@ void add_message(long plyr_idx, char *msg)
 /**
  * Checks if all the network players are using compatible version of DK.
  */
-TbBool validate_versions(void)
+int validate_versions()
 {
-    struct PlayerInfo *player;
-    long i;
-    long ver;
-    ver = -1;
-    for (i=0; i < NET_PLAYERS_COUNT; i++)
+    long ver = net_player_info[my_player_number].version_packed;
+    for (int i = 0; i < NET_PLAYERS_COUNT; i++)
     {
-      player = get_player(i);
-      if ((net_screen_packet[i].field_4 & 0x01) != 0)
-      {
-        if (ver == -1)
-          ver = player->game_version;
-        if (player->game_version != ver)
-          return false;
-      }
+        if (net_player_info[i].active)
+        {
+            if (net_player_info[i].version_packed != ver)
+            {
+                return i;
+            }
+        }
     }
-    return true;
+    return -1;
 }
 
-void versions_different_error(void)
+void versions_different_error(long last_version, int failed_client)
 {
     const char *plyr_nam;
     struct ScreenPacket *nspckt;
     char text[MESSAGE_TEXT_LEN];
     char *str;
-    int i;
 
-    NETMSG("Error: Players have different versions of DK");
+    NETMSG("Error: Players have different versions of KFX (my_id:%d him:%d mine:%ld last:%ld)",
+           my_player_number, failed_client, net_player_info[my_player_number].version_packed, last_version);
 
     if (LbNetwork_Stop())
     {
@@ -665,11 +655,11 @@ void versions_different_error(void)
     lbKeyOn[KC_RETURN] = 0;
     text[0] = '\0';
     // Preparing message
-    for (i=0; i < NET_PLAYERS_COUNT; i++)
+    for (int i=0; i < NET_PLAYERS_COUNT; i++)
     {
       plyr_nam = network_player_name(i);
       nspckt = &net_screen_packet[i];
-      if ((nspckt->field_4 & 0x01) != 0)
+      if (net_player_info[i].active)
       {
         str = buf_sprintf("%s(%d.%02d) ", plyr_nam, nspckt->field_6, nspckt->field_8);
         strncat(text, str, MESSAGE_TEXT_LEN-strlen(text));
@@ -679,8 +669,10 @@ void versions_different_error(void)
     // Waiting for users reaction
     while ( 1 )
     {
-      if (lbKeyOn[KC_ESCAPE] || lbKeyOn[KC_SPACE] || lbKeyOn[KC_RETURN])
+      if (lbKeyOn[KC_ESCAPE] || lbKeyOn[KC_SPACE] || lbKeyOn[KC_RETURN] || lbKeyOn[KC_X])
         break;
+      if (lbDisplay.LeftButton) // Exit on mouse click
+          break;
       LbWindowsControl();
       if (LbScreenLock() == Lb_SUCCESS)
       {
@@ -1179,7 +1171,7 @@ long frontend_scroll_tab_to_offset(struct GuiButton *gbtn, long scr_pos, long fi
 void gui_quit_game(struct GuiButton *gbtn)
 {
     struct PlayerInfo *player = get_my_player();
-    set_players_packet_action(player, PckA_Unknown001, 0, 0, 0, 0);
+    set_players_packet_action(player, PckA_Quit_1, 0, 0, 0, 0);
 }
 
 void draw_slider64k(long scr_x, long scr_y, int units_per_px, long width)
@@ -1547,9 +1539,9 @@ void frontend_toggle_computer_players(struct GuiButton *gbtn)
 {
     struct ScreenPacket *nspck;
     nspck = &net_screen_packet[my_player_number];
-    if ((nspck->field_4 & 0xF8) == 0)
+    if (nspck->event == 0)
     {
-        nspck->field_4 = (nspck->field_4 & 0x07) | 0x38;
+        nspck->event = 0x7;
         nspck->param1 = (fe_computer_players == 0);
     }
 }
@@ -1581,8 +1573,12 @@ void set_packet_start(struct GuiButton *gbtn)
 {
     struct ScreenPacket *nspck;
     nspck = &net_screen_packet[my_player_number];
-    if ((nspck->field_4 & 0xF8) == 0)
-        nspck->field_4 = (nspck->field_4 & 7) | 0x18;
+    if (nspck->event == 0)
+    {
+        nspck->field_6 = VersionMajor;
+        nspck->field_8 = VersionMinor;
+        nspck->event = 0x3;
+    }
 }
 
 void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
@@ -2581,7 +2577,7 @@ void set_gui_visible(TbBool visible)
       toggle_status_menu(is_visbl);
       break;
   }
-  if (((game.numfield_D & GNFldD_Unkn20) != 0) && ((game.operation_flags & GOF_ShowGui) != 0))
+  if ((game.operation_flags & GOF_ShowGui) != 0)
   {
       setup_engine_window(status_panel_width, 0, MyScreenWidth, MyScreenHeight);
   }
@@ -2904,7 +2900,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           break;
       case FeSt_NETLAND_VIEW:
           set_pointer_graphic_none();
-          frontnet_init_level_descriptions();
+          frontnet_init_view();
           frontnetmap_load();
           break;
       case FeSt_FEDEFINE_KEYS:
@@ -3597,7 +3593,7 @@ void display_objectives(PlayerNumber plyr_idx, long x, long y)
     }
 }
 
-void frontend_update(short *finish_menu)
+void frontend_update(CoroutineLoop *context, short *finish_menu)
 {
     SYNCDBG(18,"Starting for menu state %d", (int)frontend_menu_state);
     switch ( frontend_menu_state )
@@ -3624,7 +3620,7 @@ void frontend_update(short *finish_menu)
         frontnet_session_update();
         break;
     case FeSt_NET_START:
-        frontnet_start_update();
+        frontnet_start_update(context);
         break;
     case FeSt_START_KPRLEVEL:
     case FeSt_START_MPLEVEL:
@@ -3801,8 +3797,10 @@ FrontendMenuState get_startup_menu_state(void)
         SYNCLOG("Standard startup state selected");
         return FeSt_MAIN_MENU;
     }
-  } else
+  }
+  else
   {
+    // Such a mess
     player = get_my_player();
     lvnum = get_loaded_level_number();
     if ((game.system_flags & GSF_NetworkActive) != 0)
@@ -3812,31 +3810,32 @@ FrontendMenuState get_startup_menu_state(void)
         { // Player has won - go FeSt_TORTURE before any others
           player->additional_flags &= ~PlaAF_UnlockedLordTorture;
           return FeSt_TORTURE;
-        } else
-        if ((player->flgfield_6 & PlaF6_PlyrHasQuit) == 0)
+        }
+        else if ((player->flgfield_6 & PlaF6_PlyrHasQuit) == 0)
         {
           return FeSt_LEVEL_STATS;
-        } else
-        if (setup_old_network_service())
+        }
+        else if (setup_old_network_service())
         {
           return FeSt_NET_SESSION;
-        } else
+        }
+        else
         {
           return FeSt_MAIN_MENU;
         }
-    } else
-    if (((player->flgfield_6 & PlaF6_PlyrHasQuit) != 0) || (player->victory_state == VicS_Undecided))
+    }
+    else if (((player->flgfield_6 & PlaF6_PlyrHasQuit) != 0) || (player->victory_state == VicS_Undecided))
     {
         SYNCLOG("Undecided victory state selected");
         return get_menu_state_based_on_last_level(lvnum);
-    } else
-    if (game.flags_cd & MFlg_IsDemoMode)
+    }
+    else if (game.flags_cd & MFlg_IsDemoMode)
     { // It wasn't a real game, just a demo - back to main menu
         SYNCLOG("Demo mode state selected");
         game.flags_cd &= ~MFlg_IsDemoMode;
         return FeSt_MAIN_MENU;
-    } else
-    if (player->victory_state == VicS_WonLevel)
+    }
+    else if (player->victory_state == VicS_WonLevel)
     {
         SYNCLOG("Victory achieved state selected");
         if (is_singleplayer_level(lvnum))

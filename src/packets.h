@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "bflib_coroutine.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,9 +30,9 @@ extern "C" {
 
 enum TbPacketAction {
         PckA_None = 0,
-        PckA_Unknown001, // Quit
+        PckA_Quit_1, // Quit
         PckA_Unknown002,
-        PckA_Unknown003,
+        PckA_Quit_3,
         PckA_Unknown004,
         PckA_FinishGame, // 5
         PckA_Login,      // From `enum NetMessageType`
@@ -43,11 +44,11 @@ enum TbPacketAction {
         PckA_LevelExactCheck,
         PckA_PlyrMsgBegin,
         PckA_PlyrMsgEnd,
-        PckA_Unknown015,//15
-        PckA_Unknown016,
-        PckA_Unknown017,
-        PckA_Unknown018,
-        PckA_Unknown019,
+        PckA_TortureFrame,//15 Unused?
+        PckA_SessionViewFrame,
+        PckA_LandviewFrame,
+        PckA_FrameSrv, // Unused?
+        PckA_StartupInfo, // Server set campaign for clients
         PckA_ToggleLights,//20
         PckA_SwitchScrnRes,
         PckA_TogglePause,
@@ -244,12 +245,17 @@ struct PlayerInfo;
 struct CatalogueEntry;
 
 extern unsigned long start_seed;
+enum
+{
+    PACKET_IS_NEW = 1
+};
 
 /**
  * Stores data exchanged between players each turn and used to re-create their input.
  */
 struct Packet {
-    int field_0;
+    uint8_t tick;
+    uint8_t net_flags;
     TbChecksum chksum; //! Checksum of all things within the game and synchronized random seed
     unsigned char action; //! Action kind performed by the player which owns this packet
     long actn_par1; //! Players action parameter #1
@@ -302,7 +308,7 @@ TbBool process_players_dungeon_control_packet_action(long idx);
 void process_players_creature_control_packet_control(long idx);
 void process_players_creature_passenger_packet_action(long idx);
 void process_players_creature_control_packet_action(long idx);
-void process_frontend_packets(void);
+void process_frontend_packets(CoroutineLoop *context);
 void process_map_packet_clicks(long idx);
 void process_pause_packet(long a1, long a2);
 void process_quit_packet(struct PlayerInfo *player, short complete_quit);

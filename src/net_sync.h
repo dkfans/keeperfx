@@ -33,9 +33,10 @@ extern "C" {
 
 #pragma pack()
 /******************************************************************************/
-void resync_game(void);
-CoroutineLoopState perform_checksum_verification(CoroutineLoop *con);
+extern void resync_game(void);
+extern CoroutineLoopState perform_checksum_verification(CoroutineLoop *con);
 
+extern TbBool resync_callback(void *context, unsigned long turn, int net_player_idx, unsigned char kind, void *packet_data, short size);
 /******************************************************************************/
 #ifdef __cplusplus
 }

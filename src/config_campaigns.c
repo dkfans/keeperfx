@@ -1118,8 +1118,9 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
     }
     if (result && fgroup == FGrp_Campgn)
         return (campgn->single_levels_count > 0) || (campgn->multi_levels_count > 0);
-    if (result && fgroup == FGrp_VarLevels){
-        return (true);
+    if (result && fgroup == FGrp_VarLevels)
+    {
+        return true;
     }
     return false;
 }
@@ -1130,6 +1131,8 @@ TbBool change_campaign(const char *cmpgn_fname)
     SYNCDBG(8,"Starting");
     if ((campaign.fname[0] != '\0') && (strcasecmp(campaign.fname,cmpgn_fname) == 0))
         return true;
+    JUSTLOG("Changing campaign to %s", cmpgn_fname);
+
     free_campaign(&campaign);
     // Determine type of campaign (currently campaign and mappack)
     short fgroup = FGrp_Campgn; //use this as a default

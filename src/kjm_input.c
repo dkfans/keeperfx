@@ -325,13 +325,13 @@ short is_key_pressed(TbKeyCode key, TbKeyMods kmodif)
  * @param kmodif Key modifier flags.
  * @note Key modifier can't be KMod_DONTCARE in this function.
  */
-unsigned short key_to_ascii(TbKeyCode key, TbKeyMods kmodif)
+char key_to_ascii(TbKeyCode key, TbKeyMods kmodif)
 {
-  if (key >= 128)
-    return 0;
-  if (kmodif & KMod_SHIFT)
-    return lbInkeyToAsciiShift[key];
-  return lbInkeyToAscii[key];
+    if (key >= 128)
+        return 0;
+    if (kmodif & KMod_SHIFT)
+        return lbInkeyToAsciiShift[key];
+    return lbInkeyToAscii[key];
 }
 
 /**

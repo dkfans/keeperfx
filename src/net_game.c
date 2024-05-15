@@ -36,16 +36,17 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
+#include "bflib_datetm.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
+
 struct TbNetworkPlayerInfo net_player_info[NET_PLAYERS_COUNT];
 struct TbNetworkSessionNameEntry *net_session[32];
 long net_number_of_sessions;
 long net_session_index_active;
-struct TbNetworkPlayerName net_player[NET_PLAYERS_COUNT];
 struct ConfigInfo net_config_info;
 char net_service[16][NET_SERVICE_LEN];
 char net_player_name[20];
@@ -74,41 +75,65 @@ int setup_old_network_service(void)
     return setup_network_service(net_service_index_selected);
 }
 
+static TbBool setup_exchange_player_number_cb(void *context, unsigned long turn, int net_player_idx, unsigned char kind, void *packet_data, short size)
+{
+    if (kind == PckA_InitPlayerNum)
+    {
+        struct Packet *pckt = ((struct Packet*) context) + net_player_idx;
+        memcpy(pckt, packet_data, size);
+    }
+    else
+    {
+        NETLOG("Unexpected packet %d from %d", kind, net_player_idx);
+    }
+    return false;
+}
+
 static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
 {
-  SYNCDBG(6,"Starting");
-  clear_packets();
-  struct PlayerInfo* player = get_my_player();
-  struct Packet* pckt = get_packet_direct(my_player_number);
-  set_packet_action(pckt, PckA_InitPlayerNum, player->is_active, settings.video_rotate_mode, 0, 0);
-  if (LbNetwork_Exchange(pckt, game.packets, sizeof(struct Packet)))
-      ERRORLOG("Network Exchange failed");
-  int k = 0;
-  for (int i = 0; i < NET_PLAYERS_COUNT; i++)
-  {
-      pckt = get_packet_direct(i);
-      if ((net_player_info[i].active) && (pckt->action == PckA_InitPlayerNum))
-      {
-          player = get_player(k);
-          player->id_number = k;
-          player->allocflags |= PlaF_Allocated;
-          switch (pckt->actn_par2) {
-              case 0: player->view_mode_restore = PVM_IsoWibbleView; break;
-              case 1: player->view_mode_restore = PVM_IsoStraightView; break;
-              case 2: player->view_mode_restore = PVM_FrontView; break;
-              default: player->view_mode_restore = PVM_IsoWibbleView; break;
-          }
-          player->is_active = pckt->actn_par1;
-          init_player(player, 0);
-          snprintf(player->player_name, sizeof(struct TbNetworkPlayerName), "%s", net_player[i].name);
-          k++;
-      }
-  }
-  if (k != game.active_players_count)
-  {
-      return CLS_REPEAT; // Repeat
-  }
-  return CLS_CONTINUE; // Skip loop to next function
+    SYNCDBG(6,"Starting");
+    struct PlayerInfo* player = get_my_player();
+    TbClockMSec now = LbTimerClock();
+    if (now > coroutine_vars(context)[0])
+    {
+        coroutine_vars(context)[0] = now + 500; // two times per second
+        clear_packets(); // Only once
+
+        struct Packet* pckt = LbNetwork_AddPacket(PckA_InitPlayerNum, 0, sizeof(struct Packet));
+        set_packet_action(pckt, PckA_InitPlayerNum, player->is_active, settings.video_rotate_mode, 0, 0);
+    }
+    if (LbNetwork_Exchange(game.packets, &setup_exchange_player_number_cb))
+    {
+        ERRORLOG("Network Exchange failed");
+        return CLS_ERROR;
+    }
+    int k = 0;
+    for (int i = 0; i < NET_PLAYERS_COUNT; i++)
+    {
+        struct Packet* pckt = get_packet_direct(i);
+        if ((net_player_info[i].active) && (pckt->action == PckA_InitPlayerNum))
+        {
+            player = get_player(k);
+            player->id_number = k;
+            player->allocflags |= PlaF_Allocated;
+            switch (pckt->actn_par2) {
+                case 0: player->view_mode_restore = PVM_IsoWibbleView; break;
+                case 1: player->view_mode_restore = PVM_IsoStraightView; break;
+                case 2: player->view_mode_restore = PVM_FrontView; break;
+                default: player->view_mode_restore = PVM_IsoWibbleView; break;
+            }
+            player->is_active = pckt->actn_par1;
+            init_player(player, 0);
+            snprintf(player->player_name, sizeof(player->player_name) - 1, "%s", net_player_info[i].name);
+            k++;
+        }
+    }
+    if (k != game.active_players_count)
+    {
+        return CLS_REPEAT; // Repeat
+    }
+    NETLOG("Done");
+    return CLS_CONTINUE; // Skip loop to next function
 }
 
 static short setup_select_player_number(void)
@@ -149,6 +174,12 @@ void setup_count_players(void)
   }
 }
 
+int network_num_clients()
+{
+    // TODO: separate them for observers etc
+    return game.active_players_count;
+}
+
 void init_players_network_game(CoroutineLoop *context)
 {
   SYNCDBG(4,"Starting");
@@ -174,7 +205,7 @@ const char *network_player_name(int plyr_idx)
 {
     if ((plyr_idx < 0) || (plyr_idx >= NET_PLAYERS_COUNT))
         return NULL;
-    return net_player[plyr_idx].name;
+    return net_player_info[plyr_idx].name;
 }
 
 void set_network_player_name(int plyr_idx, const char *name)
@@ -183,7 +214,7 @@ void set_network_player_name(int plyr_idx, const char *name)
         ERRORLOG("Outranged network player %d",plyr_idx);
         return;
     }
-    snprintf(net_player[plyr_idx].name, sizeof(net_player[0].name), "%s", name);
+    snprintf(net_player_info[plyr_idx].name, sizeof(net_player_info[0].name), "%s", name);
 }
 
 long network_session_join(void)
@@ -196,12 +227,6 @@ long network_session_join(void)
       return -1;
     }
     return plyr_num;
-}
-
-void init_network_seed()
-{
-   if (!LbNetwork_Resync(&game.action_rand_seed, 4))
-      ERRORLOG("Action seed initialisation failed"); 
 }
 /******************************************************************************/
 #ifdef __cplusplus

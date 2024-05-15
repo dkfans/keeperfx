@@ -81,7 +81,7 @@ enum GameKinds {
 enum GameOperationFlags {
     GOF_Paused           = 0x01,
     GOF_SingleLevel      = 0x02, /**< Play single level and then exit. */
-    GOF_Unkn04           = 0x04,
+    GOF_Unused_4         = 0x04,
     GOF_ColumnConvert    = 0x08, /**< Converts old column format to current. Deprecated, does nothing. */
     GOF_LightConvert     = 0x10, /**< Converts old lights format to current. */
     GOF_ShowGui          = 0x20, /**< Showing main Gui. */
@@ -90,9 +90,9 @@ enum GameOperationFlags {
 };
 
 enum GameNumfieldDFlags {
-    GNFldD_Unkn01 = 0x01,
+    GNFldD_Unkn01 = 0x01, // First person view
     GNFldD_Unkn02 = 0x02,
-    GNFldD_Unkn04 = 0x04,
+    GNFldD_Unkn04 = 0x04, // Something about Computer Players
     GNFldD_CreaturePasngr = 0x08, // Possessing a creature as a passenger (no direct control)
     GNFldD_Unkn10 = 0x10,
     GNFldD_Unkn20 = 0x20,
@@ -143,7 +143,7 @@ struct Game {
     char last_audiotrack;
 char numfield_15;
     LevelNumber selected_level_number;
-char numfield_1A;
+    char current_lens;
     unsigned char numfield_1B;
     struct PlayerInfo players[PLAYERS_COUNT];
     struct Column columns_data[COLUMNS_COUNT];
@@ -155,7 +155,6 @@ char numfield_1A;
     unsigned short slabobjs_num;
     short slabobjs_idx[SLABSET_COUNT];
     struct SlabObj slabobjs[SLABOBJS_COUNT];
-    unsigned char land_map_start;
     struct LightsShadows lish;
     struct CreatureControl cctrl_data[CREATURES_COUNT];
     struct Thing things_data[THINGS_COUNT];
@@ -173,17 +172,17 @@ char numfield_1A;
     char packet_fname[150];
     char packet_fopened;
     TbFileHandle packet_save_fp;
-unsigned int packet_file_pos;
+    unsigned int packet_file_pos;
     struct PacketSaveHead packet_save_head;
     unsigned long turns_stored;
     unsigned long turns_fastforward;
     unsigned char numfield_149F38;
     unsigned char packet_checksum_verify;
+
     unsigned long log_things_start_turn;
     unsigned long log_things_end_turn;
     unsigned long turns_packetoff;
     PlayerNumber local_plyr_idx;
-    unsigned char numfield_149F47; // something with packetload
 // Originally, save_catalogue was here.
     char campaign_fname[CAMPAIGN_FNAME_LEN];
     struct Event event[EVENTS_COUNT];

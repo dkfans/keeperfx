@@ -33,6 +33,8 @@ extern "C" {
 #define NET_SERVICE_LEN        64
 #define PACKETS_COUNT           9
 
+#define DEDUP_MAX_TICK 31
+
 /******************************************************************************/
 #pragma pack(1)
 
@@ -43,7 +45,6 @@ extern struct TbNetworkPlayerInfo net_player_info[NET_PLAYERS_COUNT];
 extern struct TbNetworkSessionNameEntry *net_session[32];
 extern long net_number_of_sessions;
 extern long net_session_index_active;
-extern struct TbNetworkPlayerName net_player[NET_PLAYERS_COUNT];
 extern struct ConfigInfo net_config_info;
 extern char net_service[16][NET_SERVICE_LEN];
 extern char net_player_name[20];
@@ -60,7 +61,7 @@ long network_session_join(void);
 TbBool network_player_active(int plyr_idx);
 const char *network_player_name(int plyr_idx);
 void set_network_player_name(int plyr_idx, const char *name);
-void init_network_seed();
+int network_num_clients();
 /******************************************************************************/
 #ifdef __cplusplus
 }

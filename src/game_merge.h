@@ -75,7 +75,7 @@ extern "C" {
 enum GameSystemFlags {
     GSF_NetworkActive    = 0x0001,
     GSF_NetGameNoSync    = 0x0002,
-    GSF_NetSeedNoSync    = 0x0004,
+    GSF_Unused           = 0x0004,
     GSF_CaptureMovie     = 0x0008,
     GSF_CaptureSShot     = 0x0010,
     GSF_AllowOnePlayer   = 0x0040,
@@ -113,8 +113,9 @@ enum GameFlags2 {
     GF2_ClearPauseOnSync          = 0x0001,
     GF2_ClearPauseOnPacket        = 0x0002,
     GF2_Timer                     = 0x0004,
-    GF2_Server                    = 0x0008,
-    GF2_Connect                   = 0x0010,
+    GF2_Server                    = 0x0008, // Run server after loading
+    GF2_Connect                   = 0x0010, // Connect to first session after loading
+    GF2_NextTurn                  = 0x0020, // Next physics turn should be allowed
     GF2_ShowEventLog              = 0x00010000,
     GF2_PERSISTENT_FLAGS          = 0xFFFF0000
 };
@@ -191,7 +192,7 @@ struct GameAdd {
     short small_around_slab[SMALL_AROUND_SLAB_LENGTH];
 };
 
-extern unsigned long game_flags2; // Should be reset to zero on new level
+extern unsigned long game_flags2; // Would be reset to PERSISTENT FLAGS mask
 
 #pragma pack()
 

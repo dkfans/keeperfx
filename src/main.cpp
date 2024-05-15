@@ -1035,7 +1035,7 @@ void init_keeper(void)
     game.creatures_tend_imprison = 0;
     game.creatures_tend_flee = 0;
     game.operation_flags |= GOF_ShowPanel;
-    game.numfield_D |= (GNFldD_Unkn20 | GNFldD_Unkn40);
+    game.numfield_D |= GNFldD_Unkn40;
     init_censorship();
     SYNCDBG(9,"Finished");
 }
@@ -1709,7 +1709,6 @@ TbBool set_default_startup_parameters(void)
 {
     memset(&start_params, 0, sizeof(struct StartupParameters));
     start_params.packet_checksum_verify = 1;
-    clear_flag(start_params.flags_font, FFlg_unk01);
     // Set levels to 0, as we may not have the campaign loaded yet
     start_params.selected_level_number = 0;
     start_params.num_fps = 20;
@@ -1848,7 +1847,6 @@ void clear_game_for_summary(void)
     clear_mapwho();
     game.entrance_room_id = 0;
     game.action_rand_seed = 0;
-    game.operation_flags &= ~GOF_Unkn04;
     game.operation_flags &= ~GOF_Paused;
     clear_columns();
     clear_action_points();
@@ -1879,7 +1877,6 @@ void clear_game_for_save(void)
     clear_mapwho();
     game.entrance_room_id = 0;
     game.action_rand_seed = 0;
-    clear_flag(game.operation_flags, GOF_Unkn04);
     clear_columns();
     clear_players_for_save();
     clear_dungeons();
@@ -2855,7 +2852,8 @@ void update(void)
     process_packets();
     api_update_server();
 
-    if (quit_game || exit_keeper) {
+    if (quit_game || exit_keeper)
+    {
         return;
     }
     if (game.game_kind == GKind_Unknown1)
@@ -2866,8 +2864,13 @@ void update(void)
     player = get_my_player();
     set_previous_camera_values(player);
 
-    if ((game.operation_flags & GOF_Paused) == 0)
+    if (game.operation_flags & GOF_Paused)
     {
+        game_flags2 &= ~GF2_NextTurn;
+    }
+    if (game_flags2 & GF2_NextTurn)
+    {
+        game_flags2 &= ~GF2_NextTurn;
         if (player->additional_flags & PlaAF_LightningPaletteIsActive)
         {
             PaletteSetPlayerPalette(player, engine_palette);
@@ -2875,7 +2878,7 @@ void update(void)
         }
         clear_active_dungeons_stats();
         update_creature_pool_state();
-        if ((game.play_gameturn & 0x01) != 0)
+        if ((game.play_gameturn & 0x01) != 0) // Each two turns
             update_animating_texture_maps();
         update_things();
         process_rooms();
@@ -2904,10 +2907,12 @@ void update(void)
         things_stats_debug_dump();
         creature_stats_debug_dump();
 #endif
+        game.play_gameturn++;
+        // NETLOG("New turn: %ld", game.play_gameturn);
     }
 
     message_update();
-    update_all_players_cameras();
+    update_all_players_cameras(); // Notice: moving gamera while game is paused would move a player cursor at worldmap
     update_player_sounds();
     game.map_changed_for_nagivation = 0;
     SYNCDBG(6,"Finished");
@@ -3430,14 +3435,6 @@ TbBool keeper_screen_swap(void)
  */
 TbBool keeper_wait_for_next_turn(void)
 {
-    if ((game.numfield_D & GNFldD_Unkn10) != 0)
-    {
-        // No idea when such situation occurs
-        TbClockMSec sleep_end = last_loop_time + 1000;
-        LbSleepUntil(sleep_end);
-        last_loop_time = LbTimerClock();
-        return true;
-    }
     if (game.frame_skip == 0)
     {
         // Standard delaying system
@@ -3502,11 +3499,6 @@ void gameplay_loop_logic()
     }
 
     frametime_start_measurement(Frametime_Logic);
-    if ((game.flags_font & FFlg_unk10) != 0)
-    {
-        if (game.play_gameturn == 4)
-            LbNetwork_ChangeExchangeTimeout(0);
-    }
 #ifdef FUNCTESTING
     if(flag_is_set(start_params.functest_flags, FTF_Enabled))
     {
@@ -3695,12 +3687,12 @@ void initialise_map_health(void)
     }
 }
 
-static TbBool wait_at_frontend(void)
+static TbBool wait_at_frontend()
 {
     struct PlayerInfo *player;
     // This is an improvised coroutine-like stuff
     CoroutineLoop loop;
-    memset(&loop, 0, sizeof(loop));
+    coroutine_reset(&loop);
 
     SYNCDBG(0,"Falling into frontend menu.");
     // Moon phase calculation
@@ -3731,7 +3723,7 @@ static TbBool wait_at_frontend(void)
         TbBool result = false;
         if (start_params.selected_campaign[0] != '\0')
         {
-            result = change_campaign(strcat(start_params.selected_campaign,".cfg"));
+            result = change_campaign(start_params.selected_campaign);
         }
         if (!result) {
             if (!change_campaign("")) {
@@ -3779,7 +3771,7 @@ static TbBool wait_at_frontend(void)
     #endif
 
     // Prepare to enter PacketLoad game
-    if ((game.packet_load_enable) && (!game.numfield_149F47))
+    if (game.packet_load_enable)
     {
       faststartup_saved_packet_game();
       return true;
@@ -3839,7 +3831,7 @@ static TbBool wait_at_frontend(void)
         break; // end while
       }
 
-      frontend_update(&finish_menu);
+      frontend_update(&loop, &finish_menu);
       if ( exit_keeper )
       {
         SYNCDBG(0,"Frontend Update exit condition invoked");
@@ -3863,7 +3855,8 @@ static TbBool wait_at_frontend(void)
       {
         fade_in();
         fade_palette_in = 0;
-      } else
+      }
+      else
       {
         LbSleepUntil(fe_last_loop_time + 30);
       }
@@ -4139,7 +4132,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if ( strcasecmp(parstr,"campaign") == 0 )
       {
-        strcpy(start_params.selected_campaign, pr2str);
+        snprintf(start_params.selected_campaign, sizeof(start_params.selected_campaign), "%s.cfg", pr2str);
         narg++;
       } else
       if ( strcasecmp(parstr,"ppropoly") == 0 )
