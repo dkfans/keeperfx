@@ -47,8 +47,6 @@ enum PowerModFlags {
     PwMod_CastForFree = 0x0001, /*< Do not require player to pay for the spell. */
 };
 
-
-
 #pragma pack()
 /******************************************************************************/
 TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct Thing *thing, unsigned long flags, const char *func_name);
