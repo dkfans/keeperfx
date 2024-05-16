@@ -1,3 +1,5 @@
+---@meta native
+
 --file not used by the game, but used for telling the IDE about the 
 --functions exported from the C code
 --also serves as documentation of said function
@@ -25,7 +27,8 @@
 ---@alias head_for "ACTION_POINT"|"DUNGEON"|"DUNGEON_HEART"|"APPROPIATE_DUNGEON"
 ---@alias creature_propery "BLEEDS"|"UNAFFECTED_BY_WIND"|"IMMUNE_TO_GAS"|"HUMANOID_SKELETON"|"PISS_ON_DEAD"|"FLYING"|"SEE_INVISIBLE"|"PASS_LOCKED_DOORS"|"SPECIAL_DIGGER"|"ARACHNID"|"DIPTERA"|"LORD"|"SPECTATOR"|"EVIL"|"NEVER_CHICKENS"|"IMMUNE_TO_BOULDER"|"NO_CORPSE_ROTTING"|"NO_ENMHEART_ATTCK"|"TREMBLING_FAT"|"FEMALE"|"INSECT"|"ONE_OF_KIND"|"NO_IMPRISONMENT"|"IMMUNE_TO_DISEASE"|"ILLUMINATED"|"ALLURING_SCVNGR"
 ---@alias actionpoint integer
----@alias location playersingle|actionpoint|"LAST_EVENT"|"COMBAT"
+---@alias lastevent playersingle.LAST_EVENT
+---@alias location playersingle|actionpoint|lastevent|"COMBAT"
 
 ---followning options come from cfg files, but these are the defaults, if you added them correctly to cfg, errors the ide gives can be ignored
 ---@alias creature_type "WIZARD"|"BARBARIAN"|"ARCHER"|"MONK"|"DWARFA"|"KNIGHT"|"AVATAR"|"TUNNELLER"|"WITCH"|"GIANT"|"FAIRY"|"THIEF"|"SAMURAI"|"HORNY"|"SKELETON"|"TROLL"|"DRAGON"|"DEMONSPAWN"|"FLY"|"DARK_MISTRESS"|"SORCEROR"|"BILE_DEMON"|"IMP"|"BUG"|"VAMPIRE"|"SPIDER"|"HELL_HOUND"|"GHOST"|"TENTACLE"|"ORC"|"FLOATING_SPIRIT"|"DRUID"|"TIME_MAGE"
@@ -76,9 +79,12 @@
 ---...
 
 
+
 ---@class Player: creaturefields,roomfields
 ---@field private name string
----@field MONEY integer
+---@field LAST_EVENT lastevent
+---@field CONTROLS creaturefields
+---@field MONEY integer 
 ---@field GAME_TURN integer
 ---@field BREAK_IN integer
 ---@field TOTAL_DIGGERS integer
@@ -145,7 +151,7 @@ Creature.__index = Creature -- failed table lookups on the instances should fall
 
 function Player.new(tostring)
   local self = setmetatable({}, Player)
-  self.tostring = tostring
+  self.name = tostring
   return self
 end
 
@@ -225,17 +231,6 @@ function SET_GENERATE_SPEED(interval) end
 ---@param attitude integer|"ROAMING"
 function COMPUTER_PLAYER(player,attitude) end
 
----How much gold each player has at the start of the level.
----@param player playerrange The number of game turns between each creature.
----@param gold integer The number of game turns between each creature.
-function START_MONEY(player,gold) end
-
----The maximum number of creatures a player can have.
----The player can still gain creatures through Scavenging and Torturing but no more will come through the portal until the number of creatures drops below the maximum again.
----@param player playerrange The player name, e.g. PLAYER1. See players section for more information.
----@param max_amount integer The maximum number of creatures. This must be a number below 255.
-function MAX_CREATURES(player,max_amount) end
-
 ---Sets up an alliance between two players. 
 ---Note that computer players will not break the alliance by themselves, but human player may do so.
 ---So this command is mostly for controlling the computer players behavior. 
@@ -248,31 +243,16 @@ function MAX_CREATURES(player,max_amount) end
 --- 3: Players are allied, and cannot change this.
 function ALLY_PLAYERS(player1,player2,state) end
 
----Normally, when a creature dies, and its body vanishes, it is added to the creature pool again.
----This command allows you to ensure that all dead creatures are dead forever.
----@param return_to_pool boolean Logic value to control the creatures returning after death. The default value is true, allowing dead creatures to come through portal again. Setting it to 0 will prevent dead creatures from returning.
-function DEAD_CREATURES_RETURN_TO_POOL(return_to_pool) end
+---How much gold each player has at the start of the level.
+---@param player playerrange The number of game turns between each creature.
+---@param gold integer The number of game turns between each creature.
+function START_MONEY(player,gold) end
 
----This command tells the game that a specific creature can come through that player’s Portal.
----@param player playerrange The player’s name, e.g. PLAYER1. See players section for more information.
----@param creature_type creature_type The creature’s name, e.g. SORCEROR. See creature names section for more information.
----@param can_be_attracted boolean This value should always be set to 1. Creatures, unlike spells and rooms, do not have to be pre-enabled.
----@param amount_forced boolean This value should either be 0 or 1. Set it to 1 to enable the creature to appear from the Portal.
-function CREATURE_AVAILABLE(player,creature_type,can_be_attracted,amount_forced) end
-
-------------------------
---Manipulating Configs--
-------------------------
-
-function SET_DOOR_CONFIGURATION() end
-function SET_TRAP_CONFIGURATION() end
-function SET_OBJECT_CONFIGURATION() end
-function SET_CREATURE_CONFIGURATION() end
-function SET_GAME_RULE() end
-
---------------------------------------
---Creatures, Spells, Traps and Doors--
---------------------------------------
+---The maximum number of creatures a player can have.
+---The player can still gain creatures through Scavenging and Torturing but no more will come through the portal until the number of creatures drops below the maximum again.
+---@param player playerrange The player name, e.g. PLAYER1. See players section for more information.
+---@param max_amount integer The maximum number of creatures. This must be a number below 255.
+function MAX_CREATURES(player,max_amount) end
 
 ---The creature pool is a set number of creatures that can be attracted by all the players.
 ---Imagine a large group of creatures waiting outside the Dungeon Area (all Portals share this group).
@@ -283,6 +263,18 @@ function SET_GAME_RULE() end
 ---@param creature_type creature_type The creature's name, e.g. BILE_DEMON.
 ---@param amount integer The number of creature's of that type in the pool.
 function ADD_CREATURE_TO_POOL(creature_type,amount) end
+
+---This command tells the game that a specific creature can come through that player’s Portal.
+---@param player playerrange The player’s name, e.g. PLAYER1. See players section for more information.
+---@param creature_type creature_type The creature’s name, e.g. SORCEROR. See creature names section for more information.
+---@param can_be_attracted boolean This value should always be set to 1. Creatures, unlike spells and rooms, do not have to be pre-enabled.
+---@param amount_forced boolean This value should either be 0 or 1. Set it to 1 to enable the creature to appear from the Portal.
+function CREATURE_AVAILABLE(player,creature_type,can_be_attracted,amount_forced) end
+
+---Normally, when a creature dies, and its body vanishes, it is added to the creature pool again.
+---This command allows you to ensure that all dead creatures are dead forever.
+---@param return_to_pool boolean Logic value to control the creatures returning after death. The default value is true, allowing dead creatures to come through portal again. Setting it to 0 will prevent dead creatures from returning.
+function DEAD_CREATURES_RETURN_TO_POOL(return_to_pool) end
 
 ---This command tells the game that a specific room is available for the player to place down.
 ---@param player playerrange The players the room should be made available for.
@@ -314,47 +306,66 @@ function TRAP_AVAILABLE(player,trap,can_be_available,number_available) end
 function DOOR_AVAILABLE(player,door,can_be_available,number_available) end
 
 
--------------------------
---Manipulating Research--
---------------------------
+------------------------
+--Script flow control --
+------------------------
 
----This command allows you to adjust the research value for individual rooms or spells and even for a specific player.
----@param player playerrange player’s name, e.g. PLAYER1. See players section for more information.
----@param research_type "MAGIC"|"ROOM"|"CREATURE" Whether it is a room or spell you are researching. Use one of the following commands:
----@param room_or_spell spell_type|room_type|creature_type The name of the room or spell you want to adjust, e.g. TEMPLE or MAGIC_LIGHTNING. See room names section and spell names section for more information.
----@param research_value integer The new research value. This must be a number below 16777216.
-function RESEARCH(player,research_type,room_or_spell,research_value) end
+---@param player? playerrange
+function WIN_GAME(player) end
 
----When this command is first called, the research list for specified players is cleared.
----Using it you may create a research list from beginning.
----Note that if you won't place an item on the list, it will not be possible to research it.
----So if you're using this command, you must add all items available on the level to the research list. Example:
----@param player playerrange player’s name, e.g. PLAYER1. See players section for more information.
----@param research_type "MAGIC"|"ROOM"|"CREATURE" Whether it is a room or spell you are researching. Use one of the following commands:
----@param room_or_spell spell_type|room_type|creature_type The name of the room or spell you want to adjust, e.g. TEMPLE or MAGIC_LIGHTNING. See room names section and spell names section for more information.
----@param research_value integer The new research value. This must be a number below 16777216.
-function RESEARCH_ORDER(player,research_type,room_or_spell,research_value) end
+---@param player? playerrange
+function LOSE_GAME(player) end
+
+---Once an Action Point has been triggered, it cannot be triggered again unless it has been reset by this command.
+---@param action_point integer Action Point number
+function RESET_ACTION_POINT(action_point) end
+
+
+------------------------
+--Flags and Timers --
+------------------------
+
+---returns the amount of creatures at the ap
+---@param action_point integer
+---@param player playerrange
+---@param creature_type creature_type 
+---@return integer amount amount of creatures matching the conditions
+---@nodiscard
+function COUNT_CREATURES_AT_ACTION_POINT(action_point,player,creature_type) return 0 end
+
+---Sets up a timer that increases by 1 every game turn from when it was triggered.
+---@param player playersingle
+---@param timer timer
+function SET_TIMER(player,timer) end
+
+function ADD_TO_TIMER() end
+function DISPLAY_TIMER() end
+function HIDE_TIMER() end
+---Sets time to be displayed on "bonus timer" - on-screen time field, used mostly for bonus levels.
+---But now this command can be used to show bonus timer in any level, and may show clocktime instead of turns.
+---Setting game turns to 0 will hide the timer.
+---@param turns integer The amount of game turns the timer will count down from. That's 20 per second.
+---@param clocktime? integer Set to 1 to display the countdown in hours/minutes/seconds. Set to 0 or don't add the param to display turns.
+function BONUS_LEVEL_TIME(turns,clocktime) end
+function ADD_BONUS_TIME() end
+
+
+
 
 -------------------------------------------------
 --Adding New Creatures and Parties to the Level--
 -------------------------------------------------
 
----This command tells the game to expect a party with a specific name.
----@param party_name string
-function CREATE_PARTY(party_name) end
-
----This adds a specified party of creatures to the level with a Tunneller Dwarf as it’s leader.
----The Tunneller will immediately dig to it’s target and the other creatures will follow.
----@param owner playersingle owner of the creature
----@param party_name string The name as defined with the CREATE_PARTY command
----@param spawn_location location where the party should be spawned
----@param head_for head_for This command tells the Tunneller what it is tunnelling to. one of these options ACTION_POINT,DUNGEON,DUNGEON_HEART,APPROPIATE_DUNGEON
----@param target integer This command will tell the Tunneller which Action Point (if the head for command was ACTION_POINT) or Player (if the head for command was DUNGEON or DUNGEON_HEART) to go to.
----If the command was APPROPIATE_DUNGEON then this will just be 0 as the APPROPIATE_DUNGEON command sends the Tunneller to the dungeon of the player with the highest score.
----If you wish to put player here, you must type player number, like 1, not player name. If you will type PLAYER1, the game won't be able to recognize the number and will treat it as 0.
----@param experience integer The experience level of the Tunneller.
----@param gold integer The amount of gold the Tunneller is carrying.
-function ADD_TUNNELLER_PARTY_TO_LEVEL(owner,party_name,spawn_location,head_for,target,experience,gold) end
+---This command will add a number of new creatures to the level at the co-ordinates of a specifies Action Point.
+---You cannot set where the creatures head for so you may need to use a party instead.
+---@param owner playersingle The player that the creatures belong to.
+---@param creature_model creature_type  The creature's name, e.g. DRAGON.
+---@param location location where the creature(s) should be spawned
+---@param ncopies integer number of identical creatures that should be created
+---@param level integer   
+---@param carried_gold integer
+---@return Creature ...
+function ADD_CREATURE_TO_LEVEL(owner,creature_model,location,ncopies,level,carried_gold) return Creature end
 
 ---This commands adds a number of Tunneller Dwarves to the level. They will immediately start digging towards their target.
 ---Tunneller Dwarves are the only creatures that can tunnel towards a target.
@@ -367,6 +378,10 @@ function ADD_TUNNELLER_PARTY_TO_LEVEL(owner,party_name,spawn_location,head_for,t
 ---@param gold integer The amount of gold the Tunneller is carrying.
 ---@return Creature
 function ADD_TUNNELLER_TO_LEVEL(owner,spawn_location,head_for,target,experience,gold) return Creature end
+
+---This command tells the game to expect a party with a specific name.
+---@param party_name string
+function CREATE_PARTY(party_name) end
 
 ---This command adds a number of creatures to a party 
 ---@param party_name string The name as defined with the CREATE_PARTY command
@@ -382,6 +397,19 @@ function ADD_TO_PARTY(party_name,creaturemodel,level,gold,objective,countdown) e
 ---@param level integer
 function DELETE_FROM_PARTY(party_name,creaturemodel,level) end
 
+---This adds a specified party of creatures to the level with a Tunneller Dwarf as it’s leader.
+---The Tunneller will immediately dig to it’s target and the other creatures will follow.
+---@param owner playersingle owner of the creature
+---@param party_name string The name as defined with the CREATE_PARTY command
+---@param spawn_location location where the party should be spawned
+---@param head_for head_for This command tells the Tunneller what it is tunnelling to. one of these options ACTION_POINT,DUNGEON,DUNGEON_HEART,APPROPIATE_DUNGEON
+---@param target integer This command will tell the Tunneller which Action Point (if the head for command was ACTION_POINT) or Player (if the head for command was DUNGEON or DUNGEON_HEART) to go to.
+---If the command was APPROPIATE_DUNGEON then this will just be 0 as the APPROPIATE_DUNGEON command sends the Tunneller to the dungeon of the player with the highest score.
+---If you wish to put player here, you must type player number, like 1, not player name. If you will type PLAYER1, the game won't be able to recognize the number and will treat it as 0.
+---@param experience integer The experience level of the Tunneller.
+---@param gold integer The amount of gold the Tunneller is carrying.
+function ADD_TUNNELLER_PARTY_TO_LEVEL(owner,party_name,spawn_location,head_for,target,experience,gold) end
+
 ---Very similar to the ADD_TUNNELLER_PARTY_TO_LEVEL command, this adds a party to the level but does not include a Tunneller Dwarf.
 ---This means the party will not be able to tunnel to their target.
 ---@param playerrange playerrange
@@ -390,16 +418,6 @@ function DELETE_FROM_PARTY(party_name,creaturemodel,level) end
 ---@param ncopies integer
 function ADD_PARTY_TO_LEVEL(playerrange,party_name,location,ncopies) end
 
----This command will add a number of new creatures to the level at the co-ordinates of a specifies Action Point.
----You cannot set where the creatures head for so you may need to use a party instead.
----@param owner playersingle The player that the creatures belong to.
----@param creature_model creature_type  The creature's name, e.g. DRAGON.
----@param location location where the creature(s) should be spawned
----@param ncopies integer number of identical creatures that should be created
----@param level integer   
----@param carried_gold integer
----@return Creature ...
-function ADD_CREATURE_TO_LEVEL(owner,creature_model,location,ncopies,level,carried_gold) return Creature end
 
 
 
@@ -432,19 +450,13 @@ function DISPLAY_INFORMATION(msg_id,zoom_location) end
 ---@param y integer
 function DISPLAY_INFORMATION_WITH_POS(msg_id,x,y) end
 
----Sets time to be displayed on "bonus timer" - on-screen time field, used mostly for bonus levels.
----But now this command can be used to show bonus timer in any level, and may show clocktime instead of turns.
----Setting game turns to 0 will hide the timer.
----@param turns integer The amount of game turns the timer will count down from. That's 20 per second.
----@param clocktime? integer Set to 1 to display the countdown in hours/minutes/seconds. Set to 0 or don't add the param to display turns.
-function BONUS_LEVEL_TIME(turns,clocktime) end
+
 
 function PRINT() end
 function MESSAGE() end
 function PLAY_MESSAGE() end
 function DISPLAY_VARIABLE() end
 function DISPLAY_COUNTDOWN() end
-function DISPLAY_TIMER() end
 function DISPLAY_MESSAGE() end
 
 ---Flashes a button on the toolar until the player selects it.
@@ -452,18 +464,13 @@ function DISPLAY_MESSAGE() end
 ---@param gameturns integer how long the button should flash for in 1/20th of a secon.
 function TUTORIAL_FLASH_BUTTON(button,player) end
 
-function ADD_TO_TIMER() end
-function ADD_BONUS_TIME() end
-function HIDE_TIMER() end
+
 function HIDE_VARIABLE() end
 function HEART_LOST_QUICK_OBJECTIVE() end
 function HEART_LOST_OBJECTIVE() end
 function QUICK_MESSAGE() end
 
----Sets up a timer that increases by 1 every game turn from when it was triggered.
----@param player playersingle
----@param timer timer
-function SET_TIMER(player,timer) end
+
 --------------------
 --Manipulating Map-
 --------------------
@@ -474,6 +481,17 @@ function REVEAL_MAP_LOCATION() end
 function CHANGE_SLAB_OWNER() end
 function CHANGE_SLAB_TYPE() end
 function SET_DOOR() end
+
+------------------------
+--Manipulating Configs--
+------------------------
+
+function SET_DOOR_CONFIGURATION() end
+function SET_TRAP_CONFIGURATION() end
+function SET_OBJECT_CONFIGURATION() end
+function SET_CREATURE_CONFIGURATION() end
+function SET_GAME_RULE() end
+
 -------------------------------
 --Manipulating Creature stats-
 -------------------------------
@@ -492,6 +510,7 @@ function SET_CREATURE_MAX_LEVEL(player,creature_type,max_level) end
 ---@param property creature_propery The name of the creature property you want to set, e.g. NEVER_CHICKENS. See imp.cfg for options.
 ---@param enable boolean Set this to true to enable the property, or false to disable to property.
 function SET_CREATURE_PROPERTY(creature_type,property,enable) end
+
 
 -------------------------------------
 --Manipulating individual Creatures--
@@ -517,16 +536,58 @@ function TRANSFER_CREATURE(creature) end
 function KILL_CREATURE(creature) end
 function CHANGE_CREATURE_OWNER(creature,new_owner) end
 
-----------------------------------------
---Manipulating all Creatures of a type--
-----------------------------------------
-
 ---Can set, increase or decrease the happiness level of all your units.
 ---@param player playerrange
 ---@param creature creature_type
 ---@param operation any
 ---@param annoyance integer
 function CHANGE_CREATURES_ANNOYANCE(player,creature,operation,annoyance) end
+
+
+-------------------------
+--Manipulating Research--
+--------------------------
+
+---This command allows you to adjust the research value for individual rooms or spells and even for a specific player.
+---@param player playerrange player’s name, e.g. PLAYER1. See players section for more information.
+---@param research_type "MAGIC"|"ROOM"|"CREATURE" Whether it is a room or spell you are researching. Use one of the following commands:
+---@param room_or_spell spell_type|room_type|creature_type The name of the room or spell you want to adjust, e.g. TEMPLE or MAGIC_LIGHTNING. See room names section and spell names section for more information.
+---@param research_value integer The new research value. This must be a number below 16777216.
+function RESEARCH(player,research_type,room_or_spell,research_value) end
+
+---When this command is first called, the research list for specified players is cleared.
+---Using it you may create a research list from beginning.
+---Note that if you won't place an item on the list, it will not be possible to research it.
+---So if you're using this command, you must add all items available on the level to the research list. Example:
+---@param player playerrange player’s name, e.g. PLAYER1. See players section for more information.
+---@param research_type "MAGIC"|"ROOM"|"CREATURE" Whether it is a room or spell you are researching. Use one of the following commands:
+---@param room_or_spell spell_type|room_type|creature_type The name of the room or spell you want to adjust, e.g. TEMPLE or MAGIC_LIGHTNING. See room names section and spell names section for more information.
+---@param research_value integer The new research value. This must be a number below 16777216.
+function RESEARCH_ORDER(player,research_type,room_or_spell,research_value) end
+
+
+
+
+
+----------------------------------------
+--Tweaking players--
+----------------------------------------
+---Allows to add some off-map gold as a reward to a player.
+---@param player playerrange
+---@param amount integer
+function ADD_GOLD_TO_PLAYER(player,amount) end
+
+---comment
+---@param player playersingle
+---@param colour "RED"|"BLUE"|"GREEN"|"YELLOW"|"WHITE"|"PURPLE"|"BLACK"|"ORANGE"
+function SET_PLAYER_COLOR(player,colour) end
+
+function SET_PLAYER_MODIFIER(player,modifier,value) end
+
+function ADD_TO_PLAYER_MODIFIER(player,modifier,value) end
+    
+
+
 
 -----------------------------
 --Tweaking computer players--
@@ -577,37 +638,51 @@ function COMPUTER_DIG_TO_LOCATION(player,origin,destination) end
 
 function USE_SPECIAL_INCREASE_LEVEL() end
 function USE_SPECIAL_MULTIPLY_CREATURES() end
-function USE_SPECIAL_MAKE_SAFE() end
-function USE_SPECIAL_LOCATE_HIDDEN_WORLD() end
 function USE_SPECIAL_TRANSFER_CREATURE() end
+
+---Creates a custom tooltip for Custom special boxes.
+---@param boxnumber integer The ID of the custom box. With a new ADiKtEd or the ADD_OBJECT_TO_LEVEL command you can set a number. Multiple boxes may have the same number, and they will get the same tooltip and functionality.
+---@param tooltip string The text that will displayed when you hover your mouse over the Special box.
+function SET_BOX_TOOLTIP(boxnumber,tooltip) end
+function SET_BOX_TOOLTIP_ID() end
+
+
+
+---------
+--effect-
+---------
+
+function CREATE_EFFECT() end
+function CREATE_EFFECT_AT_POS() end
+function CREATE_EFFECTS_LINE() end
 
 ---------
 --other-
 ---------
 
-function RUN_AFTER_VICTORY() end
+function USE_POWER() end
+function USE_POWER_AT_LOCATION() end
+function USE_POWER_AT_POS() end
+function USE_POWER_ON_CREATURE() end
+
+function USE_SPELL_ON_CREATURE() end
+function USE_SPELL_ON_PLAYERS_CREATURES() end
+
+USE_POWER_ON_PLAYERS_CREATURES
 
 
----Once an Action Point has been triggered, it cannot be triggered again unless it has been reset by this command.
----@param action_point integer Action Point number
-function RESET_ACTION_POINT(action_point) end
+function LOCATE_HIDDEN_WORLD() end
+function MAKE_SAFE() end
+function MAKE_UNSAFE() end
 
---This command was designed to choose the music track to play.
---It is unknown if this command works, and how it works.
----@param track_number integer Probably the music track number.
+---Chooses what music track to play
+---@param track_number integer  The music track to be played. Numbers 2~7 select from original tracks, or a file name(between parenthesis) to set custom music.
 function SET_MUSIC(track_number) end
 
 function SET_CREATURE_INSTANCE() end
 function SET_HAND_RULE() end
 function MOVE_CREATURE() end
 
----returns the amount of creatures at the ap
----@param action_point integer
----@param player playerrange
----@param creature_type creature_type 
----@return integer amount amount of creatures matching the conditions
----@nodiscard
-function COUNT_CREATURES_AT_ACTION_POINT(action_point,player,creature_type) return 0 end
 
 ---Changes the slabs belonging to a specific player to a custom texture
 ---@param player playerrange  The name of the player who's slabs are changed.
@@ -626,39 +701,15 @@ function HIDE_HERO_GATE(gate_number,hidden) end
 ---@param player? playersingle When used it sets the owner of the object.
 function ADD_OBJECT_TO_LEVEL(object,location,property,player) end
 
----@param trgt_plr_range_id playerrange
----@param enmy_plr_id playersingle
----@param hate_val integer
-function SET_HATE(trgt_plr_range_id, enmy_plr_id, hate_val) end
-
----@param player? playerrange
-function WIN_GAME(player) end
-
----@param player? playerrange
-function LOSE_GAME(player) end
-
----Allows to add some off-map gold as a reward to a player.
----@param player playerrange
----@param amount integer
-function ADD_GOLD_TO_PLAYER(player,amount) end
 
 function SET_CREATURE_TENDENCIES() end
 
-function USE_POWER_ON_CREATURE() end
-function USE_POWER_AT_POS() end
-function USE_POWER_AT_SUBTILE() end
-function USE_POWER_AT_LOCATION() end
-function USE_POWER() end
+
 function SET_SACRIFICE_RECIPE() end
 function REMOVE_SACRIFICE_RECIPE() end
 
----Creates a custom tooltip for Custom special boxes.
----@param boxnumber integer The ID of the custom box. With a new ADiKtEd or the ADD_OBJECT_TO_LEVEL command you can set a number. Multiple boxes may have the same number, and they will get the same tooltip and functionality.
----@param tooltip string The text that will displayed when you hover your mouse over the Special box.
-function SET_BOX_TOOLTIP(boxnumber,tooltip) end
-function SET_BOX_TOOLTIP_ID() end
-function CREATE_EFFECTS_LINE() end
-function USE_SPELL_ON_CREATURE() end
+
+
 function SET_HEART_HEALTH() end
 
 ---Restores or drains health from a players Dungeon Heart. Can't exceed the standard max health value.
@@ -668,8 +719,7 @@ function SET_HEART_HEALTH() end
 function ADD_HEART_HEALTH(player,health,warning) end
 
 function CREATURE_ENTRANCE_LEVEL() end
-function CREATE_EFFECT() end
-function CREATE_EFFECT_AT_POS() end
+
 
 
 
