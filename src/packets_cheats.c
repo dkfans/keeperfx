@@ -306,7 +306,7 @@ TbBool packets_process_cheats(
                 struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
                 pwkind = plrst_cfg_stat->power_kind;
                 i = get_power_overcharge_level(player);
-                magic_use_power_on_subtile_direct(plyr_idx,pwkind,i,stl_x, stl_y, PwMod_CastForFree);
+                magic_use_power_direct(plyr_idx,pwkind,i,stl_x, stl_y,INVALID_THING, PwMod_CastForFree);
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
             break;
@@ -325,7 +325,7 @@ TbBool packets_process_cheats(
             if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
             {
                 unsigned short splevel = get_power_overcharge_level(player);
-                magic_use_power_on_thing_direct(plyr_idx,pwkind,splevel,stl_x,stl_y,thing,PwMod_CastForFree);
+                magic_use_power_direct(plyr_idx,pwkind,splevel,stl_x,stl_y,thing,PwMod_CastForFree);
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
             break;

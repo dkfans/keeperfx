@@ -429,7 +429,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                 {
                     if (player->thing_under_hand != 0) {
                         // TODO SPELLS it's not a good idea to use this directly; change to magic_use_available_power_on_*()
-                        magic_use_power_hand(plyr_idx, stl_x, stl_y, 0);
+                        use_power_hand(plyr_idx, stl_x, stl_y, 0);
                     }
                 }
             }

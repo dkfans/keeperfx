@@ -47,6 +47,8 @@ enum PowerModFlags {
     PwMod_CastForFree = 0x0001, /*< Do not require player to pay for the spell. */
 };
 
+
+
 #pragma pack()
 /******************************************************************************/
 TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct Thing *thing, unsigned long flags, const char *func_name);
@@ -64,9 +66,7 @@ int get_power_overcharge_level(struct PlayerInfo *player);
 TbBool update_power_overcharge(struct PlayerInfo *player, int spl_idx);
 void process_dungeon_power_magic(void);
 
-TbResult magic_use_power_on_subtile_direct(PlayerNumber plyr_idx, PowerKind pwkind,
-    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags);
-TbResult magic_use_power_on_thing_direct(PlayerNumber plyr_idx, PowerKind pwkind,
+TbResult magic_use_power_direct(PlayerNumber plyr_idx, PowerKind pwkind,
     unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags);
 
 TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind spl_idx,
