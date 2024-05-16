@@ -31,6 +31,7 @@
 #include "config.h"
 #include "config_campaigns.h"
 #include "config_slabsets.h"
+#include "config_strings.h"
 #include "config_terrain.h"
 #include "light_data.h"
 #include "map_ceiling.h"
@@ -39,6 +40,7 @@
 #include "engine_textures.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "player_instances.h"
 
 #include <toml.h>
 #include "post_inc.h"
@@ -82,7 +84,7 @@ struct LegacyCoord2d {
 struct LegacyInitThing { // sizeof=0x15
     struct LegacyCoord3d mappos;
     unsigned char oclass;
-    unsigned char model;
+    unsigned char model; // Converted to ThingModel on read
     unsigned char owner;
     unsigned short range;
     unsigned short index;
@@ -98,7 +100,7 @@ struct LegacyInitActionPoint { // sizeof = 8
 struct LegacyInitLight { // sizeof=0x14
     short radius;
     unsigned char intensity;
-    unsigned char field_3;
+    unsigned char flags;
     short field_4_unused;
     short field_6_unused;
     short field_8_unused;
@@ -718,8 +720,7 @@ TbBool load_map_data_file(LevelNumber lv_num)
         for (x=0; x < (gameadd.map_subtiles_x+1); x++)
         {
             mapblk = get_map_block_at(x,y);
-            unsigned long n = -lword(&buf[i]);
-            mapblk->data ^= (mapblk->data ^ n) & 0x7FF;
+            mapblk->col_idx = -lword(&buf[i]);
             i += 2;
         }
     }
@@ -733,7 +734,7 @@ TbBool load_map_data_file(LevelNumber lv_num)
             unsigned short* wptr = &game.lish.subtile_lightness[get_subtile_number(x, y)];
             *wptr = 32;
             mapblk->mapwho = 0;
-            mapblk->data &= ~0x0F000000; //filled subtiles
+            mapblk->filled_subtiles = 0;
             mapblk->revealed = 0;
         }
     }
@@ -1031,7 +1032,7 @@ TbBool update_slabset_column_indices(struct Column *cols, long ccount)
                     ncol = 0;
                 if (ncol == 0)
                 {
-                    ERRORLOG("column:%d referenced in slabset.cfg but not present in columns.cfg",-n);
+                    ERRORLOG("column:%d referenced in slabset.toml but not present in columnset.toml",-n);
                     continue;
                 }
             }
@@ -1073,7 +1074,7 @@ TbBool load_slab_datclm_files(void)
       LbMemoryFree(cols);
       return false;
     }
-    long slbset_tot = game.slab_conf.slab_types_count * SLABSETS_PER_SLAB;
+    long slbset_tot = game.conf.slab_conf.slab_types_count * SLABSETS_PER_SLAB;
     game.slabset_num = slbset_tot;
     update_columns_use(cols,cols_tot,game.slabset,slbset_tot);
     create_columns_from_list(cols,cols_tot);
@@ -1134,9 +1135,11 @@ short load_map_ownership_file(LevelNumber lv_num)
       for (x=0; x < (gameadd.map_subtiles_x+1); x++)
       {
         if ((x < gameadd.map_subtiles_x) && (y < gameadd.map_subtiles_y))
+        {
             set_slab_owner(subtile_slab(x),subtile_slab(y),buf[i]);
+        }
         else
-            set_slab_owner(subtile_slab(x),subtile_slab(y),NEUTRAL_PLAYER);
+            set_slab_owner(subtile_slab(x),subtile_slab(y),PLAYER_NEUTRAL);
         i++;
       }
     LbMemoryFree(buf);
@@ -1168,8 +1171,7 @@ TbBool initialise_map_wlb_auto(void)
           n = slb->kind;
         }
         slbattr = get_slab_kind_attrs(n);
-        n = (slbattr->wlb_type << 3);
-        slb->flags ^= (slb->flags ^ n) & (0x10|0x08);
+        slb->wlb_type = slbattr->wlb_type;
       }
     SYNCMSG("Regenerated WLB flags, unsure for %d bridge blocks.",(int)nbridge);
     return true;
@@ -1196,16 +1198,14 @@ TbBool load_map_wlb_file(unsigned long lv_num)
       for (x=0; x < gameadd.map_tiles_x; x++)
       {
         slb = get_slabmap_block(x,y);
-        n = (buf[i] << 3);
-        n = slb->flags ^ ((slb->flags ^ n) & 0x18);
-        slb->flags = n;
-        n &= (0x08|0x10);
-        if ((n != 0x10) || (slb->kind != SlbT_WATER))
-          if ((n != 0x08) || (slb->kind != SlbT_LAVA))
-            if (((n == 0x10) || (n == 0x08)) && (slb->kind != SlbT_BRIDGE))
+        n = buf[i];
+        slb->wlb_type = buf[i];
+        if ((n != WlbT_Water) || (slb->kind != SlbT_WATER))
+          if ((n != WlbT_Lava) || (slb->kind != SlbT_LAVA))
+            if (((n == WlbT_Water) || (n == WlbT_Lava)) && (slb->kind != SlbT_BRIDGE))
             {
                 nfixes++;
-                slb->flags &= ~(0x08|0x10);
+                slb->wlb_type = WlbT_None;
             }
         i++;
       }
@@ -1246,9 +1246,9 @@ short load_map_slab_file(unsigned long lv_num)
       {
         slb = get_slabmap_block(x,y);
         n = lword(&buf[i]);
-        if (n > game.slab_conf.slab_types_count)
+        if (n > game.conf.slab_conf.slab_types_count)
         {
-          WARNMSG("Slab Type %d exceeds limit of %d",(int)n,game.slab_conf.slab_types_count);
+          WARNMSG("Slab Type %d exceeds limit of %d",(int)n,game.conf.slab_conf.slab_types_count);
           n = SlbT_ROCK;
         }
         slb->kind = n;
@@ -1314,7 +1314,7 @@ static TbBool load_static_light_file(unsigned long lv_num)
         struct InitLight ilght;
         LbMemoryCopy(&legilght, &buf[i], sizeof(struct LegacyInitLight));
         ilght.attached_slb = legilght.attached_slb;
-        ilght.field_3      = legilght.field_3;
+        ilght.flags      = legilght.flags;
         ilght.intensity    = legilght.intensity;
         ilght.is_dynamic   = legilght.is_dynamic;
         ilght.radius       = legilght.radius;
@@ -1379,9 +1379,46 @@ static void load_ext_slabs(LevelNumber lvnum)
     memcpy(&gameadd.slab_ext_data_initial,&gameadd.slab_ext_data, sizeof(gameadd.slab_ext_data));
 }
 
+void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short fgroup)
+{
+    if (campgn->strings_data == NULL)
+    {
+        return;
+    }
+    char* fname = prepare_file_fmtpath(fgroup, "map%05lu.%s.dat", (unsigned long)lvnum, get_language_lwrstr(install_info.lang_id));
+    if (!LbFileExists(fname))
+    {
+        SYNCMSG("Map string file %s doesn't exist.", fname);
+        char buf[2048];
+        memcpy(&buf, fname, 2048);
+        fname = prepare_file_fmtpath(fgroup, "map%05lu.%s.dat", (unsigned long)lvnum, get_language_lwrstr(campgn->default_language));
+        if (strcasecmp(fname, buf) == 0)
+        {
+            return;
+        }
+        if (!LbFileExists(fname))
+        {
+            SYNCMSG("Map string file %s doesn't exist.", fname);
+            return;
+        }
+    }
+    long filelen = LbFileLengthRnc(fname);
+    char* strings_data_end = campgn->strings_data + filelen + 255;
+    long loaded_size = LbFileLoadAt(fname, campgn->strings_data);
+    if (loaded_size > 0)
+    {
+        TbBool result = create_strings_list(campgn->strings, campgn->strings_data, strings_data_end, STRINGS_MAX);
+        if (result)
+        {
+            SYNCLOG("Loaded strings from %s", fname);
+            reload_campaign_strings = true;
+        }
+    }
+}
+
 static TbBool load_level_file(LevelNumber lvnum)
 {
-    short result;
+    TbBool result;
     TbBool new_format = true;
     short fgroup = get_level_fgroup(lvnum);
     char* fname = prepare_file_fmtpath(fgroup, "map%05lu.slb", (unsigned long)lvnum);
@@ -1389,6 +1426,12 @@ static TbBool load_level_file(LevelNumber lvnum)
     if (LbFileExists(fname))
     {
         result = true;
+        struct GameCampaign *campgn = &campaign;
+        if (reload_campaign_strings)
+        {
+            setup_campaign_strings_data(campgn);
+        }
+        load_map_string_data(campgn, lvnum, fgroup);
         load_map_data_file(lvnum);
         load_map_flag_file(lvnum);
         load_column_file(lvnum);
@@ -1425,7 +1468,7 @@ static TbBool load_level_file(LevelNumber lvnum)
             result = load_thing_file(lvnum);
         }
         reinitialise_map_rooms();
-        ceiling_init(0, 1);
+        ceiling_init();
         if (result)
         {
             load_ext_slabs(lvnum);

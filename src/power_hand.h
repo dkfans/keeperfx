@@ -43,7 +43,7 @@ void remove_thing_from_limbo(struct Thing *thing);
 unsigned long object_is_pickable_by_hand_for_use(const struct Thing *thing, long a2);
 TbBool thing_is_pickable_by_hand(struct PlayerInfo *player, const struct Thing *thing);
 struct Thing *process_object_being_picked_up(struct Thing *thing, long a2);
-void set_power_hand_graphic(unsigned char plyr_idx, long AnimationID, long AnimationSpeed);
+void set_power_hand_graphic(unsigned char plyr_idx, long HandAnimationID);
 TbBool power_hand_is_empty(const struct PlayerInfo *player);
 TbBool power_hand_is_full(const struct PlayerInfo *player);
 struct Thing *get_first_thing_in_power_hand(struct PlayerInfo *player);
@@ -97,6 +97,8 @@ enum HandRuleType {
     HandRule_Wandering,
     HandRule_Working,
     HandRule_Fighting,
+    HandRule_DroppedTimeHigher,
+    HandRule_DroppedTimeLower
 };
 
 enum HandRuleAction {
@@ -115,6 +117,7 @@ struct HandRule {
 
 TbBool eval_hand_rule_for_thing(struct HandRule *rule, const struct Thing *thing_to_pick);
 
+extern float global_hand_scale;
 /******************************************************************************/
 #ifdef __cplusplus
 }

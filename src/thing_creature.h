@@ -33,6 +33,7 @@ extern "C" {
 /******************************************************************************/
 #define CREATURE_TYPES_COUNT  32
 #define DEAD_CREATURES_MAX_COUNT 64
+#define CREATURE_NAME_MAX 25
 /** The standard altitude at which a creature is flying.
  * Should be over one tile, to allow flying creatures leave water areas. */
 #define NORMAL_FLYING_ALTITUDE (256+16)
@@ -51,6 +52,7 @@ extern "C" {
 struct Thing;
 
 enum ThingPickFlags {
+    TPF_None             = 0x00,
     TPF_PickableCheck    = 0x01,
     TPF_OrderedPick      = 0x02,
     TPF_ReverseOrder     = 0x04,
@@ -66,12 +68,11 @@ enum CreatureDeathFlags {
 };
 
 struct CreatureStorage {
-  unsigned char model;
-  unsigned char explevel : 4;
-  unsigned char count : 4;
+  ThingModel model;
+  unsigned char explevel;
+  unsigned char count;
+  char creature_name[CREATURE_NAME_MAX];
 };
-
-static_assert(sizeof(struct CreatureStorage) == 2, "");
 
 #pragma pack()
 /******************************************************************************/
@@ -82,7 +83,7 @@ extern unsigned long creature_create_errors;
 /******************************************************************************/
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner);
 long move_creature(struct Thing *thing);
-TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
+struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng,
     PlayerNumber killer_plyr_idx, CrDeathFlags flags);
 void update_creature_count(struct Thing *thing);
 TngUpdateRet process_creature_state(struct Thing *thing);
@@ -146,6 +147,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind);
 void process_thing_spell_effects(struct Thing *thing);
 void process_thing_spell_effects_while_blocked(struct Thing *thing);
 void delete_effects_attached_to_creature(struct Thing *creatng);
+void delete_familiars_attached_to_creature(struct Thing* sumntng);
 TbBool thing_affected_by_spell(const struct Thing *thing, SpellKind spkind);
 GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, SpellKind spkind, const char *func_name);
 #define get_spell_duration_left_on_thing(thing, spkind) get_spell_duration_left_on_thing_f(thing, spkind, __func__)
@@ -189,6 +191,9 @@ struct Thing *controlled_get_trap_to_rearm(struct Thing *creatng);
 void controlled_continue_looking_excluding_diagonal(struct Thing *creatng, MapSubtlCoord *stl_x, MapSubtlCoord *stl_y);
 
 short get_creature_eye_height(const struct Thing *creatng);
+
+void query_creature(struct PlayerInfo *player, ThingIndex index, TbBool reset, TbBool zoom);
+TbBool creature_can_be_queried(struct PlayerInfo *player, struct Thing *creatng);
 /******************************************************************************/
 TbBool thing_is_creature(const struct Thing *thing);
 TbBool thing_is_dead_creature(const struct Thing *thing);
@@ -196,13 +201,16 @@ TbBool thing_is_creature_special_digger(const struct Thing *thing);
 TbBool creature_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx);
 TbBool creature_is_invisible(const struct Thing *thing);
 TbBool creature_can_see_invisible(const struct Thing *thing);
+TbBool creature_can_be_transferred(const struct Thing* thing);
 int get_creature_health_permil(const struct Thing *thing);
 /******************************************************************************/
 struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long carried_gold, long crtr_level);
 struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location);
-void script_process_new_creatures(PlayerNumber plyr_idx, long crmodel, long location, long copies_num, long carried_gold, long crtr_level);
+void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, long location, long copies_num, long carried_gold, long crtr_level);
 PlayerNumber get_appropriate_player_for_creature(struct Thing *creatng);
 struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmodel, long criteria);
+/******************************************************************************/
+void throw_out_gold(struct Thing* thing, long amount);
 /******************************************************************************/
 #ifdef __cplusplus
 }

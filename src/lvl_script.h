@@ -42,7 +42,7 @@ extern "C" {
 
 #define SENSIBLE_GOLD 99999999
 
-#define EXTERNAL_SOUNDS_COUNT 8
+#define EXTERNAL_SOUNDS_COUNT 32
 
 enum ScriptOperator {
     SOpr_SET = 1,
@@ -75,21 +75,20 @@ struct ScriptContext
     };
 };
 
-struct TunnellerTrigger { // sizeof = 18
+struct TunnellerTrigger {
   unsigned char flags;
-  unsigned char condit_idx;
+  unsigned short condit_idx;
   unsigned char plyr_idx;
   unsigned long location;
-  unsigned char heading_OLD;//no longer used
   unsigned long heading; // originally was 'target'
   long carried_gold;
   unsigned char crtr_level;
   char party_id;
 };
 
-struct PartyTrigger { // sizeof = 13
+struct PartyTrigger {
   unsigned char flags;
-  unsigned char condit_idx;
+  unsigned short condit_idx;
   char creatr_id;
   union
   {
@@ -110,9 +109,9 @@ struct PartyTrigger { // sizeof = 13
   };
 };
 
-struct ScriptValue { // sizeof = 16
+struct ScriptValue {
   unsigned char flags;
-  unsigned char condit_idx;
+  unsigned short condit_idx;
   unsigned char valtype;
   unsigned char plyr_range;
   union
@@ -159,9 +158,9 @@ struct ScriptValue { // sizeof = 16
         char param;
         char victims[MAX_SACRIFICE_VICTIMS];
     } sac;
-    unsigned char bytes[12];
-    char chars[12];
-    short shorts[6];
+    unsigned char bytes[16];
+    char chars[16];
+    short shorts[8];
   };
 };
 
@@ -231,6 +230,7 @@ extern const struct NamedCommand player_desc[];
 /******************************************************************************/
 short clear_script(void);
 short load_script(long lvl_num);
+TbBool script_scan_line(char *line,TbBool preloaded, long file_version);
 TbBool preload_script(long lvnum);
 /******************************************************************************/
 

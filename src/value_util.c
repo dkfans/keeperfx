@@ -5,24 +5,28 @@
 #include "pre_inc.h"
 #include "value_util.h"
 #include "config.h"
+#include "config_objects.h"
 #include "bflib_basics.h"
 #include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "value_util.h"
+#include "custom_sprites.h"
+#include "thing_objects.h"
 
 #include "thing_list.h"
 
 #include <string.h>
 #include "post_inc.h"
 
-TbBool load_toml_file(const char *textname, const char *fname,VALUE *value)
+TbBool load_toml_file(const char *textname, const char *fname,VALUE *value, unsigned short flags)
 {
     SYNCDBG(5,"Starting");
     long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
-        WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
+        if(!(flags & CnfLd_IgnoreErrors))
+            WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
     char* buf = (char*)LbMemoryAlloc(len + 256);
@@ -92,5 +96,18 @@ int value_parse_model(int oclass, VALUE *value)
     if (value_type(value) == VALUE_INT32)
         return value_int32(value);
     // TODO: model names for different classes
+    return -1;
+}
+
+int value_parse_anim(VALUE *value)
+{
+    if (value_type(value) == VALUE_INT32)
+        return value_int32(value);
+    else if (value_type(value) == VALUE_STRING)
+    {
+        const char *tst = value_string(value);
+        struct ObjectConfigStats obj_tmp;
+        return get_anim_id(tst, &obj_tmp);
+    }
     return -1;
 }

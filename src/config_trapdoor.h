@@ -52,9 +52,20 @@ struct DoorConfigStats {
     long bigsym_sprite_idx;
     long medsym_sprite_idx;
     long pointer_sprite_idx;
+    long place_sound_idx;
     unsigned short slbkind[2];
-    long health;
+    HitPoints health;
     unsigned short open_speed;
+    unsigned short model_flags;
+    short unsellable;
+};
+
+  /** Contains properties of a door model, to be stored in DoorConfigStats.
+ */
+enum DoorModelFlags {
+    DoMF_ResistNonMagic = 0x0001,
+    DoMF_Secret         = 0x0002,
+    DoMF_Thick          = 0x0004,
 };
 
 struct TrapConfigStats {
@@ -65,13 +76,17 @@ struct TrapConfigStats {
     long bigsym_sprite_idx;
     long medsym_sprite_idx;
     long pointer_sprite_idx;
-    short hidden;
+    short place_sound_idx;
+    short trigger_sound_idx;
+    TbBool hidden;
     short slappable;
     short destructible;
     short unstable;
-    short notify;
-    short unsellable;
-    short placeonbridge;
+    TbBool notify;
+    TbBool unsellable;
+    TbBool place_on_bridge;
+    TbBool place_on_subtile;
+    EffectOrEffElModel destroyed_effect;
 };
 
 /**

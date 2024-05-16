@@ -121,36 +121,6 @@ void set_previous_camera_values(struct PlayerInfo* player) {
     }
 }
 
-MapCoordDelta get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
-{
-    long dist_y = abs(pos2->y.val - (long)pos1->y.val);
-    long dist_x = abs(pos2->x.val - (long)pos1->x.val);
-    if (dist_y <= dist_x)
-        dist_y = dist_x;
-    long dist_z = abs(pos2->z.val - (long)pos1->z.val);
-    if (dist_y <= dist_z)
-        dist_y = dist_z;
-    return dist_y;
-}
-
-MapCoordDelta get_2d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
-{
-    long dist_y = abs((long)pos1->y.val - (long)pos2->y.val);
-    long dist_x = abs((long)pos1->x.val - (long)pos2->x.val);
-    if (dist_y <= dist_x)
-        return dist_x;
-    return dist_y;
-}
-
-MapCoordDelta get_2d_box_distance_xy(long pos1_x, long pos1_y, long pos2_x, long pos2_y)
-{
-    long dist_x = abs((long)pos1_x - (long)pos2_x);
-    long dist_y = abs((long)pos1_y - (long)pos2_y);
-    if (dist_y <= dist_x)
-      return dist_x;
-    return dist_y;
-}
-
 void angles_to_vector(short angle_xy, short angle_yz, long dist, struct ComponentVector *cvect)
 {
     long long cos_yz = LbCosL(angle_yz) >> 2;
@@ -535,7 +505,7 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
             cam->mappos.z.val = thing->mappos.z.val + eye_height;
             cam->orient_a = thing->move_angle_xy;
             cam->orient_b = thing->move_angle_z;
-            cam->orient_c = cctrl->field_CC;
+            cam->orient_c = cctrl->roll;
         }
         else
         {

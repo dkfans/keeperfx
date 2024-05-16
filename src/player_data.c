@@ -24,6 +24,7 @@
 #include "bflib_memory.h"
 
 #include "config_players.h"
+#include "config_powerhands.h"
 #include "player_instances.h"
 #include "player_states.h"
 #include "game_legacy.h"
@@ -31,23 +32,19 @@
 #include "frontend.h"
 #include "thing_objects.h"
 #include "power_hand.h"
+#include "gui_msgs.h"
 #include "post_inc.h"
 
 /******************************************************************************/
-/******************************************************************************/
-unsigned short player_colors_map[] = {0, 1, 2, 3, 4, 5, 0, 0, 0, };
-
-TbPixel player_path_colours[]  = {131, 90, 163, 181,  20,   4, };
-TbPixel player_room_colours[]  = {132, 92, 164, 183,  21, 132, };
-TbPixel player_flash_colours[] = {133, 94, 167, 142,  31,  15, };
-TbPixel player_highlight_colours[] = {31, 31, 31, 31,  31,  31, };
+TbPixel player_path_colours[]  =     {131, 90, 163, 181,  20,   4, 106,  52,  42};
+TbPixel player_room_colours[]  =     {132, 92, 164, 183,  21, 132, 108,  54,  44};
+TbPixel player_flash_colours[] =     {133, 94, 167, 142,  31,  15, 110,  54,  46};
+TbPixel player_highlight_colours[] = {31,  31,  31,  31,  31,  31,  31,  31,  31};
+TbPixel possession_hit_colours[] =   {133, 89, 167, 141,  31,  31, 110,  54,  46};
 
 unsigned short const player_cubes[] = {0x00C0, 0x00C1, 0x00C2, 0x00C3, 0x00C7, 0x00C6 };
 
-long neutral_player_number = NEUTRAL_PLAYER;
-long hero_player_number = HERO_PLAYER;
 struct PlayerInfo bad_player;
-struct PlayerInfoAdd bad_playeradd;
 
 /** The current player's number. */
 unsigned char my_player_number;
@@ -100,6 +97,24 @@ TbBool is_my_player_number(PlayerNumber plyr_num)
     return (plyr_num == myplyr->id_number);
 }
 
+TbBool player_is_roaming(PlayerNumber plyr_num)
+{
+    struct PlayerInfo* player = get_player(plyr_num);
+    return (player->player_type == PT_Roaming);
+}
+
+TbBool player_is_keeper(PlayerNumber plyr_num)
+{
+    struct PlayerInfo* player = get_player(plyr_num);
+    return (player->player_type == PT_Keeper);
+}
+
+TbBool player_is_neutral(PlayerNumber plyr_num)
+{
+    struct PlayerInfo* player = get_player(plyr_num);
+    return (player->player_type == PT_Neutral);
+}
+
 /**
  * Informs if player plyr1_idx considers player plyr2_idx as enemy.
  * Note that if the players are not enemies, it doesn't necessarily mean they're friends.
@@ -115,13 +130,15 @@ TbBool players_are_enemies(long origin_plyr_idx, long check_plyr_idx)
     // And neutral player can't be enemy
     if ((origin_plyr_idx == game.neutral_player_num) || (check_plyr_idx == game.neutral_player_num))
         return false;
+
+        
     struct PlayerInfo* origin_player = get_player(origin_plyr_idx);
     struct PlayerInfo* check_player = get_player(check_plyr_idx);
     // Inactive or invalid players are not enemies, as long as they're not heroes
     // (heroes are normally NOT existing keepers)
-    if (!player_exists(origin_player) && (origin_plyr_idx != game.hero_player_num))
+    if (!player_exists(origin_player) && (!player_is_roaming(origin_plyr_idx)))
         return false;
-    if (!player_exists(check_player) && (check_plyr_idx != game.hero_player_num))
+    if (!player_exists(check_player) && (!player_is_roaming(check_plyr_idx)))
         return false;
     // And if they're valid, living players - get result from alliances table
     return !flag_is_set(origin_player->allied_players, to_flag(check_plyr_idx));
@@ -214,13 +231,21 @@ void clear_players(void)
         struct PlayerInfo* player = &game.players[i];
         LbMemorySet(player, 0, sizeof(struct PlayerInfo));
         player->id_number = PLAYERS_COUNT;
-        struct PlayerInfoAdd* playeradd = &gameadd.players[i];
-        LbMemorySet(playeradd, 0, sizeof(struct PlayerInfoAdd));
+        switch (i)
+        {
+        case PLAYER_GOOD:
+            player->player_type = PT_Roaming;
+            break;
+        case PLAYER_NEUTRAL:
+            player->player_type = PT_Neutral;
+            break;
+        default:
+            player->player_type = PT_Keeper;
+            break;
+        }
     }
     LbMemorySet(&bad_player, 0, sizeof(struct PlayerInfo));
-    LbMemorySet(&bad_playeradd, 0, sizeof(struct PlayerInfoAdd));
     bad_player.id_number = PLAYERS_COUNT;
-    game.hero_player_num = hero_player_number;
     game.active_players_count = 0;
     //game.game_kind = GKind_LocalGame;
 }
@@ -277,7 +302,6 @@ void set_player_ally_locked(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool
 
 void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_kind)
 {
-  struct PlayerInfoAdd* playeradd;
   SYNCDBG(6,"Player %d state %s to %s",(int)player->id_number,player_state_code_name(player->work_state),player_state_code_name(nwrk_state));
   // Selecting the same state again - update only 2nd parameter
   if (player->work_state == nwrk_state)
@@ -330,7 +354,7 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
               break;
           }
           player->hand_thing_idx = thing->index;
-          set_power_hand_graphic(player->id_number, thing->anim_sprite, thing->anim_speed);
+          set_power_hand_graphic(player->id_number, HndA_SideHover);
           place_thing_in_limbo(thing);
           break;
       }
@@ -342,15 +366,13 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
       player->chosen_door_kind = chosen_kind;
       break;
   case PSt_MkGoodCreatr:
-      playeradd = get_playeradd(player->id_number);
-      clear_messages_from_player(playeradd->cheatselection.chosen_player);
-        playeradd->cheatselection.chosen_player = game.hero_player_num;
+      clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
+        player->cheatselection.chosen_player = PLAYER_GOOD;
         break;
     case PSt_MkBadCreatr:
     case PSt_MkDigger:
-    playeradd = get_playeradd(player->id_number);
-    clear_messages_from_player(playeradd->cheatselection.chosen_player);
-        playeradd->cheatselection.chosen_player = player->id_number;
+    clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
+        player->cheatselection.chosen_player = player->id_number;
         break;
   default:
       break;
@@ -450,23 +472,6 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nview)
   }
 }
 
-struct PlayerInfoAdd *get_playeradd_f(long plyr_idx,const char *func_name)
-{
-    if ((plyr_idx >= 0) && (plyr_idx < PLAYERS_COUNT))
-    {
-        return &gameadd.players[plyr_idx];
-    }
-    if (plyr_idx == game.neutral_player_num) // Suppress error for never existing but valid neutral 'player'
-    {
-        SYNCDBG(3, "%s: Tried to get neutral player!",func_name);
-    }
-    else
-    {
-        ERRORMSG("%s: Tried to get non-existing player %d!",func_name,(int)plyr_idx);
-    }
-    return INVALID_PLAYER_ADD;
-}
-
 unsigned char rotate_mode_to_view_mode(unsigned char mode)
 {
     switch (mode) {
@@ -475,5 +480,14 @@ unsigned char rotate_mode_to_view_mode(unsigned char mode)
         case 2: return PVM_FrontView;
         default: ERRORLOG("Unrecognised video rotate mode: %u", mode); return PVM_IsoWibbleView;
     }
+}
+
+unsigned char get_player_color_idx(PlayerNumber plyr_idx)
+{
+    //neutral has no dungeon to store this in
+    if(plyr_idx == PLAYER_NEUTRAL)
+        return plyr_idx;
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    return dungeon->color_idx;
 }
 /******************************************************************************/

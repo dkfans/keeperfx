@@ -36,11 +36,11 @@ extern "C" {
 #pragma pack(1)
 
 struct LightingTable { // sizeof = 8
-  unsigned char is_populated;
+  TbBool is_populated;
   unsigned char distance; // 2 - 15
   char delta_x; // signed
   char delta_y; // signed
-  unsigned long field_4; // strength? decay?
+  unsigned long diagonal_length;
 };
 
 struct ShadowCache { // sizeof = 129

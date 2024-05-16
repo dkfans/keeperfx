@@ -1,6 +1,6 @@
 # KeeperFX Texture animation Configuration file
 # these numbers get used for making cubes in cubes.cfg
-# and for determining the floor texture in columns in columns.cfg and the .clm files bundled with maps
+# and for determining the floor texture in columns in columnset.toml and the .clm files bundled with maps
 # the frames reference static textures 0-543 for textures in tmapaXXX.dat
 # the animated numbers start at 544 and end at 999
 # numbers starting at 1000 are in tmapbXXX.dat

@@ -150,7 +150,7 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
     if (i != -1)
     {
         struct CreatureStorage* cstore = &dungeon->dead_creatures[i];
-        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[cstore->model];
+        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[cstore->model];
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
         long spr_idx = get_creature_model_graphics(cstore->model, CGI_HandSymbol);
         struct TbSprite* spr = &gui_panel_sprites[spr_idx];
@@ -235,7 +235,7 @@ void select_resurrect_creature_down(struct GuiButton *gbtn)
 int selected_transfer_creature(const struct Dungeon *dungeon, const struct GuiButton *gbtn)
 {
     long listitm_idx = transfer_creature_scroll_offset + (gbtn->btype_value & LbBFeF_IntValueMask);
-    if (listitm_idx < dungeon->num_active_creatrs) {
+    if (listitm_idx < count_player_creatures_for_transfer(dungeon->owner)) {
         return listitm_idx;
     }
     return -1;
@@ -248,7 +248,7 @@ void select_transfer_creature(struct GuiButton *gbtn)
     int listitm_idx = selected_transfer_creature(dungeon, gbtn);
     if (listitm_idx != -1)
     {
-        thing = get_player_list_nth_creature_of_model(dungeon->creatr_list_start, 0, listitm_idx);
+        thing = get_player_list_nth_creature_with_property(dungeon->creatr_list_start, CMF_NoTransfer, listitm_idx);
     }
     if (thing_exists(thing))
     {
@@ -276,12 +276,12 @@ void draw_transfer_creature(struct GuiButton *gbtn)
     int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_language > 0) ) ? scale_ui_value(32) : ((gbtn->height * 22 / 26) * 16) / LbTextLineHeight();
     if (listitm_idx != -1)
     {
-        thing = get_player_list_nth_creature_of_model(dungeon->creatr_list_start, 0, listitm_idx);
+        thing = get_player_list_nth_creature_with_property(dungeon->creatr_list_start, CMF_NoTransfer, listitm_idx);
     }
     if (!thing_is_invalid(thing))
     {
         const struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[thing->model];
+        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[thing->model];
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
         long spr_idx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
         struct TbSprite* spr = &gui_panel_sprites[spr_idx];
@@ -358,7 +358,7 @@ void select_transfer_creature_up(struct GuiButton *gbtn)
 void select_transfer_creature_down(struct GuiButton *gbtn)
 {
     struct Dungeon* dungeon = get_my_dungeon();
-    if (transfer_creature_scroll_offset < dungeon->num_active_creatrs-transfer_creature_items_visible+1) {
+    if (transfer_creature_scroll_offset < count_player_creatures_for_transfer(dungeon->owner)-transfer_creature_items_visible+1) {
         transfer_creature_scroll_offset++;
     }
 }
@@ -414,7 +414,7 @@ void maintain_transfer_creature_select(struct GuiButton *gbtn)
 void maintain_transfer_creature_scroll(struct GuiButton *gbtn)
 {
     struct Dungeon* dungeon = get_my_dungeon();
-    int count = dungeon->num_active_creatrs;
+    int count = count_player_creatures_for_transfer(dungeon->owner);
     if (transfer_creature_scroll_offset > count-transfer_creature_items_visible+1)
     {
         if (count > transfer_creature_items_visible) {
@@ -438,7 +438,7 @@ void maintain_transfer_creature_scroll(struct GuiButton *gbtn)
     }
     if (wheel_scrolled_down)
     {
-        if (transfer_creature_scroll_offset < dungeon->num_active_creatrs-transfer_creature_items_visible+1)
+        if (transfer_creature_scroll_offset < count-transfer_creature_items_visible+1)
         {
             transfer_creature_scroll_offset++;
         }

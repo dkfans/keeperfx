@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\actionpt.c" />
+    <ClCompile Include="src\api.c" />
     <ClCompile Include="src\ariadne.c" />
     <ClCompile Include="src\ariadne_edge.c" />
     <ClCompile Include="src\ariadne_findcache.c" />
@@ -87,6 +88,7 @@
     <ClCompile Include="src\config_rules.c" />
     <ClCompile Include="src\config_settings.c" />
     <ClCompile Include="src\config_slabsets.c" />
+    <ClCompile Include="src\config_spritecolors.c" />
     <ClCompile Include="src\config_strings.c" />
     <ClCompile Include="src\config_terrain.c" />
     <ClCompile Include="src\config_textures.c" />
@@ -127,7 +129,6 @@
     <ClCompile Include="src\engine_render.c" />
     <ClCompile Include="src\engine_render_data.cpp" />
     <ClCompile Include="src\engine_textures.c" />
-    <ClCompile Include="src\event_monitoring.c" />
     <ClCompile Include="src\frontend.cpp" />
     <ClCompile Include="src\frontmenu_ingame_evnt.c" />
     <ClCompile Include="src\frontmenu_ingame_evnt_data.cpp" />
@@ -158,6 +159,7 @@
     <ClCompile Include="src\front_simple.c" />
     <ClCompile Include="src\front_torture.c" />
     <ClCompile Include="src\front_torture_data.cpp" />
+    <ClCompile Include="src\ftests\ftest.c" />
     <ClCompile Include="src\game_heap.c" />
     <ClCompile Include="src\game_legacy.c" />
     <ClCompile Include="src\game_lghtshdw.c" />
@@ -234,6 +236,7 @@
     <ClCompile Include="src\slab_data.c" />
     <ClCompile Include="src\sounds.c" />
     <ClCompile Include="src\spdigger_stack.c" />
+    <ClCompile Include="src\steam_api.cpp" />
     <ClCompile Include="src\tasks_list.c" />
     <ClCompile Include="src\thing_corpses.c" />
     <ClCompile Include="src\thing_creature.c" />
@@ -255,6 +258,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actionpt.h" />
+    <ClInclude Include="src\api.h" />
     <ClInclude Include="src\ariadne.h" />
     <ClInclude Include="src\ariadne_edge.h" />
     <ClInclude Include="src\ariadne_findcache.h" />
@@ -323,6 +327,7 @@
     <ClInclude Include="src\config_rules.h" />
     <ClInclude Include="src\config_settings.h" />
     <ClInclude Include="src\config_slabsets.h" />
+    <ClInclude Include="src\config_spritecolors.h" />
     <ClInclude Include="src\config_strings.h" />
     <ClInclude Include="src\config_terrain.h" />
     <ClInclude Include="src\config_textures.h" />
@@ -362,7 +367,6 @@
     <ClInclude Include="src\engine_redraw.h" />
     <ClInclude Include="src\engine_render.h" />
     <ClInclude Include="src\engine_textures.h" />
-    <ClInclude Include="src\event_monitoring.h" />
     <ClInclude Include="src\frontend.h" />
     <ClInclude Include="src\frontmenu_ingame_evnt.h" />
     <ClInclude Include="src\frontmenu_ingame_map.h" />
@@ -383,6 +387,7 @@
     <ClInclude Include="src\front_network.h" />
     <ClInclude Include="src\front_simple.h" />
     <ClInclude Include="src\front_torture.h" />
+    <ClInclude Include="src\ftests\ftest.h" />
     <ClInclude Include="src\game_heap.h" />
     <ClInclude Include="src\game_legacy.h" />
     <ClInclude Include="src\game_lghtshdw.h" />
@@ -452,6 +457,7 @@
     <ClInclude Include="src\sounds.h" />
     <ClInclude Include="src\spdigger_stack.h" />
     <ClInclude Include="src\sprites.h" />
+    <ClInclude Include="src\steam_api.hpp" />
     <ClInclude Include="src\tasks_list.h" />
     <ClInclude Include="src\thing_corpses.h" />
     <ClInclude Include="src\thing_creature.h" />
