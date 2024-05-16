@@ -141,12 +141,22 @@ Player.__index = Player -- failed table lookups on the instances should fallback
 ---@class Thing
 ---@field idx integer
 ---@field creation_turn integer
+---@field class integer
+---@field model integer
+---@field stl_x integer
+---@field stl_y integer
 local Thing = {}
 Thing.__index = Thing -- failed table lookups on the instances should fallback to the class table, to get methods
 
 ---@class Creature:Thing
 local Creature = {}
 Creature.__index = Creature -- failed table lookups on the instances should fallback to the class table, to get methods
+
+---@class Herogate:Thing
+---@field hidden boolean
+local Herogate = {}
+
+
 
 
 function Player.new(tostring)
@@ -668,7 +678,7 @@ function USE_POWER_ON_CREATURE() end
 function USE_SPELL_ON_CREATURE() end
 function USE_SPELL_ON_PLAYERS_CREATURES() end
 
-USE_POWER_ON_PLAYERS_CREATURES
+function USE_POWER_ON_PLAYERS_CREATURES() end
 
 
 function LOCATE_HIDDEN_WORLD() end
@@ -689,17 +699,13 @@ function MOVE_CREATURE() end
 ---@param texture string The name or number of the texture to use for the player, like 'STONE_FACE'. Accepts 'None' or '-1'.
 function SET_TEXTURE(player,texture) end
 
----Hides a specific hero gate, so that it can't be seen or heard by the player or by the heroes themselves.
----@param gate_number integer The number of the hero gate to be hidden.
----@param hidden boolean Set to true to hide it, and set to false to make it visible again.
-function HIDE_HERO_GATE(gate_number,hidden) end
-
 ---Place any object at a specific place on the map
 ---@param object object_type The object name from fxdata\objects.cfg
 ---@param location location
 ---@param property string If the objects has properties, set it. For Gold, it's the amount. If you use SPECBOX_CUSTOM to place the mystery box, it's the box number in the BOX#_ACTIVATED variable.
 ---@param player? playersingle When used it sets the owner of the object.
-function ADD_OBJECT_TO_LEVEL(object,location,property,player) end
+---@return Thing object
+function ADD_OBJECT_TO_LEVEL(object,location,property,player) local ob return ob end
 
 
 function SET_CREATURE_TENDENCIES() end
@@ -707,16 +713,6 @@ function SET_CREATURE_TENDENCIES() end
 
 function SET_SACRIFICE_RECIPE() end
 function REMOVE_SACRIFICE_RECIPE() end
-
-
-
-function SET_HEART_HEALTH() end
-
----Restores or drains health from a players Dungeon Heart. Can't exceed the standard max health value.
----@param player playerrange
----@param health integer
----@param warning boolean
-function ADD_HEART_HEALTH(player,health,warning) end
 
 function CREATURE_ENTRANCE_LEVEL() end
 
@@ -727,10 +723,12 @@ function CREATURE_ENTRANCE_LEVEL() end
 --functions only available in lua
 -------------------------------------------------------
 
-function GetCreatureNear() end
-function SendChatMessage() end
-function GetThingByIdx() end
+---comment
+---@param player playersingle
+---@param message string
+function SendChatMessage(player,message) end
 
+function GetHeroGate() end
 
 
 
