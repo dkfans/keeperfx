@@ -794,7 +794,7 @@ TngUpdateRet update_trap(struct Thing *traptng)
         return TUFRet_Deleted;
     }
     struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
-    if (traptng->trap.wait_for_rearm == true) // Trap rearming, so either 'shooting' anim or 'recharch' anim.
+    if (traptng->trap.wait_for_rearm == true) // Trap rearming, so either 'shooting' anim or 'recharge' anim.
     {
         if ((traptng->trap.rearm_turn <= game.play_gameturn)) // Recharge complete, rearm.
         {
