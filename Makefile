@@ -355,7 +355,7 @@ CU_OBJS = \
 	obj/cu/Util.o
 
 # include and library directories
-LINKLIB =  -L"sdl/lib" -mwindows obj/enet.a lib/lua/lua5.1.lib \
+LINKLIB =  -L"sdl/lib" -mwindows obj/enet.a deps/luajit/src/lua51.lib deps/luajit/src/minilua.lib deps/luajit/src/luajit.lib deps/luajit/src/buildvm.lib\
 	-lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net -lSDL2_image \
 	-L"deps/zlib" -lz -lws2_32 -ldbghelp
 INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include" -I"deps/centijson/src" -I"deps/centitoml"

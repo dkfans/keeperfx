@@ -1,8 +1,8 @@
 #include "pre_inc.h"
 
-#include "../lib/lua/include/lua.h"
-#include "../lib/lua/include/lauxlib.h"
-#include "../lib/lua/include/lualib.h"
+#include "../deps/luajit/src/lua.h"
+#include "../deps/luajit/src/lauxlib.h"
+#include "../deps/luajit/src/lualib.h"
 
 #include "bflib_basics.h"
 #include "globals.h"
@@ -99,9 +99,9 @@ static TbMapLocation luaL_checkHeadingLocation(lua_State *L, int index)
     }
     return location;
 }
-static struct PlayerRange luaL_checkPlayerRange(lua_State *L, int index)
+
+static PlayerNumber luaL_checkPlayerRangeId(lua_State *L, int index)
 {
-    struct PlayerRange playerRange = {0,0};
     const char* plrname = lua_tostring(L, index);
     
     long plr_range_id = get_rid(player_desc, plrname);
@@ -109,6 +109,15 @@ static struct PlayerRange luaL_checkPlayerRange(lua_State *L, int index)
     {
         plr_range_id = get_rid(cmpgn_human_player_options, plrname);
     }
+
+    return plr_range_id;
+}
+
+static struct PlayerRange luaL_checkPlayerRange(lua_State *L, int index)
+{
+    struct PlayerRange playerRange = {0,0};
+    
+    long plr_range_id = luaL_checkPlayerRangeId(L,index);
     if (plr_range_id == ALL_PLAYERS)
     {
         playerRange.start_idx = 0;
@@ -122,6 +131,8 @@ static struct PlayerRange luaL_checkPlayerRange(lua_State *L, int index)
 
     return playerRange;
 }
+
+
 
 static PlayerNumber luaL_checkPlayerSingle(lua_State *L, int index)
 {
@@ -183,7 +194,7 @@ void lua_pushThing(lua_State *L, struct Thing* thing)
     lua_setfield(L, -2, "creation_turn");
 
     /* Returning one table which is already on top of Lua stack. */
-    return 1;
+    return;
 
     /*
     struct luaThing *lthing = (struct luaThing *)lua_newtable(L, );
@@ -660,8 +671,9 @@ static int lua_ADD_CREATURE_TO_POOL(lua_State *L)
 static int lua_RESET_ACTION_POINT(lua_State *L)
 {
     ActionPointId apt_idx     = luaL_checkActionPoint(L, 1);
+    PlayerNumber player_range_id = luaL_checkPlayerRangeId(L, 1);
 
-    action_point_reset_idx(apt_idx);
+    action_point_reset_idx(apt_idx,player_range_id);
     return 0;
 }
 
@@ -679,7 +691,7 @@ static int lua_SET_CREATURE_MAX_LEVEL(lua_State *L)
             continue;
         if (max_level == -1)
             max_level = CREATURE_MAX_LEVEL + 1;
-        dungeon->creature_max_level[crtr_model%gameadd.crtr_conf.model_count] = max_level;
+        dungeon->creature_max_level[crtr_model%game.conf.crtr_conf.model_count] = max_level;
     }
     return 0;
 }
@@ -879,14 +891,17 @@ static int send_chat_message(lua_State *L)
 {
     int plyr_idx = lua_tointeger(L, 1);
     const char *msg = lua_tostring(L, 2);
-    message_add(plyr_idx, msg);
+
+    char type = MsgType_Player;
+
+    message_add(type,plyr_idx, msg);
 
     return 0;
 }
 
 
 
-static const luaL_reg game_methods[] = {
+static const luaL_Reg game_methods[] = {
     {"CREATE_PARTY",                        lua_CREATE_PARTY},
     {"ADD_TO_PARTY",                        lua_ADD_TO_PARTY},
     {"DELETE_FROM_PARTY",                   lua_DELETE_FROM_PARTY},
@@ -1008,7 +1023,7 @@ static const luaL_reg game_methods[] = {
     {"getThingByIdx", lua_get_thing_by_idx},
     {0, 0}};
 
-static const luaL_reg game_meta[] = {
+static const luaL_Reg game_meta[] = {
     {0, 0}};
 
 static int Game_register(lua_State *L)
@@ -1082,13 +1097,13 @@ static int thing_tostring(lua_State *L)
     return 1;
 }
 
-static const luaL_reg thing_methods[] = {
+static const luaL_Reg thing_methods[] = {
     {"MakeThingZombie", make_thing_zombie},
     {"MoveThingTo", move_thing_to},
     {"KillCreature", lua_kill_creature},
     {0, 0}};
 
-static const luaL_reg thing_meta[] = {
+static const luaL_Reg thing_meta[] = {
     {"__tostring", thing_tostring},
     {0, 0}};
 
@@ -1145,7 +1160,7 @@ class Account {
 
 class LuaAccount {
     static const char className[];
-    static const luaL_reg methods[];
+    static const luaL_Reg methods[];
 
     static Account *checkaccount(lua_State *L, int narg) {
       luaL_checktype(L, narg, LUA_TUSERDATA);
@@ -1216,7 +1231,7 @@ const char LuaAccount::className[] = "Account";
 
 #define method(class, name) {#name, class::name}
 
-const luaL_reg LuaAccount::methods[] = {
+const luaL_Reg LuaAccount::methods[] = {
   method(LuaAccount, deposit),
   method(LuaAccount, withdraw),
   method(LuaAccount, balance),
@@ -1341,7 +1356,7 @@ static int Foo_dot(lua_State *L)
     return 1;
 }
 
-static const luaL_reg Foo_methods[] = {
+static const luaL_Reg Foo_methods[] = {
     {"new", Foo_new},
     {"yourCfunction", Foo_yourCfunction},
     {"setx", Foo_setx},
@@ -1364,7 +1379,7 @@ static int Foo_tostring(lua_State *L)
     return 1;
 }
 
-static const luaL_reg Foo_meta[] = {
+static const luaL_Reg Foo_meta[] = {
     {"__gc", Foo_gc},
     {"__tostring", Foo_tostring},
     {"__add", Foo_add},

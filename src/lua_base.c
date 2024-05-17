@@ -1,9 +1,12 @@
 #include "pre_inc.h"
 
 
-#include <string>
+//#include <string>
 
-#include "../lib/lua/include/lua.hpp"
+//#include "../deps/luajit/src/lua.hpp"
+#include "../deps/luajit/src/lua.h"
+#include "../deps/luajit/src/lauxlib.h"
+#include "../deps/luajit/src/lualib.h"
 
 #include "lua_api.h"
 
@@ -15,7 +18,7 @@
 
 #include "post_inc.h"
 
-extern "C" {
+//extern "C" {
 
 struct lua_State *Lvl_script;
 
@@ -36,7 +39,7 @@ void close_lua_script()
     if(Lvl_script)
         lua_close(Lvl_script);
 }
-
+/*
 int setLuaPath( lua_State* L, const char* path )
 {
     lua_getglobal( L, "package" );
@@ -50,6 +53,7 @@ int setLuaPath( lua_State* L, const char* path )
     lua_pop( L, 1 ); // get rid of package table from top of stack
     return 0; // all done!
 }
+*/
 
 TbBool open_lua_script(LevelNumber lvnum)
 {
@@ -78,4 +82,4 @@ TbBool open_lua_script(LevelNumber lvnum)
     
 }
 
-}
+//}

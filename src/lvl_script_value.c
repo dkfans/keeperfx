@@ -171,96 +171,6 @@ TbResult script_computer_dig_to_location(long plyr_idx, long origin, long destin
 }
 
 /**
- * Casts spell at a location set by subtiles.
- * @param plyr_idx caster player.
- * @param stl_x subtile's x position.
- * @param stl_y subtile's y position
- * @param fml_bytes encoded bytes: f=cast for free flag,m=power kind,l=spell level.
- * @return TbResult whether the spell was successfully cast
- */
-TbResult script_use_power_at_pos(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long fml_bytes)
-{
-    char is_free = (fml_bytes >> 16) != 0;
-    PowerKind powerKind = (fml_bytes >> 8) & 255;
-    long splevel = fml_bytes & 255;
-
-    unsigned long spell_flags = PwCast_AllGround | PwCast_Unrevealed;
-    if (is_free)
-        spell_flags |= PwMod_CastForFree;
-
-    return magic_use_power_on_subtile(plyr_idx, powerKind, splevel, stl_x, stl_y, spell_flags);
-}
-
-/**
- * Casts spell at a location set by action point/hero gate.
- * @param plyr_idx caster player.
- * @param target action point/hero gate.
- * @param fml_bytes encoded bytes: f=cast for free flag,m=power kind,l=spell level.
- * @return TbResult whether the spell was successfully cast
- */
-TbResult script_use_power_at_location(PlayerNumber plyr_idx, TbMapLocation target, long fml_bytes)
-{
-    SYNCDBG(0, "Using power at location of type %d", target);
-    long x = 0;
-    long y = 0;
-    find_map_location_coords(target, &x, &y, plyr_idx, __func__);
-    if ((x == 0) && (y == 0))
-    {
-        WARNLOG("Can't decode location %d", target);
-        return Lb_FAIL;
-    }
-    return script_use_power_at_pos(plyr_idx, x, y, fml_bytes);
-}
-
-/**
- * Casts a spell for player.
- * @param plyr_idx caster player.
- * @param power_kind the spell: magic id.
- * @param free cast for free flag.
- * @return TbResult whether the spell was successfully cast
- */
-TbResult script_use_power(PlayerNumber plyr_idx, PowerKind power_kind, char free)
-{
-    return magic_use_power_on_level(plyr_idx, power_kind, 1, free != 0 ? PwMod_CastForFree : 0); // splevel gets ignored anyway -> pass 1
-}
-
-/**
- * Increases creatures' levels for player.
- * @param plyr_idx target player
- * @param count how many times should the level be increased
- */
-void script_use_special_increase_level(PlayerNumber plyr_idx, int count)
-{
-    increase_level(get_player(plyr_idx), count);
-}
-
-/**
- * Multiplies every creature for player.
- * @param plyr_idx target player
- */
-void script_use_special_multiply_creatures(PlayerNumber plyr_idx)
-{
-    multiply_creatures(get_player(plyr_idx));
-}
-
-/**
- * Fortifies player's dungeon.
- * @param plyr_idx target player
- */
-void script_use_special_make_safe(PlayerNumber plyr_idx)
-{
-    make_safe(get_player(plyr_idx));
-}
-
-/**
- * Enables bonus level for current player.
- */
-TbBool script_use_special_locate_hidden_world()
-{
-    return activate_bonus_level(get_player(my_player_number));
-}
-
-/**
  * Processes given VALUE immediately.
  * This processes given script command. It is used to process VALUEs at start when they have
  * no conditions, or during the gameplay when conditions are met.
@@ -760,7 +670,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
     case Cmd_USE_POWER_ON_CREATURE:
       for (i=plr_start; i < plr_end; i++)
       {
-          script_use_power_on_creature_matching_criterion(i, val2, val3, val4);
+          //script_use_power_on_creature_matching_criterion(i, val2, val3, val4);
       }
       break;
     case Cmd_USE_SPELL_ON_CREATURE:
@@ -808,11 +718,11 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
     case Cmd_MAKE_SAFE:
       for (i=plr_start; i < plr_end; i++)
       {
-          script_make_safe(i);
+          //script_make_safe(i);
       }
       break;
     case Cmd_LOCATE_HIDDEN_WORLD:
-      script_locate_hidden_world();
+      //script_locate_hidden_world();
       break;
     case Cmd_CHANGE_CREATURE_OWNER:
       for (i=plr_start; i < plr_end; i++)
@@ -823,7 +733,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
     case Cmd_MAKE_UNSAFE:
       for (i=plr_start; i < plr_end; i++)
       {
-          script_make_unsafe(i);
+          //script_make_unsafe(i);
       }
       break;
   case Cmd_SET_CAMPAIGN_FLAG:

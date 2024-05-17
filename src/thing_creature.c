@@ -6760,7 +6760,7 @@ struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmode
         return get_creature_near_and_owned_by(pos->x.val, pos->y.val, plyr_idx, crmodel);
     }
     case CSelCrit_NearEnemyHeart:
-        return get_creature_in_range_around_any_of_enemy_heart(plyr_idx, crmodel, 11);
+        //return get_creature_in_range_around_any_of_enemy_heart(plyr_idx, crmodel, 11);
     case CSelCrit_OnEnemyGround:
         return get_random_players_creature_of_model_on_territory(plyr_idx, crmodel, 0);
     case CSelCrit_OnFriendlyGround:
