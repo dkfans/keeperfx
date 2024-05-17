@@ -700,6 +700,8 @@ void process_trap_charge(struct Thing* traptng)
     {
         GameTurnDelta trigger_duration = get_lifespan_of_animation(trapstat->attack_sprite_anim_idx, trapstat->anim_speed);
         traptng->trap.shooting_finished_turn = (game.play_gameturn + trigger_duration);
+        traptng->current_frame = 0;
+        traptng->anim_time = 0;
     }
     if ((trapstat->recharge_sprite_anim_idx != 0) || (trapstat->attack_sprite_anim_idx != 0))
     {
