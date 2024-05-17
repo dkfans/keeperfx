@@ -801,7 +801,6 @@ TngUpdateRet update_trap(struct Thing *traptng)
             // Back to regular anim.
             traptng->anim_sprite = convert_td_iso(trapstat->sprite_anim_idx);
             traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
-            traptng->current_frame = 1;
             traptng->trap.wait_for_rearm = false;
         }
         else if (traptng->trap.shooting_finished_turn > (game.play_gameturn)) // Shot anim is playing.
@@ -810,7 +809,6 @@ TngUpdateRet update_trap(struct Thing *traptng)
             {
                 traptng->anim_sprite = convert_td_iso(trapstat->attack_sprite_anim_idx);
                 traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
-                traptng->current_frame = 1;
             }
         }
         else // Done shooting, still recharging. Show recharge animation.
@@ -824,7 +822,6 @@ TngUpdateRet update_trap(struct Thing *traptng)
                 traptng->anim_sprite = convert_td_iso(trapstat->sprite_anim_idx);
             }
             traptng->max_frames = get_lifespan_of_animation(traptng->anim_sprite, trapstat->anim_speed);
-            traptng->current_frame = 1;
         }
     }
     if (trapstat->activation_type == TrpAcT_CreatureShot)
