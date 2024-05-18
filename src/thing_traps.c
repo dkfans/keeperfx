@@ -700,6 +700,8 @@ void process_trap_charge(struct Thing* traptng)
     {
         GameTurnDelta trigger_duration = get_lifespan_of_animation(trapstat->attack_sprite_anim_idx, trapstat->anim_speed);
         traptng->trap.shooting_finished_turn = (game.play_gameturn + trigger_duration);
+        traptng->current_frame = 0;
+        traptng->anim_time = 0;
     }
     if ((trapstat->recharge_sprite_anim_idx != 0) || (trapstat->attack_sprite_anim_idx != 0))
     {
@@ -794,7 +796,7 @@ TngUpdateRet update_trap(struct Thing *traptng)
         return TUFRet_Deleted;
     }
     struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
-    if (traptng->trap.wait_for_rearm == true) // Trap rearming, so either 'shooting' anim or 'recharch' anim.
+    if (traptng->trap.wait_for_rearm == true) // Trap rearming, so either 'shooting' anim or 'recharge' anim.
     {
         if ((traptng->trap.rearm_turn <= game.play_gameturn)) // Recharge complete, rearm.
         {
