@@ -71,7 +71,7 @@
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "power_hand.h"
 #include "power_process.h"
 #include "room_data.h"
@@ -195,7 +195,7 @@ TbBool creature_is_for_dungeon_diggers_list(const struct Thing *creatng)
 TbBool creature_kind_is_for_dungeon_diggers_list(PlayerNumber plyr_idx, ThingModel crmodel)
 {
     //TODO DIGGERS For now, only player-specific and non-hero special diggers are on the diggers list
-    if (plyr_idx == game.hero_player_num)
+    if (player_is_roaming(plyr_idx))
         return false;
     return (crmodel == get_players_special_digger_model(plyr_idx));
     //struct CreatureModelConfig *crconf;
@@ -1148,7 +1148,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         break;
     case SplK_Heal:
     {
-        long i = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev], 16);
+        HitPoints i = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev], 16);
         if (i < 0)
         {
           thing->health = 0;
@@ -2000,7 +2000,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
                 long x = stl_num_decode_x(cctrl->collided_door_subtile);
                 long y = stl_num_decode_y(cctrl->collided_door_subtile);
                 struct Thing* doortng = get_door_for_position(x, y);
-                if ((!thing_is_invalid(doortng)) && (thing->owner != neutral_player_number))
+                if ((!thing_is_invalid(doortng)) && (thing->owner != PLAYER_NEUTRAL))
                 {
                     if (thing->owner != doortng->owner)
                     {
@@ -3310,11 +3310,11 @@ void set_creature_level(struct Thing *thing, long nlvl)
         ERRORLOG("Level %d too low, bounding",(int)nlvl);
         nlvl = 0;
     }
-    long old_max_health = compute_creature_max_health(crstat->health, cctrl->explevel, thing->owner);
+    HitPoints old_max_health = compute_creature_max_health(crstat->health, cctrl->explevel, thing->owner);
     if (old_max_health < 1)
         old_max_health = 1;
     cctrl->explevel = nlvl;
-    long max_health = compute_creature_max_health(crstat->health, cctrl->explevel, thing->owner);
+    HitPoints max_health = compute_creature_max_health(crstat->health, cctrl->explevel, thing->owner);
     cctrl->max_health = max_health;
     set_creature_size_stuff(thing);
     if (old_max_health > 0)
@@ -4079,7 +4079,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->creation_turn = game.play_gameturn;
     cctrl->joining_age = 17 + CREATURE_RANDOM(crtng, 13);
     cctrl->blood_type = CREATURE_RANDOM(crtng, BLOOD_TYPES_COUNT);
-    if (owner == game.hero_player_num)
+    if (player_is_roaming(owner))
     {
       cctrl->hero.sbyte_89 = -1;
       cctrl->hero.byte_8C = 1;
@@ -4619,14 +4619,14 @@ long player_list_creature_filter_of_gui_job_and_pickable2(const struct Thing *th
  * Returns a creature in fight which gives highest score value.
  * @return The thing in fight, or invalid thing if not found.
  */
-struct Thing *find_players_highest_score_creature_in_fight_not_affected_by_spell(PlayerNumber plyr_idx, PowerKind pwkind)
+struct Thing *find_players_highest_score_creature_in_fight_not_affected_by_spell(PlayerNumber plyr_idx, SpellKind spell_kind)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     struct CompoundTngFilterParam param;
     param.plyr_idx = -1;
     param.class_id = 0;
     param.model_id = CREATURE_ANY;
-    param.num1 = pwkind;
+    param.num1 = spell_kind;
     Thing_Maximizer_Filter filter = player_list_creature_filter_in_fight_and_not_affected_by_spell;
     struct Thing* creatng = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
     if (thing_is_invalid(creatng)) {
@@ -6113,7 +6113,7 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
     switch (effect)
     {
     case 1:
-        if (plyr_idx == game.hero_player_num)
+        if (player_is_roaming(plyr_idx))
         {
             thing->mappos.z.val = get_ceiling_height(&thing->mappos);
             create_effect(&thing->mappos, TngEff_CeilingBreach, thing->owner);

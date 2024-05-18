@@ -53,7 +53,7 @@
 #include "magic.h"
 #include "player_computer.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "frontmenu_ingame_evnt.h"
 #include "frontmenu_ingame_opts.h"
 #include "frontmenu_ingame_map.h"
@@ -106,7 +106,7 @@ static PlayerNumber info_panel_pos_to_player_number(int idx)
     idx += info_page * 3;
     for (size_t i = 0; i < PLAYERS_COUNT; i++)
     {
-        if(i == my_player_number || i == game.hero_player_num)
+        if(i == my_player_number || player_is_roaming(i))
             continue;
 
         struct PlayerInfo* player = get_player(i);
@@ -2041,7 +2041,7 @@ void maintain_player_page2(struct GuiButton *gbtn)
     for (size_t i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
-        if(player_exists(player) && i != game.hero_player_num)
+        if(player_exists(player) && player_is_keeper(i))
             current_players_count++;
     }
     if(current_players_count > 4)
@@ -2072,7 +2072,7 @@ void maintain_query_button(struct GuiButton *gbtn)
     for (size_t i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
-        if(player_exists(player) && i != game.hero_player_num)
+        if(player_exists(player) && player_is_keeper(i))
             current_players_count++;
     }
 
@@ -2268,13 +2268,14 @@ void gui_area_player_creature_info(struct GuiButton *gbtn)
     struct Dungeon* dungeon = get_players_dungeon(player);
     if (player_exists(player) && !dungeon_invalid(dungeon))
     {
+        unsigned long spr_idx = get_player_colored_icon_idx(player_has_heart(plyr_idx) ? GPS_plyrsym_symbol_player_red_std_a : GPS_plyrsym_symbol_player_red_dead, plyr_idx);
         if (((dungeon->num_active_creatrs < dungeon->max_creatures_attracted) && (!game.pool.is_empty))
             || ((game.play_gameturn & 1) != 0))
         {
-            draw_gui_panel_sprite_left_player(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_plyrsym_symbol_player_red_std_a, plyr_idx);
+            draw_gui_panel_sprite_left_player(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, plyr_idx);
         } else
         {
-            draw_gui_panel_sprite_rmleft_player(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_plyrsym_symbol_player_red_std_a, 44, plyr_idx);
+            draw_gui_panel_sprite_rmleft_player(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 44, plyr_idx);
         }
         char* text;
         if (game.conf.rules.game.display_portal_limit == true) 
