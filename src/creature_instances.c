@@ -274,7 +274,7 @@ TbBool instance_draws_possession_swipe(CrInstance inum)
 TbBool instance_is_ranged_weapon(CrInstance inum)
 {
     struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
-    return ( ((inst_inf->flags & InstPF_RangedAttack) != 0) || ((inst_inf->flags & InstPF_RangedDebuff) != 0) );
+    return ((inst_inf->flags & InstPF_RangedAttack) != 0);
 }
 
 TbBool instance_is_ranged_weapon_vs_objects(CrInstance inum)
