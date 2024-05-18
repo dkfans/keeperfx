@@ -643,7 +643,7 @@ long calculate_correct_creature_strength(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_strength(crstat->strength,cctrl->explevel);
-    if (creature_affected_by_spell(thing, SplK_Rage))
+    if (creature_affected_by_spell(thing, SplK_Rage)) //strength
         max_param = (384 * max_param) / 256;
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);
@@ -683,7 +683,7 @@ long calculate_correct_creature_defense(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_defense(crstat->defense,cctrl->explevel);
-    if (creature_affected_by_spell(thing, SplK_Rage))
+    if (creature_affected_by_spell(thing, SplK_Rage)) //defense
         max_param = 0;
     return max_param;
 }
@@ -705,7 +705,7 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
         speed *= 2;
     if (creature_affected_by_spell(thing, SplK_Speed))
         speed *= 2;
-    if (creature_affected_by_spell(thing, SplK_Rage))
+    if (creature_affected_by_spell(thing, SplK_Rage)) //make different
         speed *= 2;
     if (creature_affected_by_spell(thing, SplK_Slow))
         speed /= 2;

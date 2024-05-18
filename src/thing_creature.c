@@ -728,6 +728,12 @@ void anger_apply_anger_to_creature_f(struct Thing *creatng, long anger, AnnoyMot
 TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
 {
     const struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    const struct SpellConfig* spconf = get_spell_config(spkind);
+    if (all_flags_are_set(cctrl->spell_flags, spconf->spell_flags) && all_flags_are_set(cctrl->block_flags, spconf->block_flags)) //todo make functional
+    {
+
+    }
+
     switch (spkind)
     {
     case SplK_Freeze:
@@ -1105,7 +1111,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         case SplK_Rage:
         case SplK_Speed:
         case SplK_Slow:
-            cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+            cctrl->max_speed = calculate_correct_creature_maxspeed(thing); //todo check on spell flag
             break;
         case SplK_Fly:
             thing->movement_flags |= TMvF_Flying;
@@ -3531,7 +3537,7 @@ void get_creature_instance_times(const struct Thing *thing, long inst_idx, long 
             itime -= itime / 4;
         }
     }
-    if (creature_affected_by_spell(thing, SplK_Rage))
+    if (creature_affected_by_spell(thing, SplK_Rage)) //Rage stacks with other speed boosts
     {
         aitime /= 2;
         itime /= 2;

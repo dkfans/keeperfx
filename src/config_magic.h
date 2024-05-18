@@ -90,7 +90,9 @@ enum CreatureSpellAffectedFlags {
     /** For creature which are normally flying, this informs that its grounded due to spells or its condition. */
     CSAfF_Grounded     = 0x08000,
     CSAfF_Timebomb     = 0x10000,
-    CSAfF_Rage         = 0x20000,
+    CSAfF_Haste        = 0x20000,
+    CSAfF_Strength     = 0x40000,
+    CSAfF_Exposed      = 0x80000,
 };
 
 enum PowerKinds {
