@@ -1,6 +1,6 @@
 ---@meta native
 
---file not used by the game, but used for telling the IDE about the 
+--file not used by the game, but used for telling the IDE about the
 --functions exported from the C code
 --also serves as documentation of said function
 
@@ -84,7 +84,7 @@
 ---@field private name string
 ---@field LAST_EVENT lastevent
 ---@field CONTROLS creaturefields
----@field MONEY integer 
+---@field MONEY integer
 ---@field GAME_TURN integer
 ---@field BREAK_IN integer
 ---@field TOTAL_DIGGERS integer
@@ -241,9 +241,9 @@ function SET_GENERATE_SPEED(interval) end
 ---@param attitude integer|"ROAMING"
 function COMPUTER_PLAYER(player,attitude) end
 
----Sets up an alliance between two players. 
+---Sets up an alliance between two players.
 ---Note that computer players will not break the alliance by themselves, but human player may do so.
----So this command is mostly for controlling the computer players behavior. 
+---So this command is mostly for controlling the computer players behavior.
 ---@param player1 playerrange players this should affect.
 ---@param player2 playersingle player this should affect.
 ---@param state? integer What happens to the alliance, it can have the following values:
@@ -338,7 +338,7 @@ function RESET_ACTION_POINT(action_point) end
 ---returns the amount of creatures at the ap
 ---@param action_point integer
 ---@param player playerrange
----@param creature_type creature_type 
+---@param creature_type creature_type
 ---@return integer amount amount of creatures matching the conditions
 ---@nodiscard
 function COUNT_CREATURES_AT_ACTION_POINT(action_point,player,creature_type) return 0 end
@@ -372,7 +372,7 @@ function ADD_BONUS_TIME() end
 ---@param creature_model creature_type  The creature's name, e.g. DRAGON.
 ---@param location location where the creature(s) should be spawned
 ---@param ncopies integer number of identical creatures that should be created
----@param level integer   
+---@param level integer
 ---@param carried_gold integer
 ---@return Creature ...
 function ADD_CREATURE_TO_LEVEL(owner,creature_model,location,ncopies,level,carried_gold) return Creature end
@@ -393,7 +393,7 @@ function ADD_TUNNELLER_TO_LEVEL(owner,spawn_location,head_for,target,experience,
 ---@param party_name string
 function CREATE_PARTY(party_name) end
 
----This command adds a number of creatures to a party 
+---This command adds a number of creatures to a party
 ---@param party_name string The name as defined with the CREATE_PARTY command
 ---@param creaturemodel creature_type
 ---@param level integer
@@ -461,8 +461,6 @@ function DISPLAY_INFORMATION(msg_id,zoom_location) end
 function DISPLAY_INFORMATION_WITH_POS(msg_id,x,y) end
 
 
-
-function PRINT() end
 function MESSAGE() end
 function PLAY_MESSAGE() end
 function DISPLAY_VARIABLE() end
@@ -595,7 +593,7 @@ function SET_PLAYER_COLOR(player,colour) end
 function SET_PLAYER_MODIFIER(player,modifier,value) end
 
 function ADD_TO_PLAYER_MODIFIER(player,modifier,value) end
-    
+
 
 
 

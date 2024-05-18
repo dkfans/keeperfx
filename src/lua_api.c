@@ -91,7 +91,7 @@ static TbMapLocation luaL_checkHeadingLocation(lua_State *L, int index)
     const char* locname = lua_tostring(L, index);
     long target = luaL_checkNamedCommand(L, index + 1,head_for_desc);
 
-    
+
     TbMapLocation location;
     if(!get_map_heading_id(locname, target, &location))
     {
@@ -103,7 +103,7 @@ static TbMapLocation luaL_checkHeadingLocation(lua_State *L, int index)
 static PlayerNumber luaL_checkPlayerRangeId(lua_State *L, int index)
 {
     const char* plrname = lua_tostring(L, index);
-    
+
     long plr_range_id = get_rid(player_desc, plrname);
     if (plr_range_id == -1)
     {
@@ -116,7 +116,7 @@ static PlayerNumber luaL_checkPlayerRangeId(lua_State *L, int index)
 static struct PlayerRange luaL_checkPlayerRange(lua_State *L, int index)
 {
     struct PlayerRange playerRange = {0,0};
-    
+
     long plr_range_id = luaL_checkPlayerRangeId(L,index);
     if (plr_range_id == ALL_PLAYERS)
     {
@@ -182,9 +182,9 @@ void lua_pushThing(lua_State *L, struct Thing* thing)
 {
     if(thing_is_invalid(thing))
     {
-        
+
     }
-    
+
     lua_createtable(L, 0, 4); /* creates and pushes new table on top of Lua stack */
 
     lua_pushinteger(L, thing->index); /* Pushes table value on top of Lua stack */
@@ -302,7 +302,7 @@ static int lua_ADD_CREATURE_TO_LEVEL(lua_State *L)
     long ncopies           = luaL_checkinteger(L, 4);
     long crtr_level        = luaL_checkinteger(L, 5);
     long carried_gold      = luaL_checkinteger(L, 6);
-       
+
     if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
     {
         SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
@@ -336,22 +336,6 @@ static int lua_ADD_OBJECT_TO_LEVEL(lua_State *L)
     return 1;
 }
 
-static int lua_SET_HATE(lua_State *L)
-{
-    struct PlayerRange players = luaL_checkPlayerRange(L,1);
-    PlayerNumber enmy_plr_id   = luaL_checkPlayerSingle(L,2);
-    long hate_val   = luaL_checkinteger(L,3);
-
-    for (PlayerNumber i=players.start_idx; i < players.end_idx; i++)
-    {
-        struct Dungeon* dungeon = get_dungeon(i);
-        if (dungeon_invalid(dungeon))
-            continue;
-        dungeon->hates_player[enmy_plr_id%DUNGEONS_COUNT] = hate_val;
-    }
-    return 0;
-}
-
 static int lua_SET_GENERATE_SPEED(lua_State *L)
 {
     GameTurnDelta interval   = luaL_checkinteger(L,1);
@@ -365,7 +349,7 @@ static int lua_START_MONEY(lua_State *L)
 {
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
     GoldAmount gold_val = luaL_checkinteger(L, 2);
-        
+
     for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         if (gold_val > SENSIBLE_GOLD)
@@ -375,7 +359,7 @@ static int lua_START_MONEY(lua_State *L)
         }
         player_add_offmap_gold(i, gold_val);
     }
-    return 0; 
+    return 0;
 
 }
 
@@ -385,12 +369,12 @@ static int lua_ROOM_AVAILABLE(lua_State *L)
     long rkind                      = luaL_checkNamedCommand(L,2,room_desc);
     TbBool can_be_available         = lua_toboolean(L, 3);
     TbBool is_available             = lua_toboolean(L, 4);
-        
+
     for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         set_room_available(i,rkind,can_be_available,is_available);
     }
-    return 0; 
+    return 0;
 }
 static int lua_CREATURE_AVAILABLE(lua_State *L)
 {
@@ -398,13 +382,13 @@ static int lua_CREATURE_AVAILABLE(lua_State *L)
     long cr_kind                    = luaL_checkNamedCommand(L,2,creature_desc);
     TbBool can_be_attracted         = lua_toboolean(L, 3);
     long amount_forced              = luaL_checkinteger(L, 4);
-        
+
     for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         if (!set_creature_available(i,cr_kind,can_be_attracted,amount_forced))
             WARNLOG("Setting creature %s availability for player %d failed.",creature_code_name(cr_kind),(int)i);
     }
-    return 0; 
+    return 0;
 }
 static int lua_MAGIC_AVAILABLE(lua_State *L)
 {
@@ -440,10 +424,10 @@ static int lua_RESEARCH(lua_State *L)
     switch (research_type)
     {
         case 1:
-            room_or_spell = luaL_checkNamedCommand(L,3,power_desc); 
+            room_or_spell = luaL_checkNamedCommand(L,3,power_desc);
             break;
         case 2:
-            room_or_spell = luaL_checkNamedCommand(L,3,room_desc); 
+            room_or_spell = luaL_checkNamedCommand(L,3,room_desc);
             break;
         default:
             luaL_error (L,"invalid research_type %d",research_type);
@@ -465,10 +449,10 @@ static int lua_RESEARCH_ORDER(lua_State *L)
     switch (research_type)
     {
         case 1:
-            room_or_spell = luaL_checkNamedCommand(L,3,power_desc); 
+            room_or_spell = luaL_checkNamedCommand(L,3,power_desc);
             break;
         case 2:
-            room_or_spell = luaL_checkNamedCommand(L,3,room_desc); 
+            room_or_spell = luaL_checkNamedCommand(L,3,room_desc);
             break;
         default:
             luaL_error (L,"invalid research_type %d",research_type);
@@ -527,17 +511,17 @@ static int lua_WIN_GAME(lua_State *L)
     {
         player_range.start_idx = 0;
         player_range.end_idx = PLAYERS_COUNT;
-    }        
-    else 
+    }
+    else
         player_range = luaL_checkPlayerRange(L, 1);
 
-        
+
     for (size_t i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         struct PlayerInfo *player = get_player(i);
         set_player_as_won_level(player);
     }
-    return 0; 
+    return 0;
 }
 static int lua_LOSE_GAME(lua_State *L)
 {
@@ -546,8 +530,8 @@ static int lua_LOSE_GAME(lua_State *L)
     {
         player_range.start_idx = 0;
         player_range.end_idx = PLAYERS_COUNT;
-    }        
-    else 
+    }
+    else
         player_range = luaL_checkPlayerRange(L, 1);
 
     for (size_t i = player_range.start_idx; i < player_range.end_idx; i++)
@@ -602,7 +586,7 @@ static int lua_DISPLAY_OBJECTIVE_WITH_POS(lua_State *L)
     long msg_id   = luaL_checkinteger(L, 1);
     long stl_x    = luaL_checkstl_x(L, 2);
     long stl_y    = luaL_checkstl_y(L, 3);
-    
+
     set_general_objective(msg_id,0,stl_x,stl_y);
     return 0;
 }
@@ -705,7 +689,7 @@ static int lua_SET_MUSIC(lua_State *L)
         game.audiotrack = track_number;
     }
     return 0;
-    
+
 }
 
 static int lua_TUTORIAL_FLASH_BUTTON(lua_State *L)
@@ -717,48 +701,7 @@ static int lua_TUTORIAL_FLASH_BUTTON(lua_State *L)
     return 0;
 }
 /*
-static int lua_SET_CREATURE_STRENGTH(lua_State *L)
-{
-    struct CreatureStats *crstat = creature_stats_get(val2);
-    if (creature_stats_invalid(crstat))
-        break;
-    crstat->strength = saturate_set_unsigned(val3, 8);
-    return 0;
-}
-static int lua_SET_CREATURE_HEALTH(lua_State *L)
-{
-      change_max_health_of_creature_kind(val2, val3);
-static int lua_SET_CREATURE_ARMOUR(lua_State *L)
-      struct CreatureStats *crstat = creature_stats_get(val2);
-      if (creature_stats_invalid(crstat))
-          break;
-      crstat->armour = saturate_set_unsigned(val3, 8);
-    return 0;
-}
-static int lua_SET_CREATURE_FEAR_WOUNDED(lua_State *L)
-{
-      struct CreatureStats *crstat = creature_stats_get(val2);
-      if (creature_stats_invalid(crstat))
-          break;
-      crstat->fear_wounded = saturate_set_unsigned(val3, 8);
-    return 0;
-}
-static int lua_SET_CREATURE_FEAR_STRONGER(lua_State *L)
-{
-      struct CreatureStats *crstat = creature_stats_get(val2);
-      if (creature_stats_invalid(crstat))
-          break;
-      crstat->fear_stronger = saturate_set_unsigned(val3, 16);
-    return 0;
-}
-static int lua_SET_CREATURE_FEARSOME_FACTOR(lua_State *L)
-{
-      struct CreatureStats *crstat = creature_stats_get(val2);
-      if (creature_stats_invalid(crstat))
-          break;
-      crstat->fearsome_factor = saturate_set_unsigned(val3, 16);
-    return 0;
-}
+
 static int lua_SET_CREATURE_PROPERTY(lua_State *L)
 {
 
@@ -902,122 +845,149 @@ static int send_chat_message(lua_State *L)
 
 
 static const luaL_Reg game_methods[] = {
-    {"CREATE_PARTY",                        lua_CREATE_PARTY},
-    {"ADD_TO_PARTY",                        lua_ADD_TO_PARTY},
-    {"DELETE_FROM_PARTY",                   lua_DELETE_FROM_PARTY},
-    {"ADD_PARTY_TO_LEVEL",                  lua_ADD_PARTY_TO_LEVEL},
-    {"ADD_CREATURE_TO_LEVEL",               lua_ADD_CREATURE_TO_LEVEL},
-    {"ADD_OBJECT_TO_LEVEL",                 lua_ADD_OBJECT_TO_LEVEL},
-    {"SET_HATE",                            lua_SET_HATE},
-    {"SET_GENERATE_SPEED",                  lua_SET_GENERATE_SPEED},
-    {"START_MONEY",                         lua_START_MONEY},
-    {"ROOM_AVAILABLE",                      lua_ROOM_AVAILABLE},
-    {"CREATURE_AVAILABLE",                  lua_CREATURE_AVAILABLE},
-    {"MAGIC_AVAILABLE",                     lua_MAGIC_AVAILABLE},
-    {"TRAP_AVAILABLE",                      lua_TRAP_AVAILABLE},
-    {"RESEARCH",                            lua_RESEARCH},
-    {"RESEARCH_ORDER",                      lua_RESEARCH_ORDER},
-    {"COMPUTER_PLAYER",                     lua_COMPUTER_PLAYER},
-    {"SET_TIMER",                           lua_SET_TIMER},
-    {"ADD_TUNNELLER_TO_LEVEL",              lua_ADD_TUNNELLER_TO_LEVEL},
-    {"WIN_GAME",                            lua_WIN_GAME},
-    {"LOSE_GAME",                           lua_LOSE_GAME},
-    {"MAX_CREATURES",                       lua_MAX_CREATURES},
-    {"DOOR_AVAILABLE",                      lua_DOOR_AVAILABLE},
-    {"DISPLAY_OBJECTIVE",                   lua_DISPLAY_OBJECTIVE},
-    {"DISPLAY_OBJECTIVE_WITH_POS",          lua_DISPLAY_OBJECTIVE_WITH_POS},
-    {"DISPLAY_INFORMATION",                 lua_DISPLAY_INFORMATION},
-    {"DISPLAY_INFORMATION_WITH_POS",        lua_DISPLAY_INFORMATION_WITH_POS},
-    {"ADD_TUNNELLER_PARTY_TO_LEVEL",        lua_ADD_TUNNELLER_PARTY_TO_LEVEL},
-    {"ADD_CREATURE_TO_POOL",                lua_ADD_CREATURE_TO_POOL},
-    {"RESET_ACTION_POINT",                  lua_RESET_ACTION_POINT},
-    {"SET_CREATURE_MAX_LEVEL",              lua_SET_CREATURE_MAX_LEVEL},
-    {"SET_MUSIC",                           lua_SET_MUSIC},
-    {"TUTORIAL_FLASH_BUTTON",               lua_TUTORIAL_FLASH_BUTTON},
-    /*
-    {"SET_CREATURE_STRENGTH",               lua_SET_CREATURE_STRENGTH},
-    {"SET_CREATURE_HEALTH",                 lua_SET_CREATURE_HEALTH},
-    {"SET_CREATURE_ARMOUR",                 lua_SET_CREATURE_ARMOUR},
-    {"SET_CREATURE_FEAR_WOUNDED",           lua_SET_CREATURE_FEAR_WOUNDED},
-    {"SET_CREATURE_FEAR_STRONGER",          lua_SET_CREATURE_FEAR_STRONGER},
-    {"SET_CREATURE_FEARSOME_FACTOR",        lua_SET_CREATURE_FEARSOME_FACTOR},
-    {"SET_CREATURE_PROPERTY",               lua_SET_CREATURE_PROPERTY},
-    {"SET_COMPUTER_GLOBALS",                lua_SET_COMPUTER_GLOBALS},
-    {"SET_COMPUTER_CHECKS",                 lua_SET_COMPUTER_CHECKS},
-    {"SET_COMPUTER_EVENT",                  lua_SET_COMPUTER_EVENT},
-    {"SET_COMPUTER_PROCESS",                lua_SET_COMPUTER_PROCESS},
-    {"ALLY_PLAYERS",                        lua_ALLY_PLAYERS},
-    {"DEAD_CREATURES_RETURN_TO_POOL",       lua_DEAD_CREATURES_RETURN_TO_POOL},
-    {"BONUS_LEVEL_TIME",                    lua_BONUS_LEVEL_TIME},
-    {"QUICK_OBJECTIVE",                     lua_QUICK_OBJECTIVE},
-    {"QUICK_INFORMATION",                   lua_QUICK_INFORMATION},
-    {"QUICK_OBJECTIVE_WITH_POS",            lua_QUICK_OBJECTIVE_WITH_POS},
-    {"QUICK_INFORMATION_WITH_POS",          lua_QUICK_INFORMATION_WITH_POS},
-    {"SWAP_CREATURE",                       lua_SWAP_CREATURE},
-    {"PRINT",                               lua_PRINT},
-    {"MESSAGE",                             lua_MESSAGE},
-    {"PLAY_MESSAGE",                        lua_PLAY_MESSAGE},
-    {"ADD_GOLD_TO_PLAYER",                  lua_ADD_GOLD_TO_PLAYER},
-    {"SET_CREATURE_TENDENCIES",             lua_SET_CREATURE_TENDENCIES},
-    {"REVEAL_MAP_RECT",                     lua_REVEAL_MAP_RECT},
-    {"CONCEAL_MAP_RECT",                    lua_CONCEAL_MAP_RECT},
-    {"REVEAL_MAP_LOCATION",                 lua_REVEAL_MAP_LOCATION},
-    {"LEVEL_VERSION",                       lua_LEVEL_VERSION},
-    {"KILL_CREATURE",                       lua_KILL_CREATURE},
-    {"COMPUTER_DIG_TO_LOCATION",            lua_COMPUTER_DIG_TO_LOCATION},
-    {"USE_POWER_ON_CREATURE",               lua_USE_POWER_ON_CREATURE},
-    {"USE_POWER_AT_POS",                    lua_USE_POWER_AT_POS},
-    {"USE_POWER_AT_SUBTILE",                lua_USE_POWER_AT_SUBTILE},
-    {"USE_POWER_AT_LOCATION",               lua_USE_POWER_AT_LOCATION},
-    {"USE_POWER",                           lua_USE_POWER},
-    {"USE_SPECIAL_INCREASE_LEVEL",          lua_USE_SPECIAL_INCREASE_LEVEL},
-    {"USE_SPECIAL_MULTIPLY_CREATURES",      lua_USE_SPECIAL_MULTIPLY_CREATURES},
-    {"USE_SPECIAL_MAKE_SAFE",               lua_USE_SPECIAL_MAKE_SAFE},
-    {"USE_SPECIAL_LOCATE_HIDDEN_WORLD",     lua_USE_SPECIAL_LOCATE_HIDDEN_WORLD},
-    {"USE_SPECIAL_TRANSFER_CREATURE",       lua_USE_SPECIAL_TRANSFER_CREATURE},
-    {"TRANSFER_CREATURE",                   lua_TRANSFER_CREATURE},
-    {"CHANGE_CREATURES_ANNOYANCE",          lua_CHANGE_CREATURES_ANNOYANCE},
-    {"RUN_AFTER_VICTORY",                   lua_RUN_AFTER_VICTORY},
-    {"LEVEL_UP_CREATURE",                   lua_LEVEL_UP_CREATURE},
-    {"CHANGE_CREATURE_OWNER",               lua_CHANGE_CREATURE_OWNER},
-    {"SET_GAME_RULE",                       lua_SET_GAME_RULE},
-    {"SET_TRAP_CONFIGURATION",              lua_SET_TRAP_CONFIGURATION},
-    {"SET_DOOR_CONFIGURATION",              lua_SET_DOOR_CONFIGURATION},
-    {"SET_OBJECT_CONFIGURATION",            lua_SET_OBJECT_CONFIGURATION},
-    {"SET_CREATURE_CONFIGURATION",          lua_SET_CREATURE_CONFIGURATION},
-    {"SET_SACRIFICE_RECIPE",                lua_SET_SACRIFICE_RECIPE},
-    {"REMOVE_SACRIFICE_RECIPE",             lua_REMOVE_SACRIFICE_RECIPE},
-    {"SET_BOX_TOOLTIP",                     lua_SET_BOX_TOOLTIP},
-    {"SET_BOX_TOOLTIP_ID",                  lua_SET_BOX_TOOLTIP_ID},
-    {"CHANGE_SLAB_OWNER",                   lua_CHANGE_SLAB_OWNER},
-    {"CHANGE_SLAB_TYPE",                    lua_CHANGE_SLAB_TYPE},
-    {"CREATE_EFFECTS_LINE",                 lua_CREATE_EFFECTS_LINE},
-    {"QUICK_MESSAGE",                       lua_QUICK_MESSAGE},
-    {"DISPLAY_MESSAGE",                     lua_DISPLAY_MESSAGE},
-    {"USE_SPELL_ON_CREATURE",               lua_USE_SPELL_ON_CREATURE},
-    {"SET_HEART_HEALTH",                    lua_SET_HEART_HEALTH},
-    {"ADD_HEART_HEALTH",                    lua_ADD_HEART_HEALTH},
-    {"CREATURE_ENTRANCE_LEVEL",             lua_CREATURE_ENTRANCE_LEVEL},
-    {"RANDOMISE_FLAG",                      lua_RANDOMISE_FLAG},
-    {"DISPLAY_TIMER",                       lua_DISPLAY_TIMER},
-    {"ADD_TO_TIMER",                        lua_ADD_TO_TIMER},
-    {"ADD_BONUS_TIME",                      lua_ADD_BONUS_TIME},
-    {"DISPLAY_VARIABLE",                    lua_DISPLAY_VARIABLE},
-    {"DISPLAY_COUNTDOWN",                   lua_DISPLAY_COUNTDOWN},
-    {"HIDE_TIMER",                          lua_HIDE_TIMER},
-    {"HIDE_VARIABLE",                       lua_HIDE_VARIABLE},
-    {"CREATE_EFFECT",                       lua_CREATE_EFFECT},
-    {"CREATE_EFFECT_AT_POS",                lua_CREATE_EFFECT_AT_POS},
-    {"HEART_LOST_QUICK_OBJECTIVE",          lua_HEART_LOST_QUICK_OBJECTIVE},
-    {"HEART_LOST_OBJECTIVE",                lua_HEART_LOST_OBJECTIVE},
-    {"SET_DOOR",                            lua_SET_DOOR},
-    {"SET_CREATURE_INSTANCE",               lua_SET_CREATURE_INSTANCE},
-    {"SET_HAND_RULE",                       lua_SET_HAND_RULE},
-    {"MOVE_CREATURE",                       lua_MOVE_CREATURE},
-    {"COUNT_CREATURES_AT_ACTION_POINT",     lua_COUNT_CREATURES_AT_ACTION_POINT},
-    {"SET_TEXTURE",                         lua_SET_TEXTURE},
-    {"HIDE_HERO_GATE",                      lua_HIDE_HERO_GATE},
-    */
+//Setup Commands
+   {"SET_GENERATE_SPEED"            ,lua_SET_GENERATE_SPEED           },
+   {"COMPUTER_PLAYER"               ,lua_COMPUTER_PLAYER              },
+//   {"ALLY_PLAYERS"                  ,lua_ALLY_PLAYERS                 },
+   {"START_MONEY"                   ,lua_START_MONEY                  },
+   {"MAX_CREATURES"                 ,lua_MAX_CREATURES                },
+   {"ADD_CREATURE_TO_POOL"          ,lua_ADD_CREATURE_TO_POOL         },
+   {"CREATURE_AVAILABLE"            ,lua_CREATURE_AVAILABLE           },
+//   {"DEAD_CREATURES_RETURN_TO_POOL" ,lua_DEAD_CREATURES_RETURN_TO_POOL},
+   {"ROOM_AVAILABLE"                ,lua_ROOM_AVAILABLE               },
+   {"MAGIC_AVAILABLE"               ,lua_MAGIC_AVAILABLE              },
+   {"DOOR_AVAILABLE"                ,lua_DOOR_AVAILABLE               },
+   {"TRAP_AVAILABLE"                ,lua_TRAP_AVAILABLE               },
+
+//Script flow control
+   {"WIN_GAME"                             ,lua_WIN_GAME                        },
+   {"LOSE_GAME"                            ,lua_LOSE_GAME                       },
+/*
+   {"COUNT_CREATURES_AT_ACTION_POINT"      ,lua_COUNT_CREATURES_AT_ACTION_POINT },
+   {"SET_TIMER"                            ,lua_SET_TIMER                       },
+   {"ADD_TO_TIMER"                         ,lua_ADD_TO_TIMER                    },
+   {"DISPLAY_TIMER"                        ,lua_DISPLAY_TIMER                   },
+   {"HIDE_TIMER"                           ,lua_HIDE_TIMER                      },
+   {"BONUS_LEVEL_TIME"                     ,lua_BONUS_LEVEL_TIME                },
+   {"ADD_BONUS_TIME"                       ,lua_ADD_BONUS_TIME                  },
+*/
+//Adding New Creatures and Parties to the Level
+   {"ADD_CREATURE_TO_LEVEL"                ,lua_ADD_CREATURE_TO_LEVEL           },
+   {"ADD_TUNNELLER_TO_LEVEL"               ,lua_ADD_TUNNELLER_TO_LEVEL          },
+   {"CREATE_PARTY"                         ,lua_CREATE_PARTY                    },
+   {"ADD_TO_PARTY"                         ,lua_ADD_TO_PARTY                    },
+   {"DELETE_FROM_PARTY"                    ,lua_DELETE_FROM_PARTY               },
+   {"ADD_TUNNELLER_PARTY_TO_LEVEL"         ,lua_ADD_TUNNELLER_PARTY_TO_LEVEL    },
+   {"ADD_PARTY_TO_LEVEL"                   ,lua_ADD_PARTY_TO_LEVEL              },
+
+//Displaying information and affecting interface
+   {"DISPLAY_OBJECTIVE"                    ,lua_DISPLAY_OBJECTIVE               },
+   {"DISPLAY_OBJECTIVE_WITH_POS"           ,lua_DISPLAY_OBJECTIVE_WITH_POS      },
+   {"DISPLAY_INFORMATION"                  ,lua_DISPLAY_INFORMATION             },
+   {"DISPLAY_INFORMATION_WITH_POS"         ,lua_DISPLAY_INFORMATION_WITH_POS    },
+/*
+   {"QUICK_OBJECTIVE"                      ,lua_QUICK_OBJECTIVE                 },
+   {"QUICK_OBJECTIVE_WITH_POS"             ,lua_QUICK_OBJECTIVE_WITH_POS        },
+   {"QUICK_INFORMATION"                    ,lua_QUICK_INFORMATION               },
+   {"QUICK_INFORMATION_WITH_POS"           ,lua_QUICK_INFORMATION_WITH_POS      },
+   {"DISPLAY_MESSAGE"                      ,lua_DISPLAY_MESSAGE                 },
+   {"QUICK_MESSAGE"                        ,lua_QUICK_MESSAGE                   },
+   {"HEART_LOST_OBJECTIVE"                 ,lua_HEART_LOST_OBJECTIVE            },
+   {"HEART_LOST_QUICK_OBJECTIVE"           ,lua_HEART_LOST_QUICK_OBJECTIVE      },
+   {"PLAY_MESSAGE"                         ,lua_PLAY_MESSAGE                    },
+   {"TUTORIAL_FLASH_BUTTON"                ,lua_TUTORIAL_FLASH_BUTTON           },
+   {"DISPLAY_COUNTDOWN"                    ,lua_DISPLAY_COUNTDOWN               },
+   {"DISPLAY_VARIABLE"                     ,lua_DISPLAY_VARIABLE                },
+   {"HIDE_VARIABLE"                        ,lua_HIDE_VARIABLE                   },
+
+//Manipulating Map
+   {"REVEAL_MAP_LOCATION"                  ,lua_REVEAL_MAP_LOCATION             },
+   {"REVEAL_MAP_RECT"                      ,lua_REVEAL_MAP_RECT                 },
+   {"CONCEAL_MAP_RECT"                     ,lua_CONCEAL_MAP_RECT                },
+   {"SET_TEXTURE"                          ,lua_SET_TEXTURE                     },
+   {"SET_DOOR"                             ,lua_SET_DOOR                        },
+   {"ADD_OBJECT_TO_LEVEL"                  ,lua_ADD_OBJECT_TO_LEVEL             },
+   {"ADD_EFFECT_GENERATOR_TO_LEVEL"        ,lua_ADD_EFFECT_GENERATOR_TO_LEVEL   },
+
+//Manipulating Configs
+   {"SET_GAME_RULE"                        ,lua_SET_GAME_RULE                   },
+   {"SET_HAND_RULE"                        ,lua_SET_HAND_RULE                   },
+   {"SET_DOOR_CONFIGURATION"               ,lua_SET_DOOR_CONFIGURATION          },
+   {"NEW_OBJECT_TYPE"                      ,lua_NEW_OBJECT_TYPE                 },
+   {"SET_OBJECT_CONFIGURATION"             ,lua_SET_OBJECT_CONFIGURATION        },
+   {"NEW_TRAP_TYPE"                        ,lua_NEW_TRAP_TYPE                   },
+   {"SET_TRAP_CONFIGURATION"               ,lua_SET_TRAP_CONFIGURATION          },
+   {"NEW_CREATURE_TYPE"                    ,lua_NEW_CREATURE_TYPE               },
+   {"SET_CREATURE_CONFIGURATION"           ,lua_SET_CREATURE_CONFIGURATION      },
+   {"SET_EFFECT_GENERATOR_CONFIGURATION"   ,lua_SET_EFFECT_GENERATOR_CONFIGURATI},
+   {"SET_POWER_CONFIGURATION"              ,lua_SET_POWER_CONFIGURATION         },
+   {"SWAP_CREATURE"                        ,lua_SWAP_CREATURE                   },
+   {"NEW_ROOM_TYPE"                        ,lua_NEW_ROOM_TYPE                   },
+   {"SET_ROOM_CONFIGURATION"               ,lua_SET_ROOM_CONFIGURATION          },
+   {"SET_SACRIFICE_RECIPE"                 ,lua_SET_SACRIFICE_RECIPE            },
+   {"REMOVE_SACRIFICE_RECIPE"              ,lua_REMOVE_SACRIFICE_RECIPE         },
+   {"SET_MUSIC"                            ,lua_SET_MUSIC                       },
+
+//Manipulating Creature stats
+   {"SET_CREATURE_INSTANCE"                ,lua_SET_CREATURE_INSTANCE           },
+   {"SET_CREATURE_MAX_LEVEL"               ,lua_SET_CREATURE_MAX_LEVEL          },
+   {"SET_CREATURE_PROPERTY"                ,lua_SET_CREATURE_PROPERTY           },
+   {"SET_CREATURE_TENDENCIES"              ,lua_SET_CREATURE_TENDENCIES         },
+   {"CREATURE_ENTRANCE_LEVEL"              ,lua_CREATURE_ENTRANCE_LEVEL         },
+
+//Man{"ipulating individual Creatures
+   {"TRANSFER_CREATURE"                    ,lua_TRANSFER_CREATURE               },
+   {"KILL_CREATURE"                        ,lua_KILL_CREATURE                   },
+   {"LEVEL_UP_CREATURE"                    ,lua_LEVEL_UP_CREATURE               },
+   {"MOVE_CREATURE"                        ,lua_MOVE_CREATURE                   },
+   {"CHANGE_CREATURE_OWNER"                ,lua_CHANGE_CREATURE_OWNER           },
+   {"CHANGE_CREATURES_ANNOYANCE"           ,lua_CHANGE_CREATURES_ANNOYANCE      },
+   {"LEVEL_UP_PLAYERS_CREATURES"           ,lua_LEVEL_UP_PLAYERS_CREATURES      },
+*/
+//Manipulating Research
+   {"RESEARCH"                             ,lua_RESEARCH                        },
+   {"RESEARCH_ORDER"                       ,lua_RESEARCH_ORDER                  },
+/*
+//Tweaking players
+   {"ADD_GOLD_TO_PLAYER"                   ,lua_ADD_GOLD_TO_PLAYER              },
+   {"SET_PLAYER_COLOR"                     ,lua_SET_PLAYER_COLOR                },
+   {"SET_PLAYER_MODIFIER"                  ,lua_SET_PLAYER_MODIFIER             },
+   {"ADD_TO_PLAYER_MODIFIER"               ,lua_ADD_TO_PLAYER_MODIFIER          },
+
+//Tweaking computer players
+   {"COMPUTER_DIG_TO_LOCATION"             ,lua_COMPUTER_DIG_TO_LOCATION        },
+   {"SET_COMPUTER_PROCESS"                 ,lua_SET_COMPUTER_PROCESS            },
+   {"SET_COMPUTER_CHECKS"                  ,lua_SET_COMPUTER_CHECKS             },
+   {"SET_COMPUTER_GLOBALS"                 ,lua_SET_COMPUTER_GLOBALS            },
+   {"SET_COMPUTER_EVENT"                   ,lua_SET_COMPUTER_EVENT              },
+
+//Specials
+   {"USE_SPECIAL_INCREASE_LEVEL"           ,lua_USE_SPECIAL_INCREASE_LEVEL      },
+   {"USE_SPECIAL_MULTIPLY_CREATURES"       ,lua_USE_SPECIAL_MULTIPLY_CREATURES  },
+   {"USE_SPECIAL_TRANSFER_CREATURE"        ,lua_USE_SPECIAL_TRANSFER_CREATURE   },
+   {"SET_BOX_TOOLTIP"                      ,lua_SET_BOX_TOOLTIP                 },
+   {"SET_BOX_TOOLTIP_ID"                   ,lua_SET_BOX_TOOLTIP_ID              },
+
+//Effects
+   {"CREATE_EFFECT"                        ,lua_CREATE_EFFECT                   },
+   {"CREATE_EFFECT_AT_POS"                 ,lua_CREATE_EFFECT_AT_POS            },
+   {"CREATE_EFFECTS_LINE"                  ,lua_CREATE_EFFECTS_LINE             },
+
+//Other
+   {"USE_POWER"                            ,lua_USE_POWER                       },
+   {"USE_POWER_AT_LOCATION"                ,lua_USE_POWER_AT_LOCATION           },
+   {"USE_POWER_AT_POS"                     ,lua_USE_POWER_AT_POS                },
+   {"USE_POWER_ON_CREATURE"                ,lua_USE_POWER_ON_CREATURE           },
+   {"USE_SPELL_ON_CREATURE"                ,lua_USE_SPELL_ON_CREATURE           },
+   {"USE_SPELL_ON_PLAYERS_CREATURES"       ,lua_USE_SPELL_ON_PLAYERS_CREATURES  },
+   {"USE_POWER_ON_PLAYERS_CREATURES"       ,lua_USE_POWER_ON_PLAYERS_CREATURES  },
+   {"LOCATE_HIDDEN_WORLD"                  ,lua_LOCATE_HIDDEN_WORLD             },
+   {"MAKE_SAFE"                            ,lua_MAKE_SAFE                       },
+   {"MAKE_UNSAFE"                          ,lua_MAKE_UNSAFE                     },
+   {"SET_HAND_GRAPHIC"                     ,lua_SET_HAND_GRAPHIC                },
+   {"SET_INCREASE_ON_EXPERIENCE"           ,lua_SET_INCREASE_ON_EXPERIENCE      },
+*/
+
     {"GetCreatureNear", lua_get_creature_near},
     {"SendChatMessage", send_chat_message},
     {"getThingByIdx", lua_get_thing_by_idx},
