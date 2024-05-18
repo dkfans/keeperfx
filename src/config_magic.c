@@ -2370,12 +2370,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
                   CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                       COMMAND_TEXT(cmd_num), block_buf, config_textname);
               }
-              break;
-
-
-
-
-              
+              break;              
       case 0: // comment
           break;
       case -1: // end of buffer
