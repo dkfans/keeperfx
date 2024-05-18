@@ -36,6 +36,7 @@
 #include "config_effects.h"
 #include "config_objects.h"
 #include "config_rules.h"
+#include "config_players.h"
 #include "dungeon_data.h"
 #include "thing_data.h"
 #include "thing_traps.h"
@@ -126,6 +127,7 @@ struct Configs {
     struct ObjectsConfig object_conf;
     struct CreatureModelConfig swap_creature_models[SWAP_CREATURE_TYPES_MAX];
     struct RulesConfig rules;
+    struct PlayerStateConfig plyr_conf;
 };
 
 struct Game {
