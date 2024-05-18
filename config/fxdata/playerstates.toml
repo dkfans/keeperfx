@@ -6,7 +6,7 @@ PowerKind = ""
 # NONE, CTRLDUNGEON, BUILDROOM, INVISIBLE, SPELL, QUERY, 
 # PLACETRAP, PLACEDOOR, SELL, PLACETERRAIN, MAKEDIGGER, MAKECREATURE, ORDERCREATURE
 PointerGroup = "NONE"
-#own units should freeze wile clicking when in this state
+#own units should freeze while clicking when in this state
 StopOwnUnits = false
 
 [playerstate1]
