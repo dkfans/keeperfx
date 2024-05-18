@@ -28,7 +28,7 @@
 #include "api.h"
 #include "player_data.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "player_computer.h"
 #include "dungeon_data.h"
 #include "power_hand.h"
