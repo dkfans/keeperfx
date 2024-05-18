@@ -73,7 +73,6 @@ TbBool load_playerstate_config_file(const char *textname, const char *fname, uns
     VALUE *section;
     for (int id = 0; id < PLAYER_STATES_COUNT_MAX; id++)
     {
-       
         {
             sprintf(key, "playerstate%d", id);
             section = value_dict_get(&file_root, key);
@@ -94,11 +93,8 @@ TbBool load_playerstate_config_file(const char *textname, const char *fname, uns
         }
     }
     value_fini(&file_root);
-    
-    
     return true;
 }
-
 
 TbBool load_playerstate_config(const char *conf_fname,unsigned short flags)
 {
