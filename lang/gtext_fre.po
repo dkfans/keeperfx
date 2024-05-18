@@ -7203,3 +7203,13 @@ msgstr "Rendre malheureux : Toutes les créatures de l'ennemi deviennent mécont
 msgctxt "Dungeon special decription"
 msgid "Weaken Walls: Destroys the fortifications of enemy walls."
 msgstr "Affaiblir les murs : Détruit les fortifications des murs ennemis."
+
+#: guitext:1063
+msgctxt "Keeper spell name"
+msgid "Rage"
+msgstr "Furie"
+
+#: guitext:1064
+msgctxt "Creature spell"
+msgid "Rage: Makes the creature attack recklessly, hitting harder and faster without dodging."
+msgstr "Furie : Fait attaquer la créature de manière imprudente, frappant plus fort et plus vite sans esquiver."

@@ -728,6 +728,12 @@ void anger_apply_anger_to_creature_f(struct Thing *creatng, long anger, AnnoyMot
 TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
 {
     const struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    const struct SpellConfig* spconf = get_spell_config(spkind);
+    if (all_flags_are_set(cctrl->spell_flags, spconf->spell_flags) && all_flags_are_set(cctrl->block_flags, spconf->block_flags)) //todo make functional
+    {
+
+    }
+
     switch (spkind)
     {
     case SplK_Freeze:
@@ -740,6 +746,8 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
         return ((cctrl->spell_flags & CSAfF_Invisibility) != 0);
     case SplK_Teleport:
         return ((cctrl->stateblock_flags & CCSpl_Teleport) != 0);
+    case SplK_Rage:
+        return ((cctrl->spell_flags & CSAfF_Rage) != 0);
     case SplK_Speed:
         return ((cctrl->spell_flags & CSAfF_Speed) != 0);
     case SplK_Slow:
@@ -1100,14 +1108,14 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         case SplK_Teleport:
             cctrl->stateblock_flags |= CCSpl_Teleport;
             break;
+        case SplK_Rage:
         case SplK_Speed:
         case SplK_Slow:
-            cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+            cctrl->max_speed = calculate_correct_creature_maxspeed(thing); //todo check on spell flag
             break;
         case SplK_Fly:
             thing->movement_flags |= TMvF_Flying;
             break;
-
         }
         if (spconf->aura_effect != 0)
         {
@@ -1234,6 +1242,10 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         break;
     case SplK_Teleport:
         cctrl->stateblock_flags &= ~CCSpl_Teleport;
+        break;
+    case SplK_Rage:
+        cctrl->spell_flags &= ~CSAfF_Rage;
+        cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         break;
     case SplK_Speed:
         cctrl->spell_flags &= ~CSAfF_Speed;
@@ -2961,7 +2973,7 @@ long calculate_melee_damage(struct Thing *creatng)
 {
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    long strength = compute_creature_max_strength(crstat->strength, cctrl->explevel);
+    long strength = calculate_correct_creature_strength(creatng);
     return compute_creature_attack_melee_damage(strength, crstat->luck, cctrl->explevel, creatng);
 }
 
@@ -2974,7 +2986,7 @@ long project_melee_damage(const struct Thing *creatng)
 {
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    long strength = compute_creature_max_strength(crstat->strength, cctrl->explevel);
+    long strength = calculate_correct_creature_strength(creatng);
     return project_creature_attack_melee_damage(strength, crstat->luck, cctrl->explevel, creatng);
 }
 
@@ -3005,12 +3017,12 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
     long damage;
     if ((shotst->model_flags & ShMF_StrengthBased) != 0 )
     {
-        // Project melee damage
-        long strength = compute_creature_max_strength(crstat->strength, cctrl->explevel);
+        // Project melee damage.
+        long strength = calculate_correct_creature_strength(thing);
         damage = project_creature_attack_melee_damage(strength, crstat->luck, cctrl->explevel, thing);
     } else
     {
-        // Project shot damage
+        // Project shot damage.
         damage = project_creature_attack_spell_damage(shotst->damage, crstat->luck, cctrl->explevel, thing);
     }
     return damage;
@@ -3052,10 +3064,9 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
     short speed;
     long damage;
     unsigned char dexterity, max_dexterity;
-
     struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
     TbBool flag1 = false;
-    // Prepare source position
+    // Prepare source position.
     struct Coord3d pos1;
     pos1.x.val = firing->mappos.x.val;
     pos1.y.val = firing->mappos.y.val;
@@ -3067,7 +3078,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
             if (!firing->trap.volley_fire)
             {
                 firing->trap.volley_fire = true;
-                firing->trap.volley_repeat = shotst->effect_amount - 1; // N x shots + (N - 1) x pauses and one shot is this one
+                firing->trap.volley_repeat = shotst->effect_amount - 1; // N x shots + (N - 1) x pauses and one shot is this one.
                 firing->trap.volley_delay = shotst->effect_spacing;
                 firing->trap.firing_at = thing_is_invalid(target)? 0 : target->index;
             }
@@ -3080,13 +3091,12 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
             }
         }
         struct TrapStats* trapstat = &game.conf.trap_stats[firing->model];
-        firing->move_angle_xy = get_angle_xy_to(&firing->mappos, &target->mappos); //visually rotates the trap
+        firing->move_angle_xy = get_angle_xy_to(&firing->mappos, &target->mappos); // Visually rotates the trap.
         pos1.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_x, firing->move_angle_xy + LbFPMath_PI / 2);
         pos1.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_x, firing->move_angle_xy + LbFPMath_PI / 2);
         pos1.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_y, firing->move_angle_xy);
         pos1.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_y, firing->move_angle_xy);
         pos1.z.val += trapstat->shot_shift_z;
-
         max_dexterity = UCHAR_MAX;
         dexterity = max_dexterity/4 + CREATURE_RANDOM(firing, max_dexterity/2);
     }
@@ -3099,8 +3109,8 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
             if (!firing->creature.volley_fire)
             {
                 firing->creature.volley_fire = true;
-                firing->creature.volley_repeat = shotst->effect_amount - 1; // N x shots + (N - 1) x pauses and one shot is this one
-                cctrl->inst_action_turns += shotst->effect_spacing + 1; // because of post check
+                firing->creature.volley_repeat = shotst->effect_amount - 1; // N x shots + (N - 1) x pauses and one shot is this one.
+                cctrl->inst_action_turns += shotst->effect_spacing + 1; // Because of post check.
             }
             else
             {
@@ -3110,22 +3120,21 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
                 firing->creature.volley_repeat--;
             }
         }
-
-        dexterity = compute_creature_max_dexterity(crstat->dexterity, cctrl->explevel);
+        dexterity = calculate_correct_creature_dexterity(firing);
         max_dexterity = crstat->dexterity + ((crstat->dexterity * cctrl->explevel * game.conf.crtr_conf.exp.dexterity_increase_on_exp) / 100);
-
         pos1.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_x + (cctrl->shot_shift_x * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy + LbFPMath_PI / 2);
         pos1.y.val += distance_with_angle_to_coord_y((cctrl->shot_shift_x + (cctrl->shot_shift_x * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy + LbFPMath_PI / 2);
         pos1.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_y + (cctrl->shot_shift_y * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy);
         pos1.y.val += distance_with_angle_to_coord_y((cctrl->shot_shift_y + (cctrl->shot_shift_y * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy);
         pos1.z.val += (cctrl->shot_shift_z + (cctrl->shot_shift_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
     }
-    // Compute launch angles
+    // Compute launch angles.
     if (thing_is_invalid(target))
     {
         angle_xy = firing->move_angle_xy;
         angle_yz = firing->move_angle_z;
-    } else
+    }
+    else
     {
         pos2.x.val = target->mappos.x.val;
         pos2.y.val = target->mappos.y.val;
@@ -3133,13 +3142,13 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         pos2.z.val += (target->clipbox_size_z >> 1);
         if (((shotst->model_flags & ShMF_StrengthBased) != 0) && ((shotst->model_flags & ShMF_ReboundImmune) != 0) && (target->class_id != TCls_Door))
         {
-          flag1 = true;
-          pos1.z.val = pos2.z.val;
+            flag1 = true;
+            pos1.z.val = pos2.z.val;
         }
         angle_xy = get_angle_xy_to(&pos1, &pos2);
         angle_yz = get_angle_yz_to(&pos1, &pos2);
     }
-    // Compute shot damage
+    // Compute shot damage.
     damage = shotst->damage;
     if (shotst->fixed_damage == 0)
     {
@@ -3158,13 +3167,12 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
     }
     struct Thing* shotng = NULL;
     long target_idx = 0;
-    // Set target index for navigating shots
+    // Set target index for navigating shots.
     if (!thing_is_invalid(target))
     {
         target_idx = target->index;
     }
     struct ComponentVector cvect;
-
     switch (shotst->fire_logic)
     {
     case ShFL_Beam:
@@ -3174,7 +3182,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         }
         shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
-          return;
+            return;
         draw_lightning(&pos1, &pos2, shotst->effect_spacing, shotst->effect_id);
         shotng->health = shotst->health;
         shotng->shot.damage = damage;
@@ -3182,11 +3190,10 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         break;
     case ShFL_Breathe:
         if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > shotst->max_range))
-          project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, COORD_PER_STL, shotst->max_range/COORD_PER_STL);
+            project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, COORD_PER_STL, shotst->max_range/COORD_PER_STL);
         shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
-          return;
-
+            return;
         draw_flame_breath(&pos1, &pos2, shotst->effect_spacing, shotst->effect_amount,shotst->effect_id);
         shotng->health = shotst->health;
         shotng->shot.damage = damage;
@@ -3208,7 +3215,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
             }
             tmptng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
             if (thing_is_invalid(tmptng))
-              break;
+                break;
             shotng = tmptng;
             shotng->shot.hit_type = hit_type;
             shotng->move_angle_xy = (short)((angle_xy + CREATURE_RANDOM(firing, 2 * shotst->spread_xy + 1) - shotst->spread_xy) & LbFPMath_AngleMask);
@@ -3225,7 +3232,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         break;
     }
     case ShFL_Volley:
-        // fallthrough
+        // Fallthrough.
     case ShFL_Lizard:
     case ShFL_Default:
     default:
@@ -3271,23 +3278,22 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
     {
 #if (BFDEBUG_LEVEL > 0)
       damage = shotng->shot.damage;
-      // Special debug code that shows amount of damage the shot will make
+      // Special debug code that shows amount of damage the shot will make.
       if ((start_params.debug_flags & DFlg_ShotsDamage) != 0)
           create_price_effect(&pos1, my_player_number, damage);
       if ((damage < 0) || (damage > 2000))
       {
-        WARNLOG("Shot of type %d carries %d damage",(int)shot_model,(int)damage);
+          WARNLOG("Shot of type %d carries %d damage",(int)shot_model,(int)damage);
       }
 #endif
       shotng->shot.hit_type = hit_type;
       if (shotst->firing_sound > 0)
       {
-        thing_play_sample(firing, shotst->firing_sound + UNSYNC_RANDOM(shotst->firing_sound_variants),
-            100, 0, 3, 0, 3, FULL_LOUDNESS);
+          thing_play_sample(firing, shotst->firing_sound + UNSYNC_RANDOM(shotst->firing_sound_variants),100, 0, 3, 0, 3, FULL_LOUDNESS);
       }
       if (shotst->shot_sound > 0)
       {
-        thing_play_sample(shotng, shotst->shot_sound, NORMAL_PITCH, 0, 3, 0, shotst->sound_priority, FULL_LOUDNESS);
+          thing_play_sample(shotng, shotst->shot_sound, NORMAL_PITCH, 0, 3, 0, shotst->sound_priority, FULL_LOUDNESS);
       }
       set_flag_value(shotng->movement_flags, TMvF_Unknown10, flag1);
     }
@@ -3530,6 +3536,11 @@ void get_creature_instance_times(const struct Thing *thing, long inst_idx, long 
             aitime -= aitime / 4;
             itime -= itime / 4;
         }
+    }
+    if (creature_affected_by_spell(thing, SplK_Rage)) //Rage stacks with other speed boosts
+    {
+        aitime /= 2;
+        itime /= 2;
     }
     if (aitime <= 1)
         aitime = 1;

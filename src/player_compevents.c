@@ -372,26 +372,30 @@ long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent 
     {
         return 4;
     }
-    if (!(computer_able_to_use_power(comp, PwrK_SPEEDCRTR, cevent->param1, 1) || computer_able_to_use_power(comp, PwrK_PROTECT, cevent->param1, 1) || computer_able_to_use_power(comp, PwrK_REBOUND, cevent->param1, 1) || computer_able_to_use_power(comp, PwrK_FLIGHT, cevent->param1, 1) || computer_able_to_use_power(comp, PwrK_VISION, cevent->param1, 1)))
+    if (!(computer_able_to_use_power(comp, PwrK_SPEEDCRTR, cevent->param1, 1) || computer_able_to_use_power(comp, PwrK_RAGE, cevent->param1, 1) || computer_able_to_use_power(comp, PwrK_PROTECT, cevent->param1, 1) || computer_able_to_use_power(comp, PwrK_REBOUND, cevent->param1, 1) || computer_able_to_use_power(comp, PwrK_FLIGHT, cevent->param1, 1) || computer_able_to_use_power(comp, PwrK_VISION, cevent->param1, 1)))
     {
         return 4;
     }
     struct Thing* fightng = computer_get_creature_in_fight(comp, PwrK_SPEEDCRTR);
     if (thing_is_invalid(fightng)) 
     {
-        fightng = computer_get_creature_in_fight(comp, PwrK_PROTECT);
+        fightng = computer_get_creature_in_fight(comp, PwrK_RAGE);
         if (thing_is_invalid(fightng))
         {
-            fightng = computer_get_creature_in_fight(comp, PwrK_REBOUND);
+            fightng = computer_get_creature_in_fight(comp, PwrK_PROTECT);
             if (thing_is_invalid(fightng))
             {
-                fightng = computer_get_creature_in_fight(comp, PwrK_FLIGHT);
+                fightng = computer_get_creature_in_fight(comp, PwrK_REBOUND);
                 if (thing_is_invalid(fightng))
                 {
-                    fightng = computer_get_creature_in_fight(comp, PwrK_VISION);
+                    fightng = computer_get_creature_in_fight(comp, PwrK_FLIGHT);
                     if (thing_is_invalid(fightng))
                     {
-                        return 4;
+                        fightng = computer_get_creature_in_fight(comp, PwrK_VISION);
+                        if (thing_is_invalid(fightng))
+                        {
+                            return 4;
+                        }
                     }
                 }
             }

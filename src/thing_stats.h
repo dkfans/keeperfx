@@ -90,11 +90,11 @@ long project_creature_attack_melee_damage(long base_param,long luck,unsigned sho
 long project_creature_attack_spell_damage(long base_param,long luck,unsigned short crlevel, const struct Thing* thing);
 long compute_creature_attack_range(long base_param,long luck,unsigned short crlevel);
 long compute_creature_work_value(long base_param,long efficiency,unsigned short crlevel);
-long compute_creature_max_dexterity(long base_param,unsigned short crlevel);
-long compute_creature_max_defense(long base_param,unsigned short crlevel);
 long compute_creature_max_strength(long base_param,unsigned short crlevel);
+long compute_creature_max_armour(long base_param,unsigned short crlevel);
+long compute_creature_max_defense(long base_param,unsigned short crlevel);
+long compute_creature_max_dexterity(long base_param,unsigned short crlevel);
 long compute_creature_max_loyalty(long base_param,unsigned short crlevel);
-long compute_creature_max_armour(long base_param,unsigned short crlevel, TbBool armour_spell);
 long compute_creature_max_unaffected(long base_param,unsigned short crlevel);
 #define compute_creature_max_luck compute_creature_max_unaffected
 long compute_controlled_speed_increase(long prev_speed, long speed_limit);
@@ -104,11 +104,13 @@ long compute_value_8bpercentage(long base_val, short npercent);
 GoldAmount calculate_correct_creature_pay(const struct Thing *thing);
 GoldAmount calculate_correct_creature_training_cost(const struct Thing *thing);
 GoldAmount calculate_correct_creature_scavenging_cost(const struct Thing *thing);
-long calculate_correct_creature_scavenge_required(const struct Thing *thing, PlayerNumber callplyr_idx);
 long calculate_correct_creature_strength(const struct Thing *thing);
 long calculate_correct_creature_armour(const struct Thing *thing);
+long calculate_correct_creature_defense(const struct Thing *thing);
+long calculate_correct_creature_dexterity(const struct Thing *thing);
 long calculate_correct_creature_maxspeed(const struct Thing *thing);
 long calculate_correct_creature_loyalty(const struct Thing *thing);
+long calculate_correct_creature_scavenge_required(const struct Thing *thing, PlayerNumber callplyr_idx);
 long compute_creature_work_value_for_room_role(const struct Thing *creatng, RoomRole rrole, long efficiency);
 long compute_creature_weight(const struct Thing* creatng);
 

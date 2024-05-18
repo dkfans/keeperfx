@@ -6970,3 +6970,13 @@ msgstr "Maak Ongelukkig: Alle wezens van de vijand worden ongelukkig."
 msgctxt "Dungeon special decription"
 msgid "Weaken Walls: Destroys the fortifications of enemy walls."
 msgstr "Zwakke Muren: Vernietigt de versterkingen van vijandelijke muren."
+
+#: guitext:1063
+msgctxt "Keeper spell name"
+msgid "Rage"
+msgstr "Woede"
+
+#: guitext:1064
+msgctxt "Creature spell"
+msgid "Rage: Makes the creature attack recklessly, hitting harder and faster without dodging."
+msgstr "Woede: Laat het wezen roekeloos aanvallen, het zal harder en sneller slaan zonder dat het probeert te ontwijken."
