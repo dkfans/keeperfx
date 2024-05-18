@@ -37,7 +37,7 @@
 #include "room_workshop.h"
 #include "power_hand.h"
 #include "game_legacy.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "player_instances.h"
 #include "post_inc.h"
 
