@@ -86,9 +86,11 @@ struct Thing *script_process_new_object(ThingModel tngmodel, TbMapLocation locat
             return INVALID_THING;
         }
     }
-    if (thing_is_special_box(thing) && !thing_is_hardcoded_special_box(thing))
+    if (thing_is_special_box(thing))
     {
-        thing->custom_box.box_kind = (unsigned char)arg;
+        thing->custom_box.box_kind = arg;
+        if(thing_is_custom_special_box(thing) && ((arg < 0) || (arg >= CUSTOM_BOX_COUNT)))
+            thing->custom_box.box_kind = 0;
     }
     switch (tngmodel)
     {
