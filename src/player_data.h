@@ -196,10 +196,10 @@ struct PlayerInfo {
     short minimap_pos_y;
     unsigned short minimap_zoom;
     unsigned char view_type;
-    unsigned char work_state;
+    PlayerState work_state;
     unsigned char primary_cursor_state;
     unsigned char secondary_cursor_state;
-    unsigned char continue_work_state;
+    PlayerState continue_work_state;
 char field_45F;
 short cursor_light_idx;
     char mp_message_text[PLAYER_MP_MESSAGE_LEN];

@@ -41,7 +41,7 @@
 #include "frontmenu_ingame_evnt.h"
 #include "scrcapt.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "config_trapdoor.h"

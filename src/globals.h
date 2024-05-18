@@ -288,6 +288,9 @@ typedef unsigned char NaviRouteFlags;
 typedef unsigned short NavColour;
 /** Either North (0), East (1), South (2), or West (3). */
 typedef signed char SmallAroundIndex;
+/** a player state as defined in config_players*/
+typedef unsigned char PlayerState;
+
 
 /**
  * Stores a 2d coordinate (x,y).

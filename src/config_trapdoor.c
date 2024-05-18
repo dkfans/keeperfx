@@ -31,7 +31,7 @@
 #include "console_cmd.h"
 #include "thing_doors.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "game_legacy.h"
 #include "custom_sprites.h"
 #include "post_inc.h"

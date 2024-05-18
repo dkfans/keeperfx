@@ -26,7 +26,7 @@
 #include "config_players.h"
 #include "config_powerhands.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "game_legacy.h"
 #include "engine_redraw.h"
 #include "frontend.h"
