@@ -3004,6 +3004,19 @@ short creature_object_combat(struct Thing *creatng)
     return 0;
 }
 
+TbBool creature_start_combat_with_trap_if_available(struct Thing* creatng, struct Thing* traptng)
+{
+    if (!creature_will_do_combat(creatng))
+    {
+        return false;
+    }
+    if (!combat_enemy_exists(creatng,traptng) || !(creature_can_navigate_to(creatng, &traptng->mappos, NavRtF_Default)))
+    {
+        return false;
+    }
+    return set_creature_object_combat(creatng, traptng);
+}
+
 TbBool creature_look_for_combat(struct Thing *creatng)
 {
     SYNCDBG(9,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
