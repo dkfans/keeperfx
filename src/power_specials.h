@@ -71,8 +71,9 @@ long create_transferred_creatures_on_level(void);
 
 void script_use_special_increase_level(PlayerNumber plyr_idx, int count);
 void script_use_special_multiply_creatures(PlayerNumber plyr_idx);
-void script_use_special_make_safe(PlayerNumber plyr_idx);
-TbBool script_use_special_locate_hidden_world();
+void script_make_safe(PlayerNumber plyr_idx);
+void script_make_unsafe(PlayerNumber plyr_idx);
+TbBool script_locate_hidden_world();
 
 /******************************************************************************/
 #ifdef __cplusplus

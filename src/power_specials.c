@@ -83,15 +83,24 @@ void script_use_special_multiply_creatures(PlayerNumber plyr_idx)
  * Fortifies player's dungeon.
  * @param plyr_idx target player
  */
-void script_use_special_make_safe(PlayerNumber plyr_idx)
+void script_make_safe(PlayerNumber plyr_idx)
 {
     make_safe(get_player(plyr_idx));
 }
 
 /**
+ * Fortifies player's dungeon.
+ * @param plyr_idx target player
+ */
+void script_make_unsafe(PlayerNumber plyr_idx)
+{
+    make_unsafe(plyr_idx);
+}
+
+/**
  * Enables bonus level for current player.
  */
-TbBool script_use_special_locate_hidden_world()
+TbBool script_locate_hidden_world()
 {
     return activate_bonus_level(get_player(my_player_number));
 }

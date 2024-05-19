@@ -1076,7 +1076,6 @@ static TbResult magic_use_power_hold_audience(PowerKind power_kind, PlayerNumber
     while (i != 0)
     {
         struct CreatureControl *cctrl;
-        struct Thing *thing;
         thing = thing_get(i);
         TRACE_THING(thing);
         cctrl = creature_control_get_from_thing(thing);
@@ -1449,7 +1448,6 @@ static TbResult magic_use_power_sight(PowerKind power_kind, PlayerNumber plyr_id
 {
     const struct MagicStats *pwrdynst;
     struct Dungeon *dungeon;
-    struct Thing *sighttng;
     struct Coord3d pos;
     long cit;
     long cdt;
@@ -1525,7 +1523,6 @@ static TbResult magic_use_power_cave_in(PowerKind power_kind, PlayerNumber plyr_
     unsigned long k;
     k = 0;
     i = get_mapwho_thing_index(mapblk);
-    struct Thing *cavetng;
     while (i != 0)
     {
         thing = thing_get(i);
@@ -2246,7 +2243,7 @@ TbResult script_use_power_at_pos(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
 
     unsigned long spell_flags = PwCast_AllGround | PwCast_Unrevealed;
     if (is_free)
-        spell_flags |= PwMod_CastForFree;
+        set_flag(spell_flags,PwMod_CastForFree);
 
     return magic_use_power_on_subtile(plyr_idx, powerKind, splevel, stl_x, stl_y, spell_flags);
 }
@@ -2292,71 +2289,7 @@ TbResult script_use_power(PlayerNumber plyr_idx, PowerKind power_kind, char free
  * @param fmcl_bytes encoded bytes: f=cast for free flag,m=power kind,c=caster player index,l=spell level.
  * @return TbResult whether the spell was successfully cast
  */
-TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long criteria, long fmcl_bytes)
-{
-    struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
-    if (thing_is_invalid(thing)) {
-        SYNCDBG(5,"No matching player %d creature of model %d (%s) found to use power on.",(int)plyr_idx,(int)crmodel, creature_code_name(crmodel));
-        return Lb_FAIL;
-    }
-
-    char is_free = (fmcl_bytes >> 24) != 0;
-    PowerKind pwkind = (fmcl_bytes >> 16) & 255;
-    PlayerNumber caster =  (fmcl_bytes >> 8) & 255;
-    long splevel = fmcl_bytes & 255;
-
-    if (thing_is_in_power_hand_list(thing, plyr_idx))
-    {
-        char block = pwkind == PwrK_SLAP;
-        block |= pwkind == PwrK_CALL2ARMS;
-        block |= pwkind == PwrK_CAVEIN;
-        block |= pwkind == PwrK_LIGHTNING;
-        block |= pwkind == PwrK_MKDIGGER;
-        block |= pwkind == PwrK_SIGHT;
-        if (block)
-        {
-          SYNCDBG(5,"Found creature to use power on but it is being held.");
-          return Lb_FAIL;
-        }
-    }
-
-    MapSubtlCoord stl_x = thing->mappos.x.stl.num;
-    MapSubtlCoord stl_y = thing->mappos.y.stl.num;
-    unsigned long spell_flags = is_free ? PwMod_CastForFree : 0;
-
-    switch (pwkind)
-    {
-      case PwrK_HEALCRTR:
-        return magic_use_power_heal(caster, thing, 0, 0, splevel, spell_flags);
-      case PwrK_SPEEDCRTR:
-        return magic_use_power_speed(caster, thing, 0, 0, splevel, spell_flags);
-      case PwrK_PROTECT:
-        return magic_use_power_armour(caster, thing, 0, 0, splevel, spell_flags);
-      case PwrK_CONCEAL:
-        return magic_use_power_conceal(caster, thing, 0, 0, splevel, spell_flags);
-      case PwrK_DISEASE:
-        return magic_use_power_disease(caster, thing, 0, 0, splevel, spell_flags);
-      case PwrK_CHICKEN:
-        return magic_use_power_chicken(caster, thing, 0, 0, splevel, spell_flags);
-      case PwrK_SLAP:
-        return magic_use_power_slap_thing(caster, thing, spell_flags);
-      case PwrK_CALL2ARMS:
-        return magic_use_power_call_to_arms(caster, stl_x, stl_y, splevel, spell_flags);
-      case PwrK_LIGHTNING:
-        return magic_use_power_lightning(caster, stl_x, stl_y, splevel, spell_flags);
-      case PwrK_CAVEIN:
-        return magic_use_power_cave_in(caster, stl_x, stl_y, splevel, spell_flags);
-      case PwrK_MKDIGGER:
-        return magic_use_power_imp(caster, stl_x, stl_y, spell_flags);
-      case PwrK_SIGHT:
-        return magic_use_power_sight(caster, stl_x, stl_y, splevel, spell_flags);
-      default:
-        SCRPTERRLOG("Power not supported for this command: %d", (int) pwkind);
-        return Lb_FAIL;
-    }
-}
-
-TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long criteria, long fmcl_bytes)
+TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel, long criteria, long fmcl_bytes)
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
@@ -2367,7 +2300,7 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long 
     const struct SpellConfig* spconf = get_spell_config(spkind);
 
     if (spconf->caster_affected ||
-            (spkind == SplK_Freeze) || (spkind == SplK_Slow) || // These four should be also marked at configs somehow
+            (spkind == SplK_Freeze) || (spkind == SplK_Slow) || // These two should be also marked at configs somehow?
             ( (spkind == SplK_Disease) && ((get_creature_model_flags(thing) & CMF_NeverSick) == 0) ) ||
             ( (spkind == SplK_Chicken) && ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0) ) )
     {
@@ -2413,6 +2346,29 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         SCRPTERRLOG("Spell not supported for this command: %d", (int)spkind);
         return Lb_FAIL;
     }
+}
+
+/**
+ * Cast a keeper power on a creature which meets given criteria.
+ * @param plyr_idx The player whose creature will be affected.
+ * @param crmodel Model of the creature to find.
+ * @param criteria Criteria, from CreatureSelectCriteria enumeration.
+ * @param fmcl_bytes encoded bytes: f=cast for free flag,m=power kind,c=caster player index,l=spell level.
+ * @return TbResult whether the spell was successfully cast
+ */
+TbResult script_use_power_on_creature_matching_criterion(PlayerNumber plyr_idx, long crmodel, long criteria, long fmcl_bytes)
+{
+    struct Thing* thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
+    if (thing_is_invalid(thing)) {
+        SYNCDBG(5, "No matching player %d creature of model %d (%s) found to use power on.", (int)plyr_idx, (int)crmodel, creature_code_name(crmodel));
+        return Lb_FAIL;
+    }
+
+    char is_free = (fmcl_bytes >> 24) != 0;
+    PowerKind pwkind = (fmcl_bytes >> 16) & 255;
+    PlayerNumber caster = (fmcl_bytes >> 8) & 255;
+    long splevel = fmcl_bytes & 255;
+    return script_use_power_on_creature(thing, pwkind, splevel, caster, is_free);
 }
 
 

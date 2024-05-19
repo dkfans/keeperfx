@@ -29,7 +29,10 @@ struct PlayerRange
     PlayerNumber end_idx;
 };
 
-/*****/
+/***************************************************************************************************/
+/************    Inputs   **************************************************************************/
+/***************************************************************************************************/
+
 static long luaL_checkNamedCommand(lua_State *L, int index,const struct NamedCommand * commanddesc)
 {
     if (lua_isnumber(L, index))
@@ -132,8 +135,6 @@ static struct PlayerRange luaL_checkPlayerRange(lua_State *L, int index)
     return playerRange;
 }
 
-
-
 static PlayerNumber luaL_checkPlayerSingle(lua_State *L, int index)
 {
     struct PlayerRange playerRange = luaL_checkPlayerRange(L,index);
@@ -175,8 +176,9 @@ static ActionPointId luaL_checkActionPoint(lua_State *L, int index)
 
 
 
-
-/**********/
+/***************************************************************************************************/
+/************    Outputs   *************************************************************************/
+/***************************************************************************************************/
 
 void lua_pushThing(lua_State *L, struct Thing* thing)
 {
@@ -206,8 +208,9 @@ void lua_pushThing(lua_State *L, struct Thing* thing)
     */
 }
 
-/**********************************************/
-
+/***************************************************************************************************/
+/************    Api Functions    ******************************************************************/
+/***************************************************************************************************/
 
 static int lua_CREATE_PARTY(lua_State *L)
 {
@@ -803,6 +806,7 @@ static int lua_HIDE_HERO_GATE(lua_State *L)
 // game
 /**********************************************/
 
+
 static int lua_get_creature_near(lua_State *L)
 {
     // the arguments lua passes to the C code
@@ -841,6 +845,15 @@ static int send_chat_message(lua_State *L)
 
     return 0;
 }
+
+static int lua_logmsg(lua_State *L)
+{
+    const char* msg = lua_tostring(L, 1); // the last number is the position of the argument, just increment these
+
+    JUSTLOG("%s",msg);
+    return 0; // return value is the amount of args you push back
+}
+
 
 
 
@@ -987,6 +1000,9 @@ static const luaL_Reg game_methods[] = {
    {"SET_HAND_GRAPHIC"                     ,lua_SET_HAND_GRAPHIC                },
    {"SET_INCREASE_ON_EXPERIENCE"           ,lua_SET_INCREASE_ON_EXPERIENCE      },
 */
+
+//debug stuff
+   {"logmsg"           ,lua_logmsg      },
 
     {"GetCreatureNear", lua_get_creature_near},
     {"SendChatMessage", send_chat_message},

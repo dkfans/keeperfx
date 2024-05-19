@@ -670,7 +670,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
     case Cmd_USE_POWER_ON_CREATURE:
       for (i=plr_start; i < plr_end; i++)
       {
-          //script_use_power_on_creature_matching_criterion(i, val2, val3, val4);
+          script_use_power_on_creature_matching_criterion(i, val2, val3, val4);
       }
       break;
     case Cmd_USE_SPELL_ON_CREATURE:
@@ -718,11 +718,11 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
     case Cmd_MAKE_SAFE:
       for (i=plr_start; i < plr_end; i++)
       {
-          //script_make_safe(i);
+          script_make_safe(i);
       }
       break;
     case Cmd_LOCATE_HIDDEN_WORLD:
-      //script_locate_hidden_world();
+      script_locate_hidden_world();
       break;
     case Cmd_CHANGE_CREATURE_OWNER:
       for (i=plr_start; i < plr_end; i++)
@@ -733,7 +733,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
     case Cmd_MAKE_UNSAFE:
       for (i=plr_start; i < plr_end; i++)
       {
-          //script_make_unsafe(i);
+          script_make_unsafe(i);
       }
       break;
   case Cmd_SET_CAMPAIGN_FLAG:
