@@ -201,7 +201,7 @@ TbBool creature_available_for_trap_trigger(struct Thing* creatng)
 {
     if (!creature_is_being_unconscious(creatng) && !thing_is_dragged_or_pulled(creatng)
         && !creature_is_kept_in_custody_by_enemy(creatng) && !creature_is_dying(creatng)
-        && ((get_creature_model_flags(creatng) & CMF_IsSpectator) == 0))
+        && !creature_is_being_dropped(creatng) && !flag_is_set(get_creature_model_flags(creatng),CMF_IsSpectator))
     {
         return true;
     }
