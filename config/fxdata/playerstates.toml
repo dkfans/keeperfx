@@ -2,27 +2,27 @@
 [playerstate0]
 Name = "PLAYER_STATE_NONE" 
 #associated power in magic.cfg
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate1]
 Name = "PLAYER_STATE_CTRLDUNGEON"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate2]
 Name = "PLAYER_STATE_BUILDROOM"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate3]
 Name = "PLAYER_STATE_MKGOODDIGGER"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate4]
 Name = "PLAYER_STATE_MKGOODCREATR"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate5]
 Name = "PLAYER_STATE_HOLDINHAND"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate6]
 Name = "PLAYER_STATE_CALLTOARMS"
@@ -38,7 +38,7 @@ PowerKind = "POWER_SIGHT"
 
 [playerstate9]
 Name = "PLAYER_STATE_SLAP"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate10]
 Name = "PLAYER_STATE_CTRLPASSNGR"
@@ -50,23 +50,23 @@ PowerKind = "POWER_POSSESS"
 
 [playerstate12]
 Name = "PLAYER_STATE_CREATRQUERY"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate13]
 Name = "PLAYER_STATE_ORDERCREATR"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate14]
 Name = "PLAYER_STATE_MKBADCREATR"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate15]
 Name = "PLAYER_STATE_CREATRINFO"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate16]
 Name = "PLAYER_STATE_PLACETRAP"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate17]
 Name = "PLAYER_STATE_LIGHTNING"
@@ -74,7 +74,7 @@ PowerKind = "POWER_LIGHTNING"
 
 [playerstate18]
 Name = "PLAYER_STATE_PLACEDOOR"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate19]
 Name = "PLAYER_STATE_SPEEDUP"
@@ -94,7 +94,7 @@ PowerKind = "POWER_HEAL_CREATURE"
 
 [playerstate23]
 Name = "PLAYER_STATE_SELL"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate24]
 Name = "PLAYER_STATE_CREATEDIGGER"
@@ -114,11 +114,11 @@ PowerKind = "POWER_CHICKEN"
 
 [playerstate28]
 Name = "PLAYER_STATE_MKGOLDPOT"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate29]
 Name = "PLAYER_STATE_TIMEBOMB"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate30]
 Name = "PLAYER_STATE_FREEDESTROYWALLS"
@@ -134,59 +134,59 @@ PowerKind = "POWER_CHICKEN"
 
 [playerstate33]
 Name = "PLAYER_STATE_FREECTRLPASSNGR"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate34]
 Name = "PLAYER_STATE_FREECTRLDIRECT"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate35]
 Name = "PLAYER_STATE_STEALROOM"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate36]
 Name = "PLAYER_STATE_DESTROYROOM"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate37]
 Name = "PLAYER_STATE_KILLCREATURE"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate38]
 Name = "PLAYER_STATE_CONVERTCREATURE"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate39]
 Name = "PLAYER_STATE_STEALSLAB"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate40]
 Name = "PLAYER_STATE_LEVELCREATUREUP"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate41]
 Name = "PLAYER_STATE_KILLPLAYER"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate42]
 Name = "PLAYER_STATE_HEARTHEALTH"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate43]
 Name = "PLAYER_STATE_CREATRQUERYALL"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate44]
 Name = "PLAYER_STATE_MAKEHAPPY"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate45]
 Name = "PLAYER_STATE_MAKEANGRY"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate46]
 Name = "PLAYER_STATE_PLACETERRAIN"
-PowerKind = ""
+PowerKind = "NOPOWER"
 
 [playerstate47]
 Name = "PLAYER_STATE_REBOUND"
