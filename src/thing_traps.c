@@ -26,6 +26,7 @@
 #include "bflib_planar.h"
 
 #include "thing_data.h"
+#include "creature_states_combt.h"
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "creature_states.h"
@@ -196,6 +197,17 @@ TbBool thing_is_deployed_trap(const struct Thing* thing)
     return true;
 }
 
+TbBool creature_available_for_trap_trigger(struct Thing* creatng)
+{
+    if (!creature_is_being_unconscious(creatng) && !thing_is_dragged_or_pulled(creatng)
+        && !creature_is_kept_in_custody_by_enemy(creatng) && !creature_is_dying(creatng)
+        && !creature_is_being_dropped(creatng) && !flag_is_set(get_creature_model_flags(creatng),CMF_IsSpectator))
+    {
+        return true;
+    }
+    return false;
+}
+
 TbBool update_trap_trigger_line_of_sight_90_on_subtile(struct Thing *traptng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
@@ -217,9 +229,8 @@ TbBool update_trap_trigger_line_of_sight_90_on_subtile(struct Thing *traptng, Ma
             // Trigger for enemy player, or any player for neutral traps (otherwise neutral traps would be useless)
             if (players_are_enemies(traptng->owner,thing->owner) || is_neutral_thing(traptng))
             {
-                if (!creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing) && !thing_is_picked_up(thing)
-                 && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_dying(thing)
-                 && ((get_creature_model_flags(thing) & CMF_IsSpectator) == 0)) {
+                if (creature_available_for_trap_trigger(thing))
+                {
                     activate_trap(traptng, thing);
                     return true;
                 }
@@ -622,17 +633,12 @@ TbBool find_pressure_trigger_trap_target_passing_by_subtile(const struct Thing *
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if (thing_is_creature(thing) && (thing->owner != traptng->owner))
+        if (creature_available_for_trap_trigger(thing) && (thing->owner != traptng->owner))
         {
-            if (!creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing)
-             && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_dying(thing)
-             && ((get_creature_model_flags(thing) & CMF_IsSpectator) == 0))
+            if (!is_neutral_thing(thing) && !players_are_mutual_allies(traptng->owner, thing->owner))
             {
-                if (!is_neutral_thing(thing) && !players_are_mutual_allies(traptng->owner,thing->owner))
-                {
-                    *found_thing = thing;
-                    return true;
-                }
+                *found_thing = thing;
+                return true;
             }
         }
         // Per thing code end
@@ -683,9 +689,10 @@ TbBool update_trap_trigger_pressure_subtile(struct Thing *traptng)
 TbBool update_trap_trigger_line_of_sight(struct Thing* traptng)
 {
     struct Thing* trgtng = get_nearest_enemy_creature_in_sight_and_range_of_trap(traptng);
-    if (!thing_is_invalid(trgtng))
+    if (!thing_is_invalid(trgtng) && (creature_available_for_trap_trigger(trgtng)))
     {
         activate_trap(traptng, trgtng);
+        creature_start_combat_with_trap_if_available(trgtng, traptng);
         return true;
     }
     return false;
