@@ -43,6 +43,141 @@ extern "C" {
 /******************************************************************************/
 unsigned char next_command_reusable;
 /******************************************************************************/
+
+enum TokenType {
+    TkInvalid = 0,
+    TkCommand,
+    TkString,
+    TkOperator,
+    TkNumber,
+    TkOpen,
+    TkClose,
+    TkComma,
+    TkEnd,
+    TkRangeOperator, // ~ operator
+};
+
+struct CommandToken {
+    enum TokenType type;
+    char *start;
+    char *end;
+};
+
+char* get_next_token(char *data, struct CommandToken *token)
+{
+    char *p = data;
+    while (*p != 0)
+    {
+        size_t step = strspn(p, "\n\r \t");
+        if (step == 0)
+        {
+            if (*p >= 0) // Erase non ASCII stuff from commands
+            {
+                break;
+            }
+            step = 1;
+        }
+        p += step;
+    }
+    token->start = p;
+    if (isalnum(*p))
+    {
+        for (;isalnum(*p) || (*p == '[') || (*p == ']') || (*p == '_'); p++)
+        {
+            *p = (char)toupper(*p);
+        }
+        token->type = TkCommand;
+    }
+    else if (*p == '-') // Either operator or digit
+    {
+        p++;
+        if (isdigit(*p))
+        {
+            for (;isdigit(*p); p++)
+            {
+                // empty
+            }
+
+            token->type = TkNumber;
+        }
+        else
+        {
+            token->type = TkOperator;
+        }
+    }
+    else if (*p == '"')
+    {
+        p++;
+        token->start = p;
+        for (; *p != '"'; p++)
+        {
+            if (*p == 0)
+            {
+                token->type = TkInvalid;
+                token->end = p;
+                return p;
+            }
+        }
+        token->end = p;
+        p++;
+        token->type = TkString;
+        return p;
+    }
+    else if ( (*p == '=') || (*p == '!') || (*p == '<') || (*p == '>'))
+    {
+        p++;
+        if (*p == '=')
+        {
+            p++;
+        }
+        token->type = TkOperator;
+    }
+    else if (*p == '~')
+    {
+        p++;
+        token->type = TkRangeOperator;
+    }
+    else if (*p == '(')
+    {
+        p++;
+        token->type = TkOpen;
+    }
+    else if (*p == ')')
+    {
+        p++;
+        token->type = TkClose;
+    }
+    else if (*p == ',')
+    {
+        p++;
+        token->type = TkComma;
+    }
+    else if (*p == 0)
+    {
+        token->type = TkEnd;
+    }
+    else
+    {
+        token->type = TkInvalid;
+    }
+    token->end = p;
+    return p;
+}
+
+static struct CommandDesc const *find_command_desc(const struct CommandToken *token, const struct CommandDesc *cmdlist_desc)
+{
+    const struct CommandDesc* cmnd_desc = NULL;
+    int token_len = token->end - token->start;
+    for (int i = 0; cmdlist_desc[i].textptr != NULL; i++)
+    {
+        if ((cmdlist_desc[i].textptr[token_len] == 0) && (strncmp(cmdlist_desc[i].textptr, token->start, token_len) == 0))
+        {
+            cmnd_desc = &cmdlist_desc[i];
+            break;
+        }
+    }
+    return cmnd_desc;
+}
 const struct CommandDesc *get_next_word(char **line, char *param, int *para_level, const struct CommandDesc *cmdlist_desc)
 {
     char chr;
@@ -206,18 +341,18 @@ const struct CommandDesc *get_next_word(char **line, char *param, int *para_leve
  */
 TbBool script_is_preloaded_command(long cmnd_index)
 {
-  switch (cmnd_index)
-  {
-  case Cmd_SWAP_CREATURE:
-  case Cmd_LEVEL_VERSION:
-  case Cmd_NEW_TRAP_TYPE:
-  case Cmd_NEW_OBJECT_TYPE:
-  case Cmd_NEW_ROOM_TYPE:
-  case Cmd_NEW_CREATURE_TYPE:
-      return true;
-  default:
-      return false;
-  }
+    switch (cmnd_index)
+    {
+        case Cmd_SWAP_CREATURE:
+        case Cmd_LEVEL_VERSION:
+        case Cmd_NEW_TRAP_TYPE:
+        case Cmd_NEW_OBJECT_TYPE:
+        case Cmd_NEW_ROOM_TYPE:
+        case Cmd_NEW_CREATURE_TYPE:
+            return true;
+        default:
+            return false;
+    }
 }
 
 #define get_players_range(plr_range_id, plr_start, plr_end) get_players_range_f(plr_range_id, plr_start, plr_end, __func__, text_line_number)
@@ -231,18 +366,6 @@ long get_players_range_f(long plr_range_id, int *plr_start, int *plr_end, const 
     {
         *plr_start = 0;
         *plr_end = PLAYERS_COUNT;
-        return plr_range_id;
-    } else
-    if (plr_range_id == PLAYER_GOOD)
-    {
-        *plr_start = game.hero_player_num;
-        *plr_end = game.hero_player_num+1;
-        return plr_range_id;
-    } else
-    if (plr_range_id == PLAYER_NEUTRAL)
-    {
-        *plr_start = game.neutral_player_num;
-        *plr_end = game.neutral_player_num+1;
         return plr_range_id;
     } else
     if (plr_range_id < PLAYERS_COUNT)
@@ -348,7 +471,7 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
             {
                 if (0 == strcmp(scline->tp[idx], "ANY_CREATURE"))
                 {
-                    crtr_id = 0;
+                    crtr_id = CREATURE_ANY;
                 }
             }
         }
@@ -467,14 +590,210 @@ static int count_required_parameters(const char *args)
     return required;
 }
 
-int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, struct ScriptLine *scline, int *para_level, int expect_level)
+static int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, struct ScriptLine *scline, int *para_level, int expect_level, long file_version);
+
+static TbBool process_subfunc(char **line, struct ScriptLine *scline, const struct CommandDesc *cmd_desc, const struct CommandDesc *funcmd_desc, int *para_level, int src, int dst, long file_version)
+{
+    struct CommandToken token;
+    struct ScriptLine* funscline = (struct ScriptLine*)LbMemoryAlloc(sizeof(struct ScriptLine));
+    if (funscline == NULL) {
+        SCRPTERRLOG("Can't allocate buffer to recognize line");
+        return false;
+    }
+    LbMemorySet(funscline, 0, sizeof(struct ScriptLine));
+    LbMemoryCopy(funscline->tcmnd, scline->tp[dst], MAX_TEXT_LENGTH);
+    char *nxt = get_next_token(*line, &token);
+    if (token.type != TkOpen)
+    {
+        SCRPTERRLOG("Expecting (");
+        LbMemoryFree(funscline);
+        return false;
+    }
+    *line = nxt;
+    int args_count = script_recognize_params(line, funcmd_desc, funscline, para_level, *para_level, file_version);
+    if (args_count < 0)
+    {
+        LbMemoryFree(funscline);
+        return false;
+    }
+    // Count valid args
+    if (args_count < COMMANDDESC_ARGS_COUNT)
+    {
+        int required = count_required_parameters(funcmd_desc->args);
+        if (args_count < required)
+        {
+            SCRPTERRLOG("Not enough parameters for \"%s\", got only %d", funcmd_desc->textptr,(int)args_count);
+            LbMemoryFree(funscline);
+            return false;
+        }
+    }
+    switch (funcmd_desc->index)
+    {
+        case Cmd_RANDOM:
+        case Cmd_DRAWFROM:{
+            // Create array of value ranges
+            long range_total = 0;
+            int fi;
+            struct MinMax ranges[COMMANDDESC_ARGS_COUNT];
+            TbBool is_if_statement = ((scline->command == Cmd_IF) || (scline->command == Cmd_IF_AVAILABLE) || (scline->command == Cmd_IF_CONTROLS));
+            if (level_file_version > 0)
+            {
+                char chr = cmd_desc->args[src];
+                int ri;
+                for (fi = 0, ri = 0; fi < COMMANDDESC_ARGS_COUNT; fi++, ri++)
+                {
+                    if (funscline->tp[fi][0] == '\0') {
+                        break;
+                    }
+                    if ((toupper(chr) == 'A') && (!is_if_statement) ) //Strings don't have a range, but IF statements have 'Aa' to allow both variable compare and numbers. Numbers are allowed, 'a' is a string for sure.
+                    {
+                        // Values which do not support range
+                        if (strcmp(funscline->tp[fi],"~") == 0) {
+                            SCRPTERRLOG("Parameter %d of function \"%s\" within command \"%s\" does not support range", fi+1, funcmd_desc->textptr, scline->tcmnd);
+                            LbMemoryFree(funscline);
+                            return false;
+                        }
+                        // Values of that type cannot define ranges, as we cannot interpret them
+                        ranges[ri].min = fi;
+                        ranges[ri].max = fi;
+                        range_total++;
+                    } else
+                    if ((ri > 0) && (strcmp(funscline->tp[fi],"~") == 0))
+                    {
+                        // Second step of defining range
+                        ri--;
+                        fi++;
+                        if (funscline->tp[fi][0] != '\0')
+                        {
+                            funscline->np[fi] = atol(funscline->tp[fi]);
+                        }
+                        if (!script_command_param_to_number(chr, funscline, fi, false)) {
+                            SCRPTERRLOG("Parameter %d of function \"%s\" within command \"%s\" has unexpected range end value; discarding command", fi+1, funcmd_desc->textptr, scline->tcmnd);
+                            LbMemoryFree(funscline);
+                            return false;
+                        }
+                        ranges[ri].max = funscline->np[fi];
+                        if (ranges[ri].max < ranges[ri].min) {
+                            SCRPTWRNLOG("Range definition in argument of function \"%s\" within command \"%s\" should have lower value first", funcmd_desc->textptr, scline->tcmnd);
+                            ranges[ri].max = ranges[ri].min;
+                        }
+                        range_total += ranges[ri].max - ranges[ri].min; // +1 was already added
+                    } else
+                    {
+                        // Single value or first step of defining range
+                        if (!script_command_param_to_number(chr, funscline, fi, false)) {
+                            SCRPTERRLOG("Parameter %d of function \"%s\" within command \"%s\" has unexpected value; discarding command", fi+1, funcmd_desc->textptr, scline->tcmnd);
+                            LbMemoryFree(funscline);
+                            return false;
+                        }
+                        if (funscline->np[fi] == '\0')
+                        {
+                            funscline->np[fi] = atol(funscline->tp[fi]);
+                        }
+                        ranges[ri].min = funscline->np[fi];
+                        ranges[ri].max = funscline->np[fi];
+                        range_total++;
+                    }
+                }
+            } else
+            {
+                // Old RANDOM command accepts only one range, and gives only numbers
+                fi = 0;
+                {
+                    ranges[fi].min = atol(funscline->tp[0]);
+                    ranges[fi].max = atol(funscline->tp[1]);
+                }
+                if (ranges[fi].max < ranges[fi].min) {
+                    SCRPTWRNLOG("Range definition in argument of function \"%s\" within command \"%s\" should have lower value first", funcmd_desc->textptr, scline->tcmnd);
+                    ranges[fi].max = ranges[fi].min;
+                }
+                range_total += ranges[fi].max - ranges[fi].min + 1;
+                fi++;
+            }
+            if (range_total <= 0) {
+                SCRPTERRLOG("Arguments of function \"%s\" within command \"%s\" define no values to select from", funcmd_desc->textptr, scline->tcmnd);
+                break;
+            }
+            if ((funcmd_desc->index != Cmd_RANDOM) && (level_file_version == 0)) {
+                SCRPTERRLOG("The function \"%s\" used within command \"%s\" is not supported in old level format", funcmd_desc->textptr, scline->tcmnd);
+                break;
+            }
+            // The new RANDOM command stores values to allow selecting different one every turn during gameplay
+            if ((funcmd_desc->index == Cmd_RANDOM) && (level_file_version > 0))
+            {
+                //TODO RANDOM make implementation - store ranges as variable to be used for selecting random value during gameplay
+                SCRPTERRLOG("The function \"%s\" used within command \"%s\" is not supported yet", funcmd_desc->textptr, scline->tcmnd);
+                break;
+            }
+            // DRAWFROM support - select random index now
+            long range_index = GAME_RANDOM(range_total);
+            // Get value from ranges array
+            range_total = 0;
+            for (fi=0; fi < COMMANDDESC_ARGS_COUNT; fi++)
+            {
+                if ((range_index >= range_total) && (range_index <= range_total + ranges[fi].max - ranges[fi].min))
+                {
+                    char chr = cmd_desc->args[src];
+                    if (toupper(chr) == 'A') {
+                        if (is_if_statement)
+                        {
+                            scline->np[dst] = ranges[fi].min + range_index - range_total;
+                            snprintf(scline->tp[dst], sizeof(scline->tp[dst]), "%ld", scline->np[dst]);
+                        }
+                        else
+                        {
+                            strcpy(scline->tp[dst], funscline->tp[ranges[fi].min]);
+                        }
+                    } else {
+                        scline->np[dst] = ranges[fi].min + range_index - range_total;
+                        // Set text value for that number
+                        script_command_param_to_text(chr, scline, dst);
+                    }
+                    break;
+                }
+                range_total += ranges[fi].max - ranges[fi].min + 1;
+            }
+            SCRPTLOG("Function \"%s\" returned value \"%s\"", funcmd_desc->textptr, scline->tp[dst]);
+        };break;
+        case Cmd_IMPORT:
+        {
+            long player_id = get_id(player_desc, funscline->tp[0]);
+            if (player_id >= PLAYERS_FOR_CAMPAIGN_FLAGS)
+            {
+                SCRPTERRLOG("Cannot fetch flag values for player, '%s'", funscline->tp[0]);
+                strcpy(scline->tp[dst], "0");
+                break;
+            }
+            long flag_id = get_id(campaign_flag_desc, funscline->tp[1]);
+            if (flag_id == -1)
+            {
+                SCRPTERRLOG("Unknown campaign flag name, '%s'", funscline->tp[1]);
+                strcpy(scline->tp[dst], "0");
+                break;
+            }
+            SCRPTLOG("Function \"%s\" returned value \"%ld\"", funcmd_desc->textptr,
+                     intralvl.campaign_flags[player_id][flag_id]);
+            snprintf(scline->tp[dst], MAX_TEXT_LENGTH, "%ld", intralvl.campaign_flags[player_id][flag_id]);
+            break;
+        }
+        default:
+            SCRPTWRNLOG("Parameter value \"%s\" is a command which isn't supported as function", scline->tp[dst]);
+            break;
+    }
+    LbMemoryFree(funscline);
+    return true;
+}
+
+static int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, struct ScriptLine *scline, int *para_level, int expect_level, long file_version)
 {
     int dst, src;
+    TbBool reparse = false;
+    struct CommandToken token = { 0 };
     for (dst = 0, src = 0; dst <= COMMANDDESC_ARGS_COUNT; dst++, src++)
     {
         TbBool extended = false;
         char chr = cmd_desc->args[src];
-        if (*para_level < expect_level)
+        if (token.type == TkClose)
             break;
         if (chr == '!')
         {
@@ -483,22 +802,30 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
         }
         // Read the next parameter
         const struct CommandDesc *funcmd_desc;
+        char* funline = *line;
+        char funcmd_buf[MAX_TEXT_LENGTH];
+        LbMemorySet(funcmd_buf, 0, MAX_TEXT_LENGTH);
+
+        if (reparse)
         {
-            char* funline = *line;
-            int funpara_level = *para_level;
-            char funcmd_buf[MAX_TEXT_LENGTH];
-            LbMemorySet(funcmd_buf, 0, MAX_TEXT_LENGTH);
-            funcmd_desc = get_next_word(&funline, funcmd_buf, &funpara_level, subfunction_desc);
-            if (funpara_level < expect_level+1) {
-                // Break the loop keeping variables as if the parameter wasn't read
+            reparse = false;
+            // Access tp[dst] only if we're sure dst < COMMANDDESC_ARGS_COUNT
+            strncpy(scline->tp[dst], token.start, min(token.end - token.start, MAX_TEXT_LENGTH));
+        }
+        else
+        {
+            *line = get_next_token(funline, &token);
+            if (token.type == TkInvalid)
+            {
+                SCRPTERRLOG("Invalid token at %s", *line);
+                dst--;
+                return -1;
+            }
+            else if ((token.type == TkClose) && ((chr == ' ') || (chr == 0)))
+            {
                 break;
             }
-            if (funpara_level > (*para_level)+(dst > 0 ? 0 : 1)) {
-                SCRPTWRNLOG("Unexpected paraenesis in parameter %d of command \"%s\"", dst + 1, scline->tcmnd);
-            }
-            *line = funline;
-            *para_level = funpara_level;
-            if (!isalpha(chr))
+            else if ((token.type != TkNumber) && (token.type != TkCommand) && (token.type != TkString))
             {
                 // Don't show parameter index - it may be bad, as we're decreasing dst to not overflow cmd_desc->args
                 SCRPTWRNLOG("Excessive parameter of command \"%s\", value \"%s\"; ignoring", scline->tcmnd, funcmd_buf);
@@ -506,193 +833,39 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                 continue;
             }
             // Access tp[dst] only if we're sure dst < COMMANDDESC_ARGS_COUNT
-            LbMemoryCopy(scline->tp[dst], funcmd_buf, MAX_TEXT_LENGTH);
-        }
-        if (funcmd_desc != NULL)
-        {
-            struct ScriptLine* funscline = (struct ScriptLine*)LbMemoryAlloc(sizeof(struct ScriptLine));
-            if (funscline == NULL) {
-                SCRPTERRLOG("Can't allocate buffer to recognize line");
-                return -1;
-            }
-            LbMemorySet(funscline, 0, sizeof(struct ScriptLine));
-            LbMemoryCopy(funscline->tcmnd, scline->tp[dst], MAX_TEXT_LENGTH);
-            int args_count = script_recognize_params(line, funcmd_desc, funscline, para_level, *para_level);
-            if (args_count < 0)
+            strncpy(scline->tp[dst], token.start, min(token.end - token.start, MAX_TEXT_LENGTH));
+
+            funcmd_desc = find_command_desc(&token, subfunction_desc);
+
+            if (funcmd_desc != NULL)
             {
-                LbMemoryFree(funscline);
-                return -1;
+                int r = process_subfunc(line, scline, cmd_desc, funcmd_desc, para_level, src, dst, file_version);
+                if (r == -1)
+                    return -1;
             }
-            // Count valid args
-            if (args_count < COMMANDDESC_ARGS_COUNT)
+            *line = get_next_token(*line, &token);
+
+            if (token.type == TkRangeOperator)
             {
-                int required = count_required_parameters(funcmd_desc->args);
-                if (args_count < required)
-                {
-                  SCRPTERRLOG("Not enough parameters for \"%s\", got only %d", funcmd_desc->textptr,(int)args_count);
-                  LbMemoryFree(funscline);
-                  return -1;
-                }
+                // Operator ~ goes to A/a chr
+                reparse = true;
             }
-            switch (funcmd_desc->index)
+            else if ((token.type != TkClose) && (token.type != TkComma))
             {
-            case Cmd_RANDOM:
-            case Cmd_DRAWFROM:{
-                // Create array of value ranges
-                long range_total = 0;
-                int fi;
-                struct MinMax ranges[COMMANDDESC_ARGS_COUNT];
-                TbBool is_if_statement = ((scline->command == Cmd_IF) || (scline->command == Cmd_IF_AVAILABLE) || (scline->command == Cmd_IF_CONTROLS));
-                if (level_file_version > 0)
+                if ((cmd_desc->args[src + 1] != 'O') || (token.type != TkOperator))
                 {
-                    chr = cmd_desc->args[src];
-                    int ri;
-                    for (fi = 0, ri = 0; fi < COMMANDDESC_ARGS_COUNT; fi++, ri++)
-                    {
-                        if (funscline->tp[fi][0] == '\0') {
-                            break;
-                        }
-                        if ((toupper(chr) == 'A') && (!is_if_statement) ) //Strings don't have a range, but IF statements have 'Aa' to allow both variable compare and numbers. Numbers are allowed, 'a' is a string for sure.
-                        {
-                            // Values which do not support range
-                            if (strcmp(funscline->tp[fi],"~") == 0) {
-                                SCRPTERRLOG("Parameter %d of function \"%s\" within command \"%s\" does not support range", fi+1, funcmd_desc->textptr, scline->tcmnd);
-                                LbMemoryFree(funscline);
-                                return -1;
-                            }
-                            // Values of that type cannot define ranges, as we cannot interpret them
-                            ranges[ri].min = fi;
-                            ranges[ri].max = fi;
-                            range_total++;
-                        } else
-                        if ((ri > 0) && (strcmp(funscline->tp[fi],"~") == 0))
-                        {
-                            // Second step of defining range
-                            ri--;
-                            fi++;
-                            if (funscline->tp[fi][0] != '\0')
-                            {
-                                funscline->np[fi] = atol(funscline->tp[fi]);
-                            }
-                            if (!script_command_param_to_number(chr, funscline, fi, false)) {
-                                SCRPTERRLOG("Parameter %d of function \"%s\" within command \"%s\" has unexpected range end value; discarding command", fi+1, funcmd_desc->textptr, scline->tcmnd);
-                                LbMemoryFree(funscline);
-                                return -1;
-                            }
-                            ranges[ri].max = funscline->np[fi];
-                            if (ranges[ri].max < ranges[ri].min) {
-                                SCRPTWRNLOG("Range definition in argument of function \"%s\" within command \"%s\" should have lower value first", funcmd_desc->textptr, scline->tcmnd);
-                                ranges[ri].max = ranges[ri].min;
-                            }
-                            range_total += ranges[ri].max - ranges[ri].min; // +1 was already added
-                        } else
-                        {
-                            // Single value or first step of defining range
-                            if (!script_command_param_to_number(chr, funscline, fi, false)) {
-                                SCRPTERRLOG("Parameter %d of function \"%s\" within command \"%s\" has unexpected value; discarding command", fi+1, funcmd_desc->textptr, scline->tcmnd);
-                                LbMemoryFree(funscline);
-                                return -1;
-                            }
-                            if (funscline->np[fi] == '\0')
-                            {
-                                funscline->np[fi] = atol(funscline->tp[fi]);
-                            }
-                            ranges[ri].min = funscline->np[fi];
-                            ranges[ri].max = funscline->np[fi];
-                            range_total++;
-                        }
-                    }
-                } else
+                    SCRPTERRLOG("Unexpected token after parameter %d of command \"%s\", discarding command", dst + 1,
+                                scline->tcmnd);
+                    return -1;
+                }
+                else if (token.type == TkOperator)
                 {
-                    // Old RANDOM command accepts only one range, and gives only numbers
-                    fi = 0;
-                    {
-                        ranges[fi].min = atol(funscline->tp[0]);
-                        ranges[fi].max = atol(funscline->tp[1]);
-                    }
-                    if (ranges[fi].max < ranges[fi].min) {
-                        SCRPTWRNLOG("Range definition in argument of function \"%s\" within command \"%s\" should have lower value first", funcmd_desc->textptr, scline->tcmnd);
-                        ranges[fi].max = ranges[fi].min;
-                    }
-                    range_total += ranges[fi].max - ranges[fi].min + 1;
-                    fi++;
+                    reparse = true;
                 }
-                if (range_total <= 0) {
-                    SCRPTERRLOG("Arguments of function \"%s\" within command \"%s\" define no values to select from", funcmd_desc->textptr, scline->tcmnd);
-                    break;
-                }
-                if ((funcmd_desc->index != Cmd_RANDOM) && (level_file_version == 0)) {
-                    SCRPTERRLOG("The function \"%s\" used within command \"%s\" is not supported in old level format", funcmd_desc->textptr, scline->tcmnd);
-                    break;
-                }
-                // The new RANDOM command stores values to allow selecting different one every turn during gameplay
-                if ((funcmd_desc->index == Cmd_RANDOM) && (level_file_version > 0))
-                {
-                    //TODO RANDOM make implementation - store ranges as variable to be used for selecting random value during gameplay
-                    SCRPTERRLOG("The function \"%s\" used within command \"%s\" is not supported yet", funcmd_desc->textptr, scline->tcmnd);
-                    break;
-                }
-                // DRAWFROM support - select random index now
-                long range_index = GAME_RANDOM(range_total);
-                // Get value from ranges array
-                range_total = 0;
-                for (fi=0; fi < COMMANDDESC_ARGS_COUNT; fi++)
-                {
-                    if ((range_index >= range_total) && (range_index <= range_total + ranges[fi].max - ranges[fi].min)) {
-                        chr = cmd_desc->args[src];
-                        if (toupper(chr) == 'A') {
-                            if (is_if_statement)
-                            {
-                                scline->np[dst] = ranges[fi].min + range_index - range_total;
-                                snprintf(scline->tp[dst], sizeof(scline->tp[dst]), "%ld", scline->np[dst]);
-                            }
-                            else
-                            {
-                                strcpy(scline->tp[dst], funscline->tp[ranges[fi].min]);
-                            }
-                        } else {
-                            scline->np[dst] = ranges[fi].min + range_index - range_total;
-                            // Set text value for that number
-                            script_command_param_to_text(chr, scline, dst);
-                        }
-                        break;
-                    }
-                    range_total += ranges[fi].max - ranges[fi].min + 1;
-                }
-                SCRPTLOG("Function \"%s\" returned value \"%s\"", funcmd_desc->textptr, scline->tp[dst]);
-                };break;
-            case Cmd_IMPORT:
-            {
-                long player_id = get_id(player_desc, funscline->tp[0]);
-                if (player_id >= PLAYERS_FOR_CAMPAIGN_FLAGS)
-                {
-                    SCRPTERRLOG("Cannot fetch flag values for player, '%s'", funscline->tp[0]);
-                    strcpy(scline->tp[dst], "0");
-                    break;
-                }
-                long flag_id = get_id(campaign_flag_desc, funscline->tp[1]);
-                if (flag_id == -1)
-                {
-                    SCRPTERRLOG("Unknown campaign flag name, '%s'", funscline->tp[1]);
-                    strcpy(scline->tp[dst], "0");
-                    break;
-                }
-                SCRPTLOG("Function \"%s\" returned value \"%ld\"", funcmd_desc->textptr,
-                    intralvl.campaign_flags[player_id][flag_id]);
-                snprintf(scline->tp[dst], MAX_TEXT_LENGTH, "%ld", intralvl.campaign_flags[player_id][flag_id]);
-                break;
             }
-            default:
-                SCRPTWRNLOG("Parameter value \"%s\" is a command which isn't supported as function", scline->tp[dst]);
-                break;
-            }
-            LbMemoryFree(funscline);
         }
         if (scline->tp[dst][0] == '\0') {
           break;
-        }
-        if (*para_level > expect_level+2) {
-            SCRPTWRNLOG("Parameter %d of command \"%s\", value \"%s\", is at too high paraenesis level %d", dst + 1, scline->tcmnd, scline->tp[dst], (int)*para_level);
         }
         chr = cmd_desc->args[src];
         if (cmd_desc->args[src + 1] == '+')
@@ -712,55 +885,84 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
     return dst;
 }
 
-long script_scan_line(char *line,TbBool preloaded)
+TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
 {
     const struct CommandDesc *cmd_desc;
+    struct CommandToken token = { 0 };
     SCRIPTDBG(12,"Starting");
     struct ScriptLine* scline = (struct ScriptLine*)LbMemoryAlloc(sizeof(struct ScriptLine));
     if (scline == NULL)
     {
       SCRPTERRLOG("Can't allocate buffer to recognize line");
-      return 0;
+      return false;
     }
     int para_level = 0;
     LbMemorySet(scline, 0, sizeof(struct ScriptLine));
     if (next_command_reusable > 0)
         next_command_reusable--;
-    if (level_file_version > 0)
+
+    line = get_next_token(line, &token);
+    if (token.type == TkEnd)
     {
-        cmd_desc = get_next_word(&line, scline->tcmnd, &para_level, command_desc);
+        return false;
+    }
+    if (token.type != TkCommand)
+    {
+        SCRPTERRLOG("Syntax error: Script command expected");
+        LbMemoryFree(scline);
+        return false;
+    }
+    memcpy(scline->tcmnd, token.start, min((token.end - token.start), MAX_TEXT_LENGTH));
+    if (file_version > 0)
+    {
+        cmd_desc = find_command_desc(&token, command_desc);
     } else
     {
-        cmd_desc = get_next_word(&line, scline->tcmnd, &para_level, dk1_command_desc);
+        cmd_desc = find_command_desc(&token, dk1_command_desc);
     }
     if (cmd_desc == NULL)
     {
         if (isalnum(scline->tcmnd[0])) {
-          SCRPTERRLOG("Invalid command, '%s' (lev ver %d)", scline->tcmnd,level_file_version);
+          SCRPTERRLOG("Invalid command, '%s' (lev ver %d)", scline->tcmnd, file_version);
         }
         LbMemoryFree(scline);
-        return 0;
+        return false;
     }
     SCRIPTDBG(12,"Executing command %lu",cmd_desc->index);
     // Handling comments
     if (cmd_desc->index == Cmd_REM)
     {
         LbMemoryFree(scline);
-        return 0;
+        return false;
     }
+    line = get_next_token(line, &token);
     scline->command = cmd_desc->index;
     // selecting only preloaded/not preloaded commands
     if (script_is_preloaded_command(cmd_desc->index) != preloaded)
     {
         LbMemoryFree(scline);
-        return 0;
+        return true;
     }
-    // Recognizing parameters
-    int args_count = script_recognize_params(&line, cmd_desc, scline, &para_level, 0);
-    if (args_count < 0)
+    int args_count;
+    if (token.type == TkEnd)
     {
+        args_count = 0;
+    }
+    else if (token.type == TkOpen)
+    {
+        // Recognizing parameters
+        args_count = script_recognize_params(&line, cmd_desc, scline, &para_level, 0, file_version);
+        if (args_count < 0)
+        {
+            LbMemoryFree(scline);
+            return false;
+        }
+    }
+    else
+    {
+        SCRPTERRLOG("Syntax error: ( expected");
         LbMemoryFree(scline);
-        return -1;
+        return false;
     }
     if (args_count < COMMANDDESC_ARGS_COUNT)
     {
@@ -769,13 +971,23 @@ long script_scan_line(char *line,TbBool preloaded)
         {
             SCRPTERRLOG("Not enough parameters for \"%s\", got only %d", cmd_desc->textptr,(int)args_count);
             LbMemoryFree(scline);
-            return -1;
+            return false;
         }
     }
-    script_add_command(cmd_desc, scline);
+    if (token.type != TkEnd)
+    {
+        line = get_next_token(line, &token);
+    }
+    if (token.type != TkEnd)
+    {
+        SCRPTERRLOG("Syntax error: Unexpected end of line");
+        LbMemoryFree(scline);
+        return false;
+    }
+    script_add_command(cmd_desc, scline, file_version);
     LbMemoryFree(scline);
     SCRIPTDBG(13,"Finished");
-    return 0;
+    return true;
 }
 
 short clear_script(void)
@@ -823,6 +1035,7 @@ static char* process_multiline_comment(char *buf, char *buf_end)
 
 static void parse_txt_data(char *script_data, long script_len)
 {// Process the file lines
+    text_line_number = 1;
     char* buf = script_data;
     char* buf_end = script_data + script_len;
     while (buf < buf_end)
@@ -847,7 +1060,7 @@ static void parse_txt_data(char *script_data, long script_len)
       }
       //SCRPTLOG("Analyse");
       // Analyze the line
-      script_scan_line(buf, true);
+      script_scan_line(buf, true, level_file_version);
       // Set new line start
       text_line_number++;
       buf += lnlen;
@@ -860,7 +1073,6 @@ TbBool preload_script(long lvnum)
   SYNCDBG(7,"Starting");
   set_script_current_condition(CONDITION_ALWAYS);
   next_command_reusable = 0;
-  text_line_number = 1;
   level_file_version = DEFAULT_LEVEL_VERSION;
   clear_quick_messages();
   // Load the file
@@ -904,26 +1116,25 @@ short load_script(long lvnum)
     {
         buf = process_multiline_comment(buf, buf_end);
       // Find end of the line
-      int lnlen = 0;
-      while (&buf[lnlen] < buf_end)
+      char* p = buf;
+      for (;p < buf_end; p++)
       {
-        if ((buf[lnlen] == '\r') || (buf[lnlen] == '\n'))
+        if (*p == '\n')
           break;
-        lnlen++;
       }
       // Get rid of the next line characters
-      buf[lnlen] = 0;
-      lnlen++;
-      if (&buf[lnlen] < buf_end)
+      *p = 0;
+      p++;
+      if (p > buf)
       {
-        if ((buf[lnlen] == '\r') || (buf[lnlen] == '\n'))
-          lnlen++;
+        if (p[-1] == '\r')
+          p[-1] = 0;
       }
       // Analyze the line
-      script_scan_line(buf, false);
+      script_scan_line(buf, false, level_file_version);
       // Set new line start
       text_line_number++;
-      buf += lnlen;
+      buf = p;
     }
     LbMemoryFree(script_data);
     if (gameadd.script.win_conditions_num == 0)
@@ -990,6 +1201,10 @@ static void process_party(struct PartyTrigger* pr_trig)
         SYNCDBG(6, "Adding object %d at location %d", (int)n, (int)pr_trig->location);
         script_process_new_object(n, pr_trig->location, pr_trig->carried_gold, pr_trig->plyr_idx);
         break;
+    case TrgF_CREATE_EFFECT_GENERATOR:
+        SYNCDBG(6, "Adding effect generator %d at location %d", pr_trig->crtr_level, (int)pr_trig->location);
+        script_process_new_effectgen(pr_trig->crtr_level, pr_trig->location, pr_trig->carried_gold);
+        break;
     case TrgF_CREATE_PARTY:
         SYNCDBG(6, "Adding player %d party %d at location %d", (int)pr_trig->plyr_idx, (int)n, (int)pr_trig->location);
         script_process_new_party(&gameadd.script.creature_partys[n],
@@ -1014,7 +1229,7 @@ void process_check_new_creature_partys(void)
             {
                 process_party(pr_trig);
                 if ((pr_trig->flags & TrgF_REUSABLE) == 0)
-                    set_flag_byte(&pr_trig->flags, TrgF_DISABLED, true);
+                    set_flag(pr_trig->flags, TrgF_DISABLED);
             }
       }
     }
@@ -1097,7 +1312,7 @@ void process_values(void)
             {
                 script_process_value(value->valtype, value->plyr_range, value->arg0, value->arg1, value->arg2, value);
                 if ((value->flags & TrgF_REUSABLE) == 0)
-                  set_flag_byte(&value->flags, TrgF_DISABLED, true);
+                  set_flag(value->flags, TrgF_DISABLED);
             }
         }
     }

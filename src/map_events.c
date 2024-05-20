@@ -37,7 +37,7 @@
 #include "room_workshop.h"
 #include "power_hand.h"
 #include "game_legacy.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "player_instances.h"
 #include "post_inc.h"
 
@@ -204,8 +204,7 @@ struct Event *event_create_event(MapCoord map_x, MapCoord map_y, EventKind evkin
         return INVALID_EVENT;
     }
     struct Dungeon* dungeon = get_dungeon(dngn_id);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(dngn_id);
-    i = dungeonadd->event_last_run_turn[evkind];
+    i = dungeon->event_last_run_turn[evkind];
     if (i != 0)
     {
         long k = event_button_info[evkind].turns_between_events;
@@ -256,8 +255,8 @@ void event_delete_event_structure(long ev_idx)
 
 void event_update_last_use(struct Event *event)
 {
-    struct DungeonAdd* dungeonadd = get_dungeonadd(event->owner);
-    if (dungeonadd_invalid(dungeonadd)) {
+    struct Dungeon* dungeon = get_dungeon(event->owner);
+    if (dungeon_invalid(dungeon)) {
         ERRORLOG("Player %d dungeon doesn't exist",(int)event->owner);
         return;
     }
@@ -265,7 +264,7 @@ void event_update_last_use(struct Event *event)
         ERRORLOG("Illegal Event kind %d to be updated",(int)event->kind);
         return;
     }
-    dungeonadd->event_last_run_turn[event->kind] = game.play_gameturn;
+    dungeon->event_last_run_turn[event->kind] = game.play_gameturn;
 }
 
 void event_delete_event(long plyr_idx, EventIndex evidx)
@@ -471,7 +470,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             // Otherwise, put creature type in it.
             if (!thing_is_invalid(thing))
             {
-                crconf = &gameadd.crtr_conf.model[thing->model];
+                crconf = &game.conf.crtr_conf.model[thing->model];
                 i = crconf->namestr_idx;
                 text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, get_string(i));
                 snprintf(game.evntbox_scroll_window.text,MESSAGE_TEXT_LEN, "%s", text);
@@ -508,7 +507,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             // Otherwise, put creature type in it.
             if (!thing_is_invalid(thing))
             {
-                crconf = &gameadd.crtr_conf.model[thing->model];
+                crconf = &game.conf.crtr_conf.model[thing->model];
                 i = crconf->namestr_idx;
                 text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, get_string(i));
                 snprintf(game.evntbox_scroll_window.text,MESSAGE_TEXT_LEN, "%s", text);
@@ -555,7 +554,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             // Otherwise, put creature type in it.
             if (!thing_is_invalid(thing))
             {
-                crconf = &gameadd.crtr_conf.model[thing->model];
+                crconf = &game.conf.crtr_conf.model[thing->model];
                 i = crconf->namestr_idx;
                 text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, get_string(i));
                 snprintf(game.evntbox_scroll_window.text,MESSAGE_TEXT_LEN, "%s", text);

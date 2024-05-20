@@ -26,7 +26,7 @@
 #include "bflib_sprfnt.h"
 
 #include "player_data.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "player_utils.h"
 #include "dungeon_data.h"
 #include "creature_battle.h"
@@ -142,8 +142,11 @@ void gui_get_creature_in_battle(struct GuiButton *gbtn)
         return;
     }
     PowerKind pwkind = 0;
-    if (myplyr->work_state < PLAYER_STATES_COUNT)
-        pwkind = player_state_to_power_kind[myplyr->work_state];
+    if (myplyr->work_state < PLAYER_STATES_COUNT_MAX)
+    {
+        struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(myplyr->work_state);
+        pwkind = plrst_cfg_stat->power_kind;
+    }
     struct Thing* thing = thing_get(battle_creature_over);
     if (!thing_exists(thing)) {
         WARNLOG("Nonexisting thing %d in battle",(int)battle_creature_over);
@@ -206,11 +209,16 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
     }
     short spr_idx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
     struct TbSprite* spr = &gui_panel_sprites[spr_idx];
+    if (spr->SHeight == 0)
+    {
+        ERRORLOG("Trying to draw non existing icon in battle menu for %s", thing_model_name(thing));
+        return;
+    }
     int ps_units_per_px = (50 * units_per_px + spr->SHeight / 2) / spr->SHeight;
     int curscr_x = scr_x - (spr->SWidth * ps_units_per_px / 16) / 2;
     int curscr_y = scr_y - (spr->SHeight * ps_units_per_px / 16) / 2;
     if ((thing->creature.health_bar_turns) && ((game.play_gameturn & 1) != 0)) {
-        LbSpriteDrawResizedOneColour(curscr_x, curscr_y, ps_units_per_px, spr, player_flash_colours[thing->owner]);
+        LbSpriteDrawResizedOneColour(curscr_x, curscr_y, ps_units_per_px, spr, player_flash_colours[get_player_color_idx(thing->owner)]);
     } else {
         LbSpriteDrawResized(curscr_x, curscr_y, ps_units_per_px, spr);
     }
@@ -225,7 +233,7 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
     HitPoints max_health = cctrl->max_health;
     if (max_health < 1)
         max_health = 1;
-    LbDrawBox(curscr_x + 2*units_per_px/16, curscr_y + 2*units_per_px/16, ((12 * health)/max_health)*units_per_px/16, 2*units_per_px/16, player_room_colours[thing->owner]);
+    LbDrawBox(curscr_x + 2*units_per_px/16, curscr_y + 2*units_per_px/16, ((12 * health)/max_health)*units_per_px/16, 2*units_per_px/16, player_room_colours[get_player_color_idx(thing->owner)]);
     // Draw experience level
     spr = &button_sprite[GBS_creature_flower_level_01];
     int bs_units_per_px = (17 * units_per_px + spr->SHeight / 2) / spr->SHeight;
@@ -498,6 +506,63 @@ void draw_timer(void)
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
 
+void draw_gameturn_timer(void)
+{
+    int nturns = game.play_gameturn;
+    char* text;
+    {
+        if (nturns < 0)
+        {
+            nturns = 0;
+        }
+        text = buf_sprintf("GameTurn %lu", game.play_gameturn);
+    }
+    LbTextSetFont(winfont);
+    int textLength = strlen(text);
+    int textCharWidth = 0;
+    for(int i = 0; i < textLength; ++i)
+    {
+        textCharWidth += LbTextCharWidth(text[i]);
+    };
+    
+    long width = textCharWidth * units_per_pixel / 16;
+    long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
+    if (MyScreenHeight < 400)
+    {
+        height *= 2;
+        width *= 2;
+        if ((dbc_language) > 0 && (gameadd.timer_real))
+        {
+            width += (width / 8);
+        }
+    }
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+    long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
+    long scr_y = MyScreenHeight - height - 16 * units_per_pixel / 16;
+    
+    LbTextSetWindow(scr_x, scr_y, width, height);
+    //draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
+    int tx_units_per_px;
+    int y;
+    if ( (MyScreenHeight < 400) && (dbc_language > 0) ) 
+    {        
+        tx_units_per_px = scale_ui_value(32);
+        y = 0;
+    }
+    else if ( (MyScreenWidth > 1280) && (dbc_language > 0) )
+    {
+        tx_units_per_px = scale_ui_value(16 - (MyScreenWidth / 640));
+        y = height / 4;
+    }
+    else
+    {
+        tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+        y = 0;
+    } 
+    LbTextDrawResized(0, y, tx_units_per_px, text);
+    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+}
+
 TbBool timer_enabled(void)
 {
   return ((game_flags2 & GF2_Timer) != 0);
@@ -508,9 +573,19 @@ TbBool frametime_enabled(void)
   return (debug_display_frametime != 0);
 }
 
+TbBool consolelog_enabled(void)
+{
+    return (debug_display_consolelog != 0);
+}
+
 TbBool script_timer_enabled(void)
 {
   return ((game.flags_gui & GGUI_ScriptTimer) != 0);
+}
+
+TbBool gameturn_timer_enabled(void)
+{
+    return flag_is_set(start_params.debug_flags, DFlg_ShowGameTurns);
 }
 
 void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned long limit, TbBool real)
@@ -650,6 +725,56 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
     }
     LbTextDrawResized(0, y, tx_units_per_px, text);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+}
+
+int consolelog_font_size = 11;
+int consolelog_simultaneous_message_count = 21;
+int consolelog_max_line_width = 1250; // Maximum line width
+void draw_consolelog()
+{
+    draw_round_slab64k(0, 0, units_per_pixel, lbDisplay.GraphicsScreenWidth, (lbDisplay.GraphicsScreenHeight/2), ROUNDSLAB64K_DARK);
+    LbTextSetFont(winfont);
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+
+    int text_height = (consolelog_font_size * units_per_pixel) / LbTextLineHeight();
+    int draw_ypos = text_height / 2; // Starting ypos
+    
+    int totalLinesDrawn = 0;
+
+    size_t startIdx = 0;
+    if (consoleLogArraySize > consolelog_simultaneous_message_count) {
+        startIdx = consoleLogArraySize - consolelog_simultaneous_message_count;
+    }
+
+    for (int i = startIdx; i < consoleLogArraySize && totalLinesDrawn < consolelog_simultaneous_message_count; i++) {
+        char* text = consoleLogArray[i];
+        int offset = 0; // Initialize offset for each text line
+        while (text[offset] != '\0' && totalLinesDrawn < consolelog_simultaneous_message_count) {
+            int currentLineWidth = 0; // Reset line width for each new line
+            int sub_len = 1;
+            
+            // Iterate over the characters in the string to find the substring length
+            while (text[offset + sub_len] != '\0') {
+                int charWidth = LbTextCharWidth(text[offset + sub_len - 1]);
+                if (currentLineWidth + charWidth > consolelog_max_line_width) {
+                    break; // Exit the loop if adding the next character would exceed the line width
+                }
+                
+                currentLineWidth += charWidth; // Add the width of the current character
+                sub_len++; // Move to the next character
+            }
+
+            char line_buffer[sub_len + 1];
+            strncpy(line_buffer, text + offset, sub_len);
+            line_buffer[sub_len] = '\0';
+
+            LbTextDrawResized(text_height, draw_ypos, text_height, line_buffer);
+            draw_ypos += text_height; // Move to the next line position
+            offset += sub_len;
+            totalLinesDrawn++;
+        }
+    }
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
 }
 
 void draw_frametime()

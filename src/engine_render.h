@@ -33,10 +33,11 @@ extern "C" {
 #define POLY_POOL_SIZE 16777216 // Originally 262144, adjusted for view distance
 #define Z_DRAW_DISTANCE_MAX 65536 // Originally 11232, adjusted for view distance
 #define BUCKETS_COUNT 4098 // Originally 704, adjusted for view distance. (65536/16)+2
+#define BUCKETS_STEP 16 // Bucket size in Z steps
 
 #define KEEPSPRITE_LENGTH 9149
 #define KEEPERSPRITE_ADD_OFFSET 16384
-#define KEEPERSPRITE_ADD_NUM 8192
+#define KEEPERSPRITE_ADD_NUM 16383
 
 struct EngineCoord { // sizeof = 28
   long view_width; // X screen position, probably not a width
@@ -97,6 +98,7 @@ extern unsigned char *poly_pool_end;
 extern long cells_away;
 extern float hud_scale;
 extern int creature_status_size;
+extern int line_box_size;
 
 extern struct MapVolumeBox map_volume_box;
 extern long view_height_over_2;

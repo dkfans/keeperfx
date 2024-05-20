@@ -79,6 +79,8 @@ enum CreatureInstances {
     CrInst_TORTURED,
     CrInst_TOKING,
     CrInst_RELAXING,
+    CrInst_FAMILIAR,
+    CrInst_SUMMON,
     CrInst_LISTEND,
 };
 
@@ -101,7 +103,7 @@ struct InstanceInfo {
     short flags;
     short force_visibility;
     unsigned char primary_target;
-    Creature_Instf_Func func_cb;
+    unsigned char func_idx;
     long func_params[2];
     long range_min;
     long range_max;
@@ -131,6 +133,7 @@ TbBool creature_has_ranged_weapon(const struct Thing *thing);
 TbBool creature_has_disarming_weapon(const struct Thing* creatng);
 TbBool creature_has_ranged_object_weapon(const struct Thing *creatng);
 TbBool creature_has_quick_range_weapon(const struct Thing *creatng);
+TbBool creature_has_melee_attack(const struct Thing *creatng);
 
 int creature_instance_get_available_pos_for_id(struct Thing *thing, CrInstance req_inst_id);
 int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_avail_pos);

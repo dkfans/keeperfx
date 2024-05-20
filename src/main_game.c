@@ -28,6 +28,7 @@
 #include "engine_textures.h"
 #include "frontend.h"
 #include "frontmenu_ingame_tabs.h"
+#include "frontmenu_ingame_map.h"
 #include "game_heap.h"
 #include "game_legacy.h"
 #include "game_merge.h"
@@ -40,12 +41,19 @@
 #include "room_list.h"
 #include "power_specials.h"
 #include "player_data.h"
+#include "player_instances.h"
 #include "player_utils.h"
 #include "vidfade.h"
 #include "vidmode.h"
 #include "custom_sprites.h"
 #include "gui_boxmenu.h"
 #include "sounds.h"
+#include "api.h"
+
+#ifdef FUNCTESTING
+  #include "ftests/ftest.h"
+#endif
+
 #include "post_inc.h"
 
 extern TbBool force_player_num;
@@ -61,7 +69,6 @@ CoroutineLoopState set_not_has_quit(CoroutineLoop *context);
 void reset_script_timers_and_flags(void)
 {
     struct Dungeon *dungeon;
-    struct DungeonAdd *dungeonadd;
     int plyr_idx;
     int k;
     TbBool freeplay = is_map_pack();
@@ -71,7 +78,6 @@ void reset_script_timers_and_flags(void)
         add_power_to_player(PwrK_SLAP, plyr_idx);
         add_power_to_player(PwrK_POSSESS, plyr_idx);
         dungeon = get_dungeon(plyr_idx);
-        dungeonadd = get_dungeonadd(plyr_idx);
         for (k=0; k<TURN_TIMERS_COUNT; k++)
         {
             memset(&dungeon->turn_timers[k], 0, sizeof(struct TurnTimer));
@@ -79,7 +85,7 @@ void reset_script_timers_and_flags(void)
         }
         for (k=0; k<SCRIPT_FLAGS_COUNT; k++)
         {
-            dungeonadd->script_flags[k] = 0;
+            dungeon->script_flags[k] = 0;
             if (freeplay)
             {
                 intralvl.campaign_flags[plyr_idx][k] = 0;
@@ -88,14 +94,28 @@ void reset_script_timers_and_flags(void)
     }
 }
 
-void init_good_player_as(PlayerNumber plr_idx)
+void init_player_types()
 {
-    struct PlayerInfo *player;
-    game.hero_player_num = plr_idx;
-    player = get_player(plr_idx);
-    player->allocflags |= PlaF_Allocated;
-    player->allocflags |= PlaF_CompCtrl;
-    player->id_number = game.hero_player_num;
+    for (size_t plr_idx = 0; plr_idx < PLAYERS_COUNT; plr_idx++)
+    {
+        struct PlayerInfo *player;
+        player = get_player(plr_idx);
+        switch (plr_idx)
+        {
+        case PLAYER_GOOD:
+            player->allocflags |= PlaF_Allocated;
+            player->allocflags |= PlaF_CompCtrl;
+            player->player_type = PT_Roaming;
+            player->id_number = plr_idx;
+            break;
+        case PLAYER_NEUTRAL:
+            player->player_type = PT_Neutral;
+            break;
+        default:
+            player->player_type = PT_Keeper;
+            break;
+        }
+    }
 }
 
 /******************************************************************************/
@@ -130,10 +150,11 @@ static void init_level(void)
     //LbMemoryCopy(&transfer_mem,&game.intralvl.transferred_creature,sizeof(struct CreatureStorage));
     LbMemoryCopy(&transfer_mem,&intralvl,sizeof(struct IntralevelData));
     game.flags_gui = GGUI_SoloChatEnabled;
-    set_flag_byte(&game.system_flags, GSF_RunAfterVictory, false);
+    clear_flag(game.system_flags, GSF_RunAfterVictory);
     free_swipe_graphic();
     game.loaded_swipe_idx = -1;
     game.play_gameturn = 0;
+    game.paused_at_gameturn = false;
     game_flags2 &= (GF2_PERSISTENT_FLAGS | GF2_Timer);
     clear_game();
     reset_heap_manager();
@@ -153,13 +174,14 @@ static void init_level(void)
 
     init_creature_scores();
 
-    init_good_player_as(hero_player_number);
+    init_player_types();
     light_set_lights_on(1);
     start_rooms = &game.rooms[1];
     end_rooms = &game.rooms[ROOMS_COUNT];
 
     erstats_clear();
     init_dungeons();
+    setup_panel_colors();
     init_map_size(get_selected_level_number());
     clear_messages();
     init_seeds();
@@ -184,9 +206,15 @@ static void init_level(void)
     LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
     light_set_lights_on(1);
     {
-        struct PlayerInfo *player;
-        player = get_player(game.hero_player_num);
-        init_player_start(player, false);
+        for (size_t i = 0; i < PLAYERS_COUNT; i++)
+        {
+            if(player_is_roaming(i))
+            {
+                struct PlayerInfo *player;
+                player = get_player(i);
+                init_player_start(player, false);
+            }
+        }
     }
     game.numfield_D |= GNFldD_Unkn04;
     //LbMemoryCopy(&game.intralvl.transferred_creature,&transfer_mem,sizeof(struct CreatureStorage));
@@ -209,6 +237,8 @@ static void init_level(void)
     game.manufactr_spridx = 0;
     game.manufactr_tooltip = 0;
     JUSTMSG("Started level %d from %s", get_selected_level_number(), campaign.name);
+
+    api_event("GAME_STARTED");
 }
 
 static void post_init_level(void)
@@ -352,6 +382,11 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
     post_init_players();
     post_init_packets();
     set_selected_level_number(0);
+
+#ifdef FUNCTESTING
+    set_flag(start_params.functest_flags, FTF_LevelLoaded);
+#endif
+
     return CLS_CONTINUE;
 }
 
@@ -391,7 +426,7 @@ void faststartup_saved_packet_game(void)
         player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
     }
     set_gui_visible(false);
-    set_flag_byte(&game.operation_flags,GOF_ShowPanel,false);
+    clear_flag(game.operation_flags, GOF_ShowPanel);
 }
 
 /******************************************************************************/
@@ -419,7 +454,7 @@ void clear_complete_game(void)
     game_num_fps = start_params.num_fps;
     game.flags_cd = start_params.flags_cd;
     game.no_intro = start_params.no_intro;
-    set_flag_byte(&game.system_flags,GSF_AllowOnePlayer,start_params.one_player);
+    set_flag_value(game.system_flags, GSF_AllowOnePlayer, start_params.one_player);
     gameadd.computer_chat_flags = start_params.computer_chat_flags;
     game.operation_flags = start_params.operation_flags;
     snprintf(game.packet_fname,150, "%s", start_params.packet_fname);
@@ -430,12 +465,10 @@ void clear_complete_game(void)
 
 void init_seeds()
 {
-    #ifdef AUTOTESTING
-    if (start_params.autotest_flags & ATF_FixedSeed)
+#if FUNCTESTING
+    if (flag_is_set(start_params.functest_flags, FTF_Enabled))
     {
-      game.action_rand_seed = 1;
-      game.unsync_rand_seed = 1;
-      srand(1);
+        ftest_srand();
     }
     else
 #endif
