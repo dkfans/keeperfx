@@ -3010,9 +3010,21 @@ TbBool creature_start_combat_with_trap_if_available(struct Thing* creatng, struc
     {
         return false;
     }
-    if (!combat_enemy_exists(creatng,traptng) || !(creature_can_navigate_to(creatng, &traptng->mappos, NavRtF_Default)))
+    if (!combat_enemy_exists(creatng,traptng))
     {
         return false;
+    }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if (cctrl->combat.battle_enemy_idx == traptng->index)
+    {
+        return false;
+    }
+    if (!creature_can_navigate_to(creatng, &traptng->mappos, NavRtF_Default))
+    {
+        if (!creature_has_ranged_weapon(creatng))
+            return false;
+        if (!creature_can_see_combat_path(creatng, traptng, get_combat_distance(creatng, traptng)))
+            return false;
     }
     return set_creature_object_combat(creatng, traptng);
 }
