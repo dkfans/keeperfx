@@ -29,6 +29,9 @@
 ---@alias actionpoint integer
 ---@alias lastevent playersingle.LAST_EVENT
 ---@alias location playersingle|actionpoint|lastevent|"COMBAT"
+---@alias thing_class "Object"|"Shot"|"EffectElem"|"DeadCreature"|"Creature"|"Effect"|"EffectGen"|"Trap"|"Door"|"AmbientSnd"|"CaveIn"
+
+
 
 ---followning options come from cfg files, but these are the defaults, if you added them correctly to cfg, errors the ide gives can be ignored
 ---@alias creature_type "WIZARD"|"BARBARIAN"|"ARCHER"|"MONK"|"DWARFA"|"KNIGHT"|"AVATAR"|"TUNNELLER"|"WITCH"|"GIANT"|"FAIRY"|"THIEF"|"SAMURAI"|"HORNY"|"SKELETON"|"TROLL"|"DRAGON"|"DEMONSPAWN"|"FLY"|"DARK_MISTRESS"|"SORCEROR"|"BILE_DEMON"|"IMP"|"BUG"|"VAMPIRE"|"SPIDER"|"HELL_HOUND"|"GHOST"|"TENTACLE"|"ORC"|"FLOATING_SPIRIT"|"DRUID"|"TIME_MAGE"
@@ -728,6 +731,8 @@ function SendChatMessage(player,message) end
 
 function GetHeroGate() end
 
-
-
+---returns a list containing all things of a certain class
+---@param class thing_class
+---@return Thing[]
+function get_things_of_class(class) end
 

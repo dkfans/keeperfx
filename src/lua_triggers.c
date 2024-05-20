@@ -46,10 +46,10 @@ void lua_game_loop()
     lua_getglobal(Lvl_script, "GameLoop");
 	if (lua_isfunction(Lvl_script, -1))
 	{
-		CheckLua(Lvl_script, lua_pcall(Lvl_script, 0, 0, 0));
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 0, 0, 1));
 	}
 }
-
+/*
 void lua_cast_power_on_thing(PowerKind pwkind,PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short splevel)
 {
     lua_getglobal(Lvl_script, "CastPowerOnThing");
@@ -64,4 +64,4 @@ void lua_cast_power_on_thing(PowerKind pwkind,PlayerNumber plyr_idx, struct Thin
 
 		CheckLua(Lvl_script, lua_pcall(Lvl_script, 6, 0, 1));
 	}
-}
+}*/

@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 
 #include "thing_data.h"
+#include "config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -186,6 +187,7 @@ struct Things {
 /******************************************************************************/
 extern Thing_Class_Func class_functions[];
 extern unsigned long thing_create_errors;
+extern const struct NamedCommand class_commands[];
 /******************************************************************************/
 void add_thing_to_list(struct Thing *thing, struct StructureList *list);
 void remove_thing_from_list(struct Thing *thing, struct StructureList *slist);

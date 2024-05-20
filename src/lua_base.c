@@ -24,13 +24,14 @@ struct lua_State *Lvl_script;
 
 
 // Little error checking utility function
-TbBool CheckLua(lua_State *L, int r)
+TbBool CheckLua(lua_State *L, int result)
 {
-	if (r == 1)
-	{
-		ERRORLOG("Lua problem (%s)",(char*)lua_tostring(L, -1));
-		return false;
-	}
+    if (result != LUA_OK) {
+        const char *message = lua_tostring(L, -1);
+        ERRORLOG("Lua error: %s", message);
+        lua_pop(L, 1);  // Remove error message from the stack
+        exit(EXIT_FAILURE);
+    }
 	return true;
 }
 

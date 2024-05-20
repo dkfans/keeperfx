@@ -54,20 +54,41 @@ static long luaL_checkNamedCommand(lua_State *L, int index,const struct NamedCom
 }
 static struct Thing *luaL_checkThing(lua_State *L, int index)
 {
-    luaL_checktype(L, index, LUA_TTABLE);
-    lua_getfield(L, 1, "idx");
+    if (!lua_istable(L, 1)) {
+        return luaL_error(L, "Expected a table");
+    }
+    // Get idx field
+    lua_getfield(L, 1, "index");
+    if (!lua_isnumber(L, -1)) {
+        return luaL_error(L, "Expected 'index' to be an integer");
+    }
+    
+    int idx = lua_tointeger(L, -1);
+    lua_pop(L, 1);  // Pop the idx value off the stack
+
+    // Get creation_turn field
     lua_getfield(L, 1, "creation_turn");
+    
+    if (!lua_isnumber(L, -1)) {
+        return luaL_error(L, "Expected 'creation_turn' to be an integer");
+    }
+    
+    int creation_turn = lua_tointeger(L, -1);
+    lua_pop(L, 1);  // Pop the creation_turn value off the stack
 
-    int tng_idx = luaL_checkint(L, -2);
-    int creation_turn = luaL_checkint(L, -1);
-    lua_pop(L, 2);
+    // Print the values (or process them as needed)
+    JUSTLOG("idx: %d, creation_turn: %d\n", idx, creation_turn);
 
-    struct Thing* thing = thing_get(tng_idx);
+    struct Thing* thing = thing_get(idx);
     if(thing_is_invalid(thing) || thing->creation_turn != creation_turn)
     {
         luaL_error (L,"failed to resolve thing");
     }
     return thing;
+
+
+
+
 }
 
 static TbMapLocation luaL_checkLocation(lua_State *L, int index)
@@ -184,7 +205,7 @@ void lua_pushThing(lua_State *L, struct Thing* thing)
 {
     if(thing_is_invalid(thing))
     {
-
+        ERRORLOG("attempt to push invalid thing to lua");
     }
 
     lua_createtable(L, 0, 4); /* creates and pushes new table on top of Lua stack */
@@ -194,6 +215,8 @@ void lua_pushThing(lua_State *L, struct Thing* thing)
 
     lua_pushinteger(L, thing->creation_turn);
     lua_setfield(L, -2, "creation_turn");
+    luaL_getmetatable(L, "thing");
+    lua_setmetatable(L, -2);
 
     /* Returning one table which is already on top of Lua stack. */
     return;
@@ -202,8 +225,7 @@ void lua_pushThing(lua_State *L, struct Thing* thing)
     struct luaThing *lthing = (struct luaThing *)lua_newtable(L, );
     lthing->thing_idx = thing->index;
     lthing->creation_turn = thing->creation_turn;
-    luaL_getmetatable(L, "thing");
-    lua_setmetatable(L, -2);
+
     return lthing;
     */
 }
@@ -854,10 +876,46 @@ static int lua_logmsg(lua_State *L)
     return 0; // return value is the amount of args you push back
 }
 
+static int lua_get_things_of_class(lua_State *L)
+{
+    ThingClass class_id = luaL_checkNamedCommand(L,1,class_commands);
+
+    const struct StructureList* slist = get_list_for_thing_class(class_id);
+    ThingIndex i = slist->index;
+    long k = 0;
+
+    lua_newtable(L);
+
+    while (i != 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_of_class;
+        // Per-thing code
+
+        lua_pushThing(L, thing);  // Push the value onto the stack
+        lua_rawseti(L, -2, k + 1);      // Set table[-2][i + 1] = value
+        
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return 1; // return value is the amount of args you push back
+}
 
 
 
-static const luaL_Reg game_methods[] = {
+
+static const luaL_Reg global_methods[] = {
 //Setup Commands
    {"SET_GENERATE_SPEED"            ,lua_SET_GENERATE_SPEED           },
    {"COMPUTER_PLAYER"               ,lua_COMPUTER_PLAYER              },
@@ -1007,27 +1065,18 @@ static const luaL_Reg game_methods[] = {
     {"GetCreatureNear", lua_get_creature_near},
     {"SendChatMessage", send_chat_message},
     {"getThingByIdx", lua_get_thing_by_idx},
-    {0, 0}};
+    {"get_things_of_class", lua_get_things_of_class}
+    };
 
 static const luaL_Reg game_meta[] = {
     {0, 0}};
 
-static int Game_register(lua_State *L)
+static void global_register(lua_State *L)
 {
-    luaL_openlib(L, "game", game_methods, 0); /* create methods table,
-                                             add it to the globals */
-    luaL_newmetatable(L, "game");             /* create metatable for Foo,
-                                              and add it to the Lua registry */
-    luaL_openlib(L, 0, game_meta, 0);         /* fill metatable */
-    lua_pushliteral(L, "__index");
-    lua_pushvalue(L, -3); /* dup methods table*/
-    lua_rawset(L, -3);    /* metatable.__index = methods */
-    lua_pushliteral(L, "__metatable");
-    lua_pushvalue(L, -3); /* dup methods table*/
-    lua_rawset(L, -3);    /* hide metatable:
-                             metatable.__metatable = methods */
-    lua_pop(L, 1);        /* drop metatable */
-    return 1;             /* return methods on the stack */
+    for (size_t i = 0; i < (sizeof(global_methods)/sizeof(global_methods[0])); i++)
+    {
+        lua_register(L, global_methods[i].name, global_methods[i].func);
+    }
 }
 
 /**********************************************/
@@ -1039,12 +1088,6 @@ static int make_thing_zombie (lua_State *L)
     JUSTLOG("make_thing_zombie");
     struct Thing *thing = luaL_checkThing(L, 1);
 
-    //struct Thing *thing = thing_get(lua_tointeger(L, 1));
-    if(thing_is_invalid(thing))
-    {
-        SCRPTERRLOG("invalid thing passed to make_thing_zombie");
-        return 0;
-    }
     thing->alloc_flags |= TAlF_IsControlled;
 
     return 0;
@@ -1077,7 +1120,7 @@ static int thing_tostring(lua_State *L)
 {
     char buff[32];
     struct Thing* thing = luaL_checkThing(L, 1);
-    sprintf(buff, "id: %d turn: %ld class: %d", thing->index, thing->creation_turn,thing->class_id);
+    sprintf(buff, "id: %d creaturn: %ld class: %d", thing->index, thing->creation_turn,thing->class_id);
 
     lua_pushfstring(L, "Foo (%s)", buff);
     return 1;
@@ -1118,7 +1161,7 @@ static int Thing_register(lua_State *L)
 
 void reg_host_functions(lua_State *L)
 {
-    Game_register(L);
+    global_register(L);
     Thing_register(L);
 }
 
