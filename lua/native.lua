@@ -736,3 +736,41 @@ function GetHeroGate() end
 ---@return Thing[]
 function get_things_of_class(class) end
 
+
+
+
+-------------------------------------------------------
+--Triggers
+-------------------------------------------------------
+
+---@class Trigger
+
+---comment
+---@return Trigger trigger
+function CreateTrigger() local t return t end
+
+---adds a condition function that needs to evaluate to true for the actions to be triggers ben the even happens
+---@param trigger Trigger
+---@param condition function function that returns true or false
+function TriggerAddCondition(trigger,condition) end
+
+---@param trigger Trigger
+---@param action function
+function TriggerAddAction(trigger, action) end
+
+
+
+---comment
+---@param trigger Trigger
+---@param time integer
+---@param periodic boolean
+function TriggerRegisterTimerEvent(trigger,time,periodic) end
+
+
+---@param trigger Trigger
+---@param player Player
+---@param varName string
+---@param opcode string
+---@param limitval number
+---@return event
+function TriggerRegisterVariableEvent(trigger,player, varName, opcode, limitval) end	-- (native)
