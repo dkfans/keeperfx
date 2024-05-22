@@ -1646,13 +1646,18 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
     {
         sumxp = cctrl->explevel + level;
     }
+    short sumcount = count;
+    if (count <= 0)
+    {
+        sumcount = cctrl->explevel+1 + count;
+    }
     if (duration == 0)
     {
         famlrtng = activate_trap_spawn_creature(creatng, model);
     }
     else
     {
-        for (int j = 0; j < count; j++)
+        for (int j = 0; j < sumcount; j++)
         {
             if (j > FAMILIAR_MAX)
             {
