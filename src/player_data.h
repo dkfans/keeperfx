@@ -29,13 +29,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define PLAYERS_COUNT           5
-#define PLAYERS_EXT_COUNT       6
+#define PLAYERS_COUNT       9
 #define COLOURS_COUNT       9
-/** This acts as default value for neutral_player_number */
-#define NEUTRAL_PLAYER          5
-/** This acts as default value for hero_player_number */
-#define HERO_PLAYER             4
 
 #define INVALID_PLAYER (&bad_player)
 
@@ -113,6 +108,12 @@ enum PlayerAdditionalFlags {
     PlaAF_Unkn20                    = 0x20,
     PlaAF_Unkn40                    = 0x40,
     PlaAF_Unkn80                    = 0x80,
+};
+
+enum PlayerTypes {
+    PT_Keeper,
+    PT_Roaming,
+    PT_Neutral
 };
 
 /******************************************************************************/
@@ -195,10 +196,10 @@ struct PlayerInfo {
     short minimap_pos_y;
     unsigned short minimap_zoom;
     unsigned char view_type;
-    unsigned char work_state;
+    PlayerState work_state;
     unsigned char primary_cursor_state;
     unsigned char secondary_cursor_state;
-    unsigned char continue_work_state;
+    PlayerState continue_work_state;
 char field_45F;
 short cursor_light_idx;
     char mp_message_text[PLAYER_MP_MESSAGE_LEN];
@@ -257,11 +258,12 @@ short cursor_light_idx;
     MapSubtlCoord cursor_subtile_y;
     MapSubtlCoord previous_cursor_subtile_x;
     MapSubtlCoord previous_cursor_subtile_y;
-    TbBool mouse_is_offmap;
+    TbBool mouse_on_map;
     TbBool roomspace_drag_paint_mode;
     unsigned char roomspace_l_shape;
     TbBool roomspace_horizontal_first;
     TbBool pickup_all_gold;
+    unsigned char player_type; //enum PlayerTypes
     };
 
 /******************************************************************************/
@@ -277,9 +279,6 @@ extern TbPixel player_flash_colours[];
 extern TbPixel player_highlight_colours[];
 extern TbPixel possession_hit_colours[];
 extern unsigned short const player_cubes[];
-extern long neutral_player_number;
-extern long hero_player_number;
-extern struct PlayerInfo bad_player;
 extern struct PlayerInfo bad_player;
 /******************************************************************************/
 struct PlayerInfo *get_player_f(long plyr_idx,const char *func_name);
@@ -298,6 +297,10 @@ TbBool set_ally_with_player(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool
 void toggle_ally_with_player(PlayerNumber plyr_idx, PlayerNumber ally_idx);
 TbBool is_player_ally_locked(PlayerNumber plyr_idx, PlayerNumber ally_idx);
 void set_player_ally_locked(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool lock_alliance);
+
+TbBool player_is_roaming(PlayerNumber plyr_num);
+TbBool player_is_keeper(PlayerNumber plyr_num);
+TbBool player_is_neutral(PlayerNumber plyr_num);
 
 void set_player_state(struct PlayerInfo *player, short a1, long a2);
 void set_player_mode(struct PlayerInfo *player, unsigned short nview);

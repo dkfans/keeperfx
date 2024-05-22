@@ -75,8 +75,6 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
     if (room->owner != game.neutral_player_num)
     {
         dungeon->lvstats.creatures_attracted++;
-        dungeon->lvstats.field_8++;
-        dungeon->lvstats.field_88 = crkind;
     }
     struct Thing* heartng = get_player_soul_container(room->owner);
     TRACE_THING(heartng);
@@ -411,7 +409,7 @@ TbBool update_creature_pool_state(void)
     return true;
 }
 
-void add_creature_to_pool(long kind, long amount, unsigned long a3)
+void add_creature_to_pool(ThingModel kind, long amount, unsigned long a3)
 {
     long prev_amount;
     kind %= game.conf.crtr_conf.model_count;

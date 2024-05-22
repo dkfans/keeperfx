@@ -33,6 +33,7 @@ extern "C" {
 #define POLY_POOL_SIZE 16777216 // Originally 262144, adjusted for view distance
 #define Z_DRAW_DISTANCE_MAX 65536 // Originally 11232, adjusted for view distance
 #define BUCKETS_COUNT 4098 // Originally 704, adjusted for view distance. (65536/16)+2
+#define BUCKETS_STEP 16 // Bucket size in Z steps
 
 #define KEEPSPRITE_LENGTH 9149
 #define KEEPERSPRITE_ADD_OFFSET 16384

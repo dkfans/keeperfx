@@ -2081,8 +2081,8 @@ TbBool electricity_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, c
     }
     // Friendly fire usually causes less damage and at smaller distance
     if ((tngdst->class_id == TCls_Creature) && (tngdst->owner == owner)) {
-        max_dist = max_dist * game.conf.rules.magic.friendly_fight_area_range_permil / 1000;
-        max_damage = max_damage * game.conf.rules.magic.friendly_fight_area_damage_permil / 1000;
+        max_dist = max_dist * game.conf.rules.magic.friendly_fight_area_range_percent / 100;
+        max_damage = max_damage * game.conf.rules.magic.friendly_fight_area_damage_percent / 100;
     }
     MapCoordDelta distance = get_chessboard_distance(pos, &tngdst->mappos);
     if (distance < max_dist)
@@ -3950,7 +3950,7 @@ struct Thing *get_food_at_subtile_available_to_eat_and_owned_by(MapSubtlCoord st
     return get_thing_on_map_block_with_filter(i, filter, &param, &n);
 }
 
-struct Thing *get_trap_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long model, long plyr_idx)
+struct Thing *get_trap_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel model, long plyr_idx)
 {
     SYNCDBG(19,"Starting");
     Thing_Maximizer_Filter filter = anywhere_thing_filter_is_of_class_and_model_and_owned_by;
@@ -3975,7 +3975,7 @@ struct Thing *get_trap_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, Map
  * @param plyr_idx Player whose creature or allied creature will be returned.
  * @return The creature thing pointer, or invalid thing pointer if not found.
  */
-struct Thing *get_trap_around_of_model_and_owned_by(MapCoord pos_x, MapCoord pos_y, long model, PlayerNumber plyr_idx)
+struct Thing *get_trap_around_of_model_and_owned_by(MapCoord pos_x, MapCoord pos_y, ThingModel model, PlayerNumber plyr_idx)
 {
     SYNCDBG(19,"Starting");
     Thing_Maximizer_Filter filter = anywhere_thing_filter_is_of_class_and_model_and_owned_by;
@@ -4175,7 +4175,7 @@ TbBool setup_creature_die_if_not_in_custody(struct Thing *thing)
 
 void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx)
 {
-    if ((plyr_idx == game.hero_player_num) || (plyr_idx == game.neutral_player_num)) {
+    if (!player_is_keeper(plyr_idx)) {
         // Don't affect heroes and neutral creatures
         return;
     }
@@ -4270,26 +4270,19 @@ void break_mapwho_infinite_chain(const struct Map *mapblk)
 ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_creature, PlayerNumber owner, ThingModel crmodel, struct PlayerInfo *player)
 {
     unsigned long k = 0;
-    struct Thing* thing = current_creature;
-    ThingIndex i;
-    unsigned char loops = 0;
+    ThingIndex i = current_creature->index;
     do
     {
-        i = thing->prev_of_class;
-        if (i == 0)
+        i++;
+        if (i >= THINGS_COUNT)
         {
-            loops++;
-            if (loops > 1)
-            {
-                break;
-            }
-            i = get_index_of_first_creature_of_owner_and_model(owner, crmodel);
+            i = 1;
         }
         else if (i == current_creature->index)
         {
-            return i;
+            break;
         }
-        thing = thing_get(i);
+        struct Thing* thing = thing_get(i);
         if (thing_is_creature(thing))
         {
             if ( (thing->owner == owner) || (owner == -1) )
@@ -4312,34 +4305,6 @@ ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_c
     }
     while (1);
     return current_creature->index;
-}
-
-ThingIndex get_index_of_first_creature_of_owner_and_model(PlayerNumber owner, ThingModel crmodel)
-{
-    unsigned long k = 0;
-    ThingIndex i = 1;
-    while (i != 0)
-    {
-        struct Thing *thing = thing_get(i);
-        if (thing_is_creature(thing))
-        {
-            if ( (thing->owner == owner) || (owner == -1) )
-            {
-                if ( (thing->model == crmodel) || (crmodel == 0) )
-                {
-                    return thing->index;
-                }
-            }
-        }
-        k++;
-        if (k > THINGS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping things list");
-            break;
-        }
-        i++;
-    }
-    return 0;
 }
 
 struct Thing* get_timebomb_target(struct Thing *creatng)

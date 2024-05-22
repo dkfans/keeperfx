@@ -75,7 +75,7 @@ struct ObjectConfigStats {
     long genre;
     long name_stridx;
     long map_icon;
-    long health;
+    HitPoints health;
     char fall_acceleration;
     char light_unaffected;
     char immobile;
@@ -89,7 +89,7 @@ struct ObjectConfigStats {
     unsigned char draw_class; /**< See enum ObjectsDrawClasses. */
     unsigned char destroy_on_lava;
     /** Creature model related to the object, ie for lairs - which creature lair it is. */
-    unsigned char related_creatr_model;
+    ThingModel related_creatr_model;
     unsigned char persistence;
     unsigned char destroy_on_liquid;
     unsigned char rotation_flag;

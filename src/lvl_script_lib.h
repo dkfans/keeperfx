@@ -184,6 +184,8 @@ enum TbScriptCommands {
     Cmd_SET_PLAYER_MODIFIER                = 171,
     Cmd_ADD_TO_PLAYER_MODIFIER             = 172,
     Cmd_USE_POWER_ON_PLAYERS_CREATURES     = 173,
+    Cmd_CHANGE_SLAB_TEXTURE                = 174,
+    Cmd_SET_SPECIAL_DIGGER,
 };
 
 struct ScriptLine {
@@ -287,11 +289,11 @@ enum ScriptVariables {
 #define FX_LINE_TIME_PARTS 4
 
 
-struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmodel, long criteria);
-long parse_creature_name(const char *creature_name);
+struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, ThingModel crmodel, long criteria);
+ThingModel parse_creature_name(const char *creature_name);
 struct ScriptValue *allocate_script_value(void);
-struct Thing *script_process_new_object(long crmodel, TbMapLocation location, long arg, unsigned long plr_range_id);
-struct Thing* script_process_new_effectgen(long crmodel, TbMapLocation location, long range);
+struct Thing *script_process_new_object(ThingModel crmodel, TbMapLocation location, long arg, unsigned long plr_range_id);
+struct Thing* script_process_new_effectgen(ThingModel crmodel, TbMapLocation location, long range);
 void command_init_value(struct ScriptValue* value, unsigned long var_index, unsigned long plr_range_id);
 void command_add_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4);
 void set_variable(int player_idx, long var_type, long var_idx, long new_val);
@@ -302,7 +304,7 @@ long parse_criteria(const char *criteria);
 #define get_players_range_single(plr_range_id) get_players_range_single_f(plr_range_id, __func__, text_line_number)
 long get_players_range_single_f(long plr_range_id, const char *func_name, long ln_num);
 TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type);
-char get_player_number_from_value(const char* txt);
+void get_player_number_from_value(const char* txt, char* id, char* type);
 #define get_player_id(plrname, plr_range_id) get_player_id_f(plrname, plr_range_id, __func__, text_line_number)
 TbBool get_player_id_f(const char *plrname, long *plr_range_id, const char *func_name, long ln_num);
 TbResult script_use_power_on_creature(struct Thing* thing, short pwkind, short splevel, PlayerNumber caster, TbBool is_free);

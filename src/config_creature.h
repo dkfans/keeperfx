@@ -44,14 +44,14 @@ enum CreatureModelFlags {
     CMF_IsSpecDigger     = 0x00001, // Imp and Tunneller.
     CMF_IsArachnid       = 0x00002, // simply, Spider.
     CMF_IsDiptera        = 0x00004, // simply, Fly.
-    CMF_IsLordOTLand     = 0x00008, // simply, Knight and Avatar.
+    CMF_IsLordOTLand     = 0x00008, // simply, Knight.
     CMF_IsSpectator      = 0x00010, // simply, Floating Spirit.
     CMF_IsEvil           = 0x00020, // All evil creatures.
     CMF_NeverChickens    = 0x00040, // Cannot be affected by Chicken (for Avatar).
     CMF_ImmuneToBoulder  = 0x00080, // Boulder traps are destroyed at the moment they touch the creature.
     CMF_NoCorpseRotting  = 0x00100, // Corpse cannot rot in graveyard.
     CMF_NoEnmHeartAttack = 0x00200, // Creature will not attack enemy heart on sight.
-    CMF_TremblingFat     = 0x00400, // Creature causes ground to tremble when dropped.
+    CMF_Trembling        = 0x00400, // Creature causes ground to tremble when dropped.
     CMF_Female           = 0x00800, // Creature is female.
     CMF_Insect           = 0x01000, // Creature is kind of insect.
     CMF_OneOfKind        = 0x02000, // Only one creature of that kind may exist on one level. Unit name is type name.
@@ -59,6 +59,7 @@ enum CreatureModelFlags {
     CMF_NeverSick        = 0x08000, // Creature will not get disease.
     CMF_NoResurrect      = 0x10000, // Creature will not resurrect.
     CMF_NoTransfer       = 0x20000, // Creature cannot be transferred.
+    CMF_Fat              = 0x40000, // Creature to fat too walk a full animation
 };
 
 enum CreatureJobFlags {
@@ -185,7 +186,7 @@ struct Creatures { // sizeof = 16
 
 /******************************************************************************/
 extern struct Creatures creatures[CREATURE_TYPES_MAX];
-extern unsigned short breed_activities[CREATURE_TYPES_MAX];
+extern ThingModel breed_activities[CREATURE_TYPES_MAX];
 #pragma pack()
 /******************************************************************************/
 

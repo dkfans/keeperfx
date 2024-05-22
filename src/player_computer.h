@@ -76,14 +76,12 @@ enum ComputerTaskTypes {
     CTT_DigToAttack,
     CTT_MagicCallToArms,
     CTT_PickupForAttack,
-    CTT_MoveCreatureToRoom, // 10
+    CTT_MoveCreatureToRoom,     // 10
     CTT_MoveCreatureToPos,
     CTT_MoveCreaturesToDefend,
     CTT_SlapDiggers,
     CTT_DigToNeutral,
     CTT_MagicSpeedUp,
-    CTT_MagicFlightUp,
-    CTT_MagicVisionUp,
     CTT_WaitForBridge,
     CTT_AttackMagic,
     CTT_SellTrapsAndDoors,
@@ -572,7 +570,7 @@ struct Computer2 { // sizeof = 5322
           struct ComputerEvent *events;
       };
   };
-  struct OpponentRelation opponent_relations[PLAYERS_EXT_COUNT];
+  struct OpponentRelation opponent_relations[PLAYERS_COUNT];
   // TODO we could use coord2d for trap locations
   struct Coord3d trap_locations[COMPUTER_TRAP_LOC_COUNT];
   /** Stores Sight Of Evil target points data. */
@@ -730,6 +728,7 @@ TbBool thing_is_in_computer_power_hand_list(const struct Thing *thing, PlayerNum
 struct Thing* find_creature_for_defend_pickup(struct Computer2* comp);
 
 TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyridx, long comp_model);
+TbBool reactivate_build_process(struct Computer2* comp, RoomKind rkind);
 /******************************************************************************/
 #ifdef __cplusplus
 }

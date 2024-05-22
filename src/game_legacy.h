@@ -36,6 +36,7 @@
 #include "config_effects.h"
 #include "config_objects.h"
 #include "config_rules.h"
+#include "config_players.h"
 #include "dungeon_data.h"
 #include "thing_data.h"
 #include "thing_traps.h"
@@ -126,6 +127,7 @@ struct Configs {
     struct ObjectsConfig object_conf;
     struct CreatureModelConfig swap_creature_models[SWAP_CREATURE_TYPES_MAX];
     struct RulesConfig rules;
+    struct PlayerStateConfig plyr_conf;
 };
 
 struct Game {
@@ -167,7 +169,7 @@ char numfield_1A;
     struct Room rooms[ROOMS_COUNT];
     struct Dungeon dungeon[DUNGEONS_COUNT];
     struct StructureList thing_lists[13];
-    unsigned int unrevealed_column_idx;
+    ColumnIndex unrevealed_column_idx;
     unsigned char packet_save_enable;
     unsigned char packet_load_enable;
     char packet_fname[150];
@@ -215,11 +217,10 @@ unsigned int packet_file_pos;
     struct Coord3d mouse_light_pos;
     struct Packet packets[PACKETS_COUNT];
     char active_players_count;
-    PlayerNumber hero_player_num;
     PlayerNumber neutral_player_num;
     struct GoldLookup gold_lookup[GOLD_LOOKUP_COUNT];
     unsigned short ambient_sound_thing_idx;
-    unsigned short block_health[9];
+    HitPoints block_health[9];
     unsigned short generate_speed;
     unsigned long entrance_last_generate_turn;
     unsigned short entrance_room_id;
@@ -232,6 +233,7 @@ unsigned int packet_file_pos;
     struct CreaturePool pool;
     long frame_skip;
     TbBool frame_step;
+    TbBool paused_at_gameturn;
     GameTurnDelta pay_day_progress;
     TbBool no_intro;
     GameTurn armageddon_cast_turn;

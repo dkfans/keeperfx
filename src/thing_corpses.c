@@ -486,7 +486,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
  */
 struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long crpscondition)
 {
-    long crmodel = thing->model;
+    ThingModel crmodel = thing->model;
     TbBool memf1 = ((thing->alloc_flags & TAlF_IsControlled) != 0);
     struct Coord3d pos;
     pos.x.val = thing->mappos.x.val;
@@ -494,6 +494,7 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long crpsc
     pos.z.val = thing->mappos.z.val;
     long owner = thing->owner;
     long prev_idx = thing->index;
+    short angle = thing->move_angle_xy;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     long explevel = cctrl->explevel;
     struct PlayerInfo* player = NULL;
@@ -505,6 +506,7 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long crpsc
         ERRORLOG("Could not create dead thing while killing %s index %d owned by player %d.",creature_code_name(crmodel),(int)prev_idx,(int)owner);
         return INVALID_THING;
     }
+    deadtng->move_angle_xy = angle;
     set_flag_value(deadtng->alloc_flags, TAlF_IsControlled, memf1);
     if (owner != game.neutral_player_num)
     {

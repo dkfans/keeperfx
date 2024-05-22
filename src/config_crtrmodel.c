@@ -116,6 +116,8 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"ALLURING_SCVNGR",   27},
   {"NO_RESURRECT",      28},
   {"NO_TRANSFER",       29},
+  {"TREMBLING",         30},
+  {"FAT",               31},
   {NULL,                 0},
   };
 
@@ -711,7 +713,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 n++;
                 break;
             case 20: // TREMBLING_FAT
-                crconf->model_flags |= CMF_TremblingFat;
+                crconf->model_flags |= CMF_Trembling;
+                crconf->model_flags |= CMF_Fat;
                 n++;
                 break;
             case 21: // FEMALE
@@ -748,6 +751,14 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 break;
             case 29: // NO_TRANSFER
                 crconf->model_flags |= CMF_NoTransfer;
+                n++;
+                break;
+            case 30: // TREMBLING
+                crconf->model_flags |= CMF_Trembling;
+                n++;
+                break;
+            case 31: // FAT
+                crconf->model_flags |= CMF_Fat;
                 n++;
                 break;
             default:
@@ -2531,7 +2542,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     return result;
 }
 
-TbBool load_creaturemodel_config(long crmodel, unsigned short flags)
+TbBool load_creaturemodel_config(ThingModel crmodel, unsigned short flags)
 {
     static const char config_global_textname[] = "global creature model config";
     static const char config_campgn_textname[] = "campaign creature model config";
@@ -2559,7 +2570,7 @@ TbBool load_creaturemodel_config(long crmodel, unsigned short flags)
     return result;
 }
 
-TbBool swap_creaturemodel_config(long nwcrmodel, long crmodel, unsigned short flags)
+TbBool swap_creaturemodel_config(ThingModel nwcrmodel, ThingModel crmodel, unsigned short flags)
 {
     static const char config_global_textname[] = "global creature model config";
     static const char config_campgn_textname[] = "campaing creature model config";
@@ -2587,13 +2598,13 @@ TbBool swap_creaturemodel_config(long nwcrmodel, long crmodel, unsigned short fl
     return result;
 }
 
-void do_creature_swap(long ncrt_id, long crtr_id)
+static void do_creature_swap(ThingModel ncrt_id, ThingModel crtr_id)
 {
     swap_creaturemodel_config(ncrt_id, crtr_id, 0);
     SCRPTLOG("Swapped creature %s out for creature %s", creature_code_name(crtr_id), new_creature_code_name(ncrt_id));
 }
 
-TbBool swap_creature(long ncrt_id, long crtr_id)
+TbBool swap_creature(ThingModel ncrt_id, ThingModel crtr_id)
 {
     if ((crtr_id < 0) || (crtr_id >= game.conf.crtr_conf.model_count))
     {
@@ -2627,7 +2638,7 @@ TbBool make_all_creatures_free(void)
 /**
  * Changes max health of creatures, and updates all creatures to max.
  */
-TbBool change_max_health_of_creature_kind(ThingModel crmodel, long new_max)
+TbBool change_max_health_of_creature_kind(ThingModel crmodel, HitPoints new_max)
 {
     struct CreatureStats* crstat = creature_stats_get(crmodel);
     if (creature_stats_invalid(crstat)) {

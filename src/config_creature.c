@@ -206,7 +206,7 @@ struct NamedCommand creaturejob_desc[INSTANCE_TYPES_MAX];
 struct NamedCommand angerjob_desc[INSTANCE_TYPES_MAX];
 struct NamedCommand attackpref_desc[INSTANCE_TYPES_MAX];
 
-unsigned short breed_activities[CREATURE_TYPES_MAX];
+ThingModel breed_activities[CREATURE_TYPES_MAX];
 /******************************************************************************/
 extern const struct NamedCommand creature_job_player_assign_func_type[];
 extern Creature_Job_Player_Check_Func creature_job_player_check_func_list[];
@@ -1787,7 +1787,8 @@ TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, long
 ThingModel get_players_special_digger_model(PlayerNumber plyr_idx)
 {
     ThingModel crmodel;
-    if (plyr_idx == hero_player_number)
+
+    if (player_is_roaming(plyr_idx))
     {
         crmodel = game.conf.crtr_conf.special_digger_good;
         if (crmodel == 0)
@@ -1963,11 +1964,42 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
         required_kind_flags |= JoKF_AssignOnAreaBorder;
     }
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
+    struct Room* room = get_room_thing_is_on(creatng);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    RoomKind rkind;
+    if (!room_is_invalid(room)) 
+    {
+        required_kind_flags |= JoKF_AssignAreaWithinRoom;
+        rkind = room->kind;
+    } 
+    else 
+    {
+        required_kind_flags |= JoKF_AssignAreaOutsideRoom;
+        rkind = RoK_NONE;
+    }
     if (creatng->owner == slabmap_owner(slb))
     {
-        if (creatng->model == get_players_special_digger_model(creatng->owner)) {
-            required_kind_flags |= JoKF_OwnedDiggers;
-        } else {
+        if (thing_is_creature_special_digger(creatng)) 
+        {
+            if (creatng->model == get_players_special_digger_model(creatng->owner))
+            {
+                required_kind_flags |= JoKF_OwnedDiggers;
+            }
+            else
+            {
+                CreatureJob jobpref = get_job_for_room(rkind, required_kind_flags | JoKF_OwnedDiggers, crstat->job_primary | crstat->job_secondary);
+                if (jobpref == Job_NULL)
+                {
+                    return get_job_for_room(rkind, required_kind_flags | JoKF_OwnedCreatures, crstat->job_primary | crstat->job_secondary);
+                }
+                else
+                {
+                    return jobpref;
+                }
+            }
+        } 
+        else 
+        {
             required_kind_flags |= JoKF_OwnedCreatures;
         }
     } else
@@ -1978,18 +2010,7 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
             required_kind_flags |= JoKF_EnemyCreatures;
         }
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    RoomKind rkind;
-    struct Room* room = get_room_thing_is_on(creatng);
-    if (!room_is_invalid(room)) {
-        required_kind_flags |= JoKF_AssignAreaWithinRoom;
-        rkind = room->kind;
-    } else {
-        required_kind_flags |= JoKF_AssignAreaOutsideRoom;
-        rkind = RoK_NONE;
-    }
-    CreatureJob jobpref = get_job_for_room(rkind, required_kind_flags, crstat->job_primary | crstat->job_secondary);
-    return jobpref;
+    return get_job_for_room(rkind, required_kind_flags, crstat->job_primary | crstat->job_secondary);
 }
 
 /**

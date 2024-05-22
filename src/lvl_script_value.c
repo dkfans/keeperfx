@@ -157,7 +157,7 @@ TbResult script_use_power_on_creature_matching_criterion(PlayerNumber plyr_idx, 
  * @param fmcl_bytes encoded bytes: f=cast for free flag,m=power kind,c=caster player index,l=spell level.
  * @return TbResult whether the spell was successfully cast
  */
-TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long criteria, long fmcl_bytes)
+TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel, long criteria, long fmcl_bytes)
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
@@ -276,7 +276,7 @@ TbResult script_use_power_at_pos(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
 
     unsigned long spell_flags = PwCast_AllGround | PwCast_Unrevealed;
     if (is_free)
-        spell_flags |= PwMod_CastForFree;
+        set_flag(spell_flags,PwMod_CastForFree);
 
     return magic_use_power_on_subtile(plyr_idx, powerKind, splevel, stl_x, stl_y, spell_flags);
 }
@@ -506,9 +506,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_ADD_CREATURE_TO_POOL:
       add_creature_to_pool(val2, val3, 0);
       break;
-  case Cmd_RESET_ACTION_POINT:
-      action_point_reset_idx(val2);
-      break;
   case Cmd_TUTORIAL_FLASH_BUTTON:
       gui_set_button_flashing(val2, val3);
       break;
@@ -584,161 +581,163 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 10: // SPECIAL_DIGGER
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_IsSpecDigger;
+              set_flag(crconf->model_flags,CMF_IsSpecDigger);
           }
           else
           {
-              crconf->model_flags ^= CMF_IsSpecDigger;
+              clear_flag(crconf->model_flags,CMF_IsSpecDigger);
           }
           break;
       case 11: // ARACHNID
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_IsArachnid;
+              set_flag(crconf->model_flags,CMF_IsArachnid);
           }
           else
           {
-              crconf->model_flags ^= CMF_IsArachnid;
+              clear_flag(crconf->model_flags,CMF_IsArachnid);
           }
           break;
       case 12: // DIPTERA
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_IsDiptera;
+              set_flag(crconf->model_flags,CMF_IsDiptera);
           }
           else
           {
-              crconf->model_flags ^= CMF_IsDiptera;
+              clear_flag(crconf->model_flags,CMF_IsDiptera);
           }
           break;
       case 13: // LORD
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_IsLordOTLand;
+              set_flag(crconf->model_flags,CMF_IsLordOTLand);
           }
           else
           {
-              crconf->model_flags ^= CMF_IsLordOTLand;
+              clear_flag(crconf->model_flags,CMF_IsLordOTLand);
           }
           break;
       case 14: // SPECTATOR
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_IsSpectator;
+              set_flag(crconf->model_flags,CMF_IsSpectator);
           }
           else
           {
-              crconf->model_flags ^= CMF_IsSpectator;
+              clear_flag(crconf->model_flags,CMF_IsSpectator);
           }
           break;
       case 15: // EVIL
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_IsEvil;
+              set_flag(crconf->model_flags,CMF_IsEvil);
           }
           else
           {
-              crconf->model_flags ^= CMF_IsEvil;
+              clear_flag(crconf->model_flags,CMF_IsEvil);
           }
           break;
       case 16: // NEVER_CHICKENS
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_NeverChickens;
+              set_flag(crconf->model_flags,CMF_NeverChickens);
           }
           else
           {
-              crconf->model_flags ^= CMF_NeverChickens;
+              clear_flag(crconf->model_flags,CMF_NeverChickens);
           }
           break;
       case 17: // IMMUNE_TO_BOULDER
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_ImmuneToBoulder;
+              set_flag(crconf->model_flags,CMF_ImmuneToBoulder);
           }
           else
           {
-              crconf->model_flags ^= CMF_ImmuneToBoulder;
+              clear_flag(crconf->model_flags,CMF_ImmuneToBoulder);
           }
           break;
       case 18: // NO_CORPSE_ROTTING
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_NoCorpseRotting;
+              set_flag(crconf->model_flags,CMF_NoCorpseRotting);
           }
           else
           {
-              crconf->model_flags ^= CMF_NoCorpseRotting;
+              clear_flag(crconf->model_flags,CMF_NoCorpseRotting);
           }
           break;
       case 19: // NO_ENMHEART_ATTCK
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_NoEnmHeartAttack;
+              set_flag(crconf->model_flags,CMF_NoEnmHeartAttack);
           }
           else
           {
-              crconf->model_flags ^= CMF_NoEnmHeartAttack;
+              clear_flag(crconf->model_flags,CMF_NoEnmHeartAttack);
           }
           break;
       case 20: // TREMBLING_FAT
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_TremblingFat;
+              set_flag(crconf->model_flags,CMF_Trembling);
+              set_flag(crconf->model_flags,CMF_Fat);
           }
           else
           {
-              crconf->model_flags ^= CMF_TremblingFat;
+              clear_flag(crconf->model_flags,CMF_Trembling);
+              clear_flag(crconf->model_flags,CMF_Fat);
           }
           break;
       case 21: // FEMALE
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_Female;
+              set_flag(crconf->model_flags,CMF_Female);
           }
           else
           {
-              crconf->model_flags ^= CMF_Female;
+              clear_flag(crconf->model_flags,CMF_Female);
           }
           break;
       case 22: // INSECT
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_Insect;
+              set_flag(crconf->model_flags,CMF_Insect);
           }
           else
           {
-              crconf->model_flags ^= CMF_Insect;
+              clear_flag(crconf->model_flags,CMF_Insect);
           }
           break;
       case 23: // ONE_OF_KIND
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_OneOfKind;
+              set_flag(crconf->model_flags,CMF_OneOfKind);
           }
           else
           {
-              crconf->model_flags ^= CMF_OneOfKind;
+              clear_flag(crconf->model_flags,CMF_OneOfKind);
           }
           break;
       case 24: // NO_IMPRISONMENT
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_NoImprisonment;
+              set_flag(crconf->model_flags,CMF_NoImprisonment);
           }
           else
           {
-              crconf->model_flags ^= CMF_NoImprisonment;
+              clear_flag(crconf->model_flags,CMF_NoImprisonment);
           }
           break;
       case 25: // NEVER_SICK
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_NeverSick;
+              set_flag(crconf->model_flags,CMF_NeverSick);
           }
           else
           {
-              crconf->model_flags ^= CMF_NeverSick;
+              clear_flag(crconf->model_flags,CMF_NeverSick);
           }
           break;
       case 26: // ILLUMINATED
@@ -746,6 +745,26 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           break;
       case 27: // ALLURING_SCVNGR
           crstat->entrance_force = val4;
+          break;
+      case 30: // TREMBLING
+          if (val4 >= 1)
+          {
+              set_flag(crconf->model_flags,CMF_Trembling);
+          }
+          else
+          {
+              clear_flag(crconf->model_flags,CMF_Trembling);
+          }
+          break;
+      case 31: // FAT
+          if (val4 >= 1)
+          {
+              set_flag(crconf->model_flags,CMF_Fat);
+          }
+          else
+          {
+              clear_flag(crconf->model_flags,CMF_Fat);
+          }
           break;
       default:
           SCRPTERRLOG("Unknown creature property '%d'", val3);
@@ -767,10 +786,10 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_BONUS_LEVEL_TIME:
       if (val2 > 0) {
           game.bonus_time = game.play_gameturn + val2;
-          game.flags_gui |= GGUI_CountdownTimer;
+          set_flag(game.flags_gui,GGUI_CountdownTimer);
       } else {
           game.bonus_time = 0;
-          game.flags_gui &= ~GGUI_CountdownTimer;
+          clear_flag(game.flags_gui,GGUI_CountdownTimer);
       }
       if (level_file_version > 0)
       {
@@ -797,7 +816,14 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               val2 = SENSIBLE_GOLD;
               SCRPTWRNLOG("Gold added to player %d reduced to %d", (int)plr_range_id, SENSIBLE_GOLD);
           }
-          player_add_offmap_gold(i, val2);
+          if (val2 >= 0)
+          {
+              player_add_offmap_gold(i, val2);
+          }
+          else
+          {
+              take_money_from_dungeon(i, -val2, 0);
+          }
       }
       break;
   case Cmd_SET_CREATURE_TENDENCIES:
@@ -919,23 +945,13 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           intralvl.campaign_flags[i][val4] = get_condition_value(i, val2, val3);
       }
       break;
-  case Cmd_QUICK_MESSAGE:
-  {
-      message_add_fmt(val2, "%s", gameadd.quick_messages[val3]);
-      break;
-  }
-  case Cmd_DISPLAY_MESSAGE:
-  {
-        message_add_fmt(val2, "%s", get_string(val3));
-        break;
-  }
   case Cmd_CREATURE_ENTRANCE_LEVEL:
   {
     if (val2 > 0)
     {
         if (plr_range_id == ALL_PLAYERS)
         {
-            for (i = PLAYER3; i >= PLAYER0; i--)
+            for (i = 0; i < PLAYERS_COUNT; i++)
             {
                 dungeon = get_dungeon(i);
                 if (!dungeon_invalid(dungeon))
