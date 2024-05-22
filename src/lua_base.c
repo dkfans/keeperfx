@@ -24,11 +24,11 @@ struct lua_State *Lvl_script;
 
 
 // Little error checking utility function
-TbBool CheckLua(lua_State *L, int result)
+TbBool CheckLua(lua_State *L, int result,const char* func)
 {
     if (result != LUA_OK) {
         const char *message = lua_tostring(L, -1);
-        ERRORLOG("Lua error: %s", message);
+        ERRORLOG("Lua error in %s: %s", func, message);
         lua_pop(L, 1);  // Remove error message from the stack
         exit(EXIT_FAILURE);
     }
@@ -73,7 +73,7 @@ TbBool open_lua_script(LevelNumber lvnum)
     if ( !LbFileExists(fname) )
       return false;
     //setLuaPath(Lvl_script,foldername);
-	if(!CheckLua(Lvl_script, luaL_dofile(Lvl_script, fname)))
+	if(!CheckLua(Lvl_script, luaL_dofile(Lvl_script, fname),"script_loading"))
 	{
         ERRORLOG("failed to load lua script");
         close_lua_script();

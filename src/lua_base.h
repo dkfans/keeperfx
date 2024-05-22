@@ -28,7 +28,7 @@
 extern "C" {
 #endif
 
-TbBool CheckLua(lua_State *L, int r);
+TbBool CheckLua(lua_State *L, int result,const char* func);
 TbBool open_lua_script(LevelNumber lvnum);
 void close_lua_script();
 

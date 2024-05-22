@@ -139,7 +139,6 @@
 ---@field BONUS_TIME integer
 ---@field CREATURES_TRANSFERRED integer
 local Player = {}
-Player.__index = Player -- failed table lookups on the instances should fallback to the class table, to get methods
 
 ---@class Thing
 ---@field idx integer
@@ -149,11 +148,9 @@ Player.__index = Player -- failed table lookups on the instances should fallback
 ---@field stl_x integer
 ---@field stl_y integer
 local Thing = {}
-Thing.__index = Thing -- failed table lookups on the instances should fallback to the class table, to get methods
 
 ---@class Creature:Thing
 local Creature = {}
-Creature.__index = Creature -- failed table lookups on the instances should fallback to the class table, to get methods
 
 ---@class Herogate:Thing
 ---@field hidden boolean
@@ -179,44 +176,7 @@ function Thing.new(idx,creation_turn)
 local flagsnames = {"FLAG0","FLAG1","FLAG2","FLAG3","FLAG4","FLAG5","FLAG6","FLAG7",
 "CAMPAIGN_FLAG0","CAMPAIGN_FLAG1","CAMPAIGN_FLAG2","CAMPAIGN_FLAG3","CAMPAIGN_FLAG4","CAMPAIGN_FLAG5","CAMPAIGN_FLAG6","CAMPAIGN_FLAG7"}
 
----check if the table contains an element with value val
----@param tab table
----@param val any
----@return boolean
-local function has_value (tab, val)
-    for index, value in ipairs(tab) do
-        if value == val then
-            return true
-        end
-    end
 
-    return false
-end
-
-
-function Player:__newindex( index, value )
-    if has_value(flagsnames,index) then
-        self.members[index] = value
-        print( "Set member " .. index .. " to " .. value )
-    else
-        rawset( self, index, value )
-    end
-end
-
-
-function Player:__index( index )
-    if index == "testMember" then
-        print( "Getting " .. index )
-        --return self.members[index]
-    else
-        return rawget( self, index )
-    end
-end
-
-
-function Player:__tostring( index )
-    return self.name
-end
 
 PLAYER0 = Player.new("PLAYER0")
 PLAYER1 = Player.new("PLAYER1")
@@ -733,7 +693,7 @@ function GetHeroGate() end
 
 ---returns a list containing all things of a certain class
 ---@param class thing_class
----@return Thing[]
+---@return Thing[] | Creature[]
 function get_things_of_class(class) end
 
 
@@ -744,26 +704,34 @@ function get_things_of_class(class) end
 -------------------------------------------------------
 
 ---@class Trigger
+---@class Condition
+---@class Event
+---@class Action
 
 ---comment
 ---@return Trigger trigger
-function CreateTrigger() local t return t end
+function CreateTrigger() end
 
 ---adds a condition function that needs to evaluate to true for the actions to be triggers ben the even happens
 ---@param trigger Trigger
 ---@param condition function function that returns true or false
+---@return Condition condition
 function TriggerAddCondition(trigger,condition) end
 
 ---@param trigger Trigger
 ---@param action function
+---@return Action action
 function TriggerAddAction(trigger, action) end
 
 
 
+--events
+
 ---comment
 ---@param trigger Trigger
----@param time integer
----@param periodic boolean
+---@param time integer amount of gameticks (1/20 s)
+---@param periodic boolean wheter the trigger should activate once, or repeat evere 'time' gameticks
+---@return Event event
 function TriggerRegisterTimerEvent(trigger,time,periodic) end
 
 
@@ -772,5 +740,23 @@ function TriggerRegisterTimerEvent(trigger,time,periodic) end
 ---@param varName string
 ---@param opcode string
 ---@param limitval number
----@return event
+---@return Event event
 function TriggerRegisterVariableEvent(trigger,player, varName, opcode, limitval) end	-- (native)
+
+---comment
+---@param trigger Trigger
+---@param creature Creature
+---@param unitEvent "powerCast"|"dies"
+---@return Event event
+function TriggerRegisterUnitEvent(trigger,creature,unitEvent) end
+
+
+--trigger vars
+
+---comment
+---@return Creature
+function GetTriggeringUnit() end
+
+---comment
+---@return spell_type
+function GetTriggeringSpellKind() end

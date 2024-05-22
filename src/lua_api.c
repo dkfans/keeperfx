@@ -22,6 +22,8 @@
 #include "post_inc.h"
 
 /**********************************************/
+static int thing_set_field(lua_State *L);
+static int thing_get_field(lua_State *L);
 
 struct PlayerRange
 {
@@ -54,41 +56,35 @@ static long luaL_checkNamedCommand(lua_State *L, int index,const struct NamedCom
 }
 static struct Thing *luaL_checkThing(lua_State *L, int index)
 {
-    if (!lua_istable(L, 1)) {
-        return luaL_error(L, "Expected a table");
+    if (!lua_istable(L, index)) {
+        luaL_error(L, "Expected a table");
+        return NULL;
     }
+
     // Get idx field
-    lua_getfield(L, 1, "index");
+    lua_getfield(L, index, "index");
     if (!lua_isnumber(L, -1)) {
-        return luaL_error(L, "Expected 'index' to be an integer");
+        luaL_error(L, "Expected 'index' to be an integer");
+        return NULL;
     }
-    
     int idx = lua_tointeger(L, -1);
     lua_pop(L, 1);  // Pop the idx value off the stack
 
     // Get creation_turn field
-    lua_getfield(L, 1, "creation_turn");
-    
+    lua_getfield(L, index, "creation_turn");
     if (!lua_isnumber(L, -1)) {
-        return luaL_error(L, "Expected 'creation_turn' to be an integer");
+        luaL_error(L, "Expected 'creation_turn' to be an integer");
+        return NULL;
     }
-    
     int creation_turn = lua_tointeger(L, -1);
     lua_pop(L, 1);  // Pop the creation_turn value off the stack
 
-    // Print the values (or process them as needed)
-    JUSTLOG("idx: %d, creation_turn: %d\n", idx, creation_turn);
-
     struct Thing* thing = thing_get(idx);
-    if(thing_is_invalid(thing) || thing->creation_turn != creation_turn)
-    {
-        luaL_error (L,"failed to resolve thing");
+    if (thing_is_invalid(thing) || thing->creation_turn != creation_turn) {
+        luaL_error(L, "Failed to resolve thing");
+        return NULL;
     }
     return thing;
-
-
-
-
 }
 
 static TbMapLocation luaL_checkLocation(lua_State *L, int index)
@@ -124,24 +120,13 @@ static TbMapLocation luaL_checkHeadingLocation(lua_State *L, int index)
     return location;
 }
 
-static PlayerNumber luaL_checkPlayerRangeId(lua_State *L, int index)
-{
-    const char* plrname = lua_tostring(L, index);
-
-    long plr_range_id = get_rid(player_desc, plrname);
-    if (plr_range_id == -1)
-    {
-        plr_range_id = get_rid(cmpgn_human_player_options, plrname);
-    }
-
-    return plr_range_id;
-}
 
 static struct PlayerRange luaL_checkPlayerRange(lua_State *L, int index)
 {
     struct PlayerRange playerRange = {0,0};
+    const char* plrname = lua_tostring(L, index);
 
-    long plr_range_id = luaL_checkPlayerRangeId(L,index);
+    long plr_range_id = get_rid(player_desc, plrname);
     if (plr_range_id == ALL_PLAYERS)
     {
         playerRange.start_idx = 0;
@@ -158,6 +143,15 @@ static struct PlayerRange luaL_checkPlayerRange(lua_State *L, int index)
 
 static PlayerNumber luaL_checkPlayerSingle(lua_State *L, int index)
 {
+    if (lua_istable(L, index))
+    {
+        lua_getfield(L, index, "playerId");
+        if (lua_isnumber(L, -1)) {
+           return lua_tointeger(L, -1);
+        }
+         return luaL_error(L, "Expected table to be of class Player");
+    }
+
     struct PlayerRange playerRange = luaL_checkPlayerRange(L,index);
     if(playerRange.start_idx != playerRange.end_idx)
     {
@@ -201,33 +195,35 @@ static ActionPointId luaL_checkActionPoint(lua_State *L, int index)
 /************    Outputs   *************************************************************************/
 /***************************************************************************************************/
 
-void lua_pushThing(lua_State *L, struct Thing* thing)
-{
-    if(thing_is_invalid(thing))
-    {
-        ERRORLOG("attempt to push invalid thing to lua");
+void lua_pushThing(lua_State *L, struct Thing* thing) {
+    if (thing_is_invalid(thing)) {
+        ERRORLOG("Attempt to push invalid thing to Lua");
+        lua_pushnil(L);
+        return;
     }
 
-    lua_createtable(L, 0, 4); /* creates and pushes new table on top of Lua stack */
+    lua_createtable(L, 0, 2); /* creates and pushes new table on top of Lua stack */
 
     lua_pushinteger(L, thing->index); /* Pushes table value on top of Lua stack */
-    lua_setfield(L, -2, "index");  /* table["name"] = row->name. Pops key value */
+    lua_setfield(L, -2, "index");  /* table["index"] = thing->index */
 
     lua_pushinteger(L, thing->creation_turn);
     lua_setfield(L, -2, "creation_turn");
-    luaL_getmetatable(L, "thing");
+
+    luaL_getmetatable(L, "Thing");
     lua_setmetatable(L, -2);
+}
 
-    /* Returning one table which is already on top of Lua stack. */
-    return;
+void lua_pushPlayer(lua_State *L, PlayerNumber plr_idx) {
 
-    /*
-    struct luaThing *lthing = (struct luaThing *)lua_newtable(L, );
-    lthing->thing_idx = thing->index;
-    lthing->creation_turn = thing->creation_turn;
 
-    return lthing;
-    */
+    lua_createtable(L, 0, 2); /* creates and pushes new table on top of Lua stack */
+
+    lua_pushinteger(L, plr_idx); /* Pushes table value on top of Lua stack */
+    lua_setfield(L, -2, "playerId");  /* table["index"] = thing->index */
+
+    luaL_getmetatable(L, "Player");
+    lua_setmetatable(L, -2);
 }
 
 /***************************************************************************************************/
@@ -680,7 +676,7 @@ static int lua_ADD_CREATURE_TO_POOL(lua_State *L)
 static int lua_RESET_ACTION_POINT(lua_State *L)
 {
     ActionPointId apt_idx     = luaL_checkActionPoint(L, 1);
-    PlayerNumber player_range_id = luaL_checkPlayerRangeId(L, 1);
+    PlayerNumber player_range_id = luaL_checkNamedCommand(L,2,player_desc);;
 
     action_point_reset_idx(apt_idx,player_range_id);
     return 0;
@@ -1065,19 +1061,23 @@ static const luaL_Reg global_methods[] = {
     {"GetCreatureNear", lua_get_creature_near},
     {"SendChatMessage", send_chat_message},
     {"getThingByIdx", lua_get_thing_by_idx},
-    {"get_things_of_class", lua_get_things_of_class}
-    };
+    {"get_things_of_class", lua_get_things_of_class},
+};
 
 static const luaL_Reg game_meta[] = {
-    {0, 0}};
+    {NULL, NULL}
+};
 
 static void global_register(lua_State *L)
 {
+    //luaL_newlib(L, global_methods);
     for (size_t i = 0; i < (sizeof(global_methods)/sizeof(global_methods[0])); i++)
     {
         lua_register(L, global_methods[i].name, global_methods[i].func);
     }
+    lua_setglobal(L, "thing");
 }
+
 
 /**********************************************/
 // things
@@ -1085,10 +1085,14 @@ static void global_register(lua_State *L)
 
 static int make_thing_zombie (lua_State *L)
 {
-    JUSTLOG("make_thing_zombie");
     struct Thing *thing = luaL_checkThing(L, 1);
 
+    //internal_set_thing_state(thing, CrSt_Disabled);
+    //thing->active_state = CrSt_Disabled;
+    //thing->continue_state = CrSt_Disabled;
+
     thing->alloc_flags |= TAlF_IsControlled;
+
 
     return 0;
 }
@@ -1118,41 +1122,217 @@ static int lua_kill_creature(lua_State *L)
 
 static int thing_tostring(lua_State *L)
 {
-    char buff[32];
+    char buff[64];
     struct Thing* thing = luaL_checkThing(L, 1);
-    sprintf(buff, "id: %d creaturn: %ld class: %d", thing->index, thing->creation_turn,thing->class_id);
+    snprintf(buff, sizeof(buff), "id: %d creaturn: %ld class: %d", thing->index, thing->creation_turn, thing->class_id);
 
-    lua_pushfstring(L, "Foo (%s)", buff);
+    lua_pushfstring(L, "Thing (%s)", buff);
     return 1;
 }
 
-static const luaL_Reg thing_methods[] = {
-    {"MakeThingZombie", make_thing_zombie},
-    {"MoveThingTo", move_thing_to},
-    {"KillCreature", lua_kill_creature},
-    {0, 0}};
+// Function to set field values
+static int thing_set_field(lua_State *L) {
 
-static const luaL_Reg thing_meta[] = {
+    struct Thing* thing = luaL_checkThing(L, 1);
+    const char* key = luaL_checkstring(L, 2);
+    int value = luaL_checkinteger(L, 3);
+    JUSTLOG("set key %s",key);
+
+    //char* read_only_arr[] =  ["index","creation_turn"];
+
+    if (strcmp(key, "Orientation") == 0) {
+        thing->move_angle_xy = value;
+    } else {
+        //luaL_error(L, "Unknown field: %s", key);
+    }
+
+    return 0;
+}
+
+// Function to get field values
+static int thing_get_field(lua_State *L) {
+
+    struct Thing* thing = luaL_checkThing(L, 1);
+    const char* key = luaL_checkstring(L, 2);
+
+    JUSTLOG("get thing field %s",key);
+
+    if (strcmp(key, "index") == 0) {
+        lua_pushinteger(L, thing->index);
+    } else if (strcmp(key, "creation_turn") == 0) {
+        lua_pushinteger(L, thing->creation_turn);
+    } else if (strcmp(key, "Owner") == 0) {
+        lua_pushPlayer(L, thing->owner);
+
+
+    } else {
+        lua_pushnil(L);
+    }
+
+    return 1;
+
+}
+
+static const struct luaL_Reg thing_methods[] = {
+    {"MakeThingZombie", make_thing_zombie},
+    {"MoveThingTo",     move_thing_to},
+    {"KillCreature",    lua_kill_creature},
+    {NULL, NULL}
+};
+
+static const struct luaL_Reg thing_meta[] = {
     {"__tostring", thing_tostring},
-    {0, 0}};
+    {"__index",    thing_get_field},
+    {"__newindex", thing_set_field},
+    {NULL, NULL}
+};
+
 
 static int Thing_register(lua_State *L)
 {
-    luaL_openlib(L, "thing", thing_methods, 0); /* create methods table,
-                                             add it to the globals */
-    luaL_newmetatable(L, "thing");              /* create metatable for Foo,
-                                               and add it to the Lua registry */
-    luaL_openlib(L, 0, thing_meta, 0);           /* fill metatable */
-    lua_pushliteral(L, "__index");
-    lua_pushvalue(L, -3); /* dup methods table*/
-    lua_rawset(L, -3);    /* metatable.__index = methods */
+    // Create a metatable for thing and add it to the registry
+    luaL_newmetatable(L, "Thing");
+
+    // Set the __index and __newindex metamethods
+    luaL_setfuncs(L, thing_meta, 0);
+
+    // Create a methods table
+    luaL_newlib(L, thing_methods);
+
+    // Set the __index field of the metatable to the methods table
+    lua_setfield(L, -2, "__index");
+
+    // Hide the metatable by setting the __metatable field to nil
     lua_pushliteral(L, "__metatable");
-    lua_pushvalue(L, -3); /* dup methods table*/
-    lua_rawset(L, -3);    /* hide metatable:
-                             metatable.__metatable = methods */
-    lua_pop(L, 1);        /* drop metatable */
-    return 1;             /* return methods on the stack */
+    lua_pushnil(L);
+    lua_rawset(L, -3);
+
+    // Pop the metatable from the stack
+    lua_pop(L, 1);
+
+    return 1; // Return the methods table
 }
+
+
+
+
+/**********************************************/
+//Player
+/**********************************************/
+
+static int player_tostring(lua_State *L)
+{
+    char buff[64];
+    struct Thing* thing = luaL_checkThing(L, 1);
+    snprintf(buff, sizeof(buff), "id: %d creaturn: %ld class: %d", thing->index, thing->creation_turn, thing->class_id);
+
+    lua_pushfstring(L, "Thing (%s)", buff);
+    return 1;
+}
+
+// Function to set field values
+static int player_set_field(lua_State *L) {
+
+    PlayerNumber player_idx = luaL_checkPlayerSingle(L, 1);
+    const char* key = luaL_checkstring(L, 2);
+    int value = luaL_checkinteger(L, 3);
+
+    long variable_type;
+    long variable_id;
+
+    if (parse_get_varib(key, &variable_id, &variable_type))
+    {
+        set_variable(player_idx,variable_type,variable_id,value);
+        return 0;
+    }
+
+    /*
+    JUSTLOG("set key %s",key);
+
+    //char* read_only_arr[] =  ["index","creation_turn"];
+
+    if (strcmp(key, "Orientation") == 0) {
+        thing->move_angle_xy = value;
+    } else {
+        //luaL_error(L, "Unknown field: %s", key);
+    }
+*/
+    return 0;
+}
+
+// Function to get field values
+static int player_get_field(lua_State *L) {
+
+    JUSTLOG("player_get_field");
+    PlayerNumber player_idx = luaL_checkPlayerSingle(L, 1);
+    const char* key = luaL_checkstring(L, 2);
+
+    
+    long variable_type;
+    long variable_id;
+
+    if (parse_get_varib(key, &variable_id, &variable_type))
+    {
+        lua_pushinteger(L, get_condition_value(player_idx, variable_type, variable_id));
+        return 1;
+    }
+
+/*
+    if (strcmp(key, "index") == 0) {
+        lua_pushinteger(L, thing->index);
+    } else if (strcmp(key, "creation_turn") == 0) {
+        lua_pushinteger(L, thing->creation_turn);
+    } else if (strcmp(key, "Owner") == 0) {
+        lua_pushPlayer(L, thing->owner);
+
+
+    } else {
+        lua_pushnil(L);
+    }
+*/
+    return 1;
+
+}
+
+static const struct luaL_Reg player_methods[] = {
+    {NULL, NULL}
+};
+
+static const struct luaL_Reg player_meta[] = {
+    {"__tostring", player_tostring},
+    {"__index",    player_get_field},
+    {"__newindex", player_set_field},
+    {NULL, NULL}
+};
+
+static int Player_register(lua_State *L) {
+    // Create a metatable for thing and add it to the registry
+    luaL_newmetatable(L, "Player");
+
+    // Set the __index and __newindex metamethods
+    luaL_setfuncs(L, player_meta, 0);
+
+    // Create a methods table
+    luaL_newlib(L, player_methods);
+
+    // Hide the metatable by setting the __metatable field to nil
+    lua_pushliteral(L, "__metatable");
+    lua_pushnil(L);
+    lua_rawset(L, -3);
+
+    // Pop the metatable from the stack
+    lua_pop(L, 1);
+
+
+    for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
+    {
+        lua_pushPlayer(L,i);
+        lua_setglobal(L, get_conf_parameter_text(player_desc,i));
+    }
+    
+
+}
+
 
 /**********************************************/
 //...
@@ -1161,296 +1341,7 @@ static int Thing_register(lua_State *L)
 
 void reg_host_functions(lua_State *L)
 {
+    Player_register(L);
     global_register(L);
     Thing_register(L);
 }
-
-
-
-#ifdef potato
-
-
-
-extern "C" {
-#include "lua.h"
-#include "lauxlib.h"
-#include "lualib.h"
-}
-
-class Account {
-  public:
-    Account(double balance)      { m_balance = balance; }
-    void deposit(double amount)  { m_balance += amount; }
-    void withdraw(double amount) { m_balance -= amount; }
-    double balance(void)         { return m_balance; }
-  private:
-    double m_balance;
-};
-
-class LuaAccount {
-    static const char className[];
-    static const luaL_Reg methods[];
-
-    static Account *checkaccount(lua_State *L, int narg) {
-      luaL_checktype(L, narg, LUA_TUSERDATA);
-      void *ud = luaL_checkudata(L, narg, className);
-      if(!ud) luaL_typerror(L, narg, className);
-      return *(Account**)ud;  // unbox pointer
-    }
-
-    static int create_account(lua_State *L) {
-      double balance = luaL_checknumber(L, 1);
-      Account *a = new Account(balance);
-      lua_boxpointer(L, a);
-      luaL_getmetatable(L, className);
-      lua_setmetatable(L, -2);
-      return 1;
-    }
-    static int deposit(lua_State *L) {
-      Account *a = checkaccount(L, 1);
-      double amount = luaL_checknumber(L, 2);
-      a->deposit(amount);
-      return 0;
-    }
-    static int withdraw(lua_State *L) {
-      Account *a = checkaccount(L, 1);
-      double amount = luaL_checknumber(L, 2);
-      a->withdraw(amount);
-      return 0;
-    }
-    static int balance(lua_State *L) {
-      Account *a = checkaccount(L, 1);
-      double balance = a->balance();
-      lua_pushnumber(L, balance);
-      return 1;
-    }
-    static int gc_account(lua_State *L) {
-      Account *a = (Account*)lua_unboxpointer(L, 1);
-      delete a;
-      return 0;
-    }
-
-  public:
-    static void Register(lua_State* L) {
-      lua_newtable(L);                 int methodtable = lua_gettop(L);
-      luaL_newmetatable(L, className); int metatable   = lua_gettop(L);
-
-      lua_pushliteral(L, "__metatable");
-      lua_pushvalue(L, methodtable);
-      lua_settable(L, metatable);  // hide metatable from Lua getmetatable()
-
-      lua_pushliteral(L, "__index");
-      lua_pushvalue(L, methodtable);
-      lua_settable(L, metatable);
-
-      lua_pushliteral(L, "__gc");
-      lua_pushcfunction(L, gc_account);
-      lua_settable(L, metatable);
-
-      lua_pop(L, 1);  // drop metatable
-
-      luaL_openlib(L, 0, methods, 0);  // fill methodtable
-      lua_pop(L, 1);  // drop methodtable
-
-      lua_register(L, className, create_account);
-    }
-};
-
-const char LuaAccount::className[] = "Account";
-
-#define method(class, name) {#name, class::name}
-
-const luaL_Reg LuaAccount::methods[] = {
-  method(LuaAccount, deposit),
-  method(LuaAccount, withdraw),
-  method(LuaAccount, balance),
-  {0,0}
-};
-
-int main(int argc, char* argv[])
-{
-  lua_State *L = lua_open();
-
-  luaopen_base(L);
-  luaopen_table(L);
-  luaopen_io(L);
-  luaopen_string(L);
-  luaopen_math(L);
-  luaopen_debug(L);
-
-  LuaAccount::Register(L);
-
-  if(argc>1) lua_dofile(L, argv[1]);
-
-  lua_close(L);
-  return 0;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#include "lua.h"
-#include "lauxlib.h"
-
-#define FOO "Foo"
-
-typedef struct Foo
-{
-    int x;
-    int y;
-} Foo;
-
-
-
-static Foo *checkFoo(lua_State *L, int index)
-{
-    Foo *bar;
-    luaL_checktype(L, index, LUA_TUSERDATA);
-    bar = (Foo *)luaL_checkudata(L, index, FOO);
-    if (bar == NULL)
-        luaL_typerror(L, index, FOO);
-    return bar;
-}
-
-static Foo *pushFoo(lua_State *L)
-{
-    Foo *bar = (Foo *)lua_newuserdata(L, sizeof(Foo));
-    luaL_getmetatable(L, FOO);
-    lua_setmetatable(L, -2);
-    return bar;
-}
-
-static int Foo_new(lua_State *L)
-{
-    int x = luaL_optint(L, 1, 0);
-    int y = luaL_optint(L, 2, 0);
-    Foo *bar = pushFoo(L);
-    bar->x = x;
-    bar->y = y;
-    return 1;
-}
-
-static int Foo_yourCfunction(lua_State *L)
-{
-    Foo *bar = checkFoo(L, 1);
-    printf("this is yourCfunction\t");
-    lua_pushnumber(L, bar->x);
-    lua_pushnumber(L, bar->y);
-    return 2;
-}
-
-static int Foo_setx(lua_State *L)
-{
-    Foo *bar = checkFoo(L, 1);
-    bar->x = luaL_checkint(L, 2);
-    lua_settop(L, 1);
-    return 1;
-}
-
-static int Foo_sety(lua_State *L)
-{
-    Foo *bar = checkFoo(L, 1);
-    bar->y = luaL_checkint(L, 2);
-    lua_settop(L, 1);
-    return 1;
-}
-
-static int Foo_add(lua_State *L)
-{
-    Foo *bar1 = checkFoo(L, 1);
-    Foo *bar2 = checkFoo(L, 2);
-    Foo *sum = pushFoo(L);
-    sum->x = bar1->x + bar2->x;
-    sum->y = bar1->y + bar2->y;
-    return 1;
-}
-
-static int Foo_dot(lua_State *L)
-{
-    Foo *bar1 = checkFoo(L, 1);
-    Foo *bar2 = checkFoo(L, 2);
-    lua_pushnumber(L, bar1->x * bar2->x + bar1->y * bar2->y);
-    return 1;
-}
-
-static const luaL_Reg Foo_methods[] = {
-    {"new", Foo_new},
-    {"yourCfunction", Foo_yourCfunction},
-    {"setx", Foo_setx},
-    {"sety", Foo_sety},
-    {"add", Foo_add},
-    {"dot", Foo_dot},
-    {0, 0}};
-
-static int Foo_gc(lua_State *L)
-{
-    printf("bye, bye, bar = %p\n", toFoo(L, 1));
-    return 0;
-}
-
-static int Foo_tostring(lua_State *L)
-{
-    char buff[32];
-    sprintf(buff, "%p", toFoo(L, 1));
-    lua_pushfstring(L, "Foo (%s)", buff);
-    return 1;
-}
-
-static const luaL_Reg Foo_meta[] = {
-    {"__gc", Foo_gc},
-    {"__tostring", Foo_tostring},
-    {"__add", Foo_add},
-    {0, 0}};
-
-int Foo_register(lua_State *L)
-{
-    luaL_openlib(L, FOO, Foo_methods, 0); /* create methods table,
-                                             add it to the globals */
-    luaL_newmetatable(L, FOO);            /* create metatable for Foo,
-                                             and add it to the Lua registry */
-    luaL_openlib(L, 0, Foo_meta, 0);      /* fill metatable */
-    lua_pushliteral(L, "__index");
-    lua_pushvalue(L, -3); /* dup methods table*/
-    lua_rawset(L, -3);    /* metatable.__index = methods */
-    lua_pushliteral(L, "__metatable");
-    lua_pushvalue(L, -3); /* dup methods table*/
-    lua_rawset(L, -3);    /* hide metatable:
-                             metatable.__metatable = methods */
-    lua_pop(L, 1);        /* drop metatable */
-    return 1;             /* return methods on the stack */
-}
-
-int main(int argc, char *argv[])
-{
-    lua_State *L = lua_open();
-
-    luaopen_base(L);
-    luaopen_table(L);
-    luaopen_io(L);
-    luaopen_string(L);
-    luaopen_math(L);
-    luaopen_debug(L);
-
-    Foo_register(L);
-    lua_pop(L, 1); // After foo register the methods are still on the stack, remove them.
-
-    if (argc > 1)
-        lua_dofile(L, argv[1]);
-
-    lua_close(L);
-    return 0;
-}
-
-#endif
