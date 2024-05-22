@@ -1649,7 +1649,7 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
     short sumcount = count;
     if (count <= 0)
     {
-        sumcount = cctrl->explevel + count;
+        sumcount = cctrl->explevel+1 + count;
     }
     if (duration == 0)
     {
