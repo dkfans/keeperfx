@@ -84,8 +84,8 @@ struct TrapConfigStats {
     short unstable;
     TbBool notify;
     TbBool unsellable;
-    TbBool placeonbridge;
-    TbBool placeonsubtile;
+    TbBool place_on_bridge;
+    TbBool place_on_subtile;
     EffectOrEffElModel destroyed_effect;
 };
 

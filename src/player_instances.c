@@ -43,7 +43,7 @@
 #include "frontend.h"
 #include "power_hand.h"
 #include "player_utils.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "room_workshop.h"
 #include "magic.h"
 #include "gui_frontmenu.h"
@@ -252,9 +252,20 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       break;
   case TCls_Trap:
       trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
-      if ((trapst->slappable == 1) && trap_is_active(thing))
+      if ((trapst->slappable > 0) && trap_is_active(thing))
       {
-          external_activate_trap_shot_at_angle(thing, player->acamera->orient_a, thing_get(player->hand_thing_idx));
+          struct TrapStats* trapstat = &game.conf.trap_stats[thing->model];
+          struct Thing* trgtng = INVALID_THING;
+          shotst = get_shot_model_stats(trapstat->created_itm_model);
+          if (trapst->slappable == 1)
+          {
+              external_activate_trap_shot_at_angle(thing, player->acamera->orient_a, trgtng);
+          } else
+          if (trapst->slappable == 2)
+          {
+              trgtng = get_nearest_enemy_creature_in_sight_and_range_of_trap(thing);
+              external_activate_trap_shot_at_angle(thing, player->acamera->orient_a, trgtng);
+          }
       }
       break;
   case TCls_Object:
@@ -1195,8 +1206,7 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     }
     struct TrapConfigStats* trap_cfg = get_trap_model_stats(tngmodel);
     struct Coord3d pos;
-    struct PlayerInfo* player = get_player(plyr_idx);
-    if (trap_cfg->placeonsubtile)
+    if (trap_cfg->place_on_subtile)
     {
         set_coords_to_subtile_center(&pos, stl_x, stl_y, 1);
     }

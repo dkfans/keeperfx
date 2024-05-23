@@ -1593,8 +1593,8 @@ static void new_trap_type_check(const struct ScriptLine* scline)
     trapst->unstable = 0;
     trapst->unsellable = false;
     trapst->notify = false;
-    trapst->placeonbridge = false;
-    trapst->placeonsubtile = false;
+    trapst->place_on_bridge = false;
+    trapst->place_on_subtile = false;
     trapst->place_sound_idx = 117; 
     trapst->trigger_sound_idx = 176;
     trapst->destroyed_effect = -39;
@@ -1836,7 +1836,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             trapst->unsellable = value;
             break;
         case 35: // PlaceOnBridge
-            trapst->placeonbridge = value;
+            trapst->place_on_bridge = value;
             break;
         case 36: // ShotOrigin
             trapstat->shot_shift_x = value;
@@ -4784,7 +4784,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
             value->arg2 = number_value;
             break;
         }
-        case 15: // Functions
+        case 15: // OverchargeCheck
         {
             number_value = get_id(powermodel_expand_check_func_type,new_value);
             if (number_value < 0)
@@ -4911,7 +4911,7 @@ static void set_power_configuration_process(struct ScriptContext *context)
                 powerst->config_flags = context->value->arg2;
             }
             break;
-        case 15: // Functions
+        case 15: // OverchargeCheck
             powerst->overcharge_check_idx = context->value->arg2;
             break;
         case 16: // PlayerState
