@@ -39,7 +39,7 @@
 #include "config_trapdoor.h"
 #include "room_workshop.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "config_settings.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"

@@ -44,7 +44,7 @@ enum CreatureModelFlags {
     CMF_IsSpecDigger     = 0x00001, // Imp and Tunneller.
     CMF_IsArachnid       = 0x00002, // simply, Spider.
     CMF_IsDiptera        = 0x00004, // simply, Fly.
-    CMF_IsLordOTLand     = 0x00008, // simply, Knight and Avatar.
+    CMF_IsLordOTLand     = 0x00008, // simply, Knight.
     CMF_IsSpectator      = 0x00010, // simply, Floating Spirit.
     CMF_IsEvil           = 0x00020, // All evil creatures.
     CMF_NeverChickens    = 0x00040, // Cannot be affected by Chicken (for Avatar).

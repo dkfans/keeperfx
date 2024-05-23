@@ -43,7 +43,7 @@
 #include "frontend.h"
 #include "power_hand.h"
 #include "player_utils.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "room_workshop.h"
 #include "magic.h"
 #include "gui_frontmenu.h"
