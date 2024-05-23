@@ -71,7 +71,7 @@
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "power_hand.h"
 #include "power_process.h"
 #include "room_data.h"
@@ -1646,13 +1646,18 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
     {
         sumxp = cctrl->explevel + level;
     }
+    short sumcount = count;
+    if (count <= 0)
+    {
+        sumcount = cctrl->explevel+1 + count;
+    }
     if (duration == 0)
     {
         famlrtng = activate_trap_spawn_creature(creatng, model);
     }
     else
     {
-        for (int j = 0; j < count; j++)
+        for (int j = 0; j < sumcount; j++)
         {
             if (j > FAMILIAR_MAX)
             {
@@ -4619,14 +4624,14 @@ long player_list_creature_filter_of_gui_job_and_pickable2(const struct Thing *th
  * Returns a creature in fight which gives highest score value.
  * @return The thing in fight, or invalid thing if not found.
  */
-struct Thing *find_players_highest_score_creature_in_fight_not_affected_by_spell(PlayerNumber plyr_idx, PowerKind pwkind)
+struct Thing *find_players_highest_score_creature_in_fight_not_affected_by_spell(PlayerNumber plyr_idx, SpellKind spell_kind)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     struct CompoundTngFilterParam param;
     param.plyr_idx = -1;
     param.class_id = 0;
     param.model_id = CREATURE_ANY;
-    param.num1 = pwkind;
+    param.num1 = spell_kind;
     Thing_Maximizer_Filter filter = player_list_creature_filter_in_fight_and_not_affected_by_spell;
     struct Thing* creatng = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
     if (thing_is_invalid(creatng)) {
