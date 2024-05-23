@@ -633,12 +633,15 @@ TbBool find_pressure_trigger_trap_target_passing_by_subtile(const struct Thing *
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if (creature_available_for_trap_trigger(thing) && (thing->owner != traptng->owner))
+        if (thing_is_creature(thing))
         {
-            if (!is_neutral_thing(thing) && !players_are_mutual_allies(traptng->owner, thing->owner))
+            if (creature_available_for_trap_trigger(thing) && (thing->owner != traptng->owner))
             {
-                *found_thing = thing;
-                return true;
+                if (!is_neutral_thing(thing) && !players_are_mutual_allies(traptng->owner, thing->owner))
+                {
+                    *found_thing = thing;
+                    return true;
+                }
             }
         }
         // Per thing code end
