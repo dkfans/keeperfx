@@ -118,15 +118,16 @@ function FindTriggerByIndex(index)
     return nil
 end
 
---- Called when a spell is cast on a unit
---- @param unit Creature The unit the spell is cast on
---- @param spell spell_type The type of spell being cast
-function OnUnitPowerCast(unit, spell)
+--- Processes a unit event
+--- @param unit Creature The unit involved in the event
+--- @param spell spell_type The type of spell being cast (can be nil)
+--- @param eventType string The type of event ("powerCast" or "dies")
+local function ProcessUnitEvent(unit, spell, eventType)
     currentTriggeringUnit = unit
     currentTriggeringSpellKind = spell
 
     for _, trigger in ipairs(triggers) do
-        if trigger.event and trigger.event.type == "unit" and trigger.event.params.unitEvent == "powerCast" then
+        if trigger.event and trigger.event.type == "unit" and trigger.event.params.unitEvent == eventType then
             local allConditionsMet = true
             if trigger.conditions then
                 for _, condition in ipairs(trigger.conditions) do
@@ -151,11 +152,30 @@ function OnUnitPowerCast(unit, spell)
     currentTriggeringSpellKind = nil
 end
 
+--- Called when a spell is cast on a unit
+--- @param unit Creature The unit the spell is cast on
+--- @param spell spell_type The type of spell being cast
+function OnUnitPowerCast(unit, spell)
+    ProcessUnitEvent(unit, spell, "powerCast")
+end
+
+--- Called when a unit dies
+--- @param unit Creature The unit that dies
+function OnUnitDeath(unit)
+    ProcessUnitEvent(unit, nil, "dies")
+end
+
 -- Example usage
---[[ 
+--[[
 local myTrigger = CreateTrigger()
 TriggerRegisterUnitEvent(myTrigger, someCreature, "powerCast")
 TriggerAddCondition(myTrigger, function() return true end)
-TriggerAddAction(myTrigger, function() print("Action executed!") end)
+TriggerAddAction(myTrigger, function() print("Action executed on power cast!") end)
+
+TriggerRegisterUnitEvent(myTrigger, someCreature, "dies")
+TriggerAddCondition(myTrigger, function() return true end)
+TriggerAddAction(myTrigger, function() print("Action executed on unit death!") end)
+
 OnUnitPowerCast(someCreature, someSpellType)
+OnUnitDeath(someCreature)
 ]]
