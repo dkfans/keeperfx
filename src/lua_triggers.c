@@ -11,6 +11,7 @@
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
 #include "config.h"
+#include "config_magic.h"
 #include "globals.h"
 #include "thing_data.h"
 
@@ -56,13 +57,13 @@ void lua_on_power_cast(PlayerNumber plyr_idx, PowerKind pwkind,
     lua_getglobal(Lvl_script, "OnPowerCast");
 	if (lua_isfunction(Lvl_script, -1))
 	{
-		lua_pushinteger(Lvl_script, pwkind);
+		lua_pushstring(Lvl_script,get_conf_parameter_text(power_desc,pwkind));
 		lua_pushinteger(Lvl_script, plyr_idx);
 		lua_pushThing(Lvl_script, thing); 
 		lua_pushinteger(Lvl_script, stl_x);
 		lua_pushinteger(Lvl_script, stl_y);
 		lua_pushinteger(Lvl_script, splevel);
 
-		CheckLua(Lvl_script, lua_pcall(Lvl_script, 6, 0, 1),"OnPowerCast");
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 6, 0, 0),"OnPowerCast");
 	}
 }
