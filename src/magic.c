@@ -1983,6 +1983,7 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwk
 TbResult magic_use_power_direct(PlayerNumber plyr_idx, PowerKind pwkind,
     unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags)
 {
+    lua_on_power_cast(plyr_idx, pwkind, splevel, stl_x, stl_y, thing);
     const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
     if(magic_use_func_list[powerst->magic_use_func_idx] != NULL)
     {
@@ -2044,7 +2045,6 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
     {
         
         get_player(plyr_idx)->power_of_cooldown_turn = game.play_gameturn + powerst->cast_cooldown;
-        lua_cast_power_on_thing(pwkind,plyr_idx, thing, stl_x, stl_y, splevel);
     }
     return ret;
 }

@@ -35,7 +35,7 @@
 ---followning options come from cfg files, but these are the defaults, if you added them correctly to cfg, errors the ide gives can be ignored
 ---@alias creature_type "WIZARD"|"BARBARIAN"|"ARCHER"|"MONK"|"DWARFA"|"KNIGHT"|"AVATAR"|"TUNNELLER"|"WITCH"|"GIANT"|"FAIRY"|"THIEF"|"SAMURAI"|"HORNY"|"SKELETON"|"TROLL"|"DRAGON"|"DEMONSPAWN"|"FLY"|"DARK_MISTRESS"|"SORCEROR"|"BILE_DEMON"|"IMP"|"BUG"|"VAMPIRE"|"SPIDER"|"HELL_HOUND"|"GHOST"|"TENTACLE"|"ORC"|"FLOATING_SPIRIT"|"DRUID"|"TIME_MAGE"
 ---@alias room_type "ENTRANCE"|"TREASURE"|"RESEARCH"|"PRISON"|"TORTURE"|"TRAINING"|"DUNGEON_HEART"|"WORKSHOP"|"SCAVENGER"|"TEMPLE"|"GRAVEYARD"|"BARRACKS"|"GARDEN"|"LAIR"|"BRIDGE"|"GUARD_POST"
----@alias spell_type "POWER_HAND"|"POWER_IMP"|"POWER_OBEY"|"POWER_SLAP"|"POWER_SIGHT"|"POWER_CALL_TO_ARMS"|"POWER_CAVE_IN"|"POWER_HEAL_CREATURE"|"POWER_HOLD_AUDIENCE"|"POWER_LIGHTNING"|"POWER_SPEED"|"POWER_PROTECT"|"POWER_CONCEAL"|"POWER_DISEASE"|"POWER_CHICKEN"|"POWER_DESTROY_WALLS"|"POWER_TIME_BOMB"|"POWER_POSSESS"|"POWER_ARMAGEDDON"|"POWER_PICKUP_CREATURE"|"POWER_PICKUP_GOLD"|"POWER_PICKUP_FOOD"
+---@alias power_kind "POWER_HAND"|"POWER_IMP"|"POWER_OBEY"|"POWER_SLAP"|"POWER_SIGHT"|"POWER_CALL_TO_ARMS"|"POWER_CAVE_IN"|"POWER_HEAL_CREATURE"|"POWER_HOLD_AUDIENCE"|"POWER_LIGHTNING"|"POWER_SPEED"|"POWER_PROTECT"|"POWER_CONCEAL"|"POWER_DISEASE"|"POWER_CHICKEN"|"POWER_DESTROY_WALLS"|"POWER_TIME_BOMB"|"POWER_POSSESS"|"POWER_ARMAGEDDON"|"POWER_PICKUP_CREATURE"|"POWER_PICKUP_GOLD"|"POWER_PICKUP_FOOD"
 ---@alias trap_type "BOULDER"|"ALARM"|"POISON_GAS"|"LIGHTNING"|"WORD_OF_POWER"|"LAVA"
 ---@alias door_type "WOOD"|"BRACED"|"STEEL"|"MAGIC"|"SECRET"
 ---@alias object_type string
@@ -265,7 +265,7 @@ function ROOM_AVAILABLE(player,room,can_be_available,is_available) end
 
 ---This command tells the game that a specific spell is available for the player to cast.
 ---@param player playerrange The player’s name, e.g. PLAYER1. See players section for more information.
----@param spell spell_type The spell’s name, e.g. POWER_LIGHTNING. See spell names section for more information.
+---@param spell power_kind The spell’s name, e.g. POWER_LIGHTNING. See spell names section for more information.
 ---@param can_be_available boolean This value can be set to 0 or 1. If it is 1 then you are telling the game that the spell may be researched at some point.
 ---@param is_available boolean This value should either be 0 or 1. If it is 1 then the spell is available straight away. If it is 0 then the spell cannot become available until it is set to 1 or researched.
 function MAGIC_AVAILABLE(player,spell,can_be_available,is_available) end
@@ -528,7 +528,7 @@ function CHANGE_CREATURES_ANNOYANCE(player,creature,operation,annoyance) end
 ---This command allows you to adjust the research value for individual rooms or spells and even for a specific player.
 ---@param player playerrange player’s name, e.g. PLAYER1. See players section for more information.
 ---@param research_type "MAGIC"|"ROOM"|"CREATURE" Whether it is a room or spell you are researching. Use one of the following commands:
----@param room_or_spell spell_type|room_type|creature_type The name of the room or spell you want to adjust, e.g. TEMPLE or MAGIC_LIGHTNING. See room names section and spell names section for more information.
+---@param room_or_spell power_kind|room_type|creature_type The name of the room or spell you want to adjust, e.g. TEMPLE or MAGIC_LIGHTNING. See room names section and spell names section for more information.
 ---@param research_value integer The new research value. This must be a number below 16777216.
 function RESEARCH(player,research_type,room_or_spell,research_value) end
 
@@ -538,7 +538,7 @@ function RESEARCH(player,research_type,room_or_spell,research_value) end
 ---So if you're using this command, you must add all items available on the level to the research list. Example:
 ---@param player playerrange player’s name, e.g. PLAYER1. See players section for more information.
 ---@param research_type "MAGIC"|"ROOM"|"CREATURE" Whether it is a room or spell you are researching. Use one of the following commands:
----@param room_or_spell spell_type|room_type|creature_type The name of the room or spell you want to adjust, e.g. TEMPLE or MAGIC_LIGHTNING. See room names section and spell names section for more information.
+---@param room_or_spell power_kind|room_type|creature_type The name of the room or spell you want to adjust, e.g. TEMPLE or MAGIC_LIGHTNING. See room names section and spell names section for more information.
 ---@param research_value integer The new research value. This must be a number below 16777216.
 function RESEARCH_ORDER(player,research_type,room_or_spell,research_value) end
 

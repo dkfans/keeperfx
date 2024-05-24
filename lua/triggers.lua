@@ -15,6 +15,7 @@
 ---@class TriggerEvent
 ---@field type string
 ---@field params table
+---@field lastTriggerTime integer
 ---@field enabled boolean
 
 ---@type Trigger[]
@@ -63,7 +64,12 @@ end
 --- @param periodic boolean Whether the trigger should activate once, or repeat every 'time' gameticks
 --- @return TriggerEvent event
 function TriggerRegisterTimerEvent(trigger, time, periodic)
-    local event = { type = "timer", params = { time = time, periodic = periodic }, enabled = true }
+    local event = {
+        type = "timer",
+        params = { time = time, periodic = periodic },
+        enabled = true,
+        lastTriggerTime = PLAYER0.GAME_TURN  -- Initialize to the current game time
+    }
     trigger.event = event
     return event
 end
@@ -95,13 +101,13 @@ end
 -- Trigger variables
 
 --- Gets the unit associated with the current triggering event
---- @return Creature
+--- @return Creature|nil
 function GetTriggeringUnit()
     return currentTriggeringUnit
 end
 
 --- Gets the spell type associated with the current triggering event
---- @return spell_type
+--- @return power_kind|nil
 function GetTriggeringSpellKind()
     return currentTriggeringSpellKind
 end
@@ -118,9 +124,31 @@ function FindTriggerByIndex(index)
     return nil
 end
 
+--- Processes a trigger
+--- @param trigger Trigger The trigger to process
+local function ProcessTrigger(trigger)
+    local allConditionsMet = true
+    if trigger.conditions then
+        for _, condition in ipairs(trigger.conditions) do
+            if condition.enabled and not condition.condition() then
+                allConditionsMet = false
+                break
+            end
+        end
+    end
+
+    if allConditionsMet and trigger.actions then
+        for _, action in ipairs(trigger.actions) do
+            if action.enabled then
+                action.action()
+            end
+        end
+    end
+end
+
 --- Processes a unit event
 --- @param unit Creature The unit involved in the event
---- @param spell spell_type The type of spell being cast (can be nil)
+--- @param spell power_kind|nil The type of spell being cast (can be nil)
 --- @param eventType string The type of event ("powerCast" or "dies")
 local function ProcessUnitEvent(unit, spell, eventType)
     currentTriggeringUnit = unit
@@ -128,23 +156,7 @@ local function ProcessUnitEvent(unit, spell, eventType)
 
     for _, trigger in ipairs(triggers) do
         if trigger.event and trigger.event.type == "unit" and trigger.event.params.unitEvent == eventType then
-            local allConditionsMet = true
-            if trigger.conditions then
-                for _, condition in ipairs(trigger.conditions) do
-                    if condition.enabled and not condition.condition() then
-                        allConditionsMet = false
-                        break
-                    end
-                end
-            end
-
-            if allConditionsMet and trigger.actions then
-                for _, action in ipairs(trigger.actions) do
-                    if action.enabled then
-                        action.action()
-                    end
-                end
-            end
+            ProcessTrigger(trigger)
         end
     end
 
@@ -152,11 +164,19 @@ local function ProcessUnitEvent(unit, spell, eventType)
     currentTriggeringSpellKind = nil
 end
 
+
+
+
 --- Called when a spell is cast on a unit
---- @param unit Creature The unit the spell is cast on
---- @param spell spell_type The type of spell being cast
-function OnUnitPowerCast(unit, spell)
-    ProcessUnitEvent(unit, spell, "powerCast")
+--- @param pwkind power_kind
+--- @param caster Player
+--- @param target_thing Creature
+--- @param stl_x integer
+--- @param stl_y integer
+--- @param splevel integer
+function OnPowerCast(pwkind, caster,target_thing,stl_x,stl_y,splevel)
+
+    ProcessUnitEvent(target_thing, pwkind, "powerCast")
 end
 
 --- Called when a unit dies
@@ -165,17 +185,23 @@ function OnUnitDeath(unit)
     ProcessUnitEvent(unit, nil, "dies")
 end
 
--- Example usage
---[[
-local myTrigger = CreateTrigger()
-TriggerRegisterUnitEvent(myTrigger, someCreature, "powerCast")
-TriggerAddCondition(myTrigger, function() return true end)
-TriggerAddAction(myTrigger, function() print("Action executed on power cast!") end)
+--- Called on each game tick to process timer events
+function OnGameTick()
 
-TriggerRegisterUnitEvent(myTrigger, someCreature, "dies")
-TriggerAddCondition(myTrigger, function() return true end)
-TriggerAddAction(myTrigger, function() print("Action executed on unit death!") end)
+    for _, trigger in ipairs(triggers) do
+        if trigger.event and trigger.event.type == "timer" and trigger.event.enabled then
+            local time = trigger.event.params.time
+            local periodic = trigger.event.params.periodic
+            local lastTriggerTime = trigger.event.lastTriggerTime
 
-OnUnitPowerCast(someCreature, someSpellType)
-OnUnitDeath(someCreature)
-]]
+            if lastTriggerTime == nil or (periodic and PLAYER0.GAME_TURN - lastTriggerTime >= time) or (not periodic and PLAYER0.GAME_TURN >= time) then
+                ProcessTrigger(trigger)
+
+                trigger.event.lastTriggerTime = PLAYER0.GAME_TURN
+                if not periodic then
+                    trigger.event.enabled = false
+                end
+            end
+        end
+    end
+end

@@ -2801,7 +2801,7 @@ void update(void)
         event_process_events();
         update_all_events();
         process_level_script();
-        lua_game_loop();
+        lua_game_tick();
         if ((game.numfield_D & GNFldD_Unkn04) != 0)
             process_computer_players2();
         process_players();

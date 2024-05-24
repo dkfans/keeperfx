@@ -28,9 +28,8 @@ extern "C" {
 
 void lua_chatmsg(PlayerNumber plyr_idx, char *msg);
 void lua_game_start();
-void lua_game_loop();
-void lua_cast_power_on_thing(PowerKind pwkind,PlayerNumber plyr_idx, struct Thing* thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short splevel);
-
+void lua_game_tick();
+void lua_on_power_cast(PlayerNumber plyr_idx, PowerKind pwkind,unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing);
 #ifdef __cplusplus
 }
 #endif

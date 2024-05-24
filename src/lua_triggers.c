@@ -34,25 +34,26 @@ void lua_chatmsg(PlayerNumber plyr_idx, char *msg)
 
 void lua_game_start()
 {
-    lua_getglobal(Lvl_script, "GameStart");
+    lua_getglobal(Lvl_script, "OnGameStart");
 	if (lua_isfunction(Lvl_script, -1))
 	{
-		CheckLua(Lvl_script, lua_pcall(Lvl_script, 0, 0, 1),"GameStart");
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 0, 0, 1),"OnGameStart");
 	}
 }
 
-void lua_game_loop()
+void lua_game_tick()
 {
-    lua_getglobal(Lvl_script, "GameLoop");
+    lua_getglobal(Lvl_script, "OnGameTick");
 	if (lua_isfunction(Lvl_script, -1))
 	{
-		CheckLua(Lvl_script, lua_pcall(Lvl_script, 0, 0, 1), "GameLoop");
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 0, 0, 1), "OnGameTick");
 	}
 }
-/*
-void lua_cast_power_on_thing(PowerKind pwkind,PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short splevel)
-{
-    lua_getglobal(Lvl_script, "CastPowerOnThing");
+
+void lua_on_power_cast(PlayerNumber plyr_idx, PowerKind pwkind,
+    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing)
+	{
+    lua_getglobal(Lvl_script, "OnPowerCast");
 	if (lua_isfunction(Lvl_script, -1))
 	{
 		lua_pushinteger(Lvl_script, pwkind);
@@ -62,6 +63,6 @@ void lua_cast_power_on_thing(PowerKind pwkind,PlayerNumber plyr_idx, struct Thin
 		lua_pushinteger(Lvl_script, stl_y);
 		lua_pushinteger(Lvl_script, splevel);
 
-		CheckLua(Lvl_script, lua_pcall(Lvl_script, 6, 0, 1),"CastPowerOnThing");
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 6, 0, 1),"OnPowerCast");
 	}
-}*/
+}
