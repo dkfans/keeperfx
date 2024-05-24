@@ -27,8 +27,7 @@
 ---@alias head_for "ACTION_POINT"|"DUNGEON"|"DUNGEON_HEART"|"APPROPIATE_DUNGEON"
 ---@alias creature_propery "BLEEDS"|"UNAFFECTED_BY_WIND"|"IMMUNE_TO_GAS"|"HUMANOID_SKELETON"|"PISS_ON_DEAD"|"FLYING"|"SEE_INVISIBLE"|"PASS_LOCKED_DOORS"|"SPECIAL_DIGGER"|"ARACHNID"|"DIPTERA"|"LORD"|"SPECTATOR"|"EVIL"|"NEVER_CHICKENS"|"IMMUNE_TO_BOULDER"|"NO_CORPSE_ROTTING"|"NO_ENMHEART_ATTCK"|"TREMBLING_FAT"|"FEMALE"|"INSECT"|"ONE_OF_KIND"|"NO_IMPRISONMENT"|"IMMUNE_TO_DISEASE"|"ILLUMINATED"|"ALLURING_SCVNGR"
 ---@alias actionpoint integer
----@alias lastevent playersingle.LAST_EVENT
----@alias location playersingle|actionpoint|lastevent|"COMBAT"
+---@alias location playersingle|actionpoint|"LAST_EVENT"|"COMBAT"
 ---@alias thing_class "Object"|"Shot"|"EffectElem"|"DeadCreature"|"Creature"|"Effect"|"EffectGen"|"Trap"|"Door"|"AmbientSnd"|"CaveIn"
 
 
@@ -38,7 +37,7 @@
 ---@alias room_type "ENTRANCE"|"TREASURE"|"RESEARCH"|"PRISON"|"TORTURE"|"TRAINING"|"DUNGEON_HEART"|"WORKSHOP"|"SCAVENGER"|"TEMPLE"|"GRAVEYARD"|"BARRACKS"|"GARDEN"|"LAIR"|"BRIDGE"|"GUARD_POST"
 ---@alias spell_type "POWER_HAND"|"POWER_IMP"|"POWER_OBEY"|"POWER_SLAP"|"POWER_SIGHT"|"POWER_CALL_TO_ARMS"|"POWER_CAVE_IN"|"POWER_HEAL_CREATURE"|"POWER_HOLD_AUDIENCE"|"POWER_LIGHTNING"|"POWER_SPEED"|"POWER_PROTECT"|"POWER_CONCEAL"|"POWER_DISEASE"|"POWER_CHICKEN"|"POWER_DESTROY_WALLS"|"POWER_TIME_BOMB"|"POWER_POSSESS"|"POWER_ARMAGEDDON"|"POWER_PICKUP_CREATURE"|"POWER_PICKUP_GOLD"|"POWER_PICKUP_FOOD"
 ---@alias trap_type "BOULDER"|"ALARM"|"POISON_GAS"|"LIGHTNING"|"WORD_OF_POWER"|"LAVA"
----@alias door_type "WOOD"|"BRACED"|"STEEL"|"MAGIC"
+---@alias door_type "WOOD"|"BRACED"|"STEEL"|"MAGIC"|"SECRET"
 ---@alias object_type string
 
 
@@ -83,9 +82,25 @@
 
 
 
+---@class Pos3d
+---@field val_x integer full value 256 more then stl version
+---@field val_y integer full value 256 more then stl version
+---@field val_z integer full value 256 more then stl version
+---@field stl_x integer value in subtiles not including pos within subtile
+---@field stl_y integer value in subtiles not including pos within subtile
+---@field stl_z integer value in subtiles not including pos within subtile
+local Pos3d = {}
+
+---@class Camera
+---@field pos Pos3d
+---@field yaw   integer 
+---@field pitch integer b
+---@field roll  integer
+local Camera = {}
+
 ---@class Player: creaturefields,roomfields
 ---@field private name string
----@field LAST_EVENT lastevent
+---
 ---@field CONTROLS creaturefields
 ---@field MONEY integer
 ---@field GAME_TURN integer
@@ -138,6 +153,8 @@
 ---@field TOTAL_SCORE integer
 ---@field BONUS_TIME integer
 ---@field CREATURES_TRANSFERRED integer
+---
+---@field camera Camera
 local Player = {}
 
 ---@class Thing
@@ -145,11 +162,12 @@ local Player = {}
 ---@field creation_turn integer
 ---@field class integer
 ---@field model integer
----@field stl_x integer
----@field stl_y integer
+---@field pos Pos3d
+---@field orientation integer
+---@field owner Player
 local Thing = {}
 
----@class Creature:Thing
+---@class Creature: Thing
 local Creature = {}
 
 ---@class Herogate:Thing
@@ -158,35 +176,23 @@ local Herogate = {}
 
 
 
-
-function Player.new(tostring)
-  local self = setmetatable({}, Player)
-  self.name = tostring
-  return self
-end
-
-function Thing.new(idx,creation_turn)
-    local self = setmetatable({}, Thing)
-    self.idx = idx
-    self.creation_turn = creation_turn
-    return self
-  end
+---@return Player
+local function newPlayer() end
 
 
 local flagsnames = {"FLAG0","FLAG1","FLAG2","FLAG3","FLAG4","FLAG5","FLAG6","FLAG7",
 "CAMPAIGN_FLAG0","CAMPAIGN_FLAG1","CAMPAIGN_FLAG2","CAMPAIGN_FLAG3","CAMPAIGN_FLAG4","CAMPAIGN_FLAG5","CAMPAIGN_FLAG6","CAMPAIGN_FLAG7"}
 
 
-
-PLAYER0 = Player.new("PLAYER0")
-PLAYER1 = Player.new("PLAYER1")
-PLAYER2 = Player.new("PLAYER2")
-PLAYER3 = Player.new("PLAYER3")
-PLAYER4 = Player.new("PLAYER4")
-PLAYER5 = Player.new("PLAYER5")
-PLAYER6 = Player.new("PLAYER6")
-PLAYER_GOOD = Player.new("PLAYER_GOOD")
-PLAYER_NEUTRAL = Player.new("PLAYER_NEUTRAL")
+PLAYER0 = newPlayer()
+PLAYER1 = newPlayer()
+PLAYER2 = newPlayer()
+PLAYER3 = newPlayer()
+PLAYER4 = newPlayer()
+PLAYER5 = newPlayer()
+PLAYER6 = newPlayer()
+PLAYER_GOOD = newPlayer()
+PLAYER_NEUTRAL = newPlayer()
 
 
 ------------------
@@ -433,7 +439,7 @@ function DISPLAY_MESSAGE() end
 ---Flashes a button on the toolar until the player selects it.
 ---@param button integer Id of the button.
 ---@param gameturns integer how long the button should flash for in 1/20th of a secon.
-function TUTORIAL_FLASH_BUTTON(button,player) end
+function TUTORIAL_FLASH_BUTTON(button,gameturns) end
 
 
 function HIDE_VARIABLE() end
@@ -702,61 +708,3 @@ function get_things_of_class(class) end
 -------------------------------------------------------
 --Triggers
 -------------------------------------------------------
-
----@class Trigger
----@class Condition
----@class Event
----@class Action
-
----comment
----@return Trigger trigger
-function CreateTrigger() end
-
----adds a condition function that needs to evaluate to true for the actions to be triggers ben the even happens
----@param trigger Trigger
----@param condition function function that returns true or false
----@return Condition condition
-function TriggerAddCondition(trigger,condition) end
-
----@param trigger Trigger
----@param action function
----@return Action action
-function TriggerAddAction(trigger, action) end
-
-
-
---events
-
----comment
----@param trigger Trigger
----@param time integer amount of gameticks (1/20 s)
----@param periodic boolean wheter the trigger should activate once, or repeat evere 'time' gameticks
----@return Event event
-function TriggerRegisterTimerEvent(trigger,time,periodic) end
-
-
----@param trigger Trigger
----@param player Player
----@param varName string
----@param opcode string
----@param limitval number
----@return Event event
-function TriggerRegisterVariableEvent(trigger,player, varName, opcode, limitval) end	-- (native)
-
----comment
----@param trigger Trigger
----@param creature Creature
----@param unitEvent "powerCast"|"dies"
----@return Event event
-function TriggerRegisterUnitEvent(trigger,creature,unitEvent) end
-
-
---trigger vars
-
----comment
----@return Creature
-function GetTriggeringUnit() end
-
----comment
----@return spell_type
-function GetTriggeringSpellKind() end

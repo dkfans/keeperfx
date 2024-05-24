@@ -25,6 +25,8 @@
 static int thing_set_field(lua_State *L);
 static int thing_get_field(lua_State *L);
 
+static const struct luaL_Reg thing_methods[];
+
 struct PlayerRange
 {
     PlayerNumber start_idx;
@@ -34,6 +36,8 @@ struct PlayerRange
 /***************************************************************************************************/
 /************    Inputs   **************************************************************************/
 /***************************************************************************************************/
+
+
 
 static long luaL_checkNamedCommand(lua_State *L, int index,const struct NamedCommand * commanddesc)
 {
@@ -62,7 +66,7 @@ static struct Thing *luaL_checkThing(lua_State *L, int index)
     }
 
     // Get idx field
-    lua_getfield(L, index, "index");
+    lua_getfield(L, index, "ThingIndex");
     if (!lua_isnumber(L, -1)) {
         luaL_error(L, "Expected 'index' to be an integer");
         return NULL;
@@ -202,10 +206,10 @@ void lua_pushThing(lua_State *L, struct Thing* thing) {
         return;
     }
 
-    lua_createtable(L, 0, 2); /* creates and pushes new table on top of Lua stack */
+    lua_createtable(L, 0, 2);
 
-    lua_pushinteger(L, thing->index); /* Pushes table value on top of Lua stack */
-    lua_setfield(L, -2, "index");  /* table["index"] = thing->index */
+    lua_pushinteger(L, thing->index);
+    lua_setfield(L, -2, "ThingIndex");
 
     lua_pushinteger(L, thing->creation_turn);
     lua_setfield(L, -2, "creation_turn");
@@ -217,10 +221,10 @@ void lua_pushThing(lua_State *L, struct Thing* thing) {
 void lua_pushPlayer(lua_State *L, PlayerNumber plr_idx) {
 
 
-    lua_createtable(L, 0, 2); /* creates and pushes new table on top of Lua stack */
+    lua_createtable(L, 0, 2);
 
-    lua_pushinteger(L, plr_idx); /* Pushes table value on top of Lua stack */
-    lua_setfield(L, -2, "playerId");  /* table["index"] = thing->index */
+    lua_pushinteger(L, plr_idx);
+    lua_setfield(L, -2, "playerId");
 
     luaL_getmetatable(L, "Player");
     lua_setmetatable(L, -2);
@@ -843,8 +847,6 @@ static int lua_get_thing_by_idx(lua_State *L)
     // the arguments lua passes to the C code
     ThingIndex tng_idx = lua_tointeger(L, 1);
 
-    JUSTLOG("idx: %d",tng_idx);
-
     struct Thing *thing = thing_get(tng_idx);
 
     // arguments you push back to lua
@@ -1136,11 +1138,10 @@ static int thing_set_field(lua_State *L) {
     struct Thing* thing = luaL_checkThing(L, 1);
     const char* key = luaL_checkstring(L, 2);
     int value = luaL_checkinteger(L, 3);
-    JUSTLOG("set key %s",key);
 
     //char* read_only_arr[] =  ["index","creation_turn"];
 
-    if (strcmp(key, "Orientation") == 0) {
+    if (strcmp(key, "orientation") == 0) {
         thing->move_angle_xy = value;
     } else {
         //luaL_error(L, "Unknown field: %s", key);
@@ -1152,16 +1153,26 @@ static int thing_set_field(lua_State *L) {
 // Function to get field values
 static int thing_get_field(lua_State *L) {
 
-    struct Thing* thing = luaL_checkThing(L, 1);
     const char* key = luaL_checkstring(L, 2);
 
-    JUSTLOG("get thing field %s",key);
+    // Check if the key exists in thing_methods
+    for (int i = 0; thing_methods[i].name != NULL; i++) {
+        if (strcmp(key, thing_methods[i].name) == 0) {
+            // If the key exists in thing_methods, call the corresponding function
+            lua_pushcfunction(L, thing_methods[i].func);
+            return 1;
+        }
+    }
+    
+    struct Thing* thing = luaL_checkThing(L, 1);
 
-    if (strcmp(key, "index") == 0) {
+    if (strcmp(key, "ThingIndex") == 0) {
         lua_pushinteger(L, thing->index);
     } else if (strcmp(key, "creation_turn") == 0) {
         lua_pushinteger(L, thing->creation_turn);
-    } else if (strcmp(key, "Owner") == 0) {
+    } else if (strcmp(key, "model") == 0) {
+        lua_pushinteger(L, thing->model);
+    } else if (strcmp(key, "owner") == 0) {
         lua_pushPlayer(L, thing->owner);
 
 
@@ -1172,6 +1183,60 @@ static int thing_get_field(lua_State *L) {
     return 1;
 
 }
+
+static int thing_eq(lua_State *L) {
+
+    if (!lua_istable(L, 1) || !lua_istable(L, 2)) {
+        luaL_error(L, "Expected a table");
+        return 1;
+    }
+
+    // Get idx field
+    lua_getfield(L, 1, "ThingIndex");
+    if (!lua_isnumber(L, -1)) {
+        luaL_error(L, "Expected 'index' to be an integer");
+        return 1;
+    }
+    int idx1 = lua_tointeger(L, -1);
+    lua_pop(L, 1);  // Pop the idx value off the stack
+
+    // Get idx field
+    lua_getfield(L, 2, "ThingIndex");
+    if (!lua_isnumber(L, -1)) {
+        luaL_error(L, "Expected 'index' to be an integer");
+        return 1;
+    }
+    int idx2 = lua_tointeger(L, -1);
+    lua_pop(L, 1);  // Pop the idx value off the stack
+
+    if(idx1 != idx2)
+    {
+        lua_pushboolean(L, false);
+        return 1;
+    }
+
+
+    // Get creation_turn field
+    lua_getfield(L, 1, "creation_turn");
+    if (!lua_isnumber(L, -1)) {
+        luaL_error(L, "Expected 'creation_turn' to be an integer");
+        return 1;
+    }
+    int creation_turn1 = lua_tointeger(L, -1);
+    lua_pop(L, 1);  // Pop the creation_turn value off the stack
+
+    lua_getfield(L,2, "creation_turn");
+    if (!lua_isnumber(L, -1)) {
+        luaL_error(L, "Expected 'creation_turn' to be an integer");
+        return 1;
+    }
+    int creation_turn2 = lua_tointeger(L, -1);
+    lua_pop(L, 1);  // Pop the creation_turn value off the stack
+
+    lua_pushboolean(L, creation_turn1 == creation_turn2);
+    return 1;
+}
+
 
 static const struct luaL_Reg thing_methods[] = {
     {"MakeThingZombie", make_thing_zombie},
@@ -1184,6 +1249,7 @@ static const struct luaL_Reg thing_meta[] = {
     {"__tostring", thing_tostring},
     {"__index",    thing_get_field},
     {"__newindex", thing_set_field},
+    {"__eq",       thing_eq},
     {NULL, NULL}
 };
 
@@ -1199,8 +1265,12 @@ static int Thing_register(lua_State *L)
     // Create a methods table
     luaL_newlib(L, thing_methods);
 
-    // Set the __index field of the metatable to the methods table
-    lua_setfield(L, -2, "__index");
+    for (int i = 0; thing_methods[i].name != NULL; i++) {
+        const char *name = thing_methods[i].name;
+        lua_pushcfunction(L, thing_methods[i].func);
+        lua_setfield(L, -2, name);
+    }
+
 
     // Hide the metatable by setting the __metatable field to nil
     lua_pushliteral(L, "__metatable");
@@ -1222,12 +1292,11 @@ static int Thing_register(lua_State *L)
 
 static int player_tostring(lua_State *L)
 {
-    char buff[64];
-    struct Thing* thing = luaL_checkThing(L, 1);
-    snprintf(buff, sizeof(buff), "id: %d creaturn: %ld class: %d", thing->index, thing->creation_turn, thing->class_id);
-
-    lua_pushfstring(L, "Thing (%s)", buff);
+    PlayerNumber player_idx = luaL_checkPlayerSingle(L, 1);
+    
+    lua_pushstring(L,get_conf_parameter_text(player_desc,player_idx));
     return 1;
+
 }
 
 // Function to set field values
@@ -1263,7 +1332,6 @@ static int player_set_field(lua_State *L) {
 // Function to get field values
 static int player_get_field(lua_State *L) {
 
-    JUSTLOG("player_get_field");
     PlayerNumber player_idx = luaL_checkPlayerSingle(L, 1);
     const char* key = luaL_checkstring(L, 2);
 
@@ -1294,6 +1362,36 @@ static int player_get_field(lua_State *L) {
 
 }
 
+static int player_eq(lua_State *L) {
+
+    if (!lua_istable(L, 1) || !lua_istable(L, 2)) {
+        luaL_error(L, "Expected a table");
+        return 1;
+    }
+
+    // Get idx field
+    lua_getfield(L, 1, "playerId");
+    if (!lua_isnumber(L, -1)) {
+        luaL_error(L, "Expected 'playerId' to be an integer");
+        return 1;
+    }
+    int idx1 = lua_tointeger(L, -1);
+    lua_pop(L, 1);  // Pop the idx value off the stack
+
+    // Get idx field
+    lua_getfield(L, 2, "playerId");
+    if (!lua_isnumber(L, -1)) {
+        luaL_error(L, "Expected 'playerId' to be an integer");
+        return 1;
+    }
+    int idx2 = lua_tointeger(L, -1);
+    lua_pop(L, 1);  // Pop the idx value off the stack
+
+
+    lua_pushboolean(L, idx1 == idx2);
+    return 1;
+}
+
 static const struct luaL_Reg player_methods[] = {
     {NULL, NULL}
 };
@@ -1302,10 +1400,11 @@ static const struct luaL_Reg player_meta[] = {
     {"__tostring", player_tostring},
     {"__index",    player_get_field},
     {"__newindex", player_set_field},
+    {"__eq",       player_eq},
     {NULL, NULL}
 };
 
-static int Player_register(lua_State *L) {
+static void Player_register(lua_State *L) {
     // Create a metatable for thing and add it to the registry
     luaL_newmetatable(L, "Player");
 
