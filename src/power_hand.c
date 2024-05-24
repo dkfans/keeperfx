@@ -626,8 +626,11 @@ void draw_power_hand(void)
                 pickoffs = get_creature_picked_up_offset(picktng);
                 inputpos_x = GetMouseX() + scale_ui_value(pickoffs->delta_x*global_hand_scale);
                 inputpos_y = GetMouseY() + scale_ui_value(pickoffs->delta_y*global_hand_scale);
-                if (creatures[picktng->model].field_7)
-                  EngineSpriteDrawUsingAlpha = 1;
+                struct CreatureStats* crstat = creature_stats_get(picktng->model);
+                if (crstat->transparancy_flags != 0)
+                {
+                    EngineSpriteDrawUsingAlpha = 1;
+                }
                 process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
                     picktng->anim_sprite, 0, picktng->current_frame, scale_ui_value(64*global_hand_scale));
                 EngineSpriteDrawUsingAlpha = 0;
