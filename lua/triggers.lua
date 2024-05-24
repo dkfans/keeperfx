@@ -155,7 +155,9 @@ local function ProcessUnitEvent(unit, spell, eventType)
     currentTriggeringSpellKind = spell
 
     for _, trigger in ipairs(triggers) do
-        if trigger.event and trigger.event.type == "unit" and trigger.event.params.unitEvent == eventType then
+        if trigger.event and trigger.event.type == "unit" and
+           trigger.event.params.unitEvent == eventType and
+           (unit == nil or unit == trigger.event.params.creature) then
             ProcessTrigger(trigger)
         end
     end
