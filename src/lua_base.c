@@ -67,6 +67,7 @@ TbBool open_lua_script(LevelNumber lvnum)
     short fgroup = get_level_fgroup(lvnum);
     char* fname = prepare_file_fmtpath(fgroup, "map%05lu.lua", (unsigned long)lvnum);
 
+
     //char* foldername = prepare_file_fmtpath(fgroup, "");
 
 	// Load and parse the Lua File
@@ -74,6 +75,24 @@ TbBool open_lua_script(LevelNumber lvnum)
       return false;
     //setLuaPath(Lvl_script,foldername);
 	if(!CheckLua(Lvl_script, luaL_dofile(Lvl_script, fname),"script_loading"))
+	{
+        ERRORLOG("failed to load lua script");
+        close_lua_script();
+        return false;
+	}
+
+
+
+    fname = prepare_file_fmtpath(FGrp_FxData, "lua/triggers.lua");
+
+	// Load and parse the Lua File
+    if ( !LbFileExists(fname) )
+    {
+        ERRORLOG("file fxdata/lua/triggers.lua missing");
+        return false;
+    }
+    //setLuaPath(Lvl_script,foldername);
+	if(!CheckLua(Lvl_script, luaL_dofile(Lvl_script, fname),"triggers_loading"))
 	{
         ERRORLOG("failed to load lua script");
         close_lua_script();

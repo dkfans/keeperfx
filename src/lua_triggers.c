@@ -37,7 +37,7 @@ void lua_game_start()
     lua_getglobal(Lvl_script, "OnGameStart");
 	if (lua_isfunction(Lvl_script, -1))
 	{
-		CheckLua(Lvl_script, lua_pcall(Lvl_script, 0, 0, 1),"OnGameStart");
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 0, 0, 0),"OnGameStart");
 	}
 }
 
@@ -46,7 +46,7 @@ void lua_game_tick()
     lua_getglobal(Lvl_script, "OnGameTick");
 	if (lua_isfunction(Lvl_script, -1))
 	{
-		CheckLua(Lvl_script, lua_pcall(Lvl_script, 0, 0, 1), "OnGameTick");
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 0, 0, 0), "OnGameTick");
 	}
 }
 
