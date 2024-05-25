@@ -1000,7 +1000,10 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
             {
                 HitPoints damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
                 SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
-                apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, owner);
+                if (damage > 0)
+                {
+                    apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, owner);
+                }
                 affected = true;
                 if (tngdst->health < 0)
                 {
