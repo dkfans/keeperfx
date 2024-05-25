@@ -5130,29 +5130,12 @@ void place_bloody_footprint(struct Thing *thing)
         return;
     }
     short nfoot = get_foot_creature_has_down(thing);
-    struct Thing* footng;
-    switch (creatures[thing->model % game.conf.crtr_conf.model_count].field_6)
+    struct Thing* footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_Blood4, thing->owner);
+    if (!thing_is_invalid(footng))
     {
-    case 3:
-    case 4:
-        break;
-    case 5:
-        if (nfoot)
-        {
-            footng = create_thing(&thing->mappos, TCls_EffectElem, TngEffElm_Blood4, thing->owner, -1);
-            if (!thing_is_invalid(footng)) {
-                cctrl->bloody_footsteps_turns--;
-            }
-        }
-        break;
-    default:
-        footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, 23, thing->owner);
-        if (!thing_is_invalid(footng)) {
-            cctrl->bloody_footsteps_turns--;
-        }
-        break;
+        cctrl->bloody_footsteps_turns--;
     }
-  }
+}
 
 TbBool update_controlled_creature_movement(struct Thing *thing)
 {
