@@ -170,6 +170,7 @@ enum CreatureAttackType {
 
 struct Thing;
 
+//todo Remove
 struct Creatures { // sizeof = 16
   unsigned short evil_start_state;
   unsigned short good_start_state;

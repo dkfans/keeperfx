@@ -177,6 +177,7 @@ const struct NamedCommand creatmodel_appearance_commands[] = {
   {"FOOTSTEPPITCH",        7},
   {"PICKUPOFFSET",         8},
   {"STATUSOFFSET",         9},
+  {"TRANSPARENCYFLAGS",   10},
   {NULL,                   0},
   };
 
@@ -1688,6 +1689,22 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                 if (k > 0)
                 {
                     crstat->status_offset = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
+        case 10: // TRANSPARENCYFLAGS
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                    crstat->transparancy_flags = k<<4; // Bitshift to get the transparancy bit in the render flag
                     n++;
                 }
             }

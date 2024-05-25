@@ -379,9 +379,13 @@ void update_creature_rendering_flags(struct Thing *thing)
     {
         thing->rendering_flags |= TRF_Unknown01;
     }
-    if (creatures[thing->model].field_7)
+    if (thing_is_creature(thing))
     {
-        thing->rendering_flags |= TRF_Transpar_Alpha;
+        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+        if (crstat->transparancy_flags != 0)
+        {
+            set_flag(thing->rendering_flags, crstat->transparancy_flags);
+        }
     }
     if (creature_is_invisible(thing))
     {
