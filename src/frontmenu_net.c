@@ -250,6 +250,8 @@ void frontnet_session_add(struct GuiButton *gbtn)
 void frontnet_session_join(struct GuiButton *gbtn)
 {
     long plyr_num;
+    if (net_session[net_session_index_active] == NULL)
+        return;
     plyr_num = network_session_join();
     if (plyr_num < 0)
         return;
