@@ -364,12 +364,11 @@ void free_swipe_graphic(void)
 TbBool load_swipe_graphic_for_creature(const struct Thing *thing)
 {
     SYNCDBG(6,"Starting for %s",thing_model_name(thing));
-
-    int i = creatures[thing->model % game.conf.crtr_conf.model_count].swipe_idx;
-    if ((i == 0) || (game.loaded_swipe_idx == i))
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    if ((crstat->swipe_idx == 0) || (game.loaded_swipe_idx == crstat->swipe_idx))
         return true;
     free_swipe_graphic();
-    int swpe_idx = i;
+    int swpe_idx = crstat->swipe_idx;
     {
         struct TbLoadFiles* t_lfile = &swipe_load_file[0];
 #ifdef SPRITE_FORMAT_V2
@@ -2614,8 +2613,8 @@ struct Thing* thing_death_ice_explosion(struct Thing *thing)
 
 struct Thing* creature_death_as_nature_intended(struct Thing *thing)
 {
-    long i = creatures[thing->model % game.conf.crtr_conf.model_count].natural_death_kind;
-    switch (i)
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    switch (crstat->natural_death_kind)
     {
     case Death_Normal:
         return thing_death_normal(thing);
@@ -2628,7 +2627,7 @@ struct Thing* creature_death_as_nature_intended(struct Thing *thing)
     case Death_IceExplode:
         return thing_death_ice_explosion(thing);
     default:
-        WARNLOG("Unexpected %s death cause %d",thing_model_name(thing),(int)i);
+        WARNLOG("Unexpected %s death cause %d",thing_model_name(thing), crstat->natural_death_kind);
         return INVALID_THING;
     }
 }

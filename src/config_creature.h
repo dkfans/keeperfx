@@ -174,10 +174,8 @@ struct Thing;
 struct Creatures { // sizeof = 16
   unsigned short evil_start_state;
   unsigned short good_start_state;
-  unsigned char natural_death_kind;
   unsigned char field_5;
   unsigned char field_7; // is transparent
-  unsigned char swipe_idx;
   unsigned char field_F;
 };
 

@@ -1534,8 +1534,8 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
     {
         crstat->walking_anim_speed = 1;
         crstat->visual_range = 1;
-        creatures[crtr_model].swipe_idx = 0;
-        creatures[crtr_model].natural_death_kind = Death_Normal;
+        crstat->swipe_idx = 0;
+        crstat->natural_death_kind = Death_Normal;
         crstat->shot_shift_x = 0;
         crstat->shot_shift_y = 0;
         crstat->shot_shift_z = 0;
@@ -1597,7 +1597,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                 k = atoi(word_buf);
                 if (k >= 0)
                 {
-                    creatures[crtr_model].swipe_idx = k;
+                    crstat->swipe_idx = k;
                     n++;
                 }
             }
@@ -1613,7 +1613,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                 k = get_id(creature_deathkind_desc, word_buf);
                 if (k > 0)
                 {
-                    creatures[crtr_model].natural_death_kind = k;
+                    crstat->natural_death_kind = k;
                     n++;
                 }
             }
