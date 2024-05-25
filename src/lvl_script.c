@@ -86,6 +86,16 @@ char* get_next_token(char *data, struct CommandToken *token)
         {
             *p = (char)toupper(*p);
         }
+        if (((p - token->start) == 3) && (strncmp(token->start, "REM", 3) == 0))
+        {
+            for (;*p; p++)
+            {
+                // empty
+            }
+            token->end = p;
+            token->type = TkEnd;
+            return p;
+        }
         token->type = TkCommand;
     }
     else if (*p == '-') // Either operator or digit
