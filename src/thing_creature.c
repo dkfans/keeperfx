@@ -4069,9 +4069,9 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->move_angle_xy = 0;
     crtng->move_angle_z = 0;
     cctrl->max_speed = calculate_correct_creature_maxspeed(crtng);
-    cctrl->shot_shift_x = creatures[model].shot_shift_x;
-    cctrl->shot_shift_y = creatures[model].shot_shift_y;
-    cctrl->shot_shift_z = creatures[model].shot_shift_z;
+    cctrl->shot_shift_x = crstat->shot_shift_x;
+    cctrl->shot_shift_y = crstat->shot_shift_y;
+    cctrl->shot_shift_z = crstat->shot_shift_z;
     long i = get_creature_anim(crtng, 0);
     set_thing_draw(crtng, i, 256, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
     cctrl->explevel = 1;

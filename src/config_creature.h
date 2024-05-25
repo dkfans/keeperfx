@@ -178,9 +178,6 @@ struct Creatures { // sizeof = 16
   unsigned char field_5;
   unsigned char field_7; // is transparent
   unsigned char swipe_idx;
-  short shot_shift_x; /**< Initial position of shot created by the creature relative to creature position, X coord. */
-  short shot_shift_y; /**< Initial position of shot created by the creature relative to creature position, Y coord. */
-  short shot_shift_z; /**< Initial position of shot created by the creature relative to creature position, Z coord. */
   unsigned char field_F;
 };
 

@@ -453,6 +453,11 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short base_eye_height;
     unsigned short size_xy;
     unsigned short size_z;
+    unsigned short thing_size_xy;
+    unsigned short thing_size_z;
+    short shot_shift_x; /**< Initial position of shot created by the creature relative to creature position, X coord. */
+    short shot_shift_y; /**< Initial position of shot created by the creature relative to creature position, Y coord. */
+    short shot_shift_z; /**< Initial position of shot created by the creature relative to creature position, Z coord. */
     unsigned short walking_anim_speed;
     TbBool flying;
     TbBool fixed_anim_speed;
@@ -508,8 +513,6 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     TbBool can_go_locked_doors;
     TbBool bleeds;
     TbBool affected_by_wind;
-    unsigned short thing_size_xy;
-    unsigned short thing_size_z;
     short annoy_eat_food;
     short annoy_in_hand;
     short damage_to_boulder;
