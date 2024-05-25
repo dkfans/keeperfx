@@ -170,15 +170,7 @@ enum CreatureAttackType {
 
 struct Thing;
 
-//todo Remove
-struct Creatures { // sizeof = 16
-  unsigned char field_5;
-  unsigned char field_7; // is transparent
-  unsigned char field_F;
-};
-
 /******************************************************************************/
-extern struct Creatures creatures[CREATURE_TYPES_MAX];
 extern ThingModel breed_activities[CREATURE_TYPES_MAX];
 #pragma pack()
 /******************************************************************************/
@@ -275,8 +267,6 @@ extern const struct NamedCommand creatmodel_attributes_commands[];
 extern const struct NamedCommand creatmodel_jobs_commands[];
 
 extern const struct NamedCommand creature_graphics_desc[];
-/******************************************************************************/
-//extern struct Creatures creatures[];
 /******************************************************************************/
 struct CreatureStats *creature_stats_get(ThingModel crstat_idx);
 struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing);
