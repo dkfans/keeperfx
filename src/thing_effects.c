@@ -998,7 +998,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
         {
             if (tngdst->class_id == TCls_Creature)
             {
-                if (damage > 0)
+                if (max_damage > 0)
                 {
                     HitPoints damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
                     SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
