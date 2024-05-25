@@ -455,6 +455,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned short size_z;
     unsigned short walking_anim_speed;
     TbBool flying;
+    TbBool fixed_anim_speed;
     TbBool immune_to_gas;
     unsigned char attack_preference;
     short field_of_view;
