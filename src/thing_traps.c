@@ -708,7 +708,19 @@ void process_trap_charge(struct Thing* traptng)
     traptng->trap.rearm_turn = game.play_gameturn + mconf->shots_delay;
     if (game.conf.trap_stats[traptng->model].attack_sprite_anim_idx != 0)
     {
-        GameTurnDelta trigger_duration = get_lifespan_of_animation(trapstat->attack_sprite_anim_idx, trapstat->anim_speed);
+        GameTurnDelta trigger_duration;
+        if (trapstat->activation_type == 2) //Effect stays on trap, so the attack animation remains visible for as long as the effect is alive
+        {
+            trigger_duration = get_effect_model_stats(trapstat->created_itm_model)->start_health;
+        } else
+        if (trapstat->activation_type == 3) //Shot stays on trap, so the attack animation remains visible for as long as the trap is alive
+        {
+            trigger_duration = get_shot_model_stats(trapstat->created_itm_model)->health;
+        }
+        else
+        {
+            trigger_duration = get_lifespan_of_animation(trapstat->attack_sprite_anim_idx, trapstat->anim_speed);
+        }
         traptng->trap.shooting_finished_turn = (game.play_gameturn + trigger_duration);
         traptng->current_frame = 0;
         traptng->anim_time = 0;
