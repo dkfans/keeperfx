@@ -55,6 +55,31 @@ static TbBool firstTimeMouseInit = true;
 std::map<int, TbKeyCode> keymap_sdl_to_bf;
 
 /******************************************************************************/
+
+// Define the struct to hold the character data
+typedef struct {
+    const char *character;
+    const char *utf8;
+    SDL_Keycode keycode;
+    SDL_Scancode scancode;
+} MissingAzertyKeyMapping;
+
+// Initialize the array with the data
+MissingAzertyKeyMapping azertyMappings[] = {
+    {"²", "\xC2\xB2", SDLK_BACKQUOTE, SDL_SCANCODE_GRAVE}, // Tilde / Grave
+    {"&", "\x26", SDLK_1, SDL_SCANCODE_1},                 // 1
+    {"é", "\xC3\xA9", SDLK_2, SDL_SCANCODE_2},             // 2
+    {"\"", "\x22", SDLK_3, SDL_SCANCODE_3},                // 3
+    {"'", "\x27", SDLK_4, SDL_SCANCODE_4},                 // 4
+    {"(", "\x28", SDLK_5, SDL_SCANCODE_5},                 // 5
+    {"§", "\xC2\xA7", SDLK_6, SDL_SCANCODE_6},             // 6
+    {"è", "\xC3\xA8", SDLK_7, SDL_SCANCODE_7},             // 7
+    {"!", "\x21", SDLK_8, SDL_SCANCODE_8},                 // 8
+    {"ç", "\xC3\xA7", SDLK_9, SDL_SCANCODE_9},             // 9
+    {"à", "\xC3\xA0", SDLK_0, SDL_SCANCODE_0}              // 0
+};
+
+/******************************************************************************/
 /**
  * Converts an SDL mouse button event type and the corresponding mouse button to a Win32 API message.
  * @param eventType SDL event type.
@@ -220,14 +245,8 @@ void init_inputcontrol(void)
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_UNDO, KC_UNASSIGNED));
 }
 
-static unsigned int keyboard_keys_mapping(const SDL_KeyboardEvent * key)
+static unsigned int keyboard_keycode_mapping(const SDL_Keycode keycode)
 {
-    /*
-    key->keysym.scancode;         < hardware specific scancode
-    key->keysym.sym;         < SDL virtual keysym
-    key->keysym.unicode;         < translated character
-    */
-    int keycode = key->keysym.sym;
     std::map<int, TbKeyCode>::iterator iter;
 
     iter = keymap_sdl_to_bf.find(keycode);
@@ -237,6 +256,17 @@ static unsigned int keyboard_keys_mapping(const SDL_KeyboardEvent * key)
     }
 
     return KC_UNASSIGNED;
+}
+
+static unsigned int keyboard_keys_mapping(const SDL_KeyboardEvent * key)
+{
+    /*
+    key->keysym.scancode;         < hardware specific scancode
+    key->keysym.sym;         < SDL virtual keysym
+    key->keysym.unicode;         < translated character
+    */
+    int keycode = key->keysym.sym;
+    return keyboard_keycode_mapping(keycode);
 }
 
 static TbKeyMods keyboard_mods_mapping(const SDL_KeyboardEvent * key)
@@ -282,6 +312,18 @@ static void process_event(const SDL_Event *ev)
 
     switch (ev->type)
     {
+    case SDL_TEXTINPUT:
+        if(azerty_keyboard_workaround_enabled == true){
+            // Loop through the azerty mappings and check if this input character matches a known key
+            for (size_t i = 0; i < (sizeof(azertyMappings) / sizeof(azertyMappings[0])); ++i) {
+                if (strncmp(ev->text.text, azertyMappings[i].utf8, strlen(azertyMappings[i].utf8)) == 0) {
+                    x = keyboard_keycode_mapping(azertyMappings[i].keycode);
+                    keyboardControl(KActn_KEYDOWN, x, KMod_NONE, azertyMappings[i].scancode);
+                }
+            }
+        }
+        break;
+
     case SDL_KEYDOWN:
         x = keyboard_keys_mapping(&ev->key);
         if (x != KC_UNASSIGNED)
