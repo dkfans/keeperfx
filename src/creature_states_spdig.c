@@ -54,6 +54,7 @@
 #include "keeperfx.hpp"
 #include "player_instances.h"
 #include "post_inc.h"
+#include "creature_states_lair.h"
 
 const unsigned char reinforce_edges[] = { 3, 0, 0, 3, 0, 1, 2, 2, 1, };
 
@@ -83,6 +84,7 @@ TbBool creature_is_doing_digger_activity(const struct Thing* thing)
         case CrSt_ImpToking:
         case CrSt_ImpPicksUpGoldPile:
         case CrSt_MoveBackwardsToPosition:
+        case CrSt_CreatureDropBodyInLair: // neu
         case CrSt_CreatureDropBodyInPrison:
         case CrSt_ImpArrivesAtConvertDungeon:
         case CrSt_ImpConvertsDungeon:
@@ -132,11 +134,11 @@ struct Thing *check_for_empty_trap_for_imp(struct Thing *spdigtng, long tngmodel
 
 long check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, long range)
 {
-    if (!player_has_room_of_role(spdigtng->owner, RoRoF_Prison)) {
+    if (!player_has_room_of_role(spdigtng->owner, RoRoF_LairStorage)) {
         return 0;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
-    struct Room* room = find_nearest_room_of_role_for_thing_with_spare_capacity(spdigtng, spdigtng->owner, RoRoF_Prison, NavRtF_Default, 1);
+//    struct Room* room = find_nearest_room_of_role_for_thing_with_spare_capacity(spdigtng, spdigtng->owner, RoRoF_Prison, NavRtF_Default, 1);
     // We either found a room or not - but we can't generate event based on it yet, because we don't even know if there's any thing to pick
     const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
     unsigned long k = 0;
@@ -148,7 +150,11 @@ long check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, long range)
           break;
         i = thing->next_of_class;
         // Per-thing code
-        if (!thing_is_dragged_or_pulled(thing) && (thing->owner != spdigtng->owner)
+        struct CreatureControl* cctrlthing = creature_control_get_from_thing(thing);
+        struct Room * room = get_creature_lair_room(thing);
+        struct Thing* lairtng = thing_get(cctrlthing->lairtng_idx);
+        setup_person_move_to_coord(spdigtng, &lairtng->mappos, NavRtF_Default);
+        if (!thing_is_dragged_or_pulled(thing) && (thing->owner == spdigtng->owner)
           && thing_revealed(thing, spdigtng->owner) && creature_is_being_unconscious(thing))
         {
             if ((range < 0) || get_chessboard_distance(&thing->mappos, &spdigtng->mappos) < range)
@@ -157,7 +163,7 @@ long check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, long range)
                 {
                     // We have a thing which we should pick - now check if the room we found is correct
                     if (room_is_invalid(room)) {
-                        update_cannot_find_room_of_role_wth_spare_capacity_event(spdigtng->owner, spdigtng, RoRoF_Prison);
+                     //   update_cannot_find_room_of_role_wth_spare_capacity_event(spdigtng->owner, spdigtng, RoRoF_Prison);
                         return 0;
                     }
                     if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default)) {
@@ -1509,18 +1515,20 @@ TbBool creature_is_dragging_or_being_dragged(const struct Thing *thing)
 
 short creature_pick_up_unconscious_body(struct Thing *thing)
 {
-    struct Coord3d pos;
     SYNCDBG(9,"Starting");
     TRACE_THING(thing);
     // Check if the player has means to do such kind of action
-     if (!player_has_room_of_role(thing->owner, RoRoF_Prison) || !player_creature_tends_to(thing->owner, CrTend_Imprison))
+     //if (!player_has_room_of_role(thing->owner, RoRoF_Prison) || !player_creature_tends_to(thing->owner, CrTend_Imprison))
+     if (!player_has_room_of_role(thing->owner, RoRoF_LairStorage) || !player_creature_tends_to(thing->owner, CrTend_Imprison))
      {
-         SYNCDBG(19,"Player %d has no %s or has imprison tendency off",(int)thing->owner,room_role_code_name(RoRoF_Prison));
+         SYNCDBG(19,"Player %d has no %s or has imprison tendency off",(int)thing->owner,room_role_code_name(RoRoF_LairStorage));
          set_start_state(thing);
          return 0;
      }
      struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
      struct Thing* picktng = thing_get(cctrl->pickup_creature_id);
+     struct CreatureControl* cctrlpicktng = creature_control_get_from_thing(picktng);
+     struct Thing* lairtng = thing_get(cctrlpicktng->lairtng_idx);
      TRACE_THING(picktng);
      if (thing_is_invalid(picktng) || (picktng->active_state != CrSt_CreatureUnconscious) || thing_is_dragged_or_pulled(picktng) || (get_chessboard_distance(&thing->mappos, &picktng->mappos) >= 512))
      {
@@ -1528,28 +1536,34 @@ short creature_pick_up_unconscious_body(struct Thing *thing)
          set_start_state(thing);
          return 0;
     }
-    struct Room* dstroom = find_nearest_room_of_role_for_thing_with_spare_capacity(thing, thing->owner, RoRoF_Prison, NavRtF_Default, 1);
+    struct Room* dstroom = get_creature_lair_room(picktng);
     if (room_is_invalid(dstroom))
     {
         // Check why the treasure room search failed and inform the player
-        update_cannot_find_room_of_role_wth_spare_capacity_event(thing->owner, thing, RoRoF_Prison);
+    //    update_cannot_find_room_of_role_wth_spare_capacity_event(thing->owner, thing, RoRoF_Prison);
         set_start_state(thing);
         return 0;
     }
-    if (!find_random_valid_position_for_thing_in_room(thing, dstroom, &pos))
+    //if (!find_random_valid_position_for_thing_in_room(thing, dstroom, &pos))
+    if (!find_lair_totem_at(lairtng->mappos.x.stl.pos,lairtng->mappos.y.stl.pos))
     {
         WARNLOG("Player %d can't pick %s - no position within %s to store it",(int)thing->owner,thing_model_name(picktng),room_role_code_name(RoRoF_Prison));
         set_start_state(thing);
         return 0;
     }
-    if (!setup_person_move_backwards_to_coord(thing, &pos, NavRtF_Default))
+    if (!creature_can_do_healing_sleep(picktng))
     {
-        SYNCDBG(8,"Cannot drag %s to (%d,%d)",thing_model_name(picktng),(int)pos.x.stl.num,(int)pos.y.stl.num);
+        set_start_state(thing);
+        return 0;
+    }
+    if (!setup_person_move_backwards_to_coord(thing, &lairtng->mappos, NavRtF_Default))
+    {
+        SYNCDBG(8,"Cannot drag %s to (%d,%d)",thing_model_name(picktng),(int)&lairtng->mappos.x.stl.num,(int)&lairtng->mappos.y.stl.num);
         set_start_state(thing);
         return 0;
     }
     set_creature_being_dragged_by(picktng, thing);
-    thing->continue_state = CrSt_CreatureDropBodyInPrison;
+    thing->continue_state = CrSt_CreatureDropBodyInLair;
     return 1;
 }
 

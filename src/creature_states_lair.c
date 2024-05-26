@@ -134,6 +134,32 @@ long creature_will_sleep(struct Thing *thing)
     return (abs(dist_x) < 1) && (abs(dist_y) < 1);
 }
 
+short creature_drop_unconscious_in_lair(struct Thing *thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
+    if (!thing_exists(dragtng) || !creature_is_being_unconscious(dragtng)) {
+        set_start_state(thing);
+        return 0;
+    }
+    if (!subtile_is_room(thing->mappos.x.stl.num, thing->mappos.y.stl.num)) {
+        set_start_state(thing);
+        return 0;
+    }
+    struct Room* room = get_room_thing_is_on(thing);
+    if ((room_is_invalid(room) || room->owner != thing->owner) || !get_creature_lair_room(dragtng) ) {
+        set_start_state(thing);
+        return 0;
+    }
+    make_creature_conscious(dragtng);
+    initialise_thing_state(dragtng, CrSt_AtLairToSleep);
+    struct CreatureControl* dragctrl = creature_control_get_from_thing(dragtng);
+    dragctrl->flgfield_1 |= CCFlg_NoCompControl;
+    set_start_state(thing);
+    return 1;
+
+}
+
 long process_lair_enemy(struct Thing *thing, struct Room *room)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -249,7 +275,7 @@ CrStateRet creature_at_changed_lair(struct Thing *creatng)
 CrStateRet creature_at_new_lair(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    struct Room* room = get_room_thing_is_on(creatng);
+as    struct Room* room = get_room_thing_is_on(creatng);
     if ( !room_still_valid_as_type_for_thing(room, get_room_role_for_job(Job_TAKE_SLEEP), creatng) )
     {
         WARNLOG("Room %s owned by player %d is bad work place for %s index %d owner %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);

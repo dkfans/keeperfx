@@ -1777,20 +1777,20 @@ void setup_imp_stack(struct Dungeon *dungeon)
 
 int add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
 {
-    struct Thing *thing;
+    struct Thing *thing = NULL;
     struct Room *room;
     int remain_num;
     unsigned long k;
     int i;
-    if (!dungeon_has_room_of_role(dungeon, RoRoF_Prison)) {
+    /*if (!dungeon_has_room_of_role(dungeon, RoRoF_Prison)) {
         SYNCDBG(8,"Dungeon %d has no %s",(int)dungeon->owner,room_role_code_name(RoRoF_Prison));
         return 0;
-    }
+    }*/
     if (!player_creature_tends_to(dungeon->owner, CrTend_Imprison)) {
         SYNCDBG(8,"Player %d creatures do not tend to imprison",(int)dungeon->owner);
         return 0;
     }
-    room = find_room_of_role_with_spare_capacity(dungeon->owner, RoRoF_Prison, 1);
+    //room = find_room_of_role_with_spare_capacity(dungeon->owner, RoRoF_Prison, 1);
     const struct StructureList *slist;
     slist = get_list_for_thing_class(TCls_Creature);
     k = 0;
@@ -1809,14 +1809,15 @@ int add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, int m
         if ( (dungeon->digger_stack_length >= DIGGER_TASK_MAX_COUNT) || (remain_num <= 0) ) {
             break;
         }
-        if (players_are_enemies(dungeon->owner,thing->owner) && creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing))
+        if ((dungeon->owner == thing->owner) && creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing))
         {
             if (thing_revealed(thing, dungeon->owner))
             {
+                room = get_creature_lair_room(thing);
                 if (room_is_invalid(room))
                 {
                     // Check why the room search failed and inform the player
-                    update_cannot_find_room_of_role_wth_spare_capacity_event(dungeon->owner, thing, RoRoF_Prison);
+                //      update_cannot_find_room_of_role_wth_spare_capacity_event(dungeon->owner, thing, RoRoF_LairStorage);
                     break;
                 }
                 SubtlCodedCoords stl_num;
@@ -2471,7 +2472,8 @@ struct Thing *check_place_to_pickup_unconscious_body(struct Thing *spdigtng, Map
     if (thing_is_invalid(thing))
         return INVALID_THING;
     while (!thing_is_creature(thing)
-         || thing->owner == spdigtng->owner
+         //|| thing->owner != spdigtng->owner
+         || thing->owner != spdigtng->owner
          || thing->active_state != CrSt_CreatureUnconscious
          || thing_is_dragged_or_pulled(thing))
     {
@@ -2882,14 +2884,19 @@ long check_out_worker_pickup_unconscious(struct Thing *thing, struct DiggerStack
     SYNCDBG(18,"Starting");
     stl_x = stl_num_decode_x(dstack->stl_num);
     stl_y = stl_num_decode_y(dstack->stl_num);
-    if (!player_has_room_of_role(thing->owner, RoRoF_Prison)) {
+    struct Thing *sectng;
+    sectng = check_place_to_pickup_unconscious_body(thing, stl_x, stl_y);
+    struct Room * room;
+    room = get_creature_lair_room(sectng);
+//    if (!player_has_room_of_role(thing->owner, RoRoF_Prison)) {
+    if (!get_creature_lair_room(sectng)) {
         return 0;
     }
     if (!player_creature_tends_to(thing->owner, CrTend_Imprison)) {
         return 0;
     }
-    struct Thing *sectng;
-    sectng = check_place_to_pickup_unconscious_body(thing, stl_x, stl_y);
+    //struct Thing *sectng;
+    //sectng = check_place_to_pickup_unconscious_body(thing, stl_x, stl_y);
     if (thing_is_invalid(sectng))
     {
         dstack->task_type = DigTsk_None;
@@ -2899,11 +2906,15 @@ long check_out_worker_pickup_unconscious(struct Thing *thing, struct DiggerStack
     {
         return 0;
     }
-    struct Room * room;
-    room = find_nearest_room_of_role_for_thing_with_spare_capacity(thing, thing->owner, RoRoF_Prison, NavRtF_Default, 1);
+    //struct Room * room;
+    //room = find_nearest_room_of_role_for_thing_with_spare_capacity(thing, thing->owner, RoRoF_Prison, NavRtF_Default, 1);
+    struct CreatureControl *cctrl_sectng = creature_control_get_from_thing(sectng);
+    struct Thing* lairtng = thing_get(cctrl_sectng->lairtng_idx);
+    setup_person_move_to_coord(thing, &lairtng->mappos, NavRtF_Default);
+    //creature_can_navigate_to
     if (room_is_invalid(room))
     {
-        update_cannot_find_room_of_role_wth_spare_capacity_event(thing->owner, thing, RoRoF_Prison);
+        //update_cannot_find_room_of_role_wth_spare_capacity_event(thing->owner, thing, RoRoF_Prison);
         dstack->task_type = DigTsk_None;
         return -1;
     }
