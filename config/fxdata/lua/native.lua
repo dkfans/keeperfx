@@ -404,11 +404,6 @@ function ADD_PARTY_TO_LEVEL(playerrange,party_name,location,ncopies) end
 --Displaying information and affecting interface--
 --------------------------------------------------
 
-function QUICK_OBJECTIVE(a,objective,where) end
-function QUICK_INFORMATION() end
-function QUICK_OBJECTIVE_WITH_POS() end
-function QUICK_INFORMATION_WITH_POS() end
-
 ---Displays one of the text messages stored in gtext_***.dat in an Objective Box.
 ---This file comes in various language version, so messages from it are always in the language configured in the settings.
 ---@param msg_id integer
@@ -416,25 +411,20 @@ function QUICK_INFORMATION_WITH_POS() end
 function DISPLAY_OBJECTIVE(msg_id,zoom_location) end
 
 ---@param msg_id integer
----@param x integer
----@param y integer
-function DISPLAY_OBJECTIVE_WITH_POS(msg_id,x,y) end
-
----@param msg_id integer
 ---@param zoom_location? location
 function DISPLAY_INFORMATION(msg_id,zoom_location) end
 
----@param msg_id integer
----@param x integer
----@param y integer
-function DISPLAY_INFORMATION_WITH_POS(msg_id,x,y) end
+function QUICK_OBJECTIVE(a,objective,where) end
+function QUICK_INFORMATION(a,objective,where) end
+function DISPLAY_MESSAGE() end
+function QUICK_MESSAGE() end
+
 
 
 function MESSAGE() end
 function PLAY_MESSAGE() end
 function DISPLAY_VARIABLE() end
 function DISPLAY_COUNTDOWN() end
-function DISPLAY_MESSAGE() end
 
 ---Flashes a button on the toolar until the player selects it.
 ---@param button integer Id of the button.
@@ -445,7 +435,6 @@ function TUTORIAL_FLASH_BUTTON(button,gameturns) end
 function HIDE_VARIABLE() end
 function HEART_LOST_QUICK_OBJECTIVE() end
 function HEART_LOST_OBJECTIVE() end
-function QUICK_MESSAGE() end
 
 
 --------------------
@@ -629,18 +618,17 @@ function SET_BOX_TOOLTIP_ID() end
 --effect-
 ---------
 
-function CREATE_EFFECT() end
-function CREATE_EFFECT_AT_POS() end
-function CREATE_EFFECTS_LINE() end
+function CREATE_EFFECT(effect,location,height) end
+
+function CREATE_EFFECTS_LINE(origin,destination,curvature,distance, speed, effect) end
 
 ---------
 --other-
 ---------
 
-function USE_POWER() end
-function USE_POWER_AT_LOCATION() end
-function USE_POWER_AT_POS() end
-function USE_POWER_ON_CREATURE() end
+function USE_POWER([caster_player],[power_name],[free]) end
+function USE_POWER_AT_LOCATION([caster_player],[location],[power_name],[power_level],[free]) end
+function USE_POWER_ON_CREATURE([player],[creature],[caster_player],[power_name],[power_level],[free]) end
 
 function USE_SPELL_ON_CREATURE() end
 function USE_SPELL_ON_PLAYERS_CREATURES() end
@@ -649,8 +637,12 @@ function USE_POWER_ON_PLAYERS_CREATURES() end
 
 
 function LOCATE_HIDDEN_WORLD() end
-function MAKE_SAFE() end
-function MAKE_UNSAFE() end
+function MAKE_SAFE(player) end
+function MAKE_UNSAFE(player) end
+
+function SET_HAND_GRAPHIC(player,hand) end
+
+
 
 ---Chooses what music track to play
 ---@param track_number integer  The music track to be played. Numbers 2~7 select from original tracks, or a file name(between parenthesis) to set custom music.
