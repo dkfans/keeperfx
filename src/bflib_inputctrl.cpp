@@ -56,7 +56,6 @@ std::map<int, TbKeyCode> keymap_sdl_to_bf;
 
 /******************************************************************************/
 
-// Define the struct to hold the character data
 typedef struct {
     const char *character;
     const char *utf8;
@@ -64,7 +63,6 @@ typedef struct {
     SDL_Scancode scancode;
 } MissingAzertyKeyMapping;
 
-// Initialize the array with the data
 MissingAzertyKeyMapping azertyMappings[] = {
     {"²", "\xC2\xB2", SDLK_BACKQUOTE, SDL_SCANCODE_GRAVE}, // Tilde / Grave
     {"&", "\x26", SDLK_1, SDL_SCANCODE_1},                 // 1
