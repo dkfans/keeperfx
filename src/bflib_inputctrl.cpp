@@ -315,6 +315,7 @@ static void process_event(const SDL_Event *ev)
             // Loop through the azerty mappings and check if this input character matches a known key
             for (size_t i = 0; i < (sizeof(azertyMappings) / sizeof(azertyMappings[0])); ++i) {
                 if (strncmp(ev->text.text, azertyMappings[i].utf8, strlen(azertyMappings[i].utf8)) == 0) {
+                    // Simulate a key press of a non azerty keyboard
                     x = keyboard_keycode_mapping(azertyMappings[i].keycode);
                     keyboardControl(KActn_KEYDOWN, x, KMod_NONE, azertyMappings[i].scancode);
                 }
