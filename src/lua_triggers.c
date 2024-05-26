@@ -58,12 +58,24 @@ void lua_on_power_cast(PlayerNumber plyr_idx, PowerKind pwkind,
 	if (lua_isfunction(Lvl_script, -1))
 	{
 		lua_pushstring(Lvl_script,get_conf_parameter_text(power_desc,pwkind));
-		lua_pushinteger(Lvl_script, plyr_idx);
+		lua_pushPlayer(Lvl_script, plyr_idx);
 		lua_pushThing(Lvl_script, thing); 
 		lua_pushinteger(Lvl_script, stl_x);
 		lua_pushinteger(Lvl_script, stl_y);
 		lua_pushinteger(Lvl_script, splevel);
 
 		CheckLua(Lvl_script, lua_pcall(Lvl_script, 6, 0, 0),"OnPowerCast");
+	}
+}
+
+void lua_on_special_box_activate(PlayerNumber plyr_idx, struct Thing *cratetng)
+{
+    lua_getglobal(Lvl_script, "OnSpecialActivated");
+	if (lua_isfunction(Lvl_script, -1))
+	{
+		lua_pushPlayer(Lvl_script, plyr_idx);
+		lua_pushThing(Lvl_script, cratetng);
+
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 2, 0, 0),"OnSpecialActivated");
 	}
 }

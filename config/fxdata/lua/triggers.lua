@@ -22,8 +22,9 @@
 local triggers = {}
 
 local triggerCounter = 0
-local currentTriggeringUnit = nil
-local currentTriggeringSpellKind = nil
+local currentTriggeringThing = nil
+local currentTriggeringPowerKind = nil
+local currentTriggeringPlayer = nil
 
 --- Creates a new trigger and returns it
 --- @return Trigger trigger
@@ -103,14 +104,22 @@ end
 --- Gets the unit associated with the current triggering event
 --- @return Creature|nil
 function GetTriggeringUnit()
-    return currentTriggeringUnit
+    return currentTriggeringThing
 end
 
 --- Gets the spell type associated with the current triggering event
 --- @return power_kind|nil
 function GetTriggeringSpellKind()
-    return currentTriggeringSpellKind
+    return currentTriggeringPowerKind
 end
+
+--- Gets the Player associated with the current triggering event
+--- @return Player|nil
+function GetTriggeringPlayer()
+    return currentTriggeringPlayer
+end
+
+-------------
 
 --- Finds a trigger by its index
 --- @param index integer
@@ -146,27 +155,20 @@ local function ProcessTrigger(trigger)
     end
 end
 
---- Processes a unit event
---- @param unit Creature The unit involved in the event
---- @param spell power_kind|nil The type of spell being cast (can be nil)
+--- Processes a thing event
+--- @param thing Thing The unit involved in the event
 --- @param eventType string The type of event ("powerCast" or "dies")
-local function ProcessUnitEvent(unit, spell, eventType)
-    currentTriggeringUnit = unit
-    currentTriggeringSpellKind = spell
-
+local function ProcessThingEvent(thing,eventType)
     for _, trigger in ipairs(triggers) do
         if trigger.event and trigger.event.type == "unit" and
            trigger.event.params.unitEvent == eventType and
-           (unit == nil or unit == trigger.event.params.creature) then
+           (trigger.event.params.thing == nil or thing == trigger.event.params.thing) then
             ProcessTrigger(trigger)
         end
     end
-
-    currentTriggeringUnit = nil
-    currentTriggeringSpellKind = nil
 end
 
-
+----------------
 
 
 --- Called when a spell is cast on a unit
@@ -177,14 +179,21 @@ end
 --- @param stl_y integer
 --- @param splevel integer
 function OnPowerCast(pwkind, caster,target_thing,stl_x,stl_y,splevel)
-
-    ProcessUnitEvent(target_thing, pwkind, "powerCast")
+    currentTriggeringThing = target_thing
+    currentTriggeringPowerKind = pwkind
+    currentTriggeringPlayer = caster
+    ProcessThingEvent(target_thing, "powerCast")
+    currentTriggeringThing = nil
+    currentTriggeringPowerKind = nil
+    currentTriggeringPlayer = nil
 end
 
 --- Called when a unit dies
 --- @param unit Creature The unit that dies
 function OnUnitDeath(unit)
-    ProcessUnitEvent(unit, nil, "dies")
+    currentTriggeringThing = unit
+    ProcessThingEvent(unit, "dies")
+    currentTriggeringThing = nil
 end
 
 --- Called on each game tick to process timer events
@@ -206,4 +215,14 @@ function OnGameTick()
             end
         end
     end
+end
+
+
+---comment
+---@param player Player
+---@param crate_thing Thing
+function OnSpecialActivated(player,crate_thing)
+    currentTriggeringThing = crate_thing
+    ProcessThingEvent(crate_thing,"SpecialActivated")
+    currentTriggeringThing = nil
 end
