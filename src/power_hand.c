@@ -627,12 +627,24 @@ void draw_power_hand(void)
                 inputpos_x = GetMouseX() + scale_ui_value(pickoffs->delta_x*global_hand_scale);
                 inputpos_y = GetMouseY() + scale_ui_value(pickoffs->delta_y*global_hand_scale);
                 struct CreatureStats* crstat = creature_stats_get(picktng->model);
-                if (crstat->transparancy_flags != 0)
+                if (crstat->transparancy_flags == TRF_Transpar_8)
+                {
+                    lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
+                    lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;  
+                }
+                else if (crstat->transparancy_flags == TRF_Transpar_4)
+                {
+                    lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+                    lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
+                }
+                else if(crstat->transparancy_flags == TRF_Transpar_Alpha)
                 {
                     EngineSpriteDrawUsingAlpha = 1;
                 }
+
                 process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
                     picktng->anim_sprite, 0, picktng->current_frame, scale_ui_value(64*global_hand_scale));
+                lbDisplay.DrawFlags = 0;
                 EngineSpriteDrawUsingAlpha = 0;
             } else
             {
