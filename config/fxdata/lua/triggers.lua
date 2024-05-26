@@ -1,7 +1,7 @@
 ---@class Trigger
 ---@field conditions TriggerCondition[]|nil
 ---@field actions TriggerAction[]|nil
----@field event TriggerEvent|nil
+---@field events TriggerEvent[]|nil
 ---@field index integer
 
 ---@class TriggerCondition
@@ -30,7 +30,7 @@ local currentTriggeringPlayer = nil
 --- @return Trigger trigger
 function CreateTrigger()
     triggerCounter = triggerCounter + 1
-    local trigger = { index = triggerCounter }
+    local trigger = { index = triggerCounter, events = {} }
     table.insert(triggers, trigger)
     return trigger
 end
@@ -71,7 +71,7 @@ function TriggerRegisterTimerEvent(trigger, time, periodic)
         enabled = true,
         lastTriggerTime = PLAYER0.GAME_TURN  -- Initialize to the current game time
     }
-    trigger.event = event
+    table.insert(trigger.events, event)
     return event
 end
 
@@ -84,7 +84,7 @@ end
 --- @return TriggerEvent event
 function TriggerRegisterVariableEvent(trigger, player, varName, opcode, limitval)
     local event = { type = "variable", params = { player = player, varName = varName, opcode = opcode, limitval = limitval }, enabled = true }
-    trigger.event = event
+    table.insert(trigger.events, event)
     return event
 end
 
@@ -95,7 +95,7 @@ end
 --- @return TriggerEvent event
 function TriggerRegisterUnitEvent(trigger, creature, unitEvent)
     local event = { type = "unit", params = { creature = creature, unitEvent = unitEvent }, enabled = true }
-    trigger.event = event
+    table.insert(trigger.events, event)
     return event
 end
 
@@ -119,7 +119,7 @@ function GetTriggeringPlayer()
     return currentTriggeringPlayer
 end
 
--------------
+-------
 
 --- Finds a trigger by its index
 --- @param index integer
@@ -158,18 +158,19 @@ end
 --- Processes a thing event
 --- @param thing Thing The unit involved in the event
 --- @param eventType string The type of event ("powerCast" or "dies")
-local function ProcessThingEvent(thing,eventType)
+local function ProcessThingEvent(thing, eventType)
+
     for _, trigger in ipairs(triggers) do
-        if trigger.event and trigger.event.type == "unit" and
-           trigger.event.params.unitEvent == eventType and
-           (trigger.event.params.thing == nil or thing == trigger.event.params.thing) then
-            ProcessTrigger(trigger)
+        for _, event in ipairs(trigger.events) do
+            if event.type == "unit" and
+               event.params.unitEvent == eventType and
+               ( event.params.creature == nil or  event.params.creature == thing) then
+                ProcessTrigger(trigger)
+                break
+            end
         end
     end
 end
-
-----------------
-
 
 --- Called when a spell is cast on a unit
 --- @param pwkind power_kind
@@ -198,19 +199,20 @@ end
 
 --- Called on each game tick to process timer events
 function OnGameTick()
-
     for _, trigger in ipairs(triggers) do
-        if trigger.event and trigger.event.type == "timer" and trigger.event.enabled then
-            local time = trigger.event.params.time
-            local periodic = trigger.event.params.periodic
-            local lastTriggerTime = trigger.event.lastTriggerTime
+        for _, event in ipairs(trigger.events) do
+            if event.type == "timer" and event.enabled then
+                local time = event.params.time
+                local periodic = event.params.periodic
+                local lastTriggerTime = event.lastTriggerTime
 
-            if lastTriggerTime == nil or (periodic and PLAYER0.GAME_TURN - lastTriggerTime >= time) or (not periodic and PLAYER0.GAME_TURN >= time) then
-                ProcessTrigger(trigger)
-
-                trigger.event.lastTriggerTime = PLAYER0.GAME_TURN
-                if not periodic then
-                    trigger.event.enabled = false
+                if (periodic and PLAYER0.GAME_TURN - lastTriggerTime >= time) or
+                   (not periodic and PLAYER0.GAME_TURN == lastTriggerTime + time) then
+                    ProcessTrigger(trigger)
+                    event.lastTriggerTime = PLAYER0.GAME_TURN
+                    if not periodic then
+                        event.enabled = false
+                    end
                 end
             end
         end
