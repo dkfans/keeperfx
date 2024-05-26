@@ -78,13 +78,6 @@ AzertyKeyMapping azertyMappings[] = {
     {"à", "\xC3\xA0", SDLK_0, SDL_SCANCODE_0}              // 0
 };
 
-/*
-KMod_NONE
-KMod_SHIFT
-KMod_CONTROL
-KMod_ALT
-*/
-
 typedef struct {
     const char *character;
     const char *utf8;
