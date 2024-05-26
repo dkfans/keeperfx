@@ -359,8 +359,6 @@ static void process_event(const SDL_Event *ev)
     {
     case SDL_TEXTINPUT:
         if(azerty_keyboard_workaround_enabled == true){
-            JUSTLOG("key: %s", ev->text.text);
-
             struct PlayerInfo* player = get_my_player();
             // Check if chat is active
             if ((player->allocflags & PlaF_NewMPMessage) != 0){
