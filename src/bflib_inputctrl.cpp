@@ -372,7 +372,7 @@ static void process_event(const SDL_Event *ev)
                         x = keyboard_keycode_mapping(azertyChatMappings[i].keycode);
                         keyboardControl(KActn_KEYDOWN, x, azertyChatMappings[i].keymod, azertyChatMappings[i].scancode);
                         // We can simulate the KEYPRESS_UP here as well
-                        // This fixes an issue where we simultaniously trigger a keybind
+                        // This fixes an issue where we trigger a keybind after sending our chat message
                         keyboardControl(KActn_KEYUP, x, azertyChatMappings[i].keymod, azertyChatMappings[i].scancode);
                     }
                 }
