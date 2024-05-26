@@ -38,7 +38,8 @@
 ---@alias power_kind "POWER_HAND"|"POWER_IMP"|"POWER_OBEY"|"POWER_SLAP"|"POWER_SIGHT"|"POWER_CALL_TO_ARMS"|"POWER_CAVE_IN"|"POWER_HEAL_CREATURE"|"POWER_HOLD_AUDIENCE"|"POWER_LIGHTNING"|"POWER_SPEED"|"POWER_PROTECT"|"POWER_CONCEAL"|"POWER_DISEASE"|"POWER_CHICKEN"|"POWER_DESTROY_WALLS"|"POWER_TIME_BOMB"|"POWER_POSSESS"|"POWER_ARMAGEDDON"|"POWER_PICKUP_CREATURE"|"POWER_PICKUP_GOLD"|"POWER_PICKUP_FOOD"
 ---@alias trap_type "BOULDER"|"ALARM"|"POISON_GAS"|"LIGHTNING"|"WORD_OF_POWER"|"LAVA"
 ---@alias door_type "WOOD"|"BRACED"|"STEEL"|"MAGIC"|"SECRET"
----@alias object_type string
+---@alias object_type string just look in objects.cfg for all names
+---@alias effect_generator_type string
 
 
 ---@class creaturefields
@@ -404,6 +405,9 @@ function ADD_PARTY_TO_LEVEL(playerrange,party_name,location,ncopies) end
 --Displaying information and affecting interface--
 --------------------------------------------------
 
+function QUICK_OBJECTIVE(a,objective,where) end
+function QUICK_INFORMATION() end
+
 ---Displays one of the text messages stored in gtext_***.dat in an Objective Box.
 ---This file comes in various language version, so messages from it are always in the language configured in the settings.
 ---@param msg_id integer
@@ -414,17 +418,15 @@ function DISPLAY_OBJECTIVE(msg_id,zoom_location) end
 ---@param zoom_location? location
 function DISPLAY_INFORMATION(msg_id,zoom_location) end
 
-function QUICK_OBJECTIVE(a,objective,where) end
-function QUICK_INFORMATION(a,objective,where) end
-function DISPLAY_MESSAGE() end
-function QUICK_MESSAGE() end
+---Plays a sound message or sound effect.
+---@param player Player The name of the player who gets to hear the sound.
+---@param type "SPEECH"|"SOUND" If it is a sound effect or a speech. Accepts values SPEECH and SOUND. Speeches queue, sounds play at the same time.
+---@param sound integer The sound file to be played. Use numbers(ID's) to play sounds from the original .dat files, or a file name(between parenthesis) to play custom sounds.
+function PLAY_MESSAGE(player,type,sound) end
 
-
-
-function MESSAGE() end
-function PLAY_MESSAGE() end
 function DISPLAY_VARIABLE() end
 function DISPLAY_COUNTDOWN() end
+function DISPLAY_MESSAGE() end
 
 ---Flashes a button on the toolar until the player selects it.
 ---@param button integer Id of the button.
@@ -435,28 +437,115 @@ function TUTORIAL_FLASH_BUTTON(button,gameturns) end
 function HIDE_VARIABLE() end
 function HEART_LOST_QUICK_OBJECTIVE() end
 function HEART_LOST_OBJECTIVE() end
+function QUICK_MESSAGE() end
 
 
 --------------------
 --Manipulating Map-
 --------------------
 
-function REVEAL_MAP_RECT() end
-function CONCEAL_MAP_RECT() end
-function REVEAL_MAP_LOCATION() end
-function CHANGE_SLAB_OWNER() end
-function CHANGE_SLAB_TYPE() end
-function SET_DOOR() end
+---Reveals square area of subtiles around given location, or the entire open space around it.
+---@param player Player
+---@param location location
+---@param range integer
+function REVEAL_MAP_LOCATION(player,location,range) end
+
+function REVEAL_MAP_RECT(player,location,range) end
+
+function CONCEAL_MAP_RECT(Player, x, y, Width, Height, hide revealed*) end
+
+
+---Changes the owner of a slab on the map to specified player. If it's part of a room, the entire room changes owner. Will change PATH to PRETTY_PATH.
+---@param slab_x integer The x and y coordinates of the slab. Range 0-85 on a normal sized map.
+---@param slab_y integer The x and y coordinates of the slab. Range 0-85 on a normal sized map.
+---@param player Player The player’s name, e.g. PLAYER1, of the new owner of the slab/room
+---@param fill? "NONE"|"MATCH"|"FLOOR"|"BRIDGE"
+function CHANGE_SLAB_OWNER(slab_x,slab_y,player,fill) end
+
+---Changes a slab on the map to the specified new one. It will not change an entire room, just a single slab.
+---@param slab_x integer The x coordinate of the slab. Range 0-85 on a normal sized map.
+---@param slab_y integer The y coordinate of the slab. Range 0-85 on a normal sized map.
+---@param slab_type any
+---@param fill? "NONE"|"MATCH"|"FLOOR"|"BRIDGE"
+function CHANGE_SLAB_TYPE(slab_x,slab_y,slab_type,fill) end
+
+---Changes the texture (style) of a slab on the map to the specified one.
+---@param slab_x integer The x coordinate of the slab. Range 0-85 on a normal sized map.
+---@param slab_y integer The y coordinate of the slab. Range 0-85 on a normal sized map.
+---@param texture texture_pack
+---@param fill? "NONE"|"MATCH"|"FLOOR"|"BRIDGE"
+function CHANGE_SLAB_TEXTURE(slab_x,slab_y,texture,fill) end
+
+---Allows you to lock or unlock a door on a particular slab
+---@param lock_state "LOCKED"|"UNLOCKED"
+---@param slab_x integer The x coordinate of the door. Range 0-85 on a normal sized map.
+---@param slab_y integer The y coordinate of the door. Range 0-85 on a normal sized map.
+function SET_DOOR(lock_state,slab_x,slab_y) end
 
 ------------------------
 --Manipulating Configs--
 ------------------------
 
-function SET_DOOR_CONFIGURATION() end
-function SET_TRAP_CONFIGURATION() end
-function SET_OBJECT_CONFIGURATION() end
-function SET_CREATURE_CONFIGURATION() end
-function SET_GAME_RULE() end
+---Allows you to make changes to door values set in rules.cfg
+---@param rulename string
+---@param val1 integer
+function SET_GAME_RULE(rulename,val1) end
+
+---Allows you to make changes to door values set in trapdoor.cfg. Look in that file for explanations on the numbers.
+---@param doorname door_type The name of the door as defined in trapdoor.cfg
+---@param property string The name of the door property you want to change, as found in trapdoor.cfg. E.g. ManufactureRequired.
+---@param value integer The new value you want to set it to. If you want to set the 'Crate' property, you can use both the number or the name from objects.cfg. 
+                    ---If you want to set the value of the property named 'Properties', use a number you get by adding up these values:
+---@param value2? integer The SymbolSprites property has 2 values to set. For other properties, do not add this parameter.
+function SET_DOOR_CONFIGURATION(doorname,property,value,value2) end
+
+---comment
+---@param trapname trap_type
+---@param property string The name of the trap property you want to change, as found in trapdoor.cfg. E.g. ManufactureLevel.
+---@param value integer
+---@param value2? integer
+---@param value3? integer
+function SET_TRAP_CONFIGURATION(trapname,property,value,value2,value3) end
+
+---comment
+---@param objectname object_type
+---@param property string
+---@param value integer
+function SET_OBJECT_CONFIGURATION(objectname,property,value) end
+
+---llows you to make changes to attribute values set in the unit configuration files. E.g. Imp.cfg.
+---@param creature_type creature_type
+---@param property string
+---@param value integer
+---@param value2? integer
+function SET_CREATURE_CONFIGURATION(creature_type,property,value,value2) end
+
+---comment
+---@param effectgeneratorname effect_generator_type
+---@param property any
+---@param value any
+---@param value2 any
+---@param value3 any
+function SET_EFFECT_GENERATOR_CONFIGURATION(effectgeneratorname,property,value,value2,value3) end
+
+---comment
+---@param power_kind power_kind
+---@param property any
+---@param value any
+---@param value2 any
+function SET_POWER_CONFIGURATION(power_kind,property,value,value2) end
+
+---comment
+---@param room_type room_type
+---@param property any
+---@param value any
+---@param value2 any
+---@param value3 any
+function SET_ROOM_CONFIGURATION(room_type,property,value,value2,value3) end
+
+function SET_SACRIFICE_RECIPE() end
+function REMOVE_SACRIFICE_RECIPE() end
+
 
 -------------------------------
 --Manipulating Creature stats-
@@ -626,9 +715,9 @@ function CREATE_EFFECTS_LINE(origin,destination,curvature,distance, speed, effec
 --other-
 ---------
 
-function USE_POWER([caster_player],[power_name],[free]) end
-function USE_POWER_AT_LOCATION([caster_player],[location],[power_name],[power_level],[free]) end
-function USE_POWER_ON_CREATURE([player],[creature],[caster_player],[power_name],[power_level],[free]) end
+function USE_POWER(caster_player,power_name,free) end
+function USE_POWER_AT_LOCATION(caster_player,location,power_name,power_level,free) end
+function USE_POWER_ON_CREATURE(player,creature,caster_player,power_name,power_level,free) end
 
 function USE_SPELL_ON_CREATURE() end
 function USE_SPELL_ON_PLAYERS_CREATURES() end
@@ -641,8 +730,6 @@ function MAKE_SAFE(player) end
 function MAKE_UNSAFE(player) end
 
 function SET_HAND_GRAPHIC(player,hand) end
-
-
 
 ---Chooses what music track to play
 ---@param track_number integer  The music track to be played. Numbers 2~7 select from original tracks, or a file name(between parenthesis) to set custom music.
@@ -670,8 +757,7 @@ function ADD_OBJECT_TO_LEVEL(object,location,property,player) local ob return ob
 function SET_CREATURE_TENDENCIES() end
 
 
-function SET_SACRIFICE_RECIPE() end
-function REMOVE_SACRIFICE_RECIPE() end
+
 
 function CREATURE_ENTRANCE_LEVEL() end
 
