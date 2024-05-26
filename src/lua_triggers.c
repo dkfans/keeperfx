@@ -18,7 +18,8 @@
 
 #include "post_inc.h"
 
-static struct luaThing *lua_pushThing(lua_State *L, struct Thing* thing);
+void lua_pushThing(lua_State *L, struct Thing* thing);
+void lua_pushPlayer(lua_State *L, PlayerNumber plr_idx);
 
 void lua_chatmsg(PlayerNumber plyr_idx, char *msg)
 {

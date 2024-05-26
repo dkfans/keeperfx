@@ -975,7 +975,9 @@ static const luaL_Reg global_methods[] = {
    {"CONCEAL_MAP_RECT"                     ,lua_CONCEAL_MAP_RECT                },
    {"SET_TEXTURE"                          ,lua_SET_TEXTURE                     },
    {"SET_DOOR"                             ,lua_SET_DOOR                        },
+   */
    {"ADD_OBJECT_TO_LEVEL"                  ,lua_ADD_OBJECT_TO_LEVEL             },
+   /*
    {"ADD_EFFECT_GENERATOR_TO_LEVEL"        ,lua_ADD_EFFECT_GENERATOR_TO_LEVEL   },
 
 //Manipulating Configs
@@ -1101,11 +1103,10 @@ static int make_thing_zombie (lua_State *L)
 
 static int move_thing_to(lua_State *L)
 {
-    int tng_idx = lua_tointeger(L, 1);
+    struct Thing *thing = luaL_checkThing(L, 1);
     int stl_x = lua_tointeger(L, 2);
     int stl_y = lua_tointeger(L, 3);
 
-    struct Thing *thing = thing_get(tng_idx);
     if (!setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default))
         WARNLOG("Move %s order failed", thing_model_name(thing));
     thing->continue_state = CrSt_ManualControl;

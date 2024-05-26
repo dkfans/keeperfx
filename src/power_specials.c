@@ -42,6 +42,7 @@
 #include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
+#include "lua_triggers.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
