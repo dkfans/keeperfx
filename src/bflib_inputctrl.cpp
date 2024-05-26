@@ -121,7 +121,7 @@ AzertyChatMapping azertyChatMappings[] = {
     // Other characters that are not working
     // {",", "\x2C", SDLK_COMMA, SDL_SCANCODE_COMMA, KMod_NONE},
     // {"%", "\x25", SDLK_5, SDL_SCANCODE_5, KMod_SHIFT},
-    // {"#", "\x25", SDLK_3, SDL_SCANCODE_3, KMod_SHIFT},
+    // {"#", "\x23", SDLK_3, SDL_SCANCODE_3, KMod_SHIFT},
 };
 
 /******************************************************************************/
