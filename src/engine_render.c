@@ -7868,9 +7868,7 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
         int top_view_add_x;
         int top_view_add_y;
         int side_view_add_x_factor;
-        int side_view_add_x_divisor;
         int side_view_add_y_factor;
-        int side_view_add_y_divisor;
     } FlameProperties;
 
 
@@ -7881,10 +7879,8 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
     props.top_view_add_x = 0;
     props.top_view_add_y = 1375;
     props.side_view_add_x_factor = 1;
-    props.side_view_add_x_divisor = 1048576;
     props.side_view_add_y_factor = 1;
-    props.side_view_add_y_divisor = 1048576;
-    
+
     long add_x, add_y;
     if (player->view_type == PVT_DungeonTop)
     {
@@ -7893,8 +7889,8 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
     }
     else
     {
-        add_x = (scale * LbSinL(angle) * props.side_view_add_x_factor) / props.side_view_add_x_divisor;
-        add_y = (scale * LbCosL(angle) * props.side_view_add_y_factor) / props.side_view_add_y_divisor;
+        add_x = (scale * LbSinL(angle) * props.side_view_add_x_factor) >> 20;
+        add_y = (scale * LbCosL(angle) * props.side_view_add_y_factor) >> 20;
     }
 
     long transp2 = scale * props.transp_factor / 1000; // Assuming 1000 is a suitable scale
