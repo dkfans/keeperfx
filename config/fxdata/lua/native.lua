@@ -15,7 +15,6 @@
 ---@alias rule_action "DENY"|"ALLOW"|"ENABLE"|"DISABLE"
 ---@alias hero_objective "STEAL_GOLD"|"STEAL_SPELLS"|"ATTACK_ENEMIES"|"ATTACK_DUNGEON_HEART"|"SNIPE_DUNGEON_HEART"|"ATTACK_ROOMS"|"SABOTAGE_ROOMS"|"DEFEND_PARTY"|"DEFEND_LOCATION"|"DEFEND_HEART"|"DEFEND_ROOMS"
 ---@alias msgtype "SPEECH"|"SOUND"
----@alias tendency "IMPRISON"|"FLEE"
 ---@alias creature_select_criteria "MOST_EXPERIENCED"|"MOST_EXP_WANDERING"|"MOST_EXP_WORKING"|"MOST_EXP_FIGHTING"|"LEAST_EXPERIENCED"|"LEAST_EXP_WANDERING"|"LEAST_EXP_WORKING"|"LEAST_EXP_FIGHTING"|"NEAR_OWN_HEART"|"NEAR_ENEMY_HEART"|"ON_ENEMY_GROUND"|"ON_FRIENDLY_GROUND"|"ON_NEUTRAL_GROUND"|"ANYWHERE"
 ---@alias trap_config "NameTextID"|"TooltipTextID"|"SymbolSprites"|"PointerSprites"|"PanelTabIndex"|"Crate"|"ManufactureLevel"|"ManufactureRequired"|"Shots"|"TimeBetweenShots"|"SellingValue"|"Model"|"ModelSize"|"AnimationSpeed"|"TriggerType"|"ActivationType"|"EffectType"|"Hidden"|"TriggerAlarm"|"Slappable"|"Unanimated"|"Health"|"Unshaded"|"RandomStartFrame"|"ThingSize"|"HitType"|"LightRadius"|"LightIntensity"|"LightFlags"|"TransparencyFlags"|"ShotVector"|"Destructible"|"Unstable"|"Unsellable"
 ---@alias gui_button_group "MINIMAP"|"TABS"|"INFO"|"ROOM"|"POWER"|"TRAP"|"DOOR"|"CREATURE"|"MESSAGE"
@@ -40,6 +39,12 @@
 ---@alias door_type "WOOD"|"BRACED"|"STEEL"|"MAGIC"|"SECRET"
 ---@alias object_type string just look in objects.cfg for all names
 ---@alias effect_generator_type string
+---@alias effect_element_type string
+---@alias effect_type string
+---@alias spell_type string
+
+
+
 
 
 ---@class creaturefields
@@ -632,13 +637,22 @@ function RESEARCH_ORDER(player,research_type,room_or_spell,research_value) end
 ---@param amount integer
 function ADD_GOLD_TO_PLAYER(player,amount) end
 
----comment
+---Does a color swap for a player.
+---Note: The change is only visual, and swapping PLAYER0 to Blue without Swapping PLAYER1 to another color will have 2 indistinguishable players.
 ---@param player playersingle
 ---@param colour "RED"|"BLUE"|"GREEN"|"YELLOW"|"WHITE"|"PURPLE"|"BLACK"|"ORANGE"
 function SET_PLAYER_COLOR(player,colour) end
 
+---Allows you to make change to modifiers values to a specific player. Default value is set to 100.
+---@param player playerrange
+---@param modifier string
+---@param value integer
 function SET_PLAYER_MODIFIER(player,modifier,value) end
 
+---Allows you to increase or decrease the current value of choosen modifier for a specific player.
+---@param player playerrange
+---@param modifier string
+---@param value integer
 function ADD_TO_PLAYER_MODIFIER(player,modifier,value) end
 
 
@@ -647,6 +661,12 @@ function ADD_TO_PLAYER_MODIFIER(player,modifier,value) end
 -----------------------------
 --Tweaking computer players--
 -----------------------------
+
+---Makes a computer player dig somewhere.
+---@param player playersingle The player’s name, e.g. PLAYER1.
+---@param origin location The origin location, e.g. PLAYER1 or 1 to go from an action point.
+---@param destination location The location to dig to, e.g. PLAYER0.
+function COMPUTER_DIG_TO_LOCATION(player,origin,destination) end
 
 ---Allows the player to configure the behavior of an AI for specific criteria.
 ---@param player playersingle the AI player affected
@@ -680,20 +700,21 @@ function SET_COMPUTER_EVENT(player,event_name,data1,data2) end
 ---@param data1 string ,data2,data3,data4 These parameters can have different meaning for different values of "process name".
 function SET_COMPUTER_PROCESS(player,process_name,priority,data1,data2,data3,data4) end
 
----Makes a computer player dig somewhere.
----@param player playersingle The player’s name, e.g. PLAYER1.
----@param origin location The origin location, e.g. PLAYER1 or 1 to go from an action point.
----@param destination location The location to dig to, e.g. PLAYER0.
-function COMPUTER_DIG_TO_LOCATION(player,origin,destination) end
+
 
 
 ------------
 --specials-
 ------------
 
-function USE_SPECIAL_INCREASE_LEVEL() end
-function USE_SPECIAL_MULTIPLY_CREATURES() end
-function USE_SPECIAL_TRANSFER_CREATURE() end
+---Activates the effect of an 'Increase Level' dungeon special.
+---@param player Player
+---@param count integer How many times the special is activated. Accepts negative values.
+function USE_SPECIAL_INCREASE_LEVEL(player,count) end
+
+function USE_SPECIAL_MULTIPLY_CREATURES(player,count) end
+
+function USE_SPECIAL_TRANSFER_CREATURE(player) end
 
 ---Creates a custom tooltip for Custom special boxes.
 ---@param boxnumber integer The ID of the custom box. With a new ADiKtEd or the ADD_OBJECT_TO_LEVEL command you can set a number. Multiple boxes may have the same number, and they will get the same tooltip and functionality.
@@ -707,23 +728,47 @@ function SET_BOX_TOOLTIP_ID() end
 --effect-
 ---------
 
-function CREATE_EFFECT(effect,location,height) end
+---Create an Effect at a location.
+---@param effect effect_type|effect_element_type|integer
+---@param location location
+---@param height integer The z-position of the effect. However, when using EFFECTELEMENT_PRICE as the 'effect' parameter, this is the gold amount displayed instead.
+---@return Thing effect the created effect
+function CREATE_EFFECT(effect,location,height) local ef return ef end
 
+---Spawns an effect multiple times, forming a line.
 function CREATE_EFFECTS_LINE(origin,destination,curvature,distance, speed, effect) end
 
 ---------
 --other-
 ---------
 
+---Casts an untargeted keeper power.
+---@param caster_player Player
+---@param power_name power_kind
+---@param free boolean
 function USE_POWER(caster_player,power_name,free) end
+
+---Casts a keeper power at specific map location through the level script.
+---@param caster_player Player
+---@param location location
+---@param power_name power_kind
+---@param power_level integer
+---@param free boolean
 function USE_POWER_AT_LOCATION(caster_player,location,power_name,power_level,free) end
+
+---Casts a keeper power on a specific creature. It also accepts non-targeted powers like POWER_SIGHT, which will simply use the location of the unit.
+---@param creature Creature
+---@param caster_player Player
+---@param power_name power_kind
+---@param power_level integer
+---@param free boolean
 function USE_POWER_ON_CREATURE(player,creature,caster_player,power_name,power_level,free) end
 
-function USE_SPELL_ON_CREATURE() end
-function USE_SPELL_ON_PLAYERS_CREATURES() end
-
-function USE_POWER_ON_PLAYERS_CREATURES() end
-
+---Casts a unit spell on a specific creature. Only abilities with actual spell effects can be used. So Freeze yes, Fireball, no.
+---@param creature Creature
+---@param spell spell_type
+---@param spell_level integer
+function USE_SPELL_ON_CREATURE(creature,spell,spell_level) end
 
 function LOCATE_HIDDEN_WORLD() end
 function MAKE_SAFE(player) end
@@ -753,13 +798,16 @@ function SET_TEXTURE(player,texture) end
 ---@return Thing object
 function ADD_OBJECT_TO_LEVEL(object,location,property,player) local ob return ob end
 
+---Allows to set tendencies: IMPRISON and FLEE, for a player's creatures.
+---@param player Player
+---@param tendency "IMPRISON"|"FLEE"
+---@param value boolean
+function SET_CREATURE_TENDENCIES(player,tendency,value) end
 
-function SET_CREATURE_TENDENCIES() end
-
-
-
-
-function CREATURE_ENTRANCE_LEVEL() end
+---Sets the level at which units come from the portal.
+---@param player Player
+---@param level integer
+function CREATURE_ENTRANCE_LEVEL(player,level) end
 
 
 
