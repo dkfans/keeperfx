@@ -998,9 +998,12 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
         {
             if (tngdst->class_id == TCls_Creature)
             {
-                HitPoints damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
-                SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
-                apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, owner);
+                if (max_damage > 0)
+                {
+                    HitPoints damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
+                    SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
+                    apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, owner);
+                }
                 affected = true;
                 if (tngdst->health < 0)
                 {
@@ -1008,7 +1011,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     struct CreatureBattle* battle = creature_battle_get_from_thing(origtng);
                     CrDeathFlags dieflags = (!creature_battle_invalid(battle)) ? CrDed_DiedInBattle : CrDed_Default;
                     // Explosions kill rather than only stun friendly creatures when imprison is on
-                    if (((tngsrc->owner == tngdst->owner) &! (game.conf.rules.game.classic_bugs_flags & ClscBug_FriendlyFaint)) || (shot_model_flags & ShMF_NoStun) )
+                    if ((players_creatures_tolerate_each_other(tngsrc->owner,tngdst->owner) &! (game.conf.rules.game.classic_bugs_flags & ClscBug_FriendlyFaint)) || (shot_model_flags & ShMF_NoStun) )
                     {
                         dieflags |= CrDed_NoUnconscious;
                     }

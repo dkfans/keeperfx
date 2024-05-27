@@ -1074,7 +1074,6 @@ static TbResult magic_use_power_hold_audience(PowerKind power_kind, PlayerNumber
     while (i != 0)
     {
         struct CreatureControl *cctrl;
-        struct Thing *thing;
         thing = thing_get(i);
         TRACE_THING(thing);
         cctrl = creature_control_get_from_thing(thing);
@@ -1447,7 +1446,6 @@ static TbResult magic_use_power_sight(PowerKind power_kind, PlayerNumber plyr_id
 {
     const struct MagicStats *pwrdynst;
     struct Dungeon *dungeon;
-    struct Thing *sighttng;
     struct Coord3d pos;
     long cit;
     long cdt;
@@ -1523,7 +1521,6 @@ static TbResult magic_use_power_cave_in(PowerKind power_kind, PlayerNumber plyr_
     unsigned long k;
     k = 0;
     i = get_mapwho_thing_index(mapblk);
-    struct Thing *cavetng;
     while (i != 0)
     {
         thing = thing_get(i);
