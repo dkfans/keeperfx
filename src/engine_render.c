@@ -7857,64 +7857,53 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     }
 }
 
-static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, long angle, long scale)
+static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, long angle, long scale)
 {
-    struct PlayerInfo *player;
-    struct Thing *thing;
-    long transp2;
-    unsigned short graph_id2;
-    unsigned long nframe2;
-    long add_x;
-    long add_y;
-    thing = jspr->thing;
-    player = get_my_player();
-    switch (thing->model)
+    struct PlayerInfo* player = get_my_player();
+    struct Thing* thing = jspr->thing;
+
+    typedef struct {
+        unsigned short graph_id;
+        int transp_factor;
+        int top_view_add_x;
+        int top_view_add_y;
+        int side_view_add_x_factor;
+        int side_view_add_x_divisor;
+        int side_view_add_y_factor;
+        int side_view_add_y_divisor;
+    } FlameProperties;
+
+
+
+    FlameProperties props;
+    props.graph_id = 113;
+    props.transp_factor = 667;
+    props.top_view_add_x = 0;
+    props.top_view_add_y = 1375;
+    props.side_view_add_x_factor = 1;
+    props.side_view_add_x_divisor = 1048576;
+    props.side_view_add_y_factor = 1;
+    props.side_view_add_y_divisor = 1048576;
+    
+    long add_x, add_y;
+    if (player->view_type == PVT_DungeonTop)
     {
-    case ObjMdl_Candlestick:
-        graph_id2 = 112;
-        if (player->view_type == PVT_DungeonTop)
-        {
-          add_x = scale >> 3;
-          add_y = (scale >> 2) - scale;
-        } else
-        {
-          add_x = scale * LbSinL(angle) >> 20;
-          add_y = -(LbCosL(angle) * (scale + (scale >> 1))) >> 16;
-        }
-        transp2 = scale / 2;
-        break;
-    case ObjMdl_Torch:
-        graph_id2 = 113;
-        if (player->view_type == PVT_DungeonTop)
-        {
-            add_x = 0;
-            add_y = 3 * scale >> 3;
-        } else
-        {
-            add_x = (scale * LbSinL(angle)) >> 20;
-            add_y = (scale * LbCosL(angle)) >> 20;
-        }
-        transp2 = 2 * scale / 3;
-        break;
-    default:
-        graph_id2 = 113;
-        if (player->view_type == PVT_DungeonTop)
-        {
-            add_x = (scale >> 2) / 3;
-            add_y = (scale >> 1) / 3;
-        } else
-        {
-            add_x = scale * LbSinL(angle) >> 20;
-            add_y = (-(LbCosL(angle) * (scale + (scale >> 1))) >> 16) / 3;
-        }
-        transp2 = scale / 3;
-        break;
+        add_x = scale * props.top_view_add_x / 1000; // Assuming 1000 is a suitable scale
+        add_y = scale * props.top_view_add_y / 1000;
     }
+    else
+    {
+        add_x = (scale * LbSinL(angle) * props.side_view_add_x_factor) / props.side_view_add_x_divisor;
+        add_y = (scale * LbCosL(angle) * props.side_view_add_y_factor) / props.side_view_add_y_divisor;
+    }
+
+    long transp2 = scale * props.transp_factor / 1000; // Assuming 1000 is a suitable scale
+
     EngineSpriteDrawUsingAlpha = 0;
-    nframe2 = (thing->index + game.play_gameturn) % keepersprite_frames(graph_id2);
+    unsigned long nframe2 = (thing->index + game.play_gameturn) % keepersprite_frames(props.graph_id);
     process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
     EngineSpriteDrawUsingAlpha = 1;
-    process_keeper_sprite(jspr->scr_x+add_x, jspr->scr_y+add_y, graph_id2, angle, nframe2, transp2);
+    process_keeper_sprite(jspr->scr_x + add_x, jspr->scr_y + add_y, props.graph_id, angle, nframe2, transp2);
 }
 
 static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJontySprite *jspr)
