@@ -7878,7 +7878,7 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
         objst->flameconfig.td_add_x = 125;
         objst->flameconfig.td_add_y = -750;
         objst->flameconfig.fp_add_x = 16;
-        objst->flameconfig.fp_add_y = 24;
+        objst->flameconfig.fp_add_y = -24;
         break;
     case ObjMdl_Torch:
         objst->flameconfig.graph_id = 113;
@@ -7886,7 +7886,7 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
         objst->flameconfig.td_add_x = 0;
         objst->flameconfig.td_add_y = 375;
         objst->flameconfig.fp_add_x = 16;
-        objst->flameconfig.fp_add_y = 16;
+        objst->flameconfig.fp_add_y = 0;
         break;
     default:
     case ObjMdl_StatueLit:
@@ -7902,8 +7902,8 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
     long add_x, add_y;
     if (player->view_type == PVT_DungeonTop)
     {
-        add_x = (scale * objst->flameconfig.td_add_x) / 1000;
-        add_y = (scale * objst->flameconfig.td_add_y) / 1000;
+        add_x = (scale * objst->flameconfig.td_add_x) >> 10;
+        add_y = (scale * objst->flameconfig.td_add_y) >> 10;
     }
     else
     {
