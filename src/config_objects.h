@@ -76,6 +76,7 @@ struct FlameProperties {
     int td_add_y;
     int fp_add_x;
     int fp_add_y;
+    unsigned char transparency_flags;
 };
 
 struct ObjectConfigStats {

@@ -7871,6 +7871,7 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, l
     }
     objst = get_object_model_stats(thing->model);
 
+    //todo move to object.cfg
     switch (thing->model)
     {
     case ObjMdl_Candlestick:
@@ -7899,6 +7900,7 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, l
         objst->flameconfig.fp_add_y = -8;
         break;
     }
+    objst->flameconfig.transparency_flags = TRF_Transpar_Alpha;
 
     long add_x, add_y;
     if (player->view_type == PVT_DungeonTop)
@@ -7914,10 +7916,14 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, l
 
     long transp2 = scale * objst->flameconfig.base_size / 1000;
 
-    EngineSpriteDrawUsingAlpha = 0;
+    set_flag(lbDisplay.DrawFlags,objst->transparency_flags);
     nframe2 = (thing->index + game.play_gameturn) % keepersprite_frames(objst->flameconfig.animation_id);
     process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
-    EngineSpriteDrawUsingAlpha = 1;
+    set_flag(lbDisplay.DrawFlags, objst->flameconfig.transparency_flags);
+    if (objst->flameconfig.transparency_flags == TRF_Transpar_Alpha)
+    {
+        EngineSpriteDrawUsingAlpha = 1;
+    }
     process_keeper_sprite(jspr->scr_x + add_x, jspr->scr_y + add_y, objst->flameconfig.animation_id, angle, nframe2, transp2);
 }
 
