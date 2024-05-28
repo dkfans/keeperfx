@@ -7874,7 +7874,7 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, l
     switch (thing->model)
     {
     case ObjMdl_Candlestick:
-        objst->flameconfig.flame_sprite = 115;
+        objst->flameconfig.animation_id = 112;
         objst->flameconfig.base_size = 500;
         objst->flameconfig.td_add_x = 125;
         objst->flameconfig.td_add_y = -750;
@@ -7882,7 +7882,7 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, l
         objst->flameconfig.fp_add_y = -24;
         break;
     case ObjMdl_Torch:
-        objst->flameconfig.flame_sprite = 113;
+        objst->flameconfig.animation_id = 113;
         objst->flameconfig.base_size = 667;
         objst->flameconfig.td_add_x = 0;
         objst->flameconfig.td_add_y = 375;
@@ -7891,7 +7891,7 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, l
         break;
     default:
     case ObjMdl_StatueLit:
-        objst->flameconfig.flame_sprite = 113;
+        objst->flameconfig.animation_id = 113;
         objst->flameconfig.base_size = 333;
         objst->flameconfig.td_add_x = 83;
         objst->flameconfig.td_add_y = 167;
@@ -7915,10 +7915,10 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, l
     long transp2 = scale * objst->flameconfig.base_size / 1000;
 
     EngineSpriteDrawUsingAlpha = 0;
-    nframe2 = (thing->index + game.play_gameturn) % keepersprite_frames(objst->flameconfig.flame_sprite);
+    nframe2 = (thing->index + game.play_gameturn) % keepersprite_frames(objst->flameconfig.animation_id);
     process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
     EngineSpriteDrawUsingAlpha = 1;
-    process_keeper_sprite(jspr->scr_x + add_x, jspr->scr_y + add_y, objst->flameconfig.flame_sprite, angle, nframe2, transp2);
+    process_keeper_sprite(jspr->scr_x + add_x, jspr->scr_y + add_y, objst->flameconfig.animation_id, angle, nframe2, transp2);
 }
 
 static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJontySprite *jspr)

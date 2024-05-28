@@ -70,7 +70,7 @@ struct Effects {
 };
 
 struct FlameProperties {
-    unsigned short flame_sprite;
+    unsigned short animation_id;
     int base_size;
     int td_add_x;
     int td_add_y;
