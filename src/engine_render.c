@@ -7861,45 +7861,41 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
 {
     struct PlayerInfo* player = get_my_player();
     struct Thing* thing = jspr->thing;
+    struct ObjectConfigStats* objst;
 
-    typedef struct {
-        unsigned short graph_id;
-        int transp_factor;
-        int top_view_add_x;
-        int top_view_add_y;
-        int side_view_add_x_factor;
-        int side_view_add_y_factor;
-    } FlameProperties;
+    if (!thing_is_object(thing))
+    {
+        //error log
+        return;
+    }
+    objst = get_object_model_stats(thing->model);
 
-
-
-    FlameProperties props;
-    props.graph_id = 113;
-    props.transp_factor = 667;
-    props.top_view_add_x = 0;
-    props.top_view_add_y = 1375;
-    props.side_view_add_x_factor = 1;
-    props.side_view_add_y_factor = 1;
+    objst->flameconfig.graph_id = 113;
+    objst->flameconfig.transp_factor = 667;
+    objst->flameconfig.top_view_add_x = 0;
+    objst->flameconfig.top_view_add_y = 375;
+    objst->flameconfig.side_view_add_x_factor = 1;
+    objst->flameconfig.side_view_add_y_factor = 1;
 
     long add_x, add_y;
     if (player->view_type == PVT_DungeonTop)
     {
-        add_x = scale * props.top_view_add_x / 1000; // Assuming 1000 is a suitable scale
-        add_y = scale * props.top_view_add_y / 1000;
+        add_x = scale * objst->flameconfig.top_view_add_x / 1000; // Assuming 1000 is a suitable scale
+        add_y = scale * objst->flameconfig.top_view_add_y / 1000;
     }
     else
     {
-        add_x = (scale * LbSinL(angle) * props.side_view_add_x_factor) >> 20;
-        add_y = (scale * LbCosL(angle) * props.side_view_add_y_factor) >> 20;
+        add_x = (scale * LbSinL(angle) * objst->flameconfig.side_view_add_x_factor) >> 20;
+        add_y = (scale * LbCosL(angle) * objst->flameconfig.side_view_add_y_factor) >> 20;
     }
 
-    long transp2 = scale * props.transp_factor / 1000; // Assuming 1000 is a suitable scale
+    long transp2 = scale * objst->flameconfig.transp_factor / 1000; // Assuming 1000 is a suitable scale
 
     EngineSpriteDrawUsingAlpha = 0;
-    unsigned long nframe2 = (thing->index + game.play_gameturn) % keepersprite_frames(props.graph_id);
+    unsigned long nframe2 = (thing->index + game.play_gameturn) % keepersprite_frames(objst->flameconfig.graph_id);
     process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
     EngineSpriteDrawUsingAlpha = 1;
-    process_keeper_sprite(jspr->scr_x + add_x, jspr->scr_y + add_y, props.graph_id, angle, nframe2, transp2);
+    process_keeper_sprite(jspr->scr_x + add_x, jspr->scr_y + add_y, objst->flameconfig.graph_id, angle, nframe2, transp2);
 }
 
 static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJontySprite *jspr)

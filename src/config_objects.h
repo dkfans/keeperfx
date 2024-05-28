@@ -69,6 +69,16 @@ struct Effects {
     unsigned char sound_range;
 };
 
+struct FlameProperties {
+    unsigned short graph_id;
+    int transp_factor;
+    int top_view_add_x;
+    int top_view_add_y;
+    int side_view_add_x_factor;
+    int side_view_add_y_factor;
+};
+
+
 struct ObjectConfigStats {
     char code_name[COMMAND_WORD_LEN];
     unsigned long model_flags;
@@ -98,6 +108,7 @@ struct ObjectConfigStats {
     unsigned char random_start_frame;
     unsigned char transparancy_flags;  // Lower 2 bits are transparency flags.
     struct Effects effect;
+    struct FlameProperties flameconfig;
 };
 
 struct ObjectsConfig {
