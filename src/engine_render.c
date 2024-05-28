@@ -7870,23 +7870,45 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
     }
     objst = get_object_model_stats(thing->model);
 
-    objst->flameconfig.graph_id = 113;
-    objst->flameconfig.transp_factor = 667;
-    objst->flameconfig.top_view_add_x = 0;
-    objst->flameconfig.top_view_add_y = 375;
-    objst->flameconfig.side_view_add_x_factor = 1;
-    objst->flameconfig.side_view_add_y_factor = 1;
+    switch (thing->model)
+    {
+    case ObjMdl_Candlestick:
+        objst->flameconfig.graph_id = 112;
+        objst->flameconfig.transp_factor = 500;
+        objst->flameconfig.td_add_x = 125;
+        objst->flameconfig.td_add_y = -750;
+        objst->flameconfig.fp_add_x = 16;
+        objst->flameconfig.fp_add_y = 24;
+        break;
+    case ObjMdl_Torch:
+        objst->flameconfig.graph_id = 113;
+        objst->flameconfig.transp_factor = 667;
+        objst->flameconfig.td_add_x = 0;
+        objst->flameconfig.td_add_y = 375;
+        objst->flameconfig.fp_add_x = 16;
+        objst->flameconfig.fp_add_y = 16;
+        break;
+    default:
+    case ObjMdl_StatueLit:
+        objst->flameconfig.graph_id = 113;
+        objst->flameconfig.transp_factor = 333;
+        objst->flameconfig.td_add_x = 83;
+        objst->flameconfig.td_add_y = 167;
+        objst->flameconfig.fp_add_x = 16;
+        objst->flameconfig.fp_add_y = -8;
+        break;
+    }
 
     long add_x, add_y;
     if (player->view_type == PVT_DungeonTop)
     {
-        add_x = scale * objst->flameconfig.top_view_add_x / 1000; // Assuming 1000 is a suitable scale
-        add_y = scale * objst->flameconfig.top_view_add_y / 1000;
+        add_x = (scale * objst->flameconfig.td_add_x) / 1000;
+        add_y = (scale * objst->flameconfig.td_add_y) / 1000;
     }
     else
     {
-        add_x = (scale * LbSinL(angle) * objst->flameconfig.side_view_add_x_factor) >> 20;
-        add_y = (scale * LbCosL(angle) * objst->flameconfig.side_view_add_y_factor) >> 20;
+        add_x = (scale * LbSinL(angle) * objst->flameconfig.fp_add_x) >> 20;
+        add_y = (scale * LbCosL(angle) * objst->flameconfig.fp_add_y) >> 20;
     }
 
     long transp2 = scale * objst->flameconfig.transp_factor / 1000; // Assuming 1000 is a suitable scale

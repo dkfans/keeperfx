@@ -72,12 +72,11 @@ struct Effects {
 struct FlameProperties {
     unsigned short graph_id;
     int transp_factor;
-    int top_view_add_x;
-    int top_view_add_y;
-    int side_view_add_x_factor;
-    int side_view_add_y_factor;
+    int td_add_x;
+    int td_add_y;
+    int fp_add_x;
+    int fp_add_y;
 };
-
 
 struct ObjectConfigStats {
     char code_name[COMMAND_WORD_LEN];
