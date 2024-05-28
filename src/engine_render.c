@@ -7873,16 +7873,16 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
     switch (thing->model)
     {
     case ObjMdl_Candlestick:
-        objst->flameconfig.graph_id = 112;
-        objst->flameconfig.transp_factor = 500;
+        objst->flameconfig.flame_sprite = 115;
+        objst->flameconfig.base_size = 500;
         objst->flameconfig.td_add_x = 125;
         objst->flameconfig.td_add_y = -750;
         objst->flameconfig.fp_add_x = 16;
         objst->flameconfig.fp_add_y = -24;
         break;
     case ObjMdl_Torch:
-        objst->flameconfig.graph_id = 113;
-        objst->flameconfig.transp_factor = 667;
+        objst->flameconfig.flame_sprite = 113;
+        objst->flameconfig.base_size = 667;
         objst->flameconfig.td_add_x = 0;
         objst->flameconfig.td_add_y = 375;
         objst->flameconfig.fp_add_x = 16;
@@ -7890,8 +7890,8 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
         break;
     default:
     case ObjMdl_StatueLit:
-        objst->flameconfig.graph_id = 113;
-        objst->flameconfig.transp_factor = 333;
+        objst->flameconfig.flame_sprite = 113;
+        objst->flameconfig.base_size = 333;
         objst->flameconfig.td_add_x = 83;
         objst->flameconfig.td_add_y = 167;
         objst->flameconfig.fp_add_x = 16;
@@ -7911,13 +7911,13 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
         add_y = (scale * LbCosL(angle) * objst->flameconfig.fp_add_y) >> 20;
     }
 
-    long transp2 = scale * objst->flameconfig.transp_factor / 1000; // Assuming 1000 is a suitable scale
+    long transp2 = scale * objst->flameconfig.base_size / 1000;
 
     EngineSpriteDrawUsingAlpha = 0;
-    unsigned long nframe2 = (thing->index + game.play_gameturn) % keepersprite_frames(objst->flameconfig.graph_id);
+    unsigned long nframe2 = (thing->index + game.play_gameturn) % keepersprite_frames(objst->flameconfig.flame_sprite);
     process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
     EngineSpriteDrawUsingAlpha = 1;
-    process_keeper_sprite(jspr->scr_x + add_x, jspr->scr_y + add_y, objst->flameconfig.graph_id, angle, nframe2, transp2);
+    process_keeper_sprite(jspr->scr_x + add_x, jspr->scr_y + add_y, objst->flameconfig.flame_sprite, angle, nframe2, transp2);
 }
 
 static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJontySprite *jspr)

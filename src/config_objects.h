@@ -70,8 +70,8 @@ struct Effects {
 };
 
 struct FlameProperties {
-    unsigned short graph_id;
-    int transp_factor;
+    unsigned short flame_sprite;
+    int base_size;
     int td_add_x;
     int td_add_y;
     int fp_add_x;
