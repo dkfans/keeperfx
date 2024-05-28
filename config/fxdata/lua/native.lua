@@ -160,6 +160,7 @@ local Camera = {}
 ---@field BONUS_TIME integer
 ---@field CREATURES_TRANSFERRED integer
 ---
+---
 ---@field camera Camera
 local Player = {}
 
@@ -832,5 +833,18 @@ function get_things_of_class(class) end
 
 
 -------------------------------------------------------
---Triggers
+--Thing Functions
 -------------------------------------------------------
+
+---comment
+---@param stl_x any
+---@param stl_y any
+function Creature:MoveThingTo(stl_x,stl_y)
+    
+end
+
+---comment
+function Creature:DeleteThing()
+    
+end
+

@@ -29,6 +29,7 @@ local currentTriggeringPlayer = nil
 --- Creates a new trigger and returns it
 --- @return Trigger trigger
 function CreateTrigger()
+    print("CreateTrigger")
     triggerCounter = triggerCounter + 1
     local trigger = { index = triggerCounter, events = {} }
     table.insert(triggers, trigger)
@@ -90,11 +91,11 @@ end
 
 --- Registers a unit event to the trigger
 --- @param trigger Trigger
---- @param creature Creature
---- @param unitEvent "powerCast"|"dies"
+--- @param thing Thing|nil unit that will trigger the event, nil means any unit will
+--- @param thingEvent "powerCast"|"dies"|"SpecialActivated"
 --- @return TriggerEvent event
-function TriggerRegisterUnitEvent(trigger, creature, unitEvent)
-    local event = { type = "unit", params = { creature = creature, unitEvent = unitEvent }, enabled = true }
+function TriggerRegisterThingEvent(trigger, thing, thingEvent)
+    local event = { type = "unit", params = { thing = thing, thingEvent = thingEvent }, enabled = true }
     table.insert(trigger.events, event)
     return event
 end
@@ -102,8 +103,8 @@ end
 -- Trigger variables
 
 --- Gets the unit associated with the current triggering event
---- @return Creature|nil
-function GetTriggeringUnit()
+--- @return Thing|nil
+function GetTriggeringThing()
     return currentTriggeringThing
 end
 
@@ -163,8 +164,8 @@ local function ProcessThingEvent(thing, eventType)
     for _, trigger in ipairs(triggers) do
         for _, event in ipairs(trigger.events) do
             if event.type == "unit" and
-               event.params.unitEvent == eventType and
-               ( event.params.creature == nil or  event.params.creature == thing) then
+               event.params.thingEvent == eventType and
+               ( event.params.thing == nil or  event.params.thing == thing) then
                 ProcessTrigger(trigger)
                 break
             end
@@ -224,6 +225,7 @@ end
 ---@param player Player
 ---@param crate_thing Thing
 function OnSpecialActivated(player,crate_thing)
+    
     currentTriggeringThing = crate_thing
     ProcessThingEvent(crate_thing,"SpecialActivated")
     currentTriggeringThing = nil

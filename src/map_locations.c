@@ -39,6 +39,11 @@ const struct NamedCommand head_for_desc[] = {
 };
 
 
+TbMapLocation get_coord_encoded_location(MapSubtlCoord stl_x,MapSubtlCoord stl_y)
+{
+    return ((stl_x & 0x0FFF) << 20) + ((stl_y & 0x0FFF) << 8) + MLoc_COORDS;
+}
+
 TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location)
 {
 
@@ -57,6 +62,12 @@ TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location)
         
     case MLoc_METALOCATION:
         return get_coords_at_meta_action(pos, 0, i);
+
+    case MLoc_COORDS:
+        pos->x.val = subtile_coord_center(location >> 20);
+        pos->y.val = subtile_coord_center(((location >> 8) & 0xFFF));
+        pos->z.val = get_floor_height_at(pos);
+      return true;
         
     case MLoc_CREATUREKIND:
     case MLoc_OBJECTKIND:
@@ -320,6 +331,11 @@ void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos
     case MLoc_METALOCATION:
       if (!get_coords_at_meta_action(pos, plyr_idx, i))
         WARNMSG("%s: Metalocation not found %d",func_name,i);
+      break;
+    case MLoc_COORDS:
+        pos->x.val = subtile_coord_center(location >> 20);
+        pos->y.val = subtile_coord_center((location >> 8) & 0xFFF);
+        pos->z.val = 0;
       break;
     case MLoc_CREATUREKIND:
     case MLoc_OBJECTKIND:
@@ -633,6 +649,10 @@ void find_map_location_coords(long location, long *x, long *y, int plyr_idx, con
         else
           WARNMSG("%s: Metalocation not found %d",func_name,i);
         break;
+    case MLoc_COORDS:
+        pos_x = location >> 20;
+        pos_y = (location >> 8) & 0xFFF;
+      break;
     case MLoc_CREATUREKIND:
     case MLoc_OBJECTKIND:
     case MLoc_ROOMKIND:
