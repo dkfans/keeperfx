@@ -2992,7 +2992,7 @@ static void set_object_configuration_process(struct ScriptContext *context)
             objst->random_start_frame = context->value->arg1;
             break;
         case 26: // TRANSPARENCYFLAGS
-            objst->transparancy_flags = context->value->arg1;
+            objst->transparency_flags = context->value->arg1;
             break;
         case 27: // EFFECTBEAM
             objst->effect.beam = context->value->arg1;

@@ -627,17 +627,17 @@ void draw_power_hand(void)
                 inputpos_x = GetMouseX() + scale_ui_value(pickoffs->delta_x*global_hand_scale);
                 inputpos_y = GetMouseY() + scale_ui_value(pickoffs->delta_y*global_hand_scale);
                 struct CreatureStats* crstat = creature_stats_get(picktng->model);
-                if (crstat->transparancy_flags == TRF_Transpar_8)
+                if (crstat->transparency_flags == TRF_Transpar_8)
                 {
                     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
                     lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;  
                 }
-                else if (crstat->transparancy_flags == TRF_Transpar_4)
+                else if (crstat->transparency_flags == TRF_Transpar_4)
                 {
                     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
                     lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
                 }
-                else if(crstat->transparancy_flags == TRF_Transpar_Alpha)
+                else if(crstat->transparency_flags == TRF_Transpar_Alpha)
                 {
                     EngineSpriteDrawUsingAlpha = 1;
                 }
