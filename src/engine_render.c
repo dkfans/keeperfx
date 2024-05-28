@@ -7866,7 +7866,7 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, l
 
     if (!thing_is_object(thing))
     {
-        //todo error log
+        ERRORLOG("Thing %s is not an object.", thing_model_name(thing));
         return;
     }
     objst = get_object_model_stats(thing->model);
