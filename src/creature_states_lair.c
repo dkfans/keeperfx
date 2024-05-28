@@ -138,7 +138,7 @@ short creature_drop_unconscious_in_lair(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
-    if (!thing_exists(dragtng) || !creature_is_being_unconscious(dragtng)) {
+    if (dragtng == NULL || !thing_exists(dragtng) || !creature_is_being_unconscious(dragtng)) {
         set_start_state(thing);
         return 0;
     }
@@ -275,7 +275,7 @@ CrStateRet creature_at_changed_lair(struct Thing *creatng)
 CrStateRet creature_at_new_lair(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-as    struct Room* room = get_room_thing_is_on(creatng);
+    struct Room* room = get_room_thing_is_on(creatng);
     if ( !room_still_valid_as_type_for_thing(room, get_room_role_for_job(Job_TAKE_SLEEP), creatng) )
     {
         WARNLOG("Room %s owned by player %d is bad work place for %s index %d owner %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);

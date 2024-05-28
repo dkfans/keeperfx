@@ -186,6 +186,7 @@ enum CreatureStates {
     CrSt_GoodWanderToCreatureCombat,
     CrSt_GoodWanderToObjectCombat,
     CrSt_CreatureDropBodyInLair,
+    CrSt_CreatureSaveUnconsciousCreature,
     CrSt_ListEnd,
 };
 
