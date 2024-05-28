@@ -7857,15 +7857,16 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     }
 }
 
-static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, long angle, long scale)
+static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, long angle, long scale)
 {
     struct PlayerInfo* player = get_my_player();
     struct Thing* thing = jspr->thing;
     struct ObjectConfigStats* objst;
+    unsigned long nframe2;
 
     if (!thing_is_object(thing))
     {
-        //error log
+        //todo error log
         return;
     }
     objst = get_object_model_stats(thing->model);
@@ -7914,7 +7915,7 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
     long transp2 = scale * objst->flameconfig.base_size / 1000;
 
     EngineSpriteDrawUsingAlpha = 0;
-    unsigned long nframe2 = (thing->index + game.play_gameturn) % keepersprite_frames(objst->flameconfig.flame_sprite);
+    nframe2 = (thing->index + game.play_gameturn) % keepersprite_frames(objst->flameconfig.flame_sprite);
     process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
     EngineSpriteDrawUsingAlpha = 1;
     process_keeper_sprite(jspr->scr_x + add_x, jspr->scr_y + add_y, objst->flameconfig.flame_sprite, angle, nframe2, transp2);
