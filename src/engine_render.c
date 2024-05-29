@@ -7875,14 +7875,6 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, l
     //todo move to object.cfg ----------------------
     switch (thing->model)
     {
-    case ObjMdl_Candlestick:
-        objst->flame.animation_id = 112;
-        objst->flame.sprite_size = 300;
-        objst->flame.td_add_x = 3;
-        objst->flame.td_add_y = 0;
-        objst->flame.fp_add_x = 10;
-        objst->flame.fp_add_y = -14;
-        break;
     case ObjMdl_Torch:
         objst->flame.animation_id = 113;
         objst->flame.sprite_size = 667;
@@ -7891,7 +7883,6 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, l
         objst->flame.fp_add_x = 16;
         objst->flame.fp_add_y = 0;
         break;
-    default:
     case ObjMdl_StatueLit:
         objst->flame.animation_id = 113;
         objst->flame.sprite_size = 333;
@@ -7900,6 +7891,9 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, l
         objst->flame.fp_add_x = 16;
         objst->flame.fp_add_y = -8;
         break;
+    default:
+        break;
+
     }
     objst->flame.transparency_flags = TRF_Transpar_Alpha;
     //----------------------------------------------

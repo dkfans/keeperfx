@@ -78,6 +78,9 @@ const struct NamedCommand objects_object_commands[] = {
   {"EFFECTEXPLOSION2",  30},
   {"EFFECTSPACING",     31},
   {"EFFECTSOUND",       32},
+  {"FLAMEANIMATIONID",      33},
+  {"FLAMEANIMATIONSIZE",    34},
+  {"FLAMEANIMATIONOFFSET",  35},
   {NULL,                 0},
   };
 
@@ -752,6 +755,63 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     {
                         objst->effect.sound_range = n;
                     }
+                }
+                break;
+            case 33: // FLAMEANIMATIONID
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    objst->flame.animation_id = n;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 34: // FLAMEANIMATIONSIZE
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    objst->flame.sprite_size = n;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 35: // FLAMEANIMATIONOFFSET
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    objst->flame.fp_add_x = n;
+                    n++;
+                }
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    objst->flame.fp_add_y = n;
+                    n++;
+                }
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    objst->flame.td_add_x = n;
+                    n++;
+                }
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    objst->flame.td_add_y = n;
+                    n++;
+                }
+                if (n < 4)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
            case 0: // comment
