@@ -75,7 +75,7 @@ struct ObjectConfigStats {
     long genre;
     long name_stridx;
     long map_icon;
-    long health;
+    HitPoints health;
     char fall_acceleration;
     char light_unaffected;
     char immobile;
@@ -96,7 +96,7 @@ struct ObjectConfigStats {
     unsigned char updatefn_idx;
     unsigned char initial_state;
     unsigned char random_start_frame;
-    unsigned char transparancy_flags;  // Lower 2 bits are transparency flags.
+    unsigned char transparency_flags;  // Lower 2 bits are transparency flags.
     struct Effects effect;
 };
 

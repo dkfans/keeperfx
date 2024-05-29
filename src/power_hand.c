@@ -50,7 +50,7 @@
 #include "config_effects.h"
 #include "config_powerhands.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "kjm_input.h"
 #include "front_input.h"
 #include "frontend.h"
@@ -626,10 +626,25 @@ void draw_power_hand(void)
                 pickoffs = get_creature_picked_up_offset(picktng);
                 inputpos_x = GetMouseX() + scale_ui_value(pickoffs->delta_x*global_hand_scale);
                 inputpos_y = GetMouseY() + scale_ui_value(pickoffs->delta_y*global_hand_scale);
-                if (creatures[picktng->model].field_7)
-                  EngineSpriteDrawUsingAlpha = 1;
+                struct CreatureStats* crstat = creature_stats_get(picktng->model);
+                if (crstat->transparency_flags == TRF_Transpar_8)
+                {
+                    lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
+                    lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;  
+                }
+                else if (crstat->transparency_flags == TRF_Transpar_4)
+                {
+                    lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+                    lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
+                }
+                else if(crstat->transparency_flags == TRF_Transpar_Alpha)
+                {
+                    EngineSpriteDrawUsingAlpha = 1;
+                }
+
                 process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
                     picktng->anim_sprite, 0, picktng->current_frame, scale_ui_value(64*global_hand_scale));
+                lbDisplay.DrawFlags = 0;
                 EngineSpriteDrawUsingAlpha = 0;
             } else
             {
@@ -1334,7 +1349,7 @@ TbBool remove_creature_from_power_hand(struct Thing *thing, PlayerNumber plyr_id
     return false;
 }
 
-TbResult magic_use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short tng_idx)
+TbResult use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short tng_idx)
 {
     struct PlayerInfo *player;
     struct Thing *thing;

@@ -1591,9 +1591,10 @@ static void new_trap_type_check(const struct ScriptLine* scline)
     trapst->slappable = 0;
     trapst->destructible = 0;
     trapst->unstable = 0;
-    trapst->unsellable = 0;
-    trapst->notify = 0;
-    trapst->placeonbridge = 0;
+    trapst->unsellable = false;
+    trapst->notify = false;
+    trapst->place_on_bridge = false;
+    trapst->place_on_subtile = false;
     trapst->place_sound_idx = 117; 
     trapst->trigger_sound_idx = 176;
     trapst->destroyed_effect = -39;
@@ -1835,7 +1836,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             trapst->unsellable = value;
             break;
         case 35: // PlaceOnBridge
-            trapst->placeonbridge = value;
+            trapst->place_on_bridge = value;
             break;
         case 36: // ShotOrigin
             trapstat->shot_shift_x = value;
@@ -2991,7 +2992,7 @@ static void set_object_configuration_process(struct ScriptContext *context)
             objst->random_start_frame = context->value->arg1;
             break;
         case 26: // TRANSPARENCYFLAGS
-            objst->transparancy_flags = context->value->arg1;
+            objst->transparency_flags = context->value->arg1;
             break;
         case 27: // EFFECTBEAM
             objst->effect.beam = context->value->arg1;
@@ -4783,7 +4784,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
             value->arg2 = number_value;
             break;
         }
-        case 15: // Functions
+        case 15: // OverchargeCheck
         {
             number_value = get_id(powermodel_expand_check_func_type,new_value);
             if (number_value < 0)
@@ -4910,7 +4911,7 @@ static void set_power_configuration_process(struct ScriptContext *context)
                 powerst->config_flags = context->value->arg2;
             }
             break;
-        case 15: // Functions
+        case 15: // OverchargeCheck
             powerst->overcharge_check_idx = context->value->arg2;
             break;
         case 16: // PlayerState
@@ -5609,6 +5610,49 @@ static void change_slab_texture_process(struct ScriptContext* context)
     }
 }
 
+static void computer_player_check(const struct ScriptLine* scline)
+{
+    long plr_range_id = scline->np[0];
+    const char *comp_model = scline->tp[1];
+    
+    if (get_script_current_condition() != CONDITION_ALWAYS)
+    {
+        SCRPTWRNLOG("Computer player setup inside conditional block; condition ignored");
+    }
+    int plr_start;
+    int plr_end;
+    if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
+        SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
+        return;
+    }
+    if(parameter_is_number(comp_model))
+    {
+        for (long i = plr_start; i < plr_end; i++)
+        {
+            script_support_setup_player_as_computer_keeper(i, atoi(comp_model));
+        }
+    }
+    else if(strcasecmp(comp_model,"ROAMING") == 0)
+    {
+        for (long i = plr_start; i < plr_end; i++)
+        {
+            if(i == PLAYER_NEUTRAL)
+            {
+                continue;
+            }
+            struct PlayerInfo* player = get_player(i);
+            player->player_type = PT_Roaming;
+            player->allocflags |= PlaF_Allocated;
+            player->allocflags |= PlaF_CompCtrl;
+            player->id_number = i;
+        }
+    }
+    else
+    {
+        ERRORLOG("invalid COMPUTER_PLAYER param '%s'",comp_model);
+    }
+}
+
 static void set_special_digger_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
@@ -5673,7 +5717,7 @@ const struct CommandDesc command_desc[] = {
   {"TRAP_AVAILABLE",                    "PANN    ", Cmd_TRAP_AVAILABLE, NULL, NULL},
   {"RESEARCH",                          "PAAN    ", Cmd_RESEARCH, NULL, NULL},
   {"RESEARCH_ORDER",                    "PAAN    ", Cmd_RESEARCH_ORDER, NULL, NULL},
-  {"COMPUTER_PLAYER",                   "PN      ", Cmd_COMPUTER_PLAYER, NULL, NULL},
+  {"COMPUTER_PLAYER",                   "PA      ", Cmd_COMPUTER_PLAYER, &computer_player_check, NULL},
   {"SET_TIMER",                         "PA      ", Cmd_SET_TIMER, NULL, NULL},
   {"ADD_TUNNELLER_TO_LEVEL",            "PAANNN  ", Cmd_ADD_TUNNELLER_TO_LEVEL, NULL, NULL},
   {"WIN_GAME",                          "        ", Cmd_WIN_GAME, NULL, NULL},
@@ -5825,7 +5869,7 @@ const struct CommandDesc dk1_command_desc[] = {
   {"MAGIC_AVAILABLE",              "PANN    ", Cmd_MAGIC_AVAILABLE, NULL, NULL},
   {"TRAP_AVAILABLE",               "PANN    ", Cmd_TRAP_AVAILABLE, NULL, NULL},
   {"RESEARCH",                     "PAAN    ", Cmd_RESEARCH_ORDER, NULL, NULL},
-  {"COMPUTER_PLAYER",              "PN      ", Cmd_COMPUTER_PLAYER, NULL, NULL},
+  {"COMPUTER_PLAYER",              "PN      ", Cmd_COMPUTER_PLAYER, computer_player_check, NULL},
   {"SET_TIMER",                    "PA      ", Cmd_SET_TIMER, NULL, NULL},
   {"ADD_TUNNELLER_TO_LEVEL",       "PAANNN  ", Cmd_ADD_TUNNELLER_TO_LEVEL, NULL, NULL},
   {"WIN_GAME",                     "        ", Cmd_WIN_GAME, NULL, NULL},

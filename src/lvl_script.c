@@ -86,6 +86,16 @@ char* get_next_token(char *data, struct CommandToken *token)
         {
             *p = (char)toupper(*p);
         }
+        if (((p - token->start) == 3) && (strncmp(token->start, "REM", 3) == 0))
+        {
+            for (;*p; p++)
+            {
+                // empty
+            }
+            token->end = p;
+            token->type = TkEnd;
+            return p;
+        }
         token->type = TkCommand;
     }
     else if (*p == '-') // Either operator or digit
@@ -366,18 +376,6 @@ long get_players_range_f(long plr_range_id, int *plr_start, int *plr_end, const 
     {
         *plr_start = 0;
         *plr_end = PLAYERS_COUNT;
-        return plr_range_id;
-    } else
-    if (plr_range_id == PLAYER_GOOD)
-    {
-        *plr_start = game.hero_player_num;
-        *plr_end = game.hero_player_num+1;
-        return plr_range_id;
-    } else
-    if (plr_range_id == PLAYER_NEUTRAL)
-    {
-        *plr_start = game.neutral_player_num;
-        *plr_end = game.neutral_player_num+1;
         return plr_range_id;
     } else
     if (plr_range_id < PLAYERS_COUNT)

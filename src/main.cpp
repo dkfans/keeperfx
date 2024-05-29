@@ -65,7 +65,7 @@
 #include "thing_list.h"
 #include "player_instances.h"
 #include "player_utils.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "player_computer.h"
 #include "game_heap.h"
 #include "game_saves.h"
@@ -218,7 +218,7 @@ TbBool TimerFreeze = false;
 
 TbPixel get_player_path_colour(unsigned short owner)
 {
-  return player_path_colours[get_player_color_idx(owner % PLAYERS_EXT_COUNT)];
+  return player_path_colours[get_player_color_idx(owner % PLAYERS_COUNT)];
 }
 
 void setup_stuff(void)
@@ -250,7 +250,7 @@ void clear_creature_pool(void)
     game.pool.is_empty = true;
 }
 
-void give_shooter_drained_health(struct Thing *shooter, long health_delta)
+void give_shooter_drained_health(struct Thing *shooter, HitPoints health_delta)
 {
     struct CreatureControl *cctrl;
     HitPoints max_health;
@@ -665,7 +665,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
         if (subtile_has_door_thing_on(stl_x, stl_y)) // Collide with Doors
         {
             struct Thing *doortng = get_door_for_position(stl_x, stl_y);
-            short door_health = doortng->health;
+            HitPoints door_health = doortng->health;
             doortng->health -= boulder->health; // decrease door health
             boulder->health -= door_health; // decrease boulder health
             if (doortng->health <= 0)
@@ -1022,7 +1022,7 @@ void init_keeper(void)
     check_and_auto_fix_stats();
     init_creature_scores();
     init_top_texture_to_cube_table();
-    game.neutral_player_num = neutral_player_number;
+    game.neutral_player_num = PLAYER_NEUTRAL;
     if (game.generate_speed <= 0)
       game.generate_speed = game.conf.rules.rooms.default_generate_speed;
     poly_pool_end = &poly_pool[sizeof(poly_pool)-128];
@@ -2439,7 +2439,7 @@ void count_players_creatures_being_paid(int *creatures_count)
         }
         i = thing->next_of_class;
         // Per-thing code
-        if ((thing->owner != game.hero_player_num) && (thing->owner != game.neutral_player_num))
+        if (!player_is_roaming(thing->owner) && (thing->owner != game.neutral_player_num))
         {
             struct CreatureStats *crstat;
             crstat = creature_stats_get_from_thing(thing);
@@ -2473,7 +2473,7 @@ void process_payday(void)
     PlayerNumber plyr_idx;
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-        if ((plyr_idx == game.hero_player_num) || (plyr_idx == game.neutral_player_num)) {
+        if (player_is_roaming(plyr_idx) || (plyr_idx == game.neutral_player_num)) {
             continue;
         }
         struct PlayerInfo *player;
@@ -2489,15 +2489,15 @@ void process_payday(void)
         output_message(SMsg_Payday, 0, true);
         game.pay_day_progress = 0;
         // Prepare a list which counts how many creatures of each owner needs pay
-        int player_paid_creatures_count[PLAYERS_EXT_COUNT];
+        int player_paid_creatures_count[PLAYERS_COUNT];
 
-        for (plyr_idx=0; plyr_idx < PLAYERS_EXT_COUNT; plyr_idx++)
+        for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
         {
             player_paid_creatures_count[plyr_idx] = 0;
         }
         count_players_creatures_being_paid(player_paid_creatures_count);
         // Players which have creatures being paid, should get payday notification
-        for (plyr_idx=0; plyr_idx < PLAYERS_EXT_COUNT; plyr_idx++)
+        for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
         {
             if (player_paid_creatures_count[plyr_idx] > 0)
             {
