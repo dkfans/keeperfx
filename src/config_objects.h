@@ -108,7 +108,7 @@ struct ObjectConfigStats {
     unsigned char random_start_frame;
     unsigned char transparency_flags;  // Lower 2 bits are transparency flags.
     struct Effects effect;
-    struct FlameProperties flameconfig;
+    struct FlameProperties flame;
 };
 
 struct ObjectsConfig {

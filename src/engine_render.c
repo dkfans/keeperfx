@@ -7876,55 +7876,55 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, l
     switch (thing->model)
     {
     case ObjMdl_Candlestick:
-        objst->flameconfig.animation_id = 112;
-        objst->flameconfig.sprite_size = 300;
-        objst->flameconfig.td_add_x = 3;
-        objst->flameconfig.td_add_y = 0;
-        objst->flameconfig.fp_add_x = 10;
-        objst->flameconfig.fp_add_y = -14;
+        objst->flame.animation_id = 112;
+        objst->flame.sprite_size = 300;
+        objst->flame.td_add_x = 3;
+        objst->flame.td_add_y = 0;
+        objst->flame.fp_add_x = 10;
+        objst->flame.fp_add_y = -14;
         break;
     case ObjMdl_Torch:
-        objst->flameconfig.animation_id = 113;
-        objst->flameconfig.sprite_size = 667;
-        objst->flameconfig.td_add_x = 0;
-        objst->flameconfig.td_add_y = 375;
-        objst->flameconfig.fp_add_x = 16;
-        objst->flameconfig.fp_add_y = 0;
+        objst->flame.animation_id = 113;
+        objst->flame.sprite_size = 667;
+        objst->flame.td_add_x = 0;
+        objst->flame.td_add_y = 375;
+        objst->flame.fp_add_x = 16;
+        objst->flame.fp_add_y = 0;
         break;
     default:
     case ObjMdl_StatueLit:
-        objst->flameconfig.animation_id = 113;
-        objst->flameconfig.sprite_size = 333;
-        objst->flameconfig.td_add_x = 83;
-        objst->flameconfig.td_add_y = 167;
-        objst->flameconfig.fp_add_x = 16;
-        objst->flameconfig.fp_add_y = -8;
+        objst->flame.animation_id = 113;
+        objst->flame.sprite_size = 333;
+        objst->flame.td_add_x = 83;
+        objst->flame.td_add_y = 167;
+        objst->flame.fp_add_x = 16;
+        objst->flame.fp_add_y = -8;
         break;
     }
-    objst->flameconfig.transparency_flags = TRF_Transpar_Alpha;
+    objst->flame.transparency_flags = TRF_Transpar_Alpha;
     //----------------------------------------------
 
     long add_x, add_y;
     if (player->view_type == PVT_DungeonTop)
     {
-        add_x = (scale * objst->flameconfig.td_add_x) >> 5;
-        add_y = (scale * objst->flameconfig.td_add_y) >> 5;
+        add_x = (scale * objst->flame.td_add_x) >> 5;
+        add_y = (scale * objst->flame.td_add_y) >> 5;
     }
     else
     {
-        add_x = (scale * LbSinL(angle) * objst->flameconfig.fp_add_x) >> 20;
-        add_y = (scale * LbCosL(angle) * objst->flameconfig.fp_add_y) >> 20;
+        add_x = (scale * LbSinL(angle) * objst->flame.fp_add_x) >> 20;
+        add_y = (scale * LbCosL(angle) * objst->flame.fp_add_y) >> 20;
     }
 
     set_flag(lbDisplay.DrawFlags,objst->transparency_flags);
-    nframe = (thing->index + game.play_gameturn) % keepersprite_frames(objst->flameconfig.animation_id);
+    nframe = (thing->index + game.play_gameturn) % keepersprite_frames(objst->flame.animation_id);
     process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, base_sprite_size);
-    set_flag(lbDisplay.DrawFlags, objst->flameconfig.transparency_flags);
-    if (objst->flameconfig.transparency_flags == TRF_Transpar_Alpha)
+    set_flag(lbDisplay.DrawFlags, objst->flame.transparency_flags);
+    if (objst->flame.transparency_flags == TRF_Transpar_Alpha)
     {
         EngineSpriteDrawUsingAlpha = 1;
     }
-    process_keeper_sprite(jspr->scr_x + add_x, jspr->scr_y + add_y, objst->flameconfig.animation_id, angle, nframe, scale);
+    process_keeper_sprite(jspr->scr_x + add_x, jspr->scr_y + add_y, objst->flame.animation_id, angle, nframe, scale);
 }
 
 static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJontySprite *jspr)
