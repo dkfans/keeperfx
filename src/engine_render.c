@@ -4814,7 +4814,7 @@ void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, lon
 }
 
 static unsigned short get_thing_shade(struct Thing* thing);
-static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *jspr)
+static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *jspr) //todo implement for straight view too
 {
     unsigned short flg_mem;
     unsigned char alpha_mem;
@@ -7857,12 +7857,13 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     }
 }
 
-static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, long angle, long scale)
+static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, long angle, long scale, long base_sprite_size)
 {
     struct PlayerInfo* player = get_my_player();
     struct Thing* thing = jspr->thing;
     struct ObjectConfigStats* objst;
-    unsigned long nframe2;
+    unsigned long nframe;
+    
 
     if (!thing_is_object(thing))
     {
@@ -7871,20 +7872,20 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, l
     }
     objst = get_object_model_stats(thing->model);
 
-    //todo move to object.cfg
+    //todo move to object.cfg ----------------------
     switch (thing->model)
     {
     case ObjMdl_Candlestick:
         objst->flameconfig.animation_id = 112;
-        objst->flameconfig.base_size = 500;
-        objst->flameconfig.td_add_x = 125;
-        objst->flameconfig.td_add_y = -750;
-        objst->flameconfig.fp_add_x = 16;
-        objst->flameconfig.fp_add_y = -24;
+        objst->flameconfig.sprite_size = 300;
+        objst->flameconfig.td_add_x = 3;
+        objst->flameconfig.td_add_y = 0;
+        objst->flameconfig.fp_add_x = 10;
+        objst->flameconfig.fp_add_y = -14;
         break;
     case ObjMdl_Torch:
         objst->flameconfig.animation_id = 113;
-        objst->flameconfig.base_size = 667;
+        objst->flameconfig.sprite_size = 667;
         objst->flameconfig.td_add_x = 0;
         objst->flameconfig.td_add_y = 375;
         objst->flameconfig.fp_add_x = 16;
@@ -7893,7 +7894,7 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, l
     default:
     case ObjMdl_StatueLit:
         objst->flameconfig.animation_id = 113;
-        objst->flameconfig.base_size = 333;
+        objst->flameconfig.sprite_size = 333;
         objst->flameconfig.td_add_x = 83;
         objst->flameconfig.td_add_y = 167;
         objst->flameconfig.fp_add_x = 16;
@@ -7901,12 +7902,13 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, l
         break;
     }
     objst->flameconfig.transparency_flags = TRF_Transpar_Alpha;
+    //----------------------------------------------
 
     long add_x, add_y;
     if (player->view_type == PVT_DungeonTop)
     {
-        add_x = (scale * objst->flameconfig.td_add_x) >> 10;
-        add_y = (scale * objst->flameconfig.td_add_y) >> 10;
+        add_x = (scale * objst->flameconfig.td_add_x) >> 5;
+        add_y = (scale * objst->flameconfig.td_add_y) >> 5;
     }
     else
     {
@@ -7914,17 +7916,15 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, l
         add_y = (scale * LbCosL(angle) * objst->flameconfig.fp_add_y) >> 20;
     }
 
-    long transp2 = scale * objst->flameconfig.base_size / 1000;
-
     set_flag(lbDisplay.DrawFlags,objst->transparency_flags);
-    nframe2 = (thing->index + game.play_gameturn) % keepersprite_frames(objst->flameconfig.animation_id);
-    process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
+    nframe = (thing->index + game.play_gameturn) % keepersprite_frames(objst->flameconfig.animation_id);
+    process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, base_sprite_size);
     set_flag(lbDisplay.DrawFlags, objst->flameconfig.transparency_flags);
     if (objst->flameconfig.transparency_flags == TRF_Transpar_Alpha)
     {
         EngineSpriteDrawUsingAlpha = 1;
     }
-    process_keeper_sprite(jspr->scr_x + add_x, jspr->scr_y + add_y, objst->flameconfig.animation_id, angle, nframe2, transp2);
+    process_keeper_sprite(jspr->scr_x + add_x, jspr->scr_y + add_y, objst->flameconfig.animation_id, angle, nframe, scale);
 }
 
 static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJontySprite *jspr)
@@ -8026,7 +8026,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     struct PlayerInfo *player = get_my_player();
     struct Thing *thing = jspr->thing;
     long angle;
-    long scale;
+    long scaled_size;
     flg_mem = lbDisplay.DrawFlags;
     alpha_mem = EngineSpriteDrawUsingAlpha;
     if (keepersprite_rotable(thing->anim_sprite))
@@ -8036,7 +8036,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     }
     else
       angle = thing->move_angle_xy;
-    prepare_jonty_remap_and_scale(&scale, jspr);
+    prepare_jonty_remap_and_scale(&scaled_size, jspr);
     EngineSpriteDrawUsingAlpha = 0;
     switch (thing->rendering_flags & (TRF_Transpar_Flags))
     {
@@ -8128,10 +8128,10 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
             //TODO CONFIG object model dependency, move to config
             if ((thing->model == ObjMdl_Torch) || (thing->model == ObjMdl_StatueLit) || (thing->model == ObjMdl_Candlestick)) //torchflames
             {
-                process_keeper_flame_on_sprite(jspr, angle, scale);
+                process_keeper_flame_on_sprite(jspr, angle, 300 * scaled_size / thing->sprite_size, scaled_size);
                 break;
             }
-            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scaled_size);
             break;
         case TCls_Trap:
             trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
@@ -8139,10 +8139,10 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
             {
                 break;
             }
-            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scaled_size);
             break;
         default:
-            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scaled_size);
             break;
         }
     }
