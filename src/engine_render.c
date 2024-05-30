@@ -8022,6 +8022,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     struct Thing *thing = jspr->thing;
     long angle;
     long scaled_size;
+    struct ObjectConfigStats* objst;
     flg_mem = lbDisplay.DrawFlags;
     alpha_mem = EngineSpriteDrawUsingAlpha;
     if (keepersprite_rotable(thing->anim_sprite))
@@ -8120,10 +8121,10 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
         switch (thing->class_id)
         {
         case TCls_Object:
-            //TODO CONFIG object model dependency, move to config
-            if ((thing->model == ObjMdl_Torch) || (thing->model == ObjMdl_StatueLit) || (thing->model == ObjMdl_Candlestick)) //torchflames
+            objst = get_object_model_stats(thing->model);
+            if (objst->flame.animation_id > 0)
             {
-                process_keeper_flame_on_sprite(jspr, angle, 300 * scaled_size / thing->sprite_size, scaled_size);
+                process_keeper_flame_on_sprite(jspr, angle, (objst->flame.sprite_size * scaled_size / thing->sprite_size), scaled_size);
                 break;
             }
             process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scaled_size);
