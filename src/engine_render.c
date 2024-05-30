@@ -7882,6 +7882,7 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, l
         objst->flame.td_add_y = 375;
         objst->flame.fp_add_x = 16;
         objst->flame.fp_add_y = 0;
+        objst->flame.transparency_flags = TRF_Transpar_Alpha;
         break;
     case ObjMdl_StatueLit:
         objst->flame.animation_id = 113;
@@ -7890,12 +7891,12 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, l
         objst->flame.td_add_y = 167;
         objst->flame.fp_add_x = 16;
         objst->flame.fp_add_y = -8;
+        objst->flame.transparency_flags = TRF_Transpar_Alpha;
         break;
     default:
         break;
 
     }
-    objst->flame.transparency_flags = TRF_Transpar_Alpha;
     //----------------------------------------------
 
     long add_x, add_y;
