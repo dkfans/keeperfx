@@ -2715,6 +2715,14 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
         else if (creatvar == 34) // LAIROBJECT
         {
             value1 = get_id(object_desc, scline->tp[2]);
+            if (parameter_is_number(scline->tp[2])) //support name or number for lair object
+            {
+                value1 = atoi(scline->tp[2]);
+            }
+            else
+            {
+                value1 = get_id(object_desc, scline->tp[2]);
+            }
         }
         else
         {
@@ -2729,7 +2737,15 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
     {
         if ((creatvar > 0) && (creatvar <= 4)) // Jobs
         {
-            long job_value = get_id(creaturejob_desc, scline->tp[2]);
+            long job_value;
+            if (parameter_is_number(scline->tp[2]))
+            {
+                job_value = atoi(scline->tp[2]);
+            }
+            else
+            {
+                job_value = get_id(creaturejob_desc, scline->tp[2]);
+            }
             long job2_value = 0;
             if (job_value > SHRT_MAX)
             {
