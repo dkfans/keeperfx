@@ -2692,9 +2692,14 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             creatvar = get_id(creatmodel_attraction_commands, scline->tp[1]);
             if (creatvar == -1)
             {
-                SCRPTERRLOG("Unknown creature attribute");
-                DEALLOCATE_SCRIPT_VALUE
-                return;
+                block = CrtConf_SOUNDS;
+                creatvar = get_id(creatmodel_sounds_commands, scline->tp[1]);
+                if (creatvar == -1)
+                {
+                    SCRPTERRLOG("Unknown creature configuration variable");
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
             }
         }
     }
@@ -2747,26 +2752,12 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             }
         }
     }
-    else if (block == CrtConf_ATTRACTION)
+    else if (block == CrtConf_SOUNDS)
     {
-        long room_value2 = 0;
-        if (creatvar == 1)
+        value1 = atoi(scline->tp[2]);
+        if (scline->tp[3][0] != '\0')
         {
-            long room_value = get_id(room_desc, scline->tp[2]);
-            if (scline->tp[3][0] != '\0')
-            {
-                room_value2 = get_id(room_desc, scline->tp[3]);
-            }
-            value1 = room_value;
-            value2 = room_value2;
-        }
-        else
-        {
-            value1 = atoi(scline->tp[2]);
-            if (scline->tp[3][0] != '\0')
-            {
-                value2 = atoi(scline->tp[3]);
-            }
+            value2 = atoi(scline->tp[3]);
         }
     }
 
@@ -2788,7 +2779,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
     value->shorts[2] = value1;
     value->shorts[3] = value2;
     value->shorts[4] = block;
-    SCRIPTDBG(7,"Setting creature %s attribute %d to %d (%d)", creature_code_name(value->shorts[0]), value->shorts[1], value->shorts[2], value->shorts[3]);
+    SCRIPTDBG(7,"Setting creature %s configuration value %d:%d to %d (%d)", creature_code_name(value->shorts[0]), value->shorts[4], value->shorts[1], value->shorts[2], value->shorts[3]);
 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -2988,6 +2979,56 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             break;
         default:
             CONFWRNLOG("Unrecognized Attraction command (%d)", creature_variable);
+            break;
+        }
+    }
+    else if (block == CrtConf_SOUNDS)
+    {
+        switch (creature_variable)
+        {
+        case 1: // HURT
+            game.conf.crtr_conf.creature_sounds[creatid].hurt.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].hurt.count = value2;
+            break;
+        case 2: // HIT
+            game.conf.crtr_conf.creature_sounds[creatid].hit.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].hit.count = value2;
+            break;
+        case 3: // HAPPY
+            game.conf.crtr_conf.creature_sounds[creatid].happy.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].happy.count = value2;
+            break;
+        case 4: // SAD
+            game.conf.crtr_conf.creature_sounds[creatid].sad.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].sad.count = value2;
+            break;
+        case 5: // HANG
+            game.conf.crtr_conf.creature_sounds[creatid].hang.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].hang.count = value2;
+            break;
+        case 6: // DROP
+            game.conf.crtr_conf.creature_sounds[creatid].drop.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].drop.count = value2;
+            break;
+        case 7: // TORTURE
+            game.conf.crtr_conf.creature_sounds[creatid].torture.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].torture.count = value2;
+            break;
+        case 8: // SLAP
+            game.conf.crtr_conf.creature_sounds[creatid].slap.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].slap.count = value2;
+            break;
+        case 9: // DIE
+            game.conf.crtr_conf.creature_sounds[creatid].die.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].die.count = value2;
+            break;
+        case 10: // FOOT
+            game.conf.crtr_conf.creature_sounds[creatid].foot.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].foot.count = value2;
+            break;
+        case 11: // FIGHT
+            game.conf.crtr_conf.creature_sounds[creatid].fight.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].fight.count = value2;
             break;
         }
     }
