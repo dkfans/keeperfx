@@ -4813,21 +4813,29 @@ void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, lon
     map_volume_box.color = color;
 }
 
-static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, long angle, long scale, long base_sprite_size)
+/**
+ * Some objects have a secondary sprite drawn on top, that is positioned relative to the original sprite and scaled differently.
+ * @param jspr the base sprite
+ * @param angle the camera angle at which sprite is shown
+ * @param base_sprite_size the size of the sprite on the screen after camera zoom
+ * @note Renders both the primary and secondary sprite. So both the torch and the flame.
+  */
+static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, long angle, long base_sprite_size)
 {
     struct PlayerInfo* player = get_my_player();
     struct Thing* thing = jspr->thing;
     struct ObjectConfigStats* objst;
     unsigned long nframe;
-
+    long add_x, add_y;
+    long scale;
     if (!thing_is_object(thing))
     {
         ERRORLOG("Thing %s is not an object.", thing_model_name(thing));
         return;
     }
     objst = get_object_model_stats(thing->model);
+    scale = (objst->flame.sprite_size * base_sprite_size / thing->sprite_size);
 
-    long add_x, add_y;
     if (player->view_type == PVT_DungeonTop)
     {
         add_x = (base_sprite_size * objst->flame.td_add_x) >> 5;
@@ -4963,7 +4971,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         objst = get_object_model_stats(thing->model);
         if (objst->flame.animation_id != 0)
         {
-            process_keeper_flame_on_sprite(jspr, angle, (objst->flame.sprite_size * size_on_screen / thing->sprite_size), size_on_screen);
+            process_keeper_flame_on_sprite(jspr, angle, size_on_screen);
         }
         else
         {
@@ -8037,7 +8045,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
             objst = get_object_model_stats(thing->model);
             if (objst->flame.animation_id > 0)
             {
-                process_keeper_flame_on_sprite(jspr, angle, (objst->flame.sprite_size * scaled_size / thing->sprite_size), scaled_size);
+                process_keeper_flame_on_sprite(jspr, angle, scaled_size);
                 break;
             }
             process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scaled_size);
