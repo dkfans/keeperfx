@@ -1760,7 +1760,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             mconf->selling_value = value;
             break;
         case 12: // AnimationID
-            trapstat->sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
+            trapstat->sprite_anim_idx = get_anim_id_(context->value->str2);
             refresh_trap_anim(trap_type);
             break;
         case 13: // ModelSize
@@ -2696,9 +2696,14 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                 creatvar = get_id(creatmodel_sounds_commands, scline->tp[1]);
                 if (creatvar == -1)
                 {
-                    SCRPTERRLOG("Unknown creature configuration variable");
-                    DEALLOCATE_SCRIPT_VALUE
-                    return;
+                    block = CrtConf_SPRITES;
+                    creatvar = get_id(creature_graphics_desc, scline->tp[1]);
+                    if (creatvar == -1)
+                    {
+                        SCRPTERRLOG("Unknown creature configuration variable");
+                        DEALLOCATE_SCRIPT_VALUE
+                        return;
+                    }
                 }
             }
         }
@@ -2793,7 +2798,18 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             value3 = atoi(scline->tp[4]);
         }
     }
-
+    else if (block == CrtConf_SPRITES)
+    {
+        if ((creatvar == (CGI_HandSymbol + 1)) || (creatvar == (CGI_QuerySymbol + 1)))
+        {
+            value1 = get_icon_id(scline->tp[2]);
+        }
+        else
+        {
+            value1 = get_anim_id_(scline->tp[2]);
+        }
+    }
+    
     if (value1 == -1)
     {
         SCRPTERRLOG("Unknown creature configuration value %s", scline->tp[2]);
@@ -3078,11 +3094,15 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             break;
         }
     }
+    else if (block == CrtConf_SPRITES)
+    {
+        set_creature_model_graphics(creatid, creature_variable-1, value);
+    }
     else
     {
         ERRORLOG("Trying to configure unsupported creature block (%d)",block);
     }
-     check_and_auto_fix_stats();
+    check_and_auto_fix_stats();
 }
 
 static void set_object_configuration_process(struct ScriptContext *context)
