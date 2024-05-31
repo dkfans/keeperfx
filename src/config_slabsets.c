@@ -119,7 +119,7 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
 
                 sprintf(key, "%s_objects", slab_styles_commands[slabstyle_no].name);
                 VALUE * objects_arr = value_dict_get(slb_section, key);
-                if(value_array_size(objects_arr) == 0)
+                if(value_type(section) == VALUE_DICT && value_array_size(objects_arr) == 0)
                 {
                     game.slabobjs_idx[slabset_no] = -1;
                 }
