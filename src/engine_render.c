@@ -4813,12 +4813,50 @@ void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, lon
     map_volume_box.color = color;
 }
 
+static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, long angle, long scale, long base_sprite_size)
+{
+    struct PlayerInfo* player = get_my_player();
+    struct Thing* thing = jspr->thing;
+    struct ObjectConfigStats* objst;
+    unsigned long nframe;
+
+    if (!thing_is_object(thing))
+    {
+        ERRORLOG("Thing %s is not an object.", thing_model_name(thing));
+        return;
+    }
+    objst = get_object_model_stats(thing->model);
+
+    long add_x, add_y;
+    if (player->view_type == PVT_DungeonTop)
+    {
+        add_x = (base_sprite_size * objst->flame.td_add_x) >> 5;
+        add_y = (base_sprite_size * objst->flame.td_add_y) >> 5;
+    }
+    else
+    {
+        add_x = (base_sprite_size * objst->flame.fp_add_x) >> 5;
+        add_y = (base_sprite_size * objst->flame.fp_add_y) >> 5;
+    }
+
+    set_flag(lbDisplay.DrawFlags, objst->transparency_flags);
+    nframe = (thing->index + game.play_gameturn) % keepersprite_frames(objst->flame.animation_id);
+    process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, base_sprite_size);
+    set_flag(lbDisplay.DrawFlags, objst->flame.transparency_flags);
+    if (objst->flame.transparency_flags == TRF_Transpar_Alpha)
+    {
+        EngineSpriteDrawUsingAlpha = 1;
+    }
+    process_keeper_sprite(jspr->scr_x + add_x, jspr->scr_y + add_y, objst->flame.animation_id, angle, nframe, scale);
+}
+
 static unsigned short get_thing_shade(struct Thing* thing);
-static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *jspr) //todo implement for straight view too
+static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *jspr)
 {
     unsigned short flg_mem;
     unsigned char alpha_mem;
     struct PlayerInfo *player = get_my_player();
+    struct ObjectConfigStats* objst;
     struct Thing *thing = jspr->thing;
     short angle;
     flg_mem = lbDisplay.DrawFlags;
@@ -4848,7 +4886,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         v6 = get_thing_shade(thing);
     v6 >>= 8;
 
-    int a6_2 = thing->sprite_size * ((camera_zoom << 13) / 0x10000 / pixel_size) / 0x10000;
+    int size_on_screen = thing->sprite_size * ((camera_zoom << 13) / 0x10000 / pixel_size) / 0x10000;
     if ( thing->rendering_flags & TRF_Tint_Flags )
     {
         lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
@@ -4920,92 +4958,32 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         EngineSpriteDrawUsingAlpha = alpha_mem;
         return;
     }
-    TbBool flame_on_sprite = false;
-    int n;
-    long dx;
-    long dy;
-    long v16;
-    if (thing->class_id == TCls_Object)
+    if (thing_is_object(thing))
     {
-        //TODO CONFIG object model dependency, move to config
-
-        if (thing->model == ObjMdl_Torch)
+        objst = get_object_model_stats(thing->model);
+        if (objst->flame.animation_id != 0)
         {
-            n = 113;
-            if (player->view_type == PVT_DungeonTop)
-            {
-                dx = 0;
-                dy = 3 * a6_2 >> 3;
-            }
-            else
-            {
-                dx = a6_2 * LbSinL(angle) >> 20;
-                dy = a6_2 * LbCosL(angle) >> 20;
-            }
-            v16 = 2 * a6_2 / 3;
-            flame_on_sprite = true;
-        }
-        else if (thing->model == ObjMdl_StatueLit)
-        {
-            n = 113;
-            if (player->view_type == PVT_DungeonTop)
-            {
-                dx = (a6_2 >> 2) / 3;
-                dy = a6_2 / 6;
-            }
-            else
-            {
-                dx = a6_2 * LbSinL(angle) >> 20;
-                dy = (-(LbCosL(angle) * ((3 * a6_2) / 2)) >> 16) / 3;
-            }
-            v16 = a6_2 / 3;
-            flame_on_sprite = true;
-        }
-        else if (thing->model == ObjMdl_Candlestick)
-        {
-            n = 112;
-            if (player->view_type == PVT_DungeonTop)
-            {
-                dx = a6_2 >> 3;
-                dy = (a6_2 >> 2) - a6_2;
-            }
-            else
-            {
-                dx = a6_2 * LbSinL(angle) >> 20;
-                dy = -(LbCosL(angle) * ((3 * a6_2) / 2)) >> 16;
-            }
-            v16 = a6_2 / 2;
-            flame_on_sprite = true;
-        }
-    }
-    if (flame_on_sprite)
-    {
-        EngineSpriteDrawUsingAlpha = 0;
-        unsigned long v21 = (game.play_gameturn + thing->index) % keepersprite_frames(n);
-        // drawing torch
-        process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, a6_2);
-        EngineSpriteDrawUsingAlpha = 1;
-        // drawing flame
-        process_keeper_sprite(dx + jspr->scr_x, dy + jspr->scr_y, n, angle, v21, v16);
-    }
-    else
-    {
-        TbBool is_shown = false;
-        if (thing->class_id == TCls_Trap)
-        {
-            is_shown = !game.conf.trapdoor_conf.trap_cfgstats[thing->model].hidden;
+            process_keeper_flame_on_sprite(jspr, angle, (objst->flame.sprite_size * size_on_screen / thing->sprite_size), size_on_screen);
         }
         else
         {
-            is_shown = ((thing->rendering_flags & TRF_Unknown01) == 0);
-        }
-        if ( is_shown ||
+            TbBool is_shown = false;
+            if (thing->class_id == TCls_Trap)
+            {
+                is_shown = !game.conf.trapdoor_conf.trap_cfgstats[thing->model].hidden;
+            }
+            else
+            {
+                is_shown = ((thing->rendering_flags & TRF_Unknown01) == 0);
+            }
+            if (is_shown ||
                 get_my_player()->id_number == thing->owner ||
-                thing->trap.revealed )
-            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, a6_2);
+                thing->trap.revealed)
+                process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, size_on_screen);
+        }
+        lbDisplay.DrawFlags = flg_mem;
+        EngineSpriteDrawUsingAlpha = alpha_mem;
     }
-    lbDisplay.DrawFlags = flg_mem;
-    EngineSpriteDrawUsingAlpha = alpha_mem;
 }
 
 static void draw_engine_number(struct BucketKindFloatingGoldText *num)
@@ -7855,44 +7833,6 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
             draw_single_keepersprite(scaled_x, scaled_y, kspr, draw_idx, scale);
         }
     }
-}
-
-static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, long angle, long scale, long base_sprite_size)
-{
-    struct PlayerInfo* player = get_my_player();
-    struct Thing* thing = jspr->thing;
-    struct ObjectConfigStats* objst;
-    unsigned long nframe;
-    
-
-    if (!thing_is_object(thing))
-    {
-        ERRORLOG("Thing %s is not an object.", thing_model_name(thing));
-        return;
-    }
-    objst = get_object_model_stats(thing->model);
-
-    long add_x, add_y;
-    if (player->view_type == PVT_DungeonTop)
-    {
-        add_x = (base_sprite_size * objst->flame.td_add_x) >> 5;
-        add_y = (base_sprite_size * objst->flame.td_add_y) >> 5;
-    }
-    else
-    {
-        add_x = (base_sprite_size * objst->flame.fp_add_x) >> 5;
-        add_y = (base_sprite_size * objst->flame.fp_add_y) >> 5;
-    }
-
-    set_flag(lbDisplay.DrawFlags,objst->transparency_flags);
-    nframe = (thing->index + game.play_gameturn) % keepersprite_frames(objst->flame.animation_id);
-    process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, base_sprite_size);
-    set_flag(lbDisplay.DrawFlags, objst->flame.transparency_flags);
-    if (objst->flame.transparency_flags == TRF_Transpar_Alpha)
-    {
-        EngineSpriteDrawUsingAlpha = 1;
-    }
-    process_keeper_sprite(jspr->scr_x + add_x, jspr->scr_y + add_y, objst->flame.animation_id, angle, nframe, scale);
 }
 
 static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJontySprite *jspr)
