@@ -7872,43 +7872,16 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, l
     }
     objst = get_object_model_stats(thing->model);
 
-    //todo move to object.cfg ----------------------
-    switch (thing->model)
-    {
-    case ObjMdl_Torch:
-        objst->flame.animation_id = 113;
-        objst->flame.sprite_size = 667;
-        objst->flame.td_add_x = 0;
-        objst->flame.td_add_y = 375;
-        objst->flame.fp_add_x = 16;
-        objst->flame.fp_add_y = 0;
-        objst->flame.transparency_flags = TRF_Transpar_Alpha;
-        break;
-    case ObjMdl_StatueLit:
-        objst->flame.animation_id = 113;
-        objst->flame.sprite_size = 333;
-        objst->flame.td_add_x = 83;
-        objst->flame.td_add_y = 167;
-        objst->flame.fp_add_x = 16;
-        objst->flame.fp_add_y = -8;
-        objst->flame.transparency_flags = TRF_Transpar_Alpha;
-        break;
-    default:
-        break;
-
-    }
-    //----------------------------------------------
-
     long add_x, add_y;
     if (player->view_type == PVT_DungeonTop)
     {
-        add_x = (scale * objst->flame.td_add_x) >> 5;
-        add_y = (scale * objst->flame.td_add_y) >> 5;
+        add_x = (base_sprite_size * objst->flame.td_add_x) >> 5;
+        add_y = (base_sprite_size * objst->flame.td_add_y) >> 5;
     }
     else
     {
-        add_x = (scale * LbSinL(angle) * objst->flame.fp_add_x) >> 20;
-        add_y = (scale * LbCosL(angle) * objst->flame.fp_add_y) >> 20;
+        add_x = (base_sprite_size * objst->flame.fp_add_x) >> 5;
+        add_y = (base_sprite_size * objst->flame.fp_add_y) >> 5;
     }
 
     set_flag(lbDisplay.DrawFlags,objst->transparency_flags);
