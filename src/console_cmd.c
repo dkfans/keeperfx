@@ -1179,6 +1179,11 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 find_map_location_coords(loc, &stl_x, &stl_y, plyr_idx, __func__);
             }
             player = get_player(plyr_idx);
+            if ((stl_x == 0) || (stl_y == 0))
+            {
+                targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "No valid dig location found.");
+                return false;
+            }
             thing = thing_get(player->influenced_thing_idx);
             ThingModel model = get_players_special_digger_model(thing->owner);
             if (thing_is_creature(thing))
