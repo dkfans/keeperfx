@@ -454,9 +454,9 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     thing->movement_flags |= TMvF_Unknown08;
     thing->creation_turn = game.play_gameturn;
     struct CreatureStats* crstat = creature_stats_get(model);
-    if (crstat->transparancy_flags != 0)
+    if (crstat->transparency_flags != 0)
     {
-        set_flag(thing->rendering_flags, crstat->transparancy_flags);
+        set_flag(thing->rendering_flags, crstat->transparency_flags);
     }
     add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);
