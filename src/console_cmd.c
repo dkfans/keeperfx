@@ -1185,15 +1185,29 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             {
                 if (thing->model == model)
                 {
-                    targeted_message_add(MsgType_Player,plyr_idx, plyr_idx, GUI_MESSAGES_DELAY,"%s %d will dig to %d,%d", thing_model_name(thing), thing->index, stl_x, stl_y);
-                    return setup_person_tunnel_to_position(thing, stl_x, stl_y);
+                    if (setup_person_tunnel_to_position(thing, stl_x, stl_y))
+                    {
+                        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+                        targeted_message_add(MsgType_Player,plyr_idx, plyr_idx, GUI_MESSAGES_DELAY,"%s %d will dig to %d,%d", thing_model_name(thing), thing->index, stl_x, stl_y);
+                        cctrl->party.target_plyr_idx = -1;
+                        thing->continue_state = CrSt_TunnellerDoingNothing;
+                        return true;
+                    }
+                    return false;
                 }
             }
             thing = find_players_next_creature_of_breed_and_gui_job(get_players_special_digger_model(thing->owner), -1, plyr_idx, TPF_None);
             if (!thing_is_invalid(thing))
             {
-                targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s %d will dig to %d,%d", thing_model_name(thing), thing->index, stl_x, stl_y);
-                return setup_person_tunnel_to_position(thing, stl_x, stl_y);
+                if (setup_person_tunnel_to_position(thing, stl_x, stl_y))
+                {
+                    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+                    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s %d will dig to %d,%d", thing_model_name(thing), thing->index, stl_x, stl_y);
+                    cctrl->party.target_plyr_idx = -1;
+                    thing->continue_state = CrSt_TunnellerDoingNothing;
+                    return true;
+                }
+                return false;
             }
         }
         else if (strcasecmp(parstr, "creature.instance.set") == 0)

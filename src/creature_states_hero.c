@@ -1199,16 +1199,17 @@ long get_best_dungeon_to_tunnel_to(struct Thing *creatng)
     return best_plyr_idx;
 }
 
-short setup_person_tunnel_to_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbBool setup_person_tunnel_to_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    if ( internal_set_thing_state(creatng, CrSt_Tunnelling) )
+    if (internal_set_thing_state(creatng, CrSt_Tunnelling))
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
         cctrl->moveto_pos.x.val = subtile_coord_center(stl_x);
         cctrl->moveto_pos.y.val = subtile_coord_center(stl_y);
         cctrl->moveto_pos.z.val = get_thing_height_at(creatng, &cctrl->moveto_pos);
+        return true;
     }
-    return 0;
+    return false;
 }
 
 long send_tunneller_to_point(struct Thing *thing, struct Coord3d *pos)
