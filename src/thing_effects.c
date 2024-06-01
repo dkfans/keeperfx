@@ -1359,8 +1359,9 @@ TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, 
     if (thing_is_creature(tngdst))
     {
         const struct CreatureStats* crstat = creature_stats_get_from_thing(tngdst);
-        if (crstat->immune_to_gas) {
-            return affected;
+        if (crstat->immune_to_gas)
+        {
+            max_damage = 0;
         }
     } else {
         return affected;
@@ -1381,6 +1382,7 @@ TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, 
                     damage = get_radially_decaying_value(max_damage,max_dist/4, 3*max_dist/4,distance)+1;
                     SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
                     apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, tngsrc->owner);
+                    affected = true;
                 }
                 break;
             case AAffT_GasSlow:
@@ -1388,6 +1390,7 @@ TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, 
                     struct CreatureControl *srcctrl;
                     srcctrl = creature_control_get_from_thing(tngsrc);
                     apply_spell_effect_to_thing(tngdst, SplK_Slow, srcctrl->explevel);
+                    affected = true;
                 }
                 break;
             case AAffT_GasSlowDamage:
@@ -1401,6 +1404,7 @@ TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, 
                     struct CreatureControl* srcctrl;
                     srcctrl = creature_control_get_from_thing(tngsrc);
                     apply_spell_effect_to_thing(tngdst, SplK_Slow, srcctrl->explevel);
+                    affected = true;
                 }
                 break;
             case AAffT_GasDisease:
@@ -1408,9 +1412,9 @@ TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, 
                     struct CreatureControl* srcctrl;
                     srcctrl = creature_control_get_from_thing(tngsrc);
                     apply_spell_effect_to_thing(tngdst, SplK_Disease, srcctrl->explevel);
+                    affected = true;
                 }
             }
-            affected = true;
         }
     }
     return affected;
