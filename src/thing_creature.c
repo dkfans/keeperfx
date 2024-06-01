@@ -596,8 +596,9 @@ void set_creature_combat_door_state(struct Thing *creatng, struct Thing *obthing
     cctrl->field_AA = 0;
     cctrl->combat_flags |= CmbtF_DoorFight;
     const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    if ((crstat->attack_preference == AttckT_Ranged)
-      && creature_has_ranged_object_weapon(creatng)) {
+    if ( ((crstat->attack_preference == AttckT_Ranged) || !creature_has_melee_attack(creatng)) 
+        && creature_has_ranged_object_weapon(creatng))
+    {
         cctrl->combat.state_id = ObjCmbtSt_Ranged;
     } else {
         cctrl->combat.state_id = ObjCmbtSt_Melee;

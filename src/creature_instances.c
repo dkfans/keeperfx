@@ -334,7 +334,7 @@ TbBool creature_has_ranged_weapon(const struct Thing *creatng)
 }
 
 /**
- * Informs whether the creature has an instance which is ranged weapon useable against other creatures.
+ * Informs whether the creature has an instance which is ranged weapon useable against traps.
  * The instances currently in use and currently in cooldown are included.
  * @param creatng The creature to be checked.
  * @return True if the creature has ranged weapon, false otherwise.
