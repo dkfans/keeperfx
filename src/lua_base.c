@@ -18,7 +18,9 @@
 
 #include "post_inc.h"
 
-//extern "C" {
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct lua_State *Lvl_script;
 
@@ -83,18 +85,18 @@ TbBool open_lua_script(LevelNumber lvnum)
 
 
 
-    fname = prepare_file_fmtpath(FGrp_FxData, "lua/triggers.lua");
+    fname = prepare_file_fmtpath(FGrp_FxData, "lua/global.lua");
 
 	// Load and parse the Lua File
     if ( !LbFileExists(fname) )
     {
-        ERRORLOG("file fxdata/lua/triggers.lua missing");
+        ERRORLOG("file %s missing",fname);
         return false;
     }
     //setLuaPath(Lvl_script,foldername);
-	if(!CheckLua(Lvl_script, luaL_dofile(Lvl_script, fname),"triggers_loading"))
+	if(!CheckLua(Lvl_script, luaL_dofile(Lvl_script, fname),"global_lua_file"))
 	{
-        ERRORLOG("failed to load lua script");
+        ERRORLOG("failed to load global lua script");
         close_lua_script();
         return false;
 	}
@@ -102,4 +104,9 @@ TbBool open_lua_script(LevelNumber lvnum)
     
 }
 
-//}
+
+
+
+#ifdef __cplusplus
+}
+#endif

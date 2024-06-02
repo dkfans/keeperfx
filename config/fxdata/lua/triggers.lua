@@ -18,21 +18,16 @@
 ---@field lastTriggerTime integer
 ---@field enabled boolean
 
----@type Trigger[]
-local triggers = {}
-
-local triggerCounter = 0
-local currentTriggeringThing = nil
-local currentTriggeringPowerKind = nil
-local currentTriggeringPlayer = nil
 
 --- Creates a new trigger and returns it
 --- @return Trigger trigger
 function CreateTrigger()
     print("CreateTrigger")
-    triggerCounter = triggerCounter + 1
-    local trigger = { index = triggerCounter, events = {} }
-    table.insert(triggers, trigger)
+    if Game.triggers == nil then
+        Game.triggers = {}
+    end
+    local trigger = { events = {} }
+    table.insert(Game.triggers, trigger)
     return trigger
 end
 
@@ -105,34 +100,22 @@ end
 --- Gets the unit associated with the current triggering event
 --- @return Thing|nil
 function GetTriggeringThing()
-    return currentTriggeringThing
+    return Game.currentTriggeringThing
 end
 
 --- Gets the spell type associated with the current triggering event
 --- @return power_kind|nil
 function GetTriggeringSpellKind()
-    return currentTriggeringPowerKind
+    return Game.currentTriggeringPowerKind
 end
 
 --- Gets the Player associated with the current triggering event
 --- @return Player|nil
 function GetTriggeringPlayer()
-    return currentTriggeringPlayer
+    return Game.currentTriggeringPlayer
 end
 
 -------
-
---- Finds a trigger by its index
---- @param index integer
---- @return Trigger|nil
-function FindTriggerByIndex(index)
-    for _, trigger in ipairs(triggers) do
-        if trigger.index == index then
-            return trigger
-        end
-    end
-    return nil
-end
 
 --- Processes a trigger
 --- @param trigger Trigger The trigger to process
@@ -161,7 +144,7 @@ end
 --- @param eventType string The type of event ("powerCast" or "dies")
 local function ProcessThingEvent(thing, eventType)
 
-    for _, trigger in ipairs(triggers) do
+    for _, trigger in ipairs(Game.triggers) do
         for _, event in ipairs(trigger.events) do
             if event.type == "unit" and
                event.params.thingEvent == eventType and
@@ -181,26 +164,27 @@ end
 --- @param stl_y integer
 --- @param splevel integer
 function OnPowerCast(pwkind, caster,target_thing,stl_x,stl_y,splevel)
-    currentTriggeringThing = target_thing
-    currentTriggeringPowerKind = pwkind
-    currentTriggeringPlayer = caster
+    print("OnPowerCast" .. tostring(target_thing) )
+    Game.currentTriggeringThing = target_thing
+    Game.currentTriggeringPowerKind = pwkind
+    Game.currentTriggeringPlayer = caster
     ProcessThingEvent(target_thing, "powerCast")
-    currentTriggeringThing = nil
-    currentTriggeringPowerKind = nil
-    currentTriggeringPlayer = nil
+    Game.currentTriggeringThing = nil
+    Game.currentTriggeringPowerKind = nil
+    Game.currentTriggeringPlayer = nil
 end
 
 --- Called when a unit dies
 --- @param unit Creature The unit that dies
 function OnUnitDeath(unit)
-    currentTriggeringThing = unit
+    Game.currentTriggeringThing = unit
     ProcessThingEvent(unit, "dies")
-    currentTriggeringThing = nil
+    Game.currentTriggeringThing = nil
 end
 
 --- Called on each game tick to process timer events
 function OnGameTick()
-    for _, trigger in ipairs(triggers) do
+    for _, trigger in ipairs(Game.triggers) do
         for _, event in ipairs(trigger.events) do
             if event.type == "timer" and event.enabled then
                 local time = event.params.time
@@ -226,7 +210,7 @@ end
 ---@param crate_thing Thing
 function OnSpecialActivated(player,crate_thing)
     
-    currentTriggeringThing = crate_thing
+    Game.currentTriggeringThing = crate_thing
     ProcessThingEvent(crate_thing,"SpecialActivated")
-    currentTriggeringThing = nil
+    Game.currentTriggeringThing = nil
 end

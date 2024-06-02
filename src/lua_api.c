@@ -17,6 +17,7 @@
 #include "room_library.h"
 #include "keeperfx.hpp"
 #include "music_player.h"
+#include "lua_base.h"
 
 
 #include "post_inc.h"
@@ -216,7 +217,6 @@ static ActionPointId luaL_checkActionPoint(lua_State *L, int index)
 
 void lua_pushThing(lua_State *L, struct Thing* thing) {
     if (thing_is_invalid(thing)) {
-        ERRORLOG("Attempt to push invalid thing to Lua");
         luaL_error(L,"Attempt to push invalid thing to Lua");
         lua_pushnil(L);
         return;

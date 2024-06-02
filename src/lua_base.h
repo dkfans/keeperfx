@@ -32,6 +32,10 @@ TbBool CheckLua(lua_State *L, int result,const char* func);
 TbBool open_lua_script(LevelNumber lvnum);
 void close_lua_script();
 
+const char* get_lua_serialized_data(size_t *len);
+void set_lua_serialized_data(const char* data, size_t len);
+
+
 extern struct lua_State *Lvl_script;
 
 #ifdef __cplusplus
