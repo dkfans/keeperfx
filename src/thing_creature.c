@@ -5973,8 +5973,7 @@ void illuminate_creature(struct Thing *creatng)
 
 struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location)
 {
-    long effect;
-    long i = get_map_location_longval(location);
+    long effect = 0;
     struct Coord3d pos;
     TbBool fall_from_gate = false;
 
@@ -5983,45 +5982,15 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
     switch (get_map_location_type(location))
     {
     case MLoc_ACTIONPOINT:
-        if (!get_coords_at_action_point(&pos, i, 1))
-        {
-            return INVALID_THING;
-        }
         effect = 1;
         break;
     case MLoc_HEROGATE:
-        if (!get_coords_at_hero_door(&pos, i, 1))
-        {
-            return INVALID_THING;
-        }
-        effect = 0;
         fall_from_gate = true;
         break;
-    case MLoc_PLAYERSHEART:
-        if (!get_coords_at_dungeon_heart(&pos, i))
-        {
-            return INVALID_THING;
-        }
-        effect = 0;
-        break;
-    case MLoc_METALOCATION:
-        if (!get_coords_at_meta_action(&pos, plyr_idx, i))
-        {
-            return INVALID_THING;
-        }
-        effect = 0;
-        break;
-    case MLoc_CREATUREKIND:
-    case MLoc_OBJECTKIND:
-    case MLoc_ROOMKIND:
-    case MLoc_THING:
-    case MLoc_PLAYERSDUNGEON:
-    case MLoc_APPROPRTDUNGEON:
-    case MLoc_DOORKIND:
-    case MLoc_TRAPKIND:
-    case MLoc_NONE:
-    default:
-        effect = 0;
+    }
+
+    if (!get_coords_at_location(&pos, location))
+    {
         return INVALID_THING;
     }
 

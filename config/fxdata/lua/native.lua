@@ -458,7 +458,14 @@ function REVEAL_MAP_LOCATION(player,location,range) end
 
 function REVEAL_MAP_RECT(player,location,range) end
 
-function CONCEAL_MAP_RECT(Player, x, y, Width, Height, hide revealed*) end
+---comment
+---@param Player Player
+---@param x any
+---@param y any
+---@param Width any
+---@param Height any
+---@param hide_revealed? boolean
+function CONCEAL_MAP_RECT(Player, x, y, Width, Height, hide_revealed) end
 
 
 ---Changes the owner of a slab on the map to specified player. If it's part of a room, the entire room changes owner. Will change PATH to PRETTY_PATH.
