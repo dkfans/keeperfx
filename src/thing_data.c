@@ -305,7 +305,6 @@ void query_thing(struct Thing *thing)
         const char health[24];
         const char position[29];
         const char amount[24] = "\0";
-        char output[36];
         sprintf((char*)title, "Thing ID: %d", querytng->index);
         sprintf((char*)owner, "Owner: %d", querytng->owner);
         sprintf((char*)position, "Pos: X:%d Y:%d Z:%d", querytng->mappos.x.stl.num, querytng->mappos.y.stl.num, querytng->mappos.z.stl.num);
@@ -329,7 +328,7 @@ void query_thing(struct Thing *thing)
             else 
             if (querytng->class_id == TCls_Door)
             {
-                sprintf(output, "%s/%ln", health, &game.conf.trapdoor_conf.door_cfgstats[querytng->model].health);
+                sprintf((char*)health, "Health: %ld/%ld", querytng->health, game.conf.trapdoor_conf.door_cfgstats[querytng->model].health);
             }
             else
             {
