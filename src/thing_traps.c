@@ -864,6 +864,7 @@ TngUpdateRet update_trap(struct Thing *traptng)
     if (trap_is_active(traptng))
     {
         update_trap_trigger(traptng);
+        traptng->trap.volley_fire = false;
     }
     if (map_pos_is_lava(traptng->mappos.x.stl.num, traptng->mappos.y.stl.num) && !thing_is_dragged_or_pulled(traptng))
     {
