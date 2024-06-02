@@ -1172,8 +1172,10 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         }
         else if (strcasecmp(parstr, "digger.sendto") == 0)
         {
-            TbMapLocation loc = { 0 };
+            TbMapLocation loc = {0};
             make_uppercase(pr2str);
+            stl_x = 0;
+            stl_y = 0;
             if (get_map_location_id(pr2str, &loc))
             {
                 find_map_location_coords(loc, &stl_x, &stl_y, plyr_idx, __func__);
