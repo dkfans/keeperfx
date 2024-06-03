@@ -570,13 +570,13 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
         draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx + 1);
     }
     LbTextUseByteCoding(false);
-    int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
-    draw_string64k(gbtn->scr_pos_x + 44*units_per_px/16, gbtn->scr_pos_y + (8 - 6)*units_per_px/16, tx_units_per_px, gui_textbuf);
+    int tx_units_per_px = (22 * units_per_pixel_ui) / LbTextLineHeight();
+    draw_string64k(gbtn->scr_pos_x + scale_ui_value(44), gbtn->scr_pos_y + scale_ui_value(2), tx_units_per_px, gui_textbuf);
 
     long amount = count_player_rooms_of_type(player->id_number, rkind);
     // Note that "@" is "x" in that font
     sprintf(gui_textbuf, "@%ld", amount);
-    draw_string64k(gbtn->scr_pos_x + 40*units_per_px/16, gbtn->scr_pos_y - (14 + 6)*units_per_px/16, tx_units_per_px, gui_textbuf);
+    draw_string64k(gbtn->scr_pos_x + scale_ui_value(40), gbtn->scr_pos_y - scale_ui_value(20), tx_units_per_px, gui_textbuf);
     LbTextUseByteCoding(true);
     lbDisplay.DrawFlags = flg_mem;
 }
@@ -719,8 +719,8 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
         draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx + 1);
     }
     LbTextUseByteCoding(false);
-    int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
-    draw_string64k(gbtn->scr_pos_x + 44*units_per_px/16, gbtn->scr_pos_y + (8 - 6)*units_per_px/16, tx_units_per_px, text);
+    int tx_units_per_px = (22 * units_per_pixel_ui) / LbTextLineHeight();
+    draw_string64k(gbtn->scr_pos_x + scale_ui_value(44), gbtn->scr_pos_y + scale_ui_value(2), tx_units_per_px, text);
     LbTextUseByteCoding(true);
     lbDisplay.DrawFlags = flg_mem;
 }
@@ -1036,8 +1036,8 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
     } else {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx);
     }
-    int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
-    draw_string64k(gbtn->scr_pos_x + 44*units_per_px/16, gbtn->scr_pos_y + (8 - 6)*units_per_px/16, tx_units_per_px, gui_textbuf);
+    int tx_units_per_px = (22 * units_per_pixel_ui) / LbTextLineHeight();
+    draw_string64k(gbtn->scr_pos_x + scale_ui_value(44), gbtn->scr_pos_y + scale_ui_value(2), tx_units_per_px, gui_textbuf);
     lbDisplay.DrawFlags = flg_mem;
 }
 
@@ -1196,11 +1196,11 @@ void draw_centred_string64k(const char *text, short x, short y, short base_w, sh
     unsigned long flg_mem = lbDisplay.DrawFlags;
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
     LbTextSetJustifyWindow((x - (dst_w / 2)), y, dst_w);
-    LbTextSetClipWindow( (x - (dst_w / 2)), y, dst_w, 16*dst_w/base_w);
+    LbTextSetClipWindow( (x - (dst_w / 2)), y, dst_w, scale_ui_value_lofi(LbTextLineHeight()));
     lbDisplay.DrawFlags |= Lb_TEXT_HALIGN_CENTER;
     int tx_units_per_px;
-    int text_x;
-    int text_y = -6*dst_w/base_w;
+    int text_x = 0;
+    int text_y = -scale_ui_value(6);
     if ( (MyScreenHeight < 400) && (dbc_language > 0) ) 
     {
         tx_units_per_px = scale_ui_value(32);
@@ -1208,17 +1208,11 @@ void draw_centred_string64k(const char *text, short x, short y, short base_w, sh
     }
     else
     {
-        tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
         if ( (dbc_language > 0) && (MyScreenWidth > 640) )
         {
-            tx_units_per_px = scale_value_by_horizontal_resolution(12 + (MyScreenWidth / 640));
             text_y += 12;
         }
-        else
-        {
-            tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
-        }
-        text_x = 0;
+        tx_units_per_px = (22 * units_per_pixel_ui)/LbTextLineHeight();
     }
     LbTextDrawResized(text_x, text_y, tx_units_per_px, text);
     LbTextSetJustifyWindow(0, 0, LbGraphicsScreenWidth());
@@ -1263,7 +1257,7 @@ void draw_name_box(long x, long y, int width, struct Thing *thing)
         }
         // Draw creature name
         const char* text = creature_own_name(thing);
-        draw_centred_string64k(text, x + 63*width/140, y + 2*width/140, 120, 120*width/140);
+        draw_centred_string64k(text, x + 63*width/140, y + scale_ui_value(2), 120, 120*width/140);
     }
 }
 
@@ -2210,7 +2204,7 @@ void gui_area_payday_button(struct GuiButton *gbtn)
     gui_area_progress_bar_wide(gbtn, units_per_px, game.pay_day_progress, game.conf.rules.game.pay_day_gap);
     struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
     char* text = buf_sprintf("%d", (int)dungeon->creatures_total_pay);
-    draw_centred_string64k(text, gbtn->scr_pos_x + (gbtn->width >> 1), gbtn->scr_pos_y + 8*units_per_px/16, 130, gbtn->width);
+    draw_centred_string64k(text, gbtn->scr_pos_x + (gbtn->width >> 1), gbtn->scr_pos_y + scale_ui_value(8), 130, gbtn->width);
 }
 
 void gui_area_research_bar(struct GuiButton *gbtn)
