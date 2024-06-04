@@ -165,6 +165,7 @@ struct WorkersRulesConfig {
     unsigned long default_imp_dig_damage;
     unsigned long default_imp_dig_own_damage;
     long digger_work_experience;
+    TbBool drag_to_lair;
 };
 
 struct HealthRulesConfig {

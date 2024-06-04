@@ -51,6 +51,8 @@ TbBool creature_move_to_home_lair(struct Thing *creatng);
 short creature_going_home_to_sleep(struct Thing *thing);
 short creature_sleep(struct Thing *thing);
 long process_lair_enemy(struct Thing *thing, struct Room *room);
+
+short creature_drop_body_in_lair(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

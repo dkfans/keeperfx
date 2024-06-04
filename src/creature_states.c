@@ -467,6 +467,8 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
     0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_Move, 0, 0, 0, 0, 0, 0, 0, 1 },
   { good_arrived_at_attack_dungeon_heart, NULL, NULL, move_check_attack_any_door,
     0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_Move, 0, 0, 0, 0, 0, 0, 0, 1 },
+  {creature_drop_body_in_lair, state_cleanup_dragging_body, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 1, 0,  0, 0, 0, 1},
 };
 
 /** GUI States of creatures - from "Creatures" Tab in UI.

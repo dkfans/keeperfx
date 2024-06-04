@@ -31,13 +31,14 @@ enum SpecialDiggerTask {
     DigTsk_ImproveDungeon,
     DigTsk_ConvertDungeon,
     DigTsk_ReinforceWall,
-    DigTsk_PickUpUnconscious,
+    DigTsk_PickUpUnconsciousHostile,
     DigTsk_PickUpCorpse,
     DigTsk_PicksUpSpellBook,
     DigTsk_PicksUpCrateToArm,
     DigTsk_PicksUpCrateForWorkshop,
     DigTsk_DigOrMine,
     DigTsk_PicksUpGoldPile, // 10
+    DigTsk_PickUpUnconsciousFriendly,
 };
 
 enum SpecialLastJobKinds {

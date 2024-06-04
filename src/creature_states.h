@@ -185,6 +185,7 @@ enum CreatureStates {
     CrSt_Timebomb,
     CrSt_GoodWanderToCreatureCombat,
     CrSt_GoodWanderToObjectCombat,
+    CrSt_CreatureDropBodyInLair,
     CrSt_ListEnd,
 };
 
