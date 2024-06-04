@@ -4966,16 +4966,17 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         EngineSpriteDrawUsingAlpha = alpha_mem;
         return;
     }
+    TbBool is_shown = true;
     if (thing_is_object(thing))
     {
         objst = get_object_model_stats(thing->model);
         if (objst->flame.animation_id != 0)
         {
+            is_shown = false;
             process_keeper_flame_on_sprite(jspr, angle, size_on_screen);
         }
         else
         {
-            TbBool is_shown = false;
             if (thing->class_id == TCls_Trap)
             {
                 is_shown = !game.conf.trapdoor_conf.trap_cfgstats[thing->model].hidden;
@@ -4984,14 +4985,15 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
             {
                 is_shown = ((thing->rendering_flags & TRF_Unknown01) == 0);
             }
-            if (is_shown ||
-                get_my_player()->id_number == thing->owner ||
-                thing->trap.revealed)
-                process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, size_on_screen);
+
         }
-        lbDisplay.DrawFlags = flg_mem;
-        EngineSpriteDrawUsingAlpha = alpha_mem;
     }
+    if (is_shown || get_my_player()->id_number == thing->owner || thing->trap.revealed)
+    {
+        process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, size_on_screen);
+    }
+    lbDisplay.DrawFlags = flg_mem;
+    EngineSpriteDrawUsingAlpha = alpha_mem;
 }
 
 static void draw_engine_number(struct BucketKindFloatingGoldText *num)
