@@ -200,8 +200,7 @@ long check_out_unsaved_unconscious_creature(struct Thing *spdigtng, long range)
         // Per-thing code
         struct CreatureControl* cctrlthing = creature_control_get_from_thing(thing);
         struct Room * room = get_creature_lair_room(thing);
-        struct Thing* lairtng = thing_get(cctrlthing->lairtng_idx);
-        setup_person_move_to_coord(spdigtng, &lairtng->mappos, NavRtF_Default);
+
         if (!thing_is_dragged_or_pulled(thing) && (thing->owner == spdigtng->owner)
           && thing_revealed(thing, spdigtng->owner) && creature_is_being_unconscious(thing))
         {

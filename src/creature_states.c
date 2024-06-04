@@ -469,6 +469,8 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
     0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_Move, 0, 0, 0, 0, 0, 0, 0, 1 },
   {creature_drop_unconscious_in_lair, state_cleanup_dragging_body, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 1, 0,  0, 0, 0, 1},
+  {creature_save_unconscious_creature, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 1, 0,  0, 0, 0, 1},
 };
 
 /** GUI States of creatures - from "Creatures" Tab in UI.
@@ -634,6 +636,8 @@ TbBool creature_is_being_dropped(const struct Thing *thing)
 
 TbBool creature_is_being_unconscious(const struct Thing *thing)
 {
+        if (thing_is_invalid(thing))
+        return INVALID_THING;
         CrtrStateId i = thing->active_state;
         if ((i == CrSt_MoveToPosition) || (i == CrSt_MoveBackwardsToPosition))
             i = thing->continue_state;

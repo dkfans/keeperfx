@@ -1870,7 +1870,6 @@ int add_unsaved_unconscious_creature_to_imp_stack(struct Dungeon *dungeon, int m
         if ( (dungeon->digger_stack_length >= DIGGER_TASK_MAX_COUNT) || (remain_num <= 0) ) {
             break;
         }
-        JUSTLOG("add_unsaved_to imp_stack Thing= %d", thing);
         if ((dungeon->owner == thing->owner) && creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing))
         {
             if (thing_revealed(thing, dungeon->owner))
@@ -3017,6 +3016,8 @@ long check_out_worker_save_unconscious(struct Thing *thing, struct DiggerStack *
     stl_y = stl_num_decode_y(dstack->stl_num);
     struct Thing *sectng;
     sectng = check_place_to_save_unconscious_creature(thing, stl_x, stl_y);
+    if (thing_is_invalid(thing))
+        return INVALID_THING;
     struct Room * room;
     room = get_creature_lair_room(sectng);
     if (!get_creature_lair_room(sectng)) {
@@ -3037,8 +3038,12 @@ long check_out_worker_save_unconscious(struct Thing *thing, struct DiggerStack *
     //struct Room * room;
     //room = find_nearest_room_of_role_for_thing_with_spare_capacity(thing, thing->owner, RoRoF_Prison, NavRtF_Default, 1);
     struct CreatureControl *cctrl_sectng = creature_control_get_from_thing(sectng);
-   // struct Thing* lairtng = thing_get(cctrl_sectng->lairtng_idx);
-    //setup_person_move_to_coord(thing, &lairtng->mappos, NavRtF_Default);
+    struct Thing* lairtng = thing_get(cctrl_sectng->lairtng_idx);
+    if(!setup_person_move_to_coord(thing, &lairtng->mappos, NavRtF_Default))
+    {
+    // Do not delete the task - another digger might be able to reach it
+        return 0; 
+    }
     //creature_can_navigate_to
     if (room_is_invalid(room))
     {

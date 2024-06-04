@@ -138,7 +138,7 @@ short creature_drop_unconscious_in_lair(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
-    if (dragtng == NULL || !thing_exists(dragtng) || !creature_is_being_unconscious(dragtng)) {
+    if (!thing_exists(dragtng) || !thing_exists(dragtng) || !creature_is_being_unconscious(dragtng)) {
         set_start_state(thing);
         return 0;
     }
