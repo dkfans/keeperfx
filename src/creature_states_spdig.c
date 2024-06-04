@@ -183,7 +183,7 @@ long check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, long range)
 
 long check_out_unsaved_unconscious_creature(struct Thing *spdigtng, long range)
 {
-    if (!player_has_room_of_role(spdigtng->owner, RoRoF_LairStorage)) {
+    if (!player_has_room_of_role(spdigtng->owner, RoRoF_LairStorage) || !game.conf.rules.workers.drag_to_lair) {
         return 0;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
@@ -198,7 +198,6 @@ long check_out_unsaved_unconscious_creature(struct Thing *spdigtng, long range)
           break;
         i = thing->next_of_class;
         // Per-thing code
-        struct CreatureControl* cctrlthing = creature_control_get_from_thing(thing);
         struct Room * room = get_creature_lair_room(thing);
 
         if (!thing_is_dragged_or_pulled(thing) && (thing->owner == spdigtng->owner)
@@ -210,7 +209,6 @@ long check_out_unsaved_unconscious_creature(struct Thing *spdigtng, long range)
                 {
                     // We have a thing which we should pick - now check if the room we found is correct
                     if (room_is_invalid(room)) {
-                     //   update_cannot_find_room_of_role_wth_spare_capacity_event(spdigtng->owner, spdigtng, RoRoF_Prison);
                         return 0;
                     }
                     if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default)) {
@@ -816,32 +814,32 @@ long check_out_available_spdigger_drop_tasks(struct Thing *spdigtng)
     SYNCDBG(9,"Starting for %s index %d",thing_model_name(spdigtng),(int)spdigtng->index);
     TRACE_THING(spdigtng);
 
-    if ( check_out_unclaimed_unconscious_bodies(spdigtng, 768) )
+    if ( check_out_unclaimed_unconscious_bodies(spdigtng, 3 * COORD_PER_STL) )
     {
         cctrl->digger.task_repeats = 0;
         return 1;
     }
-    if ( check_out_unsaved_unconscious_creature(spdigtng, 768) )
+    if ( check_out_unsaved_unconscious_creature(spdigtng, 3 * COORD_PER_STL) )
     {
         cctrl->digger.task_repeats = 0;
         return 1;
     }
-    if ( check_out_unclaimed_dead_bodies(spdigtng, 768) )
+    if ( check_out_unclaimed_dead_bodies(spdigtng, 3 * COORD_PER_STL) )
     {
         cctrl->digger.task_repeats = 0;
         return 1;
     }
-    if ( check_out_unclaimed_spells(spdigtng, 768) )
+    if ( check_out_unclaimed_spells(spdigtng, 3 * COORD_PER_STL) )
     {
         cctrl->digger.task_repeats = 0;
         return 1;
     }
-    if ( check_out_unclaimed_traps(spdigtng, 768) )
+    if ( check_out_unclaimed_traps(spdigtng, 3 * COORD_PER_STL) )
     {
         cctrl->digger.task_repeats = 0;
         return 1;
     }
-    if ( check_out_empty_traps(spdigtng, 768) )
+    if ( check_out_empty_traps(spdigtng, 3 * COORD_PER_STL) )
     {
         cctrl->digger.task_repeats = 0;
         return 1;
@@ -1617,9 +1615,9 @@ short creature_save_unconscious_creature(struct Thing *thing)
     SYNCDBG(9,"Starting");
     TRACE_THING(thing);
     // Check if the player has means to do such kind of action
-     if (!player_has_room_of_role(thing->owner, RoRoF_LairStorage) || !player_creature_tends_to(thing->owner, CrTend_Imprison))
+     if (!player_has_room_of_role(thing->owner, RoRoF_LairStorage) || !player_creature_tends_to(thing->owner, CrTend_Flee))
      {
-         SYNCDBG(19,"Player %d has no %s or has imprison tendency off",(int)thing->owner,room_role_code_name(RoRoF_LairStorage));
+         SYNCDBG(19,"Player %d has no %s or has flee tendency off",(int)thing->owner,room_role_code_name(RoRoF_LairStorage));
          set_start_state(thing);
          return 0;
      }
@@ -1637,7 +1635,6 @@ short creature_save_unconscious_creature(struct Thing *thing)
     struct Room* dstroom = get_creature_lair_room(picktng);
     if (room_is_invalid(dstroom))
     {
-        // Check why the treasure room search failed and inform the player
         set_start_state(thing);
         return 0;
     }
