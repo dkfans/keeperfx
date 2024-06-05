@@ -825,9 +825,9 @@ static int script_recognize_params(char **line, const struct CommandDesc *cmd_de
         else
         {
             *line = get_next_token(funline, &token);
-            if ((token.type == TkInvalid) || (token.type == TkEnd))
+            if ((token.type == TkInvalid) || (token.type == TkEnd) || (token.type == TkComma))
             {
-                SCRPTERRLOG("Invalid token at %s", **line? *line: "<newline>");
+                SCRPTERRLOG("Invalid token '%s'", **line? *line: "<newline>");
                 dst--;
                 return -1;
             }
@@ -898,6 +898,7 @@ static int script_recognize_params(char **line, const struct CommandDesc *cmd_de
 TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
 {
     const struct CommandDesc *cmd_desc;
+    const char *line_start = line;
     struct CommandToken token = { 0 };
     SCRIPTDBG(12,"Starting");
     struct ScriptLine* scline = (struct ScriptLine*)LbMemoryAlloc(sizeof(struct ScriptLine));
@@ -964,13 +965,16 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
         args_count = script_recognize_params(&line, cmd_desc, scline, &para_level, 0, file_version);
         if (args_count < 0)
         {
+            SCRPTERRLOG("Syntax error at \"%s\"", line_start);
+            SCRPTERRLOG("   near - -      %*c", line - line_start, '^');
             LbMemoryFree(scline);
             return false;
         }
     }
     else
     {
-        SCRPTERRLOG("Syntax error: ( expected");
+        SCRPTERRLOG("Syntax error: ( expected at \"%s\"", line_start);
+        SCRPTERRLOG("   near - - - - - - -        %*c", line - line_start, '^');
         LbMemoryFree(scline);
         return false;
     }
