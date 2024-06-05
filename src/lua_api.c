@@ -265,6 +265,261 @@ void lua_pushPos(lua_State *L, struct Coord3d* pos) {
 /************    Api Functions    ******************************************************************/
 /***************************************************************************************************/
 
+
+
+//Setup Commands
+
+static int lua_SET_GENERATE_SPEED(lua_State *L)
+{
+    GameTurnDelta interval   = luaL_checkinteger(L,1);
+
+    game.generate_speed = saturate_set_unsigned(interval, 16);
+    update_dungeon_generation_speeds();
+    return 0;
+}
+
+static int lua_COMPUTER_PLAYER(lua_State *L)
+{
+    PlayerNumber player = luaL_checkPlayerSingle(L,1);
+    long attitude       = luaL_checkint(L,2);
+
+    script_support_setup_player_as_computer_keeper(player, attitude);
+    return 0;
+}
+
+//static int lua_ALLY_PLAYERS(lua_State *L)
+
+static int lua_START_MONEY(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    GoldAmount gold_val = luaL_checkinteger(L, 2);
+
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        if (gold_val > SENSIBLE_GOLD)
+        {
+            gold_val = SENSIBLE_GOLD;
+            SCRPTWRNLOG("Gold added to player reduced to %d", SENSIBLE_GOLD);
+        }
+        player_add_offmap_gold(i, gold_val);
+    }
+    return 0;
+
+}
+
+static int lua_MAX_CREATURES(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    long max_amount                 = luaL_checkinteger(L, 2);
+
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        SYNCDBG(4,"Setting player %d max attracted creatures to %d.",(int)i,(int)max_amount);
+        struct Dungeon* dungeon = get_dungeon(i);
+        if (dungeon_invalid(dungeon))
+            continue;
+        dungeon->max_creatures_attracted = max_amount;
+    }
+    return 0;
+}
+
+static int lua_ADD_CREATURE_TO_POOL(lua_State *L)
+{
+    long crtr_model = luaL_checkNamedCommand(L,1,creature_desc);
+    long amount     = luaL_checkinteger(L, 2);
+
+    add_creature_to_pool(crtr_model, amount, false);
+    return 0;
+}
+
+static int lua_CREATURE_AVAILABLE(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    long cr_kind                    = luaL_checkNamedCommand(L,2,creature_desc);
+    TbBool can_be_attracted         = lua_toboolean(L, 3);
+    long amount_forced              = luaL_checkinteger(L, 4);
+
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        if (!set_creature_available(i,cr_kind,can_be_attracted,amount_forced))
+            WARNLOG("Setting creature %s availability for player %d failed.",creature_code_name(cr_kind),(int)i);
+    }
+    return 0;
+}
+
+//static int lua_DEAD_CREATURES_RETURN_TO_POOL(lua_State *L)
+
+static int lua_ROOM_AVAILABLE(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    long rkind                      = luaL_checkNamedCommand(L,2,room_desc);
+    TbBool can_be_available         = lua_toboolean(L, 3);
+    TbBool is_available             = lua_toboolean(L, 4);
+
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        set_room_available(i,rkind,can_be_available,is_available);
+    }
+    return 0;
+}
+
+static int lua_MAGIC_AVAILABLE(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    long power                      = luaL_checkNamedCommand(L,2,power_desc);
+    TbBool can_be_available         = lua_toboolean(L, 3);
+    TbBool is_available             = lua_toboolean(L, 4);
+
+    JUSTLOG("lua_MAGIC_AVAILABLE %d;%d0",player_range.start_idx, player_range.end_idx); 
+
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        JUSTLOG("%d,%d;%d;%d",i,power,can_be_available,is_available);
+        set_power_available(i,power,can_be_available,is_available);
+    }
+    return 0;
+}
+
+static int lua_DOOR_AVAILABLE(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    long door_type                  = luaL_checkNamedCommand(L,2,door_desc);
+    TbBool can_be_available         = lua_toboolean(L, 3);
+    long number_available           = luaL_checkinteger(L, 4);
+
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        set_door_buildable_and_add_to_amount(i, door_type, can_be_available, number_available);
+    }
+    return 0;
+}
+
+static int lua_TRAP_AVAILABLE(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    long trap_type                  = luaL_checkNamedCommand(L,2,trap_desc);
+    TbBool can_be_available         = lua_toboolean(L, 3);
+    long number_available           = luaL_checkinteger(L, 4);
+
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        set_trap_buildable_and_add_to_amount(i, trap_type, can_be_available, number_available);
+    }
+    return 0;
+}
+
+
+
+
+//Script flow control
+
+static int lua_WIN_GAME(lua_State *L)
+{
+    struct PlayerRange player_range;
+    if(lua_isnone(L,1))
+    {
+        player_range.start_idx = 0;
+        player_range.end_idx = PLAYERS_COUNT;
+    }
+    else
+        player_range = luaL_checkPlayerRange(L, 1);
+
+
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        struct PlayerInfo *player = get_player(i);
+        set_player_as_won_level(player);
+    }
+    return 0;
+}
+
+static int lua_LOSE_GAME(lua_State *L)
+{
+    struct PlayerRange player_range;
+    if(lua_isnone(L,1))
+    {
+        player_range.start_idx = 0;
+        player_range.end_idx = PLAYERS_COUNT;
+    }
+    else
+        player_range = luaL_checkPlayerRange(L, 1);
+
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        struct PlayerInfo *player = get_player(i);
+        set_player_as_lost_level(player);
+    }
+    return 0;
+}
+
+//static int lua_COUNT_CREATURES_AT_ACTION_POINT(lua_State *L)
+
+static int lua_SET_TIMER(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    long timr_id              = luaL_checkNamedCommand(L,2,timer_desc);
+
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        restart_script_timer(i, timr_id);
+    }
+    return 0;
+}
+
+//static int lua_ADD_TO_TIMER(lua_State *L)
+//static int lua_DISPLAY_TIMER(lua_State *L)
+//static int lua_HIDE_TIMER(lua_State *L)
+//static int lua_BONUS_LEVEL_TIME(lua_State *L)
+//static int lua_ADD_BONUS_TIME(lua_State *L)
+
+
+//Adding New Creatures and Parties to the Level
+
+static int lua_ADD_CREATURE_TO_LEVEL(lua_State *L)
+{
+    PlayerNumber plr_idx   = luaL_checkPlayerSingle(L, 1);
+    long crtr_id           = luaL_checkNamedCommand(L,2,creature_desc);
+    TbMapLocation location = luaL_checkLocation(L,  3);
+    long ncopies           = luaL_checkinteger(L, 4);
+    long crtr_level        = luaL_checkinteger(L, 5);
+    long carried_gold      = luaL_checkinteger(L, 6);
+
+    if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
+    {
+        SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
+        return 0;
+    }
+    if ((ncopies <= 0) || (ncopies >= CREATURES_COUNT))
+    {
+        SCRPTERRLOG("Invalid number of creatures to add");
+        return 0;
+    }
+
+    // Recognize place where party is created
+    if (location == 0)
+        return 0;
+
+    for (long i = 0; i < ncopies; i++)
+    {
+        lua_pushThing(L,script_create_new_creature(plr_idx, crtr_id, location, carried_gold, crtr_level-1));
+    }
+    return ncopies;
+}
+
+static int lua_ADD_TUNNELLER_TO_LEVEL(lua_State *L)
+{
+    PlayerNumber plr_id          = luaL_checkPlayerSingle(L,1);
+    TbMapLocation spawn_location = luaL_checkLocation(L,2);
+    TbMapLocation head_for       = luaL_checkHeadingLocation(L,3);
+    long level                   = luaL_checkinteger(L,5);
+    long gold_held               = luaL_checkinteger(L,6);
+
+    struct Thing* thing = script_process_new_tunneler(plr_id, spawn_location, head_for, level-1, gold_held);
+
+    lua_pushThing(L, thing);
+    return 1;
+}
+
 static int lua_CREATE_PARTY(lua_State *L)
 {
     const char* party_name = luaL_checklstring(L, 1,NULL);
@@ -295,6 +550,7 @@ static int lua_ADD_TO_PARTY(lua_State *L)
     add_member_to_party(party_id, crtr_id, experience, gold, objective_id, countdown);
     return 0;
 }
+
 static int lua_DELETE_FROM_PARTY(lua_State *L)
 {
     const char* party_name = lua_tostring(L,  1);
@@ -317,6 +573,40 @@ static int lua_DELETE_FROM_PARTY(lua_State *L)
     delete_member_from_party(party_id, creature_id, experience);
     return 0;
 }
+
+static int lua_ADD_TUNNELLER_PARTY_TO_LEVEL(lua_State *L)
+{
+    PlayerNumber owner           = luaL_checkPlayerSingle(L, 1);
+    const char *party_name       = luaL_checkstring(L,  2);
+    TbMapLocation spawn_location = luaL_checkLocation(L,  3);
+    TbMapLocation head_for       = luaL_checkHeadingLocation(L,4);
+    long target                  = luaL_checkinteger(L, 5);
+    long crtr_level              = luaL_checkinteger(L, 6);
+    GoldAmount carried_gold      = luaL_checkinteger(L, 7);
+
+    if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
+    {
+        SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
+        return 0;
+    }
+    // Recognize party name
+    long prty_id = get_party_index_of_name(party_name);
+    if (prty_id < 0)
+    {
+        SCRPTERRLOG("Party of requested name, '%s', is not defined", party_name);
+        return 0;
+    }
+    struct Party* party = &gameadd.script.creature_partys[prty_id];
+    if (party->members_num >= GROUP_MEMBERS_COUNT-1)
+    {
+        SCRPTERRLOG("Party too big for ADD_TUNNELLER (Max %d members)", GROUP_MEMBERS_COUNT-1);
+        return 0;
+    }
+
+    script_process_new_tunneller_party(owner, prty_id, spawn_location, head_for, crtr_level-1, carried_gold);
+    return 0;
+}
+
 static int lua_ADD_PARTY_TO_LEVEL(lua_State *L)
 {
     long plr_range_id      = luaL_checkinteger(L, 1);
@@ -350,286 +640,7 @@ static int lua_ADD_PARTY_TO_LEVEL(lua_State *L)
         return 0;
 }
 
-static int lua_ADD_CREATURE_TO_LEVEL(lua_State *L)
-{
-    PlayerNumber plr_idx   = luaL_checkPlayerSingle(L, 1);
-    long crtr_id           = luaL_checkNamedCommand(L,2,creature_desc);
-    TbMapLocation location = luaL_checkLocation(L,  3);
-    long ncopies           = luaL_checkinteger(L, 4);
-    long crtr_level        = luaL_checkinteger(L, 5);
-    long carried_gold      = luaL_checkinteger(L, 6);
-
-    if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
-    {
-        SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
-        return 0;
-    }
-    if ((ncopies <= 0) || (ncopies >= CREATURES_COUNT))
-    {
-        SCRPTERRLOG("Invalid number of creatures to add");
-        return 0;
-    }
-
-    // Recognize place where party is created
-    if (location == 0)
-        return 0;
-
-    for (long i = 0; i < ncopies; i++)
-    {
-        lua_pushThing(L,script_create_new_creature(plr_idx, crtr_id, location, carried_gold, crtr_level-1));
-    }
-    return ncopies;
-}
-
-static int lua_ADD_OBJECT_TO_LEVEL(lua_State *L)
-{
-    long obj_id            = luaL_checkNamedCommand(L,1,object_desc);
-    TbMapLocation location = luaL_checkLocation(L,  2);
-    long arg               = lua_tointeger(L,3);
-    PlayerNumber plr_idx   = luaL_checkPlayerSingle(L, 4);
-
-    lua_pushThing(L,script_process_new_object(obj_id, location, arg, plr_idx));
-    return 1;
-}
-
-static int lua_SET_GENERATE_SPEED(lua_State *L)
-{
-    GameTurnDelta interval   = luaL_checkinteger(L,1);
-
-    game.generate_speed = saturate_set_unsigned(interval, 16);
-    update_dungeon_generation_speeds();
-    return 0;
-}
-
-static int lua_START_MONEY(lua_State *L)
-{
-    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
-    GoldAmount gold_val = luaL_checkinteger(L, 2);
-
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
-    {
-        if (gold_val > SENSIBLE_GOLD)
-        {
-            gold_val = SENSIBLE_GOLD;
-            SCRPTWRNLOG("Gold added to player reduced to %d", SENSIBLE_GOLD);
-        }
-        player_add_offmap_gold(i, gold_val);
-    }
-    return 0;
-
-}
-
-static int lua_ROOM_AVAILABLE(lua_State *L)
-{
-    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
-    long rkind                      = luaL_checkNamedCommand(L,2,room_desc);
-    TbBool can_be_available         = lua_toboolean(L, 3);
-    TbBool is_available             = lua_toboolean(L, 4);
-
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
-    {
-        set_room_available(i,rkind,can_be_available,is_available);
-    }
-    return 0;
-}
-static int lua_CREATURE_AVAILABLE(lua_State *L)
-{
-    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
-    long cr_kind                    = luaL_checkNamedCommand(L,2,creature_desc);
-    TbBool can_be_attracted         = lua_toboolean(L, 3);
-    long amount_forced              = luaL_checkinteger(L, 4);
-
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
-    {
-        if (!set_creature_available(i,cr_kind,can_be_attracted,amount_forced))
-            WARNLOG("Setting creature %s availability for player %d failed.",creature_code_name(cr_kind),(int)i);
-    }
-    return 0;
-}
-static int lua_MAGIC_AVAILABLE(lua_State *L)
-{
-    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
-    long power                      = luaL_checkNamedCommand(L,2,power_desc);
-    TbBool can_be_available         = lua_toboolean(L, 3);
-    TbBool is_available             = lua_toboolean(L, 4);
-
-    JUSTLOG("lua_MAGIC_AVAILABLE %d;%d0",player_range.start_idx, player_range.end_idx); 
-
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
-    {
-        JUSTLOG("%d,%d;%d;%d",i,power,can_be_available,is_available);
-        set_power_available(i,power,can_be_available,is_available);
-    }
-    return 0;
-}
-static int lua_TRAP_AVAILABLE(lua_State *L)
-{
-    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
-    long trap_type                  = luaL_checkNamedCommand(L,2,trap_desc);
-    TbBool can_be_available         = lua_toboolean(L, 3);
-    long number_available           = luaL_checkinteger(L, 4);
-
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
-    {
-        set_trap_buildable_and_add_to_amount(i, trap_type, can_be_available, number_available);
-    }
-    return 0;
-}
-static int lua_RESEARCH(lua_State *L)
-{
-    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
-    long research_type              = luaL_checkNamedCommand(L,2,research_desc);
-    int room_or_spell;
-    switch (research_type)
-    {
-        case 1:
-            room_or_spell = luaL_checkNamedCommand(L,3,power_desc);
-            break;
-        case 2:
-            room_or_spell = luaL_checkNamedCommand(L,3,room_desc);
-            break;
-        default:
-            luaL_error (L,"invalid research_type %d",research_type);
-            return 0;
-    }
-    long research_value         = luaL_checkint(L, 4);
-
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
-    {
-        update_or_add_players_research_amount(i, research_type, room_or_spell, research_value);
-    }
-    return 0;
-}
-static int lua_RESEARCH_ORDER(lua_State *L)
-{
-    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
-    long research_type              = luaL_checkNamedCommand(L,2,research_desc);
-    int room_or_spell;
-    switch (research_type)
-    {
-        case 1:
-            room_or_spell = luaL_checkNamedCommand(L,3,power_desc);
-            break;
-        case 2:
-            room_or_spell = luaL_checkNamedCommand(L,3,room_desc);
-            break;
-        default:
-            luaL_error (L,"invalid research_type %d",research_type);
-            return 0;
-    }
-    long research_value         = luaL_checkint(L, 4);
-
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
-    {
-        if (!research_overriden_for_player(i))
-            remove_all_research_from_player(i);
-        add_research_to_player(i, research_type, room_or_spell, research_value);
-    }
-    return 0;
-}
-
-static int lua_COMPUTER_PLAYER(lua_State *L)
-{
-    PlayerNumber player = luaL_checkPlayerSingle(L,1);
-    long attitude       = luaL_checkint(L,2);
-
-    script_support_setup_player_as_computer_keeper(player, attitude);
-    return 0;
-}
-
-static int lua_SET_TIMER(lua_State *L)
-{
-    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
-    long timr_id              = luaL_checkNamedCommand(L,2,timer_desc);
-
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
-    {
-        restart_script_timer(i, timr_id);
-    }
-    return 0;
-}
-
-static int lua_ADD_TUNNELLER_TO_LEVEL(lua_State *L)
-{
-    PlayerNumber plr_id          = luaL_checkPlayerSingle(L,1);
-    TbMapLocation spawn_location = luaL_checkLocation(L,2);
-    TbMapLocation head_for       = luaL_checkHeadingLocation(L,3);
-    long level                   = luaL_checkinteger(L,5);
-    long gold_held               = luaL_checkinteger(L,6);
-
-    struct Thing* thing = script_process_new_tunneler(plr_id, spawn_location, head_for, level-1, gold_held);
-
-    lua_pushThing(L, thing);
-    return 1;
-}
-
-static int lua_WIN_GAME(lua_State *L)
-{
-    struct PlayerRange player_range;
-    if(lua_isnone(L,1))
-    {
-        player_range.start_idx = 0;
-        player_range.end_idx = PLAYERS_COUNT;
-    }
-    else
-        player_range = luaL_checkPlayerRange(L, 1);
-
-
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
-    {
-        struct PlayerInfo *player = get_player(i);
-        set_player_as_won_level(player);
-    }
-    return 0;
-}
-static int lua_LOSE_GAME(lua_State *L)
-{
-    struct PlayerRange player_range;
-    if(lua_isnone(L,1))
-    {
-        player_range.start_idx = 0;
-        player_range.end_idx = PLAYERS_COUNT;
-    }
-    else
-        player_range = luaL_checkPlayerRange(L, 1);
-
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
-    {
-        struct PlayerInfo *player = get_player(i);
-        set_player_as_lost_level(player);
-    }
-    return 0;
-}
-
-static int lua_MAX_CREATURES(lua_State *L)
-{
-    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
-    long max_amount                 = luaL_checkinteger(L, 2);
-
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
-    {
-        SYNCDBG(4,"Setting player %d max attracted creatures to %d.",(int)i,(int)max_amount);
-        struct Dungeon* dungeon = get_dungeon(i);
-        if (dungeon_invalid(dungeon))
-            continue;
-        dungeon->max_creatures_attracted = max_amount;
-    }
-    return 0;
-}
-
-static int lua_DOOR_AVAILABLE(lua_State *L)
-{
-    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
-    long door_type                  = luaL_checkNamedCommand(L,2,door_desc);
-    TbBool can_be_available         = lua_toboolean(L, 3);
-    long number_available           = luaL_checkinteger(L, 4);
-
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
-    {
-        set_door_buildable_and_add_to_amount(i, door_type, can_be_available, number_available);
-    }
-    return 0;
-}
+//Displaying information and affecting interface
 
 static int lua_DISPLAY_OBJECTIVE(lua_State *L)
 {
@@ -669,56 +680,68 @@ static int lua_DISPLAY_INFORMATION_WITH_POS(lua_State *L)
     return 0;
 }
 
-static int lua_ADD_TUNNELLER_PARTY_TO_LEVEL(lua_State *L)
+//static int lua_QUICK_OBJECTIVE(lua_State *L)
+//static int lua_QUICK_INFORMATION(lua_State *L)
+//static int lua_QUICK_OBJECTIVE_WITH_POS(lua_State *L)
+//static int lua_QUICK_INFORMATION_WITH_POS(lua_State *L)
+//static int lua_DISPLAY_MESSAGE(lua_State *L)
+//static int lua_QUICK_MESSAGE(lua_State *L)
+//static int lua_HEART_LOST_OBJECTIVE(lua_State *L)
+//static int lua_HEART_LOST_QUICK_OBJECTIVE(lua_State *L)
+//static int lua_PLAY_MESSAGE(lua_State *L)
+static int lua_TUTORIAL_FLASH_BUTTON(lua_State *L)
 {
-    PlayerNumber owner           = luaL_checkPlayerSingle(L, 1);
-    const char *party_name       = luaL_checkstring(L,  2);
-    TbMapLocation spawn_location = luaL_checkLocation(L,  3);
-    TbMapLocation head_for       = luaL_checkHeadingLocation(L,4);
-    long target                  = luaL_checkinteger(L, 5);
-    long crtr_level              = luaL_checkinteger(L, 6);
-    GoldAmount carried_gold      = luaL_checkinteger(L, 7);
+    long          button    = luaL_checkinteger(L, 1);
+    GameTurnDelta gameturns = luaL_checkinteger(L, 2);
 
-    if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
-    {
-        SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
-        return 0;
-    }
-    // Recognize party name
-    long prty_id = get_party_index_of_name(party_name);
-    if (prty_id < 0)
-    {
-        SCRPTERRLOG("Party of requested name, '%s', is not defined", party_name);
-        return 0;
-    }
-    struct Party* party = &gameadd.script.creature_partys[prty_id];
-    if (party->members_num >= GROUP_MEMBERS_COUNT-1)
-    {
-        SCRPTERRLOG("Party too big for ADD_TUNNELLER (Max %d members)", GROUP_MEMBERS_COUNT-1);
-        return 0;
-    }
-
-    script_process_new_tunneller_party(owner, prty_id, spawn_location, head_for, crtr_level-1, carried_gold);
+    gui_set_button_flashing(button,gameturns);
     return 0;
 }
+//static int lua_DISPLAY_COUNTDOWN(lua_State *L)
+//static int lua_DISPLAY_VARIABLE(lua_State *L)
+//static int lua_HIDE_VARIABLE(lua_State *L)
 
-static int lua_ADD_CREATURE_TO_POOL(lua_State *L)
+
+//Manipulating Map
+
+//static int lua_REVEAL_MAP_LOCATION(lua_State *L)
+//static int lua_REVEAL_MAP_RECT(lua_State *L)
+//static int lua_CONCEAL_MAP_RECT(lua_State *L)
+
+//static int lua_SET_DOOR(lua_State *L)
+
+static int lua_ADD_OBJECT_TO_LEVEL(lua_State *L)
 {
-    long crtr_model = luaL_checkNamedCommand(L,1,creature_desc);
-    long amount     = luaL_checkinteger(L, 2);
+    long obj_id            = luaL_checkNamedCommand(L,1,object_desc);
+    TbMapLocation location = luaL_checkLocation(L,  2);
+    long arg               = lua_tointeger(L,3);
+    PlayerNumber plr_idx   = luaL_checkPlayerSingle(L, 4);
 
-    add_creature_to_pool(crtr_model, amount, false);
-    return 0;
+    lua_pushThing(L,script_process_new_object(obj_id, location, arg, plr_idx));
+    return 1;
 }
+//static int lua_ADD_EFFECT_GENERATOR_TO_LEVEL(lua_State *L)
 
-static int lua_RESET_ACTION_POINT(lua_State *L)
-{
-    ActionPointId apt_idx     = luaL_checkActionPoint(L, 1);
-    PlayerNumber player_range_id = luaL_checkNamedCommand(L,2,player_desc);;
 
-    action_point_reset_idx(apt_idx,player_range_id);
-    return 0;
-}
+
+//Manipulating Configs
+
+//static int lua_SET_GAME_RULE(lua_State *L)
+//static int lua_SET_HAND_RULE(lua_State *L)
+//static int lua_SET_DOOR_CONFIGURATION(lua_State *L)
+//static int lua_SET_OBJECT_CONFIGURATION(lua_State *L)
+//static int lua_SET_TRAP_CONFIGURATION(lua_State *L)
+//static int lua_SET_CREATURE_CONFIGURATION(lua_State *L)
+//static int lua_SET_EFFECT_GENERATOR_CONFIGURATION(lua_State *L)
+//static int lua_SET_POWER_CONFIGURATION(lua_State *L)
+//static int lua_SWAP_CREATURE(lua_State *L)
+//static int lua_SET_SACRIFICE_RECIPE(lua_State *L)
+//static int lua_REMOVE_SACRIFICE_RECIPE(lua_State *L)
+
+//Manipulating Creature stats
+
+
+//static int lua_SET_CREATURE_INSTANCE(lua_State *L)
 
 static int lua_SET_CREATURE_MAX_LEVEL(lua_State *L)
 {
@@ -738,6 +761,100 @@ static int lua_SET_CREATURE_MAX_LEVEL(lua_State *L)
     }
     return 0;
 }
+//static int lua_SET_CREATURE_PROPERTY(lua_State *L)
+//static int lua_SET_CREATURE_TENDENCIES(lua_State *L)
+//static int lua_CREATURE_ENTRANCE_LEVEL(lua_State *L)
+
+
+
+
+
+//Manipulating Research
+
+static int lua_RESEARCH(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    long research_type              = luaL_checkNamedCommand(L,2,research_desc);
+    int room_or_spell;
+    switch (research_type)
+    {
+        case 1:
+            room_or_spell = luaL_checkNamedCommand(L,3,power_desc);
+            break;
+        case 2:
+            room_or_spell = luaL_checkNamedCommand(L,3,room_desc);
+            break;
+        default:
+            luaL_error (L,"invalid research_type %d",research_type);
+            return 0;
+    }
+    long research_value         = luaL_checkint(L, 4);
+
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        update_or_add_players_research_amount(i, research_type, room_or_spell, research_value);
+    }
+    return 0;
+}
+
+static int lua_RESEARCH_ORDER(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    long research_type              = luaL_checkNamedCommand(L,2,research_desc);
+    int room_or_spell;
+    switch (research_type)
+    {
+        case 1:
+            room_or_spell = luaL_checkNamedCommand(L,3,power_desc);
+            break;
+        case 2:
+            room_or_spell = luaL_checkNamedCommand(L,3,room_desc);
+            break;
+        default:
+            luaL_error (L,"invalid research_type %d",research_type);
+            return 0;
+    }
+    long research_value         = luaL_checkint(L, 4);
+
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        if (!research_overriden_for_player(i))
+            remove_all_research_from_player(i);
+        add_research_to_player(i, research_type, room_or_spell, research_value);
+    }
+    return 0;
+}
+
+
+//Tweaking computer players
+
+//static int lua_COMPUTER_DIG_TO_LOCATION(lua_State *L)
+//static int lua_SET_COMPUTER_PROCESS(lua_State *L)
+//static int lua_SET_COMPUTER_CHECKS(lua_State *L)
+//static int lua_SET_COMPUTER_GLOBALS(lua_State *L)
+//static int lua_SET_COMPUTER_EVENT(lua_State *L)
+
+
+//Specials
+//static int lua_USE_SPECIAL_INCREASE_LEVEL(lua_State *L)
+//static int lua_USE_SPECIAL_MULTIPLY_CREATURES",
+//static int lua_USE_SPECIAL_MAKE_SAFE(lua_State *L)
+//static int lua_SET_BOX_TOOLTIP(lua_State *L)
+//static int lua_SET_BOX_TOOLTIP_ID(lua_State *L)
+
+
+
+//Effects
+//static int lua_CREATE_EFFECT(lua_State *L)
+//static int lua_CREATE_EFFECT_AT_POS(lua_State *L)
+//static int lua_CREATE_EFFECTS_LINE(lua_State *L)
+
+
+
+
+
+
+
 
 static int lua_SET_MUSIC(lua_State *L)
 {
@@ -751,96 +868,29 @@ static int lua_SET_MUSIC(lua_State *L)
 
 }
 
-static int lua_TUTORIAL_FLASH_BUTTON(lua_State *L)
-{
-    long          button    = luaL_checkinteger(L, 1);
-    GameTurnDelta gameturns = luaL_checkinteger(L, 2);
-
-    gui_set_button_flashing(button,gameturns);
-    return 0;
-}
-/*
-
-static int lua_SET_CREATURE_PROPERTY(lua_State *L)
-{
-
-}
-static int lua_SET_COMPUTER_GLOBALS(lua_State *L)
-static int lua_SET_COMPUTER_CHECKS(lua_State *L)
-static int lua_SET_COMPUTER_EVENT(lua_State *L)
-static int lua_SET_COMPUTER_PROCESS(lua_State *L)
 
 /*
-static int lua_ALLY_PLAYERS(lua_State *L)
-static int lua_DEAD_CREATURES_RETURN_TO_POOL(lua_State *L)
-static int lua_BONUS_LEVEL_TIME(lua_State *L)
-static int lua_QUICK_OBJECTIVE(lua_State *L)
-static int lua_QUICK_INFORMATION(lua_State *L)
-static int lua_QUICK_OBJECTIVE_WITH_POS(lua_State *L)
-static int lua_QUICK_INFORMATION_WITH_POS(lua_State *L)
-static int lua_SWAP_CREATURE(lua_State *L)
-static int lua_PRINT(lua_State *L)
+
+
+
+
 static int lua_MESSAGE(lua_State *L)
-static int lua_PLAY_MESSAGE(lua_State *L)
 static int lua_ADD_GOLD_TO_PLAYER(lua_State *L)
-static int lua_SET_CREATURE_TENDENCIES(lua_State *L)
-static int lua_REVEAL_MAP_RECT(lua_State *L)
-static int lua_CONCEAL_MAP_RECT(lua_State *L)
-static int lua_REVEAL_MAP_LOCATION(lua_State *L)
-static int lua_LEVEL_VERSION(lua_State *L)
-static int lua_KILL_CREATURE(lua_State *L)
-static int lua_COMPUTER_DIG_TO_LOCATION(lua_State *L)
 static int lua_USE_POWER_ON_CREATURE(lua_State *L)
 static int lua_USE_POWER_AT_POS(lua_State *L)
 static int lua_USE_POWER_AT_SUBTILE(lua_State *L)
 static int lua_USE_POWER_AT_LOCATION(lua_State *L)
 static int lua_USE_POWER(lua_State *L)
-static int lua_USE_SPECIAL_INCREASE_LEVEL(lua_State *L)
-static int lua_USE_SPECIAL_MULTIPLY_CREATURES",
-static int lua_USE_SPECIAL_MAKE_SAFE(lua_State *L)
+
+
+
 static int lua_USE_SPECIAL_LOCATE_HIDDEN_WORLD"
 static int lua_USE_SPECIAL_TRANSFER_CREATURE(lua_State *L)
-static int lua_TRANSFER_CREATURE(lua_State *L)
-static int lua_CHANGE_CREATURES_ANNOYANCE(lua_State *L)
-static int lua_RUN_AFTER_VICTORY(lua_State *L)
-static int lua_LEVEL_UP_CREATURE(lua_State *L)
-static int lua_CHANGE_CREATURE_OWNER(lua_State *L)
-static int lua_SET_GAME_RULE(lua_State *L)
-static int lua_SET_TRAP_CONFIGURATION(lua_State *L)
-static int lua_SET_DOOR_CONFIGURATION(lua_State *L)
-static int lua_SET_OBJECT_CONFIGURATION(lua_State *L)
-static int lua_SET_CREATURE_CONFIGURATION(lua_State *L)
-static int lua_SET_SACRIFICE_RECIPE(lua_State *L)
-static int lua_REMOVE_SACRIFICE_RECIPE(lua_State *L)
-static int lua_SET_BOX_TOOLTIP(lua_State *L)
-static int lua_SET_BOX_TOOLTIP_ID(lua_State *L)
+
+
 static int lua_CHANGE_SLAB_OWNER(lua_State *L)
 static int lua_CHANGE_SLAB_TYPE(lua_State *L)
-static int lua_CREATE_EFFECTS_LINE(lua_State *L)
-static int lua_QUICK_MESSAGE(lua_State *L)
-static int lua_DISPLAY_MESSAGE(lua_State *L)
 static int lua_USE_SPELL_ON_CREATURE(lua_State *L)
-static int lua_SET_HEART_HEALTH(lua_State *L)
-static int lua_ADD_HEART_HEALTH(lua_State *L)
-static int lua_CREATURE_ENTRANCE_LEVEL(lua_State *L)
-static int lua_RANDOMISE_FLAG(lua_State *L)
-static int lua_DISPLAY_TIMER(lua_State *L)
-static int lua_ADD_TO_TIMER(lua_State *L)
-static int lua_ADD_BONUS_TIME(lua_State *L)
-static int lua_DISPLAY_VARIABLE(lua_State *L)
-static int lua_DISPLAY_COUNTDOWN(lua_State *L)
-static int lua_HIDE_TIMER(lua_State *L)
-static int lua_HIDE_VARIABLE(lua_State *L)
-static int lua_CREATE_EFFECT(lua_State *L)
-static int lua_CREATE_EFFECT_AT_POS(lua_State *L)
-static int lua_HEART_LOST_QUICK_OBJECTIVE(lua_State *L)
-static int lua_HEART_LOST_OBJECTIVE(lua_State *L)
-static int lua_SET_DOOR(lua_State *L)
-static int lua_SET_CREATURE_INSTANCE(lua_State *L)
-static int lua_SET_HAND_RULE(lua_State *L)
-static int lua_MOVE_CREATURE(lua_State *L)
-static int lua_COUNT_CREATURES_AT_ACTION_POINT(lua_State *L)
-static int lua_SET_TEXTURE(lua_State *L)
 static int lua_HIDE_HERO_GATE(lua_State *L)
 
 */
@@ -987,28 +1037,26 @@ static const luaL_Reg global_methods[] = {
    {"DISPLAY_OBJECTIVE_WITH_POS"           ,lua_DISPLAY_OBJECTIVE_WITH_POS      },
    {"DISPLAY_INFORMATION"                  ,lua_DISPLAY_INFORMATION             },
    {"DISPLAY_INFORMATION_WITH_POS"         ,lua_DISPLAY_INFORMATION_WITH_POS    },
-/*
-   {"QUICK_OBJECTIVE"                      ,lua_QUICK_OBJECTIVE                 },
-   {"QUICK_OBJECTIVE_WITH_POS"             ,lua_QUICK_OBJECTIVE_WITH_POS        },
-   {"QUICK_INFORMATION"                    ,lua_QUICK_INFORMATION               },
-   {"QUICK_INFORMATION_WITH_POS"           ,lua_QUICK_INFORMATION_WITH_POS      },
-   {"DISPLAY_MESSAGE"                      ,lua_DISPLAY_MESSAGE                 },
-   {"QUICK_MESSAGE"                        ,lua_QUICK_MESSAGE                   },
-   {"HEART_LOST_OBJECTIVE"                 ,lua_HEART_LOST_OBJECTIVE            },
-   {"HEART_LOST_QUICK_OBJECTIVE"           ,lua_HEART_LOST_QUICK_OBJECTIVE      },
-   {"PLAY_MESSAGE"                         ,lua_PLAY_MESSAGE                    },
+
+   //{"QUICK_OBJECTIVE"                      ,lua_QUICK_OBJECTIVE                 },
+   //{"QUICK_OBJECTIVE_WITH_POS"             ,lua_QUICK_OBJECTIVE_WITH_POS        },
+   //{"QUICK_INFORMATION"                    ,lua_QUICK_INFORMATION               },
+   //{"QUICK_INFORMATION_WITH_POS"           ,lua_QUICK_INFORMATION_WITH_POS      },
+   //{"DISPLAY_MESSAGE"                      ,lua_DISPLAY_MESSAGE                 },
+   //{"QUICK_MESSAGE"                        ,lua_QUICK_MESSAGE                   },
+   //{"HEART_LOST_OBJECTIVE"                 ,lua_HEART_LOST_OBJECTIVE            },
+   //{"HEART_LOST_QUICK_OBJECTIVE"           ,lua_HEART_LOST_QUICK_OBJECTIVE      },
+   //{"PLAY_MESSAGE"                         ,lua_PLAY_MESSAGE                    },
    {"TUTORIAL_FLASH_BUTTON"                ,lua_TUTORIAL_FLASH_BUTTON           },
-   {"DISPLAY_COUNTDOWN"                    ,lua_DISPLAY_COUNTDOWN               },
-   {"DISPLAY_VARIABLE"                     ,lua_DISPLAY_VARIABLE                },
-   {"HIDE_VARIABLE"                        ,lua_HIDE_VARIABLE                   },
+   //{"DISPLAY_COUNTDOWN"                    ,lua_DISPLAY_COUNTDOWN               },
+   //{"DISPLAY_VARIABLE"                     ,lua_DISPLAY_VARIABLE                },
+   //{"HIDE_VARIABLE"                        ,lua_HIDE_VARIABLE                   },
 
 //Manipulating Map
-   {"REVEAL_MAP_LOCATION"                  ,lua_REVEAL_MAP_LOCATION             },
-   {"REVEAL_MAP_RECT"                      ,lua_REVEAL_MAP_RECT                 },
-   {"CONCEAL_MAP_RECT"                     ,lua_CONCEAL_MAP_RECT                },
-   {"SET_TEXTURE"                          ,lua_SET_TEXTURE                     },
-   {"SET_DOOR"                             ,lua_SET_DOOR                        },
-   */
+   //{"REVEAL_MAP_LOCATION"                  ,lua_REVEAL_MAP_LOCATION             },
+   //{"REVEAL_MAP_RECT"                      ,lua_REVEAL_MAP_RECT                 },
+   //{"CONCEAL_MAP_RECT"                     ,lua_CONCEAL_MAP_RECT                },
+   //{"SET_DOOR"                             ,lua_SET_DOOR                        },
    {"ADD_OBJECT_TO_LEVEL"                  ,lua_ADD_OBJECT_TO_LEVEL             },
    /*
    {"ADD_EFFECT_GENERATOR_TO_LEVEL"        ,lua_ADD_EFFECT_GENERATOR_TO_LEVEL   },
@@ -1039,24 +1087,12 @@ static const luaL_Reg global_methods[] = {
    {"SET_CREATURE_TENDENCIES"              ,lua_SET_CREATURE_TENDENCIES         },
    {"CREATURE_ENTRANCE_LEVEL"              ,lua_CREATURE_ENTRANCE_LEVEL         },
 
-//Man{"ipulating individual Creatures
-   {"TRANSFER_CREATURE"                    ,lua_TRANSFER_CREATURE               },
-   {"KILL_CREATURE"                        ,lua_KILL_CREATURE                   },
-   {"LEVEL_UP_CREATURE"                    ,lua_LEVEL_UP_CREATURE               },
-   {"MOVE_CREATURE"                        ,lua_MOVE_CREATURE                   },
-   {"CHANGE_CREATURE_OWNER"                ,lua_CHANGE_CREATURE_OWNER           },
-   {"CHANGE_CREATURES_ANNOYANCE"           ,lua_CHANGE_CREATURES_ANNOYANCE      },
-   {"LEVEL_UP_PLAYERS_CREATURES"           ,lua_LEVEL_UP_PLAYERS_CREATURES      },
-*/
+
 //Manipulating Research
    {"RESEARCH"                             ,lua_RESEARCH                        },
    {"RESEARCH_ORDER"                       ,lua_RESEARCH_ORDER                  },
 /*
-//Tweaking players
-   {"ADD_GOLD_TO_PLAYER"                   ,lua_ADD_GOLD_TO_PLAYER              },
-   {"SET_PLAYER_COLOR"                     ,lua_SET_PLAYER_COLOR                },
-   {"SET_PLAYER_MODIFIER"                  ,lua_SET_PLAYER_MODIFIER             },
-   {"ADD_TO_PLAYER_MODIFIER"               ,lua_ADD_TO_PLAYER_MODIFIER          },
+
 
 //Tweaking computer players
    {"COMPUTER_DIG_TO_LOCATION"             ,lua_COMPUTER_DIG_TO_LOCATION        },
@@ -1190,7 +1226,11 @@ static int thing_set_field(lua_State *L) {
     return 0;
 }
 
-
+//static int lua_TRANSFER_CREATURE(lua_State *L)
+//static int lua_LEVEL_UP_CREATURE(lua_State *L)
+//static int lua_MOVE_CREATURE(lua_State *L)
+//static int lua_CHANGE_CREATURE_OWNER(lua_State *L)
+//static int lua_CHANGE_CREATURES_ANNOYANCE(lua_State *L)
 
 // Function to get field values
 static int thing_get_field(lua_State *L) {
@@ -1285,6 +1325,13 @@ static const struct luaL_Reg thing_methods[] = {
     {"MoveThingTo",     move_thing_to},
     {"KillCreature",    lua_kill_creature},
     {"DeleteThing",     lua_delete_thing},
+    
+   {"TRANSFER_CREATURE"                    ,lua_TRANSFER_CREATURE               },
+   {"KILL_CREATURE"                        ,lua_KILL_CREATURE                   },
+   {"LEVEL_UP_CREATURE"                    ,lua_LEVEL_UP_CREATURE               },
+   {"MOVE_CREATURE"                        ,lua_MOVE_CREATURE                   },
+   {"CHANGE_CREATURE_OWNER"                ,lua_CHANGE_CREATURE_OWNER           },
+   {"CHANGE_CREATURES_ANNOYANCE"           ,lua_CHANGE_CREATURES_ANNOYANCE      },
     {NULL, NULL}
 };
 
@@ -1378,7 +1425,15 @@ static int player_get_field(lua_State *L) {
     PlayerNumber player_idx = luaL_checkPlayerSingle(L, 1);
     const char* key = luaL_checkstring(L, 2);
 
+    //heart
+    if (strcmp(key, "heart") == 0) {
+        struct Thing* heartng = get_player_soul_container(plyr_idx);
+        lua_pushThing(L, heartng->index);
+        return 1;
+    }
+
     
+
     long variable_type;
     long variable_id;
 
@@ -1435,7 +1490,14 @@ static int player_eq(lua_State *L) {
     return 1;
 }
 
+//static int lua_SET_TEXTURE(lua_State *L)
+
 static const struct luaL_Reg player_methods[] = {
+   //{"SET_TEXTURE"                          ,lua_SET_TEXTURE                     },   
+   //{"ADD_GOLD_TO_PLAYER"                   ,lua_ADD_GOLD_TO_PLAYER              },
+   //{"SET_PLAYER_COLOR"                     ,lua_SET_PLAYER_COLOR                },
+   //{"SET_PLAYER_MODIFIER"                  ,lua_SET_PLAYER_MODIFIER             },
+   //{"ADD_TO_PLAYER_MODIFIER"               ,lua_ADD_TO_PLAYER_MODIFIER          },
     {NULL, NULL}
 };
 
