@@ -347,7 +347,11 @@ static int lua_CREATURE_AVAILABLE(lua_State *L)
     return 0;
 }
 
-//static int lua_DEAD_CREATURES_RETURN_TO_POOL(lua_State *L)
+static int lua_DEAD_CREATURES_RETURN_TO_POOL(lua_State *L)
+{
+    TbBool return_to_pool         = lua_toboolean(L, 3);
+    set_flag_value(game.flags_cd, MFlg_DeadBackToPool, return_to_pool);
+}
 
 static int lua_ROOM_AVAILABLE(lua_State *L)
 {
@@ -828,8 +832,18 @@ static int lua_RESEARCH_ORDER(lua_State *L)
 
 //Tweaking computer players
 
-//static int lua_COMPUTER_DIG_TO_LOCATION(lua_State *L)
-//static int lua_SET_COMPUTER_PROCESS(lua_State *L)
+static int lua_COMPUTER_DIG_TO_LOCATION(lua_State *L)
+{
+    PlayerNumber plr_idx      = luaL_checkPlayerSingle(L, 1);
+    TbMapLocation origin      = luaL_checkLocation(L,  2);
+    TbMapLocation destination = luaL_checkLocation(L,  3);
+    script_computer_dig_to_location(plr_idx, origin, destination);
+}
+static int lua_SET_COMPUTER_PROCESS(lua_State *L)
+{
+    
+  
+}
 //static int lua_SET_COMPUTER_CHECKS(lua_State *L)
 //static int lua_SET_COMPUTER_GLOBALS(lua_State *L)
 //static int lua_SET_COMPUTER_EVENT(lua_State *L)
