@@ -825,9 +825,9 @@ static int script_recognize_params(char **line, const struct CommandDesc *cmd_de
         else
         {
             *line = get_next_token(funline, &token);
-            if (token.type == TkInvalid)
+            if ((token.type == TkInvalid) || (token.type == TkEnd))
             {
-                SCRPTERRLOG("Invalid token at %s", *line);
+                SCRPTERRLOG("Invalid token at %s", **line? *line: "<newline>");
                 dst--;
                 return -1;
             }
