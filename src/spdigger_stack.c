@@ -209,7 +209,6 @@ TbBool imp_will_soon_be_working_at_excluding(const struct Thing *creatng, MapSub
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        JUSTLOG("imp_will_soon_working_at_excluding Thing= %d", thing);
         if (!thing_is_picked_up(thing) && !creature_is_being_unconscious(thing) && !creature_is_dying(thing))
         {
             if (thing->index != creatng->index)
@@ -1810,7 +1809,6 @@ int add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, int m
         if ( (dungeon->digger_stack_length >= DIGGER_TASK_MAX_COUNT) || (remain_num <= 0) ) {
             break;
         }
-        JUSTLOG("add_unclaimed_body_to imp_stack Thing= %d", thing);
         if (players_are_enemies(dungeon->owner,thing->owner) && creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing))
         {
             if (thing_revealed(thing, dungeon->owner))
