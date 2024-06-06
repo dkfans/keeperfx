@@ -2851,7 +2851,7 @@ TbBool imp_stack_update(struct Thing *creatng)
         WARNLOG("Played %d has no dungeon",(int)creatng->owner);
         return false;
     }
-    add_unsaved_unconscious_creature_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/4 - 1);
+    add_unsaved_unconscious_creature_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT*5/8);
     add_unclaimed_unconscious_bodies_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/4 - 1);
     add_unclaimed_dead_bodies_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/4 - 1);
     add_unclaimed_spells_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/4 - 1);
@@ -3016,8 +3016,9 @@ long check_out_worker_save_unconscious(struct Thing *thing, struct DiggerStack *
     stl_y = stl_num_decode_y(dstack->stl_num);
     struct Thing *sectng;
     sectng = check_place_to_save_unconscious_creature(thing, stl_x, stl_y);
-    if (thing_is_invalid(thing))
-        return INVALID_THING;
+    if (thing_is_invalid(thing)){
+        return 0;
+    }
     struct Room * room;
     room = get_creature_lair_room(sectng);
     if (!get_creature_lair_room(sectng)) {

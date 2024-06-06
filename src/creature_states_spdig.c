@@ -1563,7 +1563,6 @@ TbBool creature_is_dragging_or_being_dragged(const struct Thing *thing)
     return (cctrl->dragtng_idx != 0);
 }
 
-
 short creature_pick_up_unconscious_body(struct Thing *thing)
 {
     struct Coord3d pos;

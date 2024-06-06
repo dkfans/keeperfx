@@ -388,7 +388,7 @@ else
 endif
 
 # logging level flags
-STLOGFLAGS = -DBFDEBUG_LEVEL=10
+STLOGFLAGS = -DBFDEBUG_LEVEL=0
 HVLOGFLAGS = -DBFDEBUG_LEVEL=10
 # compiler warning generation flags
 WARNFLAGS = -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing -Wno-unknown-pragmas

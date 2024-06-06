@@ -637,7 +637,7 @@ TbBool creature_is_being_dropped(const struct Thing *thing)
 TbBool creature_is_being_unconscious(const struct Thing *thing)
 {
         if (thing_is_invalid(thing))
-        return INVALID_THING;
+            return false;
         CrtrStateId i = thing->active_state;
         if ((i == CrSt_MoveToPosition) || (i == CrSt_MoveBackwardsToPosition))
             i = thing->continue_state;
