@@ -22,7 +22,7 @@
 extern "C" {
 #endif
 
-struct lua_State *Lvl_script;
+struct lua_State *Lvl_script = NULL;
 
 
 // Little error checking utility function
@@ -41,6 +41,7 @@ void close_lua_script()
 {
     if(Lvl_script)
         lua_close(Lvl_script);
+    Lvl_script = NULL;
 }
 /*
 int setLuaPath( lua_State* L, const char* path )

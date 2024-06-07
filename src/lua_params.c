@@ -209,7 +209,6 @@ ActionPointId luaL_checkActionPoint(lua_State *L, int index)
 
 void lua_pushThing(lua_State *L, struct Thing* thing) {
     if (thing_is_invalid(thing)) {
-        luaL_error(L,"Attempt to push invalid thing to Lua");
         lua_pushnil(L);
         return;
     }
@@ -228,7 +227,6 @@ void lua_pushThing(lua_State *L, struct Thing* thing) {
 
 void lua_pushPlayer(lua_State *L, PlayerNumber plr_idx) {
 
-
     lua_createtable(L, 0, 2);
 
     lua_pushinteger(L, plr_idx);
@@ -239,7 +237,6 @@ void lua_pushPlayer(lua_State *L, PlayerNumber plr_idx) {
 }
 
 void lua_pushPos(lua_State *L, struct Coord3d* pos) {
-
 
     lua_createtable(L, 0, 2);
 

@@ -18,7 +18,6 @@
 ---@field lastTriggerTime integer
 ---@field enabled boolean
 
-
 --functionRegistry used for serialization of functions
 local functionRegistry = {
     conditions = {},
@@ -33,15 +32,15 @@ local function registerFunction(func, registry)
     return key
 end
 
+local function getFunction(key, registry)
+    return registry[key]
+end
 
 --- Creates a new trigger and returns it
 --- @return Trigger trigger
 function CreateTrigger()
-    print("CreateTrigger")
-    if Game.triggers == nil then
-        Game.triggers = {}
-    end
-    local trigger = { events = {} }
+    Game.triggers = Game.triggers or {}
+    local trigger = { index = #Game.triggers + 1, events = {}, conditions = {}, actions = {} }
     table.insert(Game.triggers, trigger)
     return trigger
 end
@@ -53,7 +52,6 @@ end
 function TriggerAddCondition(trigger, condition)
     local conditionKey = registerFunction(condition, functionRegistry.conditions)
     local triggerCondition = { conditionKey = conditionKey, enabled = true }
-    trigger.conditions = trigger.conditions or {}
     table.insert(trigger.conditions, triggerCondition)
     return triggerCondition
 end
@@ -65,12 +63,9 @@ end
 function TriggerAddAction(trigger, action)
     local actionKey = registerFunction(action, functionRegistry.actions)
     local triggerAction = { actionKey = actionKey, enabled = true }
-    trigger.actions = trigger.actions or {}
     table.insert(trigger.actions, triggerAction)
     return triggerAction
 end
-
--- Events
 
 --- Registers a timer event to the trigger
 --- @param trigger Trigger
@@ -82,7 +77,7 @@ function TriggerRegisterTimerEvent(trigger, time, periodic)
         type = "timer",
         params = { time = time, periodic = periodic },
         enabled = true,
-        lastTriggerTime = PLAYER0.GAME_TURN  -- Initialize to the current game time
+        lastTriggerTime = PLAYER0.GAME_TURN -- Initialize to the current game time
     }
     table.insert(trigger.events, event)
     return event
@@ -112,8 +107,6 @@ function TriggerRegisterThingEvent(trigger, thing, thingEvent)
     return event
 end
 
--- Trigger variables
-
 --- Gets the unit associated with the current triggering event
 --- @return Thing|nil
 function GetTriggeringThing()
@@ -132,17 +125,18 @@ function GetTriggeringPlayer()
     return Game.currentTriggeringPlayer
 end
 
--------
-
 --- Processes a trigger
 --- @param trigger Trigger The trigger to process
 local function ProcessTrigger(trigger)
     local allConditionsMet = true
     if trigger.conditions then
-        for _, condition in ipairs(trigger.conditiParentTileons) do
-            if condition.enabled and not condition.condition() then
-                allConditionsMet = false
-                break
+        for _, condition in ipairs(trigger.conditions) do
+            if condition.enabled then
+                local conditionFunc = getFunction(condition.conditionKey, functionRegistry.conditions)
+                if not conditionFunc() then
+                    allConditionsMet = false
+                    break
+                end
             end
         end
     end
@@ -150,7 +144,8 @@ local function ProcessTrigger(trigger)
     if allConditionsMet and trigger.actions then
         for _, action in ipairs(trigger.actions) do
             if action.enabled then
-                action.action()
+                local actionFunc = getFunction(action.actionKey, functionRegistry.actions)
+                actionFunc()
             end
         end
     end
@@ -160,12 +155,10 @@ end
 --- @param thing Thing The unit involved in the event
 --- @param eventType string The type of event ("powerCast" or "dies")
 local function ProcessThingEvent(thing, eventType)
-
     for _, trigger in ipairs(Game.triggers) do
         for _, event in ipairs(trigger.events) do
-            if event.type == "unit" and
-               event.params.thingEvent == eventType and
-               ( event.params.thing == nil or  event.params.thing == thing) then
+            if event.type == "unit" and event.params.thingEvent == eventType and
+               (event.params.thing == nil or event.params.thing == thing) then
                 ProcessTrigger(trigger)
                 break
             end
@@ -180,8 +173,7 @@ end
 --- @param stl_x integer
 --- @param stl_y integer
 --- @param splevel integer
-function OnPowerCast(pwkind, caster,target_thing,stl_x,stl_y,splevel)
-    print("OnPowerCast" .. tostring(target_thing) )
+function OnPowerCast(pwkind, caster, target_thing, stl_x, stl_y, splevel)
     Game.currentTriggeringThing = target_thing
     Game.currentTriggeringPowerKind = pwkind
     Game.currentTriggeringPlayer = caster
@@ -221,13 +213,11 @@ function OnGameTick()
     end
 end
 
-
----comment
----@param player Player
----@param crate_thing Thing
-function OnSpecialActivated(player,crate_thing)
-    
+--- Called when a special box is activated
+--- @param player Player
+--- @param crate_thing Thing
+function OnSpecialActivated(player, crate_thing)
     Game.currentTriggeringThing = crate_thing
-    ProcessThingEvent(crate_thing,"SpecialActivated")
+    ProcessThingEvent(crate_thing, "SpecialActivated")
     Game.currentTriggeringThing = nil
 end

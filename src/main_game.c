@@ -163,6 +163,7 @@ static void init_level(void)
     lens_mode = 0;
     setup_heap_manager();
 
+    TbBool luascript_loaded = open_lua_script(get_selected_level_number());
     // Load configs which may have per-campaign part, and can even be modified within a level
     load_computer_player_config(CnfLd_Standard);
     init_custom_sprites(get_selected_level_number());
@@ -188,7 +189,7 @@ static void init_level(void)
     clear_messages();
     init_seeds();
     // Load the actual level files
-    TbBool luascript_loaded = open_lua_script(get_selected_level_number());
+    
     TbBool script_preloaded = preload_script(get_selected_level_number());
     if (!load_map_file(get_selected_level_number()))
     {

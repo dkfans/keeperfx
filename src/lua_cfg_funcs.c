@@ -14,7 +14,12 @@ FuncIdx get_function_idx(const char *func_name, const struct NamedCommand *Cfunc
     if (id > 0) {
         return id;
     }
+    
+    if(func_name == '\0')
+        return 0;
 
+    if (Lvl_script == NULL)
+        return 0;
     // Add it to the list and return the new negative index
     lua_getglobal(Lvl_script, func_name);
     if (lua_isfunction(Lvl_script, -1)) {
