@@ -1846,6 +1846,9 @@ int add_unsaved_unconscious_creature_to_imp_stack(struct Dungeon *dungeon, int m
     int remain_num;
     unsigned long k;
     int i;
+    if(!game.conf.rules.workers.drag_to_lair){
+        return 0;
+    }
     const struct StructureList *slist;
     slist = get_list_for_thing_class(TCls_Creature);
     k = 0;
@@ -3008,6 +3011,9 @@ long check_out_worker_save_unconscious(struct Thing *thing, struct DiggerStack *
     SYNCDBG(18,"Starting");
     stl_x = stl_num_decode_x(dstack->stl_num);
     stl_y = stl_num_decode_y(dstack->stl_num);
+    if(!game.conf.rules.workers.drag_to_lair){
+        return 0;
+    }
     struct Thing *sectng;
     sectng = check_place_to_save_unconscious_creature(thing, stl_x, stl_y);
     if (thing_is_invalid(thing)){
