@@ -1985,15 +1985,23 @@ TbResult magic_use_power_direct(PlayerNumber plyr_idx, PowerKind pwkind,
 {
     lua_on_power_cast(plyr_idx, pwkind, splevel, stl_x, stl_y, thing);
     const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
-    if(magic_use_func_list[powerst->magic_use_func_idx] != NULL)
+    if(powerst->magic_use_func_idx > 0)
     {
-        return magic_use_func_list[powerst->magic_use_func_idx](pwkind, plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
+        if(magic_use_func_list[powerst->magic_use_func_idx] != NULL)
+        {
+            return magic_use_func_list[powerst->magic_use_func_idx](pwkind, plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
+        }
+        else
+        {
+            WARNLOG("Player %d tried to cast %s which has no valid function",(int)plyr_idx,power_code_name(pwkind));
+            return Lb_FAIL;
+        }
     }
     else
     {
-        WARNLOG("Player %d tried to cast %s which has no valid function",(int)plyr_idx,power_code_name(pwkind));
-        return Lb_FAIL;
+        luafunc_magic_use_power(powerst->magic_use_func_idx,pwkind, plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
     }
+
 }
 
 /**
