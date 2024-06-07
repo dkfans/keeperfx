@@ -2357,8 +2357,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
       case 22: //USEFUNCTION
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = get_id(magic_use_func_commands,word_buf);
-              if (k >= 0)
+              k = get_function_idx(word_buf,magic_use_func_commands);
+              if (k != 0)
               {
                   powerst->magic_use_func_idx = k;
                   n++;

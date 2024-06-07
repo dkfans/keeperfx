@@ -20,29 +20,6 @@ end
 --end
 
 
---- Adds a condition function that needs to evaluate to true for the actions to be triggered when the event happens
---- @param trigger Trigger
---- @param condition function Function that returns true or false
---- @return TriggerCondition condition
-function TriggerAddCondition(trigger, condition)
-    local conditionKey = registerFunction(condition, functionRegistry.conditions)
-    local triggerCondition = { conditionKey = conditionKey, enabled = true }
-    trigger.conditions = trigger.conditions or {}
-    table.insert(trigger.conditions, triggerCondition)
-    return triggerCondition
-end
-
---- Adds an action function to be executed when the trigger fires
---- @param trigger Trigger
---- @param action function
---- @return TriggerAction action
-function TriggerAddAction(trigger, action)
-    local actionKey = registerFunction(action, functionRegistry.actions)
-    local triggerAction = { actionKey = actionKey, enabled = true }
-    trigger.actions = trigger.actions or {}
-    table.insert(trigger.actions, triggerAction)
-    return triggerAction
-end
 
 
 

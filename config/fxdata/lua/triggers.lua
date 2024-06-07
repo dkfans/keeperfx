@@ -19,6 +19,21 @@
 ---@field enabled boolean
 
 
+--functionRegistry used for serialization of functions
+local functionRegistry = {
+    conditions = {},
+    actions = {}
+}
+local functionRegistryCounter = 0
+
+local function registerFunction(func, registry)
+    functionRegistryCounter = functionRegistryCounter + 1
+    local key = "func_" .. functionRegistryCounter
+    registry[key] = func
+    return key
+end
+
+
 --- Creates a new trigger and returns it
 --- @return Trigger trigger
 function CreateTrigger()
@@ -36,7 +51,8 @@ end
 --- @param condition function Function that returns true or false
 --- @return TriggerCondition condition
 function TriggerAddCondition(trigger, condition)
-    local triggerCondition = { condition = condition, enabled = true }
+    local conditionKey = registerFunction(condition, functionRegistry.conditions)
+    local triggerCondition = { conditionKey = conditionKey, enabled = true }
     trigger.conditions = trigger.conditions or {}
     table.insert(trigger.conditions, triggerCondition)
     return triggerCondition
@@ -47,7 +63,8 @@ end
 --- @param action function
 --- @return TriggerAction action
 function TriggerAddAction(trigger, action)
-    local triggerAction = { action = action, enabled = true }
+    local actionKey = registerFunction(action, functionRegistry.actions)
+    local triggerAction = { actionKey = actionKey, enabled = true }
     trigger.actions = trigger.actions or {}
     table.insert(trigger.actions, triggerAction)
     return triggerAction
@@ -122,7 +139,7 @@ end
 local function ProcessTrigger(trigger)
     local allConditionsMet = true
     if trigger.conditions then
-        for _, condition in ipairs(trigger.conditions) do
+        for _, condition in ipairs(trigger.conditiParentTileons) do
             if condition.enabled and not condition.condition() then
                 allConditionsMet = false
                 break
