@@ -255,9 +255,10 @@ obj/config_effects.o \
 obj/lens_flyeye.o \
 obj/lens_mist.o \
 obj/light_data.o \
+obj/lua_api.o \
+obj/lua_base.o \
 obj/lua_cfg_funcs.o \
-obj/lua_base.o \
-obj/lua_base.o \
+obj/lua_params.o \
 obj/lua_triggers.o \
 obj/lvl_filesdk1.o \
 obj/lvl_script.o \

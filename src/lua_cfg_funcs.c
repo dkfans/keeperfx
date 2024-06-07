@@ -2,7 +2,10 @@
 #include "globals.h"
 #include "config.h"
 #include "lua_base.h"
+#include "lua_params.h"
 #include "game_legacy.h"
+#include "magic.h"
+
 #include "post_inc.h"
 
 FuncIdx get_function_idx(const char *func_name, const struct NamedCommand *Cfuncs) {
@@ -68,7 +71,7 @@ TbResult luafunc_magic_use_power(FuncIdx func_idx, PlayerNumber plyr_idx, PowerK
         }
 
         // Retrieve the result returned by the Lua function
-        if (!lua_isinteger(Lvl_script, -1)) {
+        if (!lua_isnumber(Lvl_script, -1)) {
             ERRORLOG("Lua function '%s' did not return an integer result", func_name);
             lua_pop(Lvl_script, 1); // Remove invalid result from stack
             return Lb_FAIL; // Indicate an error

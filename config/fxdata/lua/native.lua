@@ -253,8 +253,8 @@ function ADD_CREATURE_TO_POOL(creature_type,amount) end
 ---This command tells the game that a specific creature can come through that player’s Portal.
 ---@param player playerrange The player’s name, e.g. PLAYER1. See players section for more information.
 ---@param creature_type creature_type The creature’s name, e.g. SORCEROR. See creature names section for more information.
----@param can_be_attracted boolean This value should always be set to 1. Creatures, unlike spells and rooms, do not have to be pre-enabled.
----@param amount_forced boolean This value should either be 0 or 1. Set it to 1 to enable the creature to appear from the Portal.
+---@param can_be_attracted boolean This value should always be set to true. Creatures, unlike spells and rooms, do not have to be pre-enabled.
+---@param amount_forced boolean Set it to true to enable the creature to appear from the Portal.
 function CREATURE_AVAILABLE(player,creature_type,can_be_attracted,amount_forced) end
 
 ---Normally, when a creature dies, and its body vanishes, it is added to the creature pool again.
@@ -265,29 +265,29 @@ function DEAD_CREATURES_RETURN_TO_POOL(return_to_pool) end
 ---This command tells the game that a specific room is available for the player to place down.
 ---@param player playerrange The players the room should be made available for.
 ---@param room room_type The room’s name, e.g. TEMPLE.
----@param can_be_available boolean This value can be set to 0 or 1. If it is 1 then you are telling the game that the room may be researched at some point.
----@param is_available boolean This value should either be 0 or 1. If it is 1 then the room is available straight away. If it is 0 then the room cannot become available until it is set to 1 or it is researched.
+---@param can_be_available boolean If it is true then you are telling the game that the room may be researched at some point.
+---@param is_available boolean If it is true then the room is available straight away. If it is false then the room cannot become available until it is set to 1 or it is researched.
 function ROOM_AVAILABLE(player,room,can_be_available,is_available) end
 
 
 ---This command tells the game that a specific spell is available for the player to cast.
 ---@param player playerrange The player’s name, e.g. PLAYER1. See players section for more information.
 ---@param spell power_kind The spell’s name, e.g. POWER_LIGHTNING. See spell names section for more information.
----@param can_be_available boolean This value can be set to 0 or 1. If it is 1 then you are telling the game that the spell may be researched at some point.
----@param is_available boolean This value should either be 0 or 1. If it is 1 then the spell is available straight away. If it is 0 then the spell cannot become available until it is set to 1 or researched.
+---@param can_be_available boolean If it is true then you are telling the game that the spell may be researched at some point.
+---@param is_available boolean If it is true then the spell is available straight away. If it is 0 then the spell cannot become available until it is set to 1 or researched.
 function MAGIC_AVAILABLE(player,spell,can_be_available,is_available) end
 
 ---This command tells the game that a specific trap is available for the player to construct.
 ---@param player playerrange The player’s name, e.g. PLAYER1. See players section for more information.
 ---@param trap trap_type The trap’s name, e.g. LAVA. See doors/traps names section for more information.
----@param can_be_available boolean This value can be set to 0 or 1. If it is 1 then you are telling the game that the trap may be constructed at some point.
+---@param can_be_available boolean If it is true then you are telling the game that the trap may be constructed at some point.
 ---@param number_available integer The number of doors available to the player at the start of the level or when they become available. Bear in mind that without a Workshop, the traps cannot be armed. This may cause problems in the game. It is best to leave this at 0 when you write your scripts.
 function TRAP_AVAILABLE(player,trap,can_be_available,number_available) end
 
 ---This command tells the game that a specific door is available for the player to construct.
 ---@param player playerrange The player’s name, e.g. PLAYER1. See players section for more information.
 ---@param door door_type The door’s name, e.g. BRACED. See doors/traps names section for more information.
----@param can_be_available boolean This value can be set to 0 or 1. If it is 1 then you are telling the game that the door can be constructed.
+---@param can_be_available boolean If it is true then you are telling the game that the door can be constructed.
 ---@param number_available integer The number of doors available to the player at the start of the level or when they become available.
 function DOOR_AVAILABLE(player,door,can_be_available,number_available) end
 
@@ -398,11 +398,11 @@ function ADD_TUNNELLER_PARTY_TO_LEVEL(owner,party_name,spawn_location,head_for,t
 
 ---Very similar to the ADD_TUNNELLER_PARTY_TO_LEVEL command, this adds a party to the level but does not include a Tunneller Dwarf.
 ---This means the party will not be able to tunnel to their target.
----@param playerrange playerrange
+---@param owner playersingle
 ---@param party_name string The name as defined with the CREATE_PARTY command
 ---@param location location where the party should be spawned
 ---@param ncopies integer
-function ADD_PARTY_TO_LEVEL(playerrange,party_name,location,ncopies) end
+function ADD_PARTY_TO_LEVEL(owner,party_name,location,ncopies) end
 
 
 

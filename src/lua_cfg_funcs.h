@@ -7,8 +7,6 @@
  *     Console commands
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
- * @author   Sim
- * @date     07 Jul 2020 - 07 Jul 2020
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -26,14 +24,17 @@ extern "C" {
 #endif
 
 #define LUA_FUNCS_MAX       256
-#define LUA_FUNCNAME_LENGHT 256
+#define LUA_FUNCNAME_LENGTH 256
 
 struct LuaFuncsConf{
-    char lua_funcs[LUA_FUNCS_MAX][LUA_FUNCNAME_LENGHT];
+    char lua_funcs[LUA_FUNCS_MAX][LUA_FUNCNAME_LENGTH];
 };
 
 
 FuncIdx get_function_idx(const char *func_name,const struct NamedCommand * Cfuncs);
+
+TbResult luafunc_magic_use_power(FuncIdx func_idx, PlayerNumber plyr_idx, PowerKind pwkind,
+    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags);
 
 #ifdef __cplusplus
 }

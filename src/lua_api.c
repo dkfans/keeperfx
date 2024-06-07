@@ -18,6 +18,7 @@
 #include "keeperfx.hpp"
 #include "music_player.h"
 #include "lua_base.h"
+#include "lua_params.h"
 
 
 #include "post_inc.h"
@@ -28,244 +29,10 @@ static int thing_get_field(lua_State *L);
 
 static const struct luaL_Reg thing_methods[];
 
-struct PlayerRange
-{
-    PlayerNumber start_idx;
-    PlayerNumber end_idx;
-};
-
-/***************************************************************************************************/
-/************    Inputs   **************************************************************************/
-/***************************************************************************************************/
-
-
-
-static long luaL_checkNamedCommand(lua_State *L, int index,const struct NamedCommand * commanddesc)
-{
-    if (lua_isnumber(L, index))
-    {
-        return lua_tointeger(L, index);
-    }
-    else if(lua_isstring(L, index))
-    {
-        const char* text = lua_tostring(L, index);
-        long id = get_rid(commanddesc, text);
-
-        luaL_argcheck(L,id != -1,index,"invalid namedcommandoption");
-
-        return id;
-    }
-    luaL_error(L,"invalid namedcommandoption");
-    return 0;
-
-}
-static struct Thing *luaL_checkThing(lua_State *L, int index)
-{
-    if (!lua_istable(L, index)) {
-        luaL_error(L, "Expected a table");
-        return NULL;
-    }
-
-    // Get idx field
-    lua_getfield(L, index, "ThingIndex");
-    if (!lua_isnumber(L, -1)) {
-        luaL_error(L, "Expected 'index' to be an integer");
-        return NULL;
-    }
-    int idx = lua_tointeger(L, -1);
-    lua_pop(L, 1);  // Pop the idx value off the stack
-
-    // Get creation_turn field
-    lua_getfield(L, index, "creation_turn");
-    if (!lua_isnumber(L, -1)) {
-        luaL_error(L, "Expected 'creation_turn' to be an integer");
-        return NULL;
-    }
-    int creation_turn = lua_tointeger(L, -1);
-    lua_pop(L, 1);  // Pop the creation_turn value off the stack
-
-    struct Thing* thing = thing_get(idx);
-    if (thing_is_invalid(thing) || thing->creation_turn != creation_turn) {
-        luaL_error(L, "Failed to resolve thing");
-        return NULL;
-    }
-    return thing;
-}
-
-static TbMapLocation luaL_checkLocation(lua_State *L, int index)
-{
-    if (lua_istable(L, index)) {
-        lua_getfield(L, index, "stl_x");
-        int stl_x = lua_tointeger(L, -1);
-        lua_getfield(L, index, "stl_y");
-        int stl_y = lua_tointeger(L, -1);
-
-        return get_coord_encoded_location(stl_x,stl_y);
-    }
-
-    const char* locname = lua_tostring(L, index);
-    TbMapLocation location;
-    if(!get_map_location_id(locname, &location))
-    {
-        luaL_error (L,"Invalid location, '%s'", locname);
-    }
-    return location;
-}
-
-static TbMapLocation luaL_optLocation(lua_State *L, int index)
-{
-    if (lua_isnone(L,index))
-        return 0;
-    else
-        return luaL_checkLocation(L,index);
-}
-
-static TbMapLocation luaL_checkHeadingLocation(lua_State *L, int index)
-{
-    const char* locname = lua_tostring(L, index);
-    long target = luaL_checkNamedCommand(L, index + 1,head_for_desc);
-
-
-    TbMapLocation location;
-    if(!get_map_heading_id(locname, target, &location))
-    {
-        luaL_error (L,"Invalid location, '%s'", locname);
-    }
-    return location;
-}
-
-
-static struct PlayerRange luaL_checkPlayerRange(lua_State *L, int index)
-{
-    struct PlayerRange playerRange = {0,0};
-    if (lua_istable(L, index))
-    {
-        lua_getfield(L, index, "playerId");
-        if (lua_isnumber(L, -1)) {
-            int i = lua_tointeger(L, -1);
-            playerRange.start_idx = i;
-            playerRange.end_idx   = i;
-            return playerRange;
-        }
-        luaL_error(L, "Expected table to be of class Player");
-        return playerRange;
-    }
-
-    const char* plrname = lua_tostring(L, index);
-
-    long plr_range_id = get_id(player_desc, plrname);
-    if (plr_range_id == ALL_PLAYERS)
-    {
-        playerRange.start_idx = 0;
-        playerRange.end_idx = PLAYERS_COUNT;
-    }
-    else
-    {
-        playerRange.start_idx = plr_range_id;
-        playerRange.end_idx   = plr_range_id;
-    }
-
-    return playerRange;
-}
-
-static PlayerNumber luaL_checkPlayerSingle(lua_State *L, int index)
-{
-    
-
-    struct PlayerRange playerRange = luaL_checkPlayerRange(L,index);
-    if(playerRange.start_idx != playerRange.end_idx)
-    {
-        luaL_error (L,"player range not supported for this command");
-    }
-    return playerRange.start_idx;
-}
-
-static MapSubtlCoord luaL_checkstl_x(lua_State *L, int index)
-{
-    MapSubtlCoord stl_x = luaL_checkint(L,index);
-    luaL_argcheck(L, 0 <= stl_x && stl_x <= gameadd.map_subtiles_x, index,
-                       "x subtile coord out of range");
-    return stl_x;
-}
-
-static MapSubtlCoord luaL_checkstl_y(lua_State *L, int index)
-{
-    MapSubtlCoord stl_y = luaL_checkint(L,index);
-    luaL_argcheck(L, 0 <= stl_y && stl_y <= gameadd.map_subtiles_y, index,
-                       "y subtile coord out of range");
-    return stl_y;
-}
-
-static ActionPointId luaL_checkActionPoint(lua_State *L, int index)
-{
-    int apt_num = luaL_checkint(L,index);
-    ActionPointId apt_idx = action_point_number_to_index(apt_num);
-    if (!action_point_exists_idx(apt_idx))
-    {
-        luaL_error(L,"Non-existing Action Point, no %d", apt_num);
-        return 0;
-    }
-    return apt_idx;
-}
-
-
-
-
-/***************************************************************************************************/
-/************    Outputs   *************************************************************************/
-/***************************************************************************************************/
-
-void lua_pushThing(lua_State *L, struct Thing* thing) {
-    if (thing_is_invalid(thing)) {
-        luaL_error(L,"Attempt to push invalid thing to Lua");
-        lua_pushnil(L);
-        return;
-    }
-
-    lua_createtable(L, 0, 2);
-
-    lua_pushinteger(L, thing->index);
-    lua_setfield(L, -2, "ThingIndex");
-
-    lua_pushinteger(L, thing->creation_turn);
-    lua_setfield(L, -2, "creation_turn");
-
-    luaL_getmetatable(L, "Thing");
-    lua_setmetatable(L, -2);
-}
-
-void lua_pushPlayer(lua_State *L, PlayerNumber plr_idx) {
-
-
-    lua_createtable(L, 0, 2);
-
-    lua_pushinteger(L, plr_idx);
-    lua_setfield(L, -2, "playerId");
-
-    luaL_getmetatable(L, "Player");
-    lua_setmetatable(L, -2);
-}
-
-void lua_pushPos(lua_State *L, struct Coord3d* pos) {
-
-
-    lua_createtable(L, 0, 2);
-
-    lua_pushinteger(L, pos->x.stl.num);
-    lua_setfield(L, -2, "stl_x");
-
-    lua_pushinteger(L,  pos->y.stl.num);
-    lua_setfield(L, -2, "stl_y");
-
-    //luaL_getmetatable(L, "Thing");
-    //lua_setmetatable(L, -2);
-}
 
 /***************************************************************************************************/
 /************    Api Functions    ******************************************************************/
 /***************************************************************************************************/
-
-
 
 //Setup Commands
 
@@ -351,6 +118,7 @@ static int lua_DEAD_CREATURES_RETURN_TO_POOL(lua_State *L)
 {
     TbBool return_to_pool         = lua_toboolean(L, 3);
     set_flag_value(game.flags_cd, MFlg_DeadBackToPool, return_to_pool);
+    return 0;
 }
 
 static int lua_ROOM_AVAILABLE(lua_State *L)
@@ -378,7 +146,6 @@ static int lua_MAGIC_AVAILABLE(lua_State *L)
 
     for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
     {
-        JUSTLOG("%d,%d;%d;%d",i,power,can_be_available,is_available);
         set_power_available(i,power,can_be_available,is_available);
     }
     return 0;
@@ -613,7 +380,7 @@ static int lua_ADD_TUNNELLER_PARTY_TO_LEVEL(lua_State *L)
 
 static int lua_ADD_PARTY_TO_LEVEL(lua_State *L)
 {
-    long plr_range_id      = luaL_checkinteger(L, 1);
+    PlayerNumber owner     = luaL_checkPlayerSingle(L, 1);
     const char *prtname    = luaL_checkstring(L,  2);
     TbMapLocation location = luaL_checkLocation(L,  3);
     long ncopies           = luaL_checkinteger(L, 4);
@@ -623,12 +390,7 @@ static int lua_ADD_PARTY_TO_LEVEL(lua_State *L)
         SCRPTERRLOG("Invalid NUMBER parameter");
         return 0;
     }
-    // Verify player
-    long plr_id = get_players_range_single(plr_range_id);
-    if (plr_id < 0) {
-        SCRPTERRLOG("Given owning player is not supported in this command");
-        return 0;
-    }
+
     // Recognize place where party is created
     if (location == 0)
         return 0;
@@ -640,7 +402,7 @@ static int lua_ADD_PARTY_TO_LEVEL(lua_State *L)
         return 0;
     }
     struct Party* party = &gameadd.script.creature_partys[prty_id];
-    script_process_new_party(party, plr_id, location, ncopies);
+    script_process_new_party(party, owner, location, ncopies);
         return 0;
 }
 
@@ -707,13 +469,14 @@ static int lua_DISPLAY_COUNTDOWN(lua_State *L)
     PlayerNumber player   = luaL_checkPlayerSingle(L, 1);
     int timer = luaL_checkNamedCommand(L,2,timer_desc);
     int target = luaL_checkinteger(L,3);
-    int clocktime = luaL_boolean(L,4);
+    int clocktime = lua_toboolean(L,4);
 
     gameadd.script_player = player;
     gameadd.script_timer_id = timer;
     gameadd.script_timer_limit = target;
     gameadd.timer_real = clocktime;
     game.flags_gui |= GGUI_ScriptTimer;
+    return 0;    
 }
 //static int lua_DISPLAY_VARIABLE(lua_State *L)
 //static int lua_HIDE_VARIABLE(lua_State *L)
@@ -851,6 +614,7 @@ static int lua_COMPUTER_DIG_TO_LOCATION(lua_State *L)
     TbMapLocation origin      = luaL_checkLocation(L,  2);
     TbMapLocation destination = luaL_checkLocation(L,  3);
     script_computer_dig_to_location(plr_idx, origin, destination);
+    return 0;
 }
 static int lua_SET_COMPUTER_PROCESS(lua_State *L)
 {
@@ -892,7 +656,6 @@ static int lua_SET_MUSIC(lua_State *L)
         game.audiotrack = track_number;
     }
     return 0;
-
 }
 
 
@@ -967,7 +730,7 @@ static int lua_get_thing_by_idx(lua_State *L)
 
 static int send_chat_message(lua_State *L)
 {
-    int plyr_idx = lua_tointeger(L, 1);
+    int plyr_idx = luaL_checkPlayerSingle(L, 1);
     const char *msg = lua_tostring(L, 2);
 
     char type = MsgType_Player;
@@ -1032,7 +795,7 @@ static const luaL_Reg global_methods[] = {
    {"MAX_CREATURES"                 ,lua_MAX_CREATURES                },
    {"ADD_CREATURE_TO_POOL"          ,lua_ADD_CREATURE_TO_POOL         },
    {"CREATURE_AVAILABLE"            ,lua_CREATURE_AVAILABLE           },
-//   {"DEAD_CREATURES_RETURN_TO_POOL" ,lua_DEAD_CREATURES_RETURN_TO_POOL},
+   {"DEAD_CREATURES_RETURN_TO_POOL" ,lua_DEAD_CREATURES_RETURN_TO_POOL},
    {"ROOM_AVAILABLE"                ,lua_ROOM_AVAILABLE               },
    {"MAGIC_AVAILABLE"               ,lua_MAGIC_AVAILABLE              },
    {"DOOR_AVAILABLE"                ,lua_DOOR_AVAILABLE               },
@@ -1353,12 +1116,12 @@ static const struct luaL_Reg thing_methods[] = {
     {"KillCreature",    lua_kill_creature},
     {"DeleteThing",     lua_delete_thing},
     
-   {"TRANSFER_CREATURE"                    ,lua_TRANSFER_CREATURE               },
-   {"KILL_CREATURE"                        ,lua_KILL_CREATURE                   },
-   {"LEVEL_UP_CREATURE"                    ,lua_LEVEL_UP_CREATURE               },
-   {"MOVE_CREATURE"                        ,lua_MOVE_CREATURE                   },
-   {"CHANGE_CREATURE_OWNER"                ,lua_CHANGE_CREATURE_OWNER           },
-   {"CHANGE_CREATURES_ANNOYANCE"           ,lua_CHANGE_CREATURES_ANNOYANCE      },
+   //{"TRANSFER_CREATURE"                    ,lua_TRANSFER_CREATURE               },
+   //{"KILL_CREATURE"                        ,lua_KILL_CREATURE                   },
+   //{"LEVEL_UP_CREATURE"                    ,lua_LEVEL_UP_CREATURE               },
+   //{"MOVE_CREATURE"                        ,lua_MOVE_CREATURE                   },
+   //{"CHANGE_CREATURE_OWNER"                ,lua_CHANGE_CREATURE_OWNER           },
+   //{"CHANGE_CREATURES_ANNOYANCE"           ,lua_CHANGE_CREATURES_ANNOYANCE      },
     {NULL, NULL}
 };
 
@@ -1449,13 +1212,13 @@ static int player_set_field(lua_State *L) {
 // Function to get field values
 static int player_get_field(lua_State *L) {
 
-    PlayerNumber player_idx = luaL_checkPlayerSingle(L, 1);
+    PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 1);
     const char* key = luaL_checkstring(L, 2);
 
     //heart
     if (strcmp(key, "heart") == 0) {
         struct Thing* heartng = get_player_soul_container(plyr_idx);
-        lua_pushThing(L, heartng->index);
+        lua_pushThing(L, heartng);
         return 1;
     }
 
@@ -1466,7 +1229,7 @@ static int player_get_field(lua_State *L) {
 
     if (parse_get_varib(key, &variable_id, &variable_type))
     {
-        lua_pushinteger(L, get_condition_value(player_idx, variable_type, variable_id));
+        lua_pushinteger(L, get_condition_value(plyr_idx, variable_type, variable_id));
         return 1;
     }
 

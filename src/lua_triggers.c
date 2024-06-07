@@ -97,11 +97,13 @@ const char* lua_get_serialised_data(size_t *len)
             lua_pop(Lvl_script, 1);  // Pop the result
             return lua_serialized_data;
         }
+		return NULL;
 	}
 	else
 	{
 		ERRORLOG("failed to find GetSerializedData lua function");
         lua_pop(Lvl_script, 1);  // Pop nil
+		return NULL;
 	}
 }
 

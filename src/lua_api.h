@@ -7,8 +7,6 @@
  *     Console commands
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
- * @author   Sim
- * @date     07 Jul 2020 - 07 Jul 2020
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by

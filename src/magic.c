@@ -61,6 +61,8 @@
 #include "game_legacy.h"
 #include "creature_instances.h"
 #include "lua_triggers.h"
+#include "lua_cfg_funcs.h"
+
 #include "map_locations.h"
 #include "post_inc.h"
 
@@ -2000,9 +2002,8 @@ TbResult magic_use_power_direct(PlayerNumber plyr_idx, PowerKind pwkind,
     }
     else
     {
-        luafunc_magic_use_power(powerst->magic_use_func_idx,pwkind, plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
+        return luafunc_magic_use_power(powerst->magic_use_func_idx, plyr_idx ,pwkind, splevel, stl_x, stl_y, thing, allow_flags);
     }
-
 }
 
 /**
