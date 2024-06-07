@@ -701,7 +701,20 @@ static int lua_TUTORIAL_FLASH_BUTTON(lua_State *L)
     gui_set_button_flashing(button,gameturns);
     return 0;
 }
-//static int lua_DISPLAY_COUNTDOWN(lua_State *L)
+
+static int lua_DISPLAY_COUNTDOWN(lua_State *L)
+{
+    PlayerNumber player   = luaL_checkPlayerSingle(L, 1);
+    int timer = luaL_checkNamedCommand(L,2,timer_desc);
+    int target = luaL_checkinteger(L,3);
+    int clocktime = luaL_boolean(L,4);
+
+    gameadd.script_player = player;
+    gameadd.script_timer_id = timer;
+    gameadd.script_timer_limit = target;
+    gameadd.timer_real = clocktime;
+    game.flags_gui |= GGUI_ScriptTimer;
+}
 //static int lua_DISPLAY_VARIABLE(lua_State *L)
 //static int lua_HIDE_VARIABLE(lua_State *L)
 
