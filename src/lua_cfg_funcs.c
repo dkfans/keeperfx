@@ -58,7 +58,7 @@ TbResult luafunc_magic_use_power(FuncIdx func_idx, PlayerNumber plyr_idx, PowerK
         lua_pushinteger(Lvl_script, stl_x);
         lua_pushinteger(Lvl_script, stl_y);
         lua_pushThing(Lvl_script, thing);
-        lua_pushinteger(Lvl_script, allow_flags);
+        lua_pushboolean(Lvl_script, allow_flags & PwMod_CastForFree);
 
         if (lua_pcall(Lvl_script, 7, 1, 0) != LUA_OK) {
             const char *error_msg = lua_tostring(Lvl_script, -1);

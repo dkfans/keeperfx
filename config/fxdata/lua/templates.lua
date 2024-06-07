@@ -100,6 +100,13 @@ end
 --------------------------------------
 ----- magic.cfg functions----------
 --------------------------------------
---TriggerType = 2
---ActivationType = 3
-
+---comment
+---@param player Player
+---@param pwkind power_kind
+---@param splevel integer
+---@param stl_x integer
+---@param stl_y integer
+---@param thing Thing
+---@param is_free boolean
+function magic_use_template(player,pwkind,splevel,stl_x,stl_y,thing,is_free)
+end
