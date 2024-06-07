@@ -382,9 +382,9 @@ void update_creature_rendering_flags(struct Thing *thing)
     if (thing_is_creature(thing))
     {
         struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-        if (crstat->transparancy_flags != 0)
+        if (crstat->transparency_flags != 0)
         {
-            set_flag(thing->rendering_flags, crstat->transparancy_flags);
+            set_flag(thing->rendering_flags, crstat->transparency_flags);
         }
     }
     if (creature_is_invisible(thing))

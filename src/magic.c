@@ -1810,8 +1810,9 @@ TbBool affect_creature_by_power_call_to_arms(struct Thing *creatng, long range, 
         if (stati->react_to_cta
           && (creature_affected_by_call_to_arms(creatng) || get_chessboard_distance(&creatng->mappos, cta_pos) < range))
         {
-            creature_mark_if_woken_up(creatng);
-            if (update_creature_influenced_by_call_to_arms_at_pos(creatng, cta_pos)) {
+            if (update_creature_influenced_by_call_to_arms_at_pos(creatng, cta_pos)) 
+            {
+                creature_mark_if_woken_up(creatng);
                 return true;
             }
         }

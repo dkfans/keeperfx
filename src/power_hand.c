@@ -317,33 +317,30 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
 
 void set_power_hand_graphic(unsigned char plyr_idx, long HandAnimationID)
 {
-  struct PlayerInfo *player;
-  struct Thing *thing;
-  player = get_player(plyr_idx);
-
-  short anim_idx   = game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_idx[HandAnimationID];
-  short anim_speed = game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_speed[HandAnimationID];
-
-  if (player->hand_busy_until_turn >= game.play_gameturn)
-  {
-    if ((HandAnimationID == HndA_Slap) || (HandAnimationID == HndA_SideSlap))
-      player->hand_busy_until_turn = 0;
-  }
-  if (player->hand_busy_until_turn < game.play_gameturn)
-  {
-    if (player->hand_animationId != HandAnimationID)
+    struct PlayerInfo *player = get_player(plyr_idx);
+    if (player->hand_busy_until_turn >= game.play_gameturn)
     {
-      player->hand_animationId = HandAnimationID;
-      thing = thing_get(player->hand_thing_idx);
-      if ((HandAnimationID == HndA_Hover) || (HandAnimationID == HndA_HoldGold))
-      {
-        set_thing_draw(thing, anim_idx, anim_speed, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
-      } else
-      {
-        set_thing_draw(thing, anim_idx, anim_speed, game.conf.crtr_conf.sprite_size, 1, 0, ODC_Default);
-      }
+        if ((HandAnimationID == HndA_Slap) || (HandAnimationID == HndA_SideSlap))
+          player->hand_busy_until_turn = 0;
     }
-  }
+    if (player->hand_busy_until_turn < game.play_gameturn)
+    {
+        if (player->hand_animationId != HandAnimationID)
+        {
+            player->hand_animationId = HandAnimationID;
+            struct Thing *thing = thing_get(player->hand_thing_idx);
+            short anim_idx   = game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_idx[HandAnimationID];
+            short anim_speed = game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_speed[HandAnimationID];
+            if ((HandAnimationID == HndA_Hover) || (HandAnimationID == HndA_HoldGold))
+            {
+                set_thing_draw(thing, anim_idx, anim_speed, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
+            }
+            else
+            {
+                set_thing_draw(thing, anim_idx, anim_speed, game.conf.crtr_conf.sprite_size, 1, 0, ODC_Default);
+            }
+        }
+    }
 }
 
 TbBool power_hand_is_empty(const struct PlayerInfo *player)
@@ -627,17 +624,17 @@ void draw_power_hand(void)
                 inputpos_x = GetMouseX() + scale_ui_value(pickoffs->delta_x*global_hand_scale);
                 inputpos_y = GetMouseY() + scale_ui_value(pickoffs->delta_y*global_hand_scale);
                 struct CreatureStats* crstat = creature_stats_get(picktng->model);
-                if (crstat->transparancy_flags == TRF_Transpar_8)
+                if (crstat->transparency_flags == TRF_Transpar_8)
                 {
                     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
                     lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;  
                 }
-                else if (crstat->transparancy_flags == TRF_Transpar_4)
+                else if (crstat->transparency_flags == TRF_Transpar_4)
                 {
                     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
                     lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
                 }
-                else if(crstat->transparancy_flags == TRF_Transpar_Alpha)
+                else if(crstat->transparency_flags == TRF_Transpar_Alpha)
                 {
                     EngineSpriteDrawUsingAlpha = 1;
                 }
