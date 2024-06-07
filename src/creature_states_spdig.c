@@ -84,7 +84,7 @@ TbBool creature_is_doing_digger_activity(const struct Thing* thing)
         case CrSt_ImpToking:
         case CrSt_ImpPicksUpGoldPile:
         case CrSt_MoveBackwardsToPosition:
-        case CrSt_CreatureDropBodyInLair: // neu
+        case CrSt_CreatureDropBodyInLair:
         case CrSt_CreatureDropBodyInPrison:
         case CrSt_ImpArrivesAtConvertDungeon:
         case CrSt_ImpConvertsDungeon:
@@ -1614,7 +1614,7 @@ short creature_save_unconscious_creature(struct Thing *thing)
     SYNCDBG(9,"Starting");
     TRACE_THING(thing);
     // Check if the player has means to do such kind of action
-     if (!player_has_room_of_role(thing->owner, RoRoF_LairStorage) || !player_creature_tends_to(thing->owner, CrTend_Flee))
+     if (!player_has_room_of_role(thing->owner, RoRoF_LairStorage))
      {
          SYNCDBG(19,"Player %d has no %s or has flee tendency off",(int)thing->owner,room_role_code_name(RoRoF_LairStorage));
          set_start_state(thing);

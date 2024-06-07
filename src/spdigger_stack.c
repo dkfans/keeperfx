@@ -1846,10 +1846,6 @@ int add_unsaved_unconscious_creature_to_imp_stack(struct Dungeon *dungeon, int m
     int remain_num;
     unsigned long k;
     int i;
-    if (!player_creature_tends_to(dungeon->owner, CrTend_Flee)) {
-        SYNCDBG(8,"Player %d creatures do not tend to flee",(int)dungeon->owner);
-        return 0;
-    }
     const struct StructureList *slist;
     slist = get_list_for_thing_class(TCls_Creature);
     k = 0;
@@ -3020,9 +3016,6 @@ long check_out_worker_save_unconscious(struct Thing *thing, struct DiggerStack *
     struct Room * room;
     room = get_creature_lair_room(sectng);
     if (!get_creature_lair_room(sectng)) {
-        return 0;
-    }
-    if (!player_creature_tends_to(thing->owner, CrTend_Flee)) {
         return 0;
     }
     if (thing_is_invalid(sectng))
