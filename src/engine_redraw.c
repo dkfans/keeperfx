@@ -974,7 +974,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     case PsPg_Query:
         set_pointer_graphic(MousePG_Query);
         break;
-    case PSt_PlaceTrap:
+    case PsPg_PlaceTrap:
         i = get_place_trap_pointer_graphics(player->chosen_trap_kind);
         set_pointer_graphic(i);
         break;
