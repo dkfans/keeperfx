@@ -4849,7 +4849,13 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
 
     set_flag(lbDisplay.DrawFlags, objst->transparency_flags);
     nframe = (thing->index + game.play_gameturn) % keepersprite_frames(objst->flame.animation_id);
+    if (objst->transparency_flags == TRF_Transpar_Alpha)
+    {
+        EngineSpriteDrawUsingAlpha = 1;
+    }
     process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, base_sprite_size);
+    clear_flag(lbDisplay.DrawFlags, objst->transparency_flags);
+    EngineSpriteDrawUsingAlpha = 0;
     set_flag(lbDisplay.DrawFlags, objst->flame.transparency_flags);
     if (objst->flame.transparency_flags == TRF_Transpar_Alpha)
     {
