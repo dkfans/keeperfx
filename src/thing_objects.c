@@ -161,8 +161,7 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
     set_thing_draw(thing, i, objst->anim_speed, objst->sprite_size_max, 0, start_frame, objst->draw_class);
     set_flag_value(thing->rendering_flags, TRF_Unshaded, objst->light_unaffected);
 
-    set_flag_value(thing->rendering_flags, TRF_Transpar_4, objst->transparency_flags & 0x01);
-    set_flag_value(thing->rendering_flags, TRF_Transpar_8, objst->transparency_flags & 0x02);
+    set_flag(thing->rendering_flags, objst->transparency_flags);
 
     thing->active_state = objst->initial_state;
     if (objst->ilght.radius != 0)
