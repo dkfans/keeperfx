@@ -438,6 +438,33 @@ static void api_return_data_number(long data)
     SDLNet_TCP_Send(api.activeSocket, buf, len);
 }
 
+int api_clear_all_subscriptions()
+{
+    if (api_sub_count == 0)
+    {
+        return 0;
+    }
+
+    // Loop trough all subscriptions
+    // We don't exit the loop earlier just incase
+    // This way this function also works as a full subscription list refresh
+    for (int i = 0; i < API_SUBSCRIBE_LIST_SIZE; i++)
+    {
+        // If this subscription slot is inactive we can skip it
+        if (api_subscriptions[i].type == API_SUBSCRIBE_INACTIVE)
+        {
+            continue;
+        }
+
+        // Set type as inactive and clear all data
+        api_subscriptions[i].type = API_SUBSCRIBE_INACTIVE;
+        memset(api_subscriptions[i].event, 0, sizeof(api_subscriptions[i].event));
+        memset(&api_subscriptions[i].var, 0, sizeof(struct SubscribedVariable));
+    }
+
+    api_sub_count = 0;
+}
+
 int api_is_subscribed_to_event(const char *event_name)
 {
     // Look up if we are subscribed to this event
@@ -1326,10 +1353,11 @@ void api_update_server()
                 }
                 else
                 {
-                    WARNLOG("API connection closed");
+                    api_clear_all_subscriptions();
                     SDLNet_TCP_DelSocket(api.socketSet, api.activeSocket);
                     SDLNet_TCP_Close(api.activeSocket);
                     api.activeSocket = 0;
+                    JUSTLOG("API connection closed");
                 }
 
                 // Clear buffer
