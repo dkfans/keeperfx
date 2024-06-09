@@ -442,11 +442,11 @@ static void api_return_data_number(long data)
     SDLNet_TCP_Send(api.activeSocket, buf, len);
 }
 
-int api_clear_all_subscriptions()
+void api_clear_all_subscriptions()
 {
     if (api_sub_count == 0)
     {
-        return 0;
+        return;
     }
 
     // Loop trough all subscriptions
