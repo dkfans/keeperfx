@@ -4825,6 +4825,7 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
     struct PlayerInfo* player = get_my_player();
     struct Thing* thing = jspr->thing;
     struct ObjectConfigStats* objst;
+    unsigned long nframe;
     long add_x, add_y;
     long scale;
     if (!thing_is_object(thing))
@@ -4847,6 +4848,7 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
     }
 
     set_flag(lbDisplay.DrawFlags, objst->transparency_flags);
+    nframe = (thing->index + game.play_gameturn) % keepersprite_frames(objst->flame.animation_id);
     if (objst->transparency_flags == TRF_Transpar_Alpha)
     {
         EngineSpriteDrawUsingAlpha = 1;
@@ -4859,7 +4861,7 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
     {
         EngineSpriteDrawUsingAlpha = 1;
     }
-    process_keeper_sprite(jspr->scr_x + add_x, jspr->scr_y + add_y, objst->flame.animation_id, angle, thing->current_frame, scale);
+    process_keeper_sprite(jspr->scr_x + add_x, jspr->scr_y + add_y, objst->flame.animation_id, angle, nframe, scale);
 }
 
 static unsigned short get_thing_shade(struct Thing* thing);
