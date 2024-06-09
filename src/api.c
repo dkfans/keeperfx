@@ -254,7 +254,6 @@ static void api_err(const char *err)
     *dump_state.out = 0;
     if (json_dump_return_value != 0)
     {
-        api_err("FAILED_TO_CREATE_JSON");
         value_fini(json_root);
         return;
     }
