@@ -1391,7 +1391,10 @@ void api_update_server()
  */
 void api_close_server()
 {
-    JUSTLOG("API server stopped listening to messages");
+    api_clear_all_subscriptions();
+
+    JUSTLOG("API server closing");
+
     if (api.socketSet)
     {
         SDLNet_FreeSocketSet(api.socketSet);
