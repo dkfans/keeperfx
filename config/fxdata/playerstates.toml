@@ -1,7 +1,7 @@
 [playerstate0]
 Name = "PLAYER_STATE_NONE" 
 #associated power in magic.cfg
-PowerKind = ""
+PowerKind = "NOPOWER"
 #how the pointer is determined, possible values
 # NONE, CTRLDUNGEON, BUILDROOM, INVISIBLE, SPELL, QUERY, 
 # PLACETRAP, PLACEDOOR, SELL, PLACETERRAIN, MAKEDIGGER, MAKECREATURE, ORDERCREATURE
@@ -11,31 +11,31 @@ StopOwnUnits = false
 
 [playerstate1]
 Name = "PLAYER_STATE_CTRLDUNGEON"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "CTRLDUNGEON"
 StopOwnUnits = true
 
 [playerstate2]
 Name = "PLAYER_STATE_BUILDROOM"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "BUILDROOM"
 StopOwnUnits = false
 
 [playerstate3]
 Name = "PLAYER_STATE_MKGOODDIGGER"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "MAKEDIGGER"
 StopOwnUnits = false
 
 [playerstate4]
 Name = "PLAYER_STATE_MKGOODCREATR"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "MAKECREATURE"
 StopOwnUnits = false
 
 [playerstate5]
 Name = "PLAYER_STATE_HOLDINHAND"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "INVISIBLE"
 StopOwnUnits = false
 
@@ -59,7 +59,7 @@ StopOwnUnits = false
 
 [playerstate9]
 Name = "PLAYER_STATE_SLAP"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "INVISIBLE"
 StopOwnUnits = true
 
@@ -77,31 +77,31 @@ StopOwnUnits = true
 
 [playerstate12]
 Name = "PLAYER_STATE_CREATRQUERY"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "QUERY"
 StopOwnUnits = true
 
 [playerstate13]
 Name = "PLAYER_STATE_ORDERCREATR"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "ORDERCREATURE"
 StopOwnUnits = true
 
 [playerstate14]
 Name = "PLAYER_STATE_MKBADCREATR"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "MAKECREATURE"
 StopOwnUnits = false
 
 [playerstate15]
 Name = "PLAYER_STATE_CREATRINFO"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "QUERY"
 StopOwnUnits = true
 
 [playerstate16]
 Name = "PLAYER_STATE_PLACETRAP"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "PLACETRAP"
 StopOwnUnits = false
 
@@ -113,7 +113,7 @@ StopOwnUnits = false
 
 [playerstate18]
 Name = "PLAYER_STATE_PLACEDOOR"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "PLACEDOOR"
 StopOwnUnits = false
 
@@ -143,7 +143,7 @@ StopOwnUnits = true
 
 [playerstate23]
 Name = "PLAYER_STATE_SELL"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "SELL"
 StopOwnUnits = false
 
@@ -173,7 +173,7 @@ StopOwnUnits = true
 
 [playerstate28]
 Name = "PLAYER_STATE_MKGOLDPOT"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "NONE"
 StopOwnUnits = false
 
@@ -215,91 +215,91 @@ StopOwnUnits = true
 
 [playerstate35]
 Name = "PLAYER_STATE_STEALROOM"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "NONE"
 StopOwnUnits = false
 
 [playerstate36]
 Name = "PLAYER_STATE_DESTROYROOM"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "NONE"
 StopOwnUnits = false
 
 [playerstate37]
 Name = "PLAYER_STATE_KILLCREATURE"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "NONE"
 StopOwnUnits = false
 
 [playerstate38]
 Name = "PLAYER_STATE_CONVERTCREATURE"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "NONE"
 StopOwnUnits = false
 
 [playerstate39]
 Name = "PLAYER_STATE_STEALSLAB"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "NONE"
 StopOwnUnits = false
 
 [playerstate40]
 Name = "PLAYER_STATE_LEVELCREATUREUP"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "NONE"
 StopOwnUnits = false
 
 [playerstate41]
 Name = "PLAYER_STATE_LEVELCREATUREDOWN"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "NONE"
 StopOwnUnits = false
 
 [playerstate42]
 Name = "PLAYER_STATE_KILLPLAYER"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "NONE"
 StopOwnUnits = false
 
 [playerstate43]
 Name = "PLAYER_STATE_HEARTHEALTH"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "NONE"
 StopOwnUnits = false
 
 [playerstate44]
 Name = "PLAYER_STATE_CREATRQUERYALL"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "QUERY"
 StopOwnUnits = true
 
 [playerstate45]
 Name = "PLAYER_STATE_MAKEHAPPY"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "NONE"
 StopOwnUnits = true
 
 [playerstate46]
 Name = "PLAYER_STATE_MAKEANGRY"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "NONE"
 StopOwnUnits = true
 
 [playerstate47]
 Name = "PLAYER_STATE_PLACETERRAIN"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "PLACETERRAIN"
 StopOwnUnits = false
 
 [playerstate48]
 Name = "PLAYER_STATE_DESTROY_THING"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "NONE"
 StopOwnUnits = false
 
 [playerstate49]
 Name = "PLAYER_STATE_CREATURE_INFO_ALL"
-PowerKind = ""
+PowerKind = "NOPOWER"
 PointerGroup = "QUERY"
 StopOwnUnits = true
 

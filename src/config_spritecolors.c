@@ -47,12 +47,6 @@ static short objects_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
 /******************************************************************************/
 static short get_player_colored_idx(short base_icon_idx,unsigned char color_idx,short *arr);
 /******************************************************************************/
-static short get_anim_id_(const char *word_buf)
-{
-    struct ObjectConfigStats obj_tmp;
-    return get_anim_id(word_buf, &obj_tmp);
-
-}
 
 static void load_array(VALUE* file_root, const char *arr_name,short *arr, unsigned short flags,short (*string_to_id_f)(const char *))
 {

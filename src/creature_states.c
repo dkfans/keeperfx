@@ -4667,6 +4667,7 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
 short set_start_state_f(struct Thing *thing,const char *func_name)
 {
     long i;
+    struct CreatureStats* crstat;
     SYNCDBG(8,"%s: Starting for %s index %d, owner %d, last state %s, stacked %s",func_name,thing_model_name(thing),
         (int)thing->index,(int)thing->owner,creature_state_code_name(thing->active_state),creature_state_code_name(thing->continue_state));
     if ((thing->alloc_flags & TAlF_IsControlled) != 0)
@@ -4695,7 +4696,8 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
     }
     if (is_hero_thing(thing))
     {
-        i = creatures[thing->model%game.conf.crtr_conf.model_count].good_start_state;
+        crstat = creature_stats_get_from_thing(thing);
+        i = crstat->good_start_state;
         cleanup_current_thing_state(thing);
         initialise_thing_state(thing, i);
         return thing->active_state;
@@ -4718,7 +4720,8 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
             return thing->active_state;
         }
     }
-    i = creatures[thing->model%game.conf.crtr_conf.model_count].evil_start_state;
+    crstat = creature_stats_get_from_thing(thing);
+    i = crstat->evil_start_state;
     cleanup_current_thing_state(thing);
     initialise_thing_state(thing, i);
     return thing->active_state;

@@ -1760,7 +1760,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             mconf->selling_value = value;
             break;
         case 12: // AnimationID
-            trapstat->sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
+            trapstat->sprite_anim_idx = get_anim_id_(context->value->str2);
             refresh_trap_anim(trap_type);
             break;
         case 13: // ModelSize
@@ -2662,82 +2662,181 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
+enum CreatureConfiguration
+{
+    CrtConf_NONE,
+    CrtConf_ATTRIBUTES,
+    CrtConf_ATTRACTION,
+    CrtConf_ANNOYANCE,
+    CrtConf_SENSES,
+    CrtConf_APPEARANCE,
+    CrtConf_EXPERIENCE,
+    CrtConf_JOBS,
+    CrtConf_SPRITES,
+    CrtConf_SOUNDS,
+    CrtConf_LISTEND
+};
+
 static void set_creature_configuration_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-
     short creatvar = get_id(creatmodel_attributes_commands, scline->tp[1]);
+    short block = CrtConf_ATTRIBUTES;
     if (creatvar == -1)
     {
         creatvar = get_id(creatmodel_jobs_commands, scline->tp[1]);
+        block = CrtConf_JOBS;
         if (creatvar == -1)
         {
-            SCRPTERRLOG("Unknown creature attribute");
-            DEALLOCATE_SCRIPT_VALUE
-            return;
+            block = CrtConf_ATTRACTION;
+            creatvar = get_id(creatmodel_attraction_commands, scline->tp[1]);
+            if (creatvar == -1)
+            {
+                block = CrtConf_SOUNDS;
+                creatvar = get_id(creatmodel_sounds_commands, scline->tp[1]);
+                if (creatvar == -1)
+                {
+                    block = CrtConf_SPRITES;
+                    creatvar = get_id(creature_graphics_desc, scline->tp[1]);
+                    if (creatvar == -1)
+                    {
+                        SCRPTERRLOG("Unknown creature configuration variable");
+                        DEALLOCATE_SCRIPT_VALUE
+                        return;
+                    }
+                }
+            }
         }
-        creatvar = (creatvar << 8);
     }
 
-    short attribute_value;
-    short attribute2_value = 0;
-    if (creatvar == 20) // ATTACKPREFERENCE
+    short value1 = 0;
+    short value2 = 0;
+    short value3 = 0;
+    if (block == CrtConf_ATTRIBUTES)
     {
-        attribute_value = get_id(attackpref_desc, scline->tp[2]);
-    }
-    else if (creatvar == 34) // LAIROBJECT
-    {
-        attribute_value = get_id(object_desc, scline->tp[2]);
-    }
-    else if (((creatvar>>8) > 0 ) && ((creatvar >> 8) <= 4)) // Jobs
-    {
-        long job_value = get_id(creaturejob_desc, scline->tp[2]);
-        if (job_value > SHRT_MAX)
+        if (creatvar == 20) // ATTACKPREFERENCE
         {
-            SCRPTERRLOG("JOB %s not supported",creature_job_code_name(job_value));
-            DEALLOCATE_SCRIPT_VALUE
-            return;
+            value1 = get_id(attackpref_desc, scline->tp[2]);
         }
-        attribute_value = job_value;
-
-        if (scline->tp[3][0] != '\0')
+        else if (creatvar == 34) // LAIROBJECT
         {
-            long job2_value = get_id(creaturejob_desc, scline->tp[3]);
-            if (job2_value > SHRT_MAX)
+            if (parameter_is_number(scline->tp[2])) //support name or number for lair object
+            {
+                value1 = atoi(scline->tp[2]);
+            }
+            else
+            {
+                value1 = get_id(object_desc, scline->tp[2]);
+            }
+        }
+        else
+        {
+            value1 = atoi(scline->tp[2]);
+            if (scline->tp[3][0] != '\0')
+            {
+                value2 = atoi(scline->tp[3]);
+            }
+            // nothing there that would need the third value.
+        }
+    }
+    else if (block == CrtConf_JOBS)
+    {
+        if ((creatvar > 0) && (creatvar <= 4)) // Jobs
+        {
+            long job_value;
+            if (parameter_is_number(scline->tp[2]))
+            {
+                job_value = atoi(scline->tp[2]);
+            }
+            else
+            {
+                job_value = get_id(creaturejob_desc, scline->tp[2]);
+            }
+            long job2_value = 0;
+            long job3_value = 0;
+            if (job_value > SHRT_MAX)
             {
                 SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            attribute2_value = job2_value;
-        }
-    }
-    else
-    {
-            attribute_value = atoi(scline->tp[2]);
+            value1 = job_value;
+
             if (scline->tp[3][0] != '\0')
             {
-                attribute2_value = atoi(scline->tp[3]);
+                job2_value = get_id(creaturejob_desc, scline->tp[3]);
+                if (job2_value > SHRT_MAX)
+                {
+                    SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
+                value2 = job2_value;
             }
+            if (scline->tp[4][0] != '\0')
+            {
+                job3_value = get_id(creaturejob_desc, scline->tp[4]);
+                if (job3_value > SHRT_MAX)
+                {
+                    SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
+                value3 = job3_value;
+            }
+        }
     }
-    if (attribute_value == -1)
+    else if (block == CrtConf_SOUNDS)
     {
-        SCRPTERRLOG("Unknown creature attribute value %s", scline->tp[2]);
+        value1 = atoi(scline->tp[2]);
+        if (scline->tp[3][0] != '\0')
+        {
+            value2 = atoi(scline->tp[3]);
+        }
+        if (scline->tp[3][0] != '\0')
+        {
+            value3 = atoi(scline->tp[4]);
+        }
+    }
+    else if (block == CrtConf_SPRITES)
+    {
+        if ((creatvar == (CGI_HandSymbol + 1)) || (creatvar == (CGI_QuerySymbol + 1)))
+        {
+            value1 = get_icon_id(scline->tp[2]);
+        }
+        else
+        {
+            value1 = get_anim_id_(scline->tp[2]);
+        }
+    }
+    
+    if (value1 == -1)
+    {
+        SCRPTERRLOG("Unknown creature configuration value %s", scline->tp[2]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-    if (attribute2_value == -1)
+    if (value2 == -1)
     {
-        SCRPTERRLOG("Unknown second creature attribute value %s", scline->tp[3]);
+        SCRPTERRLOG("Unknown second creature configuration value %s", scline->tp[3]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    if (value3 == -1)
+    {
+        SCRPTERRLOG("Unknown third creature configuration value %s", scline->tp[3]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
 
     value->shorts[0] = scline->np[0];
     value->shorts[1] = creatvar;
-    value->shorts[2] = attribute_value;
-    value->shorts[3] = attribute2_value;
-    SCRIPTDBG(7,"Setting creature %s attribute %d to %d (%d)", creature_code_name(value->shorts[0]), value->shorts[1], value->shorts[2], value->shorts[3]);
+    value->shorts[2] = block;
+    value->shorts[3] = value1;
+    value->shorts[4] = value2;
+    value->shorts[5] = value3;
+    
+    SCRIPTDBG(7,"Setting creature %s configuration value %d:%d to %d (%d)", creature_code_name(value->shorts[0]), value->shorts[4], value->shorts[1], value->shorts[2], value->shorts[3]);
 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -2747,17 +2846,19 @@ static void set_creature_configuration_process(struct ScriptContext* context)
     short creatid = context->value->shorts[0];
     struct CreatureStats* crstat = creature_stats_get(creatid);
     struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[creatid];
+    
+    short creature_variable = context->value->shorts[1];
+    short block  = context->value->shorts[2];
+    short value  = context->value->shorts[3];
+    short value2 = context->value->shorts[4];
+    short value3 = context->value->shorts[5];
 
-    short attribute = context->value->shorts[1];
-    short value = context->value->shorts[2];
-    short value2 = context->value->shorts[3];
-
-    if (attribute <= CHAR_MAX)
+    if (block == CrtConf_ATTRIBUTES)
     {
-        switch (attribute)
+        switch (creature_variable)
         {
         case 1: // NAME
-            CONFWRNLOG("Attribute (%d) not supported", attribute);
+            CONFWRNLOG("Attribute (%d) not supported", creature_variable);
             break;
         case 2: // HEALTH
             crstat->health = value;
@@ -2828,7 +2929,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         case 24: // CREATURELOYALTY
         case 25: // LOYALTYLEVEL
         case 28: // PROPERTIES
-            CONFWRNLOG("Attribute (%d) not supported", attribute);
+            CONFWRNLOG("Attribute (%d) not supported", creature_variable);
             break;
         case 26: // DAMAGETOBOULDER
             crstat->damage_to_boulder = value;
@@ -2860,30 +2961,33 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         case -1: // end of buffer
             break;
         default:
-            CONFWRNLOG("Unrecognized command (%d)", attribute);
+            CONFWRNLOG("Unrecognized attribute (%d)", creature_variable);
             break;
         }
     }
-    else
+    else if (block == CrtConf_JOBS)
     {
-        attribute = (attribute >> 8); // creatmodel_jobs_commands
-        switch (attribute)
+        switch (creature_variable)
         {
         case 1: // PRIMARYJOBS
             crstat->job_primary = value;
             crstat->job_primary |= value2;
+            crstat->job_primary |= value3;
             break;
         case 2: // SECONDARYJOBS
             crstat->job_secondary = value;
             crstat->job_secondary |= value2;
+            crstat->job_secondary |= value3;
             break;
         case 3: // NOTDOJOBS
             crstat->jobs_not_do = value;
             crstat->jobs_not_do |= value2;
+            crstat->jobs_not_do |= value3;
             break;
         case 4: // STRESSFULJOBS
             crstat->job_stress = value;
             crstat->job_stress |= value2;
+            crstat->job_stress |= value3;
             break;
         case 5: // TRAININGVALUE
             crstat->training_value = value;
@@ -2907,9 +3011,96 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             crstat->partner_training = value;
             break;
         default:
-            CONFWRNLOG("Unrecognized Job command (%d)", attribute);
+            CONFWRNLOG("Unrecognized Job command (%d)", creature_variable);
             break;
         }
+    }
+    else if (block == CrtConf_ATTRACTION)
+    {
+
+        switch (creature_variable)
+        {
+        case 1: // ENTRANCEROOM
+            crstat->entrance_rooms[0] = value;
+            crstat->entrance_rooms[1] = value2;
+            crstat->entrance_rooms[2] = value3;
+            break;
+        case 2: // ROOMSLABSREQUIRED
+            crstat->entrance_slabs_req[0] = value;
+            crstat->entrance_slabs_req[1] = value2;
+            crstat->entrance_slabs_req[2] = value3;
+            break;
+        case 3: // BASEENTRANCESCORE
+            crstat->entrance_score = value;
+            break;
+        case 4: // SCAVENGEREQUIREMENT
+            crstat->scavenge_require = value;
+            break;
+        case 5: // TORTURETIME
+            crstat->torture_break_time = value;
+            break;
+        default:
+            CONFWRNLOG("Unrecognized Attraction command (%d)", creature_variable);
+            break;
+        }
+    }
+    else if (block == CrtConf_SOUNDS)
+    {
+        switch (creature_variable)
+        {
+        case 1: // HURT
+            game.conf.crtr_conf.creature_sounds[creatid].hurt.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].hurt.count = value2;
+            break;
+        case 2: // HIT
+            game.conf.crtr_conf.creature_sounds[creatid].hit.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].hit.count = value2;
+            break;
+        case 3: // HAPPY
+            game.conf.crtr_conf.creature_sounds[creatid].happy.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].happy.count = value2;
+            break;
+        case 4: // SAD
+            game.conf.crtr_conf.creature_sounds[creatid].sad.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].sad.count = value2;
+            break;
+        case 5: // HANG
+            game.conf.crtr_conf.creature_sounds[creatid].hang.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].hang.count = value2;
+            break;
+        case 6: // DROP
+            game.conf.crtr_conf.creature_sounds[creatid].drop.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].drop.count = value2;
+            break;
+        case 7: // TORTURE
+            game.conf.crtr_conf.creature_sounds[creatid].torture.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].torture.count = value2;
+            break;
+        case 8: // SLAP
+            game.conf.crtr_conf.creature_sounds[creatid].slap.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].slap.count = value2;
+            break;
+        case 9: // DIE
+            game.conf.crtr_conf.creature_sounds[creatid].die.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].die.count = value2;
+            break;
+        case 10: // FOOT
+            game.conf.crtr_conf.creature_sounds[creatid].foot.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].foot.count = value2;
+            break;
+        case 11: // FIGHT
+            game.conf.crtr_conf.creature_sounds[creatid].fight.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].fight.count = value2;
+            break;
+        }
+    }
+    else if (block == CrtConf_SPRITES)
+    {
+        set_creature_model_graphics(creatid, creature_variable-1, value);
+    }
+    else
+    {
+        ERRORLOG("Trying to configure unsupported creature block (%d)",block);
     }
     check_and_auto_fix_stats();
 }
@@ -2992,7 +3183,7 @@ static void set_object_configuration_process(struct ScriptContext *context)
             objst->random_start_frame = context->value->arg1;
             break;
         case 26: // TRANSPARENCYFLAGS
-            objst->transparancy_flags = context->value->arg1;
+            objst->transparency_flags = context->value->arg1;
             break;
         case 27: // EFFECTBEAM
             objst->effect.beam = context->value->arg1;
@@ -5757,7 +5948,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_TRAP_CONFIGURATION",            "AAAn!n! ", Cmd_SET_TRAP_CONFIGURATION, &set_trap_configuration_check, &set_trap_configuration_process},
   {"SET_DOOR_CONFIGURATION",            "AAAn!   ", Cmd_SET_DOOR_CONFIGURATION, &set_door_configuration_check, &set_door_configuration_process},
   {"SET_OBJECT_CONFIGURATION",          "AAAn!   ", Cmd_SET_OBJECT_CONFIGURATION, &set_object_configuration_check, &set_object_configuration_process},
-  {"SET_CREATURE_CONFIGURATION",        "CAAa    ", Cmd_SET_CREATURE_CONFIGURATION, &set_creature_configuration_check, &set_creature_configuration_process},
+  {"SET_CREATURE_CONFIGURATION",        "CAAaa   ", Cmd_SET_CREATURE_CONFIGURATION, &set_creature_configuration_check, &set_creature_configuration_process},
   {"SET_SACRIFICE_RECIPE",              "AAA+    ", Cmd_SET_SACRIFICE_RECIPE, &set_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"REMOVE_SACRIFICE_RECIPE",           "A+      ", Cmd_REMOVE_SACRIFICE_RECIPE, &remove_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"SET_BOX_TOOLTIP",                   "NA      ", Cmd_SET_BOX_TOOLTIP, &set_box_tooltip, &null_process},

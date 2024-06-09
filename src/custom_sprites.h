@@ -32,6 +32,7 @@ struct ObjectConfigStats;
 void init_custom_sprites(LevelNumber level_no);
 
 short get_anim_id(const char *name, struct ObjectConfigStats* objst);
+short get_anim_id_(const char* name);
 short get_icon_id(const char *name);
 const struct TbSprite *get_button_sprite_for_player(short sprite_idx, PlayerNumber plyr_idx);
 const struct TbSprite *get_button_sprite_direct(short sprite_idx);

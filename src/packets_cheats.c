@@ -581,10 +581,7 @@ TbBool packets_process_cheats(
                             query_creature(player, player->thing_under_hand, true, false);
                         }
                     }
-                    else
-                    {
-                        query_thing(thing);
-                    }
+                    query_thing(thing);
                     unset_packet_control(pckt, PCtr_LBtnRelease);
                 }
                 else if (room_exists(room) )

@@ -135,7 +135,7 @@ long pinstfs_hand_grab(struct PlayerInfo *player, long *n)
     struct Thing* thing = thing_get(player->hand_thing_idx);
     if (!thing_is_invalid(thing))
     {
-        set_power_hand_graphic(player->id_number, HndA_Hover);
+        set_power_hand_graphic(player->id_number, HndA_Pickup);
     }
     return 0;
 }
@@ -144,7 +144,6 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
 {
     SYNCDBG(8,"Starting");
     struct Thing* dsttng = thing_get(player->influenced_thing_idx);
-    struct Thing* grabtng = thing_get(player->hand_thing_idx);
     if (dsttng->creation_turn != player->influenced_thing_creation) {
         WARNLOG("The thing index %d is no longer the same",(int)player->influenced_thing_idx);
         player->influenced_thing_creation = 0;
@@ -153,14 +152,14 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
     }
     player->influenced_thing_creation = 0;
     player->influenced_thing_idx = 0;
-    if (!magic_use_available_power_on_thing(player->id_number, PwrK_HAND, 0,dsttng->mappos.x.stl.num, dsttng->mappos.y.stl.num, dsttng, PwMod_Default)) {
+    if (magic_use_available_power_on_thing(player->id_number, PwrK_HAND, 0,dsttng->mappos.x.stl.num, dsttng->mappos.y.stl.num, dsttng, PwMod_Default) == Lb_FAIL) {
         WARNLOG("Cannot pick up %s index %d",thing_model_name(dsttng),(int)dsttng->index);
         return 0;
     }
-    // Update sprites for the creature in hand, and power hand itself
-    if (!thing_is_invalid(grabtng))
+    struct Thing* handtng = thing_get(player->hand_thing_idx);
+    if (!thing_is_invalid(handtng))
     {
-        set_power_hand_graphic(player->id_number, HndA_Hold);
+        set_power_hand_graphic(player->id_number, HndA_Pickup);
     }
     return 0;
 }

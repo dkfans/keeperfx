@@ -1528,6 +1528,12 @@ short get_anim_id(const char *name, struct ObjectConfigStats *objst)
     return 0;
 }
 
+short get_anim_id_(const char* word_buf)
+{
+    struct ObjectConfigStats obj_tmp;
+    return get_anim_id(word_buf, &obj_tmp);
+}
+
 const struct TbSprite *get_button_sprite_for_player(short sprite_idx, PlayerNumber plyr_idx)
 {
     sprite_idx = get_player_colored_button_sprite_idx(sprite_idx, plyr_idx);
