@@ -990,6 +990,18 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         return;
     }
 
+    // Handle unsubscribe all
+    if (strcasecmp("unsubscribe_all", action) == 0)
+    {
+        // Unsubscribe from every subscriptions
+        api_clear_all_subscriptions();
+        api_ok();
+
+        // End
+        value_fini(&data);
+        return;
+    }
+
     // ==================================================================================================================================
     // Commands that only work when a map is loaded
     // ==================================================================================================================================
