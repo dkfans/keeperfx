@@ -123,6 +123,11 @@ static int json_value_dump_writer(const char *str, size_t size, void *dbs)
     return 0;
 }
 
+/**
+ * Function to get the number of max available KeeperFX flags with a name
+ *
+ * @return size_t Amount of flags
+ */
 size_t get_max_flags()
 {
     size_t num = 0;
