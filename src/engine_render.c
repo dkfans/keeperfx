@@ -5332,6 +5332,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     {
       if ( (player->thing_under_hand == thing->index)
         || ((player->id_number != thing->owner) && !creature_is_invisible(thing))
+        || ((game.conf.rules.workers.drag_to_lair > 0) && ((thing->active_state == CrSt_CreatureUnconscious) && (player->id_number == thing->owner)))
         || (cctrl->combat_flags != 0)
         || (thing->lair.spr_size > 0)
         || (cam->view_mode == PVM_ParchmentView))

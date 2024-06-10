@@ -147,12 +147,12 @@ short creature_drop_unconscious_in_lair(struct Thing *thing)
         return 0;
     }
     struct Room* room = get_room_thing_is_on(thing);
-    if ((room_is_invalid(room) || room->owner != thing->owner) || !get_creature_lair_room(dragtng) ) {
+    if ((room_is_invalid(room) || room->owner != dragtng->owner) || !get_creature_lair_room(dragtng) ) {
         set_start_state(thing);
         return 0;
     }
     make_creature_conscious(dragtng);
-    initialise_thing_state(dragtng, CrSt_AtLairToSleep);
+    initialise_thing_state(dragtng, CrSt_CreatureGoingHomeToSleep);
     struct CreatureControl* dragctrl = creature_control_get_from_thing(dragtng);
     dragctrl->flgfield_1 |= CCFlg_NoCompControl;
     set_start_state(thing);
