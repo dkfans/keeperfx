@@ -4972,13 +4972,14 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         EngineSpriteDrawUsingAlpha = alpha_mem;
         return;
     }
+    TbBool flame_on_sprite = false;
     TbBool is_shown = true;
     if (thing_is_object(thing))
     {
         objst = get_object_model_stats(thing->model);
         if (objst->flame.animation_id != 0)
         {
-            is_shown = false;
+            flame_on_sprite = true;
             process_keeper_flame_on_sprite(jspr, angle, size_on_screen);
         }
         else
@@ -4994,9 +4995,12 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
 
         }
     }
-    if (is_shown || get_my_player()->id_number == thing->owner || thing->trap.revealed)
+    if (!flame_on_sprite)
     {
-        process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, size_on_screen);
+        if (is_shown || get_my_player()->id_number == thing->owner || thing->trap.revealed)
+        {
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, size_on_screen);
+        }
     }
     lbDisplay.DrawFlags = flg_mem;
     EngineSpriteDrawUsingAlpha = alpha_mem;
