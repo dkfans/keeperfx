@@ -3204,6 +3204,7 @@ static void set_object_configuration_process(struct ScriptContext *context)
             objst->effect.sound_idx = context->value->arg1;
             objst->effect.sound_range = (unsigned char)context->value->shorts[5];
             break;
+        //todo flame stuff
         default:
             WARNMSG("Unsupported Object configuration, variable %d.", context->value->shorts[4]);
             break;

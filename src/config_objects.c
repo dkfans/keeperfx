@@ -79,9 +79,10 @@ const struct NamedCommand objects_object_commands[] = {
   {"EFFECTSPACING",     31},
   {"EFFECTSOUND",       32},
   {"FLAMEANIMATIONID",       33},
-  {"FLAMEANIMATIONSIZE",     34},
-  {"FLAMEANIMATIONOFFSET",   35},
-  {"FLAMETRANSPARENCYFLAGS", 36},
+  {"FLAMEANIMATIONSPEED",    34},
+  {"FLAMEANIMATIONSIZE",     35},
+  {"FLAMEANIMATIONOFFSET",   36},
+  {"FLAMETRANSPARENCYFLAGS", 37},
   {NULL,                 0},
   };
 
@@ -772,7 +773,20 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
-            case 34: // FLAMEANIMATIONSIZE
+            case 34: // FLAMEANIMATIONSPEED
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = get_anim_id(word_buf, objst);
+                    objst->flame.anim_speed = k;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 35: // FLAMEANIMATIONSIZE
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     k = atoi(word_buf);
@@ -785,7 +799,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
-            case 35: // FLAMEANIMATIONOFFSET
+            case 36: // FLAMEANIMATIONOFFSET
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     k = atoi(word_buf);
@@ -816,7 +830,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
-            case 36: // FLAMETRANSPARENCYFLAGS
+            case 37: // FLAMETRANSPARENCYFLAGS
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     k = atoi(word_buf);
