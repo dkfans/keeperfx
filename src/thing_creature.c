@@ -1729,7 +1729,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
         cctrl->teleport_x = trg_x;
         cctrl->teleport_y = trg_y;
     }
-    struct ShotConfigStats* shotst;
+    struct ShotConfigStats* shotst = get_shot_model_stats(spconf->shot_model);
     // Check if the spell can be fired as a shot
     if (spconf->shot_model > 0)
     {
@@ -1759,7 +1759,6 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
         struct Thing* efthing = create_used_effect_or_element(&castng->mappos, spconf->cast_effect_model, castng->owner);
         if (!thing_is_invalid(efthing))
         {
-            shotst = get_shot_model_stats(spconf->shot_model);
             efthing->shot_effect.hit_type = shotst->area_hit_type;
             efthing->parent_idx = castng->index;
         }
