@@ -110,6 +110,12 @@ const char* lua_get_serialised_data(size_t *len)
 
 void lua_set_serialised_data(const char *data, size_t len)
 {
+	if(Lvl_script == NULL)
+	{
+		ERRORLOG("Lvl_script not initialised");
+		return;
+	}
+
     lua_getglobal(Lvl_script, "SetSerializedData");
 	if (lua_isfunction(Lvl_script, -1))
 	{

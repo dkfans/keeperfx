@@ -50,7 +50,7 @@ enum SaveGameChunkFlags {
      SGF_IntralevelData = 0x0400,
      SGF_LuaData        = 0x0800,
 };
-#define SGF_SavedGame      (SGF_InfoBlock|SGF_GameOrig|SGF_GameAdd|SGF_IntralevelData)
+#define SGF_SavedGame      (SGF_InfoBlock|SGF_GameOrig|SGF_GameAdd|SGF_IntralevelData|SGF_LuaData)
 #define SGF_PacketStart    (SGF_PacketHeader|SGF_PacketData|SGF_InfoBlock)
 #define SGF_PacketContinue (SGF_PacketHeader|SGF_PacketData|SGF_InfoBlock|SGF_GameOrig|SGF_GameAdd)
 

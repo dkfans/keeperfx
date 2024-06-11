@@ -254,7 +254,7 @@ function ADD_CREATURE_TO_POOL(creature_type,amount) end
 ---@param player playerrange The player’s name, e.g. PLAYER1. See players section for more information.
 ---@param creature_type creature_type The creature’s name, e.g. SORCEROR. See creature names section for more information.
 ---@param can_be_attracted boolean This value should always be set to true. Creatures, unlike spells and rooms, do not have to be pre-enabled.
----@param amount_forced boolean Set it to true to enable the creature to appear from the Portal.
+---@param amount_forced integer Amount of creatures of that kind which can be force-attracted (attracted even if player doesn't have rooms required by that creature). Originally there was no possibility to skip attraction conditions.
 function CREATURE_AVAILABLE(player,creature_type,can_be_attracted,amount_forced) end
 
 ---Normally, when a creature dies, and its body vanishes, it is added to the creature pool again.

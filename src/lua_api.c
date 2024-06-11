@@ -47,11 +47,30 @@ static int lua_SET_GENERATE_SPEED(lua_State *L)
 
 static int lua_COMPUTER_PLAYER(lua_State *L)
 {
-    PlayerNumber player = luaL_checkPlayerSingle(L,1);
-    long attitude       = luaL_checkint(L,2);
+    PlayerNumber player_idx = luaL_checkPlayerSingle(L,1);
+    if (lua_isnumber(L, 2))
+    {
+        long attitude       = luaL_checkint(L,2);
+        script_support_setup_player_as_computer_keeper(player_idx, attitude);
+        return 0;
+    }
 
-    script_support_setup_player_as_computer_keeper(player, attitude);
-    return 0;
+    char* comp_model = luaL_checkstring(L,2);
+
+    if(strcasecmp(comp_model,"ROAMING") == 0)
+    {
+
+        struct PlayerInfo* player = get_player(player_idx);
+        player->player_type = PT_Roaming;
+        player->allocflags |= PlaF_Allocated;
+        player->allocflags |= PlaF_CompCtrl;
+        player->id_number = player_idx;
+        
+    }
+    else
+    {
+        luaL_error(L,"invalid COMPUTER_PLAYER param '%s'",comp_model);
+    }
 }
 
 //static int lua_ALLY_PLAYERS(lua_State *L)
@@ -141,8 +160,6 @@ static int lua_MAGIC_AVAILABLE(lua_State *L)
     long power                      = luaL_checkNamedCommand(L,2,power_desc);
     TbBool can_be_available         = lua_toboolean(L, 3);
     TbBool is_available             = lua_toboolean(L, 4);
-
-    JUSTLOG("lua_MAGIC_AVAILABLE %d;%d0",player_range.start_idx, player_range.end_idx); 
 
     for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
     {
@@ -660,10 +677,6 @@ static int lua_SET_MUSIC(lua_State *L)
 
 
 /*
-
-
-
-
 static int lua_MESSAGE(lua_State *L)
 static int lua_ADD_GOLD_TO_PLAYER(lua_State *L)
 static int lua_USE_POWER_ON_CREATURE(lua_State *L)
@@ -671,8 +684,6 @@ static int lua_USE_POWER_AT_POS(lua_State *L)
 static int lua_USE_POWER_AT_SUBTILE(lua_State *L)
 static int lua_USE_POWER_AT_LOCATION(lua_State *L)
 static int lua_USE_POWER(lua_State *L)
-
-
 
 static int lua_USE_SPECIAL_LOCATE_HIDDEN_WORLD"
 static int lua_USE_SPECIAL_TRANSFER_CREATURE(lua_State *L)
@@ -684,18 +695,6 @@ static int lua_USE_SPELL_ON_CREATURE(lua_State *L)
 static int lua_HIDE_HERO_GATE(lua_State *L)
 
 */
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 /**********************************************/
@@ -1280,14 +1279,13 @@ static int player_eq(lua_State *L) {
     return 1;
 }
 
-//static int lua_SET_TEXTURE(lua_State *L)
-
 static const struct luaL_Reg player_methods[] = {
    //{"SET_TEXTURE"                          ,lua_SET_TEXTURE                     },   
    //{"ADD_GOLD_TO_PLAYER"                   ,lua_ADD_GOLD_TO_PLAYER              },
    //{"SET_PLAYER_COLOR"                     ,lua_SET_PLAYER_COLOR                },
    //{"SET_PLAYER_MODIFIER"                  ,lua_SET_PLAYER_MODIFIER             },
    //{"ADD_TO_PLAYER_MODIFIER"               ,lua_ADD_TO_PLAYER_MODIFIER          },
+//static int lua_SET_TEXTURE(lua_State *L)
     {NULL, NULL}
 };
 

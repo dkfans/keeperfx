@@ -1,4 +1,5 @@
 ---@class Trigger
+---@field name string
 ---@field conditions TriggerCondition[]|nil
 ---@field actions TriggerAction[]|nil
 ---@field events TriggerEvent[]|nil
@@ -18,51 +19,57 @@
 ---@field lastTriggerTime integer
 ---@field enabled boolean
 
---functionRegistry used for serialization of functions
-local functionRegistry = {
-    conditions = {},
-    actions = {}
-}
-local functionRegistryCounter = 0
-
-local function registerFunction(func, registry)
-    functionRegistryCounter = functionRegistryCounter + 1
-    local key = "func_" .. functionRegistryCounter
-    registry[key] = func
-    return key
-end
-
-local function getFunction(key, registry)
-    return registry[key]
-end
+require "debug"
 
 --- Creates a new trigger and returns it
+--- @param name? string
 --- @return Trigger trigger
-function CreateTrigger()
+function CreateTrigger(name)
     Game.triggers = Game.triggers or {}
-    local trigger = { index = #Game.triggers + 1, events = {}, conditions = {}, actions = {} }
+    local trigger = { name = name, index = #Game.triggers + 1, events = {}, conditions = {}, actions = {} }
     table.insert(Game.triggers, trigger)
     return trigger
 end
 
+--- @param func function|string
+local function validatefunc(func)
+    if type(func) == "function" then
+        if debug.getupvalue(func, 1) ~= nil then
+            error("functions may not contain upvalues, avoid accessing vars local to the file, alternatively pass function name as a string")
+        end
+
+    elseif type(func) == "string" then
+        if _G[func] == nil then
+            error("function '" .. func .."' not found, make sure it is defined globally")
+        end
+    else
+        error("param not a function but " .. type(func))
+    end
+
+end
+
 --- Adds a condition function that needs to evaluate to true for the actions to be triggered when the event happens
 --- @param trigger Trigger
---- @param condition function Function that returns true or false
+--- @param condition function|string Function that returns true or false
 --- @return TriggerCondition condition
 function TriggerAddCondition(trigger, condition)
-    local conditionKey = registerFunction(condition, functionRegistry.conditions)
-    local triggerCondition = { conditionKey = conditionKey, enabled = true }
+
+    validatefunc(condition)
+    local triggerCondition = { condition = condition, enabled = true }
+    trigger.conditions = trigger.conditions or {}
     table.insert(trigger.conditions, triggerCondition)
     return triggerCondition
 end
 
 --- Adds an action function to be executed when the trigger fires
 --- @param trigger Trigger
---- @param action function
+--- @param action function|string
 --- @return TriggerAction action
 function TriggerAddAction(trigger, action)
-    local actionKey = registerFunction(action, functionRegistry.actions)
-    local triggerAction = { actionKey = actionKey, enabled = true }
+
+    validatefunc(action)
+    local triggerAction = { action = action, enabled = true }
+    trigger.actions = trigger.actions or {}
     table.insert(trigger.actions, triggerAction)
     return triggerAction
 end
@@ -132,20 +139,22 @@ local function ProcessTrigger(trigger)
     if trigger.conditions then
         for _, condition in ipairs(trigger.conditions) do
             if condition.enabled then
-                local conditionFunc = getFunction(condition.conditionKey, functionRegistry.conditions)
-                if not conditionFunc() then
+                if (type(condition.condition) == "function" and condition.condition() == false) or
+                   (type(condition.condition) == "string" and _G[condition.condition]() == false) then
                     allConditionsMet = false
                     break
                 end
             end
         end
     end
-
     if allConditionsMet and trigger.actions then
         for _, action in ipairs(trigger.actions) do
             if action.enabled then
-                local actionFunc = getFunction(action.actionKey, functionRegistry.actions)
-                actionFunc()
+                if type(action.action) == "function" then
+                    action.action()
+                else
+                    _G[action.action]()
+                end
             end
         end
     end
@@ -193,12 +202,12 @@ end
 
 --- Called on each game tick to process timer events
 function OnGameTick()
-    for _, trigger in ipairs(Game.triggers) do
+    for _, trigger in ipairs(Game.triggers or {}) do
         for _, event in ipairs(trigger.events) do
             if event.type == "timer" and event.enabled then
                 local time = event.params.time
                 local periodic = event.params.periodic
-                local lastTriggerTime = event.lastTriggerTime
+                local lastTriggerTime = event.lastTriggerTime or 0
 
                 if (periodic and PLAYER0.GAME_TURN - lastTriggerTime >= time) or
                    (not periodic and PLAYER0.GAME_TURN == lastTriggerTime + time) then
