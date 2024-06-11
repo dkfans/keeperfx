@@ -1755,8 +1755,8 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
         struct Thing* efthing = create_used_effect_or_element(&castng->mappos, spconf->cast_effect_model, castng->owner);
         if (!thing_is_invalid(efthing))
         {
-            struct ShotConfigStats* shotst = get_shot_model_stats(spconf->shot_model);
-            efthing->shot_effect.hit_type = shotst->area_hit_type;
+            struct EffectConfigStats *effcst = &game.conf.effects_conf.effect_cfgstats[spconf->cast_effect_model];
+            efthing->shot_effect.hit_type = effcst->effect_hit_type;
             efthing->parent_idx = castng->index;
         }
     }
