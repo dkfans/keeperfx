@@ -184,7 +184,8 @@ enum TbScriptCommands {
     Cmd_SET_PLAYER_MODIFIER                = 171,
     Cmd_ADD_TO_PLAYER_MODIFIER             = 172,
     Cmd_USE_POWER_ON_PLAYERS_CREATURES     = 173,
-    Cmd_MOVE_PLAYER_CAMERA_TO              = 174,
+    Cmd_CHANGE_SLAB_TEXTURE                = 174,
+    Cmd_MOVE_PLAYER_CAMERA_TO              = 175,
 };
 
 struct ScriptLine {

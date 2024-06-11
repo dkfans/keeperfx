@@ -655,22 +655,24 @@ TbBool good_can_move_to_dungeon_heart(struct Thing *creatng, PlayerNumber plyr_i
     return creature_can_navigate_to(creatng, &heartng->mappos, NavRtF_Default);
 }
 
-short good_arrived_at_attack_dungeon_heart(struct Thing* thing)
+short good_arrived_at_attack_dungeon_heart(struct Thing* creatng)
 {
-    if (creature_look_for_enemy_heart_combat(thing))
+    creatng->continue_state = CrSt_GoodDoingNothing;
+    if (creature_look_for_enemy_heart_combat(creatng))
     {
-        return true;
+        return CrStRet_Modified;
     }
-    return false;
+    return move_to_position(creatng);
 }
 
-short good_arrived_at_combat(struct Thing* thing)
+short good_arrived_at_combat(struct Thing* creatng)
 {
-    if (creature_look_for_combat(thing))
+    creatng->continue_state = CrSt_GoodDoingNothing;
+    if (creature_look_for_combat(creatng))
     {
-        return true;
+        return CrStRet_Modified;
     }
-    return false;
+    return move_to_position(creatng);
 }
 
 TbBool good_setup_wander_to_dungeon_heart(struct Thing *creatng, PlayerNumber plyr_idx)
@@ -1295,7 +1297,7 @@ TbBool script_support_send_tunneller_to_appropriate_dungeon(struct Thing *creatn
 
 struct Thing *script_process_new_tunneler(unsigned char plyr_idx, TbMapLocation location, TbMapLocation heading, unsigned char crtr_level, unsigned long carried_gold)
 {
-    ThingModel diggerkind = get_players_special_digger_model(game.hero_player_num);
+    ThingModel diggerkind = get_players_special_digger_model(plyr_idx);
     struct Thing* creatng = script_create_creature_at_location(plyr_idx, diggerkind, location);
     if (thing_is_invalid(creatng))
         return INVALID_THING;
@@ -1537,7 +1539,7 @@ short tunnelling(struct Thing *creatng)
  */
 TbBool is_hero_tunnelling_to_attack(struct Thing *creatng)
 {
-    if (creatng->model != get_players_special_digger_model(game.hero_player_num))
+    if (creatng->model != get_players_special_digger_model(creatng->owner))
         return false;
     CrtrStateId crstat = get_creature_state_besides_move(creatng);
     if ((crstat != CrSt_Tunnelling) && (crstat != CrSt_TunnellerDoingNothing))

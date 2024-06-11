@@ -80,17 +80,19 @@ const struct NamedField rules_game_named_fields[] = {
   {"ROOMSELLGOLDBACKPERCENT",    &game.conf.rules.game.room_sale_percent,          var_type(game.conf.rules.game.room_sale_percent         ),       0,LONG_MAX},
   {"DOORSELLVALUEPERCENT",       &game.conf.rules.game.door_sale_percent,          var_type(game.conf.rules.game.door_sale_percent         ),       0,LONG_MAX},
   {"TRAPSELLVALUEPERCENT",       &game.conf.rules.game.trap_sale_percent,          var_type(game.conf.rules.game.trap_sale_percent         ),       0,LONG_MAX},
-  {"PLACETRAPSONSUBTILES",       &game.conf.rules.game.place_traps_on_subtiles,    var_type(game.conf.rules.game.place_traps_on_subtiles   ),       0,       1},
   {"BAGGOLDHOLD",                &game.conf.rules.game.bag_gold_hold,              var_type(game.conf.rules.game.bag_gold_hold             ),LONG_MIN,LONG_MAX},
   {"ALLIESSHAREVISION",          &game.conf.rules.game.allies_share_vision,        var_type(game.conf.rules.game.allies_share_vision       ),       0,       1},
   {"ALLIESSHAREDROP",            &game.conf.rules.game.allies_share_drop,          var_type(game.conf.rules.game.allies_share_drop         ),       0,       1},
   {"ALLIESSHARECTA",             &game.conf.rules.game.allies_share_cta,           var_type(game.conf.rules.game.allies_share_cta          ),       0,       1},
+  {"DISPLAYPORTALLIMIT",         &game.conf.rules.game.display_portal_limit,       var_type(game.conf.rules.game.display_portal_limit      ),       0,       1},
   {"MAXTHINGSINHAND",            &game.conf.rules.game.max_things_in_hand,         var_type(game.conf.rules.game.max_things_in_hand        ),       0,MAX_THINGS_IN_HAND},
-  {"TORTUREPAYDAY",              &game.conf.rules.game.torture_payday,             var_type(game.conf.rules.game.torture_payday            ),SHRT_MIN,SHRT_MAX},
+  {"TORTUREPAYDAY",              &game.conf.rules.game.torture_payday,             var_type(game.conf.rules.game.torture_payday            ),       0,USHRT_MAX},
   {"TORTURETRAININGCOST",        &game.conf.rules.game.torture_training_cost,      var_type(game.conf.rules.game.torture_training_cost     ),SHRT_MIN,SHRT_MAX},
   {"TORTURESCAVENGINGCOST",      &game.conf.rules.game.torture_scavenging_cost,    var_type(game.conf.rules.game.torture_scavenging_cost   ),SHRT_MIN,SHRT_MAX},
   {"EASTEREGGSPEECHCHANCE",      &game.conf.rules.game.easter_egg_speech_chance,   var_type(game.conf.rules.game.easter_egg_speech_chance  ),       0,LONG_MAX},
   {"EASTEREGGSPEECHINTERVAL",    &game.conf.rules.game.easter_egg_speech_interval, var_type(game.conf.rules.game.easter_egg_speech_interval),       0,LONG_MAX},
+  {"GLOBALAMBIENTLIGHT",         &game.conf.rules.game.global_ambient_light,       var_type(game.conf.rules.game.global_ambient_light      ),LONG_MIN,LONG_MAX},
+  {"LIGHTENABLED",               &game.conf.rules.game.light_enabled,              var_type(game.conf.rules.game.light_enabled             ),       0,       1},
   {NULL,                            NULL,0,0,0 },
 };
 
@@ -139,9 +141,9 @@ const struct NamedField rules_magic_named_fields[] = {
   {"MINDISTANCEFORTELEPORT",        &game.conf.rules.magic.min_distance_for_teleport,         var_type(game.conf.rules.magic.min_distance_for_teleport         ),LONG_MIN,LONG_MAX},
   {"COLLAPSEDUNGEONDAMAGE",         &game.conf.rules.magic.collapse_dungeon_damage,           var_type(game.conf.rules.magic.collapse_dungeon_damage           ),LONG_MIN,LONG_MAX},
   {"TURNSPERCOLLAPSEDUNGEONDAMAGE", &game.conf.rules.magic.turns_per_collapse_dngn_dmg,       var_type(game.conf.rules.magic.turns_per_collapse_dngn_dmg       ),LONG_MIN,LONG_MAX},
-  {"POWERHANDGOLDGRABAMOUNT",       &game.conf.rules.magic.power_hand_gold_grab_amount,       var_type(game.conf.rules.magic.power_hand_gold_grab_amount       ),LONG_MIN,LONG_MAX},
   {"FRIENDLYFIGHTAREARANGEPERCENT", &game.conf.rules.magic.friendly_fight_area_range_percent, var_type(game.conf.rules.magic.friendly_fight_area_range_percent ),LONG_MIN,LONG_MAX},
   {"FRIENDLYFIGHTAREADAMAGEPERCENT",&game.conf.rules.magic.friendly_fight_area_damage_percent,var_type(game.conf.rules.magic.friendly_fight_area_damage_percent),LONG_MIN,LONG_MAX},
+  {"WEIGHTCALCULATEPUSH",           &game.conf.rules.magic.weight_calculate_push,             var_type(game.conf.rules.magic.weight_calculate_push             ),       0,SHRT_MAX},
   {NULL,                            NULL,0,0,0 },
   };
 
@@ -179,11 +181,11 @@ const struct NamedField rules_workers_named_fields[] = {
 };
 
 const struct NamedField rules_health_named_fields[] = {
-  {"HUNGERHEALTHLOSS",              &game.conf.rules.health.hunger_health_loss,            var_type(game.conf.rules.health.hunger_health_loss           ), 0, USHRT_MAX},
-  {"GAMETURNSPERHUNGERHEALTHLOSS",  &game.conf.rules.health.turns_per_hunger_health_loss,  var_type(game.conf.rules.health.turns_per_hunger_health_loss ), 0, USHRT_MAX},
-  {"FOODHEALTHGAIN",                &game.conf.rules.health.food_health_gain,              var_type(game.conf.rules.health.food_health_gain             ), 0, USHRT_MAX},
-  {"TORTUREHEALTHLOSS",             &game.conf.rules.health.torture_health_loss,           var_type(game.conf.rules.health.torture_health_loss          ), 0, USHRT_MAX},
-  {"GAMETURNSPERTORTUREHEALTHLOSS", &game.conf.rules.health.turns_per_torture_health_loss, var_type(game.conf.rules.health.turns_per_torture_health_loss), 0, USHRT_MAX},
+  {"HUNGERHEALTHLOSS",              &game.conf.rules.health.hunger_health_loss,            var_type(game.conf.rules.health.hunger_health_loss           ), LONG_MIN, LONG_MAX},
+  {"GAMETURNSPERHUNGERHEALTHLOSS",  &game.conf.rules.health.turns_per_hunger_health_loss,  var_type(game.conf.rules.health.turns_per_hunger_health_loss ),        0, USHRT_MAX},
+  {"FOODHEALTHGAIN",                &game.conf.rules.health.food_health_gain,              var_type(game.conf.rules.health.food_health_gain             ), LONG_MIN, LONG_MAX},
+  {"TORTUREHEALTHLOSS",             &game.conf.rules.health.torture_health_loss,           var_type(game.conf.rules.health.torture_health_loss          ), LONG_MIN, LONG_MAX},
+  {"GAMETURNSPERTORTUREHEALTHLOSS", &game.conf.rules.health.turns_per_torture_health_loss, var_type(game.conf.rules.health.turns_per_torture_health_loss),        0, USHRT_MAX},
   {NULL,NULL,0,0,0 },
   };
 
@@ -258,6 +260,7 @@ static int long_compare_fn(const void *ptr_a, const void *ptr_b)
 
 static void set_defaults()
 {
+    // Game block.
     game.conf.rules.game.gold_per_gold_block = 1000;
     game.conf.rules.game.pot_of_gold_holds = 1000;
     game.conf.rules.game.gold_pile_value = 500;
@@ -278,9 +281,11 @@ static void set_defaults()
     game.conf.rules.game.trap_sale_percent = 100;
     game.conf.rules.game.gem_effectiveness = 17;
     game.conf.rules.game.pay_day_speed = 100;
-    game.conf.rules.game.place_traps_on_subtiles = false;
     game.conf.rules.game.gold_per_hoard = 2000;
-
+    game.conf.rules.game.torture_payday = 50;
+    game.conf.rules.game.torture_training_cost = 100;
+    game.conf.rules.game.torture_scavenging_cost = 100;
+    // Creature block.
     game.conf.rules.creature.recovery_frequency = 10;
     game.conf.rules.creature.fight_max_hate = 200;
     game.conf.rules.creature.fight_borderline = 0;
@@ -293,7 +298,7 @@ static void set_defaults()
     game.conf.rules.creature.critical_health_permil = 125;
     game.conf.rules.creature.stun_enemy_chance_good = 100;
     game.conf.rules.creature.stun_enemy_chance_evil = 100;
-
+    // Magic block.
     game.conf.rules.magic.hold_audience_time = 500;
     game.conf.rules.magic.armageddon_teleport_your_time_gap = 10;
     game.conf.rules.magic.armageddon_teleport_enemy_time_gap = 10;
@@ -305,19 +310,19 @@ static void set_defaults()
     game.conf.rules.magic.min_distance_for_teleport = 20;
     game.conf.rules.magic.collapse_dungeon_damage = 10;
     game.conf.rules.magic.turns_per_collapse_dngn_dmg = 4;
-    game.conf.rules.magic.power_hand_gold_grab_amount = 100;
-
+    game.conf.rules.magic.weight_calculate_push = 0;
+    // Health block.
     game.conf.rules.health.hunger_health_loss = 1;
     game.conf.rules.health.turns_per_hunger_health_loss = 100;
     game.conf.rules.health.food_health_gain = 10;
     game.conf.rules.health.torture_health_loss = 5;
     game.conf.rules.health.turns_per_torture_health_loss = 100;
-
+    // Rooms block.
     game.conf.rules.rooms.scavenge_cost_frequency = 64;
     game.conf.rules.rooms.temple_scavenge_protection_turns = 1000;
     game.conf.rules.rooms.train_cost_frequency = 64;
     game.conf.rules.rooms.ghost_convert_chance = 10;
-    game.conf.rules.rooms.default_generate_speed = 500;
+    game.conf.rules.rooms.default_generate_speed = 350;
     game.conf.rules.rooms.default_max_crtrs_gen_entrance = 200;
     game.conf.rules.rooms.food_generation_speed = 2000;
     game.conf.rules.rooms.prison_skeleton_chance = 100;
@@ -328,9 +333,9 @@ static void set_defaults()
     game.conf.rules.rooms.scavenge_good_allowed = 1;
     game.conf.rules.rooms.scavenge_neutral_allowed = 1;
     game.conf.rules.rooms.time_between_prison_break = 64;
-
+    // Computer block - maybe it should be moved to computer config on a later PR?
     game.conf.rules.computer.disease_to_temple_pct = 500;
-
+    // Workers block.
     game.conf.rules.workers.hits_per_slab = 2;
     game.conf.rules.workers.default_imp_dig_damage = 1;
     game.conf.rules.workers.default_imp_dig_own_damage = 2;

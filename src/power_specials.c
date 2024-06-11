@@ -175,61 +175,73 @@ void increase_level(struct PlayerInfo *player, int count)
 TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
 {
     //TODO CONFIG creature models dependency; put them in config files
-    static ThingModel skip_steal_models[] = {6, 7};
-    static ThingModel prefer_steal_models[] = {3, 12};
+    static ThingModel skip_steal_models[] = {6, 7};//6 = KNIGHT, 7 = AVATAR
+    static ThingModel prefer_steal_models[] = {3, 12};//3 = ARCHER, 12 = THIEF
     struct Thing* herotng = INVALID_THING;
     int heronum;
-    int i;
+    ThingIndex tng_idx;
     SYNCDBG(8,"Starting");
-    struct Dungeon* herodngn = get_players_num_dungeon(game.hero_player_num);
-    unsigned long k = 0;
-    if (herodngn->num_active_creatrs > 0) {
-        heronum = PLAYER_RANDOM(game.hero_player_num, herodngn->num_active_creatrs);
-        i = herodngn->creatr_list_start;
-        SYNCDBG(4,"Selecting random creature %d out of %d heroes",(int)heronum,(int)herodngn->num_active_creatrs);
-    } else {
-        heronum = 0;
-        i = 0;
-        SYNCDBG(4,"No heroes on map, skipping selection");
-    }
-    while (i != 0)
+
+    int rand_offset = GAME_RANDOM(PLAYERS_COUNT);
+
+    for (size_t j = 0; j < PLAYERS_COUNT; j++)
     {
-        struct Thing* thing = thing_get(i);
-        TRACE_THING(thing);
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-        {
-            ERRORLOG("Jump to invalid creature detected");
-            break;
+        PlayerNumber roam_plr_idx = (j + rand_offset) % PLAYERS_COUNT;
+        if(!player_is_roaming(roam_plr_idx))
+            continue;
+
+        struct Dungeon* herodngn = get_players_num_dungeon(roam_plr_idx);
+        unsigned long k = 0;
+        if (herodngn->num_active_creatrs > 0) {
+            heronum = PLAYER_RANDOM(roam_plr_idx, herodngn->num_active_creatrs);
+            tng_idx = herodngn->creatr_list_start;
+            SYNCDBG(4,"Selecting random creature %d out of %d heroes",(int)heronum,(int)herodngn->num_active_creatrs);
+        } else {
+            heronum = 0;
+            tng_idx = 0;
+            SYNCDBG(4,"No heroes on map, skipping selection");
         }
-        i = cctrl->players_next_creature_idx;
-        // Thing list loop body
-        TbBool heroallow = true;
-        for (ThingModel skipidx = 0; skipidx < sizeof(skip_steal_models) / sizeof(skip_steal_models[0]); skipidx++)
+        while (tng_idx != 0)
         {
-            if (thing->model == skip_steal_models[skipidx]) {
-                heroallow = false;
+            struct Thing* thing = thing_get(tng_idx);
+            TRACE_THING(thing);
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+            if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+            {
+                ERRORLOG("Jump to invalid creature detected");
+                break;
+            }
+            tng_idx = cctrl->players_next_creature_idx;
+            // Thing list loop body
+            TbBool heroallow = true;
+            for (ThingModel skipidx = 0; skipidx < sizeof(skip_steal_models) / sizeof(skip_steal_models[0]); skipidx++)
+            {
+                if (thing->model == skip_steal_models[skipidx]) {
+                    heroallow = false;
+                }
+            }
+            if (heroallow) {
+                herotng = thing;
+            }
+            // If we've reached requested hero number, return either current hero on previously selected one
+            if ((heronum <= 0) && thing_is_creature(herotng)) {
+                break;
+            }
+            heronum--;
+            if (tng_idx == 0) {
+                tng_idx = herodngn->creatr_list_start;
+            }
+            // Thing list loop body ends
+            k++;
+            if (k > CREATURES_COUNT)
+            {
+                ERRORLOG("Infinite loop detected when sweeping creatures list");
+                break;
             }
         }
-        if (heroallow) {
-            herotng = thing;
-        }
-        // If we've reached requested hero number, return either current hero on previously selected one
-        if ((heronum <= 0) && thing_is_creature(herotng)) {
-            break;
-        }
-        heronum--;
-        if (i == 0) {
-            i = herodngn->creatr_list_start;
-        }
-        // Thing list loop body ends
-        k++;
-        if (k > CREATURES_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping creatures list");
-            break;
-        }
     }
+
+
     if (!thing_is_invalid(herotng))
     {
         move_thing_in_map(herotng, pos);
@@ -239,8 +251,8 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
     }
     else
     {
-        i = PLAYER_RANDOM(game.hero_player_num, sizeof(prefer_steal_models)/sizeof(prefer_steal_models[0]));
-        struct Thing* creatng = create_creature(pos, prefer_steal_models[i], player->id_number);
+        unsigned char steal_idx = GAME_RANDOM(sizeof(prefer_steal_models)/sizeof(prefer_steal_models[0]));
+        struct Thing* creatng = create_creature(pos, prefer_steal_models[steal_idx], player->id_number);
         if (thing_is_invalid(creatng))
             return false;
         SYNCDBG(3,"Created %s owner %d",thing_model_name(creatng),(int)player->id_number);
@@ -666,7 +678,7 @@ long create_transferred_creatures_on_level(void)
             if (intralvl.transferred_creatures[p][i].model > 0)
             {
                 srcetng = get_player_soul_container(p);
-                if (p == game.hero_player_num)
+                if (player_is_roaming(p))
                 {
                     plyr_idx = p;
                     if (thing_is_invalid(srcetng))

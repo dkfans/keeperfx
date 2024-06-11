@@ -379,9 +379,13 @@ void update_creature_rendering_flags(struct Thing *thing)
     {
         thing->rendering_flags |= TRF_Unknown01;
     }
-    if (creatures[thing->model].field_7)
+    if (thing_is_creature(thing))
     {
-        thing->rendering_flags |= TRF_Transpar_Alpha;
+        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+        if (crstat->transparency_flags != 0)
+        {
+            set_flag(thing->rendering_flags, crstat->transparency_flags);
+        }
     }
     if (creature_is_invisible(thing))
     {
@@ -476,7 +480,7 @@ void update_creature_graphic_anim(struct Thing *thing)
             i = (((long)cctrl->distance_to_destination) << 8) / (crstat->walking_anim_speed+1);
             update_creature_anim(thing, i, CGI_Drag);
         } else
-        if (creatures[thing->model].field_6 == 4)
+        if (crstat->fixed_anim_speed)
         {
             update_creature_anim(thing, 256, CGI_Ambulate);
         } else
@@ -498,7 +502,7 @@ void update_creature_graphic_anim(struct Thing *thing)
         {
             update_creature_anim_td(thing, 256, 820);
         } else
-        if (creatures[thing->model].field_6 == 4)
+        if (crstat->fixed_anim_speed)
         {
             update_creature_anim_td(thing, 256, 819);
         } else
