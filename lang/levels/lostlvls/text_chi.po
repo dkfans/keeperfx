@@ -1,0 +1,321 @@
+# ******************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# ******************************************************************************
+#   @file levels/lostlvl/text_chi.po
+#      KeeperFX GUI Strings translation file
+#  @par Purpose:
+#      Contains translation of the national strings in the game.
+#  @par Comment:
+#      Use this file to improve the translation for specific language.
+#  @author   KeeperFX Team
+#  @date     Nov 2020 - Jun 2024
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# ******************************************************************************
+msgid ""
+msgstr ""
+"Project-Id-Version: Lost levels for KeeperFX\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: KeeperFX Team"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.4.2\n"
+
+#. Generic victory message
+#: guitext:0
+msgctxt "In-game message"
+msgid ""
+msgstr ""
+
+#: guitext: 1
+msgctxt "In-game message"
+msgid ""
+msgstr ""
+
+#: guitext:2 guitext:3 guitext:4 guitext:5 guitext:6 guitext:7
+#: guitext:8 guitext:9 guitext:10 guitext:11 guitext:12 guitext:13
+#: guitext:14 guitext:15 guitext:16 guitext:17 guitext:18 guitext:19
+#: guitext:20 guitext:21 guitext:22 guitext:23 guitext:24 guitext:25
+#: guitext:26 guitext:27 guitext:28 guitext:29 guitext:30 guitext:31
+#: guitext:32 guitext:33 guitext:34 guitext:35 guitext:36 guitext:37
+#: guitext:38 guitext:39 guitext:40 guitext:41 guitext:42 guitext:43
+#: guitext:44 guitext:45 guitext:46 guitext:47 guitext:48 guitext:49
+#: guitext:50 guitext:51 guitext:52 guitext:53 guitext:54 guitext:55
+#: guitext:56 guitext:57 guitext:58 guitext:59 guitext:60 guitext:61
+#: guitext:62
+msgctxt "In-game message"
+msgid "Moo"
+msgstr ""
+
+#: guitext:63
+msgctxt "In-game message"
+msgid "Money sits at the root of all Evil, and so it is appropriate that you start your Empire by building a Treasure Room. Select the Treasure Room Icon with the Left Mouse Button (LMB) and build a 3X3 Treasure Room in an empty space in your Dungeon."
+msgstr "金钱是邪恶力量的源泉，所以你的地下帝国的建设要从修一个储金室开始。用鼠标左键选择储金室图标，然后在你地下城的空地上建造一个3x3的储金室。"
+
+#: guitext:64
+msgctxt "In-game message"
+msgid "You may see a map of the entire realm by pressing 'M' or clicking on the scroll at the top-left of your panel."
+msgstr "你可以通过按M键或者点击左上角的卷轴图标来查看整个王国的地图。"
+
+#: guitext:64
+msgctxt "In-game message"
+msgid "You may see a map of the entire realm by pressing 'M' or clicking on the scroll at the top-left of your panel."
+msgstr "你可以通过按M键或者点击左上角的卷轴图标来查看整个王国的地图。"
+
+#: guitext:65
+msgctxt "In-game message"
+msgid "A Treasure Room is used to store any gold mined by your imps."
+msgstr "储金室可以储存小鬼挖出来的金子。"
+
+#: guitext:66
+msgctxt "In-game message"
+msgid "Your gold reserves are running low. Tag the gold seam to the South. Your imps will mine it out and replenish your coffers."
+msgstr "你的金子不足了。标记南方的金矿。你的小鬼会前往挖掘并将金子存放进你的储金室。"
+
+#: guitext:67
+msgctxt "In-game message"
+msgid "Click with the right mouse button to stop building rooms. Now tunnel to the Portal in the East by tagging the rock with your left mouse button. Your Imps will then claim it for you."
+msgstr "点击鼠标右键可以取消建造房间。现在用鼠标左键标记泥土，挖一条隧道通向东边的入口。你的小鬼会帮你占领它。"
+
+#: guitext:68
+msgctxt "In-game message"
+msgid "Using the right mouse button (RMB), you may slap your creatures, thus making them work more quickly. Be careful not to beat them too frequently! This will make them angry, or at worst you will beat them to death!"
+msgstr "点击鼠标右键，你可以打你的怪物一耳光，这可以让他们更努力的工作。但要注意不要打得太频繁！这会使他们生气的，或者更糟糕的是他们会被活活打死！"
+
+#: guitext:69
+msgctxt "In-game message"
+msgid "Clicking with the LMB whilst over a minion will pick that creature up. Any eight of the creatures you own can be carried in your hand like this. Use this method to place Imps next to the tasks that you wish them to carry out. Drop them on your own, or Neutral territory with the RMB."
+msgstr "在怪物路过的时候点击鼠标左键可以将其拿起。你一次可以像这样拿起最多八只怪物。用这种方法把你的小鬼直接放在你希望他们工作的地方。在自己的领地或者中立的小径上点击鼠标右键可以把拿起的怪物放下。"
+
+#: guitext:70
+msgctxt "In-game message"
+msgid "Now you have claimed a portal creatures will enter your dungeon seeking employment. You must build a 3X3 Lair to house your creatures. Larger Lairs hold more creatures."
+msgstr "现在你占领了一个入口，怪物们会前往你的地下城来工作。你必须建造一个3x3的巢穴来给怪物居住。越大的巢穴能容纳越多的怪物。"
+
+#: guitext:71
+msgctxt "In-game message"
+msgid "Now you have built a small lair, await the arrival of your first minion."
+msgstr "现在你建好了一个小巢穴，等待着你的第一只怪物到来。"
+
+#: guitext:72
+msgctxt "In-game message"
+msgid "Rooms become more efficient as they increase in size. Build neat, rectangular rooms to ensure maximum efficiency."
+msgstr "房间的面积越大，则房间的效率越高。建造规矩的方形房间来确保最大效率。"
+
+#: guitext:73
+msgctxt "In-game message"
+msgid "A humble Fly has become the first of your troops. More powerful creatures require a source of sustenance. Build a 3X3 Hatchery to feed your creatures."
+msgstr "你的第一只怪物是一只弱小的苍蝇。吸引更强力的怪物需要满足更多的要求。建造一个3x3的孵化室来给你的怪物提供食物。"
+
+#: guitext:74
+msgctxt "In-game message"
+msgid "A Beetle has settled in your Lair. To make your dungeon more appealing to the creatures of this world you can build bigger rooms."
+msgstr "一只甲虫在你的巢穴安家了。你可以建造更大的房间来让你的地下城对怪物们更具吸引力。"
+
+#: guitext:75
+msgctxt "In-game message"
+msgid "While you are waiting for your ranks to grow, try possessing a creature. Select the icon from the spell menu and choose your creature, right clicking to release it from its bond."
+msgstr "在你等待着地下城建设的时候，试着控制一只怪物。选择魔法面板的控制怪物图标并左键选择一只怪物并控制它，然后点击右键来解除控制。"
+
+#: guitext:76
+msgctxt "In-game message"
+msgid "Left Click on a creature in the creature panel to place it in your Hand of Evil. Clicking on the creature icon itself will select the most experienced specimen of the breed."
+msgstr "在怪物面板点击左键可以用邪恶之手把它拿起。点击怪物的头像还可以拿起一只最高等级的该种类的怪物。"
+
+#: guitext:77
+msgctxt "In-game message"
+msgid "Now dig out a 3X3 area and, once your imps have claimed the floor, build a Training Room in the space you have excavated."
+msgstr "现在挖出一个3x3的区域，然后在你的小鬼占领地面后，在这里建造一个训练室。"
+
+#: guitext:78
+msgctxt "In-game message"
+msgid "Creatures in the training room will improve their fighting prowess."
+msgstr "怪物在训练室中可以提高他们的战斗力。"
+
+#: guitext:79
+msgctxt "In-game message"
+msgid "Now that you have built the training room, you can tell your creatures to train by picking them up with the LMB and dropping them in it."
+msgstr "现在你建好了训练室，可以用鼠标左键把怪物拿起来并把他们放到训练室里来让他们训练。"
+
+#: guitext:80
+msgctxt "In-game message"
+msgid "You may create more imps by choosing the Create Imp spell in the spell panel and then clicking with the left mouse button on a section of your dungeon floor."
+msgstr "你可以从魔法面板中左键选择制造小鬼魔法，然后在你的地下城中的一块领地上点击鼠标左键来制造更多的小鬼。"
+
+#: guitext:81
+msgctxt "In-game message"
+msgid "Your mission here is to use your power to rid this land of all good. Forge a path North!"
+msgstr "你的任务是消灭这片土地的善良人类。向北方挖开一条路！"
+
+#: guitext:82
+msgctxt "In-game message"
+msgid "You have found a spell of acceleration. When cast on your creatures this will allow them to move at a greatly increased rate for a time. Holding down the LMB will increase the power and cost of the spell."
+msgstr "你找到了一个加速魔法。向你的怪物施放可以使他们短时间内行动速度大幅提高。长按鼠标左键可以提高魔法的强度，同时也会提高耗费的金子。"
+
+#: guitext:83
+msgctxt "In-game message"
+msgid "The Heroes' castle lies out of reach on the far bank of the lava flow. Use bridges to connect your land to the north bank and seek out this nest of virtue."
+msgstr "英雄的城堡坐落在岩浆河的对岸。建造一座桥来连接你的领地和北方的河岸，并探索这个善良人类的家园。"
+
+#: guitext:84
+msgctxt "In-game message"
+msgid "You now have the ability to cast Heal on your creatures. Hold down the LMB for more power. The hero forces are sure to retaliate."
+msgstr "你获得了治疗你的怪物的魔法。长按鼠标左键以蓄力。英雄们很快就要前来报仇了。"
+
+#: guitext:85
+msgctxt "In-game message"
+msgid "A goblin has entered your dungeon. While not as intelligent as the average human, goblins make excellent soldiers."
+msgstr "一只哥布林进入了你的地下城。他们虽然没有人类的智慧，却是优秀的战士。"
+
+#: guitext:86
+msgctxt "In-game message"
+msgid "A new spell has been researched! This spell increases the strength of your creatures' attacks for a short time. Remember to hold down the LMB to increase its potency."
+msgstr "研究出一个新魔法！这个魔法可以短时间内提高你的怪物的攻击力。记住长按鼠标左键以增加魔法强度。"
+
+#: guitext:87
+msgctxt "In-game message"
+msgid "The powerful Troll has joined you. These hideous, evil creatures make the best smiths in the realm."
+msgstr "强大的巨魔加入了你们。这些丑陋邪恶的怪物是这个王国最好的铁匠。"
+
+#: guitext:88
+msgctxt "In-game message"
+msgid "Well done Keeper! You have learned the most important basics of Dungeon Keeper. Click Continue to move on to the next realm."
+msgstr "干得好，地下城主！你学会了地下城主中最重要的基础知识。点击继续以前往下一个王国。"
+
+#: guitext:89
+msgctxt "In-game message"
+msgid "Before you can build a Dungeon worth the name, you will need plenty of gold. Dig out the area to the west where a seam of gold glints invitingly."
+msgstr "要想建立一个名副其实的地下城，你需要很多的金子。向西边挖去，那里的金矿在闪闪发光地等待着你。"
+
+#: guitext:90
+msgctxt "In-game message"
+msgid "Take note of the flashing message icons to the right of the control panel. Click on these to learn of new events or important information."
+msgstr "注意控制面板右边闪动的提示图标。点击它们以了解新事件或者重要信息。"
+
+#: guitext:91
+msgctxt "In-game message"
+msgid "Your dungeon is under attack! Defend yourself!"
+msgstr "你的地下城正在被攻击！保卫你自己！"
+
+#: guitext:92
+msgctxt "In-game message"
+msgid "Your creatures have encountered enemies. Teach them the finer points of battle by possessing one and leading them to victory!"
+msgstr "你的怪物遇到了敌人。通过控制其中一个并带领他们取得胜利来教他们如何战斗！"
+
+#: guitext:93
+msgctxt "In-game message"
+msgid "You have claimed a portal. You will now attract creatures to your cause."
+msgstr "你占领了一个入口。你现在可以吸引更多的怪物加入你的阵营。"
+
+#: guitext:94
+msgctxt "In-game message"
+msgid "You have successfully built a Lair. Creatures need a place to rest. Build larger Lairs to attract more powerful creatures."
+msgstr "你成功建造了一个巢穴。怪物需要一个休息的地方。建造更大的巢穴来吸引更强力的怪物。"
+
+#: guitext:95
+msgctxt "In-game message"
+msgid "Your imps are unable to mine this area. Look for another way around."
+msgstr "你的小鬼无法挖掘这个区域。寻找另一条路吧。"
+
+#: guitext:96
+msgctxt "In-game message"
+msgid "A rival keeper has entered your domain. Prepare your defenses!"
+msgstr "一个敌对的地下城主进入了你的领地。准备好防御！"
+
+#: guitext:97
+msgctxt "In-game message"
+msgid "Your imps have discovered a hidden chamber. Explore it to see what it holds!"
+msgstr "你的小鬼发现了一个隐藏的房间。探索它来看看里面有什么！"
+
+#: guitext:98
+msgctxt "In-game message"
+msgid "You have tunneled into a new area. Scout ahead to ensure it is safe."
+msgstr "你挖通了一个新区域。提前侦察确保安全。"
+
+#: guitext:99
+msgctxt "In-game message"
+msgid "Your library is being raided! Protect your research!"
+msgstr "你的图书馆正在被抢劫！保护你的研究资料！"
+
+#: guitext:100
+msgctxt "In-game message"
+msgid "Your training room is under attack! Your creatures need it to improve their skills."
+msgstr "你的训练室正在被攻击！你的怪物需要它来提高技能。"
+
+#: guitext:101
+msgctxt "In-game message"
+msgid "Your hatchery is under siege! Defend it to keep your creatures fed."
+msgstr "你的孵化室正在被围攻！保护它来确保你的怪物有食物。"
+
+#: guitext:102
+msgctxt "In-game message"
+msgid "Your treasure room is being looted! Guard it well!"
+msgstr "你的储金室正在被抢劫！好好守护它！"
+
+#: guitext:103
+msgctxt "In-game message"
+msgid "Your workshop is under attack! Defend it to continue producing traps and doors."
+msgstr "你的工坊正在被攻击！保卫它以继续生产陷阱和门。"
+
+#: guitext:104
+msgctxt "In-game message"
+msgid "Your torture chamber is under assault! Protect it to maintain control over captured enemies."
+msgstr "你的拷问室正在被攻击！保护它以维持对被俘敌人的控制。"
+
+#: guitext:105
+msgctxt "In-game message"
+msgid "Your graveyard is being desecrated! Defend it to keep your undead minions."
+msgstr "你的墓地正在被亵渎！保卫它以保护你的不死仆从。"
+
+#: guitext:106
+msgctxt "In-game message"
+msgid "Your prison is under attack! Protect it to keep your captured enemies secure."
+msgstr "你的监狱正在被攻击！保护它以确保俘虏的敌人。"
+
+#: guitext:107
+msgctxt "In-game message"
+msgid "Your barracks are under attack! Defend them to maintain your military strength."
+msgstr "你的兵营正在被攻击！保卫它们以保持你的军事力量。"
+
+#: guitext:108
+msgctxt "In-game message"
+msgid "Your creatures have found an enemy lair! Prepare for battle!"
+msgstr "你的怪物发现了一个敌人的巢穴！准备战斗！"
+
+#: guitext:109
+msgctxt "In-game message"
+msgid "Your imps have breached a hidden room! Explore it to see what treasures it holds!"
+msgstr "你的小鬼挖通了一个隐藏的房间！探索它来看看里面有什么宝藏！"
+
+#: guitext:110
+msgctxt "In-game message"
+msgid "Your creatures are rebelling! Slap them to restore order!"
+msgstr "你的怪物正在叛乱！打他们一巴掌以恢复秩序！"
+
+#: guitext:111
+msgctxt "In-game message"
+msgid "Your traps are under attack! Defend them to maintain your defenses."
+msgstr "你的陷阱正在被攻击！保卫它们以保持防御。"
+
+#: guitext:112
+msgctxt "In-game message"
+msgid "Your doors are being attacked! Protect them to keep your dungeon secure."
+msgstr "你的门正在被攻击！保护它们以确保你的地下城安全。"
+
+#: guitext:113
+msgctxt "In-game message"
+msgid "Your creatures have discovered a new spell! Use it to gain an advantage!"
+msgstr "你的怪物发现了一个新魔法！使用它来获得优势！"
+
+#: guitext:114
+msgctxt "In-game message"
+msgid "You have discovered a new area! Explore it to see what lies within."
+msgstr "你发现了一个新区域！探索它来看看里面有什么。"
+msgstr "简单示例关卡"
