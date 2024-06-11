@@ -55,7 +55,7 @@ endif
 
 
 IF(PLAYER0, GAME_TURN >= 100)
-        TODO(1,PLAYER0)
+        DISPLAY_INFORMATION(1)
 ENDIF
 
 
