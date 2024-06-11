@@ -37,6 +37,7 @@
 #include "frontmenu_ingame_evnt.h"
 #include "frontmenu_ingame_opts.h"
 #include "sprites.h"
+#include "player_instances.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -126,6 +127,9 @@ void gui_area_player_room_info(struct GuiButton *gbtn);
 void spell_lost_first_person(struct GuiButton *gbtn);
 void gui_set_tend_to(struct GuiButton *gbtn);
 void gui_set_query(struct GuiButton *gbtn);
+void gui_switch_players_visible(struct GuiButton *gbtn);
+void maintain_query_button(struct GuiButton *gbtn);
+void maintain_player_page2(struct GuiButton *gbtn);
 /******************************************************************************/
 struct GuiButtonInit main_menu_buttons[] = {
   {LbBtnT_NormalBtn,    BID_OPTIONS, 0, 0,                 NULL,           NULL,  NULL,               0,  68,   0,  68,   0, 68, 16, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_quit_act, GUIStr_MnuOptionsDesc,&options_menu, {0},        0, NULL },
@@ -173,7 +177,30 @@ struct GuiButtonInit room_menu_buttons[] = {
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  66, 352,  70, 356, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,        0,       {0},               0, maintain_room },
   {LbBtnT_NormalBtn,  BID_ROOM_TD16, 0, 0, gui_remove_area_for_rooms,NULL,NULL,                 0,  98, 352, 102, 356, 32, 36, gui_area_new_no_anim_button, GPS_rpanel_frame_portrt_sell, GUIStr_SellRoomDesc, 0,       {0},               0, NULL },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   8, 210,   8, 194,126, 44, gui_area_big_room_button,          0, GUIStr_Empty,        0,       {0},               0, maintain_big_room },
+  {LbBtnT_NormalBtn,  BID_ROOM_NXPG, 0, 1, NULL,               NULL,        NULL,               0,  78, 188,  78, 188, 52, 20, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_nxpage_act, GUIStr_Empty,&room_menu2,{0},    0, maintain_room_next_page_button },
   {              -1,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                 0,       {0},               0, NULL },
+};
+
+struct GuiButtonInit room_menu2_buttons[] = {
+  {LbBtnT_NormalBtn,  BID_ROOM_TD17, 0, 0, gui_choose_room,gui_go_to_next_room,gui_over_room_button,0, 2,238,  6, 242, 32, 36, gui_area_room_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,  0,       {2},               0, maintain_room },
+  {LbBtnT_NormalBtn,  BID_ROOM_TD18, 0, 0, gui_choose_room,gui_go_to_next_room,gui_over_room_button,0,34,238, 38, 242, 32, 36, gui_area_room_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty, 0,      {14},               0, maintain_room },
+  {LbBtnT_NormalBtn,  BID_ROOM_TD19, 0, 0, gui_choose_room,gui_go_to_next_room,gui_over_room_button,0,66,238, 70, 242, 32, 36, gui_area_room_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,  0,      {13},               0, maintain_room },
+  {LbBtnT_NormalBtn,  BID_ROOM_TD20, 0, 0, gui_choose_room,gui_go_to_next_room,gui_over_room_button,0,98,238,102, 242, 32, 36, gui_area_room_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,  0,       {6},               0, maintain_room },
+  {LbBtnT_NormalBtn,  BID_ROOM_TD21, 0, 0, gui_choose_room,gui_go_to_next_room,gui_over_room_button,0, 2,276,  6, 280, 32, 36, gui_area_room_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,  0,       {3},               0, maintain_room },
+  {LbBtnT_NormalBtn,  BID_ROOM_TD22, 0, 0, gui_choose_room,gui_go_to_next_room,gui_over_room_button,0,34,276, 38, 280, 32, 36, gui_area_room_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty, 0,      {15},               0, maintain_room },
+  {LbBtnT_NormalBtn,  BID_ROOM_TD23, 0, 0, gui_choose_room,gui_go_to_next_room,gui_over_room_button,0,66,276, 70, 280, 32, 36, gui_area_room_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty, 0,      {16},               0, maintain_room },
+  {LbBtnT_NormalBtn,  BID_ROOM_TD24, 0, 0, gui_choose_room,gui_go_to_next_room,gui_over_room_button,0,98,276,102, 280, 32, 36, gui_area_room_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,  0,       {8},               0, maintain_room },
+  {LbBtnT_NormalBtn,  BID_ROOM_TD25, 0, 0, gui_choose_room,gui_go_to_next_room,gui_over_room_button,0, 2,314,  6, 318, 32, 36, gui_area_room_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,  0,       {4},               0, maintain_room },
+  {LbBtnT_NormalBtn,  BID_ROOM_TD26, 0, 0, gui_choose_room,gui_go_to_next_room,gui_over_room_button,0,34,314, 38, 318, 32, 36, gui_area_room_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,  0,       {5},               0, maintain_room },
+  {LbBtnT_NormalBtn,  BID_ROOM_TD27, 0, 0, gui_choose_room,gui_go_to_next_room,gui_over_room_button,0,66,314, 70, 318, 32, 36, gui_area_room_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,  0,      {12},               0, maintain_room },
+  {LbBtnT_NormalBtn,  BID_ROOM_TD28, 0, 0, gui_choose_room,gui_go_to_next_room,gui_over_room_button,0,98,314,102, 318, 32, 36, gui_area_room_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty, 0,      {10},               0, maintain_room },
+  {LbBtnT_NormalBtn,  BID_ROOM_TD29, 0, 0, gui_choose_room,gui_go_to_next_room,gui_over_room_button,0, 2,352,  6, 356, 32, 36, gui_area_room_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,  0,      {11},               0, maintain_room },
+  {LbBtnT_NormalBtn,  BID_ROOM_TD30, 0, 0, gui_choose_room,gui_go_to_next_room,gui_over_room_button,0,34,352, 38, 356, 32, 36, gui_area_room_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty, 0,       {9},               0, maintain_room },
+  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  66, 352,  70, 356, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,        0,       {0},               0, maintain_room },
+  {LbBtnT_NormalBtn,  BID_ROOM_TD31, 0, 0, gui_remove_area_for_rooms,NULL,NULL,                 0,  98, 352, 102, 356, 32, 36, gui_area_new_no_anim_button, GPS_rpanel_frame_portrt_sell, GUIStr_SellRoomDesc, 0,       {0},               0, NULL },
+  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   8, 210,   8, 194,126, 44, gui_area_big_room_button,          0, GUIStr_Empty,        0,       {0},               0, maintain_big_room },
+  {LbBtnT_NormalBtn,  BID_ROOM_NXPG, 0, 1, NULL,               NULL,        NULL,               0,  78, 188,  78, 188, 52, 20, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_nxpage_act, GUIStr_Empty,&room_menu,{0},    0, maintain_room_next_page_button },
+  {              -1,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                  0,       {0},               0, NULL },
 };
 
 struct GuiButtonInit spell_menu_buttons[] = {
@@ -259,7 +286,30 @@ struct GuiButtonInit trap_menu_buttons[] = {
   {LbBtnT_NormalBtn, BID_MNFCT_TD16, 0, 0, NULL,                      NULL, NULL, 0,  66, 352,  70, 356, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,             0,       {0},               0, NULL },
   {LbBtnT_NormalBtn, BID_MNFCT_TD10, 0, 0, gui_remove_area_for_traps, NULL, NULL, 0,  98, 352, 102, 356, 32, 36, gui_area_new_no_anim_button, GPS_rpanel_frame_portrt_sell, GUIStr_SellItemDesc,      0,       {0},               0, NULL },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,                      NULL, NULL, 0,   8, 210,   8, 194,126, 44, gui_area_big_trap_button,          0, GUIStr_Empty,             0,       {0},               0, maintain_big_trap },
+  {LbBtnT_NormalBtn, BID_MNFCT_NXPG, 0, 1, NULL,                      NULL, NULL, 0,  78, 188,  78, 188, 52, 20, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_nxpage_act, GUIStr_Empty,&trap_menu2,{0},    0, maintain_trap_next_page_button },
   {              -1,    BID_DEFAULT, 0, 0, NULL,                      NULL, NULL, 0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                      0,       {0},               0, NULL },
+};
+
+struct GuiButtonInit trap_menu2_buttons[] = {
+  {LbBtnT_NormalBtn, BID_MNFCT_TD17, 0, 0, NULL,                      NULL, NULL, 0,   2, 238,   6, 242, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,       {2},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD18, 0, 0, NULL,                      NULL, NULL, 0,  34, 238,  38, 242, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,       {3},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD19, 0, 0, NULL,                      NULL, NULL, 0,  66, 238,  70, 242, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,       {4},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD20, 0, 0, NULL,                      NULL, NULL, 0,  98, 238, 102, 242, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,       {6},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD21, 0, 0, NULL,                      NULL, NULL, 0,   2, 276,   6, 280, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,       {1},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD22, 0, 0, NULL,                      NULL, NULL, 0,  34, 276,  38, 280, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,      {5},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD23, 0, 0, NULL,                      NULL, NULL, 0,  66, 276,  70, 280, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,       {0},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD24, 0, 0, NULL,                      NULL, NULL, 0,  98, 276, 102, 280, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,       {0},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD25, 0, 0, NULL,                      NULL, NULL, 0,   2, 314,   6, 318, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,       {7},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD26, 0, 0, NULL,                      NULL, NULL, 0,  34, 314,  38, 318, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,       {8},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD27, 0, 0, NULL,                      NULL, NULL, 0,  66, 314,  70, 318, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,       {9},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD28, 0, 0, NULL,                      NULL, NULL, 0,  98, 314, 102, 318, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,      {10},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD29, 0, 0, NULL,                      NULL, NULL, 0,   2, 352,   6, 356, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,       {0},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD30, 0, 0, NULL,                      NULL, NULL, 0,  34, 352,  38, 356, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,       {0},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD31, 0, 0, NULL,                      NULL, NULL, 0,  66, 352,  70, 356, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,       {0},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD32, 0, 0, gui_remove_area_for_traps, NULL, NULL, 0,  98, 352, 102, 356, 32, 36, gui_area_new_no_anim_button, GPS_rpanel_frame_portrt_sell, GUIStr_SellItemDesc,      0,       {0},               0, NULL },
+  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,                      NULL, NULL, 0,   8, 210,   8, 194,126, 44, gui_area_big_trap_button,          0, GUIStr_Empty,             0,       {0},               0, maintain_big_trap },
+  {LbBtnT_NormalBtn, BID_MNFCT_NXPG, 0, 1, NULL,                      NULL, NULL, 0,  78, 188,  78, 188, 52, 20, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_nxpage_act, GUIStr_Empty,&trap_menu,{0},    0, maintain_trap_next_page_button },
+  {              -1,    BID_DEFAULT, 0, 0, NULL,                      NULL, NULL, 0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                  0,       {0},               0, NULL },
 };
 
 struct GuiButtonInit creature_menu_buttons[] = {
@@ -296,9 +346,10 @@ struct GuiButtonInit creature_menu_buttons[] = {
 };
 
 struct GuiButtonInit query_menu_buttons[] = {
-  {LbBtnT_NormalBtn,    BID_DEFAULT,      0, 0, gui_set_query,   NULL, NULL, 0,  44, 374,  44, 374, 52, 20, gui_area_new_normal_button,    GPS_rpanel_rpanel_btn_crinfo_act,      GUIStr_GoToQueryMode,        0,       {0},            0, NULL },
-  {LbBtnT_ToggleBtn, BID_QRY_IMPRSN,      0, 0, gui_set_tend_to, NULL, NULL, 1,  36, 190,  36, 190, 32, 26, gui_area_flash_cycle_button,   GPS_rpanel_tendency_prisne_act,        GUIStr_CreatureImprisonDesc, 0,{(long)&game.creatures_tend_imprison}, 1, maintain_prison_bar },
-  {LbBtnT_ToggleBtn,   BID_QRY_FLEE,      0, 0, gui_set_tend_to, NULL, NULL, 2,  74, 190,  74, 190, 32, 26, gui_area_flash_cycle_button,   GPS_rpanel_tendency_fleee_act,         GUIStr_CreatureFleeDesc,     0,{(long)&game.creatures_tend_flee}, 1, NULL },
+  {LbBtnT_NormalBtn,    BID_DEFAULT,      0, 0, gui_set_query,                NULL, NULL, 0,  14, 374,  14, 374, 52, 20, gui_area_new_normal_button,    GPS_rpanel_rpanel_btn_crinfo_act,      GUIStr_GoToQueryMode,        0,       {0},            0, maintain_query_button },
+  {LbBtnT_NormalBtn,    BID_DEFAULT,      0, 0, gui_switch_players_visible,   NULL, NULL, 0,  74, 374,  74, 374, 52, 20, gui_area_new_normal_button,    GPS_rpanel_rpanel_btn_nxpage_act,      GUIStr_MoreInformation,      0,       {0},            0, maintain_player_page2 },
+  {LbBtnT_ToggleBtn,    BID_QRY_IMPRSN,   0, 0, gui_set_tend_to, NULL, NULL, 1,  36, 190,  36, 190, 32, 26, gui_area_flash_cycle_button,   GPS_rpanel_tendency_prisne_act,        GUIStr_CreatureImprisonDesc, 0,{(long)&game.creatures_tend_imprison}, 1, maintain_prison_bar },
+  {LbBtnT_ToggleBtn,    BID_QRY_FLEE,     0, 0, gui_set_tend_to, NULL, NULL, 2,  74, 190,  74, 190, 32, 26, gui_area_flash_cycle_button,   GPS_rpanel_tendency_fleee_act,         GUIStr_CreatureFleeDesc,     0,{(long)&game.creatures_tend_flee}, 1, NULL },
   {LbBtnT_NormalBtn,    BID_DEFAULT,      0, 0, NULL,            NULL, NULL, 0,   4, 216,   4, 222,132, 24, gui_area_payday_button,        GPS_rpanel_rpanel_payday_counter,      GUIStr_PayTimeDesc,          0,       {0},            0, NULL },
   {LbBtnT_NormalBtn,    BID_DEFAULT,      0, 0, NULL,            NULL, NULL, 0,   2, 246,   2, 246, 60, 24, gui_area_research_bar,         GPS_room_research_std_s,               GUIStr_ResearchTimeDesc,     0,       {0},            0, NULL },
   {LbBtnT_NormalBtn,    BID_DEFAULT,      0, 0, NULL,            NULL, NULL, 0,  74, 246,  74, 246, 60, 24, gui_area_workshop_bar,         GPS_room_workshop_std_s,               GUIStr_WorkshopTimeDesc,     0,       {0},            0, NULL },
@@ -407,6 +458,10 @@ struct GuiMenu creature_query_menu4 =
  {GMnu_CREATURE_QUERY4, 0, 1, creature_query_buttons4,             0,          0, 140, 400, gui_creature_query_background2,0,NULL,   NULL,                    0, 0, 1,};
 struct GuiMenu spell_menu2 =
  {          GMnu_SPELL2, 0, 1, spell_menu2_buttons,                          0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 1,};
+ struct GuiMenu room_menu2 =
+ {          GMnu_ROOM2, 0, 1, room_menu2_buttons,                          0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 1,};
+ struct GuiMenu trap_menu2 =
+ {          GMnu_TRAP2, 0, 1, trap_menu2_buttons,                          0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 1,};
 
 struct TiledSprite status_panel = {
     2, 4, {

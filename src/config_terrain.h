@@ -153,7 +153,7 @@ struct RoomConfigStats {
     long msg_too_small;
     long msg_no_route;
     short cost;
-    unsigned short health;
+    HitPoints health;
     int update_total_capacity_idx;
     int update_storage_in_room_idx;
     int update_workers_in_room_idx;
@@ -176,7 +176,7 @@ extern const struct NamedCommand terrain_room_properties_commands[];
 extern const struct NamedCommand room_roles_desc[];
 extern const struct NamedCommand terrain_room_total_capacity_func_type[];
 extern const struct NamedCommand terrain_room_used_capacity_func_type[];
-extern Room_Update_Func terrain_room_total_capacity_func_list[7];
+extern Room_Update_Func terrain_room_total_capacity_func_list[8];
 extern Room_Update_Func terrain_room_used_capacity_func_list[10];
 
 /******************************************************************************/
@@ -205,6 +205,7 @@ TbBool set_room_available(PlayerNumber plyr_idx, RoomKind room_idx, long resrch,
 TbBool make_available_all_researchable_rooms(PlayerNumber plyr_idx);
 TbBool make_all_rooms_researchable(PlayerNumber plyr_idx);
 TbBool is_room_available(PlayerNumber plyr_idx, RoomKind room_idx);
+TbBool is_room_obtainable(PlayerNumber plyr_idx, RoomKind rkind);
 TbBool is_room_of_role_available(PlayerNumber plyr_idx, RoomRole rrole);
 RoomKind find_first_available_roomkind_with_role(PlayerNumber plyr_idx, RoomRole rrole);
 ThingModel get_room_create_creature_model(RoomKind room_kind);

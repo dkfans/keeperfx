@@ -31,7 +31,7 @@
 #include "console_cmd.h"
 #include "thing_doors.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "game_legacy.h"
 #include "custom_sprites.h"
 #include "post_inc.h"
@@ -84,7 +84,8 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"TRIGGERTYPE",          13},
   {"ACTIVATIONTYPE",       14},
   {"EFFECTTYPE",           15},
-  {"MODEL",                16},
+  {"ANIMATIONID",          16},
+  {"MODEL",                16},//backward compatibility
   {"MODELSIZE",            17},
   {"ANIMATIONSPEED",       18},
   {"UNANIMATED",           19},
@@ -107,6 +108,12 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"PLACEONBRIDGE",        36},
   {"SHOTORIGIN",           37},
   {"PLACESOUND",           38},
+  {"TRIGGERSOUND",         39},
+  {"RECHARGEANIMATIONID",  40},
+  {"ATTACKANIMATIONID",    41},
+  {"DESTROYEDEFFECT",      42},
+  {"INITIALDELAY",         43},
+  {"PLACEONSUBTILE",       44},
   {NULL,                    0},
 };
 
@@ -272,19 +279,25 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           trapst->bigsym_sprite_idx = 0;
           trapst->medsym_sprite_idx = 0;
           trapst->pointer_sprite_idx = 0;
-          // Default trap placement sound, so that placement sound isn't broken if custom traps is bundled into maps
+          // Default trap sounds, so that they aren't broken if custom trap is bundled into map.
           trapst->place_sound_idx = 117; 
+          trapst->trigger_sound_idx = 176;
           trapst->panel_tab_idx = 0;
-          trapst->hidden = 0;
+          trapst->hidden = false;
           trapst->slappable = 0;
           trapst->destructible = 0;
           trapst->unstable = 0;
-          trapst->unsellable = 0;
-          trapst->notify = 0;
-          trapst->placeonbridge = 0;
+          trapst->unsellable = false;
+          trapst->notify = false;
+          trapst->place_on_bridge = false;
+          trapst->place_on_subtile = false;
+          // Default destroyed_effect is TngEffElm_Blast2.
+          trapst->destroyed_effect = -39;
 
           game.conf.trap_stats[i].health = 0;
           game.conf.trap_stats[i].sprite_anim_idx = 0;
+          game.conf.trap_stats[i].recharge_sprite_anim_idx = 0;
+          game.conf.trap_stats[i].attack_sprite_anim_idx = 0;
           game.conf.trap_stats[i].sprite_size_max = 0;
           game.conf.trap_stats[i].unanimated = 0;
           game.conf.trap_stats[i].anim_speed = 0;
@@ -306,6 +319,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           game.conf.trap_stats[i].shot_shift_x = 0;
           game.conf.trap_stats[i].shot_shift_y = 0;
           game.conf.trap_stats[i].shot_shift_z = 0;
+          game.conf.trap_stats[i].initial_delay = 0;
 
           if (i < game.conf.trapdoor_conf.trap_types_count)
           {
@@ -596,7 +610,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 16: // MODEL
+      case 16: // ANIMATIONID
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             struct ObjectConfigStats obj_tmp;
@@ -946,7 +960,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  trapst->placeonbridge = k;
+                  trapst->place_on_bridge = k;
                   n++;
               }
           }
@@ -1003,6 +1017,108 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               {
                   trapst->place_sound_idx = n;
               }
+          }
+          break;
+      case 39: // TRIGGERSOUND
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              n = atoi(word_buf);
+              if (n < 0 || n > samples_in_bank - 1)
+              {
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                      COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              }
+              else
+              {
+                  trapst->trigger_sound_idx = n;
+              }
+          }
+          break;
+      case 40: // RECHARGEANIMATIONID
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              struct ObjectConfigStats obj_tmp;
+              k = get_anim_id(word_buf, &obj_tmp);
+              if (k >= 0)
+              {
+                  game.conf.trap_stats[i].recharge_sprite_anim_idx = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 41: // ATTACKANIMATIONID
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              struct ObjectConfigStats obj_tmp;
+              k = get_anim_id(word_buf, &obj_tmp);
+              if (k >= 0)
+              {
+                  game.conf.trap_stats[i].attack_sprite_anim_idx = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 42: // DESTROYEDEFFECT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = effect_or_effect_element_id(word_buf);
+              if (k != 0)
+              {
+                  trapst->destroyed_effect = k;
+                  n++;
+              }
+              else if (parameter_is_number(word_buf))
+              {
+                  //No error when it is set to 0
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 43: // INITIALDELAY
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  game.conf.trap_stats[i].initial_delay = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 44: // PLACEONSUBTILE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  trapst->place_on_subtile = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
       case 0: // comment
@@ -1099,6 +1215,8 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
             break;
           }
+          door_desc[i].name = doorst->code_name;
+          door_desc[i].num = i;
           break;
       case 2: // MANUFACTURELEVEL
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)

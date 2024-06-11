@@ -26,12 +26,13 @@
 #include "config_players.h"
 #include "config_powerhands.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "game_legacy.h"
 #include "engine_redraw.h"
 #include "frontend.h"
 #include "thing_objects.h"
 #include "power_hand.h"
+#include "gui_msgs.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -43,9 +44,6 @@ TbPixel possession_hit_colours[] =   {133, 89, 167, 141,  31,  31, 110,  54,  46
 
 unsigned short const player_cubes[] = {0x00C0, 0x00C1, 0x00C2, 0x00C3, 0x00C7, 0x00C6 };
 
-long neutral_player_number = NEUTRAL_PLAYER;
-long hero_player_number = HERO_PLAYER;
-struct PlayerInfo bad_player;
 struct PlayerInfo bad_player;
 
 /** The current player's number. */
@@ -99,6 +97,24 @@ TbBool is_my_player_number(PlayerNumber plyr_num)
     return (plyr_num == myplyr->id_number);
 }
 
+TbBool player_is_roaming(PlayerNumber plyr_num)
+{
+    struct PlayerInfo* player = get_player(plyr_num);
+    return (player->player_type == PT_Roaming);
+}
+
+TbBool player_is_keeper(PlayerNumber plyr_num)
+{
+    struct PlayerInfo* player = get_player(plyr_num);
+    return (player->player_type == PT_Keeper);
+}
+
+TbBool player_is_neutral(PlayerNumber plyr_num)
+{
+    struct PlayerInfo* player = get_player(plyr_num);
+    return (player->player_type == PT_Neutral);
+}
+
 /**
  * Informs if player plyr1_idx considers player plyr2_idx as enemy.
  * Note that if the players are not enemies, it doesn't necessarily mean they're friends.
@@ -114,13 +130,15 @@ TbBool players_are_enemies(long origin_plyr_idx, long check_plyr_idx)
     // And neutral player can't be enemy
     if ((origin_plyr_idx == game.neutral_player_num) || (check_plyr_idx == game.neutral_player_num))
         return false;
+
+        
     struct PlayerInfo* origin_player = get_player(origin_plyr_idx);
     struct PlayerInfo* check_player = get_player(check_plyr_idx);
     // Inactive or invalid players are not enemies, as long as they're not heroes
     // (heroes are normally NOT existing keepers)
-    if (!player_exists(origin_player) && (origin_plyr_idx != game.hero_player_num))
+    if (!player_exists(origin_player) && (!player_is_roaming(origin_plyr_idx)))
         return false;
-    if (!player_exists(check_player) && (check_plyr_idx != game.hero_player_num))
+    if (!player_exists(check_player) && (!player_is_roaming(check_plyr_idx)))
         return false;
     // And if they're valid, living players - get result from alliances table
     return !flag_is_set(origin_player->allied_players, to_flag(check_plyr_idx));
@@ -213,10 +231,21 @@ void clear_players(void)
         struct PlayerInfo* player = &game.players[i];
         LbMemorySet(player, 0, sizeof(struct PlayerInfo));
         player->id_number = PLAYERS_COUNT;
+        switch (i)
+        {
+        case PLAYER_GOOD:
+            player->player_type = PT_Roaming;
+            break;
+        case PLAYER_NEUTRAL:
+            player->player_type = PT_Neutral;
+            break;
+        default:
+            player->player_type = PT_Keeper;
+            break;
+        }
     }
     LbMemorySet(&bad_player, 0, sizeof(struct PlayerInfo));
     bad_player.id_number = PLAYERS_COUNT;
-    game.hero_player_num = hero_player_number;
     game.active_players_count = 0;
     //game.game_kind = GKind_LocalGame;
 }
@@ -337,12 +366,12 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
       player->chosen_door_kind = chosen_kind;
       break;
   case PSt_MkGoodCreatr:
-      clear_messages_from_player(player->cheatselection.chosen_player);
-        player->cheatselection.chosen_player = game.hero_player_num;
+      clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
+        player->cheatselection.chosen_player = PLAYER_GOOD;
         break;
     case PSt_MkBadCreatr:
     case PSt_MkDigger:
-    clear_messages_from_player(player->cheatselection.chosen_player);
+    clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
         player->cheatselection.chosen_player = player->id_number;
         break;
   default:
@@ -456,7 +485,7 @@ unsigned char rotate_mode_to_view_mode(unsigned char mode)
 unsigned char get_player_color_idx(PlayerNumber plyr_idx)
 {
     //neutral has no dungeon to store this in
-    if(plyr_idx == NEUTRAL_PLAYER)
+    if(plyr_idx == PLAYER_NEUTRAL)
         return plyr_idx;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     return dungeon->color_idx;

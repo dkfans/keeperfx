@@ -814,13 +814,27 @@ long check_out_available_spdigger_drop_tasks(struct Thing *spdigtng)
     if ( check_out_unreinforced_drop_place(spdigtng) )
     {
         cctrl->digger.task_repeats = 0;
-        cctrl->digger.last_did_job = SDLstJob_ReinforceWall9;
+        cctrl->digger.last_did_job = SDLstJob_ReinforceWallAssigned;
         return 1;
     }
     if ( check_out_crates_to_arm_trap_in_room(spdigtng) )
     {
         cctrl->digger.task_repeats = 0;
         return 1;
+    }
+    struct Room* room = get_room_thing_is_on(spdigtng);
+    if (!room_is_invalid(room))
+    {
+        if (room->owner == spdigtng->owner)
+        {
+            if (room_role_matches(room->kind,RoRoF_GoldStorage))
+            {
+                if (check_out_imp_has_money_for_treasure_room(spdigtng))
+                {
+                    return 1;
+                }
+            }
+        }
     }
     cctrl->digger.task_repeats = 0;
     cctrl->digger.last_did_job = SDLstJob_None;
@@ -940,7 +954,7 @@ short imp_birth(struct Thing *thing)
     }
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     thing->movement_flags &= ~TMvF_Flying;
-    creature_turn_to_face_angle(thing, i * (long)crstat->max_angle_change);
+    creature_turn_to_face_angle(thing, i * (long)crstat->max_turning_speed);
     return 0;
 }
 
@@ -1118,6 +1132,7 @@ short imp_doing_nothing(struct Thing *spdigtng)
     if (check_out_imp_last_did(spdigtng)) {
         return 1;
     }
+    cctrl->healing_sleep_check_turn = game.play_gameturn; //imp is now free to check if he needs healing, since there is no assigned job to do.
     if (check_out_available_imp_tasks(spdigtng)) {
         return 1;
     }
@@ -1396,31 +1411,24 @@ short imp_toking(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->countdown_282 > 0)
+    if (!creature_would_benefit_from_healing(creatng))
     {
-        cctrl->countdown_282--;
-    } else
-    {
-        if (cctrl->instance_id == CrInst_NULL) {
-          internal_set_thing_state(creatng, creatng->continue_state);
-          return 1;
-        }
+        internal_set_thing_state(creatng, creatng->continue_state);
+        return 0;
     }
-    if (cctrl->countdown_282 > 0)
+    if (cctrl->instance_id == CrInst_NULL)
     {
-        if (cctrl->instance_id == CrInst_NULL)
-        {
-            if ( CREATURE_RANDOM(creatng, 8) )
-                set_creature_instance(creatng, CrInst_RELAXING, 0, 0);
-            else
-                set_creature_instance(creatng, CrInst_TOKING, 0, 0);
-        }
+        if ( CREATURE_RANDOM(creatng, 8) )
+            set_creature_instance(creatng, CrInst_RELAXING, 0, 0);
+        else
+            set_creature_instance(creatng, CrInst_TOKING, 0, 0);
     }
+    
     if ((cctrl->instance_id == CrInst_TOKING) && (cctrl->inst_turn == cctrl->inst_action_turns))
     {
         struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
         if (crstat->toking_recovery != 0) {
-            HitPoints recover = compute_creature_max_health(crstat->toking_recovery, cctrl->explevel);
+            HitPoints recover = compute_creature_max_health(crstat->toking_recovery, cctrl->explevel, creatng->owner);
             apply_health_to_thing_and_display_health(creatng, recover);
         }
     }

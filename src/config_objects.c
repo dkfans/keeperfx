@@ -72,6 +72,12 @@ const struct NamedCommand objects_object_commands[] = {
   {"INITIALSTATE",      24},
   {"RANDOMSTARTFRAME",  25},
   {"TRANSPARENCYFLAGS", 26},
+  {"EFFECTBEAM",        27},
+  {"EFFECTPARTICLE",    28},
+  {"EFFECTEXPLOSION1",  29},
+  {"EFFECTEXPLOSION2",  30},
+  {"EFFECTSPACING",     31},
+  {"EFFECTSOUND",       32},
   {NULL,                 0},
   };
 
@@ -512,7 +518,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = atoi(word_buf);
-                    objst->ilght.radius = n << 8; //Mystery bit shift. Remove it to get divide by 0 errors.
+                    objst->ilght.radius = n * COORD_PER_STL;
                     n++;
                 }
                 if (n <= 0)
@@ -647,7 +653,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = atoi(word_buf);
-                    objst->transparancy_flags = n;
+                    objst->transparency_flags = n;
                     n++;
                 }
                 if (n <= 0)
@@ -656,7 +662,99 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
-            case 0: // comment
+            case 27: // EFFECTBEAM
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = effect_or_effect_element_id(word_buf);
+                    objst->effect.beam = n;
+                    n++;
+                }
+                if (n == 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 28: // EFFECTPARTICLE
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = effect_or_effect_element_id(word_buf);
+                    objst->effect.particle = n;
+                    n++;
+                }
+                if (n == 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 29: // EFFECTEXPLOSION1
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = effect_or_effect_element_id(word_buf);
+                    objst->effect.explosion1 = n;
+                    n++;
+                }
+                if (n == 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 30: // EFFECTEXPLOSION2
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = effect_or_effect_element_id(word_buf);
+                    objst->effect.explosion2 = n;
+                    n++;
+                }
+                if (n == 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 31: // EFFECTSPACING
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    objst->effect.spacing = n;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 32: // EFFECTSOUND
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    if ( (!SoundDisabled) && ( (n < 0) || (n > (samples_in_bank - 1)) ) )
+                    {
+                        CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    }
+                    else
+                    {
+                        objst->effect.sound_idx = n;
+                    }
+                }
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    if ((!SoundDisabled) && ((n < 0) || (n > (samples_in_bank - 1))))
+                    {
+                        objst->effect.sound_range = 1;
+                    }
+                    else
+                    {
+                        objst->effect.sound_range = n;
+                    }
+                }
+                break;
+           case 0: // comment
                 break;
             case -1: // end of buffer
                 break;

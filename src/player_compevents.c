@@ -121,6 +121,8 @@ struct ComputerSpells computer_attack_spells[] = {
   {PwrK_DISEASE,   GA_UsePwrDisease,   1,  1, 2, 4},
   {PwrK_LIGHTNING, GA_UsePwrLightning, 0,  1, 8, 2},
   {PwrK_CHICKEN,   GA_UsePwrChicken,   1,  1, 2, 1},
+  {PwrK_FREEZE,    GA_UsePwrFreeze,    1,  1, 1, 1},
+  {PwrK_SLOW,      GA_UsePwrSlow,      1,  1, 1, 1},
   {PwrK_LIGHTNING, GA_UsePwrLightning, 0, -1, 1, 1},
   {PwrK_None,      GA_None,            0,  0, 0, 0},
 };
@@ -229,7 +231,7 @@ long computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *ceve
             break;
         if (cproc->parent == cevent->process)
         {
-            clear_flag(cproc->flags, (ComProc_Unkn0008|ComProc_Unkn0001));
+            clear_flag(cproc->flags, (ComProc_Unkn0008|ComProc_Unkn0001|ComProc_Unkn0004));
             cproc->last_run_turn = 0;
             cproc_idx = 1;
         }
@@ -361,15 +363,20 @@ long computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *ce
  */
 struct Thing *computer_get_creature_in_fight(struct Computer2 *comp, PowerKind pwkind)
 {
-    return find_players_highest_score_creature_in_fight_not_affected_by_spell(comp->dungeon->owner, pwkind);
+    struct PowerConfigStats *powerst = get_power_model_stats(pwkind);
+    return find_players_highest_score_creature_in_fight_not_affected_by_spell(comp->dungeon->owner, powerst->spell_idx);
 }
 
 long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent *cevent)
 {
-    if (comp->dungeon->fights_num <= 0) {
+    if (comp->dungeon->fights_num <= 0)
+    {
         return 4;
     }
-    if (!(computer_able_to_use_power(comp, PwrK_SPEEDCRTR, cevent->param1, 1) ||  computer_able_to_use_power(comp, PwrK_PROTECT, cevent->param1, 1) ||  computer_able_to_use_power(comp, PwrK_REBOUND, cevent->param1, 1))) {
+    if (!(computer_able_to_use_power(comp, PwrK_SPEEDCRTR, cevent->param1, 1) || computer_able_to_use_power(comp, PwrK_PROTECT, cevent->param1, 1) || 
+          computer_able_to_use_power(comp, PwrK_REBOUND, cevent->param1, 1)   || computer_able_to_use_power(comp, PwrK_FLIGHT, cevent->param1, 1) || 
+          computer_able_to_use_power(comp, PwrK_VISION, cevent->param1, 1)))
+    {
         return 4;
     }
     struct Thing* fightng = computer_get_creature_in_fight(comp, PwrK_SPEEDCRTR);
@@ -381,11 +388,20 @@ long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent 
             fightng = computer_get_creature_in_fight(comp, PwrK_REBOUND);
             if (thing_is_invalid(fightng))
             {
-                return 4;
+                fightng = computer_get_creature_in_fight(comp, PwrK_FLIGHT);
+                if (thing_is_invalid(fightng))
+                {
+                    fightng = computer_get_creature_in_fight(comp, PwrK_VISION);
+                    if (thing_is_invalid(fightng))
+                    {
+                        return 4;
+                    }
+                }
             }
         }
     }
-    if (!create_task_magic_speed_up(comp, fightng, cevent->param1)) {
+    if (!create_task_magic_speed_up(comp, fightng, cevent->param1))
+    {
         return 4;
     }
     return 1;
@@ -512,9 +528,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
                 {
                     SYNCDBG(8,"Player %d will allow process \"%s\"",(int)comp->dungeon->owner,cproc->name);
                     ret = 1;
-                    clear_flag(cproc->flags, (ComProc_Unkn0008|ComProc_Unkn0001));
-                    cproc->last_run_turn = 0;
-                    cproc->param_3 = 0;
+                    reactivate_build_process(comp, bldroom->rkind);
                 }
             }
         }
@@ -616,7 +630,7 @@ long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent
         return CTaskRet_Unk1;
     }
 
-    if (dungeon_has_room(dungeon, RoK_TORTURE) && (!creature_is_being_tortured(creatng)))//avoid repeated action on same unit)
+    if (dungeon_has_room_of_role(dungeon, RoRoF_Torture) && (!creature_is_being_tortured(creatng)))//avoid repeated action on same unit)
     {
         if (!creature_would_benefit_from_healing(creatng))
         {
