@@ -55,257 +55,257 @@ msgid "Moo"
 msgstr ""
 
 #: guitext:63
-msgctxt ""
+msgctxt "In-game message"
 msgid "Money sits at the root of all Evil, and so it is appropriate that you start your Empire by building a Treasure Room. Select the Treasure Room Icon with the Left Mouse Button (LMB) and build a 3X3 Treasure Room in an empty space in your Dungeon."
 msgstr ""
 
 #: guitext:64
-msgctxt ""
+msgctxt "In-game message"
 msgid "You may see a map of the entire realm by pressing 'M' or clicking on the scroll at the top-left of your panel."
 msgstr ""
 
 #: guitext:65
-msgctxt ""
+msgctxt "In-game message"
 msgid "A Treasure Room is used to store any gold mined by your imps."
 msgstr ""
 
 #: guitext:66
-msgctxt ""
+msgctxt "In-game message"
 msgid "Your gold reserves are running low. Tag the gold seam to the South. Your imps will mine it out and replenish your coffers."
 msgstr ""
 
 #: guitext:67
-msgctxt ""
+msgctxt "In-game message"
 msgid "Click with the right mouse button to stop building rooms. Now tunnel to the Portal in the East by tagging the rock with your left mouse button. Your Imps will then claim it for you."
 msgstr ""
 
 #: guitext:68
-msgctxt ""
+msgctxt "In-game message"
 msgid "Using the right mouse button (RMB), you may slap your creatures, thus making them work more quickly. Be careful not to beat them too frequently! This will make them angry, or at worst you will beat them to death!"
 msgstr ""
 
 #: guitext:69
-msgctxt ""
+msgctxt "In-game message"
 msgid "Clicking with the LMB whilst over a minion will pick that creature up. Any eight of the creatures you own can be carried in your hand like this. Use this method to place Imps next to the tasks that you wish them to carry out. Drop them on your own, or Neutral territory with the RMB."
 msgstr ""
 
 #: guitext:70
-msgctxt ""
+msgctxt "In-game message"
 msgid "Now you have claimed a portal creatures will enter your dungeon seeking employment. You must build a 3X3 Lair to house your creatures. Larger Lairs hold more creatures."
 msgstr ""
 
 #: guitext:71
-msgctxt ""
+msgctxt "In-game message"
 msgid "Now you have built a small lair, await the arrival of your first minion."
 msgstr ""
 
 #: guitext:72
-msgctxt ""
+msgctxt "In-game message"
 msgid "Rooms become more efficient as they increase in size. Build neat, rectangular rooms to ensure maximum efficiency."
 msgstr ""
 
 #: guitext:73
-msgctxt ""
+msgctxt "In-game message"
 msgid "A humble Fly has become the first of your troops. More powerful creatures require a source of sustenance. Build a 3X3 Hatchery to feed your creatures."
 msgstr ""
 
 #: guitext:74
-msgctxt ""
+msgctxt "In-game message"
 msgid "A Beetle has settled in your Lair. To make your dungeon more appealing to the creatures of this world you can build bigger rooms."
 msgstr ""
 
 #: guitext:75
-msgctxt ""
+msgctxt "In-game message"
 msgid "While you are waiting for your ranks to grow, try possessing a creature. Select the icon from the spell menu and choose your creature, right clicking to release it from its bond."
 msgstr ""
 
 #: guitext:76
-msgctxt ""
+msgctxt "In-game message"
 msgid "Left Click on a creature in the creature panel to place it in your Hand of Evil. Clicking on the creature icon itself will select the most experienced specimen of the breed."
 msgstr ""
 
 #: guitext:77
-msgctxt ""
+msgctxt "In-game message"
 msgid "Now dig out a 3X3 area and, once your imps have claimed the floor, build a Training Room in the space you have excavated."
 msgstr ""
 
 #: guitext:78
-msgctxt ""
+msgctxt "In-game message"
 msgid "Creatures in the training room will improve their fighting prowess."
 msgstr ""
 
 #: guitext:79
-msgctxt ""
+msgctxt "In-game message"
 msgid "Now that you have built the training room, you can tell your creatures to train by picking them up with the LMB and dropping them in it."
 msgstr ""
 
 #: guitext:80 guitext:91
-msgctxt ""
+msgctxt "In-game message"
 msgid "You may create more imps by choosing the Create Imp spell in the spell panel and then clicking with the left mouse button on a section of your dungeon floor."
 msgstr ""
 
 #: guitext:81
-msgctxt ""
+msgctxt "In-game message"
 msgid "Your mission here is to use your power to rid this land of all good. Forge a path North!"
 msgstr ""
 
 #: guitext:82
-msgctxt ""
+msgctxt "In-game message"
 msgid "You have found a spell of acceleration. When cast on your creatures this will allow them to move at a greatly increased rate for a time. Holding down the LMB will increase the power and cost of the spell."
 msgstr ""
 
 #: guitext:83
-msgctxt ""
+msgctxt "In-game message"
 msgid "The Heroes' castle lies out of reach on the far bank of the lava flow. Use bridges to connect your land to the north bank and seek out this nest of virtue."
 msgstr ""
 
 #: guitext:84
-msgctxt ""
+msgctxt "In-game message"
 msgid "You now have the ability to cast Heal on your creatures. Hold down the LMB for more power. The hero forces are sure to retaliate"
 msgstr ""
 
 #: guitext:85
-msgctxt ""
+msgctxt "In-game message"
 msgid "A goblin has entered your dungeon. While not as intelligent as the average human, goblins make excellent soldiers."
 msgstr ""
 
 #: guitext:86
-msgctxt ""
+msgctxt "In-game message"
 msgid "You have found a new Bile Demon ally. The aggression and tenacity of these beasts is matched only by their appetites."
 msgstr ""
 
 #: guitext:87
-msgctxt ""
+msgctxt "In-game message"
 msgid "From the markings, you have broken into an old dungeon. Claim any assets remaining, but be on your guard!"
 msgstr ""
 
 #: guitext:88
-msgctxt ""
+msgctxt "In-game message"
 msgid "Danger! Your untidy exploration of this realm has left you exposed to the Lord's troops."
 msgstr ""
 
 #: guitext:89
-msgctxt ""
+msgctxt "In-game message"
 msgid "You've discovered the Heroes' castle. Break down the doors and wreak havoc upon the enemy!"
 msgstr ""
 
 #: guitext:90
-msgctxt ""
+msgctxt "In-game message"
 msgid "Congratulations. You have defeated the Lord of the Land and completed the Dungeon Keeper demo."
 msgstr ""
 
 #: guitext:92
-msgctxt ""
+msgctxt "In-game message"
 msgid "This will be your most difficult battle to date; you must use all of your skills to defeat your distant enemy."
 msgstr ""
 
 #: guitext:93
-msgctxt ""
+msgctxt "In-game message"
 msgid "You are but one of four Dungeon Keepers in the land and all are as evil as yourself. Can you defeat them all?"
 msgstr ""
 
 #: guitext:94
-msgctxt ""
+msgctxt "In-game message"
 msgid "This realm is ruled by a noble Knight, whom another Keeper also seeks to destroy. His land has already been besieged, so make haste."
 msgstr ""
 
 #: guitext:95
-msgctxt ""
+msgctxt "In-game message"
 msgid "Your rival has already prevailed over the heroes of this realm. There is room for only one ultimate evil here though, so find out which one of you is worthy."
 msgstr ""
 
 #: guitext:96
-msgctxt ""
+msgctxt "In-game message"
 msgid "This level will test your ability to travel through these underground caverns at great speed. Indeed, speed is your only ally here. Make it to the end of the course in the time allowed to win."
 msgstr ""
 
 #: guitext:97
-msgctxt ""
+msgctxt "In-game message"
 msgid "Make haste to subjugate your adversaries here, the Dungeon Keeper cake-boys."
 msgstr ""
 
 #: guitext:98
-msgctxt ""
+msgctxt "In-game message"
 msgid "Build a Treasure Room and fill it with 2000 gold."
 msgstr ""
 
 #: guitext:99
-msgctxt ""
+msgctxt "In-game message"
 msgid "Well done. Now build a Lair and Hatchery and attract five creatures into your dungeon."
 msgstr ""
 
 #: guitext:100
-msgctxt ""
+msgctxt "In-game message"
 msgid "Excellent. Now continue to mine the area for gold, but beware, your success will have attracted the unwanted attentions of local heroes. Defend your dungeon from these do-gooders."
 msgstr ""
 
 #: guitext:101
-msgctxt ""
+msgctxt "In-game message"
 msgid "Your continued success has attracted the attentions of the local lord. He must be defeated so you can claim this realm as your own."
 msgstr ""
 
 #: guitext:102
-msgctxt ""
+msgctxt "In-game message"
 msgid "Great work. By defeating the lord, you have claimed this realm as your own."
 msgstr ""
 
 #: guitext:103
-msgctxt ""
+msgctxt "In-game message"
 msgid "You have been defeated. Better luck next time."
 msgstr ""
 
 #: guitext:104
-msgctxt ""
+msgctxt "In-game message"
 msgid "This is a holy place, and the most powerful magic will become available to you here from research. Subordinate your competition and then raise the electric church to reveal its powers."
 msgstr ""
 
 #: guitext:105
-msgctxt ""
+msgctxt "In-game message"
 msgid "You have researched the evil audience; if you are powerful enough, victory is now yours for the taking."
 msgstr ""
 
 #: guitext:106
-msgctxt ""
+msgctxt "In-game message"
 msgid "You have discovered an evil Temple, a source of great power, the uses of which will only be revealed to you in the worlds to come."
 msgstr ""
 
 #: guitext:107
-msgctxt ""
+msgctxt "In-game message"
 msgid "Your competition has been put in its rightful place; take what is now yours. You will find the electric church to the south. You will require the ultimate weapon."
 msgstr ""
 
 #: guitext:108
-msgctxt ""
+msgctxt "In-game message"
 msgid "Build up your dungeon, build a research room, and see what it has to offer you."
 msgstr ""
 
 #: guitext:109
-msgctxt ""
+msgctxt "In-game message"
 msgid "You have discovered a lost cave, home of the Tentacles. Take them into your dungeon; others are sure to follow them to you."
 msgstr ""
 
 #: guitext:110
-msgctxt ""
+msgctxt "In-game message"
 msgid "You have researched a Workshop; with it, doors and traps will become available to you."
 msgstr ""
 
 #: guitext:111
-msgctxt ""
+msgctxt "In-game message"
 msgid "Dispense with the particularly obnoxious Dwarves which wander this region while you build a well defended Dungeon."
 msgstr ""
 
 #: guitext:112
-msgctxt ""
+msgctxt "In-game message"
 msgid "The final battle is at hand. Find and destroy the heroic stronghold."
 msgstr ""
 
 #: guitext:113
-msgctxt ""
+msgctxt "In-game message"
 msgid "In the caves of Savactor, an rival Keeper battles with the tireless forces of good. Vanquish the pathetic heroes and them proceed to conquer the rival Keeper to gain dominance over this land."
 msgstr ""
 
 #: guitext:114
-msgctxt ""
+msgctxt "In-game message"
 msgid "The corpses of the good lie strewn around you. Now go, and conquer your rival on this land. Dominion awaits ..."
 msgstr ""
 
