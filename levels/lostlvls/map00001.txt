@@ -244,7 +244,7 @@ if_action_point(3,player0)
 endif
 
 if_action_point(5,player0)
-       add_party_to_level(player_good,victor,-4,1)
+       add_party_to_level(player_good,victor,-2,1)
 endif
 
 if(player0, flag1 == 1)
