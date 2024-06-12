@@ -48,7 +48,7 @@ CREATE_PARTY(FINAL)
 
 IF(PLAYER0,GAME_TURN >= 40)
     REM 1,"Money sits at the root of all Evil, and so it is appropriate that you start your Empire by building a Treasure Room. Select the Treasure Room Icon with the Left Mouse Button (LMB) and build a 3X3 Treasure Room in an empty space in your Dungeon.",PLAYER0)
-    DISPLAY_OBJECTIVE(63)
+    DISPLAY_OBJECTIVE(63,PLAYER0)
     room_available(player0,treasure,1,1)
     tutorial_flash_button(6,-1)
 endif
@@ -68,7 +68,7 @@ ENDIF
 
 IF(PLAYER0,TREASURE >= 1)
         REM 30, "A Treasure Room is used to store any gold mined by your imps.")
-        DISPLAY_INFORMATION(65,PLAYER0)
+        DISPLAY_INFORMATION(65)
         IF(PLAYER0,MONEY <= 1000)
                 REM 2,"Your gold reserves are running low. Tag the gold seam to the South. Your imps will mine it out and replenish your coffers.")
                 DISPLAY_INFORMATION(66)
