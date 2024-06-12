@@ -207,7 +207,7 @@ endif
 
 if(Player0,bile_demon >= 1)
         REM 22,"You have found a new Bile Demon ally. The aggression and tenacity of these beasts is matched only by their appetites.")
-        DISPLAY_INFORMATION(86,PLAYER0)
+        DISPLAY_INFORMATION(86)
 endif
 
 if_action_point(7,player0)
