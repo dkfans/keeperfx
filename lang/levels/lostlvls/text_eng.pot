@@ -18,7 +18,7 @@
 # *****************************************************************************
 msgid ""
 msgstr ""
-"Project-Id-Version: Standard levels for KeeperFX\n"
+"Project-Id-Version: Lost levels for KeeperFX\n"
 "POT-Creation-Date: \n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
@@ -161,7 +161,7 @@ msgstr ""
 
 #: guitext:84
 msgctxt "In-game message"
-msgid "You now have the ability to cast Heal on your creatures. Hold down the LMB for more power. The hero forces are sure to retaliate"
+msgid "You now have the ability to cast Heal on your creatures. Hold down the LMB for more power. The hero forces are sure to retaliate."
 msgstr ""
 
 #: guitext:85

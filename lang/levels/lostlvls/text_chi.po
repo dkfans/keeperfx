@@ -1,8 +1,8 @@
 # ******************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # ******************************************************************************
-#   @file levels/lostlvl/text_chi.po
-#      KeeperFX GUI Strings translation file
+#   @file levels/lostlvls/text_chi.po
+#      KeeperFX Campaign Strings translation file
 #  @par Purpose:
 #      Contains translation of the national strings in the game.
 #  @par Comment:
@@ -58,11 +58,6 @@ msgstr ""
 msgctxt "In-game message"
 msgid "Money sits at the root of all Evil, and so it is appropriate that you start your Empire by building a Treasure Room. Select the Treasure Room Icon with the Left Mouse Button (LMB) and build a 3X3 Treasure Room in an empty space in your Dungeon."
 msgstr "金钱是邪恶力量的源泉，所以你的地下帝国的建设要从修一个储金室开始。用鼠标左键选择储金室图标，然后在你地下城的空地上建造一个3x3的储金室。"
-
-#: guitext:64
-msgctxt "In-game message"
-msgid "You may see a map of the entire realm by pressing 'M' or clicking on the scroll at the top-left of your panel."
-msgstr "你可以通过按M键或者点击左上角的卷轴图标来查看整个王国的地图。"
 
 #: guitext:64
 msgctxt "In-game message"
@@ -144,7 +139,7 @@ msgctxt "In-game message"
 msgid "Now that you have built the training room, you can tell your creatures to train by picking them up with the LMB and dropping them in it."
 msgstr "现在你建好了训练室，可以用鼠标左键把怪物拿起来并把他们放到训练室里来让他们训练。"
 
-#: guitext:80
+#: guitext:80 guitext:91
 msgctxt "In-game message"
 msgid "You may create more imps by choosing the Create Imp spell in the spell panel and then clicking with the left mouse button on a section of your dungeon floor."
 msgstr "你可以从魔法面板中左键选择制造小鬼魔法，然后在你的地下城中的一块领地上点击鼠标左键来制造更多的小鬼。"
@@ -173,151 +168,146 @@ msgstr "你获得了治疗你的怪物的魔法。长按鼠标左键以蓄力。
 msgctxt "In-game message"
 msgid "A goblin has entered your dungeon. While not as intelligent as the average human, goblins make excellent soldiers."
 msgstr "一只哥布林进入了你的地下城。他们虽然没有人类的智慧，却是优秀的战士。"
-
 #: guitext:86
 msgctxt "In-game message"
-msgid "A new spell has been researched! This spell increases the strength of your creatures' attacks for a short time. Remember to hold down the LMB to increase its potency."
-msgstr "研究出一个新魔法！这个魔法可以短时间内提高你的怪物的攻击力。记住长按鼠标左键以增加魔法强度。"
+msgid "You have found a new Bile Demon ally. The aggression and tenacity of these beasts is matched only by their appetites."
+msgstr "你找到了一只巨魔。这种怪兽的攻击和防御能力就像它的饭量一样夸张。"
 
 #: guitext:87
 msgctxt "In-game message"
-msgid "The powerful Troll has joined you. These hideous, evil creatures make the best smiths in the realm."
-msgstr "强大的巨魔加入了你们。这些丑陋邪恶的怪物是这个王国最好的铁匠。"
+msgid "From the markings, you have broken into an old dungeon. Claim any assets remaining, but be on your guard!"
+msgstr "顺着标记，你进入了一座古老的地下城。占领这块区域，但也要保持警惕！"
 
 #: guitext:88
 msgctxt "In-game message"
-msgid "Well done Keeper! You have learned the most important basics of Dungeon Keeper. Click Continue to move on to the next realm."
-msgstr "干得好，地下城主！你学会了地下城主中最重要的基础知识。点击继续以前往下一个王国。"
+msgid "Danger! Your untidy exploration of this realm has left you exposed to the Lord's troops."
+msgstr "危险！你贸然地发起了进攻，导致国王的军队发现了你的存在。"
 
 #: guitext:89
 msgctxt "In-game message"
-msgid "Before you can build a Dungeon worth the name, you will need plenty of gold. Dig out the area to the west where a seam of gold glints invitingly."
-msgstr "要想建立一个名副其实的地下城，你需要很多的金子。向西边挖去，那里的金矿在闪闪发光地等待着你。"
+msgid "You've discovered the Heroes' castle. Break down the doors and wreak havoc upon the enemy!"
+msgstr "你发现了英雄城堡。打破城门并为敌人带来恐惧吧！"
 
 #: guitext:90
 msgctxt "In-game message"
-msgid "Take note of the flashing message icons to the right of the control panel. Click on these to learn of new events or important information."
-msgstr "注意控制面板右边闪动的提示图标。点击它们以了解新事件或者重要信息。"
-
-#: guitext:91
-msgctxt "In-game message"
-msgid "Your dungeon is under attack! Defend yourself!"
-msgstr "你的地下城正在被攻击！保卫你自己！"
+msgid "Congratulations. You have defeated the Lord of the Land and completed the Dungeon Keeper demo."
+msgstr "恭喜你。你已经击败了国王，并完成了地下城守护者的教学关卡。"
 
 #: guitext:92
 msgctxt "In-game message"
-msgid "Your creatures have encountered enemies. Teach them the finer points of battle by possessing one and leading them to victory!"
-msgstr "你的怪物遇到了敌人。通过控制其中一个并带领他们取得胜利来教他们如何战斗！"
+msgid "This will be your most difficult battle to date; you must use all of your skills to defeat your distant enemy."
+msgstr "这将是你目前为止遭遇的最艰难的一场战斗，你必须使出浑身解数才能击败你远处的敌人。"
 
 #: guitext:93
 msgctxt "In-game message"
-msgid "You have claimed a portal. You will now attract creatures to your cause."
-msgstr "你占领了一个入口。你现在可以吸引更多的怪物加入你的阵营。"
+msgid "You are but one of four Dungeon Keepers in the land and all are as evil as yourself. Can you defeat them all?"
+msgstr "你只是这个王国的四个守护者中的其中一员，而其他三人也都和你一样邪恶。你能把他们都打败吗？"
 
 #: guitext:94
 msgctxt "In-game message"
-msgid "You have successfully built a Lair. Creatures need a place to rest. Build larger Lairs to attract more powerful creatures."
-msgstr "你成功建造了一个巢穴。怪物需要一个休息的地方。建造更大的巢穴来吸引更强力的怪物。"
+msgid "This realm is ruled by a noble Knight, whom another Keeper also seeks to destroy. His land has already been besieged, so make haste."
+msgstr "这个王国由一位高贵的骑士统治，另一个守护者也打算与你竞争将他杀死。他的土地已经被围攻了，所以尽快行动吧。"
 
 #: guitext:95
 msgctxt "In-game message"
-msgid "Your imps are unable to mine this area. Look for another way around."
-msgstr "你的小鬼无法挖掘这个区域。寻找另一条路吧。"
+msgid "Your rival has already prevailed over the heroes of this realm. There is room for only one ultimate evil here though, so find out which one of you is worthy."
+msgstr "你的对手已经压制住了这里的英雄。而这片土地只能容纳一个最邪恶的守护者，所以证明你自己的价值吧。"
 
 #: guitext:96
 msgctxt "In-game message"
-msgid "A rival keeper has entered your domain. Prepare your defenses!"
-msgstr "一个敌对的地下城主进入了你的领地。准备好防御！"
+msgid "This level will test your ability to travel through these underground caverns at great speed. Indeed, speed is your only ally here. Make it to the end of the course in the time allowed to win."
+msgstr "这个区域将考验你横穿洞穴网的能力。时间是你真正的敌人。在时间耗尽前飞到这个区域的尽头来获得胜利。"
 
 #: guitext:97
 msgctxt "In-game message"
-msgid "Your imps have discovered a hidden chamber. Explore it to see what it holds!"
-msgstr "你的小鬼发现了一个隐藏的房间。探索它来看看里面有什么！"
+msgid "Make haste to subjugate your adversaries here, the Dungeon Keeper cake-boys."
+msgstr "赶快解决掉这里的敌人，享受一场饕餮盛宴吧，守护者。"
 
 #: guitext:98
 msgctxt "In-game message"
-msgid "You have tunneled into a new area. Scout ahead to ensure it is safe."
-msgstr "你挖通了一个新区域。提前侦察确保安全。"
+msgid "Build a Treasure Room and fill it with 2000 gold."
+msgstr "建造一个储金室，并储存2000单位黄金。"
 
 #: guitext:99
 msgctxt "In-game message"
-msgid "Your library is being raided! Protect your research!"
-msgstr "你的图书馆正在被抢劫！保护你的研究资料！"
+msgid "Well done. Now build a Lair and Hatchery and attract five creatures into your dungeon."
+msgstr "很好。现在建造巢穴和孵化室，并吸引五只怪物进入你的地下城。"
 
 #: guitext:100
 msgctxt "In-game message"
-msgid "Your training room is under attack! Your creatures need it to improve their skills."
-msgstr "你的训练室正在被攻击！你的怪物需要它来提高技能。"
+msgid "Excellent. Now continue to mine the area for gold, but beware, your success will have attracted the unwanted attentions of local heroes. Defend your dungeon from these do-gooders."
+msgstr "棒极了。继续挖掘这片区域的金子，但要小心，你的成功已经不经意间引起了当地英雄的注意。防止这些好人进攻你的地下城。"
 
 #: guitext:101
 msgctxt "In-game message"
-msgid "Your hatchery is under siege! Defend it to keep your creatures fed."
-msgstr "你的孵化室正在被围攻！保护它来确保你的怪物有食物。"
+msgid "Your continued success has attracted the attentions of the local lord. He must be defeated so you can claim this realm as your own."
+msgstr "你接连的成功已经吸引了这片土地的国王的注意。你必须击败他才能占据这个王国。"
 
 #: guitext:102
 msgctxt "In-game message"
-msgid "Your treasure room is being looted! Guard it well!"
-msgstr "你的储金室正在被抢劫！好好守护它！"
+msgid "Great work. By defeating the lord, you have claimed this realm as your own."
+msgstr "干得很好。随着国王被击败，你已经将这片土地据为己有了。"
 
 #: guitext:103
 msgctxt "In-game message"
-msgid "Your workshop is under attack! Defend it to continue producing traps and doors."
-msgstr "你的工坊正在被攻击！保卫它以继续生产陷阱和门。"
+msgid "You have been defeated. Better luck next time."
+msgstr "你被打败了。祝你下次好运。"
 
 #: guitext:104
 msgctxt "In-game message"
-msgid "Your torture chamber is under assault! Protect it to maintain control over captured enemies."
-msgstr "你的拷问室正在被攻击！保护它以维持对被俘敌人的控制。"
+msgid "This is a holy place, and the most powerful magic will become available to you here from research. Subordinate your competition and then raise the electric church to reveal its powers."
+msgstr "这是一块圣地，你可以研究出最强力的魔法。先干掉你的竞争对手，然后来到电子教堂并探索它的真正力量。"
 
 #: guitext:105
 msgctxt "In-game message"
-msgid "Your graveyard is being desecrated! Defend it to keep your undead minions."
-msgstr "你的墓地正在被亵渎！保卫它以保护你的不死仆从。"
+msgid "You have researched the evil audience; if you are powerful enough, victory is now yours for the taking."
+msgstr "你已经研究出了邪恶的召唤术；如果你足够强大，胜利便唾手可得。"
 
 #: guitext:106
 msgctxt "In-game message"
-msgid "Your prison is under attack! Protect it to keep your captured enemies secure."
-msgstr "你的监狱正在被攻击！保护它以确保俘虏的敌人。"
+msgid "You have discovered an evil Temple, a source of great power, the uses of which will only be revealed to you in the worlds to come."
+msgstr "你发现了一座拥有强大力量的邪恶寺庙， 它的作用只有在未来的世界中才会向你展示。"
 
 #: guitext:107
 msgctxt "In-game message"
-msgid "Your barracks are under attack! Defend them to maintain your military strength."
-msgstr "你的兵营正在被攻击！保卫它们以保持你的军事力量。"
+msgid "Your competition has been put in its rightful place; take what is now yours. You will find the electric church to the south. You will require the ultimate weapon."
+msgstr "你的竞争对手占据了最好的一块地盘；你需要拿走属于你的东西。你可以在南方找到电子教堂。你需要一个终极武器。"
 
 #: guitext:108
 msgctxt "In-game message"
-msgid "Your creatures have found an enemy lair! Prepare for battle!"
-msgstr "你的怪物发现了一个敌人的巢穴！准备战斗！"
+msgid "Build up your dungeon, build a research room, and see what it has to offer you."
+msgstr "建设你的地下城，建造一个图书馆，看看能研究出什么。"
 
 #: guitext:109
 msgctxt "In-game message"
-msgid "Your imps have breached a hidden room! Explore it to see what treasures it holds!"
-msgstr "你的小鬼挖通了一个隐藏的房间！探索它来看看里面有什么宝藏！"
+msgid "You have discovered a lost cave, home of the Tentacles. Take them into your dungeon; others are sure to follow them to you."
+msgstr "你发现了一座失落的山洞，它是水怪的家园。把它带进你的地下城，它的同伴也会跟着来的。"
 
 #: guitext:110
 msgctxt "In-game message"
-msgid "Your creatures are rebelling! Slap them to restore order!"
-msgstr "你的怪物正在叛乱！打他们一巴掌以恢复秩序！"
+msgid "You have researched a Workshop; with it, doors and traps will become available to you."
+msgstr "你研究出了工厂，现在可以生产门和陷阱了。"
 
 #: guitext:111
 msgctxt "In-game message"
-msgid "Your traps are under attack! Defend them to maintain your defenses."
-msgstr "你的陷阱正在被攻击！保卫它们以保持防御。"
+msgid "Dispense with the particularly obnoxious Dwarves which wander this region while you build a well defended Dungeon."
+msgstr "在你建设一个防御严密的地下城的同时，还要干掉那些在这个地区游荡的令人讨厌的矮人。"
 
 #: guitext:112
 msgctxt "In-game message"
-msgid "Your doors are being attacked! Protect them to keep your dungeon secure."
-msgstr "你的门正在被攻击！保护它们以确保你的地下城安全。"
+msgid "The final battle is at hand. Find and destroy the heroic stronghold."
+msgstr "决战即将打响。找到并摧毁英雄的基地。"
 
 #: guitext:113
 msgctxt "In-game message"
-msgid "Your creatures have discovered a new spell! Use it to gain an advantage!"
-msgstr "你的怪物发现了一个新魔法！使用它来获得优势！"
+msgid "In the caves of Savactor, an rival Keeper battles with the tireless forces of good. Vanquish the pathetic heroes and then proceed to conquer the rival Keeper to gain dominance over this land."
+msgstr "在萨瓦特的山洞里，一个敌对的守护者正与不知疲倦的正义力量进行着斗争。打败那些可怜的英雄，然后继续打败敌对的守护者，以获得对这片土地的统治权。"
 
 #: guitext:114
 msgctxt "In-game message"
-msgid "You have discovered a new area! Explore it to see what lies within."
-msgstr "你发现了一个新区域！探索它来看看里面有什么。"
+msgid "The corpses of the good lie strewn around you. Now go, and conquer your rival on this land. Dominion awaits ..."
+msgstr "英雄的尸体倒在了你的脚下。是时候了，征服你的对手。这片土地的统治权在等着你......"
+
 
 #: guitext:115 guitext:116 guitext:117 guitext:118 guitext:119 guitext:120
 #: guitext:121 guitext:122 guitext:123 guitext:124 guitext:125 guitext:126
