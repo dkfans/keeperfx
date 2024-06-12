@@ -96,8 +96,8 @@ pkg/levels/standard/text_chi.dat \
 pkg/levels/standard/text_fre.dat \
 pkg/levels/standard/text_ger.dat \
 pkg/levels/standard/text_spa.dat \
-pkg/levels/lostlvl/text_eng.dat \
-pkg/levels/lostlvl/text_chi.dat
+pkg/levels/lostlvls/text_eng.dat \
+pkg/levels/lostlvls/text_chi.dat
 
 EU_CHAR_ENCODING = tools/po2ngdat/res/char_encoding_tbl_eu.txt
 JP_CHAR_ENCODING = tools/po2ngdat/res/char_encoding_tbl_jp.txt
