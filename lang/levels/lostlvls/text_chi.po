@@ -300,7 +300,7 @@ msgstr "决战即将打响。找到并摧毁英雄的基地。"
 
 #: guitext:113
 msgctxt "In-game message"
-msgid "In the caves of Savactor, an rival Keeper battles with the tireless forces of good. Vanquish the pathetic heroes and then proceed to conquer the rival Keeper to gain dominance over this land."
+msgid "In the caves of Savactor, a rival Keeper battles with the tireless forces of good. Vanquish the pathetic heroes and then proceed to conquer the rival Keeper to gain dominance over this land."
 msgstr "在萨瓦特的山洞里，一个敌对的守护者正与不知疲倦的正义力量进行着斗争。打败那些可怜的英雄，然后继续打败敌对的守护者，以获得对这片土地的统治权。"
 
 #: guitext:114

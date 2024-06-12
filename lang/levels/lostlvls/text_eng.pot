@@ -301,7 +301,7 @@ msgstr ""
 
 #: guitext:113
 msgctxt "In-game message"
-msgid "In the caves of Savactor, an rival Keeper battles with the tireless forces of good. Vanquish the pathetic heroes and them proceed to conquer the rival Keeper to gain dominance over this land."
+msgid "In the caves of Savactor, a rival Keeper battles with the tireless forces of good. Vanquish the pathetic heroes and them proceed to conquer the rival Keeper to gain dominance over this land."
 msgstr ""
 
 #: guitext:114
