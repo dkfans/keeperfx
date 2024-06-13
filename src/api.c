@@ -35,10 +35,10 @@
  */
 struct ApiGlobals
 {
-    TCPsocket serverSocket;     /**< Server socket for API communication. */
-    TCPsocket activeSocket;     /**< Active client socket (only one client at a time). */
-    SDLNet_SocketSet socketSet; /**< Socket set for managing sockets. */
-} api = {0};                    /**< Global instance of the API global variables initialized with zeros. */
+    TCPsocket serverSocket;     // Server socket for API communication
+    TCPsocket activeSocket;     // Active client socket (only one client at a time)
+    SDLNet_SocketSet socketSet; // Socket set for managing sockets
+} api = {0};                    // Global instance of the API global variables initialized with zeros
 
 /**
  * Structure representing a subscribed variable.
