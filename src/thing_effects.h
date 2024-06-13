@@ -134,6 +134,10 @@ enum ThingEffectKind {
     TngEff_BallPuffOrange,
     TngEff_FallingIceBlocks,
     TngEff_SlowKeeperPower,
+    TngEff_TinySparks,
+    TngEff_CrazyGas.
+    TngEff_WOPTrap,
+    TngEff_WOPHarmless,
 };
 
 enum ThingEffectElements {
