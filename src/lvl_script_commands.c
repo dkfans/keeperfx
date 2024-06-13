@@ -2817,6 +2817,33 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             value1 = get_anim_id_(scline->tp[2]);
         }
     }
+    else if (block == CrtConf_ATTRACTION)
+    {
+        if (creatvar == 1) //ENTRANCEROOM
+        {
+            value1 = get_id(room_desc, scline->tp[2]);
+            if (scline->tp[3][0] != '\0')
+            {
+                value2 = get_id(room_desc, scline->tp[3]);
+            }
+            if (scline->tp[4][0] != '\0')
+            {
+                value3 = get_id(room_desc, scline->tp[4]);
+            }
+        }
+        else
+        {
+            value1 = atoi(scline->tp[2]);
+            if (scline->tp[3][0] != '\0')
+            {
+                value2 = atoi(scline->tp[3]);
+            }
+            if (scline->tp[4][0] != '\0')
+            {
+                value2 = atoi(scline->tp[4]);
+            }
+        }
+    }
     
     if (value1 == -1)
     {

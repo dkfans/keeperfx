@@ -718,7 +718,6 @@ static TbBool get_against(PlayerNumber agnst_plyr_idx, SlabKind agnst_slbkind, M
 
 void delete_column(ColumnIndex col_idx)
 {
-    game.columns_used--;
     struct Column *col;
     col = &game.columns_data[col_idx];
     memcpy(col, &game.columns_data[0], sizeof(struct Column));
