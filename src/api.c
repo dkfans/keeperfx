@@ -92,6 +92,16 @@ struct dump_buf_state
 };
 
 /**
+ * Whether or not we process multipart json packets.
+ *
+ * We do this because some TCP implementations add packets together which
+ * makes it so there's multiple JSON objects to be parsed which breaks the parser.
+ *
+ * This value allows clients to enable splitting JSON packets and handling each one seperately.
+ */
+unsigned char api_should_process_multipart_json = false;
+
+/**
  * Callback function for writing JSON value dump.
  *
  * This function is a callback used by the JSON library for writing JSON value dump.
@@ -1390,10 +1400,74 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         return;
     }
 
+    // Handle set conn rule command
+    if (strcasecmp("set_conn_config", action) == 0)
+    {
+        // Get variable name
+        char *config_name = (char *)value_string(value_dict_get(value, "var"));
+        if (config_name == NULL || strlen(config_name) < 1)
+        {
+            api_err("MISSING_VAR", ack_id);
+            value_fini(&data);
+            return;
+        }
+
+        // Get the new value
+        VALUE *new_value = value_dict_get(value, "value");
+
+        // Split packets
+        if (strcasecmp("process_multipart_json", config_name) == 0)
+        {
+            if (new_value == NULL || value_type(new_value) != VALUE_BOOL)
+            {
+                api_err("VALUE_MUST_BE_BOOL", ack_id);
+                value_fini(&data);
+                return;
+            }
+
+            api_should_process_multipart_json = value_bool(new_value);
+
+            api_ok(ack_id);
+            value_fini(&data);
+            return;
+        }
+
+        // Return failure
+        api_err("UNKNOWN_CONFIG_VAR", ack_id);
+        value_fini(&data);
+        return;
+    }
+
     // Return unknown action
     // TODO: we should do this check before...
     api_err("UNKNOWN_ACTION", ack_id);
     value_fini(&data);
+}
+
+void api_process_multipart_json(const char *buffer, int buf_size)
+{
+    int start = 0;
+    for (int i = 0; i < buf_size; ++i)
+    {
+        if (buffer[i] == '{')
+        {
+            start = i; // Remember the start of a potential JSON object
+        }
+        else if (buffer[i] == '}')
+        {
+            // Extract the JSON object from buffer[start] to buffer[i+1]
+            char json_string[i - start + 2]; // +2 for '{' and '}'
+            strncpy(json_string, buffer + start, i - start + 1);
+            json_string[i - start + 1] = '\0';
+
+            // Process the extracted JSON object
+            JUSTLOG("Received message from client: %s", buffer);
+            api_process_buffer(json_string, strlen(json_string));
+
+            // Move start to the next potential JSON object
+            start = i + 1;
+        }
+    }
 }
 
 /**
@@ -1467,8 +1541,17 @@ void api_update_server()
                         buffer[strlen(buffer) - 1] = '\0';
                     }
 
-                    JUSTLOG("Received message from client: %s", buffer);
-                    api_process_buffer(buffer, received);
+                    // Check if we need to process multipart JSON packets
+                    if (api_should_process_multipart_json)
+                    {
+                        api_process_multipart_json(buffer, strlen(buffer));
+                    }
+                    else
+                    {
+                        // Just process the buffer
+                        JUSTLOG("Received message from client: %s", buffer);
+                        api_process_buffer(buffer, received);
+                    }
                 }
                 else
                 {
