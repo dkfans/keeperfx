@@ -854,14 +854,14 @@ function get_things_of_class(class) end
 -------------------------------------------------------
 
 ---comment
----@param stl_x any
----@param stl_y any
-function Creature:MoveThingTo(stl_x,stl_y)
-    
-end
+function Thing:DeleteThing() end
+
 
 ---comment
-function Creature:DeleteThing()
-    
-end
+---@param stl_x any
+---@param stl_y any
+function Creature:CreatureWalkTo(stl_x,stl_y) end
+
+---comment
+function Creature:KillCreature() end
 

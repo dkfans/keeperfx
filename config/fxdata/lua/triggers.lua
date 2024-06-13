@@ -162,7 +162,7 @@ end
 
 --- Processes a thing event
 --- @param thing Thing The unit involved in the event
---- @param eventType string The type of event ("powerCast" or "dies")
+--- @param eventType "powerCast"|"dies" --|"healthChange"|"happinessChange"|"stateChange"
 local function ProcessThingEvent(thing, eventType)
     for _, trigger in ipairs(Game.triggers) do
         for _, event in ipairs(trigger.events) do
@@ -230,3 +230,17 @@ function OnSpecialActivated(player, crate_thing)
     ProcessThingEvent(crate_thing, "SpecialActivated")
     Game.currentTriggeringThing = nil
 end
+
+
+
+
+--TimerEvents
+--  periodic or not
+--ThingEvents
+--  "powerCast"|"dies"|"SpecialActivated" --|"healthChange"|"happinessChange"|"stateChange"
+--PlayerEvents
+--  "Win"|"Lose"|"AlliesChange"
+--SlabEvent
+--  "OwnerChange"|"TypeChange"
+--TrapEvents
+--  "Placed"|"triggered"|"depleted"

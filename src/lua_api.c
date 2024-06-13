@@ -966,11 +966,11 @@ static int lua_delete_thing(lua_State *L)
     return 0;
 }
 
-static int move_thing_to(lua_State *L)
+static int lua_creature_walk_to(lua_State *L)
 {
     struct Thing *thing = luaL_checkThing(L, 1);
-    int stl_x = lua_tointeger(L, 2);
-    int stl_y = lua_tointeger(L, 3);
+    int stl_x = luaL_checkstl_x(L, 2);
+    int stl_y = luaL_checkstl_y(L, 3);
 
     if (!setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default))
         WARNLOG("Move %s order failed", thing_model_name(thing));
@@ -1111,7 +1111,7 @@ static int thing_eq(lua_State *L) {
 
 static const struct luaL_Reg thing_methods[] = {
     {"MakeThingZombie", make_thing_zombie},
-    {"MoveThingTo",     move_thing_to},
+    {"CreatureWalkTo",  lua_creature_walk_to},
     {"KillCreature",    lua_kill_creature},
     {"DeleteThing",     lua_delete_thing},
     
