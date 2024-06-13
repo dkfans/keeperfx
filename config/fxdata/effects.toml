@@ -1382,7 +1382,7 @@ LightFlags = 0
 ElementsCount = 2
 AlwaysGenerate = 0
 
-[effect81]
+[effect80]
 Name = "EFFECT_WORD_OF_POWER_TRAP"
 Health = 10
 GenerationType = 1
@@ -1399,7 +1399,7 @@ LightFlags = 0
 ElementsCount = 20
 AlwaysGenerate = 0
 
-[effect82]
+[effect81]
 Name = "EFFECT_WORD_OF_POWER_HARMLESS"
 Health = 10
 GenerationType = 1
