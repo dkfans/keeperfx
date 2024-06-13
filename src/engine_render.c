@@ -4847,16 +4847,35 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
         add_y = (base_sprite_size * objst->flame.fp_add_y) >> 5;
     }
 
-    set_flag(lbDisplay.DrawFlags, objst->transparency_flags);
-    if (objst->transparency_flags == TRF_Transpar_Alpha)
+    //Object
+    lbDisplay.DrawFlags = 0;
+    EngineSpriteDrawUsingAlpha = 0;
+    if (objst->transparency_flags == TRF_Transpar_8)
+    {
+        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
+    }
+    else if (objst->transparency_flags == TRF_Transpar_4)
+    {
+        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+    }
+    else if (objst->transparency_flags == TRF_Transpar_Alpha)
     {
         EngineSpriteDrawUsingAlpha = 1;
     }
     process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, base_sprite_size);
-    clear_flag(lbDisplay.DrawFlags, objst->transparency_flags);
+
+    //Flame
+    lbDisplay.DrawFlags = 0;
     EngineSpriteDrawUsingAlpha = 0;
-    set_flag(lbDisplay.DrawFlags, objst->flame.transparency_flags);
-    if (objst->flame.transparency_flags == TRF_Transpar_Alpha)
+    if (objst->flame.transparency_flags == TRF_Transpar_8)
+    {
+        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
+    }
+    else if (objst->flame.transparency_flags == TRF_Transpar_4)
+    {
+        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+    }
+    else if (objst->flame.transparency_flags == TRF_Transpar_Alpha)
     {
         EngineSpriteDrawUsingAlpha = 1;
     }
