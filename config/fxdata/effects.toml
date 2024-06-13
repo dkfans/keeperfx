@@ -1365,6 +1365,23 @@ LightFlags = 0
 ElementsCount = 2
 AlwaysGenerate = 0
 
+[effect79]
+Name = "EFFECT_CRAZY_GAS"
+Health = 40
+GenerationType = 1
+GenerationAccelXYRange = [44,44]
+GenerationAccelZRange = [-32,32]
+GenerationKindRange = [7,7]
+AreaAffectType = 1
+HitType = 4
+Sound = 52
+AffectedByWind = 1
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+ElementsCount = 2
+AlwaysGenerate = 0
+
 #EffectGenerators
 
 [effectGenerator0]
