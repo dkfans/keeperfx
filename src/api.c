@@ -19,7 +19,7 @@
 #include "value_util.h"
 #include "keeperfx.hpp"
 
-#define API_SERVER_BUFFER 1024
+#define API_SERVER_BUFFER 4 * 1024
 
 #define API_SUBSCRIBE_LIST_SIZE 256
 
