@@ -155,10 +155,7 @@ ENDIF
 
 																		   
 rem CREATE_TEXT(0, 133"you are but one of 4 dungeon keepers in this land and all are as evil as yourself. Can you defeat them all ?")
-REM DISPLAY_OBJECTIVE(133,PLAYER0)
-
-QUICK_OBJECTIVE(0, "You are but one of four Dungeon Keepers in the land and all are as evil as yourself. Can you defeat them all?",  PLAYER0)
-
+DISPLAY_OBJECTIVE(93,PLAYER0)
 
 CREATE_PARTY(RES)
 	ADD_TO_PARTY(RES,DWARFA,5,2000,ATTACK_ENEMIES,0)

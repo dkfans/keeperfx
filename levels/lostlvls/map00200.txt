@@ -373,8 +373,8 @@ REM ***** Starting objective               *****
 
 REM				Objective Number	Objective Text (must be within quotes)																					Player
 
-QUICK_OBJECTIVE(	0,			"In the caves of Savactor, an rival Keeper battles with the tireless forces of good. Vanquish the pathetic heroes and them proceed to conquer the rival Keeper to gain dominance over this land.",	PLAYER0)
-
+REM 	0,			"In the caves of Savactor, an rival Keeper battles with the tireless forces of good. Vanquish the pathetic heroes and them proceed to conquer the rival Keeper to gain dominance over this land.",	PLAYER0)
+DISPLAY_OBJECTIVE(113,	PLAYER0)
 
 REM ***** Objective if the Hero Dungeon is *****
 REM ***** destroyed                        *****
@@ -383,8 +383,8 @@ REM				Objective Number	Objective Text (must be within quotes)											Player
 
 IF(PLAYER_GOOD,DUNGEON_DESTROYED==1)
 
-QUICK_OBJECTIVE(	1,			"The corpses of the good lie strewn around you. Now go, and conquer your rival on this land. Dominion awaits ...",	PLAYER0)
-
+REM 	1,			"The corpses of the good lie strewn around you. Now go, and conquer your rival on this land. Dominion awaits ...",	PLAYER0)
+DISPLAY_OBJECTIVE(114,	PLAYER0)
 ENDIF
 
 

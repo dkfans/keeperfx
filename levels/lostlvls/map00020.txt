@@ -91,9 +91,7 @@ REM	--------------------------------------------------
 
 
 rem CREATE_TEXT(0,132"THIS WILL BE YOUR MOST DIFFICULT BATTLE TO DATE, YOU MUST USE ALL OF YOUR SKILLS TO DEFEAT YOUR DISTANT ENEMY.")
-REM DISPLAY_OBJECTIVE(132,PLAYER0)
-
-QUICK_OBJECTIVE(0, "This will be your most difficult battle to date; you must use all of your skills to defeat your distant enemy.", PLAYER0)
+DISPLAY_OBJECTIVE(92,PLAYER0)
 
 CREATE_PARTY(ONE)
 	ADD_TO_PARTY(ONE,WIZARD,5,1200,ATTACK_ENEMIES,0)
