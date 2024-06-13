@@ -1439,9 +1439,9 @@ void api_process_multipart_json(const char *buffer, int buf_size)
         }
     }
 
-    if (start == -1 || depth > 0)
+    if (depth > 0)
     {
-        api_err("INVALID_JSON", NULL);
+        api_err("INVALID_JSON_IN_PACKET", NULL);
     }
 }
 
