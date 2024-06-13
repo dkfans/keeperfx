@@ -322,7 +322,7 @@ unsigned char sound_flag;
     unsigned char fight_til_death;
     TbBool field_AA;
     unsigned char stateblock_flags;
-    unsigned long spell_flags; // Sometimes treated as two bytes, but it's a short (AC + AD)
+    unsigned long spell_flags;
     unsigned char field_AE;
     short force_visible;
     unsigned char frozen_on_hit;

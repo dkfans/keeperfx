@@ -708,6 +708,8 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
         return ((cctrl->spell_flags & CSAfF_Speed) != 0);
     case SplK_Slow:
         return ((cctrl->spell_flags & CSAfF_Slow) != 0);
+    case SplK_Bleed:
+        return ((cctrl->spell_flags & CSAfF_Bleed) != 0);
     case SplK_Fly:
         return ((cctrl->spell_flags & CSAfF_Flying) != 0);
     case SplK_Sight:
@@ -1119,6 +1121,8 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         } else {
           thing->health = min(i,cctrl->max_health);
         }
+        cctrl->spell_aura = SplK_Heal;
+        cctrl->spell_aura_duration = pwrdynst->duration;
         break;
     }
     case SplK_Chicken:
@@ -1206,6 +1210,9 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
     case SplK_Slow:
         cctrl->spell_flags &= ~CSAfF_Slow;
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+        break;
+    case SplK_Bleed:
+        cctrl->spell_flags &= ~CSAfF_Bleed;
         break;
     case SplK_Fly:
         //TODO SPELLS Strange condition regarding the fly - verify why it's here
@@ -5726,6 +5733,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     process_spells_affected_by_effect_elements(thing);
     process_landscape_affecting_creature(thing);
     process_disease(thing);
+    process_bleed(thing);
     move_thing_in_map(thing, &thing->mappos);
     set_creature_graphic(thing);
     if (cctrl->spell_aura)
