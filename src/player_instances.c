@@ -104,25 +104,25 @@ long pinstfm_zoom_to_position(struct PlayerInfo *player, long *n);
 long pinstfe_zoom_to_position(struct PlayerInfo *player, long *n);
 
 struct PlayerInstanceInfo player_instance_info[PLAYER_INSTANCES_COUNT] = {
-  { 0, 0, NULL,                        NULL,                        NULL,                                {0}, {0}, 0, 0},
-  { 3, 1, pinstfs_hand_grab,           NULL,                        pinstfe_hand_grab,                   {0}, {0}, 0, 0},
-  { 3, 1, pinstfs_hand_drop,           NULL,                        pinstfe_hand_drop,                   {0}, {0}, 0, 0},
-  { 4, 0, pinstfs_hand_whip,           NULL,                        pinstfe_hand_whip,                   {0}, {0}, 0, 0},
-  { 5, 0, pinstfs_hand_whip_end,       NULL,                        pinstfe_hand_whip_end,               {0}, {0}, 0, 0},
-  {12, 1, pinstfs_direct_control_creature,pinstfm_control_creature, pinstfe_direct_control_creature,     {0}, {0}, 0, 0},
-  {12, 1, pinstfs_passenger_control_creature,pinstfm_control_creature,pinstfe_passenger_control_creature,{0}, {0}, 0, 0},
-  {12, 1, pinstfs_direct_leave_creature,pinstfm_leave_creature,     pinstfe_leave_creature,              {0}, {0}, 0, 0},
-  {12, 1, pinstfs_passenger_leave_creature,pinstfm_leave_creature,  pinstfe_leave_creature,              {0}, {0}, 0, 0},
-  { 0, 1, pinstfs_query_creature,      NULL,                        NULL,                                {0}, {0}, 0, 0},
-  { 0, 1, pinstfs_unquery_creature,    NULL,                        NULL,                                {0}, {0}, 0, 0},
-  {16, 1, pinstfs_zoom_to_heart,       pinstfm_zoom_to_heart,       pinstfe_zoom_to_heart,               {0}, {0}, 0, 0},
-  {16, 1, pinstfs_zoom_out_of_heart,   pinstfm_zoom_out_of_heart,   pinstfe_zoom_out_of_heart,           {0}, {0}, 0, 0},
-  {12, 1, NULL,                        pinstfm_control_creature_fade,pinstfe_control_creature_fade,      {0}, {0}, 0, 0},
-  { 8, 1, pinstfs_fade_to_map,         pinstfm_fade_to_map,         pinstfe_fade_to_map,                 {0}, {0}, 0, 0},
-  { 8, 1, pinstfs_fade_from_map,       pinstfm_fade_from_map,       pinstfe_fade_from_map,               {0}, {0}, 0, 0},
-  {-1, 1, pinstfs_zoom_to_position,    pinstfm_zoom_to_position,    pinstfe_zoom_to_position,            {0}, {0}, 0, 0},
-  { 0, 0, NULL,                        NULL,                        NULL,                                {0}, {0}, 0, 0},
-  { 0, 0, NULL,                        NULL,                        NULL,                                {0}, {0}, 0, 0},
+  { 0, 0, NULL,                        NULL,                        NULL,                                {0}, {0}, 0, 0}, // PI_Unset
+  { 3, 1, pinstfs_hand_grab,           NULL,                        pinstfe_hand_grab,                   {0}, {0}, 0, 0}, // PI_Grab
+  { 3, 1, pinstfs_hand_drop,           NULL,                        pinstfe_hand_drop,                   {0}, {0}, 0, 0}, // PI_Drop
+  { 4, 0, pinstfs_hand_whip,           NULL,                        pinstfe_hand_whip,                   {0}, {0}, 0, 0}, // PI_Whip
+  { 5, 0, pinstfs_hand_whip_end,       NULL,                        pinstfe_hand_whip_end,               {0}, {0}, 0, 0}, // PI_WhipEnd
+  {12, 1, pinstfs_direct_control_creature,pinstfm_control_creature, pinstfe_direct_control_creature,     {0}, {0}, 0, 0}, // PI_DirctCtrl
+  {12, 1, pinstfs_passenger_control_creature,pinstfm_control_creature,pinstfe_passenger_control_creature,{0}, {0}, 0, 0}, // PI_PsngrCtrl
+  {12, 1, pinstfs_direct_leave_creature,pinstfm_leave_creature,     pinstfe_leave_creature,              {0}, {0}, 0, 0}, // PI_DirctCtLeave
+  {12, 1, pinstfs_passenger_leave_creature,pinstfm_leave_creature,  pinstfe_leave_creature,              {0}, {0}, 0, 0}, // PI_PsngrCtLeave
+  { 0, 1, pinstfs_query_creature,      NULL,                        NULL,                                {0}, {0}, 0, 0}, // PI_QueryCrtr
+  { 0, 1, pinstfs_unquery_creature,    NULL,                        NULL,                                {0}, {0}, 0, 0}, // PI_UnqueryCrtr
+  {16, 1, pinstfs_zoom_to_heart,       pinstfm_zoom_to_heart,       pinstfe_zoom_to_heart,               {0}, {0}, 0, 0}, // PI_HeartZoom
+  {16, 1, pinstfs_zoom_out_of_heart,   pinstfm_zoom_out_of_heart,   pinstfe_zoom_out_of_heart,           {0}, {0}, 0, 0}, // PI_HeartZoomOut
+  {12, 1, NULL,                        pinstfm_control_creature_fade,pinstfe_control_creature_fade,      {0}, {0}, 0, 0}, // PI_CrCtrlFade
+  { 8, 1, pinstfs_fade_to_map,         pinstfm_fade_to_map,         pinstfe_fade_to_map,                 {0}, {0}, 0, 0}, // PI_MapFadeTo
+  { 8, 1, pinstfs_fade_from_map,       pinstfm_fade_from_map,       pinstfe_fade_from_map,               {0}, {0}, 0, 0}, // PI_MapFadeFrom
+  {-1, 1, pinstfs_zoom_to_position,    pinstfm_zoom_to_position,    pinstfe_zoom_to_position,            {0}, {0}, 0, 0}, // PI_ZoomToPos
+  { 0, 0, NULL,                        NULL,                        NULL,                                {0}, {0}, 0, 0}, // PI_Unknown17
+  { 0, 0, NULL,                        NULL,                        NULL,                                {0}, {0}, 0, 0}, // PI_Unknown18
 };
 
 /******************************************************************************/
@@ -780,6 +780,33 @@ long pinstfe_fade_from_map(struct PlayerInfo *player, long *n)
     }
     player->allocflags &= ~PlaF_MouseInputDisabled;
     return 0;
+}
+
+void set_player_zoom_to_position(struct PlayerInfo *player,struct Coord3d *pos)
+{
+    // Make sure we are in the normal Dungeon Top view
+    if(player->view_type != PVT_DungeonTop)
+        return;
+
+    // Make sure we are not in some weird instance
+    if(player->instance_num == PI_DirctCtrl ||
+       player->instance_num == PI_PsngrCtrl ||
+       player->instance_num == PI_HeartZoom ||
+       player->instance_num == PI_HeartZoomOut ||
+       player->instance_num == PI_CrCtrlFade ||
+       player->instance_num == PI_MapFadeTo ||
+       player->instance_num == PI_MapFadeFrom ||
+       player->instance_num == PI_ZoomToPos ||
+       player->instance_num == PI_Unknown17 ||
+       player->instance_num == PI_Unknown18)
+        return;
+
+    // Set zoom position
+    player->zoom_to_pos_x = pos->x.val;
+    player->zoom_to_pos_y = pos->y.val;
+
+    // Make player zoom to location
+    set_player_instance(player, PI_ZoomToPos, 0);
 }
 
 long pinstfs_zoom_to_position(struct PlayerInfo *player, long *n)
