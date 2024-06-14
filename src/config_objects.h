@@ -30,7 +30,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define OBJECT_TYPES_MAX  256
+#define OBJECT_TYPES_MAX  2000
 
 enum ObjectCategoryIndex {
     OCtg_Unknown = 0,
