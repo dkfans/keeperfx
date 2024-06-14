@@ -2568,6 +2568,8 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
     const char *property = scline->tp[1];
     const char *new_value = scline->tp[2];
     short second_value = scline->np[3];
+    short third_value = scline->np[4];
+    short forth_value = scline->np[5];
 
     long objct_id = get_id(object_desc, objectname);
     if (objct_id == -1)
@@ -2597,7 +2599,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
             }
             value->arg1 = number_value;
             break;
-        case 3: // RELATEDCREATURE
+        case 3: // RelatedCreature
             number_value = get_id(creature_desc, new_value);
             if (number_value == -1)
             {
@@ -2607,10 +2609,10 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
             }
             value->arg1 = number_value;
             break;
-        case  5: // AnimId
+        case  5: // AnimationID
+        case 33: // FlameAnimationID
         {
-            struct ObjectConfigStats obj_tmp;
-            number_value = get_anim_id(new_value, &obj_tmp);
+            number_value = get_anim_id_(new_value);
             if (number_value == 0)
             {
                 SCRPTERRLOG("Invalid animation id");
@@ -2639,7 +2641,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
             value->arg1 = number_value;
             break;
         }
-        case 20: // UPDATEFUNCTION
+        case 20: // UpdateFunction
         {
             number_value = get_id(object_update_functions_desc,new_value);
             if (number_value < 0)
@@ -2651,14 +2653,20 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
             value->arg1 = number_value;
             break;
         }
+        case 36: //FlameAnimationOffset
+            value->chars[5] = atoi(new_value);
+            value->chars[6] = second_value;
+            value->chars[7] = third_value;
+            value->chars[8] = forth_value;
+            break;
         default:
             value->arg1 = atoi(new_value);
+            value->shorts[5] = second_value;
     }
     
     SCRIPTDBG(7, "Setting object %s property %s to %d", objectname, property, number_value);
     value->arg0 = objct_id;
     value->shorts[4] = objectvar;
-    value->shorts[5] = second_value;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -3210,7 +3218,7 @@ static void set_object_configuration_process(struct ScriptContext *context)
             objst->random_start_frame = context->value->arg1;
             break;
         case 26: // TRANSPARENCYFLAGS
-            objst->transparency_flags = context->value->arg1;
+            objst->transparency_flags = context->value->arg1<<4;
             break;
         case 27: // EFFECTBEAM
             objst->effect.beam = context->value->arg1;
@@ -3230,6 +3238,24 @@ static void set_object_configuration_process(struct ScriptContext *context)
         case 32: // EFFECTSOUND
             objst->effect.sound_idx = context->value->arg1;
             objst->effect.sound_range = (unsigned char)context->value->shorts[5];
+            break;
+        case 33: // FLAMEANIMATIONID
+            objst->flame.animation_id = context->value->arg1;
+            break;
+        case 34: // FLAMEANIMATIONSPEED
+            objst->flame.anim_speed = context->value->arg1;
+            break;
+        case 35: // FLAMEANIMATIONSIZE
+            objst->flame.sprite_size = context->value->arg1;
+            break;
+        case 36: // FLAMEANIMATIONOFFSET
+            objst->flame.fp_add_x = context->value->chars[5];
+            objst->flame.fp_add_y = context->value->chars[6];
+            objst->flame.td_add_x = context->value->chars[7];
+            objst->flame.td_add_x = context->value->chars[8];
+            break;
+        case 37: // FLAMETRANSPARENCYFLAGS
+            objst->flame.transparency_flags = context->value->arg1 << 4;
             break;
         default:
             WARNMSG("Unsupported Object configuration, variable %d.", context->value->shorts[4]);
@@ -3706,6 +3732,29 @@ static void reveal_map_location_process(struct ScriptContext *context)
         reveal_map_area(context->player_idx, x-(r>>1), x+(r>>1)+(r&1), y-(r>>1), y+(r>>1)+(r&1));
 }
 
+static void player_zoom_to_check(const struct ScriptLine *scline)
+{
+    TbMapLocation location;
+    const char *where = scline->tp[1];
+    if (!get_map_location_id(where, &location) || location == MLoc_NONE) {
+        SCRPTERRLOG("invalid zoom location \"%s\"",where);
+        return;
+    }
+
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    value->arg0 = location;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void player_zoom_to_process(struct ScriptContext *context)
+{
+    TbMapLocation target = context->value->arg0;
+    struct Coord3d pos;
+
+    find_location_pos(target, context->player_idx, &pos, __func__);
+    set_player_zoom_to_position(get_player(context->player_idx),&pos);
+}
+  
 static void level_up_players_creatures_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
@@ -5974,7 +6023,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_ROOM_CONFIGURATION",            "AAAa!n! ", Cmd_SET_ROOM_CONFIGURATION, &set_room_configuration_check, &set_room_configuration_process},
   {"SET_TRAP_CONFIGURATION",            "AAAn!n! ", Cmd_SET_TRAP_CONFIGURATION, &set_trap_configuration_check, &set_trap_configuration_process},
   {"SET_DOOR_CONFIGURATION",            "AAAn!   ", Cmd_SET_DOOR_CONFIGURATION, &set_door_configuration_check, &set_door_configuration_process},
-  {"SET_OBJECT_CONFIGURATION",          "AAAn!   ", Cmd_SET_OBJECT_CONFIGURATION, &set_object_configuration_check, &set_object_configuration_process},
+  {"SET_OBJECT_CONFIGURATION",          "AAAn!n!n!", Cmd_SET_OBJECT_CONFIGURATION, &set_object_configuration_check, &set_object_configuration_process},
   {"SET_CREATURE_CONFIGURATION",        "CAAaa   ", Cmd_SET_CREATURE_CONFIGURATION, &set_creature_configuration_check, &set_creature_configuration_process},
   {"SET_SACRIFICE_RECIPE",              "AAA+    ", Cmd_SET_SACRIFICE_RECIPE, &set_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"REMOVE_SACRIFICE_RECIPE",           "A+      ", Cmd_REMOVE_SACRIFICE_RECIPE, &remove_sacrifice_recipe_check, &set_sacrifice_recipe_process},
@@ -6006,6 +6055,7 @@ const struct CommandDesc command_desc[] = {
   {"HEART_LOST_QUICK_OBJECTIVE",        "NAl     ", Cmd_HEART_LOST_QUICK_OBJECTIVE, &heart_lost_quick_objective_check, &heart_lost_quick_objective_process},
   {"HEART_LOST_OBJECTIVE",              "Nl      ", Cmd_HEART_LOST_OBJECTIVE, &heart_lost_objective_check, &heart_lost_objective_process},
   {"SET_DOOR",                          "ANN     ", Cmd_SET_DOOR, &set_door_check, &set_door_process},
+  {"ZOOM_TO_LOCATION",                  "PL      ", Cmd_MOVE_PLAYER_CAMERA_TO, &player_zoom_to_check, &player_zoom_to_process},
   {"SET_CREATURE_INSTANCE",             "CNAN    ", Cmd_SET_CREATURE_INSTANCE, &set_creature_instance_check, &set_creature_instance_process},
   {"SET_HAND_RULE",                     "PC!Aaaa ", Cmd_SET_HAND_RULE, &set_hand_rule_check, &set_hand_rule_process},
   {"MOVE_CREATURE",                     "PC!ANLa ", Cmd_MOVE_CREATURE, &move_creature_check, &move_creature_process},
