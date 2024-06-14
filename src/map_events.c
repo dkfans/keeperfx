@@ -656,7 +656,7 @@ void maintain_my_event_list(struct Dungeon *dungeon)
                 dungeon->event_button_index[i-1] = curr_ev_idx;
                 dungeon->event_button_index[i] = 0;
                 struct Event* event = &game.event[curr_ev_idx];
-                if (((event->flags & EvF_BtnFirstFall) != 0) || event->falling_button)
+                if (!flag_is_set(event->flags,EvF_BtnFirstFall))
                 {
                     if ((i == 1) || ((i >= 2) && dungeon->event_button_index[i-2] != 0))
                     {
@@ -668,7 +668,6 @@ void maintain_my_event_list(struct Dungeon *dungeon)
                         unsigned char prev_ev_idx = dungeon->event_button_index[i - 1];
                         event = &game.event[prev_ev_idx];
                         event->flags &= ~EvF_BtnFirstFall;
-                        event->falling_button = 0;
                     }
                 }
             }
