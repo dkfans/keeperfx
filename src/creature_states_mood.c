@@ -584,6 +584,11 @@ TbBool process_job_stress_and_going_postal(struct Thing *creatng)
             }
         }
     }
+    if (creature_will_reject_job(creatng, cctrl->job_assigned))
+    {
+        state_cleanup_in_room(creatng);
+        return true;
+    }
     return false;
 }
 
