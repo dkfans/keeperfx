@@ -220,6 +220,7 @@ TbBool parse_objects_common_blocks(char *buf, long len, const char *config_textn
     return true;
 }
 
+// This function loops over all the [objects0] fields in objects.cfg
 TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     struct ObjectConfigStats *objst;
@@ -255,32 +256,6 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
         sprintf(block_buf, "object%d", tmodel);
         long pos = 0;
         int k = find_conf_block(buf, &pos, len, block_buf);
-        if (k < 0)
-        {
-            if ((flags & CnfLd_AcceptPartial) == 0)
-            {
-                // Just count all found blocks if we didn't that already
-                if (game.conf.object_conf.object_types_count == OBJECT_TYPES_MAX - 1)
-                {
-                    game.conf.object_conf.object_types_count = tmodel;
-                    JUSTMSG("Loaded %d object types from %s", game.conf.object_conf.object_types_count, config_textname);
-                    break;
-                }
-                WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
-                return false;
-            }
-            else
-            {
-                if (tmodel > game.conf.object_conf.object_types_count)
-                {
-                    game.conf.object_conf.object_types_count = tmodel;
-                    JUSTMSG("Extended to %d object types from %s", game.conf.object_conf.object_types_count, config_textname);
-                    break;
-                }
-            }
-            continue;
-        }
-
         objst = &game.conf.object_conf.object_cfgstats[tmodel];
         objst->draw_class = ODC_Default;    
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(objects_object_commands,cmd_num)
