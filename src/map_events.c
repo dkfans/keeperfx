@@ -747,8 +747,12 @@ void event_process_events(void)
         if ((event->flags & EvF_Exists) == 0) {
             continue;
         }
-        if (event->lifespan_turns > 0) {
-            event->lifespan_turns--;
+        struct PlayerInfo*player = get_player(event->owner);
+        if (player->view_type == PVT_DungeonTop)
+        {
+            if (event->lifespan_turns > 0) {
+                event->lifespan_turns--;
+            }
         }
         if (event->lifespan_turns <= 0)
         {
