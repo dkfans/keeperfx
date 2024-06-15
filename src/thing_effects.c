@@ -1523,13 +1523,14 @@ TngUpdateRet update_effect(struct Thing *efftng)
         effect_generate_effect_elements(efftng);
     }
     // Let the effect affect area
+    struct ShotConfigStats* shotst = get_shot_model_stats(efftng->shot_effect.parent_shot_model);
     switch (effcst->area_affect_type)
     {
     case AAffT_GasDamage:
     case AAffT_GasSlow:
     case AAffT_GasSlowDamage:
     case AAffT_GasDisease:
-        poison_cloud_affecting_area(efftng, &efftng->mappos, 5*COORD_PER_STL, 120, effcst->area_affect_type);
+        poison_cloud_affecting_area(efftng, &efftng->mappos, shotst->area_range*COORD_PER_STL, shotst->area_damage, effcst->area_affect_type);
         break;
     case AAffT_WOPDamage:
         word_of_power_affecting_area(efftng, subtng, &efftng->mappos);
