@@ -44,6 +44,7 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     SYNCDBG(10,"Checking condition %d for player %d",(int)valtype,(int)plyr_idx);
     struct Dungeon* dungeon;
     struct Thing* thing;
+    struct PlayerInfo* player;
     switch (valtype)
     {
     case SVar_MONEY:
@@ -225,7 +226,7 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         return dungeon->num_active_diggers - count_player_diggers_not_counting_to_total(plyr_idx);
     case SVar_ALL_DUNGEONS_DESTROYED:
     {
-        struct PlayerInfo* player = get_player(plyr_idx);
+        player = get_player(plyr_idx);
         return all_dungeons_destroyed(player);
     }
     case SVar_DOOR_NUM:
@@ -283,11 +284,14 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         return dungeon->creatures_transferred;
     case SVar_ALLIED_PLAYER:
     {
-        struct PlayerInfo* player = get_player(plyr_idx);
+        player = get_player(plyr_idx);
         return player_allied_with(player, validx);
     }
     case SVar_ACTIVE_BATTLES:
         return count_active_battles(plyr_idx);
+    case SVar_VIEW_TYPE:
+        player = get_player(plyr_idx);
+        return player->view_type;
     default:
         break;
     };

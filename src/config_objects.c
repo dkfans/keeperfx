@@ -157,69 +157,7 @@ ThingModel crate_thing_to_workshop_item_model(const struct Thing *thing)
     return game.conf.object_conf.object_to_door_or_trap[tngmodel];
 }
 
-TbBool parse_objects_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-    // Block name and parameter word store variables
-    // Initialize block data
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        game.conf.object_conf.object_types_count = OBJECT_TYPES_MAX - 1;
-    }
-    // Find the block
-    char block_buf[COMMAND_WORD_LEN];
-    sprintf(block_buf, "common");
-    long pos = 0;
-    int k = find_conf_block(buf, &pos, len, block_buf);
-    if (k < 0)
-    {
-        if ((flags & CnfLd_AcceptPartial) == 0)
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-        return false;
-    }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(objects_common_commands,cmd_num)
-    while (pos<len)
-    {
-        // Finding command number in this line
-        int cmd_num = recognize_conf_command(buf, &pos, len, objects_common_commands);
-        // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
-        int n = 0;
-        switch (cmd_num)
-        {
-        case 1: // OBJECTSCOUNT
-        {
-            char word_buf[COMMAND_WORD_LEN];
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if ((k > 0) && (k <= OBJECT_TYPES_MAX))
-              {
-                  game.conf.object_conf.object_types_count = k;
-                  n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        }
-        case 0: // comment
-            break;
-        case -1: // end of buffer
-            break;
-        default:
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
-            break;
-        }
-        skip_conf_to_next_line(buf,&pos,len);
-    }
-#undef COMMAND_TEXT
-    return true;
-}
-
+// This function loops over all the [objects0] fields in objects.cfg
 TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     struct ObjectConfigStats *objst;
@@ -255,32 +193,6 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
         sprintf(block_buf, "object%d", tmodel);
         long pos = 0;
         int k = find_conf_block(buf, &pos, len, block_buf);
-        if (k < 0)
-        {
-            if ((flags & CnfLd_AcceptPartial) == 0)
-            {
-                // Just count all found blocks if we didn't that already
-                if (game.conf.object_conf.object_types_count == OBJECT_TYPES_MAX - 1)
-                {
-                    game.conf.object_conf.object_types_count = tmodel;
-                    JUSTMSG("Loaded %d object types from %s", game.conf.object_conf.object_types_count, config_textname);
-                    break;
-                }
-                WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
-                return false;
-            }
-            else
-            {
-                if (tmodel > game.conf.object_conf.object_types_count)
-                {
-                    game.conf.object_conf.object_types_count = tmodel;
-                    JUSTMSG("Extended to %d object types from %s", game.conf.object_conf.object_types_count, config_textname);
-                    break;
-                }
-            }
-            continue;
-        }
-
         objst = &game.conf.object_conf.object_cfgstats[tmodel];
         objst->draw_class = ODC_Default;    
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(objects_object_commands,cmd_num)
@@ -873,15 +785,9 @@ TbBool load_objects_config_file(const char *textname, const char *fname, unsigne
     // Loading file data
     len = LbFileLoadAt(fname, buf);
     TbBool result = (len > 0);
+    
     // Parse blocks of the config file
-    if (result)
-    {
-        result = parse_objects_common_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" common blocks failed.",textname,fname);
-    }
+    game.conf.object_conf.object_types_count = OBJECT_TYPES_MAX-1;
     if (result)
     {
         result = parse_objects_object_blocks(buf, len, textname, flags);
