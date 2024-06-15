@@ -205,8 +205,8 @@ short cursor_light_idx;
     char mp_message_text[PLAYER_MP_MESSAGE_LEN];
     unsigned char chosen_room_kind;
     unsigned char full_slab_cursor; // 0 for subtile sized cursor, 1 for slab sized cursor
-    long chosen_trap_kind;
-    long chosen_door_kind;
+    ThingModel chosen_trap_kind;
+    ThingModel chosen_door_kind;
     MapSubtlCoord cursor_clicked_subtile_x; // x coord of subtile clicked by mouse cursor
     MapSubtlCoord cursor_clicked_subtile_y; // y coord of subtile clicked by mouse cursor
     unsigned char cursor_button_down; // left or right button down (whilst using the bounding box cursor)
