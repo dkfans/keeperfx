@@ -568,7 +568,6 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
             spconf->caster_affect_sound = 0;
             spconf->cast_at_thing = 0;
             spconf->shot_model = 0;
-            spconf->cast_effect_model = 0;
             spconf->bigsym_sprite_idx = 0;
             spconf->medsym_sprite_idx = 0;
             spconf->crtr_summon_model = 0;
@@ -691,30 +690,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           }
           break;
       case 6: // EFFECTMODEL
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = get_id(effect_desc, word_buf);
-              if (k < 0)
-              {
-                  if (parameter_is_number(word_buf))
-                  {
-                      k = atoi(word_buf);
-                      spconf->cast_effect_model = k;
-                      n++;
-                  }
-              } else
-              {
-                  spconf->cast_effect_model = k;
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect effect model \"%s\" in [%s] block of %s file.",
-                  word_buf,block_buf,config_textname);
-              break;
-          }
-          break;
+          break; //todo delete
       case 7: // SYMBOLSPRITES
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {

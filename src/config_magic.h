@@ -384,8 +384,6 @@ struct SpellConfig {
     ThingModel shot_model;
     /** Informs if caster is affected by the spell. */
     unsigned char caster_affected;
-    /** Effect model created while casting. */
-    EffectOrEffElModel cast_effect_model;
     /** If caster is affected by the spell, indicates sound sample to be played. */
     unsigned short caster_affect_sound;
     /** Sprite index of big symbol icon representing the spell. */
