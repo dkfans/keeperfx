@@ -127,7 +127,8 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         explosion_affecting_area(shotng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets, shotst->damage_type);
     }
-    create_used_effect_or_element(&shotng->mappos, shotst->explode.effect1_model, shotng->owner);
+    struct Thing* efftng = create_used_effect_or_element(&shotng->mappos, shotst->explode.effect1_model, shotng->owner);
+    efftng->shot_effect.parent_shot_model = shotng->model;
     create_used_effect_or_element(&shotng->mappos, shotst->explode.effect2_model, shotng->owner);
     if (shotst->explode.around_effect1_model != 0)
     {

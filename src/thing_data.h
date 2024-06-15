@@ -212,7 +212,7 @@ struct Thing {
 //TCls_Effect
       struct {
         char unused;
-        short unused2;
+        ThingModel parent_shot_model;
         unsigned char hit_type;
       } shot_effect;
       struct {

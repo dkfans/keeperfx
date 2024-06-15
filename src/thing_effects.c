@@ -1167,16 +1167,10 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *tngsrc, st
     if (efftng->creation_turn != game.play_gameturn) {
         return;
     }
-    struct ShotConfigStats* shotst;
-    if (thing_is_deployed_trap(tngsrc))
+
+    struct ShotConfigStats* shotst = get_shot_model_stats(efftng->shot_effect.parent_shot_model);
+    if ((shotst->area_range <= 0) || ((shotst->area_damage == 0) && (shotst->area_blow == 0))) 
     {
-        shotst = get_shot_model_stats(ShM_TrapWordOfPower);
-    }
-    else
-    {
-        shotst = get_shot_model_stats(ShM_WordOfPower);
-    }
-    if ((shotst->area_range <= 0) || ((shotst->area_damage == 0) && (shotst->area_blow == 0))) {
         ERRORLOG("Word of power shot configuration does not include area influence.");
         return;
     }
