@@ -5290,20 +5290,28 @@ void check_for_creature_escape_from_lava(struct Thing *thing)
     }
 }
 
-TbBool thing_is_on_snow_texture(struct Thing* thing)
+int thing_is_on_snow_texture(struct Thing* thing)
 {
-    #define SNOW_TEXTURE 2
+    unsigned char snow_textures[] = {2,8,9};
+    int num_snow_textures = sizeof(snow_textures) / sizeof(snow_textures[0]);
+
     unsigned char ext_txtr = gameadd.slab_ext_data[get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num))];
 
-    if ((ext_txtr == 0) && (game.texture_id == SNOW_TEXTURE)) //Snow map and on default texture
-    {
-        return true;
+    // Check if default tileset is one in the array
+    for (int i = 0; i < num_snow_textures; i++) {
+        if (game.texture_id == snow_textures[i]) {
+            return i + 1; 
+        }
     }
-    if (ext_txtr == SNOW_TEXTURE+1) //On non-default texture that is snow
-    {
-        return true;
+
+   // Check if on non-default tileset that is in the array
+    for (int i = 0; i < num_snow_textures; i++) {
+        if (ext_txtr == snow_textures[i] + 1) {
+            return i + 1; 
+        }
     }
-    return false;
+
+    return 0; // If neither, return 0
 }
 
 void process_creature_leave_footsteps(struct Thing *thing)
@@ -5332,18 +5340,39 @@ void process_creature_leave_footsteps(struct Thing *thing)
     } else
     {
         // Snow footprints
-        TbBool SnowTexture = thing_is_on_snow_texture(thing);
-        if (SnowTexture)
+        int SnowTexture = thing_is_on_snow_texture(thing);
+        if (SnowTexture) != 0
         {
             struct SlabMap* slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
             if (slb->kind == SlbT_PATH)
             {
               thing->movement_flags |= TMvF_IsOnSnow;
               nfoot = get_foot_creature_has_down(thing);
+              if (SnowTexture) == 1 { // Tileset 2 - Snow footprint
               footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_IceMelt3, thing->owner);
+              } else if (SnowTexture) == 2 { // Tileset 8 - Sand footprint
+              footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_None, thing->owner);
+              } else if (SnowTexture) == 3 { // Tileset 9 - White sand footprint
+              footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_None, thing->owner);
+              } else { // Catch for if SnowTexture is higher that the number of tilesets we've decided cases for: just return no effect element for now.
+              footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_None, thing->owner);
+              }
             }
         }
     }
+
+        // I was going to also make the list of associated EffElts an array, but didn't know if it was worth it. If I can just write the name of the effect element (e.g. TngEffElm_IceMelt3) in the array, just do that!
+        // If we can't do that, we'd have to list the effect element numbers as elements, then make another command SnowTextureEffectElt that takes ThingEffectElements from thing_effects, and does something like
+        // ThingEffectElements[snow_textures_effect_elts[SnowTexture-1]]
+        // to retrieve the effect element name.
+        // and THEN, as a failsafe: if the value of SnowTexture > (sizeof(snow_textures_effect_elts) / sizeof(snow_textures_effect_elts[0])), return 0 (TngEffElm_None)
+
+
+        //unsigned char snow_textures_effect_elts[] = {
+        //    94, // TngEffElm_IceMelt3 (for tileset 2)
+        //    0,
+        //    0
+        //}; 
 }
 
 /**
