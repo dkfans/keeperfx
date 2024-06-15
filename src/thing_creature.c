@@ -5341,22 +5341,32 @@ void process_creature_leave_footsteps(struct Thing *thing)
     {
         // Snow footprints
         int SnowTexture = thing_is_on_snow_texture(thing);
-        if (SnowTexture) != 0
+        if (SnowTexture != 0)
         {
             struct SlabMap* slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
             if (slb->kind == SlbT_PATH)
             {
-              thing->movement_flags |= TMvF_IsOnSnow;
-              nfoot = get_foot_creature_has_down(thing);
-              if (SnowTexture) == 1 { // Tileset 2 - Snow footprint
-              footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_IceMelt3, thing->owner);
-              } else if (SnowTexture) == 2 { // Tileset 8 - Sand footprint
-              footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_None, thing->owner);
-              } else if (SnowTexture) == 3 { // Tileset 9 - White sand footprint
-              footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_None, thing->owner);
-              } else { // Catch for if SnowTexture is higher that the number of tilesets we've decided cases for: just return no effect element for now.
-              footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_None, thing->owner);
-              }
+                thing->movement_flags |= TMvF_IsOnSnow;
+                nfoot = get_foot_creature_has_down(thing);
+                switch (SnowTexture)
+                {
+                    case 1: // Tileset 2 - Snow footprint
+                    {
+                        footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_IceMelt3, thing->owner);
+                        break;
+                    }
+                    case 2: // Tileset 8 - Sand footprint
+                    case 3: // Tileset 9 - White sand footprint
+                    {
+                        footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_None, thing->owner);
+                        break;
+                    }
+                    default: // Catch for if SnowTexture is higher that the number of tilesets we've decided cases for: just return no effect element for now.
+                    {
+                        footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_None, thing->owner);
+                        break;
+                    }
+                }
             }
         }
     }
