@@ -495,7 +495,7 @@ void activate_trap_shot_on_trap(struct Thing *traptng)
     struct Thing* shotng = create_shot(&shot_origin, trapstat->created_itm_model, traptng->owner);
     if (!thing_is_invalid(shotng)) {
         shotng->shot.hit_type = trapstat->hit_type;
-        shotng->parent_idx = 0;
+        shotng->parent_idx = traptng->index;
         shotng->veloc_push_add.x.val += trapstat->shotvector.x;
         shotng->veloc_push_add.y.val += trapstat->shotvector.y;
         shotng->veloc_push_add.z.val += trapstat->shotvector.z;
