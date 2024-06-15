@@ -279,6 +279,7 @@ enum ScriptVariables {
   SVar_CREATURES_TRANSFERRED           = 77,
   SVar_ALLIED_PLAYER                   = 78,
   SVar_ACTIVE_BATTLES                  = 79,
+  SVar_VIEW_TYPE                       = 80,
  };
 
 
