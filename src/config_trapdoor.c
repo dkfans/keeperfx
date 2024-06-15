@@ -42,12 +42,6 @@ extern "C" {
 /******************************************************************************/
 const char keeper_trapdoor_file[]="trapdoor.cfg";
 
-const struct NamedCommand trapdoor_common_commands[] = {
-  {"TRAPSCOUNT",      1},
-  {"DOORSCOUNT",      2},
-  {NULL,              0},
-};
-
 const struct NamedCommand trapdoor_door_commands[] = {
   {"NAME",                  1},
   {"MANUFACTURELEVEL",      2},
