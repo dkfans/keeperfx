@@ -55,7 +55,6 @@ struct EffectConfigStats {
     unsigned char always_generate;
     struct InitLight ilght;
     unsigned char affected_by_wind;
-    ThingHitType effect_hit_type;
 };
 
 struct EffectGeneratorConfigStats {

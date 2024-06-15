@@ -926,11 +926,13 @@ long project_damage_of_melee_shot(long shot_dexterity, long shot_damage, const s
 void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct Thing *target)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
+    struct Thing* efftng;
     if (target->class_id == TCls_Creature)
     {
         thing_play_sample(target, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         if (shotst->hit_creature.effect_model != 0) {
-            create_used_effect_or_element(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner);
+            efftng = create_used_effect_or_element(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner);
+            efftng->shot_effect.hit_type = shotst->area_hit_type;
         }
         if (creature_affected_by_spell(target, SplK_Freeze))
         {
@@ -950,7 +952,8 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
         // TODO for a later PR: introduces trap/object hit, for now it uses the on hit creature sound and effect.
         thing_play_sample(target, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         if (shotst->hit_creature.effect_model != 0) {
-            create_used_effect_or_element(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner);
+            efftng = create_used_effect_or_element(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner);
+            efftng->shot_effect.hit_type = shotst->area_hit_type;
         }
     }
 }
