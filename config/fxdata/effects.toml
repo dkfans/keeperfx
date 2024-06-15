@@ -18,7 +18,7 @@ GenerationKindRange = [0,0]
 #5: Gas that does damage and casting slow
 #6: Gas casting disease
 AreaAffectType = 0
-# Controls which things will be affected by the effect.
+# Controls which things will be affected by the effect, unless overridden.
 # 1 - Affect all creatures and all objects.
 # 2 - Affect only creatures.
 # 3 - Affect not own creatures and objects.
