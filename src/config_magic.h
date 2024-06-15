@@ -224,6 +224,14 @@ enum PowerConfigFlags {
     PwCF_IsParent     = 0x0004, /**< Set if the power has children and is just an aggregate. */
 };
 
+enum OverchargeChecks {
+    OcC_Null,
+    OcC_General_expand,
+    OcC_SightOfEvil_expand,
+    OcC_CallToArms_expand,
+    OcC_do_not_expand
+};
+
 /**
  * Configuration parameters for spells.
  */
@@ -250,7 +258,7 @@ struct ShotVisualConfig {
     EffectOrEffElModel effect_model;
     unsigned char amount;
     short random_range;
-    short shot_health;
+    HitPoints shot_health;
 };
 
 /**
@@ -347,6 +355,9 @@ struct PowerConfigStats {
     long panel_tab_idx;
     unsigned short select_sound_idx;
     short cast_cooldown;
+    SpellKind spell_idx;
+    EffectOrEffElModel effect_id;
+    short magic_use_func_idx;
 };
 
 /**

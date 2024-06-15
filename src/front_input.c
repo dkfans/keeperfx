@@ -41,7 +41,7 @@
 #include "frontmenu_ingame_evnt.h"
 #include "scrcapt.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "config_trapdoor.h"
@@ -3121,9 +3121,9 @@ void process_cheat_mode_selection_inputs()
     }
 }
 
-TbBool process_cheat_heart_health_inputs(short *value, long max_health)
+TbBool process_cheat_heart_health_inputs(HitPoints *value, HitPoints max_health)
 {
-   short new_health = *value;
+   HitPoints new_health = *value;
    if ( (is_key_pressed(KC_ADD, KMod_ALT)) || (is_key_pressed(KC_EQUALS, KMod_SHIFT)) || (is_key_pressed(KC_EQUALS, KMod_NONE)) )
    {
         if (new_health < max_health) 

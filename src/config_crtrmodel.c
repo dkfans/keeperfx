@@ -177,6 +177,8 @@ const struct NamedCommand creatmodel_appearance_commands[] = {
   {"FOOTSTEPPITCH",        7},
   {"PICKUPOFFSET",         8},
   {"STATUSOFFSET",         9},
+  {"TRANSPARENCYFLAGS",   10},
+  {"FIXEDANIMSPEED",      11},
   {NULL,                   0},
   };
 
@@ -854,12 +856,12 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
   // Set creature start states based on the flags
   if ((crconf->model_flags & CMF_IsSpecDigger) != 0)
   {
-      creatures[crtr_model].evil_start_state = CrSt_ImpDoingNothing;
-      creatures[crtr_model].good_start_state = CrSt_TunnellerDoingNothing;
+      crstat->evil_start_state = CrSt_ImpDoingNothing;
+      crstat->good_start_state = CrSt_TunnellerDoingNothing;
   } else
   {
-      creatures[crtr_model].evil_start_state = CrSt_CreatureDoingNothing;
-      creatures[crtr_model].good_start_state = CrSt_GoodDoingNothing;
+      crstat->evil_start_state = CrSt_CreatureDoingNothing;
+      crstat->good_start_state = CrSt_GoodDoingNothing;
   }
   return true;
 }
@@ -1532,11 +1534,11 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
     {
         crstat->walking_anim_speed = 1;
         crstat->visual_range = 1;
-        creatures[crtr_model].swipe_idx = 0;
-        creatures[crtr_model].natural_death_kind = Death_Normal;
-        creatures[crtr_model].shot_shift_x = 0;
-        creatures[crtr_model].shot_shift_y = 0;
-        creatures[crtr_model].shot_shift_z = 0;
+        crstat->swipe_idx = 0;
+        crstat->natural_death_kind = Death_Normal;
+        crstat->shot_shift_x = 0;
+        crstat->shot_shift_y = 0;
+        crstat->shot_shift_z = 0;
         crstat->footstep_pitch = 100;
         crstat->corpse_vanish_effect = 0;
         crstat->status_offset = 32;
@@ -1595,7 +1597,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                 k = atoi(word_buf);
                 if (k >= 0)
                 {
-                    creatures[crtr_model].swipe_idx = k;
+                    crstat->swipe_idx = k;
                     n++;
                 }
             }
@@ -1611,7 +1613,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                 k = get_id(creature_deathkind_desc, word_buf);
                 if (k > 0)
                 {
-                    creatures[crtr_model].natural_death_kind = k;
+                    crstat->natural_death_kind = k;
                     n++;
                 }
             }
@@ -1625,19 +1627,19 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                creatures[crtr_model].shot_shift_x = k;
+                crstat->shot_shift_x = k;
                 n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                creatures[crtr_model].shot_shift_y = k;
+                crstat->shot_shift_y = k;
                 n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                creatures[crtr_model].shot_shift_z = k;
+                crstat->shot_shift_z = k;
                 n++;
             }
             if (n < 3)
@@ -1695,6 +1697,32 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
+        case 10: // TRANSPARENCYFLAGS
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                    crstat->transparency_flags = k<<4; // Bitshift to get the transparancy bit in the render flag
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
+        case 11: // FIXEDANIMSPEED
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                    crstat->fixed_anim_speed = true;
+                }
             }
             break;
         case 0: // comment
@@ -2167,8 +2195,7 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
           char word_buf[COMMAND_WORD_LEN];
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-            struct ObjectConfigStats obj_tmp;
-            k = get_anim_id(word_buf, &obj_tmp);
+            k = get_anim_id_(word_buf);
             set_creature_model_graphics(crtr_model, cmd_num-1, k);
             n++;
           }
@@ -2638,7 +2665,7 @@ TbBool make_all_creatures_free(void)
 /**
  * Changes max health of creatures, and updates all creatures to max.
  */
-TbBool change_max_health_of_creature_kind(ThingModel crmodel, long new_max)
+TbBool change_max_health_of_creature_kind(ThingModel crmodel, HitPoints new_max)
 {
     struct CreatureStats* crstat = creature_stats_get(crmodel);
     if (creature_stats_invalid(crstat)) {

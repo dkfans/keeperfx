@@ -32,7 +32,7 @@
 #include "player_data.h"
 #include "dungeon_data.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "kjm_input.h"
 #include "gui_parchment.h"
 #include "gui_draw.h"
@@ -814,12 +814,15 @@ int get_place_door_pointer_graphics(ThingModel drmodel)
  *
  * @return Gives true if cursor spell was drawn, false if the spell wasn't available and either no cursor or block cursor was drawn.
  */
-TbBool draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbBool draw_spell_cursor(PlayerState wrkstate, ThingIndex tng_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     long i;
     long pwkind = -1;
-    if (wrkstate < PLAYER_STATES_COUNT)
-      pwkind = player_state_to_power_kind[wrkstate];
+    if (wrkstate < PLAYER_STATES_COUNT_MAX)
+    {
+        struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(wrkstate);
+        pwkind = plrst_cfg_stat->power_kind;
+    }
     SYNCDBG(5,"Starting for power %d",(int)pwkind);
     if (pwkind <= 0)
     {
@@ -857,6 +860,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
 {
     struct Thing *thing;
     struct Dungeon* dungeon = get_dungeon(player->id_number);
+    struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
     if (dungeon_invalid(dungeon))
     {
         set_pointer_graphic(MousePG_Invisible);
@@ -882,8 +886,10 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     if (battle_creature_over > 0)
     {
         PowerKind pwkind = 0;
-        if (player->work_state < PLAYER_STATES_COUNT)
-            pwkind = player_state_to_power_kind[player->work_state];
+        if (player->work_state < PLAYER_STATES_COUNT_MAX)
+        {
+            pwkind = plrst_cfg_stat->power_kind;
+        }
         thing = thing_get(battle_creature_over);
         TRACE_THING(thing);
         if (can_cast_spell(player->id_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))
@@ -902,9 +908,9 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         return;
     }
     long i;
-    switch (player->work_state)
+    switch (plrst_cfg_stat->pointer_group)
     {
-    case PSt_CtrlDungeon:
+    case PsPg_CtrlDungeon:
         if (player->secondary_cursor_state)
           i = player->secondary_cursor_state;
         else
@@ -922,7 +928,9 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
             TRACE_THING(thing);
             if ((player->input_crtr_control) && (!thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand))
             {
-                if (can_cast_spell(player->id_number, player_state_to_power_kind[PSt_CtrlDirect],
+                struct PlayerStateConfigStats* plrst_cfg_stat_CtrlDirect = get_player_state_stats(PSt_CtrlDirect);
+                PowerKind pwkind = plrst_cfg_stat_CtrlDirect->power_kind;
+                if (can_cast_spell(player->id_number, pwkind,
                   thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
                     // The condition above makes can_cast_spell() within draw_spell_cursor() to never fail; this is intentional
                     draw_spell_cursor(PSt_CtrlDirect, 0, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
@@ -953,78 +961,50 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
             break;
         }
         break;
-    case PSt_BuildRoom:
+    case PsPg_BuildRoom:
         i = get_place_room_pointer_graphics(player->chosen_room_kind);
         set_pointer_graphic(i);
         break;
-    case PSt_HoldInHand:
-    case PSt_Slap:
+    case PsPg_Invisible:
         set_pointer_graphic(MousePG_Invisible);
         break;
-    case PSt_CallToArms:
-    case PSt_CaveIn:
-    case PSt_SightOfEvil:
-    case PSt_CtrlPassngr:
-    case PSt_CtrlDirect:
-    case PSt_Lightning:
-    case PSt_SpeedUp:
-    case PSt_Armour:
-    case PSt_Conceal:
-    case PSt_Heal:
-    case PSt_CreateDigger:
-    case PSt_DestroyWalls:
-    case PSt_CastDisease:
-    case PSt_TurnChicken:
-    case PSt_FreeDestroyWalls:
-    case PSt_FreeCastDisease:
-    case PSt_FreeTurnChicken:
-    case PSt_FreeCtrlPassngr:
-    case PSt_FreeCtrlDirect:
-    case PSt_Rebound:
-    case PSt_Freeze:
-    case PSt_Slow:
-    case PSt_Flight:
-    case PSt_Vision:
-    case PSt_TimeBomb:
+    case PsPg_Spell:
         draw_spell_cursor(player->work_state, 0, game.mouse_light_pos.x.stl.num, game.mouse_light_pos.y.stl.num);
         break;
-    case PSt_CreatrQuery:
-    case PSt_CreatrInfo:
-    case PSt_CreatrInfoAll:
-    case PSt_QueryAll:
+    case PsPg_Query:
         set_pointer_graphic(MousePG_Query);
         break;
-    case PSt_PlaceTrap:
+    case PsPg_PlaceTrap:
         i = get_place_trap_pointer_graphics(player->chosen_trap_kind);
         set_pointer_graphic(i);
         break;
-    case PSt_PlaceDoor:
+    case PsPg_PlaceDoor:
         i = get_place_door_pointer_graphics(player->chosen_door_kind);
         set_pointer_graphic(i);
         break;
-    case PSt_Sell:
+    case PsPg_Sell:
         set_pointer_graphic(MousePG_Sell);
         break;
-    case PSt_PlaceTerrain:
+    case PsPg_PlaceTerrain:
     {
         i = get_place_terrain_pointer_graphics(player->cheatselection.chosen_terrain_kind);
         set_pointer_graphic(i);
         break;
     }
-    case PSt_MkDigger:
+    case PsPg_MkDigger:
         set_pointer_graphic(MousePG_MkDigger);
         break;
-    case PSt_MkGoodCreatr:
-    case PSt_MkBadCreatr:
+    case PsPg_MkCreatr:
         set_pointer_graphic(MousePG_MkCreature);
         break;
-    case PSt_OrderCreatr:
+    case PsPg_OrderCreatr:
     {
         struct Thing* creatng = thing_get(player->controlled_thing_idx);
         i = (thing_is_creature(creatng)) ? MousePG_MvCreature : MousePG_Arrow;
         set_pointer_graphic(i);
         break;
     }
+    case PsPg_None:
     default:
         set_pointer_graphic(MousePG_Arrow);
         break;

@@ -41,7 +41,7 @@ extern const struct NamedCommand effect_generator_commands[];
 struct EffectConfigStats {
     char code_name[COMMAND_WORD_LEN];
     /** Health; decreases by 1 on every turn, so it works also as lifespan. */
-    short start_health;
+    HitPoints start_health;
     unsigned char generation_type;
     short accel_xy_min;
     short accel_xy_max;
@@ -91,7 +91,7 @@ struct EffectElementConfigStats {
     unsigned short sprite_speed_max;
     TbBool animate_on_floor;
     TbBool unshaded;
-    unsigned char transparant;  // transparency flags in bits 4-5
+    unsigned char transparent;  // transparency flags in bits 4-5
     TbBool movable;
     unsigned char movement_flags;
     unsigned char size_change; /**< See enum ThingSizeChange. */
