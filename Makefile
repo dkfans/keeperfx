@@ -255,6 +255,11 @@ obj/config_effects.o \
 obj/lens_flyeye.o \
 obj/lens_mist.o \
 obj/light_data.o \
+obj/lua_api.o \
+obj/lua_base.o \
+obj/lua_cfg_funcs.o \
+obj/lua_params.o \
+obj/lua_triggers.o \
 obj/lvl_filesdk1.o \
 obj/lvl_script.o \
 obj/lvl_script_commands.o \
@@ -351,7 +356,7 @@ CU_OBJS = \
 	obj/cu/Util.o
 
 # include and library directories
-LINKLIB =  -L"sdl/lib" -mwindows obj/enet.a \
+LINKLIB =  -L"sdl/lib" -mwindows obj/enet.a deps/luajit/src/lua51.lib deps/luajit/src/minilua.lib deps/luajit/src/luajit.lib deps/luajit/src/buildvm.lib\
 	-lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net -lSDL2_image \
 	-L"deps/zlib" -lz -lws2_32 -ldbghelp
 INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include" -I"deps/centijson/src" -I"deps/centitoml"
