@@ -1854,15 +1854,16 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               power_desc[i].num = 0;
           }
       }
-      arr_size = sizeof(game.conf.object_conf.object_to_power_artifact)/sizeof(game.conf.object_conf.object_to_power_artifact[0]);
-      for (i = 0; i < arr_size; i++)
-      {
-          if ((flags & CnfLd_AcceptPartial) == 0)
-          {
-              game.conf.object_conf.object_to_power_artifact[i] = 0;
-          }
-      }
   }
+    arr_size = sizeof(game.conf.object_conf.object_to_power_artifact)/sizeof(game.conf.object_conf.object_to_power_artifact[0]);
+    for (i = 0; i < arr_size; i++)
+    {
+        if ((flags & CnfLd_AcceptPartial) == 0)
+        {
+            game.conf.object_conf.object_to_power_artifact[i] = 0;
+        }
+    }
+
   arr_size = game.conf.magic_conf.power_types_count;
   // Load the file
   for (i=0; i < arr_size; i++)
@@ -2277,11 +2278,12 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
               special_desc[i].num = 0;
           }
       }
-      arr_size = sizeof(game.conf.object_conf.object_to_special_artifact)/sizeof(game.conf.object_conf.object_to_special_artifact[0]);
-      for (i=0; i < arr_size; i++) {
-          game.conf.object_conf.object_to_special_artifact[i] = 0;
-      }
   }
+    arr_size = sizeof(game.conf.object_conf.object_to_special_artifact)/sizeof(game.conf.object_conf.object_to_special_artifact[0]);
+    for (i=0; i < arr_size; i++) {
+        game.conf.object_conf.object_to_special_artifact[i] = 0;
+    }
+    
   arr_size = game.conf.magic_conf.special_types_count;
   // Load the file
   for (i=0; i < arr_size; i++)
@@ -2415,10 +2417,10 @@ TbBool load_magic_config_file(const char *textname, const char *fname, unsigned 
     if (buf == NULL)
         return false;
     
-    game.conf.magic_conf.spell_types_count = MAGIC_ITEMS_MAX-1;
-    game.conf.magic_conf.shot_types_count = MAGIC_ITEMS_MAX-1;
-    game.conf.magic_conf.power_types_count = MAGIC_ITEMS_MAX-1;
-    game.conf.magic_conf.special_types_count = MAGIC_ITEMS_MAX-1;
+    game.conf.magic_conf.spell_types_count = MAGIC_ITEMS_MAX;
+    game.conf.magic_conf.shot_types_count = MAGIC_ITEMS_MAX;
+    game.conf.magic_conf.power_types_count = MAGIC_ITEMS_MAX;
+    game.conf.magic_conf.special_types_count = MAGIC_ITEMS_MAX;
 
     // Loading file data
     len = LbFileLoadAt(fname, buf);
