@@ -44,7 +44,7 @@ extern "C" {
 /******************************************************************************/
 #define DUNGEONS_COUNT              9
 #define DIGGER_TASK_MAX_COUNT       64
-#define DUNGEON_RESEARCH_COUNT      64
+#define DUNGEON_RESEARCH_COUNT      2000
 #define MAX_THINGS_IN_HAND          64
 #define TURN_TIMERS_COUNT           8
 #define SCRIPT_FLAGS_COUNT          8
@@ -89,7 +89,7 @@ struct DiggerStack {
 
 struct ResearchVal {
   unsigned char rtyp;
-  unsigned char rkind;
+  unsigned short rkind;
   long req_amount;
 };
 
@@ -219,7 +219,7 @@ struct Dungeon {
     long score;
     struct ResearchVal research[DUNGEON_RESEARCH_COUNT];
     int current_research_idx;
-    unsigned char research_num;
+    unsigned short research_num;
     /** How many creatures are force-enabled for each kind.
      * Force-enabled creature can come from portal without additional conditions,
      * but only until dungeon has up to given amount of their kind. */
