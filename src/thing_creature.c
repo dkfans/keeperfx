@@ -5295,23 +5295,25 @@ int tileset_footstep(struct Thing* thing)
 {
     const unsigned char tileset_footstep_textures[] = {2,8,9};
     int num_tileset_footstep_textures = sizeof(tileset_footstep_textures) / sizeof(tileset_footstep_textures[0]);
-
-    // Check if default tileset is one in the array
-    for (int i = 0; i < num_tileset_footstep_textures; i++) {
-        if (game.texture_id == tileset_footstep_textures[i]) {
-            return i + 1; 
-        }
-    }
-    
     unsigned char ext_txtr = gameadd.slab_ext_data[get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num))];
-
-    // Check if on non-default tileset that is in the array
-    for (int i = 0; i < num_tileset_footstep_textures; i++) {
-        if (ext_txtr == tileset_footstep_textures[i] + 1) {
-            return i + 1; 
+    if (ext_txtr == 0)
+    {
+        // Check if default tileset is one in the array
+        for (int i = 0; i < num_tileset_footstep_textures; i++) {
+            if (game.texture_id == tileset_footstep_textures[i]) {
+                return i + 1; 
+            }
         }
     }
-
+    else
+    {
+        // Check if on non-default tileset that is in the array
+        for (int i = 0; i < num_tileset_footstep_textures; i++) {
+            if (ext_txtr == tileset_footstep_textures[i] + 1) {
+                return i + 1; 
+            }
+        }
+    }
     return 0; // If neither, return 0
 }
 
