@@ -5293,7 +5293,7 @@ void check_for_creature_escape_from_lava(struct Thing *thing)
 // formerly thing_is_on_snow_texture, expanded to allow snow sound and different graphics for other tilesets.
 int tileset_footstep(struct Thing* thing)
 {
-    const unsigned char tileset_footstep_textures[] = {2,8,9};
+    static const unsigned char tileset_footstep_textures[] = {2,8,9};
     int num_tileset_footstep_textures = sizeof(tileset_footstep_textures) / sizeof(tileset_footstep_textures[0]);
     unsigned char ext_txtr = gameadd.slab_ext_data[get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num))];
     int i;
