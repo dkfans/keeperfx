@@ -228,8 +228,8 @@ struct Dungeon {
      * Allowed creatures can join a dungeon if whether attraction condition is met
      * or force-enabled amount isn't reached. */
     unsigned char creature_allowed[CREATURE_TYPES_MAX];
-    unsigned char magic_level[POWER_TYPES_MAX];
-    unsigned char magic_resrchable[POWER_TYPES_MAX];
+    unsigned short magic_level[POWER_TYPES_MAX];
+    unsigned short magic_resrchable[POWER_TYPES_MAX];
     struct TurnTimer turn_timers[TURN_TIMERS_COUNT];
     long max_creatures_attracted;
     unsigned char heart_destroy_state;
