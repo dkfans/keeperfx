@@ -740,8 +740,8 @@ void process_trap_charge(struct Thing* traptng)
             if ((slb->kind != SlbT_CLAIMED) && (slb->kind != SlbT_PATH)) {
                 traptng->health = -1;
             }
-            traptng->rendering_flags &= TRF_Transpar_Flags;
-            traptng->rendering_flags |= TRF_Transpar_4;
+            clear_flag(traptng->rendering_flags, TRF_Transpar_Flags);
+            set_flag(traptng->rendering_flags, TRF_Transpar_4);
             if (!is_neutral_thing(traptng) && !is_hero_thing(traptng))
             {
                 if (placing_offmap_workshop_item(traptng->owner, TCls_Trap, traptng->model))
