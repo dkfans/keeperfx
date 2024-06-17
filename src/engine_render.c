@@ -5016,7 +5016,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
             if (is_shown || thing->trap.revealed)
             {
                 struct TrapConfigStats* trapst = get_trap_model_stats(thing->model);
-                if (trapst->flame.animation_id != 0)
+                if ((trapst->flame.animation_id != 0) && (thing->trap.num_shots != 0))
                 {
                     flame_on_sprite = true;
                     process_keeper_flame_on_sprite(jspr, angle, size_on_screen);
@@ -8101,7 +8101,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
             {
                 break;
             }
-            if (trapst->flame.animation_id > 0)
+            if ((trapst->flame.animation_id > 0) && (thing->trap.num_shots != 0))
             {
                 process_keeper_flame_on_sprite(jspr, angle, scaled_size);
                 break;
