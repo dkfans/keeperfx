@@ -519,8 +519,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
       case 16: // ANIMATIONID
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-            struct ObjectConfigStats obj_tmp;
-            k = get_anim_id(word_buf, &obj_tmp);
+            k = get_anim_id_(word_buf);
             if (k >= 0)
             {
                 game.conf.trap_stats[i].sprite_anim_idx = k;
@@ -1030,7 +1029,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
       case 45: // FLAMEANIMATIONID
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              k = get_anim_id_(word_buf);
               if (k >= 0)
               {
                   trapst->flame.animation_id = k;
@@ -1079,16 +1078,28 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              if (k >= 0)
-              {
-                  trapst->flame.fp_add_x = k;
-                  trapst->flame.fp_add_y = k;
-                  trapst->flame.td_add_x = k;
-                  trapst->flame.td_add_y = k;
-                  n++;
-              }
+              trapst->flame.fp_add_x = k;
+              n++;
           }
-          if (n < 1)
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              trapst->flame.fp_add_y = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              trapst->flame.td_add_x = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              trapst->flame.td_add_y = k;
+              n++;
+          }
+          if (n < 4)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
