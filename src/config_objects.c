@@ -175,6 +175,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             objst->name_stridx = 201;
             objst->map_icon = 0;
             objst->genre = 0;
+            objst->draw_class = ODC_Default;
             if (tmodel < game.conf.object_conf.object_types_count)
             {
                 object_desc[tmodel].name = objst->code_name;
