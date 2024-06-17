@@ -3253,7 +3253,7 @@ static void set_object_configuration_process(struct ScriptContext *context)
             objst->flame.fp_add_x = context->value->chars[5];
             objst->flame.fp_add_y = context->value->chars[6];
             objst->flame.td_add_x = context->value->chars[7];
-            objst->flame.td_add_x = context->value->chars[8];
+            objst->flame.td_add_y = context->value->chars[8];
             break;
         case 37: // FLAMETRANSPARENCYFLAGS
             objst->flame.transparency_flags = context->value->arg1 << 4;
