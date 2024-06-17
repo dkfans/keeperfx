@@ -194,7 +194,6 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
         long pos = 0;
         int k = find_conf_block(buf, &pos, len, block_buf);
         objst = &game.conf.object_conf.object_cfgstats[tmodel];
-        objst->draw_class = ODC_Default;    
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(objects_object_commands,cmd_num)
         while (pos<len)
         {
