@@ -5001,17 +5001,17 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
             flame_on_sprite = true;
             process_keeper_flame_on_sprite(jspr, angle, size_on_screen);
         }
+        is_shown = ((thing->rendering_flags & TRF_Unknown01) == 0);
+    }
+    else
+    {
+        if (thing->class_id == TCls_Trap)
+        {
+            is_shown = !game.conf.trapdoor_conf.trap_cfgstats[thing->model].hidden;
+        }
         else
         {
-            if (thing->class_id == TCls_Trap)
-            {
-                is_shown = !game.conf.trapdoor_conf.trap_cfgstats[thing->model].hidden;
-            }
-            else
-            {
-                is_shown = ((thing->rendering_flags & TRF_Unknown01) == 0);
-            }
-
+            is_shown = ((thing->rendering_flags & TRF_Unknown01) == 0);
         }
     }
     if (!flame_on_sprite)
