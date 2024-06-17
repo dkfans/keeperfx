@@ -371,13 +371,13 @@ TbBool update_creature_anim_td(struct Thing *thing, long speed, long td_idx)
 void update_creature_rendering_flags(struct Thing *thing)
 {
     // Clear related flags
-    thing->rendering_flags &= ~TRF_Unknown01;
+    thing->rendering_flags &= ~TRF_Visible;
     thing->rendering_flags &= ~TRF_Transpar_Flags;
     thing->rendering_flags &= ~TRF_AnimateOnce;
     // Now set only those that should be
     if ( (is_thing_directly_controlled_by_player(thing, my_player_number)) || (is_thing_passenger_controlled_by_player(thing, my_player_number)) )
     {
-        thing->rendering_flags |= TRF_Unknown01;
+        thing->rendering_flags |= TRF_Visible;
     }
     if (thing_is_creature(thing))
     {
@@ -395,7 +395,7 @@ void update_creature_rendering_flags(struct Thing *thing)
           thing->rendering_flags |= TRF_Transpar_4;
       } else
       {
-            thing->rendering_flags |= TRF_Unknown01;
+            thing->rendering_flags |= TRF_Visible;
             struct PlayerInfo* player = get_my_player();
             struct Thing* creatng = thing_get(player->influenced_thing_idx);
             if (creatng != thing)
@@ -404,7 +404,7 @@ void update_creature_rendering_flags(struct Thing *thing)
                 {
                     if (creature_can_see_invisible(creatng))
                     {
-                        thing->rendering_flags &= ~TRF_Unknown01;
+                        thing->rendering_flags &= ~TRF_Visible;
                         thing->rendering_flags &= ~TRF_Transpar_Flags;
                         thing->rendering_flags |= TRF_Transpar_4;
                     }
@@ -428,7 +428,7 @@ void update_creature_graphic_anim(struct Thing *thing)
     } else
     if ((thing->active_state == CrSt_CreatureHeroEntering) && (cctrl->countdown_282 >= 0))
     {
-      thing->rendering_flags |= TRF_Unknown01;
+      thing->rendering_flags |= TRF_Visible;
     } else
     if (!creature_affected_by_spell(thing, SplK_Chicken))
     {

@@ -1425,7 +1425,7 @@ static TbResult magic_use_power_lightning(PowerKind power_kind, PlayerNumber ply
     if (!thing_is_invalid(obtng))
     {
         obtng->lightning.spell_level = splevel;
-        obtng->rendering_flags |= TRF_Unknown01;
+        obtng->rendering_flags |= TRF_Visible;
     }
     i = electricity_affecting_area(&pos, plyr_idx, range, max_damage);
     SYNCDBG(9,"Affected %ld targets within range %ld, damage %ld",i,range,max_damage);
@@ -1503,7 +1503,7 @@ static TbResult magic_use_power_sight(PowerKind power_kind, PlayerNumber plyr_id
         dungeon->sight_casted_splevel = splevel;
         dungeon->sight_casted_thing_idx = thing->index;
         LbMemorySet(dungeon->soe_explored_flags, 0, sizeof(dungeon->soe_explored_flags));
-        thing->rendering_flags |= TRF_Unknown01;
+        thing->rendering_flags |= TRF_Visible;
         thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, -1, 3, 0, 3, FULL_LOUDNESS);
     }
     return Lb_SUCCESS;

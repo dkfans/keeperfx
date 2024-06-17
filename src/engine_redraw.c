@@ -450,7 +450,7 @@ void set_sprite_view_3d(void)
         struct Thing* thing = thing_get(i);
         if (thing_exists(thing))
         {
-            if (thing_is_creature(thing) || ((thing->rendering_flags & TRF_Unknown01) == 0))
+            if (thing_is_creature(thing) || ((thing->rendering_flags & TRF_Visible) == 0))
             {
                 int n = straight_iso_td(thing->anim_sprite);
                 if (n >= 0)
@@ -481,7 +481,7 @@ void set_sprite_view_isometric(void)
         struct Thing* thing = thing_get(i);
         if (thing_exists(thing))
         {
-            if (thing_is_creature(thing) || ((thing->rendering_flags & TRF_Unknown01) == 0))
+            if (thing_is_creature(thing) || ((thing->rendering_flags & TRF_Visible) == 0))
             {
                 int n = straight_td_iso(thing->anim_sprite);
                 if (n >= 0)
