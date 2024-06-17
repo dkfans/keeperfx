@@ -1820,7 +1820,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             trapstat->light_flag = value;
             break;
         case 30: // TransparencyFlags
-            trapstat->transparency_flag = value;
+            trapstat->transparency_flag = value<<4;
             break;
         case 31: // ShotVector
             trapstat->shotvector.x = value;
