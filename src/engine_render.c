@@ -5025,7 +5025,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         }
         else
         {
-            is_shown = ((thing->rendering_flags & TRF_Visible) == 0);
+            is_shown = ((thing->rendering_flags & TRF_Invisible) == 0);
         }
     }
     if (!flame_on_sprite)
@@ -8887,7 +8887,7 @@ static void do_map_who(short tnglist_idx)
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if ((thing->rendering_flags & TRF_Visible) == 0)
+        if ((thing->rendering_flags & TRF_Invisible) == 0)
         {
             do_map_who_for_thing(thing);
         }
@@ -8911,7 +8911,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
     long cx;
     long cy;
     long cz;
-    if ((thing->rendering_flags & TRF_Visible) != 0)
+    if ((thing->rendering_flags & TRF_Invisible) != 0)
         return;
     switch (thing->draw_class)
     {

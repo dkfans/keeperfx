@@ -249,16 +249,16 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
             {
                 set_power_hand_graphic(plyr_idx, HndA_Hover);
                 if (!thing_is_invalid(thing))
-                    thing->rendering_flags |= TRF_Visible;
+                    thing->rendering_flags |= TRF_Invisible;
             } else
             if ((thing->class_id == TCls_Object) && object_is_gold_pile(thing))
             {
                 set_power_hand_graphic(plyr_idx, HndA_HoldGold);
-                thing->rendering_flags &= ~TRF_Visible;
+                thing->rendering_flags &= ~TRF_Invisible;
             } else
             {
                 set_power_hand_graphic(plyr_idx, HndA_Hold);
-                thing->rendering_flags &= ~TRF_Visible;
+                thing->rendering_flags &= ~TRF_Invisible;
             }
         }
     }

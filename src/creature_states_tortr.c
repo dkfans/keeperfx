@@ -118,7 +118,7 @@ short cleanup_torturing(struct Thing *creatng)
         struct Thing* thing = thing_get(cctrl->tortured.assigned_torturer);
         if (thing_exists(thing)) {
             thing->torturer.belongs_to = 0;
-            thing->rendering_flags &= ~TRF_Visible;
+            thing->rendering_flags &= ~TRF_Invisible;
         }
         cctrl->tortured.assigned_torturer = 0;
     }
@@ -215,7 +215,7 @@ long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJ
             set_creature_instance(creatng, CrInst_TORTURED, 0, 0);
         }
         if (thing_exists(sectng)) {
-            sectng->rendering_flags |= TRF_Visible;
+            sectng->rendering_flags |= TRF_Invisible;
         } else {
             ERRORLOG("No device for torture");
         }

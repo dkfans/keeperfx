@@ -257,7 +257,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     if (cam != NULL)
       player->view_mode_restore = cam->view_mode;
     thing->alloc_flags |= TAlF_IsControlled;
-    thing->rendering_flags |= TRF_Visible;
+    thing->rendering_flags |= TRF_Invisible;
     if (!chicken)
     {
         set_start_state(thing);
@@ -311,7 +311,7 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
     if (cam != NULL)
       player->view_mode_restore = cam->view_mode;
     set_player_mode(player, PVT_CreaturePasngr);
-    thing->rendering_flags |= TRF_Visible;
+    thing->rendering_flags |= TRF_Invisible;
     return true;
 }
 
@@ -1241,7 +1241,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         if (thing->light_id != 0)
         {
             cctrl->spell_flags &= ~CSAfF_Light;
-            if ((thing->rendering_flags & TRF_Visible) != 0)
+            if ((thing->rendering_flags & TRF_Invisible) != 0)
             {
                 light_set_light_intensity(thing->light_id, (light_get_light_intensity(thing->light_id) - 20));
                 struct Light* lgt = &game.lish.lights[thing->light_id];
@@ -6070,7 +6070,7 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
             thing->mappos.z.val = get_ceiling_height(&thing->mappos);
             create_effect(&thing->mappos, TngEff_CeilingBreach, thing->owner);
             initialise_thing_state(thing, CrSt_CreatureHeroEntering);
-            thing->rendering_flags |= TRF_Visible;
+            thing->rendering_flags |= TRF_Invisible;
             cctrl->countdown_282 = 24;
         }
     default:
