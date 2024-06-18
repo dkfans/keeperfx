@@ -4860,7 +4860,7 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
     }
 
     //Object/Trap itself
-    lbDisplay.DrawFlags = 0;
+    clear_flag(lbDisplay.DrawFlags, TRF_Transpar_Flags);
     EngineSpriteDrawUsingAlpha = 0;
     if (flag_is_set(thing->rendering_flags,TRF_Transpar_8))
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
