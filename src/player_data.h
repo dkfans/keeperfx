@@ -264,6 +264,7 @@ short cursor_light_idx;
     TbBool roomspace_horizontal_first;
     TbBool pickup_all_gold;
     unsigned char player_type; //enum PlayerTypes
+    int isometric_tilt;
     };
 
 /******************************************************************************/

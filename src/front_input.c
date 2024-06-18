@@ -2052,6 +2052,12 @@ void get_isometric_view_nonaction_inputs(void)
             set_packet_control(packet, PCtr_ViewZoomIn);
         if ( is_game_key_pressed(Gkey_ZoomOut, NULL, false) )
             set_packet_control(packet, PCtr_ViewZoomOut);
+        if ( is_game_key_pressed(Gkey_TiltUp, NULL, false) )
+            set_packet_control(packet, PCtr_ViewTiltUp);
+        if ( is_game_key_pressed(Gkey_TiltDown, NULL, false) )
+            set_packet_control(packet, PCtr_ViewTiltDown);
+        if ( is_game_key_pressed(Gkey_TiltReset, NULL, false) )
+            set_packet_control(packet, PCtr_ViewTiltReset);
         if ( is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
             set_packet_control(packet, PCtr_MoveLeft);
         if ( is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )

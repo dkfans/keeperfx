@@ -7111,3 +7111,18 @@ msgstr "Kreaturen verärgern: Alle Kreaturen des Feindes werden ärgerlich."
 msgctxt "Dungeon special decription"
 msgid "Weaken Walls: Destroys the fortifications of enemy walls."
 msgstr "Mauern schwächen: Zerstört die Befestigungen der feindlichen Mauern."
+
+#: guitext:1063
+msgctxt "Game controls"
+msgid "Tilt Up"
+msgstr ""
+
+#: guitext:1064
+msgctxt "Game controls"
+msgid "Tilt Down"
+msgstr ""
+
+#: guitext:1065
+msgctxt "Game controls"
+msgid "Reset Tilt"
+msgstr ""
