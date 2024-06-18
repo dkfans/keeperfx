@@ -1876,7 +1876,8 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             trapstat->initial_delay = value;
             break;
         case 43: // FlameAnimationID
-            trapst->flame.animation_id = value;
+            trapst->flame.animation_id = get_anim_id(context->value->str2, &obj_tmp);
+            refresh_trap_anim(trap_type);
             break;
         case 44: // FlameAnimationSpeed
             trapst->flame.anim_speed = value;
