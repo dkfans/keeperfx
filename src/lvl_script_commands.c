@@ -250,6 +250,11 @@ const struct NamedCommand trap_config_desc[] = {
   {"AttackAnimationID",   40},
   {"DestroyedEffect",     41},
   {"InitialDelay",        42},
+  {"FlameAnimationID",       43},
+  {"FlameAnimationSpeed",    44},
+  {"FlameAnimationSize",     45},
+  {"FlameAnimationOffset",   46},
+  {"FlameTransparencyFlags", 47},
   {NULL,                   0},
 };
 
@@ -1062,6 +1067,13 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
         }
         value->uarg1 = newvalue;
     }
+    else if (trapvar == 46) //FlameAnimationOffset
+    {
+        value->chars[8] = atoi(scline->tp[2]);
+        value->chars[9] = scline->np[3];
+        value->chars[10] = scline->np[4];
+        value->chars[11] = scline->np[5];
+    }
     else if ((trapvar != 4) && (trapvar != 12) && (trapvar != 39) && (trapvar != 40))  // PointerSprites && AnimationIDs
     {
         if (parameter_is_number(valuestring))
@@ -1862,6 +1874,24 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 42: // InitialDelay
             trapstat->initial_delay = value;
+            break;
+        case 43: // FlameAnimationID
+            trapst->flame.animation_id = value;
+            break;
+        case 44: // FlameAnimationSpeed
+            trapst->flame.anim_speed = value;
+            break;
+        case 45: // FlameAnimationSize
+            trapst->flame.sprite_size = value;
+            break;
+        case 46: // FlameAnimationOffset
+            trapst->flame.fp_add_x = context->value->chars[8];
+            trapst->flame.fp_add_y = context->value->chars[9];
+            trapst->flame.td_add_x = context->value->chars[10];
+            trapst->flame.td_add_y = context->value->chars[11];
+            break;
+        case 47: // FlameTransparencyFlags
+            trapst->flame.transparency_flags = value << 4;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
@@ -6022,7 +6052,7 @@ const struct CommandDesc command_desc[] = {
   {"CHANGE_CREATURE_OWNER",             "PC!AP   ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},
   {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, &set_game_rule_check, &set_game_rule_process},
   {"SET_ROOM_CONFIGURATION",            "AAAa!n! ", Cmd_SET_ROOM_CONFIGURATION, &set_room_configuration_check, &set_room_configuration_process},
-  {"SET_TRAP_CONFIGURATION",            "AAAn!n! ", Cmd_SET_TRAP_CONFIGURATION, &set_trap_configuration_check, &set_trap_configuration_process},
+  {"SET_TRAP_CONFIGURATION",            "AAAn!n!n!", Cmd_SET_TRAP_CONFIGURATION, &set_trap_configuration_check, &set_trap_configuration_process},
   {"SET_DOOR_CONFIGURATION",            "AAAn!   ", Cmd_SET_DOOR_CONFIGURATION, &set_door_configuration_check, &set_door_configuration_process},
   {"SET_OBJECT_CONFIGURATION",          "AAAn!n!n!", Cmd_SET_OBJECT_CONFIGURATION, &set_object_configuration_check, &set_object_configuration_process},
   {"SET_CREATURE_CONFIGURATION",        "CAAaa   ", Cmd_SET_CREATURE_CONFIGURATION, &set_creature_configuration_check, &set_creature_configuration_process},
