@@ -5369,9 +5369,8 @@ void process_creature_leave_footsteps(struct Thing *thing)
                         footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_StepGypsum, thing->owner);
                         break;
                     }
-                    default: // Catch for if TilesetFootprintTexture is higher that the number of tilesets we've decided cases for: just return no effect element for now.
+                    default: 
                     {
-                        footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_None, thing->owner);
                         break;
                     }
                 }
