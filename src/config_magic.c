@@ -280,6 +280,7 @@ const struct NamedCommand powermodel_expand_check_func_type[] = {
 };
 
 const struct NamedCommand magic_use_func_commands[] = {
+  {"none",                          0},
   {"magic_use_power_hand",          1},
   {"magic_use_power_heal",          2},
   {"magic_use_power_apply_spell",   3},

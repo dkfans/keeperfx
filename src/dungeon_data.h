@@ -246,8 +246,8 @@ struct Dungeon {
     long total_research_points;
     long total_manufacture_points;
     long manufacture_progress;
-    unsigned char manufacture_class;
-    unsigned char manufacture_kind;
+    ThingClass manufacture_class;
+    ThingModel manufacture_kind;
     long turn_last_manufacture;
     long manufacture_level;
     long research_progress;
