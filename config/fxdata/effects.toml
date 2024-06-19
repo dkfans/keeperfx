@@ -4906,12 +4906,12 @@ LightFlags = 0
 AffectedByWind = 0
 
 [effectElement116]
-Name = "EFFECTELEMENT_SAND_STEP1"
+Name = "EFFECTELEMENT_STEP_SAND"
 DrawClass = 2
 MoveType = 5
 Unanimated = 0
 Lifespan = [-1,-1]
-AnimationId = "FOOTPRINT_SAND1"
+AnimationId = "FOOTPRINT_SAND"
 SpriteSize = [200,256]
 RenderFlags = 1
 SpriteSpeed = [16,32]
@@ -4934,12 +4934,12 @@ LightFlags = 0
 AffectedByWind = 0
 
 [effectElement117]
-Name = "EFFECTELEMENT_SAND_STEP2"
+Name = "EFFECTELEMENT_STEP_GYPSUM"
 DrawClass = 2
 MoveType = 5
 Unanimated = 0
 Lifespan = [-1,-1]
-AnimationId = "FOOTPRINT_SAND2"
+AnimationId = "FOOTPRINT_GYPSUM"
 SpriteSize = [200,256]
 RenderFlags = 1
 SpriteSpeed = [16,32]
