@@ -5361,12 +5361,12 @@ void process_creature_leave_footsteps(struct Thing *thing)
                     }
                     case 2: // Tileset 8 - Sand footprint
                     {
-                        footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_SandStep1, thing->owner);
+                        footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_StepSand, thing->owner);
                         break;
                     }
-                    case 3: // Tileset 9 - White sand footprint
+                    case 3: // Tileset 9 - White sand / Gypsum footprint
                     {
-                        footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_SandStep2, thing->owner);
+                        footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_StepGypsum, thing->owner);
                         break;
                     }
                     default: // Catch for if TilesetFootprintTexture is higher that the number of tilesets we've decided cases for: just return no effect element for now.

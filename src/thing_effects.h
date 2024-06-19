@@ -253,8 +253,8 @@ enum ThingEffectElements {
     TngEffElm_OrangeTwinkle2,
     TngEffElm_OrangePuff,
     TngEffElm_TinyFlash3,
-    TngEffElm_SandStep1,
-    TngEffElm_SandStep2
+    TngEffElm_StepSand,
+    TngEffElm_StepGypsum
 };
 
 /******************************************************************************/
