@@ -5290,32 +5290,36 @@ void check_for_creature_escape_from_lava(struct Thing *thing)
     }
 }
 
-// formerly thing_is_on_snow_texture, expanded to allow snow sound and different graphics for other tilesets.
-int tileset_footstep(struct Thing* thing)
+/**
+ * Get's the texture for the footstep
+ * returns a texture number which leaves footsteps, or -1 if it leaves no footsteps.
+ */
+short get_texture_for_footstep(struct Thing* thing)
 {
-    static const unsigned char tileset_footstep_textures[] = {2,8,9};
+    static const unsigned char tileset_footstep_textures[] = { 2,8,9 };
     int num_tileset_footstep_textures = sizeof(tileset_footstep_textures) / sizeof(tileset_footstep_textures[0]);
+    short texture;
+
     unsigned char ext_txtr = gameadd.slab_ext_data[get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num))];
-    int i;
     if (ext_txtr == 0)
     {
-        // Check if default tileset is one in the array
-        for (i = 0; i < num_tileset_footstep_textures; i++) {
-            if (game.texture_id == tileset_footstep_textures[i]) {
-                return i + 1; 
-            }
-        }
+        // Default map texture
+        texture = game.texture_id;
     }
     else
     {
-        // Check if on non-default tileset that is in the array
-        for (i = 0; i < num_tileset_footstep_textures; i++) {
-            if (ext_txtr == tileset_footstep_textures[i] + 1) {
-                return i + 1; 
-            }
+        // Slab specific texture
+        texture = ext_txtr;
+    }
+
+    for (int i = 0; i < num_tileset_footstep_textures; i++)
+    {
+        if (texture == tileset_footstep_textures[i])
+        {
+            return texture;
         }
     }
-    return 0; // If neither, return 0
+    return -1;
 }
 
 void process_creature_leave_footsteps(struct Thing *thing)
@@ -5344,8 +5348,8 @@ void process_creature_leave_footsteps(struct Thing *thing)
     } else
     {
         // Tileset footprints, formerly Snow footprints.
-        int TilesetFootprintTexture = tileset_footstep(thing);
-        if (TilesetFootprintTexture != 0)
+        short TilesetFootprintTexture = get_texture_for_footstep(thing);
+        if (TilesetFootprintTexture >= 0)
         {
             struct SlabMap* slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
             if (slb->kind == SlbT_PATH)
@@ -5371,14 +5375,13 @@ void process_creature_leave_footsteps(struct Thing *thing)
                     }
                     default: 
                     {
+                        // Tileset leaves no footprints
                         break;
                     }
                 }
             }
         }
     }
-
-
 }
 
 /**
