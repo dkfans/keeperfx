@@ -5291,16 +5291,19 @@ void check_for_creature_escape_from_lava(struct Thing *thing)
 }
 
 /**
- * Get's the texture for the footstep
- * returns a texture number which leaves footsteps, or -1 if it leaves no footsteps.
+ * Get's an effect element for a footstep.
  */
-short get_texture_for_footstep(struct Thing* thing)
+ThingModel get_footstep_effect_element(struct Thing* thing)
 {
-    static const unsigned char tileset_footstep_textures[] = { 2,8,9 };
-    int num_tileset_footstep_textures = sizeof(tileset_footstep_textures) / sizeof(tileset_footstep_textures[0]);
-    short texture;
+    static const unsigned char tileset_footstep_textures[TEXTURE_VARIATIONS_COUNT] = 
+    { TngEffElm_None,       TngEffElm_None,         TngEffElm_IceMelt3,     TngEffElm_None,
+      TngEffElm_None,       TngEffElm_None,         TngEffElm_None,         TngEffElm_None,
+      TngEffElm_StepSand,   TngEffElm_StepGypsum,   TngEffElm_None,         TngEffElm_None,
+      TngEffElm_None,       TngEffElm_None,         TngEffElm_None,         TngEffElm_None 
+    };
 
-    unsigned char ext_txtr = gameadd.slab_ext_data[get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num))];
+    short texture;
+        unsigned char ext_txtr = gameadd.slab_ext_data[get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num))];
     if (ext_txtr == 0)
     {
         // Default map texture
@@ -5312,14 +5315,7 @@ short get_texture_for_footstep(struct Thing* thing)
         texture = ext_txtr - 1;
     }
 
-    for (int i = 0; i < num_tileset_footstep_textures; i++)
-    {
-        if (texture == tileset_footstep_textures[i])
-        {
-            return texture;
-        }
-    }
-    return -1;
+    return tileset_footstep_textures[texture];
 }
 
 void process_creature_leave_footsteps(struct Thing *thing)
@@ -5348,37 +5344,15 @@ void process_creature_leave_footsteps(struct Thing *thing)
     } else
     {
         // Tileset footprints, formerly Snow footprints.
-        short TilesetFootprintTexture = get_texture_for_footstep(thing);
-        if (TilesetFootprintTexture >= 0)
+        ThingModel footprint = get_footstep_effect_element(thing);
+        if (footprint >= 0)
         {
             struct SlabMap* slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
             if (slb->kind == SlbT_PATH)
             {
                 thing->movement_flags |= TMvF_IsOnSnow;
                 nfoot = get_foot_creature_has_down(thing);
-                switch (TilesetFootprintTexture)
-                {
-                    case 2: // Snow footprint
-                    {
-                        footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_IceMelt3, thing->owner);
-                        break;
-                    }
-                    case 8: // Sand footprint
-                    {
-                        footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_StepSand, thing->owner);
-                        break;
-                    }
-                    case 9: // White sand / Gypsum footprint
-                    {
-                        footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_StepGypsum, thing->owner);
-                        break;
-                    }
-                    default: 
-                    {
-                        // Tileset leaves no footprints
-                        break;
-                    }
-                }
+                footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, footprint, thing->owner);
             }
         }
     }
