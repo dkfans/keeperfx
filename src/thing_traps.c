@@ -845,7 +845,7 @@ TngUpdateRet update_trap(struct Thing *traptng)
             {
                 traptng->anim_sprite = convert_td_iso(trapstat->sprite_anim_idx);
             }
-            traptng->max_frames = get_lifespan_of_animation(traptng->anim_sprite, trapstat->anim_speed);
+            traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
         }
     }
     if (trapstat->activation_type == TrpAcT_CreatureShot)
