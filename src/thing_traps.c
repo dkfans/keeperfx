@@ -740,8 +740,8 @@ void process_trap_charge(struct Thing* traptng)
             if ((slb->kind != SlbT_CLAIMED) && (slb->kind != SlbT_PATH)) {
                 traptng->health = -1;
             }
-            traptng->rendering_flags &= TRF_Transpar_Flags;
-            traptng->rendering_flags |= TRF_Transpar_4;
+            clear_flag(traptng->rendering_flags, TRF_Transpar_Flags);
+            set_flag(traptng->rendering_flags, TRF_Transpar_4);
             if (!is_neutral_thing(traptng) && !is_hero_thing(traptng))
             {
                 if (placing_offmap_workshop_item(traptng->owner, TCls_Trap, traptng->model))
@@ -804,7 +804,10 @@ TbBool rearm_trap(struct Thing *traptng)
     struct ManfctrConfig* mconf = &game.conf.traps_config[traptng->model];
     struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
     traptng->trap.num_shots = mconf->shots;
-    traptng->rendering_flags ^= (traptng->rendering_flags ^ (trapstat->transparency_flag << 4)) & (TRF_Transpar_Flags);
+
+    clear_flag(traptng->rendering_flags, TRF_Transpar_Flags);
+    set_flag(traptng->rendering_flags, trapstat->transparency_flag);
+
     return true;
 }
 

@@ -4825,62 +4825,68 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
     struct PlayerInfo* player = get_my_player();
     struct Thing* thing = jspr->thing;
     struct ObjectConfigStats* objst;
+    struct TrapConfigStats* trapst;
+    struct FlameProperties flame;
     unsigned long nframe;
     long add_x, add_y;
     long scale;
-    if (!thing_is_object(thing))
+    if (thing_is_object(thing))
     {
-        ERRORLOG("Thing %s is not an object.", thing_model_name(thing));
-        return;
-    }
-    objst = get_object_model_stats(thing->model);
-    scale = (objst->flame.sprite_size * base_sprite_size / thing->sprite_size);
-
-    if (player->view_type == PVT_DungeonTop)
+        objst = get_object_model_stats(thing->model);
+        flame = objst->flame;
+    } else
+    if (thing_is_deployed_trap(thing))
     {
-        add_x = (base_sprite_size * objst->flame.td_add_x) >> 5;
-        add_y = (base_sprite_size * objst->flame.td_add_y) >> 5;
+        trapst = get_trap_model_stats(thing->model);
+        flame = trapst->flame;
     }
     else
     {
-        add_x = (base_sprite_size * objst->flame.fp_add_x) >> 5;
-        add_y = (base_sprite_size * objst->flame.fp_add_y) >> 5;
+        ERRORLOG("Thing %s is neither an object nor a flame.", thing_model_name(thing));
+        return;
+    }
+    
+    scale = (flame.sprite_size * base_sprite_size / thing->sprite_size);
+
+    if (player->view_type == PVT_DungeonTop)
+    {
+        add_x = (base_sprite_size * flame.td_add_x) >> 5;
+        add_y = (base_sprite_size * flame.td_add_y) >> 5;
+    }
+    else
+    {
+        add_x = (base_sprite_size * flame.fp_add_x) >> 5;
+        add_y = (base_sprite_size * flame.fp_add_y) >> 5;
     }
 
-    //Object
-    lbDisplay.DrawFlags = 0;
+    //Object/Trap itself
+    clear_flag(lbDisplay.DrawFlags, TRF_Transpar_Flags);
     EngineSpriteDrawUsingAlpha = 0;
-    if (objst->transparency_flags == TRF_Transpar_8)
-    {
+    if (flag_is_set(thing->rendering_flags,TRF_Transpar_8))
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
-    }
-    else if (objst->transparency_flags == TRF_Transpar_4)
-    {
+    if (flag_is_set(thing->rendering_flags, TRF_Transpar_4))
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-    }
-    else if (objst->transparency_flags == TRF_Transpar_Alpha)
-    {
+    if (flag_is_set(thing->rendering_flags, TRF_Transpar_Alpha))
         EngineSpriteDrawUsingAlpha = 1;
-    }
     process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, base_sprite_size);
 
     //Flame
     lbDisplay.DrawFlags = 0;
     EngineSpriteDrawUsingAlpha = 0;
-    if (objst->flame.transparency_flags == TRF_Transpar_8)
+    if (flame.transparency_flags == TRF_Transpar_8)
     {
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
     }
-    else if (objst->flame.transparency_flags == TRF_Transpar_4)
+    else if (flame.transparency_flags == TRF_Transpar_4)
     {
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
     }
-    else if (objst->flame.transparency_flags == TRF_Transpar_Alpha)
+    else if (flame.transparency_flags == TRF_Transpar_Alpha)
     {
         EngineSpriteDrawUsingAlpha = 1;
     }
-    nframe = (thing->index + game.play_gameturn * objst->flame.anim_speed / 256) % keepersprite_frames(objst->flame.animation_id);
-    process_keeper_sprite(jspr->scr_x + add_x, jspr->scr_y + add_y, objst->flame.animation_id, angle, nframe, scale);
+    nframe = (thing->index + game.play_gameturn * flame.anim_speed / 256) % keepersprite_frames(flame.animation_id);
+    process_keeper_sprite(jspr->scr_x + add_x, jspr->scr_y + add_y, flame.animation_id, angle, nframe, scale);
 }
 
 static unsigned short get_thing_shade(struct Thing* thing);
@@ -5001,17 +5007,25 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
             flame_on_sprite = true;
             process_keeper_flame_on_sprite(jspr, angle, size_on_screen);
         }
+    }
+    else
+    {
+        if (thing->class_id == TCls_Trap)
+        {
+            is_shown = !game.conf.trapdoor_conf.trap_cfgstats[thing->model].hidden;
+            if (is_shown || thing->trap.revealed)
+            {
+                struct TrapConfigStats* trapst = get_trap_model_stats(thing->model);
+                if ((trapst->flame.animation_id != 0) && (thing->trap.num_shots != 0))
+                {
+                    flame_on_sprite = true;
+                    process_keeper_flame_on_sprite(jspr, angle, size_on_screen);
+                }
+            }
+        }
         else
         {
-            if (thing->class_id == TCls_Trap)
-            {
-                is_shown = !game.conf.trapdoor_conf.trap_cfgstats[thing->model].hidden;
-            }
-            else
-            {
-                is_shown = ((thing->rendering_flags & TRF_Unknown01) == 0);
-            }
-
+            is_shown = ((thing->rendering_flags & TRF_Invisible) == 0);
         }
     }
     if (!flame_on_sprite)
@@ -8082,9 +8096,14 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
             process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scaled_size);
             break;
         case TCls_Trap:
-            trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
+            trapst = get_trap_model_stats(thing->model);
             if ((trapst->hidden == 1) && (player->id_number != thing->owner) && (thing->trap.revealed == 0))
             {
+                break;
+            }
+            if ((trapst->flame.animation_id > 0) && (thing->trap.num_shots != 0))
+            {
+                process_keeper_flame_on_sprite(jspr, angle, scaled_size);
                 break;
             }
             process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scaled_size);
@@ -8868,7 +8887,7 @@ static void do_map_who(short tnglist_idx)
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if ((thing->rendering_flags & TRF_Unknown01) == 0)
+        if ((thing->rendering_flags & TRF_Invisible) == 0)
         {
             do_map_who_for_thing(thing);
         }
@@ -8892,7 +8911,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
     long cx;
     long cy;
     long cz;
-    if ((thing->rendering_flags & TRF_Unknown01) != 0)
+    if ((thing->rendering_flags & TRF_Invisible) != 0)
         return;
     switch (thing->draw_class)
     {
