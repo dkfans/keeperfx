@@ -5358,17 +5358,17 @@ void process_creature_leave_footsteps(struct Thing *thing)
                 nfoot = get_foot_creature_has_down(thing);
                 switch (TilesetFootprintTexture)
                 {
-                    case 1: // Tileset 2 - Snow footprint
+                    case 2: // Snow footprint
                     {
                         footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_IceMelt3, thing->owner);
                         break;
                     }
-                    case 2: // Tileset 8 - Sand footprint
+                    case 8: // Sand footprint
                     {
                         footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_StepSand, thing->owner);
                         break;
                     }
-                    case 3: // Tileset 9 - White sand / Gypsum footprint
+                    case 9: // White sand / Gypsum footprint
                     {
                         footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_StepGypsum, thing->owner);
                         break;
