@@ -5309,7 +5309,7 @@ short get_texture_for_footstep(struct Thing* thing)
     else
     {
         // Slab specific texture
-        texture = ext_txtr;
+        texture = ext_txtr - 1;
     }
 
     for (int i = 0; i < num_tileset_footstep_textures; i++)
