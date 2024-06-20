@@ -5323,7 +5323,7 @@ void process_creature_leave_footsteps(struct Thing *thing)
     struct Thing *footng;
     short nfoot;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if ((thing->movement_flags & TMvF_IsOnWater) != 0)
+    if (flag_is_set(thing->movement_flags,TMvF_IsOnWater))
     {
         nfoot = get_foot_creature_has_down(thing);
         if (nfoot)
@@ -5350,7 +5350,7 @@ void process_creature_leave_footsteps(struct Thing *thing)
             struct SlabMap* slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
             if (slb->kind == SlbT_PATH)
             {
-                thing->movement_flags |= TMvF_IsOnSnow;
+                set_flag(thing->movement_flags,TMvF_IsOnSnow);
                 nfoot = get_foot_creature_has_down(thing);
                 footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, footprint, thing->owner);
             }
