@@ -5345,7 +5345,7 @@ void process_creature_leave_footsteps(struct Thing *thing)
     {
         // Tileset footprints, formerly Snow footprints.
         ThingModel footprint = get_footstep_effect_element(thing);
-        if (footprint >= 0)
+        if (footprint != TngEffElm_None)
         {
             struct SlabMap* slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
             if (slb->kind == SlbT_PATH)
