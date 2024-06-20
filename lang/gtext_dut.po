@@ -6974,14 +6974,14 @@ msgstr "Zwakke Muren: Vernietigt de versterkingen van vijandelijke muren."
 #: guitext:1063
 msgctxt "Game controls"
 msgid "Tilt Up"
-msgstr ""
+msgstr "Kantel Omhoog"
 
 #: guitext:1064
 msgctxt "Game controls"
 msgid "Tilt Down"
-msgstr ""
+msgstr "Kantel Omlaag"
 
 #: guitext:1065
 msgctxt "Game controls"
 msgid "Reset Tilt"
-msgstr ""
+msgstr "Kantel Reset"

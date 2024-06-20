@@ -7115,14 +7115,14 @@ msgstr "Mauern schwächen: Zerstört die Befestigungen der feindlichen Mauern."
 #: guitext:1063
 msgctxt "Game controls"
 msgid "Tilt Up"
-msgstr ""
+msgstr "Neigen Hoch"
 
 #: guitext:1064
 msgctxt "Game controls"
 msgid "Tilt Down"
-msgstr ""
+msgstr "Neigen Runter"
 
 #: guitext:1065
 msgctxt "Game controls"
 msgid "Reset Tilt"
-msgstr ""
+msgstr "Neigung Zurück"

@@ -7207,14 +7207,14 @@ msgstr "Affaiblir les murs : Détruit les fortifications des murs ennemis."
 #: guitext:1063
 msgctxt "Game controls"
 msgid "Tilt Up"
-msgstr ""
+msgstr "Incliner Haut"
 
 #: guitext:1064
 msgctxt "Game controls"
 msgid "Tilt Down"
-msgstr ""
+msgstr "Incliner Bas"
 
 #: guitext:1065
 msgctxt "Game controls"
 msgid "Reset Tilt"
-msgstr ""
+msgstr "Réinitialiser"
