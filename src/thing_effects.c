@@ -1036,31 +1036,35 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 }
             } else // Explosions move creatures and other things
             {
-                int adjusted_blow_strength = blow_strength;
-                if (game.conf.rules.magic.weight_calculate_push > 0)
+                // Explosions only move creatures back on its birth turn
+                if (tngsrc->creation_turn == game.play_gameturn)
                 {
-                    int weight = compute_creature_weight(tngdst);
-                    adjusted_blow_strength = weight_calculated_push_strenght(weight, blow_strength);
-                }
-            
+                    int adjusted_blow_strength = blow_strength;
+                    if (game.conf.rules.magic.weight_calculate_push > 0)
+                    {
+                        int weight = compute_creature_weight(tngdst);
+                        adjusted_blow_strength = weight_calculated_push_strenght(weight, blow_strength);
+                    }
                 
-                long move_angle = get_angle_xy_to(pos, &tngdst->mappos);
-                long move_dist = 0;
-               // long adjusted_max_dist = max_dist;
-                if (blow_strength > 0)
-                {
-                    move_dist = get_radially_decaying_value(adjusted_blow_strength, adjusted_blow_strength / 4, max_dist  * 3 / 4, distance);
-                }
-                else
-                {
-                    move_dist = get_radially_growing_value(adjusted_blow_strength, adjusted_blow_strength / 4, max_dist  * 3 / 4, distance, tngdst->inertia_floor);
-                }
-                if (move_dist != 0)
-                {
-                    tngdst->veloc_push_add.x.val += distance_with_angle_to_coord_x(move_dist, move_angle);
-                    tngdst->veloc_push_add.y.val += distance_with_angle_to_coord_y(move_dist, move_angle);
-                    tngdst->state_flags |= TF1_PushAdd;
-                    affected = true;
+                    
+                    long move_angle = get_angle_xy_to(pos, &tngdst->mappos);
+                    long move_dist = 0;
+                   // long adjusted_max_dist = max_dist;
+                    if (blow_strength > 0)
+                    {
+                        move_dist = get_radially_decaying_value(adjusted_blow_strength, adjusted_blow_strength / 4, max_dist  * 3 / 4, distance);
+                    }
+                    else
+                    {
+                        move_dist = get_radially_growing_value(adjusted_blow_strength, adjusted_blow_strength / 4, max_dist  * 3 / 4, distance, tngdst->inertia_floor);
+                    }
+                    if (move_dist != 0)
+                    {
+                        tngdst->veloc_push_add.x.val += distance_with_angle_to_coord_x(move_dist, move_angle);
+                        tngdst->veloc_push_add.y.val += distance_with_angle_to_coord_y(move_dist, move_angle);
+                        tngdst->state_flags |= TF1_PushAdd;
+                        affected = true;
+                    }
                 }
             }
         }
@@ -1126,7 +1130,7 @@ long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tn
         // Per thing processing block
         if ((thing->class_id == TCls_Door) && (efftng->shot_effect.hit_type != THit_CrtrsOnlyNotOwn)) //TODO: Find pretty way to say that WoP traps should not destroy doors. And make it configurable through configs.
         {
-            if (explosion_affecting_door(tngsrc, thing, &efftng->mappos, max_dist, max_damage, blow_strength, damage_type, owner))
+            if (explosion_affecting_door(efftng, thing, &efftng->mappos, max_dist, max_damage, blow_strength, damage_type, owner))
             {
                 num_affected++;
             }
@@ -1159,14 +1163,10 @@ long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tn
  */
 void word_of_power_affecting_area(struct Thing *efftng, struct Thing *tngsrc, struct Coord3d *pos)
 {
-    long stl_xmin;
-    long stl_xmax;
-    long stl_ymin;
-    long stl_ymax;
-    // Effect causes area damage only on its birth turn
-    if (efftng->creation_turn != game.play_gameturn) {
-        return;
-    }
+    MapSubtlCoord stl_xmin;
+    MapSubtlCoord stl_xmax;
+    MapSubtlCoord stl_ymin;
+    MapSubtlCoord stl_ymax;
     struct ShotConfigStats* shotst;
     if (thing_is_deployed_trap(tngsrc))
     {
@@ -1217,7 +1217,7 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *tngsrc, st
     }
     for (long stl_y = stl_ymin; stl_y <= stl_ymax; stl_y++)
     {
-        for (long stl_x = stl_xmin; stl_x <= stl_xmax; stl_x++)
+        for (MapSubtlCoord stl_x = stl_xmin; stl_x <= stl_xmax; stl_x++)
         {
             struct Map* mapblk = get_map_block_at(stl_x, stl_y);
             explosion_effect_affecting_map_block(efftng, tngsrc, mapblk, max_dist,
