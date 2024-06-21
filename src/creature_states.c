@@ -1611,7 +1611,7 @@ short creature_change_from_chicken(struct Thing *creatng)
         cctrl->countdown_282--;
     if (cctrl->countdown_282 > 0)
     { // Changing under way - gradually modify size of the creature
-        creatng->rendering_flags |= TRF_Unknown01;
+        creatng->rendering_flags |= TRF_Invisible;
         creatng->size_change |= TSC_ChangeSize;
         struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
         if (!thing_is_invalid(efftng))
@@ -1625,7 +1625,7 @@ short creature_change_from_chicken(struct Thing *creatng)
         return 0;
     } else
     {
-        creatng->rendering_flags &= ~TRF_Unknown01;
+        creatng->rendering_flags &= ~TRF_Invisible;
         cctrl->stateblock_flags &= ~CCSpl_ChickenRel;
         cctrl->spell_flags &= ~CSAfF_Chicken;
         set_creature_size_stuff(creatng);
@@ -1644,7 +1644,7 @@ short creature_change_to_chicken(struct Thing *creatng)
     if (cctrl->countdown_282 > 0)
     {
       creatng->size_change |= TSC_ChangeSize;
-      creatng->rendering_flags |= TRF_Unknown01;
+      creatng->rendering_flags |= TRF_Invisible;
       struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
       if (!thing_is_invalid(efftng))
       {
@@ -1656,7 +1656,7 @@ short creature_change_to_chicken(struct Thing *creatng)
       return 0;
     }
     cctrl->spell_flags |= CSAfF_Chicken;
-    creatng->rendering_flags &= ~TRF_Unknown01;
+    creatng->rendering_flags &= ~TRF_Invisible;
     set_creature_size_stuff(creatng);
     creatng->state_flags &= ~TF1_Unkn10;
     creatng->active_state = CrSt_CreaturePretendChickenSetupMove;
@@ -3382,14 +3382,14 @@ long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
 void place_thing_in_creature_controlled_limbo(struct Thing *thing)
 {
     remove_thing_from_mapwho(thing);
-    thing->rendering_flags |= TRF_Unknown01;
+    thing->rendering_flags |= TRF_Invisible;
     thing->state_flags |= TF1_InCtrldLimbo;
 }
 
 void remove_thing_from_creature_controlled_limbo(struct Thing *thing)
 {
     thing->state_flags &= ~TF1_InCtrldLimbo;
-    thing->rendering_flags &= ~TRF_Unknown01;
+    thing->rendering_flags &= ~TRF_Invisible;
     place_thing_in_mapwho(thing);
 }
 

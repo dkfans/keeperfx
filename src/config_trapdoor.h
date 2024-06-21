@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "config_objects.h"
 
 #include "config.h"
 
@@ -87,6 +88,7 @@ struct TrapConfigStats {
     TbBool place_on_bridge;
     TbBool place_on_subtile;
     EffectOrEffElModel destroyed_effect;
+    struct FlameProperties flame;
 };
 
 /**

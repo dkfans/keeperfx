@@ -108,7 +108,12 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"DESTROYEDEFFECT",      42},
   {"INITIALDELAY",         43},
   {"PLACEONSUBTILE",       44},
-  {NULL,                    0},
+  {"FLAMEANIMATIONID",     45},
+  {"FLAMEANIMATIONSPEED",  46},
+  {"FLAMEANIMATIONSIZE",   47},
+  {"FLAMEANIMATIONOFFSET",    48},
+  {"FLAMETRANSPARENCYFLAGS",  49},
+  {NULL,                       0},
 };
 
 const struct NamedCommand door_properties_commands[] = {
@@ -514,8 +519,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
       case 16: // ANIMATIONID
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-            struct ObjectConfigStats obj_tmp;
-            k = get_anim_id(word_buf, &obj_tmp);
+            k = get_anim_id_(word_buf);
             if (k >= 0)
             {
                 game.conf.trap_stats[i].sprite_anim_idx = k;
@@ -761,13 +765,13 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
-      case 31: // LIGHTFLAGS
+      case 31: // TRANSPARENCY_FLAGS
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].light_flag = k;
+                  game.conf.trap_stats[i].transparency_flag = k<<4;
                   n++;
               }
           }
@@ -1013,6 +1017,101 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               if (k >= 0)
               {
                   trapst->place_on_subtile = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 45: // FLAMEANIMATIONID
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_anim_id_(word_buf);
+              if (k >= 0)
+              {
+                  trapst->flame.animation_id = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 46: // FLAMEANIMATIONSPEED
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  trapst->flame.anim_speed = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 47: // FLAMEANIMATIONSIZE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  trapst->flame.sprite_size = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 48: // FLAMEANIMATIONOFFSET
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              trapst->flame.fp_add_x = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              trapst->flame.fp_add_y = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              trapst->flame.td_add_x = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              trapst->flame.td_add_y = k;
+              n++;
+          }
+          if (n < 4)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 49: // FLAMETRANSPARENCYFLAGS
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  trapst->flame.transparency_flags = k << 4;
                   n++;
               }
           }
