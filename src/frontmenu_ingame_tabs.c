@@ -53,7 +53,7 @@
 #include "magic.h"
 #include "player_computer.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "frontmenu_ingame_evnt.h"
 #include "frontmenu_ingame_opts.h"
 #include "frontmenu_ingame_map.h"
@@ -1208,7 +1208,7 @@ void draw_centred_string64k(const char *text, short x, short y, short base_w, sh
     }
     else
     {
-        tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+        tx_units_per_px = (22 * units_per_pixel_ui) / LbTextLineHeight();
         if ( (dbc_language > 0) && (MyScreenWidth > 640) )
         {
             tx_units_per_px = scale_value_by_horizontal_resolution(12 + (MyScreenWidth / 640));
@@ -1216,7 +1216,7 @@ void draw_centred_string64k(const char *text, short x, short y, short base_w, sh
         }
         else
         {
-            tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+            tx_units_per_px = (22 * units_per_pixel_ui) / LbTextLineHeight();
         }
         text_x = 0;
     }
@@ -2210,7 +2210,7 @@ void gui_area_payday_button(struct GuiButton *gbtn)
     gui_area_progress_bar_wide(gbtn, units_per_px, game.pay_day_progress, game.conf.rules.game.pay_day_gap);
     struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
     char* text = buf_sprintf("%d", (int)dungeon->creatures_total_pay);
-    draw_centred_string64k(text, gbtn->scr_pos_x + (gbtn->width >> 1), gbtn->scr_pos_y + 8*units_per_px/16, 130, gbtn->width);
+    draw_centred_string64k(text, gbtn->scr_pos_x + (gbtn->width >> 1), gbtn->scr_pos_y + scale_value_by_vertical_resolution(8), 130, gbtn->width);
 }
 
 void gui_area_research_bar(struct GuiButton *gbtn)

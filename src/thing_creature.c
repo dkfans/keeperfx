@@ -71,7 +71,7 @@
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "power_hand.h"
 #include "power_process.h"
 #include "room_data.h"
@@ -102,41 +102,6 @@ extern "C" {
 
 /******************************************************************************/
 int creature_swap_idx[CREATURE_TYPES_COUNT];
-
-struct Creatures creatures[] = {
-  { 0,  0, 0, 0, 0, 0, 0, 0, 0, 0x0000, 1},
-  {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 2, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 2, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 4, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 4, 0, 0, 0x0180, 1},
-  { 1, 77, 1, 0, 1, 0, 2, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 4, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 5, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 3, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 4, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 6, 0, 0, 0x0226, 1},
-  {17, 34, 1, 0, 1, 0, 6, 0, 0, 0x0100, 1},
-  {17, 34, 1, 0, 1, 0, 6, 0, 0, 0x0080, 1},
-  {17, 34, 1, 0, 1, 0, 6, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 4, 0, 0, 0x0180, 0},
-  { 1, 77, 1, 0, 1, 0, 1, 0, 0, 0x0100, 1},
-  {17, 34, 1, 0, 1, 0, 6, 0, 0, 0x0080, 1},
-  {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 6, 0, 0, 0x0100, 1},
-  {17, 34, 1, 0, 1, 0, 6, 0, 0, 0x0100, 1},
-  {17, 34, 1, 0, 1, 1, 1, 0, 0, 0x0100, 1},
-  {17, 34, 1, 0, 1, 0, 3, 0, 0, 0x0100, 1},
-  {17, 34, 1, 0, 1, 0, 2, 0, 0, 0x0180, 1},
-  { 0,  0, 1, 0, 1, 0, 1, 0, 0, 0x0000, 1},
-};
 
 /******************************************************************************/
 extern struct TbLoadFiles swipe_load_file[];
@@ -292,7 +257,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     if (cam != NULL)
       player->view_mode_restore = cam->view_mode;
     thing->alloc_flags |= TAlF_IsControlled;
-    thing->rendering_flags |= TRF_Unknown01;
+    thing->rendering_flags |= TRF_Invisible;
     if (!chicken)
     {
         set_start_state(thing);
@@ -346,7 +311,7 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
     if (cam != NULL)
       player->view_mode_restore = cam->view_mode;
     set_player_mode(player, PVT_CreaturePasngr);
-    thing->rendering_flags |= TRF_Unknown01;
+    thing->rendering_flags |= TRF_Invisible;
     return true;
 }
 
@@ -364,12 +329,11 @@ void free_swipe_graphic(void)
 TbBool load_swipe_graphic_for_creature(const struct Thing *thing)
 {
     SYNCDBG(6,"Starting for %s",thing_model_name(thing));
-
-    int i = creatures[thing->model % game.conf.crtr_conf.model_count].swipe_idx;
-    if ((i == 0) || (game.loaded_swipe_idx == i))
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    if ((crstat->swipe_idx == 0) || (game.loaded_swipe_idx == crstat->swipe_idx))
         return true;
     free_swipe_graphic();
-    int swpe_idx = i;
+    int swpe_idx = crstat->swipe_idx;
     {
         struct TbLoadFiles* t_lfile = &swipe_load_file[0];
 #ifdef SPRITE_FORMAT_V2
@@ -1277,7 +1241,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         if (thing->light_id != 0)
         {
             cctrl->spell_flags &= ~CSAfF_Light;
-            if ((thing->rendering_flags & TRF_Unknown01) != 0)
+            if ((thing->rendering_flags & TRF_Invisible) != 0)
             {
                 light_set_light_intensity(thing->light_id, (light_get_light_intensity(thing->light_id) - 20));
                 struct Light* lgt = &game.lish.lights[thing->light_id];
@@ -1646,13 +1610,18 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
     {
         sumxp = cctrl->explevel + level;
     }
+    short sumcount = count;
+    if (count <= 0)
+    {
+        sumcount = cctrl->explevel+1 + count;
+    }
     if (duration == 0)
     {
         famlrtng = activate_trap_spawn_creature(creatng, model);
     }
     else
     {
-        for (int j = 0; j < count; j++)
+        for (int j = 0; j < sumcount; j++)
         {
             if (j > FAMILIAR_MAX)
             {
@@ -2609,8 +2578,8 @@ struct Thing* thing_death_ice_explosion(struct Thing *thing)
 
 struct Thing* creature_death_as_nature_intended(struct Thing *thing)
 {
-    long i = creatures[thing->model % game.conf.crtr_conf.model_count].natural_death_kind;
-    switch (i)
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    switch (crstat->natural_death_kind)
     {
     case Death_Normal:
         return thing_death_normal(thing);
@@ -2623,7 +2592,7 @@ struct Thing* creature_death_as_nature_intended(struct Thing *thing)
     case Death_IceExplode:
         return thing_death_ice_explosion(thing);
     default:
-        WARNLOG("Unexpected %s death cause %d",thing_model_name(thing),(int)i);
+        WARNLOG("Unexpected %s death cause %d",thing_model_name(thing), crstat->natural_death_kind);
         return INVALID_THING;
     }
 }
@@ -4064,9 +4033,9 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->move_angle_xy = 0;
     crtng->move_angle_z = 0;
     cctrl->max_speed = calculate_correct_creature_maxspeed(crtng);
-    cctrl->shot_shift_x = creatures[model].shot_shift_x;
-    cctrl->shot_shift_y = creatures[model].shot_shift_y;
-    cctrl->shot_shift_z = creatures[model].shot_shift_z;
+    cctrl->shot_shift_x = crstat->shot_shift_x;
+    cctrl->shot_shift_y = crstat->shot_shift_y;
+    cctrl->shot_shift_z = crstat->shot_shift_z;
     long i = get_creature_anim(crtng, 0);
     set_thing_draw(crtng, i, 256, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
     cctrl->explevel = 1;
@@ -4619,14 +4588,14 @@ long player_list_creature_filter_of_gui_job_and_pickable2(const struct Thing *th
  * Returns a creature in fight which gives highest score value.
  * @return The thing in fight, or invalid thing if not found.
  */
-struct Thing *find_players_highest_score_creature_in_fight_not_affected_by_spell(PlayerNumber plyr_idx, PowerKind pwkind)
+struct Thing *find_players_highest_score_creature_in_fight_not_affected_by_spell(PlayerNumber plyr_idx, SpellKind spell_kind)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     struct CompoundTngFilterParam param;
     param.plyr_idx = -1;
     param.class_id = 0;
     param.model_id = CREATURE_ANY;
-    param.num1 = pwkind;
+    param.num1 = spell_kind;
     Thing_Maximizer_Filter filter = player_list_creature_filter_in_fight_and_not_affected_by_spell;
     struct Thing* creatng = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
     if (thing_is_invalid(creatng)) {
@@ -5161,29 +5130,12 @@ void place_bloody_footprint(struct Thing *thing)
         return;
     }
     short nfoot = get_foot_creature_has_down(thing);
-    struct Thing* footng;
-    switch (creatures[thing->model % game.conf.crtr_conf.model_count].field_6)
+    struct Thing* footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_Blood4, thing->owner);
+    if (!thing_is_invalid(footng))
     {
-    case 3:
-    case 4:
-        break;
-    case 5:
-        if (nfoot)
-        {
-            footng = create_thing(&thing->mappos, TCls_EffectElem, TngEffElm_Blood4, thing->owner, -1);
-            if (!thing_is_invalid(footng)) {
-                cctrl->bloody_footsteps_turns--;
-            }
-        }
-        break;
-    default:
-        footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, 23, thing->owner);
-        if (!thing_is_invalid(footng)) {
-            cctrl->bloody_footsteps_turns--;
-        }
-        break;
+        cctrl->bloody_footsteps_turns--;
     }
-  }
+}
 
 TbBool update_controlled_creature_movement(struct Thing *thing)
 {
@@ -6118,7 +6070,7 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
             thing->mappos.z.val = get_ceiling_height(&thing->mappos);
             create_effect(&thing->mappos, TngEff_CeilingBreach, thing->owner);
             initialise_thing_state(thing, CrSt_CreatureHeroEntering);
-            thing->rendering_flags |= TRF_Unknown01;
+            thing->rendering_flags |= TRF_Invisible;
             cctrl->countdown_282 = 24;
         }
     default:

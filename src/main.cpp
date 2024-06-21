@@ -65,7 +65,7 @@
 #include "thing_list.h"
 #include "player_instances.h"
 #include "player_utils.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "player_computer.h"
 #include "game_heap.h"
 #include "game_saves.h"
@@ -1771,7 +1771,7 @@ void init_keepers_map_exploration(void)
     for (i=0; i < PLAYERS_COUNT; i++)
     {
       player = get_player(i);
-      if (player_exists(player) && (player->is_active == 1))
+      if ((player_exists(player) && (player->is_active == 1)) || player_is_roaming(i))
       {
           // Additional init - the main one is in init_player()
           if ((player->allocflags & PlaF_CompCtrl) != 0) {
@@ -2439,7 +2439,7 @@ void count_players_creatures_being_paid(int *creatures_count)
         }
         i = thing->next_of_class;
         // Per-thing code
-        if (player_is_roaming(thing->owner) && (thing->owner != game.neutral_player_num))
+        if (!player_is_roaming(thing->owner) && (thing->owner != game.neutral_player_num))
         {
             struct CreatureStats *crstat;
             crstat = creature_stats_get_from_thing(thing);
@@ -2721,7 +2721,7 @@ TbBool valid_cave_in_position(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
 long update_cave_in(struct Thing *thing)
 {
     thing->health--;
-    thing->rendering_flags |= TRF_Unknown01;
+    thing->rendering_flags |= TRF_Invisible;
     if (thing->health < 1)
     {
         delete_thing_structure(thing, 0);

@@ -196,17 +196,17 @@ struct PlayerInfo {
     short minimap_pos_y;
     unsigned short minimap_zoom;
     unsigned char view_type;
-    unsigned char work_state;
+    PlayerState work_state;
     unsigned char primary_cursor_state;
     unsigned char secondary_cursor_state;
-    unsigned char continue_work_state;
+    PlayerState continue_work_state;
 char field_45F;
 short cursor_light_idx;
     char mp_message_text[PLAYER_MP_MESSAGE_LEN];
     unsigned char chosen_room_kind;
     unsigned char full_slab_cursor; // 0 for subtile sized cursor, 1 for slab sized cursor
-    char chosen_trap_kind;
-    char chosen_door_kind;
+    ThingModel chosen_trap_kind;
+    ThingModel chosen_door_kind;
     MapSubtlCoord cursor_clicked_subtile_x; // x coord of subtile clicked by mouse cursor
     MapSubtlCoord cursor_clicked_subtile_y; // y coord of subtile clicked by mouse cursor
     unsigned char cursor_button_down; // left or right button down (whilst using the bounding box cursor)

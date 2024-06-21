@@ -36,6 +36,7 @@
 #include "config_effects.h"
 #include "config_objects.h"
 #include "config_rules.h"
+#include "config_players.h"
 #include "dungeon_data.h"
 #include "thing_data.h"
 #include "thing_traps.h"
@@ -126,6 +127,7 @@ struct Configs {
     struct ObjectsConfig object_conf;
     struct CreatureModelConfig swap_creature_models[SWAP_CREATURE_TYPES_MAX];
     struct RulesConfig rules;
+    struct PlayerStateConfig plyr_conf;
 };
 
 struct Game {
@@ -196,7 +198,6 @@ unsigned int packet_file_pos;
     //unsigned char level_file_number; // merged with level_number to get maps > 255
     short loaded_level_number;
     short texture_animation[TEXTURE_BLOCKS_ANIM_FRAMES*TEXTURE_BLOCKS_ANIM_COUNT];
-    unsigned short columns_used;
     unsigned char texture_id;
     unsigned short free_things[THINGS_COUNT-1];
     /** Index of the first used element in free things array. All elements BEYOND this index are free. If all things are free, it is set to 0. */

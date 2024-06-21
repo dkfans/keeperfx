@@ -718,7 +718,6 @@ static TbBool get_against(PlayerNumber agnst_plyr_idx, SlabKind agnst_slbkind, M
 
 void delete_column(ColumnIndex col_idx)
 {
-    game.columns_used--;
     struct Column *col;
     col = &game.columns_data[col_idx];
     memcpy(col, &game.columns_data[0], sizeof(struct Column));
@@ -2462,7 +2461,7 @@ void clear_dig_and_set_explored_can_see_y(MapSlabCoord slb_x, MapSlabCoord slb_y
 
 void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    if (is_neutral_thing(creatng) || is_hero_thing(creatng) || thing_is_invalid(creatng))
+    if (is_neutral_thing(creatng) || thing_is_invalid(creatng)) //heroes do explore, so mapmakers can cast hero powers
         return;
     struct Coord3d pos;
     pos.x.val = subtile_coord_center(stl_x);
