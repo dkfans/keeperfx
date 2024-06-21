@@ -1101,7 +1101,10 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
 TbBool load_computer_player_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     SYNCDBG(8, "Starting");
-    init_computer_process_lists();
+    if ((flags & CnfLd_AcceptPartial) == 0)
+    {
+        init_computer_process_lists();
+    }
     // Load the config file
     long len = LbFileLengthRnc(fname);
     if (len < 2)
