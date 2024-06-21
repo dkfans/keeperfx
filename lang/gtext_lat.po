@@ -6557,3 +6557,53 @@ msgstr "Lectus lapidosus: Solum lapidosum invindicatum. Eum vindicare aut in eo 
 msgctxt "Slab description"
 msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "Vena auri densa: Multae opes continet ut diabolulli tui eas fodiant."
+
+#: guitext:1053
+msgctxt "Keeper spell name"
+msgid "Rebound"
+msgstr "Resilientia"
+
+#: guitext:1054
+msgctxt "Keeper spell name"
+msgid "Freeze"
+msgstr "Congelatio"
+
+#: guitext:1055
+msgctxt "Keeper spell name"
+msgid "Slow"
+msgstr "Lentitudo"
+
+#: guitext:1056
+msgctxt "Keeper spell name"
+msgid "Flight"
+msgstr "Volatus"
+
+#: guitext:1057
+msgctxt "Keeper spell name"
+msgid "Illumination"
+msgstr "Illuminatio"
+
+#: guitext:1058
+msgctxt "Keeper spell name"
+msgid "Sight"
+msgstr "Visus"
+
+#: guitext:1059
+msgctxt "Dungeon special decription"
+msgid "Heal All: Restore full health to all your creatures."
+msgstr "Omnes sanare: Sanitatem plenam ad omnes creaturas restaurat."
+
+#: guitext:1060
+msgctxt "Dungeon special decription"
+msgid "Increase Gold: Generates gold in your treasury."
+msgstr "Aurum augere: Aurum in camera thesauri tua generat."
+
+#: guitext:1061
+msgctxt "Dungeon special decription"
+msgid "Make Unhappy: All creatures of the enemy become upset."
+msgstr "Tristem facere: Omnes creaturae inimicis solliciti fiunt."
+
+#: guitext:1062
+msgctxt "Dungeon special decription"
+msgid "Weaken Walls: Destroys the fortifications of enemy walls."
+msgstr "Muros debilitare: Fortificationes murorum inimicis delet."
