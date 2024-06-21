@@ -3033,8 +3033,6 @@ long check_out_worker_save_unconscious(struct Thing *thing, struct DiggerStack *
     {
         return 0;
     }
-    //struct Room * room;
-    //room = find_nearest_room_of_role_for_thing_with_spare_capacity(thing, thing->owner, RoRoF_Prison, NavRtF_Default, 1);
     struct CreatureControl *cctrl_sectng = creature_control_get_from_thing(sectng);
     struct Thing* lairtng = thing_get(cctrl_sectng->lairtng_idx);
     if(!setup_person_move_to_coord(thing, &lairtng->mappos, NavRtF_Default))

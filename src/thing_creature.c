@@ -6580,7 +6580,7 @@ TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
     {
         if (creature_is_being_unconscious(picktng))
         {
-            if (game.conf.rules.workers.drag_to_lair > 0 && (picktng->owner == creatng->owner)){
+            if ((game.conf.rules.workers.drag_to_lair > 0) && (picktng->owner == creatng->owner)){
                 return (picktng->owner == creatng->owner);
             }
             else{
