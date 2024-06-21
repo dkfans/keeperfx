@@ -42,7 +42,7 @@ struct PlayerInfo;
 #define MINMAX_LENGTH 512 // Originally 64, adjusted for view distance
 #define MINMAX_ALMOST_HALF ((MINMAX_LENGTH/2)-1)
 #define CAMERA_TILT_DEFAULT -266
-#define CAMERA_TILT_MIN -300
+#define CAMERA_TILT_MIN -350
 #define CAMERA_TILT_MAX -200
 
 extern long zoom_distance_setting; // CFG setting
