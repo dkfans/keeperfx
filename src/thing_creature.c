@@ -5290,20 +5290,32 @@ void check_for_creature_escape_from_lava(struct Thing *thing)
     }
 }
 
-TbBool thing_is_on_snow_texture(struct Thing* thing)
+/**
+ * Get's an effect element for a footstep.
+ */
+ThingModel get_footstep_effect_element(struct Thing* thing)
 {
-    #define SNOW_TEXTURE 2
-    unsigned char ext_txtr = gameadd.slab_ext_data[get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num))];
+    static const unsigned char tileset_footstep_textures[TEXTURE_VARIATIONS_COUNT] = 
+    { TngEffElm_None,       TngEffElm_None,         TngEffElm_IceMelt3,     TngEffElm_None,
+      TngEffElm_None,       TngEffElm_None,         TngEffElm_None,         TngEffElm_None,
+      TngEffElm_StepSand,   TngEffElm_StepGypsum,   TngEffElm_None,         TngEffElm_None,
+      TngEffElm_None,       TngEffElm_None,         TngEffElm_None,         TngEffElm_None 
+    };
 
-    if ((ext_txtr == 0) && (game.texture_id == SNOW_TEXTURE)) //Snow map and on default texture
+    short texture;
+        unsigned char ext_txtr = gameadd.slab_ext_data[get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num))];
+    if (ext_txtr == 0)
     {
-        return true;
+        // Default map texture
+        texture = game.texture_id;
     }
-    if (ext_txtr == SNOW_TEXTURE+1) //On non-default texture that is snow
+    else
     {
-        return true;
+        // Slab specific texture
+        texture = ext_txtr - 1;
     }
-    return false;
+
+    return tileset_footstep_textures[texture];
 }
 
 void process_creature_leave_footsteps(struct Thing *thing)
@@ -5311,7 +5323,7 @@ void process_creature_leave_footsteps(struct Thing *thing)
     struct Thing *footng;
     short nfoot;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if ((thing->movement_flags & TMvF_IsOnWater) != 0)
+    if (flag_is_set(thing->movement_flags,TMvF_IsOnWater))
     {
         nfoot = get_foot_creature_has_down(thing);
         if (nfoot)
@@ -5331,16 +5343,16 @@ void process_creature_leave_footsteps(struct Thing *thing)
         }
     } else
     {
-        // Snow footprints
-        TbBool SnowTexture = thing_is_on_snow_texture(thing);
-        if (SnowTexture)
+        // Tileset footprints, formerly Snow footprints.
+        ThingModel footprint = get_footstep_effect_element(thing);
+        if (footprint != TngEffElm_None)
         {
             struct SlabMap* slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
             if (slb->kind == SlbT_PATH)
             {
-              thing->movement_flags |= TMvF_IsOnSnow;
-              nfoot = get_foot_creature_has_down(thing);
-              footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_IceMelt3, thing->owner);
+                set_flag(thing->movement_flags,TMvF_IsOnSnow);
+                nfoot = get_foot_creature_has_down(thing);
+                footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, footprint, thing->owner);
             }
         }
     }
