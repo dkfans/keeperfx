@@ -1865,7 +1865,7 @@ msgstr "Monachus"
 #: guitext:287
 msgctxt "In-game interface description"
 msgid "Query: Select this and left click on a creature to view information on that creature and track it on screen. LMB select."
-msgstr "Quaestio: Hoc delige et preme butonem sinitrum muris ut indicium de ista creatura videas et in quadro eam sequaris. BSM delige."
+msgstr "Quaestio: Hoc delige et preme butonem sinistrum muris ut indicium de ista creatura videas et in quadro eam sequaris. BSM delige."
 
 #: guitext:288
 msgctxt "Menu interface item"
