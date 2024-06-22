@@ -5294,8 +5294,8 @@ msgstr "Fides: Quantam resistentiam creatura tractat contra attractionem inimica
 
 #: guitext:952
 msgctxt "In-game interface description"
-msgid "Research Skill: unused."
-msgstr "Habilitas investigationis: non usa."
+msgid "Research Skill: How fast the creature works in Library. The higher the Skill level, the better the creature's performance."
+msgstr "Habilitas investigationis: Quam rapide creatura in bibliotheca operatur. Quanto maior gradus habilitatis est, tanto melior functio creaturae est."
 
 #: guitext:953
 msgctxt "In-game interface description"
