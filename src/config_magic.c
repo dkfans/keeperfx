@@ -2278,12 +2278,12 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
               special_desc[i].num = 0;
           }
       }
-  }
     arr_size = sizeof(game.conf.object_conf.object_to_special_artifact)/sizeof(game.conf.object_conf.object_to_special_artifact[0]);
     for (i=0; i < arr_size; i++) {
         game.conf.object_conf.object_to_special_artifact[i] = 0;
     }
-    
+  }
+  
   arr_size = game.conf.magic_conf.special_types_count;
   // Load the file
   for (i=0; i < arr_size; i++)
