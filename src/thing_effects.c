@@ -114,7 +114,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmod
         set_flag_value(thing->rendering_flags, TRF_AnimateOnce, eestat->rendering_flag);
     } else
     {
-        set_flag(thing->rendering_flags, TRF_Unknown01);
+        set_flag(thing->rendering_flags, TRF_Invisible);
     }
 
     thing->fall_acceleration = eestat->fall_acceleration;
@@ -574,7 +574,7 @@ struct Thing *create_effect_generator(struct Coord3d *pos, ThingModel model, uns
     effgentng->mappos = *pos;
     effgentng->creation_turn = game.play_gameturn;
     effgentng->health = -1;
-    effgentng->rendering_flags |= TRF_Unknown01;
+    effgentng->rendering_flags |= TRF_Invisible;
     add_thing_to_its_class_list(effgentng);
     place_thing_in_mapwho(effgentng);
     return effgentng;
@@ -889,7 +889,7 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     thing->fall_acceleration = 0;
     thing->inertia_floor = 0;
     thing->inertia_air = 0;
-    thing->rendering_flags |= TRF_Unknown01;
+    thing->rendering_flags |= TRF_Invisible;
     thing->health = effcst->start_health;
     thing->shot_effect.hit_type = effcst->effect_hit_type;
     if (effcst->ilght.radius != 0)

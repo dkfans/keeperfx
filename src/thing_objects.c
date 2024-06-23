@@ -1471,7 +1471,7 @@ static TngUpdateRet object_update_armour(struct Thing *objtng)
     struct Thing* thing = thing_get(objtng->armor.belongs_to);
     if (thing_is_picked_up(thing))
     {
-        objtng->rendering_flags |= TRF_Unknown01;
+        objtng->rendering_flags |= TRF_Invisible;
         return 1;
     }
     struct Coord3d pos;
@@ -1513,7 +1513,7 @@ static TngUpdateRet object_update_armour(struct Thing *objtng)
     objtng->veloc_push_add.x.val += cvect.x;
     objtng->veloc_push_add.y.val += cvect.y;
     objtng->veloc_push_add.z.val += cvect.z;
-    objtng->rendering_flags &= ~TRF_Unknown01;
+    objtng->rendering_flags &= ~TRF_Invisible;
     return 1;
 }
 
