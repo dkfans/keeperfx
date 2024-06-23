@@ -183,8 +183,10 @@ enum CreatureStates {
     CrSt_GoodArrivedAtAttackRoom,
     CrSt_CreatureGoingToSafetyForToking,
     CrSt_Timebomb,
-    CrSt_GoodWanderToCreatureCombat,
+    CrSt_GoodWanderToCreatureCombat,//[150]
     CrSt_GoodWanderToObjectCombat,
+    CrSt_CreatureDropBodyInLair,
+    CrSt_CreatureSaveUnconsciousCreature,
     CrSt_ListEnd,
 };
 

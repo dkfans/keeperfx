@@ -44,7 +44,7 @@ CrStateRet creature_at_changed_lair(struct Thing *thing);
 CrStateRet creature_at_new_lair(struct Thing *thing);
 short creature_change_lair(struct Thing *thing);
 short creature_choose_room_for_lair_site(struct Thing *thing);
-
+short creature_drop_unconscious_in_lair(struct Thing *thing);
 short at_lair_to_sleep(struct Thing *thing);
 short cleanup_sleep(struct Thing *thing);
 TbBool creature_move_to_home_lair(struct Thing *creatng);
