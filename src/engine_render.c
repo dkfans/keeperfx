@@ -4829,7 +4829,7 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
     struct FlameProperties flame;
     unsigned long nframe;
     long add_x, add_y;
-    long scale;
+    long scale = 0;
     if (thing_is_object(thing))
     {
         objst = get_object_model_stats(thing->model);
@@ -4845,8 +4845,10 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
         ERRORLOG("Thing %s is neither an object nor a flame.", thing_model_name(thing));
         return;
     }
-    
-    scale = (flame.sprite_size * base_sprite_size / thing->sprite_size);
+    if (thing->sprite_size != 0)
+    {
+        scale = (flame.sprite_size * base_sprite_size / thing->sprite_size);
+    }
 
     if (player->view_type == PVT_DungeonTop)
     {
