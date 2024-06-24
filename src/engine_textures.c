@@ -126,8 +126,6 @@ static TbBool load_one_file(unsigned long tmapidx,char letter, void *dst)
         fname = prepare_file_fmtpath(FGrp_StdData, "tmap%c%03d.dat",letter, tmapidx);
     }
 
-    if (!wait_for_cd_to_be_available())
-        return false;
     if (!LbFileExists(fname))
     {
         WARNMSG("Texture file \"%s\" doesn't exist.",fname);

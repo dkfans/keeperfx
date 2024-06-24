@@ -58,7 +58,6 @@ int credits_end;
 /******************************************************************************/
 void frontstory_load(void)
 {
-    wait_for_cd_to_be_available();
     frontend_load_data_from_cd();
     if (LbDataLoadAll(frontstory_load_files_640))
     {

@@ -1584,11 +1584,6 @@ unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *
   prepare_file_path_buf(ffullpath, fgroup, fname);
   va_end(arg);
   // Load the file
-  if (file_group_needs_cd(fgroup))
-  {
-    if (!wait_for_cd_to_be_available())
-      return NULL;
-   }
    long fsize = LbFileLengthRnc(ffullpath);
    if (fsize < *ldsize)
    {

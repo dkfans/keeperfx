@@ -951,7 +951,6 @@ TbResult frontend_load_data(void)
     TbResult ret;
     long len;
     ret = Lb_SUCCESS;
-    wait_for_cd_to_be_available();
     frontend_background = (unsigned char *)game.map;
 #ifdef SPRITE_FORMAT_V2
     fname = prepare_file_fmtpath(FGrp_LoData,"front-%d.raw",64);
@@ -2613,7 +2612,7 @@ char *mdlf_for_cd(struct TbLoadFiles * tb_load_files)
     result = tb_load_files;
     if ( tb_load_files->FName[0] != 42 )
     {
-        sprintf(path_string, "%s/%s", install_info.inst_path, tb_load_files->FName);
+        sprintf(path_string, "%s/%s", install_info.inst_path, tb_load_files->FName); // todo check out
         return path_string;
     }
     return result->FName;
@@ -2714,11 +2713,9 @@ void frontend_shutdown_state(FrontendMenuState pstate)
     {
     case FeSt_INITIAL:
         init_gui();
-        wait_for_cd_to_be_available();
         fname = prepare_file_path(FGrp_LoData,"front.pal");
         if (LbFileLoadAt(fname, frontend_palette) != PALETTE_SIZE)
             ERRORLOG("Unable to load FRONTEND PALETTE");
-        wait_for_cd_to_be_available();
         LbMoveGameCursorToHostCursor(); // set the initial cursor position for the main menu
         update_mouse();
         break;

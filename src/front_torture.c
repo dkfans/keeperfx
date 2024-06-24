@@ -132,7 +132,6 @@ void fronttorture_unload(void)
 
 void fronttorture_load(void)
 {
-    wait_for_cd_to_be_available();
     frontend_load_data_from_cd();
     memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE);
     // Texture blocks memory isn't used here, so reuse it instead of allocating
