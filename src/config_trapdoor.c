@@ -1143,7 +1143,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
   // Block name and parameter word store variables
   SYNCDBG(19,"Starting");
 
-  // Increase door_types_count if higher trap ID found in file
+  // Increase door_types_count if higher door ID found in file
     for (int i=0; i < TRAPDOOR_TYPES_MAX; i++)
     {
         long pos = 0;
