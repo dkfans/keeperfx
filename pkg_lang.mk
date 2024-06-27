@@ -46,6 +46,7 @@ pkg/campgns/ancntkpr/text_fre.dat \
 pkg/campgns/ancntkpr/text_ger.dat \
 pkg/campgns/ancntkpr/text_pol.dat \
 pkg/campgns/ancntkpr/text_spa.dat \
+pkg/campgns/ancntkpr/text_lat.dat \
 pkg/campgns/burdnimp/text_eng.dat \
 pkg/campgns/burdnimp/text_chi.dat \
 pkg/campgns/burdnimp/text_pol.dat \
@@ -79,6 +80,7 @@ pkg/campgns/twinkprs/text_fre.dat \
 pkg/campgns/twinkprs/text_jpn.dat \
 pkg/campgns/twinkprs/text_pol.dat \
 pkg/campgns/twinkprs/text_spa.dat \
+pkg/campgns/twinkprs/text_lat.dat \
 pkg/campgns/undedkpr/text_eng.dat \
 pkg/campgns/undedkpr/text_chi.dat \
 pkg/campgns/undedkpr/text_ger.dat \

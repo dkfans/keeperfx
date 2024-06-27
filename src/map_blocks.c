@@ -2490,7 +2490,8 @@ void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoor
     {
         clear_dig_and_set_explored_can_see_x(slb_x, slb_y, creatng->owner, can_see_slabs);
         clear_dig_and_set_explored_can_see_y(slb_x, slb_y, creatng->owner, can_see_slabs);
-        if (!player_cannot_win(creatng->owner) && ((get_creature_model_flags(creatng) & CMF_IsSpectator) == 0)) {
+        if (!player_cannot_win(creatng->owner) && (!flag_is_set(get_creature_model_flags(creatng),CMF_IsSpectator)) && (!player_is_roaming(creatng->owner)))
+        {
             claim_neutral_creatures_in_sight(creatng, &pos, can_see_slabs);
         }
     }
