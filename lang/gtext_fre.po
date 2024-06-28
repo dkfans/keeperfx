@@ -7100,19 +7100,19 @@ msgstr ""
 #: guitext:1036
 msgctxt "Trap names"
 msgid "Demolition Trap"
-msgstr "Piège de démolition"
+msgstr "Piège Explosif"
 
 #: guitext:1037
 msgctxt "Trap description"
 msgid "Description du piège"
 "Demolition Trap: An explosive with unrivaled destructive power."
-msgstr "Piège de démolition: Un explosif d'une puissance destructrice sans égale."
+msgstr "Piège Explosif : Un explosif d'une puissance destructrice sans égale."
 
 #: guitext:1038
 msgctxt "Trap description"
 msgid "Description du piège"
 "Sentry Trap: Stands guard and shoots at enemies in sight."
-msgstr "Piège Sentinelle: Monte la garde et tire sur les ennemies à vue." 
+msgstr "Piège Sentinelle : Monte la garde et tire sur les ennemies à vue." 
 
 #: guitext:1039 guitext:1040
 msgctxt "Unused"
