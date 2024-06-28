@@ -2748,7 +2748,7 @@ short get_gui_inputs(short gameplay_on)
           if ((fmmenu_idx == -1) || (gbtn->gmenu_idx == fmmenu_idx))
           {
             gmbtn_idx = gidx;
-            gbtn->flags |= LbBtnF_Unknown10;
+            gbtn->flags |= LbBtnF_MouseOver;
             busy_doing_gui = 1;
             callback = gbtn->ptover_event;
             if (callback != NULL)
@@ -2759,11 +2759,11 @@ short get_gui_inputs(short gameplay_on)
                 nx_over_slider_button = gidx;
           } else
           {
-            gbtn->flags &= ~LbBtnF_Unknown10;
+            gbtn->flags &= ~LbBtnF_MouseOver;
           }
       } else
       {
-          gbtn->flags &= ~LbBtnF_Unknown10;
+          gbtn->flags &= ~LbBtnF_MouseOver;
       }
       if (gbtn->gbtype == LbBtnT_HorizSlider)
       {

@@ -2129,7 +2129,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
     gbtn->maxval = gbinit->maxval;
     gbtn->maintain_call = gbinit->maintain_call;
     gbtn->flags |= LbBtnF_Enabled;
-    gbtn->flags &= ~LbBtnF_Unknown10;
+    gbtn->flags &= ~LbBtnF_MouseOver;
     gbtn->gbactn_1 = 0;
     gbtn->flags |= LbBtnF_Visible;
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown20 * (gbinit->gbifield_5 >> 8)) & LbBtnF_Unknown20;
