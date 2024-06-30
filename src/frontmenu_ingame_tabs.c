@@ -756,7 +756,7 @@ void go_to_next_trap_of_type(ThingModel tngmodel, PlayerNumber plyr_idx)
         return;
     }
     unsigned long k = 0;
-    static unsigned short seltrap[8];
+    static ThingModel seltrap[TRAPDOOR_TYPES_MAX];
     int i = seltrap[tngmodel];
     SYNCDBG(9,"Starting, prev index %d",i);
     {
