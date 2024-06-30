@@ -812,7 +812,7 @@ void go_to_next_door_of_type(ThingModel tngmodel, PlayerNumber plyr_idx)
         return;
     }
     unsigned long k = 0;
-    static unsigned short seldoor[8];
+    static ThingModel seldoor[TRAPDOOR_TYPES_MAX];
     int i = seldoor[tngmodel];
     {
         if (i != 0) {
