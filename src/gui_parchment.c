@@ -610,6 +610,7 @@ void draw_overhead_things(const struct TbRect *map_area, long block_size, Player
 
 void draw_2d_map(void)
 {
+  if (get_gameturn() < 5) {return;} // This is a bugfix attempt for a rare crash
   SYNCDBG(8,"Starting");
   struct PlayerInfo* player = get_my_player();
   // Size of the parchment map on which we're drawing
