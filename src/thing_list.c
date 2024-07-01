@@ -2076,7 +2076,7 @@ TbBool electricity_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, c
     MapCoord max_dist, HitPoints max_damage, PlayerNumber owner)
 {
     TbBool affected = false;
-    if (!nowibble_line_of_sight_3d(pos, &tngdst->mappos)) {
+    if (!line_of_sight_3d(pos, &tngdst->mappos)) {
         max_dist /= 3;
     }
     // Friendly fire usually causes less damage and at smaller distance
