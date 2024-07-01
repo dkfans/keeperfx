@@ -112,6 +112,7 @@ void gui_query_next_creature_of_owner(struct GuiButton *gbtn);
 void maintain_spell_next_page_button(struct GuiButton *gbtn);
 void maintain_room_next_page_button(struct GuiButton *gbtn);
 void maintain_trap_next_page_button(struct GuiButton *gbtn);
+void gui_switch_players_visible(struct GuiButton* gbtn);
 /******************************************************************************/
 #ifdef __cplusplus
 }

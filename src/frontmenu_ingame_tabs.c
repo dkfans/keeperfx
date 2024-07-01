@@ -751,12 +751,12 @@ void gui_choose_trap(struct GuiButton *gbtn)
 void go_to_next_trap_of_type(ThingModel tngmodel, PlayerNumber plyr_idx)
 {
     struct Thing *thing;
-    if (tngmodel >= 8) {
+    if (tngmodel >= TRAPDOOR_TYPES_MAX) {
         ERRORLOG("Bad trap kind");
         return;
     }
     unsigned long k = 0;
-    static unsigned short seltrap[8];
+    static ThingModel seltrap[TRAPDOOR_TYPES_MAX];
     int i = seltrap[tngmodel];
     SYNCDBG(9,"Starting, prev index %d",i);
     {
@@ -807,12 +807,12 @@ void go_to_next_trap_of_type(ThingModel tngmodel, PlayerNumber plyr_idx)
 void go_to_next_door_of_type(ThingModel tngmodel, PlayerNumber plyr_idx)
 {
     struct Thing *thing;
-    if (tngmodel >= 8) {
+    if (tngmodel >= TRAPDOOR_TYPES_MAX) {
         ERRORLOG("Bad door kind");
         return;
     }
     unsigned long k = 0;
-    static unsigned short seldoor[8];
+    static ThingModel seldoor[TRAPDOOR_TYPES_MAX];
     int i = seldoor[tngmodel];
     {
         if (i != 0) {
