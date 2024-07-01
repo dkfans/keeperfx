@@ -1387,7 +1387,7 @@ static TbResult magic_use_power_lightning(PowerKind power_kind, PlayerNumber ply
     dungeon = get_dungeon(player->id_number);
     pos.x.val = subtile_coord_center(stl_x);
     pos.y.val = subtile_coord_center(stl_y);
-    pos.z.val = 0;
+    pos.z.val = get_floor_height_at(&pos);
     // make sure the spell level is correct
     if (splevel >= MAGIC_OVERCHARGE_LEVELS)
         splevel = MAGIC_OVERCHARGE_LEVELS-1;
@@ -1420,7 +1420,7 @@ static TbResult magic_use_power_lightning(PowerKind power_kind, PlayerNumber ply
     // Compensate for effect element position offset
     objpos.x.val = pos.x.val + 128;
     objpos.y.val = pos.y.val + 128;
-    objpos.z.val = 0;
+    objpos.z.val = get_floor_height_at(&pos);
     obtng = create_object(&objpos, ObjMdl_PowerLightning, plyr_idx, -1);
     if (!thing_is_invalid(obtng))
     {
