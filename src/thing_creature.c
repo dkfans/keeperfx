@@ -1749,17 +1749,6 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
     {
         thing_summon_temporary_creature(castng, spconf->crtr_summon_model, spconf->crtr_summon_level, spconf->crtr_summon_amount, spconf->duration);
     }
-    // Check if the spell has an effect associated
-    if (spconf->cast_effect_model != 0)
-    {
-        struct Thing* efthing = create_used_effect_or_element(&castng->mappos, spconf->cast_effect_model, castng->owner);
-        if (!thing_is_invalid(efthing))
-        {
-            struct ShotConfigStats* shotst = get_shot_model_stats(spconf->shot_model);
-            efthing->shot_effect.hit_type = shotst->area_hit_type;
-            efthing->parent_idx = castng->index;
-        }
-    }
 }
 
 void update_creature_count(struct Thing *creatng)
