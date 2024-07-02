@@ -31,10 +31,10 @@
 extern "C" {
 #endif
 
-#define CREATURE_NONE 255
-#define CREATURE_ANY  254
-#define CREATURE_NOT_A_DIGGER  253
-#define CREATURE_DIGGER  252
+#define CREATURE_NONE            255
+#define CREATURE_ANY             254
+#define CREATURE_NOT_A_DIGGER    253
+#define CREATURE_DIGGER          252
 
 /** Percentage of creature parameter increase for every experience level.
  *  Used as default value, should be replaced in config file. */
@@ -137,17 +137,26 @@ enum JobKindFlags {
 };
 
 enum InstancePropertiesFlags {
-    InstPF_None               = 0x0000,
-    InstPF_RepeatTrigger      = 0x0001,
-    InstPF_RangedAttack       = 0x0002,
-    InstPF_MeleeAttack        = 0x0004,
-    InstPF_SelfBuff           = 0x0008,
-    InstPF_RangedDebuff       = 0x0010,
-    InstPF_Dangerous          = 0x0020,
-    InstPF_Destructive        = 0x0040,
-    InstPF_Quick              = 0x0080,
-    InstPF_Disarming          = 0x0100,
-    InstPF_UsesSwipe          = 0x0200,
+    InstPF_None                = 0x000000,
+    InstPF_RepeatTrigger       = 0x000001,
+    InstPF_RangedAttack        = 0x000002,
+    InstPF_MeleeAttack         = 0x000004,
+    InstPF_SelfBuff            = 0x000008,
+    InstPF_RangedDebuff        = 0x000010,
+    InstPF_Dangerous           = 0x000020,
+    InstPF_Destructive         = 0x000040,
+    InstPF_Quick               = 0x000080,
+    InstPF_Disarming           = 0x000100,
+    InstPF_UsesSwipe           = 0x000200,
+    InstPF_DiggerTask          = 0x000400,
+    InstPF_OutOfBattle         = 0x000800,
+    InstPF_Waiting             = 0x001000,
+    InstPF_WhileImprisoned     = 0x002000,
+    InstPF_OnlyInjured         = 0x004000,
+    InstPF_OnlyUnderGas        = 0x008000,
+    InstPF_OnToxicTerrain      = 0x010000,
+    InstPF_AgainstDoor         = 0x020000,
+    InstPF_AgainstObject       = 0x040000,
 };
 
 enum CreatureDeathKind {

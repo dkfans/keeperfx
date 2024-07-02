@@ -110,6 +110,23 @@ Creature_Instf_Func creature_instances_func_list[] = {
   NULL,
 };
 
+enum creature_instances_func {
+  CrInstFn_none = 0,
+  CrInstFn_attack_room_slab = 1,
+  CrInstFn_creature_cast_spell = 2,
+  CrInstFn_creature_fire_shot = 3,
+  CrInstFn_damage_wall = 4,
+  CrInstFn_destroy = 5,
+  CrInstFn_dig = 6,
+  CrInstFn_eat = 7,
+  CrInstFn_fart = 8,
+  CrInstFn_first_person_do_imp_tasK = 9,
+  CrInstFn_pretty_path = 10,
+  CrInstFn_reinforce = 11,
+  CrInstFn_tortured = 12,
+  CrInstFn_tunnel = 13,
+};
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -317,7 +334,7 @@ TbBool creature_has_ranged_weapon(const struct Thing *creatng)
 }
 
 /**
- * Informs whether the creature has an instance which is ranged weapon useable against other creatures.
+ * Informs whether the creature has an instance which is ranged weapon useable against traps.
  * The instances currently in use and currently in cooldown are included.
  * @param creatng The creature to be checked.
  * @return True if the creature has ranged weapon, false otherwise.
@@ -525,12 +542,8 @@ long process_creature_self_spell_casting(struct Thing* creatng)
     if (cctrl->instance_id != CrInst_NULL) {
         return 0;
     }
-    if (cctrl->combat_flags != 0) {
-        return 0;
-    }
-
     long inst_idx = get_self_spell_casting(creatng);
-    if (inst_idx <= 0) {
+    if (inst_idx == CrInst_NULL) {
         return 0;
     }
     set_creature_instance(creatng, inst_idx, creatng->index, 0);
