@@ -255,6 +255,7 @@ extern const struct NamedCommand scrshot_type[];
 extern char cmd_char;
 extern short api_enabled;
 extern uint16_t api_port;
+extern short azerty_keyboard_workaround_enabled;
 /******************************************************************************/
 char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname);
 char *prepare_file_path(short fgroup,const char *fname);
