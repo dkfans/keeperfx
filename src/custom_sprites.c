@@ -879,7 +879,7 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
     READ_WITH_DEFAULT(offset_x, "offset_x", "fp_offset_x", "td_offset_x", -dst_w / 2, -value_int32)
     READ_WITH_DEFAULT(offset_y, "offset_y", "fp_offset_y", "td_offset_y", 1 - dst_h, -value_int32)
 
-    READ_WITH_DEFAULT(shadow_offset, "shadow_offset", "fp_shadow_offset", "td_shadow_offset", 0, value_int32)
+    READ_WITH_DEFAULT(shadow_offset, "shadow_offset", "fp_shadow_offset", "td_shadow_offset", (dst_h + ksprite->offset_y), value_int32)
 
     READ_WITH_DEFAULT(frame_flags, "frame_flags", "fp_frame_flags", "td_frame_flags", 0, value_uint32)
 
