@@ -1,13 +1,12 @@
 # *****************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # *****************************************************************************
-#   @file ancntkpr/text_eng.pot
-#      KeeperFX Campaign Strings translation template
+#   @file campgns/ancntkpr/text_ger.po
+#      KeeperFX Campaign Strings translation file
 #  @par Purpose:
-#      Allows to create .po files used for translating the game.
-#      Also, acts as a source of english translation strings.
+#      Contains translation of the national strings in the game.
 #  @par Comment:
-#      Use this file to create or update source strings in translations.
+#      Use this file to improve the translation for specific language.
 #  @author   KeeperFX Team
 #  @date     25 Aug 2012 - 02 Oct 2012
 #  @par  Copying and copyrights:
@@ -17,25 +16,25 @@
 #      (at your option) any later version.
 #
 # *****************************************************************************
-msgid ""
-msgstr ""
-"Project-Id-Version: Ancient Keeper campaign for KeeperFX\n"
-"Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues"
+"Project-Id-Version: GUI Strings for KeeperFX\n"
+"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2013-11-13 19:17+0100\n"
-"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
-"Language-Team: KeeperFX Team"
+"PO-Revision-Date: 2024-06-24 00:00+0100\n"
+"Last-Translator: \n"
+"Language-Team: KeeperFX Team <code.google.com>\n"
+"Language: la_LA\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.5.7\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Generator: Poedit 3.4.4\n"
 
 #. Generic victory message
 #: guitext:0
 msgctxt "In-game message"
 msgid ""
 "Success! The Ancients applaud! Press Space to proceed to the next realm."
-msgstr ""
+msgstr "Euge! Antiqui plaudunt! Preme clavem Spatium ut in regnum sequens procedas."
 
 #: guitext:1
 msgctxt "In-game message"
@@ -44,12 +43,15 @@ msgid ""
 "white, but will soon be soaked red with the blood of your enemies! This test "
 "is beneath you I'm sure."
 msgstr ""
+"Salvus sis, Custos, ad primum ex regnis antiquis. Tapes nunc albus est, sed "
+"sanguine inimicis tuis mox ruber fiet! Certus sum hanc probationem ad te "
+"facilem esse."
 
 #: guitext:2
 msgctxt "In-game message"
 msgid ""
 "You have earned the right to the ultimate challenge - L'Cyfre's Challenge."
-msgstr ""
+msgstr "Ius ad arduum ultimum mereuisti - Arduum Lucifrae."
 
 #: guitext:3
 msgctxt "In-game message"
@@ -57,12 +59,14 @@ msgid ""
 "Some advice from Salaar; do not dig out from your Dungeon Heart until you "
 "have defeated the Knights who wait without."
 msgstr ""
+"Quoddam consilium a Salso; ex corde roboris tuo ne fodias donec Equites qui "
+"foris te exspectant vinceres."
 
 #: guitext:4
 msgctxt "In-game message"
 msgid ""
 "Make haste, Keeper! Your Workshop is one of the keys to this realm. To work!"
-msgstr ""
+msgstr "Rue, Custos! Officina tua una e clavibus ad hoc regnum est. Operatum i!"
 
 #: guitext:5
 msgctxt "In-game message"
@@ -70,6 +74,8 @@ msgid ""
 "A dismal start, Keeper! You will need to use all your powers to proceed; "
 "remember the Ancients are watching!"
 msgstr ""
+"Exordium funestum, Custos! Opus tibi erit omnibus potestatibus uti ad "
+"procedendum; memorare, Antiqui spectant!"
 
 #: guitext:6
 msgctxt "In-game message"
@@ -77,6 +83,8 @@ msgid ""
 "A good start, Keeper. If you continue in this vein, you must surely attract "
 "the attention of the Ancients!"
 msgstr ""
+"Exordium bonum, Custos. Si in hac via continuas, attentionem Antiquorum certe "
+"attrahere debes!"
 
 #: guitext:7
 msgctxt "In-game message"
@@ -84,6 +92,8 @@ msgid ""
 "Heroes were common at this time, but they bleed as easily! Your work is "
 "nearly complete Keeper."
 msgstr ""
+"Heroes communes tum erant, sed tam facile sanguinabant! Labor tuus paene "
+"completus est, Custos."
 
 #: guitext:8
 msgctxt "In-game message"
@@ -92,11 +102,14 @@ msgid ""
 "to the full. Rooms cannot be researched here. You will learn to construct "
 "them by stealing from other Keepers."
 msgstr ""
+"Extranea haec terra, Custos! Absentia portalum habilitates tuas plene "
+"periclitabitur. Camerae investigari non possunt. Disces eas construere ex aliis "
+"custodibus furando."
 
 #: guitext:9
 msgctxt "In-game message"
 msgid "Another successful venture, Keeper! The next realm awaits."
-msgstr ""
+msgstr "Alium ausum prosperum, Custos! Regnum sequens te exspectat."
 
 #: guitext:10
 msgctxt "In-game message"
@@ -104,6 +117,8 @@ msgid ""
 "In this realm one of your enemies has captured a band of Avatars. Such a foe "
 "should be treated with respect!"
 msgstr ""
+"In hoc regno unus ex inimicis tuis catervam Avatarum captivavit. Talis inimicus "
+"reverenter tractaretur!"
 
 #: guitext:11
 msgctxt "In-game message"
@@ -111,6 +126,8 @@ msgid ""
 "T'Kaan's mistress has been exiled to this realm. Great skill be required to "
 "conquer this land."
 msgstr ""
+"Domina Tukani in hoc regnum exsulata est. Necesse est habilitate maxima ad "
+"hoc regnum debellandum."
 
 #: guitext:12
 msgctxt "In-game message"
@@ -118,6 +135,8 @@ msgid ""
 "Proceed with great caution. Dig slowly and you will avoid defeat. You must "
 "leave your dungeon without allowing access to it. Are you capable, Keeper?"
 msgstr ""
+"Procede cum maxima cautela. Lente fode et stragem vitabis. Robur tuum "
+"discedere debes quin aditum ad eum sinas. Potisne es, Custos?"
 
 #: guitext:13
 msgctxt "In-game message"
@@ -125,13 +144,15 @@ msgid ""
 "One heart destroyed, Keeper. You must now prepare for an attack on the lair "
 "to the south, but beware; I smell heroes!"
 msgstr ""
+"Unum cor deletum, Custos. Iam ad aggressionem in lustro austri te parare debes, "
+"sed cave; heroes olfacio!"
 
 #: guitext:14
 msgctxt "In-game message"
 msgid ""
 "Hmmm. I believe T'Kaan's wife will be pleased, but you have done yourself no "
 "credit at all."
-msgstr ""
+msgstr "Hmmm. Uxorem Tukani delectatum iri puto, sed nullum beneficium tibi fecisti."
 
 #: guitext:15
 msgctxt "In-game message"
@@ -139,6 +160,8 @@ msgid ""
 "Excellent work, Keeper. You have pleased T'Kaan (though not his wife!) and "
 "your name is being mentioned by the Ancients!"
 msgstr ""
+"Excellens labor, Custos. Tukanum delectavisti (uxorem suam tamen non!) et "
+"nomen tuum ab Antiquis memoratur!"
 
 #: guitext:16
 msgctxt "In-game message"
@@ -146,6 +169,8 @@ msgid ""
 "Act swiftly, Keeper! Perverse though it sounds, heroes are about to die and "
 "you must save them!"
 msgstr ""
+"Celeriter age, Custos! Perversum potere videtur, sed heroes morituri sunt et "
+"eis succurrere debes!"
 
 #: guitext:17
 msgctxt "In-game message"
@@ -153,36 +178,38 @@ msgid ""
 "An intervention from the Ancients! The hero heart is the key; your time is "
 "limited, Keeper."
 msgstr ""
+"Interventus ab Antiquis! Cor herois clavis est; tempus tuum definitum est, "
+"Custos."
 
 #: guitext:18
 msgctxt "In-game message"
 msgid ""
 "It's showtime! The Ancients crave amusement, Keeper. Do not disappoint them!"
-msgstr ""
+msgstr "Tempus spectaculi est! Antiqui oblectamen desiderant, Custos. Ne eos frustreris!"
 
 #: guitext:19
 msgctxt "In-game message"
 msgid ""
 "Bravo, Keeper! Your performance & cunning have impressed the Ancients. "
 "Behold your reward."
-msgstr ""
+msgstr "Macte, Custos! Exsecutio et versutia tua Antiquos movit. Fructum tuum tuere."
 
 #: guitext:20
 msgctxt "In-game message"
 msgid ""
 "I think I hear the snoring of the Ancients, Keeper. You have been a "
 "disappointment."
-msgstr ""
+msgstr "Me proflatum Antiquorum audire puto, Custos. Frustratio fuisti."
 
 #: guitext:21
 msgctxt "In-game message"
 msgid "Cunning and haste are required here, Keeper!"
-msgstr ""
+msgstr "Versutia et celeritate hic necesse sunt, Custos!"
 
 #: guitext:22
 msgctxt "In-game message"
 msgid "A magnificent performance, Keeper! The Ancients applaud you!"
-msgstr ""
+msgstr "Exsecutio magnifica, Custos! Antiqui tibi plaudunt!"
 
 #: guitext:23
 msgctxt "In-game message"
@@ -190,28 +217,30 @@ msgid ""
 "Defeat is inevitable now, Keeper. Maybe the moonlight wasn't bright enough? "
 "Did you use ALL your spells?"
 msgstr ""
+"Strages iam inevitabilis est, Custos. Fortasse luna satisne lucida non erat? "
+"Ususne es OMNIBUS incantationibus tuis?"
 
 #: guitext:24
 msgctxt "In-game message"
 msgid "The Avatars are free, Keeper. Be on your guard."
-msgstr ""
+msgstr "Avatares liberi sunt, Custos. Vigila."
 
 #: guitext:25
 msgctxt "In-game message"
 msgid ""
 "I trust any further hero interference will be treated with the contempt it "
 "deserves?"
-msgstr ""
+msgstr "Credone aliquam intercessionem herois cum despectione merita tractatum iri?"
 
 #: guitext:26
 msgctxt "In-game message"
 msgid "Hmmm, is that the whiff of heroes I smell?"
-msgstr ""
+msgstr "Hmmm, estne hic halitum heroum quem olfacio?"
 
 #: guitext:27
 msgctxt "In-game message"
 msgid "Perhaps you are more suited to Eversmile?"
-msgstr ""
+msgstr "Sisne forsitan aptior ad regnum nominatum Eversmile?"
 
 #: guitext:28
 msgctxt "In-game message"
@@ -219,11 +248,13 @@ msgid ""
 "A victory again, Keeper. Do not relax; we are still in the training phase. "
 "The Ancients wouldn't know you from one of their imps!"
 msgstr ""
+"Victoria iterum, Custos. Ne te relaxes; in phase exercitationis adhuc sumus. "
+"Antiqui ab uno ex diabolullorum suis non te dinosceres!"
 
 #: guitext:29
 msgctxt "In-game message"
 msgid "Time to destroy the hero heart was limited, Keeper."
-msgstr ""
+msgstr "Tempus cor herois delendi definitum erat, Custos."
 
 #: guitext:30
 msgctxt "In-game message"
@@ -231,6 +262,8 @@ msgid ""
 "Well done, Keeper. Now capture Reapers to add to your army. Other Keepers "
 "amass their armies against you!"
 msgstr ""
+"Macte, Custos. Nunc Messores cape ad exercitum tuum addendum. Alii custodes "
+"exercitus sui contra te accumulant!"
 
 #: guitext:31
 msgctxt "In-game message"
@@ -238,6 +271,8 @@ msgid ""
 "Excellent, Keeper. The Ancients are preparing tougher tasks as they gaze on "
 "the destruction you've wrought!"
 msgstr ""
+"Optime, Custos. Antiqui pensa difficiliora parant dum destructionem quam "
+"inflixisti tuentur!"
 
 #: guitext:32
 msgctxt "In-game message"
@@ -245,6 +280,8 @@ msgid ""
 "Do you recognise that stench? It's the smell of fear. Another Keeper and a "
 "land await!"
 msgstr ""
+"Recognoscisne hunc foetorem? Odor timoris est. Alius Custos et terra te "
+"exspectant!"
 
 #: guitext:33
 msgctxt "In-game message"
@@ -253,11 +290,14 @@ msgid ""
 "prove yourself in his land. You have no creatures, but he has gifted you a "
 "powerful spell."
 msgstr ""
+"Kwan Tek, Antiquus cum potestate magna, te honoravit opportunitate ut in "
+"sua terra te pericliteris. Nullas creaturas habes, sed incantationem potentem "
+"tibi donavit."
 
 #: guitext:34
 msgctxt "In-game message"
 msgid "Cunningly done, Keeper, but your task is only half complete!"
-msgstr ""
+msgstr "Vafre factum, Custos, sed pensum tuum tantum semicompletum est!"
 
 #: guitext:35
 msgctxt "In-game message"
@@ -265,6 +305,8 @@ msgid ""
 "Kwan Tek salutes you. You have proved your skills in his land, and may "
 "proceed with His blessing."
 msgstr ""
+"Kwan Tek te salutat. Habilitates tuas in terra sua probavisti, et cum "
+"benedictione Sua procedere potest."
 
 #: guitext:36
 msgctxt "In-game message"
@@ -272,6 +314,8 @@ msgid ""
 "Kwan Tek has not left you entirely alone, Keeper! Use this unDead minion "
 "wisely."
 msgstr ""
+"Kwan Tek funditus non te reliquit, Custos! Utere sapienter hac creatura "
+"mortua vivente."
 
 #: guitext:37
 msgctxt "In-game message"
@@ -280,11 +324,14 @@ msgid ""
 "recalls a previous encounter! Your Dungeon is weak; re-inforce it "
 "immediately!"
 msgstr ""
+"Tempus ne prodigas, Custos! Avatar Antiquus te venatus est, et "
+"confrontationem priorem meminit! Robur tuum debile est; eum iugiter "
+"corrobora!"
 
 #: guitext:38
 msgctxt "In-game message"
 msgid "Bravo, Keeper. Let him be the first of many! Will he never learn?"
-msgstr ""
+msgstr "Macte, Custos. Primus ex multibus esse eum sine! Nunquamne discet?"
 
 #: guitext:39
 msgctxt "In-game message"
@@ -292,11 +339,13 @@ msgid ""
 "You are unstoppable, Keeper! I think I hear the approach of further heroes; "
 "your torture room will indeed be busy!"
 msgstr ""
+"Inarrestabilis es, Custos! Accessum plurium heroum me audire puto; camera "
+"cruciaminis tua quidem operosa erit!"
 
 #: guitext:40
 msgctxt "In-game message"
 msgid "Is your concentration faltering, Keeper?"
-msgstr ""
+msgstr "Vacillatne cogitatio tua, Custos?"
 
 #: guitext:41
 msgctxt "In-game message"
@@ -304,23 +353,25 @@ msgid ""
 "Be aware, Keeper, the only imps available are the ones you have brought with "
 "you to this land."
 msgstr ""
+"Cave, Custos, soli diabolulli disponibiles sunt quos tecum ad hanc terram "
+"portavisti."
 
 #: guitext:42
 msgctxt "In-game message"
 msgid "Let the heroes feel your wrath, oh Evil One!"
-msgstr ""
+msgstr "Heroes iram tuam sentire sine, o Maligne!"
 
 #: guitext:43
 msgctxt "In-game message"
 msgid "You must free your creatures to progress in this realm, Master!"
-msgstr ""
+msgstr "Creaturas tuas liberare debes ad in hoc regno proficiendum, Custos!"
 
 #: guitext:44
 msgctxt "In-game message"
 msgid ""
 "A substantial force of Knights is being summoned by the hero heart; you must "
 "put a stop to this, your Evilness!"
-msgstr ""
+msgstr "Vis substantialis Equitum corde herois vocatur; hoc detinere debes, Maligne!"
 
 #: guitext:45
 msgctxt "In-game message"
@@ -328,11 +379,13 @@ msgid ""
 "That's put a stop to the re-inforcements, Eminence! Victory approaches, and "
 "the Ancients have set you a puzzle to solve!"
 msgstr ""
+"Hoc supplementa detinuit, Eminentia! Victoria adit, et Antiqui opus "
+"vermiculatum tibi posuerunt ad solvendum!"
 
 #: guitext:46
 msgctxt "In-game message"
 msgid "Congratulations, Keeper, the land is yours! And the puzzle?"
-msgstr ""
+msgstr "Gratulationes, Custos, terra tua est! Quid de opere vermiculato?"
 
 #: guitext:47
 msgctxt "In-game message"
@@ -340,17 +393,21 @@ msgid ""
 "Welcome, Keeper, to an esteemed seat of learning. You have impressed the "
 "Ancients, and earned a place at a highly regarded College indeed!"
 msgstr ""
+"Salve, Custos, ad sedem dilectum doctrinae. Antiquos movisti, et positionem "
+"in academia dilectissima quidem meruisti!"
 
 #: guitext:48
 msgctxt "In-game message"
 msgid ""
 "A bit of light revision, Keeper? You now need a creature with Wind Power!"
 msgstr ""
+"Aliquantulane revisio levis, Custos? Iam necesse tibi est creatura cum "
+"potestate venti!"
 
 #: guitext:49
 msgctxt "In-game message"
 msgid "Well done, Keeper! You will soon placate your angry creatures."
-msgstr ""
+msgstr "Macte, Custos! Creaturas iratas tuas mox pacificabis."
 
 #: guitext:50
 msgctxt "In-game message"
@@ -358,19 +415,21 @@ msgid ""
 "You have graduated with full honours! Congratulations, Keeper B.E. Perhaps "
 "you'd like to throw a hero corpse into the air?"
 msgstr ""
+"Gradum summa cum laude suscepisti! Gratulationes, Custos B.A. Placeretne "
+"fortasse tibi corpor herois ad aerem iacere?"
 
 #: guitext:51
 msgctxt "In-game message"
 msgid ""
 "The Heroes' Dungeon Heart throbs before you. Administer the coup de grace!"
-msgstr ""
+msgstr "Cor roboris heroum ante te vibrat. Administra plagam mortiferam misericordem!"
 
 #: guitext:52
 msgctxt "In-game message"
 msgid ""
 "Well done, Keeper. Do not kill the tunneller you have stranded; you have "
 "work for him."
-msgstr ""
+msgstr "Macte, Custos. Cuniculatorem quem reliquisti ne interficias; laborem ad eum habes."
 
 #: guitext:53
 msgctxt "In-game message"
@@ -378,6 +437,8 @@ msgid ""
 "The claiming of the portal in this land must be done with great care. Your "
 "courage is not the only thing that needs re-inforcing."
 msgstr ""
+"Vindicatio portalis in hac terra cum maxima cura fieri debet. Virtus tua non "
+"sola res est qua necesse est corroborare."
 
 #: guitext:54
 msgctxt "In-game message"
@@ -385,6 +446,8 @@ msgid ""
 "Your first minion! Amongst your next tasks is a trick involving the prison. "
 "Take a straight path!"
 msgstr ""
+"Tua prima creatura! Inter tua pensa sequentia sunt astus qui carcerem includunt. "
+"Semitam rectam duce!"
 
 #: guitext:55
 msgctxt "In-game message"
@@ -392,6 +455,8 @@ msgid ""
 "Excellent, Keeper! You will need to build an army for the final battle, so "
 "keep 'em coming!"
 msgstr ""
+"Optime, Custos! Necesse tibi erit exercitum componere ad proelium ultimum, "
+"continua igitur!"
 
 #: guitext:56
 msgctxt "In-game message"
@@ -399,12 +464,15 @@ msgid ""
 "The hero dungeon lies in ruins, and now you must prepare for the final "
 "battle. His forces are formidable, so take care, Keeper!"
 msgstr ""
+"Robur herois populatum est, et iam ad proelium ultimum te parare debes. "
+"Vires eius formidabiles sunt, cave igitur, Custos!"
 
 #: guitext:57
 msgctxt "In-game message"
 msgid ""
 "A victory to be proud of, Keeper! Salaar will not forget you in a hurry!"
 msgstr ""
+"Victoria ad quam superbus esse, Custos! Salsus celeriter non te obliviscetur!"
 
 #: guitext:58
 msgctxt "In-game message"
@@ -412,6 +480,8 @@ msgid ""
 "Your enemies defeat is imminent; savour this moment, Keeper! Let your "
 "laughter fill the air!"
 msgstr ""
+"Strages inimicorum tuorum praesens est; hoc momentum fruere, Custos! "
+"Risum tuum aerem plere sine!"
 
 #: guitext:59
 msgctxt "In-game message"
@@ -419,25 +489,27 @@ msgid ""
 "Your most valued convert is being tortured, and will defect imminently "
 "unless rescued; he holds the key to this realm!"
 msgstr ""
+"Discipulus tuus maxime aestimatus cruciatur, et statim desciscet nisi "
+"eripitur; clavem huius regni tenet!"
 
 #: guitext:60
 msgctxt "In-game message"
 msgid "Force this lazy minion to claim the library, Keeper."
-msgstr ""
+msgstr "Creaturam ignavam compelle ad bibliothecam repetendam, Custos."
 
 #: guitext:61
 msgctxt "In-game message"
 msgid ""
 "This Samurai will be the source of your army. However there is a limit to "
 "their number."
-msgstr ""
+msgstr "Hic Samuraeus origo exercitus tui erit. Terminus tamen est in quantitate eius."
 
 #: guitext:62
 msgctxt "In-game message"
 msgid ""
 "This thief will be the source of your army. With extra training they may "
 "develop into very useful warriors."
-msgstr ""
+msgstr "Hic fur origo exercitus tui erit. Bellatores utillimi exercitatione subsiciva fieri possunt."
 
 #: guitext:63
 msgctxt "In-game message"
@@ -445,11 +517,13 @@ msgid ""
 "Your cunning does you credit, Keeper! The future is now in your hands. "
 "Scared of a balanced battle, your weaselness?"
 msgstr ""
+"Versutia tua famam tibi dat, Custos! Futurus iam in manibus tuis est. "
+"Esne metuens ab proelio librato, musteline?"
 
 #: guitext:64
 msgctxt "In-game message"
 msgid "Victory awaits, Keeper. Act with haste!"
-msgstr ""
+msgstr "Victoria te exspectat, Custos. Celeritate age!"
 
 #: guitext:65
 msgctxt "In-game message"
@@ -457,13 +531,15 @@ msgid ""
 "How satisfying it is to see an enemy Keeper's dungeon crumble and his power "
 "dissipate. Your reputation grows with your cunning!"
 msgstr ""
+"Quam satians est robur Custodis inimici corruere et potestas eius se dissipare "
+"visu. Fama tua cum versutia tua crescit!"
 
 #: guitext:66
 msgctxt "In-game message"
 msgid ""
 "Explain yourself, Keeper! I trust you're not still waiting for Ug the "
 "mythical Barbarian?"
-msgstr ""
+msgstr "Explica te, Custos! Confido te adhuc non exspectare Ug... Barbarum mythicum?"
 
 #: guitext:67
 msgctxt "In-game message"
@@ -471,22 +547,25 @@ msgid ""
 "This land requires aggression and speed, Keeper. It is unfortunate therefore "
 "that your minions are dominated by the bone idle!"
 msgstr ""
+"Haec terra aggressione et celeritate eget, Custos. Infelix igitur est ut os "
+"otiosum creaturas tuas dominetur!"
 
 #: guitext:68
 msgctxt "In-game message"
 msgid "No portal, Keeper? The snoring of the Ancients grows thunderous!"
-msgstr ""
+msgstr "Nullumne portale, Custos? Proflatus Antiquorum tonitralis crescit!"
 
 #: guitext:69
 msgctxt "In-game message"
 msgid ""
 "Your best soldier has arrived. Train him well, for he is your only hope!"
 msgstr ""
+"Optimus bellator tuus advenit. Bene eum exercita, quia is spes sola tua est!"
 
 #: guitext:70
 msgctxt "In-game message"
 msgid "Your persistent success is getting predictable, Master!"
-msgstr ""
+msgstr "Successus tuus pertinax praevisibilis fit, Custos!"
 
 #: guitext:71
 msgctxt "In-game message"
@@ -494,11 +573,13 @@ msgid ""
 "Are you interested in Entomology, Keeper? Insects are the only minions you "
 "will attract; down in the slime where you belong!"
 msgstr ""
+"Agiturne tua in entomologia, Custos? Insecta solae creaturae sunt quas "
+"attrahes, ex limo ubi ines!"
 
 #: guitext:72
 msgctxt "In-game message"
 msgid "A temple, Keeper! What will you do with it?"
-msgstr ""
+msgstr "Templum, Custos! Quid facies eo?"
 
 #: guitext:73
 msgctxt "In-game message"
@@ -506,11 +587,13 @@ msgid ""
 "Good scarifice, Keeper. This mage has a power you will need to conquer this "
 "realm."
 msgstr ""
+"Bonum sacrificium, Custos. Hic magus potestatem habet, qua tibi necesse est "
+"ad hoc regnum vincendum."
 
 #: guitext:74
 msgctxt "In-game message"
 msgid "Finally, the prison is claimed! Now capture as many heroes as you can."
-msgstr ""
+msgstr "Demum carcer repetitur! Iam captiva quot heroes potes."
 
 #: guitext:75
 msgctxt "In-game message"
@@ -519,13 +602,15 @@ msgid ""
 "forlorn alcoves of your domain, in tribute to their futile efforts to keep "
 "you at bay."
 msgstr ""
+"Praevaluisti, Custos. Corpora inimicorum tuorum remotissimas cameras regni "
+"tui tegunt, ut tributum operarum futilium suarum te detinendi."
 
 #: guitext:76
 msgctxt "In-game message"
 msgid ""
 "Try dropping some money into the temple. You will receive a message from the "
 "Gods!"
-msgstr ""
+msgstr "Conare aliquam pecuniam in templum demittere. Nuntium a deis recipies!"
 
 #: guitext:77
 msgctxt "In-game message"
@@ -533,6 +618,8 @@ msgid ""
 "A formidable army of the Undead awaits you, Keeper. Maybe you'd better just "
 "quit?."
 msgstr ""
+"Exercitus formidabilis mortuorum viventium te exspectat, Custos. Fortasse "
+"essetne melius dimittere?"
 
 #: guitext:78
 msgctxt "In-game message"
@@ -540,33 +627,35 @@ msgid ""
 "In this realm the Ancients have granted you have workers but no fighters. An "
 "imp wouldn't go amiss either!"
 msgstr ""
+"In hoc regno, quid Antiqui tibi donaverunt, operarios habes, nullos tamen "
+"bellatores. Diabolullus erronea res quoque non est!"
 
 #: guitext:79
 msgctxt "In-game message"
 msgid "Here's a warrior to do your bidding!"
-msgstr ""
+msgstr "Ecce bellator ut mandatis tuis pareat!"
 
 #: guitext:80
 msgctxt "In-game message"
 msgid "Wow, you have a dragon! Can you make another?"
-msgstr ""
+msgstr "Hui, Draconem habes! Potesne alium creare?"
 
 #: guitext:81
 msgctxt "In-game message"
 msgid "Two Dragons, Keeper? Now you are unstoppable!"
-msgstr ""
+msgstr "Duo Dracones, Custos? Nunc inarrestabilis es!"
 
 #: guitext:82
 msgctxt "In-game message"
 msgid ""
 "I assume you know that you can train a creature by putting him into battle?"
-msgstr ""
+msgstr "Te scirene creaturam exercitare eam in proelium ponendo posse sumo?"
 
 #: guitext:83
 msgctxt "In-game message"
 msgid ""
 "Another victory, Keeper! A puzzle awaits you; are you brain as well as brawn?"
-msgstr ""
+msgstr "Alia victoria, Custos! Opus vermiculatum te exspectat; habesne cerebrum ad musculos?"
 
 #: guitext:84
 msgctxt "In-game message"
@@ -574,11 +663,13 @@ msgid ""
 "Welcome to the Land of Dragons, Keeper. With skill you will gain their "
 "services, but beware - they are fickle creatures in this realm!"
 msgstr ""
+"Salvus sis ad Terram Draconum, Custos. Habilitate servitia sua tenebis, "
+"sed cave - creaturae instabiles in hoc regno sunt!"
 
 #: guitext:85
 msgctxt "In-game message"
 msgid "Perhaps a different strategy, Keeper?"
-msgstr ""
+msgstr "Fortasse strategema differens, Custos?"
 
 #: guitext:86
 msgctxt "In-game message"
@@ -586,11 +677,13 @@ msgid ""
 "Almost a Dragon! I hear it has a taste for Keepers, so don't let it get "
 "hungry."
 msgstr ""
+"Paene Draco! Custodum libidinem habere dicitur, ieiunus fieri igitur ne "
+"eum sine."
 
 #: guitext:87
 msgctxt "In-game message"
 msgid "Finally, Keeper, a dungeon worthy of the name. Can you afford one?"
-msgstr ""
+msgstr "Demum robur dignum nomine, Custos. Potesne unum habere?"
 
 #: guitext:88
 msgctxt "In-game message"
@@ -598,6 +691,8 @@ msgid ""
 "The dragon you were promised! Now its simply a matter of defeating all "
 "heroes and two other Keepers!"
 msgstr ""
+"Ecce draco qui tibi promissus est! Iam solum agitur res de omnibus "
+"heroibus et aliis duobus custodibus vincendis!"
 
 #: guitext:89
 msgctxt "In-game message"
@@ -605,11 +700,13 @@ msgid ""
 "Switch on the computer assistant. This realm is so easy you can let it do "
 "your work while you have a cup of lemon tea!"
 msgstr ""
+"Administrum computarii accende. Hoc regnum ita est facile ut laborem tuam "
+"facere eum sinere possis dum poculum theae cum pomo citreo bibas!"
 
 #: guitext:90
 msgctxt "In-game message"
 msgid "A great victory. The Ancients are alarmed!"
-msgstr ""
+msgstr "Victoria magna. Antiqui consternati sunt!"
 
 #: guitext:91
 msgctxt "In-game message"
@@ -617,11 +714,13 @@ msgid ""
 "You have attracted the hottest babe in the Underworld, Keeper, and made even "
 "the Ancients jealous! Pander to her whims and she'll do anything for you!"
 msgstr ""
+"Feminam maxime candentem in Inferno attraxisti, Custos, etiam Antiqui aemuli "
+"facti sunt! Arbitriis eius inservi et quidpiam ad te faciet!"
 
 #: guitext:92
 msgctxt "In-game message"
 msgid "Your mistress grows stronger with every battle, Keeper!"
-msgstr ""
+msgstr "Domina tua in quoque proelio fortior fit, Custos!"
 
 #: guitext:93
 msgctxt "In-game message"
@@ -629,11 +728,13 @@ msgid ""
 "You must be aching to possess this awesome woman again, Keeper? Concentrate, "
 "Master, the climax approaches!"
 msgstr ""
+"Fortasse necessene tibi est hanc feminam splendidam iterum possidere, Custos? "
+"Animadverte te, Domine, climax advenit!"
 
 #: guitext:94
 msgctxt "In-game message"
 msgid "A woman like that needs care, Keeper. She rests with the Ancients now."
-msgstr ""
+msgstr "Femina ut ista eget cura, Custos. Cum Antiquis iam iacet."
 
 #: guitext:95
 msgctxt "In-game message"
@@ -641,6 +742,8 @@ msgid ""
 "And the two of you can live mercilessly ever after! Will she accompany you "
 "to the hidden realm?"
 msgstr ""
+"Et vos ambo immisericorditer in aeternum vivere potestis! Comitabiturne te "
+"ad regnum occultum?"
 
 #: guitext:96
 msgctxt "In-game message"
@@ -648,18 +751,20 @@ msgid ""
 "You have won a magnificent victory, Master. You have a talent for twisted "
 "mercilessness that makes other Keepers look well behaved by comparison."
 msgstr ""
+"Victoriam magnificam acquisivisti, Domine. Indolem ad misericordiam tortam "
+"habes qua alii Custodi bene morati fieri videtur."
 
 #: guitext:97
 msgctxt "In-game message"
 msgid ""
 "You have threatened the security of the Ancients, Keeper. Now get outside "
 "with the Dog!"
-msgstr ""
+msgstr "Securitatem Antiquorum minatus es, Custos. Nunc i foras cum Cane!"
 
 #: guitext:98
 msgctxt "In-game message"
 msgid "You must control your temper, Keeper! Everything has a purpose."
-msgstr ""
+msgstr "Animo tuo moderari debes, Custos! Omnia propositum habent."
 
 #: guitext:99
 msgctxt "In-game message"
@@ -667,6 +772,8 @@ msgid ""
 "Salaar has gifted you the ability to research boulder traps; he is obviously "
 "on your side!"
 msgstr ""
+"Salsus habilitatem tibi donavit ad trappas roccae inveniendas; a te evidenter "
+"stat!"
 
 #: guitext:100
 msgctxt "In-game message"
@@ -675,6 +782,8 @@ msgid ""
 "this land to further prove yourself. Success will bring his assistance; do "
 "not disappoint him!"
 msgstr ""
+"Attentionem Salsi iterum attraxisti. In hoc regnum te vocavit ad porro te "
+"praebendum. Successus opem suam tibi afferet; ne eum frustrare!"
 
 #: guitext:101
 msgctxt "In-game message"
@@ -682,17 +791,19 @@ msgid ""
 "An intriguing assignment, Keeper. Thor has chosen you to negotiate a "
 "settlement in this land. I think you know what he expects!"
 msgstr ""
+"Opus iucundum, Custos. Thorus te legit ut de deductione in hac terra "
+"colloquamini. Te quod exspectat scire puto!"
 
 #: guitext:102
 msgctxt "In-game message"
 msgid "Negotiation is all about bridge-building between opposing parties!"
-msgstr ""
+msgstr "Colloquium de ponte aedificando inter partes obstitas est!"
 
 #: guitext:103
 msgctxt "In-game message"
 msgid ""
 "Thor has examined the details of the final settlement, and it is acceptable!"
-msgstr ""
+msgstr "Thorus singulas res de deductione ultima examinavit, et ei accepta est!"
 
 #: guitext:104
 msgctxt "In-game message"
@@ -700,6 +811,8 @@ msgid ""
 "Salaar has placed a reward in this realm, though obviously its discovery "
 "won't be easy. Would you want it that way?"
 msgstr ""
+"Salsus praemium in hoc regno posuit, etsi patefactio eius aperte facilis "
+"non erit. Volebasne istud sic?"
 
 #: guitext:105
 msgctxt "In-game message"
@@ -708,11 +821,14 @@ msgid ""
 "his doom. You must be patient and persistent, Keeper, if you are not to "
 "share his fate!"
 msgstr ""
+"Ecce terra plena periculi! Hic fuit ubi commenticius Antak fato suo obviam "
+"iit. Patiens et perseverans esse debes, Custos, si non vis fatum ei "
+"communicare!"
 
 #: guitext:106
 msgctxt "In-game message"
 msgid "Caution, Keeper! Your fate depends on where you choose to dig south."
-msgstr ""
+msgstr "Cautionem habe, Custos! Fatum tuum consistit in ubi ad austrum fodere leges."
 
 #: guitext:107
 msgctxt "In-game message"
@@ -720,6 +836,8 @@ msgid ""
 "Room designs must be stolen in this realm, Keeper; I trust this gives you no "
 "moral quandry?"
 msgstr ""
+"Descriptiones camerarum in hoc regno furari debes, Custos; hoc tibi dilemma "
+"morale non dare fido."
 
 #: guitext:108
 msgctxt "In-game message"
@@ -727,6 +845,8 @@ msgid ""
 "You must fight to train your dragon, Keeper, but you will need minions. "
 "Leave plenty alive to torture!"
 msgstr ""
+"Pugnare debes ad draconem tuum exercendum, Custos, sed creaturis egebis. "
+"Copiam earum vivam ad cruciandum tene!"
 
 #: guitext:109
 msgctxt "In-game message"
@@ -734,11 +854,13 @@ msgid ""
 "The hero lair is riddled with lava traps. If triggered they will deny access "
 "to the rooms you need. You know what you must do!"
 msgstr ""
+"Latibulum herois plenum est trapparum lavae. Si agitantur, accessum ad cameras "
+"quibus eges tibi negabunt. Scis quid facere debes!"
 
 #: guitext:110
 msgctxt "In-game message"
 msgid "Your army is small, Keeper! Dare you still hope for victory?"
-msgstr ""
+msgstr "Exercitus tuus parvus est, Custos! Audesne adhuc victoriam sperare?"
 
 #: guitext:111
 msgctxt "In-game message"
@@ -746,6 +868,8 @@ msgid ""
 "Antak failed in this realm because he killed too many heroes. I trust you "
 "will learn from his mistake?"
 msgstr ""
+"Antak in hoc regno cecidit quia nimis multos heroes interfecit. Confido te "
+"ex errato suo disciturum esse."
 
 #: guitext:112
 msgctxt "In-game message"
@@ -754,33 +878,35 @@ msgid ""
 "formidable armies oppose you - they must be manipulated to serve your "
 "purpose!"
 msgstr ""
+"Clavem huius regno tenes libra potestatis imperanda. Duo exercitus graves "
+"tibi adversantur - tractari debent ad consilio tuo serviendum!"
 
 #: guitext:113
 msgctxt "In-game message"
 msgid "The Endgame begins! Victory depends on knowing when to intervene."
-msgstr ""
+msgstr "Finis ludi incipit! Victoria in quando te interponis scire consistit."
 
 #: guitext:114
 msgctxt "In-game message"
 msgid "You must share in Antak's shame. Salaar is disappointed."
-msgstr ""
+msgstr "Verecundiam cum Antak communicare debes. Salsus destitutus est."
 
 #: guitext:115
 msgctxt "In-game message"
 msgid ""
 "An exceptional performance, Keeper. You may soon join the Ancients as an "
 "equal!!"
-msgstr ""
+msgstr "Exsecutio rara, Custos. Mox Antiquis ut pari supervenire poteris!"
 
 #: guitext:116
 msgctxt "In-game message"
 msgid "Is this a prison, Keeper? The Ancients call it a cloning factory!"
-msgstr ""
+msgstr "Estne hic carcer, Custos? Antiqui hunc appellant officina clonationis!"
 
 #: guitext:117
 msgctxt "In-game message"
 msgid "Are you good at Martial Arts, Keeper? You'll need to be!"
-msgstr ""
+msgstr "Esne bonus in artibus martialibus, Custos? Ege esse!"
 
 #: guitext:118
 msgctxt "In-game message"
@@ -788,16 +914,18 @@ msgid ""
 "Congratulations, Keeper. You have found an important ally. With his help you "
 "can conquer all of the Underworld!"
 msgstr ""
+"Gratulationes, Custos. Socium magnum repperisti. Cum sua ope totum Infernum "
+"vincere potes!"
 
 #: guitext:119
 msgctxt "In-game message"
 msgid "A few Avatars against your mighty skeletons? How pathetic!"
-msgstr ""
+msgstr "Pauci Avatares contra sceletos tuos validos? Quam patheticus!"
 
 #: guitext:120
 msgctxt "In-game message"
 msgid "Your Ghosts have the skills you need to leave your Dungeon Heart."
-msgstr ""
+msgstr "Phantasmata tua habilitates quibus eges habent ad cor roboris tuum relinquendum."
 
 #: guitext:121
 msgctxt "In-game message"
@@ -806,16 +934,19 @@ msgid ""
 "Thor! You have truly shown that you are worthy. Mind you, L'Cyfre & T'Kaan "
 "look uneasy; are they your next victims, oh Omnipotent One?"
 msgstr ""
+"Macte, Custos! Sedem habes inter Antiquos, inter Salsum et Thorum! Vere "
+"probavisti te dignum esse. Sed turba inest in vultu Lucifrae et Tukani; "
+"Suntne victimae tuae sequentes, o Omnipotens?"
 
 #: guitext:122
 msgctxt "In-game message"
 msgid "Thank you for playing Ancient Keeper. Written by Pawel & Dayo."
-msgstr ""
+msgstr "Gratias tibi agimus quod Custodem Antiquum lusisti. Scriptus a Pawel et Dayo."
 
 #: guitext:123
 msgctxt "In-game message"
 msgid "Keep your nerve, Keeper. Your greatest victory awaits you!"
-msgstr ""
+msgstr "Servi nervos tuos, Custos. Victoria maxima tua te exspectat!"
 
 #: guitext:124
 msgctxt "In-game message"
@@ -823,6 +954,8 @@ msgid ""
 "You are defeated at the final hurdle, Keeper. Still, you didn't get this far "
 "by giving up easily. Re-enter this realm immediately!"
 msgstr ""
+"Victus es in crate ultima, Custos. Sed tamen, tam longe non pervenisti facile "
+"te deponendo. Statim in hoc regnum reini!"
 
 #: guitext:125
 msgctxt "In-game message"
@@ -831,26 +964,29 @@ msgid ""
 "Playability within KeeperFX may vary, as the maps are exploiting some of the game bugs. "
 "Also, this campaign is considered to have high difficulity."
 msgstr ""
+"Custos Antiquus scriptus est versioni correctae IA Custodis Roboris originalis. "
+"Ludabilitas in programmate KeeperFX variare potest, quia chartae aliqua errata ludi "
+"sibi quaestui habent. Etiam haec expeditio difficultatem altam habere dicitur."
 
 #: guitext:126
 msgctxt "In-game message"
 msgid "This realm will demonstrate the power of the Undead!"
-msgstr ""
+msgstr "Hoc regnum potestatem mortuorum viventium monstrabit!"
 
 #: guitext:127
 msgctxt "In-game message"
 msgid "Excellent, Keeper! Now free your imps, but beware; they are not alone!"
-msgstr ""
+msgstr "Optime, Custos! Nunc diabolullos tuos libera, sed cave; soli non sunt!"
 
 #: guitext:128
 msgctxt "In-game message"
 msgid "Bravo, Keeper. Now you have company for the next realm!"
-msgstr ""
+msgstr "Macte, Custos. Iam sodalitatem habes ad regnum sequens!"
 
 #: guitext:129
 msgctxt "In-game message"
 msgid "The outer ramp is not connected to your Dungeon Heart."
-msgstr ""
+msgstr "Rampa exterior cordi roboris tuo non commissa est."
 
 #: guitext:130
 msgctxt "In-game message"
@@ -858,27 +994,29 @@ msgid ""
 "If you have only 5,000 Gold, you are playing the unpatched version of the "
 "game (should be 45,000). You need to rectify this."
 msgstr ""
+"Si tantum 5000 nummos habes, versionem incorrectam ludi ludis (45000 sint). "
+"Necesse tibi est hoc corrigere."
 
 #: guitext:131
 msgctxt "In-game message"
 msgid "Run Run Run Claim Claim Claim Kill Kill Kill!"
-msgstr ""
+msgstr "Curre, curre, curre, repete, repete, repete, occide, occide, occide!"
 
 #: guitext:132
 msgctxt "In-game message"
 msgid "You took your time!"
-msgstr ""
+msgstr "Multum tempus habuisti!"
 
 #: guitext:133
 msgctxt "In-game message"
 msgid "You may wish to leave 1 or 2 of them alive. Then again you may not!"
-msgstr ""
+msgstr "Fortasse 1 aut 2 ex eis vivos tenere vis. Tibi dico denuo, non!"
 
 #: guitext:134
 msgctxt "In-game message"
 msgid ""
 "Bravo, Keeper! Perhaps Ug the Barbarian will accompany you to the next realm?"
-msgstr ""
+msgstr "Macte, Custos! Comitabiturne te fortasse Ug Barbarus ad regnum sequens?"
 
 #: guitext:135
 msgctxt "In-game message"
@@ -886,11 +1024,13 @@ msgid ""
 "Concentration, Keeper! To be defeated after all that effort; you must be "
 "sicker than a dieting Bile-Demon!"
 msgstr ""
+"Animadverte te, Custos! Victum esse post omnem istam contentionem; fortasse "
+"aegrior quam Daemon Bilis diaeta es!"
 
 #: guitext:136
 msgctxt "In-game message"
 msgid "Sorry I'm late."
-msgstr ""
+msgstr "Mihi ignosce quod veni sero."
 
 #: guitext:137
 msgctxt "In-game message"
@@ -898,36 +1038,38 @@ msgid ""
 "I hope you've brought your accountant with you, Keeper! Finance holds the "
 "key to this realm."
 msgstr ""
+"Te calculatorem huc tecum attulisse spero, Custos! Aerarium clavem huius "
+"regni tenet."
 
 #: guitext:138
 msgctxt "In-game message"
 msgid "Well done, Keeper. Can you work out how to access the central island?"
-msgstr ""
+msgstr "Macte, Custos. Potesne viam ad insulam mediam invenire?"
 
 #: guitext:139
 msgctxt "In-game message"
 msgid ""
 "I suppose it was obvious that they'd kill each other if they ran out of "
 "money?"
-msgstr ""
+msgstr "Se perspicuum esse inter se pugnare si pecuniam se finire pono."
 
 #: guitext:140
 msgctxt "In-game message"
 msgid ""
 "If you keep this Horned Reaper happy, then Salaar will kiss his Bile Demon!"
-msgstr ""
+msgstr "Si hunc Messorem Cornutum laetum habes, Salsus Daemoni Bilis suavium dabit!"
 
 #: guitext:141
 msgctxt "In-game message"
 msgid "This realm is riddled with boulder traps, Keeper."
-msgstr ""
+msgstr "Hoc regnum plenum est trapparum roccae, Custos."
 
 #: guitext:142
 msgctxt "In-game message"
 msgid ""
 "You have failed. Perhaps you're not the harbinger of doom the forces of "
 "darkness were hoping for."
-msgstr ""
+msgstr "Cecedisti. Fortasse praenuntius fati, quem vires tenebrarum sperabant, non es."
 
 #: guitext:143
 msgctxt "In-game message"
@@ -935,6 +1077,8 @@ msgid ""
 "Your constant success is getting boring, Keeper. You needn't travel alone to "
 "the next realm!"
 msgstr ""
+"Successus continuus tuus taediosus fit, Custos. Necesse tibi non est ad regnum "
+"sequens iterum solus facere!"
 
 #: guitext:144
 msgctxt "In-game message"
@@ -942,6 +1086,8 @@ msgid ""
 "Taking care is one thing, being slow is quite another, Keeper."
 "Not a single minion remains within the portal, you have failed."
 msgstr ""
+"Aliud est se curare, aliud est tardus esse, Custos. Nulla "
+"creatura in portale permanet, cecedisti."
 
 #: guitext:145 guitext:146 guitext:147 guitext:148 guitext:149 guitext:150
 #: guitext:151 guitext:152 guitext:153 guitext:154 guitext:155 guitext:156
@@ -959,6 +1105,9 @@ msgid ""
 "imprisoned by the heroes to your south. His son is at your side. Enlist the "
 "flies to re-unite your imps, and wreak your revenge!"
 msgstr ""
+"In terra muscarum inclusus es. Rex diabolullorum tuorum a heroibus in austro "
+"inclusus est. Filius suus a te stat. Scribe moscas ad diabolullos tuos "
+"reiungendos et ultionem tuam explendam!"
 
 #: guitext:174
 msgctxt "In-game message"
@@ -967,6 +1116,9 @@ msgid ""
 "To finish this level, you'll have to set him free and kill all opponents in "
 "the process, thus making the world a better and more evil place(yeah!)."
 msgstr ""
+"Messor Cornutus gratus tuus captus, persuasus et inclusus est. Ad hanc "
+"libellam conficiendam, eum liberare et interea omnes adversarios occidere "
+"debebis, ita mundus locus melior et pravior fit, sic!"
 
 #: guitext:175
 msgctxt "In-game message"
@@ -974,6 +1126,8 @@ msgid ""
 "No time for celebrations Keeper. Your imp King has brought the instruments "
 "of your vengeance. To work!"
 msgstr ""
+"Nullum tempus festum habendi, Custos. Diabolullus Rex tuus instrumenta "
+"ultionis tuae. Operatum i!"
 
 #: guitext:176
 msgctxt "In-game message"
@@ -981,11 +1135,13 @@ msgid ""
 "Evil monks have betrayed the Shao-Lin temple to your rivals. Heroes will "
 "attempt to retrieve it, but the temple should be yours oh devious one!"
 msgstr ""
+"Monachi improbi Shao-Lin templum adversariorum tuorum prodiderunt. Heroes "
+"eum recuperare conabuntur, sed templum tuum sit, o devie!"
 
 #: guitext:177
 msgctxt "In-game message"
 msgid "You are under starter's orders! Let the games begin Keeper!"
-msgstr ""
+msgstr "Tu sub imperio moratoris es! Ludi incipiant, Custos!"
 
 #: guitext:178
 msgctxt "In-game message"
@@ -993,6 +1149,8 @@ msgid ""
 "The monks have returned with re-inforcements to reclaim their temple. Better "
 "explain the situation to them!"
 msgstr ""
+"Monachi cum supplementis revenerunt templum suum repetere. Explica eis melius "
+"quo loco res est!"
 
 #: guitext:179
 msgctxt "In-game message"
@@ -1000,6 +1158,8 @@ msgid ""
 "Behold, the abandoned realm of Salaar, one of the Great Ancient Keepers. "
 "Paranoid heroes guard this realm with care!"
 msgstr ""
+"Ecce, regnum derelictum Salsi, unus ex Custodum Antiquorum Magnorum. "
+"Heroes paranoici hoc regnum caute custodiunt!"
 
 #: guitext:180
 msgctxt "In-game message"
@@ -1007,6 +1167,8 @@ msgid ""
 "Salaar was truly Evil! Discover and gaze in awe at His training room! Are "
 "you skillful enough to use it?"
 msgstr ""
+"Salsus vere malus erat! Cameram exercitii inveni et formidine tuere! Esne "
+"satis peritus ea uti?"
 
 #: guitext:181
 msgctxt "In-game message"
@@ -1014,6 +1176,8 @@ msgid ""
 "Conquer the hero castles in this realm, and you will be a worthy successor "
 "to Salaar. Be bold for He is watching from below!"
 msgstr ""
+"Vince castella heroum in hoc regno, et successor dignus Salsi eris. Audax "
+"es quia Is deorsum observat!"
 
 #: guitext:182
 msgctxt "In-game message"
@@ -1021,17 +1185,19 @@ msgid ""
 "Salaar had a limit to the bridges he could own at one time. He sees no "
 "reason why you should have more!"
 msgstr ""
+"Salsus finis pontium, quos tenere poterat uno tempore, habebat. Nullam "
+"causam videt quamobrem plus habeas!"
 
 #: guitext:183
 msgctxt "In-game message"
 msgid ""
 "That noise is Salaar's mocking laugh! You have failed and you are dismissed!"
-msgstr ""
+msgstr "Hic sonitus est risus irrisor Salsi! Cecedisti et loco tuo motus es!"
 
 #: guitext:184
 msgctxt "In-game message"
 msgid "Well done, Keeper! You have pleased Salaar. You are a worthy successor!"
-msgstr ""
+msgstr "Macte, Custos! Salso probavisti. Successor dignus es!"
 
 #: guitext:185 guitext:186 guitext:187 guitext:188 guitext:189 guitext:190
 #: guitext:191 guitext:192 guitext:193 guitext:194 guitext:195 guitext:196
@@ -1043,137 +1209,137 @@ msgstr ""
 #: guitext:202
 msgctxt "Level name"
 msgid "Red Carpet"
-msgstr ""
+msgstr "Tapes Ruber"
 
 #: guitext:203
 msgctxt "Level name"
 msgid "Harmony"
-msgstr ""
+msgstr "Concentio"
 
 #: guitext:204
 msgctxt "Level name"
 msgid "Avarice"
-msgstr ""
+msgstr "Avaritia"
 
 #: guitext:205
 msgctxt "Level name"
 msgid "T'Kaan's Mistress"
-msgstr ""
+msgstr "Domina Tukani"
 
 #: guitext:206
 msgctxt "Level name"
 msgid "The Realm of Salaar"
-msgstr ""
+msgstr "Regno Salsi"
 
 #: guitext:207
 msgctxt "Level name"
 msgid "Save the Heroes"
-msgstr ""
+msgstr "Serva Heroes"
 
 #: guitext:208
 msgctxt "Level name"
 msgid "Kwan Tek's Ordeal"
-msgstr ""
+msgstr "Kwan Tek et Cruciatus suus"
 
 #: guitext:209
 msgctxt "Level name"
 msgid "Avatar's Revenge"
-msgstr ""
+msgstr "Ultio Avataris"
 
 #: guitext:210
 msgctxt "Level name"
 msgid "Knight Manoeuvres"
-msgstr ""
+msgstr "Artificia Equitis"
 
 #: guitext:211
 msgctxt "Level name"
 msgid "The University of Hades"
-msgstr ""
+msgstr "Academia Hadis"
 
 #: guitext:212
 msgctxt "Level name"
 msgid "Salaar's Test"
-msgstr ""
+msgstr "Probatio Salsi"
 
 #: guitext:213
 msgctxt "Level name"
 msgid "Rescue the Avatar"
-msgstr ""
+msgstr "Libera Avatarem"
 
 #: guitext:214
 msgctxt "Level name"
 msgid "Sloth"
-msgstr ""
+msgstr "Desidia"
 
 #: guitext:215
 msgctxt "Level name"
 msgid "Entomology"
-msgstr ""
+msgstr "Entomologia"
 
 #: guitext:216
 msgctxt "Level name"
 msgid "Flowers of Despair"
-msgstr ""
+msgstr "Flores Desperationis"
 
 #: guitext:217
 msgctxt "Level name"
 msgid "Dragonia"
-msgstr ""
+msgstr "Draconia"
 
 #: guitext:218
 msgctxt "Level name"
 msgid "Fortress of the Sun"
-msgstr ""
+msgstr "Arx Solis"
 
 #: guitext:219
 msgctxt "Level name"
 msgid "Thor's Diplomat"
-msgstr ""
+msgstr "Thor, Legatus"
 
 #: guitext:220
 msgctxt "Level name"
 msgid "Antak's Ruin"
-msgstr ""
+msgstr "Antak et Exitia sua"
 
 #: guitext:221
 msgctxt "Level name"
 msgid "L'Cyfre's Challenge"
-msgstr ""
+msgstr "Arduum Lucifrae"
 
 #: guitext:222 
 msgctxt "Level name"
 msgid "Armageddon"
-msgstr ""
+msgstr "Apocalypsis"
 
 #: guitext:223 
 msgctxt "Level name"
 msgid "Collect"
-msgstr ""
+msgstr "Collige"
 
 #: guitext:224
 msgctxt "Level name"
 msgid "Sacrifice"
-msgstr ""
+msgstr "Sacrificium"
 
 #: guitext:225
 msgctxt "Level name"
 msgid "Defection"
-msgstr ""
+msgstr "Defectio"
 
 #: guitext:226 
 msgctxt "Level name"
 msgid "Imps"
-msgstr ""
+msgstr "Diabolulli"
 
 #: guitext:227 
 msgctxt "Level name"
 msgid "Clone"
-msgstr ""
+msgstr "Clona"
 
 #guitext:228
 msgctxt "Level name"
 msgid "Dig"
-msgstr ""
+msgstr "Fode"
 
 #: guitext:229
 #: guitext:230 guitext:231 guitext:232 guitext:233 guitext:234
@@ -1226,6 +1392,8 @@ msgid ""
 "Locate Kantars Realms: You will get access to a secret realm after you "
 "have conquered this one."
 msgstr ""
+"Regna Kantarsis locare: Aditum ad regnum occultum nancisceris postquam "
+"hoc vincis."
 
 #: guitext:428 guitext:429
 msgctxt "Unused"
@@ -1235,4 +1403,4 @@ msgstr ""
 #: guitext:430
 msgctxt "Menu interface item"
 msgid "Underworld Amusement"
-msgstr ""
+msgstr "Delectatio inferna"

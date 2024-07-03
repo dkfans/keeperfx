@@ -122,7 +122,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
         }
         else
         {
-            damage = compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel, shotng);
+            damage = compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel, castng);
         }
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         explosion_affecting_area(shotng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets, shotst->damage_type);
@@ -1787,7 +1787,7 @@ struct Thing *create_shot(struct Coord3d *pos, ThingModel model, unsigned short 
     set_thing_draw(thing, shotst->sprite_anim_idx, 256, shotst->sprite_size_max, 0, 0, ODC_Default);
     thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Unshaded * shotst->unshaded) & TRF_Unshaded;
     thing->rendering_flags ^= thing->rendering_flags ^ ((thing->rendering_flags ^ TRF_Transpar_8 * shotst->animation_transparency) & (TRF_Transpar_Flags));
-    thing->rendering_flags ^= (thing->rendering_flags ^ shotst->hidden_projectile) & TRF_Unknown01;
+    thing->rendering_flags ^= (thing->rendering_flags ^ shotst->hidden_projectile) & TRF_Invisible;
     thing->clipbox_size_xy = shotst->size_xy;
     thing->clipbox_size_z = shotst->size_z;
     thing->solid_size_xy = shotst->size_xy;

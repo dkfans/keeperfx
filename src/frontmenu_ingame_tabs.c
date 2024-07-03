@@ -751,12 +751,12 @@ void gui_choose_trap(struct GuiButton *gbtn)
 void go_to_next_trap_of_type(ThingModel tngmodel, PlayerNumber plyr_idx)
 {
     struct Thing *thing;
-    if (tngmodel >= 8) {
+    if (tngmodel >= TRAPDOOR_TYPES_MAX) {
         ERRORLOG("Bad trap kind");
         return;
     }
     unsigned long k = 0;
-    static unsigned short seltrap[8];
+    static ThingModel seltrap[TRAPDOOR_TYPES_MAX];
     int i = seltrap[tngmodel];
     SYNCDBG(9,"Starting, prev index %d",i);
     {
@@ -807,12 +807,12 @@ void go_to_next_trap_of_type(ThingModel tngmodel, PlayerNumber plyr_idx)
 void go_to_next_door_of_type(ThingModel tngmodel, PlayerNumber plyr_idx)
 {
     struct Thing *thing;
-    if (tngmodel >= 8) {
+    if (tngmodel >= TRAPDOOR_TYPES_MAX) {
         ERRORLOG("Bad door kind");
         return;
     }
     unsigned long k = 0;
-    static unsigned short seldoor[8];
+    static ThingModel seldoor[TRAPDOOR_TYPES_MAX];
     int i = seldoor[tngmodel];
     {
         if (i != 0) {
@@ -2488,6 +2488,7 @@ void update_trap_tab_to_config(void)
         ibtn->ptover_event = NULL;
         ibtn->draw_call = gui_area_new_null_button;
         ibtn->maintain_call = NULL;
+
         ibtn = &trap_menu2.buttons[i];
         ibtn->sprite_idx = 24;
         ibtn->tooltip_stridx = GUIStr_Empty;
@@ -2681,10 +2682,10 @@ void maintain_trap_next_page_button(struct GuiButton *gbtn)
         switch (manufctr->tngclass)
         {
             case TCls_Trap:
-                result = is_trap_buildable(my_player_number, manufctr->tngmodel);
+                result = ( (is_trap_buildable(my_player_number, manufctr->tngmodel)) || (is_trap_placeable(my_player_number, manufctr->tngmodel)) || (is_trap_built(my_player_number, manufctr->tngmodel)) );
                 break;
             case TCls_Door:
-                result = is_door_buildable(my_player_number, manufctr->tngmodel);
+                result = ( (is_door_buildable(my_player_number, manufctr->tngmodel)) || (is_door_placeable(my_player_number, manufctr->tngmodel)) || (is_door_built(my_player_number, manufctr->tngmodel)) );
                 break;
             default:
                 result = false;

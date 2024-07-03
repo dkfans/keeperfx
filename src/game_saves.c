@@ -409,8 +409,6 @@ TbBool load_game(long slot_num)
     {
         // Use fname only here - it is overwritten by next use of prepare_file_fmtpath()
         char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
-        if (!wait_for_cd_to_be_available())
-          return false;
         fh = LbFileOpen(fname,Lb_FILE_MODE_READ_ONLY);
         if (fh == -1)
         {

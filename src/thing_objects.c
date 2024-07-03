@@ -161,8 +161,7 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
     set_thing_draw(thing, i, objst->anim_speed, objst->sprite_size_max, 0, start_frame, objst->draw_class);
     set_flag_value(thing->rendering_flags, TRF_Unshaded, objst->light_unaffected);
 
-    set_flag_value(thing->rendering_flags, TRF_Transpar_4, objst->transparency_flags & 0x01);
-    set_flag_value(thing->rendering_flags, TRF_Transpar_8, objst->transparency_flags & 0x02);
+    set_flag(thing->rendering_flags, objst->transparency_flags);
 
     thing->active_state = objst->initial_state;
     if (objst->ilght.radius != 0)
@@ -1472,7 +1471,7 @@ static TngUpdateRet object_update_armour(struct Thing *objtng)
     struct Thing* thing = thing_get(objtng->armor.belongs_to);
     if (thing_is_picked_up(thing))
     {
-        objtng->rendering_flags |= TRF_Unknown01;
+        objtng->rendering_flags |= TRF_Invisible;
         return 1;
     }
     struct Coord3d pos;
@@ -1514,7 +1513,7 @@ static TngUpdateRet object_update_armour(struct Thing *objtng)
     objtng->veloc_push_add.x.val += cvect.x;
     objtng->veloc_push_add.y.val += cvect.y;
     objtng->veloc_push_add.z.val += cvect.z;
-    objtng->rendering_flags &= ~TRF_Unknown01;
+    objtng->rendering_flags &= ~TRF_Invisible;
     return 1;
 }
 
