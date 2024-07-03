@@ -875,6 +875,26 @@ short get_status_panel_keyboard_action_inputs(void)
   {
     clear_key_pressed(KC_1);
     fake_button_click(BID_INFO_TAB);
+    struct GuiButton* gbtn = get_gui_button(BID_QUERY_2);
+    if (gbtn != NULL)
+    {
+        if ((gbtn->flags & (LbBtnF_Visible | LbBtnF_Enabled)) != 0)
+        {
+            if (menu_is_active(GMnu_QUERY))
+            {
+                gui_switch_players_visible(gbtn);
+                fake_button_click(BID_QUERY_2);
+            }
+            else
+            {
+                fake_button_click(BID_INFO_TAB);
+            }
+        }
+        else
+        {
+            fake_button_click(BID_ROOM_TAB);
+        }
+    }
   }
   if (is_key_pressed(KC_2, KMod_NONE))
   {
