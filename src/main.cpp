@@ -1692,6 +1692,9 @@ void reinit_level_after_load(void)
     }
     start_rooms = &game.rooms[1];
     end_rooms = &game.rooms[ROOMS_COUNT];
+    update_room_tab_to_config();
+    update_powers_tab_to_config();
+    update_trap_tab_to_config();
     load_texture_map_file(game.texture_id);
     init_animating_texture_maps();
     init_gui();
