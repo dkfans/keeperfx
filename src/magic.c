@@ -756,14 +756,10 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
  */
 GoldAmount compute_power_price_scaled_with_amount(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel, long amount)
 {
-    const struct MagicStats *pwrdynst;
-    long i;
-    pwrdynst = get_power_dynamic_stats(pwkind);
-    // Increase price by given amount
-    i = amount + 1;
-    if (i < 1)
-      i = 1;
-    return pwrdynst->cost[pwlevel]*i/2;
+    const struct MagicStats *pwrdynst = get_power_dynamic_stats(pwkind);
+    if (amount < 0)
+        amount = 0;
+    return pwrdynst->cost[pwlevel] + (pwrdynst->cost[0] * amount);
 }
 
 /**
@@ -1289,7 +1285,7 @@ static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx,
     if ((mod_flags & PwMod_CastForFree) == 0)
     {
         // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, power_kind, 0)) {
+        if (!pay_for_spell(plyr_idx, power_kind, splevel)) {
             return Lb_FAIL;
         }
     }
