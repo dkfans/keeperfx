@@ -6864,7 +6864,7 @@ msgstr "Piège Soufflant"
 #: guitext:988
 msgctxt "Trap names"
 msgid "Spitfire Trap"
-msgstr "Piège Lance-flamme"
+msgstr "Lance-flammes"
 
 #: guitext:989
 msgctxt "Trap names"
@@ -7106,7 +7106,7 @@ msgstr "Piège Explosif"
 msgctxt "Trap description"
 msgid "Description du piège"
 "Demolition Trap: An explosive with unrivaled destructive power."
-msgstr "Piège Explosif : Un explosif d'une puissance destructrice sans égale."
+msgstr "Baril Explosif : Un explosif d'une puissance destructrice sans égale."
 
 #: guitext:1038
 msgctxt "Trap description"
