@@ -3906,6 +3906,25 @@ TbBool thing_is_creature_special_digger(const struct Thing *thing)
   return ((get_creature_model_flags(thing) & CMF_IsSpecDigger) != 0);
 }
 
+/** Returns if a thing the creature type set as spectator, normally the floating spirit.
+  * @param thing The thing to be checked.
+ * @return True if the thing is creature and listed as spectator , false otherwise.
+ */
+TbBool thing_is_creature_spectator(const struct Thing* thing)
+{
+    if (!thing_is_creature(thing))
+        return false;
+
+    ThingModel breed = game.conf.crtr_conf.spectator_breed;
+    if (breed == 0)
+    {
+        WARNLOG("There is no spectator breed");
+        breed = game.conf.crtr_conf.special_digger_good;
+    }
+    return (thing->model == breed);
+}
+
+
 void anger_set_creature_anger_all_types(struct Thing *thing, long new_value)
 {
     if (creature_can_get_angry(thing))

@@ -202,7 +202,7 @@ void process_dungeon_destroy(struct Thing* heartng)
         struct PlayerInfo* player;
         player = get_player(plyr_idx);
         init_player_start(player, true);
-        if (player_has_heart(plyr_idx))
+        if (player_has_heart(plyr_idx) && (dungeon->heart_destroy_turn <= 0))
         {
             // If another heart was found, stop the process
             dungeon->devastation_turn = 0;
