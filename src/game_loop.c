@@ -21,6 +21,7 @@
 #include "thing_list.h"
 #include "player_computer.h"
 #include "thing_effects.h"
+#include "thing_navigate.h"
 #include "thing_objects.h"
 #include "room_data.h"
 #include "room_library.h"
@@ -95,8 +96,7 @@ void process_dungeon_destroy(struct Thing* heartng)
     }
     TbBool no_backup = !(dungeon->backup_heart_idx > 0);
     powerful_magic_breaking_sparks(heartng);
-    const struct Coord3d* central_pos;
-    central_pos = &heartng->mappos;
+    struct Coord3d* central_pos = &heartng->mappos;
     switch (dungeon->heart_destroy_state)
     {
     case 1:
@@ -110,7 +110,7 @@ void process_dungeon_destroy(struct Thing* heartng)
             {
                 if (thing_is_invalid(soultng))
                 {
-                    soultng = create_creature(&dungeon->mappos, get_players_spectator_model(plyr_idx), plyr_idx);
+                    soultng = create_creature(central_pos, get_players_spectator_model(plyr_idx), plyr_idx);
                 }
                 if (!thing_is_invalid(soultng))
                 {
@@ -135,8 +135,9 @@ void process_dungeon_destroy(struct Thing* heartng)
                 struct Thing* bheartng = thing_get(dungeon->backup_heart_idx);
                 if (thing_is_creature_spectator(soultng))
                 {
-                    soultng->mappos = bheartng->mappos;
-                    soultng->mappos.z.val = get_ceiling_height_at(&bheartng->mappos);
+                    struct Coord3d movepos = bheartng->mappos;
+                    movepos.z.val = get_ceiling_height_at(&movepos);
+                    move_thing_in_map(soultng, &movepos);
                 }
             }
             else if (dungeon->heart_destroy_turn == 28)
