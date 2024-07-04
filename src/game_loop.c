@@ -108,7 +108,10 @@ void process_dungeon_destroy(struct Thing* heartng)
         {
             if ((dungeon->heart_destroy_turn == 10) && (dungeon->free_soul_idx == 0))
             {
-                soultng = create_creature(&dungeon->mappos, get_players_spectator_model(plyr_idx), plyr_idx);
+                if (thing_is_invalid(soultng))
+                {
+                    soultng = create_creature(&dungeon->mappos, get_players_spectator_model(plyr_idx), plyr_idx);
+                }
                 if (!thing_is_invalid(soultng))
                 {
                     dungeon->num_active_creatrs--;
@@ -130,8 +133,11 @@ void process_dungeon_destroy(struct Thing* heartng)
             else if (dungeon->heart_destroy_turn == 25)
             {
                 struct Thing* bheartng = thing_get(dungeon->backup_heart_idx);
-                soultng->mappos = bheartng->mappos;
-                soultng->mappos.z.val = get_ceiling_height_at(&bheartng->mappos);
+                if (thing_is_creature_spectator(soultng))
+                {
+                    soultng->mappos = bheartng->mappos;
+                    soultng->mappos.z.val = get_ceiling_height_at(&bheartng->mappos);
+                }
             }
             else if (dungeon->heart_destroy_turn == 28)
             {
