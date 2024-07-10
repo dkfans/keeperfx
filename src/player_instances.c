@@ -267,18 +267,18 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
           }
       }
       break;
-  case TCls_Object:
-  {
-      struct Thing* efftng;
-      if (object_is_slappable(thing, player->id_number))
+      case TCls_Object:
       {
-        efftng = create_effect(&thing->mappos, TngEff_Dummy, thing->owner);
-        if (!thing_is_invalid(efftng))
-          thing_play_sample(efftng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
-        slap_object(thing);
+          struct Thing* efftng;
+          if (object_is_slappable(thing, player->id_number))
+          {
+            efftng = create_effect(&thing->mappos, TngEff_Dummy, thing->owner);
+            if (!thing_is_invalid(efftng))
+              thing_play_sample(efftng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
+            slap_object(thing);
+          }
+          break;
       }
-      break;
-  }
   }
   set_player_instance(player, PI_WhipEnd, false);
   return 0;
