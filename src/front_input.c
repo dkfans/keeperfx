@@ -1795,7 +1795,7 @@ void get_packet_control_mouse_clicks(void)
     static int synthetic_right = 0;
     SYNCDBG(8,"Starting");
 
-    if ( ((game.operation_flags & GOF_Paused) != 0) || (busy_doing_gui) )
+    if ( flag_is_set(game.operation_flags,GOF_Paused)  || busy_doing_gui )
     {
         return;
     }
@@ -2612,7 +2612,7 @@ short get_inputs(void)
         }
     }
     TbBool inp_handled = false;
-    if (((game.operation_flags & GOF_Paused) == 0) || ((game.operation_flags & GOF_WorldInfluence) != 0))
+    if (!flag_is_set(game.operation_flags,GOF_Paused) || menu_is_active(GMnu_QUIT) || flag_is_set(game.operation_flags,GOF_WorldInfluence))
         inp_handled = get_gui_inputs(1);
     if (!inp_handled)
         inp_handled = get_global_inputs();
