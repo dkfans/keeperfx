@@ -2825,6 +2825,11 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                 value3 = job3_value;
             }
         }
+        else
+        {
+            value1 = atoi(scline->tp[2]);
+            // nothing there that would need the second or third value.
+        }
     }
     else if (block == CrtConf_SOUNDS)
     {
@@ -2872,7 +2877,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             }
             if (scline->tp[4][0] != '\0')
             {
-                value2 = atoi(scline->tp[4]);
+                value3 = atoi(scline->tp[4]);
             }
         }
     }
