@@ -353,7 +353,7 @@ void event_add_to_event_buttons_list_or_replace_button(struct Event *event, stru
                 if (is_my_player_number(dungeon->owner))
                 {
                     struct PlayerInfo* player = get_player(dungeon->owner);
-                    if ( (game.play_gameturn > 10) && (player->view_type == PVT_DungeonTop) && ((game.operation_flags & GOF_ShowGui)) )
+                    if ( (game.play_gameturn > 10) && (player->view_type != PVT_DungeonTop || (game.operation_flags & GOF_ShowGui)) )
                     {
                         play_non_3d_sample(947);
                     }
