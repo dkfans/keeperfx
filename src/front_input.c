@@ -2287,6 +2287,22 @@ void get_dungeon_control_nonaction_inputs(void)
     clear_key_pressed(KC_X);
     turn_on_menu(GMnu_QUIT);
   }
+  if (lbKeyOn[KC_ESCAPE])
+  {
+      lbKeyOn[KC_ESCAPE] = 0;
+      if (a_menu_window_is_active())
+      {
+          turn_off_all_window_menus();
+      }
+      else
+      {
+          if (menu_is_active(GMnu_MAIN))
+          {
+              fake_button_click(BID_OPTIONS);
+          }
+          turn_on_menu(GMnu_OPTIONS);
+      }
+  }
   switch (player->view_mode)
   {
   case PVM_IsoWibbleView:
@@ -2546,6 +2562,13 @@ static void get_dungeon_speech_inputs(void)
     }
 }
 
+TbBool active_menu_functions_while_paused()
+{
+    return (menu_is_active(GMnu_QUIT) || menu_is_active(GMnu_OPTIONS) || menu_is_active(GMnu_LOAD) || menu_is_active(GMnu_SAVE)
+         || menu_is_active(GMnu_VIDEO) || menu_is_active(GMnu_SOUND) || menu_is_active(GMnu_ERROR_BOX));
+}
+
+
 /** Fill packet struct with game action information.
  */
 short get_inputs(void)
@@ -2612,7 +2635,7 @@ short get_inputs(void)
         }
     }
     TbBool inp_handled = false;
-    if (!flag_is_set(game.operation_flags,GOF_Paused) || menu_is_active(GMnu_QUIT) || flag_is_set(game.operation_flags,GOF_WorldInfluence))
+    if (!flag_is_set(game.operation_flags,GOF_Paused) || active_menu_functions_while_paused() || flag_is_set(game.operation_flags,GOF_WorldInfluence))
         inp_handled = get_gui_inputs(1);
     if (!inp_handled)
         inp_handled = get_global_inputs();
