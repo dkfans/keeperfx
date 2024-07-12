@@ -530,7 +530,14 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
     case '!': // extended sign
         return true;
     default:
+    {
+        if (!extended)
+        {
+            SCRPTWRNLOG("Excessive parameter of command \"%s\", value \"%s\"; ignoring", scline->tcmnd, scline->tp[idx]);
+            break;
+        }
         return false;
+    }
     }
     return true;
 }
