@@ -541,12 +541,8 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
             return true;
         default:
         {
-            if (!extended)
-            {
-                SCRPTWRNLOG("Excessive parameter of command \"%s\", value \"%s\"; ignoring", scline->tcmnd, scline->tp[idx]);
-                break;
-            }
-            return false;
+            SCRPTWRNLOG("Excessive parameter of command \"%s\", value \"%s\"; ignoring", scline->tcmnd, scline->tp[idx]);
+            return true;
         }
     }
     return true;
