@@ -671,7 +671,7 @@ const char *computer_task_code_name(int ctask_type);
 TbBool create_task_move_creatures_to_defend(struct Computer2 *comp, struct Coord3d *pos, long creatrs_num, unsigned long evflags);
 TbBool create_task_move_creatures_to_room(struct Computer2 *comp, int room_idx, long creatrs_num);
 TbBool create_task_magic_battle_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long par2, long creatrs_num);
-TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long par2, long par3, long creatrs_num);
+TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long cta_duration, long par3, long repeat_num);
 TbBool create_task_pickup_for_attack(struct Computer2 *comp, struct Coord3d *pos, long par3, long creatrs_num);
 TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long num_to_sell, GoldAmount gold_up_to, TbBool allow_deployed);
 TbBool create_task_move_gold_to_treasury(struct Computer2 *comp, long num_to_move, long gold_up_to);
