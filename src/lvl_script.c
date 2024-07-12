@@ -450,94 +450,104 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
 {
     switch (toupper(type_chr))
     {
-    case 'N':
-    {
-        char* text;
-        scline->np[idx] = strtol(scline->tp[idx], &text, 0);
-        if (!extended)
+        case 'N':
         {
-            if (text != &scline->tp[idx][strlen(scline->tp[idx])])
+            char* text;
+            scline->np[idx] = strtol(scline->tp[idx], &text, 0);
+            if (!extended)
             {
-                SCRPTWRNLOG("Numerical value \"%s\" interpreted as %ld", scline->tp[idx], scline->np[idx]);
-            }
-        }
-        break;
-    }
-    case 'P':
-    {
-        long plr_range_id;
-        if (!get_player_id(scline->tp[idx], &plr_range_id))
-        {
-            return false;
-        }
-        scline->np[idx] = plr_range_id;
-        break;
-    }
-    case 'C':{
-        long crtr_id = get_rid(creature_desc, scline->tp[idx]);
-        if (extended)
-        {
-            if (crtr_id == -1)
-            {
-                if (0 == strcmp(scline->tp[idx], "ANY_CREATURE"))
+                if (text != &scline->tp[idx][strlen(scline->tp[idx])])
                 {
-                    crtr_id = CREATURE_ANY;
+                    SCRPTWRNLOG("Numerical value \"%s\" interpreted as %ld", scline->tp[idx], scline->np[idx]);
                 }
             }
-        }
-        if (crtr_id == -1)
-        {
-            SCRPTERRLOG("Unknown creature, \"%s\"", scline->tp[idx]);
-            return false;
-        }
-        scline->np[idx] = crtr_id;
-        };break;
-    case 'R':{
-        long room_id = get_rid(room_desc, scline->tp[idx]);
-        if (room_id == -1)
-        {
-            SCRPTERRLOG("Unknown room kind, \"%s\"", scline->tp[idx]);
-            return false;
-        }
-        scline->np[idx] = room_id;
-        };break;
-    case 'S': {
-        long slab_id = get_rid(slab_desc, scline->tp[idx]);
-        if (slab_id == -1)
-        {
-            SCRPTERRLOG("Unknown slab kind, \"%s\"", scline->tp[idx]);
-            return false;
-        }
-        scline->np[idx] = slab_id;
-    }; break;
-    case 'L':{
-        TbMapLocation loc;
-        if (!get_map_location_id(scline->tp[idx], &loc)) {
-            return false;
-        }
-        scline->np[idx] = loc;
-        };break;
-    case 'O':{
-        long opertr_id = get_rid(comparison_desc, scline->tp[idx]);
-        if (opertr_id == -1) {
-            SCRPTERRLOG("Unknown operator, \"%s\"", scline->tp[idx]);
-            return false;
-        }
-        scline->np[idx] = opertr_id;
-        };break;
-    case 'A':
-        break;
-    case '!': // extended sign
-        return true;
-    default:
-    {
-        if (!extended)
-        {
-            SCRPTWRNLOG("Excessive parameter of command \"%s\", value \"%s\"; ignoring", scline->tcmnd, scline->tp[idx]);
             break;
         }
-        return false;
-    }
+        case 'P':
+        {
+            long plr_range_id;
+            if (!get_player_id(scline->tp[idx], &plr_range_id))
+            {
+                return false;
+            }
+            scline->np[idx] = plr_range_id;
+            break;
+        }
+        case 'C':
+        {
+            long crtr_id = get_rid(creature_desc, scline->tp[idx]);
+            if (extended)
+            {
+                if (crtr_id == -1)
+                {
+                    if (0 == strcmp(scline->tp[idx], "ANY_CREATURE"))
+                    {
+                        crtr_id = CREATURE_ANY;
+                    }
+                }
+            }
+            if (crtr_id == -1)
+            {
+                SCRPTERRLOG("Unknown creature, \"%s\"", scline->tp[idx]);
+                return false;
+            }
+            scline->np[idx] = crtr_id;
+            break;
+        }
+        case 'R':
+        {
+            long room_id = get_rid(room_desc, scline->tp[idx]);
+            if (room_id == -1)
+            {
+                SCRPTERRLOG("Unknown room kind, \"%s\"", scline->tp[idx]);
+                return false;
+            }
+            scline->np[idx] = room_id;
+            break;
+        }
+        case 'S':
+        {
+            long slab_id = get_rid(slab_desc, scline->tp[idx]);
+            if (slab_id == -1)
+            {
+                SCRPTERRLOG("Unknown slab kind, \"%s\"", scline->tp[idx]);
+                return false;
+            }
+            scline->np[idx] = slab_id;
+            break;
+        };
+        case 'L':
+        {
+            TbMapLocation loc;
+            if (!get_map_location_id(scline->tp[idx], &loc)) {
+                return false;
+            }
+            scline->np[idx] = loc;
+            break;
+        }
+        case 'O':
+        {
+            long opertr_id = get_rid(comparison_desc, scline->tp[idx]);
+            if (opertr_id == -1) {
+                SCRPTERRLOG("Unknown operator, \"%s\"", scline->tp[idx]);
+                return false;
+            }
+            scline->np[idx] = opertr_id;
+            break;
+        }
+        case 'A':
+            break;
+        case '!': // extended sign
+            return true;
+        default:
+        {
+            if (!extended)
+            {
+                SCRPTWRNLOG("Excessive parameter of command \"%s\", value \"%s\"; ignoring", scline->tcmnd, scline->tp[idx]);
+                break;
+            }
+            return false;
+        }
     }
     return true;
 }
