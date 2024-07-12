@@ -713,7 +713,7 @@ long count_diggers_in_dungeon(const struct Dungeon *dungeon);
 long check_call_to_arms(struct Computer2 *comp);
 long count_creatures_for_defend_pickup(struct Computer2 *comp);
 long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, long a4);
-long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos);
+unsigned long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos);
 
 long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *cproc, struct Coord3d *pos, long victim_plyr_idx);
 
