@@ -749,7 +749,8 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
     pos.x.val = subtile_coord_center(room->central_stl_x);
     pos.y.val = subtile_coord_center(room->central_stl_y);
     pos.z.val = subtile_coord(1,0);
-    if (creatures_to_fight_amount = count_creatures_availiable_for_fight(comp, &pos) <= min_creatures_to_attack) {
+    creatures_to_fight_amount = count_creatures_availiable_for_fight(comp, &pos);
+    if (creatures_to_fight_amount <= min_creatures_to_attack) {
         return CTaskRet_Unk4;
     }
     if (creatures_to_fight_amount > max_attack_amount)
