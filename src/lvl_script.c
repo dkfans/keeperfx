@@ -450,10 +450,11 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
 {
     switch (toupper(type_chr))
     {
-        case 'N':
+        case 'N': //Number
         {
             char* text;
             scline->np[idx] = strtol(scline->tp[idx], &text, 0);
+            //Extended number allows for a custom sprite string
             if (!extended)
             {
                 if (text != &scline->tp[idx][strlen(scline->tp[idx])])
@@ -463,7 +464,7 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
             }
             break;
         }
-        case 'P':
+        case 'P': //Player
         {
             long plr_range_id;
             if (!get_player_id(scline->tp[idx], &plr_range_id))
@@ -473,7 +474,7 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
             scline->np[idx] = plr_range_id;
             break;
         }
-        case 'C':
+        case 'C': //Creature
         {
             long crtr_id = get_rid(creature_desc, scline->tp[idx]);
             if (extended)
@@ -494,7 +495,7 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
             scline->np[idx] = crtr_id;
             break;
         }
-        case 'R':
+        case 'R': //Room
         {
             long room_id = get_rid(room_desc, scline->tp[idx]);
             if (room_id == -1)
@@ -505,7 +506,7 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
             scline->np[idx] = room_id;
             break;
         }
-        case 'S':
+        case 'S': //Slab
         {
             long slab_id = get_rid(slab_desc, scline->tp[idx]);
             if (slab_id == -1)
@@ -516,7 +517,7 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
             scline->np[idx] = slab_id;
             break;
         };
-        case 'L':
+        case 'L': //Location
         {
             TbMapLocation loc;
             if (!get_map_location_id(scline->tp[idx], &loc)) {
@@ -525,7 +526,7 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
             scline->np[idx] = loc;
             break;
         }
-        case 'O':
+        case 'O': //Operator
         {
             long opertr_id = get_rid(comparison_desc, scline->tp[idx]);
             if (opertr_id == -1) {
@@ -535,7 +536,7 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
             scline->np[idx] = opertr_id;
             break;
         }
-        case 'A':
+        case 'A': //String
             break;
         case '!': // extended sign
             return true;
