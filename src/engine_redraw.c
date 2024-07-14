@@ -846,8 +846,7 @@ TbBool draw_spell_cursor(PlayerState wrkstate, ThingIndex tng_idx, MapSubtlCoord
         {
             i = get_power_overcharge_level(player);
             set_pointer_graphic(MousePG_SpellCharge0+i);
-            const struct MagicStats* pwrdynst = get_power_dynamic_stats(pwkind);
-            draw_spell_cost = pwrdynst->cost[i];
+            draw_spell_cost = compute_power_price(player->id_number, pwkind, i);
             return true;
         }
     }
