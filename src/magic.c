@@ -1209,7 +1209,7 @@ static TbResult magic_use_power_destroy_walls(PowerKind power_kind, PlayerNumber
                 struct SlabAttr *slbattr = get_slab_attrs(slb);
                 if (slbattr->category == SlbAtCtg_FortifiedWall)
                 {
-                    place_slab_type_on_map(SlbT_EARTH, slab_subtile_center(slb_x),slab_subtile_center(slb_y), slabmap_owner(slb), 0);
+                    place_slab_type_on_map(SlbT_EARTH, slab_subtile_center(slb_x),slab_subtile_center(slb_y), game.neutral_player_num, 0);
                     create_dirt_rubble_for_dug_slab(slb_x, slb_y);
                     do_slab_efficiency_alteration(slb_x, slb_y);
                 } else
