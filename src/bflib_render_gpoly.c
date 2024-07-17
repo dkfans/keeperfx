@@ -367,8 +367,8 @@ long gploc_D8, gploc_D4, gploc_CC, gploc_C8, gploc_C4, gploc_C0, gploc_BC, gploc
     mapxhstep, mapyhstep, gploc_A7, shadehstep, gploc_A4, gploc_A0, gploc_9C;
 long gploc_98, gploc_94, gploc_90, gploc_8C, gploc_88, gploc_84, gploc_80, gploc_7C, gploc_78,
     gploc_74, gploc_68, gploc_64, gploc_60;
-long gploc_5C, startposshadetop, startposmapxtop, startposmapytop, startposshadebottom, startposmapxbottom, startposmapybottom, gploc_34, gploc_30,
-    gploc_2C, gploc_28;
+long gploc_5C, startposshadetop, startposmapxtop, startposmapytop, startposshadebottom,
+    startposmapxbottom, startposmapybottom, gploc_34, gploc_30, gploc_2C, gploc_28;
 /******************************************************************************/
 void gpoly_enable_pentium_pro(TbBool state) {
   SYNCMSG("Pentium Pro polygon rendering %s", state ? "on" : "off");
@@ -1032,7 +1032,8 @@ void draw_gpoly_sub1c() {
     gploc_98 = (mapxvelbottom << 16);
     gploc_94 = (mapxvelbottom >> 16);
     unk_update_gpoly1_tri8a(&gploc_90, &gploc_94, gploc_94, mapyvelbottom, 256);
-    unk_update_gpoly1_tri8b(&gploc_78, &gploc_7C, &gploc_80, startposmapybottom, startposmapxbottom);
+    unk_update_gpoly1_tri8b(&gploc_78, &gploc_7C, &gploc_80, startposmapybottom,
+                            startposmapxbottom);
   }
 }
 
@@ -1386,12 +1387,14 @@ void draw_gpoly_sub2c() {
   unk_update_gpoly1_tri8a(&gploc_28, &gploc_2C, gploc_2C, mapyhstep, 256);
   unk_update_gpoly1_tri16a(&gploc_A0, &gploc_A4, gploc_word01, mapxveltop, 65536);
   unk_update_gpoly1_tri8a(&gploc_9C, &gploc_A0, gploc_A0, mapyveltop, 256);
-  unk_update_gpoly1_tri16b(&gploc_84, &gploc_88, &gploc_8C, startposmapytop, startposmapxtop, startposshadetop);
+  unk_update_gpoly1_tri16b(&gploc_84, &gploc_88, &gploc_8C, startposmapytop, startposmapxtop,
+                           startposshadetop);
 
   if (crease_len >= 0) {
     unk_update_gpoly1_tri16a(&gploc_94, &gploc_98, gploc_word02, mapxvelbottom, 65536);
     unk_update_gpoly1_tri8a(&gploc_90, &gploc_94, gploc_94, mapyvelbottom, 256);
-    unk_update_gpoly1_tri16b(&gploc_78, &gploc_7C, &gploc_80, startposmapybottom, startposmapxbottom, startposshadebottom);
+    unk_update_gpoly1_tri16b(&gploc_78, &gploc_7C, &gploc_80, startposmapybottom,
+                             startposmapxbottom, startposshadebottom);
   }
 }
 
@@ -2660,6 +2663,183 @@ gpo_loc_1CAA:\n \
 #endif
 }
 
+const int BIT_SHIFT_16 = 16;
+const int BIT_SHIFT_32 = 32;
+const int MAX_INT_DIV = 0x7FFFFFFF;  // Max int value for normalization/division
+
+/**
+ * Concatenates two 16-bit integers into a 32-bit integer.
+ *
+ * This most likely builds a 16.16 fixed point number from a whole and fractional part.
+ *
+ * @param high The high 16 bits.
+ * @param low The low 16 bits.
+ * @return The combined 32-bit integer.
+ */
+static inline uint32_t combineHighLowBits(uint16_t high, uint16_t low) {
+  return ((uint32_t)high << BIT_SHIFT_16) | (uint32_t)low;
+}
+
+/**
+ * Calculates the barycentric coordinates for affine texture mapping
+ *
+ * @param scaleFactor The inverse determinant (for multiplication instead of divide).
+ * @param deltaP_C_A The delta parameter from vertex A to vertex C.
+ * @param deltaP_B_A The delta parameter from vertex A to vertex B.
+ * @param deltaY_B_A The delta Y from vertex A to vertex B.
+ * @param deltaY_C_A The delta Y from vertex A to vertex C.
+ * @return The calculated thingy.
+ */
+static int calculateParameter(int scaleFactor, int deltaP_C_A, int deltaP_B_A, int deltaY_B_A,
+                              int deltaY_C_A) {
+  long long int lVar1;
+  int iVar5;
+  int iVar2;
+  ushort upperHalf;
+  int result;
+
+  // This line computes a scaled difference concerning both the Y-deltas between the vertex A and
+  // the other vertices B and C. This kind of operation is reminiscent of how weights are calculated
+  // in barycentric coordinates or how gradients are derived in affine texture mapping. This
+  // particular multiplication can be seen as determining the influence of the vertex position
+  // deltas on the texture coordinates, modified by the scaleFactor (related to the determinant
+  // which, in graphical terms, could relate to the area of the triangle or a similar geometric
+  // factor influencing texture coordinate scaling).
+  lVar1 = (long long int)scaleFactor
+          * (long long int)(deltaP_C_A * deltaY_B_A - deltaP_B_A * deltaY_C_A);
+
+  // The resulting value `lVar1` serves as an intermediary step that could relate to an incremental
+  // differential area calculation concerning texturing, which might then be used to establish
+  // actual texture coordinate mappings across the triangle by offsetting base coordinates by these
+  // computed values.
+
+  iVar5 = (int)lVar1;
+  iVar2 = iVar5 << 1;
+  upperHalf = (ushort)((uint)iVar2 >> BIT_SHIFT_16);
+  result = combineHighLowBits(upperHalf,
+                              (ushort)((int)((unsigned long long int)lVar1 >> BIT_SHIFT_32) << 1)
+                                  | (ushort)(iVar5 < 0))
+               << BIT_SHIFT_16
+           | (uint)upperHalf;
+
+  // Correction step
+  if (iVar2 < 0) {
+    result++;
+  }
+
+  return result;
+}
+
+/*
+### Algorithm Insights
+
+The code calculates properties for triangle rasterization, possibly interpolation values or
+coordinates using affine or similar transformations based on triangle vertex positions. This process
+typically involves the following steps in graphical computations:
+
+- **Determinant Calculation**: The determinant essentially informs about the orientation and the
+area spanned by the triangle in 2D space. A zero determinant indicates collinear points, hence no
+valid triangle.
+
+- **Scaling and Interpolation**:
+   - **Scale Factor Calculation**: This involves normalization with `0x7FFFFFFF`, possibly to
+maintain precision or manage overflow in subsequent calculations. This scale factor is then used to
+determine how the linear interpolation should be scaled across the triangle’s area.
+   - **Interpolation Calculation**: `calculateParameter()` uses affine transformations or similar
+math to project properties (like texture coordinates, colors, etc.) across the rasterized triangle.
+The combination of subtraction and multiplication likely corresponds to a form of barycentric
+coordinate computation or a direct calculation for interpolating vertex attributes.
+
+- **Bit Manipulation for Result Adjustment**: This ensures that calculated values are properly
+aligned and formatted, likely adjusting for specific requirements of the rasterization hardware or
+software algorithm, or to pack multiple small values into a single integer for performance reasons.
+
+### Detailed Algorithm Insights:
+
+Each vertex seems to be associated with three parameters: S, U, and V. While U and V are
+traditionally used in graphics programming to represent texture coordinates mapped onto a 3D model's
+surface, S could potentially be another dimension or attribute used in texturing (like a secondary
+set of texture coordinates or special shading/scaling factor). However, without further context,
+it's conjecture.
+
+1. **Affine Texture Mapping**: The algorithm apparently performs calculations required for affine
+texture mapping by computing transformed parameters (S, U, V) to apply textures to a 2D projection
+of a 3D triangle. The affine transformation ensures that texture coordinates change linearly over
+the triangle’s surface.
+
+2. **Barycentric Coordinate Computation**:
+   - The computation carried out in `calculateParameter` looks like a form of barycentric coordinate
+computation which is used for interpolating vertex attributes like textures across the surface of a
+triangle.
+   - Barycentric coordinates allow an arbitrary point within a triangle to be expressed as a sum of
+scaled vertex positions. Here, `delta1`, `delta2`, `deltaY_B_A`, `deltaY_C_A` likely assist in
+calculating how much each vertex contributes to the final pixel position in the transformed texture
+space.
+
+3. **Bit Manipulations**:
+   - The use of bit shifts and combinations (`combineHighLowBits`) within `calculateParameter` might
+be needed to accommodate precision requirements or hardware-specific optimization. These operations
+might package the outputs into a format that's suitable for quick retrieval and use by a rasterizer
+or texture mapping unit in a graphics pipeline.
+
+https://mtrebi.github.io/2017/03/15/texture-mapping-affine-perspective.html
+*/
+static void calc_hstep() {
+  int deltaProduct;
+  int deltaX_B_A;  // Delta X from vertex A to vertex B
+  int deltaY_B_A;  // Delta Y from vertex A to vertex B
+  int deltaX_C_A;  // Delta X from vertex A to vertex C
+  int deltaY_C_A;  // Delta Y from vertex A to vertex C
+  int determinant;
+  int scaleFactor;
+
+  //   #### Variable Renaming Suggestions:
+  // 1. **Vertices related (`gploc_pt_*`)**:
+  //    - `gploc_pt_ax`, `gploc_pt_ay` -> `vertexA_x`, `vertexA_y`
+  //    - `gploc_pt_bx`, `gploc_pt_by` -> `vertexB_x`, `vertexB_y`
+  //    - `gploc_pt_cx`, `gploc_pt_cy` -> `vertexC_x`, `vertexC_y`
+
+  // Calculate triangle delta values
+  deltaX_B_A = gploc_pt_bx - gploc_pt_ax;
+  deltaY_B_A = gploc_pt_by - gploc_pt_ay;
+  deltaX_C_A = gploc_pt_cx - gploc_pt_ax;
+  deltaY_C_A = gploc_pt_cy - gploc_pt_ay;
+
+  deltaProduct = deltaY_C_A * deltaX_B_A;
+  if (-1 < crease_len) {
+    deltaProduct = (deltaProduct - deltaY_C_A) - deltaY_C_A;
+  }
+
+  // Calculate determinant
+  determinant = deltaY_B_A * deltaX_C_A - (deltaProduct + deltaY_C_A);
+  if (determinant == 0) {  // Invalid triangle
+    shadehstep = 0;
+    mapxhstep = 0;
+    mapyhstep = 0;
+  } else {
+    scaleFactor = (int)(MAX_INT_DIV / (long long int)determinant);
+    // Variable rename suggestions:
+    // point3shade -> vertexC_s
+    // point1shade -> vertexA_s
+    // point2shade -> vertexB_s
+    // point3mapx -> vertexC_u
+    // point1mapx -> vertexA_u
+    // point2mapx -> vertexB_u
+    // point3mapy -> vertexC_v
+    // point1mapy -> vertexA_v
+    // point2mapy -> vertexB_v
+    // shadehstep -> factorS
+    // mapxhstep -> factorU
+    // mapyhstep -> factorV
+    shadehstep = calculateParameter(scaleFactor, point3shade - point1shade,
+                                    point2shade - point1shade, deltaY_B_A, deltaY_C_A);
+    mapxhstep = calculateParameter(scaleFactor, point3mapx - point1mapx, point2mapx - point1mapx,
+                                   deltaY_B_A, deltaY_C_A);
+    mapyhstep = calculateParameter(scaleFactor, point3mapy - point1mapy, point2mapy - point1mapy,
+                                   deltaY_B_A, deltaY_C_A);
+  }
+}
+
 static void draw_gpoly_sub7_subfunc1() {
 #if __GNUC__
   asm volatile(
@@ -3105,7 +3285,8 @@ gpo_case69_break:\n \
 }
 
 void draw_gpoly_sub7() {
-  draw_gpoly_sub7_subfunc1();
+  //   draw_gpoly_sub7_subfunc1();
+  calc_hstep();
   draw_gpoly_sub7_subfunc2();
 }
 
