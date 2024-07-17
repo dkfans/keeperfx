@@ -2660,7 +2660,7 @@ gpo_loc_1CAA:\n \
 #endif
 }
 
-void draw_gpoly_sub7() {
+static void draw_gpoly_sub7_subfunc1() {
 #if __GNUC__
   asm volatile(
       " \
@@ -2774,7 +2774,9 @@ gpo_loc_1DBD:\n \
       :
       : "memory", "cc");
 #endif
+}
 
+static void draw_gpoly_sub7_subfunc2() {
 #if __GNUC__
   asm volatile(
       " \
@@ -3100,6 +3102,11 @@ gpo_case69_break:\n \
       :
       : "memory", "cc");
 #endif
+}
+
+void draw_gpoly_sub7() {
+  draw_gpoly_sub7_subfunc1();
+  draw_gpoly_sub7_subfunc2();
 }
 
 void draw_gpoly_sub11() {
