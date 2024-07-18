@@ -359,9 +359,9 @@ struct PolyPoint *gploc_point_a, *gploc_point_b, *shadeveltop;
 long gploc_1A4, shadevelbottom;
 short gploc_word01, gploc_word02, gploc_word03;
 long mapxvelbottom, mapxveltop, mapyvelbottom, mapyveltop, gploc_180;
-long gploc_pt_ay, gploc_pt_ax, gploc_pt_shax, point1shade, point1mapx, point1mapy;
-long gploc_pt_by, gploc_pt_bx, gploc_pt_shbx, point2shade, point2mapx, point2mapy;
-long gploc_pt_cy, gploc_pt_cx, gploc_pt_shcx, point3shade, point3mapx, point3mapy;
+long point1y, point1x, gploc_pt_shax, point1shade, point1mapx, point1mapy;
+long point2y, point2x, gploc_pt_shbx, point2shade, point2mapx, point2mapy;
+long point3y, point3x, gploc_pt_shcx, point3shade, point3mapx, point3mapy;
 long gploc_12C, gploc_128, gploc_104, gploc_FC, gploc_F8, gploc_F4, gploc_E4, gploc_E0;
 long gploc_D8, gploc_D4, gploc_CC, gploc_C8, gploc_C4, gploc_C0, gploc_BC, gploc_B8, gploc_B4,
     mapxhstep, mapyhstep, gploc_A7, shadehstep, gploc_A4, gploc_A0, gploc_9C;
@@ -496,14 +496,14 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
     crease_len = len_y * factor_ca + len_x;
   }
 
-  gploc_pt_ax = point_a->X;
-  gploc_pt_ay = point_a->Y;
+  point1x = point_a->X;
+  point1y = point_a->Y;
   gploc_pt_shax = point_a->X << 16;
-  gploc_pt_bx = point_b->X;
-  gploc_pt_by = point_b->Y;
+  point2x = point_b->X;
+  point2y = point_b->Y;
   gploc_pt_shbx = point_b->X << 16;
-  gploc_pt_cx = point_c->X;
-  gploc_pt_cy = point_c->Y;
+  point3x = point_c->X;
+  point3y = point_c->Y;
   gploc_pt_shcx = point_c->X << 16;
   point1shade = point_a->S >> 16;
   point2shade = point_b->S >> 16;
@@ -737,19 +737,19 @@ void draw_gpoly_sub1a() {
   asm volatile(
       " \
     pusha   \n \
-    movl    _gploc_pt_bx,%%esi\n \
+    movl    _point2x,%%esi\n \
     movl    _crease_len,%%edi\n \
     orl %%edi,%%edi\n \
     subl    $0,%%esi\n \
     addl    $0,%%esi\n \
-    movl    _gploc_pt_ax,%%eax\n \
+    movl    _point1x,%%eax\n \
     subl    %%eax,%%esi\n \
-    movl    _gploc_pt_cx,%%edi\n \
+    movl    _point3x,%%edi\n \
     subl    %%eax,%%edi\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_by,%%ebx\n \
+    movl    _point1y,%%eax\n \
+    movl    _point2y,%%ebx\n \
     subl    %%eax,%%ebx\n \
-    movl    _gploc_pt_cy,%%ecx\n \
+    movl    _point3y,%%ecx\n \
     subl    %%eax,%%ecx\n \
     movl    %%ecx,%%eax\n \
     imull   %%esi,%%ecx\n \
@@ -768,10 +768,10 @@ gpo_loc_0532:         # 33C\n \
     movl    $0x7FFFFFFF,%%eax\n \
     idivl   %%ebx\n \
     movl    %%eax,%%ebp\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_cy,%%esi\n \
+    movl    _point1y,%%eax\n \
+    movl    _point3y,%%esi\n \
     subl    %%eax,%%esi\n \
-    movl    _gploc_pt_by,%%edi\n \
+    movl    _point2y,%%edi\n \
     subl    %%eax,%%edi\n \
     movl    %%ebp,%%eax\n \
     movl    _point1mapx,%%edx\n \
@@ -836,8 +836,8 @@ void draw_gpoly_sub1b() {
     movl    _crease_len,%%esi\n \
     orl %%esi,%%esi\n \
     js  gpo_loc_0715\n \
-    movl    _gploc_pt_by,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
+    movl    _point2y,%%ecx\n \
+    subl    _point1y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_05ED\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -873,8 +873,8 @@ gpo_loc_0610:         # 41D\n \
 \n \
 gpo_loc_0629:         # 436\n \
     movl    %%eax,_mapyveltop\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_by,%%ecx\n \
+    movl    _point3y,%%ecx\n \
+    subl    _point2y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_0646\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -950,8 +950,8 @@ gpo_loc_0682:         # 48\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 gpo_loc_0715:         # 3DE\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
+    movl    _point3y,%%ecx\n \
+    subl    _point1y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_072E\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -1042,19 +1042,19 @@ void draw_gpoly_sub2a() {
   asm volatile(
       " \
     pusha   \n \
-    movl    _gploc_pt_bx,%%esi\n \
+    movl    _point2x,%%esi\n \
     movl    _crease_len,%%edi\n \
     orl %%edi,%%edi\n \
     subl    $0,%%esi\n \
     addl    $0,%%esi\n \
-    movl    _gploc_pt_ax,%%eax\n \
+    movl    _point1x,%%eax\n \
     subl    %%eax,%%esi\n \
-    movl    _gploc_pt_cx,%%edi\n \
+    movl    _point3x,%%edi\n \
     subl    %%eax,%%edi\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_by,%%ebx\n \
+    movl    _point1y,%%eax\n \
+    movl    _point2y,%%ebx\n \
     subl    %%eax,%%ebx\n \
-    movl    _gploc_pt_cy,%%ecx\n \
+    movl    _point3y,%%ecx\n \
     subl    %%eax,%%ecx\n \
     movl    %%ecx,%%eax\n \
     imull   %%esi,%%ecx\n \
@@ -1073,10 +1073,10 @@ gpo_loc_09AC:         # 7B6\n \
     movl    $0x7FFFFFFF,%%eax\n \
     idivl   %%ebx\n \
     movl    %%eax,%%ebp\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_cy,%%esi\n \
+    movl    _point1y,%%eax\n \
+    movl    _point3y,%%esi\n \
     subl    %%eax,%%esi\n \
-    movl    _gploc_pt_by,%%edi\n \
+    movl    _point2y,%%edi\n \
     subl    %%eax,%%edi\n \
     movl    %%ebp,%%eax\n \
     movl    _point1shade,%%edx\n \
@@ -1161,8 +1161,8 @@ void draw_gpoly_sub2b() {
     movl    _crease_len,%%esi\n \
     orl %%esi,%%esi\n \
     js  gpo_loc_0BFC\n \
-    movl    _gploc_pt_by,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
+    movl    _point2y,%%ecx\n \
+    subl    _point1y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_0AA2\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -1209,8 +1209,8 @@ gpo_loc_0ADE:         # 8EB\n \
 \n \
 gpo_loc_0AF7:         # 90\n \
     movl    %%eax,_mapyveltop\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_by,%%ecx\n \
+    movl    _point3y,%%ecx\n \
+    subl    _point2y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_0B14\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -1297,8 +1297,8 @@ gpo_loc_0B69:         # 976\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 gpo_loc_0BFC:         # 893\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
+    movl    _point3y,%%ecx\n \
+    subl    _point1y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_0C15\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -1403,19 +1403,19 @@ void draw_gpoly_sub3a() {
   asm volatile(
       " \
     pusha   \n \
-    movl    _gploc_pt_bx,%%esi\n \
+    movl    _point2x,%%esi\n \
     movl    _crease_len,%%edi\n \
     orl %%edi,%%edi\n \
     subl    $0,%%esi\n \
     addl    $0,%%esi\n \
-    movl    _gploc_pt_ax,%%eax\n \
+    movl    _point1x,%%eax\n \
     subl    %%eax,%%esi\n \
-    movl    _gploc_pt_cx,%%edi\n \
+    movl    _point3x,%%edi\n \
     subl    %%eax,%%edi\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_by,%%ebx\n \
+    movl    _point1y,%%eax\n \
+    movl    _point2y,%%ebx\n \
     subl    %%eax,%%ebx\n \
-    movl    _gploc_pt_cy,%%ecx\n \
+    movl    _point3y,%%ecx\n \
     subl    %%eax,%%ecx\n \
     movl    %%ecx,%%eax\n \
     imull   %%esi,%%ecx\n \
@@ -1434,10 +1434,10 @@ gpo_loc_0FAC:         # DB6\n \
     movl    $0x7FFFFFFF,%%eax\n \
     idivl   %%ebx\n \
     movl    %%eax,%%ebp\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_cy,%%esi\n \
+    movl    _point1y,%%eax\n \
+    movl    _point3y,%%esi\n \
     subl    %%eax,%%esi\n \
-    movl    _gploc_pt_by,%%edi\n \
+    movl    _point2y,%%edi\n \
     subl    %%eax,%%edi\n \
     movl    %%ebp,%%eax\n \
     movl    _point1shade,%%edx\n \
@@ -1482,8 +1482,8 @@ void draw_gpoly_sub3b() {
     movl    _crease_len,%%esi\n \
     orl %%esi,%%esi\n \
     js  gpo_loc_1099\n \
-    movl    _gploc_pt_by,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
+    movl    _point2y,%%ecx\n \
+    subl    _point1y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_1030\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -1508,8 +1508,8 @@ gpo_loc_103E:         # E3E\n \
 \n \
 gpo_loc_1053:         # E60\n \
     movl    %%eax,_shadeveltop\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_by,%%ecx\n \
+    movl    _point3y,%%ecx\n \
+    subl    _point2y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_1070\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -1538,8 +1538,8 @@ gpo_loc_1093:         # EA0\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 gpo_loc_1099:         # E2\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
+    movl    _point3y,%%ecx\n \
+    subl    _point1y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_10B2\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -1585,19 +1585,19 @@ void draw_gpoly_sub4() {
   asm volatile(
       " \
     pusha   \n \
-    movl    _gploc_pt_bx,%%esi\n \
+    movl    _point2x,%%esi\n \
     movl    _crease_len,%%edi\n \
     orl %%edi,%%edi\n \
     subl    $0,%%esi\n \
     addl    $0,%%esi\n \
-    movl    _gploc_pt_ax,%%eax\n \
+    movl    _point1x,%%eax\n \
     subl    %%eax,%%esi\n \
-    movl    _gploc_pt_cx,%%edi\n \
+    movl    _point3x,%%edi\n \
     subl    %%eax,%%edi\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_by,%%ebx\n \
+    movl    _point1y,%%eax\n \
+    movl    _point2y,%%ebx\n \
     subl    %%eax,%%ebx\n \
-    movl    _gploc_pt_cy,%%ecx\n \
+    movl    _point3y,%%ecx\n \
     subl    %%eax,%%ecx\n \
     movl    %%ecx,%%eax\n \
     imull   %%esi,%%ecx\n \
@@ -1616,10 +1616,10 @@ gpo_loc_1137:         # F4\n \
     movl    $0x7FFFFFFF,%%eax\n \
     idivl   %%ebx\n \
     movl    %%eax,%%ebp\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_cy,%%esi\n \
+    movl    _point1y,%%eax\n \
+    movl    _point3y,%%esi\n \
     subl    %%eax,%%esi\n \
-    movl    _gploc_pt_by,%%edi\n \
+    movl    _point2y,%%edi\n \
     subl    %%eax,%%edi\n \
     movl    %%ebp,%%eax\n \
     movl    _point1mapx,%%edx\n \
@@ -1682,8 +1682,8 @@ gpo_loc_11CD:         # FCB\n \
     movl    _crease_len,%%esi\n \
     orl %%esi,%%esi\n \
     js  gpo_loc_128D\n \
-    movl    _gploc_pt_by,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
+    movl    _point2y,%%ecx\n \
+    subl    _point1y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_11F2\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -1719,8 +1719,8 @@ gpo_loc_1215:         # 1022\n \
 \n \
 gpo_loc_122E:         # 103B\n \
     movl    %%eax,_mapyveltop\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_by,%%ecx\n \
+    movl    _point3y,%%ecx\n \
+    subl    _point2y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_124B\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -1760,8 +1760,8 @@ gpo_loc_1287:         # 109\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 gpo_loc_128D:         # FE3\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
+    movl    _point3y,%%ecx\n \
+    subl    _point1y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_12A6\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -1914,19 +1914,19 @@ void draw_gpoly_sub5() {
   asm volatile(
       " \
     pusha   \n \
-    movl    _gploc_pt_bx,%%esi\n \
+    movl    _point2x,%%esi\n \
     movl    _crease_len,%%edi\n \
     orl %%edi,%%edi\n \
     subl    $0,%%esi\n \
     addl    $0,%%esi\n \
-    movl    _gploc_pt_ax,%%eax\n \
+    movl    _point1x,%%eax\n \
     subl    %%eax,%%esi\n \
-    movl    _gploc_pt_cx,%%edi\n \
+    movl    _point3x,%%edi\n \
     subl    %%eax,%%edi\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_by,%%ebx\n \
+    movl    _point1y,%%eax\n \
+    movl    _point2y,%%ebx\n \
     subl    %%eax,%%ebx\n \
-    movl    _gploc_pt_cy,%%ecx\n \
+    movl    _point3y,%%ecx\n \
     subl    %%eax,%%ecx\n \
     movl    %%ecx,%%eax\n \
     imull   %%esi,%%ecx\n \
@@ -1945,10 +1945,10 @@ gpo_loc_14C6:         # 12D0\n \
     movl    $0x7FFFFFFF,%%eax\n \
     idivl   %%ebx\n \
     movl    %%eax,%%ebp\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_cy,%%esi\n \
+    movl    _point1y,%%eax\n \
+    movl    _point3y,%%esi\n \
     subl    %%eax,%%esi\n \
-    movl    _gploc_pt_by,%%edi\n \
+    movl    _point2y,%%edi\n \
     subl    %%eax,%%edi\n \
     movl    %%ebp,%%eax\n \
     movl    _point1mapx,%%edx\n \
@@ -2011,8 +2011,8 @@ gpo_loc_155C:         # 135A\n \
     movl    _crease_len,%%esi\n \
     orl %%esi,%%esi\n \
     js  gpo_loc_161C\n \
-    movl    _gploc_pt_by,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
+    movl    _point2y,%%ecx\n \
+    subl    _point1y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_1581\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -2048,8 +2048,8 @@ gpo_loc_15A4:         # 13B\n \
 \n \
 gpo_loc_15BD:         # 13CA\n \
     movl    %%eax,_mapyveltop\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_by,%%ecx\n \
+    movl    _point3y,%%ecx\n \
+    subl    _point2y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_15DA\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -2089,8 +2089,8 @@ gpo_loc_1616:         # 1423\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 gpo_loc_161C:         # 1372\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
+    movl    _point3y,%%ecx\n \
+    subl    _point1y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_1635\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -2223,19 +2223,19 @@ void draw_gpoly_sub6() {
   asm volatile(
       " \
     pusha   \n \
-    movl    _gploc_pt_bx,%%esi\n \
+    movl    _point2x,%%esi\n \
     movl    _crease_len,%%edi\n \
     orl %%edi,%%edi\n \
     subl    $0,%%esi\n \
     addl    $0,%%esi\n \
-    movl    _gploc_pt_ax,%%eax\n \
+    movl    _point1x,%%eax\n \
     subl    %%eax,%%esi\n \
-    movl    _gploc_pt_cx,%%edi\n \
+    movl    _point3x,%%edi\n \
     subl    %%eax,%%edi\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_by,%%ebx\n \
+    movl    _point1y,%%eax\n \
+    movl    _point2y,%%ebx\n \
     subl    %%eax,%%ebx\n \
-    movl    _gploc_pt_cy,%%ecx\n \
+    movl    _point3y,%%ecx\n \
     subl    %%eax,%%ecx\n \
     movl    %%ecx,%%eax\n \
     imull   %%esi,%%ecx\n \
@@ -2254,10 +2254,10 @@ gpo_loc_17E5:         # 15E\n \
     movl    $0x7FFFFFFF,%%eax\n \
     idivl   %%ebx\n \
     movl    %%eax,%%ebp\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_cy,%%esi\n \
+    movl    _point1y,%%eax\n \
+    movl    _point3y,%%esi\n \
     subl    %%eax,%%esi\n \
-    movl    _gploc_pt_by,%%edi\n \
+    movl    _point2y,%%edi\n \
     subl    %%eax,%%edi\n \
     movl    %%ebp,%%eax\n \
     movl    _point1shade,%%edx\n \
@@ -2340,8 +2340,8 @@ gpo_loc_18B6:         # 16AD\n \
     movl    _crease_len,%%esi\n \
     orl %%esi,%%esi\n \
     js  gpo_loc_19A8\n \
-    movl    _gploc_pt_by,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
+    movl    _point2y,%%ecx\n \
+    subl    _point1y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_18DB\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -2388,8 +2388,8 @@ gpo_loc_1917:         # 172\n \
 \n \
 gpo_loc_1930:         # 173D\n \
     movl    %%eax,_mapyveltop\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_by,%%ecx\n \
+    movl    _point3y,%%ecx\n \
+    subl    _point2y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_194D\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -2440,8 +2440,8 @@ gpo_loc_19A2:         # 17A\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 gpo_loc_19A8:         # 16CC\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
+    movl    _point3y,%%ecx\n \
+    subl    _point1y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_19C1\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -2795,15 +2795,15 @@ static void calc_hstep() {
 
   //   #### Variable Renaming Suggestions:
   // 1. **Vertices related (`gploc_pt_*`)**:
-  //    - `gploc_pt_ax`, `gploc_pt_ay` -> `vertexA_x`, `vertexA_y`
-  //    - `gploc_pt_bx`, `gploc_pt_by` -> `vertexB_x`, `vertexB_y`
-  //    - `gploc_pt_cx`, `gploc_pt_cy` -> `vertexC_x`, `vertexC_y`
+  //    - `point1x`, `point1y` -> `vertexA_x`, `vertexA_y`
+  //    - `point2x`, `point2y` -> `vertexB_x`, `vertexB_y`
+  //    - `point3x`, `point3y` -> `vertexC_x`, `vertexC_y`
 
   // Calculate triangle delta values
-  deltaX_B_A = gploc_pt_bx - gploc_pt_ax;
-  deltaY_B_A = gploc_pt_by - gploc_pt_ay;
-  deltaX_C_A = gploc_pt_cx - gploc_pt_ax;
-  deltaY_C_A = gploc_pt_cy - gploc_pt_ay;
+  deltaX_B_A = point2x - point1x;
+  deltaY_B_A = point2y - point1y;
+  deltaX_C_A = point3x - point1x;
+  deltaY_C_A = point3y - point1y;
 
   deltaProduct = deltaY_C_A * deltaX_B_A;
   if (-1 < crease_len) {
@@ -2845,41 +2845,41 @@ static void draw_gpoly_sub7_subfunc1() {
   asm volatile(
       " \
     pusha   \n \
-    movl    _gploc_pt_bx,%%esi\n \
+    movl    _point2x,%%esi\n \
     movl    _crease_len,%%edi\n \
     orl     %%edi,%%edi\n \
     subl    $0x0,%%esi\n \
     addl    $0x0,%%esi\n \
-    movl    _gploc_pt_ax,%%eax\n \
+    movl    _point1x,%%eax\n \
     subl    %%eax,%%esi\n \
-    movl    _gploc_pt_cx,%%edi\n \
+    movl    _point3x,%%edi\n \
     subl    %%eax,%%edi\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_by,%%ebx\n \
+    movl    _point1y,%%eax\n \
+    movl    _point2y,%%ebx\n \
     subl    %%eax,%%ebx\n \
-    movl    _gploc_pt_cy,%%ecx\n \
+    movl    _point3y,%%ecx\n \
     subl    %%eax,%%ecx\n \
     movl    %%ecx,%%eax\n \
     imull   %%esi,%%ecx\n \
     movl    _crease_len,%%ebp\n \
     orl     %%ebp,%%ebp\n \
-    js      gpo_loc_1CEC\n \
+    js      bendonright\n \
     subl    %%eax,%%ecx\n \
     subl    %%eax,%%ecx\n \
 \n \
-gpo_loc_1CEC:         # 1AF6\n \
+bendonright:\n \
     addl    %%eax,%%ecx\n \
     imull   %%edi,%%ebx\n \
     subl    %%ecx,%%ebx\n \
-    jz      gpo_loc_1DA6\n \
+    jz      zerocalc\n \
     xorl    %%edx,%%edx\n \
     movl    $0x7FFFFFFF,%%eax\n \
     idivl   %%ebx\n \
     movl    %%eax,%%ebp\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_cy,%%esi\n \
+    movl    _point1y,%%eax\n \
+    movl    _point3y,%%esi\n \
     subl    %%eax,%%esi\n \
-    movl    _gploc_pt_by,%%edi\n \
+    movl    _point2y,%%edi\n \
     subl    %%eax,%%edi\n \
     movl    %%ebp,%%eax\n \
     movl    _point1shade,%%edx\n \
@@ -2895,10 +2895,10 @@ gpo_loc_1CEC:         # 1AF6\n \
     rcll    $1,%%edx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    jns gpo_loc_1D3D\n \
+    jns posshade\n \
     incl    %%eax\n \
 \n \
-gpo_loc_1D3D:         # 1B4A\n \
+posshade:\n \
     movl    %%eax,_shadehstep\n \
     movl    %%ebp,%%eax\n \
     movl    _point1mapx,%%edx\n \
@@ -2914,10 +2914,10 @@ gpo_loc_1D3D:         # 1B4A\n \
     rcll    $1,%%edx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    jns gpo_loc_1D6D\n \
+    jns posmapx\n \
     incl    %%eax\n \
 \n \
-gpo_loc_1D6D:         # 1B7A\n \
+posmapx:\n \
     movl    %%eax,_mapxhstep\n \
     movl    %%ebp,%%eax\n \
     movl    _point1mapy,%%edx\n \
@@ -2933,21 +2933,21 @@ gpo_loc_1D6D:         # 1B7A\n \
     rcll    $1,%%edx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    jns gpo_loc_1D9D\n \
+    jns posmapy\n \
     incl    %%eax\n \
 \n \
-gpo_loc_1D9D:         # 1BAA\n \
+posmapy:\n \
     movl    %%eax,_mapyhstep\n \
-    jmp gpo_loc_1DBD\n \
+    jmp calcend\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-gpo_loc_1DA6:         # 1B03\n \
+zerocalc:\n \
     xorl    %%eax,%%eax\n \
     movl    %%eax,_shadehstep\n \
     movl    %%eax,_mapxhstep\n \
     movl    %%eax,_mapyhstep\n \
 \n \
-gpo_loc_1DBD:\n \
+calcend:\n \
     popa    \n \
 "
       :
@@ -2964,8 +2964,8 @@ static void draw_gpoly_sub7_subfunc2() {
     movl    _crease_len,%%esi\n \
     orl %%esi,%%esi\n \
     js  gpo_loc_1EAF\n \
-    movl    _gploc_pt_by,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
+    movl    _point2y,%%ecx\n \
+    subl    _point1y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_1DE2\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -3012,8 +3012,8 @@ gpo_loc_1E1E:         # 1C2B\n \
 \n \
 gpo_loc_1E37:         # 1C4\n \
     movl    %%eax,_mapyveltop\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_by,%%ecx\n \
+    movl    _point3y,%%ecx\n \
+    subl    _point2y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_1E54\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -3064,8 +3064,8 @@ gpo_loc_1EA9:         # 1CB6\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 gpo_loc_1EAF:         # 1BD3\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
+    movl    _point3y,%%ecx\n \
+    subl    _point1y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_1EC8\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
@@ -3285,8 +3285,8 @@ gpo_case69_break:\n \
 }
 
 void draw_gpoly_sub7() {
-  //   draw_gpoly_sub7_subfunc1();
-  calc_hstep();
+  draw_gpoly_sub7_subfunc1();
+  //   calc_hstep();
   draw_gpoly_sub7_subfunc2();
 }
 
@@ -3298,27 +3298,27 @@ void draw_gpoly_sub11() {
     movl    _gploc_8C,%%ecx\n \
     movl    _gploc_88,%%edx\n \
     movl    _gploc_84,%%ebx\n \
-    movl    _gploc_pt_ay,%%esi\n \
+    movl    _point1y,%%esi\n \
     movl    _LOC_vec_screen_width,%%edi\n \
     imull   %%esi,%%edi\n \
     addl    _LOC_vec_screen,%%edi\n \
-    movl    _gploc_pt_ay,%%eax\n \
+    movl    _point1y,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jg  locret5a\n \
-    movl    _gploc_pt_by,%%eax\n \
+    movl    _point2y,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jle loc_782808\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
 loc_782808:         # 261\n \
-    subl    _gploc_pt_ay,%%eax\n \
+    subl    _point1y,%%eax\n \
     movl    %%eax,_gploc_C0\n \
-    movl    _gploc_pt_ax,%%esi\n \
+    movl    _point1x,%%esi\n \
     movl    %%esi,_gploc_74\n \
     movl    _gploc_pt_shax,%%eax\n \
     movl    %%eax,%%ebp\n \
     jz  loc_782CD8\n \
-    movl    _gploc_pt_ay,%%esi\n \
+    movl    _point1y,%%esi\n \
     orl %%esi,%%esi\n \
     js  loc_782C50\n \
     movl    _gploc_74,%%esi\n \
@@ -3428,22 +3428,22 @@ loc_782CD8:         # 263\n \
     movl    _gploc_80,%%ecx\n \
     movl    _gploc_7C,%%edx\n \
     movl    _gploc_78,%%ebx\n \
-    movl    _gploc_pt_cy,%%eax\n \
+    movl    _point3y,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jle loc_782D5B\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
 loc_782D5B:         # 2B6\n \
-    subl    _gploc_pt_by,%%eax\n \
+    subl    _point2y,%%eax\n \
     movl    %%eax,_gploc_C0\n \
-    movl    _gploc_pt_bx,%%eax\n \
+    movl    _point2x,%%eax\n \
     movl    %%eax,_gploc_74\n \
     movl    _gploc_pt_shbx,%%eax\n \
     jle locret5a\n \
-    movl    _gploc_pt_by,%%esi\n \
+    movl    _point2y,%%esi\n \
     orl %%esi,%%esi\n \
     js  loc_782C50\n \
-    movl    _gploc_pt_bx,%%esi\n \
+    movl    _point2x,%%esi\n \
     jmp loc_loop02\n \
 # ---------------------------------------------------------------------------\n \
 \n \
@@ -3451,18 +3451,18 @@ loc_782D90:         # 2AF\n \
     movl    _factor_cb,%%ebp\n \
     movl    %%ebp,_gploc_128\n \
     movl    _gploc_pt_shbx,%%ebp\n \
-    movl    _gploc_pt_cy,%%eax\n \
+    movl    _point3y,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jle loc_782DB0\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
 loc_782DB0:         # 2BB\n \
-    subl    _gploc_pt_by,%%eax\n \
+    subl    _point2y,%%eax\n \
     movl    %%eax,_gploc_C0\n \
     movl    _gploc_FC,%%eax\n \
     jle locret5a\n \
     movl    %%esi,_gploc_74\n \
-    movl    _gploc_pt_by,%%esi\n \
+    movl    _point2y,%%esi\n \
     orl %%esi,%%esi\n \
     js  loc_782C50\n \
     movl    _gploc_74,%%esi\n \
@@ -3804,27 +3804,27 @@ loc_78221E:         # 2017\n \
     movl    _gploc_8C,%%ecx\n \
     movl    _gploc_88,%%edx\n \
     movl    _gploc_84,%%ebx\n \
-    movl    _gploc_pt_ay,%%esi\n \
+    movl    _point1y,%%esi\n \
     movl    _LOC_vec_screen_width,%%edi\n \
     imull   %%esi,%%edi\n \
     addl    _LOC_vec_screen,%%edi\n \
-    movl    _gploc_pt_ay,%%eax\n \
+    movl    _point1y,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jg  locret5b\n \
-    movl    _gploc_pt_by,%%eax\n \
+    movl    _point2y,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jle loc_782267\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
 loc_782267:         # 2070\n \
-    subl    _gploc_pt_ay,%%eax\n \
+    subl    _point1y,%%eax\n \
     movl    %%eax,_gploc_C0\n \
-    movl    _gploc_pt_ax,%%esi\n \
+    movl    _point1x,%%esi\n \
     movl    %%esi,_gploc_74\n \
     movl    _gploc_pt_shax,%%eax\n \
     movl    %%eax,%%ebp\n \
     jz  loc_782618\n \
-    movl    _gploc_pt_ay,%%esi\n \
+    movl    _point1y,%%esi\n \
     orl %%esi,%%esi\n \
     js  loc_782590\n \
     movl    _gploc_74,%%esi\n \
@@ -4131,22 +4131,22 @@ loc_782618:         # 2093\n \
     movl    _gploc_80,%%ecx\n \
     movl    _gploc_7C,%%edx\n \
     movl    _gploc_78,%%ebx\n \
-    movl    _gploc_pt_cy,%%eax\n \
+    movl    _point3y,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jle loc_78269B\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
 loc_78269B:         # 24A\n \
-    subl    _gploc_pt_by,%%eax\n \
+    subl    _point2y,%%eax\n \
     movl    %%eax,_gploc_C0\n \
-    movl    _gploc_pt_bx,%%eax\n \
+    movl    _point2x,%%eax\n \
     movl    %%eax,_gploc_74\n \
     movl    _gploc_pt_shbx,%%eax\n \
     jle locret5b\n \
-    movl    _gploc_pt_by,%%esi\n \
+    movl    _point2y,%%esi\n \
     orl %%esi,%%esi\n \
     js  loc_782590\n \
-    movl    _gploc_pt_bx,%%esi\n \
+    movl    _point2x,%%esi\n \
     jmp loc_782520\n \
 # ---------------------------------------------------------------------------\n \
 \n \
@@ -4154,18 +4154,18 @@ loc_7826D0:         # 243\n \
     movl    _factor_cb,%%ebp\n \
     movl    %%ebp,_gploc_128\n \
     movl    _gploc_pt_shbx,%%ebp\n \
-    movl    _gploc_pt_cy,%%eax\n \
+    movl    _point3y,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jle loc_7826F0\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
 loc_7826F0:         # 24F\n \
-    subl    _gploc_pt_by,%%eax\n \
+    subl    _point2y,%%eax\n \
     movl    %%eax,_gploc_C0\n \
     movl    _gploc_FC,%%eax\n \
     jle locret5b\n \
     movl    %%esi,_gploc_74\n \
-    movl    _gploc_pt_by,%%esi\n \
+    movl    _point2y,%%esi\n \
     orl %%esi,%%esi\n \
     js  loc_782590\n \
     movl    _gploc_74,%%esi\n \
@@ -4206,27 +4206,27 @@ void draw_gpoly_sub13() {
     xorl    %%ecx,%%ecx\n \
     movl    _gploc_8C,%%edx\n \
     movl    _gploc_88,%%ebx\n \
-    movl    _gploc_pt_ay,%%esi\n \
+    movl    _point1y,%%esi\n \
     movl    _LOC_vec_screen_width,%%edi\n \
     imull   %%esi,%%edi\n \
     addl    _LOC_vec_screen,%%edi\n \
-    movl    _gploc_pt_ay,%%eax\n \
+    movl    _point1y,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jg  locret69a\n \
-    movl    _gploc_pt_by,%%eax\n \
+    movl    _point2y,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jle loc_783508\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
 loc_783508:         # 331\n \
-    subl    _gploc_pt_ay,%%eax\n \
+    subl    _point1y,%%eax\n \
     movl    %%eax,_gploc_C0\n \
-    movl    _gploc_pt_ax,%%esi\n \
+    movl    _point1x,%%esi\n \
     movl    %%esi,_gploc_74\n \
     movl    _gploc_pt_shax,%%eax\n \
     movl    %%eax,%%ebp\n \
     jz  loc_783A68\n \
-    movl    _gploc_pt_ay,%%esi\n \
+    movl    _point1y,%%esi\n \
     orl %%esi,%%esi\n \
     js  loc_7839E0\n \
     movl    _gploc_74,%%esi\n \
@@ -4680,22 +4680,22 @@ loc_783A68:         # 333\n \
     xorl    %%ecx,%%ecx\n \
     movl    _gploc_80,%%edx\n \
     movl    _gploc_7C,%%ebx\n \
-    movl    _gploc_pt_cy,%%eax\n \
+    movl    _point3y,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jle loc_783ADB\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
 loc_783ADB:         # 38E\n \
-    subl    _gploc_pt_by,%%eax\n \
+    subl    _point2y,%%eax\n \
     movl    %%eax,_gploc_C0\n \
-    movl    _gploc_pt_bx,%%eax\n \
+    movl    _point2x,%%eax\n \
     movl    %%eax,_gploc_74\n \
     movl    _gploc_pt_shbx,%%eax\n \
     jle locret69a\n \
-    movl    _gploc_pt_by,%%esi\n \
+    movl    _point2y,%%esi\n \
     orl %%esi,%%esi\n \
     js  loc_7839E0\n \
-    movl    _gploc_pt_bx,%%esi\n \
+    movl    _point2x,%%esi\n \
     jmp loc_783899\n \
 # ---------------------------------------------------------------------------\n \
 \n \
@@ -4703,18 +4703,18 @@ loc_783B10:         # 388\n \
     movl    _factor_cb,%%ebp\n \
     movl    %%ebp,_gploc_128\n \
     movl    _gploc_pt_shbx,%%ebp\n \
-    movl    _gploc_pt_cy,%%eax\n \
+    movl    _point3y,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jle loc_783B30\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
 loc_783B30:         # 393\n \
-    subl    _gploc_pt_by,%%eax\n \
+    subl    _point2y,%%eax\n \
     movl    %%eax,_gploc_C0\n \
     movl    _gploc_FC,%%eax\n \
     jle locret69a\n \
     movl    %%esi,_gploc_74\n \
-    movl    _gploc_pt_by,%%esi\n \
+    movl    _point2y,%%esi\n \
     orl %%esi,%%esi\n \
     js  loc_7839E0\n \
     movl    _gploc_74,%%esi\n \
@@ -4755,27 +4755,27 @@ void draw_gpoly_sub14() {
     xorl    %%ecx,%%ecx\n \
     movl    _gploc_8C,%%edx\n \
     movl    _gploc_88,%%ebx\n \
-    movl    _gploc_pt_ay,%%esi\n \
+    movl    _point1y,%%esi\n \
     movl    _LOC_vec_screen_width,%%edi\n \
     imull   %%esi,%%edi\n \
     addl    _LOC_vec_screen,%%edi\n \
-    movl    _gploc_pt_ay,%%eax\n \
+    movl    _point1y,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jg  locret69b\n \
-    movl    _gploc_pt_by,%%eax\n \
+    movl    _point2y,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jle loc_782EC7\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
 loc_782EC7:         # 2CD0\n \
-    subl    _gploc_pt_ay,%%eax\n \
+    subl    _point1y,%%eax\n \
     movl    %%eax,_gploc_C0\n \
-    movl    _gploc_pt_ax,%%esi\n \
+    movl    _point1x,%%esi\n \
     movl    %%esi,_gploc_74\n \
     movl    _gploc_pt_shax,%%eax\n \
     movl    %%eax,%%ebp\n \
     jz  loc_783338\n \
-    movl    _gploc_pt_ay,%%esi\n \
+    movl    _point1y,%%esi\n \
     orl %%esi,%%esi\n \
     js  loc_7832B0\n \
     movl    _gploc_74,%%esi\n \
@@ -5161,22 +5161,22 @@ loc_783338:         # 2CF3\n \
     xorl    %%ecx,%%ecx\n \
     movl    _gploc_80,%%edx\n \
     movl    _gploc_7C,%%ebx\n \
-    movl    _gploc_pt_cy,%%eax\n \
+    movl    _point3y,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jle loc_7833AB\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
 loc_7833AB:         # 31B\n \
-    subl    _gploc_pt_by,%%eax\n \
+    subl    _point2y,%%eax\n \
     movl    %%eax,_gploc_C0\n \
-    movl    _gploc_pt_bx,%%eax\n \
+    movl    _point2x,%%eax\n \
     movl    %%eax,_gploc_74\n \
     movl    _gploc_pt_shbx,%%eax\n \
     jle locret69b\n \
-    movl    _gploc_pt_by,%%esi\n \
+    movl    _point2y,%%esi\n \
     orl %%esi,%%esi\n \
     js  loc_7832B0\n \
-    movl    _gploc_pt_bx,%%esi\n \
+    movl    _point2x,%%esi\n \
     jmp loc_783239\n \
 # ---------------------------------------------------------------------------\n \
 \n \
@@ -5184,18 +5184,18 @@ loc_7833E0:         # 315\n \
     movl    _factor_cb,%%ebp\n \
     movl    %%ebp,_gploc_128\n \
     movl    _gploc_pt_shbx,%%ebp\n \
-    movl    _gploc_pt_cy,%%eax\n \
+    movl    _point3y,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jle loc_783400\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
 loc_783400:         # 320\n \
-    subl    _gploc_pt_by,%%eax\n \
+    subl    _point2y,%%eax\n \
     movl    %%eax,_gploc_C0\n \
     movl    _gploc_FC,%%eax\n \
     jle locret69b\n \
     movl    %%esi,_gploc_74\n \
-    movl    _gploc_pt_by,%%esi\n \
+    movl    _point2y,%%esi\n \
     orl %%esi,%%esi\n \
     js  loc_7832B0\n \
     movl    _gploc_74,%%esi\n \
