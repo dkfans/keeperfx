@@ -1092,7 +1092,7 @@ static TbResult magic_use_power_hold_audience(PowerKind power_kind, PlayerNumber
         }
         // Thing list loop body ends
         k++;
-        if (k > CREATURES_COUNT)
+        if (k > game.conf.rules.game.creatures_count)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures list");
             break;
@@ -1653,7 +1653,7 @@ long update_creatures_influenced_by_call_to_arms(PlayerNumber plyr_idx)
         }
         // Thing list loop body ends
         k++;
-        if (k > CREATURES_COUNT)
+        if (k > game.conf.rules.game.creatures_count)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures list");
             break;
@@ -1789,7 +1789,7 @@ static void magic_power_hold_audience_update(PlayerNumber plyr_idx)
         }
         // Thing list loop body ends
         k++;
-        if (k > CREATURES_COUNT)
+        if (k > game.conf.rules.game.creatures_count)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures list");
             break;
@@ -1853,7 +1853,7 @@ int affect_nearby_creatures_by_power_call_to_arms(PlayerNumber plyr_idx, long ra
         }
         // Thing list loop body ends
         k++;
-        if (k > CREATURES_COUNT)
+        if (k > game.conf.rules.game.creatures_count)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures list");
             break;

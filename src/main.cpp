@@ -510,7 +510,7 @@ void affect_nearby_friends_with_alarm(struct Thing *traptng)
         }
         // Thing list loop body ends
         k++;
-        if (k > CREATURES_COUNT)
+        if (k > game.conf.rules.game.creatures_count)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures list");
             break;
@@ -1750,7 +1750,7 @@ void clear_things_and_persons_data(void)
         thing->mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
         thing->mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
     }
-    for (i=0; i < CREATURES_COUNT; i++)
+    for (i=0; i < game.conf.rules.game.creatures_count; i++)
     {
       memset(&game.cctrl_data[i], 0, sizeof(struct CreatureControl));
     }
@@ -2430,7 +2430,7 @@ static void process_dungeon_devastation_effects(void)
     }
 }
 
-void count_players_creatures_being_paid(int *creatures_count)
+void count_players_creatures_being_paid(int *game.conf.rules.game.creatures_count)
 {
     unsigned long k;
     long i;
@@ -2463,7 +2463,7 @@ void count_players_creatures_being_paid(int *creatures_count)
                 } else
                 {
                     cctrl->paydays_owed++;
-                    creatures_count[thing->owner]++;
+                    game.conf.rules.game.creatures_count[thing->owner]++;
                 }
             }
         }

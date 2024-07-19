@@ -74,7 +74,7 @@ struct Thing *get_highest_experience_and_score_creature_in_group(struct Thing *g
         // Per-thing code ends
         i = cctrl->next_in_group;
         k++;
-        if (k > CREATURES_COUNT)
+        if (k > game.conf.rules.game.creatures_count)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures group");
             break;
@@ -129,7 +129,7 @@ struct Thing *get_last_follower_creature_in_group(const struct Thing *grptng)
             break;
         i = cctrl->next_in_group;
         k++;
-        if (k > CREATURES_COUNT)
+        if (k > game.conf.rules.game.creatures_count)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures group");
             break;
@@ -371,7 +371,7 @@ static short creatures_group_has_special_digger_to_lead(struct Thing* grptng)
         }
         i = cctrl->next_in_group;
         k++;
-        if (k > CREATURES_COUNT)
+        if (k > game.conf.rules.game.creatures_count)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures group");
             break;
@@ -467,7 +467,7 @@ struct Thing* get_best_creature_to_lead_group(struct Thing* grptng)
         // Per-thing code ends
         i = cctrl->next_in_group;
         k++;
-        if (k > CREATURES_COUNT)
+        if (k > game.conf.rules.game.creatures_count)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures group");
             break;

@@ -47,7 +47,7 @@ extern "C" {
  */
 struct CreatureControl *creature_control_get(long cctrl_idx)
 {
-  if ((cctrl_idx < 1) || (cctrl_idx > CREATURES_COUNT))
+  if ((cctrl_idx < 1) || (cctrl_idx > game.conf.rules.game.creatures_count))
     return INVALID_CRTR_CONTROL;
   return game.persons.cctrl_lookup[cctrl_idx];
 }
@@ -58,7 +58,7 @@ struct CreatureControl *creature_control_get(long cctrl_idx)
  */
 struct CreatureControl *creature_control_get_from_thing(const struct Thing *thing)
 {
-  if ((thing->ccontrol_idx < 1) || (thing->ccontrol_idx > CREATURES_COUNT))
+  if ((thing->ccontrol_idx < 1) || (thing->ccontrol_idx > game.conf.rules.game.creatures_count))
     return INVALID_CRTR_CONTROL;
   return game.persons.cctrl_lookup[thing->ccontrol_idx];
 }
@@ -87,7 +87,7 @@ TbBool creature_control_exists_in_thing(const struct Thing *thing)
 
 long i_can_allocate_free_control_structure(void)
 {
-    for (long i = 1; i < CREATURES_COUNT; i++)
+    for (long i = 1; i < game.conf.rules.game.creatures_count; i++)
     {
         struct CreatureControl* cctrl = game.persons.cctrl_lookup[i];
         if (!creature_control_invalid(cctrl))
@@ -101,7 +101,7 @@ long i_can_allocate_free_control_structure(void)
 
 struct CreatureControl *allocate_free_control_structure(void)
 {
-    for (long i = 1; i < CREATURES_COUNT; i++)
+    for (long i = 1; i < game.conf.rules.game.creatures_count; i++)
     {
         struct CreatureControl* cctrl = game.persons.cctrl_lookup[i];
         if (!creature_control_invalid(cctrl))
@@ -125,7 +125,7 @@ void delete_control_structure(struct CreatureControl *cctrl)
 
 void delete_all_control_structures(void)
 {
-    for (long i = 1; i < CREATURES_COUNT; i++)
+    for (long i = 1; i < game.conf.rules.game.creatures_count; i++)
     {
         struct CreatureControl* cctrl = creature_control_get(i);
         if (!creature_control_invalid(cctrl))
@@ -207,7 +207,7 @@ struct Thing *get_group_last_member(struct Thing *thing)
         ctng = thing_get(cctrl->next_in_group);
         cctrl = creature_control_get_from_thing(ctng);
         k++;
-        if (k > CREATURES_COUNT)
+        if (k > game.conf.rules.game.creatures_count)
         {
           ERRORLOG("Infinite loop detected when sweeping creatures group");
           break;

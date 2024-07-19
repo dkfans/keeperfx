@@ -169,7 +169,7 @@ static void command_add_creature_to_level(long plr_range_id, const char *crtr_na
         SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
         return;
     }
-    if ((ncopies <= 0) || (ncopies >= CREATURES_COUNT))
+    if ((ncopies <= 0) || (ncopies >= game.conf.rules.game.creatures_count))
     {
         SCRPTERRLOG("Invalid number of creatures to add");
         return;
@@ -599,7 +599,7 @@ static void command_add_creature_to_pool(const char *crtr_name, long amount)
         SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
         return;
     }
-    if ((amount < 0) || (amount >= CREATURES_COUNT))
+    if ((amount < 0) || (amount >= game.conf.rules.game.creatures_count))
     {
         SCRPTERRLOG("Invalid number of '%s' creatures for pool, %d", crtr_name, amount);
         return;
