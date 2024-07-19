@@ -2430,7 +2430,7 @@ static void process_dungeon_devastation_effects(void)
     }
 }
 
-void count_players_creatures_being_paid(int *game.conf.rules.game.creatures_count)
+void count_players_creatures_being_paid(int *creatures_count)
 {
     unsigned long k;
     long i;
@@ -2463,7 +2463,7 @@ void count_players_creatures_being_paid(int *game.conf.rules.game.creatures_coun
                 } else
                 {
                     cctrl->paydays_owed++;
-                    game.conf.rules.game.creatures_count[thing->owner]++;
+                    creatures_count[thing->owner]++;
                 }
             }
         }
