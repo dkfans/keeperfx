@@ -1109,7 +1109,8 @@ TbBool load_computer_player_config_file(const char *textname, const char *fname,
     long len = LbFileLengthRnc(fname);
     if (len < 2)
     {
-        ERRORLOG("Computer Player file \"%s\" doesn't exist or is too small.",keeper_compplayer_file);
+        if ((flags & CnfLd_IgnoreErrors) == 0)
+          ERRORLOG("Computer Player file \"%s\" doesn't exist or is too small.",keeper_compplayer_file);
         return false;
     }
     if (len > 65536)
