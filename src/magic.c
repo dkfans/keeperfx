@@ -756,14 +756,10 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
  */
 GoldAmount compute_power_price_scaled_with_amount(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel, long amount)
 {
-    const struct MagicStats *pwrdynst;
-    long i;
-    pwrdynst = get_power_dynamic_stats(pwkind);
-    // Increase price by given amount
-    i = amount + 1;
-    if (i < 1)
-      i = 1;
-    return pwrdynst->cost[pwlevel]*i/2;
+    const struct MagicStats *pwrdynst = get_power_dynamic_stats(pwkind);
+    if (amount < 0)
+        amount = 0;
+    return pwrdynst->cost[pwlevel] + (pwrdynst->cost[0] * amount);
 }
 
 /**
@@ -1281,6 +1277,7 @@ static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx,
     struct Thing *heartng;
     struct Coord3d pos;
     struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
+    struct MagicStats *pwrdynst = get_power_dynamic_stats(power_kind);
     if (!i_can_allocate_free_control_structure()
      || !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
         return Lb_FAIL;
@@ -1288,7 +1285,7 @@ static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx,
     if ((mod_flags & PwMod_CastForFree) == 0)
     {
         // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, power_kind, 0)) {
+        if (!pay_for_spell(plyr_idx, power_kind, splevel)) {
             return Lb_FAIL;
         }
     }
@@ -1301,6 +1298,10 @@ static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx,
     {
         ERRORLOG("There was place to create new creature, but creation failed");
         return Lb_OK;
+    }
+    if (pwrdynst->strength[splevel] != 0)
+    {
+        creature_change_multiple_levels(thing, pwrdynst->strength[splevel]);
     }
     thing->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
     thing->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
@@ -1387,7 +1388,7 @@ static TbResult magic_use_power_lightning(PowerKind power_kind, PlayerNumber ply
     dungeon = get_dungeon(player->id_number);
     pos.x.val = subtile_coord_center(stl_x);
     pos.y.val = subtile_coord_center(stl_y);
-    pos.z.val = 0;
+    pos.z.val = get_floor_height_at(&pos);
     // make sure the spell level is correct
     if (splevel >= MAGIC_OVERCHARGE_LEVELS)
         splevel = MAGIC_OVERCHARGE_LEVELS-1;
@@ -1420,7 +1421,7 @@ static TbResult magic_use_power_lightning(PowerKind power_kind, PlayerNumber ply
     // Compensate for effect element position offset
     objpos.x.val = pos.x.val + 128;
     objpos.y.val = pos.y.val + 128;
-    objpos.z.val = 0;
+    objpos.z.val = get_floor_height_at(&pos);
     obtng = create_object(&objpos, ObjMdl_PowerLightning, plyr_idx, -1);
     if (!thing_is_invalid(obtng))
     {

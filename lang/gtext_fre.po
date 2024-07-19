@@ -21,7 +21,7 @@
 "Date: 2012-09-02 01:12+0200\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
 "PO-Revision-Date: 2024-01-01 21:00+0100\n"
-"Last-Translator: Walter253\n"
+"Last-Translator: walter253\n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -6834,12 +6834,12 @@ msgstr "Piège Spécial"
 #: guitext:982
 msgctxt "Trap names"
 msgid "Freeze Trap"
-msgstr "Piège de Gel"
+msgstr "Piège Givrant"
 
 #: guitext:983
 msgctxt "Trap names"
 msgid "Fear Trap"
-msgstr "Piège de Peur"
+msgstr "Piège Effroi"
 
 #: guitext:984
 msgctxt "Trap names"
@@ -6849,37 +6849,37 @@ msgstr "Piège Sentinelle"
 #: guitext:985
 msgctxt "Trap names"
 msgid "Mimic Trap"
-msgstr "Piège Mimique"
+msgstr "Piège Copieur"
 
 #: guitext:986
 msgctxt "Trap names"
 msgid "Spawn Trap"
-msgstr "Piège à Invocation"
+msgstr "Piège Invocateur"
 
 #: guitext:987
 msgctxt "Trap names"
 msgid "Wind Trap"
-msgstr "Piège à Vent"
+msgstr "Piège Soufflant"
 
 #: guitext:988
 msgctxt "Trap names"
 msgid "Spitfire Trap"
-msgstr "Piège de Feu"
+msgstr "Lance-flammes"
 
 #: guitext:989
 msgctxt "Trap names"
 msgid "Chicken Trap"
-msgstr "Piège aux Poulets"
+msgstr "Piège Galinamorpheur"
 
 #: guitext:990
 msgctxt "Trap names"
 msgid "Disease Trap"
-msgstr "Piège aux Maladies"
+msgstr "Piège Pestilentiel"
 
 #: guitext:991
 msgctxt "Trap names"
 msgid "Power Trap"
-msgstr "Piège de Puissance"
+msgstr "Piège Radiant"
 
 #: guitext:992
 msgctxt "Trap names"
@@ -7100,19 +7100,19 @@ msgstr ""
 #: guitext:1036
 msgctxt "Trap names"
 msgid "Demolition Trap"
-msgstr "Piège de démolition"
+msgstr "Baril Explosif"
 
 #: guitext:1037
 msgctxt "Trap description"
 msgid "Description du piège"
 "Demolition Trap: An explosive with unrivaled destructive power."
-msgstr "Piège de démolition: Un explosif d'une puissance destructrice sans égale."
+msgstr "Baril Explosif : Un explosif d'une puissance destructrice sans égale."
 
 #: guitext:1038
 msgctxt "Trap description"
 msgid "Description du piège"
 "Sentry Trap: Stands guard and shoots at enemies in sight."
-msgstr "Piège Sentinelle: Monte la garde et tire sur les ennemies à vue." 
+msgstr "Piège Sentinelle : Monte la garde et tire sur les ennemies à vue." 
 
 #: guitext:1039 guitext:1040
 msgctxt "Unused"

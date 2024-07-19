@@ -126,7 +126,6 @@ unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum,const char *fext
 {
   short fgroup = get_level_fgroup(lvnum);
   char* fname = prepare_file_fmtpath(fgroup, "map%05lu.%s", lvnum, fext);
-  wait_for_cd_to_be_available();
   long fsize = LbFileLengthRnc(fname);
   if (fsize < *ldsize)
   {
@@ -1417,7 +1416,6 @@ static TbBool load_level_file(LevelNumber lvnum)
     TbBool new_format = true;
     short fgroup = get_level_fgroup(lvnum);
     char* fname = prepare_file_fmtpath(fgroup, "map%05lu.slb", (unsigned long)lvnum);
-    wait_for_cd_to_be_available();
     if (LbFileExists(fname))
     {
         result = true;

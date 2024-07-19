@@ -161,14 +161,27 @@ ThingModel crate_thing_to_workshop_item_model(const struct Thing *thing)
 TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     struct ObjectConfigStats *objst;
-    int tmodel;
+
+  // Increase object_types_count if higher object ID found in file
+    for (int i=0; i < OBJECT_TYPES_MAX; i++)
+    {
+        long pos = 0;
+        char block_name[20];
+        sprintf(block_name, "object%d", i);
+        if (find_conf_block(buf, &pos, len, block_name) == 1)
+        {
+            if (i >= game.conf.object_conf.object_types_count)
+            {
+                game.conf.object_conf.object_types_count = i + 1;
+            }
+        }
+    }
+
     // Block name and parameter word store variables
     // Initialize the objects array
-    int arr_size;
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        arr_size = sizeof(game.conf.object_conf.object_cfgstats)/sizeof(game.conf.object_conf.object_cfgstats[0]);
-        for (tmodel=0; tmodel < arr_size; tmodel++)
+        for (int tmodel=0; tmodel < OBJECT_TYPES_MAX; tmodel++)
         {
             objst = &game.conf.object_conf.object_cfgstats[tmodel];
             LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
@@ -176,25 +189,20 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             objst->map_icon = 0;
             objst->genre = 0;
             objst->draw_class = ODC_Default;
-            if (tmodel < game.conf.object_conf.object_types_count)
-            {
-                object_desc[tmodel].name = objst->code_name;
-                object_desc[tmodel].num = tmodel;
-            } else
-            {
-                object_desc[tmodel].name = NULL;
-                object_desc[tmodel].num = 0;
-            }
+            object_desc[tmodel].name = NULL;
+            object_desc[tmodel].num = 0;
         }
     }
     // Load the file
-    for (tmodel = 0; tmodel < OBJECT_TYPES_MAX; tmodel++)
+    for (int tmodel = 0; tmodel < game.conf.object_conf.object_types_count; tmodel++)
     {
         char block_buf[COMMAND_WORD_LEN];
         sprintf(block_buf, "object%d", tmodel);
         long pos = 0;
         int k = find_conf_block(buf, &pos, len, block_buf);
         objst = &game.conf.object_conf.object_cfgstats[tmodel];
+        object_desc[tmodel].name = objst->code_name;
+        object_desc[tmodel].num = tmodel;
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(objects_object_commands,cmd_num)
         while (pos<len)
         {
@@ -787,7 +795,6 @@ TbBool load_objects_config_file(const char *textname, const char *fname, unsigne
     TbBool result = (len > 0);
     
     // Parse blocks of the config file
-    game.conf.object_conf.object_types_count = OBJECT_TYPES_MAX-1;
     if (result)
     {
         result = parse_objects_object_blocks(buf, len, textname, flags);
