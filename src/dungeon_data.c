@@ -539,4 +539,38 @@ void init_dungeons(void)
     }
 }
 
+void recount_creatures_and_diggers()
+{
+    struct Dungeon* dungeon;
+    unsigned short i;
+    for (i = 0; i < PLAYERS_COUNT; i++)
+    {
+        dungeon = get_dungeon(i);
+        if (!dungeon_invalid(dungeon))
+        {
+            dungeon->num_active_creatrs = 0;
+            dungeon->num_active_diggers = 0;
+        }
+    }
+    for (i = 0; i < THINGS_COUNT; i++)
+    {
+        struct Thing* creatng = thing_get(i);
+        if (thing_is_creature(creatng))
+        {
+            dungeon = get_dungeon(creatng->owner);
+            if (!dungeon_invalid(dungeon))
+            {
+                if (creature_is_for_dungeon_diggers_list(creatng))
+                {
+                    dungeon->num_active_diggers++;
+                }
+                else
+                {
+                    dungeon->num_active_creatrs++;
+                }
+            }
+        }
+    }
+}
+
 /******************************************************************************/
