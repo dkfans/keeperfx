@@ -552,22 +552,21 @@ void recount_creatures_and_diggers()
             dungeon->num_active_diggers = 0;
         }
     }
-    for (i = 0; i < THINGS_COUNT; i++)
+    struct Thing* creatng;
+    struct StructureList *slist = get_list_for_thing_class(TCls_Creature);
+    for (i = slist->index; i != 0; i = creatng->next_of_class)
     {
-        struct Thing* creatng = thing_get(i);
-        if (thing_is_creature(creatng))
+        creatng = thing_get(i);
+        dungeon = get_dungeon(creatng->owner);
+        if (!dungeon_invalid(dungeon))
         {
-            dungeon = get_dungeon(creatng->owner);
-            if (!dungeon_invalid(dungeon))
+            if (creature_is_for_dungeon_diggers_list(creatng))
             {
-                if (creature_is_for_dungeon_diggers_list(creatng))
-                {
-                    dungeon->num_active_diggers++;
-                }
-                else
-                {
-                    dungeon->num_active_creatrs++;
-                }
+                dungeon->num_active_diggers++;
+            }
+            else
+            {
+                dungeon->num_active_creatrs++;
             }
         }
     }
