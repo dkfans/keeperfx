@@ -1187,41 +1187,29 @@ static TbResult magic_use_power_destroy_walls(PowerKind power_kind, PlayerNumber
             return Lb_FAIL;
         }
     }
-    MapSlabCoord slb_x_start;
-    MapSlabCoord slb_y_start;
-    MapSlabCoord slb_x_end;
-    MapSlabCoord slb_y_end;
-    int i;
-    slb_x_start = subtile_slab(stl_x) - 1;
-    slb_y_start = subtile_slab(stl_y) - 1;
-    slb_x_end = slb_x_start + 3;
-    slb_y_end = slb_y_start + 3;
-    i = 0;
-    MapSlabCoord slb_x;
-    MapSlabCoord slb_y;
-    for (slb_y=slb_y_start; slb_y < slb_y_end ; slb_y++)
+    MapSlabCoord slb_x_start = subtile_slab(stl_x) - 1;
+    MapSlabCoord slb_y_start = subtile_slab(stl_y) - 1;
+    MapSlabCoord slb_x_end = slb_x_start + 3;
+    MapSlabCoord slb_y_end = slb_y_start + 3;
+    int i = 0;
+    TbBool is_revealed = subtile_revealed(stl_x, stl_y, plyr_idx);
+    for (MapSlabCoord slb_y=slb_y_start; slb_y < slb_y_end ; slb_y++)
     {
-        for (slb_x=slb_x_start; slb_x < slb_x_end ; slb_x++,i++)
+        for (MapSlabCoord slb_x=slb_x_start; slb_x < slb_x_end ; slb_x++,i++)
         {
-            struct SlabMap *slb;
-            slb = get_slabmap_block(slb_x, slb_y);
+            struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
             if (slabmap_block_invalid(slb))
                 continue;
-            struct Map *mapblk;
-            mapblk = get_map_block_at(slab_subtile_center(slb_x),slab_subtile_center(slb_y));
+            struct Map *mapblk = get_map_block_at(slab_subtile_center(slb_x),slab_subtile_center(slb_y));
             if (!(mapblk->flags & SlbAtFlg_Blocking) || (mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom|SlbAtFlg_Valuable)) || (slb->kind == SlbT_ROCK) )
               continue;
-            TbBool is_revealed;
-            is_revealed = subtile_revealed(stl_x, stl_y, plyr_idx);
-            unsigned char destreff;
-            destreff = destroy_effect[splevel][i];
+            unsigned char destreff = destroy_effect[splevel][i];
             if (destreff == 79)
             {
-                struct SlabAttr *slbattr;
-                slbattr = get_slab_attrs(slb);
+                struct SlabAttr *slbattr = get_slab_attrs(slb);
                 if (slbattr->category == SlbAtCtg_FortifiedWall)
                 {
-                    place_slab_type_on_map(SlbT_EARTH, slab_subtile_center(slb_x),slab_subtile_center(slb_y), plyr_idx, 0);
+                    place_slab_type_on_map(SlbT_EARTH, slab_subtile_center(slb_x),slab_subtile_center(slb_y), game.neutral_player_num, 0);
                     create_dirt_rubble_for_dug_slab(slb_x, slb_y);
                     do_slab_efficiency_alteration(slb_x, slb_y);
                 } else
@@ -1246,8 +1234,7 @@ static TbResult magic_use_power_destroy_walls(PowerKind power_kind, PlayerNumber
     }
     if (is_my_player_number(plyr_idx))
     {
-        struct PowerConfigStats *powerst;
-        powerst = get_power_model_stats(power_kind);
+        struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
         play_non_3d_sample(powerst->select_sound_idx);
     }
     return Lb_SUCCESS;
