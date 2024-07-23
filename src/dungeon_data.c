@@ -541,15 +541,21 @@ void init_dungeons(void)
 
 void recount_creatures_and_diggers()
 {
-    struct Dungeon* dungeon;
     unsigned short i;
+    game.nodungeon_creatr_list_start = 0;
     for (i = 0; i < PLAYERS_COUNT; i++)
     {
-        dungeon = get_dungeon(i);
+        struct Dungeon* dungeon = get_dungeon(i);
         if (!dungeon_invalid(dungeon))
         {
             dungeon->num_active_creatrs = 0;
             dungeon->num_active_diggers = 0;
+            dungeon->creatr_list_start = 0;
+            dungeon->digger_list_start = 0;
+            for (ThingModel model = 0; model < CREATURE_TYPES_COUNT; model++) 
+            {
+                dungeon->owned_creatures_of_model[model] = 0;
+            }
         }
     }
     struct Thing* creatng;
@@ -557,18 +563,8 @@ void recount_creatures_and_diggers()
     for (i = slist->index; i != 0; i = creatng->next_of_class)
     {
         creatng = thing_get(i);
-        dungeon = get_dungeon(creatng->owner);
-        if (!dungeon_invalid(dungeon))
-        {
-            if (creature_is_for_dungeon_diggers_list(creatng))
-            {
-                dungeon->num_active_diggers++;
-            }
-            else
-            {
-                dungeon->num_active_creatrs++;
-            }
-        }
+        creatng->alloc_flags &= ~TAlF_InDungeonList;
+        set_first_creature(creatng);
     }
 }
 
