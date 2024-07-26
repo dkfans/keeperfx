@@ -435,7 +435,7 @@ long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d 
     return dig_distance;
 }
 
-long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos)
+unsigned long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos)
 {
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = comp->dungeon;
