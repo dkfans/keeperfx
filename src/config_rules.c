@@ -93,7 +93,7 @@ const struct NamedField rules_game_named_fields[] = {
   {"EASTEREGGSPEECHINTERVAL",    &game.conf.rules.game.easter_egg_speech_interval, var_type(game.conf.rules.game.easter_egg_speech_interval),       0,LONG_MAX},
   {"GLOBALAMBIENTLIGHT",         &game.conf.rules.game.global_ambient_light,       var_type(game.conf.rules.game.global_ambient_light      ),LONG_MIN,LONG_MAX},
   {"LIGHTENABLED",               &game.conf.rules.game.light_enabled,              var_type(game.conf.rules.game.light_enabled             ),       0,       1},
-  {"CREATURES_COUNT",             &game.conf.rules.game.creatures_count,            var_type(game.conf.rules.game.creatures_count           ),       0,CREATURES_COUNT},
+  {"MAPCREATURELIMIT",           &game.conf.rules.game.creatures_count,            var_type(game.conf.rules.game.creatures_count           ),       0,CREATURES_COUNT},
   {NULL,                            NULL,0,0,0 },
 };
 
