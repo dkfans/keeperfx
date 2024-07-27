@@ -881,7 +881,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_Unknown099:
       turn_off_query(plyr_idx);
       return 0;
-  case PckA_Unknown104:
+  case PckA_ZoomToBattle:
       if (player->work_state == PSt_CreatrInfo)
         turn_off_query(plyr_idx);
       battle_move_player_towards_battle(player, pckt->actn_par1);

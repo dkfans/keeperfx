@@ -418,7 +418,8 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
         }
         if ((powerst->can_cast_flags & PwCast_EnemyCrtrs) != 0)
         {
-            if (players_are_enemies(plyr_idx, thing->owner)) {
+            if (!players_creatures_tolerate_each_other(plyr_idx, thing->owner))
+            {
                 return true;
             }
         }
