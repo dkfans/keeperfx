@@ -1205,9 +1205,12 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             pos2.y.val = killertng->mappos.y.val;
             if(thing_is_deployed_trap(killertng))
             {
-
                 pos2.z.val = killertng->mappos.z.val;
                 pos2.z.val += (killertng->clipbox_size_z >> 1);
+                if (thing_is_destructible_trap(killertng))
+                {
+                    shotng->shot.hit_type = THit_CrtrsNObjctsNotOwn;
+                }
             }
             else
             {
