@@ -40,8 +40,8 @@
 #include "scrcapt.h"
 #include "vidmode.h"
 #include "music_player.h"
-#include "post_inc.h"
 #include "moonphase.h"
+#include "post_inc.h"
 
 
 #ifdef __cplusplus
@@ -1615,7 +1615,7 @@ short calculate_moon_phase(short do_calculate, short add_to_log)
     // Moon phase calculation
     if (do_calculate)
     {
-        phase_of_moon = (float)LbMoonPhase();
+        phase_of_moon = (float)moonphase_calculate();
     }
 
     // Handle moon phases
