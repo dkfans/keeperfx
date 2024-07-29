@@ -445,8 +445,8 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
         {
             fprintf(file, "  @ %02u:%02u:%02u",
                 curr_time.Hour,curr_time.Minute,curr_time.Second);
+            at_used = 1;
         }
-        at_used = 1;
       }
       if ((log->flags & LbLog_DateInHeader) != 0)
       {
