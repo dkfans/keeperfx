@@ -907,17 +907,32 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
     const int arr_size = (int)(sizeof(ComputerProcessLists)/sizeof(ComputerProcessLists[0]));
     for (int i = 0; i < arr_size; i++)
     {
+        struct ComputerProcessTypes* cpt;
         char block_buf[32];
         sprintf(block_buf, "computer%d", i);
         long pos = 0;
         int k = find_conf_block(buf, &pos, len, block_buf);
         if (k < 0)
         {
-            if((flags & CnfLd_AcceptPartial) == 0)
-              WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
+            if ((flags & CnfLd_AcceptPartial) == 0)
+            {
+                WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
+            }
+            else
+            {
+                cpt = &ComputerProcessLists[i];
+                computer_type_clear_events(cpt);
+                for (int j = 0; j < COMPUTER_EVENTS_TYPES_COUNT; j++)
+                {
+                    if ((strcmp(computer_event_config_list[j].event->name, "UNUSED") != 0) && (computer_event_config_list[j].event->name != NULL))
+                    {
+                        computer_type_add_event(cpt, computer_event_config_list[j].event);
+                    }
+                }
+            }
             continue;
         }
-      struct ComputerProcessTypes* cpt = &ComputerProcessLists[i];
+      cpt = &ComputerProcessLists[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(compp_computer_commands,cmd_num)
       while (pos<len)
       {
