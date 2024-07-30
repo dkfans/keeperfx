@@ -1618,7 +1618,7 @@ short calculate_moon_phase(short do_calculate, short add_to_log)
     }
 
     // Handle moon phases
-    if ((phase_of_moon > 0.475) && (phase_of_moon < 0.525))
+    if ((phase_of_moon > 0.475) && (phase_of_moon < 0.525)) // Approx 33 hours
     {
         if (add_to_log)
         {
@@ -1630,7 +1630,7 @@ short calculate_moon_phase(short do_calculate, short add_to_log)
         is_new_moon = 0;
         is_near_new_moon = 0;
     }
-    else if ((phase_of_moon > 0.45) && (phase_of_moon < 0.55))
+    else if ((phase_of_moon > 0.45) && (phase_of_moon < 0.55)) // Approx 70 hours
     {
         if (add_to_log)
         {
