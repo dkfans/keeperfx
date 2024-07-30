@@ -17,9 +17,6 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#define _FILE_OFFSET_BITS 64
-#define _TIME_BITS 64
-
 #ifndef BFLIB_BASICS_H
 #define BFLIB_BASICS_H
 
