@@ -400,6 +400,7 @@ struct SpellConfig {
     short duration;
     short aura_effect;
     unsigned short spell_flags;
+    unsigned char caster_sounds_count;
 };
 
 struct MagicStats {
