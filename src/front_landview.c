@@ -889,7 +889,6 @@ TbBool load_map_and_window(LevelNumber lvnum)
     memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE);
     // Now prepare window sprite file name and load the file
     fname = prepare_file_fmtpath(FGrp_LandView,"%s.dat",land_window);
-    wait_for_cd_to_be_available();
     map_window_len = LbFileLoadAt(fname, ptr);
     if (map_window_len < (long)(WINDOW_Y_SIZE*sizeof(long)))
     {
@@ -908,7 +907,6 @@ TbBool load_map_and_window(LevelNumber lvnum)
     map_window_len -= WINDOW_Y_SIZE*sizeof(long);
     // Load palette
     fname = prepare_file_fmtpath(FGrp_LandView,"%s.pal",land_view);
-    wait_for_cd_to_be_available();
     if (LbFileLoadAt(fname, frontend_palette) != PALETTE_SIZE)
     {
         ERRORLOG("Unable to load Land Map palette \"%s.pal\"",land_view);
@@ -955,7 +953,6 @@ TbBool frontnetmap_load(void)
       if (LbNetwork_EnableNewPlayers(0))
         ERRORLOG("Unable to prohibit new players joining exchange");
     }
-    wait_for_cd_to_be_available();
     frontend_load_data_from_cd();
     game.selected_level_number = 0;
     switch (campaign.land_markers)
@@ -1090,7 +1087,6 @@ TbBool frontmap_load(void)
     LbPaletteSet(scratch);
     initialize_description_speech();
     mouse_over_lvnum = SINGLEPLAYER_NOTSTARTED;
-    wait_for_cd_to_be_available();
     frontend_load_data_from_cd();
     switch (campaign.land_markers)
     {

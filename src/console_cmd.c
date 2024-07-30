@@ -54,7 +54,7 @@
 #include "packets.h"
 #include "player_computer.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "player_utils.h"
 #include "room_data.h"
 #include "room_util.h"

@@ -26,7 +26,7 @@
 #include "bflib_sprfnt.h"
 
 #include "player_data.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "player_utils.h"
 #include "dungeon_data.h"
 #include "creature_battle.h"
@@ -142,8 +142,11 @@ void gui_get_creature_in_battle(struct GuiButton *gbtn)
         return;
     }
     PowerKind pwkind = 0;
-    if (myplyr->work_state < PLAYER_STATES_COUNT)
-        pwkind = player_state_to_power_kind[myplyr->work_state];
+    if (myplyr->work_state < PLAYER_STATES_COUNT_MAX)
+    {
+        struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(myplyr->work_state);
+        pwkind = plrst_cfg_stat->power_kind;
+    }
     struct Thing* thing = thing_get(battle_creature_over);
     if (!thing_exists(thing)) {
         WARNLOG("Nonexisting thing %d in battle",(int)battle_creature_over);
@@ -352,7 +355,7 @@ short zoom_to_fight(PlayerNumber plyr_idx)
     if (active_battle_exists(plyr_idx))
     {
         struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
-        set_players_packet_action(player, PckA_Unknown104, dungeon->visible_battles[0], 0, 0, 0);
+        set_players_packet_action(player, PckA_ZoomToBattle, dungeon->visible_battles[0], 0, 0, 0);
         step_battles_forward(plyr_idx);
         return true;
     }

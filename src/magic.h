@@ -89,6 +89,7 @@ TbResult magic_use_power_possess_thing(PlayerNumber plyr_idx, struct Thing *thin
 TbResult magic_use_power_hold_audience(PlayerNumber plyr_idx, unsigned long mod_flags);
 TbResult magic_use_power_armageddon(PlayerNumber plyr_idx, unsigned long mod_flags);
 TbResult magic_use_power_obey(PlayerNumber plyr_idx, unsigned long mod_flags);
+TbResult magic_use_power_direct(PlayerNumber plyr_idx, PowerKind pwkind, unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags);
 
 TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind spl_idx,
     unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags);

@@ -363,7 +363,8 @@ long computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *ce
  */
 struct Thing *computer_get_creature_in_fight(struct Computer2 *comp, PowerKind pwkind)
 {
-    return find_players_highest_score_creature_in_fight_not_affected_by_spell(comp->dungeon->owner, pwkind);
+    struct PowerConfigStats *powerst = get_power_model_stats(pwkind);
+    return find_players_highest_score_creature_in_fight_not_affected_by_spell(comp->dungeon->owner, powerst->spell_idx);
 }
 
 long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent *cevent)
@@ -372,7 +373,9 @@ long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent 
     {
         return 4;
     }
-    if (!(computer_able_to_use_power(comp, PwrK_SPEEDCRTR, cevent->param1, 1) || computer_able_to_use_power(comp, PwrK_RAGE, cevent->param1, 1) || computer_able_to_use_power(comp, PwrK_PROTECT, cevent->param1, 1) || computer_able_to_use_power(comp, PwrK_REBOUND, cevent->param1, 1) || computer_able_to_use_power(comp, PwrK_FLIGHT, cevent->param1, 1) || computer_able_to_use_power(comp, PwrK_VISION, cevent->param1, 1)))
+    if (!(computer_able_to_use_power(comp, PwrK_SPEEDCRTR, cevent->param1, 1) || computer_able_to_use_power(comp, PwrK_PROTECT, cevent->param1, 1) || 
+          computer_able_to_use_power(comp, PwrK_REBOUND, cevent->param1, 1)   || computer_able_to_use_power(comp, PwrK_FLIGHT, cevent->param1, 1) || 
+          computer_able_to_use_power(comp, PwrK_VISION, cevent->param1, 1)    || computer_able_to_use_power(comp, PwrK_RAGE, cevent->param1, 1)))
     {
         return 4;
     }

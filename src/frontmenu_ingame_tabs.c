@@ -53,7 +53,7 @@
 #include "magic.h"
 #include "player_computer.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "frontmenu_ingame_evnt.h"
 #include "frontmenu_ingame_opts.h"
 #include "frontmenu_ingame_map.h"
@@ -751,12 +751,12 @@ void gui_choose_trap(struct GuiButton *gbtn)
 void go_to_next_trap_of_type(ThingModel tngmodel, PlayerNumber plyr_idx)
 {
     struct Thing *thing;
-    if (tngmodel >= 8) {
+    if (tngmodel >= TRAPDOOR_TYPES_MAX) {
         ERRORLOG("Bad trap kind");
         return;
     }
     unsigned long k = 0;
-    static unsigned short seltrap[8];
+    static ThingModel seltrap[TRAPDOOR_TYPES_MAX];
     int i = seltrap[tngmodel];
     SYNCDBG(9,"Starting, prev index %d",i);
     {
@@ -807,12 +807,12 @@ void go_to_next_trap_of_type(ThingModel tngmodel, PlayerNumber plyr_idx)
 void go_to_next_door_of_type(ThingModel tngmodel, PlayerNumber plyr_idx)
 {
     struct Thing *thing;
-    if (tngmodel >= 8) {
+    if (tngmodel >= TRAPDOOR_TYPES_MAX) {
         ERRORLOG("Bad door kind");
         return;
     }
     unsigned long k = 0;
-    static unsigned short seldoor[8];
+    static ThingModel seldoor[TRAPDOOR_TYPES_MAX];
     int i = seldoor[tngmodel];
     {
         if (i != 0) {
@@ -1208,7 +1208,7 @@ void draw_centred_string64k(const char *text, short x, short y, short base_w, sh
     }
     else
     {
-        tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+        tx_units_per_px = (22 * units_per_pixel_ui) / LbTextLineHeight();
         if ( (dbc_language > 0) && (MyScreenWidth > 640) )
         {
             tx_units_per_px = scale_value_by_horizontal_resolution(12 + (MyScreenWidth / 640));
@@ -1216,7 +1216,7 @@ void draw_centred_string64k(const char *text, short x, short y, short base_w, sh
         }
         else
         {
-            tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+            tx_units_per_px = (22 * units_per_pixel_ui) / LbTextLineHeight();
         }
         text_x = 0;
     }
@@ -2046,24 +2046,12 @@ void maintain_player_page2(struct GuiButton *gbtn)
     }
     if(current_players_count > 4)
     {
-
-        gbtn->pos_x = scale_ui_value(14);
-        gbtn->pos_y = scale_ui_value(374);
-        gbtn->scr_pos_x = scale_ui_value(14);
-        gbtn->scr_pos_y = scale_ui_value(374);
-        gbtn->width = scale_ui_value(52);
-        gbtn->height = scale_ui_value(20);
+        set_flag(gbtn->flags, (LbBtnF_Visible | LbBtnF_Enabled));
     }
     else
     {
-        gbtn->pos_x = 0;
-        gbtn->pos_y = 0;
-        gbtn->scr_pos_x = 0;
-        gbtn->scr_pos_y = 0;
-        gbtn->width = 0;
-        gbtn->height = 0;
+        clear_flag(gbtn->flags, (LbBtnF_Visible | LbBtnF_Enabled));
     }
-    
 }
 
 void maintain_query_button(struct GuiButton *gbtn)
@@ -2210,7 +2198,7 @@ void gui_area_payday_button(struct GuiButton *gbtn)
     gui_area_progress_bar_wide(gbtn, units_per_px, game.pay_day_progress, game.conf.rules.game.pay_day_gap);
     struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
     char* text = buf_sprintf("%d", (int)dungeon->creatures_total_pay);
-    draw_centred_string64k(text, gbtn->scr_pos_x + (gbtn->width >> 1), gbtn->scr_pos_y + 8*units_per_px/16, 130, gbtn->width);
+    draw_centred_string64k(text, gbtn->scr_pos_x + (gbtn->width >> 1), gbtn->scr_pos_y + scale_value_by_vertical_resolution(8), 130, gbtn->width);
 }
 
 void gui_area_research_bar(struct GuiButton *gbtn)
@@ -2488,6 +2476,7 @@ void update_trap_tab_to_config(void)
         ibtn->ptover_event = NULL;
         ibtn->draw_call = gui_area_new_null_button;
         ibtn->maintain_call = NULL;
+
         ibtn = &trap_menu2.buttons[i];
         ibtn->sprite_idx = 24;
         ibtn->tooltip_stridx = GUIStr_Empty;
@@ -2681,10 +2670,10 @@ void maintain_trap_next_page_button(struct GuiButton *gbtn)
         switch (manufctr->tngclass)
         {
             case TCls_Trap:
-                result = is_trap_buildable(my_player_number, manufctr->tngmodel);
+                result = ( (is_trap_buildable(my_player_number, manufctr->tngmodel)) || (is_trap_placeable(my_player_number, manufctr->tngmodel)) || (is_trap_built(my_player_number, manufctr->tngmodel)) );
                 break;
             case TCls_Door:
-                result = is_door_buildable(my_player_number, manufctr->tngmodel);
+                result = ( (is_door_buildable(my_player_number, manufctr->tngmodel)) || (is_door_placeable(my_player_number, manufctr->tngmodel)) || (is_door_built(my_player_number, manufctr->tngmodel)) );
                 break;
             default:
                 result = false;

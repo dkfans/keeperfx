@@ -163,10 +163,11 @@ static void load_effectelements(VALUE *value, unsigned short flags)
 
             CONDITIONAL_ASSIGN_BOOL(section,"AnimateOnFloor",  effelcst->animate_on_floor);
             CONDITIONAL_ASSIGN_BOOL(section,"Unshaded",        effelcst->unshaded);
-            CONDITIONAL_ASSIGN_INT(section,"Transparant",      effelcst->transparant);
+            CONDITIONAL_ASSIGN_INT(section,"Transparant",      effelcst->transparent); //todo remove typo after a while
+            CONDITIONAL_ASSIGN_INT(section,"Transparent",      effelcst->transparent);
             CONDITIONAL_ASSIGN_INT(section,"MovementFlags",    effelcst->movement_flags);
             CONDITIONAL_ASSIGN_INT(section,"SizeChange",       effelcst->size_change);
-            CONDITIONAL_ASSIGN_INT(section,"fallAcceleration", effelcst->fall_acceleration);
+            CONDITIONAL_ASSIGN_INT(section,"FallAcceleration", effelcst->fall_acceleration);
             CONDITIONAL_ASSIGN_INT(section,"InertiaFloor",     effelcst->inertia_floor);
             CONDITIONAL_ASSIGN_INT(section,"InertiaAir",       effelcst->inertia_air);
             CONDITIONAL_ASSIGN_INT(section,"SubeffectModel",   effelcst->subeffect_model);

@@ -156,6 +156,7 @@ struct PlayerInfo {
     unsigned char allocflags;
     TbBool tooltips_restore; /**< Used to store/restore the value of settings.tooltips_on when transitioning to/from the map. */
     TbBool status_menu_restore; /**< Used to store/restore the current status menu visibility when the map is shown/hidden. */
+    TbBool paused_state_restore; /**< Used to restore pause state after saving */
     TbBool swipe_sprite_drawLR; /**< Used to decide whether to draw the swipe sprite left to right (TRUE), or [default] right to left (FALSE). */
     unsigned char boxsize; //field_2 seems to be used in DK, so now renamed and used in KeeperFX
     unsigned char additional_flags; // Uses PlayerAdditionalFlags
@@ -196,17 +197,17 @@ struct PlayerInfo {
     short minimap_pos_y;
     unsigned short minimap_zoom;
     unsigned char view_type;
-    unsigned char work_state;
+    PlayerState work_state;
     unsigned char primary_cursor_state;
     unsigned char secondary_cursor_state;
-    unsigned char continue_work_state;
+    PlayerState continue_work_state;
 char field_45F;
 short cursor_light_idx;
     char mp_message_text[PLAYER_MP_MESSAGE_LEN];
     unsigned char chosen_room_kind;
     unsigned char full_slab_cursor; // 0 for subtile sized cursor, 1 for slab sized cursor
-    char chosen_trap_kind;
-    char chosen_door_kind;
+    ThingModel chosen_trap_kind;
+    ThingModel chosen_door_kind;
     MapSubtlCoord cursor_clicked_subtile_x; // x coord of subtile clicked by mouse cursor
     MapSubtlCoord cursor_clicked_subtile_y; // y coord of subtile clicked by mouse cursor
     unsigned char cursor_button_down; // left or right button down (whilst using the bounding box cursor)
