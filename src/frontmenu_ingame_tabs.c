@@ -2046,24 +2046,12 @@ void maintain_player_page2(struct GuiButton *gbtn)
     }
     if(current_players_count > 4)
     {
-
-        gbtn->pos_x = scale_ui_value(14);
-        gbtn->pos_y = scale_ui_value(374);
-        gbtn->scr_pos_x = scale_ui_value(14);
-        gbtn->scr_pos_y = scale_ui_value(374);
-        gbtn->width = scale_ui_value(52);
-        gbtn->height = scale_ui_value(20);
+        set_flag(gbtn->flags, (LbBtnF_Visible | LbBtnF_Enabled));
     }
     else
     {
-        gbtn->pos_x = 0;
-        gbtn->pos_y = 0;
-        gbtn->scr_pos_x = 0;
-        gbtn->scr_pos_y = 0;
-        gbtn->width = 0;
-        gbtn->height = 0;
+        clear_flag(gbtn->flags, (LbBtnF_Visible | LbBtnF_Enabled));
     }
-    
 }
 
 void maintain_query_button(struct GuiButton *gbtn)

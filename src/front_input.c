@@ -874,11 +874,10 @@ short get_status_panel_keyboard_action_inputs(void)
   if (is_key_pressed(KC_1, KMod_NONE))
   {
     clear_key_pressed(KC_1);
-    fake_button_click(BID_INFO_TAB);
     struct GuiButton* gbtn = get_gui_button(BID_QUERY_2);
     if (gbtn != NULL)
     {
-        if ((gbtn->flags & (LbBtnF_Visible | LbBtnF_Enabled)) != 0)
+        if (flag_is_set(gbtn->flags,(LbBtnF_Visible | LbBtnF_Enabled)))
         {
             if (menu_is_active(GMnu_QUERY))
             {
@@ -890,10 +889,10 @@ short get_status_panel_keyboard_action_inputs(void)
                 fake_button_click(BID_INFO_TAB);
             }
         }
-        else
-        {
-            fake_button_click(BID_ROOM_TAB);
-        }
+    }
+    else
+    {
+        fake_button_click(BID_INFO_TAB);
     }
   }
   if (is_key_pressed(KC_2, KMod_NONE))
