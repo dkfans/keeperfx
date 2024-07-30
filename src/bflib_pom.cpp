@@ -187,7 +187,7 @@ long PhaseOfMoon::JulToday(double &daypart,long &moon_periods_n)
   long jul=JulDay(ptm->tm_mon,ptm->tm_mday,ptm->tm_year+1900);
   long tdjul = jul;
   // Approximate number of full moons since january 1900
-  moon_periods_n=int(MOON_CNSTORBIT_YEAR_CYCLES*(ptm->tm_year+((ptm->tm_mon-0.5)/12.0)));
+  moon_periods_n=int(MOON_CNSTORBIT_YEAR_CYCLES*((ptm->tm_year+1900)+((ptm->tm_mon-0.5)/12.0)));
   long jul2;
   double frac2;
   PhaseOfMoon::FlMoon(moon_periods_n,0,jul2,frac2);
