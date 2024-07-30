@@ -355,7 +355,7 @@ CU_OBJS = \
 LINKLIB =  -L"sdl/lib" -mwindows obj/enet.a \
 	-lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net -lSDL2_image \
 	-L"deps/zlib" -lz -lws2_32 -ldbghelp
-INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include" -I"deps/centijson/src" -I"deps/centitoml" -I"deps/astronomy/source/c"
+INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include" -I"deps/centijson/src" -I"deps/centitoml" -I"deps/astronomy"
 CXXINCS =  $(INCS)
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
@@ -539,7 +539,7 @@ obj/std/unzip.o obj/hvlog/unzip.o: deps/zlib/contrib/minizip/unzip.c
 	$(CC) $(CFLAGS) -Wno-shadow -I"deps/zlib" -o"$@" "$<"
 	-$(ECHO) ' '
 
-obj/std/astronomy.o obj/hvlog/astronomy.o: deps/astronomy/source/c/astronomy.c
+obj/std/astronomy.o obj/hvlog/astronomy.o: deps/astronomy/astronomy.c
 	-$(ECHO) 'Building file: $<'
 	$(CC) $(CFLAGS) -o"$@" "$<"
 	-$(ECHO) ' '
@@ -621,7 +621,7 @@ clean-libexterns: libexterns.mk
 deps/centijson/src/json.c deps/centijson/src/value.c deps/centijson/src/json-dom.c: build-before
 deps/libspng/spng/spng.c: build-before
 deps/zlib/contrib/minizip/unzip.c deps/zlib/contrib/minizip/ioapi.c: build-before
-deps/astronomy/source/c/astronomy.c: build-before
+deps/astronomy/astronomy.c: build-before
 
 
 deps/zlib/configure.log:

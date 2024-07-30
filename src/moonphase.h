@@ -1,7 +1,7 @@
 #ifndef MOONPHASE_H
 #define MOONPHASE_H
 
-#include "../deps/astronomy/source/c/astronomy.h"
+#include "../deps/astronomy/astronomy.h"
 
 #ifdef __cplusplus
 extern "C"
