@@ -7009,3 +7009,53 @@ msgstr "Roccia madre: Pavimento roccioso non reclamato. Non puoi reclamarlo o co
 msgctxt "Slab description"
 msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "Vena d'oro densa: Contiene molta ricchezza che i tuoi Folletti possono estrarre."
+
+#: guitext:1053
+msgctxt "Keeper spell name"
+msgid "Rebound"
+msgstr "Rimbalzo"
+
+#: guitext:1054
+msgctxt "Keeper spell name"
+msgid "Freeze"
+msgstr "Congelamento"
+
+#: guitext:1055
+msgctxt "Keeper spell name"
+msgid "Slow"
+msgstr "Rallentamento"
+
+#: guitext:1056
+msgctxt "Keeper spell name"
+msgid "Flight"
+msgstr "Volo"
+
+#: guitext:1057
+msgctxt "Keeper spell name"
+msgid "Illumination"
+msgstr "Illuminazione"
+
+#: guitext:1058
+msgctxt "Keeper spell name"
+msgid "Sight"
+msgstr "Vista"
+
+#: guitext:1059
+msgctxt "Dungeon special decription"
+msgid "Heal All: Restore full health to all your creatures."
+msgstr "Guarisci Tutti: Tutte le tue creature vengono curate."
+
+#: guitext:1060
+msgctxt "Dungeon special decription"
+msgid "Increase Gold: Generates gold in your treasury."
+msgstr "Aumenta l'Oro: Genera oro nel tuo tesoro."
+
+#: guitext:1061
+msgctxt "Dungeon special decription"
+msgid "Make Unhappy: All creatures of the enemy become upset."
+msgstr "Rendi Infelici: Tutte le creature del nemico diventano infelici."
+
+#: guitext:1062
+msgctxt "Dungeon special decription"
+msgid "Weaken Walls: Destroys the fortifications of enemy walls."
+msgstr "Indebolire Mura: Distrugge le fortificazioni delle mura nemiche"

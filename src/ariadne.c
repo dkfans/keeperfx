@@ -4714,7 +4714,7 @@ void border_unlock(long a1, long a2, long a3, long a4)
     for (ept_id = ix_EdgePoints; ept_id > 0; ept_id--)
     {
         ept = edge_point_get(ept_id-1);
-        if (!point_find(ept->field_0, ept->field_4, &tri_idx, &cor_idx))
+        if (!point_find(ept->pt_x, ept->pt_y, &tri_idx, &cor_idx))
         {
             nerr++;
             continue;

@@ -52,7 +52,7 @@
 #include "config_settings.h"
 #include "player_instances.h"
 #include "player_data.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "player_utils.h"
 #include "thing_physics.h"
 #include "thing_doors.h"
@@ -82,6 +82,7 @@
 #include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
 #include "gui_parchment.h"
+#include "gui_msgs.h"
 #include "net_game.h"
 #include "net_sync.h"
 #include "game_legacy.h"
@@ -166,43 +167,28 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
     struct Packet* pckt = get_packet_direct(player->packet_num);
     if ((pckt->control_flags & PCtr_LBtnHeld) != 0)
     {
-      switch (player->work_state)
-      {
-      case PSt_CallToArms:
-          if (player_uses_power_call_to_arms(plyr_idx))
-            player->cast_expand_level = (dungeon->cta_splevel << 2);
-          else
-            update_power_overcharge(player, PwrK_CALL2ARMS);
-          break;
-      case PSt_CaveIn:
-          update_power_overcharge(player, PwrK_CAVEIN);
-          break;
-      case PSt_SightOfEvil:
-          update_power_overcharge(player, PwrK_SIGHT);
-          break;
-      case PSt_Lightning:
-          update_power_overcharge(player, PwrK_LIGHTNING);
-          break;
-      case PSt_SpeedUp:
-          update_power_overcharge(player, PwrK_SPEEDCRTR);
-          break;
-      case PSt_Armour:
-          update_power_overcharge(player, PwrK_PROTECT);
-          break;
-      case PSt_Conceal:
-          update_power_overcharge(player, PwrK_CONCEAL);
-          break;
-      case PSt_Heal:
-          update_power_overcharge(player, PwrK_HEALCRTR);
-          break;
-      case PSt_TimeBomb:
-          update_power_overcharge(player, PwrK_TIMEBOMB);
-          break;
-      default:
-          player->cast_expand_level++;
-          break;
-      }
-      return true;
+        struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
+        struct PowerConfigStats *powerst = get_power_model_stats(plrst_cfg_stat->power_kind);
+
+        switch (powerst->overcharge_check_idx)
+        {
+            case OcC_CallToArms_expand:
+                if (player_uses_power_call_to_arms(plyr_idx))
+                    player->cast_expand_level = (dungeon->cta_splevel << 2);
+                else
+                    update_power_overcharge(player, plrst_cfg_stat->power_kind);
+                break;
+            case OcC_SightOfEvil_expand:
+            case OcC_General_expand:
+                update_power_overcharge(player, plrst_cfg_stat->power_kind);
+                break;
+            case OcC_do_not_expand:
+            case OcC_Null:
+            default:
+                player->cast_expand_level++;
+                break;
+        }
+        return true;
     }
     if ((pckt->control_flags & PCtr_LBtnRelease) == 0)
     {
@@ -221,7 +207,7 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
         return false;
     }
     struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
-    long revenue = compute_value_percentage(roomst->cost, gameadd.room_sale_percent);
+    long revenue = compute_value_percentage(roomst->cost, game.conf.rules.game.room_sale_percent);
     if (room->owner != game.neutral_player_num)
     {
         struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
@@ -294,11 +280,11 @@ void process_pause_packet(long curr_pause, long new_pause)
   if ( can )
   {
       player = get_my_player();
-      set_flag_byte(&game.operation_flags, GOF_Paused, curr_pause);
+      set_flag_value(game.operation_flags, GOF_Paused, curr_pause);
       if ((game.operation_flags & GOF_Paused) != 0)
-          set_flag_byte(&game.operation_flags, GOF_WorldInfluence, new_pause);
+          set_flag_value(game.operation_flags, GOF_WorldInfluence, new_pause);
       else
-          set_flag_byte(&game.operation_flags, GOF_Paused, false);
+          clear_flag(game.operation_flags, GOF_Paused);
       if ( !SoundDisabled )
       {
         if ((game.operation_flags & GOF_Paused) != 0)
@@ -327,7 +313,6 @@ void process_pause_packet(long curr_pause, long new_pause)
 void process_players_dungeon_control_packet_control(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
     struct Camera* cam = player->acamera;
@@ -344,7 +329,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     {
     case PVM_IsoWibbleView:
     case PVM_IsoStraightView:
-        if (playeradd->roomspace_drag_paint_mode == 1)
+        if (player->roomspace_drag_paint_mode == 1)
         {
             if (scroll_speed < 4100)
             {
@@ -354,7 +339,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         inter_val = 2560000 / scroll_speed;
         break;
     case PVM_FrontView:
-        if (playeradd->roomspace_drag_paint_mode == 1)
+        if (player->roomspace_drag_paint_mode == 1)
         {
             if (scroll_speed < 16384)
             {
@@ -598,7 +583,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   struct Packet* pckt = get_packet_direct(player->packet_num);
   SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
   struct Dungeon *dungeon;
-  struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
   struct Thing *thing;
   int i;
   switch (pckt->action)
@@ -658,13 +642,13 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return 0;
   case PckA_PlyrMsgEnd:
       player->allocflags &= ~PlaF_NewMPMessage;
-      if (player->mp_message_text[0] == '!')
+      if (player->mp_message_text[0] == cmd_char)
       {
-          if ( (!cmd_exec(player->id_number, player->mp_message_text)) || ((game.system_flags & GSF_NetworkActive) != 0) )
-              message_add(player->id_number, player->mp_message_text);
+          if ( (!cmd_exec(player->id_number, player->mp_message_text + 1)) || ((game.system_flags & GSF_NetworkActive) != 0) )
+              message_add(MsgType_Player, player->id_number, player->mp_message_text);
       }
       else if (player->mp_message_text[0] != '\0')
-          message_add(player->id_number, player->mp_message_text);
+          message_add(MsgType_Player, player->id_number, player->mp_message_text);
       LbMemorySet(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
       return 0;
   case PckA_PlyrMsgClear:
@@ -852,7 +836,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_Unknown099:
       turn_off_query(plyr_idx);
       return 0;
-  case PckA_Unknown104:
+  case PckA_ZoomToBattle:
       if (player->work_state == PSt_CreatrInfo)
         turn_off_query(plyr_idx);
       battle_move_player_towards_battle(player, pckt->actn_par1);
@@ -915,9 +899,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       if (!is_player_ally_locked(plyr_idx, pckt->actn_par1))
       {
          toggle_ally_with_player(plyr_idx, pckt->actn_par1);
-         if (gameadd.allies_share_vision)
+         if (game.conf.rules.game.allies_share_vision)
          {
-            pannel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
+            panel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
          }
       }
       return false;
@@ -932,91 +916,91 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return false;
   case PckA_SetRoomspaceAuto:
     {
-        playeradd->roomspace_detection_looseness = (unsigned char)pckt->actn_par1;
-        playeradd->roomspace_mode = roomspace_detection_mode;
-        playeradd->one_click_mode_exclusive = false;
-        playeradd->render_roomspace.highlight_mode = false;
+        player->roomspace_detection_looseness = (unsigned char)pckt->actn_par1;
+        player->roomspace_mode = roomspace_detection_mode;
+        player->one_click_mode_exclusive = false;
+        player->render_roomspace.highlight_mode = false;
         return false;
     }
    case PckA_SetRoomspaceMan:
     {
-        playeradd->user_defined_roomspace_width = pckt->actn_par1;
-        playeradd->roomspace_width = pckt->actn_par1;
-        playeradd->roomspace_height = pckt->actn_par1;
-        playeradd->roomspace_mode = box_placement_mode;
-        playeradd->one_click_mode_exclusive = false;
-        playeradd->render_roomspace.highlight_mode = false;
-        playeradd->roomspace_no_default = true;
+        player->user_defined_roomspace_width = pckt->actn_par1;
+        player->roomspace_width = pckt->actn_par1;
+        player->roomspace_height = pckt->actn_par1;
+        player->roomspace_mode = box_placement_mode;
+        player->one_click_mode_exclusive = false;
+        player->render_roomspace.highlight_mode = false;
+        player->roomspace_no_default = true;
         return false;
     }
     case PckA_SetRoomspaceDragPaint:
     {
-        playeradd->roomspace_height = 1;
-        playeradd->roomspace_width = 1;
+        player->roomspace_height = 1;
+        player->roomspace_width = 1;
     }
     // fall through
     case PckA_SetRoomspaceDrag:
     {
-        playeradd->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
-        playeradd->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
-        playeradd->roomspace_mode = drag_placement_mode;
-        playeradd->one_click_mode_exclusive = true; // Enable GuiLayer_OneClickBridgeBuild layer
-        playeradd->render_roomspace.highlight_mode = false;
-        playeradd->roomspace_no_default = false;
-        playeradd->roomspace_drag_paint_mode = (pckt->action == PckA_SetRoomspaceDragPaint);
+        player->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
+        player->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
+        player->roomspace_mode = drag_placement_mode;
+        player->one_click_mode_exclusive = true; // Enable GuiLayer_OneClickBridgeBuild layer
+        player->render_roomspace.highlight_mode = false;
+        player->roomspace_no_default = false;
+        player->roomspace_drag_paint_mode = (pckt->action == PckA_SetRoomspaceDragPaint);
         return false;
     }
     case PckA_SetRoomspaceDefault:
     {
-        playeradd->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
-        playeradd->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
-        playeradd->roomspace_width = playeradd->roomspace_height = pckt->actn_par1;
-        playeradd->roomspace_mode = box_placement_mode;
-        playeradd->one_click_mode_exclusive = false;
-        playeradd->roomspace_no_default = false;
+        player->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
+        player->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
+        player->roomspace_width = player->roomspace_height = pckt->actn_par1;
+        player->roomspace_mode = box_placement_mode;
+        player->one_click_mode_exclusive = false;
+        player->roomspace_no_default = false;
         return false;
     }
     case PckA_SetRoomspaceWholeRoom:
     {
-        playeradd->render_roomspace.highlight_mode = false;
-        playeradd->roomspace_mode = roomspace_detection_mode;
+        player->render_roomspace.highlight_mode = false;
+        player->roomspace_mode = roomspace_detection_mode;
         return false;
     }
     case PckA_SetRoomspaceSubtile:
     {
-        playeradd->render_roomspace.highlight_mode = false;
-        playeradd->roomspace_mode = single_subtile_mode;
+        player->render_roomspace.highlight_mode = false;
+        player->roomspace_mode = single_subtile_mode;
         return false;
     }
     case PckA_SetRoomspaceHighlight:
     {
-        playeradd->roomspace_mode = box_placement_mode;
+        player->roomspace_mode = box_placement_mode;
         if ( (pckt->actn_par2 == 1) || (pckt->actn_par1 == 2) )
         {
             // exit out of click and drag mode
-            if (playeradd->render_roomspace.drag_mode)
+            if (player->render_roomspace.drag_mode)
             {
-                playeradd->one_click_lock_cursor = false;
+                player->one_click_lock_cursor = false;
                 if ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld)
                 {
-                    playeradd->ignore_next_PCtr_LBtnRelease = true;
+                    player->ignore_next_PCtr_LBtnRelease = true;
                 }
             }
-            playeradd->render_roomspace.drag_mode = false;
+            player->render_roomspace.drag_mode = false;
         }
-        playeradd->roomspace_highlight_mode = pckt->actn_par1;
+        player->roomspace_highlight_mode = pckt->actn_par1;
         if (pckt->actn_par1 == 2)
         {
-            playeradd->user_defined_roomspace_width = pckt->actn_par2;
-            playeradd->roomspace_width = pckt->actn_par2;
-            playeradd->roomspace_height = pckt->actn_par2;
+            player->user_defined_roomspace_width = pckt->actn_par2;
+            player->roomspace_width = pckt->actn_par2;
+            player->roomspace_height = pckt->actn_par2;
         }
         else if (pckt->actn_par1 == 0)
         {
             reset_dungeon_build_room_ui_variables(plyr_idx);
-            playeradd->roomspace_width = playeradd->roomspace_height = pckt->actn_par2;
+            player->roomspace_width = player->roomspace_height = pckt->actn_par2;
         }
-        playeradd->roomspace_no_default = true;
+        player->roomspace_no_default = true;
         return false;
     }
     case PckA_PlyrQueryCreature:
@@ -1249,37 +1233,48 @@ void process_players_creature_control_packet_control(long idx)
             }
         }
     }
+    
+    // First person looking speed and limits are adjusted here. (pckt contains the base mouse movement inputs)
     struct CreatureStats* crstat = creature_stats_get_from_thing(cctng);
-    i = pckt->pos_y;
-    if (i < 5)
-        i = 5;
-    else
-    if (i > 250)
-        i = 250;
-    long k = i - 127;
-    long angle = (pckt->pos_x - 127) / player->field_14;
-    if (angle != 0)
-    {
-        if (angle < -32)
-            angle = -32;
-        else
-        if (angle > 32)
-            angle = 32;
-        ccctrl->view_angle += 56 * angle / 32;
+    long maxTurnSpeed = crstat->max_turning_speed;
+    if (maxTurnSpeed < 1) {
+        maxTurnSpeed = 1;
     }
-    long angle_limit = crstat->max_angle_change;
-    if (angle_limit < 1)
-        angle_limit = 1;
-    angle = ccctrl->view_angle;
-    if (angle < -angle_limit)
-        angle = -angle_limit;
-    else
-    if (angle > angle_limit)
-        angle = angle_limit;
-    cctng->move_angle_xy = (cctng->move_angle_xy + angle) & LbFPMath_AngleMask;
-    cctng->move_angle_z = (227 * k / 127) & LbFPMath_AngleMask;
-    ccctrl->field_CC = 170 * angle / angle_limit;
-    ccctrl->view_angle = 4 * angle / 8;
+
+    // Horizontal look
+    long horizontalTurnSpeed = pckt->pos_x;
+    if (horizontalTurnSpeed < -maxTurnSpeed) {
+        horizontalTurnSpeed = -maxTurnSpeed;
+    } else if (horizontalTurnSpeed > maxTurnSpeed) {
+        horizontalTurnSpeed = maxTurnSpeed;
+    }
+    
+    // Vertical look
+    long verticalTurnSpeed = pckt->pos_y;
+    if (verticalTurnSpeed < -maxTurnSpeed) {
+        verticalTurnSpeed = -maxTurnSpeed;
+    } else if (verticalTurnSpeed > maxTurnSpeed) {
+        verticalTurnSpeed = maxTurnSpeed;
+    }
+
+    // Limits the vertical view.
+    // 227 is default. To support anything above this we need to adjust the terrain culling. (when you look at the ceiling for example)
+    // 512 allows for looking straight up and down. 360+ is about where sprite glitches become more obvious.
+    long viewable_angle = 227;
+    long verticalPos = (cctng->move_angle_z + verticalTurnSpeed) & LbFPMath_AngleMask;
+
+    long lowerLimit = LbFPMath_AngleMask - viewable_angle;
+    long upperLimit = viewable_angle;
+    if (verticalPos > upperLimit && verticalPos < lowerLimit) {
+        if (abs(verticalPos - upperLimit) < abs(verticalPos - lowerLimit)) {
+            verticalPos = upperLimit;
+        } else {
+            verticalPos = lowerLimit;
+        }
+    }
+    cctng->move_angle_z = verticalPos; // Sets the vertical look
+    cctng->move_angle_xy = (cctng->move_angle_xy + horizontalTurnSpeed) & LbFPMath_AngleMask; // Sets the horizontal look
+    ccctrl->roll = 170 * horizontalTurnSpeed / maxTurnSpeed;
 }
 
 void process_players_creature_control_packet_action(long plyr_idx)
@@ -1292,7 +1287,6 @@ void process_players_creature_control_packet_action(long plyr_idx)
   long i;
   long k;
   player = get_player(plyr_idx);
-  struct PlayerInfoAdd* playeradd;
   pckt = get_packet_direct(player->packet_num);
   SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
   switch (pckt->action)
@@ -1367,26 +1361,22 @@ void process_players_creature_control_packet_action(long plyr_idx)
       }
     case PckA_SetFirstPersonDigMode:
     {
-        playeradd = get_playeradd(plyr_idx);
-        playeradd->first_person_dig_claim_mode = pckt->actn_par1;
+        player->first_person_dig_claim_mode = pckt->actn_par1;
         break;
     }
     case PckA_SwitchTeleportDest:
     {
-        playeradd = get_playeradd(plyr_idx);
-        playeradd->teleport_destination = pckt->actn_par1;
+        player->teleport_destination = pckt->actn_par1;
         break;
     }
     case PckA_SelectFPPickup:
     {
-        playeradd = get_playeradd(plyr_idx);
-        playeradd->selected_fp_thing_pickup = pckt->actn_par1;
+        player->selected_fp_thing_pickup = pckt->actn_par1;
         break;
     }
     case PckA_SetNearestTeleport:
     {
-        playeradd = get_playeradd(plyr_idx);
-        playeradd->nearest_teleport = pckt->actn_par1;
+        player->nearest_teleport = pckt->actn_par1;
         break;
     }
   }
@@ -1407,7 +1397,7 @@ static void replace_with_ai(int old_active_players)
             struct PlayerInfo *player = get_player(i);
             if (!network_player_active(player->packet_num))
             {
-                message_add(player->id_number, "I am the computer now!");
+                message_add(MsgType_Player, player->id_number, "I am the computer now!");
                 JUSTLOG("p:%d I am the computer now!", player->id_number);
 
                 player->allocflags |= PlaF_CompCtrl;
@@ -1451,20 +1441,20 @@ void process_packets(void)
   switch (checksums_different())
   {
   case 1:
-      set_flag_byte(&game.system_flags,GSF_NetGameNoSync,true);
-      set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,false);
+      set_flag(game.system_flags, GSF_NetGameNoSync);
+      clear_flag(game.system_flags, GSF_NetSeedNoSync);
     break;
   case 2:
-      set_flag_byte(&game.system_flags,GSF_NetGameNoSync,false);
-      set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,true);
+      clear_flag(game.system_flags, GSF_NetGameNoSync);
+      set_flag(game.system_flags, GSF_NetSeedNoSync);
     break;
   case 3:
-      set_flag_byte(&game.system_flags,GSF_NetGameNoSync,true);
-      set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,true);
+      set_flag(game.system_flags, GSF_NetGameNoSync);
+      set_flag(game.system_flags, GSF_NetSeedNoSync);
     break;
   default:
-      set_flag_byte(&game.system_flags,GSF_NetGameNoSync,false);
-      set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,false);
+      clear_flag(game.system_flags, GSF_NetGameNoSync);
+      clear_flag(game.system_flags, GSF_NetSeedNoSync);
     break;
   }
   // Write packets into file, if requested
@@ -1500,9 +1490,9 @@ void process_frontend_packets(void)
     net_screen_packet[i].field_4 &= ~0x01;
   }
   struct ScreenPacket* nspckt = &net_screen_packet[my_player_number];
-  set_flag_byte(&nspckt->field_4, 0x01, true);
-  nspckt->field_5 = frontend_alliances;
-  set_flag_byte(&nspckt->field_4, 0x01, true);
+  set_flag(nspckt->field_4, 0x01);
+  nspckt->frontend_alliances = frontend_alliances;
+  set_flag(nspckt->field_4, 0x01);
   nspckt->field_4 ^= ((nspckt->field_4 ^ (fe_computer_players << 1)) & 0x06);
   nspckt->field_6 = VersionMajor;
   nspckt->field_8 = VersionMinor;
@@ -1622,8 +1612,8 @@ void process_frontend_packets(void)
       }
       if (frontend_alliances == -1)
       {
-        if (nspckt->field_5 != -1)
-          frontend_alliances = nspckt->field_5;
+        if (nspckt->frontend_alliances != -1)
+          frontend_alliances = nspckt->frontend_alliances;
       }
       if (fe_computer_players == 2)
       {

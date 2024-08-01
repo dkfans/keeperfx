@@ -358,6 +358,15 @@ TbBool anger_make_creature_angry(struct Thing *creatng, AnnoyMotive reason)
     return true;
 }
 
+TbBool anger_give_creatures_annoyance_percentage(struct Thing* creatng, short percentage, AnnoyMotive reason)
+{
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    if ((crstat->annoy_level <= 0))
+        return false;
+    anger_increase_creature_anger(creatng, (crstat->annoy_level * percentage/100), reason);
+    return true;
+}
+
 TbBool creature_mark_if_woken_up(struct Thing *creatng)
 {
     if (creature_is_sleeping(creatng))
@@ -505,7 +514,6 @@ TbBool process_job_causes_going_postal(struct Thing *creatng, struct Room *room,
     if (find_combat_target_passing_by_room_but_having_unrelated_job(creatng, going_postal_job, room, &combt_dist, &combt_thing))
     {
         SYNCDBG(8,"The %s index %d goes postal on %s index %d during %s",thing_model_name(creatng),(int)creatng->index,thing_model_name(combt_thing),(int)combt_thing->index,creature_job_code_name(going_postal_job));
-        EVM_CREATURE_EVENT_WITH_TARGET("postal", creatng->owner, creatng, combt_thing->index);
         set_creature_instance(creatng, inst_use, combt_thing->index, 0);
         external_set_thing_state(combt_thing, CrSt_CreatureEvacuateRoom);
         struct CreatureControl* combctrl = creature_control_get_from_thing(combt_thing);
@@ -575,6 +583,11 @@ TbBool process_job_stress_and_going_postal(struct Thing *creatng)
                 return true;
             }
         }
+    }
+    if (creature_will_reject_job(creatng, cctrl->job_assigned))
+    {
+        state_cleanup_in_room(creatng);
+        return true;
     }
     return false;
 }

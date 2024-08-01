@@ -52,14 +52,13 @@ long calculate_free_lair_space(struct Dungeon * dungeon)
     long cap_used = 0;
     long cap_total = 0;
     unsigned long k = 0;
-    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
     long i;
 
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,RoRoF_LairStorage))
         {
-            i = dungeonadd->room_kind[rkind];
+            i = dungeon->room_kind[rkind];
             while (i != 0)
             {
                 struct Room* room = room_get(i);
@@ -158,7 +157,7 @@ static short get_lair_score(TbBool room_has_units_of_same_kind,TbBool room_has_u
     }
 }
 
-TbBool creature_model_is_lair_enemy(const short lair_enemy[], short crmodel)
+TbBool creature_model_is_lair_enemy(const short lair_enemy[LAIR_ENEMY_MAX], short crmodel)
 {
     for (int i = 0; i < LAIR_ENEMY_MAX; i++)
     {
@@ -174,17 +173,17 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
     char best_score = 0;
 
     const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(creatng->owner);
+    struct Dungeon* dungeon = get_dungeon(creatng->owner);
 
     short *room_scores = (short *)scratch;
     memset(scratch, 0, ROOMS_COUNT);
 
 
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,RoRoF_LairStorage))
         {
-            room = room_get(dungeonadd->room_kind[rkind]);
+            room = room_get(dungeon->room_kind[rkind]);
             while (!room_is_invalid(room))
             {
                 if ( room_has_enough_free_capacity_for_creature_job(room, creatng, Job_TAKE_SLEEP) && creature_can_head_for_room(creatng, room, 0) )
@@ -192,7 +191,7 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
                     TbBool room_has_units_of_same_kind = false;
                     TbBool room_has_units_of_different_kind = false;
                     TbBool room_has_lair_enemy = false;
-                    for ( ThingModel model = 0; model < gameadd.crtr_conf.model_count; ++model )
+                    for ( ThingModel model = 0; model < game.conf.crtr_conf.model_count; ++model )
                     {
                         if ( room_has_units_of_same_kind && room_has_units_of_different_kind && room_has_lair_enemy )
                             break;
@@ -232,11 +231,11 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
     MapCoordDelta min_distance = INT_MAX;
     struct Coord3d room_center_pos;
 
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,RoRoF_LairStorage))
         {
-            room = room_get(dungeonadd->room_kind[rkind]);
+            room = room_get(dungeon->room_kind[rkind]);
             while (!room_is_invalid(room))
             {
                 if ( room_scores[room->index] == best_score )

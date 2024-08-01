@@ -43,6 +43,7 @@
 #include "config_campaigns.h"
 #include "config_creature.h"
 #include "config_terrain.h"
+#include "config_spritecolors.h"
 #include "thing_data.h"
 #include "thing_objects.h"
 #include "thing_traps.h"
@@ -56,6 +57,7 @@
 #include "frontmenu_ingame_tabs.h"
 #include "vidfade.h"
 #include "sprites.h"
+#include "player_instances.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -244,13 +246,17 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
         {
             pixval = player_highlight_colours[owner];
       } else
-      if (owner == game.neutral_player_num)
       {
-          pixval = player_room_colours[game.play_gameturn & 3];
-      } else
-      {
-          pixval = player_room_colours[owner];
+        unsigned char color_idx = get_player_color_idx(owner);
+        if (color_idx == PLAYER_NEUTRAL)
+        {
+            pixval = player_room_colours[game.play_gameturn & 3];
+        } else
+        {
+            pixval = player_room_colours[color_idx];
+        }
       }
+
     } else
     {
       if (slb->kind == SlbT_ROCK)
@@ -304,12 +310,8 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
               pixval = 255;
           }
           else
-          if (owner == game.neutral_player_num)
           {
-            pixval = 4;
-          } else
-          {
-            pixval = player_path_colours[owner];
+            pixval = get_player_path_colour(owner);
           }
         } else
         {
@@ -351,10 +353,10 @@ void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, Pl
 {
     int ps_units_per_px;
     {
-        struct TbSprite* spr = &gui_panel_sprites[57];
+        struct TbSprite* spr = &gui_panel_sprites[GPS_room_treasury_std_s];//only for size, room irrelevant
         ps_units_per_px = 32 * block_size * 4 / spr->SHeight;
     }
-    long rkind_select = (game.play_gameturn >> 1) % game.slab_conf.room_types_count;
+    long rkind_select = (game.play_gameturn >> 1) % game.conf.slab_conf.room_types_count;
     for (struct Room* room = start_rooms; room < end_rooms; room++)
     {
       if (room_exists(room))
@@ -371,7 +373,8 @@ void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, Pl
                 const struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
                 if (roomst->medsym_sprite_idx > 0)
                 {
-                    struct TbSprite* spr = &gui_panel_sprites[roomst->medsym_sprite_idx];
+                    long sprite_idx = get_player_colored_icon_idx(roomst->medsym_sprite_idx,room->owner);
+                    struct TbSprite* spr = &gui_panel_sprites[sprite_idx];
                     long pos_x = map_area->left + (block_size * room->central_stl_x / STL_PER_SLB) - (spr->SWidth * ps_units_per_px / 16 / 2);
                     long pos_y = map_area->top + (block_size * room->central_stl_y / STL_PER_SLB) - (spr->SHeight * ps_units_per_px / 16 / 2);
                     LbSpriteDrawResized(pos_x, pos_y, ps_units_per_px, spr);
@@ -397,7 +400,7 @@ int draw_overhead_call_to_arms(const struct TbRect *map_area, long block_size, P
             long pos_x = map_area->left + block_size * (int)dungeon->cta_stl_x / STL_PER_SLB;
             long pos_y = map_area->top + block_size * (int)dungeon->cta_stl_y / STL_PER_SLB;
             long radius = (((m & 7) + m) >> 3);
-            LbDrawCircle(pos_x, pos_y, radius/pixel_size, player_room_colours[i]);
+            LbDrawCircle(pos_x, pos_y, radius/pixel_size, player_room_colours[get_player_color_idx(i)]);
             n++;
         }
     }
@@ -425,18 +428,19 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
         // Per-thing code
         if (!thing_is_picked_up(thing))
         {
-            TbPixel col1 = player_highlight_colours[thing->owner];
+            unsigned char color_idx = get_player_color_idx(thing->owner);
+            TbPixel col1 = player_highlight_colours[color_idx];
             TbPixel col2 = 1;
             if (thing_revealed(thing, plyr_idx))
             {
-                if (thing->owner == game.neutral_player_num)
+                if (color_idx == game.neutral_player_num)
                 {
                     col1 = player_room_colours[(game.play_gameturn + 1) & 3];
                 } else
                 if ((game.play_gameturn & 4) == 0)
                 {
-                    col2 = player_room_colours[thing->owner];
-                    col1 = player_room_colours[thing->owner];
+                    col2 = player_room_colours[color_idx];
+                    col1 = player_room_colours[color_idx];
                 }
                 long pos_x = map_area->left + block_size * (int)thing->mappos.x.stl.num / STL_PER_SLB;
                 long pos_y = map_area->top + block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB;
@@ -462,8 +466,8 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
                 struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
                 if ((game.play_gameturn & 4) == 0)
                 {
-                    col1 = player_room_colours[(int)(cctrl->party.target_plyr_idx>=0?cctrl->party.target_plyr_idx:0)];
-                    col2 = player_room_colours[thing->owner];
+                    col1 = player_room_colours[get_player_color_idx((int)(cctrl->party.target_plyr_idx>=0?cctrl->party.target_plyr_idx:0))];
+                    col2 = player_room_colours[get_player_color_idx(thing->owner)];
                 }
                 if (thing->owner == plyr_idx)
                 {
@@ -606,15 +610,21 @@ void draw_overhead_things(const struct TbRect *map_area, long block_size, Player
 
 void draw_2d_map(void)
 {
-  SYNCDBG(8,"Starting");
-  struct PlayerInfo* player = get_my_player();
-  // Size of the parchment map on which we're drawing
-  struct TbRect map_area;
-  long block_size = get_parchment_map_area_rect(&map_area);
-  // Now draw
-  draw_overhead_map(&map_area, block_size, player->id_number);
-  draw_overhead_things(&map_area, block_size, player->id_number);
-  draw_overhead_room_icons(&map_area, block_size, player->id_number);
+    SYNCDBG(8, "Starting");
+    if (!render_fade_tables || !render_ghost || !render_alpha)
+    {
+        render_fade_tables = pixmap.fade_tables;
+        render_ghost = pixmap.ghost;
+        render_alpha = (unsigned char*)&alpha_sprite_table;
+    }
+    struct PlayerInfo* player = get_my_player();
+    // Size of the parchment map on which we're drawing
+    struct TbRect map_area;
+    long block_size = get_parchment_map_area_rect(&map_area);
+    // Now draw
+    draw_overhead_map(&map_area, block_size, player->id_number);
+    draw_overhead_things(&map_area, block_size, player->id_number);
+    draw_overhead_room_icons(&map_area, block_size, player->id_number);
 }
 
 void draw_map_level_name(void)
@@ -657,7 +667,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
 {
     int ps_units_per_px;
     {
-        struct TbSprite* spr = &gui_panel_sprites[164]; // Use dungeon special box as reference
+        struct TbSprite* spr = &gui_panel_sprites[GPS_trapdoor_bonus_box_std_s]; // Use dungeon special box as reference
         ps_units_per_px = (46 * units_per_pixel) / spr->SHeight;
     }
     struct PlayerInfo* player = get_my_player();
@@ -908,15 +918,15 @@ void zoom_to_parchment_map(void)
 {
     turn_off_all_window_menus();
     if ((game.operation_flags & GOF_ShowGui) == 0)
-      set_flag_byte(&game.operation_flags,GOF_ShowPanel,false);
+      clear_flag(game.operation_flags, GOF_ShowPanel);
     else
-      set_flag_byte(&game.operation_flags,GOF_ShowPanel,true);
+      set_flag(game.operation_flags, GOF_ShowPanel);
     struct PlayerInfo* player = get_my_player();
     if (((game.system_flags & GSF_NetworkActive) != 0)
         || (lbDisplay.PhysicalScreenWidth > 320))
     {
       if (!toggle_status_menu(0))
-        set_flag_byte(&game.operation_flags,GOF_ShowPanel,false);
+        clear_flag(game.operation_flags, GOF_ShowPanel);
       set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0, 0, 0);
       turn_off_roaming_menus();
     } else

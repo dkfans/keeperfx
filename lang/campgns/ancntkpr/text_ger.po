@@ -1,7 +1,7 @@
 # *****************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # *****************************************************************************
-#   @file ancntkpr/text_ger.po
+#   @file campgns/ancntkpr/text_ger.po
 #      KeeperFX Campaign Strings translation file
 #  @par Purpose:
 #      Contains translation of the national strings in the game.
@@ -16,97 +16,64 @@
 #      (at your option) any later version.
 #
 # *****************************************************************************
+msgid ""
+msgstr ""
 "Project-Id-Version: Ancient Keeper campaign for KeeperFX\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
 "PO-Revision-Date: 2014-01-14 20:38-0000\n"
 "Last-Translator: Dayokay <dayokay65@gmail.com>\n"
-"Language: de_DE\n"
+"Language-Team: \n"
+"Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 1.5.7\n"
+"X-Generator: Poedit 3.4.2\n"
 
 #. Generic victory message
 #: guitext:0
 msgctxt "In-game message"
-msgid ""
-"Success! The Ancients applaud! Press Space to proceed to the next realm."
-msgstr ""
-"Gewonnen! Die Alten applaudieren. Drückt die Leertaste, um zum nächsten "
-"Königreich zu kommen."
+msgid "Success! The Ancients applaud! Press Space to proceed to the next realm."
+msgstr "Gewonnen! Die Alten applaudieren. Drückt die Leertaste, um zum nächsten Königreich zu kommen."
 
 #: guitext:1
 msgctxt "In-game message"
-msgid ""
-"Welcome, Keeper, to the first of the Ancient Realms. The carpet is currently "
-"white, but will soon be soaked red with the blood of your enemies! This test "
-"is beneath you I'm sure."
-msgstr ""
-"Willkommen, Keeper dem ersten der alten Realms. Der Teppich ist derzeit "
-"weiß, wird aber bald rot getränkt mit dem Blut deiner Feinde werden! Dieser "
-"Test ist eine Beleidigung bin ich sicher."
+msgid "Welcome, Keeper, to the first of the Ancient Realms. The carpet is currently white, but will soon be soaked red with the blood of your enemies! This test is beneath you I'm sure."
+msgstr "Willkommen, Keeper dem ersten der alten Realms. Der Teppich ist derzeit weiß, wird aber bald rot getränkt mit dem Blut deiner Feinde werden! Dieser Test ist eine Beleidigung bin ich sicher."
 
 #: guitext:2
 msgctxt "In-game message"
-msgid ""
-"You have earned the right to the ultimate challenge - L'Cyfre's Challenge."
+msgid "You have earned the right to the ultimate challenge - L'Cyfre's Challenge."
 msgstr "Sie haben das Recht, L'Cyfre's Herausforderung ertragen verdient"
 
 #: guitext:3
 msgctxt "In-game message"
-msgid ""
-"Some advice from Salaar; do not dig out from your Dungeon Heart until you "
-"have defeated the Knights who wait without."
-msgstr ""
-"Einige Ratschläge von Salaar; graben nicht aus Ihrem Dungeon-Herz, bis Sie "
-"die Ritter, die draußen warten besiegt haben."
+msgid "Some advice from Salaar; do not dig out from your Dungeon Heart until you have defeated the Knights who wait without."
+msgstr "Einige Ratschläge von Salaar; graben nicht aus Ihrem Dungeon-Herz, bis Sie die Ritter, die draußen warten besiegt haben."
 
 #: guitext:4
 msgctxt "In-game message"
-msgid ""
-"Make haste, Keeper! Your Workshop is one of the keys to this realm. To work!"
-msgstr ""
-"Schnell, Keeper! Ihre Werkstatt ist einer der Schlüssel zu diesem Reich. Um "
-"zu arbeiten!"
+msgid "Make haste, Keeper! Your Workshop is one of the keys to this realm. To work!"
+msgstr "Schnell, Keeper! Ihre Werkstatt ist einer der Schlüssel zu diesem Reich. Um zu arbeiten!"
 
 #: guitext:5
 msgctxt "In-game message"
-msgid ""
-"A dismal start, Keeper! You will need to use all your powers to proceed; "
-"remember the Ancients are watching!"
-msgstr ""
-"Eine düstere Anfang Keeper! Sie müssen alle Ihre Kräfte zu nutzen, um "
-"fortzufahren; erinnern die Alten sind zu beobachten!"
+msgid "A dismal start, Keeper! You will need to use all your powers to proceed; remember the Ancients are watching!"
+msgstr "Eine düstere Anfang Keeper! Sie müssen alle Ihre Kräfte zu nutzen, um fortzufahren; erinnern die Alten sind zu beobachten!"
 
 #: guitext:6
 msgctxt "In-game message"
-msgid ""
-"A good start, Keeper. If you continue in this vein, you must surely attract "
-"the attention of the Ancients!"
-msgstr ""
-"Ein guter Start, Keeper. Wenn Sie in diesem Sinne fortzusetzen, müssen Sie "
-"sicherlich die Aufmerksamkeit der Uralten!"
+msgid "A good start, Keeper. If you continue in this vein, you must surely attract the attention of the Ancients!"
+msgstr "Ein guter Start, Keeper. Wenn Sie in diesem Sinne fortzusetzen, müssen Sie sicherlich die Aufmerksamkeit der Uralten!"
 
 #: guitext:7
 msgctxt "In-game message"
-msgid ""
-"Heroes were common at this time, but they bleed as easily! Your work is "
-"nearly complete Keeper."
-msgstr ""
-"Helden waren zu dieser Zeit üblich, aber sie leicht bluten! Ihre Arbeit ist "
-"nahezu abgeschlossen Keeper."
+msgid "Heroes were common at this time, but they bleed as easily! Your work is nearly complete Keeper."
+msgstr "Helden waren zu dieser Zeit üblich, aber sie leicht bluten! Ihre Arbeit ist nahezu abgeschlossen Keeper."
 
 #: guitext:8
 msgctxt "In-game message"
-msgid ""
-"A strange land this, Keeper! The absence of portals will test your abilities "
-"to the full. Rooms cannot be researched here. You will learn to construct "
-"them by stealing from other Keepers."
-msgstr ""
-"Ein seltsames Land diese, Keeper! Das Fehlen von Portalen wird Ihre "
-"Fähigkeiten voll zu testen. Zimmer kann hier nicht untersucht werden. Sie "
-"werden lernen, sie durch Diebstahl von anderen Keepers konstruieren."
+msgid "A strange land this, Keeper! The absence of portals will test your abilities to the full. Rooms cannot be researched here. You will learn to construct them by stealing from other Keepers."
+msgstr "Ein seltsames Land diese, Keeper! Das Fehlen von Portalen wird Ihre Fähigkeiten voll zu testen. Zimmer kann hier nicht untersucht werden. Sie werden lernen, sie durch Diebstahl von anderen Keepers konstruieren."
 
 #: guitext:9
 msgctxt "In-game message"
@@ -115,102 +82,58 @@ msgstr "Ein weiterer Erfolg, Keeper! Der nächste Bereich erwartet."
 
 #: guitext:10
 msgctxt "In-game message"
-msgid ""
-"In this realm one of your enemies has captured a band of Avatars. Such a foe "
-"should be treated with respect!"
-msgstr ""
-"In diesem Bereich einer Ihrer Gegner hat eine Bande von Avatars erobert. "
-"Solch ein Feind sollte mit Respekt behandelt werden!"
+msgid "In this realm one of your enemies has captured a band of Avatars. Such a foe should be treated with respect!"
+msgstr "In diesem Bereich einer Ihrer Gegner hat eine Bande von Avatars erobert. Solch ein Feind sollte mit Respekt behandelt werden!"
 
 #: guitext:11
 msgctxt "In-game message"
-msgid ""
-"T'Kaan's mistress has been exiled to this realm. Great skill be required to "
-"conquer this land."
-msgstr ""
-"T'Kaan die Mätresse hat zu diesem Reich verbannt worden. Großes Geschick "
-"erforderlich, um dieses Land zu erobern."
+msgid "T'Kaan's mistress has been exiled to this realm. Great skill be required to conquer this land."
+msgstr "T'Kaan die Mätresse hat zu diesem Reich verbannt worden. Großes Geschick erforderlich, um dieses Land zu erobern."
 
 #: guitext:12
 msgctxt "In-game message"
-msgid ""
-"Proceed with great caution. Dig slowly and you will avoid defeat. You must "
-"leave your dungeon without allowing access to it. Are you capable, Keeper?"
-msgstr ""
-"Fahren Sie mit großer Vorsicht. Dig langsam und Sie werden Niederlage zu "
-"vermeiden. Sie müssen Ihren Kerker ohne den Zugriff auf sie zu verlassen. "
-"Können Sie erreichen dies, Keeper?"
+msgid "Proceed with great caution. Dig slowly and you will avoid defeat. You must leave your dungeon without allowing access to it. Are you capable, Keeper?"
+msgstr "Fahren Sie mit großer Vorsicht. Dig langsam und Sie werden Niederlage zu vermeiden. Sie müssen Ihren Kerker ohne den Zugriff auf sie zu verlassen. Können Sie erreichen dies, Keeper?"
 
 #: guitext:13
 msgctxt "In-game message"
-msgid ""
-"One heart destroyed, Keeper. You must now prepare for an attack on the lair "
-"to the south, but beware; I smell heroes!"
-msgstr ""
-"Ein Herz zerstört, Keeper. Sie müssen nun für einen Angriff auf die Höhle im "
-"Süden vorbereiten, aber hüte dich, ich rieche Helden!"
+msgid "One heart destroyed, Keeper. You must now prepare for an attack on the lair to the south, but beware; I smell heroes!"
+msgstr "Ein Herz zerstört, Keeper. Sie müssen nun für einen Angriff auf die Höhle im Süden vorbereiten, aber hüte dich, ich rieche Helden!"
 
 #: guitext:14
 msgctxt "In-game message"
-msgid ""
-"Hmmm. I believe T'Kaan's wife will be pleased, but you have done yourself no "
-"credit at all."
-msgstr ""
-"Hmmm. Ich glaube T'Kaan Frau wird sich freuen, aber Sie getan haben selbst "
-"keinen Kredit überhaupt."
+msgid "Hmmm. I believe T'Kaan's wife will be pleased, but you have done yourself no credit at all."
+msgstr "Hmmm. Ich glaube T'Kaan Frau wird sich freuen, aber Sie getan haben selbst keinen Kredit überhaupt."
 
 #: guitext:15
 msgctxt "In-game message"
-msgid ""
-"Excellent work, Keeper. You have pleased T'Kaan (though not his wife!) and "
-"your name is being mentioned by the Ancients!"
-msgstr ""
-"Ausgezeichnete Arbeit, Keeper. Sie haben T'Kaan erfreut und Ihr Name wird "
-"von den Ancients erwähnt! Seine Frau ist nicht erfreut!"
+msgid "Excellent work, Keeper. You have pleased T'Kaan (though not his wife!) and your name is being mentioned by the Ancients!"
+msgstr "Ausgezeichnete Arbeit, Keeper. Sie haben T'Kaan erfreut und Ihr Name wird von den Ancients erwähnt! Seine Frau ist nicht erfreut!"
 
 #: guitext:16
 msgctxt "In-game message"
-msgid ""
-"Act swiftly, Keeper! Perverse though it sounds, heroes are about to die and "
-"you must save them!"
-msgstr ""
-"Schnell Keeper! So seltsam es klingt, sind Helden zu sterben, und Sie müssen "
-"sie zu retten!"
+msgid "Act swiftly, Keeper! Perverse though it sounds, heroes are about to die and you must save them!"
+msgstr "Schnell Keeper! So seltsam es klingt, sind Helden zu sterben, und Sie müssen sie zu retten!"
 
 #: guitext:17
 msgctxt "In-game message"
-msgid ""
-"An intervention from the Ancients! The hero heart is the key; your time is "
-"limited, Keeper."
-msgstr ""
-"Eine Intervention von den Alten! Der Held Herz ist der Schlüssel, Ihre Zeit "
-"ist begrenzt, Keeper."
+msgid "An intervention from the Ancients! The hero heart is the key; your time is limited, Keeper."
+msgstr "Eine Intervention von den Alten! Der Held Herz ist der Schlüssel, Ihre Zeit ist begrenzt, Keeper."
 
 #: guitext:18
 msgctxt "In-game message"
-msgid ""
-"It's showtime! The Ancients crave amusement, Keeper. Do not disappoint them!"
-msgstr ""
-"Die Spiele beginnen! Die Alten sehnen Belustigung Keeper. Haben sie nicht "
-"enttäuschen!"
+msgid "It's showtime! The Ancients crave amusement, Keeper. Do not disappoint them!"
+msgstr "Die Spiele beginnen! Die Alten sehnen Belustigung Keeper. Haben sie nicht enttäuschen!"
 
 #: guitext:19
 msgctxt "In-game message"
-msgid ""
-"Bravo, Keeper! Your performance & cunning have impressed the Ancients. "
-"Behold your reward."
-msgstr ""
-"Ausgezeichnet, Keeper! Ihre Leistung hat die Ancients beeindruckt. Seht eure "
-"Belohnung."
+msgid "Bravo, Keeper! Your performance & cunning have impressed the Ancients. Behold your reward."
+msgstr "Ausgezeichnet, Keeper! Ihre Leistung hat die Ancients beeindruckt. Seht eure Belohnung."
 
 #: guitext:20
 msgctxt "In-game message"
-msgid ""
-"I think I hear the snoring of the Ancients, Keeper. You have been a "
-"disappointment."
-msgstr ""
-"Ich glaube, ich höre das Schnarchen der Uralten, Keeper. Sie waren eine "
-"Enttäuschung."
+msgid "I think I hear the snoring of the Ancients, Keeper. You have been a disappointment."
+msgstr "Ich glaube, ich höre das Schnarchen der Uralten, Keeper. Sie waren eine Enttäuschung."
 
 #: guitext:21
 msgctxt "In-game message"
@@ -224,12 +147,8 @@ msgstr "Eine großartige Leistung, Keeper! Die Alten applaudieren Sie!"
 
 #: guitext:23
 msgctxt "In-game message"
-msgid ""
-"Defeat is inevitable now, Keeper. Maybe the moonlight wasn't bright enough? "
-"Did you use ALL your spells?"
-msgstr ""
-"Besiegt ist jetzt unvermeidlich, Keeper. Vielleicht war das Mondlicht nicht "
-"hell genug? Haben Sie alle Ihre Zaubersprüche verwenden?"
+msgid "Defeat is inevitable now, Keeper. Maybe the moonlight wasn't bright enough? Did you use ALL your spells?"
+msgstr "Besiegt ist jetzt unvermeidlich, Keeper. Vielleicht war das Mondlicht nicht hell genug? Haben Sie alle Ihre Zaubersprüche verwenden?"
 
 #: guitext:24
 msgctxt "In-game message"
@@ -238,12 +157,8 @@ msgstr "Die Avatare sind kostenlos, Keeper. Seien Sie auf der Hut."
 
 #: guitext:25
 msgctxt "In-game message"
-msgid ""
-"I trust any further hero interference will be treated with the contempt it "
-"deserves?"
-msgstr ""
-"Ich vertraue weiter Held Interferenzen mit der Verachtung, die sie verdient "
-"behandelt werden?"
+msgid "I trust any further hero interference will be treated with the contempt it deserves?"
+msgstr "Ich vertraue weiter Held Interferenzen mit der Verachtung, die sie verdient behandelt werden?"
 
 #: guitext:26
 msgctxt "In-game message"
@@ -257,12 +172,8 @@ msgstr "Vielleicht sind Sie mehr auf Immergrins?"
 
 #: guitext:28
 msgctxt "In-game message"
-msgid ""
-"A victory again, Keeper. Do not relax; we are still in the training phase. "
-"The Ancients wouldn't know you from one of their imps!"
-msgstr ""
-"Ein Sieg wieder Keeper. Entspannen Sie sich nicht, Sie noch lernen. Die "
-"Alten denken, dass Sie eines ihrer Kobolde sind!"
+msgid "A victory again, Keeper. Do not relax; we are still in the training phase. The Ancients wouldn't know you from one of their imps!"
+msgstr "Ein Sieg wieder Keeper. Entspannen Sie sich nicht, Sie noch lernen. Die Alten denken, dass Sie eines ihrer Imps sind!"
 
 #: guitext:29
 msgctxt "In-game message"
@@ -271,41 +182,23 @@ msgstr "Zeit, um den Helden zu zerstören Herz war begrenzt, Keeper."
 
 #: guitext:30
 msgctxt "In-game message"
-msgid ""
-"Well done, Keeper. Now capture Reapers to add to your army. Other Keepers "
-"amass their armies against you!"
-msgstr ""
-"Gut gemacht, Keeper. Jetzt erfassen Reapers zu Ihrer Armee hinzuzufügen. "
-"Andere Keepers sammeln ihre Armeen gegen Sie!"
+msgid "Well done, Keeper. Now capture Reapers to add to your army. Other Keepers amass their armies against you!"
+msgstr "Gut gemacht, Keeper. Jetzt erfassen Reapers zu Ihrer Armee hinzuzufügen. Andere Keepers sammeln ihre Armeen gegen Sie!"
 
 #: guitext:31
 msgctxt "In-game message"
-msgid ""
-"Excellent, Keeper. The Ancients are preparing tougher tasks as they gaze on "
-"the destruction you've wrought!"
-msgstr ""
-"Ausgezeichnet Keeper. Die Alten bereiten härtere Aufgaben, wie sie auf die "
-"Zerstörung gewirkt haben Sie den Blick!"
+msgid "Excellent, Keeper. The Ancients are preparing tougher tasks as they gaze on the destruction you've wrought!"
+msgstr "Ausgezeichnet Keeper. Die Alten bereiten härtere Aufgaben, wie sie auf die Zerstörung gewirkt haben Sie den Blick!"
 
 #: guitext:32
 msgctxt "In-game message"
-msgid ""
-"Do you recognise that stench? It's the smell of fear. Another Keeper and a "
-"land await!"
-msgstr ""
-"Wissen Sie, dass Gestank erkennen? Es ist der Geruch der Angst. Ein weiterer "
-"Keeper und ein Land warten auf Sie!"
+msgid "Do you recognise that stench? It's the smell of fear. Another Keeper and a land await!"
+msgstr "Wissen Sie, dass Gestank erkennen? Es ist der Geruch der Angst. Ein weiterer Keeper und ein Land warten auf Sie!"
 
 #: guitext:33
 msgctxt "In-game message"
-msgid ""
-"Kwan Tek, an Ancient with great power, has honoured you with a chance to "
-"prove yourself in his land. You have no creatures, but he has gifted you a "
-"powerful spell."
-msgstr ""
-"Kwan Tek, eine alte mit großer Macht, hat Ihnen eine Chance, sich in seinem "
-"Land beweisen, geehrt. Sie haben keine Kreaturen, aber er hat Ihnen ein "
-"mächtiger Zauber begabt."
+msgid "Kwan Tek, an Ancient with great power, has honoured you with a chance to prove yourself in his land. You have no creatures, but he has gifted you a powerful spell."
+msgstr "Kwan Tek, eine alte mit großer Macht, hat Ihnen eine Chance, sich in seinem Land beweisen, geehrt. Sie haben keine Kreaturen, aber er hat Ihnen ein mächtiger Zauber begabt."
 
 #: guitext:34
 msgctxt "In-game message"
@@ -314,47 +207,28 @@ msgstr "Schlau gemacht Keeper, aber Ihre Aufgabe ist nur die Hälfte getan"
 
 #: guitext:35
 msgctxt "In-game message"
-msgid ""
-"Kwan Tek salutes you. You have proved your skills in his land, and may "
-"proceed with His blessing."
-msgstr ""
-"Kwan Tek grüßt euch. Sie haben Ihre Fähigkeiten in seinem Land bewährt und "
-"kann mit seinem Segen gehen."
+msgid "Kwan Tek salutes you. You have proved your skills in his land, and may proceed with His blessing."
+msgstr "Kwan Tek grüßt euch. Sie haben Ihre Fähigkeiten in seinem Land bewährt und kann mit seinem Segen gehen."
 
 #: guitext:36
 msgctxt "In-game message"
-msgid ""
-"Kwan Tek has not left you entirely alone, Keeper! Use this unDead minion "
-"wisely."
-msgstr ""
-"Kwan Tek hat dich ganz allein nicht verlassen, Keeper! Verwenden Sie diese "
-"untoten Schergen mit Bedacht aus."
+msgid "Kwan Tek has not left you entirely alone, Keeper! Use this unDead minion wisely."
+msgstr "Kwan Tek hat dich ganz allein nicht verlassen, Keeper! Verwenden Sie diese untoten Schergen mit Bedacht aus."
 
 #: guitext:37
 msgctxt "In-game message"
-msgid ""
-"No time to waste, Keeper! The Ancient Avatar has tracked you down, and "
-"recalls a previous encounter! Your Dungeon is weak; re-inforce it "
-"immediately!"
-msgstr ""
-"Keine Zeit zu verlieren, Keeper! Die alten Avatar hat man aufgespürt, und "
-"erinnert sich an einen früheren Begegnung! Ihr Dungeon ist schwach, "
-"verstärken Sie es sofort!"
+msgid "No time to waste, Keeper! The Ancient Avatar has tracked you down, and recalls a previous encounter! Your Dungeon is weak; re-inforce it immediately!"
+msgstr "Keine Zeit zu verlieren, Keeper! Die alten Avatar hat man aufgespürt, und erinnert sich an einen früheren Begegnung! Ihr Dungeon ist schwach, verstärken Sie es sofort!"
 
 #: guitext:38
 msgctxt "In-game message"
 msgid "Bravo, Keeper. Let him be the first of many! Will he never learn?"
-msgstr ""
-"Bravo, Keeper. Lassen Sie ihn das erste von vielen sein! Wird er nie lernen?"
+msgstr "Bravo, Keeper. Lassen Sie ihn das erste von vielen sein! Wird er nie lernen?"
 
 #: guitext:39
 msgctxt "In-game message"
-msgid ""
-"You are unstoppable, Keeper! I think I hear the approach of further heroes; "
-"your torture room will indeed be busy!"
-msgstr ""
-"Sie sind unaufhaltsam, Keeper! Ich glaube, ich höre den Ansatz von weiteren "
-"Helden, Ihre Folterkammer wird in der Tat beschäftigt sein!"
+msgid "You are unstoppable, Keeper! I think I hear the approach of further heroes; your torture room will indeed be busy!"
+msgstr "Sie sind unaufhaltsam, Keeper! Ich glaube, ich höre den Ansatz von weiteren Helden, Ihre Folterkammer wird in der Tat beschäftigt sein!"
 
 #: guitext:40
 msgctxt "In-game message"
@@ -363,12 +237,8 @@ msgstr "Ist Ihre Konzentration ins Stocken geraten, Keeper?"
 
 #: guitext:41
 msgctxt "In-game message"
-msgid ""
-"Be aware, Keeper, the only imps available are the ones you have brought with "
-"you to this land."
-msgstr ""
-"Kennen Sie diese Keeper, die nur Kobolde verfügbar sind, die Sie mit Ihnen "
-"in dieses Land gebracht haben."
+msgid "Be aware, Keeper, the only imps available are the ones you have brought with you to this land."
+msgstr "Kennen Sie diese Keeper, die nur Imps verfügbar sind, die Sie mit Ihnen in dieses Land gebracht haben."
 
 #: guitext:42
 msgctxt "In-game message"
@@ -378,144 +248,88 @@ msgstr "Lassen Sie die Helden fühlen, dein Zorn, oh schlechte!"
 #: guitext:43
 msgctxt "In-game message"
 msgid "You must free your creatures to progress in this realm, Master!"
-msgstr ""
-"Sie müssen Ihre Kreaturen zu befreien, um in diesem Bereich, Meister "
-"Fortschritt!"
+msgstr "Sie müssen Ihre Kreaturen zu befreien, um in diesem Bereich, Meister Fortschritt!"
 
 #: guitext:44
 msgctxt "In-game message"
-msgid ""
-"A substantial force of Knights is being summoned by the hero heart; you must "
-"put a stop to this, your Evilness!"
-msgstr ""
-"Eine wesentliche Kraft der Ritter wird von dem Helden Herz gerufen, müssen "
-"Sie ein Ende setzen, Ihre Boshaftigkeit!"
+msgid "A substantial force of Knights is being summoned by the hero heart; you must put a stop to this, your Evilness!"
+msgstr "Eine wesentliche Kraft der Ritter wird von dem Helden Herz gerufen, müssen Sie ein Ende setzen, Ihre Boshaftigkeit!"
 
 #: guitext:45
 msgctxt "In-game message"
-msgid ""
-"That's put a stop to the re-inforcements, Eminence! Victory approaches, and "
-"the Ancients have set you a puzzle to solve!"
-msgstr ""
-"Das ist ein Ende setzen zu den Verstärkungen, Eminenz! Victory nähert, und "
-"die Alten haben Sie ein Puzzle zu lösen gesetzt!"
+msgid "That's put a stop to the re-inforcements, Eminence! Victory approaches, and the Ancients have set you a puzzle to solve!"
+msgstr "Das ist ein Ende setzen zu den Verstärkungen, Eminenz! Victory nähert, und die Alten haben Sie ein Puzzle zu lösen gesetzt!"
 
 #: guitext:46
 msgctxt "In-game message"
 msgid "Congratulations, Keeper, the land is yours! And the puzzle?"
-msgstr ""
-"Herzlichen Glückwunsch, Keeper, ist das Land bei Ihnen! Und die Rätsel?"
+msgstr "Herzlichen Glückwunsch, Keeper, ist das Land bei Ihnen! Und die Rätsel?"
 
 #: guitext:47
 msgctxt "In-game message"
-msgid ""
-"Welcome, Keeper, to an esteemed seat of learning. You have impressed the "
-"Ancients, and earned a place at a highly regarded College indeed!"
-msgstr ""
-"Willkommen Keeper, zu einer angesehenen Sitz des Lernens. Sie haben die "
-"Alten beeindruckt und verdient einen Platz an einer angesehenen Hochschule "
-"in der Tat!"
+msgid "Welcome, Keeper, to an esteemed seat of learning. You have impressed the Ancients, and earned a place at a highly regarded College indeed!"
+msgstr "Willkommen Keeper, zu einer angesehenen Sitz des Lernens. Sie haben die Alten beeindruckt und verdient einen Platz an einer angesehenen Hochschule in der Tat!"
 
 #: guitext:48
 msgctxt "In-game message"
-msgid ""
-"A bit of light revision, Keeper? You now need a creature with Wind Power!"
+msgid "A bit of light revision, Keeper? You now need a creature with Wind Power!"
 msgstr "Ein Speichertest Keeper? Sie müssen nun eine Kreatur mit Wind Power!"
 
 #: guitext:49
 msgctxt "In-game message"
 msgid "Well done, Keeper! You will soon placate your angry creatures."
-msgstr ""
-"Gut gemacht, Keeper! Sie werden bald Ihre böse Kreaturen zu besänftigen."
+msgstr "Gut gemacht, Keeper! Sie werden bald Ihre böse Kreaturen zu besänftigen."
 
 #: guitext:50
 msgctxt "In-game message"
-msgid ""
-"You have graduated with full honours! Congratulations, Keeper B.E. Perhaps "
-"you'd like to throw a hero corpse into the air?"
-msgstr ""
-"Sie haben mit allen Ehren absolviert! Herzlichen Glückwunsch, Keeper B.E. "
-"Vielleicht möchten Sie ein Held Leiche in die Luft zu werfen?"
+msgid "You have graduated with full honours! Congratulations, Keeper B.E. Perhaps you'd like to throw a hero corpse into the air?"
+msgstr "Sie haben mit allen Ehren absolviert! Herzlichen Glückwunsch, Keeper B.E. Vielleicht möchten Sie ein Held Leiche in die Luft zu werfen?"
 
 #: guitext:51
 #, fuzzy
 msgctxt "In-game message"
-msgid ""
-"The Heroes' Dungeon Heart throbs before you. Administer the coup de grace!"
-msgstr ""
-"Das Dungeon-Herz des Gegners schlägt Euch entgegen. Ruft Eure Untergebenen "
-"zusammen und befehlt den Gnadenstoß."
+msgid "The Heroes' Dungeon Heart throbs before you. Administer the coup de grace!"
+msgstr "Das Dungeon-Herz des Gegners schlägt Euch entgegen. Ruft Eure Untergebenen zusammen und befehlt den Gnadenstoß."
 
 #: guitext:52
 msgctxt "In-game message"
-msgid ""
-"Well done, Keeper. Do not kill the tunneller you have stranded; you have "
-"work for him."
-msgstr ""
-"Gut gemacht, Keeper. Die Tunneller Sie gestrandet sind Sie nicht töten, du "
-"Arbeit für ihn zu haben."
+msgid "Well done, Keeper. Do not kill the tunneller you have stranded; you have work for him."
+msgstr "Gut gemacht, Keeper. Die Tunneller Sie gestrandet sind Sie nicht töten, du Arbeit für ihn zu haben."
 
 #: guitext:53
 msgctxt "In-game message"
-msgid ""
-"The claiming of the portal in this land must be done with great care. Your "
-"courage is not the only thing that needs re-inforcing."
-msgstr ""
-"Die Geltendmachung des Portals in diesem Land mit großer Sorgfalt "
-"durchgeführt werden. Ihr Mut ist nicht die einzige Sache, die Verstärkung "
-"braucht."
+msgid "The claiming of the portal in this land must be done with great care. Your courage is not the only thing that needs re-inforcing."
+msgstr "Die Geltendmachung des Portals in diesem Land mit großer Sorgfalt durchgeführt werden. Ihr Mut ist nicht die einzige Sache, die Verstärkung braucht."
 
 #: guitext:54
 msgctxt "In-game message"
-msgid ""
-"Your first minion! Amongst your next tasks is a trick involving the prison. "
-"Take a straight path!"
-msgstr ""
-"Ihre erste Diener! Zu Ihren Aufgaben ist ein Trick, mit dem Gefängnis. "
-"Werfen Sie einen geraden Weg!"
+msgid "Your first minion! Amongst your next tasks is a trick involving the prison. Take a straight path!"
+msgstr "Ihre erste Diener! Zu Ihren Aufgaben ist ein Trick, mit dem Gefängnis. Werfen Sie einen geraden Weg!"
 
 #: guitext:55
 msgctxt "In-game message"
-msgid ""
-"Excellent, Keeper! You will need to build an army for the final battle, so "
-"keep 'em coming!"
-msgstr ""
-"Ausgezeichnet Keeper! Sie müssen, um eine Armee für die letzte Schlacht zu "
-"bauen!"
+msgid "Excellent, Keeper! You will need to build an army for the final battle, so keep 'em coming!"
+msgstr "Ausgezeichnet Keeper! Sie müssen, um eine Armee für die letzte Schlacht zu bauen!"
 
 #: guitext:56
 msgctxt "In-game message"
-msgid ""
-"The hero dungeon lies in ruins, and now you must prepare for the final "
-"battle. His forces are formidable, so take care, Keeper!"
-msgstr ""
-"Der Held Dungeon liegt in Trümmern, und jetzt müssen Sie für die letzte "
-"Schlacht vorbereiten. Seine Kräfte sind enorm, so kümmern, Keeper!"
+msgid "The hero dungeon lies in ruins, and now you must prepare for the final battle. His forces are formidable, so take care, Keeper!"
+msgstr "Der Held Dungeon liegt in Trümmern, und jetzt müssen Sie für die letzte Schlacht vorbereiten. Seine Kräfte sind enorm, so kümmern, Keeper!"
 
 #: guitext:57
 msgctxt "In-game message"
-msgid ""
-"A victory to be proud of, Keeper! Salaar will not forget you in a hurry!"
-msgstr ""
-"Ein Sieg stolz Keeper zu sein! Salaar werden nicht vergessen, Sie in Eile!"
+msgid "A victory to be proud of, Keeper! Salaar will not forget you in a hurry!"
+msgstr "Ein Sieg stolz Keeper zu sein! Salaar werden nicht vergessen, Sie in Eile!"
 
 #: guitext:58
 msgctxt "In-game message"
-msgid ""
-"Your enemies defeat is imminent; savour this moment, Keeper! Let your "
-"laughter fill the air!"
-msgstr ""
-"Ihre Feinde zu besiegen droht, diesen Moment zu genießen, Keeper! Lassen Sie "
-"alle hören, dein Lachen"
+msgid "Your enemies defeat is imminent; savour this moment, Keeper! Let your laughter fill the air!"
+msgstr "Ihre Feinde zu besiegen droht, diesen Moment zu genießen, Keeper! Lassen Sie alle hören, dein Lachen"
 
 #: guitext:59
 msgctxt "In-game message"
-msgid ""
-"Your most valued convert is being tortured, and will defect imminently "
-"unless rescued; he holds the key to this realm!"
-msgstr ""
-"Ihre wertvollsten Wesen gefoltert wird. Er wird bald überlaufen, es sei denn "
-"gerettet, er den Schlüssel zu diesem Reich hält!"
+msgid "Your most valued convert is being tortured, and will defect imminently unless rescued; he holds the key to this realm!"
+msgstr "Ihre wertvollsten Wesen gefoltert wird. Er wird bald überlaufen, es sei denn gerettet, er den Schlüssel zu diesem Reich hält!"
 
 #: guitext:60
 msgctxt "In-game message"
@@ -524,30 +338,18 @@ msgstr "Erzwingen Sie dieses faule Diener, die Bibliothek, Keeper behaupten."
 
 #: guitext:61
 msgctxt "In-game message"
-msgid ""
-"This Samurai will be the source of your army. However there is a limit to "
-"their number."
-msgstr ""
-"Dieser Samurai wird Ihre Armee zu bilden. Jedoch gibt es eine Grenze, um "
-"ihre Anzahl."
+msgid "This Samurai will be the source of your army. However there is a limit to their number."
+msgstr "Dieser Samurai wird Ihre Armee zu bilden. Jedoch gibt es eine Grenze, um ihre Anzahl."
 
 #: guitext:62
 msgctxt "In-game message"
-msgid ""
-"This thief will be the source of your army. With extra training they may "
-"develop into very useful warriors."
-msgstr ""
-"Dieser Dieb wird Ihre Armee zu bilden. Mit Training werden sie nützlich "
-"Krieger."
+msgid "This thief will be the source of your army. With extra training they may develop into very useful warriors."
+msgstr "Dieser Dieb wird Ihre Armee zu bilden. Mit Training werden sie nützlich Krieger."
 
 #: guitext:63
 msgctxt "In-game message"
-msgid ""
-"Your cunning does you credit, Keeper! The future is now in your hands. "
-"Scared of a balanced battle, your weaselness?"
-msgstr ""
-"Ihre Schlauheit ehrt Sie, Keeper! Die Zukunft ist jetzt in Ihren Händen. Aus "
-"Angst vor einem ausgeglichenen Kampf, Ihre Schwäche?"
+msgid "Your cunning does you credit, Keeper! The future is now in your hands. Scared of a balanced battle, your weaselness?"
+msgstr "Ihre Schlauheit ehrt Sie, Keeper! Die Zukunft ist jetzt in Ihren Händen. Aus Angst vor einem ausgeglichenen Kampf, Ihre Schwäche?"
 
 #: guitext:64
 msgctxt "In-game message"
@@ -557,32 +359,18 @@ msgstr "ein Sieg erwartet, Keeper. Schnell!"
 #: guitext:65
 #, fuzzy
 msgctxt "In-game message"
-msgid ""
-"How satisfying it is to see an enemy Keeper's dungeon crumble and his power "
-"dissipate. Your reputation grows with your cunning!"
-msgstr ""
-"Was für ein überwältigendes Gefühl es doch ist, den Dungeon eines "
-"gegnerischen Keepers vergehen zu sehen. Ich denke, dieses Jahr gibt es keine "
-"Meinungsverschiedenheiten über die Nominierung für einen Oscar der "
-"Niedertracht."
+msgid "How satisfying it is to see an enemy Keeper's dungeon crumble and his power dissipate. Your reputation grows with your cunning!"
+msgstr "Was für ein überwältigendes Gefühl es doch ist, den Dungeon eines gegnerischen Keepers vergehen zu sehen. Ich denke, dieses Jahr gibt es keine Meinungsverschiedenheiten über die Nominierung für einen Oscar der Niedertracht."
 
 #: guitext:66
 msgctxt "In-game message"
-msgid ""
-"Explain yourself, Keeper! I trust you're not still waiting for Ug the "
-"mythical Barbarian?"
-msgstr ""
-"Erklären Sie sich, Keeper! Ich hoffe, Sie nicht warten immer noch auf die "
-"mythische Ug Barbar?"
+msgid "Explain yourself, Keeper! I trust you're not still waiting for Ug the mythical Barbarian?"
+msgstr "Erklären Sie sich, Keeper! Ich hoffe, Sie nicht warten immer noch auf die mythische Ug Barbar?"
 
 #: guitext:67
 msgctxt "In-game message"
-msgid ""
-"This land requires aggression and speed, Keeper. It is unfortunate therefore "
-"that your minions are dominated by the bone idle!"
-msgstr ""
-"Dieses Land benötigt Aggression und Geschwindigkeit, Keeper. Es ist daher "
-"bedauerlich, dass Ihre Schergen werden von den faulen dominiert!"
+msgid "This land requires aggression and speed, Keeper. It is unfortunate therefore that your minions are dominated by the bone idle!"
+msgstr "Dieses Land benötigt Aggression und Geschwindigkeit, Keeper. Es ist daher bedauerlich, dass Ihre Schergen werden von den faulen dominiert!"
 
 #: guitext:68
 msgctxt "In-game message"
@@ -591,11 +379,8 @@ msgstr "Kein Portal Keeper? Das Schnarchen der Alten wächst donner!"
 
 #: guitext:69
 msgctxt "In-game message"
-msgid ""
-"Your best soldier has arrived. Train him well, for he is your only hope!"
-msgstr ""
-"Ihre beste Soldat ist angekommen. Trainieren Sie ihn gut, denn er ist die "
-"einzige Hoffnung!"
+msgid "Your best soldier has arrived. Train him well, for he is your only hope!"
+msgstr "Ihre beste Soldat ist angekommen. Trainieren Sie ihn gut, denn er ist die einzige Hoffnung!"
 
 #: guitext:70
 msgctxt "In-game message"
@@ -604,12 +389,8 @@ msgstr "Ihre anhaltende Erfolg wird immer vorhersehbar, Meister!"
 
 #: guitext:71
 msgctxt "In-game message"
-msgid ""
-"Are you interested in Entomology, Keeper? Insects are the only minions you "
-"will attract; down in the slime where you belong!"
-msgstr ""
-"Sie interessieren sich für Entomologie, Keeper? Insekten sind die einzigen "
-"Schergen Sie gewinnen, unten im Schlamm, wo man hingehört!"
+msgid "Are you interested in Entomology, Keeper? Insects are the only minions you will attract; down in the slime where you belong!"
+msgstr "Sie interessieren sich für Entomologie, Keeper? Insekten sind die einzigen Schergen Sie gewinnen, unten im Schlamm, wo man hingehört!"
 
 #: guitext:72
 msgctxt "In-game message"
@@ -618,57 +399,33 @@ msgstr "Ein Tempel, Keeper! Was werden Sie tun?"
 
 #: guitext:73
 msgctxt "In-game message"
-msgid ""
-"Good scarifice, Keeper. This mage has a power you will need to conquer this "
-"realm."
-msgstr ""
-"Gute Opfer Keeper. Dieser mage ist befugt, müssen Sie dieses Reich zu "
-"erobern."
+msgid "Good scarifice, Keeper. This mage has a power you will need to conquer this realm."
+msgstr "Gute Opfer Keeper. Dieser mage ist befugt, müssen Sie dieses Reich zu erobern."
 
 #: guitext:74
 msgctxt "In-game message"
 msgid "Finally, the prison is claimed! Now capture as many heroes as you can."
-msgstr ""
-"Schließlich wird das Gefängnis behauptet! Jetzt zu erfassen, wie viele "
-"Helden wie du kannst."
+msgstr "Schließlich wird das Gefängnis behauptet! Jetzt zu erfassen, wie viele Helden wie du kannst."
 
 #: guitext:75
 msgctxt "In-game message"
-msgid ""
-"You have prevailed, Keeper. The bodies of your enemies litter the most "
-"forlorn alcoves of your domain, in tribute to their futile efforts to keep "
-"you at bay."
-msgstr ""
-"Ihr habt es geschafft, Keeper! Die Körper Eurer Gegner liegen verstreut über "
-"den trübsinnigsten Alkoven Eures Reiches - als Tribut für Ihre sinnlosen "
-"Versuche, Euch in Schach zu halten."
+msgid "You have prevailed, Keeper. The bodies of your enemies litter the most forlorn alcoves of your domain, in tribute to their futile efforts to keep you at bay."
+msgstr "Ihr habt es geschafft, Keeper! Die Körper Eurer Gegner liegen verstreut über den trübsinnigsten Alkoven Eures Reiches - als Tribut für Ihre sinnlosen Versuche, Euch in Schach zu halten."
 
 #: guitext:76
 msgctxt "In-game message"
-msgid ""
-"Try dropping some money into the temple. You will receive a message from the "
-"Gods!"
-msgstr ""
-"Versuchen Sie fallen etwas Geld in den Tempel. Sie erhalten eine Nachricht "
-"von den Göttern zu erhalten!"
+msgid "Try dropping some money into the temple. You will receive a message from the Gods!"
+msgstr "Versuchen Sie fallen etwas Geld in den Tempel. Sie erhalten eine Nachricht von den Göttern zu erhalten!"
 
 #: guitext:77
 msgctxt "In-game message"
-msgid ""
-"A formidable army of the Undead awaits you, Keeper. Maybe you'd better just "
-"quit?."
-msgstr ""
-"Eine gewaltige Armee der Untoten erwartet Sie, Keeper. Vielleicht solltest "
-"du besser einfach aufhören?."
+msgid "A formidable army of the Undead awaits you, Keeper. Maybe you'd better just quit?."
+msgstr "Eine gewaltige Armee der Untoten erwartet Sie, Keeper. Vielleicht solltest du besser einfach aufhören?."
 
 #: guitext:78
 msgctxt "In-game message"
-msgid ""
-"In this realm the Ancients have granted you have workers but no fighters. An "
-"imp wouldn't go amiss either!"
-msgstr ""
-"In diesem Bereich haben die Antiker Sie Arbeiter, aber keine Kämpfer "
-"gewährt. Ein Kobold ist dringend erforderlich!"
+msgid "In this realm the Ancients have granted you have workers but no fighters. An imp wouldn't go amiss either!"
+msgstr "In diesem Bereich haben die Antiker Sie Arbeiter, aber keine Kämpfer gewährt. Ein Kobold ist dringend erforderlich!"
 
 #: guitext:79
 msgctxt "In-game message"
@@ -687,29 +444,18 @@ msgstr "Zwei Drachen, Keeper? Jetzt sind Sie nicht mehr aufzuhalten!"
 
 #: guitext:82
 msgctxt "In-game message"
-msgid ""
-"I assume you know that you can train a creature by putting him into battle?"
-msgstr ""
-"Ich nehme an, Sie wissen, dass man eine Kreatur zu trainieren, indem sie ihn "
-"in die Schlacht?"
+msgid "I assume you know that you can train a creature by putting him into battle?"
+msgstr "Ich nehme an, Sie wissen, dass man eine Kreatur zu trainieren, indem sie ihn in die Schlacht?"
 
 #: guitext:83
 msgctxt "In-game message"
-msgid ""
-"Another victory, Keeper! A puzzle awaits you; are you brain as well as brawn?"
-msgstr ""
-"Ein weiterer Sieg, Keeper! Eine Aufgabe wartet auf Sie, Sie sind klug und "
-"stark?"
+msgid "Another victory, Keeper! A puzzle awaits you; are you brain as well as brawn?"
+msgstr "Ein weiterer Sieg, Keeper! Eine Aufgabe wartet auf Sie, Sie sind klug und stark?"
 
 #: guitext:84
 msgctxt "In-game message"
-msgid ""
-"Welcome to the Land of Dragons, Keeper. With skill you will gain their "
-"services, but beware - they are fickle creatures in this realm!"
-msgstr ""
-"Willkommen im Land der Drachen, Keeper. Mit Geschick werden Sie ihre Dienste "
-"zu gewinnen, aber Vorsicht - sie wankelmütig Kreaturen in diesem Bereich "
-"sind!"
+msgid "Welcome to the Land of Dragons, Keeper. With skill you will gain their services, but beware - they are fickle creatures in this realm!"
+msgstr "Willkommen im Land der Drachen, Keeper. Mit Geschick werden Sie ihre Dienste zu gewinnen, aber Vorsicht - sie wankelmütig Kreaturen in diesem Bereich sind!"
 
 #: guitext:85
 msgctxt "In-game message"
@@ -718,38 +464,23 @@ msgstr "Vielleicht eine andere Strategie, Keeper?"
 
 #: guitext:86
 msgctxt "In-game message"
-msgid ""
-"Almost a Dragon! I hear it has a taste for Keepers, so don't let it get "
-"hungry."
-msgstr ""
-"Fast ein Drachen! Ich höre es einen Geschmack für Keepers hat, so lassen Sie "
-"es nicht hungrig."
+msgid "Almost a Dragon! I hear it has a taste for Keepers, so don't let it get hungry."
+msgstr "Fast ein Drachen! Ich höre es einen Geschmack für Keepers hat, so lassen Sie es nicht hungrig."
 
 #: guitext:87
 msgctxt "In-game message"
 msgid "Finally, Keeper, a dungeon worthy of the name. Can you afford one?"
-msgstr ""
-"Schließlich Keeper, ein Verlies der diesen Namen verdient. Können Sie es "
-"sich leisten?"
+msgstr "Schließlich Keeper, ein Verlies der diesen Namen verdient. Können Sie es sich leisten?"
 
 #: guitext:88
 msgctxt "In-game message"
-msgid ""
-"The dragon you were promised! Now its simply a matter of defeating all "
-"heroes and two other Keepers!"
-msgstr ""
-"Der Drache du versprochen! Nun ist es einfach eine Frage der Sieg über alle "
-"Helden und zwei weiteren Keepers!"
+msgid "The dragon you were promised! Now its simply a matter of defeating all heroes and two other Keepers!"
+msgstr "Der Drache du versprochen! Nun ist es einfach eine Frage der Sieg über alle Helden und zwei weiteren Keepers!"
 
 #: guitext:89
 msgctxt "In-game message"
-msgid ""
-"Switch on the computer assistant. This realm is so easy you can let it do "
-"your work while you have a cup of lemon tea!"
-msgstr ""
-"Schalten Sie den Computer-Assistenten. Dieses Reich ist so einfach, Sie "
-"können es tun Sie Ihre Arbeit, während Sie eine Tasse Tee mit Zitrone haben "
-"lassen!"
+msgid "Switch on the computer assistant. This realm is so easy you can let it do your work while you have a cup of lemon tea!"
+msgstr "Schalten Sie den Computer-Assistenten. Dieses Reich ist so einfach, Sie können es tun Sie Ihre Arbeit, während Sie eine Tasse Tee mit Zitrone haben lassen!"
 
 #: guitext:90
 msgctxt "In-game message"
@@ -758,13 +489,8 @@ msgstr "Ein großer Sieg. Die Alten sind alarmiert!"
 
 #: guitext:91
 msgctxt "In-game message"
-msgid ""
-"You have attracted the hottest babe in the Underworld, Keeper, and made even "
-"the Ancients jealous! Pander to her whims and she'll do anything for you!"
-msgstr ""
-"Sie haben die attraktivste Frau in der Unterwelt Keeper angezogen, und auch "
-"die Alten eifersüchtig gemacht! Gib ihr jeden Wunsch, und sie werden alles "
-"für Sie tun!"
+msgid "You have attracted the hottest babe in the Underworld, Keeper, and made even the Ancients jealous! Pander to her whims and she'll do anything for you!"
+msgstr "Sie haben die attraktivste Frau in der Unterwelt Keeper angezogen, und auch die Alten eifersüchtig gemacht! Gib ihr jeden Wunsch, und sie werden alles für Sie tun!"
 
 #: guitext:92
 msgctxt "In-game message"
@@ -773,12 +499,8 @@ msgstr "Deine Herrin wird stärker mit jedem Kampf, Keeper!"
 
 #: guitext:93
 msgctxt "In-game message"
-msgid ""
-"You must be aching to possess this awesome woman again, Keeper? Concentrate, "
-"Master, the climax approaches!"
-msgstr ""
-"Sie müssen schmerz um dieses tolle Frau wieder besitzen Keeper? "
-"Konzentrieren Meister, die Ansätze Höhepunkt!"
+msgid "You must be aching to possess this awesome woman again, Keeper? Concentrate, Master, the climax approaches!"
+msgstr "Sie müssen schmerz um dieses tolle Frau wieder besitzen Keeper? Konzentrieren Meister, die Ansätze Höhepunkt!"
 
 #: guitext:94
 msgctxt "In-game message"
@@ -787,134 +509,79 @@ msgstr "Eine Frau wie die braucht Pflege, Keeper. Sie ruht nun mit den Alten."
 
 #: guitext:95
 msgctxt "In-game message"
-msgid ""
-"And the two of you can live mercilessly ever after! Will she accompany you "
-"to the hidden realm?"
-msgstr ""
-"Und die beiden von Ihnen gnadenlos und zufrieden leben kann! Wird sie "
-"begleiten Sie zu dem verborgenen Reich?"
+msgid "And the two of you can live mercilessly ever after! Will she accompany you to the hidden realm?"
+msgstr "Und die beiden von Ihnen gnadenlos und zufrieden leben kann! Wird sie begleiten Sie zu dem verborgenen Reich?"
 
 #: guitext:96
 msgctxt "In-game message"
-msgid ""
-"You have won a magnificent victory, Master. You have a talent for twisted "
-"mercilessness that makes other Keepers look well behaved by comparison."
-msgstr ""
-"Ihr habt einen unglaublichen Sieg errungen. Durch Euer faszinierendes Talent "
-"zur Gnadenlosigkeit sehen andere Keeper neben Euch geradezu artig aus."
+msgid "You have won a magnificent victory, Master. You have a talent for twisted mercilessness that makes other Keepers look well behaved by comparison."
+msgstr "Ihr habt einen unglaublichen Sieg errungen. Durch Euer faszinierendes Talent zur Gnadenlosigkeit sehen andere Keeper neben Euch geradezu artig aus."
 
 #: guitext:97
 msgctxt "In-game message"
-msgid ""
-"You have threatened the security of the Ancients, Keeper. Now get outside "
-"with the Dog!"
-msgstr ""
-"Sie haben die Sicherheit der Alten, Sieg bedroht. Jetzt draußen zu gehen mit "
-"dem Hund!"
+msgid "You have threatened the security of the Ancients, Keeper. Now get outside with the Dog!"
+msgstr "Sie haben die Sicherheit der Alten, Sieg bedroht. Jetzt draußen zu gehen mit dem Hund!"
 
 #: guitext:98
 msgctxt "In-game message"
 msgid "You must control your temper, Keeper! Everything has a purpose."
-msgstr ""
-"Sie müssen Ihr Temperament Keeper zu kontrollieren! Alles hat einen Sinn."
+msgstr "Sie müssen Ihr Temperament Keeper zu kontrollieren! Alles hat einen Sinn."
 
 #: guitext:99
 msgctxt "In-game message"
-msgid ""
-"Salaar has gifted you the ability to research boulder traps; he is obviously "
-"on your side!"
-msgstr ""
-"Salaar hat Ihnen die Möglichkeit, Felsbrocken Fallen Forschung begabt. Er "
-"will sehen Sie dieses Reich zu erobern."
+msgid "Salaar has gifted you the ability to research boulder traps; he is obviously on your side!"
+msgstr "Salaar hat Ihnen die Möglichkeit, Felsbrocken Fallen Forschung begabt. Er will sehen Sie dieses Reich zu erobern."
 
 #: guitext:100
 msgctxt "In-game message"
-msgid ""
-"You've once again attracted the interest of Salaar. He has summoned you to "
-"this land to further prove yourself. Success will bring his assistance; do "
-"not disappoint him!"
-msgstr ""
-"Sie haben einmal mehr das Interesse der Salaar zogen. Er hat dich in dieses "
-"Land gerufen, um weitere beweisen Sie sich. Der Erfolg wird seine Hilfe zu "
-"bringen, ihn nicht zu enttäuschen!"
+msgid "You've once again attracted the interest of Salaar. He has summoned you to this land to further prove yourself. Success will bring his assistance; do not disappoint him!"
+msgstr "Sie haben einmal mehr das Interesse der Salaar zogen. Er hat dich in dieses Land gerufen, um weitere beweisen Sie sich. Der Erfolg wird seine Hilfe zu bringen, ihn nicht zu enttäuschen!"
 
 #: guitext:101
 msgctxt "In-game message"
-msgid ""
-"An intriguing assignment, Keeper. Thor has chosen you to negotiate a "
-"settlement in this land. I think you know what he expects!"
-msgstr ""
-"Eine faszinierende Zuordnung Keeper. Thor hat Sie gewählt, um eine Siedlung "
-"in diesem Land zu verhandeln. Ich denke, Sie wissen, was er erwartet!"
+msgid "An intriguing assignment, Keeper. Thor has chosen you to negotiate a settlement in this land. I think you know what he expects!"
+msgstr "Eine faszinierende Zuordnung Keeper. Thor hat Sie gewählt, um eine Siedlung in diesem Land zu verhandeln. Ich denke, Sie wissen, was er erwartet!"
 
 #: guitext:102
 msgctxt "In-game message"
 msgid "Negotiation is all about bridge-building between opposing parties!"
-msgstr ""
-"Verhandlung erfordert den Aufbau von Brücken zwischen gegnerischen Parteien!"
+msgstr "Verhandlung erfordert den Aufbau von Brücken zwischen gegnerischen Parteien!"
 
 #: guitext:103
 msgctxt "In-game message"
-msgid ""
-"Thor has examined the details of the final settlement, and it is acceptable!"
-msgstr ""
-"Thor hat die Details der endgültigen Abrechnung sucht, und es akzeptabel ist!"
+msgid "Thor has examined the details of the final settlement, and it is acceptable!"
+msgstr "Thor hat die Details der endgültigen Abrechnung sucht, und es akzeptabel ist!"
 
 #: guitext:104
 msgctxt "In-game message"
-msgid ""
-"Salaar has placed a reward in this realm, though obviously its discovery "
-"won't be easy. Would you want it that way?"
-msgstr ""
-"Salaar hat eine Belohnung in diesem Bereich platziert, obwohl offensichtlich "
-"seiner Entdeckung wird nicht einfach sein. Das ist gut, wie Sie genießen "
-"schwierigen Aufgaben"
+msgid "Salaar has placed a reward in this realm, though obviously its discovery won't be easy. Would you want it that way?"
+msgstr "Salaar hat eine Belohnung in diesem Bereich platziert, obwohl offensichtlich seiner Entdeckung wird nicht einfach sein. Das ist gut, wie Sie genießen schwierigen Aufgaben"
 
 #: guitext:105
 #, fuzzy
 msgctxt "In-game message"
-msgid ""
-"Behold a land fraught with Danger! Twas here that the legendary Antak met "
-"his doom. You must be patient and persistent, Keeper, if you are not to "
-"share his fate!"
-msgstr ""
-"Siehe, ein Land voller Gefahren! Twas hier, dass der legendäre Antak erfüllt "
-"sein Verhängnis. Sie müssen geduldig und hartnäckig sein Keeper, wenn Sie "
-"nicht in sein Schicksal zu teilen!"
+msgid "Behold a land fraught with Danger! Twas here that the legendary Antak met his doom. You must be patient and persistent, Keeper, if you are not to share his fate!"
+msgstr "Siehe, ein Land voller Gefahren! Twas hier, dass der legendäre Antak erfüllt sein Verhängnis. Sie müssen geduldig und hartnäckig sein Keeper, wenn Sie nicht in sein Schicksal zu teilen!"
 
 #: guitext:106
 msgctxt "In-game message"
 msgid "Caution, Keeper! Your fate depends on where you choose to dig south."
-msgstr ""
-"Achtung, Keeper! Ihr Schicksal hängt davon ab, wo Sie sich entscheiden, zu "
-"graben Süden."
+msgstr "Achtung, Keeper! Ihr Schicksal hängt davon ab, wo Sie sich entscheiden, zu graben Süden."
 
 #: guitext:107
 msgctxt "In-game message"
-msgid ""
-"Room designs must be stolen in this realm, Keeper; I trust this gives you no "
-"moral quandry?"
-msgstr ""
-"Die Zimmer müssen in diesem Bereich gestohlen werden Keeper. Ich hoffe, das "
-"gibt Ihnen kein moralisches Dilemma?"
+msgid "Room designs must be stolen in this realm, Keeper; I trust this gives you no moral quandry?"
+msgstr "Die Zimmer müssen in diesem Bereich gestohlen werden Keeper. Ich hoffe, das gibt Ihnen kein moralisches Dilemma?"
 
 #: guitext:108
 msgctxt "In-game message"
-msgid ""
-"You must fight to train your dragon, Keeper, but you will need minions. "
-"Leave plenty alive to torture!"
-msgstr ""
-"Sie müssen kämpfen, trainieren Sie Ihre Drachen, aber Sie brauchen eine "
-"Armee. Lassen Sie genug am Leben zu quälen!"
+msgid "You must fight to train your dragon, Keeper, but you will need minions. Leave plenty alive to torture!"
+msgstr "Sie müssen kämpfen, trainieren Sie Ihre Drachen, aber Sie brauchen eine Armee. Lassen Sie genug am Leben zu quälen!"
 
 #: guitext:109
 msgctxt "In-game message"
-msgid ""
-"The hero lair is riddled with lava traps. If triggered they will deny access "
-"to the rooms you need. You know what you must do!"
-msgstr ""
-"Der Held wird mit Lava-Höhle Fallen gespickt. Wenn sie ausgelöst Zugang zu "
-"den Zimmern müssen Sie verweigern. Sie wissen, was Sie tun müssen!"
+msgid "The hero lair is riddled with lava traps. If triggered they will deny access to the rooms you need. You know what you must do!"
+msgstr "Der Held wird mit Lava-Höhle Fallen gespickt. Wenn sie ausgelöst Zugang zu den Zimmern müssen Sie verweigern. Sie wissen, was Sie tun müssen!"
 
 #: guitext:110
 msgctxt "In-game message"
@@ -923,28 +590,18 @@ msgstr "Ihre Armee ist klein, Keeper! Traust du dich noch für den Sieg hoffen?"
 
 #: guitext:111
 msgctxt "In-game message"
-msgid ""
-"Antak failed in this realm because he killed too many heroes. I trust you "
-"will learn from his mistake?"
-msgstr ""
-"Antak scheiterte in diesem Bereich, weil er zu viele Helden getötet. Ich "
-"hoffe, Sie werden aus seinem Fehler zu lernen?"
+msgid "Antak failed in this realm because he killed too many heroes. I trust you will learn from his mistake?"
+msgstr "Antak scheiterte in diesem Bereich, weil er zu viele Helden getötet. Ich hoffe, Sie werden aus seinem Fehler zu lernen?"
 
 #: guitext:112
 msgctxt "In-game message"
-msgid ""
-"You hold the key to this realm by controlling the balance of power. Two "
-"formidable armies oppose you - they must be manipulated to serve your "
-"purpose!"
-msgstr ""
-"Sie halten den Schlüssel zu diesem Reich, indem die Balance der Macht. Zwei "
-"gewaltige Armeen wider Sie - sie müssen manipuliert, um Ihr Ziel zu dienen!"
+msgid "You hold the key to this realm by controlling the balance of power. Two formidable armies oppose you - they must be manipulated to serve your purpose!"
+msgstr "Sie halten den Schlüssel zu diesem Reich, indem die Balance der Macht. Zwei gewaltige Armeen wider Sie - sie müssen manipuliert, um Ihr Ziel zu dienen!"
 
 #: guitext:113
 msgctxt "In-game message"
 msgid "The Endgame begins! Victory depends on knowing when to intervene."
-msgstr ""
-"Das Endspiel beginnt! Sieg hängt davon ab, zu wissen, wann, zu intervenieren."
+msgstr "Das Endspiel beginnt! Sieg hängt davon ab, zu wissen, wann, zu intervenieren."
 
 #: guitext:114
 msgctxt "In-game message"
@@ -953,12 +610,8 @@ msgstr "Sie müssen Antak Schande teilen. Salaar ist enttäuscht."
 
 #: guitext:115
 msgctxt "In-game message"
-msgid ""
-"An exceptional performance, Keeper. You may soon join the Ancients as an "
-"equal!!"
-msgstr ""
-"Eine außergewöhnliche Leistung, Keeper. Sie können bald kommen Sie mit den "
-"Alten als gleich!"
+msgid "An exceptional performance, Keeper. You may soon join the Ancients as an equal!!"
+msgstr "Eine außergewöhnliche Leistung, Keeper. Sie können bald kommen Sie mit den Alten als gleich!"
 
 #: guitext:116
 msgctxt "In-game message"
@@ -972,12 +625,8 @@ msgstr "Sind Sie gut im Kampfsport, Keeper? Sie müssen sein!"
 
 #: guitext:118
 msgctxt "In-game message"
-msgid ""
-"Congratulations, Keeper. You have found an important ally. With his help you "
-"can conquer all of the Underworld!"
-msgstr ""
-"Herzlichen Glückwunsch, Keeper. Sie haben einen wichtigen Verbündeten "
-"gefunden. Mit seiner Hilfe können Sie alle der Unterwelt zu erobern!"
+msgid "Congratulations, Keeper. You have found an important ally. With his help you can conquer all of the Underworld!"
+msgstr "Herzlichen Glückwunsch, Keeper. Sie haben einen wichtigen Verbündeten gefunden. Mit seiner Hilfe können Sie alle der Unterwelt zu erobern!"
 
 #: guitext:119
 msgctxt "In-game message"
@@ -987,27 +636,17 @@ msgstr "Ein paar Avatare gegen Ihre mächtigen Skelette? Wie erbärmlich!"
 #: guitext:120
 msgctxt "In-game message"
 msgid "Your Ghosts have the skills you need to leave your Dungeon Heart."
-msgstr ""
-"Ihre Geister haben die Fähigkeiten, die Sie zu Ihrem Dungeon-Herz verlassen "
-"müssen."
+msgstr "Ihre Geister haben die Fähigkeiten, die Sie zu Ihrem Dungeon-Herz verlassen müssen."
 
 #: guitext:121
 msgctxt "In-game message"
-msgid ""
-"Magnificent, Keeper! You have a seat amidst the Ancients between Salaar & "
-"Thor! You have truly shown that you are worthy. Mind you, L'Cyfre & T'Kaan "
-"look uneasy; are they your next victims, oh Omnipotent One?"
-msgstr ""
-"Prächtige, Keeper! Sie haben einen Platz inmitten der Ältesten zwischen "
-"Salaar & Thor! Sie haben wirklich gezeigt, dass Sie würdig sind. L'Cyfre & "
-"T'Kaan schauen unruhig. Sind sie Ihre nächsten Opfer, oh Allmächtigen?"
+msgid "Magnificent, Keeper! You have a seat amidst the Ancients between Salaar & Thor! You have truly shown that you are worthy. Mind you, L'Cyfre & T'Kaan look uneasy; are they your next victims, oh Omnipotent One?"
+msgstr "Prächtige, Keeper! Sie haben einen Platz inmitten der Ältesten zwischen Salaar & Thor! Sie haben wirklich gezeigt, dass Sie würdig sind. L'Cyfre & T'Kaan schauen unruhig. Sind sie Ihre nächsten Opfer, oh Allmächtigen?"
 
 #: guitext:122
 msgctxt "In-game message"
 msgid "Thank you for playing Ancient Keeper. Written by Pawel & Dayo."
-msgstr ""
-"Danke, dass Sie für die Wiedergabe von Ancient Keeper. Geschrieben von Pawel "
-"& Dayo."
+msgstr "Danke, dass Sie für die Wiedergabe von Ancient Keeper. Geschrieben von Pawel & Dayo."
 
 #: guitext:123
 msgctxt "In-game message"
@@ -1016,21 +655,13 @@ msgstr "Halten Sie Ihre Nerven, Keeper. Ihr größter Sieg erwartet Sie!"
 
 #: guitext:124
 msgctxt "In-game message"
-msgid ""
-"You are defeated at the final hurdle, Keeper. Still, you didn't get this far "
-"by giving up easily. Re-enter this realm immediately!"
-msgstr ""
-"Sie sind an der letzten Hürde, Keeper besiegt. Doch wussten Sie nicht so "
-"weit zu kommen, indem sie einfach auf. Geben Sie erneut dieses Reich sofort!"
+msgid "You are defeated at the final hurdle, Keeper. Still, you didn't get this far by giving up easily. Re-enter this realm immediately!"
+msgstr "Sie sind an der letzten Hürde, Keeper besiegt. Doch wussten Sie nicht so weit zu kommen, indem sie einfach auf. Geben Sie erneut dieses Reich sofort!"
 
 #: guitext:125
 msgctxt "In-game message"
-msgid ""
-"Ancient Keeper is written for the AI patched version of Dungeon Keeper only. "
-"Please ensure you are playing this version (patched 1.35MB, old 1.34MB)."
-msgstr ""
-"Dieser Hexenmeister müssen schnell arbeiten, Keeper. Er muss trainieren, "
-"Forschung und schnell."
+msgid "Ancient Keeper is written for the AI patched version of Dungeon Keeper only. Please ensure you are playing this version (patched 1.35MB, old 1.34MB)."
+msgstr "Dieser Hexenmeister müssen schnell arbeiten, Keeper. Er muss trainieren, Forschung und schnell."
 
 #: guitext:126
 msgctxt "In-game message"
@@ -1040,9 +671,7 @@ msgstr "Dieses Reich wird die Macht der Untoten zu demonstrieren!"
 #: guitext:127
 msgctxt "In-game message"
 msgid "Excellent, Keeper! Now free your imps, but beware; they are not alone!"
-msgstr ""
-"Ausgezeichnet Keeper! Jetzt kostenlos Ihre Kobolde, aber Vorsicht, sie sind "
-"nicht allein!"
+msgstr "Ausgezeichnet Keeper! Jetzt kostenlos Ihre Imps, aber Vorsicht, sie sind nicht allein!"
 
 #: guitext:128
 msgctxt "In-game message"
@@ -1056,9 +685,7 @@ msgstr "Die Außenrampe wird nicht zu Ihrem Dungeon-Herz verbunden."
 
 #: guitext:130
 msgctxt "In-game message"
-msgid ""
-"If you have only 5,000 Gold, you are playing the unpatched version of the "
-"game (should be 45,000). You need to rectify this."
+msgid "If you have only 5,000 Gold, you are playing the unpatched version of the game (should be 45,000). You need to rectify this."
 msgstr "Man kann nie reich genug sein!"
 
 #: guitext:131
@@ -1074,26 +701,17 @@ msgstr "Warum so langsam Keeper?"
 #: guitext:133
 msgctxt "In-game message"
 msgid "You may wish to leave 1 or 2 of them alive. Then again you may not!"
-msgstr ""
-"Vielleicht möchten Sie ein oder zwei von ihnen am Leben zu lassen. Oder "
-"nicht?"
+msgstr "Vielleicht möchten Sie ein oder zwei von ihnen am Leben zu lassen. Oder nicht?"
 
 #: guitext:134
 msgctxt "In-game message"
-msgid ""
-"Bravo, Keeper! Perhaps Ug the Barbarian will accompany you to the next realm?"
-msgstr ""
-"Bravo, Keeper! Vielleicht Ug der Barbar werden Sie zum nächsten Bereich zu "
-"begleiten?"
+msgid "Bravo, Keeper! Perhaps Ug the Barbarian will accompany you to the next realm?"
+msgstr "Bravo, Keeper! Vielleicht Ug der Barbar werden Sie zum nächsten Bereich zu begleiten?"
 
 #: guitext:135
 msgctxt "In-game message"
-msgid ""
-"Concentration, Keeper! To be defeated after all that effort; you must be "
-"sicker than a dieting Bile-Demon!"
-msgstr ""
-"Konzentration, Keeper! Um nach all der Anstrengung besiegt werden, Sie "
-"müssen kränker als eine Diät Gallen Dämon sein!"
+msgid "Concentration, Keeper! To be defeated after all that effort; you must be sicker than a dieting Bile-Demon!"
+msgstr "Konzentration, Keeper! Um nach all der Anstrengung besiegt werden, Sie müssen kränker als eine Diät Gallen Dämon sein!"
 
 #: guitext:136
 msgctxt "In-game message"
@@ -1102,36 +720,23 @@ msgstr "Sorry, ich bin zu spät."
 
 #: guitext:137
 msgctxt "In-game message"
-msgid ""
-"I hope you've brought your accountant with you, Keeper! Finance holds the "
-"key to this realm."
-msgstr ""
-"Ich hoffe, dass Sie Ihren Steuerberater mit Ihnen gebracht haben, Keeper! "
-"Finanzen hält den Schlüssel zu diesem Reich."
+msgid "I hope you've brought your accountant with you, Keeper! Finance holds the key to this realm."
+msgstr "Ich hoffe, dass Sie Ihren Steuerberater mit Ihnen gebracht haben, Keeper! Finanzen hält den Schlüssel zu diesem Reich."
 
 #: guitext:138
 msgctxt "In-game message"
 msgid "Well done, Keeper. Can you work out how to access the central island?"
-msgstr ""
-"Gut gemacht, Keeper. Kannst du herausfinden, wie die zentrale Insel "
-"zuzugreifen?"
+msgstr "Gut gemacht, Keeper. Kannst du herausfinden, wie die zentrale Insel zuzugreifen?"
 
 #: guitext:139
 msgctxt "In-game message"
-msgid ""
-"I suppose it was obvious that they'd kill each other if they ran out of "
-"money?"
-msgstr ""
-"Ich vermute, es war offensichtlich, dass sie würden sich gegenseitig töten, "
-"wenn sie das Geld ausging?"
+msgid "I suppose it was obvious that they'd kill each other if they ran out of money?"
+msgstr "Ich vermute, es war offensichtlich, dass sie würden sich gegenseitig töten, wenn sie das Geld ausging?"
 
 #: guitext:140
 msgctxt "In-game message"
-msgid ""
-"If you keep this Horned Reaper happy, then Salaar will kiss his Bile Demon!"
-msgstr ""
-"Wenn du so weiter Horned Reaper glücklich, dann werden Salaar küssen seine "
-"Galle Dämon!"
+msgid "If you keep this Horned Reaper happy, then Salaar will kiss his Bile Demon!"
+msgstr "Wenn du so weiter Horned Reaper glücklich, dann werden Salaar küssen seine Galle Dämon!"
 
 #: guitext:141
 msgctxt "In-game message"
@@ -1140,30 +745,18 @@ msgstr "Dieses Reich ist mit Fallen gespickt Felsblock, Keeper."
 
 #: guitext:142
 msgctxt "In-game message"
-msgid ""
-"You have failed. Perhaps you're not the harbinger of doom the forces of "
-"darkness were hoping for."
-msgstr ""
-"Ihr habt versagt. Wahrscheinlich seid Ihr gar nicht der satanische Bote, auf "
-"den die dunklen Kräfte hofften."
+msgid "You have failed. Perhaps you're not the harbinger of doom the forces of darkness were hoping for."
+msgstr "Ihr habt versagt. Wahrscheinlich seid Ihr gar nicht der satanische Bote, auf den die dunklen Kräfte hofften."
 
 #: guitext:143
 msgctxt "In-game message"
-msgid ""
-"Your constant success is getting boring, Keeper. You needn't travel alone to "
-"the next realm!"
-msgstr ""
-"Ihre konstanten Erfolg ist immer langweilig, Keeper. Sie müssen nicht allein "
-"reisen zum nächsten Reich!"
+msgid "Your constant success is getting boring, Keeper. You needn't travel alone to the next realm!"
+msgstr "Ihre konstanten Erfolg ist immer langweilig, Keeper. Sie müssen nicht allein reisen zum nächsten Reich!"
 
 #: guitext:144
 msgctxt "In-game message"
-msgid ""
-"Taking care is one thing, being slow is quite another, Keeper."
-"Not a single minion remains within the portal, you have failed."
-msgstr ""
-"Vorsichtig sein ist eine Sache, langsam sein eine ganz andere, Keeper"
-"Nicht ein einziger Scherg bleibt innerhalb des Portals, du hast versagt."
+msgid "Taking care is one thing, being slow is quite another, Keeper.Not a single minion remains within the portal, you have failed."
+msgstr "Vorsichtig sein ist eine Sache, langsam sein eine ganz andere, KeeperNicht ein einziger Scherg bleibt innerhalb des Portals, du hast versagt."
 
 #: guitext:145 guitext:146 guitext:147 guitext:148 guitext:149
 #: guitext:150 guitext:151 guitext:152 guitext:153 guitext:154 guitext:155
@@ -1176,45 +769,23 @@ msgstr ""
 
 #: guitext:173
 msgctxt "In-game message"
-msgid ""
-"You are imprisoned in the land of the flies. The king of your imps has been "
-"imprisoned by the heroes to your south. His son is at your side. Enlist the "
-"flies to re-unite your imps, and wreak your revenge!"
-msgstr ""
-"Sie sind in das Land der Fliegen eingesperrt. Der König der Kobolde Ihr "
-"wurde von den Helden, um Ihre südlich inhaftiert. Sein Sohn ist an Ihrer "
-"Seite. Tragen Sie die Fliegen wieder zu vereinigen Ihre Kobolde, und richten "
-"Sie Ihre Rache!"
+msgid "You are imprisoned in the land of the flies. The king of your imps has been imprisoned by the heroes to your south. His son is at your side. Enlist the flies to re-unite your imps, and wreak your revenge!"
+msgstr "Sie sind in das Land der Fliegen eingesperrt. Der König der Imps Ihr wurde von den Helden, um Ihre südlich inhaftiert. Sein Sohn ist an Ihrer Seite. Tragen Sie die Fliegen wieder zu vereinigen Ihre Imps, und richten Sie Ihre Rache!"
 
 #: guitext:174
 msgctxt "In-game message"
-msgid ""
-"Your favourite Horned Reaper has been captured, brainwashed and imprisoned. "
-"To finish this level, you'll have to set him free and kill all opponents in "
-"the process, thus making the world a better and more evil place(yeah!)."
-msgstr ""
-"Ihre Lieblings Horned Reaper erfasst wurde, Gehirnwäsche unterzogen und "
-"inhaftiert. Um dieses Level zu beenden, müssen Sie ihn frei und tötet alle "
-"Gegner in den Prozess, damit die Welt zu einem besseren und Böse Ort (yeah!)."
+msgid "Your favourite Horned Reaper has been captured, brainwashed and imprisoned. To finish this level, you'll have to set him free and kill all opponents in the process, thus making the world a better and more evil place(yeah!)."
+msgstr "Ihre Lieblings Horned Reaper erfasst wurde, Gehirnwäsche unterzogen und inhaftiert. Um dieses Level zu beenden, müssen Sie ihn frei und tötet alle Gegner in den Prozess, damit die Welt zu einem besseren und Böse Ort (yeah!)."
 
 #: guitext:175
 msgctxt "In-game message"
-msgid ""
-"No time for celebrations Keeper. Your imp King has brought the instruments "
-"of your vengeance. To work!"
-msgstr ""
-"Keine Zeit für Feiern Keeper. Ihre imp König hat die Instrumente der deine "
-"Rache gebracht. An die Arbeit!"
+msgid "No time for celebrations Keeper. Your imp King has brought the instruments of your vengeance. To work!"
+msgstr "Keine Zeit für Feiern Keeper. Ihre imp König hat die Instrumente der deine Rache gebracht. An die Arbeit!"
 
 #: guitext:176
 msgctxt "In-game message"
-msgid ""
-"Evil monks have betrayed the Shao-Lin temple to your rivals. Heroes will "
-"attempt to retrieve it, but the temple should be yours oh devious one!"
-msgstr ""
-"Böse Mönche haben die Shao-Lin Tempel, um Ihre Rivalen verraten. Helden "
-"werden versuchen, es abzurufen, aber der Tempel sollte Ihnen oh hinterhältig "
-"sein!"
+msgid "Evil monks have betrayed the Shao-Lin temple to your rivals. Heroes will attempt to retrieve it, but the temple should be yours oh devious one!"
+msgstr "Böse Mönche haben die Shao-Lin Tempel, um Ihre Rivalen verraten. Helden werden versuchen, es abzurufen, aber der Tempel sollte Ihnen oh hinterhältig sein!"
 
 #: guitext:177
 msgctxt "In-game message"
@@ -1223,64 +794,38 @@ msgstr "Sie sind in den Startlöchern! Lasst die Spiele beginnen Keeper!"
 
 #: guitext:178
 msgctxt "In-game message"
-msgid ""
-"The monks have returned with re-inforcements to reclaim their temple. Better "
-"explain the situation to them!"
-msgstr ""
-"Die Mönche haben mit Verstärkungen kehrten in ihre Tempel zurückfordern. "
-"Besser erklären, ihnen die Situation!"
+msgid "The monks have returned with re-inforcements to reclaim their temple. Better explain the situation to them!"
+msgstr "Die Mönche haben mit Verstärkungen kehrten in ihre Tempel zurückfordern. Besser erklären, ihnen die Situation!"
 
 #: guitext:179
 msgctxt "In-game message"
-msgid ""
-"Behold, the abandoned realm of Salaar, one of the Great Ancient Keepers. "
-"Paranoid heroes guard this realm with care!"
-msgstr ""
-"Siehe, das verlassene Reich der Salaar, einer der großen alten Keepers. "
-"Paranoid Helden hüten dieses Reich mit Sorgfalt!"
+msgid "Behold, the abandoned realm of Salaar, one of the Great Ancient Keepers. Paranoid heroes guard this realm with care!"
+msgstr "Siehe, das verlassene Reich der Salaar, einer der großen alten Keepers. Paranoid Helden hüten dieses Reich mit Sorgfalt!"
 
 #: guitext:180
 msgctxt "In-game message"
-msgid ""
-"Salaar was truly Evil! Discover and gaze in awe at His training room! Are "
-"you skillful enough to use it?"
-msgstr ""
-"Salaar war wirklich schlecht! Entdecken und den Blick in Ehrfurcht vor "
-"seinem Trainingsraum! Sind Sie geschickt genug, es zu benutzen?"
+msgid "Salaar was truly Evil! Discover and gaze in awe at His training room! Are you skillful enough to use it?"
+msgstr "Salaar war wirklich schlecht! Entdecken und den Blick in Ehrfurcht vor seinem Trainingsraum! Sind Sie geschickt genug, es zu benutzen?"
 
 #: guitext:181
 msgctxt "In-game message"
-msgid ""
-"Conquer the hero castles in this realm, and you will be a worthy successor "
-"to Salaar. Be bold for He is watching from below!"
-msgstr ""
-"Erobern Sie die Burgen Held in diesem Bereich, und Sie werden ein würdiger "
-"Nachfolger Salaar sein. Seien Sie mutig, denn er wird von unten zu "
-"beobachten!"
+msgid "Conquer the hero castles in this realm, and you will be a worthy successor to Salaar. Be bold for He is watching from below!"
+msgstr "Erobern Sie die Burgen Held in diesem Bereich, und Sie werden ein würdiger Nachfolger Salaar sein. Seien Sie mutig, denn er wird von unten zu beobachten!"
 
 #: guitext:182
 msgctxt "In-game message"
-msgid ""
-"Salaar had a limit to the bridges he could own at one time. He sees no "
-"reason why you should have more!"
-msgstr ""
-"Salaar hatte eine Grenze für die Brücken besitzen könnte er zu einer Zeit. "
-"Er sieht keinen Grund, warum sollten Sie mehr zu haben!"
+msgid "Salaar had a limit to the bridges he could own at one time. He sees no reason why you should have more!"
+msgstr "Salaar hatte eine Grenze für die Brücken besitzen könnte er zu einer Zeit. Er sieht keinen Grund, warum sollten Sie mehr zu haben!"
 
 #: guitext:183
 msgctxt "In-game message"
-msgid ""
-"That noise is Salaar's mocking laugh! You have failed and you are dismissed!"
-msgstr ""
-"Das Geräusch ist Salaar spöttischen Lachen! Sie haben versagt und Sie sind "
-"entlassen!"
+msgid "That noise is Salaar's mocking laugh! You have failed and you are dismissed!"
+msgstr "Das Geräusch ist Salaar spöttischen Lachen! Sie haben versagt und Sie sind entlassen!"
 
 #: guitext:184
 msgctxt "In-game message"
 msgid "Well done, Keeper! You have pleased Salaar. You are a worthy successor!"
-msgstr ""
-"Gut gemacht, Keeper! Sie haben Salaar gefiel. Sie sind ein würdiger "
-"Nachfolger!"
+msgstr "Gut gemacht, Keeper! Sie haben Salaar gefiel. Sie sind ein würdiger Nachfolger!"
 
 #: guitext:185 guitext:186 guitext:187 guitext:188 guitext:189 guitext:190
 #: guitext:191 guitext:192 guitext:193 guitext:194 guitext:195 guitext:196
@@ -1392,9 +937,42 @@ msgctxt "Level name"
 msgid "L'Cyfre's Challenge"
 msgstr "die Herausforderung von L'Cyfre"
 
+#: guitext:222 
+msgctxt "Level name"
+msgid "Armageddon"
+msgstr ""
 
-#: guitext:222 guitext:223 guitext:224
-#: guitext:225 guitext:226 guitext:227 guitext:228 guitext:229
+#: guitext:223 
+msgctxt "Level name"
+msgid "Collect"
+msgstr ""
+
+#: guitext:224
+msgctxt "Level name"
+msgid "Sacrifice"
+msgstr ""
+
+#: guitext:225
+msgctxt "Level name"
+msgid "Defection"
+msgstr ""
+
+#: guitext:226 
+msgctxt "Level name"
+msgid "Imps"
+msgstr ""
+
+#: guitext:227 
+msgctxt "Level name"
+msgid "Clone"
+msgstr ""
+
+#guitext:228
+msgctxt "Level name"
+msgid "Dig"
+msgstr ""
+
+#: guitext:229
 #: guitext:230 guitext:231 guitext:232 guitext:233 guitext:234
 #: guitext:235 guitext:236 guitext:237 guitext:238 guitext:239
 #: guitext:240 guitext:241 guitext:242 guitext:243 guitext:244
@@ -1441,12 +1019,8 @@ msgstr ""
 
 #: guitext:427
 msgctxt "Dungeon special decription"
-msgid ""
-"Locate Kantars Realms: You will be transported to a secret realm after you "
-"have conquered this one."
-msgstr ""
-"Welten von Kantar finden: Ihr werdet in ein geheimes Reich transportiert, wenn "
-"Ihr dieses hier erobert habt."
+msgid "Locate Kantars Realms: You will be transported to a secret realm after you have conquered this one."
+msgstr "Welten von Kantar finden: Ihr werdet in ein geheimes Reich transportiert, wenn Ihr dieses hier erobert habt."
 
 #: guitext:428 guitext:429
 msgctxt "Unused"
@@ -1457,3 +1031,4 @@ msgstr ""
 msgctxt "Menu interface item"
 msgid "Underworld Amusement"
 msgstr "Unterwelt Unterhaltung"
+

@@ -69,6 +69,20 @@ const struct NamedCommand objects_object_commands[] = {
   {"DRAWCLASS",         21},
   {"PERSISTENCE",       22},
   {"IMMOBILE",          23},
+  {"INITIALSTATE",      24},
+  {"RANDOMSTARTFRAME",  25},
+  {"TRANSPARENCYFLAGS", 26},
+  {"EFFECTBEAM",        27},
+  {"EFFECTPARTICLE",    28},
+  {"EFFECTEXPLOSION1",  29},
+  {"EFFECTEXPLOSION2",  30},
+  {"EFFECTSPACING",     31},
+  {"EFFECTSOUND",       32},
+  {"FLAMEANIMATIONID",       33},
+  {"FLAMEANIMATIONSPEED",    34},
+  {"FLAMEANIMATIONSIZE",     35},
+  {"FLAMEANIMATIONOFFSET",   36},
+  {"FLAMETRANSPARENCYFLAGS", 37},
   {NULL,                 0},
   };
 
@@ -104,23 +118,23 @@ struct NamedCommand object_desc[OBJECT_TYPES_MAX];
 /******************************************************************************/
 struct ObjectConfigStats *get_object_model_stats(ThingModel tngmodel)
 {
-    if (tngmodel >= gameadd.object_conf.object_types_count)
-        return &gameadd.object_conf.object_cfgstats[0];
-    return &gameadd.object_conf.object_cfgstats[tngmodel];
+    if (tngmodel >= game.conf.object_conf.object_types_count)
+        return &game.conf.object_conf.object_cfgstats[0];
+    return &game.conf.object_conf.object_cfgstats[tngmodel];
 }
 
 ThingClass crate_to_workshop_item_class(ThingModel tngmodel)
 {
-    if ((tngmodel <= 0) || (tngmodel >= gameadd.object_conf.object_types_count))
-        return gameadd.object_conf.workshop_object_class[0];
-    return gameadd.object_conf.workshop_object_class[tngmodel];
+    if ((tngmodel <= 0) || (tngmodel >= game.conf.object_conf.object_types_count))
+        return game.conf.object_conf.workshop_object_class[0];
+    return game.conf.object_conf.workshop_object_class[tngmodel];
 }
 
 ThingModel crate_to_workshop_item_model(ThingModel tngmodel)
 {
-    if ((tngmodel <= 0) || (tngmodel >= gameadd.object_conf.object_types_count))
-        return gameadd.object_conf.object_to_door_or_trap[0];
-    return gameadd.object_conf.object_to_door_or_trap[tngmodel];
+    if ((tngmodel <= 0) || (tngmodel >= game.conf.object_conf.object_types_count))
+        return game.conf.object_conf.object_to_door_or_trap[0];
+    return game.conf.object_conf.object_to_door_or_trap[tngmodel];
 }
 
 ThingClass crate_thing_to_workshop_item_class(const struct Thing *thing)
@@ -128,148 +142,67 @@ ThingClass crate_thing_to_workshop_item_class(const struct Thing *thing)
     if (!thing_is_workshop_crate(thing))
         return thing->class_id;
     ThingModel tngmodel = thing->model;
-    if ((tngmodel <= 0) || (tngmodel >= gameadd.object_conf.object_types_count))
-        return gameadd.object_conf.workshop_object_class[0];
-    return gameadd.object_conf.workshop_object_class[tngmodel];
+    if ((tngmodel <= 0) || (tngmodel >= game.conf.object_conf.object_types_count))
+        return game.conf.object_conf.workshop_object_class[0];
+    return game.conf.object_conf.workshop_object_class[tngmodel];
 }
 
 ThingModel crate_thing_to_workshop_item_model(const struct Thing *thing)
 {
     if (thing_is_invalid(thing) || (thing->class_id != TCls_Object))
-        return gameadd.object_conf.object_to_door_or_trap[0];
+        return game.conf.object_conf.object_to_door_or_trap[0];
     ThingModel tngmodel = thing->model;
-    if ((tngmodel <= 0) || (tngmodel >= gameadd.object_conf.object_types_count))
-        return gameadd.object_conf.object_to_door_or_trap[0];
-    return gameadd.object_conf.object_to_door_or_trap[tngmodel];
+    if ((tngmodel <= 0) || (tngmodel >= game.conf.object_conf.object_types_count))
+        return game.conf.object_conf.object_to_door_or_trap[0];
+    return game.conf.object_conf.object_to_door_or_trap[tngmodel];
 }
 
-TbBool parse_objects_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-    // Block name and parameter word store variables
-    // Initialize block data
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        gameadd.object_conf.object_types_count = OBJECT_TYPES_MAX - 1;
-    }
-    // Find the block
-    char block_buf[COMMAND_WORD_LEN];
-    sprintf(block_buf, "common");
-    long pos = 0;
-    int k = find_conf_block(buf, &pos, len, block_buf);
-    if (k < 0)
-    {
-        if ((flags & CnfLd_AcceptPartial) == 0)
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-        return false;
-    }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(objects_common_commands,cmd_num)
-    while (pos<len)
-    {
-        // Finding command number in this line
-        int cmd_num = recognize_conf_command(buf, &pos, len, objects_common_commands);
-        // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
-        int n = 0;
-        switch (cmd_num)
-        {
-        case 1: // OBJECTSCOUNT
-        {
-            char word_buf[COMMAND_WORD_LEN];
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if ((k > 0) && (k <= OBJECT_TYPES_MAX))
-              {
-                  gameadd.object_conf.object_types_count = k;
-                  n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        }
-        case 0: // comment
-            break;
-        case -1: // end of buffer
-            break;
-        default:
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
-            break;
-        }
-        skip_conf_to_next_line(buf,&pos,len);
-    }
-#undef COMMAND_TEXT
-    return true;
-}
-
+// This function loops over all the [objects0] fields in objects.cfg
 TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     struct ObjectConfigStats *objst;
-    int tmodel;
+
+  // Increase object_types_count if higher object ID found in file
+    for (int i=0; i < OBJECT_TYPES_MAX; i++)
+    {
+        long pos = 0;
+        char block_name[20];
+        sprintf(block_name, "object%d", i);
+        if (find_conf_block(buf, &pos, len, block_name) == 1)
+        {
+            if (i >= game.conf.object_conf.object_types_count)
+            {
+                game.conf.object_conf.object_types_count = i + 1;
+            }
+        }
+    }
+
     // Block name and parameter word store variables
     // Initialize the objects array
-    int arr_size;
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        arr_size = sizeof(gameadd.object_conf.object_cfgstats)/sizeof(gameadd.object_conf.object_cfgstats[0]);
-        for (tmodel=0; tmodel < arr_size; tmodel++)
+        for (int tmodel=0; tmodel < OBJECT_TYPES_MAX; tmodel++)
         {
-            objst = &gameadd.object_conf.object_cfgstats[tmodel];
+            objst = &game.conf.object_conf.object_cfgstats[tmodel];
             LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
             objst->name_stridx = 201;
             objst->map_icon = 0;
             objst->genre = 0;
-            if (tmodel < gameadd.object_conf.object_types_count)
-            {
-                object_desc[tmodel].name = objst->code_name;
-                object_desc[tmodel].num = tmodel;
-            } else
-            {
-                object_desc[tmodel].name = NULL;
-                object_desc[tmodel].num = 0;
-            }
+            objst->draw_class = ODC_Default;
+            object_desc[tmodel].name = NULL;
+            object_desc[tmodel].num = 0;
         }
     }
     // Load the file
-    for (tmodel = 0; tmodel < OBJECT_TYPES_MAX; tmodel++)
+    for (int tmodel = 0; tmodel < game.conf.object_conf.object_types_count; tmodel++)
     {
         char block_buf[COMMAND_WORD_LEN];
         sprintf(block_buf, "object%d", tmodel);
         long pos = 0;
         int k = find_conf_block(buf, &pos, len, block_buf);
-        if (k < 0)
-        {
-            if ((flags & CnfLd_AcceptPartial) == 0)
-            {
-                // Just count all found blocks if we didn't that already
-                if (gameadd.object_conf.object_types_count == OBJECT_TYPES_MAX - 1)
-                {
-                    gameadd.object_conf.object_types_count = tmodel;
-                    JUSTMSG("Loaded %d object types from %s", gameadd.object_conf.object_types_count, config_textname);
-                    break;
-                }
-                WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
-                return false;
-            }
-            else
-            {
-                if (tmodel > gameadd.object_conf.object_types_count)
-                {
-                    gameadd.object_conf.object_types_count = tmodel;
-                    JUSTMSG("Extended to %d object types from %s", gameadd.object_conf.object_types_count, config_textname);
-                    break;
-                }
-            }
-            continue;
-        }
-
-        objst = &gameadd.object_conf.object_cfgstats[tmodel];
-        struct Objects* objdat = get_objects_data(tmodel);
-        objdat->draw_class = ODC_Default;    
+        objst = &game.conf.object_conf.object_cfgstats[tmodel];
+        object_desc[tmodel].name = objst->code_name;
+        object_desc[tmodel].num = tmodel;
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(objects_object_commands,cmd_num)
         while (pos<len)
         {
@@ -319,7 +252,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                         COMMAND_TEXT(cmd_num),block_buf,config_textname);
                     break;
                 }
-                objdat->related_creatr_model = n;
+                objst->related_creatr_model = n;
                 break;
             case 4: // PROPERTIES
                 while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -366,8 +299,8 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
 
-                    n = get_anim_id(word_buf, objdat);
-                    objdat->sprite_anim_idx = n;
+                    k = get_anim_id(word_buf, objst);
+                    objst->sprite_anim_idx = k;
                     n++;
                 }
                 if (n <= 0)
@@ -379,8 +312,8 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             case 6: // ANIMATIONSPEED
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objdat->anim_speed = n;
+                    k = atoi(word_buf);
+                    objst->anim_speed = k;
                     n++;
                 }
                 if (n <= 0)
@@ -392,8 +325,8 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             case 7: // SIZE_XY
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objdat->size_xy = n;
+                    k = atoi(word_buf);
+                    objst->size_xy = k;
                     n++;
                 }
                 if (n <= 0)
@@ -405,8 +338,8 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             case 8: // SIZE_Z
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objdat->size_z = n;
+                    k = atoi(word_buf);
+                    objst->size_z = k;
                     n++;
                 }
                 if (n <= 0)
@@ -418,8 +351,8 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             case 9: // MAXIMUMSIZE
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objdat->sprite_size_max = n;
+                    k = atoi(word_buf);
+                    objst->sprite_size_max = k;
                     n++;
                 }
                 if (n <= 0)
@@ -431,8 +364,8 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             case 10: // DESTROYONLIQUID
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objdat->destroy_on_liquid = n;
+                    k = atoi(word_buf);
+                    objst->destroy_on_liquid = k;
                     n++;
                 }
                 if (n <= 0)
@@ -444,8 +377,8 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             case 11: // DESTROYONLAVA
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objdat->destroy_on_lava = n;
+                    k = atoi(word_buf);
+                    objst->destroy_on_lava = k;
                     n++;
                 }
                 if (n <= 0)
@@ -457,8 +390,8 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             case 12: // HEALTH
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objst->health = n;
+                    k = atoi(word_buf);
+                    objst->health = k;
                     n++;
                 }
                 if (n <= 0)
@@ -470,8 +403,8 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             case 13: // FALLACCELERATION
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objst->fall_acceleration = n;
+                    k = atoi(word_buf);
+                    objst->fall_acceleration = k;
                     n++;
                 }
                 if (n <= 0)
@@ -483,8 +416,8 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             case 14: // LIGHTUNAFFECTED
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objst->light_unaffected = n;
+                    k = atoi(word_buf);
+                    objst->light_unaffected = k;
                     n++;
                 }
                 if (n <= 0)
@@ -496,8 +429,8 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             case 15: // LIGHTINTENSITY
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objst->ilght.intensity = n;
+                    k = atoi(word_buf);
+                    objst->ilght.intensity = k;
                     n++;
                 }
                 if (n <= 0)
@@ -509,8 +442,8 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             case 16: // LIGHTRADIUS
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objst->ilght.radius = n << 8; //Mystery bit shift. Remove it to get divide by 0 errors.
+                    k = atoi(word_buf);
+                    objst->ilght.radius = k * COORD_PER_STL;
                     n++;
                 }
                 if (n <= 0)
@@ -522,8 +455,8 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             case 17: // LIGHTISDYNAMIC
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objst->ilght.is_dynamic = n;
+                    k = atoi(word_buf);
+                    objst->ilght.is_dynamic = k;
                     n++;
                 }
                 if (n <= 0)
@@ -535,13 +468,14 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             case 18: // MAPICON
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = get_icon_id(word_buf);
-                    if (n >= -1)
+                    k = get_icon_id(word_buf);
+                    if (k >= -1)
                     {
-                        objst->map_icon = n;
+                        objst->map_icon = k;
+                        n++;
                     }
                 }
-                if (n < -1)
+                if (n <= 0)
                 {
                     objst->map_icon = bad_icon_id;
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
@@ -551,15 +485,15 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             case 19: // AMBIENCESOUND
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    if ( (!SoundDisabled) && ( (n < 0) || (n > (samples_in_bank - 1)) ) )
+                    k = atoi(word_buf);
+                    if ( (!SoundDisabled) && ( (k < 0) || (k > (samples_in_bank - 1)) ) )
                     {
                         CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                     }
                     else
                     {
-                        objdat->fp_smpl_idx = n;
+                        objst->fp_smpl_idx = k;
                     }
                 }
                 break;
@@ -574,13 +508,13 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                         COMMAND_TEXT(cmd_num),block_buf,config_textname);
                     break;
                 }
-                objdat->updatefn_idx = n;
+                objst->updatefn_idx = n;
                 break;
             case 21: // DRAWCLASS
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objdat->draw_class = n;
+                    k = atoi(word_buf);
+                    objst->draw_class = k;
                     n++;
                 }
                 if (n <= 0)
@@ -592,8 +526,8 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             case 22: // PERSISTENCE
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objdat->persistence = n;
+                    k = atoi(word_buf);
+                    objst->persistence = k;
                     n++;
                 }
                 if (n <= 0)
@@ -602,11 +536,155 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
-            case 23: // Immobile
+            case 23: // IMMOBILE
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->immobile = k;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 24: // INITIALSTATE
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->initial_state = k;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 25: // RANDOMSTARTFRAME
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->random_start_frame = k;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 26: // TRANSPARENCYFLAGS
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->transparency_flags = k<<4;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 27: // EFFECTBEAM
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = effect_or_effect_element_id(word_buf);
+                    objst->effect.beam = k;
+                    n++;
+                }
+                if (n == 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 28: // EFFECTPARTICLE
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = effect_or_effect_element_id(word_buf);
+                    objst->effect.particle = k;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 29: // EFFECTEXPLOSION1
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = effect_or_effect_element_id(word_buf);
+                    objst->effect.explosion1 = k;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 30: // EFFECTEXPLOSION2
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = effect_or_effect_element_id(word_buf);
+                    objst->effect.explosion2 = k;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 31: // EFFECTSPACING
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->effect.spacing = k;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 32: // EFFECTSOUND
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = atoi(word_buf);
-                    objst->immobile = n;
+                    if ( (!SoundDisabled) && ( (n < 0) || (n > (samples_in_bank - 1)) ) )
+                    {
+                        CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    }
+                    else
+                    {
+                        objst->effect.sound_idx = n;
+                    }
+                }
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    if ((!SoundDisabled) && ((n < 0) || (n > (samples_in_bank - 1))))
+                    {
+                        objst->effect.sound_range = 1;
+                    }
+                    else
+                    {
+                        objst->effect.sound_range = n;
+                    }
+                }
+                break;
+            case 33: // FLAMEANIMATIONID
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = get_anim_id(word_buf, objst);
+                    objst->flame.animation_id = k;
                     n++;
                 }
                 if (n <= 0)
@@ -615,7 +693,76 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
-            case 0: // comment
+            case 34: // FLAMEANIMATIONSPEED
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = get_anim_id(word_buf, objst);
+                    objst->flame.anim_speed = k;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 35: // FLAMEANIMATIONSIZE
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->flame.sprite_size = k;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 36: // FLAMEANIMATIONOFFSET
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->flame.fp_add_x = k;
+                    n++;
+                }
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->flame.fp_add_y = k;
+                    n++;
+                }
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->flame.td_add_x = k;
+                    n++;
+                }
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->flame.td_add_y = k;
+                    n++;
+                }
+                if (n < 4)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 37: // FLAMETRANSPARENCYFLAGS
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->flame.transparency_flags = k<<4;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+           case 0: // comment
                 break;
             case -1: // end of buffer
                 break;
@@ -646,15 +793,8 @@ TbBool load_objects_config_file(const char *textname, const char *fname, unsigne
     // Loading file data
     len = LbFileLoadAt(fname, buf);
     TbBool result = (len > 0);
+    
     // Parse blocks of the config file
-    if (result)
-    {
-        result = parse_objects_common_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" common blocks failed.",textname,fname);
-    }
     if (result)
     {
         result = parse_objects_object_blocks(buf, len, textname, flags);
@@ -671,30 +811,36 @@ TbBool load_objects_config_file(const char *textname, const char *fname, unsigne
 void update_all_object_stats()
 {
     const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
-    struct DungeonAdd* dungeonadd;
     struct Dungeon* dungeon;
     for (int i = slist->index; i > 0;)
     {
         struct Thing* thing = thing_get(i);
-        i = thing->next_of_class
+        i = thing->next_of_class;
             TRACE_THING(thing);
-        struct Objects* objdat = get_objects_data_for_thing(thing);
-        set_thing_draw(thing, objdat->sprite_anim_idx, objdat->anim_speed, objdat->sprite_size_max, 0, 0, objdat->draw_class);
+        struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+        int start_frame = 0;
+        if(objst->random_start_frame)
+        {
+            start_frame = -1;
+        }
+        set_thing_draw(thing, objst->sprite_anim_idx, objst->anim_speed, objst->sprite_size_max, 0, start_frame, objst->draw_class);
         // TODO: Should we rotate this on per-object basis?
         thing->flags = 0;
-        thing->flags |= objdat->rotation_flag << TAF_ROTATED_SHIFT;
+        thing->flags |= objst->rotation_flag << TAF_ROTATED_SHIFT;
 
-        dungeon = get_dungeon(thing->owner);
-        if ((thing_is_dungeon_heart(thing)) && (thing->index != dungeon->dnheart_idx))
+        if (thing->owner != game.neutral_player_num)
         {
-            dungeonadd = get_dungeonadd(thing->owner);
-            if (dungeonadd->backup_heart_idx == 0)
+            dungeon = get_dungeon(thing->owner);
+            if ((thing_is_dungeon_heart(thing)) && (thing->index != dungeon->dnheart_idx))
             {
-                dungeonadd->backup_heart_idx = thing->index;
+                if (dungeon->backup_heart_idx == 0)
+                {
+                    dungeon->backup_heart_idx = thing->index;
+                }
             }
         }
 
-        struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+        
         if (thing->light_id != 0)
         {
             light_delete_light(thing->light_id);
@@ -706,7 +852,7 @@ void update_all_object_stats()
             LbMemoryCopy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
             ilight.radius = objst->ilght.radius;
             ilight.intensity = objst->ilght.intensity;
-            ilight.field_3 = objst->ilght.field_3;
+            ilight.flags = objst->ilght.flags;
             ilight.is_dynamic = objst->ilght.is_dynamic;
             thing->light_id = light_create_light(&ilight);
         }
@@ -717,12 +863,18 @@ TbBool load_objects_config(const char *conf_fname, unsigned short flags)
 {
     static const char config_global_textname[] = "global objects config";
     static const char config_campgn_textname[] = "campaign objects config";
+    static const char config_level_textname[] = "level objects config";
     char* fname = prepare_file_path(FGrp_FxData, conf_fname);
     TbBool result = load_objects_config_file(config_global_textname, fname, flags);
     fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
     if (strlen(fname) > 0)
     {
         load_objects_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
+    if (strlen(fname) > 0)
+    {
+        load_objects_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
     //Freeing and exiting
     return result;
@@ -747,9 +899,9 @@ const char *object_code_name(ThingModel tngmodel)
  */
 ThingModel object_model_id(const char * code_name)
 {
-    for (int i = 0; i < gameadd.object_conf.object_types_count; ++i)
+    for (int i = 0; i < game.conf.object_conf.object_types_count; ++i)
     {
-        if (strncasecmp(gameadd.object_conf.object_cfgstats[i].code_name, code_name,
+        if (strncasecmp(game.conf.object_conf.object_cfgstats[i].code_name, code_name,
                 COMMAND_WORD_LEN) == 0) {
             return i;
         }
@@ -810,11 +962,11 @@ int get_required_room_capacity_for_object(RoomRole room_role, ThingModel objmode
 
 void init_objects(void)
 {
-    gameadd.object_conf.object_cfgstats[ObjMdl_Torch].ilght.field_3 = 5;
-    gameadd.object_conf.object_cfgstats[ObjMdl_HeroGate].ilght.field_3 = 5;
-    gameadd.object_conf.object_cfgstats[ObjMdl_StatueLit].ilght.field_3 = 5;
-    gameadd.object_conf.object_cfgstats[ObjMdl_SoulCountainer].ilght.field_3 = 5;
-    gameadd.object_conf.object_cfgstats[ObjMdl_Candlestick].ilght.field_3 = 5;
+    game.conf.object_conf.object_cfgstats[ObjMdl_Torch].ilght.flags = 5;
+    game.conf.object_conf.object_cfgstats[ObjMdl_HeroGate].ilght.flags = 5;
+    game.conf.object_conf.object_cfgstats[ObjMdl_StatueLit].ilght.flags = 5;
+    game.conf.object_conf.object_cfgstats[ObjMdl_SoulCountainer].ilght.flags = 5;
+    game.conf.object_conf.object_cfgstats[ObjMdl_Candlestick].ilght.flags = 5;
 }
 
 /******************************************************************************/
