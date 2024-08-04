@@ -188,13 +188,9 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         }
         return 0;
     case SVar_AVAILABLE_TRAP: // IF_AVAILABLE(TRAP)
-        dungeon = get_dungeon(plyr_idx);
-        return dungeon->mnfct_info.trap_amount_stored[validx%game.conf.trapdoor_conf.trap_types_count]
-              + dungeon->mnfct_info.trap_amount_offmap[validx%game.conf.trapdoor_conf.trap_types_count];
+        return count_player_available_traps_of_model(plyr_idx, (validx % game.conf.trapdoor_conf.trap_types_count));
     case SVar_AVAILABLE_DOOR: // IF_AVAILABLE(DOOR)
-        dungeon = get_dungeon(plyr_idx);
-        return dungeon->mnfct_info.door_amount_stored[validx%game.conf.trapdoor_conf.door_types_count]
-              + dungeon->mnfct_info.door_amount_offmap[validx%game.conf.trapdoor_conf.door_types_count];
+        return count_player_available_doors_of_model(plyr_idx, (validx % game.conf.trapdoor_conf.door_types_count));
     case SVar_AVAILABLE_ROOM: // IF_AVAILABLE(ROOM)
         dungeon = get_dungeon(plyr_idx);
         return (dungeon->room_buildable[validx%game.conf.slab_conf.room_types_count] & 1);
@@ -204,6 +200,10 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
             return min(game.pool.crtr_kind[validx%game.conf.crtr_conf.model_count],dungeon->max_creatures_attracted - (long)dungeon->num_active_creatrs);
         }
         return 0;
+    case SVar_AVAILABLE_TOTAL_TRAPS:
+        return count_player_available_traps_of_model(plyr_idx, -1);
+    case SVar_AVAILABLE_TOTAL_DOORS:
+        return count_player_available_doors_of_model(plyr_idx, -1);
     case SVar_SLAB_OWNER: //IF_SLAB_OWNER
     {
         long varib_id = get_slab_number((unsigned char)plyr_idx, validx);

@@ -650,7 +650,7 @@ TbBool player_has_deployed_trap_of_model(PlayerNumber owner, int model)
     return false;
 }
 
-long count_player_available_doors_of_model(PlayerNumber plyr_idx, int model)
+long count_player_available_doors_of_model(PlayerNumber plyr_idx, ThingModel model)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     long count = 0;
@@ -659,7 +659,22 @@ long count_player_available_doors_of_model(PlayerNumber plyr_idx, int model)
         if ((i == model) || (model == -1))
         {
             count += dungeon->mnfct_info.door_amount_stored[i];
-            count += dungeon->mnfct_info.door_amount_offmap[model];
+            count += dungeon->mnfct_info.door_amount_offmap[i];
+        }
+    }
+    return count;
+}
+
+long count_player_available_traps_of_model(PlayerNumber plyr_idx, ThingModel model)
+{
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    long count = 0;
+    for (int i = 0; i < game.conf.trapdoor_conf.trap_types_count; i++)
+    {
+        if ((i == model) || (model == -1))
+        {
+            count += dungeon->mnfct_info.trap_amount_stored[i];
+            count += dungeon->mnfct_info.trap_amount_offmap[i];
         }
     }
     return count;
