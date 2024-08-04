@@ -69,6 +69,8 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_TOTAL_DOORS:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->total_doors;
+    case SVar_TOTAL_TRAPS:
+        return count_player_deployed_traps_of_model(plyr_idx, -1);
     case SVar_TOTAL_AREA:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->total_area;
