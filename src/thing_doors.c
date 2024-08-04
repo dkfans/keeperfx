@@ -597,6 +597,12 @@ TbBool player_has_deployed_door_of_model(PlayerNumber owner, int model, short lo
     return false;
 }
 
+/**
+ * Goes through thing list to count the traps of the given model.
+ * @param owner The owning player to be checked.
+ * @param model Trap model to count, or -1 for any.
+ * @return the number of things of class trap with matching model and available shots.
+ */
 long count_player_deployed_traps_of_model(PlayerNumber owner, ThingModel model)
 {
     long n = 0;
@@ -624,6 +630,12 @@ long count_player_deployed_traps_of_model(PlayerNumber owner, ThingModel model)
     return n;
 }
 
+/**
+ * Goes through thing list to find a trap matching the given model.
+ * @param owner The owning player to be checked.
+ * @param model Trap model to find, or -1 for any.
+ * @return true when it finds any trap, false when not.
+ */
 TbBool player_has_deployed_trap_of_model(PlayerNumber owner, ThingModel model)
 {
     unsigned long k = 0;
@@ -650,6 +662,12 @@ TbBool player_has_deployed_trap_of_model(PlayerNumber owner, ThingModel model)
     return false;
 }
 
+/**
+ * Checks door crates in workshop and offmap doors available for placement.
+ * @param plyr_idx The owning player to be checked.
+ * @param model Door model to count, or -1 for all.
+ * @return Amount of doors that the player may place.
+ */
 long count_player_available_doors_of_model(PlayerNumber plyr_idx, ThingModel model)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
@@ -670,6 +688,12 @@ long count_player_available_doors_of_model(PlayerNumber plyr_idx, ThingModel mod
     return count;
 }
 
+/**
+ * Checks trap crates in workshop and offmap trapss available for placement.
+ * @param plyr_idx The owning player to be checked.
+ * @param model Trap model to count, or -1 for all.
+ * @return Amount of traps that the player may place.
+ */
 long count_player_available_traps_of_model(PlayerNumber plyr_idx, ThingModel model)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
