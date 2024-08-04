@@ -195,13 +195,13 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         dungeon = get_dungeon(plyr_idx);
         return (dungeon->room_buildable[validx%game.conf.slab_conf.room_types_count] & 1);
     case SVar_AVAILABLE_CREATURE: // IF_AVAILABLE(CREATURE)
-        return calculate_available_creatures_for_player((validx % game.conf.crtr_conf.model_count), plyr_idx);
+        return count_player_available_creatures_of_model(plyr_idx, (validx % game.conf.crtr_conf.model_count));
     case SVar_AVAILABLE_TOTAL_TRAPS:
         return count_player_available_traps_of_model(plyr_idx, -1);
     case SVar_AVAILABLE_TOTAL_DOORS:
         return count_player_available_doors_of_model(plyr_idx, -1);
     case SVar_AVAILABLE_TOTAL_CREATURES:
-        return calculate_available_creatures_for_player(CREATURE_ANY, plyr_idx);
+        return count_player_available_creatures_of_model(plyr_idx, CREATURE_ANY);
     case SVar_SLAB_OWNER: //IF_SLAB_OWNER
     {
         long varib_id = get_slab_number((unsigned char)plyr_idx, validx);
