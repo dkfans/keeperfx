@@ -654,6 +654,11 @@ long count_player_available_doors_of_model(PlayerNumber plyr_idx, ThingModel mod
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     long count = 0;
+    if (dungeon_invalid(dungeon))
+    {
+        ERRORLOG("Tried to count doors for Player %d which has no dungeon", (int)plyr_idx);
+        return 0;
+    }
     for (int i = 0; i < game.conf.trapdoor_conf.door_types_count; i++)
     {
         if ((i == model) || (model == -1))
@@ -669,6 +674,11 @@ long count_player_available_traps_of_model(PlayerNumber plyr_idx, ThingModel mod
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     long count = 0;
+    if (dungeon_invalid(dungeon))
+    {
+        ERRORLOG("Tried to count traps for Player %d which has no dungeon", (int)plyr_idx);
+        return 0;
+    }
     for (int i = 0; i < game.conf.trapdoor_conf.trap_types_count; i++)
     {
         if ((i == model) || (model == -1))
