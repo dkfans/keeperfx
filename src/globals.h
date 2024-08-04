@@ -285,7 +285,7 @@ typedef unsigned short SpDiggerTaskType;
 /** Flags for tracing route for creature movement. */
 typedef unsigned char NaviRouteFlags;
 /** data used for navigating contains floor height, locked doors per player, unsafe surfaces */
-typedef unsigned short NavColour;
+typedef unsigned long NavColour;
 /** Either North (0), East (1), South (2), or West (3). */
 typedef signed char SmallAroundIndex;
 /** a player state as defined in config_players*/
