@@ -597,7 +597,7 @@ TbBool player_has_deployed_door_of_model(PlayerNumber owner, int model, short lo
     return false;
 }
 
-long count_player_deployed_traps_of_model(PlayerNumber owner, int model)
+long count_player_deployed_traps_of_model(PlayerNumber owner, ThingModel model)
 {
     long n = 0;
     unsigned long k = 0;
@@ -624,7 +624,7 @@ long count_player_deployed_traps_of_model(PlayerNumber owner, int model)
     return n;
 }
 
-TbBool player_has_deployed_trap_of_model(PlayerNumber owner, int model)
+TbBool player_has_deployed_trap_of_model(PlayerNumber owner, ThingModel model)
 {
     unsigned long k = 0;
     const struct StructureList* slist = get_list_for_thing_class(TCls_Trap);
