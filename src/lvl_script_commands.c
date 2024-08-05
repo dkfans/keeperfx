@@ -85,9 +85,18 @@ const struct NamedCommand controls_variable_desc[] = {
     {"TOTAL_DIGGERS",               SVar_CONTROLS_TOTAL_DIGGERS},
     {"TOTAL_CREATURES",             SVar_CONTROLS_TOTAL_CREATURES},
     {"TOTAL_DOORS",                 SVar_TOTAL_DOORS},
+    {"TOTAL_TRAPS",                 SVar_TOTAL_TRAPS},
     {"TOTAL_AREA",                  SVar_TOTAL_AREA},
     {"GOOD_CREATURES",              SVar_CONTROLS_GOOD_CREATURES},
     {"EVIL_CREATURES",              SVar_CONTROLS_EVIL_CREATURES},
+    {NULL,                           0},
+};
+
+const struct NamedCommand available_variable_desc[] = {
+    {"TOTAL_CREATURES",             SVar_AVAILABLE_TOTAL_CREATURES},
+    {"TOTAL_DOORS",                 SVar_AVAILABLE_TOTAL_DOORS},
+    {"TOTAL_TRAPS",                 SVar_AVAILABLE_TOTAL_TRAPS},
+    {"TOTAL_AREA",                  SVar_TOTAL_AREA},
     {NULL,                           0},
 };
 
@@ -373,6 +382,7 @@ const struct NamedCommand variable_desc[] = {
     {"TOTAL_CREATURES",             SVar_TOTAL_CREATURES},
     {"TOTAL_RESEARCH",              SVar_TOTAL_RESEARCH},
     {"TOTAL_DOORS",                 SVar_TOTAL_DOORS},
+    {"TOTAL_TRAPS",                 SVar_TOTAL_TRAPS},
     {"TOTAL_AREA",                  SVar_TOTAL_AREA},
     {"TOTAL_CREATURES_LEFT",        SVar_TOTAL_CREATURES_LEFT},
     {"CREATURES_ANNOYED",           SVar_CREATURES_ANNOYED},
@@ -4273,14 +4283,18 @@ static void if_available_check(const struct ScriptLine *scline)
         }
     }
 
-    long varib_type;
     if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
     {
       SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
       return;
     }
     // Recognize variable
-    long varib_id = -1;
+    long varib_id;
+    long varib_type = get_id(available_variable_desc, varib_name);
+    if (varib_type == -1)
+        varib_id = -1;
+    else
+        varib_id = 0;
     if (varib_id == -1)
     {
       varib_id = get_id(door_desc, varib_name);

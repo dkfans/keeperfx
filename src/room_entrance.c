@@ -184,6 +184,23 @@ static long calculate_excess_attraction_for_creature(ThingModel crmodel, PlayerN
     return excess_attraction;
 }
 
+long count_player_available_creatures_of_model(PlayerNumber plyr_idx, ThingModel crmodel)
+{
+    struct Dungeon *dungeon = get_dungeon(plyr_idx);
+    long count = 0;
+    for (ThingModel i = 0; i < CREATURE_TYPES_MAX; i++)
+    {
+        if (!creature_model_matches_model(i, plyr_idx, crmodel))
+            continue;
+
+        if (creature_will_generate_for_dungeon(dungeon, i))
+        {
+            count+= game.pool.crtr_kind[i];
+        }
+    }
+    return min(count, dungeon->max_creatures_attracted - (long)dungeon->num_active_creatrs);
+}
+
 TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingModel crmodel)
 {
     SYNCDBG(11, "Starting for creature model %s", creature_code_name(crmodel));
