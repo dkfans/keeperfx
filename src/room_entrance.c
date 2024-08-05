@@ -187,7 +187,7 @@ static long calculate_excess_attraction_for_creature(ThingModel crmodel, PlayerN
 long count_player_available_creatures_of_model(PlayerNumber plyr_idx, ThingModel crmodel)
 {
     struct Dungeon *dungeon = get_dungeon(plyr_idx);
-    long count;
+    long count = 0;
     for (ThingModel i = 0; i < CREATURE_TYPES_MAX; i++)
     {
         if (!creature_model_matches_model(i, plyr_idx, crmodel))
