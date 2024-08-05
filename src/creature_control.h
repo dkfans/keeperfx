@@ -39,8 +39,6 @@ extern "C" {
 #define MAX_SIZEXY            768
 /** Max amount of spells casted at the creature at once. */
 #define CREATURE_MAX_SPELLS_CASTED_AT 5
-/** Max amount of creatures supported on any map. */
-#define CREATURES_COUNT       256
 /** Number of possible melee combat opponents. */
 #define COMBAT_MELEE_OPPONENTS_LIMIT       4
 /** Number of possible range combat opponents. */
@@ -337,15 +335,15 @@ unsigned char sound_flag;
     unsigned char bloody_footsteps_turns;
     short kills_num;
     short max_speed;
-    short max_health;
+    HitPoints max_health;
     short move_speed;
     short orthogn_speed;
     short roll;
     unsigned long anim_time;
     unsigned char instance_id;
-    unsigned char inst_repeat;
+    unsigned char inst_repeat; /* Seems used on dragon flame sometimes */
     unsigned short inst_turn;
-    unsigned short inst_action_turns;
+    unsigned short inst_action_turns; /* Turn when instance should be fired*/
     unsigned short inst_total_turns;
     unsigned short targtng_idx;
     MapSubtlCoord targtstl_x;
@@ -355,10 +353,10 @@ unsigned char sound_flag;
     unsigned short instance_anim_step_turns;
     SubtlCodedCoords collided_door_subtile;
     char fighting_player_idx;
-    unsigned char shot_model;
+    ThingModel shot_model;
     struct CastedSpellData casted_spells[CREATURE_MAX_SPELLS_CASTED_AT];
     /** Current active skill instance. */
-    char active_instance_id;
+    unsigned char active_instance_id;
     char head_bob;
     struct Navigation navi;
     /* Creature movement path data. */
@@ -367,7 +365,7 @@ unsigned char sound_flag;
     unsigned char active_state_bkp;
     /* State backup when a creature temporarily changes its state due to being slapped. */
     unsigned char continue_state_bkp;
-unsigned char cowers_from_slap_turns;
+    unsigned char cowers_from_slap_turns;
     short conscious_back_turns;
     short countdown_282; // signed
     unsigned short damage_wall_coords;
@@ -423,7 +421,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned short job_secondary;
     unsigned short jobs_not_do;
     unsigned char eye_effect;
-    unsigned short health;
+    HitPoints health;
     unsigned char heal_requirement;
     unsigned char heal_threshold;
     unsigned char strength;
@@ -448,15 +446,21 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char scavenge_value;
     unsigned long to_level[CREATURE_MAX_LEVEL];
     unsigned char base_speed;
-    short grow_up;
+    ThingModel grow_up;
     unsigned char grow_up_level;
     TbBool entrance_force;
     short max_turning_speed;
     short base_eye_height;
     unsigned short size_xy;
     unsigned short size_z;
+    unsigned short thing_size_xy;
+    unsigned short thing_size_z;
+    short shot_shift_x; /**< Initial position of shot created by the creature relative to creature position, X coord. */
+    short shot_shift_y; /**< Initial position of shot created by the creature relative to creature position, Y coord. */
+    short shot_shift_z; /**< Initial position of shot created by the creature relative to creature position, Z coord. */
     unsigned short walking_anim_speed;
     TbBool flying;
+    TbBool fixed_anim_speed;
     TbBool immune_to_gas;
     unsigned char attack_preference;
     short field_of_view;
@@ -509,8 +513,6 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     TbBool can_go_locked_doors;
     TbBool bleeds;
     TbBool affected_by_wind;
-    unsigned short thing_size_xy;
-    unsigned short thing_size_z;
     short annoy_eat_food;
     short annoy_in_hand;
     short damage_to_boulder;
@@ -521,10 +523,15 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short annoy_going_postal;
     short toking_recovery;
     TbBool illuminated;
+    unsigned char transparency_flags;
     char corpse_vanish_effect;
     short footstep_pitch;
     short lair_object;
     short status_offset;
+    unsigned short evil_start_state;
+    unsigned short good_start_state;
+    unsigned char natural_death_kind;
+    unsigned char swipe_idx;
     struct CreaturePickedUpOffset creature_picked_up_offset;
 };
 
@@ -565,7 +572,7 @@ struct CreatureControl *allocate_free_control_structure(void);
 void delete_control_structure(struct CreatureControl *cctrl);
 void delete_all_control_structures(void);
 
-struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, long a2, struct Coord3d *pos);
+struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, ThingModel crmodel, struct Coord3d *pos);
 
 TbBool disband_creatures_group(struct Thing *thing);
 struct Thing *get_group_last_member(struct Thing *thing);

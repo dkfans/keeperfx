@@ -104,10 +104,12 @@ SET_COMPUTER_PROCESS(PLAYER1,"ATTACK PLAN 1",-1,100,335,100,0)
 ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,ARCHER,1,4,4,400)
 ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,BARBARIAN,1,4,6,400)
 
-QUICK_OBJECTIVE(0, "This realm is ruled by a noble Knight, whom another Keeper also seeks to destroy. His land has already been besieged, so make haste.", ALL_PLAYERS)
+REM 0, "This realm is ruled by a noble Knight, whom another Keeper also seeks to destroy. His land has already been besieged, so make haste.", ALL_PLAYERS)
+DISPLAY_OBJECTIVE(94, PLAYER0)
 
 IF_ACTION_POINT(1,PLAYER0)
-	QUICK_OBJECTIVE(1, "Your rival has already prevailed over the heroes of this realm. There is room for only one ultimate evil here though, so find out which one of you is worthy.", 1)
+	REM 1, "Your rival has already prevailed over the heroes of this realm. There is room for only one ultimate evil here though, so find out which one of you is worthy.", 1)
+	DISPLAY_OBJECTIVE(95, 1)
 ENDIF
 
 IF(PLAYER0,ALL_DUNGEONS_DESTROYED >= 1)

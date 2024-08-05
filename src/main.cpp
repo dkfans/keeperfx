@@ -38,6 +38,7 @@
 #include "bflib_network.h"
 #include "bflib_planar.h"
 
+#include "api.h"
 #include "custom_sprites.h"
 #include "version.h"
 #include "front_simple.h"
@@ -64,7 +65,7 @@
 #include "thing_list.h"
 #include "player_instances.h"
 #include "player_utils.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "player_computer.h"
 #include "game_heap.h"
 #include "game_saves.h"
@@ -118,8 +119,10 @@
 #include "config_settings.h"
 #include "game_legacy.h"
 #include "room_list.h"
+#include "steam_api.hpp"
 #include "game_loop.h"
 #include "music_player.h"
+#include "frontmenu_ingame_map.h"
 
 #ifdef FUNCTESTING
   #include "ftests/ftest.h"
@@ -147,6 +150,7 @@ unsigned char *dog_palette;
 unsigned char *vampire_palette;
 unsigned char exit_keeper;
 unsigned char quit_game;
+unsigned char is_running_under_wine = false;
 int continue_game_option_available;
 long last_mouse_x;
 long last_mouse_y;
@@ -215,7 +219,7 @@ TbBool TimerFreeze = false;
 
 TbPixel get_player_path_colour(unsigned short owner)
 {
-  return player_path_colours[get_player_color_idx(owner % PLAYERS_EXT_COUNT)];
+  return player_path_colours[get_player_color_idx(owner % PLAYERS_COUNT)];
 }
 
 void setup_stuff(void)
@@ -247,7 +251,7 @@ void clear_creature_pool(void)
     game.pool.is_empty = true;
 }
 
-void give_shooter_drained_health(struct Thing *shooter, long health_delta)
+void give_shooter_drained_health(struct Thing *shooter, HitPoints health_delta)
 {
     struct CreatureControl *cctrl;
     HitPoints max_health;
@@ -326,11 +330,17 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
     }
     struct Thing *shotng;
     shotng = (struct Thing *)param->ptr3;
+    struct ShotConfigStats *shotst = get_shot_model_stats(shotng->model);
     if ((thing->index == shotng->index) || (thing->index == shotng->parent_idx)) {
         return TUFRet_Unchanged;
     }
-    MapCoordDelta dist;
-    dist = LONG_MAX;
+    struct CreatureControl* cctrl;
+    // param->num1 = 2048 from affect_nearby_enemy_creatures_with_wind
+    long blow_distance = param->num1;
+    // calculate max distance
+    int maxdistance = shotst->health * shotst->speed;
+    MapCoordDelta creature_distance;
+    creature_distance = LONG_MAX;
     TbBool apply_velocity;
     apply_velocity = false;
     if (thing->class_id == TCls_Creature)
@@ -339,15 +349,44 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
         {
             struct CreatureStats *crstat;
             crstat = creature_stats_get_from_thing(thing);
-            dist = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
-            if ((dist < param->num1) && crstat->affected_by_wind)
+            cctrl = creature_control_get_from_thing(thing);
+            int creatureAlreadyAffected = 0;
+
+            // distance between creature and actual position of the projectile
+            creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;    
+
+            // if weight-affect-push-rule is on
+            if (game.conf.rules.magic.weight_calculate_push > 0)
+            {
+                long weight = compute_creature_weight(thing);
+                //max push distance
+                blow_distance = maxdistance - (maxdistance - weight_calculated_push_strenght(weight, maxdistance)); 
+                // distance between startposition and actual position of the projectile
+                int origin_distance = get_chessboard_distance(&shotng->shot.originpos, &thing->mappos) + 1;
+                creature_distance = origin_distance;
+
+                // Check the the spell instance for already affected creatures
+                for (int i = 0; i < shotng->shot.num_wind_affected; i++)
+                {
+                    if (shotng->shot.wind_affected_creature[i] == cctrl->index)
+                    {
+                        creatureAlreadyAffected = 1;
+                        break;
+                    }
+                }
+            }
+
+            if ((creature_distance < blow_distance) && crstat->affected_by_wind && !creatureAlreadyAffected)           
             {
                 set_start_state(thing);
-                struct CreatureControl *cctrl;
-                cctrl = creature_control_get_from_thing(thing);
                 cctrl->idle.start_gameturn = game.play_gameturn;
                 apply_velocity = true;
             }
+               // if weight-affect-push-rule is on
+            else if (game.conf.rules.magic.weight_calculate_push > 0 && creature_distance >= blow_distance && !creatureAlreadyAffected){
+                // add creature ID to allready-wind-affected-creature-array
+                shotng->shot.wind_affected_creature[shotng->shot.num_wind_affected++] = cctrl->index;                  
+                }
         }
     } else
     if (thing->class_id == TCls_EffectElem)
@@ -356,8 +395,8 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
         {
             struct EffectElementConfigStats *eestat;
             eestat = get_effect_element_model_stats(thing->model);
-            dist = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
-            if ((dist < param->num1) && eestat->affected_by_wind)
+            creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
+            if ((creature_distance < blow_distance) && eestat->affected_by_wind)
             {
                 apply_velocity = true;
             }
@@ -367,10 +406,9 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
     {
         if (!thing_is_picked_up(thing))
         {
-            struct ShotConfigStats *shotst;
-            shotst = get_shot_model_stats(thing->model);
-            dist = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
-            if ((dist < param->num1) && !shotst->wind_immune)
+            struct ShotConfigStats *thingshotst = get_shot_model_stats(shotng->model);
+            creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
+            if ((creature_distance < blow_distance) && !thingshotst->wind_immune)
             {
                 apply_velocity = true;
             }
@@ -383,8 +421,8 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
 
             struct EffectConfigStats *effcst;
             effcst = get_effect_model_stats(thing->model);
-            dist = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
-            if ((dist < param->num1) && effcst->affected_by_wind)
+            creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
+            if ((creature_distance < blow_distance) && effcst->affected_by_wind)
             {
                 apply_velocity = true;
             }
@@ -393,9 +431,9 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
     if (apply_velocity)
     {
         struct ComponentVector wind_push;
-        wind_push.x = (shotng->veloc_base.x.val * param->num1) / dist;
-        wind_push.y = (shotng->veloc_base.y.val * param->num1) / dist;
-        wind_push.z = (shotng->veloc_base.z.val * param->num1) / dist;
+        wind_push.x = (shotng->veloc_base.x.val * blow_distance) / creature_distance;
+        wind_push.y = (shotng->veloc_base.y.val * blow_distance) / creature_distance;
+        wind_push.z = (shotng->veloc_base.z.val * blow_distance) / creature_distance;
         SYNCDBG(8,"Applying (%d,%d,%d) to %s index %d",(int)wind_push.x,(int)wind_push.y,(int)wind_push.z,thing_model_name(thing),(int)thing->index);
         apply_transitive_velocity_to_thing(thing, &wind_push);
         return TUFRet_Modified;
@@ -628,7 +666,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
         if (subtile_has_door_thing_on(stl_x, stl_y)) // Collide with Doors
         {
             struct Thing *doortng = get_door_for_position(stl_x, stl_y);
-            short door_health = doortng->health;
+            HitPoints door_health = doortng->health;
             doortng->health -= boulder->health; // decrease door health
             boulder->health -= door_health; // decrease boulder health
             if (doortng->health <= 0)
@@ -651,6 +689,8 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
   int delta_x;
   int delta_y;
   int delta_z;
+  if (delta_step <= 0)
+      delta_step = 1;
   if (dist_x >= 0)
   {
       delta_x = delta_step;
@@ -982,10 +1022,8 @@ void init_keeper(void)
     load_stats_files();
     check_and_auto_fix_stats();
     init_creature_scores();
-    // Load graphics structures
-    load_cubes_config(CnfLd_Standard);
     init_top_texture_to_cube_table();
-    game.neutral_player_num = neutral_player_number;
+    game.neutral_player_num = PLAYER_NEUTRAL;
     if (game.generate_speed <= 0)
       game.generate_speed = game.conf.rules.rooms.default_generate_speed;
     poly_pool_end = &poly_pool[sizeof(poly_pool)-128];
@@ -1013,7 +1051,7 @@ TbBool initial_setup(void)
     MinimalResolutionSetup = true;
     // Set size of static textures buffer
     game_load_files[1].SLength = max((ulong)TEXTURE_BLOCKS_STAT_COUNT_A*block_dimension*block_dimension,(ulong)LANDVIEW_MAP_WIDTH*LANDVIEW_MAP_HEIGHT);
-    if (LbDataLoadAll(game_load_files))
+    if (LbDataLoadAllV2(game_load_files))
     {
         ERRORLOG("Unable to load game_load_files");
         return false;
@@ -1070,6 +1108,7 @@ short setup_game(void)
           if (wine_get_version)
           {
               SYNCMSG("Running on Wine v%s", wine_get_version());
+              is_running_under_wine = true;
           }
 
           // Get Wine host OS
@@ -1141,7 +1180,14 @@ short setup_game(void)
 
   if (is_feature_on(Ft_SkipSplashScreens) == false)
   {
-      result = init_actv_bitmap_screen(RBmp_SplashLegal);
+
+      if(is_ar_wider_than_original(LbGraphicsScreenWidth(), LbGraphicsScreenHeight()))
+      {
+        result = init_actv_bitmap_screen(RBmp_SplashLegalWide);
+      } else {
+        result = init_actv_bitmap_screen(RBmp_SplashLegal);
+      }
+
       if ( result )
       {
           result = show_actv_bitmap_screen(3000);
@@ -1169,7 +1215,7 @@ short setup_game(void)
   {
     // View second splash screen
     result = init_actv_bitmap_screen(RBmp_SplashFx);
-    if ( result )
+    if ( result == 1 )
     {
         result = show_actv_bitmap_screen(4000);
         free_actv_bitmap_screen();
@@ -1199,48 +1245,52 @@ short setup_game(void)
       }
   }
 
-  if ( result )
+  if (result == 1)
   {
       draw_clear_screen();
-      result = wait_for_cd_to_be_available();
+      if (wait_for_installation_files())
+      {
+          //result = -1; // Helps with better warning message later
+      }
   }
 
   game.frame_skip = start_params.frame_skip;
 
-  if ( result && (!game.no_intro) )
+  if ( (result == 1) && (!game.no_intro) )
   {
      result = intro_replay();
   }
   // Intro problems shouldn't force the game to quit,
   // so we're re-setting the result flag
-  result = 1;
+  if (result == 0)
+      result = 1;
 
-  if ( result )
+  if (result == 1)
   {
       display_loading_screen();
   }
   LbDataFreeAll(legal_load_files);
 
-  if ( result )
+  if (result == 1)
   {
       if ( !initial_setup() )
         result = 0;
   }
 
-  if ( result )
+  if (result == 1)
   {
     load_settings();
     if ( !setup_gui_strings_data() )
       result = 0;
   }
 
-  if ( result )
+  if (result == 1)
   {
     if ( !setup_heaps() )
       result = 0;
   }
 
-  if ( result )
+  if (result == 1)
   {
       init_keeper();
       switch (start_params.force_ppro_poly)
@@ -1270,10 +1320,10 @@ short setup_game(void)
       setup_3d();
       setup_stuff();
       init_lookups();
-      result = 1;
   }
 
-  if (result) {
+  if (result == 1)
+  {
       KEEPERSPEECH_REASON reason = KeeperSpeechInit();
       if (reason == KSR_NO_LIB_INSTALLED) {
           SYNCLOG("Speech recognition disabled: %s",
@@ -1643,6 +1693,9 @@ void reinit_level_after_load(void)
     }
     start_rooms = &game.rooms[1];
     end_rooms = &game.rooms[ROOMS_COUNT];
+    update_room_tab_to_config();
+    update_powers_tab_to_config();
+    update_trap_tab_to_config();
     load_texture_map_file(game.texture_id);
     init_animating_texture_maps();
     init_gui();
@@ -1654,6 +1707,8 @@ void reinit_level_after_load(void)
     restore_computer_player_after_load();
     sound_reinit_after_load();
     music_reinit_after_load();
+    update_panel_colors();
+
 }
 
 /**
@@ -1726,7 +1781,7 @@ void init_keepers_map_exploration(void)
     for (i=0; i < PLAYERS_COUNT; i++)
     {
       player = get_player(i);
-      if (player_exists(player) && (player->is_active == 1))
+      if ((player_exists(player) && (player->is_active == 1)) || player_is_roaming(i))
       {
           // Additional init - the main one is in init_player()
           if ((player->allocflags & PlaF_CompCtrl) != 0) {
@@ -2210,7 +2265,7 @@ void interp_fix_mouse_light_off_map(struct PlayerInfo *player)
     // This fixes the interpolation issue of moving the mouse off map in one position then back onto the map far elsewhere.
     struct Light* light = &game.lish.lights[player->cursor_light_idx];
 
-    if (player->mouse_is_offmap == true) {
+    if (player->mouse_on_map == false) {
         light->disable_interp_for_turns = 2;
     }
     if (light->disable_interp_for_turns > 0) {
@@ -2394,7 +2449,7 @@ void count_players_creatures_being_paid(int *creatures_count)
         }
         i = thing->next_of_class;
         // Per-thing code
-        if ((thing->owner != game.hero_player_num) && (thing->owner != game.neutral_player_num))
+        if (!player_is_roaming(thing->owner) && (thing->owner != game.neutral_player_num))
         {
             struct CreatureStats *crstat;
             crstat = creature_stats_get_from_thing(thing);
@@ -2428,7 +2483,7 @@ void process_payday(void)
     PlayerNumber plyr_idx;
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-        if ((plyr_idx == game.hero_player_num) || (plyr_idx == game.neutral_player_num)) {
+        if (player_is_roaming(plyr_idx) || (plyr_idx == game.neutral_player_num)) {
             continue;
         }
         struct PlayerInfo *player;
@@ -2444,15 +2499,15 @@ void process_payday(void)
         output_message(SMsg_Payday, 0, true);
         game.pay_day_progress = 0;
         // Prepare a list which counts how many creatures of each owner needs pay
-        int player_paid_creatures_count[PLAYERS_EXT_COUNT];
+        int player_paid_creatures_count[PLAYERS_COUNT];
 
-        for (plyr_idx=0; plyr_idx < PLAYERS_EXT_COUNT; plyr_idx++)
+        for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
         {
             player_paid_creatures_count[plyr_idx] = 0;
         }
         count_players_creatures_being_paid(player_paid_creatures_count);
         // Players which have creatures being paid, should get payday notification
-        for (plyr_idx=0; plyr_idx < PLAYERS_EXT_COUNT; plyr_idx++)
+        for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
         {
             if (player_paid_creatures_count[plyr_idx] > 0)
             {
@@ -2620,7 +2675,7 @@ int clear_active_dungeons_stats(void)
 {
   struct Dungeon *dungeon;
   int i;
-  for (i=0; i <= game.hero_player_num; i++)
+  for (i=0; i < PLAYERS_COUNT; i++)
   {
       dungeon = get_dungeon(i);
       if (dungeon_invalid(dungeon))
@@ -2676,7 +2731,7 @@ TbBool valid_cave_in_position(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
 long update_cave_in(struct Thing *thing)
 {
     thing->health--;
-    thing->rendering_flags |= TRF_Unknown01;
+    thing->rendering_flags |= TRF_Invisible;
     if (thing->health < 1)
     {
         delete_thing_structure(thing, 0);
@@ -2773,12 +2828,43 @@ long update_cave_in(struct Thing *thing)
     return 1;
 }
 
+/**
+ * Checks if a gamerule for lighting has changed and updates the lights if they are.
+ * This function also refreshes the light status of the map.
+*/
+void update_global_lighting()
+{
+    // Check if any values have changed
+    if (
+        game.conf.rules.game.global_ambient_light != game.lish.global_ambient_light ||
+        game.conf.rules.game.light_enabled != game.lish.light_enabled
+    ){
+
+        // GlobalAmbientLight
+        if (game.conf.rules.game.global_ambient_light != game.lish.global_ambient_light)
+        {
+            game.lish.global_ambient_light = game.conf.rules.game.global_ambient_light;
+        }
+
+        // LightEnabled
+        if (game.conf.rules.game.light_enabled != game.lish.light_enabled)
+        {
+            game.lish.light_enabled = game.conf.rules.game.light_enabled;
+        }
+
+        // Refresh the lights
+        light_stat_refresh();
+    }
+}
+
 void update(void)
 {
     struct PlayerInfo *player;
     SYNCDBG(4,"Starting for turn %ld",(long)game.play_gameturn);
 
     process_packets();
+    api_update_server();
+
     if (quit_game || exit_keeper) {
         return;
     }
@@ -2822,6 +2908,7 @@ void update(void)
         update_footsteps_nearest_camera(player->acamera);
         PaletteFadePlayer(player);
         process_armageddon();
+        update_global_lighting();
 #if (BFDEBUG_LEVEL > 9)
         lights_stats_debug_dump();
         things_stats_debug_dump();
@@ -3182,7 +3269,6 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
 
 void update_blocks_pointed(void)
 {
-    TbBool out_of_bounds = false;
     long x;
     long y;
     long x_frac;
@@ -3229,17 +3315,11 @@ void update_blocks_pointed(void)
           if ((x >= 0) && (x < gameadd.map_subtiles_x) && (y >= 0) && (y < gameadd.map_subtiles_y))
           {
               update_block_pointed(i,x,x_frac,y,y_frac);
-          } else {
-                out_of_bounds = true;
           }
           hori_ptr_y -= hori_hdelta_y;
           vert_ptr_y -= vert_hdelta_y;
         }
     }
-
-    struct PlayerInfo *player = get_my_player();
-    player->mouse_is_offmap = out_of_bounds;
-
     SYNCDBG(19,"Finished");
 }
 
@@ -3406,13 +3486,12 @@ void gameplay_loop_logic()
 {
     if(flag_is_set(start_params.debug_flags, DFlg_PauseAtGameTurn))
     {
-        static TbBool paused_at_gameturn = false;
         static GameTurn previous_gameturn = 0;
         if(game.play_gameturn >= start_params.pause_at_gameturn && game.play_gameturn != previous_gameturn)
         {
-            if(!paused_at_gameturn)
+            if(!game.paused_at_gameturn)
             {
-                paused_at_gameturn = true;
+                game.paused_at_gameturn = true;
 
                 game.frame_skip = 0;
                 if(game.packet_load_enable)
@@ -3540,6 +3619,7 @@ void keeper_gameplay_loop(void)
         frametime_end_measurement(Frametime_FullFrame);
     } // end while
     SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
+    api_event("GAME_ENDED");
 }
 
 TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx)
@@ -3798,6 +3878,9 @@ static TbBool wait_at_frontend(void)
         LbSleepUntil(fe_last_loop_time + 30);
       }
       fe_last_loop_time = LbTimerClock();
+
+      api_update_server();
+
     } while (!finish_menu);
 
     LbPaletteFade(0, 8, Lb_PALETTE_FADE_CLOSED);
@@ -3959,7 +4042,7 @@ short reset_game(void)
     LbMouseSuspend();
     LbIKeyboardClose();
     LbScreenReset(false);
-    LbDataFreeAll(game_load_files);
+    LbDataFreeAllV2(game_load_files);
     free_gui_strings_data();
     FreeAudio();
     return LbMemoryReset();
@@ -4078,8 +4161,12 @@ short process_command_line(unsigned short argc, char *argv[])
       {
           SYNCLOG("Mouse auto reset disabled");
           lbMouseGrab = false;
-      } else
-      if (strcasecmp(parstr,"packetload") == 0)
+      }
+      else if (strcasecmp(parstr, "ungrab") == 0)
+      {
+          start_params.ungrab_mouse = true;
+      }
+      else if (strcasecmp(parstr,"packetload") == 0)
       {
          if (start_params.packet_save_enable)
             WARNMSG("PacketSave disabled to enable PacketLoad.");
@@ -4279,6 +4366,8 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     LbSetIcon(1);
     LbScreenSetDoubleBuffering(true);
 
+    init_miles_sound_system();
+
     srand(LbTimerClock());
 
 #ifdef FUNCTESTING
@@ -4294,7 +4383,11 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     }
 
     retval = setup_game();
-    if (retval)
+    if (retval == 1)
+    {
+        steam_api_init();
+    }
+    if (retval == 1)
     {
       if ((install_info.lang_id == Lang_Japanese) ||
           (install_info.lang_id == Lang_ChineseInt) ||
@@ -4322,22 +4415,31 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
         }
       }
     }
-    if ( retval )
+    if ( retval == 1 )
     {
+        api_init_server();
         game_loop();
     }
     reset_game();
     LbScreenReset(true);
-    if ( !retval )
+    if ( retval == 0 )
     {
         static const char *msg_text="Setting up game failed.\n";
+        error_dialog_fatal(__func__, 2, msg_text);
+    } else
+    if (retval == -1)
+    {
+        static const char* msg_text = " Game files which have to be copied from original DK are not present.\n\n";
         error_dialog_fatal(__func__, 2, msg_text);
     }
     else
     {
         SYNCDBG(0,"finished properly");
     }
+
     LbErrorLogClose();
+    steam_api_shutdown();
+    unload_miles_sound_system();
     return 0;
 }
 

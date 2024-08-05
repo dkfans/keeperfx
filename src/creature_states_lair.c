@@ -134,6 +134,32 @@ long creature_will_sleep(struct Thing *thing)
     return (abs(dist_x) < 1) && (abs(dist_y) < 1);
 }
 
+short creature_drop_unconscious_in_lair(struct Thing *thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
+    if (!thing_exists(dragtng) || !creature_is_being_unconscious(dragtng)) {
+        set_start_state(thing);
+        return 0;
+    }
+    if (!subtile_is_room(thing->mappos.x.stl.num, thing->mappos.y.stl.num)) {
+        set_start_state(thing);
+        return 0;
+    }
+    struct Room* room = get_room_thing_is_on(thing);
+    if ((room_is_invalid(room) || room->owner != dragtng->owner) || !get_creature_lair_room(dragtng) ) {
+        set_start_state(thing);
+        return 0;
+    }
+    make_creature_conscious(dragtng);
+    initialise_thing_state(dragtng, CrSt_CreatureGoingHomeToSleep);
+    struct CreatureControl* dragctrl = creature_control_get_from_thing(dragtng);
+    dragctrl->flgfield_1 |= CCFlg_NoCompControl;
+    set_start_state(thing);
+    return 1;
+
+}
+
 long process_lair_enemy(struct Thing *thing, struct Room *room)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -198,6 +224,7 @@ CrStateRet creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
         place_thing_in_mapwho(creatng);
         return CrStRet_Modified; // Return that so we won't try to redo the action over and over
     }
+    lairtng->move_angle_xy = CREATURE_RANDOM(creatng, 2048);
     lairtng->mappos.z.val = get_thing_height_at(lairtng, &lairtng->mappos);
     // Associate creature with the lair
     cctrl->lairtng_idx = lairtng->index;
@@ -466,10 +493,14 @@ short creature_sleep(struct Thing *thing)
     }
     thing->movement_flags &= ~0x0020;
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    if (((game.play_gameturn + thing->index) % game.conf.rules.creature.recovery_frequency) == 0)
+    // Recovery is disabled if frequency is set to 0 on rules.cfg.
+    if (game.conf.rules.creature.recovery_frequency > 0)
     {
-        HitPoints recover = compute_creature_max_health(crstat->sleep_recovery, cctrl->explevel, thing->owner);
-        apply_health_to_thing_and_display_health(thing, recover);
+        if (((game.play_gameturn + thing->index) % game.conf.rules.creature.recovery_frequency) == 0)
+        {
+            HitPoints recover = compute_creature_max_health(crstat->sleep_recovery, cctrl->explevel, thing->owner);
+            apply_health_to_thing_and_display_health(thing, recover);
+        }
     }
     anger_set_creature_anger(thing, 0, AngR_NoLair);
     anger_apply_anger_to_creature(thing, crstat->annoy_sleeping, AngR_Other, 1);

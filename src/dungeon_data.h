@@ -42,7 +42,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define DUNGEONS_COUNT              5
+#define DUNGEONS_COUNT              9
 #define DIGGER_TASK_MAX_COUNT       64
 #define DUNGEON_RESEARCH_COUNT      64
 #define MAX_THINGS_IN_HAND          64
@@ -246,8 +246,8 @@ struct Dungeon {
     long total_research_points;
     long total_manufacture_points;
     long manufacture_progress;
-    unsigned char manufacture_class;
-    unsigned char manufacture_kind;
+    ThingClass manufacture_class;
+    ThingModel manufacture_kind;
     long turn_last_manufacture;
     long manufacture_level;
     long research_progress;

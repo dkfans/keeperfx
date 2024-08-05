@@ -229,7 +229,7 @@ TbBool is_neutral_thing(const struct Thing *thing)
 
 TbBool is_hero_thing(const struct Thing *thing)
 {
-    return (thing->owner == game.hero_player_num);
+    return (player_is_roaming(thing->owner));
 }
 
 /**
@@ -265,20 +265,29 @@ long get_radially_decaying_value(long magnitude,long decay_start,long decay_leng
  */
 long get_radially_growing_value(long magnitude, long decay_start, long decay_length, long distance, long friction)
 {
-    if (distance >= decay_start + decay_length)
-        return 0; //Outside the max range, nothing is pulled inwards
-
-    if (distance >= decay_start) //too far away to pull with full power
-        magnitude = magnitude * (decay_length - (distance - decay_start)) / decay_length;
-        
-    long total_distance = abs((COORD_PER_STL / friction * magnitude + magnitude) / 2); // The intended distance to push the thing
-
-    if (total_distance > distance) // Never return a value that would go past the epicentre
+    if (distance >= decay_start + decay_length) {
+        return 0; // Outside the max range, nothing is pulled inwards.
+    }
+    if (distance >= decay_start) // Too far away to pull with full power.
     {
-        short factor = COORD_PER_STL / friction * 3 / 4; // Creatures slide so move further then expected
+        if (decay_length == 0) {
+            decay_length = 1;
+        }
+        magnitude = magnitude * (decay_length - (distance - decay_start)) / decay_length;
+    }
+    if (friction == 0) {
+        friction = 1;
+    }
+    long total_distance = abs((COORD_PER_STL / friction * magnitude + magnitude) / 2); // The intended distance to push the thing.
+    if (total_distance > distance) // Never return a value that would go past the epicentre.
+    {
+        short factor = COORD_PER_STL / friction * 3 / 4; // Creatures slide so move further then expected.
+        if (factor == 0) {
+            factor = 1;
+        }
         return -(distance / factor);
     }
-    return magnitude ;
+    return magnitude;
 }
 
 long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel)
@@ -295,7 +304,7 @@ long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel)
 /**
  * Computes max health of a creature on given level.
  */
-long compute_creature_max_health(long base_health,unsigned short crlevel, PlayerNumber plyr_idx)
+long compute_creature_max_health(HitPoints base_health,unsigned short crlevel, PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon;
     if (base_health < -100000)
@@ -304,7 +313,7 @@ long compute_creature_max_health(long base_health,unsigned short crlevel, Player
         base_health = 100000;
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
-    long max_health = base_health + (game.conf.crtr_conf.exp.health_increase_on_exp * base_health * (long)crlevel) / 100;
+    HitPoints max_health = base_health + (game.conf.crtr_conf.exp.health_increase_on_exp * base_health * (long)crlevel) / 100;
     if (plyr_idx != game.neutral_player_num) {
         dungeon = get_dungeon(plyr_idx);
         unsigned short modifier = dungeon->modifier.health;
@@ -772,13 +781,7 @@ GoldAmount calculate_correct_creature_scavenging_cost(const struct Thing *thing)
 long calculate_correct_creature_scavenge_required(const struct Thing *thing, PlayerNumber callplyr_idx)
 {
     struct Dungeon* dungeon = get_dungeon(callplyr_idx);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    long scavngpts = (dungeon->creatures_scavenged[thing->model] + 1) * compute_creature_max_loyalty(crstat->scavenge_require, cctrl->explevel);
-    if (!is_neutral_thing(thing)) {
-        unsigned short modifier = dungeon->modifier.loyalty;
-        scavngpts = (scavngpts * modifier) / 100;
-    }
+    long scavngpts = (dungeon->creatures_scavenged[thing->model] + 1) * calculate_correct_creature_loyalty(thing);
     return scavngpts;
 }
 
@@ -862,7 +865,7 @@ TbBool set_creature_health_to_max_with_heal_effect(struct Thing* thing)
     return true;
 }
 
-TbBool apply_health_to_thing(struct Thing *thing, long amount)
+TbBool apply_health_to_thing(struct Thing *thing, HitPoints amount)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     HitPoints new_health = thing->health;
@@ -877,7 +880,7 @@ TbBool apply_health_to_thing(struct Thing *thing, long amount)
     return false;
 }
 
-void apply_health_to_thing_and_display_health(struct Thing *thing, long amount)
+void apply_health_to_thing_and_display_health(struct Thing *thing, HitPoints amount)
 {
     if (apply_health_to_thing(thing, amount)) {
         thing->creature.health_bar_turns = 8;
@@ -1068,7 +1071,7 @@ long compute_creature_weight(const struct Thing* creatng)
         weight = weight * 3 / 2;
     }
 
-    if ((get_creature_model_flags(creatng) & CMF_TremblingFat) != 0)
+    if ((get_creature_model_flags(creatng) & CMF_Trembling) != 0)
     {
         weight = weight * 3 / 2;
     }

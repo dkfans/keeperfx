@@ -504,7 +504,7 @@ TbBool good_setup_wander_to_creature(struct Thing *wanderer, long dngn_id)
     struct Dungeon* dungeon = get_dungeon(dngn_id);
     if ( setup_wanderer_move_to_random_creature_from_list(dungeon->creatr_list_start,wanderer) )
     {
-        wanderer->continue_state = CrSt_GoodDoingNothing;
+        wanderer->continue_state = CrSt_GoodWanderToCreatureCombat;
         return true;
     }
     SYNCDBG(4,"The %s index %d cannot wander to player %d creatures",thing_model_name(wanderer),
@@ -525,7 +525,7 @@ TbBool good_setup_wander_to_spdigger(struct Thing *wanderer, long dngn_id)
     struct Dungeon* dungeon = get_dungeon(dngn_id);
     if ( setup_wanderer_move_to_random_creature_from_list(dungeon->digger_list_start,wanderer) )
     {
-        wanderer->continue_state = CrSt_GoodDoingNothing;
+        wanderer->continue_state = CrSt_GoodWanderToCreatureCombat;
         return true;
     }
     SYNCDBG(4,"Cannot wander to player %d creatures",(int)dngn_id);
@@ -655,6 +655,26 @@ TbBool good_can_move_to_dungeon_heart(struct Thing *creatng, PlayerNumber plyr_i
     return creature_can_navigate_to(creatng, &heartng->mappos, NavRtF_Default);
 }
 
+short good_arrived_at_attack_dungeon_heart(struct Thing* creatng)
+{
+    creatng->continue_state = CrSt_GoodDoingNothing;
+    if (creature_look_for_enemy_heart_combat(creatng))
+    {
+        return CrStRet_Modified;
+    }
+    return move_to_position(creatng);
+}
+
+short good_arrived_at_combat(struct Thing* creatng)
+{
+    creatng->continue_state = CrSt_GoodDoingNothing;
+    if (creature_look_for_combat(creatng))
+    {
+        return CrStRet_Modified;
+    }
+    return move_to_position(creatng);
+}
+
 TbBool good_setup_wander_to_dungeon_heart(struct Thing *creatng, PlayerNumber plyr_idx)
 {
     SYNCDBG(18,"Starting");
@@ -677,7 +697,13 @@ TbBool good_setup_wander_to_dungeon_heart(struct Thing *creatng, PlayerNumber pl
         WARNLOG("The %s index %d tried to wander to player %d which has no heart", thing_model_name(creatng),(int)creatng->index,(int)plyr_idx);
         return false;
     }
-    set_creature_object_combat(creatng, heartng);
+    if (!setup_person_move_to_coord(creatng, &heartng->mappos, NavRtF_Default))
+    {
+        WARNLOG("Hero %s index %d can't move to heart %d at (%d,%d).", thing_model_name(creatng), (int)creatng->index,
+            (int)heartng->index, (int)heartng->mappos.x.stl.num, (int)heartng->mappos.y.stl.num);
+        return false;
+    }
+    creatng->continue_state = CrSt_GoodWanderToObjectCombat;
     return true;
 }
 
@@ -1156,7 +1182,7 @@ long get_best_dungeon_to_tunnel_to(struct Thing *creatng)
     {
         struct PlayerInfo* player = get_player(plyr_idx);
         struct Dungeon* dungeon = get_players_dungeon(player);
-        if (player_exists(player) && !dungeon_invalid(dungeon) && (creatng->owner != plyr_idx))
+        if (player_exists(player) && !dungeon_invalid(dungeon) && players_are_enemies(creatng->owner,plyr_idx))
         {
             long score = dungeon->total_score; //Original code: = dungeon->total_score -20 * dungeon->total_score * dungeon->field_F7D / 100;
             if ((score <= 0) || (game.conf.rules.game.classic_bugs_flags & ClscBug_AlwaysTunnelToRed))
@@ -1271,7 +1297,7 @@ TbBool script_support_send_tunneller_to_appropriate_dungeon(struct Thing *creatn
 
 struct Thing *script_process_new_tunneler(unsigned char plyr_idx, TbMapLocation location, TbMapLocation heading, unsigned char crtr_level, unsigned long carried_gold)
 {
-    ThingModel diggerkind = get_players_special_digger_model(game.hero_player_num);
+    ThingModel diggerkind = get_players_special_digger_model(plyr_idx);
     struct Thing* creatng = script_create_creature_at_location(plyr_idx, diggerkind, location);
     if (thing_is_invalid(creatng))
         return INVALID_THING;
@@ -1513,7 +1539,7 @@ short tunnelling(struct Thing *creatng)
  */
 TbBool is_hero_tunnelling_to_attack(struct Thing *creatng)
 {
-    if (creatng->model != get_players_special_digger_model(game.hero_player_num))
+    if (creatng->model != get_players_special_digger_model(creatng->owner))
         return false;
     CrtrStateId crstat = get_creature_state_besides_move(creatng);
     if ((crstat != CrSt_Tunnelling) && (crstat != CrSt_TunnellerDoingNothing))

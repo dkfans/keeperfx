@@ -76,14 +76,12 @@ enum ComputerTaskTypes {
     CTT_DigToAttack,
     CTT_MagicCallToArms,
     CTT_PickupForAttack,
-    CTT_MoveCreatureToRoom, // 10
+    CTT_MoveCreatureToRoom,     // 10
     CTT_MoveCreatureToPos,
     CTT_MoveCreaturesToDefend,
     CTT_SlapDiggers,
     CTT_DigToNeutral,
     CTT_MagicSpeedUp,
-    CTT_MagicFlightUp,
-    CTT_MagicVisionUp,
     CTT_WaitForBridge,
     CTT_AttackMagic,
     CTT_SellTrapsAndDoors,
@@ -572,7 +570,7 @@ struct Computer2 { // sizeof = 5322
           struct ComputerEvent *events;
       };
   };
-  struct OpponentRelation opponent_relations[PLAYERS_EXT_COUNT];
+  struct OpponentRelation opponent_relations[PLAYERS_COUNT];
   // TODO we could use coord2d for trap locations
   struct Coord3d trap_locations[COMPUTER_TRAP_LOC_COUNT];
   /** Stores Sight Of Evil target points data. */
@@ -673,7 +671,7 @@ const char *computer_task_code_name(int ctask_type);
 TbBool create_task_move_creatures_to_defend(struct Computer2 *comp, struct Coord3d *pos, long creatrs_num, unsigned long evflags);
 TbBool create_task_move_creatures_to_room(struct Computer2 *comp, int room_idx, long creatrs_num);
 TbBool create_task_magic_battle_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long par2, long creatrs_num);
-TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long par2, long par3, long creatrs_num);
+TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long cta_duration, long par3, long repeat_num);
 TbBool create_task_pickup_for_attack(struct Computer2 *comp, struct Coord3d *pos, long par3, long creatrs_num);
 TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long num_to_sell, GoldAmount gold_up_to, TbBool allow_deployed);
 TbBool create_task_move_gold_to_treasury(struct Computer2 *comp, long num_to_move, long gold_up_to);
@@ -715,7 +713,7 @@ long count_diggers_in_dungeon(const struct Dungeon *dungeon);
 long check_call_to_arms(struct Computer2 *comp);
 long count_creatures_for_defend_pickup(struct Computer2 *comp);
 long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, long a4);
-long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos);
+unsigned long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos);
 
 long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *cproc, struct Coord3d *pos, long victim_plyr_idx);
 
@@ -730,6 +728,7 @@ TbBool thing_is_in_computer_power_hand_list(const struct Thing *thing, PlayerNum
 struct Thing* find_creature_for_defend_pickup(struct Computer2* comp);
 
 TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyridx, long comp_model);
+TbBool reactivate_build_process(struct Computer2* comp, RoomKind rkind);
 /******************************************************************************/
 #ifdef __cplusplus
 }

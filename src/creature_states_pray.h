@@ -45,8 +45,8 @@ short creature_sacrifice(struct Thing *thing);
 short creature_being_summoned(struct Thing *thing);
 
 void kill_all_players_chickens(PlayerNumber plyr_idx);
-void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx,long crmodel, long spl_idx, long overchrg);
-TbBool add_anger_to_all_creatures_of_player(long plyr_idx, short percentage);
+void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, ThingModel crmodel, long spl_idx, long overchrg);
+TbBool add_anger_to_all_creatures_of_player(PlayerNumber plyr_idx, short percentage);
 
 TbBool find_temple_pool(int player_idx, struct Coord3d *pos);
 void process_sacrifice_creature(struct Coord3d *pos, int model, int owner, TbBool partial);

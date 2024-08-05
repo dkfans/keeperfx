@@ -88,7 +88,8 @@ int scroll_box_get_units_per_px(struct GuiButton *gbtn);
 
 #define draw_gui_panel_sprite_left(x, y, units_per_px, spridx) draw_gui_panel_sprite_left_player(x, y, units_per_px, spridx, my_player_number) 
 void draw_gui_panel_sprite_left_player(long x, long y, int units_per_px, long spridx, PlayerNumber plyr_idx);
-void draw_gui_panel_sprite_rmleft(long x, long y, int units_per_px, long spridx, unsigned long remap);
+#define draw_gui_panel_sprite_rmleft(x, y, units_per_px, spridx, remap) draw_gui_panel_sprite_rmleft_player(x, y, units_per_px, spridx, remap, my_player_number)
+void draw_gui_panel_sprite_rmleft_player(long x, long y, int units_per_px, long spridx, unsigned long remap, PlayerNumber plyr_idx);
 void draw_gui_panel_sprite_ocleft(long x, long y, int units_per_px, long spridx, TbPixel color);
 void draw_gui_panel_sprite_centered(long x, long y, int units_per_px, long spridx);
 void draw_gui_panel_sprite_occentered(long x, long y, int units_per_px, long spridx, TbPixel color);

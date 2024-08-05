@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\actionpt.c" />
+    <ClCompile Include="src\api.c" />
     <ClCompile Include="src\ariadne.c" />
     <ClCompile Include="src\ariadne_edge.c" />
     <ClCompile Include="src\ariadne_findcache.c" />
@@ -51,7 +52,6 @@
     <ClCompile Include="src\bflib_netsync.c" />
     <ClCompile Include="src\bflib_network.cpp" />
     <ClCompile Include="src\bflib_planar.c" />
-    <ClCompile Include="src\bflib_pom.cpp" />
     <ClCompile Include="src\bflib_render.c" />
     <ClCompile Include="src\bflib_render_gpoly.c" />
     <ClCompile Include="src\bflib_render_gtblock.c" />
@@ -197,6 +197,7 @@
     <ClCompile Include="src\map_events.c" />
     <ClCompile Include="src\map_locations.c" />
     <ClCompile Include="src\map_utils.c" />
+    <ClCompile Include="src\moonphase.c" />
     <ClCompile Include="src\music_player.c" />
     <ClCompile Include="src\net_game.c" />
     <ClCompile Include="src\net_sync.c" />
@@ -213,7 +214,6 @@
     <ClCompile Include="src\player_computer_data.cpp" />
     <ClCompile Include="src\player_data.c" />
     <ClCompile Include="src\player_instances.c" />
-    <ClCompile Include="src\player_states.c" />
     <ClCompile Include="src\player_utils.c" />
     <ClCompile Include="src\power_hand.c" />
     <ClCompile Include="src\power_process.c" />
@@ -235,6 +235,7 @@
     <ClCompile Include="src\slab_data.c" />
     <ClCompile Include="src\sounds.c" />
     <ClCompile Include="src\spdigger_stack.c" />
+    <ClCompile Include="src\steam_api.cpp" />
     <ClCompile Include="src\tasks_list.c" />
     <ClCompile Include="src\thing_corpses.c" />
     <ClCompile Include="src\thing_creature.c" />
@@ -256,6 +257,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actionpt.h" />
+    <ClInclude Include="src\api.h" />
     <ClInclude Include="src\ariadne.h" />
     <ClInclude Include="src\ariadne_edge.h" />
     <ClInclude Include="src\ariadne_findcache.h" />
@@ -296,7 +298,6 @@
     <ClInclude Include="src\bflib_netsync.h" />
     <ClInclude Include="src\bflib_network.h" />
     <ClInclude Include="src\bflib_planar.h" />
-    <ClInclude Include="src\bflib_pom.hpp" />
     <ClInclude Include="src\bflib_render.h" />
     <ClInclude Include="src\bflib_semphr.hpp" />
     <ClInclude Include="src\bflib_server_tcp.hpp" />
@@ -423,6 +424,7 @@
     <ClInclude Include="src\map_events.h" />
     <ClInclude Include="src\map_locations.h" />
     <ClInclude Include="src\map_utils.h" />
+    <ClInclude Include="src\moonphase.h" />
     <ClInclude Include="src\music_player.h" />
     <ClInclude Include="src\net_game.h" />
     <ClInclude Include="src\net_sync.h" />
@@ -431,7 +433,6 @@
     <ClInclude Include="src\player_computer.h" />
     <ClInclude Include="src\player_data.h" />
     <ClInclude Include="src\player_instances.h" />
-    <ClInclude Include="src\player_states.h" />
     <ClInclude Include="src\player_utils.h" />
     <ClInclude Include="src\power_hand.h" />
     <ClInclude Include="src\power_process.h" />
@@ -454,6 +455,7 @@
     <ClInclude Include="src\sounds.h" />
     <ClInclude Include="src\spdigger_stack.h" />
     <ClInclude Include="src\sprites.h" />
+    <ClInclude Include="src\steam_api.hpp" />
     <ClInclude Include="src\tasks_list.h" />
     <ClInclude Include="src\thing_corpses.h" />
     <ClInclude Include="src\thing_creature.h" />

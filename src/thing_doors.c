@@ -121,7 +121,7 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
     doortng->next_on_mapblk = 0;
     doortng->parent_idx = doortng->index;
     doortng->owner = plyr_idx;
-    doortng->rendering_flags |= TRF_Unknown01;
+    doortng->rendering_flags |= TRF_Invisible;
     doortng->door.orientation = orient;
     doortng->active_state = DorSt_Closed;
     doortng->creation_turn = game.play_gameturn;
@@ -215,7 +215,7 @@ long destroy_door(struct Thing *doortng)
         create_dirt_rubble_for_dug_block(stl_x + 1, stl_y, 4, plyr_idx);
         create_dirt_rubble_for_dug_block(stl_x - 1, stl_y, 4, plyr_idx);
     }
-    struct Thing* efftng = create_effect(&pos, TngEff_DamageBlood, plyr_idx);
+    struct Thing* efftng = create_effect(&pos, TngEff_Dummy, plyr_idx);
     if (!thing_is_invalid(efftng)) {
         thing_play_sample(efftng, 72 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
     }

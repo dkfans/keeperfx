@@ -26,7 +26,7 @@
 #include "bflib_sprfnt.h"
 
 #include "player_data.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "player_utils.h"
 #include "dungeon_data.h"
 #include "creature_battle.h"
@@ -142,8 +142,11 @@ void gui_get_creature_in_battle(struct GuiButton *gbtn)
         return;
     }
     PowerKind pwkind = 0;
-    if (myplyr->work_state < PLAYER_STATES_COUNT)
-        pwkind = player_state_to_power_kind[myplyr->work_state];
+    if (myplyr->work_state < PLAYER_STATES_COUNT_MAX)
+    {
+        struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(myplyr->work_state);
+        pwkind = plrst_cfg_stat->power_kind;
+    }
     struct Thing* thing = thing_get(battle_creature_over);
     if (!thing_exists(thing)) {
         WARNLOG("Nonexisting thing %d in battle",(int)battle_creature_over);
@@ -206,6 +209,11 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
     }
     short spr_idx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
     struct TbSprite* spr = &gui_panel_sprites[spr_idx];
+    if (spr->SHeight == 0)
+    {
+        ERRORLOG("Trying to draw non existing icon in battle menu for %s", thing_model_name(thing));
+        return;
+    }
     int ps_units_per_px = (50 * units_per_px + spr->SHeight / 2) / spr->SHeight;
     int curscr_x = scr_x - (spr->SWidth * ps_units_per_px / 16) / 2;
     int curscr_y = scr_y - (spr->SHeight * ps_units_per_px / 16) / 2;
@@ -347,7 +355,7 @@ short zoom_to_fight(PlayerNumber plyr_idx)
     if (active_battle_exists(plyr_idx))
     {
         struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
-        set_players_packet_action(player, PckA_Unknown104, dungeon->visible_battles[0], 0, 0, 0);
+        set_players_packet_action(player, PckA_ZoomToBattle, dungeon->visible_battles[0], 0, 0, 0);
         step_battles_forward(plyr_idx);
         return true;
     }
