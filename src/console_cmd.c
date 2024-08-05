@@ -775,6 +775,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     return true;
                 }
                 TbMapLocation loc = {0};
+                make_uppercase(pr2str);
                 if (get_map_location_id(pr2str, &loc))
                 {
                     player = get_player(plyr_idx);
@@ -1171,33 +1172,49 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         }
         else if (strcasecmp(parstr, "digger.sendto") == 0)
         {
-            PlayerNumber id = get_player_number_for_command(pr2str);
+            TbMapLocation loc = {0};
+            make_uppercase(pr2str);
+            stl_x = 0;
+            stl_y = 0;
+            if (get_map_location_id(pr2str, &loc))
+            {
+                find_map_location_coords(loc, &stl_x, &stl_y, plyr_idx, __func__);
+            }
             player = get_player(plyr_idx);
+            if ((stl_x == 0) || (stl_y == 0))
+            {
+                targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "No valid dig location found.");
+                return false;
+            }
             thing = thing_get(player->influenced_thing_idx);
             ThingModel model = get_players_special_digger_model(thing->owner);
-            player = get_player(id);
-            if (player_exists(player))
+            if (thing_is_creature(thing))
             {
-                if (thing_is_creature(thing))
+                if (thing->model == model)
                 {
-                    if (thing->model == model)
+                    if (setup_person_tunnel_to_position(thing, stl_x, stl_y))
                     {
-                        if (get_random_position_in_dungeon_for_creature(id, CrWaS_WithinDungeon, thing, &pos))
-                        {
-                            targeted_message_add(MsgType_Player,plyr_idx, plyr_idx, GUI_MESSAGES_DELAY,"%s %d will dig to %s", thing_model_name(thing), thing->index, player_code_name(id));
-                            return send_tunneller_to_point_in_dungeon(thing, id, &pos);
-                        }
+                        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+                        targeted_message_add(MsgType_Player,plyr_idx, plyr_idx, GUI_MESSAGES_DELAY,"%s %d will dig to %d,%d", thing_model_name(thing), thing->index, stl_x, stl_y);
+                        cctrl->party.target_plyr_idx = -1;
+                        thing->continue_state = CrSt_TunnellerDoingNothing;
+                        return true;
                     }
+                    return false;
                 }
-                thing = find_players_next_creature_of_breed_and_gui_job(get_players_special_digger_model(thing->owner), -1, plyr_idx, TPF_None);
-                if (!thing_is_invalid(thing))
+            }
+            thing = find_players_next_creature_of_breed_and_gui_job(get_players_special_digger_model(thing->owner), -1, plyr_idx, TPF_None);
+            if (!thing_is_invalid(thing))
+            {
+                if (setup_person_tunnel_to_position(thing, stl_x, stl_y))
                 {
-                    if (get_random_position_in_dungeon_for_creature(id, CrWaS_WithinDungeon, thing, &pos))
-                    {
-                        targeted_message_add(MsgType_Player,plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s %d will dig to %s", thing_model_name(thing),thing->index, player_code_name(id));
-                        return send_tunneller_to_point_in_dungeon(thing, id, &pos);
-                    }
+                    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+                    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s %d will dig to %d,%d", thing_model_name(thing), thing->index, stl_x, stl_y);
+                    cctrl->party.target_plyr_idx = -1;
+                    thing->continue_state = CrSt_TunnellerDoingNothing;
+                    return true;
                 }
+                return false;
             }
         }
         else if (strcasecmp(parstr, "creature.instance.set") == 0)

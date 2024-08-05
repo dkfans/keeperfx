@@ -1199,23 +1199,24 @@ long get_best_dungeon_to_tunnel_to(struct Thing *creatng)
     return best_plyr_idx;
 }
 
-short setup_person_tunnel_to_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char a4)
+TbBool setup_person_tunnel_to_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    if ( internal_set_thing_state(creatng, CrSt_Tunnelling) )
+    if (internal_set_thing_state(creatng, CrSt_Tunnelling))
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
         cctrl->moveto_pos.x.val = subtile_coord_center(stl_x);
         cctrl->moveto_pos.y.val = subtile_coord_center(stl_y);
         cctrl->moveto_pos.z.val = get_thing_height_at(creatng, &cctrl->moveto_pos);
+        return true;
     }
-    return 0;
+    return false;
 }
 
 long send_tunneller_to_point(struct Thing *thing, struct Coord3d *pos)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->party.target_plyr_idx = -1;
-    setup_person_tunnel_to_position(thing, pos->x.stl.num, pos->y.stl.num, 0);
+    setup_person_tunnel_to_position(thing, pos->x.stl.num, pos->y.stl.num);
     thing->continue_state = CrSt_TunnellerDoingNothing;
     return 1;
 }
@@ -1329,7 +1330,7 @@ TbBool send_tunneller_to_point_in_dungeon(struct Thing *creatng, PlayerNumber pl
     SYNCDBG(17,"Move %s index %d to (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)pos->x.stl.num,(int)pos->y.stl.num);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->party.target_plyr_idx = plyr_idx;
-    setup_person_tunnel_to_position(creatng, pos->x.stl.num, pos->y.stl.num, 0);
+    setup_person_tunnel_to_position(creatng, pos->x.stl.num, pos->y.stl.num);
     creatng->continue_state = CrSt_TunnellerDoingNothing;
     return true;
 }
