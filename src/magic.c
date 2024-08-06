@@ -1359,6 +1359,171 @@ static TbResult magic_use_power_apply_spell(PowerKind power_kind, PlayerNumber p
     return Lb_SUCCESS;
 }
 
+TbResult magic_use_power_rebound(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
+{
+    if (!thing_is_creature(thing)) {
+        ERRORLOG("Tried to apply spell to invalid creature.");
+        return Lb_FAIL;
+    }
+    // If this spell is already casted at that creature, do nothing
+    if (thing_affected_by_spell(thing, SplK_Rebound)) {
+        return Lb_OK;
+    }
+    if ((mod_flags & PwMod_CastForFree) == 0)
+    {
+        // If we can't afford the spell, fail
+        if (!pay_for_spell(plyr_idx, PwrK_REBOUND, splevel)) {
+            return Lb_FAIL;
+        }
+    }
+    struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_REBOUND);
+    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    apply_spell_effect_to_thing(thing, SplK_Rebound, splevel);
+    return Lb_SUCCESS;
+}
+
+TbResult magic_use_power_speed(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
+{
+    if (!thing_is_creature(thing)) {
+        ERRORLOG("Tried to apply spell to invalid creature.");
+        return Lb_FAIL;
+    }
+    if (thing_affected_by_spell(thing, SplK_Speed)) {
+        return Lb_OK;
+    }
+    if ((mod_flags & PwMod_CastForFree) == 0)
+    {
+        // If we can't afford the spell, fail
+        if (!pay_for_spell(plyr_idx, PwrK_SPEEDCRTR, splevel)) {
+            return Lb_FAIL;
+        }
+    }
+    struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_SPEEDCRTR);
+    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    apply_spell_effect_to_thing(thing, SplK_Speed, splevel);
+    return Lb_SUCCESS;
+}
+
+TbResult magic_use_power_freeze(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
+{
+    // If this spell is already casted at that creature, do nothing
+    if (thing_affected_by_spell(thing, SplK_Freeze)) {
+        return Lb_OK;
+    }
+    if ((mod_flags & PwMod_CastForFree) == 0)
+    {
+        // If we can't afford the spell, fail
+        if (!pay_for_spell(plyr_idx, PwrK_FREEZE, splevel)) {
+            return Lb_FAIL;
+        }
+    }
+    struct Coord3d effpos = thing->mappos;
+    effpos.z.val = get_ceiling_height_above_thing_at(thing, &thing->mappos);
+    create_effect(&effpos, TngEff_FallingIceBlocks, thing->owner);
+    struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_FREEZE);
+    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    apply_spell_effect_to_thing(thing, SplK_Freeze, splevel);
+    return Lb_SUCCESS;
+}
+
+TbResult magic_use_power_slow(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
+{
+    // If this spell is already casted at that creature, do nothing
+    if (thing_affected_by_spell(thing, SplK_Slow)) {
+        return Lb_OK;
+    }
+    if ((mod_flags & PwMod_CastForFree) == 0)
+    {
+        // If we can't afford the spell, fail
+        if (!pay_for_spell(plyr_idx, PwrK_SLOW, splevel)) {
+            return Lb_FAIL;
+        }
+    }
+    struct Coord3d effpos = thing->mappos;
+    effpos.z.val = get_ceiling_height_above_thing_at(thing, &thing->mappos);
+    create_effect(&effpos, TngEff_SlowKeeperPower, thing->owner);
+    struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_SLOW);
+    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    apply_spell_effect_to_thing(thing, SplK_Slow, splevel);
+    return Lb_SUCCESS;
+}
+
+TbResult magic_use_power_flight(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
+{
+    if (!thing_is_creature(thing)) {
+        ERRORLOG("Tried to apply spell to invalid creature.");
+        return Lb_FAIL;
+    }
+    // If this spell is already casted at that creature, do nothing
+    if (thing_affected_by_spell(thing, SplK_Fly)) {
+        return Lb_OK;
+    }
+    if ((mod_flags & PwMod_CastForFree) == 0)
+    {
+        // If we can't afford the spell, fail
+        if (!pay_for_spell(plyr_idx, PwrK_FLIGHT, splevel)) {
+            return Lb_FAIL;
+        }
+    }
+    struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_FLIGHT);
+    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    apply_spell_effect_to_thing(thing, SplK_Fly, splevel);
+    return Lb_SUCCESS;
+}
+
+TbResult magic_use_power_vision(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
+{
+    if (!thing_is_creature(thing)) {
+        ERRORLOG("Tried to apply spell to invalid creature.");
+        return Lb_FAIL;
+    }
+    // If this spell is already casted at that creature, do nothing
+    if (thing_affected_by_spell(thing, SplK_Sight)) {
+        return Lb_OK;
+    }
+    if ((mod_flags & PwMod_CastForFree) == 0)
+    {
+        // If we can't afford the spell, fail
+        if (!pay_for_spell(plyr_idx, PwrK_VISION, splevel)) {
+            return Lb_FAIL;
+        }
+    }
+    struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_VISION);
+    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    apply_spell_effect_to_thing(thing, SplK_Sight, splevel);
+    return Lb_SUCCESS;
+}
+
+TbResult magic_use_power_rage(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
+{
+    if (!thing_is_creature(thing)) {
+        ERRORLOG("Tried to apply spell to invalid creature.");
+        return Lb_FAIL;
+    }
+    // If this spell is already casted at that creature, do nothing
+    if (thing_affected_by_spell(thing, SplK_Rage)) {
+        return Lb_OK;
+    }
+    if ((mod_flags & PwMod_CastForFree) == 0)
+    {
+        // If we can't afford the spell, fail
+        if (!pay_for_spell(plyr_idx, PwrK_RAGE, splevel)) {
+            return Lb_FAIL;
+        }
+    }
+    struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_RAGE);
+    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    apply_spell_effect_to_thing(thing, SplK_Rage, splevel);
+    return Lb_SUCCESS;
+}
+
 static TbResult magic_use_power_lightning(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
     struct PlayerInfo *player;
@@ -1997,9 +2162,9 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
     unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags)
 {
     const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
-
     TbResult ret;
     ret = Lb_OK;
+    unsigned char health_cost = powerst->health_cost;
     if (!thing_exists(thing)) {
         WARNLOG("Player %d tried to cast %s on non-existing thing",(int)plyr_idx,power_code_name(pwkind));
         ret = Lb_FAIL;
@@ -2026,11 +2191,91 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
     }
     if (ret == Lb_OK)
     {
-        magic_use_power_direct(plyr_idx, pwkind, splevel, stl_x, stl_y, thing, allow_flags);
+        switch (pwkind)
+        {
+        case PwrK_HAND:
+            //Note that we shouldn't use magic_use_power_hand(), that function is for interpreting input
+            if (power_hand_is_full(get_player(plyr_idx)))
+                ret = Lb_FAIL;
+            else
+            if (place_thing_in_power_hand(thing, plyr_idx))
+                ret = Lb_SUCCESS;
+            else
+                ret = Lb_FAIL;
+            break;
+        case PwrK_HEALCRTR:
+            ret = magic_use_power_heal(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
+            break;
+        case PwrK_SPEEDCRTR:
+            ret = magic_use_power_speed(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
+            break;
+        case PwrK_RAGE:
+            ret = magic_use_power_rage(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
+            break;
+        case PwrK_PROTECT:
+            ret = magic_use_power_armour(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
+            break;
+        case PwrK_REBOUND:
+            ret = magic_use_power_rebound(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
+            break;
+        case PwrK_CONCEAL:
+            ret = magic_use_power_conceal(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
+            break;
+        case PwrK_DISEASE:
+            ret = magic_use_power_disease(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
+            break;
+        case PwrK_CHICKEN:
+            ret = magic_use_power_chicken(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
+            break;
+        case PwrK_FREEZE:
+            ret = magic_use_power_freeze(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
+            break;
+        case PwrK_SLOW:
+            ret = magic_use_power_slow(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
+            break;
+        case PwrK_FLIGHT:
+            ret = magic_use_power_flight(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
+            break;
+        case PwrK_VISION:
+            ret = magic_use_power_vision(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
+            break;
+        case PwrK_SLAP:
+            ret = magic_use_power_slap_thing(plyr_idx, thing, allow_flags);
+            break;
+        case PwrK_POSSESS:
+            ret = magic_use_power_possess_thing(plyr_idx, thing, allow_flags);
+            break;
+        case PwrK_CALL2ARMS:
+            ret = magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, splevel, allow_flags);
+            break;
+        case PwrK_LIGHTNING:
+            ret = magic_use_power_lightning(plyr_idx, stl_x, stl_y, splevel, allow_flags);
+            break;
+        case PwrK_TIMEBOMB:
+            ret = magic_use_power_time_bomb(plyr_idx, thing, splevel, allow_flags);
+            break;
+        default:
+            ERRORLOG("Power not supported here: %d", (int)pwkind);
+            ret = Lb_FAIL;
+            break;
+        }
+//        magic_use_power_direct(plyr_idx, pwkind, splevel, stl_x, stl_y, thing, allow_flags); //todo fix merge conflict
     }
     if (ret == Lb_SUCCESS)
     {
         get_player(plyr_idx)->power_of_cooldown_turn = game.play_gameturn + powerst->cast_cooldown;
+        if (health_cost > 0)
+        {
+            unsigned short health_current = thing->health;
+            unsigned short health_substract = (health_current * health_cost) / 100;
+            long health_new = saturate_set_signed(health_current - health_substract, 16);
+            if (health_new < 0)
+            {
+                thing->health = 0;
+            } else {
+                thing->health = health_new;
+            }
+        }
     }
     return ret;
 }

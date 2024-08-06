@@ -1039,6 +1039,7 @@ long player_state_to_packet(PlayerState work_state, PowerKind pwkind, TbBool alr
     case PSt_Slow:
     case PSt_Flight:
     case PSt_Vision:
+    case PSt_Rage:
     case PSt_TimeBomb:
         return PckA_SetPlyrState;
     case PSt_None:

@@ -160,6 +160,7 @@ const struct NamedCommand magic_power_commands[] = {
   {"SPELL",          20},
   {"EFFECT",         21},
   {"USEFUNCTION",    22},
+  {"HEALTHCOST",     23},
   {NULL,              0},
   };
 
@@ -1985,6 +1986,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               powerst->panel_tab_idx = 0;
               powerst->select_sound_idx = 0;
               powerst->cast_cooldown = 0;
+              powerst->health_cost = 0;
               power_desc[i].name = powerst->code_name;
               power_desc[i].num = i;
           } else
@@ -2335,6 +2337,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
                   powerst->spell_idx = k;
                   n++;
               }
+              break;
           }
           if (n < 1)
           {
@@ -2362,6 +2365,22 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               if (k >= 0)
               {
                   powerst->magic_use_func_idx = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 23: //HEALTHCOST
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if ((k >= 0) && (k <= 100))
+              {
+                  powerst->health_cost = k;
                   n++;
               }
           }

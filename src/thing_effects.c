@@ -325,6 +325,14 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             cctrl->spell_flags &= ~CSAfF_MagicFall;
         }
     }
+
+    if ((cctrl->spell_flags & CSAfF_Rage) != 0)
+    {
+        pos.x.val = thing->mappos.x.val;
+        pos.y.val = thing->mappos.y.val;
+        pos.z.val = thing->mappos.z.val + get_creature_eye_height(thing);
+        effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_RedDot, thing->owner, -1);
+    }
 }
 
 void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct Coord3d *next_pos)

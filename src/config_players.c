@@ -35,6 +35,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
+
 const char keeper_playerstates_file[]="playerstates.toml";
 
 struct NamedCommand player_state_commands[PLAYER_STATES_COUNT_MAX];

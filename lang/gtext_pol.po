@@ -7070,3 +7070,13 @@ msgstr "Spraw, by były nieszczęśliwe: Wszystkie istoty wroga stają się nies
 msgctxt "Dungeon special decription"
 msgid "Weaken Walls: Destroys the fortifications of enemy walls."
 msgstr "Osłabiaj Ściany: Niszczy umocnienia wrogich murów."
+
+#: guitext:1063
+msgctxt "Keeper spell name"
+msgid "Rage"
+msgstr "Wściekłość"
+
+#: guitext:1064
+msgctxt "Creature spell"
+msgid "Rage: Makes the creature attack recklessly, hitting harder and faster without dodging."
+msgstr "Wściekłość: Sprawia, że stworzenie atakuje lekkomyślnie, uderzając mocniej i szybciej, bez unikania."
