@@ -92,7 +92,7 @@ TbBool map_block_invalid(const struct Map *map)
   return (map < &game.map[0]);
 }
 
-unsigned long get_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+NavColour get_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
   if ((stl_x < 0) || (stl_x > gameadd.map_subtiles_x))
       return 0;
@@ -101,7 +101,7 @@ unsigned long get_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
   return game.navigation_map[navmap_tile_number(stl_x,stl_y)];
 }
 
-void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long navcolour)
+void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, NavColour navcolour)
 {
   if ((stl_x < 0) || (stl_x > gameadd.map_subtiles_x))
       return;
