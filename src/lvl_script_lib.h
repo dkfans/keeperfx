@@ -280,6 +280,10 @@ enum ScriptVariables {
   SVar_ALLIED_PLAYER                   = 78,
   SVar_ACTIVE_BATTLES                  = 79,
   SVar_VIEW_TYPE                       = 80,
+  SVar_TOTAL_TRAPS                     = 81,
+  SVar_AVAILABLE_TOTAL_TRAPS           = 82,
+  SVar_AVAILABLE_TOTAL_DOORS           = 83,
+  SVar_AVAILABLE_TOTAL_CREATURES       = 84,
  };
 
 
