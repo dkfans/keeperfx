@@ -290,6 +290,8 @@ typedef unsigned short NavColour; //this one should become a long, as it can't f
 typedef signed char SmallAroundIndex;
 /** a player state as defined in config_players*/
 typedef unsigned char PlayerState;
+/** index to a function, positive for C functions, negative for lua functions*/
+typedef short FuncIdx;
 
 
 /**
