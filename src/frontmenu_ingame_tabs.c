@@ -1963,15 +1963,13 @@ void maintain_event_button(struct GuiButton *gbtn)
             if (is_game_key_pressed(Gkey_ToggleMessage, &keycode, false)
                 && ((get_player(my_player_number)->allocflags & PlaF_NewMPMessage) == 0))
             {
-                int i = EVENT_BUTTONS_COUNT;
-                for (i=EVENT_BUTTONS_COUNT; i > 0; i--)
+                for (int i = EVENT_BUTTONS_COUNT; i >= 0; i--)
                 {
-                    struct Event* evloop = &game.event[i];
-                    if((evloop->kind > 0) && (evloop->owner == my_player_number))
+                    long k = dungeon->event_button_index[i];
+                    if (k != 0)
                     {
-                        activate_event_box(i);
+                        activate_event_box(k);
                         break;
-
                     }
                 }
                 clear_key_pressed(keycode);
