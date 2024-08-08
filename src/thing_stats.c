@@ -17,29 +17,31 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "thing_stats.h"
 
-#include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
 #include "bflib_memory.h"
-#include "game_merge.h"
-#include "thing_list.h"
-#include "creature_control.h"
 #include "config_creature.h"
+#include "config_crtrstates.h"
+#include "config_effects.h"
+#include "config_magic.h"
+#include "config_objects.h"
 #include "config_terrain.h"
 #include "config_trapdoor.h"
-#include "config_crtrstates.h"
-#include "config_objects.h"
-#include "config_effects.h"
+#include "creature_control.h"
 #include "creature_states.h"
-#include "player_data.h"
-#include "player_utils.h"
-#include "player_instances.h"
-#include "config_magic.h"
-#include "vidfade.h"
 #include "game_legacy.h"
+#include "game_merge.h"
+#include "globals.h"
+#include "player_data.h"
+#include "player_instances.h"
+#include "player_utils.h"
+#include "thing_effects.h"
+#include "thing_list.h"
 #include "thing_physics.h"
+#include "thing_stats.h"
+#include "vidfade.h"
+
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -974,6 +976,7 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
     {
         GoldAmount received = take_money_from_dungeon(doortng->owner, dmg, 0);
         dmg = -received;
+        create_price_effect(&shotng->mappos, doortng->owner, received);
     }
     return dmg;
 }
