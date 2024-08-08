@@ -107,7 +107,7 @@ struct Thing;
 
 struct SlabMap {
       SlabCodedCoords next_in_room;
-      short health;
+      HitPoints health;
       SlabKind kind;
       unsigned char room_index;
       unsigned char wlb_type;
@@ -186,6 +186,7 @@ TbBool slab_kind_has_no_ownership(SlabKind slbkind);
 TbBool players_land_by_slab_kind(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y,SlabKind slbkind);
 TbBool slab_by_players_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool player_can_claim_slab(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
+SlabKind choose_rock_type(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 
 /******************************************************************************/
 #include "roomspace.h"

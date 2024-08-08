@@ -28,6 +28,7 @@
 #include "engine_textures.h"
 #include "frontend.h"
 #include "frontmenu_ingame_tabs.h"
+#include "frontmenu_ingame_map.h"
 #include "game_heap.h"
 #include "game_legacy.h"
 #include "game_merge.h"
@@ -40,12 +41,14 @@
 #include "room_list.h"
 #include "power_specials.h"
 #include "player_data.h"
+#include "player_instances.h"
 #include "player_utils.h"
 #include "vidfade.h"
 #include "vidmode.h"
 #include "custom_sprites.h"
 #include "gui_boxmenu.h"
 #include "sounds.h"
+#include "api.h"
 
 #ifdef FUNCTESTING
   #include "ftests/ftest.h"
@@ -75,7 +78,6 @@ void reset_script_timers_and_flags(void)
         add_power_to_player(PwrK_SLAP, plyr_idx);
         add_power_to_player(PwrK_POSSESS, plyr_idx);
         dungeon = get_dungeon(plyr_idx);
-        dungeon = get_dungeon(plyr_idx);
         for (k=0; k<TURN_TIMERS_COUNT; k++)
         {
             memset(&dungeon->turn_timers[k], 0, sizeof(struct TurnTimer));
@@ -92,14 +94,28 @@ void reset_script_timers_and_flags(void)
     }
 }
 
-void init_good_player_as(PlayerNumber plr_idx)
+void init_player_types()
 {
-    struct PlayerInfo *player;
-    game.hero_player_num = plr_idx;
-    player = get_player(plr_idx);
-    player->allocflags |= PlaF_Allocated;
-    player->allocflags |= PlaF_CompCtrl;
-    player->id_number = game.hero_player_num;
+    for (size_t plr_idx = 0; plr_idx < PLAYERS_COUNT; plr_idx++)
+    {
+        struct PlayerInfo *player;
+        player = get_player(plr_idx);
+        switch (plr_idx)
+        {
+        case PLAYER_GOOD:
+            player->allocflags |= PlaF_Allocated;
+            player->allocflags |= PlaF_CompCtrl;
+            player->player_type = PT_Roaming;
+            player->id_number = plr_idx;
+            break;
+        case PLAYER_NEUTRAL:
+            player->player_type = PT_Neutral;
+            break;
+        default:
+            player->player_type = PT_Keeper;
+            break;
+        }
+    }
 }
 
 /******************************************************************************/
@@ -138,6 +154,7 @@ static void init_level(void)
     free_swipe_graphic();
     game.loaded_swipe_idx = -1;
     game.play_gameturn = 0;
+    game.paused_at_gameturn = false;
     game_flags2 &= (GF2_PERSISTENT_FLAGS | GF2_Timer);
     clear_game();
     reset_heap_manager();
@@ -157,13 +174,14 @@ static void init_level(void)
 
     init_creature_scores();
 
-    init_good_player_as(hero_player_number);
+    init_player_types();
     light_set_lights_on(1);
     start_rooms = &game.rooms[1];
     end_rooms = &game.rooms[ROOMS_COUNT];
 
     erstats_clear();
     init_dungeons();
+    setup_panel_colors();
     init_map_size(get_selected_level_number());
     clear_messages();
     init_seeds();
@@ -188,9 +206,15 @@ static void init_level(void)
     LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
     light_set_lights_on(1);
     {
-        struct PlayerInfo *player;
-        player = get_player(game.hero_player_num);
-        init_player_start(player, false);
+        for (size_t i = 0; i < PLAYERS_COUNT; i++)
+        {
+            if(player_is_roaming(i))
+            {
+                struct PlayerInfo *player;
+                player = get_player(i);
+                init_player_start(player, false);
+            }
+        }
     }
     game.numfield_D |= GNFldD_Unkn04;
     //LbMemoryCopy(&game.intralvl.transferred_creature,&transfer_mem,sizeof(struct CreatureStorage));
@@ -213,6 +237,8 @@ static void init_level(void)
     game.manufactr_spridx = 0;
     game.manufactr_tooltip = 0;
     JUSTMSG("Started level %d from %s", get_selected_level_number(), campaign.name);
+
+    api_event("GAME_STARTED");
 }
 
 static void post_init_level(void)

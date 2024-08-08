@@ -159,7 +159,7 @@ static const unsigned short creature_list[CREATURE_FRAMELIST_LENGTH] = {
 /******************************************************************************/
 struct CreaturePickedUpOffset *get_creature_picked_up_offset(struct Thing *thing)
 {
-    int crmodel = thing->model;
+    ThingModel crmodel = thing->model;
     if ((crmodel < 1) || (crmodel >= game.conf.crtr_conf.model_count))
         crmodel = 0;
     struct CreatureStats* crstat = creature_stats_get(crmodel);
@@ -280,8 +280,8 @@ void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, 
           *unsc_w = kspr->FrameOffsW;
           *unsc_h = kspr->FrameOffsH;
         }
-    } else
-    if (kspr->Rotable == 2)
+    }
+    else if (kspr->Rotable == 2)
     {
         kspr += frame + abs(4 - (((angle + 128) & 0x7FF) >> 8)) * kspr->FramesCount;
         *orig_w = kspr->SWidth;
@@ -371,17 +371,21 @@ TbBool update_creature_anim_td(struct Thing *thing, long speed, long td_idx)
 void update_creature_rendering_flags(struct Thing *thing)
 {
     // Clear related flags
-    thing->rendering_flags &= ~TRF_Unknown01;
+    thing->rendering_flags &= ~TRF_Invisible;
     thing->rendering_flags &= ~TRF_Transpar_Flags;
     thing->rendering_flags &= ~TRF_AnimateOnce;
     // Now set only those that should be
     if ( (is_thing_directly_controlled_by_player(thing, my_player_number)) || (is_thing_passenger_controlled_by_player(thing, my_player_number)) )
     {
-        thing->rendering_flags |= TRF_Unknown01;
+        thing->rendering_flags |= TRF_Invisible;
     }
-    if (creatures[thing->model].field_7)
+    if (thing_is_creature(thing))
     {
-        thing->rendering_flags |= TRF_Transpar_Alpha;
+        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+        if (crstat->transparency_flags != 0)
+        {
+            set_flag(thing->rendering_flags, crstat->transparency_flags);
+        }
     }
     if (creature_is_invisible(thing))
     {
@@ -391,7 +395,7 @@ void update_creature_rendering_flags(struct Thing *thing)
           thing->rendering_flags |= TRF_Transpar_4;
       } else
       {
-            thing->rendering_flags |= TRF_Unknown01;
+            thing->rendering_flags |= TRF_Invisible;
             struct PlayerInfo* player = get_my_player();
             struct Thing* creatng = thing_get(player->influenced_thing_idx);
             if (creatng != thing)
@@ -400,7 +404,7 @@ void update_creature_rendering_flags(struct Thing *thing)
                 {
                     if (creature_can_see_invisible(creatng))
                     {
-                        thing->rendering_flags &= ~TRF_Unknown01;
+                        thing->rendering_flags &= ~TRF_Invisible;
                         thing->rendering_flags &= ~TRF_Transpar_Flags;
                         thing->rendering_flags |= TRF_Transpar_4;
                     }
@@ -424,7 +428,7 @@ void update_creature_graphic_anim(struct Thing *thing)
     } else
     if ((thing->active_state == CrSt_CreatureHeroEntering) && (cctrl->countdown_282 >= 0))
     {
-      thing->rendering_flags |= TRF_Unknown01;
+      thing->rendering_flags |= TRF_Invisible;
     } else
     if (!creature_affected_by_spell(thing, SplK_Chicken))
     {
@@ -476,7 +480,7 @@ void update_creature_graphic_anim(struct Thing *thing)
             i = (((long)cctrl->distance_to_destination) << 8) / (crstat->walking_anim_speed+1);
             update_creature_anim(thing, i, CGI_Drag);
         } else
-        if (creatures[thing->model].field_6 == 4)
+        if (crstat->fixed_anim_speed)
         {
             update_creature_anim(thing, 256, CGI_Ambulate);
         } else
@@ -498,7 +502,7 @@ void update_creature_graphic_anim(struct Thing *thing)
         {
             update_creature_anim_td(thing, 256, 820);
         } else
-        if (creatures[thing->model].field_6 == 4)
+        if (crstat->fixed_anim_speed)
         {
             update_creature_anim_td(thing, 256, 819);
         } else
@@ -540,6 +544,41 @@ void set_creature_graphic(struct Thing *thing)
     // Update tint
     update_creature_graphic_tint(thing);
 }
+
+size_t creature_table_load_get_size(size_t disk_size)
+{
+    size_t items = disk_size / sizeof(struct KeeperSpriteDisk);
+    if (items * sizeof(struct KeeperSpriteDisk) != disk_size)
+    {
+        ERRORLOG("Unexpected creature.tab");
+    }
+    return items * sizeof(struct KeeperSprite);
+}
+
+void creature_table_load_unpack(unsigned char *src_buf, size_t disk_size)
+{
+    size_t items = disk_size / sizeof(struct KeeperSpriteDisk);
+    struct KeeperSpriteDisk* src = (struct KeeperSpriteDisk*)src_buf;
+    struct KeeperSprite *tmp = malloc(items * sizeof(struct KeeperSprite));
+    for (int i = 0; i < items; i++, src++)
+    {
+        tmp[i].DataOffset = src->DataOffset;
+        tmp[i].SWidth = src->SWidth;
+        tmp[i].SHeight = src->SHeight;
+        tmp[i].FrameWidth = src->FrameWidth;
+        tmp[i].FrameHeight = src->FrameHeight;
+        tmp[i].Rotable = src->Rotable;
+        tmp[i].FramesCount = src->FramesCount;
+        tmp[i].FrameOffsW = src->FrameOffsW;
+        tmp[i].FrameOffsH = src->FrameOffsH;
+        tmp[i].offset_x = src->offset_x;
+        tmp[i].offset_y = src->offset_y;
+        tmp[i].shadow_offset = 0;
+    }
+    memcpy(src_buf, tmp, items * sizeof(struct KeeperSprite));
+    free(tmp);
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

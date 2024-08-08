@@ -328,15 +328,18 @@ CrAttackType creature_can_have_combat_with_creature(struct Thing *fightng, struc
     if (creature_can_hear_within_distance(fightng, dist))
     {
         // We can have a melee combat if we hear an enemy and we can move to it
-        if (move_on_ground)
+        if (creature_has_melee_attack(fightng))
         {
-            if (creature_can_move_to_combat(fightng, enmtng) >= 0) {
-                return AttckT_Melee;
-            }
-        } else
-        {
-            if (slab_wall_hug_route(fightng, &enmtng->mappos, 8) > 0) {
-                return AttckT_Melee;
+            if (move_on_ground)
+            {
+                if (creature_can_move_to_combat(fightng, enmtng) >= 0) {
+                    return AttckT_Melee;
+                }
+            } else
+            {
+                if (slab_wall_hug_route(fightng, &enmtng->mappos, 8) > 0) {
+                    return AttckT_Melee;
+                }
             }
         }
         // If we cannot move to the enemy, then ranged attack is the only option, and we need line of sight
@@ -356,8 +359,11 @@ CrAttackType creature_can_have_combat_with_creature(struct Thing *fightng, struc
           return AttckT_Unset;
         }
         // If we can see it, assume that we can reach it
-        //TODO COMBAT is it acceptable to assume we can do melee combat here? Why no seen_enemy update?
-        return AttckT_Melee;
+        if (creature_has_melee_attack(fightng))
+        {
+            //TODO COMBAT is it acceptable to assume we can do melee combat here? Why no seen_enemy update?
+            return AttckT_Melee;
+        }
     }
     if (set_if_seen)
     {
@@ -366,7 +372,11 @@ CrAttackType creature_can_have_combat_with_creature(struct Thing *fightng, struc
         fcctrl->combat.seen_enemy_idx = enmtng->index;
         fcctrl->combat.seen_enemy_turn = game.play_gameturn;
     }
-    return AttckT_Ranged;
+    if (creature_has_ranged_weapon(fightng))
+    {
+        return AttckT_Ranged;
+    }
+    return AttckT_Unset;
 }
 
 CrAttackType creature_can_have_combat_with_object(struct Thing* fightng, struct Thing* enmtng, long dist, long move_on_ground, long set_if_seen)
@@ -601,7 +611,7 @@ void update_battle_events(BattleIndex battle_id)
     }
     for (i=0; i < PLAYERS_COUNT; i++)
     {
-        if ((i == game.hero_player_num) || (i == game.neutral_player_num))
+        if (!player_is_keeper(i))
             continue;
         if (flag_is_set(owner_flags, to_flag(i)))
         {
@@ -1235,7 +1245,7 @@ CrAttackType find_fellow_creature_to_fight_in_room(struct Thing *fightng, struct
         {
             if (crmodel[j] == 0)
                 break;
-            if (thing_is_creature(thing) && (thing->model == crmodel[j]) && (cctrl->combat_flags == 0))
+            if (thing_is_creature(thing) && (thing_matches_model(thing,crmodel[j])) && (cctrl->combat_flags == 0))
             {
                 if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing)
                     && !creature_is_being_unconscious(thing) && !creature_is_dying(thing))
@@ -1826,6 +1836,8 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_FLY);
     }
+    INSTANCE_RET_IF_AVAIL(thing, CrInst_SUMMON);
+    INSTANCE_RET_IF_AVAIL(thing, CrInst_FAMILIAR);
     for (int i = CrInst_LISTEND; i < game.conf.crtr_conf.instances_count; i++)
     {
         inst_inf = creature_instance_info_get(i);
@@ -1880,7 +1892,6 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
             INSTANCE_RET_IF_AVAIL(thing, CrInst_SIGHT);
         }
 
-        long state_type = get_creature_state_type(thing);
         if (!creature_is_kept_in_custody(thing))
         {
             // casting wind when under influence of gas
@@ -1888,6 +1899,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
             {
                 INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
             }
+            long state_type = get_creature_state_type(thing);
             if (!creature_affected_by_spell(thing, SplK_Speed) && (state_type != CrStTyp_Idle))
             {
                 INSTANCE_RET_IF_AVAIL(thing, CrInst_SPEED);
@@ -1900,6 +1912,10 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
             if (!creature_affected_by_spell(thing, SplK_Invisibility) && (state_type != CrStTyp_Idle))
             {
                 INSTANCE_RET_IF_AVAIL(thing, CrInst_INVISIBILITY);
+            }
+            if (state_type != CrStTyp_Idle)
+            {
+                INSTANCE_RET_IF_AVAIL(thing, CrInst_FAMILIAR);
             }
         }
     }
@@ -2996,6 +3012,31 @@ short creature_object_combat(struct Thing *creatng)
     ERRORLOG("The %s index %d has invalid fight object state", thing_model_name(creatng), (int)creatng->index);
     set_start_state(creatng);
     return 0;
+}
+
+TbBool creature_start_combat_with_trap_if_available(struct Thing* creatng, struct Thing* traptng)
+{
+    if (!creature_will_do_combat(creatng))
+    {
+        return false;
+    }
+    if (!combat_enemy_exists(creatng,traptng))
+    {
+        return false;
+    }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if (cctrl->combat.battle_enemy_idx == traptng->index)
+    {
+        return false;
+    }
+    if (!creature_can_navigate_to(creatng, &traptng->mappos, NavRtF_Default))
+    {
+        if (!creature_has_ranged_weapon(creatng))
+            return false;
+        if (!creature_can_see_combat_path(creatng, traptng, get_combat_distance(creatng, traptng)))
+            return false;
+    }
+    return set_creature_object_combat(creatng, traptng);
 }
 
 TbBool creature_look_for_combat(struct Thing *creatng)

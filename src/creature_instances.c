@@ -49,6 +49,7 @@
 #include "sounds.h"
 #include "game_legacy.h"
 #include "player_instances.h"
+#include "gui_msgs.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -260,57 +261,38 @@ CrInstance creature_instance_get_available_id_for_pos(struct Thing *thing, int r
 
 TbBool instance_is_disarming_weapon(CrInstance inum)
 {
-    struct InstanceInfo* inst_inf;
-    inst_inf = creature_instance_info_get(inum);
-    if (inst_inf->flags & InstPF_Disarming)
-    {
-        return true;
-    }
-    return false;
+    struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
+    return ((inst_inf->flags & InstPF_Disarming) != 0);
 }
 
 TbBool instance_draws_possession_swipe(CrInstance inum)
 {
-    struct InstanceInfo* inst_inf;
-    inst_inf = creature_instance_info_get(inum);
-    if (inst_inf->flags & InstPF_UsesSwipe)
-    {
-        return true;
-    }
-    return false;
+    struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
+    return ((inst_inf->flags & InstPF_UsesSwipe) != 0);
 }
 
 TbBool instance_is_ranged_weapon(CrInstance inum)
 {
-    struct InstanceInfo* inst_inf;
-    inst_inf = creature_instance_info_get(inum);
-    if (inst_inf->flags & InstPF_RangedAttack)
-    {
-        return true;
-    }
-    return false;
+    struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
+    return ((inst_inf->flags & InstPF_RangedAttack) != 0);
 }
 
 TbBool instance_is_ranged_weapon_vs_objects(CrInstance inum)
 {
-    struct InstanceInfo* inst_inf;
-    inst_inf = creature_instance_info_get(inum);
-    if ((inst_inf->flags & InstPF_RangedAttack) && (inst_inf->flags & InstPF_Destructive) && !(inst_inf->flags & InstPF_Dangerous))
-    {
-        return true;
-    }
-    return false;
+    struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
+    return (((inst_inf->flags & InstPF_RangedAttack) != 0) && ((inst_inf->flags & InstPF_Destructive) != 0) && !(inst_inf->flags & InstPF_Dangerous));
 }
 
 TbBool instance_is_quick_range_weapon(CrInstance inum)
 {
-    struct InstanceInfo* inst_inf;
-    inst_inf = creature_instance_info_get(inum);
-    if ((inst_inf->flags & InstPF_RangedAttack) && (inst_inf->flags & InstPF_Quick))
-    {
-        return true;
-    }
-    return false;
+    struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
+    return (((inst_inf->flags & InstPF_RangedAttack) != 0) && ((inst_inf->flags & InstPF_Quick) != 0));
+}
+
+TbBool instance_is_melee_attack(CrInstance inum)
+{
+    struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
+    return ((inst_inf->flags & InstPF_MeleeAttack) != 0);
 }
 
 /**
@@ -391,12 +373,33 @@ TbBool creature_has_quick_range_weapon(const struct Thing *creatng)
     return false;
 }
 
+/**
+ * Informs whether the creature has a mêlée attack.
+ * The instances currently in use and currently in cooldown are included.
+ * @param creatng The creature to be checked.
+ * @return True if the creature has mêlée attack, false otherwise.
+ */
+TbBool creature_has_melee_attack(const struct Thing *creatng)
+{
+    TRACE_THING(creatng);
+    const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    for (long inum = 1; inum < game.conf.crtr_conf.instances_count; inum++)
+    {
+        if (cctrl->instance_available[inum] > 0)
+        {
+            if (instance_is_melee_attack(inum))
+                return true;
+        }
+    }
+    return false;
+}
+
 void process_creature_instance(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
-    SYNCDBG(19,"Starting for %s index %d instance %d",thing_model_name(thing),(int)thing->index,(int)cctrl->instance_id);
     TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
+    SYNCDBG(19, "Starting for %s index %d instance %d", thing_model_name(thing), (int)thing->index, (int)cctrl->instance_id);
     if (cctrl->instance_id != CrInst_NULL)
     {
         cctrl->inst_turn++;
@@ -407,6 +410,10 @@ void process_creature_instance(struct Thing *thing)
             {
                 SYNCDBG(18,"Executing %s for %s index %d.",creature_instance_code_name(cctrl->instance_id),thing_model_name(thing),(int)thing->index);
                 creature_instances_func_list[inst_inf->func_idx](thing, inst_inf->func_params);
+                if (thing->creature.volley_repeat > 0)
+                {
+                    return;
+                }
             }
         }
         if (cctrl->inst_turn >= cctrl->inst_total_turns)
@@ -420,6 +427,7 @@ void process_creature_instance(struct Thing *thing)
             // Instances sometimes failed to reach this. More reliable to set instance_use_turn sooner
             // cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn; // so this code has been moved to another location
             cctrl->instance_id = CrInst_NULL;
+            thing->creature.volley_fire = false;
         }
         cctrl->inst_repeat = 0;
     }
@@ -701,6 +709,7 @@ long instf_attack_room_slab(struct Thing *creatng, long *param)
     {
         event_create_event_or_update_nearby_existing_event(coord_slab(creatng->mappos.x.val), coord_slab(creatng->mappos.y.val), EvKind_RoomLost, room->owner, room->kind);
     }
+    long z = get_floor_filled_subtiles_at(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
     if (!delete_room_slab(coord_slab(creatng->mappos.x.val), coord_slab(creatng->mappos.y.val), 1))
     {
         ERRORLOG("Cannot delete %s room tile destroyed by %s index %d", room_code_name(room->kind), thing_model_name(creatng), (int)creatng->index);
@@ -708,6 +717,13 @@ long instf_attack_room_slab(struct Thing *creatng, long *param)
     }
     create_effect(&creatng->mappos, TngEff_Explosion3, creatng->owner);
     thing_play_sample(creatng, 47, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    if (z > 0)
+    {
+        for (long k = 0; k < AROUND_TILES_COUNT; k++)
+        {
+            create_dirt_rubble_for_dug_block(creatng->mappos.x.stl.num + around[k].delta_x, creatng->mappos.y.stl.num + around[k].delta_y, z, room->owner);
+        }
+    }
     return 1;
 }
 
@@ -847,7 +863,6 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                 room = room_get(slb->room_index);
                 if (!room_is_invalid(room))
                 {
-                    char id = ((~room->kind) + 1) - 78;
                     if (room->owner != creatng->owner)
                     {
                         MapCoord coord_x = subtile_coord_center(room->central_stl_x);
@@ -860,15 +875,15 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                         }
                         if (game.active_messages_count > 0)
                         {
-                            clear_messages_from_player(id);
+                            clear_messages_from_player(MsgType_Room, room->kind);
                         }
-                        targeted_message_add(id, player->id_number, 50, "%d/%d", room->health, compute_room_max_health(room->slabs_count, room->efficiency));
+                        targeted_message_add(MsgType_Room, room->kind, player->id_number, 50, "%d/%d", room->health, compute_room_max_health(room->slabs_count, room->efficiency));
                     }
                     else
                     {
                         if (game.active_messages_count > 0)
                         {
-                            clear_messages_from_player(id);
+                            clear_messages_from_player(MsgType_Room, room->kind);
                         }
                     }
                 }

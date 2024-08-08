@@ -28,6 +28,7 @@ extern "C" {
 #endif
 
 #define GROUP_MEMBERS_COUNT 30
+#define FAMILIAR_MAX 8
 
 enum TriggerFlags {
     TrgF_CREATE_PARTY                  =  0x00,
@@ -62,8 +63,7 @@ struct MemberPos {
 
 struct PartyMember { // sizeof = 13
   unsigned char flags;
-  unsigned char field_65;
-  unsigned char crtr_kind;
+  ThingModel crtr_kind;
   unsigned char objectv;
   long countdown;
   unsigned char crtr_level;

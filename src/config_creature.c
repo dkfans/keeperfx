@@ -61,19 +61,21 @@ const struct NamedCommand creaturetype_common_commands[] = {
   };
 
 const struct NamedCommand creaturetype_experience_commands[] = {
-  {"PAYINCREASEONEXP",            1},
-  {"SPELLDAMAGEINCREASEONEXP",    2},
-  {"RANGEINCREASEONEXP",          3},
-  {"JOBVALUEINCREASEONEXP",       4},
-  {"HEALTHINCREASEONEXP",         5},
-  {"STRENGTHINCREASEONEXP",       6},
-  {"DEXTERITYINCREASEONEXP",      7},
-  {"DEFENSEINCREASEONEXP",        8},
-  {"LOYALTYINCREASEONEXP",        9},
-  {"ARMOURINCREASEONEXP",        10},
-  {"SIZEINCREASEONEXP",          11},
-  {"EXPFORHITTINGINCREASEONEXP", 12},
-  {NULL,                          0},
+  {"PAYINCREASEONEXP",             1},
+  {"SPELLDAMAGEINCREASEONEXP",     2},
+  {"RANGEINCREASEONEXP",           3},
+  {"JOBVALUEINCREASEONEXP",        4},
+  {"HEALTHINCREASEONEXP",          5},
+  {"STRENGTHINCREASEONEXP",        6},
+  {"DEXTERITYINCREASEONEXP",       7},
+  {"DEFENSEINCREASEONEXP",         8},
+  {"LOYALTYINCREASEONEXP",         9},
+  {"ARMOURINCREASEONEXP",         10},
+  {"SIZEINCREASEONEXP",           11},
+  {"EXPFORHITTINGINCREASEONEXP",  12},
+  {"TRAININGCOSTINCREASEONEXP",   13},
+  {"SCAVENGINGCOSTINCREASEONEXP", 14},
+  {NULL,                           0},
   };
 
 const struct NamedCommand creaturetype_instance_commands[] = {
@@ -204,7 +206,7 @@ struct NamedCommand creaturejob_desc[INSTANCE_TYPES_MAX];
 struct NamedCommand angerjob_desc[INSTANCE_TYPES_MAX];
 struct NamedCommand attackpref_desc[INSTANCE_TYPES_MAX];
 
-unsigned short breed_activities[CREATURE_TYPES_MAX];
+ThingModel breed_activities[CREATURE_TYPES_MAX];
 /******************************************************************************/
 extern const struct NamedCommand creature_job_player_assign_func_type[];
 extern Creature_Job_Player_Check_Func creature_job_player_check_func_list[];
@@ -329,7 +331,7 @@ void check_and_auto_fix_stats(void)
             ERRORLOG("Creature model %d (%s) SleepSlab set but SleepExperience = 0 - Fixing", (int)model, creature_code_name(model));
             crstat->sleep_exp_slab = 0;
         }
-        if ((crstat->grow_up >= game.conf.crtr_conf.model_count) && !(crstat->grow_up == CREATURE_ANY))
+        if ((crstat->grow_up >= game.conf.crtr_conf.model_count) && !(crstat->grow_up == CREATURE_NOT_A_DIGGER))
         {
             ERRORLOG("Creature model %d (%s) Invalid GrowUp model - Fixing", (int)model, creature_code_name(model));
             crstat->grow_up = 0;
@@ -627,6 +629,8 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
         game.conf.crtr_conf.exp.loyalty_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
         game.conf.crtr_conf.exp.exp_on_hitting_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
         game.conf.crtr_conf.exp.armour_increase_on_exp = 0;
+        game.conf.crtr_conf.exp.training_cost_increase_on_exp = 0;
+        game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp = 0;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -804,6 +808,32 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
+        case 13: // TRAININGCOSTINCREASEONEXP
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                game.conf.crtr_conf.exp.training_cost_increase_on_exp = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 14: // SCAVENGINGCOSTINCREASEONEXP
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 0: // comment
@@ -1757,7 +1787,8 @@ TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, long
 ThingModel get_players_special_digger_model(PlayerNumber plyr_idx)
 {
     ThingModel crmodel;
-    if (plyr_idx == hero_player_number)
+
+    if (player_is_roaming(plyr_idx))
     {
         crmodel = game.conf.crtr_conf.special_digger_good;
         if (crmodel == 0)
@@ -1933,11 +1964,42 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
         required_kind_flags |= JoKF_AssignOnAreaBorder;
     }
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
+    struct Room* room = get_room_thing_is_on(creatng);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    RoomKind rkind;
+    if (!room_is_invalid(room)) 
+    {
+        required_kind_flags |= JoKF_AssignAreaWithinRoom;
+        rkind = room->kind;
+    } 
+    else 
+    {
+        required_kind_flags |= JoKF_AssignAreaOutsideRoom;
+        rkind = RoK_NONE;
+    }
     if (creatng->owner == slabmap_owner(slb))
     {
-        if (creatng->model == get_players_special_digger_model(creatng->owner)) {
-            required_kind_flags |= JoKF_OwnedDiggers;
-        } else {
+        if (thing_is_creature_special_digger(creatng)) 
+        {
+            if (creatng->model == get_players_special_digger_model(creatng->owner))
+            {
+                required_kind_flags |= JoKF_OwnedDiggers;
+            }
+            else
+            {
+                CreatureJob jobpref = get_job_for_room(rkind, required_kind_flags | JoKF_OwnedDiggers, crstat->job_primary | crstat->job_secondary);
+                if (jobpref == Job_NULL)
+                {
+                    return get_job_for_room(rkind, required_kind_flags | JoKF_OwnedCreatures, crstat->job_primary | crstat->job_secondary);
+                }
+                else
+                {
+                    return jobpref;
+                }
+            }
+        } 
+        else 
+        {
             required_kind_flags |= JoKF_OwnedCreatures;
         }
     } else
@@ -1948,18 +2010,7 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
             required_kind_flags |= JoKF_EnemyCreatures;
         }
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    RoomKind rkind;
-    struct Room* room = get_room_thing_is_on(creatng);
-    if (!room_is_invalid(room)) {
-        required_kind_flags |= JoKF_AssignAreaWithinRoom;
-        rkind = room->kind;
-    } else {
-        required_kind_flags |= JoKF_AssignAreaOutsideRoom;
-        rkind = RoK_NONE;
-    }
-    CreatureJob jobpref = get_job_for_room(rkind, required_kind_flags, crstat->job_primary | crstat->job_secondary);
-    return jobpref;
+    return get_job_for_room(rkind, required_kind_flags, crstat->job_primary | crstat->job_secondary);
 }
 
 /**

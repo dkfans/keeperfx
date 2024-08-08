@@ -383,8 +383,8 @@ void draw_god_lightning(struct Thing *shotng)
         locpos.x.val = (shotng->mappos.x.val + (LbSinL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10))) + 128;
         locpos.y.val = (shotng->mappos.y.val - (LbCosL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10))) + 128;
         locpos.z.val = shotng->mappos.z.val + subtile_coord(12,0);
-        struct ShotConfigStats* shotst = get_shot_model_stats(ShM_GodLightBall);
-        draw_lightning(&locpos, &shotng->mappos, 256, shotst->effect_id);
+        struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model); //default ShM_GodLightning
+        draw_lightning(&locpos, &shotng->mappos, shotst->effect_spacing, shotst->effect_id);
     }
 }
 
@@ -673,6 +673,10 @@ void process_timebomb(struct Thing *creatng)
 {
     SYNCDBG(18,"Starting");
     if (!creature_affected_by_spell(creatng, SplK_TimeBomb)) {
+        return;
+    }
+    if (thing_is_picked_up(creatng))
+    {
         return;
     }
     update_creature_speed(creatng);

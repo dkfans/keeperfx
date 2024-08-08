@@ -459,9 +459,6 @@
     <ClCompile Include="src\player_instances.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\player_states.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\player_utils.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -606,9 +603,6 @@
     <ClCompile Include="src\bflib_network.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\bflib_pom.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\bflib_semphr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -738,6 +732,18 @@
     <ClCompile Include="src\ftests\ftest.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\config_spritecolors.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\steam_api.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\api.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\moonphase.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actionpt.h">
@@ -858,9 +864,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bflib_planar.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\bflib_pom.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bflib_render.h">
@@ -1220,9 +1223,6 @@
     <ClInclude Include="src\player_instances.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\player_states.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\player_utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1383,6 +1383,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ftests\ftest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\config_spritecolors.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\steam_api.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\api.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\moonphase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

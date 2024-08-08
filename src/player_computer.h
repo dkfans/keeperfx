@@ -42,7 +42,7 @@ extern "C" {
 #define COMPUTER_TRAP_LOC_COUNT      20
 
 #define COMPUTER_PROCESS_TYPES_COUNT 26
-#define COMPUTER_CHECKS_TYPES_COUNT  51
+#define COMPUTER_CHECKS_TYPES_COUNT  52
 #define COMPUTER_EVENTS_TYPES_COUNT  31
 #define COMPUTER_SPARK_POSITIONS_COUNT 64
 #define COMPUTER_SOE_GRID_SIZE        8
@@ -76,7 +76,7 @@ enum ComputerTaskTypes {
     CTT_DigToAttack,
     CTT_MagicCallToArms,
     CTT_PickupForAttack,
-    CTT_MoveCreatureToRoom, // 10
+    CTT_MoveCreatureToRoom,     // 10
     CTT_MoveCreatureToPos,
     CTT_MoveCreaturesToDefend,
     CTT_SlapDiggers,
@@ -122,9 +122,13 @@ enum GameActionTypes {
     GA_UsePwrArmour,
     GA_UsePwrRebound,
     GA_UsePwrConceal,
+    GA_UsePwrFlight,
+    GA_UsePwrVision,
     GA_UsePwrHoldAudnc,
     GA_UsePwrDisease,
     GA_UsePwrChicken,
+    GA_UsePwrFreeze,
+    GA_UsePwrSlow,
     GA_Unk27,
     GA_UsePwrSlap,
     GA_SellTrap,
@@ -566,7 +570,7 @@ struct Computer2 { // sizeof = 5322
           struct ComputerEvent *events;
       };
   };
-  struct OpponentRelation opponent_relations[PLAYERS_EXT_COUNT];
+  struct OpponentRelation opponent_relations[PLAYERS_COUNT];
   // TODO we could use coord2d for trap locations
   struct Coord3d trap_locations[COMPUTER_TRAP_LOC_COUNT];
   /** Stores Sight Of Evil target points data. */
@@ -667,7 +671,7 @@ const char *computer_task_code_name(int ctask_type);
 TbBool create_task_move_creatures_to_defend(struct Computer2 *comp, struct Coord3d *pos, long creatrs_num, unsigned long evflags);
 TbBool create_task_move_creatures_to_room(struct Computer2 *comp, int room_idx, long creatrs_num);
 TbBool create_task_magic_battle_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long par2, long creatrs_num);
-TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long par2, long par3, long creatrs_num);
+TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long cta_duration, long par3, long repeat_num);
 TbBool create_task_pickup_for_attack(struct Computer2 *comp, struct Coord3d *pos, long par3, long creatrs_num);
 TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long num_to_sell, GoldAmount gold_up_to, TbBool allow_deployed);
 TbBool create_task_move_gold_to_treasury(struct Computer2 *comp, long num_to_move, long gold_up_to);
@@ -679,6 +683,8 @@ TbBool create_task_dig_to_neutral(struct Computer2 *comp, const struct Coord3d s
 TbBool create_task_dig_to_gold(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, long parent_cproc_idx, long count_slabs_to_dig, long gold_lookup_idx);
 TbBool create_task_dig_to_entrance(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, long parent_cproc_idx, long entroom_idx);
 TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *creatng, long splevel);
+TbBool create_task_magic_flight_up(struct Computer2 *comp, const struct Thing *creatng, long splevel);
+TbBool create_task_magic_vision_up(struct Computer2 *comp, const struct Thing *creatng, long splevel);
 TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *creatng, PowerKind pwkind, int repeat_num, int splevel, int gaction);
 
 TbBool computer_able_to_use_power(struct Computer2 *comp, PowerKind pwkind, long pwlevel, long amount);
@@ -707,7 +713,7 @@ long count_diggers_in_dungeon(const struct Dungeon *dungeon);
 long check_call_to_arms(struct Computer2 *comp);
 long count_creatures_for_defend_pickup(struct Computer2 *comp);
 long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, long a4);
-long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos);
+unsigned long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos);
 
 long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *cproc, struct Coord3d *pos, long victim_plyr_idx);
 
@@ -722,6 +728,7 @@ TbBool thing_is_in_computer_power_hand_list(const struct Thing *thing, PlayerNum
 struct Thing* find_creature_for_defend_pickup(struct Computer2* comp);
 
 TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyridx, long comp_model);
+TbBool reactivate_build_process(struct Computer2* comp, RoomKind rkind);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -69,6 +69,7 @@ const struct NamedCommand magic_spell_commands[] = {
   {"SPELLPOWER",      8},
   {"AURAEFFECT",      9},
   {"SPELLFLAGS",     10},
+  {"SUMMONCREATURE", 11},
   {NULL,              0},
   };
 
@@ -126,6 +127,14 @@ const struct NamedCommand magic_shot_commands[] = {
   {"UPDATELOGIC",           50},
   {"EFFECTSPACING",         51},
   {"EFFECTAMOUNT",          52},
+  {"HITHEARTEFFECT",        53},
+  {"HITHEARTSOUND",         54},
+  {"BLEEDINGEFFECT",        55},
+  {"FROZENEFFECT",          56},
+  {"PERIODICAL",            57},
+  {"SPEEDDEVIATION",        58},
+  {"SPREAD_XY",             59},
+  {"SPREAD_Z",              60},
   {NULL,                     0},
   };
 
@@ -143,11 +152,14 @@ const struct NamedCommand magic_power_commands[] = {
   {"PANELTABINDEX",  12},
   {"SOUNDSAMPLES",   13},
   {"PROPERTIES",     14},
-  {"FUNCTIONS",      15},
+  {"CASTEXPANDFUNC", 15},
   {"PLAYERSTATE",    16},
   {"PARENTPOWER",    17},
   {"SOUNDPLAYED",    18},
   {"COOLDOWN",       19},
+  {"SPELL",          20},
+  {"EFFECT",         21},
+  {"USEFUNCTION",    22},
   {NULL,              0},
   };
 
@@ -157,6 +169,7 @@ const struct NamedCommand magic_special_commands[] = {
   {"TOOLTIPTEXTID",    3},
   {"SPEECHPLAYED",     4},
   {"ACTIVATIONEFFECT", 5},
+  {"VALUE",            6},
   {NULL,               0},
   };
 
@@ -192,6 +205,7 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"DISARMING",           18},
   {"BLOCKS_REBIRTH",      19},
   {"PENETRATING",         20},
+  {"NEVER_BLOCK",         21},
   {NULL,                   0},
   };
 
@@ -258,12 +272,34 @@ const struct NamedCommand shotmodel_damagetype_commands[] = {
   };
 
 const struct NamedCommand powermodel_expand_check_func_type[] = {
-  {"general_expand",           1},
-  {"sight_of_evil_expand",     2},
-  {"call_to_arms_expand",      3},
-  {"do_not_expand",            4},
-  {NULL,                       0},
+  {"general_expand",           OcC_General_expand},
+  {"sight_of_evil_expand",     OcC_SightOfEvil_expand},
+  {"call_to_arms_expand",      OcC_CallToArms_expand},
+  {"do_not_expand",            OcC_do_not_expand},
+  {NULL,                       OcC_Null},
 };
+
+const struct NamedCommand magic_use_func_commands[] = {
+  {"none",                          0},
+  {"magic_use_power_hand",          1},
+  {"magic_use_power_heal",          2},
+  {"magic_use_power_apply_spell",   3},
+  {"magic_use_power_disease",       4},
+  {"magic_use_power_chicken",       5},
+  {"magic_use_power_slap_thing",    6},
+  {"magic_use_power_possess_thing", 7},
+  {"magic_use_power_call_to_arms",  8},
+  {"magic_use_power_lightning",     9},
+  {"magic_use_power_time_bomb",    10},
+  {"magic_use_power_imp",          11},
+  {"magic_use_power_sight",        12},
+  {"magic_use_power_cave_in",      13},
+  {"magic_use_power_destroy_walls",14},
+  {"magic_use_power_obey",         15},
+  {"magic_use_power_hold_audience",16},
+  {"magic_use_power_armageddon",   17},
+  {NULL,                  0},
+  };
 
 const Expand_Check_Func powermodel_expand_check_func_list[] = {
   NULL,
@@ -286,7 +322,7 @@ struct NamedCommand special_desc[MAGIC_ITEMS_MAX];
 /******************************************************************************/
 struct SpellConfig *get_spell_config(int mgc_idx)
 {
-  if ((mgc_idx < 0) || (mgc_idx >= MAGIC_TYPES_COUNT))
+  if ((mgc_idx < 0) || (mgc_idx >= game.conf.magic_conf.spell_types_count))
     return &game.conf.magic_conf.spell_config[0];
   return &game.conf.magic_conf.spell_config[mgc_idx];
 }
@@ -536,6 +572,9 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
             spconf->cast_effect_model = 0;
             spconf->bigsym_sprite_idx = 0;
             spconf->medsym_sprite_idx = 0;
+            spconf->crtr_summon_model = 0;
+            spconf->crtr_summon_level = 0;
+            spconf->crtr_summon_amount = 0;
             spconf->aura_effect = 0;
             spconf->spell_flags = 0;
         }
@@ -768,6 +807,43 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
+        case 11: // SUMMONCREATURE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(creature_desc, word_buf);
+              if (k < 0)
+              {
+                  if (parameter_is_number(word_buf))
+                  {
+                      k = atoi(word_buf);
+                      spconf->crtr_summon_model = k;
+                      n++;
+                  }
+              }
+              else
+              {
+                  spconf->crtr_summon_model = k;
+                  n++;
+              }
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              spconf->crtr_summon_level = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              spconf->crtr_summon_amount = k;
+              n++;
+          }
+          if (n < 3)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
       case 0: // comment
           break;
       case -1: // end of buffer
@@ -839,6 +915,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
             shotst->inertia_floor = 0;
             shotst->target_hitstop_turns = 0;
             shotst->soft_landing = 0;
+            shotst->periodical = 0;
         }
     }
   // Load the file
@@ -1073,6 +1150,10 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 shotst->model_flags |= ShMF_Penetrating;
                 n++;
                 break;
+            case 21: // NeverBlock
+                shotst->model_flags |= ShMF_NeverBlock;
+                n++;
+                break;
             default:
                 CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
@@ -1239,7 +1320,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       case 21: //VISUALEFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              k = effect_or_effect_element_id(word_buf);
               shotst->visual.effect_model = k;
               n++;
           }
@@ -1291,7 +1372,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       case 25: //HITWALLEFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              k = effect_or_effect_element_id(word_buf);
               shotst->hit_generic.effect_model = k;
               n++;
           }
@@ -1323,7 +1404,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       case 27: //HITCREATUREEFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              k = effect_or_effect_element_id(word_buf);
               shotst->hit_creature.effect_model = k;
               n++;
           }
@@ -1355,7 +1436,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       case 29: //HITDOOREFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              k = effect_or_effect_element_id(word_buf);
               shotst->hit_door.effect_model = k;
               n++;
           }
@@ -1387,7 +1468,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       case 31: //HITWATEREFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              k = effect_or_effect_element_id(word_buf);
               shotst->hit_water.effect_model = k;
               n++;
           }
@@ -1419,7 +1500,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       case 33: //HITLAVAEFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              k = effect_or_effect_element_id(word_buf);
               shotst->hit_lava.effect_model = k;
               n++;
           }
@@ -1451,7 +1532,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       case 35: //DIGHITEFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              k = effect_or_effect_element_id(word_buf);
               shotst->dig.effect_model = k;
               n++;
           }
@@ -1483,25 +1564,25 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       case 37: // EXPLOSIONEFFECTS
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              k = effect_or_effect_element_id(word_buf);
               shotst->explode.effect1_model = k;
               n++;
           }
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              k = effect_or_effect_element_id(word_buf);
               shotst->explode.effect2_model = k;
               n++;
           }
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              k = effect_or_effect_element_id(word_buf);
               shotst->explode.around_effect1_model = k;
               n++;
           }
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              k = effect_or_effect_element_id(word_buf);
               shotst->explode.around_effect2_model = k;
               n++;
           }
@@ -1739,6 +1820,116 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           {
               k = atoi(word_buf);
               shotst->effect_amount = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 53: //HITHEARTEFFECT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = effect_or_effect_element_id(word_buf);
+              shotst->hit_heart.effect_model = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 54: //HITHEARTSOUND
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->hit_heart.sndsample_idx = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->hit_heart.sndsample_range = k;
+              n++;
+          }
+          if (n < 2)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 55: // BLEEDINGEFFECT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = effect_or_effect_element_id(word_buf);
+              shotst->effect_bleeding = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 56: // FROZENEFFECT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = effect_or_effect_element_id(word_buf);
+              shotst->effect_frozen = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 57: // PERIODICAL
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            shotst->periodical = k;
+            n++;
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 58: // SPEEDDEVIATION
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->speed_deviation = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 59: // SPREAD_XY
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->spread_xy = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 60: // SPREAD_Z
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->spread_z = k;
               n++;
           }
           if (n < 1)
@@ -2057,7 +2248,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               }
           }
           break;
-      case 15: // FUNCTIONS
+      case 15: // CASTEXPANDFUNC
           powerst->overcharge_check_idx = 0;
           k = recognize_conf_parameter(buf,&pos,len,powermodel_expand_check_func_type);
           if (k > 0)
@@ -2082,7 +2273,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect object model \"%s\" in [%s] block of %s file.",
+              CONFWRNLOG("Incorrect player state \"%s\" in [%s] block of %s file.",
                   word_buf,block_buf,config_textname);
               break;
           }
@@ -2098,43 +2289,88 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect object model \"%s\" in [%s] block of %s file.",
+              CONFWRNLOG("Incorrect Keeper Power \"%s\" in [%s] block of %s file.",
                   word_buf,block_buf,config_textname);
               break;
           }
           break;
-          case 18: //SOUNDPLAYED
+      case 18: //SOUNDPLAYED
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-            k = atoi(word_buf);
-            if (k >= 0)
-            {
-                powerst->select_sound_idx = k;
-                n++;
-            }
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  powerst->select_sound_idx = k;
+                  n++;
+              }
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-          case 19: //COOLDOWN
-              if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+      case 19: //COOLDOWN
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
               {
-                  k = atoi(word_buf);
-                  if (k >= 0)
-                  {
-                      powerst->cast_cooldown = k;
-                      n++;
-                  }
+                  powerst->cast_cooldown = k;
+                  n++;
               }
-              if (n < 1)
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 20: //SPELL
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(spell_desc,word_buf);
+              if (k >= 0)
               {
-                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                      COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                  powerst->spell_idx = k;
+                  n++;
               }
-              break;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 21: //EFFECT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = effect_or_effect_element_id(word_buf);
+              powerst->effect_id = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 22: //USEFUNCTION
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(magic_use_func_commands,word_buf);
+              if (k >= 0)
+              {
+                  powerst->magic_use_func_idx = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
       case 0: // comment
           break;
       case -1: // end of buffer
@@ -2297,6 +2533,13 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 6: // VALUE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              specst->value = k;
           }
           break;
       case 0: // comment

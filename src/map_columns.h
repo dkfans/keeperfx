@@ -26,7 +26,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define COLUMNS_COUNT        2048
+#define COLUMNS_COUNT       16384
 #define COLUMN_STACK_HEIGHT     8
 #define COLUMN_WALL_HEIGHT      5
 /******************************************************************************/

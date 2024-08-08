@@ -72,15 +72,12 @@
 			"type": "shell",
 			"windows": {
 				"command": [
-					"$settingsPath = '${workspaceFolder}\\.vscode\\settings.json';",
-					"if (-not (Test-Path $settingsPath)) {",
-					"    Copy-Item '${workspaceFolder}\\.vscode\\defaultsettings' $settingsPath;",
-					"    Write-Host '/.vscode/settings.json was created.';",
-					"}",
-					"if (-not (Test-Path '${workspaceFolder}\\.vscode\\launch.json')) {",
-					"    Copy-Item '${workspaceFolder}\\.vscode\\defaultlaunch' '${workspaceFolder}\\.vscode\\launch.json';",
-					"    Write-Host '/.vscode/launch.json was created, please edit it and fill in your game directories.';",
-					"}"
+					"$script = '{0}' -f '${workspaceFolder}\\.vscode\\create_settings_and_launch_files.ps1';",
+					"$templateSettingsFile = '{0}' -f '${workspaceFolder}\\.vscode\\defaultsettings';",
+					"$templateLaunchFile = '{0}' -f '${workspaceFolder}\\.vscode\\defaultlaunch';",
+					"$settingsJsonFile = '{0}' -f '${workspaceFolder}\\.vscode\\settings.json';",
+					"$launchJsonFile = '{0}' -f '${workspaceFolder}\\.vscode\\launch.json';",
+					"powershell -ExecutionPolicy Bypass -File \\\"${script}\\\" -workspaceFolder \\\"${workspaceFolder}\\\" -templateSettingsFile \\\"${templateSettingsFile}\\\" -templateLaunchFile \\\"${templateLaunchFile}\\\" -settingsJsonFile \\\"${settingsJsonFile}\\\" -launchJsonFile \\\"${launchJsonFile}\\\" ;",
 				]
 			},
 			"linux": {

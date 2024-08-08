@@ -116,6 +116,7 @@ struct GameCampaign {
   // Human player color
   short human_player;
   TbBool assignCpuKeepers;
+  unsigned char default_language;
 };
 
 struct HighScore {

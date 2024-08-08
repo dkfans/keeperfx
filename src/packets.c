@@ -52,7 +52,7 @@
 #include "config_settings.h"
 #include "player_instances.h"
 #include "player_data.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "player_utils.h"
 #include "thing_physics.h"
 #include "thing_doors.h"
@@ -82,6 +82,7 @@
 #include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
 #include "gui_parchment.h"
+#include "gui_msgs.h"
 #include "net_game.h"
 #include "net_sync.h"
 #include "game_legacy.h"
@@ -166,46 +167,28 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
     struct Packet* pckt = get_packet_direct(player->packet_num);
     if ((pckt->control_flags & PCtr_LBtnHeld) != 0)
     {
-      switch (player->work_state)
-      {
-      case PSt_CallToArms:
-          if (player_uses_power_call_to_arms(plyr_idx))
-            player->cast_expand_level = (dungeon->cta_splevel << 2);
-          else
-            update_power_overcharge(player, PwrK_CALL2ARMS);
-          break;
-      case PSt_CaveIn:
-          update_power_overcharge(player, PwrK_CAVEIN);
-          break;
-      case PSt_SightOfEvil:
-          update_power_overcharge(player, PwrK_SIGHT);
-          break;
-      case PSt_Lightning:
-          update_power_overcharge(player, PwrK_LIGHTNING);
-          break;
-      case PSt_SpeedUp:
-          update_power_overcharge(player, PwrK_SPEEDCRTR);
-          break;
-      case PSt_Armour:
-          update_power_overcharge(player, PwrK_PROTECT);
-          break;
-      case PSt_Conceal:
-          update_power_overcharge(player, PwrK_CONCEAL);
-          break;
-      case PSt_Heal:
-          update_power_overcharge(player, PwrK_HEALCRTR);
-          break;
-      case PSt_TimeBomb:
-          update_power_overcharge(player, PwrK_TIMEBOMB);
-          break;
-      case PSt_Rebound:
-          update_power_overcharge(player, PwrK_REBOUND);
-          break;
-      default:
-          player->cast_expand_level++;
-          break;
-      }
-      return true;
+        struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
+        struct PowerConfigStats *powerst = get_power_model_stats(plrst_cfg_stat->power_kind);
+
+        switch (powerst->overcharge_check_idx)
+        {
+            case OcC_CallToArms_expand:
+                if (player_uses_power_call_to_arms(plyr_idx))
+                    player->cast_expand_level = (dungeon->cta_splevel << 2);
+                else
+                    update_power_overcharge(player, plrst_cfg_stat->power_kind);
+                break;
+            case OcC_SightOfEvil_expand:
+            case OcC_General_expand:
+                update_power_overcharge(player, plrst_cfg_stat->power_kind);
+                break;
+            case OcC_do_not_expand:
+            case OcC_Null:
+            default:
+                player->cast_expand_level++;
+                break;
+        }
+        return true;
     }
     if ((pckt->control_flags & PCtr_LBtnRelease) == 0)
     {
@@ -659,13 +642,13 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return 0;
   case PckA_PlyrMsgEnd:
       player->allocflags &= ~PlaF_NewMPMessage;
-      if (player->mp_message_text[0] == '!')
+      if (player->mp_message_text[0] == cmd_char)
       {
-          if ( (!cmd_exec(player->id_number, player->mp_message_text)) || ((game.system_flags & GSF_NetworkActive) != 0) )
-              message_add(player->id_number, player->mp_message_text);
+          if ( (!cmd_exec(player->id_number, player->mp_message_text + 1)) || ((game.system_flags & GSF_NetworkActive) != 0) )
+              message_add(MsgType_Player, player->id_number, player->mp_message_text);
       }
       else if (player->mp_message_text[0] != '\0')
-          message_add(player->id_number, player->mp_message_text);
+          message_add(MsgType_Player, player->id_number, player->mp_message_text);
       LbMemorySet(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
       return 0;
   case PckA_PlyrMsgClear:
@@ -853,7 +836,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_Unknown099:
       turn_off_query(plyr_idx);
       return 0;
-  case PckA_Unknown104:
+  case PckA_ZoomToBattle:
       if (player->work_state == PSt_CreatrInfo)
         turn_off_query(plyr_idx);
       battle_move_player_towards_battle(player, pckt->actn_par1);
@@ -1250,37 +1233,48 @@ void process_players_creature_control_packet_control(long idx)
             }
         }
     }
+    
+    // First person looking speed and limits are adjusted here. (pckt contains the base mouse movement inputs)
     struct CreatureStats* crstat = creature_stats_get_from_thing(cctng);
-    i = pckt->pos_y;
-    if (i < 5)
-        i = 5;
-    else
-    if (i > 250)
-        i = 250;
-    long k = i - 127;
-    long angle = (pckt->pos_x - 127) / player->field_14;
-    if (angle != 0)
-    {
-        if (angle < -32)
-            angle = -32;
-        else
-        if (angle > 32)
-            angle = 32;
-        ccctrl->view_angle += 56 * angle / 32;
+    long maxTurnSpeed = crstat->max_turning_speed;
+    if (maxTurnSpeed < 1) {
+        maxTurnSpeed = 1;
     }
-    long angle_limit = crstat->max_angle_change;
-    if (angle_limit < 1)
-        angle_limit = 1;
-    angle = ccctrl->view_angle;
-    if (angle < -angle_limit)
-        angle = -angle_limit;
-    else
-    if (angle > angle_limit)
-        angle = angle_limit;
-    cctng->move_angle_xy = (cctng->move_angle_xy + angle) & LbFPMath_AngleMask;
-    cctng->move_angle_z = (227 * k / 127) & LbFPMath_AngleMask;
-    ccctrl->field_CC = 170 * angle / angle_limit;
-    ccctrl->view_angle = 4 * angle / 8;
+
+    // Horizontal look
+    long horizontalTurnSpeed = pckt->pos_x;
+    if (horizontalTurnSpeed < -maxTurnSpeed) {
+        horizontalTurnSpeed = -maxTurnSpeed;
+    } else if (horizontalTurnSpeed > maxTurnSpeed) {
+        horizontalTurnSpeed = maxTurnSpeed;
+    }
+    
+    // Vertical look
+    long verticalTurnSpeed = pckt->pos_y;
+    if (verticalTurnSpeed < -maxTurnSpeed) {
+        verticalTurnSpeed = -maxTurnSpeed;
+    } else if (verticalTurnSpeed > maxTurnSpeed) {
+        verticalTurnSpeed = maxTurnSpeed;
+    }
+
+    // Limits the vertical view.
+    // 227 is default. To support anything above this we need to adjust the terrain culling. (when you look at the ceiling for example)
+    // 512 allows for looking straight up and down. 360+ is about where sprite glitches become more obvious.
+    long viewable_angle = 227;
+    long verticalPos = (cctng->move_angle_z + verticalTurnSpeed) & LbFPMath_AngleMask;
+
+    long lowerLimit = LbFPMath_AngleMask - viewable_angle;
+    long upperLimit = viewable_angle;
+    if (verticalPos > upperLimit && verticalPos < lowerLimit) {
+        if (abs(verticalPos - upperLimit) < abs(verticalPos - lowerLimit)) {
+            verticalPos = upperLimit;
+        } else {
+            verticalPos = lowerLimit;
+        }
+    }
+    cctng->move_angle_z = verticalPos; // Sets the vertical look
+    cctng->move_angle_xy = (cctng->move_angle_xy + horizontalTurnSpeed) & LbFPMath_AngleMask; // Sets the horizontal look
+    ccctrl->roll = 170 * horizontalTurnSpeed / maxTurnSpeed;
 }
 
 void process_players_creature_control_packet_action(long plyr_idx)
@@ -1403,7 +1397,7 @@ static void replace_with_ai(int old_active_players)
             struct PlayerInfo *player = get_player(i);
             if (!network_player_active(player->packet_num))
             {
-                message_add(player->id_number, "I am the computer now!");
+                message_add(MsgType_Player, player->id_number, "I am the computer now!");
                 JUSTLOG("p:%d I am the computer now!", player->id_number);
 
                 player->allocflags |= PlaF_CompCtrl;
