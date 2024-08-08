@@ -34,6 +34,7 @@
 #include "config_effects.h"
 #include "creature_states.h"
 #include "player_data.h"
+#include "player_utils.h"
 #include "player_instances.h"
 #include "config_magic.h"
 #include "vidfade.h"
@@ -960,7 +961,7 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
     const struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
 
     //TODO CONFIG replace deals_physical_damage with check for shotst->damage_type (magic in this sense is DmgT_Electric, DmgT_Combustion and DmgT_Heatburn)
-    if ( !(doorst->model_flags & DoMF_ResistNonMagic)  || (shotst->damage_type == DmgT_Magical))
+    if ( !flag_is_set(doorst->model_flags,DoMF_ResistNonMagic)  || (shotst->damage_type == DmgT_Magical))
     {
         dmg = shotng->shot.damage;
     } else
@@ -968,6 +969,11 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
         dmg = shotng->shot.damage / 10;
         if (dmg < 1)
             dmg = 1;
+    }
+    if (flag_is_set(doorst->model_flags, DoMF_Midas))
+    {
+        GoldAmount received = take_money_from_dungeon(doortng->owner, dmg, 0);
+        dmg = -received;
     }
     return dmg;
 }
