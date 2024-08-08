@@ -502,6 +502,11 @@ long get_thing_in_hand_id(const struct Thing* thing, PlayerNumber plyr_idx)
 void place_thing_in_limbo(struct Thing *thing)
 {
     remove_thing_from_mapwho(thing);
+    if (thing->light_id != 0)
+    {
+        light_delete_light(thing->light_id);
+        thing->light_id = 0;
+    }
     thing->rendering_flags |= TRF_Invisible;
     thing->alloc_flags |= TAlF_IsInLimbo;
 }
@@ -1311,11 +1316,6 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
             i = convert_td_iso(122);
         else
             i = get_creature_anim(thing, 9);
-        if (thing->light_id != 0)
-        {
-            light_delete_light(thing->light_id);
-            thing->light_id = 0;
-        }
         set_thing_draw(thing, i, 256, -1, -1, 0, ODC_Default);
     } else
     if (thing_is_object(thing))
