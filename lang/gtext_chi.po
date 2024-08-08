@@ -5840,3 +5840,18 @@ msgstr "使不高兴：敌人的所有生物变得不高兴。"
 msgctxt "Dungeon special decription"
 msgid "Weaken Walls: Destroys the fortifications of enemy walls."
 msgstr "削弱城墙: 摧毁敌方城墙的防御工事。"
+
+#: guitext:1063
+msgctxt "Game controls"
+msgid "Tilt Up"
+msgstr ""
+
+#: guitext:1064
+msgctxt "Game controls"
+msgid "Tilt Down"
+msgstr ""
+
+#: guitext:1065
+msgctxt "Game controls"
+msgid "Reset Tilt"
+msgstr ""

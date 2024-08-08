@@ -280,6 +280,7 @@ TbBool open_new_packet_file_for_save(void)
     game.packet_save_head.chksum_available = game.packet_checksum_verify;
     game.packet_save_head.isometric_view_zoom_level = settings.isometric_view_zoom_level;
     game.packet_save_head.frontview_zoom_level = settings.frontview_zoom_level;
+    game.packet_save_head.isometric_tilt = settings.isometric_tilt;
     game.packet_save_head.video_rotate_mode = settings.video_rotate_mode;
     game.packet_save_head.action_seed = start_seed;
     for (int i = 0; i < PLAYERS_COUNT; i++)

@@ -6127,3 +6127,18 @@ msgstr "Göra Olyckliga: Alla varelser av fienden blir upprörda."
 msgctxt "Dungeon special decription"
 msgid "Weaken Walls: Destroys the fortifications of enemy walls."
 msgstr "Försvaga väggarna: Förstör befästningarna på fiendens murar."
+
+#: guitext:1063
+msgctxt "Game controls"
+msgid "Tilt Up"
+msgstr ""
+
+#: guitext:1064
+msgctxt "Game controls"
+msgid "Tilt Down"
+msgstr ""
+
+#: guitext:1065
+msgctxt "Game controls"
+msgid "Reset Tilt"
+msgstr ""
