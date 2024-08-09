@@ -409,7 +409,7 @@ long get_wanderer_possible_targets_count_in_list(long first_thing_idx, struct Th
         }
         // Thing list loop body ends
         k++;
-        if (k > CREATURES_COUNT)
+        if (k > game.conf.rules.game.creatures_count)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures list");
             break;
@@ -465,7 +465,7 @@ TbBool wander_to_specific_possible_target_in_list(long first_thing_idx, struct T
             break;
         // Thing list loop body ends
         k++;
-        if (k > CREATURES_COUNT)
+        if (k > game.conf.rules.game.creatures_count)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures list");
             break;

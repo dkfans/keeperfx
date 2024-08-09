@@ -579,7 +579,7 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
         }
         // Thing list loop body ends
         k++;
-        if (k > CREATURES_COUNT)
+        if (k > game.conf.rules.game.creatures_count)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures list");
             break;
@@ -3870,7 +3870,7 @@ static void level_up_players_creatures_process(struct ScriptContext* context)
             }
             // Thing list loop body ends
             k++;
-            if (k > CREATURES_COUNT)
+            if (k > game.conf.rules.game.creatures_count)
             {
                 ERRORLOG("Infinite loop detected when sweeping creatures list");
                 break;
@@ -4040,7 +4040,7 @@ void cast_power_on_players_creatures(PlayerNumber plyr_idx, ThingModel crmodel, 
         }
         // Thing list loop body ends
         k++;
-        if (k > CREATURES_COUNT)
+        if (k > game.conf.rules.game.creatures_count)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures list");
             break;

@@ -127,7 +127,7 @@ struct Thing *get_random_fellow_not_hated_creature(struct Thing *creatng)
         n--;
         // Thing list loop body ends
         k++;
-        if (k > CREATURES_COUNT)
+        if (k > game.conf.rules.game.creatures_count)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures list");
             break;

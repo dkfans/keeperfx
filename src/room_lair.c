@@ -103,7 +103,7 @@ long calculate_free_lair_space(struct Dungeon * dungeon)
         }
         // Thing list loop body ends
         k++;
-        if (k > CREATURES_COUNT)
+        if (k > game.conf.rules.game.creatures_count)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures list");
             break;
