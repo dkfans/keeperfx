@@ -975,8 +975,11 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
     if (flag_is_set(doorst->model_flags, DoMF_Midas))
     {
         GoldAmount received = take_money_from_dungeon(doortng->owner, dmg, 0);
-        create_price_effect(&shotng->mappos, doortng->owner, received);
         dmg -= received;
+        for (int i = received; i > 0; i -= 32)
+        {
+            create_effect(&shotng->mappos, TngEff_CoinFountain, doortng->owner);
+        }
     }
     return dmg;
 }
