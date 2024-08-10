@@ -37,6 +37,7 @@
 #elif defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <versionhelpers.h>
 #else
 #include <time.h>
 #endif
@@ -1013,7 +1014,12 @@ astro_time_t Astronomy_CurrentTime(void)
     FILETIME ft;
     ULARGE_INTEGER large;
     /* Get time in 100-nanosecond units from January 1, 1601. */
-    GetSystemTimePreciseAsFileTime(&ft);
+    /* GetSystemTimePreciseAsFileTime is only available since Windows 8 */
+    if (IsWindows8OrGreater()) {
+        GetSystemTimePreciseAsFileTime(&ft);
+    } else {
+        GetSystemTimeAsFileTime(&ft);
+    }
     large.u.LowPart  = ft.dwLowDateTime;
     large.u.HighPart = ft.dwHighDateTime;
     sec = (large.QuadPart - 116444736000000000ULL) / 1.0e+7;
