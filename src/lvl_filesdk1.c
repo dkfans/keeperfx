@@ -1398,7 +1398,7 @@ void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short 
     }
     long filelen = LbFileLengthRnc(fname);
     char* strings_data_end = campgn->strings_data + filelen + 255;
-    long loaded_size = LbFileLoadAt(fname, campgn->strings_data);
+    long loaded_size = LbFileLoadAt(fname, strings_data_end);
     if (loaded_size > 0)
     {
         TbBool result = create_strings_list(campgn->strings, campgn->strings_data, strings_data_end, STRINGS_MAX);
