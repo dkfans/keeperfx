@@ -86,6 +86,16 @@ char* get_next_token(char *data, struct CommandToken *token)
         {
             *p = (char)toupper(*p);
         }
+        if (((p - token->start) == 3) && (strncmp(token->start, "REM", 3) == 0))
+        {
+            for (;*p; p++)
+            {
+                // empty
+            }
+            token->end = p;
+            token->type = TkEnd;
+            return p;
+        }
         token->type = TkCommand;
     }
     else if (*p == '-') // Either operator or digit
@@ -368,18 +378,6 @@ long get_players_range_f(long plr_range_id, int *plr_start, int *plr_end, const 
         *plr_end = PLAYERS_COUNT;
         return plr_range_id;
     } else
-    if (plr_range_id == PLAYER_GOOD)
-    {
-        *plr_start = game.hero_player_num;
-        *plr_end = game.hero_player_num+1;
-        return plr_range_id;
-    } else
-    if (plr_range_id == PLAYER_NEUTRAL)
-    {
-        *plr_start = game.neutral_player_num;
-        *plr_end = game.neutral_player_num+1;
-        return plr_range_id;
-    } else
     if (plr_range_id < PLAYERS_COUNT)
     {
         *plr_start = plr_range_id;
@@ -452,87 +450,101 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
 {
     switch (toupper(type_chr))
     {
-    case 'N':
-    {
-        char* text;
-        scline->np[idx] = strtol(scline->tp[idx], &text, 0);
-        if (!extended)
+        case 'N': //Number
         {
-            if (text != &scline->tp[idx][strlen(scline->tp[idx])])
+            char* text;
+            scline->np[idx] = strtol(scline->tp[idx], &text, 0);
+            //Extended number allows for a custom sprite string
+            if (!extended)
             {
-                SCRPTWRNLOG("Numerical value \"%s\" interpreted as %ld", scline->tp[idx], scline->np[idx]);
-            }
-        }
-        break;
-    }
-    case 'P':
-    {
-        long plr_range_id;
-        if (!get_player_id(scline->tp[idx], &plr_range_id))
-        {
-            return false;
-        }
-        scline->np[idx] = plr_range_id;
-        break;
-    }
-    case 'C':{
-        long crtr_id = get_rid(creature_desc, scline->tp[idx]);
-        if (extended)
-        {
-            if (crtr_id == -1)
-            {
-                if (0 == strcmp(scline->tp[idx], "ANY_CREATURE"))
+                if (text != &scline->tp[idx][strlen(scline->tp[idx])])
                 {
-                    crtr_id = CREATURE_ANY;
+                    SCRPTWRNLOG("Numerical value \"%s\" interpreted as %ld", scline->tp[idx], scline->np[idx]);
                 }
             }
+            break;
         }
-        if (crtr_id == -1)
+        case 'P': //Player
         {
-            SCRPTERRLOG("Unknown creature, \"%s\"", scline->tp[idx]);
-            return false;
+            long plr_range_id;
+            if (!get_player_id(scline->tp[idx], &plr_range_id))
+            {
+                return false;
+            }
+            scline->np[idx] = plr_range_id;
+            break;
         }
-        scline->np[idx] = crtr_id;
-        };break;
-    case 'R':{
-        long room_id = get_rid(room_desc, scline->tp[idx]);
-        if (room_id == -1)
+        case 'C': //Creature
         {
-            SCRPTERRLOG("Unknown room kind, \"%s\"", scline->tp[idx]);
-            return false;
+            long crtr_id = get_rid(creature_desc, scline->tp[idx]);
+            if (extended)
+            {
+                if (crtr_id == -1)
+                {
+                    if (0 == strcmp(scline->tp[idx], "ANY_CREATURE"))
+                    {
+                        crtr_id = CREATURE_ANY;
+                    }
+                }
+            }
+            if (crtr_id == -1)
+            {
+                SCRPTERRLOG("Unknown creature, \"%s\"", scline->tp[idx]);
+                return false;
+            }
+            scline->np[idx] = crtr_id;
+            break;
         }
-        scline->np[idx] = room_id;
-        };break;
-    case 'S': {
-        long slab_id = get_rid(slab_desc, scline->tp[idx]);
-        if (slab_id == -1)
+        case 'R': //Room
         {
-            SCRPTERRLOG("Unknown slab kind, \"%s\"", scline->tp[idx]);
-            return false;
+            long room_id = get_rid(room_desc, scline->tp[idx]);
+            if (room_id == -1)
+            {
+                SCRPTERRLOG("Unknown room kind, \"%s\"", scline->tp[idx]);
+                return false;
+            }
+            scline->np[idx] = room_id;
+            break;
         }
-        scline->np[idx] = slab_id;
-    }; break;
-    case 'L':{
-        TbMapLocation loc;
-        if (!get_map_location_id(scline->tp[idx], &loc)) {
-            return false;
+        case 'S': //Slab
+        {
+            long slab_id = get_rid(slab_desc, scline->tp[idx]);
+            if (slab_id == -1)
+            {
+                SCRPTERRLOG("Unknown slab kind, \"%s\"", scline->tp[idx]);
+                return false;
+            }
+            scline->np[idx] = slab_id;
+            break;
+        };
+        case 'L': //Location
+        {
+            TbMapLocation loc;
+            if (!get_map_location_id(scline->tp[idx], &loc)) {
+                return false;
+            }
+            scline->np[idx] = loc;
+            break;
         }
-        scline->np[idx] = loc;
-        };break;
-    case 'O':{
-        long opertr_id = get_rid(comparison_desc, scline->tp[idx]);
-        if (opertr_id == -1) {
-            SCRPTERRLOG("Unknown operator, \"%s\"", scline->tp[idx]);
-            return false;
+        case 'O': //Operator
+        {
+            long opertr_id = get_rid(comparison_desc, scline->tp[idx]);
+            if (opertr_id == -1) {
+                SCRPTERRLOG("Unknown operator, \"%s\"", scline->tp[idx]);
+                return false;
+            }
+            scline->np[idx] = opertr_id;
+            break;
         }
-        scline->np[idx] = opertr_id;
-        };break;
-    case 'A':
-        break;
-    case '!': // extended sign
-        return true;
-    default:
-        return false;
+        case 'A': //String
+            break;
+        case '!': // extended sign
+            return true;
+        default:
+        {
+            SCRPTWRNLOG("Excessive parameter of command \"%s\", value \"%s\"; ignoring", scline->tcmnd, scline->tp[idx]);
+            return true;
+        }
     }
     return true;
 }
@@ -827,9 +839,9 @@ static int script_recognize_params(char **line, const struct CommandDesc *cmd_de
         else
         {
             *line = get_next_token(funline, &token);
-            if (token.type == TkInvalid)
+            if ((token.type == TkInvalid) || (token.type == TkEnd) || (token.type == TkComma))
             {
-                SCRPTERRLOG("Invalid token at %s", *line);
+                SCRPTERRLOG("Invalid token '%s'", **line? *line: "<newline>");
                 dst--;
                 return -1;
             }
@@ -900,6 +912,7 @@ static int script_recognize_params(char **line, const struct CommandDesc *cmd_de
 TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
 {
     const struct CommandDesc *cmd_desc;
+    const char *line_start = line;
     struct CommandToken token = { 0 };
     SCRIPTDBG(12,"Starting");
     struct ScriptLine* scline = (struct ScriptLine*)LbMemoryAlloc(sizeof(struct ScriptLine));
@@ -966,13 +979,16 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
         args_count = script_recognize_params(&line, cmd_desc, scline, &para_level, 0, file_version);
         if (args_count < 0)
         {
+            SCRPTERRLOG("Syntax error at \"%s\"", line_start);
+            SCRPTERRLOG("   near - -      %*c", line - line_start, '^');
             LbMemoryFree(scline);
             return false;
         }
     }
     else
     {
-        SCRPTERRLOG("Syntax error: ( expected");
+        SCRPTERRLOG("Syntax error: ( expected at \"%s\"", line_start);
+        SCRPTERRLOG("   near - - - - - - -        %*c", line - line_start, '^');
         LbMemoryFree(scline);
         return false;
     }
@@ -1296,19 +1312,21 @@ void process_win_and_lose_conditions(PlayerNumber plyr_idx)
     struct PlayerInfo* player = get_player(plyr_idx);
     for (i=0; i < gameadd.script.win_conditions_num; i++)
     {
-      k = gameadd.script.win_conditions[i];
-      if (is_condition_met(k)) {
-          SYNCDBG(8,"Win condition %d (cond. %d) met for player %d.",(int)i,(int)k,(int)plyr_idx);
-          set_player_as_won_level(player);
-      }
+        k = gameadd.script.win_conditions[i];
+        if (is_condition_met(k)) {
+            SYNCDBG(8,"Win condition %d (cond. %d) met for player %d.",(int)i,(int)k,(int)plyr_idx);
+            set_player_as_won_level(player);
+        }
     }
     for (i=0; i < gameadd.script.lose_conditions_num; i++)
     {
-      k = gameadd.script.lose_conditions[i];
-      if (is_condition_met(k)) {
-          SYNCDBG(8,"Lose condition %d (cond. %d) met for player %d.",(int)i,(int)k,(int)plyr_idx);
-          set_player_as_lost_level(player);
-      }
+        k = gameadd.script.lose_conditions[i];
+        if (is_condition_met(k))
+        {
+            SYNCDBG(8,"Lose condition %d (cond. %d) met for player %d.",(int)i,(int)k,(int)plyr_idx);
+            set_player_as_lost_level(player);
+            setup_all_player_creatures_and_diggers_leave_or_die(plyr_idx);
+        }
     }
 }
 

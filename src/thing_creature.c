@@ -71,7 +71,7 @@
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "power_hand.h"
 #include "power_process.h"
 #include "room_data.h"
@@ -102,41 +102,6 @@ extern "C" {
 
 /******************************************************************************/
 int creature_swap_idx[CREATURE_TYPES_COUNT];
-
-struct Creatures creatures[] = {
-  { 0,  0, 0, 0, 0, 0, 0, 0, 0, 0x0000, 1},
-  {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 2, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 2, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 4, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 4, 0, 0, 0x0180, 1},
-  { 1, 77, 1, 0, 1, 0, 2, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 4, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 5, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 3, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 4, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 6, 0, 0, 0x0226, 1},
-  {17, 34, 1, 0, 1, 0, 6, 0, 0, 0x0100, 1},
-  {17, 34, 1, 0, 1, 0, 6, 0, 0, 0x0080, 1},
-  {17, 34, 1, 0, 1, 0, 6, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 4, 0, 0, 0x0180, 0},
-  { 1, 77, 1, 0, 1, 0, 1, 0, 0, 0x0100, 1},
-  {17, 34, 1, 0, 1, 0, 6, 0, 0, 0x0080, 1},
-  {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
-  {17, 34, 1, 0, 1, 0, 6, 0, 0, 0x0100, 1},
-  {17, 34, 1, 0, 1, 0, 6, 0, 0, 0x0100, 1},
-  {17, 34, 1, 0, 1, 1, 1, 0, 0, 0x0100, 1},
-  {17, 34, 1, 0, 1, 0, 3, 0, 0, 0x0100, 1},
-  {17, 34, 1, 0, 1, 0, 2, 0, 0, 0x0180, 1},
-  { 0,  0, 1, 0, 1, 0, 1, 0, 0, 0x0000, 1},
-};
 
 /******************************************************************************/
 extern struct TbLoadFiles swipe_load_file[];
@@ -195,7 +160,7 @@ TbBool creature_is_for_dungeon_diggers_list(const struct Thing *creatng)
 TbBool creature_kind_is_for_dungeon_diggers_list(PlayerNumber plyr_idx, ThingModel crmodel)
 {
     //TODO DIGGERS For now, only player-specific and non-hero special diggers are on the diggers list
-    if (plyr_idx == game.hero_player_num)
+    if (player_is_roaming(plyr_idx))
         return false;
     return (crmodel == get_players_special_digger_model(plyr_idx));
     //struct CreatureModelConfig *crconf;
@@ -292,7 +257,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     if (cam != NULL)
       player->view_mode_restore = cam->view_mode;
     thing->alloc_flags |= TAlF_IsControlled;
-    thing->rendering_flags |= TRF_Unknown01;
+    thing->rendering_flags |= TRF_Invisible;
     if (!chicken)
     {
         set_start_state(thing);
@@ -346,7 +311,7 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
     if (cam != NULL)
       player->view_mode_restore = cam->view_mode;
     set_player_mode(player, PVT_CreaturePasngr);
-    thing->rendering_flags |= TRF_Unknown01;
+    thing->rendering_flags |= TRF_Invisible;
     return true;
 }
 
@@ -364,12 +329,11 @@ void free_swipe_graphic(void)
 TbBool load_swipe_graphic_for_creature(const struct Thing *thing)
 {
     SYNCDBG(6,"Starting for %s",thing_model_name(thing));
-
-    int i = creatures[thing->model % game.conf.crtr_conf.model_count].swipe_idx;
-    if ((i == 0) || (game.loaded_swipe_idx == i))
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    if ((crstat->swipe_idx == 0) || (game.loaded_swipe_idx == crstat->swipe_idx))
         return true;
     free_swipe_graphic();
-    int swpe_idx = i;
+    int swpe_idx = crstat->swipe_idx;
     {
         struct TbLoadFiles* t_lfile = &swipe_load_file[0];
 #ifdef SPRITE_FORMAT_V2
@@ -1148,7 +1112,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         break;
     case SplK_Heal:
     {
-        long i = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev], 16);
+        HitPoints i = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev], 16);
         if (i < 0)
         {
           thing->health = 0;
@@ -1277,7 +1241,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         if (thing->light_id != 0)
         {
             cctrl->spell_flags &= ~CSAfF_Light;
-            if ((thing->rendering_flags & TRF_Unknown01) != 0)
+            if ((thing->rendering_flags & TRF_Invisible) != 0)
             {
                 light_set_light_intensity(thing->light_id, (light_get_light_intensity(thing->light_id) - 20));
                 struct Light* lgt = &game.lish.lights[thing->light_id];
@@ -1646,13 +1610,18 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
     {
         sumxp = cctrl->explevel + level;
     }
+    short sumcount = count;
+    if (count <= 0)
+    {
+        sumcount = cctrl->explevel+1 + count;
+    }
     if (duration == 0)
     {
         famlrtng = activate_trap_spawn_creature(creatng, model);
     }
     else
     {
-        for (int j = 0; j < count; j++)
+        for (int j = 0; j < sumcount; j++)
         {
             if (j > FAMILIAR_MAX)
             {
@@ -2000,7 +1969,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
                 long x = stl_num_decode_x(cctrl->collided_door_subtile);
                 long y = stl_num_decode_y(cctrl->collided_door_subtile);
                 struct Thing* doortng = get_door_for_position(x, y);
-                if ((!thing_is_invalid(doortng)) && (thing->owner != neutral_player_number))
+                if ((!thing_is_invalid(doortng)) && (thing->owner != PLAYER_NEUTRAL))
                 {
                     if (thing->owner != doortng->owner)
                     {
@@ -2609,8 +2578,8 @@ struct Thing* thing_death_ice_explosion(struct Thing *thing)
 
 struct Thing* creature_death_as_nature_intended(struct Thing *thing)
 {
-    long i = creatures[thing->model % game.conf.crtr_conf.model_count].natural_death_kind;
-    switch (i)
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    switch (crstat->natural_death_kind)
     {
     case Death_Normal:
         return thing_death_normal(thing);
@@ -2623,7 +2592,7 @@ struct Thing* creature_death_as_nature_intended(struct Thing *thing)
     case Death_IceExplode:
         return thing_death_ice_explosion(thing);
     default:
-        WARNLOG("Unexpected %s death cause %d",thing_model_name(thing),(int)i);
+        WARNLOG("Unexpected %s death cause %d",thing_model_name(thing), crstat->natural_death_kind);
         return INVALID_THING;
     }
 }
@@ -3310,11 +3279,11 @@ void set_creature_level(struct Thing *thing, long nlvl)
         ERRORLOG("Level %d too low, bounding",(int)nlvl);
         nlvl = 0;
     }
-    long old_max_health = compute_creature_max_health(crstat->health, cctrl->explevel, thing->owner);
+    HitPoints old_max_health = compute_creature_max_health(crstat->health, cctrl->explevel, thing->owner);
     if (old_max_health < 1)
         old_max_health = 1;
     cctrl->explevel = nlvl;
-    long max_health = compute_creature_max_health(crstat->health, cctrl->explevel, thing->owner);
+    HitPoints max_health = compute_creature_max_health(crstat->health, cctrl->explevel, thing->owner);
     cctrl->max_health = max_health;
     set_creature_size_stuff(thing);
     if (old_max_health > 0)
@@ -3937,6 +3906,25 @@ TbBool thing_is_creature_special_digger(const struct Thing *thing)
   return ((get_creature_model_flags(thing) & CMF_IsSpecDigger) != 0);
 }
 
+/** Returns if a thing the creature type set as spectator, normally the floating spirit.
+  * @param thing The thing to be checked.
+ * @return True if the thing is creature and listed as spectator , false otherwise.
+ */
+TbBool thing_is_creature_spectator(const struct Thing* thing)
+{
+    if (!thing_is_creature(thing))
+        return false;
+
+    ThingModel breed = game.conf.crtr_conf.spectator_breed;
+    if (breed == 0)
+    {
+        WARNLOG("There is no spectator breed");
+        breed = game.conf.crtr_conf.special_digger_good;
+    }
+    return (thing->model == breed);
+}
+
+
 void anger_set_creature_anger_all_types(struct Thing *thing, long new_value)
 {
     if (creature_can_get_angry(thing))
@@ -4064,9 +4052,9 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->move_angle_xy = 0;
     crtng->move_angle_z = 0;
     cctrl->max_speed = calculate_correct_creature_maxspeed(crtng);
-    cctrl->shot_shift_x = creatures[model].shot_shift_x;
-    cctrl->shot_shift_y = creatures[model].shot_shift_y;
-    cctrl->shot_shift_z = creatures[model].shot_shift_z;
+    cctrl->shot_shift_x = crstat->shot_shift_x;
+    cctrl->shot_shift_y = crstat->shot_shift_y;
+    cctrl->shot_shift_z = crstat->shot_shift_z;
     long i = get_creature_anim(crtng, 0);
     set_thing_draw(crtng, i, 256, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
     cctrl->explevel = 1;
@@ -4079,7 +4067,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->creation_turn = game.play_gameturn;
     cctrl->joining_age = 17 + CREATURE_RANDOM(crtng, 13);
     cctrl->blood_type = CREATURE_RANDOM(crtng, BLOOD_TYPES_COUNT);
-    if (owner == game.hero_player_num)
+    if (player_is_roaming(owner))
     {
       cctrl->hero.sbyte_89 = -1;
       cctrl->hero.byte_8C = 1;
@@ -4619,14 +4607,14 @@ long player_list_creature_filter_of_gui_job_and_pickable2(const struct Thing *th
  * Returns a creature in fight which gives highest score value.
  * @return The thing in fight, or invalid thing if not found.
  */
-struct Thing *find_players_highest_score_creature_in_fight_not_affected_by_spell(PlayerNumber plyr_idx, PowerKind pwkind)
+struct Thing *find_players_highest_score_creature_in_fight_not_affected_by_spell(PlayerNumber plyr_idx, SpellKind spell_kind)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     struct CompoundTngFilterParam param;
     param.plyr_idx = -1;
     param.class_id = 0;
     param.model_id = CREATURE_ANY;
-    param.num1 = pwkind;
+    param.num1 = spell_kind;
     Thing_Maximizer_Filter filter = player_list_creature_filter_in_fight_and_not_affected_by_spell;
     struct Thing* creatng = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
     if (thing_is_invalid(creatng)) {
@@ -5161,29 +5149,12 @@ void place_bloody_footprint(struct Thing *thing)
         return;
     }
     short nfoot = get_foot_creature_has_down(thing);
-    struct Thing* footng;
-    switch (creatures[thing->model % game.conf.crtr_conf.model_count].field_6)
+    struct Thing* footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_Blood4, thing->owner);
+    if (!thing_is_invalid(footng))
     {
-    case 3:
-    case 4:
-        break;
-    case 5:
-        if (nfoot)
-        {
-            footng = create_thing(&thing->mappos, TCls_EffectElem, TngEffElm_Blood4, thing->owner, -1);
-            if (!thing_is_invalid(footng)) {
-                cctrl->bloody_footsteps_turns--;
-            }
-        }
-        break;
-    default:
-        footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, 23, thing->owner);
-        if (!thing_is_invalid(footng)) {
-            cctrl->bloody_footsteps_turns--;
-        }
-        break;
+        cctrl->bloody_footsteps_turns--;
     }
-  }
+}
 
 TbBool update_controlled_creature_movement(struct Thing *thing)
 {
@@ -5338,20 +5309,32 @@ void check_for_creature_escape_from_lava(struct Thing *thing)
     }
 }
 
-TbBool thing_is_on_snow_texture(struct Thing* thing)
+/**
+ * Get's an effect element for a footstep.
+ */
+ThingModel get_footstep_effect_element(struct Thing* thing)
 {
-    #define SNOW_TEXTURE 2
-    unsigned char ext_txtr = gameadd.slab_ext_data[get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num))];
+    static const unsigned char tileset_footstep_textures[TEXTURE_VARIATIONS_COUNT] = 
+    { TngEffElm_None,       TngEffElm_None,         TngEffElm_IceMelt3,     TngEffElm_None,
+      TngEffElm_None,       TngEffElm_None,         TngEffElm_None,         TngEffElm_None,
+      TngEffElm_StepSand,   TngEffElm_StepGypsum,   TngEffElm_None,         TngEffElm_None,
+      TngEffElm_None,       TngEffElm_None,         TngEffElm_None,         TngEffElm_None 
+    };
 
-    if ((ext_txtr == 0) && (game.texture_id == SNOW_TEXTURE)) //Snow map and on default texture
+    short texture;
+        unsigned char ext_txtr = gameadd.slab_ext_data[get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num))];
+    if (ext_txtr == 0)
     {
-        return true;
+        // Default map texture
+        texture = game.texture_id;
     }
-    if (ext_txtr == SNOW_TEXTURE+1) //On non-default texture that is snow
+    else
     {
-        return true;
+        // Slab specific texture
+        texture = ext_txtr - 1;
     }
-    return false;
+
+    return tileset_footstep_textures[texture];
 }
 
 void process_creature_leave_footsteps(struct Thing *thing)
@@ -5359,7 +5342,7 @@ void process_creature_leave_footsteps(struct Thing *thing)
     struct Thing *footng;
     short nfoot;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if ((thing->movement_flags & TMvF_IsOnWater) != 0)
+    if (flag_is_set(thing->movement_flags,TMvF_IsOnWater))
     {
         nfoot = get_foot_creature_has_down(thing);
         if (nfoot)
@@ -5379,16 +5362,16 @@ void process_creature_leave_footsteps(struct Thing *thing)
         }
     } else
     {
-        // Snow footprints
-        TbBool SnowTexture = thing_is_on_snow_texture(thing);
-        if (SnowTexture)
+        // Tileset footprints, formerly Snow footprints.
+        ThingModel footprint = get_footstep_effect_element(thing);
+        if (footprint != TngEffElm_None)
         {
             struct SlabMap* slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
             if (slb->kind == SlbT_PATH)
             {
-              thing->movement_flags |= TMvF_IsOnSnow;
-              nfoot = get_foot_creature_has_down(thing);
-              footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_IceMelt3, thing->owner);
+                set_flag(thing->movement_flags,TMvF_IsOnSnow);
+                nfoot = get_foot_creature_has_down(thing);
+                footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, footprint, thing->owner);
             }
         }
     }
@@ -6113,12 +6096,12 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
     switch (effect)
     {
     case 1:
-        if (plyr_idx == game.hero_player_num)
+        if (player_is_roaming(plyr_idx))
         {
             thing->mappos.z.val = get_ceiling_height(&thing->mappos);
             create_effect(&thing->mappos, TngEff_CeilingBreach, thing->owner);
             initialise_thing_state(thing, CrSt_CreatureHeroEntering);
-            thing->rendering_flags |= TRF_Unknown01;
+            thing->rendering_flags |= TRF_Invisible;
             cctrl->countdown_282 = 24;
         }
     default:
@@ -6343,6 +6326,25 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                         }
                     }
                 }
+            }
+             else if (room_role_matches(room->kind, RoRoF_LairStorage))
+            {
+                if(game.conf.rules.workers.drag_to_lair)
+                {
+                    if (thing_is_creature(droptng) && (creatng->owner == droptng->owner))
+                    {
+                        if (creature_is_being_unconscious(droptng))
+                        {
+                            struct CreatureControl* dropctrl = creature_control_get_from_thing(droptng);
+                            if (dropctrl->lair_room_id == room->index)
+                            {
+                                make_creature_conscious(droptng);
+                                initialise_thing_state(droptng, CrSt_CreatureGoingHomeToSleep);
+                                dropctrl->flgfield_1 |= CCFlg_NoCompControl;
+                            }
+                        }
+                    }
+                }    
             }
         }
     }
@@ -6609,7 +6611,14 @@ TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
     {
         if (creature_is_being_unconscious(picktng))
         {
-            return (picktng->owner != creatng->owner);
+            if ((game.conf.rules.workers.drag_to_lair > 0) && (picktng->owner == creatng->owner))
+            {
+                return (picktng->owner == creatng->owner);
+            }
+            else
+            {
+                return (picktng->owner != creatng->owner);
+            }
         }
     }
     else if (thing_is_dead_creature(picktng))
@@ -6634,7 +6643,7 @@ TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
         if (!room_is_invalid(room))
         {
             if (room_role_matches(room->kind, RoRoF_CratesStorage))
-           {
+            {
                 if (room->owner == creatng->owner)
                 {
                     if ( (picktng->owner == room->owner) && (picktng->owner == creatng->owner) )

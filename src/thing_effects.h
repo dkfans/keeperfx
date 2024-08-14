@@ -105,7 +105,7 @@ enum ThingEffectKind {
     TngEff_SpangleRedBig,
     TngEff_ColouredRingOfFire, // spiral fx
     TngEff_Flash, // flash with whiteout
-    TngEff_DamageBlood,
+    TngEff_Dummy,
     TngEff_Explosion7, // temple? explosion with sound
     TngEff_FeatherPuff,
     TngEff_Explosion8,
@@ -237,7 +237,7 @@ enum ThingEffectElements {
     TngEffElm_WhiteTwinkle2,
     TngEffElm_WhiteFlame,
     TngEffElm_WhiteSmokePuff,
-    TngEffElm_PurpleFlame,
+    TngEffElm_PurpleFlame, // 100
     TngEffElm_PurpleSmokePuff,
     TngEffElm_PurpleTwinkle,
     TngEffElm_PurpleTwinkle2,
@@ -247,11 +247,14 @@ enum ThingEffectElements {
     TngEffElm_BlackTwinkle,
     TngEffElm_BlackTwinkle2,
     TngEffElm_BlackPuff,
-    TngEffElm_OrangeFlame,
+    TngEffElm_OrangeFlame, // 110
     TngEffElm_OrangeSmokePuff,
     TngEffElm_OrangeTwinkle,
     TngEffElm_OrangeTwinkle2,
-    TngEffElm_OrangePuff
+    TngEffElm_OrangePuff,
+    TngEffElm_TinyFlash3,
+    TngEffElm_StepSand,
+    TngEffElm_StepGypsum
 };
 
 /******************************************************************************/

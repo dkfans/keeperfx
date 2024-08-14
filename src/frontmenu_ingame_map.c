@@ -75,10 +75,10 @@ enum PanelColourIds
     PnC_Gems          = 11,
     //12-255 left free for future use
     PnC_RoomsStart    = 256,  //rooms 256-2559  (9*256 entries) TERRAIN_ITEMS_MAX
-    PnC_DoorsStart    = 2560, //doors 2560-4863 (9*128*2 entries) TRAPDOOR_TYPES_MAX
+    PnC_DoorsStart    = 2560, //doors 2560-38559 (9*2000*2 entries) TRAPDOOR_TYPES_MAX
     PnC_DoorsStartLocked  = 2569,
-    PnC_PathStart = 4864, //path (9 entries)
-    PnC_End = 4873,
+    PnC_PathStart     = 38560,  // path (9 entries)
+    PnC_End           = 38569,
 };
 
 enum TbPixelsColours
@@ -606,7 +606,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                         break;
                     if ((game.play_gameturn & 4) == 0)
                     {
-                        col1 = player_room_colours[get_player_color_idx((uchar)cctrl->party.target_plyr_idx)];
+                        col1 = player_room_colours[get_player_color_idx((int)(cctrl->party.target_plyr_idx >= 0 ? cctrl->party.target_plyr_idx : 0))];
                         col2 = player_room_colours[get_player_color_idx(thing->owner)];
                     }
                     long zmpos_x = ((stl_num_decode_x(memberpos) - (MapSubtlDelta)cam->mappos.x.stl.num) << 8);

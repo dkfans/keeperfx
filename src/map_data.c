@@ -92,7 +92,7 @@ TbBool map_block_invalid(const struct Map *map)
   return (map < &game.map[0]);
 }
 
-unsigned long get_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+NavColour get_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
   if ((stl_x < 0) || (stl_x > gameadd.map_subtiles_x))
       return 0;
@@ -101,7 +101,7 @@ unsigned long get_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
   return game.navigation_map[navmap_tile_number(stl_x,stl_y)];
 }
 
-void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long navcolour)
+void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, NavColour navcolour)
 {
   if ((stl_x < 0) || (stl_x > gameadd.map_subtiles_x))
       return;
@@ -118,7 +118,7 @@ unsigned long get_navigation_map_floor_height(MapSubtlCoord stl_x, MapSubtlCoord
 long get_ceiling_height(const struct Coord3d *pos)
 {
     long i = get_subtile_number(pos->x.stl.num, pos->y.stl.num);
-    return ((game.map[i].data & 0xF000000u) >> 24) << 8;
+    return game.map[i].filled_subtiles * COORD_PER_STL;
 }
 
 ThingIndex get_mapwho_thing_index(const struct Map *mapblk)
@@ -133,19 +133,12 @@ void set_mapwho_thing_index(struct Map *mapblk, ThingIndex thing_idx)
 
 long get_mapblk_column_index(const struct Map *mapblk)
 {
-  return ((mapblk->data) & 0x7FF);
+  return (mapblk->col_idx);
 }
 
 void set_mapblk_column_index(struct Map *mapblk, long column_idx)
 {
-  // Check if new value is correct
-  if ((unsigned long)column_idx > 0x7FF)
-  {
-      ERRORLOG("Tried to set invalid column %ld",column_idx);
-      return;
-  }
-  // Clear previous and set new
-  mapblk->data ^= (mapblk->data ^ ((unsigned long)column_idx)) & 0x7FF;
+    mapblk->col_idx = column_idx;
 }
 
 /**
@@ -155,7 +148,7 @@ void set_mapblk_column_index(struct Map *mapblk, long column_idx)
  */
 long get_mapblk_filled_subtiles(const struct Map *mapblk)
 {
-    return ((mapblk->data & 0xF000000u) >> 24);
+    return mapblk->filled_subtiles;
 }
 
 /**
@@ -165,7 +158,7 @@ long get_mapblk_filled_subtiles(const struct Map *mapblk)
  */
 long get_mapblk_wibble_value(const struct Map *mapblk)
 {
-    return ((mapblk->data & 0xC00000u) >> 22);
+    return mapblk->wibble_value;
 }
 
 /**
@@ -175,7 +168,7 @@ long get_mapblk_wibble_value(const struct Map *mapblk)
  */
 void set_mapblk_wibble_value(struct Map *mapblk, long wib)
 {
-    mapblk->data ^= ((mapblk->data ^ (wib << 22)) & 0xC00000);
+    mapblk->wibble_value = wib;
 }
 
 /**
@@ -187,8 +180,7 @@ void set_mapblk_filled_subtiles(struct Map *mapblk, long height)
 {
     if (height <  0) height = 0;
     if (height > 15) height = 15;
-    mapblk->data &= ~(0xF000000);
-    mapblk->data |= (height << 24) & 0xF000000;
+    mapblk->filled_subtiles = height;
 }
 
 void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
@@ -306,6 +298,22 @@ TbBool slabs_change_type(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterP
     {
         if (current_kind != target_slab_kind)
             replace_slab_from_script(slb_x, slb_y, target_slab_kind);
+        return true;
+    }
+    return false;
+}
+
+TbBool slabs_change_texture(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterParam param)
+{
+    unsigned char target_slab_texture = param->num1;
+    long fill_type = param->num2;
+    SlabKind orig_slab_kind = param->num3;
+    SlabKind current_kind = get_slabmap_block(slb_x, slb_y)->kind; // current kind
+    if (slabs_iter_will_change(orig_slab_kind, current_kind, fill_type))
+    {
+        SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
+        gameadd.slab_ext_data[slb_num] = target_slab_texture;
+        gameadd.slab_ext_data_initial[slb_num] = target_slab_texture;
         return true;
     }
     return false;
@@ -567,7 +575,7 @@ void clear_mapmap(void)
         for (unsigned long x = 0; x < (gameadd.map_subtiles_x + 1); x++)
         {
             struct Map* mapblk = get_map_block_at(x, y);
-            unsigned short* flg = &game.navigation_map[get_subtile_number(x, y)];
+            NavColour* flg = &game.navigation_map[get_subtile_number(x, y)];
             LbMemorySet(mapblk, 0, sizeof(struct Map));
             *flg = 0;
         }

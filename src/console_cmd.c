@@ -54,7 +54,7 @@
 #include "packets.h"
 #include "player_computer.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "player_utils.h"
 #include "room_data.h"
 #include "room_util.h"
@@ -73,6 +73,7 @@ extern "C" {
 #endif
 
 extern void render_set_sprite_debug(int level);
+extern TbBool process_players_global_packet_action(PlayerNumber plyr_idx);
 
 static struct GuiBoxOption cmd_comp_procs_data[COMPUTER_PROCESSES_COUNT + 3] = {
   {"!", 1, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0 }
@@ -343,6 +344,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     struct Packet* pckt;
     struct SlabMap *slb;
     struct Coord3d pos = {0};
+    MapSubtlCoord stl_x, stl_y;
     if (strcasecmp(parstr, "stats") == 0)
     {
       targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Now time is %d, last loop time was %d",LbTimerClock(),last_loop_time);
@@ -532,8 +534,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             {
                 for (int i = 0; i < PLAYERS_COUNT; i++)
                 {
-                    if ((i == game.hero_player_num)
-                        || (plyr_idx == game.neutral_player_num))
+                    if (!player_is_keeper(i))
                         continue;
                     struct Computer2 *comp = get_computer_player(i);
                     if (player_exists(get_player(i)) && (!computer_player_invalid(comp)))
@@ -595,8 +596,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             {
                 int r2 = r / 2;
                 pckt = get_packet_direct(player->packet_num);
-                MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
-                MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
+                stl_x = coord_subtile(pckt->pos_x);
+                stl_y = coord_subtile(pckt->pos_y);
                 clear_dig_for_map_rect(player->id_number,
                                        subtile_slab(stl_x - r2),
                                        subtile_slab(stl_x + r - r2),
@@ -624,8 +625,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             {
                 int r2 = r / 2;
                 pckt = get_packet_direct(player->packet_num);
-                MapSubtlCoord stl_x = coord_subtile((pckt->pos_x));
-                MapSubtlCoord stl_y = coord_subtile((pckt->pos_y));
+                stl_x = coord_subtile((pckt->pos_x));
+                stl_y = coord_subtile((pckt->pos_y));
                 conceal_map_area(player->id_number, stl_x - r2, stl_x + r - r2, stl_y - r2, stl_y + r - r2, false);
             }
             else
@@ -740,8 +741,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     }
                     thing->valuable.gold_stored = atoi(pr2str);
                     add_gold_to_pile(thing, 0);
-                    MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
-                    MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
+                    stl_x = coord_subtile(pckt->pos_x);
+                    stl_y = coord_subtile(pckt->pos_y);
                     room = subtile_room_get(stl_x, stl_y);
                     if (room_exists(room))
                     {
@@ -751,6 +752,38 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                         }
                     }
                     return true;
+                }
+            }
+        }
+        else if ((strcasecmp(parstr, "look") == 0))
+        {
+            if ((pr2str != NULL) && (plyr_idx == my_player_number))
+            {
+                make_uppercase(pr2str);
+                long room_id = get_id(room_desc, pr2str);
+                if (room_id != -1)
+                {
+                    go_to_my_next_room_of_type(room_id);
+                    process_players_global_packet_action(plyr_idx); // Dirty hack
+                    return true;
+                }
+                long crmodel = get_id(creature_desc, pr2str);
+                if(crmodel != -1)
+                {
+                    go_to_next_creature_of_model_and_gui_job(crmodel, CrGUIJob_Any, TPF_OrderedPick);
+                    process_players_global_packet_action(plyr_idx); // Dirty hack
+                    return true;
+                }
+                TbMapLocation loc = {0};
+                if (get_map_location_id(pr2str, &loc))
+                {
+                    player = get_player(plyr_idx);
+                    find_map_location_coords(loc, &stl_x, &stl_y, plyr_idx, __func__);
+                    if ((stl_x != 0) || (stl_y != 0))
+                    {
+                        set_players_packet_action(player, PckA_ZoomToPosition, subtile_coord_center(stl_x), subtile_coord_center(stl_y), 0, 0);
+                        process_players_global_packet_action(plyr_idx); // Dirty hack
+                    }
                 }
             }
         }
@@ -842,8 +875,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 {
                     player = get_player(plyr_idx);
                     pckt = get_packet_direct(player->packet_num);
-                    MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
-                    MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
+                    stl_x = coord_subtile(pckt->pos_x);
+                    stl_y = coord_subtile(pckt->pos_y);
                     PlayerNumber id = get_player_number_for_command(pr5str);
                     if (!subtile_coords_invalid(stl_x, stl_y))
                     {
@@ -952,8 +985,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             {
                 player = get_player(plyr_idx);
                 pckt = get_packet_direct(player->packet_num);
-                MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
-                MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
+                stl_x = coord_subtile(pckt->pos_x);
+                stl_y = coord_subtile(pckt->pos_y);
                 MapSlabCoord slb_x = subtile_slab(stl_x);
                 MapSlabCoord slb_y = subtile_slab(stl_y);
                 slb = get_slabmap_block(slb_x, slb_y);
@@ -1099,7 +1132,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 }
                 else
                 {
-                    short Health = atoi(pr3str);
+                    HitPoints Health = atoi(pr3str);
                     thing->health = Health;
                     return true;
                 }
@@ -1141,14 +1174,27 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             PlayerNumber id = get_player_number_for_command(pr2str);
             player = get_player(plyr_idx);
             thing = thing_get(player->influenced_thing_idx);
-            if (thing_is_creature(thing))
+            ThingModel model = get_players_special_digger_model(thing->owner);
+            player = get_player(id);
+            if (player_exists(player))
             {
-                if (thing->model == get_players_special_digger_model(thing->owner))
+                if (thing_is_creature(thing))
                 {
-                    player = get_player(id);
-                    if (player_exists(player))
+                    if (thing->model == model)
                     {
-                        get_random_position_in_dungeon_for_creature(id, CrWaS_WithinDungeon, thing, &pos);
+                        if (get_random_position_in_dungeon_for_creature(id, CrWaS_WithinDungeon, thing, &pos))
+                        {
+                            targeted_message_add(MsgType_Player,plyr_idx, plyr_idx, GUI_MESSAGES_DELAY,"%s %d will dig to %s", thing_model_name(thing), thing->index, player_code_name(id));
+                            return send_tunneller_to_point_in_dungeon(thing, id, &pos);
+                        }
+                    }
+                }
+                thing = find_players_next_creature_of_breed_and_gui_job(get_players_special_digger_model(thing->owner), -1, plyr_idx, TPF_None);
+                if (!thing_is_invalid(thing))
+                {
+                    if (get_random_position_in_dungeon_for_creature(id, CrWaS_WithinDungeon, thing, &pos))
+                    {
+                        targeted_message_add(MsgType_Player,plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s %d will dig to %s", thing_model_name(thing),thing->index, player_code_name(id));
                         return send_tunneller_to_point_in_dungeon(thing, id, &pos);
                     }
                 }
@@ -1231,8 +1277,11 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             thing = thing_get(thing_id);
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "first_thing:%d %s", thing_id,
                                  thing_class_and_model_name(thing->class_id, thing->model));
-            targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "flags: %02x, data: %04lx", block->flags,
-                                 block->data);
+            targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "flags: %02x,filled: %d, wib: %d, col: %04ld", block->flags,
+                                 block->filled_subtiles, block->wibble_value, block->col_idx);
+
+            targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "mapwho: %04ld, rev: %d", block->mapwho, block->revealed);
+
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "stl_x: %d, stl_y:%d", pos.x.stl.num,
                                  pos.y.stl.num);
         }
@@ -1304,8 +1353,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             player = get_player(plyr_idx);
             pckt = get_packet_direct(player->packet_num);
-            MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
-            MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
+            stl_x = coord_subtile(pckt->pos_x);
+            stl_y = coord_subtile(pckt->pos_y);
             thing = (pr2str != NULL) ? thing_get(atoi(pr2str)) : get_nearest_thing_at_position(stl_x, stl_y);
             if (!thing_is_invalid(thing))
             {
@@ -1392,8 +1441,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             player = get_player(plyr_idx);
             pckt = get_packet_direct(player->packet_num);
-            MapSubtlCoord stl_x = coord_subtile((pckt->pos_x));
-            MapSubtlCoord stl_y = coord_subtile((pckt->pos_y));
+            stl_x = coord_subtile((pckt->pos_x));
+            stl_y = coord_subtile((pckt->pos_y));
             room = (pr2str != NULL) ? room_get(atoi(pr2str)) : subtile_room_get(stl_x, stl_y);
             if (room_exists(room))
             {
@@ -1424,8 +1473,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             player = get_player(plyr_idx);
             pckt = get_packet_direct(player->packet_num);
-            MapSubtlCoord stl_x = coord_subtile((pckt->pos_x));
-            MapSubtlCoord stl_y = coord_subtile((pckt->pos_y));
+            stl_x = coord_subtile((pckt->pos_x));
+            stl_y = coord_subtile((pckt->pos_y));
             slb = get_slabmap_for_subtile(stl_x, stl_y);
             if (!slabmap_block_invalid(slb))
             {
@@ -1534,8 +1583,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             if ( (pr2str != NULL) && (pr3str != NULL) )
             {
-                MapSubtlCoord stl_x = atoi(pr2str);
-                MapSubtlCoord stl_y = atoi(pr3str);
+                stl_x = atoi(pr2str);
+                stl_y = atoi(pr3str);
                 if (!subtile_coords_invalid(stl_x, stl_y))
                 {
                     player = get_player(plyr_idx);

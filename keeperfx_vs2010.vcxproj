@@ -52,7 +52,6 @@
     <ClCompile Include="src\bflib_netsync.c" />
     <ClCompile Include="src\bflib_network.cpp" />
     <ClCompile Include="src\bflib_planar.c" />
-    <ClCompile Include="src\bflib_pom.cpp" />
     <ClCompile Include="src\bflib_render.c" />
     <ClCompile Include="src\bflib_render_gpoly.c" />
     <ClCompile Include="src\bflib_render_gtblock.c" />
@@ -198,6 +197,7 @@
     <ClCompile Include="src\map_events.c" />
     <ClCompile Include="src\map_locations.c" />
     <ClCompile Include="src\map_utils.c" />
+    <ClCompile Include="src\moonphase.c" />
     <ClCompile Include="src\music_player.c" />
     <ClCompile Include="src\net_game.c" />
     <ClCompile Include="src\net_sync.c" />
@@ -214,7 +214,6 @@
     <ClCompile Include="src\player_computer_data.cpp" />
     <ClCompile Include="src\player_data.c" />
     <ClCompile Include="src\player_instances.c" />
-    <ClCompile Include="src\player_states.c" />
     <ClCompile Include="src\player_utils.c" />
     <ClCompile Include="src\power_hand.c" />
     <ClCompile Include="src\power_process.c" />
@@ -299,7 +298,6 @@
     <ClInclude Include="src\bflib_netsync.h" />
     <ClInclude Include="src\bflib_network.h" />
     <ClInclude Include="src\bflib_planar.h" />
-    <ClInclude Include="src\bflib_pom.hpp" />
     <ClInclude Include="src\bflib_render.h" />
     <ClInclude Include="src\bflib_semphr.hpp" />
     <ClInclude Include="src\bflib_server_tcp.hpp" />
@@ -426,6 +424,7 @@
     <ClInclude Include="src\map_events.h" />
     <ClInclude Include="src\map_locations.h" />
     <ClInclude Include="src\map_utils.h" />
+    <ClInclude Include="src\moonphase.h" />
     <ClInclude Include="src\music_player.h" />
     <ClInclude Include="src\net_game.h" />
     <ClInclude Include="src\net_sync.h" />
@@ -434,7 +433,6 @@
     <ClInclude Include="src\player_computer.h" />
     <ClInclude Include="src\player_data.h" />
     <ClInclude Include="src\player_instances.h" />
-    <ClInclude Include="src\player_states.h" />
     <ClInclude Include="src\player_utils.h" />
     <ClInclude Include="src\power_hand.h" />
     <ClInclude Include="src\power_process.h" />

@@ -40,6 +40,7 @@
 #include "engine_textures.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "player_instances.h"
 
 #include <toml.h>
 #include "post_inc.h"
@@ -125,7 +126,6 @@ unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum,const char *fext
 {
   short fgroup = get_level_fgroup(lvnum);
   char* fname = prepare_file_fmtpath(fgroup, "map%05lu.%s", lvnum, fext);
-  wait_for_cd_to_be_available();
   long fsize = LbFileLengthRnc(fname);
   if (fsize < *ldsize)
   {
@@ -682,12 +682,7 @@ TbBool load_column_file(LevelNumber lv_num)
       WARNMSG("Only %d columns supported, CLM file has %ld.",COLUMNS_COUNT,total);
       total = COLUMNS_COUNT;
     }
-    // Read and validate second amount
-    game.columns_used = llong(&buf[i]);
-    if (game.columns_used >= COLUMNS_COUNT)
-    {
-      game.columns_used = COLUMNS_COUNT - 1;
-    }
+    // The second lot of 4 bytes here are ignored.
     i += 4;
     // Fill the columns
     for (long k = 0; k < total; k++)
@@ -719,8 +714,7 @@ TbBool load_map_data_file(LevelNumber lv_num)
         for (x=0; x < (gameadd.map_subtiles_x+1); x++)
         {
             mapblk = get_map_block_at(x,y);
-            unsigned long n = -lword(&buf[i]);
-            mapblk->data ^= (mapblk->data ^ n) & 0x7FF;
+            mapblk->col_idx = -lword(&buf[i]);
             i += 2;
         }
     }
@@ -734,7 +728,7 @@ TbBool load_map_data_file(LevelNumber lv_num)
             unsigned short* wptr = &game.lish.subtile_lightness[get_subtile_number(x, y)];
             *wptr = 32;
             mapblk->mapwho = 0;
-            mapblk->data &= ~0x0F000000; //filled subtiles
+            mapblk->filled_subtiles = 0;
             mapblk->revealed = 0;
         }
     }
@@ -1139,7 +1133,7 @@ short load_map_ownership_file(LevelNumber lv_num)
             set_slab_owner(subtile_slab(x),subtile_slab(y),buf[i]);
         }
         else
-            set_slab_owner(subtile_slab(x),subtile_slab(y),NEUTRAL_PLAYER);
+            set_slab_owner(subtile_slab(x),subtile_slab(y),PLAYER_NEUTRAL);
         i++;
       }
     LbMemoryFree(buf);
@@ -1379,7 +1373,7 @@ static void load_ext_slabs(LevelNumber lvnum)
     memcpy(&gameadd.slab_ext_data_initial,&gameadd.slab_ext_data, sizeof(gameadd.slab_ext_data));
 }
 
-static void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short fgroup)
+void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short fgroup)
 {
     if (campgn->strings_data == NULL)
     {
@@ -1403,17 +1397,34 @@ static void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum,
         }
     }
     long filelen = LbFileLengthRnc(fname);
+    if (filelen <= 0)
+    {
+        ERRORLOG("Map Strings file %s does not exist or can't be opened", fname);
+        return;
+    }
+    campgn->strings_data = (char*)LbMemoryAlloc(filelen + 256);
+    if (campgn->strings_data == NULL)
+    {
+        ERRORLOG("Can't allocate memory for Map Strings data");
+        return;
+    }
     char* strings_data_end = campgn->strings_data + filelen + 255;
     long loaded_size = LbFileLoadAt(fname, campgn->strings_data);
-    if (loaded_size > 0)
+    if (loaded_size < 16)
     {
-        TbBool result = create_strings_list(campgn->strings, campgn->strings_data, strings_data_end, STRINGS_MAX);
-        if (result)
-        {
-            SYNCLOG("Loaded strings from %s", fname);
-            reload_campaign_strings = true;
-        }
+        ERRORLOG("Map Strings file couldn't be loaded or is too small");
+        return;
     }
+    // Resetting all values to empty strings
+    reset_strings(campgn->strings, STRINGS_MAX);
+    // Analyzing strings data and filling correct values
+    TbBool result = create_strings_list(campgn->strings, campgn->strings_data, strings_data_end, STRINGS_MAX);
+    if (result)
+    {
+        SYNCMSG("Loaded strings from %s", fname);
+        reload_campaign_strings = true;
+    }
+    SYNCDBG(19, "Finished");
 }
 
 static TbBool load_level_file(LevelNumber lvnum)
@@ -1422,7 +1433,6 @@ static TbBool load_level_file(LevelNumber lvnum)
     TbBool new_format = true;
     short fgroup = get_level_fgroup(lvnum);
     char* fname = prepare_file_fmtpath(fgroup, "map%05lu.slb", (unsigned long)lvnum);
-    wait_for_cd_to_be_available();
     if (LbFileExists(fname))
     {
         result = true;

@@ -153,7 +153,7 @@ TbBool slab_coords_invalid(MapSlabCoord slb_x, MapSlabCoord slb_y)
 long slabmap_owner(const struct SlabMap *slb)
 {
     if (slabmap_block_invalid(slb))
-        return NEUTRAL_PLAYER;
+        return PLAYER_NEUTRAL;
     return slb->owner;
 }
 
@@ -164,24 +164,18 @@ void set_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber owner)
 {
     struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
     if (slabmap_block_invalid(slb))
+    {
         return;
-    if (owner == NEUTRAL_PLAYER)
+    }
+    struct Dungeon *dungeon = get_dungeon(owner);
+    if (dungeon->texture_pack == 0)
     {
         gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = gameadd.slab_ext_data_initial[get_slab_number(slb_x,slb_y)];
     }
     else
     {
-        struct Dungeon *dungeon = get_dungeon(owner);
-        if (dungeon->texture_pack == 0)
-        {
-            gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = gameadd.slab_ext_data_initial[get_slab_number(slb_x,slb_y)];
-        }
-        else
-        {
-            gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = dungeon->texture_pack;
-        }
+        gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = dungeon->texture_pack;
     }
-
     slb->owner = owner;
 }
 

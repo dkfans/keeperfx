@@ -231,7 +231,7 @@ long computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *ceve
             break;
         if (cproc->parent == cevent->process)
         {
-            clear_flag(cproc->flags, (ComProc_Unkn0008|ComProc_Unkn0001));
+            clear_flag(cproc->flags, (ComProc_Unkn0008|ComProc_Unkn0001|ComProc_Unkn0004));
             cproc->last_run_turn = 0;
             cproc_idx = 1;
         }
@@ -363,7 +363,8 @@ long computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *ce
  */
 struct Thing *computer_get_creature_in_fight(struct Computer2 *comp, PowerKind pwkind)
 {
-    return find_players_highest_score_creature_in_fight_not_affected_by_spell(comp->dungeon->owner, pwkind);
+    struct PowerConfigStats *powerst = get_power_model_stats(pwkind);
+    return find_players_highest_score_creature_in_fight_not_affected_by_spell(comp->dungeon->owner, powerst->spell_idx);
 }
 
 long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent *cevent)
@@ -372,7 +373,9 @@ long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent 
     {
         return 4;
     }
-    if (!(computer_able_to_use_power(comp, PwrK_SPEEDCRTR, cevent->param1, 1) || computer_able_to_use_power(comp, PwrK_PROTECT, cevent->param1, 1) || computer_able_to_use_power(comp, PwrK_REBOUND, cevent->param1, 1) || computer_able_to_use_power(comp, PwrK_FLIGHT, cevent->param1, 1) || computer_able_to_use_power(comp, PwrK_VISION, cevent->param1, 1)))
+    if (!(computer_able_to_use_power(comp, PwrK_SPEEDCRTR, cevent->param1, 1) || computer_able_to_use_power(comp, PwrK_PROTECT, cevent->param1, 1) || 
+          computer_able_to_use_power(comp, PwrK_REBOUND, cevent->param1, 1)   || computer_able_to_use_power(comp, PwrK_FLIGHT, cevent->param1, 1) || 
+          computer_able_to_use_power(comp, PwrK_VISION, cevent->param1, 1)))
     {
         return 4;
     }
@@ -525,9 +528,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
                 {
                     SYNCDBG(8,"Player %d will allow process \"%s\"",(int)comp->dungeon->owner,cproc->name);
                     ret = 1;
-                    clear_flag(cproc->flags, (ComProc_Unkn0008|ComProc_Unkn0001));
-                    cproc->last_run_turn = 0;
-                    cproc->param_3 = 0;
+                    reactivate_build_process(comp, bldroom->rkind);
                 }
             }
         }
@@ -629,7 +630,7 @@ long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent
         return CTaskRet_Unk1;
     }
 
-    if (dungeon_has_room(dungeon, RoK_TORTURE) && (!creature_is_being_tortured(creatng)))//avoid repeated action on same unit)
+    if (dungeon_has_room_of_role(dungeon, RoRoF_Torture) && (!creature_is_being_tortured(creatng)))//avoid repeated action on same unit)
     {
         if (!creature_would_benefit_from_healing(creatng))
         {

@@ -155,7 +155,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     set_selected_creature(player, thing);
     player->view_mode_restore = cam->view_mode;
     thing->alloc_flags |= TAlF_IsControlled;
-    thing->rendering_flags |= TRF_Unknown01;
+    thing->rendering_flags |= TRF_Invisible;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->flgfield_2 |= TF2_Spectator;
     cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
@@ -321,7 +321,7 @@ void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_id
         return;
     }
     long i = UNSYNC_RANDOM(crsound->count);
-    struct Thing* efftng = create_effect(&thing->mappos, TngEff_DamageBlood, thing->owner);
+    struct Thing* efftng = create_effect(&thing->mappos, TngEff_Dummy, thing->owner);
     if (!thing_is_invalid(efftng)) {
         thing_play_sample(efftng, crsound->index+i, NORMAL_PITCH, 0, 3, 0, a2, FULL_LOUDNESS);
     }

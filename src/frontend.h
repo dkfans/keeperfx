@@ -223,7 +223,8 @@ enum IngameButtonDesignationIDs {
     BID_MNFCT_TD30, //130
     BID_MNFCT_TD31,
     BID_MNFCT_TD32,
-    BID_MNFCT_NXPG
+    BID_MNFCT_NXPG,
+    BID_QUERY_2
 };
 
 struct GuiMenu;

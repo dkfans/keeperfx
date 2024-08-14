@@ -52,6 +52,7 @@ extern "C" {
 struct Thing;
 
 enum ThingPickFlags {
+    TPF_None             = 0x00,
     TPF_PickableCheck    = 0x01,
     TPF_OrderedPick      = 0x02,
     TPF_ReverseOrder     = 0x04,
@@ -157,7 +158,7 @@ struct Thing *find_players_next_creature_of_breed_and_gui_job(long breed_idx, lo
 struct Thing *pick_up_creature_of_model_and_gui_job(long breed_idx, long job_idx, PlayerNumber owner, unsigned char pick_flags);
 void go_to_next_creature_of_model_and_gui_job(long crmodel, long job_idx, unsigned char pick_flags);
 struct Thing *find_creature_dragging_thing(const struct Thing *dragtng);
-struct Thing *find_players_highest_score_creature_in_fight_not_affected_by_spell(PlayerNumber plyr_idx, PowerKind pwkind);
+struct Thing *find_players_highest_score_creature_in_fight_not_affected_by_spell(PlayerNumber plyr_idx, SpellKind spell_kind);
 int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos, int can_see_slabs);
 TbBool change_creature_owner_if_near_dungeon_heart(struct Thing *creatng);
 
@@ -197,6 +198,7 @@ TbBool creature_can_be_queried(struct PlayerInfo *player, struct Thing *creatng)
 TbBool thing_is_creature(const struct Thing *thing);
 TbBool thing_is_dead_creature(const struct Thing *thing);
 TbBool thing_is_creature_special_digger(const struct Thing *thing);
+TbBool thing_is_creature_spectator(const struct Thing *thing);
 TbBool creature_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx);
 TbBool creature_is_invisible(const struct Thing *thing);
 TbBool creature_can_see_invisible(const struct Thing *thing);

@@ -50,7 +50,7 @@
 #include "config_effects.h"
 #include "config_powerhands.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "kjm_input.h"
 #include "front_input.h"
 #include "frontend.h"
@@ -317,33 +317,30 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
 
 void set_power_hand_graphic(unsigned char plyr_idx, long HandAnimationID)
 {
-  struct PlayerInfo *player;
-  struct Thing *thing;
-  player = get_player(plyr_idx);
-
-  short anim_idx   = game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_idx[HandAnimationID];
-  short anim_speed = game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_speed[HandAnimationID];
-
-  if (player->hand_busy_until_turn >= game.play_gameturn)
-  {
-    if ((HandAnimationID == HndA_Slap) || (HandAnimationID == HndA_SideSlap))
-      player->hand_busy_until_turn = 0;
-  }
-  if (player->hand_busy_until_turn < game.play_gameturn)
-  {
-    if (player->hand_animationId != HandAnimationID)
+    struct PlayerInfo *player = get_player(plyr_idx);
+    if (player->hand_busy_until_turn >= game.play_gameturn)
     {
-      player->hand_animationId = HandAnimationID;
-      thing = thing_get(player->hand_thing_idx);
-      if ((HandAnimationID == HndA_Hover) || (HandAnimationID == HndA_HoldGold))
-      {
-        set_thing_draw(thing, anim_idx, anim_speed, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
-      } else
-      {
-        set_thing_draw(thing, anim_idx, anim_speed, game.conf.crtr_conf.sprite_size, 1, 0, ODC_Default);
-      }
+        if ((HandAnimationID == HndA_Slap) || (HandAnimationID == HndA_SideSlap))
+          player->hand_busy_until_turn = 0;
     }
-  }
+    if (player->hand_busy_until_turn < game.play_gameturn)
+    {
+        if (player->hand_animationId != HandAnimationID)
+        {
+            player->hand_animationId = HandAnimationID;
+            struct Thing *thing = thing_get(player->hand_thing_idx);
+            short anim_idx   = game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_idx[HandAnimationID];
+            short anim_speed = game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_speed[HandAnimationID];
+            if ((HandAnimationID == HndA_Hover) || (HandAnimationID == HndA_HoldGold))
+            {
+                set_thing_draw(thing, anim_idx, anim_speed, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
+            }
+            else
+            {
+                set_thing_draw(thing, anim_idx, anim_speed, game.conf.crtr_conf.sprite_size, 1, 0, ODC_Default);
+            }
+        }
+    }
 }
 
 TbBool power_hand_is_empty(const struct PlayerInfo *player)
@@ -505,14 +502,19 @@ long get_thing_in_hand_id(const struct Thing* thing, PlayerNumber plyr_idx)
 void place_thing_in_limbo(struct Thing *thing)
 {
     remove_thing_from_mapwho(thing);
-    thing->rendering_flags |= TRF_Unknown01;
+    if (thing->light_id != 0)
+    {
+        light_delete_light(thing->light_id);
+        thing->light_id = 0;
+    }
+    thing->rendering_flags |= TRF_Invisible;
     thing->alloc_flags |= TAlF_IsInLimbo;
 }
 
 void remove_thing_from_limbo(struct Thing *thing)
 {
     thing->alloc_flags &= ~TAlF_IsInLimbo;
-    thing->rendering_flags &= ~TRF_Unknown01;
+    thing->rendering_flags &= ~TRF_Invisible;
     place_thing_in_mapwho(thing);
 }
 
@@ -615,7 +617,7 @@ void draw_power_hand(void)
     long inputpos_x;
     long inputpos_y;
     picktng = get_first_thing_in_power_hand(player);
-    if ((!thing_is_invalid(picktng)) && ((picktng->rendering_flags & TRF_Unknown01) == 0))
+    if ((!thing_is_invalid(picktng)) && ((picktng->rendering_flags & TRF_Invisible) == 0))
     {
         SYNCDBG(7,"Holding %s",thing_model_name(picktng));
         switch (picktng->class_id)
@@ -626,10 +628,25 @@ void draw_power_hand(void)
                 pickoffs = get_creature_picked_up_offset(picktng);
                 inputpos_x = GetMouseX() + scale_ui_value(pickoffs->delta_x*global_hand_scale);
                 inputpos_y = GetMouseY() + scale_ui_value(pickoffs->delta_y*global_hand_scale);
-                if (creatures[picktng->model].field_7)
-                  EngineSpriteDrawUsingAlpha = 1;
+                struct CreatureStats* crstat = creature_stats_get(picktng->model);
+                if (crstat->transparency_flags == TRF_Transpar_8)
+                {
+                    lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
+                    lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;  
+                }
+                else if (crstat->transparency_flags == TRF_Transpar_4)
+                {
+                    lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+                    lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
+                }
+                else if(crstat->transparency_flags == TRF_Transpar_Alpha)
+                {
+                    EngineSpriteDrawUsingAlpha = 1;
+                }
+
                 process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
                     picktng->anim_sprite, 0, picktng->current_frame, scale_ui_value(64*global_hand_scale));
+                lbDisplay.DrawFlags = 0;
                 EngineSpriteDrawUsingAlpha = 0;
             } else
             {
@@ -1299,11 +1316,6 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
             i = convert_td_iso(122);
         else
             i = get_creature_anim(thing, 9);
-        if (thing->light_id != 0)
-        {
-            light_delete_light(thing->light_id);
-            thing->light_id = 0;
-        }
         set_thing_draw(thing, i, 256, -1, -1, 0, ODC_Default);
     } else
     if (thing_is_object(thing))
@@ -1314,6 +1326,7 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
         }
     }
     insert_thing_into_power_hand_list(thing, plyr_idx);
+    clear_thing_velocity(thing);
     place_thing_in_limbo(thing);
     return true;
 }
@@ -1333,7 +1346,7 @@ TbBool remove_creature_from_power_hand(struct Thing *thing, PlayerNumber plyr_id
     return false;
 }
 
-TbResult magic_use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short tng_idx)
+TbResult use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short tng_idx)
 {
     struct PlayerInfo *player;
     struct Thing *thing;

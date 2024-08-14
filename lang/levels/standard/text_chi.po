@@ -1,7 +1,7 @@
 # ******************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # ******************************************************************************
-#   @file gtext_chi.po
+#   @file levels/standard/text_chi.po
 #      KeeperFX GUI Strings translation file
 #  @par Purpose:
 #      Contains translation of the national strings in the game.
@@ -16,10 +16,18 @@
 #      (at your option) any later version.
 #
 # ******************************************************************************
-
+msgid ""
+msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
 "Last-Translator: JieLeTian <jieletian@gmail.com>\n"
-"Language-Team: KeeperFX Team"
+"Language-Team: \n"
+"Language: zh\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.4.2\n"
 
 #. Generic victory message
 #: guitext:0
@@ -759,20 +767,19 @@ msgctxt "In-game message"
 msgid "You lost your only creature. You needed it to get claim the tiles around your heart. Hopeless."
 msgstr "你失去了你唯一的怪物。你需要它才能夺回你地下城心脏周围的领土。现在已经没有希望了。"
 
-#: guitext:123 guitext:124 guitext:125
-#: guitext:126 guitext:127 guitext:128 guitext:129 guitext:130 guitext:131
-#: guitext:132 guitext:133 guitext:134 guitext:135 guitext:136 guitext:137
-#: guitext:138 guitext:139 guitext:140 guitext:141 guitext:142 guitext:143
-#: guitext:144 guitext:145 guitext:146 guitext:147 guitext:148 guitext:149
-#: guitext:150 guitext:151 guitext:152 guitext:153 guitext:154 guitext:155
-#: guitext:156 guitext:157 guitext:158 guitext:159 guitext:160 guitext:161
-#: guitext:162 guitext:163 guitext:164 guitext:165 guitext:166 guitext:167
-#: guitext:168 guitext:169 guitext:170 guitext:171 guitext:172 guitext:173
-#: guitext:174 guitext:175 guitext:176 guitext:177 guitext:178 guitext:179
-#: guitext:180 guitext:181 guitext:182 guitext:183 guitext:184 guitext:185
-#: guitext:186 guitext:187 guitext:188 guitext:189 guitext:190 guitext:191
-#: guitext:192 guitext:193 guitext:194 guitext:195 guitext:196 guitext:197
-#: guitext:198 guitext:199 guitext:200
+#: guitext:123 guitext:124 guitext:125 guitext:126 guitext:127 guitext:128
+#: guitext:129 guitext:130 guitext:131 guitext:132 guitext:133 guitext:134
+#: guitext:135 guitext:136 guitext:137 guitext:138 guitext:139 guitext:140
+#: guitext:141 guitext:142 guitext:143 guitext:144 guitext:145 guitext:146
+#: guitext:147 guitext:148 guitext:149 guitext:150 guitext:151 guitext:152
+#: guitext:153 guitext:154 guitext:155 guitext:156 guitext:157 guitext:158
+#: guitext:159 guitext:160 guitext:161 guitext:162 guitext:163 guitext:164
+#: guitext:165 guitext:166 guitext:167 guitext:168 guitext:169 guitext:170
+#: guitext:171 guitext:172 guitext:173 guitext:174 guitext:175 guitext:176
+#: guitext:177 guitext:178 guitext:179 guitext:180 guitext:181 guitext:182
+#: guitext:183 guitext:184 guitext:185 guitext:186 guitext:187 guitext:188
+#: guitext:189 guitext:190 guitext:191 guitext:192 guitext:193 guitext:194
+#: guitext:195 guitext:196 guitext:197 guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
 msgstr ""

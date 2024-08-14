@@ -123,6 +123,7 @@ void light_set_light_never_cache(long lgt_id);
 TbBool light_is_invalid(const struct Light *lgt);
 long light_is_light_allocated(long lgt_id);
 void light_set_light_position(long lgt_id, struct Coord3d *pos);
+void light_stat_refresh();
 void light_set_lights_on(char state);
 void light_set_light_minimum_size_to_cache(long lgt_id, long a2, long a3);
 void light_signal_update_in_area(long sx, long sy, long ex, long ey);
