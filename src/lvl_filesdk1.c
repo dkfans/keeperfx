@@ -1399,20 +1399,20 @@ void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short 
     long filelen = LbFileLengthRnc(fname);
     if (filelen <= 0)
     {
-        ERRORLOG("Campaign Strings file %s does not exist or can't be opened", campgn->strings_fname);
+        ERRORLOG("Map Strings file %s does not exist or can't be opened", fname);
         return;
     }
     campgn->strings_data = (char*)LbMemoryAlloc(filelen + 256);
     if (campgn->strings_data == NULL)
     {
-        ERRORLOG("Can't allocate memory for Campaign Strings data");
+        ERRORLOG("Can't allocate memory for Map Strings data");
         return;
     }
     char* strings_data_end = campgn->strings_data + filelen + 255;
     long loaded_size = LbFileLoadAt(fname, campgn->strings_data);
     if (loaded_size < 16)
     {
-        ERRORLOG("Campaign Strings file couldn't be loaded or is too small");
+        ERRORLOG("Map Strings file couldn't be loaded or is too small");
         return;
     }
     // Resetting all values to empty strings
@@ -1421,10 +1421,10 @@ void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short 
     TbBool result = create_strings_list(campgn->strings, campgn->strings_data, strings_data_end, STRINGS_MAX);
     if (result)
     {
-        reload_campaign_strings = false;
+        SYNCMSG("Loaded strings from %s", fname);
+        reload_campaign_strings = true;
     }
     SYNCDBG(19, "Finished");
-    return;
 }
 
 static TbBool load_level_file(LevelNumber lvnum)
