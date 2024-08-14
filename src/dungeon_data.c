@@ -24,6 +24,7 @@
 #include "bflib_memory.h"
 #include "config_terrain.h"
 #include "game_legacy.h"
+#include "player_instances.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -132,10 +133,6 @@ void increase_dungeon_area(PlayerNumber plyr_idx, long value)
 
 void player_add_offmap_gold(PlayerNumber plyr_idx, GoldAmount value)
 {
-    if (plyr_idx == game.neutral_player_num) {
-        WARNLOG("Cannot give gold to neutral player %d",(int)plyr_idx);
-        return;
-    }
     // note that we can't get_players_num_dungeon() because players
     // may be uninitialized yet when this is called.
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
@@ -206,8 +203,7 @@ struct Thing *get_player_soul_container(PlayerNumber plyr_idx)
 
 TbBool player_has_heart(PlayerNumber plyr_idx)
 {
-    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    return (thing_exists(get_player_soul_container(plyr_idx)) && dungeon->heart_destroy_turn <= 0);
+    return thing_exists(get_player_soul_container(plyr_idx));
 }
 
 /** Returns if given dungeon contains a room of given kind.
@@ -509,10 +505,10 @@ void init_dungeons(void)
 {
     for (int i = 0; i < DUNGEONS_COUNT; i++)
     {
-        struct Dungeon* dungeon = get_dungeon(game.hero_player_num);
+        struct Dungeon* dungeon = get_dungeon(PLAYER_GOOD);
         dungeon->hates_player[i] = game.conf.rules.creature.fight_max_hate;
         dungeon = get_dungeon(i);
-        dungeon->hates_player[game.hero_player_num%DUNGEONS_COUNT] = game.conf.rules.creature.fight_max_hate;
+        dungeon->hates_player[PLAYER_GOOD] = game.conf.rules.creature.fight_max_hate;
         dungeon->num_active_diggers = 0;
         dungeon->num_active_creatrs = 0;
         dungeon->creatr_list_start = 0;
@@ -528,6 +524,16 @@ void init_dungeons(void)
           else
             dungeon->hates_player[k] = game.conf.rules.creature.fight_max_hate;
         }
+        /** Player modifier default value is set to 100. */
+        dungeon->modifier.health = 100;
+        dungeon->modifier.strength = 100;
+        dungeon->modifier.armour = 100;
+        dungeon->modifier.spell_damage = 100;
+        dungeon->modifier.speed = 100;
+        dungeon->modifier.pay = 100;
+        dungeon->modifier.training_cost = 100;
+        dungeon->modifier.scavenging_cost = 100;
+        dungeon->modifier.loyalty = 100;
         dungeon->color_idx = i;
         LbMemorySet(dungeon->creature_models_joined, 0, CREATURE_TYPES_MAX);
     }

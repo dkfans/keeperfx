@@ -39,7 +39,9 @@ enum MapCoordClipFlags {
 
 struct Map {
       unsigned char flags; // flags in enum SlabAttrFlags
-      unsigned long data; // 4b unused 4b filled_subtiles 2b wibble_value 11b unused 11b column
+      unsigned char filled_subtiles;
+      unsigned char wibble_value;
+      ColumnIndex col_idx;
       ThingIndex mapwho;
       PlayerBitFlags revealed;
 };
@@ -84,6 +86,7 @@ void conceal_map_block(struct Map *mapblk, PlayerNumber plyr_idx);
 TbBool slabs_reveal_slab_and_corners(MapSlabCoord slab_x, MapSlabCoord slab_y, MaxCoordFilterParam param);
 TbBool slabs_change_owner(MapSlabCoord slab_x, MapSlabCoord slab_y, MaxCoordFilterParam param);
 TbBool slabs_change_type(MapSlabCoord slab_x, MapSlabCoord slab_y, MaxCoordFilterParam param);
+TbBool slabs_change_texture(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterParam param);
 TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx);
 TbBool map_block_revealed_directly(const struct Map* mapblk, PlayerNumber plyr_idx);
 
@@ -98,8 +101,8 @@ void set_mapblk_filled_subtiles(struct Map *map, long height);
 long get_mapblk_wibble_value(const struct Map *mapblk);
 void set_mapblk_wibble_value(struct Map *mapblk, long wib);
 
-unsigned long get_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long navcolour);
+NavColour get_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, NavColour navcolour);
 unsigned long get_navigation_map_floor_height(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 TbBool set_coords_with_clip(struct Coord3d *pos, MapCoord cor_x, MapCoord cor_y, MapCoord cor_z);

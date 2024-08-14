@@ -165,7 +165,7 @@ short LoadMcgaData(void)
     {
         // Don't allow loading flags
         t_lfile->Flags = 0;
-        int ret_val = LbDataLoad(t_lfile);
+        int ret_val = LbDataLoad(t_lfile, NULL, NULL);
         if (ret_val == -100)
         {
             ERRORLOG("Can't allocate memory for MCGA files element \"%s\".", t_lfile->FName);

@@ -181,6 +181,11 @@ enum TbScriptCommands {
     Cmd_MAKE_UNSAFE                        = 168,
     Cmd_LEVEL_UP_PLAYERS_CREATURES         = 169,
     Cmd_SET_INCREASE_ON_EXPERIENCE         = 170,
+    Cmd_SET_PLAYER_MODIFIER                = 171,
+    Cmd_ADD_TO_PLAYER_MODIFIER             = 172,
+    Cmd_USE_POWER_ON_PLAYERS_CREATURES     = 173,
+    Cmd_CHANGE_SLAB_TEXTURE                = 174,
+    Cmd_MOVE_PLAYER_CAMERA_TO              = 175,
 };
 
 struct ScriptLine {
@@ -274,6 +279,11 @@ enum ScriptVariables {
   SVar_CREATURES_TRANSFERRED           = 77,
   SVar_ALLIED_PLAYER                   = 78,
   SVar_ACTIVE_BATTLES                  = 79,
+  SVar_VIEW_TYPE                       = 80,
+  SVar_TOTAL_TRAPS                     = 81,
+  SVar_AVAILABLE_TOTAL_TRAPS           = 82,
+  SVar_AVAILABLE_TOTAL_DOORS           = 83,
+  SVar_AVAILABLE_TOTAL_CREATURES       = 84,
  };
 
 
@@ -284,11 +294,11 @@ enum ScriptVariables {
 #define FX_LINE_TIME_PARTS 4
 
 
-struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmodel, long criteria);
-long parse_creature_name(const char *creature_name);
+struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, ThingModel crmodel, long criteria);
+ThingModel parse_creature_name(const char *creature_name);
 struct ScriptValue *allocate_script_value(void);
-struct Thing *script_process_new_object(long crmodel, TbMapLocation location, long arg, unsigned long plr_range_id);
-struct Thing* script_process_new_effectgen(long crmodel, TbMapLocation location, long range);
+struct Thing *script_process_new_object(ThingModel crmodel, TbMapLocation location, long arg, unsigned long plr_range_id);
+struct Thing* script_process_new_effectgen(ThingModel crmodel, TbMapLocation location, long range);
 void command_init_value(struct ScriptValue* value, unsigned long var_index, unsigned long plr_range_id);
 void command_add_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4);
 void set_variable(int player_idx, long var_type, long var_idx, long new_val);
@@ -299,9 +309,10 @@ long parse_criteria(const char *criteria);
 #define get_players_range_single(plr_range_id) get_players_range_single_f(plr_range_id, __func__, text_line_number)
 long get_players_range_single_f(long plr_range_id, const char *func_name, long ln_num);
 TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type);
-char get_player_number_from_value(const char* txt);
+void get_player_number_from_value(const char* txt, char* id, char* type);
 #define get_player_id(plrname, plr_range_id) get_player_id_f(plrname, plr_range_id, __func__, text_line_number)
 TbBool get_player_id_f(const char *plrname, long *plr_range_id, const char *func_name, long ln_num);
+TbResult script_use_power_on_creature(struct Thing* thing, short pwkind, short splevel, PlayerNumber caster, TbBool is_free);
 
 #define ALLOCATE_SCRIPT_VALUE(var_index, plr_range_id) \
     struct ScriptValue tmp_value = {0}; \

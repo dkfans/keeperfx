@@ -25,9 +25,10 @@
 #include "bflib_math.h"
 #include "bflib_sound.h"
 
+#include "api.h"
 #include "player_data.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "player_computer.h"
 #include "dungeon_data.h"
 #include "power_hand.h"
@@ -104,6 +105,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
   struct Dungeon* dungeon = get_dungeon(player->id_number);
   if (my_player)
   {
+      api_event("WIN_GAME");
       frontstats_initialise();
       if ( timer_enabled() )
       {
@@ -151,6 +153,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     SYNCLOG("Player %d lost",(int)player->id_number);
     if (is_my_player(player))
     {
+      api_event("LOSE_GAME");
         frontstats_initialise();
     }
     player->victory_state = VicS_LostLevel;
@@ -177,7 +180,20 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     }
     if (is_my_player(player))
         gui_set_button_flashing(0, 0);
-    set_player_mode(player, PVT_DungeonTop);
+    if (player->view_type == PVT_CreatureContrl)
+    {
+        struct Thing *thing = thing_get(player->controlled_thing_idx);
+        leave_creature_as_controller(player, thing);
+    }
+    else if (player->view_type == PVT_CreaturePasngr)
+    {
+        struct Thing *thing = thing_get(player->controlled_thing_idx);
+        leave_creature_as_passenger(player, thing);
+    }
+    else
+    {
+        set_player_mode(player, PVT_DungeonTop);
+    }
     set_player_state(player, PSt_CtrlDungeon, 0);
     if ((game.system_flags & GSF_NetworkActive) == 0)
         player->display_objective_turn = game.play_gameturn + 300;
@@ -830,7 +846,7 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
     {
         mapblk = get_map_block_at_pos(stl_num);
         // Add only tiles which are revealed to the wandering player, unless it's heroes - for them, add all
-        if ((wandr->plyr_idx == game.hero_player_num) || map_block_revealed(mapblk, wandr->plyr_idx))
+        if ((player_is_roaming(wandr->plyr_idx)) || map_block_revealed(mapblk, wandr->plyr_idx))
         {
             slb = get_slabmap_for_subtile(stl_x, stl_y);
             if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((get_navigation_map(stl_x, stl_y) & NAVMAP_UNSAFE_SURFACE) == 0)
@@ -854,7 +870,7 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
     {
         mapblk = get_map_block_at_pos(stl_num);
         // Add only tiles which are not revealed to the wandering player, unless it's heroes - for them, do nothing
-        if ((wandr->plyr_idx != game.hero_player_num) && !map_block_revealed(mapblk, wandr->plyr_idx))
+        if (!player_is_roaming(wandr->plyr_idx) && !map_block_revealed(mapblk, wandr->plyr_idx))
         {
             if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((get_navigation_map(stl_x, stl_y) & NAVMAP_UNSAFE_SURFACE) == 0))
             {
@@ -1038,6 +1054,13 @@ void init_players_local_game(void)
     struct PlayerInfo* player = get_my_player();
     player->id_number = my_player_number;
     player->allocflags |= PlaF_Allocated;
+
+    if( player->id_number == PLAYER_GOOD)
+    {
+        player->allocflags &= ~PlaF_CompCtrl;
+        player->player_type = PT_Keeper;
+    }
+
     switch (settings.video_rotate_mode) {
         case 0: player->view_mode_restore = PVM_IsoWibbleView; break;
         case 1: player->view_mode_restore = PVM_IsoStraightView; break;

@@ -42,7 +42,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define DUNGEONS_COUNT              5
+#define DUNGEONS_COUNT              9
 #define DIGGER_TASK_MAX_COUNT       64
 #define DUNGEON_RESEARCH_COUNT      64
 #define MAX_THINGS_IN_HAND          64
@@ -126,6 +126,20 @@ struct ComputerInfo
 {
     struct ComputerEvent events[COMPUTER_EVENTS_COUNT];
     struct ComputerCheck checks[COMPUTER_CHECKS_COUNT];
+};
+
+/** Used to set player modifier with script command. */
+struct Modifiers
+{
+    unsigned short health;
+    unsigned short strength;
+    unsigned short armour;
+    unsigned short spell_damage;
+    unsigned short speed;
+    unsigned short pay;
+    unsigned short training_cost;
+    unsigned short scavenging_cost;
+    unsigned short loyalty;
 };
 
 struct Dungeon {
@@ -232,8 +246,8 @@ struct Dungeon {
     long total_research_points;
     long total_manufacture_points;
     long manufacture_progress;
-    unsigned char manufacture_class;
-    unsigned char manufacture_kind;
+    ThingClass manufacture_class;
+    ThingModel manufacture_kind;
     long turn_last_manufacture;
     long manufacture_level;
     long research_progress;
@@ -256,14 +270,15 @@ struct Dungeon {
     unsigned char devastation_centr_y;
     unsigned long devastation_turn;
     long creatures_total_pay;
-unsigned short gold_hoard_for_pickup;
-unsigned long gold_pickup_amount;
+    unsigned short gold_hoard_for_pickup;
+    unsigned long gold_pickup_amount;
     /** Index of last creature picked up of given model. */
     unsigned short selected_creatures_of_model[CREATURE_TYPES_MAX];
     /** Index of last creature picked up of given GUI Job. */
     unsigned short selected_creatures_of_gui_job[CREATURE_GUI_JOBS_COUNT];
     unsigned char texture_pack;
     unsigned char color_idx;
+    struct Modifiers      modifier;
     struct TrapInfo       mnfct_info;
     struct BoxInfo        box_info;
     struct Coord3d        last_combat_location;
