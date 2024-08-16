@@ -1012,7 +1012,6 @@ void init_keeper(void)
     SYNCDBG(8,"Starting");
     engine_init();
     init_iso_3d_conversion_tables();
-    init_objects();
     init_colours();
     init_spiral_steps();
     init_key_to_strings();

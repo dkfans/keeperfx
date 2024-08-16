@@ -83,6 +83,7 @@ const struct NamedCommand objects_object_commands[] = {
   {"FLAMEANIMATIONSIZE",     35},
   {"FLAMEANIMATIONOFFSET",   36},
   {"FLAMETRANSPARENCYFLAGS", 37},
+  {"LIGHTFLAGS",             38},
   {NULL,                 0},
   };
 
@@ -763,6 +764,19 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
+            case 38: // LIGHTFLAGS
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->ilght.flags = k;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
            case 0: // comment
                 break;
             case -1: // end of buffer
@@ -959,15 +973,6 @@ int get_required_room_capacity_for_object(RoomRole room_role, ThingModel objmode
         break;
     }
     return 0;
-}
-
-void init_objects(void)
-{
-    game.conf.object_conf.object_cfgstats[ObjMdl_Torch].ilght.flags = 5;
-    game.conf.object_conf.object_cfgstats[ObjMdl_HeroGate].ilght.flags = 5;
-    game.conf.object_conf.object_cfgstats[ObjMdl_StatueLit].ilght.flags = 5;
-    game.conf.object_conf.object_cfgstats[ObjMdl_SoulCountainer].ilght.flags = 5;
-    game.conf.object_conf.object_cfgstats[ObjMdl_Candlestick].ilght.flags = 5;
 }
 
 /******************************************************************************/
