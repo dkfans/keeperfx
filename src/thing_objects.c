@@ -419,7 +419,8 @@ TbBool thing_is_lair_totem(const struct Thing *thing)
 
 TbBool object_is_hero_gate(const struct Thing *thing)
 {
-  return (thing->model == ObjMdl_HeroGate);
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    return (objst->genre == OCtg_HeroGate);
 }
 
 TbBool object_is_infant_food(const struct Thing *thing)

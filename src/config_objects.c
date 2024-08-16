@@ -110,6 +110,7 @@ const struct NamedCommand objects_genres_desc[] = {
   {"POWER",           OCtg_Power},
   {"LAIR_TOTEM",      OCtg_LairTotem},
   {"EFFECT",          OCtg_Effect},
+  {"HEROGATE",        OCtg_HeroGate},
   {NULL,              0},
   };
 

@@ -45,6 +45,7 @@ enum ObjectCategoryIndex {
     OCtg_Power,      //< Object is a keeper power effect, ie. hand of evil or keeper spell
     OCtg_LairTotem,  //< Object is a creature lair
     OCtg_Effect,     //< Object is some kind of effect which has influence on things or on terrain
+    OCtg_HeroGate,   //< Object functions as a hero gate
 };
 
 enum ObjectModelFlags {
