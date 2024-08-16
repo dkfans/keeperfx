@@ -197,17 +197,6 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
       case ObjMdl_GoldBag:
         thing->valuable.gold_stored = gold_object_typical_value(thing->model);
         break;
-      case ObjMdl_HeroGate:
-        i = get_free_hero_gate_number();
-        if (i > 0)
-        {
-            thing->hero_gate.number = i;
-        } else
-        {
-            thing->hero_gate.number = 0;
-            ERRORLOG("Could not allocate number for hero gate");
-        }
-        break;
       case ObjMdl_SpinningKey:
         if ((thing->mappos.z.stl.num == 4) && (subtile_is_door(thing->mappos.x.stl.num, thing->mappos.y.stl.num)))
         {
@@ -218,6 +207,20 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
       default:
         break;
     }
+    if (objst->genre == OCtg_HeroGate)
+    {
+        i = get_free_hero_gate_number();
+        if (i > 0)
+        {
+            thing->hero_gate.number = i;
+        }
+        else
+        {
+            thing->hero_gate.number = 0;
+            ERRORLOG("Could not allocate number for hero gate");
+        }
+    }
+
     add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);
 
