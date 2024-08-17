@@ -5971,6 +5971,43 @@ static void computer_player_check(const struct ScriptLine* scline)
     }
 }
 
+static void add_object_to_level_at_pos_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    short tngmodel = get_rid(object_desc, scline->tp[0]);
+    if ((tngmodel == -1))
+    {
+        SCRPTERRLOG("Unknown object: %s", scline->tp[0]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->shorts[0] = tngmodel;
+    if (!subtile_coords_invalid(scline->np[1], scline->np[2]))
+    {
+        value->shorts[1] = scline->np[1];
+        value->shorts[2] = scline->np[2];
+    }
+    else
+    {
+        SCRPTERRLOG("Invalid subtile co-ordinates: %ld, %ld", scline->np[1], scline->np[2]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->arg2 = scline->np[3];
+    PlayerNumber plyr_idx = get_rid(player_desc, scline->tp[4]);
+    if ((plyr_idx == -1) || (plyr_idx == ALL_PLAYERS))
+    {
+        plyr_idx = PLAYER_NEUTRAL;
+    }
+    value->chars[6] = plyr_idx;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void add_object_to_level_at_pos_process(struct ScriptContext* context)
+{
+    script_process_new_object_at_pos(context->value->shorts[0], context->value->shorts[1], context->value->shorts[2], context->value->arg2, context->value->chars[6]);
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -6128,6 +6165,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_PLAYER_MODIFIER",               "PAN     ", Cmd_SET_PLAYER_MODIFIER, &set_player_modifier_check, &set_player_modifier_process},
   {"ADD_TO_PLAYER_MODIFIER",            "PAN     ", Cmd_ADD_TO_PLAYER_MODIFIER, &add_to_player_modifier_check, &add_to_player_modifier_process},
   {"CHANGE_SLAB_TEXTURE",               "NNAa    ", Cmd_CHANGE_SLAB_TEXTURE , &change_slab_texture_check, &change_slab_texture_process},
+  {"ADD_OBJECT_TO_LEVEL_AT_POS",        "ANNNp   ", Cmd_ADD_OBJECT_TO_LEVEL_AT_POS, &add_object_to_level_at_pos_check, &add_object_to_level_at_pos_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

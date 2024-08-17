@@ -95,6 +95,52 @@ struct Thing *script_process_new_object(ThingModel tngmodel, TbMapLocation locat
         case ObjMdl_GoldChest:
         case ObjMdl_GoldPot:
         case ObjMdl_Goldl:
+        case ObjMdl_GoldBag:
+            thing->valuable.gold_stored = arg;
+            break;
+    }
+    return thing;
+}
+
+struct Thing *script_process_new_object_at_pos(ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long arg, PlayerNumber plyr_idx)
+{
+    struct Coord3d pos;
+    pos.x.val = subtile_coord_center(stl_x);
+    pos.y.val = subtile_coord_center(stl_y);
+    pos.z.val = get_floor_height_at(&pos);
+    struct Thing* thing = create_object(&pos, tngmodel, plyr_idx, -1);
+    if (thing_is_invalid(thing))
+    {
+        ERRORLOG("Couldn't create %s at location %ld, %ld",thing_class_and_model_name(TCls_Object, tngmodel),stl_x, stl_y);
+        return INVALID_THING;
+    }
+    if (thing_is_dungeon_heart(thing))
+    {
+        struct Dungeon* dungeon = get_dungeon(thing->owner);
+        if (dungeon->backup_heart_idx == 0)
+        {
+            dungeon->backup_heart_idx = thing->index;
+        }
+    }
+    // Try to move thing out of the solid wall if it's inside one
+    if (thing_in_wall_at(thing, &thing->mappos))
+    {
+        if (!move_creature_to_nearest_valid_position(thing)) {
+            ERRORLOG("The %s was created in wall, removing",thing_model_name(thing));
+            delete_thing_structure(thing, 0);
+            return INVALID_THING;
+        }
+    }
+    if (thing_is_special_box(thing) && !thing_is_hardcoded_special_box(thing))
+    {
+        thing->custom_box.box_kind = (unsigned char)arg;
+    }
+    switch (tngmodel)
+    {
+        case ObjMdl_GoldChest:
+        case ObjMdl_GoldPot:
+        case ObjMdl_Goldl:
+        case ObjMdl_GoldBag:
             thing->valuable.gold_stored = arg;
             break;
     }

@@ -186,6 +186,7 @@ enum TbScriptCommands {
     Cmd_USE_POWER_ON_PLAYERS_CREATURES     = 173,
     Cmd_CHANGE_SLAB_TEXTURE                = 174,
     Cmd_MOVE_PLAYER_CAMERA_TO              = 175,
+    Cmd_ADD_OBJECT_TO_LEVEL_AT_POS         = 176,
 };
 
 struct ScriptLine {
@@ -298,6 +299,7 @@ struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, ThingModel 
 ThingModel parse_creature_name(const char *creature_name);
 struct ScriptValue *allocate_script_value(void);
 struct Thing *script_process_new_object(ThingModel crmodel, TbMapLocation location, long arg, unsigned long plr_range_id);
+struct Thing *script_process_new_object_at_pos(ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long arg, PlayerNumber plyr_idx);
 struct Thing* script_process_new_effectgen(ThingModel crmodel, TbMapLocation location, long range);
 void command_init_value(struct ScriptValue* value, unsigned long var_index, unsigned long plr_range_id);
 void command_add_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4);
