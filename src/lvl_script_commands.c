@@ -5975,7 +5975,7 @@ static void add_object_to_level_at_pos_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     short tngmodel = get_rid(object_desc, scline->tp[0]);
-    if ((tngmodel == -1))
+    if (tngmodel == -1)
     {
         SCRPTERRLOG("Unknown object: %s", scline->tp[0]);
         DEALLOCATE_SCRIPT_VALUE
