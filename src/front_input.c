@@ -567,7 +567,7 @@ short get_global_inputs(void)
     get_players_message_inputs();
     return true;
   }
-  if ((player->view_type == PVT_DungeonTop)
+  if (((player->view_type == PVT_DungeonTop) || (player->view_type == PVT_CreatureContrl))
   && (((game.system_flags & GSF_NetworkActive) != 0) ||
      ((game.flags_gui & GGUI_SoloChatEnabled) != 0)))
   {
