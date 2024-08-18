@@ -764,6 +764,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
+                break;
             case 38: // LIGHTFLAGS
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
