@@ -49,60 +49,7 @@ void command_init_value(struct ScriptValue* value, unsigned long var_index, unsi
     value->condit_idx = get_script_current_condition();
 }
 
-struct Thing *script_process_new_object(ThingModel tngmodel, TbMapLocation location, long arg, unsigned long plr_range_id)
-{
-    
-    int tngowner = plr_range_id;
-    struct Coord3d pos;
-
-    const unsigned char tngclass = TCls_Object;
-
-    if(!get_coords_at_location(&pos,location))
-    {
-        return INVALID_THING;
-    }
-
-    struct Thing* thing = create_thing(&pos, tngclass, tngmodel, tngowner, -1);
-    if (thing_is_invalid(thing))
-    {
-        ERRORLOG("Couldn't create %s at location %d",thing_class_and_model_name(tngclass, tngmodel),(int)location);
-        return INVALID_THING;
-    }
-    if (thing_is_dungeon_heart(thing))
-    {
-        struct Dungeon* dungeon = get_dungeon(tngowner);
-        if (dungeon->backup_heart_idx == 0)
-        {
-            dungeon->backup_heart_idx = thing->index;
-        }
-    }
-    thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
-    // Try to move thing out of the solid wall if it's inside one
-    if (thing_in_wall_at(thing, &thing->mappos))
-    {
-        if (!move_creature_to_nearest_valid_position(thing)) {
-            ERRORLOG("The %s was created in wall, removing",thing_model_name(thing));
-            delete_thing_structure(thing, 0);
-            return INVALID_THING;
-        }
-    }
-    if (thing_is_special_box(thing) && !thing_is_hardcoded_special_box(thing))
-    {
-        thing->custom_box.box_kind = (unsigned char)arg;
-    }
-    switch (tngmodel)
-    {
-        case ObjMdl_GoldChest:
-        case ObjMdl_GoldPot:
-        case ObjMdl_Goldl:
-        case ObjMdl_GoldBag:
-            thing->valuable.gold_stored = arg;
-            break;
-    }
-    return thing;
-}
-
-struct Thing *script_process_new_object_at_pos(ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long arg, PlayerNumber plyr_idx)
+struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long arg, PlayerNumber plyr_idx)
 {
     struct Coord3d pos;
     pos.x.val = subtile_coord_center(stl_x);

@@ -6003,9 +6003,44 @@ static void add_object_to_level_at_pos_check(const struct ScriptLine* scline)
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
-static void add_object_to_level_at_pos_process(struct ScriptContext* context)
+static void add_object_to_level_check(const struct ScriptLine* scline)
 {
-    script_process_new_object_at_pos(context->value->shorts[0], context->value->shorts[1], context->value->shorts[2], context->value->arg2, context->value->chars[6]);
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    short obj_id = get_rid(object_desc, scline->tp[0]);
+    if (obj_id == -1)
+    {
+        SCRPTERRLOG("Unknown object, '%s'", scline->tp[0]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->shorts[0] = obj_id;
+    TbMapLocation location;
+    if (!get_map_location_id(scline->tp[1], &location))
+    {
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    struct Coord3d pos;
+    if (!get_coords_at_location(&pos,location))
+    {
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->shorts[1] = pos.x.stl.num;
+    value->shorts[2] = pos.y.stl.num;
+    value->arg2 = scline->np[2];
+    PlayerNumber plyr_idx = get_rid(player_desc, scline->tp[3]);
+    if ((plyr_idx == -1) || (plyr_idx == ALL_PLAYERS))
+    {
+        plyr_idx = PLAYER_NEUTRAL;
+    }
+    value->chars[6] = plyr_idx;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void add_object_to_level_process(struct ScriptContext* context)
+{
+    script_process_new_object(context->value->shorts[0], context->value->shorts[1], context->value->shorts[2], context->value->arg2, context->value->chars[6]);
 }
 
 /**
@@ -6019,7 +6054,7 @@ const struct CommandDesc command_desc[] = {
   {"DELETE_FROM_PARTY",                 "ACN     ", Cmd_DELETE_FROM_PARTY, &delete_from_party_check, NULL},
   {"ADD_PARTY_TO_LEVEL",                "PAAN    ", Cmd_ADD_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_LEVEL",             "PCANNN  ", Cmd_ADD_CREATURE_TO_LEVEL, NULL, NULL},
-  {"ADD_OBJECT_TO_LEVEL",               "AANp    ", Cmd_ADD_OBJECT_TO_LEVEL, NULL, NULL},
+  {"ADD_OBJECT_TO_LEVEL",               "AANp    ", Cmd_ADD_OBJECT_TO_LEVEL, &add_object_to_level_check, &add_object_to_level_process},
   {"IF",                                "PAOAa   ", Cmd_IF, &if_check, NULL},
   {"IF_ACTION_POINT",                   "NP      ", Cmd_IF_ACTION_POINT, NULL, NULL},
   {"ENDIF",                             "        ", Cmd_ENDIF, NULL, NULL},
@@ -6165,7 +6200,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_PLAYER_MODIFIER",               "PAN     ", Cmd_SET_PLAYER_MODIFIER, &set_player_modifier_check, &set_player_modifier_process},
   {"ADD_TO_PLAYER_MODIFIER",            "PAN     ", Cmd_ADD_TO_PLAYER_MODIFIER, &add_to_player_modifier_check, &add_to_player_modifier_process},
   {"CHANGE_SLAB_TEXTURE",               "NNAa    ", Cmd_CHANGE_SLAB_TEXTURE , &change_slab_texture_check, &change_slab_texture_process},
-  {"ADD_OBJECT_TO_LEVEL_AT_POS",        "ANNNp   ", Cmd_ADD_OBJECT_TO_LEVEL_AT_POS, &add_object_to_level_at_pos_check, &add_object_to_level_at_pos_process},
+  {"ADD_OBJECT_TO_LEVEL_AT_POS",        "ANNNp   ", Cmd_ADD_OBJECT_TO_LEVEL_AT_POS, &add_object_to_level_at_pos_check, &add_object_to_level_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
