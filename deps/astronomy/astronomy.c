@@ -37,7 +37,6 @@
 #elif defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <versionhelpers.h>
 #else
 #include <time.h>
 #endif
@@ -1015,8 +1014,20 @@ astro_time_t Astronomy_CurrentTime(void)
     ULARGE_INTEGER large;
     /* Get time in 100-nanosecond units from January 1, 1601. */
     /* GetSystemTimePreciseAsFileTime is only available since Windows 8 */
-    if (IsWindows8OrGreater()) {
-        GetSystemTimePreciseAsFileTime(&ft);
+    typedef void (WINAPI *GetSystemTimePreciseAsFileTimeFunc)(LPFILETIME);
+    GetSystemTimePreciseAsFileTimeFunc pGetSystemTimePreciseAsFileTime = NULL;
+    HMODULE hModule = GetModuleHandleA("kernel32.dll");
+    if (hModule) {
+        union {
+            FARPROC proc;
+            GetSystemTimePreciseAsFileTimeFunc func;
+        } converter;
+        converter.proc = GetProcAddress(hModule, "GetSystemTimePreciseAsFileTime");
+        pGetSystemTimePreciseAsFileTime = converter.func;
+    }
+    // Use the function if available, otherwise fallback
+    if (pGetSystemTimePreciseAsFileTime) {
+        pGetSystemTimePreciseAsFileTime(&ft);
     } else {
         GetSystemTimeAsFileTime(&ft);
     }
