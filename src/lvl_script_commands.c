@@ -2339,11 +2339,41 @@ static void set_door_configuration_process(struct ScriptContext *context)
     }
 }
 
-static void create_effect_process(struct ScriptContext *context)
+static void create_effect_at_pos_process(struct ScriptContext* context)
 {
     struct Coord3d pos;
     set_coords_to_subtile_center(&pos, context->value->shorts[1], context->value->shorts[2], 0);
     pos.z.val += get_floor_height(pos.x.stl.num, pos.y.stl.num);
+    TbBool Price = (context->value->shorts[0] == -(TngEffElm_Price));
+    if (Price)
+    {
+        pos.z.val += 128;
+    }
+    else
+    {
+        pos.z.val += context->value->arg2;
+    }
+    struct Thing* efftng = create_used_effect_or_element(&pos, context->value->shorts[0], game.neutral_player_num);
+    if (!thing_is_invalid(efftng))
+    {
+        if (thing_in_wall_at(efftng, &efftng->mappos))
+        {
+            move_creature_to_nearest_valid_position(efftng);
+        }
+        if (Price)
+        {
+            efftng->price_effect.number = context->value->arg2;
+        }
+    }
+}
+
+static void create_effect_process(struct ScriptContext *context)
+{
+    struct Coord3d pos;
+    if (!get_coords_at_location(&pos, context->value->uarg1))
+    {
+        SCRPTWRNLOG("Could not find location %d to create effect", context->value->uarg1);
+    }
     TbBool Price = (context->value->shorts[0] == -(TngEffElm_Price));
     if (Price)
     {
@@ -3452,11 +3482,7 @@ static void create_effect_check(const struct ScriptLine *scline)
     {
         return;
     }
-    long stl_x;
-    long stl_y;
-    find_map_location_coords(location, &stl_x, &stl_y, 0, __func__);
-    value->shorts[1] = stl_x;
-    value->shorts[2] = stl_y;
+    value->uarg1 = location;
     value->arg2 = scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -6176,7 +6202,7 @@ const struct CommandDesc command_desc[] = {
   {"HIDE_TIMER",                        "        ", Cmd_HIDE_TIMER, &cmd_no_param_check, &hide_timer_process},
   {"HIDE_VARIABLE",                     "        ", Cmd_HIDE_VARIABLE, &cmd_no_param_check, &hide_variable_process},
   {"CREATE_EFFECT",                     "AAn     ", Cmd_CREATE_EFFECT, &create_effect_check, &create_effect_process},
-  {"CREATE_EFFECT_AT_POS",              "ANNn    ", Cmd_CREATE_EFFECT_AT_POS, &create_effect_at_pos_check, &create_effect_process},
+  {"CREATE_EFFECT_AT_POS",              "ANNn    ", Cmd_CREATE_EFFECT_AT_POS, &create_effect_at_pos_check, &create_effect_at_pos_process},
   {"HEART_LOST_QUICK_OBJECTIVE",        "NAl     ", Cmd_HEART_LOST_QUICK_OBJECTIVE, &heart_lost_quick_objective_check, &heart_lost_quick_objective_process},
   {"HEART_LOST_OBJECTIVE",              "Nl      ", Cmd_HEART_LOST_OBJECTIVE, &heart_lost_objective_check, &heart_lost_objective_process},
   {"SET_DOOR",                          "ANN     ", Cmd_SET_DOOR, &set_door_check, &set_door_process},

@@ -73,7 +73,6 @@ TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location)
     
 }
 
-
 TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_idx, long i)
 {
     
@@ -178,6 +177,7 @@ TbBool get_coords_at_action_point(struct Coord3d *pos, long apt_idx, unsigned ch
         pos->x.val = apt->mappos.x.val + (delta_x >> 8);
         pos->y.val = apt->mappos.y.val - (delta_y >> 8);
     }
+    pos->z.val = get_floor_height_at(pos);
     return true;
 }
 
