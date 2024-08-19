@@ -171,9 +171,10 @@ TbBool get_coords_at_action_point(struct Coord3d *pos, long apt_idx, unsigned ch
         pos->y.val = apt->mappos.y.val;
     } else
     {
+        long distance = GAME_RANDOM(apt->range);
         long direction = GAME_RANDOM(2 * LbFPMath_PI);
-        long delta_x = (apt->range * LbSinL(direction) >> 8);
-        long delta_y = (apt->range * LbCosL(direction) >> 8);
+        long delta_x = (distance * LbSinL(direction) >> 8);
+        long delta_y = (distance * LbCosL(direction) >> 8);
         pos->x.val = apt->mappos.x.val + (delta_x >> 8);
         pos->y.val = apt->mappos.y.val - (delta_y >> 8);
     }
