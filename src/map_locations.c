@@ -39,7 +39,7 @@ const struct NamedCommand head_for_desc[] = {
   {NULL,                   0},
 };
 
-TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location)
+TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location, TbBool random_factor)
 {
 
     long i = get_map_location_longval(location);
@@ -47,10 +47,10 @@ TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location)
     switch (get_map_location_type(location))
     {
     case MLoc_ACTIONPOINT:
-        return get_coords_at_action_point(pos, i, 1);
+        return get_coords_at_action_point(pos, i, random_factor);
 
     case MLoc_HEROGATE:
-        return get_coords_at_hero_door(pos, i, 1);
+        return get_coords_at_hero_door(pos, i, random_factor);
 
     case MLoc_PLAYERSHEART:
         return get_coords_at_dungeon_heart(pos, i);

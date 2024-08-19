@@ -2084,7 +2084,7 @@ static void move_creature_process(struct ScriptContext* context)
             }
 
             struct Coord3d pos;
-            if(!get_coords_at_location(&pos,location)) {
+            if(!get_coords_at_location(&pos,location,false)) {
                 SYNCDBG(5,"No valid coords for location",(int)location);
                 return;
             }
@@ -2370,7 +2370,7 @@ static void create_effect_at_pos_process(struct ScriptContext* context)
 static void create_effect_process(struct ScriptContext *context)
 {
     struct Coord3d pos;
-    if (!get_coords_at_location(&pos, context->value->uarg1))
+    if (!get_coords_at_location(&pos, context->value->uarg1,false))
     {
         SCRPTWRNLOG("Could not find location %d to create effect", context->value->uarg1);
     }
@@ -6060,7 +6060,7 @@ static void add_object_to_level_check(const struct ScriptLine* scline)
 static void add_object_to_level_process(struct ScriptContext* context)
 {
     struct Coord3d pos;
-    if (get_coords_at_location(&pos,context->value->uarg1))
+    if (get_coords_at_location(&pos,context->value->uarg1,true))
     {
         script_process_new_object(context->value->shorts[0], pos.x.stl.num, pos.y.stl.num, context->value->arg2, context->value->chars[2]);
     }

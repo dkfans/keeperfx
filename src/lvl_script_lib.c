@@ -98,7 +98,7 @@ struct Thing* script_process_new_effectgen(ThingModel tngmodel, TbMapLocation lo
 {
     struct Coord3d pos;
     const unsigned char tngclass = TCls_EffectGen;
-    if (!get_coords_at_location(&pos, location))
+    if (!get_coords_at_location(&pos, location, false))
     {
         ERRORLOG("Couldn't find location %d to create %s", (int)location, thing_class_and_model_name(tngclass, tngmodel));
         return INVALID_THING;
