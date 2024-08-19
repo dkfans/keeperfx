@@ -309,6 +309,7 @@ long electricity_affecting_area(const struct Coord3d *pos, PlayerNumber immune_p
 void update_things(void);
 
 struct Thing *find_base_thing_on_mapwho(ThingClass oclass, ThingModel okind, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+struct Thing *find_object_of_genre_on_mapwho(long genre, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 void remove_thing_from_mapwho(struct Thing *thing);
 void place_thing_in_mapwho(struct Thing *thing);
 
