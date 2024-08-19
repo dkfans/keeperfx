@@ -2084,7 +2084,7 @@ static void move_creature_process(struct ScriptContext* context)
             }
 
             struct Coord3d pos;
-            if(!get_coords_at_location(&pos,location)) {
+            if(!get_coords_at_location(&pos,location,false)) {
                 SYNCDBG(5,"No valid coords for location",(int)location);
                 return;
             }
@@ -2339,11 +2339,41 @@ static void set_door_configuration_process(struct ScriptContext *context)
     }
 }
 
-static void create_effect_process(struct ScriptContext *context)
+static void create_effect_at_pos_process(struct ScriptContext* context)
 {
     struct Coord3d pos;
     set_coords_to_subtile_center(&pos, context->value->shorts[1], context->value->shorts[2], 0);
     pos.z.val += get_floor_height(pos.x.stl.num, pos.y.stl.num);
+    TbBool Price = (context->value->shorts[0] == -(TngEffElm_Price));
+    if (Price)
+    {
+        pos.z.val += 128;
+    }
+    else
+    {
+        pos.z.val += context->value->arg2;
+    }
+    struct Thing* efftng = create_used_effect_or_element(&pos, context->value->shorts[0], game.neutral_player_num);
+    if (!thing_is_invalid(efftng))
+    {
+        if (thing_in_wall_at(efftng, &efftng->mappos))
+        {
+            move_creature_to_nearest_valid_position(efftng);
+        }
+        if (Price)
+        {
+            efftng->price_effect.number = context->value->arg2;
+        }
+    }
+}
+
+static void create_effect_process(struct ScriptContext *context)
+{
+    struct Coord3d pos;
+    if (!get_coords_at_location(&pos, context->value->uarg1,true))
+    {
+        SCRPTWRNLOG("Could not find location %d to create effect", context->value->uarg1);
+    }
     TbBool Price = (context->value->shorts[0] == -(TngEffElm_Price));
     if (Price)
     {
@@ -3452,11 +3482,7 @@ static void create_effect_check(const struct ScriptLine *scline)
     {
         return;
     }
-    long stl_x;
-    long stl_y;
-    find_map_location_coords(location, &stl_x, &stl_y, 0, __func__);
-    value->shorts[1] = stl_x;
-    value->shorts[2] = stl_y;
+    value->uarg1 = location;
     value->arg2 = scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -5971,6 +5997,80 @@ static void computer_player_check(const struct ScriptLine* scline)
     }
 }
 
+static void add_object_to_level_at_pos_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    short tngmodel = get_rid(object_desc, scline->tp[0]);
+    if (tngmodel == -1)
+    {
+        SCRPTERRLOG("Unknown object: %s", scline->tp[0]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->shorts[0] = tngmodel;
+    if (!subtile_coords_invalid(scline->np[1], scline->np[2]))
+    {
+        value->shorts[1] = scline->np[1];
+        value->shorts[2] = scline->np[2];
+    }
+    else
+    {
+        SCRPTERRLOG("Invalid subtile co-ordinates: %ld, %ld", scline->np[1], scline->np[2]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->arg2 = scline->np[3];
+    PlayerNumber plyr_idx = get_rid(player_desc, scline->tp[4]);
+    if ((plyr_idx == -1) || (plyr_idx == ALL_PLAYERS))
+    {
+        plyr_idx = PLAYER_NEUTRAL;
+    }
+    value->chars[6] = plyr_idx;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void add_object_to_level_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    short obj_id = get_rid(object_desc, scline->tp[0]);
+    if (obj_id == -1)
+    {
+        SCRPTERRLOG("Unknown object, '%s'", scline->tp[0]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->shorts[0] = obj_id;
+    TbMapLocation location;
+    if (!get_map_location_id(scline->tp[1], &location))
+    {
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->uarg1 = location;
+    value->arg2 = scline->np[2];
+    PlayerNumber plyr_idx = get_rid(player_desc, scline->tp[3]);
+    if ((plyr_idx == -1) || (plyr_idx == ALL_PLAYERS))
+    {
+        plyr_idx = PLAYER_NEUTRAL;
+    }
+    value->chars[2] = plyr_idx;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void add_object_to_level_process(struct ScriptContext* context)
+{
+    struct Coord3d pos;
+    if (get_coords_at_location(&pos,context->value->uarg1,true))
+    {
+        script_process_new_object(context->value->shorts[0], pos.x.stl.num, pos.y.stl.num, context->value->arg2, context->value->chars[2]);
+    }
+}
+
+static void add_object_to_level_at_pos_process(struct ScriptContext* context)
+{
+    script_process_new_object(context->value->shorts[0], context->value->shorts[1], context->value->shorts[2], context->value->arg2, context->value->chars[6]);
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -5982,7 +6082,7 @@ const struct CommandDesc command_desc[] = {
   {"DELETE_FROM_PARTY",                 "ACN     ", Cmd_DELETE_FROM_PARTY, &delete_from_party_check, NULL},
   {"ADD_PARTY_TO_LEVEL",                "PAAN    ", Cmd_ADD_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_LEVEL",             "PCANNN  ", Cmd_ADD_CREATURE_TO_LEVEL, NULL, NULL},
-  {"ADD_OBJECT_TO_LEVEL",               "AANp    ", Cmd_ADD_OBJECT_TO_LEVEL, NULL, NULL},
+  {"ADD_OBJECT_TO_LEVEL",               "AANp    ", Cmd_ADD_OBJECT_TO_LEVEL, &add_object_to_level_check, &add_object_to_level_process},
   {"IF",                                "PAOAa   ", Cmd_IF, &if_check, NULL},
   {"IF_ACTION_POINT",                   "NP      ", Cmd_IF_ACTION_POINT, NULL, NULL},
   {"ENDIF",                             "        ", Cmd_ENDIF, NULL, NULL},
@@ -6102,7 +6202,7 @@ const struct CommandDesc command_desc[] = {
   {"HIDE_TIMER",                        "        ", Cmd_HIDE_TIMER, &cmd_no_param_check, &hide_timer_process},
   {"HIDE_VARIABLE",                     "        ", Cmd_HIDE_VARIABLE, &cmd_no_param_check, &hide_variable_process},
   {"CREATE_EFFECT",                     "AAn     ", Cmd_CREATE_EFFECT, &create_effect_check, &create_effect_process},
-  {"CREATE_EFFECT_AT_POS",              "ANNn    ", Cmd_CREATE_EFFECT_AT_POS, &create_effect_at_pos_check, &create_effect_process},
+  {"CREATE_EFFECT_AT_POS",              "ANNn    ", Cmd_CREATE_EFFECT_AT_POS, &create_effect_at_pos_check, &create_effect_at_pos_process},
   {"HEART_LOST_QUICK_OBJECTIVE",        "NAl     ", Cmd_HEART_LOST_QUICK_OBJECTIVE, &heart_lost_quick_objective_check, &heart_lost_quick_objective_process},
   {"HEART_LOST_OBJECTIVE",              "Nl      ", Cmd_HEART_LOST_OBJECTIVE, &heart_lost_objective_check, &heart_lost_objective_process},
   {"SET_DOOR",                          "ANN     ", Cmd_SET_DOOR, &set_door_check, &set_door_process},
@@ -6128,6 +6228,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_PLAYER_MODIFIER",               "PAN     ", Cmd_SET_PLAYER_MODIFIER, &set_player_modifier_check, &set_player_modifier_process},
   {"ADD_TO_PLAYER_MODIFIER",            "PAN     ", Cmd_ADD_TO_PLAYER_MODIFIER, &add_to_player_modifier_check, &add_to_player_modifier_process},
   {"CHANGE_SLAB_TEXTURE",               "NNAa    ", Cmd_CHANGE_SLAB_TEXTURE , &change_slab_texture_check, &change_slab_texture_process},
+  {"ADD_OBJECT_TO_LEVEL_AT_POS",        "ANNNp   ", Cmd_ADD_OBJECT_TO_LEVEL_AT_POS, &add_object_to_level_at_pos_check, &add_object_to_level_at_pos_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
