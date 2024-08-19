@@ -6020,25 +6020,27 @@ static void add_object_to_level_check(const struct ScriptLine* scline)
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-    struct Coord3d pos;
-    if (!get_coords_at_location(&pos,location))
-    {
-        DEALLOCATE_SCRIPT_VALUE
-        return;
-    }
-    value->shorts[1] = pos.x.stl.num;
-    value->shorts[2] = pos.y.stl.num;
+    value->uarg1 = location;
     value->arg2 = scline->np[2];
     PlayerNumber plyr_idx = get_rid(player_desc, scline->tp[3]);
     if ((plyr_idx == -1) || (plyr_idx == ALL_PLAYERS))
     {
         plyr_idx = PLAYER_NEUTRAL;
     }
-    value->chars[6] = plyr_idx;
+    value->chars[2] = plyr_idx;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void add_object_to_level_process(struct ScriptContext* context)
+{
+    struct Coord3d pos;
+    if (get_coords_at_location(&pos,context->value->uarg1))
+    {
+        script_process_new_object(context->value->shorts[0], pos.x.stl.num, pos.y.stl.num, context->value->arg2, context->value->chars[2]);
+    }
+}
+
+static void add_object_to_level_at_pos_process(struct ScriptContext* context)
 {
     script_process_new_object(context->value->shorts[0], context->value->shorts[1], context->value->shorts[2], context->value->arg2, context->value->chars[6]);
 }
@@ -6200,7 +6202,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_PLAYER_MODIFIER",               "PAN     ", Cmd_SET_PLAYER_MODIFIER, &set_player_modifier_check, &set_player_modifier_process},
   {"ADD_TO_PLAYER_MODIFIER",            "PAN     ", Cmd_ADD_TO_PLAYER_MODIFIER, &add_to_player_modifier_check, &add_to_player_modifier_process},
   {"CHANGE_SLAB_TEXTURE",               "NNAa    ", Cmd_CHANGE_SLAB_TEXTURE , &change_slab_texture_check, &change_slab_texture_process},
-  {"ADD_OBJECT_TO_LEVEL_AT_POS",        "ANNNp   ", Cmd_ADD_OBJECT_TO_LEVEL_AT_POS, &add_object_to_level_at_pos_check, &add_object_to_level_process},
+  {"ADD_OBJECT_TO_LEVEL_AT_POS",        "ANNNp   ", Cmd_ADD_OBJECT_TO_LEVEL_AT_POS, &add_object_to_level_at_pos_check, &add_object_to_level_at_pos_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
