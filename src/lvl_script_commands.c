@@ -2370,7 +2370,7 @@ static void create_effect_at_pos_process(struct ScriptContext* context)
 static void create_effect_process(struct ScriptContext *context)
 {
     struct Coord3d pos;
-    if (!get_coords_at_location(&pos, context->value->uarg1,false))
+    if (!get_coords_at_location(&pos, context->value->uarg1,true))
     {
         SCRPTWRNLOG("Could not find location %d to create effect", context->value->uarg1);
     }
