@@ -1941,7 +1941,7 @@ int global_frameskipTurn = 0;
 void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pressed,int speed_pressed)
 {
     // Reserve the scroll wheel for the resurrect and transfer creature specials
-    if ((menu_is_active(GMnu_RESURRECT_CREATURE) || menu_is_active(GMnu_TRANSFER_CREATURE) || (key_modifiers & KMod_SHIFT) || (key_modifiers & KMod_CONTROL)) == 0)
+    if ((menu_is_active(GMnu_RESURRECT_CREATURE) || menu_is_active(GMnu_TRANSFER_CREATURE) || rotate_pressed || speed_pressed) == 0)
     {
         // mouse scroll zoom unaffected by frameskip
         if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
@@ -1956,7 +1956,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
             }
         }
     }
-    if (menu_is_active(GMnu_BATTLE) && (key_modifiers & KMod_CONTROL))
+    if (menu_is_active(GMnu_BATTLE) && (rotate_pressed))
     {
         if (wheel_scrolled_up)
         {
