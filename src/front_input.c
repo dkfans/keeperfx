@@ -222,7 +222,9 @@ int is_game_key_pressed(long key_id, long *val, TbBool ignore_mods)
       return 0;
     }
   }
-  if ((key_id == Gkey_RotateMod) || (key_id == Gkey_SpeedMod) || (key_id == Gkey_CrtrContrlMod) || (key_id == Gkey_CrtrQueryMod))
+  if ((key_id == Gkey_RotateMod) || (key_id == Gkey_SpeedMod) || (key_id == Gkey_CrtrContrlMod) 
+      || (key_id == Gkey_CrtrQueryMod) || (key_id == Gkey_BestRoomSpace) || (key_id == Gkey_SquareRoomSpace)
+      || (key_id == Gkey_SellTrapOnSubtile))
   {
       i = settings.kbkeys[key_id].code;
       switch (i)
@@ -1073,7 +1075,7 @@ TbBool get_dungeon_control_pausable_action_inputs(void)
           struct Camera* cam = &player->cameras[CamIV_Isometric];
           struct Packet* pckt = get_packet(my_player_number);
           int angle = cam->orient_a;
-          if (lbKeyOn[KC_LCONTROL])
+          if (key_modifiers & KMod_CONTROL)
           {
               if ((angle >= 0 && angle < 256) || angle == 2048)
               {
@@ -1108,7 +1110,7 @@ TbBool get_dungeon_control_pausable_action_inputs(void)
                   angle = 0;
               }
         }
-        else if (lbKeyOn[KC_LSHIFT])
+        else if (key_modifiers & KMod_SHIFT)
         {
             if (angle > 0 && angle <= 256)
             {angle = 2048;}
@@ -1165,11 +1167,11 @@ TbBool get_dungeon_control_pausable_action_inputs(void)
           struct Camera* cam = &player->cameras[CamIV_FrontView];
           struct Packet* pckt = get_packet(my_player_number);
           int angle = cam->orient_a;
-          if (lbKeyOn[KC_LCONTROL])
+          if (key_modifiers & KMod_CONTROL)
           {
               set_packet_control(pckt, PCtr_ViewRotateCW);
         }
-        else if (lbKeyOn[KC_LSHIFT])
+        else if (key_modifiers & KMod_SHIFT)
         {
             set_packet_control(pckt, PCtr_ViewRotateCCW);
         }
@@ -1939,7 +1941,7 @@ int global_frameskipTurn = 0;
 void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pressed,int speed_pressed)
 {
     // Reserve the scroll wheel for the resurrect and transfer creature specials
-    if ((menu_is_active(GMnu_RESURRECT_CREATURE) || menu_is_active(GMnu_TRANSFER_CREATURE) || lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_LCONTROL]) == 0)
+    if ((menu_is_active(GMnu_RESURRECT_CREATURE) || menu_is_active(GMnu_TRANSFER_CREATURE) || rotate_pressed || speed_pressed) == 0)
     {
         // mouse scroll zoom unaffected by frameskip
         if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
@@ -1954,7 +1956,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
             }
         }
     }
-    if (menu_is_active(GMnu_BATTLE) && lbKeyOn[KC_LCONTROL])
+    if (menu_is_active(GMnu_BATTLE) && (rotate_pressed))
     {
         if (wheel_scrolled_up)
         {
