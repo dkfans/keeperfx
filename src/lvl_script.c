@@ -1224,11 +1224,6 @@ static void process_party(struct PartyTrigger* pr_trig)
     case TrgF_DELETE_FROM_PARTY:
         delete_member_from_party(pr_trig->party_id, pr_trig->creatr_id, pr_trig->crtr_level);
         break;
-    case TrgF_CREATE_OBJECT:
-        n |= ((pr_trig->crtr_level & 7) << 7);
-        SYNCDBG(6, "Adding object %d at location %d", (int)n, (int)pr_trig->location);
-        script_process_new_object(n, pr_trig->location, pr_trig->carried_gold, pr_trig->plyr_idx);
-        break;
     case TrgF_CREATE_EFFECT_GENERATOR:
         SYNCDBG(6, "Adding effect generator %d at location %d", pr_trig->crtr_level, (int)pr_trig->location);
         script_process_new_effectgen(pr_trig->crtr_level, pr_trig->location, pr_trig->carried_gold);

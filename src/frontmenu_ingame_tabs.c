@@ -1796,7 +1796,7 @@ void maintain_activity_up(struct GuiButton *gbtn)
         gbtn->flags |= LbBtnF_Visible;
         gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (top_of_breed_list > 0)) & LbBtnF_Enabled;
     }
-    if (wheel_scrolled_up & lbKeyOn[KC_LSHIFT])
+    if (wheel_scrolled_up && (is_game_key_pressed(Gkey_SpeedMod, NULL, true)))
     {
         if (top_of_breed_list > 0)
         {
@@ -1817,7 +1817,7 @@ void maintain_activity_down(struct GuiButton *gbtn)
         gbtn->flags |= LbBtnF_Visible;
         gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (no_of_breeds_owned - 6 > top_of_breed_list)) & LbBtnF_Enabled;
     }
-    if (wheel_scrolled_down & lbKeyOn[KC_LSHIFT])
+    if (wheel_scrolled_down && (is_game_key_pressed(Gkey_SpeedMod, NULL, true)))
     {
         if (top_of_breed_list + 6 < no_of_breeds_owned)
         {
@@ -1997,7 +1997,7 @@ void maintain_event_button(struct GuiButton *gbtn)
     {
         // Fight icon flashes when there are fights to show
         gbtn->sprite_idx += 2;
-        if(is_game_key_pressed(Gkey_ZoomToFight, &keycode, true) && lbKeyOn[KC_LSHIFT])
+        if(is_game_key_pressed(Gkey_ZoomToFight, &keycode, true) && (is_game_key_pressed(Gkey_SpeedMod, NULL, true)))
         {
             if ((evidx == dungeon->visible_event_idx))
             {
