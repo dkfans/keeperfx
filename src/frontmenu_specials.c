@@ -59,17 +59,19 @@ struct GuiButtonInit resurrect_creature_buttons[] = {
 
 #define transfer_creature_items_visible  6
 struct GuiButtonInit transfer_creature_buttons[] = {
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,200, 32, gui_area_text,                     1, GUIStr_SpecTransferCreature,0,{0},              0, NULL },
-  { 0,  0, 0, 0, select_transfer_creature,NULL,   NULL,               0, 999,  62, 999,  62,250, 26, draw_transfer_creature,            0, GUIStr_Empty,       0,       {0},               0, maintain_transfer_creature_select },
-  { 0,  0, 0, 0, select_transfer_creature,NULL,   NULL,               1, 999,  90, 999,  90,250, 26, draw_transfer_creature,            1, GUIStr_Empty,       0,       {0},               0, maintain_transfer_creature_select },
-  { 0,  0, 0, 0, select_transfer_creature,NULL,   NULL,               2, 999, 118, 999, 118,250, 26, draw_transfer_creature,            2, GUIStr_Empty,       0,       {0},               0, maintain_transfer_creature_select },
-  { 0,  0, 0, 0, select_transfer_creature,NULL,   NULL,               3, 999, 146, 999, 146,250, 26, draw_transfer_creature,            3, GUIStr_Empty,       0,       {0},               0, maintain_transfer_creature_select },
-  { 0,  0, 0, 0, select_transfer_creature,NULL,   NULL,               4, 999, 174, 999, 174,250, 26, draw_transfer_creature,            4, GUIStr_Empty,       0,       {0},               0, maintain_transfer_creature_select },
-  { 0,  0, 0, 0, select_transfer_creature,NULL,   NULL,               5, 999, 202, 999, 202,250, 26, draw_transfer_creature,            5, GUIStr_Empty,       0,       {0},               0, maintain_transfer_creature_select },
-  { 1,  0, 0, 0, select_transfer_creature_up,NULL,NULL,               1, 305,  62, 305,  62, 22, 24, gui_area_new_normal_button,      278, GUIStr_Empty,       0,       {0},               0, maintain_transfer_creature_scroll },
-  { 1,  0, 0, 0, select_transfer_creature_down,NULL,NULL,             2, 305, 204, 305, 204, 22, 24, gui_area_new_normal_button,      280, GUIStr_Empty,       0,       {0},               0, maintain_transfer_creature_scroll },
-  { 0,  0, 0, 1, NULL,               NULL,        NULL,               0, 999, 258, 999, 258,100, 32, gui_area_text,                     1, GUIStr_MnuCancel,   0,       {0},               0, NULL },
-  {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                0,       {0},               0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10,  999,  10,200,  32, gui_area_text,                     1, GUIStr_SpecTransferCreature,0,       {0},               0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 40,   50,  40,   50,180,  32, gui_area_text,                     2, GUIStr_TeamCreature,        0,       {0},               0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 220,  50,  220,  50,92,  32, gui_area_text,                     2, GUIStr_MnuLevel,            0,       {0},               0, NULL },
+  { 0,  0, 0, 0, select_transfer_creature,NULL,   NULL,               0, 999,  82,  999,  82,250,  26, draw_transfer_creature,            0, GUIStr_Empty,               0,       {0},               0, maintain_transfer_creature_select },
+  { 0,  0, 0, 0, select_transfer_creature,NULL,   NULL,               1, 999,  110, 999,  110,250, 26, draw_transfer_creature,            1, GUIStr_Empty,               0,       {0},               0, maintain_transfer_creature_select },
+  { 0,  0, 0, 0, select_transfer_creature,NULL,   NULL,               2, 999,  138, 999,  138,250, 26, draw_transfer_creature,            2, GUIStr_Empty,               0,       {0},               0, maintain_transfer_creature_select },
+  { 0,  0, 0, 0, select_transfer_creature,NULL,   NULL,               3, 999,  166, 999,  166,250, 26, draw_transfer_creature,            3, GUIStr_Empty,               0,       {0},               0, maintain_transfer_creature_select },
+  { 0,  0, 0, 0, select_transfer_creature,NULL,   NULL,               4, 999,  194, 999,  194,250, 26, draw_transfer_creature,            4, GUIStr_Empty,               0,       {0},               0, maintain_transfer_creature_select },
+  { 0,  0, 0, 0, select_transfer_creature,NULL,   NULL,               5, 999,  222, 999,  222,250, 26, draw_transfer_creature,            5, GUIStr_Empty,               0,       {0},               0, maintain_transfer_creature_select },
+  { 1,  0, 0, 0, select_transfer_creature_up,NULL,NULL,               1, 305,  82,  305,  82, 22,  24, gui_area_new_normal_button,      278, GUIStr_Empty,               0,       {0},               0, maintain_transfer_creature_scroll },
+  { 1,  0, 0, 0, select_transfer_creature_down,NULL,NULL,             2, 305,  224, 305,  224,22,  24, gui_area_new_normal_button,      280, GUIStr_Empty,               0,       {0},               0, maintain_transfer_creature_scroll },
+  { 0,  0, 0, 1, NULL,               NULL,        NULL,               0, 999,  258, 999,  258,100, 32, gui_area_text,                     1, GUIStr_MnuCancel,           0,       {0},               0, NULL },
+  {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                          0,       {0},               0, NULL },
 };
 
 struct GuiButtonInit hold_audience_buttons[] = {
@@ -342,7 +344,7 @@ void draw_transfer_creature(struct GuiButton *gbtn)
         }
         else
         {
-            LbTextDrawResizedFmt(0, h, tx_units_per_px, " %s %u", get_string(GUIStr_MnuLevel), (cctrl->explevel+1));
+            LbTextDrawResizedFmt(0, h, tx_units_per_px, " %u", (cctrl->explevel+1));
         }
     }
     lbDisplay.DrawFlags = flgmem;
