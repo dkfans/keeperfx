@@ -91,7 +91,6 @@ const struct NamedField rules_game_named_fields[] = {
   {"TORTURESCAVENGINGCOST",      &game.conf.rules.game.torture_scavenging_cost,    var_type(game.conf.rules.game.torture_scavenging_cost   ),SHRT_MIN,SHRT_MAX},
   {"EASTEREGGSPEECHCHANCE",      &game.conf.rules.game.easter_egg_speech_chance,   var_type(game.conf.rules.game.easter_egg_speech_chance  ),       0,LONG_MAX},
   {"EASTEREGGSPEECHINTERVAL",    &game.conf.rules.game.easter_egg_speech_interval, var_type(game.conf.rules.game.easter_egg_speech_interval),       0,LONG_MAX},
-  {"HANDLIGHTRADIUS",            &game.conf.rules.game.hand_light_radius,          var_type(game.conf.rules.game.hand_light_radius         ),       0,SHRT_MAX},
   {"HANDLIGHTINTENSITY",         &game.conf.rules.game.hand_light_intensity,       var_type(game.conf.rules.game.hand_light_intensity      ),       0,UCHAR_MAX},
   {"GLOBALAMBIENTLIGHT",         &game.conf.rules.game.global_ambient_light,       var_type(game.conf.rules.game.global_ambient_light      ),LONG_MIN,LONG_MAX},
   {"LIGHTENABLED",               &game.conf.rules.game.light_enabled,              var_type(game.conf.rules.game.light_enabled             ),       0,       1},
@@ -101,6 +100,7 @@ const struct NamedField rules_game_named_fields[] = {
 //special cases rules_game
 const struct NamedCommand rules_game_commands[] = {
   {"PRESERVECLASSICBUGS",         1},
+  {"HANDLIGHTRADIUS",             2},
   {NULL,                          0},
 };
 
@@ -370,7 +370,7 @@ static void game_block_special_cases(int cmd_num,const char *buf,long *pos,long 
     {
         case 1: // PRESERVECLASSICBUGS
             game.conf.rules.game.classic_bugs_flags = ClscBug_None;
-            while (get_conf_parameter_single(buf,pos,len,word_buf,sizeof(word_buf)) > 0)
+            while (get_conf_parameter_single(buf, pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 int k = get_id(rules_game_classicbugs_commands, word_buf);
                 switch (k)
@@ -421,6 +421,13 @@ static void game_block_special_cases(int cmd_num,const char *buf,long *pos,long 
 
                     break;
                 }
+            }
+            break;
+        case 2: // HANDLIGHTRADIUS
+            if (get_conf_parameter_single(buf, pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                int k = atoi(word_buf);
+                game.conf.rules.game.hand_light_radius = k * COORD_PER_STL;
             }
             break;
     }

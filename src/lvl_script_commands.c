@@ -301,6 +301,7 @@ rules_creatures_named_fields,rules_computer_named_fields,rules_workers_named_fie
 static const struct NamedCommand game_rule_desc[] = {
   {"PreserveClassicBugs",            1},
   {"AlliesShareVision",              2},
+  {"HandLightRadius",                3},
   {NULL,                             0},
 };
 
@@ -5430,7 +5431,7 @@ static void set_game_rule_process(struct ScriptContext* context)
     short rulegroup = context->value->shorts[0];
     short ruledesc  = context->value->shorts[1];
     long rulevalue  = context->value->arg1;
-
+    struct PlayerInfo* player;
 
     if(rulegroup != -1)
     {
@@ -5438,7 +5439,6 @@ static void set_game_rule_process(struct ScriptContext* context)
         assign_named_field_value((ruleblocks[rulegroup]+ruledesc),rulevalue);
         return;
     }
-
 
   #if (BFDEBUG_LEVEL >= 7)
     const char *rulename = get_conf_parameter_text(game_rule_desc,ruledesc);
@@ -5455,6 +5455,22 @@ static void set_game_rule_process(struct ScriptContext* context)
         SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.allies_share_vision, rulevalue);
         game.conf.rules.game.allies_share_vision = (TbBool)rulevalue;
         panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
+        break;
+    case 3: //HandLightRadius
+        //this one is a special case because the entered value is multiplied, and the hand light needs to be updated
+        SCRIPTDBG(7, "Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.hand_light_radius, rulevalue * COORD_PER_STL);
+        game.conf.rules.game.hand_light_radius = rulevalue * COORD_PER_STL;
+        for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
+        {
+            player = get_player(i);
+            if (!player_invalid(player))
+            {
+                if (player->cursor_light_idx != 0)
+                {
+                    light_set_light_radius(player->cursor_light_idx, game.conf.rules.game.hand_light_radius);
+                }
+            }
+        }
         break;
     default:
         WARNMSG("Unsupported Game Rule, command %d.", ruledesc);
