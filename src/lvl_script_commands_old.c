@@ -118,49 +118,6 @@ static void command_add_party_to_level(long plr_range_id, const char *prtname, c
     }
 }
 
-static void command_add_object_to_level(const char *obj_name, const char *locname, long arg, const char* playername)
-{
-    TbMapLocation location;
-    long obj_id = get_rid(object_desc, obj_name);
-    if (obj_id == -1)
-    {
-        SCRPTERRLOG("Unknown object, '%s'", obj_name);
-        return;
-    }
-    if (gameadd.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
-    {
-        SCRPTERRLOG("Too many ADD_CREATURE commands in script");
-        return;
-    }
-    long plr_id = get_rid(player_desc, playername);
-
-    if ((plr_id == -1) || (plr_id == ALL_PLAYERS))
-    {
-        plr_id = PLAYER_NEUTRAL;
-    }
-
-    // Recognize place where party is created
-    if (!get_map_location_id(locname, &location))
-        return;
-    if (get_script_current_condition() == CONDITION_ALWAYS)
-    {
-        script_process_new_object(obj_id, location, arg, plr_id);
-    } else
-    {
-        struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[gameadd.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
-        pr_trig->flags = TrgF_CREATE_OBJECT;
-        pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
-        pr_trig->plyr_idx = plr_id;
-        pr_trig->creatr_id = obj_id & 0x7F;
-        pr_trig->crtr_level = ((obj_id >> 7) & 7); // No more than 1023 different classes of objects :)
-        pr_trig->carried_gold = arg;
-        pr_trig->location = location;
-        pr_trig->ncopies = 1;
-        pr_trig->condit_idx = get_script_current_condition();
-        gameadd.script.party_triggers_num++;
-    }
-}
-
 static void command_add_creature_to_level(long plr_range_id, const char *crtr_name, const char *locname, long ncopies, long crtr_level, long carried_gold)
 {
     TbMapLocation location;
@@ -399,24 +356,6 @@ static void command_if_slab_type(MapSlabCoord slb_x, MapSlabCoord slb_y, long sl
         return;
     }
     command_add_condition(slb_x, 1, SVar_SLAB_TYPE, slb_y, slab_type);
-}
-
-static void command_computer_player(long plr_range_id, long comp_model)
-{
-    if (get_script_current_condition() != CONDITION_ALWAYS)
-    {
-        SCRPTWRNLOG("Computer player setup inside conditional block; condition ignored");
-    }
-    int plr_start;
-    int plr_end;
-    if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
-        SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
-        return;
-    }
-    for (long i = plr_start; i < plr_end; i++)
-    {
-        script_support_setup_player_as_computer_keeper(i, comp_model);
-    }
 }
 
 static void command_set_timer(long plr_range_id, const char *timrname)
@@ -1251,12 +1190,6 @@ static void command_use_power(long plr_range_id, const char *magname, char free)
         SCRPTERRLOG("Unknown magic, '%s'", magname);
         return;
     }
-    PowerKind pwr = mag_id;
-    if (pwr == PwrK_ARMAGEDDON && (PlayerNumber) plr_range_id > PLAYER3)
-    {
-        SCRPTERRLOG("Only players 0-3 can cast %s", magname);
-        return;
-    }
     command_add_value(Cmd_USE_POWER, plr_range_id, mag_id, free, 0);
 }
 
@@ -1545,9 +1478,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_ADD_CREATURE_TO_LEVEL:
         command_add_creature_to_level(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->np[4], scline->np[5]);
         break;
-    case Cmd_ADD_OBJECT_TO_LEVEL:
-        command_add_object_to_level(scline->tp[0], scline->tp[1], scline->np[2], scline->tp[3]);
-        break;
     case Cmd_ENDIF:
         pop_condition();
         break;
@@ -1581,9 +1511,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_RESEARCH_ORDER:
         command_research_order(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
-        break;
-    case Cmd_COMPUTER_PLAYER:
-        command_computer_player(scline->np[0], scline->np[1]);
         break;
     case Cmd_SET_TIMER:
         command_set_timer(scline->np[0], scline->tp[1]);

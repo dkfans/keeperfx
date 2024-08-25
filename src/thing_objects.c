@@ -161,8 +161,7 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
     set_thing_draw(thing, i, objst->anim_speed, objst->sprite_size_max, 0, start_frame, objst->draw_class);
     set_flag_value(thing->rendering_flags, TRF_Unshaded, objst->light_unaffected);
 
-    set_flag_value(thing->rendering_flags, TRF_Transpar_4, objst->transparancy_flags & 0x01);
-    set_flag_value(thing->rendering_flags, TRF_Transpar_8, objst->transparancy_flags & 0x02);
+    set_flag(thing->rendering_flags, objst->transparency_flags);
 
     thing->active_state = objst->initial_state;
     if (objst->ilght.radius != 0)
@@ -198,17 +197,6 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
       case ObjMdl_GoldBag:
         thing->valuable.gold_stored = gold_object_typical_value(thing->model);
         break;
-      case ObjMdl_HeroGate:
-        i = get_free_hero_gate_number();
-        if (i > 0)
-        {
-            thing->hero_gate.number = i;
-        } else
-        {
-            thing->hero_gate.number = 0;
-            ERRORLOG("Could not allocate number for hero gate");
-        }
-        break;
       case ObjMdl_SpinningKey:
         if ((thing->mappos.z.stl.num == 4) && (subtile_is_door(thing->mappos.x.stl.num, thing->mappos.y.stl.num)))
         {
@@ -219,6 +207,20 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
       default:
         break;
     }
+    if (objst->genre == OCtg_HeroGate)
+    {
+        i = get_free_hero_gate_number();
+        if (i > 0)
+        {
+            thing->hero_gate.number = i;
+        }
+        else
+        {
+            thing->hero_gate.number = 0;
+            ERRORLOG("Could not allocate number for hero gate");
+        }
+    }
+
     add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);
 
@@ -420,7 +422,8 @@ TbBool thing_is_lair_totem(const struct Thing *thing)
 
 TbBool object_is_hero_gate(const struct Thing *thing)
 {
-  return (thing->model == ObjMdl_HeroGate);
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    return (objst->genre == OCtg_HeroGate);
 }
 
 TbBool object_is_infant_food(const struct Thing *thing)
@@ -1472,7 +1475,7 @@ static TngUpdateRet object_update_armour(struct Thing *objtng)
     struct Thing* thing = thing_get(objtng->armor.belongs_to);
     if (thing_is_picked_up(thing))
     {
-        objtng->rendering_flags |= TRF_Unknown01;
+        objtng->rendering_flags |= TRF_Invisible;
         return 1;
     }
     struct Coord3d pos;
@@ -1514,7 +1517,7 @@ static TngUpdateRet object_update_armour(struct Thing *objtng)
     objtng->veloc_push_add.x.val += cvect.x;
     objtng->veloc_push_add.y.val += cvect.y;
     objtng->veloc_push_add.z.val += cvect.z;
-    objtng->rendering_flags &= ~TRF_Unknown01;
+    objtng->rendering_flags &= ~TRF_Invisible;
     return 1;
 }
 

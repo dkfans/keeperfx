@@ -261,57 +261,38 @@ CrInstance creature_instance_get_available_id_for_pos(struct Thing *thing, int r
 
 TbBool instance_is_disarming_weapon(CrInstance inum)
 {
-    struct InstanceInfo* inst_inf;
-    inst_inf = creature_instance_info_get(inum);
-    if (inst_inf->flags & InstPF_Disarming)
-    {
-        return true;
-    }
-    return false;
+    struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
+    return ((inst_inf->flags & InstPF_Disarming) != 0);
 }
 
 TbBool instance_draws_possession_swipe(CrInstance inum)
 {
-    struct InstanceInfo* inst_inf;
-    inst_inf = creature_instance_info_get(inum);
-    if (inst_inf->flags & InstPF_UsesSwipe)
-    {
-        return true;
-    }
-    return false;
+    struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
+    return ((inst_inf->flags & InstPF_UsesSwipe) != 0);
 }
 
 TbBool instance_is_ranged_weapon(CrInstance inum)
 {
-    struct InstanceInfo* inst_inf;
-    inst_inf = creature_instance_info_get(inum);
-    if (inst_inf->flags & InstPF_RangedAttack)
-    {
-        return true;
-    }
-    return false;
+    struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
+    return ((inst_inf->flags & InstPF_RangedAttack) != 0);
 }
 
 TbBool instance_is_ranged_weapon_vs_objects(CrInstance inum)
 {
-    struct InstanceInfo* inst_inf;
-    inst_inf = creature_instance_info_get(inum);
-    if ((inst_inf->flags & InstPF_RangedAttack) && (inst_inf->flags & InstPF_Destructive) && !(inst_inf->flags & InstPF_Dangerous))
-    {
-        return true;
-    }
-    return false;
+    struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
+    return (((inst_inf->flags & InstPF_RangedAttack) != 0) && ((inst_inf->flags & InstPF_Destructive) != 0) && !(inst_inf->flags & InstPF_Dangerous));
 }
 
 TbBool instance_is_quick_range_weapon(CrInstance inum)
 {
-    struct InstanceInfo* inst_inf;
-    inst_inf = creature_instance_info_get(inum);
-    if ((inst_inf->flags & InstPF_RangedAttack) && (inst_inf->flags & InstPF_Quick))
-    {
-        return true;
-    }
-    return false;
+    struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
+    return (((inst_inf->flags & InstPF_RangedAttack) != 0) && ((inst_inf->flags & InstPF_Quick) != 0));
+}
+
+TbBool instance_is_melee_attack(CrInstance inum)
+{
+    struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
+    return ((inst_inf->flags & InstPF_MeleeAttack) != 0);
 }
 
 /**
@@ -392,12 +373,33 @@ TbBool creature_has_quick_range_weapon(const struct Thing *creatng)
     return false;
 }
 
+/**
+ * Informs whether the creature has a mêlée attack.
+ * The instances currently in use and currently in cooldown are included.
+ * @param creatng The creature to be checked.
+ * @return True if the creature has mêlée attack, false otherwise.
+ */
+TbBool creature_has_melee_attack(const struct Thing *creatng)
+{
+    TRACE_THING(creatng);
+    const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    for (long inum = 1; inum < game.conf.crtr_conf.instances_count; inum++)
+    {
+        if (cctrl->instance_available[inum] > 0)
+        {
+            if (instance_is_melee_attack(inum))
+                return true;
+        }
+    }
+    return false;
+}
+
 void process_creature_instance(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
-    SYNCDBG(19,"Starting for %s index %d instance %d",thing_model_name(thing),(int)thing->index,(int)cctrl->instance_id);
     TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
+    SYNCDBG(19, "Starting for %s index %d instance %d", thing_model_name(thing), (int)thing->index, (int)cctrl->instance_id);
     if (cctrl->instance_id != CrInst_NULL)
     {
         cctrl->inst_turn++;

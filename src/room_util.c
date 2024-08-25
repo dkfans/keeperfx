@@ -88,7 +88,7 @@ void room_update_surrounding_flames(struct Room *room, const struct Coord3d *pos
 void process_room_surrounding_flames(struct Room *room)
 {
     SYNCDBG(19,"Starting");
-    if(room->owner == game.hero_player_num)
+    if(player_is_roaming(room->owner))
     {
         return;
     }
@@ -332,6 +332,7 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
     SYNCDBG(7, "Room on (%d,%d) had %d slabs", (int)slb_x, (int)slb_y, (int)room->slabs_count);
     decrease_room_area(room->owner, 1);
     kill_room_slab_and_contents(room->owner, slb_x, slb_y);
+    remove_slab_from_room_tiles_list(room, slb_x, slb_y);
     if (room->slabs_count <= 1)
     {
         delete_room_flag(room);
@@ -635,7 +636,7 @@ void query_room(struct Room *room)
     const char efficiency[26] = "\0";
     sprintf((char*)title, "Room ID: %d", room->index);
     sprintf((char*)owner, "Owner: %d", room->owner);
-    sprintf((char*)health, "Health: %d", room->health);
+    sprintf((char*)health, "Health: %d", (int)room->health);
     sprintf((char*)capacity, "Capacity: %d/%d", room->used_capacity, room->total_capacity);
     float room_efficiency_percent = ((float)room->efficiency / (float)ROOM_EFFICIENCY_MAX) * 100;
     sprintf((char*)efficiency, "Efficiency: %d", (unsigned char)round(room_efficiency_percent));

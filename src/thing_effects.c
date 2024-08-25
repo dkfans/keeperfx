@@ -110,11 +110,11 @@ struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmod
         long n = EFFECT_RANDOM(thing, eestat->sprite_speed_max - (int)eestat->sprite_speed_min + 1);
         set_thing_draw(thing, eestat->sprite_idx, eestat->sprite_speed_min + n, eestat->sprite_size_min + i, 0, 0, eestat->draw_class);
         set_flag_value(thing->rendering_flags, TRF_Unshaded, eestat->unshaded);
-        thing->rendering_flags ^= (thing->rendering_flags ^ (TRF_Transpar_8 * eestat->transparant)) & (TRF_Transpar_Flags);
+        thing->rendering_flags ^= (thing->rendering_flags ^ (TRF_Transpar_8 * eestat->transparent)) & (TRF_Transpar_Flags);
         set_flag_value(thing->rendering_flags, TRF_AnimateOnce, eestat->rendering_flag);
     } else
     {
-        set_flag(thing->rendering_flags, TRF_Unknown01);
+        set_flag(thing->rendering_flags, TRF_Invisible);
     }
 
     thing->fall_acceleration = eestat->fall_acceleration;
@@ -418,7 +418,7 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     thing->model = nmodel;
     set_thing_draw(thing, eestat->sprite_idx, speed, scale, eestat->rendering_flag, 0, ODC_Default);
     thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Unshaded * eestat->unshaded) & TRF_Unshaded;
-    thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Transpar_8 * eestat->transparant) & (TRF_Transpar_Flags);
+    thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Transpar_8 * eestat->transparent) & (TRF_Transpar_Flags);
     thing->fall_acceleration = eestat->fall_acceleration;
     thing->inertia_floor = eestat->inertia_floor;
     thing->inertia_air = eestat->inertia_air;
@@ -437,7 +437,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     TRACE_THING(elemtng);
     struct EffectElementConfigStats* eestats = get_effect_element_model_stats(elemtng->model);
     // Check if effect health dropped to zero; delete it, or decrease health for the next check
-    long health = elemtng->health;
+    HitPoints health = elemtng->health;
     if (health <= 0)
     {
         if (eestats->transform_model != 0)
@@ -574,7 +574,7 @@ struct Thing *create_effect_generator(struct Coord3d *pos, ThingModel model, uns
     effgentng->mappos = *pos;
     effgentng->creation_turn = game.play_gameturn;
     effgentng->health = -1;
-    effgentng->rendering_flags |= TRF_Unknown01;
+    effgentng->rendering_flags |= TRF_Invisible;
     add_thing_to_its_class_list(effgentng);
     place_thing_in_mapwho(effgentng);
     return effgentng;
@@ -726,7 +726,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
         for (long i=0; i < effcst->elements_count; i++)
         {
             long n = effcst->kind_min + EFFECT_RANDOM(thing, effcst->kind_max - effcst->kind_min + 1);
-            long mag = effcst->start_health - thing->health;
+            HitPoints mag = effcst->start_health - thing->health;
             arg = (mag << 7) + k/effcst->elements_count;
             set_coords_to_cylindric_shift(&pos, &thing->mappos, mag, arg, 0);
             elemtng = create_effect_element(&pos, n, thing->owner);
@@ -743,7 +743,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
         for (long i=0; i < effcst->elements_count; i++)
         {
             long n = effcst->kind_min + EFFECT_RANDOM(thing, effcst->kind_max - effcst->kind_min + 1);
-            long mag = thing->health;
+            HitPoints mag = thing->health;
             arg = (mag << 7) + k/effcst->elements_count;
             set_coords_to_cylindric_shift(&pos, &thing->mappos, 16*mag, arg, 0);
             elemtng = create_effect_element(&pos, n, thing->owner);
@@ -756,7 +756,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
     {
         if (thing->model != 48) // CaveIn only
             break;
-        long i = effcst->start_health / 2;
+        HitPoints i = effcst->start_health / 2;
         struct PlayerInfo* player;
         if (thing->health == effcst->start_health)
         {
@@ -889,7 +889,7 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     thing->fall_acceleration = 0;
     thing->inertia_floor = 0;
     thing->inertia_air = 0;
-    thing->rendering_flags |= TRF_Unknown01;
+    thing->rendering_flags |= TRF_Invisible;
     thing->health = effcst->start_health;
     thing->shot_effect.hit_type = effcst->effect_hit_type;
     if (effcst->ilght.radius != 0)
@@ -998,9 +998,12 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
         {
             if (tngdst->class_id == TCls_Creature)
             {
-                HitPoints damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
-                SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
-                apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, owner);
+                if (max_damage > 0)
+                {
+                    HitPoints damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
+                    SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
+                    apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, owner);
+                }
                 affected = true;
                 if (tngdst->health < 0)
                 {
@@ -1008,7 +1011,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     struct CreatureBattle* battle = creature_battle_get_from_thing(origtng);
                     CrDeathFlags dieflags = (!creature_battle_invalid(battle)) ? CrDed_DiedInBattle : CrDed_Default;
                     // Explosions kill rather than only stun friendly creatures when imprison is on
-                    if (((tngsrc->owner == tngdst->owner) &! (game.conf.rules.game.classic_bugs_flags & ClscBug_FriendlyFaint)) || (shot_model_flags & ShMF_NoStun) )
+                    if ((players_creatures_tolerate_each_other(tngsrc->owner,tngdst->owner) &! (game.conf.rules.game.classic_bugs_flags & ClscBug_FriendlyFaint)) || (shot_model_flags & ShMF_NoStun) )
                     {
                         dieflags |= CrDed_NoUnconscious;
                     }

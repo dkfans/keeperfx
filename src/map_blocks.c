@@ -295,7 +295,7 @@ void all_players_untag_blocks_for_digging_in_area(MapSlabCoord slb_x, MapSlabCoo
     mapblk = get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
     for (plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-        if ((plyr_idx == game.hero_player_num) || (plyr_idx == game.neutral_player_num))
+        if (!player_is_keeper(plyr_idx))
             continue;
         struct PlayerInfo *player;
         player = get_player(plyr_idx);
@@ -706,22 +706,18 @@ static void delete_attached_things_on_slab(long slb_x, long slb_y)
 
 static TbBool get_against(PlayerNumber agnst_plyr_idx, SlabKind agnst_slbkind, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    struct SlabMap *slb;
-    slb = get_slabmap_block(slb_x, slb_y);
+    struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
     if (slabmap_block_invalid(slb)) {
         return 1;
     }
-    struct SlabAttr *slbattr;
-    slbattr = get_slab_attrs(slb);
-    struct SlabAttr *agnst_slbattr;
-    agnst_slbattr = get_slab_kind_attrs(agnst_slbkind);
+    struct SlabAttr *slbattr = get_slab_attrs(slb);
+    struct SlabAttr *agnst_slbattr = get_slab_kind_attrs(agnst_slbkind);
     return (slbattr->slb_id != agnst_slbattr->slb_id)
-            || ((slabmap_owner(slb) != agnst_plyr_idx) && (slabmap_owner(slb) != game.neutral_player_num));
+    || ((slabmap_owner(slb) != agnst_plyr_idx) && ((slabmap_owner(slb) != game.neutral_player_num) || (slb->kind == SlbT_CLAIMED) ));
 }
 
 void delete_column(ColumnIndex col_idx)
 {
-    game.columns_used--;
     struct Column *col;
     col = &game.columns_data[col_idx];
     memcpy(col, &game.columns_data[0], sizeof(struct Column));
@@ -1022,12 +1018,21 @@ void place_slab_object(SlabCodedCoords slb_num, MapSubtlCoord stl_x,MapSubtlCoor
                         }
                         if ( !needs_object )
                             continue;
-                      }
-                      struct Thing *objtng;
-                      objtng = create_object(&pos, tngmodel, plyr_idx, slb_num);
-                      if (thing_is_invalid(objtng)) {
-                          ERRORLOG("Cannot create object type %d", tngmodel);
-                          continue;
+                    }
+                    struct Thing *objtng;
+                    objtng = create_object(&pos, tngmodel, plyr_idx, slb_num);
+                    if (thing_is_invalid(objtng)) 
+                    {
+                        ERRORLOG("Cannot create object type %d", tngmodel);
+                        continue;
+                    }
+                    if (thing_is_dungeon_heart(objtng))
+                    {
+                        struct Dungeon* dungeon = get_dungeon(objtng->owner);
+                        if (dungeon->backup_heart_idx == 0)
+                        {
+                            dungeon->backup_heart_idx = objtng->index;
+                        }
                     }
                 } else
                 if (sobj->class_id == TCls_EffectGen)
@@ -2465,7 +2470,7 @@ void clear_dig_and_set_explored_can_see_y(MapSlabCoord slb_x, MapSlabCoord slb_y
 
 void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    if (is_neutral_thing(creatng) || is_hero_thing(creatng) || thing_is_invalid(creatng))
+    if (is_neutral_thing(creatng) || thing_is_invalid(creatng)) //heroes do explore, so mapmakers can cast hero powers
         return;
     struct Coord3d pos;
     pos.x.val = subtile_coord_center(stl_x);
@@ -2494,7 +2499,8 @@ void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoor
     {
         clear_dig_and_set_explored_can_see_x(slb_x, slb_y, creatng->owner, can_see_slabs);
         clear_dig_and_set_explored_can_see_y(slb_x, slb_y, creatng->owner, can_see_slabs);
-        if (!player_cannot_win(creatng->owner) && ((get_creature_model_flags(creatng) & CMF_IsSpectator) == 0)) {
+        if (!player_cannot_win(creatng->owner) && (!flag_is_set(get_creature_model_flags(creatng),CMF_IsSpectator)) && (!player_is_roaming(creatng->owner)))
+        {
             claim_neutral_creatures_in_sight(creatng, &pos, can_see_slabs);
         }
     }

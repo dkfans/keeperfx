@@ -74,7 +74,7 @@ void message_draw(void)
             {
                 case MsgType_Player:
                 {
-                    if (gameadd.messages[i].plyr_idx == game.hero_player_num)
+                    if (player_is_roaming(plyr_idx))
                     {
                         spr_idx = GPS_plyrsym_symbol_player_red_std_b;
                     }

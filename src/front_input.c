@@ -41,7 +41,7 @@
 #include "frontmenu_ingame_evnt.h"
 #include "scrcapt.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "config_trapdoor.h"
@@ -222,7 +222,9 @@ int is_game_key_pressed(long key_id, long *val, TbBool ignore_mods)
       return 0;
     }
   }
-  if ((key_id == Gkey_RotateMod) || (key_id == Gkey_SpeedMod) || (key_id == Gkey_CrtrContrlMod) || (key_id == Gkey_CrtrQueryMod))
+  if ((key_id == Gkey_RotateMod) || (key_id == Gkey_SpeedMod) || (key_id == Gkey_CrtrContrlMod) 
+      || (key_id == Gkey_CrtrQueryMod) || (key_id == Gkey_BestRoomSpace) || (key_id == Gkey_SquareRoomSpace)
+      || (key_id == Gkey_SellTrapOnSubtile))
   {
       i = settings.kbkeys[key_id].code;
       switch (i)
@@ -567,7 +569,7 @@ short get_global_inputs(void)
     get_players_message_inputs();
     return true;
   }
-  if ((player->view_type == PVT_DungeonTop)
+  if (((player->view_type == PVT_DungeonTop) || (player->view_type == PVT_CreatureContrl))
   && (((game.system_flags & GSF_NetworkActive) != 0) ||
      ((game.flags_gui & GGUI_SoloChatEnabled) != 0)))
   {
@@ -874,7 +876,26 @@ short get_status_panel_keyboard_action_inputs(void)
   if (is_key_pressed(KC_1, KMod_NONE))
   {
     clear_key_pressed(KC_1);
-    fake_button_click(BID_INFO_TAB);
+    struct GuiButton* gbtn = get_gui_button(BID_QUERY_2);
+    if (gbtn != NULL)
+    {
+        if (flag_is_set(gbtn->flags,(LbBtnF_Visible | LbBtnF_Enabled)))
+        {
+            if (menu_is_active(GMnu_QUERY))
+            {
+                gui_switch_players_visible(gbtn);
+                fake_button_click(BID_QUERY_2);
+            }
+            else
+            {
+                fake_button_click(BID_INFO_TAB);
+            }
+        }
+    }
+    else
+    {
+        fake_button_click(BID_INFO_TAB);
+    }
   }
   if (is_key_pressed(KC_2, KMod_NONE))
   {
@@ -989,34 +1010,15 @@ short get_status_panel_keyboard_action_inputs(void)
   return false;
 }
 
-long get_dungeon_control_action_inputs(void)
+TbBool get_dungeon_control_pausable_action_inputs(void)
 {
     long val;
     struct PlayerInfo* player = get_my_player();
     if (get_players_packet_action(player) != PckA_None)
-      return 1;
-    int mm_units_per_px;
-    {
-        int mnu_num = menu_id_to_number(GMnu_MAIN);
-        struct GuiMenu* gmnu = get_active_menu(mnu_num);
-        mm_units_per_px = (gmnu->width * 16 + 140/2) / 140;
-        if (mm_units_per_px < 1)
-        {
-            mm_units_per_px = 1;
-        }
-    }
-    long mmzoom;
-    if (16/mm_units_per_px < 3)
-    {
-        mmzoom = (player->minimap_zoom) / scale_value_for_resolution_with_upp(2, mm_units_per_px);
-    }
-    else
-        mmzoom = (player->minimap_zoom);
-    if (get_small_map_inputs(player->minimap_pos_x*mm_units_per_px/16, player->minimap_pos_y*mm_units_per_px/16, mmzoom))
-      return 1;
+      return true;
 
     if (get_bookmark_inputs())
-      return 1;
+      return true;
 
     if (is_key_pressed(KC_F8, KMod_NONE))
     {
@@ -1073,7 +1075,7 @@ long get_dungeon_control_action_inputs(void)
           struct Camera* cam = &player->cameras[CamIV_Isometric];
           struct Packet* pckt = get_packet(my_player_number);
           int angle = cam->orient_a;
-          if (lbKeyOn[KC_LCONTROL])
+          if (key_modifiers & KMod_CONTROL)
           {
               if ((angle >= 0 && angle < 256) || angle == 2048)
               {
@@ -1108,7 +1110,7 @@ long get_dungeon_control_action_inputs(void)
                   angle = 0;
               }
         }
-        else if (lbKeyOn[KC_LSHIFT])
+        else if (key_modifiers & KMod_SHIFT)
         {
             if (angle > 0 && angle <= 256)
             {angle = 2048;}
@@ -1145,7 +1147,7 @@ long get_dungeon_control_action_inputs(void)
         }
         set_packet_action(pckt,PckA_SetMapRotation,angle,0,0,0);
         clear_key_pressed(val);
-        return 1;
+        return true;
       }
     }
     if (player->view_mode == PVM_FrontView)
@@ -1165,11 +1167,11 @@ long get_dungeon_control_action_inputs(void)
           struct Camera* cam = &player->cameras[CamIV_FrontView];
           struct Packet* pckt = get_packet(my_player_number);
           int angle = cam->orient_a;
-          if (lbKeyOn[KC_LCONTROL])
+          if (key_modifiers & KMod_CONTROL)
           {
               set_packet_control(pckt, PCtr_ViewRotateCW);
         }
-        else if (lbKeyOn[KC_LSHIFT])
+        else if (key_modifiers & KMod_SHIFT)
         {
             set_packet_control(pckt, PCtr_ViewRotateCCW);
         }
@@ -1186,29 +1188,63 @@ long get_dungeon_control_action_inputs(void)
         set_packet_action(pckt,PckA_SetMapRotation,angle,0,0,0);
         }
         clear_key_pressed(val);
-        return 1;
+        return true;
       }
     }
 
-    if (is_game_key_pressed(Gkey_ZoomToFight, &val, false))
+    if ((player->work_state == PSt_PlaceTerrain) || (player->work_state == PSt_MkDigger) || (player->work_state == PSt_MkBadCreatr) || (player->work_state == PSt_MkGoodCreatr)
+        || (player->work_state == PSt_KillPlayer) || (player->work_state == PSt_HeartHealth) || (player->work_state == PSt_StealRoom) ||
+        (player->work_state == PSt_StealSlab) || (player->work_state == PSt_ConvertCreatr))
     {
-        clear_key_pressed(val);
-        zoom_to_fight(player->id_number);
-        return 1;
+        process_cheat_mode_selection_inputs();
     }
-    if ( is_game_key_pressed(Gkey_ZoomCrAnnoyed, &val, false) )
+    if (is_game_key_pressed(Gkey_SwitchToMap, &val, false))
     {
-        clear_key_pressed(val);
-        zoom_to_next_annoyed_creature();
-        return 1;
+      clear_key_pressed(val);
+      if ((player->view_mode != PVM_ParchFadeOut) && (game.small_map_state != 2))
+      {
+          turn_off_all_window_menus();
+          zoom_to_parchment_map();
+      }
+      return true;
     }
-    if (zoom_shortcuts())
+    if (is_key_pressed(KC_F, KMod_ALT))
     {
-        return 1;
+        clear_key_pressed(KC_F);
+        toggle_hero_health_flowers();
     }
+    return false;
+}
+
+TbBool get_dungeon_control_action_inputs(void)
+{
+    long val;
+    struct PlayerInfo* player = get_my_player();
+    if (get_players_packet_action(player) != PckA_None)
+        return true;
+    int mm_units_per_px;
+    {
+        int mnu_num = menu_id_to_number(GMnu_MAIN);
+        struct GuiMenu* gmnu = get_active_menu(mnu_num);
+        mm_units_per_px = (gmnu->width * 16 + 140 / 2) / 140;
+        if (mm_units_per_px < 1)
+        {
+            mm_units_per_px = 1;
+        }
+    }
+    long mmzoom;
+    if (16 / mm_units_per_px < 3)
+    {
+        mmzoom = (player->minimap_zoom) / scale_value_for_resolution_with_upp(2, mm_units_per_px);
+    }
+    else
+        mmzoom = (player->minimap_zoom);
+    if (get_small_map_inputs(player->minimap_pos_x * mm_units_per_px / 16, player->minimap_pos_y * mm_units_per_px / 16, mmzoom))
+        return 1;
+
     if (player->work_state == PSt_CtrlDungeon)
     {
-        if ( (player->primary_cursor_state == CSt_PickAxe) || (player->primary_cursor_state == CSt_PowerHand) )
+        if ((player->primary_cursor_state == CSt_PickAxe) || (player->primary_cursor_state == CSt_PowerHand))
         {
             process_highlight_roomspace_inputs(player->id_number);
         }
@@ -1221,29 +1257,26 @@ long get_dungeon_control_action_inputs(void)
     {
         process_sell_roomspace_inputs(player->id_number);
     }
-    else if ( (player->work_state == PSt_PlaceTerrain) || (player->work_state == PSt_MkDigger) || (player->work_state == PSt_MkBadCreatr) || (player->work_state == PSt_MkGoodCreatr)
-        || (player->work_state == PSt_KillPlayer) || (player->work_state == PSt_HeartHealth) || (player->work_state == PSt_StealRoom) ||
-        (player->work_state == PSt_StealSlab) || (player->work_state == PSt_ConvertCreatr) )
+
+    // Zooming cannot be done paused because it's a player instance.
+    if (is_game_key_pressed(Gkey_ZoomToFight, &val, false))
     {
-        process_cheat_mode_selection_inputs();
+        clear_key_pressed(val);
+        zoom_to_fight(player->id_number);
+        return true;
     }
-    if (is_game_key_pressed(Gkey_SwitchToMap, &val, false))
+    if (is_game_key_pressed(Gkey_ZoomCrAnnoyed, &val, false))
     {
-      clear_key_pressed(val);
-      if ((player->view_mode != PVM_ParchFadeOut) && (game.small_map_state != 2))
-      {
-          turn_off_all_window_menus();
-          zoom_to_parchment_map();
-      }
-      return 1;
+        clear_key_pressed(val);
+        zoom_to_next_annoyed_creature();
+        return true;
     }
-    if (is_key_pressed(KC_F, KMod_ALT))
+    if (zoom_shortcuts())
     {
-        clear_key_pressed(KC_F);
-        toggle_hero_health_flowers();
+        return true;
     }
     get_status_panel_keyboard_action_inputs();
-    return 0;
+    return false;
 }
 
 short get_creature_passenger_action_inputs(void)
@@ -1775,7 +1808,7 @@ void get_packet_control_mouse_clicks(void)
     static int synthetic_right = 0;
     SYNCDBG(8,"Starting");
 
-    if ( ((game.operation_flags & GOF_Paused) != 0) || (busy_doing_gui) )
+    if ( flag_is_set(game.operation_flags,GOF_Paused)  || busy_doing_gui )
     {
         return;
     }
@@ -1908,7 +1941,7 @@ int global_frameskipTurn = 0;
 void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pressed,int speed_pressed)
 {
     // Reserve the scroll wheel for the resurrect and transfer creature specials
-    if ((menu_is_active(GMnu_RESURRECT_CREATURE) || menu_is_active(GMnu_TRANSFER_CREATURE) || lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_LCONTROL]) == 0)
+    if ((menu_is_active(GMnu_RESURRECT_CREATURE) || menu_is_active(GMnu_TRANSFER_CREATURE) || rotate_pressed || speed_pressed) == 0)
     {
         // mouse scroll zoom unaffected by frameskip
         if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
@@ -1923,7 +1956,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
             }
         }
     }
-    if (menu_is_active(GMnu_BATTLE) && lbKeyOn[KC_LCONTROL])
+    if (menu_is_active(GMnu_BATTLE) && (rotate_pressed))
     {
         if (wheel_scrolled_up)
         {
@@ -2052,6 +2085,12 @@ void get_isometric_view_nonaction_inputs(void)
             set_packet_control(packet, PCtr_ViewZoomIn);
         if ( is_game_key_pressed(Gkey_ZoomOut, NULL, false) )
             set_packet_control(packet, PCtr_ViewZoomOut);
+        if ( is_game_key_pressed(Gkey_TiltUp, NULL, false) )
+            set_packet_control(packet, PCtr_ViewTiltUp);
+        if ( is_game_key_pressed(Gkey_TiltDown, NULL, false) )
+            set_packet_control(packet, PCtr_ViewTiltDown);
+        if ( is_game_key_pressed(Gkey_TiltReset, NULL, false) )
+            set_packet_control(packet, PCtr_ViewTiltReset);
         if ( is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
             set_packet_control(packet, PCtr_MoveLeft);
         if ( is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
@@ -2266,6 +2305,22 @@ void get_dungeon_control_nonaction_inputs(void)
   {
     clear_key_pressed(KC_X);
     turn_on_menu(GMnu_QUIT);
+  }
+  if (lbKeyOn[KC_ESCAPE])
+  {
+      lbKeyOn[KC_ESCAPE] = 0;
+      if (a_menu_window_is_active())
+      {
+          turn_off_all_window_menus();
+      }
+      else
+      {
+          if (menu_is_active(GMnu_MAIN))
+          {
+              fake_button_click(BID_OPTIONS);
+          }
+          turn_on_menu(GMnu_OPTIONS);
+      }
   }
   switch (player->view_mode)
   {
@@ -2526,6 +2581,13 @@ static void get_dungeon_speech_inputs(void)
     }
 }
 
+TbBool active_menu_functions_while_paused()
+{
+    return (menu_is_active(GMnu_QUIT) || menu_is_active(GMnu_OPTIONS) || menu_is_active(GMnu_LOAD) || menu_is_active(GMnu_SAVE)
+         || menu_is_active(GMnu_VIDEO) || menu_is_active(GMnu_SOUND) || menu_is_active(GMnu_ERROR_BOX) || menu_is_active(GMnu_AUTOPILOT));
+}
+
+
 /** Fill packet struct with game action information.
  */
 short get_inputs(void)
@@ -2592,7 +2654,7 @@ short get_inputs(void)
         }
     }
     TbBool inp_handled = false;
-    if (((game.operation_flags & GOF_Paused) == 0) || ((game.operation_flags & GOF_WorldInfluence) != 0))
+    if (!flag_is_set(game.operation_flags,GOF_Paused) || active_menu_functions_while_paused() || flag_is_set(game.operation_flags,GOF_WorldInfluence))
         inp_handled = get_gui_inputs(1);
     if (!inp_handled)
         inp_handled = get_global_inputs();
@@ -2603,6 +2665,7 @@ short get_inputs(void)
     switch (player->view_type)
     {
     case PVT_DungeonTop:
+        get_dungeon_control_pausable_action_inputs();
         if (!inp_handled)
             inp_handled = get_dungeon_control_action_inputs();
         get_dungeon_control_nonaction_inputs();
@@ -2624,8 +2687,7 @@ short get_inputs(void)
         get_packet_control_mouse_clicks();
         return inp_handled;
     case PVT_MapScreen:
-        if (!inp_handled)
-            inp_handled = get_map_action_inputs();
+        inp_handled = get_map_action_inputs();
         get_map_nonaction_inputs();
         get_player_gui_clicks();
         get_packet_control_mouse_clicks();
@@ -2742,7 +2804,7 @@ short get_gui_inputs(short gameplay_on)
           if ((fmmenu_idx == -1) || (gbtn->gmenu_idx == fmmenu_idx))
           {
             gmbtn_idx = gidx;
-            gbtn->flags |= LbBtnF_Unknown10;
+            gbtn->flags |= LbBtnF_MouseOver;
             busy_doing_gui = 1;
             callback = gbtn->ptover_event;
             if (callback != NULL)
@@ -2753,11 +2815,11 @@ short get_gui_inputs(short gameplay_on)
                 nx_over_slider_button = gidx;
           } else
           {
-            gbtn->flags &= ~LbBtnF_Unknown10;
+            gbtn->flags &= ~LbBtnF_MouseOver;
           }
       } else
       {
-          gbtn->flags &= ~LbBtnF_Unknown10;
+          gbtn->flags &= ~LbBtnF_MouseOver;
       }
       if (gbtn->gbtype == LbBtnT_HorizSlider)
       {
@@ -3121,9 +3183,9 @@ void process_cheat_mode_selection_inputs()
     }
 }
 
-TbBool process_cheat_heart_health_inputs(short *value, long max_health)
+TbBool process_cheat_heart_health_inputs(HitPoints *value, HitPoints max_health)
 {
-   short new_health = *value;
+   HitPoints new_health = *value;
    if ( (is_key_pressed(KC_ADD, KMod_ALT)) || (is_key_pressed(KC_EQUALS, KMod_SHIFT)) || (is_key_pressed(KC_EQUALS, KMod_NONE)) )
    {
         if (new_health < max_health) 

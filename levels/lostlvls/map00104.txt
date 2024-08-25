@@ -1,8 +1,7 @@
 LEVEL_VERSION(1)
 start_money(player0,100)
 rem CREATE_TEXT(0,153"THIS LEVEL WILL TEST YOUR ABILITY TO TRAVEL THROUGH THESE UNDERGROUND CAVERNS AT GREAT SPEED. INDEED, SPEED IS YOUR ONLY ALLY HERE. MAKE IT TO THE END OF THE COURTSE IN THE TIME ALLOWED TO WIN.")
-REM DISPLAY_OBJECTIVE(153,PLAYER0)
-QUICK_OBJECTIVE(0,"This level will test your ability to travel through these underground caverns at great speed. Indeed, speed is your only ally here. Make it to the end of the course in the time allowed to win.",PLAYER0)
+DISPLAY_OBJECTIVE(96,PLAYER0)
 
 
 IF_ACTION_POINT(1,PLAYER0)

@@ -152,11 +152,14 @@ const struct NamedCommand magic_power_commands[] = {
   {"PANELTABINDEX",  12},
   {"SOUNDSAMPLES",   13},
   {"PROPERTIES",     14},
-  {"FUNCTIONS",      15},
+  {"CASTEXPANDFUNC", 15},
   {"PLAYERSTATE",    16},
   {"PARENTPOWER",    17},
   {"SOUNDPLAYED",    18},
   {"COOLDOWN",       19},
+  {"SPELL",          20},
+  {"EFFECT",         21},
+  {"USEFUNCTION",    22},
   {NULL,              0},
   };
 
@@ -269,12 +272,34 @@ const struct NamedCommand shotmodel_damagetype_commands[] = {
   };
 
 const struct NamedCommand powermodel_expand_check_func_type[] = {
-  {"general_expand",           1},
-  {"sight_of_evil_expand",     2},
-  {"call_to_arms_expand",      3},
-  {"do_not_expand",            4},
-  {NULL,                       0},
+  {"general_expand",           OcC_General_expand},
+  {"sight_of_evil_expand",     OcC_SightOfEvil_expand},
+  {"call_to_arms_expand",      OcC_CallToArms_expand},
+  {"do_not_expand",            OcC_do_not_expand},
+  {NULL,                       OcC_Null},
 };
+
+const struct NamedCommand magic_use_func_commands[] = {
+  {"none",                          0},
+  {"magic_use_power_hand",          1},
+  {"magic_use_power_heal",          2},
+  {"magic_use_power_apply_spell",   3},
+  {"magic_use_power_disease",       4},
+  {"magic_use_power_chicken",       5},
+  {"magic_use_power_slap_thing",    6},
+  {"magic_use_power_possess_thing", 7},
+  {"magic_use_power_call_to_arms",  8},
+  {"magic_use_power_lightning",     9},
+  {"magic_use_power_time_bomb",    10},
+  {"magic_use_power_imp",          11},
+  {"magic_use_power_sight",        12},
+  {"magic_use_power_cave_in",      13},
+  {"magic_use_power_destroy_walls",14},
+  {"magic_use_power_obey",         15},
+  {"magic_use_power_hold_audience",16},
+  {"magic_use_power_armageddon",   17},
+  {NULL,                  0},
+  };
 
 const Expand_Check_Func powermodel_expand_check_func_list[] = {
   NULL,
@@ -2223,7 +2248,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               }
           }
           break;
-      case 15: // FUNCTIONS
+      case 15: // CASTEXPANDFUNC
           powerst->overcharge_check_idx = 0;
           k = recognize_conf_parameter(buf,&pos,len,powermodel_expand_check_func_type);
           if (k > 0)
@@ -2248,7 +2273,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect object model \"%s\" in [%s] block of %s file.",
+              CONFWRNLOG("Incorrect player state \"%s\" in [%s] block of %s file.",
                   word_buf,block_buf,config_textname);
               break;
           }
@@ -2264,43 +2289,88 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect object model \"%s\" in [%s] block of %s file.",
+              CONFWRNLOG("Incorrect Keeper Power \"%s\" in [%s] block of %s file.",
                   word_buf,block_buf,config_textname);
               break;
           }
           break;
-          case 18: //SOUNDPLAYED
+      case 18: //SOUNDPLAYED
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-            k = atoi(word_buf);
-            if (k >= 0)
-            {
-                powerst->select_sound_idx = k;
-                n++;
-            }
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  powerst->select_sound_idx = k;
+                  n++;
+              }
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-          case 19: //COOLDOWN
-              if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+      case 19: //COOLDOWN
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
               {
-                  k = atoi(word_buf);
-                  if (k >= 0)
-                  {
-                      powerst->cast_cooldown = k;
-                      n++;
-                  }
+                  powerst->cast_cooldown = k;
+                  n++;
               }
-              if (n < 1)
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 20: //SPELL
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(spell_desc,word_buf);
+              if (k >= 0)
               {
-                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                      COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                  powerst->spell_idx = k;
+                  n++;
               }
-              break;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 21: //EFFECT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = effect_or_effect_element_id(word_buf);
+              powerst->effect_id = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 22: //USEFUNCTION
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(magic_use_func_commands,word_buf);
+              if (k >= 0)
+              {
+                  powerst->magic_use_func_idx = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
       case 0: // comment
           break;
       case -1: // end of buffer

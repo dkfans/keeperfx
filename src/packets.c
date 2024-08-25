@@ -52,7 +52,7 @@
 #include "config_settings.h"
 #include "player_instances.h"
 #include "player_data.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "player_utils.h"
 #include "thing_physics.h"
 #include "thing_doors.h"
@@ -167,58 +167,28 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
     struct Packet* pckt = get_packet_direct(player->packet_num);
     if ((pckt->control_flags & PCtr_LBtnHeld) != 0)
     {
-      switch (player->work_state)
-      {
-      case PSt_CallToArms:
-          if (player_uses_power_call_to_arms(plyr_idx))
-            player->cast_expand_level = (dungeon->cta_splevel << 2);
-          else
-            update_power_overcharge(player, PwrK_CALL2ARMS);
-          break;
-      case PSt_CaveIn:
-          update_power_overcharge(player, PwrK_CAVEIN);
-          break;
-      case PSt_SightOfEvil:
-          update_power_overcharge(player, PwrK_SIGHT);
-          break;
-      case PSt_Lightning:
-          update_power_overcharge(player, PwrK_LIGHTNING);
-          break;
-      case PSt_SpeedUp:
-          update_power_overcharge(player, PwrK_SPEEDCRTR);
-          break;
-      case PSt_Armour:
-          update_power_overcharge(player, PwrK_PROTECT);
-          break;
-      case PSt_Conceal:
-          update_power_overcharge(player, PwrK_CONCEAL);
-          break;
-      case PSt_Heal:
-          update_power_overcharge(player, PwrK_HEALCRTR);
-          break;
-      case PSt_TimeBomb:
-          update_power_overcharge(player, PwrK_TIMEBOMB);
-          break;
-      case PSt_Rebound:
-          update_power_overcharge(player, PwrK_REBOUND);
-          break;
-      case PSt_Freeze:
-          update_power_overcharge(player, PwrK_FREEZE);
-          break;
-      case PSt_Slow:
-          update_power_overcharge(player, PwrK_SLOW);
-          break;
-      case PSt_Flight:
-          update_power_overcharge(player, PwrK_FLIGHT);
-          break;
-      case PSt_Vision:
-          update_power_overcharge(player, PwrK_VISION);
-          break;
-      default:
-          player->cast_expand_level++;
-          break;
-      }
-      return true;
+        struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
+        struct PowerConfigStats *powerst = get_power_model_stats(plrst_cfg_stat->power_kind);
+
+        switch (powerst->overcharge_check_idx)
+        {
+            case OcC_CallToArms_expand:
+                if (player_uses_power_call_to_arms(plyr_idx))
+                    player->cast_expand_level = (dungeon->cta_splevel << 2);
+                else
+                    update_power_overcharge(player, plrst_cfg_stat->power_kind);
+                break;
+            case OcC_SightOfEvil_expand:
+            case OcC_General_expand:
+                update_power_overcharge(player, plrst_cfg_stat->power_kind);
+                break;
+            case OcC_do_not_expand:
+            case OcC_Null:
+            default:
+                player->cast_expand_level++;
+                break;
+        }
+        return true;
     }
     if ((pckt->control_flags & PCtr_LBtnRelease) == 0)
     {
@@ -416,6 +386,51 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
             break;
         case PVM_FrontView:
             cam->orient_a = (cam->orient_a - LbFPMath_PI/2) & LbFPMath_AngleMask;
+            break;
+        }
+    }
+    if ((pckt->control_flags & PCtr_ViewTiltUp) != 0)
+    {
+        switch (cam->view_mode)
+        {
+        case PVM_IsoWibbleView:
+        case PVM_IsoStraightView:
+            view_set_camera_tilt(cam, 1);
+            if (is_my_player(player))
+            {
+                settings.isometric_tilt = cam->orient_b;
+                save_settings();
+            }
+            break;
+        }
+    }
+    if ((pckt->control_flags & PCtr_ViewTiltDown) != 0)
+    {
+        switch (cam->view_mode)
+        {
+        case PVM_IsoWibbleView:
+        case PVM_IsoStraightView:
+            view_set_camera_tilt(cam, 2);
+            if (is_my_player(player))
+            {
+                settings.isometric_tilt = cam->orient_b;
+                save_settings();
+            }
+            break;
+        }
+    }
+    if ((pckt->control_flags & PCtr_ViewTiltReset) != 0)
+    {
+        switch (cam->view_mode)
+        {
+        case PVM_IsoWibbleView:
+        case PVM_IsoStraightView:
+            view_set_camera_tilt(cam, 0);
+            if (is_my_player(player))
+            {
+                settings.isometric_tilt = cam->orient_b;
+                save_settings();
+            }
             break;
         }
     }
@@ -866,7 +881,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_Unknown099:
       turn_off_query(plyr_idx);
       return 0;
-  case PckA_Unknown104:
+  case PckA_ZoomToBattle:
       if (player->work_state == PSt_CreatrInfo)
         turn_off_query(plyr_idx);
       battle_move_player_towards_battle(player, pckt->actn_par1);
