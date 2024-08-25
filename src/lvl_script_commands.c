@@ -302,6 +302,7 @@ static const struct NamedCommand game_rule_desc[] = {
   {"PreserveClassicBugs",            1},
   {"AlliesShareVision",              2},
   {"HandLightRadius",                3},
+  {"HandLightIntensity",             4},
   {NULL,                             0},
 };
 
@@ -5468,6 +5469,22 @@ static void set_game_rule_process(struct ScriptContext* context)
                 if (player->cursor_light_idx != 0)
                 {
                     light_set_light_radius(player->cursor_light_idx, game.conf.rules.game.hand_light_radius);
+                }
+            }
+        }
+        break;
+    case 4: //HandLightIntensity
+        //this one is a special case because the hand light needs to be updated
+        SCRIPTDBG(7, "Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.hand_light_radius, rulevalue);
+        game.conf.rules.game.hand_light_intensity = rulevalue;
+        for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
+        {
+            player = get_player(i);
+            if (!player_invalid(player))
+            {
+                if (player->cursor_light_idx != 0)
+                {
+                    light_set_light_intensity(player->cursor_light_idx, game.conf.rules.game.hand_light_intensity);
                 }
             }
         }
