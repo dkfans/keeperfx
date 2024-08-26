@@ -5956,44 +5956,73 @@ static void change_slab_texture_process(struct ScriptContext* context)
 
 static void computer_player_check(const struct ScriptLine* scline)
 {
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     long plr_range_id = scline->np[0];
-    const char *comp_model = scline->tp[1];
-    
-    if (get_script_current_condition() != CONDITION_ALWAYS)
+    const char* comp_model = scline->tp[1];
+    char plr_start;
+    char plr_end;
+    char model = 0;
+    char type = PT_Keeper;
+
+    if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0)
     {
-        SCRPTWRNLOG("Computer player setup inside conditional block; condition ignored");
+        SCRPTERRLOG("Given owning player range %d is not supported in this command", (int)plr_range_id);
+        DEALLOCATE_SCRIPT_VALUE
     }
-    int plr_start;
-    int plr_end;
-    if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
-        SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
-        return;
-    }
-    if(parameter_is_number(comp_model))
+    if (parameter_is_number(comp_model))
     {
         for (long i = plr_start; i < plr_end; i++)
         {
-            script_support_setup_player_as_computer_keeper(i, atoi(comp_model));
+            set_flag(value->shorts[2], to_flag(i));
         }
+        model = atoi(comp_model);
     }
-    else if(strcasecmp(comp_model,"ROAMING") == 0)
+    else if (strcasecmp(comp_model, "ROAMING") == 0)
     {
-        for (long i = plr_start; i < plr_end; i++)
+        type = PT_Roaming;
+    }
+    else
+    {
+        SCRPTERRLOG("invalid COMPUTER_PLAYER param '%s'", comp_model);
+        DEALLOCATE_SCRIPT_VALUE
+    }
+    
+    value->bytes[0] = plr_start;
+    value->bytes[1] = plr_end;
+    value->bytes[2] = type;
+    value->bytes[3] = model;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void computer_player_process(struct ScriptContext* context)
+{
+    char plr_start = context->value->bytes[0];
+    char plr_end = context->value->bytes[1];
+    char playertype = context->value->bytes[2];
+    char model = context->value->bytes[3];
+    unsigned short owner_flags = context->value->shorts[2];
+    struct PlayerInfo* player = INVALID_PLAYER;
+    for (char i = plr_start; i < plr_end; i++)
+    {
+        if (i == PLAYER_NEUTRAL)
         {
-            if(i == PLAYER_NEUTRAL)
-            {
-                continue;
-            }
-            struct PlayerInfo* player = get_player(i);
+            continue;
+        }
+        if (playertype == PT_Roaming)
+        {
+            player = get_player(i);
             player->player_type = PT_Roaming;
             player->allocflags |= PlaF_Allocated;
             player->allocflags |= PlaF_CompCtrl;
             player->id_number = i;
         }
-    }
-    else
-    {
-        ERRORLOG("invalid COMPUTER_PLAYER param '%s'",comp_model);
+        else
+        {
+            if (flag_is_set(owner_flags, to_flag(i)))
+            {
+                script_support_setup_player_as_computer_keeper(i, model);
+            }
+        }
     }
 }
 
@@ -6096,7 +6125,7 @@ const struct CommandDesc command_desc[] = {
   {"TRAP_AVAILABLE",                    "PANN    ", Cmd_TRAP_AVAILABLE, NULL, NULL},
   {"RESEARCH",                          "PAAN    ", Cmd_RESEARCH, NULL, NULL},
   {"RESEARCH_ORDER",                    "PAAN    ", Cmd_RESEARCH_ORDER, NULL, NULL},
-  {"COMPUTER_PLAYER",                   "PA      ", Cmd_COMPUTER_PLAYER, &computer_player_check, NULL},
+  {"COMPUTER_PLAYER",                   "PA      ", Cmd_COMPUTER_PLAYER, &computer_player_check, &computer_player_process},
   {"SET_TIMER",                         "PA      ", Cmd_SET_TIMER, NULL, NULL},
   {"ADD_TUNNELLER_TO_LEVEL",            "PAANNN  ", Cmd_ADD_TUNNELLER_TO_LEVEL, NULL, NULL},
   {"WIN_GAME",                          "        ", Cmd_WIN_GAME, NULL, NULL},
