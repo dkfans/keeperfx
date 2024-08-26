@@ -5959,8 +5959,8 @@ static void computer_player_check(const struct ScriptLine* scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     long plr_range_id = scline->np[0];
     const char* comp_model = scline->tp[1];
-    char plr_start;
-    char plr_end;
+    int plr_start;
+    int plr_end;
     char model = 0;
     char type = PT_Keeper;
 
