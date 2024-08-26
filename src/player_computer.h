@@ -727,7 +727,8 @@ TbBool computer_force_dump_specific_held_thing(struct Computer2 *comp, struct Th
 TbBool thing_is_in_computer_power_hand_list(const struct Thing *thing, PlayerNumber plyr_idx);
 struct Thing* find_creature_for_defend_pickup(struct Computer2* comp);
 
-TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyridx, long comp_model);
+TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyr_idx, long comp_model);
+TbBool script_support_setup_player_as_zombie_keeper(PlayerNumber plyr_idx);
 TbBool reactivate_build_process(struct Computer2* comp, RoomKind rkind);
 /******************************************************************************/
 #ifdef __cplusplus

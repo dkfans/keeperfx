@@ -5963,23 +5963,28 @@ static void computer_player_check(const struct ScriptLine* scline)
     int plr_end;
     char model = 0;
     char type = PT_Keeper;
+    TbBool toggle = true;
 
     if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0)
     {
         SCRPTERRLOG("Given owning player range %d is not supported in this command", (int)plr_range_id);
         DEALLOCATE_SCRIPT_VALUE
     }
+    for (long i = plr_start; i < plr_end; i++)
+    {
+        set_flag(value->shorts[2], to_flag(i));
+    }
     if (parameter_is_number(comp_model))
     {
-        for (long i = plr_start; i < plr_end; i++)
-        {
-            set_flag(value->shorts[2], to_flag(i));
-        }
         model = atoi(comp_model);
     }
     else if (strcasecmp(comp_model, "ROAMING") == 0)
     {
         type = PT_Roaming;
+    }
+    else if (strcasecmp(comp_model, "OFF") == 0)
+    {
+        toggle = false;
     }
     else
     {
@@ -5991,6 +5996,7 @@ static void computer_player_check(const struct ScriptLine* scline)
     value->bytes[1] = plr_end;
     value->bytes[2] = type;
     value->bytes[3] = model;
+    value->bytes[6] = toggle;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -6000,9 +6006,10 @@ static void computer_player_process(struct ScriptContext* context)
     char plr_end = context->value->bytes[1];
     char playertype = context->value->bytes[2];
     char model = context->value->bytes[3];
-    unsigned short owner_flags = context->value->shorts[2];
+    short owner_flags = context->value->shorts[2];
+    TbBool toggle = context->value->bytes[6];
     struct PlayerInfo* player = INVALID_PLAYER;
-    for (char i = plr_start; i < plr_end; i++)
+    for (int i = plr_start; i < plr_end; i++)
     {
         if (i == PLAYER_NEUTRAL)
         {
@@ -6020,7 +6027,14 @@ static void computer_player_process(struct ScriptContext* context)
         {
             if (flag_is_set(owner_flags, to_flag(i)))
             {
-                script_support_setup_player_as_computer_keeper(i, model);
+                if (toggle == true)
+                {
+                    script_support_setup_player_as_computer_keeper(i, model);
+                }
+                else
+                {
+                    script_support_setup_player_as_zombie_keeper(i);
+                }
             }
         }
     }
