@@ -2545,11 +2545,12 @@ long ariadne_creature_can_continue_direct_line_to_waypoint(struct Thing *thing, 
         if (!ariadne_creature_blocked_by_wall_at(thing, &pos_ylim))
         {
             if (!ariadne_creature_blocked_by_wall_at(thing, &pos_dlim)) {
-                return 1;
+                return true;
             }
         }
     }
-    return 0;
+    JUSTMSG("cannot go from %d,%d to %d,%d", thing->mappos.x.stl.num, thing->mappos.y.stl.num, arid->current_waypoint_pos.x.stl.num, arid->current_waypoint_pos.y.stl.num);
+    return false;
 }
 
 /**
@@ -3040,6 +3041,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
         pos.x.val = arid->endpos.x.val;
         pos.y.val = arid->endpos.y.val;
         pos.z.val = arid->endpos.z.val;
+        JUSTMSG("A");
         if (ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->route_flags)) {
             return AridRet_PartOK;
         }
@@ -3047,6 +3049,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
     }
     if (distance <= arid->move_speed)
     {
+        JUSTMSG("B");
         arid->pos_12.x.val = arid->current_waypoint_pos.x.val;
         arid->pos_12.y.val = arid->current_waypoint_pos.y.val;
         arid->pos_12.z.val = arid->current_waypoint_pos.z.val;
@@ -3082,14 +3085,18 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
     } else
     if (thing->move_angle_xy == arid->wallhug_angle)
     {
+        JUSTMSG("C");
         if ((thing->mappos.x.val != arid->pos_12.x.val) || (arid->pos_12.y.val != thing->mappos.y.val))
         {
             ariadne_init_movement_to_current_waypoint(thing, arid);
+            JUSTMSG("C1");
             return 0;
         }
         if (distance < arid->distance_to_waypoint)
         {
+            JUSTMSG("C2");
             if (ariadne_creature_can_continue_direct_line_to_waypoint(thing, arid, arid->move_speed)) {
+                
                 if (ariadne_init_movement_to_current_waypoint(thing, arid) < 1) {
                     return AridRet_PartOK;
                 }
@@ -3101,12 +3108,15 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
         hug_angle = ariadne_get_wallhug_angle(thing, arid);
         if (hug_angle == -1)
         {
+            JUSTMSG("C3");
             ariadne_init_movement_to_current_waypoint(thing, arid);
             return AridRet_OK;
         }
+        
         arid->pos_12.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, hug_angle);
         arid->pos_12.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, hug_angle);
         arid->pos_12.z.val = get_thing_height_at(thing, &arid->pos_12);
+        JUSTMSG("C3A for %d,%d", arid->pos_12.x.stl.num, arid->pos_12.y.stl.num);
         if ((thing->move_angle_xy == hug_angle) && ariadne_check_forward_for_wallhug_gap(thing, arid, &arid->pos_12, hug_angle))
         {
             arid->update_state = AridUpSt_Manoeuvre;
@@ -3114,11 +3124,13 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
             arid->pos_53.x.val = arid->pos_12.x.val;
             arid->pos_53.y.val = arid->pos_12.y.val;
             arid->pos_53.z.val = arid->pos_12.z.val;
+            JUSTMSG("C4");
             return AridRet_OK;
         }
         arid->wallhug_angle = hug_angle;
         if (ariadne_creature_on_circular_hug(thing, arid))
         {
+            JUSTMSG("C5");
             struct Coord3d pos;
             arid->pos_12.x.val = thing->mappos.x.val;
             arid->pos_12.y.val = thing->mappos.y.val;
@@ -3131,8 +3143,9 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
             }
             return AridRet_OK;
         }
-        if (ariadne_creature_blocked_by_wall_at(thing, &arid->pos_12))
+        if (ariadne_creature_blocked_by_wall_at(thing, &arid->pos_12) || (arid->pos_12.x.stl.num == 135 && arid->pos_12.x.stl.num == 69))
         {
+            JUSTMSG("C6");
             if (!arid->may_need_reroute)
             {
                 struct Coord3d pos;
@@ -3158,8 +3171,10 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
                 return AridRet_PartOK;
             }
             return AridRet_OK;
-          }
+        }
+        JUSTMSG("C nothing");
     }
+    JUSTMSG("D");
     return AridRet_OK;
 }
 
@@ -3181,6 +3196,7 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
     {
         aret = ariadne_initialise_creature_route(thing, finalpos, speed, flags);
         if (aret != AridRet_OK) {
+            JUSTMSG("end");
             return AridRet_Val2;
         }
         arid->move_speed = speed;
@@ -3189,11 +3205,13 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
             nextpos->x.val = arid->pos_12.x.val;
             nextpos->y.val = arid->pos_12.y.val;
             nextpos->z.val = arid->pos_12.z.val;
+            JUSTMSG("ok");
             return AridRet_OK;
         }
     }
     if (ariadne_creature_reached_waypoint(thing,arid))
     {
+        JUSTMSG("reached");
         aret = ariadne_creature_get_next_waypoint(thing,arid);
         if (aret == AridRet_FinalOK)
         {
@@ -3212,6 +3230,7 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
         {
             aret = ariadne_initialise_creature_route(thing, finalpos, speed, flags);
             if (aret != AridRet_OK) {
+                JUSTMSG("partok");
                 return AridRet_PartOK;
             }
         }
@@ -3244,6 +3263,7 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
     {
         WARNDBG(3, "Update state %d returned %d", (int)arid->update_state, (int)result);
     }
+    JUSTMSG("return %d from %d",result, arid->update_state);
     return result;
 }
 
