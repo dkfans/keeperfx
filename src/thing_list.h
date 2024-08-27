@@ -309,6 +309,7 @@ long electricity_affecting_area(const struct Coord3d *pos, PlayerNumber immune_p
 void update_things(void);
 
 struct Thing *find_base_thing_on_mapwho(ThingClass oclass, ThingModel okind, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+struct Thing *find_object_of_genre_on_mapwho(long genre, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 void remove_thing_from_mapwho(struct Thing *thing);
 void place_thing_in_mapwho(struct Thing *thing);
 
@@ -340,6 +341,8 @@ struct Thing *find_random_thing_in_room(ThingClass tngclass, ThingModel tngmodel
 
 ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_creature, PlayerNumber owner, ThingModel crmodel, struct PlayerInfo *player);
 struct Thing* get_timebomb_target(struct Thing *creatng);
+
+void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

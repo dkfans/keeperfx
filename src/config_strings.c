@@ -174,7 +174,7 @@ const char * gui_string(unsigned int index)
 }
 const char * cmpgn_string(unsigned int index)
 {
-    if ((campaign.strings == NULL) || (index >= STRINGS_MAX))
+    if (index >= STRINGS_MAX)
     {
         return gui_string(index - STRINGS_MAX);
     }

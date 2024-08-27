@@ -23,8 +23,10 @@
 #include "bflib_basics.h"
 #include "bflib_memory.h"
 #include "bflib_math.h"
+#include "bflib_planar.h"
 #include "bflib_sound.h"
 #include "creature_states.h"
+#include "creature_states_combt.h"
 #include "thing_data.h"
 #include "thing_factory.h"
 #include "thing_effects.h"
@@ -121,7 +123,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
         }
         else
         {
-            damage = compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel, shotng);
+            damage = compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel, castng);
         }
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         explosion_affecting_area(shotng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets, shotst->damage_type);
@@ -995,7 +997,7 @@ void shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
         dieflags = CrDed_DiedInBattle | ((shotst->model_flags & ShMF_NoStun)?CrDed_NoUnconscious:0) | ((shotst->model_flags & ShMF_BlocksRebirth)? CrDed_NoRebirth : 0);
     }
     // Friendly fire should kill the creature, not knock out
-    if ((shotng->owner == creatng->owner) &! (game.conf.rules.game.classic_bugs_flags & ClscBug_FriendlyFaint))
+    if (players_creatures_tolerate_each_other(shotng->owner,creatng->owner) &! (game.conf.rules.game.classic_bugs_flags & ClscBug_FriendlyFaint))
     {
         dieflags |= CrDed_NoUnconscious;
     }
@@ -1180,6 +1182,10 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     {
         apply_shot_experience_from_hitting_creature(shooter, trgtng, shotng->model);
     }
+    if (thing_is_deployed_trap(shooter) && thing_is_creature(trgtng))
+    {
+        creature_start_combat_with_trap_if_available(trgtng, shooter);
+    }
     if (((shotst->model_flags & ShMF_NoHit) != 0) || (trgtng->health < 0)) {
         return 0;
     }
@@ -1198,9 +1204,21 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             struct Coord3d pos2;
             pos2.x.val = killertng->mappos.x.val;
             pos2.y.val = killertng->mappos.y.val;
-            struct CreatureControl* cctrl = creature_control_get_from_thing(killertng);
-            short target_center = (killertng->solid_size_z + ((killertng->solid_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100)) / 2;
-            pos2.z.val = target_center + killertng->mappos.z.val;
+            if(thing_is_deployed_trap(killertng))
+            {
+                pos2.z.val = killertng->mappos.z.val;
+                pos2.z.val += (killertng->clipbox_size_z >> 1);
+                if (thing_is_destructible_trap(killertng))
+                {
+                    shotng->shot.hit_type = THit_CrtrsNObjctsNotOwn;
+                }
+            }
+            else
+            {
+                struct CreatureControl* cctrl = creature_control_get_from_thing(killertng);
+                short target_center = (killertng->solid_size_z + ((killertng->solid_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100)) / 2;
+                pos2.z.val = target_center + killertng->mappos.z.val;
+            }
             clear_thing_acceleration(shotng);
             set_thing_acceleration_angles(shotng, get_angle_xy_to(&shotng->mappos, &pos2), get_angle_yz_to(&shotng->mappos, &pos2));
             shotng->parent_idx = trgtng->parent_idx;
@@ -1782,7 +1800,7 @@ struct Thing *create_shot(struct Coord3d *pos, ThingModel model, unsigned short 
     set_thing_draw(thing, shotst->sprite_anim_idx, 256, shotst->sprite_size_max, 0, 0, ODC_Default);
     thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Unshaded * shotst->unshaded) & TRF_Unshaded;
     thing->rendering_flags ^= thing->rendering_flags ^ ((thing->rendering_flags ^ TRF_Transpar_8 * shotst->animation_transparency) & (TRF_Transpar_Flags));
-    thing->rendering_flags ^= (thing->rendering_flags ^ shotst->hidden_projectile) & TRF_Unknown01;
+    thing->rendering_flags ^= (thing->rendering_flags ^ shotst->hidden_projectile) & TRF_Invisible;
     thing->clipbox_size_xy = shotst->size_xy;
     thing->clipbox_size_z = shotst->size_z;
     thing->solid_size_xy = shotst->size_xy;
@@ -1810,7 +1828,138 @@ struct Thing *create_shot(struct Coord3d *pos, ThingModel model, unsigned short 
     return thing;
 }
 
+static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam param)
+{
+    SYNCDBG(18,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
+    if (thing->index == param->num2) {
+        return TUFRet_Unchanged;
+    }
+    struct Thing *shotng = (struct Thing *)param->ptr3;
+    struct ShotConfigStats *shotst = get_shot_model_stats(shotng->model);
+    if ((thing->index == shotng->index) || (thing->index == shotng->parent_idx)) {
+        return TUFRet_Unchanged;
+    }
+    // param->num1 = 2048 from affect_nearby_enemy_creatures_with_wind
+    long blow_distance = param->num1;
+    // calculate max distance
+    int maxdistance = shotst->health * shotst->speed;
+    MapCoordDelta creature_distance = LONG_MAX;
+    TbBool apply_velocity = false;
+    switch (thing->class_id)
+    {
+        case TCls_Creature:
+        {
+            if (!thing_is_picked_up(thing) && !creature_is_being_unconscious(thing))
+            {
+                struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
+                struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+                TbBool creatureAlreadyAffected = false;
 
+                // distance between creature and actual position of the projectile
+                creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;    
+
+                // if weight-affect-push-rule is on
+                if (game.conf.rules.magic.weight_calculate_push > 0)
+                {
+                    long weight = compute_creature_weight(thing);
+                    //max push distance
+                    blow_distance = maxdistance - (maxdistance - weight_calculated_push_strenght(weight, maxdistance)); 
+                    // distance between startposition and actual position of the projectile
+                    int origin_distance = get_chessboard_distance(&shotng->shot.originpos, &thing->mappos) + 1;
+                    creature_distance = origin_distance;
+
+                    // Check the the spell instance for already affected creatures
+                    for (int i = 0; i < shotng->shot.num_wind_affected; i++)
+                    {
+                        if (shotng->shot.wind_affected_creature[i] == cctrl->index)
+                        {
+                            creatureAlreadyAffected = true;
+                            set_flag(cctrl->spell_flags, CSAfF_Wind);
+                            break;
+                        }
+                    }
+                }
+                if ((creature_distance < blow_distance) && crstat->affected_by_wind && !creatureAlreadyAffected)           
+                {
+                    set_start_state(thing);
+                    cctrl->idle.start_gameturn = game.play_gameturn;
+                    apply_velocity = true;
+                    set_flag(cctrl->spell_flags, CSAfF_Wind);
+                }
+                   // if weight-affect-push-rule is on
+                else if (game.conf.rules.magic.weight_calculate_push > 0 && creature_distance >= blow_distance && !creatureAlreadyAffected){
+                    // add creature ID to allready-wind-affected-creature-array
+                    shotng->shot.wind_affected_creature[shotng->shot.num_wind_affected++] = cctrl->index;                  
+                    }
+            }
+            break;
+        } 
+        case TCls_EffectElem:
+        {
+            if (!thing_is_picked_up(thing))
+            {
+                struct EffectElementConfigStats *eestat = get_effect_element_model_stats(thing->model);
+                creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
+                if ((creature_distance < blow_distance) && eestat->affected_by_wind)
+                {
+                    apply_velocity = true;
+                }
+            }
+            break;
+        } 
+        case TCls_Shot:
+        {
+            if (!thing_is_picked_up(thing))
+            {
+                struct ShotConfigStats *thingshotst = get_shot_model_stats(shotng->model);
+                creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
+                if ((creature_distance < blow_distance) && !thingshotst->wind_immune)
+                {
+                    apply_velocity = true;
+                }
+            }
+            break;
+        } 
+        case TCls_Effect:
+        {
+            if (!thing_is_picked_up(thing))
+            {
+                struct EffectConfigStats *effcst = get_effect_model_stats(thing->model);
+                creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
+                if ((creature_distance < blow_distance) && effcst->affected_by_wind)
+                {
+                    apply_velocity = true;
+                }
+            }
+            break;
+        }
+    }
+    if (apply_velocity)
+    {
+        struct ComponentVector wind_push;
+        wind_push.x = (shotng->veloc_base.x.val * blow_distance) / creature_distance;
+        wind_push.y = (shotng->veloc_base.y.val * blow_distance) / creature_distance;
+        wind_push.z = (shotng->veloc_base.z.val * blow_distance) / creature_distance;
+        SYNCDBG(8,"Applying (%d,%d,%d) to %s index %d",(int)wind_push.x,(int)wind_push.y,(int)wind_push.z,thing_model_name(thing),(int)thing->index);
+        apply_transitive_velocity_to_thing(thing, &wind_push);
+        return TUFRet_Modified;
+    }
+    return TUFRet_Unchanged;
+}
+
+void affect_nearby_enemy_creatures_with_wind(struct Thing *shotng)
+{
+    Thing_Modifier_Func do_cb;
+    struct CompoundTngFilterParam param;
+    param.plyr_idx = -1;
+    param.class_id = 0;
+    param.model_id = 0;
+    param.num1 = 2048;
+    param.num2 = shotng->parent_idx;
+    param.ptr3 = shotng;
+    do_cb = affect_thing_by_wind;
+    do_to_things_with_param_spiral_near_map_block(&shotng->mappos, param.num1-COORD_PER_STL, do_cb, &param);
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

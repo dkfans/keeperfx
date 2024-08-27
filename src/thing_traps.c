@@ -26,6 +26,7 @@
 #include "bflib_planar.h"
 
 #include "thing_data.h"
+#include "creature_states_combt.h"
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "creature_states.h"
@@ -196,6 +197,17 @@ TbBool thing_is_deployed_trap(const struct Thing* thing)
     return true;
 }
 
+TbBool creature_available_for_trap_trigger(struct Thing* creatng)
+{
+    if (!creature_is_being_unconscious(creatng) && !thing_is_dragged_or_pulled(creatng)
+        && !creature_is_kept_in_custody_by_enemy(creatng) && !creature_is_dying(creatng)
+        && !creature_is_being_dropped(creatng) && !flag_is_set(get_creature_model_flags(creatng),CMF_IsSpectator))
+    {
+        return true;
+    }
+    return false;
+}
+
 TbBool update_trap_trigger_line_of_sight_90_on_subtile(struct Thing *traptng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
@@ -217,9 +229,8 @@ TbBool update_trap_trigger_line_of_sight_90_on_subtile(struct Thing *traptng, Ma
             // Trigger for enemy player, or any player for neutral traps (otherwise neutral traps would be useless)
             if (players_are_enemies(traptng->owner,thing->owner) || is_neutral_thing(traptng))
             {
-                if (!creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing) && !thing_is_picked_up(thing)
-                 && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_dying(thing)
-                 && ((get_creature_model_flags(thing) & CMF_IsSpectator) == 0)) {
+                if (creature_available_for_trap_trigger(thing))
+                {
                     activate_trap(traptng, thing);
                     return true;
                 }
@@ -622,13 +633,11 @@ TbBool find_pressure_trigger_trap_target_passing_by_subtile(const struct Thing *
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if (thing_is_creature(thing) && (thing->owner != traptng->owner))
+        if (thing_is_creature(thing))
         {
-            if (!creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing)
-             && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_dying(thing)
-             && ((get_creature_model_flags(thing) & CMF_IsSpectator) == 0))
+            if (creature_available_for_trap_trigger(thing) && (thing->owner != traptng->owner))
             {
-                if (!is_neutral_thing(thing) && !players_are_mutual_allies(traptng->owner,thing->owner))
+                if (!is_neutral_thing(thing) && !players_are_mutual_allies(traptng->owner, thing->owner))
                 {
                     *found_thing = thing;
                     return true;
@@ -683,9 +692,10 @@ TbBool update_trap_trigger_pressure_subtile(struct Thing *traptng)
 TbBool update_trap_trigger_line_of_sight(struct Thing* traptng)
 {
     struct Thing* trgtng = get_nearest_enemy_creature_in_sight_and_range_of_trap(traptng);
-    if (!thing_is_invalid(trgtng))
+    if (!thing_is_invalid(trgtng) && (creature_available_for_trap_trigger(trgtng)))
     {
         activate_trap(traptng, trgtng);
+        creature_start_combat_with_trap_if_available(trgtng, traptng);
         return true;
     }
     return false;
@@ -698,7 +708,19 @@ void process_trap_charge(struct Thing* traptng)
     traptng->trap.rearm_turn = game.play_gameturn + mconf->shots_delay;
     if (game.conf.trap_stats[traptng->model].attack_sprite_anim_idx != 0)
     {
-        GameTurnDelta trigger_duration = get_lifespan_of_animation(trapstat->attack_sprite_anim_idx, trapstat->anim_speed);
+        GameTurnDelta trigger_duration;
+        if (trapstat->activation_type == 2) //Effect stays on trap, so the attack animation remains visible for as long as the effect is alive
+        {
+            trigger_duration = get_effect_model_stats(trapstat->created_itm_model)->start_health;
+        } else
+        if (trapstat->activation_type == 3) //Shot stays on trap, so the attack animation remains visible for as long as the trap is alive
+        {
+            trigger_duration = get_shot_model_stats(trapstat->created_itm_model)->health;
+        }
+        else
+        {
+            trigger_duration = get_lifespan_of_animation(trapstat->attack_sprite_anim_idx, trapstat->anim_speed);
+        }
         traptng->trap.shooting_finished_turn = (game.play_gameturn + trigger_duration);
         traptng->current_frame = 0;
         traptng->anim_time = 0;
@@ -718,8 +740,8 @@ void process_trap_charge(struct Thing* traptng)
             if ((slb->kind != SlbT_CLAIMED) && (slb->kind != SlbT_PATH)) {
                 traptng->health = -1;
             }
-            traptng->rendering_flags &= TRF_Transpar_Flags;
-            traptng->rendering_flags |= TRF_Transpar_4;
+            clear_flag(traptng->rendering_flags, TRF_Transpar_Flags);
+            set_flag(traptng->rendering_flags, TRF_Transpar_4);
             if (!is_neutral_thing(traptng) && !is_hero_thing(traptng))
             {
                 if (placing_offmap_workshop_item(traptng->owner, TCls_Trap, traptng->model))
@@ -782,7 +804,10 @@ TbBool rearm_trap(struct Thing *traptng)
     struct ManfctrConfig* mconf = &game.conf.traps_config[traptng->model];
     struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
     traptng->trap.num_shots = mconf->shots;
-    traptng->rendering_flags ^= (traptng->rendering_flags ^ (trapstat->transparency_flag << 4)) & (TRF_Transpar_Flags);
+
+    clear_flag(traptng->rendering_flags, TRF_Transpar_Flags);
+    set_flag(traptng->rendering_flags, trapstat->transparency_flag);
+
     return true;
 }
 
@@ -823,7 +848,7 @@ TngUpdateRet update_trap(struct Thing *traptng)
             {
                 traptng->anim_sprite = convert_td_iso(trapstat->sprite_anim_idx);
             }
-            traptng->max_frames = get_lifespan_of_animation(traptng->anim_sprite, trapstat->anim_speed);
+            traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
         }
     }
     if (trapstat->activation_type == TrpAcT_CreatureShot)
@@ -841,6 +866,7 @@ TngUpdateRet update_trap(struct Thing *traptng)
     }
     if (trap_is_active(traptng))
     {
+        traptng->trap.volley_fire = false;
         update_trap_trigger(traptng);
     }
     if (map_pos_is_lava(traptng->mappos.x.stl.num, traptng->mappos.y.stl.num) && !thing_is_dragged_or_pulled(traptng))

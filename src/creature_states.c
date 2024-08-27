@@ -467,6 +467,10 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
     0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_Move, 0, 0, 0, 0, 0, 0, 0, 1 },
   { good_arrived_at_attack_dungeon_heart, NULL, NULL, move_check_attack_any_door,
     0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_Move, 0, 0, 0, 0, 0, 0, 0, 1 },
+  {creature_drop_unconscious_in_lair, state_cleanup_dragging_body, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 1, 0,  0, 0, 0, 1},
+  {creature_save_unconscious_creature, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 1, 0,  0, 0, 0, 1},
 };
 
 /** GUI States of creatures - from "Creatures" Tab in UI.
@@ -632,12 +636,14 @@ TbBool creature_is_being_dropped(const struct Thing *thing)
 
 TbBool creature_is_being_unconscious(const struct Thing *thing)
 {
-    CrtrStateId i = thing->active_state;
-    if ((i == CrSt_MoveToPosition) || (i == CrSt_MoveBackwardsToPosition))
-        i = thing->continue_state;
-    if (i == CrSt_CreatureUnconscious)
-        return true;
-    return false;
+        if (thing_is_invalid(thing))
+            return false;
+        CrtrStateId i = thing->active_state;
+        if ((i == CrSt_MoveToPosition) || (i == CrSt_MoveBackwardsToPosition))
+            i = thing->continue_state;
+        if (i == CrSt_CreatureUnconscious)
+            return true;
+        return false;
 }
 
 TbBool creature_is_celebrating(const struct Thing *thing)
@@ -1611,7 +1617,7 @@ short creature_change_from_chicken(struct Thing *creatng)
         cctrl->countdown_282--;
     if (cctrl->countdown_282 > 0)
     { // Changing under way - gradually modify size of the creature
-        creatng->rendering_flags |= TRF_Unknown01;
+        creatng->rendering_flags |= TRF_Invisible;
         creatng->size_change |= TSC_ChangeSize;
         struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
         if (!thing_is_invalid(efftng))
@@ -1625,7 +1631,7 @@ short creature_change_from_chicken(struct Thing *creatng)
         return 0;
     } else
     {
-        creatng->rendering_flags &= ~TRF_Unknown01;
+        creatng->rendering_flags &= ~TRF_Invisible;
         cctrl->stateblock_flags &= ~CCSpl_ChickenRel;
         cctrl->spell_flags &= ~CSAfF_Chicken;
         set_creature_size_stuff(creatng);
@@ -1644,7 +1650,7 @@ short creature_change_to_chicken(struct Thing *creatng)
     if (cctrl->countdown_282 > 0)
     {
       creatng->size_change |= TSC_ChangeSize;
-      creatng->rendering_flags |= TRF_Unknown01;
+      creatng->rendering_flags |= TRF_Invisible;
       struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
       if (!thing_is_invalid(efftng))
       {
@@ -1656,7 +1662,7 @@ short creature_change_to_chicken(struct Thing *creatng)
       return 0;
     }
     cctrl->spell_flags |= CSAfF_Chicken;
-    creatng->rendering_flags &= ~TRF_Unknown01;
+    creatng->rendering_flags &= ~TRF_Invisible;
     set_creature_size_stuff(creatng);
     creatng->state_flags &= ~TF1_Unkn10;
     creatng->active_state = CrSt_CreaturePretendChickenSetupMove;
@@ -3382,14 +3388,14 @@ long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
 void place_thing_in_creature_controlled_limbo(struct Thing *thing)
 {
     remove_thing_from_mapwho(thing);
-    thing->rendering_flags |= TRF_Unknown01;
+    thing->rendering_flags |= TRF_Invisible;
     thing->state_flags |= TF1_InCtrldLimbo;
 }
 
 void remove_thing_from_creature_controlled_limbo(struct Thing *thing)
 {
     thing->state_flags &= ~TF1_InCtrldLimbo;
-    thing->rendering_flags &= ~TRF_Unknown01;
+    thing->rendering_flags &= ~TRF_Invisible;
     place_thing_in_mapwho(thing);
 }
 
@@ -4667,6 +4673,7 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
 short set_start_state_f(struct Thing *thing,const char *func_name)
 {
     long i;
+    struct CreatureStats* crstat;
     SYNCDBG(8,"%s: Starting for %s index %d, owner %d, last state %s, stacked %s",func_name,thing_model_name(thing),
         (int)thing->index,(int)thing->owner,creature_state_code_name(thing->active_state),creature_state_code_name(thing->continue_state));
     if ((thing->alloc_flags & TAlF_IsControlled) != 0)
@@ -4695,7 +4702,8 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
     }
     if (is_hero_thing(thing))
     {
-        i = creatures[thing->model%game.conf.crtr_conf.model_count].good_start_state;
+        crstat = creature_stats_get_from_thing(thing);
+        i = crstat->good_start_state;
         cleanup_current_thing_state(thing);
         initialise_thing_state(thing, i);
         return thing->active_state;
@@ -4718,7 +4726,8 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
             return thing->active_state;
         }
     }
-    i = creatures[thing->model%game.conf.crtr_conf.model_count].evil_start_state;
+    crstat = creature_stats_get_from_thing(thing);
+    i = crstat->evil_start_state;
     cleanup_current_thing_state(thing);
     initialise_thing_state(thing, i);
     return thing->active_state;

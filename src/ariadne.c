@@ -4389,7 +4389,7 @@ long triangle_area1(long tri_idx)
     return llabs(area1+area2);
 }
 
-static void brute_fill_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned short ntree_alt)
+static void brute_fill_rectangle(long start_x, long start_y, long end_x, long end_y, NavColour ntree_alt)
 {
     // Replace start and end if they are switched
     if (end_x < start_x)
