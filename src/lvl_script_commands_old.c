@@ -734,54 +734,6 @@ static void command_set_computer_events(long plr_range_id, const char *evntname,
   SCRIPTDBG(6,"Altered %d events named '%s'",n,evntname);
 }
 
-static void command_set_computer_process(long plr_range_id, const char *procname, long val1, long val2, long val3, long val4, long val5)
-{
-  int plr_start;
-  int plr_end;
-  if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
-      SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
-      return;
-  }
-  if (get_script_current_condition() != CONDITION_ALWAYS)
-  {
-    SCRPTWRNLOG("Computer process altered inside conditional block; condition ignored");
-  }
-  long n = 0;
-  for (long i = plr_start; i < plr_end; i++)
-  {
-      struct Computer2* comp = get_computer_player(i);
-      if (computer_player_invalid(comp)) {
-          continue;
-      }
-      for (long k = 0; k < COMPUTER_PROCESSES_COUNT; k++)
-      {
-          struct ComputerProcess* cproc = &comp->processes[k];
-          if (flag_is_set(cproc->flags, ComProc_Unkn0002))
-              break;
-          if (cproc->name == NULL)
-              break;
-          if (strcasecmp(procname, cproc->name) == 0)
-          {
-              SCRIPTDBG(7,"Changing computer %d process '%s' config from (%d,%d,%d,%d,%d) to (%d,%d,%d,%d,%d)",(int)i,cproc->name,
-                  (int)cproc->priority,(int)cproc->confval_2,(int)cproc->confval_3,(int)cproc->confval_4,(int)cproc->confval_5,
-                  (int)val1,(int)val2,(int)val3,(int)val4,(int)val5);
-              cproc->priority = val1;
-              cproc->confval_2 = val2;
-              cproc->confval_3 = val3;
-              cproc->confval_4 = val4;
-              cproc->confval_5 = val5;
-              n++;
-          }
-      }
-  }
-  if (n == 0)
-  {
-    SCRPTERRLOG("No computer process found named '%s' in players %d to %d", procname,(int)plr_start,(int)plr_end-1);
-    return;
-  }
-  SCRIPTDBG(6,"Altered %d processes named '%s'",n,procname);
-}
-
 static void command_set_creature_health(const char *crtr_name, long val)
 {
     long crtr_id = get_rid(creature_desc, crtr_name);
@@ -1595,9 +1547,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_SET_COMPUTER_EVENT:
         command_set_computer_events(scline->np[0], scline->tp[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6]);
-        break;
-    case Cmd_SET_COMPUTER_PROCESS:
-        command_set_computer_process(scline->np[0], scline->tp[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6]);
         break;
     case Cmd_ALLY_PLAYERS:
         if (file_version > 0)

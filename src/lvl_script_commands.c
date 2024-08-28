@@ -6114,6 +6114,75 @@ static void add_object_to_level_at_pos_process(struct ScriptContext* context)
     script_process_new_object(context->value->shorts[0], context->value->shorts[1], context->value->shorts[2], context->value->arg2, context->value->chars[6]);
 }
 
+static void set_computer_process_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    long plr_range_id = scline->np[0];
+
+    int plr_start;
+    int plr_end;
+    if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
+        SCRPTERRLOG("Given owning player range %d is not supported in this command", (int)plr_range_id);
+        return;
+    }
+    value->bytes[0] = plr_start;
+    value->bytes[1] = plr_end;
+    value->shorts[1] = scline->np[1];
+    value->shorts[2] = scline->np[2];
+    value->shorts[3] = scline->np[3];
+    value->shorts[4] = scline->np[4];
+    value->shorts[5] = scline->np[5]; 
+    value->str0 = script_strdup(scline->tp[1]);
+}
+
+static void set_computer_process_process(struct ScriptContext* context)
+{
+    int plr_start = context->value->bytes[0];
+    int plr_end = context->value->bytes[1];
+    const char* procname = context->value->str0;
+    long val1 = context->value->shorts[1];
+    long val2 = context->value->shorts[2];
+    long val3 = context->value->shorts[3];
+    long val4 = context->value->shorts[4];
+    long val5 = context->value->shorts[5];
+    long n = 0;
+
+    for (long i = plr_start; i < plr_end; i++)
+    {
+
+        struct Computer2* comp = get_computer_player(i);
+        if (computer_player_invalid(comp)) {
+            continue;
+        }
+        for (long k = 0; k < COMPUTER_PROCESSES_COUNT; k++)
+        {
+            struct ComputerProcess* cproc = &comp->processes[k];
+            if (flag_is_set(cproc->flags, ComProc_Unkn0002))
+                break;
+            if (cproc->name == NULL)
+                break;
+            if (strcasecmp(procname, cproc->name) == 0)
+            {
+                SCRIPTDBG(7, "Changing computer %d process '%s' config from (%d,%d,%d,%d,%d) to (%d,%d,%d,%d,%d)", (int)i, cproc->name,
+                    (int)cproc->priority, (int)cproc->confval_2, (int)cproc->confval_3, (int)cproc->confval_4, (int)cproc->confval_5,
+                    (int)val1, (int)val2, (int)val3, (int)val4, (int)val5);
+                cproc->priority = val1;
+                cproc->confval_2 = val2;
+                cproc->confval_3 = val3;
+                cproc->confval_4 = val4;
+                cproc->confval_5 = val5;
+                n++;
+            }
+        }
+    }
+    if (n == 0)
+    {
+        SCRIPTDBG(6, "No computer process found named '%s' in players %d to %d", procname, (int)plr_start, (int)plr_end - 1);
+        return;
+    }
+    SCRIPTDBG(6, "Altered %d processes named '%s'", n, procname);
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -6170,7 +6239,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_COMPUTER_GLOBALS",              "PNNNNNNn", Cmd_SET_COMPUTER_GLOBALS, NULL, NULL},
   {"SET_COMPUTER_CHECKS",               "PANNNNN ", Cmd_SET_COMPUTER_CHECKS, NULL, NULL},
   {"SET_COMPUTER_EVENT",                "PANNNNN ", Cmd_SET_COMPUTER_EVENT, NULL, NULL},
-  {"SET_COMPUTER_PROCESS",              "PANNNNN ", Cmd_SET_COMPUTER_PROCESS, NULL, NULL},
+  {"SET_COMPUTER_PROCESS",              "PANNNNN ", Cmd_SET_COMPUTER_PROCESS, &set_computer_process_check, &set_computer_process_process},
   {"ALLY_PLAYERS",                      "PPN     ", Cmd_ALLY_PLAYERS, NULL, NULL},
   {"DEAD_CREATURES_RETURN_TO_POOL",     "N       ", Cmd_DEAD_CREATURES_RETURN_TO_POOL, NULL, NULL},
   {"BONUS_LEVEL_TIME",                  "Nn      ", Cmd_BONUS_LEVEL_TIME, NULL, NULL},
@@ -6319,7 +6388,7 @@ const struct CommandDesc dk1_command_desc[] = {
   {"SET_COMPUTER_GLOBALS",         "PNNNNNN ", Cmd_SET_COMPUTER_GLOBALS, NULL, NULL},
   {"SET_COMPUTER_CHECKS",          "PANNNNN ", Cmd_SET_COMPUTER_CHECKS, NULL, NULL},
   {"SET_COMPUTER_EVENT",           "PANN    ", Cmd_SET_COMPUTER_EVENT, NULL, NULL},
-  {"SET_COMPUTER_PROCESS",         "PANNNNN ", Cmd_SET_COMPUTER_PROCESS, NULL, NULL},
+  {"SET_COMPUTER_PROCESS",         "PANNNNN ", Cmd_SET_COMPUTER_PROCESS, &set_computer_process_check, &set_computer_process_process},
   {"ALLY_PLAYERS",                 "PP      ", Cmd_ALLY_PLAYERS, NULL, NULL},
   {"DEAD_CREATURES_RETURN_TO_POOL","N       ", Cmd_DEAD_CREATURES_RETURN_TO_POOL, NULL, NULL},
   {"BONUS_LEVEL_TIME",             "N       ", Cmd_BONUS_LEVEL_TIME, NULL, NULL},
