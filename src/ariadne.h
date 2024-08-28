@@ -63,7 +63,7 @@ enum AriadneUpdateStateValues {
 
 enum AriadneUpdateSubStateManoeuvreValues {
     AridUpSStM_Unset   = 0,
-    AridUpSStM_Unkn1,
+    AridUpSStM_InitWallhug,
     AridUpSStM_Unkn2,
 };
 

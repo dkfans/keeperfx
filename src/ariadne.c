@@ -2282,7 +2282,7 @@ AriadneReturn ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, st
         arid->manoeuvre_from_pos.y.val = arid->nextpos.y.val;
         arid->manoeuvre_from_pos.z.val = arid->nextpos.z.val;
         arid->update_state = AridUpSt_Manoeuvre;
-        arid->manoeuvre_state = AridUpSStM_Unkn1;
+        arid->manoeuvre_state = AridUpSStM_InitWallhug;
         return AridRet_OK;
     }
     return AridRet_OK;
@@ -2500,7 +2500,7 @@ long ariadne_init_movement_to_current_waypoint(struct Thing *thing, struct Ariad
     arid->nextpos.y.val = fixed_pos.y.val;
     arid->nextpos.z.val = fixed_pos.z.val;
     arid->update_state = AridUpSt_Manoeuvre;
-    arid->manoeuvre_state = AridUpSStM_Unkn1;
+    arid->manoeuvre_state = AridUpSStM_InitWallhug;
     return 1;
 }
 
@@ -2812,7 +2812,7 @@ AriadneReturn ariadne_update_state_manoeuvre_to_position(struct Thing *thing, st
     }
     switch (arid->manoeuvre_state)
     {
-    case AridUpSStM_Unkn1:
+    case AridUpSStM_InitWallhug:
         return ariadne_init_wallhug(thing, arid, &arid->manoeuvre_from_pos);
     case AridUpSStM_Unkn2:
         hug_angle = ariadne_get_wallhug_angle(thing, arid);
@@ -2887,7 +2887,7 @@ AriadneReturn ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *
                 struct Coord3d pos;
                 ariadne_push_position_against_wall(thing, &arid->nextpos, &pos);
                 arid->update_state = AridUpSt_Manoeuvre;
-                arid->manoeuvre_state = AridUpSStM_Unkn1;
+                arid->manoeuvre_state = AridUpSStM_InitWallhug;
                 arid->manoeuvre_to_pos.x.val = pos.x.val;
                 arid->manoeuvre_to_pos.y.val = pos.y.val;
                 arid->manoeuvre_to_pos.z.val = pos.z.val;
@@ -3071,7 +3071,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
                 struct Coord3d pos;
                 ariadne_push_position_against_wall(thing, &arid->nextpos, &pos);
                 arid->update_state = AridUpSt_Manoeuvre;
-                arid->manoeuvre_state = AridUpSStM_Unkn1;
+                arid->manoeuvre_state = AridUpSStM_InitWallhug;
                 arid->manoeuvre_to_pos.x.val = pos.x.val;
                 arid->manoeuvre_to_pos.y.val = pos.y.val;
                 arid->manoeuvre_to_pos.z.val = pos.z.val;
