@@ -2248,7 +2248,7 @@ AriadneReturn ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, st
     arid->nextpos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, arid->wallhug_angle);
     arid->nextpos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, arid->wallhug_angle);
     arid->nextpos.z.val = get_thing_height_at(thing, &arid->nextpos);
-    arid->pos_18 = thing->mappos;
+    arid->wallhug_pos = thing->mappos;
     //arid->field_24 = arid->wallhug_angle;
     if (ariadne_check_forward_for_wallhug_gap(thing, arid, &arid->nextpos, arid->wallhug_angle))
     {
@@ -3001,9 +3001,9 @@ TbBool ariadne_creature_on_circular_hug(const struct Thing *thing, const struct 
     long src_y;
     long dst_x;
     long dst_y;
-    dst_x = arid->pos_18.x.val;
+    dst_x = arid->wallhug_pos.x.val;
     src_x = thing->mappos.x.val;
-    dst_y = arid->pos_18.y.val;
+    dst_y = arid->wallhug_pos.y.val;
     src_y = thing->mappos.y.val;
     if (dst_x == src_x)
     {

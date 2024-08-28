@@ -93,7 +93,7 @@ struct Ariadne {
     /** Position of the last reached waypoint. */
     struct Coord3d current_waypoint_pos;
     struct Coord3d nextpos;
-    struct Coord3d pos_18;
+    struct Coord3d wallhug_pos;
     unsigned char route_flags;
     unsigned char hug_side;
     unsigned char update_state;
