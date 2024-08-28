@@ -2256,7 +2256,7 @@ AriadneReturn ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, st
         arid->manoeuvre_to_pos.y.val = arid->nextpos.y.val;
         arid->manoeuvre_to_pos.z.val = arid->nextpos.z.val;
         arid->update_state = AridUpSt_Manoeuvre;
-        arid->manoeuvre_state = AridUpSStM_Unkn2;
+        arid->manoeuvre_state = AridUpSStM_GetNewAngle;
         return AridRet_OK;
     }
     long cannot_move;
@@ -2814,7 +2814,7 @@ AriadneReturn ariadne_update_state_manoeuvre_to_position(struct Thing *thing, st
     {
     case AridUpSStM_InitWallhug:
         return ariadne_init_wallhug(thing, arid, &arid->manoeuvre_from_pos);
-    case AridUpSStM_Unkn2:
+    case AridUpSStM_GetNewAngle:
         hug_angle = ariadne_get_wallhug_angle(thing, arid);
         arid->wallhug_angle = hug_angle;
         arid->nextpos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, hug_angle);
@@ -3121,7 +3121,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
         if ((thing->move_angle_xy == hug_angle) && ariadne_check_forward_for_wallhug_gap(thing, arid, &arid->nextpos, hug_angle))
         {
             arid->update_state = AridUpSt_Manoeuvre;
-            arid->manoeuvre_state = AridUpSStM_Unkn2;
+            arid->manoeuvre_state = AridUpSStM_GetNewAngle;
             arid->manoeuvre_to_pos.x.val = arid->nextpos.x.val;
             arid->manoeuvre_to_pos.y.val = arid->nextpos.y.val;
             arid->manoeuvre_to_pos.z.val = arid->nextpos.z.val;
@@ -3152,7 +3152,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
                 struct Coord3d pos;
                 ariadne_push_position_against_wall(thing, &arid->nextpos, &pos);
                 arid->update_state = AridUpSt_Manoeuvre;
-                arid->manoeuvre_state = AridUpSStM_Unkn2;
+                arid->manoeuvre_state = AridUpSStM_GetNewAngle;
                 arid->manoeuvre_to_pos.x.val = pos.x.val;
                 arid->manoeuvre_to_pos.y.val = pos.y.val;
                 arid->manoeuvre_to_pos.z.val = pos.z.val;

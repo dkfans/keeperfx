@@ -64,7 +64,7 @@ enum AriadneUpdateStateValues {
 enum AriadneUpdateSubStateManoeuvreValues {
     AridUpSStM_Unset   = 0,
     AridUpSStM_InitWallhug,
-    AridUpSStM_Unkn2,
+    AridUpSStM_GetNewAngle,
 };
 
 enum NavigationStateValues {
