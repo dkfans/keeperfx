@@ -85,34 +85,34 @@ enum NavigationStateValues {
 #define NAVMAP_OWNERSELECT_BIT  6
 #define NAVMAP_OWNERSELECT_MASK 0x3FE0
 
-struct Ariadne { // sizeof = 102
+struct Ariadne {
     /** Position where the journey stated. */
     struct Coord3d startpos;
     /** Final position where we're heading. */
     struct Coord3d endpos;
     /** Position of the last reached waypoint. */
     struct Coord3d current_waypoint_pos;
-  struct Coord3d pos_12;
-  struct Coord3d pos_18;
-  unsigned char route_flags;
-  unsigned char hug_side;
-  unsigned char update_state;
-  TbBool touching_wall;
-  unsigned char may_need_reroute;
-  unsigned short move_speed;
+    struct Coord3d nextpos;
+    struct Coord3d pos_18;
+    unsigned char route_flags;
+    unsigned char hug_side;
+    unsigned char update_state;
+    TbBool touching_wall;
+    TbBool may_need_reroute;
+    unsigned short move_speed;
     /** Index of the current waypoint in list of nearest waypoints stored. */
     unsigned char current_waypoint;
     /** List of nearest waypoints in the way towards destination, stored in an array. */
     struct Coord2d waypoints[ARID_WAYPOINTS_COUNT];
-    /** Amount of nearest waypoints stored in the array. */
+    /** Number of nearest waypoints stored in the array. */
     unsigned char stored_waypoints; // offs = 0x51
-    /** Total amount of waypoints planned on the way towards endpos. */
+    /** Total number of waypoints planned on the way towards endpos. */
     unsigned int total_waypoints;
-  struct Coord3d pos_53;
-  struct Coord3d pos_59;
-  unsigned char manoeuvre_state;
-  short wallhug_angle;
-  long distance_to_waypoint;
+    struct Coord3d pos_53;
+    struct Coord3d pos_59;
+    unsigned char manoeuvre_state;
+    short wallhug_angle;
+    long distance_to_waypoint;
 };
 
 struct PathWayPoint { // sizeof = 8
