@@ -212,7 +212,7 @@ TbBool navigation_points_connected(struct Coord3d *pt1, struct Coord3d *pt2);
 void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x, long end_y, long subroute, unsigned char nav_size, const char *func_name);
 void nearest_search_f(long sizexy, long srcx, long srcy, long dstx, long dsty, long *px, long *py, const char *func_name);
 #define nearest_search(sizexy, srcx, srcy, dstx, dsty, px, py) nearest_search_f(sizexy, srcx, srcy, dstx, dsty, px, py, __func__)
-NavColour get_navigation_colour(long stl_x, long stl_y);
+NavColour get_navigation_colour(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool border_clip_horizontal(const NavColour *imap, long a1, long a2, long a3, long a4);
 TbBool border_clip_vertical(const NavColour *imap, long a1, long a2, long a3, long a4);
 #define edge_lock(fin_x, fin_y, bgn_x, bgn_y) edge_lock_f(fin_x, fin_y, bgn_x, bgn_y, __func__)
