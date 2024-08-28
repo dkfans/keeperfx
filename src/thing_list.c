@@ -1277,16 +1277,16 @@ void init_player_start(struct PlayerInfo *player, TbBool keep_prev)
     }
 }
 
-TbBool script_support_setup_player_as_zombie_keeper(unsigned short plyridx)
+TbBool script_support_setup_player_as_zombie_keeper(PlayerNumber plyr_idx)
 {
-    SYNCDBG(8,"Starting for player %d",(int)plyridx);
-    struct PlayerInfo* player = get_player(plyridx);
+    SYNCDBG(8,"Starting for player %d",(int)plyr_idx);
+    struct PlayerInfo* player = get_player(plyr_idx);
     if (player_invalid(player)) {
-        SCRPTWRNLOG("Tried to set up invalid player %d",(int)plyridx);
+        SCRPTWRNLOG("Tried to set up invalid player %d",(int)plyr_idx);
         return false;
     }
     player->allocflags &= ~PlaF_Allocated; // mark as non-existing
-    player->id_number = plyridx;
+    player->id_number = plyr_idx;
     player->is_active = 0;
     player->allocflags &= ~PlaF_CompCtrl;
     init_player_start(player, false);
