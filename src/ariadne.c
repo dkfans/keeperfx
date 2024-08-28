@@ -2252,9 +2252,9 @@ AriadneReturn ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, st
     //arid->field_24 = arid->wallhug_angle;
     if (ariadne_check_forward_for_wallhug_gap(thing, arid, &arid->nextpos, arid->wallhug_angle))
     {
-        arid->pos_53.x.val = arid->nextpos.x.val;
-        arid->pos_53.y.val = arid->nextpos.y.val;
-        arid->pos_53.z.val = arid->nextpos.z.val;
+        arid->manoeuvre_to_pos.x.val = arid->nextpos.x.val;
+        arid->manoeuvre_to_pos.y.val = arid->nextpos.y.val;
+        arid->manoeuvre_to_pos.z.val = arid->nextpos.z.val;
         arid->update_state = AridUpSt_Manoeuvre;
         arid->manoeuvre_state = AridUpSStM_Unkn2;
         return AridRet_OK;
@@ -2275,12 +2275,12 @@ AriadneReturn ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, st
     {
         struct Coord3d pos2;
         ariadne_push_position_against_wall(thing, &arid->nextpos, &pos2);
-        arid->pos_53.x.val = pos2.x.val;
-        arid->pos_53.y.val = pos2.y.val;
-        arid->pos_53.z.val = pos2.z.val;
-        arid->pos_59.x.val = arid->nextpos.x.val;
-        arid->pos_59.y.val = arid->nextpos.y.val;
-        arid->pos_59.z.val = arid->nextpos.z.val;
+        arid->manoeuvre_to_pos.x.val = pos2.x.val;
+        arid->manoeuvre_to_pos.y.val = pos2.y.val;
+        arid->manoeuvre_to_pos.z.val = pos2.z.val;
+        arid->manoeuvre_from_pos.x.val = arid->nextpos.x.val;
+        arid->manoeuvre_from_pos.y.val = arid->nextpos.y.val;
+        arid->manoeuvre_from_pos.z.val = arid->nextpos.z.val;
         arid->update_state = AridUpSt_Manoeuvre;
         arid->manoeuvre_state = AridUpSStM_Unkn1;
         return AridRet_OK;
@@ -2490,12 +2490,12 @@ long ariadne_init_movement_to_current_waypoint(struct Thing *thing, struct Ariad
         arid->touching_wall = 1;
         return 1;
     }
-    arid->pos_53.x.val = fixed_pos.x.val;
-    arid->pos_53.y.val = fixed_pos.y.val;
-    arid->pos_53.z.val = fixed_pos.z.val;
-    arid->pos_59.x.val = requested_pos.x.val;
-    arid->pos_59.y.val = requested_pos.y.val;
-    arid->pos_59.z.val = requested_pos.z.val;
+    arid->manoeuvre_to_pos.x.val = fixed_pos.x.val;
+    arid->manoeuvre_to_pos.y.val = fixed_pos.y.val;
+    arid->manoeuvre_to_pos.z.val = fixed_pos.z.val;
+    arid->manoeuvre_from_pos.x.val = requested_pos.x.val;
+    arid->manoeuvre_from_pos.y.val = requested_pos.y.val;
+    arid->manoeuvre_from_pos.z.val = requested_pos.z.val;
     arid->nextpos.x.val = fixed_pos.x.val;
     arid->nextpos.y.val = fixed_pos.y.val;
     arid->nextpos.z.val = fixed_pos.z.val;
@@ -2786,7 +2786,7 @@ AriadneReturn ariadne_update_state_manoeuvre_to_position(struct Thing *thing, st
     MapCoord dist;
     long hug_angle;
 
-    if (ariadne_creature_blocked_by_wall_at(thing, &arid->pos_53))
+    if (ariadne_creature_blocked_by_wall_at(thing, &arid->manoeuvre_to_pos))
     {
         pos.x.val = arid->endpos.x.val;
         pos.y.val = arid->endpos.y.val;
@@ -2802,18 +2802,18 @@ AriadneReturn ariadne_update_state_manoeuvre_to_position(struct Thing *thing, st
     dist = get_2d_distance(&thing->mappos, &arid->current_waypoint_pos);
     if (arid->distance_to_waypoint > dist)
         arid->distance_to_waypoint = dist;
-    if ((thing->mappos.x.val != arid->pos_53.x.val)
-     || (thing->mappos.y.val != arid->pos_53.y.val))
+    if ((thing->mappos.x.val != arid->manoeuvre_to_pos.x.val)
+     || (thing->mappos.y.val != arid->manoeuvre_to_pos.y.val))
     {
-        arid->nextpos.x.val = arid->pos_53.x.val;
-        arid->nextpos.y.val = arid->pos_53.y.val;
-        arid->nextpos.z.val = arid->pos_53.z.val;
+        arid->nextpos.x.val = arid->manoeuvre_to_pos.x.val;
+        arid->nextpos.y.val = arid->manoeuvre_to_pos.y.val;
+        arid->nextpos.z.val = arid->manoeuvre_to_pos.z.val;
         return AridRet_OK;
     }
     switch (arid->manoeuvre_state)
     {
     case AridUpSStM_Unkn1:
-        return ariadne_init_wallhug(thing, arid, &arid->pos_59);
+        return ariadne_init_wallhug(thing, arid, &arid->manoeuvre_from_pos);
     case AridUpSStM_Unkn2:
         hug_angle = ariadne_get_wallhug_angle(thing, arid);
         arid->wallhug_angle = hug_angle;
@@ -2888,12 +2888,12 @@ AriadneReturn ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *
                 ariadne_push_position_against_wall(thing, &arid->nextpos, &pos);
                 arid->update_state = AridUpSt_Manoeuvre;
                 arid->manoeuvre_state = AridUpSStM_Unkn1;
-                arid->pos_53.x.val = pos.x.val;
-                arid->pos_53.y.val = pos.y.val;
-                arid->pos_53.z.val = pos.z.val;
-                arid->pos_59.x.val = arid->nextpos.x.val;
-                arid->pos_59.y.val = arid->nextpos.y.val;
-                arid->pos_59.z.val = arid->nextpos.z.val;
+                arid->manoeuvre_to_pos.x.val = pos.x.val;
+                arid->manoeuvre_to_pos.y.val = pos.y.val;
+                arid->manoeuvre_to_pos.z.val = pos.z.val;
+                arid->manoeuvre_from_pos.x.val = arid->nextpos.x.val;
+                arid->manoeuvre_from_pos.y.val = arid->nextpos.y.val;
+                arid->manoeuvre_from_pos.z.val = arid->nextpos.z.val;
                 arid->nextpos.x.val = pos.x.val;
                 arid->nextpos.y.val = pos.y.val;
                 arid->nextpos.z.val = pos.z.val;
@@ -3072,12 +3072,12 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
                 ariadne_push_position_against_wall(thing, &arid->nextpos, &pos);
                 arid->update_state = AridUpSt_Manoeuvre;
                 arid->manoeuvre_state = AridUpSStM_Unkn1;
-                arid->pos_53.x.val = pos.x.val;
-                arid->pos_53.y.val = pos.y.val;
-                arid->pos_53.z.val = pos.z.val;
-                arid->pos_59.x.val = arid->nextpos.x.val;
-                arid->pos_59.y.val = arid->nextpos.y.val;
-                arid->pos_59.z.val = arid->nextpos.z.val;
+                arid->manoeuvre_to_pos.x.val = pos.x.val;
+                arid->manoeuvre_to_pos.y.val = pos.y.val;
+                arid->manoeuvre_to_pos.z.val = pos.z.val;
+                arid->manoeuvre_from_pos.x.val = arid->nextpos.x.val;
+                arid->manoeuvre_from_pos.y.val = arid->nextpos.y.val;
+                arid->manoeuvre_from_pos.z.val = arid->nextpos.z.val;
                 arid->nextpos.x.val = pos.x.val;
                 arid->nextpos.y.val = pos.y.val;
                 arid->nextpos.z.val = pos.z.val;
@@ -3122,9 +3122,9 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
         {
             arid->update_state = AridUpSt_Manoeuvre;
             arid->manoeuvre_state = AridUpSStM_Unkn2;
-            arid->pos_53.x.val = arid->nextpos.x.val;
-            arid->pos_53.y.val = arid->nextpos.y.val;
-            arid->pos_53.z.val = arid->nextpos.z.val;
+            arid->manoeuvre_to_pos.x.val = arid->nextpos.x.val;
+            arid->manoeuvre_to_pos.y.val = arid->nextpos.y.val;
+            arid->manoeuvre_to_pos.z.val = arid->nextpos.z.val;
             SYNCLOG("C4");
             return AridRet_OK;
         }
@@ -3153,12 +3153,12 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
                 ariadne_push_position_against_wall(thing, &arid->nextpos, &pos);
                 arid->update_state = AridUpSt_Manoeuvre;
                 arid->manoeuvre_state = AridUpSStM_Unkn2;
-                arid->pos_53.x.val = pos.x.val;
-                arid->pos_53.y.val = pos.y.val;
-                arid->pos_53.z.val = pos.z.val;
-                arid->pos_59.x.val = arid->nextpos.x.val;
-                arid->pos_59.y.val = arid->nextpos.y.val;
-                arid->pos_59.z.val = arid->nextpos.z.val;
+                arid->manoeuvre_to_pos.x.val = pos.x.val;
+                arid->manoeuvre_to_pos.y.val = pos.y.val;
+                arid->manoeuvre_to_pos.z.val = pos.z.val;
+                arid->manoeuvre_from_pos.x.val = arid->nextpos.x.val;
+                arid->manoeuvre_from_pos.y.val = arid->nextpos.y.val;
+                arid->manoeuvre_from_pos.z.val = arid->nextpos.z.val;
                 arid->nextpos.x.val = pos.x.val;
                 arid->nextpos.y.val = pos.y.val;
                 arid->nextpos.z.val = pos.z.val;

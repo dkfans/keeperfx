@@ -108,8 +108,8 @@ struct Ariadne {
     unsigned char stored_waypoints; // offs = 0x51
     /** Total number of waypoints planned on the way towards endpos. */
     unsigned int total_waypoints;
-    struct Coord3d pos_53;
-    struct Coord3d pos_59;
+    struct Coord3d manoeuvre_to_pos;
+    struct Coord3d manoeuvre_from_pos;
     unsigned char manoeuvre_state;
     short wallhug_angle;
     long distance_to_waypoint;
