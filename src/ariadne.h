@@ -236,6 +236,8 @@ long thing_nav_sizexy(const struct Thing *thing);
 void clear_wallhugging_path(struct Navigation *navi);
 void initialise_wallhugging_path_from_to(struct Navigation *navi, struct Coord3d *mvstart, struct Coord3d *mvend);
 
+long ariadne_creature_blocked_by_wall_at(struct Thing *thing, const struct Coord3d *pos);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
