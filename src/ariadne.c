@@ -168,8 +168,8 @@ static const unsigned long actual_sizexy_to_nav_sizexy_table[] = {
 };
 
 const struct HugStart blocked_x_hug_start[][2] = {
-    {{          0, 1}, {LbFPMath_PI, 2}},
-    {{          0, 2}, {LbFPMath_PI, 1}},
+    {{          ANGLE_NORTH, 1}, {ANGLE_SOUTH, 2}},
+    {{          ANGLE_NORTH, 2}, {ANGLE_SOUTH, 1}},
 };
 
 const struct HugStart blocked_y_hug_start[][2] = {
@@ -2175,9 +2175,13 @@ long ariadne_get_starting_angle_and_side_of_wallhug(struct Thing *thing, struct 
         if ((wp_y >= cur_pos_y_beg) && (wp_y <= cur_pos_y_end))
         {
             if (nxdelta_x_neg)
+            {
                 ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(thing, arid, LbFPMath_PI/2, rangle, rflag);
+            }
             else
+            {
                 ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(thing, arid, 3*LbFPMath_PI/2, rangle, rflag);
+            }
         } else
         {
             *rangle = blocked_x_hug_start[crdelta_x_neg][nxdelta_y_neg].wh_angle;
