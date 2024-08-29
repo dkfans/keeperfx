@@ -2241,19 +2241,7 @@ AriadneReturn ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, st
         arid->manoeuvre_state = AridUpSStM_GetNewAngle;
         return AridRet_OK;
     }
-    long cannot_move;
-    {
-        MapCoord tng_z_mem;
-        tng_z_mem = thing->mappos.z.val;
-        struct Coord3d mvpos;
-        mvpos.x.val = arid->nextpos.x.val;
-        mvpos.y.val = arid->nextpos.y.val;
-        mvpos.z.val = get_floor_height_under_thing_at(thing, &thing->mappos);
-        thing->mappos.z.val = mvpos.z.val;
-        cannot_move = creature_cannot_move_directly_to(thing, &mvpos);
-        thing->mappos.z.val = tng_z_mem;
-    }
-    if ( cannot_move )
+    if (ariadne_creature_blocked_by_wall_at(thing, &arid->nextpos))
     {
         struct Coord3d pos2;
         ariadne_push_position_against_wall(thing, &arid->nextpos, &pos2);
