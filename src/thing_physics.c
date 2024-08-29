@@ -320,44 +320,42 @@ void creature_set_speed(struct Thing *thing, long speed)
 
 TbBool cross_x_boundary_first(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
+    int mul_x;
+    int mul_y;
     int delta_x = pos2->x.val - (int)pos1->x.val;
     int delta_y = pos2->y.val - (int)pos1->y.val;
-
-    if (delta_x == 0) return false;  // No movement in x direction
-
-    int mul_x, mul_y;
     if (delta_x < 0)
+    {
         mul_x = pos1->x.stl.pos;
-    else
-        mul_x = 255 - (int)pos1->x.stl.pos;
-
-    if (delta_y < 0)
-        mul_y = pos1->y.stl.pos;
-    else
-        mul_y = 255 - (int)pos1->y.stl.pos;
-
-    return abs(delta_x * mul_y) > abs(mul_x * delta_y);
+  } else {
+      mul_x = 255 - (int)pos1->x.stl.pos;
+  }
+  if ( delta_y < 0 ) {
+      mul_y = pos1->y.stl.pos;
+  } else {
+      mul_y = 255 - (int)pos1->y.stl.pos;
+  }
+  return abs(delta_x * mul_y) > abs(mul_x * delta_y);
 }
 
 TbBool cross_y_boundary_first(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
+    int mul_x;
+    int mul_y;
     int delta_x = pos2->x.val - (int)pos1->x.val;
     int delta_y = pos2->y.val - (int)pos1->y.val;
-
-    if (delta_y == 0) return false;  // No movement in y direction
-
-    int mul_x, mul_y;
     if (delta_x < 0)
+    {
         mul_x = pos1->x.stl.pos;
-    else
-        mul_x = 255 - (int)pos1->x.stl.pos;
-
-    if (delta_y < 0)
-        mul_y = pos1->y.stl.pos;
-    else
-        mul_y = 255 - (int)pos1->y.stl.pos;
-
-    return abs(delta_y * mul_x) > abs(mul_y * delta_x);
+  } else {
+      mul_x = 255 - (int)pos1->x.stl.pos;
+  }
+  if ( delta_y < 0 ) {
+      mul_y = pos1->y.stl.pos;
+  } else {
+      mul_y = 255 - (int)pos1->y.stl.pos;
+  }
+  return abs(delta_y * mul_x) > abs(mul_y * delta_x);
 }
 
 TbBool position_over_floor_level(const struct Thing *thing, const struct Coord3d *pos)
