@@ -6128,11 +6128,11 @@ static void set_computer_process_check(const struct ScriptLine* scline)
 
     value->bytes[0] = plr_start;
     value->bytes[1] = plr_end;
-    value->shorts[1] = scline->np[1];
-    value->shorts[2] = scline->np[2];
-    value->shorts[3] = scline->np[3];
-    value->shorts[4] = scline->np[4];
-    value->shorts[5] = scline->np[5]; 
+    value->shorts[1] = scline->np[2];
+    value->shorts[2] = scline->np[3];
+    value->shorts[3] = scline->np[4];
+    value->shorts[4] = scline->np[5];
+    value->shorts[5] = scline->np[6];
     value->str2 = script_strdup(scline->tp[1]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
