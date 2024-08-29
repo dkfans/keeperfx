@@ -6133,7 +6133,7 @@ static void set_computer_process_check(const struct ScriptLine* scline)
     value->shorts[3] = scline->np[4];
     value->shorts[4] = scline->np[5];
     value->shorts[5] = scline->np[6];
-    value->str2 = script_strdup(scline->tp[1]);
+    value->str3 = script_strdup(scline->tp[1]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -6141,7 +6141,7 @@ static void set_computer_process_process(struct ScriptContext* context)
 {
     int plr_start = context->value->bytes[0];
     int plr_end = context->value->bytes[1];
-    const char* procname = context->value->str2;
+    const char* procname = context->value->str3;
     long val1 = context->value->shorts[1];
     long val2 = context->value->shorts[2];
     long val3 = context->value->shorts[3];
