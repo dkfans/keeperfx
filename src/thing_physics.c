@@ -514,11 +514,8 @@ TbBool creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos
         thing->mappos = origpos;
         return false;
     }
-    if ((pos->x.stl.num != realpos.x.stl.num) || (pos->y.stl.num != realpos.y.stl.num))
-    {
     if (position_over_floor_level(thing, pos)) {
         return true;
-    }
     }
     return false;
 }
