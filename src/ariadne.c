@@ -168,8 +168,8 @@ static const unsigned long actual_sizexy_to_nav_sizexy_table[] = {
 };
 
 const struct HugStart blocked_x_hug_start[][2] = {
-    {{          ANGLE_NORTH, 1}, {ANGLE_SOUTH, 2}},
-    {{          ANGLE_NORTH, 2}, {ANGLE_SOUTH, 1}},
+    {{ANGLE_NORTH, 1}, {ANGLE_SOUTH, 2}},
+    {{ANGLE_NORTH, 2}, {ANGLE_SOUTH, 1}},
 };
 
 const struct HugStart blocked_y_hug_start[][2] = {
