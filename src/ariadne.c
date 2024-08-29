@@ -2824,7 +2824,7 @@ AriadneReturn ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *
     }
     if (ariadne_creature_blocked_by_wall_at(thing, &arid->nextpos))
     {
-        SYNCLOG("Ariadne position for %s index %d blocked: %d, %d", thing_model_name(thing),thing->index,arid->nextpos.x.stl.num, arid->nextpos.y.stl.num);
+        SYNCLOG("Ariadne position for %s index %d position %d,%d blocked: %d,%d", thing_model_name(thing),thing->index, thing->mappos.x.stl.num, thing->mappos.y.stl.num, arid->nextpos.x.stl.num, arid->nextpos.y.stl.num);
         if ( arid->may_need_reroute )
         {
             struct Coord3d pos;
@@ -2981,8 +2981,8 @@ TbBool ariadne_creature_on_circular_hug(const struct Thing *thing, const struct 
 
 AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *arid)
 {
-    SYNCLOG("Route for %s index %d from %3d,%3d to %3d,%3d", thing_model_name(thing),(int)thing->index,
-        (int)thing->mappos.x.val, (int)thing->mappos.y.val, (int)arid->current_waypoint_pos.x.val, (int)arid->current_waypoint_pos.y.val);
+    SYNCLOG("Route for %s index %d from %d,%d to %d,%d", thing_model_name(thing),(int)thing->index,
+        (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num, (int)arid->current_waypoint_pos.x.stl.num, (int)arid->current_waypoint_pos.y.stl.num);
     MapCoordDelta distance = get_2d_distance(&thing->mappos, &arid->current_waypoint_pos);
     if ((distance - arid->distance_to_waypoint) > 4*COORD_PER_STL)
     {
