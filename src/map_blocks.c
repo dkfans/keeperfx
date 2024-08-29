@@ -1018,12 +1018,21 @@ void place_slab_object(SlabCodedCoords slb_num, MapSubtlCoord stl_x,MapSubtlCoor
                         }
                         if ( !needs_object )
                             continue;
-                      }
-                      struct Thing *objtng;
-                      objtng = create_object(&pos, tngmodel, plyr_idx, slb_num);
-                      if (thing_is_invalid(objtng)) {
-                          ERRORLOG("Cannot create object type %d", tngmodel);
-                          continue;
+                    }
+                    struct Thing *objtng;
+                    objtng = create_object(&pos, tngmodel, plyr_idx, slb_num);
+                    if (thing_is_invalid(objtng)) 
+                    {
+                        ERRORLOG("Cannot create object type %d", tngmodel);
+                        continue;
+                    }
+                    if (thing_is_dungeon_heart(objtng))
+                    {
+                        struct Dungeon* dungeon = get_dungeon(objtng->owner);
+                        if (dungeon->backup_heart_idx == 0)
+                        {
+                            dungeon->backup_heart_idx = objtng->index;
+                        }
                     }
                 } else
                 if (sobj->class_id == TCls_EffectGen)
