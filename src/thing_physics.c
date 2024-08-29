@@ -321,10 +321,11 @@ void creature_set_speed(struct Thing *thing, long speed)
 TbBool cross_x_boundary_first(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
     int delta_x = pos2->x.val - (int)pos1->x.val;
-    if (delta_x == 0) return false;  // No movement in x direction
     int delta_y = pos2->y.val - (int)pos1->y.val;
+
+    if (delta_x == 0) return false;  // No movement in x direction
+
     int mul_x, mul_y;
-    
     if (delta_x < 0)
         mul_x = pos1->x.stl.pos;
     else
@@ -340,11 +341,12 @@ TbBool cross_x_boundary_first(const struct Coord3d *pos1, const struct Coord3d *
 
 TbBool cross_y_boundary_first(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
-    int delta_y = pos2->y.val - (int)pos1->y.val;
-    if (delta_y == 0) return false;  // No movement in y direction
     int delta_x = pos2->x.val - (int)pos1->x.val;
+    int delta_y = pos2->y.val - (int)pos1->y.val;
+
+    if (delta_y == 0) return false;  // No movement in y direction
+
     int mul_x, mul_y;
-    
     if (delta_x < 0)
         mul_x = pos1->x.stl.pos;
     else
