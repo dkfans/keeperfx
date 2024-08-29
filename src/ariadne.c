@@ -173,15 +173,15 @@ const struct HugStart blocked_x_hug_start[][2] = {
 };
 
 const struct HugStart blocked_y_hug_start[][2] = {
-    {{3*LbFPMath_PI/2, 2}, {ANGLE_EAST, 1}},
-    {{3*LbFPMath_PI/2, 1}, {ANGLE_EAST, 2}},
+    {{ANGLE_WEST, 2}, {ANGLE_EAST, 1}},
+    {{ANGLE_WEST, 1}, {ANGLE_EAST, 2}},
 };
 
 const struct HugStart blocked_xy_hug_start[][2][2] = {
-   {{{3*LbFPMath_PI/2, 2}, {          ANGLE_NORTH, 1}},
-    {{  ANGLE_EAST, 1}, {          ANGLE_NORTH, 2}}},
-   {{{3*LbFPMath_PI/2, 1}, {ANGLE_SOUTH, 2}},
-    {{  ANGLE_EAST, 2}, {ANGLE_SOUTH, 1}}},
+   {{{ANGLE_WEST, 2}, {ANGLE_NORTH, 1}},
+    {{ANGLE_EAST, 1}, {ANGLE_NORTH, 2}}},
+   {{{ANGLE_WEST, 1}, {ANGLE_SOUTH, 2}},
+    {{ANGLE_EAST, 2}, {ANGLE_SOUTH, 1}}},
 };
 
 static struct Path fwd_path;
