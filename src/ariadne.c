@@ -3122,7 +3122,7 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
 {
     AriadneReturn result;
     AriadneReturn aret;
-    SYNCLOG("Route for %s index %d from %3d,%3d to %3d,%3d", thing_model_name(thing),(int)thing->index,
+    SYNCLOG("Route for %s index %d from %d,%d to %d,%d", thing_model_name(thing),(int)thing->index,
         (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num, (int)finalpos->x.stl.num, (int)finalpos->y.stl.num);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     struct Ariadne *arid = &cctrl->arid;
