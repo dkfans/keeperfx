@@ -6125,6 +6125,7 @@ static void set_computer_process_check(const struct ScriptLine* scline)
         SCRPTERRLOG("Given owning player range %d is not supported in this command", (int)plr_range_id);
         return;
     }
+
     value->bytes[0] = plr_start;
     value->bytes[1] = plr_end;
     value->shorts[1] = scline->np[1];
@@ -6132,24 +6133,23 @@ static void set_computer_process_check(const struct ScriptLine* scline)
     value->shorts[3] = scline->np[3];
     value->shorts[4] = scline->np[4];
     value->shorts[5] = scline->np[5]; 
-    value->str0 = script_strdup(scline->tp[1]);
+    value->str2 = script_strdup(scline->tp[1]);
+    PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_computer_process_process(struct ScriptContext* context)
 {
     int plr_start = context->value->bytes[0];
     int plr_end = context->value->bytes[1];
-    const char* procname = context->value->str0;
+    const char* procname = context->value->str2;
     long val1 = context->value->shorts[1];
     long val2 = context->value->shorts[2];
     long val3 = context->value->shorts[3];
     long val4 = context->value->shorts[4];
     long val5 = context->value->shorts[5];
     long n = 0;
-
     for (long i = plr_start; i < plr_end; i++)
     {
-
         struct Computer2* comp = get_computer_player(i);
         if (computer_player_invalid(comp)) {
             continue;
@@ -6163,7 +6163,7 @@ static void set_computer_process_process(struct ScriptContext* context)
                 break;
             if (strcasecmp(procname, cproc->name) == 0)
             {
-                SCRIPTDBG(7, "Changing computer %d process '%s' config from (%d,%d,%d,%d,%d) to (%d,%d,%d,%d,%d)", (int)i, cproc->name,
+                SCRPTLOG("Changing computer %d process '%s' config from (%d,%d,%d,%d,%d) to (%d,%d,%d,%d,%d)", (int)i, cproc->name,
                     (int)cproc->priority, (int)cproc->confval_2, (int)cproc->confval_3, (int)cproc->confval_4, (int)cproc->confval_5,
                     (int)val1, (int)val2, (int)val3, (int)val4, (int)val5);
                 cproc->priority = val1;
