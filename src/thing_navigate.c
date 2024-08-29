@@ -458,7 +458,7 @@ long creature_turn_to_face_angle(struct Thing *thing, long angle)
     return get_angle_difference(thing->move_angle_xy, angle);
 }
 
-long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, MoveSpeed speed, long a4, NaviRouteFlags flags, TbBool backward)
+long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, MoveSpeed speed, NaviRouteFlags flags, TbBool backward)
 {
     long i;
     SYNCDBG(18,"Starting to move %s index %d from (%d,%d) to (%d,%d) with speed %d",thing_model_name(thing),
@@ -549,7 +549,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
 long creature_move_to(struct Thing *creatng, struct Coord3d *pos, MoveSpeed speed, NaviRouteFlags flags, TbBool backward)
 {
     //JUSTMSG("Starting to move %s index %d into (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)pos->x.stl.num,(int)pos->y.stl.num);
-    return creature_move_to_using_gates(creatng, pos, speed, -2, flags, backward);
+    return creature_move_to_using_gates(creatng, pos, speed, flags, backward);
 }
 
 TbBool creature_move_to_using_teleport(struct Thing *thing, struct Coord3d *pos, long walk_speed)
