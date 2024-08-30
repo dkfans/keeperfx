@@ -374,7 +374,6 @@ static void command_win_game(void)
     if (get_script_current_condition() == CONDITION_ALWAYS)
     {
         SCRPTERRLOG("Command WIN GAME found with no condition");
-        return;
     }
     if (gameadd.script.win_conditions_num >= WIN_CONDITIONS_COUNT)
     {
@@ -390,7 +389,6 @@ static void command_lose_game(void)
   if (get_script_current_condition() == CONDITION_ALWAYS)
   {
     SCRPTERRLOG("Command LOSE GAME found with no condition");
-    return;
   }
   if (gameadd.script.lose_conditions_num >= WIN_CONDITIONS_COUNT)
   {
