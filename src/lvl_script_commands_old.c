@@ -592,38 +592,6 @@ static void command_set_hate(long trgt_plr_range_id, long enmy_plr_range_id, lon
     command_add_value(Cmd_SET_HATE, trgt_plr_range_id, enmy_plr_id, hate_val, 0);
 }
 
-static void command_set_computer_globals(long plr_range_id, long val1, long val2, long val3, long val4, long val5, long val6, long val7)
-{
-  int plr_start;
-  int plr_end;
-  if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
-      SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
-      return;
-  }
-  if (get_script_current_condition() != CONDITION_ALWAYS)
-  {
-    SCRPTWRNLOG("Computer globals altered inside conditional block; condition ignored");
-  }
-  for (long i = plr_start; i < plr_end; i++)
-  {
-      struct Computer2* comp = get_computer_player(i);
-      if (computer_player_invalid(comp))
-      {
-          continue;
-    }
-    comp->dig_stack_size       = val1;
-    comp->processes_time       = val2;
-    comp->click_rate           = val3;
-    comp->max_room_build_tasks = val4;
-    comp->turn_begin           = val5;
-    comp->sim_before_dig       = val6;
-    if (val7 != '\0')
-    {
-        comp->task_delay = val7;
-    }
-  }
-}
-
 static void command_set_computer_checks(long plr_range_id, const char *chkname, long val1, long val2, long val3, long val4, long val5)
 {
   int plr_start;
@@ -1538,9 +1506,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_IF_SLAB_TYPE:
         command_if_slab_type(scline->np[0], scline->np[1], scline->np[2]);
-        break;
-    case Cmd_SET_COMPUTER_GLOBALS:
-        command_set_computer_globals(scline->np[0], scline->np[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6], scline->np[7]);
         break;
     case Cmd_SET_COMPUTER_CHECKS:
         command_set_computer_checks(scline->np[0], scline->tp[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6]);
