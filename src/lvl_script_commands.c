@@ -6114,6 +6114,66 @@ static void add_object_to_level_at_pos_process(struct ScriptContext* context)
     script_process_new_object(context->value->shorts[0], context->value->shorts[1], context->value->shorts[2], context->value->arg2, context->value->chars[6]);
 }
 
+static void set_computer_globals_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    long plr_range_id = scline->np[0];
+
+    int plr_start;
+    int plr_end;
+    if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
+        SCRPTERRLOG("Given owning player range %d is not supported in this command", (int)plr_range_id);
+        return;
+    }
+
+    value->bytes[0] = plr_start;
+    value->bytes[1] = plr_end;
+    value->shorts[1] = scline->np[1];
+    value->shorts[2] = scline->np[2];
+    value->shorts[3] = scline->np[3];
+    value->shorts[4] = scline->np[4];
+    value->shorts[5] = scline->np[5];
+    value->shorts[6] = scline->np[6];
+    value->shorts[6] = -1;
+    if (scline->np[7] != '\0')
+    {
+        value->shorts[7] = scline->np[7];
+    }
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_computer_globals_process(struct ScriptContext* context)
+{
+    int plr_start = context->value->bytes[0];
+    int plr_end = context->value->bytes[1];
+    short val1 = context->value->shorts[1];
+    short val2 = context->value->shorts[2];
+    short val3 = context->value->shorts[3];
+    short val4 = context->value->shorts[4];
+    short val5 = context->value->shorts[5];
+    short val6 = context->value->shorts[4];
+    short val7 = context->value->shorts[5];
+
+    for (long i = plr_start; i < plr_end; i++)
+    {
+        struct Computer2* comp = get_computer_player(i);
+        if (computer_player_invalid(comp))
+        {
+            continue;
+        }
+        comp->dig_stack_size = val1;
+        comp->processes_time = val2;
+        comp->click_rate = val3;
+        comp->max_room_build_tasks = val4;
+        comp->turn_begin = val5;
+        comp->sim_before_dig = val6;
+        if (val7 != -1)
+        {
+            comp->task_delay = val7;
+        }
+    }
+}
+
 static void set_computer_process_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
@@ -6236,7 +6296,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_CREATURE_PROPERTY",             "CAN     ", Cmd_SET_CREATURE_PROPERTY, NULL, NULL},
   {"IF_AVAILABLE",                      "PAOAa   ", Cmd_IF_AVAILABLE, &if_available_check, NULL},
   {"IF_CONTROLS",                       "PAOAa   ", Cmd_IF_CONTROLS,  &if_controls_check, NULL},
-  {"SET_COMPUTER_GLOBALS",              "PNNNNNNn", Cmd_SET_COMPUTER_GLOBALS, NULL, NULL},
+  {"SET_COMPUTER_GLOBALS",              "PNNNNNNn", Cmd_SET_COMPUTER_GLOBALS, &set_computer_globals_check, &set_computer_globals_process},
   {"SET_COMPUTER_CHECKS",               "PANNNNN ", Cmd_SET_COMPUTER_CHECKS, NULL, NULL},
   {"SET_COMPUTER_EVENT",                "PANNNNN ", Cmd_SET_COMPUTER_EVENT, NULL, NULL},
   {"SET_COMPUTER_PROCESS",              "PANNNNN ", Cmd_SET_COMPUTER_PROCESS, &set_computer_process_check, &set_computer_process_process},
@@ -6385,7 +6445,7 @@ const struct CommandDesc dk1_command_desc[] = {
   {"SET_CREATURE_ARMOUR",          "CN      ", Cmd_SET_CREATURE_ARMOUR, NULL, NULL},
   {"SET_CREATURE_FEAR",            "CN      ", Cmd_SET_CREATURE_FEAR_WOUNDED, NULL, NULL},
   {"IF_AVAILABLE",                 "PAOAa   ", Cmd_IF_AVAILABLE, &if_available_check, NULL},
-  {"SET_COMPUTER_GLOBALS",         "PNNNNNN ", Cmd_SET_COMPUTER_GLOBALS, NULL, NULL},
+  {"SET_COMPUTER_GLOBALS",         "PNNNNNN ", Cmd_SET_COMPUTER_GLOBALS, &set_computer_globals_check, &set_computer_globals_process},
   {"SET_COMPUTER_CHECKS",          "PANNNNN ", Cmd_SET_COMPUTER_CHECKS, NULL, NULL},
   {"SET_COMPUTER_EVENT",           "PANN    ", Cmd_SET_COMPUTER_EVENT, NULL, NULL},
   {"SET_COMPUTER_PROCESS",         "PANNNNN ", Cmd_SET_COMPUTER_PROCESS, &set_computer_process_check, &set_computer_process_process},
