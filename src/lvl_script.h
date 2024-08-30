@@ -133,6 +133,11 @@ struct ScriptValue {
           long arg2;
           char* str2;
       };
+      union
+      {
+          long arg3;
+          char* str3;
+      };
     };
     struct
     {
