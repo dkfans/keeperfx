@@ -6139,6 +6139,7 @@ static void set_computer_globals_check(const struct ScriptLine* scline)
     {
         value->shorts[7] = scline->np[7];
     }
+    PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_computer_globals_process(struct ScriptContext* context)
