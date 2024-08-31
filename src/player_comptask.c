@@ -3560,7 +3560,7 @@ TbBool create_task_move_creatures_to_room(struct Computer2 *comp, int room_idx, 
     return true;
 }
 
-TbBool create_task_pickup_for_attack(struct Computer2 *comp, struct Coord3d *pos, long par3, long repeat_num)
+TbBool create_task_pickup_for_attack(struct Computer2 *comp, struct Coord3d *pos, long repeat_num)
 {
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting");
@@ -3578,7 +3578,6 @@ TbBool create_task_pickup_for_attack(struct Computer2 *comp, struct Coord3d *pos
     ctask->pickup_for_attack.repeat_num = repeat_num;
     ctask->created_turn = game.play_gameturn;
     ctask->pickup_for_attack.target_state = CrSt_Unused;
-    ctask->pickup_for_attack.long_86 = par3; // Originally only a word was set here
     return true;
 }
 
@@ -3607,7 +3606,7 @@ TbBool create_task_magic_battle_call_to_arms(struct Computer2 *comp, struct Coor
     return true;
 }
 
-TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long cta_duration, long par3, long repeat_num)
+TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long cta_duration, long repeat_num)
 {
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting");

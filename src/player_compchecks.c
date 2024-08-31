@@ -755,7 +755,7 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
     }
     if (creatures_to_fight_amount > max_attack_amount)
         creatures_to_fight_amount = max_attack_amount;
-    if (!create_task_magic_support_call_to_arms(comp, &pos, cta_duration, 0, creatures_to_fight_amount)) {
+    if (!create_task_magic_support_call_to_arms(comp, &pos, cta_duration, creatures_to_fight_amount)) {
         return CTaskRet_Unk4;
     }
     SYNCLOG("Player %d decided to attack %s owned by player %d",(int)dungeon->owner,room_code_name(room->kind),(int)room->owner);
