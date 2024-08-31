@@ -705,6 +705,47 @@ void light_set_light_intensity(long idx, unsigned char intensity)
   }
 }
 
+void light_set_light_radius(long idx, unsigned short radius)
+{
+    struct Light* lgt = &game.lish.lights[idx];
+    long x1, x2, y1, y2;
+    if (!light_is_invalid(lgt))
+    {
+        if ((lgt->flags & LgtF_Allocated) != 0)
+        {
+            if (lgt->radius != radius)
+            {
+                if ((lgt->flags & LgtF_Dynamic) == 0)
+                {
+                    y2 = lgt->mappos.y.stl.num + lgt->range;
+                    if (y2 > gameadd.map_subtiles_y)
+                        y2 = gameadd.map_subtiles_y;
+                    x2 = lgt->mappos.x.stl.num + lgt->range;
+                    if (x2 > gameadd.map_subtiles_x)
+                        x2 = gameadd.map_subtiles_x;
+                    y1 = lgt->mappos.y.stl.num - lgt->range;
+                    if (y1 < 0)
+                        y1 = 0;
+                    x1 = lgt->mappos.x.stl.num - lgt->range;
+                    if (x1 < 0)
+                        x1 = 0;
+                    light_signal_stat_light_update_in_area(x1, y1, x2, y2);
+                    stat_light_needs_updating = 1;
+                }
+                lgt->radius = radius;
+            }
+        }
+        else
+        {
+            ERRORLOG("Attempt to set radius of unallocated light structure");
+        }
+    }
+    else
+    {
+        ERRORLOG("Attempt to set radius of invalid light");
+    }
+}
+
 void clear_stat_light_map(void)
 {
     game.lish.global_ambient_light = 32;

@@ -100,6 +100,8 @@ struct GameRulesConfig {
     short torture_scavenging_cost;
     unsigned long easter_egg_speech_chance;
     unsigned long easter_egg_speech_interval;
+    short hand_light_radius;
+    unsigned char hand_light_intensity;
     long global_ambient_light;
     TbBool light_enabled;
 };

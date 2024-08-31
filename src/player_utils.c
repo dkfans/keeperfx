@@ -723,8 +723,8 @@ void init_player_as_single_keeper(struct PlayerInfo *player)
     struct InitLight ilght;
     memset(&ilght, 0, sizeof(struct InitLight));
     player->field_4CD = 0;
-    ilght.radius = 2560;
-    ilght.intensity = 48;
+    ilght.radius = game.conf.rules.game.hand_light_radius;
+    ilght.intensity = game.conf.rules.game.hand_light_intensity;
     ilght.flags = 5;
     ilght.is_dynamic = 1;
     unsigned short idx = light_create_light(&ilght);

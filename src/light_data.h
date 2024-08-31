@@ -117,6 +117,7 @@ void light_turn_light_off(long num);
 void light_turn_light_on(long num);
 unsigned char light_get_light_intensity(long idx);
 void light_set_light_intensity(long idx, unsigned char intensity);
+void light_set_light_radius(long idx, unsigned short radius);
 long light_create_light(struct InitLight *ilght);
 TbBool light_create_light_adv(VALUE *init_data);
 void light_set_light_never_cache(long lgt_id);
