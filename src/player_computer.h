@@ -400,56 +400,44 @@ struct ComputerTask {
     struct {
         struct Coord3d target_pos;
         long repeat_num;
-        short word_86;
     } magic_cta;
     struct {
         long splevel;
         short target_thing_idx;
-        short word_78;
         long repeat_num;
         long gaction;
-        short field_84;
         long pwkind;
     } attack_magic;
     struct {
-        short room_idx1;
-        short word_72;
-        short word_76;
-        short word_78;
-        short field_7Ac;
+        RoomIndex room_idx1;
         long repeat_num;
-        short room_idx2;
-        short word_82;
+        RoomIndex room_idx2;
         struct Coord3d pos_86;
     } move_to_room;
     struct {
         long evflags;
         struct Coord3d target_pos;
         long repeat_num;
-        short word_80;
+        CrtrStateId target_state;
         struct Coord3d pos_86;
     } move_to_defend;
     struct {
         short target_thing_idx;
-        short word_78;
-        short field_7Ac;
         long repeat_num;
-        short target_state;
+        CrtrStateId target_state;
         struct Coord3d pos_86;
     } move_to_pos;
     struct {
         struct Coord3d target_pos;
         long repeat_num;
-        short word_80;
+        CrtrStateId target_state;
         long long_86;
     } pickup_for_attack;
     struct {
         struct Coord3d startpos;
         struct Coord3d endpos;
-        long field_7C;
         /** Target room index. */
         short target_room_idx;
-        short word_84;
         short target_plyr_idx;
     } dig_to_room;
     struct {
@@ -470,7 +458,6 @@ struct ComputerTask {
         short width;
         short height;
         RoomKind kind;
-        short word_84;
         long area;
     } create_room;
     };
@@ -480,7 +467,7 @@ struct ComputerTask {
 };
 
 struct OpponentRelation { // sizeof = 394
-    unsigned long field_0;
+    GameTurn field_0;
     short next_idx;
     long hate_amount;
     struct Coord3d pos_A[COMPUTER_SPARK_POSITIONS_COUNT];

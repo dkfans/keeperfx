@@ -2654,7 +2654,7 @@ long task_pickup_for_attack(struct Computer2 *comp, struct ComputerTask *ctask)
     thing = thing_get(comp->held_thing_idx);
     if (!thing_is_invalid(thing))
     {
-        if (computer_dump_held_things_on_map(comp, thing, &ctask->pickup_for_attack.target_pos, ctask->pickup_for_attack.word_80)) {
+        if (computer_dump_held_things_on_map(comp, thing, &ctask->pickup_for_attack.target_pos, ctask->pickup_for_attack.target_state)) {
             return CTaskRet_Unk2;
         }
         computer_force_dump_held_things_on_map(comp, &comp->dungeon->essential_pos);
@@ -2886,7 +2886,7 @@ long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *
             {
                 return CTaskRet_Unk4;
             }
-            if (computer_dump_held_things_on_map(comp, thing, &ctask->move_to_defend.target_pos, ctask->move_to_defend.word_80)) {
+            if (computer_dump_held_things_on_map(comp, thing, &ctask->move_to_defend.target_pos, ctask->move_to_defend.target_state)) {
                 return CTaskRet_Unk2;
             }
             ERRORLOG("Could not dump player %d %s into (%d,%d)",(int)dungeon->owner,
@@ -3577,7 +3577,7 @@ TbBool create_task_pickup_for_attack(struct Computer2 *comp, struct Coord3d *pos
     ctask->pickup_for_attack.target_pos.z.val = pos->z.val;
     ctask->pickup_for_attack.repeat_num = repeat_num;
     ctask->created_turn = game.play_gameturn;
-    ctask->pickup_for_attack.word_80 = 0;
+    ctask->pickup_for_attack.target_state = CrSt_Unused;
     ctask->pickup_for_attack.long_86 = par3; // Originally only a word was set here
     return true;
 }
@@ -3629,7 +3629,6 @@ TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coo
     ctask->magic_cta.target_pos.z.val = pos->z.val;
     ctask->magic_cta.repeat_num = repeat_num;
     ctask->cta_duration = cta_duration;
-    ctask->magic_cta.word_86 = par3;
     return true;
 }
 
