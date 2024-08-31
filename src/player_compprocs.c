@@ -1316,10 +1316,9 @@ long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *
     comp->task_state = CTaskSt_Select;
     struct ComputerTask* ctask = get_computer_task(cproc->param_5);
     struct Coord3d* pos = &ctask->dig.pos_begin;
-    long Bobbydo = ctask->pickup_for_attack.Bobbydo;
     if (xy_walkable(pos->x.stl.num, pos->y.stl.num, dungeon->owner))
     {
-        if (!create_task_pickup_for_attack(comp, pos, Bobbydo, creatrs_num)) 
+        if (!create_task_pickup_for_attack(comp, pos, creatrs_num)) 
         {
             return CProcRet_Wait;
         }
@@ -1330,7 +1329,7 @@ long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *
     {
         if (computer_able_to_use_power(comp, PwrK_CALL2ARMS, 5, 2) && check_call_to_arms(comp))
         {
-            if (!create_task_magic_support_call_to_arms(comp, pos, 2500, Bobbydo, creatrs_num))
+            if (!create_task_magic_support_call_to_arms(comp, pos, 2500, creatrs_num))
             {
                 return CProcRet_Wait;
             }

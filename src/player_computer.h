@@ -431,7 +431,6 @@ struct ComputerTask {
         struct Coord3d target_pos;
         long repeat_num;
         CrtrStateId target_state;
-        long Bobbydo;
     } pickup_for_attack;
     struct {
         struct Coord3d startpos;
