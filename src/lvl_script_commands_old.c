@@ -590,56 +590,6 @@ static void command_set_hate(long trgt_plr_range_id, long enmy_plr_range_id, lon
     command_add_value(Cmd_SET_HATE, trgt_plr_range_id, enmy_plr_id, hate_val, 0);
 }
 
-static void command_set_computer_checks(long plr_range_id, const char *chkname, long val1, long val2, long val3, long val4, long val5)
-{
-  int plr_start;
-  int plr_end;
-  if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
-      SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
-      return;
-  }
-  if (!player_exists(get_player(plr_range_id)))
-  {
-      SCRPTERRLOG("Player %d does not exist; cannot modify check", (int)plr_range_id);
-      return;
-  }
-  if (get_script_current_condition() != CONDITION_ALWAYS)
-  {
-    SCRPTWRNLOG("Computer check altered inside conditional block; condition ignored");
-  }
-  long n = 0;
-  for (long i = plr_start; i < plr_end; i++)
-  {
-      struct Computer2* comp = get_computer_player(i);
-      if (computer_player_invalid(comp)) {
-          continue;
-      }
-      for (long k = 0; k < COMPUTER_CHECKS_COUNT; k++)
-      {
-          struct ComputerCheck* ccheck = &comp->checks[k];
-          if ((ccheck->flags & ComChk_Unkn0002) != 0)
-            break;
-          if (ccheck->name == NULL)
-            break;
-          if (strcasecmp(chkname, ccheck->name) == 0)
-          {
-            ccheck->turns_interval = val1;
-            ccheck->param1 = val2;
-            ccheck->param2 = val3;
-            ccheck->param3 = val4;
-            ccheck->last_run_turn = val5;
-            n++;
-          }
-      }
-  }
-  if (n == 0)
-  {
-    SCRPTERRLOG("No computer check found named '%s' in players %d to %d",chkname,(int)plr_start,(int)plr_end-1);
-    return;
-  }
-  SCRIPTDBG(6,"Altered %d checks named '%s'",n,chkname);
-}
-
 static void command_set_computer_events(long plr_range_id, const char *evntname, long val1, long val2, long val3, long val4, long val5)
 {
   int plr_start;
@@ -653,7 +603,7 @@ static void command_set_computer_events(long plr_range_id, const char *evntname,
       SCRPTERRLOG("Player %d does not exist; cannot modify events", (int)plr_range_id);
       return;
   }
-  if (get_script_current_condition() != CONDITION_ALWAYS)
+  if (get_script_current_condition() != CONDITION_ALWAYS) 
   {
     SCRPTWRNLOG("Computer event altered inside conditional block; condition ignored");
   }
@@ -937,7 +887,7 @@ static void command_swap_creature(const char *ncrt_name, const char *crtr_name)
   {
       SCRPTERRLOG("Unable to swap special diggers");
   }
-  if (get_script_current_condition() != CONDITION_ALWAYS)
+  if (get_script_current_condition() != CONDITION_ALWAYS) 
   {
       SCRPTWRNLOG("Creature swapping placed inside conditional statement");
   }
@@ -1504,9 +1454,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_IF_SLAB_TYPE:
         command_if_slab_type(scline->np[0], scline->np[1], scline->np[2]);
-        break;
-    case Cmd_SET_COMPUTER_CHECKS:
-        command_set_computer_checks(scline->np[0], scline->tp[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6]);
         break;
     case Cmd_SET_COMPUTER_EVENT:
         command_set_computer_events(scline->np[0], scline->tp[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6]);

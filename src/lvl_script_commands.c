@@ -6243,6 +6243,77 @@ static void set_computer_process_process(struct ScriptContext* context)
     SCRIPTDBG(6, "Altered %d processes named '%s'", n, procname);
 }
 
+
+static void set_computer_checks_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+
+    long plr_range_id = scline->np[0];
+    int plr_start;
+    int plr_end;
+    if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
+        SCRPTERRLOG("Given owning player range %d is not supported in this command", (int)plr_range_id);
+        return;
+    }
+
+    value->shorts[0] = plr_start;
+    value->shorts[1] = plr_end;
+    value->longs[1] = scline->np[2];
+    value->longs[2] = scline->np[3];
+    value->longs[3] = scline->np[4];
+    value->longs[4] = scline->np[5];
+    value->longs[5] = scline->np[6];
+    value->strs[6] = script_strdup(scline->tp[1]);
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_computer_checks_process(struct ScriptContext* context)
+{
+    int plr_start = context->value->shorts[0];
+    int plr_end = context->value->shorts[1];
+    const char* chkname = context->value->strs[6];
+    long val1 = context->value->longs[1];
+    long val2 = context->value->longs[2];
+    long val3 = context->value->longs[3];
+    long val4 = context->value->longs[4];
+    long val5 = context->value->longs[5];
+
+    long n = 0;
+    for (long i = plr_start; i < plr_end; i++)
+    {
+        struct Computer2* comp = get_computer_player(i);
+        if (computer_player_invalid(comp)) {
+            continue;
+        }
+        for (long k = 0; k < COMPUTER_CHECKS_COUNT; k++)
+        {
+            struct ComputerCheck* ccheck = &comp->checks[k];
+            if ((ccheck->flags & ComChk_Unkn0002) != 0)
+                break;
+            if (ccheck->name == NULL)
+                break;
+            if (strcasecmp(chkname, ccheck->name) == 0)
+            {
+                SCRPTLOG("Changing computer %d check '%s' config from (%d,%d,%d,%d,%d) to (%d,%d,%d,%d,%d)", (int)i, ccheck->name,
+                    (int)ccheck->turns_interval, (int)ccheck->param1, (int)ccheck->param2, (int)ccheck->param3, (int)ccheck->last_run_turn,
+                    (int)val1, (int)val2, (int)val3, (int)val4, (int)val5);
+                ccheck->turns_interval = val1;
+                ccheck->param1 = val2;
+                ccheck->param2 = val3;
+                ccheck->param3 = val4;
+                ccheck->last_run_turn = val5;
+                n++;
+            }
+        }
+    }
+    if (n == 0)
+    {
+        SCRPTERRLOG("No computer check found named '%s' in players %d to %d", chkname, (int)plr_start, (int)plr_end - 1);
+        return;
+    }
+    SCRIPTDBG(6, "Altered %d checks named '%s'", n, chkname);
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -6297,7 +6368,7 @@ const struct CommandDesc command_desc[] = {
   {"IF_AVAILABLE",                      "PAOAa   ", Cmd_IF_AVAILABLE, &if_available_check, NULL},
   {"IF_CONTROLS",                       "PAOAa   ", Cmd_IF_CONTROLS,  &if_controls_check, NULL},
   {"SET_COMPUTER_GLOBALS",              "PNNNNNNn", Cmd_SET_COMPUTER_GLOBALS, &set_computer_globals_check, &set_computer_globals_process},
-  {"SET_COMPUTER_CHECKS",               "PANNNNN ", Cmd_SET_COMPUTER_CHECKS, NULL, NULL},
+  {"SET_COMPUTER_CHECKS",               "PANNNNN ", Cmd_SET_COMPUTER_CHECKS, &set_computer_checks_check, &set_computer_checks_process},
   {"SET_COMPUTER_EVENT",                "PANNNNN ", Cmd_SET_COMPUTER_EVENT, NULL, NULL},
   {"SET_COMPUTER_PROCESS",              "PANNNNN ", Cmd_SET_COMPUTER_PROCESS, &set_computer_process_check, &set_computer_process_process},
   {"ALLY_PLAYERS",                      "PPN     ", Cmd_ALLY_PLAYERS, NULL, NULL},
@@ -6446,7 +6517,7 @@ const struct CommandDesc dk1_command_desc[] = {
   {"SET_CREATURE_FEAR",            "CN      ", Cmd_SET_CREATURE_FEAR_WOUNDED, NULL, NULL},
   {"IF_AVAILABLE",                 "PAOAa   ", Cmd_IF_AVAILABLE, &if_available_check, NULL},
   {"SET_COMPUTER_GLOBALS",         "PNNNNNN ", Cmd_SET_COMPUTER_GLOBALS, &set_computer_globals_check, &set_computer_globals_process},
-  {"SET_COMPUTER_CHECKS",          "PANNNNN ", Cmd_SET_COMPUTER_CHECKS, NULL, NULL},
+  {"SET_COMPUTER_CHECKS",          "PANNNNN ", Cmd_SET_COMPUTER_CHECKS, &set_computer_checks_check, &set_computer_checks_process},
   {"SET_COMPUTER_EVENT",           "PANN    ", Cmd_SET_COMPUTER_EVENT, NULL, NULL},
   {"SET_COMPUTER_PROCESS",         "PANNNNN ", Cmd_SET_COMPUTER_PROCESS, &set_computer_process_check, &set_computer_process_process},
   {"ALLY_PLAYERS",                 "PP      ", Cmd_ALLY_PLAYERS, NULL, NULL},
