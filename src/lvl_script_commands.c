@@ -842,10 +842,10 @@ static void display_objective_process(struct ScriptContext *context)
 {
     if ( (my_player_number >= context->plr_start) && (my_player_number < context->plr_end) )
     {
-        set_general_objective(context->value->arg0,
-        context->value->arg1,
-        stl_num_decode_x(context->value->arg2),
-        stl_num_decode_y(context->value->arg2));
+        set_general_objective(context->value->longs[0],
+        context->value->longs[1],
+        stl_num_decode_x(context->value->longs[2]),
+        stl_num_decode_y(context->value->longs[2]));
     }
 }
 
@@ -992,7 +992,7 @@ static void script_transfer_creature_process(struct ScriptContext* context)
 {
     for (int i = context->plr_start; i < context->plr_end; i++)
     {
-        script_transfer_creature(i, context->value->arg0, context->value->arg1, context->value->arg2);
+        script_transfer_creature(i, context->value->longs[0], context->value->longs[1], context->value->longs[2]);
     }
 }
 
@@ -1017,7 +1017,7 @@ static void change_creatures_annoyance_process(struct ScriptContext* context)
 {
     for (int i = context->plr_start; i < context->plr_end; i++)
     {
-        script_change_creatures_annoyance(i, context->value->arg0, context->value->arg1, context->value->arg2);
+        script_change_creatures_annoyance(i, context->value->longs[0], context->value->longs[1], context->value->longs[2]);
     }
 }
 
@@ -1046,7 +1046,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
 
     value->shorts[0] = trap_id;
     value->shorts[1] = trapvar;
-    value->uarg1 = scline->np[2];
+    value->ulongs[1] = scline->np[2];
     value->shorts[4] = scline->np[3];
     value->shorts[5] = scline->np[4];
     if (trapvar == 3) // SymbolSprites
@@ -1056,10 +1056,10 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
         strcpy(tmp, scline->tp[2]);
         strcat(tmp, "|");
         strcat(tmp,scline->tp[3]);
-        value->str2 = script_strdup(tmp); // first\0second
-        value->str2[strlen(scline->tp[2])] = 0;
+        value->strs[2] = script_strdup(tmp); // first\0second
+        value->strs[2][strlen(scline->tp[2])] = 0;
         free(tmp);
-        if (value->str2 == NULL)
+        if (value->strs[2] == NULL)
         {
             SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
@@ -1075,7 +1075,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
-        value->uarg1 = newvalue;
+        value->ulongs[1] = newvalue;
     }
     else if (trapvar == 46) //FlameAnimationOffset
     {
@@ -1106,7 +1106,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->uarg1 = newvalue;
+            value->ulongs[1] = newvalue;
         }
         else
         {
@@ -1117,8 +1117,8 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
     }
     else
     {
-        value->str2 = script_strdup(scline->tp[2]);
-        if (value->str2 == NULL)
+        value->strs[2] = script_strdup(scline->tp[2]);
+        if (value->strs[2] == NULL)
         {
             SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
@@ -1166,10 +1166,10 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
         strcpy(tmp, scline->tp[2]);
         strcat(tmp, "|");
         strcat(tmp,scline->tp[3]);
-        value->str2 = script_strdup(tmp); // first\0second
-        value->str2[strlen(scline->tp[2])] = 0;
+        value->strs[2] = script_strdup(tmp); // first\0second
+        value->strs[2][strlen(scline->tp[2])] = 0;
         free(tmp);
-        if (value->str2 == NULL)
+        if (value->strs[2] == NULL)
         {
             SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
@@ -1254,7 +1254,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->uarg1 = newvalue;
+            value->ulongs[1] = newvalue;
         }
         else 
         {
@@ -1265,7 +1265,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
                     DEALLOCATE_SCRIPT_VALUE
                         return;
                 }
-            value->uarg1 = newvalue;
+            value->ulongs[1] = newvalue;
         }
         if (parameter_is_number(valuestring2))
         {
@@ -1276,7 +1276,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
                 DEALLOCATE_SCRIPT_VALUE
                     return;
             }
-            value->uarg2 = newvalue2;
+            value->ulongs[2] = newvalue2;
         }
         else
         {
@@ -1287,7 +1287,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
                 DEALLOCATE_SCRIPT_VALUE
                     return;
             }
-            value->uarg2 = newvalue2;
+            value->ulongs[2] = newvalue2;
         }
     }
     else if (roomvar == 14) // TotalCapacity
@@ -1343,8 +1343,8 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
     }
     else // PointerSprites
     {
-        value->str2 = script_strdup(scline->tp[2]);
-        if (value->str2 == NULL)
+        value->strs[2] = script_strdup(scline->tp[2]);
+        if (value->strs[2] == NULL)
         {
             SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
@@ -1467,8 +1467,8 @@ static void move_creature_check(const struct ScriptLine* scline)
     {
         effct_id = -1;
     }
-    value->uarg0 = location;
-    value->arg1 = select_id;
+    value->ulongs[0] = location;
+    value->longs[1] = select_id;
     value->shorts[4] = effct_id;
     value->bytes[10] = count;
     value->bytes[11] = crmodel;
@@ -1707,7 +1707,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
     struct TrapStats* trapstat = &game.conf.trap_stats[trap_type];
     struct ManufactureData *manufctr = get_manufacture_data(trap_type);
     struct ObjectConfigStats obj_tmp;
-    long value = context->value->uarg1;
+    long value = context->value->ulongs[1];
     short value2 = context->value->shorts[4];
     short value3 = context->value->shorts[5];
     int old_value, old_value2;
@@ -1729,8 +1729,8 @@ static void set_trap_configuration_process(struct ScriptContext *context)
         {
             old_value = trapst->medsym_sprite_idx;
             old_value2 = trapst->bigsym_sprite_idx;
-            trapst->bigsym_sprite_idx = get_icon_id(context->value->str2); // First
-            trapst->medsym_sprite_idx = get_icon_id(context->value->str2 + strlen(context->value->str2) + 1); // Second
+            trapst->bigsym_sprite_idx = get_icon_id(context->value->strs[2]); // First
+            trapst->medsym_sprite_idx = get_icon_id(context->value->strs[2] + strlen(context->value->strs[2]) + 1); // Second
             if (trapst->bigsym_sprite_idx < 0)
                 trapst->bigsym_sprite_idx = bad_icon_id;
             if (trapst->medsym_sprite_idx < 0)
@@ -1745,7 +1745,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 4: // PointerSprites
             old_value = trapst->pointer_sprite_idx;
-            trapst->pointer_sprite_idx = get_icon_id(context->value->str2);
+            trapst->pointer_sprite_idx = get_icon_id(context->value->strs[2]);
             if (trapst->pointer_sprite_idx < 0)
                 trapst->pointer_sprite_idx = bad_icon_id;
             if (trapst->pointer_sprite_idx != old_value)
@@ -1783,7 +1783,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             mconf->selling_value = value;
             break;
         case 12: // AnimationID
-            trapstat->sprite_anim_idx = get_anim_id_(context->value->str2);
+            trapstat->sprite_anim_idx = get_anim_id_(context->value->strs[2]);
             refresh_trap_anim(trap_type);
             break;
         case 13: // ModelSize
@@ -1873,11 +1873,11 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             trapst->trigger_sound_idx = value;
             break;
         case 39: // RechargeAnimationID
-            trapstat->recharge_sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
+            trapstat->recharge_sprite_anim_idx = get_anim_id(context->value->strs[2], &obj_tmp);
             refresh_trap_anim(trap_type);
             break;
         case 40: // AttackAnimationID
-            trapstat->attack_sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
+            trapstat->attack_sprite_anim_idx = get_anim_id(context->value->strs[2], &obj_tmp);
             break;
         case 41: // DestroyedEffect
             trapst->destroyed_effect = value;
@@ -1886,7 +1886,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             trapstat->initial_delay = value;
             break;
         case 43: // FlameAnimationID
-            trapst->flame.animation_id = get_anim_id(context->value->str2, &obj_tmp);
+            trapst->flame.animation_id = get_anim_id(context->value->strs[2], &obj_tmp);
             refresh_trap_anim(trap_type);
             break;
         case 44: // FlameAnimationSpeed
@@ -1941,8 +1941,8 @@ static void set_room_configuration_process(struct ScriptContext *context)
         {
             old_value = roomst->medsym_sprite_idx;
             old_value2 = roomst->bigsym_sprite_idx;
-            roomst->bigsym_sprite_idx = get_icon_id(context->value->str2); // First
-            roomst->medsym_sprite_idx = get_icon_id(context->value->str2 + strlen(context->value->str2) + 1); // Second
+            roomst->bigsym_sprite_idx = get_icon_id(context->value->strs[2]); // First
+            roomst->medsym_sprite_idx = get_icon_id(context->value->strs[2] + strlen(context->value->strs[2]) + 1); // Second
             if (roomst->bigsym_sprite_idx < 0)
                 roomst->bigsym_sprite_idx = bad_icon_id;
             if (roomst->medsym_sprite_idx < 0)
@@ -1955,7 +1955,7 @@ static void set_room_configuration_process(struct ScriptContext *context)
             break;
         case 4: // PointerSprites
             old_value = roomst->pointer_sprite_idx;
-            roomst->pointer_sprite_idx = get_icon_id(context->value->str2);
+            roomst->pointer_sprite_idx = get_icon_id(context->value->strs[2]);
             if (roomst->pointer_sprite_idx < 0)
                 roomst->pointer_sprite_idx = bad_icon_id;
             if (roomst->pointer_sprite_idx != old_value)
@@ -1997,9 +1997,9 @@ static void set_room_configuration_process(struct ScriptContext *context)
             roomst->flags |= value3;
             break;
         case 13: // Roles
-            roomst->roles = context->value->uarg1;
-            if (context->value->uarg2 > 0)
-                roomst->roles |= context->value->uarg2;
+            roomst->roles = context->value->ulongs[1];
+            if (context->value->ulongs[2] > 0)
+                roomst->roles |= context->value->ulongs[2];
             break;
         case 14: // TotalCapacity
             roomst->update_total_capacity_idx = value;
@@ -2063,8 +2063,8 @@ static void set_hand_rule_process(struct ScriptContext* context)
 
 static void move_creature_process(struct ScriptContext* context)
 {
-    TbMapLocation location = context->value->uarg0;
-    long select_id = context->value->arg1;
+    TbMapLocation location = context->value->ulongs[0];
+    long select_id = context->value->longs[1];
     long effect_id = context->value->shorts[4];
     long count = context->value->bytes[10];
     long crmodel = context->value->bytes[11];
@@ -2178,7 +2178,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
                     return;
             }
         }
-        value->uarg1 = slab_id;
+        value->ulongs[1] = slab_id;
         value->shorts[4] = slab2_id;
     }
 
@@ -2189,10 +2189,10 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
         strcpy(tmp, scline->tp[2]);
         strcat(tmp, "|");
         strcat(tmp,scline->tp[3]);
-        value->str2 = script_strdup(tmp); // first\0second
-        value->str2[strlen(scline->tp[2])] = 0;
+        value->strs[2] = script_strdup(tmp); // first\0second
+        value->strs[2][strlen(scline->tp[2])] = 0;
         free(tmp);
-        if (value->str2 == NULL)
+        if (value->strs[2] == NULL)
         {
             SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
@@ -2210,7 +2210,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->uarg1 = newvalue;
+            value->ulongs[1] = newvalue;
         }
         else if (doorvar == 9) // Crate
         {
@@ -2221,7 +2221,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->uarg1 = newvalue;
+            value->ulongs[1] = newvalue;
         }
         else
         {
@@ -2232,15 +2232,15 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
     }
     else
     {
-        value->str2 = script_strdup(scline->tp[2]);
-        if (value->str2 == NULL)
+        value->strs[2] = script_strdup(scline->tp[2]);
+        if (value->strs[2] == NULL)
         {
             SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
     }
-    SCRIPTDBG(7, "Setting door %s property %s to %lu", doorname, scline->tp[1], value->uarg1);
+    SCRIPTDBG(7, "Setting door %s property %s to %lu", doorname, scline->tp[1], value->ulongs[1]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -2250,7 +2250,7 @@ static void set_door_configuration_process(struct ScriptContext *context)
     struct DoorConfigStats *doorst = get_door_model_stats(door_type);
     struct ManfctrConfig *mconf = &game.conf.doors_config[door_type];
     struct ManufactureData *manufctr = get_manufacture_data(game.conf.trapdoor_conf.trap_types_count - 1 + door_type);
-    short value = context->value->arg1;
+    short value = context->value->longs[1];
     short value2 = context->value->shorts[4];
     switch (context->value->shorts[1])
     {
@@ -2293,8 +2293,8 @@ static void set_door_configuration_process(struct ScriptContext *context)
             break;
         case 10: //SymbolSprites
             {
-                doorst->bigsym_sprite_idx = get_icon_id(context->value->str2); // First
-                doorst->medsym_sprite_idx = get_icon_id(context->value->str2 + strlen(context->value->str2) + 1); // Second
+                doorst->bigsym_sprite_idx = get_icon_id(context->value->strs[2]); // First
+                doorst->medsym_sprite_idx = get_icon_id(context->value->strs[2] + strlen(context->value->strs[2]) + 1); // Second
                 if (doorst->bigsym_sprite_idx < 0)
                     doorst->bigsym_sprite_idx = bad_icon_id;
                 if (doorst->medsym_sprite_idx < 0)
@@ -2305,7 +2305,7 @@ static void set_door_configuration_process(struct ScriptContext *context)
             }
             break;
         case 11: // PointerSprites
-            doorst->pointer_sprite_idx = get_icon_id(context->value->str2);
+            doorst->pointer_sprite_idx = get_icon_id(context->value->strs[2]);
             if (doorst->pointer_sprite_idx < 0)
                 doorst->pointer_sprite_idx = bad_icon_id;
             update_trap_tab_to_config();
@@ -2351,7 +2351,7 @@ static void create_effect_at_pos_process(struct ScriptContext* context)
     }
     else
     {
-        pos.z.val += context->value->arg2;
+        pos.z.val += context->value->longs[2];
     }
     struct Thing* efftng = create_used_effect_or_element(&pos, context->value->shorts[0], game.neutral_player_num);
     if (!thing_is_invalid(efftng))
@@ -2362,7 +2362,7 @@ static void create_effect_at_pos_process(struct ScriptContext* context)
         }
         if (Price)
         {
-            efftng->price_effect.number = context->value->arg2;
+            efftng->price_effect.number = context->value->longs[2];
         }
     }
 }
@@ -2370,9 +2370,9 @@ static void create_effect_at_pos_process(struct ScriptContext* context)
 static void create_effect_process(struct ScriptContext *context)
 {
     struct Coord3d pos;
-    if (!get_coords_at_location(&pos, context->value->uarg1,true))
+    if (!get_coords_at_location(&pos, context->value->ulongs[1],true))
     {
-        SCRPTWRNLOG("Could not find location %d to create effect", context->value->uarg1);
+        SCRPTWRNLOG("Could not find location %d to create effect", context->value->ulongs[1]);
     }
     TbBool Price = (context->value->shorts[0] == -(TngEffElm_Price));
     if (Price)
@@ -2381,7 +2381,7 @@ static void create_effect_process(struct ScriptContext *context)
     }
     else
     {
-        pos.z.val += context->value->arg2;
+        pos.z.val += context->value->longs[2];
     }
     struct Thing* efftng = create_used_effect_or_element(&pos, context->value->shorts[0], game.neutral_player_num);
     if (!thing_is_invalid(efftng))
@@ -2392,7 +2392,7 @@ static void create_effect_process(struct ScriptContext *context)
         }
         if (Price)
         {
-            efftng->price_effect.number = context->value->arg2;
+            efftng->price_effect.number = context->value->longs[2];
         }
     }
 }
@@ -2400,54 +2400,54 @@ static void create_effect_process(struct ScriptContext *context)
 static void set_heart_health_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    value->arg0 = scline->np[0];
-    struct Thing* heartng = get_player_soul_container(value->arg0);
+    value->longs[0] = scline->np[0];
+    struct Thing* heartng = get_player_soul_container(value->longs[0]);
     struct ObjectConfigStats* objst = get_object_model_stats(heartng->model);
     if (scline->np[1] > objst->health)
     {
         SCRPTWRNLOG("Value %ld is greater than maximum: %ld", scline->np[1], objst->health);
-        value->arg1 = objst->health;
+        value->longs[1] = objst->health;
     }
     else
     {
-        value->arg1 = scline->np[1];
+        value->longs[1] = scline->np[1];
     }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_heart_health_process(struct ScriptContext *context)
 {
-    struct Thing* heartng = get_player_soul_container(context->value->arg0);
+    struct Thing* heartng = get_player_soul_container(context->value->longs[0]);
     if (!thing_is_invalid(heartng))
     {
-        heartng->health = (short)context->value->arg1;
+        heartng->health = (short)context->value->longs[1];
     }
 }
 
 static void add_heart_health_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    value->arg0 = scline->np[0];
-    value->arg1 = scline->np[1];
-    value->arg2 = scline->np[2];
+    value->longs[0] = scline->np[0];
+    value->longs[1] = scline->np[1];
+    value->longs[2] = scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void add_heart_health_process(struct ScriptContext *context)
 {
-    struct Thing* heartng = get_player_soul_container(context->value->arg0);
+    struct Thing* heartng = get_player_soul_container(context->value->longs[0]);
     if (!thing_is_invalid(heartng))
     {
         struct ObjectConfigStats* objst = get_object_model_stats(heartng->model);
         long old_health = heartng->health;
-        long long new_health = heartng->health + context->value->arg1;
+        long long new_health = heartng->health + context->value->longs[1];
         if (new_health > objst->health)
         {
             SCRIPTDBG(7,"Player %d's calculated heart health (%ld) is greater than maximum: %ld", heartng->owner, new_health, objst->health);
             new_health = objst->health;
         }
         heartng->health = new_health;
-        TbBool warn_on_damage = (context->value->arg2);
+        TbBool warn_on_damage = (context->value->longs[2]);
         if (warn_on_damage)
         {
             if (heartng->health < old_health)
@@ -2486,8 +2486,8 @@ static void heart_lost_quick_objective_check(const struct ScriptLine *scline)
         get_map_location_id(scline->tp[2], &location);
     }
 
-    value->arg0 = scline->np[0];
-    value->uarg2 = location;
+    value->longs[0] = scline->np[0];
+    value->ulongs[2] = location;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -2495,20 +2495,20 @@ static void heart_lost_quick_objective_process(struct ScriptContext *context)
 {
     gameadd.heart_lost_display_message = true;
     gameadd.heart_lost_quick_message = true;
-    gameadd.heart_lost_message_id = context->value->arg0;
-    gameadd.heart_lost_message_target = context->value->arg2;
+    gameadd.heart_lost_message_id = context->value->longs[0];
+    gameadd.heart_lost_message_target = context->value->longs[2];
 }
 
 static void heart_lost_objective_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    value->arg0 = scline->np[0];
+    value->longs[0] = scline->np[0];
     TbMapLocation location;
     if (scline->tp[1][0] != '\0')
     {
         get_map_location_id(scline->tp[1], &location);
     }
-    value->uarg1 = location;
+    value->ulongs[1] = location;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -2516,8 +2516,8 @@ static void heart_lost_objective_process(struct ScriptContext *context)
 {
     gameadd.heart_lost_display_message = true;
     gameadd.heart_lost_quick_message = false;
-    gameadd.heart_lost_message_id = context->value->arg0;
-    gameadd.heart_lost_message_target = context->value->arg1;
+    gameadd.heart_lost_message_id = context->value->longs[0];
+    gameadd.heart_lost_message_target = context->value->longs[1];
 }
 
 static void set_door_check(const struct ScriptLine* scline)
@@ -2563,8 +2563,8 @@ static void create_effects_line_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
 
-    value->arg0 = scline->np[0]; // AP `from`
-    value->arg1 = scline->np[1]; // AP `to`
+    value->longs[0] = scline->np[0]; // AP `from`
+    value->longs[1] = scline->np[1]; // AP `to`
     value->chars[8] = scline->np[2]; // curvature
     value->bytes[9] = scline->np[3]; // spatial stepping
     value->bytes[10] = scline->np[4]; // temporal stepping
@@ -2600,8 +2600,8 @@ static void create_effects_line_process(struct ScriptContext *context)
         ERRORLOG("Too many fx_lines");
         return;
     }
-    find_location_pos(context->value->arg0, context->player_idx, &fx_line->from, __func__);
-    find_location_pos(context->value->arg1, context->player_idx, &fx_line->to, __func__);
+    find_location_pos(context->value->longs[0], context->player_idx, &fx_line->from, __func__);
+    find_location_pos(context->value->longs[1], context->player_idx, &fx_line->to, __func__);
     fx_line->curvature = (int)context->value->chars[8];
     fx_line->spatial_step = context->value->bytes[9] * 32;
     fx_line->steps_per_turn = context->value->bytes[10];
@@ -2669,7 +2669,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->arg1 = number_value;
+            value->longs[1] = number_value;
             break;
         case 3: // RelatedCreature
             number_value = get_id(creature_desc, new_value);
@@ -2679,7 +2679,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
                 DEALLOCATE_SCRIPT_VALUE
                     return;
             }
-            value->arg1 = number_value;
+            value->longs[1] = number_value;
             break;
         case  5: // AnimationID
         case 33: // FlameAnimationID
@@ -2691,14 +2691,14 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->str2 = script_strdup(new_value);
-            if (value->str2 == NULL)
+            value->strs[2] = script_strdup(new_value);
+            if (value->strs[2] == NULL)
             {
                 SCRPTERRLOG("Run out script strings space");
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->arg1 = number_value;
+            value->longs[1] = number_value;
             break;
         }
         case 18: // MapIcon
@@ -2710,7 +2710,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->arg1 = number_value;
+            value->longs[1] = number_value;
             break;
         }
         case 20: // UpdateFunction
@@ -2722,7 +2722,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->arg1 = number_value;
+            value->longs[1] = number_value;
             break;
         }
         case 36: //FlameAnimationOffset
@@ -2732,12 +2732,12 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
             value->chars[8] = forth_value;
             break;
         default:
-            value->arg1 = atoi(new_value);
+            value->longs[1] = atoi(new_value);
             value->shorts[5] = second_value;
     }
     
     SCRIPTDBG(7, "Setting object %s property %s to %d", objectname, property, number_value);
-    value->arg0 = objct_id;
+    value->longs[0] = objct_id;
     value->shorts[4] = objectvar;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -3219,111 +3219,111 @@ static void set_creature_configuration_process(struct ScriptContext* context)
 
 static void set_object_configuration_process(struct ScriptContext *context)
 {
-    struct ObjectConfigStats* objst = &game.conf.object_conf.object_cfgstats[context->value->arg0];
+    struct ObjectConfigStats* objst = &game.conf.object_conf.object_cfgstats[context->value->longs[0]];
     switch (context->value->shorts[4])
     {
         case 2: // GENRE
-            objst->genre = context->value->arg1;
+            objst->genre = context->value->longs[1];
             break;
         case 3: // RELATEDCREATURE
-            objst->related_creatr_model = context->value->arg1;
+            objst->related_creatr_model = context->value->longs[1];
             break;
         case 4: // PROPERTIES
-            objst->model_flags = context->value->arg1;
+            objst->model_flags = context->value->longs[1];
             break;
         case 5: // ANIMATIONID
-            objst->sprite_anim_idx = context->value->arg1;
+            objst->sprite_anim_idx = context->value->longs[1];
             break;
         case 6: // ANIMATIONSPEED
-            objst->anim_speed = context->value->arg1;
+            objst->anim_speed = context->value->longs[1];
             break;
         case 7: //SIZE_XY
-            objst->size_xy = context->value->arg1;
+            objst->size_xy = context->value->longs[1];
             break;
         case 8: // SIZE_Z
-            objst->size_z = context->value->arg1;
+            objst->size_z = context->value->longs[1];
             break;
         case 9: // MAXIMUMSIZE
-            objst->sprite_size_max = context->value->arg1;
+            objst->sprite_size_max = context->value->longs[1];
             break;
         case 10: // DESTROYONLIQUID
-            objst->destroy_on_liquid = context->value->arg1;
+            objst->destroy_on_liquid = context->value->longs[1];
             break;
         case 11: // DESTROYONLAVA
-            objst->destroy_on_lava = context->value->arg1;
+            objst->destroy_on_lava = context->value->longs[1];
             break;
         case 12: // HEALTH
-            objst->health = context->value->arg1;
+            objst->health = context->value->longs[1];
             break;
         case 13: // FALLACCELERATION
-            objst->fall_acceleration = context->value->arg1;
+            objst->fall_acceleration = context->value->longs[1];
             break;
         case 14: // LIGHTUNAFFECTED
-            objst->light_unaffected = context->value->arg1;
+            objst->light_unaffected = context->value->longs[1];
             break;
         case 15: // LIGHTINTENSITY
-            objst->ilght.intensity = context->value->arg1;
+            objst->ilght.intensity = context->value->longs[1];
             break;
         case 16: // LIGHTRADIUS
-            objst->ilght.radius = context->value->arg1 * COORD_PER_STL;
+            objst->ilght.radius = context->value->longs[1] * COORD_PER_STL;
             break;
         case 17: // LIGHTISDYNAMIC
-            objst->ilght.is_dynamic = context->value->arg1;
+            objst->ilght.is_dynamic = context->value->longs[1];
             break;
         case 18: // MAPICON
-            objst->map_icon = context->value->arg1;
+            objst->map_icon = context->value->longs[1];
             break;
         case 19: // AMBIENCESOUND
-            objst->fp_smpl_idx = context->value->arg1;
+            objst->fp_smpl_idx = context->value->longs[1];
             break;
         case 20: // UPDATEFUNCTION
-            objst->updatefn_idx = context->value->arg1;
+            objst->updatefn_idx = context->value->longs[1];
             break;
         case 21: // DRAWCLASS
-            objst->draw_class = context->value->arg1;
+            objst->draw_class = context->value->longs[1];
             break;
         case 22: // PERSISTENCE
-            objst->persistence = context->value->arg1;
+            objst->persistence = context->value->longs[1];
             break;
         case 23: // Immobile
-            objst->immobile = context->value->arg1;
+            objst->immobile = context->value->longs[1];
             break;
         case 24: // INITIALSTATE
-            objst->initial_state = context->value->arg1;
+            objst->initial_state = context->value->longs[1];
             break;
         case 25: // RANDOMSTARTFRAME
-            objst->random_start_frame = context->value->arg1;
+            objst->random_start_frame = context->value->longs[1];
             break;
         case 26: // TRANSPARENCYFLAGS
-            objst->transparency_flags = context->value->arg1<<4;
+            objst->transparency_flags = context->value->longs[1]<<4;
             break;
         case 27: // EFFECTBEAM
-            objst->effect.beam = context->value->arg1;
+            objst->effect.beam = context->value->longs[1];
             break;
         case 28: // EFFECTPARTICLE
-            objst->effect.particle = context->value->arg1;
+            objst->effect.particle = context->value->longs[1];
             break;
         case 29: // EFFECTEXPLOSION1
-            objst->effect.explosion1 = context->value->arg1;
+            objst->effect.explosion1 = context->value->longs[1];
             break;
         case 30: // EFFECTEXPLOSION2
-            objst->effect.explosion2 = context->value->arg1;
+            objst->effect.explosion2 = context->value->longs[1];
             break;
         case 31: // EFFECTSPACING
-            objst->effect.spacing = context->value->arg1;
+            objst->effect.spacing = context->value->longs[1];
             break;
         case 32: // EFFECTSOUND
-            objst->effect.sound_idx = context->value->arg1;
+            objst->effect.sound_idx = context->value->longs[1];
             objst->effect.sound_range = (unsigned char)context->value->shorts[5];
             break;
         case 33: // FLAMEANIMATIONID
-            objst->flame.animation_id = context->value->arg1;
+            objst->flame.animation_id = context->value->longs[1];
             break;
         case 34: // FLAMEANIMATIONSPEED
-            objst->flame.anim_speed = context->value->arg1;
+            objst->flame.anim_speed = context->value->longs[1];
             break;
         case 35: // FLAMEANIMATIONSIZE
-            objst->flame.sprite_size = context->value->arg1;
+            objst->flame.sprite_size = context->value->longs[1];
             break;
         case 36: // FLAMEANIMATIONOFFSET
             objst->flame.fp_add_x = context->value->chars[5];
@@ -3332,7 +3332,7 @@ static void set_object_configuration_process(struct ScriptContext *context)
             objst->flame.td_add_y = context->value->chars[8];
             break;
         case 37: // FLAMETRANSPARENCYFLAGS
-            objst->flame.transparency_flags = context->value->arg1 << 4;
+            objst->flame.transparency_flags = context->value->longs[1] << 4;
             break;
         default:
             WARNMSG("Unsupported Object configuration, variable %d.", context->value->shorts[4]);
@@ -3353,7 +3353,7 @@ static void display_timer_check(const struct ScriptLine *scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     value->bytes[0] = (unsigned char)scline->np[0];
     value->bytes[1] = timr_id;
-    value->arg1 = 0;
+    value->longs[1] = 0;
     value->bytes[2] = (TbBool)scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -3362,7 +3362,7 @@ static void display_timer_process(struct ScriptContext *context)
 {
     gameadd.script_player = context->value->bytes[0];
     gameadd.script_timer_id = context->value->bytes[1];
-    gameadd.script_timer_limit = context->value->arg1;
+    gameadd.script_timer_limit = context->value->longs[1];
     gameadd.timer_real = context->value->bytes[2];
     game.flags_gui |= GGUI_ScriptTimer;
 }
@@ -3377,27 +3377,27 @@ static void add_to_timer_check(const struct ScriptLine *scline)
         return;
     }
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    value->arg0 = scline->np[0];
-    value->arg1 = timr_id;
-    value->arg2 = scline->np[2];
+    value->longs[0] = scline->np[0];
+    value->longs[1] = timr_id;
+    value->longs[2] = scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void add_to_timer_process(struct ScriptContext *context)
 {
-   add_to_script_timer(context->value->arg0, context->value->arg1, context->value->arg2);
+   add_to_script_timer(context->value->longs[0], context->value->longs[1], context->value->longs[2]);
 }
 
 static void add_bonus_time_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    value->arg0 = scline->np[0];
+    value->longs[0] = scline->np[0];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void add_bonus_time_process(struct ScriptContext *context)
 {
-   game.bonus_time += context->value->arg0;
+   game.bonus_time += context->value->longs[0];
 }
 
 static void display_variable_check(const struct ScriptLine *scline)
@@ -3412,8 +3412,8 @@ static void display_variable_check(const struct ScriptLine *scline)
     value->bytes[0] = scline->np[0];
     value->bytes[1] = scline->np[3];
     value->bytes[2] = varib_type;
-    value->arg1 = varib_id;
-    value->arg2 = scline->np[2];
+    value->longs[1] = varib_id;
+    value->longs[2] = scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -3421,8 +3421,8 @@ static void display_variable_process(struct ScriptContext *context)
 {
    gameadd.script_player = context->value->bytes[0];
    gameadd.script_value_type = context->value->bytes[2];
-   gameadd.script_value_id = context->value->arg1;
-   gameadd.script_variable_target = context->value->arg2;
+   gameadd.script_value_id = context->value->longs[1];
+   gameadd.script_variable_target = context->value->longs[2];
    gameadd.script_variable_target_type = context->value->bytes[1];
    game.flags_gui |= GGUI_Variable;
 }
@@ -3444,7 +3444,7 @@ static void display_countdown_check(const struct ScriptLine *scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     value->bytes[0] = (unsigned char)scline->np[0];
     value->bytes[1] = timr_id;
-    value->arg1 = scline->np[2];
+    value->longs[1] = scline->np[2];
     value->bytes[2] = (TbBool)scline->np[3];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -3482,8 +3482,8 @@ static void create_effect_check(const struct ScriptLine *scline)
     {
         return;
     }
-    value->uarg1 = location;
-    value->arg2 = scline->np[2];
+    value->ulongs[1] = location;
+    value->longs[2] = scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -3505,7 +3505,7 @@ static void create_effect_at_pos_check(const struct ScriptLine *scline)
     }
     value->shorts[1] = scline->np[1];
     value->shorts[2] = scline->np[2];
-    value->arg2 = scline->np[3];
+    value->longs[2] = scline->np[3];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -3696,9 +3696,9 @@ static void change_slab_owner_check(const struct ScriptLine *scline)
 
 static void change_slab_owner_process(struct ScriptContext *context)
 {
-    MapSlabCoord x = context->value->arg0;
-    MapSlabCoord y = context->value->arg1;
-    long fill_type = context->value->arg2;
+    MapSlabCoord x = context->value->longs[0];
+    MapSlabCoord y = context->value->longs[1];
+    long fill_type = context->value->longs[2];
     if (fill_type > 0)
     {
         struct CompoundCoordFilterParam iter_param;
@@ -3785,11 +3785,11 @@ static void reveal_map_location_check(const struct ScriptLine *scline)
 
 static void reveal_map_location_process(struct ScriptContext *context)
 {
-    TbMapLocation target = context->value->arg0;
+    TbMapLocation target = context->value->longs[0];
     SYNCDBG(0, "Revealing location type %d", target);
     long x = 0;
     long y = 0;
-    long r = context->value->arg1;
+    long r = context->value->longs[1];
     find_map_location_coords(target, &x, &y, context->player_idx, __func__);
     if ((x == 0) && (y == 0))
     {
@@ -3815,13 +3815,13 @@ static void player_zoom_to_check(const struct ScriptLine *scline)
     }
 
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
-    value->arg0 = location;
+    value->longs[0] = location;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void player_zoom_to_process(struct ScriptContext *context)
 {
-    TbMapLocation target = context->value->arg0;
+    TbMapLocation target = context->value->longs[0];
     struct Coord3d pos;
 
     find_location_pos(target, context->player_idx, &pos, __func__);
@@ -5015,13 +5015,13 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
         case 3: // Cost
         {
             value->bytes[3] = atoi(scline->tp[3]) - 1; //-1 because we want slot 1 to 9, not 0 to 8
-            value->arg2 = atoi(new_value);
+            value->longs[2] = atoi(new_value);
             break;
         }
         case 10: // SymbolSprites
         {
-            value->arg1 = atoi(new_value);
-            value->arg2 = atoi(scline->tp[3]);
+            value->longs[1] = atoi(new_value);
+            value->longs[2] = atoi(scline->tp[3]);
             break;
         }
         case 5: // Castability
@@ -5068,7 +5068,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                 }
                 value->chars[3] = -1;
             }
-            unsigned long long *new = (unsigned long long*)&value->uarg1;
+            unsigned long long *new = (unsigned long long*)&value->ulongs[1];
             *new = number_value;
             break;
         }
@@ -5079,7 +5079,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
             {
                   number_value = k;
             }
-            value->arg2 = number_value;
+            value->longs[2] = number_value;
             break;
         }
         case 14: // Properties
@@ -5125,7 +5125,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                 }
                 value->chars[3] = -1;
             }
-            value->arg2 = number_value;
+            value->longs[2] = number_value;
             break;
         }
         case 15: // OverchargeCheck
@@ -5137,7 +5137,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->arg2 = number_value;
+            value->longs[2] = number_value;
             break;
         }
         case 16: // PlayerState
@@ -5147,7 +5147,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
             {
                 number_value = k;
             }
-            value->arg2 = number_value;
+            value->longs[2] = number_value;
             break;
         }
         case 17: // ParentPower
@@ -5157,11 +5157,11 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
             {
                 number_value = k;
             }
-            value->arg2 = number_value;
+            value->longs[2] = number_value;
             break;
         }
         default:
-            value->arg2 = atoi(new_value);
+            value->longs[2] = atoi(new_value);
     }
     #if (BFDEBUG_LEVEL >= 7)
     {
@@ -5192,17 +5192,17 @@ static void set_power_configuration_process(struct ScriptContext *context)
     switch (context->value->bytes[2])
     {
         case 2: // Power
-            pwrdynst->strength[context->value->bytes[3]] = context->value->arg2;
+            pwrdynst->strength[context->value->bytes[3]] = context->value->longs[2];
             break;
         case 3: // Cost
-            pwrdynst->cost[context->value->bytes[3]] = context->value->arg2;
+            pwrdynst->cost[context->value->bytes[3]] = context->value->longs[2];
             break;
         case 4: // Duration
-            pwrdynst->duration = context->value->arg2;
+            pwrdynst->duration = context->value->longs[2];
             break;
         case 5: // Castability
         {
-            unsigned long long *value = (unsigned long long*)&context->value->uarg1;
+            unsigned long long *value = (unsigned long long*)&context->value->ulongs[1];
             unsigned long long flag = *value;
             if (context->value->chars[3] == 1)
             {
@@ -5219,56 +5219,56 @@ static void set_power_configuration_process(struct ScriptContext *context)
             break;
         }
         case 6: // Artifact
-            powerst->artifact_model = context->value->arg2;
+            powerst->artifact_model = context->value->longs[2];
             game.conf.object_conf.object_to_power_artifact[powerst->artifact_model] = context->value->shorts[0];
             break;
         case 7: // NameTextID
-            powerst->name_stridx = context->value->arg2;
+            powerst->name_stridx = context->value->longs[2];
             break;
         case 8: // TooltipTextID
-            powerst->tooltip_stridx = context->value->arg2;
+            powerst->tooltip_stridx = context->value->longs[2];
             break;
         case 10: // SymbolSprites
-            powerst->bigsym_sprite_idx = context->value->arg1;
-            powerst->medsym_sprite_idx = context->value->arg2;
+            powerst->bigsym_sprite_idx = context->value->longs[1];
+            powerst->medsym_sprite_idx = context->value->longs[2];
             break;
         case 11: // PointerSprites
-            powerst->pointer_sprite_idx = context->value->arg2;
+            powerst->pointer_sprite_idx = context->value->longs[2];
             break;
         case 12: // PanelTabIndex
-            powerst->panel_tab_idx = context->value->arg2;
+            powerst->panel_tab_idx = context->value->longs[2];
             break;
         case 13: // SoundSamples
-            powerst->select_sample_idx = context->value->arg2;
+            powerst->select_sample_idx = context->value->longs[2];
             break;
         case 14: // Properties
             if (context->value->chars[3] == 1)
             {
-                set_flag(powerst->config_flags, context->value->arg2);
+                set_flag(powerst->config_flags, context->value->longs[2]);
             }
             else if (context->value->chars[3] == 0)
             {
-                clear_flag(powerst->config_flags, context->value->arg2);
+                clear_flag(powerst->config_flags, context->value->longs[2]);
             }
             else
             {
-                powerst->config_flags = context->value->arg2;
+                powerst->config_flags = context->value->longs[2];
             }
             break;
         case 15: // OverchargeCheck
-            powerst->overcharge_check_idx = context->value->arg2;
+            powerst->overcharge_check_idx = context->value->longs[2];
             break;
         case 16: // PlayerState
-            powerst->work_state = context->value->arg2;
+            powerst->work_state = context->value->longs[2];
             break;
         case 17: // ParentPower
-            powerst->parent_power = context->value->arg2;
+            powerst->parent_power = context->value->longs[2];
             break;
         case 18: // SoundPlayed
-            powerst->select_sound_idx = context->value->arg2;
+            powerst->select_sound_idx = context->value->longs[2];
             break;
         case 19: // Cooldown
-            powerst->cast_cooldown = context->value->arg2;
+            powerst->cast_cooldown = context->value->longs[2];
             break;
         default:
             WARNMSG("Unsupported power configuration, variable %d.", context->value->bytes[2]);
@@ -5421,7 +5421,7 @@ static void set_game_rule_check(const struct ScriptLine* scline)
 
     value->shorts[0] = rulegroup;
     value->shorts[1] = ruledesc;
-    value->arg1 = ruleval;
+    value->longs[1] = ruleval;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -5429,7 +5429,7 @@ static void set_game_rule_process(struct ScriptContext* context)
 {
     short rulegroup = context->value->shorts[0];
     short ruledesc  = context->value->shorts[1];
-    long rulevalue  = context->value->arg1;
+    long rulevalue  = context->value->longs[1];
 
 
     if(rulegroup != -1)
@@ -5836,7 +5836,7 @@ static void reset_action_point_check(const struct ScriptLine* scline)
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-    value->arg0 = apt_idx;
+    value->longs[0] = apt_idx;
     PlayerNumber plyr_idx = (scline->tp[1][0] == '\0') ? ALL_PLAYERS : get_id(player_desc, scline->tp[1]);
     if (plyr_idx == -1)
     {
@@ -5850,7 +5850,7 @@ static void reset_action_point_check(const struct ScriptLine* scline)
 
 static void reset_action_point_process(struct ScriptContext* context)
 {
-    action_point_reset_idx(context->value->arg0, context->value->chars[4]);
+    action_point_reset_idx(context->value->longs[0], context->value->chars[4]);
 }
 
 static void quick_message_check(const struct ScriptLine* scline)
@@ -5871,27 +5871,27 @@ static void quick_message_check(const struct ScriptLine* scline)
         SCRPTWRNLOG("Quick Message no %d overwritten by different text", scline->np[0]);
     }
     snprintf(gameadd.quick_messages[scline->np[0]], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
-    value->uarg0 = scline->np[0];
+    value->longs[0]= scline->np[0];
     get_player_number_from_value(scline->tp[2], &value->chars[4], &value->chars[5]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void quick_message_process(struct ScriptContext* context)
 {
-    message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", gameadd.quick_messages[context->value->uarg0]);
+    message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", gameadd.quick_messages[context->value->ulongs[0]]);
 }
 
 static void display_message_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    value->uarg0 = scline->np[0];
+    value->ulongs[0] = scline->np[0];
     get_player_number_from_value(scline->tp[1], &value->chars[4], &value->chars[5]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void display_message_process(struct ScriptContext* context)
 {
-    message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", get_string(context->value->uarg0));
+    message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", get_string(context->value->ulongs[0]));
 }
 
 static void change_slab_texture_check(const struct ScriptLine* scline)
@@ -6062,7 +6062,7 @@ static void add_object_to_level_at_pos_check(const struct ScriptLine* scline)
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-    value->arg2 = scline->np[3];
+    value->longs[2] = scline->np[3];
     PlayerNumber plyr_idx = get_rid(player_desc, scline->tp[4]);
     if ((plyr_idx == -1) || (plyr_idx == ALL_PLAYERS))
     {
@@ -6089,8 +6089,8 @@ static void add_object_to_level_check(const struct ScriptLine* scline)
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-    value->uarg1 = location;
-    value->arg2 = scline->np[2];
+    value->ulongs[1] = location;
+    value->longs[2] = scline->np[2];
     PlayerNumber plyr_idx = get_rid(player_desc, scline->tp[3]);
     if ((plyr_idx == -1) || (plyr_idx == ALL_PLAYERS))
     {
@@ -6103,15 +6103,15 @@ static void add_object_to_level_check(const struct ScriptLine* scline)
 static void add_object_to_level_process(struct ScriptContext* context)
 {
     struct Coord3d pos;
-    if (get_coords_at_location(&pos,context->value->uarg1,true))
+    if (get_coords_at_location(&pos,context->value->ulongs[1],true))
     {
-        script_process_new_object(context->value->shorts[0], pos.x.stl.num, pos.y.stl.num, context->value->arg2, context->value->chars[2]);
+        script_process_new_object(context->value->shorts[0], pos.x.stl.num, pos.y.stl.num, context->value->longs[2], context->value->chars[2]);
     }
 }
 
 static void add_object_to_level_at_pos_process(struct ScriptContext* context)
 {
-    script_process_new_object(context->value->shorts[0], context->value->shorts[1], context->value->shorts[2], context->value->arg2, context->value->chars[6]);
+    script_process_new_object(context->value->shorts[0], context->value->shorts[1], context->value->shorts[2], context->value->longs[2], context->value->chars[6]);
 }
 
 static void set_computer_globals_check(const struct ScriptLine* scline)
@@ -6193,7 +6193,7 @@ static void set_computer_process_check(const struct ScriptLine* scline)
     value->shorts[3] = scline->np[4];
     value->shorts[4] = scline->np[5];
     value->shorts[5] = scline->np[6];
-    value->str3 = script_strdup(scline->tp[1]);
+    value->strs[3] = script_strdup(scline->tp[1]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -6201,7 +6201,7 @@ static void set_computer_process_process(struct ScriptContext* context)
 {
     int plr_start = context->value->bytes[0];
     int plr_end = context->value->bytes[1];
-    const char* procname = context->value->str3;
+    const char* procname = context->value->strs[3];
     long val1 = context->value->shorts[1];
     long val2 = context->value->shorts[2];
     long val3 = context->value->shorts[3];

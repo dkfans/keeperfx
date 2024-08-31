@@ -46,9 +46,9 @@ void command_add_value(unsigned long var_index, unsigned long plr_range_id, long
 {
     ALLOCATE_SCRIPT_VALUE(var_index, plr_range_id);
 
-    value->arg0 = val2;
-    value->arg1 = val3;
-    value->arg2 = val4;
+    value->longs[0] = val2;
+    value->longs[1] = val3;
+    value->longs[2] = val4;
 
     if ((get_script_current_condition() == CONDITION_ALWAYS) && (next_command_reusable == 0))
     {
