@@ -6126,33 +6126,33 @@ static void set_computer_globals_check(const struct ScriptLine* scline)
         return;
     }
 
-    value->bytes[0] = plr_start;
-    value->bytes[1] = plr_end;
-    value->shorts[1] = scline->np[1];
-    value->shorts[2] = scline->np[2];
-    value->shorts[3] = scline->np[3];
-    value->shorts[4] = scline->np[4];
-    value->shorts[5] = scline->np[5];
-    value->shorts[6] = scline->np[6];
-    value->shorts[6] = -1;
+    value->shorts[0] = plr_start;
+    value->shorts[1] = plr_end;
+    value->longs[1] = scline->np[1];
+    value->longs[2] = scline->np[2];
+    value->longs[3] = scline->np[3];
+    value->longs[4] = scline->np[4];
+    value->longs[5] = scline->np[5];
+    value->longs[6] = scline->np[6];
+    value->longs[7] = -1;
     if (scline->np[7] != '\0')
     {
-        value->shorts[7] = scline->np[7];
+        value->longs[7] = scline->np[7];
     }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_computer_globals_process(struct ScriptContext* context)
 {
-    int plr_start = context->value->bytes[0];
-    int plr_end = context->value->bytes[1];
-    short val1 = context->value->shorts[1];
-    short val2 = context->value->shorts[2];
-    short val3 = context->value->shorts[3];
-    short val4 = context->value->shorts[4];
-    short val5 = context->value->shorts[5];
-    short val6 = context->value->shorts[4];
-    short val7 = context->value->shorts[5];
+    int plr_start = context->value->shorts[0];
+    int plr_end = context->value->shorts[1];
+    long val1 = context->value->longs[1];
+    long val2 = context->value->longs[2];
+    long val3 = context->value->longs[3];
+    long val4 = context->value->longs[4];
+    long val5 = context->value->longs[5];
+    long val6 = context->value->longs[6];
+    long val7 = context->value->longs[7];
 
     for (long i = plr_start; i < plr_end; i++)
     {
@@ -6186,27 +6186,27 @@ static void set_computer_process_check(const struct ScriptLine* scline)
         return;
     }
 
-    value->bytes[0] = plr_start;
-    value->bytes[1] = plr_end;
-    value->shorts[1] = scline->np[2];
-    value->shorts[2] = scline->np[3];
-    value->shorts[3] = scline->np[4];
-    value->shorts[4] = scline->np[5];
-    value->shorts[5] = scline->np[6];
-    value->strs[3] = script_strdup(scline->tp[1]);
+    value->shorts[0] = plr_start;
+    value->shorts[1] = plr_end;
+    value->longs[1] = scline->np[2];
+    value->longs[2] = scline->np[3];
+    value->longs[3] = scline->np[4];
+    value->longs[4] = scline->np[5];
+    value->longs[5] = scline->np[6];
+    value->strs[6] = script_strdup(scline->tp[1]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_computer_process_process(struct ScriptContext* context)
 {
-    int plr_start = context->value->bytes[0];
-    int plr_end = context->value->bytes[1];
-    const char* procname = context->value->strs[3];
-    long val1 = context->value->shorts[1];
-    long val2 = context->value->shorts[2];
-    long val3 = context->value->shorts[3];
-    long val4 = context->value->shorts[4];
-    long val5 = context->value->shorts[5];
+    int plr_start = context->value->shorts[0];
+    int plr_end = context->value->shorts[1];
+    const char* procname = context->value->strs[6];
+    long val1 = context->value->longs[1];
+    long val2 = context->value->longs[2];
+    long val3 = context->value->longs[3];
+    long val4 = context->value->longs[4];
+    long val5 = context->value->longs[5];
     long n = 0;
     for (long i = plr_start; i < plr_end; i++)
     {
