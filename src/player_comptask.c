@@ -2420,7 +2420,7 @@ long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
         SYNCDBG(7,"Player %d casts CTA at (%d,%d)",(int)dungeon->owner, (int)ctask->magic_cta.target_pos.x.stl.num, (int)ctask->magic_cta.target_pos.y.stl.num);
         if (try_game_action(comp, dungeon->owner, GA_UsePwrCall2Arms, 5, ctask->magic_cta.target_pos.x.stl.num, ctask->magic_cta.target_pos.y.stl.num, 1, 1) >= Lb_OK) {
             ctask->task_state = CTaskSt_Select;
-            ctask->delay = ctask->field_8E;
+            ctask->delay = ctask->cta_duration;
             return CTaskRet_Unk2;
         }
         SYNCDBG(7,"Player %d cannot cast CTA at (%d,%d), cancelling task",(int)dungeon->owner, (int)ctask->magic_cta.target_pos.x.stl.num, (int)ctask->magic_cta.target_pos.y.stl.num);
@@ -3525,7 +3525,7 @@ TbBool create_task_move_creatures_to_defend(struct Computer2 *comp, struct Coord
     ctask->move_to_defend.target_pos.y.val = pos->y.val;
     ctask->move_to_defend.target_pos.z.val = pos->z.val;
     ctask->move_to_defend.repeat_num = repeat_num;
-    ctask->move_to_defend.field_70 = evflags;
+    ctask->move_to_defend.evflags = evflags;
     ctask->created_turn = game.play_gameturn;
     ctask->lastrun_turn = game.play_gameturn;
     ctask->delay = comp->task_delay;
@@ -3603,7 +3603,7 @@ TbBool create_task_magic_battle_call_to_arms(struct Computer2 *comp, struct Coor
     ctask->magic_cta.target_pos.y.val = pos->y.val;
     ctask->magic_cta.target_pos.z.val = pos->z.val;
     ctask->magic_cta.repeat_num = repeat_num;
-    ctask->field_8E = cta_duration;
+    ctask->cta_duration = cta_duration;
     return true;
 }
 
@@ -3628,7 +3628,7 @@ TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coo
     ctask->magic_cta.target_pos.y.val = pos->y.val;
     ctask->magic_cta.target_pos.z.val = pos->z.val;
     ctask->magic_cta.repeat_num = repeat_num;
-    ctask->field_8E = cta_duration;
+    ctask->cta_duration = cta_duration;
     ctask->magic_cta.word_86 = par3;
     return true;
 }
