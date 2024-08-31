@@ -420,7 +420,6 @@ struct ComputerTask {
         long repeat_num;
         short room_idx2;
         short word_82;
-        unsigned char field_84[2];
         struct Coord3d pos_86;
     } move_to_room;
     struct {
@@ -428,8 +427,6 @@ struct ComputerTask {
         struct Coord3d target_pos;
         long repeat_num;
         short word_80;
-        short word_82;
-        unsigned char field_84[2];
         struct Coord3d pos_86;
     } move_to_defend;
     struct {
@@ -438,16 +435,12 @@ struct ComputerTask {
         short field_7Ac;
         long repeat_num;
         short target_state;
-        short word_82;
-        unsigned char field_84[2];
         struct Coord3d pos_86;
     } move_to_pos;
     struct {
         struct Coord3d target_pos;
         long repeat_num;
         short word_80;
-        short word_82;
-        unsigned char field_84[2];
         long long_86;
     } pickup_for_attack;
     struct {
@@ -456,28 +449,19 @@ struct ComputerTask {
         long field_7C;
         /** Target room index. */
         short target_room_idx;
-        short word_82;
         short word_84;
         short target_plyr_idx;
     } dig_to_room;
     struct {
         struct Coord3d startpos;
         struct Coord3d endpos;
-        long field_7C;
         /** Target gold lookup index. */
         short target_lookup_idx;
-        short word_82;
-        short word_84;
         long slabs_dig_count;
     } dig_to_gold;
     struct {
         struct Coord3d startpos;
         struct Coord3d endpos;
-        long field_7C;
-        unsigned char byte_80;
-        unsigned char byte_81;
-        short word_82;
-        short word_84;
         short target_plyr_idx;
     } dig_somewhere;
     struct {

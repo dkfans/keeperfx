@@ -3734,7 +3734,6 @@ TbBool create_task_dig_to_neutral(struct Computer2 *comp, const struct Coord3d s
         message_add_fmt(MsgType_Player, comp->dungeon->owner, "Localized neutral place, hopefully with loot.");
     }
     ctask->ttype = CTT_DigToNeutral;
-    ctask->dig_somewhere.byte_80 = 0;
     ctask->dig_somewhere.startpos.x.val = startpos.x.val;
     ctask->dig_somewhere.startpos.y.val = startpos.y.val;
     ctask->dig_somewhere.startpos.z.val = startpos.z.val;
