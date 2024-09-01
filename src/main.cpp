@@ -1750,7 +1750,7 @@ void clear_things_and_persons_data(void)
         thing->mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
         thing->mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
     }
-    for (i=0; i < game.conf.rules.game.creatures_count; i++)
+    for (i=0; i < CREATURES_COUNT; i++)
     {
       memset(&game.cctrl_data[i], 0, sizeof(struct CreatureControl));
     }

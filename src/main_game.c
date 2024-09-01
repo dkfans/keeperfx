@@ -130,11 +130,11 @@ void init_lookups(void)
     game.things.end = &game.things_data[THINGS_COUNT];
 
     memset(&game.persons, 0, sizeof(struct Persons));
-    for (i=0; i < game.conf.rules.game.creatures_count; i++)
+    for (i=0; i < CREATURES_COUNT; i++)
     {
         game.persons.cctrl_lookup[i] = &game.cctrl_data[i];
     }
-    game.persons.cctrl_end = &game.cctrl_data[game.conf.rules.game.creatures_count];
+        game.persons.cctrl_end = &game.cctrl_data[CREATURES_COUNT];
 
     for (i=0; i < COLUMNS_COUNT; i++)
     {
