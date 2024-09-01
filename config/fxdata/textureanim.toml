@@ -174,16 +174,16 @@ name = "gems4"
 frames = [277,277,503,503,543,543,276,276]
 
 [texture586]
-name = ""
-frames = [0,0,0,0,0,0,0,0]
+name = "gems_near_lava"
+frames = [1021,1022,1022,1023,1023,1024,1024,1021]
 
 [texture587]
-name = ""
-frames = [0,0,0,0,0,0,0,0]
+name = "gems_near_lava2"
+frames = [1023,1024,1024,1021,1021,1022,1022,1023]
 
 [texture588]
-name = ""
-frames = [0,0,0,0,0,0,0,0]
+name = "gems_near_lava3"
+frames = [1022,1022,1023,1023,1024,1024,1021,1021]
 
 [texture589]
 name = ""

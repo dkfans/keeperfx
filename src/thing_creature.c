@@ -736,7 +736,7 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
     case SplK_Fear:
         return false;//TODO CREATURE_SPELL update when fear continous effect is implemented
     case SplK_Wind:
-        return false;//TODO CREATURE_SPELL find out how to check this
+        return ((cctrl->spell_flags & CSAfF_Wind) != 0);
     case SplK_Light:
         return ((cctrl->spell_flags & CSAfF_Light) != 0);
     case SplK_Hailstorm:
@@ -5808,9 +5808,8 @@ TngUpdateRet update_creature(struct Thing *thing)
     cctrl->moveaccel.x.val = 0;
     cctrl->moveaccel.y.val = 0;
     cctrl->moveaccel.z.val = 0;
-    cctrl->flgfield_1 &= ~CCFlg_Unknown40;
-    cctrl->flgfield_1 &= ~CCFlg_Unknown80;
-    cctrl->spell_flags &= ~CSAfF_PoisonCloud;
+    clear_flag(cctrl->flgfield_1, CCFlg_Unknown40|CCFlg_Unknown80);
+    clear_flag(cctrl->spell_flags, CSAfF_PoisonCloud|CSAfF_Wind);
     process_thing_spell_effects(thing);
     process_timebomb(thing);
     SYNCDBG(19,"Finished");
