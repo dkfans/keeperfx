@@ -542,6 +542,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
         if (!is_my_player(player))
             break;
         lens_mode = 0;
+        temp_cluedo_mode = player->video_cluedo_mode;
         set_sprite_view_isometric();
         S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
         S3DSetDeadzoneRadius(1280);
@@ -559,9 +560,11 @@ void set_engine_view(struct PlayerInfo *player, long val)
         break;
     case PVM_FrontView:
         player->acamera = &player->cameras[CamIV_FrontView];
+        player->acamera->view_mode = val;
         if (!is_my_player(player))
             break;
         lens_mode = 0;
+        temp_cluedo_mode = 0;
         set_sprite_view_isometric();
         S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
         S3DSetDeadzoneRadius(1280);
