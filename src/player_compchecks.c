@@ -217,7 +217,7 @@ int calculate_number_of_creatures_to_move(struct Dungeon *dungeon, int percent_t
         if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing))
         {
             struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-            if ((cctrl->job_assigned == crstat->job_primary) || (cctrl->job_assigned == crstat->job_secondary))
+            if ((cctrl->job_assigned == crstat->job_primary) || (cctrl->job_assigned == crstat->job_secondary) || (cctrl->job_assigned == 0))
             {
                 creatures_doing_primary_or_secondary_job += 1;
             } else {
@@ -755,7 +755,7 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
     }
     if (creatures_to_fight_amount > max_attack_amount)
         creatures_to_fight_amount = max_attack_amount;
-    if (!create_task_magic_support_call_to_arms(comp, &pos, cta_duration, 0, creatures_to_fight_amount)) {
+    if (!create_task_magic_support_call_to_arms(comp, &pos, cta_duration, creatures_to_fight_amount)) {
         return CTaskRet_Unk4;
     }
     SYNCLOG("Player %d decided to attack %s owned by player %d",(int)dungeon->owner,room_code_name(room->kind),(int)room->owner);

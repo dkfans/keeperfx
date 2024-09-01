@@ -606,7 +606,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                         break;
                     if ((game.play_gameturn & 4) == 0)
                     {
-                        col1 = player_room_colours[get_player_color_idx((uchar)cctrl->party.target_plyr_idx)];
+                        col1 = player_room_colours[get_player_color_idx((int)(cctrl->party.target_plyr_idx >= 0 ? cctrl->party.target_plyr_idx : 0))];
                         col2 = player_room_colours[get_player_color_idx(thing->owner)];
                     }
                     long zmpos_x = ((stl_num_decode_x(memberpos) - (MapSubtlDelta)cam->mappos.x.stl.num) << 8);

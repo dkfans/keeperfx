@@ -104,25 +104,25 @@ long pinstfm_zoom_to_position(struct PlayerInfo *player, long *n);
 long pinstfe_zoom_to_position(struct PlayerInfo *player, long *n);
 
 struct PlayerInstanceInfo player_instance_info[PLAYER_INSTANCES_COUNT] = {
-  { 0, 0, NULL,                        NULL,                        NULL,                                {0}, {0}, 0, 0}, // PI_Unset
-  { 3, 1, pinstfs_hand_grab,           NULL,                        pinstfe_hand_grab,                   {0}, {0}, 0, 0}, // PI_Grab
-  { 3, 1, pinstfs_hand_drop,           NULL,                        pinstfe_hand_drop,                   {0}, {0}, 0, 0}, // PI_Drop
-  { 4, 0, pinstfs_hand_whip,           NULL,                        pinstfe_hand_whip,                   {0}, {0}, 0, 0}, // PI_Whip
-  { 5, 0, pinstfs_hand_whip_end,       NULL,                        pinstfe_hand_whip_end,               {0}, {0}, 0, 0}, // PI_WhipEnd
-  {12, 1, pinstfs_direct_control_creature,pinstfm_control_creature, pinstfe_direct_control_creature,     {0}, {0}, 0, 0}, // PI_DirctCtrl
-  {12, 1, pinstfs_passenger_control_creature,pinstfm_control_creature,pinstfe_passenger_control_creature,{0}, {0}, 0, 0}, // PI_PsngrCtrl
-  {12, 1, pinstfs_direct_leave_creature,pinstfm_leave_creature,     pinstfe_leave_creature,              {0}, {0}, 0, 0}, // PI_DirctCtLeave
-  {12, 1, pinstfs_passenger_leave_creature,pinstfm_leave_creature,  pinstfe_leave_creature,              {0}, {0}, 0, 0}, // PI_PsngrCtLeave
-  { 0, 1, pinstfs_query_creature,      NULL,                        NULL,                                {0}, {0}, 0, 0}, // PI_QueryCrtr
-  { 0, 1, pinstfs_unquery_creature,    NULL,                        NULL,                                {0}, {0}, 0, 0}, // PI_UnqueryCrtr
-  {16, 1, pinstfs_zoom_to_heart,       pinstfm_zoom_to_heart,       pinstfe_zoom_to_heart,               {0}, {0}, 0, 0}, // PI_HeartZoom
-  {16, 1, pinstfs_zoom_out_of_heart,   pinstfm_zoom_out_of_heart,   pinstfe_zoom_out_of_heart,           {0}, {0}, 0, 0}, // PI_HeartZoomOut
-  {12, 1, NULL,                        pinstfm_control_creature_fade,pinstfe_control_creature_fade,      {0}, {0}, 0, 0}, // PI_CrCtrlFade
-  { 8, 1, pinstfs_fade_to_map,         pinstfm_fade_to_map,         pinstfe_fade_to_map,                 {0}, {0}, 0, 0}, // PI_MapFadeTo
-  { 8, 1, pinstfs_fade_from_map,       pinstfm_fade_from_map,       pinstfe_fade_from_map,               {0}, {0}, 0, 0}, // PI_MapFadeFrom
-  {-1, 1, pinstfs_zoom_to_position,    pinstfm_zoom_to_position,    pinstfe_zoom_to_position,            {0}, {0}, 0, 0}, // PI_ZoomToPos
-  { 0, 0, NULL,                        NULL,                        NULL,                                {0}, {0}, 0, 0}, // PI_Unknown17
-  { 0, 0, NULL,                        NULL,                        NULL,                                {0}, {0}, 0, 0}, // PI_Unknown18
+  { 0, 0, NULL,                                 NULL,                           NULL,                                {0}, {0}, 0, 0}, // PI_Unset
+  { 3, 1, pinstfs_hand_grab,                    NULL,                           pinstfe_hand_grab,                   {0}, {0}, 0, 0}, // PI_Grab
+  { 3, 1, pinstfs_hand_drop,                    NULL,                           pinstfe_hand_drop,                   {0}, {0}, 0, 0}, // PI_Drop
+  { 4, 0, pinstfs_hand_whip,                    NULL,                           pinstfe_hand_whip,                   {0}, {0}, 0, 0}, // PI_Whip
+  { 5, 0, pinstfs_hand_whip_end,                NULL,                           pinstfe_hand_whip_end,               {0}, {0}, 0, 0}, // PI_WhipEnd
+  {12, 1, pinstfs_direct_control_creature,      pinstfm_control_creature,       pinstfe_direct_control_creature,     {0}, {0}, 0, 0}, // PI_DirctCtrl
+  {12, 1, pinstfs_passenger_control_creature,   pinstfm_control_creature,       pinstfe_passenger_control_creature,  {0}, {0}, 0, 0}, // PI_PsngrCtrl
+  {12, 1, pinstfs_direct_leave_creature,        pinstfm_leave_creature,         pinstfe_leave_creature,              {0}, {0}, 0, 0}, // PI_DirctCtLeave
+  {12, 1, pinstfs_passenger_leave_creature,     pinstfm_leave_creature,         pinstfe_leave_creature,              {0}, {0}, 0, 0}, // PI_PsngrCtLeave
+  { 0, 1, pinstfs_query_creature,               NULL,                           NULL,                                {0}, {0}, 0, 0}, // PI_QueryCrtr
+  { 0, 1, pinstfs_unquery_creature,             NULL,                           NULL,                                {0}, {0}, 0, 0}, // PI_UnqueryCrtr
+  {16, 1, pinstfs_zoom_to_heart,                pinstfm_zoom_to_heart,          pinstfe_zoom_to_heart,               {0}, {0}, 0, 0}, // PI_HeartZoom
+  {16, 1, pinstfs_zoom_out_of_heart,            pinstfm_zoom_out_of_heart,      pinstfe_zoom_out_of_heart,           {0}, {0}, 0, 0}, // PI_HeartZoomOut
+  {12, 1, NULL,                                 pinstfm_control_creature_fade,  pinstfe_control_creature_fade,       {0}, {0}, 0, 0}, // PI_CrCtrlFade
+  { 8, 1, pinstfs_fade_to_map,                  pinstfm_fade_to_map,            pinstfe_fade_to_map,                 {0}, {0}, 0, 0}, // PI_MapFadeTo
+  { 8, 1, pinstfs_fade_from_map,                pinstfm_fade_from_map,          pinstfe_fade_from_map,               {0}, {0}, 0, 0}, // PI_MapFadeFrom
+  {-1, 1, pinstfs_zoom_to_position,             pinstfm_zoom_to_position,       pinstfe_zoom_to_position,            {0}, {0}, 0, 0}, // PI_ZoomToPos
+  { 0, 0, NULL,                                 NULL,                           NULL,                                {0}, {0}, 0, 0}, // PI_Unknown17
+  { 0, 0, NULL,                                 NULL,                           NULL,                                {0}, {0}, 0, 0}, // PI_Unknown18
 };
 
 /******************************************************************************/
@@ -267,18 +267,18 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
           }
       }
       break;
-  case TCls_Object:
-  {
-      struct Thing* efftng;
-      if (object_is_slappable(thing, player->id_number))
+      case TCls_Object:
       {
-        efftng = create_effect(&thing->mappos, TngEff_Dummy, thing->owner);
-        if (!thing_is_invalid(efftng))
-          thing_play_sample(efftng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
-        slap_object(thing);
+          struct Thing* efftng;
+          if (object_is_slappable(thing, player->id_number))
+          {
+            efftng = create_effect(&thing->mappos, TngEff_Dummy, thing->owner);
+            if (!thing_is_invalid(efftng))
+              thing_play_sample(efftng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
+            slap_object(thing);
+          }
+          break;
       }
-      break;
-  }
   }
   set_player_instance(player, PI_WhipEnd, false);
   return 0;

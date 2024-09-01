@@ -6851,3 +6851,18 @@ msgstr "不幸にする： 敵のすべてのクリーチャーが不幸にな�
 msgctxt "Dungeon special decription"
 msgid "Weaken Walls: Destroys the fortifications of enemy walls."
 msgstr "壁を弱める：敵の城壁の防御施設を破壊します。"
+
+#: guitext:1063
+msgctxt "Game controls"
+msgid "Tilt Up"
+msgstr "上へ指向"
+
+#: guitext:1064
+msgctxt "Game controls"
+msgid "Tilt Down"
+msgstr "下へ指向"
+
+#: guitext:1065
+msgctxt "Game controls"
+msgid "Reset Tilt"
+msgstr "傾きをリセット"
