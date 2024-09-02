@@ -287,7 +287,7 @@ static void set_defaults()
     game.conf.rules.game.torture_payday = 50;
     game.conf.rules.game.torture_training_cost = 100;
     game.conf.rules.game.torture_scavenging_cost = 100;
-    game.conf.rules.game.creatures_count = 256;
+    game.conf.rules.game.creatures_count = 255;
     // Creature block.
     game.conf.rules.creature.recovery_frequency = 10;
     game.conf.rules.creature.fight_max_hate = 200;

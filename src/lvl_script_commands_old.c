@@ -126,7 +126,7 @@ static void command_add_creature_to_level(long plr_range_id, const char *crtr_na
         SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
         return;
     }
-    if ((ncopies <= 0) || (ncopies >= game.conf.rules.game.creatures_count))
+    if ((ncopies <= 0) || (ncopies > game.conf.rules.game.creatures_count))
     {
         SCRPTERRLOG("Invalid number of creatures to add");
         return;
