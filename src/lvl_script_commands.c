@@ -301,7 +301,6 @@ rules_creatures_named_fields,rules_computer_named_fields,rules_workers_named_fie
 static const struct NamedCommand game_rule_desc[] = {
   {"PreserveClassicBugs",            1},
   {"AlliesShareVision",              2},
-  {"MapCreatureLimit",               3},
   {NULL,                             0},
 };
 
@@ -5456,11 +5455,6 @@ static void set_game_rule_process(struct ScriptContext* context)
         SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.allies_share_vision, rulevalue);
         game.conf.rules.game.allies_share_vision = (TbBool)rulevalue;
         panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
-        break;
-    case 3: //MapCreatureLimit
-        //this one is a special case because of the offset of 1
-        SCRIPTDBG(7, "Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.creatures_count, rulevalue+1);
-        game.conf.rules.game.creatures_count = rulevalue+1;
         break;
     default:
         WARNMSG("Unsupported Game Rule, command %d.", ruledesc);
