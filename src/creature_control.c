@@ -87,7 +87,7 @@ TbBool creature_control_exists_in_thing(const struct Thing *thing)
 
 long i_can_allocate_free_control_structure(void)
 {
-    for (long i = 1; i < CREATURES_COUNT; i++)
+    for (long i = 1; i < game.conf.rules.game.creatures_count; i++)
     {
         struct CreatureControl* cctrl = game.persons.cctrl_lookup[i];
         if (!creature_control_invalid(cctrl))
@@ -101,7 +101,7 @@ long i_can_allocate_free_control_structure(void)
 
 struct CreatureControl *allocate_free_control_structure(void)
 {
-    for (long i = 1; i < CREATURES_COUNT; i++)
+    for (long i = 1; i < game.conf.rules.game.creatures_count; i++)
     {
         struct CreatureControl* cctrl = game.persons.cctrl_lookup[i];
         if (!creature_control_invalid(cctrl))

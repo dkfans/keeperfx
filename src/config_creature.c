@@ -1776,8 +1776,8 @@ TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, long
     }
     if (force_avail < 0)
         force_avail = 0;
-    if (force_avail >= CREATURES_COUNT)
-        force_avail = CREATURES_COUNT-1;
+    if (force_avail >= game.conf.rules.game.creatures_count)
+        force_avail = game.conf.rules.game.creatures_count-1;
     SYNCDBG(7,"Setting %s availability for player %d to allowed=%d, forced=%d.",thing_class_and_model_name(TCls_Creature, crtr_model),(int)plyr_idx,(int)can_be_avail,(int)force_avail);
     dungeon->creature_allowed[crtr_model] = can_be_avail;
     dungeon->creature_force_enabled[crtr_model] = force_avail;
