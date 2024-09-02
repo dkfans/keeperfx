@@ -2307,7 +2307,7 @@ long count_creatures_at_call_to_arms(struct Computer2 *comp)
         if (get_creature_state_besides_move(i) == CrSt_AlreadyAtCallToArms)
             num_creatures++;
         k++;
-        if (k > game.conf.rules.game.creatures_count)
+        if (k > CREATURES_COUNT)
         {
             ERRORLOG("Infinite loop detected when counting creatures in call to arms");
             return num_creatures;
@@ -2556,7 +2556,7 @@ struct Thing *find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *p
         }
         // Thing list loop body ends
         k++;
-        if (k > game.conf.rules.game.creatures_count)
+        if (k > CREATURES_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures list");
             break;
@@ -2628,7 +2628,7 @@ long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, str
         }
         // Thing list loop body ends
         k++;
-        if (k > game.conf.rules.game.creatures_count)
+        if (k > CREATURES_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures list");
             break;

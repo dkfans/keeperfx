@@ -2347,7 +2347,7 @@ struct Thing *find_random_creature_for_persuade(PlayerNumber plyr_idx, struct Co
         n--;
         // Per thing code ends
         k++;
-        if (k > game.conf.rules.game.creatures_count)
+        if (k > CREATURES_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures list");
             break;

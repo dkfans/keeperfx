@@ -462,7 +462,7 @@ unsigned long count_creatures_availiable_for_fight(struct Computer2 *comp, struc
         }
         // Thing list loop body ends
         k++;
-        if (k > game.conf.rules.game.creatures_count)
+        if (k > CREATURES_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures list");
             break;
@@ -1106,7 +1106,7 @@ long count_creatures_for_defend_pickup(struct Computer2 *comp)
         }
 
         k++;
-        if (k > game.conf.rules.game.creatures_count)
+        if (k > CREATURES_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures list");
             break;

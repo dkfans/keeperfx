@@ -377,7 +377,7 @@ void affect_nearby_friends_with_alarm(struct Thing *traptng)
         }
         // Thing list loop body ends
         k++;
-        if (k > game.conf.rules.game.creatures_count)
+        if (k > CREATURES_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures list");
             break;

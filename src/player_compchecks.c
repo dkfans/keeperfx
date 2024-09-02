@@ -358,7 +358,7 @@ static TbBool any_digger_is_digging_indestructible_valuables(struct Dungeon *dun
 		}
 		// Thing list loop body ends
 		k++;
-		if (k > game.conf.rules.game.creatures_count)
+		if (k > CREATURES_COUNT)
 		{
 			ERRORLOG("Infinite loop detected when sweeping creatures list");
 			return false;
@@ -628,7 +628,7 @@ struct Thing * find_imp_for_pickup(struct Computer2 *comp, MapSubtlCoord stl_x, 
         }
         // Thing list loop body ends
         k++;
-        if (k > game.conf.rules.game.creatures_count)
+        if (k > CREATURES_COUNT)
         {
           ERRORLOG("Infinite loop detected when sweeping creatures list");
           break;

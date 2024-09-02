@@ -228,7 +228,7 @@ TbBool imp_will_soon_be_working_at_excluding(const struct Thing *creatng, MapSub
         }
         // Thing list loop body ends
         k++;
-        if (k > game.conf.rules.game.creatures_count)
+        if (k > CREATURES_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures list");
             break;
@@ -276,7 +276,7 @@ TbBool imp_will_soon_be_getting_object(PlayerNumber plyr_idx, const struct Thing
         }
         // Thing list loop body ends
         k++;
-        if (k > game.conf.rules.game.creatures_count)
+        if (k > CREATURES_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures list");
             break;

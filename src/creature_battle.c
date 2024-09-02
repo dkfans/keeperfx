@@ -458,7 +458,7 @@ long setup_player_battlers(struct PlayerInfo *player, struct CreatureBattle *bat
         }
         // Per creature code ends
         k++;
-        if (k > game.conf.rules.game.creatures_count)
+        if (k > CREATURES_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping battle creatures list");
             break;

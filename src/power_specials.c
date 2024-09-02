@@ -100,7 +100,7 @@ void multiply_creatures_in_dungeon_list(struct Dungeon *dungeon, long list_start
         tncopy->health = thing->health;
         // Thing list loop body ends
         k++;
-        if (k > game.conf.rules.game.creatures_count)
+        if (k > CREATURES_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures list");
             break;
@@ -140,7 +140,7 @@ void increase_level(struct PlayerInfo *player, int count)
         else creature_increase_level(thing);
         // Thing list loop body ends
         k++;
-        if (k > game.conf.rules.game.creatures_count)
+        if (k > CREATURES_COUNT)
         {
           ERRORLOG("Infinite loop detected when sweeping creatures list");
           break;
@@ -164,7 +164,7 @@ void increase_level(struct PlayerInfo *player, int count)
         else creature_increase_level(thing);
         // Thing list loop body ends
         k++;
-        if (k > game.conf.rules.game.creatures_count)
+        if (k > CREATURES_COUNT)
         {
           ERRORLOG("Infinite loop detected when sweeping creatures list");
           break;
@@ -233,7 +233,7 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
             }
             // Thing list loop body ends
             k++;
-            if (k > game.conf.rules.game.creatures_count)
+            if (k > CREATURES_COUNT)
             {
                 ERRORLOG("Infinite loop detected when sweeping creatures list");
                 break;

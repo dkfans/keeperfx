@@ -554,7 +554,7 @@ static void command_add_creature_to_pool(const char *crtr_name, long amount)
         SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
         return;
     }
-    if ((amount < 0) || (amount >= game.conf.rules.game.creatures_count))
+    if ((amount < 0) || (amount >= CREATURES_COUNT))
     {
         SCRPTERRLOG("Invalid number of '%s' creatures for pool, %d", crtr_name, amount);
         return;

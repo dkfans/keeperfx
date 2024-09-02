@@ -125,7 +125,7 @@ void delete_control_structure(struct CreatureControl *cctrl)
 
 void delete_all_control_structures(void)
 {
-    for (long i = 1; i < game.conf.rules.game.creatures_count; i++)
+    for (long i = 1; i < CREATURES_COUNT; i++)
     {
         struct CreatureControl* cctrl = creature_control_get(i);
         if (!creature_control_invalid(cctrl))
@@ -207,7 +207,7 @@ struct Thing *get_group_last_member(struct Thing *thing)
         ctng = thing_get(cctrl->next_in_group);
         cctrl = creature_control_get_from_thing(ctng);
         k++;
-        if (k > game.conf.rules.game.creatures_count)
+        if (k > CREATURES_COUNT)
         {
           ERRORLOG("Infinite loop detected when sweeping creatures group");
           break;

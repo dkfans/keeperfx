@@ -537,7 +537,7 @@ long count_creatures_really_in_combat(BattleIndex battle_id)
         }
         // Per thing code ends
         k++;
-        if (k > game.conf.rules.game.creatures_count)
+        if (k > CREATURES_COUNT)
         {
           ERRORLOG("Infinite loop detected when sweeping creatures list");
           break;
@@ -562,7 +562,7 @@ void cleanup_battle(BattleIndex battle_id)
             TRACE_THING(thing);
             remove_thing_from_battle_list(thing);
             k++;
-            if (k > game.conf.rules.game.creatures_count)
+            if (k > CREATURES_COUNT)
             {
               ERRORLOG("Infinite loop detected when sweeping creatures list");
               break;
@@ -603,7 +603,7 @@ void update_battle_events(BattleIndex battle_id)
         map_z = thing->mappos.z.val;
         // Per thing code ends
         k++;
-        if (k > game.conf.rules.game.creatures_count)
+        if (k > CREATURES_COUNT)
         {
           ERRORLOG("Infinite loop detected when sweeping creatures list");
           break;
@@ -649,7 +649,7 @@ TbBool battle_with_creature_of_player(PlayerNumber plyr_idx, BattleIndex battle_
             return true;
         // Per thing code ends
         k++;
-        if (k > game.conf.rules.game.creatures_count)
+        if (k > CREATURES_COUNT)
         {
           ERRORLOG("Infinite loop detected when sweeping creatures list");
           break;
@@ -692,7 +692,7 @@ TbBool battle_any_of_things_in_specific_battle(const struct CreatureBattle *batt
         }
         // Per battle creature code ends
         k++;
-        if (k >= game.conf.rules.game.creatures_count) {
+        if (k >= CREATURES_COUNT) {
             ERRORLOG("Infinite loop in battle add");
             break;
         }
@@ -1265,7 +1265,7 @@ CrAttackType find_fellow_creature_to_fight_in_room(struct Thing *fightng, struct
         }
         // Thing list loop body ends
         k++;
-        if (k > game.conf.rules.game.creatures_count)
+        if (k > CREATURES_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures list");
             break;

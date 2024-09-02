@@ -223,7 +223,7 @@ TbBool add_anger_to_all_creatures_of_player(PlayerNumber plyr_idx, short percent
         anger_give_creatures_annoyance_percentage(thing, percentage, AngR_Other);
         // Thing list loop body ends
         k++;
-        if (k > game.conf.rules.game.creatures_count)
+        if (k > CREATURES_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures list");
             break;
@@ -254,7 +254,7 @@ TbBool make_all_players_creatures_angry(long plyr_idx)
         anger_make_creature_angry(thing, AngR_Other);
         // Thing list loop body ends
         k++;
-        if (k > game.conf.rules.game.creatures_count)
+        if (k > CREATURES_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures list");
             break;
@@ -326,7 +326,7 @@ void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, ThingModel c
         }
         // Thing list loop body ends
         k++;
-        if (k > game.conf.rules.game.creatures_count)
+        if (k > CREATURES_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures list");
             break;
