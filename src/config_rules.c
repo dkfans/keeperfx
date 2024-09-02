@@ -93,13 +93,13 @@ const struct NamedField rules_game_named_fields[] = {
   {"EASTEREGGSPEECHINTERVAL",    &game.conf.rules.game.easter_egg_speech_interval, var_type(game.conf.rules.game.easter_egg_speech_interval),       0,LONG_MAX},
   {"GLOBALAMBIENTLIGHT",         &game.conf.rules.game.global_ambient_light,       var_type(game.conf.rules.game.global_ambient_light      ),LONG_MIN,LONG_MAX},
   {"LIGHTENABLED",               &game.conf.rules.game.light_enabled,              var_type(game.conf.rules.game.light_enabled             ),       0,       1},
+  {"MAPCREATURELIMIT",           &game.conf.rules.game.creatures_count,            var_type(game.conf.rules.game.creatures_count),       0,CREATURES_COUNT},
   {NULL,                            NULL,0,0,0 },
 };
 
 //special cases rules_game
 const struct NamedCommand rules_game_commands[] = {
   {"PRESERVECLASSICBUGS",         1},
-  {"MAPCREATURELIMIT",            2},
   {NULL,                          0},
 };
 
@@ -287,7 +287,7 @@ static void set_defaults()
     game.conf.rules.game.torture_payday = 50;
     game.conf.rules.game.torture_training_cost = 100;
     game.conf.rules.game.torture_scavenging_cost = 100;
-    game.conf.rules.game.creatures_count = 256;
+    game.conf.rules.game.creatures_count = 255;
     // Creature block.
     game.conf.rules.creature.recovery_frequency = 10;
     game.conf.rules.creature.fight_max_hate = 200;
@@ -421,17 +421,6 @@ static void game_block_special_cases(int cmd_num,const char *buf,long *pos,long 
 
                     break;
                 }
-            }
-            break;
-                    case 2:
-            if (get_conf_parameter_single(buf, pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                int k = atoi(word_buf);
-                if (k < 0)
-                    k = 0;
-                if (k >= CREATURES_COUNT)
-                    k = CREATURES_COUNT - 1;
-                game.conf.rules.game.creatures_count = k + 1;
             }
             break;
     }
