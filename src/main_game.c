@@ -134,7 +134,7 @@ void init_lookups(void)
     {
         game.persons.cctrl_lookup[i] = &game.cctrl_data[i];
     }
-        game.persons.cctrl_end = &game.cctrl_data[CREATURES_COUNT];
+    game.persons.cctrl_end = &game.cctrl_data[CREATURES_COUNT];
 
     for (i=0; i < COLUMNS_COUNT; i++)
     {

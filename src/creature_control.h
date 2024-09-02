@@ -138,6 +138,7 @@ struct CastedSpellData {
     unsigned char spkind;
     short duration;
 };
+
 struct CreatureControl {
     unsigned short index;
     unsigned char flgfield_1;
