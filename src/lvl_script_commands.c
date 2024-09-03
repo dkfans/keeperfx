@@ -6030,6 +6030,7 @@ static void computer_player_process(struct ScriptContext* context)
                 if (toggle == true)
                 {
                     script_support_setup_player_as_computer_keeper(i, model);
+                    get_dungeon(i)->turns_between_entrance_generation = game.generate_speed;
                 }
                 else
                 {
