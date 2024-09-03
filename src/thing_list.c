@@ -1356,6 +1356,35 @@ void init_all_creature_states(void)
     }
 }
 
+void init_creature_states_for_player(PlayerNumber plyr_idx)
+{
+    int k = 0;
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
+    int i = slist->index;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_of_class;
+        // Per-thing code
+        if (thing->owner == plyr_idx)
+        {
+            init_creature_state(thing);
+        }
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+}
+
 void remove_thing_from_mapwho(struct Thing *thing)
 {
     struct Thing *mwtng;
