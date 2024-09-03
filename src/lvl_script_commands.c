@@ -6031,6 +6031,7 @@ static void computer_player_process(struct ScriptContext* context)
                 {
                     script_support_setup_player_as_computer_keeper(i, model);
                     get_dungeon(i)->turns_between_entrance_generation = game.generate_speed;
+                    init_creature_states_for_player(i);
                 }
                 else
                 {
