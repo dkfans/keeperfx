@@ -667,7 +667,7 @@ TbBool creature_is_being_tortured(const struct Thing *thing)
 TbBool creature_is_being_sacrificed(const struct Thing *thing)
 {
     CrtrStateId i = get_creature_state_besides_interruptions(thing);
-    if ((i == CrSt_CreatureSacrifice) || (i == CrSt_CreatureBeingSacrificed))
+    if ((i == CrSt_CreatureSacrifice) || (i == CrSt_CreatureBeingSacrificed) || (i == CrSt_LeavesBecauseOwnerLost))
         return true;
     return false;
 }
