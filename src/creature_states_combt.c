@@ -3124,7 +3124,7 @@ TbBool creature_look_for_enemy_heart_combat(struct Thing *thing)
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         heartng = thing_get(cctrl->combat.battle_enemy_idx);
         if (thing_is_dungeon_heart(heartng)) {
-            return false;
+            return true;
         }
     }
     heartng = get_enemy_soul_container_creature_can_see(thing);
@@ -3199,7 +3199,7 @@ TbBool creature_look_for_enemy_object_combat(struct Thing* thing)
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         objtng = thing_get(cctrl->combat.battle_enemy_idx);
         if (thing_is_dungeon_heart(objtng)) {
-            return false;
+            return true;
         }
     }
     objtng = check_for_object_to_fight(thing);
