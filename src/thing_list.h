@@ -343,6 +343,7 @@ ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_c
 struct Thing* get_timebomb_target(struct Thing *creatng);
 
 void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx);
+TbBool setup_creature_leave_or_die_if_possible(struct Thing* thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

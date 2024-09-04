@@ -301,6 +301,7 @@ rules_creatures_named_fields,rules_computer_named_fields,rules_workers_named_fie
 static const struct NamedCommand game_rule_desc[] = {
   {"PreserveClassicBugs",            1},
   {"AlliesShareVision",              2},
+  {"MapCreatureLimit",               3},
   {NULL,                             0},
 };
 
@@ -5455,6 +5456,44 @@ static void set_game_rule_process(struct ScriptContext* context)
         SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.allies_share_vision, rulevalue);
         game.conf.rules.game.allies_share_vision = (TbBool)rulevalue;
         panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
+        break;
+    case 3: //MapCreatureLimit
+        //this one is a special case because it needs to kill of additional creatures
+        SCRIPTDBG(7, "Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.creatures_count, rulevalue);
+        game.conf.rules.game.creatures_count = rulevalue;
+        struct CreatureControl* cctrl;
+        const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
+        unsigned long k = 0;
+        int i = slist->index;
+        short count = 0;
+        while (i != 0)
+        {
+            struct Thing* thing = thing_get(i);
+            if (thing_is_invalid(thing))
+            {
+                ERRORLOG("Jump to invalid thing detected");
+                break;
+            }
+            i = thing->next_of_class;
+            // Per-thing code
+            cctrl = creature_control_get_from_thing(thing);
+            if (cctrl->index > game.conf.rules.game.creatures_count)
+            {
+                count++;
+                setup_creature_leave_or_die_if_possible(thing);
+            }
+            // Per-thing code ends
+            k++;
+            if (k > slist->count)
+            {
+                ERRORLOG("Infinite loop detected when sweeping things list");
+                break;
+            }
+        }
+        if (count > 0)
+        {
+            SCRPTLOG("Map creature limit reduced, causing %d creatures to leave or die",count);
+        }
         break;
     default:
         WARNMSG("Unsupported Game Rule, command %d.", ruledesc);
