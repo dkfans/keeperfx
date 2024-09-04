@@ -4013,6 +4013,11 @@ void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner)
 {
     struct CreatureStats* crstat = creature_stats_get(model);
+    if (game.thing_lists[TngList_Creatures].count >= game.conf.rules.game.creatures_count)
+    {
+        SYNCDBG(6, "Cannot create %s for player %d. Map creature limit %d reached.", creature_code_name(model), (int)owner, game.conf.rules.game.creatures_count);
+        return INVALID_THING;
+    }
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
         ERRORDBG(3,"Cannot create %s for player %d. There are too many things allocated.",creature_code_name(model),(int)owner);
@@ -5673,7 +5678,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
-        WARNLOG("Killing %s index %d with invalid control.",thing_model_name(thing),(int)thing->index);
+        WARNLOG("Killing %s index %d with invalid control %d.(%d)",thing_model_name(thing),(int)thing->index, thing->ccontrol_idx, game.conf.rules.game.creatures_count);
         kill_creature(thing, INVALID_THING, -1, CrDed_Default);
         return TUFRet_Deleted;
     }

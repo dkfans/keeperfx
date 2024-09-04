@@ -102,7 +102,7 @@ struct GameRulesConfig {
     unsigned long easter_egg_speech_interval;
     long global_ambient_light;
     TbBool light_enabled;
-    unsigned long creatures_count;
+    unsigned short creatures_count;
 };
 
 struct ComputerRulesConfig {
