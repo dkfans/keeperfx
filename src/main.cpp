@@ -122,6 +122,7 @@
 #include "steam_api.hpp"
 #include "game_loop.h"
 #include "music_player.h"
+#include "frontmenu_ingame_map.h"
 
 #ifdef FUNCTESTING
   #include "ftests/ftest.h"
@@ -319,139 +320,6 @@ void process_keeper_spell_aura(struct Thing *thing)
 unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos)
 {
     return get_chessboard_distance(&player->acamera->mappos, pos) < subtile_coord(45,0);
-}
-
-static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam param)
-{
-    SYNCDBG(18,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
-    if (thing->index == param->num2) {
-        return TUFRet_Unchanged;
-    }
-    struct Thing *shotng;
-    shotng = (struct Thing *)param->ptr3;
-    struct ShotConfigStats *shotst = get_shot_model_stats(shotng->model);
-    if ((thing->index == shotng->index) || (thing->index == shotng->parent_idx)) {
-        return TUFRet_Unchanged;
-    }
-    struct CreatureControl* cctrl;
-    // param->num1 = 2048 from affect_nearby_enemy_creatures_with_wind
-    long blow_distance = param->num1;
-    // calculate max distance
-    int maxdistance = shotst->health * shotst->speed;
-    MapCoordDelta creature_distance;
-    creature_distance = LONG_MAX;
-    TbBool apply_velocity;
-    apply_velocity = false;
-    if (thing->class_id == TCls_Creature)
-    {
-        if (!thing_is_picked_up(thing) && !creature_is_being_unconscious(thing))
-        {
-            struct CreatureStats *crstat;
-            crstat = creature_stats_get_from_thing(thing);
-            cctrl = creature_control_get_from_thing(thing);
-            int creatureAlreadyAffected = 0;
-
-            // distance between creature and actual position of the projectile
-            creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;    
-
-            // if weight-affect-push-rule is on
-            if (game.conf.rules.magic.weight_calculate_push > 0)
-            {
-                long weight = compute_creature_weight(thing);
-                //max push distance
-                blow_distance = maxdistance - (maxdistance - weight_calculated_push_strenght(weight, maxdistance)); 
-                // distance between startposition and actual position of the projectile
-                int origin_distance = get_chessboard_distance(&shotng->shot.originpos, &thing->mappos) + 1;
-                creature_distance = origin_distance;
-
-                // Check the the spell instance for already affected creatures
-                for (int i = 0; i < shotng->shot.num_wind_affected; i++)
-                {
-                    if (shotng->shot.wind_affected_creature[i] == cctrl->index)
-                    {
-                        creatureAlreadyAffected = 1;
-                        break;
-                    }
-                }
-            }
-
-            if ((creature_distance < blow_distance) && crstat->affected_by_wind && !creatureAlreadyAffected)           
-            {
-                set_start_state(thing);
-                cctrl->idle.start_gameturn = game.play_gameturn;
-                apply_velocity = true;
-            }
-               // if weight-affect-push-rule is on
-            else if (game.conf.rules.magic.weight_calculate_push > 0 && creature_distance >= blow_distance && !creatureAlreadyAffected){
-                // add creature ID to allready-wind-affected-creature-array
-                shotng->shot.wind_affected_creature[shotng->shot.num_wind_affected++] = cctrl->index;                  
-                }
-        }
-    } else
-    if (thing->class_id == TCls_EffectElem)
-    {
-        if (!thing_is_picked_up(thing))
-        {
-            struct EffectElementConfigStats *eestat;
-            eestat = get_effect_element_model_stats(thing->model);
-            creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
-            if ((creature_distance < blow_distance) && eestat->affected_by_wind)
-            {
-                apply_velocity = true;
-            }
-        }
-    } else
-    if (thing->class_id == TCls_Shot)
-    {
-        if (!thing_is_picked_up(thing))
-        {
-            struct ShotConfigStats *thingshotst = get_shot_model_stats(shotng->model);
-            creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
-            if ((creature_distance < blow_distance) && !thingshotst->wind_immune)
-            {
-                apply_velocity = true;
-            }
-        }
-    } else
-    if (thing->class_id == TCls_Effect)
-    {
-        if (!thing_is_picked_up(thing))
-        {
-
-            struct EffectConfigStats *effcst;
-            effcst = get_effect_model_stats(thing->model);
-            creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
-            if ((creature_distance < blow_distance) && effcst->affected_by_wind)
-            {
-                apply_velocity = true;
-            }
-        }
-    }
-    if (apply_velocity)
-    {
-        struct ComponentVector wind_push;
-        wind_push.x = (shotng->veloc_base.x.val * blow_distance) / creature_distance;
-        wind_push.y = (shotng->veloc_base.y.val * blow_distance) / creature_distance;
-        wind_push.z = (shotng->veloc_base.z.val * blow_distance) / creature_distance;
-        SYNCDBG(8,"Applying (%d,%d,%d) to %s index %d",(int)wind_push.x,(int)wind_push.y,(int)wind_push.z,thing_model_name(thing),(int)thing->index);
-        apply_transitive_velocity_to_thing(thing, &wind_push);
-        return TUFRet_Modified;
-    }
-    return TUFRet_Unchanged;
-}
-
-void affect_nearby_enemy_creatures_with_wind(struct Thing *shotng)
-{
-    Thing_Modifier_Func do_cb;
-    struct CompoundTngFilterParam param;
-    param.plyr_idx = -1;
-    param.class_id = 0;
-    param.model_id = 0;
-    param.num1 = 2048;
-    param.num2 = shotng->parent_idx;
-    param.ptr3 = shotng;
-    do_cb = affect_thing_by_wind;
-    do_to_things_with_param_spiral_near_map_block(&shotng->mappos, param.num1-COORD_PER_STL, do_cb, &param);
 }
 
 void affect_nearby_stuff_with_vortex(struct Thing *thing)
@@ -1011,7 +879,6 @@ void init_keeper(void)
     SYNCDBG(8,"Starting");
     engine_init();
     init_iso_3d_conversion_tables();
-    init_objects();
     init_colours();
     init_spiral_steps();
     init_key_to_strings();
@@ -1214,7 +1081,7 @@ short setup_game(void)
   {
     // View second splash screen
     result = init_actv_bitmap_screen(RBmp_SplashFx);
-    if ( result )
+    if ( result == 1 )
     {
         result = show_actv_bitmap_screen(4000);
         free_actv_bitmap_screen();
@@ -1244,48 +1111,52 @@ short setup_game(void)
       }
   }
 
-  if ( result )
+  if (result == 1)
   {
       draw_clear_screen();
-      result = wait_for_cd_to_be_available();
+      if (wait_for_installation_files())
+      {
+          //result = -1; // Helps with better warning message later
+      }
   }
 
   game.frame_skip = start_params.frame_skip;
 
-  if ( result && (!game.no_intro) )
+  if ( (result == 1) && (!game.no_intro) )
   {
      result = intro_replay();
   }
   // Intro problems shouldn't force the game to quit,
   // so we're re-setting the result flag
-  result = 1;
+  if (result == 0)
+      result = 1;
 
-  if ( result )
+  if (result == 1)
   {
       display_loading_screen();
   }
   LbDataFreeAll(legal_load_files);
 
-  if ( result )
+  if (result == 1)
   {
       if ( !initial_setup() )
         result = 0;
   }
 
-  if ( result )
+  if (result == 1)
   {
     load_settings();
     if ( !setup_gui_strings_data() )
       result = 0;
   }
 
-  if ( result )
+  if (result == 1)
   {
     if ( !setup_heaps() )
       result = 0;
   }
 
-  if ( result )
+  if (result == 1)
   {
       init_keeper();
       switch (start_params.force_ppro_poly)
@@ -1315,10 +1186,10 @@ short setup_game(void)
       setup_3d();
       setup_stuff();
       init_lookups();
-      result = 1;
   }
 
-  if (result) {
+  if (result == 1)
+  {
       KEEPERSPEECH_REASON reason = KeeperSpeechInit();
       if (reason == KSR_NO_LIB_INSTALLED) {
           SYNCLOG("Speech recognition disabled: %s",
@@ -1688,6 +1559,9 @@ void reinit_level_after_load(void)
     }
     start_rooms = &game.rooms[1];
     end_rooms = &game.rooms[ROOMS_COUNT];
+    update_room_tab_to_config();
+    update_powers_tab_to_config();
+    update_trap_tab_to_config();
     load_texture_map_file(game.texture_id);
     init_animating_texture_maps();
     init_gui();
@@ -1699,6 +1573,8 @@ void reinit_level_after_load(void)
     restore_computer_player_after_load();
     sound_reinit_after_load();
     music_reinit_after_load();
+    update_panel_colors();
+
 }
 
 /**
@@ -1771,7 +1647,7 @@ void init_keepers_map_exploration(void)
     for (i=0; i < PLAYERS_COUNT; i++)
     {
       player = get_player(i);
-      if (player_exists(player) && (player->is_active == 1))
+      if ((player_exists(player) && (player->is_active == 1)) || player_is_roaming(i))
       {
           // Additional init - the main one is in init_player()
           if ((player->allocflags & PlaF_CompCtrl) != 0) {
@@ -2721,7 +2597,7 @@ TbBool valid_cave_in_position(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
 long update_cave_in(struct Thing *thing)
 {
     thing->health--;
-    thing->rendering_flags |= TRF_Unknown01;
+    thing->rendering_flags |= TRF_Invisible;
     if (thing->health < 1)
     {
         delete_thing_structure(thing, 0);
@@ -4373,11 +4249,11 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     }
 
     retval = setup_game();
-    if (retval)
+    if (retval == 1)
     {
         steam_api_init();
     }
-    if (retval)
+    if (retval == 1)
     {
       if ((install_info.lang_id == Lang_Japanese) ||
           (install_info.lang_id == Lang_ChineseInt) ||
@@ -4405,16 +4281,21 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
         }
       }
     }
-    if ( retval )
+    if ( retval == 1 )
     {
         api_init_server();
         game_loop();
     }
     reset_game();
     LbScreenReset(true);
-    if ( !retval )
+    if ( retval == 0 )
     {
         static const char *msg_text="Setting up game failed.\n";
+        error_dialog_fatal(__func__, 2, msg_text);
+    } else
+    if (retval == -1)
+    {
+        static const char* msg_text = " Game files which have to be copied from original DK are not present.\n\n";
         error_dialog_fatal(__func__, 2, msg_text);
     }
     else

@@ -455,8 +455,6 @@ TbBool show_actv_bitmap_screen(TbClockMSec tmdelay)
 TbBool display_loading_screen(void)
 {
     draw_clear_screen();
-    if (!wait_for_cd_to_be_available())
-      return false;
     TbBool done = init_bitmap_screen(&astd_bmp, RBmp_WaitLoading);
     if (done)
     {
@@ -469,19 +467,19 @@ TbBool display_loading_screen(void)
     return done;
 }
 
-TbBool wait_for_cd_to_be_available(void)
+TbBool wait_for_installation_files(void)
 {
   char ffullpath[2048];
   short was_locked = LbScreenIsLocked();
-  prepare_file_path_buf(ffullpath,FGrp_LoData,"lndflag_ens.dat");
+  prepare_file_path_buf(ffullpath,FGrp_StdData,"bluepal.dat");
   if ( LbFileExists(ffullpath) )
     return true;
   if ( was_locked )
     LbScreenUnlock();
-  SYNCMSG("CD not found in drive, waiting");
+  SYNCMSG("Installation file not found, waiting");
   if (!init_bitmap_screen(&nocd_bmp,RBmp_WaitNoCD))
   {
-      ERRORLOG("Unable to display CD wait monit");
+      ERRORLOG("Unable to display CD wait splash");
       return false;
   }
   draw_bitmap_screen(&nocd_bmp);
@@ -500,11 +498,12 @@ TbBool wait_for_cd_to_be_available(void)
             if ((exit_keeper) || (quit_game))
               break;
         } while (!LbIsActive());
-        if (is_key_pressed(KC_Q,KMod_DONTCARE) || is_key_pressed(KC_X,KMod_DONTCARE))
+        if (is_key_pressed(KC_Q,KMod_DONTCARE) || is_key_pressed(KC_X,KMod_DONTCARE) || is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
         {
           ERRORLOG("User requested quit, giving up");
           clear_key_pressed(KC_Q);
           clear_key_pressed(KC_X);
+          clear_key_pressed(KC_ESCAPE);
           exit_keeper = 1;
           break;
         }
@@ -512,13 +511,13 @@ TbBool wait_for_cd_to_be_available(void)
       }
       // One 'counter' cycle lasts approx. 1 second.
       counter++;
-      if (counter>300)
+      if (counter > 5)
       {
           ERRORLOG("Wait time too long, giving up");
           exit_keeper = 1;
       }
   }
-  SYNCMSG("Finished waiting for CD after %lu seconds",counter);
+  SYNCMSG("Finished waiting for installation after %lu seconds",counter);
   free_bitmap_screen(&nocd_bmp);
   if ( was_locked )
     LbScreenLock();

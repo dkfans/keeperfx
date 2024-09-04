@@ -257,7 +257,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     if (cam != NULL)
       player->view_mode_restore = cam->view_mode;
     thing->alloc_flags |= TAlF_IsControlled;
-    thing->rendering_flags |= TRF_Unknown01;
+    thing->rendering_flags |= TRF_Invisible;
     if (!chicken)
     {
         set_start_state(thing);
@@ -311,7 +311,7 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
     if (cam != NULL)
       player->view_mode_restore = cam->view_mode;
     set_player_mode(player, PVT_CreaturePasngr);
-    thing->rendering_flags |= TRF_Unknown01;
+    thing->rendering_flags |= TRF_Invisible;
     return true;
 }
 
@@ -737,7 +737,7 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
     case SplK_Fear:
         return false;//TODO CREATURE_SPELL update when fear continous effect is implemented
     case SplK_Wind:
-        return false;//TODO CREATURE_SPELL find out how to check this
+        return ((cctrl->spell_flags & CSAfF_Wind) != 0);
     case SplK_Light:
         return ((cctrl->spell_flags & CSAfF_Light) != 0);
     case SplK_Hailstorm:
@@ -1242,7 +1242,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         if (thing->light_id != 0)
         {
             cctrl->spell_flags &= ~CSAfF_Light;
-            if ((thing->rendering_flags & TRF_Unknown01) != 0)
+            if ((thing->rendering_flags & TRF_Invisible) != 0)
             {
                 light_set_light_intensity(thing->light_id, (light_get_light_intensity(thing->light_id) - 20));
                 struct Light* lgt = &game.lish.lights[thing->light_id];
@@ -3907,6 +3907,25 @@ TbBool thing_is_creature_special_digger(const struct Thing *thing)
   return ((get_creature_model_flags(thing) & CMF_IsSpecDigger) != 0);
 }
 
+/** Returns if a thing the creature type set as spectator, normally the floating spirit.
+  * @param thing The thing to be checked.
+ * @return True if the thing is creature and listed as spectator , false otherwise.
+ */
+TbBool thing_is_creature_spectator(const struct Thing* thing)
+{
+    if (!thing_is_creature(thing))
+        return false;
+
+    ThingModel breed = game.conf.crtr_conf.spectator_breed;
+    if (breed == 0)
+    {
+        WARNLOG("There is no spectator breed");
+        breed = game.conf.crtr_conf.special_digger_good;
+    }
+    return (thing->model == breed);
+}
+
+
 void anger_set_creature_anger_all_types(struct Thing *thing, long new_value)
 {
     if (creature_can_get_angry(thing))
@@ -5291,20 +5310,32 @@ void check_for_creature_escape_from_lava(struct Thing *thing)
     }
 }
 
-TbBool thing_is_on_snow_texture(struct Thing* thing)
+/**
+ * Get's an effect element for a footstep.
+ */
+ThingModel get_footstep_effect_element(struct Thing* thing)
 {
-    #define SNOW_TEXTURE 2
-    unsigned char ext_txtr = gameadd.slab_ext_data[get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num))];
+    static const unsigned char tileset_footstep_textures[TEXTURE_VARIATIONS_COUNT] = 
+    { TngEffElm_None,       TngEffElm_None,         TngEffElm_IceMelt3,     TngEffElm_None,
+      TngEffElm_None,       TngEffElm_None,         TngEffElm_None,         TngEffElm_None,
+      TngEffElm_StepSand,   TngEffElm_StepGypsum,   TngEffElm_None,         TngEffElm_None,
+      TngEffElm_None,       TngEffElm_None,         TngEffElm_None,         TngEffElm_None 
+    };
 
-    if ((ext_txtr == 0) && (game.texture_id == SNOW_TEXTURE)) //Snow map and on default texture
+    short texture;
+        unsigned char ext_txtr = gameadd.slab_ext_data[get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num))];
+    if (ext_txtr == 0)
     {
-        return true;
+        // Default map texture
+        texture = game.texture_id;
     }
-    if (ext_txtr == SNOW_TEXTURE+1) //On non-default texture that is snow
+    else
     {
-        return true;
+        // Slab specific texture
+        texture = ext_txtr - 1;
     }
-    return false;
+
+    return tileset_footstep_textures[texture];
 }
 
 void process_creature_leave_footsteps(struct Thing *thing)
@@ -5312,7 +5343,7 @@ void process_creature_leave_footsteps(struct Thing *thing)
     struct Thing *footng;
     short nfoot;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if ((thing->movement_flags & TMvF_IsOnWater) != 0)
+    if (flag_is_set(thing->movement_flags,TMvF_IsOnWater))
     {
         nfoot = get_foot_creature_has_down(thing);
         if (nfoot)
@@ -5332,16 +5363,16 @@ void process_creature_leave_footsteps(struct Thing *thing)
         }
     } else
     {
-        // Snow footprints
-        TbBool SnowTexture = thing_is_on_snow_texture(thing);
-        if (SnowTexture)
+        // Tileset footprints, formerly Snow footprints.
+        ThingModel footprint = get_footstep_effect_element(thing);
+        if (footprint != TngEffElm_None)
         {
             struct SlabMap* slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
             if (slb->kind == SlbT_PATH)
             {
-              thing->movement_flags |= TMvF_IsOnSnow;
-              nfoot = get_foot_creature_has_down(thing);
-              footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_IceMelt3, thing->owner);
+                set_flag(thing->movement_flags,TMvF_IsOnSnow);
+                nfoot = get_foot_creature_has_down(thing);
+                footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, footprint, thing->owner);
             }
         }
     }
@@ -5778,9 +5809,8 @@ TngUpdateRet update_creature(struct Thing *thing)
     cctrl->moveaccel.x.val = 0;
     cctrl->moveaccel.y.val = 0;
     cctrl->moveaccel.z.val = 0;
-    cctrl->flgfield_1 &= ~CCFlg_Unknown40;
-    cctrl->flgfield_1 &= ~CCFlg_Unknown80;
-    cctrl->spell_flags &= ~CSAfF_PoisonCloud;
+    clear_flag(cctrl->flgfield_1, CCFlg_Unknown40|CCFlg_Unknown80);
+    clear_flag(cctrl->spell_flags, CSAfF_PoisonCloud|CSAfF_Wind);
     process_thing_spell_effects(thing);
     process_timebomb(thing);
     SYNCDBG(19,"Finished");
@@ -6071,7 +6101,7 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
             thing->mappos.z.val = get_ceiling_height(&thing->mappos);
             create_effect(&thing->mappos, TngEff_CeilingBreach, thing->owner);
             initialise_thing_state(thing, CrSt_CreatureHeroEntering);
-            thing->rendering_flags |= TRF_Unknown01;
+            thing->rendering_flags |= TRF_Invisible;
             cctrl->countdown_282 = 24;
         }
     default:
@@ -6296,6 +6326,25 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                         }
                     }
                 }
+            }
+             else if (room_role_matches(room->kind, RoRoF_LairStorage))
+            {
+                if(game.conf.rules.workers.drag_to_lair)
+                {
+                    if (thing_is_creature(droptng) && (creatng->owner == droptng->owner))
+                    {
+                        if (creature_is_being_unconscious(droptng))
+                        {
+                            struct CreatureControl* dropctrl = creature_control_get_from_thing(droptng);
+                            if (dropctrl->lair_room_id == room->index)
+                            {
+                                make_creature_conscious(droptng);
+                                initialise_thing_state(droptng, CrSt_CreatureGoingHomeToSleep);
+                                dropctrl->flgfield_1 |= CCFlg_NoCompControl;
+                            }
+                        }
+                    }
+                }    
             }
         }
     }
@@ -6562,7 +6611,14 @@ TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
     {
         if (creature_is_being_unconscious(picktng))
         {
-            return (picktng->owner != creatng->owner);
+            if ((game.conf.rules.workers.drag_to_lair > 0) && (picktng->owner == creatng->owner))
+            {
+                return (picktng->owner == creatng->owner);
+            }
+            else
+            {
+                return (picktng->owner != creatng->owner);
+            }
         }
     }
     else if (thing_is_dead_creature(picktng))
@@ -6587,7 +6643,7 @@ TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
         if (!room_is_invalid(room))
         {
             if (room_role_matches(room->kind, RoRoF_CratesStorage))
-           {
+            {
                 if (room->owner == creatng->owner)
                 {
                     if ( (picktng->owner == room->owner) && (picktng->owner == creatng->owner) )

@@ -126,7 +126,6 @@ unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum,const char *fext
 {
   short fgroup = get_level_fgroup(lvnum);
   char* fname = prepare_file_fmtpath(fgroup, "map%05lu.%s", lvnum, fext);
-  wait_for_cd_to_be_available();
   long fsize = LbFileLengthRnc(fname);
   if (fsize < *ldsize)
   {
@@ -683,12 +682,7 @@ TbBool load_column_file(LevelNumber lv_num)
       WARNMSG("Only %d columns supported, CLM file has %ld.",COLUMNS_COUNT,total);
       total = COLUMNS_COUNT;
     }
-    // Read and validate second amount
-    game.columns_used = llong(&buf[i]);
-    if (game.columns_used >= COLUMNS_COUNT)
-    {
-      game.columns_used = COLUMNS_COUNT - 1;
-    }
+    // The second lot of 4 bytes here are ignored.
     i += 4;
     // Fill the columns
     for (long k = 0; k < total; k++)
@@ -1403,17 +1397,34 @@ void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short 
         }
     }
     long filelen = LbFileLengthRnc(fname);
+    if (filelen <= 0)
+    {
+        ERRORLOG("Map Strings file %s does not exist or can't be opened", fname);
+        return;
+    }
+    campgn->strings_data = (char*)LbMemoryAlloc(filelen + 256);
+    if (campgn->strings_data == NULL)
+    {
+        ERRORLOG("Can't allocate memory for Map Strings data");
+        return;
+    }
     char* strings_data_end = campgn->strings_data + filelen + 255;
     long loaded_size = LbFileLoadAt(fname, campgn->strings_data);
-    if (loaded_size > 0)
+    if (loaded_size < 16)
     {
-        TbBool result = create_strings_list(campgn->strings, campgn->strings_data, strings_data_end, STRINGS_MAX);
-        if (result)
-        {
-            SYNCLOG("Loaded strings from %s", fname);
-            reload_campaign_strings = true;
-        }
+        ERRORLOG("Map Strings file couldn't be loaded or is too small");
+        return;
     }
+    // Resetting all values to empty strings
+    reset_strings(campgn->strings, STRINGS_MAX);
+    // Analyzing strings data and filling correct values
+    TbBool result = create_strings_list(campgn->strings, campgn->strings_data, strings_data_end, STRINGS_MAX);
+    if (result)
+    {
+        SYNCMSG("Loaded strings from %s", fname);
+        reload_campaign_strings = true;
+    }
+    SYNCDBG(19, "Finished");
 }
 
 static TbBool load_level_file(LevelNumber lvnum)
@@ -1422,7 +1433,6 @@ static TbBool load_level_file(LevelNumber lvnum)
     TbBool new_format = true;
     short fgroup = get_level_fgroup(lvnum);
     char* fname = prepare_file_fmtpath(fgroup, "map%05lu.slb", (unsigned long)lvnum);
-    wait_for_cd_to_be_available();
     if (LbFileExists(fname))
     {
         result = true;

@@ -502,14 +502,19 @@ long get_thing_in_hand_id(const struct Thing* thing, PlayerNumber plyr_idx)
 void place_thing_in_limbo(struct Thing *thing)
 {
     remove_thing_from_mapwho(thing);
-    thing->rendering_flags |= TRF_Unknown01;
+    if (thing->light_id != 0)
+    {
+        light_delete_light(thing->light_id);
+        thing->light_id = 0;
+    }
+    thing->rendering_flags |= TRF_Invisible;
     thing->alloc_flags |= TAlF_IsInLimbo;
 }
 
 void remove_thing_from_limbo(struct Thing *thing)
 {
     thing->alloc_flags &= ~TAlF_IsInLimbo;
-    thing->rendering_flags &= ~TRF_Unknown01;
+    thing->rendering_flags &= ~TRF_Invisible;
     place_thing_in_mapwho(thing);
 }
 
@@ -612,7 +617,7 @@ void draw_power_hand(void)
     long inputpos_x;
     long inputpos_y;
     picktng = get_first_thing_in_power_hand(player);
-    if ((!thing_is_invalid(picktng)) && ((picktng->rendering_flags & TRF_Unknown01) == 0))
+    if ((!thing_is_invalid(picktng)) && ((picktng->rendering_flags & TRF_Invisible) == 0))
     {
         SYNCDBG(7,"Holding %s",thing_model_name(picktng));
         switch (picktng->class_id)
@@ -1311,11 +1316,6 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
             i = convert_td_iso(122);
         else
             i = get_creature_anim(thing, 9);
-        if (thing->light_id != 0)
-        {
-            light_delete_light(thing->light_id);
-            thing->light_id = 0;
-        }
         set_thing_draw(thing, i, 256, -1, -1, 0, ODC_Default);
     } else
     if (thing_is_object(thing))

@@ -1277,16 +1277,16 @@ void init_player_start(struct PlayerInfo *player, TbBool keep_prev)
     }
 }
 
-TbBool script_support_setup_player_as_zombie_keeper(unsigned short plyridx)
+TbBool script_support_setup_player_as_zombie_keeper(PlayerNumber plyr_idx)
 {
-    SYNCDBG(8,"Starting for player %d",(int)plyridx);
-    struct PlayerInfo* player = get_player(plyridx);
+    SYNCDBG(8,"Starting for player %d",(int)plyr_idx);
+    struct PlayerInfo* player = get_player(plyr_idx);
     if (player_invalid(player)) {
-        SCRPTWRNLOG("Tried to set up invalid player %d",(int)plyridx);
+        SCRPTWRNLOG("Tried to set up invalid player %d",(int)plyr_idx);
         return false;
     }
     player->allocflags &= ~PlaF_Allocated; // mark as non-existing
-    player->id_number = plyridx;
+    player->id_number = plyr_idx;
     player->is_active = 0;
     player->allocflags &= ~PlaF_CompCtrl;
     init_player_start(player, false);
@@ -1352,6 +1352,35 @@ void init_all_creature_states(void)
         {
           ERRORLOG("Infinite loop detected when sweeping things list");
           break;
+        }
+    }
+}
+
+void init_creature_states_for_player(PlayerNumber plyr_idx)
+{
+    int k = 0;
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
+    int i = slist->index;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_of_class;
+        // Per-thing code
+        if (thing->owner == plyr_idx)
+        {
+            init_creature_state(thing);
+        }
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
         }
     }
 }
@@ -1437,6 +1466,46 @@ struct Thing *find_base_thing_on_mapwho(ThingClass oclass, ThingModel model, Map
         if (thing->class_id == oclass)
         {
             if ((thing->model == model) || (model == 0)) {
+                return thing;
+            }
+        }
+        // Per thing code end
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
+            break;
+        }
+    }
+    return INVALID_THING;
+}
+
+/**
+ * Checks the subtiles for a thing. Only considers objects, checks against genre, accepts genre 0 for any.
+ * @return Returns INVALID_THING, or a thing of class 'object' of the matching genre.
+ */
+struct Thing* find_object_of_genre_on_mapwho(long genre, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    unsigned long k = 0;
+    struct ObjectConfigStats* objst;
+    long i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Per thing code start
+        if (thing->class_id == TCls_Object)
+        {
+            objst = get_object_model_stats(thing->model);
+            if ((objst->genre == genre) || (genre == 0)) {
                 return thing;
             }
         }
