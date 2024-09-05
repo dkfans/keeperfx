@@ -1015,7 +1015,6 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
         {
             if (thing->health <= 0)
             {
-                // SYNCLOG("Destruction dealt by player %d", dealing_plyr_idx);
                 struct Thing* heartng = find_players_backup_dungeon_heart(thing->owner);
                 TbBool no_backup = (!thing_is_invalid(heartng)) ? (heartng->health <= 0) : true;
                 if (no_backup)
@@ -1033,16 +1032,6 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
         cdamage = 0;
         break;
     }
-    /*
-    if ((thing->class_id == TCls_Creature) && (thing->health < 0))
-    {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if ((cctrl->fighting_player_idx == -1) && (dealing_plyr_idx != -1))
-        {
-            cctrl->fighting_player_idx = dealing_plyr_idx;
-        }
-    }
-    */
     return cdamage;
 }
 
