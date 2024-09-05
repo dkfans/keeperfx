@@ -990,7 +990,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
     if (dmg <= 0)
         return 0;
     // If it's already dead, then don't interfere
-    if (thing->health < 0)
+    if (thing->health <= 0)
         return 0;
     HitPoints cdamage;
     switch (thing->class_id)
