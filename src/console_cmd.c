@@ -1134,6 +1134,16 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 {
                     HitPoints Health = atoi(pr3str);
                     thing->health = Health;
+                    if (thing->health <= 0)
+                    {
+                        struct Thing* heartng = find_players_backup_dungeon_heart(id);
+                        TbBool no_backup = (!thing_is_invalid(heartng)) ? (heartng->health <= 0) : true;
+                        if (no_backup)
+                        {
+                            struct Dungeon* dungeon = get_dungeon(id);
+                            dungeon->lvstats.destroyed_by = plyr_idx;
+                        }
+                    }
                     return true;
                 }
             }

@@ -997,10 +997,34 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
     {
     case TCls_Creature:
         cdamage = apply_damage_to_creature(thing, dmg);
+        if (thing->health < 0)
+        {
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+            if ((cctrl->fighting_player_idx == -1) && (dealing_plyr_idx != -1))
+            {
+                cctrl->fighting_player_idx = dealing_plyr_idx;
+            }
+        }
         break;
-    case TCls_Object:
     case TCls_Trap:
         cdamage = apply_damage_to_object(thing, dmg);
+        break;
+    case TCls_Object:
+        cdamage = apply_damage_to_object(thing, dmg);
+        if (thing_is_dungeon_heart(thing))
+        {
+            if (thing->health <= 0)
+            {
+                // SYNCLOG("Destruction dealt by player %d", dealing_plyr_idx);
+                struct Thing* heartng = find_players_backup_dungeon_heart(thing->owner);
+                TbBool no_backup = (!thing_is_invalid(heartng)) ? (heartng->health <= 0) : true;
+                if (no_backup)
+                {
+                    struct Dungeon* dungeon = get_dungeon(thing->owner);
+                    dungeon->lvstats.destroyed_by = dealing_plyr_idx;
+                }
+            }
+        }
         break;
     case TCls_Door:
         cdamage = apply_damage_to_door(thing, dmg);
@@ -1009,6 +1033,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
         cdamage = 0;
         break;
     }
+    /*
     if ((thing->class_id == TCls_Creature) && (thing->health < 0))
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -1017,6 +1042,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
             cctrl->fighting_player_idx = dealing_plyr_idx;
         }
     }
+    */
     return cdamage;
 }
 

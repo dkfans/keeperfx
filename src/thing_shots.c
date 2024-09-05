@@ -851,7 +851,7 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     {
         if (object_can_be_damaged(target)) // do not damage objects that cannot be destroyed
         {
-            damage_done = apply_damage_to_thing(target, shotng->shot.damage, shotst->damage_type, -1);
+            damage_done = apply_damage_to_thing(target, shotng->shot.damage, shotst->damage_type, shotng->owner);
 
             // Drain allows caster to regain half of damage
             if ((shotst->model_flags & ShMF_LifeDrain) && thing_is_creature(shootertng))

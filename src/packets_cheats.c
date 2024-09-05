@@ -992,6 +992,16 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
             {
                 thing->health = (short)pckt->actn_par2;
             }
+            if (thing->health <= 0)
+            {
+                struct Thing* heartng = find_players_backup_dungeon_heart(pckt->actn_par1);
+                TbBool no_backup = (!thing_is_invalid(heartng)) ? (heartng->health <= 0) : true;
+                if (no_backup)
+                {
+                    struct Dungeon* dungeon = get_dungeon(pckt->actn_par1);
+                    dungeon->lvstats.destroyed_by = plyr_idx;
+                }
+            }
             break;
         }
         case PckA_CheatKillPlayer:
@@ -1001,6 +1011,13 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
             {
                 thing->health = 0;
             }
+            struct Thing* heartng = find_players_backup_dungeon_heart(pckt->actn_par1);
+            if (!thing_is_invalid(heartng))
+            {
+                heartng->health = 0;
+            }
+            struct Dungeon* dungeon = get_dungeon(pckt->actn_par1);
+            dungeon->lvstats.destroyed_by = plyr_idx;
             break;
         }
         case PckA_CheatConvertCreature:

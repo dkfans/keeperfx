@@ -93,6 +93,7 @@ struct LevelStats {
   unsigned long hopes_dashed;
   unsigned long allow_save_score;
   unsigned long player_score;
+  PlayerNumber destroyed_by;
 };
 
 #pragma pack()

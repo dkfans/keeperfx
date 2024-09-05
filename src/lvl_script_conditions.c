@@ -292,6 +292,10 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_VIEW_TYPE:
         player = get_player(plyr_idx);
         return player->view_type;
+    case SVar_DESTROYED_BY:
+        dungeon = get_dungeon(plyr_idx);
+        // SYNCLOG("Player %d destroyed by player %d", plyr_idx, dungeon->lvstats.destroyed_by);
+        return dungeon->lvstats.destroyed_by;
     default:
         break;
     };
