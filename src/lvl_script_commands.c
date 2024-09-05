@@ -20,37 +20,39 @@
 #include <math.h>
 #include <string.h>
 
-#include "dungeon_data.h"
-#include "thing_data.h"
-#include "player_instances.h"
-#include "keeperfx.hpp"
-#include "custom_sprites.h"
-#include "gui_soundmsgs.h"
-#include "config_magic.h"
-#include "config_settings.h"
+#include "bflib_memory.h"
+#include "bflib_sound.h"
 #include "config_effects.h"
-#include "config_trapdoor.h"
-#include "config_powerhands.h"
+#include "config_magic.h"
 #include "config_players.h"
-#include "frontmenu_ingame_map.h"
-#include "thing_effects.h"
-#include "thing_physics.h"
-#include "thing_navigate.h"
+#include "config_powerhands.h"
+#include "config_settings.h"
+#include "config_spritecolors.h"
+#include "config_trapdoor.h"
 #include "console_cmd.h"
-#include "creature_states_pray.h"
-#include "creature_states_mood.h"
-#include "room_util.h"
 #include "creature_instances.h"
+#include "creature_states.h"
+#include "creature_states_mood.h"
+#include "creature_states_pray.h"
+#include "custom_sprites.h"
+#include "dungeon_data.h"
+#include "frontmenu_ingame_map.h"
+#include "gui_soundmsgs.h"
+#include "keeperfx.hpp"
+#include "map_blocks.h"
+#include "music_player.h"
+#include "player_instances.h"
 #include "power_hand.h"
 #include "power_specials.h"
-#include "creature_states.h"
-#include "map_blocks.h"
-#include "bflib_memory.h"
-#include "post_inc.h"
-#include "music_player.h"
-#include "bflib_sound.h"
-#include "config_spritecolors.h"
+#include "room_util.h"
 #include "sounds.h"
+#include "spdigger_stack.h"
+#include "thing_data.h"
+#include "thing_effects.h"
+#include "thing_navigate.h"
+#include "thing_physics.h"
+
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -5480,7 +5482,17 @@ static void set_game_rule_process(struct ScriptContext* context)
             if (cctrl->index > game.conf.rules.game.creatures_count)
             {
                 count++;
-                setup_creature_leave_or_die_if_possible(thing);
+                cleanup_creature_state_and_interactions(thing);
+                force_any_creature_dragging_thing_to_drop_it(thing);
+                
+                if (is_thing_some_way_controlled(thing) || thing_is_picked_up(thing))
+                {
+                    kill_creature(thing, INVALID_THING, -1, CrDed_Default);
+                }
+                else
+                {
+                    setup_creature_leaves_or_dies(thing);
+                }
             }
             // Per-thing code ends
             k++;
