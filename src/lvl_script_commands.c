@@ -433,7 +433,6 @@ const struct NamedCommand variable_desc[] = {
     {"CREATURES_TRANSFERRED",       SVar_CREATURES_TRANSFERRED},
     {"ACTIVE_BATTLES",              SVar_ACTIVE_BATTLES},
     {"VIEW_TYPE",                   SVar_VIEW_TYPE},
-    {"DESTROYED_BY",                SVar_DESTROYED_BY},
     {NULL,                           0},
 };
 
