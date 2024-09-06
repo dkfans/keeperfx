@@ -711,26 +711,22 @@ TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
             // activateD
             *varib_type = SVar_BOX_ACTIVATED;
         }
-        else
-        {
-            *varib_id = -1;
-        }
-        if (2 == sscanf(varib_name, "DESTROYED_BY[%n%[^]]%c", &len, arg, &c) && (c == ']'))
+        else if (2 == sscanf(varib_name, "DESTROYED_BY[%n%[^]]%c", &len, arg, &c) && (c == ']'))
         {
             *varib_id = get_id(player_desc, arg);
             *varib_type = SVar_DESTROYED_BY;
         }
-        if (2 == sscanf(varib_name, "KEEPER_DESTROYED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
+        else if (2 == sscanf(varib_name, "KEEPER_DESTROYED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
         {
             *varib_id = get_id(player_desc, arg);
             *varib_type = SVar_DESTROYED_KEEPER;
         }
-        if (2 == sscanf(varib_name, "SACRIFICED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
+        else if (2 == sscanf(varib_name, "SACRIFICED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
         {
             *varib_id = get_id(creature_desc, arg);
             *varib_type = SVar_SACRIFICED;
         }
-        if (2 == sscanf(varib_name, "REWARDED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
+        else if (2 == sscanf(varib_name, "REWARDED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
         {
             *varib_id = get_id(creature_desc, arg);
             *varib_type = SVar_REWARDED;
