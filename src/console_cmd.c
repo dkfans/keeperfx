@@ -1141,7 +1141,9 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                         if (no_backup)
                         {
                             struct Dungeon* dungeon = get_dungeon(id);
-                            dungeon->lvstats.destroyed_by = plyr_idx;
+                            dungeon->lvstats.destroyed_by[plyr_idx] = true;
+                            dungeon = get_dungeon(plyr_idx);
+                            dungeon->lvstats.keeper_destroyed[id] = true;
                         }
                     }
                     return true;

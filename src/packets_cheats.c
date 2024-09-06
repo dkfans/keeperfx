@@ -999,7 +999,9 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
                 if (no_backup)
                 {
                     struct Dungeon* dungeon = get_dungeon(pckt->actn_par1);
-                    dungeon->lvstats.destroyed_by = plyr_idx;
+                    dungeon->lvstats.destroyed_by[plyr_idx] = true;
+                    dungeon = get_dungeon(plyr_idx);
+                    dungeon->lvstats.keeper_destroyed[pckt->actn_par1] = true;
                 }
             }
             break;
@@ -1017,7 +1019,9 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
                 heartng->health = 0;
             }
             struct Dungeon* dungeon = get_dungeon(pckt->actn_par1);
-            dungeon->lvstats.destroyed_by = plyr_idx;
+            dungeon->lvstats.destroyed_by[plyr_idx] = true;
+            dungeon = get_dungeon(plyr_idx);
+            dungeon->lvstats.keeper_destroyed[pckt->actn_par1] = true;
             break;
         }
         case PckA_CheatConvertCreature:

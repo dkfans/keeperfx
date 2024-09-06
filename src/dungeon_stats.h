@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "player_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -93,7 +94,8 @@ struct LevelStats {
   unsigned long hopes_dashed;
   unsigned long allow_save_score;
   unsigned long player_score;
-  PlayerNumber destroyed_by;
+  TbBool destroyed_by[PLAYERS_COUNT];
+  TbBool keeper_destroyed[PLAYERS_COUNT];
 };
 
 #pragma pack()

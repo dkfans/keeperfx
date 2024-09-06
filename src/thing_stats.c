@@ -1020,7 +1020,9 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
                 if (no_backup)
                 {
                     struct Dungeon* dungeon = get_dungeon(thing->owner);
-                    dungeon->lvstats.destroyed_by = dealing_plyr_idx;
+                    dungeon->lvstats.destroyed_by[dealing_plyr_idx] = true;
+                    dungeon = get_dungeon(dealing_plyr_idx);
+                    dungeon->lvstats.keeper_destroyed[thing->owner] = true;
                 }
             }
         }
