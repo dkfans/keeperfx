@@ -1840,7 +1840,7 @@ void update_room_central_tile_position(struct Room *room)
     long mass_x;
     long mass_y;
     get_room_mass_centre_coords(&mass_x, &mass_y, room);
-    for (long i = 0; i < 16 * 16; i++)
+    for for (long i = 0; i < 2048; i++)   
     {
         struct MapOffset* sstep = &spiral_step[i];
         MapSubtlCoord cx = slab_subtile_center(mass_x + sstep->h);
