@@ -1897,6 +1897,10 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
                     }
                 }
             }
+            else if (get_creature_state_type(thing) != CrStTyp_FightCrtr)
+            {
+                return get_idle_self_spell_casting(thing);
+            }
             else
             {
                 if (!creature_affected_by_spell(thing, SplK_Sight))
