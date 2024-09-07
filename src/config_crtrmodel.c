@@ -2494,7 +2494,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     // Parse blocks of the config file
     if (result)
     {
-        result = parse_creaturemodel_attributes_blocks(crtr_model, buf, len, textname, flags);
+        result = parse_creaturemodel_attributes_blocks(crtr_model, buf, len, fname, flags);
         if ((flags & CnfLd_AcceptPartial) != 0)
             result = true;
         if (!result)
@@ -2502,7 +2502,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     }
     if (result)
     {
-        result = parse_creaturemodel_attraction_blocks(crtr_model, buf, len, textname, flags);
+        result = parse_creaturemodel_attraction_blocks(crtr_model, buf, len, fname, flags);
         if ((flags & CnfLd_AcceptPartial) != 0)
             result = true;
         if (!result)
@@ -2510,7 +2510,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     }
     if (result)
     {
-        result = parse_creaturemodel_annoyance_blocks(crtr_model, buf, len, textname, flags);
+        result = parse_creaturemodel_annoyance_blocks(crtr_model, buf, len, fname, flags);
         if ((flags & CnfLd_AcceptPartial) != 0)
             result = true;
         if (!result)
@@ -2518,7 +2518,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     }
     if (result)
     {
-        result = parse_creaturemodel_senses_blocks(crtr_model, buf, len, textname, flags);
+        result = parse_creaturemodel_senses_blocks(crtr_model, buf, len, fname, flags);
         if ((flags & CnfLd_AcceptPartial) != 0)
             result = true;
         if (!result)
@@ -2526,7 +2526,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     }
     if (result)
     {
-        result = parse_creaturemodel_appearance_blocks(crtr_model, buf, len, textname, flags);
+        result = parse_creaturemodel_appearance_blocks(crtr_model, buf, len, fname, flags);
         if ((flags & CnfLd_AcceptPartial) != 0)
             result = true;
         if (!result)
@@ -2534,7 +2534,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     }
     if (result)
     {
-        result = parse_creaturemodel_experience_blocks(crtr_model, buf, len, textname, flags);
+        result = parse_creaturemodel_experience_blocks(crtr_model, buf, len, fname, flags);
         if ((flags & CnfLd_AcceptPartial) != 0)
             result = true;
         if (!result)
@@ -2542,7 +2542,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     }
     if (result)
     {
-        result = parse_creaturemodel_jobs_blocks(crtr_model, buf, len, textname, flags);
+        result = parse_creaturemodel_jobs_blocks(crtr_model, buf, len, fname, flags);
         if ((flags & CnfLd_AcceptPartial) != 0)
             result = true;
         if (!result)
@@ -2550,7 +2550,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     }
     if (result)
     {
-        result = parse_creaturemodel_sprites_blocks(crtr_model, buf, len, textname, flags);
+        result = parse_creaturemodel_sprites_blocks(crtr_model, buf, len, fname, flags);
         if ((flags & CnfLd_AcceptPartial) != 0)
             result = true;
         if (!result)
@@ -2558,7 +2558,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     }
     if (result)
     {
-        result = parse_creaturemodel_sounds_blocks(crtr_model, buf, len, textname, flags);
+        result = parse_creaturemodel_sounds_blocks(crtr_model, buf, len, fname, flags);
         if ((flags & CnfLd_AcceptPartial) != 0)
             result = true;
         if (!result)
