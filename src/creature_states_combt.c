@@ -1945,7 +1945,7 @@ CrInstance get_object_combat_self_spell_casting(const struct Thing *creatng)
     for (int i = 0; i < game.conf.crtr_conf.instances_count; i++)
     {
         struct InstanceInfo* inst_inf = creature_instance_info_get(i);
-        if (flag_is_set(inst_inf->flags, (InstPF_SelfBuff|InstPF_AgainstObject)))
+        if (flag_is_set(inst_inf->flags, (InstPF_SelfBuff|InstPF_ObjectBuff)))
         {
             if (!creature_affected_by_spell(creatng, inst_inf->func_params[1]))
             {
@@ -1961,7 +1961,7 @@ CrInstance get_door_combat_self_spell_casting(const struct Thing *creatng)
     for (int i = 0; i < game.conf.crtr_conf.instances_count; i++)
     {
         struct InstanceInfo* inst_inf = creature_instance_info_get(i);
-        if (flag_is_set(inst_inf->flags, (InstPF_SelfBuff|InstPF_AgainstDoor)))
+        if (flag_is_set(inst_inf->flags, (InstPF_SelfBuff|InstPF_DoorBuff)))
         {
             if (!creature_affected_by_spell(creatng, inst_inf->func_params[1]))
             {
@@ -1977,7 +1977,7 @@ CrInstance get_idle_self_spell_casting(const struct Thing *creatng)
     for (int i = 0; i < game.conf.crtr_conf.instances_count; i++)
     {
         struct InstanceInfo* inst_inf = creature_instance_info_get(i);
-        if (flag_is_set(inst_inf->flags, (InstPF_SelfBuff|InstPF_WhenIdle)))
+        if (flag_is_set(inst_inf->flags, (InstPF_SelfBuff|InstPF_IdleBuff)))
         {
             if (!creature_affected_by_spell(creatng, inst_inf->func_params[1]))
             {
