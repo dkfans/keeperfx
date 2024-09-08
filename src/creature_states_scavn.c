@@ -468,6 +468,11 @@ TbBool creature_scavenge_from_creature_pool(struct Thing *calltng)
         ERRORLOG("Could not find valid position in %s for %s to be generated",room_code_name(room->kind),creature_code_name(calltng->model));
         return false;
     }
+    if (!creature_count_below_map_limit(0))
+    {
+        SYNCDBG(7,"Scavenge creature %s from portal failed to due to map creature limit", thing_model_name(calltng));
+        return false;
+    }
     struct Thing* scavtng = create_creature(&pos, calltng->model, calltng->owner);
     if (thing_is_invalid(scavtng)) {
         ERRORLOG("Tried to generate %s but creation failed",thing_model_name(calltng));

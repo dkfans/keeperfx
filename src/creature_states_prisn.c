@@ -332,6 +332,10 @@ TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thin
             dungeon->lvstats.skeletons_raised++;
         }
     }
+    else
+    {
+        WARNLOG("Could not create creature %s to transform %s to due to creature limit", thing_model_name(crmodel),thing_model_name(thing));
+    }
     if (creature_model_bleeds(thing->model))
       create_effect_around_thing(thing, TngEff_Blood5);
     kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects);

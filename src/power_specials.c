@@ -90,11 +90,17 @@ void multiply_creatures_in_dungeon_list(struct Dungeon *dungeon, long list_start
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
+        if (!creature_count_below_map_limit(0))
+        {
+            WARNLOG("Can't duplicate all creature because of due to map creature limit.");
+            break;
+        }
         struct Thing* tncopy = create_creature(&thing->mappos, thing->model, dungeon->owner);
         if (thing_is_invalid(tncopy))
         {
-            WARNLOG("Can't create a copy of creature");
-            break;
+            WARNLOG("Can't create a copy of creature %s", thing_model_name(thing));
+            k++;
+            continue;
         }
         set_creature_level(tncopy, cctrl->explevel);
         tncopy->health = thing->health;

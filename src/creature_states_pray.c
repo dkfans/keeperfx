@@ -188,6 +188,11 @@ short state_cleanup_in_temple(struct Thing *creatng)
 TbBool summon_creature(long model, struct Coord3d *pos, long owner, long explevel)
 {
     SYNCDBG(4,"Creating model %ld for player %ld",model,owner);
+    if (!creature_count_below_map_limit(0))
+    {
+        SYNCLOG("Summon creature %s failed to due to map creature limit", model_name(model));
+        return false;
+    }
     struct Thing* thing = create_creature(pos, model, owner);
     if (thing_is_invalid(thing))
     {
