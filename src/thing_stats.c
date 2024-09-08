@@ -997,7 +997,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
     {
     case TCls_Creature:
         cdamage = apply_damage_to_creature(thing, dmg);
-        if (thing->health <= 0)
+        if (thing->health < 0)
         {
             struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
             if ((cctrl->fighting_player_idx == -1) && (dealing_plyr_idx != -1))
