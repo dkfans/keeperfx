@@ -5495,7 +5495,7 @@ static void set_game_rule_process(struct ScriptContext* context)
             }
             // Per-thing code ends
             k++;
-            if (k > slist->count)
+            if (k > CREATURES_COUNT)
             {
                 ERRORLOG("Infinite loop detected when sweeping things list");
                 break;
