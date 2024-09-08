@@ -6034,8 +6034,6 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
     struct Coord3d pos;
     TbBool fall_from_gate = false;
 
-    const unsigned char tngclass = TCls_Creature;
-
     switch (get_map_location_type(location))
     {
     case MLoc_ACTIONPOINT:
@@ -6081,10 +6079,15 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
         return INVALID_THING;
     }
 
-    struct Thing* thing = create_thing_at_position_then_move_to_valid_and_add_light(&pos, tngclass, crmodel, plyr_idx);
+    if (!creature_count_below_map_limit(0))
+    {
+        WARNLOG("Could not create creature %s from script to due to creature limit", creature_code_name(crmodel));
+        return INVALID_THING;
+    }
+    struct Thing* thing = create_thing_at_position_then_move_to_valid_and_add_light(&pos, TCls_Creature, crmodel, plyr_idx);
     if (thing_is_invalid(thing))
     {
-        ERRORLOG("Couldn't create %s at location %d",thing_class_and_model_name(tngclass, crmodel),(int)location);
+        ERRORLOG("Couldn't create %s at location %d", creature_code_name(crmodel), (int)location);
             // Error is already logged
         return INVALID_THING;
     }
