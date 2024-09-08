@@ -12,11 +12,6 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "lvl_script_commands.h"
-
-#include "lvl_script_conditions.h"
-#include "lvl_script_lib.h"
-
 #include <math.h>
 #include <string.h>
 
@@ -39,9 +34,13 @@
 #include "frontmenu_ingame_map.h"
 #include "gui_soundmsgs.h"
 #include "keeperfx.hpp"
+#include "lvl_script_commands.h"
+#include "lvl_script_conditions.h"
+#include "lvl_script_lib.h"
 #include "map_blocks.h"
 #include "music_player.h"
 #include "player_instances.h"
+#include "player_utils.h"
 #include "power_hand.h"
 #include "power_specials.h"
 #include "room_util.h"
@@ -6081,6 +6080,9 @@ static void computer_player_process(struct ScriptContext* context)
                 if (toggle == true)
                 {
                     script_support_setup_player_as_computer_keeper(i, model);
+                    get_dungeon(i)->turns_between_entrance_generation = game.generate_speed;
+                    init_creature_states_for_player(i);
+                    post_init_player(get_player(i));
                 }
                 else
                 {
