@@ -1660,6 +1660,10 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                         }
                     }
                 }
+                else
+                {
+                    cctrl->familiar_idx[j] = 0;
+                }
             }
             else
             {

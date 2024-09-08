@@ -92,7 +92,7 @@ void multiply_creatures_in_dungeon_list(struct Dungeon *dungeon, long list_start
         // Thing list loop body
         if (!creature_count_below_map_limit(0))
         {
-            WARNLOG("Can't duplicate all creature because of due to map creature limit.");
+            WARNLOG("Can't duplicate all creature due to map creature limit.");
             break;
         }
         struct Thing* tncopy = create_creature(&thing->mappos, thing->model, dungeon->owner);
@@ -257,6 +257,11 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
     }
     else
     {
+        if (!creature_count_below_map_limit(0))
+        {
+            SYNCDBG(7, "Failed to generate a stolen hero due to map creature limit");
+            return false;
+        }
         unsigned char steal_idx = GAME_RANDOM(sizeof(prefer_steal_models)/sizeof(prefer_steal_models[0]));
         struct Thing* creatng = create_creature(pos, prefer_steal_models[steal_idx], player->id_number);
         if (thing_is_invalid(creatng))
@@ -470,9 +475,9 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
         case SpcKind_StealHero:
             if (steal_hero(player, &cratetng->mappos))
             {
-            remove_events_thing_is_attached_to(cratetng);
-            used = 1;
-            delete_thing_structure(cratetng, 0);
+                remove_events_thing_is_attached_to(cratetng);
+                used = 1;
+                delete_thing_structure(cratetng, 0);
             }
             break;
         case SpcKind_MultplCrtr:
@@ -576,6 +581,11 @@ void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crm
 {
     if (!thing_exists(boxtng) || (box_thing_to_special(boxtng) != SpcKind_Resurrect) ) {
         ERRORMSG("Invalid resurrect box object!");
+        return;
+    }
+    if (!creature_count_below_map_limit(0))
+    {
+        SYNCLOG("Unable to resurrect creature %s due to map creature limit", crmodel);
         return;
     }
     struct Thing* creatng = create_creature(&boxtng->mappos, crmodel, owner);
@@ -699,6 +709,11 @@ long create_transferred_creatures_on_level(void)
                 }
 
                 struct Coord3d* pos = &(srcetng->mappos);
+                if (!creature_count_below_map_limit(0))
+                {
+                    WARNLOG("Can't create transferred creature %s due to map creature limit.",model_name(intralvl.transferred_creatures[p][i].model));
+                    continue;
+                }
                 creatng = create_creature(pos, intralvl.transferred_creatures[p][i].model, plyr_idx);
                 if (thing_is_invalid(creatng))
                 {

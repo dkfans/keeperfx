@@ -522,6 +522,11 @@ void activate_trap_slab_change(struct Thing *traptng)
 
 struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char model)
 {
+    if (!creature_count_below_map_limit(0))
+    {
+        WARNLOG("Can't spawn creature %s due to map creature limit.", model_name(model));
+        return INVALID_THING;
+    }
     struct Thing* thing;
     struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
     struct CreatureControl* cctrl;
