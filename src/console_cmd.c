@@ -737,7 +737,6 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     targeted_message_add(MsgType_Player, 10, plyr_idx, GUI_MESSAGES_DELAY, "Pool count %s: %d",pr2str,game.pool.crtr_kind[kind]);
                     return true;
                 }
-                
             }
             else
             {
