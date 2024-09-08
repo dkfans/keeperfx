@@ -585,7 +585,7 @@ void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crm
     }
     if (!creature_count_below_map_limit(0))
     {
-        SYNCLOG("Unable to resurrect creature %s due to map creature limit", crmodel);
+        SYNCLOG("Unable to resurrect creature %s due to map creature limit", creature_code_name(crmodel));
         return;
     }
     struct Thing* creatng = create_creature(&boxtng->mappos, crmodel, owner);
@@ -711,7 +711,7 @@ long create_transferred_creatures_on_level(void)
                 struct Coord3d* pos = &(srcetng->mappos);
                 if (!creature_count_below_map_limit(0))
                 {
-                    WARNLOG("Can't create transferred creature %s due to map creature limit.",model_name(intralvl.transferred_creatures[p][i].model));
+                    WARNLOG("Can't create transferred creature %s due to map creature limit.", creature_code_name(intralvl.transferred_creatures[p][i].model));
                     continue;
                 }
                 creatng = create_creature(pos, intralvl.transferred_creatures[p][i].model, plyr_idx);

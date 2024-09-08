@@ -277,7 +277,7 @@ void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
     struct Thing* newthing = INVALID_THING;
     if (creature_count_below_map_limit(1))
     {
-        struct Thing* newthing = create_creature(&thing->mappos, crmodel, room->owner);
+        newthing = create_creature(&thing->mappos, crmodel, room->owner);
         if (thing_is_invalid(newthing))
         {
             ERRORLOG("Couldn't create creature %s in %s room",creature_code_name(crmodel),room_code_name(room->kind));
@@ -285,7 +285,7 @@ void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
         }
     } else
     {
-        WARNLOG("Could not create creature %s to transform %s to due to creature limit", thing_model_name(crmodel), thing_model_name(thing));
+        WARNLOG("Could not create creature %s to transform %s to due to creature limit", creature_code_name(crmodel), thing_model_name(thing));
         return;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);

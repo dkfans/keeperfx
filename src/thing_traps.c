@@ -524,7 +524,7 @@ struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char 
 {
     if (!creature_count_below_map_limit(0))
     {
-        WARNLOG("Can't spawn creature %s due to map creature limit.", model_name(model));
+        WARNLOG("Can't spawn creature %s due to map creature limit.", creature_code_name(model));
         return INVALID_THING;
     }
     struct Thing* thing;
