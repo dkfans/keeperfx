@@ -4021,7 +4021,7 @@ void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
  */
 TbBool creature_count_below_map_limit(TbBool temp_creature)
 {
-    if (game.thing_lists[TngList_Creatures].count >= CREATURES_COUNT)
+    if (game.thing_lists[TngList_Creatures].count >= CREATURES_COUNT-1)
         return false;
 
     return ((game.thing_lists[TngList_Creatures].count - temp_creature) < game.conf.rules.game.creatures_count);
@@ -4030,7 +4030,7 @@ TbBool creature_count_below_map_limit(TbBool temp_creature)
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner)
 {
     struct CreatureStats* crstat = creature_stats_get(model);
-    if (game.thing_lists[TngList_Creatures].count >= CREATURES_COUNT)
+    if (game.thing_lists[TngList_Creatures].count > CREATURES_COUNT)
     {
         ERRORLOG("Cannot create %s for player %d. Creature limit %d reached.", creature_code_name(model), (int)owner, CREATURES_COUNT);
         return INVALID_THING;
