@@ -4010,12 +4010,25 @@ void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
     }
 }
 
+/**
+ * If the total creature count is low enough for a creature to be generated
+ * @param temp_creature when set to 1, it will still generate if it would mean going 1 over a temporary limit
+  * @return true if a creature may be generated, false if not.
+ */
+TbBool creature_count_below_map_limit(TbBool temp_creature)
+{
+    if (game.thing_lists[TngList_Creatures].count >= CREATURES_COUNT)
+        return false;
+
+        return ((game.thing_lists[TngList_Creatures].count - temp_creature) < game.conf.rules.game.creatures_count);
+}
+
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner)
 {
     struct CreatureStats* crstat = creature_stats_get(model);
-    if (game.thing_lists[TngList_Creatures].count >= game.conf.rules.game.creatures_count)
+    if (game.thing_lists[TngList_Creatures].count >= CREATURES_COUNT)
     {
-        SYNCDBG(6, "Cannot create %s for player %d. Map creature limit %d reached.", creature_code_name(model), (int)owner, game.conf.rules.game.creatures_count);
+        ERRORLOG("Cannot create %s for player %d. Creature limit %d reached.", creature_code_name(model), (int)owner, CREATURES_COUNT);
         return INVALID_THING;
     }
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))

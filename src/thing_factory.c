@@ -298,7 +298,7 @@ TbBool thing_create_thing_adv(VALUE *init_data)
             struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
             if (thing_is_invalid(thing))
             {
-                if (game.thing_lists[TngList_Creatures].count >= game.conf.rules.game.creatures_count)
+                if (creature_count_below_map_limit(0))
                 {
                     WARNLOG("Map Creature limit reached. Couldn't create creature model %d (%s)", (int)model, creature_code_name(model));
                 }

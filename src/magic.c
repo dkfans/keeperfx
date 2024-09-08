@@ -1270,7 +1270,7 @@ static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx,
      || !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
         return Lb_FAIL;
     }
-    if (game.thing_lists[TngList_Creatures].count >= game.conf.rules.game.creatures_count)
+    if (!creature_count_below_map_limit(0))
     {
         SYNCLOG("Player %d attempts to create creature at map creature limit", plyr_idx);
         return Lb_FAIL;
