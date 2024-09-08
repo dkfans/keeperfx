@@ -346,7 +346,14 @@ struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvinfo, in
     switch (lvinfo->state)
     {
     case LvSt_Visible:
-        i = 26;
+        if(lvinfo->lvnum == get_extra_level(ExLv_NewMoon))
+        {
+            i = 37;
+        }
+        else // Full Moon
+        {
+            i = 26;
+        }
         if (lvinfo->lvnum == mouse_over_lvnum)
           i += 4;
         spr = get_map_ensign(i+(anim_frame & 3));
