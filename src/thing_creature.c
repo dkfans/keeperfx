@@ -5623,7 +5623,11 @@ long update_creature_levels(struct Thing *thing)
             }
         }
     }
-
+    if (!creature_count_below_map_limit(1))
+    {
+        WARNLOG("Could not create creature to transform %s to due to creature limit", thing_model_name(thing));
+        return 0;
+    }
     struct Thing* newtng = create_creature(&thing->mappos, model, thing->owner);
     if (thing_is_invalid(newtng))
     {
