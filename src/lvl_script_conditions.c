@@ -298,7 +298,7 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
             dungeon = get_dungeon(plyr_idx);
             return dungeon->lvstats.destroyed_by[validx];
         }
-        else break;
+        else return -1;
     case SVar_DESTROYED_KEEPER:
         if (!player_has_heart(validx))
         {
