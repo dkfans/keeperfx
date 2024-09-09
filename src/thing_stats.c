@@ -1011,9 +1011,9 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
         break;
     case TCls_Object:
         cdamage = apply_damage_to_object(thing, dmg);
-        if (thing_is_dungeon_heart(thing))
+        if (thing->health <= 0)
         {
-            if (thing->health <= 0)
+            if (thing_is_dungeon_heart(thing))
             {
                 struct Thing* heartng = find_players_backup_dungeon_heart(thing->owner);
                 TbBool no_backup = (!thing_is_invalid(heartng)) ? (heartng->health <= 0) : true;
