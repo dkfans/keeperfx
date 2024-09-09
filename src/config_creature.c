@@ -109,6 +109,7 @@ const struct NamedCommand creaturetype_instance_properties[] = {
   {"QUICK",                InstPF_Quick},
   {"DISARMING",            InstPF_Disarming},
   {"DISPLAY_SWIPE",        InstPF_UsesSwipe},
+  {"RANGED_BUFF",          InstPF_RangedBuff},
   {NULL,                     0},
   };
 
@@ -1139,7 +1140,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                 if (k > 0)
                 {
                     inst_inf->instance_property_flags |= k;
-                  n++;
+                    n++;
                 } else {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);

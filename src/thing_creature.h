@@ -112,8 +112,8 @@ TbBool set_creature_object_combat(struct Thing *crthing, struct Thing *obthing);
 TbBool set_creature_object_snipe(struct Thing* crthing, struct Thing* obthing);
 TbBool set_creature_door_combat(struct Thing *crthing, struct Thing *obthing);
 void thing_fire_shot(struct Thing *firing,struct  Thing *target, ThingModel shot_model, char shot_lvl, unsigned char hit_type);
-void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long a3, long a4);
-void creature_cast_spell(struct Thing *caster, long trg_x, long trg_y, long a4, long a5);
+void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, SpellKind spl_idx, long shot_lvl);
+void creature_cast_spell(struct Thing *caster, SpellKind spl_idx, long shot_lvl, MapSubtlCoord trg_x, MapSubtlCoord trg_y);
 unsigned int get_creature_blocked_flags_at(struct Thing *thing, struct Coord3d *newpos);
 
 struct Thing *get_enemy_soul_container_creature_can_see(struct Thing *thing);

@@ -5627,3 +5627,8 @@ msgstr ""
 msgctxt "Game controls"
 msgid "Reset Tilt"
 msgstr ""
+
+#: guitext:1066
+msgctxt "Creature spell"
+msgid "Ranged Heal: When this is cast, the target creature is massively healed."
+msgstr ""

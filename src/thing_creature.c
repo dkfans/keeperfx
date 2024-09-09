@@ -372,11 +372,11 @@ TbBool load_swipe_graphic_for_creature(const struct Thing *thing)
     return true;
 }
 
-/** 
+/**
  * Randomise the draw direction of the swipe sprite in the first-person possession view.
- * 
+ *
  * Sets PlayerInfo->swipe_sprite_drawLR to either TRUE or FALSE.
- * 
+ *
  * Draw direction is either: left-to-right (TRUE) or right-to-left (FALSE)
  */
 void randomise_swipe_graphic_direction()
@@ -721,6 +721,7 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
     // Handle spells with no continuous effect
     case SplK_Lightning:
     case SplK_Heal:
+    case Splk_RangedHeal:
     case SplK_Missile:
     case SplK_NavigMissile:
     case SplK_Grenade:
@@ -905,13 +906,13 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     }
 
     i = get_free_spell_slot(thing);
-    if (spell_idx == SplK_Heal)
+    if (spell_idx == SplK_Heal || spell_idx == Splk_RangedHeal)
     {
         n = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev], 16);
         if (n < 0)
         {
             thing->health = 0;
-        } else 
+        } else
         {
             thing->health = min(n, cctrl->max_health);
         }
@@ -1111,6 +1112,8 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         creature_set_speed(thing, 0);
         break;
     case SplK_Heal:
+    // fall-through
+    case Splk_RangedHeal:
     {
         HitPoints i = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev], 16);
         if (i < 0)
@@ -1565,7 +1568,7 @@ short creature_take_wage_from_gold_pile(struct Thing *creatng,struct Thing *gold
  * @param spl_idx Spell index to be casted.
  * @param shot_lvl Spell level to be casted.
  */
-void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, long spl_idx, long shot_lvl)
+void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, SpellKind spl_idx, long shot_lvl)
 {
     unsigned char hit_type;
     if ((castng->alloc_flags & TAlF_IsControlled) != 0)
@@ -1713,12 +1716,15 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
 }
 
 /**
- * Casts a spell by caster creature targeted at given coordinates, most likely using shot to transfer the spell.
+ * @brief Casts a spell by caster creature targeted at given coordinates, most likely using shot to transfer the spell.
+ *
  * @param castng The caster creature.
  * @param spl_idx Spell index to be casted.
  * @param shot_lvl Spell level to be casted.
+ * @param trg_x
+ * @param trg_y
  */
-void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long trg_x, long trg_y)
+void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, long shot_lvl, MapSubtlCoord trg_x, MapSubtlCoord trg_y)
 {
     long i;
     const struct SpellConfig* spconf = get_spell_config(spl_idx);
@@ -1733,8 +1739,8 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
         cctrl->teleport_x = trg_x;
         cctrl->teleport_y = trg_y;
     }
-    // Check if the spell can be fired as a shot
-    if (spconf->shot_model > 0)
+    // Check if the spell can be fired as a shot. It is definitely not if casted on itself.
+    if (spconf->shot_model > 0 && cctrl->targtng_idx != castng->index)
     {
         if ((castng->alloc_flags & TAlF_IsControlled) != 0)
           i = THit_CrtrsNObjcts;
@@ -1921,7 +1927,7 @@ void creature_look_for_hidden_doors(struct Thing *creatng)
         struct Thing* doortng = thing_get(i);
         if (thing_is_invalid(doortng))
           break;
-          
+
         if (door_is_hidden_to_player(doortng,creatng->owner))
         {
             MapSubtlCoord z = doortng->mappos.z.stl.num;
@@ -1935,7 +1941,7 @@ void creature_look_for_hidden_doors(struct Thing *creatng)
             }
             else
             // when closed the door itself blocks sight to the doortng so this checks if open, and in sight
-            if(creature_can_see_thing(creatng,doortng)) 
+            if(creature_can_see_thing(creatng,doortng))
             {
                 reveal_secret_door_to_player(doortng,creatng->owner);
             }
@@ -3856,7 +3862,7 @@ void remove_first_creature(struct Thing *creatng)
         if (!flag_is_set(cctrl->flgfield_2, TF2_Spectator) && !flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature))
         {
             dungeon->owned_creatures_of_model[creatng->model]--;
-            dungeon->num_active_diggers--;  
+            dungeon->num_active_diggers--;
         }
     } else
     {
@@ -5336,11 +5342,11 @@ void check_for_creature_escape_from_lava(struct Thing *thing)
  */
 ThingModel get_footstep_effect_element(struct Thing* thing)
 {
-    static const unsigned char tileset_footstep_textures[TEXTURE_VARIATIONS_COUNT] = 
+    static const unsigned char tileset_footstep_textures[TEXTURE_VARIATIONS_COUNT] =
     { TngEffElm_None,       TngEffElm_None,         TngEffElm_IceMelt3,     TngEffElm_None,
       TngEffElm_None,       TngEffElm_None,         TngEffElm_None,         TngEffElm_None,
       TngEffElm_StepSand,   TngEffElm_StepGypsum,   TngEffElm_None,         TngEffElm_None,
-      TngEffElm_None,       TngEffElm_None,         TngEffElm_None,         TngEffElm_None 
+      TngEffElm_None,       TngEffElm_None,         TngEffElm_None,         TngEffElm_None
     };
 
     short texture;
@@ -5830,7 +5836,13 @@ TngUpdateRet update_creature(struct Thing *thing)
     {
         return TUFRet_Deleted;
     }
-    process_creature_self_spell_casting(thing);
+
+    if (0 == process_creature_self_spell_casting(thing))
+    {
+        // If this creature didn't cast anything to itself, try to help others.
+        process_creature_ranged_heal_spell_casting(thing);
+    }
+
     cctrl->moveaccel.x.val = 0;
     cctrl->moveaccel.y.val = 0;
     cctrl->moveaccel.z.val = 0;
@@ -6379,7 +6391,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                             }
                         }
                     }
-                }    
+                }
             }
         }
     }

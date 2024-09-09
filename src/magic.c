@@ -607,8 +607,13 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
     if (thing->active_state != CrSt_CreatureSlapCowers)
     {
         clear_creature_instance(thing);
-        cctrl->active_state_bkp = thing->active_state;
-        cctrl->continue_state_bkp = thing->continue_state;
+        if (CrSt_CreatureCastingPreparation != thing->active_state)
+        {
+            // If the creature was in CreatureCastingPreparation state, its active and continue
+            // states have been assigned to those bkp states, so we don't need to assign them again.
+            cctrl->active_state_bkp = thing->active_state;
+            cctrl->continue_state_bkp = thing->continue_state;
+        }
         creature_mark_if_woken_up(thing);
         external_set_thing_state(thing, CrSt_CreatureSlapCowers);
     }

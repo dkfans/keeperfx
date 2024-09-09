@@ -1860,11 +1860,12 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
     if (creature_would_benefit_from_healing(thing))
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_HEAL);
+        // Ranged heal can be also casted on itself.
+        INSTANCE_RET_IF_AVAIL(thing, CrInst_RANGED_HEAL);
     }
 
     if (thing_is_creature_special_digger(thing) && creature_is_doing_digger_activity(thing))
     {
-        
         // casting wind when under influence of gas
         if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
         {
@@ -2855,6 +2856,13 @@ short creature_in_combat(struct Thing *creatng)
         return 0;
     }
     CombatState combat_func;
+    CrInstance intance = process_creature_ranged_heal_spell_casting(creatng);
+    if (CrInst_NULL != intance)
+    {
+        // Check whether this creature can heal itself or others.
+        return 1;
+    }
+
     if (cctrl->combat.state_id < sizeof(combat_state)/sizeof(combat_state[0]))
         combat_func = combat_state[cctrl->combat.state_id];
     else
