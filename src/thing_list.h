@@ -345,6 +345,7 @@ struct Thing* get_timebomb_target(struct Thing *creatng);
 
 void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx);
 TbBool setup_creature_leave_or_die_if_possible(struct Thing* thing);
+unsigned short setup_excess_creatures_to_leave_or_die(short max_remain);
 /******************************************************************************/
 #ifdef __cplusplus
 }

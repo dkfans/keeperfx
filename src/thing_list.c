@@ -4254,6 +4254,54 @@ void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx)
     do_to_players_all_creatures_of_model(plyr_idx, CREATURE_DIGGER, setup_creature_die_if_not_in_custody);
 }
 
+unsigned short setup_excess_creatures_to_leave_or_die(short max_remain)
+{
+    struct CreatureControl* cctrl;
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
+    unsigned long k = 0;
+    int i = slist->index;
+    short count = 0;
+    if (slist->count <= max_remain)
+    {
+        return count;
+    }
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_of_class;
+        // Per-thing code
+        cctrl = creature_control_get_from_thing(thing);
+        if (cctrl->index > max_remain)
+        {
+            count++;
+            cleanup_creature_state_and_interactions(thing);
+            force_any_creature_dragging_thing_to_drop_it(thing);
+
+            if (is_thing_some_way_controlled(thing) || thing_is_picked_up(thing))
+            {
+                kill_creature(thing, INVALID_THING, -1, CrDed_Default);
+            }
+            else
+            {
+                setup_creature_leaves_or_dies(thing);
+            }
+        }
+        // Per-thing code ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+        return count;
+    }
+}
+
 long count_creatures_in_dungeon_of_model_flags(const struct Dungeon *dungeon, unsigned long need_mdflags, unsigned long excl_mdflags)
 {
     long count = 0;
