@@ -170,6 +170,29 @@ void increase_level(struct PlayerInfo *player, int count)
           break;
         }
     }
+    k = 0;
+    i = 0;
+    while (i < dungeon->num_familiars)
+    {
+        struct Thing* famlrtng = dungeon->familiar_list[i];
+        cctrl = creature_control_get_from_thing(famlrtng);
+        if (thing_is_invalid(famlrtng))
+        {
+          ERRORLOG("Jump to invalid creature detected");
+          
+          continue;
+        }
+        levelup_familiar(famlrtng);
+        // Thing list loop body ends
+        i++;
+        k++;
+        if (k > dungeon->num_familiars)
+        {
+          ERRORLOG("Infinite loop detected when sweeping creatures list");
+          break;
+        }
+    }    
+    
 }
 
 TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)

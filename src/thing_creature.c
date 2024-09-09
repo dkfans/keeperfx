@@ -52,6 +52,7 @@
 #include "creature_states_prisn.h"
 #include "creature_states_spdig.h"
 #include "creature_states_train.h"
+#include "dungeon_data.h"
 #include "engine_arrays.h"
 #include "engine_lenses.h"
 #include "engine_redraw.h"
@@ -1600,10 +1601,11 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
  * @param count How many creatures are created.
  * @param duration How many gameturns the creatures will live. Set to 0 for infinite.
  */
-void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, char level, char count, GameTurn duration)
+void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, char level, char count, GameTurn duration, long spl_idx)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* famlrtng;
+    struct Dungeon* dungeon = get_dungeon(creatng->owner);
     struct CreatureControl* famcctrl;
     short sumxp = level - 1;
     if (level <= 0)
@@ -1635,7 +1637,9 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                 {
                     cctrl->familiar_idx[j] = famlrtng->index;
                     famcctrl = creature_control_get_from_thing(famlrtng);
+                    add_creature_to_familiar_list(dungeon, famlrtng);
                     famcctrl->summoner_idx = creatng->index;
+                    famcctrl->summon_spl_idx = spl_idx;
                     creature_change_multiple_levels(famlrtng, sumxp);
                     remove_first_creature(famlrtng); //temporary units are not real creatures
                     famcctrl->unsummon_turn = game.play_gameturn + duration;
@@ -1671,11 +1675,7 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                     {
                         famcctrl = creature_control_get_from_thing(famlrtng);
                         famcctrl->unsummon_turn = game.play_gameturn + duration;
-                        char expdiff = sumxp - famcctrl->explevel;
-                        if (expdiff > 0)
-                        {
-                            creature_change_multiple_levels(famlrtng, expdiff);
-                        }
+                        levelup_familiar(famlrtng);
                         if ((famcctrl->follow_leader_fails > 0) || (get_chessboard_distance(&creatng->mappos, &famlrtng->mappos) > subtile_coord(12, 0))) // if it's not getting to the summoner, teleport it there
                         {
                             create_effect(&famlrtng->mappos, imp_spangle_effects[get_player_color_idx(famlrtng->owner)], famlrtng->owner);
@@ -1700,6 +1700,7 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                 else
                 {
                     //creature has already died, clear it and go again.
+                    remove_creature_from_familiar_list(dungeon, famlrtng);
                     cctrl->familiar_idx[j] = 0;
                     j--;
                 }
@@ -1708,6 +1709,51 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
     }
 }
 
+void levelup_familiar(struct Thing* famlrtng){
+    struct CreatureControl *famcctrl = creature_control_get_from_thing(famlrtng);
+    //spell level of the summoner
+    //who is my summoner?
+    struct Thing* summonertng = thing_get(famcctrl->summoner_idx);
+    struct CreatureControl *summonercctrl = creature_control_get_from_thing(summonertng);
+    //what level is his summonerspell?
+    const struct SpellConfig* spconf = get_spell_config(famcctrl->summon_spl_idx);
+    char level = spconf->crtr_summon_level;
+    // so what level should his summon be
+    short sumxp = level - 1;
+        if (level <= 0){
+            sumxp = summonercctrl->explevel + level;
+        }
+    char expdiff = sumxp - famcctrl->explevel;
+        if (expdiff > 0){
+            creature_change_multiple_levels(famlrtng, expdiff);
+        }
+}
+
+void add_creature_to_familiar_list(struct Dungeon* dungeon, struct Thing* familiar_idx){
+    if (dungeon->num_familiars < MAX_SUMMONS){    
+        dungeon->familiar_list[dungeon->num_familiars] = familiar_idx;
+        dungeon->num_familiars++;
+    }else{
+        ERRORLOG("Reached maximum limit of familiars");  
+    }
+}
+
+void remove_creature_from_familiar_list(struct Dungeon* dungeon, struct Thing* familiar_idx){
+    if (dungeon->num_familiars == 0) {
+        ERRORLOG("No familiars to remove");
+        return;
+    }
+    for (int i = 0; i < dungeon->num_familiars;i++){
+        if (dungeon->familiar_list[i] == familiar_idx) {
+            for (int j = i; j < dungeon->num_familiars -1; j++) {
+                dungeon->familiar_list[j] = dungeon->familiar_list[j + 1];
+            }
+            dungeon->familiar_list[dungeon->num_familiars - 1] = NULL;
+            dungeon->num_familiars--;
+            return;
+        }
+    }
+}
 /**
  * Casts a spell by caster creature targeted at given coordinates, most likely using shot to transfer the spell.
  * @param castng The caster creature.
@@ -1747,7 +1793,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
     }
     if (spconf->crtr_summon_model > 0)
     {
-        thing_summon_temporary_creature(castng, spconf->crtr_summon_model, spconf->crtr_summon_level, spconf->crtr_summon_amount, spconf->duration);
+        thing_summon_temporary_creature(castng, spconf->crtr_summon_model, spconf->crtr_summon_level, spconf->crtr_summon_amount, spconf->duration, spl_idx);
     }
     // Check if the spell has an effect associated
     if (spconf->cast_effect_model != 0)
