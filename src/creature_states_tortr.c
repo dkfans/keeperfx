@@ -286,7 +286,6 @@ void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
     } else
     {
         WARNLOG("Could not create creature %s to transform %s to due to creature limit", creature_code_name(crmodel), thing_model_name(thing));
-        return;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureControl* newcctrl = creature_control_get_from_thing(newthing);
