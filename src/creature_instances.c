@@ -509,7 +509,7 @@ long instf_creature_cast_spell(struct Thing *creatng, long *param)
         if (thing_is_invalid(target)) target = NULL;
     }
 
-    if (NULL != target)
+    if (target != NULL)
     {
         creature_cast_spell_at_thing(creatng, target, spl_idx, cctrl->explevel);
     }
@@ -549,13 +549,13 @@ long process_creature_self_spell_casting(struct Thing* creatng)
 }
 
 /**
- * @brief Check whether the given creature is suitable to cast ranged heal spell.
+ * @brief Check whether the given creature is suitable to cast ranged buff spell.
  * This function is used for both combat and non-combat situations.
  *
  * @param creatng The creature being checked.
  * @return CrInstance The instance index being set.
  */
-CrInstance process_creature_ranged_heal_spell_casting(struct Thing* creatng)
+CrInstance process_creature_ranged_buff_spell_casting(struct Thing* creatng)
 {
     TRACE_THING(creatng);
     SYNCDBG(8,"Processing %s(%d), act.st: %s, con.st: %s", thing_model_name(creatng), creatng->index,
@@ -641,7 +641,7 @@ CrInstance process_creature_ranged_heal_spell_casting(struct Thing* creatng)
             if (range >= inst_inf->range_min && range <= inst_inf->range_max &&
                 creature_can_see_combat_path(creatng, candidate_thing, range))
             {
-                if (NULL == best_choice || candidate_thing->health < best_choice->health)
+                if (best_choice == NULL || candidate_thing->health < best_choice->health)
                 {
                     best_choice = candidate_thing;
                 }
@@ -656,7 +656,7 @@ CrInstance process_creature_ranged_heal_spell_casting(struct Thing* creatng)
         }
     }
 
-    if (NULL != best_choice)
+    if (best_choice != NULL)
     {
         SYNCDBG(8, "Set instance %s on %s(%d) for %s(%d).",
             creature_instance_code_name(CrInst_RANGED_HEAL), thing_model_name(creatng), creatng->index,

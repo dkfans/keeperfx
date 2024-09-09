@@ -5837,10 +5837,10 @@ TngUpdateRet update_creature(struct Thing *thing)
         return TUFRet_Deleted;
     }
 
-    if (0 == process_creature_self_spell_casting(thing))
+    if (process_creature_self_spell_casting(thing) == 0)
     {
         // If this creature didn't cast anything to itself, try to help others.
-        process_creature_ranged_heal_spell_casting(thing);
+        process_creature_ranged_buff_spell_casting(thing);
     }
 
     cctrl->moveaccel.x.val = 0;

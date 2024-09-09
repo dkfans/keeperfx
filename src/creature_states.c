@@ -1619,11 +1619,11 @@ short creature_casting_preparation(struct Thing *creatng)
         creature_state_code_name(cctrl->active_state_bkp), creature_state_code_name(cctrl->continue_state_bkp),
         creature_instance_code_name(cctrl->instance_id));
 
-    if (CrInst_NULL != cctrl->instance_id)
+    if (cctrl->instance_id != CrInst_NULL)
     {
         // If the spell has not be casted, keep this state.
         struct Thing* target = thing_get(cctrl->targtng_idx);
-        if (INVALID_THING != target)
+        if (target != INVALID_THING)
         {
             // Try to keep facing to the target.
             creature_turn_to_face(creatng, &target->mappos);

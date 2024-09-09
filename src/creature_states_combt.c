@@ -1860,8 +1860,11 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
     if (creature_would_benefit_from_healing(thing))
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_HEAL);
-        // Ranged heal can be also casted on itself.
-        INSTANCE_RET_IF_AVAIL(thing, CrInst_RANGED_HEAL);
+        inst_inf = creature_instance_info_get(CrInst_RANGED_HEAL);
+        if ((inst_inf->instance_property_flags | InstPF_SelfBuff))
+        {
+            INSTANCE_RET_IF_AVAIL(thing, CrInst_RANGED_HEAL);
+        }
     }
 
     if (thing_is_creature_special_digger(thing) && creature_is_doing_digger_activity(thing))
@@ -2856,10 +2859,10 @@ short creature_in_combat(struct Thing *creatng)
         return 0;
     }
     CombatState combat_func;
-    CrInstance intance = process_creature_ranged_heal_spell_casting(creatng);
-    if (CrInst_NULL != intance)
+    CrInstance intance = process_creature_ranged_buff_spell_casting(creatng);
+    if (intance != CrInst_NULL)
     {
-        // Check whether this creature can heal itself or others.
+        // Return now if the creature has casted something.
         return 1;
     }
 
