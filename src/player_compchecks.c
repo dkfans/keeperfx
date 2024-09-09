@@ -529,6 +529,11 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
         SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
         return CTaskRet_Unk4;
     }
+    if (!creature_count_below_map_limit(0))
+    {
+        SYNCDBG(7, "Computer player %d can't create imps due to map limit", (int)dungeon->owner);
+        return CTaskRet_Unk4;
+    }
     long controlled_diggers = dungeon->num_active_diggers - count_player_diggers_not_counting_to_total(dungeon->owner);
     int preferred_imps;
     int minimal_imps;
