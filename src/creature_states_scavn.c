@@ -264,7 +264,7 @@ TbBool thing_is_valid_scavenge_target(const struct Thing *calltng, const struct 
     if (thing_is_picked_up(scavtng)) {
         return false;
     }
-    if (is_thing_directly_controlled(scavtng) || creature_is_kept_in_custody(scavtng)) {
+    if (is_thing_directly_controlled(scavtng) || creature_is_kept_in_custody(scavtng) || creature_is_leaving_and_cannot_be_stopped(scavtng)) {
         return false;
     }
     if (is_hero_thing(scavtng) && (!game.conf.rules.rooms.scavenge_good_allowed)) {

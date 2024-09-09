@@ -664,10 +664,18 @@ TbBool creature_is_being_tortured(const struct Thing *thing)
     return false;
 }
 
-TbBool creature_is_being_sacrificed(const struct Thing *thing)
+TbBool creature_is_leaving_and_cannot_be_stopped(const struct Thing *thing)
 {
     CrtrStateId i = get_creature_state_besides_interruptions(thing);
-    if ((i == CrSt_CreatureSacrifice) || (i == CrSt_CreatureBeingSacrificed) || (i == CrSt_LeavesBecauseOwnerLost))
+    if (i == CrSt_LeavesBecauseOwnerLost)
+        return true;
+    return false;
+}
+
+TbBool creature_is_being_sacrificed(const struct Thing* thing)
+{
+    CrtrStateId i = get_creature_state_besides_interruptions(thing);
+    if ((i == CrSt_CreatureSacrifice) || (i == CrSt_CreatureBeingSacrificed))
         return true;
     return false;
 }
@@ -2339,7 +2347,7 @@ struct Thing *find_random_creature_for_persuade(PlayerNumber plyr_idx, struct Co
         if ((n <= 0) )
         {
             if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing)
-                && !creature_is_being_unconscious(thing) && !creature_is_dying(thing))
+                && !creature_is_being_unconscious(thing) && !creature_is_dying(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
             {
                 return thing;
             }
@@ -4100,6 +4108,9 @@ TbBool process_creature_hunger(struct Thing *thing)
  */
 TbBool creature_will_attack_creature(const struct Thing *fightng, const struct Thing *enmtng)
 {
+    if (creature_is_leaving_and_cannot_be_stopped(fightng) || creature_is_leaving_and_cannot_be_stopped(enmtng)) {
+        return false;
+    }
     if (creature_is_being_unconscious(fightng) || creature_is_being_unconscious(enmtng)) {
         return false;
     }
@@ -4163,6 +4174,9 @@ TbBool creature_will_attack_creature_incl_til_death(const struct Thing *fightng,
         return false;
     }
     if (thing_is_picked_up(fightng) || thing_is_picked_up(enmtng)) {
+        return false;
+    }
+    if (creature_is_leaving_and_cannot_be_stopped(fightng) || creature_is_leaving_and_cannot_be_stopped(enmtng)) {
         return false;
     }
     struct CreatureControl* fighctrl = creature_control_get_from_thing(fightng);
@@ -5193,6 +5207,10 @@ void process_person_moods_and_needs(struct Thing *thing)
     if (creature_is_kept_in_custody(thing)) {
         // And creatures being tortured, imprisoned, etc.
         return;
+    }
+    if (creature_is_leaving_and_cannot_be_stopped(thing))
+    {
+        return false;
     }
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     // Now process the needs

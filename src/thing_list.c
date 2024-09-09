@@ -295,7 +295,7 @@ long near_thing_pos_thing_filter_is_enemy_which_can_be_shot_by_trap(const struct
                 if (players_are_enemies(traptng->owner, thing->owner) || is_neutral_thing(traptng))
                 {
                     if (!creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing) && !thing_is_picked_up(thing)
-                        && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_dying(thing)
+                        && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_dying(thing) && !creature_is_leaving_and_cannot_be_stopped(thing)
                         && ((get_creature_model_flags(thing) & CMF_IsSpectator) == 0))
                     {
                         MapCoordDelta distance = get_2d_distance(&thing->mappos, &traptng->mappos);
@@ -423,7 +423,7 @@ long near_map_block_thing_filter_is_enemy_of_able_to_attack_and_not_specdigger(c
 {
     if ((thing->class_id == TCls_Creature) && players_are_enemies(param->plyr_idx, thing->owner))
     {
-        if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing))
+        if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
             if ((get_creature_model_flags(thing) & CMF_IsSpecDigger) == 0)
             {
@@ -455,7 +455,7 @@ long near_map_block_thing_filter_is_creature_of_model_owned_and_controlled_by(co
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
-                if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing))
+                if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
                 {
                     // Prepare reference Coord3d struct for distance computation
                     struct Coord3d refpos;
@@ -4197,7 +4197,7 @@ TbBool setup_creature_leave_or_die_if_possible(struct Thing *thing)
 {
     if (!is_thing_some_way_controlled(thing) && !creature_is_dying(thing))
     {
-        if (!creature_is_kept_in_custody_by_enemy(thing) && !creature_is_being_unconscious(thing))
+        if (!creature_is_kept_in_custody_by_enemy(thing) && !creature_is_being_unconscious(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
             SYNCDBG(9,"Forcing on %s index %d",thing_model_name(thing),(int)thing->index);
             // Drop creature if it's being dragged

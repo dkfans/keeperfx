@@ -5849,6 +5849,10 @@ TbBool creature_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
     {
         return false;
     }
+    if (creature_is_leaving_and_cannot_be_stopped(thing))
+    {
+        return false;
+    }
     if (thing->owner != plyr_idx)
     {
       if (creature_is_kept_in_prison(thing) || creature_is_being_tortured(thing))
@@ -5901,6 +5905,9 @@ int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos,
         {
             if (is_neutral_thing(thing) && line_of_sight_3d(&thing->mappos, pos))
             {
+                if (creature_is_leaving_and_cannot_be_stopped(thing) || creature_is_leaving_and_cannot_be_stopped(creatng))
+                    return false;
+
                 // Unless the relevant classic bug is enabled,
                 // neutral creatures in custody (prison/torture) can only be claimed by the player who holds it captive
                 // and neutral creatures can not be claimed by creatures in custody.
@@ -6808,6 +6815,9 @@ void query_creature(struct PlayerInfo *player, ThingIndex index, TbBool reset, T
 
 TbBool creature_can_be_queried(struct PlayerInfo *player, struct Thing *creatng)
 {
+    if (creature_is_leaving_and_cannot_be_stopped(creatng))
+        return false;
+
     switch (player->work_state)
     {
         case PSt_CreatrInfo:

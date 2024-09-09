@@ -214,7 +214,7 @@ int calculate_number_of_creatures_to_move(struct Dungeon *dungeon, int percent_t
             break;
         }
 
-        if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing))
+        if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
             struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
             if ((cctrl->job_assigned == crstat->job_primary) || (cctrl->job_assigned == crstat->job_secondary) || (cctrl->job_assigned == 0))
