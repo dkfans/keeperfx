@@ -4298,8 +4298,8 @@ unsigned short setup_excess_creatures_to_leave_or_die(short max_remain)
             ERRORLOG("Infinite loop detected when sweeping things list");
             break;
         }
-        return count;
     }
+    return count;
 }
 
 long count_creatures_in_dungeon_of_model_flags(const struct Dungeon *dungeon, unsigned long need_mdflags, unsigned long excl_mdflags)
