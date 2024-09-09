@@ -94,7 +94,6 @@ struct LevelStats {
   unsigned long hopes_dashed;
   unsigned long allow_save_score;
   unsigned long player_score;
-  TbBool destroyed_by[PLAYERS_COUNT];
   TbBool keeper_destroyed[PLAYERS_COUNT];
 };
 

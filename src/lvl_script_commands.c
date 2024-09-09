@@ -710,16 +710,7 @@ TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
             // activateD
             *varib_type = SVar_BOX_ACTIVATED;
         }
-        else if (2 == sscanf(varib_name, "DESTROYED_BY[%n%[^]]%c", &len, arg, &c) && (c == ']'))
-        {
-            *varib_id = get_id(player_desc, arg);
-            if (*varib_id == -1)
-            {
-                *varib_id = get_id(cmpgn_human_player_options, arg);
-            }
-            *varib_type = SVar_DESTROYED_BY;
-        }
-        else if (2 == sscanf(varib_name, "KEEPER_DESTROYED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
+        else if (2 == sscanf(varib_name, "KEEPERS_DESTROYED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
         {
             *varib_id = get_id(player_desc, arg);
             if (*varib_id == -1)

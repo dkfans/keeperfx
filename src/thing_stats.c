@@ -1019,9 +1019,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
                 TbBool no_backup = (!thing_is_invalid(heartng)) ? (heartng->health <= 0) : true;
                 if (no_backup)
                 {
-                    struct Dungeon* dungeon = get_dungeon(thing->owner);
-                    dungeon->lvstats.destroyed_by[dealing_plyr_idx] = true;
-                    dungeon = get_dungeon(dealing_plyr_idx);
+                    struct Dungeon* dungeon = get_dungeon(dealing_plyr_idx);
                     dungeon->lvstats.keeper_destroyed[thing->owner] = true;
                 }
             }

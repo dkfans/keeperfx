@@ -285,8 +285,7 @@ enum ScriptVariables {
   SVar_AVAILABLE_TOTAL_TRAPS           = 82,
   SVar_AVAILABLE_TOTAL_DOORS           = 83,
   SVar_AVAILABLE_TOTAL_CREATURES       = 84,
-  SVar_DESTROYED_BY                    = 85,
-  SVar_DESTROYED_KEEPER                = 86,
+  SVar_DESTROYED_KEEPER                = 85,
  };
 
 

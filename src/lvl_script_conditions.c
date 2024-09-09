@@ -292,13 +292,6 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_VIEW_TYPE:
         player = get_player(plyr_idx);
         return player->view_type;
-    case SVar_DESTROYED_BY:
-        if (!player_has_heart(plyr_idx))
-        {
-            dungeon = get_dungeon(plyr_idx);
-            return dungeon->lvstats.destroyed_by[validx];
-        }
-        else return -1;
     case SVar_DESTROYED_KEEPER:
         if (!player_has_heart(validx))
         {

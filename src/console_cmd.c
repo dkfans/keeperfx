@@ -1140,9 +1140,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                         TbBool no_backup = (!thing_is_invalid(heartng)) ? (heartng->health <= 0) : true;
                         if (no_backup)
                         {
-                            struct Dungeon* dungeon = get_dungeon(id);
-                            dungeon->lvstats.destroyed_by[plyr_idx] = true;
-                            dungeon = get_dungeon(plyr_idx);
+                            struct Dungeon* dungeon = get_dungeon(plyr_idx);
                             dungeon->lvstats.keeper_destroyed[id] = true;
                         }
                     }
