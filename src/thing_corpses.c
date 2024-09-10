@@ -169,9 +169,12 @@ void remove_body_from_graveyard(struct Thing *thing)
     struct Dungeon* dungeon = get_dungeon(room->owner);
     dungeon->bodies_rotten_for_vampire++;
     dungeon->lvstats.graveyard_bodys++;
-    if (dungeon->bodies_rotten_for_vampire >= game.conf.rules.rooms.bodies_for_vampire) {
-        dungeon->bodies_rotten_for_vampire -= game.conf.rules.rooms.bodies_for_vampire;
-        create_vampire_in_room(room);
+    if (creature_count_below_map_limit(0))
+    {
+        if (dungeon->bodies_rotten_for_vampire >= game.conf.rules.rooms.bodies_for_vampire) {
+            dungeon->bodies_rotten_for_vampire -= game.conf.rules.rooms.bodies_for_vampire;
+            create_vampire_in_room(room);
+        }
     }
 }
 
