@@ -734,6 +734,7 @@ long shot_kill_object(struct Thing *shotng, struct Thing *target)
         struct Dungeon* dungeon = get_players_num_dungeon(shotng->owner);
         if (!dungeon_invalid(dungeon)) {
             dungeon->lvstats.keepers_destroyed++;
+            dungeon->lvstats.keeper_destroyed[target->owner]++;
         }
         return 1;
     }
@@ -851,7 +852,7 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     {
         if (object_can_be_damaged(target)) // do not damage objects that cannot be destroyed
         {
-            damage_done = apply_damage_to_thing(target, shotng->shot.damage, shotst->damage_type, shotng->owner);
+            damage_done = apply_damage_to_thing(target, shotng->shot.damage, shotst->damage_type, -1);
 
             // Drain allows caster to regain half of damage
             if ((shotst->model_flags & ShMF_LifeDrain) && thing_is_creature(shootertng))

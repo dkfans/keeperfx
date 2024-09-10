@@ -1007,23 +1007,8 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
         }
         break;
     case TCls_Trap:
-        cdamage = apply_damage_to_object(thing, dmg);
-        break;
     case TCls_Object:
         cdamage = apply_damage_to_object(thing, dmg);
-        if (thing->health <= 0)
-        {
-            if (thing_is_dungeon_heart(thing))
-            {
-                struct Thing* heartng = find_players_backup_dungeon_heart(thing->owner);
-                TbBool no_backup = (!thing_is_invalid(heartng)) ? (heartng->health <= 0) : true;
-                if (no_backup)
-                {
-                    struct Dungeon* dungeon = get_dungeon(dealing_plyr_idx);
-                    dungeon->lvstats.keeper_destroyed[thing->owner] = true;
-                }
-            }
-        }
         break;
     case TCls_Door:
         cdamage = apply_damage_to_door(thing, dmg);

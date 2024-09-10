@@ -994,30 +994,29 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
             }
             if (thing->health <= 0)
             {
-                struct Thing* heartng = find_players_backup_dungeon_heart(pckt->actn_par1);
-                TbBool no_backup = (!thing_is_invalid(heartng)) ? (heartng->health <= 0) : true;
-                if (no_backup)
-                {
                     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-                    dungeon->lvstats.keeper_destroyed[pckt->actn_par1] = true;
-                }
+                    dungeon->lvstats.keeper_destroyed[pckt->actn_par1]++;
+                    dungeon->lvstats.keepers_destroyed++;
             }
             break;
         }
         case PckA_CheatKillPlayer:
         {
             thing = get_player_soul_container(pckt->actn_par1);
+            struct Dungeon* dungeon = get_dungeon(plyr_idx);
             if (!thing_is_invalid(thing))
             {
                 thing->health = 0;
+                dungeon->lvstats.keeper_destroyed[pckt->actn_par1]++;
+                dungeon->lvstats.keepers_destroyed++;
             }
             struct Thing* heartng = find_players_backup_dungeon_heart(pckt->actn_par1);
             if (!thing_is_invalid(heartng))
             {
                 heartng->health = 0;
+                dungeon->lvstats.keeper_destroyed[pckt->actn_par1]++;
+                dungeon->lvstats.keepers_destroyed++;
             }
-            struct Dungeon* dungeon = get_dungeon(plyr_idx);
-            dungeon->lvstats.keeper_destroyed[pckt->actn_par1] = true;
             break;
         }
         case PckA_CheatConvertCreature:

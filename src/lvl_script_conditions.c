@@ -128,6 +128,9 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_KEEPERS_DESTROYED:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->lvstats.keepers_destroyed;
+    case SVar_DESTROYED_KEEPER:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->lvstats.keeper_destroyed[validx];
     case SVar_TIMES_LEVELUP_CREATURE:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->lvstats.creatures_trained;
@@ -292,13 +295,6 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_VIEW_TYPE:
         player = get_player(plyr_idx);
         return player->view_type;
-    case SVar_DESTROYED_KEEPER:
-        if (!player_has_heart(validx))
-        {
-            dungeon = get_dungeon(plyr_idx);
-            return dungeon->lvstats.keeper_destroyed[validx];
-        }
-        // fall through
     default:
         break;
     };
