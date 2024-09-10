@@ -101,7 +101,7 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-int creature_swap_idx[CREATURE_TYPES_COUNT];
+int creature_swap_idx[CREATURE_TYPES_MAX];
 
 /******************************************************************************/
 extern struct TbLoadFiles swipe_load_file[];
