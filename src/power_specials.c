@@ -172,9 +172,9 @@ void increase_level(struct PlayerInfo *player, int count)
     }
     k = 0;
     i = 0;
-    while (i < dungeon->num_familiars)
+    while (i < dungeon->num_summon)
     {
-        struct Thing* famlrtng = dungeon->familiar_list[i];
+        struct Thing* famlrtng = dungeon->summon_list[i];
         cctrl = creature_control_get_from_thing(famlrtng);
         if (thing_is_invalid(famlrtng))
         {
@@ -182,11 +182,10 @@ void increase_level(struct PlayerInfo *player, int count)
           
           continue;
         }
-        levelup_familiar(famlrtng);
-        // Thing list loop body ends
+        levelup_summons(famlrtng);
         i++;
         k++;
-        if (k > dungeon->num_familiars)
+        if (k > dungeon->num_summon)
         {
           ERRORLOG("Infinite loop detected when sweeping creatures list");
           break;

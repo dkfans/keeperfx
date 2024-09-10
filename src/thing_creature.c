@@ -1709,51 +1709,53 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
     }
 }
 
-void levelup_familiar(struct Thing* famlrtng){
+void levelup_summons(struct Thing* famlrtng){
     struct CreatureControl *famcctrl = creature_control_get_from_thing(famlrtng);
     //who is my summoner?
     struct Thing* summonertng = thing_get(famcctrl->summoner_idx);
-    short summonlevel = famcctrl->explevel;
     struct CreatureControl *summonercctrl = creature_control_get_from_thing(summonertng);
     short summonerxp = summonercctrl->explevel;
-    //what level is his summonerspell?
+    //which summonerspell does he us and what level is it?
     const struct SpellConfig* spconf = get_spell_config(famcctrl->summon_spl_idx);
     char level = spconf->crtr_summon_level;
-    // so what level should his summon be
+    //so what level should his summon be
     short sumxp = level - 1;
         if (level <= 0){
+            //we know already the Summoner will levelup next turn?
              if ((summonercctrl->spell_flags & CSAfF_ExpLevelUp)  && (summonercctrl->explevel+1 < CREATURE_MAX_LEVEL)){
                 summonerxp += 1;
             }
             sumxp = summonerxp + level;
         }
-    char expdiff = sumxp - summonlevel;
+    //level up the summon
+    char expdiff = sumxp - famcctrl->explevel;
         if (expdiff > 0){
             creature_change_multiple_levels(famlrtng, expdiff);
         }
 }
 
-void add_creature_to_familiar_list(struct Dungeon* dungeon, struct Thing* familiar_idx){
-    if (dungeon->num_familiars < MAX_SUMMONS){    
-        dungeon->familiar_list[dungeon->num_familiars] = familiar_idx;
-        dungeon->num_familiars++;
+void add_creature_to_summon_list(struct Dungeon* dungeon, struct Thing* familiar_idx){
+    if (dungeon->num_summon < MAX_SUMMONS){    
+        dungeon->summon_list[dungeon->num_summon] = familiar_idx;
+        dungeon->num_summon++;
     }else{
-        ERRORLOG("Reached maximum limit of familiars");  
+        ERRORLOG("Reached maximum limit of summons");  
     }
 }
 
-void remove_creature_from_familiar_list(struct Dungeon* dungeon, struct Thing* familiar_idx){
-    if (dungeon->num_familiars == 0) {
-        ERRORLOG("No familiars to remove");
+void remove_creature_from_summon_list(struct Dungeon* dungeon, struct Thing* familiar_idx){
+    if (dungeon->num_summon == 0) {
+        ERRORLOG("No summons to remove");
         return;
     }
-    for (int i = 0; i < dungeon->num_familiars;i++){
-        if (dungeon->familiar_list[i] == familiar_idx) {
-            for (int j = i; j < dungeon->num_familiars -1; j++) {
-                dungeon->familiar_list[j] = dungeon->familiar_list[j + 1];
+    for (int i = 0; i < dungeon->num_summon;i++){
+        if (dungeon->summon_list[i] == familiar_idx) {
+            // Shift the rest of the list one position forward
+            for (int j = i; j < dungeon->num_summon -1; j++) {
+                dungeon->summon_list[j] = dungeon->summon_list[j + 1];
             }
-            dungeon->familiar_list[dungeon->num_familiars - 1] = NULL;
-            dungeon->num_familiars--;
+            dungeon->summon_list[dungeon->num_summon - 1] = NULL;
+            dungeon->num_summon--;
             return;
         }
     }
