@@ -264,7 +264,7 @@ TbBool thing_is_valid_scavenge_target(const struct Thing *calltng, const struct 
     if (thing_is_picked_up(scavtng)) {
         return false;
     }
-    if (is_thing_directly_controlled(scavtng) || creature_is_kept_in_custody(scavtng)) {
+    if (is_thing_directly_controlled(scavtng) || creature_is_kept_in_custody(scavtng) || creature_is_leaving_and_cannot_be_stopped(scavtng)) {
         return false;
     }
     if (is_hero_thing(scavtng) && (!game.conf.rules.rooms.scavenge_good_allowed)) {
@@ -466,6 +466,11 @@ TbBool creature_scavenge_from_creature_pool(struct Thing *calltng)
     }
     if ( !find_random_valid_position_for_thing_in_room(calltng, room, &pos) ) {
         ERRORLOG("Could not find valid position in %s for %s to be generated",room_code_name(room->kind),creature_code_name(calltng->model));
+        return false;
+    }
+    if (!creature_count_below_map_limit(0))
+    {
+        SYNCDBG(7,"Scavenge creature %s from portal failed to due to map creature limit", thing_model_name(calltng));
         return false;
     }
     struct Thing* scavtng = create_creature(&pos, calltng->model, calltng->owner);
