@@ -200,7 +200,7 @@ TbBool thing_is_deployed_trap(const struct Thing* thing)
 TbBool creature_available_for_trap_trigger(struct Thing* creatng)
 {
     if (!creature_is_being_unconscious(creatng) && !thing_is_dragged_or_pulled(creatng)
-        && !creature_is_kept_in_custody_by_enemy(creatng) && !creature_is_dying(creatng)
+        && !creature_is_kept_in_custody_by_enemy(creatng) && !creature_is_dying(creatng) && !creature_is_leaving_and_cannot_be_stopped(creatng)
         && !creature_is_being_dropped(creatng) && !flag_is_set(get_creature_model_flags(creatng),CMF_IsSpectator))
     {
         return true;
@@ -522,6 +522,11 @@ void activate_trap_slab_change(struct Thing *traptng)
 
 struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char model)
 {
+    if (!creature_count_below_map_limit(0))
+    {
+        WARNLOG("Can't spawn creature %s due to map creature limit.", creature_code_name(model));
+        return INVALID_THING;
+    }
     struct Thing* thing;
     struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
     struct CreatureControl* cctrl;

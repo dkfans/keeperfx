@@ -175,8 +175,8 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
     const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
 
-    short *room_scores = (short *)scratch;
-    memset(scratch, 0, ROOMS_COUNT);
+    short *room_scores = (short *)big_scratch;
+    memset(big_scratch, 0, ROOMS_COUNT);
 
 
     for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)

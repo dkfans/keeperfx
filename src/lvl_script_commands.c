@@ -45,6 +45,7 @@
 #include "power_specials.h"
 #include "room_util.h"
 #include "sounds.h"
+#include "spdigger_stack.h"
 #include "thing_data.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
@@ -301,6 +302,7 @@ rules_creatures_named_fields,rules_computer_named_fields,rules_workers_named_fie
 static const struct NamedCommand game_rule_desc[] = {
   {"PreserveClassicBugs",            1},
   {"AlliesShareVision",              2},
+  {"MapCreatureLimit",               3},
   {NULL,                             0},
 };
 
@@ -5455,6 +5457,16 @@ static void set_game_rule_process(struct ScriptContext* context)
         SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.allies_share_vision, rulevalue);
         game.conf.rules.game.allies_share_vision = (TbBool)rulevalue;
         panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
+        break;
+    case 3: //MapCreatureLimit
+        //this one is a special case because it needs to kill of additional creatures
+        SCRIPTDBG(7, "Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.creatures_count, rulevalue);
+        game.conf.rules.game.creatures_count = rulevalue;
+        short count = setup_excess_creatures_to_leave_or_die(game.conf.rules.game.creatures_count);
+        if (count > 0)
+        {
+            SCRPTLOG("Map creature limit reduced, causing %d creatures to leave or die",count);
+        }
         break;
     default:
         WARNMSG("Unsupported Game Rule, command %d.", ruledesc);

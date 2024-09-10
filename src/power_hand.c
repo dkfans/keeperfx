@@ -206,6 +206,10 @@ long can_thing_be_picked_up_by_player(const struct Thing *thing, PlayerNumber pl
     if (thing_is_creature(thing) && thing_pickup_is_blocked_by_hand_rule(thing, plyr_idx)) {
         return false;
     }
+    if (thing_is_creature(thing) && creature_is_leaving_and_cannot_be_stopped(thing))
+    {
+        return false;
+    }
     // Some things can be picked not to be placed in hand, but for direct use
     if (thing_is_object(thing))
     {
@@ -243,8 +247,8 @@ TbBool can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber
         state = thing->active_state;
     }
 
-    if ( (state == CrSt_CreatureSacrifice)
-        || (state == CrSt_CreatureBeingSacrificed) || (state == CrSt_CreatureBeingSummoned))
+    if ( (state == CrSt_CreatureSacrifice) || (state == CrSt_CreatureBeingSacrificed)
+        || (state == CrSt_CreatureBeingSummoned) || (state == CrSt_LeavesBecauseOwnerLost))
     {
         return false;
     }
