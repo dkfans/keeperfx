@@ -559,6 +559,8 @@ struct CreatureSounds {
     struct CreatureSound fight;
 };
 
+extern int creature_swap_idx[CREATURE_TYPES_MAX];
+
 #pragma pack()
 /******************************************************************************/
 struct CreatureControl *creature_control_get(long cctrl_idx);
