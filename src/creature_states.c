@@ -5210,7 +5210,7 @@ void process_person_moods_and_needs(struct Thing *thing)
     }
     if (creature_is_leaving_and_cannot_be_stopped(thing))
     {
-        return false;
+        return;
     }
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     // Now process the needs
