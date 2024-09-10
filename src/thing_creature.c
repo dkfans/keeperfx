@@ -1711,19 +1711,23 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
 
 void levelup_familiar(struct Thing* famlrtng){
     struct CreatureControl *famcctrl = creature_control_get_from_thing(famlrtng);
-    //spell level of the summoner
     //who is my summoner?
     struct Thing* summonertng = thing_get(famcctrl->summoner_idx);
+    short summonlevel = famcctrl->explevel;
     struct CreatureControl *summonercctrl = creature_control_get_from_thing(summonertng);
+    short summonerxp = summonercctrl->explevel;
     //what level is his summonerspell?
     const struct SpellConfig* spconf = get_spell_config(famcctrl->summon_spl_idx);
     char level = spconf->crtr_summon_level;
     // so what level should his summon be
     short sumxp = level - 1;
         if (level <= 0){
-            sumxp = summonercctrl->explevel + level;
+             if ((summonercctrl->spell_flags & CSAfF_ExpLevelUp)  && (summonercctrl->explevel+1 < CREATURE_MAX_LEVEL)){
+                summonerxp += 1;
+            }
+            sumxp = summonerxp + level;
         }
-    char expdiff = sumxp - famcctrl->explevel;
+    char expdiff = sumxp - summonlevel;
         if (expdiff > 0){
             creature_change_multiple_levels(famlrtng, expdiff);
         }
