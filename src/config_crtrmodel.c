@@ -1706,8 +1706,8 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                 if (k > 0)
                 {
                     crstat->transparency_flags = k<<4; // Bitshift to get the transparancy bit in the render flag
-                    n++;
                 }
+                n++;
             }
             if (n < 1)
             {

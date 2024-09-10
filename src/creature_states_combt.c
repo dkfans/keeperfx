@@ -639,8 +639,8 @@ TbBool battle_with_creature_of_player(PlayerNumber plyr_idx, BattleIndex battle_
         TRACE_THING(thing);
         if (thing_is_invalid(thing))
         {
-          ERRORLOG("Jump to invalid thing detected");
-          break;
+            ERRORLOG("Jump to invalid thing detected");
+            break;
         }
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         i = cctrl->battle_prev_creatr;
@@ -651,8 +651,8 @@ TbBool battle_with_creature_of_player(PlayerNumber plyr_idx, BattleIndex battle_
         k++;
         if (k > CREATURES_COUNT)
         {
-          ERRORLOG("Infinite loop detected when sweeping creatures list");
-          break;
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
         }
     }
     return false;
@@ -692,7 +692,8 @@ TbBool battle_any_of_things_in_specific_battle(const struct CreatureBattle *batt
         }
         // Per battle creature code ends
         k++;
-        if (k >= CREATURES_COUNT) {
+        if (k >= CREATURES_COUNT)
+        {
             ERRORLOG("Infinite loop in battle add");
             break;
         }
@@ -1248,7 +1249,7 @@ CrAttackType find_fellow_creature_to_fight_in_room(struct Thing *fightng, struct
             if (thing_is_creature(thing) && (thing_matches_model(thing,crmodel[j])) && (cctrl->combat_flags == 0))
             {
                 if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing)
-                    && !creature_is_being_unconscious(thing) && !creature_is_dying(thing))
+                    && !creature_is_being_unconscious(thing) && !creature_is_dying(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
                 {
                     if ((thing->index != fightng->index) && (get_room_thing_is_on(thing)->index == room->index))
                     {

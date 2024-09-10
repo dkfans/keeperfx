@@ -382,7 +382,7 @@ TbBool creature_will_go_postal_on_victim_during_job(const struct Thing *creatng,
 {
     if (thing_is_creature(victng) && (victng->index != creatng->index) && !creature_has_job(victng, job_kind)
         && !creature_is_kept_in_custody(victng) && !creature_is_being_unconscious(victng)
-        && !creature_is_dying(victng) && !creature_is_doing_anger_job(victng))
+        && !creature_is_dying(victng) && !creature_is_doing_anger_job(victng) && !creature_is_leaving_and_cannot_be_stopped(victng))
     {
         if (!creature_is_invisible(victng) || creature_can_see_invisible(creatng)) {
             return true;
