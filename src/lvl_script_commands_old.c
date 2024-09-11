@@ -812,31 +812,6 @@ static void command_message(const char *msgtext, unsigned char kind)
   SCRPTWRNLOG("Command '%s' is only supported in Dungeon Keeper Beta", cmd);
 }
 
-static void command_swap_creature(const char *ncrt_name, const char *crtr_name)
-{
-    long ncrt_id = get_rid(creature_desc, ncrt_name);
-    if (ncrt_id == -1)
-    {
-        SCRPTERRLOG("Unknown new creature, '%s'", ncrt_name);
-        return;
-  }
-  long crtr_id = get_rid(creature_desc, crtr_name);
-  if (crtr_id == -1)
-  {
-      SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
-      return;
-  }
-  struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_id];
-  if ((crconf->model_flags & CMF_IsSpecDigger) != 0)
-  {
-      SCRPTERRLOG("Unable to swap special diggers");
-  }
-  if (!swap_creature(ncrt_id, crtr_id))
-  {
-      SCRPTERRLOG("Error swapping creatures '%s'<->'%s'", ncrt_name, crtr_name);
-  }
-}
-
 static void command_kill_creature(long plr_range_id, const char *crtr_name, const char *criteria, int count)
 {
     SCRIPTDBG(11, "Starting");
@@ -1424,9 +1399,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_QUICK_INFORMATION_WITH_POS:
         command_quick_information(scline->np[0], scline->tp[1], NULL, scline->np[2], scline->np[3]);
-        break;
-    case Cmd_SWAP_CREATURE:
-        command_swap_creature(scline->tp[0], scline->tp[1]);
         break;
     case Cmd_PRINT:
         command_message(scline->tp[0],80);
