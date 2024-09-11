@@ -814,7 +814,7 @@ static void command_message(const char *msgtext, unsigned char kind)
 
 static void command_swap_creature(const char *ncrt_name, const char *crtr_name)
 {
-    long ncrt_id = get_rid(newcrtr_desc, ncrt_name);
+    long ncrt_id = get_rid(creature_desc, ncrt_name);
     if (ncrt_id == -1)
     {
         SCRPTERRLOG("Unknown new creature, '%s'", ncrt_name);
@@ -830,10 +830,6 @@ static void command_swap_creature(const char *ncrt_name, const char *crtr_name)
   if ((crconf->model_flags & CMF_IsSpecDigger) != 0)
   {
       SCRPTERRLOG("Unable to swap special diggers");
-  }
-  if (get_script_current_condition() != CONDITION_ALWAYS) 
-  {
-      SCRPTWRNLOG("Creature swapping placed inside conditional statement");
   }
   if (!swap_creature(ncrt_id, crtr_id))
   {
