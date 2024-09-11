@@ -31,8 +31,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define CREATURE_TYPES_COUNT  32
-#define DEAD_CREATURES_MAX_COUNT 64
+#define DEAD_CREATURES_MAX_COUNT 128
 #define CREATURE_NAME_MAX 25
 /** The standard altitude at which a creature is flying.
  * Should be over one tile, to allow flying creatures leave water areas. */
@@ -78,10 +77,10 @@ struct CreatureStorage {
 /******************************************************************************/
 extern struct TbSprite *swipe_sprites;
 extern struct TbSprite *end_swipe_sprites;
-extern int creature_swap_idx[CREATURE_TYPES_COUNT];
 extern unsigned long creature_create_errors;
 /******************************************************************************/
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner);
+TbBool creature_count_below_map_limit(TbBool temp_creature);
 long move_creature(struct Thing *thing);
 struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng,
     PlayerNumber killer_plyr_idx, CrDeathFlags flags);

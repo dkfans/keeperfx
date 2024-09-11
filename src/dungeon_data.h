@@ -179,9 +179,9 @@ struct Dungeon {
     unsigned char gold_piles_sacrificed;
     unsigned char creature_sacrifice[CREATURE_TYPES_MAX];
     unsigned char creature_sacrifice_exp[CREATURE_TYPES_MAX];
-    unsigned char num_active_diggers;
-    unsigned char num_active_creatrs;
-    unsigned char owned_creatures_of_model[CREATURE_TYPES_MAX];
+    unsigned short num_active_diggers;
+    unsigned short num_active_creatrs;
+    unsigned short owned_creatures_of_model[CREATURE_TYPES_MAX];
     /** Total amount of rooms in possession of a player. Rooms which can never be built are not counted. */
     unsigned char total_rooms;
     unsigned short total_doors;

@@ -214,7 +214,7 @@ int calculate_number_of_creatures_to_move(struct Dungeon *dungeon, int percent_t
             break;
         }
 
-        if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing))
+        if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
             struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
             if ((cctrl->job_assigned == crstat->job_primary) || (cctrl->job_assigned == crstat->job_secondary) || (cctrl->job_assigned == 0))
@@ -527,6 +527,11 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
     struct Dungeon* dungeon = comp->dungeon;
     if (dungeon_invalid(dungeon) || !player_has_heart(dungeon->owner)) {
         SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
+        return CTaskRet_Unk4;
+    }
+    if (!creature_count_below_map_limit(0))
+    {
+        SYNCDBG(7, "Computer player %d can't create imps due to map limit", (int)dungeon->owner);
         return CTaskRet_Unk4;
     }
     long controlled_diggers = dungeon->num_active_diggers - count_player_diggers_not_counting_to_total(dungeon->owner);
