@@ -734,6 +734,7 @@ long shot_kill_object(struct Thing *shotng, struct Thing *target)
         struct Dungeon* dungeon = get_players_num_dungeon(shotng->owner);
         if (!dungeon_invalid(dungeon)) {
             dungeon->lvstats.keepers_destroyed++;
+            dungeon->lvstats.keeper_destroyed[target->owner]++;
         }
         return 1;
     }

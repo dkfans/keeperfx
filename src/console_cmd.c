@@ -1149,6 +1149,12 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 {
                     HitPoints Health = atoi(pr3str);
                     thing->health = Health;
+                    if (thing->health <= 0)
+                    {
+                        struct Dungeon* dungeon = get_dungeon(plyr_idx);
+                        dungeon->lvstats.keeper_destroyed[id]++;
+                        dungeon->lvstats.keepers_destroyed++;
+                    }
                     return true;
                 }
             }
