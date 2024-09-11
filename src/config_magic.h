@@ -89,7 +89,6 @@ enum CreatureSpellAffectedFlags {
     CSAfF_Grounded     = 0x8000,
     CSAfF_Timebomb     = 0x10000,
     CSAfF_Wind         = 0x20000,
-    CSAfF_Familiar     = 0x40000,
 };
 
 enum PowerKinds {
