@@ -1637,8 +1637,11 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                 {
                     cctrl->familiar_idx[j] = famlrtng->index;
                     famcctrl = creature_control_get_from_thing(famlrtng);
-                    add_creature_to_familiar_list(dungeon, famlrtng);
+                    // create list for summons for all dungeons
+                    add_creature_to_summon_list(dungeon, famlrtng);
+                    //remmember your Summoner
                     famcctrl->summoner_idx = creatng->index;
+                    //remember the spell that created you
                     famcctrl->summon_spl_idx = spl_idx;
                     creature_change_multiple_levels(famlrtng, sumxp);
                     remove_first_creature(famlrtng); //temporary units are not real creatures
@@ -1675,7 +1678,7 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                     {
                         famcctrl = creature_control_get_from_thing(famlrtng);
                         famcctrl->unsummon_turn = game.play_gameturn + duration;
-                        levelup_familiar(famlrtng);
+                        levelup_summons(famlrtng);
                         if ((famcctrl->follow_leader_fails > 0) || (get_chessboard_distance(&creatng->mappos, &famlrtng->mappos) > subtile_coord(12, 0))) // if it's not getting to the summoner, teleport it there
                         {
                             create_effect(&famlrtng->mappos, imp_spangle_effects[get_player_color_idx(famlrtng->owner)], famlrtng->owner);
@@ -1700,7 +1703,7 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                 else
                 {
                     //creature has already died, clear it and go again.
-                    remove_creature_from_familiar_list(dungeon, famlrtng);
+                    remove_creature_from_summon_list(dungeon, famlrtng);
                     cctrl->familiar_idx[j] = 0;
                     j--;
                 }
@@ -1709,14 +1712,14 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
     }
 }
 
-void levelup_summons(struct Thing* famlrtng){
-    struct CreatureControl *famcctrl = creature_control_get_from_thing(famlrtng);
+void levelup_summons(struct Thing* summntng){
+    struct CreatureControl *summcctrl = creature_control_get_from_thing(summntng);
     //who is my summoner?
-    struct Thing* summonertng = thing_get(famcctrl->summoner_idx);
+    struct Thing* summonertng = thing_get(summcctrl->summoner_idx);
     struct CreatureControl *summonercctrl = creature_control_get_from_thing(summonertng);
     short summonerxp = summonercctrl->explevel;
     //which summonerspell does he us and what level is it?
-    const struct SpellConfig* spconf = get_spell_config(famcctrl->summon_spl_idx);
+    const struct SpellConfig* spconf = get_spell_config(summcctrl->summon_spl_idx);
     char level = spconf->crtr_summon_level;
     //so what level should his summon be
     short sumxp = level - 1;
@@ -1728,28 +1731,28 @@ void levelup_summons(struct Thing* famlrtng){
             sumxp = summonerxp + level;
         }
     //level up the summon
-    char expdiff = sumxp - famcctrl->explevel;
+    char expdiff = sumxp - summcctrl->explevel;
         if (expdiff > 0){
-            creature_change_multiple_levels(famlrtng, expdiff);
+            creature_change_multiple_levels(summntng, expdiff);
         }
 }
 
-void add_creature_to_summon_list(struct Dungeon* dungeon, struct Thing* familiar_idx){
+void add_creature_to_summon_list(struct Dungeon* dungeon, struct Thing* summntng){
     if (dungeon->num_summon < MAX_SUMMONS){    
-        dungeon->summon_list[dungeon->num_summon] = familiar_idx;
+        dungeon->summon_list[dungeon->num_summon] = summntng;
         dungeon->num_summon++;
     }else{
         ERRORLOG("Reached maximum limit of summons");  
     }
 }
 
-void remove_creature_from_summon_list(struct Dungeon* dungeon, struct Thing* familiar_idx){
+void remove_creature_from_summon_list(struct Dungeon* dungeon, struct Thing* summntng){
     if (dungeon->num_summon == 0) {
         ERRORLOG("No summons to remove");
         return;
     }
     for (int i = 0; i < dungeon->num_summon;i++){
-        if (dungeon->summon_list[i] == familiar_idx) {
+        if (dungeon->summon_list[i] == summntng) {
             // Shift the rest of the list one position forward
             for (int j = i; j < dungeon->num_summon -1; j++) {
                 dungeon->summon_list[j] = dungeon->summon_list[j + 1];
