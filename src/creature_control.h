@@ -32,8 +32,8 @@
 extern "C" {
 #endif
 
-#define CREATURE_TYPES_MAX 64
-#define SWAP_CREATURE_TYPES_MAX 64
+#define CREATURE_TYPES_MAX 128
+#define SWAP_CREATURE_TYPES_MAX 128
 #define CREATURE_STATES_MAX 256
 
 #define MAX_SIZEXY            768
@@ -140,7 +140,7 @@ struct CastedSpellData {
 };
 
 struct CreatureControl {
-    unsigned char index;
+    unsigned short index;
     unsigned char flgfield_1;
     unsigned char flgfield_2;
     unsigned char combat_flags;
@@ -558,6 +558,8 @@ struct CreatureSounds {
     struct CreatureSound slap;
     struct CreatureSound fight;
 };
+
+extern int creature_swap_idx[CREATURE_TYPES_MAX];
 
 #pragma pack()
 /******************************************************************************/
