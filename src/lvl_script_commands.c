@@ -6415,6 +6415,34 @@ static void set_computer_event_process(struct ScriptContext* context)
     SCRIPTDBG(6, "Altered %d events named '%s'", n, evntname);
 }
 
+static void swap_creature_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    ThingModel ncrt_id = scline->np[0];
+    ThingModel crtr_id = scline->np[1];
+
+    struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_id];
+    if ((crconf->model_flags & CMF_IsSpecDigger) != 0)
+    {
+        SCRPTERRLOG("Unable to swap special diggers");
+        DEALLOCATE_SCRIPT_VALUE;
+    }
+    value->shorts[0] = ncrt_id;
+    value->shorts[1] = crtr_id;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void swap_creature_process(struct ScriptContext* context)
+{
+    ThingModel ncrt_id = context->value->shorts[0];
+    ThingModel crtr_id = context->value->shorts[1];
+
+    if (!swap_creature(ncrt_id, crtr_id))
+    {
+        SCRPTERRLOG("Error swapping creatures '%s'<->'%s'", creature_code_name(ncrt_id), creature_code_name(crtr_id));
+    }
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -6479,7 +6507,7 @@ const struct CommandDesc command_desc[] = {
   {"QUICK_INFORMATION",                 "NAl     ", Cmd_QUICK_INFORMATION, NULL, NULL},
   {"QUICK_OBJECTIVE_WITH_POS",          "NANN    ", Cmd_QUICK_OBJECTIVE_WITH_POS, NULL, NULL},
   {"QUICK_INFORMATION_WITH_POS",        "NANN    ", Cmd_QUICK_INFORMATION_WITH_POS, NULL, NULL},
-  {"SWAP_CREATURE",                     "AC      ", Cmd_SWAP_CREATURE, NULL, NULL},
+  {"SWAP_CREATURE",                     "CC      ", Cmd_SWAP_CREATURE, &swap_creature_check, &swap_creature_process},
   {"PRINT",                             "A       ", Cmd_PRINT, NULL, NULL},
   {"MESSAGE",                           "A       ", Cmd_MESSAGE, NULL, NULL},
   {"PLAY_MESSAGE",                      "PAA     ", Cmd_PLAY_MESSAGE, &play_message_check, &play_message_process},
@@ -6626,7 +6654,7 @@ const struct CommandDesc dk1_command_desc[] = {
   {"BONUS_LEVEL_TIME",             "N       ", Cmd_BONUS_LEVEL_TIME, NULL, NULL},
   {"QUICK_OBJECTIVE",              "NAA     ", Cmd_QUICK_OBJECTIVE, NULL, NULL},
   {"QUICK_INFORMATION",            "NA      ", Cmd_QUICK_INFORMATION, NULL, NULL},
-  {"SWAP_CREATURE",                "AC      ", Cmd_SWAP_CREATURE, NULL, NULL},
+  {"SWAP_CREATURE",                "CC      ", Cmd_SWAP_CREATURE, &swap_creature_check, &swap_creature_process},
   {"PRINT",                        "A       ", Cmd_PRINT, NULL, NULL},
   {"MESSAGE",                      "A       ", Cmd_MESSAGE, NULL, NULL},
   {"LEVEL_VERSION",                "N       ", Cmd_LEVEL_VERSION, NULL, NULL},

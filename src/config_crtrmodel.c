@@ -2603,7 +2603,7 @@ TbBool swap_creaturemodel_config(ThingModel nwcrmodel, ThingModel crmodel, unsig
     static const char config_campgn_textname[] = "campaing creature model config";
     static const char config_level_textname[] = "level creature model config";
     char conf_fnstr[COMMAND_WORD_LEN];
-    LbStringToLowerCopy(conf_fnstr, get_conf_parameter_text(newcrtr_desc, nwcrmodel), COMMAND_WORD_LEN);
+    LbStringToLowerCopy(conf_fnstr, get_conf_parameter_text(creature_desc, nwcrmodel), COMMAND_WORD_LEN);
     if (strlen(conf_fnstr) == 0)
     {
         WARNMSG("Cannot get config file name for creature %d.", crmodel);
@@ -2628,7 +2628,7 @@ TbBool swap_creaturemodel_config(ThingModel nwcrmodel, ThingModel crmodel, unsig
 static void do_creature_swap(ThingModel ncrt_id, ThingModel crtr_id)
 {
     swap_creaturemodel_config(ncrt_id, crtr_id, 0);
-    SCRPTLOG("Swapped creature %s out for creature %s", creature_code_name(crtr_id), new_creature_code_name(ncrt_id));
+    SCRPTLOG("Swapped creature %s out for creature %s", creature_code_name(crtr_id), creature_code_name(ncrt_id));
 }
 
 TbBool swap_creature(ThingModel ncrt_id, ThingModel crtr_id)
@@ -2638,9 +2638,9 @@ TbBool swap_creature(ThingModel ncrt_id, ThingModel crtr_id)
         ERRORLOG("Creature index %d is invalid", crtr_id);
         return false;
     }
-    if (creature_swap_idx[crtr_id] > 0)
+    if ((ncrt_id < 0) || (ncrt_id >= game.conf.crtr_conf.model_count))
     {
-        ERRORLOG("Creature of index %d already swapped", crtr_id);
+        ERRORLOG("Creature index %d is invalid", ncrt_id);
         return false;
     }
     do_creature_swap(ncrt_id, crtr_id);
