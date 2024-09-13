@@ -28,7 +28,7 @@ extern "C" {
 /******************************************************************************/
 #define STRINGS_MAX       2000
 #define DK_STRINGS_MAX     941
-#define GUI_STRINGS_COUNT 1063
+#define GUI_STRINGS_COUNT 1066
 
 struct GameCampaign;
 
@@ -427,6 +427,9 @@ enum GUIStrings {
     GUIStr_NetUnsyncedMap = STRINGS_MAX + 1006,
     GUIStr_DisplayResolution = STRINGS_MAX + 1007,
     GUIStr_OptionVoice = STRINGS_MAX + 1008,
+    GUIStr_CtrlTiltUp = STRINGS_MAX + 1063,
+    GUIStr_CtrlTiltDown = STRINGS_MAX + 1064,
+    GUIStr_CtrlTiltReset = STRINGS_MAX + 1065,
 };
 
 enum CampaignStrings {

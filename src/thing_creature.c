@@ -101,7 +101,7 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-int creature_swap_idx[CREATURE_TYPES_COUNT];
+int creature_swap_idx[CREATURE_TYPES_MAX];
 
 /******************************************************************************/
 extern struct TbLoadFiles swipe_load_file[];
@@ -736,7 +736,7 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
     case SplK_Fear:
         return false;//TODO CREATURE_SPELL update when fear continous effect is implemented
     case SplK_Wind:
-        return false;//TODO CREATURE_SPELL find out how to check this
+        return ((cctrl->spell_flags & CSAfF_Wind) != 0);
     case SplK_Light:
         return ((cctrl->spell_flags & CSAfF_Light) != 0);
     case SplK_Hailstorm:
@@ -1659,6 +1659,10 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                             add_creature_to_group(famlrtng, creatng);
                         }
                     }
+                }
+                else
+                {
+                    cctrl->familiar_idx[j] = 0;
                 }
             }
             else
@@ -3906,6 +3910,25 @@ TbBool thing_is_creature_special_digger(const struct Thing *thing)
   return ((get_creature_model_flags(thing) & CMF_IsSpecDigger) != 0);
 }
 
+/** Returns if a thing the creature type set as spectator, normally the floating spirit.
+  * @param thing The thing to be checked.
+ * @return True if the thing is creature and listed as spectator , false otherwise.
+ */
+TbBool thing_is_creature_spectator(const struct Thing* thing)
+{
+    if (!thing_is_creature(thing))
+        return false;
+
+    ThingModel breed = game.conf.crtr_conf.spectator_breed;
+    if (breed == 0)
+    {
+        WARNLOG("There is no spectator breed");
+        breed = game.conf.crtr_conf.special_digger_good;
+    }
+    return (thing->model == breed);
+}
+
+
 void anger_set_creature_anger_all_types(struct Thing *thing, long new_value)
 {
     if (creature_can_get_angry(thing))
@@ -3991,9 +4014,27 @@ void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
     }
 }
 
+/**
+ * If the total creature count is low enough for a creature to be generated
+ * @param temp_creature when set to 1, it will still generate if it would mean going 1 over a temporary limit
+  * @return true if a creature may be generated, false if not.
+ */
+TbBool creature_count_below_map_limit(TbBool temp_creature)
+{
+    if (game.thing_lists[TngList_Creatures].count >= CREATURES_COUNT-1)
+        return false;
+
+    return ((game.thing_lists[TngList_Creatures].count - temp_creature) < game.conf.rules.game.creatures_count);
+}
+
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner)
 {
     struct CreatureStats* crstat = creature_stats_get(model);
+    if (game.thing_lists[TngList_Creatures].count >= CREATURES_COUNT)
+    {
+        ERRORLOG("Cannot create %s for player %d. Creature limit %d reached.", creature_code_name(model), (int)owner, CREATURES_COUNT);
+        return INVALID_THING;
+    }
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
         ERRORDBG(3,"Cannot create %s for player %d. There are too many things allocated.",creature_code_name(model),(int)owner);
@@ -5586,7 +5627,11 @@ long update_creature_levels(struct Thing *thing)
             }
         }
     }
-
+    if (!creature_count_below_map_limit(1))
+    {
+        WARNLOG("Could not create creature to transform %s to due to creature limit", thing_model_name(thing));
+        return 0;
+    }
     struct Thing* newtng = create_creature(&thing->mappos, model, thing->owner);
     if (thing_is_invalid(newtng))
     {
@@ -5654,7 +5699,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
-        WARNLOG("Killing %s index %d with invalid control.",thing_model_name(thing),(int)thing->index);
+        WARNLOG("Killing %s index %d with invalid control %d.(%d)",thing_model_name(thing),(int)thing->index, thing->ccontrol_idx, game.conf.rules.game.creatures_count);
         kill_creature(thing, INVALID_THING, -1, CrDed_Default);
         return TUFRet_Deleted;
     }
@@ -5789,9 +5834,8 @@ TngUpdateRet update_creature(struct Thing *thing)
     cctrl->moveaccel.x.val = 0;
     cctrl->moveaccel.y.val = 0;
     cctrl->moveaccel.z.val = 0;
-    cctrl->flgfield_1 &= ~CCFlg_Unknown40;
-    cctrl->flgfield_1 &= ~CCFlg_Unknown80;
-    cctrl->spell_flags &= ~CSAfF_PoisonCloud;
+    clear_flag(cctrl->flgfield_1, CCFlg_Unknown40|CCFlg_Unknown80);
+    clear_flag(cctrl->spell_flags, CSAfF_PoisonCloud|CSAfF_Wind);
     process_thing_spell_effects(thing);
     process_timebomb(thing);
     SYNCDBG(19,"Finished");
@@ -5802,6 +5846,10 @@ TbBool creature_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
 {
     struct Room *room;
     if (creature_is_being_unconscious(thing))
+    {
+        return false;
+    }
+    if (creature_is_leaving_and_cannot_be_stopped(thing))
     {
         return false;
     }
@@ -5857,6 +5905,9 @@ int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos,
         {
             if (is_neutral_thing(thing) && line_of_sight_3d(&thing->mappos, pos))
             {
+                if (creature_is_leaving_and_cannot_be_stopped(thing) || creature_is_leaving_and_cannot_be_stopped(creatng))
+                    return false;
+
                 // Unless the relevant classic bug is enabled,
                 // neutral creatures in custody (prison/torture) can only be claimed by the player who holds it captive
                 // and neutral creatures can not be claimed by creatures in custody.
@@ -5989,8 +6040,6 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
     struct Coord3d pos;
     TbBool fall_from_gate = false;
 
-    const unsigned char tngclass = TCls_Creature;
-
     switch (get_map_location_type(location))
     {
     case MLoc_ACTIONPOINT:
@@ -6006,10 +6055,15 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
         return INVALID_THING;
     }
 
-    struct Thing* thing = create_thing_at_position_then_move_to_valid_and_add_light(&pos, tngclass, crmodel, plyr_idx);
+    if (!creature_count_below_map_limit(0))
+    {
+        WARNLOG("Could not create creature %s from script to due to creature limit", creature_code_name(crmodel));
+        return INVALID_THING;
+    }
+    struct Thing* thing = create_thing_at_position_then_move_to_valid_and_add_light(&pos, TCls_Creature, crmodel, plyr_idx);
     if (thing_is_invalid(thing))
     {
-        ERRORLOG("Couldn't create %s at location %d",thing_class_and_model_name(tngclass, crmodel),(int)location);
+        ERRORLOG("Couldn't create %s at location %d", creature_code_name(crmodel), (int)location);
             // Error is already logged
         return INVALID_THING;
     }
@@ -6810,6 +6864,9 @@ void query_creature(struct PlayerInfo *player, ThingIndex index, TbBool reset, T
 
 TbBool creature_can_be_queried(struct PlayerInfo *player, struct Thing *creatng)
 {
+    if (creature_is_leaving_and_cannot_be_stopped(creatng))
+        return false;
+
     switch (player->work_state)
     {
         case PSt_CreatrInfo:

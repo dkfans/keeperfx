@@ -49,34 +49,26 @@ void command_init_value(struct ScriptValue* value, unsigned long var_index, unsi
     value->condit_idx = get_script_current_condition();
 }
 
-struct Thing *script_process_new_object(ThingModel tngmodel, TbMapLocation location, long arg, unsigned long plr_range_id)
+struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long arg, PlayerNumber plyr_idx)
 {
-    
-    int tngowner = plr_range_id;
     struct Coord3d pos;
-
-    const unsigned char tngclass = TCls_Object;
-
-    if(!get_coords_at_location(&pos,location))
-    {
-        return INVALID_THING;
-    }
-
-    struct Thing* thing = create_thing(&pos, tngclass, tngmodel, tngowner, -1);
+    pos.x.val = subtile_coord_center(stl_x);
+    pos.y.val = subtile_coord_center(stl_y);
+    pos.z.val = get_floor_height_at(&pos);
+    struct Thing* thing = create_object(&pos, tngmodel, plyr_idx, -1);
     if (thing_is_invalid(thing))
     {
-        ERRORLOG("Couldn't create %s at location %d",thing_class_and_model_name(tngclass, tngmodel),(int)location);
+        ERRORLOG("Couldn't create %s at location %ld, %ld",thing_class_and_model_name(TCls_Object, tngmodel),stl_x, stl_y);
         return INVALID_THING;
     }
     if (thing_is_dungeon_heart(thing))
     {
-        struct Dungeon* dungeon = get_dungeon(tngowner);
+        struct Dungeon* dungeon = get_dungeon(thing->owner);
         if (dungeon->backup_heart_idx == 0)
         {
             dungeon->backup_heart_idx = thing->index;
         }
     }
-    thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
     // Try to move thing out of the solid wall if it's inside one
     if (thing_in_wall_at(thing, &thing->mappos))
     {
@@ -95,6 +87,7 @@ struct Thing *script_process_new_object(ThingModel tngmodel, TbMapLocation locat
         case ObjMdl_GoldChest:
         case ObjMdl_GoldPot:
         case ObjMdl_Goldl:
+        case ObjMdl_GoldBag:
             thing->valuable.gold_stored = arg;
             break;
     }
@@ -105,7 +98,7 @@ struct Thing* script_process_new_effectgen(ThingModel tngmodel, TbMapLocation lo
 {
     struct Coord3d pos;
     const unsigned char tngclass = TCls_EffectGen;
-    if (!get_coords_at_location(&pos, location))
+    if (!get_coords_at_location(&pos, location, false))
     {
         ERRORLOG("Couldn't find location %d to create %s", (int)location, thing_class_and_model_name(tngclass, tngmodel));
         return INVALID_THING;

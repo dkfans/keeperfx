@@ -390,6 +390,51 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
             break;
         }
     }
+    if ((pckt->control_flags & PCtr_ViewTiltUp) != 0)
+    {
+        switch (cam->view_mode)
+        {
+        case PVM_IsoWibbleView:
+        case PVM_IsoStraightView:
+            view_set_camera_tilt(cam, 1);
+            if (is_my_player(player))
+            {
+                settings.isometric_tilt = cam->orient_b;
+                save_settings();
+            }
+            break;
+        }
+    }
+    if ((pckt->control_flags & PCtr_ViewTiltDown) != 0)
+    {
+        switch (cam->view_mode)
+        {
+        case PVM_IsoWibbleView:
+        case PVM_IsoStraightView:
+            view_set_camera_tilt(cam, 2);
+            if (is_my_player(player))
+            {
+                settings.isometric_tilt = cam->orient_b;
+                save_settings();
+            }
+            break;
+        }
+    }
+    if ((pckt->control_flags & PCtr_ViewTiltReset) != 0)
+    {
+        switch (cam->view_mode)
+        {
+        case PVM_IsoWibbleView:
+        case PVM_IsoStraightView:
+            view_set_camera_tilt(cam, 0);
+            if (is_my_player(player))
+            {
+                settings.isometric_tilt = cam->orient_b;
+                save_settings();
+            }
+            break;
+        }
+    }
     unsigned long zoom_min = max(CAMERA_ZOOM_MIN, zoom_distance_setting);
     unsigned long zoom_max = CAMERA_ZOOM_MAX;
     if (pckt->control_flags & PCtr_ViewZoomIn)
@@ -838,7 +883,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_Unknown099:
       turn_off_query(plyr_idx);
       return 0;
-  case PckA_Unknown104:
+  case PckA_ZoomToBattle:
       if (player->work_state == PSt_CreatrInfo)
         turn_off_query(plyr_idx);
       battle_move_player_towards_battle(player, pckt->actn_par1);

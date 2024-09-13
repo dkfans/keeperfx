@@ -38,13 +38,12 @@ const struct NamedCommand head_for_desc[] = {
   {NULL,                   0},
 };
 
-
 TbMapLocation get_coord_encoded_location(MapSubtlCoord stl_x,MapSubtlCoord stl_y)
 {
     return ((stl_x & 0x0FFF) << 20) + ((stl_y & 0x0FFF) << 8) + MLoc_COORDS;
 }
 
-TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location)
+TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location, TbBool random_factor)
 {
 
     long i = get_map_location_longval(location);
@@ -52,10 +51,10 @@ TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location)
     switch (get_map_location_type(location))
     {
     case MLoc_ACTIONPOINT:
-        return get_coords_at_action_point(pos, i, 1);
+        return get_coords_at_action_point(pos, i, random_factor);
 
     case MLoc_HEROGATE:
-        return get_coords_at_hero_door(pos, i, 1);
+        return get_coords_at_hero_door(pos, i, random_factor);
 
     case MLoc_PLAYERSHEART:
         return get_coords_at_dungeon_heart(pos, i);
@@ -83,7 +82,6 @@ TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location)
     }
     
 }
-
 
 TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_idx, long i)
 {
@@ -183,12 +181,14 @@ TbBool get_coords_at_action_point(struct Coord3d *pos, long apt_idx, unsigned ch
         pos->y.val = apt->mappos.y.val;
     } else
     {
+        long distance = GAME_RANDOM(apt->range);
         long direction = GAME_RANDOM(2 * LbFPMath_PI);
-        long delta_x = (apt->range * LbSinL(direction) >> 8);
-        long delta_y = (apt->range * LbCosL(direction) >> 8);
+        long delta_x = (distance * LbSinL(direction) >> 8);
+        long delta_y = (distance * LbCosL(direction) >> 8);
         pos->x.val = apt->mappos.x.val + (delta_x >> 8);
         pos->y.val = apt->mappos.y.val - (delta_y >> 8);
     }
+    pos->z.val = get_floor_height_at(pos);
     return true;
 }
 
