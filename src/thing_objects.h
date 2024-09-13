@@ -196,6 +196,7 @@ TbBool object_is_room_inventory(const struct Thing *thing, RoomRole rrole);
 TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing);
 TbBool object_can_be_damaged(const struct Thing* thing);
 TbBool object_is_buoyant(const struct Thing* thing);
+TbBool object_is_destroyable(const struct Thing* thing);
 TbBool thing_is_hardcoded_special_box(const struct Thing* thing);
 TbBool thing_is_custom_special_box(const struct Thing* thing);
 
