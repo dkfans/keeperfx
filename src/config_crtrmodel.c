@@ -39,6 +39,7 @@
 #include "creature_control.h"
 #include "creature_graphics.h"
 #include "creature_states.h"
+#include "creature_states_mood.h"
 #include "player_data.h"
 #include "custom_sprites.h"
 #include "lvl_script_lib.h"
@@ -2656,6 +2657,7 @@ TbBool swap_creature(ThingModel ncrt_id, ThingModel crtr_id)
         {
             do_to_players_all_creatures_of_model(plyr_idx, crtr_id, remove_creature_lair);
         }
+        do_to_players_all_creatures_of_model(plyr_idx, crtr_id, process_job_stress_and_going_postal);
     }
 
     return true;
