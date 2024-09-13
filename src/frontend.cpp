@@ -330,7 +330,7 @@ struct FrontEndButtonData frontend_button_info[] = {
 // bttn_sprite, tooltip_stridx, msg_stridx, lifespan_turns, turns_between_events, replace_event_kind_button;
 struct EventTypeInfo event_button_info[] = {
   {260, GUIStr_Empty,                       GUIStr_Empty,                      1,   1, EvKind_Nothing},
-  {260, GUIStr_EventDnHeartAttackedDesc,    GUIStr_EventHeartAttacked,       300, 250, EvKind_Nothing},
+  {776, GUIStr_EventDnHeartAttackedDesc,    GUIStr_EventHeartAttacked,       300, 250, EvKind_Nothing},
   {262, GUIStr_EventFightDesc,              GUIStr_EventFight,                -1,   0, EvKind_FriendlyFight},
   {258, GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective},
   {260, GUIStr_EventBreachDesc,             GUIStr_EventBreach,              300,   0, EvKind_Nothing},
