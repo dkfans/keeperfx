@@ -2643,11 +2643,19 @@ TbBool swap_creature(ThingModel ncrt_id, ThingModel crtr_id)
         ERRORLOG("Creature index %d is invalid", ncrt_id);
         return false;
     }
+    struct CreatureStats* crstat = creature_stats_get(crtr_id);
+    ThingModel oldlair = crstat->lair_object;
     do_creature_swap(ncrt_id, crtr_id);
+    struct CreatureStats* ncrstat = creature_stats_get(crtr_id);
+    ThingModel newlair = ncrstat->lair_object;
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         do_to_players_all_creatures_of_model(plyr_idx, crtr_id, update_relative_creature_health);
         update_speed_of_player_creatures_of_model(plyr_idx, crtr_id);
+        if (oldlair != newlair)
+        {
+            do_to_players_all_creatures_of_model(plyr_idx, crtr_id, remove_creature_lair);
+        }
     }
 
     return true;
