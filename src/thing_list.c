@@ -3628,6 +3628,11 @@ struct Thing *smallest_gold_pile_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
   return chosen_thing;
 }
 
+/**
+ * Re-computes speed of a creature and uses it.
+ * @param thing
+ * @return
+ */
 TbBool update_creature_speed(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
