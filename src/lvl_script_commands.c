@@ -2981,6 +2981,10 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             break;
         case 2: // HEALTH
             crstat->health = value;
+            for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+            {
+                do_to_players_all_creatures_of_model(plyr_idx, creatid, update_relative_creature_health);
+            }
             break;
         case 3: // HEALREQUIREMENT
             crstat->heal_requirement = value;
@@ -3026,6 +3030,10 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             break;
         case 17: // BASESPEED
             crstat->base_speed = value;
+            for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+            {
+                update_speed_of_player_creatures_of_model(plyr_idx, creatid);
+            }
             break;
         case 18: // GOLDHOLD
             crstat->gold_hold = value;
