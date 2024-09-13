@@ -95,7 +95,7 @@ const struct NamedCommand objects_properties_commands[] = {
   {"BUOYANT",                 5},
   {"BEATING",                 6},
   {"HEART",                   7},
-  {"DESTROYABLE",             8},
+  {"CAN_BE_DAMAGED",          8},
   {NULL,                      0},
   };
 
@@ -292,7 +292,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                       n++;
                       break;
                   case 8: // DESTROYABLE
-                      objst->model_flags |= OMF_Destroyable;
+                      objst->model_flags |= OMF_CanBeDamaged;
                       n++;
                       break;
                   default:

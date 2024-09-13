@@ -283,7 +283,7 @@ TbBool object_can_be_damaged (const struct Thing* thing)
     //todo make this an object property. Then include the possibility to kill the other object types.
     if (thing->class_id != TCls_Object)
         return false;
-    if (object_is_destroyable(thing))
+    if (object_can_be_damaged(thing))
         return true;
     return false;
 }
@@ -394,14 +394,6 @@ TbBool thing_is_mature_food(const struct Thing *thing)
     if (thing_is_invalid(thing))
         return false;
     return (thing->class_id == TCls_Object) && (thing->model == ObjMdl_ChickenMature);
-}
-
-TbBool object_can_be_damaged(const struct Thing* thing);
-{
-    if (!thing_is_invalid(thing))
-        return false;
-    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
-    return (objst->model_flags & OMF_Destroyable);
 }
 
 TbBool object_is_buoyant(const struct Thing* thing)
