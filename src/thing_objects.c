@@ -284,6 +284,8 @@ TbBool object_can_be_damaged (const struct Thing* thing)
     if (thing->class_id != TCls_Object)
         return false;
     if (object_can_be_damaged(thing))
+        struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+        return (objst->model_flags & OMF_CanBeDamaged);
         return true;
     return false;
 }
@@ -402,14 +404,6 @@ TbBool object_is_buoyant(const struct Thing* thing)
         return false;
     struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
     return (objst->model_flags & OMF_Buoyant);
-}
-
-TbBool object_can_be_damaged(const struct Thing* thing)
-{
-    if (thing_is_object(thing))
-        return false;
-    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
-    return (objst->model_flags & OMF_CanBeDamaged);
 }
 
 TbBool thing_is_spellbook(const struct Thing *thing)
