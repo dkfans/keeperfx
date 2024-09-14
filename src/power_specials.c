@@ -180,7 +180,7 @@ void increase_level(struct PlayerInfo *player, int count)
     i = 0;
     while (i < dungeon->num_summon)
     {
-        struct Thing* famlrtng = dungeon->summon_list[i];
+        struct Thing* famlrtng = thing_get(dungeon->summon_list[i]);
         cctrl = creature_control_get_from_thing(famlrtng);
         if (thing_is_invalid(famlrtng))
         {

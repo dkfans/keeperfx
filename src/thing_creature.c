@@ -1743,7 +1743,7 @@ void levelup_summons(struct Thing* summntng){
 
 void add_creature_to_summon_list(struct Dungeon* dungeon, struct Thing* summntng){
     if (dungeon->num_summon < MAX_SUMMONS){    
-        dungeon->summon_list[dungeon->num_summon] = summntng;
+        dungeon->summon_list[dungeon->num_summon] = thing_get_index(summntng);
         dungeon->num_summon++;
     }else{
         ERRORLOG("Reached maximum limit of summons");  
@@ -1756,12 +1756,12 @@ void remove_creature_from_summon_list(struct Dungeon* dungeon, struct Thing* sum
         return;
     }
     for (int i = 0; i < dungeon->num_summon;i++){
-        if (dungeon->summon_list[i] == summntng) {
+        if (dungeon->summon_list[i] == thing_get_index(summntng)) {
             // Shift the rest of the list one position forward
             for (int j = i; j < dungeon->num_summon -1; j++) {
                 dungeon->summon_list[j] = dungeon->summon_list[j + 1];
             }
-            dungeon->summon_list[dungeon->num_summon - 1] = NULL;
+            dungeon->summon_list[dungeon->num_summon - 1] = 0;
             dungeon->num_summon--;
             return;
         }

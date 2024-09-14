@@ -150,8 +150,8 @@ struct Dungeon {
     unsigned char computer_enabled;
     short creatr_list_start;
     short digger_list_start;
-    struct Thing* summon_list[MAX_SUMMONS];
-    unsigned char num_summon;
+    unsigned short summon_list[MAX_SUMMONS];
+    unsigned short num_summon;
     ThingIndex things_in_hand[MAX_THINGS_IN_HAND];
     unsigned char num_things_in_hand;
     unsigned short field_64[CREATURE_TYPES_MAX][15];
