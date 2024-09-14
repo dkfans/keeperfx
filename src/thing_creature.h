@@ -115,8 +115,8 @@ void thing_fire_shot(struct Thing *firing,struct  Thing *target, ThingModel shot
 void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long a3, long a4);
 void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, char level, char count, GameTurn duration, long spl_idx);
 void levelup_summons(struct Thing* summntng);
-void add_creature_to_summon_list(struct Dungeon* dungeon, struct Thing* summntng);
-void remove_creature_from_summon_list(struct Dungeon* dungeon, struct Thing* summntng);
+void add_creature_to_summon_list(struct Dungeon* dungeon, ThingIndex summntng);
+void remove_creature_from_summon_list(struct Dungeon* dungeon, ThingIndex summntng);
 void creature_cast_spell(struct Thing *caster, long trg_x, long trg_y, long a4, long a5);
 unsigned int get_creature_blocked_flags_at(struct Thing *thing, struct Coord3d *newpos);
 

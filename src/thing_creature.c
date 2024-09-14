@@ -1638,7 +1638,7 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                     cctrl->familiar_idx[j] = famlrtng->index;
                     famcctrl = creature_control_get_from_thing(famlrtng);
                     // create list for summons for all dungeons
-                    add_creature_to_summon_list(dungeon, famlrtng);
+                    add_creature_to_summon_list(dungeon, famlrtng->index);
                     //remmember your Summoner
                     famcctrl->summoner_idx = creatng->index;
                     //remember the spell that created you
@@ -1707,7 +1707,7 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                 else
                 {
                     //creature has already died, clear it and go again.
-                    remove_creature_from_summon_list(dungeon, famlrtng);
+                    remove_creature_from_summon_list(dungeon, famlrtng->index);
                     cctrl->familiar_idx[j] = 0;
                     j--;
                 }
@@ -1741,22 +1741,22 @@ void levelup_summons(struct Thing* summntng){
         }
 }
 
-void add_creature_to_summon_list(struct Dungeon* dungeon, struct Thing* summntng){
+void add_creature_to_summon_list(struct Dungeon* dungeon, ThingIndex summntng){
     if (dungeon->num_summon < MAX_SUMMONS){    
-        dungeon->summon_list[dungeon->num_summon] = thing_get_index(summntng);
+        dungeon->summon_list[dungeon->num_summon] = summntng;
         dungeon->num_summon++;
     }else{
         ERRORLOG("Reached maximum limit of summons");  
     }
 }
 
-void remove_creature_from_summon_list(struct Dungeon* dungeon, struct Thing* summntng){
+void remove_creature_from_summon_list(struct Dungeon* dungeon, ThingIndex summntng){
     if (dungeon->num_summon == 0) {
         ERRORLOG("No summons to remove");
         return;
     }
     for (int i = 0; i < dungeon->num_summon;i++){
-        if (dungeon->summon_list[i] == thing_get_index(summntng)) {
+        if (dungeon->summon_list[i] == summntng) {
             // Shift the rest of the list one position forward
             for (int j = i; j < dungeon->num_summon -1; j++) {
                 dungeon->summon_list[j] = dungeon->summon_list[j + 1];
