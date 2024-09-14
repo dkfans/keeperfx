@@ -95,6 +95,9 @@ CrAttackType find_fellow_creature_to_fight_in_room(struct Thing *fighter, struct
 long remove_all_traces_of_combat(struct Thing *thing);
 long get_combat_score(const struct Thing *thing, const struct Thing *enmtng, CrAttackType attack_type, long a4);
 CrInstance get_self_spell_casting(const struct Thing* thing);
+CrInstance get_object_combat_self_spell_casting(const struct Thing *creatng);
+CrInstance get_door_combat_self_spell_casting(const struct Thing *creatng);
+CrInstance get_idle_self_spell_casting(const struct Thing *creatng);
 /******************************************************************************/
 #ifdef __cplusplus
 }
