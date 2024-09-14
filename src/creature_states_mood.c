@@ -591,7 +591,7 @@ TbBool process_job_stress_and_going_postal(struct Thing *creatng)
     }
 
     struct CreatureJobConfig* jobcfg = get_config_for_job(cctrl->job_assigned);
-    if (!creature_job_player_check_func_list[jobcfg->func_plyr_check_idx] == NULL)
+    if (creature_job_player_check_func_list[jobcfg->func_plyr_check_idx] != NULL)
     {
         if (!creature_job_player_check_func_list[jobcfg->func_plyr_check_idx](creatng, creatng->owner, cctrl->job_assigned))
         {
