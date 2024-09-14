@@ -1637,9 +1637,9 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                 {
                     cctrl->familiar_idx[j] = famlrtng->index;
                     famcctrl = creature_control_get_from_thing(famlrtng);
-                    // create list for summons for all dungeons
+                    //create list for summons for all dungeons
                     add_creature_to_summon_list(dungeon, famlrtng->index);
-                    //remmember your Summoner
+                    //remember your Summoner
                     famcctrl->summoner_idx = creatng->index;
                     //remember the spell that created you
                     famcctrl->summon_spl_idx = spl_idx;
@@ -1683,7 +1683,7 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                         famcctrl = creature_control_get_from_thing(famlrtng);
                         famcctrl->unsummon_turn = game.play_gameturn + duration;
                         level_up_familiar(famlrtng);
-                        if ((famcctrl->follow_leader_fails > 0) || (get_chessboard_distance(&creatng->mappos, &famlrtng->mappos) > subtile_coord(12, 0))) // if it's not getting to the summoner, teleport it there
+                        if ((famcctrl->follow_leader_fails > 0) || (get_chessboard_distance(&creatng->mappos, &famlrtng->mappos) > subtile_coord(12, 0))) //if it's not getting to the summoner, teleport it there
                         {
                             create_effect(&famlrtng->mappos, imp_spangle_effects[get_player_color_idx(famlrtng->owner)], famlrtng->owner);
                             move_thing_in_map(famlrtng, &creatng->mappos);
