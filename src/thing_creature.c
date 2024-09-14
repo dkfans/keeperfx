@@ -1716,15 +1716,15 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
     }
 }
 
-void level_up_familiar(struct Thing* familiartng)
+void level_up_familiar(struct Thing* famlrtng)
 {
-    struct CreatureControl *famicctrl = creature_control_get_from_thing(familiartng);
+    struct CreatureControl *famlrcctrl = creature_control_get_from_thing(famlrtng);
     //get summoner of familiar
-    struct Thing* summonertng = thing_get(famicctrl->summoner_idx);
+    struct Thing* summonertng = thing_get(famlrcctrl->summoner_idx);
     struct CreatureControl *summonercctrl = creature_control_get_from_thing(summonertng);
     short summonerxp = summonercctrl->explevel;
     //get spell the summoner used to make this familiar
-    const struct SpellConfig* spconf = get_spell_config(famicctrl->summon_spl_idx);
+    const struct SpellConfig* spconf = get_spell_config(famlrcctrl->summon_spl_idx);
     char level = spconf->crtr_summon_level;
     //calculate correct level for familiar
     short sumxp = level - 1;
@@ -1738,18 +1738,18 @@ void level_up_familiar(struct Thing* familiartng)
         sumxp = summonerxp + level;
     }
     //level up the summon
-    char expdiff = sumxp - famicctrl->explevel;
+    char expdiff = sumxp - famlrcctrl->explevel;
     if (expdiff > 0)
     {
-        creature_change_multiple_levels(familiartng, expdiff);
+        creature_change_multiple_levels(famlrtng, expdiff);
     }
 }
 
-void add_creature_to_summon_list(struct Dungeon* dungeon, ThingIndex summntng)
+void add_creature_to_summon_list(struct Dungeon* dungeon, ThingIndex famlrtng)
 {
     if (dungeon->num_summon < MAX_SUMMONS)
     {    
-        dungeon->summon_list[dungeon->num_summon] = summntng;
+        dungeon->summon_list[dungeon->num_summon] = famlrtng;
         dungeon->num_summon++;
     } else
     {
@@ -1757,14 +1757,14 @@ void add_creature_to_summon_list(struct Dungeon* dungeon, ThingIndex summntng)
     }
 }
 
-void remove_creature_from_summon_list(struct Dungeon* dungeon, ThingIndex summntng)
+void remove_creature_from_summon_list(struct Dungeon* dungeon, ThingIndex famlrtng)
 {
     if (dungeon->num_summon == 0) {
         ERRORLOG("No summons to remove");
         return;
     }
     for (int i = 0; i < dungeon->num_summon;i++){
-        if (dungeon->summon_list[i] == summntng) {
+        if (dungeon->summon_list[i] == famlrtng) {
             // Shift the rest of the list one position forward
             for (int j = i; j < dungeon->num_summon -1; j++) {
                 dungeon->summon_list[j] = dungeon->summon_list[j + 1];
