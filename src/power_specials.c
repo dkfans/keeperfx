@@ -188,7 +188,7 @@ void increase_level(struct PlayerInfo *player, int count)
           
           continue;
         }
-        levelup_summons(famlrtng);
+        level_up_familiar(famlrtng);
         i++;
         k++;
         if (k > dungeon->num_summon)

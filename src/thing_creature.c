@@ -1682,7 +1682,7 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                     {
                         famcctrl = creature_control_get_from_thing(famlrtng);
                         famcctrl->unsummon_turn = game.play_gameturn + duration;
-                        levelup_summons(famlrtng);
+                        level_up_familiar(famlrtng);
                         if ((famcctrl->follow_leader_fails > 0) || (get_chessboard_distance(&creatng->mappos, &famlrtng->mappos) > subtile_coord(12, 0))) // if it's not getting to the summoner, teleport it there
                         {
                             create_effect(&famlrtng->mappos, imp_spangle_effects[get_player_color_idx(famlrtng->owner)], famlrtng->owner);
@@ -1716,41 +1716,49 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
     }
 }
 
-void levelup_summons(struct Thing* summntng){
-    struct CreatureControl *summcctrl = creature_control_get_from_thing(summntng);
-    //who is my summoner?
-    struct Thing* summonertng = thing_get(summcctrl->summoner_idx);
+void level_up_familiar(struct Thing* familiartng)
+{
+    struct CreatureControl *famicctrl = creature_control_get_from_thing(familiartng);
+    //get summoner of familiar
+    struct Thing* summonertng = thing_get(famicctrl->summoner_idx);
     struct CreatureControl *summonercctrl = creature_control_get_from_thing(summonertng);
     short summonerxp = summonercctrl->explevel;
-    //which summonerspell does he us and what level is it?
-    const struct SpellConfig* spconf = get_spell_config(summcctrl->summon_spl_idx);
+    //get spell the summoner used to make this familiar
+    const struct SpellConfig* spconf = get_spell_config(famicctrl->summon_spl_idx);
     char level = spconf->crtr_summon_level;
-    //so what level should his summon be
+    //calculate correct level for familiar
     short sumxp = level - 1;
-        if (level <= 0){
-            //we know already the Summoner will levelup next turn?
-             if ((summonercctrl->spell_flags & CSAfF_ExpLevelUp)  && (summonercctrl->explevel+1 < CREATURE_MAX_LEVEL)){
-                summonerxp += 1;
-            }
-            sumxp = summonerxp + level;
+    if (level <= 0)
+    {
+        //we know already the Summoner will levelup next turn?
+        if ((summonercctrl->spell_flags & CSAfF_ExpLevelUp)  && (summonercctrl->explevel+1 < CREATURE_MAX_LEVEL))
+        {
+            summonerxp += 1;
         }
+        sumxp = summonerxp + level;
+    }
     //level up the summon
-    char expdiff = sumxp - summcctrl->explevel;
-        if (expdiff > 0){
-            creature_change_multiple_levels(summntng, expdiff);
-        }
+    char expdiff = sumxp - famicctrl->explevel;
+    if (expdiff > 0)
+    {
+        creature_change_multiple_levels(familiartng, expdiff);
+    }
 }
 
-void add_creature_to_summon_list(struct Dungeon* dungeon, ThingIndex summntng){
-    if (dungeon->num_summon < MAX_SUMMONS){    
+void add_creature_to_summon_list(struct Dungeon* dungeon, ThingIndex summntng)
+{
+    if (dungeon->num_summon < MAX_SUMMONS)
+    {    
         dungeon->summon_list[dungeon->num_summon] = summntng;
         dungeon->num_summon++;
-    }else{
+    } else
+    {
         ERRORLOG("Reached maximum limit of summons");  
     }
 }
 
-void remove_creature_from_summon_list(struct Dungeon* dungeon, ThingIndex summntng){
+void remove_creature_from_summon_list(struct Dungeon* dungeon, ThingIndex summntng)
+{
     if (dungeon->num_summon == 0) {
         ERRORLOG("No summons to remove");
         return;
