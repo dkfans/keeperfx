@@ -3536,7 +3536,7 @@ void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long targtn
     get_creature_instance_times(thing, inst_idx, &itime, &aitime);
     if ((cctrl->instance_id != CrInst_NULL) && (cctrl->instance_id == inst_idx))
     {
-        if ((inst_inf->flags & InstPF_RepeatTrigger) != 0)
+        if ((inst_inf->instance_property_flags & InstPF_RepeatTrigger) != 0)
         {
             cctrl->inst_repeat = 1;
             return;
