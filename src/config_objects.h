@@ -45,6 +45,7 @@ enum ObjectCategoryIndex {
     OCtg_Power,      //< Object is a keeper power effect, ie. hand of evil or keeper spell
     OCtg_LairTotem,  //< Object is a creature lair
     OCtg_Effect,     //< Object is some kind of effect which has influence on things or on terrain
+    OCtg_HeroGate,   //< Object functions as a hero gate
 };
 
 enum ObjectModelFlags {
@@ -134,7 +135,6 @@ ThingClass crate_to_workshop_item_class(ThingModel tngmodel);
 ThingModel crate_to_workshop_item_model(ThingModel tngmodel);
 ThingClass crate_thing_to_workshop_item_class(const struct Thing *thing);
 ThingModel crate_thing_to_workshop_item_model(const struct Thing *thing);
-void init_objects(void);
 int get_required_room_capacity_for_object(RoomRole room_role, ThingModel objmodel, ThingModel relmodel);
 void update_all_object_stats();
 /******************************************************************************/
