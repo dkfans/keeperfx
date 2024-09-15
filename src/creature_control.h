@@ -45,7 +45,7 @@ extern "C" {
 /** Amount of instances. */
 /** Max amount of rooms needed for a creature to be attracted to a dungeon. */
 #define ENTRANCE_ROOMS_COUNT               3
-#define INSTANCE_TYPES_MAX 255
+#define INSTANCE_TYPES_MAX 2000
 #define LAIR_ENEMY_MAX 5
 
 #define INVALID_CRTR_CONTROL (game.persons.cctrl_lookup[0])
@@ -348,7 +348,7 @@ unsigned char sound_flag;
     MapSubtlCoord targtstl_x;
     MapSubtlCoord targtstl_y;
     unsigned long instance_use_turn[INSTANCE_TYPES_MAX];
-    char instance_available[INSTANCE_TYPES_MAX];
+    short instance_available[INSTANCE_TYPES_MAX];
     unsigned short instance_anim_step_turns;
     SubtlCodedCoords collided_door_subtile;
     char fighting_player_idx;
