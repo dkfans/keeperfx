@@ -82,7 +82,7 @@ struct TrapStats {
   short size_z;
   unsigned char trigger_type;
   unsigned char activation_type;
-  unsigned char created_itm_model; // Shot model, effect model, slab kind.
+  unsigned long created_itm_model; // Shot model, effect model, slab kind.
   unsigned char hit_type;
   short light_radius; // Creates light if not null.
   unsigned char light_intensity;
