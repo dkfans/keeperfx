@@ -1615,8 +1615,8 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                 if (k > 0)
                 {
                     crstat->natural_death_kind = k;
-                    n++;
                 }
+                n++;
             }
             if (n < 1)
             {
@@ -1691,8 +1691,8 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                 if (k > 0)
                 {
                     crstat->status_offset = k;
-                    n++;
                 }
+                n++;
             }
             if (n < 1)
             {
