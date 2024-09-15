@@ -537,7 +537,7 @@ TbBool parse_rules_research_blocks(char *buf, long len, const char *config_textn
   sprintf(block_buf,"research");
   long pos = 0;
   int k = find_conf_block(buf, &pos, len, block_buf);
-    if (k < 0)
+  if (k < 0)
   {
       if ((flags & CnfLd_AcceptPartial) == 0)
           WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
