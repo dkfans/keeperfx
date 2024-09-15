@@ -415,7 +415,6 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
         game.conf.crtr_conf.model_count = 1;
-        game.conf.crtr_conf.instances_count = INSTANCES_MAX;
         game.conf.crtr_conf.jobs_count = 1;
         game.conf.crtr_conf.angerjobs_count = 1;
         game.conf.crtr_conf.attacktypes_count = 1;
@@ -1612,7 +1611,7 @@ TbBool load_creaturetypes_config_file(const char *textname, const char *fname, u
     TbBool result = (len > 0);
     // Parse blocks of the config file
     if (result)
-    game.conf.crtr_conf.instances_count = INSTANCES_MAX - 1;
+    game.conf.crtr_conf.instances_count = INSTANCE_TYPES_MAX - 1;
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
         int arr_size = sizeof(game.conf.crtr_conf.instances) / sizeof(game.conf.crtr_conf.instances[0]);
@@ -1639,13 +1638,6 @@ TbBool load_creaturetypes_config_file(const char *textname, const char *fname, u
                 game.conf.magic_conf.instance_info[i].range_min = 0;
                 game.conf.magic_conf.instance_info[i].range_max = 0;
         }
-    }
-    {
-        result = parse_creaturetypes_common_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-          WARNMSG("Parsing %s file \"%s\" common blocks failed.",textname,fname);
     }
     if ((result) && ((flags & CnfLd_ListOnly) == 0)) // This block doesn't have anything we'd like to parse in list mode
     {

@@ -35,7 +35,6 @@ extern "C" {
 #define CREATURE_ANY  254
 #define CREATURE_NOT_A_DIGGER  253
 #define CREATURE_DIGGER  252
-#define INSTANCES_MAX        2000
 
 /** Percentage of creature parameter increase for every experience level.
  *  Used as default value, should be replaced in config file. */
