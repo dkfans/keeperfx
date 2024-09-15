@@ -51,11 +51,10 @@ const char keeper_creaturetp_file[]="creature.cfg";
 
 const struct NamedCommand creaturetype_common_commands[] = {
   {"CREATURES",              1},
-  {"INSTANCESCOUNT",         2},
-  {"JOBSCOUNT",              3},
-  {"ANGERJOBSCOUNT",         4},
-  {"ATTACKPREFERENCESCOUNT", 5},
-  {"SPRITESIZE",             6},
+  {"JOBSCOUNT",              2},
+  {"ANGERJOBSCOUNT",         3},
+  {"ATTACKPREFERENCESCOUNT", 4},
+  {"SPRITESIZE",             5},
   {NULL,                     0},
   };
 
@@ -416,7 +415,6 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
         game.conf.crtr_conf.model_count = 1;
-        game.conf.crtr_conf.instances_count = 1;
         game.conf.crtr_conf.jobs_count = 1;
         game.conf.crtr_conf.angerjobs_count = 1;
         game.conf.crtr_conf.attacktypes_count = 1;
@@ -473,23 +471,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
               n++;
             }
             break;
-        case 2: // INSTANCESCOUNT
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if ((k > 0) && (k <= INSTANCE_TYPES_MAX))
-              {
-                game.conf.crtr_conf.instances_count = k;
-                n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 3: // JOBSCOUNT
+        case 2: // JOBSCOUNT
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
@@ -505,7 +487,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 4: // ANGERJOBSCOUNT
+        case 3: // ANGERJOBSCOUNT
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
@@ -521,7 +503,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 5: // ATTACKPREFERENCESCOUNT
+        case 4: // ATTACKPREFERENCESCOUNT
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
@@ -537,7 +519,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 6: // SPRITESIZE
+        case 5: // SPRITESIZE
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -572,6 +554,9 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
     }
     return true;
 }
+
+
+game.conf.crtr_conf.instances_count = INSTANCES_MAX;
 
 TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
