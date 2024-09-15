@@ -399,7 +399,7 @@ long get_wanderer_possible_targets_count_in_list(long first_thing_idx, struct Th
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing))
+        if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
             // Don't check for being navigable - it's too CPU-expensive to check all creatures
             //if ( creature_can_navigate_to(wanderer, &thing->mappos, NavTF_Default) )
@@ -437,7 +437,7 @@ TbBool wander_to_specific_possible_target_in_list(long first_thing_idx, struct T
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing))
+        if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
             // If it's not the one we want, continue sweeping
             if (target_match > 0)
@@ -1064,7 +1064,7 @@ short good_leave_through_exit_door(struct Thing *thing)
         erstat_inc(ESE_BadCreatrState);
         return false;
     }
-    struct Thing* tmptng = find_base_thing_on_mapwho(TCls_Object, ObjMdl_HeroGate, thing->mappos.x.stl.num, thing->mappos.y.stl.num); //49 = hero gate
+    struct Thing* tmptng = find_object_of_genre_on_mapwho(OCtg_HeroGate, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     if (thing_is_invalid(tmptng))
     {
         return 0;
@@ -1123,7 +1123,7 @@ short good_wait_in_exit_door(struct Thing *thing)
     cctrl->countdown_282--;
     if (cctrl->countdown_282 == 0)
     {
-        struct Thing* tmptng = find_base_thing_on_mapwho(TCls_Object, ObjMdl_HeroGate, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+        struct Thing* tmptng = find_object_of_genre_on_mapwho(OCtg_HeroGate, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
         if (!thing_is_invalid(tmptng))
         {
             if (cctrl->hero.hero_gate_creation_turn == tmptng->creation_turn)
