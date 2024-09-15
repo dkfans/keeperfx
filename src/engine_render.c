@@ -452,7 +452,6 @@ static long map_z_pos;
 static int normal_shade_front;
 static int normal_shade_back;
 static long me_distance;
-static long UseFastBlockDraw;
 static long thelens;
 static long fade_mmm;
 static long spr_map_angle;
@@ -6906,87 +6905,46 @@ static void clear_fast_bucket_list(void)
 
 static void draw_texturedquad_block(struct BucketKindTexturedQuad *txquad)
 {
-    if (!UseFastBlockDraw)
+    struct PolyPoint point_a;
+    struct PolyPoint point_b;
+    struct PolyPoint point_c;
+    struct PolyPoint point_d;
+    vec_mode = VM_Unknown5;
+    switch (txquad->marked_mode) // Is visible/selected
     {
-        struct PolyPoint point_a;
-        struct PolyPoint point_b;
-        struct PolyPoint point_c;
-        struct PolyPoint point_d;
-        vec_mode = VM_Unknown5;
-        switch (txquad->marked_mode) // Is visible/selected
-        {
-        case 0:
-            vec_map = block_ptrs[TEXTURE_LAND_MARKED_LAND];
-            break;
-        case 1:
-            vec_map = block_ptrs[TEXTURE_LAND_MARKED_GOLD];
-            break;
-        case 3:
-        default:
-            vec_map = block_ptrs[txquad->texture_idx];
-            break;
-        }
-        point_a.X = (txquad->unk_x >> 8) / pixel_size;
-        point_a.Y = (txquad->unk_y >> 8) / pixel_size;
-        point_a.U = orient_to_mapU1[txquad->orient];
-        point_a.V = orient_to_mapV1[txquad->orient];
-        point_a.S = txquad->lightness0;
-        point_d.X = ((txquad->zoom_x + txquad->unk_x) >> 8) / pixel_size;
-        point_d.Y = (txquad->unk_y >> 8) / pixel_size;
-        point_d.U = orient_to_mapU2[txquad->orient];
-        point_d.V = orient_to_mapV2[txquad->orient];
-        point_d.S = txquad->lightness1;
-        point_b.X = ((txquad->zoom_x + txquad->unk_x) >> 8) / pixel_size;
-        point_b.Y = ((txquad->zoom_y + txquad->unk_y) >> 8) / pixel_size;
-        point_b.U = orient_to_mapU3[txquad->orient];
-        point_b.V = orient_to_mapV3[txquad->orient];
-        point_b.S = txquad->lightness2;
-        point_c.X = (txquad->unk_x >> 8) / pixel_size;
-        point_c.Y = ((txquad->zoom_y + txquad->unk_y) >> 8) / pixel_size;
-        point_c.U = orient_to_mapU4[txquad->orient];
-        point_c.V = orient_to_mapV4[txquad->orient];
-        point_c.S = txquad->lightness3;
-        draw_gpoly(&point_a, &point_d, &point_b);
-        draw_gpoly(&point_a, &point_b, &point_c);
-    } else
-    {
-        struct GtBlock gtb;
-        switch (txquad->marked_mode)
-        {
-        case 0:
-            gtb.field_0 = block_ptrs[TEXTURE_LAND_MARKED_LAND];
-            gtb.lightness0 = txquad->lightness0 >> 16;
-            gtb.lightness1 = txquad->lightness1 >> 16;
-            gtb.lightness2 = txquad->lightness2 >> 16;
-            gtb.lightness3 = txquad->lightness3 >> 16;
-            break;
-        case 1:
-            gtb.field_0 = block_ptrs[TEXTURE_LAND_MARKED_GOLD];
-            gtb.lightness0 = txquad->lightness0 >> 16;
-            gtb.lightness1 = txquad->lightness1 >> 16;
-            gtb.lightness2 = txquad->lightness2 >> 16;
-            gtb.lightness3 = txquad->lightness3 >> 16;
-            break;
-        case 3:
-            gtb.field_0 = block_ptrs[txquad->texture_idx];
-            gtb.lightness0 = txquad->lightness0 >> 16;
-            gtb.lightness1 = txquad->lightness1 >> 16;
-            gtb.lightness2 = txquad->lightness2 >> 16;
-            gtb.lightness3 = txquad->lightness3 >> 16;
-            break;
-        default:
-            gtb.field_0 = block_ptrs[txquad->texture_idx];
-            break;
-        }
-        gtb.field_4 = (txquad->unk_x >> 8) / pixel_size;
-        gtb.field_8 = (txquad->unk_y >> 8) / pixel_size;
-        gtb.field_1C = orient_table_xflip[txquad->orient];
-        gtb.field_20 = orient_table_yflip[txquad->orient];
-        gtb.field_24 = orient_table_rotate[txquad->orient];
-        gtb.field_28 = (txquad->zoom_x >> 8) / pixel_size >> 5;
-        gtb.field_2C = (txquad->zoom_y >> 8) / pixel_size >> 4;
-        gtblock_draw(&gtb);
+    case 0:
+        vec_map = block_ptrs[TEXTURE_LAND_MARKED_LAND];
+        break;
+    case 1:
+        vec_map = block_ptrs[TEXTURE_LAND_MARKED_GOLD];
+        break;
+    case 3:
+    default:
+        vec_map = block_ptrs[txquad->texture_idx];
+        break;
     }
+    point_a.X = (txquad->unk_x >> 8) / pixel_size;
+    point_a.Y = (txquad->unk_y >> 8) / pixel_size;
+    point_a.U = orient_to_mapU1[txquad->orient];
+    point_a.V = orient_to_mapV1[txquad->orient];
+    point_a.S = txquad->lightness0;
+    point_d.X = ((txquad->zoom_x + txquad->unk_x) >> 8) / pixel_size;
+    point_d.Y = (txquad->unk_y >> 8) / pixel_size;
+    point_d.U = orient_to_mapU2[txquad->orient];
+    point_d.V = orient_to_mapV2[txquad->orient];
+    point_d.S = txquad->lightness1;
+    point_b.X = ((txquad->zoom_x + txquad->unk_x) >> 8) / pixel_size;
+    point_b.Y = ((txquad->zoom_y + txquad->unk_y) >> 8) / pixel_size;
+    point_b.U = orient_to_mapU3[txquad->orient];
+    point_b.V = orient_to_mapV3[txquad->orient];
+    point_b.S = txquad->lightness2;
+    point_c.X = (txquad->unk_x >> 8) / pixel_size;
+    point_c.Y = ((txquad->zoom_y + txquad->unk_y) >> 8) / pixel_size;
+    point_c.U = orient_to_mapU4[txquad->orient];
+    point_c.V = orient_to_mapV4[txquad->orient];
+    point_c.S = txquad->lightness3;
+    draw_gpoly(&point_a, &point_d, &point_b);
+    draw_gpoly(&point_a, &point_b, &point_c);
 }
 
 static void display_fast_drawlist(struct Camera *cam) // Draws frontview only. Not isometric or 1st person view.
@@ -9070,11 +9028,9 @@ void draw_frontview_engine(struct Camera *cam)
     cam_y = interpolated_cam_mappos_y;
     pointer_x = (GetMouseX() - player->engine_window_x) / pixel_size;
     pointer_y = (GetMouseY() - player->engine_window_y) / pixel_size;
-    UseFastBlockDraw = (camera_zoom == FRONTVIEW_CAMERA_ZOOM_MAX);
     LbScreenStoreGraphicsWindow(&grwnd);
     store_engine_window(&ewnd,pixel_size);
     LbScreenSetGraphicsWindow(ewnd.x, ewnd.y, ewnd.width, ewnd.height);
-    gtblock_set_clipping_window(lbDisplay.GraphicsWindowPtr, ewnd.width, ewnd.height, lbDisplay.GraphicsScreenWidth);
     setup_vecs(lbDisplay.GraphicsWindowPtr, NULL, lbDisplay.GraphicsScreenWidth, ewnd.width, ewnd.height);
     clear_fast_bucket_list();
     store_engine_window(&ewnd,1);
