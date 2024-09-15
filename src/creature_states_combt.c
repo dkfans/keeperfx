@@ -1842,7 +1842,7 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
     for (int i = CrInst_LISTEND; i < game.conf.crtr_conf.instances_count; i++)
     {
         inst_inf = creature_instance_info_get(i);
-        if ((inst_inf->flags & InstPF_SelfBuff))
+        if ((inst_inf->instance_property_flags & InstPF_SelfBuff))
         {
             if (!creature_affected_by_spell(thing, inst_inf->func_params[1]))
             {
@@ -1877,7 +1877,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
                 continue;
 
             inst_inf = creature_instance_info_get(i);
-            if ((inst_inf->flags & InstPF_SelfBuff))
+            if ((inst_inf->instance_property_flags & InstPF_SelfBuff))
             {
                 if (!creature_affected_by_spell(thing, inst_inf->func_params[1]))
                 {
@@ -1967,10 +1967,10 @@ CrInstance get_best_combat_weapon_instance_to_use(const struct Thing *thing, lon
 
         if (creature_instance_is_available(thing, i))
         {
-            if ( ( ((inst_inf->flags & (InstPF_RangedAttack | InstPF_RangedDebuff | InstPF_MeleeAttack)) && (atktype & InstPF_RangedAttack)) ||
-                   ((inst_inf->flags & (InstPF_MeleeAttack | InstPF_RangedDebuff))  && (atktype & InstPF_MeleeAttack)) ) &&
-                 (!(inst_inf->flags & InstPF_Dangerous)   || !(atktype & InstPF_Dangerous)) &&
-                 ((inst_inf->flags & InstPF_Destructive)  >=  (atktype & InstPF_Destructive)) )
+            if ( ( ((inst_inf->instance_property_flags & (InstPF_RangedAttack | InstPF_RangedDebuff | InstPF_MeleeAttack)) && (atktype & InstPF_RangedAttack)) ||
+                   ((inst_inf->instance_property_flags & (InstPF_MeleeAttack | InstPF_RangedDebuff))  && (atktype & InstPF_MeleeAttack)) ) &&
+                 (!(inst_inf->instance_property_flags & InstPF_Dangerous)   || !(atktype & InstPF_Dangerous)) &&
+                 ((inst_inf->instance_property_flags & InstPF_Destructive)  >=  (atktype & InstPF_Destructive)) )
             {
                 if (creature_instance_has_reset(thing, i))
                 {
@@ -1999,11 +1999,11 @@ CrInstance get_best_combat_weapon_instance_to_use_versus_trap(const struct Thing
 
         if (creature_instance_is_available(thing, i))
         {
-            if ((((inst_inf->flags & (InstPF_RangedAttack | InstPF_RangedDebuff | InstPF_MeleeAttack)) && (atktype & InstPF_RangedAttack)) ||
-                ((inst_inf->flags & (InstPF_MeleeAttack | InstPF_RangedDebuff)) && (atktype & InstPF_MeleeAttack))) &&
-                (!(inst_inf->flags & InstPF_Dangerous) || !(atktype & InstPF_Dangerous)) &&
-                ((inst_inf->flags & InstPF_Destructive) >= (atktype & InstPF_Destructive)) &&
-                (inst_inf->flags & InstPF_Disarming) )
+            if ((((inst_inf->instance_property_flags & (InstPF_RangedAttack | InstPF_RangedDebuff | InstPF_MeleeAttack)) && (atktype & InstPF_RangedAttack)) ||
+                ((inst_inf->instance_property_flags & (InstPF_MeleeAttack | InstPF_RangedDebuff)) && (atktype & InstPF_MeleeAttack))) &&
+                (!(inst_inf->instance_property_flags & InstPF_Dangerous) || !(atktype & InstPF_Dangerous)) &&
+                ((inst_inf->instance_property_flags & InstPF_Destructive) >= (atktype & InstPF_Destructive)) &&
+                (inst_inf->instance_property_flags & InstPF_Disarming) )
             {
                 if (creature_instance_has_reset(thing, i))
                 {
