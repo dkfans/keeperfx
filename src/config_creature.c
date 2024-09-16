@@ -853,11 +853,6 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
         int k = find_conf_block(buf, &pos, len, block_buf);
         if (k < 0)
         {
-            if ((flags & CnfLd_AcceptPartial) == 0)
-            {
-                WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
-                return false;
-            }
             continue;
         }
         inst_inf = creature_instance_info_get(i);
