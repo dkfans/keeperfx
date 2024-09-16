@@ -348,7 +348,7 @@ unsigned char sound_flag;
     MapSubtlCoord targtstl_x;
     MapSubtlCoord targtstl_y;
     unsigned long instance_use_turn[INSTANCE_TYPES_MAX];
-    CrInstance instance_available[INSTANCE_TYPES_MAX];
+    TbBool instance_available[INSTANCE_TYPES_MAX];
     unsigned short instance_anim_step_turns;
     SubtlCodedCoords collided_door_subtile;
     char fighting_player_idx;
@@ -464,7 +464,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char attack_preference;
     short field_of_view;
     /** Instance identifiers of the instances creature can learn. */
-    short learned_instance_id[LEARNED_INSTANCES_COUNT];
+    CrInstance learned_instance_id[LEARNED_INSTANCES_COUNT];
     /** Required level to use the instances creature can learn. Scaled 1..CREATURE_MAX_LEVEL. */
     unsigned char learned_instance_level[LEARNED_INSTANCES_COUNT];
     unsigned char research_value;
