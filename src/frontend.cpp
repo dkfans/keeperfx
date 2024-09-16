@@ -341,7 +341,7 @@ struct EventTypeInfo event_button_info[] = {
   {GPS_message_rpanel_msg_manufct_act,    GUIStr_EventNewDoorDesc,            GUIStr_EventNewDoor,            1200,   0, EvKind_Nothing},
   {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventCreatrScavngDesc,       GUIStr_EventScavengingDetected, 1200,   0, EvKind_Nothing}, // EvKind_CreatrScavenged
   {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventTreasrRoomFullDesc,     GUIStr_EventTreasureRoomFull,   1200, 500, EvKind_Nothing},
-  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventCreaturePaydayDesc,     GUIStr_EventCreaturePayday,     1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_payday_act,     GUIStr_EventCreaturePaydayDesc,     GUIStr_EventCreaturePayday,     1200,   0, EvKind_Nothing},
   {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventAreaDiscoveredDesc,     GUIStr_EventAreaDiscovered,     1200,   0, EvKind_Nothing},
   {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventSpellPickedUpDesc,      GUIStr_EventNewSpellPickedUp,   1200,   0, EvKind_Nothing},
   {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventRoomTakenOverDesc,      GUIStr_EventNewRoomTakenOver,   1200,   0, EvKind_Nothing},
