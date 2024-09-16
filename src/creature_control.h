@@ -340,7 +340,7 @@ unsigned char sound_flag;
     short roll;
     unsigned long anim_time;
     CrInstance instance_id;
-    unsigned char inst_repeat; /* Seems used on dragon flame sometimes */
+    TbBool inst_repeat;
     unsigned short inst_turn;
     unsigned short inst_action_turns; /* Turn when instance should be fired*/
     unsigned short inst_total_turns;
