@@ -1637,6 +1637,14 @@ TbBool load_creaturetypes_config_file(const char *textname, const char *fname, u
     }
     if (result)
     {
+        result = parse_creaturetype_instance_blocks(buf, len, textname, flags);
+        if ((flags & CnfLd_AcceptPartial) != 0)
+            result = true;
+        if (!result)
+          WARNMSG("Parsing %s file \"%s\" instance blocks failed.",textname,fname);
+    }
+    if (result)
+    {
         result = parse_creaturetype_job_blocks(buf, len, textname, flags);
         if ((flags & CnfLd_AcceptPartial) != 0)
             result = true;

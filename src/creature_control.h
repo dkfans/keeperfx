@@ -348,7 +348,7 @@ unsigned char sound_flag;
     MapSubtlCoord targtstl_x;
     MapSubtlCoord targtstl_y;
     unsigned long instance_use_turn[INSTANCE_TYPES_MAX];
-    short instance_available[INSTANCE_TYPES_MAX];
+    TbBool instance_available[INSTANCE_TYPES_MAX];
     unsigned short instance_anim_step_turns;
     SubtlCodedCoords collided_door_subtile;
     char fighting_player_idx;
