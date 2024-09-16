@@ -339,7 +339,7 @@ unsigned char sound_flag;
     short orthogn_speed;
     short roll;
     unsigned long anim_time;
-    unsigned short instance_id;
+    CrInstance instance_id;
     unsigned char inst_repeat; /* Seems used on dragon flame sometimes */
     unsigned short inst_turn;
     unsigned short inst_action_turns; /* Turn when instance should be fired*/
@@ -348,14 +348,14 @@ unsigned char sound_flag;
     MapSubtlCoord targtstl_x;
     MapSubtlCoord targtstl_y;
     unsigned long instance_use_turn[INSTANCE_TYPES_MAX];
-    TbBool instance_available[INSTANCE_TYPES_MAX];
+    CrInstance instance_available[INSTANCE_TYPES_MAX];
     unsigned short instance_anim_step_turns;
     SubtlCodedCoords collided_door_subtile;
     char fighting_player_idx;
     ThingModel shot_model;
     struct CastedSpellData casted_spells[CREATURE_MAX_SPELLS_CASTED_AT];
     /** Current active skill instance. */
-    unsigned short active_instance_id;
+    CrInstance active_instance_id;
     char head_bob;
     struct Navigation navi;
     /* Creature movement path data. */
