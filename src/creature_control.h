@@ -339,7 +339,7 @@ unsigned char sound_flag;
     short orthogn_speed;
     short roll;
     unsigned long anim_time;
-    unsigned char instance_id;
+    unsigned short instance_id;
     unsigned char inst_repeat; /* Seems used on dragon flame sometimes */
     unsigned short inst_turn;
     unsigned short inst_action_turns; /* Turn when instance should be fired*/
@@ -355,7 +355,7 @@ unsigned char sound_flag;
     ThingModel shot_model;
     struct CastedSpellData casted_spells[CREATURE_MAX_SPELLS_CASTED_AT];
     /** Current active skill instance. */
-    unsigned char active_instance_id;
+    unsigned short active_instance_id;
     char head_bob;
     struct Navigation navi;
     /* Creature movement path data. */
