@@ -1612,10 +1612,6 @@ TbBool load_creaturetypes_config_file(const char *textname, const char *fname, u
         int arr_size = sizeof(game.conf.crtr_conf.instances) / sizeof(game.conf.crtr_conf.instances[0]);
         for (int i = 0; i < arr_size; i++)
         {
-    {
-        int arr_size = sizeof(game.conf.crtr_conf.instances) / sizeof(game.conf.crtr_conf.instances[0]);
-        for (int i = 0; i < arr_size; i++)
-        {
                 instance_desc[i].name = game.conf.crtr_conf.instances[i].name;
                 instance_desc[i].num = i;
                 game.conf.magic_conf.instance_info[i].instant = 0;
@@ -1636,8 +1632,6 @@ TbBool load_creaturetypes_config_file(const char *textname, const char *fname, u
                 game.conf.magic_conf.instance_info[i].tooltip_stridx = 0;
                 game.conf.magic_conf.instance_info[i].range_min = 0;
                 game.conf.magic_conf.instance_info[i].range_max = 0;
-        }
-    }
         }
     }
     // Loading file data
