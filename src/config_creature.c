@@ -1635,7 +1635,7 @@ TbBool load_creaturetypes_config_file(const char *textname, const char *fname, u
     // Parse blocks of the config file
     if (result)
     {
-    result = parse_creaturetypes_common_blocks(buf, len, textname, flags);
+        result = parse_creaturetypes_common_blocks(buf, len, textname, flags);
         if ((flags & CnfLd_AcceptPartial) != 0)
             result = true;
         if (!result)
