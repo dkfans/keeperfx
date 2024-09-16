@@ -1839,7 +1839,7 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
     }
     INSTANCE_RET_IF_AVAIL(thing, CrInst_SUMMON);
     INSTANCE_RET_IF_AVAIL(thing, CrInst_FAMILIAR);
-    for (int i = CrInst_LISTEND; i < game.conf.crtr_conf.instances_count; i++)
+    for (int i = CrInst_LISTEND; i < INSTANCE_TYPES_MAX; i++)
     {
         inst_inf = creature_instance_info_get(i);
         if ((inst_inf->instance_property_flags & InstPF_SelfBuff))
@@ -1871,7 +1871,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
             INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
         }
 
-        for (short i = 0; i < game.conf.crtr_conf.instances_count; i++)
+        for (short i = 0; i < INSTANCE_TYPES_MAX; i++)
         {
             if (i == CrInst_HEAL)
                 continue;
@@ -1959,7 +1959,7 @@ CrInstance get_best_combat_weapon_instance_to_use(const struct Thing *thing, lon
 {
     CrInstance inst_id = CrInst_NULL;
     struct InstanceInfo* inst_inf;
-    for (short i = 0; i < game.conf.crtr_conf.instances_count; i++)
+    for (short i = 0; i < INSTANCE_TYPES_MAX; i++)
     {
         inst_inf = creature_instance_info_get(i);
         if (inst_inf->range_min < 0) //instance is not a combat weapon
@@ -1991,7 +1991,7 @@ CrInstance get_best_combat_weapon_instance_to_use_versus_trap(const struct Thing
 {
     CrInstance inst_id = CrInst_NULL;
     struct InstanceInfo* inst_inf;
-    for (short i = 0; i < game.conf.crtr_conf.instances_count; i++)
+    for (short i = 0; i < INSTANCE_TYPES_MAX; i++)
     {
         inst_inf = creature_instance_info_get(i);
         if (inst_inf->range_min < 0) //instance is not a combat weapon

@@ -238,7 +238,6 @@ struct CreatureConfig {
     struct CreatureModelConfig model[CREATURE_TYPES_MAX];
     long states_count;
     struct CreatureStateConfig states[CREATURE_STATES_MAX];
-    long instances_count;
     struct CreatureInstanceConfig instances[INSTANCE_TYPES_MAX];
     long jobs_count;
     struct CreatureJobConfig jobs[INSTANCE_TYPES_MAX];
