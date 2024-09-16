@@ -313,8 +313,8 @@ void init_custom_sprites(LevelNumber lvnum)
     gui_panel_sprites[GUI_PANEL_SPRITES_COUNT].Data = (unsigned char *) bad_icon_data;
     gui_panel_sprites[GUI_PANEL_SPRITES_COUNT].SWidth = 16;
     gui_panel_sprites[GUI_PANEL_SPRITES_COUNT].SHeight = 16;
-    next_free_icon = 1;
-    num_icons_total = GUI_PANEL_SPRITES_COUNT + 1;
+    next_free_icon = 0;
+    num_icons_total = GUI_PANEL_SPRITES_COUNT;
 
     // Clear creature table (there sprites live)
     memset(creature_table_add, 0, sizeof(creature_table_add));
