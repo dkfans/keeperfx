@@ -59,8 +59,8 @@ struct SoundReceiver Receiver;
 long Non3DEmitter;
 struct SampleTable *sample_table;
 struct SampleTable *sample_table2;
-TbFileHandle sound_file = -1;
-TbFileHandle sound_file2 = -1;
+TbFileHandle sound_file = NULL;
+TbFileHandle sound_file2 = NULL;
 unsigned char using_two_banks;
 long SpeechEmitter;
 struct HeapMgrHeader *sndheap;
@@ -605,18 +605,12 @@ void close_sound_bank(SoundBankID bank_id)
     switch (bank_id)
     {
     case 0:
-        if (sound_file != -1)
-        {
-            LbFileClose(sound_file);
-            sound_file = -1;
-        }
+        LbFileClose(sound_file);
+        sound_file = NULL;
         break;
     case 1:
-        if (sound_file2 != -1)
-        {
-            LbFileClose(sound_file2);
-            sound_file2 = -1;
-        }
+        LbFileClose(sound_file2);
+        sound_file2 = NULL;
         break;
     default:
         break;
@@ -810,7 +804,7 @@ struct SampleTable *sample_table_get(SoundSmplTblID smptbl_id, SoundBankID bank_
 {
     if (bank_id > 0)
     {
-        if (sound_file2 == -1) {
+        if (!sound_file2) {
             //ERRORLOG("Bank %d not opened",2);
             return NULL;
         }
@@ -825,7 +819,7 @@ struct SampleTable *sample_table_get(SoundSmplTblID smptbl_id, SoundBankID bank_
         return &sample_table2[smptbl_id];
     } else
     {
-        if (sound_file == -1) {
+        if (!sound_file) {
             //ERRORLOG("Bank %d not opened",1);
             return NULL;
         }

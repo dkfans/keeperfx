@@ -127,7 +127,7 @@ TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry)
     LbMemorySet(centry, 0, sizeof(struct CatalogueEntry));
     strcpy(game.packet_fname, fname);
     game.packet_save_fp = LbFileOpen(game.packet_fname, Lb_FILE_MODE_READ_ONLY);
-    if (game.packet_save_fp == -1)
+    if (!game.packet_save_fp)
     {
         ERRORLOG("Cannot open keeper packet file for load");
         game.packet_fopened = 0;
@@ -137,7 +137,7 @@ TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry)
     if ((i != GLoad_PacketStart) && (i != GLoad_PacketContinue))
     {
         LbFileClose(game.packet_save_fp);
-        game.packet_save_fp = -1;
+        game.packet_save_fp = NULL;
         game.packet_fopened = 0;
         WARNMSG("Couldn't correctly read packet file \"%s\" header.",fname);
         return false;
@@ -229,7 +229,7 @@ void close_packet_file(void)
     {
         LbFileClose(game.packet_save_fp);
         game.packet_fopened = 0;
-        game.packet_save_fp = -1;
+        game.packet_save_fp = NULL;
     }
 }
 
@@ -261,7 +261,7 @@ TbBool reinit_packets_after_load(void)
 {
     game.packet_save_enable = false;
     game.packet_load_enable = false;
-    game.packet_save_fp = -1;
+    game.packet_save_fp = NULL;
     game.packet_fopened = 0;
     return true;
 }
@@ -295,7 +295,7 @@ TbBool open_new_packet_file_for_save(void)
     }
     LbFileDelete(game.packet_fname);
     game.packet_save_fp = LbFileOpen(game.packet_fname, Lb_FILE_MODE_NEW);
-    if (game.packet_save_fp == -1)
+    if (!game.packet_save_fp)
     {
         ERRORLOG("Cannot open keeper packet file for save, \"%s\".",game.packet_fname);
         game.packet_fopened = 0;
@@ -308,7 +308,7 @@ TbBool open_new_packet_file_for_save(void)
         WARNMSG("Cannot write to packet file, \"%s\".",game.packet_fname);
         LbFileClose(game.packet_save_fp);
         game.packet_fopened = 0;
-        game.packet_save_fp = -1;
+        game.packet_save_fp = NULL;
         return false;
     }
     game.packet_fopened = 1;
