@@ -4645,40 +4645,33 @@ static void set_music_process(struct ScriptContext *context)
 {
     
     short track_number = context->value->chars[0];
-    if (track_number >= FIRST_TRACK && track_number <= MUSIC_TRACKS_COUNT)
-    {
-        if (track_number != game.audiotrack)
-        {
-            if (IsRedbookMusicActive())
-            {
+    if (track_number >= FIRST_TRACK && track_number <= MUSIC_TRACKS_COUNT) {
+        if (track_number != game.audiotrack) {
+            if (IsRedbookMusicActive()) {
                 SCRPTLOG("Setting music track to %d.", track_number);
-            }
-            else
-            {
+            } else {
+#if SDL_MIXER_VERSION_ATLEAST(2, 6, 0)
                 char info[255];
-                sprintf(info, "%s", Mix_GetMusicTitle(tracks[track_number]));
-                const char* artist = Mix_GetMusicArtistTag(tracks[track_number]);
-                if (artist[0] != '\0')
-                {
-                    sprintf(info, "%s by %s", info, artist);
+                snprintf(info, sizeof(info), "%s", Mix_GetMusicTitle(tracks[track_number]));
+                const char * artist = Mix_GetMusicArtistTag(tracks[track_number]);
+                if (strlen(artist) > 0) {
+                    snprintf(info, sizeof(info), "%s by %s", info, artist);
                 }
-                const char* copyright = Mix_GetMusicCopyrightTag(tracks[track_number]);
-                if (copyright[0] != '\0')
-                {
-                    sprintf(info, "%s (%s)", info, copyright);
+                const char * copyright = Mix_GetMusicCopyrightTag(tracks[track_number]);
+                if (strlen(copyright) > 0) {
+                    snprintf(info, sizeof(info), "%s (%s)", info, copyright);
                 }
                 SCRPTLOG("Setting music track to %d: %s", track_number, info);
+#else
+                SCRPTLOG("Setting music track to %d.", track_number);
+#endif
             }
             game.audiotrack = track_number;
         }
-    }
-    else if (track_number == 0)
-    {
+    } else if (track_number == 0) {
         game.audiotrack = track_number;
         SCRPTLOG("Setting music track to %d: No Music", track_number);
-    }
-    else
-    {
+    } else {
         SCRPTERRLOG("Invalid music track: %d. Track must be between %d and %d or 0 to disable.", track_number,FIRST_TRACK,MUSIC_TRACKS_COUNT);
     }
 }
