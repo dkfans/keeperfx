@@ -78,7 +78,7 @@ TbBool setup_heap_manager(void)
     const char* fname = prepare_file_path(FGrp_StdData, "creature.jty");
 #endif
     jty_file_handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
-    if (jty_file_handle == -1) {
+    if (!jty_file_handle) {
         ERRORLOG("Can not open JTY file, \"%s\"",fname);
         return false;
     }
@@ -131,11 +131,8 @@ void reset_heap_manager(void)
 {
     long i;
     SYNCDBG(8,"Starting");
-    if (jty_file_handle != -1)
-    {
-        LbFileClose(jty_file_handle);
-        jty_file_handle = -1;
-    }
+    LbFileClose(jty_file_handle);
+    jty_file_handle = NULL;
     for (i=0; i < KEEPSPRITE_LENGTH; i++)
         keepsprite[i] = NULL;
     for (i=0; i < KEEPSPRITE_LENGTH; i++)

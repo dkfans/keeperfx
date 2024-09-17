@@ -538,11 +538,11 @@ TbBool init_sound_heap_two_banks(unsigned char *heap_mem, long heap_size, char *
     LbMemorySet(heap_mem, 0, heap_size);
     using_two_banks = 0;
     // Open first sound bank and prepare sample table
-    if (sound_file != -1)
+    if (sound_file)
         close_sound_bank(0);
     samples_in_bank = 0;
     sound_file = LbFileOpen(snd_fname,Lb_FILE_MODE_READ_ONLY);
-    if (sound_file == -1)
+    if (!sound_file)
     {
         ERRORLOG("Couldn't open primary sound bank file \"%s\"",snd_fname);
         return false;
@@ -566,11 +566,11 @@ TbBool init_sound_heap_two_banks(unsigned char *heap_mem, long heap_size, char *
         return false;
     }
     // Open second sound bank and prepare sample table
-    if (sound_file2 != -1)
+    if (sound_file2)
         close_sound_bank(1);
     samples_in_bank2 = 0;
     sound_file2 = LbFileOpen(spc_fname,Lb_FILE_MODE_READ_ONLY);
-    if (sound_file2 == -1)
+    if (!sound_file2)
     {
         ERRORLOG("Couldn't open secondary sound bank file \"%s\"",spc_fname);
         return false;

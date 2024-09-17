@@ -86,7 +86,7 @@ short LbFileExists(const char *fname)
 
 int LbFilePosition(TbFileHandle handle)
 {
-  int result = tell(handle);
+  int result = ftell(handle);
   return result;
 }
 
@@ -99,7 +99,7 @@ int create_directory_for_file(const char * fname)
   while (separator != NULL) {
     memcpy(tmp, fname, separator - fname);
     tmp[separator - fname] = 0;
-    if (_mkdir(tmp) != 0) {
+    if (mkdir(tmp) != 0) {
       if (errno != EEXIST) {
         free(tmp);
         return 0;
@@ -121,7 +121,7 @@ TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
     LbSyncLog("LbFileOpen: file doesn't exist\n");
 #endif
     if ( mode == Lb_FILE_MODE_READ_ONLY )
-      return -1;
+      return NULL;
     if ( mode == Lb_FILE_MODE_OLD )
       mode = Lb_FILE_MODE_NEW;
   }
@@ -136,7 +136,7 @@ TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
     close(rc);
   }
 */
-  TbFileHandle rc = -1;
+  TbFileHandle rc = NULL;
   switch (mode)
   {
   case Lb_FILE_MODE_NEW:
@@ -145,7 +145,7 @@ TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
       LbSyncLog("LbFileOpen: LBO_CREAT mode\n");
 #endif
         if (create_directory_for_file(fname)) {
-          rc = _sopen(fname, O_RDWR|O_CREAT|O_BINARY, SH_DENYNO, S_IREAD|S_IWRITE);
+          rc = fopen(fname, "wb");
         }
     };break;
   case Lb_FILE_MODE_OLD:
@@ -153,18 +153,18 @@ TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
 #ifdef __DEBUG
         LbSyncLog("LbFileOpen: LBO_RDWR mode\n");
 #endif
-        rc = _sopen(fname, O_RDWR|O_BINARY, SH_DENYNO);
+        rc = fopen(fname, "r+b");
     };break;
   case Lb_FILE_MODE_READ_ONLY:
     {
 #ifdef __DEBUG
         LbSyncLog("LbFileOpen: LBO_RDONLY mode\n");
 #endif
-        rc = _sopen(fname, O_RDONLY|O_BINARY, SH_DENYNO);
+        rc = fopen(fname, "rb");
     };break;
   }
 #ifdef __DEBUG
-  LbSyncLog("LbFileOpen: out handle = %ld, errno = %d\n",rc,errno);
+  LbSyncLog("LbFileOpen: errno = %d\n", rc, errno);
 #endif
   return rc;
 }
@@ -172,7 +172,7 @@ TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
 //Closes a file
 int LbFileClose(TbFileHandle handle)
 {
-  if ( close(handle) )
+  if ( fclose(handle) )
     return -1;
   else
     return 1;
@@ -201,13 +201,13 @@ int LbFileSeek(TbFileHandle handle, long offset, unsigned char origin)
   switch (origin)
   {
   case Lb_FILE_SEEK_BEGINNING:
-      rc = lseek(handle, offset, SEEK_SET);
+      rc = fseek(handle, offset, SEEK_SET);
       break;
   case Lb_FILE_SEEK_CURRENT:
-      rc = lseek(handle, offset, SEEK_CUR);
+      rc = fseek(handle, offset, SEEK_CUR);
       break;
   case Lb_FILE_SEEK_END:
-      rc = lseek(handle, offset, SEEK_END);
+      rc = fseek(handle, offset, SEEK_END);
       break;
   default:
       rc = -1;
@@ -227,7 +227,7 @@ int LbFileSeek(TbFileHandle handle, long offset, unsigned char origin)
 int LbFileRead(TbFileHandle handle, void *buffer, unsigned long len)
 {
   //'read' returns (-1) on error
-  int result = read(handle, buffer, len);
+  int result = fread(buffer, len, 1, handle);
   return result;
 }
 
@@ -240,7 +240,7 @@ int LbFileRead(TbFileHandle handle, void *buffer, unsigned long len)
 */
 long LbFileWrite(TbFileHandle handle, const void *buffer, const unsigned long len)
 {
-    long result = write(handle, buffer, len);
+    long result = fwrite(buffer, len, 1, handle);
     return result;
 }
 
@@ -250,42 +250,28 @@ long LbFileWrite(TbFileHandle handle, const void *buffer, const unsigned long le
 */
 short LbFileFlush(TbFileHandle handle)
 {
-#if defined(_WIN32)
-  // Crappy Windows has its own
-  int result = FlushFileBuffers((HANDLE)handle);
-  // It returns 'invalid handle' error sometimes for no reason.. so disabling this error
-  if (result != 0)
-      return 1;
-  result = GetLastError();
-  return ((result == 0) || (result == 6));
-#else
-#if defined(DOS)||defined(GO32)
-  // No idea how to do this on old systems
-  return 1;
-#else
-  // For normal POSIX systems
-  // (should also work on Win, as its IEEE standard... but it currently isn't)
-  return (ioctl(handle,I_FLUSH,FLUSHRW) != -1);
-#endif
-#endif
-
+  return fflush(handle) == 0;
 }
 
 long LbFileLengthHandle(TbFileHandle handle)
 {
-    long result = filelength(handle);
-    return result;
+  long pos = ftell(handle);
+  fseek(handle, 0, SEEK_END);
+  long result = ftell(handle);
+  fseek(handle, pos, SEEK_SET);
+  return result;
 }
 
 //Returns disk size of file
 long LbFileLength(const char *fname)
 {
-    TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
-    long result = handle;
-    if (handle != -1)
-    {
-        result = filelength(handle);
-        LbFileClose(handle);
+  TbFileHandle handle = fopen(fname, "rb");
+  long result = -1;
+  if (handle)
+  {
+    fseek(handle, 0, SEEK_END);
+    result = ftell(handle);
+    fclose(handle);
   }
   return result;
 }
