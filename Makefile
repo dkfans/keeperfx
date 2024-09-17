@@ -125,7 +125,6 @@ obj/bflib_planar.o \
 obj/bflib_render.o \
 obj/bflib_render_gpoly.o \
 obj/bflib_render_trig.o \
-obj/bflib_semphr.o \
 obj/bflib_server_tcp.o \
 obj/bflib_sndlib.o \
 obj/bflib_sound.o \
