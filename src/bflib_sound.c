@@ -997,7 +997,7 @@ long play_speech_sample(SoundSmplTblID smptbl_id)
       }
     }
     SpeechEmitter = sp_emiter;
-    long vol = lerp(0, 256, (float)settings.mentor_volume/127.0); // [0-127] rescaled to [0-256]
+    long vol = LbLerp(0, 256, (float)settings.mentor_volume/127.0); // [0-127] rescaled to [0-256]
 
     if (sp_emiter != 0)
     {

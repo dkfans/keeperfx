@@ -540,8 +540,8 @@ long interpolate(long variable_to_interpolate, long previous, long current)
     // future: by using the predicted future position in the interpolation calculation, we can remove input lag (or visual lag).
     long future = current + (current - previous);
     // 0.5 is definitely accurate. Tested by rotating the camera while comparing the minimap's rotation with the camera's rotation in a video recording.
-    long desired_value = lerp(current, future, 0.5);
-    return lerp(variable_to_interpolate, desired_value, gameadd.delta_time);
+    long desired_value = LbLerp(current, future, 0.5);
+    return LbLerp(variable_to_interpolate, desired_value, gameadd.delta_time);
 }
 
 long interpolate_angle(long variable_to_interpolate, long previous, long current)
@@ -5053,7 +5053,7 @@ static void draw_engine_number(struct BucketKindFloatingGoldText *num)
     long pos_x;
 
     // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
-    float scale_by_zoom = lerp(0.15, 1.00, hud_scale);
+    float scale_by_zoom = LbLerp(0.15, 1.00, hud_scale);
 
     flg_mem = lbDisplay.DrawFlags;
     player = get_my_player();
@@ -5106,7 +5106,7 @@ static void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
         {
             int deltay, height, zoom_factor;
             // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
-            float scale_by_zoom = lerp(0.15, 1.00, hud_scale);
+            float scale_by_zoom = LbLerp(0.15, 1.00, hud_scale);
 
             if (cam->view_mode == PVM_FrontView) {
                 zoom_factor = 4094*scale_by_zoom;
@@ -5265,10 +5265,10 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         case PVM_IsoWibbleView:
         case PVM_IsoStraightView:
             // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
-            scale_by_zoom = lerp(0.15, 1.00, hud_scale);
+            scale_by_zoom = LbLerp(0.15, 1.00, hud_scale);
             break;
         case PVM_FrontView:
-            scale_by_zoom = lerp(0.15, 1.00, hud_scale);
+            scale_by_zoom = LbLerp(0.15, 1.00, hud_scale);
             break;
         case PVM_ParchmentView:
             scale_by_zoom = 1;
@@ -5481,7 +5481,7 @@ static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
         {
             int top_of_pole_offset, zoom_factor;
             // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
-            float scale_by_zoom = lerp(0.15, 1.00, hud_scale);
+            float scale_by_zoom = LbLerp(0.15, 1.00, hud_scale);
 
             if (cam->view_mode == PVM_FrontView) {
                 zoom_factor = (4094*scale_by_zoom);
@@ -5660,7 +5660,7 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     int line_thickness = max(1, (custom_line_box_size * units_per_pixel_best / 16.0) );
     
     // Make the line slightly thinner when zoomed out
-    line_thickness = lerp(line_thickness, 1, 1.0-hud_scale);
+    line_thickness = LbLerp(line_thickness, 1, 1.0-hud_scale);
     
     int put_pixels_left = line_thickness/2; // Allocate half of the thickness to the left
     int put_pixels_right = line_thickness-put_pixels_left; // Remaining thickness is placed to the right
@@ -5676,7 +5676,7 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
         //    Temporary Error message, this should never appear in the log, but if it does, then the line must have been clipped incorrectly
         //    WARNMSG("draw_stripey_line: Pixel rendered outside engine window. X: %d, Y: %d, window_width: %d, window_height %d, A1: %d, A2 %d, B1 %d, B2 %d, a_start: %d, a_end: %d, b_start: %d, rWA: %d", *x_coord, *y_coord, relative_window_width, relative_window_height, a1, a2, b1, b2, a_start, a_end, b_start, relative_window_a);
         //}
-        color_animation_position += lerp(1.0, 4.0, 1.0-hud_scale) * (16.0/units_per_pixel_best);
+        color_animation_position += LbLerp(1.0, 4.0, 1.0-hud_scale) * (16.0/units_per_pixel_best);
         if (color_animation_position >= 16.0) {
             color_animation_position -= 16.0;
         }

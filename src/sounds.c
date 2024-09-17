@@ -273,11 +273,11 @@ TbBool update_3d_sound_receiver(struct PlayerInfo* player)
         cam->view_mode == PVM_IsoStraightView
     ) {
         // Distance from center of camera that you can hear a sound
-        S3DSetMaximumSoundDistance(lerp(5120, 27648, 1.0-hud_scale));
+        S3DSetMaximumSoundDistance(LbLerp(5120, 27648, 1.0-hud_scale));
         // Quieten sounds when zoomed out
         float upper_range_only = min(hud_scale*2.0, 1.0);
         float rescale_audio = max(min(fastPow(upper_range_only, 1.25), 1.0), 0.0);
-        S3DSetSoundReceiverSensitivity(lerp(2, 64, rescale_audio));
+        S3DSetSoundReceiverSensitivity(LbLerp(2, 64, rescale_audio));
     } else {
         S3DSetMaximumSoundDistance(5120);
         S3DSetSoundReceiverSensitivity(64);
