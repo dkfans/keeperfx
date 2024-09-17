@@ -26,17 +26,12 @@
 #include "globals.h"
 #include "game_legacy.h"
 
-#if defined(_WIN32)
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif
 #include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define LARGE_DELAY_TIME 20
 /******************************************************************************/
 struct TbTime global_time;
 struct TbDate global_date;
@@ -226,13 +221,6 @@ TbResult LbDateTimeDecode(const time_t *datetime,struct TbDate *curr_date,struct
     curr_time->HSecond = 0;
   }
   return Lb_SUCCESS;
-}
-
-inline void LbDoMultitasking(void)
-{
-#if defined(_WIN32)
-    Sleep(LARGE_DELAY_TIME>>1); // This switches to other tasks
-#endif
 }
 
 TbBool LbSleepFor(TbClockMSec delay)

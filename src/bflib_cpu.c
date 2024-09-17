@@ -82,7 +82,7 @@ void cpu_detect(struct CPU_INFO *cpu)
   }
 }
 
-unsigned char cpu_get_type(struct CPU_INFO *cpu)
+unsigned char cpu_get_type(const struct CPU_INFO *cpu)
 {
   if (cpu->feature_intl != 0)
     return (cpu->feature_intl>>12) & 0x3;
@@ -90,7 +90,7 @@ unsigned char cpu_get_type(struct CPU_INFO *cpu)
     return CPUID_TYPE_OEM;
 }
 
-unsigned char cpu_get_family(struct CPU_INFO *cpu)
+unsigned char cpu_get_family(const struct CPU_INFO *cpu)
 {
   if (cpu->feature_intl != 0)
   {
@@ -110,7 +110,7 @@ unsigned char cpu_get_family(struct CPU_INFO *cpu)
   }
 }
 
-unsigned char cpu_get_model(struct CPU_INFO *cpu)
+unsigned char cpu_get_model(const struct CPU_INFO *cpu)
 {
     unsigned char family = cpu_get_family(cpu);
     unsigned char model = ((cpu->feature_intl>>4) & 0xF);
@@ -124,7 +124,7 @@ unsigned char cpu_get_model(struct CPU_INFO *cpu)
     }
 }
 
-unsigned char cpu_get_stepping(struct CPU_INFO *cpu)
+unsigned char cpu_get_stepping(const struct CPU_INFO *cpu)
 {
   return (cpu->feature_intl) & 0xF;
 }

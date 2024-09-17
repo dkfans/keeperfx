@@ -20,7 +20,6 @@
 #ifndef BFLIB_NETSP_H
 #define BFLIB_NETSP_H
 
-#include <basetyps.h>
 #include "bflib_basics.h"
 #include "bflib_netsession.h"
 

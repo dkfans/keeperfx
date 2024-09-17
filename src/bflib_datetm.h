@@ -45,6 +45,7 @@ TbResult LbTimerInit(void);
 TbClockMSec LbTimerClock_1000(void);
 /******************************************************************************/
 
+#define LARGE_DELAY_TIME 20
 #define TOTAL_FRAMETIME_KINDS 4
 enum FrametimeKinds {
     Frametime_FullFrame = 0,

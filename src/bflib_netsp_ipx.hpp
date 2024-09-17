@@ -20,7 +20,6 @@
 #ifndef BFLIB_NETSPIPX_H
 #define BFLIB_NETSPIPX_H
 
-#include <basetyps.h>
 #include "bflib_basics.h"
 
 #include "globals.h"

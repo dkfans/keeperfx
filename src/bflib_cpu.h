@@ -140,10 +140,10 @@ struct CPU_INFO {
 
 /******************************************************************************/
 void cpu_detect(struct CPU_INFO *cpu);
-unsigned char cpu_get_type(struct CPU_INFO *cpu);
-unsigned char cpu_get_family(struct CPU_INFO *cpu);
-unsigned char cpu_get_model(struct CPU_INFO *cpu);
-unsigned char cpu_get_stepping(struct CPU_INFO *cpu);
+unsigned char cpu_get_type(const struct CPU_INFO *cpu);
+unsigned char cpu_get_family(const struct CPU_INFO *cpu);
+unsigned char cpu_get_model(const struct CPU_INFO *cpu);
+unsigned char cpu_get_stepping(const struct CPU_INFO *cpu);
 
 
 /******************************************************************************/

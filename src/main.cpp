@@ -12,10 +12,8 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-
 #include "keeperfx.hpp"
+#include "platform.h"
 
 #include "bflib_coroutine.h"
 #include "bflib_math.h"
@@ -136,7 +134,6 @@
 
 int test_variable;
 
-char cmndline[CMDLN_MAXLEN+1];
 unsigned short bf_argc;
 char *bf_argv[CMDLN_MAXLEN+1];
 short do_draw;
@@ -947,54 +944,9 @@ short setup_game(void)
 {
   struct CPU_INFO cpu_info; // CPU status variable
   short result;
-  OSVERSIONINFO v;
   // Do only a very basic setup
   cpu_detect(&cpu_info);
-  SYNCMSG("CPU %s type %d family %d model %d stepping %d features %08x",cpu_info.vendor,
-      (int)cpu_get_type(&cpu_info),(int)cpu_get_family(&cpu_info),(int)cpu_get_model(&cpu_info),
-      (int)cpu_get_stepping(&cpu_info),cpu_info.feature_edx);
-  if (cpu_info.BrandString)
-  {
-      SYNCMSG("%s", &cpu_info.brand[0]);
-  }
-  SYNCMSG("Build image base: %p", GetModuleHandle(NULL));
-  v.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-  if (GetVersionEx(&v))
-  {
-      SYNCMSG("Operating System: %s %ld.%ld.%ld", (v.dwPlatformId == VER_PLATFORM_WIN32_NT) ? "Windows NT" : "Windows", v.dwMajorVersion,v.dwMinorVersion,v.dwBuildNumber);
-  }
-
-  // Check for Wine
-  #ifdef _WIN32
-      HMODULE hNTDLL = GetModuleHandle("ntdll.dll");
-      if(hNTDLL)
-      {
-          // Get Wine version
-          PROC wine_get_version = (PROC) GetProcAddress(hNTDLL, "wine_get_version");
-          if (wine_get_version)
-          {
-              SYNCMSG("Running on Wine v%s", wine_get_version());
-              is_running_under_wine = true;
-          }
-
-          // Get Wine host OS
-          // We have to use a union to make sure there is no weird cast warnings
-          union
-          {
-              FARPROC func;
-              void (*wine_get_host_version)(const char**, const char**);
-          } wineHostVersionUnion;
-          wineHostVersionUnion.func = GetProcAddress(hNTDLL, "wine_get_host_version");
-          if (wineHostVersionUnion.wine_get_host_version)
-          {
-              const char* sys_name = NULL;
-              const char* release_name = NULL;
-              wineHostVersionUnion.wine_get_host_version(&sys_name, &release_name);
-              SYNCMSG("Wine Host: %s %s", sys_name, release_name);
-          }
-      }
-  #endif
-
+  log_system_info(&cpu_info);
   update_memory_constraits();
   // Enable features that require more resources
   update_features(mem_size);
@@ -4315,66 +4267,11 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     return 0;
 }
 
-void get_cmdln_args(unsigned short &argc, char *argv[])
-{
-    char *ptr;
-    const char *cmndln_orig;
-    cmndln_orig = GetCommandLineA();
-    snprintf(cmndline, CMDLN_MAXLEN, "%s", cmndln_orig);
-    ptr = cmndline;
-    bf_argc = 0;
-    while (*ptr != '\0')
-    {
-        if ((*ptr == '\t') || (*ptr == ' '))
-        {
-            ptr++;
-            continue;
-        }
-        if (*ptr == '\"')
-        {
-            ptr++;
-            bf_argv[bf_argc] = ptr;
-            bf_argc++;
-            while (*ptr != '\0')
-            {
-              if (*ptr == '\"')
-              {
-                  *ptr++ = '\0';
-                  break;
-              }
-              ptr++;
-            }
-        } else
-        {
-            bf_argv[bf_argc] = ptr;
-            bf_argc++;
-            while (*ptr != '\0')
-            {
-              if ((*ptr == '\t') || (*ptr == ' '))
-              {
-                  *ptr++ = '\0';
-                  break;
-              }
-              ptr++;
-            }
-        }
-    }
-}
-
-LONG __stdcall Vex_handler(
-    _EXCEPTION_POINTERS *ExceptionInfo
-)
-{
-    LbJustLog("=== Crash ===\n");
-    LbLogClose();
-    return 0;
-}
-
 int main(int argc, char *argv[])
 {
   char *text;
 
-  AddVectoredExceptionHandler(0, &Vex_handler);
+  platform_init();
   get_cmdln_args(bf_argc, bf_argv);
 
   try {
