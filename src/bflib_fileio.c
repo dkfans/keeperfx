@@ -26,20 +26,14 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <io.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <limits.h>
 #include <time.h>
-#include <share.h>
 
 #include "bflib_basics.h"
 #include "bflib_datetm.h"
 
-#if defined(_WIN32)||defined(DOS)||defined(GO32)
-#include <dos.h>
-#include <direct.h>
-#endif
 #include "post_inc.h"
 
 short LbFileExists(const char *fname)
@@ -62,7 +56,11 @@ int create_directory_for_file(const char * fname)
   while (separator != NULL) {
     memcpy(tmp, fname, separator - fname);
     tmp[separator - fname] = 0;
+#if defined(_WIN32)
     if (mkdir(tmp) != 0) {
+#else
+    if (mkdir(tmp, 0755) != 0) {
+#endif
       if (errno != EEXIST) {
         free(tmp);
         return 0;
