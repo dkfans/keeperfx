@@ -32,6 +32,8 @@
 #include <limits.h>
 #include <time.h>
 #include <share.h>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 
 #include "bflib_basics.h"
 #include "bflib_datetm.h"
@@ -42,38 +44,6 @@
 #endif
 #include "post_inc.h"
 
-#if defined(_WIN32)
-#ifdef __cplusplus
-extern "C" {
-#endif
-//Selected declarations frow Win32 API - I don't want to use whole API
-// since it influences everything
-#ifndef WINBASEAPI
-#ifdef __W32API_USE_DLLIMPORT__
-#define WINBASEAPI DECLSPEC_IMPORT
-#else
-#define WINBASEAPI
-#endif
-#endif
-#define F_OK 0
-#define WINAPI __stdcall
-typedef char *PCHAR,*LPCH,*PCH,*NPSTR,*LPSTR,*PSTR;
-typedef const char *LPCCH,*PCSTR,*LPCSTR;
-typedef unsigned long DWORD;
-typedef int WINBOOL,*PWINBOOL,*LPWINBOOL;
-#define BOOL WINBOOL
-typedef void *PVOID,*LPVOID;
-typedef PVOID HANDLE;
-#define DECLARE_HANDLE(n) typedef HANDLE n
-typedef HANDLE *PHANDLE,*LPHANDLE;
-WINBASEAPI DWORD WINAPI GetShortPathNameA(LPCSTR,LPSTR,DWORD);
-#define GetShortPathName GetShortPathNameA
-WINBASEAPI BOOL WINAPI FlushFileBuffers(HANDLE);
-WINBASEAPI DWORD WINAPI GetLastError(void);
-#ifdef __cplusplus
-}
-#endif
-#endif
 /******************************************************************************/
 //Internal declarations
 void convert_find_info(struct TbFileFind *ffind);
@@ -276,72 +246,67 @@ long LbFileLength(const char *fname)
   return result;
 }
 
-//Converts file search information from platform-specific into independent form
-//Yeah, right...
-void convert_find_info(struct TbFileFind *ffind)
+struct TbFileFind {
+  HANDLE handle;
+  char * namebuf;
+  int namebuflen;
+};
+
+struct TbFileFind * LbFileFindFirst(const char * filespec, struct TbFileEntry * fentry)
 {
-  struct _finddata_t *fdata=&(ffind->Reserved);
-  snprintf(ffind->Filename,144, "%s", fdata->name);
-#if defined(_WIN32)
-  GetShortPathName(fdata->name,ffind->AlternateFilename,14);
-#else
-  strncpy(ffind->AlternateFilename,fdata->name,14);
-#endif
-  ffind->AlternateFilename[13]='\0';
-  if (fdata->size>ULONG_MAX)
-    ffind->Length=ULONG_MAX;
-  else
-    ffind->Length = fdata->size;
-  ffind->Attributes = fdata->attrib;
-  LbDateTimeDecode(&fdata->time_create,&ffind->CreationDate,&ffind->CreationTime);
-  LbDateTimeDecode(&fdata->time_write,&ffind->LastWriteDate,&ffind->LastWriteTime);
+  struct TbFileFind * ffind = malloc(sizeof(struct TbFileFind));
+  if (ffind == NULL) {
+    return NULL;
+  }
+  WIN32_FIND_DATA fd;
+  ffind->handle = FindFirstFile(filespec, &fd);
+  if (ffind->handle == INVALID_HANDLE_VALUE) {
+    free(ffind);
+    return NULL;
+  }
+  const int namelen = strlen(fd.cFileName);
+  ffind->namebuf = malloc(namelen + 1);
+  if (ffind->namebuf == NULL) {
+    FindClose(ffind->handle);
+    free(ffind);
+    return NULL;
+  }
+  memcpy(ffind->namebuf, fd.cFileName, namelen + 1);
+  ffind->namebuflen = namelen;
+  fentry->Filename = ffind->namebuf;
+  return ffind;
 }
 
-// returns -1 if no match is found. Otherwise returns 1 and stores a handle
-// to be used in _findnext and _findclose calls inside TbFileFind struct.
-int LbFileFindFirst(const char *filespec, struct TbFileFind *ffind,unsigned int attributes)
+int LbFileFindNext(struct TbFileFind * ffind, struct TbFileEntry * fentry)
 {
-    // original Watcom code was
-    //dos_findfirst_(path, attributes,&(ffind->Reserved))
-    //The new code skips 'attributes' as Win32 prototypes seem not to use them
-    ffind->ReservedHandle = _findfirst(filespec,&(ffind->Reserved));
-    int result;
-    if (ffind->ReservedHandle == -1)
-    {
-      result = -1;
-    } else
-    {
-      convert_find_info(ffind);
-      result = 1;
+  if (ffind == NULL) {
+    return -1;
+  }
+  WIN32_FIND_DATA fd;
+  if (!FindNextFile(ffind->handle, &fd)) {
+    return -1;
+  }
+  const int namelen = strlen(fd.cFileName);
+  if (namelen > ffind->namebuflen) {
+    char * buf = realloc(ffind->namebuf, namelen + 1);
+    if (buf == NULL) {
+      return -1;
     }
-    return result;
+    ffind->namebuf = buf;
+    ffind->namebuflen = namelen;
+  }
+  memcpy(ffind->namebuf, fd.cFileName, namelen + 1);
+  fentry->Filename = ffind->namebuf;
+  return 1;
 }
 
-// returns -1 if no match is found, otherwise returns 1
-int LbFileFindNext(struct TbFileFind *ffind)
+void LbFileFindEnd(struct TbFileFind * ffind)
 {
-    int result;
-    if ( _findnext(ffind->ReservedHandle,&(ffind->Reserved)) < 0 )
-    {
-        _findclose(ffind->ReservedHandle);
-        ffind->ReservedHandle = -1;
-        result = -1;
-    } else
-    {
-        convert_find_info(ffind);
-        result = 1;
-    }
-    return result;
-}
-
-//Ends file searching sequence
-int LbFileFindEnd(struct TbFileFind *ffind)
-{
-    if (ffind->ReservedHandle != -1)
-    {
-        _findclose(ffind->ReservedHandle);
-    }
-    return 1;
+  if (ffind) {
+    FindClose(ffind->handle);
+    free(ffind->namebuf);
+    free(ffind);
+  }
 }
 
 //Removes a disk file

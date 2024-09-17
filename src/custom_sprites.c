@@ -229,33 +229,34 @@ static int cmp_named_command(const void *a, const void *b)
 static void load_system_sprites(short fgroup)
 {
     SYNCDBG(8, "Starting");
-    struct TbFileFind fileinfo;
+    char * fname = prepare_file_path(fgroup, "*.zip");
     int cnt = 0, cnt_ok = 0, cnt_icons = 0;
-    char *fname = prepare_file_path(fgroup, "*.zip");
-    const char *path;
+    const char * path;
     if (0 == *fname) // No campaign
         return;
-    for (int rc = LbFileFindFirst(fname, &fileinfo, 0x21u);
-         rc != -1;
-         rc = LbFileFindNext(&fileinfo))
-    {
-        path = prepare_file_path(fgroup, fileinfo.Filename);
+    struct TbFileEntry fe;
+    struct TbFileFind * ff = LbFileFindFirst(fname, &fe);
+    if (ff) {
+        do {
+            path = prepare_file_path(fgroup, fe.Filename);
 #ifdef OUTER
-        fprintf(stderr, "F:%s\n", path);
-        fprintf(stderr, "A:%d\n", SDL_GetTicks());
+            fprintf(stderr, "F:%s\n", path);
+            fprintf(stderr, "A:%d\n", SDL_GetTicks());
 #endif
-        if (add_custom_sprite(path))
-        {
-            cnt_ok++;
-        }
+            if (add_custom_sprite(path))
+            {
+                cnt_ok++;
+            }
 #ifdef OUTER
-        fprintf(stderr, "B:%d\n", SDL_GetTicks());
+            fprintf(stderr, "B:%d\n", SDL_GetTicks());
 #endif
-        if (add_custom_json(path, "icons.json", &process_icon))
-        {
-            cnt_icons++;
-        }
-        cnt++;
+            if (add_custom_json(path, "icons.json", &process_icon))
+            {
+                cnt_icons++;
+            }
+            cnt++;
+        } while (LbFileFindNext(ff, &fe) >= 0);
+        LbFileFindEnd(ff);
     }
     LbJustLog("Found %d sprite zip file(s), loaded %d with animations and %d with icons. Used %d/%d sprite slots.\n", cnt, cnt_ok, cnt_icons, next_free_sprite, KEEPERSPRITE_ADD_NUM);
 }

@@ -318,29 +318,25 @@ TbBool find_and_load_lif_files(void)
   }
   short result = false;
   char* fname = prepare_file_path(FGrp_CmpgLvls, "*.lif");
-  struct TbFileFind fileinfo;
-  int rc = LbFileFindFirst(fname, &fileinfo, 0x21u);
-  while (rc != -1)
-  {
-    fname = prepare_file_path(FGrp_CmpgLvls,fileinfo.Filename);
-    long i = LbFileLength(fname);
-    if ((i < 0) || (i >= MAX_LIF_SIZE))
-    {
-      WARNMSG("File \"%s\" too long (Max size %d)", fileinfo.Filename, MAX_LIF_SIZE);
-
-    } else
-    if (LbFileLoadAt(fname, buf) != i)
-    {
-      WARNMSG("Unable to read .LIF file, \"%s\"", fileinfo.Filename);
-    } else
-    {
-      buf[i] = '\0';
-      if (level_lif_file_parse(fileinfo.Filename, (char *)buf, i))
-        result = true;
-    }
-    rc = LbFileFindNext(&fileinfo);
+  struct TbFileEntry fe;
+  struct TbFileFind * ff = LbFileFindFirst(fname, &fe);
+  if (ff) {
+    do {
+      fname = prepare_file_path(FGrp_CmpgLvls, fe.Filename);
+      long i = LbFileLength(fname);
+      if ((i < 0) || (i >= MAX_LIF_SIZE)) {
+        WARNMSG("File \"%s\" too long (Max size %d)", fe.Filename, MAX_LIF_SIZE);
+      } else if (LbFileLoadAt(fname, buf) != i) {
+        WARNMSG("Unable to read .LIF file, \"%s\"", fe.Filename);
+      } else {
+        buf[i] = '\0';
+        if (level_lif_file_parse(fe.Filename, (char *)buf, i)) {
+          result = true;
+        }
+      }
+    } while (LbFileFindNext(ff, &fe) >= 0);
+    LbFileFindEnd(ff);
   }
-  LbFileFindEnd(&fileinfo);
   LbMemoryFree(buf);
   return result;
 }
@@ -634,29 +630,25 @@ TbBool find_and_load_lof_files(void)
     }
     short result = false;
     char* fname = prepare_file_path(FGrp_CmpgLvls, "*.lof");
-    struct TbFileFind fileinfo;
-    int rc = LbFileFindFirst(fname, &fileinfo, 0x21u);
-    while (rc != -1)
-    {
-        fname = prepare_file_path(FGrp_CmpgLvls,fileinfo.Filename);
-        long i = LbFileLength(fname);
-        if ((i < 0) || (i >= MAX_LIF_SIZE))
-        {
-          WARNMSG("File '%s' too long (Max size %d)", fileinfo.Filename, MAX_LIF_SIZE);
+    struct TbFileEntry fe;
+    struct TbFileFind * ff = LbFileFindFirst(fname, &fe);
+    if (ff) {
+        do {
+            fname = prepare_file_path(FGrp_CmpgLvls, fe.Filename);
+            long i = LbFileLength(fname);
+            if ((i < 0) || (i >= MAX_LIF_SIZE)) {
+              WARNMSG("File '%s' too long (Max size %d)", fe.Filename, MAX_LIF_SIZE);
 
-        } else
-        if (LbFileLoadAt(fname, buf) != i)
-        {
-          WARNMSG("Unable to read .LOF file, '%s'", fileinfo.Filename);
-        } else
-        {
-          buf[i] = '\0';
-          if (level_lof_file_parse(fileinfo.Filename, (char *)buf, i))
-            result = true;
-        }
-        rc = LbFileFindNext(&fileinfo);
+            } else if (LbFileLoadAt(fname, buf) != i) {
+              WARNMSG("Unable to read .LOF file, '%s'", fe.Filename);
+            } else {
+              buf[i] = '\0';
+              if (level_lof_file_parse(fe.Filename, (char *)buf, i))
+                result = true;
+            }
+        } while (LbFileFindNext(ff, &fe) >= 0);
+        LbFileFindEnd(ff);
     }
-    LbFileFindEnd(&fileinfo);
     LbMemoryFree(buf);
     return result;
 }

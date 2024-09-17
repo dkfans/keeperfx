@@ -1336,20 +1336,20 @@ TbBool load_campaigns_list(void)
 {
     init_campaigns_list_entries(&campaigns_list, CAMPAIGNS_LIST_GROW_DELTA);
     char* fname = prepare_file_path(FGrp_Campgn, "*.cfg"); // add campaigns
-    struct TbFileFind fileinfo;
-    int rc = LbFileFindFirst(fname, &fileinfo, 0x21u);
+    struct TbFileEntry fe;
+    struct TbFileFind * ff = LbFileFindFirst(fname, &fe);
     long cnum_all = 0;
     long cnum_ok = 0;
-    while (rc != -1)
-    {
-        if (load_campaign_to_list(fileinfo.Filename, &campaigns_list, FGrp_Campgn))
-        {
-            cnum_ok++;
-        }
-      rc = LbFileFindNext(&fileinfo);
-      cnum_all++;
+    if (ff) {
+        do {
+            if (load_campaign_to_list(fe.Filename, &campaigns_list, FGrp_Campgn))
+            {
+                cnum_ok++;
+            }
+            cnum_all++;
+        } while (LbFileFindNext(ff, &fe) >= 0);
+        LbFileFindEnd(ff);
     }
-    LbFileFindEnd(&fileinfo);
     SYNCDBG(0,"Found %d campaign files, properly loaded %d.",cnum_all,cnum_ok);
     const char* ordfname = prepare_file_path(FGrp_Campgn, "campgn_order.txt");
     sort_campaigns(&campaigns_list,ordfname);
@@ -1363,24 +1363,24 @@ TbBool load_mappacks_list(void)
 {
     init_campaigns_list_entries(&mappacks_list, CAMPAIGNS_LIST_GROW_DELTA);
     char* fname = prepare_file_path(FGrp_VarLevels, "*.cfg"); // add map packs
-    struct TbFileFind fileinfo;
-    int rc = LbFileFindFirst(fname, &fileinfo, 0x21u);
+    struct TbFileEntry fe;
+    struct TbFileFind * ff = LbFileFindFirst(fname, &fe);
     long cnum_all = 0;
     long cnum_ok = 0;
-    while (rc != -1)
-    {
-        if (is_campaign_in_list(fileinfo.Filename, &campaigns_list))
-        {
-                WARNMSG("Couldn't load Map Pack \"%s\", as it is a duplicate of an existing Campaign.", fileinfo.Filename);
-        }
-        else if (load_campaign_to_list(fileinfo.Filename, &mappacks_list, FGrp_VarLevels))
-        {
-            cnum_ok++;
-        }
-      rc = LbFileFindNext(&fileinfo);
-      cnum_all++;
+    if (ff) {
+        do {
+            if (is_campaign_in_list(fe.Filename, &campaigns_list))
+            {
+                WARNMSG("Couldn't load Map Pack \"%s\", as it is a duplicate of an existing Campaign.", fe.Filename);
+            }
+            else if (load_campaign_to_list(fe.Filename, &mappacks_list, FGrp_VarLevels))
+            {
+                cnum_ok++;
+            }
+            cnum_all++;
+        } while (LbFileFindNext(ff, &fe) >= 0);
+        LbFileFindEnd(ff);
     }
-    LbFileFindEnd(&fileinfo);
     SYNCDBG(0,"Found %d map pack files, properly loaded %d.",cnum_all,cnum_ok);
     const char* ordfname = prepare_file_path(FGrp_VarLevels, "mappck_order.txt");
     sort_campaigns(&mappacks_list,ordfname);
