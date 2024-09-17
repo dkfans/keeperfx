@@ -2575,7 +2575,7 @@ void reinit_all_menus(void)
 const char * mdlf_for_cd(const char * input)
 {
     if (input[0] != '*') {
-        sprintf(path_string, "%s/%s", install_info.inst_path, input); // todo check out
+        snprintf(path_string, sizeof(path_string), "%s/%s", install_info.inst_path, input); // todo check out
         return path_string;
     }
     return input;
