@@ -324,14 +324,14 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
         }
         break;
     case MActn_WHEELMOVEUP:
-        lbDisplayEx.WhellPosition--;
-        lbDisplayEx.WhellMoveUp++;
+        lbDisplayEx.WhellPosition = lbDisplayEx.WhellPosition - 1;
+        lbDisplayEx.WhellMoveUp = lbDisplayEx.WhellMoveUp + 1;
         lbDisplayEx.WhellMoveDown = 0;
         break;
     case MActn_WHEELMOVEDOWN:
-        lbDisplayEx.WhellPosition++;
+        lbDisplayEx.WhellPosition = lbDisplayEx.WhellPosition + 1;
         lbDisplayEx.WhellMoveUp = 0;
-        lbDisplayEx.WhellMoveDown++;
+        lbDisplayEx.WhellMoveDown = lbDisplayEx.WhellMoveDown + 1;
         break;
     default:
         break;
