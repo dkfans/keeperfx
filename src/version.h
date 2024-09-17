@@ -24,7 +24,7 @@
 #define DEBUG_NETWORK_PACKETS 0
 #endif
 /* Version definitions */
-#include "../obj/ver_defs.h"
+#include "ver_defs.h"
 //#define VER_MAJOR         1
 //#define VER_MINOR         2
 //#define VER_RELEASE       3
