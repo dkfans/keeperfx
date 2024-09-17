@@ -2670,127 +2670,113 @@ gpo_loc_1CAA:\n \
 /**
  * Combines two 16-bit values into a 32-bit fixed-point number.
  *
- * This is typically used to combine a whole part and a fractional part
- * to form a single 32-bit fixed-point representation, facilitating
- * high-precision arithmetic operations.
+ * This function merges an integer part and a fractional part into a single
+ * 32-bit fixed-point representation to facilitate high-precision arithmetic operations.
  *
- * @param wholePart The high 16 bits representing the whole number portion.
- * @param fractionalPart The low 16 bits representing the fractional portion.
- * @return The combined 32-bit fixed-point integer.
+ * @param integerPart     The high 16 bits representing the integer portion.
+ * @param fractionalPart  The low 16 bits representing the fractional portion.
+ * @return                The combined 32-bit fixed-point number.
  */
-static inline uint32_t createFixedPoint(uint16_t wholePart, uint16_t fractionalPart) {
-  return ((uint32_t)wholePart << BIT_SHIFT_16) | (uint32_t)fractionalPart;
+static inline uint32_t createFixedPoint(uint16_t integerPart, uint16_t fractionalPart) {
+  return ((uint32_t)integerPart << BIT_SHIFT_16) | (uint32_t)fractionalPart;
 }
 
 /**
  * Computes a scaled texture coordinate offset for triangle rasterization.
  *
- * This function calculates a texture mapping parameter crucial in
- * techniques such as barycentric coordinate computations for
- * interpolating attributes (e.g., colors, texture coordinates)
- * across a surface. The primary operations include:
- * - Determining the impact of vertex position differences on texture mapping.
- * - Scaling by a factor derived from triangle geometry to maintain precision.
+ * This function calculates a texture mapping parameter used in techniques like
+ * barycentric coordinate computations for interpolating attributes (e.g., colors,
+ * texture coordinates) across a triangle's surface.
  *
- * @param scaleAdjustment The inverted determinant for scaling transformation purposes.
- * @param deltaCoord_C_A Change in a vertex parameter (e.g., texture coordinate) from vertex A to C.
- * @param deltaCoord_B_A Change in a vertex parameter from vertex A to B.
- * @param deltaY_B_A Change in Y-coordinate from vertex A to vertex B.
- * @param deltaY_C_A Change in Y-coordinate from vertex A to vertex C.
- * @return The calculated texture mapping parameter for interpolation.
+ * @param scaleAdjustment  The inverted determinant used for scaling transformation.
+ * @param deltaCoord_C_A   Change in a vertex parameter from vertex A to vertex C.
+ * @param deltaCoord_B_A   Change in a vertex parameter from vertex A to vertex B.
+ * @param deltaY_B_A       Change in Y-coordinate from vertex A to vertex B.
+ * @param deltaY_C_A       Change in Y-coordinate from vertex A to vertex C.
+ * @return                 The calculated texture mapping parameter for interpolation.
  */
 static int computeTextureMappingParameter(int scaleAdjustment, int deltaCoord_C_A,
                                           int deltaCoord_B_A, int deltaY_B_A, int deltaY_C_A) {
-  long long scaledDifference;
-  int primaryResult;
-  int shiftedResult;
-  ushort fractionalUpperPart;
-  int finalResult;
+  // Compute the numerator for the affine texture mapping formula
+  int64_t numerator = (int64_t)deltaCoord_C_A * deltaY_B_A - (int64_t)deltaCoord_B_A * deltaY_C_A;
 
-  // Compute a scaled difference for affine texture mapping using determinant logic.
-  scaledDifference = (long long)scaleAdjustment
-                     * (long long)(deltaCoord_C_A * deltaY_B_A - deltaCoord_B_A * deltaY_C_A);
+  // Scale the numerator by the adjustment factor
+  int64_t scaledDifference = (int64_t)scaleAdjustment * numerator;
 
-  // Truncate 64-bit scaled result to a 32-bit value for further processing.
-  primaryResult = (int)scaledDifference;
-  shiftedResult = primaryResult << 1;
+  // Extract the lower 32 bits and shift left to prepare for fixed-point conversion
+  int32_t lower32Bits = (int32_t)scaledDifference;
+  int32_t shiftedLower32Bits = lower32Bits << 1;
 
-  // Extract the upper 16 bits to format the fixed-point number.
-  fractionalUpperPart = (ushort)((uint)shiftedResult >> BIT_SHIFT_16);
+  // Extract the upper 16 bits after shifting for the integer part
+  uint16_t integerPart = (uint16_t)((uint32_t)shiftedLower32Bits >> BIT_SHIFT_16);
 
-  // Combine results into a 32-bit fixed-point number:
-  //   - Combines the fractional part with a potential carry if the primary result was negative.
-  finalResult
-      = createFixedPoint(fractionalUpperPart,
-                         (ushort)((int)((unsigned long long)scaledDifference >> BIT_SHIFT_32) << 1)
-                             | (ushort)(primaryResult < 0))
-            << BIT_SHIFT_16
-        | (uint)fractionalUpperPart;
+  // Prepare the fractional part by combining shifted higher bits and sign information
+  uint16_t fractionalPart
+      = ((uint16_t)((uint64_t)scaledDifference >> 32) << 1) | (uint16_t)(lower32Bits < 0);
 
-  // Adjust for negative results, increasing to correct any discrepancies during calculation.
-  if (shiftedResult < 0) {
-    finalResult++;
+  // Combine integer and fractional parts into a fixed-point value
+  uint32_t fixedPointValue
+      = (createFixedPoint(integerPart, fractionalPart) << BIT_SHIFT_16) | integerPart;
+
+  // Adjust the result if the shifted lower bits are negative
+  if (shiftedLower32Bits < 0) {
+    fixedPointValue++;
   }
 
-  return finalResult;
+  return (int)fixedPointValue;
 }
 
-/*
+/**
  * Computes horizontal step increments for texture mapping across a triangle.
  *
- * This function calculates the steps needed in the horizontal direction
- * (across the triangle's surface) for rendering. It uses geometric properties
- * of the triangle to adjust texture coordinates or shading values as we
- * move across the triangle surface in scanline rendering.
+ * This function calculates the steps needed in the horizontal direction across the
+ * triangle's surface for rendering. It uses geometric properties of the triangle to adjust
+ * texture coordinates or shading values as we move across the triangle surface in scanline
+ * rendering.
  *
- * @global point2x, point1x, point2y, point1y, point3x, point1x, point3y, point1y
- * Global points represent vertices of a triangle in 2D screen space.
- * @global point3shade, point1shade, point2shade
- * Vertex shades/colors for interpolation across the triangle.
- * @global point3mapx, point1mapx, point2mapx
- * Texture coordinate X for each vertex, used for mapping textures.
- * @global point3mapy, point1mapy, point2mapy
- * Texture coordinate Y for each vertex.
- * @global shadehstep, mapxhstep, mapyhstep
- * Results are stored here for shading and texture mapping across horizontal steps.
+ * Global variables (assumed to be declared elsewhere):
+ * - point1x, point1y, point2x, point2y, point3x, point3y: Coordinates of triangle vertices.
+ * - point1shade, point2shade, point3shade: Vertex shading values for interpolation.
+ * - point1mapx, point2mapx, point3mapx: Texture coordinate X for each vertex.
+ * - point1mapy, point2mapy, point3mapy: Texture coordinate Y for each vertex.
+ * - shadehstep, mapxhstep, mapyhstep: Outputs for shading and texture mapping horizontal steps.
+ * - crease_len: An external parameter affecting delta product calculation.
  */
 static void calculateHorizontalSteps() {
-  int deltaProduct;
-  int deltaY_B_A;  // Change in Y from vertex A to B
-  int deltaX_B_A;  // Change in X from vertex A to B
-  int deltaY_C_A;  // Change in Y from vertex A to C
-  int deltaX_C_A;  // Change in X from vertex A to C
-  int determinant;
-  int scaleAdjustment;
-
   // Calculate positional deltas between the vertices of the triangle
-  // These values define the edges connecting the triangle vertices in screen space.
-  deltaX_B_A = point2x - point1x;
-  deltaY_B_A = point2y - point1y;
-  deltaX_C_A = point3x - point1x;
-  deltaY_C_A = point3y - point1y;
+  int deltaX_B_A = point2x - point1x;  // Change in X from vertex A to B
+  int deltaY_B_A = point2y - point1y;  // Change in Y from vertex A to B
+  int deltaX_C_A = point3x - point1x;  // Change in X from vertex A to C
+  int deltaY_C_A = point3y - point1y;  // Change in Y from vertex A to C
 
-  // Calculate the product of these changes for determinant computation
-  deltaProduct = deltaY_C_A * deltaX_B_A;
-  if (-1 < crease_len) {
-    deltaProduct = (deltaProduct - deltaY_C_A) - deltaY_C_A;
+  // Compute an initial delta product
+  int deltaProduct = deltaY_C_A * deltaX_B_A;
+
+  // Adjust delta product based on crease length (specific to rendering context)
+  if (crease_len > -1) {
+    deltaProduct -= 2 * deltaY_C_A;
   }
 
-  // Calculate the determinant, crucial in determining if the triangle is valid.
-  determinant = deltaY_B_A * deltaX_C_A - (deltaProduct + deltaY_C_A);
-  if (determinant == 0) {  // Degenerate triangle case: vertices are collinear.
+  // Calculate the determinant, crucial for ensuring the triangle is non-degenerate
+  int determinant = deltaY_B_A * deltaX_C_A - (deltaProduct + deltaY_C_A);
+
+  // Check for degenerate triangle (area is zero)
+  if (determinant == 0) {
+    // Set horizontal steps to zero as the triangle cannot be rasterized
     shadehstep = 0;
     mapxhstep = 0;
     mapyhstep = 0;
   } else {
-    // Determine scaling factor for accurate interpolation across the triangle's surface.
-    scaleAdjustment = (int)(MAX_INT_DIV / (long long)determinant);
+    // Determine scaling factor for accurate interpolation across the triangle's surface
+    int scaleAdjustment = (int)(MAX_INT_DIV / (int64_t)determinant);
 
-    // Calculate interpolation steps for shading and texture coordinates.
+    // Calculate interpolation steps for shading and texture coordinates
     shadehstep = computeTextureMappingParameter(scaleAdjustment, point3shade - point1shade,
                                                 point2shade - point1shade, deltaY_B_A, deltaY_C_A);
+
     mapxhstep = computeTextureMappingParameter(scaleAdjustment, point3mapx - point1mapx,
                                                point2mapx - point1mapx, deltaY_B_A, deltaY_C_A);
+
     mapyhstep = computeTextureMappingParameter(scaleAdjustment, point3mapy - point1mapy,
                                                point2mapy - point1mapy, deltaY_B_A, deltaY_C_A);
   }
