@@ -2608,7 +2608,7 @@ char *mdlf_for_cd(struct TbLoadFiles * tb_load_files)
     result = tb_load_files;
     if ( tb_load_files->FName[0] != 42 )
     {
-        sprintf(path_string, "%s/%s", install_info.inst_path, tb_load_files->FName); // todo check out
+        snprintf(path_string, sizeof(path_string), "%s/%s", install_info.inst_path, tb_load_files->FName); // todo check out
         return path_string;
     }
     return result->FName;
