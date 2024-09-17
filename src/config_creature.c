@@ -806,13 +806,13 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
     int i;
     // Block name and parameter word store variables
     // Initialize the array
-    int arr_size = sizeof(game.conf.crtr_conf.instances) / sizeof(game.conf.crtr_conf.instances[0]);
+    int arr_size = INSTANCE_TYPES_MAX;
     for (i = 0; i < arr_size; i++)
     {
         if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(game.conf.crtr_conf.instances[i].name) <= 0))
         {
             LbMemorySet(game.conf.crtr_conf.instances[i].name, 0, COMMAND_WORD_LEN);
-            if (i < game.conf.crtr_conf.instances_count)
+            if (i < INSTANCE_TYPES_MAX)
             {
                 instance_desc[i].name = game.conf.crtr_conf.instances[i].name;
                 instance_desc[i].num = i;
@@ -836,15 +836,9 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                 game.conf.magic_conf.instance_info[i].range_max = -1;
 
             }
-            else
-            {
-                instance_desc[i].name = NULL;
-                instance_desc[i].num = 0;
-            }
         }
     }
     // Load the file blocks
-    arr_size = game.conf.crtr_conf.instances_count;
     for (i=0; i < arr_size; i++)
     {
         char block_buf[COMMAND_WORD_LEN];
@@ -855,7 +849,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
         {
             continue;
         }
-        inst_inf = creature_instance_info_get(i);
+        inst_inf = &game.conf.magic_conf.instance_info[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creaturetype_instance_commands,cmd_num)
       while (pos<len)
       {
@@ -876,14 +870,17 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
         case 1: // NAME
             if (get_conf_parameter_single(buf,&pos,len,game.conf.crtr_conf.instances[i].name,COMMAND_WORD_LEN) <= 0)
             {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.", COMMAND_TEXT(cmd_num),block_buf,config_textname);
                 break;
             }
             if (instance_desc[i].name == NULL)
             {
                 instance_desc[i].name = game.conf.crtr_conf.instances[i].name;;
                 instance_desc[i].num = i;
+            }
+            if (i > game.conf.crtr_conf.instances_count)
+            {
+                game.conf.crtr_conf.instances_count = i;
             }
             n++;
             break;
@@ -1601,11 +1598,10 @@ TbBool load_creaturetypes_config_file(const char *textname, const char *fname, u
     char* buf = (char*)LbMemoryAlloc(len + 256);
     if (buf == NULL)
         return false;
-    game.conf.crtr_conf.instances_count = INSTANCE_TYPES_MAX - 1;
+
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        int arr_size = sizeof(game.conf.crtr_conf.instances) / sizeof(game.conf.crtr_conf.instances[0]);
-        for (int i = 0; i < arr_size; i++)
+        for (int i = 0; i < INSTANCE_TYPES_MAX; i++)
         {
                 instance_desc[i].name = game.conf.crtr_conf.instances[i].name;
                 instance_desc[i].num = i;
