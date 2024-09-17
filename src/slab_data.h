@@ -109,7 +109,7 @@ struct SlabMap {
       SlabCodedCoords next_in_room;
       HitPoints health;
       SlabKind kind;
-      unsigned char room_index;
+      RoomIndex room_index;
       unsigned char wlb_type;
       PlayerNumber owner;
 };

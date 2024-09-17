@@ -295,7 +295,7 @@ long near_thing_pos_thing_filter_is_enemy_which_can_be_shot_by_trap(const struct
                 if (players_are_enemies(traptng->owner, thing->owner) || is_neutral_thing(traptng))
                 {
                     if (!creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing) && !thing_is_picked_up(thing)
-                        && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_dying(thing)
+                        && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_dying(thing) && !creature_is_leaving_and_cannot_be_stopped(thing)
                         && ((get_creature_model_flags(thing) & CMF_IsSpectator) == 0))
                     {
                         MapCoordDelta distance = get_2d_distance(&thing->mappos, &traptng->mappos);
@@ -423,7 +423,7 @@ long near_map_block_thing_filter_is_enemy_of_able_to_attack_and_not_specdigger(c
 {
     if ((thing->class_id == TCls_Creature) && players_are_enemies(param->plyr_idx, thing->owner))
     {
-        if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing))
+        if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
             if ((get_creature_model_flags(thing) & CMF_IsSpecDigger) == 0)
             {
@@ -455,7 +455,7 @@ long near_map_block_thing_filter_is_creature_of_model_owned_and_controlled_by(co
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
-                if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing))
+                if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
                 {
                     // Prepare reference Coord3d struct for distance computation
                     struct Coord3d refpos;
@@ -1352,6 +1352,35 @@ void init_all_creature_states(void)
         {
           ERRORLOG("Infinite loop detected when sweeping things list");
           break;
+        }
+    }
+}
+
+void init_creature_states_for_player(PlayerNumber plyr_idx)
+{
+    int k = 0;
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
+    int i = slist->index;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_of_class;
+        // Per-thing code
+        if (thing->owner == plyr_idx)
+        {
+            init_creature_state(thing);
+        }
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
         }
     }
 }
@@ -4168,7 +4197,7 @@ TbBool setup_creature_leave_or_die_if_possible(struct Thing *thing)
 {
     if (!is_thing_some_way_controlled(thing) && !creature_is_dying(thing))
     {
-        if (!creature_is_kept_in_custody_by_enemy(thing) && !creature_is_being_unconscious(thing))
+        if (!creature_is_kept_in_custody_by_enemy(thing) && !creature_is_being_unconscious(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
             SYNCDBG(9,"Forcing on %s index %d",thing_model_name(thing),(int)thing->index);
             // Drop creature if it's being dragged
@@ -4223,6 +4252,54 @@ void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx)
     do_to_players_all_creatures_of_model(plyr_idx, CREATURE_NOT_A_DIGGER, setup_creature_leave_or_die_if_possible);
     // Kill all special diggers
     do_to_players_all_creatures_of_model(plyr_idx, CREATURE_DIGGER, setup_creature_die_if_not_in_custody);
+}
+
+unsigned short setup_excess_creatures_to_leave_or_die(short max_remain)
+{
+    struct CreatureControl* cctrl;
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
+    unsigned long k = 0;
+    int i = slist->index;
+    short count = 0;
+    if (slist->count <= max_remain)
+    {
+        return count;
+    }
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_of_class;
+        // Per-thing code
+        cctrl = creature_control_get_from_thing(thing);
+        if (cctrl->index > max_remain)
+        {
+            count++;
+            cleanup_creature_state_and_interactions(thing);
+            force_any_creature_dragging_thing_to_drop_it(thing);
+
+            if (is_thing_some_way_controlled(thing) || thing_is_picked_up(thing))
+            {
+                kill_creature(thing, INVALID_THING, -1, CrDed_Default);
+            }
+            else
+            {
+                setup_creature_leaves_or_dies(thing);
+            }
+        }
+        // Per-thing code ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return count;
 }
 
 long count_creatures_in_dungeon_of_model_flags(const struct Dungeon *dungeon, unsigned long need_mdflags, unsigned long excl_mdflags)

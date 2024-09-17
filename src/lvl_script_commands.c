@@ -12,45 +12,46 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "lvl_script_commands.h"
-
-#include "lvl_script_conditions.h"
-#include "lvl_script_lib.h"
-
 #include <math.h>
 #include <string.h>
 
-#include "dungeon_data.h"
-#include "thing_data.h"
-#include "player_instances.h"
-#include "keeperfx.hpp"
-#include "custom_sprites.h"
-#include "gui_soundmsgs.h"
-#include "config_magic.h"
-#include "config_settings.h"
+#include "bflib_memory.h"
+#include "bflib_sound.h"
 #include "config_effects.h"
-#include "config_trapdoor.h"
-#include "config_powerhands.h"
+#include "config_magic.h"
 #include "config_players.h"
-#include "frontmenu_ingame_map.h"
-#include "thing_effects.h"
-#include "thing_physics.h"
-#include "thing_navigate.h"
+#include "config_powerhands.h"
+#include "config_settings.h"
+#include "config_spritecolors.h"
+#include "config_trapdoor.h"
 #include "console_cmd.h"
-#include "creature_states_pray.h"
-#include "creature_states_mood.h"
-#include "room_util.h"
 #include "creature_instances.h"
+#include "creature_states.h"
+#include "creature_states_mood.h"
+#include "creature_states_pray.h"
+#include "custom_sprites.h"
+#include "dungeon_data.h"
+#include "frontmenu_ingame_map.h"
+#include "gui_soundmsgs.h"
+#include "keeperfx.hpp"
+#include "lvl_script_commands.h"
+#include "lvl_script_conditions.h"
+#include "lvl_script_lib.h"
+#include "map_blocks.h"
+#include "music_player.h"
+#include "player_instances.h"
+#include "player_utils.h"
 #include "power_hand.h"
 #include "power_specials.h"
-#include "creature_states.h"
-#include "map_blocks.h"
-#include "bflib_memory.h"
-#include "post_inc.h"
-#include "music_player.h"
-#include "bflib_sound.h"
-#include "config_spritecolors.h"
+#include "room_util.h"
 #include "sounds.h"
+#include "spdigger_stack.h"
+#include "thing_data.h"
+#include "thing_effects.h"
+#include "thing_navigate.h"
+#include "thing_physics.h"
+
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -301,6 +302,7 @@ rules_creatures_named_fields,rules_computer_named_fields,rules_workers_named_fie
 static const struct NamedCommand game_rule_desc[] = {
   {"PreserveClassicBugs",            1},
   {"AlliesShareVision",              2},
+  {"MapCreatureLimit",               3},
   {NULL,                             0},
 };
 
@@ -710,16 +712,21 @@ TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
             // activateD
             *varib_type = SVar_BOX_ACTIVATED;
         }
-        else
+        else if (2 == sscanf(varib_name, "KEEPERS_DESTROYED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
         {
-            *varib_id = -1;
+            *varib_id = get_id(player_desc, arg);
+            if (*varib_id == -1)
+            {
+                *varib_id = get_id(cmpgn_human_player_options, arg);
+            }
+            *varib_type = SVar_DESTROYED_KEEPER;
         }
-        if (2 == sscanf(varib_name, "SACRIFICED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
+        else if (2 == sscanf(varib_name, "SACRIFICED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
         {
             *varib_id = get_id(creature_desc, arg);
             *varib_type = SVar_SACRIFICED;
         }
-        if (2 == sscanf(varib_name, "REWARDED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
+        else if (2 == sscanf(varib_name, "REWARDED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
         {
             *varib_id = get_id(creature_desc, arg);
             *varib_type = SVar_REWARDED;
@@ -5456,6 +5463,16 @@ static void set_game_rule_process(struct ScriptContext* context)
         game.conf.rules.game.allies_share_vision = (TbBool)rulevalue;
         panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
         break;
+    case 3: //MapCreatureLimit
+        //this one is a special case because it needs to kill of additional creatures
+        SCRIPTDBG(7, "Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.creatures_count, rulevalue);
+        game.conf.rules.game.creatures_count = rulevalue;
+        short count = setup_excess_creatures_to_leave_or_die(game.conf.rules.game.creatures_count);
+        if (count > 0)
+        {
+            SCRPTLOG("Map creature limit reduced, causing %d creatures to leave or die",count);
+        }
+        break;
     default:
         WARNMSG("Unsupported Game Rule, command %d.", ruledesc);
         break;
@@ -6030,6 +6047,9 @@ static void computer_player_process(struct ScriptContext* context)
                 if (toggle == true)
                 {
                     script_support_setup_player_as_computer_keeper(i, model);
+                    get_dungeon(i)->turns_between_entrance_generation = game.generate_speed;
+                    init_creature_states_for_player(i);
+                    post_init_player(get_player(i));
                 }
                 else
                 {
@@ -6395,6 +6415,34 @@ static void set_computer_event_process(struct ScriptContext* context)
     SCRIPTDBG(6, "Altered %d events named '%s'", n, evntname);
 }
 
+static void swap_creature_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    ThingModel ncrt_id = scline->np[0];
+    ThingModel crtr_id = scline->np[1];
+
+    struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_id];
+    if ((crconf->model_flags & CMF_IsSpecDigger) != 0)
+    {
+        SCRPTERRLOG("Unable to swap special diggers");
+        DEALLOCATE_SCRIPT_VALUE;
+    }
+    value->shorts[0] = ncrt_id;
+    value->shorts[1] = crtr_id;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void swap_creature_process(struct ScriptContext* context)
+{
+    ThingModel ncrt_id = context->value->shorts[0];
+    ThingModel crtr_id = context->value->shorts[1];
+
+    if (!swap_creature(ncrt_id, crtr_id))
+    {
+        SCRPTERRLOG("Error swapping creatures '%s'<->'%s'", creature_code_name(ncrt_id), creature_code_name(crtr_id));
+    }
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -6459,7 +6507,7 @@ const struct CommandDesc command_desc[] = {
   {"QUICK_INFORMATION",                 "NAl     ", Cmd_QUICK_INFORMATION, NULL, NULL},
   {"QUICK_OBJECTIVE_WITH_POS",          "NANN    ", Cmd_QUICK_OBJECTIVE_WITH_POS, NULL, NULL},
   {"QUICK_INFORMATION_WITH_POS",        "NANN    ", Cmd_QUICK_INFORMATION_WITH_POS, NULL, NULL},
-  {"SWAP_CREATURE",                     "AC      ", Cmd_SWAP_CREATURE, NULL, NULL},
+  {"SWAP_CREATURE",                     "CC      ", Cmd_SWAP_CREATURE, &swap_creature_check, &swap_creature_process},
   {"PRINT",                             "A       ", Cmd_PRINT, NULL, NULL},
   {"MESSAGE",                           "A       ", Cmd_MESSAGE, NULL, NULL},
   {"PLAY_MESSAGE",                      "PAA     ", Cmd_PLAY_MESSAGE, &play_message_check, &play_message_process},
@@ -6606,7 +6654,7 @@ const struct CommandDesc dk1_command_desc[] = {
   {"BONUS_LEVEL_TIME",             "N       ", Cmd_BONUS_LEVEL_TIME, NULL, NULL},
   {"QUICK_OBJECTIVE",              "NAA     ", Cmd_QUICK_OBJECTIVE, NULL, NULL},
   {"QUICK_INFORMATION",            "NA      ", Cmd_QUICK_INFORMATION, NULL, NULL},
-  {"SWAP_CREATURE",                "AC      ", Cmd_SWAP_CREATURE, NULL, NULL},
+  {"SWAP_CREATURE",                "CC      ", Cmd_SWAP_CREATURE, &swap_creature_check, &swap_creature_process},
   {"PRINT",                        "A       ", Cmd_PRINT, NULL, NULL},
   {"MESSAGE",                      "A       ", Cmd_MESSAGE, NULL, NULL},
   {"LEVEL_VERSION",                "N       ", Cmd_LEVEL_VERSION, NULL, NULL},

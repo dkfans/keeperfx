@@ -1706,8 +1706,8 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                 if (k > 0)
                 {
                     crstat->transparency_flags = k<<4; // Bitshift to get the transparancy bit in the render flag
-                    n++;
                 }
+                n++;
             }
             if (n < 1)
             {
@@ -2494,7 +2494,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     // Parse blocks of the config file
     if (result)
     {
-        result = parse_creaturemodel_attributes_blocks(crtr_model, buf, len, textname, flags);
+        result = parse_creaturemodel_attributes_blocks(crtr_model, buf, len, fname, flags);
         if ((flags & CnfLd_AcceptPartial) != 0)
             result = true;
         if (!result)
@@ -2502,7 +2502,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     }
     if (result)
     {
-        result = parse_creaturemodel_attraction_blocks(crtr_model, buf, len, textname, flags);
+        result = parse_creaturemodel_attraction_blocks(crtr_model, buf, len, fname, flags);
         if ((flags & CnfLd_AcceptPartial) != 0)
             result = true;
         if (!result)
@@ -2510,7 +2510,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     }
     if (result)
     {
-        result = parse_creaturemodel_annoyance_blocks(crtr_model, buf, len, textname, flags);
+        result = parse_creaturemodel_annoyance_blocks(crtr_model, buf, len, fname, flags);
         if ((flags & CnfLd_AcceptPartial) != 0)
             result = true;
         if (!result)
@@ -2518,7 +2518,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     }
     if (result)
     {
-        result = parse_creaturemodel_senses_blocks(crtr_model, buf, len, textname, flags);
+        result = parse_creaturemodel_senses_blocks(crtr_model, buf, len, fname, flags);
         if ((flags & CnfLd_AcceptPartial) != 0)
             result = true;
         if (!result)
@@ -2526,7 +2526,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     }
     if (result)
     {
-        result = parse_creaturemodel_appearance_blocks(crtr_model, buf, len, textname, flags);
+        result = parse_creaturemodel_appearance_blocks(crtr_model, buf, len, fname, flags);
         if ((flags & CnfLd_AcceptPartial) != 0)
             result = true;
         if (!result)
@@ -2534,7 +2534,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     }
     if (result)
     {
-        result = parse_creaturemodel_experience_blocks(crtr_model, buf, len, textname, flags);
+        result = parse_creaturemodel_experience_blocks(crtr_model, buf, len, fname, flags);
         if ((flags & CnfLd_AcceptPartial) != 0)
             result = true;
         if (!result)
@@ -2542,7 +2542,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     }
     if (result)
     {
-        result = parse_creaturemodel_jobs_blocks(crtr_model, buf, len, textname, flags);
+        result = parse_creaturemodel_jobs_blocks(crtr_model, buf, len, fname, flags);
         if ((flags & CnfLd_AcceptPartial) != 0)
             result = true;
         if (!result)
@@ -2550,7 +2550,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     }
     if (result)
     {
-        result = parse_creaturemodel_sprites_blocks(crtr_model, buf, len, textname, flags);
+        result = parse_creaturemodel_sprites_blocks(crtr_model, buf, len, fname, flags);
         if ((flags & CnfLd_AcceptPartial) != 0)
             result = true;
         if (!result)
@@ -2558,7 +2558,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     }
     if (result)
     {
-        result = parse_creaturemodel_sounds_blocks(crtr_model, buf, len, textname, flags);
+        result = parse_creaturemodel_sounds_blocks(crtr_model, buf, len, fname, flags);
         if ((flags & CnfLd_AcceptPartial) != 0)
             result = true;
         if (!result)
@@ -2603,7 +2603,7 @@ TbBool swap_creaturemodel_config(ThingModel nwcrmodel, ThingModel crmodel, unsig
     static const char config_campgn_textname[] = "campaing creature model config";
     static const char config_level_textname[] = "level creature model config";
     char conf_fnstr[COMMAND_WORD_LEN];
-    LbStringToLowerCopy(conf_fnstr, get_conf_parameter_text(newcrtr_desc, nwcrmodel), COMMAND_WORD_LEN);
+    LbStringToLowerCopy(conf_fnstr, get_conf_parameter_text(creature_desc, nwcrmodel), COMMAND_WORD_LEN);
     if (strlen(conf_fnstr) == 0)
     {
         WARNMSG("Cannot get config file name for creature %d.", crmodel);
@@ -2628,7 +2628,7 @@ TbBool swap_creaturemodel_config(ThingModel nwcrmodel, ThingModel crmodel, unsig
 static void do_creature_swap(ThingModel ncrt_id, ThingModel crtr_id)
 {
     swap_creaturemodel_config(ncrt_id, crtr_id, 0);
-    SCRPTLOG("Swapped creature %s out for creature %s", creature_code_name(crtr_id), new_creature_code_name(ncrt_id));
+    SCRPTLOG("Swapped creature %s out for creature %s", creature_code_name(crtr_id), creature_code_name(ncrt_id));
 }
 
 TbBool swap_creature(ThingModel ncrt_id, ThingModel crtr_id)
@@ -2638,9 +2638,9 @@ TbBool swap_creature(ThingModel ncrt_id, ThingModel crtr_id)
         ERRORLOG("Creature index %d is invalid", crtr_id);
         return false;
     }
-    if (creature_swap_idx[crtr_id] > 0)
+    if ((ncrt_id < 0) || (ncrt_id >= game.conf.crtr_conf.model_count))
     {
-        ERRORLOG("Creature of index %d already swapped", crtr_id);
+        ERRORLOG("Creature index %d is invalid", ncrt_id);
         return false;
     }
     do_creature_swap(ncrt_id, crtr_id);
