@@ -2793,12 +2793,6 @@ static void calc_hstep() {
   int determinant;
   int scaleFactor;
 
-  //   #### Variable Renaming Suggestions:
-  // 1. **Vertices related (`gploc_pt_*`)**:
-  //    - `point1x`, `point1y` -> `vertexA_x`, `vertexA_y`
-  //    - `point2x`, `point2y` -> `vertexB_x`, `vertexB_y`
-  //    - `point3x`, `point3y` -> `vertexC_x`, `vertexC_y`
-
   // Calculate triangle delta values
   deltaX_B_A = point2x - point1x;
   deltaY_B_A = point2y - point1y;
@@ -2818,19 +2812,6 @@ static void calc_hstep() {
     mapyhstep = 0;
   } else {
     scaleFactor = (int)(MAX_INT_DIV / (long long int)determinant);
-    // Variable rename suggestions:
-    // point3shade -> vertexC_s
-    // point1shade -> vertexA_s
-    // point2shade -> vertexB_s
-    // point3mapx -> vertexC_u
-    // point1mapx -> vertexA_u
-    // point2mapx -> vertexB_u
-    // point3mapy -> vertexC_v
-    // point1mapy -> vertexA_v
-    // point2mapy -> vertexB_v
-    // shadehstep -> factorS
-    // mapxhstep -> factorU
-    // mapyhstep -> factorV
     shadehstep = calculateParameter(scaleFactor, point3shade - point1shade,
                                     point2shade - point1shade, deltaY_B_A, deltaY_C_A);
     mapxhstep = calculateParameter(scaleFactor, point3mapx - point1mapx, point2mapx - point1mapx,
@@ -3285,8 +3266,8 @@ gpo_case69_break:\n \
 }
 
 void draw_gpoly_sub7() {
-  draw_gpoly_sub7_subfunc1();
-  //   calc_hstep();
+//   draw_gpoly_sub7_subfunc1();
+  calc_hstep();
   draw_gpoly_sub7_subfunc2();
 }
 
