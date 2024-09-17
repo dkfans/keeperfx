@@ -123,7 +123,7 @@ Creature_Instf_Func creature_instances_func_list[] = {
  */
 struct InstanceInfo *creature_instance_info_get_f(CrInstance inst_idx,const char *func_name)
 {
-    if ((inst_idx < 0) || (inst_idx >= INSTANCE_TYPES_MAX))
+    if ((inst_idx < 0) || (inst_idx >= game.conf.crtr_conf.instances_count))
     {
         ERRORMSG("%s: Tried to get invalid instance info %d!",func_name,(int)inst_idx);
         return &game.conf.magic_conf.instance_info[0];
@@ -305,7 +305,7 @@ TbBool creature_has_ranged_weapon(const struct Thing *creatng)
 {
     TRACE_THING(creatng);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    for (long inum = 1; inum < INSTANCE_TYPES_MAX; inum++)
+    for (long inum = 1; inum < game.conf.crtr_conf.instances_count; inum++)
     {
         if (cctrl->instance_available[inum] > 0)
         {
@@ -326,7 +326,7 @@ TbBool creature_has_disarming_weapon(const struct Thing* creatng)
 {
     TRACE_THING(creatng);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    for (long inum = 1; inum < INSTANCE_TYPES_MAX; inum++)
+    for (long inum = 1; inum < game.conf.crtr_conf.instances_count; inum++)
     {
         if (cctrl->instance_available[inum] > 0)
         {
@@ -347,7 +347,7 @@ TbBool creature_has_ranged_object_weapon(const struct Thing *creatng)
 {
     TRACE_THING(creatng);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    for (long inum = 1; inum < INSTANCE_TYPES_MAX; inum++)
+    for (long inum = 1; inum < game.conf.crtr_conf.instances_count; inum++)
     {
         if (cctrl->instance_available[inum])
         {
@@ -362,7 +362,7 @@ TbBool creature_has_quick_range_weapon(const struct Thing *creatng)
 {
     TRACE_THING(creatng);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    for (long inum = 1; inum < INSTANCE_TYPES_MAX; inum++)
+    for (long inum = 1; inum < game.conf.crtr_conf.instances_count; inum++)
     {
         if (cctrl->instance_available[inum])
         {
@@ -383,7 +383,7 @@ TbBool creature_has_melee_attack(const struct Thing *creatng)
 {
     TRACE_THING(creatng);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    for (long inum = 1; inum < INSTANCE_TYPES_MAX; inum++)
+    for (long inum = 1; inum < game.conf.crtr_conf.instances_count; inum++)
     {
         if (cctrl->instance_available[inum] > 0)
         {
