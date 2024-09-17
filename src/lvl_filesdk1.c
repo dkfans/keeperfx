@@ -167,7 +167,7 @@ unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum,const char *fext
   return buf;
 }
 
-long get_level_number_from_file_name(char *fname)
+long get_level_number_from_file_name(const char *fname)
 {
   if (strnicmp(fname,"map",3) != 0)
     return SINGLEPLAYER_NOTSTARTED;
@@ -182,7 +182,7 @@ long get_level_number_from_file_name(char *fname)
  * Analyzes one line of .LIF file buffer. The buffer must be null-terminated.
  * @return Length of the parsed line.
  */
-long level_lif_entry_parse(char *fname, char *buf)
+long level_lif_entry_parse(const char *fname, char *buf)
 {
   if (buf[0] == '\0')
     return 0;
@@ -284,7 +284,7 @@ long level_lif_entry_parse(char *fname, char *buf)
  * @param buflen Length of the buffer.
  * @return
  */
-short level_lif_file_parse(char *fname, char *buf, long buflen)
+short level_lif_file_parse(const char *fname, char *buf, long buflen)
 {
   if (buf == NULL)
     return false;
@@ -348,7 +348,7 @@ TbBool find_and_load_lif_files(void)
 /**
  * Analyzes given LOF file buffer. The buffer must be null-terminated.
  */
-TbBool level_lof_file_parse(char *fname, char *buf, long len)
+TbBool level_lof_file_parse(const char *fname, char *buf, long len)
 {
     struct LevelInformation *lvinfo;
     long pos;
