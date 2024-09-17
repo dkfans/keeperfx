@@ -302,8 +302,10 @@ void init_custom_sprites(LevelNumber lvnum)
         if (added_icons[i].name != NULL)
         {
             free((char *) added_icons[i].name);
-            free((char *) gui_panel_sprites[GUI_PANEL_SPRITES_COUNT + i].Data);
             added_icons[i].name = NULL;
+            if (gui_panel_sprites[GUI_PANEL_SPRITES_COUNT + i].Data != bad_icon_data) {
+                free((char *) gui_panel_sprites[GUI_PANEL_SPRITES_COUNT + i].Data);
+            }
         }
     }
     num_added_icons = 0;
