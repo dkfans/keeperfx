@@ -39,6 +39,7 @@
 #include "creature_control.h"
 #include "creature_graphics.h"
 #include "creature_states.h"
+#include "creature_states_mood.h"
 #include "player_data.h"
 #include "custom_sprites.h"
 #include "lvl_script_lib.h"
@@ -1614,8 +1615,8 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                 if (k > 0)
                 {
                     crstat->natural_death_kind = k;
-                    n++;
                 }
+                n++;
             }
             if (n < 1)
             {
@@ -1690,8 +1691,8 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                 if (k > 0)
                 {
                     crstat->status_offset = k;
-                    n++;
                 }
+                n++;
             }
             if (n < 1)
             {
@@ -2643,7 +2644,22 @@ TbBool swap_creature(ThingModel ncrt_id, ThingModel crtr_id)
         ERRORLOG("Creature index %d is invalid", ncrt_id);
         return false;
     }
+    struct CreatureStats* crstat = creature_stats_get(crtr_id);
+    ThingModel oldlair = crstat->lair_object;
     do_creature_swap(ncrt_id, crtr_id);
+    struct CreatureStats* ncrstat = creature_stats_get(crtr_id);
+    ThingModel newlair = ncrstat->lair_object;
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        do_to_players_all_creatures_of_model(plyr_idx, crtr_id, update_relative_creature_health);
+        update_speed_of_player_creatures_of_model(plyr_idx, crtr_id);
+        if (oldlair != newlair)
+        {
+            do_to_players_all_creatures_of_model(plyr_idx, crtr_id, remove_creature_lair);
+        }
+        do_to_players_all_creatures_of_model(plyr_idx, crtr_id, process_job_stress_and_going_postal);
+    }
+
     return true;
 }
 

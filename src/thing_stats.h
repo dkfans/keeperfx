@@ -121,8 +121,9 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
 long get_radially_decaying_value(long magnitude,long decay_start,long decay_length,long distance);
 long get_radially_growing_value(long magnitude, long decay_start, long decay_length, long distance, long acceleration);
 
-TbBool update_creature_health_to_max(struct Thing *thing);
-TbBool set_creature_health_to_max_with_heal_effect(struct Thing* thing);
+TbBool update_creature_health_to_max(struct Thing *creatng);
+TbBool update_relative_creature_health(struct Thing *creatng);
+TbBool set_creature_health_to_max_with_heal_effect(struct Thing *thing);
 TbBool apply_health_to_thing(struct Thing *thing, HitPoints amount);
 void apply_health_to_thing_and_display_health(struct Thing *thing, HitPoints amount);
 HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType damage_type, PlayerNumber dealing_plyr_idx);
