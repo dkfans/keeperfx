@@ -1915,7 +1915,11 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               pwrdynst->strength[n] = k;
               n++;
           }
-          if (n <= SPELL_MAX_LEVEL)
+          if (n == SPELL_MAX_LEVEL)
+          {
+              pwrdynst->strength[n] = pwrdynst->strength[n-1];
+          }
+          if (n < SPELL_MAX_LEVEL)
           {
               CONFWRNLOG("Couldn't read all \"%s\" parameters in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);

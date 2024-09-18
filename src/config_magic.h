@@ -31,7 +31,8 @@ extern "C" {
 
 /******************************************************************************/
 #define MAGIC_ITEMS_MAX        2000
-#define SPELL_MAX_LEVEL         8
+#define SPELL_MAX_LEVEL         9
+#define POWER_MAX_LEVEL         8
 #define MAGIC_OVERCHARGE_LEVELS (SPELL_MAX_LEVEL+1)
 #define POWER_TYPES_MAX      2000
 
