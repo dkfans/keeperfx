@@ -28,6 +28,7 @@
 #include "creature_states.h"
 #include "creature_states_combt.h"
 #include "creature_states_train.h"
+#include "creature_states_lair.h"
 #include "map_blocks.h"
 #include "dungeon_data.h"
 #include "tasks_list.h"
@@ -42,6 +43,7 @@
 #include "thing_traps.h"
 #include "room_data.h"
 #include "room_util.h"
+#include "room_lair.h"
 #include "room_list.h"
 #include "room_jobs.h"
 #include "power_hand.h"
@@ -1838,7 +1840,8 @@ int add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, int m
     SYNCDBG(8,"Done, added %d tasks",(int)(max_tasks-remain_num));
     return (max_tasks-remain_num);
 }
-
+//add task to save unconscious_creature to imp_stack
+//only if drag_to_lair rule in activated
 int add_unsaved_unconscious_creature_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
 {
     struct Thing *thing = NULL;
@@ -1872,13 +1875,11 @@ int add_unsaved_unconscious_creature_to_imp_stack(struct Dungeon *dungeon, int m
             if (thing_revealed(thing, dungeon->owner))
             {
                 room = get_creature_lair_room(thing);
-                if (room_is_invalid(room))
-                {
-                    // Check why the room search failed and inform the player
+                if (room_is_invalid(room) && !creature_can_do_healing_sleep(thing)){
                     break;
                 }
-                SubtlCodedCoords stl_num;
-                stl_num = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
+            SubtlCodedCoords stl_num;
+            stl_num = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
                 if (!add_to_imp_stack_using_pos(stl_num, DigTsk_SaveUnconscious, dungeon)) {
                     break;
                 }
@@ -3004,6 +3005,8 @@ long check_out_worker_pickup_unconscious(struct Thing *thing, struct DiggerStack
     return 1;
 }
 
+// Imps save unconscious Creatures 
+// only if drag_to_lair rule is activated
 long check_out_worker_save_unconscious(struct Thing *thing, struct DiggerStack *dstack)
 {
     MapSubtlCoord stl_x;
@@ -3019,11 +3022,6 @@ long check_out_worker_save_unconscious(struct Thing *thing, struct DiggerStack *
     if (thing_is_invalid(thing)){
         return 0;
     }
-    struct Room * room;
-    room = get_creature_lair_room(sectng);
-    if (!get_creature_lair_room(sectng)) {
-        return 0;
-    }
     if (thing_is_invalid(sectng))
     {
         dstack->task_type = DigTsk_None;
@@ -3033,13 +3031,31 @@ long check_out_worker_save_unconscious(struct Thing *thing, struct DiggerStack *
     {
         return 0;
     }
-    struct CreatureControl *cctrl_sectng = creature_control_get_from_thing(sectng);
-    struct Thing* lairtng = thing_get(cctrl_sectng->lairtng_idx);
-    if(!setup_person_move_to_coord(thing, &lairtng->mappos, NavRtF_Default))
-    {
-    // Do not delete the task - another digger might be able to reach it
-        return 0; 
+    // check for the creature's lair
+    struct Room * room;
+    room = get_creature_lair_room(sectng);
+    // if no lair exist check if the creature can place one and look for best lair
+    if (room_is_invalid(room) && creature_can_do_healing_sleep(sectng)) {
+        room = find_nearest_room_of_role_for_thing_with_spare_capacity(thing, thing->owner, RoRoF_CrHealSleep, NavRtF_Default, 1);
+        if (room_is_invalid(room))
+        {
+            update_cannot_find_room_of_role_wth_spare_capacity_event(thing->owner, thing, RoRoF_CrHealSleep);
+        }
     }
+    else if(get_creature_lair_room(sectng)){    
+        struct CreatureControl *cctrl_sectng = creature_control_get_from_thing(sectng);
+        struct Thing* lairtng = thing_get(cctrl_sectng->lairtng_idx);
+
+        if(!setup_person_move_to_coord(thing, &lairtng->mappos, NavRtF_Default))
+        {
+        // Do not delete the task - another digger might be able to reach it
+            return 0; 
+        }
+    }
+    else {    
+        return 0;
+    }
+    
     //creature_can_navigate_to
     if (room_is_invalid(room))
     {

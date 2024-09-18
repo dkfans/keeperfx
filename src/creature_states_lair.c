@@ -134,6 +134,7 @@ long creature_will_sleep(struct Thing *thing)
     return (abs(dist_x) < 1) && (abs(dist_y) < 1);
 }
 
+
 short creature_drop_unconscious_in_lair(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -147,13 +148,18 @@ short creature_drop_unconscious_in_lair(struct Thing *thing)
         return 0;
     }
     struct Room* room = get_room_thing_is_on(thing);
-    if ((room_is_invalid(room) || room->owner != dragtng->owner) || !get_creature_lair_room(dragtng) ) {
+    if ((room_is_invalid(room) || room->owner != dragtng->owner)) {
         set_start_state(thing);
         return 0;
     }
     make_creature_conscious(dragtng);
-    initialise_thing_state(dragtng, CrSt_CreatureGoingHomeToSleep);
     struct CreatureControl* dragctrl = creature_control_get_from_thing(dragtng);
+    if (dragctrl->lair_room_id == room->index){
+        initialise_thing_state(dragtng, CrSt_CreatureGoingHomeToSleep);
+    }
+    else {
+        initialise_thing_state(dragtng, CrSt_CreatureAtNewLair);
+    }
     dragctrl->flgfield_1 |= CCFlg_NoCompControl;
     set_start_state(thing);
     return 1;
