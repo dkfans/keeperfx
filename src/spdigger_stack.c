@@ -1875,8 +1875,16 @@ int add_unsaved_unconscious_creature_to_imp_stack(struct Dungeon *dungeon, int m
             if (thing_revealed(thing, dungeon->owner))
             {
                 room = get_creature_lair_room(thing);
-                if (room_is_invalid(room) && !creature_can_do_healing_sleep(thing)){
-                    break;
+                if ((game.conf.rules.workers.drag_to_lair == 1)){
+                    if (room_is_invalid(room)){
+                        //skip thing
+                        continue;
+                    }
+                }
+                else if ((game.conf.rules.workers.drag_to_lair == 2)){
+                    if (room_is_invalid(room) && !creature_can_do_healing_sleep(thing)){
+                        break;
+                    }
                 }
             SubtlCodedCoords stl_num;
             stl_num = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
@@ -3014,40 +3022,36 @@ long check_out_worker_save_unconscious(struct Thing *thing, struct DiggerStack *
     SYNCDBG(18,"Starting");
     stl_x = stl_num_decode_x(dstack->stl_num);
     stl_y = stl_num_decode_y(dstack->stl_num);
-    if(!game.conf.rules.workers.drag_to_lair){
+    if(!game.conf.rules.workers.drag_to_lair) {
         return 0;
     }
     struct Thing *sectng;
     sectng = check_place_to_save_unconscious_creature(thing, stl_x, stl_y);
-    if (thing_is_invalid(thing)){
+    if (thing_is_invalid(thing)) {
         return 0;
     }
-    if (thing_is_invalid(sectng))
-    {
+    if (thing_is_invalid(sectng)) {
         dstack->task_type = DigTsk_None;
         return -1;
     }
-    if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
-    {
+    if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y)) {
         return 0;
     }
     // check for the creature's lair
     struct Room * room;
     room = get_creature_lair_room(sectng);
     // if no lair exist check if the creature can place one and look for best lair
-    if (room_is_invalid(room) && creature_can_do_healing_sleep(sectng)) {
+    if (room_is_invalid(room) && creature_can_do_healing_sleep(sectng) && game.conf.rules.workers.drag_to_lair == 2) {
         room = find_nearest_room_of_role_for_thing_with_spare_capacity(thing, thing->owner, RoRoF_CrHealSleep, NavRtF_Default, 1);
-        if (room_is_invalid(room))
-        {
+        if (room_is_invalid(room)){
             update_cannot_find_room_of_role_wth_spare_capacity_event(thing->owner, thing, RoRoF_CrHealSleep);
         }
     }
-    else if(get_creature_lair_room(sectng)){    
+    else if(get_creature_lair_room(sectng)) {    
         struct CreatureControl *cctrl_sectng = creature_control_get_from_thing(sectng);
         struct Thing* lairtng = thing_get(cctrl_sectng->lairtng_idx);
 
-        if(!setup_person_move_to_coord(thing, &lairtng->mappos, NavRtF_Default))
-        {
+        if(!setup_person_move_to_coord(thing, &lairtng->mappos, NavRtF_Default)) {
         // Do not delete the task - another digger might be able to reach it
             return 0; 
         }
@@ -3057,13 +3061,11 @@ long check_out_worker_save_unconscious(struct Thing *thing, struct DiggerStack *
     }
     
     //creature_can_navigate_to
-    if (room_is_invalid(room))
-    {
+    if (room_is_invalid(room)) {
         dstack->task_type = DigTsk_None;
         return -1;
     }
-    if (!setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default))
-    {
+    if (!setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default)) {
         // Do not delete the task - another digger might be able to reach it
         return 0;
     }

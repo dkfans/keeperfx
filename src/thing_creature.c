@@ -6379,7 +6379,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                                 initialise_thing_state(droptng, CrSt_CreatureGoingHomeToSleep);
                             }
                             //creature doesn't have a lair room but she will and can sleep here
-                            if(dropctrl->lair_room_id == 0 && creature_can_do_healing_sleep(droptng) && room_has_enough_free_capacity_for_creature_job(room, droptng, Job_TAKE_SLEEP))
+                            if(game.conf.rules.workers.drag_to_lair == 2 && dropctrl->lair_room_id == 0 && creature_can_do_healing_sleep(droptng) && room_has_enough_free_capacity_for_creature_job(room, droptng, Job_TAKE_SLEEP))
                             {
                                 make_creature_conscious(droptng);
                                 initialise_thing_state(droptng, CrSt_CreatureChangeLair);

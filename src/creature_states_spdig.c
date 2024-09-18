@@ -208,12 +208,22 @@ long check_out_unsaved_unconscious_creature(struct Thing *spdigtng, long range)
             {
                 if (!imp_will_soon_be_working_at_excluding(spdigtng, thing->mappos.x.stl.num, thing->mappos.y.stl.num))
                 {   
-                    if (creature_can_do_healing_sleep(thing)) {
-                        if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default)) {
+                    // Only save creatures with lair
+                    if (game.conf.rules.workers.drag_to_lair == 1) {
+                        struct Room * room = get_creature_lair_room(thing);
+                        if (room_is_invalid(room)) {
+                            return 0;
+                        }
+                    }    
+                    //or creature who can have have and use a lair
+                    else if (game.conf.rules.workers.drag_to_lair != 2 && !creature_can_do_healing_sleep(thing)) {
+                        return 0;
+                    }
+
+                    if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default)) {
                         spdigtng->continue_state = CrSt_CreatureSaveUnconsciousCreature;
                         cctrl->pickup_creature_id = thing->index;
                         return 1;
-                        }
                     }
                 }
             }
@@ -1637,7 +1647,7 @@ short creature_save_unconscious_creature(struct Thing *thing)
 
     struct Room* dstroom = get_creature_lair_room(picktng);
     //if creature doesn't have a lair but need one
-    if (room_is_invalid(dstroom) && creature_can_do_healing_sleep(picktng)) {
+    if (room_is_invalid(dstroom) && creature_can_do_healing_sleep(picktng) && game.conf.rules.workers.drag_to_lair == 2) {
         
         dstroom = find_nearest_room_of_role_for_thing_with_spare_capacity(picktng, picktng->owner, RoRoF_CrHealSleep, NavRtF_Default, 1);
         //send special digger directly at the right place for the lair-totem of the creature
