@@ -1791,16 +1791,6 @@ long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, MapCoordDelta
         return -inst_id; \
     }
 
-TbBool creature_would_benefit_from_healing(const struct Thing* thing)
-{
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    HitPoints goodhealth = crstat->heal_threshold * cctrl->max_health / 256;
-    if ((long)thing->health <= goodhealth)
-        return true;
-    return false;
-}
-
 /**
  * Gives attack type optimized for self preservation.
  * @param thing The creature for which the instance is selected.
@@ -1857,11 +1847,11 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct InstanceInfo* inst_inf;
-    if (creature_would_benefit_from_healing(thing))
+    if (creature_requires_healing(thing))
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_HEAL);
         inst_inf = creature_instance_info_get(CrInst_RANGED_HEAL);
-        if ((inst_inf->instance_property_flags | InstPF_SelfBuff))
+        if ((inst_inf->instance_property_flags & InstPF_SelfBuff))
         {
             INSTANCE_RET_IF_AVAIL(thing, CrInst_RANGED_HEAL);
         }
@@ -2859,8 +2849,8 @@ short creature_in_combat(struct Thing *creatng)
         return 0;
     }
     CombatState combat_func;
-    CrInstance intance = process_creature_ranged_buff_spell_casting(creatng);
-    if (intance != CrInst_NULL)
+    CrInstance instance = process_creature_ranged_buff_spell_casting(creatng);
+    if (instance != CrInst_NULL)
     {
         // Return now if the creature has casted something.
         return 1;

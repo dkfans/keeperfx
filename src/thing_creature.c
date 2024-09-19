@@ -124,6 +124,16 @@ int get_creature_health_permil(const struct Thing *thing)
     return health/max_health;
 }
 
+TbBool creature_requires_healing(const struct Thing *thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    HitPoints minhealth = crstat->heal_requirement * cctrl->max_health / 256;
+    if ((long)thing->health <= minhealth)
+        return true;
+    return false;
+}
+
 TbBool thing_can_be_controlled_as_controller(struct Thing *thing)
 {
     if (!thing_exists(thing))
@@ -1112,7 +1122,6 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         creature_set_speed(thing, 0);
         break;
     case SplK_Heal:
-    // fall-through
     case Splk_RangedHeal:
     {
         HitPoints i = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev], 16);
@@ -1740,7 +1749,7 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, long shot_lvl,
         cctrl->teleport_y = trg_y;
     }
     // Check if the spell can be fired as a shot. It is definitely not if casted on itself.
-    if (spconf->shot_model > 0 && cctrl->targtng_idx != castng->index)
+    if ((spconf->shot_model > 0) && (cctrl->targtng_idx != castng->index))
     {
         if ((castng->alloc_flags & TAlF_IsControlled) != 0)
           i = THit_CrtrsNObjcts;

@@ -97,16 +97,6 @@ TbBool creature_is_doing_lair_activity(const struct Thing *thing)
     return false;
 }
 
-TbBool creature_requires_healing(const struct Thing *thing)
-{
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    HitPoints minhealth = crstat->heal_requirement * cctrl->max_health / 256;
-    if ((long)thing->health <= minhealth)
-        return true;
-    return false;
-}
-
 TbBool creature_move_to_home_lair(struct Thing *creatng)
 {
     if (!creature_has_lair_room(creatng)) {

@@ -59,6 +59,8 @@
 extern "C" {
 #endif
 
+#define MAX_CREATURES_SEARCHED 100
+
 /******************************************************************************/
 long instf_attack_room_slab(struct Thing *creatng, long *param);
 long instf_creature_cast_spell(struct Thing *creatng, long *param);
@@ -111,6 +113,35 @@ Creature_Instf_Func creature_instances_func_list[] = {
   NULL,
 };
 
+const struct NamedCommand creature_instances_validate_func_type[] = {
+    {"validate_source_generic",      1},
+    {"validate_target_generic",      2},
+    {"validate_source_ranged_heal",  3},
+    {"validate_target_ranged_heal",  4},
+    {NULL,                           0},
+};
+
+Creature_Validate_Func creature_instances_validate_func_list[] = {
+    NULL,
+    validate_source_generic,
+    validate_target_generic,
+    validate_source_ranged_heal,
+    validate_target_ranged_heal,
+    NULL,
+};
+
+const struct NamedCommand creature_instances_search_targets_func_type[] = {
+    {"search_target_generic",        1},
+    {"search_target_ranged_heal",    2},
+    {NULL,                           0},
+};
+
+Creature_Target_Search_Func creature_instances_search_targets_func_list[] = {
+    NULL,
+    search_target_generic,
+    search_target_ranged_heal,
+    NULL,
+};
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -561,118 +592,51 @@ CrInstance process_creature_ranged_buff_spell_casting(struct Thing* creatng)
     SYNCDBG(8,"Processing %s(%d), act.st: %s, con.st: %s", thing_model_name(creatng), creatng->index,
         creature_state_code_name(creatng->active_state), creature_state_code_name(creatng->continue_state));
 
-    if ((creatng->alloc_flags & TAlF_IsControlled) != 0)
+    int i = CrInst_LISTEND - 1;
+    for( ; i > CrInst_NULL; i-- )
     {
-        // If this creature is under player's control.
-        return CrInst_NULL;
-    }
-
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->instance_id != CrInst_NULL) {
-        SYNCDBG(15, "This creature has an instance %s. Abort.", creature_instance_code_name(cctrl->instance_id));
-        return CrInst_NULL;
-    }
-
-    // Check validation of the caster.
-    if (creature_is_fleeing_combat(creatng) || creature_affected_by_spell(creatng, SplK_Chicken) ||
-        creature_is_being_unconscious(creatng) || creature_is_dying(creatng) ||
-        thing_is_picked_up(creatng) || creature_is_being_dropped(creatng) ||
-        creature_is_being_sacrificed(creatng) || creature_is_being_summoned(creatng) ||
-        // Creature who is leaving doesn't care about any allies.
-        creatng->continue_state == CrSt_CreatureLeaves ||
-        creatng->active_state == CrSt_CreatureLeavingDungeon ||
-        creatng->active_state == CrSt_CreatureScavengedDisappear )
-    {
-        return CrInst_NULL;
-    }
-
-    if (!creature_instance_is_available(creatng, CrInst_RANGED_HEAL) ||
-        !creature_instance_has_reset(creatng, CrInst_RANGED_HEAL))
-    {
-        return CrInst_NULL;
-    }
-
-    struct Thing* best_choice = NULL;
-    if (creature_would_benefit_from_healing(creatng))
-    {
-        // Save itself first.
-        best_choice = creatng;
-    }
-    else
-    {
-        // Search nearby area, collect candidates.
-        struct Dungeon* dungeon = get_players_num_dungeon(creatng->owner);
-        int creature_idx = dungeon->creatr_list_start;
-        int k = 0;
-        while (creature_idx != 0)
+        const struct InstanceInfo* inst_inf = creature_instance_info_get(i);
+        if((inst_inf->instance_property_flags & InstPF_RangedBuff) == 0)
         {
-            struct Thing* candidate_thing = thing_get(creature_idx);
-            struct CreatureControl* candidate_ctrl = creature_control_get_from_thing(candidate_thing);
-            creature_idx = candidate_ctrl->players_next_creature_idx;
-            if (creature_control_invalid(candidate_ctrl))
-            {
-                ERRORLOG("Invalid creature control");
-                break;
-            }
-            // Check validation of candidate's state.
-            if (candidate_thing->index == creatng->index ||
-                creature_is_dying(candidate_thing) ||
-                thing_is_picked_up(candidate_thing) || creature_is_being_dropped(candidate_thing) ||
-                creature_is_being_sacrificed(candidate_thing) || creature_is_being_summoned(candidate_thing) ||
-                // Creature who is leaving doesn't deserve heal from allies.
-                creatng->continue_state == CrSt_CreatureLeaves ||
-                creatng->active_state == CrSt_CreatureLeavingDungeon ||
-                creatng->active_state == CrSt_CreatureScavengedDisappear ||
-                // Candidate shouldn't be fight with the caster.
-                creature_has_creature_in_combat(creatng, candidate_thing) ||
-                creature_has_creature_in_combat(candidate_thing, creatng) ||
-                !creature_would_benefit_from_healing(candidate_thing))
-            {
-                continue;
-            }
-
-            // We don't check the field of view of caster here because the following reasons.
-            // a. The wounded creature can speak to get attention from the caster.
-            // b. The thing_in_field_of_view() is bugged.
-            // c. The caster will turn to face the target, so it is visually fine.
-            int range = get_combat_distance(creatng, candidate_thing);
-            const struct InstanceInfo* inst_inf = creature_instance_info_get(CrInst_RANGED_HEAL);
-            // Check validation of candidate's spatial status.
-            if (range >= inst_inf->range_min && range <= inst_inf->range_max &&
-                creature_can_see_combat_path(creatng, candidate_thing, range))
-            {
-                if (best_choice == NULL || candidate_thing->health < best_choice->health)
-                {
-                    best_choice = candidate_thing;
-                }
-            }
-
-            k++;
-            if (k > CREATURES_COUNT)
-            {
-                ERRORLOG("Infinite loop detected when sweeping creatures list");
-                break;
-            }
+            continue;
         }
+        if((inst_inf->validate_func_idx[0] == 0) || (inst_inf->validate_func_idx[1] == 0) ||
+           (inst_inf->search_func_idx == 0))
+        {
+            ERRORLOG("The instance %d has no validate function or search function.", i);
+            continue;
+        }
+        if(!creature_instances_validate_func_list[inst_inf->validate_func_idx[0]](creatng, NULL, i))
+        {
+            // The input creature is not a legal source.
+            continue;
+        }
+
+        struct Thing* targets = NULL;
+        short found_count = 0;
+        if(creature_instances_search_targets_func_list[inst_inf->search_func_idx](creatng, i, &targets, &found_count) &&
+            targets && (found_count > 0))
+        {
+            SYNCDBG(8, "Set instance %s on %s(%d) for %s(%d).",
+                creature_instance_code_name(i), thing_model_name(creatng), creatng->index,
+                thing_model_name(targets), targets->index);
+
+            struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+            // Enter the temporary state.
+            cctrl->active_state_bkp = creatng->active_state;
+            cctrl->continue_state_bkp = creatng->continue_state;
+            internal_set_thing_state(creatng, CrSt_CreatureCastingPreparation);
+
+            // Apply the spell instance to the first one since we have no group buff yet.
+            set_creature_instance(creatng, i, targets->index, NULL);
+            free(targets);
+            break; // No need to check the next spell instance.
+
+        }
+        free(targets);
     }
 
-    if (best_choice != NULL)
-    {
-        SYNCDBG(8, "Set instance %s on %s(%d) for %s(%d).",
-            creature_instance_code_name(CrInst_RANGED_HEAL), thing_model_name(creatng), creatng->index,
-            thing_model_name(best_choice), best_choice->index);
-
-        // Enter the temporary state.
-        cctrl->active_state_bkp = creatng->active_state;
-        cctrl->continue_state_bkp = creatng->continue_state;
-        internal_set_thing_state(creatng, CrSt_CreatureCastingPreparation);
-
-        // Apply the spell instance to the best choice.
-        set_creature_instance(creatng, CrInst_RANGED_HEAL, best_choice->index, NULL);
-        return CrInst_RANGED_HEAL;
-    }
-
-    return CrInst_NULL;
+    return i;
 }
 
 long instf_dig(struct Thing *creatng, long *param)
@@ -1191,4 +1155,243 @@ void delay_heal_sleep(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->healing_sleep_check_turn = game.play_gameturn + 600;
 }
+
+/**
+ * @brief Check if the given creature can cast the specified spell by examining general conditions.
+ *
+ * @param source The source creature
+ * @param target The target creature
+ * @param inst_idx  The spell instance index
+ * @return TbBool True if the creature can, false if otherwise.
+ */
+TbBool validate_source_generic(struct Thing *source, struct Thing *target, CrInstance inst_idx)
+{
+    if ((source->alloc_flags & TAlF_IsControlled) != 0)
+    {
+        // If this creature is under player's control (Possession).
+        return false;
+    }
+    // We assume we usually don't want to overwrite the original instance.
+    struct CreatureControl* cctrl = creature_control_get_from_thing(source);
+    if (cctrl->instance_id != CrInst_NULL) {
+        SYNCDBG(11, "This creature already has an instance %s.", creature_instance_code_name(cctrl->instance_id));
+        return false;
+    }
+
+    if (!creature_instance_is_available(source, inst_idx) ||
+        !creature_instance_has_reset(source, inst_idx) ||
+        creature_is_fleeing_combat(source) || creature_affected_by_spell(source, SplK_Chicken) ||
+        creature_is_being_unconscious(source) || creature_is_dying(source) ||
+        thing_is_picked_up(source) || creature_is_being_dropped(source) ||
+        creature_is_being_sacrificed(source) || creature_is_being_summoned(source))
+    {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief Check if the given creature can be the target of the specified spell by examining general conditions.
+ * @param source The source creature
+ * @param target The target creature
+ * @param inst_idx The spell instance index
+ * @return TbBool True if the creature can be, false if otherwise.
+ */
+TbBool validate_target_generic(struct Thing *source, struct Thing *target, CrInstance inst_idx)
+{
+    // Note that we don't check "unconscious".
+    // We don't check the spatial conditions, such as distacne, angle, and sight here, because
+    // they should be checked in the search function.
+    if (creature_is_dying(target) || thing_is_picked_up(target) || creature_is_being_dropped(target) ||
+        creature_is_being_sacrificed(target) || creature_is_being_summoned(target))
+    {
+        return false;
+    }
+    return true;
+}
+
+/**
+ * @brief Check if the given creature can cast Ranged Heal spell.
+ *
+ * @param source The source creature
+ * @param target The target creature
+ * @param inst_idx  The spell instance index
+ * @return TbBool True if the creature can, false if otherwise.
+ */
+TbBool validate_source_ranged_heal(struct Thing *source, struct Thing *target, CrInstance inst_idx)
+{
+    if (!validate_source_generic(source, target, CrInst_RANGED_HEAL))
+    {
+        return false;
+    }
+    // Creature who is leaving doesn't care about any allies.
+    if (source->continue_state == CrSt_CreatureLeaves ||
+        source->active_state == CrSt_CreatureLeavingDungeon ||
+        source->active_state == CrSt_CreatureScavengedDisappear )
+    {
+        return false;
+    }
+    return true;
+}
+
+/**
+ * @brief Check if the given creature can be the target of Ranged Heal.
+ *
+ * @param source The source creature
+ * @param target The target creature
+ * @param inst_idx  The spell instance index
+ * @return TbBool True if the creature can, false if otherwise.
+ */
+TbBool validate_target_ranged_heal(struct Thing *source, struct Thing *target, CrInstance inst_idx)
+{
+    if (!validate_target_generic(source, target, CrInst_RANGED_HEAL) ||
+        // Creature who is leaving doesn't deserve heal from allies.
+        target->continue_state == CrSt_CreatureLeaves ||
+        target->active_state == CrSt_CreatureLeavingDungeon ||
+        target->active_state == CrSt_CreatureScavengedDisappear ||
+        !creature_requires_healing(target) ||
+        // Candidate shouldn't be fight with the caster.
+        creature_has_creature_in_combat(source, target) ||
+        creature_has_creature_in_combat(target, source))
+    {
+        return false;
+    }
+    return true;
+}
+
+/**
+ * @brief Search the suitable targets for given spell.
+ *
+ * @param source The source creature
+ * @param inst_idx The spell instance index
+ * @param targets The list of the found creatures. Caller must free this.
+ * @param found_count The number of the found creatures.
+ * @return TbBool True if there is no error, false if otherwise.
+ */
+TbBool search_target_generic(struct Thing *source, CrInstance inst_idx, struct Thing **targets, short *found_count)
+{
+    if (!targets || !found_count)
+    {
+        ERRORLOG("Invalid parameters!");
+        return false;
+    }
+
+    TbBool ok = true;
+    // To improve performance, use a smaller number than CREATURES_COUNT.
+    *targets = malloc(MAX_CREATURES_SEARCHED);
+    *found_count = 0;
+    // Note that we only support buff right now, so we only search source's owner's creature.
+    // For offensive debuff, we need another loop to iterate all enemies.
+    struct Dungeon* dungeon = get_players_num_dungeon(source->owner);
+    int creature_idx = dungeon->creatr_list_start;
+    int k = 0;
+    while (creature_idx != 0 && (*found_count) < MAX_CREATURES_SEARCHED)
+    {
+        struct Thing* candidate = thing_get(creature_idx);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(candidate);
+        if (creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Invalid creature control");
+            ok = false;
+            break;
+        }
+
+        creature_idx = cctrl->players_next_creature_idx;
+
+        const struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
+        if (inst_inf->validate_func_idx[1] > 0)
+        {
+            if(!creature_instances_validate_func_list[inst_inf->validate_func_idx[1]](source, candidate, inst_idx))
+            {
+                // This candidate is out.
+                continue;
+            }
+        }
+
+        // @todo Consider checking thing_in_field_of_view() in the future, now it is buggy.
+        // We assume that the source must see the target before it can cast the spell.
+        int range = get_combat_distance(source, candidate);
+        if (range < inst_inf->range_min || range > inst_inf->range_max ||
+            !creature_can_see_combat_path(source, candidate, range))
+        {
+            continue;
+        }
+
+        targets[*found_count] = candidate;
+        (*found_count)++;
+
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            ok = false;
+            break;
+        }
+    }
+
+    return ok;
+}
+
+/**
+ * @brief Search the suitable targets for CrInst_RANGED_HEAL
+ *
+ * @param source The source creature
+ * @param inst_idx The spell instance index
+ * @param targets The list of the found creatures. Caller must free this.
+ * @param found_count The number of the found creatures.
+ * @return TbBool True if there is no error, false if otherwise
+ */
+TbBool search_target_ranged_heal(struct Thing *source, CrInstance inst_idx, struct Thing **targets, short *found_count)
+{
+    if (!targets || !found_count)
+    {
+        ERRORLOG("Invalid parameters!");
+        return false;
+    }
+
+    if (!search_target_generic(source, inst_idx, targets, found_count))
+    {
+        return false;
+    }
+
+    struct Thing *best_choice = NULL;
+    TbBool ok = true;
+    int i = 0;
+    for (; i < *found_count; i++)
+    {
+        struct Thing *candidate = targets[i];
+        if (thing_is_invalid(candidate))
+        {
+            continue;
+        }
+        struct CreatureControl* cctrl = creature_control_get_from_thing(candidate);
+        if (creature_control_invalid(cctrl))
+        {
+            continue;
+        }
+        // Note that we only allow one target. No group buff are allowed yet.
+        // So, we only pick the weakest one creature here.
+        float hp_p_best = 0;
+        if (best_choice)
+        {
+            struct CreatureControl* cctrl_best = creature_control_get_from_thing(best_choice);
+            hp_p_best = (float)best_choice->health / (float)cctrl_best->max_health;
+        }
+        float hp_p_candiate = (float)candidate->health / (float)cctrl->max_health;
+        if (!best_choice || hp_p_candiate < hp_p_best)
+        {
+            best_choice = candidate;
+        }
+    }
+
+    if (best_choice)
+    {
+        targets[0] = best_choice;
+        *found_count = 1;
+    }
+
+    return ok;
+}
+
 /******************************************************************************/
