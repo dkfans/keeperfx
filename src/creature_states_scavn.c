@@ -571,6 +571,7 @@ CrStateRet scavengering(struct Thing *creatng)
         set_start_state(creatng);
         return CrStRet_ResetFail;
     }
+
     if (process_scavenge_function(creatng))
     {
         return CrStRet_Modified;
