@@ -139,25 +139,32 @@ short creature_drop_unconscious_in_lair(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
-    if (!thing_exists(dragtng) || !creature_is_being_unconscious(dragtng)) {
+    if (!thing_exists(dragtng) || !creature_is_being_unconscious(dragtng))
+    {
         set_start_state(thing);
         return 0;
     }
-    if (!subtile_is_room(thing->mappos.x.stl.num, thing->mappos.y.stl.num)) {
+    if (!subtile_is_room(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
+    {
         set_start_state(thing);
         return 0;
     }
     struct Room* room = get_room_thing_is_on(thing);
-    if ((room_is_invalid(room) || room->owner != dragtng->owner)) {
+    if ((room_is_invalid(room) || room->owner != dragtng->owner))
+    {
         set_start_state(thing);
         return 0;
     }
     make_creature_conscious(dragtng);
     struct CreatureControl* dragctrl = creature_control_get_from_thing(dragtng);
-    if (dragctrl->lair_room_id == room->index){
+    // if the creature already has a lair here it's going to sleep
+    if (dragctrl->lair_room_id == room->index)
+    {
         initialise_thing_state(dragtng, CrSt_CreatureGoingHomeToSleep);
     }
-    else {
+    // if the creature dont have a lair here make a new one
+    else
+    {
         initialise_thing_state(dragtng, CrSt_CreatureAtNewLair);
     }
     dragctrl->flgfield_1 |= CCFlg_NoCompControl;

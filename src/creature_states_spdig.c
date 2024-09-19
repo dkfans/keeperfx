@@ -39,6 +39,7 @@
 #include "thing_corpses.h"
 #include "thing_traps.h"
 #include "room_data.h"
+#include "room_lair.h"
 #include "room_jobs.h"
 #include "room_workshop.h"
 #include "room_library.h"
@@ -185,7 +186,8 @@ long check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, long range)
 //only if drag_to_lair rule in activated
 long check_out_unsaved_unconscious_creature(struct Thing *spdigtng, long range)
 {
-    if (!player_has_room_of_role(spdigtng->owner, RoRoF_LairStorage) || !game.conf.rules.workers.drag_to_lair) {
+    if (!player_has_room_of_role(spdigtng->owner, RoRoF_LairStorage) || !game.conf.rules.workers.drag_to_lair)
+    {
         return 0;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
@@ -208,19 +210,22 @@ long check_out_unsaved_unconscious_creature(struct Thing *spdigtng, long range)
             {
                 if (!imp_will_soon_be_working_at_excluding(spdigtng, thing->mappos.x.stl.num, thing->mappos.y.stl.num))
                 {   
-                    // Only save creatures with lair
+                    // only save creatures with lair
                     if (game.conf.rules.workers.drag_to_lair == 1) {
                         struct Room * room = get_creature_lair_room(thing);
-                        if (room_is_invalid(room)) {
+                        if (room_is_invalid(room)) 
+                        {
                             return 0;
                         }
                     }    
                     //or creature who can have have and use a lair
-                    else if (game.conf.rules.workers.drag_to_lair != 2 && !creature_can_do_healing_sleep(thing)) {
+                    else if (game.conf.rules.workers.drag_to_lair == 2 && !creature_can_do_healing_sleep(thing))
+                    {
                         return 0;
                     }
 
-                    if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default)) {
+                    if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default)) 
+                    {
                         spdigtng->continue_state = CrSt_CreatureSaveUnconsciousCreature;
                         cctrl->pickup_creature_id = thing->index;
                         return 1;
@@ -1647,11 +1652,12 @@ short creature_save_unconscious_creature(struct Thing *thing)
 
     struct Room* dstroom = get_creature_lair_room(picktng);
     //if creature doesn't have a lair but need one
-    if (room_is_invalid(dstroom) && creature_can_do_healing_sleep(picktng) && game.conf.rules.workers.drag_to_lair == 2) {
-        
-        dstroom = find_nearest_room_of_role_for_thing_with_spare_capacity(picktng, picktng->owner, RoRoF_CrHealSleep, NavRtF_Default, 1);
+    if (room_is_invalid(dstroom) && creature_can_do_healing_sleep(picktng) && game.conf.rules.workers.drag_to_lair == 2)
+    {
+        dstroom = get_best_new_lair_for_creature(picktng);
         //send special digger directly at the right place for the lair-totem of the creature
-        if (!setup_head_for_random_unused_lair_subtile(thing, dstroom)){
+        if (!setup_head_for_random_unused_lair_subtile(thing, dstroom))
+        {
             set_start_state(thing);
             return 0;
         }

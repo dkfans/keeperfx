@@ -5367,10 +5367,10 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         || ((player->id_number != thing->owner) && !creature_is_invisible(thing))
         //if drag_to_lair rule is activated and creature is unconscious and owned by the player
         || ((game.conf.rules.workers.drag_to_lair > 0) && (creature_is_being_unconscious(thing) && player->id_number == thing->owner) 
-                                                            // and if lair room exists
-                                                            && ((game.conf.rules.workers.drag_to_lair == 1 && !room_is_invalid(get_creature_lair_room(thing)))  
-                                                            // or if creature can have and use a lair
-                                                            || (game.conf.rules.workers.drag_to_lair == 2 && creature_can_do_healing_sleep(thing))))
+                // and if lair room exists
+                && ((game.conf.rules.workers.drag_to_lair == 1 && !room_is_invalid(get_creature_lair_room(thing)))  
+                // or if creature can have and use a lair
+                || (game.conf.rules.workers.drag_to_lair == 2 && creature_can_do_healing_sleep(thing))))
         || (cctrl->combat_flags != 0)
         || (thing->lair.spr_size > 0)
         || (cam->view_mode == PVM_ParchmentView))

@@ -6372,7 +6372,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                         if (creature_is_being_unconscious(droptng))
                         {
                             struct CreatureControl* dropctrl = creature_control_get_from_thing(droptng);
-                            //creature already have a lairrom
+                            //creature already have a lair rom
                             if (dropctrl->lair_room_id == room->index)
                             {
                                 make_creature_conscious(droptng);
