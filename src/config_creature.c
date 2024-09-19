@@ -210,7 +210,6 @@ struct NamedCommand attackpref_desc[INSTANCE_TYPES_MAX];
 ThingModel breed_activities[CREATURE_TYPES_MAX];
 /******************************************************************************/
 extern const struct NamedCommand creature_job_player_assign_func_type[];
-extern Creature_Job_Player_Check_Func creature_job_player_check_func_list[];
 extern const struct NamedCommand creature_job_player_check_func_type[];
 extern Creature_Job_Player_Assign_Func creature_job_player_assign_func_list[];
 extern const struct NamedCommand creature_job_coords_check_func_type[];
