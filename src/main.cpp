@@ -2216,6 +2216,11 @@ void check_players_lost(void)
       {
           struct Thing *heartng;
           heartng = get_player_soul_container(i);
+          if (heartng->owner != i)
+          {
+              initialise_devastate_dungeon_from_heart(player->id_number);
+              init_player_start(player, true);
+          }
           if ((!thing_exists(heartng) || ((heartng->active_state == ObSt_BeingDestroyed) && !(dungeon->backup_heart_idx > 0))) && (player->victory_state == VicS_Undecided))
           {
             event_kill_all_players_events(i);
