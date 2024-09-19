@@ -60,21 +60,20 @@ ECHO     = @echo
 # Names of target binary files
 BIN      = bin/keeperfx$(EXEEXT)
 TEST_BIN = bin/tests$(EXEEXT)
-HVLOGBIN = bin/keeperfx_hvlog$(EXEEXT)
 # Names of intermediate build products
 GENSRC   = obj/ver_defs.h
 RES      = obj/keeperfx_stdres.res
 LIBS     = obj/enet.a
 
 DEPS = \
-obj/spng.o \
-obj/json/json.o \
-obj/json/value.o \
-obj/json/json-dom.o \
+obj/libspng/spng.o \
+obj/centijson/json.o \
+obj/centijson/value.o \
+obj/centijson/json-dom.o \
 obj/centitoml/toml_api.o \
-obj/astronomy.o \
-obj/unzip.o \
-obj/ioapi.o
+obj/astronomy/astronomy.o \
+obj/zlib/unzip.o \
+obj/zlib/ioapi.o
 
 # functional test debugging flags/objs
 FTEST_DEBUG ?= 0
@@ -263,6 +262,7 @@ obj/lvl_script_lib.o \
 obj/lvl_script_conditions.o \
 obj/lvl_script_value.o \
 obj/magic.o \
+obj/main.o \
 obj/main_game.o \
 obj/map_blocks.o \
 obj/map_columns.o \
@@ -334,8 +334,6 @@ obj/KeeperSpeechImp.o \
 $(FTEST_OBJS) \
 $(RES)
 
-MAIN_OBJ = obj/main.o
-
 TESTS_OBJ = obj/tests/tst_main.o \
 obj/tests/tst_fixes.o \
 obj/tests/001_test.o \
@@ -357,12 +355,6 @@ LINKLIB =  -L"sdl/lib" -mwindows obj/enet.a \
 	-L"deps/zlib" -lz -lws2_32 -ldbghelp
 INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include" -I"deps/centijson/src" -I"deps/centitoml" -I"deps/astronomy"
 CXXINCS =  $(INCS)
-
-STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
-HVLOGOBJS = $(subst obj/,obj/hvlog/,$(OBJS))
-STD_MAIN_OBJ = $(subst obj/,obj/std/,$(MAIN_OBJ))
-HVLOG_MAIN_OBJ = $(subst obj/,obj/hvlog/,$(MAIN_OBJ))
-
 
 # allow extracting files from archives, replacing pre-existing ones
 ENABLE_EXTRACT ?= 1
@@ -388,9 +380,6 @@ else
   endif
 endif
 
-# logging level flags
-STLOGFLAGS = -DBFDEBUG_LEVEL=0
-HVLOGFLAGS = -DBFDEBUG_LEVEL=10
 # compiler warning generation flags
 WARNFLAGS = -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing -Wno-unknown-pragmas
 # disabled warnings: -Wextra -Wtype-limits
@@ -418,16 +407,13 @@ include prebuilds.mk
 # name virtual targets
 .PHONY: all docs docsdox clean clean-build deep-clean build-before
 .PHONY: standard std-before std-after
-.PHONY: heavylog hvlog-before hvlog-after
 .PHONY: package clean-package deep-clean-package
 .PHONY: tools clean-tools deep-clean-tools
 .PHONY: clean-libexterns deep-clean-libexterns
 .PHONY: tests
 
 # dependencies tracking
--include $(filter %.d,$(STDOBJS:%.o=%.d))
--include $(filter %.d,$(HVLOGOBJS:%.o=%.d))
-
+-include $(filter %.d,$(OBJS:%.o=%.d))
 
 # 'make all' calculates the current checksum of all .h and .hpp files, storing the checksum in a file. Then it decides whether to run 'make clean' or 'make standard' based on whether any .h and .hpp files have been altered
 HEADER_CHECKSUM_FILE=.header_checksum
@@ -445,22 +431,19 @@ all:
 	duration=$$(awk "BEGIN {print $$end_time - $$start_time}"); \
 	printf "\033[97mCompiled in: %0.2f seconds\033[0m\n" $$duration;
 
-standard: CXXFLAGS += $(STLOGFLAGS)
-standard: CFLAGS += $(STLOGFLAGS)
 standard: std-before $(BIN) std-after
 
-heavylog: CXXFLAGS += $(HVLOGFLAGS)
-heavylog: CFLAGS += $(HVLOGFLAGS)
-heavylog: hvlog-before $(HVLOGBIN) hvlog-after
-
 # not nice but necessary for make -j to work
-FOLDERS = bin obj/std obj/hvlog \
-obj/std/ftests \
-obj/std/ftests/tests \
+FOLDERS = bin obj/std \
+obj/ftests \
+obj/ftests/tests \
 obj/tests obj/cu \
-obj/std/json obj/hvlog/json \
-obj/std/centitoml obj/hvlog/centitoml \
+obj/centijson \
+obj/centitoml \
 obj/enet \
+obj/libspng \
+obj/astronomy \
+obj/zlib \
 sdl/for_final_package
 
 $(shell $(MKDIR) $(FOLDERS))
@@ -469,7 +452,6 @@ $(shell $(MKDIR) $(FOLDERS))
 build-before: libexterns deps/zlib/configure.log
 
 std-before: build-before
-hvlog-before: build-before
 
 docs: docsdox
 
@@ -485,76 +467,65 @@ submodule:
 	-git submodule init && git submodule update
 
 clean-build:
-	-$(RM) $(STDOBJS) $(STD_MAIN_OBJ) $(filter %.d,$(STDOBJS:%.o=%.d)) $(filter %.d,$(STD_MAIN_OBJ:%.o=%.d))
-	-$(RM) $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(filter %.d,$(HVLOGOBJS:%.o=%.d)) $(filter %.d,$(HVLOG_MAIN_OBJ:%.o=%.d))
+	-$(RM) $(OBJS) $(filter %.d,$(OBJS:%.o=%.d))
 	-$(RM) $(BIN) $(BIN:%.exe=%.map)
 	-$(RM) $(BIN) $(BIN:%.exe=%.pdb)
-	-$(RM) $(HVLOGBIN) $(HVLOGBIN:%.exe=%.map)
-	-$(RM) $(HVLOGBIN) $(HVLOGBIN:%.exe=%.pdb)
 	-$(RM) bin/keeperfx.dll
 	-$(RM) $(LIBS) $(GENSRC)
 	-$(RM) res/*.ico
 	-$(RM) obj/keeperfx.*
 
-$(BIN): $(GENSRC) $(STDOBJS) $(STD_MAIN_OBJ) $(LIBS) std-before
+$(BIN): $(GENSRC) $(OBJS) $(LIBS) std-before
 	-$(ECHO) 'Building target: $@'
-	$(CPP) -o "$@" $(STDOBJS) $(STD_MAIN_OBJ) $(LDFLAGS)
+	$(CPP) -o "$@" $(OBJS) $(LDFLAGS)
 ifdef CV2PDB
 	$(CV2PDB) -C "$@"
 endif
 	-$(ECHO) ' '
 
-$(HVLOGBIN): $(GENSRC) $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(LIBS) hvlog-before
+$(TEST_BIN): $(GENSRC) $(OBJS) $(TESTS_OBJ) $(LIBS) $(CU_OBJS) std-before
 	-$(ECHO) 'Building target: $@'
-	$(CPP) -o "$@" $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(LDFLAGS)
-ifdef CV2PDB
-	$(CV2PDB) -C "$@"
-endif
-	-$(ECHO) ' '
-
-$(TEST_BIN): $(GENSRC) $(STDOBJS) $(TESTS_OBJ) $(LIBS) $(CU_OBJS) std-before
-	-$(ECHO) 'Building target: $@'
-	$(CPP) -o "$@" $(TESTS_OBJ) $(STDOBJS) $(CU_OBJS) $(LDFLAGS)
+	$(CPP) -o "$@" $(TESTS_OBJ) $(OBJS) $(CU_OBJS) $(LDFLAGS)
 ifdef CV2PDB
 	$(CV2PDB) -C "$@"
 endif
 
-obj/std/spng.o obj/hvlog/spng.o: deps/libspng/spng/spng.c deps/zlib/libz.a
+obj/libspng/spng.o: deps/libspng/spng/spng.c deps/zlib/libz.a
 	-$(ECHO) 'Building file: $<'
 	$(CC) $(CFLAGS) -I"deps/zlib" -I"deps/libspng/spng" -o"$@" "$<"
 	-$(ECHO) ' '
 
-obj/std/json/%.o obj/hvlog/json/%.o: deps/centijson/src/%.c
+obj/centijson/%.o: deps/centijson/src/%.c
 	-$(ECHO) 'Building file: $<'
 	$(CC) $(CFLAGS) -o"$@" "$<"
 	-$(ECHO) ' '
 
-obj/std/centitoml/toml_api.o obj/hvlog/centitoml/toml_api.o: deps/centitoml/toml_api.c build-before
+obj/centitoml/toml_api.o: deps/centitoml/toml_api.c build-before
 	-$(ECHO) 'Building file: $<'
 	$(CC) $(CFLAGS) -o"$@" "$<"
 	-$(ECHO) ' '
 
-obj/std/unzip.o obj/hvlog/unzip.o: deps/zlib/contrib/minizip/unzip.c
+obj/zlib/unzip.o: deps/zlib/contrib/minizip/unzip.c
 	-$(ECHO) 'Building file: $<'
 	$(CC) $(CFLAGS) -Wno-shadow -I"deps/zlib" -o"$@" "$<"
 	-$(ECHO) ' '
 
-obj/std/astronomy.o obj/hvlog/astronomy.o: deps/astronomy/astronomy.c
+obj/astronomy/astronomy.o: deps/astronomy/astronomy.c
 	-$(ECHO) 'Building file: $<'
 	$(CC) $(CFLAGS) -o"$@" "$<"
 	-$(ECHO) ' '
 
-obj/std/ioapi.o obj/hvlog/ioapi.o: deps/zlib/contrib/minizip/ioapi.c
+obj/zlib/ioapi.o: deps/zlib/contrib/minizip/ioapi.c
 	-$(ECHO) 'Building file: $<'
 	$(CC) $(CFLAGS) -I"deps/zlib" -o"$@" "$<"
 	-$(ECHO) ' '
 
-obj/std/lvl_filesdk1.o obj/hvlog/lvl_filesdk1.o: src/lvl_filesdk1.c deps/zlib/contrib/minizip/unzip.c $(GENSRC)
+obj/lvl_filesdk1.o: src/lvl_filesdk1.c deps/zlib/contrib/minizip/unzip.c $(GENSRC)
 	-$(ECHO) 'Building file: $<'
 	$(CC) $(CFLAGS) -I"deps/zlib" -I"deps/zlib/contrib/minizip" -o"$@" "$<"
 	-$(ECHO) ' '
 
-obj/std/custom_sprites.o obj/hvlog/custom_sprites.o: src/custom_sprites.c deps/zlib/contrib/minizip/unzip.c $(GENSRC)
+obj/custom_sprites.o: src/custom_sprites.c deps/zlib/contrib/minizip/unzip.c $(GENSRC)
 	-$(ECHO) 'Building file: $<'
 	$(CC) $(CFLAGS) -I"deps/libspng/spng" -I"deps/zlib" -I"deps/zlib/contrib/minizip" -o"$@" "$<"
 	-$(ECHO) ' '
@@ -570,14 +541,14 @@ obj/cu/%.o: $(CU_DIR)/Sources/Framework/%.c
 obj/cu/%.o: $(CU_DIR)/Sources/Basic/%.c
 	$(CPP) $(CXXFLAGS) $(CU_INC) -o"$@" "$<"
 
-obj/std/%.o obj/hvlog/%.o: src/%.cpp libexterns $(GENSRC)
+obj/%.o: src/%.cpp libexterns $(GENSRC)
 	-$(ECHO) 'Building file: $<'
 	@grep -E "#include \"(\.\./)?(\.\./)?pre_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"pre_inc.h\" as first include\n\n" >&2 | false
 	@grep -E "#include \"(\.\./)?(\.\./)?post_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"post_inc.h\" as last include\n\n" >&2 | false
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 	-$(ECHO) ' '
 
-obj/std/%.o obj/hvlog/%.o: src/%.c libexterns $(GENSRC)
+obj/%.o: src/%.c libexterns $(GENSRC)
 	-$(ECHO) 'Building file: $<'
 	@grep -E "#include \"(\.\./)?(\.\./)?pre_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"pre_inc.h\" as first include\n\n" >&2 | false
 	@grep -E "#include \"(\.\./)?(\.\./)?post_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"post_inc.h\" as last include\n\n" >&2 | false
@@ -585,7 +556,7 @@ obj/std/%.o obj/hvlog/%.o: src/%.c libexterns $(GENSRC)
 	-$(ECHO) ' '
 
 # Windows resources compilation
-obj/std/%.res obj/hvlog/%.res: res/%.rc res/keeperfx_icon.ico $(GENSRC)
+obj/%.res: res/%.rc res/keeperfx_icon.ico $(GENSRC)
 	-$(ECHO) 'Building resource: $<'
 	$(WINDRES) -i "$<" --input-format=rc -o "$@" -O coff
 	-$(ECHO) ' '

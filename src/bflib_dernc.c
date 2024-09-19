@@ -454,28 +454,20 @@ long LbFileLengthRnc(const char *fname)
     TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
     if ( handle == -1 )
         return -1;
-#if (BFDEBUG_LEVEL > 19)
-    LbSyncLog("%s: file opened\n", fname);
-#endif
+    LbDebugLog("%s: file opened\n", fname);
     rnc_header header;
     if (LbFileRead(handle, &header, sizeof(header)) == -1)
     {
-#if (BFDEBUG_LEVEL > 19)
-        LbSyncLog("%s: cannot read even %d bytes\n", fname, sizeof(header));
-#endif
+        LbDebugLog("%s: cannot read even %d bytes\n", fname, sizeof(header));
         LbFileClose(handle);
         return -1;
     }
     if (header.signature == RNC_SIGNATURE)
     {
-#if (BFDEBUG_LEVEL > 19)
-        LbSyncLog("%s: file size from RNC header: %ld bytes\n", fname, header.packed_size);
-#endif
+        LbDebugLog("%s: file size from RNC header: %ld bytes\n", fname, header.packed_size);
         flength = ntohl(header.unpacked_size);
     } else {
-#if (BFDEBUG_LEVEL > 19)
-        LbSyncLog("%s: file is not RNC\n", fname);
-#endif
+        LbDebugLog("%s: file is not RNC\n", fname);
         flength = LbFileLengthHandle(handle);
     }
     LbFileClose(handle);

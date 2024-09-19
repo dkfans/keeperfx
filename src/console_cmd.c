@@ -1857,6 +1857,122 @@ TbBool cmd_speech_test(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
+int str_to_log_chan(const char * input)
+{
+    struct LogChanNames {
+        const char * name;
+        int chan;
+    };
+    static const struct LogChanNames chans[] = {
+        { "general", LOG_GENERAL },
+        { "net", LOG_NET },
+        { "ai", LOG_AI },
+        { "nav", LOG_NAV },
+        { "test", LOG_TEST },
+        { "script", LOG_SCRIPT },
+        { "config", LOG_CONFIG },
+        { "all", INT_MAX },
+    };
+    if (input == NULL) {
+        return -1;
+    }
+    for (int i = 0; i < sizeof(chans) / sizeof(*chans); ++i) {
+        if (strcasecmp(chans[i].name, input) == 0) {
+            return chans[i].chan;
+        }
+    }
+    return -1;
+}
+
+int str_to_log_level(const char * input)
+{
+    struct LogLevelNames {
+        const char * name;
+        int level;
+    };
+    static const struct LogLevelNames levels[] = {
+        { "debug", LOG_DEBUG },
+        { "info", LOG_INFO },
+        { "warning", LOG_WARNING },
+        { "error", LOG_ERROR },
+        { "off", LOG_OFF },
+    };
+    if (input == NULL) {
+        return -1;
+    }
+    for (int i = 0; i < sizeof(levels) / sizeof(*levels); ++i) {
+        if (strcasecmp(levels[i].name, input) == 0) {
+            return levels[i].level;
+        }
+    }
+    return -1;
+}
+
+const char * log_chan_to_str(int input) {
+    static const char * chans[] = {
+        "General",
+        "Networking",
+        "AI",
+        "Navigation",
+        "Test",
+        "Script",
+        "Config",
+    };
+    if (input < 0 || input >= sizeof(chans) / sizeof(*chans)) {
+        return "Unknown";
+    }
+    return chans[input];
+}
+
+const char * log_level_to_str(int input) {
+    static const char * levels[] = {
+        "debug",
+        "info",
+        "warning",
+        "error",
+        "off",
+    };
+    if (input < 0 || input >= sizeof(levels) / sizeof(*levels)) {
+        return "unknown";
+    }
+    return levels[input];
+}
+
+TbBool cmd_set_log_level(PlayerNumber plyr_idx, char * args)
+{
+    static const int chans[] = {
+        LOG_GENERAL,
+        LOG_NET,
+        LOG_AI,
+        LOG_NAV,
+        LOG_TEST,
+        LOG_SCRIPT,
+        LOG_CONFIG,
+    };
+    char * pr2str = strsep(&args, " ");
+    const int chan = str_to_log_chan(pr2str);
+    if (chan < 0) {
+        return false;
+    }
+    char * pr3str = strsep(&args, " ");
+    const int level = str_to_log_level(pr3str);
+    if (level < 0) {
+        return false;
+    }
+    if (chan == INT_MAX) {
+        for (int i = 0; i < sizeof(chans) / sizeof(*chans); ++i) {
+            LbSetLogLevel(chans[i], level);
+            targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY,
+                "%s log level set to %s", log_chan_to_str(chans[i]), log_level_to_str(level));
+        }
+    } else {
+        LbSetLogLevel(chan, level);
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY,
+            "%s log level set to %s", log_chan_to_str(chan), log_level_to_str(level));
+    }
+    return true;
+}
+
 TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
 {
     struct ConsoleCommand {
@@ -1956,6 +2072,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
         { "herogate.zoomto", cmd_zoom_to_hero_gate },
         { "sound.test", cmd_sound_test },
         { "speech.test", cmd_speech_test },
+        { "log", cmd_set_log_level },
     };
     SYNCDBG(2, "Command %d: %s",(int)plyr_idx, args);
     const char * command = strsep(&args, " ");

@@ -56,11 +56,6 @@
 
 #include "version.h"
 
-#ifndef BFDEBUG_LEVEL
-#error "BFDEBUG_LEVEL should be defined in version.h"
-#define BFDEBUG_LEVEL 0
-#endif
-
 #ifdef __cplusplus
 #include <algorithm>
 using std::min;
@@ -106,28 +101,31 @@ extern "C" {
 //    these are defined in errno.h
 #define ERR_BASE_RNC      -90
 
-// Debug fuction-like macros - for free messages
-#define ERRORMSG(format, ...) LbErrorLog(format "\n", ##__VA_ARGS__)
-#define WARNMSG(format, ...) LbWarnLog(format "\n", ##__VA_ARGS__)
-#define SYNCMSG(format, ...) LbSyncLog(format "\n", ##__VA_ARGS__)
-#define JUSTMSG(format, ...) LbJustLog(format "\n", ##__VA_ARGS__)
-#define SCRPTMSG(format, ...) LbScriptLog(format "\n", ##__VA_ARGS__)
-#define NETMSG(format, ...) LbNetLog(format "\n", ##__VA_ARGS__)
-#define NOMSG(format, ...)
-
-// Debug function-like macros - for code logging (with function name)
-#define ERRORLOG(format, ...) LbErrorLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
-#define WARNLOG(format, ...) LbWarnLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
-#define SYNCLOG(format, ...) LbSyncLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
-#define JUSTLOG(format, ...) LbJustLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
-#define SCRPTLOG(format, ...) LbScriptLog(text_line_number,"%s: " format "\n", __func__ , ##__VA_ARGS__)
-#define SCRPTERRLOG(format, ...) LbErrorLog("%s(line %lu): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
-#define SCRPTWRNLOG(format, ...) LbWarnLog("%s(line %lu): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
-#define CONFLOG(format, ...) LbConfigLog(text_line_number,"%s: " format "\n", __func__ , ##__VA_ARGS__)
-#define CONFERRLOG(format, ...) LbErrorLog("%s(line %lu): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
-#define CONFWRNLOG(format, ...) LbWarnLog("%s(line %lu): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
-#define NETLOG(format, ...) LbNetLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
-#define NOLOG(format, ...)
+// Various macros to simplify logging
+#define ERRORMSG(format, ...) LbLog(LOG_GENERAL, LOG_ERROR, "[%d] %s:%d %s: Error: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define WARNMSG(format, ...) LbLog(LOG_GENERAL, LOG_WARNING, "[%d] %s:%d %s: Warning: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define SYNCMSG(format, ...) LbLog(LOG_GENERAL, LOG_INFO, "[%d] %s:%d %s: Info: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define JUSTMSG(format, ...) LbLog(LOG_GENERAL, LOG_INFO, "[%d] %s:%d %s: Info: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define SCRPTMSG(format, ...) LbLog(LOG_SCRIPT, LOG_INFO, "[%d] %s:%d %s: Info: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define NETMSG(format, ...) LbLog(LOG_NET, LOG_INFO, "[%d] %s:%d %s: Info: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define ERRORLOG(format, ...) LbLog(LOG_GENERAL, LOG_ERROR, "[%d] %s:%d %s: Error: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define WARNLOG(format, ...) LbLog(LOG_GENERAL, LOG_WARNING, "[%d] %s:%d %s: Warning: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define SYNCLOG(format, ...) LbLog(LOG_GENERAL, LOG_INFO, "[%d] %s:%d %s: Info: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define JUSTLOG(format, ...) LbLog(LOG_GENERAL, LOG_INFO, "[%d] %s:%d %s: Info: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define SCRPTLOG(format, ...) LbLog(LOG_SCRIPT, LOG_INFO, "[%d] %s:%d %s (line %lu): Info: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, text_line_number, ##__VA_ARGS__)
+#define SCRPTERRLOG(format, ...) LbLog(LOG_SCRIPT, LOG_ERROR, "[%d] %s:%d %s (line %lu): Error: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, text_line_number, ##__VA_ARGS__)
+#define SCRPTWRNLOG(format, ...) LbLog(LOG_SCRIPT, LOG_WARNING, "[%d] %s:%d %s (line %lu): Warning: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, text_line_number, ##__VA_ARGS__)
+#define CONFLOG(format, ...) LbLog(LOG_CONFIG, LOG_INFO, "[%d] %s:%d %s (line %lu): Info: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, text_line_number, ##__VA_ARGS__)
+#define CONFERRLOG(format, ...) LbLog(LOG_CONFIG, LOG_ERROR, "[%d] %s:%d %s (line %lu): Error: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, text_line_number, ##__VA_ARGS__)
+#define CONFWRNLOG(format, ...) LbLog(LOG_CONFIG, LOG_WARNING, "[%d] %s:%d %s (line %lu): Warning: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, text_line_number, ##__VA_ARGS__)
+#define NETLOG(format, ...) LbLog(LOG_NET, LOG_INFO, "[%d] %s:%d %s: Info: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define SYNCDBG(dblv, format, ...) LbLog(LOG_GENERAL, LOG_DEBUG, "[%d] %s:%d %s: Debug: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define WARNDBG(dblv, format, ...) LbLog(LOG_GENERAL, LOG_DEBUG, "[%d] %s:%d %s: Debug: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define ERRORDBG(dblv, format, ...) LbLog(LOG_GENERAL, LOG_DEBUG, "[%d] %s:%d %s: Debug: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define NAVIDBG(dblv, format, ...) LbLog(LOG_NAV, LOG_DEBUG, "[%d] %s:%d %s: Debug: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define NETDBG(dblv, format, ...) LbLog(LOG_NET, LOG_DEBUG, "[%d] %s:%d %s: Debug: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define SCRIPTDBG(dblv, format, ...) LbLog(LOG_SCRIPT, LOG_DEBUG, "[%d] %s:%d %s (line %lu): Debug: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, text_line_number, ##__VA_ARGS__)
+#define AIDBG(dblv, format, ...) LbLog(LOG_AI, LOG_DEBUG, "[%d] %s:%d %s: Debug: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
 
 // Debug function-like macros - for dialogs windows
 #define WARNING_DIALOG(out_result, format, ...) { \
@@ -135,39 +133,6 @@ extern "C" {
   Lbvsprintf(buffer, format, ##__VA_ARGS__); \
   (*(&out_result)) = warning_dialog(__func__, 0, buffer); \
 }
-
-// Debug function-like macros - for debug code logging
-#if (BFDEBUG_LEVEL > 0)
-  #define SYNCDBG(dblv,format, ...) {\
-    if (BFDEBUG_LEVEL > dblv)\
-      LbSyncLog("%s: " format "\n", __func__ , ##__VA_ARGS__); }
-  #define WARNDBG(dblv,format, ...) {\
-    if (BFDEBUG_LEVEL > dblv)\
-      LbWarnLog("%s: " format "\n", __func__ , ##__VA_ARGS__); }
-  #define ERRORDBG(dblv,format, ...) {\
-    if (BFDEBUG_LEVEL > dblv)\
-      LbErrorLog("%s: " format "\n", __func__ , ##__VA_ARGS__); }
-  #define NAVIDBG(dblv,format, ...) {\
-    if (BFDEBUG_LEVEL > dblv)\
-      LbNaviLog("%s: " format "\n", __func__ , ##__VA_ARGS__); }
-  #define NETDBG(dblv,format, ...) {\
-    if (BFDEBUG_LEVEL > dblv)\
-      LbNetLog("%s: " format "\n", __func__ , ##__VA_ARGS__); }
-  #define SCRIPTDBG(dblv,format, ...) {\
-    if (BFDEBUG_LEVEL > dblv)\
-      LbScriptLog(text_line_number,"%s: " format "\n", __func__ , ##__VA_ARGS__); }
-  #define AIDBG(dblv,format, ...) {\
-    if (BFDEBUG_LEVEL > dblv)\
-      LbAiLog("%s: " format "\n", __func__ , ##__VA_ARGS__); }
-#else
-  #define SYNCDBG(dblv,format, ...)
-  #define WARNDBG(dblv,format, ...)
-  #define ERRORDBG(dblv,format, ...)
-  #define NAVIDBG(dblv,format, ...)
-  #define NETDBG(dblv,format, ...)
-  #define SCRIPTDBG(dblv,format, ...)
-  #define AIDBG(dblv,format, ...)
-#endif
 
 #define MAX_TILES_X 170
 #define MAX_TILES_Y 170

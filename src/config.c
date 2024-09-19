@@ -764,11 +764,9 @@ const char *get_current_language_str(void)
  */
 const char *get_language_lwrstr(int lang_id)
 {
-    const char* src = get_conf_parameter_text(lang_type, lang_id);
-#if (BFDEBUG_LEVEL > 0)
+  const char* src = get_conf_parameter_text(lang_type, lang_id);
   if (strlen(src) != 3)
-      WARNLOG("Bad text code for language index %d",(int)lang_id);
-#endif
+    WARNLOG("Bad text code for language index %d", (int)lang_id);
   static char lang_str[4];
   snprintf(lang_str, 4, "%s", src);
   make_lowercase(lang_str);

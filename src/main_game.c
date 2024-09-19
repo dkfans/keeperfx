@@ -280,7 +280,6 @@ void startup_saved_packet_game(void)
     set_selected_level_number(game.packet_save_head.level_num);
     lbDisplay.DrawColour = colours[15][15][15];
     game.pckt_gameturn = 0;
-#if (BFDEBUG_LEVEL > 0)
     SYNCDBG(0,"Initialising level %d", (int)get_selected_level_number());
     SYNCMSG("Packet Loading Active (File contains %d turns)", game.turns_stored);
     SYNCMSG("Packet Checksum Verification %s",game.packet_checksum_verify ? "Enabled" : "Disabled");
@@ -294,7 +293,6 @@ void startup_saved_packet_game(void)
     }
     SYNCMSG("Packet file prepared on KeeperFX %d.%d.%d.%d",(int)game.packet_save_head.game_ver_major,(int)game.packet_save_head.game_ver_minor,
         (int)game.packet_save_head.game_ver_release,(int)game.packet_save_head.game_ver_build);
-#endif
     if ((game.packet_save_head.game_ver_major != VER_MAJOR) || (game.packet_save_head.game_ver_minor != VER_MINOR)
         || (game.packet_save_head.game_ver_release != VER_RELEASE) || (game.packet_save_head.game_ver_build != VER_BUILD)) {
         WARNLOG("Packet file was created with different version of the game; this rarely works");

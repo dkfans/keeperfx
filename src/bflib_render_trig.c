@@ -284,7 +284,7 @@ static inline int trig_ll_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
         if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+            SYNCDBG(10, "skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
         tlr->var_44 = eH;
@@ -385,7 +385,7 @@ static inline int trig_ll_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         eX_overflow = __OFSUBL__(wX, -dX);
         eX = wX + dX;
         if ((eX < 0) ^ eX_overflow) {
-            NOLOG("skip due to sum %ld %ld", (long)wX, (long)dX);
+            SYNCDBG(10, "skip due to sum %ld %ld", (long)wX, (long)dX);
             return 0;
         }
         if (eX != 0) {
@@ -407,7 +407,7 @@ static inline int trig_ll_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
         if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+            SYNCDBG(10, "skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
         tlr->var_44 = eH;
@@ -512,7 +512,7 @@ static inline int trig_ll_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         eX_overflow = __OFSUBL__(wX, -dX);
         eX = wX + dX;
         if ((eX < 0) ^ eX_overflow) {
-            NOLOG("skip due to sum %ld %ld", (long)wX, (long)dX);
+            SYNCDBG(10, "skip due to sum %ld %ld", (long)wX, (long)dX);
             return 0;
         }
         if (eX != 0) {
@@ -539,7 +539,7 @@ static inline int trig_ll_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
         if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+            SYNCDBG(10, "skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
         tlr->var_44 = eH;
@@ -650,7 +650,7 @@ static inline int trig_ll_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         eX_overflow = __OFSUBL__(wX, -dX);
         eX = wX + dX;
         if ((eX < 0) ^ eX_overflow) {
-            NOLOG("skip due to sum %ld %ld", (long)wX, (long)dX);
+            SYNCDBG(10, "skip due to sum %ld %ld", (long)wX, (long)dX);
             return 0;
         }
         if (eX != 0)
@@ -684,7 +684,7 @@ static inline int trig_ll_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
         if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+            SYNCDBG(10, "skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
         tlr->var_44 = eH;
@@ -794,7 +794,7 @@ int trig_ll_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
       tlr->var_24 = poly_screen + vec_screen_width * opt_a->Y;
       tlp->var_8A = 0;
     } else {
-        NOLOG("height %ld exceeded by opt_a Y %ld", (long)vec_window_height, (long)opt_a->Y);
+        SYNCDBG(10, "height %ld exceeded by opt_a Y %ld", (long)vec_window_height, (long)opt_a->Y);
         return 0;
     }
 
@@ -810,7 +810,7 @@ int trig_ll_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
     tlp->var_28 = (dX << 16) / tlp->trig_height_top;
     dX = opt_b->X - opt_a->X;
     if ((dX << 16) / dY <= tlp->var_28) {
-        NOLOG("value (%ld << 16) / %ld below min %ld", (long)dX, (long)dY, (long)tlp->var_28);
+        SYNCDBG(10, "value (%ld << 16) / %ld below min %ld", (long)dX, (long)dY, (long)tlp->var_28);
         return 0;
     }
     tlp->var_2C = (dX << 16) / dY;
@@ -883,7 +883,7 @@ static inline int trig_rl_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
         if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+            SYNCDBG(10, "skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
         tlr->var_44 = eH;
@@ -980,7 +980,7 @@ static inline int trig_rl_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         eX_overflow = __OFSUBL__(wXb, -dXa);
         eX = wXb + dXa;
         if ((eX < 0) ^ eX_overflow) {
-            NOLOG("skip due to sum %ld %ld", (long)wXb, (long)dXa);
+            SYNCDBG(10, "skip due to sum %ld %ld", (long)wXb, (long)dXa);
             return 0;
         }
         if (eX != 0) {
@@ -1003,7 +1003,7 @@ static inline int trig_rl_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
         if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+            SYNCDBG(10, "skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
         tlr->var_44 = eH;
@@ -1109,7 +1109,7 @@ static inline int trig_rl_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         eX_overflow = __OFSUBL__(wXb, -dXa);
         eX = wXb + dXa;
         if ((eX < 0) ^ eX_overflow) {
-            NOLOG("skip due to sum %ld %ld", (long)wXb, (long)dXa);
+            SYNCDBG(10, "skip due to sum %ld %ld", (long)wXb, (long)dXa);
             return 0;
         }
         if (eX != 0) {
@@ -1139,7 +1139,7 @@ static inline int trig_rl_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
         if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+            SYNCDBG(10, "skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
         tlr->var_44 = eH;
@@ -1249,7 +1249,7 @@ static inline int trig_rl_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         eX_overflow = __OFSUBL__(wXb, -dXa);
         eX = wXb + dXa;
         if ((eX < 0) ^ eX_overflow) {
-            NOLOG("skip due to sum %ld %ld", (long)wXb, (long)dXa);
+            SYNCDBG(10, "skip due to sum %ld %ld", (long)wXb, (long)dXa);
             return 0;
         }
         tlr->var_60 = wXb;
@@ -1286,7 +1286,7 @@ static inline int trig_rl_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
         if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+            SYNCDBG(10, "skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
         tlr->var_44 = eH;
@@ -1395,7 +1395,7 @@ int trig_rl_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
       tlr->var_24 = poly_screen + vec_screen_width * opt_a->Y;
       tlp->var_8A = 0;
     } else  {
-        NOLOG("height %ld exceeded by opt_a Y %ld", (long)vec_window_height, (long)opt_a->Y);
+        SYNCDBG(10, "height %ld exceeded by opt_a Y %ld", (long)vec_window_height, (long)opt_a->Y);
         return 0;
     }
 
@@ -1411,7 +1411,7 @@ int trig_rl_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
     tlp->var_28 = (dX << 16) / tlp->trig_height_top;
     dX = opt_b->X - opt_a->X;
     if ((dX << 16) / dY <= tlp->var_28) {
-        NOLOG("value (%ld << 16) / %ld below min %ld", (long)dX, (long)dY, (long)tlp->var_28);
+        SYNCDBG(10, "value (%ld << 16) / %ld below min %ld", (long)dX, (long)dY, (long)tlp->var_28);
         return 0;
     }
     tlp->var_2C = (dX << 16) / dY;
@@ -1482,7 +1482,7 @@ static inline int trig_fb_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
         if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+            SYNCDBG(10, "skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
         tlr->var_44 = eH;
@@ -1538,7 +1538,7 @@ static inline int trig_fb_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
         if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+            SYNCDBG(10, "skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
         tlr->var_44 = eH;
@@ -1600,7 +1600,7 @@ static inline int trig_fb_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
         if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+            SYNCDBG(10, "skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
         tlr->var_44 = eH;
@@ -1668,7 +1668,7 @@ static inline int trig_fb_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
         if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+            SYNCDBG(10, "skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
         tlr->var_44 = eH;
@@ -1722,7 +1722,7 @@ int trig_fb_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
         tlr->var_24 = poly_screen + vec_screen_width * opt_a->Y;
         tlp->var_8A = 0;
     } else {
-        NOLOG("height %ld exceeded by opt_a Y %ld", (long)vec_window_height, (long)opt_a->Y);
+        SYNCDBG(10, "height %ld exceeded by opt_a Y %ld", (long)vec_window_height, (long)opt_a->Y);
         return 0;
     }
     tlp->hide_bottom_part = opt_c->Y > vec_window_height;
@@ -1794,7 +1794,7 @@ static inline int trig_ft_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
         if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+            SYNCDBG(10, "skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
         tlr->var_44 = eH;
@@ -1850,7 +1850,7 @@ static inline int trig_ft_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
         if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+            SYNCDBG(10, "skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
         tlr->var_44 = eH;
@@ -1911,7 +1911,7 @@ static inline int trig_ft_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
         if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+            SYNCDBG(10, "skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
         tlr->var_44 = eH;
@@ -1979,7 +1979,7 @@ static inline int trig_ft_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
         if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
+            SYNCDBG(10, "skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
         tlr->var_44 = eH;
@@ -2033,7 +2033,7 @@ int trig_ft_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
       tlr->var_24 = poly_screen + vec_screen_width * opt_a->Y;
       tlp->var_8A = 0;
     } else {
-        NOLOG("height %ld exceeded by opt_a Y %ld", (long)vec_window_height, (long)opt_a->Y);
+        SYNCDBG(10, "height %ld exceeded by opt_a Y %ld", (long)vec_window_height, (long)opt_a->Y);
         return 0;
     }
     tlp->hide_bottom_part = opt_c->Y > vec_window_height;
@@ -4397,16 +4397,16 @@ void trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint
     struct TrigLocalPrep tlp;
     struct TrigLocalRend tlr;
 
-    NOLOG("Pa(%ld,%ld,%ld)", point_a->X, point_a->Y, point_a->S);
-    NOLOG("Pb(%ld,%ld,%ld)", point_b->X, point_b->Y, point_b->S);
-    NOLOG("Pc(%ld,%ld,%ld)", point_c->X, point_c->Y, point_c->S);
+    SYNCDBG(10, "Pa(%ld,%ld,%ld)", point_a->X, point_a->Y, point_a->S);
+    SYNCDBG(10, "Pb(%ld,%ld,%ld)", point_b->X, point_b->Y, point_b->S);
+    SYNCDBG(10, "Pc(%ld,%ld,%ld)", point_c->X, point_c->Y, point_c->S);
 
     opt_a = point_a;
     opt_b = point_b;
     opt_c = point_c;
     start_type = trig_reorder_input_points(&opt_a, &opt_b, &opt_c);
 
-    NOLOG("start type %d",(int)start_type);
+    SYNCDBG(10, "start type %d",(int)start_type);
 
     switch (start_type)
     {
@@ -4434,7 +4434,7 @@ void trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint
         return;
     }
 
-    NOLOG("render mode %d",(int)vec_mode);
+    SYNCDBG(10, "render mode %d",(int)vec_mode);
 
     switch (vec_mode)
     {
@@ -4547,6 +4547,6 @@ void trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint
         break;
     }
 
-    NOLOG("end");
+    SYNCDBG(10, "end");
 }
 /******************************************************************************/

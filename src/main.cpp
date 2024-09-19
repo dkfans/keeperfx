@@ -2783,11 +2783,9 @@ void update(void)
         PaletteFadePlayer(player);
         process_armageddon();
         update_global_lighting();
-#if (BFDEBUG_LEVEL > 9)
         lights_stats_debug_dump();
         things_stats_debug_dump();
         creature_stats_debug_dump();
-#endif
     }
 
     message_update();
@@ -3937,8 +3935,6 @@ short process_command_line(unsigned short argc, char *argv[])
 
   AssignCpuKeepers = 0;
   SoundDisabled = 0;
-  // Note: the working log file is set up in LbBullfrogMain
-  LbErrorLogSetup(0, 0, 1);
 
   set_default_startup_parameters();
 
@@ -4224,12 +4220,14 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
 {
     short retval;
     retval=0;
-    LbErrorLogSetup("/", log_file_name, 5);
+    if (!LbLogOpen(log_file_name)) {
+        return 0;
+    }
 
     retval = process_command_line(argc,argv);
     if (retval < 1)
     {
-        LbErrorLogClose();
+        LbLogClose();
         return 0;
     }
 
@@ -4252,7 +4250,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     {
         static const char *msg_text="Basic engine initialization failed.\n";
         error_dialog_fatal(__func__, 1, msg_text);
-        LbErrorLogClose();
+        LbLogClose();
         return 0;
     }
 
@@ -4311,9 +4309,9 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
         SYNCDBG(0,"finished properly");
     }
 
-    LbErrorLogClose();
     steam_api_shutdown();
     unload_miles_sound_system();
+    LbLogClose();
     return 0;
 }
 
@@ -4368,7 +4366,7 @@ LONG __stdcall Vex_handler(
 )
 {
     LbJustLog("=== Crash ===\n");
-    LbCloseLog();
+    LbLogClose();
     return 0;
 }
 

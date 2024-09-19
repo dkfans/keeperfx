@@ -983,26 +983,6 @@ static void compress_raw(struct TbHugeSprite *sprite, unsigned char *inp_buf, in
     }
 }
 
-#if BFDEBUG_LEVEL > 0
-struct StrBuf
-{
-    char *ptr;
-    size_t size;
-};
-#endif
-
-#if BFDEBUG_LEVEL > 10
-static int dump_callback(const char *str, size_t size, void *user_data)
-{
-    struct StrBuf *buf = user_data;
-    buf->ptr = realloc(buf->ptr, buf->size + size + 1);
-    memcpy(buf->ptr + buf->size, str, size);
-    buf->size += size;
-    buf->ptr[buf->size] = 0;
-    return 0;
-}
-#endif
-
 /**
  * Collect sprites from zipfile with specific blender_scene
  * @param zip - opened zip file
@@ -1046,13 +1026,6 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
         }
     }
 
-#if BFDEBUG_LEVEL > 10
-    struct StrBuf buf = {0, 0};
-
-    json_dom_dump(node, &dump_callback, &buf, 2, 0);
-
-    fprintf(stderr, "%s", buf.ptr);
-#endif
     context->rotatable = (value_bool(value_dict_get(node, "rotatable")) > 0);
 
     int prev_sz;
