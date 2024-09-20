@@ -141,7 +141,7 @@ long creature_will_sleep(struct Thing *thing)
  * only if drag_to_lair rule in activated
  * 
  * @param thing special digger who drag the creature
- * @return @return returns 1 if creature successfully arrived at its lair and woke up
+ * @return returns 1 if creature successfully arrived at its lair and woke up
  */
 short creature_drop_unconscious_in_lair(struct Thing *thing)
 {
