@@ -372,14 +372,19 @@ long compute_creature_max_dexterity(long base_param,unsigned short crlevel)
  */
 long compute_creature_max_strength(long base_param,unsigned short crlevel)
 {
-  if (base_param <= 0)
-      return 0;
-  if (base_param > 60000)
+    if (base_param <= 0)
+        return 0;
+    if (base_param > 60000)
         base_param = 60000;
-  if (crlevel >= CREATURE_MAX_LEVEL)
-    crlevel = CREATURE_MAX_LEVEL-1;
-  long max_param = base_param + (game.conf.crtr_conf.exp.strength_increase_on_exp * base_param * (long)crlevel) / 100;
-  return saturate_set_unsigned(max_param, 15);
+    if (crlevel >= CREATURE_MAX_LEVEL)
+        crlevel = CREATURE_MAX_LEVEL-1;
+    long max_param = base_param + (game.conf.crtr_conf.exp.strength_increase_on_exp * base_param * (long)crlevel) / 100;
+    long strength = saturate_set_unsigned(max_param, 15);
+    if (flag_is_set(game.conf.rules.game.classic_bugs_flags, ClscBug_Overflow8bitVal))
+    {
+        return min(strength, UCHAR_MAX);
+    }
+    return strength;
 }
 
 /**
