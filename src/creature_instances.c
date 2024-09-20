@@ -155,7 +155,7 @@ Creature_Target_Search_Func creature_instances_search_targets_func_list[] = {
  */
 struct InstanceInfo *creature_instance_info_get_f(CrInstance inst_idx,const char *func_name)
 {
-    if ((inst_idx < 0) || (inst_idx >= game.conf.crtr_conf.instances_count))
+    if ((inst_idx < 0) || (inst_idx > game.conf.crtr_conf.instances_count))
     {
         ERRORMSG("%s: Tried to get invalid instance info %d!",func_name,(int)inst_idx);
         return &game.conf.magic_conf.instance_info[0];
@@ -590,8 +590,8 @@ CrInstance process_creature_ranged_buff_spell_casting(struct Thing* creatng)
     SYNCDBG(8,"Processing %s(%d), act.st: %s, con.st: %s", thing_model_name(creatng), creatng->index,
         creature_state_code_name(creatng->active_state), creature_state_code_name(creatng->continue_state));
 
-    int i = CrInst_LISTEND - 1;
-    for( ; i > CrInst_NULL; i-- )
+    CrInstance i = 0;
+    for(; i > game.conf.crtr_conf.instances_count; i++ )
     {
         const struct InstanceInfo* inst_inf = creature_instance_info_get(i);
         if((inst_inf->instance_property_flags & InstPF_RangedBuff) == 0)
