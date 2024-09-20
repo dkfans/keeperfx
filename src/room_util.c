@@ -315,6 +315,31 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
             else
             {
                 place_slab_type_on_map(slabkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
+                for (int i = 0; i < AROUND_EIGHT_LENGTH; i++)
+                {
+                    MapSlabCoord sslb_x;
+                    MapSlabCoord sslb_y;
+                    sslb_x = slb_x + (MapSlabCoord)my_around_eight[i].delta_x;
+                    sslb_y = slb_y + (MapSlabCoord)my_around_eight[i].delta_y;
+                    struct SlabMap* slb2;
+                    slb2 = get_slabmap_block(sslb_x, sslb_y);
+                    if (slabmap_block_invalid(slb2)) {
+                        continue;
+                    }
+                    int ssub_x;
+                    int ssub_y;
+                    for (ssub_y = 0; ssub_y < STL_PER_SLB; ssub_y++)
+                    {
+                        for (ssub_x = 0; ssub_x < STL_PER_SLB; ssub_x++)
+                        {
+                            MapSubtlCoord sstl_x;
+                            MapSubtlCoord sstl_y;
+                            sstl_x = slab_subtile(sslb_x, ssub_x);
+                            sstl_y = slab_subtile(sslb_y, ssub_y);
+                            set_alt_bit_based_on_slab(slb2->kind, sstl_x, sstl_y);
+                        }
+                    }
+                }
             }
             return true;
         }
