@@ -134,7 +134,14 @@ long creature_will_sleep(struct Thing *thing)
     return (abs(dist_x) < 1) && (abs(dist_y) < 1);
 }
 
-
+/**
+ * @brief special digger drop unconscious creatures in their lair
+ * 
+ * only if drag_to_lair rule in activated
+ * 
+ * @param thing special digger who drag the creature
+ * @return @return returns 1 if creature successfully arrived at its lair and woke up
+ */
 short creature_drop_unconscious_in_lair(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -150,13 +157,19 @@ short creature_drop_unconscious_in_lair(struct Thing *thing)
         return 0;
     }
     struct Room* room = get_room_thing_is_on(thing);
-    if ((room_is_invalid(room) || room->owner != dragtng->owner))
+    if (room_is_invalid(room) || room->owner != dragtng->owner)
     {
         set_start_state(thing);
         return 0;
     }
-    make_creature_conscious(dragtng);
+    struct Thing* totemtng = find_lair_totem_at(dragtng->mappos.x.stl.pos, dragtng->mappos.y.stl.pos);
     struct CreatureControl* dragctrl = creature_control_get_from_thing(dragtng);
+    if ((totemtng->index > 0) || (totemtng->index != dragctrl->lairtng_idx))
+    {
+        creature_drop_dragged_object(thing, dragtng);
+        return 0;
+    }
+    make_creature_conscious(dragtng);
     // if the creature already has a lair here it's going to sleep
     if (dragctrl->lair_room_id == room->index)
     {
@@ -167,7 +180,7 @@ short creature_drop_unconscious_in_lair(struct Thing *thing)
     {
         initialise_thing_state(dragtng, CrSt_CreatureAtNewLair);
     }
-    dragctrl->flgfield_1 |= CCFlg_NoCompControl;
+    set_flag(dragctrl->flgfield_1,CCFlg_NoCompControl);
     set_start_state(thing);
     return 1;
 

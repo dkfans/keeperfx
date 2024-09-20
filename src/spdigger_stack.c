@@ -1841,8 +1841,15 @@ int add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, int m
     return (max_tasks-remain_num);
 }
 
-//add task to save unconscious_creature to imp_stack
-//only if drag_to_lair rule in activated
+/**
+ * @brief Adds tasks to save unconscious creatures to the imp stack.
+ * 
+ * only if drag_to_lair rule in activated
+ *  
+ * @param dungeon The player's dungeon where the imp stack is updated.
+ * @param max_tasks The maximum number of tasks to add to the imp stack.
+ * @return The number of tasks actually added to the imp stack.
+ */
 int add_unsaved_unconscious_creature_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
 {
     struct Thing *thing = NULL;
@@ -1890,7 +1897,7 @@ int add_unsaved_unconscious_creature_to_imp_stack(struct Dungeon *dungeon, int m
                 }
                 else if ((game.conf.rules.workers.drag_to_lair == 2))
                 {
-                    //// if the creature doesn't have and doesn't need a lair 
+                    // if the creature doesn't have and doesn't need a lair 
                     if (room_is_invalid(room) && !creature_can_do_healing_sleep(thing))
                     {
                         //skip thing
@@ -3025,8 +3032,20 @@ long check_out_worker_pickup_unconscious(struct Thing *thing, struct DiggerStack
     return 1;
 }
 
-// special diggers save unconscious Creatures 
-// only if drag_to_lair rule is activated
+/**
+ * @brief Assigns a special diggers to save an unconscious creature if possible.
+ * 
+ * only if drag_to_lair rule in activated
+ * 
+ * @param thing The special diggers creature attempting to perform the task.
+ * @param dstack The digger stack task containing the task type and target coordinates.
+ * @return 
+ * - 1 if special diggers was successfully assigned the task.
+ * 
+ * - 0 if special diggers cannot perform the task now but the task remains in the stack.
+ * 
+ * - -1 if task is invalid and should be removed from the stack.
+ */
 long check_out_worker_save_unconscious(struct Thing *thing, struct DiggerStack *dstack)
 {
     MapSubtlCoord stl_x;

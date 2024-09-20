@@ -182,8 +182,15 @@ long check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, long range)
     return 0;
 }
 
-//dropped special digger look for unconscious creature to save
-//only if drag_to_lair rule in activated
+/**
+ * @brief dropped special digger look for unconscious creature to save
+ * 
+ * only if drag_to_lair rule in activated
+ * 
+ * @param spdigtng 
+ * @param range maximum distance to look for unconscious creatures
+ * @return return 1 if special digger is succesfully assigned
+ */
 long check_out_unsaved_unconscious_creature(struct Thing *spdigtng, long range)
 {
     if (!player_has_room_of_role(spdigtng->owner, RoRoF_LairStorage) || !game.conf.rules.workers.drag_to_lair)
@@ -1623,8 +1630,14 @@ short creature_pick_up_unconscious_body(struct Thing *thing)
     return 1;
 }
 
-//special digger took unconscious creature to their lair
-//only if drag_to_lair rule in activated
+/**
+ * @brief special digger will drag unconscious creature to their lair
+ * 
+ * only if drag_to_lair rule in activated
+ * 
+ * @param thing creature that is being dragged
+ * @return returns 1 if creature successfully arrived at its lair
+ */
 short creature_save_unconscious_creature(struct Thing *thing)
 {
     SYNCDBG(9,"Starting");
