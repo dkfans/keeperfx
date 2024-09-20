@@ -45,6 +45,7 @@ TbBool subtile_is_diggable_at_diagonal_angle(struct Thing *thing, unsigned short
 
 #define place_slab_type_on_map(nslab, stl_x, stl_y, owner, keep_blocks_around) place_slab_type_on_map_f(nslab, stl_x, stl_y, owner, keep_blocks_around, __func__)
 void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner, unsigned char a5,const char *func_name);
+void set_alt_bit_on_slabs_around(MapSlabCoord slb_x, MapSlabCoord slb_y);
 void mine_out_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 TbBool dig_has_revealed_area(MapSubtlCoord rev_stl_x, MapSubtlCoord rev_stl_y, PlayerNumber plyr_idx);
 void dig_out_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
