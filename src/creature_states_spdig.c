@@ -1467,7 +1467,7 @@ short imp_toking(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (!creature_requires_healing(creatng))
+    if (!creature_would_benefit_from_healing(creatng))
     {
         internal_set_thing_state(creatng, creatng->continue_state);
         return 0;

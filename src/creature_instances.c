@@ -1208,6 +1208,14 @@ TbBool validate_target_generic(struct Thing *source, struct Thing *target, CrIns
     {
         return false;
     }
+
+    struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
+    if ((inst_inf->instance_property_flags & InstPF_SelfBuff) == 0 && source->index == target->index)
+    {
+        // If this spell doesn't have SELF_BUFF flag, exclude itself.
+        return false;
+    }
+
     return true;
 }
 
@@ -1250,7 +1258,7 @@ TbBool validate_target_ranged_heal(struct Thing *source, struct Thing *target, C
         target->continue_state == CrSt_CreatureLeaves ||
         target->active_state == CrSt_CreatureLeavingDungeon ||
         target->active_state == CrSt_CreatureScavengedDisappear ||
-        !creature_requires_healing(target) ||
+        !creature_would_benefit_from_healing(target) ||
         // Candidate shouldn't be fight with the caster.
         creature_has_creature_in_combat(source, target) ||
         creature_has_creature_in_combat(target, source))
@@ -1372,13 +1380,13 @@ TbBool search_target_ranged_heal(struct Thing *source, CrInstance inst_idx, stru
         }
         // Note that we only allow one target. No group buff are allowed yet.
         // So, we only pick the weakest one creature here.
-        float hp_p_best = 0;
+        HitPoints hp_p_best = 0;
         if (best_choice)
         {
             struct CreatureControl* cctrl_best = creature_control_get_from_thing(best_choice);
-            hp_p_best = (float)best_choice->health / (float)cctrl_best->max_health;
+            hp_p_best = 256L * best_choice->health / cctrl_best->max_health;
         }
-        float hp_p_candiate = (float)candidate->health / (float)cctrl->max_health;
+        HitPoints hp_p_candiate = 256L * candidate->health / cctrl->max_health;
         if (!best_choice || hp_p_candiate < hp_p_best)
         {
             best_choice = candidate;

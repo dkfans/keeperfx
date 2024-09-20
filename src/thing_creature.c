@@ -124,16 +124,6 @@ int get_creature_health_permil(const struct Thing *thing)
     return health/max_health;
 }
 
-TbBool creature_requires_healing(const struct Thing *thing)
-{
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    HitPoints minhealth = crstat->heal_requirement * cctrl->max_health / 256;
-    if ((long)thing->health <= minhealth)
-        return true;
-    return false;
-}
-
 TbBool thing_can_be_controlled_as_controller(struct Thing *thing)
 {
     if (!thing_exists(thing))
