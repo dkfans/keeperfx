@@ -877,9 +877,9 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                 instance_desc[i].name = game.conf.crtr_conf.instances[i].name;;
                 instance_desc[i].num = i;
             }
-            if (i > game.conf.crtr_conf.instances_count)
+            if (i >= game.conf.crtr_conf.instances_count)
             {
-                game.conf.crtr_conf.instances_count = i;
+                game.conf.crtr_conf.instances_count = i+1;
             }
             n++;
             break;
