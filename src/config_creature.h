@@ -258,7 +258,6 @@ struct CreatureConfig {
 /******************************************************************************/
 extern const char keeper_creaturetp_file[];
 extern struct NamedCommand creature_desc[];
-extern struct NamedCommand newcrtr_desc[];
 extern struct NamedCommand angerjob_desc[];
 extern struct NamedCommand creaturejob_desc[];
 extern struct NamedCommand attackpref_desc[];
@@ -269,13 +268,13 @@ extern const struct NamedCommand creatmodel_attraction_commands[];
 extern const struct NamedCommand creatmodel_sounds_commands[];
 extern const struct NamedCommand creatmodel_sprite_commands[];
 extern const struct NamedCommand creature_graphics_desc[];
+extern Creature_Job_Player_Check_Func creature_job_player_check_func_list[];
 /******************************************************************************/
 struct CreatureStats *creature_stats_get(ThingModel crstat_idx);
 struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing);
 TbBool creature_stats_invalid(const struct CreatureStats *crstat);
 void check_and_auto_fix_stats(void);
 const char *creature_code_name(ThingModel crmodel);
-const char* new_creature_code_name(ThingModel crmodel);
 long creature_model_id(const char * name);
 const char *creature_own_name(const struct Thing *creatng);
 TbBool is_creature_model_wildcard(ThingModel crmodel);

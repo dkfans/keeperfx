@@ -94,6 +94,9 @@ const long definable_key_string[] = {
     GUIStr_RoomSpaceIncrease,
     GUIStr_RoomSpaceDecrease,
     GUIStr_SellTrapOnSubtile,
+    GUIStr_CtrlTiltUp,
+    GUIStr_CtrlTiltDown,
+    GUIStr_CtrlTiltReset,
 };
 
 long fe_mouse_sensitivity;
