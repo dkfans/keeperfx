@@ -4625,6 +4625,9 @@ TbBool cleanup_creature_state_and_interactions(struct Thing *creatng)
     delete_familiars_attached_to_creature(creatng);
     state_cleanup_dragging_body(creatng);
     state_cleanup_dragging_object(creatng);
+    if (flag_is_set((creature_control_get_from_thing(creatng))->flgfield_2, TF2_SummonedCreature)) {
+        remove_creature_from_summon_list(get_dungeon(creatng->owner), creatng->index);
+    }
     return true;
 }
 
