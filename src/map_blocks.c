@@ -1515,6 +1515,35 @@ static void shuffle_unattached_things_on_slab(MapSlabCoord slb_x, MapSlabCoord s
     }
 }
 
+void set_alt_bit_on_slabs_around(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    for (int i = 0; i < AROUND_EIGHT_LENGTH; i++)
+    {
+        MapSlabCoord sslb_x;
+        MapSlabCoord sslb_y;
+        sslb_x = slb_x + (MapSlabCoord)my_around_eight[i].delta_x;
+        sslb_y = slb_y + (MapSlabCoord)my_around_eight[i].delta_y;
+        struct SlabMap* slb;
+        slb = get_slabmap_block(sslb_x, sslb_y);
+        if (slabmap_block_invalid(slb)) {
+            continue;
+        }
+        int ssub_x;
+        int ssub_y;
+        for (ssub_y = 0; ssub_y < STL_PER_SLB; ssub_y++)
+        {
+            for (ssub_x = 0; ssub_x < STL_PER_SLB; ssub_x++)
+            {
+                MapSubtlCoord sstl_x;
+                MapSubtlCoord sstl_y;
+                sstl_x = slab_subtile(sslb_x, ssub_x);
+                sstl_y = slab_subtile(sslb_y, ssub_y);
+                set_alt_bit_based_on_slab(slb->kind, sstl_x, sstl_y);
+            }
+        }
+    }
+}
+
 void dump_slab_on_map(SlabKind slbkind, long slabset_id, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner)
 {
     MapSlabCoord slb_x;
@@ -1637,32 +1666,7 @@ void place_animating_slab_type_on_map(SlabKind slbkind, char ani_frame, MapSubtl
     delete_attached_things_on_slab(slb_x, slb_y);
     dump_slab_on_map(slbkind, SLABSETS_PER_SLAB * slbkind + ani_frame, stl_x, stl_y, owner);
     shuffle_unattached_things_on_slab(slb_x, slb_y);
-    int i;
-    for (i = 0; i < AROUND_EIGHT_LENGTH; i++)
-    {
-        MapSlabCoord sslb_x;
-        MapSlabCoord sslb_y;
-        sslb_x = slb_x + (MapSlabCoord)my_around_eight[i].delta_x;
-        sslb_y = slb_y + (MapSlabCoord)my_around_eight[i].delta_y;
-        struct SlabMap *slb;
-        slb = get_slabmap_block(sslb_x, sslb_y);
-        if (slabmap_block_invalid(slb)) {
-            continue;
-        }
-        int ssub_x;
-        int ssub_y;
-        for (ssub_y=0; ssub_y < STL_PER_SLB; ssub_y++)
-        {
-            for (ssub_x=0; ssub_x < STL_PER_SLB; ssub_x++)
-            {
-                MapSubtlCoord sstl_x;
-                MapSubtlCoord sstl_y;
-                sstl_x = slab_subtile(sslb_x,ssub_x);
-                sstl_y = slab_subtile(sslb_y,ssub_y);
-                set_alt_bit_based_on_slab(slb->kind, sstl_x, sstl_y);
-            }
-        }
-    }
+    set_alt_bit_on_slabs_around(slb_x, slb_y);
     if (slbkind == SlbT_GEMS)
     {
         remove_unwanted_things_from_wall_slab(slb_x, slb_y);
