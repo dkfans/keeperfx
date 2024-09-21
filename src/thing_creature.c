@@ -6163,6 +6163,13 @@ void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, lon
     }
 }
 
+/**
+ * @brief Picking up things as a possessed creature 
+ * 
+ * @param creatng 
+ * @param picktng 
+ * @param plyr_idx 
+ */ 
 void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *picktng, PlayerNumber plyr_idx)
 {
     if (picktng->class_id == TCls_Creature)
@@ -6191,7 +6198,13 @@ void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *pick
     thing_play_sample(creatng, smpl_idx, 90, 0, 3, 0, 2, FULL_LOUDNESS * 5/4);
     display_controlled_pick_up_thing_name(picktng, (GUI_MESSAGES_DELAY >> 4), plyr_idx);
 }
-
+/**
+ * @brief Dropping down things at a specific place as a possessed creature
+ * 
+ * @param creatng 
+ * @param droptng 
+ * @param plyr_idx 
+ */
 void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng, PlayerNumber plyr_idx)
 {
     long volume = FULL_LOUDNESS;
@@ -6371,12 +6384,23 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                         if (creature_is_being_unconscious(droptng))
                         {
                             struct CreatureControl* dropctrl = creature_control_get_from_thing(droptng);
+                            //creature already has a lair rom
                             if (dropctrl->lair_room_id == room->index)
                             {
                                 make_creature_conscious(droptng);
                                 initialise_thing_state(droptng, CrSt_CreatureGoingHomeToSleep);
-                                dropctrl->flgfield_1 |= CCFlg_NoCompControl;
                             }
+                            //creature doesn't have a lair room but it will and can sleep here
+                            if ((game.conf.rules.workers.drag_to_lair == 2) 
+                                && (dropctrl->lair_room_id == 0) 
+                                && (creature_can_do_healing_sleep(droptng)) 
+                                && (room_has_enough_free_capacity_for_creature_job(room, droptng, Job_TAKE_SLEEP)))
+                            {
+                                make_creature_conscious(droptng);
+                                initialise_thing_state(droptng, CrSt_CreatureChangeLair);
+                            }
+                            set_flag(dropctrl->flgfield_1,CCFlg_NoCompControl);
+                            
                         }
                     }
                 }    
