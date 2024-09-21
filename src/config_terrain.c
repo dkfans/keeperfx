@@ -91,6 +91,7 @@ const struct NamedCommand terrain_room_properties_commands[] = {
   {"CANNOT_VANDALIZE",  RoCFlg_CantVandalize},
   {"BUILD_TILL_BROKE",  RoCFlg_BuildTillBroke},
   {"CANNOT_BE_SOLD",    RoCFlg_CannotBeSold},
+  {"CANNOT_BE_CLAIMED", RoCFlg_CannotBeClaimed},
   {NULL,                0},
 };
 
