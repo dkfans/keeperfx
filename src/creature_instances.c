@@ -634,7 +634,7 @@ CrInstance process_creature_ranged_buff_spell_casting(struct Thing* creatng)
         free(targets);
     }
 
-    return (i < CrInst_LISTEND) ? i : CrInst_NULL;
+    return (i < game.conf.crtr_conf.instances_count) ? i : CrInst_NULL;
 }
 
 long instf_dig(struct Thing *creatng, long *param)
