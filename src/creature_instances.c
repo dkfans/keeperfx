@@ -590,7 +590,7 @@ CrInstance process_creature_ranged_buff_spell_casting(struct Thing* creatng)
     SYNCDBG(8,"Processing %s(%d), act.st: %s, con.st: %s", thing_model_name(creatng), creatng->index,
         creature_state_code_name(creatng->active_state), creature_state_code_name(creatng->continue_state));
 
-    CrInstance i = 0;
+    CrInstance i = CrInst_NULL;
     for(; i < game.conf.crtr_conf.instances_count; i++ )
     {
         const struct InstanceInfo* inst_inf = creature_instance_info_get(i);
@@ -634,7 +634,7 @@ CrInstance process_creature_ranged_buff_spell_casting(struct Thing* creatng)
         free(targets);
     }
 
-    return i;
+    return (i < CrInst_LISTEND) ? i : CrInst_NULL;
 }
 
 long instf_dig(struct Thing *creatng, long *param)
