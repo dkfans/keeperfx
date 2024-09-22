@@ -68,7 +68,6 @@ enum SpellKinds {
     SplK_Lizard,
     Splk_SummonFamiliar,
     Splk_SummonCreature,
-    Splk_RangedHeal, //[32]
 };
 
 enum CreatureSpellAffectedFlags {

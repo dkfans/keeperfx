@@ -721,7 +721,6 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
     // Handle spells with no continuous effect
     case SplK_Lightning:
     case SplK_Heal:
-    case Splk_RangedHeal:
     case SplK_Missile:
     case SplK_NavigMissile:
     case SplK_Grenade:
@@ -906,7 +905,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     }
 
     i = get_free_spell_slot(thing);
-    if (spell_idx == SplK_Heal || spell_idx == Splk_RangedHeal)
+    if (spell_idx == SplK_Heal)
     {
         n = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev], 16);
         if (n < 0)
@@ -1112,7 +1111,6 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         creature_set_speed(thing, 0);
         break;
     case SplK_Heal:
-    case Splk_RangedHeal:
     {
         HitPoints i = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev], 16);
         if (i < 0)
