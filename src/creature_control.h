@@ -412,6 +412,7 @@ unsigned char sound_flag;
     TbBool timebomb_death;
     GameTurn unsummon_turn;
     ThingIndex summoner_idx;
+    long summon_spl_idx;
     ThingIndex familiar_idx[FAMILIAR_MAX];
 };
 

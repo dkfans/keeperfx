@@ -5363,12 +5363,32 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     }
     else
     {
-      if ( (player->thing_under_hand == thing->index)
-        || ((player->id_number != thing->owner) && !creature_is_invisible(thing))
-        || ((game.conf.rules.workers.drag_to_lair > 0) && ((creature_is_being_unconscious(thing)) && (player->id_number == thing->owner)))
-        || (cctrl->combat_flags != 0)
-        || (thing->lair.spr_size > 0)
-        || (cam->view_mode == PVM_ParchmentView))
+    // determine if the creature is under the player's hand (being hovered over)
+    TbBool is_thing_under_hand = (player->thing_under_hand == thing->index);
+    // check if the creature is an enemy and is visible
+    TbBool is_enemy_and_visible = (player->id_number != thing->owner) && !creature_is_invisible(thing);
+     // check if the 'drag to lair' rule is active, evaluate if saveable creature is visible  
+    // determine if the creature is unconscious and owned by the player...
+    TbBool should_drag_to_lair = creature_is_being_unconscious(thing) && (player->id_number == thing->owner) && (
+        // check if the creature has a lair room or can heal in a lair
+        (game.conf.rules.workers.drag_to_lair == 1 && !room_is_invalid(get_creature_lair_room(thing))) ||
+        // or check if the creature can have lair and heal in it
+        (game.conf.rules.workers.drag_to_lair == 2 && creature_can_do_healing_sleep(thing))
+    );
+    // check if the creature is in combat
+    TbBool is_in_combat = (cctrl->combat_flags != 0);
+    // check if the creature has a lair
+    TbBool has_lair = (thing->lair.spr_size > 0);
+    // determine if the current view is the schematic top-down map view
+    TbBool is_parchment_map_view = (cam->view_mode == PVM_ParchmentView);
+
+      if ( (is_thing_under_hand)
+        || (is_enemy_and_visible)
+        // if drag_to_lair rule is active
+        || (should_drag_to_lair)
+        || (is_in_combat)
+        || (has_lair)
+        || (is_parchment_map_view))
       {
           if (health_spridx > 0) {
               spr = get_button_sprite_for_player(health_spridx, thing->owner);

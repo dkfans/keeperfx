@@ -25,6 +25,7 @@
 #include "creature_states.h"
 #include "creature_states_combt.h"
 #include "creature_states_mood.h"
+#include "creature_states_spdig.h"
 #include "thing_list.h"
 #include "creature_control.h"
 #include "config_creature.h"
@@ -134,27 +135,58 @@ long creature_will_sleep(struct Thing *thing)
     return (abs(dist_x) < 1) && (abs(dist_y) < 1);
 }
 
+/**
+ * @brief special digger drop unconscious creatures in their lair
+ * 
+ * only if drag_to_lair rule in activated
+ * 
+ * @param thing special digger who drag the creature
+ * @return returns 1 if creature successfully arrived at its lair and woke up
+ */
 short creature_drop_unconscious_in_lair(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
-    if (!thing_exists(dragtng) || !creature_is_being_unconscious(dragtng)) {
+
+    if (!thing_exists(dragtng) || !creature_is_being_unconscious(dragtng))
+    {
         set_start_state(thing);
         return 0;
     }
-    if (!subtile_is_room(thing->mappos.x.stl.num, thing->mappos.y.stl.num)) {
-        set_start_state(thing);
-        return 0;
-    }
-    struct Room* room = get_room_thing_is_on(thing);
-    if ((room_is_invalid(room) || room->owner != dragtng->owner) || !get_creature_lair_room(dragtng) ) {
-        set_start_state(thing);
-        return 0;
-    }
-    make_creature_conscious(dragtng);
-    initialise_thing_state(dragtng, CrSt_CreatureGoingHomeToSleep);
     struct CreatureControl* dragctrl = creature_control_get_from_thing(dragtng);
-    dragctrl->flgfield_1 |= CCFlg_NoCompControl;
+    struct Room* room = get_room_thing_is_on(thing);
+    struct Thing* totemtng = find_lair_totem_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+    // if place is not a room
+    if  (!subtile_is_room(thing->mappos.x.stl.num, thing->mappos.y.stl.num)
+            // or room is not a lair
+        || (!room_role_matches(room->kind, RoRoF_LairStorage) 
+            //or room owner is not creature owner
+            || room->owner != dragtng->owner 
+            //or creature has no lair room
+            || (dragctrl->lair_room_id == 0 
+                // and the lair has no capacity
+                && (room->used_capacity >= room ->total_capacity)))
+        // or there is a lair already but it doesn't belong to the creature
+        || ((totemtng->index > 0) && (totemtng->index != dragctrl->lairtng_idx)))
+    {
+        //just drop the creature
+        creature_drop_dragged_object(thing, dragtng);
+        set_start_state(thing);
+        return 0;
+    }
+
+    make_creature_conscious(dragtng);
+    // if the creature already has a lair here it's going to sleep
+    if (dragctrl->lair_room_id == room->index)
+    {
+        initialise_thing_state(dragtng, CrSt_CreatureGoingHomeToSleep);
+    }
+    // if the creature dont has a lair here make a new one
+    else
+    {
+        initialise_thing_state(dragtng, CrSt_CreatureAtNewLair);
+    }
+    set_flag(dragctrl->flgfield_1,CCFlg_NoCompControl);
     set_start_state(thing);
     return 1;
 
