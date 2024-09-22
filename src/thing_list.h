@@ -108,7 +108,7 @@ enum HitTargetFlagsList {
     HitTF_OwnedSoulContainer  = 0x0000000000008000,//!< Allow targeting own soul container.
     HitTF_AnyWorkshopBoxes    = 0x0000000000040000,//!< Allow targeting Workshop boxes owned by anyone.
     HitTF_AnySpellbooks       = 0x0000000000080000,//!< Allow targeting spellbook objects owned by anyone.
-    HitTF_AnyDnSpecialBoxes   = 0x0000000000100000,//!< Allow targeting Dnungeon Special boxes owned by anyone.
+    HitTF_AnyDnSpecialBoxes   = 0x0000000000100000,//!< Allow targeting Dungeon Special boxes owned by anyone.
     HitTF_AnyGoldHoards       = 0x0000000000200000,//!< Allow targeting Gold Hoards owned by anyone.
     HitTF_AnyFoodObjects      = 0x0000000000400000,//!< Allow targeting Food Objects owned by anyone.
     HitTF_AnyGoldPiles        = 0x0000000000800000,//!< Allow targeting gold laying on ground before storing in treasury, pots and piles.
@@ -321,6 +321,8 @@ struct Thing *find_creature_lair_totem_at_subtile(MapSubtlCoord stl_x, MapSubtlC
 
 TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, HitTargetFlags hit_targets);
 HitTargetFlags hit_type_to_hit_targets(long hit_type);
+HitTargetFlags get_hit_targets_for_spell(struct Thing *caster, struct Thing *target, SpellKind spell_idx);
+HitTargetFlags get_hit_targets_for_shot(struct Thing *caster, struct Thing *target, ThingModel shot_model);
 HitTargetFlags collide_filter_thing_is_of_type(const struct Thing *thing, const struct Thing *sectng, HitTargetFlags a3, long a4);
 
 TbBool imp_already_digging_at_excluding(struct Thing *excltng, MapSubtlCoord stl_x, MapSubtlCoord stl_y);

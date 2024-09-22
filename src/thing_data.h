@@ -176,12 +176,12 @@ struct Thing {
       short unused3;
       long last_turn_drawn;
       unsigned char display_timer;
-      }roomflag2; // both roomflag and roomflag2 are used in same function on same object but have 2 bytes overlapping between room_idx and last_turn_drawn 
+      } roomflag2; // both roomflag and roomflag2 are used in same function on same object but have 2 bytes overlapping between room_idx and last_turn_drawn
 //TCls_Shot
       struct {
         unsigned char dexterity;
         short damage;
-        unsigned char hit_type;
+        HitTargetFlags hit_targets;
         short target_idx;
         unsigned char spell_level;
         struct Coord3d originpos;
