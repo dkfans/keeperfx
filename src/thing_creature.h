@@ -114,6 +114,12 @@ TbBool set_creature_door_combat(struct Thing *crthing, struct Thing *obthing);
 void thing_fire_shot(struct Thing *firing,struct  Thing *target, ThingModel shot_model, char shot_lvl, unsigned char hit_type);
 void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, SpellKind spl_idx, long shot_lvl);
 void creature_cast_spell(struct Thing *caster, SpellKind spl_idx, long shot_lvl, MapSubtlCoord trg_x, MapSubtlCoord trg_y);
+
+void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, char level, char count, GameTurn duration, long spl_idx);
+void level_up_familiar(struct Thing* famlrtng);
+void add_creature_to_summon_list(struct Dungeon* dungeon, ThingIndex famlrtng);
+void remove_creature_from_summon_list(struct Dungeon* dungeon, ThingIndex famlrtng);
+
 unsigned int get_creature_blocked_flags_at(struct Thing *thing, struct Coord3d *newpos);
 
 struct Thing *get_enemy_soul_container_creature_can_see(struct Thing *thing);

@@ -52,6 +52,7 @@
 #include "creature_states_prisn.h"
 #include "creature_states_spdig.h"
 #include "creature_states_train.h"
+#include "dungeon_data.h"
 #include "engine_arrays.h"
 #include "engine_lenses.h"
 #include "engine_redraw.h"
@@ -1600,10 +1601,11 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
  * @param count How many creatures are created.
  * @param duration How many gameturns the creatures will live. Set to 0 for infinite.
  */
-void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, char level, char count, GameTurn duration)
+void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, char level, char count, GameTurn duration, long spl_idx)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* famlrtng;
+    struct Dungeon* dungeon = get_dungeon(creatng->owner);
     struct CreatureControl* famcctrl;
     short sumxp = level - 1;
     if (level <= 0)
@@ -1635,7 +1637,12 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                 {
                     cctrl->familiar_idx[j] = famlrtng->index;
                     famcctrl = creature_control_get_from_thing(famlrtng);
+                    //create list for summons for all dungeons
+                    add_creature_to_summon_list(dungeon, famlrtng->index);
+                    //remember your Summoner
                     famcctrl->summoner_idx = creatng->index;
+                    //remember the spell that created you
+                    famcctrl->summon_spl_idx = spl_idx;
                     creature_change_multiple_levels(famlrtng, sumxp);
                     remove_first_creature(famlrtng); //temporary units are not real creatures
                     famcctrl->unsummon_turn = game.play_gameturn + duration;
@@ -1675,12 +1682,8 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                     {
                         famcctrl = creature_control_get_from_thing(famlrtng);
                         famcctrl->unsummon_turn = game.play_gameturn + duration;
-                        char expdiff = sumxp - famcctrl->explevel;
-                        if (expdiff > 0)
-                        {
-                            creature_change_multiple_levels(famlrtng, expdiff);
-                        }
-                        if ((famcctrl->follow_leader_fails > 0) || (get_chessboard_distance(&creatng->mappos, &famlrtng->mappos) > subtile_coord(12, 0))) // if it's not getting to the summoner, teleport it there
+                        level_up_familiar(famlrtng);
+                        if ((famcctrl->follow_leader_fails > 0) || (get_chessboard_distance(&creatng->mappos, &famlrtng->mappos) > subtile_coord(12, 0))) //if it's not getting to the summoner, teleport it there
                         {
                             create_effect(&famlrtng->mappos, imp_spangle_effects[get_player_color_idx(famlrtng->owner)], famlrtng->owner);
                             move_thing_in_map(famlrtng, &creatng->mappos);
@@ -1704,6 +1707,7 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                 else
                 {
                     //creature has already died, clear it and go again.
+                    remove_creature_from_summon_list(dungeon, famlrtng->index);
                     cctrl->familiar_idx[j] = 0;
                     j--;
                 }
@@ -1712,6 +1716,65 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
     }
 }
 
+void level_up_familiar(struct Thing* famlrtng)
+{
+    struct CreatureControl *famlrcctrl = creature_control_get_from_thing(famlrtng);
+    //get summoner of familiar
+    struct Thing* summonertng = thing_get(famlrcctrl->summoner_idx);
+    struct CreatureControl *summonercctrl = creature_control_get_from_thing(summonertng);
+    short summonerxp = summonercctrl->explevel;
+    //get spell the summoner used to make this familiar
+    const struct SpellConfig* spconf = get_spell_config(famlrcctrl->summon_spl_idx);
+    char level = spconf->crtr_summon_level;
+    //calculate correct level for familiar
+    short sumxp = level - 1;
+    if (level <= 0)
+    {
+        //we know already the Summoner will levelup next turn?
+        if ((summonercctrl->spell_flags & CSAfF_ExpLevelUp)  && (summonercctrl->explevel+1 < CREATURE_MAX_LEVEL))
+        {
+            summonerxp += 1;
+        }
+        sumxp = summonerxp + level;
+    }
+    //level up the summon
+    char expdiff = sumxp - famlrcctrl->explevel;
+    if (expdiff > 0)
+    {
+        creature_change_multiple_levels(famlrtng, expdiff);
+    }
+}
+
+void add_creature_to_summon_list(struct Dungeon* dungeon, ThingIndex famlrtng)
+{
+    if (dungeon->num_summon < MAX_SUMMONS)
+    {    
+        dungeon->summon_list[dungeon->num_summon] = famlrtng;
+        dungeon->num_summon++;
+    } else
+    {
+        ERRORLOG("Reached maximum limit of summons");  
+    }
+}
+
+void remove_creature_from_summon_list(struct Dungeon* dungeon, ThingIndex famlrtng)
+{
+    if (dungeon->num_summon == 0) {
+        ERRORLOG("No summons to remove");
+        return;
+    }
+    for (int i = 0; i < dungeon->num_summon;i++){
+        if (dungeon->summon_list[i] == famlrtng) {
+            // Shift the rest of the list one position forward
+            for (int j = i; j < dungeon->num_summon -1; j++) {
+                dungeon->summon_list[j] = dungeon->summon_list[j + 1];
+            }
+            dungeon->summon_list[dungeon->num_summon - 1] = 0;
+            dungeon->num_summon--;
+            return;
+        }
+    }
+}
 /**
  * @brief Casts a spell by caster creature targeted at given coordinates, most likely using shot to transfer the spell.
  *
@@ -1754,7 +1817,7 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, long shot_lvl,
     }
     if (spconf->crtr_summon_model > 0)
     {
-        thing_summon_temporary_creature(castng, spconf->crtr_summon_model, spconf->crtr_summon_level, spconf->crtr_summon_amount, spconf->duration);
+        thing_summon_temporary_creature(castng, spconf->crtr_summon_model, spconf->crtr_summon_level, spconf->crtr_summon_amount, spconf->duration, spl_idx);
     }
     // Check if the spell has an effect associated
     if (spconf->cast_effect_model != 0)
@@ -6172,6 +6235,13 @@ void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, lon
     }
 }
 
+/**
+ * @brief Picking up things as a possessed creature 
+ * 
+ * @param creatng 
+ * @param picktng 
+ * @param plyr_idx 
+ */ 
 void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *picktng, PlayerNumber plyr_idx)
 {
     if (picktng->class_id == TCls_Creature)
@@ -6200,7 +6270,13 @@ void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *pick
     thing_play_sample(creatng, smpl_idx, 90, 0, 3, 0, 2, FULL_LOUDNESS * 5/4);
     display_controlled_pick_up_thing_name(picktng, (GUI_MESSAGES_DELAY >> 4), plyr_idx);
 }
-
+/**
+ * @brief Dropping down things at a specific place as a possessed creature
+ * 
+ * @param creatng 
+ * @param droptng 
+ * @param plyr_idx 
+ */
 void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng, PlayerNumber plyr_idx)
 {
     long volume = FULL_LOUDNESS;
@@ -6380,12 +6456,23 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                         if (creature_is_being_unconscious(droptng))
                         {
                             struct CreatureControl* dropctrl = creature_control_get_from_thing(droptng);
+                            //creature already has a lair rom
                             if (dropctrl->lair_room_id == room->index)
                             {
                                 make_creature_conscious(droptng);
                                 initialise_thing_state(droptng, CrSt_CreatureGoingHomeToSleep);
-                                dropctrl->flgfield_1 |= CCFlg_NoCompControl;
                             }
+                            //creature doesn't have a lair room but it will and can sleep here
+                            if ((game.conf.rules.workers.drag_to_lair == 2) 
+                                && (dropctrl->lair_room_id == 0) 
+                                && (creature_can_do_healing_sleep(droptng)) 
+                                && (room_has_enough_free_capacity_for_creature_job(room, droptng, Job_TAKE_SLEEP)))
+                            {
+                                make_creature_conscious(droptng);
+                                initialise_thing_state(droptng, CrSt_CreatureChangeLair);
+                            }
+                            set_flag(dropctrl->flgfield_1,CCFlg_NoCompControl);
+                            
                         }
                     }
                 }
