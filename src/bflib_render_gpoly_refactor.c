@@ -4751,33 +4751,32 @@ static void draw_gpoly_sub7_subfunc2() {
     pusha   \n \
     movl    _crease_len,%%esi\n \
     orl %%esi,%%esi\n \
-    js  bendonright1\n \
-\n \
-    #-------- CALC_DATA_FOR_EDGE MACRO\n \
-    movl    _gploc_pt_by,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
+    js  gpo_loc_1EAF\n \
+    movl    _point2y,%%ecx\n \
+    subl    _point1y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
-    jg  largey\n \
+    jg  gpo_loc_1DE2\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp smally\n \
+    jmp gpo_loc_1DF0\n \
+# ---------------------------------------------------------------------------\n \
 \n \
-largey:\n \
+gpo_loc_1DE2:         # 1BE7\n \
     movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax   # 32768 * 65536 - 1\n \
+    movl    $0x7FFFFFFF,%%eax\n \
     idivl   %%ecx\n \
     movl    %%eax,%%ebx\n \
 \n \
-smally:\n \
+gpo_loc_1DF0:         # 1BF0\n \
     movl    _point2shade,%%eax\n \
     subl    _point1shade,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    jns posshade1\n \
+    jns gpo_loc_1E05\n \
     incl    %%eax\n \
 \n \
-posshade1:\n \
+gpo_loc_1E05:         # 1C12\n \
     movl    %%eax,_shadeveltop\n \
     movl    _point2mapx,%%eax\n \
     subl    _point1mapx,%%eax\n \
@@ -4785,10 +4784,10 @@ posshade1:\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    jns posmapx1\n \
+    jns gpo_loc_1E1E\n \
     incl    %%eax\n \
 \n \
-posmapx1:\n \
+gpo_loc_1E1E:         # 1C2B\n \
     movl    %%eax,_mapxveltop\n \
     movl    _point2mapy,%%eax\n \
     subl    _point1mapy,%%eax\n \
@@ -4796,38 +4795,36 @@ posmapx1:\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    jns posmapy1\n \
+    jns gpo_loc_1E37\n \
     incl    %%eax\n \
 \n \
-posmapy1:\n \
+gpo_loc_1E37:         # 1C4\n \
     movl    %%eax,_mapyveltop\n \
-    #-------- END CALC_DATA_FOR_EDGE MACRO\n \
-\n \
-    #-------- CALC_DATA_FOR_EDGE MACRO\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_by,%%ecx\n \
+    movl    _point3y,%%ecx\n \
+    subl    _point2y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
-    jg  largey1\n \
+    jg  gpo_loc_1E54\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp smally1\n \
+    jmp gpo_loc_1E62\n \
+# ---------------------------------------------------------------------------\n \
 \n \
-largey1:\n \
+gpo_loc_1E54:         # 1C5\n \
     movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax   # 32768 * 65536 - 1\n \
+    movl    $0x7FFFFFFF,%%eax\n \
     idivl   %%ecx\n \
     movl    %%eax,%%ebx\n \
 \n \
-smally1:\n \
+gpo_loc_1E62:         # 1C62\n \
     movl    _point3shade,%%eax\n \
     subl    _point2shade,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    jns posshade2\n \
+    jns gpo_loc_1E77\n \
     incl    %%eax\n \
 \n \
-posshade2:\n \
+gpo_loc_1E77:         # 1C8\n \
     movl    %%eax,_shadevelbottom\n \
     movl    _point3mapx,%%eax\n \
     subl    _point2mapx,%%eax\n \
@@ -4835,10 +4832,10 @@ posshade2:\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    jns posmapx2\n \
+    jns gpo_loc_1E90\n \
     incl    %%eax\n \
 \n \
-posmapx2:\n \
+gpo_loc_1E90:         # 1C9D\n \
     movl    %%eax,_mapxvelbottom\n \
     movl    _point3mapy,%%eax\n \
     subl    _point2mapy,%%eax\n \
@@ -4846,34 +4843,30 @@ posmapx2:\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    jns posmapy2\n \
+    jns gpo_loc_1EA9\n \
     incl    %%eax\n \
 \n \
-posmapy2:\n \
+gpo_loc_1EA9:         # 1CB6\n \
     movl    %%eax,_mapyvelbottom\n \
-    #-------- END CALC_DATA_FOR_EDGE MACRO\n \
-\n \
-\n \
-    jmp calcend1\n \
+    jmp gpo_loc_1F21\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-bendonright1:\n \
-    #-------- CALC_DATA_FOR_EDGE MACRO\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
+gpo_loc_1EAF:         # 1BD3\n \
+    movl    _point3y,%%ecx\n \
+    subl    _point1y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_1EC8\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
     jmp gpo_loc_1ED6\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-gpo_loc_1EC8:\n \
+gpo_loc_1EC8:         # 1CCD\n \
     movl    $0,%%edx\n \
     movl    $0x7FFFFFFF,%%eax\n \
     idivl   %%ecx\n \
     movl    %%eax,%%ebx\n \
 \n \
-gpo_loc_1ED6:\n \
+gpo_loc_1ED6:         # 1CD6\n \
     movl    _point3shade,%%eax\n \
     subl    _point1shade,%%eax\n \
     shll    $1,%%eax\n \
@@ -4883,7 +4876,7 @@ gpo_loc_1ED6:\n \
     jns gpo_loc_1EEB\n \
     incl    %%eax\n \
 \n \
-gpo_loc_1EEB:\n \
+gpo_loc_1EEB:         # 1CF8\n \
     movl    %%eax,_shadeveltop\n \
     movl    _point3mapx,%%eax\n \
     subl    _point1mapx,%%eax\n \
@@ -4894,7 +4887,7 @@ gpo_loc_1EEB:\n \
     jns gpo_loc_1F04\n \
     incl    %%eax\n \
 \n \
-gpo_loc_1F04:\n \
+gpo_loc_1F04:         # 1D1\n \
     movl    %%eax,_mapxveltop\n \
     movl    _point3mapy,%%eax\n \
     subl    _point1mapy,%%eax\n \
@@ -4905,36 +4898,28 @@ gpo_loc_1F04:\n \
     jns gpo_loc_1F1D\n \
     incl    %%eax\n \
 \n \
-gpo_loc_1F1D:\n \
+gpo_loc_1F1D:         # 1D2A\n \
     movl    %%eax,_mapyveltop\n \
-    #-------- END CALC_DATA_FOR_EDGE MACRO\n \
 \n \
-calcend1:\n \
-    #-------- CALC_STARTPOS MACRO\n \
-      #-------- CALC_STARTPOS_SEC MACRO\n \
-      movl    _point1shade,%%eax\n \
-      shll    $0x10,%%eax\n \
-      movl    %%eax,_startposshadetop\n \
-      movl    _point1mapx,%%eax\n \
-      shll    $0x10,%%eax\n \
-      movl    %%eax,_startposmapxtop\n \
-      movl    _point1mapy,%%eax\n \
-      shll    $0x10,%%eax\n \
-      movl    %%eax,_startposmapytop\n \
-      #-------- END CALC_STARTPOS_SEC MACRO\n \
-      #-------- CALC_STARTPOS_SEC MACRO\n \
-      movl    _point2shade,%%eax\n \
-      shll    $0x10,%%eax\n \
-      movl    %%eax,_startposshadebottom\n \
-      movl    _point2mapx,%%eax\n \
-      shll    $0x10,%%eax\n \
-      movl    %%eax,_startposmapxbottom\n \
-      movl    _point2mapy,%%eax\n \
-      shll    $0x10,%%eax\n \
-      movl    %%eax,_startposmapybottom\n \
-      #-------- END CALC_STARTPOS_SEC MACRO\n \
-    #-------- END CALC_STARTPOS MACRO\n \
-    #-------- PACK_DATA MACRO\n \
+gpo_loc_1F21:         # 1CBD\n \
+    movl    _point1shade,%%eax\n \
+    shll    $0x10,%%eax\n \
+    movl    %%eax,_startposshadetop\n \
+    movl    _point1mapx,%%eax\n \
+    shll    $0x10,%%eax\n \
+    movl    %%eax,_startposmapxtop\n \
+    movl    _point1mapy,%%eax\n \
+    shll    $0x10,%%eax\n \
+    movl    %%eax,_startposmapytop\n \
+    movl    _point2shade,%%eax\n \
+    shll    $0x10,%%eax\n \
+    movl    %%eax,_startposshadebottom\n \
+    movl    _point2mapx,%%eax\n \
+    shll    $0x10,%%eax\n \
+    movl    %%eax,_startposmapxbottom\n \
+    movl    _point2mapy,%%eax\n \
+    shll    $0x10,%%eax\n \
+    movl    %%eax,_startposmapybottom\n \
     movl    _mapyhstep,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \
@@ -4950,7 +4935,7 @@ calcend1:\n \
     subl    $0x10000,%%eax\n \
     sbbl    $0,%%edx\n \
 \n \
-gpo_loc_1FB1:\n \
+gpo_loc_1FB1:         # 1DB\n \
     addl    %%ebx,%%eax\n \
     adcl    $0,%%edx\n \
     movl    %%eax,_gploc_BC\n \
@@ -4959,7 +4944,7 @@ gpo_loc_1FB1:\n \
     jns gpo_loc_1FC9\n \
     decl    %%eax\n \
 \n \
-gpo_loc_1FC9:\n \
+gpo_loc_1FC9:         # 1DD6\n \
     shll    $8,%%eax\n \
     andl    $0x0FF,%%edx\n \
     orl %%eax,%%edx\n \
@@ -4976,7 +4961,7 @@ gpo_loc_1FC9:\n \
     subl    $0x0FFFF,%%eax\n \
     sbbl    $0,%%edx\n \
 \n \
-gpo_loc_2006:\n \
+gpo_loc_2006:         # 1E06\n \
     addl    %%ebx,%%eax\n \
     adcl    $0,%%edx\n \
     movl    %%eax,_gploc_5C\n \
@@ -4985,7 +4970,7 @@ gpo_loc_2006:\n \
     jns gpo_loc_201E\n \
     decl    %%eax\n \
 \n \
-gpo_loc_201E:\n \
+gpo_loc_201E:         # 1E2B\n \
     shll    $8,%%eax\n \
     andl    $0x0FF,%%edx\n \
     orl %%eax,%%edx\n \
@@ -5005,7 +4990,7 @@ gpo_loc_201E:\n \
     subl    $0x10000,%%eax\n \
     sbbl    $0,%%edx\n \
 \n \
-gpo_loc_2063:\n \
+gpo_loc_2063:         # 1E63\n \
     addl    %%ebx,%%eax\n \
     adcl    $0,%%edx\n \
     movl    %%eax,_gploc_A4\n \
@@ -5014,7 +4999,7 @@ gpo_loc_2063:\n \
     jns gpo_loc_2078\n \
     decl    %%eax\n \
 \n \
-gpo_loc_2078:\n \
+gpo_loc_2078:         # 1E85\n \
     shll    $8,%%eax\n \
     andl    $0x0FF,%%edx\n \
     orl %%eax,%%edx\n \
@@ -5034,56 +5019,51 @@ gpo_loc_2078:\n \
     movl    %%edx,_gploc_88\n \
     movl    _crease_len,%%esi\n \
     orl %%esi,%%esi\n \
-    js  pack_data_calcend\n \
-      #-------- PACK_EDGE_textshade bottom MACRO\n \
-        movl    _mapyvelbottom,%%eax\n \
-        movl    %%eax,%%edx\n \
-        shll    $0x10,%%eax\n \
-        sarl    $0x10,%%edx\n \
-        movl    _shadevelbottom,%%ebx\n \
-        shll    $0x18,%%ebx\n \
-        movl    %%ebx,_gploc_64\n \
-        movl    _shadevelbottom,%%ebx\n \
-        sarl    $8,%%ebx\n \
-        orl %%ebx,%%ebx\n \
-        jns gpo_loc_2104\n \
-        andl    $0x0FFFF,%%ebx\n \
-        subl    $0x10000,%%eax\n \
-        sbbl    $0,%%edx\n \
-    \n \
-    gpo_loc_2104:\n \
-        addl    %%ebx,%%eax\n \
-        adcl    $0,%%edx\n \
-        movl    %%eax,_gploc_98\n \
-        movl    _mapxvelbottom,%%eax\n \
-        orl %%edx,%%edx\n \
-        jns gpo_loc_2119\n \
-        decl    %%eax\n \
-    \n \
-    gpo_loc_2119:\n \
-        shll    $8,%%eax\n \
-        andl    $0x0FF,%%edx\n \
-        orl %%eax,%%edx\n \
-        movl    %%edx,_gploc_94\n \
-      #-------- END PACK_EDGE_textshade MACRO\n \
-      #-------- PACK_STARTPOS_textshade bottom MACRO\n \
-        movl    _startposmapybottom,%%eax\n \
-        movl    %%eax,%%edx\n \
-        shll    $0x10,%%eax\n \
-        movl    _startposshadebottom,%%ebx\n \
-        shrl    $8,%%ebx\n \
-        orl %%ebx,%%eax\n \
-        movl    %%eax,_gploc_80\n \
-        movl    _startposmapxbottom,%%eax\n \
-        shll    $8,%%eax\n \
-        shrl    $0x10,%%edx\n \
-        andl    $0x0FF,%%edx\n \
-        orl %%eax,%%edx\n \
-        movl    %%edx,_gploc_7C\n \
-      #-------- END PACK_STARTPOS_textshade MACRO\n \
+    js  gpo_case69_break\n \
+    movl    _mapyvelbottom,%%eax\n \
+    movl    %%eax,%%edx\n \
+    shll    $0x10,%%eax\n \
+    sarl    $0x10,%%edx\n \
+    movl    _shadevelbottom,%%ebx\n \
+    shll    $0x18,%%ebx\n \
+    movl    %%ebx,_gploc_64\n \
+    movl    _shadevelbottom,%%ebx\n \
+    sarl    $8,%%ebx\n \
+    orl %%ebx,%%ebx\n \
+    jns gpo_loc_2104\n \
+    andl    $0x0FFFF,%%ebx\n \
+    subl    $0x10000,%%eax\n \
+    sbbl    $0,%%edx\n \
 \n \
-pack_data_calcend:\n \
-    #-------- END PACK_DATA MACRO\n \
+gpo_loc_2104:         # 1F0\n \
+    addl    %%ebx,%%eax\n \
+    adcl    $0,%%edx\n \
+    movl    %%eax,_gploc_98\n \
+    movl    _mapxvelbottom,%%eax\n \
+    orl %%edx,%%edx\n \
+    jns gpo_loc_2119\n \
+    decl    %%eax\n \
+\n \
+gpo_loc_2119:         # 1F26\n \
+    shll    $8,%%eax\n \
+    andl    $0x0FF,%%edx\n \
+    orl %%eax,%%edx\n \
+    movl    %%edx,_gploc_94\n \
+    movl    _startposmapybottom,%%eax\n \
+    movl    %%eax,%%edx\n \
+    shll    $0x10,%%eax\n \
+    movl    _startposshadebottom,%%ebx\n \
+    shrl    $8,%%ebx\n \
+    orl %%ebx,%%eax\n \
+    movl    %%eax,_gploc_80\n \
+    movl    _startposmapxbottom,%%eax\n \
+    shll    $8,%%eax\n \
+    shrl    $0x10,%%edx\n \
+    andl    $0x0FF,%%edx\n \
+    orl %%eax,%%edx\n \
+    movl    %%edx,_gploc_7C\n \
+\n \
+gpo_case69_break:\n \
     popa    \n \
 "
       :
