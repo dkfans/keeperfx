@@ -2782,39 +2782,46 @@ static void calculateHorizontalSteps() {
   }
 }
 
+static void calc_data_edge_step() {}
+
+static void calc_data_for_edge() {}
+
 static void draw_gpoly_sub7_subfunc2() {
 #if __GNUC__
   asm volatile(
       " \
+# CALC_DATA_EDGE_STEP ------------------------------------------------------\n \
     pusha   \n \
     movl    _crease_len,%%esi\n \
     orl %%esi,%%esi\n \
-    js  gpo_loc_1EAF\n \
+    js  bendonright1\n \
+\n \
+# --------------------------------------------------------------------------\n \
+# CALC_DATA_FOR_EDGE -------------------------------------------------------\n \
     movl    _point2y,%%ecx\n \
     subl    _point1y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
-    jg  gpo_loc_1DE2\n \
+    jg  largey\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp gpo_loc_1DF0\n \
-# ---------------------------------------------------------------------------\n \
+    jmp smally\n \
 \n \
-gpo_loc_1DE2:         # 1BE7\n \
+largey:\n \
     movl    $0,%%edx\n \
     movl    $0x7FFFFFFF,%%eax\n \
     idivl   %%ecx\n \
     movl    %%eax,%%ebx\n \
 \n \
-gpo_loc_1DF0:         # 1BF0\n \
+smally:\n \
     movl    _point2shade,%%eax\n \
     subl    _point1shade,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    jns gpo_loc_1E05\n \
+    jns posshade1\n \
     incl    %%eax\n \
 \n \
-gpo_loc_1E05:         # 1C12\n \
+posshade1:\n \
     movl    %%eax,_shadeveltop\n \
     movl    _point2mapx,%%eax\n \
     subl    _point1mapx,%%eax\n \
@@ -2822,10 +2829,10 @@ gpo_loc_1E05:         # 1C12\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    jns gpo_loc_1E1E\n \
+    jns posmapx1\n \
     incl    %%eax\n \
 \n \
-gpo_loc_1E1E:         # 1C2B\n \
+posmapx1:\n \
     movl    %%eax,_mapxveltop\n \
     movl    _point2mapy,%%eax\n \
     subl    _point1mapy,%%eax\n \
@@ -2833,11 +2840,14 @@ gpo_loc_1E1E:         # 1C2B\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    jns gpo_loc_1E37\n \
+    jns posmapy1\n \
     incl    %%eax\n \
 \n \
-gpo_loc_1E37:         # 1C4\n \
+posmapy1:\n \
     movl    %%eax,_mapyveltop\n \
+# END CALC_DATA_FOR_EDGE ----------------------------------------------------\n \
+# ---------------------------------------------------------------------------\n \
+\n \
     movl    _point3y,%%ecx\n \
     subl    _point2y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
@@ -2889,7 +2899,7 @@ gpo_loc_1EA9:         # 1CB6\n \
     jmp gpo_loc_1F21\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-gpo_loc_1EAF:         # 1BD3\n \
+bendonright1:\n \
     movl    _point3y,%%ecx\n \
     subl    _point1y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
