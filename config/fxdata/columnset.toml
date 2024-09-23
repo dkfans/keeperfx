@@ -10166,7 +10166,7 @@ FloorTexture = 27
 Orientation = 0
 Cubes = [42, 472, 472, 472, 471, 0, 0, 0]
 
-;midas door columns
+#midas door columns
 [column1271]
 Lintel = 0
 Height = 5
