@@ -4810,31 +4810,32 @@ posmapy1:\n \
 # END CALC_DATA_FOR_EDGE ----------------------------------------------------\n \
 # ---------------------------------------------------------------------------\n \
 \n \
+# --------------------------------------------------------------------------\n \
+# CALC_DATA_FOR_EDGE -------------------------------------------------------\n \
     movl    _point3y,%%ecx\n \
     subl    _point2y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
-    jg  gpo_loc_1E54\n \
+    jg  largey1\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp gpo_loc_1E62\n \
-# ---------------------------------------------------------------------------\n \
+    jmp smally1\n \
 \n \
-gpo_loc_1E54:         # 1C5\n \
+largey1:\n \
     movl    $0,%%edx\n \
     movl    $0x7FFFFFFF,%%eax\n \
     idivl   %%ecx\n \
     movl    %%eax,%%ebx\n \
 \n \
-gpo_loc_1E62:         # 1C62\n \
+smally1:\n \
     movl    _point3shade,%%eax\n \
     subl    _point2shade,%%eax\n \
     shll    $1,%%eax\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    jns gpo_loc_1E77\n \
+    jns posshade2\n \
     incl    %%eax\n \
 \n \
-gpo_loc_1E77:         # 1C8\n \
+posshade2:\n \
     movl    %%eax,_shadevelbottom\n \
     movl    _point3mapx,%%eax\n \
     subl    _point2mapx,%%eax\n \
@@ -4842,10 +4843,10 @@ gpo_loc_1E77:         # 1C8\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    jns gpo_loc_1E90\n \
+    jns posmapx2\n \
     incl    %%eax\n \
 \n \
-gpo_loc_1E90:         # 1C9D\n \
+posmapx2:\n \
     movl    %%eax,_mapxvelbottom\n \
     movl    _point3mapy,%%eax\n \
     subl    _point2mapy,%%eax\n \
@@ -4853,22 +4854,26 @@ gpo_loc_1E90:         # 1C9D\n \
     imull   %%ebx\n \
     movw    %%dx,%%ax\n \
     roll    $0x10,%%eax\n \
-    jns gpo_loc_1EA9\n \
+    jns posmapy2\n \
     incl    %%eax\n \
 \n \
-gpo_loc_1EA9:         # 1CB6\n \
+posmapy2:\n \
     movl    %%eax,_mapyvelbottom\n \
-    jmp gpo_loc_1F21\n \
+# END CALC_DATA_FOR_EDGE ----------------------------------------------------\n \
+# ---------------------------------------------------------------------------\n \
+\n \
+    jmp calcend1\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 bendonright1:\n \
+# --------------------------------------------------------------------------\n \
+# CALC_DATA_FOR_EDGE -------------------------------------------------------\n \
     movl    _point3y,%%ecx\n \
     subl    _point1y,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
     jg  gpo_loc_1EC8\n \
     movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
     jmp gpo_loc_1ED6\n \
-# ---------------------------------------------------------------------------\n \
 \n \
 gpo_loc_1EC8:         # 1CCD\n \
     movl    $0,%%edx\n \
@@ -4910,8 +4915,12 @@ gpo_loc_1F04:         # 1D1\n \
 \n \
 gpo_loc_1F1D:         # 1D2A\n \
     movl    %%eax,_mapyveltop\n \
+# END CALC_DATA_FOR_EDGE ----------------------------------------------------\n \
+# ---------------------------------------------------------------------------\n \
 \n \
-gpo_loc_1F21:         # 1CBD\n \
+calcend1:\n \
+# END CALC_DATA_EDGE_STEP ---------------------------------------------------\n \
+# ---------------------------------------------------------------------------\n \
     movl    _point1shade,%%eax\n \
     shll    $0x10,%%eax\n \
     movl    %%eax,_startposshadetop\n \
