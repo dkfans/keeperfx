@@ -4746,7 +4746,41 @@ calcend:\n \
 
 static void calc_data_edge_step() {}
 
-static void calc_data_for_edge() {}
+static void calc_data_for_edge() {
+  long long lVar1;
+  int iVar2;
+  ushort uVar3;
+  int iVar4;
+
+  iVar4 = point2y - point1y;
+  if (iVar4 < 0x100) {
+    iVar4 = *(int *)(&gpoly_reptable + iVar4 * 4);
+  } else {
+    iVar4 = (int)(0x7fffffff / (long long)iVar4);
+  }
+  iVar2 = (point2shade - point1shade) * 2;
+  lVar1 = (long long)iVar2 * (long long)iVar4;
+  uVar3 = (ushort)((unsigned long long)lVar1 >> 0x10);
+  shadeveltop = CONCAT22(uVar3, (short)((unsigned long long)lVar1 >> 0x20)) << 0x10 | (uint)uVar3;
+  if (iVar2 < 0) {
+    shadeveltop++;
+  }
+  iVar2 = (point2mapx - point1mapx) * 2;
+  lVar1 = (long long)iVar2 * (long long)iVar4;
+  uVar3 = (ushort)((unsigned long long)lVar1 >> 0x10);
+  mapxveltop = CONCAT22(uVar3, (short)((unsigned long long)lVar1 >> 0x20)) << 0x10 | (uint)uVar3;
+  if (iVar2 < 0) {
+    mapxveltop++;
+  }
+  iVar2 = (point2mapy - point1mapy) * 2;
+  lVar1 = (long long)iVar2 * (long long)iVar4;
+  uVar3 = (ushort)((unsigned long long)lVar1 >> 0x10);
+  mapyveltop = CONCAT22(uVar3, (short)((unsigned long long)lVar1 >> 0x20)) << 0x10 | (uint)uVar3;
+  if (iVar2 < 0) {
+    mapyveltop++;
+  }
+  return;
+}
 
 static void draw_gpoly_sub7_subfunc2() {
 #if __GNUC__
