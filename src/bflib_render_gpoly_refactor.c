@@ -4761,25 +4761,64 @@ static void calc_data_for_edge() {
   iVar2 = (point2shade - point1shade) * 2;
   lVar1 = (long long)iVar2 * (long long)iVar4;
   uVar3 = (ushort)((unsigned long long)lVar1 >> 0x10);
-  shadeveltop = CONCAT22(uVar3, (short)((unsigned long long)lVar1 >> 0x20)) << 0x10 | (uint)uVar3;
+  shadeveltop
+      = combineHighLowBits(uVar3, (short)((unsigned long long)lVar1 >> 0x20)) << 0x10 | (uint)uVar3;
   if (iVar2 < 0) {
     shadeveltop++;
   }
   iVar2 = (point2mapx - point1mapx) * 2;
   lVar1 = (long long)iVar2 * (long long)iVar4;
   uVar3 = (ushort)((unsigned long long)lVar1 >> 0x10);
-  mapxveltop = CONCAT22(uVar3, (short)((unsigned long long)lVar1 >> 0x20)) << 0x10 | (uint)uVar3;
+  mapxveltop
+      = combineHighLowBits(uVar3, (short)((unsigned long long)lVar1 >> 0x20)) << 0x10 | (uint)uVar3;
   if (iVar2 < 0) {
     mapxveltop++;
   }
   iVar2 = (point2mapy - point1mapy) * 2;
   lVar1 = (long long)iVar2 * (long long)iVar4;
   uVar3 = (ushort)((unsigned long long)lVar1 >> 0x10);
-  mapyveltop = CONCAT22(uVar3, (short)((unsigned long long)lVar1 >> 0x20)) << 0x10 | (uint)uVar3;
+  mapyveltop
+      = combineHighLowBits(uVar3, (short)((unsigned long long)lVar1 >> 0x20)) << 0x10 | (uint)uVar3;
   if (iVar2 < 0) {
     mapyveltop++;
   }
-  return;
+}
+
+void calc_data_for_edge_clean() {
+  int deltaY = point2y - point1y;
+  int reciprocal;
+  long long product;
+
+  // Calculate reciprocal based on deltaY
+  if (deltaY < 256) {
+    reciprocal = gpoly_reptable[deltaY];
+  } else {
+    reciprocal = 0x7FFFFFFF / deltaY;
+  }
+
+  // Calculate shade velocity
+  int deltaShade = (point2shade - point1shade) * 2;
+  product = (long long)deltaShade * reciprocal;
+  shadeveltop = product >> 16;
+  if (deltaShade < 0) {
+    shadeveltop++;
+  }
+
+  // Calculate map X velocity
+  int deltaMapX = (point2mapx - point1mapx) * 2;
+  product = (long long)deltaMapX * reciprocal;
+  mapxveltop = product >> 16;
+  if (deltaMapX < 0) {
+    mapxveltop++;
+  }
+
+  // Calculate map Y velocity
+  int deltaMapY = (point2mapy - point1mapy) * 2;
+  product = (long long)deltaMapY * reciprocal;
+  mapyveltop = product >> 16;
+  if (deltaMapY < 0) {
+    mapyveltop++;
+  }
 }
 
 static void draw_gpoly_sub7_subfunc2() {
