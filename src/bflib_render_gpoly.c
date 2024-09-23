@@ -2782,122 +2782,6 @@ static void calculateHorizontalSteps() {
   }
 }
 
-static void draw_gpoly_sub7_subfunc1() {
-#if __GNUC__
-  asm volatile(
-      " \
-    pusha   \n \
-    movl    _point2x,%%esi\n \
-    movl    _crease_len,%%edi\n \
-    orl     %%edi,%%edi\n \
-    subl    $0x0,%%esi\n \
-    addl    $0x0,%%esi\n \
-    movl    _point1x,%%eax\n \
-    subl    %%eax,%%esi\n \
-    movl    _point3x,%%edi\n \
-    subl    %%eax,%%edi\n \
-    movl    _point1y,%%eax\n \
-    movl    _point2y,%%ebx\n \
-    subl    %%eax,%%ebx\n \
-    movl    _point3y,%%ecx\n \
-    subl    %%eax,%%ecx\n \
-    movl    %%ecx,%%eax\n \
-    imull   %%esi,%%ecx\n \
-    movl    _crease_len,%%ebp\n \
-    orl     %%ebp,%%ebp\n \
-    js      bendonright\n \
-    subl    %%eax,%%ecx\n \
-    subl    %%eax,%%ecx\n \
-\n \
-bendonright:\n \
-    addl    %%eax,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    jz      zerocalc\n \
-    xorl    %%edx,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ebx\n \
-    movl    %%eax,%%ebp\n \
-    movl    _point1y,%%eax\n \
-    movl    _point3y,%%esi\n \
-    subl    %%eax,%%esi\n \
-    movl    _point2y,%%edi\n \
-    subl    %%eax,%%edi\n \
-    movl    %%ebp,%%eax\n \
-    movl    _point1shade,%%edx\n \
-    movl    _point3shade,%%ebx\n \
-    subl    %%edx,%%ebx\n \
-    movl    _point2shade,%%ecx\n \
-    subl    %%edx,%%ecx\n \
-    imull   %%esi,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    imull   %%ebx\n \
-    shll    $1,%%eax\n \
-    rcll    $1,%%edx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns posshade\n \
-    incl    %%eax\n \
-\n \
-posshade:\n \
-    movl    %%eax,_shadehstep\n \
-    movl    %%ebp,%%eax\n \
-    movl    _point1mapx,%%edx\n \
-    movl    _point3mapx,%%ebx\n \
-    subl    %%edx,%%ebx\n \
-    movl    _point2mapx,%%ecx\n \
-    subl    %%edx,%%ecx\n \
-    imull   %%esi,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    imull   %%ebx\n \
-    shll    $1,%%eax\n \
-    rcll    $1,%%edx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns posmapx\n \
-    incl    %%eax\n \
-\n \
-posmapx:\n \
-    movl    %%eax,_mapxhstep\n \
-    movl    %%ebp,%%eax\n \
-    movl    _point1mapy,%%edx\n \
-    movl    _point3mapy,%%ebx\n \
-    subl    %%edx,%%ebx\n \
-    movl    _point2mapy,%%ecx\n \
-    subl    %%edx,%%ecx\n \
-    imull   %%esi,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    imull   %%ebx\n \
-    shll    $1,%%eax\n \
-    rcll    $1,%%edx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns posmapy\n \
-    incl    %%eax\n \
-\n \
-posmapy:\n \
-    movl    %%eax,_mapyhstep\n \
-    jmp calcend\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-zerocalc:\n \
-    xorl    %%eax,%%eax\n \
-    movl    %%eax,_shadehstep\n \
-    movl    %%eax,_mapxhstep\n \
-    movl    %%eax,_mapyhstep\n \
-\n \
-calcend:\n \
-    popa    \n \
-"
-      :
-      :
-      : "memory", "cc");
-#endif
-}
-
 static void draw_gpoly_sub7_subfunc2() {
 #if __GNUC__
   asm volatile(
@@ -3227,7 +3111,6 @@ gpo_case69_break:\n \
 }
 
 void draw_gpoly_sub7() {
-  //   draw_gpoly_sub7_subfunc1();
   calculateHorizontalSteps();
   draw_gpoly_sub7_subfunc2();
 }
