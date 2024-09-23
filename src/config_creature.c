@@ -94,7 +94,7 @@ const struct NamedCommand creaturetype_instance_commands[] = {
   {"PROPERTIES",     15},
   {"FPINSTANTCAST",  16},
   {"PRIMARYTARGET",  17},
-  {"VALIDATEFUNC",  18},
+  {"VALIDATEFUNC",   18},
   {"SEARCHTARGETSFUNC", 19},
   {NULL,              0},
   };
