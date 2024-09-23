@@ -196,3 +196,15 @@ frames = [0,0,0,0,0,0,0,0]
 [texture591]
 name = ""
 frames = [0,0,0,0,0,0,0,0]
+
+[texture592]
+name = "midas_door_cl"
+frames = [1028,1028,1034,1034,1037,1037,1040,1040]
+
+[texture593]
+name = "midas_door_c"
+frames = [1029,1029,1035,1035,1038,1038,1041,1041]
+
+[texture594]
+name = "midas_door_cr"
+frames = [1030,1030,1036,1036,1039,1039,1042,1042]
