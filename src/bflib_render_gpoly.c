@@ -355,8 +355,8 @@ static long gpoly_pro_enable_mode_ofs;
 long gpoly_mode;
 long factor_ca, factor_ba, factor_cb, crease_len;
 // More variables - made global temporarly to ease assembly rewriting
-struct PolyPoint *gploc_point_a, *gploc_point_b, *shadeveltop;
-long gploc_1A4, shadevelbottom;
+struct PolyPoint *gploc_point_a, *gploc_point_b;
+long gploc_1A4, shadeveltop, shadevelbottom;
 short gploc_word01, gploc_word02, gploc_word03;
 long mapxvelbottom, mapxveltop, mapyvelbottom, mapyveltop, gploc_180;
 long point1y, point1x, gploc_pt_shax, point1shade, point1mapx, point1mapy;
@@ -389,7 +389,7 @@ void draw_gpoly_sub3b();
 void draw_gpoly_sub4();
 void draw_gpoly_sub5();
 void draw_gpoly_sub6();
-void draw_gpoly_sub7();
+void calc_triangle_data();
 void draw_gpoly_sub11();
 void draw_gpoly_sub12();
 void draw_gpoly_sub13();
@@ -517,7 +517,7 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
 
   gploc_point_a = point_a;
   gploc_point_b = point_b;
-  shadeveltop = point_c;
+//   shadeveltop = point_c;
 
   switch (gpoly_mode) {
     case 27:
@@ -599,7 +599,7 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
       draw_gpoly_sub6();
       break;
     case 69:
-      draw_gpoly_sub7();
+      calc_triangle_data();
       break;
     case 43:
     case 44:
@@ -2742,7 +2742,7 @@ static int computeTextureMappingParameter(int scaleAdjustment, int deltaCoord_C_
  * - shadehstep, mapxhstep, mapyhstep: Outputs for shading and texture mapping horizontal steps.
  * - crease_len: An external parameter affecting delta product calculation.
  */
-static void calculateHorizontalSteps() {
+static void calc_horizontal_steps() {
   // Calculate positional deltas between the vertices of the triangle
   int deltaX_B_A = point2x - point1x;  // Change in X from vertex A to B
   int deltaY_B_A = point2y - point1y;  // Change in Y from vertex A to B
@@ -2782,9 +2782,9 @@ static void calculateHorizontalSteps() {
   }
 }
 
-void calc_data_for_edge(int _point1y, int _point2y, int _point1shade, int _point2shade,
-                        int _point1mapx, int _point2mapx, int _point1mapy, int _point2mapy,
-                        int *_shadevel, int *_mapxvel, int *_mapyvel) {
+static void calc_data_for_edge(long _point1y, long _point2y, long _point1shade, long _point2shade,
+                        long _point1mapx, long _point2mapx, long _point1mapy, long _point2mapy,
+                        long *_shadevel, long *_mapxvel, long *_mapyvel) {
   int deltaY = _point2y - _point1y;
   int reciprocal;
   long long product;
@@ -2833,8 +2833,8 @@ static void calc_data_edge_step() {
   }
 }
 
-static void calc_startpos_sec(int _pointshade, int _pointmapx, int _pointmapy, int *_startposshade,
-                              int *_startposmapx, int *_startposmapy) {
+static void calc_startpos_sec(long _pointshade, long _pointmapx, long _pointmapy, long *_startposshade,
+                              long *_startposmapx, long *_startposmapy) {
   *_startposshade = _pointshade << 16;
   *_startposmapx = _pointmapx << 16;
   *_startposmapy = _pointmapy << 16;
@@ -2847,7 +2847,8 @@ static void calc_startpos() {
                     &startposmapybottom);
 }
 
-static void draw_gpoly_sub7_subfunc2() {
+void calc_triangle_data() {
+  calc_horizontal_steps();
   calc_data_edge_step();
   calc_startpos();
 
@@ -3005,11 +3006,6 @@ gpo_case69_break:\n \
       :
       : "memory", "cc");
 #endif
-}
-
-void draw_gpoly_sub7() {
-  calculateHorizontalSteps();
-  draw_gpoly_sub7_subfunc2();
 }
 
 void draw_gpoly_sub11() {

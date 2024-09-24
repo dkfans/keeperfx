@@ -389,7 +389,7 @@ void draw_gpoly_sub3b();
 void draw_gpoly_sub4();
 void draw_gpoly_sub5();
 void draw_gpoly_sub6();
-void draw_gpoly_sub7();
+void calc_triangle_data();
 void draw_gpoly_sub11();
 void draw_gpoly_sub12();
 void draw_gpoly_sub13();
@@ -599,7 +599,7 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
       draw_gpoly_sub6();
       break;
     case 69:
-      draw_gpoly_sub7();
+      calc_triangle_data();
       break;
     case 43:
     case 44:
@@ -5185,7 +5185,7 @@ ENDM
 
 // #if 0
 // Legacy implementation
-void draw_gpoly_sub7() {
+void calc_triangle_data() {
   // JUSTLOG(
   //     "[test-inputs] gploc_pt_ax=%d, gploc_pt_ay=%d, gploc_pt_bx=%d, gploc_pt_by=%d, "
   //     "gploc_pt_cx=%d, "
