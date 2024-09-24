@@ -5183,6 +5183,85 @@ CALC_STARTPOS_SEC MACRO ShadeOn, TextOn, pt, sec, PixFix
 ENDM
 */
 
+/*
+PACK_HSTEP_textshade MACRO
+        mov eax, mapxhstep
+        mov edx, eax
+        shl eax, 16
+        sar edx, 16
+        mov ax, shadehstep + 1
+        or ax, ax
+        jns posshade1
+
+        sub eax, 65536
+        sbb dl, 0
+
+posshade1:
+        mov packedhstep1, eax
+        mov packedhstep2, edx
+        mov eax, mapyhstep
+        shl eax, 16
+        mov edx, mapyhstep
+        sar edx, 16
+        mov al, packedhstep2
+        or al, al
+        jns posmapx1
+
+        sub eax, 256
+        sbb dl, 0
+
+posmapx1:
+        mov packedhstep2, eax
+        mov packedhstep3, edx
+
+        mov eax, mapxhstep           ;less accurate version for inner loop
+        mov edx, eax
+        shl eax, 16
+        sar edx, 16
+        mov ax, shadehstep + 1
+        or ax, ax
+        jns posshade2
+
+        sub eax, 65536 - 1
+        sbb dl, 0
+
+posshade2:
+        mov packedhstep18bs, eax
+        mov packedhstep28bs, edx
+        mov eax, mapyhstep
+        shl eax, 16
+        mov edx, mapyhstep
+        sar edx, 16
+        mov al, packedhstep28bs
+        or al, al
+        jns posmapx2
+
+        sub eax, 256
+        sbb dl, 0
+
+posmapx2:
+        mov packedhstep28bs, eax
+        mov packedhstep38bs, edx
+ENDM
+*/
+
+/*
+PACK_DATA MACRO packtype
+        PACK_HSTEP_&packtype
+        PACK_EDGE_&packtype top
+        PACK_STARTPOS_&packtype top
+
+        mov esi, creaselen
+        or esi, esi
+        js calcend
+
+        PACK_EDGE_&packtype bottom
+        PACK_STARTPOS_&packtype bottom
+
+calcend:
+ENDM
+*/
+
 // #if 0
 // Legacy implementation
 void calc_triangle_data() {
