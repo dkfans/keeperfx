@@ -186,25 +186,13 @@ name = "gems_near_lava3"
 frames = [1022,1022,1023,1023,1024,1024,1021,1021]
 
 [texture589]
-name = "dummy_1"
-frames = [0,0,0,0,0,0,0,0]
-
-[texture590]
-name = "dummy_2"
-frames = [0,0,0,0,0,0,0,0]
-
-[texture591]
-name = "dummy_3"
-frames = [0,0,0,0,0,0,0,0]
-
-[texture592]
 name = "midas_door_cl"
 frames = [1028,1028,1034,1034,1037,1037,1040,1040]
 
-[texture593]
+[texture590]
 name = "midas_door_c"
 frames = [1029,1029,1035,1035,1038,1038,1041,1041]
 
-[texture594]
+[texture591]
 name = "midas_door_cr"
 frames = [1030,1030,1036,1036,1039,1039,1042,1042]
