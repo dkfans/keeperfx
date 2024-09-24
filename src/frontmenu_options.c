@@ -211,6 +211,7 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     unsigned char code = settings.kbkeys[key_id].code;
     const char* keytext;
     char chbuf[2];
+    char mouse_button_label[255] = "";
     switch (code)
     {
       case KC_LSHIFT:
@@ -235,7 +236,6 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
       case KC_MOUSE2:
       case KC_MOUSE1:
       {
-        char mouse_button_label[255] = "";
         const char* mouse_gui_string = get_string(key_to_string[(long)code]);
         int mouse_button_number = (KC_MOUSE1 + 1 - code);
         char mouse_button_number_string[8];
