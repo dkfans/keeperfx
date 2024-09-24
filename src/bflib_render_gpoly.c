@@ -2782,10 +2782,10 @@ static void calculateHorizontalSteps() {
   }
 }
 
-static void calc_data_edge_step() {}
-
-void calc_data_for_edge() {
-  int deltaY = point2y - point1y;
+void calc_data_for_edge(int _point1y, int _point2y, int _point1shade, int _point2shade,
+                        int _point1mapx, int _point2mapx, int _point1mapy, int _point2mapy,
+                        int *_shadevel, int *_mapxvel, int *_mapyvel) {
+  int deltaY = _point2y - _point1y;
   int reciprocal;
   long long product;
 
@@ -2797,203 +2797,49 @@ void calc_data_for_edge() {
   }
 
   // Calculate shade velocity
-  int deltaShade = (point2shade - point1shade) * 2;
+  int deltaShade = (_point2shade - _point1shade) * 2;
   product = (long long)deltaShade * reciprocal;
-  shadeveltop = product >> 16;
+  *_shadevel = product >> 16;
   if (deltaShade < 0) {
-    shadeveltop++;
+    *_shadevel++;
   }
 
   // Calculate map X velocity
-  int deltaMapX = (point2mapx - point1mapx) * 2;
+  int deltaMapX = (_point2mapx - _point1mapx) * 2;
   product = (long long)deltaMapX * reciprocal;
-  mapxveltop = product >> 16;
+  *_mapxvel = product >> 16;
   if (deltaMapX < 0) {
-    mapxveltop++;
+    *_mapxvel++;
   }
 
   // Calculate map Y velocity
-  int deltaMapY = (point2mapy - point1mapy) * 2;
+  int deltaMapY = (_point2mapy - _point1mapy) * 2;
   product = (long long)deltaMapY * reciprocal;
-  mapyveltop = product >> 16;
+  *_mapyvel = product >> 16;
   if (deltaMapY < 0) {
-    mapyveltop++;
+    *_mapyvel++;
+  }
+}
+
+static void calc_data_edge_step() {
+  if (crease_len < 0) {
+    calc_data_for_edge(point1y, point3y, point1shade, point3shade, point1mapx, point3mapx,
+                       point1mapy, point3mapy, &shadeveltop, &mapxveltop, &mapyveltop);
+  } else {
+    calc_data_for_edge(point1y, point2y, point1shade, point2shade, point1mapx, point2mapx,
+                       point1mapy, point2mapy, &shadeveltop, &mapxveltop, &mapyveltop);
+    calc_data_for_edge(point2y, point3y, point2shade, point3shade, point2mapx, point3mapx,
+                       point2mapy, point3mapy, &shadevelbottom, &mapxvelbottom, &mapyvelbottom);
   }
 }
 
 static void draw_gpoly_sub7_subfunc2() {
+  calc_data_edge_step();
+
 #if __GNUC__
   asm volatile(
       " \
-# CALC_DATA_EDGE_STEP -------------------------------------------------------\n \
-    pusha   \n \
-    movl    _crease_len,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  bendonright1\n \
-\n \
-# --------------------------------------------------------------------------\n \
-# CALC_DATA_FOR_EDGE -------------------------------------------------------\n \
-    movl    _point2y,%%ecx\n \
-    subl    _point1y,%%ecx\n \
-    cmpl    $0x0FF,%%ecx\n \
-    jg  largey\n \
-    movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp smally\n \
-\n \
-largey:\n \
-    movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ecx\n \
-    movl    %%eax,%%ebx\n \
-\n \
-smally:\n \
-    movl    _point2shade,%%eax\n \
-    subl    _point1shade,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns posshade1\n \
-    incl    %%eax\n \
-\n \
-posshade1:\n \
-    movl    %%eax,_shadeveltop\n \
-    movl    _point2mapx,%%eax\n \
-    subl    _point1mapx,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns posmapx1\n \
-    incl    %%eax\n \
-\n \
-posmapx1:\n \
-    movl    %%eax,_mapxveltop\n \
-    movl    _point2mapy,%%eax\n \
-    subl    _point1mapy,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns posmapy1\n \
-    incl    %%eax\n \
-\n \
-posmapy1:\n \
-    movl    %%eax,_mapyveltop\n \
-# END CALC_DATA_FOR_EDGE ----------------------------------------------------\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-# --------------------------------------------------------------------------\n \
-# CALC_DATA_FOR_EDGE -------------------------------------------------------\n \
-    movl    _point3y,%%ecx\n \
-    subl    _point2y,%%ecx\n \
-    cmpl    $0x0FF,%%ecx\n \
-    jg  largey1\n \
-    movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp smally1\n \
-\n \
-largey1:\n \
-    movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ecx\n \
-    movl    %%eax,%%ebx\n \
-\n \
-smally1:\n \
-    movl    _point3shade,%%eax\n \
-    subl    _point2shade,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns posshade2\n \
-    incl    %%eax\n \
-\n \
-posshade2:\n \
-    movl    %%eax,_shadevelbottom\n \
-    movl    _point3mapx,%%eax\n \
-    subl    _point2mapx,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns posmapx2\n \
-    incl    %%eax\n \
-\n \
-posmapx2:\n \
-    movl    %%eax,_mapxvelbottom\n \
-    movl    _point3mapy,%%eax\n \
-    subl    _point2mapy,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns posmapy2\n \
-    incl    %%eax\n \
-\n \
-posmapy2:\n \
-    movl    %%eax,_mapyvelbottom\n \
-# END CALC_DATA_FOR_EDGE ----------------------------------------------------\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-    jmp calcend1\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-bendonright1:\n \
-# --------------------------------------------------------------------------\n \
-# CALC_DATA_FOR_EDGE -------------------------------------------------------\n \
-    movl    _point3y,%%ecx\n \
-    subl    _point1y,%%ecx\n \
-    cmpl    $0x0FF,%%ecx\n \
-    jg  gpo_loc_1EC8\n \
-    movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp gpo_loc_1ED6\n \
-\n \
-gpo_loc_1EC8:         # 1CCD\n \
-    movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ecx\n \
-    movl    %%eax,%%ebx\n \
-\n \
-gpo_loc_1ED6:         # 1CD6\n \
-    movl    _point3shade,%%eax\n \
-    subl    _point1shade,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1EEB\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1EEB:         # 1CF8\n \
-    movl    %%eax,_shadeveltop\n \
-    movl    _point3mapx,%%eax\n \
-    subl    _point1mapx,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1F04\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1F04:         # 1D1\n \
-    movl    %%eax,_mapxveltop\n \
-    movl    _point3mapy,%%eax\n \
-    subl    _point1mapy,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1F1D\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1F1D:         # 1D2A\n \
-    movl    %%eax,_mapyveltop\n \
-# END CALC_DATA_FOR_EDGE ----------------------------------------------------\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-calcend1:\n \
-# END CALC_DATA_EDGE_STEP ---------------------------------------------------\n \
-# ---------------------------------------------------------------------------\n \
+    pusha\n \
     movl    _point1shade,%%eax\n \
     shll    $0x10,%%eax\n \
     movl    %%eax,_startposshadetop\n \
