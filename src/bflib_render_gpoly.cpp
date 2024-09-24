@@ -329,36 +329,36 @@ long gpoly_divtable[] = {
 long gpoly_pro_enable_mode_ofs = 0;
 
 template<typename T, typename U>
-inline auto CONCAT11(T a, U b) {
+static inline __attribute__((always_inline)) auto CONCAT11(T a, U b) {
   return ((a & 0xff) << 8) | (b & 0xff);
 }
 
 template<typename T, typename U>
-inline auto CONCAT21(T a, U b) {
+static inline __attribute__((always_inline)) auto CONCAT21(T a, U b) {
   return ((a & 0xffff) << 8) | (b & 0xff);
 }
 
 template<typename T, typename U>
-inline auto CONCAT22(T a, U b) {
+static inline __attribute__((always_inline)) auto CONCAT22(T a, U b) {
   return ((a & 0xffff) << 16) | (b & 0xffff);
 }
 
 template<typename T, typename U>
-inline auto CONCAT31(T a, U b) {
+static inline __attribute__((always_inline)) auto CONCAT31(T a, U b) {
   return ((a & 0xffffff) << 8) | (b & 0xff);
 }
 
 template<typename T, typename U>
-inline auto CARRY1(T a, U b) {
+static inline __attribute__((always_inline)) auto CARRY1(T a, U b) {
   return (uint8_t(b) > 0) && uint8_t(a) > CHAR_MAX - uint8_t(b);
 }
 
 template<typename T, typename U>
-inline auto CARRY4(T a, U b) {
+static inline __attribute__((always_inline)) auto CARRY4(T a, U b) {
   return (uint32_t(b) > 0) && uint32_t(a) > INT_MAX - uint32_t(b);
 }
 
-inline int16_t GET12(uint & a) {
+static inline __attribute__((always_inline)) int16_t GET12(uint & a) {
   return (a >> 8) & 0xffff;
 }
 
