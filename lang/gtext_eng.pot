@@ -1472,7 +1472,7 @@ msgstr ""
 
 #: guitext:239
 msgctxt "Creature spell"
-msgid "Invisibility: Cast on one of your minions, it makes the host creature invisible to all enemies. Unless they possess a subnatural Sight."
+msgid "Invisibility: Makes the creature invisible to all enemies. Unless they possess a subnatural Sight."
 msgstr ""
 
 #: guitext:240
@@ -3560,17 +3560,17 @@ msgstr ""
 
 #: guitext:654
 msgctxt "Keeper spell description"
-msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
+msgid "Speed Monster: Increases the speed of your monsters."
 msgstr ""
 
 #: guitext:655
 msgctxt "Keeper spell description"
-msgid "Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
+msgid "Protect Monster: Shields your creatures from attack. LBM select."
 msgstr ""
 
 #: guitext:656
 msgctxt "Keeper spell description"
-msgid "Conceal Monster: Makes your creatures invisible to the enemy. LMB select. [18.7]"
+msgid "Conceal Monster: Makes your creatures invisible to the enemy."
 msgstr ""
 
 #: guitext:657
@@ -5565,7 +5565,7 @@ msgstr ""
 
 #: guitext:1053
 msgctxt "Keeper spell name"
-msgid "Rebound"
+msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
 msgstr ""
 
 #: guitext:1054
@@ -5580,7 +5580,7 @@ msgstr ""
 
 #: guitext:1056
 msgctxt "Keeper spell name"
-msgid "Flight"
+msgid "Levitate: Causes the target creature to take off from the ground and attack creatures from the air or cross lava unharmed."
 msgstr ""
 
 #: guitext:1057
@@ -5590,7 +5590,7 @@ msgstr ""
 
 #: guitext:1058
 msgctxt "Keeper spell name"
-msgid "Sight"
+msgid "Sight: Allows the target creature to temporarily increase its awareness and notice the invisible."
 msgstr ""
 
 #: guitext:1059
@@ -5626,4 +5626,24 @@ msgstr ""
 #: guitext:1065
 msgctxt "Game controls"
 msgid "Reset Tilt"
+msgstr ""
+
+#: guitext:1066
+msgctxt "Creature spell"
+msgid "Heal Monster: The target creature is massively healed."
+msgstr ""
+
+#: guitext:1067 guitext:1068 guitext:1069 guitext:1070
+msgctxt "Unused"
+msgid "Moo7"
+msgstr ""
+
+#: guitext:1071
+msgctxt "Door name"
+msgid "Midas Door"
+msgstr ""
+
+#: guitext:1072
+msgctxt "Door description"
+msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
 msgstr ""
