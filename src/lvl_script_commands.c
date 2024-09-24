@@ -4663,14 +4663,17 @@ static void set_music_process(struct ScriptContext *context)
             } else {
 #if SDL_MIXER_VERSION_ATLEAST(2, 6, 0)
                 char info[255];
-                snprintf(info, sizeof(info), "%s", Mix_GetMusicTitle(tracks[track_number]));
+                const char * title = Mix_GetMusicTitle(tracks[track_number]);
                 const char * artist = Mix_GetMusicArtistTag(tracks[track_number]);
-                if (strlen(artist) > 0) {
-                    snprintf(info, sizeof(info), "%s by %s", info, artist);
-                }
                 const char * copyright = Mix_GetMusicCopyrightTag(tracks[track_number]);
-                if (strlen(copyright) > 0) {
-                    snprintf(info, sizeof(info), "%s (%s)", info, copyright);
+                if (strlen(artist) > 0 && strlen(copyright) > 0) {
+                    snprintf(info, sizeof(info), "%s by %s (%s)", title, artist, copyright);
+                } else if (strlen(artist) > 0) {
+                    snprintf(info, sizeof(info), "%s by %s", title, artist);
+                } else if (strlen(copyright) > 0) {
+                    snprintf(info, sizeof(info), "%s (%s)", title, copyright);
+                } else {
+                    snprintf(info, sizeof(info), "%s", title);
                 }
                 SCRPTLOG("Setting music track to %d: %s", track_number, info);
 #else
