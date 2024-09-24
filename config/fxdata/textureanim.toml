@@ -186,15 +186,15 @@ name = "gems_near_lava3"
 frames = [1022,1022,1023,1023,1024,1024,1021,1021]
 
 [texture589]
-name = ""
+name = "dummy_1"
 frames = [0,0,0,0,0,0,0,0]
 
 [texture590]
-name = ""
+name = "dummy_2"
 frames = [0,0,0,0,0,0,0,0]
 
 [texture591]
-name = ""
+name = "dummy_3"
 frames = [0,0,0,0,0,0,0,0]
 
 [texture592]
