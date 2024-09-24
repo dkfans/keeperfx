@@ -273,8 +273,8 @@ DEPS = \
 	deps/zlib/contrib/minizip/ioapi.o \
 	deps/enet/build/libenet.a
 
-CFLAGS = -c -g -m32 --std=gnu17 -Wall -Wextra -Werror -Wno-sign-compare -Wno-unused-parameter -Wno-unknown-pragmas -Wno-format-truncation
-CXXFLAGS = -c -g -m32 --std=c++23 -Wall -Wextra -Werror -Wno-sign-compare -Wno-unused-parameter -Wno-unknown-pragmas -Wno-format-truncation
+CFLAGS = -c -g -m32 -mno-sse --std=gnu17 -Wall -Wextra -Werror -Wno-sign-compare -Wno-unused-parameter -Wno-unknown-pragmas -Wno-format-truncation
+CXXFLAGS = -c -g -m32 -mno-sse --std=c++23 -Wall -Wextra -Werror -Wno-sign-compare -Wno-unused-parameter -Wno-unknown-pragmas -Wno-format-truncation
 
 all: bin/keeperfx
 
