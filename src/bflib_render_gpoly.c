@@ -2833,31 +2833,28 @@ static void calc_data_edge_step() {
   }
 }
 
+static void calc_startpos_sec(int _pointshade, int _pointmapx, int _pointmapy, int *_startposshade,
+                              int *_startposmapx, int *_startposmapy) {
+  *_startposshade = _pointshade << 16;
+  *_startposmapx = _pointmapx << 16;
+  *_startposmapy = _pointmapy << 16;
+}
+
+static void calc_startpos() {
+  calc_startpos_sec(point1shade, point1mapx, point1mapy, &startposshadetop, &startposmapxtop,
+                    &startposmapytop);
+  calc_startpos_sec(point2shade, point2mapx, point2mapy, &startposshadebottom, &startposmapxbottom,
+                    &startposmapybottom);
+}
+
 static void draw_gpoly_sub7_subfunc2() {
   calc_data_edge_step();
+  calc_startpos();
 
 #if __GNUC__
   asm volatile(
       " \
     pusha\n \
-    movl    _point1shade,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_startposshadetop\n \
-    movl    _point1mapx,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_startposmapxtop\n \
-    movl    _point1mapy,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_startposmapytop\n \
-    movl    _point2shade,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_startposshadebottom\n \
-    movl    _point2mapx,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_startposmapxbottom\n \
-    movl    _point2mapy,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_startposmapybottom\n \
     movl    _mapyhstep,%%eax\n \
     movl    %%eax,%%edx\n \
     shll    $0x10,%%eax\n \

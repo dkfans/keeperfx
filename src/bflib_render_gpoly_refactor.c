@@ -4994,6 +4994,10 @@ gpo_loc_1F1D:         # 1D2A\n \
 calcend1:\n \
 # END CALC_DATA_EDGE_STEP ---------------------------------------------------\n \
 # ---------------------------------------------------------------------------\n \
+\n \
+# --------------------------------------------------------------------------\n \
+# CALC_STARTPOS ------------------------------------------------------------\n \
+# --- CALC_STARTPOS_SEC ----------------------------------------------------\n \
     movl    _point1shade,%%eax\n \
     shll    $0x10,%%eax\n \
     movl    %%eax,_startposshadetop\n \
@@ -5163,6 +5167,21 @@ gpo_case69_break:\n \
       : "memory", "cc");
 #endif
 }
+
+/*
+CALC_STARTPOS_SEC MACRO ShadeOn, TextOn, pt, sec, PixFix
+        mov eax, point&pt&shade
+        shl eax, 16
+        mov startposshade&sec, eax
+
+        mov eax, point&pt&mapx
+        shl eax, 16
+        mov startposmapx&sec, eax
+        mov eax, point&pt&mapy
+        shl eax, 16
+        mov startposmapy&sec, eax
+ENDM
+*/
 
 // #if 0
 // Legacy implementation
