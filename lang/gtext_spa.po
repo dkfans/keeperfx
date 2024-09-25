@@ -6091,7 +6091,7 @@ msgstr "Lentitud"
 
 #: guitext:1056
 msgctxt "Keeper spell name"
-msgid "Flight"
+msgid "Levitate: Causes the target creature to take off from the ground and attack creatures from the air or cross lava unharmed."
 msgstr "Vuelo"
 
 #: guitext:1057
