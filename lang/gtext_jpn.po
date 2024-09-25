@@ -6874,7 +6874,7 @@ msgstr ""
 #: guitext:1067
 msgctxt "Creature spell"
 msgid "Cleanse: Cures all negative effects inflicted on the creature."
-msgstr "クレンズ：クリーチャーに与えられたすべての負の効果を治療します。
+msgstr "クレンズ：クリーチャーに与えられたすべての負の効果を治療します。"
 
 #: guitext:1068
 msgctxt "Creature spell"
