@@ -3963,18 +3963,18 @@ msgstr "Tvingad lydnad: Tvingar dina varelser att lyda alla dina kommandon. VMK 
 
 #: guitext:654
 msgctxt "Keeper spell description"
-msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
-msgstr "Hastighet: Ökar hastigheten på dina monster. VMK väljer. [18.4]"
+msgid "Speed Monster: Increases the speed of your monsters."
+msgstr "Hastighet: Ökar hastigheten på dina monster."
 
 #: guitext:655
 msgctxt "Keeper spell description"
-msgid "Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
-msgstr "Skydda monster: Skyddar dina varelser från attacker. VMK väljer. [18.11]"
+msgid "Protect Monster: Shields your creatures from attack."
+msgstr "Skydda monster: Skyddar dina varelser från attacker."
 
 #: guitext:656
 msgctxt "Keeper spell description"
-msgid "Conceal Monster: Makes your creatures invisible to the enemy. LMB select. [18.7]"
-msgstr "Dölj monster: Gör dina varelser osynliga för fienden. VMK väljer. [18.7]"
+msgid "Conceal Monster: Makes your creatures invisible to the enemy."
+msgstr "Dölj monster: Gör dina varelser osynliga för fienden."
 
 #: guitext:657
 msgctxt "Keeper spell description"

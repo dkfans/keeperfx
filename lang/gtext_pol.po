@@ -4706,26 +4706,23 @@ msgstr ""
 
 #: guitext:654
 msgctxt "Keeper spell description"
-msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
+msgid "Speed Monster: Increases the speed of your monsters."
 msgstr ""
-"Przyspieszacz potwora: Zwiększa szybkość działania Twoich stworów. LPM "
-"uaktywnia. [18.4]"
+"Przyspieszacz potwora: Zwiększa szybkość działania Twoich stworów."
 
 #: guitext:655
 msgctxt "Keeper spell description"
 msgid ""
-"Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
+"Protect Monster: Shields your creatures from attack."
 msgstr ""
-"Ochrona potwora: Osłania Twoje stwory przed atakiem. LPM uaktywnia. [18.11]"
+"Ochrona potwora: Osłania Twoje stwory przed atakiem."
 
 #: guitext:656
 msgctxt "Keeper spell description"
 msgid ""
-"Conceal Monster: Makes your creatures invisible to the enemy. LMB select. "
-"[18.7]"
+"Conceal Monster: Makes your creatures invisible to the enemy."
 msgstr ""
-"Ukrycie potwora: Czyni Twoje stwory niewidzialnymi dla wroga. LPM uaktywnia. "
-"[18.7]"
+"Ukrycie potwora: Czyni Twoje stwory niewidzialnymi dla wroga."
 
 #: guitext:657
 msgctxt "Keeper spell description"

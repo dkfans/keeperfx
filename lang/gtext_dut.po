@@ -4619,27 +4619,23 @@ msgstr ""
 
 #: guitext:654
 msgctxt "Keeper spell description"
-msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
+msgid "Speed Monster: Increases the speed of your monsters."
 msgstr ""
-"Monsterversneller: Verhoogt de snelheid van je slaafjes. LMK: selecteren. "
-"[18.4]"
+"Monsterversneller: Verhoogt de snelheid van je slaafjes."
 
 #: guitext:655
 msgctxt "Keeper spell description"
 msgid ""
-"Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
+"Protect Monster: Shields your creatures from attack."
 msgstr ""
-"Monsterbescherming: Beschermt je wezens tegen aanvallen. LMK: selecteren. "
-"[18.11]"
+"Monsterbescherming: Beschermt je wezens tegen aanvallen."
 
 #: guitext:656
 msgctxt "Keeper spell description"
 msgid ""
-"Conceal Monster: Makes your creatures invisible to the enemy. LMB select. "
-"[18.7]"
+"Conceal Monster: Makes your creatures invisible to the enemy."
 msgstr ""
-"Onzichtbaar: Maakt je wezens onzichtbaar voor de vijand. LMK: selecteren. "
-"[18.7]"
+"Onzichtbaar: Maakt je wezens onzichtbaar voor de vijand."
 
 #: guitext:657
 msgctxt "Keeper spell description"

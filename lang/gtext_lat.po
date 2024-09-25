@@ -3716,18 +3716,18 @@ msgstr "Oboedientia: Obliga creaturas tuas oboedire unumquidque mandatum tuum. B
 
 #: guitext:654
 msgctxt "Keeper spell description"
-msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
-msgstr "Creaturam Accelerare: Celeritatem creaturarum tuarum auget. BSM delige. [18.4]"
+msgid "Speed Monster: Increases the speed of your monsters."
+msgstr "Creaturam Accelerare: Celeritatem creaturarum tuarum auget."
 
 #: guitext:655
 msgctxt "Keeper spell description"
-msgid "Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
-msgstr "Creaturam Protegere: Creaturas tuas protegit ab aggresione. BSM delige. [18.11]"
+msgid "Protect Monster: Shields your creatures from attack."
+msgstr "Creaturam Protegere: Creaturas tuas protegit ab aggresione."
 
 #: guitext:656
 msgctxt "Keeper spell description"
-msgid "Conceal Monster: Makes your creatures invisible to the enemy. LMB select. [18.7]"
-msgstr "Creaturam Occulere: Creaturae tuae invisibiles ad inimicum fiunt. BSM delige. [18.7]"
+msgid "Conceal Monster: Makes your creatures invisible to the enemy."
+msgstr "Creaturam Occulere: Creaturae tuae invisibiles ad inimicum fiunt."
 
 #: guitext:657
 msgctxt "Keeper spell description"

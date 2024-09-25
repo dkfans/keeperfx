@@ -4439,21 +4439,20 @@ msgstr "强あ术: 强迫你的怪物服从你的每一个命令。按滑鼠左�
 
 #: guitext:654
 msgctxt "Keeper spell description"
-msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
-msgstr "加速术: 提高怪物的速度。按滑鼠左键选择。[18.4]"
+msgid "Speed Monster: Increases the speed of your monsters."
+msgstr "加速术: 提高怪物的速度。"
 
 #: guitext:655
 msgctxt "Keeper spell description"
 msgid ""
-"Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
-msgstr "保护术: 保护你的怪物不受攻击。按滑鼠左键选择。[18.11]"
+"Protect Monster: Shields your creatures from attack."
+msgstr "保护术: 保护你的怪物不受攻击。"
 
 #: guitext:656
 msgctxt "Keeper spell description"
 msgid ""
-"Conceal Monster: Makes your creatures invisible to the enemy. LMB select. "
-"[18.7]"
-msgstr "隐形术: 让敌人看不见你的怪物。按滑鼠左键选择。[18.7]"
+"Conceal Monster: Makes your creatures invisible to the enemy."
+msgstr "隐形术: 让敌人看不见你的怪物。"
 
 #: guitext:657
 msgctxt "Keeper spell description"

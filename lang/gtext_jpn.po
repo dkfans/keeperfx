@@ -4525,22 +4525,21 @@ msgstr ""
 
 #: guitext:654
 msgctxt "Keeper spell description"
-msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
-msgstr "加速: 手下クリーチャーのスピードを速める。左クリックで選択。 [18.4]"
+msgid "Speed Monster: Increases the speed of your monsters."
+msgstr "加速: 手下クリーチャーのスピードを速める。"
 
 #: guitext:655
 msgctxt "Keeper spell description"
 msgid ""
-"Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
-msgstr "防御: 手下クリーチャーを攻撃から守る。左クリックで選択。 [18.11]"
+"Protect Monster: Shields your creatures from attack."
+msgstr "防御: 手下クリーチャーを攻撃から守る。"
 
 #: guitext:656
 msgctxt "Keeper spell description"
 msgid ""
-"Conceal Monster: Makes your creatures invisible to the enemy. LMB select. "
-"[18.7]"
+"Conceal Monster: Makes your creatures invisible to the enemy."
 msgstr ""
-"透明化: 手下クリーチャーを敵から見えなくする。左クリックで選択。 [18.7]"
+"透明化: 手下クリーチャーを敵から見えなくする。"
 
 #: guitext:657
 msgctxt "Keeper spell description"

@@ -4682,27 +4682,23 @@ msgstr ""
 
 #: guitext:654
 msgctxt "Keeper spell description"
-msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
+msgid "Speed Monster: Increases the speed of your monsters."
 msgstr ""
-"Velocizza Creatura: Aumenta la velocità delle tue creature. TSM: seleziona. "
-"[18.4]"
+"Velocizza Creatura: Aumenta la velocità delle tue creature."
 
 #: guitext:655
 msgctxt "Keeper spell description"
 msgid ""
-"Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
+"Protect Monster: Shields your creatures from attack."
 msgstr ""
-"Proteggi Creatura: Ripara le tue creature da un attacco. TSM: seleziona. "
-"[18.11]"
+"Proteggi Creatura: Ripara le tue creature da un attacco."
 
 #: guitext:656
 msgctxt "Keeper spell description"
 msgid ""
-"Conceal Monster: Makes your creatures invisible to the enemy. LMB select. "
-"[18.7]"
+"Conceal Monster: Makes your creatures invisible to the enemy."
 msgstr ""
-"Nascondi Creatura: Rende le tue creature invisibili agli occhi del nemico. "
-"TSM: seleziona. [18.7]"
+"Nascondi Creatura: Rende le tue creature invisibili agli occhi del nemico."
 
 #: guitext:657
 msgctxt "Keeper spell description"

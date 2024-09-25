@@ -3971,24 +3971,21 @@ msgstr "Debe obedecer: Obliga a tus criaturas a obedecer cada una de tus órdene
 
 #: guitext:654
 msgctxt "Keeper spell description"
-msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
+msgid "Speed Monster: Increases the speed of your monsters."
 msgstr ""
-"Acelerar: Incrementa la velocidad de tus criaturas.  Selecciónalo con BIR y pulsa BIR sobre la criatura que deseas aumentarle la velocidad, "
-"mantén pulsado BIR para aumentar el poder del hechizo, antes de ser lanzado."
+"Acelerar: Incrementa la velocidad de tus criaturas."
 
 #: guitext:655
 msgctxt "Keeper spell description"
-msgid "Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
+msgid "Protect Monster: Shields your creatures from attack."
 msgstr ""
-"Proteger: Aumenta la protección a tus criaturas. Selecciónalo con BIR y pulsa BIR sobre la criatura que deseas aumentarle la protección, mantén "
-"pulsado BIR para aumentar el poder del hechizo, antes de ser lanzado."
+"Proteger: Aumenta la protección a tus criaturas."
 
 #: guitext:656
 msgctxt "Keeper spell description"
-msgid "Conceal Monster: Makes your creatures invisible to the enemy. LMB select. [18.7]"
+msgid "Conceal Monster: Makes your creatures invisible to the enemy."
 msgstr ""
-"Ocultar: Hace a tus criaturas invisibles para el enemigo. Selecciónalo con BIR y pulsa BIR sobre la criatura que deseas que sea invisible, "
-"mantén pulsado BIR para aumentar el poder del hechizo, antes de ser lanzado."
+"Ocultar: Hace a tus criaturas invisibles para el enemigo."
 
 #: guitext:657
 msgctxt "Keeper spell description"

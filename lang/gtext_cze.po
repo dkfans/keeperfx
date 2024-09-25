@@ -4595,25 +4595,23 @@ msgstr ""
 
 #: guitext:654
 msgctxt "Keeper spell description"
-msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
+msgid "Speed Monster: Increases the speed of your monsters."
 msgstr ""
-"Urychlit obludu: Zvysi rychlost tvych vybranych oblud. Vyber kouzla se "
-"provadi LTM. [18.4]"
+"Urychlit obludu: Zvysi rychlost tvych vybranych oblud."
 
 #: guitext:655
 msgctxt "Keeper spell description"
 msgid ""
-"Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
+"Protect Monster: Shields your creatures from attack."
 msgstr ""
-"Ochránit obludu: Ochrání tvé příšeny před útokem. LTM pro zvolení. [18.11]"
+"Ochránit obludu: Ochrání tvé příšeny před útokem."
 
 #: guitext:656
 msgctxt "Keeper spell description"
 msgid ""
-"Conceal Monster: Makes your creatures invisible to the enemy. LMB select. "
-"[18.7]"
+"Conceal Monster: Makes your creatures invisible to the enemy."
 msgstr ""
-"Skryj obludu: Zneviditelní tvé obludy pro nepřátele. LTM pro volbu. [18.7]"
+"Skryj obludu: Zneviditelní tvé obludy pro nepřátele."
 
 #: guitext:657
 msgctxt "Keeper spell description"

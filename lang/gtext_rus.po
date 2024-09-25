@@ -4739,24 +4739,22 @@ msgstr ""
 
 #: guitext:654
 msgctxt "Keeper spell description"
-msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
+msgid "Speed Monster: Increases the speed of your monsters."
 msgstr ""
-"Ускорить чудище: Увеличивает скорость Ваших созданий. ЛКМ - выбор. [18.4]"
+"Ускорить чудище: Увеличивает скорость Ваших созданий."
 
 #: guitext:655
 msgctxt "Keeper spell description"
 msgid ""
-"Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
-msgstr "Защищать чудище: Защищает Ваших созданий от атак. ЛКМ - выбор. [18.11]"
+"Protect Monster: Shields your creatures from attack."
+msgstr "Защищать чудище: Защищает Ваших созданий от атак."
 
 #: guitext:656
 msgctxt "Keeper spell description"
 msgid ""
-"Conceal Monster: Makes your creatures invisible to the enemy. LMB select. "
-"[18.7]"
+"Conceal Monster: Makes your creatures invisible to the enemy."
 msgstr ""
-"Скрыть чудище: Делает Ваших созданий невидимыми для врага. ЛКМ - выбор. "
-"[18.7]"
+"Скрыть чудище: Делает Ваших созданий невидимыми для врага. "
 
 #: guitext:657
 msgctxt "Keeper spell description"

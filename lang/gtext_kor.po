@@ -4609,27 +4609,23 @@ msgstr ""
 
 #: guitext:654
 msgctxt "Keeper spell description"
-msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
+msgid "Speed Monster: Increases the speed of your monsters."
 msgstr ""
-"몬스터 가속 : 몬스터의 속도가 빨라집니다. 왼쪽 마우스 단추로 선택합니다. "
-"[18.4]"
+"몬스터 가속 : 몬스터의 속도가 빨라집니다."
 
 #: guitext:655
 msgctxt "Keeper spell description"
 msgid ""
-"Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
+"Protect Monster: Shields your creatures from attack."
 msgstr ""
-"몬스터 보호 : 여러분의 피조물을 공격으로부터 보호합니다. 왼쪽 마우스 단추로 "
-"선택합니다. [18.11]"
+"몬스터 보호 : 여러분의 피조물을 공격으로부터 보호합니다."
 
 #: guitext:656
 msgctxt "Keeper spell description"
 msgid ""
-"Conceal Monster: Makes your creatures invisible to the enemy. LMB select. "
-"[18.7]"
+"Conceal Monster: Makes your creatures invisible to the enemy."
 msgstr ""
-"몬스터 은닉: 적에게 당신의 생명체를 보이지 않게 만듭니다. 왼쪽 마우스 단추로 "
-"선택합니다. [18.7]"
+"몬스터 은닉: 적에게 당신의 생명체를 보이지 않게 만듭니다."
 
 #: guitext:657
 msgctxt "Keeper spell description"
