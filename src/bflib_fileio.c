@@ -196,9 +196,7 @@ int LbFileSeek(TbFileHandle handle, long offset, unsigned char origin)
  */
 int LbFileRead(TbFileHandle handle, void *buffer, unsigned long len)
 {
-  //'read' returns (-1) on error
-  int result = fread(buffer, len, 1, handle);
-  return result;
+    return fread(buffer, 1, len, handle);
 }
 
 /**
@@ -210,8 +208,7 @@ int LbFileRead(TbFileHandle handle, void *buffer, unsigned long len)
 */
 long LbFileWrite(TbFileHandle handle, const void *buffer, const unsigned long len)
 {
-    long result = fwrite(buffer, len, 1, handle);
-    return result;
+    return fwrite(buffer, 1, len, handle);
 }
 
 /**
