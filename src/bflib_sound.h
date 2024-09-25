@@ -93,8 +93,9 @@ struct S3DSample { // sizeof = 37
 };
 
 struct SampleTable {
+  char name[18];
   unsigned long data_size;
-  unsigned long sfxid;
+  SoundSFXID sfxid;
   SndData snd_buf;
 };
 
