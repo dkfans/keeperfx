@@ -7013,7 +7013,7 @@ msgstr ""
 #: guitext:1067
 msgctxt "Creature spell"
 msgid "Cleanse: Cures all negative effects inflicted on the creature."
-msgstr ""
+msgstr "정화: 생물에게 가해진 모든 부정적인 효과를 치료합니다."
 
 #: guitext:1068
 msgctxt "Creature spell"

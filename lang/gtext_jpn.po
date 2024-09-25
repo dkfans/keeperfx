@@ -6798,7 +6798,7 @@ msgstr "基盤岩： 誰の所有でもない岩石の地面。それを占領�
 #: guitext:1052
 msgctxt "Slab description"
 msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
-msgstr "濃い金鉱： 手下インプが採掘する莫大な富。"
+msgstr "密な金の層：あなたのインプが採掘するための多くの富を保持しています。"
 
 #: guitext:1053
 #, fuzzy
@@ -6874,7 +6874,7 @@ msgstr ""
 #: guitext:1067
 msgctxt "Creature spell"
 msgid "Cleanse: Cures all negative effects inflicted on the creature."
-msgstr ""
+msgstr "クレンズ：クリーチャーに与えられたすべての負の効果を治療します。
 
 #: guitext:1068
 msgctxt "Creature spell"

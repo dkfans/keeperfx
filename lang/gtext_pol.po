@@ -7091,7 +7091,7 @@ msgstr ""
 #: guitext:1067
 msgctxt "Creature spell"
 msgid "Cleanse: Cures all negative effects inflicted on the creature."
-msgstr ""
+msgstr "Oczyszczenie: Leczy wszystkie negatywne efekty zadane stworzeniu."
 
 #: guitext:1068
 msgctxt "Creature spell"
