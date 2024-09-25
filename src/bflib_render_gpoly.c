@@ -2849,6 +2849,93 @@ static void calc_startpos() {
 
 static void pack_data() {}
 
+/*
+// Ghidra output of `pack_data`
+void pack_data() {
+  uint uVar1;
+  int iVar2;
+  int iVar3;
+  uint uVar4;
+  uint uVar5;
+  uint uVar6;
+  bool bVar7;
+  
+  uVar1 = mapyhstep * 0x10000;
+  iVar2 = mapyhstep >> 0x10;
+  _gploc_30 = shadehstep << 0x18;
+  uVar5 = shadehstep >> 8;
+  iVar3 = iVar2;
+  uVar6 = uVar5;
+  if ((int)uVar5 < 0) {
+    uVar6 = uVar5 & 0xffff;
+    bVar7 = uVar1 < 0x10000;
+    uVar1 = uVar1 - 0x10000;
+    iVar3 = iVar2 - (uint)bVar7;
+  }
+  uVar4 = iVar3 + (uint)CARRY4(uVar1,uVar6);
+  _gploc_BC = uVar1 + uVar6;
+  iVar3 = mapxhstep;
+  if ((int)uVar4 < 0) {
+    iVar3 = mapxhstep + -1;
+  }
+  _gploc_B8 = uVar4 & 0xff | iVar3 << 8;
+  uVar6 = mapyhstep * 0x10000;
+  if ((int)uVar5 < 0) {
+    uVar5 = uVar5 & 0xffff;
+    bVar7 = uVar6 < 0xffff;
+    uVar6 = uVar6 - 0xffff;
+    iVar2 = iVar2 - (uint)bVar7;
+  }
+  uVar1 = iVar2 + (uint)CARRY4(uVar6,uVar5);
+  _gploc_5C = uVar6 + uVar5;
+  iVar3 = mapxhstep;
+  if ((int)uVar1 < 0) {
+    iVar3 = mapxhstep + -1;
+  }
+  _gploc_2C = uVar1 & 0xff | iVar3 << 8;
+  uVar6 = mapyveltop * 0x10000;
+  iVar3 = mapyveltop >> 0x10;
+  _gploc_68 = shadeveltop << 0x18;
+  uVar1 = shadeveltop >> 8;
+  if ((int)uVar1 < 0) {
+    uVar1 = uVar1 & 0xffff;
+    bVar7 = uVar6 < 0x10000;
+    uVar6 = uVar6 - 0x10000;
+    iVar3 = iVar3 - (uint)bVar7;
+  }
+  uVar5 = iVar3 + (uint)CARRY4(uVar6,uVar1);
+  _gploc_A4 = uVar6 + uVar1;
+  iVar3 = mapxveltop;
+  if ((int)uVar5 < 0) {
+    iVar3 = mapxveltop + -1;
+  }
+  _gploc_A0 = uVar5 & 0xff | iVar3 << 8;
+  _gploc_8C = startposmapytop << 0x10 | startposshadetop >> 8;
+  _gploc_88 = startposmapytop >> 0x10 & 0xff | startposmapxtop << 8;
+  if (-1 < crease_len) {
+    uVar6 = mapyvelbottom * 0x10000;
+    iVar3 = mapyvelbottom >> 0x10;
+    _gploc_64 = shadevelbottom << 0x18;
+    uVar1 = shadevelbottom >> 8;
+    if ((int)uVar1 < 0) {
+      uVar1 = uVar1 & 0xffff;
+      bVar7 = uVar6 < 0x10000;
+      uVar6 = uVar6 - 0x10000;
+      iVar3 = iVar3 - (uint)bVar7;
+    }
+    _gploc_98 = uVar6 + uVar1;
+    uVar6 = iVar3 + (uint)CARRY4(uVar6,uVar1);
+    iVar3 = mapxvelbottom;
+    if ((int)uVar6 < 0) {
+      iVar3 = mapxvelbottom + -1;
+    }
+    _gploc_94 = uVar6 & 0xff | iVar3 << 8;
+    _gploc_80 = startposmapybottom << 0x10 | startposshadebottom >> 8;
+    _gploc_7C = startposmapybottom >> 0x10 & 0xff | startposmapxbottom << 8;
+  }
+}
+*/
+
 /**
  * Calculates triangle data required for rendering.
  *
@@ -2963,6 +3050,7 @@ void calc_triangle_data() {
     asm volatile(
         " \
       pusha\n \
+      int     $3\n \
       movl    _mapyhstep,%%eax\n \
       movl    %%eax,%%edx\n \
       shll    $0x10,%%eax\n \
