@@ -2238,14 +2238,13 @@ msgid "Group: Not used"
 msgstr "Contrôle de groupe : Non utilisé"
 
 #: guitext:239
+#, fuzzy
 msgctxt "Creature spell"
-msgid ""
-"Invisibility: Cast on one of your minions, it makes the host creature "
-"invisible to all enemies. Unless they possess a subnatural Sight."
+msgid "Invisibility: Makes the creature invisible to all enemies. Unless they possess a subnatural Sight."
 msgstr ""
 "Invisibilité : Lancé sur un de vos larbins, il rend la créature hôte "
 "invisible pour tous les ennemis. A moins qu'ils ne possèdent une vue "
-"médiocre[26.12]"
+"médiocre."
 
 #: guitext:240
 msgctxt "Creature spell"

@@ -2279,10 +2279,9 @@ msgid "Group: Not used"
 msgstr "Объединение: Не используется"
 
 #: guitext:239
+#, fuzzy
 msgctxt "Creature spell"
-msgid ""
-"Invisibility: Cast on one of your minions, it makes the host creature "
-"invisible to all enemies. Unless they possess a subnatural Sight."
+msgid "Invisibility: Makes the creature invisible to all enemies. Unless they possess a subnatural Sight."
 msgstr ""
 "Hевидимость: Создание, на котором было применено это заклинание, становится "
 "невидимым для всех врагов. Если, конечно, у них нет сверхъестественного "

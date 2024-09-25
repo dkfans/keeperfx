@@ -2231,9 +2231,7 @@ msgstr "Gruppo: Non usato"
 #: guitext:239
 #, fuzzy
 msgctxt "Creature spell"
-msgid ""
-"Invisibility: Cast on one of your minions, it makes the host creature "
-"invisible to all enemies. Unless they possess a subnatural Sight."
+msgid "Invisibility: Makes the creature invisible to all enemies. Unless they possess a subnatural Sight."
 msgstr "Invisibilità: [26.12]"
 
 #: guitext:240
@@ -7074,7 +7072,6 @@ msgstr ""
 msgctxt "Game controls"
 msgid "Reset Tilt"
 msgstr ""
-
 
 #: guitext:1066
 msgctxt "Creature spell"
