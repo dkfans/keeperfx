@@ -125,7 +125,7 @@ TbBool S3DSoundEmitterInvalid(struct SoundEmitter *emit)
     return false;
 }
 
-TbBool S3DEmitterIsPlayingSample(SoundEmitterID eidx, long smpl_idx, long bank_id)
+TbBool S3DEmitterIsPlayingSample(SoundEmitterID eidx, SoundSmplTblID smpl_idx, SoundBankID bank_id)
 {
     struct SoundEmitter* emit = S3DGetSoundEmitter(eidx);
     if (S3DSoundEmitterInvalid(emit))
@@ -143,7 +143,7 @@ TbBool S3DEmitterIsPlayingSample(SoundEmitterID eidx, long smpl_idx, long bank_i
     return false;
 }
 
-TbBool S3DDeleteSampleFromEmitter(SoundEmitterID eidx, long smpl_idx, long bank_id)
+TbBool S3DDeleteSampleFromEmitter(SoundEmitterID eidx, SoundSmplTblID smpl_idx, SoundBankID bank_id)
 {
     struct SoundEmitter* emit = S3DGetSoundEmitter(eidx);
     if (S3DSoundEmitterInvalid(emit))
@@ -613,7 +613,7 @@ short find_slot(long fild8, SoundBankID bank_id, struct SoundEmitter *emit, long
     return min_sample_id;
 }
 
-void play_non_3d_sample(long sample_idx)
+void play_non_3d_sample(SoundSmplTblID sample_idx)
 {
     if (SoundDisabled)
         return;
@@ -634,7 +634,7 @@ void play_non_3d_sample(long sample_idx)
     }
 }
 
-void play_non_3d_sample_no_overlap(long smpl_idx)
+void play_non_3d_sample_no_overlap(SoundSmplTblID smpl_idx)
 {
     if (SoundDisabled)
         return;
@@ -658,7 +658,7 @@ void play_non_3d_sample_no_overlap(long smpl_idx)
     }
 }
 
-void play_atmos_sound(long smpl_idx)
+void play_atmos_sound(SoundSmplTblID smpl_idx)
 {
     if (SoundDisabled)
         return;
@@ -803,7 +803,7 @@ void kick_out_sample(short smpl_id)
     sample->is_playing = 0;
 }
 
-struct SampleInfo *play_sample(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, SoundBankID bank_id)
+struct SampleInfo *play_sample(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundVolume volume, SoundPan pan, SoundPitch pitch, char a6, unsigned char a7, SoundBankID bank_id)
 {
     if ((!using_two_banks) && (bank_id > 0))
     {
@@ -817,7 +817,7 @@ struct SampleInfo *play_sample(SoundEmitterID emit_id, SoundSmplTblID smptbl_id,
         return NULL;
     }
     // Start the play
-    struct SampleInfo* smpinfo = PlaySampleFromAddress(emit_id, smptbl_id, a3, a4, a5, a6, a7, smp_table->snd_buf, smp_table->sfxid);
+    struct SampleInfo* smpinfo = PlaySampleFromAddress(emit_id, smptbl_id, volume, pan, pitch, a6, a7, smp_table->snd_buf, smp_table->sfxid);
     if (smpinfo == NULL) {
         SYNCLOG("Can't start playing sample %d",smptbl_id);
         return NULL;
@@ -853,7 +853,7 @@ TbBool process_sound_samples(void)
                 ERRORLOG("Attempt to query invalid sample");
                 continue;
             }
-            if ( IsSamplePlaying(0, 0, sample->smpinfo->field_0) )
+            if ( IsSamplePlaying(0, 0, sample->smpinfo->mss_id) )
             {
                 sample->smpinfo->flags_17 |= 0x02;
             } else

@@ -110,6 +110,10 @@ typedef short SoundSmplTblID;
 typedef long SoundVolume;
 /** Pitch level indicator, normal is 100. */
 typedef long SoundPitch;
+/** Pan level indicator. */
+typedef long SoundPan;
+/** Miles Sound ID. */
+typedef long SoundMilesID;
 
 /******************************************************************************/
 // Exported variables
@@ -131,40 +135,40 @@ long S3DSetSoundReceiverPosition(int pos_x, int pos_y, int pos_z);
 long S3DSetSoundReceiverOrientation(int ori_a, int ori_b, int ori_c);
 void S3DSetSoundReceiverFlags(unsigned long nflags);
 void S3DSetSoundReceiverSensitivity(unsigned short nsensivity);
-long S3DDestroySoundEmitter(SoundEmitterID eidx);
-TbBool S3DEmitterHasFinishedPlaying(SoundEmitterID eidx);
-TbBool S3DMoveSoundEmitterTo(SoundEmitterID eidx, long x, long y, long z);
+long S3DDestroySoundEmitter(SoundEmitterID);
+TbBool S3DEmitterHasFinishedPlaying(SoundEmitterID);
+TbBool S3DMoveSoundEmitterTo(SoundEmitterID, long x, long y, long z);
 long S3DInit(void);
 long S3DSetNumberOfSounds(long nMaxSounds);
 long S3DSetMaximumSoundDistance(long nDistance);
-TbBool S3DAddSampleToEmitterPri(SoundEmitterID eidx, SoundSmplTblID smptbl_id, SoundBankID bank_id, SoundPitch pitch, SoundVolume loudness, long a6, char a7, long a8, long a9);
-long S3DCreateSoundEmitterPri(long x, long y, long z, SoundSmplTblID smptbl_id, SoundBankID bank_id, SoundPitch pitch, SoundVolume loudness, long a8, long a9, long a10);
-TbBool S3DEmitterIsAllocated(SoundEmitterID eidx);
-TbBool S3DEmitterIsPlayingAnySample(SoundEmitterID eidx);
-TbBool S3DEmitterIsPlayingSample(SoundEmitterID eidx, long smpl_idx, long a2);
-TbBool S3DDeleteSampleFromEmitter(SoundEmitterID eidx, long smpl_idx, long bank_id);
-TbBool S3DDeleteAllSamplesFromEmitter(SoundEmitterID eidx);
-TbBool S3DDestroySoundEmitterAndSamples(SoundEmitterID eidx);
+TbBool S3DAddSampleToEmitterPri(SoundEmitterID, SoundSmplTblID, SoundBankID, SoundPitch, SoundVolume, long a6, char a7, long a8, long a9);
+long S3DCreateSoundEmitterPri(long x, long y, long z, SoundSmplTblID, SoundBankID, SoundPitch, SoundVolume, long a8, long a9, long a10);
+TbBool S3DEmitterIsAllocated(SoundEmitterID);
+TbBool S3DEmitterIsPlayingAnySample(SoundEmitterID);
+TbBool S3DEmitterIsPlayingSample(SoundEmitterID, SoundSmplTblID, SoundBankID);
+TbBool S3DDeleteSampleFromEmitter(SoundEmitterID, SoundSmplTblID, SoundBankID);
+TbBool S3DDeleteAllSamplesFromEmitter(SoundEmitterID);
+TbBool S3DDestroySoundEmitterAndSamples(SoundEmitterID);
 void S3DSetLineOfSightFunction(S3D_LineOfSight_Func);
 void S3DSetDeadzoneRadius(long dzradius);
 long S3DGetDeadzoneRadius(void);
 
-void play_non_3d_sample(long sample_idx);
-void play_non_3d_sample_no_overlap(long smpl_idx);
-void play_atmos_sound(long smpl_idx);
-short sound_emitter_in_use(SoundEmitterID eidx);
-struct SampleInfo *play_sample(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, SoundBankID bank_id);
-void stop_sample(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundBankID bank_id);
+void play_non_3d_sample(SoundSmplTblID);
+void play_non_3d_sample_no_overlap(SoundSmplTblID);
+void play_atmos_sound(SoundSmplTblID);
+short sound_emitter_in_use(SoundEmitterID);
+struct SampleInfo *play_sample(SoundEmitterID, SoundSmplTblID, SoundVolume, SoundPan, SoundPitch, char a6, unsigned char a7, SoundBankID);
+void stop_sample(SoundEmitterID, SoundSmplTblID, SoundBankID);
 long speech_sample_playing(void);
-long play_speech_sample(SoundSmplTblID smptbl_id);
+long play_speech_sample(SoundSmplTblID);
 long stop_emitter_samples(struct SoundEmitter *emit);
 TbBool process_sound_emitters(void);
 void increment_sample_times(void);
 TbBool process_sound_samples(void);
 
-struct SoundEmitter* S3DGetSoundEmitter(SoundEmitterID eidx);
-SoundEmitterID get_emitter_id(struct SoundEmitter *emit);
-void kick_out_sample(short smpl_id);
+struct SoundEmitter* S3DGetSoundEmitter(SoundEmitterID);
+SoundEmitterID get_emitter_id(struct SoundEmitter *);
+void kick_out_sample(SoundSmplTblID);
 
 /******************************************************************************/
 #ifdef __cplusplus
