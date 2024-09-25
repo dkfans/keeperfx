@@ -7087,8 +7087,9 @@ msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "Плотная золотая жила: Содержит много богатства для добычи ваших бесов."
 
 #: guitext:1053
+#, fuzzy
 msgctxt "Keeper spell name"
-msgid "Rebound"
+msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
 msgstr "Отражение"
 
 #: guitext:1054

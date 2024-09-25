@@ -6801,8 +6801,9 @@ msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "濃い金鉱： 手下インプが採掘する莫大な富。"
 
 #: guitext:1053
+#, fuzzy
 msgctxt "Keeper spell name"
-msgid "Rebound"
+msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
 msgstr "反射"
 
 #: guitext:1054

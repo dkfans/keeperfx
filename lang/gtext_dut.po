@@ -2143,7 +2143,7 @@ msgstr "Bliksem: [26.13]"
 #, fuzzy
 msgctxt "Creature spell"
 msgid "Rebound: Causes any spell fired at you to bounce back at the attacker."
-msgstr "Terugkaatsen: [26.18]"
+msgstr "Terugkaatsen: Stuurt projectielen terug naar de aanvaller."
 
 #: guitext:231
 #, fuzzy
@@ -6915,9 +6915,10 @@ msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "Dichte Goudader: Bevat veel rijkdom voor je Dondersteentjes om te delven."
 
 #: guitext:1053
+#, fuzzy
 msgctxt "Keeper spell name"
-msgid "Rebound"
-msgstr "Terugkaatsen"
+msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
+msgstr "Magisch Schild: Stuurt projectielen afgevuurd op dit Wezen terug naar de aanvaller."
 
 #: guitext:1054
 msgctxt "Keeper spell name"

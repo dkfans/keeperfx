@@ -7018,8 +7018,9 @@ msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "Gęste żyłki złota: Zawiera dużo bogactwa do wydobycia przez twoje Chochliki."
 
 #: guitext:1053
+#, fuzzy
 msgctxt "Keeper spell name"
-msgid "Rebound"
+msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
 msgstr "Odbicie"
 
 #: guitext:1054
