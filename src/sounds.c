@@ -401,7 +401,7 @@ void process_sound_heap(void)
     {
       if ( (smpinfo->mss_id != 0) && ((smpinfo->flags_17 & 0x01) != 0) )
       {
-          if ( IsSamplePlaying(0, 0, smpinfo->mss_id) )
+          if ( IsSamplePlaying(smpinfo->mss_id) )
           {
               i++;
           } else

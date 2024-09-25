@@ -373,11 +373,11 @@ extern "C"
         }
     }
 
-    TbBool IsSamplePlaying(int always_zero1, int always_zero2, SoundMilesID a3)
+    TbBool IsSamplePlaying(SoundMilesID a3)
     {
         if (_IsSamplePlaying != NULL)
         {
-            return (unsigned char)((FARPROCIII)_IsSamplePlaying)(always_zero1, always_zero2, a3);
+            return (unsigned char)((FARPROCIII)_IsSamplePlaying)(0, 0, a3);
         }
 
         return false;
@@ -411,27 +411,27 @@ extern "C"
         }
     }
 
-    void SetSampleVolume(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundVolume volume, long always_zero)
+    void SetSampleVolume(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundVolume volume)
     {
         if (_SetSampleVolume != NULL)
         {
-            ((FARPROCIIII)_SetSampleVolume)(emit_id, smptbl_id, volume, always_zero);
+            ((FARPROCIIII)_SetSampleVolume)(emit_id, smptbl_id, volume, 0);
         }
     }
 
-    void SetSamplePan(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundPan pan, int always_zero)
+    void SetSamplePan(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundPan pan)
     {
         if (_SetSamplePan != NULL)
         {
-            ((FARPROCIIII)_SetSamplePan)(emit_id, smptbl_id, pan, always_zero);
+            ((FARPROCIIII)_SetSamplePan)(emit_id, smptbl_id, pan, 0);
         }
     }
 
-    void SetSamplePitch(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundPitch pitch, int always_zero)
+    void SetSamplePitch(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundPitch pitch)
     {
         if (_SetSamplePitch != NULL)
         {
-            ((FARPROCIIII)_SetSamplePitch)(emit_id, smptbl_id, pitch, always_zero);
+            ((FARPROCIIII)_SetSamplePitch)(emit_id, smptbl_id, pitch, 0);
         }
     }
 
