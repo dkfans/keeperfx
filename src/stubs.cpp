@@ -1,30 +1,31 @@
 #include "bflib_sound.h"
+#include "bflib_sndlib.h"
 
 extern "C" int init_miles_sound_system() { return 0; }
 extern "C" void unload_miles_sound_system() {}
-extern "C" int FreeAudio() { return 0; }
-extern "C" int SetRedbookVolume(int) { return 0; }
-extern "C" int SetSoundMasterVolume(int) { return 0; }
-extern "C" int SetMusicMasterVolume(int) { return 0; }
-extern "C" int GetSoundInstalled(void) { return 0; }
-extern "C" int PlayRedbookTrack(int) { return 0; }
-extern "C" int PauseRedbookTrack(void) { return 0; }
-extern "C" int ResumeRedbookTrack(void) { return 0; }
-extern "C" int MonitorStreamedSoundTrack(void) { return 0; }
-extern "C" int StopRedbookTrack(void) { return 0; }
-extern "C" void * GetSoundDriver(void) { return nullptr; }
-extern "C" int StopAllSamples(void) { return 0; }
-extern "C" struct SampleInfo * GetFirstSampleInfoStructure(void) { return nullptr; }
-extern "C" int InitAudio(void *) { return 0; }
-extern "C" int SetupAudioOptionDefaults(void *) { return 0; }
-extern "C" int IsSamplePlaying(int a1, int a2, int a3) { return 0; }
-extern "C" struct SampleInfo * GetLastSampleInfoStructure(void) { return nullptr; }
-extern "C" int GetCurrentSoundMasterVolume(void) { return 0; }
-extern "C" int StopSample(SoundEmitterID emit_id, long smptbl_id) { return 0; }
-extern "C" int SetSampleVolume(SoundEmitterID emit_id, long smptbl_id,long volume,long d) { return 0; }
-extern "C" int SetSamplePan(SoundEmitterID emit_id, long smptbl_id,long pan,int d) { return 0; }
-extern "C" int SetSamplePitch(SoundEmitterID emit_id, long smptbl_id,long pitch,int d) { return 0; }
-extern "C" struct SampleInfo * PlaySampleFromAddress(SoundEmitterID emit_id, int smpl_idx, int a3, int a4, int a5, unsigned char a6, unsigned char a7, void * buf, int sfxid) { return 0; }
+extern "C" void FreeAudio() {}
+extern "C" void SetRedbookVolume(SoundVolume) { }
+extern "C" void SetSoundMasterVolume(SoundVolume) {}
+extern "C" void SetMusicMasterVolume(SoundVolume) {}
+extern "C" TbBool GetSoundInstalled() { return false; }
+extern "C" void PlayRedbookTrack(int) {}
+extern "C" void PauseRedbookTrack() {}
+extern "C" void ResumeRedbookTrack() {}
+extern "C" void MonitorStreamedSoundTrack() {}
+extern "C" void StopRedbookTrack() {}
+extern "C" void * GetSoundDriver() { return nullptr; }
+extern "C" void StopAllSamples() {}
+extern "C" struct SampleInfo * GetFirstSampleInfoStructure() { return nullptr; }
+extern "C" TbBool InitAudio(SoundSettings *) { return 0; }
+extern "C" void SetupAudioOptionDefaults(SoundSettings *) { }
+extern "C" TbBool IsSamplePlaying(int, int, SoundMilesID) { return false; }
+extern "C" struct SampleInfo * GetLastSampleInfoStructure() { return nullptr; }
+extern "C" SoundVolume GetCurrentSoundMasterVolume() { return 0; }
+extern "C" void StopSample(SoundEmitterID, SoundSmplTblID) {}
+extern "C" void SetSampleVolume(SoundEmitterID, SoundSmplTblID, SoundVolume, long) {}
+extern "C" void SetSamplePan(SoundEmitterID, SoundSmplTblID, SoundPan, int) {}
+extern "C" void SetSamplePitch(SoundEmitterID, SoundSmplTblID, SoundPitch, int) {}
+extern "C" SampleInfo * PlaySampleFromAddress(SoundEmitterID, SoundSmplTblID, SoundVolume, SoundPan, SoundPitch, unsigned char a6, unsigned char a7, void * buf, SoundSFXID) { return nullptr; }
 
 extern "C" short play_smk_(char *fname, int smkflags, int plyflags) { return 0; }
 extern "C" short play_smk_direct(char *fname, int smkflags, int plyflags) { return 0; }
