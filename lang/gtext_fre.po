@@ -2238,13 +2238,9 @@ msgid "Group: Not used"
 msgstr "Contrôle de groupe : Non utilisé"
 
 #: guitext:239
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Invisibility: Makes the creature invisible to all enemies. Unless they possess a subnatural Sight."
-msgstr ""
-"Invisibilité : Lancé sur un de vos larbins, il rend la créature hôte "
-"invisible pour tous les ennemis. A moins qu'ils ne possèdent une vue "
-"médiocre."
+msgstr "La créature ciblée devient invisible pour tous les ennemis. À moins qu’ils ne possèdent une vision surnaturelle."
 
 #: guitext:240
 msgctxt "Creature spell"
@@ -7153,7 +7149,7 @@ msgstr "Veine d'or dense : Contient beaucoup de richesses que vos Lutins peuvent
 #, fuzzy
 msgctxt "Keeper spell name"
 msgid "Magic Shield"
-msgstr "Rebond"
+msgstr "Bouclier Magique"
 
 #: guitext:1054
 msgctxt "Keeper spell name"
@@ -7218,44 +7214,44 @@ msgstr "Réinitialiser"
 #: guitext:1066
 msgctxt "Creature spell"
 msgid "Heal Monster: The target creature is massively healed."
-msgstr ""
+msgstr "Guérison : La créature ciblée est massivement soignée."
 
 #: guitext:1067
 msgctxt "Creature spell"
 msgid "Cleanse: Cures all negative effects inflicted on the creature."
-msgstr "Purifier : Guérit tous les effets négatifs infligés à la créature."
+msgstr "Purifier : Guérit de tous les effets négatifs infligés à la créature."
 
 #: guitext:1068
 msgctxt "Creature spell"
 msgid "Cleanse Monster: Cures all negative effects inflicted on target creature."
-msgstr ""
+msgstr "Purifier : Guérit de tous les effets négatifs infligés à la créature ciblée."
 
 #: guitext:1069
 msgctxt "Keeper spell description"
 msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
-msgstr ""
+msgstr "Bouclier Magique : Fait rebondir les projectiles lancés sur la cible sur l'attaquant."
 
 #: guitext:1070
 msgctxt "Keeper spell description"
 msgid "Levitate: Causes the target creature to take off from the ground and attack creatures from the air or cross lava unharmed."
-msgstr ""
+msgstr "Lévitation : Permet à la créature ciblée de flotter afin d'attaquer depuis les airs ou de traverser la lave indemne."
 
 #: guitext:1071
 msgctxt "Keeper spell description"
 msgid "Sight: Allows the target creature to temporarily increase its awareness and notice the invisible."
-msgstr ""
+msgstr "Vision : Permet à la créature ciblée d'augmenter temporairement sa vision pour débusquer l'invisible."
 
 #: guitext:1072 guitext:1073 guitext:1074 guitext:1075
 msgctxt "Unused"
 msgid "Moo8"
-msgstr ""
+msgstr "Moooooooooo!"
 
 #: guitext:1076
 msgctxt "Door name"
 msgid "Midas Door"
-msgstr ""
+msgstr "Porte de Midas"
 
 #: guitext:1077
 msgctxt "Door description"
 msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
-msgstr ""
+msgstr "Porte de Midas: Cette porte est indestructible tant que son propriétaire a suffisament d'or. CDS voir."
