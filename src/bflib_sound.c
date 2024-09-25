@@ -64,7 +64,7 @@ long SpeechEmitter;
 // Internal routines
 SoundEmitterID allocate_free_sound_emitter(void);
 void delete_sound_emitter(SoundEmitterID idx);
-long start_emitter_playing(struct SoundEmitter *emit, SoundSmplTblID smptbl_id, SoundBankID bank_id, long smpitch, SoundVolume loudness, long fild1D, long ctype, unsigned char flags, long fild0);
+long start_emitter_playing(struct SoundEmitter *emit, SoundSmplTblID smptbl_id, SoundBankID bank_id, long smpitch, SoundVolume loudness, long fild1D, long ctype, unsigned char flags, long priority);
 void init_sample_list(void);
 void delete_all_sound_emitters(void);
 SoundEmitterID get_emitter_id(struct SoundEmitter *emit);
@@ -272,13 +272,13 @@ TbBool S3DMoveSoundEmitterTo(SoundEmitterID eidx, long x, long y, long z)
     return true;
 }
 
-TbBool S3DAddSampleToEmitterPri(SoundEmitterID eidx, SoundSmplTblID smptbl_id, SoundBankID bank_id, SoundPitch pitch, SoundVolume loudness, long a6, char a7, long a8, long priority)
+TbBool S3DAddSampleToEmitterPri(SoundEmitterID eidx, SoundSmplTblID smptbl_id, SoundBankID bank_id, SoundPitch pitch, SoundVolume loudness, long fil1D, char ctype, long flags, long priority)
 {
     struct SoundEmitter* emit = S3DGetSoundEmitter(eidx);
-    return start_emitter_playing(emit, smptbl_id, bank_id, pitch, loudness, a6, a7, a8, priority) != 0;
+    return start_emitter_playing(emit, smptbl_id, bank_id, pitch, loudness, fil1D, ctype, flags, priority) != 0;
 }
 
-long S3DCreateSoundEmitterPri(long x, long y, long z, SoundSmplTblID smptbl_id, SoundBankID bank_id, SoundPitch pitch, SoundVolume loudness, long a8, long a9, long a10)
+long S3DCreateSoundEmitterPri(long x, long y, long z, SoundSmplTblID smptbl_id, SoundBankID bank_id, SoundPitch pitch, SoundVolume loudness, long fil1D, long flags, long priority)
 {
     long eidx = allocate_free_sound_emitter();
     struct SoundEmitter* emit = S3DGetSoundEmitter(eidx);
@@ -287,10 +287,10 @@ long S3DCreateSoundEmitterPri(long x, long y, long z, SoundSmplTblID smptbl_id, 
     emit->pos.val_x = x;
     emit->pos.val_y = y;
     emit->pos.val_z = z;
-    emit->field_1 = a9;
+    emit->field_1 = flags;
     emit->curr_pitch = 100;
     emit->target_pitch = 100;
-    if (start_emitter_playing(emit, smptbl_id, bank_id, pitch, loudness, a8, 3, a9, a10))
+    if (start_emitter_playing(emit, smptbl_id, bank_id, pitch, loudness, fil1D, 3, flags, priority))
         return eidx;
     delete_sound_emitter(eidx);
     return 0;

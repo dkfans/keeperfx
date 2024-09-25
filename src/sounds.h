@@ -99,9 +99,9 @@ void update_player_sounds(void);
 void process_3d_sounds(void);
 void process_sound_heap(void);
 
-void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pitch, char a4, unsigned char a5, unsigned char a6, long priority, long loudness);
-void play_sound_if_close_to_receiver(struct Coord3d* pos, short smptbl_idx);
-void stop_thing_playing_sample(struct Thing *thing, short smpl_idx);
+void thing_play_sample(struct Thing *, SoundSmplTblID, SoundPitch, char fil1D, unsigned char ctype, unsigned char flags, long priority, SoundVolume);
+void play_sound_if_close_to_receiver(struct Coord3d*, SoundSmplTblID);
+void stop_thing_playing_sample(struct Thing *, SoundSmplTblID smpl_idx);
 void play_thing_walking(struct Thing *thing);
 
 TbBool ambient_sound_prepare(void);
