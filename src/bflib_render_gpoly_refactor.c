@@ -392,8 +392,8 @@ void draw_gpoly_sub6();
 void calc_triangle_data();
 void draw_gpoly_sub11();
 void draw_gpoly_sub12();
-void draw_gpoly_sub13();
-void draw_gpoly_sub14();
+void poly_render_clipped();
+void poly_render();
 
 void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c) {
   LOC_poly_screen = poly_screen;
@@ -664,7 +664,7 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
           gploc_12C = factor_ba;
           gploc_128 = factor_ca;
         }
-        draw_gpoly_sub13();
+        poly_render_clipped();
       } else  // not exceeds_window
       {
         gploc_104 = LOC_vec_screen_width;
@@ -679,7 +679,7 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
           gploc_12C = factor_ba;
           gploc_128 = factor_ca;
         }
-        draw_gpoly_sub14();
+        poly_render();
       }
       break;
   }
@@ -6513,7 +6513,7 @@ locret5b:\n \
 #endif
 }
 
-void draw_gpoly_sub13() {
+void poly_render_clipped() {
 #if __GNUC__
   asm volatile(
       " \
@@ -7062,7 +7062,7 @@ locret69a:\n \
 #endif
 }
 
-void draw_gpoly_sub14() {
+void poly_render() {
 #if __GNUC__
   asm volatile(
       " \
