@@ -2872,6 +2872,7 @@ void calc_triangle_data() {
 
   // Begin simplified calculations
 
+/*
   // Calculate gploc_30 by shifting shadehstep left by 24 bits
   gploc_30 = shadehstep << 24;
 
@@ -2955,8 +2956,9 @@ void calc_triangle_data() {
     // Calculate gploc_7C by combining startposmapxbottom and bits from startposmapybottom
     gploc_7C = (startposmapxbottom << 8) | ((startposmapybottom >> 16) & 0xFF);
   }
+*/
 
-  /*
+  ///*
   #if __GNUC__
     asm volatile(
         " \
@@ -3111,7 +3113,7 @@ void calc_triangle_data() {
         :
         : "memory", "cc");
   #endif
-  */
+  //*/
 }
 
 void draw_gpoly_sub11() {
