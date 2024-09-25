@@ -411,7 +411,7 @@ void fronttorture_update(void)
             doorsnd->field_0 = volume;
             if (volume > 0)
             {
-              SetSampleVolume(0, door->smptbl_id, volume, 0);
+              SetSampleVolume(0, door->smptbl_id, volume);
             }
         }
     }

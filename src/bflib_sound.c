@@ -492,11 +492,11 @@ long set_emitter_pan_volume_pitch(struct SoundEmitter *emit, long pan, long volu
         if ((sample->is_playing != 0) && (sample->emit_ptr == emit))
         {
             if ((sample->flags & Smp_Unknown02) == 0) {
-              SetSampleVolume(get_emitter_id(emit), sample->smptbl_id, volume * (long)sample->base_volume / 256, 0);
-              SetSamplePan(get_emitter_id(emit), sample->smptbl_id, pan, 0);
+              SetSampleVolume(get_emitter_id(emit), sample->smptbl_id, volume * (long)sample->base_volume / 256);
+              SetSamplePan(get_emitter_id(emit), sample->smptbl_id, pan);
             }
             if ((sample->flags & Smp_Unknown01) == 0) {
-              SetSamplePitch(get_emitter_id(emit), sample->smptbl_id, pitch * (long)sample->base_pitch / 100, 0);
+              SetSamplePitch(get_emitter_id(emit), sample->smptbl_id, pitch * (long)sample->base_pitch / 100);
             }
         }
     }
@@ -853,7 +853,7 @@ TbBool process_sound_samples(void)
                 ERRORLOG("Attempt to query invalid sample");
                 continue;
             }
-            if ( IsSamplePlaying(0, 0, sample->smpinfo->mss_id) )
+            if ( IsSamplePlaying(sample->smpinfo->mss_id) )
             {
                 sample->smpinfo->flags_17 |= 0x02;
             } else

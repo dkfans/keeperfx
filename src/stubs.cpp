@@ -18,13 +18,13 @@ extern "C" void StopAllSamples() {}
 extern "C" struct SampleInfo * GetFirstSampleInfoStructure() { return nullptr; }
 extern "C" TbBool InitAudio(SoundSettings *) { return 0; }
 extern "C" void SetupAudioOptionDefaults(SoundSettings *) { }
-extern "C" TbBool IsSamplePlaying(int, int, SoundMilesID) { return false; }
+extern "C" TbBool IsSamplePlaying(SoundMilesID) { return false; }
 extern "C" struct SampleInfo * GetLastSampleInfoStructure() { return nullptr; }
 extern "C" SoundVolume GetCurrentSoundMasterVolume() { return 0; }
 extern "C" void StopSample(SoundEmitterID, SoundSmplTblID) {}
-extern "C" void SetSampleVolume(SoundEmitterID, SoundSmplTblID, SoundVolume, long) {}
-extern "C" void SetSamplePan(SoundEmitterID, SoundSmplTblID, SoundPan, int) {}
-extern "C" void SetSamplePitch(SoundEmitterID, SoundSmplTblID, SoundPitch, int) {}
+extern "C" void SetSampleVolume(SoundEmitterID, SoundSmplTblID, SoundVolume) {}
+extern "C" void SetSamplePan(SoundEmitterID, SoundSmplTblID, SoundPan) {}
+extern "C" void SetSamplePitch(SoundEmitterID, SoundSmplTblID, SoundPitch) {}
 extern "C" SampleInfo * PlaySampleFromAddress(SoundEmitterID, SoundSmplTblID, SoundVolume, SoundPan, SoundPitch, unsigned char a6, unsigned char a7, void * buf, SoundSFXID) { return nullptr; }
 
 extern "C" short play_smk_(char *fname, int smkflags, int plyflags) { return 0; }

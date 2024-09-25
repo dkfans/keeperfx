@@ -71,13 +71,13 @@ void StopAllSamples(void);
 struct SampleInfo * GetFirstSampleInfoStructure(void);
 TbBool InitAudio(struct SoundSettings *);
 void SetupAudioOptionDefaults(struct SoundSettings *);
-TbBool IsSamplePlaying(int always_zero1, int always_zero2, SoundMilesID);
+TbBool IsSamplePlaying(SoundMilesID);
 struct SampleInfo * GetLastSampleInfoStructure(void);
 SoundVolume GetCurrentSoundMasterVolume(void);
 void StopSample(SoundEmitterID, SoundSmplTblID);
-void SetSampleVolume(SoundEmitterID, SoundSmplTblID, SoundVolume, long always_zero);
-void SetSamplePan(SoundEmitterID, SoundSmplTblID, SoundPan, int always_zero);
-void SetSamplePitch(SoundEmitterID, SoundSmplTblID, SoundPitch, int always_zero);
+void SetSampleVolume(SoundEmitterID, SoundSmplTblID, SoundVolume);
+void SetSamplePan(SoundEmitterID, SoundSmplTblID, SoundPan);
+void SetSamplePitch(SoundEmitterID, SoundSmplTblID, SoundPitch);
 struct SampleInfo * PlaySampleFromAddress(SoundEmitterID, SoundSmplTblID, SoundVolume, SoundPan, SoundPitch, unsigned char a6, unsigned char a7, void * buf, SoundSFXID);
 /******************************************************************************/
 #ifdef __cplusplus
