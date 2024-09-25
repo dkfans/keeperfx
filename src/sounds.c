@@ -69,7 +69,7 @@ static char ambience_timer;
 int sdl_flags = 0;
 Mix_Chunk* streamed_sample;
 /******************************************************************************/
-void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pitch, char a4, unsigned char a5, unsigned char a6, long priority, long loudness)
+void thing_play_sample(struct Thing *thing, SoundSmplTblID smptbl_idx, SoundPitch pitch, char fil1D, unsigned char ctype, unsigned char flags, long priority, SoundVolume loudness)
 {
     if (SoundDisabled)
         return;
@@ -86,17 +86,17 @@ void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pit
         long eidx = thing->snd_emitter_id;
         if (eidx > 0)
         {
-            S3DAddSampleToEmitterPri(eidx, smptbl_idx, 0, pitch, loudness, a4, a5, a6 | 0x01, priority);
+            S3DAddSampleToEmitterPri(eidx, smptbl_idx, 0, pitch, loudness, fil1D, ctype, flags | 0x01, priority);
         } else
         {
             eidx = S3DCreateSoundEmitterPri(thing->mappos.x.val, thing->mappos.y.val, thing->mappos.z.val,
-               smptbl_idx, 0, pitch, loudness, a4, a6 | 0x01, priority);
+               smptbl_idx, 0, pitch, loudness, fil1D, flags | 0x01, priority);
            thing->snd_emitter_id = eidx;
         }
     }
 }
 
-void play_sound_if_close_to_receiver(struct Coord3d *soundpos, short smptbl_idx)
+void play_sound_if_close_to_receiver(struct Coord3d *soundpos, SoundSmplTblID smptbl_idx)
 {
     if (SoundDisabled)
         return;
@@ -701,7 +701,7 @@ void sound_reinit_after_load(void)
     }
 }
 
-void stop_thing_playing_sample(struct Thing *thing, short smpl_idx)
+void stop_thing_playing_sample(struct Thing *thing, SoundSmplTblID smpl_idx)
 {
     unsigned char eidx = thing->snd_emitter_id;
     if (eidx > 0)
