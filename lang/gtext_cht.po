@@ -6667,7 +6667,7 @@ msgstr "缓慢术"
 
 #: guitext:1056
 msgctxt "Keeper spell name"
-msgid "Levitate: Causes the target creature to take off from the ground and attack creatures from the air or cross lava unharmed."
+msgid "Levitate"
 msgstr "飞行术"
 
 #: guitext:1057

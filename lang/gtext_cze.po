@@ -6920,7 +6920,7 @@ msgstr "Zpomaleni"
 
 #: guitext:1056
 msgctxt "Keeper spell name"
-msgid "Levitate: Causes the target creature to take off from the ground and attack creatures from the air or cross lava unharmed."
+msgid "Levitate"
 msgstr "Letani"
 
 #: guitext:1057
