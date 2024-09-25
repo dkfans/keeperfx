@@ -2801,7 +2801,7 @@ static void calc_data_for_edge(long _point1y, long _point2y, long _point1shade, 
   product = (long long)deltaShade * reciprocal;
   *_shadevel = product >> 16;
   if (deltaShade < 0) {
-    *_shadevel++;
+    (*_shadevel)++;
   }
 
   // Calculate map X velocity
@@ -2809,7 +2809,7 @@ static void calc_data_for_edge(long _point1y, long _point2y, long _point1shade, 
   product = (long long)deltaMapX * reciprocal;
   *_mapxvel = product >> 16;
   if (deltaMapX < 0) {
-    *_mapxvel++;
+    (*_mapxvel)++;
   }
 
   // Calculate map Y velocity
@@ -2817,7 +2817,7 @@ static void calc_data_for_edge(long _point1y, long _point2y, long _point1shade, 
   product = (long long)deltaMapY * reciprocal;
   *_mapyvel = product >> 16;
   if (deltaMapY < 0) {
-    *_mapyvel++;
+    (*_mapyvel)++;
   }
 }
 
@@ -2847,98 +2847,20 @@ static void calc_startpos() {
                     &startposmapybottom);
 }
 
+#define CARRY4(a, b) (((uint32_t)(a) + (uint32_t)(b)) < (uint32_t)(a))
+
 static void pack_data() {
-  int mapY_int, shade_shifted, tempY, mapY_shifted, carry, mapX;
-
-  // First code block
-  gploc_30 = shadehstep << 24;
-  mapY_int = mapyhstep >> 16;
-  shade_shifted = shadehstep >> 8;
-  tempY = mapY_int;
-  mapY_shifted = mapyhstep * 65536;
-
-  if (shade_shifted < 0) {
-    shade_shifted &= 0xFFFF;
-    mapY_shifted -= 65536;
-    if (mapY_shifted < 0) {
-      tempY--;
-    }
-  }
-
-  carry = ((unsigned)(mapY_shifted + shade_shifted) < (unsigned)mapY_shifted) ? 1 : 0;
-  tempY += carry;
-  gploc_BC = mapY_shifted + shade_shifted;
-
-  mapX = (tempY < 0) ? (mapxhstep - 1) : mapxhstep;
-  gploc_B8 = (tempY & 0xFF) | (mapX << 8);
-
-  // Second code block
-  gploc_68 = shadeveltop << 24;
-  mapY_int = mapyveltop >> 16;
-  shade_shifted = shadeveltop >> 8;
-  tempY = mapY_int;
-  mapY_shifted = mapyveltop * 65536;
-
-  if (shade_shifted < 0) {
-    shade_shifted &= 0xFFFF;
-    mapY_shifted -= 65536;
-    if (mapY_shifted < 0) {
-      tempY--;
-    }
-  }
-
-  carry = ((unsigned)(mapY_shifted + shade_shifted) < (unsigned)mapY_shifted) ? 1 : 0;
-  tempY += carry;
-  gploc_A4 = mapY_shifted + shade_shifted;
-
-  mapX = (tempY < 0) ? (mapxveltop - 1) : mapxveltop;
-  gploc_A0 = (tempY & 0xFF) | (mapX << 8);
-
-  gploc_8C = (startposmapytop << 16) | (startposshadetop >> 8);
-  gploc_88 = ((startposmapytop >> 16) & 0xFF) | (startposmapxtop << 8);
-
-  if (crease_len >= 0) {
-    // Third code block
-    gploc_64 = shadevelbottom << 24;
-    mapY_int = mapyvelbottom >> 16;
-    shade_shifted = shadevelbottom >> 8;
-    tempY = mapY_int;
-    mapY_shifted = mapyvelbottom * 65536;
-
-    if (shade_shifted < 0) {
-      shade_shifted &= 0xFFFF;
-      mapY_shifted -= 65536;
-      if (mapY_shifted < 0) {
-        tempY--;
-      }
-    }
-
-    carry = ((unsigned)(mapY_shifted + shade_shifted) < (unsigned)mapY_shifted) ? 1 : 0;
-    tempY += carry;
-    gploc_98 = mapY_shifted + shade_shifted;
-
-    mapX = (tempY < 0) ? (mapxvelbottom - 1) : mapxvelbottom;
-    gploc_94 = (tempY & 0xFF) | (mapX << 8);
-
-    gploc_80 = (startposmapybottom << 16) | (startposshadebottom >> 8);
-    gploc_7C = ((startposmapybottom >> 16) & 0xFF) | (startposmapxbottom << 8);
-  }
-}
-
-/*
-// Ghidra output of `pack_data`
-void pack_data() {
   uint uVar1;
   int iVar2;
   int iVar3;
   uint uVar4;
   uint uVar5;
   uint uVar6;
-  bool bVar7;
+  int bVar7;
 
   uVar1 = mapyhstep * 0x10000;
   iVar2 = mapyhstep >> 0x10;
-  _gploc_30 = shadehstep << 0x18;
+  gploc_30 = shadehstep << 0x18;
   uVar5 = shadehstep >> 8;
   iVar3 = iVar2;
   uVar6 = uVar5;
@@ -2948,13 +2870,13 @@ void pack_data() {
     uVar1 = uVar1 - 0x10000;
     iVar3 = iVar2 - (uint)bVar7;
   }
-  uVar4 = iVar3 + (uint)CARRY4(uVar1,uVar6);
-  _gploc_BC = uVar1 + uVar6;
+  uVar4 = iVar3 + (uint)CARRY4(uVar1, uVar6);
+  gploc_BC = uVar1 + uVar6;
   iVar3 = mapxhstep;
   if ((int)uVar4 < 0) {
     iVar3 = mapxhstep + -1;
   }
-  _gploc_B8 = uVar4 & 0xff | iVar3 << 8;
+  gploc_B8 = (uVar4 & 0xff) | iVar3 << 8;
   uVar6 = mapyhstep * 0x10000;
   if ((int)uVar5 < 0) {
     uVar5 = uVar5 & 0xffff;
@@ -2962,16 +2884,16 @@ void pack_data() {
     uVar6 = uVar6 - 0xffff;
     iVar2 = iVar2 - (uint)bVar7;
   }
-  uVar1 = iVar2 + (uint)CARRY4(uVar6,uVar5);
-  _gploc_5C = uVar6 + uVar5;
+  uVar1 = iVar2 + (uint)CARRY4(uVar6, uVar5);
+  gploc_5C = uVar6 + uVar5;
   iVar3 = mapxhstep;
   if ((int)uVar1 < 0) {
     iVar3 = mapxhstep + -1;
   }
-  _gploc_2C = uVar1 & 0xff | iVar3 << 8;
+  gploc_2C = (uVar1 & 0xff) | iVar3 << 8;
   uVar6 = mapyveltop * 0x10000;
   iVar3 = mapyveltop >> 0x10;
-  _gploc_68 = shadeveltop << 0x18;
+  gploc_68 = shadeveltop << 0x18;
   uVar1 = shadeveltop >> 8;
   if ((int)uVar1 < 0) {
     uVar1 = uVar1 & 0xffff;
@@ -2979,19 +2901,19 @@ void pack_data() {
     uVar6 = uVar6 - 0x10000;
     iVar3 = iVar3 - (uint)bVar7;
   }
-  uVar5 = iVar3 + (uint)CARRY4(uVar6,uVar1);
-  _gploc_A4 = uVar6 + uVar1;
+  uVar5 = iVar3 + (uint)CARRY4(uVar6, uVar1);
+  gploc_A4 = uVar6 + uVar1;
   iVar3 = mapxveltop;
   if ((int)uVar5 < 0) {
     iVar3 = mapxveltop + -1;
   }
-  _gploc_A0 = uVar5 & 0xff | iVar3 << 8;
-  _gploc_8C = startposmapytop << 0x10 | startposshadetop >> 8;
-  _gploc_88 = startposmapytop >> 0x10 & 0xff | startposmapxtop << 8;
+  gploc_A0 = (uVar5 & 0xff) | iVar3 << 8;
+  gploc_8C = startposmapytop << 0x10 | startposshadetop >> 8;
+  gploc_88 = (startposmapytop >> 0x10 & 0xff) | startposmapxtop << 8;
   if (-1 < crease_len) {
     uVar6 = mapyvelbottom * 0x10000;
     iVar3 = mapyvelbottom >> 0x10;
-    _gploc_64 = shadevelbottom << 0x18;
+    gploc_64 = shadevelbottom << 0x18;
     uVar1 = shadevelbottom >> 8;
     if ((int)uVar1 < 0) {
       uVar1 = uVar1 & 0xffff;
@@ -2999,97 +2921,17 @@ void pack_data() {
       uVar6 = uVar6 - 0x10000;
       iVar3 = iVar3 - (uint)bVar7;
     }
-    _gploc_98 = uVar6 + uVar1;
-    uVar6 = iVar3 + (uint)CARRY4(uVar6,uVar1);
+    gploc_98 = uVar6 + uVar1;
+    uVar6 = iVar3 + (uint)CARRY4(uVar6, uVar1);
     iVar3 = mapxvelbottom;
     if ((int)uVar6 < 0) {
       iVar3 = mapxvelbottom + -1;
     }
-    _gploc_94 = uVar6 & 0xff | iVar3 << 8;
-    _gploc_80 = startposmapybottom << 0x10 | startposshadebottom >> 8;
-    _gploc_7C = startposmapybottom >> 0x10 & 0xff | startposmapxbottom << 8;
+    gploc_94 = (uVar6 & 0xff) | iVar3 << 8;
+    gploc_80 = startposmapybottom << 0x10 | startposshadebottom >> 8;
+    gploc_7C = (startposmapybottom >> 0x10 & 0xff) | startposmapxbottom << 8;
   }
 }
-
-// Cleaned up
-void pack_data() {
-    int mapY_int, shade_shifted, tempY, mapY_shifted, carry, mapX;
-
-    // First code block
-    _gploc_30 = shadehstep << 24;
-    mapY_int = mapyhstep >> 16;
-    shade_shifted = shadehstep >> 8;
-    tempY = mapY_int;
-    mapY_shifted = mapyhstep * 65536;
-
-    if (shade_shifted < 0) {
-        shade_shifted &= 0xFFFF;
-        mapY_shifted -= 65536;
-        if (mapY_shifted < 0) {
-            tempY--;
-        }
-    }
-
-    carry = ((unsigned)(mapY_shifted + shade_shifted) < (unsigned)mapY_shifted) ? 1 : 0;
-    tempY += carry;
-    _gploc_BC = mapY_shifted + shade_shifted;
-
-    mapX = (tempY < 0) ? (mapxhstep - 1) : mapxhstep;
-    _gploc_B8 = (tempY & 0xFF) | (mapX << 8);
-
-    // Second code block
-    _gploc_68 = shadeveltop << 24;
-    mapY_int = mapyveltop >> 16;
-    shade_shifted = shadeveltop >> 8;
-    tempY = mapY_int;
-    mapY_shifted = mapyveltop * 65536;
-
-    if (shade_shifted < 0) {
-        shade_shifted &= 0xFFFF;
-        mapY_shifted -= 65536;
-        if (mapY_shifted < 0) {
-            tempY--;
-        }
-    }
-
-    carry = ((unsigned)(mapY_shifted + shade_shifted) < (unsigned)mapY_shifted) ? 1 : 0;
-    tempY += carry;
-    _gploc_A4 = mapY_shifted + shade_shifted;
-
-    mapX = (tempY < 0) ? (mapxveltop - 1) : mapxveltop;
-    _gploc_A0 = (tempY & 0xFF) | (mapX << 8);
-
-    _gploc_8C = (startposmapytop << 16) | (startposshadetop >> 8);
-    _gploc_88 = ((startposmapytop >> 16) & 0xFF) | (startposmapxtop << 8);
-
-    if (crease_len >= 0) {
-        // Third code block
-        _gploc_64 = shadevelbottom << 24;
-        mapY_int = mapyvelbottom >> 16;
-        shade_shifted = shadevelbottom >> 8;
-        tempY = mapY_int;
-        mapY_shifted = mapyvelbottom * 65536;
-
-        if (shade_shifted < 0) {
-            shade_shifted &= 0xFFFF;
-            mapY_shifted -= 65536;
-            if (mapY_shifted < 0) {
-                tempY--;
-            }
-        }
-
-        carry = ((unsigned)(mapY_shifted + shade_shifted) < (unsigned)mapY_shifted) ? 1 : 0;
-        tempY += carry;
-        _gploc_98 = mapY_shifted + shade_shifted;
-
-        mapX = (tempY < 0) ? (mapxvelbottom - 1) : mapxvelbottom;
-        _gploc_94 = (tempY & 0xFF) | (mapX << 8);
-
-        _gploc_80 = (startposmapybottom << 16) | (startposshadebottom >> 8);
-        _gploc_7C = ((startposmapybottom >> 16) & 0xFF) | (startposmapxbottom << 8);
-    }
-}
-*/
 
 /**
  * Calculates triangle data required for rendering.
@@ -3111,164 +2953,6 @@ void calc_triangle_data() {
 
   // Pack computed data into appropriate structures or buffers
   pack_data();
-
-  /*
-  #if __GNUC__
-    asm volatile(
-        " \
-        pusha\n \
-        int     $3\n \
-        movl    _mapyhstep,%%eax\n \
-        movl    %%eax,%%edx\n \
-        shll    $0x10,%%eax\n \
-        sarl    $0x10,%%edx\n \
-        movl    _shadehstep,%%ebx\n \
-        shll    $0x18,%%ebx\n \
-        movl    %%ebx,_gploc_30\n \
-        movl    _shadehstep,%%ebx\n \
-        sarl    $8,%%ebx\n \
-        orl %%ebx,%%ebx\n \
-        jns gpo_loc_1FB1\n \
-        andl    $0x0FFFF,%%ebx\n \
-        subl    $0x10000,%%eax\n \
-        sbbl    $0,%%edx\n \
-    \n \
-    gpo_loc_1FB1:         # 1DB\n \
-        addl    %%ebx,%%eax\n \
-        adcl    $0,%%edx\n \
-        movl    %%eax,_gploc_BC\n \
-        movl    _mapxhstep,%%eax\n \
-        orl %%edx,%%edx\n \
-        jns gpo_loc_1FC9\n \
-        decl    %%eax\n \
-    \n \
-    gpo_loc_1FC9:         # 1DD6\n \
-        shll    $8,%%eax\n \
-        andl    $0x0FF,%%edx\n \
-        orl %%eax,%%edx\n \
-        movl    %%edx,_gploc_B8\n \
-        movl    _mapyhstep,%%eax\n \
-        movl    %%eax,%%edx\n \
-        shll    $0x10,%%eax\n \
-        sarl    $0x10,%%edx\n \
-        movl    _shadehstep,%%ebx\n \
-        sarl    $8,%%ebx\n \
-        orl %%ebx,%%ebx\n \
-        jns gpo_loc_2006\n \
-        andl    $0x0FFFF,%%ebx\n \
-        subl    $0x0FFFF,%%eax\n \
-        sbbl    $0,%%edx\n \
-    \n \
-    gpo_loc_2006:         # 1E06\n \
-        addl    %%ebx,%%eax\n \
-        adcl    $0,%%edx\n \
-        movl    %%eax,_gploc_5C\n \
-        movl    _mapxhstep,%%eax\n \
-        orl %%edx,%%edx\n \
-        jns gpo_loc_201E\n \
-        decl    %%eax\n \
-    \n \
-    gpo_loc_201E:         # 1E2B\n \
-        shll    $8,%%eax\n \
-        andl    $0x0FF,%%edx\n \
-        orl %%eax,%%edx\n \
-        movl    %%edx,_gploc_2C\n \
-        movl    _mapyveltop,%%eax\n \
-        movl    %%eax,%%edx\n \
-        shll    $0x10,%%eax\n \
-        sarl    $0x10,%%edx\n \
-        movl    _shadeveltop,%%ebx\n \
-        shll    $0x18,%%ebx\n \
-        movl    %%ebx,_gploc_68\n \
-        movl    _shadeveltop,%%ebx\n \
-        sarl    $8,%%ebx\n \
-        orl %%ebx,%%ebx\n \
-        jns gpo_loc_2063\n \
-        andl    $0x0FFFF,%%ebx\n \
-        subl    $0x10000,%%eax\n \
-        sbbl    $0,%%edx\n \
-    \n \
-    gpo_loc_2063:         # 1E63\n \
-        addl    %%ebx,%%eax\n \
-        adcl    $0,%%edx\n \
-        movl    %%eax,_gploc_A4\n \
-        movl    _mapxveltop,%%eax\n \
-        orl %%edx,%%edx\n \
-        jns gpo_loc_2078\n \
-        decl    %%eax\n \
-    \n \
-    gpo_loc_2078:         # 1E85\n \
-        shll    $8,%%eax\n \
-        andl    $0x0FF,%%edx\n \
-        orl %%eax,%%edx\n \
-        movl    %%edx,_gploc_A0\n \
-        movl    _startposmapytop,%%eax\n \
-        movl    %%eax,%%edx\n \
-        shll    $0x10,%%eax\n \
-        movl    _startposshadetop,%%ebx\n \
-        shrl    $8,%%ebx\n \
-        orl %%ebx,%%eax\n \
-        movl    %%eax,_gploc_8C\n \
-        movl    _startposmapxtop,%%eax\n \
-        shll    $8,%%eax\n \
-        shrl    $0x10,%%edx\n \
-        andl    $0x0FF,%%edx\n \
-        orl %%eax,%%edx\n \
-        movl    %%edx,_gploc_88\n \
-        movl    _crease_len,%%esi\n \
-        orl %%esi,%%esi\n \
-        js  gpo_case69_break\n \
-        movl    _mapyvelbottom,%%eax\n \
-        movl    %%eax,%%edx\n \
-        shll    $0x10,%%eax\n \
-        sarl    $0x10,%%edx\n \
-        movl    _shadevelbottom,%%ebx\n \
-        shll    $0x18,%%ebx\n \
-        movl    %%ebx,_gploc_64\n \
-        movl    _shadevelbottom,%%ebx\n \
-        sarl    $8,%%ebx\n \
-        orl %%ebx,%%ebx\n \
-        jns gpo_loc_2104\n \
-        andl    $0x0FFFF,%%ebx\n \
-        subl    $0x10000,%%eax\n \
-        sbbl    $0,%%edx\n \
-    \n \
-    gpo_loc_2104:         # 1F0\n \
-        addl    %%ebx,%%eax\n \
-        adcl    $0,%%edx\n \
-        movl    %%eax,_gploc_98\n \
-        movl    _mapxvelbottom,%%eax\n \
-        orl %%edx,%%edx\n \
-        jns gpo_loc_2119\n \
-        decl    %%eax\n \
-    \n \
-    gpo_loc_2119:         # 1F26\n \
-        shll    $8,%%eax\n \
-        andl    $0x0FF,%%edx\n \
-        orl %%eax,%%edx\n \
-        movl    %%edx,_gploc_94\n \
-        movl    _startposmapybottom,%%eax\n \
-        movl    %%eax,%%edx\n \
-        shll    $0x10,%%eax\n \
-        movl    _startposshadebottom,%%ebx\n \
-        shrl    $8,%%ebx\n \
-        orl %%ebx,%%eax\n \
-        movl    %%eax,_gploc_80\n \
-        movl    _startposmapxbottom,%%eax\n \
-        shll    $8,%%eax\n \
-        shrl    $0x10,%%edx\n \
-        andl    $0x0FF,%%edx\n \
-        orl %%eax,%%edx\n \
-        movl    %%edx,_gploc_7C\n \
-    \n \
-    gpo_case69_break:\n \
-        popa    \n \
-    "
-        :
-        :
-        : "memory", "cc");
-  #endif
-    */
 }
 
 void draw_gpoly_sub11() {
