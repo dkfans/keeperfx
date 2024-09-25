@@ -1035,6 +1035,9 @@ TbBool attempt_job_sleep_in_lair_near_pos(struct Thing *creatng, MapSubtlCoord s
         ERRORLOG("No arrive at state for job %s in %s room",creature_job_code_name(new_job),room_code_name(room->kind));
         return false;
     }
+    if(!creature_can_do_healing_sleep(creatng)){
+        return false;
+    }
     cctrl->slap_turns = 0;
     cctrl->max_speed = calculate_correct_creature_maxspeed(creatng);
     if (creature_has_lair_room(creatng) && (room->index == cctrl->lair_room_id))
