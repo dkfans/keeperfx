@@ -5750,7 +5750,7 @@ msgstr "Vena auri densa: Multae opes continet ut diabolulli tui eas fodiant."
 #: guitext:1053
 #, fuzzy
 msgctxt "Keeper spell name"
-msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
+msgid "Magic Shield"
 msgstr "Resilientia"
 
 #: guitext:1054

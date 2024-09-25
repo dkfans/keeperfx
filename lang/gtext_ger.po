@@ -7060,8 +7060,8 @@ msgstr "Dichte Goldader: Enthält viel Reichtum, den Eure Imps abbauen können."
 
 #: guitext:1053
 msgctxt "Keeper spell name"
-msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
-msgstr "Abprall: Fliegende Geschossen werden auf den ursprünglichen Beschwörer zurückgeworfen."
+msgid "Magic Shield"
+msgstr "Abprall"
 
 #: guitext:1054
 msgctxt "Keeper spell name"
@@ -7141,7 +7141,7 @@ msgstr "Kuriert alle Statuseffekte von Verbündeten."
 #: guitext:1069
 msgctxt "Keeper spell description"
 msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
-msgstr ""
+msgstr "Abprall: Fliegende Geschossen werden auf den ursprünglichen Beschwörer zurückgeworfen."
 
 #: guitext:1070
 msgctxt "Keeper spell description"

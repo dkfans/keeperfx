@@ -7020,7 +7020,7 @@ msgstr "Gęste żyłki złota: Zawiera dużo bogactwa do wydobycia przez twoje C
 #: guitext:1053
 #, fuzzy
 msgctxt "Keeper spell name"
-msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
+msgid "Magic Shield"
 msgstr "Odbicie"
 
 #: guitext:1054

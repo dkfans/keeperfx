@@ -7007,7 +7007,7 @@ msgstr "Vena d'oro densa: Contiene molta ricchezza che i tuoi Folletti possono e
 #: guitext:1053
 #, fuzzy
 msgctxt "Keeper spell name"
-msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
+msgid "Magic Shield"
 msgstr "Rimbalzo"
 
 #: guitext:1054

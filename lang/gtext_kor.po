@@ -6942,7 +6942,7 @@ msgstr "높은 금맥: 당신의 임프가 추출할 수 있는 많은 부를 �
 #: guitext:1053
 #, fuzzy
 msgctxt "Keeper spell name"
-msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
+msgid "Magic Shield"
 msgstr "반사"
 
 #: guitext:1054

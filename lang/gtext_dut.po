@@ -2272,7 +2272,7 @@ msgstr "Krachtterm: [26.23]"
 #: guitext:248
 msgctxt "Creature spell"
 msgid "Heal: When this is cast, the creature is massively healed."
-msgstr "Genezing: Deze spreuk zorgt voor veel extra gezondheid."
+msgstr "Genezing: Deze spreuk geneest je wezen voor een aanzienlijk deel."
 
 #: guitext:249
 #, fuzzy
@@ -6910,10 +6910,9 @@ msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "Dichte Goudader: Bevat veel rijkdom voor je Dondersteentjes om te delven."
 
 #: guitext:1053
-#, fuzzy
 msgctxt "Keeper spell name"
-msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
-msgstr "Magisch Schild: Stuurt projectielen afgevuurd op dit Wezen terug naar de aanvaller."
+msgid "Magic Shield"
+msgstr "Magisch Schild"
 
 #: guitext:1054
 msgctxt "Keeper spell name"
@@ -6978,7 +6977,7 @@ msgstr "Kantel Reset"
 #: guitext:1066
 msgctxt "Creature spell"
 msgid "Heal Monster: The target creature is massively healed."
-msgstr "Genees Monster: Maak het tdoelwit extra gezond"
+msgstr "Genees Monster: Geneest het doelwit voor een aanzienlijk deel."
 
 #: guitext:1067
 msgctxt "Creature spell"

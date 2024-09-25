@@ -5793,7 +5793,7 @@ msgstr "密集的金属矿层：为你的小鬼提供丰富的财富。"
 #: guitext:1053
 #, fuzzy
 msgctxt "Keeper spell name"
-msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
+msgid "Magic Shield"
 msgstr "反弹术"
 
 #: guitext:1054
