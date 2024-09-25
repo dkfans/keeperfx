@@ -34,6 +34,23 @@ extern "C" {
 
 // Type definitions
 
+/** Sound bank ID. */
+typedef unsigned char SoundBankID;
+/** Sound SFXID parameter from bank table. */
+typedef unsigned char SoundSFXID;
+/** Sound emitter ID. */
+typedef long SoundEmitterID;
+/** Sound sample ID in bank table. */
+typedef short SoundSmplTblID;
+/** Volume level indicator, normal is 256. */
+typedef long SoundVolume;
+/** Pitch level indicator, normal is 100. */
+typedef long SoundPitch;
+/** Pan level indicator. */
+typedef long SoundPan;
+/** Miles Sound ID. */
+typedef long SoundMilesID;
+
 enum SoundEmitterFlags {
     Emi_IsAllocated  = 0x01,
     Emi_UnknownPlay  = 0x02,
@@ -93,27 +110,11 @@ struct S3DSample { // sizeof = 37
 };
 
 struct SampleTable {
+  char name[18];
   unsigned long data_size;
-  unsigned long sfxid;
+  SoundSFXID sfxid;
   SndData snd_buf;
 };
-
-/** Sound bank ID. */
-typedef unsigned char SoundBankID;
-/** Sound SFXID parameter from bank table. */
-typedef unsigned char SoundSFXID;
-/** Sound emitter ID. */
-typedef long SoundEmitterID;
-/** Sound sample ID in bank table. */
-typedef short SoundSmplTblID;
-/** Volume level indicator, normal is 256. */
-typedef long SoundVolume;
-/** Pitch level indicator, normal is 100. */
-typedef long SoundPitch;
-/** Pan level indicator. */
-typedef long SoundPan;
-/** Miles Sound ID. */
-typedef long SoundMilesID;
 
 /******************************************************************************/
 // Exported variables

@@ -516,6 +516,7 @@ struct SampleTable * parse_sound_file(TbFileHandle fileh, long * nsamples, long 
             free_sound_bank(samples, sample_count);
             return NULL;
         }
+        snprintf(samples[i].name, sizeof(samples[i].name), "%s", sample.filename);
         samples[i].data_size = sample.data_size;
         samples[i].sfxid = sample.sfxid;
     }

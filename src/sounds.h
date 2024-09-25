@@ -62,7 +62,7 @@ struct SoundBankHead { // sizeof = 18
 
 struct SoundBankSample { // sizeof = 32
     /** Name of the sound file the sample comes from. */
-    unsigned char filename[18];
+    char filename[18];
     /** Offset of the sample data. */
     unsigned long field_12;
     unsigned long field_16;
