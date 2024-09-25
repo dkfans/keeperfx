@@ -7161,9 +7161,9 @@ msgstr ""
 #: guitext:1076
 msgctxt "Door name"
 msgid "Midas Door"
-msgstr "Magische Tür"
+msgstr "Habgierige Tür"
 
 #: guitext:1077
 msgctxt "Door description"
 msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
-msgstr "Magische Tür: Diese Tür verbraucht Gold um unzerstörbar zu werden."
+msgstr "Habgierige Tür: Diese Tür verbraucht Gold um unzerstörbar zu werden."
