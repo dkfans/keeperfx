@@ -32,9 +32,6 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-struct HeapMgrHeader;
-struct HeapMgrHandle;
-
 // Type definitions
 
 enum SoundEmitterFlags {
@@ -95,11 +92,10 @@ struct S3DSample { // sizeof = 37
   unsigned long base_volume;
 };
 
-struct SampleTable { // sizeof = 16
-  unsigned long file_pos;
+struct SampleTable {
   unsigned long data_size;
   unsigned long sfxid;
-  SndData *snd_buf;
+  SndData snd_buf;
 };
 
 /** Sound bank ID. */
@@ -126,11 +122,8 @@ extern struct SoundReceiver Receiver;
 extern long Non3DEmitter;
 extern struct SampleTable *sample_table;
 extern struct SampleTable *sample_table2;
-extern TbFileHandle sound_file;
-extern TbFileHandle sound_file2;
 extern unsigned char using_two_banks;
 extern long SpeechEmitter;
-extern struct HeapMgrHeader *sndheap;
 #pragma pack()
 /******************************************************************************/
 // Exported functions
@@ -160,13 +153,10 @@ void play_non_3d_sample(long sample_idx);
 void play_non_3d_sample_no_overlap(long smpl_idx);
 void play_atmos_sound(long smpl_idx);
 short sound_emitter_in_use(SoundEmitterID eidx);
-long get_best_sound_heap_size(long sh_mem_size);
-struct SampleInfo *play_sample_using_heap(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, SoundBankID bank_id);
-void stop_sample_using_heap(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundBankID bank_id);
+struct SampleInfo *play_sample(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, SoundBankID bank_id);
+void stop_sample(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundBankID bank_id);
 long speech_sample_playing(void);
 long play_speech_sample(SoundSmplTblID smptbl_id);
-void close_sound_heap(void);
-void close_sound_bank(SoundBankID bank_id);
 long stop_emitter_samples(struct SoundEmitter *emit);
 TbBool process_sound_emitters(void);
 void increment_sample_times(void);

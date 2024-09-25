@@ -414,83 +414,113 @@ void process_sound_heap(void)
     SYNCDBG(9,"Done (%l playing yet)", i);
 }
 
-long parse_sound_file(TbFileHandle fileh, unsigned char *buf, long *nsamples, long buf_len, long a5)
+void free_sound_bank(struct SampleTable * samples, int sample_count) {
+    if (samples) {
+        for (int i = 0; i < sample_count; ++i) {
+            LbMemoryFree(samples[i].snd_buf);
+        }
+        LbMemoryFree(samples);
+    }
+}
+
+struct SampleTable * parse_sound_file(TbFileHandle fileh, long * nsamples, long a5)
 {
-    long k;
-
-    // TODO SOUND use rewritten version when sound routines are rewritten
-
+    int directory_index;
     switch ( a5 )
     {
     case 1610:
-        k = 5;
+        directory_index = 5;
         break;
     case 822:
-        k = 6;
+        directory_index = 6;
         break;
     case 811:
-        k = 7;
+        directory_index = 7;
         break;
     case 800:
-        k = 8;
+        directory_index = 8;
         break;
     case 1611:
-        k = 4;
+        directory_index = 4;
         break;
     case 1620:
-        k = 3;
+        directory_index = 3;
         break;
     case 1622:
-        k = 2;
+        directory_index = 2;
         break;
     case 1640:
-        k = 1;
+        directory_index = 1;
         break;
     case 1644:
-        k = 0;
+        directory_index = 0;
         break;
     default:
-        return 0;
+        return NULL;
     }
-    LbFileSeek(fileh, 0, Lb_FILE_SEEK_END);
-    long fsize = LbFilePosition(fileh);
-    LbFileSeek(fileh, fsize-4, Lb_FILE_SEEK_BEGINNING);
-    unsigned char rbuf[8];
-    LbFileRead(fileh, &rbuf, 4);
-    long i = read_int32_le_buf(rbuf);
-    LbFileSeek(fileh, i, Lb_FILE_SEEK_BEGINNING);
+    long fsize = LbFileLengthHandle(fileh);
+    if (fsize < 4) {
+        return NULL;
+    } else if (LbFileSeek(fileh, -4, Lb_FILE_SEEK_END) < 0) {
+        return NULL;
+    }
+    int head_offset;
+    if (LbFileRead(fileh, &head_offset, sizeof(head_offset)) < sizeof(head_offset)) {
+        return NULL;
+    }
+    head_offset = read_int32_le_buf((unsigned char *) &head_offset);
+    if (head_offset > fsize) {
+        return NULL;
+    } else  if (LbFileSeek(fileh, head_offset, Lb_FILE_SEEK_BEGINNING) < 0) {
+        return NULL;
+    }
     struct SoundBankHead bhead;
-    LbFileRead(fileh, &bhead, sizeof(bhead));
+    if (LbFileRead(fileh, &bhead, sizeof(bhead)) < sizeof(bhead)) {
+        return NULL;
+    }
     struct SoundBankEntry bentries[9];
-    LbFileRead(fileh, bentries, sizeof(bentries));
-    struct SoundBankEntry* bentry = &bentries[k];
-    if (bentry->field_0 == 0) {
-        return 0;
+    if (LbFileRead(fileh, bentries, sizeof(bentries)) < sizeof(bentries)) {
+        return NULL;
     }
-    if (bentry->field_8 == 0) {
-        return 0;
+    struct SoundBankEntry * directory = &bentries[directory_index];
+    if (directory->field_0 == 0) {
+        return NULL;
+    } else if (directory->field_8 == 0) {
+        return NULL;
     }
-    i = bentry->field_8 / sizeof(struct SoundBankSample);
-    *nsamples = i;
-    if (sizeof(struct SampleTable) * (*nsamples) >= buf_len) {
-        return 0;
+    int sample_count = directory->field_8 / sizeof(struct SoundBankSample);
+    if (sizeof(struct SampleTable) * sample_count >= head_offset) {
+        return NULL;
+    } else if (LbFileSeek(fileh, directory->field_0, Lb_FILE_SEEK_BEGINNING) < 0) {
+        return NULL;
     }
-    LbFileSeek(fileh, bentry->field_0, Lb_FILE_SEEK_BEGINNING);
-    struct SampleTable* smpl = (struct SampleTable*)buf;
-    k = bentry->field_4;
-    for (i=0; i < *nsamples; i++)
-    {
-        struct SoundBankSample bsample;
-        LbFileRead(fileh, &bsample, sizeof(struct SoundBankSample));
-        smpl->file_pos = k + bsample.field_12;
-        smpl->data_size = bsample.data_size;
-        smpl->sfxid = bsample.sfxid;
-        he_free(smpl->snd_buf);
-        smpl->snd_buf = NULL;
-        smpl++;
+    struct SampleTable * samples = (struct SampleTable *) LbMemoryAlloc(sizeof(struct SampleTable) * sample_count);
+    struct SoundBankSample sample;
+    for (int i = 0; i < sample_count; ++i) {
+        if (LbFileSeek(fileh, directory->field_0 + (sizeof(sample) * i), Lb_FILE_SEEK_BEGINNING) < 0) {
+            free_sound_bank(samples, sample_count);
+            return NULL;
+        } else if (LbFileRead(fileh, &sample, sizeof(sample)) < sizeof(sample)) {
+            free_sound_bank(samples, sample_count);
+            return NULL;
+        } else if (LbFileSeek(fileh, directory->field_4 + sample.field_12, Lb_FILE_SEEK_BEGINNING) < 0) {
+            free_sound_bank(samples, sample_count);
+            return NULL;
+        }
+        samples[i].snd_buf = (SndData) LbMemoryAlloc(sample.data_size);
+        if (!samples[i].snd_buf) {
+            free_sound_bank(samples, sample_count);
+            return NULL;
+        }
+        if (LbFileRead(fileh, samples[i].snd_buf, sample.data_size) < sample.data_size) {
+            free_sound_bank(samples, sample_count);
+            return NULL;
+        }
+        samples[i].data_size = sample.data_size;
+        samples[i].sfxid = sample.sfxid;
     }
-    //TODO SOUND Check why we're returning nsamples * 32 and not nsamples * 16
-    return sizeof(struct SoundBankSample) * (*nsamples);
+    *nsamples = sample_count;
+    return samples;
 }
 
 TbBool init_sound(void)
@@ -506,11 +536,7 @@ TbBool init_sound(void)
     snd_settng->dir3 = sound_dir;
     snd_settng->field_12 = 1;
     snd_settng->stereo = 1;
-    unsigned long i = get_best_sound_heap_size(mem_size);
-    if (i < 1048576)
-      snd_settng->max_number_of_samples = 10;
-    else
-      snd_settng->max_number_of_samples = 16;
+    snd_settng->max_number_of_samples = 16;
     snd_settng->danger_music = 0;
     snd_settng->no_load_music = 1;
     snd_settng->no_load_sounds = 1;
@@ -532,66 +558,54 @@ TbBool init_sound(void)
     return true;
 }
 
-TbBool init_sound_heap_two_banks(unsigned char *heap_mem, long heap_size, char *snd_fname, char *spc_fname, long a5)
+TbBool init_first_bank(const char * snd_fname, long a5)
 {
-    SYNCDBG(8,"Starting");
-    LbMemorySet(heap_mem, 0, heap_size);
-    using_two_banks = 0;
-    // Open first sound bank and prepare sample table
-    if (sound_file)
-        close_sound_bank(0);
-    samples_in_bank = 0;
-    sound_file = LbFileOpen(snd_fname,Lb_FILE_MODE_READ_ONLY);
-    if (!sound_file)
-    {
+    TbFileHandle handle = LbFileOpen(snd_fname,Lb_FILE_MODE_READ_ONLY);
+    if (!handle) {
         ERRORLOG("Couldn't open primary sound bank file \"%s\"",snd_fname);
         return false;
     }
-    unsigned char* buf = heap_mem;
-    long buf_len = heap_size;
-    long i = parse_sound_file(sound_file, buf, &samples_in_bank, buf_len, a5);
-    if (i == 0)
-    {
+    free_sound_bank(sample_table, samples_in_bank);
+    samples_in_bank = 0;
+    sample_table = parse_sound_file(handle, &samples_in_bank, a5);
+    if (!sample_table) {
         ERRORLOG("Couldn't parse sound bank file \"%s\"",snd_fname);
-        close_sound_heap();
         return false;
     }
-    sample_table = (struct SampleTable *)buf;
-    buf_len -= i;
-    buf += i;
-    if (buf_len <= 0)
-    {
-        ERRORLOG("Sound bank buffer too short");
-        close_sound_heap();
-        return false;
-    }
-    // Open second sound bank and prepare sample table
-    if (sound_file2)
-        close_sound_bank(1);
-    samples_in_bank2 = 0;
-    sound_file2 = LbFileOpen(spc_fname,Lb_FILE_MODE_READ_ONLY);
-    if (!sound_file2)
-    {
+    SYNCLOG("Loaded %d sound samples into bank 0", samples_in_bank);
+    return true;
+}
+
+TbBool init_second_bank(const char * spc_fname, long a5)
+{
+    TbFileHandle handle = LbFileOpen(spc_fname,Lb_FILE_MODE_READ_ONLY);
+    if (!handle) {
+        LbFileClose(handle);
         ERRORLOG("Couldn't open secondary sound bank file \"%s\"",spc_fname);
         return false;
     }
-    i = parse_sound_file(sound_file2, buf, &samples_in_bank2, buf_len, a5);
-    if (i == 0)
-    {
+    free_sound_bank(sample_table2, samples_in_bank2);
+    samples_in_bank2 = 0;
+    sample_table2 = parse_sound_file(handle, &samples_in_bank2, a5);
+    if (!sample_table2) {
+        LbFileClose(handle);
         ERRORLOG("Couldn't parse sound bank file \"%s\"",spc_fname);
-        close_sound_heap();
         return false;
     }
-    sample_table2 = (struct SampleTable *)buf;
-    buf_len -= i;
-    buf += i;
-    if (buf_len <= 0)
-    {
-        ERRORLOG("Sound bank buffer too short");
-        close_sound_heap();
+    LbFileClose(handle);
+    SYNCLOG("Loaded %d sound samples into bank 1", samples_in_bank2);
+    return true;
+}
+
+TbBool init_sound_banks(char *snd_fname, char *spc_fname, long a5)
+{
+    SYNCDBG(8,"Starting");
+    using_two_banks = 0;
+    if (!init_first_bank(snd_fname, a5)) {
+        return false;
+    } else if (!init_second_bank(spc_fname, a5)) {
         return false;
     }
-    SYNCLOG("Got sound buffer of %ld bytes, samples in banks: %d,%d",buf_len,(int)samples_in_bank,(int)samples_in_bank2);
     using_two_banks = 1;
     return true;
 }
