@@ -2847,7 +2847,83 @@ static void calc_startpos() {
                     &startposmapybottom);
 }
 
-static void pack_data() {}
+static void pack_data() {
+  int mapY_int, shade_shifted, tempY, mapY_shifted, carry, mapX;
+
+  // First code block
+  gploc_30 = shadehstep << 24;
+  mapY_int = mapyhstep >> 16;
+  shade_shifted = shadehstep >> 8;
+  tempY = mapY_int;
+  mapY_shifted = mapyhstep * 65536;
+
+  if (shade_shifted < 0) {
+    shade_shifted &= 0xFFFF;
+    mapY_shifted -= 65536;
+    if (mapY_shifted < 0) {
+      tempY--;
+    }
+  }
+
+  carry = ((unsigned)(mapY_shifted + shade_shifted) < (unsigned)mapY_shifted) ? 1 : 0;
+  tempY += carry;
+  gploc_BC = mapY_shifted + shade_shifted;
+
+  mapX = (tempY < 0) ? (mapxhstep - 1) : mapxhstep;
+  gploc_B8 = (tempY & 0xFF) | (mapX << 8);
+
+  // Second code block
+  gploc_68 = shadeveltop << 24;
+  mapY_int = mapyveltop >> 16;
+  shade_shifted = shadeveltop >> 8;
+  tempY = mapY_int;
+  mapY_shifted = mapyveltop * 65536;
+
+  if (shade_shifted < 0) {
+    shade_shifted &= 0xFFFF;
+    mapY_shifted -= 65536;
+    if (mapY_shifted < 0) {
+      tempY--;
+    }
+  }
+
+  carry = ((unsigned)(mapY_shifted + shade_shifted) < (unsigned)mapY_shifted) ? 1 : 0;
+  tempY += carry;
+  gploc_A4 = mapY_shifted + shade_shifted;
+
+  mapX = (tempY < 0) ? (mapxveltop - 1) : mapxveltop;
+  gploc_A0 = (tempY & 0xFF) | (mapX << 8);
+
+  gploc_8C = (startposmapytop << 16) | (startposshadetop >> 8);
+  gploc_88 = ((startposmapytop >> 16) & 0xFF) | (startposmapxtop << 8);
+
+  if (crease_len >= 0) {
+    // Third code block
+    gploc_64 = shadevelbottom << 24;
+    mapY_int = mapyvelbottom >> 16;
+    shade_shifted = shadevelbottom >> 8;
+    tempY = mapY_int;
+    mapY_shifted = mapyvelbottom * 65536;
+
+    if (shade_shifted < 0) {
+      shade_shifted &= 0xFFFF;
+      mapY_shifted -= 65536;
+      if (mapY_shifted < 0) {
+        tempY--;
+      }
+    }
+
+    carry = ((unsigned)(mapY_shifted + shade_shifted) < (unsigned)mapY_shifted) ? 1 : 0;
+    tempY += carry;
+    gploc_98 = mapY_shifted + shade_shifted;
+
+    mapX = (tempY < 0) ? (mapxvelbottom - 1) : mapxvelbottom;
+    gploc_94 = (tempY & 0xFF) | (mapX << 8);
+
+    gploc_80 = (startposmapybottom << 16) | (startposshadebottom >> 8);
+    gploc_7C = ((startposmapybottom >> 16) & 0xFF) | (startposmapxbottom << 8);
+  }
+}
 
 /*
 // Ghidra output of `pack_data`
@@ -2859,7 +2935,7 @@ void pack_data() {
   uint uVar5;
   uint uVar6;
   bool bVar7;
-  
+
   uVar1 = mapyhstep * 0x10000;
   iVar2 = mapyhstep >> 0x10;
   _gploc_30 = shadehstep << 0x18;
@@ -2934,6 +3010,85 @@ void pack_data() {
     _gploc_7C = startposmapybottom >> 0x10 & 0xff | startposmapxbottom << 8;
   }
 }
+
+// Cleaned up
+void pack_data() {
+    int mapY_int, shade_shifted, tempY, mapY_shifted, carry, mapX;
+
+    // First code block
+    _gploc_30 = shadehstep << 24;
+    mapY_int = mapyhstep >> 16;
+    shade_shifted = shadehstep >> 8;
+    tempY = mapY_int;
+    mapY_shifted = mapyhstep * 65536;
+
+    if (shade_shifted < 0) {
+        shade_shifted &= 0xFFFF;
+        mapY_shifted -= 65536;
+        if (mapY_shifted < 0) {
+            tempY--;
+        }
+    }
+
+    carry = ((unsigned)(mapY_shifted + shade_shifted) < (unsigned)mapY_shifted) ? 1 : 0;
+    tempY += carry;
+    _gploc_BC = mapY_shifted + shade_shifted;
+
+    mapX = (tempY < 0) ? (mapxhstep - 1) : mapxhstep;
+    _gploc_B8 = (tempY & 0xFF) | (mapX << 8);
+
+    // Second code block
+    _gploc_68 = shadeveltop << 24;
+    mapY_int = mapyveltop >> 16;
+    shade_shifted = shadeveltop >> 8;
+    tempY = mapY_int;
+    mapY_shifted = mapyveltop * 65536;
+
+    if (shade_shifted < 0) {
+        shade_shifted &= 0xFFFF;
+        mapY_shifted -= 65536;
+        if (mapY_shifted < 0) {
+            tempY--;
+        }
+    }
+
+    carry = ((unsigned)(mapY_shifted + shade_shifted) < (unsigned)mapY_shifted) ? 1 : 0;
+    tempY += carry;
+    _gploc_A4 = mapY_shifted + shade_shifted;
+
+    mapX = (tempY < 0) ? (mapxveltop - 1) : mapxveltop;
+    _gploc_A0 = (tempY & 0xFF) | (mapX << 8);
+
+    _gploc_8C = (startposmapytop << 16) | (startposshadetop >> 8);
+    _gploc_88 = ((startposmapytop >> 16) & 0xFF) | (startposmapxtop << 8);
+
+    if (crease_len >= 0) {
+        // Third code block
+        _gploc_64 = shadevelbottom << 24;
+        mapY_int = mapyvelbottom >> 16;
+        shade_shifted = shadevelbottom >> 8;
+        tempY = mapY_int;
+        mapY_shifted = mapyvelbottom * 65536;
+
+        if (shade_shifted < 0) {
+            shade_shifted &= 0xFFFF;
+            mapY_shifted -= 65536;
+            if (mapY_shifted < 0) {
+                tempY--;
+            }
+        }
+
+        carry = ((unsigned)(mapY_shifted + shade_shifted) < (unsigned)mapY_shifted) ? 1 : 0;
+        tempY += carry;
+        _gploc_98 = mapY_shifted + shade_shifted;
+
+        mapX = (tempY < 0) ? (mapxvelbottom - 1) : mapxvelbottom;
+        _gploc_94 = (tempY & 0xFF) | (mapX << 8);
+
+        _gploc_80 = (startposmapybottom << 16) | (startposshadebottom >> 8);
+        _gploc_7C = ((startposmapybottom >> 16) & 0xFF) | (startposmapxbottom << 8);
+    }
+}
 */
 
 /**
@@ -2957,251 +3112,163 @@ void calc_triangle_data() {
   // Pack computed data into appropriate structures or buffers
   pack_data();
 
-  // Begin simplified calculations
-
-/*
-  // Calculate gploc_30 by shifting shadehstep left by 24 bits
-  gploc_30 = shadehstep << 24;
-
-  // Calculate gploc_BC
-  int32_t adjusted_shadehstep = shadehstep >> 8;
-  int32_t adjusted_mapyhstep = mapyhstep << 16;
-
-  if (adjusted_shadehstep < 0) {
-    // Handle negative shadehstep
-    adjusted_shadehstep &= 0xFFFF;
-    adjusted_mapyhstep -= 0x10000;
-  }
-  gploc_BC = adjusted_mapyhstep + adjusted_shadehstep;
-
-  // Calculate gploc_B8
-  int32_t carry = (gploc_BC < 0) ? -1 : 0;
-  gploc_B8 = ((mapxhstep + carry) << 8) | ((gploc_BC >> 24) & 0xFF);
-
-  // Calculate gploc_5C
-  int32_t adjusted_shadehstep_2 = shadehstep >> 8;
-  int32_t adjusted_mapyhstep_2 = mapyhstep << 16;
-
-  if (adjusted_shadehstep_2 < 0) {
-    // Handle negative shadehstep
-    adjusted_shadehstep_2 &= 0xFFFF;
-    adjusted_mapyhstep_2 -= 0xFFFF;
-  }
-  gploc_5C = adjusted_mapyhstep_2 + adjusted_shadehstep_2;
-
-  // Calculate gploc_2C
-  carry = (gploc_5C < 0) ? -1 : 0;
-  gploc_2C = ((mapxhstep + carry) << 8) | ((gploc_5C >> 24) & 0xFF);
-
-  // Calculate gploc_68 by shifting shadeveltop left by 24 bits
-  gploc_68 = shadeveltop << 24;
-
-  // Calculate gploc_A4
-  int32_t adjusted_shadeveltop = shadeveltop >> 8;
-  int32_t adjusted_mapyveltop = mapyveltop << 16;
-
-  if (adjusted_shadeveltop < 0) {
-    // Handle negative shadeveltop
-    adjusted_shadeveltop &= 0xFFFF;
-    adjusted_mapyveltop -= 0x10000;
-  }
-  gploc_A4 = adjusted_mapyveltop + adjusted_shadeveltop;
-
-  // Calculate gploc_A0
-  carry = (gploc_A4 < 0) ? -1 : 0;
-  gploc_A0 = ((mapxveltop + carry) << 8) | ((gploc_A4 >> 24) & 0xFF);
-
-  // Calculate gploc_8C by combining startposmapytop and startposshadetop
-  gploc_8C = (startposmapytop << 16) | (startposshadetop >> 8);
-
-  // Calculate gploc_88 by combining startposmapxtop and bits from startposmapytop
-  gploc_88 = (startposmapxtop << 8) | ((startposmapytop >> 16) & 0xFF);
-
-  // Check if crease length is non-negative before calculating bottom values
-  if (crease_len >= 0) {
-    // Calculate gploc_64 by shifting shadevelbottom left by 24 bits
-    gploc_64 = shadevelbottom << 24;
-
-    // Calculate gploc_98
-    int32_t adjusted_shadevelbottom = shadevelbottom >> 8;
-    int32_t adjusted_mapyvelbottom = mapyvelbottom << 16;
-
-    if (adjusted_shadevelbottom < 0) {
-      // Handle negative shadevelbottom
-      adjusted_shadevelbottom &= 0xFFFF;
-      adjusted_mapyvelbottom -= 0x10000;
-    }
-    gploc_98 = adjusted_mapyvelbottom + adjusted_shadevelbottom;
-
-    // Calculate gploc_94
-    carry = (gploc_98 < 0) ? -1 : 0;
-    gploc_94 = ((mapxvelbottom + carry) << 8) | ((gploc_98 >> 24) & 0xFF);
-
-    // Calculate gploc_80 by combining startposmapybottom and startposshadebottom
-    gploc_80 = (startposmapybottom << 16) | (startposshadebottom >> 8);
-
-    // Calculate gploc_7C by combining startposmapxbottom and bits from startposmapybottom
-    gploc_7C = (startposmapxbottom << 8) | ((startposmapybottom >> 16) & 0xFF);
-  }
-*/
-
-  ///*
+  /*
   #if __GNUC__
     asm volatile(
         " \
-      pusha\n \
-      int     $3\n \
-      movl    _mapyhstep,%%eax\n \
-      movl    %%eax,%%edx\n \
-      shll    $0x10,%%eax\n \
-      sarl    $0x10,%%edx\n \
-      movl    _shadehstep,%%ebx\n \
-      shll    $0x18,%%ebx\n \
-      movl    %%ebx,_gploc_30\n \
-      movl    _shadehstep,%%ebx\n \
-      sarl    $8,%%ebx\n \
-      orl %%ebx,%%ebx\n \
-      jns gpo_loc_1FB1\n \
-      andl    $0x0FFFF,%%ebx\n \
-      subl    $0x10000,%%eax\n \
-      sbbl    $0,%%edx\n \
-  \n \
-  gpo_loc_1FB1:         # 1DB\n \
-      addl    %%ebx,%%eax\n \
-      adcl    $0,%%edx\n \
-      movl    %%eax,_gploc_BC\n \
-      movl    _mapxhstep,%%eax\n \
-      orl %%edx,%%edx\n \
-      jns gpo_loc_1FC9\n \
-      decl    %%eax\n \
-  \n \
-  gpo_loc_1FC9:         # 1DD6\n \
-      shll    $8,%%eax\n \
-      andl    $0x0FF,%%edx\n \
-      orl %%eax,%%edx\n \
-      movl    %%edx,_gploc_B8\n \
-      movl    _mapyhstep,%%eax\n \
-      movl    %%eax,%%edx\n \
-      shll    $0x10,%%eax\n \
-      sarl    $0x10,%%edx\n \
-      movl    _shadehstep,%%ebx\n \
-      sarl    $8,%%ebx\n \
-      orl %%ebx,%%ebx\n \
-      jns gpo_loc_2006\n \
-      andl    $0x0FFFF,%%ebx\n \
-      subl    $0x0FFFF,%%eax\n \
-      sbbl    $0,%%edx\n \
-  \n \
-  gpo_loc_2006:         # 1E06\n \
-      addl    %%ebx,%%eax\n \
-      adcl    $0,%%edx\n \
-      movl    %%eax,_gploc_5C\n \
-      movl    _mapxhstep,%%eax\n \
-      orl %%edx,%%edx\n \
-      jns gpo_loc_201E\n \
-      decl    %%eax\n \
-  \n \
-  gpo_loc_201E:         # 1E2B\n \
-      shll    $8,%%eax\n \
-      andl    $0x0FF,%%edx\n \
-      orl %%eax,%%edx\n \
-      movl    %%edx,_gploc_2C\n \
-      movl    _mapyveltop,%%eax\n \
-      movl    %%eax,%%edx\n \
-      shll    $0x10,%%eax\n \
-      sarl    $0x10,%%edx\n \
-      movl    _shadeveltop,%%ebx\n \
-      shll    $0x18,%%ebx\n \
-      movl    %%ebx,_gploc_68\n \
-      movl    _shadeveltop,%%ebx\n \
-      sarl    $8,%%ebx\n \
-      orl %%ebx,%%ebx\n \
-      jns gpo_loc_2063\n \
-      andl    $0x0FFFF,%%ebx\n \
-      subl    $0x10000,%%eax\n \
-      sbbl    $0,%%edx\n \
-  \n \
-  gpo_loc_2063:         # 1E63\n \
-      addl    %%ebx,%%eax\n \
-      adcl    $0,%%edx\n \
-      movl    %%eax,_gploc_A4\n \
-      movl    _mapxveltop,%%eax\n \
-      orl %%edx,%%edx\n \
-      jns gpo_loc_2078\n \
-      decl    %%eax\n \
-  \n \
-  gpo_loc_2078:         # 1E85\n \
-      shll    $8,%%eax\n \
-      andl    $0x0FF,%%edx\n \
-      orl %%eax,%%edx\n \
-      movl    %%edx,_gploc_A0\n \
-      movl    _startposmapytop,%%eax\n \
-      movl    %%eax,%%edx\n \
-      shll    $0x10,%%eax\n \
-      movl    _startposshadetop,%%ebx\n \
-      shrl    $8,%%ebx\n \
-      orl %%ebx,%%eax\n \
-      movl    %%eax,_gploc_8C\n \
-      movl    _startposmapxtop,%%eax\n \
-      shll    $8,%%eax\n \
-      shrl    $0x10,%%edx\n \
-      andl    $0x0FF,%%edx\n \
-      orl %%eax,%%edx\n \
-      movl    %%edx,_gploc_88\n \
-      movl    _crease_len,%%esi\n \
-      orl %%esi,%%esi\n \
-      js  gpo_case69_break\n \
-      movl    _mapyvelbottom,%%eax\n \
-      movl    %%eax,%%edx\n \
-      shll    $0x10,%%eax\n \
-      sarl    $0x10,%%edx\n \
-      movl    _shadevelbottom,%%ebx\n \
-      shll    $0x18,%%ebx\n \
-      movl    %%ebx,_gploc_64\n \
-      movl    _shadevelbottom,%%ebx\n \
-      sarl    $8,%%ebx\n \
-      orl %%ebx,%%ebx\n \
-      jns gpo_loc_2104\n \
-      andl    $0x0FFFF,%%ebx\n \
-      subl    $0x10000,%%eax\n \
-      sbbl    $0,%%edx\n \
-  \n \
-  gpo_loc_2104:         # 1F0\n \
-      addl    %%ebx,%%eax\n \
-      adcl    $0,%%edx\n \
-      movl    %%eax,_gploc_98\n \
-      movl    _mapxvelbottom,%%eax\n \
-      orl %%edx,%%edx\n \
-      jns gpo_loc_2119\n \
-      decl    %%eax\n \
-  \n \
-  gpo_loc_2119:         # 1F26\n \
-      shll    $8,%%eax\n \
-      andl    $0x0FF,%%edx\n \
-      orl %%eax,%%edx\n \
-      movl    %%edx,_gploc_94\n \
-      movl    _startposmapybottom,%%eax\n \
-      movl    %%eax,%%edx\n \
-      shll    $0x10,%%eax\n \
-      movl    _startposshadebottom,%%ebx\n \
-      shrl    $8,%%ebx\n \
-      orl %%ebx,%%eax\n \
-      movl    %%eax,_gploc_80\n \
-      movl    _startposmapxbottom,%%eax\n \
-      shll    $8,%%eax\n \
-      shrl    $0x10,%%edx\n \
-      andl    $0x0FF,%%edx\n \
-      orl %%eax,%%edx\n \
-      movl    %%edx,_gploc_7C\n \
-  \n \
-  gpo_case69_break:\n \
-      popa    \n \
-  "
+        pusha\n \
+        int     $3\n \
+        movl    _mapyhstep,%%eax\n \
+        movl    %%eax,%%edx\n \
+        shll    $0x10,%%eax\n \
+        sarl    $0x10,%%edx\n \
+        movl    _shadehstep,%%ebx\n \
+        shll    $0x18,%%ebx\n \
+        movl    %%ebx,_gploc_30\n \
+        movl    _shadehstep,%%ebx\n \
+        sarl    $8,%%ebx\n \
+        orl %%ebx,%%ebx\n \
+        jns gpo_loc_1FB1\n \
+        andl    $0x0FFFF,%%ebx\n \
+        subl    $0x10000,%%eax\n \
+        sbbl    $0,%%edx\n \
+    \n \
+    gpo_loc_1FB1:         # 1DB\n \
+        addl    %%ebx,%%eax\n \
+        adcl    $0,%%edx\n \
+        movl    %%eax,_gploc_BC\n \
+        movl    _mapxhstep,%%eax\n \
+        orl %%edx,%%edx\n \
+        jns gpo_loc_1FC9\n \
+        decl    %%eax\n \
+    \n \
+    gpo_loc_1FC9:         # 1DD6\n \
+        shll    $8,%%eax\n \
+        andl    $0x0FF,%%edx\n \
+        orl %%eax,%%edx\n \
+        movl    %%edx,_gploc_B8\n \
+        movl    _mapyhstep,%%eax\n \
+        movl    %%eax,%%edx\n \
+        shll    $0x10,%%eax\n \
+        sarl    $0x10,%%edx\n \
+        movl    _shadehstep,%%ebx\n \
+        sarl    $8,%%ebx\n \
+        orl %%ebx,%%ebx\n \
+        jns gpo_loc_2006\n \
+        andl    $0x0FFFF,%%ebx\n \
+        subl    $0x0FFFF,%%eax\n \
+        sbbl    $0,%%edx\n \
+    \n \
+    gpo_loc_2006:         # 1E06\n \
+        addl    %%ebx,%%eax\n \
+        adcl    $0,%%edx\n \
+        movl    %%eax,_gploc_5C\n \
+        movl    _mapxhstep,%%eax\n \
+        orl %%edx,%%edx\n \
+        jns gpo_loc_201E\n \
+        decl    %%eax\n \
+    \n \
+    gpo_loc_201E:         # 1E2B\n \
+        shll    $8,%%eax\n \
+        andl    $0x0FF,%%edx\n \
+        orl %%eax,%%edx\n \
+        movl    %%edx,_gploc_2C\n \
+        movl    _mapyveltop,%%eax\n \
+        movl    %%eax,%%edx\n \
+        shll    $0x10,%%eax\n \
+        sarl    $0x10,%%edx\n \
+        movl    _shadeveltop,%%ebx\n \
+        shll    $0x18,%%ebx\n \
+        movl    %%ebx,_gploc_68\n \
+        movl    _shadeveltop,%%ebx\n \
+        sarl    $8,%%ebx\n \
+        orl %%ebx,%%ebx\n \
+        jns gpo_loc_2063\n \
+        andl    $0x0FFFF,%%ebx\n \
+        subl    $0x10000,%%eax\n \
+        sbbl    $0,%%edx\n \
+    \n \
+    gpo_loc_2063:         # 1E63\n \
+        addl    %%ebx,%%eax\n \
+        adcl    $0,%%edx\n \
+        movl    %%eax,_gploc_A4\n \
+        movl    _mapxveltop,%%eax\n \
+        orl %%edx,%%edx\n \
+        jns gpo_loc_2078\n \
+        decl    %%eax\n \
+    \n \
+    gpo_loc_2078:         # 1E85\n \
+        shll    $8,%%eax\n \
+        andl    $0x0FF,%%edx\n \
+        orl %%eax,%%edx\n \
+        movl    %%edx,_gploc_A0\n \
+        movl    _startposmapytop,%%eax\n \
+        movl    %%eax,%%edx\n \
+        shll    $0x10,%%eax\n \
+        movl    _startposshadetop,%%ebx\n \
+        shrl    $8,%%ebx\n \
+        orl %%ebx,%%eax\n \
+        movl    %%eax,_gploc_8C\n \
+        movl    _startposmapxtop,%%eax\n \
+        shll    $8,%%eax\n \
+        shrl    $0x10,%%edx\n \
+        andl    $0x0FF,%%edx\n \
+        orl %%eax,%%edx\n \
+        movl    %%edx,_gploc_88\n \
+        movl    _crease_len,%%esi\n \
+        orl %%esi,%%esi\n \
+        js  gpo_case69_break\n \
+        movl    _mapyvelbottom,%%eax\n \
+        movl    %%eax,%%edx\n \
+        shll    $0x10,%%eax\n \
+        sarl    $0x10,%%edx\n \
+        movl    _shadevelbottom,%%ebx\n \
+        shll    $0x18,%%ebx\n \
+        movl    %%ebx,_gploc_64\n \
+        movl    _shadevelbottom,%%ebx\n \
+        sarl    $8,%%ebx\n \
+        orl %%ebx,%%ebx\n \
+        jns gpo_loc_2104\n \
+        andl    $0x0FFFF,%%ebx\n \
+        subl    $0x10000,%%eax\n \
+        sbbl    $0,%%edx\n \
+    \n \
+    gpo_loc_2104:         # 1F0\n \
+        addl    %%ebx,%%eax\n \
+        adcl    $0,%%edx\n \
+        movl    %%eax,_gploc_98\n \
+        movl    _mapxvelbottom,%%eax\n \
+        orl %%edx,%%edx\n \
+        jns gpo_loc_2119\n \
+        decl    %%eax\n \
+    \n \
+    gpo_loc_2119:         # 1F26\n \
+        shll    $8,%%eax\n \
+        andl    $0x0FF,%%edx\n \
+        orl %%eax,%%edx\n \
+        movl    %%edx,_gploc_94\n \
+        movl    _startposmapybottom,%%eax\n \
+        movl    %%eax,%%edx\n \
+        shll    $0x10,%%eax\n \
+        movl    _startposshadebottom,%%ebx\n \
+        shrl    $8,%%ebx\n \
+        orl %%ebx,%%eax\n \
+        movl    %%eax,_gploc_80\n \
+        movl    _startposmapxbottom,%%eax\n \
+        shll    $8,%%eax\n \
+        shrl    $0x10,%%edx\n \
+        andl    $0x0FF,%%edx\n \
+        orl %%eax,%%edx\n \
+        movl    %%edx,_gploc_7C\n \
+    \n \
+    gpo_case69_break:\n \
+        popa    \n \
+    "
         :
         :
         : "memory", "cc");
   #endif
-  //*/
+    */
 }
 
 void draw_gpoly_sub11() {
