@@ -353,7 +353,6 @@ TbBool script_is_preloaded_command(long cmnd_index)
 {
     switch (cmnd_index)
     {
-        case Cmd_SWAP_CREATURE:
         case Cmd_LEVEL_VERSION:
         case Cmd_NEW_TRAP_TYPE:
         case Cmd_NEW_OBJECT_TYPE:
@@ -1335,7 +1334,7 @@ void process_values(void)
         {
             if (is_condition_met(value->condit_idx))
             {
-                script_process_value(value->valtype, value->plyr_range, value->arg0, value->arg1, value->arg2, value);
+                script_process_value(value->valtype, value->plyr_range, value->longs[0], value->longs[1], value->longs[2], value);
                 if ((value->flags & TrgF_REUSABLE) == 0)
                   set_flag(value->flags, TrgF_DISABLED);
             }

@@ -845,12 +845,27 @@ long compute_value_8bpercentage(long base_val, short npercent)
  * @param thing
  * @return
  */
-TbBool update_creature_health_to_max(struct Thing *thing)
+TbBool update_creature_health_to_max(struct Thing * creatng)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    cctrl->max_health = compute_creature_max_health(crstat->health,cctrl->explevel,thing->owner);
-    thing->health = cctrl->max_health;
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    cctrl->max_health = compute_creature_max_health(crstat->health,cctrl->explevel, creatng->owner);
+    creatng->health = cctrl->max_health;
+    return true;
+}
+
+/**
+ * Re-computes new max health of a creature and updates the health value to stay relative to the old max.
+ * @param thing
+ * @return
+ */
+TbBool update_relative_creature_health(struct Thing* creatng)
+{
+    int health_permil = get_creature_health_permil(creatng);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    cctrl->max_health = compute_creature_max_health(crstat->health, cctrl->explevel, creatng->owner);
+    creatng->health = cctrl->max_health * health_permil / 1000;
     return true;
 }
 
@@ -997,9 +1012,17 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
     {
     case TCls_Creature:
         cdamage = apply_damage_to_creature(thing, dmg);
+        if (thing->health < 0)
+        {
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+            if ((cctrl->fighting_player_idx == -1) && (dealing_plyr_idx != -1))
+            {
+                cctrl->fighting_player_idx = dealing_plyr_idx;
+            }
+        }
         break;
-    case TCls_Object:
     case TCls_Trap:
+    case TCls_Object:
         cdamage = apply_damage_to_object(thing, dmg);
         break;
     case TCls_Door:
@@ -1008,14 +1031,6 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
     default:
         cdamage = 0;
         break;
-    }
-    if ((thing->class_id == TCls_Creature) && (thing->health < 0))
-    {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if ((cctrl->fighting_player_idx == -1) && (dealing_plyr_idx != -1))
-        {
-            cctrl->fighting_player_idx = dealing_plyr_idx;
-        }
     }
     return cdamage;
 }

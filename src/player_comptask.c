@@ -757,6 +757,10 @@ TbBool creature_could_be_placed_in_better_room(const struct Computer2 *comp, con
     TbBool better_job_allowed;
     SYNCDBG(19,"Starting for %s index %d owner %d",thing_model_name(thing),(int)thing->index,(int)thing->owner);
     dungeon = comp->dungeon;
+    if (thing_is_creature(thing) && creature_is_leaving_and_cannot_be_stopped(thing))
+    {
+        return false;
+    }
     // Choose the room we're currently working in, and check it on the list
     chosen_room = get_room_creature_works_in(thing);
     if (!room_exists(chosen_room)) {
@@ -2420,7 +2424,7 @@ long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
         SYNCDBG(7,"Player %d casts CTA at (%d,%d)",(int)dungeon->owner, (int)ctask->magic_cta.target_pos.x.stl.num, (int)ctask->magic_cta.target_pos.y.stl.num);
         if (try_game_action(comp, dungeon->owner, GA_UsePwrCall2Arms, 5, ctask->magic_cta.target_pos.x.stl.num, ctask->magic_cta.target_pos.y.stl.num, 1, 1) >= Lb_OK) {
             ctask->task_state = CTaskSt_Select;
-            ctask->delay = ctask->field_8E;
+            ctask->delay = ctask->cta_duration;
             return CTaskRet_Unk2;
         }
         SYNCDBG(7,"Player %d cannot cast CTA at (%d,%d), cancelling task",(int)dungeon->owner, (int)ctask->magic_cta.target_pos.x.stl.num, (int)ctask->magic_cta.target_pos.y.stl.num);
@@ -2654,7 +2658,7 @@ long task_pickup_for_attack(struct Computer2 *comp, struct ComputerTask *ctask)
     thing = thing_get(comp->held_thing_idx);
     if (!thing_is_invalid(thing))
     {
-        if (computer_dump_held_things_on_map(comp, thing, &ctask->pickup_for_attack.target_pos, ctask->pickup_for_attack.word_80)) {
+        if (computer_dump_held_things_on_map(comp, thing, &ctask->pickup_for_attack.target_pos, ctask->pickup_for_attack.target_state)) {
             return CTaskRet_Unk2;
         }
         computer_force_dump_held_things_on_map(comp, &comp->dungeon->essential_pos);
@@ -2886,7 +2890,7 @@ long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *
             {
                 return CTaskRet_Unk4;
             }
-            if (computer_dump_held_things_on_map(comp, thing, &ctask->move_to_defend.target_pos, ctask->move_to_defend.word_80)) {
+            if (computer_dump_held_things_on_map(comp, thing, &ctask->move_to_defend.target_pos, ctask->move_to_defend.target_state)) {
                 return CTaskRet_Unk2;
             }
             ERRORLOG("Could not dump player %d %s into (%d,%d)",(int)dungeon->owner,
@@ -3525,7 +3529,7 @@ TbBool create_task_move_creatures_to_defend(struct Computer2 *comp, struct Coord
     ctask->move_to_defend.target_pos.y.val = pos->y.val;
     ctask->move_to_defend.target_pos.z.val = pos->z.val;
     ctask->move_to_defend.repeat_num = repeat_num;
-    ctask->move_to_defend.field_70 = evflags;
+    ctask->move_to_defend.evflags = evflags;
     ctask->created_turn = game.play_gameturn;
     ctask->lastrun_turn = game.play_gameturn;
     ctask->delay = comp->task_delay;
@@ -3560,7 +3564,7 @@ TbBool create_task_move_creatures_to_room(struct Computer2 *comp, int room_idx, 
     return true;
 }
 
-TbBool create_task_pickup_for_attack(struct Computer2 *comp, struct Coord3d *pos, long par3, long repeat_num)
+TbBool create_task_pickup_for_attack(struct Computer2 *comp, struct Coord3d *pos, long repeat_num)
 {
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting");
@@ -3577,8 +3581,7 @@ TbBool create_task_pickup_for_attack(struct Computer2 *comp, struct Coord3d *pos
     ctask->pickup_for_attack.target_pos.z.val = pos->z.val;
     ctask->pickup_for_attack.repeat_num = repeat_num;
     ctask->created_turn = game.play_gameturn;
-    ctask->pickup_for_attack.word_80 = 0;
-    ctask->pickup_for_attack.long_86 = par3; // Originally only a word was set here
+    ctask->pickup_for_attack.target_state = CrSt_Unused;
     return true;
 }
 
@@ -3603,11 +3606,11 @@ TbBool create_task_magic_battle_call_to_arms(struct Computer2 *comp, struct Coor
     ctask->magic_cta.target_pos.y.val = pos->y.val;
     ctask->magic_cta.target_pos.z.val = pos->z.val;
     ctask->magic_cta.repeat_num = repeat_num;
-    ctask->field_8E = cta_duration;
+    ctask->cta_duration = cta_duration;
     return true;
 }
 
-TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long cta_duration, long par3, long repeat_num)
+TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long cta_duration, long repeat_num)
 {
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting");
@@ -3628,8 +3631,7 @@ TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coo
     ctask->magic_cta.target_pos.y.val = pos->y.val;
     ctask->magic_cta.target_pos.z.val = pos->z.val;
     ctask->magic_cta.repeat_num = repeat_num;
-    ctask->field_8E = cta_duration;
-    ctask->magic_cta.word_86 = par3;
+    ctask->cta_duration = cta_duration;
     return true;
 }
 
@@ -3734,7 +3736,6 @@ TbBool create_task_dig_to_neutral(struct Computer2 *comp, const struct Coord3d s
         message_add_fmt(MsgType_Player, comp->dungeon->owner, "Localized neutral place, hopefully with loot.");
     }
     ctask->ttype = CTT_DigToNeutral;
-    ctask->dig_somewhere.byte_80 = 0;
     ctask->dig_somewhere.startpos.x.val = startpos.x.val;
     ctask->dig_somewhere.startpos.y.val = startpos.y.val;
     ctask->dig_somewhere.startpos.z.val = startpos.z.val;
