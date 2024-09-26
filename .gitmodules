@@ -11,3 +11,6 @@
 [submodule "deps/enet"]
 	path = deps/enet
 	url = https://github.com/lsalzman/enet.git
+[submodule "deps/openal"]
+	path = deps/openal
+	url = https://github.com/kcat/openal-soft.git
