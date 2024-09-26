@@ -603,9 +603,6 @@
     <ClCompile Include="src\bflib_network.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\bflib_pom.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\bflib_semphr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -744,6 +741,9 @@
     <ClCompile Include="src\api.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\moonphase.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actionpt.h">
@@ -864,9 +864,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bflib_planar.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\bflib_pom.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bflib_render.h">
@@ -1395,6 +1392,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\api.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\moonphase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
