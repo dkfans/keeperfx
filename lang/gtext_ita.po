@@ -6287,8 +6287,7 @@ msgstr ""
 #: guitext:920
 msgctxt "In-game message"
 msgid "Decimate this outpost and send fear into the heart of the Avatar."
-msgstr ""
-"Fai una strage nell'avamposto nemico e incuti il terrore nel cuore dell'Avatar."
+msgstr "Fai una strage nell'avamposto nemico e incuti il terrore nel cuore dell'Avatar."
 
 #. DD Level Belial objective after AP reached
 #: guitext:921
@@ -6501,7 +6500,6 @@ msgid "Your Imp cannot reach a room to drag something into"
 msgstr "Un tuo Imp non può raggiungere una stanza per portarci qualcosa"
 
 #: guitext:948
-#, fuzzy
 msgctxt "Game event description"
 msgid "Storage room unreachable: LMB toggle. RMB delete."
 msgstr "Deposito irraggiungibile. TSM: attiva - disattiva. TDM: cancella."
@@ -6531,7 +6529,6 @@ msgid "Research Skill: unused."
 msgstr "Capacità di ricerca: non utilizzato."
 
 #: guitext:953
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Manufacture Skill: How fast the creature works in Workshop. The higher the "
@@ -6541,7 +6538,6 @@ msgstr ""
 "è il livello di abilità e migliore è la prestazione della creatura."
 
 #: guitext:954
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Training Skill: How fast the creature works on training. The higher the "
@@ -6551,7 +6547,6 @@ msgstr ""
 "livello di abilità e migliore è la prestazione della creatura."
 
 #: guitext:955
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Scavenge Skill: How fast the creature works on scavenging. The higher the "
@@ -6594,7 +6589,6 @@ msgid "Hand Of Evil"
 msgstr "Mano del male"
 
 #: guitext:961
-#, fuzzy
 msgctxt "Keeper spell name"
 msgid "Slap"
 msgstr "Schiaffi"
@@ -6609,7 +6603,6 @@ msgstr ""
 "Basta non tenerle per sempre o possono diventare irritati."
 
 #: guitext:963
-#, fuzzy
 msgctxt "Keeper spell description"
 msgid ""
 "Slap: Makes your creatures work harder, for some time. Your creatures take "
@@ -6826,13 +6819,11 @@ msgid "Display Resolution: Switch to the next configured display resolution. LMB
 msgstr "Risoluzione display: passa alla successiva risoluzione display configurata. LMB toggle. RMB visualizza la risoluzione corrente."
 
 #: guitext:1008
-#, fuzzy
 msgctxt "In-game interface item"
 msgid "Voice"
 msgstr "Voce"
 
 #: guitext:1009
-#, fuzzy
 msgctxt "In-game interface item"
 msgid "Ambience"
 msgstr "Ambiente"
@@ -7021,7 +7012,6 @@ msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "Vena d'oro densa: Contiene molta ricchezza che i tuoi Folletti possono estrarre."
 
 #: guitext:1053
-#, fuzzy
 msgctxt "Keeper spell name"
 msgid "Magic Shield"
 msgstr "Rimbalzo"
@@ -7128,5 +7118,5 @@ msgstr "Porta di Mida"
 
 #: guitext:1077
 msgctxt "Door description"
-msgid "Porta di Mida: Questa porta consuma oro del suo proprietario per rimanere indistruttibile. RMB zoom."
+msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
 msgstr "Porta di Mida: Questa porta consuma oro del suo proprietario per rimanere indistruttibile. RMB zoom."
