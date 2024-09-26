@@ -6080,7 +6080,7 @@ msgstr "Tät guldåder: Innehåller mycket rikedom för dina Smådjävlar att ut
 #: guitext:1053
 #, fuzzy
 msgctxt "Keeper spell name"
-msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
+msgid "Magic Shield"
 msgstr "Retur"
 
 #: guitext:1054
