@@ -55,6 +55,7 @@ SOURCES = \
 	src/bflib_render_gpoly.c \
 	src/bflib_render_trig.c \
 	src/bflib_server_tcp.c \
+	src/bflib_sndlib.cpp \
 	src/bflib_sound.c \
 	src/bflib_sprfnt.c \
 	src/bflib_sprite.c \
@@ -282,7 +283,7 @@ clean:
 	$(RM) -r obj src/ver_defs.h
 
 bin/keeperfx: obj/archive.a $(DEPS) | bin
-	$(CXX) -g -m32 -o $@ $^ -lSDL2 -lSDL2_mixer -lSDL2_net -lSDL2_image -lz -lm
+	$(CXX) -g -m32 -o $@ $^ -lSDL2 -lSDL2_mixer -lSDL2_net -lSDL2_image -lz -lm -lopenal
 
 obj/%.o: src/%.c | obj src/ver_defs.h
 	$(CC) $(CFLAGS) -o $@ $(addprefix -I,$(INCLUDES)) $^

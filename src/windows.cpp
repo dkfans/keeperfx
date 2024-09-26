@@ -168,3 +168,11 @@ extern "C" void LbDoMultitasking()
 {
 	Sleep(LARGE_DELAY_TIME>>1); // This switches to other tasks
 }
+
+
+extern "C" int main(int, char *[]);
+
+extern "C" int APIENTRY WinMain(HINSTANCE, HINSTANCE, PSTR, int)
+{
+	return main(0, nullptr);
+}

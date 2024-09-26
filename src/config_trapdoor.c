@@ -913,7 +913,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               n = atoi(word_buf);
-              if ( n < 0 || n > samples_in_bank - 1 )
+              if (n < 0)
               {
                   CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
@@ -928,7 +928,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               n = atoi(word_buf);
-              if (n < 0 || n > samples_in_bank - 1)
+              if (n < 0)
               {
                   CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                       COMMAND_TEXT(cmd_num), block_buf, config_textname);
@@ -1454,7 +1454,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               n = atoi(word_buf);
-              if (n < 0 || n > samples_in_bank - 1)
+              if (n < 0)
               {
                   CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                       COMMAND_TEXT(cmd_num), block_buf, config_textname);

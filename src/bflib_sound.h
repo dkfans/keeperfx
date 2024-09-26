@@ -34,6 +34,23 @@ extern "C" {
 
 // Type definitions
 
+/** Sound bank ID. */
+typedef unsigned char SoundBankID;
+/** Sound SFXID parameter from bank table. */
+typedef unsigned char SoundSFXID;
+/** Sound emitter ID. */
+typedef long SoundEmitterID;
+/** Sound sample ID in bank table. */
+typedef short SoundSmplTblID;
+/** Volume level indicator, normal is 256. */
+typedef long SoundVolume;
+/** Pitch level indicator, normal is 100. */
+typedef long SoundPitch;
+/** Pan level indicator. */
+typedef long SoundPan;
+/** Miles Sound ID. */
+typedef long SoundMilesID;
+
 enum SoundEmitterFlags {
     Emi_IsAllocated  = 0x01,
     Emi_UnknownPlay  = 0x02,
@@ -82,7 +99,7 @@ struct S3DSample { // sizeof = 37
   unsigned short base_pitch;
   unsigned short pan;
   unsigned short volume;
-  struct SampleInfo *smpinfo;
+  SoundMilesID mss_id;
   struct SoundEmitter *emit_ptr;
   long emit_idx;
   char field_1D; // signed
@@ -92,42 +109,13 @@ struct S3DSample { // sizeof = 37
   unsigned long base_volume;
 };
 
-struct SampleTable {
-  char name[18];
-  unsigned long data_size;
-  SoundSFXID sfxid;
-  SndData snd_buf;
-};
-
-/** Sound bank ID. */
-typedef unsigned char SoundBankID;
-/** Sound SFXID parameter from bank table. */
-typedef unsigned char SoundSFXID;
-/** Sound emitter ID. */
-typedef long SoundEmitterID;
-/** Sound sample ID in bank table. */
-typedef short SoundSmplTblID;
-/** Volume level indicator, normal is 256. */
-typedef long SoundVolume;
-/** Pitch level indicator, normal is 100. */
-typedef long SoundPitch;
-/** Pan level indicator. */
-typedef long SoundPan;
-/** Miles Sound ID. */
-typedef long SoundMilesID;
-
 /******************************************************************************/
 // Exported variables
 extern int atmos_sound_volume;
-extern long samples_in_bank;
-extern long samples_in_bank2;
 extern TbBool SoundDisabled;
 extern long MaxSoundDistance;
 extern struct SoundReceiver Receiver;
 extern long Non3DEmitter;
-extern struct SampleTable *sample_table;
-extern struct SampleTable *sample_table2;
-extern unsigned char using_two_banks;
 extern long SpeechEmitter;
 #pragma pack()
 /******************************************************************************/
@@ -170,6 +158,7 @@ TbBool process_sound_samples(void);
 struct SoundEmitter* S3DGetSoundEmitter(SoundEmitterID);
 SoundEmitterID get_emitter_id(struct SoundEmitter *);
 void kick_out_sample(SoundSmplTblID);
+SoundSFXID get_sample_sfxid(SoundSmplTblID smptbl_id, SoundBankID bank_id);
 
 /******************************************************************************/
 #ifdef __cplusplus

@@ -22,24 +22,26 @@
 #
 #******************************************************************************
 # Executable files extension on host environment
+ROOTDIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+
 ifneq (,$(findstring Windows,$(OS)))
   CROSS_EXEEXT = .exe
-  # linker flags
-  LINKFLAGS = -static-libgcc -static-libstdc++ -Wl,--enable-auto-import -Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive
-  # The following flags are only here to prevent a dependency on libwinpthread-1.dll when keeperfx is built with MSYS2:
-  # "-Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive
+  LINKFLAGS = -static -static-libgcc -static-libstdc++
+  CPP       = g++
+  CC        = gcc
+  RC        = windres
+  DLLTOOL   = dlltool
 else
   CROSS_EXEEXT =
-  CROSS_COMPILE = i686-w64-mingw32-
-  LINKFLAGS = -static-libgcc -static-libstdc++ -Wl,--enable-auto-import
+  LINKFLAGS = -static -static-libgcc -static-libstdc++
+  CPP       = i686-w64-mingw32-g++-posix
+  CC        = i686-w64-mingw32-gcc-posix
+  RC        = i686-w64-mingw32-windres
+  DLLTOOL   = i686-w64-mingw32-dlltool
 endif
 # Executable files extension on target environment
 EXEEXT = .exe
 # Names of utility commands
-CPP      = $(CROSS_COMPILE)g++
-CC       = $(CROSS_COMPILE)gcc
-WINDRES  = $(CROSS_COMPILE)windres
-DLLTOOL  = $(CROSS_COMPILE)dlltool
 DOXYTOOL = doxygen
 BUILD_NUMBER ?= $(VER_BUILD)
 PACKAGE_SUFFIX ?= Prototype
@@ -56,6 +58,7 @@ MV       = mv -f
 CP       = cp -f
 MKDIR    = mkdir -p
 ECHO     = @echo
+CMAKE    := cmake -DCMAKE_TOOLCHAIN_FILE=$(ROOTDIR)/mingw32.cmake
 
 # Names of target binary files
 BIN      = bin/keeperfx$(EXEEXT)
@@ -63,7 +66,7 @@ TEST_BIN = bin/tests$(EXEEXT)
 # Names of intermediate build products
 GENSRC   = src/ver_defs.h
 RES      = obj/keeperfx_stdres.res
-LIBS     = obj/enet.a
+LIBS     = obj/enet.a deps/openal/build/libOpenAL32.a
 
 DEPS = \
 obj/libspng/spng.o \
@@ -349,10 +352,19 @@ CU_OBJS = \
 	obj/cu/Util.o
 
 # include and library directories
-LINKLIB =  -L"sdl/lib" -mwindows obj/enet.a \
-	-lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net -lSDL2_image \
-	-L"deps/zlib" -lz -lws2_32 -ldbghelp
-INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include" -I"deps/centijson/src" -I"deps/centitoml" -I"deps/astronomy"
+LINKLIB = -mwindows obj/enet.a \
+	-L"sdl/lib" -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net -lSDL2_image \
+	-L"deps/openal/build" -lOpenAL32 \
+	-L"deps/zlib" -lz \
+	-lwinmm -lmingw32 -limagehlp -lws2_32 -ldbghelp -lole32 -liphlpapi -loleaut32 -lcfgmgr32 -limm32 -lsetupapi -lversion -lwinpthread
+INCS = \
+	-I"sdl/include" \
+	-I"sdl/include/SDL2" \
+	-I"deps/enet/include" \
+	-I"deps/centijson/src" \
+	-I"deps/centitoml" \
+	-I"deps/astronomy" \
+	-I"deps/openal/include"
 CXXINCS =  $(INCS)
 
 # allow extracting files from archives, replacing pre-existing ones
@@ -361,7 +373,7 @@ ENABLE_EXTRACT ?= 1
 # flags to generate dependency files
 DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -DSPNG_STATIC=1
 # other flags to include while compiling
-INCFLAGS =
+INCFLAGS =-DAL_LIBTYPE_STATIC
 # code optimization and debugging flags
 CV2PDB := $(shell PATH=`pwd`:$$PATH command -v cv2pdb.exe 2> /dev/null)
 DEBUG ?= 0
@@ -380,10 +392,10 @@ else
 endif
 
 # compiler warning generation flags
-WARNFLAGS = -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing -Wno-unknown-pragmas
+WARNFLAGS = -Wall -Wextra -Werror -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing -Wno-unknown-pragmas
 # disabled warnings: -Wextra -Wtype-limits
-CXXFLAGS = $(CXXINCS) -c -std=gnu++1y -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(FTEST_DBGFLAGS) $(INCFLAGS)
-CFLAGS = $(INCS) -c -std=gnu11 -fmessage-length=0 $(WARNFLAGS) -Werror=implicit $(DEPFLAGS) $(FTEST_DBGFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
+CXXFLAGS = $(CXXINCS) -c -std=c++20 -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(FTEST_DBGFLAGS) $(INCFLAGS)
+CFLAGS = $(INCS) -c -std=gnu17 -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(FTEST_DBGFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
 LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(FTEST_DBGFLAGS) $(LINKFLAGS) -Wl,-Map,"$(@:%.exe=%.map)"
 
 ifeq ($(USE_PRE_FILE), 1)
@@ -443,7 +455,8 @@ obj/enet \
 obj/libspng \
 obj/astronomy \
 obj/zlib \
-sdl/for_final_package
+sdl/for_final_package \
+deps/openal/build
 
 $(shell $(MKDIR) $(FOLDERS))
 
@@ -557,7 +570,7 @@ obj/%.o: src/%.c libexterns $(GENSRC)
 # Windows resources compilation
 obj/%.res: res/%.rc res/keeperfx_icon.ico $(GENSRC)
 	-$(ECHO) 'Building resource: $<'
-	$(WINDRES) -i "$<" --input-format=rc -o "$@" -O coff
+	$(RC) -i "$<" --input-format=rc -o "$@" -O coff
 	-$(ECHO) ' '
 
 # Creation of Windows icon files from PNG files
@@ -599,10 +612,30 @@ deps/zlib/configure.log:
 	cd deps/zlib && ./configure --static
 
 deps/zlib/libz.a: deps/zlib/configure.log
-	cd deps/zlib && $(MAKE) -f win32/Makefile.gcc PREFIX=$(CROSS_COMPILE) libz.a
+	cd deps/zlib && $(MAKE) -f win32/Makefile.gcc CC=$(CC) CXX=$(CXX) RC=$(RC) DLLTOOL=$(DLLTOOL) libz.a
 
 obj/enet.a:
-	$(MAKE) -f enet.mk PREFIX=$(CROSS_COMPILE) WARNFLAGS=$(WARNFLAGS) obj/enet.a
+	$(MAKE) -f enet.mk CC=$(CC) CXX=$(CXX) RC=$(RC) DLLTOOL=$(DLLTOOL) WARNFLAGS=$(WARNFLAGS) obj/enet.a
+
+deps/openal/build/libOpenAL32.a: deps/openal/build/Makefile
+	cd deps/openal/build && $(MAKE) -j
+
+deps/openal/build/Makefile: | deps/openal/build
+	cd deps/openal/build && \
+		CFLAGS="-mno-sse" \
+		CXXFLAGS="-mno-sse" \
+		$(CMAKE) \
+		-DLIBTYPE=STATIC \
+		-DALSOFT_UTILS=OFF \
+		-DALSOFT_NO_CONFIG_UTIL=ON \
+		-DALSOFT_EXAMPLES=OFF \
+		-DALSOFT_INSTALL=OFF \
+		-DALSOFT_INSTALL_CONFIG=OFF \
+		-DALSOFT_INSTALL_HRTF_DATA=OFF \
+		-DALSOFT_INSTALL_AMBDEC_PRESETS=OFF \
+		-DALSOFT_INSTALL_EXAMPLES=OFF \
+		-DALSOFT_INSTALL_UTILS=OFF \
+		..
 
 include tool_png2ico.mk
 include tool_pngpal2raw.mk
