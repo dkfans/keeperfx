@@ -225,6 +225,8 @@ void LbLog(int chan, int level, const char * format, ...) {
     return; // invalid channel number
   } else if (level < log_levels[chan]) {
     return; // ignore
+  } else if (!logfile) {
+    return; // cannot log
   }
   va_list args;
   va_start(args, format);
