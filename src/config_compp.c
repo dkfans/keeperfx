@@ -246,7 +246,7 @@ TbBool parse_computer_player_common_blocks(char *buf, long len, const char *conf
 {
     // Block name and parameter word store variables
     // Initialize block data
-    if ((flags & CnfLd_AcceptPartial) == 0)
+    if (!flag_is_set(flags,CnfLd_AcceptPartial))
     {
         comp_player_conf.processes_count = 1;
         comp_player_conf.checks_count = 1;
@@ -260,7 +260,7 @@ TbBool parse_computer_player_common_blocks(char *buf, long len, const char *conf
     int k = find_conf_block(buf, &pos, len, block_buf);
     if (k < 0)
     {
-        if ((flags & CnfLd_AcceptPartial) == 0)
+        if (!flag_is_set(flags,CnfLd_IgnoreErrors))
             WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
         return false;
     }
@@ -390,7 +390,7 @@ short parse_computer_player_process_blocks(char *buf, long len, const char *conf
         int k = find_conf_block(buf, &pos, len, block_buf);
         if (k < 0)
         {
-            if((flags & CnfLd_AcceptPartial) == 0)
+            if(!flag_is_set(flags,CnfLd_IgnoreErrors))
             {
                 WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
             }
@@ -405,7 +405,7 @@ short parse_computer_player_process_blocks(char *buf, long len, const char *conf
         int cmd_num = recognize_conf_command(buf, &pos, len, compp_process_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
-        if ((flags & CnfLd_ListOnly) != 0) {
+        if (flag_is_set(flags,CnfLd_ListOnly)) {
             // In "List only" mode, accept only name command
             if (cmd_num > 2) {
                 cmd_num = 0;
@@ -566,7 +566,7 @@ short parse_computer_player_check_blocks(char *buf, long len, const char *config
     // Block name and parameter word store variables
     // Initialize the checks array
     const int arr_size = sizeof(computer_check_config_list)/sizeof(computer_check_config_list[0]);
-    if((flags & CnfLd_AcceptPartial) == 0)
+    if(!flag_is_set(flags,CnfLd_AcceptPartial))
     {
       for (i=0; i < arr_size; i++)
       {
@@ -588,7 +588,7 @@ short parse_computer_player_check_blocks(char *buf, long len, const char *config
         int k = find_conf_block(buf, &pos, len, block_buf);
         if (k < 0)
         {
-            if((flags & CnfLd_AcceptPartial) == 0)
+            if(!flag_is_set(flags,CnfLd_IgnoreErrors))
               WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
             continue;
       }
@@ -600,7 +600,7 @@ short parse_computer_player_check_blocks(char *buf, long len, const char *config
         int cmd_num = recognize_conf_command(buf, &pos, len, compp_check_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
-        if ((flags & CnfLd_ListOnly) != 0) {
+        if (flag_is_set(flags,CnfLd_ListOnly)) {
             // In "List only" mode, accept only name command
             if (cmd_num > 2) {
                 cmd_num = 0;
@@ -712,7 +712,7 @@ short parse_computer_player_event_blocks(char *buf, long len, const char *config
     // Block name and parameter word store variables
     // Initialize the events array
     const int arr_size = (int)(sizeof(computer_event_config_list)/sizeof(computer_event_config_list[0]));
-    if((flags & CnfLd_AcceptPartial) == 0)
+    if(!flag_is_set(flags,CnfLd_AcceptPartial))
     {
       for (i=0; i < arr_size; i++)
       {
@@ -734,7 +734,7 @@ short parse_computer_player_event_blocks(char *buf, long len, const char *config
         int k = find_conf_block(buf, &pos, len, block_buf);
         if (k < 0)
         {
-            if((flags & CnfLd_AcceptPartial) == 0)
+            if(!flag_is_set(flags,CnfLd_IgnoreErrors))
               WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
             continue;
       }
@@ -746,7 +746,7 @@ short parse_computer_player_event_blocks(char *buf, long len, const char *config
         int cmd_num = recognize_conf_command(buf, &pos, len, compp_event_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
-        if ((flags & CnfLd_ListOnly) != 0) {
+        if (flag_is_set(flags,CnfLd_ListOnly)) {
             // In "List only" mode, accept only name command
             if (cmd_num > 2) {
                 cmd_num = 0;
@@ -914,7 +914,7 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
         int k = find_conf_block(buf, &pos, len, block_buf);
         if (k < 0)
         {
-            if ((flags & CnfLd_AcceptPartial) == 0)
+            if (!flag_is_set(flags,CnfLd_AcceptPartial))
             {
                 WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
             }
@@ -940,7 +940,7 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
         int cmd_num = recognize_conf_command(buf, &pos, len, compp_computer_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
-        if ((flags & CnfLd_ListOnly) != 0) {
+        if (flag_is_set(flags,CnfLd_ListOnly)) {
             // In "List only" mode, accept only name command
             if (cmd_num > 1) {
                 cmd_num = 0;
@@ -1116,7 +1116,7 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
 TbBool load_computer_player_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     SYNCDBG(8, "Starting");
-    if ((flags & CnfLd_AcceptPartial) == 0)
+    if (!flag_is_set(flags,CnfLd_AcceptPartial))
     {
         init_computer_process_lists();
     }
@@ -1124,7 +1124,7 @@ TbBool load_computer_player_config_file(const char *textname, const char *fname,
     long len = LbFileLengthRnc(fname);
     if (len < 2)
     {
-        if ((flags & CnfLd_IgnoreErrors) == 0)
+        if (!flag_is_set(flags,CnfLd_IgnoreErrors))
           ERRORLOG("Computer Player file \"%s\" doesn't exist or is too small.",keeper_compplayer_file);
         return false;
     }
