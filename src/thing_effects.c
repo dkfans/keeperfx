@@ -891,7 +891,6 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     thing->inertia_air = 0;
     thing->rendering_flags |= TRF_Invisible;
     thing->health = effcst->start_health;
-    thing->shot_effect.hit_type = effcst->effect_hit_type;
     if (effcst->ilght.radius != 0)
     {
         struct InitLight ilght;
@@ -1167,16 +1166,10 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *tngsrc, st
     if (efftng->creation_turn != game.play_gameturn) {
         return;
     }
-    struct ShotConfigStats* shotst;
-    if (thing_is_deployed_trap(tngsrc))
+
+    struct ShotConfigStats* shotst = get_shot_model_stats(efftng->shot_effect.parent_shot_model);
+    if ((shotst->area_range <= 0) || ((shotst->area_damage == 0) && (shotst->area_blow == 0))) 
     {
-        shotst = get_shot_model_stats(ShM_TrapWordOfPower);
-    }
-    else
-    {
-        shotst = get_shot_model_stats(ShM_WordOfPower);
-    }
-    if ((shotst->area_range <= 0) || ((shotst->area_damage == 0) && (shotst->area_blow == 0))) {
         ERRORLOG("Word of power shot configuration does not include area influence.");
         return;
     }
@@ -1530,13 +1523,14 @@ TngUpdateRet update_effect(struct Thing *efftng)
         effect_generate_effect_elements(efftng);
     }
     // Let the effect affect area
+    struct ShotConfigStats* shotst = get_shot_model_stats(efftng->shot_effect.parent_shot_model);
     switch (effcst->area_affect_type)
     {
     case AAffT_GasDamage:
     case AAffT_GasSlow:
     case AAffT_GasSlowDamage:
     case AAffT_GasDisease:
-        poison_cloud_affecting_area(efftng, &efftng->mappos, 5*COORD_PER_STL, 120, effcst->area_affect_type);
+        poison_cloud_affecting_area(efftng, &efftng->mappos, shotst->area_range*COORD_PER_STL, shotst->area_damage, effcst->area_affect_type);
         break;
     case AAffT_WOPDamage:
         word_of_power_affecting_area(efftng, subtng, &efftng->mappos);
