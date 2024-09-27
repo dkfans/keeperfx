@@ -23,7 +23,8 @@
 #include "bflib_basics.h"
 
 #define GUI_MESSAGES_COUNT      7
-#define GUI_MESSAGES_DELAY      400
+#define GUI_MESSAGES_DELAY      1200
+//Maybe it should be configurable in rules.cfg? Making this initial commit to look at this later.
 
 #ifdef __cplusplus
 extern "C" {
