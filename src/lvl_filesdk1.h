@@ -29,7 +29,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define MAX_LIF_SIZE 65535
-#define ANY_MAP_FILE_MAX_SIZE 1048576
+#define ANY_MAP_FILE_MAX_SIZE 4294967296
 #define DEFAULT_LEVEL_VERSION 0
 
 enum LoadMapFileFlags {
