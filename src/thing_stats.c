@@ -17,28 +17,31 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "thing_stats.h"
 
-#include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
 #include "bflib_memory.h"
-#include "game_merge.h"
-#include "thing_list.h"
-#include "creature_control.h"
 #include "config_creature.h"
+#include "config_crtrstates.h"
+#include "config_effects.h"
+#include "config_magic.h"
+#include "config_objects.h"
 #include "config_terrain.h"
 #include "config_trapdoor.h"
-#include "config_crtrstates.h"
-#include "config_objects.h"
-#include "config_effects.h"
+#include "creature_control.h"
 #include "creature_states.h"
+#include "game_legacy.h"
+#include "game_merge.h"
+#include "globals.h"
 #include "player_data.h"
 #include "player_instances.h"
-#include "config_magic.h"
-#include "vidfade.h"
-#include "game_legacy.h"
+#include "player_utils.h"
+#include "thing_effects.h"
+#include "thing_list.h"
 #include "thing_physics.h"
+#include "thing_stats.h"
+#include "vidfade.h"
+
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -975,7 +978,7 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
     const struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
 
     //TODO CONFIG replace deals_physical_damage with check for shotst->damage_type (magic in this sense is DmgT_Electric, DmgT_Combustion and DmgT_Heatburn)
-    if ( !(doorst->model_flags & DoMF_ResistNonMagic)  || (shotst->damage_type == DmgT_Magical))
+    if ( !flag_is_set(doorst->model_flags,DoMF_ResistNonMagic)  || (shotst->damage_type == DmgT_Magical))
     {
         dmg = shotng->shot.damage;
     } else
@@ -983,6 +986,15 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
         dmg = shotng->shot.damage / 10;
         if (dmg < 1)
             dmg = 1;
+    }
+    if (flag_is_set(doorst->model_flags, DoMF_Midas))
+    {
+        GoldAmount received = take_money_from_dungeon(doortng->owner, dmg, 0);
+        dmg -= received;
+        for (int i = received; i > 0; i -= 32)
+        {
+            create_effect(&shotng->mappos, TngEff_CoinFountain, doortng->owner);
+        }
     }
     return dmg;
 }

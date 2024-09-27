@@ -134,6 +134,8 @@ enum ThingEffectKind {
     TngEff_BallPuffOrange,
     TngEff_FallingIceBlocks,
     TngEff_SlowKeeperPower,
+    TngEff_TinySparks,
+    TngEff_CoinFountain,
 };
 
 enum ThingEffectElements {
@@ -254,7 +256,8 @@ enum ThingEffectElements {
     TngEffElm_OrangePuff,
     TngEffElm_TinyFlash3,
     TngEffElm_StepSand,
-    TngEffElm_StepGypsum
+    TngEffElm_StepGypsum,
+    TngEffElm_GoldCoin
 };
 
 /******************************************************************************/
