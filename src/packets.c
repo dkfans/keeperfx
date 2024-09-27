@@ -1245,8 +1245,18 @@ void process_players_creature_control_packet_control(long idx)
                     if (!creature_affected_by_spell(cctng, SplK_Chicken))
                     {
                         inst_inf = creature_instance_info_get(i);
-                        n = get_human_controlled_creature_target(cctng, inst_inf->primary_target);
-                        set_creature_instance(cctng, i, n, 0);
+                        if ((inst_inf->instance_property_flags & InstPF_SelfBuff) != 0 &&
+                            (pckt->additional_packet_values & PCAdV_CrtrContrlPressed) != 0)
+                        {
+                            // If the spell has SELF_BUFF property and the Possession key (default:left shift) is pressed,
+                            // cast the spell on the caster itself.
+                            set_creature_instance(cctng, i, cctng->index, 0);
+                        }
+                        if (ccctrl->instance_id == CrInst_NULL)
+                        {
+                            n = get_human_controlled_creature_target(cctng, inst_inf->primary_target);
+                            set_creature_instance(cctng, i, n, 0);
+                        }
                     }
                 }
             }
@@ -1366,6 +1376,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
         {
           i = pckt->actn_par1;
           inst_inf = creature_instance_info_get(i);
+
           k = get_human_controlled_creature_target(thing, inst_inf->primary_target);
           set_creature_instance(thing, i, k, 0);
           if (plyr_idx == my_player_number) {
