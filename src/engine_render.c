@@ -7091,7 +7091,7 @@ static TbBool project_point_helper(struct PlayerInfo *player, int zoom, MapCoord
     *x_out = (zoom * horizontal_delta >> 16) + (*(uint16_t *)&window_width / 2);
     vertical_shift = zoom * vertical_delta >> 8;
     *z_out = window_height - ((vertical_shift + ((uint16_t)(window_height & UNKNOWN_PPH_MASK) << 7)) >> 8) + 64;
-    new_zoom = zoom * *(int16_t *)&pos_z << 7;
+    new_zoom = (zoom * ((int16_t) pos_z)) << 7;
     offset = *((uint8_t *)&new_zoom + 4);
     *y_out = (vertical_shift + ((uint16_t)(window_height & UNKNOWN_PPH_MASK) << 7) - ((offset + (signed int)new_zoom) >> 16)) >> 8;
 

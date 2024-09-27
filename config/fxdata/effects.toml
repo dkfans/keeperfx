@@ -1365,6 +1365,23 @@ LightFlags = 0
 ElementsCount = 2
 AlwaysGenerate = 0
 
+[effect79]
+Name = "EFFECT_COIN_FOUNTAIN"
+Health = 2
+GenerationType = 1
+GenerationAccelXYRange = [8,64]
+GenerationAccelZRange = [-64,64]
+GenerationKindRange = [118,118]
+AreaAffectType = 0
+HitType = 0
+Sound = 0
+AffectedByWind = 1
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+ElementsCount = 1
+AlwaysGenerate = 0
+
 #EffectGenerators
 
 [effectGenerator0]
@@ -4961,7 +4978,48 @@ LightIntensity = 0
 LightFlags = 0
 AffectedByWind = 0
 
+
 [effectElement118]
+Name = "EFFECTELEMENT_GOLD_COIN"
+DrawClass = 2
+MoveType = 1
+Unanimated = 0
+Lifespan = [30,40]
+AnimationId = 780
+SpriteSize = [130,130]
+RenderFlags = 0
+SpriteSpeed = [192,256]
+AnimateOnFloor = false
+Unshaded = false
+Transparent = 0
+MovementFlags = 0
+SizeChange = 0
+FallAcceleration = 40
+InertiaFloor = 102
+InertiaAir = 0
+SubeffectModel = 0
+SubeffectDelay = 0
+Movable = true
+Impacts = true
+SolidGroundEffmodel = 0
+SolidGroundSoundId = 0
+SolidGroundLoudness = 256
+SolidGroundDestroyOnImpact = true
+WaterEffmodel = 19
+WaterSoundId = 36
+WaterLoudness = 80
+WaterDestroyOnImpact = false
+LavaEffmodel = 0
+LavaSoundId = 0
+LavaLoudness = 256
+LavaDestroyOnImpact = true
+TransformModel = 0
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+AffectedByWind = 1
+
+[effectElement119]
 Name = "EFFECTELEMENT_HEAL_BEAM"
 DrawClass = 2
 MoveType = 1
