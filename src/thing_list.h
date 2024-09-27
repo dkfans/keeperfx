@@ -291,6 +291,7 @@ void init_player_start(struct PlayerInfo *player, TbBool keep_prev);
 void setup_computer_players(void);
 void setup_zombie_players(void);
 void init_all_creature_states(void);
+void init_creature_states_for_player(PlayerNumber plyr_idx);
 TbBool update_creature_speed(struct Thing *thing);
 
 TbBool perform_action_on_all_creatures_in_group(struct Thing *thing, Thing_Bool_Modifier action);
@@ -343,6 +344,8 @@ ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_c
 struct Thing* get_timebomb_target(struct Thing *creatng);
 
 void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx);
+TbBool setup_creature_leave_or_die_if_possible(struct Thing* thing);
+unsigned short setup_excess_creatures_to_leave_or_die(short max_remain);
 /******************************************************************************/
 #ifdef __cplusplus
 }

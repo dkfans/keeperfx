@@ -356,7 +356,7 @@ void affect_nearby_friends_with_alarm(struct Thing *traptng)
         // Thing list loop body
         if (!thing_is_picked_up(thing) && !is_thing_directly_controlled(thing) &&
             !creature_is_being_unconscious(thing) && !creature_is_kept_in_custody(thing) &&
-            (cctrl->combat_flags == 0) && !creature_is_dragging_something(thing) && !creature_is_dying(thing))
+            (cctrl->combat_flags == 0) && !creature_is_dragging_something(thing) && !creature_is_dying(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
             struct StateInfo *stati;
             stati = get_thing_state_info_num(get_creature_state_besides_interruptions(thing));
@@ -2216,6 +2216,14 @@ void check_players_lost(void)
       {
           struct Thing *heartng;
           heartng = get_player_soul_container(i);
+          if (heartng->owner != i)
+          {
+              init_player_start(player, true);
+              if (dungeon->dnheart_idx == 0)
+              {
+                  initialise_devastate_dungeon_from_heart(player->id_number);
+              }
+          }
           if ((!thing_exists(heartng) || ((heartng->active_state == ObSt_BeingDestroyed) && !(dungeon->backup_heart_idx > 0))) && (player->victory_state == VicS_Undecided))
           {
             event_kill_all_players_events(i);
@@ -2563,7 +2571,7 @@ TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFil
     if (thing_is_creature(thing))
     {
         apply_damage_to_thing_and_display_health(thing, param->num2, DmgT_Physical, param->num1);
-        if (thing->health >= 0)
+        if ((thing->health >= 0) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
             if (((thing->alloc_flags & TAlF_IsControlled) == 0) && !creature_is_kept_in_custody(thing))
             {

@@ -99,11 +99,17 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
  */
 TbBool generation_due_in_game(void)
 {
-    return ( (game.play_gameturn-game.entrance_last_generate_turn) >= game.generate_speed );
+    return ((game.play_gameturn - game.entrance_last_generate_turn) >= game.generate_speed);
 }
 
 TbBool generation_due_for_dungeon(struct Dungeon * dungeon)
 {
+    if (!creature_count_below_map_limit(0))
+    {
+        SYNCDBG(9, "At map limit");
+        return false;
+    }
+
     if ( (game.armageddon_cast_turn == 0) || (game.armageddon.count_down + game.armageddon_cast_turn > game.play_gameturn) )
     {
         if ( (dungeon->turns_between_entrance_generation != -1) &&

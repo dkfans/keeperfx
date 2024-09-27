@@ -102,6 +102,7 @@ struct GameRulesConfig {
     unsigned long easter_egg_speech_interval;
     long global_ambient_light;
     TbBool light_enabled;
+    unsigned short creatures_count;
 };
 
 struct ComputerRulesConfig {
@@ -165,7 +166,7 @@ struct WorkersRulesConfig {
     unsigned long default_imp_dig_damage;
     unsigned long default_imp_dig_own_damage;
     long digger_work_experience;
-    TbBool drag_to_lair;
+    unsigned short drag_to_lair;
 };
 
 struct HealthRulesConfig {
