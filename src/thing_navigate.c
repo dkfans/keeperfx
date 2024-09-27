@@ -458,7 +458,7 @@ long creature_turn_to_face_angle(struct Thing *thing, long angle)
     return get_angle_difference(thing->move_angle_xy, angle);
 }
 
-long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, MoveSpeed speed, long a4, NaviRouteFlags flags, TbBool backward)
+long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, MoveSpeed speed, NaviRouteFlags flags, TbBool backward)
 {
     long i;
     SYNCDBG(18,"Starting to move %s index %d from (%d,%d) to (%d,%d) with speed %d",thing_model_name(thing),
@@ -472,7 +472,8 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
     }
     struct Coord3d nextpos;
     AriadneReturn follow_result = creature_follow_route_to_using_gates(thing, pos, &nextpos, speed, flags);
-    SYNCDBG(18,"The %s index %d route result: %d, next pos (%d,%d)",thing_model_name(thing),(int)thing->index,(int)follow_result,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num);
+    //SYNCDBG(18,"The %s index %d route result: %d, next pos (%d,%d)",thing_model_name(thing),(int)thing->index,(int)follow_result,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num);
+    SYNCLOG("The %s index %d route result: %d, current pos (%d,%d), next pos (%d,%d)",thing_model_name(thing),(int)thing->index,(int)follow_result,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num);
     if ( backward )
     {
         // Rotate the creature back
@@ -547,8 +548,8 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
 
 long creature_move_to(struct Thing *creatng, struct Coord3d *pos, MoveSpeed speed, NaviRouteFlags flags, TbBool backward)
 {
-    SYNCDBG(18,"Starting to move %s index %d into (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)pos->x.stl.num,(int)pos->y.stl.num);
-    return creature_move_to_using_gates(creatng, pos, speed, -2, flags, backward);
+    //JUSTMSG("Starting to move %s index %d into (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)pos->x.stl.num,(int)pos->y.stl.num);
+    return creature_move_to_using_gates(creatng, pos, speed, flags, backward);
 }
 
 TbBool creature_move_to_using_teleport(struct Thing *thing, struct Coord3d *pos, long walk_speed)

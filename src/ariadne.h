@@ -63,8 +63,8 @@ enum AriadneUpdateStateValues {
 
 enum AriadneUpdateSubStateManoeuvreValues {
     AridUpSStM_Unset   = 0,
-    AridUpSStM_Unkn1,
-    AridUpSStM_Unkn2,
+    AridUpSStM_InitWallhug,
+    AridUpSStM_GetNewAngle,
 };
 
 enum NavigationStateValues {
@@ -85,36 +85,34 @@ enum NavigationStateValues {
 #define NAVMAP_OWNERSELECT_BIT  6
 #define NAVMAP_OWNERSELECT_MASK 0x3FE0
 
-struct Ariadne { // sizeof = 102
+struct Ariadne {
     /** Position where the journey stated. */
     struct Coord3d startpos;
     /** Final position where we're heading. */
     struct Coord3d endpos;
     /** Position of the last reached waypoint. */
     struct Coord3d current_waypoint_pos;
-  struct Coord3d pos_12;
-  struct Coord3d pos_18;
-  unsigned char route_flags;
-  unsigned char field_1F;
-  unsigned char hug_side;
-  unsigned char update_state;
-  unsigned char field_22;
-  unsigned char may_need_reroute;
-  short field_24;
-  unsigned short move_speed;
+    struct Coord3d nextpos;
+    struct Coord3d wallhug_pos;
+    unsigned char route_flags;
+    unsigned char hug_side;
+    unsigned char update_state;
+    TbBool touching_wall;
+    TbBool may_need_reroute;
+    unsigned short move_speed;
     /** Index of the current waypoint in list of nearest waypoints stored. */
     unsigned char current_waypoint;
     /** List of nearest waypoints in the way towards destination, stored in an array. */
     struct Coord2d waypoints[ARID_WAYPOINTS_COUNT];
-    /** Amount of nearest waypoints stored in the array. */
+    /** Number of nearest waypoints stored in the array. */
     unsigned char stored_waypoints; // offs = 0x51
-    /** Total amount of waypoints planned on the way towards endpos. */
+    /** Total number of waypoints planned on the way towards endpos. */
     unsigned int total_waypoints;
-  struct Coord3d pos_53;
-  struct Coord3d pos_59;
-  unsigned char manoeuvre_state;
-  short wallhug_angle;
-  long field_62;
+    struct Coord3d manoeuvre_to_pos;
+    struct Coord3d manoeuvre_from_pos;
+    unsigned char manoeuvre_state;
+    short wallhug_angle;
+    long distance_to_waypoint;
 };
 
 struct PathWayPoint { // sizeof = 8
@@ -214,7 +212,7 @@ TbBool navigation_points_connected(struct Coord3d *pt1, struct Coord3d *pt2);
 void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x, long end_y, long subroute, unsigned char nav_size, const char *func_name);
 void nearest_search_f(long sizexy, long srcx, long srcy, long dstx, long dsty, long *px, long *py, const char *func_name);
 #define nearest_search(sizexy, srcx, srcy, dstx, dsty, px, py) nearest_search_f(sizexy, srcx, srcy, dstx, dsty, px, py, __func__)
-NavColour get_navigation_colour(long stl_x, long stl_y);
+NavColour get_navigation_colour(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool border_clip_horizontal(const NavColour *imap, long a1, long a2, long a3, long a4);
 TbBool border_clip_vertical(const NavColour *imap, long a1, long a2, long a3, long a4);
 #define edge_lock(fin_x, fin_y, bgn_x, bgn_y) edge_lock_f(fin_x, fin_y, bgn_x, bgn_y, __func__)
@@ -237,6 +235,8 @@ long thing_nav_sizexy(const struct Thing *thing);
 
 void clear_wallhugging_path(struct Navigation *navi);
 void initialise_wallhugging_path_from_to(struct Navigation *navi, struct Coord3d *mvstart, struct Coord3d *mvend);
+
+long ariadne_creature_blocked_by_wall_at(struct Thing *thing, const struct Coord3d *pos);
 
 /******************************************************************************/
 #ifdef __cplusplus

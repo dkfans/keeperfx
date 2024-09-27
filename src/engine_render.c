@@ -22,6 +22,7 @@
 #include "engine_render.h"
 
 #include "globals.h"
+#include "ariadne.h"
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
 #include "bflib_memory.h"
@@ -7998,7 +7999,11 @@ static void draw_mapwho_ariadne_path(struct Thing *thing)
         end_x = (long)wp_next->x.val - map_x_pos;
         beg_y = map_y_pos - (long)wp_prev->y.val;
         end_y = map_y_pos - (long)wp_next->y.val;
-        create_line_const_z(1, (long)arid->startpos.z.val + COORD_PER_STL / 16 - map_z_pos, beg_x, end_x, beg_y, end_y);
+        struct Coord3d arid_pos;
+        arid_pos.x.val = wp_next->x.val;
+        arid_pos.y.val = wp_next->y.val;
+        unsigned char colour = (ariadne_creature_blocked_by_wall_at(thing, &arid_pos)) ? SLC_RED : SLC_GREEN;
+        create_line_const_z(colour, (long)arid->startpos.z.val + COORD_PER_STL / 16 - map_z_pos, beg_x, end_x, beg_y, end_y);
         wp_prev = wp_next;
     }
 }

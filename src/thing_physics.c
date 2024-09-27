@@ -514,11 +514,10 @@ TbBool creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos
         thing->mappos = origpos;
         return false;
     }
-
     if (position_over_floor_level(thing, pos)) {
-        return 1;
+        return true;
     }
-    return 0;
+    return false;
 }
 
 /** Retrieves planned next position for given thing, without collision detection.
