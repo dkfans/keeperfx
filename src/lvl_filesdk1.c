@@ -135,14 +135,6 @@ unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum,const char *fext
           SYNCMSG("Optional file \"map%05lu.%s\" doesn't exist or is too small.", lvnum, fext);
       return NULL;
   }
-  if (fsize > ANY_MAP_FILE_MAX_SIZE)
-  {
-    if ((flags & LMFF_Optional) == 0)
-      WARNMSG("Map file \"map%05lu.%s\" exceeds max size of %d; loading failed.",lvnum,fext,ANY_MAP_FILE_MAX_SIZE);
-    else
-      SYNCMSG("Optional file \"map%05lu.%s\" exceeds max size of %d; not loading.",lvnum,fext,ANY_MAP_FILE_MAX_SIZE);
-    return NULL;
-  }
   unsigned char* buf = LbMemoryAlloc(fsize + 16);
   if (buf == NULL)
   {
