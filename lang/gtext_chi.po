@@ -5743,12 +5743,12 @@ msgstr "爆破陷井"
 #: guitext:1037
 msgctxt "Trap description"
 msgid "Demolition Trap: An explosive with unrivaled destructive power."
-msgstr "爆破陷井:一个具有无与伦比破坏力的爆炸物。"
+msgstr "爆破陷井: 一个具有无与伦比破坏力的爆炸物。"
 
 #: guitext:1038
 msgctxt "Trap description"
 msgid "Sentry Trap: Stands guard and shoots at enemies in sight."
-msgstr "岗哨陷井：守卫在原地并向视野范围内的敌人开火。"
+msgstr "岗哨陷井: 守卫在原地并向视野范围内的敌人开火。"
 
 #: guitext:1039 guitext:1040
 msgctxt "Unused"
@@ -5783,18 +5783,18 @@ msgstr "岩石形态。"
 #: guitext:1051
 msgctxt "Slab description"
 msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
-msgstr "基岩：未声明的岩石地板。你不能声明它或在上面建造。"
+msgstr "基岩: 未占领的岩石地板。你不能占领它或在上面建造房间。"
 
 #: guitext:1052
 msgctxt "Slab description"
 msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
-msgstr "密集的金属矿层：为你的小鬼提供丰富的财富。"
+msgstr "密集的金矿: 为你的小鬼提供丰富的财富。"
 
 #: guitext:1053
 #, fuzzy
 msgctxt "Keeper spell name"
 msgid "Magic Shield"
-msgstr "反弹术"
+msgstr "魔法盾"
 
 #: guitext:1054
 msgctxt "Keeper spell name"
@@ -5809,7 +5809,7 @@ msgstr "缓慢术"
 #: guitext:1056
 msgctxt "Keeper spell name"
 msgid "Levitate"
-msgstr "飞行术"
+msgstr "漂浮术"
 
 #: guitext:1057
 msgctxt "Keeper spell name"
@@ -5824,17 +5824,17 @@ msgstr "邪眼术"
 #: guitext:1059
 msgctxt "Dungeon special decription"
 msgid "Heal All: Restore full health to all your creatures."
-msgstr "治愈全体：你的所有生物都被治愈。"
+msgstr "治疗全体: 为你的所有怪物回复全部生命值。"
 
 #: guitext:1060
 msgctxt "Dungeon special decription"
 msgid "Increase Gold: Generates gold in your treasury."
-msgstr "增加黄金：在你的金库中生成黄金。"
+msgstr "增加黄金: 在你的金库中生成黄金。"
 
 #: guitext:1061
 msgctxt "Dungeon special decription"
 msgid "Make Unhappy: All creatures of the enemy become upset."
-msgstr "使不高兴：敌人的所有生物变得不高兴。"
+msgstr "使不高兴: 敌人的所有怪物变得不高兴。"
 
 #: guitext:1062
 msgctxt "Dungeon special decription"
@@ -5844,47 +5844,47 @@ msgstr "削弱城墙: 摧毁敌方城墙的防御工事。"
 #: guitext:1063
 msgctxt "Game controls"
 msgid "Tilt Up"
-msgstr ""
+msgstr "向上倾斜"
 
 #: guitext:1064
 msgctxt "Game controls"
 msgid "Tilt Down"
-msgstr ""
+msgstr "向下倾斜"
 
 #: guitext:1065
 msgctxt "Game controls"
 msgid "Reset Tilt"
-msgstr ""
+msgstr "重置倾斜"
 
 #: guitext:1066
 msgctxt "Creature spell"
 msgid "Heal Monster: The target creature is massively healed."
-msgstr ""
+msgstr "治疗术: 使目标怪物获得大量治疗。"
 
 #: guitext:1067
 msgctxt "Creature spell"
 msgid "Cleanse: Cures all negative effects inflicted on the creature."
-msgstr "净化：治愈生物身上所有负面效果。"
+msgstr "净化: 治愈怪物身上的所有负面效果。"
 
 #: guitext:1068
 msgctxt "Creature spell"
 msgid "Cleanse Monster: Cures all negative effects inflicted on target creature."
-msgstr ""
+msgstr "净化术: 治愈目标怪物身上的所有负面效果。"
 
 #: guitext:1069
 msgctxt "Keeper spell description"
 msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
-msgstr ""
+msgstr "魔法盾: 使目标怪物能将受到的炮火反弹给攻击者。"
 
 #: guitext:1070
 msgctxt "Keeper spell description"
 msgid "Levitate: Causes the target creature to take off from the ground and attack creatures from the air or cross lava unharmed."
-msgstr ""
+msgstr "漂浮术: 使目标怪物获得飞行能力，能从天上攻击敌人，能跨越岩浆。"
 
 #: guitext:1071
 msgctxt "Keeper spell description"
 msgid "Sight: Allows the target creature to temporarily increase its awareness and notice the invisible."
-msgstr ""
+msgstr "邪眼术: 使目标怪物暂时提升注意力，能看穿隐身的目标。"
 
 #: guitext:1072 guitext:1073 guitext:1074 guitext:1075
 msgctxt "Unused"
@@ -5894,9 +5894,9 @@ msgstr ""
 #: guitext:1076
 msgctxt "Door name"
 msgid "Midas Door"
-msgstr ""
+msgstr "贪财之门"
 
 #: guitext:1077
 msgctxt "Door description"
 msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
-msgstr ""
+msgstr "贪财之门: 这扇门可以通过消耗拥有者的黄金来保持不被摧毁。右键缩放。"
