@@ -4978,7 +4978,6 @@ LightIntensity = 0
 LightFlags = 0
 AffectedByWind = 0
 
-
 [effectElement118]
 Name = "EFFECTELEMENT_GOLD_COIN"
 DrawClass = 2
