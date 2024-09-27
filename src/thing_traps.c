@@ -200,7 +200,7 @@ TbBool thing_is_deployed_trap(const struct Thing* thing)
 TbBool creature_available_for_trap_trigger(struct Thing* creatng)
 {
     if (!creature_is_being_unconscious(creatng) && !thing_is_dragged_or_pulled(creatng)
-        && !creature_is_kept_in_custody_by_enemy(creatng) && !creature_is_dying(creatng)
+        && !creature_is_kept_in_custody_by_enemy(creatng) && !creature_is_dying(creatng) && !creature_is_leaving_and_cannot_be_stopped(creatng)
         && !creature_is_being_dropped(creatng) && !flag_is_set(get_creature_model_flags(creatng),CMF_IsSpectator))
     {
         return true;
@@ -522,6 +522,11 @@ void activate_trap_slab_change(struct Thing *traptng)
 
 struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char model)
 {
+    if (!creature_count_below_map_limit(0))
+    {
+        WARNLOG("Can't spawn creature %s due to map creature limit.", creature_code_name(model));
+        return INVALID_THING;
+    }
     struct Thing* thing;
     struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
     struct CreatureControl* cctrl;
@@ -740,8 +745,8 @@ void process_trap_charge(struct Thing* traptng)
             if ((slb->kind != SlbT_CLAIMED) && (slb->kind != SlbT_PATH)) {
                 traptng->health = -1;
             }
-            traptng->rendering_flags &= TRF_Transpar_Flags;
-            traptng->rendering_flags |= TRF_Transpar_4;
+            clear_flag(traptng->rendering_flags, TRF_Transpar_Flags);
+            set_flag(traptng->rendering_flags, TRF_Transpar_4);
             if (!is_neutral_thing(traptng) && !is_hero_thing(traptng))
             {
                 if (placing_offmap_workshop_item(traptng->owner, TCls_Trap, traptng->model))
@@ -804,7 +809,10 @@ TbBool rearm_trap(struct Thing *traptng)
     struct ManfctrConfig* mconf = &game.conf.traps_config[traptng->model];
     struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
     traptng->trap.num_shots = mconf->shots;
-    traptng->rendering_flags ^= (traptng->rendering_flags ^ (trapstat->transparency_flag << 4)) & (TRF_Transpar_Flags);
+
+    clear_flag(traptng->rendering_flags, TRF_Transpar_Flags);
+    set_flag(traptng->rendering_flags, trapstat->transparency_flag);
+
     return true;
 }
 
@@ -845,7 +853,7 @@ TngUpdateRet update_trap(struct Thing *traptng)
             {
                 traptng->anim_sprite = convert_td_iso(trapstat->sprite_anim_idx);
             }
-            traptng->max_frames = get_lifespan_of_animation(traptng->anim_sprite, trapstat->anim_speed);
+            traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
         }
     }
     if (trapstat->activation_type == TrpAcT_CreatureShot)
@@ -863,6 +871,7 @@ TngUpdateRet update_trap(struct Thing *traptng)
     }
     if (trap_is_active(traptng))
     {
+        traptng->trap.volley_fire = false;
         update_trap_trigger(traptng);
     }
     if (map_pos_is_lava(traptng->mappos.x.stl.num, traptng->mappos.y.stl.num) && !thing_is_dragged_or_pulled(traptng))

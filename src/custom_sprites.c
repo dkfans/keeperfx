@@ -303,6 +303,7 @@ void init_custom_sprites(LevelNumber lvnum)
         {
             free((char *) added_icons[i].name);
             free((char *) gui_panel_sprites[GUI_PANEL_SPRITES_COUNT + i].Data);
+            added_icons[i].name = NULL;
         }
     }
     num_added_icons = 0;
@@ -312,8 +313,8 @@ void init_custom_sprites(LevelNumber lvnum)
     gui_panel_sprites[GUI_PANEL_SPRITES_COUNT].Data = (unsigned char *) bad_icon_data;
     gui_panel_sprites[GUI_PANEL_SPRITES_COUNT].SWidth = 16;
     gui_panel_sprites[GUI_PANEL_SPRITES_COUNT].SHeight = 16;
-    next_free_icon = 1;
-    num_icons_total = GUI_PANEL_SPRITES_COUNT + 1;
+    next_free_icon = 0;
+    num_icons_total = GUI_PANEL_SPRITES_COUNT;
 
     // Clear creature table (there sprites live)
     memset(creature_table_add, 0, sizeof(creature_table_add));
@@ -879,8 +880,7 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
     READ_WITH_DEFAULT(offset_x, "offset_x", "fp_offset_x", "td_offset_x", -dst_w / 2, -value_int32)
     READ_WITH_DEFAULT(offset_y, "offset_y", "fp_offset_y", "td_offset_y", 1 - dst_h, -value_int32)
 
-    READ_WITH_DEFAULT(shadow_offset, "shadow_offset", "fp_shadow_offset", "td_shadow_offset",
-                      (1 - ksprite->offset_y), value_int32)
+    READ_WITH_DEFAULT(shadow_offset, "shadow_offset", "fp_shadow_offset", "td_shadow_offset", (dst_h + ksprite->offset_y), value_int32)
 
     READ_WITH_DEFAULT(frame_flags, "frame_flags", "fp_frame_flags", "td_frame_flags", 0, value_uint32)
 
@@ -1526,6 +1526,12 @@ short get_anim_id(const char *name, struct ObjectConfigStats *objst)
         return (short) val->num;
     }
     return 0;
+}
+
+short get_anim_id_(const char* word_buf)
+{
+    struct ObjectConfigStats obj_tmp;
+    return get_anim_id(word_buf, &obj_tmp);
 }
 
 const struct TbSprite *get_button_sprite_for_player(short sprite_idx, PlayerNumber plyr_idx)

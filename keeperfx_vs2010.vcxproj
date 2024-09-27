@@ -31,6 +31,7 @@
     <ClCompile Include="src\bflib_crash.c" />
     <ClCompile Include="src\bflib_datetm.c" />
     <ClCompile Include="src\bflib_dernc.c" />
+    <ClCompile Include="src\bflib_enet.cpp" />
     <ClCompile Include="src\bflib_fileio.c" />
     <ClCompile Include="src\bflib_filelst.c" />
     <ClCompile Include="src\bflib_fmvids.c" />
@@ -52,7 +53,6 @@
     <ClCompile Include="src\bflib_netsync.c" />
     <ClCompile Include="src\bflib_network.cpp" />
     <ClCompile Include="src\bflib_planar.c" />
-    <ClCompile Include="src\bflib_pom.cpp" />
     <ClCompile Include="src\bflib_render.c" />
     <ClCompile Include="src\bflib_render_gpoly.c" />
     <ClCompile Include="src\bflib_render_gtblock.c" />
@@ -198,6 +198,7 @@
     <ClCompile Include="src\map_events.c" />
     <ClCompile Include="src\map_locations.c" />
     <ClCompile Include="src\map_utils.c" />
+    <ClCompile Include="src\moonphase.c" />
     <ClCompile Include="src\music_player.c" />
     <ClCompile Include="src\net_game.c" />
     <ClCompile Include="src\net_sync.c" />
@@ -276,6 +277,7 @@
     <ClInclude Include="src\bflib_crash.h" />
     <ClInclude Include="src\bflib_datetm.h" />
     <ClInclude Include="src\bflib_dernc.h" />
+    <ClInclude Include="src\bflib_enet.h" />
     <ClInclude Include="src\bflib_fileio.h" />
     <ClInclude Include="src\bflib_filelst.h" />
     <ClInclude Include="src\bflib_fmvids.h" />
@@ -298,7 +300,6 @@
     <ClInclude Include="src\bflib_netsync.h" />
     <ClInclude Include="src\bflib_network.h" />
     <ClInclude Include="src\bflib_planar.h" />
-    <ClInclude Include="src\bflib_pom.hpp" />
     <ClInclude Include="src\bflib_render.h" />
     <ClInclude Include="src\bflib_semphr.hpp" />
     <ClInclude Include="src\bflib_server_tcp.hpp" />
@@ -425,6 +426,7 @@
     <ClInclude Include="src\map_events.h" />
     <ClInclude Include="src\map_locations.h" />
     <ClInclude Include="src\map_utils.h" />
+    <ClInclude Include="src\moonphase.h" />
     <ClInclude Include="src\music_player.h" />
     <ClInclude Include="src\net_game.h" />
     <ClInclude Include="src\net_sync.h" />

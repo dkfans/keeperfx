@@ -262,37 +262,37 @@ CrInstance creature_instance_get_available_id_for_pos(struct Thing *thing, int r
 TbBool instance_is_disarming_weapon(CrInstance inum)
 {
     struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
-    return ((inst_inf->flags & InstPF_Disarming) != 0);
+    return ((inst_inf->instance_property_flags & InstPF_Disarming) != 0);
 }
 
 TbBool instance_draws_possession_swipe(CrInstance inum)
 {
     struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
-    return ((inst_inf->flags & InstPF_UsesSwipe) != 0);
+    return ((inst_inf->instance_property_flags & InstPF_UsesSwipe) != 0);
 }
 
 TbBool instance_is_ranged_weapon(CrInstance inum)
 {
     struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
-    return ((inst_inf->flags & InstPF_RangedAttack) != 0);
+    return ((inst_inf->instance_property_flags & InstPF_RangedAttack) != 0);
 }
 
 TbBool instance_is_ranged_weapon_vs_objects(CrInstance inum)
 {
     struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
-    return (((inst_inf->flags & InstPF_RangedAttack) != 0) && ((inst_inf->flags & InstPF_Destructive) != 0) && !(inst_inf->flags & InstPF_Dangerous));
+    return (((inst_inf->instance_property_flags & InstPF_RangedAttack) != 0) && ((inst_inf->instance_property_flags & InstPF_Destructive) != 0) && !(inst_inf->instance_property_flags & InstPF_Dangerous));
 }
 
 TbBool instance_is_quick_range_weapon(CrInstance inum)
 {
     struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
-    return (((inst_inf->flags & InstPF_RangedAttack) != 0) && ((inst_inf->flags & InstPF_Quick) != 0));
+    return (((inst_inf->instance_property_flags & InstPF_RangedAttack) != 0) && ((inst_inf->instance_property_flags & InstPF_Quick) != 0));
 }
 
 TbBool instance_is_melee_attack(CrInstance inum)
 {
     struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
-    return ((inst_inf->flags & InstPF_MeleeAttack) != 0);
+    return ((inst_inf->instance_property_flags & InstPF_MeleeAttack) != 0);
 }
 
 /**
@@ -397,9 +397,9 @@ TbBool creature_has_melee_attack(const struct Thing *creatng)
 void process_creature_instance(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
-    SYNCDBG(19,"Starting for %s index %d instance %d",thing_model_name(thing),(int)thing->index,(int)cctrl->instance_id);
     TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
+    SYNCDBG(19, "Starting for %s index %d instance %d", thing_model_name(thing), (int)thing->index, (int)cctrl->instance_id);
     if (cctrl->instance_id != CrInst_NULL)
     {
         cctrl->inst_turn++;
@@ -424,8 +424,6 @@ void process_creature_instance(struct Thing *thing)
                 cctrl->inst_repeat = 0;
                 return;
             }
-            // Instances sometimes failed to reach this. More reliable to set instance_use_turn sooner
-            // cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn; // so this code has been moved to another location
             cctrl->instance_id = CrInst_NULL;
             thing->creature.volley_fire = false;
         }

@@ -23,7 +23,7 @@
 #include "bflib_basics.h"
 
 /** Max amount of creatures supported on any map. */
-#define CREATURES_COUNT       256
+#define CREATURES_COUNT       1024
 
 #ifdef __cplusplus
 extern "C" {
@@ -61,12 +61,12 @@ enum ThingFlags2 {
 };
 
 enum ThingRenderingFlags {
-    TRF_Unknown01     = 0x01, /** Not Drawn **/
-    TRF_Unshaded      = 0x02, // Not shaded
+    TRF_Invisible      = 0x01, // Not Drawn
+    TRF_Unshaded       = 0x02, // Not shaded
 
-    TRF_Tint_1        = 0x04, // Tint1 (used to draw enemy creatures when they are blinking to owners color)
-    TRF_Tint_2        = 0x08, // Tint2 (not used?)
-    TRF_Tint_Flags    = 0x0C, // Tint flags
+    TRF_Tint_1         = 0x04, // Tint1 (used to draw enemy creatures when they are blinking to owners color)
+    TRF_Tint_2         = 0x08, // Tint2 (not used?)
+    TRF_Tint_Flags     = 0x0C, // Tint flags
 
     TRF_Transpar_8     = 0x10, // Used on chicken effect when creature is turned to chicken
     TRF_Transpar_4     = 0x20, // Used for Invisible creatures and traps -- more transparent

@@ -61,7 +61,7 @@ TbBool creature_able_to_eat(const struct Thing *creatng)
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     if (creature_stats_invalid(crstat))
         return false;
-    return (crstat->hunger_rate != 0);
+    return ((crstat->hunger_rate > 0) && (crstat->hunger_fill > 0));
 }
 
 TbBool hunger_is_creature_hungry(const struct Thing *creatng)
@@ -206,6 +206,10 @@ short creature_arrived_at_garden(struct Thing *thing)
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d",
             room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->index);
+        set_start_state(thing);
+        return 0;
+    }
+    if (!creature_able_to_eat(thing)){
         set_start_state(thing);
         return 0;
     }

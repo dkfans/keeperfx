@@ -724,7 +724,22 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         }
         else if ((strcasecmp(parstr, "map.pool") == 0) || (strcasecmp(parstr, "creature.pool") == 0))
         {
-            return script_set_pool(plyr_idx, pr2str, pr3str);
+            long kind = get_id(creature_desc, pr2str);
+            if (kind == -1)
+            {
+                targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Invalid creature: %s",pr2str);
+                return false;
+            }
+            if (pr3str == NULL)
+            {
+                targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Pool count %s: %d", pr2str,game.pool.crtr_kind[kind]);
+                return true;
+            }
+            else
+            {
+                targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Set %s pool count: %d", pr2str, atoi(pr3str));
+                return script_set_pool(plyr_idx, pr2str, pr3str);
+            }
         }
         else if ((strcasecmp(parstr, "gold.create") == 0) || (strcasecmp(parstr, "create.gold") == 0))
         {
@@ -1134,6 +1149,12 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 {
                     HitPoints Health = atoi(pr3str);
                     thing->health = Health;
+                    if (thing->health <= 0)
+                    {
+                        dungeon = get_dungeon(plyr_idx);
+                        dungeon->lvstats.keeper_destroyed[id]++;
+                        dungeon->lvstats.keepers_destroyed++;
+                    }
                     return true;
                 }
             }

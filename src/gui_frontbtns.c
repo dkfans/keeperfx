@@ -50,7 +50,7 @@ void gui_clear_buttons_not_over_mouse(int gmbtn_mouseover_idx)
         if ( ((gmbtn_mouseover_idx == -1) || (gmbtn_mouseover_idx != gidx)) &&
              (gbtn->gbtype != LbBtnT_RadioBtn) && (gbtn != input_button) )
         {
-          gbtn->flags &= ~LbBtnF_Unknown10;
+          gbtn->flags &= ~LbBtnF_MouseOver;
           gbtn->gbactn_1 = 0;
           gbtn->gbactn_2 = 0;
         }
