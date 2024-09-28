@@ -532,7 +532,7 @@ long instf_creature_cast_spell(struct Thing *creatng, long *param)
 
     if (spconf->cast_at_thing && cctrl->targtng_idx != creatng->index)
     {
-        // If the targtng_idx is jus the caster itself, we can call creature_cast_spell
+        // If the targtng_idx is just the caster itself, we can call creature_cast_spell
         // instead of creature_cast_spell_at_thing.
         target = thing_get(cctrl->targtng_idx);
         if (thing_is_invalid(target)) target = NULL;
