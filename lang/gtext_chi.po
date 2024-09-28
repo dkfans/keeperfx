@@ -1658,7 +1658,7 @@ msgstr "冰雹术: 发射密集的冰雹块。"
 
 #: guitext:245
 msgctxt "Creature spell"
-msgid "Slow: Slows down the target creature, making it attacks and movement delayed."
+msgid "Slow: Slows down the target creature, making its attacks and movement delayed."
 msgstr "缓慢术: 降低目标怪物的速度，使它的行动和攻击变得迟缓。"
 
 #: guitext:246

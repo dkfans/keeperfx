@@ -2309,7 +2309,7 @@ msgstr "Burza gradowa: Tworzy opad wielkiego gradu w miejscu rzucenia czaru."
 #: guitext:245
 msgctxt "Creature spell"
 msgid ""
-"Slow: Slows down the target creature, making it attacks and movement delayed."
+"Slow: Slows down the target creature, making its attacks and movement delayed."
 msgstr "Spowolnienie: Spowalnia stwora, opóźniając jego ruch i ataki."
 
 #: guitext:246
