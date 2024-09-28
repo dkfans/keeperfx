@@ -1503,7 +1503,7 @@ msgstr ""
 
 #: guitext:245
 msgctxt "Creature spell"
-msgid "Slow: Slows down the target creature, making it attacks and movement delayed."
+msgid "Slow: Slows down the target creature, making its attacks and movement delayed."
 msgstr ""
 
 #: guitext:246

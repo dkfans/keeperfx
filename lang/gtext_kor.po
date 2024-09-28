@@ -2223,7 +2223,7 @@ msgstr "우박 폭풍: 우박이 맹위를 떨칩니다."
 #: guitext:245
 msgctxt "Creature spell"
 msgid ""
-"Slow: Slows down the target creature, making it attacks and movement delayed."
+"Slow: Slows down the target creature, making its attacks and movement delayed."
 msgstr "느려림: 대상 피조물의 속도가 느려져 공격 및 이동이 지연됩니다."
 
 #: guitext:246
