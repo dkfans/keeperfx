@@ -92,14 +92,8 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
             sprintf(key, "slab%d", slab_kind);
             slb_section = value_dict_get(&file_root, key);
         }
-        if (value_type(slb_section) != VALUE_DICT)
+        if (value_type(slb_section) == VALUE_DICT)
         {
-            if ((flags & CnfLd_IgnoreErrors) == 0)
-            {
-                WARNMSG("Invalid section %d", slab_kind);
-            }
-        }
-        else
         {
             for (int slabstyle_no = 0; slabstyle_no < SLABSETS_PER_SLAB; slabstyle_no++)
             {
