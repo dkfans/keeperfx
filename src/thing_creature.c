@@ -3411,9 +3411,37 @@ short get_creature_eye_height(const struct Thing *creatng)
     return (base_height + (base_height * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
 }
 
-ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primary_target)
+/**
+ * @brief Get the target of the given instance in the Possession mode.
+ *
+ * @param thing The Thing object of the caster.
+ * @param inst_id The index of the instance be used.
+ * @param packet The caster's owner's control's or action's packet. This is optional.
+ * @return ThingIndex The index of the target thing.
+ */
+ThingIndex get_human_controlled_creature_target(struct Thing *thing, CrInstance inst_id, struct Packet *packet)
 {
     ThingIndex index = 0;
+    struct InstanceInfo *inst_inf = creature_instance_info_get(inst_id);
+
+    if((inst_inf->instance_property_flags & InstPF_SelfBuff) != 0)
+    {
+        if ((inst_inf->instance_property_flags & InstPF_RangedBuff) == 0 ||
+            ((packet != NULL) && (packet->additional_packet_values & PCAdV_CrtrContrlPressed) != 0))
+        {
+            // If it doesn't has RANGED_BUFF or the Possession key (default:left shift) is pressed,
+            // cast on the caster itself.
+            return thing->index;
+        }
+    }
+    if((inst_inf->instance_property_flags & InstPF_RangedBuff) != 0)
+    {
+        if(inst_inf->primary_target != 5 && inst_inf->primary_target != 6)
+        {
+            ERRORLOG("The instance %d has RANGED_BUFF property but has no valid primary target.", inst_id);
+        }
+    }
+
     struct Thing *i;
     long angle_xy_to;
     long angle_difference;
@@ -3456,7 +3484,7 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primar
                         if (i != thing)
                         {
                             TbBool is_valid_target;
-                            switch (primary_target)
+                            switch (inst_inf->primary_target)
                             {
                                 case 1:
                                     is_valid_target = ((thing_is_creature(i) && !creature_is_being_unconscious(i)) || thing_is_dungeon_heart(i));
@@ -3483,7 +3511,7 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primar
                                     is_valid_target = true;
                                     break;
                                 default:
-                                    ERRORLOG("Illegal primary target type for shot: %d", (int)primary_target);
+                                    ERRORLOG("Illegal primary target type for shot: %d", (int)inst_inf->primary_target);
                                     is_valid_target = false;
                                     break;
                             }

@@ -26,6 +26,7 @@
 #include "bflib_sprite.h"
 #include "thing_list.h"
 #include "map_locations.h"
+#include "packets.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -100,7 +101,7 @@ long get_creature_speed(const struct Thing *thing);
 TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
 TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
 void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
-ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primary_target);
+ThingIndex get_human_controlled_creature_target(struct Thing *thing, CrInstance inst_id, struct Packet *packet);
 struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord x, MapCoord y);
 
 TbBool load_swipe_graphic_for_creature(const struct Thing *thing);
