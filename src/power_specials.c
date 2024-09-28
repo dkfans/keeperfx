@@ -176,6 +176,19 @@ void increase_level(struct PlayerInfo *player, int count)
           break;
         }
     }
+    i = 0;
+    while (i < dungeon->num_summon)
+    {
+        struct Thing* famlrtng = thing_get(dungeon->summon_list[i]);
+        cctrl = creature_control_get_from_thing(famlrtng);
+        if (thing_is_invalid(famlrtng))
+        {
+          ERRORLOG("Jump to invalid creature detected");
+          continue;
+        }
+        level_up_familiar(famlrtng);
+        i++;
+    }    
 }
 
 TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)

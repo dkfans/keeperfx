@@ -2980,7 +2980,14 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             CONFWRNLOG("Attribute (%d) not supported", creature_variable);
             break;
         case 2: // HEALTH
-            crstat->health = value;
+            if (crstat->health != value)
+            {
+                crstat->health = value;
+                for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+                {
+                    do_to_players_all_creatures_of_model(plyr_idx, creatid, update_relative_creature_health);
+                }
+            }
             break;
         case 3: // HEALREQUIREMENT
             crstat->heal_requirement = value;
@@ -3025,7 +3032,14 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             crstat->hurt_by_lava = value;
             break;
         case 17: // BASESPEED
-            crstat->base_speed = value;
+            if (crstat->base_speed != value)
+            {
+                crstat->base_speed = value;
+                for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+                {
+                    update_speed_of_player_creatures_of_model(plyr_idx, creatid);
+                }
+            }
             break;
         case 18: // GOLDHOLD
             crstat->gold_hold = value;
@@ -3073,7 +3087,14 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             crstat->footstep_pitch = value;
             break;
         case 34: // LAIROBJECT
-            crstat->lair_object = value;
+            if (crstat->lair_object != value)
+            {
+                for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+                {
+                    do_to_players_all_creatures_of_model(plyr_idx, creatid, remove_creature_lair);
+                }
+                crstat->lair_object = value;
+            }
             break;
         case 0: // comment
             break;
@@ -4635,16 +4656,17 @@ static void set_music_process(struct ScriptContext *context)
             else
             {
                 char info[255];
-                sprintf(info, "%s", Mix_GetMusicTitle(tracks[track_number]));
-                const char* artist = Mix_GetMusicArtistTag(tracks[track_number]);
-                if (artist[0] != '\0')
-                {
-                    sprintf(info, "%s by %s", info, artist);
-                }
-                const char* copyright = Mix_GetMusicCopyrightTag(tracks[track_number]);
-                if (copyright[0] != '\0')
-                {
-                    sprintf(info, "%s (%s)", info, copyright);
+                const char * title = Mix_GetMusicTitle(tracks[track_number]);
+                const char * artist = Mix_GetMusicArtistTag(tracks[track_number]);
+                const char * copyright = Mix_GetMusicCopyrightTag(tracks[track_number]);
+                if (strlen(artist) > 0 && strlen(copyright) > 0) {
+                    snprintf(info, sizeof(info), "%s by %s (%s)", title, artist, copyright);
+                } else if (strlen(artist) > 0) {
+                    snprintf(info, sizeof(info), "%s by %s", title, artist);
+                } else if (strlen(copyright) > 0) {
+                    snprintf(info, sizeof(info), "%s (%s)", title, copyright);
+                } else {
+                    snprintf(info, sizeof(info), "%s", title);
                 }
                 SCRPTLOG("Setting music track to %d: %s", track_number, info);
             }

@@ -3062,6 +3062,54 @@ void process_cheat_mode_selection_inputs()
                 }
                 clear_key_pressed(KC_LSHIFT);
             }
+            else if (is_key_pressed(KC_LCONTROL, KMod_DONTCARE))
+            {
+                if (player->work_state == PSt_MkGoodCreatr)
+                {
+                    new_value = player->cheatselection.chosen_hero_kind;
+                    do
+                    {
+                        if (new_value == 0)
+                        {
+                            new_value = game.conf.crtr_conf.model_count - 1;
+                        }
+                        else
+                        {
+                           new_value--;
+                           if (new_value == 0)
+                           {
+                               break;
+                           }                           
+                        }
+                        crconf = &game.conf.crtr_conf.model[new_value];
+                    }
+                    while ( ((crconf->model_flags & CMF_IsEvil) != 0) || ((crconf->model_flags & CMF_IsSpectator) != 0) );
+                    set_players_packet_action(player, PckA_CheatSwitchHero, new_value, 0, 0, 0);
+                }
+                else if (player->work_state == PSt_MkBadCreatr)
+                {
+                    new_value = player->cheatselection.chosen_creature_kind;
+                    do
+                    {
+                        if (new_value == 0)
+                        {
+                            new_value = game.conf.crtr_conf.model_count - 1;
+                        }
+                        else
+                        {
+                            new_value--;
+                            if (new_value == 0)
+                            {
+                                break;
+                            }
+                        }
+                        crconf = &game.conf.crtr_conf.model[new_value];
+                    }
+                    while ( ((crconf->model_flags & CMF_IsEvil) == 0) || ((crconf->model_flags & CMF_IsSpectator) != 0) );
+                    set_players_packet_action(player, PckA_CheatSwitchCreature, new_value, 0, 0, 0);
+                }
+                clear_key_pressed(KC_LCONTROL);
+            }
             break;
         }
         case PSt_PlaceTerrain:
@@ -3148,6 +3196,19 @@ void process_cheat_mode_selection_inputs()
                 }
                 set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);
                 clear_key_pressed(KC_LSHIFT);
+            }
+            else if (is_key_pressed(KC_LCONTROL, KMod_DONTCARE))
+            {
+                if (new_value == SlbT_ROCK)
+                {
+                    new_value = game.conf.slab_conf.slab_types_count - 1;
+                }
+                else
+                {
+                    new_value--;
+                }
+                set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);
+                clear_key_pressed(KC_LCONTROL);
             }
             if ( (player->cheatselection.chosen_terrain_kind >= SlbT_WALLDRAPE) && (player->cheatselection.chosen_terrain_kind <= SlbT_WALLPAIRSHR) )
             {
