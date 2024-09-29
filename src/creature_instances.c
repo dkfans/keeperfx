@@ -1211,6 +1211,18 @@ TbBool validate_target_generic(struct Thing *source, struct Thing *target, CrIns
     if ((inst_inf->instance_property_flags & InstPF_SelfBuff) == 0 && source->index == target->index)
     {
         // If this spell doesn't have SELF_BUFF flag, exclude itself.
+        SYNCDBG(15, "%s(%d) is a valid target for %s because it has no SELF_BUFF property.",
+            thing_model_name(target), target->index, creature_instance_code_name(inst_idx));
+        return false;
+    }
+
+    long spl_idx = inst_inf->func_params[0];
+    struct SpellConfig* spconf = get_spell_config(spl_idx);
+    if (spell_config_is_invalid(spconf) || creature_affected_by_spell(target, spl_idx))
+    {
+        // If this instance has wrong spell, or the target has been affected by this spell, return false.
+        SYNCDBG(12, "%s(%d) is not a valid target for %s because it has been affected by the spell.",
+            thing_model_name(target), target->index, creature_instance_code_name(inst_idx));
         return false;
     }
 
@@ -1324,6 +1336,7 @@ TbBool search_target_generic(struct Thing *source, CrInstance inst_idx, struct T
             continue;
         }
 
+        SYNCDBG(13, "Add %s(%d) to the search result(%d).", thing_model_name(candidate), candidate->index, (*found_count)) ;
         targets[*found_count] = candidate;
         (*found_count)++;
 
