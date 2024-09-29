@@ -1958,6 +1958,24 @@ CrInstance get_best_combat_weapon_instance_to_use(const struct Thing *thing, lon
 {
     CrInstance inst_id = CrInst_NULL;
     struct InstanceInfo* inst_inf;
+    SYNCDBG(15,"The %s(%d) try to choose weapon for attack type(%d) in distance: %d",
+        thing_model_name(thing), thing->index, atktype, dist);
+
+    if ((atktype & InstPF_RangedAttack) != 0)
+    {
+        // For melee-preferred creature, try to use Charge skill first.
+        struct CreatureStats* figstat = creature_stats_get_from_thing(thing);
+        if (figstat->attack_preference == AttckT_Melee)
+        {
+            inst_inf = creature_instance_info_get(CrInst_CHARGE);
+            if (dist >= inst_inf->range_min &&
+                creature_instance_is_available(thing, CrInst_CHARGE) && creature_instance_has_reset(thing, CrInst_CHARGE))
+            {
+                return CrInst_CHARGE;
+            }
+        }
+    }
+
     for (short i = 0; i < game.conf.crtr_conf.instances_count; i++)
     {
         inst_inf = creature_instance_info_get(i);
@@ -2275,6 +2293,9 @@ long old_combat_move(struct Thing *thing, struct Thing *enmtng, long enm_distanc
 
 long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, CrtrStateId nstat)
 {
+    SYNCDBG(19,"Processing %s(%d) combat with %s(%d) in distance %d.", thing_model_name(thing), thing->index,
+        thing_model_name(enmtng), enmtng->index, enmdist);
+
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (cctrl->instance_id != CrInst_NULL)
     {
@@ -2800,6 +2821,31 @@ void creature_in_melee_combat(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* enmtng = thing_get(cctrl->combat.battle_enemy_idx);
     TRACE_THING(enmtng);
+    long dist = get_combat_distance(creatng, enmtng);
+
+    SYNCDBG(19,"The enemy %s(%d) is in distance: %d.",thing_model_name(enmtng), enmtng->index, dist);
+    if (creature_affected_by_spell(creatng, SplK_Charge))
+    {
+        // Keep moving to the enemy unless it is very close.
+        if (dist <= 128)
+        {
+            terminate_thing_spell_effect(creatng, SplK_Charge);
+        }
+        else
+        {
+            if (creature_move_to(creatng, &enmtng->mappos, cctrl->max_speed, 0, 0) == -1)
+            {
+                // If failed to move, stop Charge.
+                terminate_thing_spell_effect(creatng, SplK_Charge);
+            }
+            else
+            {
+                // Just keep charging, don't do anything else.
+                return;
+            }
+        }
+    }
+
     if (!creature_is_most_suitable_for_combat(creatng, enmtng))
     {
         SYNCDBG(9,"The %s index %d is not most suitable for combat with %s index %d",thing_model_name(creatng),(int)creatng->index,thing_model_name(enmtng),(int)enmtng->index);
@@ -2813,7 +2859,6 @@ void creature_in_melee_combat(struct Thing *creatng)
         set_start_state(creatng);
         return;
     }
-    long dist = get_combat_distance(creatng, enmtng);
     CrInstance weapon = get_best_melee_offensive_weapon(creatng, dist);
     if (weapon == CrInst_NULL)
     {

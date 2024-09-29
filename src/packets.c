@@ -1187,98 +1187,114 @@ void process_players_creature_control_packet_control(long idx)
         return;
     if ((ccctrl->stateblock_flags != 0) || (cctng->active_state == CrSt_CreatureUnconscious))
         return;
-    long speed_limit = get_creature_speed(cctng);
-    if ((pckt->control_flags & PCtr_MoveUp) != 0)
-    {
-        if (!creature_control_invalid(ccctrl))
-        {
-            ccctrl->move_speed = compute_controlled_speed_increase(ccctrl->move_speed, speed_limit);
-            ccctrl->flgfield_1 |= CCFlg_Unknown40;
-        } else
-        {
-            ERRORLOG("No creature to increase speed");
-        }
-    }
-    if ((pckt->control_flags & PCtr_MoveDown) != 0)
-    {
-        if (!creature_control_invalid(ccctrl))
-        {
-            ccctrl->move_speed = compute_controlled_speed_decrease(ccctrl->move_speed, speed_limit);
-            ccctrl->flgfield_1 |= CCFlg_Unknown40;
-        } else
-        {
-            ERRORLOG("No creature to decrease speed");
-        }
-    }
-    if ((pckt->control_flags & PCtr_MoveLeft) != 0)
-    {
-        if (!creature_control_invalid(ccctrl))
-        {
-            ccctrl->orthogn_speed = compute_controlled_speed_increase(ccctrl->orthogn_speed, speed_limit);
-            ccctrl->flgfield_1 |= CCFlg_Unknown80;
-        } else
-        {
-            ERRORLOG("No creature to increase speed");
-        }
-    }
-    if ((pckt->control_flags & PCtr_MoveRight) != 0)
-    {
-        if (!creature_control_invalid(ccctrl))
-        {
-            ccctrl->orthogn_speed = compute_controlled_speed_decrease(ccctrl->orthogn_speed, speed_limit);
-            ccctrl->flgfield_1 |= CCFlg_Unknown80;
-        } else
-        {
-            ERRORLOG("No creature to decrease speed");
-        }
-    }
 
-    if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
+    if (creature_affected_by_spell(cctng, SplK_Charge) && !creature_control_invalid(ccctrl))
     {
-        i = ccctrl->active_instance_id;
-        if (ccctrl->instance_id == CrInst_NULL)
+        // When charging at the enemy, it should just move forward in the max velocity.
+        // Most of key inputs are ignored except the Down key. We use it to stop the
+        // charging.
+        ccctrl->move_speed = MAX_VELOCITY;
+        ccctrl->flgfield_1 |= CCFlg_Unknown40;
+         if ((pckt->control_flags & PCtr_MoveDown) != 0)
+         {
+            terminate_thing_spell_effect(cctng, SplK_Charge);
+         }
+    }
+    else
+    {
+        long speed_limit = get_creature_speed(cctng);
+        if ((pckt->control_flags & PCtr_MoveUp) != 0)
         {
-            if (creature_instance_is_available(cctng, i))
+            if (!creature_control_invalid(ccctrl))
             {
-                if (creature_instance_has_reset(cctng, i))
-                {
-                    if (!creature_affected_by_spell(cctng, SplK_Chicken))
-                    {
-                        inst_inf = creature_instance_info_get(i);
-                        n = get_human_controlled_creature_target(cctng, i, pckt);
-                        set_creature_instance(cctng, i, n, 0);
-                    }
-                }
-            }
-            else
+                ccctrl->move_speed = compute_controlled_speed_increase(ccctrl->move_speed, speed_limit);
+                ccctrl->flgfield_1 |= CCFlg_Unknown40;
+            } else
             {
-                inst_inf = creature_instance_info_get(i);
-                n = get_human_controlled_creature_target(cctng, i, pckt);
-                set_creature_instance(cctng, i, n, 0);
+                ERRORLOG("No creature to increase speed");
             }
         }
-    }
-    if ((pckt->control_flags & PCtr_LBtnHeld) != 0)
-    {
-        // Button is held down - check whether the instance has auto-repeat
-        i = ccctrl->active_instance_id;
-        inst_inf = creature_instance_info_get(i);
-        if ((inst_inf->instance_property_flags & InstPF_RepeatTrigger) != 0)
+        if ((pckt->control_flags & PCtr_MoveDown) != 0)
         {
+            if (!creature_control_invalid(ccctrl))
+            {
+                ccctrl->move_speed = compute_controlled_speed_decrease(ccctrl->move_speed, speed_limit);
+                ccctrl->flgfield_1 |= CCFlg_Unknown40;
+            } else
+            {
+                ERRORLOG("No creature to decrease speed");
+            }
+        }
+        if ((pckt->control_flags & PCtr_MoveLeft) != 0)
+        {
+            if (!creature_control_invalid(ccctrl))
+            {
+                ccctrl->orthogn_speed = compute_controlled_speed_increase(ccctrl->orthogn_speed, speed_limit);
+                ccctrl->flgfield_1 |= CCFlg_Unknown80;
+            } else
+            {
+                ERRORLOG("No creature to increase speed");
+            }
+        }
+        if ((pckt->control_flags & PCtr_MoveRight) != 0)
+        {
+            if (!creature_control_invalid(ccctrl))
+            {
+                ccctrl->orthogn_speed = compute_controlled_speed_decrease(ccctrl->orthogn_speed, speed_limit);
+                ccctrl->flgfield_1 |= CCFlg_Unknown80;
+            } else
+            {
+                ERRORLOG("No creature to decrease speed");
+            }
+        }
+
+        if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
+        {
+            i = ccctrl->active_instance_id;
             if (ccctrl->instance_id == CrInst_NULL)
             {
                 if (creature_instance_is_available(cctng, i))
                 {
                     if (creature_instance_has_reset(cctng, i))
                     {
-                        n = get_human_controlled_creature_target(cctng, i, pckt);
-                        set_creature_instance(cctng, i, n, 0);
+                        if (!creature_affected_by_spell(cctng, SplK_Chicken))
+                        {
+                            inst_inf = creature_instance_info_get(i);
+                            n = get_human_controlled_creature_target(cctng, i, pckt);
+                            set_creature_instance(cctng, i, n, 0);
+                        }
+                    }
+                }
+                else
+                {
+                    inst_inf = creature_instance_info_get(i);
+                    n = get_human_controlled_creature_target(cctng, i, pckt);
+                    set_creature_instance(cctng, i, n, 0);
+                }
+            }
+        }
+        if ((pckt->control_flags & PCtr_LBtnHeld) != 0)
+        {
+            // Button is held down - check whether the instance has auto-repeat
+            i = ccctrl->active_instance_id;
+            inst_inf = creature_instance_info_get(i);
+            if ((inst_inf->instance_property_flags & InstPF_RepeatTrigger) != 0)
+            {
+                if (ccctrl->instance_id == CrInst_NULL)
+                {
+                    if (creature_instance_is_available(cctng, i))
+                    {
+                        if (creature_instance_has_reset(cctng, i))
+                        {
+                            n = get_human_controlled_creature_target(cctng, i, pckt);
+                            set_creature_instance(cctng, i, n, 0);
+                        }
                     }
                 }
             }
         }
     }
-    
+
     // First person looking speed and limits are adjusted here. (pckt contains the base mouse movement inputs)
     struct CreatureStats* crstat = creature_stats_get_from_thing(cctng);
     long maxTurnSpeed = crstat->max_turning_speed;
@@ -1293,7 +1309,7 @@ void process_players_creature_control_packet_control(long idx)
     } else if (horizontalTurnSpeed > maxTurnSpeed) {
         horizontalTurnSpeed = maxTurnSpeed;
     }
-    
+
     // Vertical look
     long verticalTurnSpeed = pckt->pos_y;
     if (verticalTurnSpeed < -maxTurnSpeed) {

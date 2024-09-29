@@ -697,6 +697,11 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
     struct Dungeon* dungeon;
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long speed = crstat->base_speed;
+    if (creature_affected_by_spell(thing, SplK_Charge))
+    {
+        // Use fixed speed, ignore any other spell or base speed.
+        return MAX_VELOCITY;
+    }
     if ((creature_affected_by_slap(thing)) || (creature_affected_by_spell(thing, SplK_TimeBomb)))
         speed *= 2;
     if (creature_affected_by_spell(thing, SplK_Speed))
