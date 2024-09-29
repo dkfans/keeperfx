@@ -62,6 +62,7 @@ enum ShotModels {
     ShM_WordOfPower, 
     ShM_TrapWordOfPower,
     ShM_TrapTNT = 32,
+    ShM_RangedHeal = 33,
 };
 
 enum ShotFireLogics {

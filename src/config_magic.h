@@ -66,6 +66,8 @@ enum SpellKinds {
     SplK_Chicken,
     SplK_TimeBomb,//[28]
     SplK_Lizard,
+    Splk_SummonFamiliar,
+    Splk_SummonCreature,
 };
 
 enum CreatureSpellAffectedFlags {

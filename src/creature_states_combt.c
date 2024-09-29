@@ -1864,7 +1864,6 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
 
     if (thing_is_creature_special_digger(thing) && creature_is_doing_digger_activity(thing))
     {
-        
         // casting wind when under influence of gas
         if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
         {
@@ -2855,6 +2854,13 @@ short creature_in_combat(struct Thing *creatng)
         return 0;
     }
     CombatState combat_func;
+    CrInstance instance = process_creature_ranged_buff_spell_casting(creatng);
+    if (instance != CrInst_NULL)
+    {
+        // Return now if the creature has casted something.
+        return 1;
+    }
+
     if (cctrl->combat.state_id < sizeof(combat_state)/sizeof(combat_state[0]))
         combat_func = combat_state[cctrl->combat.state_id];
     else

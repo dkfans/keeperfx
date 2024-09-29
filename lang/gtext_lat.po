@@ -1650,7 +1650,7 @@ msgstr "Tempestas Grandinis: Pluviam grandinis creat ubicumque incantatio iacitu
 
 #: guitext:245
 msgctxt "Creature spell"
-msgid "Slow: Slows down the target creature, making it attacks and movement delayed."
+msgid "Slow: Slows down the target creature, making its attacks and movement delayed."
 msgstr "Lentitudo: Altera creatura lenta fit, quod efficit se aggredi et movere lentius."
 
 #: guitext:246
