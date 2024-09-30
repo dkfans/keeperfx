@@ -459,19 +459,28 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
             spconf->spell_flags = 0;
         }
     }
-    
+
   // Load the file
   arr_size = game.conf.magic_conf.spell_types_count;
-  for (i=0; i < arr_size; i++)
+  const char * blockname = NULL;
+  int blocknamelen = 0;
+  long pos = 0;
+  while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
   {
-      char block_buf[COMMAND_WORD_LEN];
-      sprintf(block_buf, "spell%d", i);
-      long pos = 0;
-      int k = find_conf_block(buf, &pos, len, block_buf);
+    // look for blocks starting with "spell", followed by one or more digits
+    if (blocknamelen < 6) {
+        continue;
+    } else if (memcmp(blockname, "spell", 5) != 0) {
+        continue;
+    }
+    i = natoi(&blockname[5], blocknamelen - 5);
+    if (i < 0 || i >= arr_size) {
+        continue;
+    }
     spconf = get_spell_config(i);
     spellst = get_spell_model_stats(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_spell_commands,cmd_num)
-    while (pos<len)
+    while (pos < len)
     {
       // Finding command number in this line
       int cmd_num = recognize_conf_command(buf, &pos, len, magic_spell_commands);
@@ -483,15 +492,15 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
               cmd_num = 0;
           }
       }
-      int n = 0;
+      int n = 0, k = 0;
       char word_buf[COMMAND_WORD_LEN];
       switch (cmd_num)
       {
       case 1: // NAME
           if (get_conf_parameter_single(buf,&pos,len,spellst->code_name,COMMAND_WORD_LEN) <= 0)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
               break;
           }
           if (spell_desc[i].name == NULL)
@@ -510,8 +519,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 3: // SELFCASTED
@@ -529,8 +538,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 2)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 4: // CASTATTHING
@@ -542,8 +551,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 5: // SHOTMODEL
@@ -557,8 +566,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect shot model \"%s\" in [%s] block of %s file.",
-                  word_buf,block_buf,config_textname);
+              CONFWRNLOG("Incorrect shot model \"%s\" in [%.*s] block of %s file.",
+                  word_buf, blocknamelen, blockname, config_textname);
               break;
           }
           break;
@@ -582,8 +591,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect effect model \"%s\" in [%s] block of %s file.",
-                  word_buf,block_buf,config_textname);
+              CONFWRNLOG("Incorrect effect model \"%s\" in [%.*s] block of %s file.",
+                  word_buf, blocknamelen, blockname, config_textname);
               break;
           }
           break;
@@ -610,8 +619,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 2)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 8: // SPELLPOWER
@@ -633,8 +642,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 9: // AURAEFFECT
@@ -658,8 +667,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 10: // SPELLFLAGS
@@ -674,8 +683,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
         case 11: // SUMMONCREATURE
@@ -711,8 +720,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 3)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 0: // comment
@@ -720,8 +729,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
       case -1: // end of buffer
           break;
       default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
+          CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",
+              cmd_num, blocknamelen, blockname, config_textname);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
