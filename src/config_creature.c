@@ -1497,21 +1497,25 @@ TbBool parse_creaturetype_angerjob_blocks(char *buf, long len, const char *confi
     }
     arr_size = game.conf.crtr_conf.angerjobs_count;
     // Load the file blocks
-    for (i=0; i < arr_size; i++)
+    const char * blockname = NULL;
+    int blocknamelen = 0;
+    long pos = 0;
+    TbBool seen[arr_size];
+    LbMemorySet(seen, 0, sizeof(seen));
+    while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
     {
-        char block_buf[COMMAND_WORD_LEN];
-        sprintf(block_buf, "angerjob%d", i);
-        long pos = 0;
-        int k = find_conf_block(buf, &pos, len, block_buf);
-        if (k < 0)
-        {
-            if ((flags & CnfLd_AcceptPartial) == 0) {
-                WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-                return false;
-            }
+        // look for blocks starting with "angerjob", followed by one or more digits
+        if (blocknamelen < 9) {
+            continue;
+        } else if (memcmp(blockname, "angerjob", 8) != 0) {
+            continue;
+        }
+        i = natoi(&blockname[8], blocknamelen - 8);
+        if (i < 0 || i >= arr_size) {
             continue;
         }
         agjobcfg = &game.conf.crtr_conf.angerjobs[i];
+        seen[i] = true;
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creaturetype_angerjob_commands,cmd_num)
         while (pos<len)
         {
@@ -1531,8 +1535,8 @@ TbBool parse_creaturetype_angerjob_blocks(char *buf, long len, const char *confi
             case 1: // NAME
                 if (get_conf_parameter_single(buf,&pos,len,game.conf.crtr_conf.angerjobs[i].name,COMMAND_WORD_LEN) <= 0)
                 {
-                    CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                    CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                     break;
                 }
                 n++;
@@ -1542,13 +1546,25 @@ TbBool parse_creaturetype_angerjob_blocks(char *buf, long len, const char *confi
             case -1: // end of buffer
                 break;
             default:
-                CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                    cmd_num,block_buf,config_textname);
+                CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",
+                    cmd_num, blocknamelen, blockname, config_textname);
                 break;
             }
             skip_conf_to_next_line(buf,&pos,len);
         }
 #undef COMMAND_TEXT
+    }
+    if ((flags & CnfLd_AcceptPartial) == 0) {
+        TbBool jobs_missing = false;
+        char block_buf[COMMAND_WORD_LEN];
+        for (i = 0; i < arr_size; i++) {
+            if (!seen[i]) {
+                snprintf(block_buf, sizeof(block_buf), "angerjob%d", i);
+                jobs_missing = true;
+                WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
+            }
+        }
+        return !jobs_missing;
     }
     return true;
 }
