@@ -1922,24 +1922,79 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
     return CrInst_NULL;
 }
 
-CrInstance get_best_quick_range_instance_to_use(const struct Thing *thing)
+/** @brief Retrieves a random available "QUICK" instance within range for a given creature.
+ * 
+ * On the first call, the function creates a cache of all available "QUICK" instances.
+ * It then loops through the cache to find instances available for the creature and fitting within the given range.
+ * These available instances are added to a list.
+ * The function then chooses a pseudo-random instance from this list.
+ * 
+ * @param thing Pointer to the creature for which the instance is to be retrieved.
+ * @param dist Distance to the target.
+ * @return A random available "QUICK" CrInstance for the given range
+ */
+CrInstance get_quick_instance_to_use(const struct Thing *thing, unsigned long dist)
 {
-    INSTANCE_RET_IF_AVAIL(thing, CrInst_FIREBALL);
-    INSTANCE_RET_IF_AVAIL(thing, CrInst_FIRE_ARROW);
-    INSTANCE_RET_IF_AVAIL(thing, CrInst_MISSILE);
-    INSTANCE_RET_IF_AVAIL(thing, CrInst_NAVIGATING_MISSILE);
-    INSTANCE_RET_IF_AVAIL(thing, CrInst_LIGHTNING);
-    INSTANCE_RET_IF_AVAIL(thing, CrInst_HAILSTORM);
-    INSTANCE_RET_IF_AVAIL(thing, CrInst_GRENADE);
-    INSTANCE_RET_IF_AVAIL(thing, CrInst_POISON_CLOUD);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_FIREBALL);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_FIRE_ARROW);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_MISSILE);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_NAVIGATING_MISSILE);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_LIGHTNING);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_HAILSTORM);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_GRENADE);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_POISON_CLOUD);
+    // Static array to store the indices of "quick" instances
+    static CrInstance quick_inst[INSTANCE_TYPES_MAX];
+    // Counter for the number of "quick" instances found
+    static short quick_inst_num = 0;
+    // Flag to indicate if the cache has been initialized
+    static TbBool initial = false;
+
+    struct InstanceInfo* inst_inf;
+
+        // Initialize the cache only once
+        if (!initial)
+        {
+            // Loop through all available instances
+            for (short i = 0; i < game.conf.crtr_conf.instances_count; i++)
+            {
+                inst_inf = creature_instance_info_get(i);
+                    // Check if the instance has the "QUICK" flag
+                    if (inst_inf->instance_property_flags & InstPF_Quick)
+                    {
+                        // Ensure we don't exceed the maximum array size
+                        if (quick_inst_num < INSTANCE_TYPES_MAX) 
+                        {
+                            // Add the instance ID to the cache
+                            quick_inst[quick_inst_num++] = i;
+                        }
+                        else {
+                            break;
+                        }
+                    }
+            }
+            // Mark the cache as initialized
+            initial = true;
+        }
+
+    //List of usable instances
+    CrInstance av_quick_inst[INSTANCE_TYPES_MAX];
+    short av_quick_inst_num = 0;
+
+    // Loop through the cached quick instances
+    for (short j = 0; j < quick_inst_num; j++)
+    {
+        inst_inf = creature_instance_info_get(quick_inst[j]);
+        // Check if the instance is in range, available, and reset
+        if ((inst_inf->range_min <= dist) && (inst_inf->range_max >= dist))
+        {
+            if (creature_instance_is_available(thing, quick_inst[j]) 
+            && creature_instance_has_reset(thing, quick_inst[j])) 
+            { 
+                // Add instance to list of usable instances
+                av_quick_inst[av_quick_inst_num++] = quick_inst[j];
+            }
+        }
+    }
+    if (av_quick_inst_num > 0)
+    {
+        // Choose a pseudo-random index from the list of usable instances
+        short pseudo_rand_idx = (thing->index + dist) % av_quick_inst_num;
+        return av_quick_inst[pseudo_rand_idx];
+    }
+    // Return NULL if no suitable instance is found 
     return CrInst_NULL;
 }
 
