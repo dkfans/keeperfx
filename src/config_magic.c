@@ -1838,7 +1838,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
 TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
   struct PowerConfigStats *powerst;
-  int i;
+  int i = 0;
+  long long k = 0;
   // Block name and parameter word store variables
   // Initialize the array
   int arr_size;
@@ -1885,12 +1886,21 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
 
   arr_size = game.conf.magic_conf.power_types_count;
   // Load the file
-  for (i=0; i < arr_size; i++)
+  const char * blockname = NULL;
+  int blocknamelen = 0;
+  long pos = 0;
+  while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
   {
-      char block_buf[COMMAND_WORD_LEN];
-      sprintf(block_buf, "power%d", i);
-      long pos = 0;
-      long long k = find_conf_block(buf, &pos, len, block_buf);
+    // look for blocks starting with "power", followed by one or more digits
+    if (blocknamelen < 6) {
+        continue;
+    } else if (memcmp(blockname, "power", 5) != 0) {
+        continue;
+    }
+    i = natoi(&blockname[5], blocknamelen - 5);
+    if (i < 0 || i >= arr_size) {
+        continue;
+    }
     struct MagicStats* pwrdynst = get_power_dynamic_stats(i);
     powerst = get_power_model_stats(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_power_commands,cmd_num)
@@ -1913,8 +1923,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
       case 1: // NAME
           if (get_conf_parameter_single(buf,&pos,len,powerst->code_name,COMMAND_WORD_LEN) <= 0)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
               break;
           }
           power_desc[i].name = powerst->code_name;
@@ -1926,8 +1936,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               k = atoi(word_buf);
               if (n > SPELL_MAX_LEVEL)
               {
-                CONFWRNLOG("Too many \"%s\" parameters in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Too many \"%s\" parameters in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 break;
               }
               pwrdynst->strength[n] = k;
@@ -1935,8 +1945,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n <= SPELL_MAX_LEVEL)
           {
-              CONFWRNLOG("Couldn't read all \"%s\" parameters in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't read all \"%s\" parameters in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 3: // COST
@@ -1945,8 +1955,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               k = atoi(word_buf);
               if (n > SPELL_MAX_LEVEL)
               {
-                CONFWRNLOG("Too many \"%s\" parameters in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Too many \"%s\" parameters in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 break;
               }
               pwrdynst->cost[n] = k;
@@ -1954,8 +1964,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n <= SPELL_MAX_LEVEL)
           {
-              CONFWRNLOG("Couldn't read all \"%s\" parameters in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't read all \"%s\" parameters in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 4: // Duration
@@ -1967,8 +1977,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 5: // CASTABILITY
@@ -1982,8 +1992,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
                   n++;
               } else
               {
-                  CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
-                      COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%.*s] block of %s file.",
+                      COMMAND_TEXT(cmd_num),word_buf, blocknamelen, blockname, config_textname);
               }
           }
           break;
@@ -1999,8 +2009,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect object model \"%s\" in [%s] block of %s file.",
-                  word_buf,block_buf,config_textname);
+              CONFWRNLOG("Incorrect object model \"%s\" in [%.*s] block of %s file.",
+                  word_buf, blocknamelen, blockname, config_textname);
               break;
           }
           break;
@@ -2013,8 +2023,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 8: // TOOLTIPTEXTID
@@ -2026,8 +2036,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 10: // SYMBOLSPRITES
@@ -2053,8 +2063,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 2)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 11: // POINTERSPRITES
@@ -2070,8 +2080,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           if (n < 1)
           {
               powerst->pointer_sprite_idx = bad_icon_id;
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 12: // PANELTABINDEX
@@ -2086,8 +2096,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 13: // SOUNDSAMPLES
@@ -2102,8 +2112,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 14: // PROPERTIES
@@ -2115,8 +2125,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
                   powerst->config_flags |= k;
                   n++;
               } else {
-                  CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
-                      COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%.*s] block of %s file.",
+                      COMMAND_TEXT(cmd_num), word_buf, blocknamelen, blockname, config_textname);
               }
           }
           break;
@@ -2130,8 +2140,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 16: // PLAYERSTATE
@@ -2145,8 +2155,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect player state \"%s\" in [%s] block of %s file.",
-                  word_buf,block_buf,config_textname);
+              CONFWRNLOG("Incorrect player state \"%s\" in [%.*s] block of %s file.",
+                  word_buf, blocknamelen, blockname,config_textname);
               break;
           }
           break;
@@ -2161,8 +2171,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect Keeper Power \"%s\" in [%s] block of %s file.",
-                  word_buf,block_buf,config_textname);
+              CONFWRNLOG("Incorrect Keeper Power \"%s\" in [%.*s] block of %s file.",
+                  word_buf, blocknamelen, blockname,config_textname);
               break;
           }
           break;
@@ -2178,8 +2188,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 19: //COOLDOWN
@@ -2194,8 +2204,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 20: //SPELL
@@ -2210,8 +2220,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 21: //EFFECT
@@ -2223,8 +2233,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 22: //USEFUNCTION
@@ -2239,8 +2249,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 0: // comment
@@ -2248,8 +2258,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
       case -1: // end of buffer
           break;
       default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
+          CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",
+              cmd_num, blocknamelen, blockname, config_textname);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
