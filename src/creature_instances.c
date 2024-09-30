@@ -589,12 +589,11 @@ CrInstance process_creature_ranged_buff_spell_casting(struct Thing* creatng)
     TRACE_THING(creatng);
     SYNCDBG(8,"Processing %s(%d), act.st: %s, con.st: %s", thing_model_name(creatng), creatng->index,
         creature_state_code_name(creatng->active_state), creature_state_code_name(creatng->continue_state));
-
-    CrInstance i = CrInst_NULL;
+    CrInstance i = CrInst_NULL + 1;
     for(; i < game.conf.crtr_conf.instances_count; i++ )
     {
         const struct InstanceInfo* inst_inf = creature_instance_info_get(i);
-        if((inst_inf->instance_property_flags & InstPF_RangedBuff) == 0)
+        if(creature_instance_info_invalid(inst_inf) || (inst_inf->instance_property_flags & InstPF_RangedBuff) == 0)
         {
             continue;
         }
@@ -610,14 +609,15 @@ CrInstance process_creature_ranged_buff_spell_casting(struct Thing* creatng)
             continue;
         }
 
-        struct Thing* targets = NULL;
-        short found_count = 0;
+        ThingIndex *targets = NULL;
+        unsigned short found_count = 0;
         if(creature_instances_search_targets_func_list[inst_inf->search_func_idx](creatng, i, &targets, &found_count) &&
             targets && (found_count > 0))
         {
-            SYNCDBG(8, "Set instance %s on %s(%d) for %s(%d).",
-                creature_instance_code_name(i), thing_model_name(creatng), creatng->index,
-                thing_model_name(targets), targets->index);
+            struct Thing* target = thing_get(targets[0]);
+            SYNCDBG(8, "Set instance %s(%d) on %s(%d) for %s(%d).",
+                creature_instance_code_name(i), i, thing_model_name(creatng), creatng->index,
+                thing_model_name(target), target->index);
 
             struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
             // Enter the temporary state.
@@ -626,7 +626,7 @@ CrInstance process_creature_ranged_buff_spell_casting(struct Thing* creatng)
             internal_set_thing_state(creatng, CrSt_CreatureCastingPreparation);
 
             // Apply the spell instance to the first one since we have no group buff yet.
-            set_creature_instance(creatng, i, targets->index, NULL);
+            set_creature_instance(creatng, i, target->index, NULL);
             free(targets);
             break; // No need to check the next spell instance.
 
@@ -1172,7 +1172,8 @@ TbBool validate_source_generic(struct Thing *source, struct Thing *target, CrIns
     // We assume we usually don't want to overwrite the original instance.
     struct CreatureControl* cctrl = creature_control_get_from_thing(source);
     if (cctrl->instance_id != CrInst_NULL) {
-        SYNCDBG(11, "This creature already has an instance %s.", creature_instance_code_name(cctrl->instance_id));
+        SYNCDBG(11, "%s(%d) already has an instance %s.", thing_model_name(source), source->index,
+            creature_instance_code_name(cctrl->instance_id));
         return false;
     }
 
@@ -1287,7 +1288,7 @@ TbBool validate_target_ranged_heal(struct Thing *source, struct Thing *target, C
  * @param found_count The number of the found creatures.
  * @return TbBool True if there is no error, false if otherwise.
  */
-TbBool search_target_generic(struct Thing *source, CrInstance inst_idx, struct Thing **targets, short *found_count)
+TbBool search_target_generic(struct Thing *source, CrInstance inst_idx, ThingIndex **targets, unsigned short *found_count)
 {
     if (!targets || !found_count)
     {
@@ -1297,7 +1298,8 @@ TbBool search_target_generic(struct Thing *source, CrInstance inst_idx, struct T
 
     TbBool ok = true;
     // To improve performance, use a smaller number than CREATURES_COUNT.
-    *targets = malloc(MAX_CREATURES_SEARCHED);
+    ThingIndex* results = (ThingIndex*)malloc(MAX_CREATURES_SEARCHED * sizeof(ThingIndex));
+    memset(results, 0, MAX_CREATURES_SEARCHED * sizeof(ThingIndex));
     *found_count = 0;
     // Note that we only support buff right now, so we only search source's owner's creature.
     // For offensive debuff, we need another loop to iterate all enemies.
@@ -1316,7 +1318,6 @@ TbBool search_target_generic(struct Thing *source, CrInstance inst_idx, struct T
         }
 
         creature_idx = cctrl->players_next_creature_idx;
-
         const struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
         if (inst_inf->validate_func_idx[1] > 0)
         {
@@ -1327,17 +1328,19 @@ TbBool search_target_generic(struct Thing *source, CrInstance inst_idx, struct T
             }
         }
 
-        // @todo Consider checking thing_in_field_of_view() in the future, now it is buggy.
-        // We assume that the source must see the target before it can cast the spell.
-        int range = get_combat_distance(source, candidate);
-        if (range < inst_inf->range_min || range > inst_inf->range_max ||
-            !creature_can_see_combat_path(source, candidate, range))
+        if (source->index != candidate->index)
         {
-            continue;
+            // @todo Consider checking thing_in_field_of_view() in the future, now it is buggy.
+            // We assume that the source must see the target before it can cast the spell.
+            int range = get_combat_distance(source, candidate);
+            if (range < inst_inf->range_min || range > inst_inf->range_max ||
+                !creature_can_see_combat_path(source, candidate, range))
+            {
+                continue;
+            }
         }
 
-        SYNCDBG(13, "Add %s(%d) to the search result(%d).", thing_model_name(candidate), candidate->index, (*found_count)) ;
-        targets[*found_count] = candidate;
+        results[(*found_count)] = candidate->index;
         (*found_count)++;
 
         k++;
@@ -1349,6 +1352,7 @@ TbBool search_target_generic(struct Thing *source, CrInstance inst_idx, struct T
         }
     }
 
+    *targets = results;
     return ok;
 }
 
@@ -1361,7 +1365,7 @@ TbBool search_target_generic(struct Thing *source, CrInstance inst_idx, struct T
  * @param found_count The number of the found creatures.
  * @return TbBool True if there is no error, false if otherwise
  */
-TbBool search_target_ranged_heal(struct Thing *source, CrInstance inst_idx, struct Thing **targets, short *found_count)
+TbBool search_target_ranged_heal(struct Thing *source, CrInstance inst_idx, ThingIndex **targets, unsigned short *found_count)
 {
     if (!targets || !found_count)
     {
@@ -1374,19 +1378,22 @@ TbBool search_target_ranged_heal(struct Thing *source, CrInstance inst_idx, stru
         return false;
     }
 
+    ThingIndex* results = *targets;
     struct Thing *best_choice = NULL;
     TbBool ok = true;
     int i = 0;
     for (; i < *found_count; i++)
     {
-        struct Thing *candidate = targets[i];
+        struct Thing *candidate = thing_get(results[i]);
         if (thing_is_invalid(candidate))
         {
+            ERRORLOG("Creature at index %d is invalid", i);
             continue;
         }
         struct CreatureControl* cctrl = creature_control_get_from_thing(candidate);
         if (creature_control_invalid(cctrl))
         {
+            ERRORLOG("Control of creature at index %d is invalid", i);
             continue;
         }
         // Note that we only allow one target. No group buff are allowed yet.
@@ -1406,7 +1413,7 @@ TbBool search_target_ranged_heal(struct Thing *source, CrInstance inst_idx, stru
 
     if (best_choice)
     {
-        targets[0] = best_choice;
+        results[0] = best_choice->index;
         *found_count = 1;
     }
 
