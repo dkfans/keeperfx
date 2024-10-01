@@ -1922,6 +1922,13 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
     return CrInst_NULL;
 }
 
+// Static array to store the IDs of "quick" instances
+static CrInstance quick_inst[INSTANCE_TYPES_MAX];
+// Counter for the number of "quick" instances found
+static short quick_inst_num = 0;
+// Flag to indicate if the cache has been initialized
+static TbBool initial = false;
+
 /** @brief Retrieves a random available "QUICK" instance within range for a given creature.
  * 
  * On the first call, the function creates a cache of all available "QUICK" instances.
@@ -1935,13 +1942,6 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
  */
 CrInstance get_quick_instance_to_use(const struct Thing *thing, unsigned long dist)
 {
-    // Static array to store the indices of "quick" instances
-    static CrInstance quick_inst[INSTANCE_TYPES_MAX];
-    // Counter for the number of "quick" instances found
-    static short quick_inst_num = 0;
-    // Flag to indicate if the cache has been initialized
-    static TbBool initial = false;
-
     struct InstanceInfo* inst_inf;
 
         // Initialize the cache only once
@@ -1996,6 +1996,14 @@ CrInstance get_quick_instance_to_use(const struct Thing *thing, unsigned long di
     }
     // Return NULL if no suitable instance is found 
     return CrInst_NULL;
+}
+
+void reset_quick_instance_cache()
+{
+    // Reset the cache variables
+    quick_inst_num = 0;
+    initial = false;
+    memset(quick_inst, 0, sizeof(quick_inst));
 }
 
 #undef INSTANCE_RET_IF_AVAIL

@@ -100,6 +100,7 @@
 #include "creature_states.h"
 #include "creature_instances.h"
 #include "creature_graphics.h"
+#include "creature_states_combt.h"
 #include "creature_states_mood.h"
 #include "lens_api.h"
 #include "light_data.h"
@@ -1574,7 +1575,7 @@ void reinit_level_after_load(void)
     sound_reinit_after_load();
     music_reinit_after_load();
     update_panel_colors();
-
+    reset_quick_instance_cache();    
 }
 
 /**

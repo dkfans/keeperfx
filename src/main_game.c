@@ -22,6 +22,7 @@
 
 #include "config_compp.h"
 #include "config_settings.h"
+#include "creature_states_combt.h"
 #include "dungeon_data.h"
 #include "engine_lenses.h"
 #include "engine_redraw.h"
@@ -236,6 +237,7 @@ static void init_level(void)
     game.manufactr_element = 0;
     game.manufactr_spridx = 0;
     game.manufactr_tooltip = 0;
+    reset_quick_instance_cache();
     JUSTMSG("Started level %d from %s", get_selected_level_number(), campaign.name);
 
     api_event("GAME_STARTED");
