@@ -1591,6 +1591,9 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
         ERRORLOG("The %s owned by player %d tried to cast invalid spell %d",thing_model_name(castng),(int)castng->owner,(int)spl_idx);
         return;
     }
+
+    SYNCDBG(12,"The %s(%d) fire shot(%s) at %s(%d) with shot level %d, hit type: 0x%X", thing_model_name(castng), castng->index,
+        shot_code_name(spconf->shot_model), thing_model_name(targetng), targetng->index, shot_lvl, hit_type);
     thing_fire_shot(castng, targetng, spconf->shot_model, shot_lvl, hit_type);
 }
 
@@ -1803,9 +1806,12 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, long shot_lvl,
     if ((spconf->shot_model > 0) && (cctrl->targtng_idx != castng->index))
     {
         if ((castng->alloc_flags & TAlF_IsControlled) != 0)
-          i = THit_CrtrsNObjcts;
+            i = THit_CrtrsNObjcts;
         else
-          i = THit_CrtrsOnlyNotOwn;
+            i = THit_CrtrsOnlyNotOwn;
+
+        SYNCDBG(8,"The %s(%d) fire shot(%s) without a target with shot level %d, hit type: 0x%X",
+            thing_model_name(castng), castng->index, shot_code_name(spconf->shot_model), shot_lvl, i);
         thing_fire_shot(castng, INVALID_THING, spconf->shot_model, shot_lvl, i);
     }
     // Check if the spell can be self-casted

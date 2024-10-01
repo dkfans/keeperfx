@@ -1172,7 +1172,7 @@ TbBool validate_source_basic(struct Thing *source, struct Thing *target, CrInsta
     // We assume we usually don't want to overwrite the original instance.
     struct CreatureControl* cctrl = creature_control_get_from_thing(source);
     if (cctrl->instance_id != CrInst_NULL) {
-        SYNCDBG(13, "%s(%d) already has an instance %s.", thing_model_name(source), source->index,
+        SYNCDBG(15, "%s(%d) already has an instance %s.", thing_model_name(source), source->index,
             creature_instance_code_name(cctrl->instance_id));
         return false;
     }
