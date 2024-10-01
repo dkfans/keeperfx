@@ -1934,7 +1934,7 @@ static TbBool initial = false;
  * On the first call, the function creates a cache of all available "QUICK" instances.
  * It then loops through the cache to find instances available for the creature and fitting within the given range.
  * These available instances are added to a list.
- * The function then chooses a pseudo-random instance from this list.
+ * The function then chooses a random instance from this list.
  * 
  * @param thing Pointer to the creature for which the instance is to be retrieved.
  * @param dist Distance to the target.
@@ -1990,9 +1990,9 @@ CrInstance get_quick_instance_to_use(const struct Thing *thing, unsigned long di
     }
     if (av_quick_inst_num > 0)
     {
-        // Choose a pseudo-random index from the list of usable instances
-        short pseudo_rand_idx = (thing->index + dist) % av_quick_inst_num;
-        return av_quick_inst[pseudo_rand_idx];
+        // Choose a random index from the list of usable instances
+        short rand_inst_idx = CREATURE_RANDOM(thing,av_quick_inst_num);
+        return av_quick_inst[rand_inst_idx];
     }
     // Return NULL if no suitable instance is found 
     return CrInst_NULL;
