@@ -1155,14 +1155,14 @@ void delay_heal_sleep(struct Thing *creatng)
 }
 
 /**
- * @brief Check if the given creature can cast the specified spell by examining general conditions.
+ * @brief Check if the given creature can cast the specified spell by examining basic conditions.
  *
  * @param source The source creature
  * @param target The target creature
  * @param inst_idx  The spell instance index
  * @return TbBool True if the creature can, false if otherwise.
  */
-TbBool validate_source_generic(struct Thing *source, struct Thing *target, CrInstance inst_idx)
+TbBool validate_source_basic(struct Thing *source, struct Thing *target, CrInstance inst_idx)
 {
     if ((source->alloc_flags & TAlF_IsControlled) != 0)
     {
@@ -1172,8 +1172,26 @@ TbBool validate_source_generic(struct Thing *source, struct Thing *target, CrIns
     // We assume we usually don't want to overwrite the original instance.
     struct CreatureControl* cctrl = creature_control_get_from_thing(source);
     if (cctrl->instance_id != CrInst_NULL) {
-        SYNCDBG(11, "%s(%d) already has an instance %s.", thing_model_name(source), source->index,
+        SYNCDBG(13, "%s(%d) already has an instance %s.", thing_model_name(source), source->index,
             creature_instance_code_name(cctrl->instance_id));
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief Check if the given creature can cast the specified spell by examining general conditions.
+ *
+ * @param source The source creature
+ * @param target The target creature
+ * @param inst_idx  The spell instance index
+ * @return TbBool True if the creature can, false if otherwise.
+ */
+TbBool validate_source_generic(struct Thing *source, struct Thing *target, CrInstance inst_idx)
+{
+    if (!validate_source_basic(source, target, inst_idx))
+    {
         return false;
     }
 
@@ -1182,7 +1200,8 @@ TbBool validate_source_generic(struct Thing *source, struct Thing *target, CrIns
         creature_is_fleeing_combat(source) || creature_affected_by_spell(source, SplK_Chicken) ||
         creature_is_being_unconscious(source) || creature_is_dying(source) ||
         thing_is_picked_up(source) || creature_is_being_dropped(source) ||
-        creature_is_being_sacrificed(source) || creature_is_being_summoned(source))
+        creature_is_being_sacrificed(source) || creature_is_being_summoned(source) ||
+        creature_is_being_tortured(source) || creature_is_kept_in_prison(source))
     {
         return false;
     }
@@ -1199,11 +1218,10 @@ TbBool validate_source_generic(struct Thing *source, struct Thing *target, CrIns
  */
 TbBool validate_target_generic(struct Thing *source, struct Thing *target, CrInstance inst_idx)
 {
-    // Note that we don't check "unconscious".
     // We don't check the spatial conditions, such as distacne, angle, and sight here, because
     // they should be checked in the search function.
     if (creature_is_dying(target) || thing_is_picked_up(target) || creature_is_being_dropped(target) ||
-        creature_is_being_sacrificed(target) || creature_is_being_summoned(target))
+        creature_is_being_unconscious(target) || creature_is_being_sacrificed(target) || creature_is_being_summoned(target))
     {
         return false;
     }
@@ -1240,10 +1258,22 @@ TbBool validate_target_generic(struct Thing *source, struct Thing *target, CrIns
  */
 TbBool validate_source_ranged_heal(struct Thing *source, struct Thing *target, CrInstance inst_idx)
 {
-    if (!validate_source_generic(source, target, CrInst_RANGED_HEAL))
+    if (!validate_source_basic(source, target, inst_idx))
     {
         return false;
     }
+
+    // Omit creature_is_kept_in_prison() and creature_is_being_tortured() because we want the caster to heal itself.
+    if (!creature_instance_is_available(source, inst_idx) ||
+        !creature_instance_has_reset(source, inst_idx) ||
+        creature_is_fleeing_combat(source) || creature_affected_by_spell(source, SplK_Chicken) ||
+        creature_is_being_unconscious(source) || creature_is_dying(source) ||
+        thing_is_picked_up(source) || creature_is_being_dropped(source) ||
+        creature_is_being_sacrificed(source) || creature_is_being_summoned(source))
+    {
+        return false;
+    }
+
     // Creature who is leaving doesn't care about any allies.
     if (source->continue_state == CrSt_CreatureLeaves ||
         source->active_state == CrSt_CreatureLeavingDungeon ||
@@ -1276,6 +1306,14 @@ TbBool validate_target_ranged_heal(struct Thing *source, struct Thing *target, C
     {
         return false;
     }
+
+    if((creature_is_being_tortured(source) || creature_is_kept_in_prison(source)) &&
+        source->index != target->index)
+    {
+        // Caster in prison or being tortured can only heal itself.
+        return false;
+    }
+
     return true;
 }
 
