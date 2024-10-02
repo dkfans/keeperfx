@@ -1256,8 +1256,8 @@ TbBool validate_target_generic(struct Thing *source, struct Thing *target, CrIns
 {
     // We don't check the spatial conditions, such as distacne, angle, and sight here, because
     // they should be checked in the search function.
-    if (!validate_target_basic(source, target, inst_idx) ||
-        creature_is_being_unconscious(target) || creature_is_kept_in_prison(target))
+    if (!validate_target_basic(source, target, inst_idx) || creature_is_being_unconscious(target) ||
+        creature_is_being_tortured(target) || creature_is_kept_in_prison(target))
     {
         return false;
     }
@@ -1322,8 +1322,9 @@ TbBool validate_source_ranged_heal(struct Thing *source, struct Thing *target, C
  */
 TbBool validate_target_ranged_heal(struct Thing *source, struct Thing *target, CrInstance inst_idx)
 {
-    if (!validate_target_basic(source, target, CrInst_RANGED_HEAL) ||
-        creature_is_being_unconscious(target) || !creature_would_benefit_from_healing(target))
+    if (!validate_target_basic(source, target, CrInst_RANGED_HEAL) || creature_is_being_unconscious(target) ||
+        creature_is_being_tortured(target) || creature_is_kept_in_prison(target) ||
+        !creature_would_benefit_from_healing(target))
     {
         return false;
     }
