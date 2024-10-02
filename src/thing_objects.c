@@ -1289,10 +1289,10 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
             struct Thing* efftng;
             efftng = create_used_effect_or_element(&heartng->mappos, objst->effect.explosion1, heartng->owner);
             if (!thing_is_invalid(efftng))
-                efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
+                efftng->shot_effect.hit_type = THit_HeartNotOwn;
             efftng = create_used_effect_or_element(&heartng->mappos, objst->effect.explosion2, heartng->owner);
             if (!thing_is_invalid(efftng))
-                efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
+                efftng->shot_effect.hit_type = THit_HeartNotOwn;
             destroy_dungeon_heart_room(heartng->owner, heartng);
             if (!dungeon_invalid(dungeon) && heartng->index == dungeon->backup_heart_idx)
             {

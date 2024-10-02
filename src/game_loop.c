@@ -198,10 +198,10 @@ void process_dungeon_destroy(struct Thing* heartng)
         struct Thing* efftng;
         efftng = create_used_effect_or_element(central_pos, objst->effect.explosion1, plyr_idx);
         if (!thing_is_invalid(efftng))
-            efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
+            efftng->shot_effect.hit_type = THit_HeartNotOwn;
         efftng = create_used_effect_or_element(central_pos, objst->effect.explosion2, plyr_idx);
         if (!thing_is_invalid(efftng))
-            efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
+            efftng->shot_effect.hit_type = THit_HeartNotOwn;
         destroy_dungeon_heart_room(plyr_idx, heartng);
         delete_thing_structure(heartng, 0);
     }
