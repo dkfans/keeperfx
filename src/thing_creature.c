@@ -3560,10 +3560,10 @@ ThingIndex process_player_use_instance(struct Thing *thing, CrInstance inst_id, 
     {
         if (target_idx == 0)
         {
-            // If cannot find a valid target, do not use it.
-            // Don't fire the shot into the empty space and don't consider it used.
+            // If cannot find a valid target, do not use it and don't consider it used.
 
-            //todo rejection sound
+            // Make a rejection sound
+            play_non_3d_sample(119);
             return 0;
         }
     }
