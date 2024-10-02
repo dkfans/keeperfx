@@ -87,13 +87,9 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
     // Create sections
     for (int slab_kind = 0; slab_kind < game.conf.slab_conf.slab_types_count; slab_kind++)
     {
-       
-        {
-            sprintf(key, "slab%d", slab_kind);
-            slb_section = value_dict_get(&file_root, key);
-        }
+        sprintf(key, "slab%d", slab_kind);
+        slb_section = value_dict_get(&file_root, key);
         if (value_type(slb_section) == VALUE_DICT)
-        {
         {
             for (int slabstyle_no = 0; slabstyle_no < SLABSETS_PER_SLAB; slabstyle_no++)
             {
@@ -147,7 +143,6 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
         }
     }
     value_fini(&file_root);
-    
     return true;
 }
 
