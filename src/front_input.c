@@ -1938,10 +1938,10 @@ short get_map_action_inputs(void)
 // rather than using this global variable. But this works.
 int global_frameskipTurn = 0;
 
-void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pressed,int speed_pressed)
+void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pressed,TbBool mods_used)
 {
     // Reserve the scroll wheel for the resurrect and transfer creature specials
-    if ((menu_is_active(GMnu_RESURRECT_CREATURE) || menu_is_active(GMnu_TRANSFER_CREATURE) || rotate_pressed || speed_pressed) == 0)
+    if ((menu_is_active(GMnu_RESURRECT_CREATURE) || menu_is_active(GMnu_TRANSFER_CREATURE) || rotate_pressed || mods_used) == 0)
     {
         // mouse scroll zoom unaffected by frameskip
         if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
@@ -2063,7 +2063,7 @@ void get_isometric_view_nonaction_inputs(void)
         packet->additional_packet_values |= PCAdV_SpeedupPressed;
     TbBool no_mods = ((rotate_pressed != 0) || (speed_pressed != 0) || (check_current_gui_layer(GuiLayer_OneClick)));
 
-    get_isometric_or_front_view_mouse_inputs(packet, rotate_pressed, speed_pressed);
+    get_isometric_or_front_view_mouse_inputs(packet, rotate_pressed, no_mods);
 
     if ( rotate_pressed )
     {
@@ -2148,7 +2148,7 @@ void get_front_view_nonaction_inputs(void)
     if (speed_pressed != 0)
       pckt->additional_packet_values |= PCAdV_SpeedupPressed;
 
-    get_isometric_or_front_view_mouse_inputs(pckt,rotate_pressed,speed_pressed);
+    get_isometric_or_front_view_mouse_inputs(pckt,rotate_pressed,no_mods);
 
     if ( rotate_pressed )
     {

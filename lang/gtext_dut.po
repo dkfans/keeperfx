@@ -2249,7 +2249,7 @@ msgstr "Hagelstorm: [26.10]"
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Slow: Slows down the target creature, making it attacks and movement delayed."
+"Slow: Slows down the target creature, making its attacks and movement delayed."
 msgstr "Vertragen: [26.19]"
 
 #: guitext:246
