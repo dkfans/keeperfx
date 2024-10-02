@@ -3545,7 +3545,7 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, CrInstance 
 }
 
 /**
- * @brief Process the logic when player (in Possesson mode) uses a creaturme's instance.
+ * @brief Process the logic when player (in Possesson mode) uses a creature's instance.
  *
  * @param thing The creature being possessed.
  * @param inst_id The instance that player wants to use.
@@ -3556,17 +3556,6 @@ ThingIndex process_player_use_instance(struct Thing *thing, CrInstance inst_id, 
 {
     ThingIndex target_idx = get_human_controlled_creature_target(thing, inst_id, packet);
     struct InstanceInfo *inst_inf = creature_instance_info_get(inst_id);
-    if (flag_is_set(inst_inf->instance_property_flags, InstPF_NeedsTarget))
-    {
-        if (target_idx == 0)
-        {
-            // If cannot find a valid target, do not use it and don't consider it used.
-
-            // Make a rejection sound
-            play_non_3d_sample(119);
-            return 0;
-        }
-    }
     if (flag_is_set(inst_inf->instance_property_flags,InstPF_RangedBuff))
     {
         TbBool ok = false;
@@ -3582,6 +3571,17 @@ ThingIndex process_player_use_instance(struct Thing *thing, CrInstance inst_id, 
         }
         if (!ok)
         {
+            target = 0;
+        }
+    }
+    if (flag_is_set(inst_inf->instance_property_flags, InstPF_NeedsTarget))
+    {
+        if (target_idx == 0)
+        {
+            // If cannot find a valid target, do not use it and don't consider it used.
+
+            // Make a rejection sound
+            play_non_3d_sample(119);
             return 0;
         }
     }
