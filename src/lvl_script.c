@@ -353,7 +353,6 @@ TbBool script_is_preloaded_command(long cmnd_index)
 {
     switch (cmnd_index)
     {
-        case Cmd_SWAP_CREATURE:
         case Cmd_LEVEL_VERSION:
         case Cmd_NEW_TRAP_TYPE:
         case Cmd_NEW_OBJECT_TYPE:
@@ -1224,11 +1223,6 @@ static void process_party(struct PartyTrigger* pr_trig)
     case TrgF_DELETE_FROM_PARTY:
         delete_member_from_party(pr_trig->party_id, pr_trig->creatr_id, pr_trig->crtr_level);
         break;
-    case TrgF_CREATE_OBJECT:
-        n |= ((pr_trig->crtr_level & 7) << 7);
-        SYNCDBG(6, "Adding object %d at location %d", (int)n, (int)pr_trig->location);
-        script_process_new_object(n, pr_trig->location, pr_trig->carried_gold, pr_trig->plyr_idx);
-        break;
     case TrgF_CREATE_EFFECT_GENERATOR:
         SYNCDBG(6, "Adding effect generator %d at location %d", pr_trig->crtr_level, (int)pr_trig->location);
         script_process_new_effectgen(pr_trig->crtr_level, pr_trig->location, pr_trig->carried_gold);
@@ -1312,19 +1306,21 @@ void process_win_and_lose_conditions(PlayerNumber plyr_idx)
     struct PlayerInfo* player = get_player(plyr_idx);
     for (i=0; i < gameadd.script.win_conditions_num; i++)
     {
-      k = gameadd.script.win_conditions[i];
-      if (is_condition_met(k)) {
-          SYNCDBG(8,"Win condition %d (cond. %d) met for player %d.",(int)i,(int)k,(int)plyr_idx);
-          set_player_as_won_level(player);
-      }
+        k = gameadd.script.win_conditions[i];
+        if (is_condition_met(k)) {
+            SYNCDBG(8,"Win condition %d (cond. %d) met for player %d.",(int)i,(int)k,(int)plyr_idx);
+            set_player_as_won_level(player);
+        }
     }
     for (i=0; i < gameadd.script.lose_conditions_num; i++)
     {
-      k = gameadd.script.lose_conditions[i];
-      if (is_condition_met(k)) {
-          SYNCDBG(8,"Lose condition %d (cond. %d) met for player %d.",(int)i,(int)k,(int)plyr_idx);
-          set_player_as_lost_level(player);
-      }
+        k = gameadd.script.lose_conditions[i];
+        if (is_condition_met(k))
+        {
+            SYNCDBG(8,"Lose condition %d (cond. %d) met for player %d.",(int)i,(int)k,(int)plyr_idx);
+            set_player_as_lost_level(player);
+            setup_all_player_creatures_and_diggers_leave_or_die(plyr_idx);
+        }
     }
 }
 
@@ -1338,7 +1334,7 @@ void process_values(void)
         {
             if (is_condition_met(value->condit_idx))
             {
-                script_process_value(value->valtype, value->plyr_range, value->arg0, value->arg1, value->arg2, value);
+                script_process_value(value->valtype, value->plyr_range, value->longs[0], value->longs[1], value->longs[2], value);
                 if ((value->flags & TrgF_REUSABLE) == 0)
                   set_flag(value->flags, TrgF_DISABLED);
             }

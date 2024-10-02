@@ -52,6 +52,7 @@
 #include "creature_states_prisn.h"
 #include "creature_states_spdig.h"
 #include "creature_states_train.h"
+#include "dungeon_data.h"
 #include "engine_arrays.h"
 #include "engine_lenses.h"
 #include "engine_redraw.h"
@@ -101,7 +102,7 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-int creature_swap_idx[CREATURE_TYPES_COUNT];
+int creature_swap_idx[CREATURE_TYPES_MAX];
 
 /******************************************************************************/
 extern struct TbLoadFiles swipe_load_file[];
@@ -372,11 +373,11 @@ TbBool load_swipe_graphic_for_creature(const struct Thing *thing)
     return true;
 }
 
-/** 
+/**
  * Randomise the draw direction of the swipe sprite in the first-person possession view.
- * 
+ *
  * Sets PlayerInfo->swipe_sprite_drawLR to either TRUE or FALSE.
- * 
+ *
  * Draw direction is either: left-to-right (TRUE) or right-to-left (FALSE)
  */
 void randomise_swipe_graphic_direction()
@@ -736,7 +737,7 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
     case SplK_Fear:
         return false;//TODO CREATURE_SPELL update when fear continous effect is implemented
     case SplK_Wind:
-        return false;//TODO CREATURE_SPELL find out how to check this
+        return ((cctrl->spell_flags & CSAfF_Wind) != 0);
     case SplK_Light:
         return ((cctrl->spell_flags & CSAfF_Light) != 0);
     case SplK_Hailstorm:
@@ -911,7 +912,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         if (n < 0)
         {
             thing->health = 0;
-        } else 
+        } else
         {
             thing->health = min(n, cctrl->max_health);
         }
@@ -1565,7 +1566,7 @@ short creature_take_wage_from_gold_pile(struct Thing *creatng,struct Thing *gold
  * @param spl_idx Spell index to be casted.
  * @param shot_lvl Spell level to be casted.
  */
-void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, long spl_idx, long shot_lvl)
+void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, SpellKind spl_idx, long shot_lvl)
 {
     unsigned char hit_type;
     if ((castng->alloc_flags & TAlF_IsControlled) != 0)
@@ -1600,10 +1601,11 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
  * @param count How many creatures are created.
  * @param duration How many gameturns the creatures will live. Set to 0 for infinite.
  */
-void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, char level, char count, GameTurn duration)
+void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, char level, char count, GameTurn duration, long spl_idx)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* famlrtng;
+    struct Dungeon* dungeon = get_dungeon(creatng->owner);
     struct CreatureControl* famcctrl;
     short sumxp = level - 1;
     if (level <= 0)
@@ -1635,7 +1637,12 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                 {
                     cctrl->familiar_idx[j] = famlrtng->index;
                     famcctrl = creature_control_get_from_thing(famlrtng);
+                    //create list for summons for all dungeons
+                    add_creature_to_summon_list(dungeon, famlrtng->index);
+                    //remember your Summoner
                     famcctrl->summoner_idx = creatng->index;
+                    //remember the spell that created you
+                    famcctrl->summon_spl_idx = spl_idx;
                     creature_change_multiple_levels(famlrtng, sumxp);
                     remove_first_creature(famlrtng); //temporary units are not real creatures
                     famcctrl->unsummon_turn = game.play_gameturn + duration;
@@ -1660,6 +1667,10 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                         }
                     }
                 }
+                else
+                {
+                    cctrl->familiar_idx[j] = 0;
+                }
             }
             else
             {
@@ -1671,12 +1682,8 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                     {
                         famcctrl = creature_control_get_from_thing(famlrtng);
                         famcctrl->unsummon_turn = game.play_gameturn + duration;
-                        char expdiff = sumxp - famcctrl->explevel;
-                        if (expdiff > 0)
-                        {
-                            creature_change_multiple_levels(famlrtng, expdiff);
-                        }
-                        if ((famcctrl->follow_leader_fails > 0) || (get_chessboard_distance(&creatng->mappos, &famlrtng->mappos) > subtile_coord(12, 0))) // if it's not getting to the summoner, teleport it there
+                        level_up_familiar(famlrtng);
+                        if ((famcctrl->follow_leader_fails > 0) || (get_chessboard_distance(&creatng->mappos, &famlrtng->mappos) > subtile_coord(12, 0))) //if it's not getting to the summoner, teleport it there
                         {
                             create_effect(&famlrtng->mappos, imp_spangle_effects[get_player_color_idx(famlrtng->owner)], famlrtng->owner);
                             move_thing_in_map(famlrtng, &creatng->mappos);
@@ -1700,6 +1707,7 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                 else
                 {
                     //creature has already died, clear it and go again.
+                    remove_creature_from_summon_list(dungeon, famlrtng->index);
                     cctrl->familiar_idx[j] = 0;
                     j--;
                 }
@@ -1708,13 +1716,75 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
     }
 }
 
+void level_up_familiar(struct Thing* famlrtng)
+{
+    struct CreatureControl *famlrcctrl = creature_control_get_from_thing(famlrtng);
+    //get summoner of familiar
+    struct Thing* summonertng = thing_get(famlrcctrl->summoner_idx);
+    struct CreatureControl *summonercctrl = creature_control_get_from_thing(summonertng);
+    short summonerxp = summonercctrl->explevel;
+    //get spell the summoner used to make this familiar
+    const struct SpellConfig* spconf = get_spell_config(famlrcctrl->summon_spl_idx);
+    char level = spconf->crtr_summon_level;
+    //calculate correct level for familiar
+    short sumxp = level - 1;
+    if (level <= 0)
+    {
+        //we know already the Summoner will levelup next turn?
+        if ((summonercctrl->spell_flags & CSAfF_ExpLevelUp)  && (summonercctrl->explevel+1 < CREATURE_MAX_LEVEL))
+        {
+            summonerxp += 1;
+        }
+        sumxp = summonerxp + level;
+    }
+    //level up the summon
+    char expdiff = sumxp - famlrcctrl->explevel;
+    if (expdiff > 0)
+    {
+        creature_change_multiple_levels(famlrtng, expdiff);
+    }
+}
+
+void add_creature_to_summon_list(struct Dungeon* dungeon, ThingIndex famlrtng)
+{
+    if (dungeon->num_summon < MAX_SUMMONS)
+    {    
+        dungeon->summon_list[dungeon->num_summon] = famlrtng;
+        dungeon->num_summon++;
+    } else
+    {
+        ERRORLOG("Reached maximum limit of summons");  
+    }
+}
+
+void remove_creature_from_summon_list(struct Dungeon* dungeon, ThingIndex famlrtng)
+{
+    if (dungeon->num_summon == 0) {
+        ERRORLOG("No summons to remove");
+        return;
+    }
+    for (int i = 0; i < dungeon->num_summon;i++){
+        if (dungeon->summon_list[i] == famlrtng) {
+            // Shift the rest of the list one position forward
+            for (int j = i; j < dungeon->num_summon -1; j++) {
+                dungeon->summon_list[j] = dungeon->summon_list[j + 1];
+            }
+            dungeon->summon_list[dungeon->num_summon - 1] = 0;
+            dungeon->num_summon--;
+            return;
+        }
+    }
+}
 /**
- * Casts a spell by caster creature targeted at given coordinates, most likely using shot to transfer the spell.
+ * @brief Casts a spell by caster creature targeted at given coordinates, most likely using shot to transfer the spell.
+ *
  * @param castng The caster creature.
  * @param spl_idx Spell index to be casted.
  * @param shot_lvl Spell level to be casted.
+ * @param trg_x
+ * @param trg_y
  */
-void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long trg_x, long trg_y)
+void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, long shot_lvl, MapSubtlCoord trg_x, MapSubtlCoord trg_y)
 {
     long i;
     const struct SpellConfig* spconf = get_spell_config(spl_idx);
@@ -1729,8 +1799,8 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
         cctrl->teleport_x = trg_x;
         cctrl->teleport_y = trg_y;
     }
-    // Check if the spell can be fired as a shot
-    if (spconf->shot_model > 0)
+    // Check if the spell can be fired as a shot. It is definitely not if casted on itself.
+    if ((spconf->shot_model > 0) && (cctrl->targtng_idx != castng->index))
     {
         if ((castng->alloc_flags & TAlF_IsControlled) != 0)
           i = THit_CrtrsNObjcts;
@@ -1747,7 +1817,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
     }
     if (spconf->crtr_summon_model > 0)
     {
-        thing_summon_temporary_creature(castng, spconf->crtr_summon_model, spconf->crtr_summon_level, spconf->crtr_summon_amount, spconf->duration);
+        thing_summon_temporary_creature(castng, spconf->crtr_summon_model, spconf->crtr_summon_level, spconf->crtr_summon_amount, spconf->duration, spl_idx);
     }
     // Check if the spell has an effect associated
     if (spconf->cast_effect_model != 0)
@@ -1917,7 +1987,7 @@ void creature_look_for_hidden_doors(struct Thing *creatng)
         struct Thing* doortng = thing_get(i);
         if (thing_is_invalid(doortng))
           break;
-          
+
         if (door_is_hidden_to_player(doortng,creatng->owner))
         {
             MapSubtlCoord z = doortng->mappos.z.stl.num;
@@ -1931,7 +2001,7 @@ void creature_look_for_hidden_doors(struct Thing *creatng)
             }
             else
             // when closed the door itself blocks sight to the doortng so this checks if open, and in sight
-            if(creature_can_see_thing(creatng,doortng)) 
+            if(creature_can_see_thing(creatng,doortng))
             {
                 reveal_secret_door_to_player(doortng,creatng->owner);
             }
@@ -3341,9 +3411,37 @@ short get_creature_eye_height(const struct Thing *creatng)
     return (base_height + (base_height * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
 }
 
-ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primary_target)
+/**
+ * @brief Get the target of the given instance in the Possession mode.
+ *
+ * @param thing The Thing object of the caster.
+ * @param inst_id The index of the instance be used.
+ * @param packet The caster's owner's control's or action's packet. This is optional.
+ * @return ThingIndex The index of the target thing.
+ */
+ThingIndex get_human_controlled_creature_target(struct Thing *thing, CrInstance inst_id, struct Packet *packet)
 {
     ThingIndex index = 0;
+    struct InstanceInfo *inst_inf = creature_instance_info_get(inst_id);
+
+    if((inst_inf->instance_property_flags & InstPF_SelfBuff) != 0)
+    {
+        if ((inst_inf->instance_property_flags & InstPF_RangedBuff) == 0 ||
+            ((packet != NULL) && (packet->additional_packet_values & PCAdV_CrtrContrlPressed) != 0))
+        {
+            // If it doesn't has RANGED_BUFF or the Possession key (default:left shift) is pressed,
+            // cast on the caster itself.
+            return thing->index;
+        }
+    }
+    if((inst_inf->instance_property_flags & InstPF_RangedBuff) != 0)
+    {
+        if(inst_inf->primary_target != 5 && inst_inf->primary_target != 6)
+        {
+            ERRORLOG("The instance %d has RANGED_BUFF property but has no valid primary target.", inst_id);
+        }
+    }
+
     struct Thing *i;
     long angle_xy_to;
     long angle_difference;
@@ -3386,7 +3484,7 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primar
                         if (i != thing)
                         {
                             TbBool is_valid_target;
-                            switch (primary_target)
+                            switch (inst_inf->primary_target)
                             {
                                 case 1:
                                     is_valid_target = ((thing_is_creature(i) && !creature_is_being_unconscious(i)) || thing_is_dungeon_heart(i));
@@ -3413,7 +3511,7 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primar
                                     is_valid_target = true;
                                     break;
                                 default:
-                                    ERRORLOG("Illegal primary target type for shot: %d", (int)primary_target);
+                                    ERRORLOG("Illegal primary target type for shot: %d", (int)inst_inf->primary_target);
                                     is_valid_target = false;
                                     break;
                             }
@@ -3532,7 +3630,7 @@ void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long targtn
     get_creature_instance_times(thing, inst_idx, &itime, &aitime);
     if ((cctrl->instance_id != CrInst_NULL) && (cctrl->instance_id == inst_idx))
     {
-        if ((inst_inf->flags & InstPF_RepeatTrigger) != 0)
+        if ((inst_inf->instance_property_flags & InstPF_RepeatTrigger) != 0)
         {
             cctrl->inst_repeat = 1;
             return;
@@ -3852,7 +3950,7 @@ void remove_first_creature(struct Thing *creatng)
         if (!flag_is_set(cctrl->flgfield_2, TF2_Spectator) && !flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature))
         {
             dungeon->owned_creatures_of_model[creatng->model]--;
-            dungeon->num_active_diggers--;  
+            dungeon->num_active_diggers--;
         }
     } else
     {
@@ -4010,9 +4108,27 @@ void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
     }
 }
 
+/**
+ * If the total creature count is low enough for a creature to be generated
+ * @param temp_creature when set to 1, it will still generate if it would mean going 1 over a temporary limit
+  * @return true if a creature may be generated, false if not.
+ */
+TbBool creature_count_below_map_limit(TbBool temp_creature)
+{
+    if (game.thing_lists[TngList_Creatures].count >= CREATURES_COUNT-1)
+        return false;
+
+    return ((game.thing_lists[TngList_Creatures].count - temp_creature) < game.conf.rules.game.creatures_count);
+}
+
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner)
 {
     struct CreatureStats* crstat = creature_stats_get(model);
+    if (game.thing_lists[TngList_Creatures].count >= CREATURES_COUNT)
+    {
+        ERRORLOG("Cannot create %s for player %d. Creature limit %d reached.", creature_code_name(model), (int)owner, CREATURES_COUNT);
+        return INVALID_THING;
+    }
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
         ERRORDBG(3,"Cannot create %s for player %d. There are too many things allocated.",creature_code_name(model),(int)owner);
@@ -5314,11 +5430,11 @@ void check_for_creature_escape_from_lava(struct Thing *thing)
  */
 ThingModel get_footstep_effect_element(struct Thing* thing)
 {
-    static const unsigned char tileset_footstep_textures[TEXTURE_VARIATIONS_COUNT] = 
+    static const unsigned char tileset_footstep_textures[TEXTURE_VARIATIONS_COUNT] =
     { TngEffElm_None,       TngEffElm_None,         TngEffElm_IceMelt3,     TngEffElm_None,
       TngEffElm_None,       TngEffElm_None,         TngEffElm_None,         TngEffElm_None,
       TngEffElm_StepSand,   TngEffElm_StepGypsum,   TngEffElm_None,         TngEffElm_None,
-      TngEffElm_None,       TngEffElm_None,         TngEffElm_None,         TngEffElm_None 
+      TngEffElm_None,       TngEffElm_None,         TngEffElm_None,         TngEffElm_None
     };
 
     short texture;
@@ -5605,7 +5721,11 @@ long update_creature_levels(struct Thing *thing)
             }
         }
     }
-
+    if (!creature_count_below_map_limit(1))
+    {
+        WARNLOG("Could not create creature to transform %s to due to creature limit", thing_model_name(thing));
+        return 0;
+    }
     struct Thing* newtng = create_creature(&thing->mappos, model, thing->owner);
     if (thing_is_invalid(newtng))
     {
@@ -5673,7 +5793,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
-        WARNLOG("Killing %s index %d with invalid control.",thing_model_name(thing),(int)thing->index);
+        WARNLOG("Killing %s index %d with invalid control %d.(%d)",thing_model_name(thing),(int)thing->index, thing->ccontrol_idx, game.conf.rules.game.creatures_count);
         kill_creature(thing, INVALID_THING, -1, CrDed_Default);
         return TUFRet_Deleted;
     }
@@ -5804,13 +5924,18 @@ TngUpdateRet update_creature(struct Thing *thing)
     {
         return TUFRet_Deleted;
     }
-    process_creature_self_spell_casting(thing);
+
+    if (process_creature_self_spell_casting(thing) == 0)
+    {
+        // If this creature didn't cast anything to itself, try to help others.
+        process_creature_ranged_buff_spell_casting(thing);
+    }
+
     cctrl->moveaccel.x.val = 0;
     cctrl->moveaccel.y.val = 0;
     cctrl->moveaccel.z.val = 0;
-    cctrl->flgfield_1 &= ~CCFlg_Unknown40;
-    cctrl->flgfield_1 &= ~CCFlg_Unknown80;
-    cctrl->spell_flags &= ~CSAfF_PoisonCloud;
+    clear_flag(cctrl->flgfield_1, CCFlg_Unknown40|CCFlg_Unknown80);
+    clear_flag(cctrl->spell_flags, CSAfF_PoisonCloud|CSAfF_Wind);
     process_thing_spell_effects(thing);
     process_timebomb(thing);
     SYNCDBG(19,"Finished");
@@ -5821,6 +5946,10 @@ TbBool creature_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
 {
     struct Room *room;
     if (creature_is_being_unconscious(thing))
+    {
+        return false;
+    }
+    if (creature_is_leaving_and_cannot_be_stopped(thing))
     {
         return false;
     }
@@ -5876,6 +6005,9 @@ int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos,
         {
             if (is_neutral_thing(thing) && line_of_sight_3d(&thing->mappos, pos))
             {
+                if (creature_is_leaving_and_cannot_be_stopped(thing) || creature_is_leaving_and_cannot_be_stopped(creatng))
+                    return false;
+
                 // Unless the relevant classic bug is enabled,
                 // neutral creatures in custody (prison/torture) can only be claimed by the player who holds it captive
                 // and neutral creatures can not be claimed by creatures in custody.
@@ -6009,8 +6141,6 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
     struct Coord3d pos;
     TbBool fall_from_gate = false;
 
-    const unsigned char tngclass = TCls_Creature;
-
     switch (get_map_location_type(location))
     {
     case MLoc_ACTIONPOINT:
@@ -6056,10 +6186,15 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
         return INVALID_THING;
     }
 
-    struct Thing* thing = create_thing_at_position_then_move_to_valid_and_add_light(&pos, tngclass, crmodel, plyr_idx);
+    if (!creature_count_below_map_limit(0))
+    {
+        WARNLOG("Could not create creature %s from script to due to creature limit", creature_code_name(crmodel));
+        return INVALID_THING;
+    }
+    struct Thing* thing = create_thing_at_position_then_move_to_valid_and_add_light(&pos, TCls_Creature, crmodel, plyr_idx);
     if (thing_is_invalid(thing))
     {
-        ERRORLOG("Couldn't create %s at location %d",thing_class_and_model_name(tngclass, crmodel),(int)location);
+        ERRORLOG("Couldn't create %s at location %d", creature_code_name(crmodel), (int)location);
             // Error is already logged
         return INVALID_THING;
     }
@@ -6128,6 +6263,13 @@ void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, lon
     }
 }
 
+/**
+ * @brief Picking up things as a possessed creature 
+ * 
+ * @param creatng 
+ * @param picktng 
+ * @param plyr_idx 
+ */ 
 void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *picktng, PlayerNumber plyr_idx)
 {
     if (picktng->class_id == TCls_Creature)
@@ -6156,7 +6298,13 @@ void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *pick
     thing_play_sample(creatng, smpl_idx, 90, 0, 3, 0, 2, FULL_LOUDNESS * 5/4);
     display_controlled_pick_up_thing_name(picktng, (GUI_MESSAGES_DELAY >> 4), plyr_idx);
 }
-
+/**
+ * @brief Dropping down things at a specific place as a possessed creature
+ * 
+ * @param creatng 
+ * @param droptng 
+ * @param plyr_idx 
+ */
 void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng, PlayerNumber plyr_idx)
 {
     long volume = FULL_LOUDNESS;
@@ -6336,15 +6484,26 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                         if (creature_is_being_unconscious(droptng))
                         {
                             struct CreatureControl* dropctrl = creature_control_get_from_thing(droptng);
+                            //creature already has a lair rom
                             if (dropctrl->lair_room_id == room->index)
                             {
                                 make_creature_conscious(droptng);
                                 initialise_thing_state(droptng, CrSt_CreatureGoingHomeToSleep);
-                                dropctrl->flgfield_1 |= CCFlg_NoCompControl;
                             }
+                            //creature doesn't have a lair room but it will and can sleep here
+                            if ((game.conf.rules.workers.drag_to_lair == 2) 
+                                && (dropctrl->lair_room_id == 0) 
+                                && (creature_can_do_healing_sleep(droptng)) 
+                                && (room_has_enough_free_capacity_for_creature_job(room, droptng, Job_TAKE_SLEEP)))
+                            {
+                                make_creature_conscious(droptng);
+                                initialise_thing_state(droptng, CrSt_CreatureChangeLair);
+                            }
+                            set_flag(dropctrl->flgfield_1,CCFlg_NoCompControl);
+                            
                         }
                     }
-                }    
+                }
             }
         }
     }
@@ -6780,6 +6939,9 @@ void query_creature(struct PlayerInfo *player, ThingIndex index, TbBool reset, T
 
 TbBool creature_can_be_queried(struct PlayerInfo *player, struct Thing *creatng)
 {
+    if (creature_is_leaving_and_cannot_be_stopped(creatng))
+        return false;
+
     switch (player->work_state)
     {
         case PSt_CreatrInfo:

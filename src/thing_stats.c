@@ -17,28 +17,31 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "thing_stats.h"
 
-#include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
 #include "bflib_memory.h"
-#include "game_merge.h"
-#include "thing_list.h"
-#include "creature_control.h"
 #include "config_creature.h"
+#include "config_crtrstates.h"
+#include "config_effects.h"
+#include "config_magic.h"
+#include "config_objects.h"
 #include "config_terrain.h"
 #include "config_trapdoor.h"
-#include "config_crtrstates.h"
-#include "config_objects.h"
-#include "config_effects.h"
+#include "creature_control.h"
 #include "creature_states.h"
+#include "game_legacy.h"
+#include "game_merge.h"
+#include "globals.h"
 #include "player_data.h"
 #include "player_instances.h"
-#include "config_magic.h"
-#include "vidfade.h"
-#include "game_legacy.h"
+#include "player_utils.h"
+#include "thing_effects.h"
+#include "thing_list.h"
 #include "thing_physics.h"
+#include "thing_stats.h"
+#include "vidfade.h"
+
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -845,12 +848,27 @@ long compute_value_8bpercentage(long base_val, short npercent)
  * @param thing
  * @return
  */
-TbBool update_creature_health_to_max(struct Thing *thing)
+TbBool update_creature_health_to_max(struct Thing * creatng)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    cctrl->max_health = compute_creature_max_health(crstat->health,cctrl->explevel,thing->owner);
-    thing->health = cctrl->max_health;
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    cctrl->max_health = compute_creature_max_health(crstat->health,cctrl->explevel, creatng->owner);
+    creatng->health = cctrl->max_health;
+    return true;
+}
+
+/**
+ * Re-computes new max health of a creature and updates the health value to stay relative to the old max.
+ * @param thing
+ * @return
+ */
+TbBool update_relative_creature_health(struct Thing* creatng)
+{
+    int health_permil = get_creature_health_permil(creatng);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    cctrl->max_health = compute_creature_max_health(crstat->health, cctrl->explevel, creatng->owner);
+    creatng->health = cctrl->max_health * health_permil / 1000;
     return true;
 }
 
@@ -960,14 +978,23 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
     const struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
 
     //TODO CONFIG replace deals_physical_damage with check for shotst->damage_type (magic in this sense is DmgT_Electric, DmgT_Combustion and DmgT_Heatburn)
-    if ( !(doorst->model_flags & DoMF_ResistNonMagic)  || (shotst->damage_type == DmgT_Magical))
+    if ( !flag_is_set(doorst->model_flags,DoMF_ResistNonMagic)  || (shotst->damage_type == DmgT_Magical))
     {
         dmg = shotng->shot.damage;
     } else
     {
-        dmg = shotng->shot.damage / 10;
+        dmg = shotng->shot.damage / 8;
         if (dmg < 1)
             dmg = 1;
+    }
+    if (flag_is_set(doorst->model_flags, DoMF_Midas))
+    {
+        GoldAmount received = take_money_from_dungeon(doortng->owner, dmg, 0);
+        dmg -= received;
+        for (int i = received; i > 0; i -= 32)
+        {
+            create_effect(&shotng->mappos, TngEff_CoinFountain, doortng->owner);
+        }
     }
     return dmg;
 }
@@ -997,9 +1024,17 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
     {
     case TCls_Creature:
         cdamage = apply_damage_to_creature(thing, dmg);
+        if (thing->health < 0)
+        {
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+            if ((cctrl->fighting_player_idx == -1) && (dealing_plyr_idx != -1))
+            {
+                cctrl->fighting_player_idx = dealing_plyr_idx;
+            }
+        }
         break;
-    case TCls_Object:
     case TCls_Trap:
+    case TCls_Object:
         cdamage = apply_damage_to_object(thing, dmg);
         break;
     case TCls_Door:
@@ -1008,14 +1043,6 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
     default:
         cdamage = 0;
         break;
-    }
-    if ((thing->class_id == TCls_Creature) && (thing->health < 0))
-    {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if ((cctrl->fighting_player_idx == -1) && (dealing_plyr_idx != -1))
-        {
-            cctrl->fighting_player_idx = dealing_plyr_idx;
-        }
     }
     return cdamage;
 }

@@ -135,14 +135,6 @@ unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum,const char *fext
           SYNCMSG("Optional file \"map%05lu.%s\" doesn't exist or is too small.", lvnum, fext);
       return NULL;
   }
-  if (fsize > ANY_MAP_FILE_MAX_SIZE)
-  {
-    if ((flags & LMFF_Optional) == 0)
-      WARNMSG("Map file \"map%05lu.%s\" exceeds max size of %d; loading failed.",lvnum,fext,ANY_MAP_FILE_MAX_SIZE);
-    else
-      SYNCMSG("Optional file \"map%05lu.%s\" exceeds max size of %d; not loading.",lvnum,fext,ANY_MAP_FILE_MAX_SIZE);
-    return NULL;
-  }
   unsigned char* buf = LbMemoryAlloc(fsize + 16);
   if (buf == NULL)
   {
@@ -1397,17 +1389,34 @@ void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short 
         }
     }
     long filelen = LbFileLengthRnc(fname);
+    if (filelen <= 0)
+    {
+        ERRORLOG("Map Strings file %s does not exist or can't be opened", fname);
+        return;
+    }
+    campgn->strings_data = (char*)LbMemoryAlloc(filelen + 256);
+    if (campgn->strings_data == NULL)
+    {
+        ERRORLOG("Can't allocate memory for Map Strings data");
+        return;
+    }
     char* strings_data_end = campgn->strings_data + filelen + 255;
     long loaded_size = LbFileLoadAt(fname, campgn->strings_data);
-    if (loaded_size > 0)
+    if (loaded_size < 16)
     {
-        TbBool result = create_strings_list(campgn->strings, campgn->strings_data, strings_data_end, STRINGS_MAX);
-        if (result)
-        {
-            SYNCLOG("Loaded strings from %s", fname);
-            reload_campaign_strings = true;
-        }
+        ERRORLOG("Map Strings file couldn't be loaded or is too small");
+        return;
     }
+    // Resetting all values to empty strings
+    reset_strings(campgn->strings, STRINGS_MAX);
+    // Analyzing strings data and filling correct values
+    TbBool result = create_strings_list(campgn->strings, campgn->strings_data, strings_data_end, STRINGS_MAX);
+    if (result)
+    {
+        SYNCMSG("Loaded strings from %s", fname);
+        reload_campaign_strings = true;
+    }
+    SYNCDBG(19, "Finished");
 }
 
 static TbBool load_level_file(LevelNumber lvnum)
