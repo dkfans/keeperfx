@@ -41,7 +41,7 @@ struct Triangle {
   unsigned short field_E;
 };
 
-#define NAV_COL_UNSET ULONG_MAX
+#define NAV_COL_UNSET USHRT_MAX
 
 /******************************************************************************/
 extern struct Triangle Triangles[TRIANLGLES_COUNT];
