@@ -1210,6 +1210,42 @@ TbBool validate_source_generic(struct Thing *source, struct Thing *target, CrIns
 }
 
 /**
+ * @brief Check if the given creature can be the target of the specified spell by examining basic conditions.
+ * @param source The source creature
+ * @param target The target creature
+ * @param inst_idx The spell instance index
+ * @return TbBool True if the creature can be, false if otherwise.
+ */
+TbBool validate_target_basic(struct Thing *source, struct Thing *target, CrInstance inst_idx)
+{
+    if (creature_is_dying(target) || thing_is_picked_up(target) || creature_is_being_dropped(target) ||
+        creature_is_being_sacrificed(target) || creature_is_being_summoned(target))
+    {
+        return false;
+    }
+
+    struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
+    if ((inst_inf->instance_property_flags & InstPF_SelfBuff) == 0 && source->index == target->index)
+    {
+        // If this spell doesn't have SELF_BUFF flag, exclude itself.
+        return false;
+    }
+
+    if (// Creature who is leaving doesn't deserve buff from allies.
+        target->continue_state == CrSt_CreatureLeaves ||
+        target->active_state == CrSt_CreatureLeavingDungeon ||
+        target->active_state == CrSt_CreatureScavengedDisappear ||
+        // Candidate shouldn't be fight with the caster.
+        creature_has_creature_in_combat(source, target) ||
+        creature_has_creature_in_combat(target, source))
+    {
+        return false;
+    }
+
+    return true;
+}
+
+/**
  * @brief Check if the given creature can be the target of the specified spell by examining general conditions.
  * @param source The source creature
  * @param target The target creature
@@ -1220,22 +1256,14 @@ TbBool validate_target_generic(struct Thing *source, struct Thing *target, CrIns
 {
     // We don't check the spatial conditions, such as distacne, angle, and sight here, because
     // they should be checked in the search function.
-    if (creature_is_dying(target) || thing_is_picked_up(target) || creature_is_being_dropped(target) ||
-        creature_is_being_unconscious(target) || creature_is_being_sacrificed(target) || creature_is_being_summoned(target))
+    if (!validate_target_basic(source, target, inst_idx) ||
+        creature_is_being_unconscious(target) || creature_is_kept_in_prison(target))
     {
         return false;
     }
 
     struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
-    if ((inst_inf->instance_property_flags & InstPF_SelfBuff) == 0 && source->index == target->index)
-    {
-        // If this spell doesn't have SELF_BUFF flag, exclude itself.
-        SYNCDBG(15, "%s(%d) is a valid target for %s because it has no SELF_BUFF property.",
-            thing_model_name(target), target->index, creature_instance_code_name(inst_idx));
-        return false;
-    }
-
-    long spl_idx = inst_inf->func_params[0];
+    SpellKind spl_idx = inst_inf->func_params[0];
     struct SpellConfig* spconf = get_spell_config(spl_idx);
     if (spell_config_is_invalid(spconf) || creature_affected_by_spell(target, spl_idx))
     {
@@ -1294,21 +1322,14 @@ TbBool validate_source_ranged_heal(struct Thing *source, struct Thing *target, C
  */
 TbBool validate_target_ranged_heal(struct Thing *source, struct Thing *target, CrInstance inst_idx)
 {
-    if (!validate_target_generic(source, target, CrInst_RANGED_HEAL) ||
-        // Creature who is leaving doesn't deserve heal from allies.
-        target->continue_state == CrSt_CreatureLeaves ||
-        target->active_state == CrSt_CreatureLeavingDungeon ||
-        target->active_state == CrSt_CreatureScavengedDisappear ||
-        !creature_would_benefit_from_healing(target) ||
-        // Candidate shouldn't be fight with the caster.
-        creature_has_creature_in_combat(source, target) ||
-        creature_has_creature_in_combat(target, source))
+    if (!validate_target_basic(source, target, CrInst_RANGED_HEAL) ||
+        creature_is_being_unconscious(target) || !creature_would_benefit_from_healing(target))
     {
         return false;
     }
 
-    if((creature_is_being_tortured(source) || creature_is_kept_in_prison(source)) &&
-        source->index != target->index)
+    if(source->index != target->index &&
+       (creature_is_being_tortured(source) || creature_is_kept_in_prison(source)))
     {
         // Caster in prison or being tortured can only heal itself.
         return false;
