@@ -149,6 +149,7 @@ enum InstancePropertiesFlags {
     InstPF_Disarming          = 0x0100,
     InstPF_UsesSwipe          = 0x0200,
     InstPF_RangedBuff         = 0x0400,
+    InstPF_NeedsTarget        = 0x0800,
 };
 
 enum CreatureDeathKind {

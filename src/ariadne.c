@@ -4846,7 +4846,7 @@ NavColour uniform_area_colour(const NavColour *imap, long start_x, long start_y,
         {
             if (imap[navmap_tile_number(x,y)] != uniform)
             {
-                return -1;
+                return NAV_COL_UNSET;
             }
         }
     }
