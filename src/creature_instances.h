@@ -81,7 +81,6 @@ enum CreatureInstances {
     CrInst_FAMILIAR,
     CrInst_SUMMON,
     CrInst_RANGED_HEAL, // 50
-    CrInst_CHARGE,
     CrInst_LISTEND,
 };
 

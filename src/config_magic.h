@@ -66,9 +66,8 @@ enum SpellKinds {
     SplK_Chicken,
     SplK_TimeBomb,//[28]
     SplK_Lizard,
-    SplK_SummonFamiliar,
-    SplK_SummonCreature,
-    SplK_Charge,
+    Splk_SummonFamiliar,
+    Splk_SummonCreature,
 };
 
 enum CreatureSpellAffectedFlags {
@@ -92,7 +91,6 @@ enum CreatureSpellAffectedFlags {
     CSAfF_Grounded     = 0x8000,
     CSAfF_Timebomb     = 0x10000,
     CSAfF_Wind         = 0x20000,
-    CSAfF_Charge       = 0x40000,
 };
 
 enum PowerKinds {
@@ -404,7 +402,7 @@ struct SpellConfig {
     short linked_power;
     short duration;
     short aura_effect;
-    unsigned long spell_flags;
+    unsigned short spell_flags;
 };
 
 struct MagicStats {
