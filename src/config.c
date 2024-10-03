@@ -514,6 +514,8 @@ int recognize_conf_command(const char *buf,long *pos,long buflen,const struct Na
         }
         i++;
     }
+    const int len = strcspn(&buf[(*pos)], " \n\r\t");
+    CONFWRNLOG("Unrecognized command '%.*s'", len, &buf[(*pos)]);
     return ccr_unrecognised;
 }
 
@@ -1413,9 +1415,9 @@ short load_configuration(void)
               CONFWRNLOG("Invalid API port '%s' in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }
           break;
-      case 0: // comment
+      case ccr_comment:
           break;
-      case -1: // end of buffer
+      case ccr_endOfFile:
           break;
       default:
           CONFWRNLOG("Unrecognized command in %s file.",config_textname);

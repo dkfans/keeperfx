@@ -60,21 +60,17 @@ struct CubeConfigStats *get_cube_model_stats(long cumodel)
 TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     struct CubeConfigStats *cubest;
-    int i = 0, k = 0;
-    // Block name and parameter word store variables
+    int k = 0;
     // Initialize the cubes array
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        for (i=0; i < CUBE_ITEMS_MAX; i++)
-        {
+    if ((flags & CnfLd_AcceptPartial) == 0) {
+        for (int i = 0; i < CUBE_ITEMS_MAX; i++) {
             cubest = &game.conf.cube_conf.cube_cfgstats[i];
             LbMemorySet(cubest->code_name, 0, COMMAND_WORD_LEN);
-
             cube_desc[i].name = cubest->code_name;
             cube_desc[i].num = i;
-
         }
     }
+    cube_desc[CUBE_ITEMS_MAX - 1].name = NULL; // must be null for get_id
     // Load the file
     const char * blockname = NULL;
     int blocknamelen = 0;
@@ -87,9 +83,11 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
         } else if (memcmp(blockname, "cube", 4) != 0) {
             continue;
         }
-        i = natoi(&blockname[4], blocknamelen - 4);
+        const int i = natoi(&blockname[4], blocknamelen - 4);
         if (i < 0 || i >= CUBE_ITEMS_MAX) {
             continue;
+        } else if (i >= game.conf.cube_conf.cube_types_count) {
+            game.conf.cube_conf.cube_types_count = i + 1;
         }
         cubest = &game.conf.cube_conf.cube_cfgstats[i];
         struct CubeConfigStats* cubed = get_cube_model_stats(i);
@@ -99,7 +97,7 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
             // Finding command number in this line
             int cmd_num = recognize_conf_command(buf, &pos, len, cubes_cube_commands);
             // Now store the config item in correct place
-            if (cmd_num == -3) break; // if next block starts
+            if (cmd_num == ccr_endOfBlock) break; // if next block starts
             if ((flags & CnfLd_ListOnly) != 0) {
                 // In "List only" mode, accept only name command
                 if (cmd_num > 1) {
@@ -116,11 +114,6 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
                     CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
                         COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                     break;
-                }
-                else
-                {
-                    if(i > game.conf.cube_conf.cube_types_count)
-                        game.conf.cube_conf.cube_types_count = i;
                 }
                 break;
             case 2: // TEXTURES
@@ -177,9 +170,9 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
                     n++;
                 }
                 break;
-            case 0: // comment
+            case ccr_comment:
                 break;
-            case -1: // end of buffer
+            case ccr_endOfFile:
                 break;
             default:
                 CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",

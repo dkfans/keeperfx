@@ -164,20 +164,19 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
 {
     struct ObjectConfigStats *objst;
     // Initialize the objects array
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        for (int tmodel=0; tmodel < OBJECT_TYPES_MAX; tmodel++)
-        {
-            objst = &game.conf.object_conf.object_cfgstats[tmodel];
+    if ((flags & CnfLd_AcceptPartial) == 0) {
+        for (int i = 0; i < OBJECT_TYPES_MAX; i++) {
+            objst = &game.conf.object_conf.object_cfgstats[i];
             LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
             objst->name_stridx = 201;
             objst->map_icon = 0;
             objst->genre = 0;
             objst->draw_class = ODC_Default;
-            object_desc[tmodel].name = NULL;
-            object_desc[tmodel].num = 0;
+            object_desc[i].name = objst->code_name;
+            object_desc[i].num = i;
         }
     }
+    object_desc[OBJECT_TYPES_MAX - 1].name = NULL; // must be null for get_id
     // Load the file
     const char * blockname = NULL;
     int blocknamelen = 0;
@@ -190,22 +189,20 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
         } else if (memcmp(blockname, "object", 6) != 0) {
             continue;
         }
-        const int tmodel = natoi(&blockname[6], blocknamelen - 6);
-        if (tmodel < 0 || tmodel >= OBJECT_TYPES_MAX) {
+        const int i = natoi(&blockname[6], blocknamelen - 6);
+        if (i < 0 || i >= OBJECT_TYPES_MAX) {
             continue;
-        } else if (tmodel >= game.conf.object_conf.object_types_count) {
-            game.conf.object_conf.object_types_count = tmodel + 1;
+        } else if (i >= game.conf.object_conf.object_types_count) {
+            game.conf.object_conf.object_types_count = i + 1;
         }
-        objst = &game.conf.object_conf.object_cfgstats[tmodel];
-        object_desc[tmodel].name = objst->code_name;
-        object_desc[tmodel].num = tmodel;
+        objst = &game.conf.object_conf.object_cfgstats[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(objects_object_commands,cmd_num)
         while (pos<len)
         {
             // Finding command number in this line
             int cmd_num = recognize_conf_command(buf, &pos, len, objects_object_commands);
             // Now store the config item in correct place
-            if (cmd_num == -3) break; // if next block starts
+            if (cmd_num == ccr_endOfBlock) break; // if next block starts
             if ((flags & CnfLd_ListOnly) != 0) {
                 // In "List only" mode, accept only name command
                 if (cmd_num > 1) {
@@ -772,9 +769,9 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                         COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
-           case 0: // comment
+           case ccr_comment:
                 break;
-            case -1: // end of buffer
+            case ccr_endOfFile:
                 break;
             default:
                 CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",

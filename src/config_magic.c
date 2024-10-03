@@ -421,47 +421,32 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
 {
   struct SpellConfigStats *spellst;
   struct SpellConfig *spconf;
-  int i;
-  // Block name and parameter word store variables
   // Initialize the array
-  int arr_size = sizeof(game.conf.magic_conf.spell_cfgstats) / sizeof(game.conf.magic_conf.spell_cfgstats[0]);
-    for (i=0; i < arr_size; i++)
-    {
-        if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(game.conf.magic_conf.spell_cfgstats[i].code_name) <= 0))
-        {
-            spellst = get_spell_model_stats(i);
-            LbMemorySet(&game.conf.magic_conf.spell_cfgstats[i].code_name, 0, COMMAND_WORD_LEN);
-            if (i < game.conf.magic_conf.spell_types_count)
-            {
-                spell_desc[i].name = game.conf.magic_conf.spell_cfgstats[i].code_name;
-                spell_desc[i].num = i;
-            }
-            else
-            {
-                spell_desc[i].name = NULL;
-                spell_desc[i].num = 0;
-            }
-
-            spconf = get_spell_config(i);
-            spconf->linked_power = 0;
-            spconf->duration = 0;
-            spconf->caster_affected = 0;
-            spconf->caster_affect_sound = 0;
-            spconf->cast_at_thing = 0;
-            spconf->shot_model = 0;
-            spconf->cast_effect_model = 0;
-            spconf->bigsym_sprite_idx = 0;
-            spconf->medsym_sprite_idx = 0;
-            spconf->crtr_summon_model = 0;
-            spconf->crtr_summon_level = 0;
-            spconf->crtr_summon_amount = 0;
-            spconf->aura_effect = 0;
-            spconf->spell_flags = 0;
-        }
+  for (int i = 0; i < MAGIC_ITEMS_MAX; i++) {
+    spellst = &game.conf.magic_conf.spell_cfgstats[i];
+    if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(spellst->code_name) <= 0)) {
+      LbMemorySet(&spellst->code_name, 0, COMMAND_WORD_LEN);
+      spell_desc[i].name = spellst->code_name;
+      spell_desc[i].num = i;
+      spconf = &game.conf.magic_conf.spell_config[i];
+      spconf->linked_power = 0;
+      spconf->duration = 0;
+      spconf->caster_affected = 0;
+      spconf->caster_affect_sound = 0;
+      spconf->cast_at_thing = 0;
+      spconf->shot_model = 0;
+      spconf->cast_effect_model = 0;
+      spconf->bigsym_sprite_idx = 0;
+      spconf->medsym_sprite_idx = 0;
+      spconf->crtr_summon_model = 0;
+      spconf->crtr_summon_level = 0;
+      spconf->crtr_summon_amount = 0;
+      spconf->aura_effect = 0;
+      spconf->spell_flags = 0;
     }
-
+  }
+  spell_desc[MAGIC_ITEMS_MAX - 1].name = NULL; // must be null for get_id
   // Load the file
-  arr_size = game.conf.magic_conf.spell_types_count;
   const char * blockname = NULL;
   int blocknamelen = 0;
   long pos = 0;
@@ -473,19 +458,21 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
     } else if (memcmp(blockname, "spell", 5) != 0) {
         continue;
     }
-    i = natoi(&blockname[5], blocknamelen - 5);
-    if (i < 0 || i >= arr_size) {
+    const int i = natoi(&blockname[5], blocknamelen - 5);
+    if (i < 0 || i >= MAGIC_ITEMS_MAX) {
         continue;
+    } else if (i >= game.conf.magic_conf.spell_types_count) {
+      game.conf.magic_conf.spell_types_count = i + 1;
     }
-    spconf = get_spell_config(i);
-    spellst = get_spell_model_stats(i);
+    spconf = &game.conf.magic_conf.spell_config[i];
+    spellst = &game.conf.magic_conf.spell_cfgstats[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_spell_commands,cmd_num)
     while (pos < len)
     {
       // Finding command number in this line
       int cmd_num = recognize_conf_command(buf, &pos, len, magic_spell_commands);
       // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
+      if (cmd_num == ccr_endOfBlock) break; // if next block starts
       if ((flags & CnfLd_ListOnly) != 0) {
           // In "List only" mode, accept only name command
           if (cmd_num > 1) {
@@ -502,11 +489,6 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
               CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
               break;
-          }
-          if (spell_desc[i].name == NULL)
-          {
-              spell_desc[i].name = spellst->code_name;
-              spell_desc[i].num = i;
           }
           n++;
           break;
@@ -724,9 +706,9 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
-      case 0: // comment
+      case ccr_comment:
           break;
-      case -1: // end of buffer
+      case ccr_endOfFile:
           break;
       default:
           CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",
@@ -743,63 +725,50 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
 TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
   struct ShotConfigStats *shotst;
-  int i;
-  // Block name and parameter word store variables
   // Initialize the array
-  int arr_size = sizeof(game.conf.magic_conf.shot_cfgstats) / sizeof(game.conf.magic_conf.shot_cfgstats[0]);
-    for (i = 0; i < arr_size; i++)
-    {
-        shotst = get_shot_model_stats(i);
-        if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(shotst->code_name) <= 0))
-        {
-            LbMemorySet(shotst->code_name, 0, COMMAND_WORD_LEN);
-            shotst->model_flags = 0;
-            if (i < game.conf.magic_conf.shot_types_count)
-            {
-                shot_desc[i].name = shotst->code_name;
-                shot_desc[i].num = i;
-            }
-            else
-            {
-                shot_desc[i].name = NULL;
-                shot_desc[i].num = 0;
-            }
-            shotst->area_hit_type = THit_CrtrsOnly;
-            shotst->area_range = 0;
-            shotst->area_damage = 0;
-            shotst->area_blow = 0;
-            shotst->bounce_angle = 0;
-            shotst->damage = 0;
-            shotst->fall_acceleration = 0;
-            shotst->hidden_projectile = 0;
-            shotst->hit_door.withstand = 0;
-            shotst->hit_generic.withstand = 0;
-            shotst->hit_lava.withstand = 0;
-            shotst->hit_water.withstand = 0;
-            shotst->no_air_damage = 0;
-            shotst->push_on_hit = 0;
-            shotst->max_range = 0;
-            shotst->size_xy = 0;
-            shotst->size_z = 0;
-            shotst->speed = 0;
-            shotst->destroy_on_first_hit = 0;
-            shotst->experience_given_to_shooter = 0;
-            shotst->wind_immune = 0;
-            shotst->animation_transparency = 0;
-            shotst->fixed_damage = 0;
-            shotst->sound_priority = 0;
-            shotst->light_radius = 0;
-            shotst->light_intensity = 0;
-            shotst->lightf_53 = 0;
-            shotst->inertia_air = 0;
-            shotst->inertia_floor = 0;
-            shotst->target_hitstop_turns = 0;
-            shotst->soft_landing = 0;
-            shotst->periodical = 0;
-        }
+  for (int i = 0; i < MAGIC_ITEMS_MAX; i++) {
+    shotst = &game.conf.magic_conf.shot_cfgstats[i];
+    if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(shotst->code_name) <= 0)) {
+      LbMemorySet(shotst->code_name, 0, COMMAND_WORD_LEN);
+      shotst->model_flags = 0;
+      shot_desc[i].name = shotst->code_name;
+      shot_desc[i].num = i;
+      shotst->area_hit_type = THit_CrtrsOnly;
+      shotst->area_range = 0;
+      shotst->area_damage = 0;
+      shotst->area_blow = 0;
+      shotst->bounce_angle = 0;
+      shotst->damage = 0;
+      shotst->fall_acceleration = 0;
+      shotst->hidden_projectile = 0;
+      shotst->hit_door.withstand = 0;
+      shotst->hit_generic.withstand = 0;
+      shotst->hit_lava.withstand = 0;
+      shotst->hit_water.withstand = 0;
+      shotst->no_air_damage = 0;
+      shotst->push_on_hit = 0;
+      shotst->max_range = 0;
+      shotst->size_xy = 0;
+      shotst->size_z = 0;
+      shotst->speed = 0;
+      shotst->destroy_on_first_hit = 0;
+      shotst->experience_given_to_shooter = 0;
+      shotst->wind_immune = 0;
+      shotst->animation_transparency = 0;
+      shotst->fixed_damage = 0;
+      shotst->sound_priority = 0;
+      shotst->light_radius = 0;
+      shotst->light_intensity = 0;
+      shotst->lightf_53 = 0;
+      shotst->inertia_air = 0;
+      shotst->inertia_floor = 0;
+      shotst->target_hitstop_turns = 0;
+      shotst->soft_landing = 0;
+      shotst->periodical = 0;
     }
+  }
+  shot_desc[MAGIC_ITEMS_MAX - 1].name = NULL; // must be null for get_id
   // Load the file
-  arr_size = game.conf.magic_conf.shot_types_count;
   const char * blockname = NULL;
   int blocknamelen = 0;
   long pos = 0;
@@ -811,11 +780,13 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
     } else if (memcmp(blockname, "shot", 4) != 0) {
         continue;
     }
-    i = natoi(&blockname[4], blocknamelen - 4);
-    if (i < 0 || i >= arr_size) {
+    const int i = natoi(&blockname[4], blocknamelen - 4);
+    if (i < 0 || i >= MAGIC_ITEMS_MAX) {
         continue;
+    } else if (i >= game.conf.magic_conf.shot_types_count) {
+        game.conf.magic_conf.shot_types_count = i + 1;
     }
-    shotst = get_shot_model_stats(i);
+    shotst = &game.conf.magic_conf.shot_cfgstats[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_shot_commands,cmd_num)
     while (pos < len)
     {
@@ -839,11 +810,6 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
             CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
                 COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             break;
-          }
-          if (shot_desc[i].name == NULL)
-          {
-              shot_desc[i].name = shotst->code_name;
-              shot_desc[i].num = i;
           }
           n++;
           break;
@@ -1818,9 +1784,9 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
-      case 0: // comment
+      case ccr_comment:
           break;
-      case -1: // end of buffer
+      case ccr_endOfFile:
           break;
       default:
           CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",
@@ -1838,53 +1804,32 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
 TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
   struct PowerConfigStats *powerst;
-  int i = 0;
   long long k = 0;
-  // Block name and parameter word store variables
   // Initialize the array
-  int arr_size;
-  arr_size = sizeof(game.conf.magic_conf.power_cfgstats) / sizeof(game.conf.magic_conf.power_cfgstats[0]);
-  for (i = 0; i < arr_size; i++)
-  {
-      if ((flags & CnfLd_AcceptPartial) == 0)
-      {
-          if ((i < game.conf.magic_conf.power_types_count) || (strlen(power_desc[i].name) <= 0))
-          {
-              powerst = get_power_model_stats(i);
-              LbMemorySet(powerst->code_name, 0, COMMAND_WORD_LEN);
-              powerst->artifact_model = 0;
-              powerst->can_cast_flags = 0;
-              powerst->config_flags = 0;
-              powerst->overcharge_check_idx = 0;
-              powerst->work_state = 0;
-              powerst->bigsym_sprite_idx = 0;
-              powerst->medsym_sprite_idx = 0;
-              powerst->name_stridx = 0;
-              powerst->tooltip_stridx = 0;
-              powerst->select_sample_idx = 0;
-              powerst->pointer_sprite_idx = 0;
-              powerst->panel_tab_idx = 0;
-              powerst->select_sound_idx = 0;
-              powerst->cast_cooldown = 0;
-              power_desc[i].name = powerst->code_name;
-              power_desc[i].num = i;
-          } else
-          {
-              power_desc[i].name = NULL;
-              power_desc[i].num = 0;
-          }
-      }
-  }
-    arr_size = sizeof(game.conf.object_conf.object_to_power_artifact)/sizeof(game.conf.object_conf.object_to_power_artifact[0]);
-    for (i = 0; i < arr_size; i++)
-    {
-        if ((flags & CnfLd_AcceptPartial) == 0)
-        {
-            game.conf.object_conf.object_to_power_artifact[i] = 0;
-        }
+  for (int i = 0; i < MAGIC_ITEMS_MAX; i++) {
+    powerst = &game.conf.magic_conf.power_cfgstats[i];
+    if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(powerst->code_name) <= 0)) {
+      LbMemorySet(powerst->code_name, 0, COMMAND_WORD_LEN);
+      powerst->artifact_model = 0;
+      powerst->can_cast_flags = 0;
+      powerst->config_flags = 0;
+      powerst->overcharge_check_idx = 0;
+      powerst->work_state = 0;
+      powerst->bigsym_sprite_idx = 0;
+      powerst->medsym_sprite_idx = 0;
+      powerst->name_stridx = 0;
+      powerst->tooltip_stridx = 0;
+      powerst->select_sample_idx = 0;
+      powerst->pointer_sprite_idx = 0;
+      powerst->panel_tab_idx = 0;
+      powerst->select_sound_idx = 0;
+      powerst->cast_cooldown = 0;
+      power_desc[i].name = powerst->code_name;
+      power_desc[i].num = i;
+      game.conf.object_conf.object_to_power_artifact[i] = 0;
     }
-
-  arr_size = game.conf.magic_conf.power_types_count;
+  }
+  power_desc[MAGIC_ITEMS_MAX - 1].name = NULL; // must be null for get_id
   // Load the file
   const char * blockname = NULL;
   int blocknamelen = 0;
@@ -1897,19 +1842,21 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
     } else if (memcmp(blockname, "power", 5) != 0) {
         continue;
     }
-    i = natoi(&blockname[5], blocknamelen - 5);
-    if (i < 0 || i >= arr_size) {
+    const int i = natoi(&blockname[5], blocknamelen - 5);
+    if (i < 0 || i >= MAGIC_ITEMS_MAX) {
         continue;
+    } else if (i >= game.conf.magic_conf.power_types_count) {
+        game.conf.magic_conf.power_types_count = i + 1;
     }
-    struct MagicStats* pwrdynst = get_power_dynamic_stats(i);
-    powerst = get_power_model_stats(i);
+    struct MagicStats* pwrdynst = &game.conf.magic_conf.keeper_power_stats[i];
+    powerst = &game.conf.magic_conf.power_cfgstats[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_power_commands,cmd_num)
     while (pos<len)
     {
       // Finding command number in this line
       int cmd_num = recognize_conf_command(buf, &pos, len, magic_power_commands);
       // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
+      if (cmd_num == ccr_endOfBlock) break; // if next block starts
       if ((flags & CnfLd_ListOnly) != 0) {
           // In "List only" mode, accept only name command
           if (cmd_num > 1) {
@@ -1927,8 +1874,6 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
               break;
           }
-          power_desc[i].name = powerst->code_name;
-          power_desc[i].num = i;
           break;
       case 2: // POWER
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -2253,9 +2198,9 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
-      case 0: // comment
+      case ccr_comment:
           break;
-      case -1: // end of buffer
+      case ccr_endOfFile:
           break;
       default:
           CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",
@@ -2269,7 +2214,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
   if ((flags & CnfLd_ListOnly) == 0)
   {
     // Mark powers which have children
-    for (i = 0; i < game.conf.magic_conf.power_types_count; i++)
+    for (int i = 0; i < game.conf.magic_conf.power_types_count; i++)
     {
         powerst = get_power_model_stats(i);
         struct PowerConfigStats* parent_powerst = get_power_model_stats(powerst->parent_power);
@@ -2284,36 +2229,20 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
 TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
   struct SpecialConfigStats *specst;
-  int i = 0, k = 0;
-  // Block name and parameter word store variables
+  int k = 0;
   // Initialize the array
-  int arr_size;
-  if ((flags & CnfLd_AcceptPartial) == 0)
-  {
-      arr_size = sizeof(game.conf.magic_conf.special_cfgstats)/sizeof(game.conf.magic_conf.special_cfgstats[0]);
-      for (i=0; i < arr_size; i++)
-      {
-          specst = get_special_model_stats(i);
+  if ((flags & CnfLd_AcceptPartial) == 0) {
+      for (int i = 0; i < MAGIC_ITEMS_MAX; i++) {
+          specst = &game.conf.magic_conf.special_cfgstats[i];
           LbMemorySet(specst->code_name, 0, COMMAND_WORD_LEN);
           specst->artifact_model = 0;
           specst->tooltip_stridx = 0;
-          if (i < game.conf.magic_conf.special_types_count)
-          {
-              special_desc[i].name = specst->code_name;
-              special_desc[i].num = i;
-          } else
-          {
-              special_desc[i].name = NULL;
-              special_desc[i].num = 0;
-          }
+          special_desc[i].name = specst->code_name;
+          special_desc[i].num = i;
+          game.conf.object_conf.object_to_special_artifact[i] = 0;
       }
-    arr_size = sizeof(game.conf.object_conf.object_to_special_artifact)/sizeof(game.conf.object_conf.object_to_special_artifact[0]);
-    for (i=0; i < arr_size; i++) {
-        game.conf.object_conf.object_to_special_artifact[i] = 0;
-    }
   }
-
-  arr_size = game.conf.magic_conf.special_types_count;
+  special_desc[MAGIC_ITEMS_MAX - 1].name = NULL; // must be null for get_id
   // Load the file
   const char * blockname = NULL;
   int blocknamelen = 0;
@@ -2326,18 +2255,20 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
     } else if (memcmp(blockname, "special", 7) != 0) {
         continue;
     }
-    i = natoi(&blockname[7], blocknamelen - 7);
-    if (i < 0 || i >= arr_size) {
+    const int i = natoi(&blockname[7], blocknamelen - 7);
+    if (i < 0 || i >= MAGIC_ITEMS_MAX) {
         continue;
+    } else if (i >= game.conf.magic_conf.special_types_count) {
+        game.conf.magic_conf.special_types_count = i + 1;
     }
-    specst = get_special_model_stats(i);
+    specst = &game.conf.magic_conf.special_cfgstats[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_special_commands,cmd_num)
     while (pos < len)
     {
       // Finding command number in this line
       int cmd_num = recognize_conf_command(buf, &pos, len, magic_special_commands);
       // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
+      if (cmd_num == ccr_endOfBlock) break; // if next block starts
       if ((flags & CnfLd_ListOnly) != 0) {
           // In "List only" mode, accept only name command
           if (cmd_num > 1) {
@@ -2425,9 +2356,9 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
               specst->value = k;
           }
           break;
-      case 0: // comment
+      case ccr_comment:
           break;
-      case -1: // end of buffer
+      case ccr_endOfFile:
           break;
       default:
           CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",

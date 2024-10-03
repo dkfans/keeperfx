@@ -298,7 +298,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       // Finding command number in this line
       int cmd_num = recognize_conf_command(buf, &pos, len, creatmodel_attributes_commands);
       // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
+      if (cmd_num == ccr_endOfBlock) break; // if next block starts
       int n = 0;
       char word_buf[COMMAND_WORD_LEN];
       switch (cmd_num)
@@ -829,9 +829,9 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 0: // comment
+      case ccr_comment:
           break;
-      case -1: // end of buffer
+      case ccr_endOfFile:
           break;
       default:
           CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -901,7 +901,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
       // Finding command number in this line
       int cmd_num = recognize_conf_command(buf, &pos, len, creatmodel_attraction_commands);
       // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
+      if (cmd_num == ccr_endOfBlock) break; // if next block starts
       n = 0;
       char word_buf[COMMAND_WORD_LEN];
       switch (cmd_num)
@@ -979,9 +979,9 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 0: // comment
+      case ccr_comment:
           break;
-      case -1: // end of buffer
+      case ccr_endOfFile:
           break;
       default:
           CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -1047,7 +1047,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, creatmodel_annoyance_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         int n = 0;
         char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
@@ -1390,9 +1390,9 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
                     COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
@@ -1435,7 +1435,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, creatmodel_senses_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         int n = 0;
         char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
@@ -1511,9 +1511,9 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -1561,7 +1561,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, creatmodel_appearance_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         int n = 0;
         char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
@@ -1726,9 +1726,9 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                 }
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -1782,7 +1782,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, creatmodel_experience_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         n = 0;
         char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
@@ -1916,9 +1916,9 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -1967,7 +1967,7 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, creatmodel_jobs_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         int n = 0;
         char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
@@ -2127,9 +2127,9 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -2171,7 +2171,7 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
       // Finding command number in this line
       int cmd_num = recognize_conf_command(buf, &pos, len, creature_graphics_desc);
       // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
+      if (cmd_num == ccr_endOfBlock) break; // if next block starts
       n = 0;
       if ((cmd_num == (CGI_HandSymbol + 1)) || (cmd_num == (CGI_QuerySymbol + 1)))
       {
@@ -2208,9 +2208,9 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
       } else
       switch (cmd_num)
       {
-      case 0: // comment
+      case ccr_comment:
           break;
-      case -1: // end of buffer
+      case ccr_endOfFile:
           break;
       default:
           CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -2242,7 +2242,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, creatmodel_sounds_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         int n = 0;
         char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
@@ -2456,9 +2456,9 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",

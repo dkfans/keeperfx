@@ -239,15 +239,16 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           mconf->shots = 0;
           mconf->shots_delay = 0;
           mconf->selling_value = 0;
-          trap_desc[i].name = NULL;
-          trap_desc[i].num = 0;
+          trap_desc[i].name = trapst->code_name;
+          trap_desc[i].num = i;
       }
   }
+  trap_desc[TRAPDOOR_TYPES_MAX - 1].name = NULL; // must be null for get_id
   // Parse every numbered block within range
   const char * blockname = NULL;
   int blocknamelen = 0;
   long pos = 0;
-  int i = 0, k = 0;
+  int k = 0;
   while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
   {
     // look for blocks starting with "trap", followed by one or more digits
@@ -256,7 +257,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
     } else if (memcmp(blockname, "trap", 4) != 0) {
         continue;
     }
-    i = natoi(&blockname[4], blocknamelen - 4);
+    const int i = natoi(&blockname[4], blocknamelen - 4);
     if (i < 0 || i >= TRAPDOOR_TYPES_MAX) {
         continue;
     } else if (i >= game.conf.trapdoor_conf.trap_types_count) {
@@ -264,8 +265,6 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
     }
     mconf = &game.conf.traps_config[i];
     trapst = &game.conf.trapdoor_conf.trap_cfgstats[i];
-    trap_desc[i].name = trapst->code_name;
-    trap_desc[i].num = i;
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(trapdoor_trap_commands,cmd_num)
     while (pos<len)
     {
@@ -273,7 +272,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
       int cmd_num = recognize_conf_command(buf, &pos, len, trapdoor_trap_commands);
       SYNCDBG(19,"Command %s",COMMAND_TEXT(cmd_num));
       // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
+      if (cmd_num == ccr_endOfBlock) break; // if next block starts
       if ((flags & CnfLd_ListOnly) != 0) {
           // In "List only" mode, accept only name command
           if (cmd_num > 1) {
@@ -1117,9 +1116,9 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
-      case 0: // comment
+      case ccr_comment:
           break;
-      case -1: // end of buffer
+      case ccr_endOfFile:
           break;
       default:
           CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",
@@ -1158,10 +1157,10 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           door_desc[i].num = 0;
       }
   }
-
+  door_desc[TRAPDOOR_TYPES_MAX - 1].name = NULL; // must be null for get_id
   // Parse every numbered block within range
   const char * blockname = NULL;
-  int blocknamelen = 0, i = 0, k = 0;
+  int blocknamelen = 0, k = 0;
   long pos = 0;
   while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
   {
@@ -1171,7 +1170,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
     } else if (memcmp(blockname, "door", 4) != 0) {
         continue;
     }
-    i = natoi(&blockname[4], blocknamelen - 4);
+    const int i = natoi(&blockname[4], blocknamelen - 4);
     if (i < 0 || i >= TRAPDOOR_TYPES_MAX) {
         continue;
     } else if (i >= game.conf.trapdoor_conf.door_types_count) {
@@ -1179,15 +1178,13 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
     }
     struct ManfctrConfig* mconf = &game.conf.doors_config[i];
     doorst = &game.conf.trapdoor_conf.door_cfgstats[i];
-    door_desc[i].name = doorst->code_name;
-    door_desc[i].num = i;
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(trapdoor_door_commands,cmd_num)
     while (pos<len)
     {
       // Finding command number in this line
       int cmd_num = recognize_conf_command(buf, &pos, len, trapdoor_door_commands);
       // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
+      if (cmd_num == ccr_endOfBlock) break; // if next block starts
       if ((flags & CnfLd_ListOnly) != 0) {
           // In "List only" mode, accept only name command
           if (cmd_num > 1) {
@@ -1476,9 +1473,9 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
                 COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
-      case 0: // comment
+      case ccr_comment:
           break;
-      case -1: // end of buffer
+      case ccr_endOfFile:
           break;
       default:
           CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",
