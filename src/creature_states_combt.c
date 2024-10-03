@@ -1802,8 +1802,13 @@ TbBool creature_would_benefit_from_healing(const struct Thing* thing)
 }
 
 /**
- * Gives attack type optimized for self preservation.
- * @param thing The creature for which the instance is selected.
+ * @brief Get the best self buff instance.
+ * As long as the instance has SELF_BUFF flag and the creature is not being already affected,
+ * the instance will be considered valid. The returned instance might has RANGED_BUFF flag, so
+ * be careful about how you set the instance. You must not set an index of enemy to the target
+ * parameter.
+ * @param thing The creature to use self buff.
+ * @return CrInstance The valid self buff instance.
  */
 CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
 {
@@ -2019,25 +2024,31 @@ CrInstance get_best_combat_weapon_instance_to_use_versus_trap(const struct Thing
     return inst_id;
 }
 
+/**
+ * @brief Get the best ranged offensive weapon object. Return weapon only!
+ * Don't return self buff or ranged buff.
+ * @param thing The creature is attacking.
+ * @param dist The distance to the enemy.
+ * @return CrInstance The instance to be used.
+ */
 CrInstance get_best_ranged_offensive_weapon(const struct Thing *thing, long dist)
 {
-    CrInstance inst_id = get_best_self_preservation_instance_to_use(thing);
-    if (inst_id == CrInst_NULL)
-    {
-        int atktyp = InstPF_RangedAttack;
-        inst_id = get_best_combat_weapon_instance_to_use(thing, dist, atktyp);
-    }
+    int atktyp = InstPF_RangedAttack;
+    CrInstance inst_id = get_best_combat_weapon_instance_to_use(thing, dist, atktyp);
     return inst_id;
 }
 
+/**
+ * @brief Get the best melee offensive weapon object. Return weapon only!
+ * Don't return self buff or ranged buff.
+ * @param thing The creature is attacking.
+ * @param dist The distance to the enemy.
+ * @return CrInstance The instance to be used.
+ */
 CrInstance get_best_melee_offensive_weapon(const struct Thing *thing, long dist)
 {
-    CrInstance inst_id = get_best_self_preservation_instance_to_use(thing);
-    if (inst_id == CrInst_NULL)
-    {
-        int atktyp = InstPF_MeleeAttack;
-        inst_id = get_best_combat_weapon_instance_to_use(thing, dist, atktyp);
-    }
+    int atktyp = InstPF_MeleeAttack;
+    CrInstance inst_id = get_best_combat_weapon_instance_to_use(thing, dist, atktyp);
     return inst_id;
 }
 
@@ -2276,6 +2287,7 @@ long old_combat_move(struct Thing *thing, struct Thing *enmtng, long enm_distanc
 long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, CrtrStateId nstat)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    CrInstance inst_id = CrInst_NULL;
     if (cctrl->instance_id != CrInst_NULL)
     {
         creature_turn_to_face(thing, &enmtng->mappos);
@@ -2306,11 +2318,19 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, 
     cctrl->field_AA = 0;
     if (thing_in_field_of_view(thing, enmtng))
     {
+        // Firstly, check if any self buff is available.
+        inst_id = get_best_self_preservation_instance_to_use(thing);
+        if (inst_id > CrInst_NULL)
+        {
+            set_creature_instance(thing, inst_id, thing->index, 0);
+            return false;
+        }
+        // Secondly, check if any ranged weapon is available.
         if ((cctrl->combat_flags & (CmbtF_DoorFight|CmbtF_ObjctFight)) == 0)
         {
             if (combat_has_line_of_sight(thing, enmtng, enmdist))
             {
-                CrInstance inst_id = get_best_ranged_offensive_weapon(thing, enmdist);
+                inst_id = get_best_ranged_offensive_weapon(thing, enmdist);
                 if (inst_id > CrInst_NULL)
                 {
                     set_creature_instance(thing, inst_id, enmtng->index, 0);
@@ -2325,10 +2345,10 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, 
         // If cannot move to enemy, and not waiting for ranged weapon cooldown, then retreat from him
         if (!creature_has_ranged_weapon(thing))
         {
-            CrInstance inst_id = get_best_self_preservation_instance_to_use(thing);
+            inst_id = get_best_self_preservation_instance_to_use(thing);
             if (inst_id > CrInst_NULL)
             {
-                set_creature_instance(thing, inst_id, 0, 0);
+                set_creature_instance(thing, inst_id, thing->index, 0);
             } else
             if (creature_retreat_from_combat(thing, enmtng, nstat, 0) == Lb_FAIL)
             {
@@ -2692,14 +2712,21 @@ long waiting_combat_move(struct Thing *figtng, struct Thing *enmtng, long enmdis
     if (creature_turn_to_face(figtng, &enmtng->mappos) >= LbFPMath_PI/12) {
         return 0;
     }
-    // If the creature has ranged combat, let it fight
+    // If the creature has self buff, use it now.
+    CrInstance inst_id = get_best_self_preservation_instance_to_use(figtng);
+    if (inst_id > CrInst_NULL)
+    {
+        set_creature_instance(figtng, inst_id, figtng->index, 0);
+        return 0;
+    }
+    // If the creature has any ranged weapon, let it fight.
     if (creature_has_ranged_weapon(figtng))
     {
         if (combat_has_line_of_sight(figtng, enmtng, enmdist))
         {
-            CrInstance weapon = get_best_ranged_offensive_weapon(figtng, enmdist);
-            if (weapon > CrInst_NULL) {
-                set_creature_instance(figtng, weapon, enmtng->index, 0);
+            inst_id = get_best_ranged_offensive_weapon(figtng, enmdist);
+            if (inst_id > CrInst_NULL) {
+                set_creature_instance(figtng, inst_id, enmtng->index, 0);
                 return 0;
             }
         } else
@@ -2775,20 +2802,35 @@ void creature_in_ranged_combat(struct Thing *creatng)
         set_start_state(creatng);
         return;
     }
+    // If the creature has self buff, prefer it to weapon.
+    CrInstance buff_inst = get_best_self_preservation_instance_to_use(creatng);
+    CrInstance weapon = CrInst_NULL;
     long dist = get_combat_distance(creatng, enmtng);
-    CrInstance weapon = get_best_ranged_offensive_weapon(creatng, dist);
-    if (weapon == 0)
+    if (buff_inst > CrInst_NULL)
     {
-        set_start_state(creatng);
-        SYNCDBG(9,"The %s index %d cannot choose ranged offensive weapon",thing_model_name(creatng),(int)creatng->index);
-        return;
+        SYNCDBG(9,"The %s index %d can use self buff %s now.", thing_model_name(creatng),
+            (int)creatng->index, creature_instance_code_name(buff_inst));
+    }
+    else
+    {
+        weapon = get_best_ranged_offensive_weapon(creatng, dist);
+        if (weapon == CrInst_NULL)
+        {
+            set_start_state(creatng);
+            SYNCDBG(9,"The %s index %d cannot choose ranged offensive weapon",thing_model_name(creatng),(int)creatng->index);
+            return;
+        }
     }
     if (!ranged_combat_move(creatng, enmtng, dist, CrSt_CreatureInCombat))
     {
         SYNCDBG(9,"The %s index %d is moving and cannot attack in this turn",thing_model_name(creatng),(int)creatng->index);
         return;
     }
-    if (weapon > 0)
+    if (buff_inst > CrInst_NULL)
+    {
+        set_creature_instance(creatng, buff_inst, creatng->index, 0);
+    }
+    else if (weapon > CrInst_NULL)
     {
         set_creature_instance(creatng, weapon, enmtng->index, 0);
     }
@@ -2821,6 +2863,7 @@ void creature_in_melee_combat(struct Thing *creatng)
         set_start_state(creatng);
         return;
     }
+    // In melee_combat_move(), self buff would be cast if suitable.
     if (!melee_combat_move(creatng, enmtng, dist, CrSt_CreatureInCombat))
     {
         SYNCDBG(9,"The %s index %d is moving and cannot attack in this turn",thing_model_name(creatng),(int)creatng->index);
@@ -3062,7 +3105,7 @@ TbBool creature_look_for_combat(struct Thing *creatng)
         CrInstance inst_id = get_best_self_preservation_instance_to_use(creatng);
         if (inst_id > CrInst_NULL)
         {
-            set_creature_instance(creatng, inst_id, 0, 0);
+            set_creature_instance(creatng, inst_id, creatng->index, 0);
             return false;
         } else
         if (!external_set_thing_state(creatng, CrSt_CreatureCombatFlee)) {
