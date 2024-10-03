@@ -1330,7 +1330,7 @@ TbBool validate_target_ranged_heal(struct Thing *source, struct Thing *target, C
 
     if (source->index == target->index)
     {
-        // Specail case. The healer is always allowed to heal itself even if
+        // Special case. The healer is always allowed to heal itself even if
         // it's being tortured or imprisoned.
         return true;
     }
