@@ -1614,7 +1614,7 @@ short creature_casting_preparation(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     TRACE_THING(creatng);
-    SYNCDBG(10, "Process %s(%d), kkp act.st: %s, bkp con.st: %s, instance: %s",
+    SYNCDBG(11, "Process %s(%d), bkp act.st: %s, bkp con.st: %s, instance: %s",
         thing_model_name(creatng), creatng->index,
         creature_state_code_name(cctrl->active_state_bkp), creature_state_code_name(cctrl->continue_state_bkp),
         creature_instance_code_name(cctrl->instance_id));
