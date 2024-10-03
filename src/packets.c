@@ -1186,8 +1186,21 @@ void process_players_creature_control_packet_control(long idx)
         return;
     if ((ccctrl->stateblock_flags != 0) || (cctng->active_state == CrSt_CreatureUnconscious))
         return;
+
+    TbBool charging = false;
+    if (creature_affected_by_spell(cctng, SplK_Charge) && !creature_control_invalid(ccctrl))
+    {
+        // When charging at the enemy, it should just move forward in the max velocity.
+        // Most of key inputs are ignored except the Down key. We use it to stop the
+        // charging.
+        ccctrl->move_speed = MAX_VELOCITY;
+        ccctrl->flgfield_1 |= CCFlg_Unknown40;
+        charging = true;
+    }
+
+
     long speed_limit = get_creature_speed(cctng);
-    if ((pckt->control_flags & PCtr_MoveUp) != 0)
+    if ((pckt->control_flags & PCtr_MoveUp) != 0 && !charging)
     {
         if (!creature_control_invalid(ccctrl))
         {
@@ -1202,6 +1215,10 @@ void process_players_creature_control_packet_control(long idx)
     {
         if (!creature_control_invalid(ccctrl))
         {
+            if (charging)
+            {
+                terminate_thing_spell_effect(cctng, SplK_Charge);
+            }
             ccctrl->move_speed = compute_controlled_speed_decrease(ccctrl->move_speed, speed_limit);
             ccctrl->flgfield_1 |= CCFlg_Unknown40;
         } else
@@ -1209,7 +1226,7 @@ void process_players_creature_control_packet_control(long idx)
             ERRORLOG("No creature to decrease speed");
         }
     }
-    if ((pckt->control_flags & PCtr_MoveLeft) != 0)
+    if ((pckt->control_flags & PCtr_MoveLeft) != 0 && !charging)
     {
         if (!creature_control_invalid(ccctrl))
         {
@@ -1220,7 +1237,7 @@ void process_players_creature_control_packet_control(long idx)
             ERRORLOG("No creature to increase speed");
         }
     }
-    if ((pckt->control_flags & PCtr_MoveRight) != 0)
+    if ((pckt->control_flags & PCtr_MoveRight) != 0 && !charging)
     {
         if (!creature_control_invalid(ccctrl))
         {
@@ -1232,7 +1249,7 @@ void process_players_creature_control_packet_control(long idx)
         }
     }
 
-    if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
+    if ((pckt->control_flags & PCtr_LBtnRelease) != 0 && !charging)
     {
         i = ccctrl->active_instance_id;
         if (ccctrl->instance_id == CrInst_NULL)
@@ -1255,7 +1272,7 @@ void process_players_creature_control_packet_control(long idx)
             }
         }
     }
-    if ((pckt->control_flags & PCtr_LBtnHeld) != 0)
+    if ((pckt->control_flags & PCtr_LBtnHeld) != 0 && !charging)
     {
         // Button is held down - check whether the instance has auto-repeat
         i = ccctrl->active_instance_id;
@@ -1274,7 +1291,7 @@ void process_players_creature_control_packet_control(long idx)
             }
         }
     }
-    
+
     // First person looking speed and limits are adjusted here. (pckt contains the base mouse movement inputs)
     struct CreatureStats* crstat = creature_stats_get_from_thing(cctng);
     long maxTurnSpeed = crstat->max_turning_speed;
@@ -1289,7 +1306,7 @@ void process_players_creature_control_packet_control(long idx)
     } else if (horizontalTurnSpeed > maxTurnSpeed) {
         horizontalTurnSpeed = maxTurnSpeed;
     }
-    
+
     // Vertical look
     long verticalTurnSpeed = pckt->pos_y;
     if (verticalTurnSpeed < -maxTurnSpeed) {

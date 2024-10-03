@@ -250,7 +250,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         effeltng = create_thing(&thing->mappos, TCls_EffectElem, TngEffElm_CloudDisperse, thing->owner, -1);
     }
 
-    if ((cctrl->spell_flags & CSAfF_Speed) != 0)
+    if ((cctrl->spell_flags & CSAfF_Speed) != 0 || (cctrl->spell_flags & CSAfF_Charge) != 0)
     {
         effeltng = create_effect_element(&thing->mappos, TngEffElm_FlashBall2, thing->owner);
         if (!thing_is_invalid(effeltng))
