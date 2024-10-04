@@ -4417,7 +4417,7 @@ void poly_render() {
   uint32_t iVar1;  // Address as 32-bit unsigned?
   int iVar2;
   int iVar3;
-  int iVar4;
+  int bottom_y;
   uint uVar5;
   uint uVar6;
   uint uVar7;
@@ -4629,26 +4629,26 @@ void poly_render() {
     for (; gploc_180 != 0; gploc_180--) {
       ycounter = point2y;
       if (crease_len < 0) {
-        iVar4 = point3y;
+        bottom_y = point3y;
         if (LOC_vec_window_height < point3y) {
-          iVar4 = LOC_vec_window_height;
+          bottom_y = LOC_vec_window_height;
         }
-        gploc_C0 = iVar4 - point2y;
+        gploc_C0 = bottom_y - point2y;
         gploc_128 = factor_cb;
         iVar3 = iVar1;
         uVar7 = uVar8;
         iVar10 = gploc_pt_shbx;
-        if (gploc_C0 == 0 || iVar4 < point2y) {
+        if (gploc_C0 == 0 || bottom_y < point2y) {
           gploc_FC = iVar1;
           return;
         }
       } else {
         uVar5 = 0;
-        iVar4 = point3y;
+        bottom_y = point3y;
         if (LOC_vec_window_height < point3y) {
-          iVar4 = LOC_vec_window_height;
+          bottom_y = LOC_vec_window_height;
         }
-        gploc_C0 = iVar4 - point2y;
+        gploc_C0 = bottom_y - point2y;
         iVar3 = gploc_pt_shbx;
         uVar7 = gploc_80;
         uVar9 = gploc_7C;
@@ -4657,7 +4657,7 @@ void poly_render() {
         gploc_CC = gploc_98;
         gploc_C4 = gploc_94;
         gploc_74 = point2x;
-        if (gploc_C0 == 0 || iVar4 < point2y) {
+        if (gploc_C0 == 0 || bottom_y < point2y) {
           gploc_FC = iVar1;
           gploc_74 = point2x;
           return;
