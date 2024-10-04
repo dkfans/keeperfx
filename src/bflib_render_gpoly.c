@@ -3187,7 +3187,7 @@ loc_782B3A:         # 2A56\n \
     movl    %%ebp,%%eax\n \
     andl    $0x0F,%%eax\n \
     addl    _gpoly_countdown(,%%eax,4),%%edi\n \
-    movl    %%ebp,_gploc_D4\n \
+    movl    %%ebp,_pixels_left_on_line\n \
     movl    _gploc_5C,%%ebp\n \
     movl    _LOC_vec_map,%%esi\n \
     jmp   *switch_vecmap(,%%eax,4)\n \
@@ -3401,7 +3401,7 @@ loc_vecmap01:         # 3E34\n \
     adcb    _gploc_28,%%bh\n \
     movb    %%al,0x0F(%%edi)\n \
     addl    $0x10,%%edi\n \
-    subl $0x10,_gploc_D4\n \
+    subl $0x10,_pixels_left_on_line\n \
     jg  loc_vecmap00\n \
     jmp  loc_loop01\n \
 # ---------------------------------------------------------------------------\n \
@@ -3705,7 +3705,7 @@ loc_782480:         # 3DF4\n \
     adcb    _gploc_28,%%bh\n \
     movb    %%al,0x0F(%%edi)\n \
     addl    $0x10,%%edi\n \
-    subl $0x10,_gploc_D4\n \
+    subl $0x10,_pixels_left_on_line\n \
     jg  loc_7822A1\n \
 \n \
 loc_7824B1:         # 236B\n \
@@ -3743,7 +3743,7 @@ loc_782520:         # 20AC\n \
     movl    %%ebp,%%eax\n \
     andl    $0x0F,%%eax\n \
     addl    _gpoly_countdown(,%%eax,4),%%edi\n \
-    movl    %%ebp,_gploc_D4\n \
+    movl    %%ebp,_pixels_left_on_line\n \
     movl    _gploc_5C,%%ebp\n \
     movl    _LOC_vec_map,%%esi\n \
     jmp   *off_783FE0(,%%eax,4)\n \
@@ -4187,7 +4187,7 @@ loc_7837D5:         # 3EB4\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
     addl    $0x10,%%edi\n \
-    subl    $0x10,_gploc_D4\n \
+    subl    $0x10,_pixels_left_on_line\n \
     jg  loc_783542\n \
 \n \
 loc_783812:         # 370B\n \
@@ -4241,7 +4241,7 @@ loc_7838F7:         # 37E6\n \
     movl    %%ebp,%%eax\n \
     andl    $0x0F,%%eax\n \
     addl    _gpoly_countdown(,%%eax,4),%%edi\n \
-    movl    %%ebp,_gploc_D4\n \
+    movl    %%ebp,_pixels_left_on_line\n \
     movl    $0x0FF0000FF,%%ecx\n \
     andl    %%ebx,%%ecx\n \
     roll    $8,%%ecx\n \
@@ -4430,6 +4430,8 @@ void poly_render() {
   uint8_t bVar14;
   int ycounter;
 
+  JUSTLOG("(%d, %d), (%d, %d), (%d, %d), crease_len = %d", point1x, point1y, point2x, point2y,
+          point3x, point3y, crease_len);
   uVar5 = 0;
   iVar12 = (uint8_t *)((uint32_t)(LOC_vec_screen_width * point1y) + (uint32_t)LOC_vec_screen);
   if (point1y <= LOC_vec_window_height) {
@@ -4507,106 +4509,121 @@ void poly_render() {
           uVar5 = uVar9 + gploc_2C + (uint)bVar14;
           texture_x = (uVar9 & 0xff0000ff) << 8 | uVar9 >> 0x18;
         switchD_00401452_loc_782F2C:
-          puVar13[1] = *(uint8_t *)(render_fade_tables
-                                    + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
+          puVar13[1]
+              = *(uint8_t *)(render_fade_tables
+                             + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar9 = uVar5 + gploc_2C + (uint)bVar14;
           texture_x = (uVar5 & 0xff0000ff) << 8 | uVar5 >> 0x18;
         switchD_00401452_loc_782F58:
-          puVar13[2] = *(uint8_t *)(render_fade_tables
-                                    + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
+          puVar13[2]
+              = *(uint8_t *)(render_fade_tables
+                             + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar5 = uVar9 + gploc_2C + (uint)bVar14;
           texture_x = (uVar9 & 0xff0000ff) << 8 | uVar9 >> 0x18;
         switchD_00401452_loc_782F84:
-          puVar13[3] = *(uint8_t *)(render_fade_tables
-                                    + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
+          puVar13[3]
+              = *(uint8_t *)(render_fade_tables
+                             + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar9 = uVar5 + gploc_2C + (uint)bVar14;
           texture_x = (uVar5 & 0xff0000ff) << 8 | uVar5 >> 0x18;
         switchD_00401452_loc_782FB0:
-          puVar13[4] = *(uint8_t *)(render_fade_tables
-                                    + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
+          puVar13[4]
+              = *(uint8_t *)(render_fade_tables
+                             + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar5 = uVar9 + gploc_2C + (uint)bVar14;
           texture_x = (uVar9 & 0xff0000ff) << 8 | uVar9 >> 0x18;
         switchD_00401452_loc_782FDC:
-          puVar13[5] = *(uint8_t *)(render_fade_tables
-                                    + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
+          puVar13[5]
+              = *(uint8_t *)(render_fade_tables
+                             + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar9 = uVar5 + gploc_2C + (uint)bVar14;
           texture_x = (uVar5 & 0xff0000ff) << 8 | uVar5 >> 0x18;
         switchD_00401452_loc_783008:
-          puVar13[6] = *(uint8_t *)(render_fade_tables
-                                    + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
+          puVar13[6]
+              = *(uint8_t *)(render_fade_tables
+                             + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar5 = uVar9 + gploc_2C + (uint)bVar14;
           texture_x = (uVar9 & 0xff0000ff) << 8 | uVar9 >> 0x18;
         switchD_00401452_loc_783034:
-          puVar13[7] = *(uint8_t *)(render_fade_tables
-                                    + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
+          puVar13[7]
+              = *(uint8_t *)(render_fade_tables
+                             + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar9 = uVar5 + gploc_2C + (uint)bVar14;
           texture_x = (uVar5 & 0xff0000ff) << 8 | uVar5 >> 0x18;
         switchD_00401452_loc_783060:
-          puVar13[8] = *(uint8_t *)(render_fade_tables
-                                    + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
+          puVar13[8]
+              = *(uint8_t *)(render_fade_tables
+                             + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar5 = uVar9 + gploc_2C + (uint)bVar14;
           texture_x = (uVar9 & 0xff0000ff) << 8 | uVar9 >> 0x18;
         switchD_00401452_loc_78308C:
-          puVar13[9] = *(uint8_t *)(render_fade_tables
-                                    + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
+          puVar13[9]
+              = *(uint8_t *)(render_fade_tables
+                             + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar9 = uVar5 + gploc_2C + (uint)bVar14;
           texture_x = (uVar5 & 0xff0000ff) << 8 | uVar5 >> 0x18;
         switchD_00401452_loc_7830B8:
-          puVar13[10] = *(uint8_t *)(render_fade_tables
-                                     + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
+          puVar13[10]
+              = *(uint8_t *)(render_fade_tables
+                             + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar5 = uVar9 + gploc_2C + (uint)bVar14;
           texture_x = (uVar9 & 0xff0000ff) << 8 | uVar9 >> 0x18;
         switchD_00401452_loc_7830E4:
-          puVar13[0xb] = *(uint8_t *)(render_fade_tables
-                                      + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
+          puVar13[0xb]
+              = *(uint8_t *)(render_fade_tables
+                             + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar9 = uVar5 + gploc_2C + (uint)bVar14;
           texture_x = (uVar5 & 0xff0000ff) << 8 | uVar5 >> 0x18;
         switchD_00401452_loc_783110:
-          puVar13[0xc] = *(uint8_t *)(render_fade_tables
-                                      + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
+          puVar13[0xc]
+              = *(uint8_t *)(render_fade_tables
+                             + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar5 = uVar9 + gploc_2C + (uint)bVar14;
           texture_x = (uVar9 & 0xff0000ff) << 8 | uVar9 >> 0x18;
         switchD_00401452_loc_78313C:
-          puVar13[0xd] = *(uint8_t *)(render_fade_tables
-                                      + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
+          puVar13[0xd]
+              = *(uint8_t *)(render_fade_tables
+                             + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar9 = uVar5 + gploc_2C + (uint)bVar14;
           texture_x = (uVar5 & 0xff0000ff) << 8 | uVar5 >> 0x18;
         switchD_00401452_loc_783168:
-          puVar13[0xe] = *(uint8_t *)(render_fade_tables
-                                      + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
+          puVar13[0xe]
+              = *(uint8_t *)(render_fade_tables
+                             + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar5 = uVar9 + gploc_2C + (uint)bVar14;
           texture_x = (uVar9 & 0xff0000ff) << 8 | uVar9 >> 0x18;
         switchD_00401452_loc_783194:
-          puVar13[0xf] = *(uint8_t *)(render_fade_tables
-                                      + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
+          puVar13[0xf]
+              = *(uint8_t *)(render_fade_tables
+                             + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(texture_x + texture)));
           pixels_to_place = pixels_left_on_line;
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
@@ -5012,7 +5029,7 @@ void poly_render() {
       adcl    _gploc_2C,%%ebx\n \
       roll    $8,%%ecx\n \
       addl    $0x10,%%edi\n \
-      subl $0x10,_gploc_D4\n \
+      subl $0x10,_pixels_left_on_line\n \
       jg  loc_782F01\n \
   \n \
   loc_7831D1:         # 3084\n \
@@ -5048,7 +5065,7 @@ void poly_render() {
       movl    %%ebp,%%eax\n \
       andl    $0x0F,%%eax\n \
       addl    _gpoly_countdown(,%%eax,4),%%edi\n \
-      movl    %%ebp,_gploc_D4\n \
+      movl    %%ebp,_pixels_left_on_line\n \
       movl    $0x0FF0000FF,%%ecx\n \
       andl    %%ebx,%%ecx\n \
       roll    $8,%%ecx\n \
