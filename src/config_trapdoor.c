@@ -1153,8 +1153,8 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           // Default door placement sound, so that placement sound isn't broken if custom doors is bundled into maps
           doorst->place_sound_idx = 117;
           doorst->panel_tab_idx = 0;
-          door_desc[i].name = NULL;
-          door_desc[i].num = 0;
+          door_desc[i].name = doorst->code_name;
+          door_desc[i].num = i;
       }
   }
   door_desc[TRAPDOOR_TYPES_MAX - 1].name = NULL; // must be null for get_id
