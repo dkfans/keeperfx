@@ -1591,6 +1591,9 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
         ERRORLOG("The %s owned by player %d tried to cast invalid spell %d",thing_model_name(castng),(int)castng->owner,(int)spl_idx);
         return;
     }
+
+    SYNCDBG(12,"The %s(%d) fire shot(%s) at %s(%d) with shot level %d, hit type: 0x%X", thing_model_name(castng), castng->index,
+        shot_code_name(spconf->shot_model), thing_model_name(targetng), targetng->index, shot_lvl, hit_type);
     thing_fire_shot(castng, targetng, spconf->shot_model, shot_lvl, hit_type);
 }
 
@@ -1803,9 +1806,12 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, long shot_lvl,
     if ((spconf->shot_model > 0) && (cctrl->targtng_idx != castng->index))
     {
         if ((castng->alloc_flags & TAlF_IsControlled) != 0)
-          i = THit_CrtrsNObjcts;
+            i = THit_CrtrsNObjcts;
         else
-          i = THit_CrtrsOnlyNotOwn;
+            i = THit_CrtrsOnlyNotOwn;
+
+        SYNCDBG(8,"The %s(%d) fire shot(%s) without a target with shot level %d, hit type: 0x%X",
+            thing_model_name(castng), castng->index, shot_code_name(spconf->shot_model), shot_lvl, i);
         thing_fire_shot(castng, INVALID_THING, spconf->shot_model, shot_lvl, i);
     }
     // Check if the spell can be self-casted
@@ -3536,6 +3542,52 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, CrInstance 
         }
     }
     return index;
+}
+
+/**
+ * @brief Process the logic when player (in Possesson mode) uses a creature's instance.
+ *
+ * @param thing The creature being possessed.
+ * @param inst_id The instance that player wants to use.
+ * @param packet The packet being processed.
+ * @return ThingIndex The target's index.
+ */
+ThingIndex process_player_use_instance(struct Thing *thing, CrInstance inst_id, struct Packet *packet)
+{
+    ThingIndex target_idx = get_human_controlled_creature_target(thing, inst_id, packet);
+    struct InstanceInfo *inst_inf = creature_instance_info_get(inst_id);
+    if (flag_is_set(inst_inf->instance_property_flags,InstPF_RangedBuff))
+    {
+        TbBool ok = false;
+        // Ranged buffs need further validation.
+        struct Thing *target = thing_get(target_idx);
+        if (inst_id == CrInst_RANGED_HEAL)
+        {
+            ok = validate_target_ranged_heal(thing, target, CrInst_RANGED_HEAL);
+        }
+        else
+        {
+            ok = validate_target_generic(thing, target, inst_id);
+        }
+        if (!ok)
+        {
+            target = 0;
+        }
+    }
+    if (flag_is_set(inst_inf->instance_property_flags, InstPF_NeedsTarget))
+    {
+        if (target_idx == 0)
+        {
+            // If cannot find a valid target, do not use it and don't consider it used.
+
+            // Make a rejection sound
+            play_non_3d_sample(119);
+            return 0;
+        }
+    }
+
+    set_creature_instance(thing, inst_id, target_idx, 0);
+    return target_idx;
 }
 
 long creature_instance_has_reset(const struct Thing *thing, long inst_idx)

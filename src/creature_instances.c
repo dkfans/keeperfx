@@ -589,12 +589,11 @@ CrInstance process_creature_ranged_buff_spell_casting(struct Thing* creatng)
     TRACE_THING(creatng);
     SYNCDBG(8,"Processing %s(%d), act.st: %s, con.st: %s", thing_model_name(creatng), creatng->index,
         creature_state_code_name(creatng->active_state), creature_state_code_name(creatng->continue_state));
-
-    CrInstance i = CrInst_NULL;
+    CrInstance i = CrInst_NULL + 1;
     for(; i < game.conf.crtr_conf.instances_count; i++ )
     {
         const struct InstanceInfo* inst_inf = creature_instance_info_get(i);
-        if((inst_inf->instance_property_flags & InstPF_RangedBuff) == 0)
+        if(creature_instance_info_invalid(inst_inf) || (inst_inf->instance_property_flags & InstPF_RangedBuff) == 0)
         {
             continue;
         }
@@ -610,14 +609,15 @@ CrInstance process_creature_ranged_buff_spell_casting(struct Thing* creatng)
             continue;
         }
 
-        struct Thing* targets = NULL;
-        short found_count = 0;
+        ThingIndex *targets = NULL;
+        unsigned short found_count = 0;
         if(creature_instances_search_targets_func_list[inst_inf->search_func_idx](creatng, i, &targets, &found_count) &&
             targets && (found_count > 0))
         {
-            SYNCDBG(8, "Set instance %s on %s(%d) for %s(%d).",
-                creature_instance_code_name(i), thing_model_name(creatng), creatng->index,
-                thing_model_name(targets), targets->index);
+            struct Thing* target = thing_get(targets[0]);
+            SYNCDBG(8, "Set instance %s(%d) on %s(%d) for %s(%d).",
+                creature_instance_code_name(i), i, thing_model_name(creatng), creatng->index,
+                thing_model_name(target), target->index);
 
             struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
             // Enter the temporary state.
@@ -626,7 +626,7 @@ CrInstance process_creature_ranged_buff_spell_casting(struct Thing* creatng)
             internal_set_thing_state(creatng, CrSt_CreatureCastingPreparation);
 
             // Apply the spell instance to the first one since we have no group buff yet.
-            set_creature_instance(creatng, i, targets->index, NULL);
+            set_creature_instance(creatng, i, target->index, NULL);
             free(targets);
             break; // No need to check the next spell instance.
 
@@ -1155,14 +1155,14 @@ void delay_heal_sleep(struct Thing *creatng)
 }
 
 /**
- * @brief Check if the given creature can cast the specified spell by examining general conditions.
+ * @brief Check if the given creature can cast the specified spell by examining basic conditions.
  *
  * @param source The source creature
  * @param target The target creature
  * @param inst_idx  The spell instance index
  * @return TbBool True if the creature can, false if otherwise.
  */
-TbBool validate_source_generic(struct Thing *source, struct Thing *target, CrInstance inst_idx)
+TbBool validate_source_basic(struct Thing *source, struct Thing *target, CrInstance inst_idx)
 {
     if ((source->alloc_flags & TAlF_IsControlled) != 0)
     {
@@ -1172,7 +1172,26 @@ TbBool validate_source_generic(struct Thing *source, struct Thing *target, CrIns
     // We assume we usually don't want to overwrite the original instance.
     struct CreatureControl* cctrl = creature_control_get_from_thing(source);
     if (cctrl->instance_id != CrInst_NULL) {
-        SYNCDBG(11, "This creature already has an instance %s.", creature_instance_code_name(cctrl->instance_id));
+        SYNCDBG(15, "%s(%d) already has an instance %s.", thing_model_name(source), source->index,
+            creature_instance_code_name(cctrl->instance_id));
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief Check if the given creature can cast the specified spell by examining general conditions.
+ *
+ * @param source The source creature
+ * @param target The target creature
+ * @param inst_idx  The spell instance index
+ * @return TbBool True if the creature can, false if otherwise.
+ */
+TbBool validate_source_generic(struct Thing *source, struct Thing *target, CrInstance inst_idx)
+{
+    if (!validate_source_basic(source, target, inst_idx))
+    {
         return false;
     }
 
@@ -1181,7 +1200,44 @@ TbBool validate_source_generic(struct Thing *source, struct Thing *target, CrIns
         creature_is_fleeing_combat(source) || creature_affected_by_spell(source, SplK_Chicken) ||
         creature_is_being_unconscious(source) || creature_is_dying(source) ||
         thing_is_picked_up(source) || creature_is_being_dropped(source) ||
-        creature_is_being_sacrificed(source) || creature_is_being_summoned(source))
+        creature_is_being_sacrificed(source) || creature_is_being_summoned(source) ||
+        creature_is_being_tortured(source) || creature_is_kept_in_prison(source))
+    {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief Check if the given creature can be the target of the specified spell by examining basic conditions.
+ * @param source The source creature
+ * @param target The target creature
+ * @param inst_idx The spell instance index
+ * @return TbBool True if the creature can be, false if otherwise.
+ */
+TbBool validate_target_basic(struct Thing *source, struct Thing *target, CrInstance inst_idx)
+{
+    if (creature_is_dying(target) || thing_is_picked_up(target) || creature_is_being_dropped(target) ||
+        creature_is_being_sacrificed(target) || creature_is_being_summoned(target))
+    {
+        return false;
+    }
+
+    struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
+    if ((inst_inf->instance_property_flags & InstPF_SelfBuff) == 0 && source->index == target->index)
+    {
+        // If this spell doesn't have SELF_BUFF flag, exclude itself.
+        return false;
+    }
+
+    if (// Creature who is leaving doesn't deserve buff from allies.
+        target->continue_state == CrSt_CreatureLeaves ||
+        target->active_state == CrSt_CreatureLeavingDungeon ||
+        target->active_state == CrSt_CreatureScavengedDisappear ||
+        // Candidate shouldn't be fight with the caster.
+        creature_has_creature_in_combat(source, target) ||
+        creature_has_creature_in_combat(target, source))
     {
         return false;
     }
@@ -1198,19 +1254,22 @@ TbBool validate_source_generic(struct Thing *source, struct Thing *target, CrIns
  */
 TbBool validate_target_generic(struct Thing *source, struct Thing *target, CrInstance inst_idx)
 {
-    // Note that we don't check "unconscious".
     // We don't check the spatial conditions, such as distacne, angle, and sight here, because
     // they should be checked in the search function.
-    if (creature_is_dying(target) || thing_is_picked_up(target) || creature_is_being_dropped(target) ||
-        creature_is_being_sacrificed(target) || creature_is_being_summoned(target))
+    if (!validate_target_basic(source, target, inst_idx) || creature_is_being_unconscious(target) ||
+        creature_is_being_tortured(target) || creature_is_kept_in_prison(target))
     {
         return false;
     }
 
     struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
-    if ((inst_inf->instance_property_flags & InstPF_SelfBuff) == 0 && source->index == target->index)
+    SpellKind spl_idx = inst_inf->func_params[0];
+    struct SpellConfig* spconf = get_spell_config(spl_idx);
+    if (spell_config_is_invalid(spconf) || creature_affected_by_spell(target, spl_idx))
     {
-        // If this spell doesn't have SELF_BUFF flag, exclude itself.
+        // If this instance has wrong spell, or the target has been affected by this spell, return false.
+        SYNCDBG(12, "%s(%d) is not a valid target for %s because it has been affected by the spell.",
+            thing_model_name(target), target->index, creature_instance_code_name(inst_idx));
         return false;
     }
 
@@ -1227,10 +1286,22 @@ TbBool validate_target_generic(struct Thing *source, struct Thing *target, CrIns
  */
 TbBool validate_source_ranged_heal(struct Thing *source, struct Thing *target, CrInstance inst_idx)
 {
-    if (!validate_source_generic(source, target, CrInst_RANGED_HEAL))
+    if (!validate_source_basic(source, target, inst_idx))
     {
         return false;
     }
+
+    // Omit creature_is_kept_in_prison() and creature_is_being_tortured() because we want the caster to heal itself.
+    if (!creature_instance_is_available(source, inst_idx) ||
+        !creature_instance_has_reset(source, inst_idx) ||
+        creature_is_fleeing_combat(source) || creature_affected_by_spell(source, SplK_Chicken) ||
+        creature_is_being_unconscious(source) || creature_is_dying(source) ||
+        thing_is_picked_up(source) || creature_is_being_dropped(source) ||
+        creature_is_being_sacrificed(source) || creature_is_being_summoned(source))
+    {
+        return false;
+    }
+
     // Creature who is leaving doesn't care about any allies.
     if (source->continue_state == CrSt_CreatureLeaves ||
         source->active_state == CrSt_CreatureLeavingDungeon ||
@@ -1251,18 +1322,27 @@ TbBool validate_source_ranged_heal(struct Thing *source, struct Thing *target, C
  */
 TbBool validate_target_ranged_heal(struct Thing *source, struct Thing *target, CrInstance inst_idx)
 {
-    if (!validate_target_generic(source, target, CrInst_RANGED_HEAL) ||
-        // Creature who is leaving doesn't deserve heal from allies.
-        target->continue_state == CrSt_CreatureLeaves ||
-        target->active_state == CrSt_CreatureLeavingDungeon ||
-        target->active_state == CrSt_CreatureScavengedDisappear ||
-        !creature_would_benefit_from_healing(target) ||
-        // Candidate shouldn't be fight with the caster.
-        creature_has_creature_in_combat(source, target) ||
-        creature_has_creature_in_combat(target, source))
+    if (!validate_target_basic(source, target, CrInst_RANGED_HEAL) || creature_is_being_unconscious(target) ||
+        !creature_would_benefit_from_healing(target))
     {
         return false;
     }
+
+    if (source->index == target->index)
+    {
+        // Special case. The healer is always allowed to heal itself even if
+        // it's being tortured or imprisoned.
+        return true;
+    }
+    else
+    {
+        if (creature_is_being_tortured(target) || creature_is_kept_in_prison(target) ||
+            creature_is_being_tortured(source) || creature_is_kept_in_prison(source))
+        {
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -1275,7 +1355,7 @@ TbBool validate_target_ranged_heal(struct Thing *source, struct Thing *target, C
  * @param found_count The number of the found creatures.
  * @return TbBool True if there is no error, false if otherwise.
  */
-TbBool search_target_generic(struct Thing *source, CrInstance inst_idx, struct Thing **targets, short *found_count)
+TbBool search_target_generic(struct Thing *source, CrInstance inst_idx, ThingIndex **targets, unsigned short *found_count)
 {
     if (!targets || !found_count)
     {
@@ -1285,7 +1365,8 @@ TbBool search_target_generic(struct Thing *source, CrInstance inst_idx, struct T
 
     TbBool ok = true;
     // To improve performance, use a smaller number than CREATURES_COUNT.
-    *targets = malloc(MAX_CREATURES_SEARCHED);
+    ThingIndex* results = (ThingIndex*)malloc(MAX_CREATURES_SEARCHED * sizeof(ThingIndex));
+    memset(results, 0, MAX_CREATURES_SEARCHED * sizeof(ThingIndex));
     *found_count = 0;
     // Note that we only support buff right now, so we only search source's owner's creature.
     // For offensive debuff, we need another loop to iterate all enemies.
@@ -1304,7 +1385,6 @@ TbBool search_target_generic(struct Thing *source, CrInstance inst_idx, struct T
         }
 
         creature_idx = cctrl->players_next_creature_idx;
-
         const struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
         if (inst_inf->validate_func_idx[1] > 0)
         {
@@ -1315,16 +1395,19 @@ TbBool search_target_generic(struct Thing *source, CrInstance inst_idx, struct T
             }
         }
 
-        // @todo Consider checking thing_in_field_of_view() in the future, now it is buggy.
-        // We assume that the source must see the target before it can cast the spell.
-        int range = get_combat_distance(source, candidate);
-        if (range < inst_inf->range_min || range > inst_inf->range_max ||
-            !creature_can_see_combat_path(source, candidate, range))
+        if (source->index != candidate->index)
         {
-            continue;
+            // @todo Consider checking thing_in_field_of_view() in the future, now it is buggy.
+            // We assume that the source must see the target before it can cast the spell.
+            int range = get_combat_distance(source, candidate);
+            if (range < inst_inf->range_min || range > inst_inf->range_max ||
+                !creature_can_see_combat_path(source, candidate, range))
+            {
+                continue;
+            }
         }
 
-        targets[*found_count] = candidate;
+        results[(*found_count)] = candidate->index;
         (*found_count)++;
 
         k++;
@@ -1336,6 +1419,7 @@ TbBool search_target_generic(struct Thing *source, CrInstance inst_idx, struct T
         }
     }
 
+    *targets = results;
     return ok;
 }
 
@@ -1348,7 +1432,7 @@ TbBool search_target_generic(struct Thing *source, CrInstance inst_idx, struct T
  * @param found_count The number of the found creatures.
  * @return TbBool True if there is no error, false if otherwise
  */
-TbBool search_target_ranged_heal(struct Thing *source, CrInstance inst_idx, struct Thing **targets, short *found_count)
+TbBool search_target_ranged_heal(struct Thing *source, CrInstance inst_idx, ThingIndex **targets, unsigned short *found_count)
 {
     if (!targets || !found_count)
     {
@@ -1361,19 +1445,22 @@ TbBool search_target_ranged_heal(struct Thing *source, CrInstance inst_idx, stru
         return false;
     }
 
+    ThingIndex* results = *targets;
     struct Thing *best_choice = NULL;
     TbBool ok = true;
     int i = 0;
     for (; i < *found_count; i++)
     {
-        struct Thing *candidate = targets[i];
+        struct Thing *candidate = thing_get(results[i]);
         if (thing_is_invalid(candidate))
         {
+            ERRORLOG("Creature at index %d is invalid", i);
             continue;
         }
         struct CreatureControl* cctrl = creature_control_get_from_thing(candidate);
         if (creature_control_invalid(cctrl))
         {
+            ERRORLOG("Control of creature at index %d is invalid", i);
             continue;
         }
         // Note that we only allow one target. No group buff are allowed yet.
@@ -1393,7 +1480,7 @@ TbBool search_target_ranged_heal(struct Thing *source, CrInstance inst_idx, stru
 
     if (best_choice)
     {
-        targets[0] = best_choice;
+        results[0] = best_choice->index;
         *found_count = 1;
     }
 
