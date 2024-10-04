@@ -22,8 +22,8 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
-#define REGIONS_COUNT        300
-#define REGION_QUEUE_LEN     200
+#define REGIONS_COUNT        400
+#define REGION_QUEUE_LEN     300
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,7 +34,7 @@ extern "C" {
 
 struct RegionT { // sizeof = 3
   unsigned short num_triangles;
-  unsigned char field_2;
+  TbBool allocated;
 };
 
 #pragma pack()
