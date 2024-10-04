@@ -255,7 +255,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->defense = 0;
       crstat->luck = 0;
       crstat->sleep_recovery = 1;
-      crstat->toking_recovery = 10;
+      crstat->toking_recovery = 0;
       crstat->hunger_rate = 1;
       crstat->hunger_fill = 1;
       crstat->lair_size = 1;

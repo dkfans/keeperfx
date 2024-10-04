@@ -2216,6 +2216,14 @@ void check_players_lost(void)
       {
           struct Thing *heartng;
           heartng = get_player_soul_container(i);
+          if (heartng->owner != i)
+          {
+              init_player_start(player, true);
+              if (dungeon->dnheart_idx == 0)
+              {
+                  initialise_devastate_dungeon_from_heart(player->id_number);
+              }
+          }
           if ((!thing_exists(heartng) || ((heartng->active_state == ObSt_BeingDestroyed) && !(dungeon->backup_heart_idx > 0))) && (player->victory_state == VicS_Undecided))
           {
             event_kill_all_players_events(i);
@@ -4096,18 +4104,24 @@ short process_command_line(unsigned short argc, char *argv[])
       if (strcasecmp(parstr,"alex") == 0)
       {
          set_flag(start_params.flags_font, FFlg_AlexCheat);
-      } else
-      if (strcasecmp(parstr,"connect") == 0)
+      }
+      else if (strcasecmp(parstr,"connect") == 0)
       {
           narg++;
           LbNetwork_InitSessionsFromCmdLine(pr2str);
           game_flags2 |= GF2_Connect;
-      } else
-      if (strcasecmp(parstr,"server") == 0)
+      }
+      else if (strcasecmp(parstr,"server") == 0)
       {
           game_flags2 |= GF2_Server;
-      } else
-      if (strcasecmp(parstr,"frameskip") == 0)
+          int port = atoi(pr2str);
+          if (port > 0)
+          {
+              LbNetwork_SetServerPort(port);
+              narg++;
+          }
+      }
+      else if (strcasecmp(parstr,"frameskip") == 0)
       {
          start_params.frame_skip = atoi(pr2str);
          narg++;

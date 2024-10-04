@@ -26,6 +26,7 @@
 #include "bflib_sprite.h"
 #include "thing_list.h"
 #include "map_locations.h"
+#include "packets.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -100,7 +101,8 @@ long get_creature_speed(const struct Thing *thing);
 TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
 TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
 void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
-ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primary_target);
+ThingIndex process_player_use_instance(struct Thing *thing, CrInstance inst_id, struct Packet *packet);
+ThingIndex get_human_controlled_creature_target(struct Thing *thing, CrInstance inst_id, struct Packet *packet);
 struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord x, MapCoord y);
 
 TbBool load_swipe_graphic_for_creature(const struct Thing *thing);
@@ -112,8 +114,14 @@ TbBool set_creature_object_combat(struct Thing *crthing, struct Thing *obthing);
 TbBool set_creature_object_snipe(struct Thing* crthing, struct Thing* obthing);
 TbBool set_creature_door_combat(struct Thing *crthing, struct Thing *obthing);
 void thing_fire_shot(struct Thing *firing,struct  Thing *target, ThingModel shot_model, char shot_lvl, unsigned char hit_type);
-void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long a3, long a4);
-void creature_cast_spell(struct Thing *caster, long trg_x, long trg_y, long a4, long a5);
+void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, SpellKind spl_idx, long shot_lvl);
+void creature_cast_spell(struct Thing *caster, SpellKind spl_idx, long shot_lvl, MapSubtlCoord trg_x, MapSubtlCoord trg_y);
+
+void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, char level, char count, GameTurn duration, long spl_idx);
+void level_up_familiar(struct Thing* famlrtng);
+void add_creature_to_summon_list(struct Dungeon* dungeon, ThingIndex famlrtng);
+void remove_creature_from_summon_list(struct Dungeon* dungeon, ThingIndex famlrtng);
+
 unsigned int get_creature_blocked_flags_at(struct Thing *thing, struct Coord3d *newpos);
 
 struct Thing *get_enemy_soul_container_creature_can_see(struct Thing *thing);

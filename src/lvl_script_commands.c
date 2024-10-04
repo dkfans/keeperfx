@@ -4656,16 +4656,17 @@ static void set_music_process(struct ScriptContext *context)
             else
             {
                 char info[255];
-                sprintf(info, "%s", Mix_GetMusicTitle(tracks[track_number]));
-                const char* artist = Mix_GetMusicArtistTag(tracks[track_number]);
-                if (artist[0] != '\0')
-                {
-                    sprintf(info, "%s by %s", info, artist);
-                }
-                const char* copyright = Mix_GetMusicCopyrightTag(tracks[track_number]);
-                if (copyright[0] != '\0')
-                {
-                    sprintf(info, "%s (%s)", info, copyright);
+                const char * title = Mix_GetMusicTitle(tracks[track_number]);
+                const char * artist = Mix_GetMusicArtistTag(tracks[track_number]);
+                const char * copyright = Mix_GetMusicCopyrightTag(tracks[track_number]);
+                if (strlen(artist) > 0 && strlen(copyright) > 0) {
+                    snprintf(info, sizeof(info), "%s by %s (%s)", title, artist, copyright);
+                } else if (strlen(artist) > 0) {
+                    snprintf(info, sizeof(info), "%s by %s", title, artist);
+                } else if (strlen(copyright) > 0) {
+                    snprintf(info, sizeof(info), "%s (%s)", title, copyright);
+                } else {
+                    snprintf(info, sizeof(info), "%s", title);
                 }
                 SCRPTLOG("Setting music track to %d: %s", track_number, info);
             }

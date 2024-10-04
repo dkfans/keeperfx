@@ -45,6 +45,7 @@
 #include "bflib_math.h"
 #include "gui_topmsg.h"
 #include "gui_msgs.h"
+#include "frontmenu_ingame_tabs.h"
 #include "post_inc.h"
 
 extern void clear_input(struct Packet* packet);
@@ -845,6 +846,26 @@ TbBool process_players_global_cheats_packet_action(PlayerNumber plyr_idx, struct
         case PckA_CheatAllTraps:
         {
             make_available_all_traps(plyr_idx);
+            return false;
+        }
+        case PckA_CheatGiveDoorTrap:
+        {
+            long model;
+            for (model = 1; model < game.conf.trapdoor_conf.door_types_count; model++)
+            {
+                if (is_door_buildable(plyr_idx, model))
+                {
+                    set_door_buildable_and_add_to_amount(plyr_idx, model, 1, 1);
+                }
+            }
+            for (model = 1; model < game.conf.trapdoor_conf.trap_types_count; model++)
+            {
+                if (is_trap_buildable(plyr_idx, model))
+                {
+                    set_trap_buildable_and_add_to_amount(plyr_idx, model, 1, 1);
+                }
+            }
+            update_trap_tab_to_config();
             return false;
         }
         default:
