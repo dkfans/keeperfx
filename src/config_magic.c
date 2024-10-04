@@ -2401,7 +2401,7 @@ TbBool load_magic_config_file(const char *textname, const char *fname, unsigned 
     // Parse blocks of the config file
     if (result)
     {
-        result = parse_magic_spell_blocks(buf, len, textname, flags);
+        result = parse_magic_spell_blocks(buf, len, fname, flags);
         if ((flags & CnfLd_AcceptPartial) != 0)
             result = true;
         if (!result)
@@ -2409,7 +2409,7 @@ TbBool load_magic_config_file(const char *textname, const char *fname, unsigned 
     }
     if (result)
     {
-        result = parse_magic_shot_blocks(buf, len, textname, flags);
+        result = parse_magic_shot_blocks(buf, len, fname, flags);
         if ((flags & CnfLd_AcceptPartial) != 0)
             result = true;
         if (!result)
@@ -2417,15 +2417,15 @@ TbBool load_magic_config_file(const char *textname, const char *fname, unsigned 
     }
     if (result)
     {
-      result = parse_magic_power_blocks(buf, len, textname, flags);
+      result = parse_magic_power_blocks(buf, len, fname, flags);
       if ((flags & CnfLd_AcceptPartial) != 0)
           result = true;
       if (!result)
-          WARNMSG("Parsing %s file \"%s\" power blocks failed.",textname,fname);
+          WARNMSG("Parsing %s file \"%s\" power blocks failed.",fname,fname);
     }
     if (result)
     {
-      result = parse_magic_special_blocks(buf, len, textname, flags);
+      result = parse_magic_special_blocks(buf, len, fname, flags);
       if ((flags & CnfLd_AcceptPartial) != 0)
           result = true;
       if (!result)
