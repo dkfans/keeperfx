@@ -642,8 +642,8 @@ TbBool battle_with_creature_of_player(PlayerNumber plyr_idx, BattleIndex battle_
         TRACE_THING(thing);
         if (thing_is_invalid(thing))
         {
-          ERRORLOG("Jump to invalid thing detected");
-          break;
+            ERRORLOG("Jump to invalid thing detected");
+            break;
         }
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         i = cctrl->battle_prev_creatr;
@@ -654,8 +654,8 @@ TbBool battle_with_creature_of_player(PlayerNumber plyr_idx, BattleIndex battle_
         k++;
         if (k > CREATURES_COUNT)
         {
-          ERRORLOG("Infinite loop detected when sweeping creatures list");
-          break;
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
         }
     }
     return false;
@@ -695,7 +695,8 @@ TbBool battle_any_of_things_in_specific_battle(const struct CreatureBattle *batt
         }
         // Per battle creature code ends
         k++;
-        if (k >= CREATURES_COUNT) {
+        if (k >= CREATURES_COUNT)
+        {
             ERRORLOG("Infinite loop in battle add");
             break;
         }
@@ -1251,7 +1252,7 @@ CrAttackType find_fellow_creature_to_fight_in_room(struct Thing *fightng, struct
             if (thing_is_creature(thing) && (thing_matches_model(thing,crmodel[j])) && (cctrl->combat_flags == 0))
             {
                 if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing)
-                    && !creature_is_being_unconscious(thing) && !creature_is_dying(thing))
+                    && !creature_is_being_unconscious(thing) && !creature_is_dying(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
                 {
                     if ((thing->index != fightng->index) && (get_room_thing_is_on(thing)->index == room->index))
                     {
@@ -1800,8 +1801,13 @@ TbBool creature_would_benefit_from_healing(const struct Thing* thing)
 }
 
 /**
- * Gives attack type optimized for self preservation.
- * @param thing The creature for which the instance is selected.
+ * @brief Get the best self buff instance.
+ * As long as the instance has SELF_BUFF flag and the creature is not being already affected,
+ * the instance will be considered valid. The returned instance might has RANGED_BUFF flag, so
+ * be careful about how you set the instance. You must not set an index of enemy to the target
+ * parameter.
+ * @param thing The creature to use self buff.
+ * @return CrInstance The valid self buff instance.
  */
 CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
 {
@@ -1814,9 +1820,9 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
             inst_inf = creature_instance_info_get(i);
             if (inst_inf->priority < p) // Instances with low priority are used last.
                 continue;
-            if ((flag_is_set(inst_inf->flags, InstPF_SelfBuff)) && ((inst_inf->func_idx != 2) || (!creature_affected_by_spell(thing, inst_inf->func_params[0]))))
+            if ((flag_is_set(inst_inf->instance_property_flags, InstPF_SelfBuff)) && ((inst_inf->func_idx != 2) || (!creature_affected_by_spell(thing, inst_inf->func_params[0]))))
             {
-                if (flag_is_set(inst_inf->flags, InstPF_OnlyInjured))
+                if (flag_is_set(inst_inf->instance_property_flags, InstPF_OnlyInjured))
                 {
                     if (creature_requires_healing(thing))
                     {
@@ -1825,7 +1831,7 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
                         continue;
                     }
                 }
-                if (flag_is_set(inst_inf->flags, InstPF_OnlyUnderGas))
+                if (flag_is_set(inst_inf->instance_property_flags, InstPF_OnlyUnderGas))
                 {
                     if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
                     {
@@ -1857,11 +1863,11 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
                 continue;
             if ((inst_inf->func_idx != 2) || (!creature_affected_by_spell(thing, inst_inf->func_params[0])))
             {
-                if ( !(thing_is_creature_special_digger(thing) && creature_is_doing_digger_activity(thing)) || (flag_is_set(inst_inf->flags, InstPF_DiggerTask)) )
+                if ( !(thing_is_creature_special_digger(thing) && creature_is_doing_digger_activity(thing)) || (flag_is_set(inst_inf->instance_property_flags, InstPF_DiggerTask)) )
                 {
-                    if ((!in_custody) || (flag_is_set(inst_inf->flags, InstPF_WhileImprisoned)))
+                    if ((!in_custody) || (flag_is_set(inst_inf->instance_property_flags, InstPF_WhileImprisoned)))
                     {
-                        if (flag_is_set(inst_inf->flags, InstPF_OnlyInjured))
+                        if (flag_is_set(inst_inf->instance_property_flags, InstPF_OnlyInjured))
                         {
                             if (creature_would_benefit_from_healing(thing))
                             {
@@ -1870,7 +1876,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
                                 continue;
                             }
                         }
-                        if (flag_is_set(inst_inf->flags, InstPF_OnlyUnderGas))
+                        if (flag_is_set(inst_inf->instance_property_flags, InstPF_OnlyUnderGas))
                         {
                             if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
                             {
@@ -1881,7 +1887,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
                         }
                         if (is_hero_thing(thing))
                         {
-                            if ((flag_is_set(inst_inf->flags, InstPF_Waiting)) || (state_type != CrStTyp_Idle))
+                            if ((flag_is_set(inst_inf->instance_property_flags, InstPF_Waiting)) || (state_type != CrStTyp_Idle))
                             {
                                 b = true;
                                 INSTANCE_RET_IF_AVAIL(thing, i);
@@ -1892,7 +1898,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
                             if (!creature_is_fighting(thing))
                             {
                                 b = true;
-                                if (flag_is_set(inst_inf->flags, InstPF_OutOfBattle))
+                                if (flag_is_set(inst_inf->instance_property_flags, InstPF_OutOfBattle))
                                 {
                                     INSTANCE_RET_IF_AVAIL(thing, i);
                                 }
@@ -1901,7 +1907,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
                         if (terrain_toxic)
                         {
                             b = true;
-                            if (flag_is_set(inst_inf->flags, InstPF_OnToxicTerrain))
+                            if (flag_is_set(inst_inf->instance_property_flags, InstPF_OnToxicTerrain))
                             {
                                 INSTANCE_RET_IF_AVAIL(thing, i);
                             }
@@ -1909,7 +1915,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
                         if (flag_is_set(cctrl->combat_flags,CmbtF_ObjctFight))
                         {
                             b = true;
-                            if (flag_is_set(inst_inf->flags, InstPF_AgainstObject))
+                            if (flag_is_set(inst_inf->instance_property_flags, InstPF_AgainstObject))
                             {
                                 INSTANCE_RET_IF_AVAIL(thing, i);
                             }
@@ -1917,7 +1923,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
                         if (flag_is_set(cctrl->combat_flags,CmbtF_DoorFight))
                         {
                             b = true;
-                            if (flag_is_set(inst_inf->flags, InstPF_AgainstDoor))
+                            if (flag_is_set(inst_inf->instance_property_flags, InstPF_AgainstDoor))
                             {
                                 INSTANCE_RET_IF_AVAIL(thing, i);
                             }
@@ -1944,7 +1950,7 @@ CrInstance get_best_quick_range_instance_to_use(const struct Thing *thing)
             inst_inf = creature_instance_info_get(i);
             if (inst_inf->priority < p) // Instances with low priority are used last.
                 continue;
-            if (flag_is_set(inst_inf->flags, InstPF_Quick))
+            if (flag_is_set(inst_inf->instance_property_flags, InstPF_Quick))
             {
                 INSTANCE_RET_IF_AVAIL(thing, i);
             }
@@ -1978,10 +1984,10 @@ CrInstance get_best_combat_weapon_instance_to_use(const struct Thing *thing, lon
                 continue;
             if (creature_instance_is_available(thing, i))
             {
-                if ( ( ((inst_inf->flags & (InstPF_RangedAttack | InstPF_RangedDebuff | InstPF_MeleeAttack)) && (atktype & InstPF_RangedAttack)) ||
-                       ((inst_inf->flags & (InstPF_MeleeAttack | InstPF_RangedDebuff))  && (atktype & InstPF_MeleeAttack)) ) &&
-                     (!(inst_inf->flags & InstPF_Dangerous)   || !(atktype & InstPF_Dangerous)) &&
-                     ((inst_inf->flags & InstPF_Destructive)  >=  (atktype & InstPF_Destructive)) )
+                if ( ( ((inst_inf->instance_property_flags & (InstPF_RangedAttack | InstPF_RangedDebuff | InstPF_MeleeAttack)) && (atktype & InstPF_RangedAttack)) ||
+                       ((inst_inf->instance_property_flags & (InstPF_MeleeAttack | InstPF_RangedDebuff))  && (atktype & InstPF_MeleeAttack)) ) &&
+                     (!(inst_inf->instance_property_flags & InstPF_Dangerous)   || !(atktype & InstPF_Dangerous)) &&
+                     ((inst_inf->instance_property_flags & InstPF_Destructive)  >=  (atktype & InstPF_Destructive)) )
                 {
                     if (creature_instance_has_reset(thing, i))
                     {
@@ -2014,11 +2020,11 @@ CrInstance get_best_combat_weapon_instance_to_use_versus_trap(const struct Thing
                 continue;
             if (creature_instance_is_available(thing, i))
             {
-                if ((((inst_inf->flags & (InstPF_RangedAttack | InstPF_RangedDebuff | InstPF_MeleeAttack)) && (atktype & InstPF_RangedAttack)) ||
-                    ((inst_inf->flags & (InstPF_MeleeAttack | InstPF_RangedDebuff)) && (atktype & InstPF_MeleeAttack))) &&
-                    (!(inst_inf->flags & InstPF_Dangerous) || !(atktype & InstPF_Dangerous)) &&
-                    ((inst_inf->flags & InstPF_Destructive) >= (atktype & InstPF_Destructive)) &&
-                    (inst_inf->flags & InstPF_Disarming) )
+                if ((((inst_inf->instance_property_flags & (InstPF_RangedAttack | InstPF_RangedDebuff | InstPF_MeleeAttack)) && (atktype & InstPF_RangedAttack)) ||
+                    ((inst_inf->instance_property_flags & (InstPF_MeleeAttack | InstPF_RangedDebuff)) && (atktype & InstPF_MeleeAttack))) &&
+                    (!(inst_inf->instance_property_flags & InstPF_Dangerous) || !(atktype & InstPF_Dangerous)) &&
+                    ((inst_inf->instance_property_flags & InstPF_Destructive) >= (atktype & InstPF_Destructive)) &&
+                    (inst_inf->instance_property_flags & InstPF_Disarming) )
                 {
                     if (creature_instance_has_reset(thing, i))
                     {
@@ -2036,25 +2042,31 @@ CrInstance get_best_combat_weapon_instance_to_use_versus_trap(const struct Thing
     return inst_id;
 }
 
+/**
+ * @brief Get the best ranged offensive weapon object. Return weapon only!
+ * Don't return self buff or ranged buff.
+ * @param thing The creature is attacking.
+ * @param dist The distance to the enemy.
+ * @return CrInstance The instance to be used.
+ */
 CrInstance get_best_ranged_offensive_weapon(const struct Thing *thing, long dist)
 {
-    CrInstance inst_id = get_best_self_preservation_instance_to_use(thing);
-    if (inst_id == CrInst_NULL)
-    {
-        int atktyp = InstPF_RangedAttack;
-        inst_id = get_best_combat_weapon_instance_to_use(thing, dist, atktyp);
-    }
+    int atktyp = InstPF_RangedAttack;
+    CrInstance inst_id = get_best_combat_weapon_instance_to_use(thing, dist, atktyp);
     return inst_id;
 }
 
+/**
+ * @brief Get the best melee offensive weapon object. Return weapon only!
+ * Don't return self buff or ranged buff.
+ * @param thing The creature is attacking.
+ * @param dist The distance to the enemy.
+ * @return CrInstance The instance to be used.
+ */
 CrInstance get_best_melee_offensive_weapon(const struct Thing *thing, long dist)
 {
-    CrInstance inst_id = get_best_self_preservation_instance_to_use(thing);
-    if (inst_id == CrInst_NULL)
-    {
-        int atktyp = InstPF_MeleeAttack;
-        inst_id = get_best_combat_weapon_instance_to_use(thing, dist, atktyp);
-    }
+    int atktyp = InstPF_MeleeAttack;
+    CrInstance inst_id = get_best_combat_weapon_instance_to_use(thing, dist, atktyp);
     return inst_id;
 }
 
@@ -2291,6 +2303,7 @@ long old_combat_move(struct Thing *thing, struct Thing *enmtng, long enm_distanc
 long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, CrtrStateId nstat)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    CrInstance inst_id = CrInst_NULL;
     if (cctrl->instance_id != CrInst_NULL)
     {
         creature_turn_to_face(thing, &enmtng->mappos);
@@ -2321,11 +2334,19 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, 
     cctrl->field_AA = 0;
     if (thing_in_field_of_view(thing, enmtng))
     {
+        // Firstly, check if any self buff is available.
+        inst_id = get_best_self_preservation_instance_to_use(thing);
+        if (inst_id > CrInst_NULL)
+        {
+            set_creature_instance(thing, inst_id, thing->index, 0);
+            return false;
+        }
+        // Secondly, check if any ranged weapon is available.
         if ((cctrl->combat_flags & (CmbtF_DoorFight|CmbtF_ObjctFight)) == 0)
         {
             if (combat_has_line_of_sight(thing, enmtng, enmdist))
             {
-                CrInstance inst_id = get_best_ranged_offensive_weapon(thing, enmdist);
+                inst_id = get_best_ranged_offensive_weapon(thing, enmdist);
                 if (inst_id > CrInst_NULL)
                 {
                     set_creature_instance(thing, inst_id, enmtng->index, 0);
@@ -2340,10 +2361,10 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, 
         // If cannot move to enemy, and not waiting for ranged weapon cooldown, then retreat from him
         if (!creature_has_ranged_weapon(thing))
         {
-            CrInstance inst_id = get_best_self_preservation_instance_to_use(thing);
+            inst_id = get_best_self_preservation_instance_to_use(thing);
             if (inst_id > CrInst_NULL)
             {
-                set_creature_instance(thing, inst_id, 0, 0);
+                set_creature_instance(thing, inst_id, thing->index, 0);
             } else
             if (creature_retreat_from_combat(thing, enmtng, nstat, 0) == Lb_FAIL)
             {
@@ -2707,14 +2728,21 @@ long waiting_combat_move(struct Thing *figtng, struct Thing *enmtng, long enmdis
     if (creature_turn_to_face(figtng, &enmtng->mappos) >= LbFPMath_PI/12) {
         return 0;
     }
-    // If the creature has ranged combat, let it fight
+    // If the creature has self buff, use it now.
+    CrInstance inst_id = get_best_self_preservation_instance_to_use(figtng);
+    if (inst_id > CrInst_NULL)
+    {
+        set_creature_instance(figtng, inst_id, figtng->index, 0);
+        return 0;
+    }
+    // If the creature has any ranged weapon, let it fight.
     if (creature_has_ranged_weapon(figtng))
     {
         if (combat_has_line_of_sight(figtng, enmtng, enmdist))
         {
-            CrInstance weapon = get_best_ranged_offensive_weapon(figtng, enmdist);
-            if (weapon > CrInst_NULL) {
-                set_creature_instance(figtng, weapon, enmtng->index, 0);
+            inst_id = get_best_ranged_offensive_weapon(figtng, enmdist);
+            if (inst_id > CrInst_NULL) {
+                set_creature_instance(figtng, inst_id, enmtng->index, 0);
                 return 0;
             }
         } else
@@ -2790,20 +2818,35 @@ void creature_in_ranged_combat(struct Thing *creatng)
         set_start_state(creatng);
         return;
     }
+    // If the creature has self buff, prefer it to weapon.
+    CrInstance buff_inst = get_best_self_preservation_instance_to_use(creatng);
+    CrInstance weapon = CrInst_NULL;
     long dist = get_combat_distance(creatng, enmtng);
-    CrInstance weapon = get_best_ranged_offensive_weapon(creatng, dist);
-    if (weapon == 0)
+    if (buff_inst > CrInst_NULL)
     {
-        set_start_state(creatng);
-        SYNCDBG(9,"The %s index %d cannot choose ranged offensive weapon",thing_model_name(creatng),(int)creatng->index);
-        return;
+        SYNCDBG(9,"The %s index %d can use self buff %s now.", thing_model_name(creatng),
+            (int)creatng->index, creature_instance_code_name(buff_inst));
+    }
+    else
+    {
+        weapon = get_best_ranged_offensive_weapon(creatng, dist);
+        if (weapon == CrInst_NULL)
+        {
+            set_start_state(creatng);
+            SYNCDBG(9,"The %s index %d cannot choose ranged offensive weapon",thing_model_name(creatng),(int)creatng->index);
+            return;
+        }
     }
     if (!ranged_combat_move(creatng, enmtng, dist, CrSt_CreatureInCombat))
     {
         SYNCDBG(9,"The %s index %d is moving and cannot attack in this turn",thing_model_name(creatng),(int)creatng->index);
         return;
     }
-    if (weapon > 0)
+    if (buff_inst > CrInst_NULL)
+    {
+        set_creature_instance(creatng, buff_inst, creatng->index, 0);
+    }
+    else if (weapon > CrInst_NULL)
     {
         set_creature_instance(creatng, weapon, enmtng->index, 0);
     }
@@ -2836,6 +2879,7 @@ void creature_in_melee_combat(struct Thing *creatng)
         set_start_state(creatng);
         return;
     }
+    // In melee_combat_move(), self buff would be cast if suitable.
     if (!melee_combat_move(creatng, enmtng, dist, CrSt_CreatureInCombat))
     {
         SYNCDBG(9,"The %s index %d is moving and cannot attack in this turn",thing_model_name(creatng),(int)creatng->index);
@@ -2869,6 +2913,13 @@ short creature_in_combat(struct Thing *creatng)
         return 0;
     }
     CombatState combat_func;
+    CrInstance instance = process_creature_ranged_buff_spell_casting(creatng);
+    if (instance != CrInst_NULL)
+    {
+        // Return now if the creature has casted something.
+        return 1;
+    }
+
     if (cctrl->combat.state_id < sizeof(combat_state)/sizeof(combat_state[0]))
         combat_func = combat_state[cctrl->combat.state_id];
     else
@@ -3070,7 +3121,7 @@ TbBool creature_look_for_combat(struct Thing *creatng)
         CrInstance inst_id = get_best_self_preservation_instance_to_use(creatng);
         if (inst_id > CrInst_NULL)
         {
-            set_creature_instance(creatng, inst_id, 0, 0);
+            set_creature_instance(creatng, inst_id, creatng->index, 0);
             return false;
         } else
         if (!external_set_thing_state(creatng, CrSt_CreatureCombatFlee)) {

@@ -39,7 +39,7 @@ enum CreatureStates {
     CrSt_ImpArrivesAtMineGold,
     CrSt_ImpDigsDirt,
     CrSt_ImpMinesGold,
-    CrSt_Null6,
+    CrSt_CreatureCastingPreparation,
     CrSt_ImpDropsGold,
     CrSt_ImpLastDidJob,
     CrSt_ImpArrivesAtImproveDungeon,
@@ -372,6 +372,7 @@ TbBool creature_is_being_unconscious(const struct Thing *thing);
 TbBool creature_is_celebrating(const struct Thing *thing);
 TbBool creature_is_being_tortured(const struct Thing *thing);
 TbBool creature_is_being_sacrificed(const struct Thing *thing);
+TbBool creature_is_leaving_and_cannot_be_stopped(const struct Thing* thing);
 TbBool creature_is_kept_in_prison(const struct Thing *thing);
 TbBool creature_is_being_summoned(const struct Thing *thing);
 TbBool creature_is_doing_anger_job(const struct Thing *thing);

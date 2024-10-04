@@ -148,15 +148,17 @@ enum InstancePropertiesFlags {
     InstPF_Quick               = 0x000080,
     InstPF_Disarming           = 0x000100,
     InstPF_UsesSwipe           = 0x000200,
-    InstPF_DiggerTask          = 0x000400,
-    InstPF_OutOfBattle         = 0x000800,
-    InstPF_Waiting             = 0x001000,
-    InstPF_WhileImprisoned     = 0x002000,
-    InstPF_OnlyInjured         = 0x004000,
-    InstPF_OnlyUnderGas        = 0x008000,
-    InstPF_OnToxicTerrain      = 0x010000,
-    InstPF_AgainstDoor         = 0x020000,
-    InstPF_AgainstObject       = 0x040000,
+    InstPF_RangedBuff          = 0x000400,
+    InstPF_NeedsTarget         = 0x000800,
+    InstPF_DiggerTask          = 0x001000,
+    InstPF_OutOfBattle         = 0x002000,
+    InstPF_Waiting             = 0x004000,
+    InstPF_WhileImprisoned     = 0x008000,
+    InstPF_OnlyInjured         = 0x010000,
+    InstPF_OnlyUnderGas        = 0x020000,
+    InstPF_OnToxicTerrain      = 0x040000,
+    InstPF_AgainstDoor         = 0x080000,
+    InstPF_AgainstObject       = 0x100000,
 };
 
 enum CreatureDeathKind {
@@ -267,7 +269,6 @@ struct CreatureConfig {
 /******************************************************************************/
 extern const char keeper_creaturetp_file[];
 extern struct NamedCommand creature_desc[];
-extern struct NamedCommand newcrtr_desc[];
 extern struct NamedCommand angerjob_desc[];
 extern struct NamedCommand creaturejob_desc[];
 extern struct NamedCommand attackpref_desc[];
@@ -278,13 +279,13 @@ extern const struct NamedCommand creatmodel_attraction_commands[];
 extern const struct NamedCommand creatmodel_sounds_commands[];
 extern const struct NamedCommand creatmodel_sprite_commands[];
 extern const struct NamedCommand creature_graphics_desc[];
+extern Creature_Job_Player_Check_Func creature_job_player_check_func_list[];
 /******************************************************************************/
 struct CreatureStats *creature_stats_get(ThingModel crstat_idx);
 struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing);
 TbBool creature_stats_invalid(const struct CreatureStats *crstat);
 void check_and_auto_fix_stats(void);
 const char *creature_code_name(ThingModel crmodel);
-const char* new_creature_code_name(ThingModel crmodel);
 long creature_model_id(const char * name);
 const char *creature_own_name(const struct Thing *creatng);
 TbBool is_creature_model_wildcard(ThingModel crmodel);

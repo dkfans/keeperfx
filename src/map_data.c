@@ -757,7 +757,7 @@ TbBool subtile_is_sellable_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapS
         return false;
     struct Room* room = subtile_room_get(stl_x, stl_y);
     struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
-    if ((roomst->flags & RoCFlg_CannotBeSold) != 0)
+    if (flag_is_set(roomst->flags,RoCFlg_CannotBeSold))
     {
         return false;
     }

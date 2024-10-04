@@ -45,6 +45,7 @@
 #include "power_specials.h"
 #include "room_util.h"
 #include "sounds.h"
+#include "spdigger_stack.h"
 #include "thing_data.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
@@ -301,6 +302,7 @@ rules_creatures_named_fields,rules_computer_named_fields,rules_workers_named_fie
 static const struct NamedCommand game_rule_desc[] = {
   {"PreserveClassicBugs",            1},
   {"AlliesShareVision",              2},
+  {"MapCreatureLimit",               3},
   {NULL,                             0},
 };
 
@@ -710,16 +712,21 @@ TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
             // activateD
             *varib_type = SVar_BOX_ACTIVATED;
         }
-        else
+        else if (2 == sscanf(varib_name, "KEEPERS_DESTROYED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
         {
-            *varib_id = -1;
+            *varib_id = get_id(player_desc, arg);
+            if (*varib_id == -1)
+            {
+                *varib_id = get_id(cmpgn_human_player_options, arg);
+            }
+            *varib_type = SVar_DESTROYED_KEEPER;
         }
-        if (2 == sscanf(varib_name, "SACRIFICED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
+        else if (2 == sscanf(varib_name, "SACRIFICED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
         {
             *varib_id = get_id(creature_desc, arg);
             *varib_type = SVar_SACRIFICED;
         }
-        if (2 == sscanf(varib_name, "REWARDED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
+        else if (2 == sscanf(varib_name, "REWARDED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
         {
             *varib_id = get_id(creature_desc, arg);
             *varib_type = SVar_REWARDED;
@@ -2973,7 +2980,14 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             CONFWRNLOG("Attribute (%d) not supported", creature_variable);
             break;
         case 2: // HEALTH
-            crstat->health = value;
+            if (crstat->health != value)
+            {
+                crstat->health = value;
+                for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+                {
+                    do_to_players_all_creatures_of_model(plyr_idx, creatid, update_relative_creature_health);
+                }
+            }
             break;
         case 3: // HEALREQUIREMENT
             crstat->heal_requirement = value;
@@ -3018,7 +3032,14 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             crstat->hurt_by_lava = value;
             break;
         case 17: // BASESPEED
-            crstat->base_speed = value;
+            if (crstat->base_speed != value)
+            {
+                crstat->base_speed = value;
+                for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+                {
+                    update_speed_of_player_creatures_of_model(plyr_idx, creatid);
+                }
+            }
             break;
         case 18: // GOLDHOLD
             crstat->gold_hold = value;
@@ -3066,7 +3087,14 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             crstat->footstep_pitch = value;
             break;
         case 34: // LAIROBJECT
-            crstat->lair_object = value;
+            if (crstat->lair_object != value)
+            {
+                for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+                {
+                    do_to_players_all_creatures_of_model(plyr_idx, creatid, remove_creature_lair);
+                }
+                crstat->lair_object = value;
+            }
             break;
         case 0: // comment
             break;
@@ -4628,16 +4656,17 @@ static void set_music_process(struct ScriptContext *context)
             else
             {
                 char info[255];
-                sprintf(info, "%s", Mix_GetMusicTitle(tracks[track_number]));
-                const char* artist = Mix_GetMusicArtistTag(tracks[track_number]);
-                if (artist[0] != '\0')
-                {
-                    sprintf(info, "%s by %s", info, artist);
-                }
-                const char* copyright = Mix_GetMusicCopyrightTag(tracks[track_number]);
-                if (copyright[0] != '\0')
-                {
-                    sprintf(info, "%s (%s)", info, copyright);
+                const char * title = Mix_GetMusicTitle(tracks[track_number]);
+                const char * artist = Mix_GetMusicArtistTag(tracks[track_number]);
+                const char * copyright = Mix_GetMusicCopyrightTag(tracks[track_number]);
+                if (strlen(artist) > 0 && strlen(copyright) > 0) {
+                    snprintf(info, sizeof(info), "%s by %s (%s)", title, artist, copyright);
+                } else if (strlen(artist) > 0) {
+                    snprintf(info, sizeof(info), "%s by %s", title, artist);
+                } else if (strlen(copyright) > 0) {
+                    snprintf(info, sizeof(info), "%s (%s)", title, copyright);
+                } else {
+                    snprintf(info, sizeof(info), "%s", title);
                 }
                 SCRPTLOG("Setting music track to %d: %s", track_number, info);
             }
@@ -5455,6 +5484,16 @@ static void set_game_rule_process(struct ScriptContext* context)
         SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.allies_share_vision, rulevalue);
         game.conf.rules.game.allies_share_vision = (TbBool)rulevalue;
         panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
+        break;
+    case 3: //MapCreatureLimit
+        //this one is a special case because it needs to kill of additional creatures
+        SCRIPTDBG(7, "Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.creatures_count, rulevalue);
+        game.conf.rules.game.creatures_count = rulevalue;
+        short count = setup_excess_creatures_to_leave_or_die(game.conf.rules.game.creatures_count);
+        if (count > 0)
+        {
+            SCRPTLOG("Map creature limit reduced, causing %d creatures to leave or die",count);
+        }
         break;
     default:
         WARNMSG("Unsupported Game Rule, command %d.", ruledesc);
@@ -6398,6 +6437,34 @@ static void set_computer_event_process(struct ScriptContext* context)
     SCRIPTDBG(6, "Altered %d events named '%s'", n, evntname);
 }
 
+static void swap_creature_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    ThingModel ncrt_id = scline->np[0];
+    ThingModel crtr_id = scline->np[1];
+
+    struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_id];
+    if ((crconf->model_flags & CMF_IsSpecDigger) != 0)
+    {
+        SCRPTERRLOG("Unable to swap special diggers");
+        DEALLOCATE_SCRIPT_VALUE;
+    }
+    value->shorts[0] = ncrt_id;
+    value->shorts[1] = crtr_id;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void swap_creature_process(struct ScriptContext* context)
+{
+    ThingModel ncrt_id = context->value->shorts[0];
+    ThingModel crtr_id = context->value->shorts[1];
+
+    if (!swap_creature(ncrt_id, crtr_id))
+    {
+        SCRPTERRLOG("Error swapping creatures '%s'<->'%s'", creature_code_name(ncrt_id), creature_code_name(crtr_id));
+    }
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -6462,7 +6529,7 @@ const struct CommandDesc command_desc[] = {
   {"QUICK_INFORMATION",                 "NAl     ", Cmd_QUICK_INFORMATION, NULL, NULL},
   {"QUICK_OBJECTIVE_WITH_POS",          "NANN    ", Cmd_QUICK_OBJECTIVE_WITH_POS, NULL, NULL},
   {"QUICK_INFORMATION_WITH_POS",        "NANN    ", Cmd_QUICK_INFORMATION_WITH_POS, NULL, NULL},
-  {"SWAP_CREATURE",                     "AC      ", Cmd_SWAP_CREATURE, NULL, NULL},
+  {"SWAP_CREATURE",                     "CC      ", Cmd_SWAP_CREATURE, &swap_creature_check, &swap_creature_process},
   {"PRINT",                             "A       ", Cmd_PRINT, NULL, NULL},
   {"MESSAGE",                           "A       ", Cmd_MESSAGE, NULL, NULL},
   {"PLAY_MESSAGE",                      "PAA     ", Cmd_PLAY_MESSAGE, &play_message_check, &play_message_process},
@@ -6609,7 +6676,7 @@ const struct CommandDesc dk1_command_desc[] = {
   {"BONUS_LEVEL_TIME",             "N       ", Cmd_BONUS_LEVEL_TIME, NULL, NULL},
   {"QUICK_OBJECTIVE",              "NAA     ", Cmd_QUICK_OBJECTIVE, NULL, NULL},
   {"QUICK_INFORMATION",            "NA      ", Cmd_QUICK_INFORMATION, NULL, NULL},
-  {"SWAP_CREATURE",                "AC      ", Cmd_SWAP_CREATURE, NULL, NULL},
+  {"SWAP_CREATURE",                "CC      ", Cmd_SWAP_CREATURE, &swap_creature_check, &swap_creature_process},
   {"PRINT",                        "A       ", Cmd_PRINT, NULL, NULL},
   {"MESSAGE",                      "A       ", Cmd_MESSAGE, NULL, NULL},
   {"LEVEL_VERSION",                "N       ", Cmd_LEVEL_VERSION, NULL, NULL},

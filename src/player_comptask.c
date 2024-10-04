@@ -757,6 +757,10 @@ TbBool creature_could_be_placed_in_better_room(const struct Computer2 *comp, con
     TbBool better_job_allowed;
     SYNCDBG(19,"Starting for %s index %d owner %d",thing_model_name(thing),(int)thing->index,(int)thing->owner);
     dungeon = comp->dungeon;
+    if (thing_is_creature(thing) && creature_is_leaving_and_cannot_be_stopped(thing))
+    {
+        return false;
+    }
     // Choose the room we're currently working in, and check it on the list
     chosen_room = get_room_creature_works_in(thing);
     if (!room_exists(chosen_room)) {
