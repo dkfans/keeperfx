@@ -60,7 +60,7 @@ struct CubeConfigStats *get_cube_model_stats(long cumodel)
 TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     struct CubeConfigStats *cubest;
-    int i = 0, k = 0;
+    int i;
     // Block name and parameter word store variables
     // Initialize the cubes array
     if ((flags & CnfLd_AcceptPartial) == 0)
@@ -76,21 +76,13 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
         }
     }
     // Load the file
-    const char * blockname = NULL;
-    int blocknamelen = 0;
-    long pos = 0;
-    while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
+    for (i=0; i < CUBE_ITEMS_MAX; i++)
     {
-        // look for blocks starting with "cube", followed by one or more digits
-        if (blocknamelen < 5) {
-            continue;
-        } else if (memcmp(blockname, "cube", 4) != 0) {
-            continue;
-        }
-        i = natoi(&blockname[4], blocknamelen - 4);
-        if (i < 0 || i >= CUBE_ITEMS_MAX) {
-            continue;
-        }
+        char block_buf[COMMAND_WORD_LEN];
+        sprintf(block_buf, "cube%d", i);
+        long pos = 0;
+        int k = find_conf_block(buf, &pos, len, block_buf);
+
         cubest = &game.conf.cube_conf.cube_cfgstats[i];
         struct CubeConfigStats* cubed = get_cube_model_stats(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(cubes_cube_commands,cmd_num)
@@ -113,8 +105,8 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
             case 1: // NAME
                 if (get_conf_parameter_single(buf,&pos,len,cubest->code_name,COMMAND_WORD_LEN) <= 0)
                 {
-                    CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                    CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
                     break;
                 }
                 else
@@ -129,8 +121,8 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
                     k = atoi(word_buf);
                     if (n >= CUBE_TEXTURES)
                     {
-                      CONFWRNLOG("Too many \"%s\" parameters in [%.*s] block of %s file.",
-                          COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                      CONFWRNLOG("Too many \"%s\" parameters in [%s] block of %s file.",
+                          COMMAND_TEXT(cmd_num),block_buf,config_textname);
                       break;
                     }
                     cubed->texture_id[n] = k;
@@ -138,8 +130,8 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
                 }
                 if (n < CUBE_TEXTURES)
                 {
-                    CONFWRNLOG("Couldn't read all \"%s\" parameters in [%.*s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                    CONFWRNLOG("Couldn't read all \"%s\" parameters in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
                 }
                 break;
             case 3: // OwnershipGroup
@@ -148,7 +140,7 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
                     k = atoi(word_buf);
                     if (k >= CUBE_OWNERSHIP_GROUPS)
                     {
-                        CONFWRNLOG("exceeding max amount of ownership groups (%d >= %d)", k, CUBE_OWNERSHIP_GROUPS);
+                        CONFWRNLOG("exceeding max amount of ownership groups",k,CUBE_OWNERSHIP_GROUPS);
                     }
                     cubed->ownershipGroup = k;
                     n++;
@@ -159,16 +151,14 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
                 {
                     if(cubed->ownershipGroup <= 0)
                     {
-                      CONFWRNLOG("Player without PlayerOwnership in [%.*s] block of %s file.",
-                        blocknamelen, blockname, config_textname);
+                      CONFWRNLOG("Player without PlayerOwnership in [%s] block of %s file.",block_buf,config_textname);
                       break;
                     }
 
                     k = get_id(cmpgn_human_player_options, word_buf);
                     if (k < 0 || k >= COLOURS_COUNT)
                     {
-                      CONFWRNLOG("invalid player in [%.*s] block of %s file.",
-                        blocknamelen, blockname, config_textname);
+                      CONFWRNLOG("invalid player in [%s] block of %s file.",block_buf,config_textname);
                       cubed->ownershipGroup = 0;
                       break;
                     }
@@ -182,8 +172,8 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
             case -1: // end of buffer
                 break;
             default:
-                CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",
-                    cmd_num, blocknamelen, blockname, config_textname);
+                CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
+                    cmd_num,block_buf,config_textname);
                 break;
             }
             skip_conf_to_next_line(buf,&pos,len);
