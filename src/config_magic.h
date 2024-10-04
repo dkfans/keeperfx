@@ -29,10 +29,10 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#define MAGIC_ITEMS_MAX         255
+#define MAGIC_ITEMS_MAX         2000
 #define SPELL_MAX_LEVEL         8
 #define MAGIC_OVERCHARGE_LEVELS (SPELL_MAX_LEVEL+1)
-#define POWER_TYPES_MAX         64
+#define POWER_TYPES_MAX         2000
 
 enum SpellKinds {
     SplK_None = 0,
@@ -65,34 +65,35 @@ enum SpellKinds {
     SplK_Chicken,
     SplK_TimeBomb,
     SplK_Lizard,
-    SplK_Familiar, // 30
-    SplK_Summon,
+    Splk_SummonFamiliar, // 30
+    Splk_SummonCreature,
     SplK_Rage, // 32
 };
 
 enum CreatureSpellAffectedFlags {
-    CSAfF_Slow         = 0x00001,
-    CSAfF_Speed        = 0x00002,
-    CSAfF_Armour       = 0x00004,
-    CSAfF_Rebound      = 0x00008,
-    CSAfF_Flying       = 0x00010,
-    CSAfF_Invisibility = 0x00020,
-    CSAfF_Sight        = 0x00040,
-    CSAfF_Light        = 0x00080, // This was originally Freeze, but that is now done via stateblock_flags.
-    CSAfF_Disease      = 0x00100,
-    CSAfF_Chicken      = 0x00200,
-    CSAfF_PoisonCloud  = 0x00400,
-    CSAfF_CalledToArms = 0x00800,
-    CSAfF_MadKilling   = 0x01000,
+    CSAfF_Slow         = 0x000001,
+    CSAfF_Speed        = 0x000002,
+    CSAfF_Armour       = 0x000004,
+    CSAfF_Rebound      = 0x000008,
+    CSAfF_Flying       = 0x000010,
+    CSAfF_Invisibility = 0x000020,
+    CSAfF_Sight        = 0x000040,
+    CSAfF_Light        = 0x000080, // This was originally Freeze, but that is now done via stateblock_flags.
+    CSAfF_Disease      = 0x000100,
+    CSAfF_Chicken      = 0x000200,
+    CSAfF_PoisonCloud  = 0x000400,
+    CSAfF_CalledToArms = 0x000800,
+    CSAfF_MadKilling   = 0x001000,
     /** The creature does a free fall with magical effect, ie. it was just created with some initial velocity. */
-    CSAfF_MagicFall    = 0x02000,
-    CSAfF_ExpLevelUp   = 0x04000,
+    CSAfF_MagicFall    = 0x002000,
+    CSAfF_ExpLevelUp   = 0x004000,
     /** For creature which are normally flying, this informs that its grounded due to spells or its condition. */
-    CSAfF_Grounded     = 0x08000,
-    CSAfF_Timebomb     = 0x10000,
-    CSAfF_Haste        = 0x20000,
-    CSAfF_Strength     = 0x40000,
-    CSAfF_Exposed      = 0x80000,
+    CSAfF_Grounded     = 0x008000,
+    CSAfF_Timebomb     = 0x010000,
+    CSAfF_Wind         = 0x020000,
+    CSAfF_Haste        = 0x040000,
+    CSAfF_Strength     = 0x080000,
+    CSAfF_Exposed      = 0x100000,
 };
 
 enum PowerKinds {
@@ -421,7 +422,7 @@ struct MagicConfig {
     struct PowerConfigStats power_cfgstats[MAGIC_ITEMS_MAX];
     long special_types_count;
     struct SpecialConfigStats special_cfgstats[MAGIC_ITEMS_MAX];
-    struct InstanceInfo instance_info[MAGIC_ITEMS_MAX]; //count in crtr_conf
+    struct InstanceInfo instance_info[INSTANCE_TYPES_MAX]; //count in crtr_conf
     struct MagicStats keeper_power_stats[POWER_TYPES_MAX]; // should get merged into PowerConfigStats
 };
 

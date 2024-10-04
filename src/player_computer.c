@@ -1341,25 +1341,25 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
 }
 
 
-TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyridx, long comp_model)
+TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyr_idx, long comp_model)
 {
-    struct PlayerInfo* player = get_player(plyridx);
-    if (player_invalid(player) || player_is_neutral(plyridx)) {
-        SCRPTWRNLOG("Tried to set up invalid player %d",(int)plyridx);
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (player_invalid(player) || player_is_neutral(plyr_idx)) {
+        SCRPTWRNLOG("Tried to set up invalid player %d",(int)plyr_idx);
         return false;
     }
     // It uses >= because the count will be one higher than
     // the actual highest possible computer model number.
     if ((comp_model < 0) || (comp_model >= COMPUTER_MODELS_COUNT)) {
-        SCRPTWRNLOG("Tried to set up player %d as outranged computer model %d",(int)plyridx,(int)comp_model);
+        SCRPTWRNLOG("Tried to set up player %d as outranged computer model %d",(int)plyr_idx,(int)comp_model);
         comp_model = 0;
     }
     player->allocflags |= PlaF_Allocated;
-    player->id_number = plyridx;
+    player->id_number = plyr_idx;
     player->is_active = 1;
     player->allocflags |= PlaF_CompCtrl;
     init_player_start(player, false);
-    if (!setup_a_computer_player(plyridx, comp_model)) {
+    if (!setup_a_computer_player(plyr_idx, comp_model)) {
         player->allocflags &= ~PlaF_CompCtrl;
         player->allocflags &= ~PlaF_Allocated;
         return false;

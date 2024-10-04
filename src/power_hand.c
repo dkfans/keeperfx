@@ -206,6 +206,10 @@ long can_thing_be_picked_up_by_player(const struct Thing *thing, PlayerNumber pl
     if (thing_is_creature(thing) && thing_pickup_is_blocked_by_hand_rule(thing, plyr_idx)) {
         return false;
     }
+    if (thing_is_creature(thing) && creature_is_leaving_and_cannot_be_stopped(thing))
+    {
+        return false;
+    }
     // Some things can be picked not to be placed in hand, but for direct use
     if (thing_is_object(thing))
     {
@@ -243,8 +247,8 @@ TbBool can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber
         state = thing->active_state;
     }
 
-    if ( (state == CrSt_CreatureSacrifice)
-        || (state == CrSt_CreatureBeingSacrificed) || (state == CrSt_CreatureBeingSummoned))
+    if ( (state == CrSt_CreatureSacrifice) || (state == CrSt_CreatureBeingSacrificed)
+        || (state == CrSt_CreatureBeingSummoned) || (state == CrSt_LeavesBecauseOwnerLost))
     {
         return false;
     }
@@ -502,6 +506,11 @@ long get_thing_in_hand_id(const struct Thing* thing, PlayerNumber plyr_idx)
 void place_thing_in_limbo(struct Thing *thing)
 {
     remove_thing_from_mapwho(thing);
+    if (thing->light_id != 0)
+    {
+        light_delete_light(thing->light_id);
+        thing->light_id = 0;
+    }
     thing->rendering_flags |= TRF_Invisible;
     thing->alloc_flags |= TAlF_IsInLimbo;
 }
@@ -1311,11 +1320,6 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
             i = convert_td_iso(122);
         else
             i = get_creature_anim(thing, 9);
-        if (thing->light_id != 0)
-        {
-            light_delete_light(thing->light_id);
-            thing->light_id = 0;
-        }
         set_thing_draw(thing, i, 256, -1, -1, 0, ODC_Default);
     } else
     if (thing_is_object(thing))

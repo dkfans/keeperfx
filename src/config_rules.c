@@ -93,6 +93,7 @@ const struct NamedField rules_game_named_fields[] = {
   {"EASTEREGGSPEECHINTERVAL",    &game.conf.rules.game.easter_egg_speech_interval, var_type(game.conf.rules.game.easter_egg_speech_interval),       0,LONG_MAX},
   {"GLOBALAMBIENTLIGHT",         &game.conf.rules.game.global_ambient_light,       var_type(game.conf.rules.game.global_ambient_light      ),LONG_MIN,LONG_MAX},
   {"LIGHTENABLED",               &game.conf.rules.game.light_enabled,              var_type(game.conf.rules.game.light_enabled             ),       0,       1},
+  {"MAPCREATURELIMIT",           &game.conf.rules.game.creatures_count,            var_type(game.conf.rules.game.creatures_count           ),       0,CREATURES_COUNT-2},
   {NULL,                            NULL,0,0,0 },
 };
 
@@ -177,7 +178,7 @@ const struct NamedField rules_workers_named_fields[] = {
   {"DEFAULTIMPDIGDAMAGE",        &game.conf.rules.workers.default_imp_dig_damage,     var_type(game.conf.rules.workers.default_imp_dig_damage     ), 0, ULONG_MAX},
   {"DEFAULTIMPDIGOWNDAMAGE",     &game.conf.rules.workers.default_imp_dig_own_damage, var_type(game.conf.rules.workers.default_imp_dig_own_damage ), 0, ULONG_MAX},
   {"IMPWORKEXPERIENCE",          &game.conf.rules.workers.digger_work_experience,     var_type(game.conf.rules.workers.digger_work_experience     ), 0, LONG_MAX},
-  {"DRAGUNCONSCIOUSTOLAIR",      &game.conf.rules.workers.drag_to_lair,               var_type(game.conf.rules.workers.drag_to_lair),                0, 1},
+  {"DRAGUNCONSCIOUSTOLAIR",      &game.conf.rules.workers.drag_to_lair,               var_type(game.conf.rules.workers.drag_to_lair),                0, 2},
   {NULL,NULL,0,0,0 },
 };
 
@@ -286,6 +287,7 @@ static void set_defaults()
     game.conf.rules.game.torture_payday = 50;
     game.conf.rules.game.torture_training_cost = 100;
     game.conf.rules.game.torture_scavenging_cost = 100;
+    game.conf.rules.game.creatures_count = 255;
     // Creature block.
     game.conf.rules.creature.recovery_frequency = 10;
     game.conf.rules.creature.fight_max_hate = 200;

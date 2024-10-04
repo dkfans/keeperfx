@@ -1013,7 +1013,24 @@ astro_time_t Astronomy_CurrentTime(void)
     FILETIME ft;
     ULARGE_INTEGER large;
     /* Get time in 100-nanosecond units from January 1, 1601. */
-    GetSystemTimePreciseAsFileTime(&ft);
+    /* GetSystemTimePreciseAsFileTime is only available since Windows 8 */
+    typedef void (WINAPI *GetSystemTimePreciseAsFileTimeFunc)(LPFILETIME);
+    GetSystemTimePreciseAsFileTimeFunc pGetSystemTimePreciseAsFileTime = NULL;
+    HMODULE hModule = GetModuleHandleA("kernel32.dll");
+    if (hModule) {
+        union {
+            FARPROC proc;
+            GetSystemTimePreciseAsFileTimeFunc func;
+        } converter;
+        converter.proc = GetProcAddress(hModule, "GetSystemTimePreciseAsFileTime");
+        pGetSystemTimePreciseAsFileTime = converter.func;
+    }
+    // Use the function if available, otherwise fallback
+    if (pGetSystemTimePreciseAsFileTime) {
+        pGetSystemTimePreciseAsFileTime(&ft);
+    } else {
+        GetSystemTimeAsFileTime(&ft);
+    }
     large.u.LowPart  = ft.dwLowDateTime;
     large.u.HighPart = ft.dwHighDateTime;
     sec = (large.QuadPart - 116444736000000000ULL) / 1.0e+7;
@@ -11230,7 +11247,7 @@ static const constel_boundary_t ConstelBounds[] = {
 astro_constellation_t Astronomy_Constellation(double ra, double dec)
 {
     static astro_time_t epoch2000;
-    static astro_rotation_t rot = { ASTRO_NOT_INITIALIZED };
+    static astro_rotation_t rot = { ASTRO_NOT_INITIALIZED, {{0}} };
     astro_constellation_t constel;
     astro_spherical_t s2000;
     astro_equatorial_t b1875;
