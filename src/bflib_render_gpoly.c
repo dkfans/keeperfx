@@ -4428,6 +4428,7 @@ void poly_render() {
   uint8_t *iVar12;
   uint8_t *puVar13;
   uint8_t bVar14;
+  int ycounter;
 
   uVar5 = 0;
   iVar12 = (uint8_t *)((uint32_t)(LOC_vec_screen_width * point1y) + (uint32_t)LOC_vec_screen);
@@ -4609,8 +4610,8 @@ void poly_render() {
           uVar7 = uVar7 + uVar8;
           uVar9 = uVar5 + gploc_2C + (uint)bVar14;
           uVar6 = (uVar5 & 0xff0000ff) << 8 | uVar5 >> 0x18;
-          puVar13 = puVar13 + 0x10;
-          gploc_D4 = gploc_D4 - 0x10;
+          puVar13 += 16;
+          gploc_D4 -= 16;
         } while (gploc_D4 != 0 && 0xf < (int)uVar11);
       }
       iVar1 = gploc_FC + gploc_12C;
@@ -4626,7 +4627,7 @@ void poly_render() {
     }
   loc_783338:
     for (; gploc_180 != 0; gploc_180--) {
-      iVar2 = point2y;
+      ycounter = point2y;
       if (crease_len < 0) {
         iVar4 = point3y;
         if (LOC_vec_window_height < point3y) {
@@ -4663,7 +4664,7 @@ void poly_render() {
         }
       }
       while (true) {
-        if (-1 < iVar2) goto loc_783239;
+        if (ycounter >= 0) goto loc_783239;
       loc_7832B0:
         bVar14 = CARRY4(uVar5, gploc_60);
         uVar5 = uVar5 + gploc_60;
@@ -4678,7 +4679,7 @@ void poly_render() {
         gploc_C0 = gploc_C0 + -1;
         gploc_FC = iVar1;
         if (gploc_C0 == 0) break;
-        iVar2 = iVar2 + 1;
+        ycounter++;
         iVar3 = iVar1;
         uVar7 = uVar8;
       }
