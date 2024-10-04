@@ -1826,7 +1826,11 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
       powerst->cast_cooldown = 0;
       power_desc[i].name = powerst->code_name;
       power_desc[i].num = i;
-      game.conf.object_conf.object_to_power_artifact[i] = 0;
+    }
+  }
+  if ((flags & CnfLd_AcceptPartial) == 0) {
+    for (int i = 0; i < MAGIC_ITEMS_MAX; i++) {
+        game.conf.object_conf.object_to_power_artifact[i] = 0;
     }
   }
   power_desc[MAGIC_ITEMS_MAX - 1].name = NULL; // must be null for get_id
