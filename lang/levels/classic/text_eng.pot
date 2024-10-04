@@ -55,7 +55,7 @@ msgstr ""
 #. Syndika (lv206)
 #: guitext:4
 msgctxt "In-game message"
-msgid "The syndicate has been eradicated! Congratulations Keeper on your victory against the Director. "
+msgid "The syndicate has been eradicated! Congratulations Keeper on your victory against the Director."
 msgstr ""
 
 #. Kzelbatu (lv207)

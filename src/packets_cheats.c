@@ -45,6 +45,7 @@
 #include "bflib_math.h"
 #include "gui_topmsg.h"
 #include "gui_msgs.h"
+#include "frontmenu_ingame_tabs.h"
 #include "post_inc.h"
 
 extern void clear_input(struct Packet* packet);
@@ -581,10 +582,7 @@ TbBool packets_process_cheats(
                             query_creature(player, player->thing_under_hand, true, false);
                         }
                     }
-                    else
-                    {
-                        query_thing(thing);
-                    }
+                    query_thing(thing);
                     unset_packet_control(pckt, PCtr_LBtnRelease);
                 }
                 else if (room_exists(room) )
@@ -850,6 +848,26 @@ TbBool process_players_global_cheats_packet_action(PlayerNumber plyr_idx, struct
             make_available_all_traps(plyr_idx);
             return false;
         }
+        case PckA_CheatGiveDoorTrap:
+        {
+            long model;
+            for (model = 1; model < game.conf.trapdoor_conf.door_types_count; model++)
+            {
+                if (is_door_buildable(plyr_idx, model))
+                {
+                    set_door_buildable_and_add_to_amount(plyr_idx, model, 1, 1);
+                }
+            }
+            for (model = 1; model < game.conf.trapdoor_conf.trap_types_count; model++)
+            {
+                if (is_trap_buildable(plyr_idx, model))
+                {
+                    set_trap_buildable_and_add_to_amount(plyr_idx, model, 1, 1);
+                }
+            }
+            update_trap_tab_to_config();
+            return false;
+        }
         default:
           return false;
   }
@@ -995,14 +1013,30 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
             {
                 thing->health = (short)pckt->actn_par2;
             }
+            if (thing->health <= 0)
+            {
+                    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+                    dungeon->lvstats.keeper_destroyed[pckt->actn_par1]++;
+                    dungeon->lvstats.keepers_destroyed++;
+            }
             break;
         }
         case PckA_CheatKillPlayer:
         {
             thing = get_player_soul_container(pckt->actn_par1);
+            struct Dungeon* dungeon = get_dungeon(plyr_idx);
             if (!thing_is_invalid(thing))
             {
                 thing->health = 0;
+                dungeon->lvstats.keeper_destroyed[pckt->actn_par1]++;
+                dungeon->lvstats.keepers_destroyed++;
+            }
+            struct Thing* heartng = find_players_backup_dungeon_heart(pckt->actn_par1);
+            if (!thing_is_invalid(heartng))
+            {
+                heartng->health = 0;
+                dungeon->lvstats.keeper_destroyed[pckt->actn_par1]++;
+                dungeon->lvstats.keepers_destroyed++;
             }
             break;
         }

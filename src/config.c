@@ -40,6 +40,7 @@
 #include "scrcapt.h"
 #include "vidmode.h"
 #include "music_player.h"
+#include "moonphase.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -1584,11 +1585,6 @@ unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *
   prepare_file_path_buf(ffullpath, fgroup, fname);
   va_end(arg);
   // Load the file
-  if (file_group_needs_cd(fgroup))
-  {
-    if (!wait_for_cd_to_be_available())
-      return NULL;
-   }
    long fsize = LbFileLengthRnc(ffullpath);
    if (fsize < *ldsize)
    {
@@ -1613,60 +1609,81 @@ unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *
   return buf;
 }
 
-short calculate_moon_phase(short do_calculate,short add_to_log)
+short calculate_moon_phase(short do_calculate, short add_to_log)
 {
-  //Moon phase calculation
-  if (do_calculate)
-  {
-    phase_of_moon = (float)LbMoonPhase();
-  }
-  if ((phase_of_moon > -0.05) && (phase_of_moon < 0.05))
-  {
-    if (add_to_log)
-      SYNCMSG("Full moon %.4f", phase_of_moon);
-    is_full_moon = 1;
-    is_near_full_moon = 0;
-    is_new_moon = 0;
-    is_near_new_moon = 0;
-  } else
-  if ((phase_of_moon > -0.1) && (phase_of_moon < 0.1))
-  {
-    if (add_to_log)
-      SYNCMSG("Near Full moon %.4f", phase_of_moon);
-    is_full_moon = 0;
-    is_near_full_moon = 1;
-    is_new_moon = 0;
-    is_near_new_moon = 0;
-  } else
-  if ((phase_of_moon < -0.95) || (phase_of_moon > 0.95))
-  {
-    if (add_to_log)
-      SYNCMSG("New moon %.4f", phase_of_moon);
-    is_full_moon = 0;
-    is_near_full_moon = 0;
-    is_new_moon = 1;
-    is_near_new_moon = 0;
-  } else
-  if ((phase_of_moon < -0.9) || (phase_of_moon > 0.9))
-  {
-    if (add_to_log)
-      SYNCMSG("Near new moon %.4f", phase_of_moon);
-    is_full_moon = 0;
-    is_near_full_moon = 0;
-    is_new_moon = 0;
-    is_near_new_moon = 1;
-  } else
-  {
-    if (add_to_log)
-      SYNCMSG("Moon phase %.4f", phase_of_moon);
-    is_full_moon = 0;
-    is_near_full_moon = 0;
-    is_new_moon = 0;
-    is_near_new_moon = 0;
-  }
-//!CHEAT! always show extra levels
-//  is_full_moon = 1; is_new_moon = 1;
-  return is_full_moon;
+    // Moon phase calculation
+    if (do_calculate)
+    {
+        phase_of_moon = (float)moonphase_calculate();
+    }
+
+    // Handle moon phases
+    if ((phase_of_moon > 0.475) && (phase_of_moon < 0.525)) // Approx 33 hours
+    {
+        if (add_to_log)
+        {
+            SYNCMSG("Full moon %.4f", phase_of_moon);
+        }
+
+        is_full_moon = 1;
+        is_near_full_moon = 0;
+        is_new_moon = 0;
+        is_near_new_moon = 0;
+    }
+    else if ((phase_of_moon > 0.45) && (phase_of_moon < 0.55)) // Approx 70 hours
+    {
+        if (add_to_log)
+        {
+            SYNCMSG("Near Full moon %.4f", phase_of_moon);
+        }
+
+        is_full_moon = 0;
+        is_near_full_moon = 1;
+        is_new_moon = 0;
+        is_near_new_moon = 0;
+    }
+    else if ((phase_of_moon < 0.025) || (phase_of_moon > 0.975))
+    {
+        if (add_to_log)
+        {
+            SYNCMSG("New moon %.4f", phase_of_moon);
+        }
+
+        is_full_moon = 0;
+        is_near_full_moon = 0;
+        is_new_moon = 1;
+        is_near_new_moon = 0;
+    }
+    else if ((phase_of_moon < 0.05) || (phase_of_moon > 0.95))
+    {
+        if (add_to_log)
+        {
+            SYNCMSG("Near new moon %.4f", phase_of_moon);
+        }
+
+        is_full_moon = 0;
+        is_near_full_moon = 0;
+        is_new_moon = 0;
+        is_near_new_moon = 1;
+    }
+    else
+    {
+        if (add_to_log)
+        {
+            SYNCMSG("Moon phase %.4f", phase_of_moon);
+        }
+
+        is_full_moon = 0;
+        is_near_full_moon = 0;
+        is_new_moon = 0;
+        is_near_new_moon = 0;
+    }
+
+    //! CHEAT! always show extra levels
+    // TODO: make this a command line option?
+    //  is_full_moon = 1; is_new_moon = 1;
+
+    return is_full_moon;
 }
 
 void load_or_create_high_score_table(void)

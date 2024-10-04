@@ -21,7 +21,7 @@
 "Date: 2012-09-02 01:12+0200\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
 "PO-Revision-Date: 2024-01-01 21:00+0100\n"
-"Last-Translator: Walter253\n"
+"Last-Translator: walter253\n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -2239,13 +2239,8 @@ msgstr "Contrôle de groupe : Non utilisé"
 
 #: guitext:239
 msgctxt "Creature spell"
-msgid ""
-"Invisibility: Cast on one of your minions, it makes the host creature "
-"invisible to all enemies. Unless they possess a subnatural Sight."
-msgstr ""
-"Invisibilité : Lancé sur un de vos larbins, il rend la créature hôte "
-"invisible pour tous les ennemis. A moins qu'ils ne possèdent une vue "
-"médiocre[26.12]"
+msgid "Invisibility: Makes the creature invisible to all enemies. Unless they possess a subnatural Sight."
+msgstr "La créature ciblée devient invisible pour tous les ennemis. À moins qu’ils ne possèdent une vision surnaturelle."
 
 #: guitext:240
 msgctxt "Creature spell"
@@ -2289,7 +2284,7 @@ msgstr "Grêle : Crée une pluie de grêlons partout où le sort s'abat.[26.10]"
 #: guitext:245
 msgctxt "Creature spell"
 msgid ""
-"Slow: Slows down the target creature, making it attacks and movement delayed."
+"Slow: Slows down the target creature, making its attacks and movement delayed."
 msgstr ""
 "Lenteur : Ralentit la créature cible, ce qui ralentit ses attaques et "
 "ses mouvements."
@@ -4726,26 +4721,22 @@ msgstr ""
 
 #: guitext:654
 msgctxt "Keeper spell description"
-msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
+msgid "Speed Monster: Increases the speed of your monsters."
 msgstr ""
-"Accélérateur de monstre : Augmente la vitesse de vos monstres. Sélectionnez "
-"avec le bouton gauche de la souris. [18.4]"
+"Accélérateur de monstre : Augmente la vitesse de vos monstres."
 
 #: guitext:655
 msgctxt "Keeper spell description"
-msgid "Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
+msgid "Protect Monster: Shields your creatures from attack."
 msgstr ""
-"Protection : Protège avec efficacité vos créatures de toute attaque. "
-"Sélectionnez avec le bouton gauche de la souris. [18.11]"
+"Protection : Protège avec efficacité vos créatures de toute attaque."
 
 #: guitext:656
 msgctxt "Keeper spell description"
 msgid ""
-"Conceal Monster: Makes your creatures invisible to the enemy. LMB select. "
-"[18.7]"
+"Conceal Monster: Makes your creatures invisible to the enemy."
 msgstr ""
-"Invisibilité : Vos créatures sont invisibles pour l'ennemi. Sélectionnez avec "
-"le bouton gauche de la souris. [18.7]"
+"Invisibilité : Vos créatures sont invisibles pour l'ennemi."
 
 #: guitext:657
 msgctxt "Keeper spell description"
@@ -6834,12 +6825,12 @@ msgstr "Piège Spécial"
 #: guitext:982
 msgctxt "Trap names"
 msgid "Freeze Trap"
-msgstr "Piège de Gel"
+msgstr "Piège Givrant"
 
 #: guitext:983
 msgctxt "Trap names"
 msgid "Fear Trap"
-msgstr "Piège de Peur"
+msgstr "Piège Effroi"
 
 #: guitext:984
 msgctxt "Trap names"
@@ -6849,37 +6840,37 @@ msgstr "Piège Sentinelle"
 #: guitext:985
 msgctxt "Trap names"
 msgid "Mimic Trap"
-msgstr "Piège Mimique"
+msgstr "Piège Copieur"
 
 #: guitext:986
 msgctxt "Trap names"
 msgid "Spawn Trap"
-msgstr "Piège à Invocation"
+msgstr "Piège Invocateur"
 
 #: guitext:987
 msgctxt "Trap names"
 msgid "Wind Trap"
-msgstr "Piège à Vent"
+msgstr "Piège Soufflant"
 
 #: guitext:988
 msgctxt "Trap names"
 msgid "Spitfire Trap"
-msgstr "Piège de Feu"
+msgstr "Lance-flammes"
 
 #: guitext:989
 msgctxt "Trap names"
 msgid "Chicken Trap"
-msgstr "Piège aux Poulets"
+msgstr "Piège Galinamorpheur"
 
 #: guitext:990
 msgctxt "Trap names"
 msgid "Disease Trap"
-msgstr "Piège aux Maladies"
+msgstr "Piège Pestilentiel"
 
 #: guitext:991
 msgctxt "Trap names"
 msgid "Power Trap"
-msgstr "Piège de Puissance"
+msgstr "Piège Radiant"
 
 #: guitext:992
 msgctxt "Trap names"
@@ -6978,117 +6969,117 @@ msgid "Moo4"
 msgstr ""
 
 #: guitext:1011
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Dungeon Keeper - Original Campaign"
 msgstr "Dungeon Keeper - Campagne Originale"
 
 #: guitext:1012
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Assmist Isle"
 msgstr ""
 
 #: guitext:1013
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Ancient Keeper campaign"
 msgstr ""
 
 #: guitext:1014
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Burdened Imps' Level Pack"
 msgstr ""
 
 #: guitext:1015
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Conquest of the Arctic"
 msgstr ""
 
 #: guitext:1016
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "The Destiny of Ninja"
 msgstr ""
 
 #: guitext:1017
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "DzjeeAr's  6-level campaign"
 msgstr ""
 
 #: guitext:1018
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "DzjeeAr's 10-level campaign"
 msgstr ""
 
 #: guitext:1019
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "DzjeeAr's 25-level campaign"
 msgstr ""
 
 #: guitext:1020
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Evil Keeper campaign"
 msgstr ""
 
 #: guitext:1021
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Grinics' KReign campaign"
 msgstr ""
 
 #: guitext:1022
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Japanese DKMaps8 pack"
 msgstr ""
 
 #: guitext:1023
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "KDK Levels"
 msgstr ""
 
 #: guitext:1024
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Good Campaign"
 msgstr ""
 
 #: guitext:1025
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Lord Vexer campaign"
 msgstr ""
 
 #: guitext:1026
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Nikolai's Castles campaign"
 msgstr ""
 
 #: guitext:1027
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Dungeon Keeper - NG+"
 msgstr ""
 
 #: guitext:1028
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Post Ancient Keeper campaign"
 msgstr ""
 
 #: guitext:1029
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Post Undead Keeper campaign"
 msgstr ""
 
 #: guitext:1030
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Quest for the Hero campaign"
 msgstr ""
 
 #: guitext:1031
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Revenge of the Lord"
 msgstr ""
 
 #: guitext:1032
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Twin Keepers Campaign"
 msgstr ""
 
 #: guitext:1033
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Undead Keeper campaign"
 msgstr ""
 
@@ -7100,19 +7091,19 @@ msgstr ""
 #: guitext:1036
 msgctxt "Trap names"
 msgid "Demolition Trap"
-msgstr "Piège de démolition"
+msgstr "Baril Explosif"
 
 #: guitext:1037
 msgctxt "Trap description"
 msgid "Description du piège"
 "Demolition Trap: An explosive with unrivaled destructive power."
-msgstr "Piège de démolition: Un explosif d'une puissance destructrice sans égale."
+msgstr "Baril Explosif : Un explosif d'une puissance destructrice sans égale."
 
 #: guitext:1038
 msgctxt "Trap description"
 msgid "Description du piège"
 "Sentry Trap: Stands guard and shoots at enemies in sight."
-msgstr "Piège Sentinelle: Monte la garde et tire sur les ennemies à vue." 
+msgstr "Piège Sentinelle : Monte la garde et tire sur les ennemies à vue." 
 
 #: guitext:1039 guitext:1040
 msgctxt "Unused"
@@ -7155,9 +7146,10 @@ msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "Veine d'or dense : Contient beaucoup de richesses que vos Lutins peuvent extraire."
 
 #: guitext:1053
+#, fuzzy
 msgctxt "Keeper spell name"
-msgid "Rebound"
-msgstr "Rebond"
+msgid "Magic Shield"
+msgstr "Bouclier Magique"
 
 #: guitext:1054
 msgctxt "Keeper spell name"
@@ -7171,7 +7163,7 @@ msgstr "Lenteur"
 
 #: guitext:1056
 msgctxt "Keeper spell name"
-msgid "Flight"
+msgid "Levitate"
 msgstr "Lévitation"
 
 #: guitext:1057
@@ -7203,3 +7195,63 @@ msgstr "Rendre malheureux : Toutes les créatures de l'ennemi deviennent mécont
 msgctxt "Dungeon special decription"
 msgid "Weaken Walls: Destroys the fortifications of enemy walls."
 msgstr "Affaiblir les murs : Détruit les fortifications des murs ennemis."
+
+#: guitext:1063
+msgctxt "Game controls"
+msgid "Tilt Up"
+msgstr "Incliner Haut"
+
+#: guitext:1064
+msgctxt "Game controls"
+msgid "Tilt Down"
+msgstr "Incliner Bas"
+
+#: guitext:1065
+msgctxt "Game controls"
+msgid "Reset Tilt"
+msgstr "Réinitialiser"
+
+#: guitext:1066
+msgctxt "Creature spell"
+msgid "Heal Monster: The target creature is massively healed."
+msgstr "Guérison : La créature ciblée est massivement soignée."
+
+#: guitext:1067
+msgctxt "Creature spell"
+msgid "Cleanse: Cures all negative effects inflicted on the creature."
+msgstr "Purifier : Guérit de tous les effets négatifs infligés à la créature."
+
+#: guitext:1068
+msgctxt "Creature spell"
+msgid "Cleanse Monster: Cures all negative effects inflicted on target creature."
+msgstr "Purifier : Guérit de tous les effets négatifs infligés à la créature ciblée."
+
+#: guitext:1069
+msgctxt "Keeper spell description"
+msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
+msgstr "Bouclier Magique : Fait rebondir vers l'attaquant les projectiles lancés sur la cible."
+
+#: guitext:1070
+msgctxt "Keeper spell description"
+msgid "Levitate: Causes the target creature to take off from the ground and attack creatures from the air or cross lava unharmed."
+msgstr "Lévitation : Permet à la créature ciblée de flotter afin d'attaquer depuis les airs ou de traverser la lave indemne."
+
+#: guitext:1071
+msgctxt "Keeper spell description"
+msgid "Sight: Allows the target creature to temporarily increase its awareness and notice the invisible."
+msgstr "Vision : Permet à la créature ciblée d'augmenter temporairement sa vision pour débusquer l'invisible."
+
+#: guitext:1072 guitext:1073 guitext:1074 guitext:1075
+msgctxt "Unused"
+msgid "Moo8"
+msgstr "Moooooooooo!"
+
+#: guitext:1076
+msgctxt "Door name"
+msgid "Midas Door"
+msgstr "Porte de Midas"
+
+#: guitext:1077
+msgctxt "Door description"
+msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
+msgstr "Porte de Midas: Cette porte est indestructible tant que son propriétaire a de l'or. CDS voir."

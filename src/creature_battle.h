@@ -27,8 +27,8 @@ extern "C" {
 #endif
 
 /** Max amount of battles supported on any map. */
-#define BATTLES_COUNT          48
-#define MESSAGE_BATTLERS_COUNT  8
+#define BATTLES_COUNT          192
+#define MESSAGE_BATTLERS_COUNT   8
 /******************************************************************************/
 #pragma pack(1)
 

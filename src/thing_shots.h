@@ -62,6 +62,7 @@ enum ShotModels {
     ShM_WordOfPower, 
     ShM_TrapWordOfPower,
     ShM_TrapTNT = 32,
+    ShM_RangedHeal = 33,
 };
 
 enum ShotFireLogics {
@@ -110,6 +111,8 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy);
 TbBool shot_is_boulder(const struct Thing *shotng);
 
 struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *thing, struct Coord3d *pos, Thing_Collide_Func filter, HitTargetFlags a4, long a5);
+
+void affect_nearby_enemy_creatures_with_wind(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

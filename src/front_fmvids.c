@@ -180,7 +180,6 @@ void demo(void)
         break;
     case DIK_LoadPacket:
         fname = prepare_file_path(FGrp_FxData,demo_item[index].fname);
-        wait_for_cd_to_be_available();
         if ( LbFileExists(fname) )
         {
           strcpy(game.packet_fname, fname);

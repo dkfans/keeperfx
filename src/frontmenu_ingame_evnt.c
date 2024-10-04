@@ -355,7 +355,7 @@ short zoom_to_fight(PlayerNumber plyr_idx)
     if (active_battle_exists(plyr_idx))
     {
         struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
-        set_players_packet_action(player, PckA_Unknown104, dungeon->visible_battles[0], 0, 0, 0);
+        set_players_packet_action(player, PckA_ZoomToBattle, dungeon->visible_battles[0], 0, 0, 0);
         step_battles_forward(plyr_idx);
         return true;
     }

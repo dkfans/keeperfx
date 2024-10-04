@@ -169,9 +169,12 @@ void remove_body_from_graveyard(struct Thing *thing)
     struct Dungeon* dungeon = get_dungeon(room->owner);
     dungeon->bodies_rotten_for_vampire++;
     dungeon->lvstats.graveyard_bodys++;
-    if (dungeon->bodies_rotten_for_vampire >= game.conf.rules.rooms.bodies_for_vampire) {
-        dungeon->bodies_rotten_for_vampire -= game.conf.rules.rooms.bodies_for_vampire;
-        create_vampire_in_room(room);
+    if (creature_count_below_map_limit(0))
+    {
+        if (dungeon->bodies_rotten_for_vampire >= game.conf.rules.rooms.bodies_for_vampire) {
+            dungeon->bodies_rotten_for_vampire -= game.conf.rules.rooms.bodies_for_vampire;
+            create_vampire_in_room(room);
+        }
     }
 }
 
@@ -453,8 +456,10 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     thing->bounce_angle = 0;
     thing->movement_flags |= TMvF_Unknown08;
     thing->creation_turn = game.play_gameturn;
-    if (creatures[model].field_7) {
-        thing->rendering_flags |= (TRF_Transpar_Alpha);
+    struct CreatureStats* crstat = creature_stats_get(model);
+    if (crstat->transparency_flags != 0)
+    {
+        set_flag(thing->rendering_flags, crstat->transparency_flags);
     }
     add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);

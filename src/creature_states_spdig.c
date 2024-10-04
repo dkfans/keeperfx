@@ -39,6 +39,7 @@
 #include "thing_corpses.h"
 #include "thing_traps.h"
 #include "room_data.h"
+#include "room_lair.h"
 #include "room_jobs.h"
 #include "room_workshop.h"
 #include "room_library.h"
@@ -54,6 +55,7 @@
 #include "keeperfx.hpp"
 #include "player_instances.h"
 #include "post_inc.h"
+#include "creature_states_lair.h"
 
 const unsigned char reinforce_edges[] = { 3, 0, 0, 3, 0, 1, 2, 2, 1, };
 
@@ -83,6 +85,7 @@ TbBool creature_is_doing_digger_activity(const struct Thing* thing)
         case CrSt_ImpToking:
         case CrSt_ImpPicksUpGoldPile:
         case CrSt_MoveBackwardsToPosition:
+        case CrSt_CreatureDropBodyInLair:
         case CrSt_CreatureDropBodyInPrison:
         case CrSt_ImpArrivesAtConvertDungeon:
         case CrSt_ImpConvertsDungeon:
@@ -168,6 +171,75 @@ long check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, long range)
                 }
             }
         }
+        // Per-thing code ends
+        k++;
+        if (k > slist->count)
+        {
+          ERRORLOG("Infinite loop detected when sweeping things list");
+          break;
+        }
+    }
+    return 0;
+}
+
+/**
+ * @brief dropped special digger look for unconscious creature to save
+ * 
+ * only if drag_to_lair rule in activated
+ * 
+ * @param spdigtng 
+ * @param range maximum distance to look for unconscious creatures
+ * @return return 1 if special digger is succesfully assigned
+ */
+long check_out_unsaved_unconscious_creature(struct Thing *spdigtng, long range)
+{
+    if (!player_has_room_of_role(spdigtng->owner, RoRoF_LairStorage) || !game.conf.rules.workers.drag_to_lair)
+    {
+        return 0;
+    }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
+    // We either found a room or not - but we can't generate event based on it yet, because we don't even know if there's any thing to pick
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
+    unsigned long k = 0;
+    long i = slist->index;
+    while (i > 0)
+    {
+        struct Thing* thing = thing_get(i);
+        if (thing_is_invalid(thing))
+          break;
+        i = thing->next_of_class;
+        // Per-thing code
+
+        if (!thing_is_dragged_or_pulled(thing) && (thing->owner == spdigtng->owner)
+          && thing_revealed(thing, spdigtng->owner) && creature_is_being_unconscious(thing))
+        {
+            if ((range < 0) || get_chessboard_distance(&thing->mappos, &spdigtng->mappos) < range)
+            {
+                if (!imp_will_soon_be_working_at_excluding(spdigtng, thing->mappos.x.stl.num, thing->mappos.y.stl.num))
+                {   
+                    // only save creatures with lair
+                    if (game.conf.rules.workers.drag_to_lair == 1) {
+                        struct Room * room = get_creature_lair_room(thing);
+                        if (room_is_invalid(room)) 
+                        {
+                            return 0;
+                        }
+                    }    
+                    //or creature who can have have and use a lair
+                    else if (game.conf.rules.workers.drag_to_lair == 2 && !creature_can_do_healing_sleep(thing))
+                    {
+                        return 0;
+                    }
+
+                    if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default)) 
+                    {
+                        spdigtng->continue_state = CrSt_CreatureSaveUnconsciousCreature;
+                        cctrl->pickup_creature_id = thing->index;
+                        return 1;
+                    }
+                }
+            }
+        }    
         // Per-thing code ends
         k++;
         if (k > slist->count)
@@ -763,27 +835,32 @@ long check_out_available_spdigger_drop_tasks(struct Thing *spdigtng)
     SYNCDBG(9,"Starting for %s index %d",thing_model_name(spdigtng),(int)spdigtng->index);
     TRACE_THING(spdigtng);
 
-    if ( check_out_unclaimed_unconscious_bodies(spdigtng, 768) )
+    if ( check_out_unclaimed_unconscious_bodies(spdigtng, 3 * COORD_PER_STL) )
     {
         cctrl->digger.task_repeats = 0;
         return 1;
     }
-    if ( check_out_unclaimed_dead_bodies(spdigtng, 768) )
+    if ( check_out_unsaved_unconscious_creature(spdigtng, 3 * COORD_PER_STL) )
     {
         cctrl->digger.task_repeats = 0;
         return 1;
     }
-    if ( check_out_unclaimed_spells(spdigtng, 768) )
+    if ( check_out_unclaimed_dead_bodies(spdigtng, 3 * COORD_PER_STL) )
     {
         cctrl->digger.task_repeats = 0;
         return 1;
     }
-    if ( check_out_unclaimed_traps(spdigtng, 768) )
+    if ( check_out_unclaimed_spells(spdigtng, 3 * COORD_PER_STL) )
     {
         cctrl->digger.task_repeats = 0;
         return 1;
     }
-    if ( check_out_empty_traps(spdigtng, 768) )
+    if ( check_out_unclaimed_traps(spdigtng, 3 * COORD_PER_STL) )
+    {
+        cctrl->digger.task_repeats = 0;
+        return 1;
+    }
+    if ( check_out_empty_traps(spdigtng, 3 * COORD_PER_STL) )
     {
         cctrl->digger.task_repeats = 0;
         return 1;
@@ -1550,6 +1627,87 @@ short creature_pick_up_unconscious_body(struct Thing *thing)
     }
     set_creature_being_dragged_by(picktng, thing);
     thing->continue_state = CrSt_CreatureDropBodyInPrison;
+    return 1;
+}
+
+/**
+ * @brief special digger will drag unconscious creature to their lair
+ * 
+ * only if drag_to_lair rule in activated
+ * 
+ * @param thing creature that is being dragged
+ * @return returns 1 if creature successfully arrived at its lair
+ */
+short creature_save_unconscious_creature(struct Thing *thing)
+{
+    SYNCDBG(9,"Starting");
+    TRACE_THING(thing);
+    // Check if the player has means to do such kind of action
+     if (!player_has_room_of_role(thing->owner, RoRoF_LairStorage))
+     {
+         SYNCDBG(19,"Player %d has no %s or has flee tendency off",(int)thing->owner,room_role_code_name(RoRoF_LairStorage));
+         set_start_state(thing);
+         return 0;
+     }
+     struct Coord3d pos;
+     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+     struct Thing* picktng = thing_get(cctrl->pickup_creature_id);
+     struct CreatureControl* cctrlpicktng = creature_control_get_from_thing(picktng);
+     struct Thing* lairtng = thing_get(cctrlpicktng->lairtng_idx);
+     TRACE_THING(picktng);
+
+     if (thing_is_invalid(picktng) || (picktng->active_state != CrSt_CreatureUnconscious) || thing_is_dragged_or_pulled(picktng) || (get_chessboard_distance(&thing->mappos, &picktng->mappos) >= 512))
+     {
+         SYNCDBG(8, "The %s index %d to be picked up isn't in correct place or state", thing_model_name(picktng), (int)picktng->index);
+         set_start_state(thing);
+         return 0;
+    }
+
+    struct Room* dstroom = get_creature_lair_room(picktng);
+    //if creature doesn't have a lair but need one
+    if (room_is_invalid(dstroom) && creature_can_do_healing_sleep(picktng) && game.conf.rules.workers.drag_to_lair == 2)
+    {
+        dstroom = get_best_new_lair_for_creature(picktng);
+        //send special digger directly at the right place for the lair-totem of the creature
+        if (!setup_head_for_random_unused_lair_subtile(thing, dstroom))
+        {
+            set_start_state(thing);
+            return 0;
+        }
+        // we still need the position to let him walk backwards
+        pos.x.val = cctrl->moveto_pos.x.val;
+        pos.y.val = cctrl->moveto_pos.y.val;
+        pos.z.val = cctrl->moveto_pos.z.val;
+    }
+    //creature have already a lair-room
+    else{
+        if (room_is_invalid(dstroom))
+        {
+            set_start_state(thing);
+            return 0;
+        }
+        if (!find_lair_totem_at(lairtng->mappos.x.stl.num,lairtng->mappos.y.stl.num))
+        {
+            WARNLOG("Player %d can't pick %s - no position within %s to store it",(int)thing->owner,thing_model_name(picktng),room_role_code_name(RoRoF_Prison));
+            set_start_state(thing);
+            return 0;
+        }
+        if (!creature_can_do_healing_sleep(picktng))
+        {
+            set_start_state(thing);
+            return 0;
+        }
+        pos = lairtng->mappos;   
+    }
+
+    if (!setup_person_move_backwards_to_coord(thing, &pos, NavRtF_Default))
+        {
+            SYNCDBG(8,"Cannot drag %s to (%d,%d)",thing_model_name(picktng),(int)&pos.x.stl.num,(int)&pos.y.stl.num);
+            set_start_state(thing);
+            return 0;
+        }
+    set_creature_being_dragged_by(picktng, thing);
+    thing->continue_state = CrSt_CreatureDropBodyInLair;
     return 1;
 }
 
