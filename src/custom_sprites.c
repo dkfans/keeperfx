@@ -676,8 +676,35 @@ static int read_png_info(unzFile zip, const char *path, struct SpriteContext *co
     return 0;
 }
 
+uint8_t * sspr_encode_row(uint8_t * dst, const uint8_t * src, size_t width) {
+    for (size_t i = 0; i < width; ++i) {
+        if (*src == 255) {
+            // encode transparent pixels
+            uint8_t * len = dst++;
+            for (;i < width && *src == 255; ++i) {
+                *dst++ = *src++;
+            }
+            *len = -(dst - len);
+        } else {
+            // encode opaque pixels
+            uint8_t * len = dst++;
+            for (;i < width && *src != 255; ++i) {
+                *dst++ = *src++;
+            }
+            *len = dst - len;
+        }
+    }
+    return dst;
+}
+
 static int read_png_icon(unzFile zip, const char *path, const char *subpath, int *icon_ptr)
 {
+    if (next_free_icon >= GUI_PANEL_SPRITES_NEW)
+    {
+        ERRORLOG("Too many custom icons allocated");
+        return 0;
+    }
+
     struct TbHugeSprite sprite = {0};
     size_t out_size;
 
@@ -690,65 +717,73 @@ static int read_png_icon(unzFile zip, const char *path, const char *subpath, int
 
     spng_set_png_stream(ctx, zip_read_fn, (void *) zip);
     struct spng_ihdr ihdr;
-    int r = spng_get_ihdr(ctx, &ihdr);
-
-    if (r)
-    {
-        ERRORLOG("spng_get_ihdr() error: %s", spng_strerror(r));
+    int spng_err = spng_get_ihdr(ctx, &ihdr);
+    if (spng_err != SPNG_OK) {
+        ERRORLOG("spng_get_ihdr() error: %s", spng_strerror(spng_err));
         spng_ctx_free(ctx);
         return 0;
     }
-
-    if (ihdr.bit_depth != 8)
-    {
-        ERRORLOG("Wrong spec: %s/%s should be 8bit truecolor or indexed .png", path, subpath);
+    if (ihdr.width >= 255 || ihdr.height >= 255) {
         spng_ctx_free(ctx);
-        return 0;
-    }
-    struct spng_plte plte = {0};
-    r = spng_get_plte(ctx, &plte);
-
-    sprite.SWidth = ihdr.width;
-    sprite.SHeight = ihdr.height;
-
-    int fmt = SPNG_FMT_RGBA8; // for indexed should be SPNG_FMT_PNG
-
-    spng_decoded_image_size(ctx, fmt, &out_size);
-    if (limit < out_size) // Image is too big
-    {
-        ERRORLOG("Unable to decode %s error: %s", path, spng_strerror(r));
-        spng_ctx_free(ctx);
-        return 0;
-    }
-
-    unsigned char *dst_buf = big_scratch;
-    spng_decode_image(ctx, dst_buf, out_size, fmt, SPNG_DECODE_TRNS);
-
-    if (sprite.SWidth >= 255 || sprite.SHeight >= 255)
-    {
         ERRORLOG("Sprites more than 255x255 are not supported");
         return 0;
     }
-
-    size_t sz = (sprite.SWidth + 2) * (sprite.SHeight + 3);
-    sprite.Data = malloc(sz);
-
-    compress_raw(&sprite, dst_buf, 0, 0, sprite.SWidth, sprite.SHeight);
-
-    spng_ctx_free(ctx);
-
-    if (next_free_icon >= GUI_PANEL_SPRITES_NEW)
-    {
-        ERRORLOG("Too many custom icons allocated");
-        return 0;
+    JUSTLOG("%s/%s: bit_depth %d, type %d, width %d, height %d", path, subpath, ihdr.bit_depth, ihdr.color_type, ihdr.width, ihdr.height);
+    // compress_raw reads these two :(
+    sprite.SWidth = ihdr.width;
+    sprite.SHeight = ihdr.height;
+    if (ihdr.color_type == SPNG_COLOR_TYPE_INDEXED) {
+        struct spng_plte plte = {0};
+        spng_err = spng_get_plte(ctx, &plte);
+        if (spng_err != SPNG_OK) {
+            ERRORLOG("spng_get_plte() error: %s", spng_strerror(spng_err));
+            spng_ctx_free(ctx);
+            return 0;
+        }
+        out_size = (ihdr.width + 1) * ihdr.height;
+        // encoded as rowlen + rowdata...?
+        sprite.Data = malloc(out_size);
+        spng_err = spng_decode_image(ctx, big_scratch, out_size, SPNG_FMT_PNG, 0);
+        if (spng_err != SPNG_OK) {
+            ERRORLOG("spng_decode_image() error: %s", spng_strerror(spng_err));
+            spng_ctx_free(ctx);
+            return 0;
+        }
+        uint8_t * dst = sprite.Data;
+        for (size_t y = 0; y < ihdr.height; ++y) {
+            dst = sspr_encode_row(dst, &big_scratch[y * ihdr.width], ihdr.width);
+        }
+    } else {
+        if (ihdr.bit_depth != 8)
+        {
+            ERRORLOG("Wrong spec: %s/%s should be 8bit truecolor or indexed .png", path, subpath);
+            spng_ctx_free(ctx);
+            return 0;
+        }
+        int fmt = SPNG_FMT_RGBA8; // for indexed should be SPNG_FMT_PNG
+        spng_err = spng_decoded_image_size(ctx, fmt, &out_size);
+        if (limit < out_size) // Image is too big
+        {
+            ERRORLOG("Unable to decode %s error: %s", path, spng_strerror(spng_err));
+            spng_ctx_free(ctx);
+            return 0;
+        }
+        spng_err = spng_decode_image(ctx, big_scratch, out_size, fmt, SPNG_DECODE_TRNS);
+        if (spng_err != SPNG_OK) {
+            ERRORLOG("spng_decode_image() error: %s", spng_strerror(spng_err));
+            spng_ctx_free(ctx);
+            return 0;
+        }
+        size_t sz = (ihdr.width + 2) * (ihdr.height + 3);
+        sprite.Data = malloc(sz);
+        compress_raw(&sprite, big_scratch, 0, 0, ihdr.width, ihdr.height);
     }
-
+    spng_ctx_free(ctx);
     gui_panel_sprites[next_free_icon + GUI_PANEL_SPRITES_COUNT].Data = sprite.Data;
-    gui_panel_sprites[next_free_icon + GUI_PANEL_SPRITES_COUNT].SHeight = sprite.SHeight;
-    gui_panel_sprites[next_free_icon + GUI_PANEL_SPRITES_COUNT].SWidth = sprite.SWidth;
+    gui_panel_sprites[next_free_icon + GUI_PANEL_SPRITES_COUNT].SHeight = ihdr.height;
+    gui_panel_sprites[next_free_icon + GUI_PANEL_SPRITES_COUNT].SWidth = ihdr.width;
     *icon_ptr = next_free_icon + GUI_PANEL_SPRITES_COUNT;
     next_free_icon++;
-
     return 1;
 }
 
