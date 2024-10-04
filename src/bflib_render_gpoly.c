@@ -4499,112 +4499,112 @@ void poly_render() {
         }
         do {
           *puVar13 = *(uint8_t *)(render_fade_tables
-                                  + (uVar7 & 0xff00 | (uint) * (uint8_t *)(uVar6 + iVar1)));
+                                  + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(uVar6 + iVar1)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar5 = uVar9 + gploc_2C + (uint)bVar14;
           uVar6 = (uVar9 & 0xff0000ff) << 8 | uVar9 >> 0x18;
         switchD_00401452_loc_782F2C:
           puVar13[1] = *(uint8_t *)(render_fade_tables
-                                    + (uVar7 & 0xff00 | (uint) * (uint8_t *)(uVar6 + iVar1)));
+                                    + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(uVar6 + iVar1)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar9 = uVar5 + gploc_2C + (uint)bVar14;
           uVar6 = (uVar5 & 0xff0000ff) << 8 | uVar5 >> 0x18;
         switchD_00401452_loc_782F58:
           puVar13[2] = *(uint8_t *)(render_fade_tables
-                                    + (uVar7 & 0xff00 | (uint) * (uint8_t *)(uVar6 + iVar1)));
+                                    + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(uVar6 + iVar1)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar5 = uVar9 + gploc_2C + (uint)bVar14;
           uVar6 = (uVar9 & 0xff0000ff) << 8 | uVar9 >> 0x18;
         switchD_00401452_loc_782F84:
           puVar13[3] = *(uint8_t *)(render_fade_tables
-                                    + (uVar7 & 0xff00 | (uint) * (uint8_t *)(uVar6 + iVar1)));
+                                    + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(uVar6 + iVar1)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar9 = uVar5 + gploc_2C + (uint)bVar14;
           uVar6 = (uVar5 & 0xff0000ff) << 8 | uVar5 >> 0x18;
         switchD_00401452_loc_782FB0:
           puVar13[4] = *(uint8_t *)(render_fade_tables
-                                    + (uVar7 & 0xff00 | (uint) * (uint8_t *)(uVar6 + iVar1)));
+                                    + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(uVar6 + iVar1)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar5 = uVar9 + gploc_2C + (uint)bVar14;
           uVar6 = (uVar9 & 0xff0000ff) << 8 | uVar9 >> 0x18;
         switchD_00401452_loc_782FDC:
           puVar13[5] = *(uint8_t *)(render_fade_tables
-                                    + (uVar7 & 0xff00 | (uint) * (uint8_t *)(uVar6 + iVar1)));
+                                    + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(uVar6 + iVar1)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar9 = uVar5 + gploc_2C + (uint)bVar14;
           uVar6 = (uVar5 & 0xff0000ff) << 8 | uVar5 >> 0x18;
         switchD_00401452_loc_783008:
           puVar13[6] = *(uint8_t *)(render_fade_tables
-                                    + (uVar7 & 0xff00 | (uint) * (uint8_t *)(uVar6 + iVar1)));
+                                    + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(uVar6 + iVar1)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar5 = uVar9 + gploc_2C + (uint)bVar14;
           uVar6 = (uVar9 & 0xff0000ff) << 8 | uVar9 >> 0x18;
         switchD_00401452_loc_783034:
           puVar13[7] = *(uint8_t *)(render_fade_tables
-                                    + (uVar7 & 0xff00 | (uint) * (uint8_t *)(uVar6 + iVar1)));
+                                    + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(uVar6 + iVar1)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar9 = uVar5 + gploc_2C + (uint)bVar14;
           uVar6 = (uVar5 & 0xff0000ff) << 8 | uVar5 >> 0x18;
         switchD_00401452_loc_783060:
           puVar13[8] = *(uint8_t *)(render_fade_tables
-                                    + (uVar7 & 0xff00 | (uint) * (uint8_t *)(uVar6 + iVar1)));
+                                    + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(uVar6 + iVar1)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar5 = uVar9 + gploc_2C + (uint)bVar14;
           uVar6 = (uVar9 & 0xff0000ff) << 8 | uVar9 >> 0x18;
         switchD_00401452_loc_78308C:
           puVar13[9] = *(uint8_t *)(render_fade_tables
-                                    + (uVar7 & 0xff00 | (uint) * (uint8_t *)(uVar6 + iVar1)));
+                                    + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(uVar6 + iVar1)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar9 = uVar5 + gploc_2C + (uint)bVar14;
           uVar6 = (uVar5 & 0xff0000ff) << 8 | uVar5 >> 0x18;
         switchD_00401452_loc_7830B8:
           puVar13[10] = *(uint8_t *)(render_fade_tables
-                                     + (uVar7 & 0xff00 | (uint) * (uint8_t *)(uVar6 + iVar1)));
+                                     + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(uVar6 + iVar1)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar5 = uVar9 + gploc_2C + (uint)bVar14;
           uVar6 = (uVar9 & 0xff0000ff) << 8 | uVar9 >> 0x18;
         switchD_00401452_loc_7830E4:
           puVar13[0xb] = *(uint8_t *)(render_fade_tables
-                                      + (uVar7 & 0xff00 | (uint) * (uint8_t *)(uVar6 + iVar1)));
+                                      + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(uVar6 + iVar1)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar9 = uVar5 + gploc_2C + (uint)bVar14;
           uVar6 = (uVar5 & 0xff0000ff) << 8 | uVar5 >> 0x18;
         switchD_00401452_loc_783110:
           puVar13[0xc] = *(uint8_t *)(render_fade_tables
-                                      + (uVar7 & 0xff00 | (uint) * (uint8_t *)(uVar6 + iVar1)));
+                                      + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(uVar6 + iVar1)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar5 = uVar9 + gploc_2C + (uint)bVar14;
           uVar6 = (uVar9 & 0xff0000ff) << 8 | uVar9 >> 0x18;
         switchD_00401452_loc_78313C:
           puVar13[0xd] = *(uint8_t *)(render_fade_tables
-                                      + (uVar7 & 0xff00 | (uint) * (uint8_t *)(uVar6 + iVar1)));
+                                      + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(uVar6 + iVar1)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar9 = uVar5 + gploc_2C + (uint)bVar14;
           uVar6 = (uVar5 & 0xff0000ff) << 8 | uVar5 >> 0x18;
         switchD_00401452_loc_783168:
           puVar13[0xe] = *(uint8_t *)(render_fade_tables
-                                      + (uVar7 & 0xff00 | (uint) * (uint8_t *)(uVar6 + iVar1)));
+                                      + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(uVar6 + iVar1)));
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar5 = uVar9 + gploc_2C + (uint)bVar14;
           uVar6 = (uVar9 & 0xff0000ff) << 8 | uVar9 >> 0x18;
         switchD_00401452_loc_783194:
           puVar13[0xf] = *(uint8_t *)(render_fade_tables
-                                      + (uVar7 & 0xff00 | (uint) * (uint8_t *)(uVar6 + iVar1)));
+                                      + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(uVar6 + iVar1)));
           uVar11 = gploc_D4;
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
@@ -4671,12 +4671,12 @@ void poly_render() {
         uVar8 = uVar7 + gploc_CC + (uint)bVar14;
         uVar9 = uVar9 + gploc_C4
                 + (uint)(CARRY4(uVar7, gploc_CC) || CARRY4(uVar7 + gploc_CC, (uint)bVar14));
-        gploc_74 = gploc_74 - (iVar3 >> 0x10);
+        gploc_74 -= (iVar3 >> 0x10);
         iVar1 = iVar3 + gploc_12C;
-        iVar10 = iVar10 + gploc_128;
-        gploc_74 = gploc_74 + (iVar1 >> 0x10);
+        iVar10 += gploc_128;
+        gploc_74 += (iVar1 >> 0x10);
         iVar12 = iVar12 + gploc_104;
-        gploc_C0 = gploc_C0 + -1;
+        gploc_C0--;
         gploc_FC = iVar1;
         if (gploc_C0 == 0) break;
         ycounter++;
