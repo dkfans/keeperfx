@@ -364,8 +364,8 @@ long point2y, point2x, gploc_pt_shbx, point2shade, point2mapx, point2mapy;
 long point3y, point3x, gploc_pt_shcx, point3shade, point3mapx, point3mapy;
 long gploc_12C, gploc_128, gploc_104, gploc_FC, gploc_F8, gploc_E4, gploc_E0;
 uint8_t *gploc_F4;
-long gploc_D8, gploc_D4, gploc_CC, gploc_C8, gploc_C4, gploc_C0, gploc_BC, gploc_B8, gploc_B4,
-    mapxhstep, mapyhstep, gploc_A7, shadehstep, gploc_A4, gploc_A0, gploc_9C;
+long gploc_D8, pixels_left_on_line, gploc_CC, gploc_C8, gploc_C4, gploc_C0, gploc_BC, gploc_B8,
+    gploc_B4, mapxhstep, mapyhstep, gploc_A7, shadehstep, gploc_A4, gploc_A0, gploc_9C;
 long gploc_98, gploc_94, gploc_90, gploc_8C, gploc_88, gploc_84, gploc_80, gploc_7C, gploc_78,
     gploc_74, gploc_68, gploc_64, gploc_60;
 long gploc_5C, startposshadetop, startposmapxtop, startposmapytop, startposshadebottom,
@@ -4424,7 +4424,7 @@ void poly_render() {
   uint uVar8;
   uint uVar9;
   int iVar10;
-  uint uVar11;
+  uint pixels_to_place;
   uint8_t *iVar12;
   uint8_t *puVar13;
   uint8_t bVar14;
@@ -4453,19 +4453,21 @@ void poly_render() {
       uVar8 = gploc_5C;
       iVar1 = (uint32_t)LOC_vec_map;
       iVar2 = iVar3 >> 0x10;
-      uVar11 = (iVar10 >> 0x10) - iVar2;
+      pixels_to_place = (iVar10 >> 0x10) - iVar2;
       gploc_FC = iVar3;
       gploc_F8 = iVar10;
       gploc_F4 = iVar12;
       gploc_34 = uVar5;
       gploc_D8 = uVar7;
       gploc_E4 = uVar9;
-      if (uVar11 != 0 && iVar2 <= iVar10 >> 0x10) {
-        puVar13 = (uint8_t *)(iVar12 + iVar2 + *(int *)(&gpoly_countdown + (uVar11 & 0xf) * 4));
+      if (pixels_to_place != 0 && iVar2 <= iVar10 >> 0x10) {
+        puVar13 = (uint8_t *)(iVar12 + iVar2
+                              + *(int *)(&gpoly_countdown + (pixels_to_place & 0xf) * 4));
         uVar6 = (uVar9 & 0xff0000ff) << 8 | uVar9 >> 0x18;
         uVar5 = uVar9;
-        gploc_D4 = uVar11;
-        switch (uVar11 & 0xf) {
+        pixels_left_on_line = pixels_to_place;
+        // This fugly loop can place up to 16 pixels at a time in a horizontal scanline
+        switch (pixels_to_place & 0xf) {
           case 1:
             goto switchD_00401452_loc_783194;
           case 2:
@@ -4605,14 +4607,14 @@ void poly_render() {
         switchD_00401452_loc_783194:
           puVar13[0xf] = *(uint8_t *)(render_fade_tables
                                       + ((uVar7 & 0xff00) | (uint) * (uint8_t *)(uVar6 + iVar1)));
-          uVar11 = gploc_D4;
+          pixels_to_place = pixels_left_on_line;
           bVar14 = CARRY4(uVar7, uVar8);
           uVar7 = uVar7 + uVar8;
           uVar9 = uVar5 + gploc_2C + (uint)bVar14;
           uVar6 = (uVar5 & 0xff0000ff) << 8 | uVar5 >> 0x18;
           puVar13 += 16;
-          gploc_D4 -= 16;
-        } while (gploc_D4 != 0 && 0xf < (int)uVar11);
+          pixels_left_on_line -= 16;
+        } while (pixels_left_on_line != 0 && 0xf < (int)pixels_to_place);
       }
       iVar1 = gploc_FC + gploc_12C;
       iVar10 = gploc_F8 + gploc_128;
