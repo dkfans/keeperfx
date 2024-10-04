@@ -372,8 +372,6 @@ TbBool load_game(long slot_num)
     {
         // Use fname only here - it is overwritten by next use of prepare_file_fmtpath()
         char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
-        if (!wait_for_cd_to_be_available())
-          return false;
         fh = LbFileOpen(fname,Lb_FILE_MODE_READ_ONLY);
         if (fh == -1)
         {
@@ -610,28 +608,28 @@ short read_continue_game_part(unsigned char *buf,long pos,long buf_len)
  */
 TbBool continue_game_available(void)
 {
-    long lvnum;
+    LevelNumber lvnum;
     SYNCDBG(6,"Starting");
+    char cmpgn_fname[CAMPAIGN_FNAME_LEN];
+    long offset = offsetof(struct Game, campaign_fname);
+    if (!read_continue_game_part((unsigned char*)cmpgn_fname, offset, CAMPAIGN_FNAME_LEN)) {
+        WARNLOG("Can't read continue game file head");
+        return false;
+    }
+    cmpgn_fname[CAMPAIGN_FNAME_LEN-1] = '\0';
+    offset = offsetof(struct Game, continue_level_number);
+    if (!read_continue_game_part((unsigned char*)&lvnum, offset, sizeof(lvnum))) {
+        WARNLOG("Can't read continue game file head");
+        return false;
+    }
+    if (!change_campaign(cmpgn_fname))
     {
-        unsigned char buf[14];
-        if (!read_continue_game_part(buf, 0, sizeof(buf)))
-        {
-            return false;
-        }
-        long i = (char*)&game.campaign_fname[0] - (char*)&game;
-        char cmpgn_fname[CAMPAIGN_FNAME_LEN];
-        read_continue_game_part((unsigned char*)cmpgn_fname, i, CAMPAIGN_FNAME_LEN);
-        cmpgn_fname[CAMPAIGN_FNAME_LEN-1] = '\0';
-        lvnum = ((struct Game *)buf)->continue_level_number;
-        if (!change_campaign(cmpgn_fname))
-        {
-          ERRORLOG("Unable to load campaign");
-          return false;
-        }
-        if (is_singleplayer_like_level(lvnum))
-        {
-            set_continue_level_number(lvnum);
-        }
+        ERRORLOG("Unable to load campaign");
+        return false;
+    }
+    if (is_singleplayer_like_level(lvnum))
+    {
+        set_continue_level_number(lvnum);
     }
     lvnum = get_continue_level_number();
     if (is_singleplayer_like_level(lvnum))
@@ -647,23 +645,24 @@ TbBool continue_game_available(void)
 
 short load_continue_game(void)
 {
-    unsigned char buf[14];
-
-    if (!read_continue_game_part(buf,0,14))
-    {
+    LevelNumber lvnum;
+    char cmpgn_fname[CAMPAIGN_FNAME_LEN];
+    long offset = offsetof(struct Game, campaign_fname);
+    if (!read_continue_game_part((unsigned char*)cmpgn_fname, offset, CAMPAIGN_FNAME_LEN)) {
         WARNLOG("Can't read continue game file head");
         return false;
     }
-    long i = (char*)&game.campaign_fname[0] - (char*)&game;
-    char cmpgn_fname[CAMPAIGN_FNAME_LEN];
-    read_continue_game_part((unsigned char*)cmpgn_fname, i, CAMPAIGN_FNAME_LEN);
     cmpgn_fname[CAMPAIGN_FNAME_LEN-1] = '\0';
     if (!change_campaign(cmpgn_fname))
     {
         ERRORLOG("Unable to load campaign");
         return false;
     }
-    long lvnum = ((struct Game*)buf)->continue_level_number;
+    offset = offsetof(struct Game, continue_level_number);
+    if (!read_continue_game_part((unsigned char*)&lvnum, offset, sizeof(lvnum))) {
+        WARNLOG("Can't read continue game file head");
+        return false;
+    }
     if (!is_singleplayer_like_level(lvnum))
     {
       WARNLOG("Level number in continue file is incorrect");

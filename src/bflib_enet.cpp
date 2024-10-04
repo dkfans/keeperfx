@@ -92,6 +92,9 @@ namespace
                             .port = DEFAULT_PORT };
         if (!*session)
             return Lb_FAIL;
+        int port = atoi(session);
+        if (port > 0)
+            addr.port = port;
         host = enet_host_create(&addr, 4, NUM_CHANNELS, 0, 0);
         return Lb_OK;
     }

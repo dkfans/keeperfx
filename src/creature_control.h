@@ -32,8 +32,7 @@
 extern "C" {
 #endif
 
-#define CREATURE_TYPES_MAX 64
-#define SWAP_CREATURE_TYPES_MAX 64
+#define CREATURE_TYPES_MAX 128
 #define CREATURE_STATES_MAX 256
 
 #define MAX_SIZEXY            768
@@ -46,7 +45,7 @@ extern "C" {
 /** Amount of instances. */
 /** Max amount of rooms needed for a creature to be attracted to a dungeon. */
 #define ENTRANCE_ROOMS_COUNT               3
-#define INSTANCE_TYPES_MAX 255
+#define INSTANCE_TYPES_MAX 2000
 #define LAIR_ENEMY_MAX 5
 
 #define INVALID_CRTR_CONTROL (game.persons.cctrl_lookup[0])
@@ -140,7 +139,7 @@ struct CastedSpellData {
 };
 
 struct CreatureControl {
-    unsigned char index;
+    unsigned short index;
     unsigned char flgfield_1;
     unsigned char flgfield_2;
     unsigned char combat_flags;
@@ -340,8 +339,8 @@ unsigned char sound_flag;
     short orthogn_speed;
     short roll;
     unsigned long anim_time;
-    unsigned char instance_id;
-    unsigned char inst_repeat; /* Seems used on dragon flame sometimes */
+    CrInstance instance_id;
+    TbBool inst_repeat;
     unsigned short inst_turn;
     unsigned short inst_action_turns; /* Turn when instance should be fired*/
     unsigned short inst_total_turns;
@@ -349,14 +348,14 @@ unsigned char sound_flag;
     MapSubtlCoord targtstl_x;
     MapSubtlCoord targtstl_y;
     unsigned long instance_use_turn[INSTANCE_TYPES_MAX];
-    char instance_available[INSTANCE_TYPES_MAX];
+    TbBool instance_available[INSTANCE_TYPES_MAX];
     unsigned short instance_anim_step_turns;
     SubtlCodedCoords collided_door_subtile;
     char fighting_player_idx;
     ThingModel shot_model;
     struct CastedSpellData casted_spells[CREATURE_MAX_SPELLS_CASTED_AT];
     /** Current active skill instance. */
-    unsigned char active_instance_id;
+    CrInstance active_instance_id;
     char head_bob;
     struct Navigation navi;
     /* Creature movement path data. */
@@ -413,6 +412,7 @@ unsigned char sound_flag;
     TbBool timebomb_death;
     GameTurn unsummon_turn;
     ThingIndex summoner_idx;
+    long summon_spl_idx;
     ThingIndex familiar_idx[FAMILIAR_MAX];
 };
 
@@ -453,13 +453,19 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short base_eye_height;
     unsigned short size_xy;
     unsigned short size_z;
+    unsigned short thing_size_xy;
+    unsigned short thing_size_z;
+    short shot_shift_x; /**< Initial position of shot created by the creature relative to creature position, X coord. */
+    short shot_shift_y; /**< Initial position of shot created by the creature relative to creature position, Y coord. */
+    short shot_shift_z; /**< Initial position of shot created by the creature relative to creature position, Z coord. */
     unsigned short walking_anim_speed;
     TbBool flying;
+    TbBool fixed_anim_speed;
     TbBool immune_to_gas;
     unsigned char attack_preference;
     short field_of_view;
     /** Instance identifiers of the instances creature can learn. */
-    unsigned char learned_instance_id[LEARNED_INSTANCES_COUNT];
+    CrInstance learned_instance_id[LEARNED_INSTANCES_COUNT];
     /** Required level to use the instances creature can learn. Scaled 1..CREATURE_MAX_LEVEL. */
     unsigned char learned_instance_level[LEARNED_INSTANCES_COUNT];
     unsigned char research_value;
@@ -507,8 +513,6 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     TbBool can_go_locked_doors;
     TbBool bleeds;
     TbBool affected_by_wind;
-    unsigned short thing_size_xy;
-    unsigned short thing_size_z;
     short annoy_eat_food;
     short annoy_in_hand;
     short damage_to_boulder;
@@ -519,10 +523,15 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short annoy_going_postal;
     short toking_recovery;
     TbBool illuminated;
+    unsigned char transparency_flags;
     char corpse_vanish_effect;
     short footstep_pitch;
     short lair_object;
     short status_offset;
+    unsigned short evil_start_state;
+    unsigned short good_start_state;
+    unsigned char natural_death_kind;
+    unsigned char swipe_idx;
     struct CreaturePickedUpOffset creature_picked_up_offset;
 };
 
@@ -549,6 +558,8 @@ struct CreatureSounds {
     struct CreatureSound slap;
     struct CreatureSound fight;
 };
+
+extern int creature_swap_idx[CREATURE_TYPES_MAX];
 
 #pragma pack()
 /******************************************************************************/

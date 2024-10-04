@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "config_objects.h"
 
 #include "config.h"
 
@@ -29,7 +30,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-#define TRAPDOOR_TYPES_MAX 128
+#define TRAPDOOR_TYPES_MAX 2000
 
 /******************************************************************************/
 #pragma pack(1)
@@ -66,6 +67,7 @@ enum DoorModelFlags {
     DoMF_ResistNonMagic = 0x0001,
     DoMF_Secret         = 0x0002,
     DoMF_Thick          = 0x0004,
+    DoMF_Midas          = 0x0008,
 };
 
 struct TrapConfigStats {
@@ -87,6 +89,7 @@ struct TrapConfigStats {
     TbBool place_on_bridge;
     TbBool place_on_subtile;
     EffectOrEffElModel destroyed_effect;
+    struct FlameProperties flame;
 };
 
 /**
