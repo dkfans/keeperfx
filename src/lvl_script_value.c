@@ -279,7 +279,7 @@ TbResult script_use_power_at_pos(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
     if (is_free)
         set_flag(mod_flags,PwMod_CastForFree);
 
-    return magic_use_power_on_subtile(plyr_idx, powerKind, splevel, stl_x, stl_y, allow_flags,mod_flags);
+    return magic_use_power_on_subtile(plyr_idx, powerKind, splevel, stl_x, stl_y, allow_flags, mod_flags);
 }
 
 /**
