@@ -59,8 +59,6 @@
 extern "C" {
 #endif
 
-#define MAX_CREATURES_SEARCHED 100
-
 /******************************************************************************/
 long instf_attack_room_slab(struct Thing *creatng, long *param);
 long instf_creature_cast_spell(struct Thing *creatng, long *param);
@@ -1225,10 +1223,24 @@ TbBool validate_target_basic(struct Thing *source, struct Thing *target, CrInsta
     }
 
     struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
-    if ((inst_inf->instance_property_flags & InstPF_SelfBuff) == 0 && source->index == target->index)
+    if (!flag_is_set(inst_inf->instance_property_flags, InstPF_SelfBuff) && source->index == target->index)
     {
         // If this spell doesn't have SELF_BUFF flag, exclude itself.
         return false;
+    }
+
+    if (source->owner != target->owner)
+    {
+        TbBool allyOk = flag_is_set(inst_inf->instance_property_flags, InstPF_ApplyToAllies);
+        TbBool players_allied = players_are_mutual_allies(source->owner, target->owner);
+        SYNCDBG(11, "Can %s be cast on %s(%d)? Having APPLY_TO_ALLIES? %d Is allied creature? %d",
+            creature_instance_code_name(inst_idx), thing_model_name(target), target->index,
+            allyOk, players_allied);
+        if (!allyOk || !players_allied)
+        {
+            // Don't cast on hostile creatures.
+            return false;
+        }
     }
 
     if (// Creature who is leaving doesn't deserve buff from allies.
@@ -1322,9 +1334,15 @@ TbBool validate_source_ranged_heal(struct Thing *source, struct Thing *target, C
  */
 TbBool validate_target_ranged_heal(struct Thing *source, struct Thing *target, CrInstance inst_idx)
 {
-    if (!validate_target_basic(source, target, CrInst_RANGED_HEAL) || creature_is_being_unconscious(target) ||
-        !creature_would_benefit_from_healing(target))
+    if (!validate_target_basic(source, target, inst_idx) || creature_is_being_unconscious(target))
     {
+        return false;
+    }
+
+    if (!creature_would_benefit_from_healing(target))
+    {
+        SYNCDBG(11, "%s(%d)'s HP is high enough, it doesn't require healing.",
+            thing_model_name(target), target->index);
         return false;
     }
 
@@ -1362,30 +1380,58 @@ TbBool search_target_generic(struct Thing *source, CrInstance inst_idx, ThingInd
         ERRORLOG("Invalid parameters!");
         return false;
     }
+    struct CreatureControl* source_cctrl = creature_control_get_from_thing(source);
+    if (creature_control_invalid(source_cctrl))
+    {
+        ERRORLOG("Invalid creature control");
+        return false;
+    }
+
+    TbBool add_self = false;
+    // Firstly, check the source itself.
+    const struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
+    if (inst_inf->validate_func_idx[1] > 0)
+    {
+        add_self = creature_instances_validate_func_list[inst_inf->validate_func_idx[1]](source, source, inst_idx);
+    }
+    int max_count = 0;
+    for(; max_count < COUNT_OF(source_cctrl->creatures_nearby); max_count++)
+    {
+        if (source_cctrl->creatures_nearby[max_count].creature_idx == 0)
+        {
+            break;
+        }
+    }
+    SYNCDBG(9, "There are %d nearby creatures around %s(%d).", max_count, thing_model_name(source), source->index);
+
+    ThingIndex* results = (ThingIndex*)malloc((add_self ? max_count + 1 : max_count) * sizeof(ThingIndex));
+    memset(results, 0, (add_self ? max_count + 1 : max_count) * sizeof(ThingIndex));
+    *found_count = 0;
+
+    if (add_self)
+    {
+        results[(*found_count)] = source->index;
+        (*found_count)++;
+    }
 
     TbBool ok = true;
-    // To improve performance, use a smaller number than CREATURES_COUNT.
-    ThingIndex* results = (ThingIndex*)malloc(MAX_CREATURES_SEARCHED * sizeof(ThingIndex));
-    memset(results, 0, MAX_CREATURES_SEARCHED * sizeof(ThingIndex));
-    *found_count = 0;
-    // Note that we only support buff right now, so we only search source's owner's creature.
-    // For offensive debuff, we need another loop to iterate all enemies.
-    struct Dungeon* dungeon = get_players_num_dungeon(source->owner);
-    int creature_idx = dungeon->creatr_list_start;
-    int k = 0;
-    while (creature_idx != 0 && (*found_count) < MAX_CREATURES_SEARCHED)
+    for(int i = 0; i < max_count; i++)
     {
-        struct Thing* candidate = thing_get(creature_idx);
+        struct Thing* candidate = thing_get(source_cctrl->creatures_nearby[i].creature_idx);
+        if (thing_is_invalid(candidate))
+        {
+            ERRORLOG("Invalid thing on index %d", i);
+            ok = false;
+            break;
+        }
         struct CreatureControl* cctrl = creature_control_get_from_thing(candidate);
         if (creature_control_invalid(cctrl))
         {
-            ERRORLOG("Invalid creature control");
+            ERRORLOG("Invalid creature control on index %i", i);
             ok = false;
             break;
         }
 
-        creature_idx = cctrl->players_next_creature_idx;
-        const struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
         if (inst_inf->validate_func_idx[1] > 0)
         {
             if(!creature_instances_validate_func_list[inst_inf->validate_func_idx[1]](source, candidate, inst_idx))
@@ -1399,9 +1445,9 @@ TbBool search_target_generic(struct Thing *source, CrInstance inst_idx, ThingInd
         {
             // @todo Consider checking thing_in_field_of_view() in the future, now it is buggy.
             // We assume that the source must see the target before it can cast the spell.
-            int range = get_combat_distance(source, candidate);
-            if (range < inst_inf->range_min || range > inst_inf->range_max ||
-                !creature_can_see_combat_path(source, candidate, range))
+            if (source_cctrl->creatures_nearby[i].distance < inst_inf->range_min ||
+                source_cctrl->creatures_nearby[i].distance > inst_inf->range_max ||
+                !creature_can_see_combat_path(source, candidate, source_cctrl->creatures_nearby[i].distance))
             {
                 continue;
             }
@@ -1409,14 +1455,6 @@ TbBool search_target_generic(struct Thing *source, CrInstance inst_idx, ThingInd
 
         results[(*found_count)] = candidate->index;
         (*found_count)++;
-
-        k++;
-        if (k > CREATURES_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping creatures list");
-            ok = false;
-            break;
-        }
     }
 
     *targets = results;
