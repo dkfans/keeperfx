@@ -1323,17 +1323,24 @@ TbBool validate_source_ranged_heal(struct Thing *source, struct Thing *target, C
 TbBool validate_target_ranged_heal(struct Thing *source, struct Thing *target, CrInstance inst_idx)
 {
     if (!validate_target_basic(source, target, CrInst_RANGED_HEAL) || creature_is_being_unconscious(target) ||
-        creature_is_being_tortured(target) || creature_is_kept_in_prison(target) ||
         !creature_would_benefit_from_healing(target))
     {
         return false;
     }
 
-    if(source->index != target->index &&
-       (creature_is_being_tortured(source) || creature_is_kept_in_prison(source)))
+    if (source->index == target->index)
     {
-        // Caster in prison or being tortured can only heal itself.
-        return false;
+        // Special case. The healer is always allowed to heal itself even if
+        // it's being tortured or imprisoned.
+        return true;
+    }
+    else
+    {
+        if (creature_is_being_tortured(target) || creature_is_kept_in_prison(target) ||
+            creature_is_being_tortured(source) || creature_is_kept_in_prison(source))
+        {
+            return false;
+        }
     }
 
     return true;
