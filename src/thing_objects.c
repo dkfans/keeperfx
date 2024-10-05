@@ -278,16 +278,6 @@ void destroy_object(struct Thing *thing)
     }
 }
 
-TbBool object_can_be_damaged (const struct Thing* thing)
-{
-    //todo make this an object property. Then include the possibility to kill the other object types.
-    if (thing->class_id != TCls_Object)
-        return false;
-    if (thing_is_dungeon_heart(thing) || object_is_mature_food(thing) || object_is_growing_food(thing))
-        return true;
-    return false;
-}
-
 TbBool thing_is_object(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
@@ -402,6 +392,14 @@ TbBool object_is_buoyant(const struct Thing* thing)
         return false;
     struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
     return (objst->model_flags & OMF_Buoyant);
+}
+
+TbBool object_can_be_damaged(const struct Thing* thing)
+{
+    if (thing_is_object(thing))
+        return false;
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    return (objst->model_flags & OMF_CanBeDamaged);
 }
 
 TbBool thing_is_spellbook(const struct Thing *thing)
