@@ -33,6 +33,7 @@
 #include "keeperfx.hpp" // for start_params
 #include <SDL2/SDL.h>
 #include "post_inc.h"
+#include "player_data.h"
 
 using namespace std;
 
@@ -53,6 +54,75 @@ static TbBool isMouseActivated = false;
 static TbBool firstTimeMouseInit = true;
 
 std::map<int, TbKeyCode> keymap_sdl_to_bf;
+
+/******************************************************************************/
+
+typedef struct {
+    const char *character;
+    const char *utf8;
+    SDL_Keycode keycode;
+    SDL_Scancode scancode;
+} AzertyKeyMapping;
+
+AzertyKeyMapping azertyMappings[] = {
+    {"²", "\xC2\xB2", SDLK_BACKQUOTE, SDL_SCANCODE_GRAVE}, // Tilde / Grave
+    {"&", "\x26", SDLK_1, SDL_SCANCODE_1},                 // 1
+    {"é", "\xC3\xA9", SDLK_2, SDL_SCANCODE_2},             // 2
+    {"\"", "\x22", SDLK_3, SDL_SCANCODE_3},                // 3
+    {"'", "\x27", SDLK_4, SDL_SCANCODE_4},                 // 4
+    {"(", "\x28", SDLK_5, SDL_SCANCODE_5},                 // 5
+    {"§", "\xC2\xA7", SDLK_6, SDL_SCANCODE_6},             // 6
+    {"è", "\xC3\xA8", SDLK_7, SDL_SCANCODE_7},             // 7
+    {"!", "\x21", SDLK_8, SDL_SCANCODE_8},                 // 8
+    {"ç", "\xC3\xA7", SDLK_9, SDL_SCANCODE_9},             // 9
+    {"à", "\xC3\xA0", SDLK_0, SDL_SCANCODE_0}              // 0
+};
+
+typedef struct {
+    const char *character;
+    const char *utf8;
+    SDL_Keycode keycode;
+    SDL_Scancode scancode;
+    TbKeyMods keymod;
+} AzertyChatMapping;
+
+AzertyChatMapping azertyChatMappings[] = {
+    // Top row keys
+    {"'", "\x27", SDLK_QUOTE, SDL_SCANCODE_APOSTROPHE, KMod_NONE},
+    {"(", "\x28", SDLK_9, SDL_SCANCODE_9, KMod_SHIFT},
+    {")", "\x29", SDLK_0, SDL_SCANCODE_0, KMod_SHIFT},
+    {"!", "\x21", SDLK_1, SDL_SCANCODE_1, KMod_SHIFT},
+    // Top row keys that are not working
+    // {"&", "\x26", SDLK_7, SDL_SCANCODE_7, KMod_SHIFT},
+    // {"\"", "\x22", SDLK_QUOTEDBL, SDL_SCANCODE_APOSTROPHE, KMod_SHIFT},
+    // {"@", "\x40", SDLK_AT, SDL_SCANCODE_2, KMod_SHIFT},
+    // Top row keys without qwerty equivalent 
+    // {"²", "\xC2\xB2", --- },
+    // {"é", "\xC3\xA9", --- },
+    // {"§", "\xC2\xA7", --- },
+    // {"è", "\xC3\xA8", --- },
+    // {"ç", "\xC3\xA7", --- },
+    // Numbers
+    {"1", "\x31", SDLK_1, SDL_SCANCODE_1, KMod_NONE},
+    {"2", "\x32", SDLK_2, SDL_SCANCODE_2, KMod_NONE},
+    {"3", "\x33", SDLK_3, SDL_SCANCODE_3, KMod_NONE},
+    {"4", "\x34", SDLK_4, SDL_SCANCODE_4, KMod_NONE},
+    {"5", "\x35", SDLK_5, SDL_SCANCODE_5, KMod_NONE},
+    {"6", "\x36", SDLK_6, SDL_SCANCODE_6, KMod_NONE},
+    {"7", "\x37", SDLK_7, SDL_SCANCODE_7, KMod_NONE},
+    {"8", "\x38", SDLK_8, SDL_SCANCODE_8, KMod_NONE},
+    {"9", "\x39", SDLK_9, SDL_SCANCODE_9, KMod_NONE},
+    {"0", "\x30", SDLK_0, SDL_SCANCODE_0, KMod_NONE},
+    // Other characters
+    {"?", "\x3F", SDLK_SLASH, SDL_SCANCODE_SLASH, KMod_SHIFT},
+    {".", "\x2E", SDLK_PERIOD, SDL_SCANCODE_PERIOD, KMod_NONE},
+    {":", "\x3A", SDLK_COLON, SDL_SCANCODE_SEMICOLON, KMod_SHIFT},
+    {"/", "\x2F", SDLK_SLASH, SDL_SCANCODE_SLASH, KMod_NONE},
+    // Other characters that are not working
+    // {",", "\x2C", SDLK_COMMA, SDL_SCANCODE_COMMA, KMod_NONE},
+    // {"%", "\x25", SDLK_5, SDL_SCANCODE_5, KMod_SHIFT},
+    // {"#", "\x23", SDLK_3, SDL_SCANCODE_3, KMod_SHIFT},
+};
 
 /******************************************************************************/
 /**
@@ -220,14 +290,8 @@ void init_inputcontrol(void)
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_UNDO, KC_UNASSIGNED));
 }
 
-static unsigned int keyboard_keys_mapping(const SDL_KeyboardEvent * key)
+static unsigned int keyboard_keycode_mapping(const SDL_Keycode keycode)
 {
-    /*
-    key->keysym.scancode;         < hardware specific scancode
-    key->keysym.sym;         < SDL virtual keysym
-    key->keysym.unicode;         < translated character
-    */
-    int keycode = key->keysym.sym;
     std::map<int, TbKeyCode>::iterator iter;
 
     iter = keymap_sdl_to_bf.find(keycode);
@@ -237,6 +301,17 @@ static unsigned int keyboard_keys_mapping(const SDL_KeyboardEvent * key)
     }
 
     return KC_UNASSIGNED;
+}
+
+static unsigned int keyboard_keys_mapping(const SDL_KeyboardEvent * key)
+{
+    /*
+    key->keysym.scancode;         < hardware specific scancode
+    key->keysym.sym;         < SDL virtual keysym
+    key->keysym.unicode;         < translated character
+    */
+    int keycode = key->keysym.sym;
+    return keyboard_keycode_mapping(keycode);
 }
 
 static TbKeyMods keyboard_mods_mapping(const SDL_KeyboardEvent * key)
@@ -282,6 +357,37 @@ static void process_event(const SDL_Event *ev)
 
     switch (ev->type)
     {
+    case SDL_TEXTINPUT:
+        if(azerty_keyboard_workaround_enabled == true){
+            struct PlayerInfo* player = get_my_player();
+            // Check if chat is active
+            if ((player->allocflags & PlaF_NewMPMessage) != 0){
+                // Loop through the azerty chat mappings and check if this input character matches a known key
+                for (size_t i = 0; i < (sizeof(azertyChatMappings) / sizeof(azertyChatMappings[0])); ++i) {
+                    if (strncmp(ev->text.text, azertyChatMappings[i].utf8, strlen(azertyChatMappings[i].utf8)) == 0) {
+                        JUSTLOG("found: %s", ev->text.text);
+                        // Simulate a key press of a non azerty keyboard
+                        x = keyboard_keycode_mapping(azertyChatMappings[i].keycode);
+                        keyboardControl(KActn_KEYDOWN, x, azertyChatMappings[i].keymod, azertyChatMappings[i].scancode);
+                        // We can simulate the KEYPRESS_UP here as well
+                        // This fixes an issue where we trigger a keybind after sending our chat message
+                        keyboardControl(KActn_KEYUP, x, azertyChatMappings[i].keymod, azertyChatMappings[i].scancode);
+                    }
+                }
+                break;
+            }
+            // Normal keybinds outside of chat
+            // Loop through the azerty mappings and check if this input character matches a known key
+            for (size_t i = 0; i < (sizeof(azertyMappings) / sizeof(azertyMappings[0])); ++i) {
+                if (strncmp(ev->text.text, azertyMappings[i].utf8, strlen(azertyMappings[i].utf8)) == 0) {
+                    // Simulate a key press of a non azerty keyboard
+                    x = keyboard_keycode_mapping(azertyMappings[i].keycode);
+                    keyboardControl(KActn_KEYDOWN, x, KMod_NONE, azertyMappings[i].scancode);
+                }
+            }
+        }
+        break;
+
     case SDL_KEYDOWN:
         x = keyboard_keys_mapping(&ev->key);
         if (x != KC_UNASSIGNED)
