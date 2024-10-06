@@ -253,7 +253,6 @@ long get_radially_decaying_value(long magnitude, long decay_start, long decay_le
     return magnitude;
 }
 
-
 /**
  * Returns a value which is stronger around some epicenter but can't go beyond, like implosion damage.
  *
@@ -466,7 +465,9 @@ long project_creature_attack_spell_damage(long base_param, long luck, unsigned s
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
-    if (!is_neutral_thing(thing)) {
+    // Apply modifier.
+    if (!is_neutral_thing(thing))
+    {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.spell_damage;
         max_param = (max_param * modifier) / 100;
@@ -516,7 +517,9 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
-    if (!is_neutral_thing(thing)) {
+    // Apply modifier.
+    if (!is_neutral_thing(thing))
+    {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.spell_damage;
         max_param = (max_param * modifier) / 100;
@@ -551,16 +554,16 @@ long compute_creature_attack_range(long base_param, long luck, unsigned short cr
  */
 long compute_creature_work_value(long base_param, long efficiency, unsigned short crlevel)
 {
-  if (base_param < -100000)
-      base_param = -100000;
-  if (base_param > 100000)
-      base_param = 100000;
-  if (crlevel >= CREATURE_MAX_LEVEL)
-      crlevel = CREATURE_MAX_LEVEL-1;
-  if (efficiency > 1024)
-      efficiency = 1024;
-  long max_param = base_param + (game.conf.crtr_conf.exp.job_value_increase_on_exp * base_param * (long)crlevel) / 100;
-  return (max_param * efficiency) / ROOM_EFFICIENCY_MAX;
+    if (base_param < -100000)
+        base_param = -100000;
+    if (base_param > 100000)
+        base_param = 100000;
+    if (crlevel >= CREATURE_MAX_LEVEL)
+        crlevel = CREATURE_MAX_LEVEL-1;
+    if (efficiency > 1024)
+        efficiency = 1024;
+    long max_param = base_param + (game.conf.crtr_conf.exp.job_value_increase_on_exp * base_param * (long)crlevel) / 100;
+    return (max_param * efficiency) / ROOM_EFFICIENCY_MAX;
 }
 
 long compute_creature_work_value_for_room_role(const struct Thing *creatng, RoomRole rrole, long efficiency)
@@ -624,7 +627,9 @@ long calculate_correct_creature_strength(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_strength(crstat->strength, cctrl->explevel);
-    if (!is_neutral_thing(thing)) {
+    // Apply modifier.
+    if (!is_neutral_thing(thing))
+    {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.strength;
         max_param = (max_param * modifier) / 100;
@@ -646,7 +651,8 @@ long calculate_correct_creature_armour(const struct Thing *thing)
     if (max_param < 0)
         max_param = 0;
     // Apply modifier after the buff.
-    if (!is_neutral_thing(thing)) {
+    if (!is_neutral_thing(thing))
+    {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.armour;
         max_param = (max_param * modifier) / 100;
@@ -662,6 +668,7 @@ long calculate_correct_creature_defense(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_defense(crstat->defense, cctrl->explevel);
+    // TODO: Add a dungeon modifier.
     return max_param;
 }
 
@@ -670,6 +677,7 @@ long calculate_correct_creature_dexterity(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_dexterity(crstat->dexterity, cctrl->explevel);
+    // TODO: Add a dungeon modifier.
     return max_param;
 }
 
@@ -684,6 +692,7 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
         speed *= 2;
     if (creature_affected_by_spell(thing, SplK_Slow))
         speed /= 2;
+    // Apply modifier.
     if (!is_neutral_thing(thing))
     {
         dungeon = get_dungeon(thing->owner);
@@ -703,7 +712,9 @@ long calculate_correct_creature_loyalty(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_loyalty(crstat->scavenge_require, cctrl->explevel);
-    if (!is_neutral_thing(thing)) {
+    // Apply modifier.
+    if (!is_neutral_thing(thing))
+    {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.loyalty;
         max_param = (max_param * modifier) / 100;
@@ -717,7 +728,9 @@ GoldAmount calculate_correct_creature_pay(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     GoldAmount pay = compute_creature_max_pay(crstat->pay, cctrl->explevel);
-    if (!is_neutral_thing(thing)) {
+    // Apply modifier.
+    if (!is_neutral_thing(thing))
+    {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.pay;
         pay = (pay * modifier) / 100;
@@ -734,7 +747,9 @@ GoldAmount calculate_correct_creature_training_cost(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     GoldAmount training_cost = compute_creature_max_training_cost(crstat->training_cost, cctrl->explevel);
-    if (!is_neutral_thing(thing)) {
+    // Apply modifier.
+    if (!is_neutral_thing(thing))
+    {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.training_cost;
         training_cost = (training_cost * modifier) / 100;
@@ -751,7 +766,9 @@ GoldAmount calculate_correct_creature_scavenging_cost(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     GoldAmount scavenger_cost = compute_creature_max_scavenging_cost(crstat->scavenger_cost, cctrl->explevel);
-    if (!is_neutral_thing(thing)) {
+    // Apply modifier.
+    if (!is_neutral_thing(thing))
+    {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.scavenging_cost;
         scavenger_cost = (scavenger_cost * modifier) / 100;
@@ -1207,7 +1224,7 @@ const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveSta
         text = loc_text;
         break;
     case CrLStat_BestDamage:
-        // TODO: compute damage of best attack.
+        // TODO: (???) compute damage of best attack.
         text = lbEmptyString;
         break;
     default:
