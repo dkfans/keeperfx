@@ -1757,6 +1757,72 @@ struct Thing *get_nth_thing_of_class_with_filter(Thing_Maximizer_Filter filter, 
     return retng;
 }
 
+/**
+ * @brief This is a creature-specialization of get_nth_thing_of_class_with_filter.
+ * Instead of the entire map, this one only searches the CreatureControl.creatures_nearby array of
+ * the input creature, so the search base is much smaller.
+ *
+ * @param filter Filter function reference.
+ * @param param Filter function parameters struct. The index of source creature must be set in the 1st one.
+ * @param tngindex Best matched thing index to be returned.
+ * @return struct Thing*
+ */
+struct Thing *get_nth_creature_with_filter(Thing_Maximizer_Filter filter, MaxTngFilterParam param, long tngindex)
+{
+    SYNCDBG(19,"Starting");
+    long maximizer = 0;
+    long curindex = 0;
+    struct Thing* source = thing_get(param->num1);
+    if (thing_is_invalid(source))
+    {
+        ERRORLOG("Invalid input creature index: %d", param->num1);
+        return INVALID_THING;
+    }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(source);
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("Invalid creature control");
+        return INVALID_THING;
+    }
+    struct Thing* retng = INVALID_THING;
+    for(int i = 0; i < COUNT_OF(cctrl->creatures_nearby); ++i)
+    {
+        if(cctrl->creatures_nearby[i].creature_idx == 0)
+        {
+            break;
+        }
+
+        struct Thing* thing = thing_get(cctrl->creatures_nearby[i].creature_idx);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing index %d detected",
+                cctrl->creatures_nearby[i].creature_idx);
+            break;
+        }
+        // Per-thing code
+        long n = filter(thing, param, maximizer);
+        if (n > maximizer)
+        {
+            retng = thing;
+            maximizer = n;
+            curindex = 0;
+        } else
+        if (n == maximizer)
+        {
+            if (curindex <= tngindex) {
+                retng = thing;
+            }
+            // Only break if we can't get any higher with the filter function result
+            if ((maximizer == LONG_MAX) && (curindex >= tngindex)) {
+                break;
+            }
+            curindex++;
+        }
+
+    }
+    return retng;
+}
+
 struct Thing *get_random_thing_of_class_with_filter(Thing_Maximizer_Filter filter, MaxTngFilterParam param, PlayerNumber plyr_idx)
 {
     SYNCDBG(19,"Starting");
@@ -1915,7 +1981,7 @@ struct Thing *get_nearest_enemy_creature_possible_to_attack_by(struct Thing *cre
     param.num1 = creatng->index;
     param.num2 = -1;
     param.num3 = -1;
-    return get_nth_thing_of_class_with_filter(filter, &param, 0);
+    return get_nth_creature_with_filter(filter, &param, 0);
 }
 
 struct Thing* get_nearest_enemy_object_possible_to_attack_by(struct Thing* creatng)
@@ -1943,7 +2009,7 @@ struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attac
     param.num1 = creatng->index;
     param.num2 = dist;
     param.num3 = move_on_ground;
-    return get_nth_thing_of_class_with_filter(filter, &param, 0);
+    return get_nth_creature_with_filter(filter, &param, 0);
 }
 
 struct Thing *get_random_trap_of_model_owned_by_and_armed(ThingModel tngmodel, PlayerNumber plyr_idx, TbBool armed)
