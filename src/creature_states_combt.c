@@ -1862,87 +1862,70 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
 CrInstance get_self_spell_casting(const struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    TbBool is_fighting = cctrl->combat_flags != 0;
-    TbBool is_in_custody = creature_is_kept_in_custody(thing);
-    SYNCDBG(11, "Processing %s(%d), combat flag: %d, spell flag: %d, in custody? %d",
-        thing_model_name(thing), thing->index, cctrl->combat_flags, cctrl->spell_flags, is_in_custody);
-
-    for (int i = 0; i < game.conf.crtr_conf.instances_count; i++)
+    struct InstanceInfo* inst_inf;
+    if (creature_would_benefit_from_healing(thing))
     {
-        struct InstanceInfo* inst_inf = creature_instance_info_get(i);
-        // Basic checks.
-        if (!flag_is_set(inst_inf->instance_property_flags, InstPF_SelfBuff) ||
-            !creature_instance_is_available(thing, i) ||
-            !creature_instance_has_reset(thing, i))
-        {
-            continue; // Cannot use.
-        }
-        SpellKind spell_idx = inst_inf->func_params[0];
-        if(inst_inf->func_params[0] != SplK_None && creature_affected_by_spell(thing, spell_idx))
-        {
-            continue; // Already being affected.
-        }
-        if (!flag_is_set(inst_inf->instance_property_flags, InstPF_AllowedInPrison) && is_in_custody)
-        {
-            continue; // Cannot use in prison.
-        }
-        // Our ideal goal is to avoid any hardcode for specific instance,
-        // but we still need to deal with some special instances.
-        switch(i)
-        {
-        case CrInst_WIND:
-            if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
-            {
-                SYNCDBG(11, "Use Wind when under influence of posion cloud.");
-                return CrInst_WIND; // Cast Wind when under influence of gas.
-            }
-            break;
-        case CrInst_FLY:
-            if (is_fighting || terrain_toxic_for_creature_at_position(thing,
-                coord_subtile(thing->mappos.x.val), coord_subtile(thing->mappos.y.val)))
-            {
-                return CrInst_FLY;
-            }
-            break;
-        case CrInst_HEAL:
-        case CrInst_RANGED_HEAL:
-            if (creature_would_benefit_from_healing(thing))
-            {
-                return CrInst_HEAL;
-            }
-            break;
-        default:
-            if (!is_fighting && flag_is_set(inst_inf->instance_property_flags, InstPF_DailyLifeBuff))
-            {
-                SYNCDBG(11, "Use %s as daily life buff.", creature_instance_code_name(i));
-                return i;
-            }
-            else if (flag_is_set(cctrl->combat_flags, CmbtF_ObjctFight) ||
-                flag_is_set(cctrl->combat_flags, CmbtF_DoorFight))
-            {
-                // Creature is fighting a object (such as dungeon heart) or a door.
-                if(flag_is_set(inst_inf->instance_property_flags, InstPF_Offensive))
-                {
-                    // @todo What about Armour? Armour is defensive but it can protect creature from the AOE
-                    // of the Keeper lightning spell.
-                    SYNCDBG(11, "Use %s for object/door fighting case.", creature_instance_code_name(i));
-                    return i; // Offensive buff is useful when attacking door/dungeon heart.
-                }
-            }
-            else if (is_fighting)
-            {
-                // Other fighting case.
-                if(flag_is_set(inst_inf->instance_property_flags, InstPF_Offensive) ||
-                   flag_is_set(inst_inf->instance_property_flags, InstPF_Defensive))
-                {
-                    SYNCDBG(11, "Use %s for general fighting case.", creature_instance_code_name(i));
-                    return i; // Offensive and Defensive are both useful.
-                }
-            }
-            break;
-        }
+        INSTANCE_RET_IF_AVAIL(thing, CrInst_HEAL);
     }
 
+    if (thing_is_creature_special_digger(thing) && creature_is_doing_digger_activity(thing))
+    {
+        // casting wind when under influence of gas
+        if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
+        {
+            INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
+        }
+
+        for (short i = 0; i < game.conf.crtr_conf.instances_count; i++)
+        {
+            if (i == CrInst_HEAL)
+                continue;
+
+            inst_inf = creature_instance_info_get(i);
+            if ((inst_inf->instance_property_flags & InstPF_SelfBuff))
+            {
+                if (inst_inf->func_params[0] != SplK_None &&
+                    !creature_affected_by_spell(thing, inst_inf->func_params[0]))
+                {
+                    INSTANCE_RET_IF_AVAIL(thing, i);
+                }
+            }
+        }
+    }
+    else
+    {
+        if (!creature_affected_by_spell(thing, SplK_Sight))
+        {
+            INSTANCE_RET_IF_AVAIL(thing, CrInst_SIGHT);
+        }
+
+        if (!creature_is_kept_in_custody(thing))
+        {
+            // casting wind when under influence of gas
+            if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
+            {
+                INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
+            }
+            long state_type = get_creature_state_type(thing);
+            if (!creature_affected_by_spell(thing, SplK_Speed) && (state_type != CrStTyp_Idle))
+            {
+                INSTANCE_RET_IF_AVAIL(thing, CrInst_SPEED);
+            }
+            if (!creature_affected_by_spell(thing, SplK_Fly) && ((state_type != CrStTyp_Idle) || terrain_toxic_for_creature_at_position(thing, coord_subtile(thing->mappos.x.val), coord_subtile(thing->mappos.y.val))))
+            {
+                INSTANCE_RET_IF_AVAIL(thing, CrInst_FLY);
+            }
+            //TODO CREATURE_AI allow using invisibility when creature is being attacked or escaping
+            if (!creature_affected_by_spell(thing, SplK_Invisibility) && (state_type != CrStTyp_Idle))
+            {
+                INSTANCE_RET_IF_AVAIL(thing, CrInst_INVISIBILITY);
+            }
+            if (state_type != CrStTyp_Idle)
+            {
+                INSTANCE_RET_IF_AVAIL(thing, CrInst_FAMILIAR);
+            }
+        }
+    }
     return CrInst_NULL;
 }
 

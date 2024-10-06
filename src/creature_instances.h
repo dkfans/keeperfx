@@ -102,7 +102,7 @@ struct InstanceInfo {
     long reset_time;
     long fp_reset_time;
     unsigned char graphics_idx;
-    unsigned long instance_property_flags;
+    short instance_property_flags;
     short force_visibility;
     unsigned char primary_target;
     unsigned char func_idx;
@@ -132,7 +132,7 @@ extern Creature_Target_Search_Func creature_instances_search_targets_func_list[]
 #define creature_instance_info_get(inst_idx) creature_instance_info_get_f(inst_idx,__func__)
 struct InstanceInfo *creature_instance_info_get_f(CrInstance inst_idx,const char *func_name);
 void process_creature_instance(struct Thing *thing);
-TbBool process_creature_self_spell_casting(struct Thing* thing);
+long process_creature_self_spell_casting(struct Thing* thing);
 CrInstance process_creature_ranged_buff_spell_casting(struct Thing* thing);
 
 TbBool creature_instance_info_invalid(const struct InstanceInfo *inst_inf);
