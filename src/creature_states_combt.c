@@ -1849,7 +1849,8 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
         inst_inf = creature_instance_info_get(i);
         if ((inst_inf->instance_property_flags & InstPF_SelfBuff))
         {
-            if (!creature_affected_by_spell(thing, inst_inf->func_params[1]))
+            if (inst_inf->func_params[0] != SplK_None &&
+                !creature_affected_by_spell(thing, inst_inf->func_params[0]))
             {
                 INSTANCE_RET_IF_AVAIL(thing, i);
             }
@@ -1883,7 +1884,8 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
             inst_inf = creature_instance_info_get(i);
             if ((inst_inf->instance_property_flags & InstPF_SelfBuff))
             {
-                if (!creature_affected_by_spell(thing, inst_inf->func_params[1]))
+                if (inst_inf->func_params[0] != SplK_None &&
+                    !creature_affected_by_spell(thing, inst_inf->func_params[0]))
                 {
                     INSTANCE_RET_IF_AVAIL(thing, i);
                 }
