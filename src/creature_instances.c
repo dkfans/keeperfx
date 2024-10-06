@@ -553,28 +553,25 @@ long instf_creature_cast_spell(struct Thing *creatng, long *param)
 }
 
 
-long process_creature_self_spell_casting(struct Thing* creatng)
+TbBool process_creature_self_spell_casting(struct Thing* creatng)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (((creatng->alloc_flags & TAlF_IsControlled) != 0)
         || (cctrl->conscious_back_turns != 0)
         || ((cctrl->stateblock_flags & CCSpl_Freeze) != 0)) {
-        return 0;
+        return false;
     }
     if (cctrl->instance_id != CrInst_NULL) {
-        return 0;
-    }
-    if (cctrl->combat_flags != 0) {
-        return 0;
+        return false;
     }
 
     long inst_idx = get_self_spell_casting(creatng);
     if (inst_idx <= 0) {
-        return 0;
+        return false;
     }
     set_creature_instance(creatng, inst_idx, creatng->index, 0);
-    return 1;
+    return true;
 }
 
 /**
@@ -1271,6 +1268,28 @@ TbBool validate_target_generic(struct Thing *source, struct Thing *target, CrIns
         SYNCDBG(12, "%s(%d) is not a valid target for %s because it has been affected by the spell.",
             thing_model_name(target), target->index, creature_instance_code_name(inst_idx));
         return false;
+    }
+
+    struct CreatureControl* cctrl = creature_control_get_from_thing(target);
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("Invalid creature control");
+        return false;
+    }
+    // Check if this creature needs this buff by examining its state.
+    if (flag_is_set(cctrl->combat_flags, CmbtF_ObjctFight) || flag_is_set(cctrl->combat_flags, CmbtF_DoorFight))
+    {
+        if(!flag_is_set(inst_inf->instance_property_flags, InstPF_Offensive))
+        {
+            return false; // Offensive buff is useful when attacking door/dungeon heart.
+        }
+    }
+    else if(cctrl->combat_flags == 0)
+    {
+        if(!flag_is_set(inst_inf->instance_property_flags, InstPF_DailyLifeBuff))
+        {
+            return false; // Daiy life buff is useful when not in combat.
+        }
     }
 
     return true;
