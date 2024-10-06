@@ -302,8 +302,8 @@ void ariadne_compare_ways(const struct Ariadne *arid1, const struct Ariadne *ari
     if (arid1->wallhug_angle != arid2->wallhug_angle) {
         ERRORLOG("wallhug_angle DIFFERS");
     }
-    if (arid1->field_62 != arid2->field_62) {
-        ERRORLOG("field_62 DIFFERS");
+    if (arid1->straight_dist_to_next_waypoint != arid2->straight_dist_to_next_waypoint) {
+        ERRORLOG("straight_dist_to_next_waypoint DIFFERS");
     }
 }
 
@@ -2053,7 +2053,7 @@ void ariadne_init_current_waypoint(const struct Thing *thing, struct Ariadne *ar
 {
     ariadne_pull_out_waypoint(thing, arid, arid->current_waypoint, &arid->current_waypoint_pos);
     arid->current_waypoint_pos.z.val = get_thing_height_at(thing, &arid->current_waypoint_pos);
-    arid->field_62 = get_2d_distance(&thing->mappos, &arid->current_waypoint_pos);
+    arid->straight_dist_to_next_waypoint = get_2d_distance(&thing->mappos, &arid->current_waypoint_pos);
 }
 
 long angle_to_quadrant(long angle)
@@ -2868,8 +2868,8 @@ AriadneReturn ariadne_update_state_manoeuvre_to_position(struct Thing *thing, st
         }
     }
     dist = get_2d_distance(&thing->mappos, &arid->current_waypoint_pos);
-    if (arid->field_62 > dist)
-        arid->field_62 = dist;
+    if (arid->straight_dist_to_next_waypoint > dist)
+        arid->straight_dist_to_next_waypoint = dist;
     if ((thing->mappos.x.val != arid->pos_53.x.val)
      || (thing->mappos.y.val != arid->pos_53.y.val))
     {
@@ -2903,7 +2903,7 @@ AriadneReturn ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *
     NAVIDBG(19,"Starting");
     angle = get_angle_xy_to(&thing->mappos, &arid->current_waypoint_pos);
     distance = get_2d_distance(&thing->mappos, &arid->current_waypoint_pos);
-    if ((distance - arid->field_62) > 4*COORD_PER_STL)
+    if ((distance - arid->straight_dist_to_next_waypoint) > 4 * COORD_PER_STL)
     {
         struct Coord3d pos;
         arid->pos_12.x.val = thing->mappos.x.val;
@@ -2930,8 +2930,8 @@ AriadneReturn ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *
             arid->pos_12.z.val = get_thing_height_at(thing, &arid->pos_12);
         }
     }
-    if (arid->field_62 > distance) {
-        arid->field_62 = distance;
+    if (arid->straight_dist_to_next_waypoint > distance) {
+        arid->straight_dist_to_next_waypoint = distance;
     }
     if (ariadne_creature_blocked_by_wall_at(thing, &arid->pos_12))
     {
@@ -3100,7 +3100,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
     NAVIDBG(18,"Route for %s index %d from %3d,%3d to %3d,%3d", thing_model_name(thing),(int)thing->index,
         (int)thing->mappos.x.val, (int)thing->mappos.y.val, (int)arid->current_waypoint_pos.x.val, (int)arid->current_waypoint_pos.y.val);
     distance = get_2d_distance(&thing->mappos, &arid->current_waypoint_pos);
-    if ((distance - arid->field_62) > 4*COORD_PER_STL)
+    if ((distance - arid->straight_dist_to_next_waypoint) > 4 * COORD_PER_STL)
     {
         struct Coord3d pos;
         arid->pos_12.x.val = thing->mappos.x.val;
@@ -3156,7 +3156,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
             ariadne_init_movement_to_current_waypoint(thing, arid);
             return 0;
         }
-        if (distance < arid->field_62)
+        if (distance < arid->straight_dist_to_next_waypoint)
         {
             if (ariadne_creature_can_continue_direct_line_to_waypoint(thing, arid, arid->move_speed)) {
                 if (ariadne_init_movement_to_current_waypoint(thing, arid) < 1) {
@@ -3164,7 +3164,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
                 }
                 return AridRet_OK;
             }
-            arid->field_62 = distance;
+            arid->straight_dist_to_next_waypoint = distance;
         }
         long hug_angle;
         hug_angle = ariadne_get_wallhug_angle(thing, arid);
@@ -4846,7 +4846,7 @@ NavColour uniform_area_colour(const NavColour *imap, long start_x, long start_y,
         {
             if (imap[navmap_tile_number(x,y)] != uniform)
             {
-                return -1;
+                return NAV_COL_UNSET;
             }
         }
     }

@@ -1794,7 +1794,7 @@ msgstr "Tormenta de granizo: Crea una lluvia de granizo allá donde el hechizo i
 
 #: guitext:245
 msgctxt "Creature spell"
-msgid "Slow: Slows down the target creature, making it attacks and movement delayed."
+msgid "Slow: Slows down the target creature, making its attacks and movement delayed."
 msgstr "Lentitud: Ralentiza la criatura objetivo, haciendo que su ataque y movimiento sean más lentos."
 
 #: guitext:246

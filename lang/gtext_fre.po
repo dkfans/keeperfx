@@ -2284,7 +2284,7 @@ msgstr "Grêle : Crée une pluie de grêlons partout où le sort s'abat.[26.10]"
 #: guitext:245
 msgctxt "Creature spell"
 msgid ""
-"Slow: Slows down the target creature, making it attacks and movement delayed."
+"Slow: Slows down the target creature, making its attacks and movement delayed."
 msgstr ""
 "Lenteur : Ralentit la créature cible, ce qui ralentit ses attaques et "
 "ses mouvements."
@@ -7229,7 +7229,7 @@ msgstr "Purifier : Guérit de tous les effets négatifs infligés à la créatur
 #: guitext:1069
 msgctxt "Keeper spell description"
 msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
-msgstr "Bouclier Magique : Fait rebondir les projectiles lancés sur la cible sur l'attaquant."
+msgstr "Bouclier Magique : Fait rebondir vers l'attaquant les projectiles lancés sur la cible."
 
 #: guitext:1070
 msgctxt "Keeper spell description"
@@ -7254,4 +7254,4 @@ msgstr "Porte de Midas"
 #: guitext:1077
 msgctxt "Door description"
 msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
-msgstr "Porte de Midas: Cette porte est indestructible tant que son propriétaire a suffisament d'or. CDS voir."
+msgstr "Porte de Midas: Cette porte est indestructible tant que son propriétaire a de l'or. CDS voir."

@@ -94,6 +94,8 @@ const struct NamedCommand creaturetype_instance_commands[] = {
   {"PROPERTIES",     15},
   {"FPINSTANTCAST",  16},
   {"PRIMARYTARGET",  17},
+  {"VALIDATEFUNC",   18},
+  {"SEARCHTARGETSFUNC", 19},
   {NULL,              0},
   };
 
@@ -108,6 +110,8 @@ const struct NamedCommand creaturetype_instance_properties[] = {
   {"QUICK",                InstPF_Quick},
   {"DISARMING",            InstPF_Disarming},
   {"DISPLAY_SWIPE",        InstPF_UsesSwipe},
+  {"RANGED_BUFF",          InstPF_RangedBuff},
+  {"NEEDS_TARGET",         InstPF_NeedsTarget},
   {NULL,                     0},
   };
 
@@ -833,7 +837,9 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                 game.conf.magic_conf.instance_info[i].tooltip_stridx = 0;
                 game.conf.magic_conf.instance_info[i].range_min = -1;
                 game.conf.magic_conf.instance_info[i].range_max = -1;
-
+                game.conf.magic_conf.instance_info[i].validate_func_idx[0] = 1;
+                game.conf.magic_conf.instance_info[i].validate_func_idx[1] = 2;
+                game.conf.magic_conf.instance_info[i].search_func_idx = 1;
             }
         }
     }
@@ -1112,7 +1118,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                 if (k > 0)
                 {
                     inst_inf->instance_property_flags |= k;
-                  n++;
+                    n++;
                 } else {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
@@ -1144,6 +1150,28 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             {
                 CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
+        case 18: // VALIDATE_FUNC
+            k = recognize_conf_parameter(buf, &pos, len, creature_instances_validate_func_type);
+            if (k > 0)
+            {
+                inst_inf->validate_func_idx[0] = k;
+                n++;
+            }
+            k = recognize_conf_parameter(buf, &pos, len, creature_instances_validate_func_type);
+            if (k > 0)
+            {
+                inst_inf->validate_func_idx[1] = k;
+                n++;
+            }
+            break;
+        case 19: // SEARCH_TARGETS_FUNC
+            k = recognize_conf_parameter(buf, &pos, len, creature_instances_search_targets_func_type);
+            if (k > 0)
+            {
+                inst_inf->search_func_idx = k;
+                n++;
             }
             break;
         case 0: // comment

@@ -274,11 +274,12 @@ TbResult script_use_power_at_pos(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
     PowerKind powerKind = (fml_bytes >> 8) & 255;
     long splevel = fml_bytes & 255;
 
-    unsigned long spell_flags = PwCast_AllGround | PwCast_Unrevealed;
+    unsigned long allow_flags = PwCast_AllGround | PwCast_Unrevealed;
+    unsigned long mod_flags = 0;
     if (is_free)
-        set_flag(spell_flags,PwMod_CastForFree);
+        set_flag(mod_flags,PwMod_CastForFree);
 
-    return magic_use_power_on_subtile(plyr_idx, powerKind, splevel, stl_x, stl_y, spell_flags);
+    return magic_use_power_on_subtile(plyr_idx, powerKind, splevel, stl_x, stl_y, allow_flags, mod_flags);
 }
 
 /**
@@ -745,6 +746,26 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           break;
       case 27: // ALLURING_SCVNGR
           crstat->entrance_force = val4;
+          break;
+      case 28: // NO_RESURRECT
+          if (val4 >= 1)
+          {
+              set_flag(crconf->model_flags, CMF_NoResurrect);
+          }
+          else
+          {
+              clear_flag(crconf->model_flags, CMF_NoResurrect);
+          }
+          break;
+      case 29: // NO_TRANSFER
+          if (val4 >= 1)
+          {
+              set_flag(crconf->model_flags, CMF_NoTransfer);
+          }
+          else
+          {
+              clear_flag(crconf->model_flags, CMF_NoTransfer);
+          }
           break;
       case 30: // TREMBLING
           if (val4 >= 1)

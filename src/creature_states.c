@@ -98,6 +98,7 @@ short arrive_at_call_to_arms(struct Thing *creatng);
 short cleanup_hold_audience(struct Thing *creatng);
 short creature_being_dropped(struct Thing *creatng);
 short creature_cannot_find_anything_to_do(struct Thing *creatng);
+short creature_casting_preparation(struct Thing *creatng);
 short creature_change_from_chicken(struct Thing *creatng);
 short creature_change_to_chicken(struct Thing *creatng);
 short creature_doing_nothing(struct Thing *creatng);
@@ -153,7 +154,6 @@ short state_cleanup_wait_at_door(struct Thing* creatng);
 short creature_search_for_spell_to_steal_in_room(struct Thing *creatng);
 short creature_pick_up_spell_to_steal(struct Thing *creatng);
 short creature_timebomb(struct Thing *creatng);
-
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -175,8 +175,8 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 0, 0,  0, 0, 0, 1},
   {imp_digs_mines, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 0, 0,  0, 0, 0, 1},
-  {NULL, NULL, NULL, NULL,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Move, 0, 0, 1, 0,  0, 0, 0, 1},
+  {creature_casting_preparation, NULL, NULL, NULL,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  CrStTyp_Work, 0, 1, 0, 0,  0, 0, 0, 1},
   {imp_drops_gold, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 0, 0,  0, 0, 0, 1},
   {imp_last_did_job, NULL, NULL, NULL,
@@ -1602,6 +1602,37 @@ short creature_cannot_find_anything_to_do(struct Thing *creatng)
 	if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
 		creatng->continue_state = CrSt_CreatureCannotFindAnythingToDo;
 	return 1;
+}
+
+/**
+ * @brief process_state function for CreatureCastingPreparation.
+ *
+ * @param creatng The creature being updated.
+ * @return short What we've done to the creature. Enum of CreatureStateReturns.
+ */
+short creature_casting_preparation(struct Thing *creatng)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    TRACE_THING(creatng);
+    SYNCDBG(11, "Process %s(%d), bkp act.st: %s, bkp con.st: %s, instance: %s",
+        thing_model_name(creatng), creatng->index,
+        creature_state_code_name(cctrl->active_state_bkp), creature_state_code_name(cctrl->continue_state_bkp),
+        creature_instance_code_name(cctrl->instance_id));
+
+    if (cctrl->instance_id != CrInst_NULL)
+    {
+        // If the spell has not be casted, keep this state.
+        struct Thing* target = thing_get(cctrl->targtng_idx);
+        if (target != INVALID_THING)
+        {
+            // Try to keep facing to the target.
+            creature_turn_to_face(creatng, &target->mappos);
+        }
+        return CrStRet_Unchanged;
+    }
+    internal_set_thing_state(creatng, cctrl->active_state_bkp);
+    creatng->continue_state = cctrl->continue_state_bkp;
+    return CrStRet_Modified;
 }
 
 void set_creature_size_stuff(struct Thing *creatng)

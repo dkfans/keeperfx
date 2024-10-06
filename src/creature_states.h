@@ -39,7 +39,7 @@ enum CreatureStates {
     CrSt_ImpArrivesAtMineGold,
     CrSt_ImpDigsDirt,
     CrSt_ImpMinesGold,
-    CrSt_Null6,
+    CrSt_CreatureCastingPreparation,
     CrSt_ImpDropsGold,
     CrSt_ImpLastDidJob,
     CrSt_ImpArrivesAtImproveDungeon,
