@@ -1786,10 +1786,6 @@ long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, MapCoordDelta
       && creature_instance_has_reset(thing, inst_id)) { \
         return inst_id; \
     }
-#define INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, inst_id) \
-    if (creature_instance_is_available(thing, inst_id)) { \
-        return -inst_id; \
-    }
 
 TbBool creature_would_benefit_from_healing(const struct Thing* thing)
 {
@@ -1922,6 +1918,8 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
     return CrInst_NULL;
 }
 
+#undef INSTANCE_RET_IF_AVAIL
+
 // Static array to store the IDs of "quick" instances
 static CrInstance quick_inst[INSTANCE_TYPES_MAX];
 // Counter for the number of "quick" instances found
@@ -2006,8 +2004,7 @@ void reset_quick_instance_cache()
     memset(quick_inst, 0, sizeof(quick_inst));
 }
 
-#undef INSTANCE_RET_IF_AVAIL
-#undef INSTANCE_RET_NEG_IF_AVAIL_ONLY
+
 
 /**
  * Gives combat weapon instance from given array which matches given distance.
