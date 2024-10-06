@@ -571,7 +571,7 @@ void activate_trap_god_spell(struct Thing *traptng, struct Thing *creatng, Power
     }
     else if (powerst->can_cast_flags & PwCast_AllGround)
     {
-        magic_use_power_on_subtile(traptng->owner, pwkind, SPELL_MAX_LEVEL, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, PwMod_CastForFree);
+        magic_use_power_on_subtile(traptng->owner, pwkind, SPELL_MAX_LEVEL, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, PwCast_None, PwMod_CastForFree);
     }
     else if (powerst->can_cast_flags & PwCast_Anywhere)
     {
