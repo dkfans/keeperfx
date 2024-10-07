@@ -1803,7 +1803,7 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, long shot_lvl,
         cctrl->teleport_y = trg_y;
     }
 
-    if (spconf->caster_affected && castng->index == cctrl->targtng_idx)
+    if (spconf->caster_affected)
     {
         if (spconf->caster_affect_sound > 0)
           thing_play_sample(castng, spconf->caster_affect_sound, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
