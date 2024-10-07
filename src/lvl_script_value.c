@@ -747,6 +747,26 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 27: // ALLURING_SCVNGR
           crstat->entrance_force = val4;
           break;
+      case 28: // NO_RESURRECT
+          if (val4 >= 1)
+          {
+              set_flag(crconf->model_flags, CMF_NoResurrect);
+          }
+          else
+          {
+              clear_flag(crconf->model_flags, CMF_NoResurrect);
+          }
+          break;
+      case 29: // NO_TRANSFER
+          if (val4 >= 1)
+          {
+              set_flag(crconf->model_flags, CMF_NoTransfer);
+          }
+          else
+          {
+              clear_flag(crconf->model_flags, CMF_NoTransfer);
+          }
+          break;
       case 30: // TREMBLING
           if (val4 >= 1)
           {
