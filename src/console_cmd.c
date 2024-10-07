@@ -1822,15 +1822,15 @@ PlayerNumber get_player_number_for_command(char *msg)
 
 TbBool parameter_is_number(const char* parstr)
 {
-    if (parstr == NULL) {
-        return false;
-    } else if (parstr[0] == 0) {
-        return false;
-    } else if (!(parstr[0] == '-' || isdigit(parstr[0]))) {
+    if (parstr == NULL)
+    {
         return false;
     }
-    for (int i = 1; parstr[i] != '\0'; ++i) {
-        if (!isdigit(parstr[i])) {
+    for (int i = 0; parstr[i] != '\0'; i++)
+    {
+        TbBool digit = (i == 0) ? ( (parstr[i] == 0x2D) || (isdigit(parstr[i])) ) : (isdigit(parstr[i]));
+        if (!digit)
+        {
             return false;
         }
     }

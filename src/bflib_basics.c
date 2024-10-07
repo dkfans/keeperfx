@@ -595,19 +595,6 @@ void make_uppercase(char * string) {
   }
 }
 
-int natoi(const char * str, int len) {
-  int value = -1;
-  for (int i = 0; i < len; ++i) {
-    if (!isdigit(str[i])) {
-      return value;
-    } else if (value < 0) {
-      value = 0;
-    }
-    value = (value * 10) + (str[i] - '0');
-  }
-  return value;
-}
-
 /******************************************************************************/
 #ifdef __cplusplus
 }
