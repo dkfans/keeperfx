@@ -64,7 +64,12 @@ HVLOGBIN = bin/keeperfx_hvlog$(EXEEXT)
 # Names of intermediate build products
 GENSRC   = obj/ver_defs.h
 RES      = obj/keeperfx_stdres.res
-LIBS     = obj/enet.a
+LIBS     = \
+	obj/enet.a \
+	deps/ffmpeg/libavformat/libavformat.a \
+	deps/ffmpeg/libavcodec/libavcodec.a \
+	deps/ffmpeg/libavutil/libavutil.a \
+	deps/ffmpeg/libswresample/libswresample.a
 
 DEPS = \
 obj/spng.o \
@@ -352,10 +357,17 @@ CU_OBJS = \
 	obj/cu/Util.o
 
 # include and library directories
-LINKLIB =  -L"sdl/lib" -mwindows obj/enet.a \
+LINKLIB =  -L"sdl/lib" -mwindows \
 	-lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net -lSDL2_image \
-	-L"deps/zlib" -lz -lws2_32 -ldbghelp
-INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include" -I"deps/centijson/src" -I"deps/centitoml" -I"deps/astronomy"
+	-L"deps/zlib" -lz -lws2_32 -ldbghelp -lsecur32 -lole32 -lbcrypt -lstrmiids
+INCS = \
+	-I"sdl/include" \
+	-I"sdl/include/SDL2" \
+	-I"deps/enet/include" \
+	-I"deps/centijson/src" \
+	-I"deps/centitoml" \
+	-I"deps/astronomy" \
+	-I"deps/ffmpeg"
 CXXINCS =  $(INCS)
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
@@ -498,7 +510,7 @@ clean-build:
 
 $(BIN): $(GENSRC) $(STDOBJS) $(STD_MAIN_OBJ) $(LIBS) std-before
 	-$(ECHO) 'Building target: $@'
-	$(CPP) -o "$@" $(STDOBJS) $(STD_MAIN_OBJ) $(LDFLAGS)
+	$(CPP) -o "$@" $(STDOBJS) $(STD_MAIN_OBJ) $(LIBS) $(LDFLAGS)
 ifdef CV2PDB
 	$(CV2PDB) -C "$@"
 endif
@@ -506,7 +518,7 @@ endif
 
 $(HVLOGBIN): $(GENSRC) $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(LIBS) hvlog-before
 	-$(ECHO) 'Building target: $@'
-	$(CPP) -o "$@" $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(LDFLAGS)
+	$(CPP) -o "$@" $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(LIBS) $(LDFLAGS)
 ifdef CV2PDB
 	$(CV2PDB) -C "$@"
 endif
@@ -633,6 +645,30 @@ deps/zlib/libz.a: deps/zlib/configure.log
 
 obj/enet.a:
 	$(MAKE) -f enet.mk PREFIX=$(CROSS_COMPILE) WARNFLAGS=$(WARNFLAGS) obj/enet.a
+
+deps/ffmpeg/libavutil/avconfig.h:
+	cd deps/ffmpeg && ./configure \
+		--disable-x86asm \
+		--disable-programs \
+		--disable-doc \
+		--disable-devices \
+		--arch=i686 \
+		--target-os=mingw32 \
+		--cross-prefix=$(CROSS_COMPILE) \
+		--progs-suffix=$(CROSS_COMPILE) \
+		--enable-cross-compile
+
+deps/ffmpeg/libavformat/libavformat.a: deps/ffmpeg/libavutil/avconfig.h
+	cd deps/ffmpeg && $(MAKE) -j$(shell nproc) libavformat/libavformat.a
+
+deps/ffmpeg/libavcodec/libavcodec.a: deps/ffmpeg/libavutil/avconfig.h
+	cd deps/ffmpeg && $(MAKE) -j$(shell nproc) libavcodec/libavcodec.a
+
+deps/ffmpeg/libavutil/libavutil.a: deps/ffmpeg/libavutil/avconfig.h
+	cd deps/ffmpeg && $(MAKE) -j$(shell nproc) libavutil/libavutil.a
+
+deps/ffmpeg/libswresample/libswresample.a: deps/ffmpeg/libavutil/avconfig.h
+	cd deps/ffmpeg && $(MAKE) -j$(shell nproc) libswresample/libswresample.a
 
 include tool_png2ico.mk
 include tool_pngpal2raw.mk
