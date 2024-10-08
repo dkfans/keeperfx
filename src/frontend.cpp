@@ -44,6 +44,7 @@
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "config_magic.h"
+#include "config_spritecolors.h"
 #include "scrcapt.h"
 #include "gui_draw.h"
 #include "kjm_input.h"
@@ -76,7 +77,7 @@
 #include "magic.h"
 #include "player_instances.h"
 #include "player_utils.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "gui_frontmenu.h"
 #include "gui_frontbtns.h"
 #include "gui_soundmsgs.h"
@@ -96,7 +97,7 @@
 extern "C" {
 #endif
 
-extern void __stdcall enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr);
+extern void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr);
 /******************************************************************************/
 TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
@@ -104,36 +105,42 @@ static char path_string[178];
 MenuID vid_change_query_menu = GMnu_CREATURE_QUERY1;
 
 struct GuiButtonInit frontend_main_menu_buttons[] = {
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  26, 999,  26, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {1},            0, NULL },
-  { 0,  0, 0, 0, frontend_start_new_game,NULL,frontend_over_button,     3, 999,  92, 999,  92, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {2},            0, NULL },
-  { 0,  0, 0, 0, frontend_load_continue_game,NULL,frontend_over_button, 0, 999, 138, 999, 138, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {8},            0, frontend_continue_game_maintain },
-  { 0,  0, 0, 0, frontend_load_mappacks,NULL,frontend_over_button,     34, 999, 184, 999, 184, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,     {106},            0, frontend_mappacks_maintain },
-  { 0,  0, 0, 0, frontend_change_state,NULL, frontend_over_button,    2, 999, 230,   999, 230, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {3},            0, frontend_main_menu_load_game_maintain },
-  { 0,  0, 0, 0, frontend_netservice_change_state,NULL, frontend_over_button,4,999,276,999,276,371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {4},            0, frontend_main_menu_netservice_maintain },
-  { 0,  0, 0, 0, frontend_change_state,NULL, frontend_over_button,   27, 999, 322,   999, 322, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,      {97},            0, NULL },
-  { 0,  0, 0, 0, frontend_ldcampaign_change_state,NULL, frontend_over_button,18,999,368,999,368,371,46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,     {104},            0, frontend_main_menu_highscores_maintain },
-  { 0,  0, 0, 0, frontend_change_state,NULL, frontend_over_button,      9, 999, 414, 999, 414, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {5},            0, NULL },
-  {-1,  0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,   0,  0, NULL,                             0, GUIStr_Empty,  0,       {0},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_MENU_TITLE, 0, 0, NULL,               NULL,        NULL,                 0, 999,  26, 999,  26, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {1},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_start_new_game,NULL,frontend_over_button,     3, 999,  92, 999,  92, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {2},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_load_continue_game,NULL,frontend_over_button, 0, 999, 138, 999, 138, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {8},            0, frontend_continue_game_maintain },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_load_mappacks,NULL,frontend_over_button,     34, 999, 184, 999, 184, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,     {106},            0, frontend_mappacks_maintain },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_change_state,NULL, frontend_over_button,    2, 999, 230,   999, 230, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {3},            0, frontend_main_menu_load_game_maintain },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_netservice_change_state,NULL, frontend_over_button,4,999,276,999,276,371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {4},            0, frontend_main_menu_netservice_maintain },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_change_state,NULL, frontend_over_button,   27, 999, 322,   999, 322, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,      {97},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_ldcampaign_change_state,NULL, frontend_over_button,18,999,368,999,368,371,46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,     {104},            0, frontend_main_menu_highscores_maintain },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_change_state,NULL, frontend_over_button,      9, 999, 414, 999, 414, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {5},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0, 0,   455, 0,   455, 371, 46, frontend_draw_product_version,    0, GUIStr_Empty,  0,       {0},            0, NULL },
+  {-1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,   0,  0, NULL,                             0, GUIStr_Empty,  0,       {0},            0, NULL },
 };
 
 struct GuiButtonInit frontend_statistics_buttons[] = {
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {84},            0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  90, 999,  90,450,162, frontstats_draw_main_stats,        0, GUIStr_Empty,  0,       {0},            0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999, 260, 999, 260,450,136, frontstats_draw_scrolling_stats,   0, GUIStr_Empty,  0,       {0},            0, NULL },
-  { 0,  0, 0, 0, frontstats_leave,NULL,frontend_over_button,           18, 999, 404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {83},            0, NULL },
-  {-1,  0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_MENU_TITLE, 0, 0, NULL,               NULL,        NULL,                 0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {84},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0, 999,  90, 999,  90,450,162, frontstats_draw_main_stats,        0, GUIStr_Empty,  0,       {0},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0, 999, 260, 999, 260,450,136, frontstats_draw_scrolling_stats,   0, GUIStr_Empty,  0,       {0},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontstats_leave,NULL,frontend_over_button,           18, 999, 404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {83},            0, NULL },
+  {-1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, NULL },
 };
 
 struct GuiButtonInit frontend_high_score_score_buttons[] = {
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  30, 999,  30,495, 46, frontend_draw_vlarge_menu_button,  0, GUIStr_Empty,  0,      {85},            0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  97, 999,  97,450,286, frontend_draw_high_score_table,    0, GUIStr_Empty,  0,       {0},            0, NULL },
-  { 0,  0, 0, 0, frontend_quit_high_score_table,NULL,frontend_over_button,3,999,404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {83},            0, frontend_maintain_high_score_ok_button },
-  {-1,  0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_MENU_TITLE, 0, 0, NULL,               NULL,        NULL,                 0, 999,  30, 999,  30,495, 46, frontend_draw_vlarge_menu_button,  0, GUIStr_Empty,  0,      {85},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT,    0, 0, NULL,               NULL,        NULL,               0,  145, 72, 145, 72,220, 26, frontend_draw_highscores_scroll_box_tab,      0, GUIStr_Empty,  0,      {28},            0, NULL},
+  { LbBtnT_NormalBtn,  BID_DEFAULT,    0, 0, NULL,               NULL,        NULL,               0, 120, 73, 120, 73,400, 26, frontend_draw_high_scores_mappack,0, GUIStr_Empty,  0,      {32},            0, NULL},
+  { LbBtnT_NormalBtn,  BID_DEFAULT,    0, 0, NULL,               NULL,        NULL,                 0, 80,  97, 80,  97,450,286, frontend_draw_high_score_table,    0, GUIStr_Empty,  0,       {0},            0, NULL },
+  { LbBtnT_HoldableBtn,BID_DEFAULT,    0, 0, highscore_scroll_up,NULL,frontend_over_button,  0, 530, 96, 530, 96, 26, 14, frontend_draw_slider_button,       0, GUIStr_Empty,  0,      {17},            0, frontend_highscore_scroll_up_maintain},
+  { LbBtnT_HoldableBtn,BID_DEFAULT,    0, 0, highscore_scroll_down,NULL,frontend_over_button,0, 530, 374, 530, 374, 26, 14, frontend_draw_slider_button,       0, GUIStr_Empty,  0,      {18},            0, frontend_highscore_scroll_down_maintain},
+  { LbBtnT_HoldableBtn,BID_DEFAULT,    0, 0, highscore_scroll,NULL,NULL,              0, 533, 112, 533, 112, 20,260, frontend_draw_highscores_scroll_tab,   0, GUIStr_Empty,  0,      {40},            0, frontend_highscore_scroll_tab_maintain},
+  { LbBtnT_NormalBtn,  BID_DEFAULT,    0, 0, frontend_quit_high_score_table,NULL,frontend_over_button,3,999,404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {83},            0, frontend_maintain_high_score_ok_button },
+  {-1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, NULL },
 };
 
 struct GuiButtonInit frontend_error_box_buttons[] = {
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,   0, 999,   0,450, 92, frontend_draw_error_text_box,      0, GUIStr_Empty,  0,{(long)gui_message_text},0, frontend_maintain_error_text_box},
-  {-1,  0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0, 999,   0, 999,   0,450, 92, frontend_draw_error_text_box,      0, GUIStr_Empty,  0,{(long)gui_message_text},0, frontend_maintain_error_text_box},
+  {-1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, NULL },
 };
 
 
@@ -194,6 +201,9 @@ struct GuiMenu *menu_list[] = {
     &frontend_add_session_box,
     &frontend_select_mappack_menu,
     &message_box,
+    &spell_menu2,
+    &room_menu2,
+    &trap_menu2,
     NULL,
 };
 
@@ -319,40 +329,42 @@ struct FrontEndButtonData frontend_button_info[] = {
 
 // bttn_sprite, tooltip_stridx, msg_stridx, lifespan_turns, turns_between_events, replace_event_kind_button;
 struct EventTypeInfo event_button_info[] = {
-  {260, GUIStr_Empty,                       GUIStr_Empty,                      1,   1, EvKind_Nothing},
-  {260, GUIStr_EventDnHeartAttackedDesc,    GUIStr_EventHeartAttacked,       300, 250, EvKind_Nothing},
-  {262, GUIStr_EventFightDesc,              GUIStr_EventFight,                -1,   0, EvKind_FriendlyFight},
-  {258, GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective},
-  {260, GUIStr_EventBreachDesc,             GUIStr_EventBreach,              300,   0, EvKind_Nothing},
-  {250, GUIStr_EventNewRoomResrchDesc,      GUIStr_EventNewRoomResearched,  1200,   0, EvKind_Nothing},
-  {256, GUIStr_EventNewCreatureDesc,        GUIStr_EventNewCreature,        1200,   0, EvKind_Nothing},
-  {252, GUIStr_EventNewSpellResrchDesc,     GUIStr_EventNewSpellResearched, 1200,   0, EvKind_Nothing},
-  {254, GUIStr_EventNewTrapDesc,            GUIStr_EventNewTrap,            1200,   0, EvKind_Nothing},
-  {254, GUIStr_EventNewDoorDesc,            GUIStr_EventNewDoor,            1200,   0, EvKind_Nothing},
-  {260, GUIStr_EventCreatrScavngDesc,       GUIStr_EventScavengingDetected, 1200,   0, EvKind_Nothing}, // EvKind_CreatrScavenged
-  {266, GUIStr_EventTreasrRoomFullDesc,     GUIStr_EventTreasureRoomFull,   1200, 500, EvKind_Nothing},
-  {266, GUIStr_EventCreaturePaydayDesc,     GUIStr_EventCreaturePayday,     1200,   0, EvKind_Nothing},
-  {266, GUIStr_EventAreaDiscoveredDesc,     GUIStr_EventAreaDiscovered,     1200,   0, EvKind_Nothing},
-  {266, GUIStr_EventSpellPickedUpDesc,      GUIStr_EventNewSpellPickedUp,   1200,   0, EvKind_Nothing},
-  {266, GUIStr_EventRoomTakenOverDesc,      GUIStr_EventNewRoomTakenOver,   1200,   0, EvKind_Nothing},
-  {260, GUIStr_EventCreatrAnnoyedDesc,      GUIStr_EventCreatureAnnoyed,    1200,   0, EvKind_Nothing},
-  {260, GUIStr_EventNoMoreLivingSetDesc,    GUIStr_EventNoMoreLivingSpace,  1200, 500, EvKind_Nothing},
-  {260, GUIStr_EventAlarmTriggeredDesc,     GUIStr_EventAlarmTriggered,      300, 200, EvKind_Nothing},
-  {260, GUIStr_EventRoomUnderAttackDesc,    GUIStr_EventRoomUnderAttack,     300, 250, EvKind_Nothing},
-  {260, GUIStr_EventNeedTreasrRoomDesc,     GUIStr_EventTreasureRoomNeeded,  300, 500, EvKind_Nothing}, // EvKind_NeedTreasureRoom
-  {268, GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {260, GUIStr_EventRoomLostDesc,           GUIStr_EventRoomLost,           1200,   0, EvKind_Nothing},
-  {260, GUIStr_EventCreaturesHungryDesc,    GUIStr_EventCreaturesHungry,     300, 500, EvKind_Nothing},
-  {266, GUIStr_EventTrapCrateFoundDesc,     GUIStr_EventTrapCrateFound,      300,   0, EvKind_Nothing},
-  {266, GUIStr_EventDoorCrateFoundDesc,     GUIStr_EventDoorCrateFound,      300,   0, EvKind_Nothing}, // EvKind_DoorCrateFound
-  {266, GUIStr_EventDnSpecialFoundDesc,     GUIStr_EventDnSpecialFound,      300,   0, EvKind_Nothing},
-  {268, GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {262, GUIStr_EventFightDesc,              GUIStr_EventFight,                -1,   0, EvKind_EnemyFight},
-  {260, GUIStr_EventWorkRoomUnreachblDesc,  GUIStr_EventWorkRoomUnreachbl,  1200, 500, EvKind_Nothing}, // EvKind_WorkRoomUnreachable
-  {260, GUIStr_EventStorgRoomUnreachblDesc, GUIStr_EventStorgRoomUnreachbl, 1200, 500, EvKind_Nothing}, // EvKind_StorageRoomUnreachable
-  {  0, GUIStr_Empty,                       GUIStr_Empty,                     50,  10, EvKind_Nothing}, // EvKind_PrisonerStarving
-  {  0, GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing}, // EvKind_TorturedHurt
-  {  0, GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing}, // EvKind_EnemyDoor
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_Empty,                       GUIStr_Empty,                      1,   1, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam2_act,    GUIStr_EventDnHeartAttackedDesc,    GUIStr_EventHeartAttacked,       300, 250, EvKind_Nothing},
+  {GPS_message_rpanel_msg_battle_act,     GUIStr_EventFightDesc,              GUIStr_EventFight,                -1,   0, EvKind_FriendlyFight},
+  {GPS_message_rpanel_msg_questn_act,     GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventBreachDesc,             GUIStr_EventBreach,              300,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_room_act,       GUIStr_EventNewRoomResrchDesc,      GUIStr_EventNewRoomResearched,  1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_creatr_act,     GUIStr_EventNewCreatureDesc,        GUIStr_EventNewCreature,        1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_spell_act,      GUIStr_EventNewSpellResrchDesc,     GUIStr_EventNewSpellResearched, 1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_manufct_act,    GUIStr_EventNewTrapDesc,            GUIStr_EventNewTrap,            1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_manufct_act,    GUIStr_EventNewDoorDesc,            GUIStr_EventNewDoor,            1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventCreatrScavngDesc,       GUIStr_EventScavengingDetected, 1200,   0, EvKind_Nothing}, // EvKind_CreatrScavenged
+  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventTreasrRoomFullDesc,     GUIStr_EventTreasureRoomFull,   1200, 500, EvKind_Nothing},
+  {GPS_message_rpanel_msg_payday_act,     GUIStr_EventCreaturePaydayDesc,     GUIStr_EventCreaturePayday,     1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventAreaDiscoveredDesc,     GUIStr_EventAreaDiscovered,     1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventSpellPickedUpDesc,      GUIStr_EventNewSpellPickedUp,   1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventRoomTakenOverDesc,      GUIStr_EventNewRoomTakenOver,   1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventCreatrAnnoyedDesc,      GUIStr_EventCreatureAnnoyed,    1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventNoMoreLivingSetDesc,    GUIStr_EventNoMoreLivingSpace,  1200, 500, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventAlarmTriggeredDesc,     GUIStr_EventAlarmTriggered,      300, 200, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventRoomUnderAttackDesc,    GUIStr_EventRoomUnderAttack,     300, 250, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventNeedTreasrRoomDesc,     GUIStr_EventTreasureRoomNeeded,  300, 500, EvKind_Nothing}, // EvKind_NeedTreasureRoom
+  {GPS_message_rpanel_msg_inforg_act,     GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventRoomLostDesc,           GUIStr_EventRoomLost,           1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventCreaturesHungryDesc,    GUIStr_EventCreaturesHungry,     300, 500, EvKind_Nothing},
+  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventTrapCrateFoundDesc,     GUIStr_EventTrapCrateFound,      300,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventDoorCrateFoundDesc,     GUIStr_EventDoorCrateFound,      300,   0, EvKind_Nothing}, // EvKind_DoorCrateFound
+  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventDnSpecialFoundDesc,     GUIStr_EventDnSpecialFound,      300,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_inforg_act,     GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_battle_act,     GUIStr_EventFightDesc,              GUIStr_EventFight,                -1,   0, EvKind_EnemyFight},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventWorkRoomUnreachblDesc,  GUIStr_EventWorkRoomUnreachbl,  1200, 500, EvKind_Nothing}, // EvKind_WorkRoomUnreachable
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventStorgRoomUnreachblDesc, GUIStr_EventStorgRoomUnreachbl, 1200, 500, EvKind_Nothing}, // EvKind_StorageRoomUnreachable
+  {0,                                     GUIStr_Empty,                       GUIStr_Empty,                     50,  10, EvKind_Nothing}, // EvKind_PrisonerStarving
+  {0,                                     GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing}, // EvKind_TorturedHurt
+  {0,                                     GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing}, // EvKind_EnemyDoor
+  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventSecretDoorDiscovDesc,   GUIStr_EventSecretDoorDiscovered,300, 200, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventSecretDoorSpottedDesc,  GUIStr_EventSecretDoorSpotted,   300, 200, EvKind_Nothing},
 };
 
 const unsigned long alliance_grid[4][4] = {
@@ -572,6 +584,10 @@ void get_player_gui_clicks(void)
             turn_off_all_window_menus();
         } else
         {
+            if (menu_is_active(GMnu_MAIN))
+            {
+              fake_button_click(BID_OPTIONS);
+            }
             turn_on_menu(GMnu_OPTIONS);
         }
       }
@@ -622,8 +638,8 @@ TbBool validate_versions(void)
       if ((net_screen_packet[i].field_4 & 0x01) != 0)
       {
         if (ver == -1)
-          ver = player->field_4E7;
-        if (player->field_4E7 != ver)
+          ver = player->game_version;
+        if (player->game_version != ver)
           return false;
       }
     }
@@ -707,10 +723,8 @@ void create_message_box(const char *title, const char *line1, const char *line2,
 
 short game_is_busy_doing_gui(void)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
-    struct PlayerInfoAdd *playeradd = get_playeradd(player->id_number);
-    if (playeradd->one_click_lock_cursor)
+    struct PlayerInfo *player = get_my_player();
+    if (player->one_click_lock_cursor)
       return false;
     if (!busy_doing_gui)
       return false;
@@ -718,9 +732,11 @@ short game_is_busy_doing_gui(void)
       return true;
     PowerKind pwkind;
     pwkind = 0;
-    if (player->work_state < PLAYER_STATES_COUNT)
-      pwkind = player_state_to_power_kind[player->work_state];
+    if (player->work_state < PLAYER_STATES_COUNT_MAX)
     {
+        struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
+        pwkind = plrst_cfg_stat->power_kind;
+
         struct Thing *thing;
         thing = thing_get(battle_creature_over);
         if (can_cast_power_on_thing(player->id_number, thing, pwkind))
@@ -849,7 +865,7 @@ void maintain_scroll_up(struct GuiButton *gbtn)
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (scrollwnd->start_y < 0)) & LbBtnF_Enabled;
     if (!check_current_gui_layer(GuiLayer_OneClick))
     {
-        if (wheel_scrolled_up & lbKeyOn[KC_LCONTROL])
+        if (wheel_scrolled_up && (is_game_key_pressed(Gkey_RotateMod, NULL, true)))
         {
             scrollwnd->action = 1;
         }
@@ -864,7 +880,7 @@ void maintain_scroll_down(struct GuiButton *gbtn)
         * (scrollwnd->window_height - scrollwnd->text_height + 2 < scrollwnd->start_y)) & LbBtnF_Enabled;
     if (!check_current_gui_layer(GuiLayer_OneClick))
     {
-        if (wheel_scrolled_down & lbKeyOn[KC_LCONTROL])
+        if (wheel_scrolled_down && (is_game_key_pressed(Gkey_RotateMod, NULL, true)))
         {
             scrollwnd->action = 2;
         }
@@ -914,9 +930,9 @@ TbBool frontend_is_player_allied(long idx1, long idx2)
 {
     if (idx1 == idx2)
       return true;
-    if ((idx1 < 0) || (idx1 >= PLAYERS_COUNT))
+    if ((idx1 < 0) || (idx1 >= PLAYER_GOOD))
       return false;
-    if ((idx2 < 0) || (idx2 >= PLAYERS_COUNT))
+    if ((idx2 < 0) || (idx2 >= PLAYER_GOOD))
       return false;
     return ((frontend_alliances & alliance_grid[idx1][idx2]) != 0);
 }
@@ -935,7 +951,6 @@ TbResult frontend_load_data(void)
     TbResult ret;
     long len;
     ret = Lb_SUCCESS;
-    wait_for_cd_to_be_available();
     frontend_background = (unsigned char *)game.map;
 #ifdef SPRITE_FORMAT_V2
     fname = prepare_file_fmtpath(FGrp_LoData,"front-%d.raw",64);
@@ -984,17 +999,16 @@ TbResult frontend_load_data(void)
 
 void activate_room_build_mode(RoomKind rkind, TextStringId tooltip_id)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
+    struct PlayerInfo *player = get_my_player();
     set_players_packet_action(player, PckA_SetPlyrState, PSt_BuildRoom, rkind, 0, 0);
     struct RoomConfigStats *roomst;
-    roomst = &slab_conf.room_cfgstats[rkind];
+    roomst = &game.conf.slab_conf.room_cfgstats[rkind];
     game.chosen_room_kind = rkind;
     game.chosen_room_spridx = roomst->bigsym_sprite_idx;
     game.chosen_room_tooltip = tooltip_id;
 }
 
-long player_state_to_packet(long work_state, PowerKind pwkind, TbBool already_in)
+long player_state_to_packet(PlayerState work_state, PowerKind pwkind, TbBool already_in)
 {
     switch (work_state)
     {
@@ -1020,6 +1034,11 @@ long player_state_to_packet(long work_state, PowerKind pwkind, TbBool already_in
     case PSt_CastDisease:
     case PSt_TurnChicken:
     case PSt_DestroyWalls:
+    case PSt_Rebound:
+    case PSt_Freeze:
+    case PSt_Slow:
+    case PSt_Flight:
+    case PSt_Vision:
     case PSt_TimeBomb:
         return PckA_SetPlyrState;
     case PSt_None:
@@ -1106,7 +1125,7 @@ void choose_spell(PowerKind pwkind, TextStringId tooltip_id)
 {
     struct PlayerInfo *player;
 
-    pwkind = pwkind % POWER_TYPES_COUNT;
+    pwkind = pwkind % game.conf.magic_conf.power_types_count;
 
     if (is_special_power(pwkind)) {
         choose_special_spell(pwkind, tooltip_id);
@@ -1160,8 +1179,7 @@ long frontend_scroll_tab_to_offset(struct GuiButton *gbtn, long scr_pos, long fi
 
 void gui_quit_game(struct GuiButton *gbtn)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
+    struct PlayerInfo *player = get_my_player();
     set_players_packet_action(player, PckA_Unknown001, 0, 0, 0, 0);
 }
 
@@ -1388,7 +1406,7 @@ void gui_area_text(struct GuiButton *gbtn)
                 lit_width += 32;
             }
             draw_lit_bar64k(gbtn->scr_pos_x - 6*units_per_pixel/16, gbtn->scr_pos_y - 6*units_per_pixel/16, bs_units_per_px, lit_width);
-        } 
+        }
         else
         {
             draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, width);
@@ -1421,6 +1439,13 @@ void frontend_init_options_menu(struct GuiMenu *gmnu)
     sound_level_slider = make_audio_slider_linear(settings.sound_volume);
     mentor_level_slider = make_audio_slider_linear(settings.mentor_volume);
     fe_mouse_sensitivity = settings.first_person_move_sensitivity;
+    if (!is_campaign_loaded())
+    {
+        if (!change_campaign(""))
+        {
+            ERRORLOG("Unable to load campaign");
+        }
+    }
 }
 
 void frontend_set_player_number(long plr_num)
@@ -1677,8 +1702,7 @@ void gui_go_to_event(struct GuiButton *gbtn)
 
 void gui_close_objective(struct GuiButton *gbtn)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
+    struct PlayerInfo *player = get_my_player();
     set_players_packet_action(player, PckA_EventBoxClose, 0, 0, 0, 0);
     // The final effect of this packet should be 3 menus disabled
     /*turn_off_menu(GMnu_TEXT_INFO);
@@ -1843,7 +1867,7 @@ short frontend_save_continue_game(short allow_lvnum_grow)
     // Restore saved data
     player->victory_state = victory_state;
     memcpy(&dungeon->lvstats, scratch, sizeof(struct LevelStats));
-    set_flag_byte(&player->additional_flags,PlaAF_UnlockedLordTorture,flg_mem);
+    set_flag_value(player->additional_flags, PlaAF_UnlockedLordTorture, flg_mem);
     // Only save continue if level was won, not a free play level, not a multiplayer level and not in packet mode
     if (((game.system_flags & GSF_NetworkActive) != 0)
      || ((game.operation_flags & GOF_SingleLevel) != 0)
@@ -2023,8 +2047,11 @@ short is_toggleable_menu(short mnu_idx)
   {
   case GMnu_MAIN:
   case GMnu_ROOM:
+  case GMnu_ROOM2:
   case GMnu_SPELL:
+  case GMnu_SPELL2:
   case GMnu_TRAP:
+  case GMnu_TRAP2:
   case GMnu_CREATURE:
   case GMnu_EVENT:
   case GMnu_QUERY:
@@ -2095,14 +2122,14 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
     gbtn->width = (gbinit->width * units_per_px + 8) / 16;
     gbtn->height = (gbinit->height * units_per_px + 8) / 16;
     gbtn->draw_call = gbinit->draw_call;
-    gbtn->sprite_idx = gbinit->sprite_idx;
+    gbtn->sprite_idx = get_player_colored_icon_idx(gbinit->sprite_idx,my_player_number);
     gbtn->tooltip_stridx = gbinit->tooltip_stridx;
     gbtn->parent_menu = gbinit->parent_menu;
     gbtn->content = (unsigned long *)gbinit->content.lptr;
     gbtn->maxval = gbinit->maxval;
     gbtn->maintain_call = gbinit->maintain_call;
     gbtn->flags |= LbBtnF_Enabled;
-    gbtn->flags &= ~LbBtnF_Unknown10;
+    gbtn->flags &= ~LbBtnF_MouseOver;
     gbtn->gbactn_1 = 0;
     gbtn->flags |= LbBtnF_Visible;
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown20 * (gbinit->gbifield_5 >> 8)) & LbBtnF_Unknown20;
@@ -2203,8 +2230,7 @@ long compute_menu_position_x(long desired_pos,int menu_width, int units_per_px)
 
 long compute_menu_position_y(long desired_pos,int menu_height, int units_per_px)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
+    struct PlayerInfo *player = get_my_player();
     long scaled_height;
     scaled_height = (menu_height * units_per_px + 8) / 16;
     long pos;
@@ -2320,30 +2346,39 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     return mnu_num;
 }
 
+/**
+ * Sets the status menu visiblity.
+ * 
+ * Doesn't change anything if the current menu visibility is the same as the passed parameter.
+ * 
+ * @param visible If TRUE show the menu, if FALSE hide the menu
+ * @return The visibility of the menu before this function was called (used to store the user's previous setting when the menu is forcibly hidden).
+ */
 unsigned long toggle_status_menu(short visible)
 {
-  static unsigned char room_on = 0;
-  static unsigned char spell_on = 0;
-  static unsigned char spell_lost_on = 0;
-  static unsigned char trap_on = 0;
-  static unsigned char creat_on = 0;
-  static unsigned char event_on = 0;
-  static unsigned char query_on = 0;
-  static unsigned char creature_query1_on = 0;
-  static unsigned char creature_query2_on = 0;
-  static unsigned char creature_query3_on = 0;
-  static unsigned char creature_query4_on = 0;
-  static unsigned char objective_on = 0;
-  static unsigned char battle_on = 0;
-  static unsigned char special_on = 0;
+  static TbBool room_on = false;
+  static TbBool room_2_on = false;
+  static TbBool spell_on = false;
+  static TbBool spell_2_on = false;
+  static TbBool spell_lost_on = false;
+  static TbBool trap_on = false;
+  static TbBool trap_2_on = false;
+  static TbBool creat_on = false;
+  static TbBool event_on = false;
+  static TbBool query_on = false;
+  static TbBool creature_query1_on = false;
+  static TbBool creature_query2_on = false;
+  static TbBool creature_query3_on = false;
+  static TbBool creature_query4_on = false;
+  static TbBool objective_on = false;
+  static TbBool battle_on = false;
+  static TbBool special_on = false;
 
-  long k;
-  unsigned long i;
-  k = menu_id_to_number(GMnu_MAIN);
+  long k = menu_id_to_number(GMnu_MAIN);
   if (k < 0) return 0;
   // Update pannel width
   status_panel_width = get_active_menu(k)->width;
-  i = get_active_menu(k)->is_turned_on;
+  unsigned long i = get_active_menu(k)->is_turned_on;
   if (visible != i)
   {
     if ( visible )
@@ -2351,12 +2386,18 @@ unsigned long toggle_status_menu(short visible)
       set_menu_visible_on(GMnu_MAIN);
       if ( room_on )
         set_menu_visible_on(GMnu_ROOM);
+      if ( room_2_on )
+        set_menu_visible_on(GMnu_ROOM2);
       if ( spell_on )
         set_menu_visible_on(GMnu_SPELL);
+      if ( spell_2_on )
+        set_menu_visible_on(GMnu_SPELL2);
       if ( spell_lost_on )
         set_menu_visible_on(GMnu_SPELL_LOST);
       if ( trap_on )
         set_menu_visible_on(GMnu_TRAP);
+    if ( trap_2_on )
+        set_menu_visible_on(GMnu_TRAP2);
       if ( event_on )
         set_menu_visible_on(GMnu_EVENT);
       if ( query_on )
@@ -2385,11 +2426,21 @@ unsigned long toggle_status_menu(short visible)
       if (k >= 0)
         room_on = get_active_menu(k)->is_turned_on;
       set_menu_visible_off(GMnu_ROOM);
+      
+      k = menu_id_to_number(GMnu_ROOM2);
+      if (k >= 0)
+        room_2_on = get_active_menu(k)->is_turned_on;
+      set_menu_visible_off(GMnu_ROOM2);
 
       k = menu_id_to_number(GMnu_SPELL);
       if (k >= 0)
         spell_on = get_active_menu(k)->is_turned_on;
       set_menu_visible_off(GMnu_SPELL);
+      
+      k = menu_id_to_number(GMnu_SPELL2);
+      if (k >= 0)
+        spell_2_on = get_active_menu(k)->is_turned_on;
+      set_menu_visible_off(GMnu_SPELL2);
 
       k = menu_id_to_number(GMnu_SPELL_LOST);
       if (k >= 0)
@@ -2400,6 +2451,11 @@ unsigned long toggle_status_menu(short visible)
       if (k >= 0)
       trap_on = get_active_menu(k)->is_turned_on;
       set_menu_visible_off(GMnu_TRAP);
+      
+      k = menu_id_to_number(GMnu_TRAP2);
+      if (k >= 0)
+        trap_2_on = get_active_menu(k)->is_turned_on;
+      set_menu_visible_off(GMnu_TRAP2);
 
       k = menu_id_to_number(GMnu_CREATURE);
       if (k >= 0)
@@ -2507,12 +2563,13 @@ TbBool toggle_first_person_menu(TbBool visible)
 void set_gui_visible(TbBool visible)
 {
   SYNCDBG(6,"Starting");
-  set_flag_byte(&game.operation_flags,GOF_ShowGui,visible);
+  set_flag_value(game.operation_flags, GOF_ShowGui, visible);
   struct PlayerInfo *player=get_my_player();
   unsigned char is_visbl = ((game.operation_flags & GOF_ShowGui) != 0);
   switch (player->view_type)
   {
   case PVT_CreatureContrl:
+  case PVT_CreaturePasngr:
       toggle_first_person_menu(is_visbl);
       break;
   case PVT_MapScreen:
@@ -2555,7 +2612,7 @@ char *mdlf_for_cd(struct TbLoadFiles * tb_load_files)
     result = tb_load_files;
     if ( tb_load_files->FName[0] != 42 )
     {
-        sprintf(path_string, "%s\\%s", install_info.inst_path, tb_load_files->FName);
+        sprintf(path_string, "%s/%s", install_info.inst_path, tb_load_files->FName); // todo check out
         return path_string;
     }
     return result->FName;
@@ -2580,9 +2637,42 @@ void initialise_tab_tags(MenuID menu_id)
 {
     info_tag =  (menu_id == GMnu_QUERY) || (menu_id == GMnu_CREATURE_QUERY1) ||
         (menu_id == GMnu_CREATURE_QUERY2) || (menu_id == GMnu_CREATURE_QUERY3) || (menu_id == GMnu_CREATURE_QUERY4);
-    room_tag = (menu_id == GMnu_ROOM);
-    spell_tag = (menu_id == GMnu_SPELL);
-    trap_tag = (menu_id == GMnu_TRAP);
+    if (menu_id == GMnu_ROOM)
+    {
+        room_tag = 1;
+    }
+    else if (menu_id == GMnu_ROOM2)
+    {
+        room_tag = 2;
+    }
+    else
+    {
+        room_tag = 0;
+    }
+    if (menu_id == GMnu_SPELL)
+    {
+        spell_tag = 1;
+    }
+    else if (menu_id == GMnu_SPELL2)
+    {
+        spell_tag = 2;
+    }
+    else
+    {
+        spell_tag = 0;
+    }
+    if (menu_id == GMnu_TRAP)
+    {
+        trap_tag = 1;
+    }
+    else if (menu_id == GMnu_TRAP2)
+    {
+        trap_tag = 2;
+    }
+    else
+    {
+        trap_tag = 0;
+    }
     creature_tag = (menu_id == GMnu_CREATURE);
 }
 
@@ -2623,11 +2713,9 @@ void frontend_shutdown_state(FrontendMenuState pstate)
     {
     case FeSt_INITIAL:
         init_gui();
-        wait_for_cd_to_be_available();
         fname = prepare_file_path(FGrp_LoData,"front.pal");
         if (LbFileLoadAt(fname, frontend_palette) != PALETTE_SIZE)
             ERRORLOG("Unable to load FRONTEND PALETTE");
-        wait_for_cd_to_be_available();
         LbMoveGameCursorToHostCursor(); // set the initial cursor position for the main menu
         update_mouse();
         break;
@@ -2658,7 +2746,7 @@ void frontend_shutdown_state(FrontendMenuState pstate)
         StopMusicPlayer();
         break;
     case FeSt_LEVEL_STATS:
-        StopStreamedSample();
+        stop_streamed_sample();
         turn_off_menu(GMnu_FESTATISTICS);
         break;
     case FeSt_HIGH_SCORES:
@@ -2731,12 +2819,17 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           break;
       case FeSt_MAIN_MENU:
           continue_game_option_available = continue_game_available();
+          if (!continue_game_option_available)
+          {
+              char* fname = prepare_file_path(FGrp_Save, continue_game_filename);
+              LbFileDelete(fname);
+          }
           turn_on_menu(GMnu_FEMAIN);
           last_mouse_x = GetMouseX();
           last_mouse_y = GetMouseY();
           time_last_played_demo = LbTimerClock();
           fe_high_score_table_from_main_menu = true;
-          set_flag_byte(&game.system_flags, GSF_NetworkActive, false);
+          clear_flag(game.system_flags, GSF_NetworkActive);
           set_pointer_graphic_menu();
           break;
       case FeSt_FELOAD_GAME:
@@ -2758,13 +2851,13 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
       case FeSt_NET_SESSION:
           turn_on_menu(GMnu_FENET_SESSION);
           frontnet_session_setup();
-          set_flag_byte(&game.system_flags, GSF_NetworkActive, false);
+          clear_flag(game.system_flags, GSF_NetworkActive);
           set_pointer_graphic_menu();
           break;
       case FeSt_NET_START:
           turn_on_menu(GMnu_FENET_START);
           frontnet_start_setup();
-          set_flag_byte(&game.system_flags, GSF_NetworkActive, true);
+          set_flag(game.system_flags, GSF_NetworkActive);
           set_pointer_graphic_menu();
           break;
       case FeSt_START_KPRLEVEL:
@@ -3011,7 +3104,7 @@ void frontend_input(void)
     case FeSt_HIGH_SCORES:
         get_gui_inputs(0);
         if (high_score_entry_input_active < 0) {
-            input_consumed = frontscreen_end_input(front_continue_pressed(false));
+            input_consumed = frontscreen_end_input(false);
         }
         if (input_consumed) {
             break;
@@ -3099,7 +3192,7 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
 
 void toggle_gui_overlay_map(void)
 {
-    toggle_flag_byte(&game.operation_flags,GOF_ShowGui);
+    toggle_flag(game.operation_flags, GOF_ShowGui);
 }
 
 void draw_menu_buttons(struct GuiMenu *gmnu)
@@ -3199,20 +3292,42 @@ void spangle_button(struct GuiButton *gbtn)
 
 void draw_menu_spangle(struct GuiMenu *gmnu)
 {
-    struct GuiButton *gbtn;
-    int i;
     if (gmnu->is_turned_on == 0)
       return;
-    for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
+    for (int i = 0; i < ACTIVE_BUTTONS_COUNT; i++)
     {
-        gbtn = &active_buttons[i];
+        struct GuiButton *gbtn = &active_buttons[i];
         if ((gbtn->draw_call == NULL) || ((gbtn->flags & LbBtnF_Visible) == 0) || ((gbtn->flags & LbBtnF_Active) == 0) || (game.flash_button_index == 0))
           continue;
         if ((gbtn->id_num > BID_DEFAULT) && (gbtn->id_num == button_designation_to_tab_designation(game.flash_button_index)))
         {
             // Button is a tab header; spangle if the tab is not active
-            if (!menu_is_active(gbtn->btype_value&LbBFeF_IntValueMask))
+            MenuNumber idx = gbtn->btype_value & LbBFeF_IntValueMask;
+            if (idx == GMnu_SPELL)
+            {
+                if ( (game.flash_button_index >= BID_POWER_TD17) && (game.flash_button_index <= BID_POWER_TD32) )
+                {
+                    idx = GMnu_SPELL2;
+                }
+            }
+            else if (idx == GMnu_ROOM)
+            {
+                if ( (game.flash_button_index >= BID_ROOM_TD17) && (game.flash_button_index <= BID_ROOM_TD32) )
+                {
+                    idx = GMnu_ROOM2;
+                }
+            }
+            else if (idx == GMnu_TRAP)
+            {
+                if ( (game.flash_button_index >= BID_MNFCT_TD17) && (game.flash_button_index <= BID_MNFCT_TD32) )
+                {
+                    idx = GMnu_TRAP2;
+                }
+            }
+            if (!menu_is_active(idx))
+            {
                 spangle_button(gbtn);
+            }
         } else
         if ((gbtn->id_num > BID_DEFAULT) && (gbtn->id_num == game.flash_button_index))
         {
@@ -3418,10 +3533,10 @@ void update_player_objectives(PlayerNumber plyr_idx)
     player = get_player(plyr_idx);
     if ((game.system_flags & GSF_NetworkActive) != 0)
     {
-      if ((!player->field_4EB) && (player->victory_state != VicS_Undecided))
-        player->field_4EB = game.play_gameturn+1;
+      if ((!player->display_objective_turn) && (player->victory_state != VicS_Undecided))
+        player->display_objective_turn = game.play_gameturn+1;
     }
-    if (player->field_4EB == game.play_gameturn)
+    if (player->display_objective_turn == game.play_gameturn)
     {
       switch (player->victory_state)
       {
@@ -3544,6 +3659,9 @@ void frontend_update(short *finish_menu)
     case FeSt_MAPPACK_SELECT:
         frontend_mappack_select_update();
         break;
+    case FeSt_HIGH_SCORES:
+        frontend_high_scores_update();
+        break;
     default:
         break;
     }
@@ -3635,7 +3753,7 @@ FrontendMenuState get_startup_menu_state(void)
       game_flags2 &= ~GF2_Server;
       SYNCLOG("Setup server");
 
-      if (setup_network_service(NS_TCP_IP))
+      if (setup_network_service(NS_ENET_UDP))
       {
           frontnet_service_setup();
           frontnet_session_setup();
@@ -3647,7 +3765,7 @@ FrontendMenuState get_startup_menu_state(void)
   {
       game_flags2 &= ~GF2_Connect;
       SYNCLOG("Setup client");
-      if (setup_network_service(NS_TCP_IP))
+      if (setup_network_service(NS_ENET_UDP))
       {
           frontnet_service_setup();
           frontnet_session_setup();
@@ -3783,6 +3901,17 @@ void frontend_maintain_error_text_box(struct GuiButton *gbtn)
     {
         turn_off_menu(GMnu_FEERROR_BOX);
     }
+}
+
+void frontend_draw_product_version(struct GuiButton *gbtn)
+{
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    LbTextSetFont(frontend_font[1]);
+    int units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_hugebutton_a05l, 100);
+    int h = LbTextLineHeight() * units_per_px / 16;
+    LbTextSetWindow(0, gbtn->scr_pos_y, gbtn->width, h);
+    char* text = buf_sprintf("%s %s", PRODUCT_NAME, PRODUCT_VERSION);
+    LbTextDrawResized(0, 0, units_per_px, text);
 }
 
 /******************************************************************************/

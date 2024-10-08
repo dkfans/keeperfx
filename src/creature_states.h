@@ -39,7 +39,7 @@ enum CreatureStates {
     CrSt_ImpArrivesAtMineGold,
     CrSt_ImpDigsDirt,
     CrSt_ImpMinesGold,
-    CrSt_Null6,
+    CrSt_CreatureCastingPreparation,
     CrSt_ImpDropsGold,
     CrSt_ImpLastDidJob,
     CrSt_ImpArrivesAtImproveDungeon,
@@ -112,7 +112,7 @@ enum CreatureStates {
     CrSt_CreatureTakeSalary,
     CrSt_TunnellerDoingNothing,
     CrSt_CreatureObjectCombat,
-    CrSt_Null79,
+    CrSt_CreatureObjectSnipe,
     CrSt_CreatureChangeLair,//[80]
     CrSt_ImpBirth,
     CrSt_AtTemple,
@@ -165,7 +165,7 @@ enum CreatureStates {
     CrSt_GoodWaitInExitDoor,
     CrSt_GoodAttackRoom1,//[130]
     CrSt_CreatureSearchForGoldToStealInRoom2,
-    CrSt_GoodAttackRoom2,
+    CrSt_GoodArrivedAtSabotageRoom,
     CrSt_CreaturePretendChickenSetupMove,
     CrSt_CreaturePretendChickenMove,
     CrSt_CreatureAttackRooms,
@@ -182,6 +182,11 @@ enum CreatureStates {
     CrSt_CreatureStealSpell,
     CrSt_GoodArrivedAtAttackRoom,
     CrSt_CreatureGoingToSafetyForToking,
+    CrSt_Timebomb,
+    CrSt_GoodWanderToCreatureCombat,//[150]
+    CrSt_GoodWanderToObjectCombat,
+    CrSt_CreatureDropBodyInLair,
+    CrSt_CreatureSaveUnconsciousCreature,
     CrSt_ListEnd,
 };
 
@@ -240,34 +245,34 @@ typedef short (*CreatureStateFunc1)(struct Thing *);
 typedef char (*CreatureStateFunc2)(struct Thing *);
 typedef CrCheckRet (*CreatureStateCheck)(struct Thing *);
 
-struct StateInfo { // sizeof = 41
+struct StateInfo {
     CreatureStateFunc1 process_state;
     CreatureStateFunc1 cleanup_state;
     CreatureStateFunc2 move_from_slab;
     CreatureStateCheck move_check; /**< Check function to be used when the creature is in moving sub-state during that state. */
-    unsigned char override_feed;
-    unsigned char override_own_needs;
-    unsigned char override_sleep;
-    unsigned char override_fight_crtr;
-    unsigned char override_gets_salary;
-    unsigned char override_prev_fld1F;
-    unsigned char override_prev_fld20;
-    unsigned char override_escape;
-    unsigned char override_unconscious;
-    unsigned char override_anger_job;
-    unsigned char override_fight_object;
-    unsigned char override_fight_door;
-    unsigned char override_call2arms;
-    unsigned char override_follow;
+    TbBool override_feed;
+    TbBool override_own_needs;
+    TbBool override_sleep;
+    TbBool override_fight_crtr;
+    TbBool override_gets_salary;
+    TbBool override_captive;
+    TbBool override_transition;
+    TbBool override_escape;
+    TbBool override_unconscious;
+    TbBool override_anger_job;
+    TbBool override_fight_object;
+    TbBool override_fight_door;
+    TbBool override_call2arms;
+    TbBool override_follow;
     unsigned char state_type;
-  unsigned char field_1F;
-  unsigned char field_20;
-  unsigned short field_21;
-  unsigned char field_23;
+    TbBool captive;
+    TbBool transition;
+    unsigned short follow_behavior;
+    TbBool blocks_all_state_changes;
     unsigned short sprite_idx;
-  unsigned char field_26;
-  unsigned char field_27;
-  unsigned char react_to_cta;
+    TbBool display_thought_bubble;
+    TbBool sneaky;
+    TbBool react_to_cta;
 };
 
 /******************************************************************************/
@@ -335,7 +340,7 @@ void set_creature_size_stuff(struct Thing *creatng);
 long process_work_speed_on_work_value(const struct Thing *thing, long base_val);
 TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *thing, const struct Room *room, struct Coord3d *pos);
 SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, PlayerNumber owner, RoomKind rkind, struct Thing *thing);
-void remove_health_from_thing_and_display_health(struct Thing *thing, long delta);
+void remove_health_from_thing_and_display_health(struct Thing *thing, HitPoints delta);
 
 TbBool process_creature_hunger(struct Thing *thing);
 void process_person_moods_and_needs(struct Thing *thing);
@@ -358,6 +363,8 @@ TbBool person_get_somewhere_adjacent_in_room_around_borders_f(struct Thing *thin
 void place_thing_in_creature_controlled_limbo(struct Thing *thing);
 void remove_thing_from_creature_controlled_limbo(struct Thing *thing);
 TbBool get_random_position_in_dungeon_for_creature(PlayerNumber plyr_idx, unsigned char wandr_select, struct Thing *thing, struct Coord3d *pos);
+
+struct Room* get_room_for_thing_salary(struct Thing* creatng, unsigned char *navtype);
 /******************************************************************************/
 TbBool creature_is_dying(const struct Thing *thing);
 TbBool creature_is_being_dropped(const struct Thing *thing);
@@ -365,6 +372,7 @@ TbBool creature_is_being_unconscious(const struct Thing *thing);
 TbBool creature_is_celebrating(const struct Thing *thing);
 TbBool creature_is_being_tortured(const struct Thing *thing);
 TbBool creature_is_being_sacrificed(const struct Thing *thing);
+TbBool creature_is_leaving_and_cannot_be_stopped(const struct Thing* thing);
 TbBool creature_is_kept_in_prison(const struct Thing *thing);
 TbBool creature_is_being_summoned(const struct Thing *thing);
 TbBool creature_is_doing_anger_job(const struct Thing *thing);

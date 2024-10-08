@@ -142,9 +142,6 @@ struct TbNetworkSessionNameEntry;
 typedef long (*Net_Callback_Func)(void);
 
 enum TbNetworkService {
-    NS_Serial_OLD,
-    NS_Modem_OLD,
-    NS_IPX,
     NS_TCP_IP,
     NS_ENET_UDP,
 };
@@ -223,6 +220,7 @@ long field_0;
 
 #pragma pack()
 /******************************************************************************/
+void    LbNetwork_SetServerPort(int port);
 void    LbNetwork_InitSessionsFromCmdLine(const char * str);
 TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data);
 TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, long *playr_num, void *optns);

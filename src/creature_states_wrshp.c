@@ -34,6 +34,7 @@
 #include "thing_objects.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
+#include "room_workshop.h"
 #include "room_data.h"
 #include "room_jobs.h"
 #include "map_utils.h"
@@ -50,8 +51,10 @@ TbBool creature_can_do_manufacturing(const struct Thing *creatng)
     if (is_neutral_thing(creatng)) {
         return false;
     }
+    struct Dungeon* dungeon;
+    dungeon = get_dungeon(creatng->owner);
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    return (crstat->manufacture_value > 0);
+    return ((crstat->manufacture_value > 0) && get_next_manufacture(dungeon));
 }
 
 TbBool setup_workshop_move(struct Thing *thing, SubtlCodedCoords stl_num)
@@ -161,8 +164,8 @@ SubtlCodedCoords find_unused_adjacent_position_in_workshop(const struct Coord3d 
     static const struct Around corners[] = { {1,2}, {0,1}, {1,0}, {2,1} };
     for (long i = 0; i < SMALL_AROUND_LENGTH; i++)
     {
-        MapSlabCoord slb_x = subtile_slab_fast(pos->x.stl.num) + (long)small_around[i].delta_x;
-        MapSlabCoord slb_y = subtile_slab_fast(pos->y.stl.num) + (long)small_around[i].delta_y;
+        MapSlabCoord slb_x = subtile_slab(pos->x.stl.num) + (long)small_around[i].delta_x;
+        MapSlabCoord slb_y = subtile_slab(pos->y.stl.num) + (long)small_around[i].delta_y;
         struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
         if ((slb->kind == SlbT_WORKSHOP) && (slabmap_owner(slb) == owner))
         {
@@ -208,6 +211,11 @@ short at_workshop_room(struct Thing *creatng)
     if (!room_initially_valid_as_type_for_thing(room, get_room_role_for_job(Job_MANUFACTURE), creatng))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng));
+        set_start_state(creatng);
+        return 0;
+    }
+    if (!creature_can_do_manufacturing(creatng))
+    {
         set_start_state(creatng);
         return 0;
     }
@@ -269,7 +277,7 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
     if ((game.play_gameturn - dungeon->turn_last_manufacture < 50) && ((game.play_gameturn + creatng->index) & 3) == 0)
     {
         if (cctrl->instance_id == CrInst_NULL) {
-            set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 1, 0, 0);
+            set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 0, 0);
         }
         return 1;
     }
@@ -299,8 +307,8 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
             }
             break;
         }
-        slb_x = subtile_slab_fast(creatng->mappos.x.stl.num);
-        slb_y = subtile_slab_fast(creatng->mappos.y.stl.num);
+        slb_x = subtile_slab(creatng->mappos.x.stl.num);
+        slb_y = subtile_slab(creatng->mappos.y.stl.num);
         struct Thing *objtng;
         objtng = get_workshop_equipment_to_work_with_on_subtile(creatng->owner, slab_subtile_center(slb_x),slab_subtile_center(slb_y));
         if (!thing_is_invalid(objtng))
@@ -373,7 +381,7 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
             setup_move_to_new_workshop_position(creatng, room, 1);
         } else
         if ((cctrl->workshop.swing_weapon_counter % 8) == 0) {
-            set_creature_instance(creatng, CrInst_SWING_WEAPON_SWORD, 1, 0, 0);
+            set_creature_instance(creatng, CrInst_SWING_WEAPON_SWORD, 0, 0);
         }
         break;
     }

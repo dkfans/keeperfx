@@ -37,6 +37,7 @@ extern "C" {
 /******************************************************************************/
 char *gui_strings_data;
 char *gui_strings[GUI_STRINGS_COUNT];
+TbBool reload_campaign_strings;
 /******************************************************************************/
 TbBool reset_strings(char **strings, int max)
 {
@@ -132,7 +133,7 @@ TbBool setup_campaign_strings_data(struct GameCampaign *campgn)
   long filelen = LbFileLengthRnc(fname);
   if (filelen <= 0)
   {
-    ERRORLOG("Campaign Strings file does not exist or can't be opened");
+    ERRORLOG("Campaign Strings file %s does not exist or can't be opened", campgn->strings_fname);
     return false;
   }
   campgn->strings_data = (char *)LbMemoryAlloc(filelen + 256);
@@ -151,7 +152,11 @@ TbBool setup_campaign_strings_data(struct GameCampaign *campgn)
   // Resetting all values to empty strings
   reset_strings(campgn->strings, STRINGS_MAX);
   // Analyzing strings data and filling correct values
-  short result = create_strings_list(campgn->strings, campgn->strings_data, strings_data_end, STRINGS_MAX);
+  TbBool result = create_strings_list(campgn->strings, campgn->strings_data, strings_data_end, STRINGS_MAX);
+  if (result)
+  {
+    reload_campaign_strings = false;
+  }
   SYNCDBG(19,"Finished");
   return result;
 }
@@ -169,9 +174,15 @@ const char * gui_string(unsigned int index)
 }
 const char * cmpgn_string(unsigned int index)
 {
-    if ((campaign.strings == NULL) || (index >= STRINGS_MAX))
-        return lbEmptyString;
-    return campaign.strings[index];
+    if (index >= STRINGS_MAX)
+    {
+        return gui_string(index - STRINGS_MAX);
+    }
+    if (*campaign.strings[index] != '\0')
+    {
+        return campaign.strings[index];
+    }
+    return gui_string(index);
 }
 
 const char * get_string(TextStringId stridx)

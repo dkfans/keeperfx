@@ -20,15 +20,18 @@
 #define DK_ROOMDATA_H
 
 #include "bflib_basics.h"
+#include "config_creature.h"
 #include "globals.h"
+#include "config_creature.h"
+#include "player_data.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define ROOM_TYPES_COUNT_OLD      17
+#define ROOM_TYPES_COUNT_OLD  17
 #define SLAB_AROUND_COUNT      4
-#define ROOMS_COUNT          150
+#define ROOMS_COUNT          511
 /******************************************************************************/
 enum RoomFlags {
     RoF_Allocated           = 0x01,
@@ -71,7 +74,6 @@ struct Thing;
 struct Coord3d;
 struct Room;
 struct Dungeon;
-struct DungeonAdd;
 
 typedef void (*Room_Update_Func)(struct Room *);
 
@@ -83,59 +85,52 @@ struct RoomInfo { // sizeof = 6
 
 struct Room {
     unsigned char alloc_flags;
-    unsigned short index; // index in the rooms array
-    unsigned char owner;
-    short prev_of_owner;
-    short next_of_owner;
-    unsigned char central_stl_x;
-    unsigned char central_stl_y;
-    unsigned short kind;
-    unsigned short health;
+    RoomIndex index; // index in the rooms array
+    PlayerNumber owner;
+    RoomIndex prev_of_owner;
+    RoomIndex next_of_owner;
+    MapSubtlCoord central_stl_x;
+    MapSubtlCoord central_stl_y;
+    RoomKind kind;
+    HitPoints health;
     unsigned short total_capacity;
     unsigned short used_capacity;
     /* Informs whether players are interested in that room.
      * Usually used for neutral rooms, set if a player is starting to dig to that room. */
-    unsigned char player_interested[5];
+    unsigned char player_interested[PLAYERS_COUNT];
     union {
     /** For rooms which can store things, amount of storage space, or sum of gold, used by them.
      *  Rooms which can store things are workshops, libraries, treasure rooms etc. */
     struct {
       unsigned long capacity_used_for_storage;
-      short hatchfield_1B;
-      unsigned char field_1D[26];
+      ThingIndex hatchfield_1B;
     };
     /** For rooms which are often browsed for various reasons, list of all rooms of given kind.
      *  Rooms which have such list are entrances (only?). */
     struct {
-      short prev_of_kind;
-      short next_of_kind;
-      unsigned char field_1Bx[28];
+      RoomIndex prev_of_kind;
+      RoomIndex next_of_kind;
     };
     struct {
       /** For rooms which store creatures, amount of each model.
        * Rooms which have such lists are lairs. */
-      unsigned char content_per_model[32];
+      unsigned char content_per_model[CREATURE_TYPES_MAX];
     };
     /* For hatchery; integrate with something else, if possible */
     struct {
       long hatch_gameturn;
-      unsigned char field_1Bh[28];
     };
     };
-    unsigned short slabs_list;
-    unsigned short slabs_list_tail;
+    SlabCodedCoords slabs_list;
+    SlabCodedCoords slabs_list_tail;
     unsigned short slabs_count;
-    unsigned short creatures_list;
+    ThingIndex creatures_list;
     unsigned short efficiency;
-    unsigned short field_41;
-    unsigned char field_43;
+    SlabCodedCoords flame_slb;
+    unsigned char flames_around_idx;
     unsigned char flame_stl;
 };
 
-struct RoomStatsOLD {
-  short cost_unused;
-  unsigned short health_unused;
-};
 
 /** Max. amount of items to be repositioned in a room */
 #define ROOM_REPOSITION_COUNT 16
@@ -193,7 +188,7 @@ struct Room *find_room_of_role_with_spare_room_item_capacity(PlayerNumber plyr_i
 struct Room *find_nth_room_of_owner_with_spare_item_capacity_starting_with(long room_idx, long n, long spare);
 struct Room *find_room_of_role_with_spare_capacity(PlayerNumber owner, RoomRole rrole, long spare);
 struct Room *find_nth_room_of_owner_with_spare_capacity_starting_with(long room_idx, long n, long spare);
-struct Room *find_room_of_role_with_most_spare_capacity(const struct DungeonAdd *dungeonadd,RoomRole rrole, long *total_spare_cap);
+struct Room *find_room_of_role_with_most_spare_capacity(const struct Dungeon *dungeon,RoomRole rrole, long *total_spare_cap);
 struct Room *find_room_nearest_to_position(PlayerNumber plyr_idx, RoomKind rkind, const struct Coord3d *pos, long *room_distance);
 // Finding a navigable room for a thing
 struct Room *find_room_of_role_for_thing_with_used_capacity(const struct Thing *creatng, PlayerNumber plyr_idx, RoomRole rrole, unsigned char nav_flags, long min_used_cap);
@@ -238,7 +233,7 @@ long count_slabs_of_room_type(PlayerNumber plyr_idx, RoomKind rkind);
 long claim_enemy_room(struct Room *room,struct Thing *claimtng);
 long claim_room(struct Room *room,struct Thing *claimtng);
 long take_over_room(struct Room* room, PlayerNumber newowner);
-void destroy_room_leaving_unclaimed_ground(struct Room *room);
+void destroy_room_leaving_unclaimed_ground(struct Room *room, TbBool create_rubble);
 TbBool create_effects_on_room_slabs(struct Room *room, ThingModel effkind, long effrange, PlayerNumber effowner);
 TbBool clear_dig_on_room_slabs(struct Room *room, PlayerNumber plyr_idx);
 void do_room_integration(struct Room *room);
@@ -246,6 +241,7 @@ void destroy_dungeon_heart_room(PlayerNumber plyr_idx, const struct Thing *heart
 
 void count_gold_hoardes_in_room(struct Room *room);
 void update_room_total_capacity(struct Room *room);
+long reinitialise_rooms_of_kind(RoomKind rkind);
 
 TbBool find_random_valid_position_for_thing_in_room_avoiding_object_excluding_room_slab(struct Thing *thing, struct Room *room, struct Coord3d *pos, long slbnum);
 
@@ -254,8 +250,12 @@ struct Room *find_nearest_room_of_role_for_thing_with_spare_item_capacity(struct
 struct Room *find_random_room_of_role_for_thing(struct Thing *thing, PlayerNumber owner, RoomRole rkind, unsigned char nav_flags);
 struct Room * find_random_room_of_role_for_thing_with_spare_room_item_capacity(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags);
 struct Room * pick_random_room_of_role(PlayerNumber plyr_idx, RoomRole rrole);
+struct Room *find_random_room_of_role_for_thing_with_spare_room_item_capacity(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags);
+struct Room *pick_random_room_of_role(PlayerNumber plyr_idx, RoomRole rrole);
 
 void create_guard_post_flags(struct Room *room);
+void redraw_slab_map_elements(MapSlabCoord slb_x, MapSlabCoord slb_y);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

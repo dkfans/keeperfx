@@ -99,7 +99,6 @@ short at_research_room(struct Thing *thing)
  */
 int get_next_research_item(const struct Dungeon *dungeon)
 {
-    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
     if (dungeon->research_num == 0)
         return -1;
     for (long resnum = 0; resnum < dungeon->research_num; resnum++)
@@ -114,24 +113,27 @@ int get_next_research_item(const struct Dungeon *dungeon)
             }
             break;
         case RsCat_Room:
-            if ((dungeonadd->room_buildable[rsrchval->rkind] & 1) == 0)
+            if ((dungeon->room_buildable[rsrchval->rkind] & 1) == 0)
             {
                 /// Need research
-                if (dungeonadd->room_resrchable[rsrchval->rkind] == 1)
+                if (dungeon->room_resrchable[rsrchval->rkind] == 1)
                     return resnum;
                 /// Need research but may find room instantly
-                else if (dungeonadd->room_resrchable[rsrchval->rkind] == 2)
+                else if (dungeon->room_resrchable[rsrchval->rkind] == 2)
                     return resnum;
                 /// Need research AND already captured
-                else if ((dungeonadd->room_resrchable[rsrchval->rkind] == 4) &&
-                    (dungeonadd->room_buildable[rsrchval->rkind] & 2))
+                else if ((dungeon->room_resrchable[rsrchval->rkind] == 4) &&
+                    (dungeon->room_buildable[rsrchval->rkind] & 2))
                 {
                     return resnum;
                 }
             }
             break;
         case RsCat_Creature:
-            WARNLOG("Creature research skipped - not implemented");
+            if (dungeon->creature_allowed[rsrchval->rkind] == 0)
+            {
+                return resnum;
+            }
             break;
         case RsCat_None:
             break;
@@ -144,19 +146,17 @@ int get_next_research_item(const struct Dungeon *dungeon)
 }
 
 TbBool has_new_rooms_to_research(const struct Dungeon *dungeon)
-{
-    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
-    
+{    
     for (long resnum = 0; resnum < dungeon->research_num; resnum++)
     {
         const struct ResearchVal* rsrchval = &dungeon->research[resnum];
         if (rsrchval->rtyp == RsCat_Room)
         {
-            if ((dungeonadd->room_buildable[rsrchval->rkind] & 1) == 0)
+            if ((dungeon->room_buildable[rsrchval->rkind] & 1) == 0)
             {
-                if ((dungeonadd->room_resrchable[rsrchval->rkind] == 1)
-                    || (dungeonadd->room_resrchable[rsrchval->rkind] == 2)
-                    || ((dungeonadd->room_resrchable[rsrchval->rkind] == 4) && (dungeonadd->room_buildable[rsrchval->rkind] & 2))
+                if ((dungeon->room_resrchable[rsrchval->rkind] == 1)
+                    || (dungeon->room_resrchable[rsrchval->rkind] == 2)
+                    || ((dungeon->room_resrchable[rsrchval->rkind] == 4) && (dungeon->room_buildable[rsrchval->rkind] & 2))
                     )
                 {
                     return true;

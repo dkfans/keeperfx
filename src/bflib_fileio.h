@@ -38,24 +38,9 @@ enum TbFileSeekMode {
         Lb_FILE_SEEK_END,
 };
 
-/******************************************************************************/
-#pragma pack(1)
 
-struct TbDriveInfo {
-        unsigned long TotalClusters;
-        unsigned long FreeClusters;
-        unsigned long SectorsPerCluster;
-        unsigned long BytesPerSector;
-};
-
-#pragma pack()
 /******************************************************************************/
 
-int LbDriveCurrent(unsigned int *drive);
-int LbDriveChange(const unsigned int drive);
-int LbDriveExists(const unsigned int drive);
-int LbDirectoryChange(const char *path);
-int LbDriveFreeSpace(const unsigned int drive, struct TbDriveInfo *drvinfo);
 short LbFileExists(const char *fname);
 int LbFilePosition(TbFileHandle handle);
 TbFileHandle LbFileOpen(const char *fname, unsigned char accmode);
@@ -69,11 +54,8 @@ long LbFileLengthHandle(TbFileHandle handle);
 int LbFileFindFirst(const char *filespec, struct TbFileFind *ffind,unsigned int attributes);
 int LbFileFindNext(struct TbFileFind *ffind);
 int LbFileFindEnd(struct TbFileFind *ffind);
-int LbFileRename(const char *fname_old, const char *fname_new);
 int LbFileDelete(const char *filename);
 short LbFileFlush(TbFileHandle handle);
-char *LbGetCurrWorkDir(char *dest, const unsigned long maxlen);
-int LbDirectoryCurrent(char *buf, unsigned long buflen);
 int LbFileMakeFullPath(const short append_cur_dir,
   const char *directory, const char *filename, char *buf, const unsigned long len);
 

@@ -27,6 +27,7 @@
 #include "player_data.h"
 #include "dungeon_data.h"
 #include "thing_data.h"
+#include "thing_doors.h"
 #include "thing_stats.h"
 #include "thing_physics.h"
 #include "thing_effects.h"
@@ -47,7 +48,7 @@
 struct Thing *create_room_surrounding_flame(struct Room *room, const struct Coord3d *pos,
     unsigned short eetype, PlayerNumber owner)
 {
-    struct Thing* eething = create_effect_element(pos, room_effect_elements[eetype & 7], owner);
+    struct Thing* eething = create_effect_element(pos, room_effect_elements[eetype], owner);
     if (!thing_is_invalid(eething))
     {
         eething->mappos.z.val = get_thing_height_at(eething, &eething->mappos);
@@ -61,14 +62,14 @@ struct Thing *create_room_surrounding_flame(struct Room *room, const struct Coor
 void room_update_surrounding_flames(struct Room *room, const struct Coord3d *pos)
 {
     long k;
-    long i = room->field_43;
+    long i = room->flames_around_idx;
     MapSubtlCoord x = pos->x.stl.num + (MapSubtlCoord)small_around[i].delta_x;
     MapSubtlCoord y = pos->y.stl.num + (MapSubtlCoord)small_around[i].delta_y;
     struct Room* curoom = subtile_room_get(x, y);
     if (curoom->index != room->index)
     {
         k = (i + 1) % SMALL_AROUND_LENGTH;
-        room->field_43 = k;
+        room->flames_around_idx = k;
         return;
     }
     k = (i + 3) % SMALL_AROUND_LENGTH;
@@ -77,19 +78,23 @@ void room_update_surrounding_flames(struct Room *room, const struct Coord3d *pos
     curoom = subtile_room_get(x,y);
     if (curoom->index != room->index)
     {
-        room->field_41 += gameadd.small_around_slab[i];
+        room->flame_slb += gameadd.small_around_slab[i];
         return;
     }
-    room->field_41 += gameadd.small_around_slab[i] + gameadd.small_around_slab[k];
-    room->field_43 = k;
+    room->flame_slb += gameadd.small_around_slab[i] + gameadd.small_around_slab[k];
+    room->flames_around_idx = k;
 }
 
 void process_room_surrounding_flames(struct Room *room)
 {
     SYNCDBG(19,"Starting");
-    MapSlabCoord x = slb_num_decode_x(room->field_41);
-    MapSlabCoord y = slb_num_decode_y(room->field_41);
-    long i = 3 * room->field_43 + room->flame_stl;
+    if(player_is_roaming(room->owner))
+    {
+        return;
+    }
+    MapSlabCoord x = slb_num_decode_x(room->flame_slb);
+    MapSlabCoord y = slb_num_decode_y(room->flame_slb);
+    long i = 3 * room->flames_around_idx + room->flame_stl;
     struct Coord3d pos;
     pos.x.val = subtile_coord_center(slab_subtile_center(x)) + room_spark_offset[i].delta_x;
     pos.y.val = subtile_coord_center(slab_subtile_center(y)) + room_spark_offset[i].delta_y;
@@ -99,9 +104,9 @@ void process_room_surrounding_flames(struct Room *room)
     {
       create_room_surrounding_flame(room,&pos,game.play_gameturn & 3,game.neutral_player_num);
     } else
-    if (room_effect_elements[room->owner] != 0)
+    if (room_effect_elements[get_player_color_idx(room->owner)] != 0)
     {
-      create_room_surrounding_flame(room,&pos,room->owner,room->owner);
+      create_room_surrounding_flame(room,&pos,get_player_color_idx(room->owner),room->owner);
     }
     // Update coords for next element
     if (room->flame_stl == 2)
@@ -118,7 +123,7 @@ void recompute_rooms_count_in_dungeons(void)
     {
         struct Dungeon* dungeon = get_dungeon(i);
         dungeon->total_rooms = 0;
-        for (RoomKind rkind = 1; rkind < slab_conf.room_types_count; rkind++)
+        for (RoomKind rkind = 1; rkind < game.conf.slab_conf.room_types_count; rkind++)
         {
             if (!room_never_buildable(rkind))
             {
@@ -179,7 +184,7 @@ void sell_room_slab_when_no_free_room_structures(struct Room *room, long slb_x, 
 {
     delete_room_slab_when_no_free_room_structures(slb_x, slb_y, gnd_slab);
     struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
-    long revenue = compute_value_percentage(roomst->cost, gameadd.room_sale_percent);
+    long revenue = compute_value_percentage(roomst->cost, game.conf.rules.game.room_sale_percent);
     if (revenue != 0)
     {
         struct Coord3d pos;
@@ -256,7 +261,7 @@ void recreate_rooms_from_room_slabs(struct Room *room, unsigned char gnd_slab)
     room->slabs_count = 0;
 }
 
-TbBool delete_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char is_destroyed)
+TbBool delete_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, TbBool is_destroyed)
 {
     struct Room* room = slab_room_get(slb_x, slb_y);
     if (room_is_invalid(room))
@@ -292,6 +297,10 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
     struct Room* room = slab_room_get(slb_x, slb_y);
     struct SlabMap* slb = get_slabmap_for_subtile(slab_subtile(slb_x, 0), slab_subtile(slb_y, 0));
     short plyr_idx = slabmap_owner(slb);
+    if (slab_kind_has_no_ownership(slabkind))
+    {
+        plyr_idx = game.neutral_player_num;
+    }
     RoomKind rkind = slab_corresponding_room(slabkind);
     //When the slab to be replaced does not have a room yes, simply place the room/slab.
     if (room_is_invalid(room))
@@ -306,6 +315,7 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
             else
             {
                 place_slab_type_on_map(slabkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
+                set_alt_bit_on_slabs_around(slb_x, slb_y);
             }
             return true;
         }
@@ -323,6 +333,7 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
     SYNCDBG(7, "Room on (%d,%d) had %d slabs", (int)slb_x, (int)slb_y, (int)room->slabs_count);
     decrease_room_area(room->owner, 1);
     kill_room_slab_and_contents(room->owner, slb_x, slb_y);
+    remove_slab_from_room_tiles_list(room, slb_x, slb_y);
     if (room->slabs_count <= 1)
     {
         delete_room_flag(room);
@@ -382,18 +393,46 @@ void change_slab_owner_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, Playe
         struct Room* room = room_get(slb->room_index);
         take_over_room(room, plyr_idx);
     } else
-    if (slb->kind >= SlbT_WALLDRAPE && slb->kind <= SlbT_CLAIMED) //All slabs that can be owned but aren't rooms
     {
-        short slbkind;
-        if (slb->kind == SlbT_PATH)
+        SlabKind slbkind = (slb->kind == SlbT_PATH) ? SlbT_CLAIMED : slb->kind;
+        if (slab_kind_has_no_ownership(slbkind) == false)
         {
-            slbkind = SlbT_CLAIMED;
+            if (slab_kind_is_door(slbkind))
+            {
+                MapSubtlCoord stl_x = slab_subtile_center(slb_x);
+                MapSubtlCoord stl_y = slab_subtile_center(slb_y);
+                struct Thing* doortng = get_door_for_position(stl_x, stl_y);
+                if (!thing_is_invalid(doortng))
+                {
+                    if (!is_neutral_thing(doortng))
+                    {
+                        game.dungeon[doortng->owner].total_doors--;
+                    }
+                    remove_key_on_door(doortng);
+                    set_slab_owner(slb_x, slb_y, plyr_idx);
+                    place_animating_slab_type_on_map(slbkind, doortng->door.closing_counter / 256, stl_x, stl_y, plyr_idx);
+                    doortng->owner = plyr_idx;
+                    if (!is_neutral_thing(doortng))
+                    {
+                        game.dungeon[doortng->owner].total_doors++;
+                    }
+                    if (doortng->door.is_locked)
+                    {
+                        add_key_on_door(doortng);
+                    }
+                    update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);
+                }
+            }
+            else if (slab_kind_is_animated(slbkind))
+            {
+                place_animating_slab_type_on_map(slbkind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
+            }
+            else
+            {
+                place_slab_type_on_map(slbkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
+            }
+            do_slab_efficiency_alteration(slb_x, slb_y);
         }
-        else
-        {
-            slbkind = slb->kind;
-        }
-        place_slab_type_on_map(slbkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
     }
 }
 
@@ -415,8 +454,8 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
     if (thing_is_gold_hoard(thing))
     {
         room = get_room_thing_is_on(thing);
-        long wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
-        unsigned long gold_value = wealth_size_holds * (get_wealth_size_of_gold_hoard_object(thing) + 1);
+        long wealth_size_holds = game.conf.rules.game.gold_per_hoard / get_wealth_size_types_count();
+        unsigned long gold_value = wealth_size_holds * max(1, get_wealth_size_of_gold_hoard_object(thing));
         unsigned long value_left;
         unsigned long value_added;
         if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_GoldStorage))
@@ -452,7 +491,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
             if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_PowersStorage) || (!player_exists(get_player(room->owner)) && (game.play_gameturn >= 10)))
             {
                 // No room - oh well, leave it as free spell
-                if (((gameadd.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) && !room_is_invalid(room)) {
+                if (((game.conf.rules.game.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) && !room_is_invalid(room)) {
                     // Preserve classic bug - object is claimed with the room
                     thing->owner = room->owner;
                 }
@@ -483,7 +522,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
         if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_CratesStorage) || !player_exists(get_player(room->owner)))
         {
             // No room - oh well, leave it as free box
-            if (((gameadd.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) && !room_is_invalid(room)) {
+            if (((game.conf.rules.game.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) && !room_is_invalid(room)) {
                 // Preserve classic bug - object is claimed with the room
                 thing->owner = room->owner;
             } else {
@@ -598,7 +637,7 @@ void query_room(struct Room *room)
     const char efficiency[26] = "\0";
     sprintf((char*)title, "Room ID: %d", room->index);
     sprintf((char*)owner, "Owner: %d", room->owner);
-    sprintf((char*)health, "Health: %d", room->health);
+    sprintf((char*)health, "Health: %d", (int)room->health);
     sprintf((char*)capacity, "Capacity: %d/%d", room->used_capacity, room->total_capacity);
     float room_efficiency_percent = ((float)room->efficiency / (float)ROOM_EFFICIENCY_MAX) * 100;
     sprintf((char*)efficiency, "Efficiency: %d", (unsigned char)round(room_efficiency_percent));

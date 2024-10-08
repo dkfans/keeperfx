@@ -21,7 +21,7 @@ build*/
 docs/html
 docs/latex
 *.o
-*.Po
 *.d
 *.Tpo
 res/keeperfx_icon.ico
+.header_checksum

@@ -35,6 +35,7 @@
 #include "creature_states.h"
 #include "creature_states_combt.h"
 #include "config_creature.h"
+#include "config_crtrstates.h"
 #include "config_effects.h"
 #include "power_specials.h"
 #include "room_data.h"
@@ -49,6 +50,7 @@
 #include "sounds.h"
 #include "game_legacy.h"
 #include "player_instances.h"
+#include "gui_msgs.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -56,6 +58,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define MAX_CREATURES_SEARCHED 100
 
 /******************************************************************************/
 long instf_attack_room_slab(struct Thing *creatng, long *param);
@@ -71,8 +75,6 @@ long instf_pretty_path(struct Thing *creatng, long *param);
 long instf_reinforce(struct Thing *creatng, long *param);
 long instf_tortured(struct Thing *creatng, long *param);
 long instf_tunnel(struct Thing *creatng, long *param);
-
-struct InstanceButtonInit instance_button_init[48];
 
 const struct NamedCommand creature_instances_func_type[] = {
   {"attack_room_slab",         1},
@@ -111,59 +113,35 @@ Creature_Instf_Func creature_instances_func_list[] = {
   NULL,
 };
 
-//field_0,time,fp_time,action_time,fp_action_time,long reset_time,fp_reset_time,graphics_idx,flags,force_visibility,primary_target,func_cb,func_params[2];
-struct InstanceInfo instance_info[] = {
-    {0,  0,  0,  0,  0,   0,   0,  0,  0,  0,  0, NULL,                              {0,0}}, //0
-    {0,  8,  4,  4,  2,   8,   4,  3,  0,  1,  3, instf_creature_fire_shot,         {21,0}},
-    {0,  8,  4,  4,  2,   8,   4,  3,  0,  1,  3, instf_creature_fire_shot,         {22,0}},
-    {0,  0,  0,  0,  0,   0,   0,  3,  0,  0,  3, NULL,                              {0,0}},
-    {0, 10,  5,  5,  2,  16,   8,  3,  0,  1,  3, instf_creature_fire_shot,         {14,0}},
-    {0, 10,  4,  6,  2,  32,   4,  3,  0,  1,  3, instf_creature_cast_spell,         {1,0}}, //5
-    {0, 10,  5,  6,  3, 100,  16,  3,  0,  1,  3, instf_creature_cast_spell,         {2,0}},
-    {0, 10,  5,  6,  3, 100,  16,  3,  0,  1,  3, instf_creature_cast_spell,         {3,0}},
-    {1, 10,  5,  6,  3, 400, 200,  3,  0,  1,  3, instf_creature_cast_spell,         {4,0}},
-    {0, 10,  5,  6,  3,   4,   1,  3,  0,  1,  3, instf_creature_cast_spell,         {5,0}},
-    {1, 10,  5,  6,  3, 400, 200,  3,  0,  1,  3, instf_creature_cast_spell,         {6,0}}, //10
-    {1, 10,  5,  6,  3, 400, 200,  3,  0,  1,  3, instf_creature_cast_spell,         {7,0}},
-    {0, 10,  5,  6,  3,  80,  20,  3,  0,  1,  4, instf_creature_cast_spell,         {8,0}},
-    {1, 10,  5,  6,  3, 500, 200,  3,  0,  1,  3, instf_creature_cast_spell,         {9,0}},
-    {1, 10,  5,  6,  3,  10, 200,  3,  0,  1,  3, instf_creature_cast_spell,        {10,0}},
-    {1, 10,  5,  6,  3, 300, 200,  3,  0,  1,  3, instf_creature_cast_spell,        {11,0}}, //15
-    {0, 10,  5,  6,  3, 400,  20,  3,  0,  1,  3, instf_creature_cast_spell,        {12,0}},
-    {0, 10,  5,  6,  3,   5,   3,  3,  0,  1,  3, instf_creature_cast_spell,        {13,0}},
-    {0, 10,  5,  6,  3,  10,  40,  3,  0,  1,  3, instf_creature_cast_spell,        {14,0}},
-    {0, 10,  5,  6,  3,  25,   2,  3,  0,  1,  3, instf_creature_cast_spell,        {15,0}},
-    {0, 10,  5,  6,  3,  50,   2,  3,  0,  1,  3, instf_creature_cast_spell,        {16,0}}, //20
-    {0, 10,  5, 10,  5,   8,   4,  3,  1,  1,  3, instf_creature_cast_spell,        {17,0}},
-    {0, 10,  5,  6,  3,  50,  40,  3,  0,  1,  3, instf_creature_cast_spell,        {18,0}},
-    {0, 10,  5,  6,  3,   8,   3,  3,  0,  1,  3, instf_creature_cast_spell,        {19,0}},
-    {1, 10,  5,  6,  3, 400, 200,  3,  0,  1,  3, instf_creature_cast_spell,        {20,0}},
-    {0, 10,  5,  6,  3,   8,   4,  3,  0,  1,  3, instf_creature_cast_spell,        {21,0}}, //25
-    {0, 10,  5,  6,  3,  60,  20,  3,  0,  1,  3, instf_creature_cast_spell,        {22,0}},
-    {0, 10,  5,  6,  3, 100,  20,  3,  0,  1,  3, instf_creature_cast_spell,        {23,0}},
-    {0, 10,  5,  6,  3,   8, 200,  3,  0,  1,  3, instf_creature_cast_spell,        {24,0}},
-    {0,  8,  4,  4,  2, 100,  10,  3,  0,  1,  3, instf_fart,                        {0,0}},
-    {0,  8,  4,  4,  2,   1,   1,  3,  0,  0,  3, instf_dig,                         {0,0}}, //30
-    {0,  8,  4,  4,  2,   1,   1,  7,  0,  0,  3, instf_pretty_path,                 {0,0}},
-    {0,  8,  4,  4,  2,   1,   1,  7,  0,  0,  3, instf_destroy,                     {0,0}},
-    {0,  8,  4,  4,  2,   1,   1,  3,  0,  0,  3, instf_tunnel,                      {0,0}},
-    {0,  8,  4,  1,  1,   1,   1, 11,  0,  0,  3, NULL,                              {3,0}},
-    {0,  8,  4,  4,  2,   1,   1,  7,  0,  0,  3, instf_reinforce,                   {0,0}}, //35
-    {0, 16,  8,  8,  4,   1,   1, 13,  0,  0,  3, instf_eat,                         {0,0}},
-    {0,  8,  4,  4,  2,   1,   1,  3,  0,  1,  3, instf_attack_room_slab,            {0,0}},
-    {0,  8,  4,  4,  2,   1,   1,  3,  0,  1,  3, instf_damage_wall,                {21,0}},
-    {0,  8,  4,  4,  2,   1,   1,  3,  0,  1,  3, instf_first_person_do_imp_task,    {0,0}},
-//  {0, 10,  5,  6,  3,   6,   3,  3,  0,  1,  6, instf_creature_cast_spell,        {29,0}}, // 40 GROUP
-    {0, 10,  5,  6,  3,  60,  20,  3,  0,  1,  3, instf_creature_cast_spell,        {29,0}}, //40 LIZARD
-    {0, 10,  5,  6,  3,   6,   3,  3,  0,  1,  3, instf_creature_cast_spell,        {26,0}},
-    {0, 10,  5,  6,  3,   6,   3,  3,  0,  1,  3, instf_creature_cast_spell,        {27,0}},
-    {0, 10,  5,  6,  3,   6,   3,  3,  0,  1,  3, instf_creature_cast_spell,        {28,0}},
-    {0,  8,  4,  1,  1,   1,   1, 15,  0,  0,  3, NULL,                              {4,0}},
-    {0, 16,  8,  8,  4,   1,   1, 14,  0,  0,  3, instf_tortured,                    {0,0}}, // 45
-    {0, 16,  4,  4,  2,   1,   1,  5,  0,  0,  3, NULL,                              {0,0}},
-    {0,  8,  4,  4,  2,   1,   1,  6,  0,  0,  3, NULL,                              {0,0}},
+const struct NamedCommand creature_instances_validate_func_type[] = {
+    {"validate_source_generic",      1},
+    {"validate_target_generic",      2},
+    {"validate_source_ranged_heal",  3},
+    {"validate_target_ranged_heal",  4},
+    {NULL,                           0},
 };
 
+Creature_Validate_Func creature_instances_validate_func_list[] = {
+    NULL,
+    validate_source_generic,
+    validate_target_generic,
+    validate_source_ranged_heal,
+    validate_target_ranged_heal,
+    NULL,
+};
+
+const struct NamedCommand creature_instances_search_targets_func_type[] = {
+    {"search_target_generic",        1},
+    {"search_target_ranged_heal",    2},
+    {NULL,                           0},
+};
+
+Creature_Target_Search_Func creature_instances_search_targets_func_list[] = {
+    NULL,
+    search_target_generic,
+    search_target_ranged_heal,
+    NULL,
+};
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -177,17 +155,17 @@ struct InstanceInfo instance_info[] = {
  */
 struct InstanceInfo *creature_instance_info_get_f(CrInstance inst_idx,const char *func_name)
 {
-    if ((inst_idx < 0) || (inst_idx >= sizeof(instance_info)/sizeof(instance_info[0])))
+    if ((inst_idx < 0) || (inst_idx >= game.conf.crtr_conf.instances_count))
     {
         ERRORMSG("%s: Tried to get invalid instance info %d!",func_name,(int)inst_idx);
-        return &instance_info[0];
+        return &game.conf.magic_conf.instance_info[0];
     }
-    return &instance_info[inst_idx];
+    return &game.conf.magic_conf.instance_info[inst_idx];
 }
 
 TbBool creature_instance_info_invalid(const struct InstanceInfo *inst_inf)
 {
-    return (inst_inf < &instance_info[1]);
+    return (inst_inf < &game.conf.magic_conf.instance_info[1]);
 }
 
 TbBool creature_instance_is_available(const struct Thing *thing, CrInstance inst_id)
@@ -230,9 +208,9 @@ void creature_increase_available_instances(struct Thing *thing)
             if (crstat->learned_instance_level[i] <= cctrl->explevel+1) {
                 cctrl->instance_available[k] = true;
             }
-            else if ( (crstat->learned_instance_level[i] > cctrl->explevel+1) && !(gameadd.classic_bugs_flags & ClscBug_RebirthKeepsSpells) )
+            else if ( (crstat->learned_instance_level[i] > cctrl->explevel+1) && !(game.conf.rules.game.classic_bugs_flags & ClscBug_RebirthKeepsSpells) )
             {
-                cctrl->instance_available[k] = false;   
+                cctrl->instance_available[k] = false;
             }
         }
     }
@@ -313,37 +291,40 @@ CrInstance creature_instance_get_available_id_for_pos(struct Thing *thing, int r
     return CrInst_NULL;
 }
 
+TbBool instance_is_disarming_weapon(CrInstance inum)
+{
+    struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
+    return ((inst_inf->instance_property_flags & InstPF_Disarming) != 0);
+}
+
+TbBool instance_draws_possession_swipe(CrInstance inum)
+{
+    struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
+    return ((inst_inf->instance_property_flags & InstPF_UsesSwipe) != 0);
+}
+
 TbBool instance_is_ranged_weapon(CrInstance inum)
 {
-    struct InstanceInfo* inst_inf;
-    inst_inf = creature_instance_info_get(inum);
-    if (inst_inf->flags & InstPF_RangedAttack)
-    {
-        return true;
-    }
-    return false;
+    struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
+    return ((inst_inf->instance_property_flags & InstPF_RangedAttack) != 0);
 }
 
 TbBool instance_is_ranged_weapon_vs_objects(CrInstance inum)
 {
-    struct InstanceInfo* inst_inf;
-    inst_inf = creature_instance_info_get(inum);
-    if ((inst_inf->flags & InstPF_RangedAttack) && (inst_inf->flags & InstPF_Destructive) && !(inst_inf->flags & InstPF_Dangerous))
-    {
-        return true;
-    }
-    return false;
+    struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
+    return (((inst_inf->instance_property_flags & InstPF_RangedAttack) != 0) && ((inst_inf->instance_property_flags & InstPF_Destructive) != 0) && !(inst_inf->instance_property_flags & InstPF_Dangerous));
 }
 
 TbBool instance_is_quick_range_weapon(CrInstance inum)
 {
-    struct InstanceInfo* inst_inf;
-    inst_inf = creature_instance_info_get(inum);
-    if ((inst_inf->flags & InstPF_RangedAttack) && (inst_inf->flags & InstPF_Quick))
-    {
-        return true;
-    }
-    return false;
+    struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
+    return (((inst_inf->instance_property_flags & InstPF_RangedAttack) != 0) && ((inst_inf->instance_property_flags & InstPF_Quick) != 0));
+}
+
+TbBool instance_is_melee_attack(CrInstance inum)
+{
+    struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
+    return ((inst_inf->instance_property_flags & InstPF_MeleeAttack) != 0);
 }
 
 /**
@@ -356,11 +337,32 @@ TbBool creature_has_ranged_weapon(const struct Thing *creatng)
 {
     TRACE_THING(creatng);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    for (long inum = 1; inum < CREATURE_INSTANCES_COUNT; inum++)
+    for (long inum = 1; inum < game.conf.crtr_conf.instances_count; inum++)
     {
         if (cctrl->instance_available[inum] > 0)
         {
             if (instance_is_ranged_weapon(inum))
+                return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Informs whether the creature has an instance which is ranged weapon useable against other creatures.
+ * The instances currently in use and currently in cooldown are included.
+ * @param creatng The creature to be checked.
+ * @return True if the creature has ranged weapon, false otherwise.
+ */
+TbBool creature_has_disarming_weapon(const struct Thing* creatng)
+{
+    TRACE_THING(creatng);
+    const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    for (long inum = 1; inum < game.conf.crtr_conf.instances_count; inum++)
+    {
+        if (cctrl->instance_available[inum] > 0)
+        {
+            if (instance_is_disarming_weapon(inum))
                 return true;
         }
     }
@@ -377,7 +379,7 @@ TbBool creature_has_ranged_object_weapon(const struct Thing *creatng)
 {
     TRACE_THING(creatng);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    for (long inum = 1; inum < CREATURE_INSTANCES_COUNT; inum++)
+    for (long inum = 1; inum < game.conf.crtr_conf.instances_count; inum++)
     {
         if (cctrl->instance_available[inum])
         {
@@ -392,7 +394,7 @@ TbBool creature_has_quick_range_weapon(const struct Thing *creatng)
 {
     TRACE_THING(creatng);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    for (long inum = 1; inum < CREATURE_INSTANCES_COUNT; inum++)
+    for (long inum = 1; inum < game.conf.crtr_conf.instances_count; inum++)
     {
         if (cctrl->instance_available[inum])
         {
@@ -403,22 +405,47 @@ TbBool creature_has_quick_range_weapon(const struct Thing *creatng)
     return false;
 }
 
+/**
+ * Informs whether the creature has a mêlée attack.
+ * The instances currently in use and currently in cooldown are included.
+ * @param creatng The creature to be checked.
+ * @return True if the creature has mêlée attack, false otherwise.
+ */
+TbBool creature_has_melee_attack(const struct Thing *creatng)
+{
+    TRACE_THING(creatng);
+    const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    for (long inum = 1; inum < game.conf.crtr_conf.instances_count; inum++)
+    {
+        if (cctrl->instance_available[inum] > 0)
+        {
+            if (instance_is_melee_attack(inum))
+                return true;
+        }
+    }
+    return false;
+}
+
 void process_creature_instance(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
-    SYNCDBG(19,"Starting for %s index %d instance %d",thing_model_name(thing),(int)thing->index,(int)cctrl->instance_id);
     TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
+    SYNCDBG(19, "Starting for %s index %d instance %d", thing_model_name(thing), (int)thing->index, (int)cctrl->instance_id);
     if (cctrl->instance_id != CrInst_NULL)
     {
         cctrl->inst_turn++;
         if (cctrl->inst_turn == cctrl->inst_action_turns)
         {
             struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->instance_id);
-            if (inst_inf->func_cb != NULL)
+            if (creature_instances_func_list[inst_inf->func_idx] != NULL)
             {
                 SYNCDBG(18,"Executing %s for %s index %d.",creature_instance_code_name(cctrl->instance_id),thing_model_name(thing),(int)thing->index);
-                inst_inf->func_cb(thing, inst_inf->func_params);
+                creature_instances_func_list[inst_inf->func_idx](thing, inst_inf->func_params);
+                if (thing->creature.volley_repeat > 0)
+                {
+                    return;
+                }
             }
         }
         if (cctrl->inst_turn >= cctrl->inst_total_turns)
@@ -429,9 +456,9 @@ void process_creature_instance(struct Thing *thing)
                 cctrl->inst_repeat = 0;
                 return;
             }
-            // Instances sometimes failed to reach this. More reliable to set instance_use_turn sooner
-            // cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn; // so this code has been moved to another location
+            SYNCDBG(18,"Finalize %s for %s index %d.",creature_instance_code_name(cctrl->instance_id),thing_model_name(thing),(int)thing->index);
             cctrl->instance_id = CrInst_NULL;
+            thing->creature.volley_fire = false;
         }
         cctrl->inst_repeat = 0;
     }
@@ -456,6 +483,8 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
         TRACE_THING(target);
         if (target->class_id == TCls_Object)
             hittype = THit_CrtrsNObjcts;
+        else if (target->class_id == TCls_Trap)
+            hittype = THit_TrapsAll;
         else
             hittype = THit_CrtrsOnly;
     }
@@ -464,7 +493,11 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
         target = thing_get(cctrl->targtng_idx);
         TRACE_THING(target);
         if (target->class_id == TCls_Object)
-            hittype = THit_CrtrsNObjcts;
+            hittype = THit_CrtrsNObjctsNotOwn;
+        else if (thing_is_destructible_trap(target) > 0)
+            hittype = THit_CrtrsNObjctsNotOwn;
+        else if (target->class_id == TCls_Trap)
+            hittype = THit_TrapsAll;
         else if (target->owner == creatng->owner)
             hittype = THit_CrtrsOnly;
         else
@@ -480,7 +513,7 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
         target = NULL;
         SYNCDBG(8,"The %s index %d fires %s",thing_model_name(creatng),(int)creatng->index,shot_code_name(*param));
     }
-    creature_fire_shot(creatng, target, *param, 1, hittype);
+    thing_fire_shot(creatng, target, *param, 1, hittype);
     // Start cooldown after shot is fired
     cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
     return 0;
@@ -490,21 +523,30 @@ long instf_creature_cast_spell(struct Thing *creatng, long *param)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    long spl_idx = *param;
-    struct SpellInfo* spinfo = get_magic_info(spl_idx);
-    SYNCDBG(8,"The %s index %d casts %s",thing_model_name(creatng),(int)creatng->index,spell_code_name(spl_idx));
-    if (spinfo->cast_at_thing)
+    long spl_idx = param[0];
+    struct SpellConfig* spconf = get_spell_config(spl_idx);
+    struct Thing* target = NULL;
+
+    SYNCDBG(8,"The %s(%d) casts %s at %d", thing_model_name(creatng), (int)creatng->index,
+        spell_code_name(spl_idx), cctrl->targtng_idx);
+
+    if (spconf->cast_at_thing && cctrl->targtng_idx != creatng->index)
     {
-        struct Thing* trthing = thing_get(cctrl->targtng_idx);
-        if (!thing_is_invalid(trthing))
-        {
-            creature_cast_spell_at_thing(creatng, trthing, spl_idx, cctrl->explevel);
-            // Start cooldown after spell is cast
-            cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
-            return 0;
-        }
+        // If the targtng_idx is just the caster itself, we can call creature_cast_spell
+        // instead of creature_cast_spell_at_thing.
+        target = thing_get(cctrl->targtng_idx);
+        if (thing_is_invalid(target)) target = NULL;
     }
-    creature_cast_spell(creatng, spl_idx, cctrl->explevel, cctrl->targtstl_x, cctrl->targtstl_y);
+
+    if (target != NULL)
+    {
+        creature_cast_spell_at_thing(creatng, target, spl_idx, cctrl->explevel);
+    }
+    else
+    {
+        creature_cast_spell(creatng, spl_idx, cctrl->explevel, cctrl->targtstl_x, cctrl->targtstl_y);
+    }
+
     // Start cooldown after spell effect activates
     cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
     return 0;
@@ -531,8 +573,68 @@ long process_creature_self_spell_casting(struct Thing* creatng)
     if (inst_idx <= 0) {
         return 0;
     }
-    set_creature_instance(creatng, inst_idx, 1, creatng->index, 0);
+    set_creature_instance(creatng, inst_idx, creatng->index, 0);
     return 1;
+}
+
+/**
+ * @brief Check whether the given creature is suitable to cast ranged buff spell.
+ * This function is used for both combat and non-combat situations.
+ *
+ * @param creatng The creature being checked.
+ * @return CrInstance The instance index being set.
+ */
+CrInstance process_creature_ranged_buff_spell_casting(struct Thing* creatng)
+{
+    TRACE_THING(creatng);
+    SYNCDBG(8,"Processing %s(%d), act.st: %s, con.st: %s", thing_model_name(creatng), creatng->index,
+        creature_state_code_name(creatng->active_state), creature_state_code_name(creatng->continue_state));
+    CrInstance i = CrInst_NULL + 1;
+    for(; i < game.conf.crtr_conf.instances_count; i++ )
+    {
+        const struct InstanceInfo* inst_inf = creature_instance_info_get(i);
+        if(creature_instance_info_invalid(inst_inf) || (inst_inf->instance_property_flags & InstPF_RangedBuff) == 0)
+        {
+            continue;
+        }
+        if((inst_inf->validate_func_idx[0] == 0) || (inst_inf->validate_func_idx[1] == 0) ||
+           (inst_inf->search_func_idx == 0))
+        {
+            ERRORLOG("The instance %d has no validate function or search function.", i);
+            continue;
+        }
+        if(!creature_instances_validate_func_list[inst_inf->validate_func_idx[0]](creatng, NULL, i))
+        {
+            // The input creature is not a legal source.
+            continue;
+        }
+
+        ThingIndex *targets = NULL;
+        unsigned short found_count = 0;
+        if(creature_instances_search_targets_func_list[inst_inf->search_func_idx](creatng, i, &targets, &found_count) &&
+            targets && (found_count > 0))
+        {
+            struct Thing* target = thing_get(targets[0]);
+            SYNCDBG(8, "Set instance %s(%d) on %s(%d) for %s(%d).",
+                creature_instance_code_name(i), i, thing_model_name(creatng), creatng->index,
+                thing_model_name(target), target->index);
+
+            struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+            // Enter the temporary state.
+            cctrl->active_state_bkp = creatng->active_state;
+            cctrl->continue_state_bkp = creatng->continue_state;
+            internal_set_thing_state(creatng, CrSt_CreatureCastingPreparation);
+
+            // Apply the spell instance to the first one since we have no group buff yet.
+            set_creature_instance(creatng, i, target->index, NULL);
+            free(targets);
+            break; // No need to check the next spell instance.
+
+        }
+        free(targets);
+    }
+
+    return (i < game.conf.crtr_conf.instances_count) ? i : CrInst_NULL;
 }
 
 long instf_dig(struct Thing *creatng, long *param)
@@ -570,10 +672,9 @@ long instf_dig(struct Thing *creatng, long *param)
         create_effect(&creatng->mappos, shotst->dig.effect_model, creatng->owner);
         if (taskkind == SDDigTask_MineGold)
         {
-            gold = calculate_gold_digged_out_of_slab_with_single_hit(dig_damage, creatng->owner, cctrl->explevel, slb);
+            gold = calculate_gold_digged_out_of_slab_with_single_hit(dig_damage, slb);
             creatng->creature.gold_carried += gold;
             dungeon->lvstats.gold_mined += gold;
-            EVM_CREATURE_STAT("gold_mined", creatng->owner, creatng, "gold", gold);
         }
         return 0;
     }
@@ -581,11 +682,11 @@ long instf_dig(struct Thing *creatng, long *param)
     remove_from_task_list(creatng->owner, task_idx);
     if (taskkind == SDDigTask_MineGold)
     {
-        gold = calculate_gold_digged_out_of_slab_with_single_hit(slb->health, creatng->owner, cctrl->explevel, slb);
+        if (!slab_kind_is_indestructible(slb->kind))
+            slb->health -= dig_damage; // otherwise, we won't get the final lot of gold
+        gold = calculate_gold_digged_out_of_slab_with_single_hit(dig_damage, slb);
         creatng->creature.gold_carried += gold;
         dungeon->lvstats.gold_mined += gold;
-        EVM_CREATURE_STAT("gold_mined", creatng->owner, creatng, "gold", gold);
-        EVM_MAP_EVENT("dig", creatng->owner, stl_x, stl_y, "gold");
         mine_out_block(stl_x, stl_y, creatng->owner);
         if (dig_has_revealed_area(stl_x, stl_y, creatng->owner))
         {
@@ -599,7 +700,6 @@ long instf_dig(struct Thing *creatng, long *param)
     if (taskkind == SDDigTask_DigEarth)
     {
         dig_out_block(stl_x, stl_y, creatng->owner);
-        EVM_MAP_EVENT("dig", creatng->owner, stl_x, stl_y, "");
 
         if (dig_has_revealed_area(stl_x, stl_y, creatng->owner))
         {
@@ -618,8 +718,8 @@ long instf_dig(struct Thing *creatng, long *param)
 long instf_destroy(struct Thing *creatng, long *param)
 {
     TRACE_THING(creatng);
-    MapSlabCoord slb_x = subtile_slab_fast(creatng->mappos.x.stl.num);
-    MapSlabCoord slb_y = subtile_slab_fast(creatng->mappos.y.stl.num);
+    MapSlabCoord slb_x = subtile_slab(creatng->mappos.x.stl.num);
+    MapSlabCoord slb_y = subtile_slab(creatng->mappos.y.stl.num);
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
     struct Room* room = room_get(slb->room_index);
@@ -652,7 +752,7 @@ long instf_destroy(struct Thing *creatng, long *param)
             claim_enemy_room(room, creatng);
         }
         thing_play_sample(creatng, 76, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        create_effects_on_room_slabs(room, imp_spangle_effects[creatng->owner], 0, creatng->owner);
+        create_effects_on_room_slabs(room, imp_spangle_effects[get_player_color_idx(creatng->owner)], 0, creatng->owner);
         return 0;
     }
     if (slb->health > 1)
@@ -709,6 +809,7 @@ long instf_attack_room_slab(struct Thing *creatng, long *param)
     {
         event_create_event_or_update_nearby_existing_event(coord_slab(creatng->mappos.x.val), coord_slab(creatng->mappos.y.val), EvKind_RoomLost, room->owner, room->kind);
     }
+    long z = get_floor_filled_subtiles_at(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
     if (!delete_room_slab(coord_slab(creatng->mappos.x.val), coord_slab(creatng->mappos.y.val), 1))
     {
         ERRORLOG("Cannot delete %s room tile destroyed by %s index %d", room_code_name(room->kind), thing_model_name(creatng), (int)creatng->index);
@@ -716,6 +817,13 @@ long instf_attack_room_slab(struct Thing *creatng, long *param)
     }
     create_effect(&creatng->mappos, TngEff_Explosion3, creatng->owner);
     thing_play_sample(creatng, 47, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    if (z > 0)
+    {
+        for (long k = 0; k < AROUND_TILES_COUNT; k++)
+        {
+            create_dirt_rubble_for_dug_block(creatng->mappos.x.stl.num + around[k].delta_x, creatng->mappos.y.stl.num + around[k].delta_y, z, room->owner);
+        }
+    }
     return 1;
 }
 
@@ -738,8 +846,8 @@ long instf_damage_wall(struct Thing *creatng, long *param)
         slb->health -= 2;
     } else
     {
-        MapSlabCoord slb_x = subtile_slab_fast(stl_x);
-        MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+        MapSlabCoord slb_x = subtile_slab(stl_x);
+        MapSlabCoord slb_y = subtile_slab(stl_y);
         place_slab_type_on_map(SlbT_EARTH, stl_x, stl_y, creatng->owner, 0);
         do_slab_efficiency_alteration(slb_x, slb_y);
         create_dirt_rubble_for_dug_slab(slb_x, slb_y);
@@ -755,7 +863,7 @@ long instf_eat(struct Thing *creatng, long *param)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->hunger_amount > 0)
         cctrl->hunger_amount--;
-    apply_health_to_thing_and_display_health(creatng, game.food_health_gain);
+    apply_health_to_thing_and_display_health(creatng, game.conf.rules.health.food_health_gain);
     cctrl->hunger_level = 0;
     return 1;
 }
@@ -781,8 +889,8 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     struct SlabMap* slb;
     MapSubtlCoord ahead_stl_x = creatng->mappos.x.stl.num;
     MapSubtlCoord ahead_stl_y = creatng->mappos.y.stl.num;
-    MapSlabCoord slb_x = subtile_slab_fast(creatng->mappos.x.stl.num);
-    MapSlabCoord slb_y = subtile_slab_fast(creatng->mappos.y.stl.num);
+    MapSlabCoord slb_x = subtile_slab(creatng->mappos.x.stl.num);
+    MapSlabCoord slb_y = subtile_slab(creatng->mappos.y.stl.num);
     if (check_place_to_pretty_excluding(creatng, slb_x, slb_y))
     {
         if (cctrl->dragtng_idx == 0)
@@ -813,8 +921,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
         ahead_stl_x++;
         ahead_slb_x++;
     }
-    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
-    if ( (playeradd->selected_fp_thing_pickup != 0) || (cctrl->dragtng_idx != 0) )
+    if ( (player->selected_fp_thing_pickup != 0) || (cctrl->dragtng_idx != 0) )
     {
         set_players_packet_action(player, PckA_DirectCtrlDragDrop, 0, 0, 0, 0);
         return 1;
@@ -831,7 +938,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                 if (room->owner == creatng->owner)
                 {
                     TbBool slab_diggable = subtile_is_diggable_for_player(creatng->owner, slab_subtile_center(ahead_slb_x), slab_subtile_center(ahead_slb_y), true);
-                    if (!slab_diggable) 
+                    if (!slab_diggable)
                     {
                         if (creatng->creature.gold_carried > 0)
                         {
@@ -847,7 +954,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     slb = get_slabmap_block(slb_x, slb_y);
     if ( check_place_to_convert_excluding(creatng, slb_x, slb_y) )
     {
-        if (!playeradd->first_person_dig_claim_mode)
+        if (!player->first_person_dig_claim_mode)
         {
             struct SlabAttr* slbattr = get_slab_attrs(slb);
             instf_destroy(creatng, NULL);
@@ -856,7 +963,6 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                 room = room_get(slb->room_index);
                 if (!room_is_invalid(room))
                 {
-                    char id = ((~room->kind) + 1) - 78;
                     if (room->owner != creatng->owner)
                     {
                         MapCoord coord_x = subtile_coord_center(room->central_stl_x);
@@ -869,15 +975,15 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                         }
                         if (game.active_messages_count > 0)
                         {
-                            clear_messages_from_player(id);
+                            clear_messages_from_player(MsgType_Room, room->kind);
                         }
-                        targeted_message_add(id, player->id_number, 50, "%d/%d", room->health, compute_room_max_health(room->slabs_count, room->efficiency));
+                        targeted_message_add(MsgType_Room, room->kind, player->id_number, 50, "%d/%d", room->health, compute_room_max_health(room->slabs_count, room->efficiency));
                     }
                     else
                     {
                         if (game.active_messages_count > 0)
                         {
-                            clear_messages_from_player(id);
+                            clear_messages_from_player(MsgType_Room, room->kind);
                         }
                     }
                 }
@@ -885,13 +991,13 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
             return 1;
         }
     }
-    else if (playeradd->first_person_dig_claim_mode)
+    else if (player->first_person_dig_claim_mode)
     {
         if (slabmap_owner(slb) == creatng->owner)
         {
             TbBool reinforce = true;
-            MapSlabCoord ahead_sslb_x = subtile_slab_fast(ahead_stl_x);
-            MapSlabCoord ahead_sslb_y = subtile_slab_fast(ahead_stl_y);
+            MapSlabCoord ahead_sslb_x = subtile_slab(ahead_stl_x);
+            MapSlabCoord ahead_sslb_y = subtile_slab(ahead_stl_y);
             if (!check_place_to_reinforce(creatng, ahead_sslb_x, ahead_sslb_y))
             {
                 struct ShotConfigStats* shotst = get_shot_model_stats(ShM_Dig);
@@ -920,8 +1026,8 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                     {
                         ahead_stl_x++;
                     }
-                    ahead_sslb_x = subtile_slab_fast(ahead_stl_x);
-                    ahead_sslb_y = subtile_slab_fast(ahead_stl_y);
+                    ahead_sslb_x = subtile_slab(ahead_stl_x);
+                    ahead_sslb_y = subtile_slab(ahead_stl_y);
                 }
                 while (!check_place_to_reinforce(creatng, ahead_sslb_x, ahead_sslb_y));
             }
@@ -948,16 +1054,15 @@ long instf_pretty_path(struct Thing *creatng, long *param)
     TRACE_THING(creatng);
     SYNCDBG(16,"Starting");
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
-    MapSlabCoord slb_x = subtile_slab_fast(creatng->mappos.x.stl.num);
-    MapSlabCoord slb_y = subtile_slab_fast(creatng->mappos.y.stl.num);
-    create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
+    MapSlabCoord slb_x = subtile_slab(creatng->mappos.x.stl.num);
+    MapSlabCoord slb_y = subtile_slab(creatng->mappos.y.stl.num);
+    create_effect(&creatng->mappos, imp_spangle_effects[get_player_color_idx(creatng->owner)], creatng->owner);
     thing_play_sample(creatng, 76, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     place_slab_type_on_map(SlbT_CLAIMED, slab_subtile_center(slb_x), slab_subtile_center(slb_y), creatng->owner, 1);
     do_unprettying(creatng->owner, slb_x, slb_y);
     do_slab_efficiency_alteration(slb_x, slb_y);
     increase_dungeon_area(creatng->owner, 1);
     dungeon->lvstats.area_claimed++;
-    EVM_MAP_EVENT("claimed", creatng->owner, slb_x, slb_y, "");
     return 1;
 }
 
@@ -968,8 +1073,8 @@ long instf_reinforce(struct Thing *creatng, long *param)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     MapSubtlCoord stl_x = stl_num_decode_x(cctrl->digger.working_stl);
     MapSubtlCoord stl_y = stl_num_decode_y(cctrl->digger.working_stl);
-    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
-    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
     if (check_place_to_reinforce(creatng, slb_x, slb_y) <= 0) {
         return 0;
     }
@@ -992,18 +1097,15 @@ long instf_reinforce(struct Thing *creatng, long *param)
     cctrl->digger.consecutive_reinforcements = 0;
     place_and_process_pretty_wall_slab(creatng, slb_x, slb_y);
     struct Coord3d pos;
-    pos.x.stl.pos = 128;
-    pos.y.stl.pos = 128;
-    pos.z.stl.pos = 128;
     for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
     {
-        pos.x.stl.num = stl_x + 2 * small_around[n].delta_x;
-        pos.y.stl.num = stl_y + 2 * small_around[n].delta_y;
+        pos.x.val = subtile_coord_center(stl_x + 2 * small_around[n].delta_x);
+        pos.y.val = subtile_coord_center(stl_y + 2 * small_around[n].delta_y);
         struct Map* mapblk = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
         if (map_block_revealed(mapblk, creatng->owner) && ((mapblk->flags & SlbAtFlg_Blocking) == 0))
         {
             pos.z.val = get_floor_height_at(&pos);
-            create_effect(&pos, imp_spangle_effects[creatng->owner], creatng->owner);
+            create_effect(&pos, imp_spangle_effects[get_player_color_idx(creatng->owner)], creatng->owner);
         }
     }
     thing_play_sample(creatng, 41, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
@@ -1051,4 +1153,338 @@ void delay_heal_sleep(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->healing_sleep_check_turn = game.play_gameturn + 600;
 }
+
+/**
+ * @brief Check if the given creature can cast the specified spell by examining basic conditions.
+ *
+ * @param source The source creature
+ * @param target The target creature
+ * @param inst_idx  The spell instance index
+ * @return TbBool True if the creature can, false if otherwise.
+ */
+TbBool validate_source_basic(struct Thing *source, struct Thing *target, CrInstance inst_idx)
+{
+    if ((source->alloc_flags & TAlF_IsControlled) != 0)
+    {
+        // If this creature is under player's control (Possession).
+        return false;
+    }
+    // We assume we usually don't want to overwrite the original instance.
+    struct CreatureControl* cctrl = creature_control_get_from_thing(source);
+    if (cctrl->instance_id != CrInst_NULL) {
+        SYNCDBG(15, "%s(%d) already has an instance %s.", thing_model_name(source), source->index,
+            creature_instance_code_name(cctrl->instance_id));
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief Check if the given creature can cast the specified spell by examining general conditions.
+ *
+ * @param source The source creature
+ * @param target The target creature
+ * @param inst_idx  The spell instance index
+ * @return TbBool True if the creature can, false if otherwise.
+ */
+TbBool validate_source_generic(struct Thing *source, struct Thing *target, CrInstance inst_idx)
+{
+    if (!validate_source_basic(source, target, inst_idx))
+    {
+        return false;
+    }
+
+    if (!creature_instance_is_available(source, inst_idx) ||
+        !creature_instance_has_reset(source, inst_idx) ||
+        creature_is_fleeing_combat(source) || creature_affected_by_spell(source, SplK_Chicken) ||
+        creature_is_being_unconscious(source) || creature_is_dying(source) ||
+        thing_is_picked_up(source) || creature_is_being_dropped(source) ||
+        creature_is_being_sacrificed(source) || creature_is_being_summoned(source) ||
+        creature_is_being_tortured(source) || creature_is_kept_in_prison(source))
+    {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief Check if the given creature can be the target of the specified spell by examining basic conditions.
+ * @param source The source creature
+ * @param target The target creature
+ * @param inst_idx The spell instance index
+ * @return TbBool True if the creature can be, false if otherwise.
+ */
+TbBool validate_target_basic(struct Thing *source, struct Thing *target, CrInstance inst_idx)
+{
+    if (creature_is_dying(target) || thing_is_picked_up(target) || creature_is_being_dropped(target) ||
+        creature_is_being_sacrificed(target) || creature_is_being_summoned(target))
+    {
+        return false;
+    }
+
+    struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
+    if ((inst_inf->instance_property_flags & InstPF_SelfBuff) == 0 && source->index == target->index)
+    {
+        // If this spell doesn't have SELF_BUFF flag, exclude itself.
+        return false;
+    }
+
+    if (// Creature who is leaving doesn't deserve buff from allies.
+        target->continue_state == CrSt_CreatureLeaves ||
+        target->active_state == CrSt_CreatureLeavingDungeon ||
+        target->active_state == CrSt_CreatureScavengedDisappear ||
+        // Candidate shouldn't be fight with the caster.
+        creature_has_creature_in_combat(source, target) ||
+        creature_has_creature_in_combat(target, source))
+    {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief Check if the given creature can be the target of the specified spell by examining general conditions.
+ * @param source The source creature
+ * @param target The target creature
+ * @param inst_idx The spell instance index
+ * @return TbBool True if the creature can be, false if otherwise.
+ */
+TbBool validate_target_generic(struct Thing *source, struct Thing *target, CrInstance inst_idx)
+{
+    // We don't check the spatial conditions, such as distacne, angle, and sight here, because
+    // they should be checked in the search function.
+    if (!validate_target_basic(source, target, inst_idx) || creature_is_being_unconscious(target) ||
+        creature_is_being_tortured(target) || creature_is_kept_in_prison(target))
+    {
+        return false;
+    }
+
+    struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
+    SpellKind spl_idx = inst_inf->func_params[0];
+    struct SpellConfig* spconf = get_spell_config(spl_idx);
+    if (spell_config_is_invalid(spconf) || creature_affected_by_spell(target, spl_idx))
+    {
+        // If this instance has wrong spell, or the target has been affected by this spell, return false.
+        SYNCDBG(12, "%s(%d) is not a valid target for %s because it has been affected by the spell.",
+            thing_model_name(target), target->index, creature_instance_code_name(inst_idx));
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief Check if the given creature can cast Ranged Heal spell.
+ *
+ * @param source The source creature
+ * @param target The target creature
+ * @param inst_idx  The spell instance index
+ * @return TbBool True if the creature can, false if otherwise.
+ */
+TbBool validate_source_ranged_heal(struct Thing *source, struct Thing *target, CrInstance inst_idx)
+{
+    if (!validate_source_basic(source, target, inst_idx))
+    {
+        return false;
+    }
+
+    // Omit creature_is_kept_in_prison() and creature_is_being_tortured() because we want the caster to heal itself.
+    if (!creature_instance_is_available(source, inst_idx) ||
+        !creature_instance_has_reset(source, inst_idx) ||
+        creature_is_fleeing_combat(source) || creature_affected_by_spell(source, SplK_Chicken) ||
+        creature_is_being_unconscious(source) || creature_is_dying(source) ||
+        thing_is_picked_up(source) || creature_is_being_dropped(source) ||
+        creature_is_being_sacrificed(source) || creature_is_being_summoned(source))
+    {
+        return false;
+    }
+
+    // Creature who is leaving doesn't care about any allies.
+    if (source->continue_state == CrSt_CreatureLeaves ||
+        source->active_state == CrSt_CreatureLeavingDungeon ||
+        source->active_state == CrSt_CreatureScavengedDisappear )
+    {
+        return false;
+    }
+    return true;
+}
+
+/**
+ * @brief Check if the given creature can be the target of Ranged Heal.
+ *
+ * @param source The source creature
+ * @param target The target creature
+ * @param inst_idx  The spell instance index
+ * @return TbBool True if the creature can, false if otherwise.
+ */
+TbBool validate_target_ranged_heal(struct Thing *source, struct Thing *target, CrInstance inst_idx)
+{
+    if (!validate_target_basic(source, target, CrInst_RANGED_HEAL) || creature_is_being_unconscious(target) ||
+        !creature_would_benefit_from_healing(target))
+    {
+        return false;
+    }
+
+    if (source->index == target->index)
+    {
+        // Special case. The healer is always allowed to heal itself even if
+        // it's being tortured or imprisoned.
+        return true;
+    }
+    else
+    {
+        if (creature_is_being_tortured(target) || creature_is_kept_in_prison(target) ||
+            creature_is_being_tortured(source) || creature_is_kept_in_prison(source))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * @brief Search the suitable targets for given spell.
+ *
+ * @param source The source creature
+ * @param inst_idx The spell instance index
+ * @param targets The list of the found creatures. Caller must free this.
+ * @param found_count The number of the found creatures.
+ * @return TbBool True if there is no error, false if otherwise.
+ */
+TbBool search_target_generic(struct Thing *source, CrInstance inst_idx, ThingIndex **targets, unsigned short *found_count)
+{
+    if (!targets || !found_count)
+    {
+        ERRORLOG("Invalid parameters!");
+        return false;
+    }
+
+    TbBool ok = true;
+    // To improve performance, use a smaller number than CREATURES_COUNT.
+    ThingIndex* results = (ThingIndex*)malloc(MAX_CREATURES_SEARCHED * sizeof(ThingIndex));
+    memset(results, 0, MAX_CREATURES_SEARCHED * sizeof(ThingIndex));
+    *found_count = 0;
+    // Note that we only support buff right now, so we only search source's owner's creature.
+    // For offensive debuff, we need another loop to iterate all enemies.
+    struct Dungeon* dungeon = get_players_num_dungeon(source->owner);
+    int creature_idx = dungeon->creatr_list_start;
+    int k = 0;
+    while (creature_idx != 0 && (*found_count) < MAX_CREATURES_SEARCHED)
+    {
+        struct Thing* candidate = thing_get(creature_idx);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(candidate);
+        if (creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Invalid creature control");
+            ok = false;
+            break;
+        }
+
+        creature_idx = cctrl->players_next_creature_idx;
+        const struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
+        if (inst_inf->validate_func_idx[1] > 0)
+        {
+            if(!creature_instances_validate_func_list[inst_inf->validate_func_idx[1]](source, candidate, inst_idx))
+            {
+                // This candidate is out.
+                continue;
+            }
+        }
+
+        if (source->index != candidate->index)
+        {
+            // @todo Consider checking thing_in_field_of_view() in the future, now it is buggy.
+            // We assume that the source must see the target before it can cast the spell.
+            int range = get_combat_distance(source, candidate);
+            if (range < inst_inf->range_min || range > inst_inf->range_max ||
+                !creature_can_see_combat_path(source, candidate, range))
+            {
+                continue;
+            }
+        }
+
+        results[(*found_count)] = candidate->index;
+        (*found_count)++;
+
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            ok = false;
+            break;
+        }
+    }
+
+    *targets = results;
+    return ok;
+}
+
+/**
+ * @brief Search the suitable targets for CrInst_RANGED_HEAL
+ *
+ * @param source The source creature
+ * @param inst_idx The spell instance index
+ * @param targets The list of the found creatures. Caller must free this.
+ * @param found_count The number of the found creatures.
+ * @return TbBool True if there is no error, false if otherwise
+ */
+TbBool search_target_ranged_heal(struct Thing *source, CrInstance inst_idx, ThingIndex **targets, unsigned short *found_count)
+{
+    if (!targets || !found_count)
+    {
+        ERRORLOG("Invalid parameters!");
+        return false;
+    }
+
+    if (!search_target_generic(source, inst_idx, targets, found_count))
+    {
+        return false;
+    }
+
+    ThingIndex* results = *targets;
+    struct Thing *best_choice = NULL;
+    TbBool ok = true;
+    int i = 0;
+    for (; i < *found_count; i++)
+    {
+        struct Thing *candidate = thing_get(results[i]);
+        if (thing_is_invalid(candidate))
+        {
+            ERRORLOG("Creature at index %d is invalid", i);
+            continue;
+        }
+        struct CreatureControl* cctrl = creature_control_get_from_thing(candidate);
+        if (creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Control of creature at index %d is invalid", i);
+            continue;
+        }
+        // Note that we only allow one target. No group buff are allowed yet.
+        // So, we only pick the weakest one creature here.
+        HitPoints hp_p_best = 0;
+        if (best_choice)
+        {
+            struct CreatureControl* cctrl_best = creature_control_get_from_thing(best_choice);
+            hp_p_best = 256L * best_choice->health / cctrl_best->max_health;
+        }
+        HitPoints hp_p_candiate = 256L * candidate->health / cctrl->max_health;
+        if (!best_choice || hp_p_candiate < hp_p_best)
+        {
+            best_choice = candidate;
+        }
+    }
+
+    if (best_choice)
+    {
+        results[0] = best_choice->index;
+        *found_count = 1;
+    }
+
+    return ok;
+}
+
 /******************************************************************************/

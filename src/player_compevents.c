@@ -121,6 +121,8 @@ struct ComputerSpells computer_attack_spells[] = {
   {PwrK_DISEASE,   GA_UsePwrDisease,   1,  1, 2, 4},
   {PwrK_LIGHTNING, GA_UsePwrLightning, 0,  1, 8, 2},
   {PwrK_CHICKEN,   GA_UsePwrChicken,   1,  1, 2, 1},
+  {PwrK_FREEZE,    GA_UsePwrFreeze,    1,  1, 1, 1},
+  {PwrK_SLOW,      GA_UsePwrSlow,      1,  1, 1, 1},
   {PwrK_LIGHTNING, GA_UsePwrLightning, 0, -1, 1, 1},
   {PwrK_None,      GA_None,            0,  0, 0, 0},
 };
@@ -225,12 +227,11 @@ long computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *ceve
     for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
     {
         struct ComputerProcess* cproc = &comp->processes[i];
-        if ((cproc->flags & ComProc_Unkn0002) != 0)
+        if (flag_is_set(cproc->flags, ComProc_Unkn0002))
             break;
         if (cproc->parent == cevent->process)
         {
-            cproc->flags &= ~ComProc_Unkn0008;
-            cproc->flags &= ~ComProc_Unkn0001;
+            clear_flag(cproc->flags, (ComProc_Unkn0008|ComProc_Unkn0001|ComProc_Unkn0004));
             cproc->last_run_turn = 0;
             cproc_idx = 1;
         }
@@ -362,15 +363,20 @@ long computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *ce
  */
 struct Thing *computer_get_creature_in_fight(struct Computer2 *comp, PowerKind pwkind)
 {
-    return find_players_highest_score_creature_in_fight_not_affected_by_spell(comp->dungeon->owner, pwkind);
+    struct PowerConfigStats *powerst = get_power_model_stats(pwkind);
+    return find_players_highest_score_creature_in_fight_not_affected_by_spell(comp->dungeon->owner, powerst->spell_idx);
 }
 
 long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent *cevent)
 {
-    if (comp->dungeon->fights_num <= 0) {
+    if (comp->dungeon->fights_num <= 0)
+    {
         return 4;
     }
-    if (!(computer_able_to_use_power(comp, PwrK_SPEEDCRTR, cevent->param1, 1) ||  computer_able_to_use_power(comp, PwrK_PROTECT, cevent->param1, 1))) {
+    if (!(computer_able_to_use_power(comp, PwrK_SPEEDCRTR, cevent->param1, 1) || computer_able_to_use_power(comp, PwrK_PROTECT, cevent->param1, 1) || 
+          computer_able_to_use_power(comp, PwrK_REBOUND, cevent->param1, 1)   || computer_able_to_use_power(comp, PwrK_FLIGHT, cevent->param1, 1) || 
+          computer_able_to_use_power(comp, PwrK_VISION, cevent->param1, 1)))
+    {
         return 4;
     }
     struct Thing* fightng = computer_get_creature_in_fight(comp, PwrK_SPEEDCRTR);
@@ -379,10 +385,23 @@ long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent 
         fightng = computer_get_creature_in_fight(comp, PwrK_PROTECT);
         if (thing_is_invalid(fightng))
         {
-            return 4;
+            fightng = computer_get_creature_in_fight(comp, PwrK_REBOUND);
+            if (thing_is_invalid(fightng))
+            {
+                fightng = computer_get_creature_in_fight(comp, PwrK_FLIGHT);
+                if (thing_is_invalid(fightng))
+                {
+                    fightng = computer_get_creature_in_fight(comp, PwrK_VISION);
+                    if (thing_is_invalid(fightng))
+                    {
+                        return 4;
+                    }
+                }
+            }
         }
     }
-    if (!create_task_magic_speed_up(comp, fightng, cevent->param1)) {
+    if (!create_task_magic_speed_up(comp, fightng, cevent->param1))
+    {
         return 4;
     }
     return 1;
@@ -474,18 +493,18 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
         if (computer_get_room_kind_free_capacity(comp, bldroom->rkind) > 0) {
             continue;
         }
-        struct RoomConfigStats* roomst = &slab_conf.room_cfgstats[bldroom->rkind];
+        struct RoomConfigStats* roomst = &game.conf.slab_conf.room_cfgstats[bldroom->rkind];
         int tiles = get_room_slabs_count(comp->dungeon->owner,bldroom->rkind);
         if ((tiles >= cevent->param3) && !(cevent->param3 == 0)) // Room has reached the preconfigured maximum size
         {
             SYNCDBG(8,"Player %d reached maximum size %d for %s",(int)comp->dungeon->owner,tiles,room_code_name(bldroom->rkind));
-            if (bldroom->rkind == RoK_WORKSHOP)
+            if (room_role_matches(bldroom->rkind, RoRoF_CratesManufctr))
             {
                 struct Dungeon* dungeon = comp->dungeon;
                 long used_capacity;
                 long total_capacity;
                 long storaged_capacity;
-                get_room_kind_total_used_and_storage_capacity(dungeon, RoK_WORKSHOP, &total_capacity, &used_capacity, &storaged_capacity);
+                get_room_kind_total_used_and_storage_capacity(dungeon, bldroom->rkind, &total_capacity, &used_capacity, &storaged_capacity);
                 if (storaged_capacity > (used_capacity / 2))
                 {
                 create_task_sell_traps_and_doors(comp, storaged_capacity/3*2 ,100000,false);
@@ -495,7 +514,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
             continue;
         } else 
         {
-            if (emergency_state && ((roomst->flags & RoCFlg_BuildToBroke) == 0)) {
+            if (emergency_state && ((roomst->flags & RoCFlg_BuildTillBroke) == 0)) {
                 continue;
             }
             SYNCDBG(8,"Player %d needs %s",(int)comp->dungeon->owner,room_code_name(bldroom->rkind));
@@ -503,16 +522,13 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
             for (long i = 0; i <= COMPUTER_PROCESSES_COUNT; i++)
             {
                 struct ComputerProcess* cproc = &comp->processes[i];
-                if ((cproc->flags & ComProc_Unkn0002) != 0)
+                if (flag_is_set(cproc->flags, ComProc_Unkn0002))
                     break;
                 if (cproc->parent == bldroom->process)
                 {
                     SYNCDBG(8,"Player %d will allow process \"%s\"",(int)comp->dungeon->owner,cproc->name);
                     ret = 1;
-                    cproc->flags &= ~ComProc_Unkn0008;
-                    cproc->flags &= ~ComProc_Unkn0001;
-                    cproc->last_run_turn = 0;
-                    cproc->param_3 = 0;
+                    reactivate_build_process(comp, bldroom->rkind);
                 }
             }
         }
@@ -614,7 +630,7 @@ long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent
         return CTaskRet_Unk1;
     }
 
-    if (dungeon_has_room(dungeon, RoK_TORTURE) && (!creature_is_being_tortured(creatng)))//avoid repeated action on same unit)
+    if (dungeon_has_room_of_role(dungeon, RoRoF_Torture) && (!creature_is_being_tortured(creatng)))//avoid repeated action on same unit)
     {
         if (!creature_would_benefit_from_healing(creatng))
         {
@@ -657,13 +673,12 @@ long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* c
         for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
         {
             struct ComputerProcess* cproc = &comp->processes[i];
-            if ((cproc->flags & ComProc_Unkn0002) != 0)
+            if (flag_is_set(cproc->flags, ComProc_Unkn0002))
                 break;
             if ((cproc->func_check == &computer_check_any_room) && (cproc->confval_4 == event->target))
             {
                 SYNCDBG(8,"Resetting process for player %d to build room %s", (int)comp->dungeon->owner, room_code_name(event->target));
-                cproc->flags &= ~ComProc_Unkn0008;
-                cproc->flags &= ~ComProc_Unkn0001;
+                clear_flag(cproc->flags, (ComProc_Unkn0008|ComProc_Unkn0001));
                 cproc->last_run_turn = 0;
             }
         }

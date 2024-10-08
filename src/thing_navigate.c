@@ -57,13 +57,12 @@ long nav_thing_can_travel_over_lava;
 // Call this function if you don't want the creature/thing to (visually) fly across the map whenever suddenly moving a very far distance. (teleporting for example)
 void reset_interpolation_of_thing(struct Thing *thing)
 {
-    struct ThingAdd* thingadd = get_thingadd(thing->index);
-    thingadd->previous_mappos = thing->mappos;
-    thingadd->previous_floor_height = thing->floor_height;
-    thingadd->interp_mappos = thing->mappos;
-    thingadd->interp_floor_height = thing->floor_height;
-    thingadd->previous_minimap_pos_x = 0;
-    thingadd->previous_minimap_pos_y = 0;
+    thing->previous_mappos = thing->mappos;
+    thing->previous_floor_height = thing->floor_height;
+    thing->interp_mappos = thing->mappos;
+    thing->interp_floor_height = thing->floor_height;
+    thing->previous_minimap_pos_x = 0;
+    thing->previous_minimap_pos_y = 0;
 }
 
 TbBool creature_can_navigate_to_with_storage_f(const struct Thing *creatng, const struct Coord3d *pos, NaviRouteFlags flags, const char *func_name)
@@ -270,7 +269,7 @@ struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng)
         }
         i = thing->next_of_class;
         // Per thing code
-        if (object_is_hero_gate(thing))
+        if (object_is_hero_gate(thing) && !thing_is_picked_up(thing))
         {
             if (creature_can_navigate_to_with_storage(herotng, &thing->mappos, NavRtF_Default)) {
                 return thing;
@@ -293,7 +292,8 @@ void move_thing_in_map_f(struct Thing *thing, const struct Coord3d *pos, const c
     TRACE_THING(thing);
     if (thing->index == 0)
     {
-        ERRORLOG("Moving deleted object (from %s)", func_name);
+        ERRORLOG("%s: Attempt to move deleted thing", func_name);
+        return;
     }
     if ((thing->mappos.x.stl.num == pos->x.stl.num) && (thing->mappos.y.stl.num == pos->y.stl.num))
     {
@@ -339,7 +339,29 @@ TbBool creature_can_travel_over_lava(const struct Thing *creatng)
     const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     // Check if a creature can fly in this moment - we don't care if it's natural ability
     // or temporary spell effect
-    return (crstat->hurt_by_lava <= 0) || ((creatng->movement_flags & TMvF_Flying) != 0);
+    return (crstat->hurt_by_lava <= 0) || flag_is_set(creatng->movement_flags, TMvF_Flying);
+}
+
+TbBool can_step_on_unsafe_terrain_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
+    // We can step on lava if it doesn't hurt us or we can fly
+    if (slb->kind == SlbT_LAVA) {
+        return creature_can_travel_over_lava(creatng);
+    }
+    return false;
+}
+
+TbBool terrain_toxic_for_creature_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    // If the position is over lava, and we can't continuously fly, then it's toxic
+    if ((crstat->hurt_by_lava > 0) && map_pos_is_lava(stl_x,stl_y)) {
+        // Check not only if a creature is now flying, but also whether it's natural ability
+        if (!flag_is_set(creatng->movement_flags, TMvF_Flying) || (!crstat->flying))
+            return true;
+    }
+    return false;
 }
 
 /**
@@ -397,7 +419,7 @@ TbBool creature_can_head_for_room(struct Thing *thing, struct Room *room, int fl
 long creature_turn_to_face(struct Thing *thing, const struct Coord3d *pos)
 {
     //TODO enable when issue in pathfinding is solved
-    /*if (get_2d_box_distance(&thing->mappos, pos) <= 0)
+    /*if (get_chessboard_distance(&thing->mappos, pos) <= 0)
         return -1;*/
     long angle = get_angle_xy_to(&thing->mappos, pos);
 
@@ -407,7 +429,7 @@ long creature_turn_to_face(struct Thing *thing, const struct Coord3d *pos)
 long creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos)
 {
     //TODO enable when issue in pathfinding is solved
-    /*if (get_2d_box_distance(&thing->mappos, pos) <= 0)
+    /*if (get_chessboard_distance(&thing->mappos, pos) <= 0)
         return -1;*/
 
     long angle = (get_angle_xy_to(&thing->mappos, pos)
@@ -422,7 +444,7 @@ long creature_turn_to_face_angle(struct Thing *thing, long angle)
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long angle_diff = get_angle_difference(thing->move_angle_xy, angle);
     long angle_sign = get_angle_sign(thing->move_angle_xy, angle);
-    int angle_delta = crstat->max_angle_change;
+    int angle_delta = crstat->max_turning_speed;
 
     if (angle_delta > angle_diff) {
         angle_delta = angle_diff;
@@ -477,7 +499,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
         {
             creature_set_speed(thing, -speed);
             cctrl->flgfield_2 |= TF2_Unkn01;
-            if (get_2d_box_distance(&thing->mappos, &nextpos) > -2*cctrl->move_speed)
+            if (get_chessboard_distance(&thing->mappos, &nextpos) > -2*cctrl->move_speed)
             {
                 ERRORDBG(3,"The %s index %d tried to reach (%d,%d) from (%d,%d) with excessive backward speed",
                     thing_model_name(thing),(int)thing->index,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num,
@@ -503,7 +525,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
         {
             creature_set_speed(thing, speed);
             cctrl->flgfield_2 |= TF2_Unkn01;
-            if (get_2d_box_distance(&thing->mappos, &nextpos) > 2*cctrl->move_speed)
+            if (get_chessboard_distance(&thing->mappos, &nextpos) > 2*cctrl->move_speed)
             {
                 ERRORDBG(3,"The %s index %d tried to reach (%d,%d) from (%d,%d) with excessive forward speed",
                     thing_model_name(thing),(int)thing->index,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num,
@@ -544,9 +566,9 @@ TbBool creature_move_to_using_teleport(struct Thing *thing, struct Coord3d *pos,
         if (destination_valid)
          {
              // Use teleport only over large enough distances
-             if (get_2d_box_distance(&thing->mappos, pos) > COORD_PER_STL*game.min_distance_for_teleport)
+             if (get_chessboard_distance(&thing->mappos, pos) > COORD_PER_STL*game.conf.rules.magic.min_distance_for_teleport)
              {
-                 set_creature_instance(thing, CrInst_TELEPORT, 1, 0, pos);
+                 set_creature_instance(thing, CrInst_TELEPORT, 0, pos);
                  return true;
              }
          }
@@ -724,10 +746,10 @@ long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Co
 
     if (pos->z.val < highest_floor)
         return pos->z.val;
-    if (lowest_ceiling - thing->clipbox_size_yz <= highest_floor)
+    if (lowest_ceiling - thing->clipbox_size_z <= highest_floor)
         return pos->z.val;
     else
-        return lowest_ceiling - 1 - thing->clipbox_size_yz;
+        return lowest_ceiling - 1 - thing->clipbox_size_z;
 }
 
 TbBool thing_covers_same_blocks_in_two_positions(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2)
@@ -739,7 +761,7 @@ TbBool thing_covers_same_blocks_in_two_positions(struct Thing *thing, struct Coo
      && (abs((pos2->y.val - nav_radius) - (pos1->y.val - nav_radius)) < COORD_PER_STL)
      && (abs((pos2->y.val + nav_radius) - (pos1->y.val + nav_radius)) < COORD_PER_STL)
      && (abs(pos2->z.val - pos1->z.val) < COORD_PER_STL)
-     && (abs((thing->clipbox_size_yz + pos2->z.val) - (thing->clipbox_size_yz + pos1->z.val)) < COORD_PER_STL) )
+     && (abs((thing->clipbox_size_z + pos2->z.val) - (thing->clipbox_size_z + pos1->z.val)) < COORD_PER_STL) )
     {
         return true;
     }
@@ -799,4 +821,32 @@ long get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos)
     return flags;
 }
 
+/**
+ * Whether the current slab is safe land, unsafe land that the creature can pass, or is a door that the creature can pass.
+ * 
+ * Used for wallhugging by creature_can_have_combat_with_object and creature_can_have_combat_with_creature. 
+ */
+TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
+    if (slabmap_block_invalid(slb))
+        return false;
+    struct SlabAttr* slbattr = get_slab_attrs(slb);
+    if (flag_is_set(slbattr->block_flags, SlbAtFlg_IsDoor))
+    {
+        struct Thing* doortng = get_door_for_position(stl_x, stl_y);
+        if (!thing_is_invalid(doortng) && door_will_open_for_thing(doortng,creatng))
+        {
+            return true;
+        }
+    }
+    else
+    {
+        if (slbattr->is_safe_land || can_step_on_unsafe_terrain_at_position(creatng, stl_x, stl_y))
+        {
+            return true;
+        }
+    }
+    return false;
+}
 /******************************************************************************/

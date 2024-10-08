@@ -27,6 +27,7 @@
 #include "bflib_netsession.h"
 #include "bflib_netsp.hpp"
 #include "bflib_netsp_ipx.hpp"
+#include "bflib_sound.h"
 #include "globals.h"
 #include <assert.h>
 #include <ctype.h>
@@ -47,21 +48,18 @@ TbError ClearClientData(void);
 TbError GetPlayerInfo(void);
 TbError GetCurrentPlayers(void);
 TbError AddAPlayer(struct TbNetworkPlayerNameEntry *plyrname);
-static TbError GenericIPXInit(void *init_data);
-//static TbError GenericTCPInit(void *init_data); // this is not being used
 TbError StartMultiPlayerExchange(void *buf);
 TbError CompleteTwoPlayerExchange(void *buf);
 TbError CompleteMultiPlayerExchange(void *buf);
 TbError HostDataCollection(void);
 TbError HostDataBroadcast(void);
-void __stdcall GetCurrentPlayersCallback(struct TbNetworkCallbackData *netcdat, void *a2);
+void GetCurrentPlayersCallback(struct TbNetworkCallbackData *netcdat, void *a2);
 void *MultiPlayerCallback(unsigned long a1, unsigned long a2, unsigned long a3, void *a4);
 void MultiPlayerReqExDataMsgCallback(unsigned long a1, unsigned long a2, void *a3);
 void AddMsgCallback(unsigned long, char *, void *);
 void DeleteMsgCallback(unsigned long, void *);
 void HostMsgCallback(unsigned long, void *);
 void RequestCompositeExchangeDataMsgCallback(unsigned long, unsigned long, void *);
-void *UnidirectionalMsgCallback(unsigned long, unsigned long, void *);
 void SystemUserMsgCallback(unsigned long, void *, unsigned long, void *);
 TbError LbNetwork_StartExchange(void *buf);
 TbError LbNetwork_CompleteExchange(void *buf);
@@ -76,7 +74,7 @@ struct ReceiveCallbacks receiveCallbacks = {
   MultiPlayerCallback,
   MultiPlayerReqExDataMsgCallback,
   RequestCompositeExchangeDataMsgCallback,
-  UnidirectionalMsgCallback,
+  NULL,
   SystemUserMsgCallback,
   NULL,
 };
@@ -106,16 +104,10 @@ unsigned char deletePlayerBuffer[8];
 unsigned char requestExchangeDataBuffer[8];
 unsigned char requestCompositeExchangeDataBuffer[8];
 unsigned char systemUserBuffer[1028];
-unsigned char lastMessage[1028];
-unsigned char lastButOneMessage[1028];
 unsigned long remotePlayerIndex;
 unsigned long remotePlayerId;
-unsigned long unidirectionalMsgReceived;
-struct UnidirectionalDataMessage incomingUnidirectionalMessage;
-struct UnidirectionalDataMessage dataMessage;
-//struct UnidirectionalHeader endMessage;
-//struct UnidirectionalHeader abortMessage;
-struct UnidirectionalRTSMessage rtsMessage;
+
+static int ServerPort = 0;
 /******************************************************************************/
 
 // New network code declarations start here ===================================
@@ -375,6 +367,7 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
     //presume login successful from here
     NETMSG("User %s successfully logged in", netstate.users[source].name);
     netstate.users[source].progress = USER_LOGGEDIN;
+    play_non_3d_sample(76);
 
     //send reply
     ptr = netstate.msg_buffer;
@@ -611,6 +604,11 @@ static void AddSession(const char * str, size_t len)
     }
 }
 
+void LbNetwork_SetServerPort(int port)
+{
+    ServerPort = port;
+}
+
 void LbNetwork_InitSessionsFromCmdLine(const char * str)
 {
     const char* start;
@@ -687,25 +685,6 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
   // Initialising the service provider object
   switch (srvcindex)
   {
-  case NS_Serial_OLD:
-      NETMSG("Selecting Serial SP");
-        res = Lb_FAIL;
-      break;
-  case NS_Modem_OLD:
-      NETMSG("Selecting Modem SP");
-        res = Lb_FAIL;
-      break;
-  case NS_IPX:
-      NETMSG("Selecting IPX SP");
-      if (GenericIPXInit(init_data) == Lb_OK)
-      {
-        res = Lb_OK;
-      } else
-      {
-        WARNLOG("Failure on IPX Initialization");
-        res = Lb_FAIL;
-      }
-      break;
   case NS_TCP_IP:
       NETMSG("Selecting TCP/IP SP");
       /*if (GenericTCPInit(init_data) == Lb_OK) {
@@ -827,6 +806,7 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
 
 TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns)
 {
+    char buf[16];
   /*if (spPtr == NULL)
   {
     ERRORLOG("ServiceProvider ptr is NULL");
@@ -866,7 +846,8 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_
         return Lb_FAIL;
     }
 
-    if (netstate.sp->host(":5555", optns) == Lb_FAIL) {
+    sprintf(buf, "%d", ServerPort);
+    if (netstate.sp->host(buf, optns) == Lb_FAIL) {
         return Lb_FAIL;
     }
 
@@ -1243,13 +1224,6 @@ TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr)
   struct TbNetworkCallbackData netcdat = {};
 
   SYNCDBG(7, "Starting");
-
-  strcpy(netcdat.svc_name, "Serial");
-  callback(&netcdat, ptr);
-  strcpy(netcdat.svc_name, "Modem");
-  callback(&netcdat, ptr);
-  strcpy(netcdat.svc_name, "IPX");
-  callback(&netcdat, ptr);
   strcpy(netcdat.svc_name, "TCP");
   callback(&netcdat, ptr);
   strcpy(netcdat.svc_name, "ENET/UDP");
@@ -1380,7 +1354,7 @@ TbError GetCurrentPlayers(void)
   return Lb_OK;
 }
 
-void __stdcall GetCurrentPlayersCallback(struct TbNetworkCallbackData *netcdat, void *a2)
+void GetCurrentPlayersCallback(struct TbNetworkCallbackData *netcdat, void *a2)
 {
   AddAPlayer((struct TbNetworkPlayerNameEntry *)netcdat);
 }
@@ -1455,28 +1429,6 @@ TbError AddAPlayer(struct TbNetworkPlayerNameEntry *plyrname)
   {
     localPlayerId = plyrname->islocal;
     localPlayerIndex = plr_id;
-  }
-  return Lb_OK;
-}
-
-TbError GenericIPXInit(void *init_data)
-{
-  if (spPtr != NULL)
-  {
-    spPtr->Release();
-    delete spPtr;
-    spPtr = NULL;
-  }
-  spPtr = new IPXServiceProvider();
-  if (spPtr == NULL)
-  {
-    WARNLOG("Failure on SP construction");
-    return Lb_FAIL;
-  }
-  if (spPtr->Init(&receiveCallbacks, nullptr) != Lb_OK)
-  {
-    WARNLOG("Failure on SP::Init()");
-    return Lb_FAIL;
   }
   return Lb_OK;
 }
@@ -2085,17 +2037,6 @@ void RequestCompositeExchangeDataMsgCallback(unsigned long plr_id, unsigned long
     WARNLOG("Failure on SP::Send()");
     return;
   }
-}
-
-void *UnidirectionalMsgCallback(unsigned long a1, unsigned long msg_len, void *a3)
-{
-  if (msg_len > 524)
-  {
-    WARNLOG("Invalid length, %d vs %d", msg_len, 524);
-    return NULL;
-  }
-  unidirectionalMsgReceived = 1;
-  return &incomingUnidirectionalMessage;
 }
 
 void SystemUserMsgCallback(unsigned long plr_id, void *msgbuf, unsigned long msglen, void *a4)

@@ -71,7 +71,7 @@ short creature_moan(struct Thing *thing)
         cctrl->mood.last_mood_sound_turn = game.play_gameturn;
     }
     if (cctrl->instance_id == CrInst_NULL) {
-        set_creature_instance(thing, CrInst_MOAN, 1, 0, 0);
+        set_creature_instance(thing, CrInst_MOAN, 0, 0);
     }
     return 1;
 }
@@ -116,7 +116,7 @@ short creature_be_happy(struct Thing *thing)
         cctrl->mood.last_mood_sound_turn = game.play_gameturn;
     }
     if (cctrl->instance_id == CrInst_NULL) {
-        set_creature_instance(thing, CrInst_CELEBRATE_SHORT, 1, 0, 0);
+        set_creature_instance(thing, CrInst_CELEBRATE_SHORT, 0, 0);
     }
     return 1;
 }
@@ -133,7 +133,7 @@ short creature_piss(struct Thing *thing)
     if (i > 0) {
         return 1;
     }
-    cctrl->field_B2 = game.play_gameturn;
+    cctrl->last_piss_turn = game.play_gameturn;
     set_start_state(thing);
     return 0;
 }
@@ -246,7 +246,8 @@ void anger_set_creature_anger_f(struct Thing *creatng, long annoy_lv, AnnoyMotiv
     SYNCDBG(18,"%s: Setting reason %d to %d for %s index %d",func_name,(int)reason,(int)annoy_lv,thing_model_name(creatng),(int)creatng->index);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    if ((game.numfield_14 != 0) || !creature_can_get_angry(creatng)) {
+    if (!creature_can_get_angry(creatng))
+    {
         return;
     }
     if (annoy_lv < 0)
@@ -357,6 +358,15 @@ TbBool anger_make_creature_angry(struct Thing *creatng, AnnoyMotive reason)
     return true;
 }
 
+TbBool anger_give_creatures_annoyance_percentage(struct Thing* creatng, short percentage, AnnoyMotive reason)
+{
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    if ((crstat->annoy_level <= 0))
+        return false;
+    anger_increase_creature_anger(creatng, (crstat->annoy_level * percentage/100), reason);
+    return true;
+}
+
 TbBool creature_mark_if_woken_up(struct Thing *creatng)
 {
     if (creature_is_sleeping(creatng))
@@ -372,7 +382,7 @@ TbBool creature_will_go_postal_on_victim_during_job(const struct Thing *creatng,
 {
     if (thing_is_creature(victng) && (victng->index != creatng->index) && !creature_has_job(victng, job_kind)
         && !creature_is_kept_in_custody(victng) && !creature_is_being_unconscious(victng)
-        && !creature_is_dying(victng) && !creature_is_doing_anger_job(victng))
+        && !creature_is_dying(victng) && !creature_is_doing_anger_job(victng) && !creature_is_leaving_and_cannot_be_stopped(victng))
     {
         if (!creature_is_invisible(victng) || creature_can_see_invisible(creatng)) {
             return true;
@@ -504,8 +514,7 @@ TbBool process_job_causes_going_postal(struct Thing *creatng, struct Room *room,
     if (find_combat_target_passing_by_room_but_having_unrelated_job(creatng, going_postal_job, room, &combt_dist, &combt_thing))
     {
         SYNCDBG(8,"The %s index %d goes postal on %s index %d during %s",thing_model_name(creatng),(int)creatng->index,thing_model_name(combt_thing),(int)combt_thing->index,creature_job_code_name(going_postal_job));
-        EVM_CREATURE_EVENT_WITH_TARGET("postal", creatng->owner, creatng, combt_thing->index);
-        set_creature_instance(creatng, inst_use, 0, combt_thing->index, 0);
+        set_creature_instance(creatng, inst_use, combt_thing->index, 0);
         external_set_thing_state(combt_thing, CrSt_CreatureEvacuateRoom);
         struct CreatureControl* combctrl = creature_control_get_from_thing(combt_thing);
         combctrl->evacuate.room_idx = room->index;
@@ -575,6 +584,23 @@ TbBool process_job_stress_and_going_postal(struct Thing *creatng)
             }
         }
     }
+    if (creature_will_reject_job(creatng, cctrl->job_assigned))
+    {
+        state_cleanup_in_room(creatng);
+        return true;
+    }
+
+    struct CreatureJobConfig* jobcfg = get_config_for_job(cctrl->job_assigned);
+    if (creature_job_player_check_func_list[jobcfg->func_plyr_check_idx] != NULL)
+    {
+        if (!creature_job_player_check_func_list[jobcfg->func_plyr_check_idx](creatng, creatng->owner, cctrl->job_assigned))
+        {
+            SYNCDBG(13, "Creature %s index %d owner %d can no longer do job %s; check callback failed", thing_model_name(creatng), (int)creatng->index, (int)creatng->owner, creature_job_code_name(cctrl->job_assigned));
+            state_cleanup_in_room(creatng);
+            return true;
+        }
+    }
+
     return false;
 }
 

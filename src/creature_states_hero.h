@@ -31,16 +31,18 @@ extern "C" {
 #pragma pack(1)
 
 enum CreatureHeroTasks {
-    CHeroTsk_Default         = 0,
-    CHeroTsk_AttackRooms     = 1,
-    CHeroTsk_AttackEnemies   = 2,
-    CHeroTsk_AttackDnHeart   = 3,
-    CHeroTsk_StealGold       = 4,
-    CHeroTsk_StealSpells     = 5,
-    CHeroTsk_DefendParty     = 6, // Objectives without target players start here
-    CHeroTsk_DefendSpawn     = 7,
-    CHeroTsk_DefendHeart     = 8,
-    CHeroTsk_DefendRooms     = 9,
+    CHeroTsk_Default         =  0,
+    CHeroTsk_AttackRooms     =  1,
+    CHeroTsk_SabotageRooms   =  2,
+    CHeroTsk_AttackEnemies   =  3,
+    CHeroTsk_AttackDnHeart   =  4,
+    CHeroTsk_SnipeDnHeart    =  5,
+    CHeroTsk_StealGold       =  6,
+    CHeroTsk_StealSpells     =  7,
+    CHeroTsk_DefendParty     =  8, // Objectives without target players start here
+    CHeroTsk_DefendSpawn     =  9,
+    CHeroTsk_DefendHeart     = 10,
+    CHeroTsk_DefendRooms     = 11,
 };
 
 struct Thing;
@@ -58,6 +60,8 @@ short good_wait_in_exit_door(struct Thing *thing);
 short creature_hero_entering(struct Thing *thing);
 short tunneller_doing_nothing(struct Thing *creatng);
 short tunnelling(struct Thing *creatng);
+short good_arrived_at_attack_dungeon_heart(struct Thing* thing);
+short good_arrived_at_combat(struct Thing* thing);
 
 TbBool good_setup_wander_to_exit(struct Thing *creatng);
 short setup_person_tunnel_to_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char a4);

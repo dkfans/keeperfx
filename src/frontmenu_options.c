@@ -39,7 +39,12 @@
 #include "config_settings.h"
 #include "keeperfx.hpp"
 #include "gui_topmsg.h"
+#include "lvl_script_commands.h"
+#include "lvl_script.h"
+#include "sounds.h"
 #include "post_inc.h"
+
+#include <SDL2/SDL_mixer.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -89,6 +94,9 @@ const long definable_key_string[] = {
     GUIStr_RoomSpaceIncrease,
     GUIStr_RoomSpaceDecrease,
     GUIStr_SellTrapOnSubtile,
+    GUIStr_CtrlTiltUp,
+    GUIStr_CtrlTiltDown,
+    GUIStr_CtrlTiltReset,
 };
 
 long fe_mouse_sensitivity;
@@ -203,6 +211,7 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     unsigned char code = settings.kbkeys[key_id].code;
     const char* keytext;
     char chbuf[2];
+    char mouse_button_label[255] = "";
     switch (code)
     {
       case KC_LSHIFT:
@@ -227,7 +236,6 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
       case KC_MOUSE2:
       case KC_MOUSE1:
       {
-        char mouse_button_label[255] = "";
         const char* mouse_gui_string = get_string(key_to_string[(long)code]);
         int mouse_button_number = (KC_MOUSE1 + 1 - code);
         char mouse_button_number_string[8];
@@ -270,11 +278,7 @@ void gui_video_view_distance_level(struct GuiButton *gbtn)
 void gui_video_rotate_mode(struct GuiButton *gbtn)
 {
     struct Packet* pckt = get_packet(my_player_number);
-    switch (settings.video_rotate_mode) {
-        case 0: set_packet_action(pckt, PckA_SwitchView, PVM_IsoWibbleView, 0, 0, 0); break;
-        case 1: set_packet_action(pckt, PckA_SwitchView, PVM_IsoStraightView, 0, 0, 0); break;
-        case 2: set_packet_action(pckt, PckA_SwitchView, PVM_FrontView, 0, 0, 0); break;
-    }
+    set_packet_action(pckt, PckA_SwitchView, rotate_mode_to_view_mode(settings.video_rotate_mode), 0, 0, 0);
     save_settings();
 }
 
@@ -315,6 +319,13 @@ void gui_set_sound_volume(struct GuiButton *gbtn)
     save_settings();
     SetSoundMasterVolume(settings.sound_volume);
     SetMusicMasterVolume(settings.sound_volume);
+    for (int i = 0; i <= EXTERNAL_SOUNDS_COUNT; i++)
+    {
+        if (Ext_Sounds[i] != NULL)
+        {
+            Mix_VolumeChunk(Ext_Sounds[i], settings.sound_volume);
+        }
+    }
 }
 
 void gui_set_music_volume(struct GuiButton *gbtn)
@@ -352,7 +363,7 @@ void gui_switch_video_mode(struct GuiButton *gbtn)
 
 void gui_display_current_resolution(struct GuiButton *gbtn)
 {
-    char* mode = get_vidmode_name(lbDisplay.ScreenMode);
+    char* mode = get_vidmode_name(LbScreenActiveMode());
     show_onscreen_msg(40, "%s", mode);
 }
 

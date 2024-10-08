@@ -1026,7 +1026,7 @@ msgstr ""
 #: guitext:90
 msgctxt "In-game message"
 msgid ""
-"You have a manufactured a Boulder Trap. Place it in a corridor and howl "
+"You have manufactured a Boulder Trap. Place it in a corridor and howl "
 "deliriously as it rumbles inexorably towards unwary trespassers."
 msgstr ""
 "丸石の罠を製造した。 この罠を通路に設置すれば、 不注意な侵入者を恐怖の巨石が"
@@ -1262,7 +1262,7 @@ msgid ""
 "designs on this dark domain. Expect no quarter from your rivals."
 msgstr ""
 "お前は流行を作り出したようだ。 他の２人のダンジョンキーパーが、 この暗黒の領"
-"地のデザインを真似ている。 しかし連中から金はとれないぞ。"
+"地を狙っている。 連中から容赦されることはない。"
 
 #. Level Woodly Rhyme information
 #: guitext:114
@@ -2127,11 +2127,10 @@ msgid "Group: Not used"
 msgstr "グループ化: 未使用だ。"
 
 #: guitext:239
+#, fuzzy
 msgctxt "Creature spell"
-msgid ""
-"Invisibility: Cast on one of your minions, it makes the host creature "
-"invisible to all enemies. Unless they possess a subnatural Sight."
-msgstr "透明化: 敵が超自然的な視力を持っていない限り、クリーチャーが彼らから見えなく成る。[26.12]"
+msgid "Invisibility: Makes the creature invisible to all enemies. Unless they possess a subnatural Sight."
+msgstr "透明化: 敵が超自然的な視力を持っていない限り、クリーチャーが彼らから見えなく成る。"
 
 #: guitext:240
 msgctxt "Creature spell"
@@ -2655,7 +2654,7 @@ msgctxt "In-game interface description"
 msgid ""
 "Zoom In: Zoom in the Dynamic Map. This increases the scale of the map. LMB "
 "select."
-msgstr "拡大: ダイナミックマップを拡大する。左クリック+選択。 [4.1]"
+msgstr "拡大: ダイナミックマップを拡大する。左クリックで選択。 [4.1]"
 
 #: guitext:322
 #, fuzzy
@@ -2663,7 +2662,7 @@ msgctxt "In-game interface description"
 msgid ""
 "Zoom Out: Zoom out the Dynamic Map. This decreases the scale of the map. LMB "
 "select."
-msgstr "縮小: ダイナミックマップを縮小する。左クリック+選択。 [4.1]"
+msgstr "縮小: ダイナミックマップを縮小する。左クリックで選択。 [4.1]"
 
 #: guitext:323
 #, fuzzy
@@ -3841,7 +3840,7 @@ msgctxt "Slab description"
 msgid ""
 "Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but "
 "takes longer to mine than Gold."
-msgstr "宝石: 手下インプが採掘する莫大な富。 [12.3]"
+msgstr "宝石: 手下インプが採掘する無限な富。 [12.3]"
 
 #: guitext:545
 #, fuzzy
@@ -4526,22 +4525,21 @@ msgstr ""
 
 #: guitext:654
 msgctxt "Keeper spell description"
-msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
-msgstr "加速: 手下クリーチャーのスピードを速める。左クリックで選択。 [18.4]"
+msgid "Speed Monster: Increases the speed of your monsters."
+msgstr "加速: 手下クリーチャーのスピードを速める。"
 
 #: guitext:655
 msgctxt "Keeper spell description"
 msgid ""
-"Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
-msgstr "防御: 手下クリーチャーを攻撃から守る。左クリックで選択。 [18.11]"
+"Protect Monster: Shields your creatures from attack."
+msgstr "防御: 手下クリーチャーを攻撃から守る。"
 
 #: guitext:656
 msgctxt "Keeper spell description"
 msgid ""
-"Conceal Monster: Makes your creatures invisible to the enemy. LMB select. "
-"[18.7]"
+"Conceal Monster: Makes your creatures invisible to the enemy."
 msgstr ""
-"透明化: 手下クリーチャーを敵から見えなくする。左クリックで選択。 [18.7]"
+"透明化: 手下クリーチャーを敵から見えなくする。"
 
 #: guitext:657
 msgctxt "Keeper spell description"
@@ -4554,7 +4552,7 @@ msgstr ""
 #: guitext:658
 msgctxt "Keeper spell description"
 msgid "Chicken: Transforms the enemy into a tasty morsel. LMB select. [18.12]"
-msgstr "呪い: 敵をニワトリ-変える。左クリック+選択。 [18.12]"
+msgstr "呪い: 敵をニワトリに変える。左クリックで選択。 [18.12]"
 
 #: guitext:659
 msgctxt "Keeper spell description"
@@ -4888,7 +4886,7 @@ msgstr "補助"
 #: guitext:722
 msgctxt "In-game interface description"
 msgid "Options: Open Options Panel. LMB open panel. [3.2]"
-msgstr "オプション: オプションパネルを開く。左クリック+パネルを開く。 [3.2]"
+msgstr "オプション: オプションパネルを開く。左クリックでパネルを開く。 [3.2]"
 
 #: guitext:723
 msgctxt "In-game interface description"
@@ -5470,80 +5468,70 @@ msgstr "インプはお前のダンジョンの命の源なり。それは血の
 "い。"
 
 #: guitext:830
-#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "Feeling mean? Set your minions to imprison and when your cells are full, "
 "spend some time torturing..."
-msgstr ""
+msgstr "気分が悪い？ 手下どもを投獄するがよい。牢が満員の時は、しばらく拷問して過ごせ。"
 
 #: guitext:831
-#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "If your creatures get unhappy, slap some sense into them. They'll soon "
 "realise how lucky they are."
-msgstr ""
+msgstr "手下クリーチャーが不幸を感じていたら、活を入れてやれ。じきに連中は自分たちの幸運に気づくであろう。"
 
 #: guitext:832
-#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "The underworld is your domain and the adventurers come to steal it. Never "
 "show pity, even when the intruders are defenceless and pathetic."
-msgstr ""
+msgstr "お前の領地たる地底世界を、冒険者どもは奪いにやってくる。決して同情するな、たとえ侵入者どもが身を守る力もなく哀れを誘おうとも。"
 
 #: guitext:833
-#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "Compassion is the hallmark of the good Keeper. But good Keepers never win. "
 "Only evil ones."
-msgstr ""
+msgstr "哀れみは良きキーパーの証明なり。しかし良きキーパーが勝利することはない。勝利するには邪悪であらねば。"
 
 #: guitext:834
-#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "There's never a moment to waste. Already the bravest of the brave are "
 "queuing up to enter your dungeon. So stop reading this and get going."
-msgstr ""
+msgstr "一瞬たりとも無駄にはできぬ。すでに勇者の中の勇者がお前のダンジョンへ入ろうと列をなしている。こんなものを読んでいないで、早く行け。"
 
 #: guitext:835
-#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "Build fast. You'll want the biggest possible welcoming committee ready for "
 "the intruders."
-msgstr ""
+msgstr "建築を急げ。できるだけ大きな歓迎委員会を組織して、侵入者どもを迎えたいであろう？"
 
 #: guitext:836
-#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "Keep your Imps digging. There are always surprises to be found deep in the "
 "earth."
-msgstr ""
+msgstr "インプに掘り続けさせろ。地中の奥深くでは、えてして驚くようなものが見つかる。"
 
 #: guitext:837
-#, fuzzy
 msgctxt "In-game hint message"
 msgid "He who controls the most gold controls the entire Underworld."
-msgstr ""
+msgstr "最も多くの財宝を支配する者が、地底世界全体を支配する。"
 
 #: guitext:838
-#, fuzzy
 msgctxt "In-game hint message"
 msgid "Fear and lack of mercy are your greatest weapons. Use them wisely."
-msgstr ""
+msgstr "恐怖と無慈悲が、お前の最大の武器だ。賢く使え。"
 
 #: guitext:839
-#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "Foolish is the Keeper who sells all his rooms and refuses to pay his "
 "creatures."
-msgstr ""
+msgstr "部屋を売り払い手下クリーチャーに給料を払わないキーパーは愚かだ。"
 ""
 
 #: guitext:840
@@ -6240,10 +6228,38 @@ msgstr ""
 "おまえの業績は伝説的だ。 おまえの悪徳とずる賢さこそは、 世代を越えた恐怖の物"
 "語となるであろう。"
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "Moo2"
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "秘密のドア"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
+msgstr ""
+"秘密のドア： このドアは、敵がよく観察するか、ドアが開くのを見ない限り、敵には見えない。 右クリックで表示する。"
+
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret Door discovered: LMB toggle. RMB delete."
+msgstr "秘密のドアを見つけた: 左クリックで切り替え。 右クリックで削除。"
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret Door discovered"
+msgstr "秘密のドアを見つけた"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
+msgstr "敵が秘密のドアを見つけた: 左クリックで切り替え。 右クリックで削除。"
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "敵が秘密のドアを見つけた"
 
 #: guitext:941
 #, fuzzy
@@ -6602,123 +6618,295 @@ msgctxt "In-game interface item"
 msgid "Ambience"
 msgstr "環境音"
 
-msgstr ""
 #: guitext:1010
 msgctxt "Unused"
 msgid "Moo4"
 msgstr ""
 
 #: guitext:1011
-msgctxt "Menu interface item""
-msgid "Dungeon Keeper original campaign"
+msgctxt "Menu interface item"
+msgid "Dungeon Keeper - Original Campaign"
 msgstr "ダンジョンキーパーの原キャンペーン"
 
 #: guitext:1012
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Assmist Isle"
 msgstr "アッスミスト島"
 
 #: guitext:1013
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Ancient Keeper campaign"
 msgstr "エンシェント・キーパー・キャンペーン"
 
 #: guitext:1014
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Burdened Imps' Level Pack"
 msgstr "Burdened Impのレベルパック"
 
 #: guitext:1015
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Conquest of the Arctic"
 msgstr "北極圏の征服"
 
 #: guitext:1016
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "The Destiny of Ninja"
 msgstr "忍者の運命"
 
 #: guitext:1017
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "DzjeeAr's  6-level campaign"
 msgstr "DzjeeArの６面レベルキャンペーン"
 
 #: guitext:1018
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "DzjeeAr's 10-level campaign"
 msgstr "DzjeeArの１０面レベルキャンペーン"
 
 #: guitext:1019
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "DzjeeAr's 25-level campaign"
 msgstr "DzjeeArの２５面レベルキャンペーン"
 
 #: guitext:1020
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Evil Keeper campaign"
 msgstr "邪悪なキーパー・キャンペーン"
 
 #: guitext:1021
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Grinics' KReign campaign"
 msgstr "GrinicのKReignキャンペーン"
 
 #: guitext:1022
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Japanese DKMaps8 pack"
 msgstr "日本製DKMap8パック"
 
 #: guitext:1023
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "KDK Levels"
 msgstr "KDKレベル"
 
 #: guitext:1024
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Good Campaign"
 msgstr "勇者キャンペーン"
 
 #: guitext:1025
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Lord Vexer campaign"
 msgstr "ヴェクサー卿キャンペーン"
 
 #: guitext:1026
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Nikolai's Castles campaign"
 msgstr "ニコライの城キャンペーン"
 
 #: guitext:1027
-msgctxt "Menu interface item""
-msgid "A Dungeon Keeper - New Game+"
+msgctxt "Menu interface item"
+msgid "Dungeon Keeper - NG+"
 msgstr "増強された原キャンペーン"
 
 #: guitext:1028
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Post Ancient Keeper campaign"
 msgstr "エンシェント・キーパー後キャンペーン"
 
 #: guitext:1029
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Post Undead Keeper campaign"
 msgstr "アンデッド・キーパー後キャンペーン"
 
 #: guitext:1030
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Quest for the Hero campaign"
 msgstr "勇者の探求キャンペーン"
 
 #: guitext:1031
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Revenge of the Lord"
 msgstr "主君の復讐"
 
 #: guitext:1032
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Twin Keepers Campaign"
 msgstr "ツイン・キーパーズ・キャンペーン"
 
 #: guitext:1033
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Undead Keeper campaign"
 msgstr "アンデッド・キーパー・キャンペーン"
+
+#: guitext:1034 guitext:1035
+msgctxt "Unused"
+msgid "Moo5"
+msgstr ""
+
+#: guitext:1036
+msgctxt "Trap names"
+msgid "Demolition Trap"
+msgstr "取壊しの罠"
+
+#: guitext:1037
+msgctxt "Trap description"
+msgid ""
+"Demolition Trap: An explosive with unrivaled destructive power."
+msgstr "取壊しの罠: 無類な破壊力がある爆薬。"
+
+#: guitext:1038
+msgctxt "Trap description"
+msgid ""
+"Sentry Trap: Stands guard and shoots at enemies in sight."
+msgstr "防御の罠: 見張ると視界内の敵を撃つ。"
+
+#: guitext:1039 guitext:1040
+msgctxt "Unused"
+msgid "Moo6"
+msgstr ""
+
+#: guitext:1041
+msgctxt "Creature name"
+msgid "Spirit"
+msgstr "スピリット"
+
+#: guitext:1042
+msgctxt "Creature name"
+msgid "Druid"
+msgstr "ドルイド"
+
+#: guitext:1043
+msgctxt "Creature name"
+msgid "Time Mage"
+msgstr "タイムメイジ"
+
+#: guitext:1044 guitext:1045 guitext:1046 guitext:1047 guitext:1048 guitext:1049
+msgctxt "Unused"
+msgid "Moo7"
+msgstr ""
+
+#: guitext:1050
+msgctxt "Slab description"
+msgid "Rock Formation."
+msgstr "岩の形成。"
+
+#: guitext:1051
+msgctxt "Slab description"
+msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
+msgstr "基盤岩： 誰の所有でもない岩石の地面。それを占領できられない、それ上に建てられない。"
+
+#: guitext:1052
+msgctxt "Slab description"
+msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
+msgstr "密な金の層：あなたのインプが採掘するための多くの富を保持しています。"
+
+#: guitext:1053
+#, fuzzy
+msgctxt "Keeper spell name"
+msgid "Magic Shield"
+msgstr "反射"
+
+#: guitext:1054
+msgctxt "Keeper spell name"
+msgid "Freeze"
+msgstr "凍結"
+
+#: guitext:1055
+msgctxt "Keeper spell name"
+msgid "Slow"
+msgstr "減速"
+
+#: guitext:1056
+msgctxt "Keeper spell name"
+msgid "Levitate"
+msgstr "飛行"
+
+#: guitext:1057
+msgctxt "Keeper spell name"
+msgid "Illumination"
+msgstr "照明"
+
+#: guitext:1058
+msgctxt "Keeper spell name"
+msgid "Sight"
+msgstr "照準"
+
+#: guitext:1059
+msgctxt "Dungeon special decription"
+msgid "Heal All: Restore full health to all your creatures."
+msgstr "全員回復：すべてのクリーチャーが回復します。"
+
+#: guitext:1060
+msgctxt "Dungeon special decription"
+msgid "Increase Gold: Generates gold in your treasury."
+msgstr "ゴールド増加：財宝でゴールドを生成します。"
+
+#: guitext:1061
+msgctxt "Dungeon special decription"
+msgid "Make Unhappy: All creatures of the enemy become upset."
+msgstr "不幸にする： 敵のすべてのクリーチャーが不幸になります。"
+
+#: guitext:1062
+msgctxt "Dungeon special decription"
+msgid "Weaken Walls: Destroys the fortifications of enemy walls."
+msgstr "壁を弱める：敵の城壁の防御施設を破壊します。"
+
+#: guitext:1063
+msgctxt "Game controls"
+msgid "Tilt Up"
+msgstr "上へ指向"
+
+#: guitext:1064
+msgctxt "Game controls"
+msgid "Tilt Down"
+msgstr "下へ指向"
+
+#: guitext:1065
+msgctxt "Game controls"
+msgid "Reset Tilt"
+msgstr "傾きをリセット"
+
+#: guitext:1066
+msgctxt "Creature spell"
+msgid "Heal Monster: The target creature is massively healed."
+msgstr ""
+
+#: guitext:1067
+msgctxt "Creature spell"
+msgid "Cleanse: Cures all negative effects inflicted on the creature."
+msgstr "クレンズ：クリーチャーに与えられたすべての負の効果を治療します。"
+
+#: guitext:1068
+msgctxt "Creature spell"
+msgid "Cleanse Monster: Cures all negative effects inflicted on target creature."
+msgstr ""
+
+#: guitext:1069
+msgctxt "Keeper spell description"
+msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
+msgstr ""
+
+#: guitext:1070
+msgctxt "Keeper spell description"
+msgid "Levitate: Causes the target creature to take off from the ground and attack creatures from the air or cross lava unharmed."
+msgstr ""
+
+#: guitext:1071
+msgctxt "Keeper spell description"
+msgid "Sight: Allows the target creature to temporarily increase its awareness and notice the invisible."
+msgstr ""
+
+#: guitext:1072 guitext:1073 guitext:1074 guitext:1075
+msgctxt "Unused"
+msgid "Moo8"
+msgstr ""
+
+#: guitext:1076
+msgctxt "Door name"
+msgid "Midas Door"
+msgstr ""
+
+#: guitext:1077
+msgctxt "Door description"
+msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
+msgstr ""

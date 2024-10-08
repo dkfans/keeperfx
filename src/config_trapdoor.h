@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "config_objects.h"
 
 #include "config.h"
 
@@ -29,7 +30,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-#define TRAPDOOR_TYPES_MAX 128
+#define TRAPDOOR_TYPES_MAX 2000
 
 /******************************************************************************/
 #pragma pack(1)
@@ -52,9 +53,21 @@ struct DoorConfigStats {
     long bigsym_sprite_idx;
     long medsym_sprite_idx;
     long pointer_sprite_idx;
+    long place_sound_idx;
     unsigned short slbkind[2];
-    long health;
+    HitPoints health;
     unsigned short open_speed;
+    unsigned short model_flags;
+    short unsellable;
+};
+
+  /** Contains properties of a door model, to be stored in DoorConfigStats.
+ */
+enum DoorModelFlags {
+    DoMF_ResistNonMagic = 0x0001,
+    DoMF_Secret         = 0x0002,
+    DoMF_Thick          = 0x0004,
+    DoMF_Midas          = 0x0008,
 };
 
 struct TrapConfigStats {
@@ -65,9 +78,18 @@ struct TrapConfigStats {
     long bigsym_sprite_idx;
     long medsym_sprite_idx;
     long pointer_sprite_idx;
-    long hidden;
-    long slappable;
-    long notify;
+    short place_sound_idx;
+    short trigger_sound_idx;
+    TbBool hidden;
+    short slappable;
+    short destructible;
+    short unstable;
+    TbBool notify;
+    TbBool unsellable;
+    TbBool place_on_bridge;
+    TbBool place_on_subtile;
+    EffectOrEffElModel destroyed_effect;
+    struct FlameProperties flame;
 };
 
 /**

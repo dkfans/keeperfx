@@ -52,9 +52,9 @@ typedef void *SndData;
 typedef long (*S3D_LineOfSight_Func)(long, long, long, long, long, long);
 
 struct SoundCoord3d {
-    unsigned short val_x;
-    unsigned short val_y;
-    unsigned short val_z;
+    unsigned long val_x;
+    unsigned long val_y;
+    unsigned long val_z;
 };
 
 struct SoundEmitter {
@@ -78,7 +78,7 @@ struct SoundReceiver { // sizeof = 17
 };
 
 struct S3DSample { // sizeof = 37
-  unsigned long field_0;
+  unsigned long priority;
   unsigned long time_turn;
   unsigned short smptbl_id;
   unsigned char bank_id;

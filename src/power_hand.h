@@ -43,13 +43,13 @@ void remove_thing_from_limbo(struct Thing *thing);
 unsigned long object_is_pickable_by_hand_for_use(const struct Thing *thing, long a2);
 TbBool thing_is_pickable_by_hand(struct PlayerInfo *player, const struct Thing *thing);
 struct Thing *process_object_being_picked_up(struct Thing *thing, long a2);
-void set_power_hand_graphic(unsigned char plyr_idx, long AnimationID, long AnimationSpeed);
+void set_power_hand_graphic(unsigned char plyr_idx, long HandAnimationID);
 TbBool power_hand_is_empty(const struct PlayerInfo *player);
 TbBool power_hand_is_full(const struct PlayerInfo *player);
 struct Thing *get_first_thing_in_power_hand(struct PlayerInfo *player);
 void draw_power_hand(void);
 void clear_things_in_hand(struct PlayerInfo *player);
-TbResult magic_use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short tng_idx);
+TbResult use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short tng_idx);
 struct Thing *get_nearest_thing_for_hand_or_slap(PlayerNumber plyr_idx, MapCoord x, MapCoord y);
 
 TbBool insert_thing_into_power_hand_list(struct Thing *thing, PlayerNumber plyr_idx);
@@ -64,6 +64,7 @@ TbBool thing_is_picked_up(const struct Thing *thing);
 TbBool thing_is_picked_up_by_owner(const struct Thing *thing);
 TbBool thing_is_picked_up_by_enemy(const struct Thing *thing);
 TbBool thing_is_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
+long get_thing_in_hand_id(const struct Thing* thing, PlayerNumber plyr_idx);
 
 TbBool slap_object(struct Thing *thing);
 TbBool object_is_slappable(const struct Thing *thing, long plyr_idx);
@@ -96,6 +97,8 @@ enum HandRuleType {
     HandRule_Wandering,
     HandRule_Working,
     HandRule_Fighting,
+    HandRule_DroppedTimeHigher,
+    HandRule_DroppedTimeLower
 };
 
 enum HandRuleAction {
@@ -114,6 +117,7 @@ struct HandRule {
 
 TbBool eval_hand_rule_for_thing(struct HandRule *rule, const struct Thing *thing_to_pick);
 
+extern float global_hand_scale;
 /******************************************************************************/
 #ifdef __cplusplus
 }

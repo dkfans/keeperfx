@@ -33,6 +33,7 @@
 #include "game_legacy.h"
 #include "globals.h"
 #include "game_heap.h"
+#include "gui_soundmsgs.h"
 #include "post_inc.h"
 
 #define INVALID_SOUND_EMITTER (&emitter[0])
@@ -58,8 +59,8 @@ struct SoundReceiver Receiver;
 long Non3DEmitter;
 struct SampleTable *sample_table;
 struct SampleTable *sample_table2;
-TbFileHandle sound_file;
-TbFileHandle sound_file2;
+TbFileHandle sound_file = -1;
+TbFileHandle sound_file2 = -1;
 unsigned char using_two_banks;
 long SpeechEmitter;
 struct HeapMgrHeader *sndheap;
@@ -95,7 +96,7 @@ long get_best_sound_heap_size(long sh_mem_size)
       return 0x0800000; // 8MB
     if (sh_mem_size <= 48)
         return 0x0c00000; // 12MB
-    
+
     return 0x3000000; // 50MB
 }
 
@@ -296,10 +297,10 @@ TbBool S3DMoveSoundEmitterTo(SoundEmitterID eidx, long x, long y, long z)
     return true;
 }
 
-TbBool S3DAddSampleToEmitterPri(SoundEmitterID eidx, SoundSmplTblID smptbl_id, SoundBankID bank_id, SoundPitch pitch, SoundVolume loudness, long a6, char a7, long a8, long a9)
+TbBool S3DAddSampleToEmitterPri(SoundEmitterID eidx, SoundSmplTblID smptbl_id, SoundBankID bank_id, SoundPitch pitch, SoundVolume loudness, long a6, char a7, long a8, long priority)
 {
     struct SoundEmitter* emit = S3DGetSoundEmitter(eidx);
-    return start_emitter_playing(emit, smptbl_id, bank_id, pitch, loudness, a6, a7, a8, a9) != 0;
+    return start_emitter_playing(emit, smptbl_id, bank_id, pitch, loudness, a6, a7, a8, priority) != 0;
 }
 
 long S3DCreateSoundEmitterPri(long x, long y, long z, SoundSmplTblID smptbl_id, SoundBankID bank_id, SoundPitch pitch, SoundVolume loudness, long a8, long a9, long a10)
@@ -368,9 +369,9 @@ short sound_emitter_in_use(SoundEmitterID eidx)
 
 long get_sound_distance(const struct SoundCoord3d *pos1, const struct SoundCoord3d *pos2)
 {
-    long dist_x = abs(pos1->val_x - (long)pos2->val_x);
-    long dist_y = abs(pos1->val_y - (long)pos2->val_y);
-    long dist_z = abs(pos1->val_z - (long)pos2->val_z);
+    long dist_x = max(pos1->val_x, pos2->val_x) - min(pos1->val_x, pos2->val_x);
+    long dist_y = max(pos1->val_y, pos2->val_y) - min(pos1->val_y, pos2->val_y);
+    long dist_z = max(pos1->val_z, pos2->val_z) - min(pos1->val_z, pos2->val_z);
     // Make sure we're not exceeding sqrt(LONG_MAX/3), to fit the final result in long
     if (dist_x > 26754)
         dist_x = 26754;
@@ -383,9 +384,9 @@ long get_sound_distance(const struct SoundCoord3d *pos1, const struct SoundCoord
 
 long get_sound_squareedge_distance(const struct SoundCoord3d *pos1, const struct SoundCoord3d *pos2)
 {
-    long dist_x = abs(pos1->val_x - (long)pos2->val_x);
-    long dist_y = abs(pos1->val_y - (long)pos2->val_y);
-    long dist_z = abs(pos1->val_z - (long)pos2->val_z);
+    long dist_x = max(pos1->val_x, pos2->val_x) - min(pos1->val_x, pos2->val_x);
+    long dist_y = max(pos1->val_y, pos2->val_y) - min(pos1->val_y, pos2->val_y);
+    long dist_z = max(pos1->val_z, pos2->val_z) - min(pos1->val_z, pos2->val_z);
     // Make sure we're not exceeding LONG_MAX/3
     if (dist_x > LONG_MAX/3)
         dist_x = LONG_MAX/3;
@@ -653,10 +654,10 @@ short find_slot(long fild8, SoundBankID bank_id, struct SoundEmitter *emit, long
         sample = &SampleList[i];
         if (sample->is_playing == 0)
             return i;
-        if (spcval > sample->field_0)
+        if (spcval > sample->priority)
         {
             min_sample_id = i;
-            spcval = sample->field_0;
+            spcval = sample->priority;
         }
     }
     if (spcval >= spcmax)
@@ -961,6 +962,10 @@ long speech_sample_playing(void)
          return false;
      }
      SYNCDBG(17,"Starting");
+     if (Mix_Playing(MESSAGE_CHANNEL))
+     {
+         return true;
+     }
      long sp_emiter = SpeechEmitter;
      if (sp_emiter != 0)
      {
@@ -999,7 +1004,7 @@ long play_speech_sample(SoundSmplTblID smptbl_id)
     }
     SpeechEmitter = sp_emiter;
     long vol = lerp(0, 256, (float)settings.mentor_volume/127.0); // [0-127] rescaled to [0-256]
-    
+
     if (sp_emiter != 0)
     {
       if (S3DEmitterHasFinishedPlaying(sp_emiter))
@@ -1017,13 +1022,13 @@ long play_speech_sample(SoundSmplTblID smptbl_id)
     return true;
 }
 
-long start_emitter_playing(struct SoundEmitter *emit, SoundSmplTblID smptbl_id, SoundBankID bank_id, long smpitch, SoundVolume loudness, long fild1D, long ctype, unsigned char flags, long fild0)
+long start_emitter_playing(struct SoundEmitter *emit, SoundSmplTblID smptbl_id, SoundBankID bank_id, long smpitch, SoundVolume loudness, long fild1D, long ctype, unsigned char flags, long priority)
 {
     long pan;
     long volume;
     long pitch;
     get_emitter_pan_volume_pitch(&Receiver, emit, &pan, &volume, &pitch);
-    long smpl_idx = find_slot(smptbl_id, bank_id, emit, ctype, fild0);
+    long smpl_idx = find_slot(smptbl_id, bank_id, emit, ctype, priority);
     volume = (volume * loudness) / 256;
     if (smpl_idx < 0)
         return 0;
@@ -1032,7 +1037,7 @@ long start_emitter_playing(struct SoundEmitter *emit, SoundSmplTblID smptbl_id, 
         return 0;
     }
     struct S3DSample* sample = &SampleList[smpl_idx];
-    sample->field_0 = fild0;
+    sample->priority = priority;
     sample->smptbl_id = smptbl_id;
     sample->bank_id = bank_id;
     sample->emit_ptr = emit;

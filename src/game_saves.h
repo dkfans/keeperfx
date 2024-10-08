@@ -86,6 +86,7 @@ struct FileChunkHeader {
 
 /******************************************************************************/
 extern int number_of_saved_games;
+extern const char* continue_game_filename;
 
 #pragma pack()
 /******************************************************************************/
@@ -109,7 +110,7 @@ TbBool save_game_save_catalogue(void);
 TbBool load_game_save_catalogue(void);
 TbBool fill_game_catalogue_slot(long slot_num,const char *textname);
 /******************************************************************************/
-TbBool add_transfered_creature(PlayerNumber plyr_idx, ThingModel model, long explevel);
+TbBool add_transfered_creature(PlayerNumber plyr_idx, ThingModel model, long explevel, char *name);
 void clear_transfered_creatures(void);
 /******************************************************************************/
 LevelNumber move_campaign_to_next_level(void);

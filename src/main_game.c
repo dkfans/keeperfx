@@ -21,12 +21,14 @@
 #include "bflib_sound.h"
 
 #include "config_compp.h"
+#include "config_settings.h"
 #include "dungeon_data.h"
 #include "engine_lenses.h"
 #include "engine_redraw.h"
 #include "engine_textures.h"
 #include "frontend.h"
 #include "frontmenu_ingame_tabs.h"
+#include "frontmenu_ingame_map.h"
 #include "game_heap.h"
 #include "game_legacy.h"
 #include "game_merge.h"
@@ -38,11 +40,20 @@
 #include "room_library.h"
 #include "room_list.h"
 #include "power_specials.h"
+#include "player_data.h"
+#include "player_instances.h"
 #include "player_utils.h"
 #include "vidfade.h"
 #include "vidmode.h"
 #include "custom_sprites.h"
 #include "gui_boxmenu.h"
+#include "sounds.h"
+#include "api.h"
+
+#ifdef FUNCTESTING
+  #include "ftests/ftest.h"
+#endif
+
 #include "post_inc.h"
 
 extern TbBool force_player_num;
@@ -58,7 +69,6 @@ CoroutineLoopState set_not_has_quit(CoroutineLoop *context);
 void reset_script_timers_and_flags(void)
 {
     struct Dungeon *dungeon;
-    struct DungeonAdd *dungeonadd;
     int plyr_idx;
     int k;
     TbBool freeplay = is_map_pack();
@@ -68,7 +78,6 @@ void reset_script_timers_and_flags(void)
         add_power_to_player(PwrK_SLAP, plyr_idx);
         add_power_to_player(PwrK_POSSESS, plyr_idx);
         dungeon = get_dungeon(plyr_idx);
-        dungeonadd = get_dungeonadd(plyr_idx);
         for (k=0; k<TURN_TIMERS_COUNT; k++)
         {
             memset(&dungeon->turn_timers[k], 0, sizeof(struct TurnTimer));
@@ -76,7 +85,7 @@ void reset_script_timers_and_flags(void)
         }
         for (k=0; k<SCRIPT_FLAGS_COUNT; k++)
         {
-            dungeonadd->script_flags[k] = 0;
+            dungeon->script_flags[k] = 0;
             if (freeplay)
             {
                 intralvl.campaign_flags[plyr_idx][k] = 0;
@@ -85,14 +94,28 @@ void reset_script_timers_and_flags(void)
     }
 }
 
-void init_good_player_as(PlayerNumber plr_idx)
+void init_player_types()
 {
-    struct PlayerInfo *player;
-    game.hero_player_num = plr_idx;
-    player = get_player(plr_idx);
-    player->allocflags |= PlaF_Allocated;
-    player->allocflags |= PlaF_CompCtrl;
-    player->id_number = game.hero_player_num;
+    for (size_t plr_idx = 0; plr_idx < PLAYERS_COUNT; plr_idx++)
+    {
+        struct PlayerInfo *player;
+        player = get_player(plr_idx);
+        switch (plr_idx)
+        {
+        case PLAYER_GOOD:
+            player->allocflags |= PlaF_Allocated;
+            player->allocflags |= PlaF_CompCtrl;
+            player->player_type = PT_Roaming;
+            player->id_number = plr_idx;
+            break;
+        case PLAYER_NEUTRAL:
+            player->player_type = PT_Neutral;
+            break;
+        default:
+            player->player_type = PT_Keeper;
+            break;
+        }
+    }
 }
 
 /******************************************************************************/
@@ -127,11 +150,11 @@ static void init_level(void)
     //LbMemoryCopy(&transfer_mem,&game.intralvl.transferred_creature,sizeof(struct CreatureStorage));
     LbMemoryCopy(&transfer_mem,&intralvl,sizeof(struct IntralevelData));
     game.flags_gui = GGUI_SoloChatEnabled;
-    set_flag_byte(&game.system_flags, GSF_RunAfterVictory, false);
-    game.action_rand_seed = 1;
+    clear_flag(game.system_flags, GSF_RunAfterVictory);
     free_swipe_graphic();
     game.loaded_swipe_idx = -1;
     game.play_gameturn = 0;
+    game.paused_at_gameturn = false;
     game_flags2 &= (GF2_PERSISTENT_FLAGS | GF2_Timer);
     clear_game();
     reset_heap_manager();
@@ -151,48 +174,47 @@ static void init_level(void)
 
     init_creature_scores();
 
-    init_good_player_as(hero_player_number);
+    init_player_types();
     light_set_lights_on(1);
     start_rooms = &game.rooms[1];
     end_rooms = &game.rooms[ROOMS_COUNT];
 
     erstats_clear();
     init_dungeons();
+    setup_panel_colors();
     init_map_size(get_selected_level_number());
     clear_messages();
+    init_seeds();
     // Load the actual level files
-    TbBool ok = preload_script(get_selected_level_number());
-    if (ok)
-    {
-        ok = load_map_file(get_selected_level_number());
-    }
-    if (!ok)
+    TbBool script_preloaded = preload_script(get_selected_level_number());
+    if (!load_map_file(get_selected_level_number()))
     {
         // TODO: whine about missing file to screen
         JUSTMSG("Unable to load level %d from %s", get_selected_level_number(), campaign.name);
         return;
     }
+    else
+    {
+        if (script_preloaded == false)
+        {
+            show_onscreen_msg(200,"%s: No Script %d", get_string(GUIStr_Error), get_selected_level_number());
+            JUSTMSG("Unable to load script level %d from %s", get_selected_level_number(), campaign.name);
+        }
+    }
 
     init_navigation();
     LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
-#ifdef AUTOTESTING
-    if (start_params.autotest_flags & ATF_FixedSeed)
-    {
-      game.action_rand_seed = 1;
-      game.unsync_rand_seed = 1;
-      srand(1);
-    }
-    else
-#else
-    // Initialize unsynchronized random seed (the value may be different
-    // on computers in MP, as it shouldn't affect game actions)
-    game.unsync_rand_seed = (unsigned long)LbTimeSec();
-#endif
     light_set_lights_on(1);
     {
-        struct PlayerInfo *player;
-        player = get_player(game.hero_player_num);
-        init_player_start(player, false);
+        for (size_t i = 0; i < PLAYERS_COUNT; i++)
+        {
+            if(player_is_roaming(i))
+            {
+                struct PlayerInfo *player;
+                player = get_player(i);
+                init_player_start(player, false);
+            }
+        }
     }
     game.numfield_D |= GNFldD_Unkn04;
     //LbMemoryCopy(&game.intralvl.transferred_creature,&transfer_mem,sizeof(struct CreatureStorage));
@@ -215,6 +237,8 @@ static void init_level(void)
     game.manufactr_spridx = 0;
     game.manufactr_tooltip = 0;
     JUSTMSG("Started level %d from %s", get_selected_level_number(), campaign.name);
+
+    api_event("GAME_STARTED");
 }
 
 static void post_init_level(void)
@@ -276,11 +300,14 @@ void startup_saved_packet_game(void)
         WARNLOG("Packet file was created with different version of the game; this rarely works");
     }
     game.game_kind = GKind_LocalGame;
-    if (!(game.packet_save_head.players_exist & (1 << game.local_plyr_idx))
-        || (game.packet_save_head.players_comp & (1 << game.local_plyr_idx)))
+    if (!flag_is_set(game.packet_save_head.players_exist, to_flag(game.local_plyr_idx))
+        || flag_is_set(game.packet_save_head.players_comp, to_flag(game.local_plyr_idx)))
         my_player_number = 0;
     else
         my_player_number = game.local_plyr_idx;
+    settings.isometric_view_zoom_level = game.packet_save_head.isometric_view_zoom_level;
+    settings.frontview_zoom_level = game.packet_save_head.frontview_zoom_level;
+    settings.isometric_tilt = game.packet_save_head.isometric_tilt;
     init_level();
     setup_zombie_players();//TODO GUI What about packet file from network game? No zombies there..
     init_players();
@@ -291,11 +318,8 @@ void startup_saved_packet_game(void)
     post_init_level();
     post_init_players();
     set_selected_level_number(0);
-    if (is_key_pressed(KC_LALT, KMod_NONE))
-    {
-        struct PlayerInfo* player = get_my_player();
-        set_engine_view(player, PVM_FrontView);
-    }
+    struct PlayerInfo* player = get_my_player();
+    set_engine_view(player, rotate_mode_to_view_mode(game.packet_save_head.video_rotate_mode));
 }
 
 static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context);
@@ -303,6 +327,7 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context);
 void startup_network_game(CoroutineLoop *context, TbBool local)
 {
     SYNCDBG(0,"Starting up network game");
+    stop_streamed_sample();
     unsigned int flgmem;
     struct PlayerInfo *player;
     setup_count_players();
@@ -330,6 +355,12 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
     {
         game.game_kind = GKind_MultiGame;
         init_players_network_game(context);
+
+        // Fix desyncs when two players have a different zoom distance cfg setting
+        // This temporary solution just disregards their cfg value and sets it here
+        int max_zoom_in_multiplayer = 60;
+        zoom_distance_setting = lerp(4100, CAMERA_ZOOM_MIN, (float)max_zoom_in_multiplayer/100.0);
+        frontview_zoom_distance_setting = lerp(16384, FRONTVIEW_CAMERA_ZOOM_MIN, (float)max_zoom_in_multiplayer/100.0);
     }
     setup_count_players(); // It is reset by init_level
     int args[COROUTINE_ARGS] = {ShouldAssignCpuKeepers, 0};
@@ -352,6 +383,11 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
     post_init_players();
     post_init_packets();
     set_selected_level_number(0);
+
+#ifdef FUNCTESTING
+    set_flag(start_params.functest_flags, FTF_LevelLoaded);
+#endif
+
     return CLS_CONTINUE;
 }
 
@@ -391,7 +427,7 @@ void faststartup_saved_packet_game(void)
         player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
     }
     set_gui_visible(false);
-    set_flag_byte(&game.operation_flags,GOF_ShowPanel,false);
+    clear_flag(game.operation_flags, GOF_ShowPanel);
 }
 
 /******************************************************************************/
@@ -416,14 +452,36 @@ void clear_complete_game(void)
         set_selected_level_number(start_params.selected_level_number);
     else
         set_selected_level_number(first_singleplayer_level());
-    game.num_fps = start_params.num_fps;
+    game_num_fps = start_params.num_fps;
     game.flags_cd = start_params.flags_cd;
     game.no_intro = start_params.no_intro;
-    set_flag_byte(&game.system_flags,GSF_AllowOnePlayer,start_params.one_player);
+    set_flag_value(game.system_flags, GSF_AllowOnePlayer, start_params.one_player);
     gameadd.computer_chat_flags = start_params.computer_chat_flags;
     game.operation_flags = start_params.operation_flags;
     snprintf(game.packet_fname,150, "%s", start_params.packet_fname);
     game.packet_save_enable = start_params.packet_save_enable;
     game.packet_load_enable = start_params.packet_load_enable;
     my_player_number = default_loc_player;
+}
+
+void init_seeds()
+{
+#if FUNCTESTING
+    if (flag_is_set(start_params.functest_flags, FTF_Enabled))
+    {
+        ftest_srand();
+    }
+    else
+#endif
+    {
+        // Initialize random seeds (the value may be different
+        // on computers in MP, as it shouldn't affect game actions)
+        game.unsync_rand_seed = (unsigned long)LbTimeSec();
+        game.action_rand_seed = (game.packet_save_head.action_seed != 0) ? game.packet_save_head.action_seed : game.unsync_rand_seed;
+        if ((game.system_flags & GSF_NetworkActive) != 0)
+        {
+            init_network_seed();
+        }
+        start_seed = game.action_rand_seed;
+    }
 }

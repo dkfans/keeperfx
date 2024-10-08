@@ -29,6 +29,7 @@
 #include "bflib_cpu.h"
 
 #include "config.h"
+#include "engine_camera.h"
 #include "game_merge.h"
 #include "vidmode.h"
 #include "post_inc.h"
@@ -100,24 +101,21 @@ void setup_default_settings(void)
           {KC_MOUSEWHEEL_DOWN, KMod_NONE},   // Gkey_RoomSpaceIncSize
           {KC_MOUSEWHEEL_UP, KMod_NONE},     // Gkey_RoomSpaceDecSize
           {KC_LALT, KMod_NONE},              // Gkey_SellTrapOnSubtile
+          {KC_PGUP, KMod_SHIFT},              // Gkey_TiltUp
+          {KC_PGDOWN, KMod_SHIFT},            // Gkey_TiltDown
+          {KC_INSERT, KMod_SHIFT},            // Gkey_TiltReset
      },                         // kbkeys
-     1,                         // tooltips_on
+     true,                      // tooltips_on
      0,                         // first_person_move_invert
      6,                         // first_person_move_sensitivity
      256,                       // minimap_zoom
      8192,                      // isometric_view_zoom_level
      65536,                     // frontview_zoom_level
      127,                       // mentor_volume
+     CAMERA_TILT_DEFAULT,       // isometric_tilt
     };
     LbMemoryCopy(&settings, &default_settings, sizeof(struct GameSettings));
-    struct CPU_INFO cpu_info;
-    cpu_detect(&cpu_info);
-    settings.video_scrnmode = get_next_vidmode(Lb_SCREEN_MODE_INVALID);
-    if ((cpu_get_family(&cpu_info) > CPUID_FAMILY_PENTIUM) && (is_feature_on(Ft_HiResVideo)))
-    {
-        SYNCDBG(6,"Updating to hires video mode");
-        settings.video_scrnmode = get_higher_vidmode(settings.video_scrnmode);
-    }
+    settings.switching_vidmodes_index = 0;
 }
 
 TbBool load_settings(void)

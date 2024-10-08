@@ -23,8 +23,10 @@
 #include "bflib_basics.h"
 #include "bflib_math.h"
 #include "bflib_memory.h"
+#include "bflib_planar.h"
 
 #include "thing_data.h"
+#include "creature_states_combt.h"
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "creature_states.h"
@@ -37,6 +39,7 @@
 #include "room_util.h"
 #include "game_legacy.h"
 #include "frontend.h"
+#include "engine_arrays.h"
 #include "engine_render.h"
 #include "gui_topmsg.h"
 
@@ -49,17 +52,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-
-//health; sprite_anim_idx; sprite_size_max; unanimated; anim_speed; unshaded; transparency_flag; random_start_frame; size_xy; size_yz; trigger_type; activation_type; created_itm_model;  hit_type; etc
-struct TrapStats old_trap_stats[7] = {
-{0,           0,   0, 0,   0,        0, 0, 0,          0,      0,          0, 0,  0, 0, 0, 0, 0, {0, 0, 0} },
-{128,       861, 384, 1,   0,        0, 0, 1,        640,    512,          1, 1, 15, 9, 0, 0, 0, {0, 0, 0} }, //Boulder
-{1,         844, 256, 0, 256,        0, 0, 1,          0,      0,          2, 3, 19, 2, 0, 0, 0, {0, 0, 0} }, //Alarm
-{1,         845, 256, 0, 256,        0, 0, 1,          0,      0,          2, 2, 13, 4, 0, 0, 0, {0, 0, 0} }, //Gas
-{1,         846, 256, 0, 256,        0, 0, 1,          0,      0,          2, 3, 29, 4, 0, 0, 0, {0, 0, 0} }, //Lightning
-{1,         844, 256, 0, 256,        0, 0, 1,          0,      0,          2, 2, 14, 4, 0, 0, 0, {0, 0, 0} }, //WoP
-{1,         845, 256, 0, 256,        0, 0, 1,          0,      0,          2, 4, 12, 4, 0, 0, 0, {0, 0, 0} }, //Lava
-};
 
 TbBool destroy_trap(struct Thing *traptng)
 {
@@ -80,8 +72,8 @@ TbBool trap_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
     struct TrapConfigStats *trapst;
     if (thing->owner == plyr_idx)
     {
-        trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
-        return (trapst->slappable == 1) && trap_is_active(thing);
+        trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
+        return (trapst->slappable > 0) && trap_is_active(thing);
     }
     return false;
 }
@@ -124,10 +116,22 @@ struct Thing *get_trap_for_slab_position(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return get_trap_around_of_model_and_owned_by(pos_x, pos_y, -1, -1);
 }
 
+TbBool slab_has_sellable_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    struct Thing* traptng = get_trap_for_slab_position(slb_x, slb_y);
+    return thing_is_sellable_trap(traptng);
+}
+
 TbBool slab_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct Thing* traptng = get_trap_for_slab_position(slb_x, slb_y);
     return !thing_is_invalid(traptng);
+}
+
+TbBool subtile_has_sellable_trap_on(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Thing* traptng = get_trap_for_position(stl_x, stl_y);
+    return thing_is_sellable_trap(traptng);
 }
 
 TbBool subtile_has_trap_on(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
@@ -162,13 +166,46 @@ TbBool slab_middle_column_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return false;
 }
 
-TbBool thing_is_deployed_trap(const struct Thing *thing)
+short thing_is_destructible_trap(const struct Thing *thing)
+{
+    if (thing_is_invalid(thing))
+        return -2;
+    if (thing->class_id != TCls_Trap)
+        return -2;
+    if (thing->trap.num_shots <= 0)
+        return -2;
+    struct TrapConfigStats* trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
+    return trapst->destructible;
+}
+
+TbBool thing_is_sellable_trap(const struct Thing* thing)
+{
+    if (thing_is_invalid(thing))
+        return false;
+    if (thing->class_id != TCls_Trap)
+        return false;
+    struct TrapConfigStats* trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
+    return (trapst->unsellable == 0);
+}
+
+TbBool thing_is_deployed_trap(const struct Thing* thing)
 {
     if (thing_is_invalid(thing))
         return false;
     if (thing->class_id != TCls_Trap)
         return false;
     return true;
+}
+
+TbBool creature_available_for_trap_trigger(struct Thing* creatng)
+{
+    if (!creature_is_being_unconscious(creatng) && !thing_is_dragged_or_pulled(creatng)
+        && !creature_is_kept_in_custody_by_enemy(creatng) && !creature_is_dying(creatng) && !creature_is_leaving_and_cannot_be_stopped(creatng)
+        && !creature_is_being_dropped(creatng) && !flag_is_set(get_creature_model_flags(creatng),CMF_IsSpectator))
+    {
+        return true;
+    }
+    return false;
 }
 
 TbBool update_trap_trigger_line_of_sight_90_on_subtile(struct Thing *traptng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
@@ -192,9 +229,8 @@ TbBool update_trap_trigger_line_of_sight_90_on_subtile(struct Thing *traptng, Ma
             // Trigger for enemy player, or any player for neutral traps (otherwise neutral traps would be useless)
             if (players_are_enemies(traptng->owner,thing->owner) || is_neutral_thing(traptng))
             {
-                if (!creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing)
-                 && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_dying(thing)
-                 && ((get_creature_model_flags(thing) & CMF_IsSpectator) == 0)) {
+                if (creature_available_for_trap_trigger(thing))
+                {
                     activate_trap(traptng, thing);
                     return true;
                 }
@@ -214,7 +250,14 @@ TbBool update_trap_trigger_line_of_sight_90_on_subtile(struct Thing *traptng, Ma
 
 TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
 {
-    static const MapSubtlDelta line_of_sight_90_range = 20;
+    const struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
+    struct ShotConfigStats* shotst = get_shot_model_stats(trapstat->created_itm_model);
+
+    MapSubtlDelta line_of_sight_90_range = (shotst->max_range / COORD_PER_STL);
+    if (line_of_sight_90_range == 0)
+    {
+        line_of_sight_90_range = max(gameadd.map_subtiles_x, gameadd.map_subtiles_y);
+    }
     MapSubtlCoord stl_x_beg;
     MapSubtlCoord stl_x_end;
     MapSubtlCoord stl_y_beg;
@@ -349,13 +392,23 @@ TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
 
 void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *creatng)
 {
-    struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
+    struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
     if (trapstat->created_itm_model <= 0)
     {
         ERRORLOG("Trap activation of bad shot kind %d",(int)trapstat->created_itm_model);
         return;
     }
-    struct Thing* shotng = create_shot(&traptng->mappos, trapstat->created_itm_model, traptng->owner);
+    traptng->move_angle_xy = (((get_angle_xy_to(&traptng->mappos, &creatng->mappos) + LbFPMath_PI / 4) & LbFPMath_AngleMask) / (LbFPMath_PI / 2)) * (LbFPMath_PI / 2);
+    struct Coord3d shot_origin;
+    shot_origin.x.val = traptng->mappos.x.val;
+    shot_origin.y.val = traptng->mappos.y.val;
+    shot_origin.z.val = traptng->mappos.z.val;
+    shot_origin.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
+    shot_origin.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
+    shot_origin.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_y, traptng->move_angle_xy);
+    shot_origin.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_y, traptng->move_angle_xy);
+    shot_origin.z.val += trapstat->shot_shift_z;
+    struct Thing* shotng = create_shot(&shot_origin, trapstat->created_itm_model, traptng->owner);
     if (!thing_is_invalid(shotng))
     {
         {
@@ -396,45 +449,50 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
     }
 }
 
-void activate_trap_effect_on_trap(struct Thing *traptng, struct Thing *creatng)
+void activate_trap_effect_on_trap(struct Thing *traptng)
 {
-    struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
+    struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
     if (trapstat->created_itm_model <= 0)
     {
         ERRORLOG("Trap activation of bad effect kind %d",(int)trapstat->created_itm_model);
         return;
     }
-    struct Thing* efftng = create_effect(&traptng->mappos, trapstat->created_itm_model, traptng->owner);
+    struct Coord3d shot_origin;
+    shot_origin.x.val = traptng->mappos.x.val;
+    shot_origin.y.val = traptng->mappos.y.val;
+    shot_origin.z.val = traptng->mappos.z.val;
+    shot_origin.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
+    shot_origin.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
+    shot_origin.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_y, traptng->move_angle_xy);
+    shot_origin.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_y, traptng->move_angle_xy);
+    shot_origin.z.val += trapstat->shot_shift_z;
+    struct Thing* efftng = create_effect(&shot_origin, trapstat->created_itm_model, traptng->owner);
     if (!thing_is_invalid(efftng)) 
     {
         efftng->shot_effect.hit_type = trapstat->hit_type;
+        efftng->parent_idx = traptng->index;
         SYNCDBG(18,"Created %s",thing_model_name(efftng));
-    }
-    if(trapstat->created_itm_model == 14) //Word of Power trap
-    { 
-        struct ShotConfigStats* shotst;
-        shotst = get_shot_model_stats(31); //SHOT_TRAP_WORD_OF_POWER
-        if (shotst->firing_sound > 0) 
-        {
-            thing_play_sample(traptng, shotst->firing_sound+UNSYNC_RANDOM(shotst->firing_sound_variants),
-                NORMAL_PITCH, 0, 3, 0, 6, FULL_LOUDNESS);
-        }
-        if (shotst->shot_sound > 0) 
-        {
-            thing_play_sample(efftng, shotst->shot_sound, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        }
     }
 }
 
-void activate_trap_shot_on_trap(struct Thing *traptng, struct Thing *creatng)
+void activate_trap_shot_on_trap(struct Thing *traptng)
 {
-    struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
+    struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
     if (trapstat->created_itm_model <= 0)
     {
         ERRORLOG("Trap activation of bad shot kind %d",(int)trapstat->created_itm_model);
         return;
     }
-    struct Thing* shotng = create_shot(&traptng->mappos, trapstat->created_itm_model, traptng->owner);
+    struct Coord3d shot_origin;
+    shot_origin.x.val = traptng->mappos.x.val;
+    shot_origin.y.val = traptng->mappos.y.val;
+    shot_origin.z.val = traptng->mappos.z.val;
+    shot_origin.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
+    shot_origin.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
+    shot_origin.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_y, traptng->move_angle_xy);
+    shot_origin.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_y, traptng->move_angle_xy);
+    shot_origin.z.val += trapstat->shot_shift_z;
+    struct Thing* shotng = create_shot(&shot_origin, trapstat->created_itm_model, traptng->owner);
     if (!thing_is_invalid(shotng)) {
         shotng->shot.hit_type = trapstat->hit_type;
         shotng->parent_idx = 0;
@@ -445,36 +503,54 @@ void activate_trap_shot_on_trap(struct Thing *traptng, struct Thing *creatng)
     }
 }
 
-void activate_trap_slab_change(struct Thing *traptng, struct Thing *creatng)
+void activate_trap_slab_change(struct Thing *traptng)
 {
     MapSubtlCoord stl_x = traptng->mappos.x.stl.num;
     MapSubtlCoord stl_y = traptng->mappos.y.stl.num;
-    if (subtile_is_room(stl_x, stl_y)) {
-        delete_room_slab(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y), true);
+    SlabKind slab = game.conf.trap_stats[traptng->model].created_itm_model;
+    if (subtile_is_room(stl_x, stl_y))
+    {
+        // deleting the room also deletes the trap
+        delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), true);
     }
-    place_slab_type_on_map(gameadd.trap_stats[traptng->model].created_itm_model, stl_x, stl_y, game.neutral_player_num, 0);
+    place_slab_type_on_map(slab, stl_x, stl_y, game.neutral_player_num, 0);
     // TODO
     //remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), NULL);
     //update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);
-    do_slab_efficiency_alteration(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+    do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
 }
 
-void activate_trap_spawn_creature(struct Thing *traptng, const struct TrapStats *trapstat)
+struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char model)
 {
-    struct Thing *thing = create_creature(&traptng->mappos, trapstat->created_itm_model, traptng->owner);
+    if (!creature_count_below_map_limit(0))
+    {
+        WARNLOG("Can't spawn creature %s due to map creature limit.", creature_code_name(model));
+        return INVALID_THING;
+    }
+    struct Thing* thing;
+    struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
     struct CreatureControl* cctrl;
-
+    struct Coord3d shot_origin;
+    shot_origin.x.val = traptng->mappos.x.val;
+    shot_origin.y.val = traptng->mappos.y.val;
+    shot_origin.z.val = traptng->mappos.z.val;
+    shot_origin.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
+    shot_origin.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
+    shot_origin.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_y, traptng->move_angle_xy);
+    shot_origin.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_y, traptng->move_angle_xy);
+    shot_origin.z.val += trapstat->shot_shift_z;
+    thing = create_creature(&shot_origin, model, traptng->owner);
     if (thing_is_invalid(thing))
     {
-        return;
+        return thing;
     }
     thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
-// Try to move thing out of the solid wall if it's inside one
+    // Try to move thing out of the solid wall if it's inside one.
     if (thing_in_wall_at(thing, &thing->mappos))
     {
         ERRORLOG("Trap has to create creature, but creation failed");
         delete_thing_structure(thing, 0);
-        return;
+        return INVALID_THING;
     }
     cctrl = creature_control_get_from_thing(thing);
     thing->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
@@ -483,21 +559,19 @@ void activate_trap_spawn_creature(struct Thing *traptng, const struct TrapStats 
     thing->state_flags |= TF1_PushAdd;
     cctrl->spell_flags |= CSAfF_MagicFall;
     thing->move_angle_xy = 0;
-    // EVM_CREATURE_EVENT("joined.trap", thing->owner, thing);
+    return thing;
 }
-
 
 void activate_trap_god_spell(struct Thing *traptng, struct Thing *creatng, PowerKind pwkind)
 {
     struct PowerConfigStats *powerst = get_power_model_stats(pwkind);
-
     if (powerst->can_cast_flags & PwCast_AllThings)
     {
         magic_use_power_on_thing(traptng->owner, pwkind, SPELL_MAX_LEVEL, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng, PwMod_CastForFree);
     }
     else if (powerst->can_cast_flags & PwCast_AllGround)
     {
-        magic_use_power_on_subtile(traptng->owner, pwkind, SPELL_MAX_LEVEL, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, PwMod_CastForFree);
+        magic_use_power_on_subtile(traptng->owner, pwkind, SPELL_MAX_LEVEL, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, PwCast_None, PwMod_CastForFree);
     }
     else if (powerst->can_cast_flags & PwCast_Anywhere)
     {
@@ -512,33 +586,32 @@ void activate_trap_god_spell(struct Thing *traptng, struct Thing *creatng, Power
 void activate_trap(struct Thing *traptng, struct Thing *creatng)
 {
     traptng->trap.revealed = 1;
-    const struct TrapStats *trapstat = &gameadd.trap_stats[traptng->model];
-    struct TrapConfigStats *trapst = &gameadd.trapdoor_conf.trap_cfgstats[traptng->model];
-    // EVM_TRAP_EVENT("trap.actiated", traptng->owner, thing)
-    if (trapst->notify == 1)
+    const struct TrapStats *trapstat = &game.conf.trap_stats[traptng->model];
+    struct TrapConfigStats *trapst = &game.conf.trapdoor_conf.trap_cfgstats[traptng->model];
+    if (trapst->notify == true)
     {
         event_create_event(traptng->mappos.x.val, traptng->mappos.y.val, EvKind_AlarmTriggered, traptng->owner, 0);
     }
-    thing_play_sample(traptng, 176, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(traptng, trapst->trigger_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     switch (trapstat->activation_type)
     {
     case TrpAcT_HeadforTarget90:
         activate_trap_shot_head_for_target90(traptng, creatng);
         break;
     case TrpAcT_EffectonTrap:
-        activate_trap_effect_on_trap(traptng, creatng);
+        activate_trap_effect_on_trap(traptng);
         break;
     case TrpAcT_ShotonTrap:
-        activate_trap_shot_on_trap(traptng, creatng);
+        activate_trap_shot_on_trap(traptng);
         break;
     case TrpAcT_SlabChange:
-        activate_trap_slab_change(traptng, creatng);
+        activate_trap_slab_change(traptng);
         break;
     case TrpAcT_CreatureShot:
-        creature_fire_shot(traptng, creatng, trapstat->created_itm_model, THit_CrtrsNObjcts, 1);
+        thing_fire_shot(traptng, creatng, trapstat->created_itm_model, 1, trapstat->hit_type);
         break;
     case TrpAcT_CreatureSpawn:
-        activate_trap_spawn_creature(traptng, trapstat);
+        activate_trap_spawn_creature(traptng, trapstat->created_itm_model);
         break;
     case TrpAcT_Power:
         activate_trap_god_spell(traptng, creatng, trapstat->created_itm_model);
@@ -565,13 +638,11 @@ TbBool find_pressure_trigger_trap_target_passing_by_subtile(const struct Thing *
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if (thing_is_creature(thing) && (thing->owner != traptng->owner))
+        if (thing_is_creature(thing))
         {
-            if (!creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing)
-             && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_dying(thing)
-             && ((get_creature_model_flags(thing) & CMF_IsSpectator) == 0))
+            if (creature_available_for_trap_trigger(thing) && (thing->owner != traptng->owner))
             {
-                if (!is_neutral_thing(thing) && !players_are_mutual_allies(traptng->owner,thing->owner))
+                if (!is_neutral_thing(thing) && !players_are_mutual_allies(traptng->owner, thing->owner))
                 {
                     *found_thing = thing;
                     return true;
@@ -592,8 +663,8 @@ TbBool find_pressure_trigger_trap_target_passing_by_subtile(const struct Thing *
 
 TbBool update_trap_trigger_pressure_slab(struct Thing *traptng)
 {
-    MapSlabCoord slb_x = subtile_slab_fast(traptng->mappos.x.stl.num);
-    MapSlabCoord slb_y = subtile_slab_fast(traptng->mappos.y.stl.num);
+    MapSlabCoord slb_x = subtile_slab(traptng->mappos.x.stl.num);
+    MapSlabCoord slb_y = subtile_slab(traptng->mappos.y.stl.num);
     MapSubtlCoord end_stl_x = slab_subtile(slb_x, 2);
     MapSubtlCoord end_stl_y = slab_subtile(slb_y, 2);
     for (MapSubtlCoord stl_y = slab_subtile(slb_y, 0); stl_y <= end_stl_y; stl_y++)
@@ -625,23 +696,83 @@ TbBool update_trap_trigger_pressure_subtile(struct Thing *traptng)
 
 TbBool update_trap_trigger_line_of_sight(struct Thing* traptng)
 {
-    struct Thing* trgtng = get_nearest_enemy_creature_possible_to_attack_by(traptng);
-
-    if (line_of_sight_2d(&traptng->mappos, &trgtng->mappos))
+    struct Thing* trgtng = get_nearest_enemy_creature_in_sight_and_range_of_trap(traptng);
+    if (!thing_is_invalid(trgtng) && (creature_available_for_trap_trigger(trgtng)))
     {
         activate_trap(traptng, trgtng);
+        creature_start_combat_with_trap_if_available(trgtng, traptng);
         return true;
     }
     return false;
 }
 
-TngUpdateRet update_trap_trigger(struct Thing *traptng)
+void process_trap_charge(struct Thing* traptng)
 {
-    if (traptng->trap.num_shots <= 0) {
-        return TUFRet_Unchanged;
+    const struct ManfctrConfig* mconf = &game.conf.traps_config[traptng->model];
+    struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
+    traptng->trap.rearm_turn = game.play_gameturn + mconf->shots_delay;
+    if (game.conf.trap_stats[traptng->model].attack_sprite_anim_idx != 0)
+    {
+        GameTurnDelta trigger_duration;
+        if (trapstat->activation_type == 2) //Effect stays on trap, so the attack animation remains visible for as long as the effect is alive
+        {
+            trigger_duration = get_effect_model_stats(trapstat->created_itm_model)->start_health;
+        } else
+        if (trapstat->activation_type == 3) //Shot stays on trap, so the attack animation remains visible for as long as the trap is alive
+        {
+            trigger_duration = get_shot_model_stats(trapstat->created_itm_model)->health;
+        }
+        else
+        {
+            trigger_duration = get_lifespan_of_animation(trapstat->attack_sprite_anim_idx, trapstat->anim_speed);
+        }
+        traptng->trap.shooting_finished_turn = (game.play_gameturn + trigger_duration);
+        traptng->current_frame = 0;
+        traptng->anim_time = 0;
+    }
+    if ((trapstat->recharge_sprite_anim_idx != 0) || (trapstat->attack_sprite_anim_idx != 0))
+    {
+        traptng->trap.wait_for_rearm = true;
+    }
+    int n = traptng->trap.num_shots;
+    if ((n > 0) && (n != INFINITE_CHARGES))
+    {
+        traptng->trap.num_shots = n - 1;
+        if (traptng->trap.num_shots == 0)
+        {
+            // If the trap is in strange location, destroy it after it's depleted.
+            struct SlabMap* slb = get_slabmap_thing_is_on(traptng);
+            if ((slb->kind != SlbT_CLAIMED) && (slb->kind != SlbT_PATH)) {
+                traptng->health = -1;
+            }
+            clear_flag(traptng->rendering_flags, TRF_Transpar_Flags);
+            set_flag(traptng->rendering_flags, TRF_Transpar_4);
+            if (!is_neutral_thing(traptng) && !is_hero_thing(traptng))
+            {
+                if (placing_offmap_workshop_item(traptng->owner, TCls_Trap, traptng->model))
+                {
+                    //When there's only offmap traps, destroy the disarmed one so the player can place a new one.
+                    delete_thing_structure(traptng, 0);
+                }
+                else
+                {
+                    //Trap is available to be rearmed, so earmark a workshop crate for it.
+                    remove_workshop_item_from_amount_placeable(traptng->owner, traptng->class_id, traptng->model);
+                }
+            }
+        }
+    }
+}
+
+void update_trap_trigger(struct Thing* traptng)
+{
+    struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
+    if (traptng->trap.num_shots <= 0)
+    {
+        return;
     }
     TbBool do_trig;
-    switch (gameadd.trap_stats[traptng->model].trigger_type)
+    switch (trapstat->trigger_type)
     {
     case TrpTrg_LineOfSight90:
         do_trig = update_trap_trigger_line_of_sight_90(traptng);
@@ -655,61 +786,35 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
     case TrpTrg_LineOfSight:
         do_trig = update_trap_trigger_line_of_sight(traptng);
         break;
-    case TrpTrg_None: // for manually activated traps
+    case TrpTrg_Always: // Trigger whenever after reloading.
+        activate_trap(traptng, traptng);
+        do_trig = true;
+        break;
+    case TrpTrg_None: // For manually activated traps.
         do_trig = false;
         break;
     default:
-        ERRORLOG("Illegal trap trigger type %d",(int)gameadd.trap_stats[traptng->model].trigger_type);
+        ERRORLOG("Illegal trap trigger type %d",trapstat->trigger_type);
         do_trig = false;
         break;
     }
     if (do_trig)
     {
-        const struct ManfctrConfig* mconf = &gameadd.traps_config[traptng->model];
-        traptng->trap.rearm_turn = game.play_gameturn + mconf->shots_delay;
-        int n = traptng->trap.num_shots;
-        if ((n > 0) && (n != 255))
-        {
-            traptng->trap.num_shots = n - 1;
-            if (traptng->trap.num_shots == 0)
-            {
-                // If the trap is in strange location, destroy it after it's depleted
-                struct SlabMap* slb = get_slabmap_thing_is_on(traptng);
-                if ((slb->kind != SlbT_CLAIMED) && (slb->kind != SlbT_PATH)) {
-                    traptng->health = -1;
-                }
-                traptng->rendering_flags &= TRF_Transpar_Flags;
-                traptng->rendering_flags |= TRF_Transpar_4;
-                if (!is_neutral_thing(traptng) && !is_hero_thing(traptng)) 
-                {
-                    if (placing_offmap_workshop_item(traptng->owner, TCls_Trap, traptng->model))
-                    {
-                        //When there's only offmap traps, destroy the disarmed one so the player can place a new one.
-                        delete_thing_structure(traptng, 0);
-                    }
-                    else
-                    {
-                        //Trap is available to be rearmed, so earmark a workshop crate for it.
-                        remove_workshop_item_from_amount_placeable(traptng->owner, traptng->class_id, traptng->model);
-                    }
-                }
-            }
-        }
-        return TUFRet_Modified;
+        process_trap_charge(traptng);
     }
-    return TUFRet_Unchanged;
 }
 
 TbBool rearm_trap(struct Thing *traptng)
 {
-    struct ManfctrConfig* mconf = &gameadd.traps_config[traptng->model];
-    struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
+    struct ManfctrConfig* mconf = &game.conf.traps_config[traptng->model];
+    struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
     traptng->trap.num_shots = mconf->shots;
-    traptng->rendering_flags ^= (traptng->rendering_flags ^ (trapstat->transparency_flag << 4)) & (TRF_Transpar_Flags);
+
+    clear_flag(traptng->rendering_flags, TRF_Transpar_Flags);
+    set_flag(traptng->rendering_flags, trapstat->transparency_flag);
+
     return true;
 }
-
-
 
 TngUpdateRet update_trap(struct Thing *traptng)
 {
@@ -720,8 +825,53 @@ TngUpdateRet update_trap(struct Thing *traptng)
         destroy_trap(traptng);
         return TUFRet_Deleted;
     }
+    struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
+    if (traptng->trap.wait_for_rearm == true) // Trap rearming, so either 'shooting' anim or 'recharge' anim.
+    {
+        if ((traptng->trap.rearm_turn <= game.play_gameturn)) // Recharge complete, rearm.
+        {
+            // Back to regular anim.
+            traptng->anim_sprite = convert_td_iso(trapstat->sprite_anim_idx);
+            traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
+            traptng->trap.wait_for_rearm = false;
+        }
+        else if (traptng->trap.shooting_finished_turn > (game.play_gameturn)) // Shot anim is playing.
+        {
+            if (trapstat->attack_sprite_anim_idx != 0)
+            {
+                traptng->anim_sprite = convert_td_iso(trapstat->attack_sprite_anim_idx);
+                traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
+            }
+        }
+        else // Done shooting, still recharging. Show recharge animation.
+        {
+            if (trapstat->recharge_sprite_anim_idx != 0)
+            {
+                traptng->anim_sprite = convert_td_iso(trapstat->recharge_sprite_anim_idx);
+            }
+            else
+            {
+                traptng->anim_sprite = convert_td_iso(trapstat->sprite_anim_idx);
+            }
+            traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
+        }
+    }
+    if (trapstat->activation_type == TrpAcT_CreatureShot)
+    {
+        if (traptng->trap.volley_delay > 0)
+        {
+            traptng->trap.volley_delay--;
+            return TUFRet_Modified;
+        }
+        if (traptng->trap.volley_repeat > 0)
+        {
+            thing_fire_shot(traptng, thing_get(traptng->trap.firing_at) , trapstat->created_itm_model, 1, THit_CrtrsNObjcts);
+            return TUFRet_Modified;
+        }
+    }
     if (trap_is_active(traptng))
     {
+        traptng->trap.volley_fire = false;
         update_trap_trigger(traptng);
     }
     if (map_pos_is_lava(traptng->mappos.x.stl.num, traptng->mappos.y.stl.num) && !thing_is_dragged_or_pulled(traptng))
@@ -731,11 +881,10 @@ TngUpdateRet update_trap(struct Thing *traptng)
     return TUFRet_Modified;
 }
 
-
 struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber plyr_idx)
 {
     SYNCDBG(7,"Starting for %s owner %d",trap_code_name(trpkind),(int)plyr_idx);
-    struct TrapStats* trapstat = &gameadd.trap_stats[trpkind];
+    struct TrapStats* trapstat = &game.conf.trap_stats[trpkind];
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
         ERRORDBG(3,"Cannot create trap %s for player %d. There are too many things allocated.",trap_code_name(trpkind),(int)plyr_idx);
         erstat_inc(ESE_NoFreeThings);
@@ -763,7 +912,7 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     } else {
         start_frame = 0;
     }
-    set_thing_draw(thing, trapstat->sprite_anim_idx, trapstat->anim_speed, trapstat->sprite_size_max, trapstat->unanimated, start_frame, 2);
+    set_thing_draw(thing, trapstat->sprite_anim_idx, trapstat->anim_speed, trapstat->sprite_size_max, trapstat->unanimated, start_frame, ODC_Default);
     if (trapstat->unshaded) {
         thing->rendering_flags |= TRF_Unshaded;
     } else {
@@ -775,9 +924,9 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
         thing->rendering_flags &= ~TRF_AnimateOnce;
     }
     thing->clipbox_size_xy = trapstat->size_xy;
-    thing->clipbox_size_yz = trapstat->size_yz;
+    thing->clipbox_size_z = trapstat->size_z;
     thing->solid_size_xy = trapstat->size_xy;
-    thing->solid_size_yz = trapstat->size_yz;
+    thing->solid_size_z = trapstat->size_z;
     thing->creation_turn = game.play_gameturn;
     thing->health = trapstat->health;
     thing->rendering_flags &= ~TRF_Transpar_Flags;
@@ -792,11 +941,16 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
         ilght.radius = trapstat->light_radius;
         ilght.intensity = trapstat->light_intensity;
         ilght.is_dynamic = 1;
-        ilght.field_3 = trapstat->light_flag;
+        ilght.flags = trapstat->light_flag;
         thing->light_id = light_create_light(&ilght);
         if (thing->light_id <= 0) {
             SYNCDBG(8,"Cannot allocate dynamic light to %s.",thing_model_name(thing));
         }
+    }
+    if (trapstat->initial_delay != 0)
+    {
+        thing->trap.wait_for_rearm = true;
+        thing->trap.rearm_turn += trapstat->initial_delay;
     }
     add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);
@@ -851,7 +1005,7 @@ unsigned long remove_trap(struct Thing *traptng, long *sell_value)
         if (sell_value != NULL)
         {
             // Do the refund only if we were able to sell armed trap
-            long i = compute_value_percentage(gameadd.traps_config[traptng->model].selling_value, gameadd.trap_sale_percent);
+            long i = compute_value_percentage(game.conf.traps_config[traptng->model].selling_value, game.conf.rules.game.trap_sale_percent);
             if (traptng->trap.num_shots == 0)
             {
                 // Trap not armed - try selling crate from workshop
@@ -891,9 +1045,9 @@ unsigned long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl
     return total;
 }
 
-void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct Thing *hand)
+void external_activate_trap_shot_at_angle(struct Thing *thing, short angle, struct Thing *trgtng)
 {
-    struct TrapStats* trapstat = &gameadd.trap_stats[thing->model];
+    struct TrapStats* trapstat = &game.conf.trap_stats[thing->model];
     if (trapstat->created_itm_model <= 0) {
         ERRORLOG("Cannot activate trap with shot model %d",(int)trapstat->created_itm_model);
         return;
@@ -901,8 +1055,9 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct T
     if ((trapstat->activation_type != TrpAcT_CreatureShot)
         && (trapstat->activation_type != TrpAcT_HeadforTarget90))
     {
-        activate_trap(thing, hand);
-        if (thing->trap.num_shots != 255)
+        activate_trap(thing, trgtng);
+        process_trap_charge(thing);
+        if (thing->trap.num_shots != INFINITE_CHARGES)
         {
             if (thing->trap.num_shots > 0) {
                 thing->trap.num_shots--;
@@ -913,23 +1068,17 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct T
         }
         return;
     }
-    struct Thing* shotng = create_shot(&thing->mappos, trapstat->created_itm_model, thing->owner);
-    if (thing_is_invalid(shotng)) {
-        return;
+    if (!thing_is_invalid(trgtng))
+    {
+        thing_fire_shot(thing, trgtng, trapstat->created_itm_model, 1, trapstat->hit_type);
     }
-    struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
-    shotng->move_angle_xy = a2;
-    shotng->move_angle_z = 0;
-    struct ComponentVector cvect;
-    angles_to_vector(shotng->move_angle_xy, 0, shotst->speed, &cvect);
-    shotng->veloc_push_add.x.val += cvect.x;
-    shotng->veloc_push_add.y.val += cvect.y;
-    shotng->veloc_push_add.z.val += cvect.z;
-    shotng->state_flags |= TF1_PushAdd;
-    shotng->shot.hit_type = trapstat->hit_type;
-    const struct ManfctrConfig* mconf = &gameadd.traps_config[thing->model];
+    else
+    {
+        trap_fire_shot_without_target(thing, trapstat->created_itm_model, 1, angle);
+    }
+    const struct ManfctrConfig* mconf = &game.conf.traps_config[thing->model];
     thing->trap.rearm_turn = game.play_gameturn + mconf->shots_delay;
-    if (thing->trap.num_shots != 255)
+    if (thing->trap.num_shots != INFINITE_CHARGES)
     {
         if (thing->trap.num_shots > 0) {
             thing->trap.num_shots--;
@@ -940,15 +1089,22 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct T
     }
 }
 
-TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbBool trap_on_bridge(ThingModel trpkind)
 {
-    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
-    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    struct TrapConfigStats* trapst = &game.conf.trapdoor_conf.trap_cfgstats[trpkind];
+    return trapst->place_on_bridge;
+}
+
+TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel trpkind)
+{
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
     struct SlabAttr* slbattr = get_slab_attrs(slb);
-    struct PlayerInfo* player = get_player(plyr_idx);
     TbBool HasTrap = true;
     TbBool HasDoor = true;
+    struct TrapConfigStats* trap_cfg = get_trap_model_stats(trpkind);
+
     if (!subtile_revealed(stl_x, stl_y, plyr_idx)) {
         return false;
     }
@@ -958,16 +1114,11 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     if (slab_kind_is_liquid(slb->kind)) {
         return false;
     }
-    if ((slabmap_owner(slb) == plyr_idx) && ((slb->kind == SlbT_CLAIMED) || (slab_is_door(slb_x, slb_y))))
+    if ((slabmap_owner(slb) == plyr_idx) && (((slb->kind == SlbT_BRIDGE) && (trap_on_bridge(trpkind))) || (slb->kind == SlbT_CLAIMED) || (slab_is_door(slb_x, slb_y))))
     {
-        if ((!gameadd.place_traps_on_subtiles))
+        if (trap_cfg->place_on_subtile == false)
         {
                 HasTrap = slab_has_trap_on(slb_x, slb_y);
-                HasDoor = slab_is_door(slb_x, slb_y);
-        }
-        else if ( (gameadd.place_traps_on_subtiles) && (player->chosen_trap_kind == TngTrp_Boulder) ) 
-        {
-                HasTrap = subtile_has_trap_on(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
                 HasDoor = slab_is_door(slb_x, slb_y);
         }
         else
@@ -999,6 +1150,102 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
         }
     }
     return false;
+}
+
+void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, char shot_lvl, short angle_xy)
+{
+    struct Thing* shotng;
+    struct ComponentVector cvect;
+    struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
+    struct TrapStats* trapstat = &game.conf.trap_stats[firing->model];
+    switch (shotst->fire_logic)
+    {
+        case ShFL_Beam:
+        {
+            struct Coord3d pos2;
+            long damage;      
+            // Prepare source position
+            struct Coord3d pos1;
+            pos1.x.val = firing->mappos.x.val;
+            pos1.y.val = firing->mappos.y.val;
+            pos1.z.val = firing->mappos.z.val;
+            if (shotst->fire_logic == ShFL_Volley)
+            {
+                if (!firing->trap.volley_fire)
+                {
+                    firing->trap.volley_fire = true;
+                    firing->trap.volley_repeat = shotst->effect_amount - 1; // N x shots + (N - 1) x pauses and one shot is this one
+                    firing->trap.volley_delay = shotst->effect_spacing;
+                    firing->trap.firing_at = 0;
+                }
+                else
+                {
+                    firing->trap.volley_delay = shotst->effect_spacing;
+                    if (firing->trap.volley_repeat == 0)
+                        return;
+                    firing->trap.volley_repeat--;
+                }
+            }
+            firing->move_angle_xy = angle_xy; //visually rotates the trap
+            pos1.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_x, firing->move_angle_xy + LbFPMath_PI / 2);
+            pos1.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_x, firing->move_angle_xy + LbFPMath_PI / 2);
+            pos1.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_y, firing->move_angle_xy);
+            pos1.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_y, firing->move_angle_xy);
+            pos1.z.val += trapstat->shot_shift_z;
+            // Compute launch angles
+            pos2.x.val = 0;
+            pos2.y.val = 0;
+            pos2.z.val = 0;
+            if (((shotst->model_flags & ShMF_StrengthBased) != 0) && ((shotst->model_flags & ShMF_ReboundImmune) != 0))
+            {
+                pos1.z.val = pos2.z.val;
+            }
+            // Compute shot damage
+            if (shotst->fixed_damage == 0)
+            {
+                if ((shotst->model_flags & ShMF_StrengthBased) != 0)
+                {
+                    damage = calculate_melee_damage(firing);
+                }
+                else
+                {
+                    damage = calculate_shot_damage(firing, shot_model);
+                }
+            }
+            else
+            {
+                damage = shotst->damage;
+            }
+            if (get_2d_distance(&firing->mappos, &pos2) > shotst->max_range)
+            {
+                project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, COORD_PER_STL, shotst->max_range/COORD_PER_STL);
+            }
+            shotng = create_shot(&pos2, shot_model, firing->owner);
+            if (thing_is_invalid(shotng))
+              return;
+            draw_lightning(&pos1, &pos2, shotst->effect_spacing, shotst->effect_id);
+            shotng->health = shotst->health;
+            shotng->shot.damage = damage;
+            shotng->parent_idx = firing->index;
+            break;
+        }
+        default:
+            shotng = create_shot(&firing->mappos, shot_model, firing->owner);
+            if (thing_is_invalid(shotng)) {
+                return;
+            }
+            firing->move_angle_xy = angle_xy; //visually rotates the trap
+            shotst = get_shot_model_stats(shotng->model);
+            shotng->move_angle_xy = angle_xy;
+            shotng->move_angle_z = 0;
+            angles_to_vector(shotng->move_angle_xy, 0, shotst->speed, &cvect);
+            shotng->veloc_push_add.x.val += cvect.x;
+            shotng->veloc_push_add.y.val += cvect.y;
+            shotng->veloc_push_add.z.val += cvect.z;
+            shotng->state_flags |= TF1_PushAdd;
+            shotng->shot.hit_type = trapstat->hit_type;
+            break;
+    }
 }
 
 /******************************************************************************/

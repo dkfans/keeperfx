@@ -24,6 +24,7 @@
 #include "bflib_memory.h"
 #include "bflib_math.h"
 
+#include "ariadne.h"
 #include "ariadne_tringls.h"
 #include "ariadne_points.h"
 #include "ariadne_findcache.h"
@@ -207,12 +208,12 @@ TbBool delaunay_add(long itm_pos)
 
 TbBool delaunay_add_triangle(long tri_idx)
 {
-    long i = get_triangle_tree_alt(tri_idx);
-    if (i != -1)
+    NavColour i = get_triangle_tree_alt(tri_idx);
+    if (i != NAV_COL_UNSET)
     {
         if (!is_current_tag(tri_idx))
         {
-            if ((i & 0x0F) != 15)
+            if ((i & NAVMAP_FLOORHEIGHT_MASK) != NAVMAP_FLOORHEIGHT_MAX)
             {
                 return delaunay_add(tri_idx);
             }

@@ -25,16 +25,17 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <ctype.h>
-#define NOMINMAX
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <wingdi.h>
-#include <winuser.h>
+#include <SDL2/SDL.h>
 
 #include "bflib_datetm.h"
 #include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "post_inc.h"
+
+
+char consoleLogArray[MAX_CONSOLE_LOG_COUNT][MAX_TEXT_LENGTH];
+size_t consoleLogArraySize = 0;
+int debug_display_consolelog = 0;
 
 #ifdef __cplusplus
 extern "C" {
@@ -79,93 +80,6 @@ unsigned long lword (unsigned char *p)
     unsigned long n = p[1];
     n = (n << 8) + p[0];
     return n;
-}
-
-/**
- * Toggles a masked bit in the flags field to the value.
- * This version assumes the flag field is 1 byte long.
- * @param flags Pointer to the flags byte.
- * @param mask Bitmask for the flag.
- */
-void toggle_flag_byte(unsigned char *flags,unsigned char mask)
-{
-  if ((*flags & mask) == 0)
-    *flags |= mask;
-  else
-    *flags ^= mask;
-}
-
-/**
- * Toggles a masked bit in the flags field to the value.
- * This version assumes the flag field is 2 bytes long.
- * @param flags Pointer to the flags byte.
- * @param mask Bitmask for the flag.
- */
-void toggle_flag_word(unsigned short *flags,unsigned short mask)
-{
-  if ((*flags & mask) == 0)
-    *flags |= mask;
-  else
-    *flags ^= mask;
-}
-
-/**
- * Toggles a masked bit in the flags field to the value.
- * This version assumes the flag field is 4 bytes long.
- * @param flags Pointer to the flags byte.
- * @param mask Bitmask for the flag.
- */
-void toggle_flag_dword(unsigned long *flags,unsigned long mask)
-{
-  if ((*flags & mask) == 0)
-    *flags |= mask;
-  else
-    *flags ^= mask;
-}
-
-/**
- * Sets a masked bit in the flags field to the value.
- * This version assumes the flag field is 2 bytes long.
- * @param flags Pointer to the flags byte.
- * @param mask Bitmask for the flag.
- * @param value The new logic value.
- */
-void set_flag_word(unsigned short *flags,unsigned short mask,short value)
-{
-  if (value)
-    *flags |= mask;
-  else
-    *flags ^= *flags & mask;
-}
-
-/**
- * Sets a masked bit in the flags field to the value.
- * This version assumes the flag field is 1 byte long.
- * @param flags Pointer to the flags byte.
- * @param mask Bitmask for the flag.
- * @param value The new logic value.
- */
-void set_flag_byte(unsigned char *flags,unsigned char mask,short value)
-{
-  if (value)
-    *flags |= mask;
-  else
-    *flags ^= *flags & mask;
-}
-
-/**
- * Sets a masked bit in the flags field to the value.
- * This version assumes the flag field is 4 bytes long.
- * @param flags Pointer to the flags byte.
- * @param mask Bitmask for the flag.
- * @param value The new logic value.
- */
-void set_flag_dword(unsigned long *flags,unsigned long mask,short value)
-{
-  if (value)
-    *flags |= mask;
-  else
-    *flags ^= *flags & mask;
 }
 
 /**
@@ -219,10 +133,34 @@ void error(const char *codefile,const int ecode,const char *message)
   LbErrorLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
 }
 
+short warning_dialog(const char *codefile,const int ecode,const char *message)
+{
+  LbWarnLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
+
+  const SDL_MessageBoxButtonData buttons[] = {
+		{ .flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, .buttonid = 1, .text = "Ignore" },
+    { .flags = SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, .buttonid = 0, .text = "Abort" },
+	};
+
+	const SDL_MessageBoxData messageboxdata = {
+		.flags = SDL_MESSAGEBOX_WARNING,
+		.window = NULL,
+		.title = PROGRAM_FULL_NAME,
+		.message = message,
+		.numbuttons = SDL_arraysize(buttons),
+		.buttons = buttons,
+		.colorScheme = NULL //colorScheme not supported on windows
+	};
+
+  int button = 0;
+  SDL_ShowMessageBox(&messageboxdata, &button);
+  return button;
+}
+
 short error_dialog(const char *codefile,const int ecode,const char *message)
 {
   LbErrorLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
-  MessageBox(NULL, message, PROGRAM_FULL_NAME, MB_OK | MB_ICONERROR);
+  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, PROGRAM_FULL_NAME, message, NULL);
   return 0;
 }
 
@@ -231,8 +169,7 @@ short error_dialog_fatal(const char *codefile,const int ecode,const char *messag
   LbErrorLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
   static char msg_text[2048];
   sprintf(msg_text, "%s This error in '%s' makes the program unable to continue. See '%s' for details.", message, codefile, log_file_name);
-  HWND whandle = GetDesktopWindow();
-  MessageBox(whandle, msg_text, PROGRAM_FULL_NAME, MB_OK | MB_ICONERROR);
+  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, PROGRAM_FULL_NAME, msg_text, NULL);
   return 0;
 }
 
@@ -314,6 +251,29 @@ int LbNaviLog(const char *format, ...)
     va_end(val);
     return result;
 }
+
+int Lbvsprintf(char* buffer, const char *format, ...)
+{
+    va_list val;
+    va_start(val, format);
+    int result=vsprintf(buffer, format, val);
+    va_end(val);
+    return result;
+}
+
+#ifdef FUNCTESTING
+int LbFTestLog(const char *format, ...)
+{
+    if (!error_log_initialised)
+        return -1;
+    LbLogSetPrefix(&error_log, "FTest: ");
+    va_list val;
+    va_start(val, format);
+    int result=LbLog(&error_log, format, val);
+    va_end(val);
+    return result;
+}
+#endif
 
 /*
  * Logs script-related message.
@@ -398,6 +358,25 @@ void LbCloseLog()
     file = NULL;
 }
 
+void write_log_to_array_for_live_viewing(const char* fmt_str, va_list args, const char* add_log_prefix) {
+    if (consoleLogArraySize >= MAX_CONSOLE_LOG_COUNT) {
+        // Array is full - so clear it. This is a bit of a stopgap solution, it will lose us the older entries.
+        memset(consoleLogArray, 0, sizeof(consoleLogArray));
+        consoleLogArraySize = 0;
+    }
+
+    char formattedString[MAX_TEXT_LENGTH];
+    vsnprintf(formattedString, sizeof(formattedString), fmt_str, args);
+
+    char buffer[MAX_TEXT_LENGTH];
+    snprintf(buffer, sizeof(buffer), "%s%s", add_log_prefix, formattedString); // merge prefix and formatted string
+
+    // Add the combined message to the array
+    strncpy(consoleLogArray[consoleLogArraySize], buffer, MAX_TEXT_LENGTH);
+    consoleLogArray[consoleLogArraySize][MAX_TEXT_LENGTH - 1] = '\0';
+    consoleLogArraySize++;
+}
+
 int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
 {
   enum Header {
@@ -462,39 +441,52 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
       if ((log->flags & LbLog_TimeInHeader) != 0)
       {
         struct TbTime curr_time;
-        LbTime(&curr_time);
-        fprintf(file, "  @ %02d:%02d:%02d",
-            curr_time.Hour,curr_time.Minute,curr_time.Second);
-        at_used = 1;
+        if (LbTime(&curr_time) == Lb_SUCCESS)
+        {
+            fprintf(file, "  @ %02u:%02u:%02u",
+                curr_time.Hour,curr_time.Minute,curr_time.Second);
+            at_used = 1;
+        }
       }
       if ((log->flags & LbLog_DateInHeader) != 0)
       {
         struct TbDate curr_date;
-        LbDate(&curr_date);
-        const char *sep;
-        if ( at_used )
-          sep = " ";
-        else
-          sep = "  @ ";
-        fprintf(file," %s%02d-%02d-%d",sep,curr_date.Day,curr_date.Month,curr_date.Year);
+        if (LbDate(&curr_date) == Lb_SUCCESS)
+        {
+            const char *sep;
+            if ( at_used )
+              sep = " ";
+            else
+              sep = "  @ ";
+            fprintf(file," %s%02u-%02u-%u",sep,curr_date.Day,curr_date.Month,curr_date.Year);
+        }
       }
       fprintf(file, "\n\n");
     }
     if ((log->flags & LbLog_DateInLines) != 0)
     {
         struct TbDate curr_date;
-        LbDate(&curr_date);
-        fprintf(file,"%02d-%02d-%d ",curr_date.Day,curr_date.Month,curr_date.Year);
+        if (LbDate(&curr_date) == Lb_SUCCESS)
+        {
+            fprintf(file,"%02u-%02u-%u ",curr_date.Day,curr_date.Month,curr_date.Year);
+        }
     }
     if ((log->flags & LbLog_TimeInLines) != 0)
     {
         struct TbTime curr_time;
-        LbTime(&curr_time);
-        fprintf(file, "%02d:%02d:%02d ",
-            curr_time.Hour,curr_time.Minute,curr_time.Second);
+        if (LbTime(&curr_time) == Lb_SUCCESS)
+        {
+            fprintf(file, "%02u:%02u:%02u ",
+                curr_time.Hour,curr_time.Minute,curr_time.Second);
+        }
     }
-    if (log->prefix[0] != '\0')
-      fprintf(file, log->prefix);
+  if (log->prefix[0] != '\0') {
+      fputs(log->prefix, file);
+  }
+
+  // Write formatted message to the array
+  write_log_to_array_for_live_viewing(fmt_str, arg, log->prefix);
+
   vfprintf(file, fmt_str, arg);
   log->position = ftell(file);
   // fclose is slow and automatically happens on normal program exit.

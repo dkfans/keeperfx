@@ -27,13 +27,16 @@ extern "C" {
 #endif
 /******************************************************************************/
 enum PlayerNames {
-    PLAYER0          =  0,
-    PLAYER1          =  1,
-    PLAYER2          =  2,
-    PLAYER3          =  3,
-    PLAYER_GOOD      =  4,
+    PLAYER0          =  0,//red
+    PLAYER1          =  1,//blue
+    PLAYER2          =  2,//green
+    PLAYER3          =  3,//yellow
+    PLAYER_GOOD      =  4,//white
     PLAYER_NEUTRAL   =  5,
-    ALL_PLAYERS      =  8,
+    PLAYER4          =  6,//purple
+    PLAYER5          =  7,//black
+    PLAYER6          =  8,//orange
+    ALL_PLAYERS      =  9,
 };
 
 enum PlayerInstanceNum {
@@ -97,12 +100,15 @@ TbBool set_selected_creature_f(struct PlayerInfo *player, struct Thing *thing, c
 #define set_selected_thing(player,thing) set_selected_thing_f(player, thing, __func__)
 TbBool set_selected_thing_f(struct PlayerInfo *player, struct Thing *thing, const char *func_name);
 TbBool clear_selected_thing(struct PlayerInfo *player);
+
 TbBool is_thing_directly_controlled(const struct Thing *thing);
 TbBool is_thing_passenger_controlled(const struct Thing *thing);
 TbBool is_thing_query_controlled(const struct Thing *thing);
 TbBool is_thing_some_way_controlled(const struct Thing *thing);
 TbBool is_thing_directly_controlled_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
 TbBool is_thing_passenger_controlled_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
+
+void set_player_zoom_to_position(struct PlayerInfo *player,struct Coord3d *pos);
 
 struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, RoomKind rkind);
 TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel);

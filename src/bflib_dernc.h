@@ -49,19 +49,19 @@ extern "C" {
 /*
  * The compressor needs this define
  */
-#define RNC_SIGNATURE 0x524E4301       /* "RNC\001" */
+#define RNC_SIGNATURE 0x01434e52 /* "RNC\001", little-endian */
 #define RNC_HEADER_LEN 18
 
 /******************************************************************************/
 long LbFileLengthRnc(const char *fname);
 long LbFileLoadAt(const char *fname, void *buffer);
 long LbFileSaveAt(const char *fname, const void *buffer,unsigned long len);
-long UnpackM1(unsigned char *buffer, unsigned long bufsize);
+long UnpackM1(void *buffer, unsigned long bufsize);
 /******************************************************************************/
 #ifndef COMPRESSOR
-long rnc_unpack (void *packed, void *unpacked, unsigned int flags);
+long rnc_unpack (const void *packed, void *unpacked, unsigned int flags);
 #else
-long rnc_unpack (void *packed, void *unpacked, unsigned int flags, long *leeway);
+long rnc_unpack (const void *packed, void *unpacked, unsigned int flags, long *leeway);
 #endif
 const char *rnc_error (long errcode);
 long rnc_crc (void *data, unsigned long len);

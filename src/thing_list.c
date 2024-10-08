@@ -33,6 +33,7 @@
 #include "thing_stats.h"
 #include "thing_physics.h"
 #include "thing_creature.h"
+#include "thing_navigate.h"
 #include "creature_senses.h"
 #include "spdigger_stack.h"
 #include "power_hand.h"
@@ -78,9 +79,8 @@ unsigned long thing_create_errors = 0;
 /******************************************************************************/
 
 void set_previous_thing_position(struct Thing *thing) {
-    struct ThingAdd* thingadd = get_thingadd(thing->index);
-    thingadd->previous_mappos = thing->mappos;
-    thingadd->previous_floor_height = thing->floor_height;
+    thing->previous_mappos = thing->mappos;
+    thing->previous_floor_height = thing->floor_height;
 }
 
 /**
@@ -276,6 +276,47 @@ long near_map_block_thing_filter_call_bool_filter(const struct Thing *thing, Max
     return -1;
 }
 
+
+/**
+ * Filter function.
+ * @param thing The thing being checked.
+ * @param param Parameters exchanged between filter calls.
+ * @param maximizer Previous value which made a thing pass the filter.
+ */
+long near_thing_pos_thing_filter_is_enemy_which_can_be_shot_by_trap(const struct Thing* thing, MaxTngFilterParam param, long maximizer)
+{
+    if ((param->class_id == -1) || (thing->class_id == param->class_id))
+    {
+        if (thing_matches_model(thing, param->model_id))
+        {
+            if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+            {
+                struct Thing* traptng = thing_get(param->num1);
+                if (players_are_enemies(traptng->owner, thing->owner) || is_neutral_thing(traptng))
+                {
+                    if (!creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing) && !thing_is_picked_up(thing)
+                        && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_dying(thing) && !creature_is_leaving_and_cannot_be_stopped(thing)
+                        && ((get_creature_model_flags(thing) & CMF_IsSpectator) == 0))
+                    {
+                        MapCoordDelta distance = get_2d_distance(&thing->mappos, &traptng->mappos);
+                        MapCoordDelta max_range = param->num2;
+                        if ((distance <= max_range) || (max_range <= 0))
+                        {
+                            if (line_of_sight_2d(&traptng->mappos, &thing->mappos))
+                            {
+                                // This function should return max value when the distance is minimal, so:
+                                return LONG_MAX - distance;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
 /**
  * Filter function.
  * @param thing The thing being checked.
@@ -297,6 +338,37 @@ long near_thing_pos_thing_filter_is_enemy_which_can_be_attacked_by_creature(cons
                     {
                         // This function should return max value when the distance is minimal, so:
                         return LONG_MAX-get_2d_distance(&thing->mappos, &creatng->mappos);
+                    }
+                }
+            }
+        }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
+/**
+ * Filter function.
+ * @param thing The thing being checked.
+ * @param param Parameters exchanged between filter calls.
+ * @param maximizer Previous value which made a thing pass the filter.
+ */
+long near_thing_pos_thing_filter_is_enemy_object_which_can_be_attacked_by_creature(const struct Thing* objtng, MaxTngFilterParam param, long maximizer)
+{
+    if ((param->class_id == -1) || (objtng->class_id == param->class_id))
+    {
+        if (thing_matches_model(objtng, param->model_id))
+        {
+            if ((param->plyr_idx == -1) || (objtng->owner == param->plyr_idx))
+            {
+                struct Thing* creatng = thing_get(param->num1);
+                if (players_are_enemies(creatng->owner, objtng->owner))
+                {
+                    MapCoordDelta distance = get_2d_distance(&creatng->mappos, &objtng->mappos);
+                    //Just dungeon hearts now. Todo: expand with other types of destructible objects
+                    if (thing_is_dungeon_heart(objtng) && creature_can_have_combat_with_creature(creatng, (struct Thing*)objtng, distance,1,0) && !(get_creature_model_flags(creatng) & CMF_NoEnmHeartAttack))
+                    {
+                        return LONG_MAX - distance;
                     }
                 }
             }
@@ -351,7 +423,7 @@ long near_map_block_thing_filter_is_enemy_of_able_to_attack_and_not_specdigger(c
 {
     if ((thing->class_id == TCls_Creature) && players_are_enemies(param->plyr_idx, thing->owner))
     {
-        if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing))
+        if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
             if ((get_creature_model_flags(thing) & CMF_IsSpecDigger) == 0)
             {
@@ -383,7 +455,7 @@ long near_map_block_thing_filter_is_creature_of_model_owned_and_controlled_by(co
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
-                if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing))
+                if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
                 {
                     // Prepare reference Coord3d struct for distance computation
                     struct Coord3d refpos;
@@ -421,7 +493,7 @@ long near_map_block_creature_filter_diagonal_random(const struct Thing *thing, M
                         return -1;
                     // It is not "correct" randomness (pick random N from list) but rolling a dice on each creature found
                     unsigned long tmp = maximizer + dist + 1;
-                    return (long)LbRandomSeries(LONG_MAX, &tmp, __func__, __LINE__, "");
+                    return (long)LbRandomSeries(LONG_MAX, &tmp, __func__, __LINE__);
                 }
             }
         }
@@ -717,27 +789,40 @@ long anywhere_thing_filter_is_creature_of_model_training_and_owned_by(const stru
 }
 
 /**
+ * returns if a specific creature model matches a target model, considering all the wildcards.
+ * @param creatng_model The creature model being checked.
+ * @param plyr_idx The player id so we can exclude diggers and spectators.
+ * @param target_model model to compare it to, possible wildcard.
+ */
+TbBool creature_model_matches_model(ThingModel creatng_model, PlayerNumber plyr_idx, ThingModel target_model)
+{
+    if (!is_creature_model_wildcard(target_model))
+        return target_model == creatng_model;
+    else if (target_model == CREATURE_ANY)
+        return (creatng_model != get_players_spectator_model(plyr_idx)); //we can assume we do not want to cast on the floating spirit
+    else if (target_model == CREATURE_NONE)
+        return false;
+    if (target_model == CREATURE_DIGGER)
+        return creature_kind_is_for_dungeon_diggers_list(plyr_idx, creatng_model);
+    else if (target_model == CREATURE_NOT_A_DIGGER)
+        return ((!creature_kind_is_for_dungeon_diggers_list(plyr_idx, creatng_model)) && (creatng_model != get_players_spectator_model(plyr_idx)));
+    else
+        ERRORLOG("Invalid model wildcard detected: %d", target_model);
+    return false;
+}
+
+/**
  * returns if the creature thing matches the model from the filter, considering possible wildcards.
  * @param creatng The creature being checked.
  * @param crmodel model to compare it to, possible wildcard.
-  */
-TbBool creature_matches_model(const struct Thing* creatng, long crmodel)
+ */
+TbBool creature_matches_model(const struct Thing* creatng, ThingModel crmodel)
 {
     if (creatng->class_id != TCls_Creature)
+    {
         return false;
-    if (!is_creature_model_wildcard(crmodel))
-        return crmodel == creatng->model;
-    else if (crmodel == CREATURE_ANY)
-        return true;
-    else if (crmodel == CREATURE_NONE)
-        return false;
-    if (crmodel == CREATURE_DIGGER)
-        return creature_kind_is_for_dungeon_diggers_list(creatng->owner, crmodel);
-    else if (crmodel == CREATURE_NOT_A_DIGGER)
-        return !creature_kind_is_for_dungeon_diggers_list(creatng->owner, crmodel);
-    else
-        ERRORLOG("Invalid model wildcard detected: %d", crmodel);
-    return false;
+    }
+    return creature_model_matches_model(creatng->model, creatng->owner, crmodel);
 }
 
 /**
@@ -1159,7 +1244,6 @@ void init_player_start(struct PlayerInfo *player, TbBool keep_prev)
 {
     struct Thing* thing = find_players_dungeon_heart(player->id_number);
     struct Dungeon* dungeon = get_players_dungeon(player);
-    struct DungeonAdd* dungeonadd = get_players_dungeonadd(player);
     if (dungeon_invalid(dungeon)) {
         WARNLOG("Tried to init player %d which has no dungeon",(int)player->id_number);
         return;
@@ -1183,26 +1267,26 @@ void init_player_start(struct PlayerInfo *player, TbBool keep_prev)
         }
     }
 
-    dungeonadd->backup_heart_idx = 0;
+    dungeon->backup_heart_idx = 0;
     struct Thing* scndthing = find_players_backup_dungeon_heart(player->id_number);
     {
-        if (!thing_is_invalid(thing))
+        if (!thing_is_invalid(scndthing))
         {
-            dungeonadd->backup_heart_idx = scndthing->index;
+            dungeon->backup_heart_idx = scndthing->index;
         }
     }
 }
 
-TbBool script_support_setup_player_as_zombie_keeper(unsigned short plyridx)
+TbBool script_support_setup_player_as_zombie_keeper(PlayerNumber plyr_idx)
 {
-    SYNCDBG(8,"Starting for player %d",(int)plyridx);
-    struct PlayerInfo* player = get_player(plyridx);
+    SYNCDBG(8,"Starting for player %d",(int)plyr_idx);
+    struct PlayerInfo* player = get_player(plyr_idx);
     if (player_invalid(player)) {
-        SCRPTWRNLOG("Tried to set up invalid player %d",(int)plyridx);
+        SCRPTWRNLOG("Tried to set up invalid player %d",(int)plyr_idx);
         return false;
     }
     player->allocflags &= ~PlaF_Allocated; // mark as non-existing
-    player->id_number = plyridx;
+    player->id_number = plyr_idx;
     player->is_active = 0;
     player->allocflags &= ~PlaF_CompCtrl;
     init_player_start(player, false);
@@ -1268,6 +1352,35 @@ void init_all_creature_states(void)
         {
           ERRORLOG("Infinite loop detected when sweeping things list");
           break;
+        }
+    }
+}
+
+void init_creature_states_for_player(PlayerNumber plyr_idx)
+{
+    int k = 0;
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
+    int i = slist->index;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_of_class;
+        // Per-thing code
+        if (thing->owner == plyr_idx)
+        {
+            init_creature_state(thing);
+        }
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
         }
     }
 }
@@ -1369,6 +1482,46 @@ struct Thing *find_base_thing_on_mapwho(ThingClass oclass, ThingModel model, Map
 }
 
 /**
+ * Checks the subtiles for a thing. Only considers objects, checks against genre, accepts genre 0 for any.
+ * @return Returns INVALID_THING, or a thing of class 'object' of the matching genre.
+ */
+struct Thing* find_object_of_genre_on_mapwho(long genre, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    unsigned long k = 0;
+    struct ObjectConfigStats* objst;
+    long i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Per thing code start
+        if (thing->class_id == TCls_Object)
+        {
+            objst = get_object_model_stats(thing->model);
+            if ((objst->genre == genre) || (genre == 0)) {
+                return thing;
+            }
+        }
+        // Per thing code end
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
+            break;
+        }
+    }
+    return INVALID_THING;
+}
+
+/**
  * Returns hero gate thing of given gate number.
  * @return Returns hero gate object, or invalid thing pointer if not found.
  */
@@ -1421,10 +1574,10 @@ struct Thing *find_creature_lair_totem_at_subtile(MapSubtlCoord stl_x, MapSubtlC
         // Per-thing code
         if (thing->class_id == TCls_Object)
         {
-            struct Objects* objdat = get_objects_data_for_thing(thing);
-            if (objdat->related_creatr_model > 0)
+            struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+            if (objst->related_creatr_model > 0)
             {
-                if ((crmodel == 0) || (crmodel == CREATURE_ANY) || (objdat->related_creatr_model == crmodel))
+                if ((crmodel == 0) || (crmodel == CREATURE_ANY) || (objst->related_creatr_model == crmodel))
                     return thing;
             }
         }
@@ -1734,6 +1887,23 @@ struct Thing *get_nth_creature_owned_by_and_failing_bool_filter(PlayerNumber ply
     return get_nth_thing_of_class_with_filter(filter, &param, n);
 }
 
+struct Thing* get_nearest_enemy_creature_in_sight_and_range_of_trap(struct Thing* traptng)
+{
+    const struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
+    struct ShotConfigStats* shotst = get_shot_model_stats(trapstat->created_itm_model);
+
+    SYNCDBG(19, "Starting");
+    Thing_Maximizer_Filter filter = near_thing_pos_thing_filter_is_enemy_which_can_be_shot_by_trap;
+    struct CompoundTngFilterParam param;
+    param.class_id = TCls_Creature;
+    param.model_id = CREATURE_ANY;
+    param.plyr_idx = -1;
+    param.num1 = traptng->index;
+    param.num2 = shotst->max_range;
+    param.num3 = -1;
+    return get_nth_thing_of_class_with_filter(filter, &param, 0);
+}
+
 struct Thing *get_nearest_enemy_creature_possible_to_attack_by(struct Thing *creatng)
 {
     SYNCDBG(19,"Starting");
@@ -1748,7 +1918,21 @@ struct Thing *get_nearest_enemy_creature_possible_to_attack_by(struct Thing *cre
     return get_nth_thing_of_class_with_filter(filter, &param, 0);
 }
 
-struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attack_by(struct Thing *creatng, MapCoordDelta dist)
+struct Thing* get_nearest_enemy_object_possible_to_attack_by(struct Thing* creatng)
+{
+    SYNCDBG(19, "Starting");
+    Thing_Maximizer_Filter filter = near_thing_pos_thing_filter_is_enemy_object_which_can_be_attacked_by_creature;
+    struct CompoundTngFilterParam param;
+    param.class_id = TCls_Object;
+    param.model_id = -1;
+    param.plyr_idx = -1;
+    param.num1 = creatng->index;
+    param.num2 = -1;
+    param.num3 = -1;
+    return get_nth_thing_of_class_with_filter(filter, &param, 0);
+}
+
+struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attack_by(struct Thing *creatng, MapCoordDelta dist, long move_on_ground)
 {
     SYNCDBG(19,"Starting");
     Thing_Maximizer_Filter filter = highest_score_thing_filter_is_enemy_within_distance_which_can_be_attacked_by_creature;
@@ -1758,7 +1942,7 @@ struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attac
     param.plyr_idx = -1;
     param.num1 = creatng->index;
     param.num2 = dist;
-    param.num3 = 0;
+    param.num3 = move_on_ground;
     return get_nth_thing_of_class_with_filter(filter, &param, 0);
 }
 
@@ -1830,7 +2014,7 @@ long creature_of_model_find_first(ThingModel crmodel)
         }
         i = thing->next_of_class;
         // Thing list loop body
-        if ((crmodel == 0) || (crmodel == CREATURE_ANY) || (thing->model == crmodel))
+        if (thing_matches_model(thing,crmodel))
         {
             return i;
         }
@@ -1860,7 +2044,7 @@ struct Thing *creature_of_model_in_prison_or_tortured(ThingModel crmodel)
         }
         i = thing->next_of_class;
         // Thing list loop body
-        if ((crmodel == 0) || (crmodel == CREATURE_ANY) || (thing->model == crmodel))
+        if (thing_matches_model(thing,crmodel))
         {
           if (creature_is_kept_in_prison(thing) || creature_is_being_tortured(thing))
               return thing;
@@ -1878,9 +2062,9 @@ struct Thing *creature_of_model_in_prison_or_tortured(ThingModel crmodel)
 
 TbBool lord_of_the_land_in_prison_or_tortured(void)
 {
-    for (long crtr_model = 0; crtr_model < gameadd.crtr_conf.model_count; crtr_model++)
+    for (long crtr_model = 0; crtr_model < game.conf.crtr_conf.model_count; crtr_model++)
     {
-        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crtr_model];
+        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_model];
         if ((crconf->model_flags & CMF_IsLordOTLand) != 0)
         {
             struct Thing* thing = creature_of_model_in_prison_or_tortured(crtr_model);
@@ -1898,9 +2082,9 @@ TbBool lord_of_the_land_in_prison_or_tortured(void)
 
 struct Thing *lord_of_the_land_find(void)
 {
-    for (long crtr_model = 0; crtr_model < gameadd.crtr_conf.model_count; crtr_model++)
+    for (long crtr_model = 1; crtr_model < game.conf.crtr_conf.model_count; crtr_model++)
     {
-        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crtr_model];
+        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_model];
         if ((crconf->model_flags & CMF_IsLordOTLand) != 0)
         {
             int i = creature_of_model_find_first(crtr_model);
@@ -1966,10 +2150,10 @@ TbBool electricity_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, c
     }
     // Friendly fire usually causes less damage and at smaller distance
     if ((tngdst->class_id == TCls_Creature) && (tngdst->owner == owner)) {
-        max_dist = max_dist * gameadd.friendly_fight_area_range_permil / 1000;
-        max_damage = max_damage * gameadd.friendly_fight_area_damage_permil / 1000;
+        max_dist = max_dist * game.conf.rules.magic.friendly_fight_area_range_percent / 100;
+        max_damage = max_damage * game.conf.rules.magic.friendly_fight_area_damage_percent / 100;
     }
-    MapCoordDelta distance = get_2d_box_distance(pos, &tngdst->mappos);
+    MapCoordDelta distance = get_chessboard_distance(pos, &tngdst->mappos);
     if (distance < max_dist)
     {
         if (tngdst->class_id == TCls_Creature)
@@ -2064,7 +2248,7 @@ long do_on_player_list_all_creatures_of_model(long thing_idx, int crmodel,
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         i = cctrl->players_next_creature_idx;
         // Per creature code
-        if ((thing->model == crmodel) || (crmodel == 0) || (crmodel == CREATURE_ANY))
+        if (thing_matches_model(thing, crmodel))
         {
             if (do_cb(thing))
                 n++;
@@ -2198,7 +2382,7 @@ long count_player_list_creatures_of_model(long thing_idx, ThingModel crmodel)
         }
         i = cctrl->players_next_creature_idx;
         // Per creature code
-        if ((crmodel == CREATURE_ANY) || (thing->model == crmodel))
+        if (thing_matches_model(thing,crmodel))
         {
             count++;
         }
@@ -2230,7 +2414,7 @@ long count_player_list_creatures_of_model_on_territory(long thing_idx, ThingMode
         i = cctrl->players_next_creature_idx;
         // Per creature code
         int slbwnr = get_slab_owner_thing_is_on(thing);
-        if ( ((thing->model == crmodel) || (crmodel == CREATURE_ANY)) &&
+        if ( thing_matches_model(thing, crmodel) &&
             ( (players_are_enemies(thing->owner,slbwnr) && (friendly == 0)) ||
               (players_are_mutual_allies(thing->owner,slbwnr) && (friendly == 1)) ||
               (slbwnr == game.neutral_player_num && (friendly == 2)) ) )
@@ -2270,7 +2454,7 @@ struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel c
       struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
       i = cctrl->players_next_creature_idx;
       // Per creature code
-      if ((crmodel == 0) || (crmodel == CREATURE_ANY) || (thing->model == crmodel))
+      if (thing_matches_model(thing,crmodel))
           crtr_idx--;
       if (crtr_idx == -1)
           return thing;
@@ -2286,7 +2470,7 @@ struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel c
     return INVALID_THING;
 }
 
-struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx, ThingModel crmodel, long crtr_idx, int friendly)
+struct Thing* get_player_list_nth_creature_with_property(long thing_idx, unsigned long crmodelflag, long crtr_idx)
 {
     long i = thing_idx;
     unsigned long k = 0;
@@ -2300,6 +2484,42 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
         }
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         i = cctrl->players_next_creature_idx;
+        // Per creature code
+        if ((get_creature_model_flags(thing) & crmodelflag) == 0)
+            crtr_idx--;
+        if (crtr_idx == -1)
+            return thing;
+        // Per creature code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            return INVALID_THING;
+        }
+    }
+    ERRORLOG("Tried to get creature of index exceeding list");
+    return INVALID_THING;
+}
+
+struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx, ThingModel crmodel, long crtr_idx, int friendly)
+{
+    long i = thing_idx;
+    unsigned long k = 0;
+    struct Thing *nth_creature = INVALID_THING;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            return INVALID_THING;
+        }
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        i = cctrl->players_next_creature_idx;
+        if ((i == -1) || (crtr_idx ==-1))
+        {
+            return nth_creature;
+        }
         // Per creature code
         int slbwnr = get_slab_owner_thing_is_on(thing);
         int match = 0;
@@ -2325,12 +2545,9 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
             }
         }
 
-        if (((crmodel == 0) || (crmodel == CREATURE_ANY) || (thing->model == crmodel && crtr_idx <= 1)) && (match == 1))
+        if ((thing_matches_model(thing, crmodel)) && (match == 1))
         {
-            return thing;
-        }
-        if ((crmodel == 0) || (crmodel == CREATURE_ANY) || ((thing->model == crmodel) && (match == 1)))
-        {
+            nth_creature = thing; 
             crtr_idx--;
         }
         // Per creature code ends
@@ -2341,8 +2558,16 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
             return INVALID_THING;
         }
     }
-    ERRORLOG("Tried to get creature of index exceeding list");
-    return INVALID_THING;
+    return nth_creature;
+}
+
+/**
+ * Counts player creatures (not diggers) which are kept out of players control.
+ * @param plyr_idx
+ */
+long count_player_creatures_for_transfer(PlayerNumber plyr_idx)
+{
+    return count_player_list_creatures_of_model_matching_bool_filter(plyr_idx, CREATURE_NOT_A_DIGGER, creature_can_be_transferred);
 }
 
 /**
@@ -2459,22 +2684,25 @@ struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingM
 
 struct Thing *get_random_players_creature_of_model_on_territory(PlayerNumber plyr_idx, ThingModel crmodel, int friendly)
 {
+    long model_count;
     long total_count;
     TbBool is_spec_digger = ((crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel));
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     if (is_spec_digger)
     {
         total_count = count_player_list_creatures_of_model_on_territory(dungeon->digger_list_start, crmodel, friendly);
+        model_count = count_player_list_creatures_of_model(dungeon->digger_list_start, crmodel);
     }
     else
     {
         total_count = count_player_list_creatures_of_model_on_territory(dungeon->creatr_list_start, crmodel, friendly);
+        model_count = count_player_list_creatures_of_model(dungeon->creatr_list_start, crmodel);
     }
     if (total_count < 1)
     {
       return INVALID_THING;
     }
-    long crtr_idx = PLAYER_RANDOM(plyr_idx, total_count) + 1;
+    long crtr_idx = PLAYER_RANDOM(plyr_idx, model_count);
     if (is_spec_digger)
     {
         return get_player_list_nth_creature_of_model_on_territory(dungeon->digger_list_start, crmodel, crtr_idx, friendly);
@@ -2629,7 +2857,7 @@ struct Thing *get_player_list_random_creature_with_filter(ThingIndex thing_idx, 
         return retng;
     unsigned long k = 0;
     // Get random index of a thing in list
-    struct Thing* thing = get_player_list_nth_creature_of_model(thing_idx, 0, PLAYER_RANDOM(plyr_idx, total_count));
+    struct Thing* thing = get_player_list_nth_creature_of_model(thing_idx, CREATURE_ANY, PLAYER_RANDOM(plyr_idx, total_count));
     long i = thing->index;
     while (k < total_count)
     {
@@ -3010,7 +3238,7 @@ TbBool update_thing(struct Thing *thing)
     if (thing_is_invalid(thing))
         return false;
 
-    if ((thing->movement_flags & TMvF_Unknown40) == 0)
+    if ((thing->movement_flags & TMvF_Immobile) == 0)
     {
         if ((thing->state_flags & TF1_PushAdd) != 0)
         {
@@ -3046,14 +3274,14 @@ TbBool update_thing(struct Thing *thing)
         return false;
     }
     SYNCDBG(18,"Class function end ok");
-    if ((thing->movement_flags & TMvF_Unknown40) == 0)
+    if ((thing->movement_flags & TMvF_Immobile) == 0)
     {
         if (thing->mappos.z.val > thing->floor_height)
         {
             if (thing->veloc_base.x.val != 0)
-                thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - (int)thing->inertia_air) / 256;
+                thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - thing->inertia_air) / 256;
             if (thing->veloc_base.y.val != 0)
-                thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - (int)thing->inertia_air) / 256;
+                thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - thing->inertia_air) / 256;
             if ((thing->movement_flags & TMvF_Flying) == 0)
             {
                 thing->veloc_push_add.z.val -= thing->fall_acceleration;
@@ -3063,7 +3291,7 @@ TbBool update_thing(struct Thing *thing)
                 // For flying creatures, the Z velocity should also decrease over time
                 if (thing->veloc_base.z.val != 0)
                 {
-                    thing->veloc_base.z.val = thing->veloc_base.z.val * (256 - (int)thing->inertia_air) / 256;
+                    thing->veloc_base.z.val = thing->veloc_base.z.val * (256 - thing->inertia_air) / 256;
                 }
                 else 
                 {
@@ -3077,9 +3305,9 @@ TbBool update_thing(struct Thing *thing)
         } else
         {
             if (thing->veloc_base.x.val != 0)
-              thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - (int)thing->inertia_floor) / 256;
+              thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - thing->inertia_floor) / 256;
             if (thing->veloc_base.y.val != 0)
-              thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - (int)thing->inertia_floor) / 256;
+              thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - thing->inertia_floor) / 256;
             thing->mappos.z.val = thing->floor_height;
             if ((thing->movement_flags & TMvF_Unknown08) != 0)
             {
@@ -3096,7 +3324,7 @@ TbBool update_thing(struct Thing *thing)
             struct Coord3d pos;
             pos.x.val = thing->mappos.x.val;
             pos.y.val = thing->mappos.y.val;
-            pos.z.val = thing->mappos.z.val + thing->clipbox_size_yz;
+            pos.z.val = thing->mappos.z.val + thing->clipbox_size_z;
             light_set_light_position(thing->light_id, &pos);
         } else
         {
@@ -3126,22 +3354,22 @@ short update_thing_sound(struct Thing *thing)
   return true;
 }
 
-long collide_filter_thing_is_of_type(const struct Thing *thing, const struct Thing *sectng, long tngclass, long tngmodel)
+HitTargetFlags collide_filter_thing_is_of_type(const struct Thing *thing, const struct Thing *sectng, HitTargetFlags tngclass, long tngmodel)
 {
     if (tngmodel >= 0)
     {
         if (thing->model != tngmodel)
           return false;
     }
-    if (tngclass >= 0)
+    if ((long)tngclass >= 0)
     {
-        if (thing->class_id != tngclass)
+        if (thing->class_id != (long)tngclass)
           return false;
     }
     return true;
 }
 
-unsigned long hit_type_to_hit_targets(long hit_type)
+HitTargetFlags hit_type_to_hit_targets(long hit_type)
 {
     switch (hit_type)
     {
@@ -3151,11 +3379,13 @@ unsigned long hit_type_to_hit_targets(long hit_type)
             HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|HitTF_OwnedSoulContainer|
             HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
             HitTF_EnemyShotsCollide|HitTF_AlliedShotsCollide|HitTF_OwnedShotsCollide|
+            HitTF_EnemyDestructibleTraps|HitTF_AlliedDestructibleTraps|HitTF_OwnedDestructibleTraps|
             HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
     case THit_CrtrsNObjcts:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_OwnedCreatures|HitTF_ArmourAffctdCreatrs|HitTF_PreventDmgCreatrs|
             HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|HitTF_OwnedSoulContainer|
             HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
+            HitTF_EnemyDestructibleTraps|HitTF_AlliedDestructibleTraps|HitTF_OwnedDestructibleTraps|
             HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
     case THit_CrtrsOnly:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_OwnedCreatures|HitTF_ArmourAffctdCreatrs;
@@ -3163,6 +3393,7 @@ unsigned long hit_type_to_hit_targets(long hit_type)
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_ArmourAffctdCreatrs|
         HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|
         HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
+        HitTF_EnemyDestructibleTraps | HitTF_AlliedDestructibleTraps|
         HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
     case THit_CrtrsOnlyNotOwn:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_ArmourAffctdCreatrs;
@@ -3172,6 +3403,9 @@ unsigned long hit_type_to_hit_targets(long hit_type)
         return HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|HitTF_OwnedSoulContainer;
     case THit_HeartOnlyNotOwn:
         return HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer;
+    case THit_TrapsAll:
+        return HitTF_EnemyDestructibleTraps|HitTF_AlliedDestructibleTraps|HitTF_OwnedDestructibleTraps|
+            HitTF_OwnedDeployedTraps|HitTF_AlliedDeployedTraps|HitTF_EnemyDeployedTraps;
     case THit_None:
         return HitTF_None;
     default:
@@ -3284,6 +3518,16 @@ TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, Hi
     }
     if (thing_is_deployed_trap(thing))
     {
+        if (thing_is_destructible_trap(thing) > 0)
+        {
+            if (shot_owner == thing->owner) {
+                return ((hit_targets & HitTF_OwnedDestructibleTraps) != 0);
+            }
+            if ((shot_owner < 0) || players_are_enemies(shot_owner, thing->owner)) {
+                return ((hit_targets & HitTF_EnemyDestructibleTraps) != 0);
+            }
+            return ((hit_targets & HitTF_AlliedDestructibleTraps) != 0);
+        }
         if (shot_owner == thing->owner) {
             return ((hit_targets & HitTF_OwnedDeployedTraps) != 0);
         }
@@ -3384,6 +3628,11 @@ struct Thing *smallest_gold_pile_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
   return chosen_thing;
 }
 
+/**
+ * Re-computes speed of a creature and uses it.
+ * @param thing
+ * @return
+ */
 TbBool update_creature_speed(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -3451,7 +3700,7 @@ TbBool gold_pile_with_maximum_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
         // Per thing processing block
         if ((thing->class_id == TCls_Object) && (object_is_gold_laying_on_ground(thing)))
         {
-            if (thing->valuable.gold_stored >= game.gold_pile_maximum)
+            if (thing->valuable.gold_stored >= game.conf.rules.game.gold_pile_maximum)
             {
                 return true;
             }
@@ -3468,7 +3717,7 @@ TbBool gold_pile_with_maximum_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
   return false;
 }
 
-struct Thing* get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range)
+struct Thing* get_player_creature_in_range_around_any_enemy_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range)
 {
     int n = GAME_RANDOM(PLAYERS_COUNT);
     for (int i = 0; i < PLAYERS_COUNT; i++, n = (n + 1) % PLAYERS_COUNT)
@@ -3484,6 +3733,19 @@ struct Thing* get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_
             }
         }
     }
+    return INVALID_THING;
+}
+
+struct Thing* get_player_creature_in_range_around_own_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range)
+{
+        struct Thing* heartng = get_player_soul_container(plyr_idx); //todo backup hearts
+        if (thing_exists(heartng))
+        {
+            struct Thing* creatng = get_creature_in_range_of_model_owned_and_controlled_by(heartng->mappos.x.val, heartng->mappos.y.val, range, crmodel, plyr_idx);
+            if (!thing_is_invalid(creatng)) {
+                return creatng;
+            }
+        }
     return INVALID_THING;
 }
 
@@ -3762,7 +4024,7 @@ struct Thing *get_food_at_subtile_available_to_eat_and_owned_by(MapSubtlCoord st
     return get_thing_on_map_block_with_filter(i, filter, &param, &n);
 }
 
-struct Thing *get_trap_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long model, long plyr_idx)
+struct Thing *get_trap_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel model, long plyr_idx)
 {
     SYNCDBG(19,"Starting");
     Thing_Maximizer_Filter filter = anywhere_thing_filter_is_of_class_and_model_and_owned_by;
@@ -3787,7 +4049,7 @@ struct Thing *get_trap_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, Map
  * @param plyr_idx Player whose creature or allied creature will be returned.
  * @return The creature thing pointer, or invalid thing pointer if not found.
  */
-struct Thing *get_trap_around_of_model_and_owned_by(MapCoord pos_x, MapCoord pos_y, long model, PlayerNumber plyr_idx)
+struct Thing *get_trap_around_of_model_and_owned_by(MapCoord pos_x, MapCoord pos_y, ThingModel model, PlayerNumber plyr_idx)
 {
     SYNCDBG(19,"Starting");
     Thing_Maximizer_Filter filter = anywhere_thing_filter_is_of_class_and_model_and_owned_by;
@@ -3881,19 +4143,19 @@ struct Thing *get_nearest_thing_at_position(MapSubtlCoord stl_x, MapSubtlCoord s
   {
     n = 0;
     y = stl_y + k;  
-    if ( (y >= 0) && (y < 256) )
+    if ( (y >= 0) && (y < gameadd.map_subtiles_y) )
     {
       do
       {
         x = stl_x + n;  
-        if ( (x >= 0) && (x < 256) )
+        if ( (x >= 0) && (x < gameadd.map_subtiles_x) )
         {
           struct Map *blk = get_map_block_at(x, y);
           thing = thing_get(get_mapwho_thing_index(blk));
           while (!thing_is_invalid(thing)) 
           {
             TRACE_THING(thing);
-            long NewDistance = get_2d_box_distance_xy(stl_x, stl_y, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+            long NewDistance = chessboard_distance(stl_x, stl_y, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
             if ( NewDistance < OldDistance )
             {
                 OldDistance = NewDistance;
@@ -3940,14 +4202,14 @@ TbBool setup_creature_leave_or_die_if_possible(struct Thing *thing)
 {
     if (!is_thing_some_way_controlled(thing) && !creature_is_dying(thing))
     {
-        if (!creature_is_kept_in_custody_by_enemy(thing) && !creature_is_being_unconscious(thing))
+        if (!creature_is_kept_in_custody_by_enemy(thing) && !creature_is_being_unconscious(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
             SYNCDBG(9,"Forcing on %s index %d",thing_model_name(thing),(int)thing->index);
             // Drop creature if it's being dragged
             force_any_creature_dragging_thing_to_drop_it(thing);
             // Drop creature if it's in hand
             if (thing_is_picked_up(thing)) {
-                if ((gameadd.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) != 0) {
+                if ((game.conf.rules.game.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) != 0) {
                     SYNCDBG(19,"Skipped %s index %d due to classic bug",thing_model_name(thing),(int)thing->index);
                     return false;
                 }
@@ -3971,7 +4233,7 @@ TbBool setup_creature_die_if_not_in_custody(struct Thing *thing)
         force_any_creature_dragging_thing_to_drop_it(thing);
         // Drop creature if it's in hand
         if (thing_is_picked_up(thing)) {
-            if ((gameadd.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) != 0) {
+            if ((game.conf.rules.game.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) != 0) {
                 SYNCDBG(19,"Skipped %s index %d due to classic bug",thing_model_name(thing),(int)thing->index);
                 return false;
             }
@@ -3987,7 +4249,7 @@ TbBool setup_creature_die_if_not_in_custody(struct Thing *thing)
 
 void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx)
 {
-    if ((plyr_idx == game.hero_player_num) || (plyr_idx == game.neutral_player_num)) {
+    if (!player_is_keeper(plyr_idx)) {
         // Don't affect heroes and neutral creatures
         return;
     }
@@ -3997,12 +4259,60 @@ void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx)
     do_to_players_all_creatures_of_model(plyr_idx, CREATURE_DIGGER, setup_creature_die_if_not_in_custody);
 }
 
+unsigned short setup_excess_creatures_to_leave_or_die(short max_remain)
+{
+    struct CreatureControl* cctrl;
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
+    unsigned long k = 0;
+    int i = slist->index;
+    short count = 0;
+    if (slist->count <= max_remain)
+    {
+        return count;
+    }
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_of_class;
+        // Per-thing code
+        cctrl = creature_control_get_from_thing(thing);
+        if (cctrl->index > max_remain)
+        {
+            count++;
+            cleanup_creature_state_and_interactions(thing);
+            force_any_creature_dragging_thing_to_drop_it(thing);
+
+            if (is_thing_some_way_controlled(thing) || thing_is_picked_up(thing))
+            {
+                kill_creature(thing, INVALID_THING, -1, CrDed_Default);
+            }
+            else
+            {
+                setup_creature_leaves_or_dies(thing);
+            }
+        }
+        // Per-thing code ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return count;
+}
+
 long count_creatures_in_dungeon_of_model_flags(const struct Dungeon *dungeon, unsigned long need_mdflags, unsigned long excl_mdflags)
 {
     long count = 0;
-    for (ThingModel crmodel = 1; crmodel < gameadd.crtr_conf.model_count; crmodel++)
+    for (ThingModel crmodel = 1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
     {
-        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crmodel];
+        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crmodel];
         if (((crconf->model_flags & need_mdflags) == need_mdflags) &&
            ((crconf->model_flags & excl_mdflags) == 0))
         {
@@ -4015,9 +4325,9 @@ long count_creatures_in_dungeon_of_model_flags(const struct Dungeon *dungeon, un
 long count_creatures_in_dungeon_controlled_and_of_model_flags(const struct Dungeon *dungeon, unsigned long need_mdflags, unsigned long excl_mdflags)
 {
     long count = 0;
-    for (ThingModel crmodel = 1; crmodel < gameadd.crtr_conf.model_count; crmodel++)
+    for (ThingModel crmodel = 1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
     {
-        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crmodel];
+        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crmodel];
         if (((crconf->model_flags & need_mdflags) == need_mdflags) &&
            ((crconf->model_flags & excl_mdflags) == 0))
         {
@@ -4077,6 +4387,116 @@ void break_mapwho_infinite_chain(const struct Map *mapblk)
         i_first = thing->next_on_mapblk;
     }
     WARNLOG("No change performed");
+}
+
+ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_creature, PlayerNumber owner, ThingModel crmodel, struct PlayerInfo *player)
+{
+    unsigned long k = 0;
+    ThingIndex i = current_creature->index;
+    do
+    {
+        i++;
+        if (i >= THINGS_COUNT)
+        {
+            i = 1;
+        }
+        else if (i == current_creature->index)
+        {
+            break;
+        }
+        struct Thing* thing = thing_get(i);
+        if (thing_is_creature(thing))
+        {
+            if ( (thing->owner == owner) || (owner == -1) )
+            {
+                if ( (thing->model == crmodel) || (crmodel == 0) )
+                {
+                    if (creature_can_be_queried(player, thing))
+                    {
+                        return thing->index;
+                    }
+                }
+            }
+        }
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    while (1);
+    return current_creature->index;
+}
+
+struct Thing* get_timebomb_target(struct Thing *creatng)
+{
+    struct Thing *retng = NULL;
+    MapCoordDelta dist, new_dist;
+    struct Thing* thing;
+    struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
+    if (slist != NULL) 
+    {
+        dist = LONG_MAX;
+        unsigned long i = slist->index;
+        unsigned long k = 0;
+        while (i != 0)
+        {
+            thing = thing_get(i);
+            if (thing_is_invalid(thing))
+            {
+                ERRORLOG("Jump to invalid thing detected");
+                break;
+            }
+            if (players_are_enemies(creatng->owner, thing->owner))
+            {
+                if (creature_will_attack_creature(creatng, thing))
+                {
+                    new_dist = get_2d_distance(&creatng->mappos, &thing->mappos);
+                    if (new_dist < dist)
+                    {
+                        if (creature_can_navigate_to(creatng, &thing->mappos, NavRtF_Default))
+                        {
+                            dist = new_dist;
+                            retng = thing;
+                        }
+                    }
+                }
+            }
+            // Per-thing code ends
+            k++;
+            if (k > slist->count)
+            {
+                ERRORLOG("Infinite loop detected when sweeping things list");
+                break;
+            }
+            i = thing->next_of_class;
+        }
+    }
+    if (thing_is_invalid(retng))
+    {
+        dist = LONG_MAX;
+        for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+        {
+            if (players_are_enemies(creatng->owner, plyr_idx))
+            {
+                thing = get_player_soul_container(plyr_idx);
+                if (thing_exists(thing))
+                {
+                    new_dist = get_2d_distance(&creatng->mappos, &thing->mappos);
+                    if (new_dist < dist)
+                    {
+                        if (creature_can_navigate_to(creatng, &thing->mappos, NavRtF_Default))
+                        {
+                            dist = new_dist;
+                            retng = thing;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return retng;
 }
 /******************************************************************************/
 #ifdef __cplusplus
