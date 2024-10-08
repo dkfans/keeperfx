@@ -1861,86 +1861,43 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
 
 CrInstance get_self_spell_casting(const struct Thing *thing)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    TbBool is_fighting = cctrl->combat_flags != 0;
-    TbBool is_in_custody = creature_is_kept_in_custody(thing);
-    SYNCDBG(11, "Processing %s(%d), combat flag: %d, spell flag: %d, in custody? %d",
-        thing_model_name(thing), thing->index, cctrl->combat_flags, cctrl->spell_flags, is_in_custody);
-
+    TbBool ok = false;
     for (int i = 0; i < game.conf.crtr_conf.instances_count; i++)
     {
         struct InstanceInfo* inst_inf = creature_instance_info_get(i);
-        // Basic checks.
-        if (!flag_is_set(inst_inf->instance_property_flags, InstPF_SelfBuff) ||
-            !creature_instance_is_available(thing, i) ||
-            !creature_instance_has_reset(thing, i))
+        if (inst_inf->validate_source_func != 0)
         {
-            continue; // Cannot use.
+            ok = creature_instances_validate_func_list[inst_inf->validate_source_func]((struct Thing *)thing,
+                (struct Thing *)thing, i, inst_inf->validate_source_func_params[0],
+                inst_inf->validate_source_func_params[1]);
+            if(!ok)
+            {
+                continue;
+            }
         }
-        SpellKind spell_idx = inst_inf->func_params[0];
-        if(inst_inf->func_params[0] != SplK_None && creature_affected_by_spell(thing, spell_idx))
+
+        if (inst_inf->validate_target_func != 0)
         {
-            continue; // Already being affected.
+            ok = creature_instances_validate_func_list[inst_inf->validate_target_func]((struct Thing *)thing,
+                (struct Thing *)thing, i, inst_inf->validate_target_func_params[0],
+                inst_inf->validate_target_func_params[1]);
+            if(!ok)
+            {
+                continue;
+            }
         }
-        if (!flag_is_set(inst_inf->instance_property_flags, InstPF_AllowedInPrison) && is_in_custody)
+
+        if (!ok)
         {
-            continue; // Cannot use in prison.
+            // If we reach here, it means that this instance has no validate function for source and target, such
+            // as TOKING. Just check if it has SELF_BUFF flag, this should cover IMP's case.
+            if (!flag_is_set(inst_inf->instance_property_flags, InstPF_SelfBuff))
+            {
+                continue;
+            }
         }
-        // Our ideal goal is to avoid any hardcode for specific instance,
-        // but we still need to deal with some special instances.
-        switch(i)
-        {
-        case CrInst_WIND:
-            if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
-            {
-                SYNCDBG(11, "Use Wind when under influence of posion cloud.");
-                return CrInst_WIND; // Cast Wind when under influence of gas.
-            }
-            break;
-        case CrInst_FLY:
-            if (is_fighting || terrain_toxic_for_creature_at_position(thing,
-                coord_subtile(thing->mappos.x.val), coord_subtile(thing->mappos.y.val)))
-            {
-                return CrInst_FLY;
-            }
-            break;
-        case CrInst_HEAL:
-        case CrInst_RANGED_HEAL:
-            if (creature_would_benefit_from_healing(thing))
-            {
-                return CrInst_HEAL;
-            }
-            break;
-        default:
-            if (!is_fighting && flag_is_set(inst_inf->instance_property_flags, InstPF_DailyLifeBuff))
-            {
-                SYNCDBG(11, "Use %s as daily life buff.", creature_instance_code_name(i));
-                return i;
-            }
-            else if (flag_is_set(cctrl->combat_flags, CmbtF_ObjctFight) ||
-                flag_is_set(cctrl->combat_flags, CmbtF_DoorFight))
-            {
-                // Creature is fighting a object (such as dungeon heart) or a door.
-                if(flag_is_set(inst_inf->instance_property_flags, InstPF_Offensive))
-                {
-                    // @todo What about Armour? Armour is defensive but it can protect creature from the AOE
-                    // of the Keeper lightning spell.
-                    SYNCDBG(11, "Use %s for object/door fighting case.", creature_instance_code_name(i));
-                    return i; // Offensive buff is useful when attacking door/dungeon heart.
-                }
-            }
-            else if (is_fighting)
-            {
-                // Other fighting case.
-                if(flag_is_set(inst_inf->instance_property_flags, InstPF_Offensive) ||
-                   flag_is_set(inst_inf->instance_property_flags, InstPF_Defensive))
-                {
-                    SYNCDBG(11, "Use %s for general fighting case.", creature_instance_code_name(i));
-                    return i; // Offensive and Defensive are both useful.
-                }
-            }
-            break;
-        }
+
+        return i;
     }
 
     return CrInst_NULL;

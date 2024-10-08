@@ -114,19 +114,29 @@ Creature_Instf_Func creature_instances_func_list[] = {
 };
 
 const struct NamedCommand creature_instances_validate_func_type[] = {
-    {"validate_source_generic",      1},
-    {"validate_target_generic",      2},
-    {"validate_source_ranged_heal",  3},
-    {"validate_target_ranged_heal",  4},
-    {NULL,                           0},
+    {"validate_source_generic",                                 1},
+    {"validate_source_even_in_prison",                          2},
+    {"validate_target_generic",                                 3},
+    {"validate_target_benefits_from_defensive_missile",         4},
+    {"validate_target_benefits_from_defensive",                 5},
+    {"validate_target_benefits_from_healing",                   6},
+    {"validate_target_benefits_from_higher_altitude",           7},
+    {"validate_target_benefits_from_offensive",                 8},
+    {"validate_target_benefits_from_wind",                      9},
+    {NULL, 0},
 };
 
 Creature_Validate_Func creature_instances_validate_func_list[] = {
     NULL,
     validate_source_generic,
+    validate_source_even_in_prison,
     validate_target_generic,
-    validate_source_ranged_heal,
-    validate_target_ranged_heal,
+    validate_target_benefits_from_defensive_missile,
+    validate_target_benefits_from_defensive,
+    validate_target_benefits_from_healing,
+    validate_target_benefits_from_higher_altitude,
+    validate_target_benefits_from_offensive,
+    validate_target_benefits_from_wind,
     NULL,
 };
 
@@ -594,13 +604,14 @@ CrInstance process_creature_ranged_buff_spell_casting(struct Thing* creatng)
         {
             continue;
         }
-        if((inst_inf->validate_func_idx[0] == 0) || (inst_inf->validate_func_idx[1] == 0) ||
-           (inst_inf->search_func_idx == 0))
+        if((inst_inf->validate_source_func == 0) || (inst_inf->validate_target_func == 0) ||
+           (inst_inf->search_func == 0))
         {
             ERRORLOG("The instance %d has no validate function or search function.", i);
             continue;
         }
-        if(!creature_instances_validate_func_list[inst_inf->validate_func_idx[0]](creatng, NULL, i))
+        if(!creature_instances_validate_func_list[inst_inf->validate_source_func]
+            (creatng, NULL, i, inst_inf->validate_source_func_params[0], inst_inf->validate_source_func_params[1]))
         {
             // The input creature is not a legal source.
             continue;
@@ -608,8 +619,9 @@ CrInstance process_creature_ranged_buff_spell_casting(struct Thing* creatng)
 
         ThingIndex *targets = NULL;
         unsigned short found_count = 0;
-        if(creature_instances_search_targets_func_list[inst_inf->search_func_idx](creatng, i, &targets, &found_count) &&
-            targets && (found_count > 0))
+        TbBool ok = creature_instances_search_targets_func_list[inst_inf->search_func](creatng, i, &targets,
+            &found_count, inst_inf->search_func_params[0], inst_inf->search_func_params[1]);
+        if(ok && targets && (found_count > 0))
         {
             struct Thing* target = thing_get(targets[0]);
             SYNCDBG(8, "Set instance %s(%d) on %s(%d) for %s(%d).",
@@ -1157,9 +1169,18 @@ void delay_heal_sleep(struct Thing *creatng)
  * @param source The source creature
  * @param target The target creature
  * @param inst_idx  The spell instance index
+ * @param param1 Optional 1st parameter.
+ * @param param2 Optional 2nd parameter.
  * @return TbBool True if the creature can, false if otherwise.
  */
-TbBool validate_source_basic(struct Thing *source, struct Thing *target, CrInstance inst_idx)
+TbBool validate_source_basic
+    (
+    struct Thing *source,
+    struct Thing *target,
+    CrInstance inst_idx,
+    int32_t param1,
+    int32_t param2
+    )
 {
     if ((source->alloc_flags & TAlF_IsControlled) != 0)
     {
@@ -1174,6 +1195,16 @@ TbBool validate_source_basic(struct Thing *source, struct Thing *target, CrInsta
         return false;
     }
 
+    if (!creature_instance_is_available(source, inst_idx) ||
+        !creature_instance_has_reset(source, inst_idx) ||
+        creature_is_fleeing_combat(source) || creature_affected_by_spell(source, SplK_Chicken) ||
+        creature_is_being_unconscious(source) || creature_is_dying(source) ||
+        thing_is_picked_up(source) || creature_is_being_dropped(source) ||
+        creature_is_being_sacrificed(source) || creature_is_being_summoned(source))
+    {
+        return false;
+    }
+
     return true;
 }
 
@@ -1183,22 +1214,25 @@ TbBool validate_source_basic(struct Thing *source, struct Thing *target, CrInsta
  * @param source The source creature
  * @param target The target creature
  * @param inst_idx  The spell instance index
+ * @param param1 Optional 1st parameter.
+ * @param param2 Optional 2nd parameter.
  * @return TbBool True if the creature can, false if otherwise.
  */
-TbBool validate_source_generic(struct Thing *source, struct Thing *target, CrInstance inst_idx)
+TbBool validate_source_generic
+    (
+    struct Thing *source,
+    struct Thing *target,
+    CrInstance inst_idx,
+    int32_t param1,
+    int32_t param2
+    )
 {
-    if (!validate_source_basic(source, target, inst_idx))
+    if (!validate_source_basic(source, target, inst_idx, param1, param2))
     {
         return false;
     }
 
-    if (!creature_instance_is_available(source, inst_idx) ||
-        !creature_instance_has_reset(source, inst_idx) ||
-        creature_is_fleeing_combat(source) || creature_affected_by_spell(source, SplK_Chicken) ||
-        creature_is_being_unconscious(source) || creature_is_dying(source) ||
-        thing_is_picked_up(source) || creature_is_being_dropped(source) ||
-        creature_is_being_sacrificed(source) || creature_is_being_summoned(source) ||
-        creature_is_being_tortured(source) || creature_is_kept_in_prison(source))
+    if (creature_is_being_tortured(source) || creature_is_kept_in_prison(source))
     {
         return false;
     }
@@ -1211,9 +1245,18 @@ TbBool validate_source_generic(struct Thing *source, struct Thing *target, CrIns
  * @param source The source creature
  * @param target The target creature
  * @param inst_idx The spell instance index
+ * @param param1 Optional 1st parameter.
+ * @param param2 Optional 2nd parameter.
  * @return TbBool True if the creature can be, false if otherwise.
  */
-TbBool validate_target_basic(struct Thing *source, struct Thing *target, CrInstance inst_idx)
+TbBool validate_target_basic
+    (
+    struct Thing *source,
+    struct Thing *target,
+    CrInstance inst_idx,
+    int32_t param1,
+    int32_t param2
+    )
 {
     if (creature_is_dying(target) || thing_is_picked_up(target) || creature_is_being_dropped(target) ||
         creature_is_being_sacrificed(target) || creature_is_being_summoned(target))
@@ -1232,7 +1275,8 @@ TbBool validate_target_basic(struct Thing *source, struct Thing *target, CrInsta
         target->continue_state == CrSt_CreatureLeaves ||
         target->active_state == CrSt_CreatureLeavingDungeon ||
         target->active_state == CrSt_CreatureScavengedDisappear ||
-        // Candidate shouldn't be fight with the caster.
+        target->active_state ==  CrSt_LeavesBecauseOwnerLost ||
+        // Target shouldn't be fighting with the caster.
         creature_has_creature_in_combat(source, target) ||
         creature_has_creature_in_combat(target, source))
     {
@@ -1247,13 +1291,22 @@ TbBool validate_target_basic(struct Thing *source, struct Thing *target, CrInsta
  * @param source The source creature
  * @param target The target creature
  * @param inst_idx The spell instance index
+ * @param param1 Optional 1st parameter.
+ * @param param2 Optional 2nd parameter.
  * @return TbBool True if the creature can be, false if otherwise.
  */
-TbBool validate_target_generic(struct Thing *source, struct Thing *target, CrInstance inst_idx)
+TbBool validate_target_generic
+    (
+    struct Thing *source,
+    struct Thing *target,
+    CrInstance inst_idx,
+    int32_t param1,
+    int32_t param2
+    )
 {
     // We don't check the spatial conditions, such as distacne, angle, and sight here, because
     // they should be checked in the search function.
-    if (!validate_target_basic(source, target, inst_idx) || creature_is_being_unconscious(target) ||
+    if (!validate_target_basic(source, target, inst_idx, param1, param2) || creature_is_being_unconscious(target) ||
         creature_is_being_tortured(target) || creature_is_kept_in_prison(target))
     {
         return false;
@@ -1270,61 +1323,66 @@ TbBool validate_target_generic(struct Thing *source, struct Thing *target, CrIns
         return false;
     }
 
+    return true;
+}
+
+/**
+ * @brief Check if the given creature can cast spell in prison or torture room.
+ *
+ * @param source The source creature
+ * @param target The target creature
+ * @param inst_idx  The spell instance index
+ * @param param1 Optional 1st parameter.
+ * @param param2 Optional 2nd parameter.
+ * @return TbBool True if the creature can, false if otherwise.
+ */
+TbBool validate_source_even_in_prison
+    (
+    struct Thing *source,
+    struct Thing *target,
+    CrInstance inst_idx,
+    int32_t param1,
+    int32_t param2
+    )
+{
+    if (!validate_source_basic(source, target, inst_idx, param1, param2))
+    {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief Check if the target creature can benefits from buff that provides missile protection.
+ *
+ * @param source The source creature
+ * @param target The target creature
+ * @param inst_idx  The spell instance index
+ * @param param1 Optional 1st parameter.
+ * @param param2 Optional 2nd parameter.
+ * @return TbBool True if the creature can, false if otherwise.
+ */
+TbBool validate_target_benefits_from_defensive_missile
+    (
+    struct Thing *source,
+    struct Thing *target,
+    CrInstance inst_idx,
+    int32_t param1,
+    int32_t param2
+    )
+{
+    if (!validate_target_generic(source, target, inst_idx, param1, param2))
+    {
+        return false;
+    }
     struct CreatureControl* cctrl = creature_control_get_from_thing(target);
     if (creature_control_invalid(cctrl))
     {
         ERRORLOG("Invalid creature control");
         return false;
     }
-    // Check if this creature needs this buff by examining its state.
-    if (flag_is_set(cctrl->combat_flags, CmbtF_ObjctFight) || flag_is_set(cctrl->combat_flags, CmbtF_DoorFight))
-    {
-        if(!flag_is_set(inst_inf->instance_property_flags, InstPF_Offensive))
-        {
-            return false; // Offensive buff is useful when attacking door/dungeon heart.
-        }
-    }
-    else if(cctrl->combat_flags == 0)
-    {
-        if(!flag_is_set(inst_inf->instance_property_flags, InstPF_DailyLifeBuff))
-        {
-            return false; // Daiy life buff is useful when not in combat.
-        }
-    }
-
-    return true;
-}
-
-/**
- * @brief Check if the given creature can cast Ranged Heal spell.
- *
- * @param source The source creature
- * @param target The target creature
- * @param inst_idx  The spell instance index
- * @return TbBool True if the creature can, false if otherwise.
- */
-TbBool validate_source_ranged_heal(struct Thing *source, struct Thing *target, CrInstance inst_idx)
-{
-    if (!validate_source_basic(source, target, inst_idx))
-    {
-        return false;
-    }
-
-    // Omit creature_is_kept_in_prison() and creature_is_being_tortured() because we want the caster to heal itself.
-    if (!creature_instance_is_available(source, inst_idx) ||
-        !creature_instance_has_reset(source, inst_idx) ||
-        creature_is_fleeing_combat(source) || creature_affected_by_spell(source, SplK_Chicken) ||
-        creature_is_being_unconscious(source) || creature_is_dying(source) ||
-        thing_is_picked_up(source) || creature_is_being_dropped(source) ||
-        creature_is_being_sacrificed(source) || creature_is_being_summoned(source))
-    {
-        return false;
-    }
-
-    // Creature who is leaving doesn't care about any allies.
-    if (source->continue_state == CrSt_CreatureLeaves ||
-        source->active_state == CrSt_CreatureLeavingDungeon ||
-        source->active_state == CrSt_CreatureScavengedDisappear )
+    if (!has_ranged_combat_attackers(target))
     {
         return false;
     }
@@ -1332,16 +1390,177 @@ TbBool validate_source_ranged_heal(struct Thing *source, struct Thing *target, C
 }
 
 /**
- * @brief Check if the given creature can be the target of Ranged Heal.
+ * @brief Check if the target creature can benefits from general defensive buffs.
  *
  * @param source The source creature
  * @param target The target creature
  * @param inst_idx  The spell instance index
+ * @param param1 Optional 1st parameter.
+ * @param param2 Optional 2nd parameter.
  * @return TbBool True if the creature can, false if otherwise.
  */
-TbBool validate_target_ranged_heal(struct Thing *source, struct Thing *target, CrInstance inst_idx)
+TbBool validate_target_benefits_from_defensive
+    (
+    struct Thing *source,
+    struct Thing *target,
+    CrInstance inst_idx,
+    int32_t param1,
+    int32_t param2
+    )
 {
-    if (!validate_target_basic(source, target, CrInst_RANGED_HEAL) || creature_is_being_unconscious(target) ||
+    if (!validate_target_generic(source, target, inst_idx, param1, param2))
+    {
+        return false;
+    }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(target);
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("Invalid creature control");
+        return false;
+    }
+    // As long as the target is fighting, return true, no matter what thing the target is attacking.
+    // Even if the target is attacking a door or dungeon heart, it still needs defensive buffs because
+    // the hostile keepers can use keeper offensive spells.
+    if (cctrl->combat_flags == 0)
+    {
+        return false; // Not in any combat.
+    }
+    return true;
+}
+
+/**
+ * @brief Check if the target creature can benefits from higher altitude.
+ *
+ * @param source The source creature
+ * @param target The target creature
+ * @param inst_idx  The spell instance index
+ * @param param1 Optional 1st parameter.
+ * @param param2 Optional 2nd parameter.
+ * @return TbBool True if the creature can, false if otherwise.
+ */
+TbBool validate_target_benefits_from_higher_altitude
+    (
+    struct Thing *source,
+    struct Thing *target,
+    CrInstance inst_idx,
+    int32_t param1,
+    int32_t param2
+    )
+{
+    if (!validate_target_generic(source, target, inst_idx, param1, param2))
+    {
+        return false;
+    }
+    // Water or lava. Flying on water is beneficial because the target can go on a Guard Post.
+    if (subtile_is_liquid(target->mappos.x.stl.num, target->mappos.y.stl.num))
+    {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * @brief Check if the target creature can benefits from general offensive buffs.
+ *
+ * @param source The source creature
+ * @param target The target creature
+ * @param inst_idx  The spell instance index
+ * @param param1 Optional 1st parameter.
+ * @param param2 Optional 2nd parameter.
+ * @return TbBool True if the creature can, false if otherwise.
+ */
+TbBool validate_target_benefits_from_offensive
+    (
+    struct Thing *source,
+    struct Thing *target,
+    CrInstance inst_idx,
+    int32_t param1,
+    int32_t param2
+    )
+{
+    if (!validate_target_generic(source, target, inst_idx, param1, param2))
+    {
+        return false;
+    }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(target);
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("Invalid creature control");
+        return false;
+    }
+    if (cctrl->combat_flags != 0)
+    {
+        return true; // In any combat.
+    }
+    return false;
+}
+
+/**
+ * @brief Check if the target creature can benefits from using Wind.
+ * Wind can disperse gas and push away enemies.
+ * It has more than one merit. It deserve one dedicated function.
+ *
+ * @param source The source creature
+ * @param target The target creature
+ * @param inst_idx  The spell instance index
+ * @param param1 Optional 1st parameter.
+ * @param param2 Optional 2nd parameter.
+ * @return TbBool True if the creature can, false if otherwise.
+ */
+TbBool validate_target_benefits_from_wind
+    (
+    struct Thing *source,
+    struct Thing *target,
+    CrInstance inst_idx,
+    int32_t param1,
+    int32_t param2
+    )
+{
+    if (!validate_target_generic(source, target, inst_idx, param1, param2))
+    {
+        return false;
+    }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(target);
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("Invalid creature control");
+        return false;
+    }
+
+    if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
+    {
+        return true;
+    }
+    struct CreatureStats* stats = creature_stats_get_from_thing(target);
+    if (stats->attack_preference == AttckT_Ranged && cctrl->opponents_melee_count >= 2)
+    {
+        // Surrounded by 2+ enemies. This could be definitely smarter but not now.
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * @brief Check if the given creature can be the target of healing spells.
+ *
+ * @param source The source creature
+ * @param target The target creature
+ * @param inst_idx  The spell instance index
+ * @param param1 Optional 1st parameter.
+ * @param param2 Optional 2nd parameter.
+ * @return TbBool True if the creature can, false if otherwise.
+ */
+TbBool validate_target_benefits_from_healing
+    (
+    struct Thing *source,
+    struct Thing *target,
+    CrInstance inst_idx,
+    int32_t param1,
+    int32_t param2
+    )
+{
+    if (!validate_target_basic(source, target, inst_idx, param1, param2) || creature_is_being_unconscious(target) ||
         !creature_would_benefit_from_healing(target))
     {
         return false;
@@ -1372,9 +1591,19 @@ TbBool validate_target_ranged_heal(struct Thing *source, struct Thing *target, C
  * @param inst_idx The spell instance index
  * @param targets The list of the found creatures. Caller must free this.
  * @param found_count The number of the found creatures.
+ * @param param1 Optional 1st parameter.
+ * @param param2 Optional 2nd parameter.
  * @return TbBool True if there is no error, false if otherwise.
  */
-TbBool search_target_generic(struct Thing *source, CrInstance inst_idx, ThingIndex **targets, unsigned short *found_count)
+TbBool search_target_generic
+    (
+    struct Thing *source,
+    CrInstance inst_idx,
+    ThingIndex **targets,
+    uint16_t *found_count,
+    int32_t param1,
+    int32_t param2
+    )
 {
     if (!targets || !found_count)
     {
@@ -1405,9 +1634,11 @@ TbBool search_target_generic(struct Thing *source, CrInstance inst_idx, ThingInd
 
         creature_idx = cctrl->players_next_creature_idx;
         const struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
-        if (inst_inf->validate_func_idx[1] > 0)
+        if (inst_inf->validate_target_func > 0)
         {
-            if(!creature_instances_validate_func_list[inst_inf->validate_func_idx[1]](source, candidate, inst_idx))
+            if(!creature_instances_validate_func_list[inst_inf->validate_target_func]
+                (source, candidate, inst_idx, inst_inf->validate_target_func_params[0],
+                inst_inf->validate_target_func_params[1]))
             {
                 // This candidate is out.
                 continue;
@@ -1449,9 +1680,19 @@ TbBool search_target_generic(struct Thing *source, CrInstance inst_idx, ThingInd
  * @param inst_idx The spell instance index
  * @param targets The list of the found creatures. Caller must free this.
  * @param found_count The number of the found creatures.
+ * @param param1 Optional 1st parameter.
+ * @param param2 Optional 2nd parameter.
  * @return TbBool True if there is no error, false if otherwise
  */
-TbBool search_target_ranged_heal(struct Thing *source, CrInstance inst_idx, ThingIndex **targets, unsigned short *found_count)
+TbBool search_target_ranged_heal
+    (
+    struct Thing *source,
+    CrInstance inst_idx,
+    ThingIndex **targets,
+    uint16_t *found_count,
+    int32_t param1,
+    int32_t param2
+    )
 {
     if (!targets || !found_count)
     {
@@ -1459,7 +1700,7 @@ TbBool search_target_ranged_heal(struct Thing *source, CrInstance inst_idx, Thin
         return false;
     }
 
-    if (!search_target_generic(source, inst_idx, targets, found_count))
+    if (!search_target_generic(source, inst_idx, targets, found_count, param1, param2))
     {
         return false;
     }

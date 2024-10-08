@@ -76,6 +76,8 @@ const struct NamedCommand creaturetype_experience_commands[] = {
   {NULL,                           0},
   };
 
+// It is pointless to use all uppercase letters here.
+// The comparison is case-insensitive and we use Camel-Case in the cfg files.
 const struct NamedCommand creaturetype_instance_commands[] = {
   {"NAME",            1},
   {"TIME",            2},
@@ -94,8 +96,9 @@ const struct NamedCommand creaturetype_instance_commands[] = {
   {"PROPERTIES",     15},
   {"FPINSTANTCAST",  16},
   {"PRIMARYTARGET",  17},
-  {"VALIDATEFUNC",   18},
-  {"SEARCHTARGETSFUNC", 19},
+  {"ValidateSourceFunc",   18},
+  {"ValidateTargetFunc",   19},
+  {"SearchTargetsFunc",    20},
   {NULL,              0},
   };
 
@@ -112,10 +115,6 @@ const struct NamedCommand creaturetype_instance_properties[] = {
   {"DISPLAY_SWIPE",        InstPF_UsesSwipe},
   {"RANGED_BUFF",          InstPF_RangedBuff},
   {"NEEDS_TARGET",         InstPF_NeedsTarget},
-  {"OFFENSIVE",            InstPF_Offensive},
-  {"DEFENSIVE",            InstPF_Defensive},
-  {"DAILY_LIFE_BUFF",      InstPF_DailyLifeBuff},
-  {"ALLOWED_IN_PRISON",    InstPF_AllowedInPrison},
   {NULL,                     0},
   };
 
@@ -841,9 +840,9 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                 game.conf.magic_conf.instance_info[i].tooltip_stridx = 0;
                 game.conf.magic_conf.instance_info[i].range_min = -1;
                 game.conf.magic_conf.instance_info[i].range_max = -1;
-                game.conf.magic_conf.instance_info[i].validate_func_idx[0] = 1;
-                game.conf.magic_conf.instance_info[i].validate_func_idx[1] = 2;
-                game.conf.magic_conf.instance_info[i].search_func_idx = 1;
+                game.conf.magic_conf.instance_info[i].validate_source_func = 1;
+                game.conf.magic_conf.instance_info[i].validate_target_func = 3;
+                game.conf.magic_conf.instance_info[i].search_func = 1;
             }
         }
     }
@@ -1156,26 +1155,64 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
-        case 18: // VALIDATE_FUNC
+        case 18: // ValidateSourceFunc
             k = recognize_conf_parameter(buf, &pos, len, creature_instances_validate_func_type);
             if (k > 0)
             {
-                inst_inf->validate_func_idx[0] = k;
+                inst_inf->validate_source_func = k;
                 n++;
             }
-            k = recognize_conf_parameter(buf, &pos, len, creature_instances_validate_func_type);
-            if (k > 0)
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
-                inst_inf->validate_func_idx[1] = k;
+                k = atoi(word_buf);
+                inst_inf->validate_source_func_params[0] = k;
                 n++;
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    inst_inf->validate_source_func_params[1] = k;
+                    n++;
+                }
             }
             break;
-        case 19: // SEARCH_TARGETS_FUNC
+        case 19: // ValidateTargetFunc
+            k = recognize_conf_parameter(buf, &pos, len, creature_instances_validate_func_type);
+            if (k > 0)
+            {
+                inst_inf->validate_target_func = k;
+                n++;
+            }
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                inst_inf->validate_target_func_params[0] = k;
+                n++;
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    inst_inf->validate_target_func_params[1] = k;
+                    n++;
+                }
+            }
+            break;
+        case 20: // SearchTargetsFunc
             k = recognize_conf_parameter(buf, &pos, len, creature_instances_search_targets_func_type);
             if (k > 0)
             {
-                inst_inf->search_func_idx = k;
+                inst_inf->search_func = k;
                 n++;
+            }
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                inst_inf->search_func_params[0] = k;
+                n++;
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    inst_inf->search_func_params[1] = k;
+                    n++;
+                }
             }
             break;
         case 0: // comment

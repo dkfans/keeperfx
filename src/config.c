@@ -377,6 +377,7 @@ short find_conf_block(const char *buf,long *pos,long buflen,const char *blocknam
 
 /**
  * Recognizes config command and returns its number, or negative status code.
+ * The string comparison is done by case-insensitive.
  * @param buf
  * @param pos
  * @param buflen
