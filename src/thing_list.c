@@ -307,7 +307,7 @@ long near_thing_pos_thing_filter_is_enemy_which_can_be_shot_by_trap(const struct
                                 if (creature_is_invisible(thing))
                                 {
                                     struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
-                                    if (trapstat->can_detect_invisible == 0)
+                                    if (trapstat->detect_invisible == 0)
                                     {
                                         return -1;
                                     }

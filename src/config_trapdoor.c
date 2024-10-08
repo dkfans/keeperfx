@@ -113,7 +113,7 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"FLAMEANIMATIONSIZE",   47},
   {"FLAMEANIMATIONOFFSET",    48},
   {"FLAMETRANSPARENCYFLAGS",  49},
-  {"CANDETECTINVISIBLE",      50},
+  {"DETECTINVISIBLE",         50},
   {NULL,                       0},
 };
 
@@ -250,7 +250,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           game.conf.trap_stats[i].shot_shift_y = 0;
           game.conf.trap_stats[i].shot_shift_z = 0;
           game.conf.trap_stats[i].initial_delay = 0;
-          game.conf.trap_stats[i].can_detect_invisible = 1; // Set to 1 by default: backward compatibility for custom traps made before this implementation.
+          game.conf.trap_stats[i].detect_invisible = 1; // Set to 1 by default: backward compatibility for custom traps made before this implementation.
           mconf = &game.conf.traps_config[i];
           mconf->manufct_level = 0;
           mconf->manufct_required = 0;
@@ -1124,13 +1124,13 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 50: // CANDETECTINVISIBLE
+      case 50: // DETECTINVISIBLE
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].can_detect_invisible = k;
+                  game.conf.trap_stats[i].detect_invisible = k;
                   n++;
               }
           }

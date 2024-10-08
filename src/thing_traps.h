@@ -94,7 +94,7 @@ struct TrapStats {
     unsigned short shot_shift_y;
     unsigned short shot_shift_z;
     unsigned short initial_delay; // Trap is placed on reload phase, value in game turns.
-    unsigned char can_detect_invisible;
+    unsigned char detect_invisible;
 };
 
 /******************************************************************************/

@@ -266,7 +266,7 @@ const struct NamedCommand trap_config_desc[] = {
   {"FlameAnimationSize",     46},
   {"FlameAnimationOffset",   47},
   {"FlameTransparencyFlags", 48},
-  {"CanDetectInvisible",     49},
+  {"DetectInvisible",        49},
   {NULL,                      0},
 };
 
@@ -1916,8 +1916,8 @@ static void set_trap_configuration_process(struct ScriptContext *context)
         case 48: // FlameTransparencyFlags
             trapst->flame.transparency_flags = value << 4;
             break;
-        case 49: // CanDetectInvisible
-            trapstat->can_detect_invisible = value;
+        case 49: // DetectInvisible
+            trapstat->detect_invisible = value;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
