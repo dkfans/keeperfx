@@ -231,7 +231,7 @@ TbBool update_trap_trigger_line_of_sight_90_on_subtile(struct Thing *traptng, Ma
             {
                 if (creature_available_for_trap_trigger(thing))
                 {
-                    if (creature_affected_by_spell(thing, SplK_Invisibility))
+                    if (creature_is_invisible(thing))
                     {
                         struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
                         if (trapstat->can_detect_invisible != 0)
@@ -654,7 +654,7 @@ TbBool find_pressure_trigger_trap_target_passing_by_subtile(const struct Thing *
             {
                 if (!is_neutral_thing(thing) && !players_are_mutual_allies(traptng->owner, thing->owner))
                 {
-                    if (creature_affected_by_spell(thing, SplK_Invisibility))
+                    if (creature_is_invisible(thing))
                     {
                         struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
                         if (trapstat->can_detect_invisible != 0)
@@ -719,7 +719,7 @@ TbBool update_trap_trigger_line_of_sight(struct Thing* traptng)
     struct Thing* trgtng = get_nearest_enemy_creature_in_sight_and_range_of_trap(traptng);
     if (!thing_is_invalid(trgtng) && (creature_available_for_trap_trigger(trgtng)))
     {
-        if (creature_affected_by_spell(trgtng, SplK_Invisibility))
+        if (creature_is_invisible(trgtng))
         // Should cover the case for when the creature found with 'get_nearest_enemy_creature_in_sight_and_range_of_trap' becomes invisible.
         {
             struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
