@@ -388,7 +388,7 @@ long compute_creature_max_strength(long base_param,unsigned short crlevel)
     long strength = saturate_set_unsigned(max_param, 15);
     if (flag_is_set(game.conf.rules.game.classic_bugs_flags, ClscBug_Overflow8bitVal))
     {
-        return min(strength, UCHAR_MAX);
+        return min(strength, UCHAR_MAX+1); //DK1 limited shot damage to 256, not 255
     }
     return strength;
 }
