@@ -1802,25 +1802,33 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, long shot_lvl,
         cctrl->teleport_x = trg_x;
         cctrl->teleport_y = trg_y;
     }
-    // Check if the spell can be fired as a shot. It is definitely not if casted on itself.
-    if ((spconf->shot_model > 0) && (cctrl->targtng_idx != castng->index))
-    {
-        if ((castng->alloc_flags & TAlF_IsControlled) != 0)
-            i = THit_CrtrsNObjcts;
-        else
-            i = THit_CrtrsOnlyNotOwn;
 
-        SYNCDBG(8,"The %s(%d) fire shot(%s) without a target with shot level %d, hit type: 0x%X",
-            thing_model_name(castng), castng->index, shot_code_name(spconf->shot_model), shot_lvl, i);
-        thing_fire_shot(castng, INVALID_THING, spconf->shot_model, shot_lvl, i);
-    }
-    // Check if the spell can be self-casted
-    else if (spconf->caster_affected)
+    if (spconf->caster_affected)
     {
         if (spconf->caster_affect_sound > 0)
           thing_play_sample(castng, spconf->caster_affect_sound, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
         apply_spell_effect_to_thing(castng, spl_idx, cctrl->explevel);
     }
+    else if (spconf->shot_model > 0)
+    {
+        // Note that Wind has shot model and its CastAtThing is 0, besides, the target index is itself.
+        if ((castng->alloc_flags & TAlF_IsControlled) != 0)
+            i = THit_CrtrsNObjcts;
+        else
+            i = THit_CrtrsOnlyNotOwn;
+
+        const struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->instance_id);
+        if (flag_is_set(inst_inf->instance_property_flags, InstPF_RangedBuff))
+        {
+            ERRORLOG("The %s(%d) tried to fire Ranged Buff's shot(%s) without a target!",
+                thing_model_name(castng), castng->index, shot_code_name(spconf->shot_model));
+        }
+        else
+        {
+            thing_fire_shot(castng, INVALID_THING, spconf->shot_model, shot_lvl, i);
+        }
+    }
+
     if (spconf->crtr_summon_model > 0)
     {
         thing_summon_temporary_creature(castng, spconf->crtr_summon_model, spconf->crtr_summon_level, spconf->crtr_summon_amount, spconf->duration, spl_idx);
