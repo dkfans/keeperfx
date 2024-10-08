@@ -250,7 +250,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           game.conf.trap_stats[i].shot_shift_y = 0;
           game.conf.trap_stats[i].shot_shift_z = 0;
           game.conf.trap_stats[i].initial_delay = 0;
-          game.conf.trap_stats[i].can_detect_invisible = 0;
+          game.conf.trap_stats[i].can_detect_invisible = 1; // Set to 1 by default: backward compatibility for custom traps made before this implementation.
           mconf = &game.conf.traps_config[i];
           mconf->manufct_level = 0;
           mconf->manufct_required = 0;
