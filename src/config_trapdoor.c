@@ -113,6 +113,7 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"FLAMEANIMATIONSIZE",   47},
   {"FLAMEANIMATIONOFFSET",    48},
   {"FLAMETRANSPARENCYFLAGS",  49},
+  {"CANDETECTINVISIBLE",      50},
   {NULL,                       0},
 };
 
@@ -249,6 +250,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           game.conf.trap_stats[i].shot_shift_y = 0;
           game.conf.trap_stats[i].shot_shift_z = 0;
           game.conf.trap_stats[i].initial_delay = 0;
+          game.conf.trap_stats[i].can_detect_invisible = 0;
           mconf = &game.conf.traps_config[i];
           mconf->manufct_level = 0;
           mconf->manufct_required = 0;
@@ -1113,6 +1115,22 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               if (k >= 0)
               {
                   trapst->flame.transparency_flags = k << 4;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 50: // CANDETECTINVISIBLE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  game.conf.trap_stats[i].can_detect_invisible = k;
                   n++;
               }
           }

@@ -304,8 +304,18 @@ long near_thing_pos_thing_filter_is_enemy_which_can_be_shot_by_trap(const struct
                         {
                             if (line_of_sight_2d(&traptng->mappos, &thing->mappos))
                             {
-                                // This function should return max value when the distance is minimal, so:
-                                return LONG_MAX - distance;
+                                if (creature_affected_by_spell(thing, SplK_Invisibility))
+                                {
+                                    struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
+                                    if (trapstat->can_detect_invisible != 0)
+                                    {
+                                        // This function should return max value when the distance is minimal.
+                                        return LONG_MAX - distance;
+                                    }
+                                } else {
+                                    // This function should return max value when the distance is minimal.
+                                    return LONG_MAX - distance;
+                                }
                             }
                         }
                     }
