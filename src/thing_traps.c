@@ -234,15 +234,13 @@ TbBool update_trap_trigger_line_of_sight_90_on_subtile(struct Thing *traptng, Ma
                     if (creature_is_invisible(thing))
                     {
                         struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
-                        if (trapstat->can_detect_invisible != 0)
+                        if (trapstat->can_detect_invisible == 0)
                         {
-                            activate_trap(traptng, thing);
-                            return true;
+                            return false;
                         }
-                    } else {
-                        activate_trap(traptng, thing);
-                        return true;
                     }
+                    activate_trap(traptng, thing);
+                    return true;
                 }
             }
         }
@@ -657,15 +655,13 @@ TbBool find_pressure_trigger_trap_target_passing_by_subtile(const struct Thing *
                     if (creature_is_invisible(thing))
                     {
                         struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
-                        if (trapstat->can_detect_invisible != 0)
+                        if (trapstat->can_detect_invisible == 0)
                         {
-                            *found_thing = thing;
-                            return true;
+                            return false;
                         }
-                    } else {
-                        *found_thing = thing;
-                        return true;
                     }
+                    *found_thing = thing;
+                    return true;
                 }
             }
         }
@@ -723,17 +719,14 @@ TbBool update_trap_trigger_line_of_sight(struct Thing* traptng)
         // Should cover the case for when the creature found with 'get_nearest_enemy_creature_in_sight_and_range_of_trap' becomes invisible.
         {
             struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
-            if (trapstat->can_detect_invisible != 0)
+            if (trapstat->can_detect_invisible == 0)
             {
-                activate_trap(traptng, trgtng);
-                creature_start_combat_with_trap_if_available(trgtng, traptng);
-                return true;
+                return false;
             }
-        } else {
-            activate_trap(traptng, trgtng);
-            creature_start_combat_with_trap_if_available(trgtng, traptng);
-            return true;
         }
+        activate_trap(traptng, trgtng);
+        creature_start_combat_with_trap_if_available(trgtng, traptng);
+        return true;
     }
     return false;
 }
