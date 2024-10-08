@@ -307,15 +307,13 @@ long near_thing_pos_thing_filter_is_enemy_which_can_be_shot_by_trap(const struct
                                 if (creature_is_invisible(thing))
                                 {
                                     struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
-                                    if (trapstat->can_detect_invisible != 0)
+                                    if (trapstat->can_detect_invisible == 0)
                                     {
-                                        // This function should return max value when the distance is minimal.
-                                        return LONG_MAX - distance;
+                                        return -1;
                                     }
-                                } else {
-                                    // This function should return max value when the distance is minimal.
-                                    return LONG_MAX - distance;
-                                }
+                                } 
+                                // This function should return max value when the distance is minimal.
+                                return LONG_MAX - distance;
                             }
                         }
                     }
