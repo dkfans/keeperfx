@@ -235,7 +235,6 @@ TbBool is_hero_thing(const struct Thing *thing)
 
 /**
  * Returns a value which decays around some epicenter, like blast damage.
- *
  * @param magnitude Magnitude in nearest whereabouts of the epicenter.
  * @param decay_start Distance after which the magnitude starts decaying.
  * @param decay_length Length of the decaying region.
@@ -255,7 +254,6 @@ long get_radially_decaying_value(long magnitude, long decay_start, long decay_le
 
 /**
  * Returns a value which is stronger around some epicenter but can't go beyond, like implosion damage.
- *
  * @param magnitude Magnitude in nearest whereabouts of the epicenter.
  * @param decay_start Distance after which the magnitude starts decaying.
  * @param decay_length Length of the decaying region.
@@ -806,7 +804,6 @@ long compute_creature_max_unaffected(long base_param, unsigned short crlevel)
 }
 
 /** Computes percentage of given value.
- *
  * @param base_val Value to compute percentage of.
  * @param npercent Percentage; 0..100%, but may be higher too.
  * @return Gives npercent of base_val, with proper rounding.
@@ -827,7 +824,6 @@ long compute_value_percentage(long base_val, short npercent)
 }
 
 /** Computes 8-bit percentage of given value.
- *
  * @param base_val Value to compute percentage of.
  * @param npercent Percentage; 0..256, but may be higher too.
  * @return Gives npercent of base_val, with proper rounding.
@@ -971,7 +967,7 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
     const struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     const struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
     // TODO: Replace deals_physical_damage with check for shotst->damage_type (magic in this sense is DmgT_Electric, DmgT_Combustion and DmgT_Heatburn).
-    if (!flag_is_set(doorst->model_flags, DoMF_ResistNonMagic)  || (shotst->damage_type == DmgT_Magical))
+    if (!flag_is_set(doorst->model_flags, DoMF_ResistNonMagic) || (shotst->damage_type == DmgT_Magical))
     {
         dmg = shotng->shot.damage;
     } else
@@ -996,7 +992,6 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
  * Applies given damage points to a thing.
  * In case of targeting creature, uses its defense values to compute the actual damage.
  * Can be used only to make damage - never to heal creature.
- *
  * @param thing
  * @param dmg
  * @param damage_type
