@@ -801,6 +801,7 @@ long compute_creature_max_unaffected(long base_param, unsigned short crlevel)
         return 0;
     if (base_param > 10000)
         base_param = 10000;
+    // TODO: Need to remove this and make new function 'compute_creature_max_luck' along with 'calculate_correct_creature_luck' for a luck dungeon modifier.
     return saturate_set_unsigned(base_param, 8);
 }
 
@@ -970,7 +971,7 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
     const struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     const struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
     // TODO: Replace deals_physical_damage with check for shotst->damage_type (magic in this sense is DmgT_Electric, DmgT_Combustion and DmgT_Heatburn).
-    if ( !flag_is_set(doorst->model_flags, DoMF_ResistNonMagic)  || (shotst->damage_type == DmgT_Magical))
+    if (!flag_is_set(doorst->model_flags, DoMF_ResistNonMagic)  || (shotst->damage_type == DmgT_Magical))
     {
         dmg = shotng->shot.damage;
     } else
