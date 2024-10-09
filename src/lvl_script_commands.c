@@ -5633,6 +5633,7 @@ static void set_player_modifier_process(struct ScriptContext* context)
             case 1: // Health
                 SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.health, mdfrval);
                 dungeon->modifier.health = mdfrval;
+                do_to_players_all_creatures_of_model(plyr_idx, CREATURE_ANY, update_relative_creature_health);
                 break;
             case 2: // Strength
                 SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.strength, mdfrval);
@@ -5649,6 +5650,7 @@ static void set_player_modifier_process(struct ScriptContext* context)
             case 5: // Speed
                 SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.speed, mdfrval);
                 dungeon->modifier.speed = mdfrval;
+                do_to_players_all_creatures_of_model(plyr_idx, CREATURE_ANY, update_creature_speed);
                 break;
             case 6: // Salary
                 SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.pay, mdfrval);
@@ -5713,6 +5715,7 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
                 if (mdfradd >= 0) {
                     SCRIPTDBG(7,"Adding %d to Player %d Modifier '%s'.", mdfrval, (int)plyr_idx, mdfrname);
                     dungeon->modifier.health = mdfradd;
+                    do_to_players_all_creatures_of_model(plyr_idx, CREATURE_ANY, update_relative_creature_health);
                 } else {
                     SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.health);
                 }
@@ -5749,6 +5752,7 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
                 if (mdfradd >= 0) {
                     SCRIPTDBG(7,"Adding %d to Player %d Modifier '%s'.", mdfrval, (int)plyr_idx, mdfrname);
                     dungeon->modifier.speed = mdfradd;
+                    do_to_players_all_creatures_of_model(plyr_idx, CREATURE_ANY, update_creature_speed);
                 } else {
                     SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.speed);
                 }
