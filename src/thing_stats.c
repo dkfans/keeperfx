@@ -351,8 +351,11 @@ long compute_creature_max_defense(long base_param,unsigned short crlevel)
       base_param = 10000;
     if (crlevel >= CREATURE_MAX_LEVEL)
       crlevel = CREATURE_MAX_LEVEL-1;
-    long max_param = base_param + (game.conf.crtr_conf.exp.defense_increase_on_exp * base_param * (long)crlevel) / 100;
-    return saturate_set_unsigned(max_param, 8);
+    long defense = base_param + (game.conf.crtr_conf.exp.defense_increase_on_exp * base_param * (long)crlevel) / 100;
+    unsigned long long max = (1 << (8)) - 1;
+    if ((defense >= max) && (!emulate_integer_overflow(8)))
+        return max;
+    return defense;
 }
 
 /**
@@ -375,14 +378,19 @@ long compute_creature_max_dexterity(long base_param,unsigned short crlevel)
  */
 long compute_creature_max_strength(long base_param,unsigned short crlevel)
 {
-  if (base_param <= 0)
-      return 0;
-  if (base_param > 60000)
+    if (base_param <= 0)
+        return 0;
+    if (base_param > 60000)
         base_param = 60000;
-  if (crlevel >= CREATURE_MAX_LEVEL)
-    crlevel = CREATURE_MAX_LEVEL-1;
-  long max_param = base_param + (game.conf.crtr_conf.exp.strength_increase_on_exp * base_param * (long)crlevel) / 100;
-  return saturate_set_unsigned(max_param, 15);
+    if (crlevel >= CREATURE_MAX_LEVEL)
+        crlevel = CREATURE_MAX_LEVEL-1;
+    long max_param = base_param + (game.conf.crtr_conf.exp.strength_increase_on_exp * base_param * (long)crlevel) / 100;
+    long strength = saturate_set_unsigned(max_param, 15);
+    if (flag_is_set(game.conf.rules.game.classic_bugs_flags, ClscBug_Overflow8bitVal))
+    {
+        return min(strength, UCHAR_MAX+1); //DK1 limited shot damage to 256, not 255
+    }
+    return strength;
 }
 
 /**
