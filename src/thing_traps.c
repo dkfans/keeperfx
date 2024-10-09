@@ -567,15 +567,15 @@ void activate_trap_god_spell(struct Thing *traptng, struct Thing *creatng, Power
     struct PowerConfigStats *powerst = get_power_model_stats(pwkind);
     if (powerst->can_cast_flags & PwCast_AllThings)
     {
-        magic_use_power_on_thing(traptng->owner, pwkind, SPELL_MAX_LEVEL, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng, PwMod_CastForFree);
+        magic_use_power_on_thing(traptng->owner, pwkind, POWER_MAX_LEVEL, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng, PwMod_CastForFree);
     }
     else if (powerst->can_cast_flags & PwCast_AllGround)
     {
-        magic_use_power_on_subtile(traptng->owner, pwkind, SPELL_MAX_LEVEL, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, PwCast_None, PwMod_CastForFree);
+        magic_use_power_on_subtile(traptng->owner, pwkind, POWER_MAX_LEVEL, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, PwCast_None, PwMod_CastForFree);
     }
     else if (powerst->can_cast_flags & PwCast_Anywhere)
     {
-        magic_use_power_on_level(traptng->owner, pwkind, SPELL_MAX_LEVEL, PwMod_CastForFree);
+        magic_use_power_on_level(traptng->owner, pwkind, POWER_MAX_LEVEL, PwMod_CastForFree);
     }
     else
     {
@@ -1203,7 +1203,7 @@ void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, 
             // Compute shot damage
             if (shotst->fixed_damage == 0)
             {
-                if ((shotst->model_flags & ShMF_StrengthBased) != 0)
+                if (flag_is_set(shotst->model_flags,ShMF_StrengthBased))
                 {
                     damage = calculate_melee_damage(firing);
                 }
