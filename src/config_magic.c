@@ -1915,7 +1915,11 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               pwrdynst->strength[n] = k;
               n++;
           }
-          if (n <= SPELL_MAX_LEVEL)
+          if (n == POWER_MAX_LEVEL+1) // Old power max is one short for spell max, so duplicate final power value to use for lvl10 creatures.
+          {
+              pwrdynst->strength[n] = pwrdynst->strength[n-1];
+          }
+          if (n <= POWER_MAX_LEVEL)
           {
               CONFWRNLOG("Couldn't read all \"%s\" parameters in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
@@ -1925,7 +1929,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              if (n > SPELL_MAX_LEVEL)
+              if (n > POWER_MAX_LEVEL)
               {
                 CONFWRNLOG("Too many \"%s\" parameters in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
@@ -1934,7 +1938,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               pwrdynst->cost[n] = k;
               n++;
           }
-          if (n <= SPELL_MAX_LEVEL)
+          if (n <= POWER_MAX_LEVEL)
           {
               CONFWRNLOG("Couldn't read all \"%s\" parameters in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
