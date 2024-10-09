@@ -743,7 +743,7 @@ enum GUIPanelSprite {
     GPS_message_rpanel_msg_payday_act = 778,
     GPS_message_rpanel_msg_payday_std = 779,
 
-    GUI_PANEL_SPRITES_COUNT = 800,
+    GUI_PANEL_SPRITES_COUNT = 900,
     GUI_PANEL_SPRITES_NEW = 512,
     NEW_GUI_PANEL_SPRITES_COUNT = GUI_PANEL_SPRITES_COUNT + GUI_PANEL_SPRITES_NEW,
 };
