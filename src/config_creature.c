@@ -840,13 +840,13 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                 game.conf.magic_conf.instance_info[i].tooltip_stridx = 0;
                 game.conf.magic_conf.instance_info[i].range_min = -1;
                 game.conf.magic_conf.instance_info[i].range_max = -1;
-                game.conf.magic_conf.instance_info[i].validate_source_func = 1;
+                game.conf.magic_conf.instance_info[i].validate_source_func = 0;
                 game.conf.magic_conf.instance_info[i].validate_source_func_params[0] = 0;
                 game.conf.magic_conf.instance_info[i].validate_source_func_params[1] = 0;
-                game.conf.magic_conf.instance_info[i].validate_target_func = 3;
+                game.conf.magic_conf.instance_info[i].validate_target_func = 0;
                 game.conf.magic_conf.instance_info[i].validate_target_func_params[0] = 0;
                 game.conf.magic_conf.instance_info[i].validate_target_func_params[1] = 0;
-                game.conf.magic_conf.instance_info[i].search_func = 1;
+                game.conf.magic_conf.instance_info[i].search_func = 0;
             }
         }
     }

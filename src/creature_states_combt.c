@@ -1802,63 +1802,10 @@ TbBool creature_would_benefit_from_healing(const struct Thing* thing)
 }
 
 /**
- * @brief Get the best self buff instance.
- * As long as the instance has SELF_BUFF flag and the creature is not being already affected,
- * the instance will be considered valid. The returned instance might has RANGED_BUFF flag, so
- * be careful about how you set the instance. You must not set an index of enemy to the target
- * parameter.
- * @param thing The creature to use self buff.
- * @return CrInstance The valid self buff instance.
+ * @brief Get suitable spell for the caster itself.
+ * @param thing The creature to use spell.
+ * @return CrInstance The index of the instance.
  */
-CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
-{
-    struct InstanceInfo* inst_inf;
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
-    {
-        INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
-    }
-    if (!creature_affected_by_spell(thing, SplK_Invisibility))
-    {
-        INSTANCE_RET_IF_AVAIL(thing, CrInst_INVISIBILITY);
-    }
-    if (creature_requires_healing(thing))
-    {
-        INSTANCE_RET_IF_AVAIL(thing, CrInst_HEAL);
-    }
-    if (!creature_affected_by_spell(thing, SplK_Armour))
-    {
-        INSTANCE_RET_IF_AVAIL(thing, CrInst_ARMOUR);
-    }
-    if (!creature_affected_by_spell(thing, SplK_Speed))
-    {
-        INSTANCE_RET_IF_AVAIL(thing, CrInst_SPEED);
-    }
-    if (!creature_affected_by_spell(thing, SplK_Rebound))
-    {
-        INSTANCE_RET_IF_AVAIL(thing, CrInst_REBOUND);
-    }
-    if (!creature_affected_by_spell(thing, SplK_Fly))
-    {
-        INSTANCE_RET_IF_AVAIL(thing, CrInst_FLY);
-    }
-    INSTANCE_RET_IF_AVAIL(thing, CrInst_SUMMON);
-    INSTANCE_RET_IF_AVAIL(thing, CrInst_FAMILIAR);
-    for (int i = CrInst_LISTEND; i < game.conf.crtr_conf.instances_count; i++)
-    {
-        inst_inf = creature_instance_info_get(i);
-        if ((inst_inf->instance_property_flags & InstPF_SelfBuff))
-        {
-            if (inst_inf->func_params[0] != SplK_None &&
-                !creature_affected_by_spell(thing, inst_inf->func_params[0]))
-            {
-                INSTANCE_RET_IF_AVAIL(thing, i);
-            }
-        }
-    }
-    return CrInst_NULL;
-}
-
 CrInstance get_self_spell_casting(const struct Thing *thing)
 {
     TbBool ok = false;
@@ -1890,8 +1837,10 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
         if (!ok)
         {
             // If we reach here, it means that this instance has no validate function for source and target, such
-            // as TOKING. Just check if it has SELF_BUFF flag, this should cover IMP's case.
-            if (!flag_is_set(inst_inf->instance_property_flags, InstPF_SelfBuff))
+            // as TOKING. Just check some basic conditions and check if the instance has SELF_BUFF flag,
+            // this should cover IMP's case.
+            if (!flag_is_set(inst_inf->instance_property_flags, InstPF_SelfBuff) ||
+                !validate_source_basic((struct Thing *)thing, (struct Thing *)thing, i, 0, 0) )
             {
                 continue;
             }
@@ -2295,7 +2244,7 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, 
     if (thing_in_field_of_view(thing, enmtng))
     {
         // Firstly, check if any self buff is available.
-        inst_id = get_best_self_preservation_instance_to_use(thing);
+        inst_id = get_self_spell_casting(thing);
         if (inst_id > CrInst_NULL)
         {
             set_creature_instance(thing, inst_id, thing->index, 0);
@@ -2321,7 +2270,7 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, 
         // If cannot move to enemy, and not waiting for ranged weapon cooldown, then retreat from him
         if (!creature_has_ranged_weapon(thing))
         {
-            inst_id = get_best_self_preservation_instance_to_use(thing);
+            inst_id = get_self_spell_casting(thing);
             if (inst_id > CrInst_NULL)
             {
                 set_creature_instance(thing, inst_id, thing->index, 0);
@@ -2689,7 +2638,7 @@ long waiting_combat_move(struct Thing *figtng, struct Thing *enmtng, long enmdis
         return 0;
     }
     // If the creature has self buff, use it now.
-    CrInstance inst_id = get_best_self_preservation_instance_to_use(figtng);
+    CrInstance inst_id = get_self_spell_casting(figtng);
     if (inst_id > CrInst_NULL)
     {
         set_creature_instance(figtng, inst_id, figtng->index, 0);
@@ -2779,7 +2728,7 @@ void creature_in_ranged_combat(struct Thing *creatng)
         return;
     }
     // If the creature has self buff, prefer it to weapon.
-    CrInstance buff_inst = get_best_self_preservation_instance_to_use(creatng);
+    CrInstance buff_inst = get_self_spell_casting(creatng);
     CrInstance weapon = CrInst_NULL;
     long dist = get_combat_distance(creatng, enmtng);
     if (buff_inst > CrInst_NULL)
@@ -3078,7 +3027,7 @@ TbBool creature_look_for_combat(struct Thing *creatng)
         if ( (cctrl->opponents_melee_count == 0) && (cctrl->opponents_ranged_count == 0) ) {
             return false;
         }
-        CrInstance inst_id = get_best_self_preservation_instance_to_use(creatng);
+        CrInstance inst_id = get_self_spell_casting(creatng);
         if (inst_id > CrInst_NULL)
         {
             set_creature_instance(creatng, inst_id, creatng->index, 0);

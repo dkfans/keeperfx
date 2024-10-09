@@ -117,12 +117,13 @@ const struct NamedCommand creature_instances_validate_func_type[] = {
     {"validate_source_generic",                                 1},
     {"validate_source_even_in_prison",                          2},
     {"validate_target_generic",                                 3},
-    {"validate_target_benefits_from_defensive_missile",         4},
-    {"validate_target_benefits_from_defensive",                 5},
-    {"validate_target_benefits_from_healing",                   6},
-    {"validate_target_benefits_from_higher_altitude",           7},
-    {"validate_target_benefits_from_offensive",                 8},
-    {"validate_target_benefits_from_wind",                      9},
+    {"validate_target_even_in_prison",                          4},
+    {"validate_target_benefits_from_defensive_missile",         5},
+    {"validate_target_benefits_from_defensive",                 6},
+    {"validate_target_benefits_from_healing",                   7},
+    {"validate_target_benefits_from_higher_altitude",           8},
+    {"validate_target_benefits_from_offensive",                 9},
+    {"validate_target_benefits_from_wind",                      10},
     {NULL, 0},
 };
 
@@ -131,6 +132,7 @@ Creature_Validate_Func creature_instances_validate_func_list[] = {
     validate_source_generic,
     validate_source_even_in_prison,
     validate_target_generic,
+    validate_target_even_in_prison,
     validate_target_benefits_from_defensive_missile,
     validate_target_benefits_from_defensive,
     validate_target_benefits_from_healing,
@@ -562,24 +564,15 @@ long instf_creature_cast_spell(struct Thing *creatng, long *param)
     return 0;
 }
 
-
 TbBool process_creature_self_spell_casting(struct Thing* creatng)
 {
     TRACE_THING(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (((creatng->alloc_flags & TAlF_IsControlled) != 0)
-        || (cctrl->conscious_back_turns != 0)
-        || ((cctrl->stateblock_flags & CCSpl_Freeze) != 0)) {
+    CrInstance inst_idx = get_self_spell_casting(creatng);
+    if (inst_idx == CrInst_NULL) {
         return false;
     }
-    if (cctrl->instance_id != CrInst_NULL) {
-        return false;
-    }
-
-    long inst_idx = get_self_spell_casting(creatng);
-    if (inst_idx <= 0) {
-        return false;
-    }
+    SYNCDBG(9, "%s(%d) use %s(%d) on itself.", thing_model_name(creatng), creatng->index,
+        creature_instance_code_name(inst_idx), inst_idx);
     set_creature_instance(creatng, inst_idx, creatng->index, 0);
     return true;
 }
@@ -624,9 +617,9 @@ CrInstance process_creature_ranged_buff_spell_casting(struct Thing* creatng)
         if(ok && targets && (found_count > 0))
         {
             struct Thing* target = thing_get(targets[0]);
-            SYNCDBG(8, "Set instance %s(%d) on %s(%d) for %s(%d).",
-                creature_instance_code_name(i), i, thing_model_name(creatng), creatng->index,
-                thing_model_name(target), target->index);
+            SYNCDBG(8, "Set instance %s(%d) on %s(%d)(%d) for %s(%d)(%d).",
+                creature_instance_code_name(i), i, thing_model_name(creatng), creatng->index, creatng->owner,
+                thing_model_name(target), target->index, target->owner);
 
             struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
             // Enter the temporary state.
@@ -1197,6 +1190,7 @@ TbBool validate_source_basic
 
     if (!creature_instance_is_available(source, inst_idx) ||
         !creature_instance_has_reset(source, inst_idx) ||
+        ((cctrl->stateblock_flags & CCSpl_Freeze) != 0) ||
         creature_is_fleeing_combat(source) || creature_affected_by_spell(source, SplK_Chicken) ||
         creature_is_being_unconscious(source) || creature_is_dying(source) ||
         thing_is_picked_up(source) || creature_is_being_dropped(source) ||
@@ -1268,6 +1262,8 @@ TbBool validate_target_basic
     if ((inst_inf->instance_property_flags & InstPF_SelfBuff) == 0 && source->index == target->index)
     {
         // If this spell doesn't have SELF_BUFF flag, exclude itself.
+        WARNDBG(8, "%s(%d) try to cast %s(%d) on itself but this instance has no SELF_BUFF flag",
+            thing_model_name(target), target->index, creature_instance_code_name(inst_idx), inst_idx);
         return false;
     }
 
@@ -1304,10 +1300,37 @@ TbBool validate_target_generic
     int32_t param2
     )
 {
+    if (!validate_target_even_in_prison(source, target, inst_idx, param1, param2) ||
+        creature_is_being_tortured(target) || creature_is_kept_in_prison(target))
+    {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief Check if the given creature can be the target of the specified spell when the creature
+ * is in prison/torture room.
+ * @param source The source creature
+ * @param target The target creature
+ * @param inst_idx The spell instance index
+ * @param param1 Optional 1st parameter.
+ * @param param2 Optional 2nd parameter.
+ * @return TbBool True if the creature can be, false if otherwise.
+ */
+TbBool validate_target_even_in_prison
+    (
+    struct Thing *source,
+    struct Thing *target,
+    CrInstance inst_idx,
+    int32_t param1,
+    int32_t param2
+    )
+{
     // We don't check the spatial conditions, such as distacne, angle, and sight here, because
     // they should be checked in the search function.
-    if (!validate_target_basic(source, target, inst_idx, param1, param2) || creature_is_being_unconscious(target) ||
-        creature_is_being_tortured(target) || creature_is_kept_in_prison(target))
+    if (!validate_target_basic(source, target, inst_idx, param1, param2) || creature_is_being_unconscious(target))
     {
         return false;
     }
@@ -1386,6 +1409,7 @@ TbBool validate_target_benefits_from_defensive_missile
     {
         return false;
     }
+
     return true;
 }
 
@@ -1516,17 +1540,14 @@ TbBool validate_target_benefits_from_wind
     int32_t param2
     )
 {
-    if (!validate_target_generic(source, target, inst_idx, param1, param2))
-    {
-        return false;
-    }
+    // Note that we don't need to call validate_target_generic or validate_target_basic because
+    // Wind isn't SELF_BUFF. It doesn't require a target, the target parameter is just the source.
     struct CreatureControl* cctrl = creature_control_get_from_thing(target);
     if (creature_control_invalid(cctrl))
     {
         ERRORLOG("Invalid creature control");
         return false;
     }
-
     if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
     {
         return true;
