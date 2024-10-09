@@ -260,12 +260,14 @@ const struct NamedCommand trap_config_desc[] = {
   {"AttackAnimationID",   40},
   {"DestroyedEffect",     41},
   {"InitialDelay",        42},
-  {"FlameAnimationID",       43},
-  {"FlameAnimationSpeed",    44},
-  {"FlameAnimationSize",     45},
-  {"FlameAnimationOffset",   46},
-  {"FlameTransparencyFlags", 47},
-  {NULL,                   0},
+  {"PlaceOnSubtile",      43},
+  {"FlameAnimationID",       44},
+  {"FlameAnimationSpeed",    45},
+  {"FlameAnimationSize",     46},
+  {"FlameAnimationOffset",   47},
+  {"FlameTransparencyFlags", 48},
+  {"DetectInvisible",        49},
+  {NULL,                      0},
 };
 
 const struct NamedCommand room_config_desc[] = {
@@ -1892,24 +1894,30 @@ static void set_trap_configuration_process(struct ScriptContext *context)
         case 42: // InitialDelay
             trapstat->initial_delay = value;
             break;
-        case 43: // FlameAnimationID
+        case 43: // PlaceOnSubtile
+            trapst->place_on_subtile = value;
+            break;
+        case 44: // FlameAnimationID
             trapst->flame.animation_id = get_anim_id(context->value->strs[2], &obj_tmp);
             refresh_trap_anim(trap_type);
             break;
-        case 44: // FlameAnimationSpeed
+        case 45: // FlameAnimationSpeed
             trapst->flame.anim_speed = value;
             break;
-        case 45: // FlameAnimationSize
+        case 46: // FlameAnimationSize
             trapst->flame.sprite_size = value;
             break;
-        case 46: // FlameAnimationOffset
+        case 47: // FlameAnimationOffset
             trapst->flame.fp_add_x = context->value->chars[8];
             trapst->flame.fp_add_y = context->value->chars[9];
             trapst->flame.td_add_x = context->value->chars[10];
             trapst->flame.td_add_y = context->value->chars[11];
             break;
-        case 47: // FlameTransparencyFlags
+        case 48: // FlameTransparencyFlags
             trapst->flame.transparency_flags = value << 4;
+            break;
+        case 49: // DetectInvisible
+            trapstat->detect_invisible = value;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
