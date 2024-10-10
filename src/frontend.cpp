@@ -42,7 +42,6 @@
 #include "config_strings.h"
 #include "config_campaigns.h"
 #include "config_creature.h"
-#include "config_spritecolors.h"
 #include "config_terrain.h"
 #include "config_magic.h"
 #include "config_spritecolors.h"
