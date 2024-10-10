@@ -488,7 +488,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     k = atoi(word_buf);
-                    if ( (!SoundDisabled) && ( (k < 0) || (k > (samples_in_bank - 1)) ) )
+                    if (k < 0)
                     {
                         CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
@@ -659,7 +659,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = atoi(word_buf);
-                    if ( (!SoundDisabled) && ( (n < 0) || (n > (samples_in_bank - 1)) ) )
+                    if (n < 0)
                     {
                         CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
@@ -672,7 +672,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = atoi(word_buf);
-                    if ((!SoundDisabled) && ((n < 0) || (n > (samples_in_bank - 1))))
+                    if (n < 0)
                     {
                         objst->effect.sound_range = 1;
                     }

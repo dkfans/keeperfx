@@ -77,8 +77,7 @@ struct TbSetupSprite setup_sprites[] = {
   {NULL,                  NULL,                   NULL},
 };
 
-#if (BFDEBUG_LEVEL > 0)
-// Declarations for font testing screen (debug version only)
+// Declarations for font testing screen
 struct TbSetupSprite setup_testfont[] = {
   {&testfont[0],          &testfont_end[0],       &testfont_data[0]},
   {&testfont[1],          &testfont_end[1],       &testfont_data[1]},
@@ -121,7 +120,6 @@ struct TbLoadFiles testfont_load_files[] = {
   {"data/palette.dat",   (unsigned char **)&testfont_palette[1],NULL,                                           0, 0, 0},
   {"",                    NULL,                                 NULL,                                           0, 0, 0},
 };
-#endif
 
 struct TbLoadFiles gui_load_files_320[] = {
   {"data/gui1-32.dat",   (unsigned char **)&button_sprite_data, (unsigned char **)&end_button_sprite_data,      0, 0, 0},

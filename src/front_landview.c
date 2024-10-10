@@ -272,15 +272,15 @@ void update_frontmap_ambient_sound(void)
       {
           long i = compute_sound_good_to_bad_factor();
           SYNCDBG(18, "Volume factor is %ld", i);
-          SetSampleVolume(0, campaign.ambient_good, map_sound_fade * (i) / 256, 0);
-          SetSampleVolume(0, campaign.ambient_bad, map_sound_fade * (settings.sound_volume - i) / 256, 0);
+          SetSampleVolume(0, campaign.ambient_good, map_sound_fade * (i) / 256);
+          SetSampleVolume(0, campaign.ambient_bad, map_sound_fade * (settings.sound_volume - i) / 256);
     } else
     if (lvidx > 13)
     {
-      SetSampleVolume(0, campaign.ambient_bad, settings.sound_volume *map_sound_fade/256, 0);
+      SetSampleVolume(0, campaign.ambient_bad, settings.sound_volume *map_sound_fade/256);
     } else
     {
-      SetSampleVolume(0, campaign.ambient_good, settings.sound_volume *map_sound_fade/256, 0);
+      SetSampleVolume(0, campaign.ambient_good, settings.sound_volume *map_sound_fade/256);
     }
     Mix_VolumeChunk(streamed_sample, settings.sound_volume *map_sound_fade/256);
     SetMusicPlayerVolume(map_sound_fade*(long)settings.redbook_volume/256);
@@ -288,8 +288,8 @@ void update_frontmap_ambient_sound(void)
   {
     if ((features_enabled & Ft_AdvAmbSound) != 0)
     {
-      SetSampleVolume(0, campaign.ambient_good, 0, 0);
-      SetSampleVolume(0, campaign.ambient_bad, 0, 0);
+      SetSampleVolume(0, campaign.ambient_good, 0);
+      SetSampleVolume(0, campaign.ambient_bad, 0);
     }
     SetMusicPlayerVolume(0);
     Mix_VolumeChunk(streamed_sample, 0);
@@ -683,7 +683,7 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
       {
           WARNLOG("No extension specified for good speech file; defaulting to '.wav'.");
           char path[DISKPATH_SIZE];
-          sprintf(path, "%s.wav", lvinfo->speech_before);
+          snprintf(path, sizeof(path), "%s.wav", lvinfo->speech_before);
           fname = prepare_file_fmtpath(FGrp_AtlSound, "%s", path);
       }
       else
@@ -700,7 +700,7 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
       {
           WARNLOG("No extension specified for evil speech file; defaulting to '.wav'.");
           char path[DISKPATH_SIZE];
-          sprintf(path, "%s.wav", lvinfo->speech_after);
+          snprintf(path, sizeof(path), "%s.wav", lvinfo->speech_after);
           fname = prepare_file_fmtpath(FGrp_AtlSound, "%s", path);
       }
       else
@@ -1149,8 +1149,8 @@ TbBool frontmap_load(void)
     LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
     if ((features_enabled & Ft_AdvAmbSound) != 0)
     {
-        play_sample_using_heap(0, campaign.ambient_good, 0, 0x40, 100, -1, 2, 0);
-        play_sample_using_heap(0, campaign.ambient_bad, 0, 0x40, 100, -1, 2, 0);
+        play_sample(0, campaign.ambient_good, 0, 0x40, 100, -1, 2, 0);
+        play_sample(0, campaign.ambient_bad, 0, 0x40, 100, -1, 2, 0);
     }
     SetMusicPlayerVolume(settings.redbook_volume);
     fe_computer_players = 0;

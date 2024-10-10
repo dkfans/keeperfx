@@ -21,10 +21,10 @@
 #define BFLIB_MSPOINTER_H
 
 #include "bflib_basics.h"
-#include "bflib_semphr.hpp"
 #include "bflib_planar.h"
 #include "bflib_vidsurface.h"
 #include "bflib_video.h"
+#include <mutex>
 
 /******************************************************************************/
 #define CURSOR_SCALING_XSTEPS MAX_SUPPORTED_SCREEN_WIDTH/10
@@ -66,8 +66,8 @@ class LbI_PointerHandler {
     bool field_1050;
     bool field_1054;
     const struct TbSprite *sprite;
-    LbSemaphore sema_rel;
-    };
+    std::mutex lock;
+};
 
 /******************************************************************************/
 

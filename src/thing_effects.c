@@ -1348,10 +1348,8 @@ long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, M
     MapSubtlCoord end_y = range_stl + pos->y.stl.num;
     if (end_y > gameadd.map_subtiles_y)
       end_y = gameadd.map_subtiles_y;
-#if (BFDEBUG_LEVEL > 0)
     if ((start_params.debug_flags & DFlg_ShotsDamage) != 0)
         create_price_effect(pos, my_player_number, max_damage);
-#endif
     long num_affected = 0;
     for (MapSubtlCoord stl_y = start_y; stl_y <= end_y; stl_y++)
     {

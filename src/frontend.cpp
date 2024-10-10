@@ -374,14 +374,12 @@ const unsigned long alliance_grid[4][4] = {
   {0x04, 0x10, 0x20, 0x00,},
 };
 
-#if (BFDEBUG_LEVEL > 0)
-// Declarations for font testing screen (debug version only)
+// Declarations for font testing screen
 struct TbSprite *testfont[TESTFONTS_COUNT];
 struct TbSprite *testfont_end[TESTFONTS_COUNT];
 unsigned char * testfont_data[TESTFONTS_COUNT];
 unsigned char *testfont_palette[3];
 long num_chars_in_font = 128;
-#endif
 
 int status_panel_width = 140;
 // struct MsgBoxInfo MsgBox;
@@ -1245,8 +1243,7 @@ void gui_area_slider(struct GuiButton *gbtn)
     LbSpriteDrawResized(gbtn->scr_pos_x + shift_x + 24*units_per_px/16, gbtn->scr_pos_y + 6*units_per_px/16, bs_units_per_px, spr);
 }
 
-#if (BFDEBUG_LEVEL > 0)
-// Code for font testing screen (debug version only)
+// Code for font testing screen
 TbBool fronttestfont_draw(void)
 {
   const struct TbSprite *spr;
@@ -1308,7 +1305,6 @@ TbBool fronttestfont_input(void)
   }
   return false;
 }
-#endif
 
 
 void frontend_draw_icon(struct GuiButton *gbtn)
@@ -2612,7 +2608,7 @@ char *mdlf_for_cd(struct TbLoadFiles * tb_load_files)
     result = tb_load_files;
     if ( tb_load_files->FName[0] != 42 )
     {
-        sprintf(path_string, "%s/%s", install_info.inst_path, tb_load_files->FName); // todo check out
+        snprintf(path_string, sizeof(path_string), "%s/%s", install_info.inst_path, tb_load_files->FName); // todo check out
         return path_string;
     }
     return result->FName;
@@ -2790,11 +2786,9 @@ void frontend_shutdown_state(FrontendMenuState pstate)
     case FeSt_OUTRO:
     case FeSt_PACKET_DEMO:
         break;
-#if (BFDEBUG_LEVEL > 0)
     case FeSt_FONT_TEST:
         free_testfont_fonts();
         break;
-#endif
     default:
         ERRORLOG("Unhandled FRONTEND state %d shutdown",(int)pstate);
         break;
@@ -2930,13 +2924,11 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
         frontend_campaign_list_load();
         set_pointer_graphic_menu();
         break;
-  #if (BFDEBUG_LEVEL > 0)
     case FeSt_FONT_TEST:
         fade_palette_in = 0;
         load_testfont_fonts();
         set_pointer_graphic_menu();
         break;
-  #endif
       default:
         ERRORLOG("Unhandled FRONTEND new state");
         break;
@@ -2986,7 +2978,6 @@ TbBool frontmainmnu_input(void)
             return true;
         }
     }
-#if (BFDEBUG_LEVEL > 0)
     if (lbKeyOn[KC_F] && lbKeyOn[KC_LSHIFT])
     {
         if ((game.flags_font & FFlg_AlexCheat) != 0)
@@ -2996,7 +2987,6 @@ TbBool frontmainmnu_input(void)
             return true;
         }
     }
-#endif
     return false;
 }
 
@@ -3126,7 +3116,6 @@ void frontend_input(void)
             input_consumed = true;
         }
         break;
-#if (BFDEBUG_LEVEL > 0)
     case FeSt_FONT_TEST:
         get_gui_inputs(0);
         input_consumed = frontscreen_end_input(false);
@@ -3135,7 +3124,6 @@ void frontend_input(void)
         }
         fronttestfont_input();
         break;
-#endif
     default:
         get_gui_inputs(0);
         input_consumed = frontscreen_end_input(false);
@@ -3461,11 +3449,9 @@ short frontend_draw(void)
     case FeSt_STORY_BIRTHDAY:
         frontbirthday_draw();
         break;
-#if (BFDEBUG_LEVEL > 0)
     case FeSt_FONT_TEST:
         fronttestfont_draw();
         break;
-#endif
     default:
         break;
     }

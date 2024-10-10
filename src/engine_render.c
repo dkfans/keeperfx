@@ -452,7 +452,6 @@ static long map_z_pos;
 static int normal_shade_front;
 static int normal_shade_back;
 static long me_distance;
-static long UseFastBlockDraw;
 static long thelens;
 static long fade_mmm;
 static long spr_map_angle;
@@ -540,8 +539,8 @@ long interpolate(long variable_to_interpolate, long previous, long current)
     // future: by using the predicted future position in the interpolation calculation, we can remove input lag (or visual lag).
     long future = current + (current - previous);
     // 0.5 is definitely accurate. Tested by rotating the camera while comparing the minimap's rotation with the camera's rotation in a video recording.
-    long desired_value = lerp(current, future, 0.5);
-    return lerp(variable_to_interpolate, desired_value, gameadd.delta_time);
+    long desired_value = LbLerp(current, future, 0.5);
+    return LbLerp(variable_to_interpolate, desired_value, gameadd.delta_time);
 }
 
 long interpolate_angle(long variable_to_interpolate, long previous, long current)
@@ -5053,7 +5052,7 @@ static void draw_engine_number(struct BucketKindFloatingGoldText *num)
     long pos_x;
 
     // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
-    float scale_by_zoom = lerp(0.15, 1.00, hud_scale);
+    float scale_by_zoom = LbLerp(0.15, 1.00, hud_scale);
 
     flg_mem = lbDisplay.DrawFlags;
     player = get_my_player();
@@ -5106,7 +5105,7 @@ static void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
         {
             int deltay, height, zoom_factor;
             // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
-            float scale_by_zoom = lerp(0.15, 1.00, hud_scale);
+            float scale_by_zoom = LbLerp(0.15, 1.00, hud_scale);
 
             if (cam->view_mode == PVM_FrontView) {
                 zoom_factor = 4094*scale_by_zoom;
@@ -5265,10 +5264,10 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         case PVM_IsoWibbleView:
         case PVM_IsoStraightView:
             // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
-            scale_by_zoom = lerp(0.15, 1.00, hud_scale);
+            scale_by_zoom = LbLerp(0.15, 1.00, hud_scale);
             break;
         case PVM_FrontView:
-            scale_by_zoom = lerp(0.15, 1.00, hud_scale);
+            scale_by_zoom = LbLerp(0.15, 1.00, hud_scale);
             break;
         case PVM_ParchmentView:
             scale_by_zoom = 1;
@@ -5481,7 +5480,7 @@ static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
         {
             int top_of_pole_offset, zoom_factor;
             // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
-            float scale_by_zoom = lerp(0.15, 1.00, hud_scale);
+            float scale_by_zoom = LbLerp(0.15, 1.00, hud_scale);
 
             if (cam->view_mode == PVM_FrontView) {
                 zoom_factor = (4094*scale_by_zoom);
@@ -5660,7 +5659,7 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     int line_thickness = max(1, (custom_line_box_size * units_per_pixel_best / 16.0) );
     
     // Make the line slightly thinner when zoomed out
-    line_thickness = lerp(line_thickness, 1, 1.0-hud_scale);
+    line_thickness = LbLerp(line_thickness, 1, 1.0-hud_scale);
     
     int put_pixels_left = line_thickness/2; // Allocate half of the thickness to the left
     int put_pixels_right = line_thickness-put_pixels_left; // Remaining thickness is placed to the right
@@ -5676,7 +5675,7 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
         //    Temporary Error message, this should never appear in the log, but if it does, then the line must have been clipped incorrectly
         //    WARNMSG("draw_stripey_line: Pixel rendered outside engine window. X: %d, Y: %d, window_width: %d, window_height %d, A1: %d, A2 %d, B1 %d, B2 %d, a_start: %d, a_end: %d, b_start: %d, rWA: %d", *x_coord, *y_coord, relative_window_width, relative_window_height, a1, a2, b1, b2, a_start, a_end, b_start, relative_window_a);
         //}
-        color_animation_position += lerp(1.0, 4.0, 1.0-hud_scale) * (16.0/units_per_pixel_best);
+        color_animation_position += LbLerp(1.0, 4.0, 1.0-hud_scale) * (16.0/units_per_pixel_best);
         if (color_animation_position >= 16.0) {
             color_animation_position -= 16.0;
         }
@@ -6906,87 +6905,46 @@ static void clear_fast_bucket_list(void)
 
 static void draw_texturedquad_block(struct BucketKindTexturedQuad *txquad)
 {
-    if (!UseFastBlockDraw)
+    struct PolyPoint point_a;
+    struct PolyPoint point_b;
+    struct PolyPoint point_c;
+    struct PolyPoint point_d;
+    vec_mode = VM_Unknown5;
+    switch (txquad->marked_mode) // Is visible/selected
     {
-        struct PolyPoint point_a;
-        struct PolyPoint point_b;
-        struct PolyPoint point_c;
-        struct PolyPoint point_d;
-        vec_mode = VM_Unknown5;
-        switch (txquad->marked_mode) // Is visible/selected
-        {
-        case 0:
-            vec_map = block_ptrs[TEXTURE_LAND_MARKED_LAND];
-            break;
-        case 1:
-            vec_map = block_ptrs[TEXTURE_LAND_MARKED_GOLD];
-            break;
-        case 3:
-        default:
-            vec_map = block_ptrs[txquad->texture_idx];
-            break;
-        }
-        point_a.X = (txquad->unk_x >> 8) / pixel_size;
-        point_a.Y = (txquad->unk_y >> 8) / pixel_size;
-        point_a.U = orient_to_mapU1[txquad->orient];
-        point_a.V = orient_to_mapV1[txquad->orient];
-        point_a.S = txquad->lightness0;
-        point_d.X = ((txquad->zoom_x + txquad->unk_x) >> 8) / pixel_size;
-        point_d.Y = (txquad->unk_y >> 8) / pixel_size;
-        point_d.U = orient_to_mapU2[txquad->orient];
-        point_d.V = orient_to_mapV2[txquad->orient];
-        point_d.S = txquad->lightness1;
-        point_b.X = ((txquad->zoom_x + txquad->unk_x) >> 8) / pixel_size;
-        point_b.Y = ((txquad->zoom_y + txquad->unk_y) >> 8) / pixel_size;
-        point_b.U = orient_to_mapU3[txquad->orient];
-        point_b.V = orient_to_mapV3[txquad->orient];
-        point_b.S = txquad->lightness2;
-        point_c.X = (txquad->unk_x >> 8) / pixel_size;
-        point_c.Y = ((txquad->zoom_y + txquad->unk_y) >> 8) / pixel_size;
-        point_c.U = orient_to_mapU4[txquad->orient];
-        point_c.V = orient_to_mapV4[txquad->orient];
-        point_c.S = txquad->lightness3;
-        draw_gpoly(&point_a, &point_d, &point_b);
-        draw_gpoly(&point_a, &point_b, &point_c);
-    } else
-    {
-        struct GtBlock gtb;
-        switch (txquad->marked_mode)
-        {
-        case 0:
-            gtb.field_0 = block_ptrs[TEXTURE_LAND_MARKED_LAND];
-            gtb.lightness0 = txquad->lightness0 >> 16;
-            gtb.lightness1 = txquad->lightness1 >> 16;
-            gtb.lightness2 = txquad->lightness2 >> 16;
-            gtb.lightness3 = txquad->lightness3 >> 16;
-            break;
-        case 1:
-            gtb.field_0 = block_ptrs[TEXTURE_LAND_MARKED_GOLD];
-            gtb.lightness0 = txquad->lightness0 >> 16;
-            gtb.lightness1 = txquad->lightness1 >> 16;
-            gtb.lightness2 = txquad->lightness2 >> 16;
-            gtb.lightness3 = txquad->lightness3 >> 16;
-            break;
-        case 3:
-            gtb.field_0 = block_ptrs[txquad->texture_idx];
-            gtb.lightness0 = txquad->lightness0 >> 16;
-            gtb.lightness1 = txquad->lightness1 >> 16;
-            gtb.lightness2 = txquad->lightness2 >> 16;
-            gtb.lightness3 = txquad->lightness3 >> 16;
-            break;
-        default:
-            gtb.field_0 = block_ptrs[txquad->texture_idx];
-            break;
-        }
-        gtb.field_4 = (txquad->unk_x >> 8) / pixel_size;
-        gtb.field_8 = (txquad->unk_y >> 8) / pixel_size;
-        gtb.field_1C = orient_table_xflip[txquad->orient];
-        gtb.field_20 = orient_table_yflip[txquad->orient];
-        gtb.field_24 = orient_table_rotate[txquad->orient];
-        gtb.field_28 = (txquad->zoom_x >> 8) / pixel_size >> 5;
-        gtb.field_2C = (txquad->zoom_y >> 8) / pixel_size >> 4;
-        gtblock_draw(&gtb);
+    case 0:
+        vec_map = block_ptrs[TEXTURE_LAND_MARKED_LAND];
+        break;
+    case 1:
+        vec_map = block_ptrs[TEXTURE_LAND_MARKED_GOLD];
+        break;
+    case 3:
+    default:
+        vec_map = block_ptrs[txquad->texture_idx];
+        break;
     }
+    point_a.X = (txquad->unk_x >> 8) / pixel_size;
+    point_a.Y = (txquad->unk_y >> 8) / pixel_size;
+    point_a.U = orient_to_mapU1[txquad->orient];
+    point_a.V = orient_to_mapV1[txquad->orient];
+    point_a.S = txquad->lightness0;
+    point_d.X = ((txquad->zoom_x + txquad->unk_x) >> 8) / pixel_size;
+    point_d.Y = (txquad->unk_y >> 8) / pixel_size;
+    point_d.U = orient_to_mapU2[txquad->orient];
+    point_d.V = orient_to_mapV2[txquad->orient];
+    point_d.S = txquad->lightness1;
+    point_b.X = ((txquad->zoom_x + txquad->unk_x) >> 8) / pixel_size;
+    point_b.Y = ((txquad->zoom_y + txquad->unk_y) >> 8) / pixel_size;
+    point_b.U = orient_to_mapU3[txquad->orient];
+    point_b.V = orient_to_mapV3[txquad->orient];
+    point_b.S = txquad->lightness2;
+    point_c.X = (txquad->unk_x >> 8) / pixel_size;
+    point_c.Y = ((txquad->zoom_y + txquad->unk_y) >> 8) / pixel_size;
+    point_c.U = orient_to_mapU4[txquad->orient];
+    point_c.V = orient_to_mapV4[txquad->orient];
+    point_c.S = txquad->lightness3;
+    draw_gpoly(&point_a, &point_d, &point_b);
+    draw_gpoly(&point_a, &point_b, &point_c);
 }
 
 static void display_fast_drawlist(struct Camera *cam) // Draws frontview only. Not isometric or 1st person view.
@@ -9070,11 +9028,9 @@ void draw_frontview_engine(struct Camera *cam)
     cam_y = interpolated_cam_mappos_y;
     pointer_x = (GetMouseX() - player->engine_window_x) / pixel_size;
     pointer_y = (GetMouseY() - player->engine_window_y) / pixel_size;
-    UseFastBlockDraw = (camera_zoom == FRONTVIEW_CAMERA_ZOOM_MAX);
     LbScreenStoreGraphicsWindow(&grwnd);
     store_engine_window(&ewnd,pixel_size);
     LbScreenSetGraphicsWindow(ewnd.x, ewnd.y, ewnd.width, ewnd.height);
-    gtblock_set_clipping_window(lbDisplay.GraphicsWindowPtr, ewnd.width, ewnd.height, lbDisplay.GraphicsScreenWidth);
     setup_vecs(lbDisplay.GraphicsWindowPtr, NULL, lbDisplay.GraphicsScreenWidth, ewnd.width, ewnd.height);
     clear_fast_bucket_list();
     store_engine_window(&ewnd,1);

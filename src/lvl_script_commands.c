@@ -4653,16 +4653,12 @@ static void set_music_process(struct ScriptContext *context)
 {
     
     short track_number = context->value->chars[0];
-    if (track_number >= FIRST_TRACK && track_number <= MUSIC_TRACKS_COUNT)
-    {
-        if (track_number != game.audiotrack)
-        {
-            if (IsRedbookMusicActive())
-            {
+    if (track_number >= FIRST_TRACK && track_number <= MUSIC_TRACKS_COUNT) {
+        if (track_number != game.audiotrack) {
+            if (IsRedbookMusicActive()) {
                 SCRPTLOG("Setting music track to %d.", track_number);
-            }
-            else
-            {
+            } else {
+#if SDL_MIXER_VERSION_ATLEAST(2, 6, 0)
                 char info[255];
                 const char * title = Mix_GetMusicTitle(tracks[track_number]);
                 const char * artist = Mix_GetMusicArtistTag(tracks[track_number]);
@@ -4677,17 +4673,16 @@ static void set_music_process(struct ScriptContext *context)
                     snprintf(info, sizeof(info), "%s", title);
                 }
                 SCRPTLOG("Setting music track to %d: %s", track_number, info);
+#else
+                SCRPTLOG("Setting music track to %d.", track_number);
+#endif
             }
             game.audiotrack = track_number;
         }
-    }
-    else if (track_number == 0)
-    {
+    } else if (track_number == 0) {
         game.audiotrack = track_number;
         SCRPTLOG("Setting music track to %d: No Music", track_number);
-    }
-    else
-    {
+    } else {
         SCRPTERRLOG("Invalid music track: %d. Track must be between %d and %d or 0 to disable.", track_number,FIRST_TRACK,MUSIC_TRACKS_COUNT);
     }
 }
@@ -5200,7 +5195,6 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
         default:
             value->longs[2] = atoi(new_value);
     }
-    #if (BFDEBUG_LEVEL >= 7)
     {
         if ( (powervar == 5) && (value->chars[3] != -1) )
         {
@@ -5215,7 +5209,6 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
             SCRIPTDBG(7, "Setting power %s property %s to %lld", powername, property, number_value);
         }
     }
-    #endif
     value->shorts[0] = power_id;
     value->bytes[2] = powervar;
 
@@ -5476,10 +5469,7 @@ static void set_game_rule_process(struct ScriptContext* context)
         return;
     }
 
-
-  #if (BFDEBUG_LEVEL >= 7)
     const char *rulename = get_conf_parameter_text(game_rule_desc,ruledesc);
-  #endif
     switch (ruledesc)
     {
     case 1: //PreserveClassicBugs
@@ -5533,9 +5523,7 @@ static void set_increase_on_experience_check(const struct ScriptLine* scline)
 static void set_increase_on_experience_process(struct ScriptContext* context)
 {
     short variable = context->value->shorts[0];
-  #if (BFDEBUG_LEVEL >= 7)
     const char *varname = on_experience_desc[variable - 1].name;
-  #endif
     switch (variable)
     {
     case 1: //SizeIncreaseOnExp
@@ -5630,9 +5618,7 @@ static void set_player_modifier_process(struct ScriptContext* context)
     struct Dungeon* dungeon;
     short mdfrdesc = context->value->shorts[0];
     short mdfrval = context->value->shorts[1];
-    #if (BFDEBUG_LEVEL > 0)
-        const char *mdfrname = get_conf_parameter_text(modifier_desc,mdfrdesc);
-    #endif
+    const char *mdfrname = get_conf_parameter_text(modifier_desc,mdfrdesc);
     for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
     {
         dungeon = get_dungeon(plyr_idx);
