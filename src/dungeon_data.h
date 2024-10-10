@@ -148,7 +148,7 @@ struct Dungeon {
     struct Coord3d mappos;
     unsigned char creature_tendencies;
     unsigned char computer_enabled;
-    short creatr_list_start;
+    ThingIndex creatr_list_start;
     short digger_list_start;
     ThingIndex summon_list[MAX_SUMMONS];
     unsigned short num_summon;
