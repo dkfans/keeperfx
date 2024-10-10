@@ -3104,9 +3104,9 @@ static void set_creature_configuration_process(struct ScriptContext* context)
                 crstat->lair_object = value;
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized attribute (%d)", creature_variable);
