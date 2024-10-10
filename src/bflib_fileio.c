@@ -145,7 +145,7 @@ TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
       LbSyncLog("LbFileOpen: LBO_CREAT mode\n");
 #endif
         if (create_directory_for_file(fname)) {
-          rc = _sopen(fname, O_RDWR|O_CREAT|O_BINARY, SH_DENYNO, S_IREAD|S_IWRITE);
+          rc = _sopen(fname, O_RDWR|O_CREAT|O_BINARY|O_TRUNC, SH_DENYNO, S_IREAD|S_IWRITE);
         }
     };break;
   case Lb_FILE_MODE_OLD:
