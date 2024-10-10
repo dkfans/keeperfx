@@ -30,6 +30,7 @@
 #include "bflib_filelst.h"
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
+#include "bflib_string.h"
 #include "bflib_mouse.h"
 #include "bflib_math.h"
 #include "bflib_sndlib.h"
@@ -382,7 +383,7 @@ struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvinfo, in
               i = 5;
               break;
           }
-          if ((fe_net_level_selected == lvinfo->lvnum) || (net_level_hilighted == lvinfo->lvnum))
+          if ((fe_net_level_selected == lvinfo->lvnum) || (net_level_highlighted == lvinfo->lvnum))
             i++;
       } else
       {
@@ -991,7 +992,7 @@ TbBool frontnetmap_load(void)
     frontnet_init_level_descriptions();
     frontmap_zoom_skip_init(SINGLEPLAYER_NOTSTARTED);
     fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
-    net_level_hilighted = SINGLEPLAYER_NOTSTARTED;
+    net_level_highlighted = SINGLEPLAYER_NOTSTARTED;
     set_pointer_graphic_none();
     LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
     map_sound_fade = 256;
@@ -1232,6 +1233,7 @@ void frontmap_draw(void)
     {
         draw_map_screen();
         draw_map_level_ensigns();
+        draw_map_level_descriptions();
         set_pointer_graphic_spland(0);
         compressed_window_draw();
     }
@@ -1375,36 +1377,112 @@ void draw_netmap_players_hands(void)
 }
 
 /**
+ * Returns order number (starting at 1) for Campaign->bonus_levels associated with given bonus level.
+ * If the level is not found, returns -1.
+ */
+int order_number_for_bonus_level(LevelNumber bn_lvnum)
+{
+  int orderNum = 1;
+  if (bn_lvnum < 1) return -1;
+  for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
+  {
+    if (campaign.bonus_levels[i] == bn_lvnum)
+    {
+      return orderNum;
+    }
+    else if (campaign.bonus_levels[i] != 0)
+    {
+      orderNum++;
+    }
+  }
+  return -1;
+}
+
+/**
+ * Get text description of level.
+ */
+const char* get_level_description(struct LevelInformation *lvinfo)
+{
+  if (lvinfo == NULL)
+  {
+    return NULL;
+  }
+
+  if (lvinfo->options & LvOp_IsSingle || lvinfo->options & LvOp_IsMulti|| lvinfo->options & LvOp_Tutorial)
+  {
+      if (lvinfo->name_stridx > 0)
+      {
+        return get_string(lvinfo->name_stridx);
+      }
+      else
+      {
+        return lvinfo->name;
+      }
+  }
+
+  if (lvinfo->options & LvOp_IsBonus)
+  {
+    static char name_and_num[32];
+    snprintf(name_and_num, sizeof(name_and_num), "%s %d", get_string(CpgStr_BonusLevel), (int)order_number_for_bonus_level(lvinfo->lvnum));
+    return name_and_num;
+  }
+
+  if (lvinfo->options & LvOp_IsExtra)
+  {
+    // TODO: Implement translation / get_string
+    return "Full Moon";
+  }
+
+  return "";
+}
+
+/**
  * Draws text description of active level.
  */
 void draw_map_level_descriptions(void)
 {
-  if ((fe_net_level_selected > 0) || (net_level_hilighted > 0))
-  {
-    lbDisplay.DrawFlags = 0;
-    LevelNumber lvnum = fe_net_level_selected;
-    if (lvnum <= 0)
-      lvnum = net_level_hilighted;
-    struct LevelInformation* lvinfo = get_level_info(lvnum);
-    if (lvinfo == NULL)
-      return;
-    const char* lv_name;
-    if (lvinfo->name_stridx > 0)
-        lv_name = get_string(lvinfo->name_stridx);
-    else
-      lv_name = lvinfo->name;
-    if ((lv_name != NULL) && (strlen(lv_name) > 0)) {
-      snprintf(level_name, sizeof(level_name), "%s %d: %s", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum, lv_name);
-    } else {
-      snprintf(level_name, sizeof(level_name), "%s %d", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum);
+    struct LevelInformation* lvinfo;
+    #define padding 2
+    #define border 1
+    #define xOffset 0
+    #define yOffset 64
+    #define borderColour 1
+    #define boxColour 0
+    int textWidth, textHeight, textX, textY, boxX, boxY, boxWidth, boxHeight, borderBoxX, borderBoxY, borderBoxWidth, borderBoxHeight;
+    if ((fe_net_level_selected > 0) || (net_level_highlighted > 0) || (mouse_over_lvnum > 0))
+    {
+      lbDisplay.DrawFlags = 0;
+      LevelNumber lvnum = (mouse_over_lvnum > 0) ? mouse_over_lvnum : (fe_net_level_selected > 0) ? fe_net_level_selected : net_level_highlighted;
+      lvinfo = get_level_info(lvnum);
+      if (lvinfo == NULL)
+      {
+        return;
+      }
+
+      const char* level_description = get_level_description(lvinfo);
+      textWidth = LbTextStringWidthM(level_description, units_per_pixel_menu);
+      textHeight = scale_value_menu((LbTextHeight(level_description) - 2)); // -2 because LbTextHeight seems to come back a little too tall
+      boxWidth = textWidth + scale_value_menu(padding * 2);
+      boxHeight = textHeight + scale_value_menu(padding * 2);
+      borderBoxWidth = boxWidth + scale_value_menu(border * 2);
+      borderBoxHeight = boxHeight + scale_value_menu(border * 2);
+
+      textX = scale_value_landview(lvinfo->ensign_x - map_info.screen_shift_x) - (textWidth / 2) + scale_value_landview(xOffset);
+      boxX = textX - scale_value_menu(padding);
+      borderBoxX = boxX - scale_value_menu(border);
+      textY = scale_value_landview(lvinfo->ensign_y - map_info.screen_shift_y) - textHeight - scale_value_landview(yOffset);
+      boxY = textY - scale_value_menu(padding);
+      borderBoxY = boxY + scale_value_menu(border);
+
+      LbDrawBox(borderBoxX, borderBoxY, borderBoxWidth, borderBoxHeight, borderColour);
+      LbDrawBox(boxX, textY, boxWidth, boxHeight, boxColour);
+      if (dbc_language == 0)
+      {
+          set_flag(lbDisplay.DrawFlags, Lb_TEXT_ONE_COLOR);
+          lbDisplay.DrawColour = 1;
+      }
+      LbTextDrawResized(textX, textY, units_per_pixel_menu, level_description);
     }
-    long w = LbTextStringWidth(level_name);
-    long x = lvinfo->ensign_x - map_info.screen_shift_x;
-    long y = lvinfo->ensign_y - map_info.screen_shift_y - 8;
-    long h = LbTextHeight(level_name);
-    LbDrawBox(scale_value_landview(x-4), scale_value_landview(y), scale_value_landview(w+8), scale_value_landview(h), 0);
-    LbTextDrawResized(scale_value_landview(x), scale_value_landview(y), units_per_pixel_landview, level_name);
-  }
 }
 
 void frontnetmap_draw(void)
@@ -1412,6 +1490,7 @@ void frontnetmap_draw(void)
     SYNCDBG(8,"Starting");
     LbTextSetFont(map_font);
     LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
+
     if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0)
     {
         frontzoom_to_point(map_info.hotspot_imgpos_x, map_info.hotspot_imgpos_y, map_info.fade_pos);
@@ -1420,8 +1499,8 @@ void frontnetmap_draw(void)
     {
         draw_map_screen();
         draw_map_level_ensigns();
-        draw_netmap_players_hands();
         draw_map_level_descriptions();
+        draw_netmap_players_hands();
         compressed_window_draw();
     }
 }
@@ -1535,17 +1614,17 @@ void frontnetmap_input(void)
 
     if (fe_net_level_selected == SINGLEPLAYER_NOTSTARTED)
     {
-      net_level_hilighted = SINGLEPLAYER_NOTSTARTED;
+      net_level_highlighted = SINGLEPLAYER_NOTSTARTED;
       frontmap_input_active_ensign(GetMouseX(), GetMouseY());
       if (mouse_over_lvnum > 0)
-        net_level_hilighted = mouse_over_lvnum;
-      if (net_level_hilighted > 0)
+        net_level_highlighted = mouse_over_lvnum;
+      if (net_level_highlighted > 0)
       {
         if ((net_map_slap_frame == 0) && (net_map_limp_time == 0))
         {
           if (left_button_clicked)
           {
-              fe_net_level_selected = net_level_hilighted;
+              fe_net_level_selected = net_level_highlighted;
               left_button_clicked = 0;
               lvinfo = get_level_info(fe_net_level_selected);
               if (lvinfo != NULL) {
@@ -1578,6 +1657,8 @@ void frontmap_unload(void)
 long frontmap_update(void)
 {
   SYNCDBG(8,"Starting");
+  fe_net_level_selected = 0;
+  net_level_highlighted = 0;
   if ((mouse_over_lvnum > 0) && (playing_speech_lvnum != mouse_over_lvnum))
   {
       play_desc_speech_time = 0;
@@ -1731,6 +1812,7 @@ TbBool frontnetmap_update(void)
 {
     long i;
     SYNCDBG(8,"Starting");
+    mouse_over_lvnum = 0;
     if (map_sound_fade > 0)
     {
         i = map_sound_fade * ((long)settings.redbook_volume) / 256;
