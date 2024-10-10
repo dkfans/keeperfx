@@ -27,6 +27,7 @@ SET_COMPUTER_CHECKS(PLAYER1,"CHECK FOR QUICK ATTACK",14250,45,4000,5,10000)
 SET_COMPUTER_PROCESS(PLAYER1,"ATTACK SAFE ATTACK",-1,100,335,100,0)
 SET_COMPUTER_PROCESS(PLAYER1,"ATTACK PLAN 1",-1,100,335,100,0)
 
+SET_COMPUTER_EVENT(PLAYER1,"EVENT ENEMY DOOR", 1000, 45, 2500, 2, 0)
 
 REM -------------------------------------------------------------------------------------------------------------------------------------------
 
