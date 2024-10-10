@@ -320,7 +320,8 @@ long check_out_unclaimed_spells(struct Thing *spdigtng, long range)
           break;
         i = thing->next_of_class;
         // Per-thing code
-        if (thing_is_spellbook(thing) || thing_is_special_box(thing))
+        if ((thing_is_spellbook(thing) || thing_is_special_box(thing)) && 
+            thing_can_be_picked_to_place_in_player_room_of_role(thing, spdigtng->owner, RoRoF_PowersStorage, TngFRPickF_Default))
         {
             if ((thing->owner != spdigtng->owner) && !thing_is_dragged_or_pulled(thing)
               && (get_slab_owner_thing_is_on(thing) == spdigtng->owner) && thing_revealed(thing, spdigtng->owner))

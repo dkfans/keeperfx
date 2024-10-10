@@ -1647,6 +1647,10 @@ TbBool thing_can_be_picked_to_place_in_player_room_of_role(const struct Thing* t
     if (thing_is_dragged_or_pulled(thing)) {
         return false;
     }
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    if (objst->model_flags & OMF_IgnoredByImps) {
+        return false;
+    }
     struct SlabMap *slb;
     slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     // Neutral things on either neutral or owned ground should be always pickable
@@ -1687,7 +1691,7 @@ TbBool thing_can_be_picked_to_place_in_player_room_of_role(const struct Thing* t
             return true;
         }
     }
-    return false;
+return false;
 }
 
 struct Thing *get_next_unclaimed_gold_thing_pickable_by_digger(PlayerNumber owner, int start_idx)
