@@ -64,6 +64,7 @@ enum TbErrorCode {
 /******************************************************************************/
 #pragma pack(1)
 
+// These types should be deprecated because we have stdint.h now.
 typedef unsigned long ulong;
 typedef unsigned int uint;
 typedef unsigned short ushort;
