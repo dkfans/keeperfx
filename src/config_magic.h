@@ -30,10 +30,11 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#define MAGIC_ITEMS_MAX        2000
-#define SPELL_MAX_LEVEL         8
-#define MAGIC_OVERCHARGE_LEVELS (SPELL_MAX_LEVEL+1)
-#define POWER_TYPES_MAX      2000
+#define MAGIC_ITEMS_MAX         2000
+#define SPELL_MAX_LEVEL         9
+#define POWER_MAX_LEVEL         8
+#define MAGIC_OVERCHARGE_LEVELS (POWER_MAX_LEVEL+1)
+#define POWER_TYPES_MAX         2000
 
 enum SpellKinds {
     SplK_None = 0,
