@@ -1096,7 +1096,7 @@ TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, cons
                 HitPoints cost = max(1, (damage / health)); // Take at least one money
                 GoldAmount received = take_money_from_dungeon(tngdst->owner, cost, 0);
                 cost -= received;
-                damage -= max((cost * health), (damage * health)); // Make sure rounding to 1 does not leave damage on the table.
+                damage -= max((received * health), 1); // Make sure rounding to 1 does not leave damage on the table.
                 for (int i = received; i > 0; i -= 8)
                 {
                     create_effect(pos, TngEff_CoinFountain, tngdst->owner);
