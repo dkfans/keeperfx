@@ -62,6 +62,7 @@ const struct NamedCommand magic_spell_commands[] = {
   {"AURAEFFECT",      9},
   {"SPELLFLAGS",     10},
   {"SUMMONCREATURE", 11},
+  {"DEBUFF",         12},
   {NULL,              0},
   };
 
@@ -434,6 +435,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
       spconf->caster_affected = 0;
       spconf->caster_affect_sound = 0;
       spconf->cast_at_thing = 0;
+      spconf->debuff = 0;
       spconf->shot_model = 0;
       spconf->cast_effect_model = 0;
       spconf->bigsym_sprite_idx = 0;
@@ -706,6 +708,19 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
+      case 12: // DEBUFF
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              spconf->debuff = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+          }
+          break;
       case ccr_comment:
           break;
       case ccr_endOfFile:
@@ -719,7 +734,32 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
     }
 #undef COMMAND_TEXT
   }
+  
   return true;
+}
+
+void load_debuffs() {
+    int count = 0;
+    for (int i = 0; i < game.conf.magic_conf.spell_types_count; ++i) {
+        struct SpellConfig *spconf = get_spell_config(i);
+        if (spconf->debuff == 1) {
+            ++count;
+        }
+    }
+    game.conf.magic_conf.debuff_count = count;
+    if (game.conf.magic_conf.debuff_count > 0) {
+        game.conf.magic_conf.debuffs = malloc(game.conf.magic_conf.debuff_count * sizeof(*game.conf.magic_conf.debuffs));
+        if (game.conf.magic_conf.debuffs == NULL) {
+            fprintf(stderr, "Memory allocation failed for debuffs\n");
+            exit(EXIT_FAILURE);
+        }
+        for (int i = 0, j = 0; i < game.conf.magic_conf.spell_types_count; ++i) {
+            struct SpellConfig *spconf = get_spell_config(i);
+            if (spconf->debuff == 1) {
+                game.conf.magic_conf.debuffs[j++] = i;
+            }
+        }
+    }
 }
 
 TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
