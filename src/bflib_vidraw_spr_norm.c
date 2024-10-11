@@ -662,7 +662,7 @@ TbResult LbSpriteDrawUsingScalingUpDataSolidLR(uchar *outbuf, int scanline, int 
                     {
                         xdup = xcurstep[1];
                         if (xcurstep[0]+xdup > abs(scanline))
-                            xdup = abs(scanline)-xcurstep[0];
+                            xdup = abs(scanline)-xcurstep[1];
                         if (xdup > 0)
                         {
                             unsigned char pxval;
