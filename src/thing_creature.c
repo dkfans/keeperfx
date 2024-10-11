@@ -5839,16 +5839,6 @@ TngUpdateRet update_creature(struct Thing *thing)
 {
     SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
     TRACE_THING(thing);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (cctrl->unsummon_turn > 0)
-    {
-        if ((cctrl->unsummon_turn < game.play_gameturn) || (thing->health < 0))
-        {
-            create_effect_around_thing(thing, ball_puff_effects[thing->owner]);
-            kill_creature(thing, INVALID_THING, -1, CrDed_NotReallyDying | CrDed_NoEffects);
-            return TUFRet_Deleted;
-        }
-    }
     if ((thing->active_state == CrSt_CreatureUnconscious) && subtile_is_door(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
     {
         SYNCDBG(8,"Killing unconscious %s index %d on door block.",thing_model_name(thing),(int)thing->index);
@@ -5860,10 +5850,17 @@ TngUpdateRet update_creature(struct Thing *thing)
         kill_creature(thing, INVALID_THING, -1, CrDed_Default);
         return TUFRet_Deleted;
     }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
         WARNLOG("Killing %s index %d with invalid control %d.(%d)",thing_model_name(thing),(int)thing->index, thing->ccontrol_idx, game.conf.rules.game.creatures_count);
         kill_creature(thing, INVALID_THING, -1, CrDed_Default);
+        return TUFRet_Deleted;
+    }
+    if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn < game.play_gameturn))
+    {
+        create_effect_around_thing(thing, (TngEff_BallPuffRed + thing->owner));
+        kill_creature(thing, INVALID_THING, -1, CrDed_NotReallyDying| CrDed_NoEffects);
         return TUFRet_Deleted;
     }
     process_armageddon_influencing_creature(thing);
