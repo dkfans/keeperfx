@@ -43,7 +43,7 @@
 #include "frontend.h"
 #include "power_hand.h"
 #include "player_utils.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "room_workshop.h"
 #include "magic.h"
 #include "gui_frontmenu.h"
@@ -104,25 +104,25 @@ long pinstfm_zoom_to_position(struct PlayerInfo *player, long *n);
 long pinstfe_zoom_to_position(struct PlayerInfo *player, long *n);
 
 struct PlayerInstanceInfo player_instance_info[PLAYER_INSTANCES_COUNT] = {
-  { 0, 0, NULL,                        NULL,                        NULL,                                {0}, {0}, 0, 0},
-  { 3, 1, pinstfs_hand_grab,           NULL,                        pinstfe_hand_grab,                   {0}, {0}, 0, 0},
-  { 3, 1, pinstfs_hand_drop,           NULL,                        pinstfe_hand_drop,                   {0}, {0}, 0, 0},
-  { 4, 0, pinstfs_hand_whip,           NULL,                        pinstfe_hand_whip,                   {0}, {0}, 0, 0},
-  { 5, 0, pinstfs_hand_whip_end,       NULL,                        pinstfe_hand_whip_end,               {0}, {0}, 0, 0},
-  {12, 1, pinstfs_direct_control_creature,pinstfm_control_creature, pinstfe_direct_control_creature,     {0}, {0}, 0, 0},
-  {12, 1, pinstfs_passenger_control_creature,pinstfm_control_creature,pinstfe_passenger_control_creature,{0}, {0}, 0, 0},
-  {12, 1, pinstfs_direct_leave_creature,pinstfm_leave_creature,     pinstfe_leave_creature,              {0}, {0}, 0, 0},
-  {12, 1, pinstfs_passenger_leave_creature,pinstfm_leave_creature,  pinstfe_leave_creature,              {0}, {0}, 0, 0},
-  { 0, 1, pinstfs_query_creature,      NULL,                        NULL,                                {0}, {0}, 0, 0},
-  { 0, 1, pinstfs_unquery_creature,    NULL,                        NULL,                                {0}, {0}, 0, 0},
-  {16, 1, pinstfs_zoom_to_heart,       pinstfm_zoom_to_heart,       pinstfe_zoom_to_heart,               {0}, {0}, 0, 0},
-  {16, 1, pinstfs_zoom_out_of_heart,   pinstfm_zoom_out_of_heart,   pinstfe_zoom_out_of_heart,           {0}, {0}, 0, 0},
-  {12, 1, NULL,                        pinstfm_control_creature_fade,pinstfe_control_creature_fade,      {0}, {0}, 0, 0},
-  { 8, 1, pinstfs_fade_to_map,         pinstfm_fade_to_map,         pinstfe_fade_to_map,                 {0}, {0}, 0, 0},
-  { 8, 1, pinstfs_fade_from_map,       pinstfm_fade_from_map,       pinstfe_fade_from_map,               {0}, {0}, 0, 0},
-  {-1, 1, pinstfs_zoom_to_position,    pinstfm_zoom_to_position,    pinstfe_zoom_to_position,            {0}, {0}, 0, 0},
-  { 0, 0, NULL,                        NULL,                        NULL,                                {0}, {0}, 0, 0},
-  { 0, 0, NULL,                        NULL,                        NULL,                                {0}, {0}, 0, 0},
+  { 0, 0, NULL,                                 NULL,                           NULL,                                {0}, {0}, 0, 0}, // PI_Unset
+  { 3, 1, pinstfs_hand_grab,                    NULL,                           pinstfe_hand_grab,                   {0}, {0}, 0, 0}, // PI_Grab
+  { 3, 1, pinstfs_hand_drop,                    NULL,                           pinstfe_hand_drop,                   {0}, {0}, 0, 0}, // PI_Drop
+  { 4, 0, pinstfs_hand_whip,                    NULL,                           pinstfe_hand_whip,                   {0}, {0}, 0, 0}, // PI_Whip
+  { 5, 0, pinstfs_hand_whip_end,                NULL,                           pinstfe_hand_whip_end,               {0}, {0}, 0, 0}, // PI_WhipEnd
+  {12, 1, pinstfs_direct_control_creature,      pinstfm_control_creature,       pinstfe_direct_control_creature,     {0}, {0}, 0, 0}, // PI_DirctCtrl
+  {12, 1, pinstfs_passenger_control_creature,   pinstfm_control_creature,       pinstfe_passenger_control_creature,  {0}, {0}, 0, 0}, // PI_PsngrCtrl
+  {12, 1, pinstfs_direct_leave_creature,        pinstfm_leave_creature,         pinstfe_leave_creature,              {0}, {0}, 0, 0}, // PI_DirctCtLeave
+  {12, 1, pinstfs_passenger_leave_creature,     pinstfm_leave_creature,         pinstfe_leave_creature,              {0}, {0}, 0, 0}, // PI_PsngrCtLeave
+  { 0, 1, pinstfs_query_creature,               NULL,                           NULL,                                {0}, {0}, 0, 0}, // PI_QueryCrtr
+  { 0, 1, pinstfs_unquery_creature,             NULL,                           NULL,                                {0}, {0}, 0, 0}, // PI_UnqueryCrtr
+  {16, 1, pinstfs_zoom_to_heart,                pinstfm_zoom_to_heart,          pinstfe_zoom_to_heart,               {0}, {0}, 0, 0}, // PI_HeartZoom
+  {16, 1, pinstfs_zoom_out_of_heart,            pinstfm_zoom_out_of_heart,      pinstfe_zoom_out_of_heart,           {0}, {0}, 0, 0}, // PI_HeartZoomOut
+  {12, 1, NULL,                                 pinstfm_control_creature_fade,  pinstfe_control_creature_fade,       {0}, {0}, 0, 0}, // PI_CrCtrlFade
+  { 8, 1, pinstfs_fade_to_map,                  pinstfm_fade_to_map,            pinstfe_fade_to_map,                 {0}, {0}, 0, 0}, // PI_MapFadeTo
+  { 8, 1, pinstfs_fade_from_map,                pinstfm_fade_from_map,          pinstfe_fade_from_map,               {0}, {0}, 0, 0}, // PI_MapFadeFrom
+  {-1, 1, pinstfs_zoom_to_position,             pinstfm_zoom_to_position,       pinstfe_zoom_to_position,            {0}, {0}, 0, 0}, // PI_ZoomToPos
+  { 0, 0, NULL,                                 NULL,                           NULL,                                {0}, {0}, 0, 0}, // PI_Unknown17
+  { 0, 0, NULL,                                 NULL,                           NULL,                                {0}, {0}, 0, 0}, // PI_Unknown18
 };
 
 /******************************************************************************/
@@ -135,7 +135,7 @@ long pinstfs_hand_grab(struct PlayerInfo *player, long *n)
     struct Thing* thing = thing_get(player->hand_thing_idx);
     if (!thing_is_invalid(thing))
     {
-        set_power_hand_graphic(player->id_number, HndA_Hover);
+        set_power_hand_graphic(player->id_number, HndA_Pickup);
     }
     return 0;
 }
@@ -144,7 +144,6 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
 {
     SYNCDBG(8,"Starting");
     struct Thing* dsttng = thing_get(player->influenced_thing_idx);
-    struct Thing* grabtng = thing_get(player->hand_thing_idx);
     if (dsttng->creation_turn != player->influenced_thing_creation) {
         WARNLOG("The thing index %d is no longer the same",(int)player->influenced_thing_idx);
         player->influenced_thing_creation = 0;
@@ -153,14 +152,14 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
     }
     player->influenced_thing_creation = 0;
     player->influenced_thing_idx = 0;
-    if (!magic_use_available_power_on_thing(player->id_number, PwrK_HAND, 0,dsttng->mappos.x.stl.num, dsttng->mappos.y.stl.num, dsttng, PwMod_Default)) {
+    if (magic_use_available_power_on_thing(player->id_number, PwrK_HAND, 0,dsttng->mappos.x.stl.num, dsttng->mappos.y.stl.num, dsttng, PwMod_Default) == Lb_FAIL) {
         WARNLOG("Cannot pick up %s index %d",thing_model_name(dsttng),(int)dsttng->index);
         return 0;
     }
-    // Update sprites for the creature in hand, and power hand itself
-    if (!thing_is_invalid(grabtng))
+    struct Thing* handtng = thing_get(player->hand_thing_idx);
+    if (!thing_is_invalid(handtng))
     {
-        set_power_hand_graphic(player->id_number, HndA_Hold);
+        set_power_hand_graphic(player->id_number, HndA_Pickup);
     }
     return 0;
 }
@@ -252,23 +251,34 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       break;
   case TCls_Trap:
       trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
-      if ((trapst->slappable == 1) && trap_is_active(thing))
+      if ((trapst->slappable > 0) && trap_is_active(thing))
       {
-          external_activate_trap_shot_at_angle(thing, player->acamera->orient_a, thing_get(player->hand_thing_idx));
+          struct TrapStats* trapstat = &game.conf.trap_stats[thing->model];
+          struct Thing* trgtng = INVALID_THING;
+          shotst = get_shot_model_stats(trapstat->created_itm_model);
+          if (trapst->slappable == 1)
+          {
+              external_activate_trap_shot_at_angle(thing, player->acamera->orient_a, trgtng);
+          } else
+          if (trapst->slappable == 2)
+          {
+              trgtng = get_nearest_enemy_creature_in_sight_and_range_of_trap(thing);
+              external_activate_trap_shot_at_angle(thing, player->acamera->orient_a, trgtng);
+          }
       }
       break;
-  case TCls_Object:
-  {
-      struct Thing* efftng;
-      if (object_is_slappable(thing, player->id_number))
+      case TCls_Object:
       {
-        efftng = create_effect(&thing->mappos, TngEff_DamageBlood, thing->owner);
-        if (!thing_is_invalid(efftng))
-          thing_play_sample(efftng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
-        slap_object(thing);
+          struct Thing* efftng;
+          if (object_is_slappable(thing, player->id_number))
+          {
+            efftng = create_effect(&thing->mappos, TngEff_Dummy, thing->owner);
+            if (!thing_is_invalid(efftng))
+              thing_play_sample(efftng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
+            slap_object(thing);
+          }
+          break;
       }
-      break;
-  }
   }
   set_player_instance(player, PI_WhipEnd, false);
   return 0;
@@ -772,6 +782,33 @@ long pinstfe_fade_from_map(struct PlayerInfo *player, long *n)
     return 0;
 }
 
+void set_player_zoom_to_position(struct PlayerInfo *player,struct Coord3d *pos)
+{
+    // Make sure we are in the normal Dungeon Top view
+    if(player->view_type != PVT_DungeonTop)
+        return;
+
+    // Make sure we are not in some weird instance
+    if(player->instance_num == PI_DirctCtrl ||
+       player->instance_num == PI_PsngrCtrl ||
+       player->instance_num == PI_HeartZoom ||
+       player->instance_num == PI_HeartZoomOut ||
+       player->instance_num == PI_CrCtrlFade ||
+       player->instance_num == PI_MapFadeTo ||
+       player->instance_num == PI_MapFadeFrom ||
+       player->instance_num == PI_ZoomToPos ||
+       player->instance_num == PI_Unknown17 ||
+       player->instance_num == PI_Unknown18)
+        return;
+
+    // Set zoom position
+    player->zoom_to_pos_x = pos->x.val;
+    player->zoom_to_pos_y = pos->y.val;
+
+    // Make player zoom to location
+    set_player_instance(player, PI_ZoomToPos, 0);
+}
+
 long pinstfs_zoom_to_position(struct PlayerInfo *player, long *n)
 {
     player->controlled_thing_idx = 0;
@@ -783,21 +820,21 @@ long pinstfs_zoom_to_position(struct PlayerInfo *player, long *n)
     int dt_y = (player->zoom_to_pos_y - (int)cam->mappos.y.val) / 8;
     if (dt_x < 0)
     {
-      if (dt_x >= -256)
+      if (dt_x > -256)
         dt_x = -256;
     } else
     {
-      if (dt_x <= 256)
+      if (dt_x < 256)
         dt_x = 256;
     }
     player->zoom_to_movement_x = dt_x;
     if (dt_y < 0)
     {
-        if (dt_y >= -256)
+        if (dt_y > -256)
           dt_y = -256;
     } else
     {
-        if (dt_y <= 256)
+        if (dt_y < 256)
           dt_y = 256;
     }
     player->zoom_to_movement_y = dt_y;
@@ -806,9 +843,10 @@ long pinstfs_zoom_to_position(struct PlayerInfo *player, long *n)
 
 long pinstfm_zoom_to_position(struct PlayerInfo *player, long *n)
 {
-    long x;
-    long y;
+    MapCoord x, y;
     struct Camera* cam = player->acamera;
+    cam->inertia_x = 0;
+    cam->inertia_y = 0;
     if (abs(cam->mappos.x.val - player->zoom_to_pos_x) >= abs(player->zoom_to_movement_x))
       x = player->zoom_to_movement_x + cam->mappos.x.val;
     else
@@ -828,7 +866,10 @@ long pinstfe_zoom_to_position(struct PlayerInfo *player, long *n)
 {
     player->allocflags &= ~PlaF_MouseInputDisabled;
     player->allocflags &= ~PlaF_KeyboardInputDisabled;
-    player->controlled_thing_idx = player->influenced_thing_idx;
+    if ( (player->work_state == PSt_CreatrInfo) || (player->work_state == PSt_CreatrInfoAll) )
+    {
+        player->controlled_thing_idx = player->influenced_thing_idx;
+    }
     return 0;
 }
 
@@ -908,7 +949,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     clear_selected_thing(player);
     set_player_mode(player, PVT_DungeonTop);
     thing->alloc_flags &= ~TAlF_IsControlled;
-    thing->rendering_flags &= ~TRF_Unknown01;
+    thing->rendering_flags &= ~TRF_Invisible;
     player->allocflags &= ~PlaF_Unknown8;
     set_engine_view(player, player->view_mode_restore);
     long i = player->acamera->orient_a;
@@ -953,7 +994,7 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
     return;
   }
   set_player_mode(player, PVT_DungeonTop);
-  thing->rendering_flags &= ~TRF_Unknown01;
+  thing->rendering_flags &= ~TRF_Invisible;
   player->allocflags &= ~PlaF_Unknown8;
   set_engine_view(player, player->view_mode_restore);
   long i = player->acamera->orient_a;
@@ -1189,15 +1230,15 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
         WARNLOG("Player %d tried to build %s but has none to place",(int)plyr_idx,trap_code_name(tngmodel));
         return false;
     }
+    struct TrapConfigStats* trap_cfg = get_trap_model_stats(tngmodel);
     struct Coord3d pos;
-    struct PlayerInfo* player = get_player(plyr_idx);
-    if ((player->chosen_trap_kind == TngTrp_Boulder) || (!game.conf.rules.game.place_traps_on_subtiles))
+    if (trap_cfg->place_on_subtile)
     {
-        set_coords_to_slab_center(&pos,subtile_slab(stl_x),subtile_slab(stl_y));
+        set_coords_to_subtile_center(&pos, stl_x, stl_y, 1);
     }
     else
     {
-        set_coords_to_subtile_center(&pos,stl_x,stl_y,1);
+        set_coords_to_slab_center(&pos, subtile_slab(stl_x), subtile_slab(stl_y));
     }
     delete_room_slabbed_objects(get_slab_number(subtile_slab(stl_x),subtile_slab(stl_y)));
     struct Thing* traptng = create_trap(&pos, tngmodel, plyr_idx);
@@ -1217,7 +1258,6 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     dungeon->camera_deviate_jump = 192;
     if (is_my_player_number(plyr_idx))
     {
-        struct TrapConfigStats* trap_cfg = get_trap_model_stats(tngmodel);    
         play_non_3d_sample(trap_cfg->place_sound_idx);
     }
     return true;

@@ -41,13 +41,13 @@ DKILLCONV_PACKAGE=$(notdir $(DKILLCONV_DOWNLOAD))
 
 # Tools and libraries to be used for the target system
 # Currently, the target is always windows-mingw32
-SDL_DOWNLOAD=http://www.libsdl.org/release/SDL2-devel-2.28.1-mingw.tar.gz
-#SDL_NET_DOWNLOAD=https://www.libsdl.org/projects/SDL_net/release/SDL2_net-devel-2.2.0-VC.zip
-SDL_NET_DOWNLOAD=https://www.libsdl.org/projects/SDL_net/release/SDL2_net-devel-2.2.0-mingw.tar.gz
-#SDL_MIXER_DOWNLOAD=https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.6.3-VC.zip
-SDL_MIXER_DOWNLOAD=https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.6.3-mingw.tar.gz
-#SDL_IMAGE_DONLOAD=https://github.com/libsdl-org/SDL_image/releases/download/release-2.6.3/SDL2_image-devel-2.6.3-VC.zip
-SDL_IMAGE_DOWNLOAD=https://github.com/libsdl-org/SDL_image/releases/download/release-2.6.3/SDL2_image-devel-2.6.3-mingw.tar.gz
+SDL_DOWNLOAD=https://github.com/libsdl-org/SDL/releases/download/release-2.30.7/SDL2-devel-2.30.7-mingw.tar.gz
+#SDL_NET_DOWNLOAD=https://github.com/libsdl-org/SDL_net/releases/download/release-2.2.0/SDL2_net-devel-2.2.0-VC.zip
+SDL_NET_DOWNLOAD=https://github.com/libsdl-org/SDL_net/releases/download/release-2.2.0/SDL2_net-devel-2.2.0-mingw.tar.gz
+#SDL_MIXER_DOWNLOAD=https://github.com/libsdl-org/SDL_mixer/releases/download/release-2.8.0/SDL2_mixer-devel-2.8.0-VC.zip
+SDL_MIXER_DOWNLOAD=https://github.com/libsdl-org/SDL_mixer/releases/download/release-2.8.0/SDL2_mixer-devel-2.8.0-mingw.tar.gz
+#SDL_IMAGE_DOWNLOAD=https://github.com/libsdl-org/SDL_image/releases/download/release-2.8.2/SDL2_image-devel-2.8.2-VC.zip
+SDL_IMAGE_DOWNLOAD=https://github.com/libsdl-org/SDL_image/releases/download/release-2.8.2/SDL2_image-devel-2.8.2-mingw.tar.gz
 SDL_PACKAGE=$(notdir $(SDL_DOWNLOAD))
 SDL_NET_PACKAGE=$(notdir $(SDL_NET_DOWNLOAD))
 SDL_MIXER_PACKAGE=$(notdir $(SDL_MIXER_DOWNLOAD))

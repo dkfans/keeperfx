@@ -48,7 +48,7 @@
 struct Thing *create_room_surrounding_flame(struct Room *room, const struct Coord3d *pos,
     unsigned short eetype, PlayerNumber owner)
 {
-    struct Thing* eething = create_effect_element(pos, room_effect_elements[eetype & 7], owner);
+    struct Thing* eething = create_effect_element(pos, room_effect_elements[eetype], owner);
     if (!thing_is_invalid(eething))
     {
         eething->mappos.z.val = get_thing_height_at(eething, &eething->mappos);
@@ -88,7 +88,7 @@ void room_update_surrounding_flames(struct Room *room, const struct Coord3d *pos
 void process_room_surrounding_flames(struct Room *room)
 {
     SYNCDBG(19,"Starting");
-    if(room->owner == game.hero_player_num)
+    if(player_is_roaming(room->owner))
     {
         return;
     }
@@ -261,7 +261,7 @@ void recreate_rooms_from_room_slabs(struct Room *room, unsigned char gnd_slab)
     room->slabs_count = 0;
 }
 
-TbBool delete_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char is_destroyed)
+TbBool delete_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, TbBool is_destroyed)
 {
     struct Room* room = slab_room_get(slb_x, slb_y);
     if (room_is_invalid(room))
@@ -315,6 +315,7 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
             else
             {
                 place_slab_type_on_map(slabkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
+                set_alt_bit_on_slabs_around(slb_x, slb_y);
             }
             return true;
         }
@@ -332,6 +333,7 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
     SYNCDBG(7, "Room on (%d,%d) had %d slabs", (int)slb_x, (int)slb_y, (int)room->slabs_count);
     decrease_room_area(room->owner, 1);
     kill_room_slab_and_contents(room->owner, slb_x, slb_y);
+    remove_slab_from_room_tiles_list(room, slb_x, slb_y);
     if (room->slabs_count <= 1)
     {
         delete_room_flag(room);
@@ -453,7 +455,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
     {
         room = get_room_thing_is_on(thing);
         long wealth_size_holds = game.conf.rules.game.gold_per_hoard / get_wealth_size_types_count();
-        unsigned long gold_value = wealth_size_holds * (get_wealth_size_of_gold_hoard_object(thing) + 1);
+        unsigned long gold_value = wealth_size_holds * max(1, get_wealth_size_of_gold_hoard_object(thing));
         unsigned long value_left;
         unsigned long value_added;
         if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_GoldStorage))
@@ -635,7 +637,7 @@ void query_room(struct Room *room)
     const char efficiency[26] = "\0";
     sprintf((char*)title, "Room ID: %d", room->index);
     sprintf((char*)owner, "Owner: %d", room->owner);
-    sprintf((char*)health, "Health: %d", room->health);
+    sprintf((char*)health, "Health: %d", (int)room->health);
     sprintf((char*)capacity, "Capacity: %d/%d", room->used_capacity, room->total_capacity);
     float room_efficiency_percent = ((float)room->efficiency / (float)ROOM_EFFICIENCY_MAX) * 100;
     sprintf((char*)efficiency, "Efficiency: %d", (unsigned char)round(room_efficiency_percent));

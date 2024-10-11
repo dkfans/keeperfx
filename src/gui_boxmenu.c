@@ -31,7 +31,7 @@
 #include "creature_instances.h"
 #include "player_data.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "player_utils.h"
 #include "kjm_input.h"
 #include "packets.h"
@@ -68,6 +68,7 @@ long gf_decide_victory(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned
 long gfa_single_player_mode(struct GuiBox* gbox, struct GuiBoxOption* goptn, long* tag);
 long gf_all_doors(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
 long gf_all_traps(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
+long gf_give_door_trap(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
 
 struct GuiBoxOption gui_main_cheat_list[] = { //gui_main_option_list in beta
   {"Null mode",                1,           NULL,              gf_change_player_state, 0, 0, 0,               PSt_None, 0, 0, 0, true},
@@ -110,6 +111,7 @@ struct GuiBoxOption gui_creature_cheat_option_list[] = {
  {"Research all rooms",        1,           NULL,           gf_research_rooms, 0, 0, 0,               0, 0, 0, 0, 0},
  {"All doors manufacturable",  1,           NULL,           gf_all_doors,      0, 0, 0,               0, 0, 0, 0, 0},
  {"All traps manufacturable",  1,           NULL,           gf_all_traps,      0, 0, 0,               0, 0, 0, 0, 0},
+ {"Increment doors and traps count",  1,    NULL,           gf_give_door_trap, 0, 0, 0,               0, 0, 0, 0, 0},
  {"Win the level instantly",   1,           NULL,           gf_decide_victory, 0, 0, 0,               1, 0, 0, 0, 0},
  {"Lose the level instantly",  1,           NULL,           gf_decide_victory, 0, 0, 0,               0, 0, 0, 0, 0},
  {"!",                         0,           NULL,                        NULL, 0, 0, 0,               0, 0, 0, 0, 0},
@@ -287,6 +289,14 @@ long gf_all_traps(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char
     struct PlayerInfo* player = get_my_player();
     //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
     set_players_packet_action(player, PckA_CheatAllTraps, 0, 0, 0, 0);
+    return 1;
+}
+
+long gf_give_door_trap(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
+{
+    struct PlayerInfo* player = get_my_player();
+    //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+    set_players_packet_action(player, PckA_CheatGiveDoorTrap, 0, 0, 0, 0);
     return 1;
 }
 

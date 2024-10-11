@@ -30,9 +30,9 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-#define EFFECTS_TYPES_MAX 128
-#define EFFECTSGEN_TYPES_MAX 64
-#define EFFECTSELLEMENTS_TYPES_MAX 128
+#define EFFECTS_TYPES_MAX 2048
+#define EFFECTSGEN_TYPES_MAX 2048
+#define EFFECTSELLEMENTS_TYPES_MAX 2048
 
 /******************************************************************************/
 
@@ -41,7 +41,7 @@ extern const struct NamedCommand effect_generator_commands[];
 struct EffectConfigStats {
     char code_name[COMMAND_WORD_LEN];
     /** Health; decreases by 1 on every turn, so it works also as lifespan. */
-    short start_health;
+    HitPoints start_health;
     unsigned char generation_type;
     short accel_xy_min;
     short accel_xy_max;
@@ -49,12 +49,13 @@ struct EffectConfigStats {
     short accel_z_max;
     unsigned char elements_count;
     short effect_sound;
-    unsigned char kind_min;
-    unsigned char kind_max;
+    ThingModel kind_min;
+    ThingModel kind_max;
     unsigned char area_affect_type;
     unsigned char always_generate;
     struct InitLight ilght;
     unsigned char affected_by_wind;
+    ThingHitType effect_hit_type;
 };
 
 struct EffectGeneratorConfigStats {
@@ -62,7 +63,7 @@ struct EffectGeneratorConfigStats {
     long generation_delay_min;
     long generation_delay_max;
     long generation_amount;
-    long effect_model;
+    ThingModel effect_model;
     unsigned char ignore_terrain;
     long spawn_height;
     long acc_x_min;
@@ -90,7 +91,7 @@ struct EffectElementConfigStats {
     unsigned short sprite_speed_max;
     TbBool animate_on_floor;
     TbBool unshaded;
-    unsigned char transparant;  // transparency flags in bits 4-5
+    unsigned char transparent;  // transparency flags in bits 4-5
     TbBool movable;
     unsigned char movement_flags;
     unsigned char size_change; /**< See enum ThingSizeChange. */
@@ -100,22 +101,22 @@ struct EffectElementConfigStats {
     unsigned short subeffect_model;
     unsigned short subeffect_delay;
     TbBool impacts;
-    unsigned short solidgnd_effmodel;
+    ThingModel solidgnd_effmodel;
     unsigned short solidgnd_snd_smpid;
     unsigned short solidgnd_loudness;
     TbBool solidgnd_destroy_on_impact;
-    unsigned short water_effmodel;
+    ThingModel water_effmodel;
     unsigned short water_snd_smpid;
     unsigned short water_loudness;
     TbBool water_destroy_on_impact;
-    unsigned short lava_effmodel;
+    ThingModel lava_effmodel;
     unsigned short lava_snd_smpid;
     unsigned short lava_loudness;
     TbBool lava_destroy_on_impact;
     unsigned short transform_model;
     unsigned short light_radius;
     unsigned char light_intensity;
-    long light_field_3D;
+    long light_flags;
     unsigned char affected_by_wind;
 };
 
@@ -130,7 +131,6 @@ extern struct NamedCommand effect_desc[EFFECTS_TYPES_MAX];
 extern long const imp_spangle_effects[];
 extern long const ball_puff_effects[];
 
-extern struct NamedCommand effect_desc[EFFECTS_TYPES_MAX];
 extern struct NamedCommand effectgen_desc[EFFECTSGEN_TYPES_MAX];
 extern struct NamedCommand effectelem_desc[EFFECTSELLEMENTS_TYPES_MAX];
 /******************************************************************************/

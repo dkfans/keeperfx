@@ -54,6 +54,8 @@ pkg/ldata/fronttor.dat
 FRONTENDGFX = \
 pkg/data/legal32.raw \
 pkg/data/legal64.raw \
+pkg/data/legal-720p-wide.raw \
+pkg/data/legal-1080p-wide.raw \
 pkg/data/startfx32.raw \
 pkg/data/startfx64.raw \
 pkg/data/loading32.raw \
@@ -100,6 +102,20 @@ pkg/data/tmapa010.dat \
 pkg/data/tmapa011.dat \
 pkg/data/tmapa012.dat \
 pkg/data/tmapa013.dat \
+pkg/data/tmapb000.dat \
+pkg/data/tmapb001.dat \
+pkg/data/tmapb002.dat \
+pkg/data/tmapb003.dat \
+pkg/data/tmapb004.dat \
+pkg/data/tmapb005.dat \
+pkg/data/tmapb006.dat \
+pkg/data/tmapb007.dat \
+pkg/data/tmapb008.dat \
+pkg/data/tmapb009.dat \
+pkg/data/tmapb010.dat \
+pkg/data/tmapb011.dat \
+pkg/data/tmapb012.dat \
+pkg/data/tmapb013.dat \
 pkg/data/swipe01.dat \
 pkg/data/swipe02.dat \
 pkg/data/swipe03.dat \
@@ -154,13 +170,15 @@ $(foreach campaign,$(sort $(CAMPAIGNS)),$(eval $(call define_campaign_landview_r
 pkg/ldata/torture.pal:  gfx/menufx/torturescr/tortr_background.png gfx/menufx/torturescr/tortr_doora_open11.png gfx/menufx/torturescr/tortr_doorb_open11.png gfx/menufx/torturescr/tortr_doorc_open11.png gfx/menufx/torturescr/tortr_doord_open11.png gfx/menufx/torturescr/tortr_doore_open11.png gfx/menufx/torturescr/tortr_doorf_open11.png gfx/menufx/torturescr/tortr_doorg_open11.png gfx/menufx/torturescr/tortr_doorh_open11.png gfx/menufx/torturescr/tortr_doori_open11.png gfx/menufx/torturescr/cursor_horny.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
 pkg/data/legal32.pal:   gfx/menufx/loading/legal-32.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
 pkg/data/legal64.pal:   gfx/menufx/loading/legal-64.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
+pkg/data/legal-720p-wide.pal: gfx/menufx/loading/legal-720p-wide.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
+pkg/data/legal-1080p-wide.pal: gfx/menufx/loading/legal-1080p-wide.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
 pkg/data/startfx32.pal: gfx/menufx/loading/startupfx-32.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
 pkg/data/startfx64.pal: gfx/menufx/loading/startupfx-64.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
 pkg/data/loading32.pal: gfx/menufx/loading/loading-32.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
 pkg/data/loading64.pal: gfx/menufx/loading/loading-64.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
 pkg/data/nocd.pal:      gfx/menufx/loading/nocd-32.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
 
-pkg/ldata/torture.pal pkg/data/legal32.pal pkg/data/legal64.pal pkg/data/startfx32.pal pkg/data/startfx64.pal pkg/data/loading32.pal pkg/data/loading64.pal pkg/data/nocd.pal:
+pkg/ldata/torture.pal pkg/data/legal32.pal pkg/data/legal64.pal pkg/data/legal-720p-wide.pal pkg/data/legal-1080p-wide.pal pkg/data/startfx32.pal pkg/data/startfx64.pal pkg/data/loading32.pal pkg/data/loading64.pal pkg/data/nocd.pal:
 	-$(ECHO) 'Building palette: $@'
 	@$(MKDIR) $(@D)
 	$(PNGTOBSPAL) -o "$@" -m "$(filter %.txt,$^)" $(filter %.png,$^)
@@ -232,12 +250,29 @@ pkg/data/tmapa011.dat: gfx/enginefx/textures-32/filelist_tmapa011.txt pkg/data/p
 pkg/data/tmapa012.dat: gfx/enginefx/textures-32/filelist_tmapa012.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/tmapa013.dat: gfx/enginefx/textures-32/filelist_tmapa013.txt pkg/data/palette.dat $(PNGTORAW)
 
+pkg/data/tmapb000.dat: gfx/enginefx/textures-32/filelist_tmapb000.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapb001.dat: gfx/enginefx/textures-32/filelist_tmapb001.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapb002.dat: gfx/enginefx/textures-32/filelist_tmapb002.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapb003.dat: gfx/enginefx/textures-32/filelist_tmapb003.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapb004.dat: gfx/enginefx/textures-32/filelist_tmapb004.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapb005.dat: gfx/enginefx/textures-32/filelist_tmapb005.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapb006.dat: gfx/enginefx/textures-32/filelist_tmapb006.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapb007.dat: gfx/enginefx/textures-32/filelist_tmapb007.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapb008.dat: gfx/enginefx/textures-32/filelist_tmapb008.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapb009.dat: gfx/enginefx/textures-32/filelist_tmapb009.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapb010.dat: gfx/enginefx/textures-32/filelist_tmapb010.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapb011.dat: gfx/enginefx/textures-32/filelist_tmapb011.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapb012.dat: gfx/enginefx/textures-32/filelist_tmapb012.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapb013.dat: gfx/enginefx/textures-32/filelist_tmapb013.txt pkg/data/palette.dat $(PNGTORAW)
+
 pkg/data/gmap32.raw:    gfx/enginefx/guimap/gmap-32.png pkg/data/palette.dat $(PNGTORAW)
 pkg/data/gmap64.raw:    gfx/enginefx/guimap/gmap-64.png pkg/data/palette.dat $(PNGTORAW)
 pkg/data/gmapbug.dat:   gfx/enginefx/parchmentbug/filelist-gbug.txt pkg/data/palette.dat $(PNGTORAW)
 
 pkg/data/legal32.raw:   gfx/menufx/loading/legal-32.png pkg/data/legal32.pal $(PNGTORAW)
 pkg/data/legal64.raw:   gfx/menufx/loading/legal-64.png pkg/data/legal64.pal $(PNGTORAW)
+pkg/data/legal-720p-wide.raw:    gfx/menufx/loading/legal-720p-wide.png pkg/data/legal-720p-wide.pal $(PNGTORAW)
+pkg/data/legal-1080p-wide.raw:   gfx/menufx/loading/legal-1080p-wide.png pkg/data/legal-1080p-wide.pal $(PNGTORAW)
 pkg/data/startfx32.raw: gfx/menufx/loading/startupfx-32.png pkg/data/startfx32.pal $(PNGTORAW)
 pkg/data/startfx64.raw: gfx/menufx/loading/startupfx-64.png pkg/data/startfx64.pal $(PNGTORAW)
 pkg/data/loading32.raw: gfx/menufx/loading/loading-32.png pkg/data/loading32.pal $(PNGTORAW)
@@ -269,7 +304,7 @@ pkg/data/frac%.raw:
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
-pkg/data/tmapa%.dat:
+pkg/data/tmap%.dat:
 	-$(ECHO) 'Building RAW texture: $@'
 	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f raw -l 0 "$<"
 	-$(ECHO) 'Finished building: $@'

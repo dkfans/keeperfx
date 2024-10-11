@@ -177,7 +177,7 @@ long light_create_light(struct InitLight *ilght)
     lgt->mappos.z.val = ilght->mappos.z.val;
     lgt->radius = ilght->radius;
     lgt->intensity = ilght->intensity;
-    lgt->flags2 |= ilght->field_3 << 1;
+    lgt->flags2 |= ilght->flags << 1;
 
     set_flag_value(lgt->flags, LgtF_Dynamic, ilght->is_dynamic);
     lgt->attached_slb = ilght->attached_slb;
@@ -1525,21 +1525,28 @@ static void light_stat_light_map_clear_area(MapSubtlCoord start_stl_x, MapSubtlC
   }
 }
 
+void light_stat_refresh() {
+    // Enable lights on all but bounding subtiles
+    light_stat_light_map_clear_area(0, 0, gameadd.map_subtiles_x, gameadd.map_subtiles_y);
+    light_signal_stat_light_update_in_area(1, 1, gameadd.map_subtiles_x, gameadd.map_subtiles_y);
+}
+
 void light_set_lights_on(char state)
 {
     SYNCDBG(8, "Starting");
     if (state)
     {
-        game.lish.global_ambient_light = 10;
-        game.lish.light_enabled = 1;
+        // Game rule
+        game.lish.global_ambient_light = game.conf.rules.game.global_ambient_light;
+        game.lish.light_enabled = game.conf.rules.game.light_enabled;
     } else
     {
+        // Fullbright
         game.lish.global_ambient_light = 32;
         game.lish.light_enabled = 0;
     }
-    // Enable lights on all but bounding subtiles
-    light_stat_light_map_clear_area(0, 0, gameadd.map_subtiles_x, gameadd.map_subtiles_y);
-    light_signal_stat_light_update_in_area(1, 1, gameadd.map_subtiles_x, gameadd.map_subtiles_y);
+
+    light_stat_refresh();
 }
 
 static long calculate_shadow_angle(
@@ -2026,8 +2033,8 @@ static char light_render_light(struct Light* lgt)
   }
   if ( is_dynamic )
   {
-    if ( radius < lgt->min_radius << 8 )
-      render_radius = lgt->min_radius << 8;
+    if ( radius < lgt->min_radius * COORD_PER_STL)
+      render_radius = lgt->min_radius * COORD_PER_STL;
     if ( intensity < lgt->min_intensity << 8 )
       intensity = lgt->min_intensity << 8;
   }
@@ -2244,12 +2251,12 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
         }
         if ( (lgt->flags & LgtF_Unkn20) != 0 )
         {
-          if ( lgt->field_3 == 1 )
+          if ( lgt->intensity_toggling_field == 1 )
           {
             if ( lgt->intensity_delta + lgt->intensity >= lgt->max_intensity )
             {
               lgt->intensity = lgt->max_intensity;
-              lgt->field_3 = 2;
+              lgt->intensity_toggling_field = 2;
             }
             else
             {
@@ -2261,7 +2268,7 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
             if ( lgt->intensity - lgt->intensity_delta <= lgt->max_intensity )
             {
               lgt->intensity = lgt->max_intensity;
-              lgt->field_3 = 1;
+              lgt->intensity_toggling_field = 1;
             }
             else
             {

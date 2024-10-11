@@ -58,10 +58,14 @@ enum ShotModels {
     ShM_Disease,
     ShM_Chicken,
     ShM_TimeBomb,
-    ShM_TrapLightning, // 29
-    ShM_WordOfPower, 
+    ShM_TrapLightning,
+    ShM_WordOfPower, // 30
     ShM_TrapWordOfPower,
     ShM_TrapTNT = 32,
+    ShM_RangedHeal = 33,
+    ShM_RangedSpeed = 34,
+    ShM_RangedArmour = 35,
+    ShM_RangedRebound = 36,
 };
 
 enum ShotFireLogics {
@@ -69,7 +73,8 @@ enum ShotFireLogics {
     ShFL_Beam,
     ShFL_Breathe,
     ShFL_Hail,
-    ShFL_Lizard
+    ShFL_Lizard,
+    ShFL_Volley,
 };
 
 enum ShotUpdateLogics {
@@ -93,13 +98,14 @@ struct Coord3d;
 #pragma pack()
 /******************************************************************************/
 /******************************************************************************/
-struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned short owner);
+struct Thing *create_shot(struct Coord3d *pos, ThingModel model, unsigned short owner);
 TngUpdateRet update_shot(struct Thing *thing);
 TbBool thing_is_shot(const struct Thing *thing);
 
-long get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target);
+long get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target, TbBool NeverBlock);
 long project_damage_of_melee_shot(long shot_dexterity, long shot_damage, const struct Thing *target);
 void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct Thing *target);
+int weight_calculated_push_strenght(int weight, int push_strength);
 
 TbBool shot_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx);
 TbBool shot_model_is_navigable(long tngmodel);
@@ -108,6 +114,8 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy);
 TbBool shot_is_boulder(const struct Thing *shotng);
 
 struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *thing, struct Coord3d *pos, Thing_Collide_Func filter, HitTargetFlags a4, long a5);
+
+void affect_nearby_enemy_creatures_with_wind(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

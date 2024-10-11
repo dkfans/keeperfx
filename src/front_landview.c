@@ -273,16 +273,16 @@ void update_frontmap_ambient_sound(void)
           long i = compute_sound_good_to_bad_factor();
           SYNCDBG(18, "Volume factor is %ld", i);
           SetSampleVolume(0, campaign.ambient_good, map_sound_fade * (i) / 256, 0);
-          SetSampleVolume(0, campaign.ambient_bad, map_sound_fade * (127 - i) / 256, 0);
+          SetSampleVolume(0, campaign.ambient_bad, map_sound_fade * (settings.sound_volume - i) / 256, 0);
     } else
     if (lvidx > 13)
     {
-      SetSampleVolume(0, campaign.ambient_bad, 127*map_sound_fade/256, 0);
+      SetSampleVolume(0, campaign.ambient_bad, settings.sound_volume *map_sound_fade/256, 0);
     } else
     {
-      SetSampleVolume(0, campaign.ambient_good, 127*map_sound_fade/256, 0);
+      SetSampleVolume(0, campaign.ambient_good, settings.sound_volume *map_sound_fade/256, 0);
     }
-    Mix_VolumeChunk(streamed_sample, 127*map_sound_fade/256);
+    Mix_VolumeChunk(streamed_sample, settings.sound_volume *map_sound_fade/256);
     SetMusicPlayerVolume(map_sound_fade*(long)settings.redbook_volume/256);
   } else
   {
@@ -346,7 +346,14 @@ struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvinfo, in
     switch (lvinfo->state)
     {
     case LvSt_Visible:
-        i = 26;
+        if(lvinfo->lvnum == get_extra_level(ExLv_NewMoon))
+        {
+            i = 37;
+        }
+        else // Full Moon
+        {
+            i = 26;
+        }
         if (lvinfo->lvnum == mouse_over_lvnum)
           i += 4;
         spr = get_map_ensign(i+(anim_frame & 3));
@@ -704,7 +711,8 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
     }
     playing_speech_lvnum = lvnum;
     SYNCMSG("Playing %s", fname);
-    return play_streamed_sample(fname, 127, 0);
+    //volume is overwritten in update_frontmap_ambient_sound
+    return play_streamed_sample(fname, settings.sound_volume, 0);
 }
 
 TbBool set_pointer_graphic_spland(long frame)
@@ -888,7 +896,6 @@ TbBool load_map_and_window(LevelNumber lvnum)
     memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE);
     // Now prepare window sprite file name and load the file
     fname = prepare_file_fmtpath(FGrp_LandView,"%s.dat",land_window);
-    wait_for_cd_to_be_available();
     map_window_len = LbFileLoadAt(fname, ptr);
     if (map_window_len < (long)(WINDOW_Y_SIZE*sizeof(long)))
     {
@@ -907,7 +914,6 @@ TbBool load_map_and_window(LevelNumber lvnum)
     map_window_len -= WINDOW_Y_SIZE*sizeof(long);
     // Load palette
     fname = prepare_file_fmtpath(FGrp_LandView,"%s.pal",land_view);
-    wait_for_cd_to_be_available();
     if (LbFileLoadAt(fname, frontend_palette) != PALETTE_SIZE)
     {
         ERRORLOG("Unable to load Land Map palette \"%s.pal\"",land_view);
@@ -954,7 +960,6 @@ TbBool frontnetmap_load(void)
       if (LbNetwork_EnableNewPlayers(0))
         ERRORLOG("Unable to prohibit new players joining exchange");
     }
-    wait_for_cd_to_be_available();
     frontend_load_data_from_cd();
     game.selected_level_number = 0;
     switch (campaign.land_markers)
@@ -1089,7 +1094,6 @@ TbBool frontmap_load(void)
     LbPaletteSet(scratch);
     initialize_description_speech();
     mouse_over_lvnum = SINGLEPLAYER_NOTSTARTED;
-    wait_for_cd_to_be_available();
     frontend_load_data_from_cd();
     switch (campaign.land_markers)
     {

@@ -33,6 +33,7 @@
 #include "config_textures.h"
 #include "config_powerhands.h"
 #include "config_spritecolors.h"
+#include "config_players.h"
 #include "room_library.h"
 #include "game_legacy.h"
 #include "post_inc.h"
@@ -40,6 +41,7 @@
 /******************************************************************************/
 TbBool load_stats_files(void)
 {
+    SYNCDBG(8, "Starting");
     TbBool result = true;
     clear_research_for_all_players();
     if (!load_creaturetypes_config(keeper_creaturetp_file,CnfLd_ListOnly))
@@ -57,6 +59,8 @@ TbBool load_stats_files(void)
     if (!load_magic_config(keeper_magic_file,CnfLd_ListOnly))
       result = false;
     if (!load_creaturestates_config(creature_states_file,CnfLd_ListOnly))
+      result = false;
+    if (!load_playerstate_config(keeper_playerstates_file,CnfLd_ListOnly))
       result = false;
     if (!load_terrain_config(keeper_terrain_file,CnfLd_Standard))
       result = false;
@@ -85,7 +89,10 @@ TbBool load_stats_files(void)
       result = false;
     if (!load_spritecolors_config(keeper_spritecolors_file,CnfLd_Standard))
       result = false;
-
+    if (!load_cubes_config(CnfLd_Standard))
+      result = false;
+    if (!load_playerstate_config(keeper_playerstates_file,CnfLd_Standard))
+      result = false;
     
     for (int i = 1; i < game.conf.crtr_conf.model_count; i++)
     {

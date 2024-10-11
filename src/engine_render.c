@@ -42,6 +42,7 @@
 #include "creature_states_mood.h"
 #include "creature_states_gardn.h"
 #include "creature_states_lair.h"
+#include "config_spritecolors.h"
 #include "thing_stats.h"
 #include "thing_traps.h"
 #include "game_lghtshdw.h"
@@ -56,14 +57,18 @@
 #include "config_terrain.h"
 #include "config_creature.h"
 #include "keeperfx.hpp"
-#include "player_states.h"
+#include "config_players.h"
 #include "custom_sprites.h"
 #include "sprites.h"
+#include "player_instances.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define TO_FIXED(x)    ((x) << 16)
+#define FROM_FIXED(x)    ((x) >> 16)
 
 enum QKinds {
     QK_PolygonStandard = 0,
@@ -102,7 +107,6 @@ struct BasicQ { // sizeof = 5
 
 struct BucketKindPolygonStandard {
     struct BasicQ b;
-    unsigned char field_5;
     unsigned short block;
     struct PolyPoint p1;
     struct PolyPoint p2;
@@ -111,7 +115,6 @@ struct BucketKindPolygonStandard {
 
 struct BucketKindPolygonSimple {
     struct BasicQ b;
-    unsigned char field_5;
     unsigned short block;
     struct PolyPoint p1;
     struct PolyPoint p2;
@@ -148,14 +151,12 @@ struct BucketKindPolyMode4 {
 
 struct BucketKindTrigMode2 {
     struct BasicQ b;
-    unsigned char field_5;
     unsigned short x1;
     unsigned short y1;
     unsigned short x2;
     unsigned short y2;
     unsigned short x3;
     unsigned short y3;
-    unsigned short field_12;
     unsigned char uf1;
     unsigned char vf1;
     unsigned char uf2;
@@ -166,14 +167,12 @@ struct BucketKindTrigMode2 {
 
 struct BucketKindPolyMode5 {
     struct BasicQ b;
-    unsigned char field_5;
     unsigned short x1;
     unsigned short y1;
     unsigned short x2;
     unsigned short y2;
     unsigned short x3;
     unsigned short y3;
-    unsigned short field_12;
     unsigned char uf1;
     unsigned char vf1;
     unsigned char uf2;
@@ -187,14 +186,12 @@ struct BucketKindPolyMode5 {
 
 struct BucketKindTrigMode3 {
     struct BasicQ b;
-    unsigned char field_5;
     unsigned short x1;
     unsigned short y1;
     unsigned short x2;
     unsigned short y2;
     unsigned short x3;
     unsigned short y3;
-    unsigned short field_12;
     unsigned char uf1;
     unsigned char vf1;
     unsigned char uf2;
@@ -205,14 +202,12 @@ struct BucketKindTrigMode3 {
 
 struct BucketKindTrigMode6 {
     struct BasicQ b;
-    unsigned char field_5;
     unsigned short x1;
     unsigned short y1;
     unsigned short x2;
     unsigned short y2;
     unsigned short x3;
     unsigned short y3;
-    unsigned short field_12;
     unsigned char uf1;
     unsigned char vf1;
     unsigned char uf2;
@@ -226,7 +221,6 @@ struct BucketKindTrigMode6 {
 
 struct BucketKindRotableSprite {
     struct BasicQ b;
-    unsigned char field_5[3];
     long field_8;
     long field_C;
     long field_10;
@@ -249,7 +243,6 @@ struct BucketKindPolygonNearFP {
 
 struct BucketKindBasicUnk10 {
     struct BasicQ b;
-    unsigned char field_5;
     unsigned char field_6;
     unsigned char field_7;
     struct PolyPoint p1;
@@ -259,7 +252,6 @@ struct BucketKindBasicUnk10 {
 
 struct BucketKindJontySprite {  // BasicQ type 11,18
     struct BasicQ b;
-    unsigned char field_5[3];
     struct Thing *thing;
     long scr_x;
     long scr_y;
@@ -270,7 +262,6 @@ struct BucketKindJontySprite {  // BasicQ type 11,18
 
 struct BucketKindCreatureShadow {
     struct BasicQ b;
-    unsigned char field_5;
     unsigned short field_6;
     struct PolyPoint p1;
     struct PolyPoint p2;
@@ -278,12 +269,11 @@ struct BucketKindCreatureShadow {
     struct PolyPoint p4;
     long angle;
     unsigned short anim_sprite;
-    unsigned char thing_field48;
+    unsigned char current_frame;
 };
 
 struct BucketKindSlabSelector {
     struct BasicQ b;
-    unsigned char field_5;
     unsigned short field_6;
     struct PolyPoint p;
     unsigned char field_19[3];
@@ -304,22 +294,21 @@ struct NearestLights {
 };
 struct BucketKindTexturedQuad { // sizeof = 46
     struct BasicQ b;
-    unsigned char field_5;
-    long field_6;
-    long field_A;
-    long field_E;
-    long field_12;
-    long field_16;
-    long field_1A;
-    long field_1E;
-    long field_22;
-    long field_26;
-    long field_2A;
+    unsigned char orient;
+    long texture_idx;
+    long unk_x;
+    long unk_y;
+    long zoom_x;
+    long zoom_y;
+    long lightness0;
+    long lightness1;
+    long lightness2;
+    long lightness3;
+    long marked_mode;
 };
 
 struct BucketKindFloatingGoldText { // BasicQ type 16
     struct BasicQ b;
-    unsigned char field_5[3];
     long x;
     long y;
     long lvl;
@@ -327,7 +316,6 @@ struct BucketKindFloatingGoldText { // BasicQ type 16
 
 struct BucketKindRoomFlag { // BasicQ type 17,19
     struct BasicQ b;
-    unsigned char field_5;
     unsigned short lvl;
     long x;
     long y;
@@ -428,7 +416,7 @@ struct EngineCol *front_ec;
 struct EngineCol *back_ec;
 float hud_scale;
 
-int line_box_size = 200; // Default value, overwritten by cfg setting
+int line_box_size = 150; // Default value, overwritten by cfg setting
 int creature_status_size = 16; // Default value, overwritten by cfg setting
 static int water_wibble_angle = 0;
 static float render_water_wibble = 0; // Rendering float
@@ -512,7 +500,7 @@ static const char splittypes[64] = {
 static void do_map_who(short tnglist_idx);
 static void (*render_sprite_debug_fn) (struct Thing*, long scrpos_x, long scrpos_y) = NULL;
 static int render_sprite_debug_level = 0;
-static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short a2, unsigned char field48, unsigned char *a4);
+static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsigned char current_frame, unsigned char *outbuf);
 static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr);
 /******************************************************************************/
 
@@ -556,38 +544,13 @@ long interpolate(long variable_to_interpolate, long previous, long current)
     return lerp(variable_to_interpolate, desired_value, gameadd.delta_time);
 }
 
-long fix_interpolated_angle_bug(long variable_to_interpolate, long desired_value) {
-    // An ugly fix for a difficult angle interpolation bug. A proper fix would probably need rewriting all angle interpolation.
-    struct PlayerInfo* player = get_my_player();
-    struct Camera* cam = player->acamera;
-    switch (cam->view_mode)
-    {
-        case PVM_IsoWibbleView:
-        case PVM_FrontView:
-        case PVM_IsoStraightView:
-            
-            if (desired_value == 0 || desired_value == 512 || desired_value == 1024 || desired_value == 1536)
-            {
-                long angle_diff = variable_to_interpolate - desired_value;
-                angle_diff = (angle_diff + LbFPMath_PI) % LbFPMath_TAU - LbFPMath_PI;
-                if (abs(angle_diff) < 8) {
-                    variable_to_interpolate = desired_value;
-                }
-            }
-        break;
-    }
-    return variable_to_interpolate;
-}
-
 long interpolate_angle(long variable_to_interpolate, long previous, long current)
 {
     if (is_feature_on(Ft_DeltaTime) == false) {
         return current;
     }
     long future = current + (current - previous);
-    // If you want to reduce 1st person camera acceleration/deceleration then change it in the logic, not here.
     long desired_value = lerp_angle(current, future, 0.5);
-    variable_to_interpolate = fix_interpolated_angle_bug(variable_to_interpolate, desired_value);
     return lerp_angle(variable_to_interpolate, desired_value, gameadd.delta_time);
 }
 
@@ -987,6 +950,31 @@ struct WibbleTable *get_wibble_from_table(struct Camera *cam, long table_index, 
         }
     }
     return &blank_wibble_table[table_index];
+}
+
+static struct BasicQ *get_bucket_item(int min_cor_z, enum QKinds kind, size_t size)
+{
+    if (getpoly >= poly_pool_end)
+    {
+        return NULL;
+    }
+
+    int bckt_idx = min_cor_z / BUCKETS_STEP;
+    if (bckt_idx < 0)
+    {
+        bckt_idx = 0;
+    }
+    else if (bckt_idx > BUCKETS_COUNT-2)
+    {
+        bckt_idx = BUCKETS_COUNT-2;
+    }
+    struct BasicQ * kspr;
+    kspr = (struct BasicQ *)getpoly;
+    getpoly += size;
+    kspr->next = buckets[bckt_idx];
+    kspr->kind = kind;
+    buckets[bckt_idx] = (struct BasicQ *)kspr;
+    return kspr;
 }
 
 static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bstl_y, struct MinMax *mm)
@@ -3031,25 +3019,21 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                             memcpy(&triangle_bucket_near_4->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_4->p3));
                             memcpy(&triangle_bucket_near_4->p2, &triangle_bucket_near_1->p2, sizeof(triangle_bucket_near_4->p2));
 
-                            // Don't know what this is.
-                            int toast = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
+                            int z_ratio_1 = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
 
-                            triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((toast * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
-                            triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((toast * (engine_coordinate_1->y - engine_coordinate_3->y)) >> 8);
+                            triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((z_ratio_1 * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
+                            triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((z_ratio_1 * (engine_coordinate_1->y - engine_coordinate_3->y)) >> 8);
                             triangle_bucket_near_1->c3.z = 32;
                             perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
-                            triangle_bucket_near_1->p3.U += (toast * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p3.U)) >> 8;
-                            triangle_bucket_near_1->p3.V += (toast * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p3.V)) >> 8;
+                            triangle_bucket_near_1->p3.U += (z_ratio_1 * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p3.U)) >> 8;
+                            triangle_bucket_near_1->p3.V += (z_ratio_1 * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p3.V)) >> 8;
 
-                            // ?
-                            int popcorn = triangle_bucket_near_1->p3.S;
-
-                            // ?
-                            int almond = (toast * (triangle_bucket_near_1->p1.S - popcorn)) >> 8;
+                            int light_factor_1 = triangle_bucket_near_1->p3.S;
+                            int light_delta_1 = (z_ratio_1 * (triangle_bucket_near_1->p1.S - light_factor_1)) >> 8;
 
                             polypoint3 = &triangle_bucket_near_1->p3;
                             xyz4 = &triangle_bucket_near_1->c3;
-                            xyz4[-3].z = popcorn + almond;
+                            xyz4[-3].z = light_factor_1 + light_delta_1;
                             memcpy(&triangle_bucket_near_4->p1, polypoint3, sizeof(triangle_bucket_near_4->p1));
                             triangle_bucket_near_4->c1.x = xyz4->x;
                             triangle_bucket_near_4->c1.y = xyz4->y;
@@ -3058,16 +3042,15 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                             triangle_bucket_near_4->c2.y = engine_coordinate_2->y;
                             triangle_bucket_near_4->c2.z = engine_coordinate_2->z;
 
-                            // ?
-                            int lemon = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
+                            int z_ratio_2 = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
 
-                            triangle_bucket_near_4->c3.x = engine_coordinate_3->x + ((lemon * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
-                            triangle_bucket_near_4->c3.y = engine_coordinate_3->y + ((lemon * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
+                            triangle_bucket_near_4->c3.x = engine_coordinate_3->x + ((z_ratio_2 * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
+                            triangle_bucket_near_4->c3.y = engine_coordinate_3->y + ((z_ratio_2 * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
                             triangle_bucket_near_4->c3.z = 32;
                             perspective(&triangle_bucket_near_4->c3, &triangle_bucket_near_4->p3);
-                            triangle_bucket_near_4->p3.U += (lemon * (triangle_bucket_near_4->p2.U - triangle_bucket_near_4->p3.U)) >> 8;
-                            triangle_bucket_near_4->p3.V += (lemon * (triangle_bucket_near_4->p2.V - triangle_bucket_near_4->p3.V)) >> 8;
-                            triangle_bucket_near_4->p3.S += (lemon * (triangle_bucket_near_4->p2.S - triangle_bucket_near_4->p3.S)) >> 8;
+                            triangle_bucket_near_4->p3.U += (z_ratio_2 * (triangle_bucket_near_4->p2.U - triangle_bucket_near_4->p3.U)) >> 8;
+                            triangle_bucket_near_4->p3.V += (z_ratio_2 * (triangle_bucket_near_4->p2.V - triangle_bucket_near_4->p3.V)) >> 8;
+                            triangle_bucket_near_4->p3.S += (z_ratio_2 * (triangle_bucket_near_4->p2.S - triangle_bucket_near_4->p3.S)) >> 8;
                         }
                     }
                     else if (coordinate_3_z >= 32)
@@ -3088,24 +3071,21 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         memcpy(&triangle_bucket_near_3->p2, &triangle_bucket_near_1->p2, sizeof(triangle_bucket_near_3->p2));
                         memcpy(&triangle_bucket_near_3->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_3->p3));
 
-                        // ?
-                        int lettuce = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_1->z - engine_coordinate_2->z);
+                        int z_split_1 = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_1->z - engine_coordinate_2->z);
 
-                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((lettuce * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
-                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((lettuce * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
+                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((z_split_1 * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
+                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((z_split_1 * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
                         triangle_bucket_near_1->c2.z = 32;
                         perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
-                        triangle_bucket_near_1->p2.U += (lettuce * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p2.U)) >> 8;
-                        triangle_bucket_near_1->p2.V += (lettuce * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p2.V)) >> 8;
+                        triangle_bucket_near_1->p2.U += (z_split_1 * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p2.U)) >> 8;
+                        triangle_bucket_near_1->p2.V += (z_split_1 * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p2.V)) >> 8;
 
-                        // ?
-                        int sandwich = triangle_bucket_near_1->p2.S;
-                        // ?
-                        int walnut = (lettuce * (triangle_bucket_near_1->p1.S - sandwich)) >> 8;
+                        int light_base_1 = triangle_bucket_near_1->p2.S;
+                        int light_delta_2 = (z_split_1 * (triangle_bucket_near_1->p1.S - light_base_1)) >> 8;
 
                         polypoint2 = &triangle_bucket_near_1->p2;
                         xyz3 = &triangle_bucket_near_1->c2;
-                        xyz3[-3].x = sandwich + walnut;
+                        xyz3[-3].x = light_base_1 + light_delta_2;
                         memcpy(&triangle_bucket_near_3->p1, polypoint2, sizeof(triangle_bucket_near_3->p1));
                         triangle_bucket_near_3->c1.x = xyz3->x;
                         triangle_bucket_near_3->c1.y = xyz3->y;
@@ -3114,47 +3094,42 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_3->c3.y = engine_coordinate_3->y;
                         triangle_bucket_near_3->c3.z = engine_coordinate_3->z;
 
-                        // ?
-                        int avocado = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
+                        int z_ratio_3 = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
 
-                        triangle_bucket_near_3->c2.x = engine_coordinate_2->x + ((avocado * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
-                        triangle_bucket_near_3->c2.y = engine_coordinate_2->y + ((avocado * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
+                        triangle_bucket_near_3->c2.x = engine_coordinate_2->x + ((z_ratio_3 * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
+                        triangle_bucket_near_3->c2.y = engine_coordinate_2->y + ((z_ratio_3 * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
                         triangle_bucket_near_3->c2.z = 32;
                         perspective(&triangle_bucket_near_3->c2, &triangle_bucket_near_3->p2);
-                        triangle_bucket_near_3->p2.U += (avocado * (triangle_bucket_near_3->p3.U - triangle_bucket_near_3->p2.U)) >> 8;
-                        triangle_bucket_near_3->p2.V += (avocado * (triangle_bucket_near_3->p3.V - triangle_bucket_near_3->p2.V)) >> 8;
-                        triangle_bucket_near_3->p2.S += (avocado * (triangle_bucket_near_3->p3.S - triangle_bucket_near_3->p2.S)) >> 8;
+                        triangle_bucket_near_3->p2.U += (z_ratio_3 * (triangle_bucket_near_3->p3.U - triangle_bucket_near_3->p2.U)) >> 8;
+                        triangle_bucket_near_3->p2.V += (z_ratio_3 * (triangle_bucket_near_3->p3.V - triangle_bucket_near_3->p2.V)) >> 8;
+                        triangle_bucket_near_3->p2.S += (z_ratio_3 * (triangle_bucket_near_3->p3.S - triangle_bucket_near_3->p2.S)) >> 8;
                     }
                     else
                     {
-                        // ?
-                        int steak = ((32 - coordinate_2_z) << 8) / (coordinate_1_z - coordinate_2_z);
+                        int z_split_2 = ((32 - coordinate_2_z) << 8) / (coordinate_1_z - coordinate_2_z);
 
-                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((steak * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
-                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((steak * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
+                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((z_split_2 * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
+                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((z_split_2 * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
                         triangle_bucket_near_1->c2.z = 32;
                         perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
-                        triangle_bucket_near_1->p2.U += (steak * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p2.U)) >> 8;
-                        triangle_bucket_near_1->p2.V += (steak * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p2.V)) >> 8;
-                        triangle_bucket_near_1->p2.S += (steak * (triangle_bucket_near_1->p1.S - triangle_bucket_near_1->p2.S)) >> 8;
+                        triangle_bucket_near_1->p2.U += (z_split_2 * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p2.U)) >> 8;
+                        triangle_bucket_near_1->p2.V += (z_split_2 * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p2.V)) >> 8;
+                        triangle_bucket_near_1->p2.S += (z_split_2 * (triangle_bucket_near_1->p1.S - triangle_bucket_near_1->p2.S)) >> 8;
 
-                        // ?
-                        int tomato = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
+                        int z_ratio_4 = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
 
-                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((tomato * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
-                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((tomato * (engine_coordinate_1->y - engine_coordinate_3->y)) >> 8);
+                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((z_ratio_4 * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
+                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((z_ratio_4 * (engine_coordinate_1->y - engine_coordinate_3->y)) >> 8);
                         triangle_bucket_near_1->c3.z = 32;
                         perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
-                        triangle_bucket_near_1->p3.U += (tomato * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p3.U)) >> 8;
-                        triangle_bucket_near_1->p3.V += (tomato * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p3.V)) >> 8;
+                        triangle_bucket_near_1->p3.U += (z_ratio_4 * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p3.U)) >> 8;
+                        triangle_bucket_near_1->p3.V += (z_ratio_4 * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p3.V)) >> 8;
 
-                        // ?
-                        int cabbage = triangle_bucket_near_1->p1.S;
-                        // ?
-                        int coconut = triangle_bucket_near_1->p3.S;
+                        int light_base_2 = triangle_bucket_near_1->p1.S;
+                        int light_base_3 = triangle_bucket_near_1->p3.S;
 
                         xyz2 = &triangle_bucket_near_1->c1;
-                        xyz2[-1].z = coconut + ((tomato * (cabbage - coconut)) >> 8);
+                        xyz2[-1].z = light_base_3 + ((z_ratio_4 * (light_base_2 - light_base_3)) >> 8);
                         xyz2->x = engine_coordinate_1->x;
                         xyz2->y = engine_coordinate_1->y;
                         xyz2->z = engine_coordinate_1->z;
@@ -3180,24 +3155,21 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         memcpy(&triangle_bucket_near_2->p1, &triangle_bucket_near_1->p1, sizeof(triangle_bucket_near_2->p1));
                         memcpy(&triangle_bucket_near_2->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_2->p3));
 
-                        // ?
-                        int prawns = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
+                        int z_split_3 = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
 
-                        triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((prawns * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
-                        triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((prawns * (engine_coordinate_2->y - engine_coordinate_1->y)) >> 8);
+                        triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((z_split_3 * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
+                        triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((z_split_3 * (engine_coordinate_2->y - engine_coordinate_1->y)) >> 8);
                         triangle_bucket_near_1->c1.z = 32;
                         perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
-                        triangle_bucket_near_1->p1.U += (prawns * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p1.U)) >> 8;
-                        triangle_bucket_near_1->p1.V += (prawns * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p1.V)) >> 8;
+                        triangle_bucket_near_1->p1.U += (z_split_3 * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p1.U)) >> 8;
+                        triangle_bucket_near_1->p1.V += (z_split_3 * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p1.V)) >> 8;
 
-                        // ?
-                        int cauliflower = triangle_bucket_near_1->p1.S;
-                        // ?
-                        int paprika = (prawns * (triangle_bucket_near_1->p2.S - cauliflower)) >> 8;
+                        int light_base_4 = triangle_bucket_near_1->p1.S;
+                        int light_delta_3 = (z_split_3 * (triangle_bucket_near_1->p2.S - light_base_4)) >> 8;
 
                         polypoint1 = &triangle_bucket_near_1->p1;
                         xyz1 = &triangle_bucket_near_1->c1;
-                        xyz1[-4].y = cauliflower + paprika;
+                        xyz1[-4].y = light_base_4 + light_delta_3;
                         memcpy(&triangle_bucket_near_2->p2, polypoint1, sizeof(triangle_bucket_near_2->p2));
                         triangle_bucket_near_2->c2.x = xyz1->x;
                         triangle_bucket_near_2->c2.y = xyz1->y;
@@ -3206,16 +3178,15 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_2->c3.y = engine_coordinate_3->y;
                         triangle_bucket_near_2->c3.z = engine_coordinate_3->z;
 
-                        // ?
-                        int sausage = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
+                        int z_ratio_5 = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
 
-                        triangle_bucket_near_2->c1.x = engine_coordinate_1->x + ((sausage * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
-                        triangle_bucket_near_2->c1.y = engine_coordinate_1->y + ((sausage * (engine_coordinate_3->y - engine_coordinate_1->y)) >> 8);
+                        triangle_bucket_near_2->c1.x = engine_coordinate_1->x + ((z_ratio_5 * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
+                        triangle_bucket_near_2->c1.y = engine_coordinate_1->y + ((z_ratio_5 * (engine_coordinate_3->y - engine_coordinate_1->y)) >> 8);
                         triangle_bucket_near_2->c1.z = 32;
                         perspective(&triangle_bucket_near_2->c1, &triangle_bucket_near_2->p1);
-                        triangle_bucket_near_2->p1.U += (sausage * (triangle_bucket_near_2->p3.U - triangle_bucket_near_2->p1.U)) >> 8;
-                        triangle_bucket_near_2->p1.V += (sausage * (triangle_bucket_near_2->p3.V - triangle_bucket_near_2->p1.V)) >> 8;
-                        triangle_bucket_near_2->p1.S += (sausage * (triangle_bucket_near_2->p3.S - triangle_bucket_near_2->p1.S)) >> 8;
+                        triangle_bucket_near_2->p1.U += (z_ratio_5 * (triangle_bucket_near_2->p3.U - triangle_bucket_near_2->p1.U)) >> 8;
+                        triangle_bucket_near_2->p1.V += (z_ratio_5 * (triangle_bucket_near_2->p3.V - triangle_bucket_near_2->p1.V)) >> 8;
+                        triangle_bucket_near_2->p1.S += (z_ratio_5 * (triangle_bucket_near_2->p3.S - triangle_bucket_near_2->p1.S)) >> 8;
                     }
                     else
                     {
@@ -3223,27 +3194,25 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_1->c2.y = engine_coordinate_2->y;
                         triangle_bucket_near_1->c2.z = engine_coordinate_2->z;
 
-                        // ?
-                        int cherries = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
+                        int z_split_4 = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
 
-                        triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((cherries * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
-                        triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((cherries * (engine_coordinate_2->y - engine_coordinate_1->y)) >> 8);
+                        triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((z_split_4 * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
+                        triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((z_split_4 * (engine_coordinate_2->y - engine_coordinate_1->y)) >> 8);
                         triangle_bucket_near_1->c1.z = 32;
                         perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
-                        triangle_bucket_near_1->p1.U += (cherries * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p1.U)) >> 8;
-                        triangle_bucket_near_1->p1.V += (cherries * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p1.V)) >> 8;
-                        triangle_bucket_near_1->p1.S += (cherries * (triangle_bucket_near_1->p2.S - triangle_bucket_near_1->p1.S)) >> 8;
+                        triangle_bucket_near_1->p1.U += (z_split_4 * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p1.U)) >> 8;
+                        triangle_bucket_near_1->p1.V += (z_split_4 * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p1.V)) >> 8;
+                        triangle_bucket_near_1->p1.S += (z_split_4 * (triangle_bucket_near_1->p2.S - triangle_bucket_near_1->p1.S)) >> 8;
 
-                        // ?
-                        int mushroom = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
+                        int z_ratio_6 = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
 
-                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((mushroom * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
-                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((mushroom * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
+                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((z_ratio_6 * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
+                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((z_ratio_6 * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
                         triangle_bucket_near_1->c3.z = 32;
                         perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
-                        triangle_bucket_near_1->p3.U += (mushroom * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p3.U)) >> 8;
-                        triangle_bucket_near_1->p3.V += (mushroom * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p3.V)) >> 8;
-                        triangle_bucket_near_1->p3.S += (mushroom * (triangle_bucket_near_1->p2.S - triangle_bucket_near_1->p3.S)) >> 8;
+                        triangle_bucket_near_1->p3.U += (z_ratio_6 * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p3.U)) >> 8;
+                        triangle_bucket_near_1->p3.V += (z_ratio_6 * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p3.V)) >> 8;
+                        triangle_bucket_near_1->p3.S += (z_ratio_6 * (triangle_bucket_near_1->p2.S - triangle_bucket_near_1->p3.S)) >> 8;
                     }
                 }
                 else
@@ -3252,27 +3221,25 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                     triangle_bucket_near_1->c3.y = engine_coordinate_3->y;
                     triangle_bucket_near_1->c3.z = engine_coordinate_3->z;
 
-                    // ?
-                    int olives = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
+                    int z_ratio_7 = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
 
-                    triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((olives * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
-                    triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((olives * (engine_coordinate_3->y - engine_coordinate_1->y)) >> 8);
+                    triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((z_ratio_7 * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
+                    triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((z_ratio_7 * (engine_coordinate_3->y - engine_coordinate_1->y)) >> 8);
                     triangle_bucket_near_1->c1.z = 32;
                     perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
-                    triangle_bucket_near_1->p1.U += (olives * (triangle_bucket_near_1->p3.U - triangle_bucket_near_1->p1.U)) >> 8;
-                    triangle_bucket_near_1->p1.V += (olives * (triangle_bucket_near_1->p3.V - triangle_bucket_near_1->p1.V)) >> 8;
-                    triangle_bucket_near_1->p1.S += (olives * (triangle_bucket_near_1->p3.S - triangle_bucket_near_1->p1.S)) >> 8;
+                    triangle_bucket_near_1->p1.U += (z_ratio_7 * (triangle_bucket_near_1->p3.U - triangle_bucket_near_1->p1.U)) >> 8;
+                    triangle_bucket_near_1->p1.V += (z_ratio_7 * (triangle_bucket_near_1->p3.V - triangle_bucket_near_1->p1.V)) >> 8;
+                    triangle_bucket_near_1->p1.S += (z_ratio_7 * (triangle_bucket_near_1->p3.S - triangle_bucket_near_1->p1.S)) >> 8;
 
-                    // ?
-                    int macaroni = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
+                    int z_ratio_8 = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
 
-                    triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((macaroni * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
-                    triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((macaroni * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
+                    triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((z_ratio_8 * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
+                    triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((z_ratio_8 * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
                     triangle_bucket_near_1->c2.z = 32;
                     perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
-                    triangle_bucket_near_1->p2.U += (macaroni * (triangle_bucket_near_1->p3.U - triangle_bucket_near_1->p2.U)) >> 8;
-                    triangle_bucket_near_1->p2.V += (macaroni * (triangle_bucket_near_1->p3.V - triangle_bucket_near_1->p2.V)) >> 8;
-                    triangle_bucket_near_1->p2.S += (macaroni * (triangle_bucket_near_1->p3.S - triangle_bucket_near_1->p2.S)) >> 8;
+                    triangle_bucket_near_1->p2.U += (z_ratio_8 * (triangle_bucket_near_1->p3.U - triangle_bucket_near_1->p2.U)) >> 8;
+                    triangle_bucket_near_1->p2.V += (z_ratio_8 * (triangle_bucket_near_1->p3.V - triangle_bucket_near_1->p2.V)) >> 8;
+                    triangle_bucket_near_1->p2.S += (z_ratio_8 * (triangle_bucket_near_1->p3.S - triangle_bucket_near_1->p2.S)) >> 8;
                 }
             }
             else
@@ -3522,25 +3489,21 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                             memcpy(&triangle_bucket_near_4->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_4->p3));
                             memcpy(&triangle_bucket_near_4->p2, &triangle_bucket_near_1->p2, sizeof(triangle_bucket_near_4->p2));
 
-                            // ?
-                            int toast = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
+                            int z_ratio_1 = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
 
-                            triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((toast * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
-                            triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((toast * (engine_coordinate_1->y - engine_coordinate_3->y)) >> 8);
+                            triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((z_ratio_1 * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
+                            triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((z_ratio_1 * (engine_coordinate_1->y - engine_coordinate_3->y)) >> 8);
                             triangle_bucket_near_1->c3.z = 32;
                             perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
-                            triangle_bucket_near_1->p3.U += (toast * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p3.U)) >> 8;
-                            triangle_bucket_near_1->p3.V += (toast * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p3.V)) >> 8;
+                            triangle_bucket_near_1->p3.U += (z_ratio_1 * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p3.U)) >> 8;
+                            triangle_bucket_near_1->p3.V += (z_ratio_1 * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p3.V)) >> 8;
 
-                            // ?
-                            int popcorn = triangle_bucket_near_1->p3.S;
-
-                            // ?
-                            int almond = (toast * (triangle_bucket_near_1->p1.S - popcorn)) >> 8;
+                            int light_factor_1 = triangle_bucket_near_1->p3.S;
+                            int light_delta_1 = (z_ratio_1 * (triangle_bucket_near_1->p1.S - light_factor_1)) >> 8;
 
                             polypoint3 = &triangle_bucket_near_1->p3;
                             xyz4 = &triangle_bucket_near_1->c3;
-                            xyz4[-3].z = popcorn + almond;
+                            xyz4[-3].z = light_factor_1 + light_delta_1;
                             memcpy(&triangle_bucket_near_4->p1, polypoint3, sizeof(triangle_bucket_near_4->p1));
                             triangle_bucket_near_4->c1.x = xyz4->x;
                             triangle_bucket_near_4->c1.y = xyz4->y;
@@ -3549,16 +3512,15 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                             triangle_bucket_near_4->c2.y = engine_coordinate_2->y;
                             triangle_bucket_near_4->c2.z = engine_coordinate_2->z;
 
-                            // ?
-                            int lemon = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
+                            int z_ratio_2 = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
 
-                            triangle_bucket_near_4->c3.x = engine_coordinate_3->x + ((lemon * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
-                            triangle_bucket_near_4->c3.y = engine_coordinate_3->y + ((lemon * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
+                            triangle_bucket_near_4->c3.x = engine_coordinate_3->x + ((z_ratio_2 * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
+                            triangle_bucket_near_4->c3.y = engine_coordinate_3->y + ((z_ratio_2 * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
                             triangle_bucket_near_4->c3.z = 32;
                             perspective(&triangle_bucket_near_4->c3, &triangle_bucket_near_4->p3);
-                            triangle_bucket_near_4->p3.U += (lemon * (triangle_bucket_near_4->p2.U - triangle_bucket_near_4->p3.U)) >> 8;
-                            triangle_bucket_near_4->p3.V += (lemon * (triangle_bucket_near_4->p2.V - triangle_bucket_near_4->p3.V)) >> 8;
-                            triangle_bucket_near_4->p3.S += (lemon * (triangle_bucket_near_4->p2.S - triangle_bucket_near_4->p3.S)) >> 8;
+                            triangle_bucket_near_4->p3.U += (z_ratio_2 * (triangle_bucket_near_4->p2.U - triangle_bucket_near_4->p3.U)) >> 8;
+                            triangle_bucket_near_4->p3.V += (z_ratio_2 * (triangle_bucket_near_4->p2.V - triangle_bucket_near_4->p3.V)) >> 8;
+                            triangle_bucket_near_4->p3.S += (z_ratio_2 * (triangle_bucket_near_4->p2.S - triangle_bucket_near_4->p3.S)) >> 8;
                         }
                     }
                     else if (coordinate_3_z >= 32)
@@ -3579,24 +3541,21 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         memcpy(&triangle_bucket_near_3->p2, &triangle_bucket_near_1->p2, sizeof(triangle_bucket_near_3->p2));
                         memcpy(&triangle_bucket_near_3->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_3->p3));
 
-                        // ?
-                        int lettuce = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_1->z - engine_coordinate_2->z);
+                        int z_split_1 = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_1->z - engine_coordinate_2->z);
 
-                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((lettuce * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
-                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((lettuce * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
+                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((z_split_1 * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
+                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((z_split_1 * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
                         triangle_bucket_near_1->c2.z = 32;
                         perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
-                        triangle_bucket_near_1->p2.U += (lettuce * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p2.U)) >> 8;
-                        triangle_bucket_near_1->p2.V += (lettuce * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p2.V)) >> 8;
+                        triangle_bucket_near_1->p2.U += (z_split_1 * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p2.U)) >> 8;
+                        triangle_bucket_near_1->p2.V += (z_split_1 * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p2.V)) >> 8;
 
-                        // ?
-                        int sandwich = triangle_bucket_near_1->p2.S;
-                        // ?
-                        int walnut = (lettuce * (triangle_bucket_near_1->p1.S - sandwich)) >> 8;
+                        int light_base_1 = triangle_bucket_near_1->p2.S;
+                        int light_delta_2 = (z_split_1 * (triangle_bucket_near_1->p1.S - light_base_1)) >> 8;
 
                         polypoint2 = &triangle_bucket_near_1->p2;
                         xyz3 = &triangle_bucket_near_1->c2;
-                        xyz3[-3].x = sandwich + walnut;
+                        xyz3[-3].x = light_base_1 + light_delta_2;
                         memcpy(&triangle_bucket_near_3->p1, polypoint2, sizeof(triangle_bucket_near_3->p1));
                         triangle_bucket_near_3->c1.x = xyz3->x;
                         triangle_bucket_near_3->c1.y = xyz3->y;
@@ -3605,47 +3564,42 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_3->c3.y = engine_coordinate_3->y;
                         triangle_bucket_near_3->c3.z = engine_coordinate_3->z;
 
-                        // ?
-                        int avocado = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
+                        int z_ratio_3 = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
 
-                        triangle_bucket_near_3->c2.x = engine_coordinate_2->x + ((avocado * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
-                        triangle_bucket_near_3->c2.y = engine_coordinate_2->y + ((avocado * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
+                        triangle_bucket_near_3->c2.x = engine_coordinate_2->x + ((z_ratio_3 * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
+                        triangle_bucket_near_3->c2.y = engine_coordinate_2->y + ((z_ratio_3 * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
                         triangle_bucket_near_3->c2.z = 32;
                         perspective(&triangle_bucket_near_3->c2, &triangle_bucket_near_3->p2);
-                        triangle_bucket_near_3->p2.U += (avocado * (triangle_bucket_near_3->p3.U - triangle_bucket_near_3->p2.U)) >> 8;
-                        triangle_bucket_near_3->p2.V += (avocado * (triangle_bucket_near_3->p3.V - triangle_bucket_near_3->p2.V)) >> 8;
-                        triangle_bucket_near_3->p2.S += (avocado * (triangle_bucket_near_3->p3.S - triangle_bucket_near_3->p2.S)) >> 8;
+                        triangle_bucket_near_3->p2.U += (z_ratio_3 * (triangle_bucket_near_3->p3.U - triangle_bucket_near_3->p2.U)) >> 8;
+                        triangle_bucket_near_3->p2.V += (z_ratio_3 * (triangle_bucket_near_3->p3.V - triangle_bucket_near_3->p2.V)) >> 8;
+                        triangle_bucket_near_3->p2.S += (z_ratio_3 * (triangle_bucket_near_3->p3.S - triangle_bucket_near_3->p2.S)) >> 8;
                     }
                     else
                     {
-                        // ?
-                        int steak = ((32 - coordinate_2_z) << 8) / (coordinate_1_z - coordinate_2_z);
+                        int z_split_2 = ((32 - coordinate_2_z) << 8) / (coordinate_1_z - coordinate_2_z);
 
-                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((steak * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
-                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((steak * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
+                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((z_split_2 * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
+                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((z_split_2 * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
                         triangle_bucket_near_1->c2.z = 32;
                         perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
-                        triangle_bucket_near_1->p2.U += (steak * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p2.U)) >> 8;
-                        triangle_bucket_near_1->p2.V += (steak * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p2.V)) >> 8;
-                        triangle_bucket_near_1->p2.S += (steak * (triangle_bucket_near_1->p1.S - triangle_bucket_near_1->p2.S)) >> 8;
+                        triangle_bucket_near_1->p2.U += (z_split_2 * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p2.U)) >> 8;
+                        triangle_bucket_near_1->p2.V += (z_split_2 * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p2.V)) >> 8;
+                        triangle_bucket_near_1->p2.S += (z_split_2 * (triangle_bucket_near_1->p1.S - triangle_bucket_near_1->p2.S)) >> 8;
 
-                        // ?
-                        int tomato = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
+                        int z_ratio_4 = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
 
-                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((tomato * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
-                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((tomato * (engine_coordinate_1->y - engine_coordinate_3->y)) >> 8);
+                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((z_ratio_4 * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
+                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((z_ratio_4 * (engine_coordinate_1->y - engine_coordinate_3->y)) >> 8);
                         triangle_bucket_near_1->c3.z = 32;
                         perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
-                        triangle_bucket_near_1->p3.U += (tomato * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p3.U)) >> 8;
-                        triangle_bucket_near_1->p3.V += (tomato * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p3.V)) >> 8;
+                        triangle_bucket_near_1->p3.U += (z_ratio_4 * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p3.U)) >> 8;
+                        triangle_bucket_near_1->p3.V += (z_ratio_4 * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p3.V)) >> 8;
 
-                        // ?
-                        int cabbage = triangle_bucket_near_1->p1.S;
-                        // ?
-                        int coconut = triangle_bucket_near_1->p3.S;
+                        int light_base_2 = triangle_bucket_near_1->p1.S;
+                        int light_base_3 = triangle_bucket_near_1->p3.S;
 
                         xyz2 = &triangle_bucket_near_1->c1;
-                        xyz2[-1].z = coconut + ((tomato * (cabbage - coconut)) >> 8);
+                        xyz2[-1].z = light_base_3 + ((z_ratio_4 * (light_base_2 - light_base_3)) >> 8);
                         xyz2->x = engine_coordinate_1->x;
                         xyz2->y = engine_coordinate_1->y;
                         xyz2->z = engine_coordinate_1->z;
@@ -3671,24 +3625,21 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         memcpy(&triangle_bucket_near_2->p1, &triangle_bucket_near_1->p1, sizeof(triangle_bucket_near_2->p1));
                         memcpy(&triangle_bucket_near_2->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_2->p3));
 
-                        // ?
-                        int prawns = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
+                        int z_split_3 = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
 
-                        triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((prawns * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
-                        triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((prawns * (engine_coordinate_2->y - engine_coordinate_1->y)) >> 8);
+                        triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((z_split_3 * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
+                        triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((z_split_3 * (engine_coordinate_2->y - engine_coordinate_1->y)) >> 8);
                         triangle_bucket_near_1->c1.z = 32;
                         perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
-                        triangle_bucket_near_1->p1.U += (prawns * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p1.U)) >> 8;
-                        triangle_bucket_near_1->p1.V += (prawns * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p1.V)) >> 8;
+                        triangle_bucket_near_1->p1.U += (z_split_3 * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p1.U)) >> 8;
+                        triangle_bucket_near_1->p1.V += (z_split_3 * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p1.V)) >> 8;
 
-                        // ?
-                        int cauliflower = triangle_bucket_near_1->p1.S;
-                        // ?
-                        int paprika = (prawns * (triangle_bucket_near_1->p2.S - cauliflower)) >> 8;
+                        int light_base_4 = triangle_bucket_near_1->p1.S;
+                        int light_delta_3 = (z_split_3 * (triangle_bucket_near_1->p2.S - light_base_4)) >> 8;
 
                         polypoint1 = &triangle_bucket_near_1->p1;
                         xyz1 = &triangle_bucket_near_1->c1;
-                        xyz1[-4].y = cauliflower + paprika;
+                        xyz1[-4].y = light_base_4 + light_delta_3;
                         memcpy(&triangle_bucket_near_2->p2, polypoint1, sizeof(triangle_bucket_near_2->p2));
                         triangle_bucket_near_2->c2.x = xyz1->x;
                         triangle_bucket_near_2->c2.y = xyz1->y;
@@ -3697,16 +3648,15 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_2->c3.y = engine_coordinate_3->y;
                         triangle_bucket_near_2->c3.z = engine_coordinate_3->z;
 
-                        // ?
-                        int sausage = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
+                        int z_ratio_5 = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
 
-                        triangle_bucket_near_2->c1.x = engine_coordinate_1->x + ((sausage * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
-                        triangle_bucket_near_2->c1.y = engine_coordinate_1->y + ((sausage * (engine_coordinate_3->y - engine_coordinate_1->y)) >> 8);
+                        triangle_bucket_near_2->c1.x = engine_coordinate_1->x + ((z_ratio_5 * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
+                        triangle_bucket_near_2->c1.y = engine_coordinate_1->y + ((z_ratio_5 * (engine_coordinate_3->y - engine_coordinate_1->y)) >> 8);
                         triangle_bucket_near_2->c1.z = 32;
                         perspective(&triangle_bucket_near_2->c1, &triangle_bucket_near_2->p1);
-                        triangle_bucket_near_2->p1.U += (sausage * (triangle_bucket_near_2->p3.U - triangle_bucket_near_2->p1.U)) >> 8;
-                        triangle_bucket_near_2->p1.V += (sausage * (triangle_bucket_near_2->p3.V - triangle_bucket_near_2->p1.V)) >> 8;
-                        triangle_bucket_near_2->p1.S += (sausage * (triangle_bucket_near_2->p3.S - triangle_bucket_near_2->p1.S)) >> 8;
+                        triangle_bucket_near_2->p1.U += (z_ratio_5 * (triangle_bucket_near_2->p3.U - triangle_bucket_near_2->p1.U)) >> 8;
+                        triangle_bucket_near_2->p1.V += (z_ratio_5 * (triangle_bucket_near_2->p3.V - triangle_bucket_near_2->p1.V)) >> 8;
+                        triangle_bucket_near_2->p1.S += (z_ratio_5 * (triangle_bucket_near_2->p3.S - triangle_bucket_near_2->p1.S)) >> 8;
                     }
                     else
                     {
@@ -3714,27 +3664,25 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_1->c2.y = engine_coordinate_2->y;
                         triangle_bucket_near_1->c2.z = engine_coordinate_2->z;
 
-                        // ?
-                        int cherries = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
+                        int z_split_4 = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
 
-                        triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((cherries * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
-                        triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((cherries * (engine_coordinate_2->y - engine_coordinate_1->y)) >> 8);
+                        triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((z_split_4 * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
+                        triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((z_split_4 * (engine_coordinate_2->y - engine_coordinate_1->y)) >> 8);
                         triangle_bucket_near_1->c1.z = 32;
                         perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
-                        triangle_bucket_near_1->p1.U += (cherries * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p1.U)) >> 8;
-                        triangle_bucket_near_1->p1.V += (cherries * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p1.V)) >> 8;
-                        triangle_bucket_near_1->p1.S += (cherries * (triangle_bucket_near_1->p2.S - triangle_bucket_near_1->p1.S)) >> 8;
+                        triangle_bucket_near_1->p1.U += (z_split_4 * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p1.U)) >> 8;
+                        triangle_bucket_near_1->p1.V += (z_split_4 * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p1.V)) >> 8;
+                        triangle_bucket_near_1->p1.S += (z_split_4 * (triangle_bucket_near_1->p2.S - triangle_bucket_near_1->p1.S)) >> 8;
 
-                        // ?
-                        int mushroom = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
+                        int z_ratio_6 = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
 
-                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((mushroom * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
-                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((mushroom * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
+                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((z_ratio_6 * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
+                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((z_ratio_6 * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
                         triangle_bucket_near_1->c3.z = 32;
                         perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
-                        triangle_bucket_near_1->p3.U += (mushroom * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p3.U)) >> 8;
-                        triangle_bucket_near_1->p3.V += (mushroom * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p3.V)) >> 8;
-                        triangle_bucket_near_1->p3.S += (mushroom * (triangle_bucket_near_1->p2.S - triangle_bucket_near_1->p3.S)) >> 8;
+                        triangle_bucket_near_1->p3.U += (z_ratio_6 * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p3.U)) >> 8;
+                        triangle_bucket_near_1->p3.V += (z_ratio_6 * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p3.V)) >> 8;
+                        triangle_bucket_near_1->p3.S += (z_ratio_6 * (triangle_bucket_near_1->p2.S - triangle_bucket_near_1->p3.S)) >> 8;
                     }
                 }
                 else
@@ -3743,27 +3691,25 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                     triangle_bucket_near_1->c3.y = engine_coordinate_3->y;
                     triangle_bucket_near_1->c3.z = engine_coordinate_3->z;
 
-                    // ?
-                    int olives = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
+                    int z_ratio_7 = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
 
-                    triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((olives * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
-                    triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((olives * (engine_coordinate_3->y - engine_coordinate_1->y)) >> 8);
+                    triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((z_ratio_7 * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
+                    triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((z_ratio_7 * (engine_coordinate_3->y - engine_coordinate_1->y)) >> 8);
                     triangle_bucket_near_1->c1.z = 32;
                     perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
-                    triangle_bucket_near_1->p1.U += (olives * (triangle_bucket_near_1->p3.U - triangle_bucket_near_1->p1.U)) >> 8;
-                    triangle_bucket_near_1->p1.V += (olives * (triangle_bucket_near_1->p3.V - triangle_bucket_near_1->p1.V)) >> 8;
-                    triangle_bucket_near_1->p1.S += (olives * (triangle_bucket_near_1->p3.S - triangle_bucket_near_1->p1.S)) >> 8;
+                    triangle_bucket_near_1->p1.U += (z_ratio_7 * (triangle_bucket_near_1->p3.U - triangle_bucket_near_1->p1.U)) >> 8;
+                    triangle_bucket_near_1->p1.V += (z_ratio_7 * (triangle_bucket_near_1->p3.V - triangle_bucket_near_1->p1.V)) >> 8;
+                    triangle_bucket_near_1->p1.S += (z_ratio_7 * (triangle_bucket_near_1->p3.S - triangle_bucket_near_1->p1.S)) >> 8;
 
-                    // ?
-                    int macaroni = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
+                    int z_ratio_8 = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
 
-                    triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((macaroni * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
-                    triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((macaroni * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
+                    triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((z_ratio_8 * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
+                    triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((z_ratio_8 * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
                     triangle_bucket_near_1->c2.z = 32;
                     perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
-                    triangle_bucket_near_1->p2.U += (macaroni * (triangle_bucket_near_1->p3.U - triangle_bucket_near_1->p2.U)) >> 8;
-                    triangle_bucket_near_1->p2.V += (macaroni * (triangle_bucket_near_1->p3.V - triangle_bucket_near_1->p2.V)) >> 8;
-                    triangle_bucket_near_1->p2.S += (macaroni * (triangle_bucket_near_1->p3.S - triangle_bucket_near_1->p2.S)) >> 8;
+                    triangle_bucket_near_1->p2.U += (z_ratio_8 * (triangle_bucket_near_1->p3.U - triangle_bucket_near_1->p2.U)) >> 8;
+                    triangle_bucket_near_1->p2.V += (z_ratio_8 * (triangle_bucket_near_1->p3.V - triangle_bucket_near_1->p2.V)) >> 8;
+                    triangle_bucket_near_1->p2.S += (z_ratio_8 * (triangle_bucket_near_1->p3.S - triangle_bucket_near_1->p2.S)) >> 8;
                 }
             }
             else
@@ -3923,172 +3869,134 @@ static long find_closest_lights(const struct Coord3d* pos, struct NearestLights*
     return count;
 }
 
+static long find_fade_S(struct EngineCoord *ecor)
+{
+    if (ecor->field_C <= fade_min) {
+        return ecor->field_A << 8;
+    }
+    else if (ecor->field_C >= fade_max) {
+        return 32768;
+    } else {
+        return ecor->field_A * (fade_scaler - ecor->field_C) / fade_range + 32768;
+    }
+}
+
 static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct Coord3d *pos)
 {
     short mv_angle;
     short sh_angle;
-    short angle;
+    short sprite_angle;
     long dist_sq;
     struct EngineCoord ecor1;
     struct EngineCoord ecor2;
     struct EngineCoord ecor3;
     struct EngineCoord ecor4;
 
+    struct KeeperSprite *spr = keepersprite_array(thing->anim_sprite);
+
     mv_angle = thing->move_angle_xy;
     sh_angle = get_angle_xy_to(pos, &thing->mappos);
-    angle = (mv_angle - sh_angle) & LbFPMath_AngleMask;
+    sprite_angle = (mv_angle - sh_angle) & LbFPMath_AngleMask;
     dist_sq = (get_2d_distance_squared(&thing->mappos, pos) >> 17) + 16;
     if (dist_sq < 16) {
         dist_sq = 16;
-    } else
-    if (dist_sq > 31) {
+    }
+    else if (dist_sq > 31) {
         dist_sq = 31;
     }
     short dim_ow;
     short dim_oh;
     short dim_th;
     short dim_tw;
-    get_keepsprite_unscaled_dimensions(thing->anim_sprite, angle, thing->current_frame, &dim_ow, &dim_oh, &dim_tw, &dim_th);
+    get_keepsprite_unscaled_dimensions(thing->anim_sprite, sprite_angle, thing->current_frame, &dim_ow, &dim_oh, &dim_tw, &dim_th);
     {
-        int base_x;
-        int base_y;
-        int base_z;
-        int angle_sin;
-        int angle_cos;
-        base_z = 8 * dim_tw;
-        base_y = 8 * (6 - dim_oh - dim_th);
-        angle_cos = LbCosL(sh_angle);
-        angle_sin = LbSinL(sh_angle);
-        int base_th;
-        int base_tw;
-        int shift_a;
-        int shift_b;
-        int shift_c;
-        int shift_d;
-        int shift_e;
-        int shift_f;
-        int shift_g;
-        int shift_h;
-        shift_a = base_z * angle_cos;
-        shift_b = base_y * angle_sin;
-        base_x = ecor->x;
-        ecor1.x = base_x + ((shift_a - shift_b) >> 16);
-        shift_c = base_y * angle_cos;
-        shift_d = base_z * angle_sin;
-        base_z = ecor->z;
-        ecor1.z = base_z + (-(base_y * angle_cos + shift_d) >> 16);
-        base_y = ecor->y;
+        int sh_angle_sin = LbSinL(sh_angle);
+        int sh_angle_cos = LbCosL(sh_angle);
+
+        int base_y2 = 8 * (6 - dim_oh - dim_th + spr->shadow_offset);
+        int base_z2 = 8 * dim_tw;
+        int base_th = 8 * (dim_th - 4 * dist_sq) + 560;
+        int base_tw = 8 * (dim_tw + dim_ow);
+
+        int base_x = ecor->x;
+        int base_y = ecor->y;
+        int base_z = ecor->z;
+
+        // near and far are measured from origin of thing
+        int near_x = base_y2 * sh_angle_sin;
+        int near_y = base_y2 * sh_angle_cos;
+
+        int left_x = base_z2 * sh_angle_cos;
+        int left_y = base_z2 * sh_angle_sin;
+        int far_x = base_th * sh_angle_sin;
+        int far_y = base_th * sh_angle_cos;
+        int right_x = base_tw * sh_angle_cos;
+        int right_y = base_tw * sh_angle_sin;
+
+        // near/left
+        ecor1.x = base_x + FROM_FIXED(left_x - near_x);
         ecor1.y = base_y;
-        base_th = 8 * (dim_th - 4 * dist_sq) + 560;
-        shift_e = base_th * angle_sin;
-        ecor2.x = base_x + ((shift_a - shift_e) >> 16);
-        shift_f = base_th * angle_cos;
-        ecor2.z = base_z + (-(shift_f + shift_d) >> 16);
+        ecor1.z = base_z - FROM_FIXED(left_y + near_y);
+
+        // far/left
+        ecor2.x = base_x + FROM_FIXED(left_x - far_x);
         ecor2.y = base_y;
-        base_tw = 8 * (dim_tw + dim_ow);
-        shift_g = base_tw * angle_cos;
-        shift_h = base_tw * angle_sin;
-        ecor3.x = base_x + ((shift_g - shift_e) >> 16);
-        ecor3.z = base_z + (-(shift_h + shift_f) >> 16);
+        ecor2.z = base_z - FROM_FIXED(left_y + far_y);
+
+        // far/right
+        ecor3.x = base_x + FROM_FIXED(right_x - far_x);
         ecor3.y = base_y;
+        ecor3.z = base_z - FROM_FIXED(right_y + far_y);
+
+        // near/right
+        ecor4.x = base_x + FROM_FIXED(right_x - near_x);
         ecor4.y = base_y;
-        ecor4.x = base_x + ((shift_g - shift_b) >> 16);
-        ecor4.z = base_z + (-(shift_h + shift_c) >> 16);
+        ecor4.z = base_z - FROM_FIXED(right_y + near_y);
     }
+
     rotpers(&ecor1, &camera_matrix);
     rotpers(&ecor2, &camera_matrix);
     rotpers(&ecor3, &camera_matrix);
     rotpers(&ecor4, &camera_matrix);
-    int min_cor_z;
-    min_cor_z = min(min(ecor1.z,ecor2.z),min(ecor3.z,ecor4.z));
-    if (getpoly >= poly_pool_end) {
-        return;
-    }
-    int bckt_idx;
-    bckt_idx = min_cor_z / 16;
-    if (bckt_idx < 0) {
-        bckt_idx = 0;
-    } else
-    if (bckt_idx > BUCKETS_COUNT-2) {
-        bckt_idx = BUCKETS_COUNT-2;
-    }
-    struct BucketKindCreatureShadow * kspr;
-    kspr = (struct BucketKindCreatureShadow *)getpoly;
-    getpoly += sizeof(struct BucketKindCreatureShadow);
-    kspr->b.next = buckets[bckt_idx];
-    kspr->b.kind = QK_CreatureShadow;
-    buckets[bckt_idx] = (struct BasicQ *)kspr;
 
-    int pdim_w;
-    int pdim_h;
-    pdim_w = 0;
-    pdim_h = (dim_oh - 1) << 16;
+    int min_cor_z = min(min(ecor1.z,ecor2.z),min(ecor3.z,ecor4.z));
+    struct BucketKindCreatureShadow *kspr = (struct BucketKindCreatureShadow *)get_bucket_item(min_cor_z, QK_CreatureShadow, sizeof(struct BucketKindCreatureShadow));
+    if (kspr == NULL)
+        return;
+
+    // P1
     kspr->p1.X = ecor1.view_width;
     kspr->p1.Y = ecor1.view_height;
-    kspr->p1.U = pdim_w;
-    kspr->p1.V = pdim_h;
-    if (ecor1.field_C <= fade_min) {
-        kspr->p1.S = ecor1.field_A << 8;
-    } else
-    if (ecor1.field_C >= fade_max) {
-        kspr->p1.S = 32768;
-    } else {
-        kspr->p1.S = ecor1.field_A * (fade_scaler - ecor1.field_C) / fade_range + 32768;
-    }
+    kspr->p1.U = 0;
+    kspr->p1.V = TO_FIXED(dim_oh - 1);
+    kspr->p1.S = find_fade_S(&ecor1);
 
-    pdim_w = 0;
-    pdim_h = 0;
+    // P2
     kspr->p2.X = ecor2.view_width;
     kspr->p2.Y = ecor2.view_height;
-    kspr->p2.U = pdim_w;
-    kspr->p2.V = pdim_h;
-    if (fade_min >= ecor2.field_C)
-    {
-        kspr->p2.S = ecor2.field_A << 8;
-    } else
-    if (fade_max <= ecor2.field_C)
-    {
-        kspr->p2.S = 32768;
-    } else {
-        kspr->p2.S = ecor2.field_A * (fade_scaler - ecor2.field_C) / fade_range + 32768;
-    }
+    kspr->p2.U = 0;
+    kspr->p2.V = 0;
+    kspr->p2.S = find_fade_S(&ecor2);
 
-    pdim_w = (dim_ow - 1)  << 16;
-    pdim_h = 0;
+    // P3
     kspr->p3.X = ecor3.view_width;
     kspr->p3.Y = ecor3.view_height;
-    kspr->p3.U = pdim_w;
-    kspr->p3.V = pdim_h;
-    if (ecor3.field_C <= fade_min)
-    {
-        kspr->p3.S = ecor3.field_A << 8;
-    } else
-    if (ecor3.field_C >= fade_max)
-    {
-        kspr->p3.S = 32768;
-    } else {
-        kspr->p3.S = ecor3.field_A * (fade_scaler - ecor3.field_C) / fade_range + 32768;
-    }
+    kspr->p3.U = TO_FIXED(dim_ow - 1);
+    kspr->p3.V = 0;
+    kspr->p3.S = find_fade_S(&ecor3);
 
-    pdim_h = (dim_oh - 1) << 16;
-    pdim_w = (dim_ow - 1) << 16;
+    // P4
     kspr->p4.X = ecor4.view_width;
     kspr->p4.Y = ecor4.view_height;
-    kspr->p4.U = pdim_w;
-    kspr->p4.V = pdim_h;
-    if (ecor4.field_C <= fade_min) {
-        kspr->p4.S = ecor4.field_A << 8;
-    } else
-    if (ecor4.field_C >= fade_max) {
-        kspr->p4.S = 32768;
-    } else {
-        kspr->p4.S = ecor4.field_A * (fade_scaler - ecor4.field_C) / fade_range + 32768;
-    }
+    kspr->p4.U = TO_FIXED(dim_ow - 1);
+    kspr->p4.V = TO_FIXED(dim_oh - 1);
+    kspr->p4.S = find_fade_S(&ecor4);
 
+    // overall
     kspr->p1.S = dist_sq;
-    kspr->angle = angle;
+    kspr->angle = sprite_angle;
     kspr->anim_sprite = thing->anim_sprite;
-    kspr->thing_field48 = thing->current_frame;
+    kspr->current_frame = thing->current_frame;
 }
 
 // Creature status flower above head in isometric view
@@ -4096,25 +4004,20 @@ static void add_draw_status_box(struct Thing *thing, struct EngineCoord *ecor)
 {
     struct EngineCoord coord = *ecor;
     const struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    coord.y += thing->clipbox_size_z + crstat->status_offset; 
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    short offset = thing->clipbox_size_z + crstat->status_offset;
+    offset += (offset * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+    coord.y += offset;
     rotpers(&coord, &camera_matrix);
-    if (getpoly >= poly_pool_end)
-        return;
-    int bckt_idx = coord.z / 16;
-    if (!lens_mode)
-        bckt_idx = 1;
-    if (bckt_idx < 0)
-        bckt_idx = 0;
-    else if (bckt_idx > BUCKETS_COUNT-2)
-        bckt_idx = BUCKETS_COUNT-2;
 
-    struct BucketKindCreatureStatus* poly = (struct BucketKindCreatureStatus*)getpoly;
-    if (getpoly >= poly_pool_end)
+    int z_val = coord.z;
+    if (!lens_mode)
+        z_val = BUCKETS_STEP; // should get into bucket 1
+
+    struct BucketKindCreatureStatus* poly = (struct BucketKindCreatureStatus*)get_bucket_item(z_val, QK_CreatureStatus, sizeof(struct BucketKindCreatureStatus));
+    if (poly == NULL)
         return;
-    getpoly += sizeof(struct BucketKindCreatureStatus);
-    poly->b.next = buckets[bckt_idx];
-    poly->b.kind = QK_CreatureStatus;
-    buckets[bckt_idx] = (struct BasicQ *)poly;
+
     poly->thing = thing;
     poly->x = coord.view_width;
     poly->y = coord.view_height;
@@ -4910,12 +4813,91 @@ void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, lon
     map_volume_box.color = color;
 }
 
+/**
+ * Some objects have a secondary sprite drawn on top, that is positioned relative to the original sprite and scaled differently.
+ * @param jspr the base sprite
+ * @param angle the camera angle at which sprite is shown
+ * @param base_sprite_size the size of the sprite on the screen after camera zoom
+ * @note Renders both the primary and secondary sprite. So both the torch and the flame.
+  */
+static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, long angle, long base_sprite_size)
+{
+    struct PlayerInfo* player = get_my_player();
+    struct Thing* thing = jspr->thing;
+    struct ObjectConfigStats* objst;
+    struct TrapConfigStats* trapst;
+    struct FlameProperties flame;
+    unsigned long nframe;
+    long add_x, add_y;
+    long scale = 0;
+    if (thing_is_object(thing))
+    {
+        objst = get_object_model_stats(thing->model);
+        flame = objst->flame;
+    } else
+    if (thing_is_deployed_trap(thing))
+    {
+        trapst = get_trap_model_stats(thing->model);
+        flame = trapst->flame;
+    }
+    else
+    {
+        ERRORLOG("Thing %s is neither an object nor a flame.", thing_model_name(thing));
+        return;
+    }
+    if (thing->sprite_size != 0)
+    {
+        scale = (flame.sprite_size * base_sprite_size / thing->sprite_size);
+    }
+
+    if (player->view_type == PVT_DungeonTop)
+    {
+        add_x = (base_sprite_size * flame.td_add_x) >> 5;
+        add_y = (base_sprite_size * flame.td_add_y) >> 5;
+    }
+    else
+    {
+        add_x = (base_sprite_size * flame.fp_add_x) >> 5;
+        add_y = (base_sprite_size * flame.fp_add_y) >> 5;
+    }
+
+    //Object/Trap itself
+    clear_flag(lbDisplay.DrawFlags, TRF_Transpar_Flags);
+    EngineSpriteDrawUsingAlpha = 0;
+    if (flag_is_set(thing->rendering_flags,TRF_Transpar_8))
+        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
+    if (flag_is_set(thing->rendering_flags, TRF_Transpar_4))
+        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+    if (flag_is_set(thing->rendering_flags, TRF_Transpar_Alpha))
+        EngineSpriteDrawUsingAlpha = 1;
+    process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, base_sprite_size);
+
+    //Flame
+    lbDisplay.DrawFlags = 0;
+    EngineSpriteDrawUsingAlpha = 0;
+    if (flame.transparency_flags == TRF_Transpar_8)
+    {
+        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
+    }
+    else if (flame.transparency_flags == TRF_Transpar_4)
+    {
+        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+    }
+    else if (flame.transparency_flags == TRF_Transpar_Alpha)
+    {
+        EngineSpriteDrawUsingAlpha = 1;
+    }
+    nframe = (thing->index + game.play_gameturn * flame.anim_speed / 256) % keepersprite_frames(flame.animation_id);
+    process_keeper_sprite(jspr->scr_x + add_x, jspr->scr_y + add_y, flame.animation_id, angle, nframe, scale);
+}
+
 static unsigned short get_thing_shade(struct Thing* thing);
 static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *jspr)
 {
     unsigned short flg_mem;
     unsigned char alpha_mem;
     struct PlayerInfo *player = get_my_player();
+    struct ObjectConfigStats* objst;
     struct Thing *thing = jspr->thing;
     short angle;
     flg_mem = lbDisplay.DrawFlags;
@@ -4945,7 +4927,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         v6 = get_thing_shade(thing);
     v6 >>= 8;
 
-    int a6_2 = thing->sprite_size * ((camera_zoom << 13) / 0x10000 / pixel_size) / 0x10000;
+    int size_on_screen = thing->sprite_size * ((camera_zoom << 13) / 0x10000 / pixel_size) / 0x10000;
     if ( thing->rendering_flags & TRF_Tint_Flags )
     {
         lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
@@ -5018,88 +5000,42 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         return;
     }
     TbBool flame_on_sprite = false;
-    int n;
-    long dx;
-    long dy;
-    long v16;
-    if (thing->class_id == TCls_Object)
+    TbBool is_shown = true;
+    if (thing_is_object(thing))
     {
-        //TODO CONFIG object model dependency, move to config
-
-        if (thing->model == ObjMdl_Torch)
+        objst = get_object_model_stats(thing->model);
+        if (objst->flame.animation_id != 0)
         {
-            n = 113;
-            if (player->view_type == PVT_DungeonTop)
-            {
-                dx = 0;
-                dy = 3 * a6_2 >> 3;
-            }
-            else
-            {
-                dx = a6_2 * LbSinL(angle) >> 20;
-                dy = a6_2 * LbCosL(angle) >> 20;
-            }
-            v16 = 2 * a6_2 / 3;
             flame_on_sprite = true;
+            process_keeper_flame_on_sprite(jspr, angle, size_on_screen);
         }
-        else if (thing->model == ObjMdl_StatueLit)
-        {
-            n = 113;
-            if (player->view_type == PVT_DungeonTop)
-            {
-                dx = (a6_2 >> 2) / 3;
-                dy = a6_2 / 6;
-            }
-            else
-            {
-                dx = a6_2 * LbSinL(angle) >> 20;
-                dy = (-(LbCosL(angle) * ((3 * a6_2) / 2)) >> 16) / 3;
-            }
-            v16 = a6_2 / 3;
-            flame_on_sprite = true;
-        }
-        else if (thing->model == ObjMdl_Candlestick)
-        {
-            n = 112;
-            if (player->view_type == PVT_DungeonTop)
-            {
-                dx = a6_2 >> 3;
-                dy = (a6_2 >> 2) - a6_2;
-            }
-            else
-            {
-                dx = a6_2 * LbSinL(angle) >> 20;
-                dy = -(LbCosL(angle) * ((3 * a6_2) / 2)) >> 16;
-            }
-            v16 = a6_2 / 2;
-            flame_on_sprite = true;
-        }
-    }
-    if (flame_on_sprite)
-    {
-        EngineSpriteDrawUsingAlpha = 0;
-        unsigned long v21 = (game.play_gameturn + thing->index) % keepersprite_frames(n);
-        // drawing torch
-        process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, a6_2);
-        EngineSpriteDrawUsingAlpha = 1;
-        // drawing flame
-        process_keeper_sprite(dx + jspr->scr_x, dy + jspr->scr_y, n, angle, v21, v16);
     }
     else
     {
-        TbBool is_shown = false;
         if (thing->class_id == TCls_Trap)
         {
             is_shown = !game.conf.trapdoor_conf.trap_cfgstats[thing->model].hidden;
+            if (is_shown || thing->trap.revealed)
+            {
+                struct TrapConfigStats* trapst = get_trap_model_stats(thing->model);
+                if ((trapst->flame.animation_id != 0) && (thing->trap.num_shots != 0))
+                {
+                    flame_on_sprite = true;
+                    process_keeper_flame_on_sprite(jspr, angle, size_on_screen);
+                }
+            }
         }
         else
         {
-            is_shown = ((thing->rendering_flags & TRF_Unknown01) == 0);
+            is_shown = ((thing->rendering_flags & TRF_Invisible) == 0);
         }
-        if ( is_shown ||
-                get_my_player()->id_number == thing->owner ||
-                thing->trap.revealed )
-            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, a6_2);
+    }
+    if (!flame_on_sprite)
+    {
+        if (is_shown || get_my_player()->id_number == thing->owner || thing->trap.revealed)
+        {
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, size_on_screen);
+        }
     }
     lbDisplay.DrawFlags = flg_mem;
     EngineSpriteDrawUsingAlpha = alpha_mem;
@@ -5206,24 +5142,19 @@ static unsigned short choose_health_sprite(struct Thing* thing)
     cctrl = creature_control_get_from_thing(thing);
     HitPoints health;
     HitPoints maxhealth;
-    int color_idx;
     health = thing->health;
     maxhealth = cctrl->max_health;
-    color_idx = get_player_color_idx(thing->owner);
 
-    if (color_idx == NEUTRAL_PLAYER) {
-        color_idx = game.play_gameturn & 3;
-    }
     if ((maxhealth <= 0) || (health <= 0))
     {
-        return GBS_creature_flower_health_r1 + (8*color_idx);
+        return get_player_colored_button_sprite_idx(GBS_creature_flower_health_r1,thing->owner);
     } else
     if (health >= maxhealth)
     {
-        return GBS_creature_flower_health_r1 + (8*color_idx) - 7;
+        return get_player_colored_button_sprite_idx(GBS_creature_flower_health_r1,thing->owner) - 7;
     } else
     {
-        return GBS_creature_flower_health_r1 + (8*color_idx) - (8 * health / maxhealth);
+        return get_player_colored_button_sprite_idx(GBS_creature_flower_health_r1,thing->owner) - (8 * health / maxhealth);
     }
 }
 
@@ -5408,11 +5339,11 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
         h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
-        spr = get_button_sprite(state_spridx);
+        spr = get_button_sprite_for_player(state_spridx, thing->owner);
         h_add += spr->SHeight * bs_units_per_px/16;
     } else if ( state_spridx )
     {
-        spr = get_button_sprite(state_spridx);
+        spr = get_button_sprite_for_player(state_spridx, thing->owner);
         w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
         h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
@@ -5422,24 +5353,45 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     if ((thing->lair.spr_size > 0) && (health_spridx > 0) && ((game.play_gameturn & 1) != 0))
     {
         int flash_color = get_player_color_idx(thing->owner);
-        if (flash_color == NEUTRAL_PLAYER) {
+        if (flash_color == PLAYER_NEUTRAL) {
             flash_color = game.play_gameturn & 3;
         }
-        spr = get_button_sprite(health_spridx);
+        spr = get_button_sprite_for_player(health_spridx, thing->owner);
         w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
         h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
         LbSpriteDrawScaledOneColour(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h, player_flash_colours[flash_color]);
     }
     else
     {
-      if ( (player->thing_under_hand == thing->index)
-        || ((player->id_number != thing->owner) && !creature_is_invisible(thing))
-        || (cctrl->combat_flags != 0)
-        || (thing->lair.spr_size > 0)
-        || (cam->view_mode == PVM_ParchmentView))
+    // determine if the creature is under the player's hand (being hovered over)
+    TbBool is_thing_under_hand = (player->thing_under_hand == thing->index);
+    // check if the creature is an enemy and is visible
+    TbBool is_enemy_and_visible = (player->id_number != thing->owner) && !creature_is_invisible(thing);
+     // check if the 'drag to lair' rule is active, evaluate if saveable creature is visible  
+    // determine if the creature is unconscious and owned by the player...
+    TbBool should_drag_to_lair = creature_is_being_unconscious(thing) && (player->id_number == thing->owner) && (
+        // check if the creature has a lair room or can heal in a lair
+        (game.conf.rules.workers.drag_to_lair == 1 && !room_is_invalid(get_creature_lair_room(thing))) ||
+        // or check if the creature can have lair and heal in it
+        (game.conf.rules.workers.drag_to_lair == 2 && creature_can_do_healing_sleep(thing))
+    );
+    // check if the creature is in combat
+    TbBool is_in_combat = (cctrl->combat_flags != 0);
+    // check if the creature has a lair
+    TbBool has_lair = (thing->lair.spr_size > 0);
+    // determine if the current view is the schematic top-down map view
+    TbBool is_parchment_map_view = (cam->view_mode == PVM_ParchmentView);
+
+      if ( (is_thing_under_hand)
+        || (is_enemy_and_visible)
+        // if drag_to_lair rule is active
+        || (should_drag_to_lair)
+        || (is_in_combat)
+        || (has_lair)
+        || (is_parchment_map_view))
       {
           if (health_spridx > 0) {
-              spr = get_button_sprite(health_spridx);
+              spr = get_button_sprite_for_player(health_spridx, thing->owner);
               w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
               h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
               LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
@@ -6720,7 +6672,8 @@ static void display_drawlist(void) // Draws isometric and 1st person view. Not f
                 draw_jonty_mapwho(item.jontySprite);
                 break;
             case QK_CreatureShadow: // Shadows of creatures in isometric and 1st person view
-                draw_keepsprite_unscaled_in_buffer(item.creatureShadow->anim_sprite, item.creatureShadow->angle, item.creatureShadow->thing_field48, big_scratch);
+                // TODO: this could be cached
+                draw_keepsprite_unscaled_in_buffer(item.creatureShadow->anim_sprite, item.creatureShadow->angle, item.creatureShadow->current_frame, big_scratch);
                 vec_map = big_scratch;
                 vec_mode = VM_Unknown10;
                 vec_colour = item.creatureShadow->p1.S;
@@ -6960,7 +6913,7 @@ static void draw_texturedquad_block(struct BucketKindTexturedQuad *txquad)
         struct PolyPoint point_c;
         struct PolyPoint point_d;
         vec_mode = VM_Unknown5;
-        switch (txquad->field_2A) // Is visible/selected
+        switch (txquad->marked_mode) // Is visible/selected
         {
         case 0:
             vec_map = block_ptrs[TEXTURE_LAND_MARKED_LAND];
@@ -6970,68 +6923,68 @@ static void draw_texturedquad_block(struct BucketKindTexturedQuad *txquad)
             break;
         case 3:
         default:
-            vec_map = block_ptrs[txquad->field_6];
+            vec_map = block_ptrs[txquad->texture_idx];
             break;
         }
-        point_a.X = (txquad->field_A >> 8) / pixel_size;
-        point_a.Y = (txquad->field_E >> 8) / pixel_size;
-        point_a.U = orient_to_mapU1[txquad->field_5];
-        point_a.V = orient_to_mapV1[txquad->field_5];
-        point_a.S = txquad->field_1A;
-        point_d.X = ((txquad->field_12 + txquad->field_A) >> 8) / pixel_size;
-        point_d.Y = (txquad->field_E >> 8) / pixel_size;
-        point_d.U = orient_to_mapU2[txquad->field_5];
-        point_d.V = orient_to_mapV2[txquad->field_5];
-        point_d.S = txquad->field_1E;
-        point_b.X = ((txquad->field_12 + txquad->field_A) >> 8) / pixel_size;
-        point_b.Y = ((txquad->field_16 + txquad->field_E) >> 8) / pixel_size;
-        point_b.U = orient_to_mapU3[txquad->field_5];
-        point_b.V = orient_to_mapV3[txquad->field_5];
-        point_b.S = txquad->field_22;
-        point_c.X = (txquad->field_A >> 8) / pixel_size;
-        point_c.Y = ((txquad->field_16 + txquad->field_E) >> 8) / pixel_size;
-        point_c.U = orient_to_mapU4[txquad->field_5];
-        point_c.V = orient_to_mapV4[txquad->field_5];
-        point_c.S = txquad->field_26;
+        point_a.X = (txquad->unk_x >> 8) / pixel_size;
+        point_a.Y = (txquad->unk_y >> 8) / pixel_size;
+        point_a.U = orient_to_mapU1[txquad->orient];
+        point_a.V = orient_to_mapV1[txquad->orient];
+        point_a.S = txquad->lightness0;
+        point_d.X = ((txquad->zoom_x + txquad->unk_x) >> 8) / pixel_size;
+        point_d.Y = (txquad->unk_y >> 8) / pixel_size;
+        point_d.U = orient_to_mapU2[txquad->orient];
+        point_d.V = orient_to_mapV2[txquad->orient];
+        point_d.S = txquad->lightness1;
+        point_b.X = ((txquad->zoom_x + txquad->unk_x) >> 8) / pixel_size;
+        point_b.Y = ((txquad->zoom_y + txquad->unk_y) >> 8) / pixel_size;
+        point_b.U = orient_to_mapU3[txquad->orient];
+        point_b.V = orient_to_mapV3[txquad->orient];
+        point_b.S = txquad->lightness2;
+        point_c.X = (txquad->unk_x >> 8) / pixel_size;
+        point_c.Y = ((txquad->zoom_y + txquad->unk_y) >> 8) / pixel_size;
+        point_c.U = orient_to_mapU4[txquad->orient];
+        point_c.V = orient_to_mapV4[txquad->orient];
+        point_c.S = txquad->lightness3;
         draw_gpoly(&point_a, &point_d, &point_b);
         draw_gpoly(&point_a, &point_b, &point_c);
     } else
     {
         struct GtBlock gtb;
-        switch (txquad->field_2A)
+        switch (txquad->marked_mode)
         {
         case 0:
             gtb.field_0 = block_ptrs[TEXTURE_LAND_MARKED_LAND];
-            gtb.field_C = txquad->field_1A >> 16;
-            gtb.field_10 = txquad->field_1E >> 16;
-            gtb.field_18 = txquad->field_22 >> 16;
-            gtb.field_14 = txquad->field_26 >> 16;
+            gtb.lightness0 = txquad->lightness0 >> 16;
+            gtb.lightness1 = txquad->lightness1 >> 16;
+            gtb.lightness2 = txquad->lightness2 >> 16;
+            gtb.lightness3 = txquad->lightness3 >> 16;
             break;
         case 1:
             gtb.field_0 = block_ptrs[TEXTURE_LAND_MARKED_GOLD];
-            gtb.field_C = txquad->field_1A >> 16;
-            gtb.field_10 = txquad->field_1E >> 16;
-            gtb.field_18 = txquad->field_22 >> 16;
-            gtb.field_14 = txquad->field_26 >> 16;
+            gtb.lightness0 = txquad->lightness0 >> 16;
+            gtb.lightness1 = txquad->lightness1 >> 16;
+            gtb.lightness2 = txquad->lightness2 >> 16;
+            gtb.lightness3 = txquad->lightness3 >> 16;
             break;
         case 3:
-            gtb.field_0 = block_ptrs[txquad->field_6];
-            gtb.field_C = txquad->field_1A >> 16;
-            gtb.field_10 = txquad->field_1E >> 16;
-            gtb.field_18 = txquad->field_22 >> 16;
-            gtb.field_14 = txquad->field_26 >> 16;
+            gtb.field_0 = block_ptrs[txquad->texture_idx];
+            gtb.lightness0 = txquad->lightness0 >> 16;
+            gtb.lightness1 = txquad->lightness1 >> 16;
+            gtb.lightness2 = txquad->lightness2 >> 16;
+            gtb.lightness3 = txquad->lightness3 >> 16;
             break;
         default:
-            gtb.field_0 = block_ptrs[txquad->field_6];
+            gtb.field_0 = block_ptrs[txquad->texture_idx];
             break;
         }
-        gtb.field_4 = (txquad->field_A >> 8) / pixel_size;
-        gtb.field_8 = (txquad->field_E >> 8) / pixel_size;
-        gtb.field_1C = orient_table_xflip[txquad->field_5];
-        gtb.field_20 = orient_table_yflip[txquad->field_5];
-        gtb.field_24 = orient_table_rotate[txquad->field_5];
-        gtb.field_28 = (txquad->field_12 >> 8) / pixel_size >> 5;
-        gtb.field_2C = (txquad->field_16 >> 8) / pixel_size >> 4;
+        gtb.field_4 = (txquad->unk_x >> 8) / pixel_size;
+        gtb.field_8 = (txquad->unk_y >> 8) / pixel_size;
+        gtb.field_1C = orient_table_xflip[txquad->orient];
+        gtb.field_20 = orient_table_yflip[txquad->orient];
+        gtb.field_24 = orient_table_rotate[txquad->orient];
+        gtb.field_28 = (txquad->zoom_x >> 8) / pixel_size >> 5;
+        gtb.field_2C = (txquad->zoom_y >> 8) / pixel_size >> 4;
         gtblock_draw(&gtb);
     }
 }
@@ -7138,7 +7091,7 @@ static TbBool project_point_helper(struct PlayerInfo *player, int zoom, MapCoord
     *x_out = (zoom * horizontal_delta >> 16) + (*(uint16_t *)&window_width / 2);
     vertical_shift = zoom * vertical_delta >> 8;
     *z_out = window_height - ((vertical_shift + ((uint16_t)(window_height & UNKNOWN_PPH_MASK) << 7)) >> 8) + 64;
-    new_zoom = zoom * *(int16_t *)&pos_z << 7;
+    new_zoom = (zoom * ((int16_t) pos_z)) << 7;
     offset = *((uint8_t *)&new_zoom + 4);
     *y_out = (vertical_shift + ((uint16_t)(window_height & UNKNOWN_PPH_MASK) << 7) - ((offset + (signed int)new_zoom) >> 16)) >> 8;
 
@@ -7269,7 +7222,7 @@ static void create_fast_view_status_box(struct Thing *thing, long x, long y)
     create_status_box_element(thing, x, y, y, 1);
 }
 
-static void add_textruredquad_to_polypool(long x, long y, long texture_idx, long a7, long a8, long lightness, long a9, long bckt_idx)
+static void add_textruredquad_to_polypool(long x, long y, long texture_idx, long zoom, long orient, long lightness, long marked_mode, long bckt_idx)
 {
     struct BucketKindTexturedQuad *poly;
     if (bckt_idx >= BUCKETS_COUNT)
@@ -7283,20 +7236,20 @@ static void add_textruredquad_to_polypool(long x, long y, long texture_idx, long
     poly->b.kind = QK_TextureQuad;
     buckets[bckt_idx] = (struct BasicQ *)poly;
 
-    poly->field_6 = texture_idx;
-    poly->field_A = x;
-    poly->field_E = y;
-    poly->field_12 = a7;
-    poly->field_16 = a7;
-    poly->field_5 = a8;
-    poly->field_1A = lightness;
-    poly->field_1E = lightness;
-    poly->field_22 = lightness;
-    poly->field_26 = lightness;
-    poly->field_2A = a9;
+    poly->texture_idx = texture_idx;
+    poly->unk_x = x;
+    poly->unk_y = y;
+    poly->zoom_x = zoom;
+    poly->zoom_y = zoom;
+    poly->orient = orient;
+    poly->lightness0 = lightness;
+    poly->lightness1 = lightness;
+    poly->lightness2 = lightness;
+    poly->lightness3 = lightness;
+    poly->marked_mode = marked_mode;
 }
 
-static void add_lgttextrdquad_to_polypool(long x, long y, long texture_idx, long a6, long a7, long a8, long lg0, long lg1, long lg2, long lg3, long bckt_idx)
+static void add_lgttextrdquad_to_polypool(long x, long y, long texture_idx, long zoom_x, long zoom_y, long orient, long lg0, long lg1, long lg2, long lg3, long bckt_idx)
 {
     struct BucketKindTexturedQuad *poly;
     if (bckt_idx >= BUCKETS_COUNT)
@@ -7310,17 +7263,17 @@ static void add_lgttextrdquad_to_polypool(long x, long y, long texture_idx, long
     poly->b.kind = QK_TextureQuad;
     buckets[bckt_idx] = (struct BasicQ *)poly;
 
-    poly->field_6 = texture_idx;
-    poly->field_A = x;
-    poly->field_E = y;
-    poly->field_12 = a6;
-    poly->field_16 = a7;
-    poly->field_5 = a8;
-    poly->field_1A = lg0;
-    poly->field_1E = lg1;
-    poly->field_22 = lg2;
-    poly->field_26 = lg3;
-    poly->field_2A = 3;
+    poly->texture_idx = texture_idx;
+    poly->unk_x = x;
+    poly->unk_y = y;
+    poly->zoom_x = zoom_x;
+    poly->zoom_y = zoom_y;
+    poly->orient = orient;
+    poly->lightness0 = lg0;
+    poly->lightness1 = lg1;
+    poly->lightness2 = lg2;
+    poly->lightness3 = lg3;
+    poly->marked_mode = 3;
 }
 
 static void add_number_to_polypool(long x, long y, long number, long bckt_idx)
@@ -7409,7 +7362,7 @@ static void prepare_lightness_intensity_array(long stl_x, long stl_y, long *arrp
     }
 }
 
-static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y, long pos_x, long pos_y, long a7, unsigned char a8, long *ymax)
+static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y, long pos_x, long pos_y, long zoom, unsigned char qdrant, long *ymax)
 {
     struct PlayerInfo *myplyr;
     TbBool sibrevealed[3][3];
@@ -7424,8 +7377,8 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
     long y;
     long i;
     myplyr = get_my_player();
-    cube_itm = (a8 + 2) & 3;
-    delta_y = (a7 << 7) / 256;
+    cube_itm = (qdrant + 2) & 3;
+    delta_y = (zoom << 7) / 256;
     bckt_idx = myplyr->engine_window_height - (pos_y >> 8) + 64;
     // Check if there's enough place to draw
     if (!is_free_space_in_poly_pool(8))
@@ -7442,22 +7395,22 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
     i = 0;
     if (sibrevealed[0][1] && sibrevealed[1][0] && sibrevealed[1][1] && sibrevealed[0][0])
         i = lightness;
-    prepare_lightness_intensity_array(stl_x,stl_y,lightness_arr[(-a8) & 3],i);
+    prepare_lightness_intensity_array(stl_x,stl_y,lightness_arr[(-qdrant) & 3],i);
 
     i = 0;
     if (sibrevealed[0][1] && sibrevealed[0][2] && sibrevealed[1][2] && sibrevealed[1][1])
         i = get_subtile_lightness(&game.lish,stl_x+1,stl_y);
-    prepare_lightness_intensity_array(stl_x+1,stl_y,lightness_arr[(1-a8) & 3],i);
+    prepare_lightness_intensity_array(stl_x+1,stl_y,lightness_arr[(1-qdrant) & 3],i);
 
     i = 0;
     if (sibrevealed[1][0] && sibrevealed[1][1] && sibrevealed[2][0] && sibrevealed[2][1])
         i = get_subtile_lightness(&game.lish,stl_x,stl_y+1);
-    prepare_lightness_intensity_array(stl_x,stl_y+1,lightness_arr[(-1-a8) & 3],i);
+    prepare_lightness_intensity_array(stl_x,stl_y+1,lightness_arr[(-1-qdrant) & 3],i);
 
     i = 0;
     if (sibrevealed[2][2] && sibrevealed[1][2] && sibrevealed[1][1] && sibrevealed[2][1])
         i = get_subtile_lightness(&game.lish,stl_x+1,stl_y+1);
-    prepare_lightness_intensity_array(stl_x+1,stl_y+1,lightness_arr[(-2-a8) & 3],i);
+    prepare_lightness_intensity_array(stl_x+1,stl_y+1,lightness_arr[(-2-qdrant) & 3],i);
 
     // Get column to be drawn on the current subtile
 
@@ -7479,11 +7432,11 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
           textr_idx = engine_remap_texture_blocks(stl_x, stl_y, col->floor_texture);
           if ((mapblk->flags & SlbAtFlg_Unexplored) != 0)
           {
-              add_textruredquad_to_polypool(pos_x, pos_y, textr_idx, a7, 0,
+              add_textruredquad_to_polypool(pos_x, pos_y, textr_idx, zoom, 0,
                   2097152, 0, bckt_idx);
           } else
           {
-              add_lgttextrdquad_to_polypool(pos_x, pos_y, textr_idx, a7, a7, 0,
+              add_lgttextrdquad_to_polypool(pos_x, pos_y, textr_idx, zoom, zoom, 0,
                   lightness_arr[0][0], lightness_arr[1][0], lightness_arr[2][0], lightness_arr[3][0], bckt_idx);
           }
       }
@@ -7491,7 +7444,7 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
 
     // Draw the columns cubes
 
-    y = a7 + pos_y;
+    y = zoom + pos_y;
     unkstrcp = NULL;
     for (tc=0; tc < COLUMN_STACK_HEIGHT; tc++)
     {
@@ -7503,30 +7456,28 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
       {
         *ymax = y;
         textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[cube_itm]);
-        add_lgttextrdquad_to_polypool(pos_x, y, textr_idx, a7, delta_y, 0,
+        add_lgttextrdquad_to_polypool(pos_x, y, textr_idx, zoom, delta_y, 0,
             lightness_arr[3][tc+1], lightness_arr[2][tc+1], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
       }
     }
 
     if (unkstrcp != NULL)
     {
-      i = y - a7;
+      i = y - zoom;
       if (*ymax > i)
       {
         *ymax = i;
         textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[4]);
         if ((mapblk->flags & SlbAtFlg_TaggedValuable) != 0)
         {
-          add_textruredquad_to_polypool(pos_x, i, textr_idx, a7, a8,
-              2097152, 1, bckt_idx);
+          add_textruredquad_to_polypool(pos_x, i, textr_idx, zoom, qdrant, 2097152, 1, bckt_idx);
         } else
         if ((mapblk->flags & SlbAtFlg_Unexplored) != 0)
         {
-          add_textruredquad_to_polypool(pos_x, i, textr_idx, a7, a8,
-              2097152, 0, bckt_idx);
+          add_textruredquad_to_polypool(pos_x, i, textr_idx, zoom, qdrant, 2097152, 0, bckt_idx);
         } else
         {
-          add_lgttextrdquad_to_polypool(pos_x, i, textr_idx, a7, a7, a8,
+          add_lgttextrdquad_to_polypool(pos_x, i, textr_idx, zoom, zoom, qdrant,
               lightness_arr[0][tc], lightness_arr[1][tc], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
         }
       }
@@ -7552,17 +7503,17 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
             if (*ymax > y)
             {
               textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[cube_itm]);
-              add_lgttextrdquad_to_polypool(pos_x, y, textr_idx, a7, delta_y, 0,
+              add_lgttextrdquad_to_polypool(pos_x, y, textr_idx, zoom, delta_y, 0,
                   lightness_arr[3][tc+1], lightness_arr[2][tc+1], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
             }
         }
         if (unkstrcp != NULL)
         {
-          i = y - a7;
+          i = y - zoom;
           if (*ymax > i)
           {
               textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[4]);
-            add_lgttextrdquad_to_polypool(pos_x, i, textr_idx, a7, a7, a8,
+            add_lgttextrdquad_to_polypool(pos_x, i, textr_idx, zoom, zoom, qdrant,
                 lightness_arr[0][tc], lightness_arr[1][tc], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
           }
         }
@@ -7877,11 +7828,13 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     long cutoff;
     SYNCDBG(17, "At (%d,%d) opts %d %d %d %d", (int)x, (int)y, (int)kspr_base, (int)kspr_angle, (int)sprgroup, (int)scale);
     player = get_my_player();
+    creature_sprites = keepersprite_array(kspr_base);
 
-    if (((kspr_angle & 0x7FF) <= 1151) || ((kspr_angle & 0x7FF) >= 1919) )
+    if (((kspr_angle & 0x7FF) <= 1151) || ((kspr_angle & 0x7FF) >= 1919) || (creature_sprites->Rotable != 2) )
         needs_xflip = 0;
     else
         needs_xflip = 1;
+
     if ( needs_xflip )
       lbDisplay.DrawFlags |= Lb_SPRITE_FLIP_HORIZ;
     else
@@ -7891,7 +7844,6 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     sprite_rot = llabs(lltemp);
     kspr_idx = keepersprite_index(kspr_base);
     global_scaler = scale;
-    creature_sprites = keepersprite_array(kspr_base);
     scaled_x = ((scale * (long)creature_sprites->offset_x) >> 5) + (long)x;
     scaled_y = ((scale * (long)creature_sprites->offset_y) >> 5) + (long)y;
     SYNCDBG(17,"Scaled (%d,%d)",(int)scaled_x,(int)scaled_y);
@@ -7957,66 +7909,6 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
             draw_single_keepersprite(scaled_x, scaled_y, kspr, draw_idx, scale);
         }
     }
-}
-
-static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, long angle, long scale)
-{
-    struct PlayerInfo *player;
-    struct Thing *thing;
-    long transp2;
-    unsigned short graph_id2;
-    unsigned long nframe2;
-    long add_x;
-    long add_y;
-    thing = jspr->thing;
-    player = get_my_player();
-    switch (thing->model)
-    {
-    case ObjMdl_Candlestick:
-        graph_id2 = 112;
-        if (player->view_type == PVT_DungeonTop)
-        {
-          add_x = scale >> 3;
-          add_y = (scale >> 2) - scale;
-        } else
-        {
-          add_x = scale * LbSinL(angle) >> 20;
-          add_y = -(LbCosL(angle) * (scale + (scale >> 1))) >> 16;
-        }
-        transp2 = scale / 2;
-        break;
-    case ObjMdl_Torch:
-        graph_id2 = 113;
-        if (player->view_type == PVT_DungeonTop)
-        {
-            add_x = 0;
-            add_y = 3 * scale >> 3;
-        } else
-        {
-            add_x = (scale * LbSinL(angle)) >> 20;
-            add_y = (scale * LbCosL(angle)) >> 20;
-        }
-        transp2 = 2 * scale / 3;
-        break;
-    default:
-        graph_id2 = 113;
-        if (player->view_type == PVT_DungeonTop)
-        {
-            add_x = (scale >> 2) / 3;
-            add_y = (scale >> 1) / 3;
-        } else
-        {
-            add_x = scale * LbSinL(angle) >> 20;
-            add_y = (-(LbCosL(angle) * (scale + (scale >> 1))) >> 16) / 3;
-        }
-        transp2 = scale / 3;
-        break;
-    }
-    EngineSpriteDrawUsingAlpha = 0;
-    nframe2 = (thing->index + game.play_gameturn) % keepersprite_frames(graph_id2);
-    process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
-    EngineSpriteDrawUsingAlpha = 1;
-    process_keeper_sprite(jspr->scr_x+add_x, jspr->scr_y+add_y, graph_id2, angle, nframe2, transp2);
 }
 
 static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJontySprite *jspr)
@@ -8118,7 +8010,8 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     struct PlayerInfo *player = get_my_player();
     struct Thing *thing = jspr->thing;
     long angle;
-    long scale;
+    long scaled_size;
+    struct ObjectConfigStats* objst;
     flg_mem = lbDisplay.DrawFlags;
     alpha_mem = EngineSpriteDrawUsingAlpha;
     if (keepersprite_rotable(thing->anim_sprite))
@@ -8128,7 +8021,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     }
     else
       angle = thing->move_angle_xy;
-    prepare_jonty_remap_and_scale(&scale, jspr);
+    prepare_jonty_remap_and_scale(&scaled_size, jspr);
     EngineSpriteDrawUsingAlpha = 0;
     switch (thing->rendering_flags & (TRF_Transpar_Flags))
     {
@@ -8217,24 +8110,29 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
         switch (thing->class_id)
         {
         case TCls_Object:
-            //TODO CONFIG object model dependency, move to config
-            if ((thing->model == ObjMdl_Torch) || (thing->model == ObjMdl_StatueLit) || (thing->model == ObjMdl_Candlestick)) //torchflames
+            objst = get_object_model_stats(thing->model);
+            if (objst->flame.animation_id > 0)
             {
-                process_keeper_flame_on_sprite(jspr, angle, scale);
+                process_keeper_flame_on_sprite(jspr, angle, scaled_size);
                 break;
             }
-            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scaled_size);
             break;
         case TCls_Trap:
-            trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
+            trapst = get_trap_model_stats(thing->model);
             if ((trapst->hidden == 1) && (player->id_number != thing->owner) && (thing->trap.revealed == 0))
             {
                 break;
             }
-            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
+            if ((trapst->flame.animation_id > 0) && (thing->trap.num_shots != 0))
+            {
+                process_keeper_flame_on_sprite(jspr, angle, scaled_size);
+                break;
+            }
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scaled_size);
             break;
         default:
-            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scaled_size);
             break;
         }
     }
@@ -8374,7 +8272,7 @@ static void sprite_to_sbuff_xflip(const TbSpriteData sprdata, unsigned char *out
     }
 }
 
-static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsigned char field48, unsigned char *outbuf)
+static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsigned char current_frame, unsigned char *outbuf)
 {
     struct KeeperSprite *kspr_arr;
     unsigned long kspr_idx;
@@ -8404,7 +8302,7 @@ static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angl
         {
             return;
         }
-        keepsprite_id = field48 + kspr_idx;
+        keepsprite_id = current_frame + kspr_idx;
         if (keepsprite_id >= KEEPERSPRITE_ADD_OFFSET)
         {
             sprite_data = keepersprite_add[keepsprite_id - KEEPERSPRITE_ADD_OFFSET];
@@ -8418,7 +8316,7 @@ static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angl
         {
             sprite_data = *keepsprite[keepsprite_id];
         }
-        kspr = &kspr_arr[field48];
+        kspr = &kspr_arr[current_frame];
         fill_w = kspr->FrameWidth;
         fill_h = kspr->FrameHeight;
         if ( flip_range )
@@ -8453,10 +8351,10 @@ static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angl
         {
             return;
         }
-        kspr = &kspr_arr[field48 + quarter * kspr_arr->FramesCount];
+        kspr = &kspr_arr[current_frame + quarter * kspr_arr->FramesCount];
         fill_w = kspr->SWidth;
         fill_h = kspr->SHeight;
-        keepsprite_id = field48 + quarter * kspr->FramesCount + kspr_idx;
+        keepsprite_id = current_frame + quarter * kspr->FramesCount + kspr_idx;
         if (keepsprite_id >= KEEPERSPRITE_ADD_OFFSET)
         {
             sprite_data = keepersprite_add[keepsprite_id - KEEPERSPRITE_ADD_OFFSET];
@@ -8494,8 +8392,6 @@ static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angl
 
 static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdrant, long w, long h, long qx, long qy)
 {
-    TbBool out_of_bounds = false;
-
     TbGraphicsWindow ewnd;
     struct Column *colmn;
     unsigned long mask;
@@ -8520,10 +8416,6 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
         stl_x = (pos_x >> 8) + x_offs[qdrant];
         stl_y = (pos_y >> 8) + y_offs[qdrant];
         
-        if (stl_x < 0 || stl_x > gameadd.map_subtiles_x - 1 || stl_y < -2 || stl_y > gameadd.map_subtiles_y) {
-            out_of_bounds = true;
-        }
-
         mapblk = get_map_block_at(stl_x, stl_y);
         if (!map_block_invalid(mapblk))
         {
@@ -8560,9 +8452,6 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
         }
         point_b += delta;
     }
-    
-    struct PlayerInfo *player = get_my_player();
-    player->mouse_is_offmap = out_of_bounds;
 }
 
 void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, TbBool single_subtile, long line_color)
@@ -8897,9 +8786,15 @@ static void do_map_who_for_thing(struct Thing *thing)
         {
             int count;
             int i;
-            count = find_closest_lights(&thing->mappos, &nearlgt);
-            for (i=0; i < count; i++) {
-                create_shadows(thing, &ecor, &nearlgt.coord[i]);
+
+            struct KeeperSprite *spr = keepersprite_array(thing->anim_sprite);
+            if ((spr->frame_flags & FFL_NoShadows) == 0)
+            {
+                count = find_closest_lights(&thing->mappos, &nearlgt);
+                for (i = 0; i < count; i++)
+                {
+                    create_shadows(thing, &ecor, &nearlgt.coord[i]);
+                }
             }
         }
         // Height movement, falling or going up steps. This is applied after shadows, because shadows are always drawn at the floor height.
@@ -9015,7 +8910,7 @@ static void do_map_who(short tnglist_idx)
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if ((thing->rendering_flags & TRF_Unknown01) == 0)
+        if ((thing->rendering_flags & TRF_Invisible) == 0)
         {
             do_map_who_for_thing(thing);
         }
@@ -9024,6 +8919,8 @@ static void do_map_who(short tnglist_idx)
         if (k > THINGS_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
+            struct Map* mapblk = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+            break_mapwho_infinite_chain(mapblk);
             break;
         }
     }
@@ -9037,7 +8934,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
     long cx;
     long cy;
     long cz;
-    if ((thing->rendering_flags & TRF_Unknown01) != 0)
+    if ((thing->rendering_flags & TRF_Invisible) != 0)
         return;
     switch (thing->draw_class)
     {

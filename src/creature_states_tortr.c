@@ -118,7 +118,7 @@ short cleanup_torturing(struct Thing *creatng)
         struct Thing* thing = thing_get(cctrl->tortured.assigned_torturer);
         if (thing_exists(thing)) {
             thing->torturer.belongs_to = 0;
-            thing->rendering_flags &= ~TRF_Unknown01;
+            thing->rendering_flags &= ~TRF_Invisible;
         }
         cctrl->tortured.assigned_torturer = 0;
     }
@@ -215,7 +215,7 @@ long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJ
             set_creature_instance(creatng, CrInst_TORTURED, 0, 0);
         }
         if (thing_exists(sectng)) {
-            sectng->rendering_flags |= TRF_Unknown01;
+            sectng->rendering_flags |= TRF_Invisible;
         } else {
             ERRORLOG("No device for torture");
         }
@@ -274,11 +274,18 @@ CrCheckRet process_kinky_function(struct Thing *thing)
 void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
 {
     int crmodel = get_room_create_creature_model(room->kind);
-    struct Thing* newthing = create_creature(&thing->mappos, crmodel, room->owner);
-    if (thing_is_invalid(newthing))
+    struct Thing* newthing = INVALID_THING;
+    if (creature_count_below_map_limit(1))
     {
-        ERRORLOG("Couldn't create creature %s in %s room",creature_code_name(crmodel),room_code_name(room->kind));
-        return;
+        newthing = create_creature(&thing->mappos, crmodel, room->owner);
+        if (thing_is_invalid(newthing))
+        {
+            ERRORLOG("Couldn't create creature %s in %s room",creature_code_name(crmodel),room_code_name(room->kind));
+            return;
+        }
+    } else
+    {
+        WARNLOG("Could not create creature %s to transform %s to due to creature limit", creature_code_name(crmodel), thing_model_name(thing));
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureControl* newcctrl = creature_control_get_from_thing(newthing);
@@ -503,7 +510,7 @@ CrCheckRet process_torture_function(struct Thing *creatng)
     anger_apply_anger_to_creature(creatng, crstat->annoy_in_torture, AngR_Other, 1);
     if ((long)game.play_gameturn >= cctrl->turns_at_job + game.conf.rules.health.turns_per_torture_health_loss)
     {
-        i = compute_creature_max_health(game.conf.rules.health.torture_health_loss,cctrl->explevel);
+        i = compute_creature_max_health(game.conf.rules.health.torture_health_loss,cctrl->explevel,creatng->owner);
         remove_health_from_thing_and_display_health(creatng, i);
         cctrl->turns_at_job = (long)game.play_gameturn;
     }

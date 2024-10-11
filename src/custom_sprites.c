@@ -61,8 +61,6 @@ struct KeeperSprite creature_table_add[KEEPERSPRITE_ADD_NUM] = {
         {0}
 };
 
-struct KeeperSpriteExt creatures_table_ext[KEEPERSPRITE_ADD_NUM] = {{0}};
-
 struct SpriteContext
 {
     struct TbHugeSprite sprite;
@@ -230,6 +228,7 @@ static int cmp_named_command(const void *a, const void *b)
 
 static void load_system_sprites(short fgroup)
 {
+    SYNCDBG(8, "Starting");
     struct TbFileFind fileinfo;
     int cnt = 0, cnt_ok = 0, cnt_icons = 0;
     char *fname = prepare_file_path(fgroup, "*.zip");
@@ -258,11 +257,12 @@ static void load_system_sprites(short fgroup)
         }
         cnt++;
     }
-    LbJustLog("Found %d sprite zip file(s), loaded %d with animations and %d with icons.\n", cnt, cnt_ok, cnt_icons);
+    LbJustLog("Found %d sprite zip file(s), loaded %d with animations and %d with icons. Used %d/%d sprite slots.\n", cnt, cnt_ok, cnt_icons, next_free_sprite, KEEPERSPRITE_ADD_NUM);
 }
 
 void init_custom_sprites(LevelNumber lvnum)
 {
+    SYNCDBG(8, "Starting");
     // This is a workaround because get_selected_level_number is zeroed on res change
     if (lvnum == SPRITE_LAST_LEVEL)
     {
@@ -303,6 +303,7 @@ void init_custom_sprites(LevelNumber lvnum)
         {
             free((char *) added_icons[i].name);
             free((char *) gui_panel_sprites[GUI_PANEL_SPRITES_COUNT + i].Data);
+            added_icons[i].name = NULL;
         }
     }
     num_added_icons = 0;
@@ -312,8 +313,8 @@ void init_custom_sprites(LevelNumber lvnum)
     gui_panel_sprites[GUI_PANEL_SPRITES_COUNT].Data = (unsigned char *) bad_icon_data;
     gui_panel_sprites[GUI_PANEL_SPRITES_COUNT].SWidth = 16;
     gui_panel_sprites[GUI_PANEL_SPRITES_COUNT].SHeight = 16;
-    next_free_icon = 1;
-    num_icons_total = GUI_PANEL_SPRITES_COUNT + 1;
+    next_free_icon = 0;
+    num_icons_total = GUI_PANEL_SPRITES_COUNT;
 
     // Clear creature table (there sprites live)
     memset(creature_table_add, 0, sizeof(creature_table_add));
@@ -352,6 +353,7 @@ void init_custom_sprites(LevelNumber lvnum)
  */
 static void init_pal_conversion()
 {
+    SYNCDBG(8, "Starting");
     // 1. Loading palette into pal_records
     memset(pal_records, 0, sizeof(pal_records));
 
@@ -418,6 +420,7 @@ static void init_pal_conversion()
         }
     }
 #undef NEAREST_DEPTH
+    SYNCDBG(8, "Finished");
 }
 
 /**
@@ -872,10 +875,14 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
 
     READ_WITH_DEFAULT(FrameWidth, "frame_w", "fp_frame_w", "td_frame_w", dst_w, value_uint32)
     READ_WITH_DEFAULT(FrameHeight, "frame_h", "fp_frame_h", "td_frame_h", dst_h, value_uint32)
-    READ_WITH_DEFAULT(FrameOffsW, "offset_w", "fp_offset_w", "td_offset_w", 0, value_uint32)
-    READ_WITH_DEFAULT(FrameOffsH, "offset_h", "fp_offset_h", "td_offset_h", 0, value_uint32)
+    READ_WITH_DEFAULT(FrameOffsW, "offset_w", "fp_offset_w", "td_offset_w", 0, value_int32)
+    READ_WITH_DEFAULT(FrameOffsH, "offset_h", "fp_offset_h", "td_offset_h", 0, value_int32)
     READ_WITH_DEFAULT(offset_x, "offset_x", "fp_offset_x", "td_offset_x", -dst_w / 2, -value_int32)
     READ_WITH_DEFAULT(offset_y, "offset_y", "fp_offset_y", "td_offset_y", 1 - dst_h, -value_int32)
+
+    READ_WITH_DEFAULT(shadow_offset, "shadow_offset", "fp_shadow_offset", "td_shadow_offset", (dst_h + ksprite->offset_y), value_int32)
+
+    READ_WITH_DEFAULT(frame_flags, "frame_flags", "fp_frame_flags", "td_frame_flags", 0, value_uint32)
 
 #undef READ_WITH_DEFAULT
 
@@ -1176,7 +1183,7 @@ static int process_sprite_from_list(const char *path, unzFile zip, int idx, VALU
     }
     const char *name = value_string(val);
     const char *blend_scene = NULL;
-    WARNDBG(2, "found sprite: %s", name);
+    SYNCDBG(2, "found sprite: '%s/%s'", path,name);
     val = value_dict_get(root, "blender_scene");
     if ((val != NULL) && (value_type(val) == VALUE_STRING))
     {
@@ -1196,7 +1203,7 @@ static int process_sprite_from_list(const char *path, unzFile zip, int idx, VALU
     {
         // TODO: remove old spr->num (all of them are removed on each map load)
         spr->num = context.td_id;
-        JUSTLOG("Overriding sprite '%s'", name);
+        JUSTLOG("Sprite '%s/%s' overwrites sprite with same name.", path,name);
     }
     else
     {
@@ -1216,6 +1223,7 @@ static int process_sprite_from_list(const char *path, unzFile zip, int idx, VALU
 static TbBool
 add_custom_json(const char *path, const char *name, TbBool (*process)(const char *path, unzFile zip, VALUE *root))
 {
+    SYNCDBG(8, "Starting");
     unz_file_info64 zip_info = {0};
     VALUE root;
     JSON_INPUT_POS json_input_pos;
@@ -1302,7 +1310,7 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
         return 0;
     }
     const char *name = value_string(val);
-    WARNDBG(2, "found icon: %s", name);
+    SYNCDBG(2, "found icon: '%s/%s'", path,name);
 
     TbBool is_lowres = (lbDisplay.PhysicalScreenWidth <= LOWRES_SCREEN_SIZE);
     const char *file_key = is_lowres ? "lowres" : "file";
@@ -1368,7 +1376,7 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
     {
         num_icons_total += icons_count;
         spr->num = first_icon;
-        JUSTLOG("Overriding icon '%s'", name);
+        JUSTLOG("Overriding icon '%s/%s'", path,name);
     }
     else
     {
@@ -1520,10 +1528,21 @@ short get_anim_id(const char *name, struct ObjectConfigStats *objst)
     return 0;
 }
 
-const struct TbSprite *get_button_sprite(short sprite_idx)
+short get_anim_id_(const char* word_buf)
 {
-    sprite_idx = get_player_colored_button_sprite_idx(sprite_idx,my_player_number);
+    struct ObjectConfigStats obj_tmp;
+    return get_anim_id(word_buf, &obj_tmp);
+}
 
+const struct TbSprite *get_button_sprite_for_player(short sprite_idx, PlayerNumber plyr_idx)
+{
+    sprite_idx = get_player_colored_button_sprite_idx(sprite_idx, plyr_idx);
+
+    return get_button_sprite_direct(sprite_idx);
+}
+
+const struct TbSprite *get_button_sprite_direct(short sprite_idx)
+{
     if (sprite_idx < GUI_BUTTON_SPRITES_COUNT)
         return &button_sprite[sprite_idx];
     else if (sprite_idx < num_icons_total)

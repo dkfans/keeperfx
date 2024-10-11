@@ -25,6 +25,7 @@
 #include "creature_states.h"
 #include "creature_states_combt.h"
 #include "creature_states_mood.h"
+#include "creature_states_spdig.h"
 #include "thing_list.h"
 #include "creature_control.h"
 #include "config_creature.h"
@@ -134,6 +135,63 @@ long creature_will_sleep(struct Thing *thing)
     return (abs(dist_x) < 1) && (abs(dist_y) < 1);
 }
 
+/**
+ * @brief special digger drop unconscious creatures in their lair
+ * 
+ * only if drag_to_lair rule in activated
+ * 
+ * @param thing special digger who drag the creature
+ * @return returns 1 if creature successfully arrived at its lair and woke up
+ */
+short creature_drop_unconscious_in_lair(struct Thing *thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
+
+    if (!thing_exists(dragtng) || !creature_is_being_unconscious(dragtng))
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    struct CreatureControl* dragctrl = creature_control_get_from_thing(dragtng);
+    struct Room* room = get_room_thing_is_on(thing);
+    struct Thing* totemtng = find_lair_totem_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+    // if place is not a room
+    if  (!subtile_is_room(thing->mappos.x.stl.num, thing->mappos.y.stl.num)
+            // or room is not a lair
+        || (!room_role_matches(room->kind, RoRoF_LairStorage) 
+            //or room owner is not creature owner
+            || room->owner != dragtng->owner 
+            //or creature has no lair room
+            || (dragctrl->lair_room_id == 0 
+                // and the lair has no capacity
+                && (room->used_capacity >= room ->total_capacity)))
+        // or there is a lair already but it doesn't belong to the creature
+        || ((totemtng->index > 0) && (totemtng->index != dragctrl->lairtng_idx)))
+    {
+        //just drop the creature
+        creature_drop_dragged_object(thing, dragtng);
+        set_start_state(thing);
+        return 0;
+    }
+
+    make_creature_conscious(dragtng);
+    // if the creature already has a lair here it's going to sleep
+    if (dragctrl->lair_room_id == room->index)
+    {
+        initialise_thing_state(dragtng, CrSt_CreatureGoingHomeToSleep);
+    }
+    // if the creature dont has a lair here make a new one
+    else
+    {
+        initialise_thing_state(dragtng, CrSt_CreatureAtNewLair);
+    }
+    set_flag(dragctrl->flgfield_1,CCFlg_NoCompControl);
+    set_start_state(thing);
+    return 1;
+
+}
+
 long process_lair_enemy(struct Thing *thing, struct Room *room)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -198,6 +256,7 @@ CrStateRet creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
         place_thing_in_mapwho(creatng);
         return CrStRet_Modified; // Return that so we won't try to redo the action over and over
     }
+    lairtng->move_angle_xy = CREATURE_RANDOM(creatng, 2048);
     lairtng->mappos.z.val = get_thing_height_at(lairtng, &lairtng->mappos);
     // Associate creature with the lair
     cctrl->lairtng_idx = lairtng->index;
@@ -466,10 +525,14 @@ short creature_sleep(struct Thing *thing)
     }
     thing->movement_flags &= ~0x0020;
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    if (((game.play_gameturn + thing->index) % game.conf.rules.creature.recovery_frequency) == 0)
+    // Recovery is disabled if frequency is set to 0 on rules.cfg.
+    if (game.conf.rules.creature.recovery_frequency > 0)
     {
-        HitPoints recover = compute_creature_max_health(crstat->sleep_recovery, cctrl->explevel);
-        apply_health_to_thing_and_display_health(thing, recover);
+        if (((game.play_gameturn + thing->index) % game.conf.rules.creature.recovery_frequency) == 0)
+        {
+            HitPoints recover = compute_creature_max_health(crstat->sleep_recovery, cctrl->explevel, thing->owner);
+            apply_health_to_thing_and_display_health(thing, recover);
+        }
     }
     anger_set_creature_anger(thing, 0, AngR_NoLair);
     anger_apply_anger_to_creature(thing, crstat->annoy_sleeping, AngR_Other, 1);

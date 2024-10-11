@@ -99,6 +99,9 @@ enum FFlags {
 enum DebugFlags {
     DFlg_ShotsDamage        =  0x01,
     DFlg_CreatrPaths        =  0x02,
+    DFlg_ShowGameTurns      =  0x04,
+    DFlg_FrameStep          =  0x08,
+    DFlg_PauseAtGameTurn    =  0x10,
 };
 
 #ifdef FUNCTESTING
@@ -143,6 +146,8 @@ struct StartupParameters {
     char selected_campaign[CMDLN_MAXLEN+1];
     TbBool overrides[CMDLINE_OVERRIDES];
     char config_file[CMDLN_MAXLEN+1];
+    GameTurn pause_at_gameturn;
+    TbBool ungrab_mouse;
 #ifdef FUNCTESTING
     unsigned char functest_flags;
     char functest_name[FTEST_MAX_NAME_LENGTH];
@@ -158,6 +163,7 @@ extern unsigned char *dog_palette;
 extern unsigned char *vampire_palette;
 extern unsigned char exit_keeper;
 extern unsigned char quit_game;
+extern unsigned char is_running_under_wine;
 extern int continue_game_option_available;
 extern long last_mouse_x;
 extern long last_mouse_y;
@@ -231,7 +237,7 @@ void process_payday(void);
 TbBool toggle_computer_player(PlayerNumber plyr_idx);
 void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal);
 void set_player_cameras_position(struct PlayerInfo *player, long pos_x, long pos_y);
-void init_good_player_as(PlayerNumber plr_idx);
+void init_player_types();
 void init_keepers_map_exploration(void);
 void clear_creature_pool(void);
 void reset_creature_max_levels(void);
@@ -259,7 +265,6 @@ TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct
 void update_creatr_model_activities_list(void);
 void find_map_location_coords(long location, long *x, long *y, int plyr_idx, const char *func_name);
 TbBool any_player_close_enough_to_see(const struct Coord3d *pos);
-void affect_nearby_enemy_creatures_with_wind(struct Thing *thing);
 void affect_nearby_stuff_with_vortex(struct Thing *thing);
 void affect_nearby_friends_with_alarm(struct Thing *thing);
 long apply_wallhug_force_to_boulder(struct Thing *thing);
@@ -298,7 +303,7 @@ void initialise_map_collides(void);
 void initialise_map_health(void);
 void setup_3d(void);
 void setup_stuff(void);
-void give_shooter_drained_health(struct Thing *shooter, long health_delta);
+void give_shooter_drained_health(struct Thing *shooter, HitPoints health_delta);
 long get_foot_creature_has_down(struct Thing *thing);
 void process_keeper_spell_aura(struct Thing *thing);
 void init_seeds();

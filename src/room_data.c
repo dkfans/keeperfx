@@ -50,6 +50,7 @@
 #include "game_legacy.h"
 #include "frontmenu_ingame_map.h"
 #include "keeperfx.hpp"
+#include "config_spritecolors.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -62,6 +63,7 @@ void count_slabs_all_only(struct Room *room);
 void count_slabs_all_wth_effcncy(struct Room *room);
 void count_slabs_div2_wth_effcncy(struct Room *room);
 void count_gold_slabs_wth_effcncy(struct Room *room);
+void count_gold_slabs_full(struct Room *room);
 
 void count_gold_hoardes_in_room(struct Room *room);
 void count_books_in_room(struct Room *room);
@@ -105,7 +107,8 @@ unsigned char const slabs_to_centre_pieces[] = {
  21, 22, 23, 24, 25,
 };
 
-unsigned short const room_effect_elements[] = { TngEffElm_RedFlame, TngEffElm_BlueFlame, TngEffElm_GreenFlame, TngEffElm_YellowFlame, TngEffElm_WhiteFlame, TngEffElm_None };
+unsigned short const room_effect_elements[] = { TngEffElm_RedFlame, TngEffElm_BlueFlame, TngEffElm_GreenFlame, TngEffElm_YellowFlame, TngEffElm_WhiteFlame, 
+                                                TngEffElm_None, TngEffElm_PurpleFlame, TngEffElm_BlackFlame, TngEffElm_OrangeFlame };
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -977,6 +980,11 @@ void count_gold_slabs_wth_effcncy(struct Room *room)
     if (count < 1)
         count = 1;
     room->total_capacity = count;
+}
+
+void count_gold_slabs_full(struct Room *room)
+{
+    room->total_capacity = room->slabs_count * get_wealth_size_types_count();
 }
 
 TbBool recreate_repositioned_crate_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
@@ -2404,7 +2412,7 @@ long calculate_room_efficiency(const struct Room *room)
  */
 unsigned long compute_room_max_health(unsigned short slabs_count,unsigned short efficiency)
 {
-  unsigned long max_health = game.conf.rules.workers.hits_per_slab * slabs_count;
+  HitPoints max_health = game.conf.rules.workers.hits_per_slab * slabs_count;
   return saturate_set_unsigned(max_health, 16);
 }
 
@@ -2417,8 +2425,8 @@ TbBool update_room_total_health(struct Room *room)
 
 TbBool link_room_health(struct Room* linkroom, struct Room* oldroom)
 {
-    int newhealth = linkroom->health + oldroom->health;
-    int maxhealth = compute_room_max_health(linkroom->slabs_count, linkroom->efficiency);
+    HitPoints newhealth = linkroom->health + oldroom->health;
+    HitPoints maxhealth = compute_room_max_health(linkroom->slabs_count, linkroom->efficiency);
 
     if ((newhealth > maxhealth) || (newhealth <= 0))
     {
@@ -2431,8 +2439,8 @@ TbBool link_room_health(struct Room* linkroom, struct Room* oldroom)
 TbBool recalculate_room_health(struct Room* room)
 {
     SYNCDBG(7, "Starting for %s index %d", room_code_name(room->kind), (int)room->index);
-    int newhealth = (room->health + game.conf.rules.workers.hits_per_slab);
-    int maxhealth = compute_room_max_health(room->slabs_count, room->efficiency);
+    HitPoints newhealth = (room->health + game.conf.rules.workers.hits_per_slab);
+    HitPoints maxhealth = compute_room_max_health(room->slabs_count, room->efficiency);
     
     if ((newhealth <= maxhealth) && (newhealth >= 0))
     {
@@ -4711,6 +4719,7 @@ TbBool add_item_to_room_capacity(struct Room *room, TbBool force)
 static void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct Thing *thing, long parent_idx, PlayerNumber newowner)
 {
     struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    struct Dungeon* dungeon;
     // If thing is only dragged through the room, do not interrupt
     if (thing_is_dragged_or_pulled(thing)) {
         return;
@@ -4718,10 +4727,11 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
     // Handle specific things in rooms for which we have a special re-creation code
     PlayerNumber oldowner;
 
-    // Guard post owns only flag, and it must be re-created
-    if (object_is_guard_flag(thing))
+    // coloured objects must be recreated when owner changes, and it must be re-created
+    ThingModel base_model = get_coloured_object_base_model(thing->model);
+    if (base_model != 0)
     {
-        create_guard_flag_object(&thing->mappos, newowner, parent_idx);
+        create_coloured_object(&thing->mappos, newowner, parent_idx,base_model);
         delete_thing_structure(thing, 0);
         return;
     }
@@ -4757,7 +4767,6 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
      else if(room_role_matches(room->kind,RoRoF_GoldStorage) && object_is_gold_hoard(thing))
      {
          oldowner = thing->owner;
-         struct Dungeon *dungeon;
          {
              dungeon = get_dungeon(newowner);
              dungeon->total_money_owned += thing->valuable.gold_stored;
@@ -4795,6 +4804,14 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
                 ERRORLOG("Lair totem %d has no owner!",(int)thing->index);
             }
             return;
+        }
+    }
+    else if (room_role_matches(room->kind, RoRoF_KeeperStorage) && thing_is_dungeon_heart(thing))
+    {
+        dungeon = get_dungeon(newowner);
+        if (dungeon->backup_heart_idx == 0)
+        {
+            dungeon->backup_heart_idx = thing->index;
         }
     }
 
@@ -5188,31 +5205,34 @@ long take_over_room(struct Room* room, PlayerNumber newowner)
  * @param room The room structure which slabs are to be destroyed.
  * @note The room structure is freed before this function end.
  */
-void destroy_room_leaving_unclaimed_ground(struct Room *room)
+void destroy_room_leaving_unclaimed_ground(struct Room *room, TbBool create_rubble)
 {
     unsigned long k = 0;
-    long i = room->slabs_list;
+    unsigned long count = room->slabs_count;
+    SlabCodedCoords* slbs = malloc(count * sizeof(SlabCodedCoords));
+    SlabCodedCoords i = room->slabs_list;
     while (i != 0)
     {
-        long slb_x = slb_num_decode_x(i);
-        long slb_y = slb_num_decode_y(i);
+        slbs[k] = i;
         i = get_next_slab_number_in_room(i);
-        // Per room tile code
+        k++;
+    }
+    for (k = 0; k < count; k++)
+    {
         if (room->owner != game.neutral_player_num)
         {
             struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
             dungeon->rooms_destroyed++;
         }
-        delete_room_slab(slb_x, slb_y, 1); // Note that this function might also delete the whole room
-        create_dirt_rubble_for_dug_slab(slb_x, slb_y);
-        // Per room tile code ends
-        k++;
-        if (k > gameadd.map_tiles_x*gameadd.map_tiles_y) // we can't use room->slabs_count as room may be deleted
+        MapSlabCoord slb_x = slb_num_decode_x(slbs[k]);
+        MapSlabCoord slb_y = slb_num_decode_y(slbs[k]);
+        if (create_rubble)
         {
-            ERRORLOG("Room slabs list length exceeded when sweeping");
-            break;
+            create_dirt_rubble_for_dug_slab(slb_x, slb_y);
         }
+        delete_room_slab(slb_x, slb_y, 1); // Note that this function might also delete the whole room 
     }
+    free(slbs);
 }
 
 void destroy_dungeon_heart_room(PlayerNumber plyr_idx, const struct Thing *heartng)
@@ -5233,6 +5253,6 @@ void destroy_dungeon_heart_room(PlayerNumber plyr_idx, const struct Thing *heart
         return;
     }
     remove_room_from_players_list(room, plyr_idx);
-    destroy_room_leaving_unclaimed_ground(room);
+    destroy_room_leaving_unclaimed_ground(room, true);
 }
 /******************************************************************************/

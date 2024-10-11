@@ -1206,7 +1206,7 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
                 struct SlabAttr *slbattr = get_slab_kind_attrs(slb->kind);
                 if (slab_owner != game.neutral_player_num || (!any_flag_is_set(slbattr->block_flags, (SlbAtFlg_Valuable | SlbAtFlg_Digable | SlbAtFlg_Filled)) && slb->kind != SlbT_LAVA))
                 {
-                    if (!flag_is_set(potential_opponents, to_flag(slab_owner)) && (get_slabmap_for_subtile(stl_x_current,stl_y_current)->flags & 7) == slab_owner)
+                    if (!flag_is_set(potential_opponents, to_flag(slab_owner)) && (get_slabmap_for_subtile(stl_x_current,stl_y_current)->owner) == slab_owner)
                     {
                         if ((block_flags = slbattr->block_flags,
                              (!flag_is_set(block_flags, SlbAtFlg_Blocking)) &&
@@ -1223,7 +1223,7 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
                             pos->x.stl.pos = 0;
                             pos->y.stl.num = stl_y_current;
                             pos->y.stl.pos = 0;
-                            if (all_flags_are_set(potential_opponents, PLAYERS_EXT_COUNT)) // exit early if every player is a potential opponent
+                            if (all_flags_are_set(potential_opponents, PLAYERS_COUNT)) // exit early if every player is a potential opponent
                                 return potential_opponents;
                         }
                     }
@@ -1316,10 +1316,9 @@ long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *
     comp->task_state = CTaskSt_Select;
     struct ComputerTask* ctask = get_computer_task(cproc->param_5);
     struct Coord3d* pos = &ctask->dig.pos_begin;
-    long par1 = ctask->pickup_for_attack.long_86;
     if (xy_walkable(pos->x.stl.num, pos->y.stl.num, dungeon->owner))
     {
-        if (!create_task_pickup_for_attack(comp, pos, par1, creatrs_num)) 
+        if (!create_task_pickup_for_attack(comp, pos, creatrs_num)) 
         {
             return CProcRet_Wait;
         }
@@ -1330,7 +1329,7 @@ long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *
     {
         if (computer_able_to_use_power(comp, PwrK_CALL2ARMS, 5, 2) && check_call_to_arms(comp))
         {
-            if (!create_task_magic_support_call_to_arms(comp, pos, 2500, par1, creatrs_num))
+            if (!create_task_magic_support_call_to_arms(comp, pos, 2500, creatrs_num))
             {
                 return CProcRet_Wait;
             }
@@ -1391,6 +1390,21 @@ void suspend_process(struct Computer2 *comp, struct ComputerProcess *cproc)
     } else {
         WARNLOG("Invalid computer process referenced");
     }
+}
+
+TbBool reactivate_build_process(struct Computer2* comp, RoomKind rkind)
+{
+    for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
+    {
+        struct ComputerProcess* cproc = &comp->processes[i];
+        if ((cproc->func_check == &computer_check_any_room) && (cproc->confval_4 == rkind))
+        {
+            clear_flag(cproc->flags, ComProc_Unkn0004);
+            cproc->last_run_turn = 0;
+            return true;
+        }
+    }
+    return false;
 }
 
 void reset_process(struct Computer2 *comp, struct ComputerProcess *cproc)

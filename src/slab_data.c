@@ -153,8 +153,8 @@ TbBool slab_coords_invalid(MapSlabCoord slb_x, MapSlabCoord slb_y)
 long slabmap_owner(const struct SlabMap *slb)
 {
     if (slabmap_block_invalid(slb))
-        return NEUTRAL_PLAYER;
-    return slb->flags & 0x07;
+        return PLAYER_NEUTRAL;
+    return slb->owner;
 }
 
 /**
@@ -164,25 +164,19 @@ void set_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber owner)
 {
     struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
     if (slabmap_block_invalid(slb))
+    {
         return;
-    if (owner == NEUTRAL_PLAYER)
+    }
+    struct Dungeon *dungeon = get_dungeon(owner);
+    if (dungeon->texture_pack == 0)
     {
         gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = gameadd.slab_ext_data_initial[get_slab_number(slb_x,slb_y)];
     }
     else
     {
-        struct Dungeon *dungeon = get_dungeon(owner);
-        if (dungeon->texture_pack == 0)
-        {
-            gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = gameadd.slab_ext_data_initial[get_slab_number(slb_x,slb_y)];
-        }
-        else
-        {
-            gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = dungeon->texture_pack;
-        }
+        gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = dungeon->texture_pack;
     }
-
-    slb->flags ^= (slb->flags ^ owner) & 0x07;
+    slb->owner = owner;
 }
 
 /**
@@ -191,18 +185,18 @@ void set_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber owner)
 unsigned long slabmap_wlb(struct SlabMap *slb)
 {
     if (slabmap_block_invalid(slb))
-        return 0;
-    return (slb->flags >> 3) & 0x03;
+        return WlbT_None;
+    return slb->wlb_type;
 }
 
 /**
  * Sets Water-Lava under Bridge flags for given SlabMap.
  */
-void slabmap_set_wlb(struct SlabMap *slb, unsigned long wlbflag)
+void slabmap_set_wlb(struct SlabMap *slb, unsigned long wlb_type)
 {
     if (slabmap_block_invalid(slb))
         return;
-    slb->flags ^= (slb->flags ^ (wlbflag << 3)) & 0x18;
+    slb->wlb_type = wlb_type;
 }
 
 /**
@@ -828,7 +822,7 @@ TbBool player_can_claim_slab(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabC
     }
 
     struct Room *room = room_get(slb->room_index);
-    if ((slb->kind != SlbT_CLAIMED) && (room_is_invalid(room) || (room->kind == RoK_DUNGHEART))) {
+    if ((slb->kind != SlbT_CLAIMED) && (room_is_invalid(room) || (flag_is_set(get_room_kind_stats(room->kind)->flags, RoCFlg_CannotBeClaimed)))) {
         SYNCDBG(8,"The slab %d,%d is not a valid kind %d to be converted",(int)slb_x, (int)slb_y, (int)slb->kind);
         return false;
     }

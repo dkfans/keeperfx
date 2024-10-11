@@ -30,10 +30,11 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#define MAGIC_ITEMS_MAX        255
-#define SPELL_MAX_LEVEL         8
-#define MAGIC_OVERCHARGE_LEVELS (SPELL_MAX_LEVEL+1)
-#define POWER_TYPES_MAX      64
+#define MAGIC_ITEMS_MAX         2000
+#define SPELL_MAX_LEVEL         9
+#define POWER_MAX_LEVEL         8
+#define MAGIC_OVERCHARGE_LEVELS (POWER_MAX_LEVEL+1)
+#define POWER_TYPES_MAX         2000
 
 enum SpellKinds {
     SplK_None = 0,
@@ -41,31 +42,33 @@ enum SpellKinds {
     SplK_FireBomb,
     SplK_Freeze,
     SplK_Armour,
-    SplK_Lightning,
+    SplK_Lightning, // 5
     SplK_Rebound,
     SplK_Heal,
     SplK_PoisonCloud,
     SplK_Invisibility,
-    SplK_Teleport,//[10]
+    SplK_Teleport, // 10
     SplK_Speed,
     SplK_Slow,
     SplK_Drain,
     SplK_Fear,
-    SplK_Missile,//[15]
+    SplK_Missile, // 15
     SplK_NavigMissile,
     SplK_FlameBreath,
     SplK_Wind,
     SplK_Light,
-    SplK_Fly,//[20]
+    SplK_Fly, // 20
     SplK_Sight,
     SplK_Grenade,
     SplK_Hailstorm,
-    SplK_WordOfPower,//[24]
-    SplK_CrazyGas,
+    SplK_WordOfPower,
+    SplK_CrazyGas, // 25
     SplK_Disease,
     SplK_Chicken,
-    SplK_TimeBomb,//[28]
+    SplK_TimeBomb,
     SplK_Lizard,
+    Splk_SummonFamiliar, // 30
+    Splk_SummonCreature,
     SplK_Cleanse,
 };
 
@@ -89,8 +92,9 @@ enum CreatureSpellAffectedFlags {
     /** For creature which are normally flying, this informs that its grounded due to spells or its condition. */
     CSAfF_Grounded     = 0x8000,
     CSAfF_Timebomb     = 0x10000,
+    CSAfF_Wind         = 0x20000,
     /** Cleanse effect can linger for some time. */
-    CSAfF_Cleanse      = 0x20000,
+    CSAfF_Cleanse      = 0x40000,
 };
 
 enum PowerKinds {
@@ -117,7 +121,11 @@ enum PowerKinds {
     PwrK_PICKUPCRTR, // 20
     PwrK_PICKUPGOLD,
     PwrK_PICKUPFOOD,
-    PwrK_REBOUND, // 23
+    PwrK_REBOUND,
+    PwrK_FREEZE,
+    PwrK_SLOW, // 25
+    PwrK_FLIGHT,
+    PwrK_VISION,
 };
 
 /** Contains properties of a shot model, to be stored in ShotConfigStats.
@@ -140,6 +148,7 @@ enum ShotModelFlags {
     ShMF_Exploding      = 0x2000,
     ShMF_BlocksRebirth  = 0x4000,
     ShMF_Penetrating    = 0x8000,
+    ShMF_NeverBlock     = 0x10000,
 };
 
 enum PowerCanCastFlags {
@@ -222,6 +231,14 @@ enum PowerConfigFlags {
     PwCF_IsParent     = 0x0004, /**< Set if the power has children and is just an aggregate. */
 };
 
+enum OverchargeChecks {
+    OcC_Null,
+    OcC_General_expand,
+    OcC_SightOfEvil_expand,
+    OcC_CallToArms_expand,
+    OcC_do_not_expand
+};
+
 /**
  * Configuration parameters for spells.
  */
@@ -231,24 +248,24 @@ struct SpellConfigStats {
 
 
 struct ShotHitConfig {
-    short effect_model; /**< Effect kind to be created when the shot hits. */
+    ThingModel effect_model; /**< Effect kind to be created when the shot hits. */
     short sndsample_idx; /**< Base sound sample to be played on hit. */
     unsigned char sndsample_range; /**< Range for random sound sample selection. */
     unsigned char withstand; /**< Whether the shot can withstand a hit without getting destroyed; could be converted to flags. */
 };
 
 struct ShotDetonateConfig {
-    short effect1_model;
-    short effect2_model; 
+    EffectOrEffElModel effect1_model;
+    EffectOrEffElModel effect2_model;
     short around_effect1_model;
     short around_effect2_model;
 };
 
 struct ShotVisualConfig {
-    short effect_model;
+    EffectOrEffElModel effect_model;
     unsigned char amount;
     short random_range;
-    short shot_health;
+    HitPoints shot_health;
 };
 
 /**
@@ -277,6 +294,7 @@ struct ShotConfigStats {
     struct ShotHitConfig hit_lava;
     struct ShotHitConfig hit_creature;
     struct ShotHitConfig dig;
+    struct ShotHitConfig hit_heart;
     struct ShotDetonateConfig explode;
     struct ShotVisualConfig visual;
     short firing_sound;
@@ -290,7 +308,7 @@ struct ShotConfigStats {
     short size_z;
     unsigned char fall_acceleration;
     unsigned char cast_spell_kind;
-    unsigned char push_on_hit;
+    char push_on_hit;
     unsigned char hidden_projectile;
     unsigned char destroy_on_first_hit;
     short experience_given_to_shooter;
@@ -308,11 +326,16 @@ struct ShotConfigStats {
     unsigned char unshaded;
     unsigned char soft_landing;
     EffectOrEffElModel effect_id;
+    EffectOrEffElModel effect_bleeding;
+    EffectOrEffElModel effect_frozen;
     unsigned char fire_logic; // see enum ShotFireLogics
     unsigned char update_logic; // see enum ShotUpdateLogics
-    unsigned char effect_spacing;
+    unsigned short effect_spacing;
     unsigned char effect_amount;
-
+    unsigned short periodical;
+    short spread_xy;
+    short spread_z;
+    short speed_deviation;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);
@@ -325,7 +348,7 @@ struct PowerConfigStats {
     ThingModel artifact_model;
     unsigned long long can_cast_flags;
     unsigned long config_flags;
-    Expand_Check_Func overcharge_check;
+    unsigned char overcharge_check_idx;
     long work_state;
     PowerKind parent_power;
     /** Sprite index of big symbol icon representing the power. */
@@ -339,6 +362,9 @@ struct PowerConfigStats {
     long panel_tab_idx;
     unsigned short select_sound_idx;
     short cast_cooldown;
+    SpellKind spell_idx;
+    EffectOrEffElModel effect_id;
+    short magic_use_func_idx;
 };
 
 /**
@@ -350,6 +376,7 @@ struct SpecialConfigStats {
     TextStringId tooltip_stridx;
     short speech;
     short effect_id;
+    short value;
 };
 
  /**
@@ -361,11 +388,11 @@ struct SpellConfig {
     /** Informs if the spell can be targeted on a thing. */
     unsigned char cast_at_thing;
     /** Shot model to be fired while casting. */
-    unsigned char shot_model;
+    ThingModel shot_model;
     /** Informs if caster is affected by the spell. */
     unsigned char caster_affected;
     /** Effect model created while casting. */
-    short cast_effect_model;
+    EffectOrEffElModel cast_effect_model;
     /** If caster is affected by the spell, indicates sound sample to be played. */
     unsigned short caster_affect_sound;
     /** Sprite index of big symbol icon representing the spell. */
@@ -373,6 +400,9 @@ struct SpellConfig {
     /** Sprite index of medium symbol icon representing the spell. */
     short medsym_sprite_idx;
     short cast_sound;
+    ThingModel crtr_summon_model;
+    short crtr_summon_level;
+    short crtr_summon_amount;
     short linked_power;
     short duration;
     short aura_effect;
@@ -397,10 +427,10 @@ struct MagicConfig {
     struct PowerConfigStats power_cfgstats[MAGIC_ITEMS_MAX];
     long special_types_count;
     struct SpecialConfigStats special_cfgstats[MAGIC_ITEMS_MAX];
-    struct InstanceInfo instance_info[MAGIC_ITEMS_MAX]; //count in crtr_conf
+    struct InstanceInfo instance_info[INSTANCE_TYPES_MAX]; //count in crtr_conf
+    struct MagicStats keeper_power_stats[POWER_TYPES_MAX]; // should get merged into PowerConfigStats
     int debuff_count;
     int *debuffs;
-    struct MagicStats keeper_power_stats[POWER_TYPES_MAX]; // should get merged into PowerConfigStats
 };
 
 /******************************************************************************/
