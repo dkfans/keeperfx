@@ -166,7 +166,7 @@ TbBool validate_source_even_in_prison(struct Thing *source, struct Thing *target
 TbBool validate_target_basic(struct Thing *source, struct Thing *target, CrInstance inst_idx, int32_t param1, int32_t param2);
 TbBool validate_target_generic(struct Thing *source, struct Thing *target, CrInstance inst_idx, int32_t param1, int32_t param2);
 TbBool validate_target_even_in_prison(struct Thing *source, struct Thing *target, CrInstance inst_idx, int32_t param1, int32_t param2);
-TbBool validate_target_benefits_from_defensive_missile(struct Thing *source, struct Thing *target, CrInstance inst_idx, int32_t param1, int32_t param2);
+TbBool validate_target_benefits_from_missile_defense(struct Thing *source, struct Thing *target, CrInstance inst_idx, int32_t param1, int32_t param2);
 TbBool validate_target_benefits_from_defensive(struct Thing *source, struct Thing *target, CrInstance inst_idx, int32_t param1, int32_t param2);
 TbBool validate_target_benefits_from_higher_altitude(struct Thing *source, struct Thing *target, CrInstance inst_idx, int32_t param1, int32_t param2);
 TbBool validate_target_benefits_from_offensive(struct Thing *source, struct Thing *target, CrInstance inst_idx, int32_t param1, int32_t param2);

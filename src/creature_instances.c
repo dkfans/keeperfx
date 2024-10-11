@@ -118,7 +118,7 @@ const struct NamedCommand creature_instances_validate_func_type[] = {
     {"validate_source_even_in_prison",                          2},
     {"validate_target_generic",                                 3},
     {"validate_target_even_in_prison",                          4},
-    {"validate_target_benefits_from_defensive_missile",         5},
+    {"validate_target_benefits_from_missile_defense",           5},
     {"validate_target_benefits_from_defensive",                 6},
     {"validate_target_benefits_from_healing",                   7},
     {"validate_target_benefits_from_higher_altitude",           8},
@@ -133,7 +133,7 @@ Creature_Validate_Func creature_instances_validate_func_list[] = {
     validate_source_even_in_prison,
     validate_target_generic,
     validate_target_even_in_prison,
-    validate_target_benefits_from_defensive_missile,
+    validate_target_benefits_from_missile_defense,
     validate_target_benefits_from_defensive,
     validate_target_benefits_from_healing,
     validate_target_benefits_from_higher_altitude,
@@ -1386,7 +1386,7 @@ TbBool validate_source_even_in_prison
  * @param param2 Optional 2nd parameter.
  * @return TbBool True if the creature can, false if otherwise.
  */
-TbBool validate_target_benefits_from_defensive_missile
+TbBool validate_target_benefits_from_missile_defense
     (
     struct Thing *source,
     struct Thing *target,
