@@ -192,7 +192,10 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     }
     else
     {
-        set_player_mode(player, PVT_DungeonTop);
+        if (!flag_is_set(player->allocflags, PlaF_CompCtrl))
+        {
+            set_player_mode(player, PVT_DungeonTop);
+        }
     }
     set_player_state(player, PSt_CtrlDungeon, 0);
     if ((game.system_flags & GSF_NetworkActive) == 0)
