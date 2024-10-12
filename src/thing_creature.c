@@ -2704,9 +2704,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     anger_set_creature_anger_all_types(thing, 0);
-    creature_throw_out_gold(thing);
     remove_parent_thing_from_things_in_list(&game.thing_lists[TngList_Shots],thing->index);
-
     ThingModel crmodel = thing->model;
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     if (!thing_exists(thing)) {
@@ -2719,6 +2717,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
         creature_rebirth_at_lair(thing);
         return INVALID_THING;
     }
+    creature_throw_out_gold(thing);
     // Beyond this point, the creature thing is bound to be deleted
     if (((flags & CrDed_NotReallyDying) == 0) || ((game.conf.rules.game.classic_bugs_flags & ClscBug_ResurrectRemoved) != 0))
     {
