@@ -3564,24 +3564,18 @@ ThingIndex process_player_use_instance(struct Thing *thing, CrInstance inst_id, 
 {
     ThingIndex target_idx = get_human_controlled_creature_target(thing, inst_id, packet);
     struct InstanceInfo *inst_inf = creature_instance_info_get(inst_id);
-    if (flag_is_set(inst_inf->instance_property_flags,InstPF_RangedBuff))
+    TbBool ok = false;
+    struct Thing *target = thing_get(target_idx);
+    if (flag_is_set(inst_inf->instance_property_flags, InstPF_RangedBuff) && inst_inf->validate_target_func != 0)
     {
-        TbBool ok = false;
-        // Ranged buffs need further validation.
-        struct Thing *target = thing_get(target_idx);
-        if (inst_id == CrInst_RANGED_HEAL)
-        {
-            ok = validate_target_ranged_heal(thing, target, CrInst_RANGED_HEAL);
-        }
-        else
-        {
-            ok = validate_target_generic(thing, target, inst_id);
-        }
-        if (!ok)
-        {
-            target = 0;
-        }
+        ok = creature_instances_validate_func_list[inst_inf->validate_target_func](thing, target, inst_id,
+            inst_inf->validate_target_func_params[0], inst_inf->validate_target_func_params[1]);
     }
+    if (!ok)
+    {
+        target = 0;
+    }
+
     if (flag_is_set(inst_inf->instance_property_flags, InstPF_NeedsTarget))
     {
         if (target_idx == 0)
@@ -5985,7 +5979,7 @@ TngUpdateRet update_creature(struct Thing *thing)
         return TUFRet_Deleted;
     }
 
-    if (process_creature_self_spell_casting(thing) == 0)
+    if (!process_creature_self_spell_casting(thing))
     {
         // If this creature didn't cast anything to itself, try to help others.
         process_creature_ranged_buff_spell_casting(thing);
