@@ -407,7 +407,7 @@ struct SpellConfig {
 struct MagicStats {
   long cost[MAGIC_OVERCHARGE_LEVELS];
   long duration;
-  long strength[MAGIC_OVERCHARGE_LEVELS];
+  long strength[MAGIC_OVERCHARGE_LEVELS+1];
 };
 
 struct MagicConfig {
