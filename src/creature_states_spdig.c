@@ -567,22 +567,18 @@ long check_out_unclaimed_gold(struct Thing *spdigtng, long range)
           break;
         i = thing->next_of_class;
         // Per-thing code
-        if (thing_is_object(thing) && !thing_is_picked_up(thing) && thing_revealed(thing, spdigtng->owner))
+        if (!thing_is_picked_up(thing) && thing_can_be_picked_to_place_in_player_room_of_role(thing, thing->owner, RoRoF_GoldStorage, TngFRPickF_Default))
         {
             if (object_is_gold_pile(thing))
             {
-                struct SlabMap* slb = get_slabmap_thing_is_on(thing);
-                if ((slabmap_owner(slb) == spdigtng->owner) || (slabmap_owner(slb) == game.neutral_player_num))
+                if ((range < 0) || get_chessboard_distance(&thing->mappos, &spdigtng->mappos) < range)
                 {
-                    if ((range < 0) || get_chessboard_distance(&thing->mappos, &spdigtng->mappos) < range)
+                    if (!imp_will_soon_be_working_at_excluding(spdigtng, thing->mappos.x.stl.num, thing->mappos.y.stl.num))
                     {
-                        if (!imp_will_soon_be_working_at_excluding(spdigtng, thing->mappos.x.stl.num, thing->mappos.y.stl.num))
-                        {
-                            if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default)) {
-                                spdigtng->continue_state = CrSt_ImpPicksUpGoldPile;
-                                //cctrl->pickup_object_id = thing->index; -- don't do that; picking up gold destroys the object
-                                return 1;
-                            }
+                        if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default)) {
+                            spdigtng->continue_state = CrSt_ImpPicksUpGoldPile;
+                            //cctrl->pickup_object_id = thing->index; -- don't do that; picking up gold destroys the object
+                            return 1;
                         }
                     }
                 }

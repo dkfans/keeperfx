@@ -579,7 +579,7 @@ TbBool object_is_room_equipment(const struct Thing *thing, RoomKind rkind)
 TbBool object_is_room_inventory(const struct Thing *thing, RoomRole rrole)
 {
 
-    if((rrole & RoRoF_GoldStorage) && object_is_gold_hoard(thing))
+    if((rrole & RoRoF_GoldStorage) && object_is_gold(thing))
         return true;
     if((rrole & RoRoF_PowersStorage) && (thing_is_spellbook(thing) || thing_is_special_box(thing)))
         return true;
