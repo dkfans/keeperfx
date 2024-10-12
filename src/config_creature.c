@@ -77,25 +77,26 @@ const struct NamedCommand creaturetype_experience_commands[] = {
   };
 
 const struct NamedCommand creaturetype_instance_commands[] = {
-  {"NAME",            1},
-  {"TIME",            2},
-  {"ACTIONTIME",      3},
-  {"RESETTIME",       4},
-  {"FPTIME",          5},
-  {"FPACTIONTIME",    6},
-  {"FPRESETTIME",     7},
-  {"FORCEVISIBILITY", 8},
-  {"TOOLTIPTEXTID",   9},
-  {"SYMBOLSPRITES",  10},
-  {"GRAPHICS",       11},
-  {"FUNCTION",       12},
-  {"RANGEMIN",       13},
-  {"RANGEMAX",       14},
-  {"PROPERTIES",     15},
-  {"FPINSTANTCAST",  16},
-  {"PRIMARYTARGET",  17},
-  {"VALIDATEFUNC",   18},
-  {"SEARCHTARGETSFUNC", 19},
+  {"Name",            1},
+  {"Time",            2},
+  {"ActionTime",      3},
+  {"ResetTime",       4},
+  {"FPTime",          5},
+  {"FPActiontime",    6},
+  {"FPResettime",     7},
+  {"ForceVisibility", 8},
+  {"TooltipTextID",   9},
+  {"SymbolSprites",  10},
+  {"Graphics",       11},
+  {"Function",       12},
+  {"RangeMin",       13},
+  {"RangeMax",       14},
+  {"Properties",     15},
+  {"FpinstantCast",  16},
+  {"PrimaryTarget",  17},
+  {"ValidateSourceFunc",   18},
+  {"ValidateTargetFunc",   19},
+  {"SearchTargetsFunc",    20},
   {NULL,              0},
   };
 
@@ -830,9 +831,12 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             inst_inf->tooltip_stridx = 0;
             inst_inf->range_min = -1;
             inst_inf->range_max = -1;
-            inst_inf->validate_func_idx[0] = 1;
-            inst_inf->validate_func_idx[1] = 2;
-            inst_inf->search_func_idx = 1;
+            inst_inf->validate_source_func = 0;
+            inst_inf->validate_source_func_params[0] = 0;
+            inst_inf->validate_source_func_params[1] = 0;
+            inst_inf->validate_target_func = 0;
+            inst_inf->validate_target_func_params[0] = 0;
+            inst_inf->validate_target_func_params[1] = 0;
         }
     }
     instance_desc[INSTANCE_TYPES_MAX - 1].name = NULL; // must be null for get_id
@@ -1144,26 +1148,64 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                     COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
-        case 18: // VALIDATE_FUNC
+        case 18: // ValidateSourceFunc
             k = recognize_conf_parameter(buf, &pos, len, creature_instances_validate_func_type);
             if (k > 0)
             {
-                inst_inf->validate_func_idx[0] = k;
+                inst_inf->validate_source_func = k;
                 n++;
             }
-            k = recognize_conf_parameter(buf, &pos, len, creature_instances_validate_func_type);
-            if (k > 0)
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
-                inst_inf->validate_func_idx[1] = k;
+                k = atoi(word_buf);
+                inst_inf->validate_source_func_params[0] = k;
                 n++;
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    inst_inf->validate_source_func_params[1] = k;
+                    n++;
+                }
             }
             break;
-        case 19: // SEARCH_TARGETS_FUNC
+        case 19: // ValidateTargetFunc
+            k = recognize_conf_parameter(buf, &pos, len, creature_instances_validate_func_type);
+            if (k > 0)
+            {
+                inst_inf->validate_target_func = k;
+                n++;
+            }
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                inst_inf->validate_target_func_params[0] = k;
+                n++;
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    inst_inf->validate_target_func_params[1] = k;
+                    n++;
+                }
+            }
+            break;
+        case 20: // SearchTargetsFunc
             k = recognize_conf_parameter(buf, &pos, len, creature_instances_search_targets_func_type);
             if (k > 0)
             {
-                inst_inf->search_func_idx = k;
+                inst_inf->search_func = k;
                 n++;
+            }
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                inst_inf->search_func_params[0] = k;
+                n++;
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    inst_inf->search_func_params[1] = k;
+                    n++;
+                }
             }
             break;
         case ccr_comment:
