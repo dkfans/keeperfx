@@ -217,6 +217,7 @@ const struct NamedCommand rules_sacrifices_commands[] = {
 
 const struct NamedCommand sacrifice_unique_desc[] = {
   {"ALL_CREATRS_ANGRY",     UnqF_MkAllAngry},
+  {"ALL_CREATRS_HAPPY",     UnqF_MkAllHappy},
   {"COMPLETE_RESEARCH",     UnqF_ComplResrch},
   {"COMPLETE_MANUFACTR",    UnqF_ComplManufc},
   {"KILL_ALL_CHICKENS",     UnqF_KillChickns},
