@@ -55,7 +55,7 @@ static int lua_COMPUTER_PLAYER(lua_State *L)
         return 0;
     }
 
-    char* comp_model = luaL_checkstring(L,2);
+    const char* comp_model = luaL_checkstring(L,2);
 
     if(strcasecmp(comp_model,"ROAMING") == 0)
     {
@@ -65,11 +65,13 @@ static int lua_COMPUTER_PLAYER(lua_State *L)
         player->allocflags |= PlaF_Allocated;
         player->allocflags |= PlaF_CompCtrl;
         player->id_number = player_idx;
+        return 0;
         
     }
     else
     {
         luaL_error(L,"invalid COMPUTER_PLAYER param '%s'",comp_model);
+        return 0;
     }
 }
 
