@@ -99,11 +99,17 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
  */
 TbBool generation_due_in_game(void)
 {
-    return ( (game.play_gameturn-game.entrance_last_generate_turn) >= game.generate_speed );
+    return ((game.play_gameturn - game.entrance_last_generate_turn) >= game.generate_speed);
 }
 
 TbBool generation_due_for_dungeon(struct Dungeon * dungeon)
 {
+    if (!creature_count_below_map_limit(0))
+    {
+        SYNCDBG(9, "At map limit");
+        return false;
+    }
+
     if ( (game.armageddon_cast_turn == 0) || (game.armageddon.count_down + game.armageddon_cast_turn > game.play_gameturn) )
     {
         if ( (dungeon->turns_between_entrance_generation != -1) &&
@@ -182,6 +188,23 @@ static long calculate_excess_attraction_for_creature(ThingModel crmodel, PlayerN
         }
     }
     return excess_attraction;
+}
+
+long count_player_available_creatures_of_model(PlayerNumber plyr_idx, ThingModel crmodel)
+{
+    struct Dungeon *dungeon = get_dungeon(plyr_idx);
+    long count = 0;
+    for (ThingModel i = 0; i < CREATURE_TYPES_MAX; i++)
+    {
+        if (!creature_model_matches_model(i, plyr_idx, crmodel))
+            continue;
+
+        if (creature_will_generate_for_dungeon(dungeon, i))
+        {
+            count+= game.pool.crtr_kind[i];
+        }
+    }
+    return min(count, dungeon->max_creatures_attracted - (long)dungeon->num_active_creatrs);
 }
 
 TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingModel crmodel)

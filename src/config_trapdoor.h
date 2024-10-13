@@ -67,8 +67,11 @@ enum DoorModelFlags {
     DoMF_ResistNonMagic = 0x0001,
     DoMF_Secret         = 0x0002,
     DoMF_Thick          = 0x0004,
+    DoMF_Midas          = 0x0008,
 };
 
+/** Also see TrapStats
+*/
 struct TrapConfigStats {
     char code_name[COMMAND_WORD_LEN];
     TextStringId name_stridx;

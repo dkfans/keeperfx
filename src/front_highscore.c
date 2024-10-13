@@ -429,7 +429,7 @@ void frontend_draw_highscores_scroll_box_tab(struct GuiButton *gbtn)
 void frontend_draw_high_scores_mappack(struct GuiButton *gbtn)
 {
     const char *text;
-    if (campaign.display_name != NULL)
+    if (campaign.display_name[0] != '\0')
         text = campaign.display_name;
     else
         text = frontend_button_caption_text(gbtn);

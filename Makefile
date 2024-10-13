@@ -72,6 +72,7 @@ obj/json/json.o \
 obj/json/value.o \
 obj/json/json-dom.o \
 obj/centitoml/toml_api.o \
+obj/astronomy.o \
 obj/unzip.o \
 obj/ioapi.o
 
@@ -129,7 +130,6 @@ obj/bflib_netsp_ipx.o \
 obj/bflib_netsync.o \
 obj/bflib_network.o \
 obj/bflib_planar.o \
-obj/bflib_pom.o \
 obj/bflib_render.o \
 obj/bflib_render_gpoly.o \
 obj/bflib_render_gtblock.o \
@@ -276,6 +276,7 @@ obj/map_data.o \
 obj/map_events.o \
 obj/map_locations.o \
 obj/map_utils.o \
+obj/moonphase.o \
 obj/music_player.o \
 obj/net_game.o \
 obj/net_sync.o \
@@ -359,7 +360,7 @@ CU_OBJS = \
 LINKLIB =  -L"sdl/lib" -mwindows obj/enet.a deps/luajit/src/lua51.lib deps/luajit/src/minilua.lib deps/luajit/src/luajit.lib deps/luajit/src/buildvm.lib\
 	-lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net -lSDL2_image \
 	-L"deps/zlib" -lz -lws2_32 -ldbghelp
-INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include" -I"deps/centijson/src" -I"deps/centitoml"
+INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include" -I"deps/centijson/src" -I"deps/centitoml" -I"deps/astronomy"
 CXXINCS =  $(INCS)
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
@@ -543,6 +544,11 @@ obj/std/unzip.o obj/hvlog/unzip.o: deps/zlib/contrib/minizip/unzip.c
 	$(CC) $(CFLAGS) -Wno-shadow -I"deps/zlib" -o"$@" "$<"
 	-$(ECHO) ' '
 
+obj/std/astronomy.o obj/hvlog/astronomy.o: deps/astronomy/astronomy.c
+	-$(ECHO) 'Building file: $<'
+	$(CC) $(CFLAGS) -o"$@" "$<"
+	-$(ECHO) ' '
+
 obj/std/ioapi.o obj/hvlog/ioapi.o: deps/zlib/contrib/minizip/ioapi.c
 	-$(ECHO) 'Building file: $<'
 	$(CC) $(CFLAGS) -I"deps/zlib" -o"$@" "$<"
@@ -620,7 +626,7 @@ clean-libexterns: libexterns.mk
 deps/centijson/src/json.c deps/centijson/src/value.c deps/centijson/src/json-dom.c: build-before
 deps/libspng/spng/spng.c: build-before
 deps/zlib/contrib/minizip/unzip.c deps/zlib/contrib/minizip/ioapi.c: build-before
-
+deps/astronomy/astronomy.c: build-before
 
 deps/zlib/configure.log:
 	git submodule sync && git submodule update --init

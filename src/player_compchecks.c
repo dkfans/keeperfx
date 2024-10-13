@@ -214,10 +214,10 @@ int calculate_number_of_creatures_to_move(struct Dungeon *dungeon, int percent_t
             break;
         }
 
-        if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing))
+        if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
             struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-            if ((cctrl->job_assigned == crstat->job_primary) || (cctrl->job_assigned == crstat->job_secondary))
+            if ((cctrl->job_assigned == crstat->job_primary) || (cctrl->job_assigned == crstat->job_secondary) || (cctrl->job_assigned == 0))
             {
                 creatures_doing_primary_or_secondary_job += 1;
             } else {
@@ -529,6 +529,11 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
         SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
         return CTaskRet_Unk4;
     }
+    if (!creature_count_below_map_limit(0))
+    {
+        SYNCDBG(7, "Computer player %d can't create imps due to map limit", (int)dungeon->owner);
+        return CTaskRet_Unk4;
+    }
     long controlled_diggers = dungeon->num_active_diggers - count_player_diggers_not_counting_to_total(dungeon->owner);
     int preferred_imps;
     int minimal_imps;
@@ -755,7 +760,7 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
     }
     if (creatures_to_fight_amount > max_attack_amount)
         creatures_to_fight_amount = max_attack_amount;
-    if (!create_task_magic_support_call_to_arms(comp, &pos, cta_duration, 0, creatures_to_fight_amount)) {
+    if (!create_task_magic_support_call_to_arms(comp, &pos, cta_duration, creatures_to_fight_amount)) {
         return CTaskRet_Unk4;
     }
     SYNCLOG("Player %d decided to attack %s owned by player %d",(int)dungeon->owner,room_code_name(room->kind),(int)room->owner);
@@ -785,7 +790,7 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
             struct StateInfo* stati = get_thing_state_info_num(n);
             if (stati->state_type == CrStTyp_Work)
             {
-                if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, SPELL_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
+                if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, POWER_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
                 {
                     return thing;
                 }
@@ -824,7 +829,7 @@ struct Thing *computer_check_creatures_in_room_for_flight(struct Computer2 *comp
             struct StateInfo* stati = get_thing_state_info_num(n);
             if (stati->state_type == CrStTyp_Work)
             {
-                if (try_game_action(comp, dungeon->owner, GA_UsePwrFlight, SPELL_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
+                if (try_game_action(comp, dungeon->owner, GA_UsePwrFlight, POWER_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
                 {
                     return thing;
                 }
@@ -863,7 +868,7 @@ struct Thing *computer_check_creatures_in_room_for_vision(struct Computer2 *comp
             struct StateInfo* stati = get_thing_state_info_num(n);
             if (stati->state_type == CrStTyp_Work)
             {
-                if (try_game_action(comp, dungeon->owner, GA_UsePwrVision, SPELL_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
+                if (try_game_action(comp, dungeon->owner, GA_UsePwrVision, POWER_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
                 {
                     return thing;
                 }
