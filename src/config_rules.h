@@ -24,8 +24,8 @@
 
 #include "config.h"
 
-#define MAX_SACRIFICE_VICTIMS 6
-#define MAX_SACRIFICE_RECIPES 60
+#define MAX_SACRIFICE_VICTIMS 20
+#define MAX_SACRIFICE_RECIPES 100
 
 #ifdef __cplusplus
 extern "C" {
