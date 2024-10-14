@@ -52,6 +52,7 @@ enum UniqueFunctions {
     UnqF_KillChickns,
     UnqF_CheaperImp,
     UnqF_CostlierImp,
+    UnqF_MkAllHappy,
 };
 
 enum SacrificeReturn {
