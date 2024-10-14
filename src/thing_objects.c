@@ -1578,6 +1578,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
 
     const struct MagicStats *pwrdynst = get_power_dynamic_stats(PwrK_SIGHT);
     int max_time_active = pwrdynst->strength[sight_casted_splevel];
+    int strength = min(pwrdynst->strength[sight_casted_splevel], (MAX_SOE_RADIUS * COORD_PER_STL / 4));
 
     if ( game.play_gameturn - objtng->creation_turn >= max_time_active
         && game.play_gameturn - dungeon->sight_casted_gameturn < max_time_active )
@@ -1626,7 +1627,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
             const int anim_radius = 4 * anim_time;
             const int close_radius = 32 * (power_sight_close_instance_time[dungeon->sight_casted_splevel] - (anim_time - max_time_active));
             const int max_duration_radius = max_time_active / 4;
-            const int strength_radius = pwrdynst->strength[dungeon->sight_casted_splevel] / 4;
+            const int strength_radius = strength/2;
             const int radius = max(0, min(min(min(close_radius, max_duration_radius), anim_radius), strength_radius));
             for (int i = 0; i < 32; ++i) {
                 const int step = ((2*LbFPMath_PI) / 32);
@@ -1646,7 +1647,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
         const int anim_time = (game.play_gameturn - dungeon->sight_casted_gameturn);
         const int anim_radius = 4 * anim_time;
         const int max_duration_radius = max_time_active / 4;
-        const int strength_radius = pwrdynst->strength[dungeon->sight_casted_splevel] / 4;
+        const int strength_radius = strength/2;
         const int radius = max(0, min(min(max_duration_radius, anim_radius), strength_radius));
         for (int i = 0; i < 4; ++i) {
             const int step = ((2*LbFPMath_PI) / 32);
@@ -1659,8 +1660,8 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
             pos.z.val = 1408;
             create_effect_element(&pos, twinkle_eff_elements[get_player_color_idx(objtng->owner)], objtng->owner);
             if ( pos_x >= 0 && pos_x < gameadd.map_subtiles_x * COORD_PER_STL && pos_y >= 0 && pos_y < gameadd.map_subtiles_y * COORD_PER_STL ) {
-                const int shift_x = pos.x.stl.num - objtng->mappos.x.stl.num + 13;
-                const int shift_y = pos.y.stl.num - objtng->mappos.y.stl.num + 13;
+                const int shift_x = pos.x.stl.num - objtng->mappos.x.stl.num + MAX_SOE_RADIUS;
+                const int shift_y = pos.y.stl.num - objtng->mappos.y.stl.num + MAX_SOE_RADIUS;
                 dungeon->soe_explored_flags[shift_y][shift_x] = pos.x.val < gameadd.map_subtiles_x * COORD_PER_STL && pos.y.val < gameadd.map_subtiles_y * COORD_PER_STL;
             }
         }
