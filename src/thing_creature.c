@@ -2721,9 +2721,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     anger_set_creature_anger_all_types(thing, 0);
-    creature_throw_out_gold(thing);
     remove_parent_thing_from_things_in_list(&game.thing_lists[TngList_Shots],thing->index);
-
     ThingModel crmodel = thing->model;
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     if (!thing_exists(thing)) {
@@ -2736,6 +2734,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
         creature_rebirth_at_lair(thing);
         return INVALID_THING;
     }
+    creature_throw_out_gold(thing);
     // Beyond this point, the creature thing is bound to be deleted
     if (((flags & CrDed_NotReallyDying) == 0) || ((game.conf.rules.game.classic_bugs_flags & ClscBug_ResurrectRemoved) != 0))
     {
@@ -2878,6 +2877,13 @@ struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     }
     if (creature_affected_by_spell(creatng, SplK_Rebound)) {
         terminate_thing_spell_effect(creatng, SplK_Rebound);
+    }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn > game.play_gameturn))
+    {
+        create_effect_around_thing(creatng, ball_puff_effects[creatng->owner]);
+        set_flag(flags, CrDed_NotReallyDying | CrDed_NoEffects);
+        return cause_creature_death(creatng, flags);
     }
     struct Dungeon* dungeon = (!is_neutral_thing(creatng)) ? get_players_num_dungeon(creatng->owner) : INVALID_DUNGEON;
     if (!dungeon_invalid(dungeon))
@@ -3564,24 +3570,18 @@ ThingIndex process_player_use_instance(struct Thing *thing, CrInstance inst_id, 
 {
     ThingIndex target_idx = get_human_controlled_creature_target(thing, inst_id, packet);
     struct InstanceInfo *inst_inf = creature_instance_info_get(inst_id);
-    if (flag_is_set(inst_inf->instance_property_flags,InstPF_RangedBuff))
+    TbBool ok = false;
+    struct Thing *target = thing_get(target_idx);
+    if (flag_is_set(inst_inf->instance_property_flags, InstPF_RangedBuff) && inst_inf->validate_target_func != 0)
     {
-        TbBool ok = false;
-        // Ranged buffs need further validation.
-        struct Thing *target = thing_get(target_idx);
-        if (inst_id == CrInst_RANGED_HEAL)
-        {
-            ok = validate_target_ranged_heal(thing, target, CrInst_RANGED_HEAL);
-        }
-        else
-        {
-            ok = validate_target_generic(thing, target, inst_id);
-        }
-        if (!ok)
-        {
-            target = 0;
-        }
+        ok = creature_instances_validate_func_list[inst_inf->validate_target_func](thing, target, inst_id,
+            inst_inf->validate_target_func_params[0], inst_inf->validate_target_func_params[1]);
     }
+    if (!ok)
+    {
+        target = 0;
+    }
+
     if (flag_is_set(inst_inf->instance_property_flags, InstPF_NeedsTarget))
     {
         if (target_idx == 0)
@@ -5985,7 +5985,7 @@ TngUpdateRet update_creature(struct Thing *thing)
         return TUFRet_Deleted;
     }
 
-    if (process_creature_self_spell_casting(thing) == 0)
+    if (!process_creature_self_spell_casting(thing))
     {
         // If this creature didn't cast anything to itself, try to help others.
         process_creature_ranged_buff_spell_casting(thing);

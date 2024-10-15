@@ -1090,9 +1090,9 @@ TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, cons
             const struct DoorConfigStats* doorst = get_door_model_stats(tngdst->model);
             if (flag_is_set(doorst->model_flags, DoMF_Midas))
             {
-                GoldAmount received = take_money_from_dungeon(tngdst->owner, damage, 0);
-                damage -= received;
-                for (int i = received; i > 0; i -= 32)
+                HitPoints absorbed = reduce_damage_for_midas(tngdst->owner, damage, doorst->health);
+                damage -= absorbed;
+                for (int i = absorbed; i > 0; i -= 32)
                 {
                     create_effect(pos, TngEff_CoinFountain, tngdst->owner);
                 }
