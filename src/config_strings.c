@@ -38,6 +38,7 @@ extern "C" {
 char *gui_strings_data;
 char *gui_strings[GUI_STRINGS_COUNT];
 TbBool reload_campaign_strings;
+long campgn_loaded_size;
 /******************************************************************************/
 TbBool reset_strings(char **strings, int max)
 {
@@ -143,8 +144,8 @@ TbBool setup_campaign_strings_data(struct GameCampaign *campgn)
     return false;
   }
   char* strings_data_end = campgn->strings_data + filelen + 255;
-  long loaded_size = LbFileLoadAt(fname, campgn->strings_data);
-  if (loaded_size < 16)
+  campgn_loaded_size = LbFileLoadAt(fname, campgn->strings_data);
+  if (campgn_loaded_size < 16)
   {
     ERRORLOG("Campaign Strings file couldn't be loaded or is too small");
     return false;
@@ -191,6 +192,22 @@ const char * get_string(TextStringId stridx)
         return cmpgn_string(stridx);
     else
         return gui_string(stridx-STRINGS_MAX);
+}
+
+unsigned long count_strings(char *strings, int size)
+{
+    unsigned long result = 0;
+    char *s = strings;
+    char *end = strings + size;
+    while (s <= end)
+    {
+        if (*s == '\0')
+        {
+            result++;
+        }
+        s++;
+    }
+    return result;
 }
 /******************************************************************************/
 #ifdef __cplusplus

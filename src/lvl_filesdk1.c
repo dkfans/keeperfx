@@ -1394,26 +1394,52 @@ void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short 
         ERRORLOG("Map Strings file %s does not exist or can't be opened", fname);
         return;
     }
-    campgn->strings_data = (char*)LbMemoryAlloc(filelen + 256);
+    // campgn->strings_data = (char*)LbMemoryGrow(campgn->strings_data, total_len + 256);
+    /*
     if (campgn->strings_data == NULL)
     {
         ERRORLOG("Can't allocate memory for Map Strings data");
         return;
     }
-    char* strings_data_end = campgn->strings_data + filelen + 255;
-    long loaded_size = LbFileLoadAt(fname, campgn->strings_data);
+    */
+    char *buf = (char*)LbMemoryAlloc(filelen + 256);
+    if (buf == NULL)
+    {
+        ERRORLOG("Can't allocate memory for Map Strings data");
+        return;
+    }
+    long loaded_size = LbFileLoadAt(fname, buf);
     if (loaded_size < 16)
     {
         ERRORLOG("Map Strings file couldn't be loaded or is too small");
         return;
     }
+    long total_len = campgn_loaded_size + loaded_size;
+    buf = (char*)LbMemoryGrow(buf, total_len + 256);
+    unsigned long loaded_strings_count = count_strings(buf, loaded_size);
+    size_t data_size = loaded_size;
+    buf += data_size;
+    for (unsigned int i = loaded_strings_count; i < STRINGS_MAX; i++)
+    {
+        // size_t len = strlen(cmpgn_string(i));
+        char *str = strcpy(buf, cmpgn_string(i));
+        SYNCLOG("Copied string %s", str);
+        size_t len = strlen(str);
+        data_size += len;
+        buf += len;
+    }
+    free(campgn->strings_data);
+    campgn->strings_data = (char*)LbMemoryAlloc(data_size + 256);
+    memcpy(campgn->strings_data, buf, data_size + 256);
+    free(buf);
+    char* strings_data_end = campgn->strings_data + data_size + 255;
     // Resetting all values to empty strings
     reset_strings(campgn->strings, STRINGS_MAX);
     // Analyzing strings data and filling correct values
     TbBool result = create_strings_list(campgn->strings, campgn->strings_data, strings_data_end, STRINGS_MAX);
     if (result)
     {
-        SYNCMSG("Loaded strings from %s", fname);
+        SYNCMSG("Loaded %lu strings from %s", loaded_strings_count, fname);
         reload_campaign_strings = true;
     }
     SYNCDBG(19, "Finished");
