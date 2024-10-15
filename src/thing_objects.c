@@ -1627,7 +1627,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
             const int anim_radius = 4 * anim_time;
             const int close_radius = 32 * (power_sight_close_instance_time[dungeon->sight_casted_splevel] - (anim_time - max_time_active));
             const int max_duration_radius = max_time_active / 4;
-            const int strength_radius = strength/2;
+            const int strength_radius = strength/4;
             const int radius = max(0, min(min(min(close_radius, max_duration_radius), anim_radius), strength_radius));
             for (int i = 0; i < 32; ++i) {
                 const int step = ((2*LbFPMath_PI) / 32);
@@ -1647,7 +1647,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
         const int anim_time = (game.play_gameturn - dungeon->sight_casted_gameturn);
         const int anim_radius = 4 * anim_time;
         const int max_duration_radius = max_time_active / 4;
-        const int strength_radius = strength/2;
+        const int strength_radius = strength/4;
         const int radius = max(0, min(min(max_duration_radius, anim_radius), strength_radius));
         for (int i = 0; i < 4; ++i) {
             const int step = ((2*LbFPMath_PI) / 32);
