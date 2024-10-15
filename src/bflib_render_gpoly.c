@@ -4414,6 +4414,7 @@ locret69a:\n \
 }
 
 void poly_render() {
+#if 0
   uint32_t texture;  // Address as 32-bit unsigned?
   int iVar2;
   int iVar3;
@@ -4704,13 +4705,13 @@ void poly_render() {
       }
     }
   }
+#endif
 
-  /*
-  #if __GNUC__
-    asm volatile(
-        " \
+///*
+#if __GNUC__
+  asm volatile(
+      " \
       pusha   \n \
-      int     $3\n \
       xorl    %%ecx,%%ecx\n \
       movl    _gploc_8C,%%edx\n \
       movl    _gploc_88,%%ebx\n \
@@ -5181,11 +5182,11 @@ void poly_render() {
   locret69b:\n \
       popa    \n \
   "
-        :
-        :
-        : "memory", "cc");
-  #endif
-  */
+      :
+      :
+      : "memory", "cc");
+#endif
+  //*/
 }
 
 /******************************************************************************/
