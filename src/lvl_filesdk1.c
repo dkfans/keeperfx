@@ -1424,7 +1424,7 @@ void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short 
         // size_t len = strlen(cmpgn_string(i));
         char *str = strcpy(buf, cmpgn_string(i));
         SYNCLOG("Copied string %s", str);
-        size_t len = strlen(str);
+        size_t len = strlen(str) + 1;
         data_size += len;
         buf += len;
     }
