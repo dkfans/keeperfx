@@ -29,6 +29,7 @@
 #include "config.h"
 #include "config_campaigns.h"
 #include "game_merge.h"
+#include "lvl_filesdk1.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -173,6 +174,7 @@ const char * gui_string(unsigned int index)
     }
     return gui_strings[index];
 }
+
 const char * cmpgn_string(unsigned int index)
 {
     if (index >= STRINGS_MAX)
@@ -189,7 +191,16 @@ const char * cmpgn_string(unsigned int index)
 const char * get_string(TextStringId stridx)
 {
     if (stridx <= STRINGS_MAX)
+    {
+        if (level_strings[stridx] != NULL)
+        {
+            if (*level_strings[stridx] != '\0')
+            {
+                return level_strings[stridx];
+            }
+        }
         return cmpgn_string(stridx);
+    }
     else
         return gui_string(stridx-STRINGS_MAX);
 }
