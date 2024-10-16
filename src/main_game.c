@@ -252,6 +252,7 @@ static void post_init_level(void)
     clear_creature_pool();
     setup_computer_players2();
     load_script(get_loaded_level_number());
+    recount_creatures_and_diggers();
     init_dungeons_research();
     init_dungeons_essential_position();
     if (!is_map_pack())
