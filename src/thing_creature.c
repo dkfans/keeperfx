@@ -4003,7 +4003,10 @@ void recalculate_player_creature_digger_lists(PlayerNumber plr_idx)
                 struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
                 cctrl->players_next_creature_idx = 0;
                 cctrl->players_prev_creature_idx = previous_digger;
-                dungeon->num_active_diggers++;
+                if (!flag_is_set(cctrl->flgfield_2,TF2_Spectator) && !(flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature)))
+                {
+                    dungeon->num_active_diggers++;
+                }
                 previous_digger = i;
             }
             else
@@ -4021,7 +4024,10 @@ void recalculate_player_creature_digger_lists(PlayerNumber plr_idx)
                 struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
                 cctrl->players_next_creature_idx = 0;
                 cctrl->players_prev_creature_idx = previous_creature;
-                dungeon->num_active_creatrs++;
+                if (!flag_is_set(cctrl->flgfield_2,TF2_Spectator) && !(flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature)))
+                {
+                    dungeon->num_active_creatrs++;
+                }
                 previous_creature = i;
             }
         }
