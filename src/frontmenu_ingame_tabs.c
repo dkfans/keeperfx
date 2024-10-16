@@ -2033,7 +2033,7 @@ void gui_toggle_ally(struct GuiButton *gbtn)
     }
 }
 
-void maintain_player_page2(struct GuiButton *gbtn)
+static unsigned char count_current_players_count()
 {
     unsigned char current_players_count = 0;
     for (size_t i = 0; i < PLAYERS_COUNT; i++)
@@ -2042,6 +2042,12 @@ void maintain_player_page2(struct GuiButton *gbtn)
         if(player_exists(player) && player_is_keeper(i))
             current_players_count++;
     }
+    return current_players_count;
+}
+
+void maintain_player_page2(struct GuiButton *gbtn)
+{
+    unsigned char current_players_count = count_current_players_count();   
     if(current_players_count > 4)
     {
         set_flag(gbtn->flags, (LbBtnF_Visible | LbBtnF_Enabled));
@@ -2054,14 +2060,7 @@ void maintain_player_page2(struct GuiButton *gbtn)
 
 void maintain_query_button(struct GuiButton *gbtn)
 {
-    unsigned char current_players_count = 0;
-    for (size_t i = 0; i < PLAYERS_COUNT; i++)
-    {
-        struct PlayerInfo* player = get_player(i);
-        if(player_exists(player) && player_is_keeper(i))
-            current_players_count++;
-    }
-
+    unsigned char current_players_count = count_current_players_count();
     if(current_players_count > 4)
     {
         gbtn->pos_x = scale_ui_value(74);
@@ -2316,9 +2315,22 @@ void gui_set_query(struct GuiButton *gbtn)
 void gui_switch_players_visible(struct GuiButton *gbtn)
 {
     if(info_page == 0)
+    {
         info_page = 1;
-    else
-        info_page = 0;
+        return;
+    }
+    else if (info_page == 1)
+    {
+        unsigned char current_players_count = count_current_players_count();
+        JUSTLOG("%d",current_players_count);
+        if(current_players_count > 7)
+        {
+            info_page = 2;
+            return;
+        }
+    }
+    info_page = 0;
+    return;
 }
 
 void draw_gold_total(PlayerNumber plyr_idx, long scr_x, long scr_y, long units_per_px, long long value)
