@@ -3883,7 +3883,7 @@ void game_loop(void)
       free_custom_music();
       free_sound_chunks();
       memset(&game.loaded_sound,0,DISKPATH_SIZE * EXTERNAL_SOUNDS_COUNT+1);
-      clear_level_strings_data(true);
+      free_level_strings_data();
       turn_off_all_menus();
       delete_all_structures();
       clear_mapwho();
@@ -3920,7 +3920,7 @@ short reset_game(void)
     LbScreenReset(false);
     LbDataFreeAllV2(game_load_files);
     free_gui_strings_data();
-    clear_level_strings_data(true);
+    free_level_strings_data();
     FreeAudio();
     return LbMemoryReset();
 }

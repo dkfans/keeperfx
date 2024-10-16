@@ -1369,10 +1369,6 @@ static void load_ext_slabs(LevelNumber lvnum)
 
 void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short fgroup)
 {
-    if (campgn->strings_data == NULL)
-    {
-        return;
-    }
     char* fname = prepare_file_fmtpath(fgroup, "map%05lu.%s.dat", (unsigned long)lvnum, get_language_lwrstr(install_info.lang_id));
     if (!LbFileExists(fname))
     {
@@ -1417,7 +1413,6 @@ void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short 
     if (result)
     {
         SYNCMSG("Loaded %lu strings from %s", loaded_strings_count, fname);
-        reload_campaign_strings = true;
     }
     SYNCDBG(19, "Finished");
 }
@@ -1432,11 +1427,6 @@ static TbBool load_level_file(LevelNumber lvnum)
     {
         result = true;
         struct GameCampaign *campgn = &campaign;
-        if (reload_campaign_strings)
-        {
-            setup_campaign_strings_data(campgn);
-        }
-        clear_level_strings_data(true);
         load_map_string_data(campgn, lvnum, fgroup);
         load_map_data_file(lvnum);
         load_map_flag_file(lvnum);
@@ -1503,16 +1493,13 @@ TbBool load_map_file(LevelNumber lvnum)
     return result;
 }
 
-void clear_level_strings_data(TbBool free_data)
+void free_level_strings_data()
 {
-    // Resetting all values to empty strings
+  // Resetting all values to empty strings
   reset_strings(level_strings, STRINGS_MAX);
-  if (free_data)
-  {
-      // Freeing memory
-      LbMemoryFree(level_strings_data);
-      level_strings_data = NULL;
-  }
+  // Freeing memory
+  LbMemoryFree(level_strings_data);
+  level_strings_data = NULL;
 }
 /******************************************************************************/
 #ifdef __cplusplus

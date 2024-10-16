@@ -486,8 +486,6 @@ enum CampaignStrings {
 };
 
 /******************************************************************************/
-extern TbBool reload_campaign_strings;
-extern long campgn_loaded_size;
 /******************************************************************************/
 TbBool setup_gui_strings_data(void);
 TbBool free_gui_strings_data(void);

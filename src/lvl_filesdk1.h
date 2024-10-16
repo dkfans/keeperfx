@@ -48,7 +48,7 @@ long convert_old_column_file(LevelNumber lv_num);
 TbBool load_map_file(LevelNumber lvnum);
 
 void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short fgroup);
-void clear_level_strings_data(TbBool free_data);
+void free_level_strings_data();
 /******************************************************************************/
 #ifdef __cplusplus
 }
