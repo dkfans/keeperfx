@@ -3971,7 +3971,7 @@ void recalculate_player_creature_digger_lists(PlayerNumber plr_idx)
     ThingIndex previous_digger = 0;
     ThingIndex previous_creature = 0;
 
-    struct Dungeon* dungeon = get_dungeon(creatng->owner);
+    struct Dungeon* dungeon = get_dungeon(plr_idx);
     dungeon->digger_list_start = 0;
     dungeon->creatr_list_start = 0;
     dungeon->num_active_diggers = 0;
@@ -3980,6 +3980,7 @@ void recalculate_player_creature_digger_lists(PlayerNumber plr_idx)
 
     const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
     long i = slist->index;
+    long k = 0;
     while (i > 0)
     {
         struct Thing* creatng = thing_get(i);
@@ -3991,7 +3992,7 @@ void recalculate_player_creature_digger_lists(PlayerNumber plr_idx)
             if(creature_is_for_dungeon_diggers_list(creatng))
             {
 
-                if(dungeon->digger_list_start = 0)
+                if(dungeon->digger_list_start == 0)
                 {
                     dungeon->digger_list_start = i;
                 }
@@ -4012,7 +4013,7 @@ void recalculate_player_creature_digger_lists(PlayerNumber plr_idx)
             else
             {
 
-                if(dungeon->creatr_list_start = 0)
+                if(dungeon->creatr_list_start == 0)
                 {
                     dungeon->creatr_list_start = i;
                 }
@@ -4040,7 +4041,6 @@ void recalculate_player_creature_digger_lists(PlayerNumber plr_idx)
           break;
         }
     }
-    return 0;
 }
 
 void remove_first_creature(struct Thing *creatng)
