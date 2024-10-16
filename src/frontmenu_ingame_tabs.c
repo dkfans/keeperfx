@@ -2322,7 +2322,6 @@ void gui_switch_players_visible(struct GuiButton *gbtn)
     else if (info_page == 1)
     {
         unsigned char current_players_count = count_current_players_count();
-        JUSTLOG("%d",current_players_count);
         if(current_players_count > 7)
         {
             info_page = 2;
