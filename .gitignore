@@ -25,3 +25,4 @@ docs/latex
 *.Tpo
 res/keeperfx_icon.ico
 .header_checksum
+/src/ver_defs.h

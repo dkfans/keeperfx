@@ -19,16 +19,12 @@
 #ifndef KEEPERFX_VERSION_H
 #define KEEPERFX_VERSION_H
 
-#ifndef BFDEBUG_LEVEL
-/* Debug level is scaled 0..10, usually defined in Makefile. */
-#define BFDEBUG_LEVEL 10
-#endif
 #ifndef DEBUG_NETWORK_PACKETS
 /* Network packets debugging. */
 #define DEBUG_NETWORK_PACKETS 0
 #endif
 /* Version definitions */
-#include "../obj/ver_defs.h"
+#include "ver_defs.h"
 //#define VER_MAJOR         1
 //#define VER_MINOR         2
 //#define VER_RELEASE       3
