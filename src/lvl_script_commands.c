@@ -370,10 +370,12 @@ const struct NamedCommand campaign_flag_desc[] = {
 };
 
 const struct NamedCommand script_operator_desc[] = {
-  {"SET",         1},
-  {"INCREASE",    2},
-  {"DECREASE",    3},
-  {"MULTIPLY",    4},
+  {"SET",         SOpr_SET},
+  {"INCREASE",    SOpr_INCREASE},
+  {"DECREASE",    SOpr_DECREASE},
+  {"MULTIPLY",    SOpr_MULTIPLY},
+  {"DIVIDE",      SOpr_DIVIDE},
+  {"SQUARE",      SOpr_SQUARE},
   {NULL,          0},
 };
 
