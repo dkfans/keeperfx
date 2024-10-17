@@ -15,6 +15,7 @@
 /config/fxdata/*.fon
 .vs/
 build*/
+/out/*
 *.cache
 .vscode
 /libexterns
@@ -23,5 +24,4 @@ docs/latex
 *.o
 *.d
 *.Tpo
-res/keeperfx_icon.ico
 .header_checksum

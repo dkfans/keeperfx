@@ -26,6 +26,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#ifndef _MSC_VER // Inline assembly is not supported on the ARM and x64 processors.
+
 /******************************************************************************/
 
 /** Issue a single request to CPUID.
@@ -106,7 +109,7 @@ unsigned char cpu_get_family(struct CPU_INFO *cpu)
   }
   else
   {
-    return CPUID_FAMILY_486;
+    return CPUID_FAMILY_486; // This is wrong, but who cares?
   }
 }
 
@@ -128,6 +131,8 @@ unsigned char cpu_get_stepping(struct CPU_INFO *cpu)
 {
   return (cpu->feature_intl) & 0xF;
 }
+
+#endif // end of checking of _MSC_VER
 
 /******************************************************************************/
 #ifdef __cplusplus

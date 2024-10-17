@@ -27,7 +27,6 @@
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "bflib_sndlib.h"
-#include "bflib_cpu.h"
 #include "bflib_crash.h"
 #include "bflib_video.h"
 #include "bflib_vidraw.h"
@@ -125,15 +124,17 @@
 #include "music_player.h"
 #include "frontmenu_ingame_map.h"
 
+#ifdef _MSC_VER
+    #include <libcpuid.h>
+#else
+    #include "bflib_cpu.h"
+#endif
+
 #ifdef FUNCTESTING
   #include "ftests/ftest.h"
 #endif
 
 #include "post_inc.h"
-
-#ifdef _MSC_VER
-#define strcasecmp _stricmp
-#endif
 
 int test_variable;
 
@@ -608,7 +609,7 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
             delta_y = dist_y * delta_y / (dist_x + dist_y + dist_z);
             delta_z = dist_z * delta_z / (dist_x + dist_y + dist_z);
         }
-        
+
         int sprsize = 0;
         int delta_size = 0;
 
@@ -946,18 +947,38 @@ TbBool initial_setup(void)
  */
 short setup_game(void)
 {
-  struct CPU_INFO cpu_info; // CPU status variable
+    // Get information of CPU.
+    int32_t cpu_family = 0; // We use this to determine if a CPU is "modern" enough.
+    #ifdef _MSC_VER
+        struct cpu_raw_data_t cpu_raw;
+        struct cpu_id_t cpu_data;
+        if (cpuid_present() && cpuid_get_raw_data(&cpu_raw) >= 0)
+        {
+            if (cpu_identify(&cpu_raw, &cpu_data) >= 0)
+            {
+                cpu_family = cpu_data.family;
+                // Print some useful information nowadays.
+                SYNCMSG("CPU %s, family %d, model %d, total logical cpus %d, codename %s", cpu_data.vendor_str,
+                    cpu_data.family, cpu_data.model, cpu_data.total_logical_cpus, cpu_data.cpu_codename);
+                SYNCMSG("%s", cpu_data.brand_str);
+            }
+        }
+    #else
+        struct CPU_INFO cpu_info; // CPU status variable
+        cpu_detect(&cpu_info);
+        cpu_family = (int32_t)cpu_get_family(&cpu_info);
+        SYNCMSG("CPU %s type %d family %d model %d stepping %d features %08x", cpu_info.vendor,
+            (int)cpu_get_type(&cpu_info), (int)cpu_get_family(&cpu_info), (int)cpu_get_model(&cpu_info),
+            (int)cpu_get_stepping(&cpu_info), cpu_info.feature_edx);
+        if (cpu_info.BrandString)
+        {
+            SYNCMSG("%s", &cpu_info.brand[0]);
+        }
+    #endif
+
+  // Do only a very basic setup
   short result;
   OSVERSIONINFO v;
-  // Do only a very basic setup
-  cpu_detect(&cpu_info);
-  SYNCMSG("CPU %s type %d family %d model %d stepping %d features %08x",cpu_info.vendor,
-      (int)cpu_get_type(&cpu_info),(int)cpu_get_family(&cpu_info),(int)cpu_get_model(&cpu_info),
-      (int)cpu_get_stepping(&cpu_info),cpu_info.feature_edx);
-  if (cpu_info.BrandString)
-  {
-      SYNCMSG("%s", &cpu_info.brand[0]);
-  }
   SYNCMSG("Build image base: %p", GetModuleHandle(NULL));
   v.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
   if (GetVersionEx(&v))
@@ -1169,15 +1190,8 @@ short setup_game(void)
           gpoly_enable_pentium_pro(false);
           break;
       default:
-          if (cpu_info.feature_intl == 0)
-          {
-              gpoly_enable_pentium_pro(false);
-          } else
-          if ( ((cpu_info.feature_intl>>8) & 0x0F) < 0x06 ) {
-              gpoly_enable_pentium_pro(false);
-          } else {
-              gpoly_enable_pentium_pro(true);
-          }
+          // Is this still practical after 26 years past?
+          gpoly_enable_pentium_pro(cpu_family >= 6);
           break;
       }
       set_gamma(settings.gamma_correction, 0);

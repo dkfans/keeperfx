@@ -21,7 +21,7 @@
 #include "creature_graphics.h"
 #include "front_simple.h"
 #include "engine_render.h"
-#include "../deps/zlib/contrib/minizip/unzip.h"
+#include "unzip.h"
 #include "bflib_fileio.h"
 #include "gui_draw.h"
 #include "frontend.h"
@@ -39,6 +39,10 @@
 // #define INNER
 #if defined(OUTER) || defined(INNER)
 #include <SDL2/SDL.h>
+#endif
+
+#ifndef PATH_MAX
+#define PATH_MAX 4096
 #endif
 
 // Each part of RGB tuple of palette file is 1-63 actually
