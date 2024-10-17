@@ -634,7 +634,7 @@ TbBool any_worker_will_go_postal_on_creature_in_room(const struct Room *room, co
             if (creature_will_go_postal_on_victim_during_job(thing, victng, going_postal_job))
             {
                 // We need quick ranged instance to go postal
-                if (creature_has_quick_range_weapon(thing)) {
+                if (creature_has_quick_weapon(thing)) {
                     return true;
                 }
             }
