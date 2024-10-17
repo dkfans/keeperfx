@@ -3686,7 +3686,7 @@ CrCheckRet move_check_persuade(struct Thing *creatng)
                       !thing_is_invalid(i);
                       i = thing_get(i->next_on_mapblk) )
                 {
-                    if (i->owner != creatng->owner || !thing_is_creature(i) || i == creatng || i->model == get_players_special_digger_model(creatng->owner))
+                    if (i->owner != creatng->owner || !thing_is_creature(i) || i == creatng || creature_is_for_dungeon_diggers_list(i))
                         continue;
                     i_leader = get_group_leader(i);
                     if (i_leader)
@@ -4767,7 +4767,7 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
     if (player->victory_state == VicS_LostLevel)
     {
         // TODO: Correctly deal with possession of creatures not owned by the player
-        if (thing->model != get_players_special_digger_model(player->id_number))
+        if (!creature_is_for_dungeon_diggers_list(thing))
         {
             cleanup_current_thing_state(thing);
             initialise_thing_state(thing, CrSt_LeavesBecauseOwnerLost);

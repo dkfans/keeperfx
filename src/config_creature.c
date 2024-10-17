@@ -2025,7 +2025,7 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
     {
         if (thing_is_creature_special_digger(creatng)) 
         {
-            if (creatng->model == get_players_special_digger_model(creatng->owner))
+            if (creature_is_for_dungeon_diggers_list(creatng))
             {
                 required_kind_flags |= JoKF_OwnedDiggers;
             }
@@ -2048,7 +2048,7 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
         }
     } else
     {
-        if (creatng->model == get_players_special_digger_model(creatng->owner)) {
+        if (creature_is_for_dungeon_diggers_list(creatng)) {
             required_kind_flags |= JoKF_EnemyDiggers;
         } else {
             required_kind_flags |= JoKF_EnemyCreatures;

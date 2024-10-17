@@ -543,7 +543,7 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     unsigned long k = 0;
     int i = dungeon->creatr_list_start;
-    if ((crmodel == get_players_special_digger_model(plyr_idx)) || (crmodel == CREATURE_DIGGER))
+    if (creature_kind_is_for_dungeon_diggers_list(plyr_idx,crmodel))
     {
         i = dungeon->digger_list_start;
     }
@@ -2046,22 +2046,22 @@ static void set_hand_rule_process(struct ScriptContext* context)
     long param = context->value->shorts[4];
     long crtr_id_start = ((crtr_id == CREATURE_ANY) || (crtr_id == CREATURE_NOT_A_DIGGER)) ? 0 : crtr_id;
     long crtr_id_end = ((crtr_id == CREATURE_ANY) || (crtr_id == CREATURE_NOT_A_DIGGER)) ? CREATURE_TYPES_MAX : crtr_id + 1;
-    ThingModel digger_model;
 
     struct Dungeon* dungeon;
-    for (int i = context->plr_start; i < context->plr_end; i++)
+    for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
     {
-        digger_model = get_players_special_digger_model(i);
         for (int ci = crtr_id_start; ci < crtr_id_end; ci++)
         {
+
+            //todo maybe should use creature_model_matches_model somewhere?
             if (crtr_id == CREATURE_NOT_A_DIGGER)
             {
-                if (ci == digger_model)
+                if (creature_kind_is_for_dungeon_diggers_list(plyr_idx,ci))
                 {
                     continue;
                 }
             }
-            dungeon = get_dungeon(i);
+            dungeon = get_dungeon(plyr_idx);
             if (hand_rule_action == HandRuleAction_Allow || hand_rule_action == HandRuleAction_Deny)
             {
                 dungeon->hand_rules[ci][hand_rule_slot].enabled = 1;
@@ -6514,6 +6514,7 @@ static void set_special_digger_process(struct ScriptContext* context)
             else if (breed_activities[i] == new_dig_model)
                 breed_activities[i] = old_dig_model;
         }
+        recalculate_player_creature_digger_lists(plyr_idx);
     }
 }
 

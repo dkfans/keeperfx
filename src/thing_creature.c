@@ -149,13 +149,7 @@ TbBool thing_can_be_controlled_as_passenger(struct Thing *thing)
 
 TbBool creature_is_for_dungeon_diggers_list(const struct Thing *creatng)
 {
-    //TODO DIGGERS For now, only player-specific and non-hero special diggers are on the diggers list
-    if (is_hero_thing(creatng))
-        return false;
-    return (creatng->model == get_players_special_digger_model(creatng->owner));
-    //struct CreatureModelConfig *crconf;
-    //crconf = &game.conf.crtr_conf.model[creatng->model];
-    //return  ((crconf->model_flags & CMF_IsSpecDigger) != 0);
+    return creature_kind_is_for_dungeon_diggers_list(creatng->owner,creatng->model);
 }
 
 TbBool creature_kind_is_for_dungeon_diggers_list(PlayerNumber plyr_idx, ThingModel crmodel)
@@ -163,6 +157,10 @@ TbBool creature_kind_is_for_dungeon_diggers_list(PlayerNumber plyr_idx, ThingMod
     //TODO DIGGERS For now, only player-specific and non-hero special diggers are on the diggers list
     if (player_is_roaming(plyr_idx))
         return false;
+
+    if (crmodel == CREATURE_DIGGER)
+        return true;
+        
     return (crmodel == get_players_special_digger_model(plyr_idx));
     //struct CreatureModelConfig *crconf;
     //crconf = &game.conf.crtr_conf.model[crmodel];
