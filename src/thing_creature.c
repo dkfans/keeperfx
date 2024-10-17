@@ -4901,7 +4901,7 @@ struct Thing *find_creature_dragging_thing(const struct Thing *dragtng)
  * @param pick_check Changes the check function which determines whether the creature is pickable.
  * @return
  */
-struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check)
+static struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check)
 {
     Thing_Maximizer_Filter filter;
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
@@ -4944,7 +4944,7 @@ struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmo
  * @param pick_check Changes the check function which determines whether the creature is pickable.
  * @return
  */
-struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check)
+static struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check)
 {
     Thing_Maximizer_Filter filter;
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
@@ -6273,53 +6273,22 @@ void illuminate_creature(struct Thing *creatng)
 
 struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location)
 {
-    long effect;
-    long i = get_map_location_longval(location);
+    long effect = 0;
     struct Coord3d pos;
     TbBool fall_from_gate = false;
 
     switch (get_map_location_type(location))
     {
     case MLoc_ACTIONPOINT:
-        if (!get_coords_at_action_point(&pos, i, 1))
-        {
-            return INVALID_THING;
-        }
         effect = 1;
         break;
     case MLoc_HEROGATE:
-        if (!get_coords_at_hero_door(&pos, i, 1))
-        {
-            return INVALID_THING;
-        }
-        effect = 0;
         fall_from_gate = true;
         break;
-    case MLoc_PLAYERSHEART:
-        if (!get_coords_at_dungeon_heart(&pos, i))
-        {
-            return INVALID_THING;
-        }
-        effect = 0;
-        break;
-    case MLoc_METALOCATION:
-        if (!get_coords_at_meta_action(&pos, plyr_idx, i))
-        {
-            return INVALID_THING;
-        }
-        effect = 0;
-        break;
-    case MLoc_CREATUREKIND:
-    case MLoc_OBJECTKIND:
-    case MLoc_ROOMKIND:
-    case MLoc_THING:
-    case MLoc_PLAYERSDUNGEON:
-    case MLoc_APPROPRTDUNGEON:
-    case MLoc_DOORKIND:
-    case MLoc_TRAPKIND:
-    case MLoc_NONE:
-    default:
-        effect = 0;
+    }
+
+    if (!get_coords_at_location(&pos, location,false))
+    {
         return INVALID_THING;
     }
 
@@ -7025,6 +6994,86 @@ PlayerNumber get_appropriate_player_for_creature(struct Thing *creatng)
         }
     }
     return creatng->owner;
+}
+
+static int filter_criteria_type(long desc_type)
+{
+    return desc_type & 0x0F;
+}
+
+static long filter_criteria_loc(long desc_type)
+{
+    return desc_type >> 4;
+}
+
+struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmodel, long criteria)
+{
+    switch (filter_criteria_type(criteria))
+    {
+    case CSelCrit_Any:
+        return get_random_players_creature_of_model(plyr_idx, crmodel);
+    case CSelCrit_MostExperienced:
+        return find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Any, plyr_idx, 0);
+    case CSelCrit_MostExpWandering:
+        return find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, plyr_idx, 0);
+    case CSelCrit_MostExpWorking:
+        return find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, plyr_idx, 0);
+    case CSelCrit_MostExpFighting:
+        return find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, plyr_idx, 0);
+    case CSelCrit_LeastExperienced:
+        return find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Any, plyr_idx, 0);
+    case CSelCrit_LeastExpWandering:
+        return find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, plyr_idx, 0);
+    case CSelCrit_LeastExpWorking:
+        return find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, plyr_idx, 0);
+    case CSelCrit_LeastExpFighting:
+        return find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, plyr_idx, 0);
+    case CSelCrit_NearOwnHeart:
+    {
+        const struct Coord3d* pos = dungeon_get_essential_pos(plyr_idx);
+        return get_creature_near_and_owned_by(pos->x.val, pos->y.val, plyr_idx, crmodel);
+    }
+    case CSelCrit_NearEnemyHeart:
+        //return get_creature_in_range_around_any_of_enemy_heart(plyr_idx, crmodel, 11);
+    case CSelCrit_OnEnemyGround:
+        return get_random_players_creature_of_model_on_territory(plyr_idx, crmodel, 0);
+    case CSelCrit_OnFriendlyGround:
+        return get_random_players_creature_of_model_on_territory(plyr_idx, crmodel, 1);
+    case CSelCrit_OnNeutralGround:
+        return get_random_players_creature_of_model_on_territory(plyr_idx, crmodel, 2);
+    case CSelCrit_NearAP:
+    {
+        int loc = filter_criteria_loc(criteria);
+        struct ActionPoint* apt = action_point_get(loc);
+        if (!action_point_exists(apt))
+        {
+            WARNLOG("Action point is invalid:%d", apt->num);
+            return INVALID_THING;
+        }
+        if (apt->range == 0)
+        {
+            WARNLOG("Action point with zero range:%d", apt->num);
+            return INVALID_THING;
+        }
+        // Action point range should be inside spiral in subtiles
+        int dist = 2 * coord_subtile(apt->range + COORD_PER_STL - 1) + 1;
+        dist = dist * dist;
+
+        Thing_Maximizer_Filter filter = near_map_block_creature_filter_diagonal_random;
+        struct CompoundTngFilterParam param;
+        param.model_id = crmodel;
+        param.plyr_idx = (unsigned char)plyr_idx;
+        param.num1 = apt->mappos.x.val;
+        param.num2 = apt->mappos.y.val;
+        param.num3 = apt->range;
+        return get_thing_spiral_near_map_block_with_filter(apt->mappos.x.val, apt->mappos.y.val,
+            dist,
+            filter, &param);
+    }
+    default:
+        ERRORLOG("Invalid level up criteria %d", (int)criteria);
+        return INVALID_THING;
+    }
 }
 
 void query_creature(struct PlayerInfo *player, ThingIndex index, TbBool reset, TbBool zoom)

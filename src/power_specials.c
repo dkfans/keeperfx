@@ -42,6 +42,7 @@
 #include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
+#include "lua_triggers.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -59,6 +60,52 @@ long transfer_creature_scroll_offset;
 long resurrect_creature_scroll_offset;
 unsigned short dungeon_special_selected;
 /******************************************************************************/
+
+/**
+ * Increases creatures' levels for player.
+ * @param plyr_idx target player
+ * @param count how many times should the level be increased
+ */
+void script_use_special_increase_level(PlayerNumber plyr_idx, int count)
+{
+    increase_level(get_player(plyr_idx), count);
+}
+
+/**
+ * Multiplies every creature for player.
+ * @param plyr_idx target player
+ */
+void script_use_special_multiply_creatures(PlayerNumber plyr_idx)
+{
+    multiply_creatures(get_player(plyr_idx));
+}
+
+/**
+ * Fortifies player's dungeon.
+ * @param plyr_idx target player
+ */
+void script_make_safe(PlayerNumber plyr_idx)
+{
+    make_safe(get_player(plyr_idx));
+}
+
+/**
+ * Fortifies player's dungeon.
+ * @param plyr_idx target player
+ */
+void script_make_unsafe(PlayerNumber plyr_idx)
+{
+    make_unsafe(plyr_idx);
+}
+
+/**
+ * Enables bonus level for current player.
+ */
+TbBool script_locate_hidden_world()
+{
+    return activate_bonus_level(get_player(my_player_number));
+}
+
 
 /**
  * Makes a bonus level for current SP level visible on the land map screen.
@@ -461,6 +508,8 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
 {
     SYNCDBG(6,"Starting");
     struct Coord3d pos;
+
+    lua_on_special_box_activate(player->id_number,cratetng);
 
     // Gathering data which we'll need if the special is used and disposed.
     struct Dungeon* dungeon = get_dungeon(player->id_number);
