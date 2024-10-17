@@ -33,6 +33,7 @@
 #include "bflib_sprite.h"
 #include "bflib_mouse.h"
 #include "bflib_render.h"
+#include "frontend.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -666,7 +667,20 @@ TbResult LbSpriteDrawOneColourUsingScalingUpDataSolidLR(uchar *outbuf, int scanl
                         if (xdup > 0)
                         {
                             unsigned char pxval;
-                            pxval = (colour);
+                            switch (frontend_menu_state)
+                            {
+                                case FeSt_LAND_VIEW:
+                                case FeSt_NETLAND_VIEW:
+                                {
+                                    pxval = (*sprdata == 250) ? *sprdata : colour; // leave shadows in landview text alone
+                                    break;
+                                }
+                                default:
+                                {
+                                    pxval = colour;
+                                    break;
+                                }
+                            }
                             for (;xdup > 0; xdup--)
                             {
                                 *out_end = pxval;
@@ -1227,11 +1241,22 @@ TbResult LbSpriteDrawOneColourUsingScalingDownDataSolidLR(uchar *outbuf, int sca
                         if (xcurstep[1] > 0)
                         {
                             unsigned char pxval;
-                            pxval = (colour);
+                            switch (frontend_menu_state)
                             {
-                                *out_end = pxval;
-                                out_end++;
+                                case FeSt_LAND_VIEW:
+                                case FeSt_NETLAND_VIEW:
+                                {
+                                    pxval = (*sprdata == 250) ? *sprdata : colour; // leave shadows in landview text alone
+                                    break;
+                                }
+                                default:
+                                {
+                                    pxval = colour;
+                                    break;
+                                }
                             }
+                            *out_end = pxval;
+                            out_end++;
                         }
                         sprdata++;
                         xcurstep += 2;
