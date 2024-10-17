@@ -260,12 +260,14 @@ const struct NamedCommand trap_config_desc[] = {
   {"AttackAnimationID",   40},
   {"DestroyedEffect",     41},
   {"InitialDelay",        42},
-  {"FlameAnimationID",       43},
-  {"FlameAnimationSpeed",    44},
-  {"FlameAnimationSize",     45},
-  {"FlameAnimationOffset",   46},
-  {"FlameTransparencyFlags", 47},
-  {NULL,                   0},
+  {"PlaceOnSubtile",      43},
+  {"FlameAnimationID",       44},
+  {"FlameAnimationSpeed",    45},
+  {"FlameAnimationSize",     46},
+  {"FlameAnimationOffset",   47},
+  {"FlameTransparencyFlags", 48},
+  {"DetectInvisible",        49},
+  {NULL,                      0},
 };
 
 const struct NamedCommand room_config_desc[] = {
@@ -1892,24 +1894,30 @@ static void set_trap_configuration_process(struct ScriptContext *context)
         case 42: // InitialDelay
             trapstat->initial_delay = value;
             break;
-        case 43: // FlameAnimationID
+        case 43: // PlaceOnSubtile
+            trapst->place_on_subtile = value;
+            break;
+        case 44: // FlameAnimationID
             trapst->flame.animation_id = get_anim_id(context->value->strs[2], &obj_tmp);
             refresh_trap_anim(trap_type);
             break;
-        case 44: // FlameAnimationSpeed
+        case 45: // FlameAnimationSpeed
             trapst->flame.anim_speed = value;
             break;
-        case 45: // FlameAnimationSize
+        case 46: // FlameAnimationSize
             trapst->flame.sprite_size = value;
             break;
-        case 46: // FlameAnimationOffset
+        case 47: // FlameAnimationOffset
             trapst->flame.fp_add_x = context->value->chars[8];
             trapst->flame.fp_add_y = context->value->chars[9];
             trapst->flame.td_add_x = context->value->chars[10];
             trapst->flame.td_add_y = context->value->chars[11];
             break;
-        case 47: // FlameTransparencyFlags
+        case 48: // FlameTransparencyFlags
             trapst->flame.transparency_flags = value << 4;
+            break;
+        case 49: // DetectInvisible
+            trapstat->detect_invisible = value;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
@@ -3096,9 +3104,9 @@ static void set_creature_configuration_process(struct ScriptContext* context)
                 crstat->lair_object = value;
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized attribute (%d)", creature_variable);
@@ -5633,6 +5641,7 @@ static void set_player_modifier_process(struct ScriptContext* context)
             case 1: // Health
                 SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.health, mdfrval);
                 dungeon->modifier.health = mdfrval;
+                do_to_players_all_creatures_of_model(plyr_idx, CREATURE_ANY, update_relative_creature_health);
                 break;
             case 2: // Strength
                 SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.strength, mdfrval);
@@ -5649,6 +5658,7 @@ static void set_player_modifier_process(struct ScriptContext* context)
             case 5: // Speed
                 SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.speed, mdfrval);
                 dungeon->modifier.speed = mdfrval;
+                do_to_players_all_creatures_of_model(plyr_idx, CREATURE_ANY, update_creature_speed);
                 break;
             case 6: // Salary
                 SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.pay, mdfrval);
@@ -5713,6 +5723,7 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
                 if (mdfradd >= 0) {
                     SCRIPTDBG(7,"Adding %d to Player %d Modifier '%s'.", mdfrval, (int)plyr_idx, mdfrname);
                     dungeon->modifier.health = mdfradd;
+                    do_to_players_all_creatures_of_model(plyr_idx, CREATURE_ANY, update_relative_creature_health);
                 } else {
                     SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.health);
                 }
@@ -5749,6 +5760,7 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
                 if (mdfradd >= 0) {
                     SCRIPTDBG(7,"Adding %d to Player %d Modifier '%s'.", mdfrval, (int)plyr_idx, mdfrname);
                     dungeon->modifier.speed = mdfradd;
+                    do_to_players_all_creatures_of_model(plyr_idx, CREATURE_ANY, update_creature_speed);
                 } else {
                     SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.speed);
                 }

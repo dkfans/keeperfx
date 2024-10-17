@@ -1591,6 +1591,9 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
         ERRORLOG("The %s owned by player %d tried to cast invalid spell %d",thing_model_name(castng),(int)castng->owner,(int)spl_idx);
         return;
     }
+
+    SYNCDBG(12,"The %s(%d) fire shot(%s) at %s(%d) with shot level %d, hit type: 0x%X", thing_model_name(castng), castng->index,
+        shot_code_name(spconf->shot_model), thing_model_name(targetng), targetng->index, shot_lvl, hit_type);
     thing_fire_shot(castng, targetng, spconf->shot_model, shot_lvl, hit_type);
 }
 
@@ -1799,22 +1802,33 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, long shot_lvl,
         cctrl->teleport_x = trg_x;
         cctrl->teleport_y = trg_y;
     }
-    // Check if the spell can be fired as a shot. It is definitely not if casted on itself.
-    if ((spconf->shot_model > 0) && (cctrl->targtng_idx != castng->index))
-    {
-        if ((castng->alloc_flags & TAlF_IsControlled) != 0)
-          i = THit_CrtrsNObjcts;
-        else
-          i = THit_CrtrsOnlyNotOwn;
-        thing_fire_shot(castng, INVALID_THING, spconf->shot_model, shot_lvl, i);
-    }
-    // Check if the spell can be self-casted
-    else if (spconf->caster_affected)
+
+    if (spconf->caster_affected)
     {
         if (spconf->caster_affect_sound > 0)
           thing_play_sample(castng, spconf->caster_affect_sound, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
         apply_spell_effect_to_thing(castng, spl_idx, cctrl->explevel);
     }
+    else if (spconf->shot_model > 0)
+    {
+        // Note that Wind has shot model and its CastAtThing is 0, besides, the target index is itself.
+        if ((castng->alloc_flags & TAlF_IsControlled) != 0)
+            i = THit_CrtrsNObjcts;
+        else
+            i = THit_CrtrsOnlyNotOwn;
+
+        const struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->instance_id);
+        if (flag_is_set(inst_inf->instance_property_flags, InstPF_RangedBuff))
+        {
+            ERRORLOG("The %s(%d) tried to fire Ranged Buff's shot(%s) without a target!",
+                thing_model_name(castng), castng->index, shot_code_name(spconf->shot_model));
+        }
+        else
+        {
+            thing_fire_shot(castng, INVALID_THING, spconf->shot_model, shot_lvl, i);
+        }
+    }
+
     if (spconf->crtr_summon_model > 0)
     {
         thing_summon_temporary_creature(castng, spconf->crtr_summon_model, spconf->crtr_summon_level, spconf->crtr_summon_amount, spconf->duration, spl_idx);
@@ -2707,9 +2721,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     anger_set_creature_anger_all_types(thing, 0);
-    creature_throw_out_gold(thing);
     remove_parent_thing_from_things_in_list(&game.thing_lists[TngList_Shots],thing->index);
-
     ThingModel crmodel = thing->model;
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     if (!thing_exists(thing)) {
@@ -2722,6 +2734,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
         creature_rebirth_at_lair(thing);
         return INVALID_THING;
     }
+    creature_throw_out_gold(thing);
     // Beyond this point, the creature thing is bound to be deleted
     if (((flags & CrDed_NotReallyDying) == 0) || ((game.conf.rules.game.classic_bugs_flags & ClscBug_ResurrectRemoved) != 0))
     {
@@ -2864,6 +2877,13 @@ struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     }
     if (creature_affected_by_spell(creatng, SplK_Rebound)) {
         terminate_thing_spell_effect(creatng, SplK_Rebound);
+    }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn > game.play_gameturn))
+    {
+        create_effect_around_thing(creatng, ball_puff_effects[creatng->owner]);
+        set_flag(flags, CrDed_NotReallyDying | CrDed_NoEffects);
+        return cause_creature_death(creatng, flags);
     }
     struct Dungeon* dungeon = (!is_neutral_thing(creatng)) ? get_players_num_dungeon(creatng->owner) : INVALID_DUNGEON;
     if (!dungeon_invalid(dungeon))
@@ -3536,6 +3556,46 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, CrInstance 
         }
     }
     return index;
+}
+
+/**
+ * @brief Process the logic when player (in Possesson mode) uses a creature's instance.
+ *
+ * @param thing The creature being possessed.
+ * @param inst_id The instance that player wants to use.
+ * @param packet The packet being processed.
+ * @return ThingIndex The target's index.
+ */
+ThingIndex process_player_use_instance(struct Thing *thing, CrInstance inst_id, struct Packet *packet)
+{
+    ThingIndex target_idx = get_human_controlled_creature_target(thing, inst_id, packet);
+    struct InstanceInfo *inst_inf = creature_instance_info_get(inst_id);
+    TbBool ok = false;
+    struct Thing *target = thing_get(target_idx);
+    if (flag_is_set(inst_inf->instance_property_flags, InstPF_RangedBuff) && inst_inf->validate_target_func != 0)
+    {
+        ok = creature_instances_validate_func_list[inst_inf->validate_target_func](thing, target, inst_id,
+            inst_inf->validate_target_func_params[0], inst_inf->validate_target_func_params[1]);
+    }
+    if (!ok)
+    {
+        target = 0;
+    }
+
+    if (flag_is_set(inst_inf->instance_property_flags, InstPF_NeedsTarget))
+    {
+        if (target_idx == 0)
+        {
+            // If cannot find a valid target, do not use it and don't consider it used.
+
+            // Make a rejection sound
+            play_non_3d_sample(119);
+            return 0;
+        }
+    }
+
+    set_creature_instance(thing, inst_id, target_idx, 0);
+    return target_idx;
 }
 
 long creature_instance_has_reset(const struct Thing *thing, long inst_idx)
@@ -5925,7 +5985,7 @@ TngUpdateRet update_creature(struct Thing *thing)
         return TUFRet_Deleted;
     }
 
-    if (process_creature_self_spell_casting(thing) == 0)
+    if (!process_creature_self_spell_casting(thing))
     {
         // If this creature didn't cast anything to itself, try to help others.
         process_creature_ranged_buff_spell_casting(thing);

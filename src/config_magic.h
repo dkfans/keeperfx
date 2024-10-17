@@ -30,10 +30,11 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#define MAGIC_ITEMS_MAX        2000
-#define SPELL_MAX_LEVEL         8
-#define MAGIC_OVERCHARGE_LEVELS (SPELL_MAX_LEVEL+1)
-#define POWER_TYPES_MAX      2000
+#define MAGIC_ITEMS_MAX         2000
+#define SPELL_MAX_LEVEL         9
+#define POWER_MAX_LEVEL         8
+#define MAGIC_OVERCHARGE_LEVELS (POWER_MAX_LEVEL+1)
+#define POWER_TYPES_MAX         2000
 
 enum SpellKinds {
     SplK_None = 0,
@@ -41,32 +42,32 @@ enum SpellKinds {
     SplK_FireBomb,
     SplK_Freeze,
     SplK_Armour,
-    SplK_Lightning,
+    SplK_Lightning, // 5
     SplK_Rebound,
     SplK_Heal,
     SplK_PoisonCloud,
     SplK_Invisibility,
-    SplK_Teleport,//[10]
+    SplK_Teleport, // 10
     SplK_Speed,
     SplK_Slow,
     SplK_Drain,
     SplK_Fear,
-    SplK_Missile,//[15]
+    SplK_Missile, // 15
     SplK_NavigMissile,
     SplK_FlameBreath,
     SplK_Wind,
     SplK_Light,
-    SplK_Fly,//[20]
+    SplK_Fly, // 20
     SplK_Sight,
     SplK_Grenade,
     SplK_Hailstorm,
-    SplK_WordOfPower,//[24]
-    SplK_CrazyGas,
+    SplK_WordOfPower,
+    SplK_CrazyGas, // 25
     SplK_Disease,
     SplK_Chicken,
-    SplK_TimeBomb,//[28]
+    SplK_TimeBomb,
     SplK_Lizard,
-    Splk_SummonFamiliar,
+    Splk_SummonFamiliar, // 30
     Splk_SummonCreature,
 };
 
@@ -408,7 +409,7 @@ struct SpellConfig {
 struct MagicStats {
   long cost[MAGIC_OVERCHARGE_LEVELS];
   long duration;
-  long strength[MAGIC_OVERCHARGE_LEVELS];
+  long strength[MAGIC_OVERCHARGE_LEVELS+1];
 };
 
 struct MagicConfig {
