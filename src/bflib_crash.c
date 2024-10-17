@@ -25,7 +25,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <excpt.h>
-#include <imagehlp.h>
 #include <dbghelp.h>
 #include <psapi.h>
 #include <stdlib.h>
@@ -138,11 +137,23 @@ _backtrace(int depth , LPCONTEXT context)
     STACKFRAME frame;
     LbMemorySet(&frame,0,sizeof(frame));
 
-    frame.AddrPC.Offset = context->Eip;
+    #if defined(_M_AMD64)
+        frame.AddrPC.Offset = context->Rip;
+    #else
+        frame.AddrPC.Offset = context->Eip;
+    #endif
     frame.AddrPC.Mode = AddrModeFlat;
-    frame.AddrStack.Offset = context->Esp;
+    #if defined(_M_AMD64)
+        frame.AddrStack.Offset = context->Rsp;
+    #else
+        frame.AddrStack.Offset = context->Esp;
+    #endif
     frame.AddrStack.Mode = AddrModeFlat;
-    frame.AddrFrame.Offset = context->Ebp;
+    #if defined(_M_AMD64)
+        frame.AddrFrame.Offset = context->Rbp;
+    #else
+        frame.AddrFrame.Offset = context->Ebp;
+    #endif
     frame.AddrFrame.Mode = AddrModeFlat;
 
     HANDLE process = GetCurrentProcess();
@@ -178,7 +189,7 @@ _backtrace(int depth , LPCONTEXT context)
             }
         }
 
-        // Check if the name of this module starts with 'keeperfx' 
+        // Check if the name of this module starts with 'keeperfx'
         // This can be done better but at this moment it should only match our own keeperfx.exe and keeperfx_hvlog.exe
         if (strncmp(module_name, "keeperfx", strlen("keeperfx")) == 0)
         {
@@ -192,14 +203,16 @@ _backtrace(int depth , LPCONTEXT context)
                 bool addrFound = false;
                 int64_t prevAddr = 0x00000000;
                 char prevName[512];
+                prevName[0] = 0;
 
                 // Loop through all lines in the mapFile
                 // This should be pretty fast on modern systems
                 while (fgets(mapFileLine, sizeof(mapFileLine), mapFile) != NULL)
                 {
-                    
+
                     int64_t addr;
                     char name[512];
+                    name[0] = 0;
                     if (
                         sscanf(mapFileLine, "%llx %[^\t\n]", &addr, name) == 2 ||
                         sscanf(mapFileLine, " .text %llx %[^\t\n]", &addr, name) == 2
@@ -260,7 +273,7 @@ _backtrace(int depth , LPCONTEXT context)
         {
             LbJustLog("[#%-2d]  in %14-s : %-40s [%04x:%08x+0x%llx, base %08x] (symbol lookup)\n",
                       depth, module_name, pSymbol->Name, context->SegCs, frame.AddrPC.Offset, sfaDisplacement, module_base);
-        } 
+        }
         else
         {
             // Fallback

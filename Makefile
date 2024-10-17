@@ -355,7 +355,8 @@ CU_OBJS = \
 LINKLIB =  -L"sdl/lib" -mwindows obj/enet.a \
 	-lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net -lSDL2_image \
 	-L"deps/zlib" -lz -lws2_32 -ldbghelp
-INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include" -I"deps/centijson/src" -I"deps/centitoml" -I"deps/astronomy"
+INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include" -I"deps/centijson/src" -I"deps/centitoml" \
+        -I"deps/astronomy" -I"obj/"
 CXXINCS =  $(INCS)
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
@@ -461,7 +462,8 @@ obj/tests obj/cu \
 obj/std/json obj/hvlog/json \
 obj/std/centitoml obj/hvlog/centitoml \
 obj/enet \
-sdl/for_final_package
+sdl/for_final_package \
+obj/res
 
 $(shell $(MKDIR) $(FOLDERS))
 
@@ -493,7 +495,7 @@ clean-build:
 	-$(RM) $(HVLOGBIN) $(HVLOGBIN:%.exe=%.pdb)
 	-$(RM) bin/keeperfx.dll
 	-$(RM) $(LIBS) $(GENSRC)
-	-$(RM) res/*.ico
+	-$(RM) obj/res/*.ico
 	-$(RM) obj/keeperfx.*
 
 $(BIN): $(GENSRC) $(STDOBJS) $(STD_MAIN_OBJ) $(LIBS) std-before
@@ -585,13 +587,13 @@ obj/std/%.o obj/hvlog/%.o: src/%.c libexterns $(GENSRC)
 	-$(ECHO) ' '
 
 # Windows resources compilation
-obj/std/%.res obj/hvlog/%.res: res/%.rc res/keeperfx_icon.ico $(GENSRC)
+obj/std/%.res obj/hvlog/%.res: res/%.rc obj/res/keeperfx_icon.ico $(GENSRC)
 	-$(ECHO) 'Building resource: $<'
-	$(WINDRES) -i "$<" --input-format=rc -o "$@" -O coff
+	$(WINDRES) -i "$<" --input-format=rc -o "$@" -O coff -I"obj/"
 	-$(ECHO) ' '
 
 # Creation of Windows icon files from PNG files
-res/%.ico: res/%016-08bpp.png res/%032-08bpp.png res/%048-08bpp.png res/%064-08bpp.png res/%128-08bpp.png $(PNGTOICO)
+obj/res/%.ico: res/%016-08bpp.png res/%032-08bpp.png res/%048-08bpp.png res/%064-08bpp.png res/%128-08bpp.png $(PNGTOICO)
 	-$(ECHO) 'Building icon: $@'
 	$(PNGTOICO) "$@" --colors 256 $(word 5,$^) $(word 4,$^) $(word 3,$^) --colors 16 $(word 2,$^) $(word 1,$^)
 	-$(ECHO) ' '
