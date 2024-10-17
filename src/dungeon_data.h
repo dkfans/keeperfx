@@ -50,7 +50,7 @@ extern "C" {
 #define MAX_THINGS_IN_HAND          64
 #define TURN_TIMERS_COUNT           8
 #define SCRIPT_FLAGS_COUNT          8
-#define MAX_SOE_RADIUS              13
+#define MAX_SOE_RADIUS              26
 #define CREATURE_GUI_JOBS_COUNT     3
 #define CUSTOM_BOX_COUNT            256
 #define FX_LINES_COUNT              32

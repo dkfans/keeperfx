@@ -1860,7 +1860,7 @@ msgstr "Hagelstorm: Frammanar en skur av hagel."
 
 #: guitext:245
 msgctxt "Creature spell"
-msgid "Slow: Slows down the target creature, making it attacks and movement delayed."
+msgid "Slow: Slows down the target creature, making its attacks and movement delayed."
 msgstr "Långsam: Gör fienden långsam så att dess attacker och rörelse blir fördröjda. "
 
 #: guitext:246

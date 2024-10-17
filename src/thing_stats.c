@@ -351,8 +351,11 @@ long compute_creature_max_defense(long base_param,unsigned short crlevel)
       base_param = 10000;
     if (crlevel >= CREATURE_MAX_LEVEL)
       crlevel = CREATURE_MAX_LEVEL-1;
-    long max_param = base_param + (game.conf.crtr_conf.exp.defense_increase_on_exp * base_param * (long)crlevel) / 100;
-    return saturate_set_unsigned(max_param, 8);
+    long defense = base_param + (game.conf.crtr_conf.exp.defense_increase_on_exp * base_param * (long)crlevel) / 100;
+    unsigned long long max = (1 << (8)) - 1;
+    if ((defense >= max) && (!emulate_integer_overflow(8)))
+        return max;
+    return defense;
 }
 
 /**
@@ -375,14 +378,19 @@ long compute_creature_max_dexterity(long base_param,unsigned short crlevel)
  */
 long compute_creature_max_strength(long base_param,unsigned short crlevel)
 {
-  if (base_param <= 0)
-      return 0;
-  if (base_param > 60000)
+    if (base_param <= 0)
+        return 0;
+    if (base_param > 60000)
         base_param = 60000;
-  if (crlevel >= CREATURE_MAX_LEVEL)
-    crlevel = CREATURE_MAX_LEVEL-1;
-  long max_param = base_param + (game.conf.crtr_conf.exp.strength_increase_on_exp * base_param * (long)crlevel) / 100;
-  return saturate_set_unsigned(max_param, 15);
+    if (crlevel >= CREATURE_MAX_LEVEL)
+        crlevel = CREATURE_MAX_LEVEL-1;
+    long max_param = base_param + (game.conf.crtr_conf.exp.strength_increase_on_exp * base_param * (long)crlevel) / 100;
+    long strength = saturate_set_unsigned(max_param, 15);
+    if (flag_is_set(game.conf.rules.game.classic_bugs_flags, ClscBug_Overflow8bitVal))
+    {
+        return min(strength, UCHAR_MAX+1); //DK1 limited shot damage to 256, not 255
+    }
+    return strength;
 }
 
 /**
@@ -971,6 +979,15 @@ static HitPoints apply_damage_to_door(struct Thing *thing, HitPoints dmg)
     return cdamage;
 }
 
+HitPoints reduce_damage_for_midas(PlayerNumber owner, HitPoints damage, short multiplier)
+{
+    if (multiplier == 0)
+        return 0;
+    HitPoints cost = (damage + multiplier - 1) / multiplier; // This ensures we round up the division
+    GoldAmount received = take_money_from_dungeon(owner, cost, 0); // Take gold from the player
+    return (received * multiplier);
+}
+
 HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const struct Thing *shotng)
 {
     HitPoints dmg;
@@ -983,15 +1000,17 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
         dmg = shotng->shot.damage;
     } else
     {
-        dmg = shotng->shot.damage / 10;
+        dmg = shotng->shot.damage / 8;
         if (dmg < 1)
             dmg = 1;
     }
     if (flag_is_set(doorst->model_flags, DoMF_Midas))
     {
-        GoldAmount received = take_money_from_dungeon(doortng->owner, dmg, 0);
-        dmg -= received;
-        for (int i = received; i > 0; i -= 32)
+        HitPoints absorbed = reduce_damage_for_midas(doortng->owner, dmg, doorst->health);
+        dmg -= absorbed;
+      
+        // Generate effects for the gold taken
+        for (int i = absorbed; i > 0; i -= 32)
         {
             create_effect(&shotng->mappos, TngEff_CoinFountain, doortng->owner);
         }

@@ -2308,7 +2308,7 @@ msgstr "Hagelsturm: Entfesselt einen Sturm aus Hagelkörnern. [26.10]"
 #: guitext:245
 msgctxt "Creature spell"
 msgid ""
-"Slow: Slows down the target creature, making it attacks and movement delayed."
+"Slow: Slows down the target creature, making its attacks and movement delayed."
 msgstr "Verlangsamen: Bremst die Angriffe und Bewegungen der Zielkreatur erheblich. [26.19]"
 
 #: guitext:246

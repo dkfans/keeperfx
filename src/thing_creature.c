@@ -373,11 +373,11 @@ TbBool load_swipe_graphic_for_creature(const struct Thing *thing)
     return true;
 }
 
-/** 
+/**
  * Randomise the draw direction of the swipe sprite in the first-person possession view.
- * 
+ *
  * Sets PlayerInfo->swipe_sprite_drawLR to either TRUE or FALSE.
- * 
+ *
  * Draw direction is either: left-to-right (TRUE) or right-to-left (FALSE)
  */
 void randomise_swipe_graphic_direction()
@@ -912,7 +912,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         if (n < 0)
         {
             thing->health = 0;
-        } else 
+        } else
         {
             thing->health = min(n, cctrl->max_health);
         }
@@ -1566,7 +1566,7 @@ short creature_take_wage_from_gold_pile(struct Thing *creatng,struct Thing *gold
  * @param spl_idx Spell index to be casted.
  * @param shot_lvl Spell level to be casted.
  */
-void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, long spl_idx, long shot_lvl)
+void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, SpellKind spl_idx, long shot_lvl)
 {
     unsigned char hit_type;
     if ((castng->alloc_flags & TAlF_IsControlled) != 0)
@@ -1591,6 +1591,9 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
         ERRORLOG("The %s owned by player %d tried to cast invalid spell %d",thing_model_name(castng),(int)castng->owner,(int)spl_idx);
         return;
     }
+
+    SYNCDBG(12,"The %s(%d) fire shot(%s) at %s(%d) with shot level %d, hit type: 0x%X", thing_model_name(castng), castng->index,
+        shot_code_name(spconf->shot_model), thing_model_name(targetng), targetng->index, shot_lvl, hit_type);
     thing_fire_shot(castng, targetng, spconf->shot_model, shot_lvl, hit_type);
 }
 
@@ -1776,12 +1779,15 @@ void remove_creature_from_summon_list(struct Dungeon* dungeon, ThingIndex famlrt
     }
 }
 /**
- * Casts a spell by caster creature targeted at given coordinates, most likely using shot to transfer the spell.
+ * @brief Casts a spell by caster creature targeted at given coordinates, most likely using shot to transfer the spell.
+ *
  * @param castng The caster creature.
  * @param spl_idx Spell index to be casted.
  * @param shot_lvl Spell level to be casted.
+ * @param trg_x
+ * @param trg_y
  */
-void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long trg_x, long trg_y)
+void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, long shot_lvl, MapSubtlCoord trg_x, MapSubtlCoord trg_y)
 {
     long i;
     const struct SpellConfig* spconf = get_spell_config(spl_idx);
@@ -1796,22 +1802,33 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
         cctrl->teleport_x = trg_x;
         cctrl->teleport_y = trg_y;
     }
-    // Check if the spell can be fired as a shot
-    if (spconf->shot_model > 0)
-    {
-        if ((castng->alloc_flags & TAlF_IsControlled) != 0)
-          i = THit_CrtrsNObjcts;
-        else
-          i = THit_CrtrsOnlyNotOwn;
-        thing_fire_shot(castng, INVALID_THING, spconf->shot_model, shot_lvl, i);
-    }
-    // Check if the spell can be self-casted
-    else if (spconf->caster_affected)
+
+    if (spconf->caster_affected)
     {
         if (spconf->caster_affect_sound > 0)
           thing_play_sample(castng, spconf->caster_affect_sound, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
         apply_spell_effect_to_thing(castng, spl_idx, cctrl->explevel);
     }
+    else if (spconf->shot_model > 0)
+    {
+        // Note that Wind has shot model and its CastAtThing is 0, besides, the target index is itself.
+        if ((castng->alloc_flags & TAlF_IsControlled) != 0)
+            i = THit_CrtrsNObjcts;
+        else
+            i = THit_CrtrsOnlyNotOwn;
+
+        const struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->instance_id);
+        if (flag_is_set(inst_inf->instance_property_flags, InstPF_RangedBuff))
+        {
+            ERRORLOG("The %s(%d) tried to fire Ranged Buff's shot(%s) without a target!",
+                thing_model_name(castng), castng->index, shot_code_name(spconf->shot_model));
+        }
+        else
+        {
+            thing_fire_shot(castng, INVALID_THING, spconf->shot_model, shot_lvl, i);
+        }
+    }
+
     if (spconf->crtr_summon_model > 0)
     {
         thing_summon_temporary_creature(castng, spconf->crtr_summon_model, spconf->crtr_summon_level, spconf->crtr_summon_amount, spconf->duration, spl_idx);
@@ -1984,7 +2001,7 @@ void creature_look_for_hidden_doors(struct Thing *creatng)
         struct Thing* doortng = thing_get(i);
         if (thing_is_invalid(doortng))
           break;
-          
+
         if (door_is_hidden_to_player(doortng,creatng->owner))
         {
             MapSubtlCoord z = doortng->mappos.z.stl.num;
@@ -1998,7 +2015,7 @@ void creature_look_for_hidden_doors(struct Thing *creatng)
             }
             else
             // when closed the door itself blocks sight to the doortng so this checks if open, and in sight
-            if(creature_can_see_thing(creatng,doortng)) 
+            if(creature_can_see_thing(creatng,doortng))
             {
                 reveal_secret_door_to_player(doortng,creatng->owner);
             }
@@ -2704,9 +2721,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     anger_set_creature_anger_all_types(thing, 0);
-    creature_throw_out_gold(thing);
     remove_parent_thing_from_things_in_list(&game.thing_lists[TngList_Shots],thing->index);
-
     ThingModel crmodel = thing->model;
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     if (!thing_exists(thing)) {
@@ -2719,6 +2734,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
         creature_rebirth_at_lair(thing);
         return INVALID_THING;
     }
+    creature_throw_out_gold(thing);
     // Beyond this point, the creature thing is bound to be deleted
     if (((flags & CrDed_NotReallyDying) == 0) || ((game.conf.rules.game.classic_bugs_flags & ClscBug_ResurrectRemoved) != 0))
     {
@@ -2861,6 +2877,13 @@ struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     }
     if (creature_affected_by_spell(creatng, SplK_Rebound)) {
         terminate_thing_spell_effect(creatng, SplK_Rebound);
+    }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn > game.play_gameturn))
+    {
+        create_effect_around_thing(creatng, ball_puff_effects[creatng->owner]);
+        set_flag(flags, CrDed_NotReallyDying | CrDed_NoEffects);
+        return cause_creature_death(creatng, flags);
     }
     struct Dungeon* dungeon = (!is_neutral_thing(creatng)) ? get_players_num_dungeon(creatng->owner) : INVALID_DUNGEON;
     if (!dungeon_invalid(dungeon))
@@ -3408,9 +3431,37 @@ short get_creature_eye_height(const struct Thing *creatng)
     return (base_height + (base_height * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
 }
 
-ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primary_target)
+/**
+ * @brief Get the target of the given instance in the Possession mode.
+ *
+ * @param thing The Thing object of the caster.
+ * @param inst_id The index of the instance be used.
+ * @param packet The caster's owner's control's or action's packet. This is optional.
+ * @return ThingIndex The index of the target thing.
+ */
+ThingIndex get_human_controlled_creature_target(struct Thing *thing, CrInstance inst_id, struct Packet *packet)
 {
     ThingIndex index = 0;
+    struct InstanceInfo *inst_inf = creature_instance_info_get(inst_id);
+
+    if((inst_inf->instance_property_flags & InstPF_SelfBuff) != 0)
+    {
+        if ((inst_inf->instance_property_flags & InstPF_RangedBuff) == 0 ||
+            ((packet != NULL) && (packet->additional_packet_values & PCAdV_CrtrContrlPressed) != 0))
+        {
+            // If it doesn't has RANGED_BUFF or the Possession key (default:left shift) is pressed,
+            // cast on the caster itself.
+            return thing->index;
+        }
+    }
+    if((inst_inf->instance_property_flags & InstPF_RangedBuff) != 0)
+    {
+        if(inst_inf->primary_target != 5 && inst_inf->primary_target != 6)
+        {
+            ERRORLOG("The instance %d has RANGED_BUFF property but has no valid primary target.", inst_id);
+        }
+    }
+
     struct Thing *i;
     long angle_xy_to;
     long angle_difference;
@@ -3453,7 +3504,7 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primar
                         if (i != thing)
                         {
                             TbBool is_valid_target;
-                            switch (primary_target)
+                            switch (inst_inf->primary_target)
                             {
                                 case 1:
                                     is_valid_target = ((thing_is_creature(i) && !creature_is_being_unconscious(i)) || thing_is_dungeon_heart(i));
@@ -3480,7 +3531,7 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primar
                                     is_valid_target = true;
                                     break;
                                 default:
-                                    ERRORLOG("Illegal primary target type for shot: %d", (int)primary_target);
+                                    ERRORLOG("Illegal primary target type for shot: %d", (int)inst_inf->primary_target);
                                     is_valid_target = false;
                                     break;
                             }
@@ -3505,6 +3556,46 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primar
         }
     }
     return index;
+}
+
+/**
+ * @brief Process the logic when player (in Possesson mode) uses a creature's instance.
+ *
+ * @param thing The creature being possessed.
+ * @param inst_id The instance that player wants to use.
+ * @param packet The packet being processed.
+ * @return ThingIndex The target's index.
+ */
+ThingIndex process_player_use_instance(struct Thing *thing, CrInstance inst_id, struct Packet *packet)
+{
+    ThingIndex target_idx = get_human_controlled_creature_target(thing, inst_id, packet);
+    struct InstanceInfo *inst_inf = creature_instance_info_get(inst_id);
+    TbBool ok = false;
+    struct Thing *target = thing_get(target_idx);
+    if (flag_is_set(inst_inf->instance_property_flags, InstPF_RangedBuff) && inst_inf->validate_target_func != 0)
+    {
+        ok = creature_instances_validate_func_list[inst_inf->validate_target_func](thing, target, inst_id,
+            inst_inf->validate_target_func_params[0], inst_inf->validate_target_func_params[1]);
+    }
+    if (!ok)
+    {
+        target = 0;
+    }
+
+    if (flag_is_set(inst_inf->instance_property_flags, InstPF_NeedsTarget))
+    {
+        if (target_idx == 0)
+        {
+            // If cannot find a valid target, do not use it and don't consider it used.
+
+            // Make a rejection sound
+            play_non_3d_sample(119);
+            return 0;
+        }
+    }
+
+    set_creature_instance(thing, inst_id, target_idx, 0);
+    return target_idx;
 }
 
 long creature_instance_has_reset(const struct Thing *thing, long inst_idx)
@@ -3875,6 +3966,83 @@ void set_first_creature(struct Thing *creatng)
     }
 }
 
+void recalculate_player_creature_digger_lists(PlayerNumber plr_idx)
+{
+    ThingIndex previous_digger = 0;
+    ThingIndex previous_creature = 0;
+
+    struct Dungeon* dungeon = get_dungeon(plr_idx);
+    dungeon->digger_list_start = 0;
+    dungeon->creatr_list_start = 0;
+    dungeon->num_active_diggers = 0;
+    dungeon->num_active_creatrs = 0;
+
+
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
+    long i = slist->index;
+    long k = 0;
+    while (i > 0)
+    {
+        struct Thing* creatng = thing_get(i);
+        if (thing_is_invalid(creatng))
+          break;
+
+        if(creatng->owner == plr_idx)
+        {
+            if(creature_is_for_dungeon_diggers_list(creatng))
+            {
+
+                if(dungeon->digger_list_start == 0)
+                {
+                    dungeon->digger_list_start = i;
+                }
+                else
+                {
+                    struct CreatureControl* prevcctrl = creature_control_get_from_thing(thing_get(previous_digger));
+                    prevcctrl->players_next_creature_idx = i;
+                }
+                struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+                cctrl->players_next_creature_idx = 0;
+                cctrl->players_prev_creature_idx = previous_digger;
+                if (!flag_is_set(cctrl->flgfield_2,TF2_Spectator) && !(flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature)))
+                {
+                    dungeon->num_active_diggers++;
+                }
+                previous_digger = i;
+            }
+            else
+            {
+
+                if(dungeon->creatr_list_start == 0)
+                {
+                    dungeon->creatr_list_start = i;
+                }
+                else
+                {
+                    struct CreatureControl* prevcctrl = creature_control_get_from_thing(thing_get(previous_creature));
+                    prevcctrl->players_next_creature_idx = i;
+                }
+                struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+                cctrl->players_next_creature_idx = 0;
+                cctrl->players_prev_creature_idx = previous_creature;
+                if (!flag_is_set(cctrl->flgfield_2,TF2_Spectator) && !(flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature)))
+                {
+                    dungeon->num_active_creatrs++;
+                }
+                previous_creature = i;
+            }
+        }
+
+        i = creatng->next_of_class;
+        k++;
+        if (k > slist->count)
+        {
+          ERRORLOG("Infinite loop detected when sweeping things list");
+          break;
+        }
+    }
+}
+
 void remove_first_creature(struct Thing *creatng)
 {
     struct Dungeon *dungeon;
@@ -3919,7 +4087,7 @@ void remove_first_creature(struct Thing *creatng)
         if (!flag_is_set(cctrl->flgfield_2, TF2_Spectator) && !flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature))
         {
             dungeon->owned_creatures_of_model[creatng->model]--;
-            dungeon->num_active_diggers--;  
+            dungeon->num_active_diggers--;
         }
     } else
     {
@@ -5399,11 +5567,11 @@ void check_for_creature_escape_from_lava(struct Thing *thing)
  */
 ThingModel get_footstep_effect_element(struct Thing* thing)
 {
-    static const unsigned char tileset_footstep_textures[TEXTURE_VARIATIONS_COUNT] = 
+    static const unsigned char tileset_footstep_textures[TEXTURE_VARIATIONS_COUNT] =
     { TngEffElm_None,       TngEffElm_None,         TngEffElm_IceMelt3,     TngEffElm_None,
       TngEffElm_None,       TngEffElm_None,         TngEffElm_None,         TngEffElm_None,
       TngEffElm_StepSand,   TngEffElm_StepGypsum,   TngEffElm_None,         TngEffElm_None,
-      TngEffElm_None,       TngEffElm_None,         TngEffElm_None,         TngEffElm_None 
+      TngEffElm_None,       TngEffElm_None,         TngEffElm_None,         TngEffElm_None
     };
 
     short texture;
@@ -5893,7 +6061,13 @@ TngUpdateRet update_creature(struct Thing *thing)
     {
         return TUFRet_Deleted;
     }
-    process_creature_self_spell_casting(thing);
+
+    if (!process_creature_self_spell_casting(thing))
+    {
+        // If this creature didn't cast anything to itself, try to help others.
+        process_creature_ranged_buff_spell_casting(thing);
+    }
+
     cctrl->moveaccel.x.val = 0;
     cctrl->moveaccel.y.val = 0;
     cctrl->moveaccel.z.val = 0;
@@ -6466,7 +6640,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                             
                         }
                     }
-                }    
+                }
             }
         }
     }
