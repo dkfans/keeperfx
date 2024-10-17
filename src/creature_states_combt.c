@@ -1781,12 +1781,6 @@ long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, MapCoordDelta
     return thing_in_field_of_view(thing, enmtng);
 }
 
-#define INSTANCE_RET_IF_AVAIL(thing, inst_id) \
-    if (creature_instance_is_available(thing, inst_id) \
-      && creature_instance_has_reset(thing, inst_id)) { \
-        return inst_id; \
-    }
-
 TbBool creature_would_benefit_from_healing(const struct Thing* thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -1847,8 +1841,6 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
 
     return CrInst_NULL;
 }
-
-#undef INSTANCE_RET_IF_AVAIL
 
 // Static array to store the IDs of "quick" instances
 static CrInstance quick_inst[INSTANCE_TYPES_MAX];
