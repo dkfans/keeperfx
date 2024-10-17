@@ -495,7 +495,7 @@ TbBool is_correct_owner_to_perform_job(const struct Thing *creatng, PlayerNumber
     // We need to check for it later in upper function, because lack of related room may generate message for the player
     if (creatng->owner == plyr_idx)
     {
-        if (creatng->model == get_players_special_digger_model(creatng->owner)) {
+        if (creature_is_for_dungeon_diggers_list(creatng)) {
             if ((get_flags_for_job(new_job) & JoKF_OwnedDiggers) == 0)
                 return false;
         } else {
@@ -504,7 +504,7 @@ TbBool is_correct_owner_to_perform_job(const struct Thing *creatng, PlayerNumber
         }
     } else
     {
-        if (creatng->model == get_players_special_digger_model(creatng->owner)) {
+        if (creature_is_for_dungeon_diggers_list(creatng)) {
             if ((get_flags_for_job(new_job) & JoKF_EnemyDiggers) == 0)
                 return false;
         } else {

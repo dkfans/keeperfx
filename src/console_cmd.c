@@ -1195,13 +1195,12 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             PlayerNumber id = get_player_number_for_command(pr2str);
             player = get_player(plyr_idx);
             thing = thing_get(player->influenced_thing_idx);
-            ThingModel model = get_players_special_digger_model(thing->owner);
             player = get_player(id);
             if (player_exists(player))
             {
                 if (thing_is_creature(thing))
                 {
-                    if (thing->model == model)
+                    if (creature_is_for_dungeon_diggers_list(thing))
                     {
                         if (get_random_position_in_dungeon_for_creature(id, CrWaS_WithinDungeon, thing, &pos))
                         {
@@ -1210,6 +1209,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                         }
                     }
                 }
+                //todo replace with any on digger_list
                 thing = find_players_next_creature_of_breed_and_gui_job(get_players_special_digger_model(thing->owner), -1, plyr_idx, TPF_None);
                 if (!thing_is_invalid(thing))
                 {
