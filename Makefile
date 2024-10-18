@@ -64,12 +64,7 @@ HVLOGBIN = bin/keeperfx_hvlog$(EXEEXT)
 # Names of intermediate build products
 GENSRC   = obj/ver_defs.h
 RES      = obj/keeperfx_stdres.res
-LIBS     = \
-	obj/enet.a \
-	deps/ffmpeg/libavformat/libavformat.a \
-	deps/ffmpeg/libavcodec/libavcodec.a \
-	deps/ffmpeg/libavutil/libavutil.a \
-	deps/ffmpeg/libswresample/libswresample.a
+LIBS     = obj/enet.a
 
 DEPS = \
 obj/spng.o \
@@ -358,6 +353,10 @@ CU_OBJS = \
 
 # include and library directories
 LINKLIB =  -L"sdl/lib" -mwindows \
+	-L"deps/ffmpeg/libavcodec" -lavcodec \
+	-L"deps/ffmpeg/libavformat" -lavformat \
+	-L"deps/ffmpeg/libswresample" -lswresample \
+	-L"deps/ffmpeg/libavutil" -lavutil \
 	-lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net -lSDL2_image \
 	-L"deps/zlib" -lz -lws2_32 -ldbghelp -lsecur32 -lole32 -lbcrypt -lstrmiids
 INCS = \
@@ -479,6 +478,10 @@ $(shell $(MKDIR) $(FOLDERS))
 
 # We need this file because we need git update
 build-before: libexterns deps/zlib/configure.log
+build-before: deps/ffmpeg/libavformat/avformat-61.dll
+build-before: deps/ffmpeg/libavcodec/avcodec-61.dll
+build-before: deps/ffmpeg/libavutil/avutil-59.dll
+build-before: deps/ffmpeg/libswresample/swresample-5.dll
 
 std-before: build-before
 hvlog-before: build-before
@@ -652,23 +655,43 @@ deps/ffmpeg/libavutil/avconfig.h:
 		--disable-programs \
 		--disable-doc \
 		--disable-devices \
+		--disable-everything \
+		--disable-filters \
+		--disable-static \
+		--disable-avdevice \
+		--disable-swscale \
+		--disable-postproc \
+		--disable-avfilter \
+		--disable-network \
+		--disable-dwt \
+		--disable-lsp \
+		--disable-faan \
+		--disable-iamf \
+		--disable-pixelutils \
+		--disable-debug \
+		--enable-shared \
+		--enable-small \
+		--enable-decoder=smacker \
+		--enable-decoder=smackaud \
+		--enable-demuxer=smacker \
+		--enable-protocol=file \
 		--arch=i686 \
 		--target-os=mingw32 \
 		--cross-prefix=$(CROSS_COMPILE) \
 		--progs-suffix=$(CROSS_COMPILE) \
 		--enable-cross-compile
 
-deps/ffmpeg/libavformat/libavformat.a: deps/ffmpeg/libavutil/avconfig.h
-	cd deps/ffmpeg && $(MAKE) -j$(shell nproc) libavformat/libavformat.a
+deps/ffmpeg/libavformat/avformat-61.dll: deps/ffmpeg/libavutil/avconfig.h
+	cd deps/ffmpeg && $(MAKE) -j$(shell nproc) libavformat/avformat-61.dll
 
-deps/ffmpeg/libavcodec/libavcodec.a: deps/ffmpeg/libavutil/avconfig.h
-	cd deps/ffmpeg && $(MAKE) -j$(shell nproc) libavcodec/libavcodec.a
+deps/ffmpeg/libavcodec/avcodec-61.dll: deps/ffmpeg/libavutil/avconfig.h
+	cd deps/ffmpeg && $(MAKE) -j$(shell nproc) libavcodec/avcodec-61.dll
 
-deps/ffmpeg/libavutil/libavutil.a: deps/ffmpeg/libavutil/avconfig.h
-	cd deps/ffmpeg && $(MAKE) -j$(shell nproc) libavutil/libavutil.a
+deps/ffmpeg/libavutil/avutil-59.dll: deps/ffmpeg/libavutil/avconfig.h
+	cd deps/ffmpeg && $(MAKE) -j$(shell nproc) libavutil/avutil-59.dll
 
-deps/ffmpeg/libswresample/libswresample.a: deps/ffmpeg/libavutil/avconfig.h
-	cd deps/ffmpeg && $(MAKE) -j$(shell nproc) libswresample/libswresample.a
+deps/ffmpeg/libswresample/swresample-5.dll: deps/ffmpeg/libavutil/avconfig.h
+	cd deps/ffmpeg && $(MAKE) -j$(shell nproc) libswresample/swresample-5.dll
 
 include tool_png2ico.mk
 include tool_pngpal2raw.mk
