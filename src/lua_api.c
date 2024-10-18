@@ -829,7 +829,7 @@ static const luaL_Reg global_methods[] = {
    //{"SET_DOOR"                             ,lua_SET_DOOR                        },
    {"ADD_OBJECT_TO_LEVEL"                  ,lua_ADD_OBJECT_TO_LEVEL             },
    {"ADD_EFFECT_GENERATOR_TO_LEVEL"        ,lua_ADD_EFFECT_GENERATOR_TO_LEVEL   },
-/**/
+/*
 //Manipulating Configs
    {"SET_GAME_RULE"                        ,lua_SET_GAME_RULE                   },
    {"SET_HAND_RULE"                        ,lua_SET_HAND_RULE                   },
