@@ -162,12 +162,10 @@ struct PlayerRange luaL_checkPlayerRange(lua_State *L, int index)
 
 PlayerNumber luaL_checkPlayerSingle(lua_State *L, int index)
 {
-    
-
     struct PlayerRange playerRange = luaL_checkPlayerRange(L,index);
     if(playerRange.start_idx != playerRange.end_idx)
     {
-        luaL_error (L,"player range not supported for this command");
+        luaL_argerror (L,index,"player range not supported for this command");
     }
     return playerRange.start_idx;
 }
@@ -194,11 +192,35 @@ ActionPointId luaL_checkActionPoint(lua_State *L, int index)
     ActionPointId apt_idx = action_point_number_to_index(apt_num);
     if (!action_point_exists_idx(apt_idx))
     {
-        luaL_error(L,"Non-existing Action Point, no %d", apt_num);
+        luaL_argerror(L,index,"Non-existing Action Point, no %d", apt_num);
         return 0;
     }
     return apt_idx;
 }
+
+unsigned char luaL_checkCrtLevel(lua_State *L, int index)
+{
+    MapSubtlCoord crtr_level = luaL_checkint(L,index);
+
+    luaL_argcheck(L, (crtr_level > 0) && (crtr_level <= CREATURE_MAX_LEVEL), index,
+                       "Invalid CREATURE LEVEL parameter");
+    return crtr_level - 1; //-1 because C code counts 0-9 instead of 1-10
+
+}
+
+unsigned char luaL_checkParty(lua_State *L, int index)
+{
+    const char *party_name = lua_tostring(L,  index);
+    // Recognize party name
+    int prty_id = get_party_index_of_name(party_name);
+    if (prty_id < 0)
+    {
+        luaL_argerror(L,index,"Party of requested name, '%s', is not defined", party_name);
+        return 0;
+    }
+    return prty_id;
+}
+
 
 
 

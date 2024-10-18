@@ -318,19 +318,14 @@ static int lua_CREATE_PARTY(lua_State *L)
 }
 static int lua_ADD_TO_PARTY(lua_State *L)
 {
-    const char* party_name = luaL_checkstring(L,  1);
+    long party_id          = luaL_checkParty(L,  1);
     long crtr_id           = luaL_checkNamedCommand(L,2,creature_desc);
     long experience        = luaL_checklong(L, 3);
     long gold              = luaL_checklong(L, 4);
     long objective_id      = luaL_checkNamedCommand(L, 5,hero_objective_desc);
     long countdown         = luaL_checklong (L, 6);
 
-    int party_id = get_party_index_of_name(party_name);
-    if (party_id < 0)
-    {
-        SCRPTERRLOG("Invalid Party:%s",party_name);
-        return 0;
-    }
+
     if ((experience < 1) || (experience > CREATURE_MAX_LEVEL))
     {
       SCRPTERRLOG("Invalid Creature Level parameter; %ld not in range (%d,%d)",experience,1,CREATURE_MAX_LEVEL);
@@ -343,16 +338,10 @@ static int lua_ADD_TO_PARTY(lua_State *L)
 
 static int lua_DELETE_FROM_PARTY(lua_State *L)
 {
-    const char* party_name = lua_tostring(L,  1);
+    long party_id          = luaL_checkParty(L,  1);
     const char* creature   = lua_tostring(L,  2);
     long experience  = lua_tointeger(L, 3);
 
-    int party_id = get_party_index_of_name(party_name);
-    if (party_id < 0)
-    {
-        SCRPTERRLOG("Invalid Party:%s",party_name);
-        return 0;
-    }
     long creature_id = get_rid(creature_desc, creature);
     if (creature_id == -1)
     {
@@ -367,25 +356,14 @@ static int lua_DELETE_FROM_PARTY(lua_State *L)
 static int lua_ADD_TUNNELLER_PARTY_TO_LEVEL(lua_State *L)
 {
     PlayerNumber owner           = luaL_checkPlayerSingle(L, 1);
-    const char *party_name       = luaL_checkstring(L,  2);
+    long prty_id                 = luaL_checkParty(L,  2);
     TbMapLocation spawn_location = luaL_checkLocation(L,  3);
-    TbMapLocation head_for       = luaL_checkHeadingLocation(L,4);
-    long target                  = luaL_checkinteger(L, 5);
-    long crtr_level              = luaL_checkinteger(L, 6);
-    GoldAmount carried_gold      = luaL_checkinteger(L, 7);
+    TbMapLocation head_for       = luaL_checkHeadingLocation(L,4); // checks 2 params
+    long target                  = luaL_checkinteger(L, 6);
+    long crtr_level              = luaL_checkCrtLevel(L, 7);
+    GoldAmount carried_gold      = luaL_checkinteger(L, 8);
 
-    if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
-    {
-        SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
-        return 0;
-    }
-    // Recognize party name
-    long prty_id = get_party_index_of_name(party_name);
-    if (prty_id < 0)
-    {
-        SCRPTERRLOG("Party of requested name, '%s', is not defined", party_name);
-        return 0;
-    }
+
     struct Party* party = &gameadd.script.creature_partys[prty_id];
     if (party->members_num >= GROUP_MEMBERS_COUNT-1)
     {
@@ -393,14 +371,14 @@ static int lua_ADD_TUNNELLER_PARTY_TO_LEVEL(lua_State *L)
         return 0;
     }
 
-    script_process_new_tunneller_party(owner, prty_id, spawn_location, head_for, crtr_level-1, carried_gold);
+    script_process_new_tunneller_party(owner, prty_id, spawn_location, head_for, crtr_level, carried_gold);
     return 0;
 }
 
 static int lua_ADD_PARTY_TO_LEVEL(lua_State *L)
 {
     PlayerNumber owner     = luaL_checkPlayerSingle(L, 1);
-    const char *prtname    = luaL_checkstring(L,  2);
+    long prty_id           = luaL_checkParty(L,  2);
     TbMapLocation location = luaL_checkLocation(L,  3);
     long ncopies           = luaL_checkinteger(L, 4);
 
@@ -413,13 +391,6 @@ static int lua_ADD_PARTY_TO_LEVEL(lua_State *L)
     // Recognize place where party is created
     if (location == 0)
         return 0;
-    // Recognize party name
-    long prty_id = get_party_index_of_name(prtname);
-    if (prty_id < 0)
-    {
-        SCRPTERRLOG("Party of requested name, '%s', is not defined",prtname);
-        return 0;
-    }
     struct Party* party = &gameadd.script.creature_partys[prty_id];
     script_process_new_party(party, owner, location, ncopies);
         return 0;
@@ -520,7 +491,14 @@ static int lua_ADD_OBJECT_TO_LEVEL(lua_State *L)
     lua_pushThing(L,script_process_new_object(obj_id, stl_x, stl_y, arg, plr_idx));
     return 1;
 }
-//static int lua_ADD_EFFECT_GENERATOR_TO_LEVEL(lua_State *L)
+static int lua_ADD_EFFECT_GENERATOR_TO_LEVEL(lua_State *L)
+{
+    ThingModel gen_id      = luaL_checkNamedCommand(L,1,effectgen_desc);
+    TbMapLocation location = luaL_checkLocation(L,  2);
+    long range             = luaL_checkinteger(L, 3);
+
+    script_process_new_effectgen(gen_id, location, range);
+}
 
 
 
@@ -850,9 +828,8 @@ static const luaL_Reg global_methods[] = {
    //{"CONCEAL_MAP_RECT"                     ,lua_CONCEAL_MAP_RECT                },
    //{"SET_DOOR"                             ,lua_SET_DOOR                        },
    {"ADD_OBJECT_TO_LEVEL"                  ,lua_ADD_OBJECT_TO_LEVEL             },
-   /*
    {"ADD_EFFECT_GENERATOR_TO_LEVEL"        ,lua_ADD_EFFECT_GENERATOR_TO_LEVEL   },
-
+/**/
 //Manipulating Configs
    {"SET_GAME_RULE"                        ,lua_SET_GAME_RULE                   },
    {"SET_HAND_RULE"                        ,lua_SET_HAND_RULE                   },
@@ -883,7 +860,6 @@ static const luaL_Reg global_methods[] = {
 //Manipulating Research
    {"RESEARCH"                             ,lua_RESEARCH                        },
    {"RESEARCH_ORDER"                       ,lua_RESEARCH_ORDER                  },
-/*
 
 
 //Tweaking computer players

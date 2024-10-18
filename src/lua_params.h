@@ -42,6 +42,8 @@ PlayerNumber luaL_checkPlayerSingle(lua_State *L, int index);
 MapSubtlCoord luaL_checkstl_x(lua_State *L, int index);
 MapSubtlCoord luaL_checkstl_y(lua_State *L, int index);
 ActionPointId luaL_checkActionPoint(lua_State *L, int index);
+unsigned char luaL_checkCrtLevel(lua_State *L, int index);
+unsigned char luaL_checkParty(lua_State *L, int index);
 
 /****   Outputs  *******/
 void lua_pushThing(lua_State *L, struct Thing* thing);
