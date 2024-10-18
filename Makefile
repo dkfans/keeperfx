@@ -352,10 +352,21 @@ CU_OBJS = \
 	obj/cu/Util.o
 
 # include and library directories
-LINKLIB =  -L"sdl/lib" -mwindows obj/enet.a \
+LINKLIB =  -L"sdl/lib" -mwindows \
+	-L"deps/ffmpeg/libavcodec" -lavcodec \
+	-L"deps/ffmpeg/libavformat" -lavformat \
+	-L"deps/ffmpeg/libswresample" -lswresample \
+	-L"deps/ffmpeg/libavutil" -lavutil \
 	-lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net -lSDL2_image \
-	-L"deps/zlib" -lz -lws2_32 -ldbghelp
-INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include" -I"deps/centijson/src" -I"deps/centitoml" -I"deps/astronomy"
+	-L"deps/zlib" -lz -lws2_32 -ldbghelp -lsecur32 -lole32 -lbcrypt -lstrmiids
+INCS = \
+	-I"sdl/include" \
+	-I"sdl/include/SDL2" \
+	-I"deps/enet/include" \
+	-I"deps/centijson/src" \
+	-I"deps/centitoml" \
+	-I"deps/astronomy" \
+	-I"deps/ffmpeg"
 CXXINCS =  $(INCS)
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
@@ -467,6 +478,10 @@ $(shell $(MKDIR) $(FOLDERS))
 
 # We need this file because we need git update
 build-before: libexterns deps/zlib/configure.log
+build-before: deps/ffmpeg/libavformat/avformat-61.dll
+build-before: deps/ffmpeg/libavcodec/avcodec-61.dll
+build-before: deps/ffmpeg/libavutil/avutil-59.dll
+build-before: deps/ffmpeg/libswresample/swresample-5.dll
 
 std-before: build-before
 hvlog-before: build-before
@@ -498,7 +513,7 @@ clean-build:
 
 $(BIN): $(GENSRC) $(STDOBJS) $(STD_MAIN_OBJ) $(LIBS) std-before
 	-$(ECHO) 'Building target: $@'
-	$(CPP) -o "$@" $(STDOBJS) $(STD_MAIN_OBJ) $(LDFLAGS)
+	$(CPP) -o "$@" $(STDOBJS) $(STD_MAIN_OBJ) $(LIBS) $(LDFLAGS)
 ifdef CV2PDB
 	$(CV2PDB) -C "$@"
 endif
@@ -506,7 +521,7 @@ endif
 
 $(HVLOGBIN): $(GENSRC) $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(LIBS) hvlog-before
 	-$(ECHO) 'Building target: $@'
-	$(CPP) -o "$@" $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(LDFLAGS)
+	$(CPP) -o "$@" $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(LIBS) $(LDFLAGS)
 ifdef CV2PDB
 	$(CV2PDB) -C "$@"
 endif
@@ -633,6 +648,50 @@ deps/zlib/libz.a: deps/zlib/configure.log
 
 obj/enet.a:
 	$(MAKE) -f enet.mk PREFIX=$(CROSS_COMPILE) WARNFLAGS=$(WARNFLAGS) obj/enet.a
+
+deps/ffmpeg/libavutil/avconfig.h:
+	cd deps/ffmpeg && ./configure \
+		--disable-x86asm \
+		--disable-programs \
+		--disable-doc \
+		--disable-devices \
+		--disable-everything \
+		--disable-filters \
+		--disable-static \
+		--disable-avdevice \
+		--disable-swscale \
+		--disable-postproc \
+		--disable-avfilter \
+		--disable-network \
+		--disable-dwt \
+		--disable-lsp \
+		--disable-faan \
+		--disable-iamf \
+		--disable-pixelutils \
+		--disable-debug \
+		--enable-shared \
+		--enable-small \
+		--enable-decoder=smacker \
+		--enable-decoder=smackaud \
+		--enable-demuxer=smacker \
+		--enable-protocol=file \
+		--arch=i686 \
+		--target-os=mingw32 \
+		--cross-prefix=$(CROSS_COMPILE) \
+		--progs-suffix=$(CROSS_COMPILE) \
+		--enable-cross-compile
+
+deps/ffmpeg/libavformat/avformat-61.dll: deps/ffmpeg/libavutil/avconfig.h
+	cd deps/ffmpeg && $(MAKE) -j$(shell nproc) libavformat/avformat-61.dll
+
+deps/ffmpeg/libavcodec/avcodec-61.dll: deps/ffmpeg/libavutil/avconfig.h
+	cd deps/ffmpeg && $(MAKE) -j$(shell nproc) libavcodec/avcodec-61.dll
+
+deps/ffmpeg/libavutil/avutil-59.dll: deps/ffmpeg/libavutil/avconfig.h
+	cd deps/ffmpeg && $(MAKE) -j$(shell nproc) libavutil/avutil-59.dll
+
+deps/ffmpeg/libswresample/swresample-5.dll: deps/ffmpeg/libavutil/avconfig.h
+	cd deps/ffmpeg && $(MAKE) -j$(shell nproc) libswresample/swresample-5.dll
 
 include tool_png2ico.mk
 include tool_pngpal2raw.mk
