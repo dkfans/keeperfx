@@ -112,11 +112,9 @@ unsigned char red_pal[256];
 
 extern struct TbSetupSprite setup_sprites_minimal[];
 extern struct TbSetupSprite setup_sprites[];
-#if (BFDEBUG_LEVEL > 0)
-// Declarations for font testing screen (debug version only)
+// Declarations for font testing screen
 extern struct TbSetupSprite setup_testfont[];
 extern struct TbLoadFiles testfont_load_files[];
-#endif
 
 extern struct TbLoadFiles gui_load_files_320[];
 extern struct TbLoadFiles gui_load_files_640[];
@@ -1050,7 +1048,6 @@ void switch_to_next_video_mode_wrapper(void)
   return;
 }
 
-#if (BFDEBUG_LEVEL > 0)
 TbBool load_testfont_fonts(void)
 {
   if ( LbDataLoadAll(testfont_load_files) )
@@ -1066,7 +1063,6 @@ void free_testfont_fonts(void)
 {
   LbDataFreeAll(testfont_load_files);
 }
-#endif
 
 /******************************************************************************/
 #ifdef __cplusplus

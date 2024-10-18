@@ -1235,7 +1235,7 @@ short anim_format_matches(int width,int height,int bpp)
 short anim_stop(void)
 {
     SYNCLOG("Finishing movie recording.");
-    if ( ((animation.field_0 & 0x01)==0) || (animation.outfhndl==0))
+    if ( ((animation.field_0 & 0x01)==0) || (!animation.outfhndl))
     {
       ERRORLOG("Can't stop recording movie");
       return false;
@@ -1248,7 +1248,7 @@ short anim_stop(void)
         ERRORLOG("Can't close movie file");
         return false;
     }
-    animation.outfhndl = 0;
+    animation.outfhndl = NULL;
     LbMemoryFree(animation.chunkdata);
     animation.chunkdata=NULL;
     animation.field_0 = 0;
@@ -1281,7 +1281,7 @@ short anim_open(char *fname, int arg1, short arg2, int width, int height, int bp
         return false;
       }
       animation.outfhndl = LbFileOpen(fname, Lb_FILE_MODE_NEW);
-      if (animation.outfhndl == -1)
+      if (!animation.outfhndl)
       {
           ERRORLOG("Can't open movie file.");
         return false;
@@ -1321,7 +1321,7 @@ short anim_open(char *fname, int arg1, short arg2, int width, int height, int bp
       SYNCLOG("Resuming movie recording, \"%s\".",fname);
       animation.field_0 |= flags;
       animation.inpfhndl = LbFileOpen(fname, 2);
-      if ( animation.inpfhndl == -1 )
+      if (!animation.inpfhndl)
         return false;
       // Reading header
       if (!anim_read_data(&animation.header, sizeof(struct AnimFLIHeader)))

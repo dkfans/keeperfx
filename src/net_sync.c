@@ -81,7 +81,7 @@ TbBool send_resync_game(void)
   //TODO NET see if it is necessary to dump to file... probably superfluous
   char* fname = prepare_file_path(FGrp_Save, "resync.dat");
   TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_NEW);
-  if (fh == -1)
+  if (!fh)
   {
     ERRORLOG("Can't open resync file.");
     return false;

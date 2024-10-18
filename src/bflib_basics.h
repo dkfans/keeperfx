@@ -20,8 +20,8 @@
 #ifndef BFLIB_BASICS_H
 #define BFLIB_BASICS_H
 
-#include <io.h>
 #include <time.h>
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,19 +41,6 @@ extern "C" {
 #define TEXT_BUFFER_LENGTH 2048
 
 #define MAX_CONSOLE_LOG_COUNT 1000   // Maximum number of log messages
-
-enum TbErrorLogFlags {
-        Lb_ERROR_LOG_APPEND = 0,
-        Lb_ERROR_LOG_NEW    = 1,
-};
-
-enum TbLogFlags {
-        LbLog_DateInHeader = 0x0010,
-        LbLog_TimeInHeader = 0x0020,
-        LbLog_DateInLines  = 0x0040,
-        LbLog_TimeInLines  = 0x0080,
-        LbLog_LoopedFile   = 0x0100,
-};
 
 enum TbErrorCode {
     Lb_FAIL                 = -1,
@@ -88,34 +75,9 @@ typedef time_t TbTimeSec;
 typedef unsigned char TbChecksum;
 typedef unsigned long TbBigChecksum;
 typedef long Offset;
-typedef int TbFileHandle;
+typedef FILE * TbFileHandle;
 typedef unsigned char TbBool;
 typedef short TbScreenPos;
-
-struct TbFileFind {
-          char Filename[144];
-          char AlternateFilename[14];
-          unsigned long Attributes;
-          unsigned long Length;
-          struct TbDate CreationDate;
-          struct TbTime CreationTime;
-          struct TbDate LastWriteDate;
-          struct TbTime LastWriteTime;
-          unsigned long ReservedHandle;
-          struct _finddata_t Reserved;
-};
-
-#define LOG_PREFIX_LEN 32
-
-struct TbLog {
-        char filename[DISKPATH_SIZE];
-        char prefix[LOG_PREFIX_LEN];
-        ulong flags;
-        TbBool Initialised;
-        TbBool Created;
-        TbBool Suspended;
-        long position;
-};
 
 struct TbNetworkCallbackData;
 /** Command function result, alias for TbResult. */
@@ -132,7 +94,23 @@ struct DebugMessage {
 extern struct DebugMessage * debug_messages_head;
 extern struct DebugMessage ** debug_messages_tail;
 
+enum LogLevel {
+  LOG_DEBUG,
+  LOG_INFO,
+  LOG_WARNING,
+  LOG_ERROR,
+  LOG_OFF,
+};
 
+enum LogChan {
+  LOG_GENERAL,
+  LOG_NET,
+  LOG_AI,
+  LOG_NAV,
+  LOG_TEST,
+  LOG_SCRIPT,
+  LOG_CONFIG,
+};
 
 #pragma pack()
 /******************************************************************************/
@@ -148,30 +126,27 @@ short error_dialog(const char *codefile,const int ecode,const char *message);
 short error_dialog_fatal(const char *codefile,const int ecode,const char *message);
 char *buf_sprintf(const char *format, ...);
 /******************************************************************************/
-int LbErrorLog(const char *format, ...);
-int LbWarnLog(const char *format, ...);
-int LbSyncLog(const char *format, ...);
-int LbNetLog(const char *format, ...);
-int LbJustLog(const char *format, ...);
-int LbAiLog(const char *format, ...);
-int LbNaviLog(const char *format, ...);
+
+void LbLog(int chan, int level, const char * format, ...);
+void LbSetLogLevel(int chan, int level);
+void LbLogConsole(const char * format, ...);
+#define LbDebugLog(format, ...) LbLog(LOG_GENERAL, LOG_DEBUG, "[%d] %s:%d %s: Debug: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define LbErrorLog(format, ...) LbLog(LOG_GENERAL, LOG_ERROR, "[%d] %s:%d %s: Error: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define LbWarnLog(format, ...) LbLog(LOG_GENERAL, LOG_WARNING, "[%d] %s:%d %s: Warning: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define LbSyncLog(format, ...) LbLog(LOG_GENERAL, LOG_INFO, "[%d] %s:%d %s: Info: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define LbNetLog(format, ...) LbLog(LOG_NET, LOG_INFO, "[%d] %s:%d %s: Info: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define LbJustLog(format, ...) LbLog(LOG_GENERAL, LOG_INFO, "[%d] %s:%d %s: Info: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define LbAiLog(format, ...) LbLog(LOG_AI, LOG_INFO, "[%d] %s:%d %s: Info: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define LbNaviLog(format, ...) LbLog(LOG_NAV, LOG_INFO, "[%d] %s:%d %s: Info: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define LbFTestLog(format, ...) LbLog(LOG_TEST, LOG_INFO, "[%d] %s:%d %s: Info: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define LbScriptLog(format, ...) LbLog(LOG_SCRIPT, LOG_INFO, "[%d] %s:%d %s: Info: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define LbConfigLog(format, ...) LbLog(LOG_CONFIG, LOG_INFO, "[%d] %s:%d %s: Info: " format "\n", get_gameturn(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
 int Lbvsprintf(char* buffer, const char *format, ...);
-#ifdef FUNCTESTING
-int LbFTestLog(const char *format, ...);
-#endif
-int LbScriptLog(unsigned long line,const char *format, ...);
-int LbConfigLog(unsigned long line,const char *format, ...);
 void LbPrint(const char *format, ...);
 
-int LbErrorLogSetup(const char *directory, const char *filename, TbBool flag);
-int LbErrorLogClose(void);
+TbBool LbLogOpen(const char *filename);
+void LbLogClose(void);
 
-int LbLogClose(struct TbLog *log);
-int LbLogSetup(struct TbLog *log, const char *filename, ulong flags);
-int LbLogSetPrefix(struct TbLog *log, const char *prefix);
-int LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...);
-
-void LbCloseLog();
 /******************************************************************************/
 typedef void (*TbNetworkCallbackFunc)(struct TbNetworkCallbackData *, void *);
 /******************************************************************************/

@@ -831,7 +831,7 @@ long LbDiagonalLength(long a, long b)
     return (tmpval >> 13);
 }
 
-float lerp(float a, float b, float f) 
+float LbLerp(float a, float b, float f)
 {
     return (a * (1.0 - f)) + (b * f);
 }

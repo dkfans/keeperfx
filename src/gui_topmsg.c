@@ -102,14 +102,10 @@ TbBool erstat_check(void)
 
     int stat_num = last_checked_stat_num;
     int sdiff = erstat[stat_num].n - erstat[stat_num].nprv;
-    // Display an error if any things were not created in this game turn
+    // Log a warning if any things were not created in this game turn
     if (sdiff != 0)
     {
-#if (BFDEBUG_LEVEL > 0)
-        show_onscreen_msg(game_num_fps,"%s, %ld occurrences",erstat[stat_num].msg,sdiff);
-#else
         WARNLOG("%s, %ld occurrences",erstat[stat_num].msg,sdiff);
-#endif
         erstat[stat_num].nprv = erstat[stat_num].n;
     }
     last_checked_stat_num = (last_checked_stat_num+1) % (sizeof(erstat)/sizeof(erstat[0]));

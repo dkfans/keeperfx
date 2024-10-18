@@ -662,7 +662,7 @@ void maintain_my_event_list(struct Dungeon *dungeon)
                     {
                         if (is_my_player_number(dungeon->owner)) {
                             struct SoundEmitter* emit = S3DGetSoundEmitter(Non3DEmitter);
-                            StopSample(get_emitter_id(emit), 947);
+                            stop_sample(get_emitter_id(emit), 947, 0);
                             play_non_3d_sample(175);
                         }
                         unsigned char prev_ev_idx = dungeon->event_button_index[i - 1];
