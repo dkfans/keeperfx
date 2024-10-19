@@ -29,6 +29,7 @@
 #include "config.h"
 #include "config_campaigns.h"
 #include "game_merge.h"
+#include "lvl_filesdk1.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -37,7 +38,6 @@ extern "C" {
 /******************************************************************************/
 char *gui_strings_data;
 char *gui_strings[GUI_STRINGS_COUNT];
-TbBool reload_campaign_strings;
 /******************************************************************************/
 TbBool reset_strings(char **strings, int max)
 {
@@ -153,10 +153,6 @@ TbBool setup_campaign_strings_data(struct GameCampaign *campgn)
   reset_strings(campgn->strings, STRINGS_MAX);
   // Analyzing strings data and filling correct values
   TbBool result = create_strings_list(campgn->strings, campgn->strings_data, strings_data_end, STRINGS_MAX);
-  if (result)
-  {
-    reload_campaign_strings = false;
-  }
   SYNCDBG(19,"Finished");
   return result;
 }
@@ -172,6 +168,7 @@ const char * gui_string(unsigned int index)
     }
     return gui_strings[index];
 }
+
 const char * cmpgn_string(unsigned int index)
 {
     if (index >= STRINGS_MAX)
@@ -188,9 +185,34 @@ const char * cmpgn_string(unsigned int index)
 const char * get_string(TextStringId stridx)
 {
     if (stridx <= STRINGS_MAX)
+    {
+        if (level_strings[stridx] != NULL)
+        {
+            if (*level_strings[stridx] != '\0')
+            {
+                return level_strings[stridx];
+            }
+        }
         return cmpgn_string(stridx);
+    }
     else
         return gui_string(stridx-STRINGS_MAX);
+}
+
+unsigned long count_strings(char *strings, int size)
+{
+    unsigned long result = 0;
+    char *s = strings;
+    char *end = strings + size;
+    while (s <= end)
+    {
+        if (*s == '\0')
+        {
+            result++;
+        }
+        s++;
+    }
+    return result;
 }
 /******************************************************************************/
 #ifdef __cplusplus
