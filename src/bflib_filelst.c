@@ -32,7 +32,7 @@ extern "C" {
 /******************************************************************************/
 /******************************************************************************/
 
-static ModifyDataLoadFnameFunc *modify_data_load_filename_function=&defaultModifyDataLoadFilename;
+static ModifyDataLoadFnameFunc *modify_data_load_filename_function = defaultModifyDataLoadFilename;
 
 /******************************************************************************/
 
@@ -92,7 +92,7 @@ int LbDataLoad(struct TbLoadFiles *load_file, LoadFilesGetSizeFunc get_size_fn, 
 {
   LbMemorySetup();
   LbDataFree(load_file);
-  char *fname = modify_data_load_filename_function(load_file);
+  const char *fname = modify_data_load_filename_function(load_file->FName);
   TbBool is_static = (fname[0] == '!');
   if (is_static)
       fname++;
@@ -199,9 +199,9 @@ ModifyDataLoadFnameFunc *LbDataLoadSetModifyFilenameFunction(ModifyDataLoadFname
   return newfunc;
 }
 
-char *defaultModifyDataLoadFilename(struct TbLoadFiles *ldfiles)
+const char * defaultModifyDataLoadFilename(const char * input)
 {
-     return ldfiles->FName;
+     return input;
 }
 
 /******************************************************************************/

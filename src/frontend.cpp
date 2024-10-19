@@ -2600,21 +2600,13 @@ void reinit_all_menus(void)
     set_gui_visible(visible);
 }
 
-char *mdlf_for_cd(struct TbLoadFiles * tb_load_files)
+const char * mdlf_for_cd(const char * input)
 {
-    TbLoadFiles *result; // eax
-    result = tb_load_files;
-    if ( tb_load_files->FName[0] != 42 )
-    {
-        sprintf(path_string, "%s/%s", install_info.inst_path, tb_load_files->FName); // todo check out
+    if (input[0] != '*') {
+        sprintf(path_string, "%s/%s", install_info.inst_path, input); // todo check out
         return path_string;
     }
-    return result->FName;
-}
-
-char *mdlf_default(struct TbLoadFiles * tb_load_files)
-{
-    return tb_load_files->FName;
+    return input;
 }
 
 void frontend_load_data_from_cd(void)
@@ -2624,7 +2616,7 @@ void frontend_load_data_from_cd(void)
 
 void frontend_load_data_reset(void)
 {
-  LbDataLoadSetModifyFilenameFunction(mdlf_default);
+  LbDataLoadSetModifyFilenameFunction(defaultModifyDataLoadFilename);
 }
 
 void initialise_tab_tags(MenuID menu_id)

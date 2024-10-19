@@ -64,7 +64,7 @@ void frontstory_load(void)
         ERRORLOG("Unable to Load FRONT STORY FILES");
     } else
     {
-        LbDataLoadSetModifyFilenameFunction(mdlf_default);
+        LbDataLoadSetModifyFilenameFunction(defaultModifyDataLoadFilename);
         LbSpriteSetupAll(frontstory_setup_sprites);
         LbPaletteSet(frontend_palette);
         srand(LbTimerClock());
