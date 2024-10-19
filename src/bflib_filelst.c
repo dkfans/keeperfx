@@ -91,11 +91,6 @@ void LbDataFreeAllV2(struct TbLoadFilesV2 load_files[])
 int LbDataLoad(struct TbLoadFiles *load_file, LoadFilesGetSizeFunc get_size_fn, LoadFilesUnpackFunc unpack_fn)
 {
   LbMemorySetup();
-  MemAllocFunc *alloc_func;
-  if (load_file->Flags & 0x0001)
-    alloc_func = LbMemoryAllocLow;
-  else
-    alloc_func = LbMemoryAlloc;
   LbDataFree(load_file);
   char *fname = modify_data_load_filename_function(load_file);
   TbBool is_static = (fname[0] == '!');
@@ -106,7 +101,7 @@ int LbDataLoad(struct TbLoadFiles *load_file, LoadFilesGetSizeFunc get_size_fn, 
 #ifdef __DEBUG
       LbJustLog("LbDataLoad: * in fname \"%s\"\n",fname);
 #endif
-    *(load_file->Start) = alloc_func(load_file->SLength);
+    *(load_file->Start) = LbMemoryAlloc(load_file->SLength);
     if ( (*(load_file->Start)) == NULL )
         return -100;
   } else
@@ -120,7 +115,7 @@ int LbDataLoad(struct TbLoadFiles *load_file, LoadFilesGetSizeFunc get_size_fn, 
         return -101;
     if (!is_static)
     {
-        *(load_file->Start) = alloc_func(load_file->SLength + 512);
+        *(load_file->Start) = LbMemoryAlloc(load_file->SLength + 512);
     }
     if ((*(load_file->Start)) == NULL)
         return -100;

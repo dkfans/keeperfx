@@ -160,7 +160,7 @@ short LoadMcgaData(void)
     struct TbLoadFiles* t_lfile = &load_files[i];
     // Allocate some low memory, only to be sure that
     // it will be free when this function ends
-    void* mem = LbMemoryAllocLow(0x10000u);
+    void* mem = LbMemoryAlloc(0x10000u);
     while (t_lfile->Start != NULL)
     {
         // Don't allow loading flags

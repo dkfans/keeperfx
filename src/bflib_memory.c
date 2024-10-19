@@ -213,15 +213,6 @@ int LbMemoryReset(void)
     return 1;
 }
 
-unsigned char * LbMemoryAllocLow(ulong size)
-{
-//Simplified as we no longer need such memory routines
-unsigned char* ptr = (unsigned char*)malloc(size);
-if (ptr != NULL)
-    memset(ptr, 0, size);
-return ptr;
-}
-
 unsigned char * LbMemoryAlloc(ulong size)
 {
     unsigned char* ptr = (unsigned char*)malloc(size);

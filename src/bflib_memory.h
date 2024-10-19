@@ -39,7 +39,6 @@ void * LbMemoryCopy(void *in_dst, const void *in_src, ulong len);
 int LbMemorySetup();
 int LbMemoryReset(void);
 short LbMemoryCheck(void);
-unsigned char * LbMemoryAllocLow(ulong size);
 unsigned char * LbMemoryAlloc(ulong size);
 int LbMemoryFree(void *mem_ptr);
 void * LbMemoryGrow(void *ptr, unsigned long size);
