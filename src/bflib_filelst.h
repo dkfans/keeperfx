@@ -67,7 +67,6 @@ void LbDataFreeAllV2(struct TbLoadFilesV2 load_files[]);
 int LbDataLoadAll(struct TbLoadFiles load_files[]);
 int LbDataLoadAllV2(struct TbLoadFilesV2 load_files[]);
 
-int LbDataFindNameIndex(struct TbLoadFiles load_files[],char *fname);
 int LbDataFindStartIndex(struct TbLoadFiles load_files[],unsigned char **start);
 /******************************************************************************/
 #ifdef __cplusplus

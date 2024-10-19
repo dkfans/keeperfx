@@ -204,20 +204,6 @@ char *defaultModifyDataLoadFilename(struct TbLoadFiles *ldfiles)
      return ldfiles->FName;
 }
 
-int LbDataFindNameIndex(struct TbLoadFiles load_files[],char *fname)
-{
-    int i = 0;
-    struct TbLoadFiles* t_lfile = &load_files[i];
-    while (t_lfile->Start != NULL)
-    {
-        if (strcasecmp(t_lfile->FName, fname) == 0)
-            return i;
-        i++;
-        t_lfile = &load_files[i];
-  }
-  return -1;
-}
-
 int LbDataFindStartIndex(struct TbLoadFiles load_files[],unsigned char **start)
 {
     int i = 0;
