@@ -148,10 +148,6 @@ struct TbLoadFiles gui_load_files_640[] = {
   {"",                   NULL,                                  NULL,                                           0, 0, 0},
 };
 
-struct TbLoadFiles front_load_files_minimal_320[] = {
-  {"",                   NULL,                                  NULL,                                           0, 0, 0},
-};
-
 #ifdef SPRITE_FORMAT_V2
 struct TbLoadFiles front_load_files_minimal_640[] = {
   {"ldata/frontft1-64.dat",(unsigned char **)&frontend_font_data[0],(unsigned char **)&frontend_end_font_data[0], 0, 0, 0},

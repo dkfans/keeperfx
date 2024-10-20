@@ -167,7 +167,6 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode);
 TbScreenMode setup_screen_mode_zero(TbScreenMode nmode);
 
 short LoadMcgaData(void);
-short LoadMcgaDataMinimal(void);
 TbBool update_screen_mode_data(long width, long height);
 void load_pointer_file(short hi_res);
 TbBool load_testfont_fonts(void);

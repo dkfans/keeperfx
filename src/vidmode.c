@@ -120,7 +120,6 @@ extern struct TbLoadFiles testfont_load_files[];
 
 extern struct TbLoadFiles gui_load_files_320[];
 extern struct TbLoadFiles gui_load_files_640[];
-extern struct TbLoadFiles front_load_files_minimal_320[];
 extern struct TbLoadFiles front_load_files_minimal_640[];
 extern struct TbLoadFiles pointer_load_files_640[];
 /******************************************************************************/
@@ -179,19 +178,6 @@ short LoadMcgaData(void)
   if (mem != NULL)
     LbMemoryFree(mem);
   return (ferror == 0);
-}
-
-/**
- * Loads MCGA graphics files, for low resolution mode.
- * Loads only most importand files, where no GUI is needed.
- * @return Returns true if all files were loaded, false otherwise.
- */
-short LoadMcgaDataMinimal(void)
-{
-  // Load the files
-  if (LbDataLoadAll(front_load_files_minimal_320))
-    return 0;
-  return 1;
 }
 
 void set_game_vidmode(uint i, TbScreenMode nmode)
@@ -638,10 +624,13 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
     }
     if (nmode != old_mode)
         LbScreenReset(false);
-    if (MinimalResolutionSetup)
-      LbDataFreeAll(hi_res ? front_load_files_minimal_640 : front_load_files_minimal_320);
-    else
+    if (MinimalResolutionSetup) {
+      if (hi_res) {
+        LbDataFreeAll(front_load_files_minimal_640);
+      }
+    } else {
       LbDataFreeAll(hi_res ? gui_load_files_640 : gui_load_files_320);
+    }
     if (!hi_res) ERRORLOG("MCGA Minimal not allowed (Reset)");
     MinimalResolutionSetup = false;
   }
@@ -822,10 +811,7 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode)
     }
     else
     {
-      if (MinimalResolutionSetup)
-        LbDataFreeAll(front_load_files_minimal_320);
-      else
-        LbDataFreeAll(gui_load_files_320);
+      if (!MinimalResolutionSetup) LbDataFreeAll(gui_load_files_320);
     }
     MinimalResolutionSetup = false;
   }
@@ -850,15 +836,7 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode)
       }
       frontend_load_data_reset();
     }
-    else
-    {
-      if ( !LoadMcgaDataMinimal() )
-      {
-        ERRORLOG("Unable to load minimal MCGA files");
-        return Lb_SCREEN_MODE_INVALID;
-      }
-    }
-    
+
     if ((nmode != old_mode) || (force_video_mode_reset))
     {
         if (LbScreenSetup(nmode, new_mdinfo->Width, new_mdinfo->Height, engine_palette, (hi_res ? 1 : 2), 0) < Lb_SUCCESS)

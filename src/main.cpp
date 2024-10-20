@@ -923,12 +923,6 @@ TbBool initial_setup(void)
         ERRORLOG("Unable to load game_load_files");
         return false;
     }
-    // was LoadMcgaData, but minimal should be enough at this point.
-    if (!LoadMcgaDataMinimal())
-    {
-        ERRORLOG("Loading MCGA files failed");
-        return false;
-    }
     load_pointer_file(0);
     update_screen_mode_data(320, 200);
     clear_game();
