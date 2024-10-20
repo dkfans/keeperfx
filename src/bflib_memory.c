@@ -213,11 +213,10 @@ int LbMemoryReset(void)
     return 1;
 }
 
-unsigned char * LbMemoryAlloc(ulong size)
+void * LbMemoryAlloc(ulong size)
 {
-    unsigned char* ptr = (unsigned char*)malloc(size);
-    if (ptr != NULL)
-      memset(ptr,0,size);
+    void * ptr = malloc(size);
+    if (ptr) memset(ptr, 0, size);
     return ptr;
 }
 
