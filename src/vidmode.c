@@ -134,10 +134,7 @@ short LoadVRes256Data(long scrbuf_size)
     // Update size of the parchment buffer, as it is also used as screen buffer
     if (scrbuf_size < 640*480)
         scrbuf_size = 640*480;
-    int i = LbDataFindStartIndex(gui_load_files_640, (unsigned char**)&hires_parchment);
-    if (i>=0) {
-        gui_load_files_640[i].SLength = scrbuf_size;
-    }
+    gui_load_files_640[9].SLength = scrbuf_size;
     // Load the files
     if (LbDataLoadAll(gui_load_files_640)) {
         return 0;
