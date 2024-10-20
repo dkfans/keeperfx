@@ -167,12 +167,6 @@ struct TbLoadFiles pointer_load_files_640[] = {
   {"data/pointer-64.tab",(unsigned char **)&pointer_sprites,     (unsigned char **)&end_pointer_sprites,        0, 0, 0},
   {"",                   NULL,                                   NULL,                                          0, 0, 0},
 };
-
-struct TbLoadFiles pointer_small_load_files_640[] = {
-  {"data/pointsm-64.dat",(unsigned char **)&pointer_data,        NULL,                                          0, 0, 0},
-  {"data/pointsm-64.tab",(unsigned char **)&pointer_sprites,     (unsigned char **)&end_pointer_sprites,        0, 0, 0},
-  {"",                   NULL,                                   NULL,                                          0, 0, 0},
-};
 #else
 struct TbLoadFiles front_load_files_minimal_640[] = {
   {"data/gui1-32.dat",   (unsigned char **)&button_sprite_data, (unsigned char **)&end_button_sprite_data,      0, 0, 0},
