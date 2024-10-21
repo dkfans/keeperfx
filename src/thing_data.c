@@ -58,9 +58,7 @@ struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const ch
                 delete_thing_structure(thing, 0);
             } else
             {
-#if (BFDEBUG_LEVEL > 0)
                 ERRORMSG("%s: Cannot free up effect element to allocate new thing!",func_name);
-#endif
             }
         }
         i = game.free_things_start_index;
@@ -68,18 +66,14 @@ struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const ch
     // Now, if there is still no free thing (we couldn't free any)
     if (i >= THINGS_COUNT-1)
     {
-#if (BFDEBUG_LEVEL > 0)
         ERRORMSG("%s: Cannot allocate new thing, no free slots!",func_name);
-#endif
         return INVALID_THING;
     }
     // And if there is free one, allocate it
     thing = thing_get(game.free_things[i]);
-#if (BFDEBUG_LEVEL > 0)
     if (thing_exists(thing)) {
         ERRORMSG("%s: Found existing thing %d in free things list at pos %d!",func_name,(int)game.free_things[i],(int)i);
     }
-#endif
     LbMemorySet(thing, 0, sizeof(struct Thing));
     if (thing_is_invalid(thing)) {
         ERRORMSG("%s: Got invalid thing slot instead of free one!",func_name);
@@ -172,9 +166,7 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
         game.free_things_start_index--;
         game.free_things[game.free_things_start_index] = thing->index;
     } else {
-#if (BFDEBUG_LEVEL > 0)
         ERRORMSG("%s: Performed deleting of thing with bad index %d!",func_name,(int)thing->index);
-#endif
     }
     LbMemorySet(thing, 0, sizeof(struct Thing));
 }
@@ -219,12 +211,10 @@ TbBool thing_exists(const struct Thing *thing)
         return false;
     if ((thing->alloc_flags & TAlF_Exists) == 0)
         return false;
-#if (BFDEBUG_LEVEL > 0)
     if (thing->index != (thing-thing_get(0)))
         WARNLOG("Incorrectly indexed thing (%d) at pos %d",(int)thing->index,(int)(thing-thing_get(0)));
     if ((thing->class_id < 1) || (thing->class_id >= THING_CLASSES_COUNT))
         WARNLOG("Thing %d is of invalid class %d",(int)thing->index,(int)thing->class_id);
-#endif
     return true;
 }
 

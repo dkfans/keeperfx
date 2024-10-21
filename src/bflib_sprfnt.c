@@ -1976,7 +1976,7 @@ short load_font_file(struct AsianFont * dbcfont, const char * fpath) {
   // Load font file
   SYNCDBG(9, "Loading font \"%s\"", fname);
   TbFileHandle fhandle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
-  if (fhandle == -1)
+  if (!fhandle)
   {
     ERRORLOG("Cannot open \"%s\"", fname);
     free(fname);

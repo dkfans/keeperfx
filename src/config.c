@@ -842,11 +842,9 @@ const char *get_current_language_str(void)
  */
 const char *get_language_lwrstr(int lang_id)
 {
-    const char* src = get_conf_parameter_text(lang_type, lang_id);
-#if (BFDEBUG_LEVEL > 0)
+  const char* src = get_conf_parameter_text(lang_type, lang_id);
   if (strlen(src) != 3)
-      WARNLOG("Bad text code for language index %d",(int)lang_id);
-#endif
+    WARNLOG("Bad text code for language index %d", (int)lang_id);
   static char lang_str[4];
   snprintf(lang_str, 4, "%s", src);
   make_lowercase(lang_str);
@@ -1337,8 +1335,8 @@ short load_configuration(void)
           }
           if ((i >= 0) && (i <= 32768)) {
               if (i > 100) {i = 100;}
-              zoom_distance_setting = lerp(4100, CAMERA_ZOOM_MIN, (float)i/100.0);
-              frontview_zoom_distance_setting = lerp(16384, FRONTVIEW_CAMERA_ZOOM_MIN, (float)i/100.0);
+              zoom_distance_setting = LbLerp(4100, CAMERA_ZOOM_MIN, (float)i/100.0);
+              frontview_zoom_distance_setting = LbLerp(16384, FRONTVIEW_CAMERA_ZOOM_MIN, (float)i/100.0);
           } else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }

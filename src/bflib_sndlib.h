@@ -22,67 +22,33 @@
 
 #include "bflib_basics.h"
 #include "bflib_sound.h"
+#include "sounds.h"
 
 #include "globals.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
-#pragma pack(1)
 
-// Data structures
-
-struct HeapMgrHeader;
-struct HeapMgrHandle;
-
-
-struct SampleInfo { // sizeof = 29
-    long field_0;
-  unsigned char field_4[4];
-  unsigned char field_8;
-  unsigned char field_9[9];
-  SoundSmplTblID smptbl_id;
-  unsigned char field_14[3];
-  unsigned char flags_17;
-  unsigned long field_18;
-  unsigned char field_1C;
-};
-
-#pragma pack()
-/******************************************************************************/
-// Exported variables
-
-/******************************************************************************/
-// Exported functions
-
-int init_miles_sound_system();
-void unload_miles_sound_system();
-
-int FreeAudio(void);
-int SetRedbookVolume(int volume);
-int SetSoundMasterVolume(int volume);
-int SetMusicMasterVolume(int volume);
-int GetSoundInstalled(void);
-int PlayRedbookTrack(int);
-int PauseRedbookTrack(void);
-int ResumeRedbookTrack(void);
-int MonitorStreamedSoundTrack(void);
-int StopRedbookTrack(void);
+void FreeAudio(void);
+void SetRedbookVolume(SoundVolume);
+void SetSoundMasterVolume(SoundVolume);
+void SetMusicMasterVolume(SoundVolume);
+TbBool GetSoundInstalled(void);
+void PlayRedbookTrack(int);
+void PauseRedbookTrack(void);
+void ResumeRedbookTrack(void);
+void MonitorStreamedSoundTrack(void);
+void StopRedbookTrack(void);
 void * GetSoundDriver(void);
-int StopAllSamples(void);
-struct SampleInfo * GetFirstSampleInfoStructure(void);
-int InitAudio(void *);
-int SetupAudioOptionDefaults(void *);
-int IsSamplePlaying(int a1, int a2, int a3);
-struct SampleInfo * GetLastSampleInfoStructure(void);
-int GetCurrentSoundMasterVolume(void);
-int StopSample(SoundEmitterID emit_id, long smptbl_id);
-int SetSampleVolume(SoundEmitterID emit_id, long smptbl_id,long volume,long d);
-int SetSamplePan(SoundEmitterID emit_id, long smptbl_id,long pan,int d);
-int SetSamplePitch(SoundEmitterID emit_id, long smptbl_id,long pitch,int d);
-struct SampleInfo * PlaySampleFromAddress(SoundEmitterID emit_id, int smpl_idx, int a3, int a4, int a5, unsigned char a6, unsigned char a7, void * buf, int sfxid);
-/******************************************************************************/
+void StopAllSamples(void);
+TbBool InitAudio(const struct SoundSettings *);
+TbBool IsSamplePlaying(SoundMilesID);
+SoundVolume GetCurrentSoundMasterVolume(void);
+void SetSampleVolume(SoundEmitterID, SoundSmplTblID, SoundVolume);
+void SetSamplePan(SoundEmitterID, SoundSmplTblID, SoundPan);
+void SetSamplePitch(SoundEmitterID, SoundSmplTblID, SoundPitch);
+
 #ifdef __cplusplus
 }
 #endif

@@ -20,6 +20,7 @@
 #define DK_SOUNDS_H
 
 #include "bflib_basics.h"
+#include "bflib_sound.h"
 #include "globals.h"
 
 #include <SDL2/SDL_mixer.h>
@@ -54,30 +55,6 @@ struct SoundSettings {
   unsigned char redbook_enable;
 };
 
-struct SoundBankHead { // sizeof = 18
-  unsigned char field_0[14];
-  unsigned long field_E;
-};
-
-struct SoundBankSample { // sizeof = 32
-    /** Name of the sound file the sample comes from. */
-    unsigned char filename[18];
-    /** Offset of the sample data. */
-    unsigned long field_12;
-    unsigned long field_16;
-    /** Size of the sample file. */
-    unsigned long data_size;
-    unsigned char sfxid;
-    unsigned char field_1F;
-};
-
-struct SoundBankEntry { // sizeof = 16
-  unsigned long field_0;
-  unsigned long field_4;
-  unsigned long field_8;
-  unsigned long field_C;
-};
-
 enum SoundSettingsFlags {
     SndSetting_None    = 0x00,
     SndSetting_MIDI = 0x01,
@@ -91,17 +68,15 @@ extern Mix_Chunk* streamed_sample;
 #pragma pack()
 
 /******************************************************************************/
-TbBool init_sound_heap_two_banks(unsigned char *heap_mem, long heap_size, char *snd_fname, char *spc_fname, long a5);
 TbBool init_sound(void);
 void sound_reinit_after_load(void);
 
 void update_player_sounds(void);
 void process_3d_sounds(void);
-void process_sound_heap(void);
 
-void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pitch, char a4, unsigned char a5, unsigned char a6, long priority, long loudness);
-void play_sound_if_close_to_receiver(struct Coord3d* pos, short smptbl_idx);
-void stop_thing_playing_sample(struct Thing *thing, short smpl_idx);
+void thing_play_sample(struct Thing *, SoundSmplTblID, SoundPitch, char fil1D, unsigned char ctype, unsigned char flags, long priority, SoundVolume);
+void play_sound_if_close_to_receiver(struct Coord3d*, SoundSmplTblID);
+void stop_thing_playing_sample(struct Thing *, SoundSmplTblID smpl_idx);
 void play_thing_walking(struct Thing *thing);
 
 TbBool ambient_sound_prepare(void);

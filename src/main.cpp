@@ -12,10 +12,8 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-
 #include "keeperfx.hpp"
+#include "platform.h"
 
 #include "bflib_coroutine.h"
 #include "bflib_math.h"
@@ -137,7 +135,6 @@
 
 int test_variable;
 
-char cmndline[CMDLN_MAXLEN+1];
 unsigned short bf_argc;
 char *bf_argv[CMDLN_MAXLEN+1];
 short do_draw;
@@ -948,54 +945,9 @@ short setup_game(void)
 {
   struct CPU_INFO cpu_info; // CPU status variable
   short result;
-  OSVERSIONINFO v;
   // Do only a very basic setup
   cpu_detect(&cpu_info);
-  SYNCMSG("CPU %s type %d family %d model %d stepping %d features %08x",cpu_info.vendor,
-      (int)cpu_get_type(&cpu_info),(int)cpu_get_family(&cpu_info),(int)cpu_get_model(&cpu_info),
-      (int)cpu_get_stepping(&cpu_info),cpu_info.feature_edx);
-  if (cpu_info.BrandString)
-  {
-      SYNCMSG("%s", &cpu_info.brand[0]);
-  }
-  SYNCMSG("Build image base: %p", GetModuleHandle(NULL));
-  v.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-  if (GetVersionEx(&v))
-  {
-      SYNCMSG("Operating System: %s %ld.%ld.%ld", (v.dwPlatformId == VER_PLATFORM_WIN32_NT) ? "Windows NT" : "Windows", v.dwMajorVersion,v.dwMinorVersion,v.dwBuildNumber);
-  }
-
-  // Check for Wine
-  #ifdef _WIN32
-      HMODULE hNTDLL = GetModuleHandle("ntdll.dll");
-      if(hNTDLL)
-      {
-          // Get Wine version
-          PROC wine_get_version = (PROC) GetProcAddress(hNTDLL, "wine_get_version");
-          if (wine_get_version)
-          {
-              SYNCMSG("Running on Wine v%s", wine_get_version());
-              is_running_under_wine = true;
-          }
-
-          // Get Wine host OS
-          // We have to use a union to make sure there is no weird cast warnings
-          union
-          {
-              FARPROC func;
-              void (*wine_get_host_version)(const char**, const char**);
-          } wineHostVersionUnion;
-          wineHostVersionUnion.func = GetProcAddress(hNTDLL, "wine_get_host_version");
-          if (wineHostVersionUnion.wine_get_host_version)
-          {
-              const char* sys_name = NULL;
-              const char* release_name = NULL;
-              wineHostVersionUnion.wine_get_host_version(&sys_name, &release_name);
-              SYNCMSG("Wine Host: %s %s", sys_name, release_name);
-          }
-      }
-  #endif
-
+  log_system_info(&cpu_info);
   update_memory_constraits();
   // Enable features that require more resources
   update_features(mem_size);
@@ -2784,11 +2736,9 @@ void update(void)
         PaletteFadePlayer(player);
         process_armageddon();
         update_global_lighting();
-#if (BFDEBUG_LEVEL > 9)
         lights_stats_debug_dump();
         things_stats_debug_dump();
         creature_stats_debug_dump();
-#endif
     }
 
     message_update();
@@ -3740,7 +3690,6 @@ static TbBool wait_at_frontend(void)
       if (!SoundDisabled)
       {
         process_3d_sounds();
-        process_sound_heap();
         MonitorStreamedSoundTrack();
       }
 
@@ -3940,8 +3889,6 @@ short process_command_line(unsigned short argc, char *argv[])
 
   AssignCpuKeepers = 0;
   SoundDisabled = 0;
-  // Note: the working log file is set up in LbBullfrogMain
-  LbErrorLogSetup(0, 0, 1);
 
   set_default_startup_parameters();
 
@@ -4233,12 +4180,14 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
 {
     short retval;
     retval=0;
-    LbErrorLogSetup("/", log_file_name, 5);
+    if (!LbLogOpen(log_file_name)) {
+        return 0;
+    }
 
     retval = process_command_line(argc,argv);
     if (retval < 1)
     {
-        LbErrorLogClose();
+        LbLogClose();
         return 0;
     }
 
@@ -4248,9 +4197,6 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     LbSetTitle(PROGRAM_NAME);
     LbSetIcon(1);
     LbScreenSetDoubleBuffering(true);
-
-    init_miles_sound_system();
-
     srand(LbTimerClock());
 
 #ifdef FUNCTESTING
@@ -4261,7 +4207,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     {
         static const char *msg_text="Basic engine initialization failed.\n";
         error_dialog_fatal(__func__, 1, msg_text);
-        LbErrorLogClose();
+        LbLogClose();
         return 0;
     }
 
@@ -4320,72 +4266,16 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
         SYNCDBG(0,"finished properly");
     }
 
-    LbErrorLogClose();
     steam_api_shutdown();
-    unload_miles_sound_system();
+    LbLogClose();
     return 0;
 }
 
-void get_cmdln_args(unsigned short &argc, char *argv[])
-{
-    char *ptr;
-    const char *cmndln_orig;
-    cmndln_orig = GetCommandLineA();
-    snprintf(cmndline, CMDLN_MAXLEN, "%s", cmndln_orig);
-    ptr = cmndline;
-    bf_argc = 0;
-    while (*ptr != '\0')
-    {
-        if ((*ptr == '\t') || (*ptr == ' '))
-        {
-            ptr++;
-            continue;
-        }
-        if (*ptr == '\"')
-        {
-            ptr++;
-            bf_argv[bf_argc] = ptr;
-            bf_argc++;
-            while (*ptr != '\0')
-            {
-              if (*ptr == '\"')
-              {
-                  *ptr++ = '\0';
-                  break;
-              }
-              ptr++;
-            }
-        } else
-        {
-            bf_argv[bf_argc] = ptr;
-            bf_argc++;
-            while (*ptr != '\0')
-            {
-              if ((*ptr == '\t') || (*ptr == ' '))
-              {
-                  *ptr++ = '\0';
-                  break;
-              }
-              ptr++;
-            }
-        }
-    }
-}
-
-LONG __stdcall Vex_handler(
-    _EXCEPTION_POINTERS *ExceptionInfo
-)
-{
-    LbJustLog("=== Crash ===\n");
-    LbCloseLog();
-    return 0;
-}
-
-int main(int argc, char *argv[])
+int main(int, char *[])
 {
   char *text;
 
-  AddVectoredExceptionHandler(0, &Vex_handler);
+  platform_init();
   get_cmdln_args(bf_argc, bf_argv);
 
   try {

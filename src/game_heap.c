@@ -39,12 +39,8 @@ extern "C" {
 }
 #endif
 /******************************************************************************/
-static const char *sound_fname = "sound.dat";
-static const char *speech_fname = "speech.dat";
-static unsigned char *sound_heap_memory;
 static unsigned char *heap;
 static long heap_size;
-static long sound_heap_size;
 /******************************************************************************/
 long get_smaller_memory_amount(long amount)
 {
@@ -63,6 +59,27 @@ long get_smaller_memory_amount(long amount)
     return 6;
 }
 
+long get_best_heap_size(long sh_mem_size)
+{
+    if (sh_mem_size < 8)
+    {
+      ERRORLOG("Unhandled PhysicalMemory");
+      return 0;
+    }
+    if (sh_mem_size <= 8)
+      return 0x0100000; // 1MB
+    if (sh_mem_size <= 16)
+      return 0x0200000; // 2MB
+    if (sh_mem_size <= 24)
+      return 0x0500000; // 5MB
+    if (sh_mem_size <= 32)
+      return 0x0800000; // 8MB
+    if (sh_mem_size <= 48)
+        return 0x0c00000; // 12MB
+
+    return 0x3000000; // 50MB
+}
+
 TbBool setup_heap_manager(void)
 {
     SYNCDBG(8,"Starting");
@@ -78,7 +95,7 @@ TbBool setup_heap_manager(void)
     const char* fname = prepare_file_path(FGrp_StdData, "creature.jty");
 #endif
     jty_file_handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
-    if (jty_file_handle == -1) {
+    if (!jty_file_handle) {
         ERRORLOG("Can not open JTY file, \"%s\"",fname);
         return false;
     }
@@ -102,7 +119,7 @@ TbBool setup_heap_memory(void)
     heap = NULL;
   }
   long i = mem_size;
-  heap_size = get_best_sound_heap_size(i);
+  heap_size = get_best_heap_size(i);
   while ( 1 )
   {
     heap = LbMemoryAlloc(heap_size);
@@ -111,7 +128,7 @@ TbBool setup_heap_memory(void)
     i = get_smaller_memory_amount(i);
     if (i > 8)
     {
-      heap_size = get_best_sound_heap_size(i);
+      heap_size = get_best_heap_size(i);
     } else
     {
       if (heap_size < 524288)
@@ -131,11 +148,8 @@ void reset_heap_manager(void)
 {
     long i;
     SYNCDBG(8,"Starting");
-    if (jty_file_handle != -1)
-    {
-        LbFileClose(jty_file_handle);
-        jty_file_handle = -1;
-    }
+    LbFileClose(jty_file_handle);
+    jty_file_handle = NULL;
     for (i=0; i < KEEPSPRITE_LENGTH; i++)
         keepsprite[i] = NULL;
     for (i=0; i < KEEPSPRITE_LENGTH; i++)
@@ -157,12 +171,6 @@ TbBool setup_heaps(void)
     if (!SoundDisabled)
     {
       StopAllSamples();
-      close_sound_heap();
-      if (sound_heap_memory != NULL)
-      {
-        LbMemoryFree(sound_heap_memory);
-        sound_heap_memory = NULL;
-      }
     }
     if (heap != NULL)
     {
@@ -170,27 +178,11 @@ TbBool setup_heaps(void)
       LbMemoryFree(heap);
       heap = NULL;
     }
-    // Allocate sound heap
-    if (!SoundDisabled)
-    {
-      i = mem_size;
-      while (sound_heap_memory == NULL)
-      {
-        sound_heap_size = get_best_sound_heap_size(i);
-        i = get_smaller_memory_amount(i);
-        sound_heap_memory = LbMemoryAlloc(sound_heap_size);
-        if ((i <= 8) && (sound_heap_memory == NULL))
-        {
-          low_memory = true;
-          break;
-        }
-      }
-    }
     // Allocate graphics heap
     i = mem_size;
     while (heap == NULL)
     {
-      heap_size = get_best_sound_heap_size(i);
+      heap_size = get_best_heap_size(i);
       i = get_smaller_memory_amount(i);
       heap = LbMemoryAlloc(heap_size);
       if ((i <= 8) && (heap == NULL))
@@ -206,82 +198,22 @@ TbBool setup_heaps(void)
       SYNCDBG(8,"Low memory mode entered on heap allocation.");
       while (heap != NULL)
       {
-        if ((!SoundDisabled) && (sound_heap_memory == NULL))
-        {
-          break;
-        }
-        if (!SoundDisabled)
-        {
-          if (sound_heap_size < heap_size)
-          {
-            heap_size -= 16384;
-          } else
-          if (sound_heap_size == heap_size)
-          {
-            heap_size -= 16384;
-            sound_heap_size -= 16384;
-          } else
-          {
-            sound_heap_size -= 16384;
-          }
-          if (sound_heap_size < 524288)
-          {
-            ERRORLOG("Unable to allocate heaps (small_mem)");
-            return false;
-          }
-        } else
+        if (SoundDisabled)
         {
           heap_size -= 16384;
         }
         if (heap_size < 524288)
         {
-          if (sound_heap_memory != NULL)
-          {
-            LbMemoryFree(sound_heap_memory);
-            sound_heap_memory = NULL;
-          }
           ERRORLOG("Unable to allocate heaps (small_mem)");
           return false;
           }
-        }
-        if (sound_heap_memory != NULL)
-        {
-          LbMemoryFree(sound_heap_memory);
-          sound_heap_memory = NULL;
         }
         if (heap != NULL)
         {
           LbMemoryFree(heap);
           heap = NULL;
         }
-        if (!SoundDisabled)
-        {
-          sound_heap_memory = LbMemoryAlloc(sound_heap_size);
-        }
         heap = LbMemoryAlloc(heap_size);
-    }
-    if (!SoundDisabled)
-    {
-      SYNCMSG("SoundHeap Size %d", sound_heap_size);
-      // Prepare sound sample bank file names
-      char snd_fname[2048];
-      prepare_file_path_buf(snd_fname, FGrp_LrgSound, sound_fname);
-      // language-specific speech file
-      char* spc_fname = prepare_file_fmtpath(FGrp_LrgSound, "speech_%s.dat", get_language_lwrstr(install_info.lang_id));
-      // default speech file
-      if (!LbFileExists(spc_fname))
-        spc_fname = prepare_file_path(FGrp_LrgSound,speech_fname);
-      // speech file for english
-      if (!LbFileExists(spc_fname))
-        spc_fname = prepare_file_fmtpath(FGrp_LrgSound,"speech_%s.dat",get_language_lwrstr(1));
-      // Initialize sample banks
-      if (!init_sound_heap_two_banks(sound_heap_memory, sound_heap_size, snd_fname, spc_fname, 1622))
-      {
-        LbMemoryFree(sound_heap_memory);
-        sound_heap_memory = NULL;
-        SoundDisabled = true;
-        ERRORLOG("Unable to initialize sound heap. Sound disabled.");
-      }
     }
     return true;
 }
