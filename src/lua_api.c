@@ -497,7 +497,8 @@ static int lua_ADD_EFFECT_GENERATOR_TO_LEVEL(lua_State *L)
     TbMapLocation location = luaL_checkLocation(L,  2);
     long range             = luaL_checkinteger(L, 3);
 
-    script_process_new_effectgen(gen_id, location, range);
+    lua_pushThing(L,script_process_new_effectgen(gen_id, location, range));
+    return 1;
 }
 
 

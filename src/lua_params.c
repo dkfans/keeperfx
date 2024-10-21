@@ -192,8 +192,7 @@ ActionPointId luaL_checkActionPoint(lua_State *L, int index)
     ActionPointId apt_idx = action_point_number_to_index(apt_num);
     if (!action_point_exists_idx(apt_idx))
     {
-        luaL_argerror(L,index,"Non-existing Action Point, no %d", apt_num);
-        return 0;
+        return luaL_argerror(L, index, lua_pushfstring(L, "Non-existing Action Point, no %d", apt_num));
     }
     return apt_idx;
 }
@@ -215,8 +214,7 @@ unsigned char luaL_checkParty(lua_State *L, int index)
     int prty_id = get_party_index_of_name(party_name);
     if (prty_id < 0)
     {
-        luaL_argerror(L,index,"Party of requested name, '%s', is not defined", party_name);
-        return 0;
+        return luaL_argerror(L, index, lua_pushfstring(L, "Party of requested name, '%s', is not defined", party_name));
     }
     return prty_id;
 }
