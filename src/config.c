@@ -34,6 +34,7 @@
 #include "bflib_sound.h"
 #include "sounds.h"
 #include "engine_render.h"
+#include "bflib_fmvids.h"
 
 #include "config_campaigns.h"
 #include "front_simple.h"
@@ -167,25 +168,25 @@ const struct NamedCommand logicval_type[] = {
   };
 
   const struct NamedCommand vidscale_type[] = {
-  {"OFF",          256}, // = 0x100 = No scaling of Smacker Video
-  {"DISABLED",     256},
-  {"FALSE",        256},
-  {"NO",           256},
-  {"0",            256},
-  {"FIT",           16}, // = 0x10 = SMK_FullscreenFit - fit to fullscreen, using letterbox and pillarbox as necessary
-  {"ON",            16}, // Duplicate of FIT, for legacy reasons
-  {"ENABLED",       16},
-  {"TRUE",          16},
-  {"YES",           16},
-  {"1",             16},
-  {"STRETCH",       32}, // = 0x20 = SMK_FullscreenStretch  - stretch to fullscreen - ignores aspect ratio difference between source and destination
-  {"CROP",          64}, // = 0x40 = SMK_FullscreenCrop - fill fullscreen and crop - no letterbox or pillarbox
-  {"4BY3",          48}, // = 0x10 & 0x20 = [Aspect Ratio correction mode] - stretch 320x200 to 4:3 (i.e. increase height by 1.2)
-  {"PIXELPERFECT",  80}, // = 0x10 & 0x40 = integer multiple scale only (FIT)
-  {"4BY3PP",       112}, // = 0x10 & 0x20 & 0x40 = integer multiple scale only (4BY3)
-  {NULL,             0},
+  {"OFF",          0}, // No scaling of Smacker Video
+  {"DISABLED",     0},
+  {"FALSE",        0},
+  {"NO",           0},
+  {"0",            0},
+  {"FIT",          SMK_FullscreenFit}, // Fit to fullscreen, using letterbox and pillarbox as necessary
+  {"ON",           SMK_FullscreenFit}, // Duplicate of FIT, for legacy reasons
+  {"ENABLED",      SMK_FullscreenFit},
+  {"TRUE",         SMK_FullscreenFit},
+  {"YES",          SMK_FullscreenFit},
+  {"1",            SMK_FullscreenFit},
+  {"STRETCH",      SMK_FullscreenStretch}, // Stretch to fullscreen - ignores aspect ratio difference between source and destination
+  {"CROP",         SMK_FullscreenCrop}, // Fill fullscreen and crop - no letterbox or pillarbox
+  {"4BY3",         SMK_FullscreenFit | SMK_FullscreenStretch}, // [Aspect Ratio correction mode] - stretch 320x200 to 4:3 (i.e. increase height by 1.2)
+  {"PIXELPERFECT", SMK_FullscreenFit | SMK_FullscreenCrop}, // integer multiple scale only (FIT)
+  {"4BY3PP",       SMK_FullscreenFit | SMK_FullscreenStretch | SMK_FullscreenCrop}, // integer multiple scale only (4BY3)
+  {NULL,           0},
   };
-unsigned int vid_scale_flags = 0;
+unsigned int vid_scale_flags = SMK_FullscreenFit;
 
 unsigned long features_enabled = 0;
 /** Line number, used when loading text files. */
@@ -1177,12 +1178,12 @@ short load_configuration(void)
           break;
       case 14: // Resize Movies
           i = recognize_conf_parameter(buf,&pos,len,vidscale_type);
-          if (i <= 0 || i > 256)
+          if (i < 0)
           {
             CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
             break;
           }
-          if (i < 256) {
+          if (i > 0) {
             features_enabled |= Ft_Resizemovies;
             vid_scale_flags = i;
           }
