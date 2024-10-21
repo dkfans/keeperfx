@@ -160,6 +160,12 @@ TbBool creature_kind_is_for_dungeon_diggers_list(PlayerNumber plyr_idx, ThingMod
 
     if (crmodel == CREATURE_DIGGER)
         return true;
+
+    //temp code obviously don't merge into master
+    //8 == tunneler
+    //23 == imp
+    if (crmodel == 8 || crmodel == 23)
+        return true;
         
     return (crmodel == get_players_special_digger_model(plyr_idx));
     //struct CreatureModelConfig *crconf;
