@@ -152,6 +152,7 @@ const struct NamedCommand magic_power_commands[] = {
   {"SPELL",          20},
   {"EFFECT",         21},
   {"USEFUNCTION",    22},
+  {"CREATURETYPE",   23},
   {NULL,              0},
   };
 
@@ -2197,6 +2198,22 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               if (k >= 0)
               {
                   powerst->magic_use_func_idx = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+          }
+          break;
+      case 23: //CREATURETYPE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(creature_desc,word_buf);
+              if (k >= 0)
+              {
+                  powerst->creature_model = k;
                   n++;
               }
           }
