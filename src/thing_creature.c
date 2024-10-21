@@ -2721,9 +2721,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     anger_set_creature_anger_all_types(thing, 0);
-    creature_throw_out_gold(thing);
     remove_parent_thing_from_things_in_list(&game.thing_lists[TngList_Shots],thing->index);
-
     ThingModel crmodel = thing->model;
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     if (!thing_exists(thing)) {
@@ -2736,6 +2734,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
         creature_rebirth_at_lair(thing);
         return INVALID_THING;
     }
+    creature_throw_out_gold(thing);
     // Beyond this point, the creature thing is bound to be deleted
     if (((flags & CrDed_NotReallyDying) == 0) || ((game.conf.rules.game.classic_bugs_flags & ClscBug_ResurrectRemoved) != 0))
     {
@@ -3964,6 +3963,83 @@ void set_first_creature(struct Thing *creatng)
             dungeon->owned_creatures_of_model[creatng->model]++;
         }
         creatng->alloc_flags |= TAlF_InDungeonList;
+    }
+}
+
+void recalculate_player_creature_digger_lists(PlayerNumber plr_idx)
+{
+    ThingIndex previous_digger = 0;
+    ThingIndex previous_creature = 0;
+
+    struct Dungeon* dungeon = get_dungeon(plr_idx);
+    dungeon->digger_list_start = 0;
+    dungeon->creatr_list_start = 0;
+    dungeon->num_active_diggers = 0;
+    dungeon->num_active_creatrs = 0;
+
+
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
+    long i = slist->index;
+    long k = 0;
+    while (i > 0)
+    {
+        struct Thing* creatng = thing_get(i);
+        if (thing_is_invalid(creatng))
+          break;
+
+        if(creatng->owner == plr_idx)
+        {
+            if(creature_is_for_dungeon_diggers_list(creatng))
+            {
+
+                if(dungeon->digger_list_start == 0)
+                {
+                    dungeon->digger_list_start = i;
+                }
+                else
+                {
+                    struct CreatureControl* prevcctrl = creature_control_get_from_thing(thing_get(previous_digger));
+                    prevcctrl->players_next_creature_idx = i;
+                }
+                struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+                cctrl->players_next_creature_idx = 0;
+                cctrl->players_prev_creature_idx = previous_digger;
+                if (!flag_is_set(cctrl->flgfield_2,TF2_Spectator) && !(flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature)))
+                {
+                    dungeon->num_active_diggers++;
+                }
+                previous_digger = i;
+            }
+            else
+            {
+
+                if(dungeon->creatr_list_start == 0)
+                {
+                    dungeon->creatr_list_start = i;
+                }
+                else
+                {
+                    struct CreatureControl* prevcctrl = creature_control_get_from_thing(thing_get(previous_creature));
+                    prevcctrl->players_next_creature_idx = i;
+                }
+                struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+                cctrl->players_next_creature_idx = 0;
+                cctrl->players_prev_creature_idx = previous_creature;
+                if (!flag_is_set(cctrl->flgfield_2,TF2_Spectator) && !(flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature)))
+                {
+                    dungeon->num_active_creatrs++;
+                }
+                previous_creature = i;
+            }
+        }
+
+        i = creatng->next_of_class;
+        k++;
+        if (k > slist->count)
+        {
+          ERRORLOG("Infinite loop detected when sweeping things list");
+          break;
+        }
     }
 }
 
