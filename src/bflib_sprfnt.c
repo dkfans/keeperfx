@@ -919,24 +919,12 @@ void put_down_simpletext_sprites_resized(const char *sbuf, const char *ebuf, lon
 
 void put_down_sprites(const char *sbuf, const char *ebuf, long x, long y, long len, int units_per_px)
 {
-    if (units_per_px == 16)
+    if ((dbc_initialized) && (dbc_enabled))
     {
-        if ((dbc_initialized) && (dbc_enabled))
-        {
-            put_down_dbctext_sprites(sbuf, ebuf, x, y, len);
-        } else
-        {
-            put_down_simpletext_sprites(sbuf, ebuf, x, y, len);
-        }
+        put_down_dbctext_sprites_resized(sbuf, ebuf, x, y, len, units_per_px);
     } else
     {
-        if ((dbc_initialized) && (dbc_enabled))
-        {
-            put_down_dbctext_sprites_resized(sbuf, ebuf, x, y, len, units_per_px);
-        } else
-        {
-            put_down_simpletext_sprites_resized(sbuf, ebuf, x, y, len, units_per_px);
-        }
+        put_down_simpletext_sprites_resized(sbuf, ebuf, x, y, len, units_per_px);
     }
 }
 

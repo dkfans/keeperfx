@@ -235,11 +235,14 @@ struct TbLoadFilesV2 game_load_files[] = {
 struct TbLoadFiles map_flag_load_files[] = {
   {"ldata/lndflag_ens.dat",(unsigned char **)&map_flag_data,     (unsigned char **)&end_map_flag_data,          0, 0, 0},
   {"ldata/lndflag_ens.tab",(unsigned char **)&map_flag,          (unsigned char **)&end_map_flag,               0, 0, 0},
+  {"ldata/netfont.dat",  (unsigned char **)&map_font_data,       (unsigned char **)&end_map_font_data,          0, 0, 0},
+  {"ldata/netfont.tab",  (unsigned char **)&map_font,            (unsigned char **)&end_map_font,               0, 0, 0},
   {"",                   NULL,                                   NULL,                                          0, 0, 0},
 };
 
 struct TbSetupSprite map_flag_setup_sprites[] = {
   {&map_flag, &end_map_flag, &map_flag_data},
+  {&map_font, &end_map_font, &map_font_data},
   {NULL,      NULL,          NULL,},
 };
 
