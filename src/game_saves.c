@@ -225,11 +225,8 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
                     ERRORLOG("Unable to load campaign");
                     return GLoad_Failed;
                 }
+                free_level_strings_data();
                 struct GameCampaign *campgn = &campaign;
-                if (reload_campaign_strings)
-                {
-                    setup_campaign_strings_data(campgn);
-                }
                 load_map_string_data(campgn, centry->level_num, get_level_fgroup(centry->level_num));
                 // Load configs which may have per-campaign part, and even be modified within a level
                 init_custom_sprites(centry->level_num);
