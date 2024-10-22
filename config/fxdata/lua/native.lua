@@ -426,7 +426,7 @@ function DISPLAY_INFORMATION(msg_id,zoom_location) end
 
 ---Plays a sound message or sound effect.
 ---@param player Player The name of the player who gets to hear the sound.
----@param type "SPEECH"|"SOUND" If it is a sound effect or a speech. Accepts values SPEECH and SOUND. Speeches queue, sounds play at the same time.
+---@param type "SPEECH"|"SOUND" If it is a sound effect or a speech. Speeches queue, sounds play at the same time.
 ---@param sound integer The sound file to be played. Use numbers(ID's) to play sounds from the original .dat files, or a file name(between parenthesis) to play custom sounds.
 function PLAY_MESSAGE(player,type,sound) end
 
@@ -441,7 +441,7 @@ function DISPLAY_COUNTDOWN(player,timer,target,clocktime) end
 
 ---Displays one of the text messages from language-specific strings banks as a chat message, with a specific unit or player shown as the sender. It disappears automatically after some time.
 ---@param msg integer The number of the message, assigned to it in .po or .pot translation file.
----@param icon string The name of the player, creature, creature spell, Keeper spell, creature instance, room, or query icon that is shown as the sender of the message. Accepts None for no icon.
+---@param icon string|Player The name of the player, creature, creature spell, Keeper spell, creature instance, room, or query icon that is shown as the sender of the message. Accepts None for no icon.
 function DISPLAY_MESSAGE(msg,icon) end
 
 ---Flashes a button on the toolar until the player selects it.
