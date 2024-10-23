@@ -225,7 +225,7 @@ TbBool things_stats_debug_dump(void)
 
 TbBool is_neutral_thing(const struct Thing *thing)
 {
-    return (thing->owner == game.neutral_player_num);
+    return (thing->owner == game.neutral_player_num) || (thing->owner >= PLAYERS_COUNT);
 }
 
 TbBool is_hero_thing(const struct Thing *thing)
