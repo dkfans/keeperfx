@@ -125,7 +125,7 @@ void draw_out_of_sync_box(long a1, long a2, long box_width)
         long x = box_width + (MyScreenWidth - box_width - ornate_width) / 2;
         long y = (MyScreenHeight - ornate_height) / 2;
         draw_ornate_slab64k(x, y, units_per_px, ornate_width, ornate_height);
-        LbTextSetFont(winfont);
+        LbTextSetFont(get_sprite(winfont, 0));
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
         LbTextSetWindow(x, y, ornate_width, ornate_height);
         int tx_units_per_px = (22 * units_per_px) / LbTextLineHeight();

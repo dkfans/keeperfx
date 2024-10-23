@@ -429,10 +429,7 @@ struct TbSprite *button_sprite;
 struct TbSprite *end_button_sprites;
 unsigned char * button_sprite_data;
 unsigned long end_button_sprite_data;
-struct TbSprite *winfont;
-struct TbSprite *end_winfonts;
-unsigned char * winfont_data;
-unsigned char * end_winfont_data;
+struct TbSpriteSheet * winfont = NULL;
 unsigned long playing_bad_descriptive_speech;
 unsigned long playing_good_descriptive_speech;
 long scrolling_index;
@@ -3339,7 +3336,7 @@ void draw_gui(void)
 {
     SYNCDBG(6,"Starting");
     unsigned int flg_mem;
-    LbTextSetFont(winfont);
+    LbTextSetFont(get_sprite(winfont, 0));
     flg_mem = lbDisplay.DrawFlags;
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     update_fade_active_menus();

@@ -274,7 +274,7 @@ short get_players_message_inputs(void)
         clear_key_pressed(KC_ESCAPE);
         return true;
     }
-    LbTextSetFont(winfont);
+    LbTextSetFont(get_sprite(winfont, 0));
     int msg_width = pixel_size * LbTextStringWidth(player->mp_message_text);
     if ( (is_key_pressed(KC_BACK,KMod_DONTCARE)) || (msg_width < 450) )
     {

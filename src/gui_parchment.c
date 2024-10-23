@@ -648,7 +648,7 @@ void draw_map_level_name(void)
     struct TbRect bkgnd_area;
     get_parchment_background_area_rect(&bkgnd_area);
     // Set position
-    LbTextSetFont(winfont);
+    LbTextSetFont(get_sprite(winfont, 0));
     lbDisplay.DrawFlags = 0;
     int x = bkgnd_area.left;
     int y = bkgnd_area.top;

@@ -133,12 +133,19 @@ short LoadVRes256Data(long scrbuf_size)
     // Update size of the parchment buffer, as it is also used as screen buffer
     if (scrbuf_size < 640*480)
         scrbuf_size = 640*480;
-    gui_load_files_640[9].SLength = scrbuf_size;
+    gui_load_files_640[7].SLength = scrbuf_size;
     // Load the files
-    if (LbDataLoadAll(gui_load_files_640)) {
+    winfont = load_font("data/font2-64.dat", "data/font2-64.tab");
+    if (!winfont || LbDataLoadAll(gui_load_files_640)) {
         return 0;
     }
     return 1;
+}
+
+void FreeVRes256Data(void)
+{
+    free_font(&winfont);
+    LbDataFreeAll(gui_load_files_640);
 }
 
 /**
@@ -149,11 +156,9 @@ short LoadVRes256Data(long scrbuf_size)
  */
 short LoadMcgaData(void)
 {
-    struct TbLoadFiles* load_files = gui_load_files_320;
-    LbDataFreeAll(load_files);
     int ferror = 0;
     int i = 0;
-    struct TbLoadFiles* t_lfile = &load_files[i];
+    struct TbLoadFiles* t_lfile = &gui_load_files_320[i];
     // Allocate some low memory, only to be sure that
     // it will be free when this function ends
     void* mem = LbMemoryAlloc(0x10000u);
@@ -173,11 +178,17 @@ short LoadMcgaData(void)
             ferror++;
         }
         i++;
-        t_lfile = &load_files[i];
+        t_lfile = &gui_load_files_320[i];
   }
-  if (mem != NULL)
-    LbMemoryFree(mem);
-  return (ferror == 0);
+  if (mem != NULL) LbMemoryFree(mem);
+  winfont = load_font("data/font2-32.dat", "data/font2-32.tab");
+  return winfont && (ferror == 0);
+}
+
+void FreeMcgaData(void)
+{
+    LbDataFreeAll(gui_load_files_320);
+    free_font(&winfont);
 }
 
 void set_game_vidmode(uint i, TbScreenMode nmode)
@@ -629,7 +640,11 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
         LbDataFreeAll(front_load_files_minimal_640);
       }
     } else {
-      LbDataFreeAll(hi_res ? gui_load_files_640 : gui_load_files_320);
+      if (hi_res) {
+        FreeVRes256Data();
+      } else {
+        FreeMcgaData();
+      }
     }
     if (!hi_res) ERRORLOG("MCGA Minimal not allowed (Reset)");
     MinimalResolutionSetup = false;
@@ -807,11 +822,11 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode)
       if (MinimalResolutionSetup)
         LbDataFreeAll(front_load_files_minimal_640);
       else
-        LbDataFreeAll(gui_load_files_640);
+        FreeVRes256Data();
     }
     else
     {
-      if (!MinimalResolutionSetup) LbDataFreeAll(gui_load_files_320);
+      if (!MinimalResolutionSetup) FreeMcgaData();
     }
     MinimalResolutionSetup = false;
   }
@@ -1028,7 +1043,8 @@ void switch_to_next_video_mode_wrapper(void)
 #if (BFDEBUG_LEVEL > 0)
 TbBool load_testfont_fonts(void)
 {
-  if ( LbDataLoadAll(testfont_load_files) )
+  winfont = load_winfont();
+  if (!winfont || LbDataLoadAll(testfont_load_files) )
   {
     ERRORLOG("Unable to load testfont_load_files files");
     return false;
@@ -1039,6 +1055,7 @@ TbBool load_testfont_fonts(void)
 
 void free_testfont_fonts(void)
 {
+  free_font(&winfont);
   LbDataFreeAll(testfont_load_files);
 }
 #endif

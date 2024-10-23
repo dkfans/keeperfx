@@ -192,7 +192,7 @@ void draw_eastegg(void)
   if (eastegg_skeksis_cntr >= eastegg_skeksis_codes.length)
   {
       eastegg_skeksis_cntr++;
-      LbTextSetFont(winfont);
+      LbTextSetFont(get_sprite(winfont, 0));
       text=buf_sprintf("Dene says a big 'Hello' to Goth Buns, Tarts and Barbies");
       lbDisplay.DrawFlags = Lb_TEXT_ONE_COLOR;
       unsigned char pos;
@@ -215,7 +215,7 @@ void draw_eastegg(void)
   {
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
-    LbTextSetFont(winfont);
+    LbTextSetFont(get_sprite(winfont, 0));
     i = 0;
     text = buf_sprintf("Simon says Hi to everyone he knows...");
     px[i] += vx[i];
@@ -255,7 +255,7 @@ void draw_eastegg(void)
   {
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
-    LbTextSetFont(winfont);
+    LbTextSetFont(get_sprite(winfont, 0));
     i = 1;
     text = buf_sprintf("Alex, hopefully lying on a beach with Jo, says Hi");
     px[i] += vx[i];

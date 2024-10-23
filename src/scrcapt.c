@@ -177,7 +177,7 @@ TbBool perform_any_screen_capturing(void)
     // Draw a text with bitmap font
     if (captured) {
         //Set font; if winfont isn't loaded, it should be NULL, so text will just be invisible
-        LbTextSetFont(winfont);
+        LbTextSetFont(get_sprite(winfont, 0));
         LbTextDraw(600*units_per_pixel/16, 4*units_per_pixel/16, "REC");
     }
     return captured;
