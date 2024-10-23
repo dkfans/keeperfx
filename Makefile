@@ -197,7 +197,6 @@ obj/engine_render.o \
 obj/engine_render_data.o \
 obj/engine_textures.o \
 obj/front_credits.o \
-obj/front_credits_data.o \
 obj/front_easter.o \
 obj/front_fmvids.o \
 obj/front_highscore.o \

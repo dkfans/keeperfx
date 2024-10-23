@@ -43,29 +43,26 @@
 #include "post_inc.h"
 
 /******************************************************************************/
-extern struct TbLoadFiles frontstory_load_files_640[];
-extern struct TbSprite *frontstory_end_font;
-extern unsigned char * frontstory_font_data;
-
 static long frontstory_text_no;
-static struct TbSetupSprite frontstory_setup_sprites[2] = {{  &frontstory_font, &frontstory_end_font, &frontstory_font_data },
-                                                           { NULL, NULL, NULL}};
 static long credits_scroll_speed;
-
-struct TbSprite *frontstory_font;
+struct TbSpriteSheet * frontstory_font = NULL;
 long credits_offset;
 int credits_end;
 /******************************************************************************/
 void frontstory_load(void)
 {
     frontend_load_data_from_cd();
-    if (LbDataLoadAll(frontstory_load_files_640))
+#ifdef SPRITE_FORMAT_V2
+    frontstory_font = load_font("ldata/frontft1-64.dat", "ldata/frontft1-64.tab");
+#else
+    frontstory_font = load_font("ldata/frontft1.dat", "ldata/frontft1.tab");
+#endif
+    if (!frontstory_font)
     {
-        ERRORLOG("Unable to Load FRONT STORY FILES");
+        ERRORLOG("Unable to load front story font");
     } else
     {
         LbDataLoadSetModifyFilenameFunction(defaultModifyDataLoadFilename);
-        LbSpriteSetupAll(frontstory_setup_sprites);
         LbPaletteSet(frontend_palette);
         srand(LbTimerClock());
 #if FUNCTESTING
@@ -77,14 +74,14 @@ void frontstory_load(void)
 
 void frontstory_unload(void)
 {
-    LbDataFreeAll(frontstory_load_files_640);
+    free_font(&frontstory_font);
 }
 
 void frontstory_draw(void)
 {
     frontend_copy_background();
     LbTextSetWindow(70*units_per_pixel/16, 70*units_per_pixel/16, (640-2*70)*units_per_pixel/16, (480-2*70)*units_per_pixel/16);
-    LbTextSetFont(frontstory_font);
+    LbTextSetFont(get_sprite(frontstory_font, 0));
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
     int tx_units_per_px = (26 * units_per_pixel) / LbTextLineHeight();
     LbTextDrawResized(0, 0, tx_units_per_px, get_string(frontstory_text_no));
