@@ -400,7 +400,7 @@ static void check_if_enemy_can_see_placement_of_hidden_door(struct Thing *doortn
 TbBool door_is_hidden_to_player(struct Thing *doortng,PlayerNumber plyr_idx)
 {
     struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
-    if((plyr_idx != doortng->owner) && (doorst->model_flags & DoMF_Secret))
+    if ((plyr_idx != doortng->owner) && (!players_are_mutual_allies(plyr_idx, doortng->owner)) && (doorst->model_flags & DoMF_Secret))
     {
         return !flag_is_set(doortng->door.revealed,to_flag(plyr_idx));
     }
