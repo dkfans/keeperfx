@@ -94,10 +94,7 @@ struct TbSprite *pointer_sprites;
 struct TbSprite *end_pointer_sprites;
 unsigned char * pointer_data;
 
-struct TbSprite *end_map_font;
 struct TbSprite *end_map_hand;
-TbSpriteData map_font_data;
-TbSpriteData end_map_font_data;
 TbSpriteData map_hand_data;
 TbSpriteData end_map_hand_data;
 struct MapLevelInfo map_info;

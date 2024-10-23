@@ -93,7 +93,7 @@ TbSpriteData map_flag_data;
 unsigned long end_map_flag_data;
 struct TbSprite *map_flag;
 struct TbSprite *end_map_flag;
-struct TbSprite *map_font;
+struct TbSpriteSheet * map_font = NULL;
 struct TbSprite *map_hand;
 long map_sound_fade;
 unsigned char *map_screen;
@@ -945,6 +945,7 @@ void frontnetmap_unload(void)
     clear_dungeons();
     clear_slabs();
     memcpy(&frontend_palette, frontend_backup_palette, PALETTE_SIZE);
+    free_font(&map_font);
     LbDataFreeAll(netmap_flag_load_files);
     memcpy(&frontend_palette, frontend_backup_palette, PALETTE_SIZE);
     fe_network_active = 0;
@@ -981,7 +982,8 @@ TbBool frontnetmap_load(void)
         frontend_load_data_reset();
         return false;
     }
-    if (LbDataLoadAll(netmap_flag_load_files))
+    map_font = load_font("ldata/netfont.dat", "ldata/netfont.tab");
+    if (!map_font || LbDataLoadAll(netmap_flag_load_files))
     {
       ERRORLOG("Unable to load MAP SCREEN sprites");
       return false;
@@ -1222,7 +1224,7 @@ TbBool test_hand_slap_collides(PlayerNumber plyr_idx)
 void frontmap_draw(void)
 {
     SYNCDBG(8,"Starting");
-    LbTextSetFont(map_font);
+    LbTextSetFont(get_sprite(map_font, 0));
     LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
     if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0)
     {
@@ -1410,7 +1412,7 @@ void draw_map_level_descriptions(void)
 void frontnetmap_draw(void)
 {
     SYNCDBG(8,"Starting");
-    LbTextSetFont(map_font);
+    LbTextSetFont(get_sprite(map_font, 0));
     LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
     if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0)
     {

@@ -223,8 +223,6 @@ struct TbSetupSprite map_flag_setup_sprites[] = {
 struct TbLoadFiles netmap_flag_load_files[] = {
   {"ldata/netflag_ens.dat",(unsigned char **)&map_flag_data,     (unsigned char **)&end_map_flag_data,          0, 0, 0},
   {"ldata/netflag_ens.tab",(unsigned char **)&map_flag,          (unsigned char **)&end_map_flag,               0, 0, 0},
-  {"ldata/netfont.dat",  (unsigned char **)&map_font_data,       (unsigned char **)&end_map_font_data,          0, 0, 0},
-  {"ldata/netfont.tab",  (unsigned char **)&map_font,            (unsigned char **)&end_map_font,               0, 0, 0},
   {"ldata/maphand.dat",  (unsigned char **)&map_hand_data,       (unsigned char **)&end_map_hand_data,          0, 0, 0},
   {"ldata/maphand.tab",  (unsigned char **)&map_hand,            (unsigned char **)&end_map_hand,               0, 0, 0},
   {"",                   NULL,                                   NULL,                                          0, 0, 0},
@@ -232,7 +230,6 @@ struct TbLoadFiles netmap_flag_load_files[] = {
 
 struct TbSetupSprite netmap_flag_setup_sprites[] = {
   {&map_flag, &end_map_flag, &map_flag_data},
-  {&map_font, &end_map_font, &map_font_data},
   {&map_hand, &end_map_hand, &map_hand_data},
   {NULL,      NULL,          NULL,},
 };
