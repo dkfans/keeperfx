@@ -44,6 +44,8 @@ struct TbSprite {
 #endif
 };
 
+struct TbSpriteSheet;
+
 struct TbSetupSprite {
     struct TbSprite **Start;
     struct TbSprite **End;
@@ -71,9 +73,16 @@ extern char mouse_pointer_sprite;
 extern char lang_selection;
 */
 /******************************************************************************/
+struct TbSpriteSheet * load_spritesheet(const char * datafile, const char * indexfile);
+void free_spritesheet(struct TbSpriteSheet **);
+const struct TbSprite * get_sprite(const struct TbSpriteSheet *, long index);
+long num_sprites(const struct TbSpriteSheet *);
 int LbSpriteSetupAll(struct TbSetupSprite t_setup[]);
 int LbSpriteClearAll(struct TbSetupSprite t_setup[]);
 short LbSpriteSetup(struct TbSprite *start, const struct TbSprite *end, const unsigned char * data);
+
+#define load_font(datafile, indexfile) load_spritesheet(datafile, indexfile)
+#define free_font(font) free_spritesheet(font)
 
 /******************************************************************************/
 #ifdef __cplusplus

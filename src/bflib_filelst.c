@@ -32,7 +32,7 @@ extern "C" {
 /******************************************************************************/
 /******************************************************************************/
 
-static ModifyDataLoadFnameFunc *modify_data_load_filename_function = defaultModifyDataLoadFilename;
+ModifyDataLoadFnameFunc *modify_data_load_filename_function = defaultModifyDataLoadFilename;
 
 /******************************************************************************/
 

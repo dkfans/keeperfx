@@ -19,14 +19,129 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "bflib_sprite.h"
-
+#include "bflib_filelst.h"
 #include "bflib_basics.h"
+#include "bflib_dernc.h"
+#include "bflib_memory.h"
 #include "globals.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+struct TbSpriteSheet {
+    struct TbSprite * sprites;
+    unsigned long count;
+};
+
+struct TbSpriteSheet * load_spritesheet(const char * datafile, const char * indexfile)
+{
+    // Sprite sheets are allocated as one, contiguous chunk.
+    // Data elements are then organized as follows:
+    // +----------------------+
+    // | TbSpriteSheet itself |
+    // +----------------------+
+    // | array of TbSprite    |
+    // +----------------------+
+    // | sprite data          |
+    // +----------------------+
+
+    #pragma pack(1)
+#ifdef SPRITE_FORMAT_V2
+    struct sprite_entry {
+        uint32_t offset;
+        uint16_t width;
+        uint16_t height;
+    };
+#else
+    struct sprite_entry {
+        uint32_t offset;
+        uint8_t width;
+        uint8_t height;
+    };
+#endif
+    #pragma pack(0)
+
+    // load index file
+    const char * fname = modify_data_load_filename_function(indexfile);
+    const int index_size = LbFileLengthRnc(fname);
+    if (index_size <= 0) return NULL;
+    const int num_sprites = index_size / sizeof(struct sprite_entry);
+    const int sprites_offset = sizeof(struct TbSpriteSheet);
+    const int sprites_size = sizeof(struct TbSprite) * num_sprites;
+    const int data_offset = sprites_offset + sprites_size;
+    void * ptr = LbMemoryAlloc(data_offset + index_size);
+    if (!ptr) return NULL;
+    struct TbSpriteSheet * sheet = ptr;
+    struct sprite_entry * entries = (struct sprite_entry *) &((char *)ptr)[data_offset];
+    if (LbFileLoadAt(fname, entries) != index_size) {
+        LbMemoryFree(sheet);
+        return NULL;
+    }
+
+    // populate sprite fields
+    struct TbSprite * sprites = (struct TbSprite *) &((char *)ptr)[sprites_offset];
+    for (int i = 0; i < num_sprites; ++i) {
+        sprites[i].Data = (unsigned char *)(entries[i].offset);
+        sprites[i].SWidth = entries[i].width;
+        sprites[i].SHeight = entries[i].height;
+    }
+
+    // load data file
+    fname = modify_data_load_filename_function(datafile);
+    const int data_size = LbFileLengthRnc(fname);
+    if (data_size <= 0) {
+        LbMemoryFree(sheet);
+        return NULL;
+    }
+    ptr = LbMemoryGrow(sheet, data_offset + data_size);
+    if (!ptr) {
+        LbMemoryFree(sheet);
+    }
+    sheet = ptr;
+    void * data = &((char *)ptr)[data_offset];
+    if (LbFileLoadAt(fname, data) != data_size) {
+        LbMemoryFree(sheet);
+        return NULL;
+    }
+
+    // populate sheet fields
+    sheet->sprites = sprites = (struct TbSprite *) &((char *)ptr)[sprites_offset];
+    sheet->count = num_sprites;
+
+    // convert offsets to pointers
+    for (int i = 0; i < num_sprites; ++i) {
+        sprites[i].Data = &((unsigned char *)data)[(uintptr_t)sprites[i].Data];
+    }
+    return sheet;
+}
+
+void free_spritesheet(struct TbSpriteSheet ** sheet)
+{
+    if (sheet) {
+        LbMemoryFree(*sheet);
+        *sheet = NULL;
+    }
+}
+
+const struct TbSprite * get_sprite(const struct TbSpriteSheet * sheet, const long index)
+{
+    if (!sheet) {
+        return NULL;
+    } else if (index >= sheet->count) {
+        return NULL;
+    }
+    return &sheet->sprites[index];
+}
+
+long num_sprites(const struct TbSpriteSheet * sheet)
+{
+    if (!sheet) {
+        return 0;
+    }
+    return sheet->count;
+}
 
 /******************************************************************************/
 short LbSpriteSetup(struct TbSprite *start, const struct TbSprite *end, const unsigned char * data)

@@ -56,6 +56,7 @@ struct TbLoadFilesV2 {
 /******************************************************************************/
 const char * defaultModifyDataLoadFilename(const char *);
 ModifyDataLoadFnameFunc *LbDataLoadSetModifyFilenameFunction(ModifyDataLoadFnameFunc *newfunc);
+extern ModifyDataLoadFnameFunc *modify_data_load_filename_function;
 
 /******************************************************************************/
 
