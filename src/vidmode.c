@@ -130,10 +130,11 @@ short LoadVRes256Data(long scrbuf_size)
     // Update size of the parchment buffer, as it is also used as screen buffer
     if (scrbuf_size < 640*480)
         scrbuf_size = 640*480;
-    gui_load_files_640[7].SLength = scrbuf_size;
+    gui_load_files_640[5].SLength = scrbuf_size;
     // Load the files
     winfont = load_font("data/font2-64.dat", "data/font2-64.tab");
-    if (!winfont || LbDataLoadAll(gui_load_files_640)) {
+    font_sprites = load_font("data/font1-64.dat", "data/font1-64.tab");
+    if (!winfont || !font_sprites || LbDataLoadAll(gui_load_files_640)) {
         return 0;
     }
     return 1;
@@ -142,6 +143,7 @@ short LoadVRes256Data(long scrbuf_size)
 void FreeVRes256Data(void)
 {
     free_font(&winfont);
+    free_font(&font_sprites);
     LbDataFreeAll(gui_load_files_640);
 }
 
@@ -179,13 +181,15 @@ short LoadMcgaData(void)
   }
   if (mem != NULL) LbMemoryFree(mem);
   winfont = load_font("data/font2-32.dat", "data/font2-32.tab");
-  return winfont && (ferror == 0);
+  font_sprites = load_font("data/font1-32.dat", "data/font1-32.tab");
+  return winfont && font_sprites && (ferror == 0);
 }
 
 void FreeMcgaData(void)
 {
     LbDataFreeAll(gui_load_files_320);
     free_font(&winfont);
+    free_font(&font_sprites);
 }
 
 void set_game_vidmode(uint i, TbScreenMode nmode)

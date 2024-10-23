@@ -1441,7 +1441,7 @@ TbBool LbTextSetFont(const struct TbSprite *font)
           else
             result = change_dbcfont(1);
         } else
-        if (font == font_sprites)
+        if (font == get_sprite(font_sprites, 0))
         {
           if (lbDisplay.PhysicalScreenWidth < 512)
             result = change_dbcfont(0);
@@ -1488,7 +1488,7 @@ unsigned char LbTextGetFontFaceColor(void)
     {
       return 73;
     } else
-    if (font == font_sprites)
+    if (font == get_sprite(font_sprites, 0))
     {
       return 1;
     } else
@@ -1504,7 +1504,7 @@ unsigned char LbTextGetFontFaceColor(void)
 unsigned char LbTextGetFontBackColor(void)
 {
     const struct TbSprite* font = lbFontPtr;
-    if (font == font_sprites)
+    if (font == get_sprite(font_sprites, 0))
     {
       return 0;
     } else

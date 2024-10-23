@@ -418,9 +418,7 @@ int load_game_scroll_offset;
 unsigned char video_gamma_correction;
 
 // *** SPRITES ***
-struct TbSprite *font_sprites;
-struct TbSprite *end_font_sprites;
-unsigned char * font_data;
+struct TbSpriteSheet * font_sprites = NULL;
 struct TbSprite *frontend_font[FRONTEND_FONTS_COUNT];
 struct TbSprite *frontend_end_font[FRONTEND_FONTS_COUNT];
 unsigned char * frontend_font_data[FRONTEND_FONTS_COUNT];
