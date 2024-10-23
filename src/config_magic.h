@@ -362,6 +362,7 @@ struct PowerConfigStats {
     SpellKind spell_idx;
     EffectOrEffElModel effect_id;
     short magic_use_func_idx;
+    ThingModel creature_model;
 };
 
 /**
