@@ -78,7 +78,7 @@ const char *creatrtng_realstate_name(const struct Thing *thing);
 TbBool things_stats_debug_dump(void);
 TbBool is_neutral_thing(const struct Thing *thing);
 TbBool is_hero_thing(const struct Thing *thing);
-TbBool is_valid_player_id(const struct Thing *thing);
+TbBool is_owner_invalid_player_id(const struct Thing *thing);
 /******************************************************************************/
 long compute_creature_kind_score(ThingModel crkind, unsigned short crlevel);
 GoldAmount compute_creature_max_pay(GoldAmount base_pay, unsigned short crlevel);
