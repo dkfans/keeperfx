@@ -1536,12 +1536,10 @@ short get_anim_id_(const char* word_buf)
 
 const struct TbSprite *get_button_sprite_for_player(short sprite_idx, PlayerNumber plyr_idx)
 {
-    sprite_idx = get_player_colored_button_sprite_idx(sprite_idx, plyr_idx);
-
-    return get_button_sprite_direct(sprite_idx);
+    return get_button_sprite(get_player_colored_button_sprite_idx(sprite_idx, plyr_idx));
 }
 
-const struct TbSprite *get_button_sprite_direct(short sprite_idx)
+const struct TbSprite *get_button_sprite(short sprite_idx)
 {
     if (sprite_idx < GUI_BUTTON_SPRITES_COUNT)
         return &button_sprite[sprite_idx];

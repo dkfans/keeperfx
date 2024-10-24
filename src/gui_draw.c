@@ -391,7 +391,7 @@ int simple_gui_panel_sprite_width_units_per_px(const struct GuiButton *gbtn, lon
  */
 int simple_button_sprite_height_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction)
 {
-    const struct TbSprite* spr = get_button_sprite(spridx);
+    const struct TbSprite* spr = get_button_sprite_for_player(spridx, my_player_number);
     if (spr->SHeight < 1)
         return 16;
     int units_per_px = ((gbtn->height * fraction / 100) * 16 + spr->SHeight / 2) / spr->SHeight;
@@ -409,7 +409,7 @@ int simple_button_sprite_height_units_per_px(const struct GuiButton *gbtn, long 
  */
 int simple_button_sprite_width_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction)
 {
-    const struct TbSprite* spr = get_button_sprite(spridx);
+    const struct TbSprite* spr = get_button_sprite_for_player(spridx, my_player_number);
     if (spr->SWidth < 1)
         return 16;
     int units_per_px = ((gbtn->width * fraction / 100) * 16 + spr->SWidth / 2) / spr->SWidth;
@@ -787,13 +787,13 @@ void draw_gui_panel_sprite_occentered(long x, long y, int units_per_px, long spr
 
 void draw_button_sprite_left(long x, long y, int units_per_px, long spridx)
 {
-    const struct TbSprite* spr = get_button_sprite(spridx);
+    const struct TbSprite* spr = get_button_sprite_for_player(spridx, my_player_number);
     LbSpriteDrawResized(x, y, units_per_px, spr);
 }
 
 void draw_button_sprite_rmleft(long x, long y, int units_per_px, long spridx, unsigned long remap)
 {
-    const struct TbSprite* spr = get_button_sprite(spridx);
+    const struct TbSprite* spr = get_button_sprite_for_player(spridx, my_player_number);
     LbSpriteDrawResizedRemap(x, y, units_per_px, spr, &pixmap.fade_tables[remap*256]);
 }
 
