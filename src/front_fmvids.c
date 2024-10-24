@@ -68,7 +68,7 @@ short play_smacker_file(char *filename, FrontendMenuState nstate)
     movie_flags |= vid_scale_flags; // get new scaling settings from command line
   }
   if ( SoundDisabled )
-    movie_flags |= 0x01;
+    movie_flags |= SMK_NoSound;
 
   short result = 1;
   if ((result)&&(nstate>-2))
@@ -86,8 +86,7 @@ short play_smacker_file(char *filename, FrontendMenuState nstate)
   }
   if (result)
   {
-    // Fail in playing shouldn't set result=0, because result=0 means fatal error.
-    if (play_smk_(filename, 0, movie_flags | 0x100) == 0)
+    if (!play_smk(filename, movie_flags))
     {
       ERRORLOG("Smacker play error");
       result=0;
