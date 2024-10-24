@@ -1647,6 +1647,10 @@ TbBool thing_can_be_picked_to_place_in_player_room_of_role(const struct Thing* t
     if (thing_is_dragged_or_pulled(thing)) {
         return false;
     }
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    if (objst->model_flags & OMF_IgnoredByImps) {
+        return false;
+    }
     struct SlabMap *slb;
     slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     // Neutral things on either neutral or owned ground should be always pickable
@@ -1687,7 +1691,7 @@ TbBool thing_can_be_picked_to_place_in_player_room_of_role(const struct Thing* t
             return true;
         }
     }
-    return false;
+return false;
 }
 
 struct Thing *get_next_unclaimed_gold_thing_pickable_by_digger(PlayerNumber owner, int start_idx)
@@ -1706,22 +1710,13 @@ struct Thing *get_next_unclaimed_gold_thing_pickable_by_digger(PlayerNumber owne
         // Per-thing code
         if (thing_is_object(thing) && object_is_gold_pile(thing))
         {
-            // TODO DIGGERS Use thing_can_be_picked_to_place_in_player_room_of_role() instead of single conditions
-            //if (thing_can_be_picked_to_place_in_player_room_of_role(thing, owner, RoRoF_GoldStorage, TngFRPickF_Default))
-            if (!thing_is_picked_up(thing) && !thing_is_dragged_or_pulled(thing))
+            if (!thing_is_picked_up(thing) && thing_can_be_picked_to_place_in_player_room_of_role(thing, owner, RoRoF_GoldStorage, TngFRPickF_Default))
             {
-                  if (thing_revealed(thing, owner))
-                  {
-                      PlayerNumber slb_owner;
-                      slb_owner = get_slab_owner_thing_is_on(thing);
-                      if ((slb_owner == owner) || (slb_owner == game.neutral_player_num)) {
                           struct Room *room;
                           room = find_any_navigable_room_for_thing_closer_than(thing, owner, RoRoF_GoldStorage, NavRtF_Default, gameadd.map_subtiles_x/2 + gameadd.map_subtiles_y/2);
                           if (!room_is_invalid(room)) {
                               return thing;
-                          }
-                      }
-                }
+                            }
             }
         }
         // Per-thing code ends
