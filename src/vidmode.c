@@ -89,11 +89,7 @@ unsigned long landview_frame_movement_scale_y;
 long base_mouse_sensitivity = 256;
 
 static TbBool force_video_mode_reset = true;
-
-struct TbSprite *pointer_sprites;
-struct TbSprite *end_pointer_sprites;
-unsigned char * pointer_data;
-
+struct TbSpriteSheet * pointer_sprites = NULL;
 struct TbSprite *end_map_hand;
 TbSpriteData map_hand_data;
 TbSpriteData end_map_hand_data;
@@ -116,7 +112,6 @@ extern struct TbLoadFiles testfont_load_files[];
 extern struct TbLoadFiles gui_load_files_320[];
 extern struct TbLoadFiles gui_load_files_640[];
 extern struct TbLoadFiles front_load_files_minimal_640[];
-extern struct TbLoadFiles pointer_load_files_640[];
 /******************************************************************************/
 
 /**
@@ -268,11 +263,12 @@ void set_frontend_vidmode(TbScreenMode nmode)
 
 void load_pointer_file(short hi_res)
 {
-  struct TbLoadFiles *ldfiles;
-  ldfiles = pointer_load_files_640;
-  if ( LbDataLoadAll(ldfiles) )
-    ERRORLOG("Unable to load pointer files");
-  LbSpriteSetup(pointer_sprites, end_pointer_sprites, pointer_data);
+#ifdef SPRITE_FORMAT_V2
+    pointer_sprites = load_spritesheet("data/pointer-64.dat", "data/pointer-64.tab");
+#else
+    pointer_sprites = load_spritesheet("data/pointer64.dat", "data/pointer64.tab");
+#endif
+    if (!pointer_sprites) ERRORLOG("Unable to load pointer sprites");
 }
 
 TbBool set_pointer_graphic_none(void)
@@ -316,7 +312,7 @@ TbBool set_pointer_graphic_spell(long spridx, long frame)
     x = 26;
     i = spridx;
   }
-  const struct TbSprite* spr;
+  const struct TbSprite* spr = NULL;
 
   if (is_custom_icon(i))
   {
@@ -326,10 +322,10 @@ TbBool set_pointer_graphic_spell(long spridx, long frame)
   }
   else
   {
-      spr = &pointer_sprites[i];
       SYNCDBG(8,"Activating pointer %d", 40+i);
-      if ((spr >= pointer_sprites) && (spr < end_pointer_sprites))
+      if (i >= 0 && i < num_sprites(pointer_sprites))
       {
+          spr = get_sprite(pointer_sprites, i);
           LbMouseChangeSpriteAndHotspot(spr, x/2, y/2);
       } else
       {
@@ -362,12 +358,10 @@ TbBool set_pointer_graphic(long ptr_idx)
   case MousePG_Query:
   case MousePG_DenyMark:
     ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
-      spr = &pointer_sprites[ptr_idx];
       x = 12; y = 15;
       break;
   case MousePG_Sell:
       ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
-      spr = &pointer_sprites[ptr_idx];
       x = 17; y = 29;
       break;
   case MousePG_PlaceTrap01:
@@ -407,7 +401,6 @@ TbBool set_pointer_graphic(long ptr_idx)
   case 180:
   case 181:
       ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
-      spr = &pointer_sprites[ptr_idx];
       x = 12; y = 38;
       break;
   case  MousePG_SpellCharge0:
@@ -420,7 +413,6 @@ TbBool set_pointer_graphic(long ptr_idx)
   case  MousePG_SpellCharge7:
   case  MousePG_SpellCharge8:
       ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
-      spr = &pointer_sprites[ptr_idx];
       x = 20; y = 20;
       break;
   case  MousePG_PlaceRoom01:
@@ -439,14 +431,12 @@ TbBool set_pointer_graphic(long ptr_idx)
   case  MousePG_PlaceRoom14:
   case  MousePG_PlaceRoom15:
       ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
-      spr = &pointer_sprites[ptr_idx];
       x = 12; y = 38;
       break;
   case  MousePG_LockMark:
   // 40..144 are spell pointers
   case  MousePG_Unkn47:
       ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
-      spr = &pointer_sprites[ptr_idx];
       x = 12; y = 15;
       break;
   case  96:
@@ -458,7 +448,6 @@ TbBool set_pointer_graphic(long ptr_idx)
   case 102:
   case 103:
       ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
-      spr = &pointer_sprites[ptr_idx];
       x = 12; y = 15;
       break;
   case MousePG_PlaceImpRock:
@@ -474,7 +463,6 @@ TbBool set_pointer_graphic(long ptr_idx)
   case MousePG_MkCreature:
   case MousePG_MvCreature:
       ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
-      spr = &pointer_sprites[ptr_idx];
       x = 12; y = 38;
       break;
   default:
@@ -489,11 +477,10 @@ TbBool set_pointer_graphic(long ptr_idx)
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
     return false;
   }
-  if ((spr >= pointer_sprites) && (spr < end_pointer_sprites))
-  {
+  if (ptr_idx >= 0 && ptr_idx < num_sprites(pointer_sprites)) {
+    spr = get_sprite(pointer_sprites, ptr_idx);
     LbMouseChangeSpriteAndHotspot(spr, x, y);
-  } else
-  {
+  } else {
     WARNLOG("Sprite %d exceeds buffer, setting pointer to none",(int)ptr_idx);
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
   }
@@ -502,10 +489,8 @@ TbBool set_pointer_graphic(long ptr_idx)
 
 void unload_pointer_file(short hi_res)
 {
-  struct TbLoadFiles *ldfiles;
-  set_pointer_graphic_none();
-  ldfiles = pointer_load_files_640;
-  LbDataFreeAll(ldfiles);
+    set_pointer_graphic_none();
+    free_spritesheet(&pointer_sprites);
 }
 
 TbBool init_fades_table(void)

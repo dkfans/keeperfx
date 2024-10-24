@@ -134,7 +134,7 @@ struct TbAlphaTables {
 };
 
 /******************************************************************************/
-extern struct TbSprite *pointer_sprites;
+extern struct TbSpriteSheet *pointer_sprites;
 extern struct TbLoadFiles legal_load_files[];
 extern struct TbLoadFiles map_flag_load_files[];
 extern struct TbLoadFiles netmap_flag_load_files[];
