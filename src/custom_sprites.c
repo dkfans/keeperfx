@@ -1553,12 +1553,12 @@ const struct TbSprite *get_button_sprite_direct(short sprite_idx)
 
 const struct TbSprite *get_frontend_sprite(short sprite_idx)
 {
-    if (sprite_idx < GUI_PANEL_SPRITES_COUNT)
-        return &frontend_sprite[sprite_idx];
-    else if (sprite_idx < num_icons_total)
+    if (sprite_idx >= 0 && sprite_idx < num_sprites(frontend_sprite)) {
+        return get_sprite(frontend_sprite, sprite_idx);
+    } else if (sprite_idx >= GUI_PANEL_SPRITES_COUNT && sprite_idx < num_icons_total) {
         return &gui_panel_sprites[sprite_idx];
-    else
-        return &frontend_sprite[0];
+    }
+    return get_sprite(frontend_sprite, 0);
 }
 
 const struct TbSprite *get_new_icon_sprite(short sprite_idx)

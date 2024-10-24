@@ -282,7 +282,7 @@ TbBool set_pointer_graphic_menu(void)
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
     return false;
   }
-  LbMouseChangeSpriteAndHotspot(&frontend_sprite[GFS_cursor_horny], 0, 0);
+  LbMouseChangeSpriteAndHotspot(get_frontend_sprite(GFS_cursor_horny), 0, 0);
   return true;
 }
 

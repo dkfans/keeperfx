@@ -33,6 +33,7 @@
 #include "front_input.h"
 #include "sprites.h"
 #include "game_legacy.h"
+#include "custom_sprites.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -766,7 +767,7 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
             spridx = GFS_hugebutton_a05l;
         }
     }
-    struct TbSprite *spr;
+    const struct TbSprite *spr;
     // Detect scaling factor
     int units_per_px;
     units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_hugebutton_a05l, 100);
@@ -775,36 +776,36 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
     switch (btntype)
     {
      case 1:
-         spr = &frontend_sprite[spridx];
+         spr = get_frontend_sprite(spridx);
          LbSpriteDrawResized(x, y, units_per_px, spr);
          x += spr->SWidth * units_per_px / 16;
-         spr = &frontend_sprite[spridx+1];
+         spr = get_frontend_sprite(spridx+1);
          LbSpriteDrawResized(x, y, units_per_px, spr);
          x += spr->SWidth * units_per_px / 16;
          break;
     case 2:
-        spr = &frontend_sprite[spridx];
+        spr = get_frontend_sprite(spridx);
         LbSpriteDrawResized(x, y, units_per_px, spr);
         x += spr->SWidth * units_per_px / 16;
-        spr = &frontend_sprite[spridx+1];
+        spr = get_frontend_sprite(spridx+1);
         LbSpriteDrawResized(x, y, units_per_px, spr);
         x += spr->SWidth * units_per_px / 16;
         LbSpriteDrawResized(x, y, units_per_px, spr);
         x += spr->SWidth * units_per_px / 16;
         break;
     default:
-        spr = &frontend_sprite[spridx];
+        spr = get_frontend_sprite(spridx);
         LbSpriteDrawResized(x, y, units_per_px, spr);
         x += spr->SWidth * units_per_px / 16;
         break;
     }
-    spr = &frontend_sprite[spridx+2];
+    spr = get_frontend_sprite(spridx+2);
     LbSpriteDrawResized(x, y, units_per_px, spr);
     if (text != NULL)
     {
         lbDisplay.DrawFlags = drw_flags;
         LbTextSetFont(frontend_font[fntidx]);
-        spr = &frontend_sprite[spridx];
+        spr = get_frontend_sprite(spridx);
         h = LbTextHeight(text) * units_per_px / 16;
         x = gbtn->scr_pos_x + ((40*units_per_px/16) >> 1);
         y = gbtn->scr_pos_y + ((spr->SHeight*units_per_px/16 - h) >> 1);
@@ -829,25 +830,25 @@ void frontend_draw_vlarge_menu_button(struct GuiButton *gbtn)
 
 void frontend_draw_scroll_box_tab(struct GuiButton *gbtn)
 {
-    struct TbSprite *spr;
+    const struct TbSprite *spr;
     long pos_x;
     long pos_y;
     int fs_units_per_px;
     fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_hugearea_thc_tx1_tc, 100);
-    spr = &frontend_sprite[GFS_hugearea_thc_tx1_tc];
+    spr = get_frontend_sprite(GFS_hugearea_thc_tx1_tc);
     pos_x = gbtn->scr_pos_x;
     // Since this tab is attachable from top, it is important to keep bottom position without variation
     pos_y = gbtn->scr_pos_y + gbtn->height - spr->SHeight * fs_units_per_px / 16;
-    spr = &frontend_sprite[GFS_hugearea_thc_cor_tl];
+    spr = get_frontend_sprite(GFS_hugearea_thc_cor_tl);
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
     pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr = &frontend_sprite[GFS_hugearea_thc_tx1_tc];
+    spr = get_frontend_sprite(GFS_hugearea_thc_tx1_tc);
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
     pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr = &frontend_sprite[GFS_hugearea_thc_tx1_tc];
+    spr = get_frontend_sprite(GFS_hugearea_thc_tx1_tc);
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
     pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr = &frontend_sprite[GFS_hugearea_thc_cor_tr];
+    spr = get_frontend_sprite(GFS_hugearea_thc_cor_tr);
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
 }
 
@@ -1023,7 +1024,7 @@ struct GuiButton* get_gui_button(int btn_idx)
 
 void gui_draw_scroll_box(struct GuiButton *gbtn, int height_lines, TbBool draw_scrollbar)
 {
-    struct TbSprite *spr;
+    const struct TbSprite *spr;
     long pos_x;
     long pos_y = gbtn->scr_pos_y;
     long spr_idx;
@@ -1034,7 +1035,7 @@ void gui_draw_scroll_box(struct GuiButton *gbtn, int height_lines, TbBool draw_s
     int units_per_px;
     {
         int orig_size = 0;
-        spr = &frontend_sprite[GFS_hugearea_thn_cor_ml];
+        spr = get_frontend_sprite(GFS_hugearea_thn_cor_ml);
         for (i=0; i < 6; i++)
         {
             orig_size += spr->SWidth;
@@ -1043,7 +1044,7 @@ void gui_draw_scroll_box(struct GuiButton *gbtn, int height_lines, TbBool draw_s
         units_per_px = (gbtn->width * 16 + orig_size/2) / orig_size;
     }
     // Draw top border
-    spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
+    spr = get_frontend_sprite(GFS_hugearea_thn_cor_tl);
     pos_x = gbtn->scr_pos_x;
     for (i=0; i < 6; i++)
     {
@@ -1057,7 +1058,7 @@ void gui_draw_scroll_box(struct GuiButton *gbtn, int height_lines, TbBool draw_s
         draw_frontend_sprite_left(pos_x, pos_y - units_per_px/16, units_per_px, GFS_scrollbar_toparrow_std);
     }
     // Draw inside
-    spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
+    spr = get_frontend_sprite(GFS_hugearea_thn_cor_tl);
     pos_y += spr->SHeight * units_per_px / 16;
     for (; height_lines > 0; height_lines -= delta )
     {
@@ -1065,7 +1066,7 @@ void gui_draw_scroll_box(struct GuiButton *gbtn, int height_lines, TbBool draw_s
           spr_idx = GFS_hugearea_thn_cor_ml;
       else
           spr_idx = GFS_hugearea_thc_cor_ml;
-      spr = &frontend_sprite[spr_idx];
+      spr = get_frontend_sprite(spr_idx);
       pos_x = gbtn->scr_pos_x;
       for (i=0; i < 6; i++)
       {
@@ -1082,7 +1083,7 @@ void gui_draw_scroll_box(struct GuiButton *gbtn, int height_lines, TbBool draw_s
         pos_x = gbtn->scr_pos_x + gbtn->width;
         draw_frontend_sprite_left(pos_x, pos_y, units_per_px, secspr_idx);
       }
-      spr = &frontend_sprite[spr_idx];
+      spr = get_frontend_sprite(spr_idx);
       pos_y += spr->SHeight * units_per_px / 16;
       if (height_lines < 3)
           delta = 1;
@@ -1090,7 +1091,7 @@ void gui_draw_scroll_box(struct GuiButton *gbtn, int height_lines, TbBool draw_s
           delta = 3;
     }
     // Draw bottom border
-    spr = &frontend_sprite[GFS_hugearea_thn_cor_bl];
+    spr = get_frontend_sprite(GFS_hugearea_thn_cor_bl);
     pos_x = gbtn->scr_pos_x;
     for (i=0; i < 6; i++)
     {
