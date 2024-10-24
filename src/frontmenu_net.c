@@ -214,7 +214,7 @@ void frontnet_draw_net_session_players(struct GuiButton *gbtn)
     int i;
     i = frontend_button_caption_font(gbtn, 0);
     lbDisplay.DrawFlags = 0;
-    LbTextSetFont(frontend_font[i]);
+    LbTextSetFont(get_sprite(frontend_font[i], 0));
     int tx_units_per_px;
     tx_units_per_px = gbtn->height * 16 / (2*LbTextLineHeight());
     const struct TbSprite *spr;
@@ -337,7 +337,7 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
     int i;
     i = frontend_button_caption_font(gbtn, 0);
     lbDisplay.DrawFlags = 0;
-    LbTextSetFont(frontend_font[i]);
+    LbTextSetFont(get_sprite(frontend_font[i], 0));
     int height;
     height = 0;
     long netplyr_idx;
@@ -522,7 +522,7 @@ void frontnet_draw_scroll_selection_box(struct GuiButton *gbtn, long font_idx, c
 
     if (text != NULL)
     {
-        LbTextSetFont(frontend_font[font_idx]);
+        LbTextSetFont(get_sprite(frontend_font[font_idx], 0));
         lbDisplay.DrawFlags = 0;
         int tx_units_per_px;
         tx_units_per_px = (gbtn->height*13/14) * 16 / LbTextLineHeight();
@@ -564,7 +564,7 @@ void frontnet_draw_messages(struct GuiButton *gbtn)
 {
     int font_idx;
     font_idx = frontend_button_caption_font(gbtn, 0);
-    LbTextSetFont(frontend_font[font_idx]);
+    LbTextSetFont(get_sprite(frontend_font[font_idx], 0));
     lbDisplay.DrawFlags = 0;
     // While setting scale, aim for 4 lines of text
     int tx_units_per_px;
@@ -666,7 +666,7 @@ void frontnet_draw_small_scroll_selection_box(struct GuiButton *gbtn, long font_
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
     if (text != NULL)
     {
-        LbTextSetFont(frontend_font[font_idx]);
+        LbTextSetFont(get_sprite(frontend_font[font_idx], 0));
         lbDisplay.DrawFlags = 0;
         int tx_units_per_px;
         tx_units_per_px = (gbtn->height*13/14) * 16 / LbTextLineHeight();
@@ -865,7 +865,7 @@ void frontnet_draw_service_button(struct GuiButton *gbtn)
   // Select font to draw
   int font_idx;
   font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
-  LbTextSetFont(frontend_font[font_idx]);
+  LbTextSetFont(get_sprite(frontend_font[font_idx], 0));
   lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
   // Set drawing window and draw the text
   int tx_units_per_px;

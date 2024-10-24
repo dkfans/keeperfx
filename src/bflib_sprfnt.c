@@ -1409,25 +1409,25 @@ TbBool LbTextSetFont(const struct TbSprite *font)
         result = false;
         dbc_colour0 = LbTextGetFontFaceColor();
         dbc_colour1 = LbTextGetFontBackColor();
-        if (font == frontend_font[0])
+        if (font == get_sprite(frontend_font[0], 0))
         {
           result = change_dbcfont(2);
         } else
-        if (font == frontend_font[1])
+        if (font == get_sprite(frontend_font[1], 0))
         {
           if (lbDisplay.PhysicalScreenWidth < 512)
             result = change_dbcfont(0);
           else
             result = change_dbcfont(1);
         } else
-        if (font == frontend_font[2])
+        if (font == get_sprite(frontend_font[2], 0))
         {
           if (lbDisplay.PhysicalScreenWidth < 512)
             result = change_dbcfont(0);
           else
             result = change_dbcfont(1);
         } else
-        if (font == frontend_font[3])
+        if (font == get_sprite(frontend_font[3], 0))
         {
           if (lbDisplay.PhysicalScreenWidth < 512)
             result = change_dbcfont(0);
@@ -1468,19 +1468,19 @@ TbBool LbTextSetFont(const struct TbSprite *font)
 unsigned char LbTextGetFontFaceColor(void)
 {
     const struct TbSprite* font = lbFontPtr;
-    if (font == frontend_font[0])
+    if (font == get_sprite(frontend_font[0], 0))
     {
       return 238;
     } else
-    if (font == frontend_font[1])
+    if (font == get_sprite(frontend_font[1], 0))
     {
       return 243;
     } else
-    if (font == frontend_font[2])
+    if (font == get_sprite(frontend_font[2], 0))
     {
       return 248;
     } else
-    if (font == frontend_font[3])
+    if (font == get_sprite(frontend_font[3], 0))
     {
       return 119;
     } else

@@ -175,11 +175,11 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
         return;
     }
     if (frontend_mouse_over_button == content) {
-        LbTextSetFont(frontend_font[2]);
+        LbTextSetFont(get_sprite(frontend_font[2], 0));
     } else if (defined_keys_that_have_been_swapped[key_id]) {
-        LbTextSetFont(frontend_font[3]);
+        LbTextSetFont(get_sprite(frontend_font[3], 0));
     } else {
-        LbTextSetFont(frontend_font[1]);
+        LbTextSetFont(get_sprite(frontend_font[1], 0));
     }
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
     // This text is a bit condensed - button size is smaller than text height
@@ -382,7 +382,7 @@ void frontend_invert_mouse(struct GuiButton *gbtn)
 void frontend_draw_invert_mouse(struct GuiButton *gbtn)
 {
     int font_idx = frontend_button_caption_font(gbtn, frontend_mouse_over_button);
-    LbTextSetFont(frontend_font[font_idx]);
+    LbTextSetFont(get_sprite(frontend_font[font_idx], 0));
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
     int tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
     const char *text;

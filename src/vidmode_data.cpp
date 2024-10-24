@@ -55,14 +55,6 @@ extern struct TbSprite *pointer_sprites;
 extern struct TbSprite *end_pointer_sprites;
 extern unsigned char * pointer_data;
 
-struct TbSetupSprite setup_sprites_minimal[] = {
-  {&frontend_font[0],     &frontend_end_font[0],  &frontend_font_data[0]},
-  {&frontend_font[1],     &frontend_end_font[1],  &frontend_font_data[1]},
-  {&frontend_font[2],     &frontend_end_font[2],  &frontend_font_data[2]},
-  {&frontend_font[3],     &frontend_end_font[3],  &frontend_font_data[3]},
-  {NULL,                  NULL,                   NULL},
-};
-
 auto gui_panel_sprites_ptr = &gui_panel_sprites[0];
 auto end_gui_panel_sprites = &gui_panel_sprites[GUI_PANEL_SPRITES_COUNT];
 
@@ -140,14 +132,6 @@ struct TbLoadFiles gui_load_files_640[] = {
 
 #ifdef SPRITE_FORMAT_V2
 struct TbLoadFiles front_load_files_minimal_640[] = {
-  {"ldata/frontft1-64.dat",(unsigned char **)&frontend_font_data[0],(unsigned char **)&frontend_end_font_data[0], 0, 0, 0},
-  {"ldata/frontft1-64.tab",(unsigned char **)&frontend_font[0],     (unsigned char **)&frontend_end_font[0],      0, 0, 0},
-  {"ldata/frontft2-64.dat",(unsigned char **)&frontend_font_data[1],(unsigned char **)&frontend_end_font_data[1], 0, 0, 0},
-  {"ldata/frontft2-64.tab",(unsigned char **)&frontend_font[1],     (unsigned char **)&frontend_end_font[1],      0, 0, 0},
-  {"ldata/frontft3-64.dat",(unsigned char **)&frontend_font_data[2],(unsigned char **)&frontend_end_font_data[2], 0, 0, 0},
-  {"ldata/frontft3-64.tab",(unsigned char **)&frontend_font[2],     (unsigned char **)&frontend_end_font[2],      0, 0, 0},
-  {"ldata/frontft4-64.dat",(unsigned char **)&frontend_font_data[3],(unsigned char **)&frontend_end_font_data[3], 0, 0, 0},
-  {"ldata/frontft4-64.tab",(unsigned char **)&frontend_font[3],     (unsigned char **)&frontend_end_font[3],      0, 0, 0},
   {"*FE_BACKUP_PAL",       (unsigned char **)&frontend_backup_palette,NULL,                            PALETTE_SIZE, 0, 0},
   {"",                     NULL,                                  NULL,                                           0, 0, 0},
 };
@@ -161,14 +145,6 @@ struct TbLoadFiles pointer_load_files_640[] = {
 struct TbLoadFiles front_load_files_minimal_640[] = {
   {"data/gui1-32.dat",   (unsigned char **)&button_sprite_data, (unsigned char **)&end_button_sprite_data,      0, 0, 0},
   {"data/gui1-32.tab",   (unsigned char **)&button_sprite,      (unsigned char **)&end_button_sprites,          0, 0, 0},
-  {"ldata/frontft1.dat", (unsigned char **)&frontend_font_data[0],(unsigned char **)&frontend_end_font_data[0], 0, 0, 0},
-  {"ldata/frontft1.tab", (unsigned char **)&frontend_font[0],     (unsigned char **)&frontend_end_font[0],      0, 0, 0},
-  {"ldata/frontft2.dat", (unsigned char **)&frontend_font_data[1],(unsigned char **)&frontend_end_font_data[1], 0, 0, 0},
-  {"ldata/frontft2.tab", (unsigned char **)&frontend_font[1],     (unsigned char **)&frontend_end_font[1],      0, 0, 0},
-  {"ldata/frontft3.dat", (unsigned char **)&frontend_font_data[2],(unsigned char **)&frontend_end_font_data[2], 0, 0, 0},
-  {"ldata/frontft3.tab", (unsigned char **)&frontend_font[2],     (unsigned char **)&frontend_end_font[2],      0, 0, 0},
-  {"ldata/frontft4.dat", (unsigned char **)&frontend_font_data[3],(unsigned char **)&frontend_end_font_data[3], 0, 0, 0},
-  {"ldata/frontft4.tab", (unsigned char **)&frontend_font[3],     (unsigned char **)&frontend_end_font[3],      0, 0, 0},
   {"*FE_BACKUP_PAL",     (unsigned char **)&frontend_backup_palette,NULL,                            PALETTE_SIZE, 0, 0},
   {"",                   NULL,                                  NULL,                                           0, 0, 0},
 };

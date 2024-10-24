@@ -107,7 +107,6 @@ unsigned char white_pal[256];
 unsigned char red_pal[256];
 /******************************************************************************/
 
-extern struct TbSetupSprite setup_sprites_minimal[];
 extern struct TbSetupSprite setup_sprites[];
 #if (BFDEBUG_LEVEL > 0)
 // Declarations for font testing screen (debug version only)
@@ -145,6 +144,31 @@ void FreeVRes256Data(void)
     free_font(&winfont);
     free_font(&font_sprites);
     LbDataFreeAll(gui_load_files_640);
+}
+
+short LoadVResMinimal(void)
+{
+#ifdef SPRITE_FORMAT_V2
+    frontend_font[0] = load_font("ldata/frontft1-64.dat", "ldata/frontft1-64.tab");
+    frontend_font[1] = load_font("ldata/frontft2-64.dat", "ldata/frontft2-64.tab");
+    frontend_font[2] = load_font("ldata/frontft3-64.dat", "ldata/frontft3-64.tab");
+    frontend_font[3] = load_font("ldata/frontft4-64.dat", "ldata/frontft4-64.tab");
+#else
+    frontend_font[0] = load_font("ldata/frontft1.dat", "ldata/frontft1.tab");
+    frontend_font[1] = load_font("ldata/frontft2.dat", "ldata/frontft2.tab");
+    frontend_font[2] = load_font("ldata/frontft3.dat", "ldata/frontft3.tab");
+    frontend_font[3] = load_font("ldata/frontft4.dat", "ldata/frontft4.tab");
+#endif
+    return frontend_font[0] && frontend_font[1] && frontend_font[2] && frontend_font[3] &&
+        LbDataLoadAll(front_load_files_minimal_640) == 0;
+}
+
+void FreeVResMinimal(void)
+{
+    for (int i = 0; i < FRONTEND_FONTS_COUNT; ++i) {
+        free_font(&frontend_font[i]);
+    }
+    LbDataFreeAll(front_load_files_minimal_640);
 }
 
 /**
@@ -638,7 +662,7 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
         LbScreenReset(false);
     if (MinimalResolutionSetup) {
       if (hi_res) {
-        LbDataFreeAll(front_load_files_minimal_640);
+        FreeVResMinimal();
       }
     } else {
       if (hi_res) {
@@ -752,10 +776,7 @@ TbBool update_screen_mode_data(long width, long height)
   calculate_landview_upp(width, height, LANDVIEW_MAP_WIDTH, LANDVIEW_MAP_HEIGHT); // 16 is "kfx default" for 640x480 game window (1x), a 960x720 frame (1.5x), and a 1280x960 landview (2x)
 
 
-  if (MinimalResolutionSetup)
-    LbSpriteSetupAll(setup_sprites_minimal);
-  else
-    LbSpriteSetupAll(setup_sprites);
+  if (!MinimalResolutionSetup) LbSpriteSetupAll(setup_sprites);
   LbMouseChangeMoveRatio(base_mouse_sensitivity*units_per_pixel/16, base_mouse_sensitivity*units_per_pixel/16);
   LbMouseSetPointerHotspot(0, 0);
   LbScreenSetGraphicsWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
@@ -820,10 +841,11 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode)
       LbScreenReset(false);
     if (hi_res)
     {
-      if (MinimalResolutionSetup)
-        LbDataFreeAll(front_load_files_minimal_640);
-      else
+      if (MinimalResolutionSetup) {
+        FreeVResMinimal();
+      } else {
         FreeVRes256Data();
+      }
     }
     else
     {
@@ -844,7 +866,7 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode)
     if (hi_res)
     {
       frontend_load_data_from_cd();
-      if ( LbDataLoadAll(front_load_files_minimal_640) )
+      if (!LoadVResMinimal())
       {
         ERRORLOG("Unable to load VRes256 front_load minimal files");
         force_video_mode_reset = true;

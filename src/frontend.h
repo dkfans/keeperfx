@@ -274,10 +274,7 @@ extern MenuID vid_change_query_menu;
 
 // *** SPRITES ***
 extern struct TbSpriteSheet *font_sprites;
-extern struct TbSprite *frontend_font[FRONTEND_FONTS_COUNT];
-extern struct TbSprite *frontend_end_font[FRONTEND_FONTS_COUNT];
-extern unsigned char * frontend_font_data[FRONTEND_FONTS_COUNT];
-extern unsigned char * frontend_end_font_data[FRONTEND_FONTS_COUNT];
+extern struct TbSpriteSheet *frontend_font[FRONTEND_FONTS_COUNT];
 extern struct TbSprite *button_sprite;
 extern struct TbSprite *end_button_sprites;
 extern unsigned char * button_sprite_data;
