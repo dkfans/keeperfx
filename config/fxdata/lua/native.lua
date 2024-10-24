@@ -38,10 +38,10 @@
 ---@alias trap_type "BOULDER"|"ALARM"|"POISON_GAS"|"LIGHTNING"|"WORD_OF_POWER"|"LAVA"
 ---@alias door_type "WOOD"|"BRACED"|"STEEL"|"MAGIC"|"SECRET"|"MIDAS"
 ---@alias object_type string just look in objects.cfg for all names
----@alias effect_generator_type string
----@alias effect_element_type string
----@alias effect_type string
----@alias spell_type string
+---@alias effect_generator_type string see effects.toml
+---@alias effect_element_type string see effects.toml
+---@alias effect_type string see effects.toml
+---@alias spell_type string see magic.cfg
 
 
 
