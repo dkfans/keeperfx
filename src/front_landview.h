@@ -78,10 +78,7 @@ struct ScreenPacket {
 extern TbClockMSec play_desc_speech_time;
 extern unsigned long played_bad_descriptive_speech;
 extern unsigned long played_good_descriptive_speech;
-extern TbSpriteData map_flag_data;
-extern unsigned long end_map_flag_data;
-extern struct TbSprite *map_flag;
-extern struct TbSprite *end_map_flag;
+extern struct TbSpriteSheet *map_flag;
 extern struct TbSpriteSheet *map_font;
 extern struct TbSpriteSheet *map_hand;
 extern long map_sound_fade;

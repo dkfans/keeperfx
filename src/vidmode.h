@@ -136,8 +136,6 @@ struct TbAlphaTables {
 /******************************************************************************/
 extern struct TbSpriteSheet *pointer_sprites;
 extern struct TbLoadFiles legal_load_files[];
-extern struct TbLoadFiles map_flag_load_files[];
-extern struct TbLoadFiles netmap_flag_load_files[];
 extern struct TbLoadFilesV2 game_load_files[];
 extern unsigned short units_per_pixel_min;
 extern long base_mouse_sensitivity;
