@@ -139,6 +139,7 @@ TbLocChar *LbLocTextStringDelete(TbLocChar *str, TbCharCount pos, TbCharCount co
     str[slen-clen] = '\0';
     return str;
 }
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
