@@ -25,7 +25,7 @@
 #include "bflib_planar.h"
 #include "bflib_vidraw.h"
 #include "bflib_sound.h"
-
+#include "custom_sprites.h"
 #include "magic.h"
 #include "power_specials.h"
 #include "power_process.h"
@@ -1132,7 +1132,7 @@ void draw_mini_things_in_hand(long x, long y)
     }
     unsigned long spr_idx = get_creature_model_graphics(get_players_special_digger_model(dungeon->owner), CGI_HandSymbol);
     if ((spr_idx > 0) && (spr_idx < GUI_PANEL_SPRITES_COUNT))
-        i = gui_panel_sprites[spr_idx].SWidth - button_sprite[GBS_creature_flower_level_01].SWidth;
+        i = gui_panel_sprites[spr_idx].SWidth - get_button_sprite(GBS_creature_flower_level_01)->SWidth;
     else
         i = 0;
     long scrbase_x = x;

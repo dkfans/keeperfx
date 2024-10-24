@@ -1541,12 +1541,12 @@ const struct TbSprite *get_button_sprite_for_player(short sprite_idx, PlayerNumb
 
 const struct TbSprite *get_button_sprite(short sprite_idx)
 {
-    if (sprite_idx < GUI_BUTTON_SPRITES_COUNT)
-        return &button_sprite[sprite_idx];
-    else if (sprite_idx < num_icons_total)
+    if (sprite_idx < GUI_BUTTON_SPRITES_COUNT) {
+        return get_sprite(button_sprites, sprite_idx);
+    } else if (sprite_idx < num_icons_total) {
         return &gui_panel_sprites[sprite_idx];
-    else
-        return &button_sprite[0];
+    }
+    return get_sprite(button_sprites, 0);
 }
 
 const struct TbSprite *get_frontend_sprite(short sprite_idx)

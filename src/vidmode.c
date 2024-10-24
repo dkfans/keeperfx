@@ -120,11 +120,12 @@ short LoadVRes256Data(long scrbuf_size)
     // Update size of the parchment buffer, as it is also used as screen buffer
     if (scrbuf_size < 640*480)
         scrbuf_size = 640*480;
-    gui_load_files_640[5].SLength = scrbuf_size;
+    gui_load_files_640[3].SLength = scrbuf_size;
     // Load the files
     winfont = load_font("data/font2-64.dat", "data/font2-64.tab");
     font_sprites = load_font("data/font1-64.dat", "data/font1-64.tab");
-    if (!winfont || !font_sprites || LbDataLoadAll(gui_load_files_640)) {
+    button_sprites = load_spritesheet("data/gui1-64.dat", "data/gui1-64.tab");
+    if (!winfont || !font_sprites || !button_sprites || LbDataLoadAll(gui_load_files_640)) {
         return 0;
     }
     return 1;
@@ -134,11 +135,13 @@ void FreeVRes256Data(void)
 {
     free_font(&winfont);
     free_font(&font_sprites);
+    free_spritesheet(&button_sprites);
     LbDataFreeAll(gui_load_files_640);
 }
 
 short LoadVResMinimal(void)
 {
+    button_sprites = load_spritesheet("data/gui1-32.dat", "data/gui1-32.tab");
 #ifdef SPRITE_FORMAT_V2
     frontend_font[0] = load_font("ldata/frontft1-64.dat", "ldata/frontft1-64.tab");
     frontend_font[1] = load_font("ldata/frontft2-64.dat", "ldata/frontft2-64.tab");
@@ -150,8 +153,8 @@ short LoadVResMinimal(void)
     frontend_font[2] = load_font("ldata/frontft3.dat", "ldata/frontft3.tab");
     frontend_font[3] = load_font("ldata/frontft4.dat", "ldata/frontft4.tab");
 #endif
-    return frontend_font[0] && frontend_font[1] && frontend_font[2] && frontend_font[3] &&
-        LbDataLoadAll(front_load_files_minimal_640) == 0;
+    return button_sprites && frontend_font[0] && frontend_font[1] && frontend_font[2] &&
+        frontend_font[3] && LbDataLoadAll(front_load_files_minimal_640) == 0;
 }
 
 void FreeVResMinimal(void)
@@ -159,6 +162,7 @@ void FreeVResMinimal(void)
     for (int i = 0; i < FRONTEND_FONTS_COUNT; ++i) {
         free_font(&frontend_font[i]);
     }
+    free_spritesheet(&button_sprites);
     LbDataFreeAll(front_load_files_minimal_640);
 }
 
@@ -195,9 +199,10 @@ short LoadMcgaData(void)
         t_lfile = &gui_load_files_320[i];
   }
   if (mem != NULL) LbMemoryFree(mem);
+  button_sprites = load_spritesheet("data/gui1-32.dat", "data/gui1-32.tab");
   winfont = load_font("data/font2-32.dat", "data/font2-32.tab");
   font_sprites = load_font("data/font1-32.dat", "data/font1-32.tab");
-  return winfont && font_sprites && (ferror == 0);
+  return button_sprites && winfont && font_sprites && (ferror == 0);
 }
 
 void FreeMcgaData(void)
@@ -205,6 +210,7 @@ void FreeMcgaData(void)
     LbDataFreeAll(gui_load_files_320);
     free_font(&winfont);
     free_font(&font_sprites);
+    free_spritesheet(&button_sprites);
 }
 
 void set_game_vidmode(uint i, TbScreenMode nmode)
