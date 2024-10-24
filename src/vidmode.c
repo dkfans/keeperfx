@@ -90,9 +90,6 @@ long base_mouse_sensitivity = 256;
 
 static TbBool force_video_mode_reset = true;
 struct TbSpriteSheet * pointer_sprites = NULL;
-struct TbSprite *end_map_hand;
-TbSpriteData map_hand_data;
-TbSpriteData end_map_hand_data;
 struct MapLevelInfo map_info;
 
 TbBool MinimalResolutionSetup;

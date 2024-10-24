@@ -94,7 +94,7 @@ unsigned long end_map_flag_data;
 struct TbSprite *map_flag;
 struct TbSprite *end_map_flag;
 struct TbSpriteSheet * map_font = NULL;
-struct TbSprite *map_hand;
+struct TbSpriteSheet * map_hand = NULL;
 long map_sound_fade;
 unsigned char *map_screen;
 long fe_net_level_selected;
@@ -946,6 +946,7 @@ void frontnetmap_unload(void)
     clear_slabs();
     memcpy(&frontend_palette, frontend_backup_palette, PALETTE_SIZE);
     free_font(&map_font);
+    free_spritesheet(&map_hand);
     LbDataFreeAll(netmap_flag_load_files);
     memcpy(&frontend_palette, frontend_backup_palette, PALETTE_SIZE);
     fe_network_active = 0;
@@ -983,7 +984,8 @@ TbBool frontnetmap_load(void)
         return false;
     }
     map_font = load_font("ldata/netfont.dat", "ldata/netfont.tab");
-    if (!map_font || LbDataLoadAll(netmap_flag_load_files))
+    map_hand = load_spritesheet("ldata/maphand.dat", "ldata/maphand.tab");
+    if (!map_font || !map_hand || LbDataLoadAll(netmap_flag_load_files))
     {
       ERRORLOG("Unable to load MAP SCREEN sprites");
       return false;
@@ -1199,21 +1201,21 @@ TbBool test_hand_slap_collides(PlayerNumber plyr_idx)
   {
     rctb.left = nspck->field_6 - 31;
     rctb.top = nspck->field_8 - 27;
-    rctb.right = map_hand[9].SWidth + rctb.left;
-    rctb.bottom = rctb.top + map_hand[9].SHeight;
+    rctb.right = get_sprite(map_hand, 9)->SWidth + rctb.left;
+    rctb.bottom = rctb.top + get_sprite(map_hand, 9)->SHeight;
   } else
   if (nspck->param1 != SINGLEPLAYER_NOTSTARTED)
   {
     rctb.left = nspck->field_6 - 20;
     rctb.top = nspck->field_8 - 14;
-    rctb.right = map_hand[17].SWidth + rctb.left;
-    rctb.bottom = rctb.top + map_hand[17].SHeight;
+    rctb.right = get_sprite(map_hand, 17)->SWidth + rctb.left;
+    rctb.bottom = rctb.top + get_sprite(map_hand, 17)->SHeight;
   } else
   {
     rctb.left = nspck->field_6 - 19;
     rctb.top = nspck->field_8 - 25;
-    rctb.right = map_hand[1].SWidth + rctb.left;
-    rctb.bottom = rctb.top + map_hand[1].SHeight;
+    rctb.right = get_sprite(map_hand, 1)->SWidth + rctb.left;
+    rctb.bottom = rctb.top + get_sprite(map_hand, 1)->SHeight;
   }
   // Return if the rectangles are intersecting
   if (rectangle_intersects(&rcta, &rctb))
@@ -1315,7 +1317,7 @@ void draw_netmap_players_hands(void)
 {
   struct ScreenPacket *nspck;
   const char *plyr_nam;
-  struct TbSprite *spr;
+  const struct TbSprite *spr;
   TbPixel colr;
   long x;
   long y;
@@ -1337,7 +1339,7 @@ void draw_netmap_players_hands(void)
         if (n == 8)
         {
           k = (unsigned char)nspck->param1;
-          spr = &map_hand[k];
+          spr = get_sprite(map_hand, k);
         } else
         if (n == 16)
         {
@@ -1348,16 +1350,16 @@ void draw_netmap_players_hands(void)
             k = 0;
           x = hand_limp_xoffset[k];
           y = hand_limp_yoffset[k];
-          spr = &map_hand[21];
+          spr = get_sprite(map_hand, 21);
         } else
         if (nspck->param1 == SINGLEPLAYER_NOTSTARTED)
         {
             k = LbTimerClock() / 150;
-            spr = &map_hand[1 + (k%8)];
+            spr = get_sprite(map_hand, 1 + (k%8));
         } else
         {
             k = LbTimerClock() / 150;
-            spr = &map_hand[17 + (k%4)];
+            spr = get_sprite(map_hand, 17 + (k%4));
         }
         x += nspck->field_6 - map_info.screen_shift_x - 18;
         y += nspck->field_8 - map_info.screen_shift_y - 25;
