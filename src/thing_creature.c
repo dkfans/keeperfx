@@ -4089,7 +4089,7 @@ void remove_first_creature(struct Thing *creatng)
             secctrl = creature_control_get_from_thing(sectng);
             secctrl->players_prev_creature_idx = cctrl->players_prev_creature_idx;
         }
-        if (!flag_is_set(cctrl->flgfield_2, TF2_Spectator) && !flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature))
+        if (!flag_is_set(cctrl->flgfield_2, TF2_Spectator) && !(flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature)))
         {
             dungeon->owned_creatures_of_model[creatng->model]--;
             dungeon->num_active_diggers--;
@@ -4109,7 +4109,7 @@ void remove_first_creature(struct Thing *creatng)
             secctrl = creature_control_get_from_thing(sectng);
             secctrl->players_prev_creature_idx = cctrl->players_prev_creature_idx;
         }
-        if (!flag_is_set(cctrl->flgfield_2, TF2_Spectator) && !flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature))
+        if (!flag_is_set(cctrl->flgfield_2, TF2_Spectator) && !(flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature)))
         {
             dungeon->owned_creatures_of_model[creatng->model]--;
             dungeon->num_active_creatrs--;
