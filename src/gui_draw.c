@@ -644,7 +644,7 @@ TbBool draw_text_box(const char *text)
 {
     long spritesy;
     long spritesx;
-    LbTextSetFont(get_sprite(frontend_font[1], 0));
+    LbTextSetFont(frontend_font[1]);
     long n = LbTextStringWidth(text);
     if (n < (4*108)) {
         spritesy = 1;

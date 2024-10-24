@@ -102,7 +102,7 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
         }
         fs_units_per_px = (gbtn->width * 16 + orig_size/2) / orig_size;
     }
-    LbTextSetFont(get_sprite(frontend_font[1], 0));
+    LbTextSetFont(frontend_font[1]);
     lbDisplay.DrawFlags = 0;
     spr = &frontend_sprite[GFS_hugearea_thn_cor_ml];
     int pos_x = gbtn->scr_pos_x + spr->SWidth * fs_units_per_px / 16;
@@ -242,7 +242,7 @@ TbBool frontend_high_score_table_input(void)
     char chr = key_to_ascii(lbInkey, key_modifiers);
     if (chr != 0)
     {
-        LbTextSetFont(get_sprite(frontend_font[1], 0));
+        LbTextSetFont(frontend_font[1]);
         int tx_units_per_px;
         if (dbc_language > 0)
         {
@@ -434,7 +434,7 @@ void frontend_draw_high_scores_mappack(struct GuiButton *gbtn)
     else
         text = frontend_button_caption_text(gbtn);
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
-    LbTextSetFont(get_sprite(frontend_font[2], 0));
+    LbTextSetFont(frontend_font[2]);
     int tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
     LbTextDrawResized((dbc_language > 0) ? -30 : 0, 0, tx_units_per_px, text);

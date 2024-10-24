@@ -300,7 +300,7 @@ void gui_draw_all_boxes(void)
 {
   SYNCDBG(5,"Starting");
   lbDisplay.DrawFlags = Lb_TEXT_ONE_COLOR;
-  LbTextSetFont(get_sprite(font_sprites, 0));
+  LbTextSetFont(font_sprites);
   struct GuiBox* gbox = gui_get_lowest_priority_box();
   while (gbox != NULL)
   {
@@ -405,7 +405,7 @@ struct GuiBox *gui_create_box(long x, long y, struct GuiBoxOption *optn_list)
     if (gbox == NULL)
         return NULL;
     // Setting gui font - will be required to properly calculate box dimensions
-    LbTextSetFont(get_sprite(font_sprites, 0));
+    LbTextSetFont(font_sprites);
     gbox->optn_list = optn_list;
     gbox->pos_x = x;
     gbox->pos_y = y;
@@ -697,7 +697,7 @@ void gui_draw_box(struct GuiBox *gbox)
       goptn_over = gui_get_box_option_point_over(gbox_over, mouse_x, mouse_y);
     }
 
-    LbTextSetFont(get_sprite(font_sprites, 0));
+    LbTextSetFont(font_sprites);
     long lnheight = pixel_size * LbTextLineHeight() + 2;
     long pos_y = gbox->pos_y + 8;
     long pos_x = gbox->pos_x + 8;
@@ -830,7 +830,7 @@ short gui_process_inputs(void)
     } else
     if (left_button_clicked)
     {
-      LbTextSetFont(get_sprite(font_sprites, 0));
+      LbTextSetFont(font_sprites);
       gbox = gui_get_box_point_over(left_button_clicked_x, left_button_clicked_y);
       if (gbox != NULL)
       {
@@ -856,7 +856,7 @@ short gui_process_inputs(void)
       gbox = gui_get_box_point_over(left_button_clicked_x, left_button_clicked_y);
       if (gbox != NULL)
       {
-        LbTextSetFont(get_sprite(font_sprites, 0));
+        LbTextSetFont(font_sprites);
         goptn = gui_get_box_option_point_over(gbox, left_button_clicked_x, left_button_clicked_y);
         if ((gbox == hpbox) && (goptn != NULL))
         {
@@ -870,7 +870,7 @@ short gui_process_inputs(void)
       gbox = gui_get_box_point_over(left_button_clicked_x, left_button_clicked_y);
       if (gbox != NULL)
       {
-        LbTextSetFont(get_sprite(font_sprites, 0));
+        LbTextSetFont(font_sprites);
         goptn = gui_get_box_option_point_over(gbox, left_button_clicked_x, left_button_clicked_y);
         if ((gbox == hpbox) && (goptn != NULL))
         {

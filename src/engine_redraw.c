@@ -575,7 +575,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
 void draw_overlay_compass(long base_x, long base_y)
 {
     unsigned short flg_mem = lbDisplay.DrawFlags;
-    LbTextSetFont(get_sprite(winfont, 0));
+    LbTextSetFont(winfont);
     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
     int units_per_px = (16 * status_panel_width + 140 / 2) / 140;
@@ -1089,7 +1089,7 @@ void redraw_display(void)
         break;
     }
     //LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
-    LbTextSetFont(get_sprite(winfont, 0));
+    LbTextSetFont(winfont);
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
     int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_language > 0) ) ? scale_ui_value(32) : (22 * units_per_pixel) / LbTextLineHeight();
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
@@ -1112,7 +1112,7 @@ void redraw_display(void)
         unsigned short drwflags_mem = lbDisplay.DrawFlags;
         LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
         lbDisplay.DrawFlags = 0;
-        LbTextSetFont(get_sprite(winfont, 0));
+        LbTextSetFont(winfont);
         text = buf_sprintf("%d", draw_spell_cost);
         long pos_y = GetMouseY() - (LbTextStringHeight(text) * units_per_pixel / 16) / 2 - 2 * units_per_pixel / 16;
         long pos_x = GetMouseX() - (LbTextStringWidth(text) * units_per_pixel / 16) / 2;
@@ -1151,7 +1151,7 @@ void redraw_display(void)
 
     if (((game.operation_flags & GOF_Paused) != 0) && ((game.operation_flags & GOF_WorldInfluence) == 0))
     {
-          LbTextSetFont(get_sprite(winfont, 0));
+          LbTextSetFont(winfont);
           text = get_string(GUIStr_PausedMsg);
           long w = (LbTextStringWidth(text) * units_per_pixel / 16 + 2 * (LbTextCharWidth(' ') * units_per_pixel / 16));
           long pos_x;
@@ -1198,7 +1198,7 @@ void redraw_display(void)
       {
         i = game.play_gameturn - game.armageddon_cast_turn - game.armageddon.count_down;
       }
-      LbTextSetFont(get_sprite(winfont, 0));
+      LbTextSetFont(winfont);
       text = buf_sprintf(" %s %03d", get_string(get_power_name_strindex(PwrK_ARMAGEDDON)), i/2); // Armageddon message
       i = LbTextCharWidth(' ')*units_per_pixel/16;
       long w = LbTextStringWidth(text) * units_per_pixel / 16 + 6 * i;

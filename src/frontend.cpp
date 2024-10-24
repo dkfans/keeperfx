@@ -470,7 +470,7 @@ int frontend_font_char_width(int fnt_idx,char c)
 
 int frontend_font_string_width(int fnt_idx, const char *str)
 {
-    LbTextSetFont(get_sprite(frontend_font[fnt_idx], 0));
+    LbTextSetFont(frontend_font[fnt_idx]);
     return LbTextStringWidth(str);
 }
 
@@ -481,7 +481,7 @@ TbBool frontend_font_string_draw(int scr_x, int scr_y, int dst_width, int dst_he
     if (units_per_px < 1)
         units_per_px = 1;
     lbDisplay.DrawFlags = 0;
-    LbTextSetFont(get_sprite(frontend_font[fnt_idx], 0));
+    LbTextSetFont(frontend_font[fnt_idx]);
     int w;
     int h;
     h = LbTextLineHeight() * units_per_px / 16;
@@ -1285,7 +1285,7 @@ TbBool fronttestfont_input(void)
         LbPaletteSet(frontend_palette);//testfont_palette[0]
       else
         LbPaletteSet(testfont_palette[1]);
-        LbTextSetFont(get_sprite(testfont[i], 0));
+        LbTextSetFont(testfont[i]);
       return true;
     }
   }
@@ -1474,7 +1474,7 @@ void frontend_draw_text(struct GuiButton *gbtn)
         font_idx = 3;
     else
         font_idx = frontend_button_caption_font(gbtn, frontend_mouse_over_button);
-    LbTextSetFont(get_sprite(frontend_font[font_idx], 0));
+    LbTextSetFont(frontend_font[font_idx]);
     int tx_units_per_px;
     tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
@@ -1512,7 +1512,7 @@ void frontend_draw_enter_text(struct GuiButton *gbtn)
             print_with_cursor = 1;
     }
     snprintf(text, sizeof(text), "%s%s", srctext, print_with_cursor?"_":"");
-    LbTextSetFont(get_sprite(frontend_font[font_idx], 0));
+    LbTextSetFont(frontend_font[font_idx]);
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
     int tx_units_per_px;
     tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
@@ -1542,7 +1542,7 @@ void frontend_draw_computer_players(struct GuiButton *gbtn)
 {
     int font_idx;
     font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
-    LbTextSetFont(get_sprite(frontend_font[font_idx], 0));
+    LbTextSetFont(frontend_font[font_idx]);
     const char *text;
     if (fe_computer_players) {
         text = get_string(GUIStr_On);
@@ -3328,7 +3328,7 @@ void draw_gui(void)
 {
     SYNCDBG(6,"Starting");
     unsigned int flg_mem;
-    LbTextSetFont(get_sprite(winfont, 0));
+    LbTextSetFont(winfont);
     flg_mem = lbDisplay.DrawFlags;
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     update_fade_active_menus();
@@ -3349,7 +3349,7 @@ void draw_gui(void)
 }
 
 void draw_debug_messages() {
-    LbTextSetFont(get_sprite(frontend_font[0], 0));
+    LbTextSetFont(frontend_font[0]);
     LbTextSetWindow(0, 0, 640, 200);
     lbDisplay.DrawFlags = 0;
     const int x = 8 / pixel_size;
@@ -3881,7 +3881,7 @@ void frontend_maintain_error_text_box(struct GuiButton *gbtn)
 void frontend_draw_product_version(struct GuiButton *gbtn)
 {
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-    LbTextSetFont(get_sprite(frontend_font[1], 0));
+    LbTextSetFont(frontend_font[1]);
     int units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_hugebutton_a05l, 100);
     int h = LbTextLineHeight() * units_per_px / 16;
     LbTextSetWindow(0, gbtn->scr_pos_y, gbtn->width, h);

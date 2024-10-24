@@ -387,7 +387,7 @@ void draw_bonus_timer(void)
         }
         text = buf_sprintf("%05d", nturns / 2);
     }
-    LbTextSetFont(get_sprite(winfont, 0));
+    LbTextSetFont(winfont);
     long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
     long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
     if (MyScreenHeight < 400)
@@ -457,7 +457,7 @@ void draw_timer(void)
         }
         text = buf_sprintf("%02d:%02d:%02d", Timer.Hours, Timer.Minutes, Timer.Seconds);
     }
-    LbTextSetFont(get_sprite(winfont, 0));
+    LbTextSetFont(winfont);
     long width = 10 * (LbTextCharWidth('0') * units_per_pixel >> 4);
     long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
     if (MyScreenHeight < 400)
@@ -517,7 +517,7 @@ void draw_gameturn_timer(void)
         }
         text = buf_sprintf("GameTurn %lu", game.play_gameturn);
     }
-    LbTextSetFont(get_sprite(winfont, 0));
+    LbTextSetFont(winfont);
     int textLength = strlen(text);
     int textCharWidth = 0;
     for(int i = 0; i < textLength; ++i)
@@ -611,7 +611,7 @@ void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned l
     {
         text = buf_sprintf("%08d", nturns);
     }
-    LbTextSetFont(get_sprite(winfont, 0));
+    LbTextSetFont(winfont);
     long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
     long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
     if (MyScreenHeight < 400)
@@ -681,7 +681,7 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
         }
     }
     char* text = buf_sprintf("%ld", value);
-    LbTextSetFont(get_sprite(winfont, 0));
+    LbTextSetFont(winfont);
     long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
     long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
     if (MyScreenHeight < 400)
@@ -733,7 +733,7 @@ int consolelog_max_line_width = 1250; // Maximum line width
 void draw_consolelog()
 {
     draw_round_slab64k(0, 0, units_per_pixel, lbDisplay.GraphicsScreenWidth, (lbDisplay.GraphicsScreenHeight/2), ROUNDSLAB64K_DARK);
-    LbTextSetFont(get_sprite(winfont, 0));
+    LbTextSetFont(winfont);
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
 
     int text_height = (consolelog_font_size * units_per_pixel) / LbTextLineHeight();
@@ -781,7 +781,7 @@ void draw_frametime()
 {
     float display_value;
     char *text;
-    LbTextSetFont(get_sprite(winfont, 0));
+    LbTextSetFont(winfont);
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
     int tx_units_per_px = (11 * units_per_pixel) / LbTextLineHeight();
 

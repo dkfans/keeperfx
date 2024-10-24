@@ -41,7 +41,7 @@
 void message_draw(void)
 {
     SYNCDBG(7,"Starting");
-    LbTextSetFont(get_sprite(winfont, 0));
+    LbTextSetFont(winfont);
     int ps_units_per_px;
     struct TbSprite* spr;
     {

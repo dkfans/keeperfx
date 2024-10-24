@@ -175,7 +175,7 @@ void frontend_draw_load_game_button(struct GuiButton *gbtn)
         return;
     // Select font to draw
     int font_idx = frontend_button_caption_font(gbtn, frontend_mouse_over_button);
-    LbTextSetFont(get_sprite(frontend_font[font_idx], 0));
+    LbTextSetFont(frontend_font[font_idx]);
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
     // Set drawing window and draw the text
     int tx_units_per_px = (gbtn->height * 13 / 11) * 16 / LbTextLineHeight();

@@ -803,7 +803,7 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
     if (text != NULL)
     {
         lbDisplay.DrawFlags = drw_flags;
-        LbTextSetFont(get_sprite(frontend_font[fntidx], 0));
+        LbTextSetFont(frontend_font[fntidx]);
         spr = &frontend_sprite[spridx];
         h = LbTextHeight(text) * units_per_px / 16;
         x = gbtn->scr_pos_x + ((40*units_per_px/16) >> 1);

@@ -81,7 +81,7 @@ void frontstory_draw(void)
 {
     frontend_copy_background();
     LbTextSetWindow(70*units_per_pixel/16, 70*units_per_pixel/16, (640-2*70)*units_per_pixel/16, (480-2*70)*units_per_pixel/16);
-    LbTextSetFont(get_sprite(frontstory_font, 0));
+    LbTextSetFont(frontstory_font);
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
     int tx_units_per_px = (26 * units_per_pixel) / LbTextLineHeight();
     LbTextDrawResized(0, 0, tx_units_per_px, get_string(frontstory_text_no));
@@ -100,7 +100,7 @@ void frontcredits_draw(void)
     lbDisplay.DrawFlags = Lb_SPRITE_OUTLINE | Lb_TEXT_HALIGN_CENTER;
     LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
     int fontid = 1;
-    LbTextSetFont(get_sprite(frontend_font[fontid], 0));
+    LbTextSetFont(frontend_font[fontid]);
     long h = credits_offset;
     TbBool did_draw = h > 0;
     for (long i = 0; campaign.credits[i].kind != CIK_None; i++)
@@ -111,7 +111,7 @@ void frontcredits_draw(void)
         if (credit->font != fontid)
         {
           fontid = credit->font;
-          LbTextSetFont(get_sprite(frontend_font[fontid], 0));
+          LbTextSetFont(frontend_font[fontid]);
         }
         int ln_height = LbTextLineHeight() * units_per_pixel / 16;
         if (h > -ln_height)
@@ -148,13 +148,13 @@ TbBool frontcredits_input(void)
     int speed;
     if ( lbKeyOn[KC_DOWN] )
     {
-        LbTextSetFont(get_sprite(frontend_font[fontid], 0));
+        LbTextSetFont(frontend_font[fontid]);
         speed = LbTextLineHeight() * units_per_pixel / 16;
         credits_scroll_speed = speed;
     } else
     if ((lbKeyOn[KC_UP]) && (credits_offset <= 0))
     {
-        LbTextSetFont(get_sprite(frontend_font[fontid], 0));
+        LbTextSetFont(frontend_font[fontid]);
         speed = -LbTextLineHeight() * units_per_pixel / 16;
         if (speed <= credits_offset)
           speed = credits_offset;

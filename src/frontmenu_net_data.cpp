@@ -173,7 +173,7 @@ void frontnet_draw_session_selected(struct GuiButton *gbtn)
         if (text != NULL)
         {
             lbDisplay.DrawFlags = 0;
-            LbTextSetFont(get_sprite(frontend_font[i], 0));
+            LbTextSetFont(frontend_font[i]);
             // Set drawing window and draw the text
             int tx_units_per_px;
             tx_units_per_px = (gbtn->height*13/14) * 16 / LbTextLineHeight();
@@ -208,7 +208,7 @@ void frontnet_draw_session_button(struct GuiButton *gbtn)
         return;
     int font_idx;
     font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
-    LbTextSetFont(get_sprite(frontend_font[font_idx], 0));
+    LbTextSetFont(frontend_font[font_idx]);
     lbDisplay.DrawFlags = 0;
     int tx_units_per_px;
     tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();

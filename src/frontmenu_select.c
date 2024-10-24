@@ -112,7 +112,7 @@ void frontend_draw_level_select_button(struct GuiButton *gbtn)
     else
       i = 1;
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-    LbTextSetFont(get_sprite(frontend_font[i], 0));
+    LbTextSetFont(frontend_font[i]);
     // This text is a bit condensed - button size is smaller than text height
     int tx_units_per_px = (gbtn->height * 13 / 11) * 16 / LbTextLineHeight();
     i = LbTextLineHeight() * tx_units_per_px / 16;
@@ -196,7 +196,7 @@ void frontend_draw_level_select_mappack(struct GuiButton *gbtn)
     else
         text = frontend_button_caption_text(gbtn);
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-    LbTextSetFont(get_sprite(frontend_font[2], 0));
+    LbTextSetFont(frontend_font[2]);
     int tx_units_per_px;
     tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
@@ -271,7 +271,7 @@ void frontend_draw_campaign_select_button(struct GuiButton *gbtn)
     else*/
       i = 1;
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-    LbTextSetFont(get_sprite(frontend_font[i], 0));
+    LbTextSetFont(frontend_font[i]);
     // This text is a bit condensed - button size is smaller than text height
     int tx_units_per_px = (gbtn->height * 13 / 11) * 16 / LbTextLineHeight();
     i = LbTextLineHeight() * tx_units_per_px / 16;
@@ -427,7 +427,7 @@ void frontend_draw_mappack_select_button(struct GuiButton *gbtn)
       i = 1;
 
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-    LbTextSetFont(get_sprite(frontend_font[i], 0));
+    LbTextSetFont(frontend_font[i]);
     int tx_units_per_px;
     // This text is a bit condensed - button size is smaller than text height
     tx_units_per_px = (gbtn->height*13/11) * 16 / LbTextLineHeight();

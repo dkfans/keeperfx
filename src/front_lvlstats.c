@@ -220,7 +220,7 @@ void frontstats_draw_main_stats(struct GuiButton *gbtn)
 {
     int fs_units_per_px = scroll_box_get_units_per_px(gbtn);
     draw_scroll_box(gbtn, fs_units_per_px, 6);
-    LbTextSetFont(get_sprite(frontend_font[1], 0));
+    LbTextSetFont(frontend_font[1]);
     // The GUI item height should be 6 lines of text
     int tx_units_per_px = gbtn->height * 16 / (6 * (LbTextLineHeight() + 1));
     int ln_height = LbTextLineHeight() * tx_units_per_px / 16;
@@ -262,7 +262,7 @@ void frontstats_draw_scrolling_stats(struct GuiButton *gbtn)
 {
     int fs_units_per_px = scroll_box_get_units_per_px(gbtn);
     draw_scroll_box(gbtn, fs_units_per_px, 5);
-    LbTextSetFont(get_sprite(frontend_font[1], 0));
+    LbTextSetFont(frontend_font[1]);
     {
         struct TbSprite* spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
         LbTextSetWindow(gbtn->scr_pos_x + spr->SWidth * fs_units_per_px / 16, gbtn->scr_pos_y + (spr->SHeight-7) * fs_units_per_px / 16,
@@ -325,7 +325,7 @@ void frontstats_set_timer(void)
 void frontstats_update(void)
 {
     scrolling_offset++;
-    LbTextSetFont(get_sprite(frontend_font[1], 0));
+    LbTextSetFont(frontend_font[1]);
     int h = LbTextLineHeight();
     if (h+4 < scrolling_offset)
     {
