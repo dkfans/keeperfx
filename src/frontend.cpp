@@ -376,9 +376,7 @@ const unsigned long alliance_grid[4][4] = {
 
 #if (BFDEBUG_LEVEL > 0)
 // Declarations for font testing screen (debug version only)
-struct TbSprite *testfont[TESTFONTS_COUNT];
-struct TbSprite *testfont_end[TESTFONTS_COUNT];
-unsigned char * testfont_data[TESTFONTS_COUNT];
+struct TbSpriteSheet *testfont[TESTFONTS_COUNT];
 unsigned char *testfont_palette[3];
 long num_chars_in_font = 128;
 #endif
@@ -1281,13 +1279,13 @@ TbBool fronttestfont_input(void)
     if (lbKeyOn[keys[i]])
     {
       lbKeyOn[keys[i]] = 0;
-      num_chars_in_font = testfont_end[i]-testfont[i];
+      num_chars_in_font = num_sprites(testfont[i]);
       SYNCDBG(9,"Characters in font %d: %d",i,num_chars_in_font);
       if (i < 4)
         LbPaletteSet(frontend_palette);//testfont_palette[0]
       else
         LbPaletteSet(testfont_palette[1]);
-      LbTextSetFont(testfont[i]);
+        LbTextSetFont(get_sprite(testfont[i], 0));
       return true;
     }
   }

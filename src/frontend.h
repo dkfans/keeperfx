@@ -310,9 +310,7 @@ extern const unsigned long alliance_grid[4][4];
 
 #if (BFDEBUG_LEVEL > 0)
 #define TESTFONTS_COUNT 12
-extern struct TbSprite *testfont[TESTFONTS_COUNT];
-extern struct TbSprite *testfont_end[TESTFONTS_COUNT];
-extern unsigned char * testfont_data[TESTFONTS_COUNT];
+extern struct TbSpriteSheet *testfont[TESTFONTS_COUNT];
 extern unsigned char *testfont_palette[3];
 #endif
 /******************************************************************************/

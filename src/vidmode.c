@@ -110,7 +110,6 @@ unsigned char red_pal[256];
 extern struct TbSetupSprite setup_sprites[];
 #if (BFDEBUG_LEVEL > 0)
 // Declarations for font testing screen (debug version only)
-extern struct TbSetupSprite setup_testfont[];
 extern struct TbLoadFiles testfont_load_files[];
 #endif
 
@@ -1066,20 +1065,43 @@ void switch_to_next_video_mode_wrapper(void)
 #if (BFDEBUG_LEVEL > 0)
 TbBool load_testfont_fonts(void)
 {
-  winfont = load_winfont();
-  if (!winfont || LbDataLoadAll(testfont_load_files) )
-  {
-    ERRORLOG("Unable to load testfont_load_files files");
-    return false;
-  }
-  LbSpriteSetupAll(setup_testfont);
-  return true;
+    winfont = load_winfont();
+    testfont[0] = load_font("ldata/frontft1.dat", "ldata/frontft1.tab");
+    testfont[1] = load_font("ldata/frontft2.dat", "ldata/frontft2.tab");
+    testfont[2] = load_font("ldata/frontft3.dat", "ldata/frontft3.tab");
+    testfont[3] = load_font("ldata/frontft4.dat", "ldata/frontft4.tab");
+    testfont[4] = load_font("data/font0-0.dat", "data/font-0-0.tab");
+    testfont[5] = load_font("data/font0-1.dat", "data/font-0-1.tab");
+    testfont[6] = load_font("data/font2-32.dat", "data/font2-32.tab");
+    testfont[7] = load_font("data/font2-64.dat", "data/font2-64.tab");
+    testfont[8] = load_font("data/font1-64.dat", "data/font1-64.tab");
+    testfont[9] = load_font("data/font1-32.dat", "data/font1-32.tab");
+    testfont[10] = load_font("ldata/netfont.dat", "ldata/netfont.tab");
+    for (int i = 0; i < TESTFONTS_COUNT; ++i) {
+        if (!testfont[i]) {
+            ERRORLOG("Unable to load test font %d", i);
+            return false;
+        }
+    }
+    if (!winfont) {
+        ERRORLOG("Unable to load win font");
+        return false;
+    }
+    if (!LbDataLoadAll(testfont_load_files) )
+    {
+      ERRORLOG("Unable to load testfont_load_files files");
+      return false;
+    }
+    return true;
 }
 
 void free_testfont_fonts(void)
 {
-  free_font(&winfont);
-  LbDataFreeAll(testfont_load_files);
+    free_font(&winfont);
+    for (int i = 0; i < TESTFONTS_COUNT; ++i) {
+        free_font(&testfont[i]);
+    }
+    LbDataFreeAll(testfont_load_files);
 }
 #endif
 
