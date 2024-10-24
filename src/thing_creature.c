@@ -3333,7 +3333,6 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
     }
     if (!thing_is_invalid(shotng))
     {
-#if (BFDEBUG_LEVEL > 0)
       damage = shotng->shot.damage;
       // Special debug code that shows amount of damage the shot will make
       if ((start_params.debug_flags & DFlg_ShotsDamage) != 0)
@@ -3342,7 +3341,6 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
       {
         WARNLOG("Shot of type %d carries %d damage",(int)shot_model,(int)damage);
       }
-#endif
       shotng->shot.hit_type = hit_type;
       if (shotst->firing_sound > 0)
       {

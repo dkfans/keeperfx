@@ -182,7 +182,7 @@ TbBool things_stats_debug_dump(void)
     for (i=0; i < THING_CLASSES_COUNT; i++) {
         total += count[i];
     }
-    JUSTMSG("Check things: Creats%d, Objs%d, Bods%d, Trps%d, Drs%d, Shts%d, Effs%d, EffEls%d Othrs%d Total%d",
+    LbDebugLog("Check things: Creats%d, Objs%d, Bods%d, Trps%d, Drs%d, Shts%d, Effs%d, EffEls%d Othrs%d Total%d",
         count[TCls_Creature],
         count[TCls_Object],
         count[TCls_DeadCreature],

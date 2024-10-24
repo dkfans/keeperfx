@@ -59,12 +59,10 @@ volatile TbDisplayStructEx lbDisplayEx;
 /******************************************************************************/
 TbResult LbMouseChangeSpriteAndHotspot(const struct TbSprite *pointerSprite, long hot_x, long hot_y)
 {
-#if (BFDEBUG_LEVEL > 18)
   if (pointerSprite == NULL)
-    SYNCLOG("Setting to %s","NONE");
+    LbDebugLog("Setting to %s", "NONE");
   else
-    SYNCLOG("Setting to %dx%d, data at %p",(int)pointerSprite->SWidth,(int)pointerSprite->SHeight,pointerSprite);
-#endif
+    LbDebugLog("Setting to %dx%d, data at %p", (int)pointerSprite->SWidth, (int)pointerSprite->SHeight, pointerSprite);
   if (!lbMouseInstalled)
     return Lb_FAIL;
   if (!pointerHandler.SetMousePointerAndOffset(pointerSprite, hot_x, hot_y))
@@ -180,12 +178,10 @@ TbBool IsMouseInsideWindow(void)
 
 TbResult LbMouseChangeSprite(struct TbSprite *pointerSprite)
 {
-#if (BFDEBUG_LEVEL > 18)
   if (pointerSprite == NULL)
-    SYNCLOG("Setting to %s","NONE");
+    LbDebugLog("Setting to %s", "NONE");
   else
-    SYNCLOG("Setting to %dx%d, data at %p",(int)pointerSprite->SWidth,(int)pointerSprite->SHeight,pointerSprite);
-#endif
+    LbDebugLog("Setting to %dx%d, data at %p", (int)pointerSprite->SWidth, (int)pointerSprite->SHeight, pointerSprite);
   if (!lbMouseInstalled)
     return Lb_FAIL;
   if (!pointerHandler.SetMousePointer(pointerSprite))
@@ -328,14 +324,14 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
         }
         break;
     case MActn_WHEELMOVEUP:
-        lbDisplayEx.WhellPosition--;
-        lbDisplayEx.WhellMoveUp++;
+        lbDisplayEx.WhellPosition = lbDisplayEx.WhellPosition - 1;
+        lbDisplayEx.WhellMoveUp = lbDisplayEx.WhellMoveUp + 1;
         lbDisplayEx.WhellMoveDown = 0;
         break;
     case MActn_WHEELMOVEDOWN:
-        lbDisplayEx.WhellPosition++;
+        lbDisplayEx.WhellPosition = lbDisplayEx.WhellPosition + 1;
         lbDisplayEx.WhellMoveUp = 0;
-        lbDisplayEx.WhellMoveDown++;
+        lbDisplayEx.WhellMoveDown = lbDisplayEx.WhellMoveDown + 1;
         break;
     default:
         break;

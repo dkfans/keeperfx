@@ -718,7 +718,7 @@ int position_books_in_room_with_capacity(PlayerNumber plyr_idx, RoomKind rkind, 
         }
         if (rrepos->used <= 0)
         {
-            SYNCDBG(7,"Nothing left to reposition")
+            SYNCDBG(7,"Nothing left to reposition");
             break;
         }
         room = find_room_of_role_with_spare_room_item_capacity(plyr_idx, RoRoF_PowersStorage);
