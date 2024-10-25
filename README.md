@@ -46,7 +46,8 @@ or [Steam](https://store.steampowered.com/app/1996630/Dungeon_Keeper_Gold/).
 
 
 ## Development
-To get started with KeeperFX development, refer to the [Development Guide](https://github.com/dkfans/keeperfx/wiki/Building-KeeperFX) for 
+To get started with KeeperFX development, refer to the [Development Guide](https://github.com/dkfans/keeperfx/wiki/Building-KeeperFX) and
+[this](https://github.com/Linvail/keeperfx/wiki/Develop-KeeperFX-with-CMake-and-Visual-Studio-2022) for 
 detailed instructions on setting up a development environment and building KeeperFX from source.
 
 If you wish to discuss development, you can join the [Keeper Klan discord](https://discord.gg/hE4p7vy2Hb) and ask to 
