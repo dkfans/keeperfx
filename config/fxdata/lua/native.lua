@@ -590,36 +590,6 @@ function SET_CREATURE_MAX_LEVEL(player,creature_type,max_level) end
 function SET_CREATURE_PROPERTY(creature_type,property,enable) end
 
 
--------------------------------------
---Manipulating individual Creatures--
--------------------------------------
-
----gets a single creature based on the given criteria
----@param player playerrange
----@param creature_type creature_type
----@param criterion creature_select_criteria
----@return Creature
----@nodiscard
-function GET_CREATURE_BY_CRITERION(player,creature_type,criterion) return Creature end
-
----increases creatures level by a given amount
----@param creature Creature
----@param levels integer
-function LEVEL_UP_CREATURE(creature,levels) end
-
----comment
----@param creature Creature
-function TRANSFER_CREATURE(creature) end
-
-function KILL_CREATURE(creature) end
-function CHANGE_CREATURE_OWNER(creature,new_owner) end
-
----Can set, increase or decrease the happiness level of all your units.
----@param player playerrange
----@param creature creature_type
----@param operation any
----@param annoyance integer
-function CHANGE_CREATURES_ANNOYANCE(player,creature,operation,annoyance) end
 
 
 -------------------------
@@ -844,9 +814,16 @@ function GetHeroGate() end
 ---returns a list containing all things of a certain class
 ---@param class thing_class
 ---@return Thing[] | Creature[]
+---@nodiscard
 function get_things_of_class(class) end
 
-
+---gets a single creature based on the given criteria
+---@param player playerrange
+---@param creature_type creature_type
+---@param criterion creature_select_criteria
+---@return Creature
+---@nodiscard
+function getCreatureByCriterion(player,creature_type,criterion) return Creature end
 
 
 -------------------------------------------------------
@@ -856,12 +833,26 @@ function get_things_of_class(class) end
 ---comment
 function Thing:DeleteThing() end
 
-
 ---comment
 ---@param stl_x any
 ---@param stl_y any
-function Creature:CreatureWalkTo(stl_x,stl_y) end
+function Creature:walkTo(stl_x,stl_y) end
 
----comment
-function Creature:KillCreature() end
+---Kills the unit
+function Creature:kill() end
 
+---increases creatures level by a given amount
+---@param levels integer
+function Creature:levelUp(levels) end
+
+---sends the creature to the next level, similar to using the special box and selecting said unit
+function Creature:Transfer() end
+
+function CHANGE_CREATURE_OWNER(creature,new_owner) end
+
+---Can set, increase or decrease the happiness level of all your units.
+---@param player playerrange
+---@param creature creature_type
+---@param operation any
+---@param annoyance integer
+function CHANGE_CREATURES_ANNOYANCE(player,creature,operation,annoyance) end
