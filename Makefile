@@ -64,7 +64,6 @@ HVLOGBIN = bin/keeperfx_hvlog$(EXEEXT)
 # Names of intermediate build products
 GENSRC   = obj/ver_defs.h
 RES      = obj/keeperfx_stdres.res
-LIBS     = obj/enet.a
 
 DEPS = \
 obj/spng.o \
@@ -352,9 +351,11 @@ CU_OBJS = \
 	obj/cu/Util.o
 
 # include and library directories
-LINKLIB =  -L"sdl/lib" -mwindows obj/enet.a \
-	-lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net -lSDL2_image \
-	-L"deps/zlib" -lz -lws2_32 -ldbghelp
+LINKLIB = -mwindows \
+	-L"sdl/lib" -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net -lSDL2_image \
+	-L"deps/enet" -lenet \
+	-L"deps/zlib" -lz \
+	-lwinmm -lmingw32 -limagehlp -lws2_32 -ldbghelp
 INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include" -I"deps/centijson/src" -I"deps/centitoml" -I"deps/astronomy"
 CXXINCS =  $(INCS)
 
@@ -460,7 +461,6 @@ obj/std/ftests/tests \
 obj/tests obj/cu \
 obj/std/json obj/hvlog/json \
 obj/std/centitoml obj/hvlog/centitoml \
-obj/enet \
 sdl/for_final_package
 
 $(shell $(MKDIR) $(FOLDERS))
@@ -492,11 +492,11 @@ clean-build:
 	-$(RM) $(HVLOGBIN) $(HVLOGBIN:%.exe=%.map)
 	-$(RM) $(HVLOGBIN) $(HVLOGBIN:%.exe=%.pdb)
 	-$(RM) bin/keeperfx.dll
-	-$(RM) $(LIBS) $(GENSRC)
+	-$(RM) $(GENSRC)
 	-$(RM) res/*.ico
 	-$(RM) obj/keeperfx.*
 
-$(BIN): $(GENSRC) $(STDOBJS) $(STD_MAIN_OBJ) $(LIBS) std-before
+$(BIN): $(GENSRC) $(STDOBJS) $(STD_MAIN_OBJ) std-before
 	-$(ECHO) 'Building target: $@'
 	$(CPP) -o "$@" $(STDOBJS) $(STD_MAIN_OBJ) $(LDFLAGS)
 ifdef CV2PDB
@@ -504,7 +504,7 @@ ifdef CV2PDB
 endif
 	-$(ECHO) ' '
 
-$(HVLOGBIN): $(GENSRC) $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(LIBS) hvlog-before
+$(HVLOGBIN): $(GENSRC) $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) hvlog-before
 	-$(ECHO) 'Building target: $@'
 	$(CPP) -o "$@" $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(LDFLAGS)
 ifdef CV2PDB
@@ -512,7 +512,7 @@ ifdef CV2PDB
 endif
 	-$(ECHO) ' '
 
-$(TEST_BIN): $(GENSRC) $(STDOBJS) $(TESTS_OBJ) $(LIBS) $(CU_OBJS) std-before
+$(TEST_BIN): $(GENSRC) $(STDOBJS) $(TESTS_OBJ) $(CU_OBJS) std-before
 	-$(ECHO) 'Building target: $@'
 	$(CPP) -o "$@" $(TESTS_OBJ) $(STDOBJS) $(CU_OBJS) $(LDFLAGS)
 ifdef CV2PDB
@@ -613,7 +613,7 @@ libexterns: libexterns.mk
 
 clean-libexterns: libexterns.mk
 	-$(MAKE) -f libexterns.mk clean-libexterns
-	-$(MAKE) -f enet.mk clean
+	-$(RM) -rf deps/enet
 	-cd deps/zlib && $(MAKE) -f win32/Makefile.gcc clean
 	-cd deps/zlib && git checkout Makefile zconf.h
 	-$(RM) libexterns
@@ -631,8 +631,16 @@ deps/zlib/configure.log:
 deps/zlib/libz.a: deps/zlib/configure.log
 	cd deps/zlib && $(MAKE) -f win32/Makefile.gcc PREFIX=$(CROSS_COMPILE) libz.a
 
-obj/enet.a:
-	$(MAKE) -f enet.mk PREFIX=$(CROSS_COMPILE) WARNFLAGS=$(WARNFLAGS) obj/enet.a
+deps/enet:
+	$(MKDIR) $@
+
+src/bflib_enet.cpp: deps/enet/include/enet/enet.h
+
+deps/enet-mingw32.tar.gz:
+	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/enet-mingw32.tar.gz"
+
+deps/enet/include/enet/enet.h: deps/enet-mingw32.tar.gz | deps/enet
+	tar xzmf $< -C deps/enet
 
 include tool_png2ico.mk
 include tool_pngpal2raw.mk
