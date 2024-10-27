@@ -350,7 +350,7 @@ CU_OBJS = \
 
 # include and library directories
 LINKLIB = -mwindows \
-	-L"sdl/lib" -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net -lSDL2_image \
+	-L"sdl/lib" -lSDL2 -lSDL2_mixer -lSDL2_net -lSDL2_image \
 	-L"deps/enet" -lenet \
 	-L"deps/zlib" -lminizip -lz \
 	-lwinmm -lmingw32 -limagehlp -lws2_32 -ldbghelp
