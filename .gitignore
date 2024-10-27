@@ -29,3 +29,4 @@ res/keeperfx_icon.ico
 /deps/zlib
 /deps/spng
 /deps/astronomy
+/deps/*.tar.gz
