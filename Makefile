@@ -71,9 +71,7 @@ obj/json/json.o \
 obj/json/value.o \
 obj/json/json-dom.o \
 obj/centitoml/toml_api.o \
-obj/astronomy.o \
-obj/unzip.o \
-obj/ioapi.o
+obj/astronomy.o
 
 # functional test debugging flags/objs
 FTEST_DEBUG ?= 0
@@ -354,9 +352,9 @@ CU_OBJS = \
 LINKLIB = -mwindows \
 	-L"sdl/lib" -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net -lSDL2_image \
 	-L"deps/enet" -lenet \
-	-L"deps/zlib" -lz \
+	-L"deps/zlib" -lminizip -lz \
 	-lwinmm -lmingw32 -limagehlp -lws2_32 -ldbghelp
-INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include" -I"deps/centijson/src" -I"deps/centitoml" -I"deps/astronomy"
+INCS =  -I"deps/zlib/include" -I"deps/libspng/spng" -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include" -I"deps/centijson/src" -I"deps/centitoml" -I"deps/astronomy"
 CXXINCS =  $(INCS)
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
@@ -465,8 +463,7 @@ sdl/for_final_package
 
 $(shell $(MKDIR) $(FOLDERS))
 
-# We need this file because we need git update
-build-before: libexterns deps/zlib/configure.log
+build-before: libexterns
 
 std-before: build-before
 hvlog-before: build-before
@@ -519,9 +516,9 @@ ifdef CV2PDB
 	$(CV2PDB) -C "$@"
 endif
 
-obj/std/spng.o obj/hvlog/spng.o: deps/libspng/spng/spng.c deps/zlib/libz.a
+obj/std/spng.o obj/hvlog/spng.o: deps/libspng/spng/spng.c
 	-$(ECHO) 'Building file: $<'
-	$(CC) $(CFLAGS) -I"deps/zlib" -I"deps/libspng/spng" -o"$@" "$<"
+	$(CC) $(CFLAGS) -I"deps/libspng/spng" -o"$@" "$<"
 	-$(ECHO) ' '
 
 obj/std/json/%.o obj/hvlog/json/%.o: deps/centijson/src/%.c
@@ -534,29 +531,9 @@ obj/std/centitoml/toml_api.o obj/hvlog/centitoml/toml_api.o: deps/centitoml/toml
 	$(CC) $(CFLAGS) -o"$@" "$<"
 	-$(ECHO) ' '
 
-obj/std/unzip.o obj/hvlog/unzip.o: deps/zlib/contrib/minizip/unzip.c
-	-$(ECHO) 'Building file: $<'
-	$(CC) $(CFLAGS) -Wno-shadow -I"deps/zlib" -o"$@" "$<"
-	-$(ECHO) ' '
-
 obj/std/astronomy.o obj/hvlog/astronomy.o: deps/astronomy/astronomy.c
 	-$(ECHO) 'Building file: $<'
 	$(CC) $(CFLAGS) -o"$@" "$<"
-	-$(ECHO) ' '
-
-obj/std/ioapi.o obj/hvlog/ioapi.o: deps/zlib/contrib/minizip/ioapi.c
-	-$(ECHO) 'Building file: $<'
-	$(CC) $(CFLAGS) -I"deps/zlib" -o"$@" "$<"
-	-$(ECHO) ' '
-
-obj/std/lvl_filesdk1.o obj/hvlog/lvl_filesdk1.o: src/lvl_filesdk1.c deps/zlib/contrib/minizip/unzip.c $(GENSRC)
-	-$(ECHO) 'Building file: $<'
-	$(CC) $(CFLAGS) -I"deps/zlib" -I"deps/zlib/contrib/minizip" -o"$@" "$<"
-	-$(ECHO) ' '
-
-obj/std/custom_sprites.o obj/hvlog/custom_sprites.o: src/custom_sprites.c deps/zlib/contrib/minizip/unzip.c $(GENSRC)
-	-$(ECHO) 'Building file: $<'
-	$(CC) $(CFLAGS) -I"deps/libspng/spng" -I"deps/zlib" -I"deps/zlib/contrib/minizip" -o"$@" "$<"
 	-$(ECHO) ' '
 
 obj/tests/%.o: tests/%.cpp $(GENSRC)
@@ -613,34 +590,31 @@ libexterns: libexterns.mk
 
 clean-libexterns: libexterns.mk
 	-$(MAKE) -f libexterns.mk clean-libexterns
-	-$(RM) -rf deps/enet
-	-cd deps/zlib && $(MAKE) -f win32/Makefile.gcc clean
-	-cd deps/zlib && git checkout Makefile zconf.h
+	-$(RM) -rf deps/enet deps/zlib
 	-$(RM) libexterns
 
 deps/centijson/src/json.c deps/centijson/src/value.c deps/centijson/src/json-dom.c: build-before
 deps/libspng/spng/spng.c: build-before
-deps/zlib/contrib/minizip/unzip.c deps/zlib/contrib/minizip/ioapi.c: build-before
 deps/astronomy/astronomy.c: build-before
 
-deps/zlib/configure.log:
-	git submodule sync && git submodule update --init
-	touch deps/zlib/configure.log
-	cd deps/zlib && ./configure --static
-
-deps/zlib/libz.a: deps/zlib/configure.log
-	cd deps/zlib && $(MAKE) -f win32/Makefile.gcc PREFIX=$(CROSS_COMPILE) libz.a
-
-deps/enet:
+deps/enet deps/zlib:
 	$(MKDIR) $@
 
 src/bflib_enet.cpp: deps/enet/include/enet/enet.h
+src/custom_sprites.c: deps/zlib/include/zlib.h
+deps/libspng/spng/spng.c: deps/zlib/include/zlib.h
 
 deps/enet-mingw32.tar.gz:
 	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/enet-mingw32.tar.gz"
 
 deps/enet/include/enet/enet.h: deps/enet-mingw32.tar.gz | deps/enet
 	tar xzmf $< -C deps/enet
+
+deps/zlib-mingw32.tar.gz:
+	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/zlib-mingw32.tar.gz"
+
+deps/zlib/include/zlib.h: deps/zlib-mingw32.tar.gz | deps/zlib
+	tar xzmf $< -C deps/zlib
 
 include tool_png2ico.mk
 include tool_pngpal2raw.mk
