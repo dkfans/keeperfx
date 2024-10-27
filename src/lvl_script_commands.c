@@ -944,7 +944,7 @@ static int script_transfer_creature(PlayerNumber plyr_idx, ThingModel crmodel, l
             dungeon = get_dungeon(plyr_idx);
             dungeon->creatures_transferred++;
             remove_thing_from_power_hand_list(thing, plyr_idx);
-            struct SpecialConfigStats* specst = get_special_model_stats(SpcKind_Resurrect);
+            struct SpecialConfigStats* specst = get_special_model_stats(SpcKind_TrnsfrCrtr);
             create_used_effect_or_element(&thing->mappos, specst->effect_id, plyr_idx);
             kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects | CrDed_NotReallyDying);
         }
