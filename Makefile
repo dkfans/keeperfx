@@ -69,8 +69,7 @@ DEPS = \
 obj/json/json.o \
 obj/json/value.o \
 obj/json/json-dom.o \
-obj/centitoml/toml_api.o \
-obj/astronomy.o
+obj/centitoml/toml_api.o
 
 # functional test debugging flags/objs
 FTEST_DEBUG ?= 0
@@ -350,6 +349,7 @@ CU_OBJS = \
 # include and library directories
 LINKLIB = -mwindows \
 	-L"sdl/lib" -lSDL2 -lSDL2_mixer -lSDL2_net -lSDL2_image \
+	-L"deps/astronomy" -lastronomy \
 	-L"deps/enet" -lenet \
 	-L"deps/spng" -lspng \
 	-L"deps/zlib" -lminizip -lz \
@@ -362,7 +362,7 @@ INCS = \
 	-I"deps/enet/include" \
 	-I"deps/centijson/src" \
 	-I"deps/centitoml" \
-	-I"deps/astronomy"
+	-I"deps/astronomy/include"
 CXXINCS =  $(INCS)
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
@@ -534,11 +534,6 @@ obj/std/centitoml/toml_api.o obj/hvlog/centitoml/toml_api.o: deps/centitoml/toml
 	$(CC) $(CFLAGS) -o"$@" "$<"
 	-$(ECHO) ' '
 
-obj/std/astronomy.o obj/hvlog/astronomy.o: deps/astronomy/astronomy.c
-	-$(ECHO) 'Building file: $<'
-	$(CC) $(CFLAGS) -o"$@" "$<"
-	-$(ECHO) ' '
-
 obj/tests/%.o: tests/%.cpp $(GENSRC)
 	-$(ECHO) 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -I"src/" $(CU_INC) -o"$@" "$<"
@@ -593,17 +588,17 @@ libexterns: libexterns.mk
 
 clean-libexterns: libexterns.mk
 	-$(MAKE) -f libexterns.mk clean-libexterns
-	-$(RM) -rf deps/enet deps/zlib deps/spng
+	-$(RM) -rf deps/enet deps/zlib deps/spng deps/astronomy
 	-$(RM) libexterns
 
 deps/centijson/src/json.c deps/centijson/src/value.c deps/centijson/src/json-dom.c: build-before
-deps/astronomy/astronomy.c: build-before
 
-deps/enet deps/zlib deps/spng:
+deps/enet deps/zlib deps/spng deps/astronomy:
 	$(MKDIR) $@
 
 src/bflib_enet.cpp: deps/enet/include/enet/enet.h
 src/custom_sprites.c: deps/zlib/include/zlib.h deps/spng/include/spng.h
+src/moonphase.c: deps/astronomy/include/astronomy.h
 
 deps/enet-mingw32.tar.gz:
 	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/enet-mingw32.tar.gz"
@@ -622,6 +617,12 @@ deps/spng-mingw32.tar.gz:
 
 deps/spng/include/spng.h: deps/spng-mingw32.tar.gz | deps/spng
 	tar xzmf $< -C deps/spng
+
+deps/astronomy-mingw32.tar.gz:
+	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/astronomy-mingw32.tar.gz"
+
+deps/astronomy/include/astronomy.h: deps/astronomy-mingw32.tar.gz | deps/astronomy
+	tar xzmf $< -C deps/astronomy
 
 include tool_png2ico.mk
 include tool_pngpal2raw.mk
