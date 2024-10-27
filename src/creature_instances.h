@@ -94,7 +94,7 @@ struct Thing;
 
 typedef long (*Creature_Instf_Func)(struct Thing *, long *);
 typedef TbBool (*Creature_Validate_Func)(struct Thing *, struct Thing *, CrInstance, int32_t, int32_t);
-typedef TbBool (*Creature_Target_Search_Func)(struct Thing *, CrInstance, ThingIndex **, uint16_t *, int32_t, int32_t);
+typedef TbBool (*Creature_Target_Search_Func)(struct Thing *, CrInstance, ThingIndex **, uint32_t *, int32_t, int32_t);
 
 struct InstanceInfo {
     TbBool instant;
@@ -176,8 +176,8 @@ TbBool validate_target_benefits_from_offensive(struct Thing *source, struct Thin
 TbBool validate_target_benefits_from_wind(struct Thing *source, struct Thing *target, CrInstance inst_idx, int32_t param1, int32_t param2);
 TbBool validate_target_benefits_from_healing(struct Thing *source, struct Thing *target, CrInstance inst_idx, int32_t param1, int32_t param2);
 
-TbBool search_target_generic(struct Thing *source, CrInstance inst_idx, ThingIndex **targets, uint16_t *found_count, int32_t param1, int32_t param2);
-TbBool search_target_ranged_heal(struct Thing *source, CrInstance inst_idx, ThingIndex **targets, uint16_t *found_count, int32_t param1, int32_t param2);
+TbBool search_target_generic(struct Thing *source, CrInstance inst_idx, ThingIndex **targets, uint32_t *found_count, int32_t param1, int32_t param2);
+TbBool search_target_ranged_heal(struct Thing *source, CrInstance inst_idx, ThingIndex **targets, uint32_t *found_count, int32_t param1, int32_t param2);
 
 /******************************************************************************/
 #ifdef __cplusplus

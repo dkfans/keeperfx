@@ -135,13 +135,13 @@
             "name": "StandardLog",
             "hidden": true,
             "inherits": "Base",
-            "targets": "keeperfx"
+            "targets": [ "keeperfx" ]
         },
         {
             "name": "HeavyLog",
             "hidden": true,
             "inherits": "Base",
-            "targets": "keeperfx_hvlog"
+            "targets": [ "keeperfx_hvlog" ]
         },
 
         {
@@ -216,6 +216,27 @@
             "displayName": "Release MinGW32 HeavyLog",
             "inherits": "HeavyLog",
             "configurePreset": "x86-MinGW32-Release"
+        },
+
+        {
+            "name": "Tests",
+            "hidden": true,
+            "inherits": "Base",
+            "targets": [ "test_rtree", "test_CreatureTree" ],
+            "verbose": true
+        },
+
+        {
+            "name": "Debug-MinGW32-Tests",
+            "displayName": "Debug MinGW32 Tests",
+            "inherits": "Tests",
+            "configurePreset": "x86-MinGW32-Debug"
+        },
+        {
+            "name": "Debug-MSVC-Tests",
+            "displayName": "Debug MSVC Tests",
+            "inherits": "Tests",
+            "configurePreset": "Debug-MSVC"
         }
     ]
 }

@@ -171,10 +171,10 @@ struct CompoundTngFilterParam {
      };
 };
 
-struct StructureList {
-     unsigned long count;
-     unsigned long index;
-};
+typedef struct StructureList {
+     uint32_t count;
+     ThingIndex index;
+} StructureList;
 
 struct Things {
     struct Thing *lookup[THINGS_COUNT];
@@ -259,6 +259,7 @@ long switch_owned_objects_on_destoyed_slab_to_neutral(MapSlabCoord slb_x, MapSla
 // Filters to select thing anywhere on map but only of one given class
 struct Thing *get_random_thing_of_class_with_filter(Thing_Maximizer_Filter filter, MaxTngFilterParam param, PlayerNumber plyr_idx);
 struct Thing *get_nth_thing_of_class_with_filter(Thing_Maximizer_Filter filter, MaxTngFilterParam param, long tngindex);
+struct Thing* get_nth_creature_with_filter(Thing_Maximizer_Filter filter, MaxTngFilterParam param, long tngindex);
 long count_things_of_class_with_filter(Thing_Maximizer_Filter filter, MaxTngFilterParam param);
 long do_to_all_things_of_class_and_model(int tngclass, int tngmodel, Thing_Bool_Modifier do_cb);
 // Final routines to select thing anywhere on map but only of one given class
@@ -346,6 +347,8 @@ struct Thing* get_timebomb_target(struct Thing *creatng);
 void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx);
 TbBool setup_creature_leave_or_die_if_possible(struct Thing* thing);
 unsigned short setup_excess_creatures_to_leave_or_die(short max_remain);
+
+void update_creature_tree();
 /******************************************************************************/
 #ifdef __cplusplus
 }

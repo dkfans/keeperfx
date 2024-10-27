@@ -417,7 +417,7 @@ unsigned char sound_flag;
     ThingIndex familiar_idx[FAMILIAR_MAX];
 };
 
-struct CreatureStats { // These stats are not compatible with original DK - they have more fields
+typedef struct CreatureStats { // These stats are not compatible with original DK - they have more fields
     unsigned short job_primary;
     unsigned short job_secondary;
     unsigned short jobs_not_do;
@@ -536,7 +536,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     ThingModel prison_kind;
     ThingModel torture_kind;
     struct CreaturePickedUpOffset creature_picked_up_offset;
-};
+} CreatureStats;
 
 struct Persons {
     struct CreatureControl *cctrl_lookup[CREATURES_COUNT];

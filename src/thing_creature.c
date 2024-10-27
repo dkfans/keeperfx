@@ -6069,8 +6069,11 @@ TngUpdateRet update_creature(struct Thing *thing)
 
     if (!process_creature_self_spell_casting(thing))
     {
-        // If this creature didn't cast anything to itself, try to help others.
-        process_creature_ranged_buff_spell_casting(thing);
+        if (( ( game.play_gameturn + thing->index ) & 3 ) == 0) {
+            // If this creature didn't cast anything to itself, try to help others.
+            // Do not do it too often because it is expensive.
+            process_creature_ranged_buff_spell_casting(thing);
+        }
     }
 
     cctrl->moveaccel.x.val = 0;
