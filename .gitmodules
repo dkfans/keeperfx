@@ -1,3 +1,0 @@
-[submodule "deps/centijson"]
-	path = deps/centijson
-	url = https://github.com/mity/centijson.git

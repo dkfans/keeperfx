@@ -66,9 +66,6 @@ GENSRC   = obj/ver_defs.h
 RES      = obj/keeperfx_stdres.res
 
 DEPS = \
-obj/json/json.o \
-obj/json/value.o \
-obj/json/json-dom.o \
 obj/centitoml/toml_api.o
 
 # functional test debugging flags/objs
@@ -352,6 +349,7 @@ LINKLIB = -mwindows \
 	-L"deps/astronomy" -lastronomy \
 	-L"deps/enet" -lenet \
 	-L"deps/spng" -lspng \
+	-L"deps/centijson" -ljson \
 	-L"deps/zlib" -lminizip -lz \
 	-lwinmm -lmingw32 -limagehlp -lws2_32 -ldbghelp
 INCS = \
@@ -360,7 +358,7 @@ INCS = \
 	-I"sdl/include" \
 	-I"sdl/include/SDL2" \
 	-I"deps/enet/include" \
-	-I"deps/centijson/src" \
+	-I"deps/centijson/include" \
 	-I"deps/centitoml" \
 	-I"deps/astronomy/include"
 CXXINCS =  $(INCS)
@@ -465,7 +463,6 @@ FOLDERS = bin obj/std obj/hvlog \
 obj/std/ftests \
 obj/std/ftests/tests \
 obj/tests obj/cu \
-obj/std/json obj/hvlog/json \
 obj/std/centitoml obj/hvlog/centitoml \
 sdl/for_final_package
 
@@ -523,11 +520,6 @@ $(TEST_BIN): $(GENSRC) $(STDOBJS) $(TESTS_OBJ) $(CU_OBJS) std-before
 ifdef CV2PDB
 	$(CV2PDB) -C "$@"
 endif
-
-obj/std/json/%.o obj/hvlog/json/%.o: deps/centijson/src/%.c
-	-$(ECHO) 'Building file: $<'
-	$(CC) $(CFLAGS) -o"$@" "$<"
-	-$(ECHO) ' '
 
 obj/std/centitoml/toml_api.o obj/hvlog/centitoml/toml_api.o: deps/centitoml/toml_api.c build-before
 	-$(ECHO) 'Building file: $<'
@@ -588,17 +580,18 @@ libexterns: libexterns.mk
 
 clean-libexterns: libexterns.mk
 	-$(MAKE) -f libexterns.mk clean-libexterns
-	-$(RM) -rf deps/enet deps/zlib deps/spng deps/astronomy
+	-$(RM) -rf deps/enet deps/zlib deps/spng deps/astronomy deps/centijson
 	-$(RM) libexterns
 
-deps/centijson/src/json.c deps/centijson/src/value.c deps/centijson/src/json-dom.c: build-before
-
-deps/enet deps/zlib deps/spng deps/astronomy:
+deps/enet deps/zlib deps/spng deps/astronomy deps/centijson:
 	$(MKDIR) $@
 
+src/api.c: deps/centijson/include/json.h
 src/bflib_enet.cpp: deps/enet/include/enet/enet.h
-src/custom_sprites.c: deps/zlib/include/zlib.h deps/spng/include/spng.h
+src/custom_sprites.c: deps/zlib/include/zlib.h deps/spng/include/spng.h deps/centijson/include/json.h
 src/moonphase.c: deps/astronomy/include/astronomy.h
+deps/centitoml/toml_api.c: deps/centijson/include/json.h
+deps/centitoml/toml_conv.c: deps/centijson/include/json.h
 
 deps/enet-mingw32.tar.gz:
 	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/enet-mingw32.tar.gz"
@@ -623,6 +616,12 @@ deps/astronomy-mingw32.tar.gz:
 
 deps/astronomy/include/astronomy.h: deps/astronomy-mingw32.tar.gz | deps/astronomy
 	tar xzmf $< -C deps/astronomy
+
+deps/centijson-mingw32.tar.gz:
+	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/centijson-mingw32.tar.gz"
+
+deps/centijson/include/json.h: deps/centijson-mingw32.tar.gz | deps/centijson
+	tar xzmf $< -C deps/centijson
 
 include tool_png2ico.mk
 include tool_pngpal2raw.mk
