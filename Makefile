@@ -66,7 +66,6 @@ GENSRC   = obj/ver_defs.h
 RES      = obj/keeperfx_stdres.res
 
 DEPS = \
-obj/spng.o \
 obj/json/json.o \
 obj/json/value.o \
 obj/json/json-dom.o \
@@ -352,9 +351,18 @@ CU_OBJS = \
 LINKLIB = -mwindows \
 	-L"sdl/lib" -lSDL2 -lSDL2_mixer -lSDL2_net -lSDL2_image \
 	-L"deps/enet" -lenet \
+	-L"deps/spng" -lspng \
 	-L"deps/zlib" -lminizip -lz \
 	-lwinmm -lmingw32 -limagehlp -lws2_32 -ldbghelp
-INCS =  -I"deps/zlib/include" -I"deps/libspng/spng" -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include" -I"deps/centijson/src" -I"deps/centitoml" -I"deps/astronomy"
+INCS = \
+	-I"deps/zlib/include" \
+	-I"deps/spng/include" \
+	-I"sdl/include" \
+	-I"sdl/include/SDL2" \
+	-I"deps/enet/include" \
+	-I"deps/centijson/src" \
+	-I"deps/centitoml" \
+	-I"deps/astronomy"
 CXXINCS =  $(INCS)
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
@@ -516,11 +524,6 @@ ifdef CV2PDB
 	$(CV2PDB) -C "$@"
 endif
 
-obj/std/spng.o obj/hvlog/spng.o: deps/libspng/spng/spng.c
-	-$(ECHO) 'Building file: $<'
-	$(CC) $(CFLAGS) -I"deps/libspng/spng" -o"$@" "$<"
-	-$(ECHO) ' '
-
 obj/std/json/%.o obj/hvlog/json/%.o: deps/centijson/src/%.c
 	-$(ECHO) 'Building file: $<'
 	$(CC) $(CFLAGS) -o"$@" "$<"
@@ -590,19 +593,17 @@ libexterns: libexterns.mk
 
 clean-libexterns: libexterns.mk
 	-$(MAKE) -f libexterns.mk clean-libexterns
-	-$(RM) -rf deps/enet deps/zlib
+	-$(RM) -rf deps/enet deps/zlib deps/spng
 	-$(RM) libexterns
 
 deps/centijson/src/json.c deps/centijson/src/value.c deps/centijson/src/json-dom.c: build-before
-deps/libspng/spng/spng.c: build-before
 deps/astronomy/astronomy.c: build-before
 
-deps/enet deps/zlib:
+deps/enet deps/zlib deps/spng:
 	$(MKDIR) $@
 
 src/bflib_enet.cpp: deps/enet/include/enet/enet.h
-src/custom_sprites.c: deps/zlib/include/zlib.h
-deps/libspng/spng/spng.c: deps/zlib/include/zlib.h
+src/custom_sprites.c: deps/zlib/include/zlib.h deps/spng/include/spng.h
 
 deps/enet-mingw32.tar.gz:
 	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/enet-mingw32.tar.gz"
@@ -615,6 +616,12 @@ deps/zlib-mingw32.tar.gz:
 
 deps/zlib/include/zlib.h: deps/zlib-mingw32.tar.gz | deps/zlib
 	tar xzmf $< -C deps/zlib
+
+deps/spng-mingw32.tar.gz:
+	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/spng-mingw32.tar.gz"
+
+deps/spng/include/spng.h: deps/spng-mingw32.tar.gz | deps/spng
+	tar xzmf $< -C deps/spng
 
 include tool_png2ico.mk
 include tool_pngpal2raw.mk
