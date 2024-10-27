@@ -154,7 +154,6 @@ TbBool creature_is_for_dungeon_diggers_list(const struct Thing *creatng)
 
 TbBool creature_kind_is_for_dungeon_diggers_list(PlayerNumber plyr_idx, ThingModel crmodel)
 {
-    //TODO DIGGERS For now, only player-specific and non-hero special diggers are on the diggers list
     if (player_is_roaming(plyr_idx))
         return false;
 
@@ -4131,11 +4130,11 @@ TbBool thing_is_dead_creature(const struct Thing *thing)
  * @param thing The thing to be checked.
  * @return True if the thing is creature and special digger, false otherwise.
  */
-TbBool thing_is_creature_special_digger(const struct Thing *thing)
+TbBool thing_is_creature_digger(const struct Thing *thing)
 {
   if (!thing_is_creature(thing))
     return false;
-  return ((get_creature_model_flags(thing) & CMF_IsSpecDigger) != 0);
+  return ((get_creature_model_flags(thing) & (CMF_IsSpecDigger|CMF_IsDiggingCreature)) != 0);
 }
 
 /** Returns if a thing the creature type set as spectator, normally the floating spirit.

@@ -1194,7 +1194,7 @@ short imp_doing_nothing(struct Thing *spdigtng)
 {
     SYNCDBG(19,"Starting for %s index %d",thing_model_name(spdigtng),(int)spdigtng->index);
     TRACE_THING(spdigtng);
-    if (!thing_is_creature_special_digger(spdigtng))
+    if (!thing_is_creature_digger(spdigtng))
     {
         ERRORLOG("Non digger thing %ld, %s, owner %ld - reset",(long)spdigtng->index,thing_model_name(spdigtng),(long)spdigtng->owner);
         set_start_state(spdigtng);

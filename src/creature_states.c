@@ -1508,7 +1508,7 @@ short creature_being_dropped(struct Thing *creatng)
     if (!creature_affected_by_spell(creatng, SplK_Chicken))
     {
         // Special tasks for diggers
-        if ((get_creature_model_flags(creatng) & CMF_IsSpecDigger) != 0)
+        if (thing_is_creature_digger(creatng))
         {
             if ((slabmap_owner(slb) == creatng->owner) || (slabmap_owner(slb) == game.neutral_player_num))
             {
