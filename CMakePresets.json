@@ -97,7 +97,7 @@
             },
             "vendor": {
                 "microsoft.com/VisualStudioSettings/CMake/1.0": {
-                    "intelliSenseMode": "windows-clang-x86"
+                    "intelliSenseMode": "windows-gcc-x86"
                 }
             }
         },
