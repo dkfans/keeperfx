@@ -2113,7 +2113,10 @@ static void move_creature_process(struct ScriptContext* context)
             }
             move_thing_in_map(thing, &pos);
             reset_interpolation_of_thing(thing);
-            initialise_thing_state(thing, CrSt_CreatureDoingNothing);
+            if (!is_thing_some_way_controlled(thing))
+            {
+                initialise_thing_state(thing, CrSt_CreatureDoingNothing);
+            }
             cctrl->turns_at_job = -1;
             check_map_explored(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
         }
