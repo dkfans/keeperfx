@@ -191,7 +191,7 @@ void increase_level(struct PlayerInfo *player, int count)
     }    
 }
 
-TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
+TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos, PlayerNumber target_player)
 {
     //TODO CONFIG creature models dependency; put them in config files
     static ThingModel skip_steal_models[] = {6, 7};//6 = KNIGHT, 7 = AVATAR
@@ -208,7 +208,8 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
         PlayerNumber roam_plr_idx = (j + rand_offset) % PLAYERS_COUNT;
         if(!player_is_roaming(roam_plr_idx))
             continue;
-
+        if ((roam_plr_idx != target_player) && (target_player != -1))
+            continue;
         struct Dungeon* herodngn = get_players_num_dungeon(roam_plr_idx);
         unsigned long k = 0;
         if (herodngn->num_active_creatrs > 0) {
@@ -486,7 +487,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
             start_transfer_creature(player, cratetng);
             break;
         case SpcKind_StealHero:
-            if (steal_hero(player, &cratetng->mappos))
+            if (steal_hero(player, &cratetng->mappos, cratetng->custom_box.box_kind))
             {
                 remove_events_thing_is_attached_to(cratetng);
                 used = 1;

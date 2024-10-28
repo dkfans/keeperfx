@@ -58,7 +58,7 @@ extern unsigned short dungeon_special_selected;
 /******************************************************************************/
 void multiply_creatures(struct PlayerInfo *player);
 void increase_level(struct PlayerInfo *player, int count);
-TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos);
+TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos, PlayerNumber target_player);
 void make_safe(struct PlayerInfo *player);
 void make_unsafe(PlayerNumber plyr_idx);
 TbBool activate_bonus_level(struct PlayerInfo *player);
