@@ -21,7 +21,6 @@
 #include "creature_graphics.h"
 #include "front_simple.h"
 #include "engine_render.h"
-#include "../deps/zlib/contrib/minizip/unzip.h"
 #include "bflib_fileio.h"
 #include "gui_draw.h"
 #include "frontend.h"
@@ -32,6 +31,7 @@
 #include <spng.h>
 #include <json.h>
 #include <json-dom.h>
+#include <minizip/unzip.h>
 #include "post_inc.h"
 
 // Performance tests
