@@ -6477,7 +6477,7 @@ static void swap_creature_process(struct ScriptContext* context)
    
 }
 
-static void set_special_digger_check(const struct ScriptLine* scline)
+static void set_digger_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
     ThingModel crtr_id = get_rid(creature_desc, scline->tp[1]);
@@ -6492,7 +6492,7 @@ static void set_special_digger_check(const struct ScriptLine* scline)
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
-static void set_special_digger_process(struct ScriptContext* context)
+static void set_digger_process(struct ScriptContext* context)
 {
     ThingModel new_dig_model = context->value->shorts[0];
     for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
@@ -6513,7 +6513,6 @@ static void set_special_digger_process(struct ScriptContext* context)
             else if (breed_activities[i] == new_dig_model)
                 breed_activities[i] = old_dig_model;
         }
-        recalculate_player_creature_digger_lists(plyr_idx);
     }
 }
 
@@ -6675,7 +6674,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_TO_PLAYER_MODIFIER",            "PAN     ", Cmd_ADD_TO_PLAYER_MODIFIER, &add_to_player_modifier_check, &add_to_player_modifier_process},
   {"CHANGE_SLAB_TEXTURE",               "NNAa    ", Cmd_CHANGE_SLAB_TEXTURE , &change_slab_texture_check, &change_slab_texture_process},
   {"ADD_OBJECT_TO_LEVEL_AT_POS",        "ANNNp   ", Cmd_ADD_OBJECT_TO_LEVEL_AT_POS, &add_object_to_level_at_pos_check, &add_object_to_level_at_pos_process},
-  {"SET_SPECIAL_DIGGER",                "PC      ", Cmd_SET_SPECIAL_DIGGER , &set_special_digger_check, &set_special_digger_process},
+  {"SET_DIGGER",                        "PC      ", Cmd_SET_DIGGER , &set_digger_check, &set_digger_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
