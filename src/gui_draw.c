@@ -309,38 +309,38 @@ void draw_round_slab64k(long pos_x, long pos_y, int units_per_px, long width, lo
     }
     int x;
     int y;
-    struct TbSprite* spr = &gui_panel_sprites[GPS_message_frame_thin_hex_ct];
+    const struct TbSprite* spr = get_panel_sprite(GPS_message_frame_thin_hex_ct);
     int ps_units_per_spr = 26*units_per_px/spr->SWidth;
     long i;
     for (i = 0; i < width - 68*units_per_px/16; i += 26*units_per_px/16)
     {
         x = pos_x + i + 34*units_per_px/16;
         y = pos_y;
-        spr = &gui_panel_sprites[GPS_message_frame_thin_hex_ct];
+        spr = get_panel_sprite(GPS_message_frame_thin_hex_ct);
         LbSpriteDrawResized(x, y, ps_units_per_spr, spr);
         y += height - 4*units_per_px/16;
-        spr = &gui_panel_sprites[GPS_message_frame_thin_hex_cb];
+        spr = get_panel_sprite(GPS_message_frame_thin_hex_cb);
         LbSpriteDrawResized(x, y, ps_units_per_spr, spr);
     }
     for (i = 0; i < height - 56*units_per_px/16; i += 20*units_per_px/16)
     {
         x = pos_x;
         y = pos_y + i + 28*units_per_px/16;
-        spr = &gui_panel_sprites[GPS_message_frame_thin_hex_cr];
+        spr = get_panel_sprite(GPS_message_frame_thin_hex_cr);
         LbSpriteDrawResized(x, y, ps_units_per_spr, spr);
         x += width - 4*units_per_px/16;
-        spr = &gui_panel_sprites[GPS_message_frame_thin_hex_cl];
+        spr = get_panel_sprite(GPS_message_frame_thin_hex_cl);
         LbSpriteDrawResized(x, y, ps_units_per_spr, spr);
     }
     x = pos_x + width - 34*units_per_px/16;
     y = pos_y + height - 28*units_per_px/16;
-    spr = &gui_panel_sprites[GPS_message_frame_thin_hex_tl];
+    spr = get_panel_sprite(GPS_message_frame_thin_hex_tl);
     LbSpriteDrawResized(pos_x, pos_y, ps_units_per_spr, spr);
-    spr = &gui_panel_sprites[GPS_message_frame_thin_hex_tr];
+    spr = get_panel_sprite(GPS_message_frame_thin_hex_tr);
     LbSpriteDrawResized(x,     pos_y, ps_units_per_spr, spr);
-    spr = &gui_panel_sprites[GPS_message_frame_thin_hex_bl];
+    spr = get_panel_sprite(GPS_message_frame_thin_hex_bl);
     LbSpriteDrawResized(pos_x, y,     ps_units_per_spr, spr);
-    spr = &gui_panel_sprites[GPS_message_frame_thin_hex_br];
+    spr = get_panel_sprite(GPS_message_frame_thin_hex_br);
     LbSpriteDrawResized(x,     y,     ps_units_per_spr, spr);
     lbDisplay.DrawFlags = drwflags_mem;
 }
@@ -354,7 +354,7 @@ void draw_round_slab64k(long pos_x, long pos_y, int units_per_px, long width, lo
  */
 int simple_gui_panel_sprite_height_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction)
 {
-    struct TbSprite* spr = &gui_panel_sprites[spridx];
+    const struct TbSprite* spr = get_panel_sprite(spridx);
     if (spr->SHeight < 1)
         return 16;
     int units_per_px = ((gbtn->height * fraction / 100) * 16 + spr->SHeight / 2) / spr->SHeight;
@@ -372,7 +372,7 @@ int simple_gui_panel_sprite_height_units_per_px(const struct GuiButton *gbtn, lo
  */
 int simple_gui_panel_sprite_width_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction)
 {
-    struct TbSprite* spr = &gui_panel_sprites[spridx];
+    const struct TbSprite* spr = get_panel_sprite(spridx);
     if (spr->SWidth < 1)
         return 16;
     int units_per_px = ((gbtn->width * fraction / 100) * 16 + spr->SWidth / 2) / spr->SWidth;
@@ -737,37 +737,29 @@ void draw_scroll_box(struct GuiButton *gbtn, int units_per_px, int num_rows)
 
 void draw_gui_panel_sprite_left_player(long x, long y, int units_per_px, long spridx, PlayerNumber plyr_idx)
 {
-    if ((spridx <= 0) || (spridx >= num_icons_total))
-      return;
     spridx = get_player_colored_icon_idx(spridx,plyr_idx);
-    struct TbSprite* spr = &gui_panel_sprites[spridx];
+    const struct TbSprite* spr = get_panel_sprite(spridx);
     LbSpriteDrawResized(x, y, units_per_px, spr);
 }
 
 void draw_gui_panel_sprite_rmleft_player(long x, long y, int units_per_px, long spridx, unsigned long remap, PlayerNumber plyr_idx)
 {
-    if ((spridx <= 0) || (spridx >= num_icons_total))
-      return;
     spridx = get_player_colored_icon_idx(spridx, plyr_idx);
-    struct TbSprite* spr = &gui_panel_sprites[spridx];
+    const struct TbSprite* spr = get_panel_sprite(spridx);
     LbSpriteDrawResizedRemap(x, y, units_per_px, spr, &pixmap.fade_tables[remap*256]);
 }
 
 void draw_gui_panel_sprite_ocleft(long x, long y, int units_per_px, long spridx, TbPixel color)
 {
-    if ((spridx <= 0) || (spridx > num_icons_total))
-      return;
     spridx = get_player_colored_icon_idx(spridx,my_player_number);
-    struct TbSprite* spr = &gui_panel_sprites[spridx];
+    const struct TbSprite* spr = get_panel_sprite(spridx);
     LbSpriteDrawResizedOneColour(x, y, units_per_px, spr, color);
 }
 
 void draw_gui_panel_sprite_centered(long x, long y, int units_per_px, long spridx)
 {
-    if ((spridx <= 0) || (spridx > num_icons_total))
-      return;
     spridx = get_player_colored_icon_idx(spridx,my_player_number);
-    struct TbSprite* spr = &gui_panel_sprites[spridx];
+    const struct TbSprite* spr = get_panel_sprite(spridx);
     x -= ((spr->SWidth*units_per_px/16) >> 1);
     y -= ((spr->SHeight*units_per_px/16) >> 1);
     LbSpriteDrawResized(x, y, units_per_px, spr);
@@ -775,10 +767,8 @@ void draw_gui_panel_sprite_centered(long x, long y, int units_per_px, long sprid
 
 void draw_gui_panel_sprite_occentered(long x, long y, int units_per_px, long spridx, TbPixel color)
 {
-    if ((spridx <= 0) || (spridx > num_icons_total))
-      return;
     spridx = get_player_colored_icon_idx(spridx,my_player_number);
-    struct TbSprite* spr = &gui_panel_sprites[spridx];
+    const struct TbSprite* spr = get_panel_sprite(spridx);
     x -= ((spr->SWidth*units_per_px/16) >> 1);
     y -= ((spr->SHeight*units_per_px/16) >> 1);
     LbSpriteDrawResizedOneColour(x, y, units_per_px, spr, color);

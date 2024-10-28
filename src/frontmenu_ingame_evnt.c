@@ -208,7 +208,7 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
         return;
     }
     short spr_idx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
-    const struct TbSprite* spr = &gui_panel_sprites[spr_idx];
+    const struct TbSprite* spr = get_panel_sprite(spr_idx);
     if (spr->SHeight == 0)
     {
         ERRORLOG("Trying to draw non existing icon in battle menu for %s", thing_model_name(thing));

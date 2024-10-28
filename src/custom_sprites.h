@@ -37,6 +37,7 @@ const struct TbSprite *get_button_sprite_for_player(short sprite_idx, PlayerNumb
 const struct TbSprite *get_button_sprite(short sprite_idx);
 const struct TbSprite *get_frontend_sprite(short sprite_idx);
 const struct TbSprite *get_new_icon_sprite(short sprite_idx);
+const struct TbSprite *get_panel_sprite(short sprite_idx);
 int is_custom_icon(short icon_idx);
 
 extern short bad_icon_id;

@@ -321,6 +321,7 @@ obj/vidfade.o \
 obj/vidmode_data.o \
 obj/vidmode.o \
 obj/KeeperSpeechImp.o \
+obj/spritesheet.o \
 $(FTEST_OBJS) \
 $(RES)
 

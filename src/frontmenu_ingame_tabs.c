@@ -1231,7 +1231,7 @@ void draw_name_box(long x, long y, int width, struct Thing *thing)
 {
     int ps_units_per_px;
     {
-        struct TbSprite* spr = &gui_panel_sprites[GPS_rpanel_bar_long_full];
+        const struct TbSprite* spr = get_panel_sprite(GPS_rpanel_bar_long_full);
         ps_units_per_px = (width*95/100) * 16 / spr->SWidth;
     }
     draw_gui_panel_sprite_left(x, y, ps_units_per_px, GPS_rpanel_bar_long_full);
@@ -1287,7 +1287,7 @@ void gui_creature_query_background1(struct GuiMenu *gmnu)
         }
     }
     {
-        struct TbSprite* spr = &gui_panel_sprites[GPS_rpanel_frame_double_hex_med];
+        const struct TbSprite* spr = get_panel_sprite(GPS_rpanel_frame_double_hex_med);
         int ps_units_per_px = (gmnu->width * 52 / 100) * 16 / spr->SWidth;
         draw_gui_panel_sprite_left(portrt_x, portrt_y, ps_units_per_px, GPS_rpanel_frame_double_hex_med);
     }
@@ -1307,7 +1307,7 @@ void gui_creature_query_background2(struct GuiMenu *gmnu)
         long spr_idx = get_creature_model_graphics(ctrltng->model, CGI_HandSymbol);
         if (spr_idx > 0)
         {
-            struct TbSprite* spr = &gui_panel_sprites[spr_idx];
+            const struct TbSprite* spr = get_panel_sprite(spr_idx);
             int ps_units_per_px = (gmnu->width * 22 / 100) * 16 / spr->SWidth;
             draw_gui_panel_sprite_left_player(nambox_x, nambox_y - 22*units_per_px/16, ps_units_per_px, spr_idx,ctrltng->owner);
         }
@@ -1699,7 +1699,7 @@ void gui_area_instance_button(struct GuiButton *gbtn)
       spr_idx++;
     if (MyScreenHeight < 400)
     {
-        struct TbSprite* spr = &gui_panel_sprites[GPS_plyrsym_symbol_player_red_std_b];
+        const struct TbSprite* spr = get_panel_sprite(GPS_plyrsym_symbol_player_red_std_b);
         ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
     }
     draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 8*units_per_px/16, ps_units_per_px, spr_idx);
@@ -2377,11 +2377,11 @@ void draw_whole_status_panel(void)
         mm_units_per_px = (gmnu->width * 16 + 140/2) / 140;
         if (mm_units_per_px < 1)
             mm_units_per_px = 1;
-        fs_units_per_px = (gmnu->height * 16 + 8) / LbTiledSpriteHeight(&status_panel, gui_panel_sprites);
+        fs_units_per_px = (gmnu->height * 16 + 8) / LbTiledSpriteHeight(&status_panel, get_panel_sprite(0));
     }
     lbDisplay.DrawColour = colours[15][15][15];
     lbDisplay.DrawFlags = 0;
-    LbTiledSpriteDraw(0, 0, fs_units_per_px, &status_panel, gui_panel_sprites);
+    LbTiledSpriteDraw(0, 0, fs_units_per_px, &status_panel, get_panel_sprite(0));
     // Draws gold amount; note that button_sprite[] is used instead of full font
     draw_gold_total(player->id_number, gmnu->pos_x + gmnu->width/2, gmnu->pos_y + gmnu->height*67/200, fs_units_per_px, dungeon->total_money_owned);
     if (16/mm_units_per_px < 3)
@@ -2608,7 +2608,7 @@ void update_powers_tab_to_config(void)
 
 void draw_placefiller(long scr_x, long scr_y, long units_per_px)
 {
-    struct TbSprite* spr = &gui_panel_sprites[GPS_rpanel_rpanel_extra];
+    const struct TbSprite* spr = get_panel_sprite(GPS_rpanel_rpanel_extra);
     LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
 }
 
