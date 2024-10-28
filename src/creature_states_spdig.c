@@ -1020,9 +1020,16 @@ short imp_birth(struct Thing *thing)
     {
         // If the creature has flight ability, make sure it returns to flying state
         restore_creature_flight_flag(thing);
-        if (!check_out_available_spdigger_drop_tasks(thing)) {
-            set_start_state(thing);
+        if (thing_is_creature_special_digger(thing))
+        {
+            if (!check_out_available_spdigger_drop_tasks(thing)) {
+                set_start_state(thing);
+            }
         }
+        else
+        {
+            set_start_state(thing);
+        }            
         return 1;
     }
     long i = game.play_gameturn - thing->creation_turn;
