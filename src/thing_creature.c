@@ -2082,7 +2082,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
     }
 
     // Creatures that are not special diggers will pick up any nearby gold or food
-    if (((thing->movement_flags & TMvF_Flying) == 0) && ((model_flags & CMF_IsSpecDigger) == 0))
+    if (((thing->movement_flags & TMvF_Flying) == 0) && ((model_flags & (CMF_IsSpecDigger|CMF_IsDiggingCreature)) == 0))
     {
         if (!creature_is_being_unconscious(thing) && !creature_is_dying(thing) &&
             !thing_is_picked_up(thing) && !creature_is_being_dropped(thing))
@@ -5836,10 +5836,7 @@ long update_creature_levels(struct Thing *thing)
                 continue;
             }
             struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[model];
-            if ((crconf->model_flags & CMF_IsSpectator) != 0) {
-                continue;
-            }
-            if ((crconf->model_flags & CMF_IsSpecDigger) != 0) {
+            if ((crconf->model_flags & (CMF_IsSpectator|CMF_IsSpecDigger|CMF_IsDiggingCreature)) != 0) {
                 continue;
             }
 
