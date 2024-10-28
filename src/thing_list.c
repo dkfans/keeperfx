@@ -408,7 +408,7 @@ long near_map_block_thing_filter_is_enemy_of_able_to_attack_and_not_specdigger(c
     {
         if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
-            if ((get_creature_model_flags(thing) & CMF_IsSpecDigger) == 0)
+            if ((get_creature_model_flags(thing) & (CMF_IsSpecDigger|CMF_IsDiggingCreature)) == 0)
             {
                 // Prepare reference Coord3d struct for distance computation
                 struct Coord3d refpos;
