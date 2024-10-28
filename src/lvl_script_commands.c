@@ -6456,12 +6456,6 @@ static void swap_creature_check(const struct ScriptLine* scline)
     ThingModel ncrt_id = scline->np[0];
     ThingModel crtr_id = scline->np[1];
 
-    struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_id];
-    if ((crconf->model_flags & CMF_IsSpecDigger) != 0)
-    {
-        SCRPTERRLOG("Unable to swap special diggers");
-        DEALLOCATE_SCRIPT_VALUE;
-    }
     value->shorts[0] = ncrt_id;
     value->shorts[1] = crtr_id;
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -6476,6 +6470,11 @@ static void swap_creature_process(struct ScriptContext* context)
     {
         SCRPTERRLOG("Error swapping creatures '%s'<->'%s'", creature_code_name(ncrt_id), creature_code_name(crtr_id));
     }
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+         recalculate_player_creature_digger_lists(plyr_idx);
+    }
+   
 }
 
 static void set_special_digger_check(const struct ScriptLine* scline)
