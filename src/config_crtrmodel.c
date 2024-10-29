@@ -768,6 +768,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 break;
             case 32: // NO_STEAL_HERO
                 crconf->model_flags |= CMF_NoStealHero;
+                n++;
+                break;
             case 33: // DIGGING_CREATURE
                 crconf->model_flags |= CMF_IsDiggingCreature;
                 n++;

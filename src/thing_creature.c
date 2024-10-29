@@ -3967,6 +3967,14 @@ void set_first_creature(struct Thing *creatng)
     }
 }
 
+void recalculate_all_creature_digger_lists()
+{
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+         recalculate_player_creature_digger_lists(plyr_idx);
+    }
+}
+
 void recalculate_player_creature_digger_lists(PlayerNumber plr_idx)
 {
     ThingIndex previous_digger = 0;

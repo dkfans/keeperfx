@@ -6473,11 +6473,7 @@ static void swap_creature_process(struct ScriptContext* context)
     {
         SCRPTERRLOG("Error swapping creatures '%s'<->'%s'", creature_code_name(ncrt_id), creature_code_name(crtr_id));
     }
-    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
-    {
-         recalculate_player_creature_digger_lists(plyr_idx);
-    }
-   
+    recalculate_all_creature_digger_lists();
 }
 
 static void set_digger_check(const struct ScriptLine* scline)
