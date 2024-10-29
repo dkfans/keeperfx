@@ -41,13 +41,13 @@ extern "C" {
 #endif
 /******************************************************************************/
 const struct DemoItem demo_item[] = {
-    {DIK_SwitchState, (char *)FeSt_CREDITS},
+    {DIK_SwitchState, .state = FeSt_CREDITS},
 /*
     {DIK_LoadPacket, "PACKET1.SAV"},
     {DIK_LoadPacket, "PACKET2.SAV"},
 */
-    {DIK_PlaySmkVideo, "intromix.smk"},
-    {DIK_ListEnd, NULL},
+    {DIK_PlaySmkVideo, .fname = "intromix.smk"},
+    {DIK_ListEnd, .fname = NULL},
 };
 /******************************************************************************/
 #ifdef __cplusplus
@@ -189,7 +189,7 @@ void demo(void)
         }
         break;
     case DIK_SwitchState:
-        frontend_set_state((long)demo_item[index].fname);
+        frontend_set_state(demo_item[index].state);
         break;
     }
     index++;

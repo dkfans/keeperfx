@@ -232,8 +232,11 @@ struct GuiButton;
 struct TbLoadFiles;
 
 struct DemoItem { //sizeof = 5
-    unsigned char numfield_0;
-    const char *fname;
+    uint8_t numfield_0;
+    union {
+      FrontendMenuState state;
+      const char *fname;
+    };
 };
 
 struct NetMessage { // sizeof = 0x41
