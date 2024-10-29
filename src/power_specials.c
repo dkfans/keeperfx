@@ -193,8 +193,6 @@ void increase_level(struct PlayerInfo *player, int count)
 
 TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
 {
-    // TODO CONFIG creature models dependency put them in config files.
-    static ThingModel prefer_steal_models[] = {3, 12}; // 3 = ARCHER, 12 = THIEF.
     struct Thing* herotng = INVALID_THING;
     int heronum;
     ThingIndex tng_idx;
@@ -262,8 +260,13 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
             SYNCDBG(7, "Failed to generate a stolen hero due to map creature limit");
             return false;
         }
-        unsigned char steal_idx = GAME_RANDOM(sizeof(prefer_steal_models)/sizeof(prefer_steal_models[0]));
-        struct Thing* creatng = create_creature(pos, prefer_steal_models[steal_idx], player->id_number);
+        ThingModel crkind = get_random_creature_kind_with_model_flags(CMF_PreferSteal);
+        if (crkind == -1)
+        {
+            SYNCDBG(7, "Failed to generate a stolen hero due to lack of model with the property");
+            return false;
+        }
+        struct Thing* creatng = create_creature(pos, crkind, player->id_number);
         if (thing_is_invalid(creatng))
             return false;
         SYNCDBG(3, "Created %s owner %d", thing_model_name(creatng), (int)player->id_number);
