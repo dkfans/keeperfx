@@ -792,6 +792,16 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               clear_flag(crconf->model_flags,CMF_Fat);
           }
           break;
+      case 32: // NO_STEAL_HERO
+          if (val4 >= 1)
+          {
+              set_flag(crconf->model_flags,CMF_NoStealHero);
+          }
+          else
+          {
+              clear_flag(crconf->model_flags,CMF_NoStealHero);
+          }
+          break;
       default:
           SCRPTERRLOG("Unknown creature property '%d'", val3);
           break;
