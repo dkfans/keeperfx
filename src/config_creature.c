@@ -428,10 +428,9 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
         {
           LbMemorySet(game.conf.crtr_conf.model[i].name, 0, COMMAND_WORD_LEN);
         }
-        for (int i = 0; i < CREATURE_TYPES_MAX - 1; ++i) {
-          // model 0 is reserved
-          creature_desc[i].name = game.conf.crtr_conf.model[i + 1].name;
-          creature_desc[i].num = i + 1;
+        for (int i = 1; i < CREATURE_TYPES_MAX; i++) {
+          creature_desc[i].name = NULL;
+          creature_desc[i].num = 0;
         }
     }
     creature_desc[CREATURE_TYPES_MAX - 1].name = NULL; // must be null for get_id
@@ -468,6 +467,9 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
                 break;
               }
+              // model 0 is reserved
+              creature_desc[n - 1].name = game.conf.crtr_conf.model[n].name;
+              creature_desc[n - 1].num = n;
             }
             game.conf.crtr_conf.model_count = n+1;
             break;
