@@ -131,7 +131,6 @@ obj/bflib_server_tcp.o \
 obj/bflib_sndlib.o \
 obj/bflib_sound.o \
 obj/bflib_sprfnt.o \
-obj/bflib_sprite.o \
 obj/bflib_string.o \
 obj/bflib_tcpsp.o \
 obj/bflib_threadcond.o \
