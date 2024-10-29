@@ -46,15 +46,9 @@ extern "C" {
 
 struct GuiButton;
 /******************************************************************************/
-extern struct TbSprite gui_panel_sprites[];
-
-extern unsigned char * gui_panel_sprite_data;
-extern unsigned char * end_gui_panel_sprite_data;
-
+extern struct TbSpriteSheet * gui_panel_sprites;
 extern unsigned char *gui_slab;
-
 extern unsigned char *frontend_background;
-
 extern struct TbSpriteSheet * frontend_sprite;
 
 #pragma pack()

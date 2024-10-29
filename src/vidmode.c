@@ -100,7 +100,6 @@ unsigned char white_pal[256];
 unsigned char red_pal[256];
 /******************************************************************************/
 
-extern struct TbSetupSprite setup_sprites[];
 #if (BFDEBUG_LEVEL > 0)
 // Declarations for font testing screen (debug version only)
 extern struct TbLoadFiles testfont_load_files[];
@@ -120,12 +119,13 @@ short LoadVRes256Data(long scrbuf_size)
     // Update size of the parchment buffer, as it is also used as screen buffer
     if (scrbuf_size < 640*480)
         scrbuf_size = 640*480;
-    gui_load_files_640[3].SLength = scrbuf_size;
+    gui_load_files_640[1].SLength = scrbuf_size;
     // Load the files
     winfont = load_font("data/font2-64.dat", "data/font2-64.tab");
     font_sprites = load_font("data/font1-64.dat", "data/font1-64.tab");
     button_sprites = load_spritesheet("data/gui1-64.dat", "data/gui1-64.tab");
-    if (!winfont || !font_sprites || !button_sprites || LbDataLoadAll(gui_load_files_640)) {
+    gui_panel_sprites = load_spritesheet("data/gui2-64.dat", "data/gui2-64.tab");
+    if (!winfont || !font_sprites || !button_sprites || !gui_panel_sprites || LbDataLoadAll(gui_load_files_640)) {
         return 0;
     }
     return 1;
@@ -136,6 +136,7 @@ void FreeVRes256Data(void)
     free_font(&winfont);
     free_font(&font_sprites);
     free_spritesheet(&button_sprites);
+    free_spritesheet(&gui_panel_sprites);
     LbDataFreeAll(gui_load_files_640);
 }
 
@@ -202,7 +203,8 @@ short LoadMcgaData(void)
   button_sprites = load_spritesheet("data/gui1-32.dat", "data/gui1-32.tab");
   winfont = load_font("data/font2-32.dat", "data/font2-32.tab");
   font_sprites = load_font("data/font1-32.dat", "data/font1-32.tab");
-  return button_sprites && winfont && font_sprites && (ferror == 0);
+  gui_panel_sprites = load_spritesheet("data/gui2-32.dat", "data/gui2-32.tab");
+  return button_sprites && winfont && font_sprites && gui_panel_sprites && (ferror == 0);
 }
 
 void FreeMcgaData(void)
@@ -211,6 +213,7 @@ void FreeMcgaData(void)
     free_font(&winfont);
     free_font(&font_sprites);
     free_spritesheet(&button_sprites);
+    free_spritesheet(&gui_panel_sprites);
 }
 
 void set_game_vidmode(uint i, TbScreenMode nmode)
@@ -762,8 +765,6 @@ TbBool update_screen_mode_data(long width, long height)
   // Main menu scaling: Campaign map "land view" screen (including the window frame)
   calculate_landview_upp(width, height, LANDVIEW_MAP_WIDTH, LANDVIEW_MAP_HEIGHT); // 16 is "kfx default" for 640x480 game window (1x), a 960x720 frame (1.5x), and a 1280x960 landview (2x)
 
-
-  if (!MinimalResolutionSetup) LbSpriteSetupAll(setup_sprites);
   LbMouseChangeMoveRatio(base_mouse_sensitivity*units_per_pixel/16, base_mouse_sensitivity*units_per_pixel/16);
   LbMouseSetPointerHotspot(0, 0);
   LbScreenSetGraphicsWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);

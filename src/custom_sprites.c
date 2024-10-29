@@ -47,7 +47,7 @@
 static short next_free_sprite = 0;
 static short next_free_icon = 0;
 
-struct TbSprite gui_panel_sprites[GUI_PANEL_SPRITES_COUNT];
+struct TbSpriteSheet * gui_panel_sprites = NULL;
 struct TbSpriteSheet * custom_sprites = NULL;
 struct NamedCommand *anim_names = NULL;
 
@@ -1567,8 +1567,8 @@ const struct TbSprite *get_new_icon_sprite(short sprite_idx)
 
 const struct TbSprite *get_panel_sprite(short sprite_idx)
 {
-    if ((sprite_idx >= 0) && (sprite_idx < GUI_PANEL_SPRITES_COUNT)) {
-        return &gui_panel_sprites[sprite_idx];
+    if ((sprite_idx >= 0) && (sprite_idx < num_sprites(gui_panel_sprites))) {
+        return get_sprite(gui_panel_sprites, sprite_idx);
     }
     sprite_idx -= GUI_PANEL_SPRITES_COUNT;
     if ((sprite_idx >= 0) && (sprite_idx < num_sprites(custom_sprites))) {

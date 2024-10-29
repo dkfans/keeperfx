@@ -52,14 +52,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-auto gui_panel_sprites_ptr = &gui_panel_sprites[0];
-auto end_gui_panel_sprites = &gui_panel_sprites[GUI_PANEL_SPRITES_COUNT];
-
-struct TbSetupSprite setup_sprites[] = {
-  {&gui_panel_sprites_ptr,    &end_gui_panel_sprites, &gui_panel_sprite_data}, // 700 Sprites
-  {NULL,                  NULL,                   NULL},
-};
-
 #if (BFDEBUG_LEVEL > 0)
 // Declarations for font testing screen (debug version only)
 
@@ -72,15 +64,11 @@ struct TbLoadFiles testfont_load_files[] = {
 
 struct TbLoadFiles gui_load_files_320[] = {
   {"data/slab0-0.dat",   (unsigned char **)&gui_slab,           NULL,                                           0, 0, 0},
-  {"data/gui2-32.dat",   (unsigned char **)&gui_panel_sprite_data,(unsigned char **)&end_gui_panel_sprite_data, 0, 0, 0},
-  {"!data/gui2-32.tab",  (unsigned char **)&gui_panel_sprites_ptr,  (unsigned char **)&end_gui_panel_sprites,   0, 0, 0},
   {"",                    NULL,                                 NULL,                                           0, 0, 0},
 };
 
 struct TbLoadFiles gui_load_files_640[] = {
   {"data/slab0-1.dat",   (unsigned char **)&gui_slab,           NULL,                                           0, 0, 0},
-  {"data/gui2-64.dat",   (unsigned char **)&gui_panel_sprite_data,(unsigned char **)&end_gui_panel_sprite_data, 0, 0, 0},
-  {"!data/gui2-64.tab",  (unsigned char **)&gui_panel_sprites_ptr,  (unsigned char **)&end_gui_panel_sprites,       0, 0, 0},
   {"*B_SCREEN",          (unsigned char **)&hires_parchment,    NULL,                                     640*480, 0, 0},
   {"",                   NULL,                                  NULL,                                           0, 0, 0},
 };

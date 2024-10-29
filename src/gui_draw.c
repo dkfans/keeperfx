@@ -44,9 +44,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 char gui_textbuf[TEXT_BUFFER_LENGTH];
-
-unsigned char * gui_panel_sprite_data;
-unsigned char * end_gui_panel_sprite_data;
 unsigned char *gui_slab;
 unsigned char *frontend_background;
 struct TbSpriteSheet * frontend_sprite = NULL;
