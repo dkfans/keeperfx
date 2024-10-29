@@ -341,7 +341,7 @@ void setup_gui_tooltip(struct GuiButton* gbtn)
     if ((i == GUIStr_NumberOfCreaturesDesc) || (i == GUIStr_NumberOfRoomsDesc))
     {
         if (tool_tip_box.gbutton != NULL)
-            k = (long)tool_tip_box.gbutton->content;
+            k = tool_tip_box.gbutton->content.lval;
         else
             k = -1;
         struct PlayerInfo* player = get_player(k);

@@ -69,7 +69,7 @@ void frontnet_session_down_maintain(struct GuiButton *gbtn)
 
 void frontnet_session_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_session_scroll_offset + (long)gbtn->content - 45 < net_number_of_sessions)) & LbBtnF_Enabled;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_session_scroll_offset + gbtn->content.lval - 45 < net_number_of_sessions)) & LbBtnF_Enabled;
 }
 
 void frontnet_players_up_maintain(struct GuiButton *gbtn)
@@ -92,7 +92,7 @@ void frontnet_maintain_alliance(struct GuiButton *gbtn)
     long plyr_idx1;
     long plyr_idx2;
     plyr_idx1 = gbtn->btype_value & LbBFeF_IntValueMask;
-    plyr_idx2 = (long)gbtn->content - 74;
+    plyr_idx2 = gbtn->content.lval - 74;
     if ( plyr_idx2 >= net_number_of_enum_players || net_number_of_enum_players <= plyr_idx1 || plyr_idx2 == plyr_idx1 )
       gbtn->flags &= ~LbBtnF_Enabled;
     else
@@ -383,7 +383,7 @@ void frontnet_select_alliance(struct GuiButton *gbtn)
     myplyr = get_my_player();
     int plyr1_idx;
     int plyr2_idx;
-    plyr1_idx = (long)gbtn->content - 74;
+    plyr1_idx = gbtn->content.lval - 74;
     plyr2_idx = gbtn->btype_value & LbBFeF_IntValueMask;
     if ( plyr1_idx == myplyr->id_number || plyr2_idx == myplyr->id_number )
     {
@@ -451,7 +451,7 @@ void frontnet_draw_alliance_button(struct GuiButton *gbtn)
     int plyr2_idx;
     const struct TbSprite *spr;
     plyr2_idx = gbtn->btype_value & LbBFeF_IntValueMask;
-    plyr1_idx = (long)gbtn->content - 74;
+    plyr1_idx = gbtn->content.lval - 74;
     if ((plyr1_idx == plyr2_idx) || (frontend_alliances & alliance_grid[plyr1_idx][plyr2_idx]))
       spr = get_frontend_sprite(GFS_scrollbar_indicator_std);
     else
@@ -707,7 +707,7 @@ void frontnet_draw_small_scroll_box(struct GuiButton *gbtn)
     fs_units_per_px = small_scroll_box_get_units_per_px(gbtn);
     int btn_type;
     int len;
-    btn_type = (long)gbtn->content;
+    btn_type = gbtn->content.lval;
     if (btn_type == 24) {
         len = 2;
     } else
@@ -849,7 +849,7 @@ void frontnet_service_down(struct GuiButton *gbtn)
 void frontnet_service_maintain(struct GuiButton *gbtn)
 {
     int srvidx;
-    srvidx = (long)gbtn->content + net_service_scroll_offset - 45;
+    srvidx = gbtn->content.lval + net_service_scroll_offset - 45;
     if (srvidx < net_number_of_services)
         gbtn->flags |= LbBtnF_Enabled;
     else
@@ -860,7 +860,7 @@ void frontnet_draw_service_button(struct GuiButton *gbtn)
 {
   int srvidx;
   // Find and verify selected network service
-  srvidx = (long)gbtn->content + net_service_scroll_offset - 45;
+  srvidx = gbtn->content.lval + net_service_scroll_offset - 45;
   if (srvidx >= net_number_of_services)
     return;
   // Select font to draw
@@ -880,7 +880,7 @@ void frontnet_draw_service_button(struct GuiButton *gbtn)
 void frontnet_service_select(struct GuiButton *gbtn)
 {
   int srvidx;
-  srvidx = (long)(gbtn->content) + net_service_scroll_offset - 45;
+  srvidx = gbtn->content.lval + net_service_scroll_offset - 45;
   if ( ((game.system_flags & GSF_AllowOnePlayer) != 0)
      && (srvidx+1 >= net_number_of_services) )
   {

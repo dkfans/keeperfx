@@ -55,7 +55,7 @@ void gui_open_event(struct GuiButton *gbtn)
     struct Dungeon* dungeon = get_my_dungeon();
     EventIndex evidx;
     SYNCDBG(5,"Starting");
-    unsigned int evbtn_idx = (unsigned long)gbtn->content;
+    unsigned int evbtn_idx = gbtn->content.lval;
     if (evbtn_idx <= EVENT_BUTTONS_COUNT) {
         evidx = dungeon->event_button_index[evbtn_idx];
     } else {
@@ -75,7 +75,7 @@ void gui_kill_event(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
     struct Dungeon* dungeon = get_players_dungeon(player);
-    unsigned long i = (unsigned long)gbtn->content;
+    unsigned long i = gbtn->content.lval;
     set_players_packet_action(player, PckA_Unknown092, dungeon->event_button_index[i], 0, 0, 0);
 }
 

@@ -142,7 +142,7 @@ TbBool gui_slider_button_inputs(int gbtn_idx)
     {
         gbtn->slide_val = ((mouse_x-gbtn->pos_x) << 8) / (gbtn->width+1);
     }
-    *gbtn->content = (gbtn->slide_val) * (((long)gbtn->maxval)+1) >> 8;
+    gbtn->content.lval = (gbtn->slide_val) * (((long)gbtn->maxval)+1) >> 8;
     callback = gbtn->click_event;
     if (callback != NULL)
       callback(gbtn);
@@ -196,7 +196,7 @@ void update_radio_button_data(struct GuiMenu *gmnu)
     for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
     {
         gbtn = &active_buttons[i];
-        rbstate = (unsigned char *)gbtn->content;
+        rbstate = gbtn->content.ptr;
         if ((rbstate != NULL) && (gbtn->gmenu_idx == gmnu->number))
         {
           if (gbtn->gbtype == LbBtnT_RadioBtn)
@@ -337,11 +337,11 @@ void init_slider_bars(struct GuiMenu *gmnu)
     for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
     {
         gbtn = &active_buttons[i];
-        if ((gbtn->content) && (gbtn->gmenu_idx == gmnu->number))
+        if (gbtn->content.lptr && (gbtn->gmenu_idx == gmnu->number))
         {
           if (gbtn->gbtype == LbBtnT_HorizSlider)
           {
-              sldpos = *(long *)gbtn->content;
+              sldpos = *gbtn->content.lptr;
               if (sldpos < 0)
                 sldpos = 0;
               else
@@ -377,7 +377,7 @@ void kill_button(struct GuiButton *gbtn)
 void kill_button_area_input(void)
 {
   if (input_button != NULL)
-    strcpy((char *)input_button->content, backup_input_field);
+    strcpy(input_button->content.str, backup_input_field);
   input_button = NULL;
 }
 
@@ -388,11 +388,11 @@ void setup_radio_buttons(struct GuiMenu *gmnu)
     for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
     {
         gbtn = &active_buttons[i];
-        if ((gbtn->content) && (gmnu->number == gbtn->gmenu_idx))
+        if (gbtn->content.ptr && (gmnu->number == gbtn->gmenu_idx))
         {
             if (gbtn->gbtype == LbBtnT_RadioBtn)
             {
-                if ( *(unsigned char *)gbtn->content )
+                if ( *(unsigned char *)gbtn->content.ptr )
                   gbtn->gbactn_1 = 1;
                 else
                   gbtn->gbactn_1 = 0;
@@ -579,8 +579,8 @@ void gui_area_compsetting_button(struct GuiButton *gbtn)
     spr_idx = gbtn->sprite_idx;
     if (gbtn->gbtype == LbBtnT_ToggleBtn)
     {
-        if (gbtn->content != NULL) {
-            spr_idx += *(unsigned char *)gbtn->content;
+        if (gbtn->content.ptr != NULL) {
+            spr_idx += *(unsigned char *)gbtn->content.ptr;
         } else {
             ERRORLOG("Cycle button must have a non-null UBYTE Data pointer!");
         }
@@ -611,8 +611,8 @@ void gui_area_creatrmodel_button(struct GuiButton *gbtn)
     spr_idx = gbtn->sprite_idx;
     if (gbtn->gbtype == LbBtnT_ToggleBtn)
     {
-        if (gbtn->content != NULL) {
-            spr_idx += *(unsigned char *)gbtn->content;
+        if (gbtn->content.ptr != NULL) {
+            spr_idx += *(unsigned char *)gbtn->content.ptr;
         } else {
             ERRORLOG("Cycle button must have a non-null UBYTE Data pointer!");
         }
@@ -643,8 +643,8 @@ void gui_area_new_no_anim_button(struct GuiButton *gbtn)
     spr_idx = gbtn->sprite_idx;
     if (gbtn->gbtype == LbBtnT_ToggleBtn)
     {
-        if (gbtn->content != NULL) {
-            spr_idx += *(unsigned char *)gbtn->content;
+        if (gbtn->content.ptr != NULL) {
+            spr_idx += *(unsigned char *)gbtn->content.ptr;
         } else {
             ERRORLOG("Cycle button must have a non-null UBYTE Data pointer!");
         }
@@ -675,7 +675,7 @@ void gui_area_no_anim_button(struct GuiButton *gbtn)
     if (gbtn->gbtype == LbBtnT_ToggleBtn)
     {
         unsigned char *ctptr;
-        ctptr = (unsigned char *)gbtn->content;
+        ctptr = (unsigned char *)gbtn->content.ptr;
         if (ctptr != NULL) {
             spr_idx += *ctptr;
         } else {
@@ -728,7 +728,7 @@ void frontend_over_button(struct GuiButton *gbtn)
     if (gbtn->gbtype == LbBtnT_EditBox)
       i = gbtn->btype_value & LbBFeF_IntValueMask;
     else
-      i = (long)gbtn->content;
+      i = gbtn->content.lval;
     if (old_mouse_over_button != i)
       frontend_mouse_over_button_start_time = LbTimerClock_1000();
     frontend_mouse_over_button = i;
@@ -753,7 +753,7 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
     long y;
     int h;
     SYNCDBG(9,"Drawing type %d, text \"%s\"",(int)btntype,text);
-    febtn_idx = (unsigned int)gbtn->content;
+    febtn_idx = gbtn->content.lval;
     if ((gbtn->flags & LbBtnF_Enabled) == 0)
     {
         fntidx = 3;
@@ -856,7 +856,7 @@ void frontend_draw_scroll_box(struct GuiButton *gbtn)
 {
     int height_lines;
     TbBool draw_scrollbar;
-    switch ( (long)gbtn->content )
+    switch (gbtn->content.lval)
     {
       case 24:
         height_lines = 2;
@@ -900,7 +900,7 @@ void frontend_draw_slider_button(struct GuiButton *gbtn)
     long btn_id;
     if ((gbtn->flags & LbBtnF_Enabled) != 0)
     {
-        btn_id = (long)gbtn->content;
+        btn_id = gbtn->content.lval;
         if ( (btn_id != 0) && (frontend_mouse_over_button == btn_id) )
         {
             if ( (btn_id == 17) || (btn_id == 36) || (btn_id == 38) ) {
@@ -990,7 +990,7 @@ void gui_area_flash_cycle_button(struct GuiButton *gbtn)
         {
             // If function is active, the button should blink
             unsigned char *ctptr;
-            ctptr = (unsigned char *)gbtn->content;
+            ctptr = (unsigned char *)gbtn->content.ptr;
             if ((ctptr != NULL) && (*ctptr > 0))
             {
                 if (game.play_gameturn & 1) {

@@ -139,7 +139,7 @@ struct GuiButtonInit frontend_high_score_score_buttons[] = {
 };
 
 struct GuiButtonInit frontend_error_box_buttons[] = {
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0, 999,   0, 999,   0,450, 92, frontend_draw_error_text_box,      0, GUIStr_Empty,  0,{(long)gui_message_text},0, frontend_maintain_error_text_box},
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0, 999,   0, 999,   0,450, 92, frontend_draw_error_text_box,      0, GUIStr_Empty,  0,{.str = gui_message_text},0, frontend_maintain_error_text_box},
   {-1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, NULL },
 };
 
@@ -732,7 +732,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
     unsigned short outchar;
     TbLocChar vischar[4];
     strcpy(vischar," ");
-    str = (char *)gbtn->content;
+    str = gbtn->content.str;
     key = lbInkey;
     outchar = key_to_ascii(key, key_modifiers);
     vischar[0] = outchar;
@@ -841,7 +841,7 @@ void maintain_zoom_to_event(struct GuiButton *gbtn)
 void maintain_scroll_up(struct GuiButton *gbtn)
 {
     struct TextScrollWindow * scrollwnd;
-    scrollwnd = (struct TextScrollWindow *)gbtn->content;
+    scrollwnd = (struct TextScrollWindow *)gbtn->content.ptr;
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (scrollwnd->start_y < 0)) & LbBtnF_Enabled;
     if (!check_current_gui_layer(GuiLayer_OneClick))
     {
@@ -855,7 +855,7 @@ void maintain_scroll_up(struct GuiButton *gbtn)
 void maintain_scroll_down(struct GuiButton *gbtn)
 {
     struct TextScrollWindow * scrollwnd;
-    scrollwnd = (struct TextScrollWindow *)gbtn->content;
+    scrollwnd = (struct TextScrollWindow *)gbtn->content.ptr;
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled
         * (scrollwnd->window_height - scrollwnd->text_height + 2 < scrollwnd->start_y)) & LbBtnF_Enabled;
     if (!check_current_gui_layer(GuiLayer_OneClick))
@@ -1390,9 +1390,9 @@ void gui_area_text(struct GuiButton *gbtn)
             snprintf(gui_textbuf,sizeof(gui_textbuf), "%s", get_string(-gbtn->tooltip_stridx));
         draw_button_string(gbtn, (gbtn->width*32 + 16)/gbtn->height, gui_textbuf);
     } else
-    if (gbtn->content != NULL)
+    if (gbtn->content.str != NULL)
     {
-        snprintf(gui_textbuf,sizeof(gui_textbuf), "%s", (char *)gbtn->content);
+        snprintf(gui_textbuf,sizeof(gui_textbuf), "%s", gbtn->content.str);
         // Since this button can have various width, but its height is always 32,
         // unscaled width is deduced based on height scale
         draw_button_string(gbtn, (gbtn->width*32 + 16)/gbtn->height, gui_textbuf);
@@ -1427,7 +1427,7 @@ const char *frontend_button_caption_text(const struct GuiButton *gbtn)
 {
     unsigned long febtn_idx;
     int text_idx;
-    febtn_idx = (unsigned long)gbtn->content;
+    febtn_idx = gbtn->content.lval;
     if (febtn_idx < FRONTEND_BUTTON_INFO_COUNT)
         text_idx = frontend_button_info[febtn_idx].capstr_idx;
     else
@@ -1439,7 +1439,7 @@ int frontend_button_caption_font(const struct GuiButton *gbtn, long mouse_over_b
 {
     unsigned long febtn_idx;
     int font_idx;
-    febtn_idx = (unsigned long)gbtn->content;
+    febtn_idx = gbtn->content.lval;
     if (febtn_idx < FRONTEND_BUTTON_INFO_COUNT)
         font_idx = frontend_button_info[febtn_idx].font_index;
     else
@@ -1479,11 +1479,11 @@ void frontend_draw_enter_text(struct GuiButton *gbtn)
     if ((gbtn->flags & LbBtnF_Enabled) == 0) {
         font_idx = 3;
     } else
-    if ((gbtn->content != NULL) && ((gbtn->btype_value & LbBFeF_IntValueMask) == frontend_mouse_over_button)) {
+    if ((gbtn->content.str != NULL) && ((gbtn->btype_value & LbBFeF_IntValueMask) == frontend_mouse_over_button)) {
         font_idx = 2;
     }
     char *srctext;
-    srctext = (char *)gbtn->content;
+    srctext = gbtn->content.str;
     while (LbTextStringWidth(srctext) > 240)
         srctext[strlen(srctext)-2] = 0;
     char text[2048];
@@ -1562,7 +1562,7 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
   lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
   lbDisplay.DrawFlags |= Lb_TEXT_HALIGN_CENTER;
   LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
-  scrollwnd = (struct TextScrollWindow *)gbtn->content;
+  scrollwnd = (struct TextScrollWindow *)gbtn->content.ptr;
   if (scrollwnd == NULL)
   {
       ERRORLOG("Cannot have a TEXT_SCROLLING box type without a pointer to a TextScrollWindow");
@@ -1646,7 +1646,7 @@ void gui_area_scroll_window(struct GuiButton *gbtn)
     if ((gbtn->flags & LbBtnF_Enabled) == 0) {
         return;
     }
-    scrollwnd = (struct TextScrollWindow *)gbtn->content;
+    scrollwnd = (struct TextScrollWindow *)gbtn->content.ptr;
     if (scrollwnd == NULL) {
         ERRORLOG("Button doesn't point to a TextScrollWindow data item");
         return;
@@ -1679,14 +1679,14 @@ void gui_close_objective(struct GuiButton *gbtn)
 void gui_scroll_text_up(struct GuiButton *gbtn)
 {
     struct TextScrollWindow *scroll_window;
-    scroll_window = (struct TextScrollWindow *)gbtn->content;
+    scroll_window = (struct TextScrollWindow *)gbtn->content.ptr;
     scroll_window->action = 1;
 }
 
 void gui_scroll_text_down(struct GuiButton *gbtn)
 {
     struct TextScrollWindow *scroll_window;
-    scroll_window = (struct TextScrollWindow *)gbtn->content;
+    scroll_window = (struct TextScrollWindow *)gbtn->content.ptr;
     scroll_window->action = 2;
 }
 
@@ -1865,7 +1865,7 @@ void frontend_load_continue_game(struct GuiButton *gbtn)
 
 void frontend_load_game_maintain(struct GuiButton *gbtn)
 {
-    long game_index=load_game_scroll_offset+(long)(gbtn->content)-45;
+    int32_t game_index=load_game_scroll_offset+(gbtn->content.lval)-45;
     if (game_index < number_of_saved_games)
         gbtn->flags |= LbBtnF_Enabled;
     else
@@ -1892,10 +1892,10 @@ void do_button_click_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Ca
             *s = 1;
             break;
         case LbBtnT_RadioBtn:
-            if ((gbtn->content != NULL) && (!*s))
+            if ((gbtn->content.ptr != NULL) && (!*s))
             {
                 unsigned char *rbstate;
-                rbstate = (unsigned char *)gbtn->content;
+                rbstate = (unsigned char *)gbtn->content.ptr;
                 do_sound_button_click(gbtn);
                 struct GuiMenu *amnu;
                 amnu = get_active_menu(gbtn->gmenu_idx);
@@ -1963,11 +1963,11 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
       *s = 0;
       break;
   case LbBtnT_ToggleBtn:
-      i = *(unsigned char *)gbtn->content;
+      i = *(unsigned char *)gbtn->content.ptr;
       i++;
       if (i > gbtn->maxval)
           i = 0;
-      *(unsigned char *)gbtn->content = i;
+      *(unsigned char *)gbtn->content.ptr = i;
       if ((*s != 0) && (callback != NULL))
       {
           do_sound_button_click(gbtn);
@@ -2091,7 +2091,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
     gbtn->sprite_idx = get_player_colored_icon_idx(gbinit->sprite_idx,my_player_number);
     gbtn->tooltip_stridx = gbinit->tooltip_stridx;
     gbtn->parent_menu = gbinit->parent_menu;
-    gbtn->content = (unsigned long *)gbinit->content.lptr;
+    gbtn->content = gbinit->content;
     gbtn->maxval = gbinit->maxval;
     gbtn->maintain_call = gbinit->maintain_call;
     gbtn->flags |= LbBtnF_Enabled;
@@ -2122,7 +2122,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
     if (gbtn->gbtype == LbBtnT_RadioBtn)
     {
         struct TextScrollWindow *scrollwnd;
-        scrollwnd = (struct TextScrollWindow *)gbtn->content;
+        scrollwnd = (struct TextScrollWindow *)gbtn->content.ptr;
         if ((scrollwnd != NULL) && (scrollwnd->text[0] == 1))
         {
             gbtn->gbactn_1 = 1;
@@ -3850,7 +3850,7 @@ void create_frontend_error_box(long showTime, const char * text)
 
 void frontend_draw_error_text_box(struct GuiButton *gbtn)
 {
-    draw_text_box((char *)gbtn->content);
+    draw_text_box(gbtn->content.str);
 }
 
 void frontend_maintain_error_text_box(struct GuiButton *gbtn)
