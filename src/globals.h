@@ -181,7 +181,7 @@ typedef int ScreenCoord;
 /** Screen coordinate in scale of the real screen. */
 typedef int RealScreenCoord;
 /** Player identification number, or owner of in-game thing/room/slab. */
-typedef signed char PlayerNumber;
+typedef int8_t PlayerNumber;
 /** bitflags where each bit represents a player (e.g. player id 0 = 0b000001, player id 1 = 0b000010, player id 2 = 0b000100). */
 typedef unsigned short PlayerBitFlags;
 /** Type which stores thing class. */
@@ -287,7 +287,7 @@ typedef unsigned char NaviRouteFlags;
 /** data used for navigating contains floor height, locked doors per player, unsafe surfaces */
 typedef unsigned short NavColour;
 /** Either North (0), East (1), South (2), or West (3). */
-typedef signed char SmallAroundIndex;
+typedef int8_t SmallAroundIndex;
 /** a player state as defined in config_players*/
 typedef unsigned char PlayerState;
 
