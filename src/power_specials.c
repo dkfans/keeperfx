@@ -201,7 +201,7 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
     for (size_t j = 0; j < PLAYERS_COUNT; j++)
     {
         PlayerNumber roam_plr_idx = (j + rand_offset) % PLAYERS_COUNT;
-        if ((!player_is_roaming(roam_plr_idx)) && (!players_are_enemies(player->id_number, roam_plr_idx)))
+        if ((!player_is_roaming(roam_plr_idx)) || (!players_are_enemies(player->id_number, roam_plr_idx)))
             continue;
         struct Dungeon* herodngn = get_players_num_dungeon(roam_plr_idx);
         unsigned long k = 0;
