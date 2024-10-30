@@ -3243,6 +3243,10 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             game.conf.crtr_conf.creature_sounds[creatid].fight.index = value;
             game.conf.crtr_conf.creature_sounds[creatid].fight.count = value2;
             break;
+        case 12: // PISS
+            game.conf.crtr_conf.creature_sounds[creatid].piss.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].piss.count = value2;
+            break;
         }
     }
     else if (block == CrtConf_SPRITES)
