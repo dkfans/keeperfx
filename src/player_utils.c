@@ -192,7 +192,10 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     }
     else
     {
-        set_player_mode(player, PVT_DungeonTop);
+        if (!flag_is_set(player->allocflags, PlaF_CompCtrl))
+        {
+            set_player_mode(player, PVT_DungeonTop);
+        }
     }
     set_player_state(player, PSt_CtrlDungeon, 0);
     if ((game.system_flags & GSF_NetworkActive) == 0)
@@ -750,6 +753,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->minimap_zoom = settings.minimap_zoom;
     player->isometric_view_zoom_level = settings.isometric_view_zoom_level;
     player->frontview_zoom_level = settings.frontview_zoom_level;
+    player->isometric_tilt = settings.isometric_tilt;
     if (is_my_player(player))
     {
         set_flag(game.operation_flags, GOF_ShowPanel);

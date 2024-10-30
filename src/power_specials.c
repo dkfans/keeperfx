@@ -90,11 +90,17 @@ void multiply_creatures_in_dungeon_list(struct Dungeon *dungeon, long list_start
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
+        if (!creature_count_below_map_limit(0))
+        {
+            WARNLOG("Can't duplicate all creature due to map creature limit.");
+            break;
+        }
         struct Thing* tncopy = create_creature(&thing->mappos, thing->model, dungeon->owner);
         if (thing_is_invalid(tncopy))
         {
-            WARNLOG("Can't create a copy of creature");
-            break;
+            WARNLOG("Can't create a copy of creature %s", thing_model_name(thing));
+            k++;
+            continue;
         }
         set_creature_level(tncopy, cctrl->explevel);
         tncopy->health = thing->health;
@@ -170,36 +176,45 @@ void increase_level(struct PlayerInfo *player, int count)
           break;
         }
     }
+    i = 0;
+    while (i < dungeon->num_summon)
+    {
+        struct Thing* famlrtng = thing_get(dungeon->summon_list[i]);
+        cctrl = creature_control_get_from_thing(famlrtng);
+        if (thing_is_invalid(famlrtng))
+        {
+          ERRORLOG("Jump to invalid creature detected");
+          continue;
+        }
+        level_up_familiar(famlrtng);
+        i++;
+    }    
 }
 
 TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
 {
-    //TODO CONFIG creature models dependency; put them in config files
-    static ThingModel skip_steal_models[] = {6, 7};//6 = KNIGHT, 7 = AVATAR
-    static ThingModel prefer_steal_models[] = {3, 12};//3 = ARCHER, 12 = THIEF
+    // TODO CONFIG creature models dependency put them in config files.
+    static ThingModel prefer_steal_models[] = {3, 12}; // 3 = ARCHER, 12 = THIEF.
     struct Thing* herotng = INVALID_THING;
     int heronum;
     ThingIndex tng_idx;
-    SYNCDBG(8,"Starting");
-
+    SYNCDBG(8, "Starting");
     int rand_offset = GAME_RANDOM(PLAYERS_COUNT);
-
     for (size_t j = 0; j < PLAYERS_COUNT; j++)
     {
         PlayerNumber roam_plr_idx = (j + rand_offset) % PLAYERS_COUNT;
         if(!player_is_roaming(roam_plr_idx))
             continue;
-
         struct Dungeon* herodngn = get_players_num_dungeon(roam_plr_idx);
         unsigned long k = 0;
         if (herodngn->num_active_creatrs > 0) {
             heronum = PLAYER_RANDOM(roam_plr_idx, herodngn->num_active_creatrs);
             tng_idx = herodngn->creatr_list_start;
-            SYNCDBG(4,"Selecting random creature %d out of %d heroes",(int)heronum,(int)herodngn->num_active_creatrs);
+            SYNCDBG(4, "Selecting random creature %d out of %d heroes", (int)heronum, (int)herodngn->num_active_creatrs);
         } else {
             heronum = 0;
             tng_idx = 0;
-            SYNCDBG(4,"No heroes on map, skipping selection");
+            SYNCDBG(4, "No heroes on map, skipping selection");
         }
         while (tng_idx != 0)
         {
@@ -212,18 +227,11 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
                 break;
             }
             tng_idx = cctrl->players_next_creature_idx;
-            // Thing list loop body
-            TbBool heroallow = true;
-            for (ThingModel skipidx = 0; skipidx < sizeof(skip_steal_models) / sizeof(skip_steal_models[0]); skipidx++)
-            {
-                if (thing->model == skip_steal_models[skipidx]) {
-                    heroallow = false;
-                }
-            }
-            if (heroallow) {
+            // Thing list loop body.
+            if (!flag_is_set(get_creature_model_flags(thing), CMF_NoStealHero)) {
                 herotng = thing;
             }
-            // If we've reached requested hero number, return either current hero on previously selected one
+            // If we've reached requested hero number, return either current hero on previously selected one.
             if ((heronum <= 0) && thing_is_creature(herotng)) {
                 break;
             }
@@ -231,7 +239,7 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
             if (tng_idx == 0) {
                 tng_idx = herodngn->creatr_list_start;
             }
-            // Thing list loop body ends
+            // Thing list loop body ends.
             k++;
             if (k > CREATURES_COUNT)
             {
@@ -240,22 +248,25 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
             }
         }
     }
-
-
     if (!thing_is_invalid(herotng))
     {
         move_thing_in_map(herotng, pos);
         reset_interpolation_of_thing(herotng);
         change_creature_owner(herotng, player->id_number);
-        SYNCDBG(3,"Converted %s to owner %d",thing_model_name(herotng),(int)player->id_number);
+        SYNCDBG(3, "Converted %s to owner %d", thing_model_name(herotng), (int)player->id_number);
     }
     else
     {
+        if (!creature_count_below_map_limit(0))
+        {
+            SYNCDBG(7, "Failed to generate a stolen hero due to map creature limit");
+            return false;
+        }
         unsigned char steal_idx = GAME_RANDOM(sizeof(prefer_steal_models)/sizeof(prefer_steal_models[0]));
         struct Thing* creatng = create_creature(pos, prefer_steal_models[steal_idx], player->id_number);
         if (thing_is_invalid(creatng))
             return false;
-        SYNCDBG(3,"Created %s owner %d",thing_model_name(creatng),(int)player->id_number);
+        SYNCDBG(3, "Created %s owner %d", thing_model_name(creatng), (int)player->id_number);
     }
     return true;
 }
@@ -464,9 +475,9 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
         case SpcKind_StealHero:
             if (steal_hero(player, &cratetng->mappos))
             {
-            remove_events_thing_is_attached_to(cratetng);
-            used = 1;
-            delete_thing_structure(cratetng, 0);
+                remove_events_thing_is_attached_to(cratetng);
+                used = 1;
+                delete_thing_structure(cratetng, 0);
             }
             break;
         case SpcKind_MultplCrtr:
@@ -570,6 +581,11 @@ void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crm
 {
     if (!thing_exists(boxtng) || (box_thing_to_special(boxtng) != SpcKind_Resurrect) ) {
         ERRORMSG("Invalid resurrect box object!");
+        return;
+    }
+    if (!creature_count_below_map_limit(0))
+    {
+        SYNCLOG("Unable to resurrect creature %s due to map creature limit", creature_code_name(crmodel));
         return;
     }
     struct Thing* creatng = create_creature(&boxtng->mappos, crmodel, owner);
@@ -693,6 +709,11 @@ long create_transferred_creatures_on_level(void)
                 }
 
                 struct Coord3d* pos = &(srcetng->mappos);
+                if (!creature_count_below_map_limit(0))
+                {
+                    WARNLOG("Can't create transferred creature %s due to map creature limit.", creature_code_name(intralvl.transferred_creatures[p][i].model));
+                    continue;
+                }
                 creatng = create_creature(pos, intralvl.transferred_creatures[p][i].model, plyr_idx);
                 if (thing_is_invalid(creatng))
                 {

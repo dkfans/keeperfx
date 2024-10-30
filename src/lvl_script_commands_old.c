@@ -46,9 +46,9 @@ void command_add_value(unsigned long var_index, unsigned long plr_range_id, long
 {
     ALLOCATE_SCRIPT_VALUE(var_index, plr_range_id);
 
-    value->arg0 = val2;
-    value->arg1 = val3;
-    value->arg2 = val4;
+    value->longs[0] = val2;
+    value->longs[1] = val3;
+    value->longs[2] = val4;
 
     if ((get_script_current_condition() == CONDITION_ALWAYS) && (next_command_reusable == 0))
     {
@@ -118,49 +118,6 @@ static void command_add_party_to_level(long plr_range_id, const char *prtname, c
     }
 }
 
-static void command_add_object_to_level(const char *obj_name, const char *locname, long arg, const char* playername)
-{
-    TbMapLocation location;
-    long obj_id = get_rid(object_desc, obj_name);
-    if (obj_id == -1)
-    {
-        SCRPTERRLOG("Unknown object, '%s'", obj_name);
-        return;
-    }
-    if (gameadd.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
-    {
-        SCRPTERRLOG("Too many ADD_CREATURE commands in script");
-        return;
-    }
-    long plr_id = get_rid(player_desc, playername);
-
-    if ((plr_id == -1) || (plr_id == ALL_PLAYERS))
-    {
-        plr_id = PLAYER_NEUTRAL;
-    }
-
-    // Recognize place where party is created
-    if (!get_map_location_id(locname, &location))
-        return;
-    if (get_script_current_condition() == CONDITION_ALWAYS)
-    {
-        script_process_new_object(obj_id, location, arg, plr_id);
-    } else
-    {
-        struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[gameadd.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
-        pr_trig->flags = TrgF_CREATE_OBJECT;
-        pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
-        pr_trig->plyr_idx = plr_id;
-        pr_trig->creatr_id = obj_id & 0x7F;
-        pr_trig->crtr_level = ((obj_id >> 7) & 7); // No more than 1023 different classes of objects :)
-        pr_trig->carried_gold = arg;
-        pr_trig->location = location;
-        pr_trig->ncopies = 1;
-        pr_trig->condit_idx = get_script_current_condition();
-        gameadd.script.party_triggers_num++;
-    }
-}
-
 static void command_add_creature_to_level(long plr_range_id, const char *crtr_name, const char *locname, long ncopies, long crtr_level, long carried_gold)
 {
     TbMapLocation location;
@@ -173,6 +130,10 @@ static void command_add_creature_to_level(long plr_range_id, const char *crtr_na
     {
         SCRPTERRLOG("Invalid number of creatures to add");
         return;
+    }
+    if (ncopies > game.conf.rules.game.creatures_count)
+    {
+        SCRPTWRNLOG("Trying to add %d creatures which is over map limit %d", ncopies, game.conf.rules.game.creatures_count);
     }
     if (gameadd.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
     {
@@ -417,7 +378,6 @@ static void command_win_game(void)
     if (get_script_current_condition() == CONDITION_ALWAYS)
     {
         SCRPTERRLOG("Command WIN GAME found with no condition");
-        return;
     }
     if (gameadd.script.win_conditions_num >= WIN_CONDITIONS_COUNT)
     {
@@ -433,7 +393,6 @@ static void command_lose_game(void)
   if (get_script_current_condition() == CONDITION_ALWAYS)
   {
     SCRPTERRLOG("Command LOSE GAME found with no condition");
-    return;
   }
   if (gameadd.script.lose_conditions_num >= WIN_CONDITIONS_COUNT)
   {
@@ -599,7 +558,7 @@ static void command_add_creature_to_pool(const char *crtr_name, long amount)
         SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
         return;
     }
-    if ((amount < 0) || (amount >= CREATURES_COUNT))
+    if ((amount <= -CREATURES_COUNT) || (amount >= CREATURES_COUNT))
     {
         SCRPTERRLOG("Invalid number of '%s' creatures for pool, %d", crtr_name, amount);
         return;
@@ -633,196 +592,6 @@ static void command_set_hate(long trgt_plr_range_id, long enmy_plr_range_id, lon
         return;
     }
     command_add_value(Cmd_SET_HATE, trgt_plr_range_id, enmy_plr_id, hate_val, 0);
-}
-
-static void command_set_computer_globals(long plr_range_id, long val1, long val2, long val3, long val4, long val5, long val6, long val7)
-{
-  int plr_start;
-  int plr_end;
-  if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
-      SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
-      return;
-  }
-  if (get_script_current_condition() != CONDITION_ALWAYS)
-  {
-    SCRPTWRNLOG("Computer globals altered inside conditional block; condition ignored");
-  }
-  for (long i = plr_start; i < plr_end; i++)
-  {
-      struct Computer2* comp = get_computer_player(i);
-      if (computer_player_invalid(comp))
-      {
-          continue;
-    }
-    comp->dig_stack_size       = val1;
-    comp->processes_time       = val2;
-    comp->click_rate           = val3;
-    comp->max_room_build_tasks = val4;
-    comp->turn_begin           = val5;
-    comp->sim_before_dig       = val6;
-    if (val7 != '\0')
-    {
-        comp->task_delay = val7;
-    }
-  }
-}
-
-static void command_set_computer_checks(long plr_range_id, const char *chkname, long val1, long val2, long val3, long val4, long val5)
-{
-  int plr_start;
-  int plr_end;
-  if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
-      SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
-      return;
-  }
-  if (!player_exists(get_player(plr_range_id)))
-  {
-      SCRPTERRLOG("Player %d does not exist; cannot modify check", (int)plr_range_id);
-      return;
-  }
-  if (get_script_current_condition() != CONDITION_ALWAYS)
-  {
-    SCRPTWRNLOG("Computer check altered inside conditional block; condition ignored");
-  }
-  long n = 0;
-  for (long i = plr_start; i < plr_end; i++)
-  {
-      struct Computer2* comp = get_computer_player(i);
-      if (computer_player_invalid(comp)) {
-          continue;
-      }
-      for (long k = 0; k < COMPUTER_CHECKS_COUNT; k++)
-      {
-          struct ComputerCheck* ccheck = &comp->checks[k];
-          if ((ccheck->flags & ComChk_Unkn0002) != 0)
-            break;
-          if (ccheck->name == NULL)
-            break;
-          if (strcasecmp(chkname, ccheck->name) == 0)
-          {
-            ccheck->turns_interval = val1;
-            ccheck->param1 = val2;
-            ccheck->param2 = val3;
-            ccheck->param3 = val4;
-            ccheck->last_run_turn = val5;
-            n++;
-          }
-      }
-  }
-  if (n == 0)
-  {
-    SCRPTERRLOG("No computer check found named '%s' in players %d to %d",chkname,(int)plr_start,(int)plr_end-1);
-    return;
-  }
-  SCRIPTDBG(6,"Altered %d checks named '%s'",n,chkname);
-}
-
-static void command_set_computer_events(long plr_range_id, const char *evntname, long val1, long val2, long val3, long val4, long val5)
-{
-  int plr_start;
-  int plr_end;
-  if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
-      SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
-      return;
-  }
-  if (!player_exists(get_player(plr_range_id)))
-  {
-      SCRPTERRLOG("Player %d does not exist; cannot modify events", (int)plr_range_id);
-      return;
-  }
-  if (get_script_current_condition() != CONDITION_ALWAYS)
-  {
-    SCRPTWRNLOG("Computer event altered inside conditional block; condition ignored");
-  }
-  long n = 0;
-  for (long i = plr_start; i < plr_end; i++)
-  {
-      struct Computer2* comp = get_computer_player(i);
-      if (computer_player_invalid(comp)) {
-          continue;
-      }
-      for (long k = 0; k < COMPUTER_EVENTS_COUNT; k++)
-      {
-          struct ComputerEvent* event = &comp->events[k];
-          if (event->name == NULL)
-              break;
-          if (strcasecmp(evntname, event->name) == 0)
-          {
-              if (level_file_version > 0)
-              {
-                  SCRIPTDBG(7, "Changing computer %d event '%s' config from (%d,%d,%d,%d,%d) to (%d,%d,%d,%d,%d)", (int)i, event->name,
-                      (int)event->test_interval, (int)event->param1, (int)event->param2, (int)event->param3, (int)event->last_test_gameturn, (int)val1, (int)val2, (int)val3, (int)val4);
-                  event->test_interval = val1;
-                  event->param1 = val2;
-                  event->param2 = val3;
-                  event->param3 = val4;
-                  event->last_test_gameturn = val5;
-                  n++;
-              } else
-              {
-                SCRIPTDBG(7, "Changing computer %d event '%s' config from (%d,%d) to (%d,%d)", (int)i, event->name,
-                  (int)event->param1, (int)event->param2, (int)val1, (int)val2);
-                  event->param1 = val1;
-                  event->param2 = val2;
-                  n++;
-              }
-          }
-      }
-  }
-  if (n == 0)
-  {
-    SCRPTERRLOG("No computer event found named '%s' in players %d to %d", evntname,(int)plr_start,(int)plr_end-1);
-    return;
-  }
-  SCRIPTDBG(6,"Altered %d events named '%s'",n,evntname);
-}
-
-static void command_set_computer_process(long plr_range_id, const char *procname, long val1, long val2, long val3, long val4, long val5)
-{
-  int plr_start;
-  int plr_end;
-  if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
-      SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
-      return;
-  }
-  if (get_script_current_condition() != CONDITION_ALWAYS)
-  {
-    SCRPTWRNLOG("Computer process altered inside conditional block; condition ignored");
-  }
-  long n = 0;
-  for (long i = plr_start; i < plr_end; i++)
-  {
-      struct Computer2* comp = get_computer_player(i);
-      if (computer_player_invalid(comp)) {
-          continue;
-      }
-      for (long k = 0; k < COMPUTER_PROCESSES_COUNT; k++)
-      {
-          struct ComputerProcess* cproc = &comp->processes[k];
-          if (flag_is_set(cproc->flags, ComProc_Unkn0002))
-              break;
-          if (cproc->name == NULL)
-              break;
-          if (strcasecmp(procname, cproc->name) == 0)
-          {
-              SCRIPTDBG(7,"Changing computer %d process '%s' config from (%d,%d,%d,%d,%d) to (%d,%d,%d,%d,%d)",(int)i,cproc->name,
-                  (int)cproc->priority,(int)cproc->confval_2,(int)cproc->confval_3,(int)cproc->confval_4,(int)cproc->confval_5,
-                  (int)val1,(int)val2,(int)val3,(int)val4,(int)val5);
-              cproc->priority = val1;
-              cproc->confval_2 = val2;
-              cproc->confval_3 = val3;
-              cproc->confval_4 = val4;
-              cproc->confval_5 = val5;
-              n++;
-          }
-      }
-  }
-  if (n == 0)
-  {
-    SCRPTERRLOG("No computer process found named '%s' in players %d to %d", procname,(int)plr_start,(int)plr_end-1);
-    return;
-  }
-  SCRIPTDBG(6,"Altered %d processes named '%s'",n,procname);
 }
 
 static void command_set_creature_health(const char *crtr_name, long val)
@@ -1041,35 +810,6 @@ static void command_message(const char *msgtext, unsigned char kind)
   else
     cmd = script_get_command_name(Cmd_MESSAGE);
   SCRPTWRNLOG("Command '%s' is only supported in Dungeon Keeper Beta", cmd);
-}
-
-static void command_swap_creature(const char *ncrt_name, const char *crtr_name)
-{
-    long ncrt_id = get_rid(newcrtr_desc, ncrt_name);
-    if (ncrt_id == -1)
-    {
-        SCRPTERRLOG("Unknown new creature, '%s'", ncrt_name);
-        return;
-  }
-  long crtr_id = get_rid(creature_desc, crtr_name);
-  if (crtr_id == -1)
-  {
-      SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
-      return;
-  }
-  struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_id];
-  if ((crconf->model_flags & CMF_IsSpecDigger) != 0)
-  {
-      SCRPTERRLOG("Unable to swap special diggers");
-  }
-  if (get_script_current_condition() != CONDITION_ALWAYS)
-  {
-      SCRPTWRNLOG("Creature swapping placed inside conditional statement");
-  }
-  if (!swap_creature(ncrt_id, crtr_id))
-  {
-      SCRPTERRLOG("Error swapping creatures '%s'<->'%s'", ncrt_name, crtr_name);
-  }
 }
 
 static void command_kill_creature(long plr_range_id, const char *crtr_name, const char *criteria, int count)
@@ -1521,9 +1261,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_ADD_CREATURE_TO_LEVEL:
         command_add_creature_to_level(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->np[4], scline->np[5]);
         break;
-    case Cmd_ADD_OBJECT_TO_LEVEL:
-        command_add_object_to_level(scline->tp[0], scline->tp[1], scline->np[2], scline->tp[3]);
-        break;
     case Cmd_ENDIF:
         pop_condition();
         break;
@@ -1633,18 +1370,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_IF_SLAB_TYPE:
         command_if_slab_type(scline->np[0], scline->np[1], scline->np[2]);
         break;
-    case Cmd_SET_COMPUTER_GLOBALS:
-        command_set_computer_globals(scline->np[0], scline->np[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6], scline->np[7]);
-        break;
-    case Cmd_SET_COMPUTER_CHECKS:
-        command_set_computer_checks(scline->np[0], scline->tp[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6]);
-        break;
-    case Cmd_SET_COMPUTER_EVENT:
-        command_set_computer_events(scline->np[0], scline->tp[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6]);
-        break;
-    case Cmd_SET_COMPUTER_PROCESS:
-        command_set_computer_process(scline->np[0], scline->tp[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6]);
-        break;
     case Cmd_ALLY_PLAYERS:
         if (file_version > 0)
             command_ally_players(scline->np[0], scline->np[1], scline->np[2]);
@@ -1674,9 +1399,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_QUICK_INFORMATION_WITH_POS:
         command_quick_information(scline->np[0], scline->tp[1], NULL, scline->np[2], scline->np[3]);
-        break;
-    case Cmd_SWAP_CREATURE:
-        command_swap_creature(scline->tp[0], scline->tp[1]);
         break;
     case Cmd_PRINT:
         command_message(scline->tp[0],80);

@@ -1106,7 +1106,7 @@ void maintain_big_room(struct GuiButton *gbtn)
 void maintain_spell(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
-    long i = (unsigned long)(gbtn->content) & 0xff;
+    long i = (unsigned long)(gbtn->content);
     if (!is_power_available(player->id_number, i))
     {
         gbtn->btype_value |= LbBFeF_NoTooltip;
@@ -1796,7 +1796,7 @@ void maintain_activity_up(struct GuiButton *gbtn)
         gbtn->flags |= LbBtnF_Visible;
         gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (top_of_breed_list > 0)) & LbBtnF_Enabled;
     }
-    if (wheel_scrolled_up & lbKeyOn[KC_LSHIFT])
+    if (wheel_scrolled_up && (is_game_key_pressed(Gkey_SpeedMod, NULL, true)))
     {
         if (top_of_breed_list > 0)
         {
@@ -1817,7 +1817,7 @@ void maintain_activity_down(struct GuiButton *gbtn)
         gbtn->flags |= LbBtnF_Visible;
         gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (no_of_breeds_owned - 6 > top_of_breed_list)) & LbBtnF_Enabled;
     }
-    if (wheel_scrolled_down & lbKeyOn[KC_LSHIFT])
+    if (wheel_scrolled_down && (is_game_key_pressed(Gkey_SpeedMod, NULL, true)))
     {
         if (top_of_breed_list + 6 < no_of_breeds_owned)
         {
@@ -1997,7 +1997,7 @@ void maintain_event_button(struct GuiButton *gbtn)
     {
         // Fight icon flashes when there are fights to show
         gbtn->sprite_idx += 2;
-        if(is_game_key_pressed(Gkey_ZoomToFight, &keycode, true) && lbKeyOn[KC_LSHIFT])
+        if(is_game_key_pressed(Gkey_ZoomToFight, &keycode, true) && (is_game_key_pressed(Gkey_SpeedMod, NULL, true)))
         {
             if ((evidx == dungeon->visible_event_idx))
             {
@@ -2033,7 +2033,7 @@ void gui_toggle_ally(struct GuiButton *gbtn)
     }
 }
 
-void maintain_player_page2(struct GuiButton *gbtn)
+static unsigned char count_current_players_count()
 {
     unsigned char current_players_count = 0;
     for (size_t i = 0; i < PLAYERS_COUNT; i++)
@@ -2042,6 +2042,12 @@ void maintain_player_page2(struct GuiButton *gbtn)
         if(player_exists(player) && player_is_keeper(i))
             current_players_count++;
     }
+    return current_players_count;
+}
+
+void maintain_player_page2(struct GuiButton *gbtn)
+{
+    unsigned char current_players_count = count_current_players_count();   
     if(current_players_count > 4)
     {
         set_flag(gbtn->flags, (LbBtnF_Visible | LbBtnF_Enabled));
@@ -2054,14 +2060,7 @@ void maintain_player_page2(struct GuiButton *gbtn)
 
 void maintain_query_button(struct GuiButton *gbtn)
 {
-    unsigned char current_players_count = 0;
-    for (size_t i = 0; i < PLAYERS_COUNT; i++)
-    {
-        struct PlayerInfo* player = get_player(i);
-        if(player_exists(player) && player_is_keeper(i))
-            current_players_count++;
-    }
-
+    unsigned char current_players_count = count_current_players_count();
     if(current_players_count > 4)
     {
         gbtn->pos_x = scale_ui_value(74);
@@ -2316,9 +2315,21 @@ void gui_set_query(struct GuiButton *gbtn)
 void gui_switch_players_visible(struct GuiButton *gbtn)
 {
     if(info_page == 0)
+    {
         info_page = 1;
-    else
-        info_page = 0;
+        return;
+    }
+    else if (info_page == 1)
+    {
+        unsigned char current_players_count = count_current_players_count();
+        if(current_players_count > 7)
+        {
+            info_page = 2;
+            return;
+        }
+    }
+    info_page = 0;
+    return;
 }
 
 void draw_gold_total(PlayerNumber plyr_idx, long scr_x, long scr_y, long units_per_px, long long value)

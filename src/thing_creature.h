@@ -26,13 +26,13 @@
 #include "bflib_sprite.h"
 #include "thing_list.h"
 #include "map_locations.h"
+#include "packets.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-#define CREATURE_TYPES_COUNT  32
-#define DEAD_CREATURES_MAX_COUNT 64
+#define DEAD_CREATURES_MAX_COUNT 128
 #define CREATURE_NAME_MAX 25
 /** The standard altitude at which a creature is flying.
  * Should be over one tile, to allow flying creatures leave water areas. */
@@ -78,10 +78,10 @@ struct CreatureStorage {
 /******************************************************************************/
 extern struct TbSprite *swipe_sprites;
 extern struct TbSprite *end_swipe_sprites;
-extern int creature_swap_idx[CREATURE_TYPES_COUNT];
 extern unsigned long creature_create_errors;
 /******************************************************************************/
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner);
+TbBool creature_count_below_map_limit(TbBool temp_creature);
 long move_creature(struct Thing *thing);
 struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng,
     PlayerNumber killer_plyr_idx, CrDeathFlags flags);
@@ -101,7 +101,9 @@ long get_creature_speed(const struct Thing *thing);
 TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
 TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
 void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
-ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primary_target);
+void prepare_to_controlled_creature_death(struct Thing* thing);
+ThingIndex process_player_use_instance(struct Thing *thing, CrInstance inst_id, struct Packet *packet);
+ThingIndex get_human_controlled_creature_target(struct Thing *thing, CrInstance inst_id, struct Packet *packet);
 struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord x, MapCoord y);
 
 TbBool load_swipe_graphic_for_creature(const struct Thing *thing);
@@ -113,8 +115,14 @@ TbBool set_creature_object_combat(struct Thing *crthing, struct Thing *obthing);
 TbBool set_creature_object_snipe(struct Thing* crthing, struct Thing* obthing);
 TbBool set_creature_door_combat(struct Thing *crthing, struct Thing *obthing);
 void thing_fire_shot(struct Thing *firing,struct  Thing *target, ThingModel shot_model, char shot_lvl, unsigned char hit_type);
-void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long a3, long a4);
-void creature_cast_spell(struct Thing *caster, long trg_x, long trg_y, long a4, long a5);
+void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, SpellKind spl_idx, long shot_lvl);
+void creature_cast_spell(struct Thing *caster, SpellKind spl_idx, long shot_lvl, MapSubtlCoord trg_x, MapSubtlCoord trg_y);
+
+void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, char level, char count, GameTurn duration, long spl_idx);
+void level_up_familiar(struct Thing* famlrtng);
+void add_creature_to_summon_list(struct Dungeon* dungeon, ThingIndex famlrtng);
+void remove_creature_from_summon_list(struct Dungeon* dungeon, ThingIndex famlrtng);
+
 unsigned int get_creature_blocked_flags_at(struct Thing *thing, struct Coord3d *newpos);
 
 struct Thing *get_enemy_soul_container_creature_can_see(struct Thing *thing);
@@ -135,6 +143,7 @@ TbBool creature_kind_is_for_dungeon_diggers_list(PlayerNumber plyr_idx, ThingMod
 void set_first_creature(struct Thing *thing);
 void remove_first_creature(struct Thing *thing);
 long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct Thing *thing, MaxTngFilterParam param, long maximizer);
+void recalculate_player_creature_digger_lists(PlayerNumber plr_idx);
 
 TbBool creature_has_lair_room(const struct Thing *creatng);
 struct Room *get_creature_lair_room(const struct Thing *creatng);
@@ -166,7 +175,7 @@ void init_creature_scores(void);
 long get_creature_thing_score(const struct Thing *thing);
 TbBool add_creature_score_to_owner(struct Thing *thing);
 TbBool remove_creature_score_from_owner(struct Thing *thing);
-long calculate_melee_damage(struct Thing *thing);
+long calculate_melee_damage(struct Thing *thing, short damage_percent);
 long project_melee_damage(const struct Thing *thing);
 long calculate_shot_damage(struct Thing *thing, ThingModel shot_model);
 long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_model);

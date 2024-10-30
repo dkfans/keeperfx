@@ -1215,7 +1215,6 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
                         {
                             set_flag(potential_opponents, to_flag(slab_owner));
                             current_idx = comp->opponent_relations[slab_owner].next_idx;
-                            slab_owner = slab_owner;
                             pos = &comp->opponent_relations[slab_owner].pos_A[current_idx];
                             comp->opponent_relations[slab_owner].next_idx = (current_idx + 1) % COMPUTER_SPARK_POSITIONS_COUNT;
                             comp->opponent_relations[slab_owner].field_0 = game.play_gameturn;
@@ -1316,10 +1315,9 @@ long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *
     comp->task_state = CTaskSt_Select;
     struct ComputerTask* ctask = get_computer_task(cproc->param_5);
     struct Coord3d* pos = &ctask->dig.pos_begin;
-    long par1 = ctask->pickup_for_attack.long_86;
     if (xy_walkable(pos->x.stl.num, pos->y.stl.num, dungeon->owner))
     {
-        if (!create_task_pickup_for_attack(comp, pos, par1, creatrs_num)) 
+        if (!create_task_pickup_for_attack(comp, pos, creatrs_num)) 
         {
             return CProcRet_Wait;
         }
@@ -1330,7 +1328,7 @@ long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *
     {
         if (computer_able_to_use_power(comp, PwrK_CALL2ARMS, 5, 2) && check_call_to_arms(comp))
         {
-            if (!create_task_magic_support_call_to_arms(comp, pos, 2500, par1, creatrs_num))
+            if (!create_task_magic_support_call_to_arms(comp, pos, 2500, creatrs_num))
             {
                 return CProcRet_Wait;
             }

@@ -716,7 +716,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {
                 i = get_power_overcharge_level(player);
-                magic_use_available_power_on_subtile(plyr_idx, pwkind, i, stl_x, stl_y, PwCast_None);
+                magic_use_available_power_on_subtile(plyr_idx, pwkind, i, stl_x, stl_y, PwCast_None, PwMod_Default);
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
             break;

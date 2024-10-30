@@ -389,6 +389,51 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
             break;
         }
     }
+    if ((pckt->control_flags & PCtr_ViewTiltUp) != 0)
+    {
+        switch (cam->view_mode)
+        {
+        case PVM_IsoWibbleView:
+        case PVM_IsoStraightView:
+            view_set_camera_tilt(cam, 1);
+            if (is_my_player(player))
+            {
+                settings.isometric_tilt = cam->orient_b;
+                save_settings();
+            }
+            break;
+        }
+    }
+    if ((pckt->control_flags & PCtr_ViewTiltDown) != 0)
+    {
+        switch (cam->view_mode)
+        {
+        case PVM_IsoWibbleView:
+        case PVM_IsoStraightView:
+            view_set_camera_tilt(cam, 2);
+            if (is_my_player(player))
+            {
+                settings.isometric_tilt = cam->orient_b;
+                save_settings();
+            }
+            break;
+        }
+    }
+    if ((pckt->control_flags & PCtr_ViewTiltReset) != 0)
+    {
+        switch (cam->view_mode)
+        {
+        case PVM_IsoWibbleView:
+        case PVM_IsoStraightView:
+            view_set_camera_tilt(cam, 0);
+            if (is_my_player(player))
+            {
+                settings.isometric_tilt = cam->orient_b;
+                save_settings();
+            }
+            break;
+        }
+    }
     unsigned long zoom_min = max(CAMERA_ZOOM_MIN, zoom_distance_setting);
     unsigned long zoom_max = CAMERA_ZOOM_MAX;
     if (pckt->control_flags & PCtr_ViewZoomIn)
@@ -1129,7 +1174,6 @@ void process_players_creature_control_packet_control(long idx)
 {
     struct InstanceInfo *inst_inf;
     long i;
-    long n;
 
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_player(idx);
@@ -1200,16 +1244,14 @@ void process_players_creature_control_packet_control(long idx)
                     if (!creature_affected_by_spell(cctng, SplK_Chicken))
                     {
                         inst_inf = creature_instance_info_get(i);
-                        n = get_human_controlled_creature_target(cctng, inst_inf->primary_target);
-                        set_creature_instance(cctng, i, n, 0);
+                        process_player_use_instance(cctng, i, pckt);
                     }
                 }
             }
             else
             {
                 inst_inf = creature_instance_info_get(i);
-                n = get_human_controlled_creature_target(cctng, inst_inf->primary_target);
-                set_creature_instance(cctng, i, n, 0);
+                process_player_use_instance(cctng, i, pckt);
             }
         }
     }
@@ -1218,7 +1260,7 @@ void process_players_creature_control_packet_control(long idx)
         // Button is held down - check whether the instance has auto-repeat
         i = ccctrl->active_instance_id;
         inst_inf = creature_instance_info_get(i);
-        if ((inst_inf->flags & InstPF_RepeatTrigger) != 0)
+        if ((inst_inf->instance_property_flags & InstPF_RepeatTrigger) != 0)
         {
             if (ccctrl->instance_id == CrInst_NULL)
             {
@@ -1226,8 +1268,7 @@ void process_players_creature_control_packet_control(long idx)
                 {
                     if (creature_instance_has_reset(cctng, i))
                     {
-                        n = get_human_controlled_creature_target(cctng, inst_inf->primary_target);
-                        set_creature_instance(cctng, i, n, 0);
+                        process_player_use_instance(cctng, i, pckt);
                     }
                 }
             }
@@ -1285,7 +1326,6 @@ void process_players_creature_control_packet_action(long plyr_idx)
   struct Thing *thing;
   struct Packet *pckt;
   long i;
-  long k;
   player = get_player(plyr_idx);
   pckt = get_packet_direct(player->packet_num);
   SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
@@ -1320,9 +1360,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
         if (creature_instance_is_available(thing,i) && creature_instance_has_reset(thing, pckt->actn_par1))
         {
           i = pckt->actn_par1;
-          inst_inf = creature_instance_info_get(i);
-          k = get_human_controlled_creature_target(thing, inst_inf->primary_target);
-          set_creature_instance(thing, i, k, 0);
+          process_player_use_instance(thing, i, pckt);
           if (plyr_idx == my_player_number) {
               instant_instance_selected(i);
           }
@@ -1345,9 +1383,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
       if (cctrl->instance_id == CrInst_NULL)
       {
           i = pckt->actn_par1;
-          inst_inf = creature_instance_info_get(i);
-          k = get_human_controlled_creature_target(thing, inst_inf->primary_target);
-          set_creature_instance(thing, i, k, 0);
+          process_player_use_instance(thing, i, pckt);
           if (plyr_idx == my_player_number) {
               instant_instance_selected(i);
           }
