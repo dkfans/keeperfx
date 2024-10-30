@@ -119,6 +119,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"NO_TRANSFER",       29},
   {"TREMBLING",         30},
   {"FAT",               31},
+  {"NO_STEAL_HERO",     32},
   {NULL,                 0},
   };
 
@@ -762,6 +763,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 break;
             case 31: // FAT
                 crconf->model_flags |= CMF_Fat;
+                n++;
+                break;
+            case 32: // NO_STEAL_HERO
+                crconf->model_flags |= CMF_NoStealHero;
                 n++;
                 break;
             default:
