@@ -27,8 +27,8 @@ extern "C" {
 #endif
 
 // note - this is temporary value; not correct
-#define CREATURE_FRAMELIST_LENGTH     982
-#define CREATURE_GRAPHICS_INSTANCES     22
+#define CREATURE_FRAMELIST_LENGTH    982
+#define CREATURE_GRAPHICS_INSTANCES   24
 
 enum CreatureGraphicsInstances {
     CGI_Stand       =  0,
@@ -53,6 +53,8 @@ enum CreatureGraphicsInstances {
     CGI_QuerySymbol = 19,
     CGI_HandSymbol  = 20,
     CGI_GFX21       = 21,
+    CGI_Roar        = 22,
+    CGI_Piss        = 23,
 };
 /******************************************************************************/
 #pragma pack(1)
