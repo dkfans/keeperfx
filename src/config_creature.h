@@ -41,7 +41,7 @@ extern "C" {
 #define CREATURE_PROPERTY_INCREASE_ON_EXP  35
 /******************************************************************************/
 enum CreatureModelFlags {
-    CMF_IsSpecDigger     = 0x00001, // is a dedicated digger that doesn't do things normal units do (like imp)
+    CMF_IsSpecDigger     = 0x000001, // is a dedicated digger that doesn't do things normal units do (like imp)
     CMF_IsArachnid       = 0x000002, // Simply, Spider.
     CMF_IsDiptera        = 0x000004, // Simply, Fly.
     CMF_IsLordOTLand     = 0x000008, // Simply, Knight and Avatar.
@@ -61,7 +61,7 @@ enum CreatureModelFlags {
     CMF_NoTransfer       = 0x020000, // Creature cannot be transferred.
     CMF_Fat              = 0x040000, // Creature to fat too walk a full animation.
     CMF_NoStealHero      = 0x080000, // Prevent the creature from being stolen with the Steal Hero special.
-    CMF_IsDiggingCreature = 0x80000, // unit still counts as a regular creature but can also do digger tasks (like tunneler)
+    CMF_IsDiggingCreature = 0x100000, // unit still counts as a regular creature but can also do digger tasks (like tunneler)
 };
 
 enum CreatureJobFlags {
