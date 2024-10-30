@@ -190,11 +190,9 @@ const struct NamedCommand creature_graphics_desc[] = {
   {"ROAR",              1+CGI_Roar       },
   {"PISS",              1+CGI_Piss       },
 // These below seems to be not from JTY file.
-  {"GFX18",             1+CGI_GFX18      },
   {"QUERYSYMBOL",       1+CGI_QuerySymbol},
   {"HANDSYMBOL",        1+CGI_HandSymbol },
-  {"GFX21",             1+CGI_GFX21      },
-  {NULL,                0},
+  {NULL,                                0},
   };
 
 const struct NamedCommand instance_range_desc[] = {
