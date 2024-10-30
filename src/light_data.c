@@ -1754,7 +1754,7 @@ static char light_render_light_dynamic(struct Light *lgt, int radius, int render
     struct LightsShadows *lish = &game.lish;
     struct ShadowCache *shadow_cache = &lish->shadow_cache[lgt->shadow_index];
     clear_shadow_limits(lish);
-    memset(shadow_cache->field_1, 0, 0x80u);
+    memset(shadow_cache->field_1, 0, sizeof(shadow_cache->field_1));
     const struct Column *col = get_column_at(lgt->mappos.x.val + 1, lgt->mappos.y.val + 1);
     SubtlCodedCoords stl_num = get_subtile_number(lgt->mappos.x.stl.num, lgt->mappos.y.stl.num);
     if (get_column_floor_filled_subtiles(col) <= lgt->mappos.z.stl.num)
@@ -2113,7 +2113,7 @@ static char light_render_light(struct Light* lgt)
         lighting_tables_idx = *shdc->field_1;
         if ( y_end >= y_start )
         {
-          unsigned int shadow_cache_pointer = (unsigned int)shdc->field_1;
+          uint32_t * shadow_cache_pointer = shdc->field_1;
           MapCoord y = y_start;
           do
           {
@@ -2136,8 +2136,8 @@ static char light_render_light(struct Light* lgt)
 
             lightness += v33;
             y += COORD_PER_STL;
-            lighting_tables_idx = *((unsigned int*)shadow_cache_pointer + 1);
-            shadow_cache_pointer += 4;
+            lighting_tables_idx = shadow_cache_pointer[1];
+            shadow_cache_pointer++;
           }
           while ( y_end >= y );
         }

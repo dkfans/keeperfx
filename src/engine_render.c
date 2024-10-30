@@ -8242,7 +8242,7 @@ static void sprite_to_sbuff_xflip(const TbSpriteData sprdata, unsigned char *out
           sprd += cval;
           out++;
           // Fill area per-byte until we get 32bit-aligned position
-          while ((unsigned long)out & 3)
+          while ((uintptr_t)out & 3)
           {
               out--;
               *out = 0xFF;

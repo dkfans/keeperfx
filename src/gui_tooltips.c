@@ -262,7 +262,7 @@ short setup_land_tooltips(struct Coord3d *pos)
   struct SlabAttr* slbattr = get_slab_kind_attrs(skind);
   if (slbattr->tooltip_stridx == GUIStr_Empty)
     return false;
-  update_gui_tooltip_target((void *)skind);
+  update_gui_tooltip_target((void *)(uintptr_t)skind);
   struct PlayerInfo* player = get_my_player();
   struct Thing *handthing = thing_get(player->thing_under_hand);
   TbBool in_query_mode = (player->work_state == PSt_CreatrQuery || player->work_state == PSt_QueryAll);
