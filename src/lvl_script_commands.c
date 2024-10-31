@@ -2818,13 +2818,24 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
         }
         else if (creatvar == 34) // LAIROBJECT
         {
-            if (parameter_is_number(scline->tp[2])) //support name or number for lair object
+            if (parameter_is_number(scline->tp[2])) // Support name or number for lair object.
             {
                 value1 = atoi(scline->tp[2]);
             }
             else
             {
                 value1 = get_id(object_desc, scline->tp[2]);
+            }
+        }
+        else if (creatvar == 35) // PRISONKIND
+        {
+            if (parameter_is_number(scline->tp[2])) // Support name or number for prison kind.
+            {
+                value1 = atoi(scline->tp[2]);
+            }
+            else
+            {
+                value1 = get_id(creature_desc, scline->tp[2]);
             }
         }
         else
@@ -3106,6 +3117,9 @@ static void set_creature_configuration_process(struct ScriptContext* context)
                 }
                 crstat->lair_object = value;
             }
+            break;
+        case 35: // PRISONKIND
+            crstat->prison_kind = value;
             break;
         case ccr_comment:
             break;
