@@ -46,7 +46,7 @@ protected:
 	class InternalMsg
 	{
 	public:
-		class InternalMsg * next; //I would have preferred std::list... again, compilation error
+		struct InternalMsg * next; //I would have preferred std::list... again, compilation error
 		ulong playerId;
 		size_t len;
 		char * buffer;

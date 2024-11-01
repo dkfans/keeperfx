@@ -52,10 +52,10 @@ class TCP_NetServer : public TCP_NetBase
 
 public:
 	explicit TCP_NetServer(ushort port);
-	virtual ~TCP_NetServer() override;
+	virtual ~TCP_NetServer();
 
-	virtual void update() override;
-	virtual bool sendDKMessage(unsigned long playerId, const char buffer[], size_t bufferLen) override;
+	virtual void update();
+	virtual bool sendDKMessage(unsigned long playerId, const char buffer[], size_t bufferLen);
 };
 
 #endif //!BFLIB_SERVER_TCP_HPP

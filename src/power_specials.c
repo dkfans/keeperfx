@@ -188,7 +188,7 @@ void increase_level(struct PlayerInfo *player, int count)
         }
         level_up_familiar(famlrtng);
         i++;
-    }
+    }    
 }
 
 TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
@@ -438,7 +438,7 @@ void make_unsafe(PlayerNumber plyr_idx)
             if (slabmap_owner(slb) == plyr_idx)
             {
                 slbattr = get_slab_attrs(slb);
-                if (slbattr->category == SlbAtCtg_FortifiedWall)
+                if ((slbattr->category == SlbAtCtg_FortifiedWall))
                 {
                     SlabKind newslab = choose_rock_type(plyr_idx, slb_x, slb_y);
                     dungeon = get_dungeon(plyr_idx);

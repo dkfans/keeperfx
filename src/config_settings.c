@@ -26,6 +26,7 @@
 #include "bflib_dernc.h"
 #include "bflib_keybrd.h"
 #include "bflib_video.h"
+#include "bflib_cpu.h"
 
 #include "config.h"
 #include "engine_camera.h"
