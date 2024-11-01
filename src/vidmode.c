@@ -1054,7 +1054,6 @@ void switch_to_next_video_mode_wrapper(void)
 #if (BFDEBUG_LEVEL > 0)
 TbBool load_testfont_fonts(void)
 {
-    winfont = load_winfont();
     testfont[0] = load_font("ldata/frontft1.dat", "ldata/frontft1.tab");
     testfont[1] = load_font("ldata/frontft2.dat", "ldata/frontft2.tab");
     testfont[2] = load_font("ldata/frontft3.dat", "ldata/frontft3.tab");
@@ -1072,10 +1071,6 @@ TbBool load_testfont_fonts(void)
             return false;
         }
     }
-    if (!winfont) {
-        ERRORLOG("Unable to load win font");
-        return false;
-    }
     if (!LbDataLoadAll(testfont_load_files) )
     {
       ERRORLOG("Unable to load testfont_load_files files");
@@ -1086,7 +1081,6 @@ TbBool load_testfont_fonts(void)
 
 void free_testfont_fonts(void)
 {
-    free_font(&winfont);
     for (int i = 0; i < TESTFONTS_COUNT; ++i) {
         free_font(&testfont[i]);
     }
