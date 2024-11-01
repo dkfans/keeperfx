@@ -612,7 +612,7 @@ deps/spng/include/spng.h: deps/spng-mingw32.tar.gz | deps/spng
 	tar xzmf $< -C deps/spng
 
 deps/astronomy-mingw32.tar.gz:
-	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/astronomy-mingw32.tar.gz"
+	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/astronomy_fix/astronomy-mingw32.tar.gz"
 
 deps/astronomy/include/astronomy.h: deps/astronomy-mingw32.tar.gz | deps/astronomy
 	tar xzmf $< -C deps/astronomy
