@@ -1268,7 +1268,7 @@ TbBool fronttestfont_input(void)
         LbPaletteSet(frontend_palette);//testfont_palette[0]
       else
         LbPaletteSet(testfont_palette[1]);
-        LbTextSetFont(testfont[i]);
+      LbTextSetFont(testfont[i]);
       return true;
     }
   }
