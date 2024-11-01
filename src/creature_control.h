@@ -68,6 +68,7 @@ enum CreatureSoundTypes {
     CrSnd_Die       = 9,
     CrSnd_Foot      = 10,
     CrSnd_Fight     = 11,
+    CrSnd_Piss      = 12,
 };
 
 enum CreatureControlFlags {
@@ -558,6 +559,7 @@ struct CreatureSounds {
     struct CreatureSound torture;
     struct CreatureSound slap;
     struct CreatureSound fight;
+    struct CreatureSound piss;
 };
 
 extern int creature_swap_idx[CREATURE_TYPES_MAX];

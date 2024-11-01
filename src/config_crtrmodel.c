@@ -233,6 +233,7 @@ const struct NamedCommand creatmodel_sounds_commands[] = {
   {"DIE",                  CrSnd_Die},
   {"FOOT",                 CrSnd_Foot},
   {"FIGHT",                CrSnd_Fight},
+  {"PISS",                 CrSnd_Piss},
   {NULL,                   0},
   };
 
@@ -2471,6 +2472,25 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             {
               k = atoi(word_buf);
               game.conf.crtr_conf.creature_sounds[crtr_model].fight.count = k;
+              n++;
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case CrSnd_Piss:
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              game.conf.crtr_conf.creature_sounds[crtr_model].piss.index = k;
+              n++;
+            }
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              game.conf.crtr_conf.creature_sounds[crtr_model].piss.count = k;
               n++;
             }
             if (n < 1)
