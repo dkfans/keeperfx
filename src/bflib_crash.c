@@ -222,7 +222,7 @@ _backtrace(int depth , LPCONTEXT context)
                             }
 
                             LbJustLog(
-                                "[#%-2d]  in %14-s : %-40s [0x%llx+0x%llx] \t(map lookup for %04x:%08x, base: %08x)\n",
+                                "[#%-2d]  in %-14s : %-40s [0x%llx+0x%llx] \t(map lookup for %08lx:%08lx, base: %08lx)\n",
                                 depth, module_name, prevName, prevAddr, displacement, context->SegCs, frame.AddrPC.Offset, module_base);
 
                             addrFound = true;
@@ -258,13 +258,13 @@ _backtrace(int depth , LPCONTEXT context)
         // This works if there are any debug symbols available and also works for most OS libraries
         if (SymFromAddr(process, frame.AddrPC.Offset, &sfaDisplacement, pSymbol))
         {
-            LbJustLog("[#%-2d]  in %14-s : %-40s [%04x:%08x+0x%llx, base %08x] (symbol lookup)\n",
+            LbJustLog("[#%-2d]  in %-14s : %-40s [%08lx:%08lx+0x%llx, base %08lx] (symbol lookup)\n",
                       depth, module_name, pSymbol->Name, context->SegCs, frame.AddrPC.Offset, sfaDisplacement, module_base);
-        } 
+        }
         else
         {
             // Fallback
-            LbJustLog("[#%-2d]  in %13-s at %04x:%08x, base %08x\n", depth, module_name, context->SegCs, frame.AddrPC.Offset, module_base);
+            LbJustLog("[#%-2d]  in %-13s at %08lx:%08lx, base %08lx\n", depth, module_name, context->SegCs, frame.AddrPC.Offset, module_base);
         }
     }
 
@@ -297,7 +297,7 @@ static LONG CALLBACK ctrl_handler_w32(LPEXCEPTION_POINTERS info)
         LbErrorLog("Attempt of integer division by zero.\n");
         break;
     default:
-        LbErrorLog("Failure code %x received.\n",info->ExceptionRecord->ExceptionCode);
+        LbErrorLog("Failure code %lx received.\n",info->ExceptionRecord->ExceptionCode);
         break;
     }
     if (!SymInitialize(GetCurrentProcess(), 0, TRUE)) {

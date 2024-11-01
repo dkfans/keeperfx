@@ -1235,7 +1235,7 @@ TbBool fronttestfont_draw(void)
   for (i=31; i < num_chars_in_font+31; i++)
   {
     k = (i-31);
-    SYNCDBG(9,"Drawing char %d",i);
+    SYNCDBG(9,"Drawing char %lu",i);
     x = (k%32)*w + 2;
     y = (k/32)*h + 2;
     if (lbFontPtr != NULL)
@@ -1263,7 +1263,7 @@ TbBool fronttestfont_input(void)
     {
       lbKeyOn[keys[i]] = 0;
       num_chars_in_font = num_sprites(testfont[i]);
-      SYNCDBG(9,"Characters in font %d: %d",i,num_chars_in_font);
+      SYNCDBG(9,"Characters in font %d: %ld",i,num_chars_in_font);
       if (i < 4)
         LbPaletteSet(frontend_palette);//testfont_palette[0]
       else
@@ -1587,7 +1587,7 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
       SYNCDBG(18,"Computed message height %ld for \"%s\"",text_height,text);
       scrollwnd->text_height = text_height;
   }
-  SYNCDBG(18,"Message h=%ld Area h=%d",text_height,area_height);
+  SYNCDBG(18,"Message h=%ld Area h=%ld",text_height,area_height);
   // If the text is smaller that the area we have for it - just place it at center
   if (text_height <= area_height)
   {

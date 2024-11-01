@@ -423,7 +423,7 @@ static inline TbResult LbSpriteDrawPrepare(struct TbSpriteDrawData *spd, long x,
     spd->Ht = btm - top;
     spd->Wd = right - left;
     spd->sp = (char *)spr->Data;
-    SYNCDBG(19,"Sprite coords X=%d...%d Y=%d...%d data=%08x",left,right,top,btm,spd->sp);
+    SYNCDBG(19,"Sprite coords X=%d...%d Y=%d...%d data=%p",left,right,top,btm,spd->sp);
     long htIndex;
     if ( top )
     {

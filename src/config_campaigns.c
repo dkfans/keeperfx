@@ -700,7 +700,7 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
 #undef COMMAND_TEXT
   if (campgn->single_levels_count != campgn->bonus_levels_index)
   {
-    WARNMSG("Amount of SP levels (%d) and bonuses (%d) do not match in [%s] block of %s %s file.",
+    WARNMSG("Amount of SP levels (%lu) and bonuses (%lu) do not match in [%s] block of %s %s file.",
       campgn->single_levels_count, campgn->bonus_levels_count, block_buf, campgn->name, config_textname);
   }
   return 1;
@@ -774,7 +774,7 @@ short parse_campaign_speech_blocks(struct GameCampaign *campgn,char *buf,long le
       {
         if ((cmd_num != 0) && (cmd_num != -1))
         {
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file, starting on byte %d.",
+            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file, starting on byte %ld.",
               cmd_num,block_buf,config_textname,pos);
         }
       } else
@@ -1349,8 +1349,7 @@ TbBool load_campaigns_list(void)
       rc = LbFileFindNext(&fileinfo);
       cnum_all++;
     }
-    LbFileFindEnd(&fileinfo);
-    SYNCDBG(0,"Found %d campaign files, properly loaded %d.",cnum_all,cnum_ok);
+    SYNCDBG(0,"Found %ld campaign files, properly loaded %ld.",cnum_all,cnum_ok);
     const char* ordfname = prepare_file_path(FGrp_Campgn, "campgn_order.txt");
     sort_campaigns(&campaigns_list,ordfname);
     return (campaigns_list.items_num > 0);
@@ -1381,7 +1380,7 @@ TbBool load_mappacks_list(void)
       cnum_all++;
     }
     LbFileFindEnd(&fileinfo);
-    SYNCDBG(0,"Found %d map pack files, properly loaded %d.",cnum_all,cnum_ok);
+    SYNCDBG(0,"Found %ld map pack files, properly loaded %ld.",cnum_all,cnum_ok);
     const char* ordfname = prepare_file_path(FGrp_VarLevels, "mappck_order.txt");
     sort_campaigns(&mappacks_list,ordfname);
     return (mappacks_list.items_num > 0);

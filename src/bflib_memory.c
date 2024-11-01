@@ -109,12 +109,12 @@ short update_memory_constraits(void)
   if (lbMemoryAvailable <= (8 * 1024 * 1024))
   {
       mem_size = 8;
-      WARNLOG("Very limited memory available: %d, PhysicalMemory %d\n", lbMemoryAvailable, mem_size);
+      WARNLOG("Very limited memory available: %lu, PhysicalMemory %lu\n", lbMemoryAvailable, mem_size);
   }
   else
   {
       mem_size = 64;
-      LbSyncLog("PhysicalMemory %d\n", mem_size);
+      LbSyncLog("PhysicalMemory %lu\n", mem_size);
   }
   return true;
 }

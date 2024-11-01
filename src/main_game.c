@@ -190,15 +190,15 @@ static void init_level(void)
     if (!load_map_file(get_selected_level_number()))
     {
         // TODO: whine about missing file to screen
-        JUSTMSG("Unable to load level %d from %s", get_selected_level_number(), campaign.name);
+        JUSTMSG("Unable to load level %lu from %s", get_selected_level_number(), campaign.name);
         return;
     }
     else
     {
         if (script_preloaded == false)
         {
-            show_onscreen_msg(200,"%s: No Script %d", get_string(GUIStr_Error), get_selected_level_number());
-            JUSTMSG("Unable to load script level %d from %s", get_selected_level_number(), campaign.name);
+            show_onscreen_msg(200,"%s: No Script %lu", get_string(GUIStr_Error), get_selected_level_number());
+            JUSTMSG("Unable to load script level %lu from %s", get_selected_level_number(), campaign.name);
         }
     }
 
@@ -236,7 +236,7 @@ static void init_level(void)
     game.manufactr_element = 0;
     game.manufactr_spridx = 0;
     game.manufactr_tooltip = 0;
-    JUSTMSG("Started level %d from %s", get_selected_level_number(), campaign.name);
+    JUSTMSG("Started level %lu from %s", get_selected_level_number(), campaign.name);
 
     api_event("GAME_STARTED");
 }
@@ -282,15 +282,15 @@ void startup_saved_packet_game(void)
     game.pckt_gameturn = 0;
 #if (BFDEBUG_LEVEL > 0)
     SYNCDBG(0,"Initialising level %d", (int)get_selected_level_number());
-    SYNCMSG("Packet Loading Active (File contains %d turns)", game.turns_stored);
+    SYNCMSG("Packet Loading Active (File contains %lu turns)", game.turns_stored);
     SYNCMSG("Packet Checksum Verification %s",game.packet_checksum_verify ? "Enabled" : "Disabled");
-    SYNCMSG("Fast Forward through %d game turns", game.turns_fastforward);
+    SYNCMSG("Fast Forward through %lu game turns", game.turns_fastforward);
     if (game.turns_packetoff != -1)
-        SYNCMSG("Packet Quit at %d", game.turns_packetoff);
+        SYNCMSG("Packet Quit at %lu", game.turns_packetoff);
     if (game.packet_load_enable)
     {
       if (game.log_things_end_turn != game.log_things_start_turn)
-        SYNCMSG("Logging things, game turns %d -> %d", game.log_things_start_turn, game.log_things_end_turn);
+        SYNCMSG("Logging things, game turns %lu -> %lu", game.log_things_start_turn, game.log_things_end_turn);
     }
     SYNCMSG("Packet file prepared on KeeperFX %d.%d.%d.%d",(int)game.packet_save_head.game_ver_major,(int)game.packet_save_head.game_ver_minor,
         (int)game.packet_save_head.game_ver_release,(int)game.packet_save_head.game_ver_build);

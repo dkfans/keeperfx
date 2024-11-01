@@ -3956,7 +3956,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object_excluding_ro
     {
         if (n < room->slabs_count)
         {
-            WARNLOG("Number of slabs in %s (%d) is smaller than count (%d)",room_code_name(room->kind), n, room->slabs_count);
+            WARNLOG("Number of slabs in %s (%lu) is smaller than count (%u)",room_code_name(room->kind), n, room->slabs_count);
         }
         n = 0;
         i = room->slabs_list;

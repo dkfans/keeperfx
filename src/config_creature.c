@@ -1812,7 +1812,7 @@ TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, long
         return false;
     }
     if ((crtr_model < 1) || (crtr_model >= game.conf.crtr_conf.model_count)) {
-        ERRORDBG(4,"Cannot set creature availability; invalid model %d.",(int)plyr_idx,(int)crtr_model);
+        ERRORDBG(4,"Cannot set creature availability; player %d, invalid model %d.",(int)plyr_idx,(int)crtr_model);
         return false;
     }
     if (force_avail < 0)

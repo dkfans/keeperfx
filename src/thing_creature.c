@@ -1575,7 +1575,7 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
         return;
     }
 
-    SYNCDBG(12,"The %s(%d) fire shot(%s) at %s(%d) with shot level %d, hit type: 0x%X", thing_model_name(castng), castng->index,
+    SYNCDBG(12,"The %s(%u) fire shot(%s) at %s(%u) with shot level %ld, hit type: 0x%02X", thing_model_name(castng), castng->index,
         shot_code_name(spconf->shot_model), thing_model_name(targetng), targetng->index, shot_lvl, hit_type);
     thing_fire_shot(castng, targetng, spconf->shot_model, shot_lvl, hit_type);
 }

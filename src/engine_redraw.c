@@ -129,7 +129,7 @@ static void draw_creature_view_icons(struct Thing* creatng)
                 lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
                 lbDisplay.DrawColour = LbTextGetFontFaceColor();
                 lbDisplayEx.ShadowColour = LbTextGetFontBackColor();
-                char* text = buf_sprintf("%d", (cctrl->timebomb_countdown / game_num_fps));
+                char* text = buf_sprintf("%lu", (cctrl->timebomb_countdown / game_num_fps));
                 LbTextDrawResized(0, 0, tx_units_per_px, text);
             }
             draw_gui_panel_sprite_left(x, y, ps_units_per_px, spridx);
@@ -459,7 +459,7 @@ void set_sprite_view_3d(void)
                     long nframes = keepersprite_frames(thing->anim_sprite);
                     if (nframes != thing->max_frames)
                     {
-                        ERRORLOG("No frames different between views C%d, M%d, A%d, B%d",thing->class_id,thing->model,thing->max_frames,nframes);
+                        ERRORLOG("No frames different between views C%u, M%d, A%u, B%ld",thing->class_id,thing->model,thing->max_frames,nframes);
                         thing->max_frames = nframes;
                         n = thing->max_frames - 1;
                         if (n > thing->current_frame) {
@@ -490,7 +490,7 @@ void set_sprite_view_isometric(void)
                     long nframes = keepersprite_frames(thing->anim_sprite);
                     if (nframes != thing->max_frames)
                     {
-                        ERRORLOG("No frames different between views C%d, M%d, A%d, B%d",thing->class_id,thing->model,thing->max_frames,nframes);
+                        ERRORLOG("No frames different between views C%u, M%d, A%u, B%ld",thing->class_id,thing->model,thing->max_frames,nframes);
                         thing->max_frames = nframes;
                         n = thing->max_frames - 1;
                         if (n > thing->current_frame) {
@@ -1113,7 +1113,7 @@ void redraw_display(void)
         LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
         lbDisplay.DrawFlags = 0;
         LbTextSetFont(winfont);
-        text = buf_sprintf("%d", draw_spell_cost);
+        text = buf_sprintf("%ld", draw_spell_cost);
         long pos_y = GetMouseY() - (LbTextStringHeight(text) * units_per_pixel / 16) / 2 - 2 * units_per_pixel / 16;
         long pos_x = GetMouseX() - (LbTextStringWidth(text) * units_per_pixel / 16) / 2;
         LbTextDrawResized(pos_x, pos_y, tx_units_per_px, text);

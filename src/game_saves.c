@@ -401,7 +401,7 @@ TbBool load_game(long slot_num)
       dungeon->lvstats.allow_save_score = 1;
     }
     game.loaded_swipe_idx = -1;
-    JUSTMSG("Loaded level %d from %s", game.continue_level_number, campaign.name);
+    JUSTMSG("Loaded level %ld from %s", game.continue_level_number, campaign.name);
 
     api_event("GAME_LOADED");
 
@@ -611,7 +611,7 @@ short load_continue_game(void)
         sizeof(struct IntralevelData));
     LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
     update_extra_levels_visibility();
-    JUSTMSG("Continued level %d from %s", lvnum, campaign.name);
+    JUSTMSG("Continued level %ld from %s", lvnum, campaign.name);
     return true;
 }
 

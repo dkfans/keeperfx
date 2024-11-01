@@ -241,7 +241,7 @@ void frontnet_session_create(struct GuiButton *gbtn)
         idx++;
   }
   if (idx > 0)
-    text = buf_sprintf("%s (%d)", net_player_name, idx+1);
+    text = buf_sprintf("%s (%ld)", net_player_name, idx+1);
   else
     text = buf_sprintf("%s", net_player_name);
   conn_options = NULL;

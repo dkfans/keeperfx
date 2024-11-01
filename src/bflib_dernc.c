@@ -23,7 +23,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <io.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -471,7 +470,7 @@ long LbFileLengthRnc(const char *fname)
     if (header.signature == RNC_SIGNATURE)
     {
 #if (BFDEBUG_LEVEL > 19)
-        LbSyncLog("%s: file size from RNC header: %ld bytes\n", fname, header.packed_size);
+        LbSyncLog("%s: file size from RNC header: %u bytes\n", fname, header.packed_size);
 #endif
         flength = ntohl(header.unpacked_size);
     } else {

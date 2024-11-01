@@ -643,12 +643,12 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
 
                 if( k < commands[i].min)
                 {
-                    CONFWRNLOG("field '%s' smaller then min value '%d', was '%d'",commands[i].name,commands[i].min,k);
+                    CONFWRNLOG("field '%s' smaller then min value '%lld', was '%lld'",commands[i].name,commands[i].min,k);
                     k = commands[i].min;
                 }
                 else if( k > commands[i].max)
                 {
-                    CONFWRNLOG("field '%s' bigger then max value '%d', was '%d'",commands[i].name,commands[i].max,k);
+                    CONFWRNLOG("field '%s' bigger then max value '%lld', was '%lld'",commands[i].name,commands[i].max,k);
                     k = commands[i].max;
                 }
                 
@@ -985,7 +985,7 @@ short load_configuration(void)
   len = LbFileLoadAt(fname, buf);
   if (len>0)
   {
-    SYNCDBG(7,"Processing %s file, %d bytes",config_textname,len);
+    SYNCDBG(7,"Processing %s file, %ld bytes",config_textname,len);
     buf[len] = '\0';
     // Set text line number - we don't have blocks so we need to initialize it manually
     text_line_number = 1;
@@ -2680,11 +2680,11 @@ short is_freeplay_level(LevelNumber lvnum)
   {
     if (campaign.freeplay_levels[i] == lvnum)
     {
-        SYNCDBG(18,"%d is freeplay",lvnum);
+        SYNCDBG(18,"%ld is freeplay",lvnum);
         return true;
     }
   }
-  SYNCDBG(18,"%d is NOT freeplay",lvnum);
+  SYNCDBG(18,"%ld is NOT freeplay",lvnum);
   return false;
 }
 /******************************************************************************/

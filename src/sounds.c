@@ -411,7 +411,7 @@ void process_sound_heap(void)
           }
       }
     }
-    SYNCDBG(9,"Done (%l playing yet)", i);
+    SYNCDBG(9,"Done (%ld playing yet)", i);
 }
 
 long parse_sound_file(TbFileHandle fileh, unsigned char *buf, long *nsamples, long buf_len, long a5)

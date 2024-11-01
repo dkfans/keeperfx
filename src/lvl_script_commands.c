@@ -889,7 +889,8 @@ static void conceal_map_rect_check(const struct ScriptLine *scline)
 
     if ((start_x < 0) || (end_x > gameadd.map_subtiles_x) || (start_y < 0) || (end_y > gameadd.map_subtiles_y))
     {
-        SCRPTERRLOG("Conceal coordinates out of range, trying to conceal from (%d,%d) to (%d,%d) on map that's %dx%d subtiles", start_x, start_y, end_x, end_y, gameadd.map_subtiles_x, gameadd.map_subtiles_y);
+        SCRPTERRLOG("Conceal coordinates out of range, trying to conceal from (%ld,%ld) to (%ld,%ld) on map that's %ldx%ld subtiles",
+            start_x, start_y, end_x, end_y, gameadd.map_subtiles_x, gameadd.map_subtiles_y);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -991,7 +992,7 @@ static void script_transfer_creature_check(const struct ScriptLine* scline)
     }
     if (count > 255)
     {
-        SCRPTWRNLOG("Trying to transfer %d creatures out of a possible 255",count);
+        SCRPTWRNLOG("Trying to transfer %ld creatures out of a possible 255",count);
         count = 255;
     }
     command_add_value(Cmd_TRANSFER_CREATURE, scline->np[0], crtr_id, select_id, count);
@@ -1100,7 +1101,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
             newvalue = atoi(valuestring);
             if ((newvalue > LONG_MAX) || (newvalue < 0))
             {
-                SCRPTERRLOG("Value out of range: %d", newvalue);
+                SCRPTERRLOG("Value out of range: %ld", newvalue);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
@@ -1192,7 +1193,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             newvalue = atoi(valuestring);
             if ((newvalue > 32) || (newvalue < 0))
             {
-                SCRPTERRLOG("Value out of range: %d", newvalue);
+                SCRPTERRLOG("Value out of range: %ld", newvalue);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
@@ -1234,7 +1235,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             newvalue = atoi(valuestring);
             if ((newvalue >= RoCFlg_ListEnd) || (newvalue < 0))
             {
-                SCRPTERRLOG("Value out of range: %d", newvalue);
+                SCRPTERRLOG("Value out of range: %ld", newvalue);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
@@ -1259,7 +1260,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             newvalue = atoi(valuestring);
             if ((newvalue > 33554431) || (newvalue < 0))
             {
-                SCRPTERRLOG("Value out of range: %d", newvalue);
+                SCRPTERRLOG("Value out of range: %ld", newvalue);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
@@ -1281,7 +1282,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             newvalue2 = atoi(valuestring2);
             if ((newvalue2 > 33554431) || (newvalue2 < 0))
             {
-                SCRPTERRLOG("Value out of range: %d", newvalue2);
+                SCRPTERRLOG("Value out of range: %ld", newvalue2);
                 DEALLOCATE_SCRIPT_VALUE
                     return;
             }
@@ -1337,7 +1338,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             newvalue = atoi(valuestring);
             if ((newvalue > SHRT_MAX) || (newvalue < 0))
             {
-                SCRPTERRLOG("Value out of range: %d", newvalue);
+                SCRPTERRLOG("Value out of range: %ld", newvalue);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
@@ -1443,7 +1444,7 @@ static void move_creature_check(const struct ScriptLine* scline)
     long count = scline->np[3];
     if (count <= 0)
     {
-        SCRPTERRLOG("Bad creatures count, %d", count);
+        SCRPTERRLOG("Bad creatures count, %ld", count);
         return;
     }
 
@@ -1531,7 +1532,7 @@ static void new_creature_type_check(const struct ScriptLine* scline)
 
     if (load_creaturemodel_config(i, 0))
     {
-        SCRPTLOG("Adding creature type %s and increasing creature types to %d", creature_code_name(i), game.conf.crtr_conf.model_count - 1);
+        SCRPTLOG("Adding creature type %s and increasing creature types to %ld", creature_code_name(i), game.conf.crtr_conf.model_count - 1);
     }
     else
     {
@@ -1547,7 +1548,7 @@ static void new_room_type_check(const struct ScriptLine* scline)
         return;
     }
 
-    SCRPTLOG("Adding room type %s and increasing 'RoomsCount to %d", scline->tp[0], game.conf.slab_conf.room_types_count + 1);
+    SCRPTLOG("Adding room type %s and increasing 'RoomsCount to %ld", scline->tp[0], game.conf.slab_conf.room_types_count + 1);
     game.conf.slab_conf.room_types_count++;
 
     struct RoomConfigStats* roomst;
@@ -1582,7 +1583,7 @@ static void new_object_type_check(const struct ScriptLine* scline)
         return;
     }
 
-    SCRPTLOG("Adding object type %s and increasing 'ObjectsCount to %d", scline->tp[0], game.conf.object_conf.object_types_count + 1);
+    SCRPTLOG("Adding object type %s and increasing 'ObjectsCount to %ld", scline->tp[0], game.conf.object_conf.object_types_count + 1);
     game.conf.object_conf.object_types_count++;
 
     int tmodel = game.conf.object_conf.object_types_count -1;
@@ -1605,7 +1606,7 @@ static void new_trap_type_check(const struct ScriptLine* scline)
         return;
     }
 
-    SCRPTLOG("Adding trap type %s and increasing 'TrapsCount to %d", scline->tp[0], game.conf.trapdoor_conf.trap_types_count + 1);
+    SCRPTLOG("Adding trap type %s and increasing 'TrapsCount to %ld", scline->tp[0], game.conf.trapdoor_conf.trap_types_count + 1);
     game.conf.trapdoor_conf.trap_types_count++;
 
     short i = game.conf.trapdoor_conf.trap_types_count-1;
@@ -2100,7 +2101,7 @@ static void move_creature_process(struct ScriptContext* context)
 
             struct Coord3d pos;
             if(!get_coords_at_location(&pos,location,false)) {
-                SYNCDBG(5,"No valid coords for location",(int)location);
+                SYNCDBG(5,"No valid coords for location %d",(int)location);
                 return;
             }
             struct CreatureControl *cctrl;
@@ -2224,7 +2225,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
             newvalue = atoi(valuestring);
             if ((newvalue > LONG_MAX) || (newvalue < 0))
             {
-                SCRPTERRLOG("Value out of range: %d", newvalue);
+                SCRPTERRLOG("Value out of range: %ld", newvalue);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
@@ -2390,7 +2391,7 @@ static void create_effect_process(struct ScriptContext *context)
     struct Coord3d pos;
     if (!get_coords_at_location(&pos, context->value->ulongs[1],true))
     {
-        SCRPTWRNLOG("Could not find location %d to create effect", context->value->ulongs[1]);
+        SCRPTWRNLOG("Could not find location %lu to create effect", context->value->ulongs[1]);
     }
     TbBool Price = (context->value->shorts[0] == -(TngEffElm_Price));
     if (Price)
@@ -2461,7 +2462,7 @@ static void add_heart_health_process(struct ScriptContext *context)
         long long new_health = heartng->health + context->value->longs[1];
         if (new_health > objst->health)
         {
-            SCRIPTDBG(7,"Player %d's calculated heart health (%ld) is greater than maximum: %ld", heartng->owner, new_health, objst->health);
+            SCRIPTDBG(7,"Player %u's calculated heart health (%lld) is greater than maximum: %ld", heartng->owner, new_health, objst->health);
             new_health = objst->health;
         }
         heartng->health = new_health;
@@ -2485,7 +2486,7 @@ static void heart_lost_quick_objective_check(const struct ScriptLine *scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     if ((scline->np[0] < 0) || (scline->np[0] >= QUICK_MESSAGES_COUNT))
     {
-        SCRPTERRLOG("Invalid QUICK OBJECTIVE number (%d)", scline->np[0]);
+        SCRPTERRLOG("Invalid QUICK OBJECTIVE number (%ld)", scline->np[0]);
         return;
     }
     if (strlen(scline->tp[1]) >= MESSAGE_TEXT_LEN)
@@ -2494,7 +2495,7 @@ static void heart_lost_quick_objective_check(const struct ScriptLine *scline)
     }
     if ((gameadd.quick_messages[scline->np[0]][0] != '\0') && (strcmp(gameadd.quick_messages[scline->np[0]],scline->tp[1]) != 0))
     {
-        SCRPTWRNLOG("Quick Objective no %d overwritten by different text", scline->np[0]);
+        SCRPTWRNLOG("Quick Objective no %ld overwritten by different text", scline->np[0]);
     }
     snprintf(gameadd.quick_messages[scline->np[0]], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
     
@@ -2754,7 +2755,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
             value->shorts[5] = second_value;
     }
     
-    SCRIPTDBG(7, "Setting object %s property %s to %d", objectname, property, number_value);
+    SCRIPTDBG(7, "Setting object %s property %s to %ld", objectname, property, number_value);
     value->longs[0] = objct_id;
     value->shorts[4] = objectvar;
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -3716,12 +3717,12 @@ static void change_slab_owner_check(const struct ScriptLine *scline)
 
     if (scline->np[0] < 0 || scline->np[0] > gameadd.map_tiles_x) //x coord
     {
-        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[0],gameadd.map_tiles_x);
+        SCRPTERRLOG("Value '%ld' out of range. Range 0-%d allowed.", scline->np[0],gameadd.map_tiles_x);
         return;
     }
     if (scline->np[1] < 0 || scline->np[1] > gameadd.map_tiles_y) //y coord
     {
-        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[1],gameadd.map_tiles_y);
+        SCRPTERRLOG("Value '%ld' out of range. Range 0-%d allowed.", scline->np[1],gameadd.map_tiles_y);
         return;
     }
     long filltype = get_id(fill_desc, scline->tp[3]);
@@ -3756,7 +3757,7 @@ static void change_slab_type_check(const struct ScriptLine *scline)
 
     if (scline->np[0] < 0 || scline->np[0] > gameadd.map_tiles_x) //x coord
     {
-        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[0],gameadd.map_tiles_x);
+        SCRPTERRLOG("Value '%ld' out of range. Range 0-%d allowed.", scline->np[0],gameadd.map_tiles_x);
         return;
     }
     else
@@ -3766,7 +3767,7 @@ static void change_slab_type_check(const struct ScriptLine *scline)
 
     if (scline->np[1] < 0 || scline->np[1] > gameadd.map_tiles_y) //y coord
     {
-        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[0],gameadd.map_tiles_y);
+        SCRPTERRLOG("Value '%ld' out of range. Range 0-%d allowed.", scline->np[0],gameadd.map_tiles_y);
         return;
     }
     else
@@ -3776,7 +3777,7 @@ static void change_slab_type_check(const struct ScriptLine *scline)
 
     if (scline->np[2] < 0 || scline->np[2] >= game.conf.slab_conf.slab_types_count) //slab kind
     {
-        SCRPTERRLOG("Unsupported slab '%d'. Slabs range 0-%d allowed.", scline->np[2],game.conf.slab_conf.slab_types_count-1);
+        SCRPTERRLOG("Unsupported slab '%ld'. Slabs range 0-%ld allowed.", scline->np[2],game.conf.slab_conf.slab_types_count-1);
         return;
     }
     else
@@ -3825,14 +3826,14 @@ static void reveal_map_location_check(const struct ScriptLine *scline)
 static void reveal_map_location_process(struct ScriptContext *context)
 {
     TbMapLocation target = context->value->longs[0];
-    SYNCDBG(0, "Revealing location type %d", target);
+    SYNCDBG(0, "Revealing location type %lu", target);
     long x = 0;
     long y = 0;
     long r = context->value->longs[1];
     find_map_location_coords(target, &x, &y, context->player_idx, __func__);
     if ((x == 0) && (y == 0))
     {
-        WARNLOG("Can't decode location %d", target);
+        WARNLOG("Can't decode location %lu", target);
         return;
     }
     if (r == -1)
@@ -3885,7 +3886,7 @@ static void level_up_players_creatures_check(const struct ScriptLine* scline)
     }
     if (count == 0)
     {
-        SCRPTERRLOG("Trying to level up %d times '%s'", scline->np[2]);
+        SCRPTERRLOG("Trying to level up %ld times", scline->np[2]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -4189,7 +4190,7 @@ static void hide_hero_gate_check(const struct ScriptLine* scline)
     struct Thing* thing = find_hero_gate_of_number(n);
     if (thing_is_invalid(thing))
     {
-        SCRPTERRLOG("Invalid hero gate: %d", scline->np[0]);
+        SCRPTERRLOG("Invalid hero gate: %ld", scline->np[0]);
         return;
     }
     value->bytes[0] = n;
@@ -4639,13 +4640,13 @@ static void set_music_check(const struct ScriptLine *scline)
         tracks[tracknumber] = Mix_LoadMUS(game.loaded_track[tracknumber]);
         if (tracks[tracknumber] == NULL)
         {
-            SCRPTERRLOG("Can't load track %ld (%s): %s", tracknumber, game.loaded_track[tracknumber], Mix_GetError());
+            SCRPTERRLOG("Can't load track %d (%s): %s", tracknumber, game.loaded_track[tracknumber], Mix_GetError());
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
         else
         {
-            SCRPTLOG("Loaded file %s into music track %ld.", game.loaded_track[tracknumber], tracknumber);
+            SCRPTLOG("Loaded file %s into music track %d.", game.loaded_track[tracknumber], tracknumber);
         }
         value->chars[0] = tracknumber;
     }
@@ -5417,7 +5418,7 @@ static void set_game_rule_check(const struct ScriptLine* scline)
                 //this one is a special case because in the cfg it's not done trough number
                 if ((ruleval < 0) || (ruleval >= ClscBug_ListEnd))
                 {
-                    SCRPTERRLOG("Game Rule '%s' value %d out of range", scline->tp[0], ruleval);
+                    SCRPTERRLOG("Game Rule '%s' value %ld out of range", scline->tp[0], ruleval);
                     DEALLOCATE_SCRIPT_VALUE
                     return;
                 }
@@ -5435,12 +5436,12 @@ static void set_game_rule_check(const struct ScriptLine* scline)
                 if (ruleval < (ruleblocks[i]+ruledesc)->min)
                 {
                     ruleval = (ruleblocks[i]+ruledesc)->min;
-                    SCRPTERRLOG("Game Rule '%s' value %d is smaller then minimum of %d", scline->tp[0], ruleval,(ruleblocks[i]+ruledesc)->min);
+                    SCRPTERRLOG("Game Rule '%s' value %ld is smaller then minimum of %lld", scline->tp[0], ruleval,(ruleblocks[i]+ruledesc)->min);
                 }
                 else if(ruleval > (ruleblocks[i]+ruledesc)->max)
                 {
                     ruleval = (ruleblocks[i]+ruledesc)->max;
-                    SCRPTERRLOG("Game Rule '%s' value %d is bigger then maximum of %d", scline->tp[0], ruleval,(ruleblocks[i]+ruledesc)->max);
+                    SCRPTERRLOG("Game Rule '%s' value %ld is bigger then maximum of %lld", scline->tp[0], ruleval,(ruleblocks[i]+ruledesc)->max);
                 }
                 break;
             }
@@ -5469,7 +5470,7 @@ static void set_game_rule_process(struct ScriptContext* context)
 
     if(rulegroup != -1)
     {
-        SCRIPTDBG(7,"Changing Game Rule '%s' to %d", (ruleblocks[rulegroup]+ruledesc)->name, rulevalue);
+        SCRIPTDBG(7,"Changing Game Rule '%s' to %ld", (ruleblocks[rulegroup]+ruledesc)->name, rulevalue);
         assign_named_field_value((ruleblocks[rulegroup]+ruledesc),rulevalue);
         return;
     }
@@ -5482,18 +5483,18 @@ static void set_game_rule_process(struct ScriptContext* context)
     {
     case 1: //PreserveClassicBugs
         //this one is a special case because in the cfg it's not done trough number
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.classic_bugs_flags, rulevalue);
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %lu to %ld", rulename, game.conf.rules.game.classic_bugs_flags, rulevalue);
         game.conf.rules.game.classic_bugs_flags = rulevalue;
         break;
     case 2: //AlliesShareVision
         //this one is a special case because it updates minimap
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.allies_share_vision, rulevalue);
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %ld", rulename, game.conf.rules.game.allies_share_vision, rulevalue);
         game.conf.rules.game.allies_share_vision = (TbBool)rulevalue;
         panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
         break;
     case 3: //MapCreatureLimit
         //this one is a special case because it needs to kill of additional creatures
-        SCRIPTDBG(7, "Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.creatures_count, rulevalue);
+        SCRIPTDBG(7, "Changing Game Rule '%s' from %u to %ld", rulename, game.conf.rules.game.creatures_count, rulevalue);
         game.conf.rules.game.creatures_count = rulevalue;
         short count = setup_excess_creatures_to_leave_or_die(game.conf.rules.game.creatures_count);
         if (count > 0)
@@ -5519,7 +5520,7 @@ static void set_increase_on_experience_check(const struct ScriptLine* scline)
     }
     if (scline->np[1] < 0)
     {
-        SCRPTERRLOG("Value %d out of range for variable '%s'.", scline->np[1], scline->tp[0]);
+        SCRPTERRLOG("Value %ld out of range for variable '%s'.", scline->np[1], scline->tp[0]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -5537,55 +5538,55 @@ static void set_increase_on_experience_process(struct ScriptContext* context)
     switch (variable)
     {
     case 1: //SizeIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.size_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %ld to %d.", varname, game.conf.crtr_conf.exp.size_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.size_increase_on_exp = context->value->shorts[1];
         break;
     case 2: //PayIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.pay_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %ld to %d.", varname, game.conf.crtr_conf.exp.pay_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.pay_increase_on_exp = context->value->shorts[1];
         break;
     case 3: //SpellDamageIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.spell_damage_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %ld to %d.", varname, game.conf.crtr_conf.exp.spell_damage_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.spell_damage_increase_on_exp = context->value->shorts[1];
         break;
     case 4: //RangeIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.range_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %ld to %d.", varname, game.conf.crtr_conf.exp.range_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.range_increase_on_exp = context->value->shorts[1];
         break;
     case 5: //JobValueIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.job_value_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %ld to %d.", varname, game.conf.crtr_conf.exp.job_value_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.job_value_increase_on_exp = context->value->shorts[1];
         break;
     case 6: //HealthIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.health_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %ld to %d.", varname, game.conf.crtr_conf.exp.health_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.health_increase_on_exp = context->value->shorts[1];
         break;
     case 7: //StrengthIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.strength_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %ld to %d.", varname, game.conf.crtr_conf.exp.strength_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.strength_increase_on_exp = context->value->shorts[1];
         break;
     case 8: //DexterityIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.dexterity_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %ld to %d.", varname, game.conf.crtr_conf.exp.dexterity_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.dexterity_increase_on_exp = context->value->shorts[1];
         break;
     case 9: //DefenseIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.defense_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %ld to %d.", varname, game.conf.crtr_conf.exp.defense_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.defense_increase_on_exp = context->value->shorts[1];
         break;
     case 10: //LoyaltyIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.loyalty_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %ld to %d.", varname, game.conf.crtr_conf.exp.loyalty_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.loyalty_increase_on_exp = context->value->shorts[1];
         break;
     case 11: //ExpForHittingIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.exp_on_hitting_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %ld to %d.", varname, game.conf.crtr_conf.exp.exp_on_hitting_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.exp_on_hitting_increase_on_exp = context->value->shorts[1];
         break;
     case 12: //TrainingCostIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.training_cost_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %ld to %d.", varname, game.conf.crtr_conf.exp.training_cost_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.training_cost_increase_on_exp = context->value->shorts[1];
         break;
     case 13: //ScavengingCostIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %ld to %d.", varname, game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp = context->value->shorts[1];
         break;
     default:
@@ -5614,7 +5615,7 @@ static void set_player_modifier_check(const struct ScriptLine* scline)
     }
     if (scline->np[0] == game.neutral_player_num)
     {
-        SCRPTERRLOG("Can't manipulate Player Modifier '%s', player %d has no dungeon.", mdfrname, scline->np[0]);
+        SCRPTERRLOG("Can't manipulate Player Modifier '%s', player %ld has no dungeon.", mdfrname, scline->np[0]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -5695,7 +5696,7 @@ static void add_to_player_modifier_check(const struct ScriptLine* scline)
     }
     if (scline->np[0] == game.neutral_player_num)
     {
-        SCRPTERRLOG("Can't manipulate Player Modifier '%s', player %d has no dungeon.", mdfrname, scline->np[0]);
+        SCRPTERRLOG("Can't manipulate Player Modifier '%s', player %ld has no dungeon.", mdfrname, scline->np[0]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -5881,7 +5882,7 @@ static void reset_action_point_check(const struct ScriptLine* scline)
     long apt_idx = action_point_number_to_index(scline->np[0]);
     if (!action_point_exists_idx(apt_idx))
     {
-        SCRPTERRLOG("Non-existing Action Point, no %d", scline->np[0]);
+        SCRPTERRLOG("Non-existing Action Point, no %ld", scline->np[0]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -5907,7 +5908,7 @@ static void quick_message_check(const struct ScriptLine* scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     if ((scline->np[0] < 0) || (scline->np[0] >= QUICK_MESSAGES_COUNT))
     {
-        SCRPTERRLOG("Invalid information ID number (%d)", scline->np[0]);
+        SCRPTERRLOG("Invalid information ID number (%ld)", scline->np[0]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -5917,7 +5918,7 @@ static void quick_message_check(const struct ScriptLine* scline)
     }
     if ((gameadd.quick_messages[scline->np[0]][0] != '\0') && (strcmp(gameadd.quick_messages[scline->np[0]],scline->tp[1]) != 0))
     {
-        SCRPTWRNLOG("Quick Message no %d overwritten by different text", scline->np[0]);
+        SCRPTWRNLOG("Quick Message no %ld overwritten by different text", scline->np[0]);
     }
     snprintf(gameadd.quick_messages[scline->np[0]], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
     value->longs[0]= scline->np[0];
@@ -5948,7 +5949,7 @@ static void change_slab_texture_check(const struct ScriptLine* scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     if ( (scline->np[0] < 0) || (scline->np[0] >= gameadd.map_tiles_x) || (scline->np[1] < 0) || (scline->np[1] >= gameadd.map_tiles_y) )
     {
-        SCRPTERRLOG("Invalid co-ordinates: %d, %d", scline->np[0], scline->np[1]);
+        SCRPTERRLOG("Invalid co-ordinates: %ld, %ld", scline->np[0], scline->np[1]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -5968,7 +5969,7 @@ static void change_slab_texture_check(const struct ScriptLine* scline)
     }
     if ( (scline->np[2] < 0) || (scline->np[2] >= TEXTURE_VARIATIONS_COUNT) )
     {
-        SCRPTERRLOG("Invalid texture ID: %d", scline->np[2]);
+        SCRPTERRLOG("Invalid texture ID: %ld", scline->np[2]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -6293,7 +6294,7 @@ static void set_computer_process_process(struct ScriptContext* context)
         SCRIPTDBG(6, "No computer process found named '%s' in players %d to %d", procname, (int)plr_start, (int)plr_end - 1);
         return;
     }
-    SCRIPTDBG(6, "Altered %d processes named '%s'", n, procname);
+    SCRIPTDBG(6, "Altered %ld processes named '%s'", n, procname);
 }
 
 static void set_computer_checks_check(const struct ScriptLine* scline)
@@ -6363,7 +6364,7 @@ static void set_computer_checks_process(struct ScriptContext* context)
         SCRPTERRLOG("No computer check found named '%s' in players %d to %d", chkname, (int)plr_start, (int)plr_end - 1);
         return;
     }
-    SCRIPTDBG(6, "Altered %d checks named '%s'", n, chkname);
+    SCRIPTDBG(6, "Altered %ld checks named '%s'", n, chkname);
 }
 
 static void set_computer_event_check(const struct ScriptLine* scline)
@@ -6420,8 +6421,10 @@ static void set_computer_event_process(struct ScriptContext* context)
             {
                 if (level_file_version > 0)
                 {
-                    SCRPTLOG("Changing computer %d event '%s' config from (%d,%d,%d,%d,%d) to (%d,%d,%d,%d,%d)", (int)i, event->name,
-                        (int)event->test_interval, (int)event->param1, (int)event->param2, (int)event->param3, (int)event->last_test_gameturn, (int)val1, (int)val2, (int)val3, (int)val4);
+                    SCRPTLOG("Changing computer %d event '%s' config from (%d,%d,%d,%d,%d) to (%d,%d,%d,%d,%d)",
+                        (int)i, event->name,
+                        (int)event->test_interval, (int)event->param1, (int)event->param2, (int)event->param3, (int)event->last_test_gameturn,
+                        (int)val1, (int)val2, (int)val3, (int)val4, (int)val5);
                     event->test_interval = val1;
                     event->param1 = val2;
                     event->param2 = val3;
@@ -6445,7 +6448,7 @@ static void set_computer_event_process(struct ScriptContext* context)
         SCRPTERRLOG("No computer event found named '%s' in players %d to %d", evntname, (int)plr_start, (int)plr_end - 1);
         return;
     }
-    SCRIPTDBG(6, "Altered %d events named '%s'", n, evntname);
+    SCRIPTDBG(6, "Altered %ld events named '%s'", n, evntname);
 }
 
 static void swap_creature_check(const struct ScriptLine* scline)

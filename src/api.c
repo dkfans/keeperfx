@@ -162,7 +162,7 @@ int api_init_server()
     }
     else
     {
-        JUSTLOG("API server starting on port: %ld", api_port);
+        JUSTLOG("API server starting on port: %u", api_port);
     }
 
     if (SDLNet_Init() < 0)

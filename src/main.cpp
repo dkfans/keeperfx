@@ -945,7 +945,7 @@ short setup_game(void)
   OSVERSIONINFO v;
   // Do only a very basic setup
   cpu_detect(&cpu_info);
-  SYNCMSG("CPU %s type %d family %d model %d stepping %d features %08x",cpu_info.vendor,
+  SYNCMSG("CPU %s type %d family %d model %d stepping %d features %08lx",cpu_info.vendor,
       (int)cpu_get_type(&cpu_info),(int)cpu_get_family(&cpu_info),(int)cpu_get_model(&cpu_info),
       (int)cpu_get_stepping(&cpu_info),cpu_info.feature_edx);
   if (cpu_info.BrandString)
@@ -965,7 +965,8 @@ short setup_game(void)
       if(hNTDLL)
       {
           // Get Wine version
-          PROC wine_get_version = (PROC) GetProcAddress(hNTDLL, "wine_get_version");
+          typedef const char * (CDECL * pwine_get_version)(void);
+          pwine_get_version wine_get_version = (pwine_get_version) (void*) GetProcAddress(hNTDLL, "wine_get_version");
           if (wine_get_version)
           {
               SYNCMSG("Running on Wine v%s", wine_get_version());
@@ -973,18 +974,13 @@ short setup_game(void)
           }
 
           // Get Wine host OS
-          // We have to use a union to make sure there is no weird cast warnings
-          union
-          {
-              FARPROC func;
-              void (*wine_get_host_version)(const char**, const char**);
-          } wineHostVersionUnion;
-          wineHostVersionUnion.func = GetProcAddress(hNTDLL, "wine_get_host_version");
-          if (wineHostVersionUnion.wine_get_host_version)
+          typedef void (CDECL *pwine_get_host_version)(const char **, const char **);
+          pwine_get_host_version wine_get_host_version = (pwine_get_host_version) (void*) GetProcAddress(hNTDLL, "wine_get_host_version");
+          if (wine_get_host_version)
           {
               const char* sys_name = NULL;
               const char* release_name = NULL;
-              wineHostVersionUnion.wine_get_host_version(&sys_name, &release_name);
+              wine_get_host_version(&sys_name, &release_name);
               SYNCMSG("Wine Host: %s %s", sys_name, release_name);
           }
       }
@@ -1914,7 +1910,7 @@ void find_map_location_coords(long location, long *x, long *y, int plyr_idx, con
           pos_y = apt->mappos.y.stl.num;
           pos_x = apt->mappos.x.stl.num;
         } else
-          WARNMSG("%s: Action Point %d location not found",func_name,i);
+          WARNMSG("%s: Action Point %ld location not found",func_name,i);
         break;
     case MLoc_HEROGATE:
         thing = find_hero_gate_of_number(i);
@@ -1923,7 +1919,7 @@ void find_map_location_coords(long location, long *x, long *y, int plyr_idx, con
           pos_y = thing->mappos.y.stl.num;
           pos_x = thing->mappos.x.stl.num;
         } else
-          WARNMSG("%s: Hero Gate %d location not found",func_name,i);
+          WARNMSG("%s: Hero Gate %ld location not found",func_name,i);
         break;
     case MLoc_PLAYERSHEART:
         if (i < PLAYERS_COUNT)
@@ -1936,7 +1932,7 @@ void find_map_location_coords(long location, long *x, long *y, int plyr_idx, con
           pos_y = thing->mappos.y.stl.num;
           pos_x = thing->mappos.x.stl.num;
         } else
-          WARNMSG("%s: Dungeon Heart location for player %d not found",func_name,i);
+          WARNMSG("%s: Dungeon Heart location for player %ld not found",func_name,i);
         break;
     case MLoc_NONE:
         pos_y = *y;
@@ -1949,7 +1945,7 @@ void find_map_location_coords(long location, long *x, long *y, int plyr_idx, con
           pos_y = thing->mappos.y.stl.num;
           pos_x = thing->mappos.x.stl.num;
         } else
-          WARNMSG("%s: Thing %d location not found",func_name,i);
+          WARNMSG("%s: Thing %ld location not found",func_name,i);
         break;
     case MLoc_METALOCATION:
         if (get_coords_at_meta_action(&pos, plyr_idx, i))
@@ -1958,7 +1954,7 @@ void find_map_location_coords(long location, long *x, long *y, int plyr_idx, con
             pos_y = pos.y.stl.num;
         }
         else
-          WARNMSG("%s: Metalocation not found %d",func_name,i);
+          WARNMSG("%s: Metalocation not found %ld",func_name,i);
         break;
     case MLoc_CREATUREKIND:
     case MLoc_OBJECTKIND:
@@ -3620,7 +3616,7 @@ static TbBool wait_at_frontend(void)
                 WARNMSG("Unable to load campaign associated with the specified level CMD Line parameter, default loaded.");
             }
             else {
-                JUSTLOG("No campaign specified. Default campaign loaded for selected level (%d).", start_params.selected_level_number);
+                JUSTLOG("No campaign specified. Default campaign loaded for selected level (%lu).", start_params.selected_level_number);
             }
         }
         set_selected_level_number(start_params.selected_level_number);
@@ -3886,7 +3882,7 @@ void game_loop(void)
       if ((game.operation_flags & GOF_SingleLevel) != 0)
           exit_keeper=true;
       playtime += endtime-starttime;
-      SYNCDBG(0,"Play time is %d seconds",playtime>>10);
+      SYNCDBG(0,"Play time is %lu seconds",playtime>>10);
       total_play_turns += game.play_gameturn;
       reset_eye_lenses();
       close_packet_file();

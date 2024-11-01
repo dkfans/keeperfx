@@ -323,12 +323,12 @@ TbBool set_pointer_graphic_spell(long spridx, long frame)
   if (is_custom_icon(i))
   {
       spr = get_new_icon_sprite(i);
-      SYNCDBG(8,"Activating pointer %d", i);
+      SYNCDBG(8,"Activating pointer %ld", i);
       LbMouseChangeSpriteAndHotspot(spr, x/2, y/2);
   }
   else
   {
-      SYNCDBG(8,"Activating pointer %d", 40+i);
+      SYNCDBG(8,"Activating pointer %ld", 40+i);
       if (i >= 0 && i < num_sprites(pointer_sprites))
       {
           spr = get_sprite(pointer_sprites, i);
@@ -479,7 +479,7 @@ TbBool set_pointer_graphic(long ptr_idx)
           LbMouseChangeSpriteAndHotspot(spr, spr->SWidth/2, spr->SHeight);
           return true;
       }
-    WARNLOG("Unrecognized Mouse Pointer index, %d",ptr_idx);
+    WARNLOG("Unrecognized Mouse Pointer index, %ld",ptr_idx);
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
     return false;
   }

@@ -123,7 +123,7 @@ TbBool setup_heap_memory(void)
       heap_size -= 16384;
     }
   }
-  SYNCMSG("GraphicsHeap Size %d", heap_size);
+  SYNCMSG("GraphicsHeap Size %ld", heap_size);
   return true;
 }
 
@@ -196,7 +196,7 @@ TbBool setup_heaps(void)
         break;
       }
     }
-    SYNCMSG("GraphicsHeap Size %d", heap_size);
+    SYNCMSG("GraphicsHeap Size %ld", heap_size);
 
     if (low_memory)
     {
@@ -259,7 +259,7 @@ TbBool setup_heaps(void)
     }
     if (!SoundDisabled)
     {
-      SYNCMSG("SoundHeap Size %d", sound_heap_size);
+      SYNCMSG("SoundHeap Size %ld", sound_heap_size);
       // Prepare sound sample bank file names
       char snd_fname[2048];
       prepare_file_path_buf(snd_fname, FGrp_LrgSound, sound_fname);

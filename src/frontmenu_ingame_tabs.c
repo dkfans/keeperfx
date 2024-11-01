@@ -1513,7 +1513,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
             i = dungeon->guijob_angry_creatrs_count[crmodel][(job_idx & 0x03)];
             if (i > cr_total)
             {
-              WARNDBG(7,"Creature %d stats inconsistency; total=%d, doing activity%d=%d",crmodel,cr_total,(job_idx & 0x03),i);
+              WARNDBG(7,"Creature %ld stats inconsistency; total=%ld, doing activity%ld=%ld",crmodel,cr_total,(job_idx & 0x03),i);
               i = cr_total;
             }
             if (i < 0)
@@ -2265,9 +2265,9 @@ void gui_area_player_creature_info(struct GuiButton *gbtn)
         char* text;
         if (game.conf.rules.game.display_portal_limit == true) 
         {
-            text = buf_sprintf(" %ld/%ld", dungeon->num_active_creatrs, dungeon->max_creatures_attracted);
+            text = buf_sprintf(" %u/%ld", dungeon->num_active_creatrs, dungeon->max_creatures_attracted);
         } else {
-            text = buf_sprintf("%ld", dungeon->num_active_creatrs);
+            text = buf_sprintf("%u", dungeon->num_active_creatrs);
         }
         draw_button_string(gbtn, 60, text);
     }
