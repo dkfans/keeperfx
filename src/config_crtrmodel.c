@@ -86,6 +86,7 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"FOOTSTEPPITCH",      33},
   {"LAIROBJECT",         34},
   {"PRISONKIND",         35},
+  {"TORTUREKIND",        36},
   {NULL,                  0},
   };
 
@@ -282,6 +283,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->can_see_invisible = false;
       crstat->can_go_locked_doors = false;
       crstat->prison_kind = 0;
+      crstat->torture_kind = 0;
       crconf->namestr_idx = 0;
       crconf->model_flags = 0;
   }
@@ -844,6 +846,22 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               if (k > 0)
               {
                   crstat->prison_kind = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 36: // TORTUREKIND
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(creature_desc, word_buf);
+              if (k > 0)
+              {
+                  crstat->torture_kind = k;
                   n++;
               }
           }

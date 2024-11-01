@@ -320,7 +320,7 @@ TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thin
     ThingModel crmodel = crstat->prison_kind;
     if ((crmodel > game.conf.crtr_conf.model_count) || (crmodel <= 0))
     {
-        // If not assigned or is unknown default to the room creature creation.
+        // If not assigned or is unknown, default to the room creature creation.
         crmodel = get_room_create_creature_model(room->kind);
     }
     if (creature_count_below_map_limit(1))
@@ -342,8 +342,9 @@ TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thin
     {
         WARNLOG("Could not create creature %s to transform %s to due to creature limit", creature_code_name(crmodel), thing_model_name(thing));
     }
-    if (creature_model_bleeds(thing->model))
+    if (creature_model_bleeds(thing->model)) {
         create_effect_around_thing(thing, TngEff_Blood5); // TODO CONFIG: make this effect configurable?
+    }
     kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects);
     return !thing_is_invalid(crthing);
 }

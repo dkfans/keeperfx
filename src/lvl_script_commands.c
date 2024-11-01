@@ -2827,9 +2827,9 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                 value1 = get_id(object_desc, scline->tp[2]);
             }
         }
-        else if (creatvar == 35) // PRISONKIND
+        else if ((creatvar == 35) || (creatvar == 36)) // PRISONKIND or TORTUREKIND
         {
-            if (parameter_is_number(scline->tp[2])) // Support name or number for prison kind.
+            if (parameter_is_number(scline->tp[2])) // Support name or number for prison kind or torture kind.
             {
                 value1 = atoi(scline->tp[2]);
             }
@@ -3120,6 +3120,9 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             break;
         case 35: // PRISONKIND
             crstat->prison_kind = value;
+            break;
+        case 36: // TORTUREKIND
+            crstat->torture_kind = value;
             break;
         case ccr_comment:
             break;
