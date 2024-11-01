@@ -4398,7 +4398,7 @@ LONG __stdcall Vex_handler(
     } else if (exception_code == DBG_PRINTEXCEPTION_C) {
         return EXCEPTION_CONTINUE_EXECUTION; // Thrown by OutputDebugStringA, intended for debugger
     }
-    LbJustLog("Exception 0x%08x thrown: %s\n", exception_code, exception_name(exception_code));
+    LbJustLog("Exception 0x%08lx thrown: %s\n", exception_code, exception_name(exception_code));
     return EXCEPTION_CONTINUE_SEARCH;
 }
 
