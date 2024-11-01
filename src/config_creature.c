@@ -169,30 +169,30 @@ const struct NamedCommand creaturetype_attackpref_commands[] = {
   };
 
 const struct NamedCommand creature_graphics_desc[] = {
-  {"STAND",             1+CGI_Stand},
-  {"AMBULATE",          1+CGI_Ambulate},
-  {"DRAG",              1+CGI_Drag},
-  {"ATTACK",            1+CGI_Attack},
-  {"DIG",               1+CGI_Dig},
-  {"SMOKE",             1+CGI_Smoke},
-  {"RELAX",             1+CGI_Relax},
+  {"STAND",             1+CGI_Stand      },
+  {"AMBULATE",          1+CGI_Ambulate   },
+  {"DRAG",              1+CGI_Drag       },
+  {"ATTACK",            1+CGI_Attack     },
+  {"DIG",               1+CGI_Dig        },
+  {"SMOKE",             1+CGI_Smoke      },
+  {"RELAX",             1+CGI_Relax      },
   {"PRETTYDANCE",       1+CGI_PrettyDance},
-  {"GOTHIT",            1+CGI_GotHit},
-  {"POWERGRAB",         1+CGI_PowerGrab},
-  {"GOTSLAPPED",        1+CGI_GotSlapped},
-  {"CELEBRATE",         1+CGI_Celebrate},
-  {"SLEEP",             1+CGI_Sleep},
-  {"EATCHICKEN",        1+CGI_EatChicken},
-  {"TORTURE",           1+CGI_Torture},
-  {"SCREAM",            1+CGI_Scream},
-  {"DROPDEAD",          1+CGI_DropDead},
-  {"DEADSPLAT",         1+CGI_DeadSplat},
-// These below seems to be not from JTY file
-  {"GFX18",             1+CGI_GFX18},
+  {"GOTHIT",            1+CGI_GotHit     },
+  {"POWERGRAB",         1+CGI_PowerGrab  },
+  {"GOTSLAPPED",        1+CGI_GotSlapped },
+  {"CELEBRATE",         1+CGI_Celebrate  },
+  {"SLEEP",             1+CGI_Sleep      },
+  {"EATCHICKEN",        1+CGI_EatChicken },
+  {"TORTURE",           1+CGI_Torture    },
+  {"SCREAM",            1+CGI_Scream     },
+  {"DROPDEAD",          1+CGI_DropDead   },
+  {"DEADSPLAT",         1+CGI_DeadSplat  },
+  {"ROAR",              1+CGI_Roar       },
+  {"PISS",              1+CGI_Piss       },
+// These below seems to be not from JTY file.
   {"QUERYSYMBOL",       1+CGI_QuerySymbol},
-  {"HANDSYMBOL",        1+CGI_HandSymbol},
-  {"GFX21",             1+CGI_GFX21},
-  {NULL,                 0},
+  {"HANDSYMBOL",        1+CGI_HandSymbol },
+  {NULL,                                0},
   };
 
 const struct NamedCommand instance_range_desc[] = {
@@ -428,10 +428,9 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
         {
           LbMemorySet(game.conf.crtr_conf.model[i].name, 0, COMMAND_WORD_LEN);
         }
-        for (int i = 0; i < CREATURE_TYPES_MAX - 1; ++i) {
-          // model 0 is reserved
-          creature_desc[i].name = game.conf.crtr_conf.model[i + 1].name;
-          creature_desc[i].num = i + 1;
+        for (int i = 1; i < CREATURE_TYPES_MAX; i++) {
+          creature_desc[i].name = NULL;
+          creature_desc[i].num = 0;
         }
     }
     creature_desc[CREATURE_TYPES_MAX - 1].name = NULL; // must be null for get_id
@@ -468,6 +467,9 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
                 break;
               }
+              // model 0 is reserved
+              creature_desc[n - 1].name = game.conf.crtr_conf.model[n].name;
+              creature_desc[n - 1].num = n;
             }
             game.conf.crtr_conf.model_count = n+1;
             break;
