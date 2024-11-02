@@ -220,6 +220,7 @@ void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, lon
 PlayerNumber get_appropriate_player_for_creature(struct Thing *creatng);
 /******************************************************************************/
 void throw_out_gold(struct Thing* thing, long amount);
+ThingModel get_random_creature_kind_with_model_flags(unsigned long model_flags);
 /******************************************************************************/
 #ifdef __cplusplus
 }

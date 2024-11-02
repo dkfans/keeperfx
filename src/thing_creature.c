@@ -1751,12 +1751,12 @@ void level_up_familiar(struct Thing* famlrtng)
 void add_creature_to_summon_list(struct Dungeon* dungeon, ThingIndex famlrtng)
 {
     if (dungeon->num_summon < MAX_SUMMONS)
-    {    
+    {
         dungeon->summon_list[dungeon->num_summon] = famlrtng;
         dungeon->num_summon++;
     } else
     {
-        ERRORLOG("Reached maximum limit of summons");  
+        ERRORLOG("Reached maximum limit of summons");
     }
 }
 
@@ -5153,12 +5153,12 @@ struct Thing *pick_up_creature_of_model_and_gui_job(long crmodel, long job_idx, 
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (crmodel < game.conf.crtr_conf.model_count)
     {
-        if ((job_idx == -1) || (dungeon->guijob_all_creatrs_count[crmodel][job_idx & 0x03]))
+        if ((job_idx == -1) || (((job_idx & 0x03) <= 2) && dungeon->guijob_all_creatrs_count[crmodel][job_idx & 0x03]))
         {
             set_players_packet_action(get_player(plyr_idx), PckA_UsePwrHandPick, thing->index, 0, 0, 0);
         }
     } else
-    if ((crmodel == CREATURE_ANY))
+    if (crmodel == CREATURE_ANY)
     {
         set_players_packet_action(get_player(plyr_idx), PckA_UsePwrHandPick, thing->index, 0, 0, 0);
     } else
@@ -6365,7 +6365,7 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
         }
     }
 
-    if ((get_creature_model_flags(thing) & CMF_IsLordOTLand) != 0)
+    if ((get_creature_model_flags(thing) & CMF_IsLordOfLand) != 0)
     {
         output_message(SMsg_LordOfLandComming, MESSAGE_DELAY_LORD, 1);
         output_message(SMsg_EnemyLordQuote + UNSYNC_RANDOM(8), MESSAGE_DELAY_LORD, 1);
@@ -6406,12 +6406,12 @@ void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, lon
 }
 
 /**
- * @brief Picking up things as a possessed creature 
- * 
- * @param creatng 
- * @param picktng 
- * @param plyr_idx 
- */ 
+ * @brief Picking up things as a possessed creature
+ *
+ * @param creatng
+ * @param picktng
+ * @param plyr_idx
+ */
 void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *picktng, PlayerNumber plyr_idx)
 {
     if (picktng->class_id == TCls_Creature)
@@ -6442,10 +6442,10 @@ void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *pick
 }
 /**
  * @brief Dropping down things at a specific place as a possessed creature
- * 
- * @param creatng 
- * @param droptng 
- * @param plyr_idx 
+ *
+ * @param creatng
+ * @param droptng
+ * @param plyr_idx
  */
 void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng, PlayerNumber plyr_idx)
 {
@@ -6633,16 +6633,16 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                                 initialise_thing_state(droptng, CrSt_CreatureGoingHomeToSleep);
                             }
                             //creature doesn't have a lair room but it will and can sleep here
-                            if ((game.conf.rules.workers.drag_to_lair == 2) 
-                                && (dropctrl->lair_room_id == 0) 
-                                && (creature_can_do_healing_sleep(droptng)) 
+                            if ((game.conf.rules.workers.drag_to_lair == 2)
+                                && (dropctrl->lair_room_id == 0)
+                                && (creature_can_do_healing_sleep(droptng))
                                 && (room_has_enough_free_capacity_for_creature_job(room, droptng, Job_TAKE_SLEEP)))
                             {
                                 make_creature_conscious(droptng);
                                 initialise_thing_state(droptng, CrSt_CreatureChangeLair);
                             }
                             set_flag(dropctrl->flgfield_1,CCFlg_NoCompControl);
-                            
+
                         }
                     }
                 }
@@ -7122,6 +7122,39 @@ TbBool creature_can_be_queried(struct PlayerInfo *player, struct Thing *creatng)
 TbBool creature_can_be_transferred(const struct Thing* thing)
 {
     return ((get_creature_model_flags(thing) & CMF_NoTransfer) == 0);
+}
+
+/* Returns a random creature kind with model flags as argument. */
+ThingModel get_random_creature_kind_with_model_flags(unsigned long model_flags)
+{
+    // Array to store the IDs of creatures kinds with model flags.
+    ThingModel creature_kind_with_model_flags_array[CREATURE_TYPES_MAX];
+    // Counter for the number of creatures kinds found.
+    short creature_kind_with_model_flags_count = 0;
+    // Loop through all available creatures kinds.
+    for (ThingModel crkind = 0; crkind < game.conf.crtr_conf.model_count; crkind++)
+    {
+        // Check if the creature kind has the flag.
+        if (flag_is_set(game.conf.crtr_conf.model[crkind].model_flags, model_flags))
+        {
+            // Ensure we don't exceed the maximum array size.
+            if (creature_kind_with_model_flags_count < CREATURE_TYPES_MAX)
+            {
+                // Add the creature kind to the array.
+                creature_kind_with_model_flags_array[creature_kind_with_model_flags_count++] = crkind;
+            } else {
+                break;
+            }
+        }
+    }
+    if (creature_kind_with_model_flags_count > 0)
+    {
+        // Get a random creature kind from the list.
+        short random_idx = GAME_RANDOM(creature_kind_with_model_flags_count);
+        return creature_kind_with_model_flags_array[random_idx];
+    }
+    // Return -1 if no suitable creature kind is found.
+    return -1;
 }
 
 /******************************************************************************/
