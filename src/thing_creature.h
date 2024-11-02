@@ -101,6 +101,7 @@ long get_creature_speed(const struct Thing *thing);
 TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
 TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
 void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
+void prepare_to_controlled_creature_death(struct Thing* thing);
 ThingIndex process_player_use_instance(struct Thing *thing, CrInstance inst_id, struct Packet *packet);
 ThingIndex get_human_controlled_creature_target(struct Thing *thing, CrInstance inst_id, struct Packet *packet);
 struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord x, MapCoord y);
@@ -219,6 +220,7 @@ void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, lon
 PlayerNumber get_appropriate_player_for_creature(struct Thing *creatng);
 /******************************************************************************/
 void throw_out_gold(struct Thing* thing, long amount);
+ThingModel get_random_creature_kind_with_model_flags(unsigned long model_flags);
 /******************************************************************************/
 #ifdef __cplusplus
 }
