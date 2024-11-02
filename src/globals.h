@@ -46,12 +46,8 @@
 #endif
 
 #ifdef _MSC_VER
-// static_assert is not defined in C standard
-#ifndef __cplusplus
-#define static_assert(a, b)
-#endif
-#define strcasecmp strcmp
-#define strncasecmp strncmp
+    #define strcasecmp _stricmp
+    #define strncasecmp _strnicmp
 #endif
 
 #include "version.h"
@@ -294,7 +290,7 @@ typedef unsigned char PlayerState;
 
 /**
  * Stores a 2d coordinate (x,y).
- * 
+ *
  * Members:
  * .val - coord position (relative to whole map)
  * .stl.pos - coord position (relative to subtile)
@@ -307,7 +303,7 @@ struct Coord2d {
         unsigned char pos; /**< x.stl.pos - coord x position (relative to subtile) */
         unsigned short num; /**< x.stl.num - subtile x position (relative to whole map) */
         } stl;
-    } x; 
+    } x;
     union { // y position
       unsigned long val; /**< y.val - coord y position (relative to whole map) */
       struct { // subtile
@@ -319,7 +315,7 @@ struct Coord2d {
 
 /**
  * Stores a 3d coordinate (x,y).
- * 
+ *
  * Members:
  * .val - coord position (relative to whole map)
  * .stl.pos - coord position (relative to subtile)

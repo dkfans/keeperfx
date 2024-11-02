@@ -139,6 +139,7 @@ _backtrace(int depth , LPCONTEXT context)
     LbMemorySet(&frame,0,sizeof(frame));
 
     frame.AddrPC.Offset = context->Eip;
+
     frame.AddrPC.Mode = AddrModeFlat;
     frame.AddrStack.Offset = context->Esp;
     frame.AddrStack.Mode = AddrModeFlat;
@@ -178,7 +179,7 @@ _backtrace(int depth , LPCONTEXT context)
             }
         }
 
-        // Check if the name of this module starts with 'keeperfx' 
+        // Check if the name of this module starts with 'keeperfx'
         // This can be done better but at this moment it should only match our own keeperfx.exe and keeperfx_hvlog.exe
         if (strncmp(module_name, "keeperfx", strlen("keeperfx")) == 0)
         {
@@ -192,14 +193,16 @@ _backtrace(int depth , LPCONTEXT context)
                 bool addrFound = false;
                 int64_t prevAddr = 0x00000000;
                 char prevName[512];
+                prevName[0] = 0;
 
                 // Loop through all lines in the mapFile
                 // This should be pretty fast on modern systems
                 while (fgets(mapFileLine, sizeof(mapFileLine), mapFile) != NULL)
                 {
-                    
+
                     int64_t addr;
                     char name[512];
+                    name[0] = 0;
                     if (
                         sscanf(mapFileLine, "%llx %[^\t\n]", &addr, name) == 2 ||
                         sscanf(mapFileLine, " .text %llx %[^\t\n]", &addr, name) == 2

@@ -347,6 +347,7 @@ TbBool level_lof_file_parse(const char *fname, char *buf, long len)
     int cmd_num;
     int k;
     int n;
+    word_buf[0] = 0;
     SYNCDBG(8,"Starting for \"%s\"",fname);
     if (buf == NULL)
         return false;
@@ -1366,6 +1367,7 @@ void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short 
     {
         SYNCMSG("Map string file %s doesn't exist.", fname);
         char buf[2048];
+        buf[0] = 0;
         memcpy(&buf, fname, 2048);
         fname = prepare_file_fmtpath(fgroup, "map%05lu.%s.dat", (unsigned long)lvnum, get_language_lwrstr(campgn->default_language));
         if (strcasecmp(fname, buf) == 0)

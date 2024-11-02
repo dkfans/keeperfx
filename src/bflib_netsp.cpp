@@ -232,7 +232,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
   void *imsg;
   char str[32];
   long i;
-  if (this->started < 1)
+  if (!this->started)
   {
     WARNLOG("not initialized");
     return Lb_FAIL;
@@ -348,7 +348,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
 
     //result = 0;
 
-    if (this->started < 1)
+    if (!this->started)
     {
       WARNLOG("not initialized");
       return Lb_FAIL;

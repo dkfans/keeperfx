@@ -617,11 +617,11 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 13: // LORD
           if (val4 >= 1)
           {
-              set_flag(crconf->model_flags,CMF_IsLordOTLand);
+              set_flag(crconf->model_flags,CMF_IsLordOfLand);
           }
           else
           {
-              clear_flag(crconf->model_flags,CMF_IsLordOTLand);
+              clear_flag(crconf->model_flags,CMF_IsLordOfLand);
           }
           break;
       case 14: // SPECTATOR
@@ -790,6 +790,26 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           else
           {
               clear_flag(crconf->model_flags,CMF_Fat);
+          }
+          break;
+      case 32: // NO_STEAL_HERO
+          if (val4 >= 1)
+          {
+              set_flag(crconf->model_flags,CMF_NoStealHero);
+          }
+          else
+          {
+              clear_flag(crconf->model_flags,CMF_NoStealHero);
+          }
+          break;
+      case 33: // PREFER_STEAL
+          if (val4 >= 1)
+          {
+              set_flag(crconf->model_flags,CMF_PreferSteal);
+          }
+          else
+          {
+              clear_flag(crconf->model_flags,CMF_PreferSteal);
           }
           break;
       default:

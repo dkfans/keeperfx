@@ -293,7 +293,7 @@ const struct NamedCommand room_config_desc[] = {
 
 
 static const struct NamedField rules_script_only_named_fields[] = {
-    //name            //field                //field type                   //min //max     
+    //name            //field                //field type                   //min //max
   {"PayDayProgress",&game.pay_day_progress,var_type(game.pay_day_progress),0,LONG_MAX},
   {NULL,                            NULL,0,0,0 },
 };
@@ -506,7 +506,7 @@ const struct NamedCommand texture_pack_desc[] = {
   {NULL,           0},
 };
 
-Mix_Chunk* Ext_Sounds[];
+Mix_Chunk* Ext_Sounds[EXTERNAL_SOUNDS_COUNT + 1];
 
 static int sac_compare_fn(const void *ptr_a, const void *ptr_b)
 {
@@ -559,7 +559,7 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
         }
         i = cctrl->players_next_creature_idx;
         // Per creature code
-       
+
         if (thing_matches_model(thing,crmodel))
         {
             i = cctrl->players_next_creature_idx;
@@ -876,7 +876,7 @@ static void conceal_map_rect_check(const struct ScriptLine *scline)
     {
         SCRPTWRNLOG("Hide value \"%s\" not recognized", scline->tp[5]);
     }
-    
+
     MapSubtlCoord x = scline->np[1];
     MapSubtlCoord y = scline->np[2];
     MapSubtlDelta width = scline->np[3];
@@ -901,7 +901,7 @@ static void conceal_map_rect_check(const struct ScriptLine *scline)
     value->shorts[3] = start_y;
     value->shorts[4] = end_y;
     value->shorts[5] = conceal_all;
-    
+
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -912,7 +912,7 @@ static void conceal_map_rect_process(struct ScriptContext *context)
     MapSubtlCoord start_y = context->value->shorts[3];
     MapSubtlCoord end_y = context->value->shorts[4];
     TbBool conceal_all = context->value->shorts[5];
-    
+
     conceal_map_area(context->player_idx, start_x, end_x, start_y, end_y, conceal_all);
 }
 
@@ -938,7 +938,7 @@ static int script_transfer_creature(PlayerNumber plyr_idx, ThingModel crmodel, l
             SYNCDBG(5, "No matching player %d creature of model %d found to transfer.", (int)plyr_idx, (int)crmodel);
             break;
         }
-        
+
         if (add_transfered_creature(plyr_idx, thing->model, cctrl->explevel, cctrl->creature_name))
         {
             transferred++;
@@ -1199,7 +1199,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             }
             value->shorts[2] = newvalue;
         }
-        else 
+        else
         {
             SCRPTERRLOG("Room property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
             DEALLOCATE_SCRIPT_VALUE
@@ -1241,7 +1241,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             }
             value->shorts[2] = newvalue;
         }
-        else 
+        else
         {
             newvalue = get_id(terrain_room_properties_commands, valuestring);
             if (newvalue == -1)
@@ -1266,7 +1266,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             }
             value->ulongs[1] = newvalue;
         }
-        else 
+        else
         {
             newvalue = get_id(room_roles_desc, valuestring);
             if (newvalue == -1)
@@ -1344,7 +1344,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             }
             value->shorts[2] = newvalue;
         }
-        else 
+        else
         {
             SCRPTERRLOG("Room property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
             DEALLOCATE_SCRIPT_VALUE
@@ -1628,7 +1628,7 @@ static void new_trap_type_check(const struct ScriptLine* scline)
     trapst->notify = false;
     trapst->place_on_bridge = false;
     trapst->place_on_subtile = false;
-    trapst->place_sound_idx = 117; 
+    trapst->place_sound_idx = 117;
     trapst->trigger_sound_idx = 176;
     trapst->destroyed_effect = -39;
 
@@ -1685,7 +1685,7 @@ void refresh_trap_anim(long trap_id)
             {
                 traptng->anim_sprite = game.conf.trap_stats[trap_id].sprite_anim_idx;
             }
-            else 
+            else
             {
                 traptng->anim_sprite = game.conf.trap_stats[trap_id].recharge_sprite_anim_idx;
             }
@@ -2498,8 +2498,8 @@ static void heart_lost_quick_objective_check(const struct ScriptLine *scline)
         SCRPTWRNLOG("Quick Objective no %ld overwritten by different text", scline->np[0]);
     }
     snprintf(gameadd.quick_messages[scline->np[0]], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
-    
-    TbMapLocation location;
+
+    TbMapLocation location = 0;
     if (scline->tp[2][0] != '\0')
     {
         get_map_location_id(scline->tp[2], &location);
@@ -2522,7 +2522,7 @@ static void heart_lost_objective_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     value->longs[0] = scline->np[0];
-    TbMapLocation location;
+    TbMapLocation location = 0;
     if (scline->tp[1][0] != '\0')
     {
         get_map_location_id(scline->tp[1], &location);
@@ -2754,7 +2754,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
             value->longs[1] = atoi(new_value);
             value->shorts[5] = second_value;
     }
-    
+
     SCRIPTDBG(7, "Setting object %s property %s to %ld", objectname, property, number_value);
     value->longs[0] = objct_id;
     value->shorts[4] = objectvar;
@@ -2940,7 +2940,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             }
         }
     }
-    
+
     if (value1 == -1)
     {
         SCRPTERRLOG("Unknown creature configuration value %s", scline->tp[2]);
@@ -2966,7 +2966,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
     value->shorts[3] = value1;
     value->shorts[4] = value2;
     value->shorts[5] = value3;
-    
+
     SCRIPTDBG(7,"Setting creature %s configuration value %d:%d to %d (%d)", creature_code_name(value->shorts[0]), value->shorts[4], value->shorts[1], value->shorts[2], value->shorts[3]);
 
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -2977,7 +2977,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
     short creatid = context->value->shorts[0];
     struct CreatureStats* crstat = creature_stats_get(creatid);
     struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[creatid];
-    
+
     short creature_variable = context->value->shorts[1];
     short block  = context->value->shorts[2];
     short value  = context->value->shorts[3];
@@ -3243,6 +3243,10 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         case 11: // FIGHT
             game.conf.crtr_conf.creature_sounds[creatid].fight.index = value;
             game.conf.crtr_conf.creature_sounds[creatid].fight.count = value2;
+            break;
+        case 12: // PISS
+            game.conf.crtr_conf.creature_sounds[creatid].piss.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].piss.count = value2;
             break;
         }
     }
@@ -3807,7 +3811,7 @@ static void change_slab_type_process(struct ScriptContext *context)
         iter_param.num2 = fill_type;
         iter_param.num3 = get_slabmap_block(x, y)->kind;
         slabs_fill_iterate_from_slab(x, y, slabs_change_type, &iter_param);
-    } 
+    }
     else
     {
         replace_slab_from_script(x, y, slab_kind);
@@ -3867,7 +3871,7 @@ static void player_zoom_to_process(struct ScriptContext *context)
     find_location_pos(target, context->player_idx, &pos, __func__);
     set_player_zoom_to_position(get_player(context->player_idx),&pos);
 }
-  
+
 static void level_up_players_creatures_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
@@ -3879,7 +3883,7 @@ static void level_up_players_creatures_check(const struct ScriptLine* scline)
         SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
         DEALLOCATE_SCRIPT_VALUE
         return;
-    } 
+    }
     if (scline->np[2] == '\0')
     {
         count = 1;
@@ -3890,7 +3894,7 @@ static void level_up_players_creatures_check(const struct ScriptLine* scline)
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-    
+
     value->shorts[1] = crmodel;
     value->shorts[2] = count;
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -4240,7 +4244,7 @@ static void if_check(const struct ScriptLine *scline)
         double_var_mode = true;
 
         if (!get_player_id(scline->tp[3], &plr_range_id_right)) {
-            
+
             SCRPTWRNLOG("failed to parse \"%s\" as a player", scline->tp[3]);
         }
     }
@@ -4281,7 +4285,7 @@ static void if_check(const struct ScriptLine *scline)
                 if (((varib_type != SVar_GAME_TURN) && (varib_type != SVar_ALL_DUNGEONS_DESTROYED)
                  && (varib_type != SVar_DOOR_NUM) && (varib_type != SVar_TRAP_NUM)))
                     SCRPTWRNLOG("Found player without dungeon used in IF clause in script; this will not work correctly");
-                    
+
             }
         }
         if (double_var_mode && get_players_range(plr_range_id_right, &plr_start, &plr_end) >= 0) {
@@ -4291,7 +4295,7 @@ static void if_check(const struct ScriptLine *scline)
                 if (((varib_type_right != SVar_GAME_TURN) && (varib_type_right != SVar_ALL_DUNGEONS_DESTROYED)
                  && (varib_type_right != SVar_DOOR_NUM) && (varib_type_right != SVar_TRAP_NUM)))
                     SCRPTWRNLOG("Found player without dungeon used in IF clause in script; this will not work correctly");
-                    
+
             }
         }
     }
@@ -4314,7 +4318,7 @@ static void if_check(const struct ScriptLine *scline)
 
 static void if_available_check(const struct ScriptLine *scline)
 {
-    
+
     long plr_range_id = scline->np[0];
     const char *varib_name = scline->tp[1];
     const char *operatr = scline->tp[2];
@@ -4334,7 +4338,7 @@ static void if_available_check(const struct ScriptLine *scline)
         double_var_mode = true;
 
         if (!get_player_id(scline->tp[3], &plr_range_id_right)) {
-            
+
             SCRPTWRNLOG("failed to parse \"%s\" as a player", scline->tp[3]);
         }
     }
@@ -4444,7 +4448,7 @@ static void if_controls_check(const struct ScriptLine *scline)
         double_var_mode = true;
 
         if (!get_player_id(scline->tp[3], &plr_range_id_right)) {
-            
+
             SCRPTWRNLOG("failed to parse \"%s\" as a player", scline->tp[3]);
         }
     }
@@ -4504,7 +4508,7 @@ static void if_controls_check(const struct ScriptLine *scline)
                 if (((varib_type_right != SVar_GAME_TURN) && (varib_type_right != SVar_ALL_DUNGEONS_DESTROYED)
                  && (varib_type_right != SVar_DOOR_NUM) && (varib_type_right != SVar_TRAP_NUM)))
                     SCRPTWRNLOG("Found player without dungeon used in IF clause in script; this will not work correctly");
-                    
+
             }
         }
     }
@@ -4629,7 +4633,7 @@ static void set_music_check(const struct ScriptLine *scline)
             game.last_audiotrack++;
         }
         short tracknumber = game.last_audiotrack;
-            
+
         if (tracks[tracknumber] != NULL)
         {
             WARNLOG("Overwriting music track %d.", tracknumber);
@@ -4655,7 +4659,7 @@ static void set_music_check(const struct ScriptLine *scline)
 
 static void set_music_process(struct ScriptContext *context)
 {
-    
+
     short track_number = context->value->chars[0];
     if (track_number >= FIRST_TRACK && track_number <= MUSIC_TRACKS_COUNT) {
         if (track_number != game.audiotrack) {
@@ -5111,7 +5115,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
         case 6: // Artifact
         {
             k = get_id(object_desc, new_value);
-            if (k >= 0) 
+            if (k >= 0)
             {
                   number_value = k;
             }
@@ -5349,7 +5353,7 @@ static void set_player_color_process(struct ScriptContext *context)
         }
 
         dungeon->color_idx = color_idx;
-        
+
         update_panel_color_player_color(plyr_idx,color_idx);
 
         for (MapSlabCoord slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
@@ -5380,7 +5384,7 @@ static void set_player_color_process(struct ScriptContext *context)
             }
             i = thing->next_of_class;
             // Per-thing code
-            
+
             if (thing->owner == plyr_idx)
             {
                 ThingModel base_model = get_coloured_object_base_model(thing->model);
@@ -5995,7 +5999,7 @@ static void change_slab_texture_process(struct ScriptContext* context)
         iter_param.num2 = context->value->chars[5]; // fill type
         iter_param.num3 = get_slabmap_block(slb_x, slb_y)->kind;
         slabs_fill_iterate_from_slab(slb_x, slb_y, slabs_change_texture, &iter_param);
-    } 
+    }
     else
     {
         SlabCodedCoords slb_num = get_slab_number(context->value->shorts[0], context->value->shorts[1]);
@@ -6041,7 +6045,7 @@ static void computer_player_check(const struct ScriptLine* scline)
         SCRPTERRLOG("invalid COMPUTER_PLAYER param '%s'", comp_model);
         DEALLOCATE_SCRIPT_VALUE
     }
-    
+
     value->bytes[0] = plr_start;
     value->bytes[1] = plr_end;
     value->bytes[2] = type;

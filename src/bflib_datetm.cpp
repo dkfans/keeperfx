@@ -18,12 +18,11 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "bflib_datetm.h"
-
 #include <chrono>
 #include <time.h>
-#include "bflib_basics.h"
 #include "globals.h"
+#include "bflib_datetm.h"
+#include "bflib_basics.h"
 #include "game_legacy.h"
 
 #if defined(_WIN32)
