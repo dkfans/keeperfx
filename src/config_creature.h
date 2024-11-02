@@ -44,7 +44,7 @@ enum CreatureModelFlags {
     CMF_IsSpecDigger     = 0x000001, // Imp and Tunneller.
     CMF_IsArachnid       = 0x000002, // Simply, Spider.
     CMF_IsDiptera        = 0x000004, // Simply, Fly.
-    CMF_IsLordOTLand     = 0x000008, // Simply, Knight and Avatar.
+    CMF_IsLordOfLand     = 0x000008, // Simply, Knight and Avatar.
     CMF_IsSpectator      = 0x000010, // Simply, Floating Spirit.
     CMF_IsEvil           = 0x000020, // All evil creatures.
     CMF_NeverChickens    = 0x000040, // Cannot be affected by Chicken (for Avatar).
@@ -59,8 +59,9 @@ enum CreatureModelFlags {
     CMF_NeverSick        = 0x008000, // Creature will not get disease.
     CMF_NoResurrect      = 0x010000, // Creature will not resurrect.
     CMF_NoTransfer       = 0x020000, // Creature cannot be transferred.
-    CMF_Fat              = 0x040000, // Creature to fat too walk a full animation.
+    CMF_Fat              = 0x040000, // Creature too fat to walk a full animation.
     CMF_NoStealHero      = 0x080000, // Prevent the creature from being stolen with the Steal Hero special.
+    CMF_PreferSteal      = 0x100000, // The creature can be generated from Steal Hero special if there's nothing to steal.
 };
 
 enum CreatureJobFlags {
