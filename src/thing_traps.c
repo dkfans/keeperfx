@@ -1230,7 +1230,7 @@ void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, 
             {
                 if (flag_is_set(shotst->model_flags,ShMF_StrengthBased))
                 {
-                    damage = calculate_melee_damage(firing);
+                    damage = calculate_melee_damage(firing, shotst->damage);
                 }
                 else
                 {

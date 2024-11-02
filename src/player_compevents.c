@@ -174,7 +174,7 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
     }
     // Check if there are any enemies in the vicinity - no enemies, don't drop creatures
     struct Thing* enmtng = get_creature_in_range_who_is_enemy_of_able_to_attack_and_not_specdigger(pos.x.val, pos.y.val, 21, comp->dungeon->owner);
-    if (thing_is_invalid(enmtng)) 
+    if (thing_is_invalid(enmtng))
     {
         SYNCDBG(8,"No enemies near %s",cevent->name);
         return 0;
@@ -373,14 +373,14 @@ long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent 
     {
         return 4;
     }
-    if (!(computer_able_to_use_power(comp, PwrK_SPEEDCRTR, cevent->param1, 1) || computer_able_to_use_power(comp, PwrK_PROTECT, cevent->param1, 1) || 
-          computer_able_to_use_power(comp, PwrK_REBOUND, cevent->param1, 1)   || computer_able_to_use_power(comp, PwrK_FLIGHT, cevent->param1, 1) || 
+    if (!(computer_able_to_use_power(comp, PwrK_SPEEDCRTR, cevent->param1, 1) || computer_able_to_use_power(comp, PwrK_PROTECT, cevent->param1, 1) ||
+          computer_able_to_use_power(comp, PwrK_REBOUND, cevent->param1, 1)   || computer_able_to_use_power(comp, PwrK_FLIGHT, cevent->param1, 1) ||
           computer_able_to_use_power(comp, PwrK_VISION, cevent->param1, 1)))
     {
         return 4;
     }
     struct Thing* fightng = computer_get_creature_in_fight(comp, PwrK_SPEEDCRTR);
-    if (thing_is_invalid(fightng)) 
+    if (thing_is_invalid(fightng))
     {
         fightng = computer_get_creature_in_fight(comp, PwrK_PROTECT);
         if (thing_is_invalid(fightng))
@@ -512,7 +512,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
                 }
             }
             continue;
-        } else 
+        } else
         {
             if (emergency_state && ((roomst->flags & RoCFlg_BuildTillBroke) == 0)) {
                 continue;
@@ -653,7 +653,7 @@ long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent
         {
             if (((!crstat->humanoid_creature) && (actions_allowed >= 2)) || (actions_allowed == 2)) // 1 = move only, 2 = everybody, 3 = non_humanoids
             {
-                if (computer_able_to_use_power(comp, PwrK_HEALCRTR, power_level, amount)) 
+                if (computer_able_to_use_power(comp, PwrK_HEALCRTR, power_level, amount))
                 {
                     magic_use_available_power_on_thing(comp->dungeon->owner, PwrK_HEALCRTR, power_level, 0, 0, creatng, PwMod_Default);
                     return CTaskRet_Unk1;
@@ -697,7 +697,7 @@ long computer_event_save_tortured(struct Computer2* comp, struct ComputerEvent* 
     }
 
     // Do we have a prison to put the unit back into?
-    struct Room* destroom = RoK_NONE;
+    struct Room* destroom = NULL;
     TbBool can_return = false;
     if (dungeon_has_room(dungeon, RoK_PRISON))
     {
@@ -707,7 +707,7 @@ long computer_event_save_tortured(struct Computer2* comp, struct ComputerEvent* 
             can_return = true;
         }
     }
-    
+
     unsigned long moved = 0;
     unsigned long slapped = 0;
     struct Dungeon* victdungeon;
