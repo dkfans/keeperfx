@@ -6365,7 +6365,7 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
         }
     }
 
-    if ((get_creature_model_flags(thing) & CMF_IsLordOTLand) != 0)
+    if ((get_creature_model_flags(thing) & CMF_IsLordOfLand) != 0)
     {
         output_message(SMsg_LordOfLandComming, MESSAGE_DELAY_LORD, 1);
         output_message(SMsg_EnemyLordQuote + UNSYNC_RANDOM(8), MESSAGE_DELAY_LORD, 1);
@@ -7122,6 +7122,39 @@ TbBool creature_can_be_queried(struct PlayerInfo *player, struct Thing *creatng)
 TbBool creature_can_be_transferred(const struct Thing* thing)
 {
     return ((get_creature_model_flags(thing) & CMF_NoTransfer) == 0);
+}
+
+/* Returns a random creature kind with model flags as argument. */
+ThingModel get_random_creature_kind_with_model_flags(unsigned long model_flags)
+{
+    // Array to store the IDs of creatures kinds with model flags.
+    ThingModel creature_kind_with_model_flags_array[CREATURE_TYPES_MAX];
+    // Counter for the number of creatures kinds found.
+    short creature_kind_with_model_flags_count = 0;
+    // Loop through all available creatures kinds.
+    for (ThingModel crkind = 0; crkind < game.conf.crtr_conf.model_count; crkind++)
+    {
+        // Check if the creature kind has the flag.
+        if (flag_is_set(game.conf.crtr_conf.model[crkind].model_flags, model_flags))
+        {
+            // Ensure we don't exceed the maximum array size.
+            if (creature_kind_with_model_flags_count < CREATURE_TYPES_MAX)
+            {
+                // Add the creature kind to the array.
+                creature_kind_with_model_flags_array[creature_kind_with_model_flags_count++] = crkind;
+            } else {
+                break;
+            }
+        }
+    }
+    if (creature_kind_with_model_flags_count > 0)
+    {
+        // Get a random creature kind from the list.
+        short random_idx = GAME_RANDOM(creature_kind_with_model_flags_count);
+        return creature_kind_with_model_flags_array[random_idx];
+    }
+    // Return -1 if no suitable creature kind is found.
+    return -1;
 }
 
 /******************************************************************************/
