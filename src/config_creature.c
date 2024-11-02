@@ -189,6 +189,7 @@ const struct NamedCommand creature_graphics_desc[] = {
   {"DEADSPLAT",         1+CGI_DeadSplat  },
   {"ROAR",              1+CGI_Roar       },
   {"PISS",              1+CGI_Piss       },
+  {"CASTSPELL",         1+CGI_CastSpell  },
 // These below seems to be not from JTY file.
   {"QUERYSYMBOL",       1+CGI_QuerySymbol},
   {"HANDSYMBOL",        1+CGI_HandSymbol },
