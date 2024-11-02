@@ -122,6 +122,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"TREMBLING",         30},
   {"FAT",               31},
   {"NO_STEAL_HERO",     32},
+  {"PREFER_STEAL",      33},
   {NULL,                 0},
   };
 
@@ -694,7 +695,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               n++;
               break;
             case 13: // LORD
-              crconf->model_flags |= CMF_IsLordOTLand;
+              crconf->model_flags |= CMF_IsLordOfLand;
               n++;
               break;
             case 14: // SPECTATOR
@@ -772,6 +773,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 break;
             case 32: // NO_STEAL_HERO
                 crconf->model_flags |= CMF_NoStealHero;
+                n++;
+                break;
+            case 33: // PREFER_STEAL
+                crconf->model_flags |= CMF_PreferSteal;
                 n++;
                 break;
             default:
