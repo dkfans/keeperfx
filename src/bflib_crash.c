@@ -34,7 +34,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <stdbool.h>
-
+#include <inttypes.h>
 #include "bflib_basics.h"
 #include "bflib_memory.h"
 #include "bflib_video.h"
@@ -219,14 +219,26 @@ _backtrace(int depth , LPCONTEXT context)
                             // We don't want that size at the beginning, but we do want the library path.
                             char *splitPos = strchr(prevName, ' ');
                             if (strncmp(prevName, "0x", 2) == 0 && splitPos != NULL){
-                                memmove(prevName, splitPos + 1, strlen(splitPos)); // remove anything before the space
-                                memmove(prevName + 4, prevName, strlen(prevName) + 1); // make space for the arrow symbol
-                                memcpy(prevName, "-> ", 3); // prepend the arrow symbol
+
+                                    // Remove everything before the space
+                                    memmove(prevName, splitPos + 1, strlen(splitPos));
+
+                                    // Find the last slash in the string to isolate the filename
+                                    char *lastSlash = strrchr(prevName, '/');
+                                    if (lastSlash != NULL) {
+                                        // Move the filename to the start
+                                        memmove(prevName, lastSlash + 1, strlen(lastSlash + 1) + 1);
+                                    }
+
+                                    // Prepend the arrow symbol
+                                    memmove(prevName + 3, prevName, strlen(prevName) + 1); // make space for the arrow symbol
+                                    memcpy(prevName, "-> ", 3); // prepend the arrow symbol
                             }
 
+                            // Log it
                             LbJustLog(
-                                "[#%-2d]  in %-14s : %-40s [0x%llx+0x%llx] \t(map lookup for %08lx:%08lx, base: %08lx)\n",
-                                depth, module_name, prevName, prevAddr, displacement, context->SegCs, frame.AddrPC.Offset, module_base);
+                                "[#%-2d] %-12s : %-36s [0x%"PRIx64"+0x%"PRIx64"]\t map lookup for: %04x:%08x, base: %08x\n",
+                                depth, module_name, prevName, prevAddr, displacement, (uint16_t)context->SegCs, (uint32_t)frame.AddrPC.Offset, (uint32_t)module_base);
 
                             addrFound = true;
                             break;
@@ -261,13 +273,13 @@ _backtrace(int depth , LPCONTEXT context)
         // This works if there are any debug symbols available and also works for most OS libraries
         if (SymFromAddr(process, frame.AddrPC.Offset, &sfaDisplacement, pSymbol))
         {
-            LbJustLog("[#%-2d]  in %-14s : %-40s [%08lx:%08lx+0x%llx, base %08lx] (symbol lookup)\n",
-                      depth, module_name, pSymbol->Name, context->SegCs, frame.AddrPC.Offset, sfaDisplacement, module_base);
+            LbJustLog("[#%-2d] %-12s : %-36s [%04x:%08x+0x%"PRIx64", base %08x]\t symbol lookup\n",
+                      depth, module_name, pSymbol->Name, (uint16_t)context->SegCs, (uint32_t)frame.AddrPC.Offset, sfaDisplacement, (uint32_t)module_base);
         }
         else
         {
             // Fallback
-            LbJustLog("[#%-2d]  in %-13s at %08lx:%08lx, base %08lx\n", depth, module_name, context->SegCs, frame.AddrPC.Offset, module_base);
+            LbJustLog("[#%-2d] %-12s : at %04x:%08x, base %08x\n", depth, module_name, (uint16_t)context->SegCs, (uint32_t)frame.AddrPC.Offset, (uint32_t)module_base);
         }
     }
 
