@@ -360,7 +360,8 @@ INCS = \
 	-I"deps/enet/include" \
 	-I"deps/centijson/include" \
 	-I"deps/centitoml" \
-	-I"deps/astronomy/include"
+	-I"deps/astronomy/include" \
+	-I"obj" # To find ver_defs.h
 CXXINCS =  $(INCS)
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
@@ -554,7 +555,7 @@ obj/std/%.o obj/hvlog/%.o: src/%.c libexterns $(GENSRC)
 # Windows resources compilation
 obj/std/%.res obj/hvlog/%.res: res/%.rc res/keeperfx_icon.ico $(GENSRC)
 	-$(ECHO) 'Building resource: $<'
-	$(WINDRES) -i "$<" --input-format=rc -o "$@" -O coff
+	$(WINDRES) -i "$<" --input-format=rc -o "$@" -O coff -I"obj/"
 	-$(ECHO) ' '
 
 # Creation of Windows icon files from PNG files
