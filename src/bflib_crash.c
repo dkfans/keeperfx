@@ -237,7 +237,7 @@ _backtrace(int depth , LPCONTEXT context)
 
                             // Log it
                             LbJustLog(
-                                "[#%-2d] %-12s : %-36s [0x%"PRIx64"+0x%"PRIx64"]\t map lookup for: %04x:%08x, base: %08x\n",
+                                "[#%-2d] %-12s : %-36s [0x%" PRIxMAX "+0x%" PRIxMAX "]\t map lookup for: %04x:%08x, base: %08x\n",
                                 depth, module_name, prevName, prevAddr, displacement, (uint16_t)context->SegCs, (uint32_t)frame.AddrPC.Offset, (uint32_t)module_base);
 
                             addrFound = true;
@@ -273,7 +273,7 @@ _backtrace(int depth , LPCONTEXT context)
         // This works if there are any debug symbols available and also works for most OS libraries
         if (SymFromAddr(process, frame.AddrPC.Offset, &sfaDisplacement, pSymbol))
         {
-            LbJustLog("[#%-2d] %-12s : %-36s [%04x:%08x+0x%"PRIx64", base %08x]\t symbol lookup\n",
+            LbJustLog("[#%-2d] %-12s : %-36s [%04x:%08x+0x%" PRIxMAX ", base %08x]\t symbol lookup\n",
                       depth, module_name, pSymbol->Name, (uint16_t)context->SegCs, (uint32_t)frame.AddrPC.Offset, sfaDisplacement, (uint32_t)module_base);
         }
         else
