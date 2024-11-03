@@ -469,7 +469,7 @@ GoldAmount compute_creature_max_scavenging_cost(GoldAmount base_param,unsigned s
  * @param luck Creature luck, scaled 0..100.
  * @param crlevel Creature level, 0..9.
  */
-long project_creature_attack_melee_damage(long base_param,long luck,unsigned short crlevel, const struct Thing* thing)
+long project_creature_attack_melee_damage(long base_param, short damage_percent, long luck,unsigned short crlevel, const struct Thing* thing)
 {
     struct Dungeon* dungeon;
     if (base_param < -60000)
@@ -477,6 +477,10 @@ long project_creature_attack_melee_damage(long base_param,long luck,unsigned sho
     if (base_param > 60000)
         base_param = 60000;
     long max_param = base_param;
+    if (damage_percent != 0)
+    {
+        max_param = (max_param * damage_percent) / 100;
+    }
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.strength;

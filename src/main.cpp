@@ -62,6 +62,7 @@
 #include "config_compp.h"
 #include "config_effects.h"
 #include "lvl_script.h"
+#include "lvl_filesdk1.h"
 #include "thing_list.h"
 #include "player_instances.h"
 #include "player_utils.h"
@@ -3883,6 +3884,7 @@ void game_loop(void)
       free_custom_music();
       free_sound_chunks();
       memset(&game.loaded_sound,0,DISKPATH_SIZE * EXTERNAL_SOUNDS_COUNT+1);
+      free_level_strings_data();
       turn_off_all_menus();
       delete_all_structures();
       clear_mapwho();
@@ -3919,6 +3921,7 @@ short reset_game(void)
     LbScreenReset(false);
     LbDataFreeAllV2(game_load_files);
     free_gui_strings_data();
+    free_level_strings_data();
     FreeAudio();
     return LbMemoryReset();
 }
@@ -4379,7 +4382,11 @@ LONG __stdcall Vex_handler(
     return 0;
 }
 
+#ifdef _WIN32
+int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+#else
 int main(int argc, char *argv[])
+#endif
 {
   char *text;
 

@@ -68,6 +68,7 @@ enum CreatureSoundTypes {
     CrSnd_Die       = 9,
     CrSnd_Foot      = 10,
     CrSnd_Fight     = 11,
+    CrSnd_Piss      = 12,
 };
 
 enum CreatureControlFlags {
@@ -532,6 +533,8 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned short good_start_state;
     unsigned char natural_death_kind;
     unsigned char swipe_idx;
+    ThingModel prison_kind;
+    ThingModel torture_kind;
     struct CreaturePickedUpOffset creature_picked_up_offset;
 };
 
@@ -557,6 +560,7 @@ struct CreatureSounds {
     struct CreatureSound torture;
     struct CreatureSound slap;
     struct CreatureSound fight;
+    struct CreatureSound piss;
 };
 
 extern int creature_swap_idx[CREATURE_TYPES_MAX];

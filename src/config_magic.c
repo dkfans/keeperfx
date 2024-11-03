@@ -21,27 +21,27 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_dernc.h"
-
+#include "bflib_memory.h"
 #include "config.h"
-#include "config_effects.h"
-#include "config_objects.h"
-#include "config_players.h"
-#include "config_cubes.h"
 #include "config_creature.h"
 #include "config_crtrmodel.h"
+#include "config_cubes.h"
+#include "config_effects.h"
 #include "config_effects.h"
 #include "config_objects.h"
+#include "config_objects.h"
+#include "config_players.h"
 #include "config_rules.h"
-#include "custom_sprites.h"
-#include "thing_physics.h"
-#include "thing_effects.h"
-#include "power_process.h"
-#include "game_legacy.h"
 #include "console_cmd.h"
-
+#include "custom_sprites.h"
+#include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "power_process.h"
+#include "thing_creature.h"
+#include "thing_effects.h"
+#include "thing_physics.h"
+
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -152,6 +152,7 @@ const struct NamedCommand magic_power_commands[] = {
   {"SPELL",          20},
   {"EFFECT",         21},
   {"USEFUNCTION",    22},
+  {"CREATURETYPE",   23},
   {NULL,              0},
   };
 
@@ -2206,6 +2207,22 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
+      case 23: //CREATURETYPE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(creature_desc,word_buf);
+              if (k >= 0)
+              {
+                  powerst->creature_model = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+          }
+          break;
       case ccr_comment:
           break;
       case ccr_endOfFile:
@@ -2547,6 +2564,8 @@ TbBool add_power_to_player(PowerKind pwkind, PlayerNumber plyr_idx)
 void remove_power_from_player(PowerKind pwkind, PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    struct PlayerInfo* player;
+    struct Thing* thing;
     if (dungeon_invalid(dungeon))
     {
         ERRORLOG("Cannot remove spell %s from invalid dungeon %d!",power_code_name(pwkind),(int)plyr_idx);
@@ -2573,6 +2592,14 @@ void remove_power_from_player(PowerKind pwkind, PlayerNumber plyr_idx)
     case PwrK_CALL2ARMS:
         if (player_uses_power_call_to_arms(plyr_idx))
             turn_off_power_call_to_arms(plyr_idx);
+        break;
+    case PwrK_POSSESS:
+        player = get_player(plyr_idx);
+        if (player->view_type == PVT_CreatureContrl)
+        {
+            thing = thing_get(player->controlled_thing_idx);
+            prepare_to_controlled_creature_death(thing);
+        }
         break;
     }
     if (game.chosen_spell_type == pwkind)
