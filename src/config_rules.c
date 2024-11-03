@@ -217,6 +217,7 @@ const struct NamedCommand rules_sacrifices_commands[] = {
 
 const struct NamedCommand sacrifice_unique_desc[] = {
   {"ALL_CREATRS_ANGRY",     UnqF_MkAllAngry},
+  {"ALL_CREATRS_HAPPY",     UnqF_MkAllHappy},
   {"COMPLETE_RESEARCH",     UnqF_ComplResrch},
   {"COMPLETE_MANUFACTR",    UnqF_ComplManufc},
   {"KILL_ALL_CHICKENS",     UnqF_KillChickns},
@@ -554,7 +555,7 @@ TbBool parse_rules_research_blocks(char *buf, long len, const char *config_textn
       // Finding command number in this line
       int cmd_num = recognize_conf_command(buf, &pos, len, rules_research_commands);
       // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
+      if (cmd_num == ccr_endOfBlock) break; // if next block starts
       int n = 0;
       int l = 0;
       switch (cmd_num)
@@ -586,9 +587,9 @@ TbBool parse_rules_research_blocks(char *buf, long len, const char *config_textn
               }
               add_research_to_all_players(i, l, k);
               break;
-      case 0: // comment
+      case ccr_comment:
           break;
-      case -1: // end of buffer
+      case ccr_endOfFile:
           break;
       default:
           CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -650,7 +651,7 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, rules_sacrifices_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         int n = 0;
         struct SacrificeRecipe* sac;
         switch (cmd_num)
@@ -793,9 +794,9 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
             }
             n++; // delayed increase for first argument
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",

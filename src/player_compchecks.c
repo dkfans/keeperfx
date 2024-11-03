@@ -790,7 +790,7 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
             struct StateInfo* stati = get_thing_state_info_num(n);
             if (stati->state_type == CrStTyp_Work)
             {
-                if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, SPELL_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
+                if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, POWER_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
                 {
                     return thing;
                 }
@@ -829,7 +829,7 @@ struct Thing *computer_check_creatures_in_room_for_flight(struct Computer2 *comp
             struct StateInfo* stati = get_thing_state_info_num(n);
             if (stati->state_type == CrStTyp_Work)
             {
-                if (try_game_action(comp, dungeon->owner, GA_UsePwrFlight, SPELL_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
+                if (try_game_action(comp, dungeon->owner, GA_UsePwrFlight, POWER_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
                 {
                     return thing;
                 }
@@ -868,7 +868,7 @@ struct Thing *computer_check_creatures_in_room_for_vision(struct Computer2 *comp
             struct StateInfo* stati = get_thing_state_info_num(n);
             if (stati->state_type == CrStTyp_Work)
             {
-                if (try_game_action(comp, dungeon->owner, GA_UsePwrVision, SPELL_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
+                if (try_game_action(comp, dungeon->owner, GA_UsePwrVision, POWER_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
                 {
                     return thing;
                 }

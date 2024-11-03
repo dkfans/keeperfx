@@ -845,10 +845,19 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_
         ERRORLOG("No network SP selected");
         return Lb_FAIL;
     }
-
-    sprintf(buf, "%d", ServerPort);
-    if (netstate.sp->host(buf, optns) == Lb_FAIL) {
-        return Lb_FAIL;
+ 
+    if (ServerPort != 0)
+    {
+        sprintf(buf, "%d", ServerPort);
+        if (netstate.sp->host(buf, optns) == Lb_FAIL) {
+            return Lb_FAIL;
+        }
+    }
+    else
+    {
+        if (netstate.sp->host(":5555", optns) == Lb_FAIL) {
+            return Lb_FAIL;
+        }
     }
 
     netstate.my_id = SERVER_ID;

@@ -304,7 +304,15 @@ long near_thing_pos_thing_filter_is_enemy_which_can_be_shot_by_trap(const struct
                         {
                             if (line_of_sight_2d(&traptng->mappos, &thing->mappos))
                             {
-                                // This function should return max value when the distance is minimal, so:
+                                if (creature_is_invisible(thing))
+                                {
+                                    struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
+                                    if (trapstat->detect_invisible == 0)
+                                    {
+                                        return -1;
+                                    }
+                                } 
+                                // This function should return max value when the distance is minimal.
                                 return LONG_MAX - distance;
                             }
                         }
@@ -2065,7 +2073,7 @@ TbBool lord_of_the_land_in_prison_or_tortured(void)
     for (long crtr_model = 0; crtr_model < game.conf.crtr_conf.model_count; crtr_model++)
     {
         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_model];
-        if ((crconf->model_flags & CMF_IsLordOTLand) != 0)
+        if ((crconf->model_flags & CMF_IsLordOfLand) != 0)
         {
             struct Thing* thing = creature_of_model_in_prison_or_tortured(crtr_model);
             if (!thing_is_invalid(thing))
@@ -2085,7 +2093,7 @@ struct Thing *lord_of_the_land_find(void)
     for (long crtr_model = 1; crtr_model < game.conf.crtr_conf.model_count; crtr_model++)
     {
         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_model];
-        if ((crconf->model_flags & CMF_IsLordOTLand) != 0)
+        if ((crconf->model_flags & CMF_IsLordOfLand) != 0)
         {
             int i = creature_of_model_find_first(crtr_model);
             if (i > 0)
