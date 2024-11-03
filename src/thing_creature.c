@@ -3448,6 +3448,13 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, CrInstance 
             return thing->index;
         }
     }
+    if((inst_inf->instance_property_flags & InstPF_RangedBuff) != 0)
+    {
+        if(inst_inf->primary_target != 5 && inst_inf->primary_target != 6)
+        {
+            ERRORLOG("The instance %d has RANGED_BUFF property but has no valid primary target.", inst_id);
+        }
+    }
 
     struct Thing *i;
     long angle_xy_to;
@@ -3580,6 +3587,7 @@ ThingIndex process_player_use_instance(struct Thing *thing, CrInstance inst_id, 
         if (target_idx == 0)
         {
             // If cannot find a valid target, do not use it and don't consider it used.
+
             // Make a rejection sound
             play_non_3d_sample(119);
             return 0;
@@ -5926,7 +5934,6 @@ TngUpdateRet update_creature(struct Thing *thing)
     {
         cctrl->move_speed = 0;
     }
-    scan_nearby_creature(thing);
     process_spells_affected_by_effect_elements(thing);
     process_landscape_affecting_creature(thing);
     process_disease(thing);
@@ -7033,96 +7040,6 @@ TbBool creature_can_be_queried(struct PlayerInfo *player, struct Thing *creatng)
 TbBool creature_can_be_transferred(const struct Thing* thing)
 {
     return ((get_creature_model_flags(thing) & CMF_NoTransfer) == 0);
-}
-
-/**
- * @brief Use the specified creature's position as the center, scan nearby area,
- * collect creatures within CREATURE_SCAN_RANGE_MAX, and record found creatures in the
- * CreatureControl.creatures_nearby.
- * @param center The creature being processed.
- * @return The number of found creatures.
- */
-int scan_nearby_creature(struct Thing *center)
-{
-    SYNCDBG(11, "Processing %s(%d).", thing_model_name(center), center->index);
-    if (thing_is_invalid(center))
-    {
-        return 0;
-    }
-    struct CreatureControl* cctrl = creature_control_get_from_thing(center);
-    if (creature_control_invalid(cctrl))
-    {
-        ERRORLOG("Invalid creature control");
-        return 0;
-    }
-    memset(&cctrl->creatures_nearby, 0, sizeof(cctrl->creatures_nearby));
-    int k = 0;
-    int count = 1;
-    for(int player_idx = 0; player_idx < PLAYERS_COUNT; player_idx++)
-    {
-        struct Dungeon* dungeon = get_players_num_dungeon(player_idx);
-        ThingIndex creature_idx = dungeon->creatr_list_start;
-
-        while (creature_idx != 0 && count < COUNT_OF(cctrl->creatures_nearby))
-        {
-            struct Thing* current = thing_get(creature_idx);
-            if (thing_is_invalid(current))
-            {
-                ERRORLOG("Invalid creature at index %d", creature_idx);
-                break;
-            }
-            struct CreatureControl* temp_ctrl = creature_control_get_from_thing(current);
-            if (creature_control_invalid(temp_ctrl))
-            {
-                ERRORLOG("Invalid creature control");
-                break;
-            }
-            // Don't use creature_idx anymore until next iteration.
-            creature_idx = temp_ctrl->players_next_creature_idx;
-
-            if(center->index == current->index)
-            {
-                // Skip itself.
-                continue;
-            }
-
-            long dist = get_2d_distance(&center->mappos, &current->mappos);
-            if (dist <= CREATURE_SCAN_RANGE_MAX)
-            {
-                if (!insert_nearby_creature(center, current->index, dist))
-                {
-                    ERRORLOG("Failed to insert nearby creature!");
-                    break;
-                }
-                SYNCDBG(15, "Inserted nearby %s(%d) in distance %d, count: %d",
-                    thing_model_name(current), current->index, dist, count);
-                count++;
-            }
-
-            k++;
-            if (k > CREATURES_COUNT)
-            {
-                ERRORLOG("Infinite loop detected when sweeping creatures list");
-                break;
-            }
-        }
-    }
-
-    #if (BFDEBUG_LEVEL >= 12)
-    SYNCDBG(11, "Debug creatures_nearby...");
-    for(int i = 0; i < COUNT_OF(cctrl->creatures_nearby); i++)
-    {
-        if (cctrl->creatures_nearby[i].creature_idx != 0)
-        {
-            struct Thing* current = thing_get(cctrl->creatures_nearby[i].creature_idx);
-            SYNCDBG(11, "#%d Nearby creature %s(%d) in distaccne %d.", i,
-                thing_model_name(current), cctrl->creatures_nearby[i].creature_idx,
-                cctrl->creatures_nearby[i].distance);
-        }
-    }
-    #endif
-
-    return count;
 }
 
 /******************************************************************************/

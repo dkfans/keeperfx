@@ -112,7 +112,6 @@ const struct NamedCommand creaturetype_instance_properties[] = {
   {"DISPLAY_SWIPE",        InstPF_UsesSwipe},
   {"RANGED_BUFF",          InstPF_RangedBuff},
   {"NEEDS_TARGET",         InstPF_NeedsTarget},
-  {"APPLY_TO_ALLIES",      InstPF_ApplyToAllies},
   {NULL,                     0},
   };
 

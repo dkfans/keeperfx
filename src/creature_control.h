@@ -34,9 +34,6 @@ extern "C" {
 
 #define CREATURE_TYPES_MAX 128
 #define CREATURE_STATES_MAX 256
-#define CREATURE_TRACKING_MAX (CREATURES_COUNT / 4)
-// 7680 is roughly 10 slabs.
-#define CREATURE_SCAN_RANGE_MAX 7680
 
 #define MAX_SIZEXY            768
 /** Max amount of spells casted at the creature at once. */
@@ -139,11 +136,6 @@ enum ObjectCombatStates {
 struct CastedSpellData {
     unsigned char spkind;
     short duration;
-};
-
-struct CreatureWithDistance {
-  unsigned int distance;
-  ThingIndex creature_idx;
 };
 
 struct CreatureControl {
@@ -422,8 +414,6 @@ unsigned char sound_flag;
     ThingIndex summoner_idx;
     long summon_spl_idx;
     ThingIndex familiar_idx[FAMILIAR_MAX];
-    // Ascending sorted array by the distance.
-    struct CreatureWithDistance creatures_nearby[CREATURE_TRACKING_MAX];
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields
@@ -595,8 +585,6 @@ void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_id
 struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx);
 void reset_creature_eye_lens(struct Thing *thing);
 TbBool creature_can_gain_experience(const struct Thing *thing);
-TbBool insert_nearby_creature(struct Thing *center, ThingIndex creature_idx, long distance);
-
 /******************************************************************************/
 #ifdef __cplusplus
 }

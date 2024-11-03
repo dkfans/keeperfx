@@ -65,16 +65,6 @@
 #include <algorithm>
 using std::min;
 using std::max;
-#define COUNT_OF(_Array) (sizeof(_Array) / sizeof(_Array[0]))
-#else
-// C version (from Google's Chromium project)
-// It improves on the array[0] or *array version by using 0[array], which is equivalent to array[0] on plain arrays,
-// but will fail to compile if array happens to be a C++ type that overloads operator[]()
-#define COUNT_OF(_Array) ((sizeof(_Array) / sizeof(0[_Array])) / ((size_t)(!(sizeof(_Array) % sizeof(0[_Array])))))
-#endif
-
-
-#ifdef __cplusplus
 extern "C" {
 #endif
 

@@ -346,66 +346,6 @@ TbBool creature_can_gain_experience(const struct Thing *thing)
     return true;
 }
 
-/**
- * @brief Insert one creature with its distance to the creatures_nearby array of the
- * specified creature(center).
- * @param center The creature in the center.
- * @param creature_idx The index of the nearby creature.
- * @param distance The distance of the above creature.
- * @return TbBool True if successfully inserted.
- */
-TbBool insert_nearby_creature(struct Thing *center, ThingIndex creature_idx, long distance)
-{
-    if (thing_is_invalid(center))
-    {
-        ERRORLOG("Invalid thing!");
-        return false;
-    }
-    struct CreatureControl* cctrl = creature_control_get_from_thing(center);
-    if (creature_control_invalid(cctrl))
-    {
-        ERRORLOG("Invalid creature control!");
-        return false;
-    }
-
-    TbBool ok = true;
-    for(int i = 0; i < COUNT_OF(cctrl->creatures_nearby); i++)
-    {
-        if (cctrl->creatures_nearby[i].creature_idx == 0)
-        {
-            // Insert in an empty slot.
-            cctrl->creatures_nearby[i].creature_idx = creature_idx;
-            cctrl->creatures_nearby[i].distance = distance;
-            break;
-        }
-        else if(cctrl->creatures_nearby[i].distance > distance)
-        {
-            // Conduct insertion sort.
-            for (int k = COUNT_OF(cctrl->creatures_nearby) - 1; k >= i; k--)
-            {
-                if(cctrl->creatures_nearby[k].creature_idx != 0)
-                {
-                    if(k == COUNT_OF(cctrl->creatures_nearby) - 1)
-                    {
-                        // This array is full. Cannot add anymore.
-                        ok = false;
-                        break;
-                    }
-                    else
-                    {
-                        cctrl->creatures_nearby[k + 1].creature_idx = cctrl->creatures_nearby[k].creature_idx;
-                        cctrl->creatures_nearby[k + 1].distance = cctrl->creatures_nearby[k].distance;
-                    }
-                }
-            }
-            cctrl->creatures_nearby[i].creature_idx = creature_idx;
-            cctrl->creatures_nearby[i].distance = distance;
-            break;
-        }
-    }
-    return ok;
-}
-
 /******************************************************************************/
 #ifdef __cplusplus
 }
