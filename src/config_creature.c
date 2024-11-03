@@ -97,6 +97,7 @@ const struct NamedCommand creaturetype_instance_commands[] = {
   {"ValidateSourceFunc",   18},
   {"ValidateTargetFunc",   19},
   {"SearchTargetsFunc",    20},
+  {"RagePrio",    21},
   {NULL,              0},
   };
 
@@ -108,7 +109,6 @@ const struct NamedCommand creaturetype_instance_properties[] = {
   {"SELF_BUFF",            InstPF_SelfBuff},
   {"DANGEROUS",            InstPF_Dangerous},
   {"DESTRUCTIVE",          InstPF_Destructive},
-  {"QUICK",                InstPF_Quick},
   {"DISARMING",            InstPF_Disarming},
   {"DISPLAY_SWIPE",        InstPF_UsesSwipe},
   {"RANGED_BUFF",          InstPF_RangedBuff},
@@ -839,6 +839,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             inst_inf->validate_target_func = 0;
             inst_inf->validate_target_func_params[0] = 0;
             inst_inf->validate_target_func_params[1] = 0;
+            inst_inf->rage_prio = -1;
         }
     }
     instance_desc[INSTANCE_TYPES_MAX - 1].name = NULL; // must be null for get_id
@@ -1208,6 +1209,19 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                     inst_inf->search_func_params[1] = k;
                     n++;
                 }
+            }
+            break;
+        case 21: // Rage Instance priority
+        if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                inst_inf->rage_prio = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
         case ccr_comment:
@@ -1691,6 +1705,7 @@ TbBool load_creaturetypes_config_file(const char *textname, const char *fname, u
                 game.conf.magic_conf.instance_info[i].reset_time = 0;
                 game.conf.magic_conf.instance_info[i].fp_reset_time = 0;
                 game.conf.magic_conf.instance_info[i].graphics_idx = 0;
+                game.conf.magic_conf.instance_info[i].rage_prio = -1;
                 game.conf.magic_conf.instance_info[i].instance_property_flags = 0;
                 game.conf.magic_conf.instance_info[i].force_visibility = 0;
                 game.conf.magic_conf.instance_info[i].primary_target = 0;

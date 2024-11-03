@@ -1842,25 +1842,25 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
     return CrInst_NULL;
 }
 
-// Static array to store the IDs of "quick" instances
-static CrInstance quick_inst[INSTANCE_TYPES_MAX];
-// Counter for the number of "quick" instances found
-static short quick_inst_num = 0;
+// Static array to store the IDs of "rage" instances
+static CrInstance rage_inst[INSTANCE_TYPES_MAX];
+// Counter for the number of "rage" instances found
+static short rage_inst_num = 0;
 // Flag to indicate if the cache has been initialized
 static TbBool initial = false;
 
-/** @brief Retrieves a random available "QUICK" instance within range for a given creature.
+/** @brief Retrieves a random available "rage" instance within range for a given creature.
  * 
- * On the first call, the function creates a cache of all available "QUICK" instances.
+ * On the first call, the function creates a cache of all available "rage" instances.
  * It then loops through the cache to find instances available for the creature and fitting within the given range.
  * These available instances are added to a list.
  * The function then chooses a random instance from this list.
  * 
  * @param thing Pointer to the creature for which the instance is to be retrieved.
  * @param dist Distance to the target.
- * @return A random available "QUICK" CrInstance for the given range
+ * @return A random available "rage" CrInstance for the given range
  */
-CrInstance get_quick_instance_to_use(const struct Thing *thing, unsigned long dist)
+CrInstance get_rage_instance_to_use(const struct Thing *thing, unsigned long dist)
 {
     struct InstanceInfo* inst_inf;
 
@@ -1871,14 +1871,14 @@ CrInstance get_quick_instance_to_use(const struct Thing *thing, unsigned long di
             for (short i = 0; i < game.conf.crtr_conf.instances_count; i++)
             {
                 inst_inf = creature_instance_info_get(i);
-                    // Check if the instance has the "QUICK" flag
-                    if (inst_inf->instance_property_flags & InstPF_Quick)
+                    // Check if the instance has the "rage" flag
+                    if (inst_inf->rage_prio > -1)
                     {
                         // Ensure we don't exceed the maximum array size
-                        if (quick_inst_num < INSTANCE_TYPES_MAX) 
+                        if (rage_inst_num < INSTANCE_TYPES_MAX) 
                         {
                             // Add the instance ID to the cache
-                            quick_inst[quick_inst_num++] = i;
+                            rage_inst[rage_inst_num++] = i;
                         }
                         else {
                             break;
@@ -1890,40 +1890,57 @@ CrInstance get_quick_instance_to_use(const struct Thing *thing, unsigned long di
         }
 
     //List of usable instances
-    CrInstance av_quick_inst[INSTANCE_TYPES_MAX];
-    short av_quick_inst_num = 0;
-
-    // Loop through the cached quick instances
-    for (short j = 0; j < quick_inst_num; j++)
+    CrInstance av_rage_inst[INSTANCE_TYPES_MAX];
+    short av_rage_inst_num = 0;
+    char highest_prio = -1;
+    short highest_prio_idx = CrInst_NULL;
+    // Loop through the cached rage instances
+    for (short j = 0; j < rage_inst_num; j++)
     {
-        inst_inf = creature_instance_info_get(quick_inst[j]);
+        inst_inf = creature_instance_info_get(rage_inst[j]);
+        
         // Check if the instance is in range, available, and reset
         if ((inst_inf->range_min <= dist) && (inst_inf->range_max >= dist))
         {
-            if (creature_instance_is_available(thing, quick_inst[j]) 
-            && creature_instance_has_reset(thing, quick_inst[j])) 
+            if (creature_instance_is_available(thing, rage_inst[j]) 
+            && creature_instance_has_reset(thing, rage_inst[j])) 
             { 
+                if (inst_inf->rage_prio > highest_prio){
+                    highest_prio = inst_inf->rage_prio;
+                    highest_prio_idx = rage_inst[j];
+                    av_rage_inst_num = 0;
+                    av_rage_inst[av_rage_inst_num++] = rage_inst[j];
+                }
+                else if (inst_inf->rage_prio == highest_prio){
+                    av_rage_inst[av_rage_inst_num++] = rage_inst[j];
+                }
+                else {
+                }
+
                 // Add instance to list of usable instances
-                av_quick_inst[av_quick_inst_num++] = quick_inst[j];
+                
             }
         }
     }
-    if (av_quick_inst_num > 0)
+    if (av_rage_inst_num > 1)
     {
         // Choose a random index from the list of usable instances
-        short rand_inst_idx = CREATURE_RANDOM(thing,av_quick_inst_num);
-        return av_quick_inst[rand_inst_idx];
+        short rand_inst_idx = CREATURE_RANDOM(thing,av_rage_inst_num);
+        return av_rage_inst[rand_inst_idx];
+    }
+    else if (highest_prio > -1) {
+        return highest_prio_idx;
     }
     // Return NULL if no suitable instance is found 
     return CrInst_NULL;
 }
 
-void reset_quick_instance_cache()
+void reset_rage_instance_cache()
 {
     // Reset the cache variables
-    quick_inst_num = 0;
+    rage_inst_num = 0;
     initial = false;
-    memset(quick_inst, 0, sizeof(quick_inst));
+    memset(rage_inst, 0, sizeof(rage_inst));
 }
 
 

@@ -514,7 +514,7 @@ TbBool process_job_causes_going_postal(struct Thing *creatng, struct Room *room,
     {
         SYNCDBG(8,"The %s index %d goes postal on %s index %d during %s",thing_model_name(creatng),(int)creatng->index,thing_model_name(combt_thing),(int)combt_thing->index,creature_job_code_name(going_postal_job));
         
-        CrInstance inst_use = get_quick_instance_to_use(creatng, combt_dist);
+        CrInstance inst_use = get_rage_instance_to_use(creatng, combt_dist);
         if (inst_use <= 0) 
         {
         SYNCDBG(8,"The %s index %d cannot go postal during %s; no ranged instance",thing_model_name(creatng),(int)creatng->index,creature_job_code_name(going_postal_job));
@@ -637,8 +637,8 @@ TbBool any_worker_will_go_postal_on_creature_in_room(const struct Room *room, co
         {
             if (creature_will_go_postal_on_victim_during_job(thing, victng, going_postal_job))
             {
-                // We need quick ranged instance to go postal
-                if (creature_has_quick_weapon(thing)) {
+                // We need rage instance to go postal
+                if (creature_has_rage_weapon(thing)) {
                     return true;
                 }
             }
