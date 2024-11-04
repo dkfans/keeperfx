@@ -95,6 +95,7 @@ struct TrapStats {
     unsigned short shot_shift_z;
     unsigned short initial_delay; // Trap is placed on reload phase, value in game turns.
     unsigned char detect_invisible;
+    TbBool remove_once_depleted;
 };
 
 /******************************************************************************/
