@@ -140,11 +140,11 @@ struct Game {
     unsigned char eastegg01_cntr;
     unsigned char flags_cd;
     unsigned char eastegg02_cntr;
-    char audiotrack;
-    char last_audiotrack;
-char numfield_15;
+    unsigned char audiotrack;
+    unsigned char last_audiotrack;
+    char numfield_15;
     LevelNumber selected_level_number;
-char numfield_1A;
+    char numfield_1A;
     unsigned char numfield_1B;
     struct PlayerInfo players[PLAYERS_COUNT];
     struct Column columns_data[COLUMNS_COUNT];
@@ -174,7 +174,7 @@ char numfield_1A;
     char packet_fname[150];
     char packet_fopened;
     TbFileHandle packet_save_fp;
-unsigned int packet_file_pos;
+    unsigned int packet_file_pos;
     struct PacketSaveHead packet_save_head;
     unsigned long turns_stored;
     unsigned long turns_fastforward;
@@ -185,7 +185,7 @@ unsigned int packet_file_pos;
     unsigned long turns_packetoff;
     PlayerNumber local_plyr_idx;
     unsigned char numfield_149F47; // something with packetload
-// Originally, save_catalogue was here.
+    // Originally, save_catalogue was here.
     char campaign_fname[CAMPAIGN_FNAME_LEN];
     struct Event event[EVENTS_COUNT];
     unsigned long ceiling_height_max;
@@ -268,8 +268,8 @@ unsigned int packet_file_pos;
     int manufactr_element;
     int manufactr_spridx;
     int manufactr_tooltip;
-    char loaded_track[MUSIC_TRACKS_COUNT][DISKPATH_SIZE];
-    char loaded_sound[EXTERNAL_SOUNDS_COUNT+1][DISKPATH_SIZE];
+    unsigned char loaded_track[MUSIC_TRACKS_COUNT][DISKPATH_SIZE];
+    unsigned char loaded_sound[EXTERNAL_SOUNDS_COUNT+1][DISKPATH_SIZE];
     unsigned char sounds_count;
     struct Configs conf;
 };
