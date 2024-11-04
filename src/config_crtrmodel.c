@@ -2198,7 +2198,7 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
   {
       for (n = 0; n < CREATURE_GRAPHICS_INSTANCES; n++)
       {
-          set_creature_model_graphics(crtr_model, n, 0);
+          set_creature_model_graphics(crtr_model, n, -1);
       }
   }
   // Find the block

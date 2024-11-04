@@ -28,7 +28,7 @@ extern "C" {
 
 // note - this is temporary value; not correct
 #define CREATURE_FRAMELIST_LENGTH    982
-#define CREATURE_GRAPHICS_INSTANCES   23
+#define CREATURE_GRAPHICS_INSTANCES   25
 
 enum CreatureGraphicsInstances {
     CGI_Stand       =  0,
@@ -49,11 +49,13 @@ enum CreatureGraphicsInstances {
     CGI_Scream      = 15,
     CGI_DropDead    = 16,
     CGI_DeadSplat   = 17,
-    CGI_Roar        = 18,
-    CGI_Piss        = 19,
-    CGI_CastSpell   = 20,
-    CGI_QuerySymbol = 21,
-    CGI_HandSymbol  = 22,
+    CGI_Roar        = 18, // Was previously GFX18.
+    CGI_QuerySymbol = 19, // Seems to be not from JTY file.
+    CGI_HandSymbol  = 20, // Seems to be not from JTY file.
+    CGI_Piss        = 21, // Was previously GFX21.
+    CGI_CastSpell   = 22,
+    CGI_UseAbility  = 23,
+    CGI_Custom      = 24,
 };
 /******************************************************************************/
 #pragma pack(1)
