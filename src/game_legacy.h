@@ -268,8 +268,8 @@ struct Game {
     int manufactr_element;
     int manufactr_spridx;
     int manufactr_tooltip;
-    unsigned char loaded_track[MUSIC_TRACKS_COUNT][DISKPATH_SIZE];
-    unsigned char loaded_sound[EXTERNAL_SOUNDS_COUNT+1][DISKPATH_SIZE];
+    char loaded_track[MUSIC_TRACKS_COUNT][DISKPATH_SIZE];
+    char loaded_sound[EXTERNAL_SOUNDS_COUNT+1][DISKPATH_SIZE];
     unsigned char sounds_count;
     struct Configs conf;
 };
