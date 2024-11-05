@@ -201,6 +201,27 @@ void free_custom_music()
     game.last_audiotrack = max_track;
 }
 
+TbBool load_campaign_soundtrack(char* sndtrck_fname)
+{
+    if (tracks[CAMPAIGN_LANDMAP_TRACK] != NULL)
+    {
+        Mix_FreeMusic(tracks[CAMPAIGN_LANDMAP_TRACK]);
+        tracks[CAMPAIGN_LANDMAP_TRACK] = NULL;
+    }
+    if (sndtrck_fname[0] != '\0')
+    {
+        const char* fname = prepare_file_fmtpath(FGrp_CmpgMedia, sndtrck_fname);
+        tracks[CAMPAIGN_LANDMAP_TRACK] = Mix_LoadMUS(fname);
+        if (tracks[CAMPAIGN_LANDMAP_TRACK] == NULL)
+        {
+            WARNLOG("Can't load track %s: %s", sndtrck_fname, Mix_GetError());
+            return false;
+        }
+        SYNCLOG("Loaded track %s", fname);
+    }
+    return true;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

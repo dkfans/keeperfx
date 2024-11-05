@@ -1123,7 +1123,7 @@ TbBool frontmap_load(void)
     }
     LbSpriteSetupAll(map_flag_setup_sprites);
     frontend_load_data_reset();
-    PlayMusicPlayer(2);
+    PlayMusicPlayer((tracks[CAMPAIGN_LANDMAP_TRACK] != NULL) ? CAMPAIGN_LANDMAP_TRACK : 2);
     struct PlayerInfo* player = get_my_player();
     lvnum = get_continue_level_number();
     if ((player->flgfield_6 & PlaF6_PlyrHasQuit) != 0)
@@ -1606,7 +1606,7 @@ long frontmap_update(void)
 //      playing_speech_lvnum = SINGLEPLAYER_NOTSTARTED;
     }
   }
-  PlayMusicPlayer(2);
+  PlayMusicPlayer((tracks[CAMPAIGN_LANDMAP_TRACK] != NULL) ? CAMPAIGN_LANDMAP_TRACK : 2);
   SYNCDBG(8,"Finished");
   return 0;
 }

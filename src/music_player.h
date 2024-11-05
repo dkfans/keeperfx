@@ -27,6 +27,7 @@
 extern "C" {
 #endif
 
+#define CAMPAIGN_LANDMAP_TRACK 1
 #define FIRST_TRACK 2
 #define MUSIC_TRACKS_COUNT 51
 extern Mix_Music* tracks[];
@@ -42,6 +43,7 @@ void StopMusicPlayer(void);
 void SetMusicPlayerVolume(int volume);
 void free_custom_music();
 void music_reinit_after_load();
+TbBool load_campaign_soundtrack(char* sndtrck_fname);
 
 #ifdef __cplusplus
 }
