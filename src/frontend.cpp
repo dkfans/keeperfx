@@ -471,34 +471,6 @@ int frontend_font_string_width(int fnt_idx, const char *str)
     return LbTextStringWidth(str);
 }
 
-TbBool frontend_font_string_draw(int scr_x, int scr_y, int dst_width, int dst_height, int fnt_idx, const char *str, unsigned short fdflags)
-{
-    int units_per_px;
-    units_per_px = dst_height * 16 / LbTextLineHeight();
-    if (units_per_px < 1)
-        units_per_px = 1;
-    lbDisplay.DrawFlags = 0;
-    LbTextSetFont(frontend_font[fnt_idx]);
-    int w;
-    int h;
-    h = LbTextLineHeight() * units_per_px / 16;
-    w = LbTextStringWidth(str) * units_per_px / 16;
-    if (w > dst_width) w = dst_width;
-    switch (fdflags & 0x03)
-    {
-    case Fnt_LeftJustify:
-        LbTextSetWindow(scr_x, scr_y, w, h);
-        break;
-    case Fnt_RightJustify:
-        LbTextSetWindow(scr_x+dst_width-w, scr_y, w, h);
-        break;
-    case Fnt_CenterPos:
-        LbTextSetWindow(scr_x+((dst_width-w)>>1), scr_y, w, h);
-        break;
-    }
-    return LbTextDrawResized(0, 0, units_per_px, str);
-}
-
 void get_player_gui_clicks(void)
 {
   struct PlayerInfo *player;
