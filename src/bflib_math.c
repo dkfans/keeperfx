@@ -831,10 +831,12 @@ long LbDiagonalLength(long a, long b)
     return (tmpval >> 13);
 }
 
-float lerp(float a, float b, float f) 
+#ifndef __cpp_lib_interpolate
+float lerp(float a, float b, float f)
 {
     return (a * (1.0 - f)) + (b * f);
 }
+#endif
 
 long lerp_angle(long from, long to, float weight) {
     return (from + (long)((((to - from + (LbFPMath_TAU >> 1)) & (LbFPMath_TAU - 1)) - (LbFPMath_TAU >> 1)) * weight)) & (LbFPMath_TAU - 1);

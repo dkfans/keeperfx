@@ -1140,10 +1140,6 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
     long damage = get_damage_of_melee_shot(shotng, trgtng, flag_is_set(shotst->model_flags, ShMF_NeverBlock));
     if (damage > 0)
     {
-        if (shotst->damage != 0)
-        {
-            damage = (damage * shotst->damage) / 100;
-        }
         if (shotst->hit_creature.sndsample_idx > 0)
         {
             play_creature_sound(trgtng, CrSnd_Hurt, 3, 0);
