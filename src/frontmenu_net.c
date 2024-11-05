@@ -646,38 +646,6 @@ void frontnet_draw_small_scroll_box_tab(struct GuiButton *gbtn)
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
 }
 
-void frontnet_draw_small_scroll_selection_box(struct GuiButton *gbtn, long font_idx, const char *text)
-{
-    const struct TbSprite *spr;
-    int pos_x;
-    int pos_y;
-    pos_x = gbtn->scr_pos_x;
-    pos_y = gbtn->scr_pos_y;
-    spr = get_frontend_sprite(GFS_largearea_xts_cor_l);
-    int fs_units_per_px;
-    fs_units_per_px = gbtn->height * 16 / spr->SHeight;
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr = get_frontend_sprite(GFS_largearea_xts_tx1_c);
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr = get_frontend_sprite(GFS_largearea_xts_cor_r);
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    if (text != NULL)
-    {
-        LbTextSetFont(frontend_font[font_idx]);
-        lbDisplay.DrawFlags = 0;
-        int tx_units_per_px;
-        tx_units_per_px = (gbtn->height*13/14) * 16 / LbTextLineHeight();
-        int height;
-        height = LbTextLineHeight() * tx_units_per_px / 16;
-        LbTextSetWindow(gbtn->scr_pos_x + 13*fs_units_per_px/16, gbtn->scr_pos_y, gbtn->width - 26*fs_units_per_px/16, height);
-        LbTextDrawResized(0, 0, tx_units_per_px, text);
-    }
-}
-
 int small_scroll_box_get_units_per_px(struct GuiButton *gbtn)
 {
     const struct TbSprite *spr;
