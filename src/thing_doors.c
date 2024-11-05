@@ -130,7 +130,6 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
     if (doorst->model_flags & DoMF_Thick)
     {
         doortng->clipbox_size_xy = 3*COORD_PER_STL;
-        // doortng->clipbox_size_xy = 7*COORD_PER_STL/2;
     }
 
     add_thing_to_its_class_list(doortng);
