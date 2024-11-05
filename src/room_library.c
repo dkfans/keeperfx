@@ -266,6 +266,7 @@ TbBool add_research_to_all_players(long rtyp, long rkind, long amount)
 TbBool update_players_research_amount(PlayerNumber plyr_idx, long rtyp, long rkind, long amount)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    short n = 0;
     for (long i = 0; i < dungeon->research_num; i++)
     {
         struct ResearchVal* resrch = &dungeon->research[i];
@@ -273,9 +274,11 @@ TbBool update_players_research_amount(PlayerNumber plyr_idx, long rtyp, long rki
         {
             resrch->req_amount = amount;
         }
+        n++;
+    }
+    if (n > 0)
         return true;
-  }
-  return false;
+    return false;
 }
 
 TbBool update_or_add_players_research_amount(PlayerNumber plyr_idx, long rtyp, long rkind, long amount)

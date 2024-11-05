@@ -64,6 +64,7 @@ enum TbErrorCode {
 /******************************************************************************/
 #pragma pack(1)
 
+// These types should be deprecated because we have stdint.h now.
 typedef unsigned long ulong;
 typedef unsigned int uint;
 typedef unsigned short ushort;
@@ -182,6 +183,7 @@ long saturate_set_signed(long long val,unsigned short nbits);
 unsigned long saturate_set_unsigned(unsigned long long val,unsigned short nbits);
 void make_lowercase(char *);
 void make_uppercase(char *);
+int natoi(const char * str, int len); // like atoi but stops after len bytes
 
 /**
  * Converts an index number to a flag - by creating a bitmask where only the nth bit is set to 1.

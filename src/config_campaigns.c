@@ -415,7 +415,7 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
       // Finding command number in this line
       int cmd_num = recognize_conf_command(buf, &pos, len, cmpgn_common_commands);
       // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
+      if (cmd_num == ccr_endOfBlock) break; // if next block starts
       int i = 0, n = 0;
       char word_buf[32];
       switch (cmd_num)
@@ -686,9 +686,9 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
               campgn->assignCpuKeepers = 1;
           }
           break;
-      case 0: // comment
+      case ccr_comment:
           break;
-      case -1: // end of buffer
+      case ccr_endOfFile:
           break;
       default:
           CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s %s file.",
@@ -729,7 +729,7 @@ short parse_campaign_strings_blocks(struct GameCampaign *campgn,char *buf,long l
           campgn->default_language = (cmd_num >= 0) ? cmd_num : 0;
       }
       // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
+      if (cmd_num == ccr_endOfBlock) break; // if next block starts
       if (cmd_num <= 0)
       {
         if ((cmd_num != 0) && (cmd_num != -1))
@@ -769,7 +769,7 @@ short parse_campaign_speech_blocks(struct GameCampaign *campgn,char *buf,long le
       // Finding command number in this line
       int cmd_num = recognize_conf_command(buf, &pos, len, lang_type);
       // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
+      if (cmd_num == ccr_endOfBlock) break; // if next block starts
       if (cmd_num <= 0)
       {
         if ((cmd_num != 0) && (cmd_num != -1))
@@ -829,7 +829,7 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, cmpgn_map_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         int n = 0;
         char word_buf[32];
         switch (cmd_num)
@@ -995,9 +995,9 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of '%s' file.",

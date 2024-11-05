@@ -68,6 +68,7 @@ enum CreatureSoundTypes {
     CrSnd_Die       = 9,
     CrSnd_Foot      = 10,
     CrSnd_Fight     = 11,
+    CrSnd_Piss      = 12,
 };
 
 enum CreatureControlFlags {
@@ -139,19 +140,19 @@ struct CastedSpellData {
 };
 
 struct CreatureControl {
-    unsigned short index;
+    ThingIndex index;
     unsigned char flgfield_1;
     unsigned char flgfield_2;
     unsigned char combat_flags;
     unsigned char party_objective;
     unsigned long wait_to_turn;
     short distance_to_destination;
-    short opponents_melee[COMBAT_MELEE_OPPONENTS_LIMIT];
-    short opponents_ranged[COMBAT_RANGED_OPPONENTS_LIMIT];
+    ThingIndex opponents_melee[COMBAT_MELEE_OPPONENTS_LIMIT];
+    ThingIndex opponents_ranged[COMBAT_RANGED_OPPONENTS_LIMIT];
     unsigned char opponents_melee_count;
     unsigned char opponents_ranged_count;
-    unsigned short players_prev_creature_idx;
-    unsigned short players_next_creature_idx;
+    ThingIndex players_prev_creature_idx;
+    ThingIndex players_next_creature_idx;
     unsigned short slap_turns;
     unsigned char explevel;
     long exp_points;
@@ -181,9 +182,9 @@ unsigned char sound_flag;
     /** Index of a thing being dragged by the creature, or index of a thing which is dragging this thing.
      *  Specific case is determined by flags. */
     short dragtng_idx;
-    unsigned short arming_thing_id;
-    unsigned short pickup_object_id;
-    unsigned short pickup_creature_id;
+    ThingIndex arming_thing_id;
+    ThingIndex pickup_object_id;
+    ThingIndex pickup_creature_id;
     unsigned short next_in_group;
     unsigned short prev_in_group;
     unsigned long group_info;// offset 7A
@@ -532,6 +533,8 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned short good_start_state;
     unsigned char natural_death_kind;
     unsigned char swipe_idx;
+    ThingModel prison_kind;
+    ThingModel torture_kind;
     struct CreaturePickedUpOffset creature_picked_up_offset;
 };
 
@@ -557,6 +560,7 @@ struct CreatureSounds {
     struct CreatureSound torture;
     struct CreatureSound slap;
     struct CreatureSound fight;
+    struct CreatureSound piss;
 };
 
 extern int creature_swap_idx[CREATURE_TYPES_MAX];
