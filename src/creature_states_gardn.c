@@ -21,6 +21,7 @@
 #include "globals.h"
 
 #include "bflib_math.h"
+#include "bflib_planar.h"
 #include "creature_states.h"
 #include "creature_instances.h"
 #include "thing_list.h"
@@ -60,7 +61,7 @@ TbBool creature_able_to_eat(const struct Thing *creatng)
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     if (creature_stats_invalid(crstat))
         return false;
-    return (crstat->hunger_rate != 0);
+    return ((crstat->hunger_rate > 0) || (crstat->hunger_fill > 0));
 }
 
 TbBool hunger_is_creature_hungry(const struct Thing *creatng)
@@ -122,7 +123,7 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
             struct Thing* thing = get_food_at_subtile_available_to_eat_and_owned_by(x, y, -1);
             if (!thing_is_invalid(thing))
             {
-                long dist = get_2d_box_distance(&creatng->mappos, &thing->mappos);
+                long dist = get_chessboard_distance(&creatng->mappos, &thing->mappos);
                 if (near_food_dist > dist)
                 {
                     near_food_dist = dist;
@@ -205,6 +206,10 @@ short creature_arrived_at_garden(struct Thing *thing)
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d",
             room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->index);
+        set_start_state(thing);
+        return 0;
+    }
+    if (!creature_able_to_eat(thing)){
         set_start_state(thing);
         return 0;
     }

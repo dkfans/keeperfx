@@ -29,6 +29,7 @@
 #include "config.h"
 #include "config_campaigns.h"
 #include "game_merge.h"
+#include "lvl_filesdk1.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -132,7 +133,7 @@ TbBool setup_campaign_strings_data(struct GameCampaign *campgn)
   long filelen = LbFileLengthRnc(fname);
   if (filelen <= 0)
   {
-    ERRORLOG("Campaign Strings file does not exist or can't be opened");
+    ERRORLOG("Campaign Strings file %s does not exist or can't be opened", campgn->strings_fname);
     return false;
   }
   campgn->strings_data = (char *)LbMemoryAlloc(filelen + 256);
@@ -151,7 +152,7 @@ TbBool setup_campaign_strings_data(struct GameCampaign *campgn)
   // Resetting all values to empty strings
   reset_strings(campgn->strings, STRINGS_MAX);
   // Analyzing strings data and filling correct values
-  short result = create_strings_list(campgn->strings, campgn->strings_data, strings_data_end, STRINGS_MAX);
+  TbBool result = create_strings_list(campgn->strings, campgn->strings_data, strings_data_end, STRINGS_MAX);
   SYNCDBG(19,"Finished");
   return result;
 }
@@ -167,9 +168,10 @@ const char * gui_string(unsigned int index)
     }
     return gui_strings[index];
 }
+
 const char * cmpgn_string(unsigned int index)
 {
-    if ((campaign.strings == NULL) || (index >= STRINGS_MAX))
+    if (index >= STRINGS_MAX)
     {
         return gui_string(index - STRINGS_MAX);
     }
@@ -183,9 +185,34 @@ const char * cmpgn_string(unsigned int index)
 const char * get_string(TextStringId stridx)
 {
     if (stridx <= STRINGS_MAX)
+    {
+        if (level_strings[stridx] != NULL)
+        {
+            if (*level_strings[stridx] != '\0')
+            {
+                return level_strings[stridx];
+            }
+        }
         return cmpgn_string(stridx);
+    }
     else
         return gui_string(stridx-STRINGS_MAX);
+}
+
+unsigned long count_strings(char *strings, int size)
+{
+    unsigned long result = 0;
+    char *s = strings;
+    char *end = strings + size;
+    while (s <= end)
+    {
+        if (*s == '\0')
+        {
+            result++;
+        }
+        s++;
+    }
+    return result;
 }
 /******************************************************************************/
 #ifdef __cplusplus

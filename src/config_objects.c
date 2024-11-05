@@ -45,27 +45,46 @@ const struct NamedCommand objects_common_commands[] = {
   };
 
 const struct NamedCommand objects_object_commands[] = {
-  {"NAME",              1},
-  {"GENRE",             2},
-  {"RELATEDCREATURE",   3},
-  {"PROPERTIES",        4},
-  {"ANIMATIONID",       5},
-  {"ANIMATIONSPEED",    6},
-  {"SIZE_XY",           7},
-  {"SIZE_YZ",           8},
-  {"MAXIMUMSIZE",       9},
-  {"DESTROYONLIQUID",  10},
-  {"DESTROYONLAVA",    11},
-  {"HEALTH",           12},
-  {"FALLACCELERATION", 13},
-  {"LIGHTUNAFFECTED",  14},
-  {"LIGHTINTENSITY",   15},
-  {"LIGHTRADIUS",      16},
-  {"LIGHTISDYNAMIC",   17},
-  {"MAPICON",          18},
-  {"AMBIENCESOUND",    19},
-  {"UPDATEFUNCTION",   20},
-  {NULL,                0},
+  {"NAME",               1},
+  {"GENRE",              2},
+  {"RELATEDCREATURE",    3},
+  {"PROPERTIES",         4},
+  {"ANIMATIONID",        5},
+  {"ANIMATIONSPEED",     6},
+  {"SIZE_XY",            7},
+  {"SIZE_YZ",            8},
+  {"SIZE_Z",             8},
+  {"MAXIMUMSIZE",        9},
+  {"DESTROYONLIQUID",   10},
+  {"DESTROYONLAVA",     11},
+  {"HEALTH",            12},
+  {"FALLACCELERATION",  13},
+  {"LIGHTUNAFFECTED",   14},
+  {"LIGHTINTENSITY",    15},
+  {"LIGHTRADIUS",       16},
+  {"LIGHTISDYNAMIC",    17},
+  {"MAPICON",           18},
+  {"AMBIENCESOUND",     19},
+  {"UPDATEFUNCTION",    20},
+  {"DRAWCLASS",         21},
+  {"PERSISTENCE",       22},
+  {"IMMOBILE",          23},
+  {"INITIALSTATE",      24},
+  {"RANDOMSTARTFRAME",  25},
+  {"TRANSPARENCYFLAGS", 26},
+  {"EFFECTBEAM",        27},
+  {"EFFECTPARTICLE",    28},
+  {"EFFECTEXPLOSION1",  29},
+  {"EFFECTEXPLOSION2",  30},
+  {"EFFECTSPACING",     31},
+  {"EFFECTSOUND",       32},
+  {"FLAMEANIMATIONID",       33},
+  {"FLAMEANIMATIONSPEED",    34},
+  {"FLAMEANIMATIONSIZE",     35},
+  {"FLAMEANIMATIONOFFSET",   36},
+  {"FLAMETRANSPARENCYFLAGS", 37},
+  {"LIGHTFLAGS",             38},
+  {NULL,                 0},
   };
 
 const struct NamedCommand objects_properties_commands[] = {
@@ -74,6 +93,8 @@ const struct NamedCommand objects_properties_commands[] = {
   {"CHOWNED_ON_ROOM_CLAIM",   3},
   {"DESTROYED_ON_ROOM_PLACE", 4},
   {"BUOYANT",                 5},
+  {"BEATING",                 6},
+  {"HEART",                   7},
   {NULL,                      0},
   };
 
@@ -90,6 +111,7 @@ const struct NamedCommand objects_genres_desc[] = {
   {"POWER",           OCtg_Power},
   {"LAIR_TOTEM",      OCtg_LairTotem},
   {"EFFECT",          OCtg_Effect},
+  {"HEROGATE",        OCtg_HeroGate},
   {NULL,              0},
   };
 
@@ -98,30 +120,23 @@ struct NamedCommand object_desc[OBJECT_TYPES_MAX];
 /******************************************************************************/
 struct ObjectConfigStats *get_object_model_stats(ThingModel tngmodel)
 {
-    if (tngmodel >= gameadd.object_conf.object_types_count)
-        return &gameadd.object_conf.object_cfgstats[0];
-    return &gameadd.object_conf.object_cfgstats[tngmodel];
-}
-
-struct ObjectConfig *get_object_model_stats2(ThingModel tngmodel)
-{
-    if (tngmodel >= gameadd.object_conf.object_types_count)
-        return &gameadd.object_conf.base_config[0];
-    return &gameadd.object_conf.base_config[tngmodel];
+    if (tngmodel >= game.conf.object_conf.object_types_count)
+        return &game.conf.object_conf.object_cfgstats[0];
+    return &game.conf.object_conf.object_cfgstats[tngmodel];
 }
 
 ThingClass crate_to_workshop_item_class(ThingModel tngmodel)
 {
-    if ((tngmodel <= 0) || (tngmodel >= gameadd.object_conf.object_types_count))
-        return gameadd.object_conf.workshop_object_class[0];
-    return gameadd.object_conf.workshop_object_class[tngmodel];
+    if ((tngmodel <= 0) || (tngmodel >= game.conf.object_conf.object_types_count))
+        return game.conf.object_conf.workshop_object_class[0];
+    return game.conf.object_conf.workshop_object_class[tngmodel];
 }
 
 ThingModel crate_to_workshop_item_model(ThingModel tngmodel)
 {
-    if ((tngmodel <= 0) || (tngmodel >= gameadd.object_conf.object_types_count))
-        return gameadd.object_conf.object_to_door_or_trap[0];
-    return gameadd.object_conf.object_to_door_or_trap[tngmodel];
+    if ((tngmodel <= 0) || (tngmodel >= game.conf.object_conf.object_types_count))
+        return game.conf.object_conf.object_to_door_or_trap[0];
+    return game.conf.object_conf.object_to_door_or_trap[tngmodel];
 }
 
 ThingClass crate_thing_to_workshop_item_class(const struct Thing *thing)
@@ -129,171 +144,80 @@ ThingClass crate_thing_to_workshop_item_class(const struct Thing *thing)
     if (!thing_is_workshop_crate(thing))
         return thing->class_id;
     ThingModel tngmodel = thing->model;
-    if ((tngmodel <= 0) || (tngmodel >= gameadd.object_conf.object_types_count))
-        return gameadd.object_conf.workshop_object_class[0];
-    return gameadd.object_conf.workshop_object_class[tngmodel];
+    if ((tngmodel <= 0) || (tngmodel >= game.conf.object_conf.object_types_count))
+        return game.conf.object_conf.workshop_object_class[0];
+    return game.conf.object_conf.workshop_object_class[tngmodel];
 }
 
 ThingModel crate_thing_to_workshop_item_model(const struct Thing *thing)
 {
     if (thing_is_invalid(thing) || (thing->class_id != TCls_Object))
-        return gameadd.object_conf.object_to_door_or_trap[0];
+        return game.conf.object_conf.object_to_door_or_trap[0];
     ThingModel tngmodel = thing->model;
-    if ((tngmodel <= 0) || (tngmodel >= gameadd.object_conf.object_types_count))
-        return gameadd.object_conf.object_to_door_or_trap[0];
-    return gameadd.object_conf.object_to_door_or_trap[tngmodel];
+    if ((tngmodel <= 0) || (tngmodel >= game.conf.object_conf.object_types_count))
+        return game.conf.object_conf.object_to_door_or_trap[0];
+    return game.conf.object_conf.object_to_door_or_trap[tngmodel];
 }
 
-TbBool parse_objects_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-    // Block name and parameter word store variables
-    // Initialize block data
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        gameadd.object_conf.object_types_count = OBJECT_TYPES_MAX - 1;
-    }
-    // Find the block
-    char block_buf[COMMAND_WORD_LEN];
-    sprintf(block_buf, "common");
-    long pos = 0;
-    int k = find_conf_block(buf, &pos, len, block_buf);
-    if (k < 0)
-    {
-        if ((flags & CnfLd_AcceptPartial) == 0)
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-        return false;
-    }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(objects_common_commands,cmd_num)
-    while (pos<len)
-    {
-        // Finding command number in this line
-        int cmd_num = recognize_conf_command(buf, &pos, len, objects_common_commands);
-        // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
-        int n = 0;
-        switch (cmd_num)
-        {
-        case 1: // OBJECTSCOUNT
-        {
-            char word_buf[COMMAND_WORD_LEN];
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if ((k > 0) && (k <= OBJECT_TYPES_MAX))
-              {
-                  gameadd.object_conf.object_types_count = k;
-                  n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        }
-        case 0: // comment
-            break;
-        case -1: // end of buffer
-            break;
-        default:
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
-            break;
-        }
-        skip_conf_to_next_line(buf,&pos,len);
-    }
-#undef COMMAND_TEXT
-    return true;
-}
-
+// This function loops over all the [objects0] fields in objects.cfg
 TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     struct ObjectConfigStats *objst;
-    struct ObjectConfig *objbc;
-    int tmodel;
-    // Block name and parameter word store variables
     // Initialize the objects array
-    int arr_size;
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        arr_size = sizeof(gameadd.object_conf.object_cfgstats)/sizeof(gameadd.object_conf.object_cfgstats[0]);
-        for (tmodel=0; tmodel < arr_size; tmodel++)
-        {
-            objst = &gameadd.object_conf.object_cfgstats[tmodel];
+    if ((flags & CnfLd_AcceptPartial) == 0) {
+        for (int i = 0; i < OBJECT_TYPES_MAX; i++) {
+            objst = &game.conf.object_conf.object_cfgstats[i];
             LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
             objst->name_stridx = 201;
             objst->map_icon = 0;
             objst->genre = 0;
-            if (tmodel < gameadd.object_conf.object_types_count)
-            {
-                object_desc[tmodel].name = objst->code_name;
-                object_desc[tmodel].num = tmodel;
-            } else
-            {
-                object_desc[tmodel].name = NULL;
-                object_desc[tmodel].num = 0;
-            }
+            objst->draw_class = ODC_Default;
+            object_desc[i].name = objst->code_name;
+            object_desc[i].num = i;
         }
     }
+    object_desc[OBJECT_TYPES_MAX - 1].name = NULL; // must be null for get_id
     // Load the file
-    for (tmodel = 0; tmodel < OBJECT_TYPES_MAX; tmodel++)
+    const char * blockname = NULL;
+    int blocknamelen = 0;
+    long pos = 0;
+    while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
     {
-        char block_buf[COMMAND_WORD_LEN];
-        sprintf(block_buf, "object%d", tmodel);
-        long pos = 0;
-        int k = find_conf_block(buf, &pos, len, block_buf);
-        if (k < 0)
-        {
-            if ((flags & CnfLd_AcceptPartial) == 0)
-            {
-                // Just count all found blocks if we didn't that already
-                if (gameadd.object_conf.object_types_count == OBJECT_TYPES_MAX - 1)
-                {
-                    gameadd.object_conf.object_types_count = tmodel;
-                    JUSTMSG("Loaded %d object types from %s", gameadd.object_conf.object_types_count, config_textname);
-                    break;
-                }
-                WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
-                return false;
-            }
-            else
-            {
-                if (tmodel > gameadd.object_conf.object_types_count)
-                {
-                    gameadd.object_conf.object_types_count = tmodel;
-                    JUSTMSG("Extended to %d object types from %s", gameadd.object_conf.object_types_count, config_textname);
-                    break;
-                }
-            }
+        // look for blocks starting with "object", followed by one or more digits
+        if (blocknamelen < 7) {
+            continue;
+        } else if (memcmp(blockname, "object", 6) != 0) {
             continue;
         }
-
-        objst = &gameadd.object_conf.object_cfgstats[tmodel];
-        objbc = &gameadd.object_conf.base_config[tmodel];
-        struct Objects* objdat = get_objects_data(tmodel);
+        const int i = natoi(&blockname[6], blocknamelen - 6);
+        if (i < 0 || i >= OBJECT_TYPES_MAX) {
+            continue;
+        } else if (i >= game.conf.object_conf.object_types_count) {
+            game.conf.object_conf.object_types_count = i + 1;
+        }
+        objst = &game.conf.object_conf.object_cfgstats[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(objects_object_commands,cmd_num)
         while (pos<len)
         {
             // Finding command number in this line
             int cmd_num = recognize_conf_command(buf, &pos, len, objects_object_commands);
             // Now store the config item in correct place
-            if (cmd_num == -3) break; // if next block starts
+            if (cmd_num == ccr_endOfBlock) break; // if next block starts
             if ((flags & CnfLd_ListOnly) != 0) {
                 // In "List only" mode, accept only name command
                 if (cmd_num > 1) {
                     cmd_num = 0;
                 }
             }
-            int n = 0;
+            int n = 0, k = 0;
             char word_buf[COMMAND_WORD_LEN];
             switch (cmd_num)
             {
             case 1: // NAME
                 if (get_conf_parameter_single(buf,&pos,len,objst->code_name,COMMAND_WORD_LEN) <= 0)
                 {
-                    CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                    CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                     break;
                 }
                 break;
@@ -304,8 +228,8 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                     break;
                 }
                 objst->genre = n;
@@ -317,11 +241,11 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 }
                 if (n < 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                     break;
                 }
-                objdat->related_creatr_model = n;
+                objst->related_creatr_model = n;
                 break;
             case 4: // PROPERTIES
                 while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -349,9 +273,17 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                       objst->model_flags |= OMF_Buoyant;
                       n++;
                       break;
+                  case 6: // BEATING
+                      objst->model_flags |= OMF_Beating;
+                      n++;
+                      break;
+                  case 7: // HEART
+                      objst->model_flags |= OMF_Heart;
+                      n++;
+                      break;
                   default:
-                      CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
-                          COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                      CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%.*s] block of %s file.",
+                          COMMAND_TEXT(cmd_num), word_buf, blocknamelen, blockname, config_textname);
                       break;
                   }
                 }
@@ -360,200 +292,201 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
 
-                    n = get_anim_id(word_buf, objdat);
-                    objdat->sprite_anim_idx = n;
+                    k = get_anim_id(word_buf, objst);
+                    objst->sprite_anim_idx = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 6: // ANIMATIONSPEED
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objdat->anim_speed = n;
+                    k = atoi(word_buf);
+                    objst->anim_speed = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 7: // SIZE_XY
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objdat->size_xy = n;
+                    k = atoi(word_buf);
+                    objst->size_xy = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
-            case 8: // SIZE_YZ
+            case 8: // SIZE_Z
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objdat->size_yz = n;
+                    k = atoi(word_buf);
+                    objst->size_z = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 9: // MAXIMUMSIZE
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objdat->sprite_size_max = n;
+                    k = atoi(word_buf);
+                    objst->sprite_size_max = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 10: // DESTROYONLIQUID
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objdat->destroy_on_liquid = n;
+                    k = atoi(word_buf);
+                    objst->destroy_on_liquid = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 11: // DESTROYONLAVA
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objdat->destroy_on_lava = n;
+                    k = atoi(word_buf);
+                    objst->destroy_on_lava = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 12: // HEALTH
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objbc->health = n;
+                    k = atoi(word_buf);
+                    objst->health = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 13: // FALLACCELERATION
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objbc->fall_acceleration = n;
+                    k = atoi(word_buf);
+                    objst->fall_acceleration = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 14: // LIGHTUNAFFECTED
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objbc->light_unaffected = n;
+                    k = atoi(word_buf);
+                    objst->light_unaffected = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 15: // LIGHTINTENSITY
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objbc->ilght.intensity = n;
+                    k = atoi(word_buf);
+                    objst->ilght.intensity = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 16: // LIGHTRADIUS
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objbc->ilght.radius = n << 8; //Mystery bit shift. Remove it to get divide by 0 errors.
+                    k = atoi(word_buf);
+                    objst->ilght.radius = k * COORD_PER_STL;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 17: // LIGHTISDYNAMIC
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objbc->ilght.is_dynamic = n;
+                    k = atoi(word_buf);
+                    objst->ilght.is_dynamic = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 18: // MAPICON
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = get_icon_id(word_buf);
-                    if (n >= -1)
+                    k = get_icon_id(word_buf);
+                    if (k >= -1)
                     {
-                        objst->map_icon = n;
+                        objst->map_icon = k;
+                        n++;
                     }
                 }
-                if (n < -1)
+                if (n <= 0)
                 {
                     objst->map_icon = bad_icon_id;
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 19: // AMBIENCESOUND
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    if ( (!SoundDisabled) && ( (n < 0) || (n > (samples_in_bank - 1)) ) )
+                    k = atoi(word_buf);
+                    if ( (!SoundDisabled) && ( (k < 0) || (k > (samples_in_bank - 1)) ) )
                     {
-                        CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                        CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                     }
                     else
                     {
-                        objdat->fp_smpl_idx = n;
+                        objst->fp_smpl_idx = k;
                     }
                 }
                 break;
@@ -564,28 +497,290 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 }
                 if (n < 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                     break;
                 }
-                objdat->updatefn_idx = n;
+                objst->updatefn_idx = n;
                 break;
-            case 0: // comment
+            case 21: // DRAWCLASS
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->draw_class = k;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
                 break;
-            case -1: // end of buffer
+            case 22: // PERSISTENCE
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->persistence = k;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+            case 23: // IMMOBILE
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->immobile = k;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+            case 24: // INITIALSTATE
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->initial_state = k;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+            case 25: // RANDOMSTARTFRAME
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->random_start_frame = k;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+            case 26: // TRANSPARENCYFLAGS
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->transparency_flags = k<<4;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+            case 27: // EFFECTBEAM
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = effect_or_effect_element_id(word_buf);
+                    objst->effect.beam = k;
+                    n++;
+                }
+                if (n == 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+            case 28: // EFFECTPARTICLE
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = effect_or_effect_element_id(word_buf);
+                    objst->effect.particle = k;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+            case 29: // EFFECTEXPLOSION1
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = effect_or_effect_element_id(word_buf);
+                    objst->effect.explosion1 = k;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+            case 30: // EFFECTEXPLOSION2
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = effect_or_effect_element_id(word_buf);
+                    objst->effect.explosion2 = k;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+            case 31: // EFFECTSPACING
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->effect.spacing = k;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+            case 32: // EFFECTSOUND
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    if ( (!SoundDisabled) && ( (n < 0) || (n > (samples_in_bank - 1)) ) )
+                    {
+                        CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                    }
+                    else
+                    {
+                        objst->effect.sound_idx = n;
+                    }
+                }
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    if ((!SoundDisabled) && ((n < 0) || (n > (samples_in_bank - 1))))
+                    {
+                        objst->effect.sound_range = 1;
+                    }
+                    else
+                    {
+                        objst->effect.sound_range = n;
+                    }
+                }
+                break;
+            case 33: // FLAMEANIMATIONID
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = get_anim_id(word_buf, objst);
+                    objst->flame.animation_id = k;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+            case 34: // FLAMEANIMATIONSPEED
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = get_anim_id(word_buf, objst);
+                    objst->flame.anim_speed = k;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+            case 35: // FLAMEANIMATIONSIZE
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->flame.sprite_size = k;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+            case 36: // FLAMEANIMATIONOFFSET
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->flame.fp_add_x = k;
+                    n++;
+                }
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->flame.fp_add_y = k;
+                    n++;
+                }
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->flame.td_add_x = k;
+                    n++;
+                }
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->flame.td_add_y = k;
+                    n++;
+                }
+                if (n < 4)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+            case 37: // FLAMETRANSPARENCYFLAGS
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->flame.transparency_flags = k<<4;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+            case 38: // LIGHTFLAGS
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->ilght.flags = k;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+           case ccr_comment:
+                break;
+            case ccr_endOfFile:
                 break;
             default:
-                CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                    cmd_num,block_buf,config_textname);
+                CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",
+                    cmd_num, blocknamelen, blockname, config_textname);
                 break;
             }
             skip_conf_to_next_line(buf,&pos,len);
         }
 #undef COMMAND_TEXT
-        if (tmodel > OBJECT_TYPES_COUNT_ORIGINAL)
-        {
-            define_custom_object(tmodel, objdat->sprite_anim_idx);
-        }
     }
     return true;
 }
@@ -606,15 +801,8 @@ TbBool load_objects_config_file(const char *textname, const char *fname, unsigne
     // Loading file data
     len = LbFileLoadAt(fname, buf);
     TbBool result = (len > 0);
+    
     // Parse blocks of the config file
-    if (result)
-    {
-        result = parse_objects_common_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" common blocks failed.",textname,fname);
-    }
     if (result)
     {
         result = parse_objects_object_blocks(buf, len, textname, flags);
@@ -631,45 +819,70 @@ TbBool load_objects_config_file(const char *textname, const char *fname, unsigne
 void update_all_object_stats()
 {
     const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
+    struct Dungeon* dungeon;
     for (int i = slist->index; i > 0;)
     {
         struct Thing* thing = thing_get(i);
-        i = thing->next_of_class
+        i = thing->next_of_class;
             TRACE_THING(thing);
-        struct Objects* objdat = get_objects_data_for_thing(thing);
-        set_thing_draw(thing, objdat->sprite_anim_idx, objdat->anim_speed, objdat->sprite_size_max, 0, 0, objdat->draw_class);
+        struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+        int start_frame = 0;
+        if(objst->random_start_frame)
+        {
+            start_frame = -1;
+        }
+        set_thing_draw(thing, objst->sprite_anim_idx, objst->anim_speed, objst->sprite_size_max, 0, start_frame, objst->draw_class);
         // TODO: Should we rotate this on per-object basis?
         thing->flags = 0;
-        thing->flags |= objdat->rotation_flag << TAF_ROTATED_SHIFT;
+        thing->flags |= objst->rotation_flag << TAF_ROTATED_SHIFT;
 
-        struct ObjectConfig* objconf = get_object_model_stats2(thing->model);
+        if (thing->owner != game.neutral_player_num)
+        {
+            dungeon = get_dungeon(thing->owner);
+            if ((thing_is_dungeon_heart(thing)) && (thing->index != dungeon->dnheart_idx))
+            {
+                if (dungeon->backup_heart_idx == 0)
+                {
+                    dungeon->backup_heart_idx = thing->index;
+                }
+            }
+        }
+
+        
         if (thing->light_id != 0)
         {
             light_delete_light(thing->light_id);
         }
-        if (objconf->ilght.radius != 0)
+        if (objst->ilght.radius != 0)
         {
             struct InitLight ilight;
             LbMemorySet(&ilight, 0, sizeof(struct InitLight));
             LbMemoryCopy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
-            ilight.radius = objconf->ilght.radius;
-            ilight.intensity = objconf->ilght.intensity;
-            ilight.field_3 = objconf->ilght.field_3;
-            ilight.is_dynamic = objconf->ilght.is_dynamic;
+            ilight.radius = objst->ilght.radius;
+            ilight.intensity = objst->ilght.intensity;
+            ilight.flags = objst->ilght.flags;
+            ilight.is_dynamic = objst->ilght.is_dynamic;
             thing->light_id = light_create_light(&ilight);
         }
     }
 }
+
 TbBool load_objects_config(const char *conf_fname, unsigned short flags)
 {
     static const char config_global_textname[] = "global objects config";
     static const char config_campgn_textname[] = "campaign objects config";
+    static const char config_level_textname[] = "level objects config";
     char* fname = prepare_file_path(FGrp_FxData, conf_fname);
     TbBool result = load_objects_config_file(config_global_textname, fname, flags);
     fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
     if (strlen(fname) > 0)
     {
         load_objects_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
+    if (strlen(fname) > 0)
+    {
+        load_objects_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
     //Freeing and exiting
     return result;
@@ -694,9 +907,9 @@ const char *object_code_name(ThingModel tngmodel)
  */
 ThingModel object_model_id(const char * code_name)
 {
-    for (int i = 0; i < gameadd.object_conf.object_types_count; ++i)
+    for (int i = 0; i < game.conf.object_conf.object_types_count; ++i)
     {
-        if (strncasecmp(gameadd.object_conf.object_cfgstats[i].code_name, code_name,
+        if (strncasecmp(game.conf.object_conf.object_cfgstats[i].code_name, code_name,
                 COMMAND_WORD_LEN) == 0) {
             return i;
         }
@@ -753,269 +966,6 @@ int get_required_room_capacity_for_object(RoomRole room_role, ThingModel objmode
         break;
     }
     return 0;
-}
-
-void init_objects(void)
-{
-    game.objects_config[1].ilght.radius = 0;
-    game.objects_config[1].ilght.intensity = 0x00;
-    game.objects_config[1].ilght.field_3 = 0;
-    game.objects_config[1].health = 100;
-    game.objects_config[1].fall_acceleration = 20;
-    game.objects_config[1].light_unaffected = 0;
-    game.objects_config[2].health = 100;
-    game.objects_config[2].fall_acceleration = 0;
-    game.objects_config[2].light_unaffected = 1;
-    game.objects_config[2].ilght.is_dynamic = 0;
-    game.objects_config[2].movement_flag = 1;
-    game.objects_config[49].health = 100;
-    game.objects_config[49].fall_acceleration = 0;
-    game.objects_config[49].light_unaffected = 1;
-    game.objects_config[49].ilght.is_dynamic = 0;
-    game.objects_config[49].movement_flag = 1;
-    game.objects_config[3].health = 100;
-    game.objects_config[3].fall_acceleration = 20;
-    game.objects_config[4].health = 100;
-    game.objects_config[4].fall_acceleration = 20;
-    game.objects_config[4].light_unaffected = 1;
-    game.objects_config[4].ilght.is_dynamic = 0;
-    game.objects_config[4].movement_flag = 1;
-    game.objects_config[5].health = 1;
-    game.objects_config[2].ilght.radius = 0x0600;
-    game.objects_config[2].ilght.intensity = 0x32;
-    game.objects_config[2].ilght.field_3 = 5;
-    game.objects_config[5].fall_acceleration = 20;
-    game.objects_config[5].light_unaffected = 0;
-    game.objects_config[5].ilght.is_dynamic = 1;
-    game.objects_config[5].is_heart = 1;
-    game.objects_config[5].movement_flag = 1;
-    game.objects_config[6].fall_acceleration = 8;
-    game.objects_config[6].health = 50;
-    game.objects_config[7].health = 100;
-    game.objects_config[7].fall_acceleration = 0;
-    game.objects_config[7].light_unaffected = 1;
-    game.objects_config[7].movement_flag = 1;
-    game.objects_config[8].health = 100;
-    game.objects_config[8].fall_acceleration = 20;
-    game.objects_config[8].light_unaffected = 1;
-    game.objects_config[10].health = 1000;
-    game.objects_config[10].fall_acceleration = 9;
-    game.objects_config[28].health = 100;
-    game.objects_config[49].ilght.radius = 0x0A00u;
-    game.objects_config[49].ilght.intensity = 0x28;
-    game.objects_config[49].ilght.field_3 = 5;
-    game.objects_config[4].ilght.radius = 0x0700u;
-    game.objects_config[4].ilght.intensity = 0x2F;
-    game.objects_config[4].ilght.field_3 = 5;
-    game.objects_config[5].ilght.radius = 0x0E00u;
-    game.objects_config[5].ilght.intensity = 0x24;
-    game.objects_config[5].ilght.field_3 = 5;
-    game.objects_config[28].fall_acceleration = 0;
-    game.objects_config[28].light_unaffected = 1;
-    game.objects_config[28].ilght.is_dynamic = 0;
-    game.objects_config[28].movement_flag = 1;
-    game.objects_config[11].ilght.radius = 0x0400u;
-    game.objects_config[11].ilght.intensity = 0x3E;
-    game.objects_config[11].ilght.field_3 = 0;
-    game.objects_config[11].fall_acceleration = 10;
-    game.objects_config[11].light_unaffected = 0;
-    game.objects_config[11].ilght.is_dynamic = 0;
-    game.objects_config[11].movement_flag = 1;
-    game.objects_config[12].ilght.radius = 0x0400u;
-    game.objects_config[12].ilght.intensity = 0x3E;
-    game.objects_config[12].ilght.field_3 = 0;
-    game.objects_config[12].fall_acceleration = 10;
-    game.objects_config[12].light_unaffected = 0;
-    game.objects_config[12].ilght.is_dynamic = 0;
-    game.objects_config[12].movement_flag = 1;
-    game.objects_config[13].fall_acceleration = 10;
-    game.objects_config[13].light_unaffected = 0;
-    game.objects_config[13].ilght.radius = 0x0400u;
-    game.objects_config[13].ilght.intensity = 0x3E;
-    game.objects_config[13].ilght.field_3 = 0;
-    game.objects_config[13].ilght.is_dynamic = 0;
-    game.objects_config[13].movement_flag = 1;
-    game.objects_config[14].ilght.radius = 0x0400u;
-    game.objects_config[14].ilght.intensity = 0x3E;
-    game.objects_config[14].ilght.field_3 = 0;
-    game.objects_config[14].fall_acceleration = 10;
-    game.objects_config[14].light_unaffected = 0;
-    game.objects_config[14].ilght.is_dynamic = 0;
-    game.objects_config[14].movement_flag = 1;
-    game.objects_config[15].fall_acceleration = 10;
-    game.objects_config[15].light_unaffected = 0;
-    game.objects_config[15].ilght.radius = 0x0400u;
-    game.objects_config[15].ilght.intensity = 0x3E;
-    game.objects_config[15].ilght.field_3 = 0;
-    game.objects_config[15].ilght.is_dynamic = 0;
-    game.objects_config[15].movement_flag = 1;
-    game.objects_config[16].ilght.radius = 0x0400u;
-    game.objects_config[16].ilght.intensity = 0x3E;
-    game.objects_config[16].ilght.field_3 = 0;
-    game.objects_config[16].fall_acceleration = 10;
-    game.objects_config[16].light_unaffected = 0;
-    game.objects_config[16].ilght.is_dynamic = 0;
-    game.objects_config[16].movement_flag = 1;
-    game.objects_config[17].fall_acceleration = 10;
-    game.objects_config[17].light_unaffected = 0;
-    game.objects_config[17].ilght.radius = 0x0400u;
-    game.objects_config[17].ilght.intensity = 0x3E;
-    game.objects_config[17].ilght.field_3 = 0;
-    game.objects_config[17].ilght.is_dynamic = 0;
-    game.objects_config[17].movement_flag = 1;
-    game.objects_config[43].fall_acceleration = 8;
-    game.objects_config[43].health = 50;
-    game.objects_config[28].ilght.radius = 0x0600u;
-    game.objects_config[28].ilght.intensity = 0x2E;
-    game.objects_config[28].ilght.field_3 = 5;
-    game.objects_config[18].fall_acceleration = 10;
-    game.objects_config[18].light_unaffected = 0;
-    game.objects_config[18].ilght.radius = 0x0400u;
-    game.objects_config[18].ilght.intensity = 0x3E;
-    game.objects_config[18].ilght.field_3 = 0;
-    game.objects_config[18].ilght.is_dynamic = 0;
-    game.objects_config[19].ilght.radius = 0x0400u;
-    game.objects_config[19].ilght.intensity = 0x3E;
-    game.objects_config[19].ilght.field_3 = 0;
-    game.objects_config[18].movement_flag = 1;
-    game.objects_config[19].fall_acceleration = 10;
-    game.objects_config[19].light_unaffected = 0;
-    game.objects_config[20].ilght.radius = 0x0400u;
-    game.objects_config[20].ilght.intensity = 0x3E;
-    game.objects_config[20].ilght.field_3 = 0;
-    game.objects_config[19].ilght.is_dynamic = 0;
-    game.objects_config[19].movement_flag = 1;
-    game.objects_config[20].fall_acceleration = 10;
-    game.objects_config[20].light_unaffected = 0;
-    game.objects_config[20].ilght.is_dynamic = 0;
-    game.objects_config[21].ilght.radius = 0x0400u;
-    game.objects_config[21].ilght.intensity = 0x3E;
-    game.objects_config[21].ilght.field_3 = 0;
-    game.objects_config[20].movement_flag = 1;
-    game.objects_config[21].fall_acceleration = 10;
-    game.objects_config[21].light_unaffected = 0;
-    game.objects_config[22].ilght.radius = 0x0400u;
-    game.objects_config[22].ilght.intensity = 0x3E;
-    game.objects_config[22].ilght.field_3 = 0;
-    game.objects_config[21].ilght.is_dynamic = 0;
-    game.objects_config[21].movement_flag = 1;
-    game.objects_config[22].fall_acceleration = 10;
-    game.objects_config[22].light_unaffected = 0;
-    game.objects_config[22].ilght.is_dynamic = 0;
-    game.objects_config[23].ilght.radius = 0x0400u;
-    game.objects_config[23].ilght.intensity = 0x3E;
-    game.objects_config[23].ilght.field_3 = 0;
-    game.objects_config[22].movement_flag = 1;
-    game.objects_config[23].fall_acceleration = 10;
-    game.objects_config[23].light_unaffected = 0;
-    game.objects_config[45].ilght.radius = 0x0400u;
-    game.objects_config[45].ilght.intensity = 0x3E;
-    game.objects_config[45].ilght.field_3 = 0;
-    game.objects_config[23].ilght.is_dynamic = 0;
-    game.objects_config[23].movement_flag = 1;
-    game.objects_config[45].fall_acceleration = 10;
-    game.objects_config[45].light_unaffected = 0;
-    game.objects_config[45].ilght.is_dynamic = 0;
-    game.objects_config[46].ilght.radius = 0x0400u;
-    game.objects_config[46].ilght.intensity = 0x3E;
-    game.objects_config[46].ilght.field_3 = 0;
-    game.objects_config[45].movement_flag = 1;
-    game.objects_config[46].fall_acceleration = 10;
-    game.objects_config[46].light_unaffected = 0;
-    game.objects_config[47].ilght.radius = 0x0400u;
-    game.objects_config[47].ilght.intensity = 0x3E;
-    game.objects_config[47].ilght.field_3 = 0;
-    game.objects_config[46].ilght.is_dynamic = 0;
-    game.objects_config[46].movement_flag = 1;
-    game.objects_config[47].fall_acceleration = 10;
-    game.objects_config[47].light_unaffected = 0;
-    game.objects_config[47].ilght.is_dynamic = 0;
-    game.objects_config[134].ilght.radius = 0x0400u;
-    game.objects_config[134].ilght.intensity = 0x3E;
-    game.objects_config[134].ilght.field_3 = 0;
-    game.objects_config[47].movement_flag = 1;
-    game.objects_config[134].fall_acceleration = 10;
-    game.objects_config[134].light_unaffected = 0;
-    game.objects_config[134].ilght.is_dynamic = 0;
-    game.objects_config[87].ilght.radius = 0x0400u;
-    game.objects_config[87].ilght.intensity = 0x3E;
-    game.objects_config[87].ilght.field_3 = 0;
-    game.objects_config[134].movement_flag = 1;
-    game.objects_config[87].fall_acceleration = 10;
-    game.objects_config[87].light_unaffected = 0;
-    game.objects_config[88].ilght.radius = 0x0400u;
-    game.objects_config[88].ilght.intensity = 0x3E;
-    game.objects_config[88].ilght.field_3 = 0;
-    game.objects_config[87].ilght.is_dynamic = 0;
-    game.objects_config[88].fall_acceleration = 10;
-    game.objects_config[88].light_unaffected = 0;
-    game.objects_config[89].ilght.radius = 0x0400u;
-    game.objects_config[89].ilght.intensity = 0x3E;
-    game.objects_config[89].ilght.field_3 = 0;
-    game.objects_config[88].ilght.is_dynamic = 0;
-    game.objects_config[89].fall_acceleration = 10;
-    game.objects_config[89].light_unaffected = 0;
-    game.objects_config[90].ilght.radius = 0x0400u;
-    game.objects_config[90].ilght.intensity = 0x3E;
-    game.objects_config[90].ilght.field_3 = 0;
-    game.objects_config[89].ilght.is_dynamic = 0;
-    game.objects_config[90].fall_acceleration = 10;
-    game.objects_config[90].light_unaffected = 0;
-    game.objects_config[91].ilght.radius = 0x0400u;
-    game.objects_config[91].ilght.intensity = 0x3E;
-    game.objects_config[91].ilght.field_3 = 0;
-    game.objects_config[90].ilght.is_dynamic = 0;
-    game.objects_config[91].fall_acceleration = 10;
-    game.objects_config[91].light_unaffected = 0;
-    game.objects_config[92].ilght.radius = 0x0400u;
-    game.objects_config[92].ilght.intensity = 0x3E;
-    game.objects_config[92].ilght.field_3 = 0;
-    game.objects_config[91].ilght.is_dynamic = 0;
-    game.objects_config[92].fall_acceleration = 10;
-    game.objects_config[92].light_unaffected = 0;
-    game.objects_config[93].ilght.radius = 0x0400u;
-    game.objects_config[93].ilght.intensity = 0x3E;
-    game.objects_config[93].ilght.field_3 = 0;
-    game.objects_config[92].ilght.is_dynamic = 0;
-    game.objects_config[93].fall_acceleration = 10;
-    game.objects_config[93].light_unaffected = 0;
-    game.objects_config[86].ilght.radius = 0x0400u;
-    game.objects_config[86].ilght.intensity = 0x3E;
-    game.objects_config[86].ilght.field_3 = 0;
-    game.objects_config[93].ilght.is_dynamic = 0;
-    game.objects_config[86].fall_acceleration = 10;
-    game.objects_config[86].light_unaffected = 0;
-    game.objects_config[86].ilght.is_dynamic = 0;
-    game.objects_config[109].resistant_to_nonmagic = 1;
-    game.objects_config[109].movement_flag = 1;
-    game.objects_config[94].movement_flag = 1;
-    game.objects_config[95].movement_flag = 1;
-    game.objects_config[96].movement_flag = 1;
-    game.objects_config[97].movement_flag = 1;
-    game.objects_config[98].movement_flag = 1;
-    game.objects_config[99].movement_flag = 1;
-    game.objects_config[106].movement_flag = 1;
-    game.objects_config[107].movement_flag = 1;
-    game.objects_config[108].movement_flag = 1;
-    game.objects_config[128].fall_acceleration = 10;
-    for (long i = 57; i <= 85; i++)
-    {
-        game.objects_config[i].movement_flag = 1;
-    }
-    game.objects_config[126].movement_flag = 1;
-    game.objects_config[26].movement_flag = 1;
-    game.objects_config[27].movement_flag = 1;
-    game.objects_config[31].movement_flag = 1;
-    game.objects_config[32].movement_flag = 1;
-    game.objects_config[114].movement_flag = 1;
-    game.objects_config[115].movement_flag = 1;
-    game.objects_config[116].movement_flag = 1;
-    game.objects_config[117].movement_flag = 1;
-    game.objects_config[118].movement_flag = 1;
-    game.objects_config[119].movement_flag = 1;
-    game.objects_config[125].movement_flag = 1;
-
-    memcpy(&gameadd.object_conf.base_config, &game.objects_config, sizeof(game.objects_config));
 }
 
 /******************************************************************************/

@@ -26,7 +26,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define COLUMNS_COUNT        2048
+#define COLUMNS_COUNT       16384
 #define COLUMN_STACK_HEIGHT     8
 #define COLUMN_WALL_HEIGHT      5
 /******************************************************************************/
@@ -38,7 +38,7 @@ struct Column { // sizeof=0x18
     short use;
     unsigned char bitfields;
     unsigned short solidmask;
-    unsigned short baseblock;
+    unsigned short floor_texture;
     unsigned char orient;
     unsigned short cubes[COLUMN_STACK_HEIGHT];
 };

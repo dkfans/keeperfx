@@ -46,6 +46,8 @@ void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype,
     struct Packet* pckt = get_packet_direct(player->packet_num);
     pckt->actn_par1 = par1;
     pckt->actn_par2 = par2;
+    pckt->actn_par3 = par3;
+    pckt->actn_par4 = par4;
     pckt->action = pcktype;
 }
 
@@ -278,6 +280,7 @@ TbBool open_new_packet_file_for_save(void)
     game.packet_save_head.chksum_available = game.packet_checksum_verify;
     game.packet_save_head.isometric_view_zoom_level = settings.isometric_view_zoom_level;
     game.packet_save_head.frontview_zoom_level = settings.frontview_zoom_level;
+    game.packet_save_head.isometric_tilt = settings.isometric_tilt;
     game.packet_save_head.video_rotate_mode = settings.video_rotate_mode;
     game.packet_save_head.action_seed = start_seed;
     for (int i = 0; i < PLAYERS_COUNT; i++)
@@ -285,9 +288,9 @@ TbBool open_new_packet_file_for_save(void)
         struct PlayerInfo* player = get_player(i);
         if (player_exists(player))
         {
-            game.packet_save_head.players_exist |= (1 << i) & 0xff;
+            set_flag(game.packet_save_head.players_exist, to_flag(i));
             if ((player->allocflags & PlaF_CompCtrl) != 0)
-              game.packet_save_head.players_comp |= (1 << i) & 0xff;
+              set_flag(game.packet_save_head.players_comp, to_flag(i));
         }
     }
     LbFileDelete(game.packet_fname);
@@ -345,13 +348,13 @@ void load_packets_for_turn(GameTurn nturn)
         {
             ERRORLOG("PacketSave checksum - Out of sync (GameTurn %d)", game.play_gameturn);
             if (!is_onscreen_msg_visible())
-                show_onscreen_msg(game.num_fps, "Out of sync");
+                show_onscreen_msg(game_num_fps, "Out of sync");
         } else
         if (pckt->chksum != pckt_chksum)
         {
             ERRORLOG("Opps we are really Out Of Sync (GameTurn %d)", game.play_gameturn);
             if (!is_onscreen_msg_visible())
-                show_onscreen_msg(game.num_fps, "Out of sync");
+                show_onscreen_msg(game_num_fps, "Out of sync");
         }
     }
 }

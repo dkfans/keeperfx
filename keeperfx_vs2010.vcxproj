@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\actionpt.c" />
+    <ClCompile Include="src\api.c" />
     <ClCompile Include="src\ariadne.c" />
     <ClCompile Include="src\ariadne_edge.c" />
     <ClCompile Include="src\ariadne_findcache.c" />
@@ -30,6 +31,7 @@
     <ClCompile Include="src\bflib_crash.c" />
     <ClCompile Include="src\bflib_datetm.c" />
     <ClCompile Include="src\bflib_dernc.c" />
+    <ClCompile Include="src\bflib_enet.cpp" />
     <ClCompile Include="src\bflib_fileio.c" />
     <ClCompile Include="src\bflib_filelst.c" />
     <ClCompile Include="src\bflib_fmvids.c" />
@@ -51,7 +53,6 @@
     <ClCompile Include="src\bflib_netsync.c" />
     <ClCompile Include="src\bflib_network.cpp" />
     <ClCompile Include="src\bflib_planar.c" />
-    <ClCompile Include="src\bflib_pom.cpp" />
     <ClCompile Include="src\bflib_render.c" />
     <ClCompile Include="src\bflib_render_gpoly.c" />
     <ClCompile Include="src\bflib_render_gtblock.c" />
@@ -86,8 +87,11 @@
     <ClCompile Include="src\config_players.c" />
     <ClCompile Include="src\config_rules.c" />
     <ClCompile Include="src\config_settings.c" />
+    <ClCompile Include="src\config_slabsets.c" />
+    <ClCompile Include="src\config_spritecolors.c" />
     <ClCompile Include="src\config_strings.c" />
     <ClCompile Include="src\config_terrain.c" />
+    <ClCompile Include="src\config_textures.c" />
     <ClCompile Include="src\config_trapdoor.c" />
     <ClCompile Include="src\console_cmd.c" />
     <ClCompile Include="src\creature_battle.c" />
@@ -125,7 +129,6 @@
     <ClCompile Include="src\engine_render.c" />
     <ClCompile Include="src\engine_render_data.cpp" />
     <ClCompile Include="src\engine_textures.c" />
-    <ClCompile Include="src\event_monitoring.c" />
     <ClCompile Include="src\frontend.cpp" />
     <ClCompile Include="src\frontmenu_ingame_evnt.c" />
     <ClCompile Include="src\frontmenu_ingame_evnt_data.cpp" />
@@ -156,6 +159,7 @@
     <ClCompile Include="src\front_simple.c" />
     <ClCompile Include="src\front_torture.c" />
     <ClCompile Include="src\front_torture_data.cpp" />
+    <ClCompile Include="src\ftests\ftest.c" />
     <ClCompile Include="src\game_heap.c" />
     <ClCompile Include="src\game_legacy.c" />
     <ClCompile Include="src\game_lghtshdw.c" />
@@ -194,6 +198,7 @@
     <ClCompile Include="src\map_events.c" />
     <ClCompile Include="src\map_locations.c" />
     <ClCompile Include="src\map_utils.c" />
+    <ClCompile Include="src\moonphase.c" />
     <ClCompile Include="src\music_player.c" />
     <ClCompile Include="src\net_game.c" />
     <ClCompile Include="src\net_sync.c" />
@@ -210,7 +215,6 @@
     <ClCompile Include="src\player_computer_data.cpp" />
     <ClCompile Include="src\player_data.c" />
     <ClCompile Include="src\player_instances.c" />
-    <ClCompile Include="src\player_states.c" />
     <ClCompile Include="src\player_utils.c" />
     <ClCompile Include="src\power_hand.c" />
     <ClCompile Include="src\power_process.c" />
@@ -232,6 +236,7 @@
     <ClCompile Include="src\slab_data.c" />
     <ClCompile Include="src\sounds.c" />
     <ClCompile Include="src\spdigger_stack.c" />
+    <ClCompile Include="src\steam_api.cpp" />
     <ClCompile Include="src\tasks_list.c" />
     <ClCompile Include="src\thing_corpses.c" />
     <ClCompile Include="src\thing_creature.c" />
@@ -253,6 +258,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actionpt.h" />
+    <ClInclude Include="src\api.h" />
     <ClInclude Include="src\ariadne.h" />
     <ClInclude Include="src\ariadne_edge.h" />
     <ClInclude Include="src\ariadne_findcache.h" />
@@ -271,6 +277,7 @@
     <ClInclude Include="src\bflib_crash.h" />
     <ClInclude Include="src\bflib_datetm.h" />
     <ClInclude Include="src\bflib_dernc.h" />
+    <ClInclude Include="src\bflib_enet.h" />
     <ClInclude Include="src\bflib_fileio.h" />
     <ClInclude Include="src\bflib_filelst.h" />
     <ClInclude Include="src\bflib_fmvids.h" />
@@ -293,7 +300,6 @@
     <ClInclude Include="src\bflib_netsync.h" />
     <ClInclude Include="src\bflib_network.h" />
     <ClInclude Include="src\bflib_planar.h" />
-    <ClInclude Include="src\bflib_pom.hpp" />
     <ClInclude Include="src\bflib_render.h" />
     <ClInclude Include="src\bflib_semphr.hpp" />
     <ClInclude Include="src\bflib_server_tcp.hpp" />
@@ -320,8 +326,11 @@
     <ClInclude Include="src\config_players.h" />
     <ClInclude Include="src\config_rules.h" />
     <ClInclude Include="src\config_settings.h" />
+    <ClInclude Include="src\config_slabsets.h" />
+    <ClInclude Include="src\config_spritecolors.h" />
     <ClInclude Include="src\config_strings.h" />
     <ClInclude Include="src\config_terrain.h" />
+    <ClInclude Include="src\config_textures.h" />
     <ClInclude Include="src\config_trapdoor.h" />
     <ClInclude Include="src\console_cmd.h" />
     <ClInclude Include="src\creature_battle.h" />
@@ -358,7 +367,6 @@
     <ClInclude Include="src\engine_redraw.h" />
     <ClInclude Include="src\engine_render.h" />
     <ClInclude Include="src\engine_textures.h" />
-    <ClInclude Include="src\event_monitoring.h" />
     <ClInclude Include="src\frontend.h" />
     <ClInclude Include="src\frontmenu_ingame_evnt.h" />
     <ClInclude Include="src\frontmenu_ingame_map.h" />
@@ -379,6 +387,7 @@
     <ClInclude Include="src\front_network.h" />
     <ClInclude Include="src\front_simple.h" />
     <ClInclude Include="src\front_torture.h" />
+    <ClInclude Include="src\ftests\ftest.h" />
     <ClInclude Include="src\game_heap.h" />
     <ClInclude Include="src\game_legacy.h" />
     <ClInclude Include="src\game_lghtshdw.h" />
@@ -417,6 +426,7 @@
     <ClInclude Include="src\map_events.h" />
     <ClInclude Include="src\map_locations.h" />
     <ClInclude Include="src\map_utils.h" />
+    <ClInclude Include="src\moonphase.h" />
     <ClInclude Include="src\music_player.h" />
     <ClInclude Include="src\net_game.h" />
     <ClInclude Include="src\net_sync.h" />
@@ -425,7 +435,6 @@
     <ClInclude Include="src\player_computer.h" />
     <ClInclude Include="src\player_data.h" />
     <ClInclude Include="src\player_instances.h" />
-    <ClInclude Include="src\player_states.h" />
     <ClInclude Include="src\player_utils.h" />
     <ClInclude Include="src\power_hand.h" />
     <ClInclude Include="src\power_process.h" />
@@ -448,6 +457,7 @@
     <ClInclude Include="src\sounds.h" />
     <ClInclude Include="src\spdigger_stack.h" />
     <ClInclude Include="src\sprites.h" />
+    <ClInclude Include="src\steam_api.hpp" />
     <ClInclude Include="src\tasks_list.h" />
     <ClInclude Include="src\thing_corpses.h" />
     <ClInclude Include="src\thing_creature.h" />

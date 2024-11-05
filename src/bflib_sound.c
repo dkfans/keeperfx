@@ -33,6 +33,7 @@
 #include "game_legacy.h"
 #include "globals.h"
 #include "game_heap.h"
+#include "gui_soundmsgs.h"
 #include "post_inc.h"
 
 #define INVALID_SOUND_EMITTER (&emitter[0])
@@ -720,7 +721,7 @@ void play_atmos_sound(long smpl_idx)
         return;
     int ATMOS_SOUND_PITCH = (73 + (UNSYNC_RANDOM(10) * 6));
     // ATMOS0 has bigger range in pitch than other atmos sounds.
-    if ((smpl_idx == 1013))
+    if (smpl_idx == 1013)
     {
         ATMOS_SOUND_PITCH = (54 + (UNSYNC_RANDOM(16) * 4));
     }
@@ -961,6 +962,10 @@ long speech_sample_playing(void)
          return false;
      }
      SYNCDBG(17,"Starting");
+     if (Mix_Playing(MESSAGE_CHANNEL))
+     {
+         return true;
+     }
      long sp_emiter = SpeechEmitter;
      if (sp_emiter != 0)
      {

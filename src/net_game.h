@@ -31,7 +31,7 @@ extern "C" {
 #define NET_PLAYERS_COUNT       4
 #define NET_SERVICES_COUNT     16
 #define NET_SERVICE_LEN        64
-#define PACKETS_COUNT           5
+#define PACKETS_COUNT           9
 
 /******************************************************************************/
 #pragma pack(1)
@@ -49,9 +49,6 @@ extern char net_service[16][NET_SERVICE_LEN];
 extern char net_player_name[20];
 
 #pragma pack()
-/******************************************************************************/
-extern char net_current_message[64];
-extern long net_current_message_index;
 /******************************************************************************/
 short setup_network_service(int srvidx);
 int setup_old_network_service(void);

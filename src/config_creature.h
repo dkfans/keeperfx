@@ -31,32 +31,37 @@
 extern "C" {
 #endif
 
-#define CREATURE_NONE 255
-#define CREATURE_ANY  254
-#define CREATURE_NOT_A_DIGGER  253
-#define CREATURE_DIGGER  252
+#define CREATURE_NONE            255
+#define CREATURE_ANY             254
+#define CREATURE_NOT_A_DIGGER    253
+#define CREATURE_DIGGER          252
 
 /** Percentage of creature parameter increase for every experience level.
  *  Used as default value, should be replaced in config file. */
 #define CREATURE_PROPERTY_INCREASE_ON_EXP  35
 /******************************************************************************/
 enum CreatureModelFlags {
-    CMF_IsSpecDigger     = 0x0001, // Imp and Tunneler
-    CMF_IsArachnid       = 0x0002, // simply, Spider
-    CMF_IsDiptera        = 0x0004, // simply, Fly
-    CMF_IsLordOTLand     = 0x0008, // simply, Knight
-    CMF_IsSpectator      = 0x0010, // simply, Floating spirit
-    CMF_IsEvil           = 0x0020, // All evil creatures
-    CMF_NeverChickens    = 0x0040, // Cannot be affected by Chicken (for Avatar)
-    CMF_ImmuneToBoulder  = 0x0080, // Boulder traps are destroyed at the moment they touch the creature
-    CMF_NoCorpseRotting  = 0x0100, // Corpse cannot rot in graveyard
-    CMF_NoEnmHeartAttack = 0x0200, // Creature will not attack enemy heart on sight
-    CMF_TremblingFat     = 0x0400, // Creature causes ground to tremble when dropped
-    CMF_Female           = 0x0800, // Creature is female
-    CMF_Insect           = 0x1000, // Creature is kind of insect
-    CMF_OneOfKind        = 0x2000, // Only one creature of that kind may exist on one level. Unit name is type name.
-    CMF_NoImprisonment   = 0x4000, // Creature will not faint.
-    CMF_NeverSick        = 0x8000, // Creature will not get disease.
+    CMF_IsSpecDigger     = 0x000001, // Imp and Tunneller.
+    CMF_IsArachnid       = 0x000002, // Simply, Spider.
+    CMF_IsDiptera        = 0x000004, // Simply, Fly.
+    CMF_IsLordOfLand     = 0x000008, // Simply, Knight and Avatar.
+    CMF_IsSpectator      = 0x000010, // Simply, Floating Spirit.
+    CMF_IsEvil           = 0x000020, // All evil creatures.
+    CMF_NeverChickens    = 0x000040, // Cannot be affected by Chicken (for Avatar).
+    CMF_ImmuneToBoulder  = 0x000080, // Boulder traps are destroyed at the moment they touch the creature.
+    CMF_NoCorpseRotting  = 0x000100, // Corpse cannot rot in graveyard.
+    CMF_NoEnmHeartAttack = 0x000200, // Creature will not attack enemy heart on sight.
+    CMF_Trembling        = 0x000400, // Creature causes ground to tremble when dropped.
+    CMF_Female           = 0x000800, // Creature is female.
+    CMF_Insect           = 0x001000, // Creature is kind of insect.
+    CMF_OneOfKind        = 0x002000, // Only one creature of that kind may exist on one level. Unit name is type name.
+    CMF_NoImprisonment   = 0x004000, // Creature will not faint.
+    CMF_NeverSick        = 0x008000, // Creature will not get disease.
+    CMF_NoResurrect      = 0x010000, // Creature will not resurrect.
+    CMF_NoTransfer       = 0x020000, // Creature cannot be transferred.
+    CMF_Fat              = 0x040000, // Creature too fat to walk a full animation.
+    CMF_NoStealHero      = 0x080000, // Prevent the creature from being stolen with the Steal Hero special.
+    CMF_PreferSteal      = 0x100000, // The creature can be generated from Steal Hero special if there's nothing to steal.
 };
 
 enum CreatureJobFlags {
@@ -145,6 +150,8 @@ enum InstancePropertiesFlags {
     InstPF_Quick              = 0x0080,
     InstPF_Disarming          = 0x0100,
     InstPF_UsesSwipe          = 0x0200,
+    InstPF_RangedBuff         = 0x0400,
+    InstPF_NeedsTarget        = 0x0800,
 };
 
 enum CreatureDeathKind {
@@ -167,23 +174,8 @@ enum CreatureAttackType {
 
 struct Thing;
 
-struct Creatures { // sizeof = 16
-  unsigned short evil_start_state;
-  unsigned short good_start_state;
-  unsigned char natural_death_kind;
-  unsigned char field_5;
-  unsigned char field_6;
-  unsigned char field_7; // is transparent
-  unsigned char swipe_idx;
-  short shot_shift_x; /**< Initial position of shot created by the creature relative to creature position, X coord. */
-  short shot_shift_y; /**< Initial position of shot created by the creature relative to creature position, Y coord. */
-  short shot_shift_z; /**< Initial position of shot created by the creature relative to creature position, Z coord. */
-  unsigned char field_F;
-};
-
 /******************************************************************************/
-extern struct Creatures creatures[CREATURE_TYPES_MAX];
-extern unsigned short breed_activities[CREATURE_TYPES_MAX];
+extern ThingModel breed_activities[CREATURE_TYPES_MAX];
 #pragma pack()
 /******************************************************************************/
 
@@ -241,6 +233,8 @@ struct CreatureExperience {
     long loyalty_increase_on_exp;
     long armour_increase_on_exp;
     long exp_on_hitting_increase_on_exp;
+    long training_cost_increase_on_exp;
+    long scavenging_cost_increase_on_exp;
 };
 
 struct CreatureConfig {
@@ -268,24 +262,23 @@ struct CreatureConfig {
 /******************************************************************************/
 extern const char keeper_creaturetp_file[];
 extern struct NamedCommand creature_desc[];
-extern struct NamedCommand newcrtr_desc[];
 extern struct NamedCommand angerjob_desc[];
 extern struct NamedCommand creaturejob_desc[];
 extern struct NamedCommand attackpref_desc[];
 extern struct NamedCommand instance_desc[];
 extern const struct NamedCommand creatmodel_attributes_commands[];
 extern const struct NamedCommand creatmodel_jobs_commands[];
-
+extern const struct NamedCommand creatmodel_attraction_commands[];
+extern const struct NamedCommand creatmodel_sounds_commands[];
+extern const struct NamedCommand creatmodel_sprite_commands[];
 extern const struct NamedCommand creature_graphics_desc[];
-/******************************************************************************/
-//extern struct Creatures creatures[];
+extern Creature_Job_Player_Check_Func creature_job_player_check_func_list[];
 /******************************************************************************/
 struct CreatureStats *creature_stats_get(ThingModel crstat_idx);
 struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing);
 TbBool creature_stats_invalid(const struct CreatureStats *crstat);
 void check_and_auto_fix_stats(void);
 const char *creature_code_name(ThingModel crmodel);
-const char* new_creature_code_name(ThingModel crmodel);
 long creature_model_id(const char * name);
 const char *creature_own_name(const struct Thing *creatng);
 TbBool is_creature_model_wildcard(ThingModel crmodel);
@@ -321,7 +314,7 @@ CreatureJob get_job_for_room_role(RoomRole rrole, unsigned long required_kind_fl
 CreatureJob get_job_which_qualify_for_room(RoomKind rkind, unsigned long qualify_flags, unsigned long prevent_flags);
 CreatureJob get_job_which_qualify_for_room_role(RoomRole rrole, unsigned long qualify_flags, unsigned long prevent_flags);
 const char *creature_job_code_name(CreatureJob job_flag);
-void thing_death_flesh_explosion(struct Thing* thing);
+struct Thing* thing_death_flesh_explosion(struct Thing* thing);
 /******************************************************************************/
 const char *attack_type_job_code_name(CrAttackType attack_type);
 /******************************************************************************/

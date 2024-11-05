@@ -40,6 +40,7 @@
 #include "scrcapt.h"
 #include "vidmode.h"
 #include "music_player.h"
+#include "moonphase.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -52,6 +53,7 @@ static long net_number_of_levels;
 static struct NetLevelDesc net_level_desc[100];
 static const char keeper_config_file[]="keeperfx.cfg";
 
+char cmd_char = '!';
 int max_track = 7;
 unsigned short AtmosRepeat = 1013;
 unsigned short AtmosStart = 1014;
@@ -59,6 +61,8 @@ unsigned short AtmosEnd = 1034;
 TbBool AssignCpuKeepers = 0;
 struct InstallInfo install_info;
 char keeper_runtime_directory[152];
+short api_enabled = false;
+uint16_t api_port = 5599;
 
 /**
  * Language 3-char abbreviations.
@@ -138,6 +142,13 @@ const struct NamedCommand conf_commands[] = {
   {"DELTA_TIME"                    , 25},
   {"CREATURE_STATUS_SIZE"          , 26},
   {"MAX_ZOOM_DISTANCE"             , 27},
+  {"DISPLAY_NUMBER"                , 28},
+  {"MUSIC_FROM_DISK"               , 29},
+  {"HAND_SIZE"                     , 30},
+  {"LINE_BOX_SIZE"                 , 31},
+  {"COMMAND_CHAR"                  , 32},
+  {"API_ENABLED"                   , 33},
+  {"API_PORT"                      , 34},
   {NULL,                   0},
   };
 
@@ -365,33 +376,109 @@ short find_conf_block(const char *buf,long *pos,long buflen,const char *blocknam
 }
 
 /**
+ * Reads the block name from buf, starting at pos.
+ * Sets name and namelen to the block name and name length respectively.
+ * Returns true on success, false when the block name is zero.
+ */
+TbBool conf_get_block_name(const char * buf, long * pos, long buflen, const char ** name, int * namelen)
+{
+  const long start = *pos;
+  *name = NULL;
+  *namelen = 0;
+  while (true) {
+    if (*pos >= buflen) {
+      return false;
+    } else if (isalpha(buf[*pos])) {
+      (*pos)++;
+      continue;
+    } else if (isdigit(buf[*pos])) {
+      (*pos)++;
+      continue;
+    } else {
+      if (*pos - start > 0) {
+        *name = &buf[start];
+        *namelen = *pos - start;
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+}
+
+/**
+ * Searches for the next block in buf, starting at pos.
+ * Sets name and namelen to the block name and name length respectively.
+ * Returns true on success, false when no more blocks are found.
+ */
+TbBool iterate_conf_blocks(const char * buf, long * pos, long buflen, const char ** name, int * namelen)
+{
+  text_line_number = 1;
+  *name = NULL;
+  *namelen = 0;
+  while (true) {
+    // Skip whitespace before block start
+    if (!skip_conf_spaces(buf, pos, buflen)) {
+      return false;
+    }
+    // Check if this line is start of a block
+    if (*pos >= buflen) {
+      return false;
+    } else if (buf[*pos] != '[') {
+      skip_conf_to_next_line(buf, pos, buflen);
+      continue;
+    }
+    (*pos)++;
+    // Skip whitespace before block name
+    if (!skip_conf_spaces(buf, pos, buflen)) {
+      return false;
+    }
+    // Get block name
+    if (!conf_get_block_name(buf, pos, buflen, name, namelen)) {
+      skip_conf_to_next_line(buf, pos, buflen);
+      return false;
+    }
+    // Skip whitespace after block name
+    if (!skip_conf_spaces(buf, pos, buflen)) {
+      return false;
+    } else if (buf[*pos] != ']') {
+      skip_conf_to_next_line(buf, pos, buflen);
+      continue;
+    }
+    skip_conf_to_next_line(buf,pos,buflen);
+    return true;
+  }
+}
+
+/**
  * Recognizes config command and returns its number, or negative status code.
+ * The string comparison is done by case-insensitive.
  * @param buf
  * @param pos
  * @param buflen
  * @param commands
  * @return If positive integer is returned, it is the command number recognized in the line.
- * If 0 is returned, that means the current line did not contained any command and should be skipped.
- * If -1 is returned, that means we've reached end of file.
- * If -2 is returned, that means the command wasn't recognized.
- * If -3 is returned, that means we've reached end of the INI block.
+ * If ccr_comment      is returned, that means the current line did not contained any command and should be skipped.
+ * If ccr_endOfFile    is returned, that means we've reached end of file.
+ * If ccr_unrecognised is returned, that means the command wasn't recognized.
+ * If ccr_endOfBlock   is returned, that means we've reached end of the INI block.
  */
 int recognize_conf_command(const char *buf,long *pos,long buflen,const struct NamedCommand commands[])
 {
     SYNCDBG(19,"Starting");
-    if ((*pos) >= buflen) return -1;
+    if ((*pos) >= buflen) return ccr_endOfFile;
     // Skipping starting spaces
     while ((buf[*pos] == ' ') || (buf[*pos] == '\t') || (buf[*pos] == '\n') || (buf[*pos] == '\r') || (buf[*pos] == 26) || ((unsigned char)buf[*pos] < 7))
     {
         (*pos)++;
-        if ((*pos) >= buflen) return -1;
+        if ((*pos) >= buflen) return ccr_endOfFile;
     }
     // Checking if this line is a comment
     if (buf[*pos] == ';')
-        return 0;
+        return ccr_comment;
     // Checking if this line is start of a block
     if (buf[*pos] == '[')
-        return -3;
+        return ccr_endOfBlock;
     // Finding command number
     int i = 0;
     while (commands[i].num > 0)
@@ -428,7 +515,149 @@ int recognize_conf_command(const char *buf,long *pos,long buflen,const struct Na
         }
         i++;
     }
-    return -2;
+    const int len = strcspn(&buf[(*pos)], " \n\r\t");
+    CONFWRNLOG("Unrecognized command '%.*s'", len, &buf[(*pos)]);
+    return ccr_unrecognised;
+}
+
+int assign_named_field_value(const struct NamedField* named_field, int64_t value)
+{
+    switch (named_field->type)
+    {
+    case dt_uchar:
+        *(unsigned char*)named_field->field = value;
+        break;
+    case dt_schar:
+        *(signed char*)named_field->field = value;
+        break;
+    case dt_short:
+        *(signed short*)named_field->field = value;
+        break;
+    case dt_ushort:
+        *(unsigned short*)named_field->field = value;
+        break;
+    case dt_int:
+        *(signed int*)named_field->field = value;
+        break;
+    case dt_uint:
+        *(unsigned int*)named_field->field = value;
+        break;
+    case dt_long:
+        *(signed long*)named_field->field = value;
+        break;
+    case dt_ulong:
+        *(unsigned long*)named_field->field = value;
+        break;
+    case dt_longlong:
+        *(signed long long*)named_field->field = value;
+        break;
+    case dt_ulonglong:
+        *(unsigned long long*)named_field->field = value;
+        break;
+    case dt_float:
+        *(float*)named_field->field = value;
+        break;
+    case dt_double:
+        *(double*)named_field->field = value;
+        break;
+    case dt_longdouble:
+        *(long double*)named_field->field = value;
+        break;
+    case dt_default:
+    case dt_void:
+    default:
+        ERRORLOG("unexpected datatype for field %s",named_field->name);
+        return ccr_error;
+        break;
+    }
+    return ccr_ok;
+}
+
+/**
+ * Recognizes config command and returns its number, or negative status code.
+ * @param buf
+ * @param pos
+ * @param buflen
+ * @param commands
+ * @return If ccr_ok is returned the field has been correctly assigned
+ * If ccr_comment      is returned, that means the current line did not contained any command and should be skipped.
+ * If ccr_endOfFile    is returned, that means we've reached end of file.
+ * If ccr_unrecognised is returned, that means the command wasn't recognized.
+ * If ccr_endOfBlock   is returned, that means we've reached end of the INI block.
+ * If ccr_error        is returned, that means something went wrong.
+ */
+
+int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct NamedField commands[])
+{
+    SYNCDBG(19,"Starting");
+    if ((*pos) >= buflen) return -1;
+    // Skipping starting spaces
+    while ((buf[*pos] == ' ') || (buf[*pos] == '\t') || (buf[*pos] == '\n') || (buf[*pos] == '\r') || (buf[*pos] == 26) || ((unsigned char)buf[*pos] < 7))
+    {
+        (*pos)++;
+        if ((*pos) >= buflen) return -1;
+    }
+    // Checking if this line is a comment
+    if (buf[*pos] == ';')
+        return ccr_comment;
+    // Checking if this line is start of a block
+    if (buf[*pos] == '[')
+        return ccr_endOfBlock;
+    // Finding command number
+    int i = 0;
+    while (commands[i].name != NULL)
+    {
+        int cmdname_len = strlen(commands[i].name);
+        if ((*pos)+cmdname_len > buflen) {
+            i++;
+            continue;
+        }
+        // Find a matching command
+        if (strnicmp(buf+(*pos), commands[i].name, cmdname_len) == 0)
+        {
+            (*pos) += cmdname_len;
+            // if we're not at end of input buffer..
+            if ((*pos) < buflen)
+            {
+                // make sure it's whole command, not just start of different one
+               if ((buf[(*pos)] != ' ') && (buf[(*pos)] != '\t')
+                && (buf[(*pos)] != '=')  && ((unsigned char)buf[(*pos)] >= 7))
+               {
+                  (*pos) -= cmdname_len;
+                  i++;
+                  continue;
+               }
+               // Skipping spaces between command and parameters
+               while ((buf[*pos] == ' ') || (buf[*pos] == '\t')
+                || (buf[*pos] == '=')  || ((unsigned char)buf[*pos] < 7))
+               {
+                 (*pos)++;
+                 if ((*pos) >= buflen) break;
+               }
+            }
+
+            char word_buf[COMMAND_WORD_LEN];
+            if (get_conf_parameter_single(buf,pos,buflen,word_buf,sizeof(word_buf)) > 0)
+            {
+                int64_t k = atoi(word_buf);
+
+                if( k < commands[i].min)
+                {
+                    CONFWRNLOG("field '%s' smaller then min value '%d', was '%d'",commands[i].name,commands[i].min,k);
+                    k = commands[i].min;
+                }
+                else if( k > commands[i].max)
+                {
+                    CONFWRNLOG("field '%s' bigger then max value '%d', was '%d'",commands[i].name,commands[i].max,k);
+                    k = commands[i].max;
+                }
+                
+                return assign_named_field_value(&commands[i],k);
+            }
+        }
+        i++;
+    }
+    return ccr_unrecognised;
 }
 
 int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,long dstlen)
@@ -447,7 +676,7 @@ int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,lon
       break;
     dst[i]=buf[*pos];
     (*pos)++;
-    if ((*pos) >= buflen) break;
+    if ((*pos) > buflen) break;
   }
   dst[i]='\0';
   return i;
@@ -625,6 +854,22 @@ const char *get_language_lwrstr(int lang_id)
 }
 
 /**
+ * Returns ID of given item using NamedField list.
+ * If not found, returns -1.
+ */
+long get_named_field_id(const struct NamedField *desc, const char *itmname)
+{
+  if ((desc == NULL) || (itmname == NULL))
+    return -1;
+  for (long i = 0; desc[i].name != NULL; i++)
+  {
+    if (strcasecmp(desc[i].name, itmname) == 0)
+      return i;
+  }
+  return -1;
+}
+
+/**
  * Returns ID of given item using NamedCommands list.
  * Similar to recognize_conf_parameter(), but for use only if the buffer stores
  * one word, ended with "\0".
@@ -712,16 +957,25 @@ short load_configuration(void)
   install_info.field_9A = 0;
   // Set default runtime directory and load the config file
   strcpy(keeper_runtime_directory,".");
-  const char* fname = prepare_file_path(FGrp_Main, keeper_config_file);
+  const char* sname;
+  if (start_params.overrides[Clo_ConfigFile])
+  {
+    sname = start_params.config_file;
+  }
+  else
+  {
+    sname = keeper_config_file;
+  }
+  const char* fname = prepare_file_path(FGrp_Main, sname);
   long len = LbFileLengthRnc(fname);
   if (len < 2)
   {
-    WARNMSG("%s file \"%s\" doesn't exist or is too small.",config_textname,keeper_config_file);
+    WARNMSG("%s file \"%s\" doesn't exist or is too small.",config_textname,sname);
     return false;
   }
   if (len > 65536)
   {
-    WARNMSG("%s file \"%s\" is too large.",config_textname,keeper_config_file);
+    WARNMSG("%s file \"%s\" is too large.",config_textname,sname);
     return false;
   }
   char* buf = (char*)LbMemoryAlloc(len + 256);
@@ -799,32 +1053,32 @@ short load_configuration(void)
             switch (i)
             {
             case 0:
-                set_failsafe_vidmode(k);
+                set_failsafe_vidmode((TbScreenMode)k);
                 break;
             case 1:
-                set_movies_vidmode(k);
+                set_movies_vidmode((TbScreenMode)k);
                 break;
             case 2:
-                set_frontend_vidmode(k);
+                set_frontend_vidmode((TbScreenMode)k);
                 break;
             }
           }
           break;
       case 7: // INGAME_RES
-          for (i=0; i<max_game_vidmode_count(); i++)
+          for (i=0; i<MAX_GAME_VIDMODE_COUNT; i++)
           {
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = LbRegisterVideoModeString(word_buf);
               if (k > 0)
-                set_game_vidmode(i,k);
+                set_game_vidmode((uint)i,(TbScreenMode)k);
               else
                   CONFWRNLOG("Couldn't recognize video mode %d in \"%s\" command of %s file.",
                     i+1,COMMAND_TEXT(cmd_num),config_textname);
             } else
             {
               if (i > 0)
-                set_game_vidmode(i,Lb_SCREEN_MODE_INVALID);
+                set_game_vidmode((uint)i,Lb_SCREEN_MODE_INVALID);
               else
                   CONFWRNLOG("Video modes list empty in \"%s\" command of %s file.",
                     COMMAND_TEXT(cmd_num),config_textname);
@@ -1089,9 +1343,82 @@ short load_configuration(void)
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }
           break;
-      case 0: // comment
+      case 28: // DISPLAY_NUMBER
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            i = atoi(word_buf);
+          }
+          if ((i >= 0) && (i <= 32768)) {
+              display_id = ((i == 0) ? 0 : (i - 1));
+          } else {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
+          }
           break;
-      case -1: // end of buffer
+      case 29: // MUSIC_FROM_DISK
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1)
+              features_enabled |= Ft_NoCdMusic;
+          else
+              features_enabled &= ~Ft_NoCdMusic;
+          break;
+      case 30: // HAND_SIZE
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            i = atoi(word_buf);
+          }
+          if ((i >= 0) && (i <= SHRT_MAX)) {
+              global_hand_scale = i/100.0;
+          } else {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
+          }
+          break;
+      case 31: // LINE_BOX_SIZE
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            i = atoi(word_buf);
+          }
+          if ((i >= 0) && (i <= 32768)) {
+              line_box_size = i;
+          } else {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
+          }
+          break;
+      case 32: // COMMAND_CHAR
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              cmd_char = word_buf[0];
+          }
+          break;
+      case 33: // API_ENABLED
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          api_enabled = (i == 1);
+          break;
+      case 34: // API_PORT
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            i = atoi(word_buf);
+          }
+          if ((i >= 0) && (i <= UINT16_MAX)) {
+              api_port = i;
+          } else {
+              CONFWRNLOG("Invalid API port '%s' in %s file.",COMMAND_TEXT(cmd_num),config_textname);
+          }
+          break;
+      case ccr_comment:
+          break;
+      case ccr_endOfFile:
           break;
       default:
           CONFWRNLOG("Unrecognized command in %s file.",config_textname);
@@ -1136,6 +1463,19 @@ short load_configuration(void)
   }
   // Returning if the setting are valid
   return (install_info.lang_id > 0) && (install_info.inst_path[0] != '\0');
+}
+
+/** CmdLine overrides allow settings from the command line to override the default settings, or those set in the config file.
+ * 
+ * See enum CmdLineOverrides and struct StartupParameters -> TbBool overrides[CMDLINE_OVERRIDES].
+ */
+void process_cmdline_overrides(void)
+{
+  // Use CD for music rather than OGG files
+  if (start_params.overrides[Clo_CDMusic])
+  {
+    features_enabled &= ~Ft_NoCdMusic;
+  }
 }
 
 char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)
@@ -1323,11 +1663,6 @@ unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *
   prepare_file_path_buf(ffullpath, fgroup, fname);
   va_end(arg);
   // Load the file
-  if (file_group_needs_cd(fgroup))
-  {
-    if (!wait_for_cd_to_be_available())
-      return NULL;
-   }
    long fsize = LbFileLengthRnc(ffullpath);
    if (fsize < *ldsize)
    {
@@ -1352,60 +1687,81 @@ unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *
   return buf;
 }
 
-short calculate_moon_phase(short do_calculate,short add_to_log)
+short calculate_moon_phase(short do_calculate, short add_to_log)
 {
-  //Moon phase calculation
-  if (do_calculate)
-  {
-    phase_of_moon = (float)LbMoonPhase();
-  }
-  if ((phase_of_moon > -0.05) && (phase_of_moon < 0.05))
-  {
-    if (add_to_log)
-      SYNCMSG("Full moon %.4f", phase_of_moon);
-    is_full_moon = 1;
-    is_near_full_moon = 0;
-    is_new_moon = 0;
-    is_near_new_moon = 0;
-  } else
-  if ((phase_of_moon > -0.1) && (phase_of_moon < 0.1))
-  {
-    if (add_to_log)
-      SYNCMSG("Near Full moon %.4f", phase_of_moon);
-    is_full_moon = 0;
-    is_near_full_moon = 1;
-    is_new_moon = 0;
-    is_near_new_moon = 0;
-  } else
-  if ((phase_of_moon < -0.95) || (phase_of_moon > 0.95))
-  {
-    if (add_to_log)
-      SYNCMSG("New moon %.4f", phase_of_moon);
-    is_full_moon = 0;
-    is_near_full_moon = 0;
-    is_new_moon = 1;
-    is_near_new_moon = 0;
-  } else
-  if ((phase_of_moon < -0.9) || (phase_of_moon > 0.9))
-  {
-    if (add_to_log)
-      SYNCMSG("Near new moon %.4f", phase_of_moon);
-    is_full_moon = 0;
-    is_near_full_moon = 0;
-    is_new_moon = 0;
-    is_near_new_moon = 1;
-  } else
-  {
-    if (add_to_log)
-      SYNCMSG("Moon phase %.4f", phase_of_moon);
-    is_full_moon = 0;
-    is_near_full_moon = 0;
-    is_new_moon = 0;
-    is_near_new_moon = 0;
-  }
-//!CHEAT! always show extra levels
-//  is_full_moon = 1; is_new_moon = 1;
-  return is_full_moon;
+    // Moon phase calculation
+    if (do_calculate)
+    {
+        phase_of_moon = (float)moonphase_calculate();
+    }
+
+    // Handle moon phases
+    if ((phase_of_moon > 0.475) && (phase_of_moon < 0.525)) // Approx 33 hours
+    {
+        if (add_to_log)
+        {
+            SYNCMSG("Full moon %.4f", phase_of_moon);
+        }
+
+        is_full_moon = 1;
+        is_near_full_moon = 0;
+        is_new_moon = 0;
+        is_near_new_moon = 0;
+    }
+    else if ((phase_of_moon > 0.45) && (phase_of_moon < 0.55)) // Approx 70 hours
+    {
+        if (add_to_log)
+        {
+            SYNCMSG("Near Full moon %.4f", phase_of_moon);
+        }
+
+        is_full_moon = 0;
+        is_near_full_moon = 1;
+        is_new_moon = 0;
+        is_near_new_moon = 0;
+    }
+    else if ((phase_of_moon < 0.025) || (phase_of_moon > 0.975))
+    {
+        if (add_to_log)
+        {
+            SYNCMSG("New moon %.4f", phase_of_moon);
+        }
+
+        is_full_moon = 0;
+        is_near_full_moon = 0;
+        is_new_moon = 1;
+        is_near_new_moon = 0;
+    }
+    else if ((phase_of_moon < 0.05) || (phase_of_moon > 0.95))
+    {
+        if (add_to_log)
+        {
+            SYNCMSG("Near new moon %.4f", phase_of_moon);
+        }
+
+        is_full_moon = 0;
+        is_near_full_moon = 0;
+        is_new_moon = 0;
+        is_near_new_moon = 1;
+    }
+    else
+    {
+        if (add_to_log)
+        {
+            SYNCMSG("Moon phase %.4f", phase_of_moon);
+        }
+
+        is_full_moon = 0;
+        is_near_full_moon = 0;
+        is_new_moon = 0;
+        is_near_new_moon = 0;
+    }
+
+    //! CHEAT! always show extra levels
+    // TODO: make this a command line option?
+    //  is_full_moon = 1; is_new_moon = 1;
+
+    return is_full_moon;
 }
 
 void load_or_create_high_score_table(void)
@@ -1572,10 +1928,12 @@ unsigned long get_level_highest_score(LevelNumber lvnum)
 {
     for (int idx = 0; idx < campaign.hiscore_count; idx++)
     {
-        if (campaign.hiscore_table[idx].lvnum == lvnum)
+        if ((campaign.hiscore_table[idx].lvnum == lvnum) && (strcmp(campaign.hiscore_table[idx].name, "Bullfrog") != 0))
+        {
             return campaign.hiscore_table[idx].score;
-  }
-  return 0;
+        }
+    }
+    return 0;
 }
 
 struct LevelInformation *get_level_info(LevelNumber lvnum)

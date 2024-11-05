@@ -29,6 +29,7 @@ extern "C" {
 /******************************************************************************/
 /******************************************************************************/
 #pragma pack(1)
+#define INFINITE_CHARGES 255
 
 enum ThingTrapModels {
     TngTrp_None = 0,
@@ -50,7 +51,9 @@ enum TrapTriggerTypes {
     TrpTrg_Pressure_Slab,
     TrpTrg_LineOfSight,
     TrpTrg_Pressure_Subtile,
+    TrpTrg_Always,
 };
+
 enum TrapActivationTypes {
     TrpAcT_None = 0,
     TrpAcT_HeadforTarget90,
@@ -64,25 +67,34 @@ enum TrapActivationTypes {
 
 struct Thing;
 
+/** Also see TrapConfigStats
+*/
 struct TrapStats {
-  unsigned long health;
-  unsigned long sprite_anim_idx;
-  unsigned long sprite_size_max;
-  unsigned char unanimated;
-  unsigned long anim_speed;
-  unsigned char unshaded;
-  unsigned char transparency_flag; // transparency in lower 2 bits
-  unsigned char random_start_frame;
-  short size_xy;
-  short size_yz;
-  unsigned char trigger_type;
-  unsigned char activation_type;
-  unsigned char created_itm_model; // Shot model, effect model, slab kind
-  unsigned char hit_type;
-  short light_radius; // creates light if not null
-  unsigned char light_intensity;
-  unsigned char light_flag;
-  struct ComponentVector shotvector;
+    HitPoints health;
+    unsigned long sprite_anim_idx;
+    unsigned long recharge_sprite_anim_idx;
+    unsigned long attack_sprite_anim_idx;
+    unsigned long sprite_size_max;
+    unsigned char unanimated;
+    unsigned long anim_speed;
+    unsigned char unshaded;
+    unsigned char transparency_flag; // Transparency in lower 2 bits.
+    unsigned char random_start_frame;
+    short size_xy;
+    short size_z;
+    unsigned char trigger_type;
+    unsigned char activation_type;
+    unsigned short created_itm_model; // Shot model, effect model, slab kind.
+    unsigned char hit_type;
+    short light_radius; // Creates light if not null.
+    unsigned char light_intensity;
+    unsigned char light_flag;
+    struct ComponentVector shotvector;
+    unsigned short shot_shift_x;
+    unsigned short shot_shift_y;
+    unsigned short shot_shift_z;
+    unsigned short initial_delay; // Trap is placed on reload phase, value in game turns.
+    unsigned char detect_invisible;
 };
 
 /******************************************************************************/
@@ -117,7 +129,8 @@ unsigned long remove_trap(struct Thing *traptng, long *sell_value);
 unsigned long remove_trap_on_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value);
 unsigned long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value);
 
-void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct Thing *hand);
+void external_activate_trap_shot_at_angle(struct Thing *thing, short angle, struct Thing *trgtng);
+void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, char shot_lvl, short angle_xy);
 
 /******************************************************************************/
 #ifdef __cplusplus

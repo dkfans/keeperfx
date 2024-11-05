@@ -184,7 +184,7 @@ REM QUICK_OBJECTIVE(0,"Four wizards have cast a spell of fear over your servants
 
 IF(PLAYER0,IMP >= 8)
     DISPLAY_OBJECTIVE(91,ALL_PLAYERS)
-REM QUICK_OBJECTIVE(1,"An imp was carrying your Create Imp spell in its backpack. You are back in business. Pay the wizards a little visit, one that they will not survice, and level their dungeon for good measure.",PLAYER0)
+REM QUICK_OBJECTIVE(1,"An imp was carrying your Create Imp spell in its backpack. You are back in business. Pay the wizards a little visit, one that they will not survive, and level their dungeon for good measure.",PLAYER0)
     MAGIC_AVAILABLE(PLAYER0,POWER_IMP,1,1)
 ENDIF
 

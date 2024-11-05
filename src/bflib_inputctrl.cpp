@@ -30,6 +30,7 @@
 #include "config.h"
 #include "sounds.h"
 #include "game_legacy.h" // needed for paused and possession_mode below - maybe there is a neater way than this...
+#include "keeperfx.hpp" // for start_params
 #include <SDL2/SDL.h>
 #include "post_inc.h"
 
@@ -143,7 +144,7 @@ void init_inputcontrol(void)
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_LEFTPAREN, KC_UNASSIGNED));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_RIGHTPAREN, KC_UNASSIGNED));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_ASTERISK, KC_UNASSIGNED));
-    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_PLUS, KC_UNASSIGNED));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_PLUS, KC_ADD));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_COMMA, KC_COMMA));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_MINUS, KC_MINUS));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_PERIOD, KC_PERIOD));
@@ -171,6 +172,7 @@ void init_inputcontrol(void)
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_CARET, KC_UNASSIGNED));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_UNDERSCORE, KC_UNDERLINE));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_BACKQUOTE, KC_GRAVE));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(178, KC_GRAVE));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_DELETE, KC_DELETE));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_0, KC_NUMPAD0));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_1, KC_NUMPAD1));
@@ -378,6 +380,9 @@ static void process_event(const SDL_Event *ev)
         {
             isMouseActive = false;
         }
+        /* else if (ev->window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+             // todo (allow window to be freely scaled): add window resize function that does what is needed, and call this new function from window init function too
+        } */
         break;
     case SDL_JOYAXISMOTION:
     case SDL_JOYBALLMOTION:
@@ -475,11 +480,25 @@ void LbSetMouseGrab(TbBool grab_mouse)
     if (lbMouseGrabbed)
     {
         LbMouseCheckPosition((previousGrabState != lbMouseGrabbed));
-        SDL_SetRelativeMouseMode(SDL_TRUE);
+        if (SDL_getenv("NO_RELATIVE_MOUSE"))
+        {
+            JUSTLOG("NO_RELATIVE_MOUSE is set");
+        }
+        else
+        {
+            SDL_SetRelativeMouseMode(SDL_TRUE);
+        }
     }
     else
     {
-        SDL_SetRelativeMouseMode(SDL_FALSE);
+        if (SDL_getenv("NO_RELATIVE_MOUSE"))
+        {
+            JUSTLOG("NO_RELATIVE_MOUSE is set");
+        }
+        else
+        {
+            SDL_SetRelativeMouseMode(SDL_FALSE);
+        }
         LbMouseCheckPosition((previousGrabState != lbMouseGrabbed));
     }
     SDL_ShowCursor((lbAppActive ? SDL_DISABLE : SDL_ENABLE)); // show host OS cursor when window has lost focus
@@ -531,7 +550,8 @@ void LbGrabMouseCheck(long grab_event)
                 }
                 break;
             case MG_InitMouse:
-                grab_cursor = true;
+                if (!start_params.ungrab_mouse)
+                    grab_cursor = true;
                 break;
             case MG_OnFocusGained:
                 grab_cursor = lbMouseGrab;

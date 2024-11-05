@@ -49,6 +49,10 @@
 #include "net_game.h"
 #include "sounds.h"
 
+#ifdef FUNCTESTING
+#include "ftests/ftest.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -62,6 +66,13 @@ extern "C" {
 #define LENSES_COUNT           15
 #define SPELL_POINTER_GROUPS   14
 #define ZOOM_KEY_ROOMS_COUNT   15
+#define CMDLINE_OVERRIDES      2
+
+/** Command Line overrides for config settings. Checked after the config file is loaded. */
+enum CmdLineOverrides {
+    Clo_ConfigFile = 0, /**< Special: handled before the config file is loaded. */
+    Clo_CDMusic,
+};
 
 enum ModeFlags {
     MFlg_IsDemoMode         =  0x01,
@@ -77,25 +88,30 @@ enum ModeFlags {
 enum FFlags {
     FFlg_unk01              =  0x01,
     FFlg_unk02              =  0x02,
-    FFlg_unk04              =  0x04,
+    FFlg_unk04              =  0x04, // unused, had something to do with Passenger Control
     FFlg_unk08              =  0x08,
     FFlg_unk10              =  0x10,
     FFlg_AlexCheat          =  0x20,
-    FFlg_UsrSndFont         =  0x40,
+    FFlg_UsrSndFont         =  0x40, // now unused
     FFlg_unk80              =  0x80,
 };
 
 enum DebugFlags {
     DFlg_ShotsDamage        =  0x01,
     DFlg_CreatrPaths        =  0x02,
+    DFlg_ShowGameTurns      =  0x04,
+    DFlg_FrameStep          =  0x08,
+    DFlg_PauseAtGameTurn    =  0x10,
 };
 
-#ifdef AUTOTESTING
-enum AutotestFlags {
-    ATF_ExitOnTurn          = 0x01, // Exit from a game after some time
-    ATF_FixedSeed           = 0x02, // Set randomseed to 1 on game start
-    ATF_AI_Player           = 0x04, // Activate Ai player on level start
-    ATF_TestsCampaign       = 0x08  // Switch to testing levels
+#ifdef FUNCTESTING
+enum FunctestFlags {
+    FTF_Enabled             = 0x01, // Functional Tests Enabled
+    FTF_TestFailed          = 0x02, // Test failed, causes exit code -1 for cmd line automation
+    FTF_Abort               = 0x04, // Something went wrong, aborting
+    FTF_LevelLoaded         = 0x08, // For tracking if map is ready
+    FTF_ExitOnTestFailure   = 0x10, // If users want to exit on any test failure
+    FTF_IncludeLongTests    = 0x20, // If users want to run the long running test list
 };
 #endif
 
@@ -128,9 +144,14 @@ struct StartupParameters {
     unsigned char force_ppro_poly;
     int frame_skip;
     char selected_campaign[CMDLN_MAXLEN+1];
-#ifdef AUTOTESTING
-    unsigned char autotest_flags;
-    unsigned long autotest_exit_turn;
+    TbBool overrides[CMDLINE_OVERRIDES];
+    char config_file[CMDLN_MAXLEN+1];
+    GameTurn pause_at_gameturn;
+    TbBool ungrab_mouse;
+#ifdef FUNCTESTING
+    unsigned char functest_flags;
+    char functest_name[FTEST_MAX_NAME_LENGTH];
+    unsigned int functest_seed;
 #endif
 };
 
@@ -142,6 +163,7 @@ extern unsigned char *dog_palette;
 extern unsigned char *vampire_palette;
 extern unsigned char exit_keeper;
 extern unsigned char quit_game;
+extern unsigned char is_running_under_wine;
 extern int continue_game_option_available;
 extern long last_mouse_x;
 extern long last_mouse_y;
@@ -204,8 +226,8 @@ long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber pl
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player);
 void reset_gui_based_on_player_mode(void);
 void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx);
-void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4);
-void draw_lightning(const struct Coord3d* pos1, const struct Coord3d* pos2, long eeinterspace, long eemodel);
+void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step, short ef_or_efel_model);
+void draw_lightning(const struct Coord3d* pos1, const struct Coord3d* pos2, long eeinterspace, short ef_or_efel_model);
 void toggle_hero_health_flowers(void);
 void check_players_won(void);
 void check_players_lost(void);
@@ -215,7 +237,7 @@ void process_payday(void);
 TbBool toggle_computer_player(PlayerNumber plyr_idx);
 void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal);
 void set_player_cameras_position(struct PlayerInfo *player, long pos_x, long pos_y);
-void init_good_player_as(PlayerNumber plr_idx);
+void init_player_types();
 void init_keepers_map_exploration(void);
 void clear_creature_pool(void);
 void reset_creature_max_levels(void);
@@ -243,7 +265,6 @@ TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct
 void update_creatr_model_activities_list(void);
 void find_map_location_coords(long location, long *x, long *y, int plyr_idx, const char *func_name);
 TbBool any_player_close_enough_to_see(const struct Coord3d *pos);
-void affect_nearby_enemy_creatures_with_wind(struct Thing *thing);
 void affect_nearby_stuff_with_vortex(struct Thing *thing);
 void affect_nearby_friends_with_alarm(struct Thing *thing);
 long apply_wallhug_force_to_boulder(struct Thing *thing);
@@ -282,7 +303,7 @@ void initialise_map_collides(void);
 void initialise_map_health(void);
 void setup_3d(void);
 void setup_stuff(void);
-void give_shooter_drained_health(struct Thing *shooter, long health_delta);
+void give_shooter_drained_health(struct Thing *shooter, HitPoints health_delta);
 long get_foot_creature_has_down(struct Thing *thing);
 void process_keeper_spell_aura(struct Thing *thing);
 void init_seeds();

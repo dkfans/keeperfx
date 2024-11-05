@@ -38,6 +38,17 @@ void frontend_maintain_high_score_ok_button(struct GuiButton *gbtn);
 TbBool frontend_high_score_table_input(void);
 void frontend_maintain_high_score_ok_button(struct GuiButton *gbtn);
 void frontstats_save_high_score(void);
+void highscore_scroll_up(struct GuiButton *gbtn);
+void highscore_scroll_down(struct GuiButton *gbtn);
+void highscore_scroll(struct GuiButton *gbtn);
+void frontend_highscore_scroll_up_maintain(struct GuiButton *gbtn);
+void frontend_highscore_scroll_down_maintain(struct GuiButton *gbtn);
+void frontend_highscore_scroll_tab_maintain(struct GuiButton *gbtn);
+void frontend_draw_highscores_scroll_tab(struct GuiButton *gbtn);
+void frontend_high_scores_update();
+void frontend_draw_highscores_scroll_box_tab(struct GuiButton *gbtn);
+void frontend_draw_high_scores_mappack(struct GuiButton *gbtn);
+unsigned long count_high_scores();
 /******************************************************************************/
 #ifdef __cplusplus
 }

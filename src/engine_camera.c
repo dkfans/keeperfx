@@ -121,36 +121,6 @@ void set_previous_camera_values(struct PlayerInfo* player) {
     }
 }
 
-MapCoordDelta get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
-{
-    long dist_y = abs(pos2->y.val - (long)pos1->y.val);
-    long dist_x = abs(pos2->x.val - (long)pos1->x.val);
-    if (dist_y <= dist_x)
-        dist_y = dist_x;
-    long dist_z = abs(pos2->z.val - (long)pos1->z.val);
-    if (dist_y <= dist_z)
-        dist_y = dist_z;
-    return dist_y;
-}
-
-MapCoordDelta get_2d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
-{
-    long dist_y = abs((long)pos1->y.val - (long)pos2->y.val);
-    long dist_x = abs((long)pos1->x.val - (long)pos2->x.val);
-    if (dist_y <= dist_x)
-        return dist_x;
-    return dist_y;
-}
-
-MapCoordDelta get_2d_box_distance_xy(long pos1_x, long pos1_y, long pos2_x, long pos2_y)
-{
-    long dist_x = abs((long)pos1_x - (long)pos2_x);
-    long dist_y = abs((long)pos1_y - (long)pos2_y);
-    if (dist_y <= dist_x)
-      return dist_x;
-    return dist_y;
-}
-
 void angles_to_vector(short angle_xy, short angle_yz, long dist, struct ComponentVector *cvect)
 {
     long long cos_yz = LbCosL(angle_yz) >> 2;
@@ -428,6 +398,42 @@ void view_set_camera_rotation_inertia(struct Camera *cam, long delta, long ilimi
     }
 }
 
+void view_set_camera_tilt(struct Camera *cam, unsigned char mode)
+{
+    int tilt;
+    switch (mode)
+    {
+        case 0: // reset
+        {
+            tilt = CAMERA_TILT_DEFAULT;
+            break;
+        }
+        case 1: // up
+        {
+            tilt = cam->orient_b;
+            if (tilt < CAMERA_TILT_MAX)
+            {
+                tilt++;
+            }
+            break;
+        }
+        case 2: // down
+        {
+            tilt = cam->orient_b;
+            if (tilt > CAMERA_TILT_MIN)
+            {
+                tilt--;
+            }
+            break;
+        }
+        default:
+        {
+            return;
+        }
+    }
+    cam->orient_b = tilt;
+}
+
 void init_player_cameras(struct PlayerInfo *player)
 {
     struct Thing* heartng = get_player_soul_container(player->id_number);
@@ -447,7 +453,7 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->mappos.z.val = 0;
     cam->orient_c = 0;
     cam->horizontal_fov = 94;
-    cam->orient_b = -266;
+    cam->orient_b = player->isometric_tilt;
     cam->orient_a = LbFPMath_PI/4;
     if (settings.video_rotate_mode == 1) {
         cam->view_mode = PVM_IsoStraightView;
@@ -535,7 +541,7 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
             cam->mappos.z.val = thing->mappos.z.val + eye_height;
             cam->orient_a = thing->move_angle_xy;
             cam->orient_b = thing->move_angle_z;
-            cam->orient_c = cctrl->field_CC;
+            cam->orient_c = cctrl->roll;
         }
         else
         {

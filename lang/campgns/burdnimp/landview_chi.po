@@ -1,0 +1,103 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file burdnimp/landview_chi.po
+#      KeeperFX Land View Strings translation template
+#  @par Purpose:
+#      Contains translation of the national land descriptions in the game.
+#  @author   KeeperFX Team
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+"Project-Id-Version: Post Ancient Keeper campaign for KeeperFX\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: landview:0
+msgctxt "Campaign introduction"
+msgid "Me Dug! Dug is imp leader. Master find new lands. Many heroes. Very dangerous! Dug show lands to Keeper. Keeper can show skill!"
+msgstr "我叫达戈！达戈是您的小鬼队长。主人要找新的土地。有很多英雄。很可怕！达戈请守护者看看地图。守护者能展现技巧！"
+
+#: landview:10
+msgctxt "Level introduction"
+msgid "Moonshadow Keep. Keep full of good knights and wizards. Piss Master off. Kill knights and wizards and make new home for Keeper!"
+msgstr "这里是月影守护。由善良的骑士和巫师统治。让主人很生气。杀掉他们，把这里作为守护者的新家吧！"
+
+#: landview:11
+msgctxt "Level summary"
+msgid "Ha ha ha, Lord of Land is fried for supper! Ha ha! Dug has great appetite!"
+msgstr "哈哈哈，国王要被油炸当晚餐了，哈哈哈！达戈流哈喇子了！"
+
+#: landview:20
+msgctxt "Level introduction"
+msgid "Winterfrost Run. Dug no get why called Winterfrost. Place very warm. Heroes killed Keeper. You replace! Kill heroes!"
+msgstr "冬霜之行。达戈不知道为什么叫这个名字。这里很暖和。英雄已经消灭了这里的守护者。您来接替他吧！干掉那些英雄！"
+
+#: landview:21
+msgctxt "Level summary"
+msgid "Dug proud to have Master. Master good for Dug and Dug good for Master. Dug got shiny pebble!"
+msgstr "达戈为主人骄傲。主人对达戈好，达戈也会对主人好。哦，达戈挖到了闪亮的鹅卵石！"
+
+#: landview:30
+msgctxt "Level introduction"
+msgid "Master found more land. Place called Blistering Furnace. Dug been there. Land cold on feet, air warm on head. Bad Keeper there. Has portal. Master not. Keeper steal heroes, create army. Keeper clever. Dug run off now. Dug given day off. Dug work hard. Dug now smoke. Very special smoke!"
+msgstr "主人发现了更多的土地。这里叫沸腾之炉。达戈去过这里。地面上冷，头顶暖和。坏蛋守护者在这里。他有入口。主人没有。主人俘虏英雄作为军队。主人很聪明。达戈要走了。达戈今天休假。达戈会努力工作的。达戈现在要去抽烟，特别的烟！"
+
+#: landview:31
+msgctxt "Level summary"
+msgid "Dug help Master; dig hole to put heroes! Rotten heroes stink badly!"
+msgstr "达戈来帮忙了；挖一个洞把英雄们埋了吧！他们腐烂的尸体已经臭气熏天！"
+
+#: landview:40
+msgctxt "Level introduction"
+msgid "Master take you to Raven's Claw. Cave with four evil bad bad magic people! Keeper need go through haunted keep. Dug think scary. Master think amusing. Master thank Keeper for Dug's feeding bag. Run now!"
+msgstr "主人来到了乌鸦之爪。四个坏蛋法师躲在洞穴中！守护者必须经过这个鬼地方。达戈觉得可怕。但主人觉得有趣。主人感谢达戈留下的食物包。先走了！"
+
+#: landview:41
+msgctxt "Level summary"
+msgid "Dug good in digging and swinging pickaxe. Dug be glad to serve at next stop! Ha ha ha!"
+msgstr "达戈擅长挥动铁镐挖隧道。达戈很荣幸能在下一个王国继续为您服务，哈哈哈！"
+
+#: landview:50
+msgctxt "Level introduction"
+msgid "Master find more land. It called Silversong Fall. People live in ground. That Keeper domain. Kill intruders. Destroy underground village! Master tired from travelling. Not find new land soon. Work not stop for Dug! Dug go dig!"
+msgstr "主人又发现了一片土地。这里叫银歌之落。人们生活在地下。这是守护者的地盘。消灭入侵者。摧毁地下村庄！主人旅途劳顿。暂时不要去开拓新土地了吧。达戈的工作干不完！达戈要去挖隧道了！"
+
+#: landview:51
+msgctxt "Level summary"
+msgid "Dug strong! Dug had courage! Strike Dwarf in head. With bad apple."
+msgstr "达戈真厉害！达戈鼓起勇气砸了一下矮人的脑袋。用一个烂苹果。"
+
+#: landview:60
+msgctxt "Level introduction"
+msgid "Land called Springwater River. Keeper kill naughty knights. Naughty knights! Naughty knights! Hope Keeper enjoy! Dug give hint: Not attack right away. Wait for attacks first. If Keeper not get creatures strong in time, then dig around. Keeper find something useful maybe. Dug say bye! Work work work."
+msgstr "这里叫清泉之河。守护者要杀掉堕落的骑士。堕落的骑士！希望守护者会喜欢！达戈的建议：不要贸然进攻。先等待敌人进攻，并挖掘周围的地方，寻找怪物。守护者可能还会找到有用的东西。达戈要说拜拜了！还要去干活，干活，干活。"
+
+#: landview:61
+msgctxt "Level summary"
+msgid "Dug run away! Horny Reaper mad, kill all Dug friends! Oh, poor Dug!"
+msgstr "达戈快跑！冥界使者发怒了，杀掉了我的小鬼朋友们！沤，可怜的达戈！"
+
+#: landview:70
+msgctxt "Level introduction"
+msgid "Master proud to show more land. Land called Amberstone Hills. Enemy Keeper stripped Keeper clean. Careful with Dug's friends in start, or Keeper fail! Dug give no hint! Easy for smart Keeper. Master is tired again. Rings bell for food. And Master call Dug lazy!"
+msgstr "主人又自豪地发现了一片新土地。叫做琥珀石山。但是，这里的敌人已经将守护者洗劫一空。小心照顾好达戈的朋友们，否则会失败！达戈不用给建议了！对聪明的守护者来说很简单。主人又疲惫了，摇铃叫仆人上菜。而且主人骂达戈懒惰！"
+
+#: landview:71
+msgctxt "Level summary"
+msgid "Dug wants go dig. But no earth left! Aarghh!"
+msgstr "达戈想要继续挖掘。但是挖到头了，啊！"
+
+#: landview:80
+msgctxt "Level introduction"
+msgid "Keeper arrive at Dreamweave Caverns with Dug. Wizards cast spell on Dug friends! Twelve friends run to north caves! Find eight of Dug friends and protect! Spells also lost. Dug friends hid them from enemy! You find."
+msgstr "主人和达戈来到了织梦洞窟。四名巫师对达戈的小鬼朋友们施展了魔法！12只小鬼逃进了北边的山洞里！至少找到8只小鬼，并保证他们存活！主人的魔法书也丢了，为了避免落入敌手，达戈的朋友把它们藏起来了！找一找吧。"
+
+#: landview:81
+msgctxt "Level summary"
+msgid "Dug helped conquer land! Dug throw dirt in Avatar's helmet! If didn't, Keeper dead. Yes, Avatar got sand in eyes! Ha ha ha!"
+msgstr "达戈帮助主人征服了这个王国！达戈往圣者的头盔里扔了一把沙土！差点就要被他干掉了。沤，圣者的眼睛里进沙子了，哈哈哈！"

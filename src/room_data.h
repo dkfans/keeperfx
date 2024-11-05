@@ -23,14 +23,15 @@
 #include "config_creature.h"
 #include "globals.h"
 #include "config_creature.h"
+#include "player_data.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define ROOM_TYPES_COUNT_OLD      17
+#define ROOM_TYPES_COUNT_OLD  17
 #define SLAB_AROUND_COUNT      4
-#define ROOMS_COUNT          150
+#define ROOMS_COUNT          511
 /******************************************************************************/
 enum RoomFlags {
     RoF_Allocated           = 0x01,
@@ -73,7 +74,6 @@ struct Thing;
 struct Coord3d;
 struct Room;
 struct Dungeon;
-struct DungeonAdd;
 
 typedef void (*Room_Update_Func)(struct Room *);
 
@@ -91,13 +91,13 @@ struct Room {
     RoomIndex next_of_owner;
     MapSubtlCoord central_stl_x;
     MapSubtlCoord central_stl_y;
-    unsigned short kind;
-    unsigned short health;
+    RoomKind kind;
+    HitPoints health;
     unsigned short total_capacity;
     unsigned short used_capacity;
     /* Informs whether players are interested in that room.
      * Usually used for neutral rooms, set if a player is starting to dig to that room. */
-    unsigned char player_interested[5];
+    unsigned char player_interested[PLAYERS_COUNT];
     union {
     /** For rooms which can store things, amount of storage space, or sum of gold, used by them.
      *  Rooms which can store things are workshops, libraries, treasure rooms etc. */
@@ -188,7 +188,7 @@ struct Room *find_room_of_role_with_spare_room_item_capacity(PlayerNumber plyr_i
 struct Room *find_nth_room_of_owner_with_spare_item_capacity_starting_with(long room_idx, long n, long spare);
 struct Room *find_room_of_role_with_spare_capacity(PlayerNumber owner, RoomRole rrole, long spare);
 struct Room *find_nth_room_of_owner_with_spare_capacity_starting_with(long room_idx, long n, long spare);
-struct Room *find_room_of_role_with_most_spare_capacity(const struct DungeonAdd *dungeonadd,RoomRole rrole, long *total_spare_cap);
+struct Room *find_room_of_role_with_most_spare_capacity(const struct Dungeon *dungeon,RoomRole rrole, long *total_spare_cap);
 struct Room *find_room_nearest_to_position(PlayerNumber plyr_idx, RoomKind rkind, const struct Coord3d *pos, long *room_distance);
 // Finding a navigable room for a thing
 struct Room *find_room_of_role_for_thing_with_used_capacity(const struct Thing *creatng, PlayerNumber plyr_idx, RoomRole rrole, unsigned char nav_flags, long min_used_cap);
@@ -233,7 +233,7 @@ long count_slabs_of_room_type(PlayerNumber plyr_idx, RoomKind rkind);
 long claim_enemy_room(struct Room *room,struct Thing *claimtng);
 long claim_room(struct Room *room,struct Thing *claimtng);
 long take_over_room(struct Room* room, PlayerNumber newowner);
-void destroy_room_leaving_unclaimed_ground(struct Room *room);
+void destroy_room_leaving_unclaimed_ground(struct Room *room, TbBool create_rubble);
 TbBool create_effects_on_room_slabs(struct Room *room, ThingModel effkind, long effrange, PlayerNumber effowner);
 TbBool clear_dig_on_room_slabs(struct Room *room, PlayerNumber plyr_idx);
 void do_room_integration(struct Room *room);
@@ -248,8 +248,10 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object_excluding_ro
 /* MOVE TO room_list.c/h */
 struct Room *find_nearest_room_of_role_for_thing_with_spare_item_capacity(struct Thing *thing, PlayerNumber plyr_idx, RoomRole rrole, unsigned char nav_flags);
 struct Room *find_random_room_of_role_for_thing(struct Thing *thing, PlayerNumber owner, RoomRole rkind, unsigned char nav_flags);
-struct Room * find_random_room_of_role_for_thing_with_spare_room_item_capacity(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags);
-struct Room * pick_random_room_of_role(PlayerNumber plyr_idx, RoomRole rrole);
+struct Room *find_random_room_of_role_for_thing_with_spare_room_item_capacity(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags);
+struct Room *pick_random_room_of_role(PlayerNumber plyr_idx, RoomRole rrole);
+
+void redraw_slab_map_elements(MapSlabCoord slb_x, MapSlabCoord slb_y);
 /******************************************************************************/
 #ifdef __cplusplus
 }

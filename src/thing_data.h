@@ -22,6 +22,9 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
+/** Max amount of creatures supported on any map. */
+#define CREATURES_COUNT       1024
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -52,17 +55,18 @@ enum ThingFlags1 {
 };
 
 enum ThingFlags2 {
-    TF2_Unkn01         = 0x01,
-    TF2_Spectator      = 0x02,
+    TF2_Unkn01              = 0x01,
+    TF2_Spectator           = 0x02,
+    TF2_SummonedCreature    = 0x04,
 };
 
 enum ThingRenderingFlags {
-    TRF_Unknown01     = 0x01, /** Not Drawn **/
-    TRF_Unshaded     = 0x02, // Not shaded
+    TRF_Invisible      = 0x01, // Not Drawn
+    TRF_Unshaded       = 0x02, // Not shaded
 
-    TRF_Unknown04     = 0x04, // Tint1 (used to draw enemy creatures when they are blinking to owners color)
-    TRF_Unknown08     = 0x08, // Tint2 (not used?)
-    TRF_Tint_Flags    = 0x0C, // Tint flags
+    TRF_Tint_1         = 0x04, // Tint1 (used to draw enemy creatures when they are blinking to owners color)
+    TRF_Tint_2         = 0x08, // Tint2 (not used?)
+    TRF_Tint_Flags     = 0x0C, // Tint flags
 
     TRF_Transpar_8     = 0x10, // Used on chicken effect when creature is turned to chicken
     TRF_Transpar_4     = 0x20, // Used for Invisible creatures and traps -- more transparent
@@ -71,6 +75,17 @@ enum ThingRenderingFlags {
 
     TRF_AnimateOnce    = 0x40,
     TRF_BeingHit       = 0x80,    // Being hit (draw red sometimes)
+};
+
+ /**
+  * Used for EffectElementConfigStats->size_change and Thing->size_change.
+  * 
+  * See effect_element_stats[] for setting of size_change.
+  */
+enum ThingSizeChange {
+  TSC_DontChangeSize         = 0x00, /**< Default behaviour. */
+  TSC_ChangeSize             = 0x01, /**< Used when creature changing to/from chicken, and by TngEffElm_Cloud3. */
+  TSC_ChangeSizeContinuously = 0x02, /**< Used by TngEffElm_IceShard. */
 };
 
 enum FreeThingAllocFlags {
@@ -169,6 +184,9 @@ struct Thing {
         unsigned char hit_type;
         short target_idx;
         unsigned char spell_level;
+        struct Coord3d originpos;
+        int num_wind_affected;
+        ThingIndex wind_affected_creature[CREATURES_COUNT];  //list of wind affected Creatures
       } shot;
       struct {
         long x;
@@ -188,6 +206,8 @@ struct Thing {
       struct {
         long gold_carried;
         short health_bar_turns;
+        short volley_repeat;
+        TbBool volley_fire;
       } creature;
 //TCls_Effect
       struct {
@@ -206,8 +226,14 @@ struct Thing {
 //TCls_Trap
       struct {
         unsigned char num_shots;
-        long rearm_turn;
         unsigned char revealed;
+        TbBool wait_for_rearm;
+        TbBool volley_fire;
+        GameTurn rearm_turn;
+        GameTurn shooting_finished_turn;
+        short volley_repeat;
+        unsigned short volley_delay;
+        unsigned short firing_at;
       } trap;
 //TCls_Door
       struct {
@@ -215,6 +241,7 @@ struct Thing {
       unsigned char opening_counter;
       short closing_counter;
       unsigned char is_locked;
+      PlayerBitFlags revealed;
       } door;
 //TCls_Unkn10
 //TCls_Unkn11
@@ -224,10 +251,10 @@ struct Thing {
         unsigned char x;
         unsigned char y;
         short time;
-        unsigned char model;
+        ThingModel model;
       }cave_in;
     };
-    unsigned char model;
+    ThingModel model;
     unsigned short index;
     /** Parent index. The parent may either be a thing, or a slab index.
      * What it means depends on thing class, ie. it's thing index for shots
@@ -247,25 +274,26 @@ struct Thing {
     // Push when moving; needs to be signed
     short anim_speed;
     long anim_time; // animation time (measured in 1/256 of a frame)
-unsigned short anim_sprite;
+    unsigned short anim_sprite;
     unsigned short sprite_size;
 
-unsigned char current_frame;
-unsigned char max_frames;
+    unsigned char current_frame;
+    unsigned char max_frames;
     char transformation_speed;
-unsigned short sprite_size_min;
-unsigned short sprite_size_max;
+    unsigned short sprite_size_min;
+    unsigned short sprite_size_max;
     unsigned char rendering_flags;
-    unsigned char field_50; // control rendering process (draw_class << 2) + (growth/shrink continiously) + (shrink/grow then stop)
-unsigned char tint_colour;
+    unsigned char draw_class; /**< See enum ObjectsDrawClasses for valid values. */
+    unsigned char size_change; /**< See enum ThingSizeChange for valid values. */
+    unsigned char tint_colour;
     short move_angle_xy;
     short move_angle_z;
     unsigned short clipbox_size_xy;
-    unsigned short clipbox_size_yz;
+    unsigned short clipbox_size_z;
     unsigned short solid_size_xy;
-    unsigned short solid_size_yz;
-    long health;
-unsigned short floor_height;
+    unsigned short solid_size_z;
+    HitPoints health;
+    unsigned short floor_height;
     unsigned short light_id;
     short ccontrol_idx;
     unsigned char snd_emitter_id;
@@ -320,7 +348,7 @@ TbBool thing_is_in_limbo(const struct Thing* thing);
 TbBool thing_is_dragged_or_pulled(const struct Thing *thing);
 struct PlayerInfo *get_player_thing_is_controlled_by(const struct Thing *thing);
 
-void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char a5, char start_frame, unsigned char draw_class);
+void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char animate_once, char start_frame, unsigned char draw_class);
 
 void query_thing(struct Thing *thing);
 /******************************************************************************/

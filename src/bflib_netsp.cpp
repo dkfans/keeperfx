@@ -232,7 +232,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
   void *imsg;
   char str[32];
   long i;
-  if (this->started < 1)
+  if (!this->started)
   {
     WARNLOG("not initialized");
     return Lb_FAIL;
@@ -348,7 +348,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
 
     //result = 0;
 
-    if (this->started < 1)
+    if (!this->started)
     {
       WARNLOG("not initialized");
       return Lb_FAIL;
@@ -405,7 +405,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
           }
 
           memcpy(&tmpInt1, msgBuffer, sizeof(tmpInt1));
-          if (array2 != NULL) { //unnecessary?
+          {
               msgBufferPtr = msgBuffer + 4;
               msgBufferPtr2 = array2;
               bool cond;
@@ -425,7 +425,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
 
           memcpy(&tmpInt2, msgBuffer, sizeof(tmpInt2));
           memcpy(&tmpInt1, msgBuffer + 4, sizeof(tmpInt1));
-          if (array3 != NULL) { //unnecessary?
+          {
               msgBufferPtr = msgBuffer + 4;
               array3Ptr = array3;
               bool cond;

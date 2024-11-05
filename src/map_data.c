@@ -41,7 +41,7 @@ struct Map bad_map_block;
  */
 MapSubtlCoord map_subtiles_z = 8;
 
-unsigned char *IanMap = NULL;
+NavColour *IanMap = NULL;
 long nav_map_initialised = 0;
 /******************************************************************************/
 /**
@@ -92,7 +92,7 @@ TbBool map_block_invalid(const struct Map *map)
   return (map < &game.map[0]);
 }
 
-unsigned long get_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+NavColour get_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
   if ((stl_x < 0) || (stl_x > gameadd.map_subtiles_x))
       return 0;
@@ -101,7 +101,7 @@ unsigned long get_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
   return game.navigation_map[navmap_tile_number(stl_x,stl_y)];
 }
 
-void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long navcolour)
+void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, NavColour navcolour)
 {
   if ((stl_x < 0) || (stl_x > gameadd.map_subtiles_x))
       return;
@@ -118,7 +118,7 @@ unsigned long get_navigation_map_floor_height(MapSubtlCoord stl_x, MapSubtlCoord
 long get_ceiling_height(const struct Coord3d *pos)
 {
     long i = get_subtile_number(pos->x.stl.num, pos->y.stl.num);
-    return ((game.map[i].data & 0xF000000u) >> 24) << 8;
+    return game.map[i].filled_subtiles * COORD_PER_STL;
 }
 
 ThingIndex get_mapwho_thing_index(const struct Map *mapblk)
@@ -133,19 +133,12 @@ void set_mapwho_thing_index(struct Map *mapblk, ThingIndex thing_idx)
 
 long get_mapblk_column_index(const struct Map *mapblk)
 {
-  return ((mapblk->data) & 0x7FF);
+  return (mapblk->col_idx);
 }
 
 void set_mapblk_column_index(struct Map *mapblk, long column_idx)
 {
-  // Check if new value is correct
-  if ((unsigned long)column_idx > 0x7FF)
-  {
-      ERRORLOG("Tried to set invalid column %ld",column_idx);
-      return;
-  }
-  // Clear previous and set new
-  mapblk->data ^= (mapblk->data ^ ((unsigned long)column_idx)) & 0x7FF;
+    mapblk->col_idx = column_idx;
 }
 
 /**
@@ -155,7 +148,7 @@ void set_mapblk_column_index(struct Map *mapblk, long column_idx)
  */
 long get_mapblk_filled_subtiles(const struct Map *mapblk)
 {
-    return ((mapblk->data & 0xF000000u) >> 24);
+    return mapblk->filled_subtiles;
 }
 
 /**
@@ -165,7 +158,7 @@ long get_mapblk_filled_subtiles(const struct Map *mapblk)
  */
 long get_mapblk_wibble_value(const struct Map *mapblk)
 {
-    return ((mapblk->data & 0xC00000u) >> 22);
+    return mapblk->wibble_value;
 }
 
 /**
@@ -175,7 +168,7 @@ long get_mapblk_wibble_value(const struct Map *mapblk)
  */
 void set_mapblk_wibble_value(struct Map *mapblk, long wib)
 {
-    mapblk->data ^= ((mapblk->data ^ (wib << 22)) & 0xC00000);
+    mapblk->wibble_value = wib;
 }
 
 /**
@@ -187,15 +180,13 @@ void set_mapblk_filled_subtiles(struct Map *mapblk, long height)
 {
     if (height <  0) height = 0;
     if (height > 15) height = 15;
-    mapblk->data &= ~(0xF000000);
-    mapblk->data |= (height << 24) & 0xF000000;
+    mapblk->filled_subtiles = height;
 }
 
 void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
-    PlayerBitFlag nflag = (1 << plyr_idx);
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    mapblk->revealed |= nflag;
+    reveal_map_block(mapblk, plyr_idx);
 }
 
 TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
@@ -204,10 +195,23 @@ TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber p
     return map_block_revealed(mapblk, plyr_idx);
 }
 
+/**
+ * Checks if the subtile is revealed without taking into consideration allied vision
+ */
+TbBool subtile_revealed_directly(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
+{
+    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    return map_block_revealed_directly(mapblk, plyr_idx);
+}
+
 void reveal_map_block(struct Map *mapblk, PlayerNumber plyr_idx)
 {
-    PlayerBitFlag nflag = (1 << plyr_idx);
-    mapblk->revealed |= nflag;
+    set_flag(mapblk->revealed, to_flag(plyr_idx));
+}
+
+void conceal_map_block(struct Map *mapblk, PlayerNumber plyr_idx)
+{
+    clear_flag(mapblk->revealed, to_flag(plyr_idx));
 }
 
 TbBool slabs_reveal_slab_and_corners(MapSlabCoord slab_x, MapSlabCoord slab_y, MaxCoordFilterParam param)
@@ -299,59 +303,55 @@ TbBool slabs_change_type(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterP
     return false;
 }
 
-TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
+TbBool slabs_change_texture(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterParam param)
 {
-    if (map_block_invalid(mapblk))
-        return false;
-    PlayerBitFlag plyr_bit;
-    if (gameadd.allies_share_vision)
+    unsigned char target_slab_texture = param->num1;
+    long fill_type = param->num2;
+    SlabKind orig_slab_kind = param->num3;
+    SlabKind current_kind = get_slabmap_block(slb_x, slb_y)->kind; // current kind
+    if (slabs_iter_will_change(orig_slab_kind, current_kind, fill_type))
     {
-        for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
-        {
-            if (players_are_mutual_allies(plyr_idx, i))
-            {
-                plyr_bit = (1 << i);
-                if ((mapblk->revealed) & plyr_bit)
-                return true;
-            }
-        }
-    }
-    else
-    {
-        plyr_bit = (1 << plyr_idx);
-        if ((mapblk->revealed) & plyr_bit)
+        SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
+        gameadd.slab_ext_data[slb_num] = target_slab_texture;
+        gameadd.slab_ext_data_initial[slb_num] = target_slab_texture;
         return true;
     }
     return false;
 }
 
-TbBool map_block_revealed_bit(const struct Map *mapblk, long plyr_bit)
+TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
 {
     if (map_block_invalid(mapblk))
-    {
         return false;
-    }
-    if (gameadd.allies_share_vision)
+    if (game.conf.rules.game.allies_share_vision)
     {
-        PlayerNumber plyr_idx = player_bit_to_player_number(plyr_bit);
         for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
         {
             if (players_are_mutual_allies(plyr_idx, i))
             {
-                if ((mapblk->revealed) & (1 << i))
-                return true;
+                if (flag_is_set(mapblk->revealed, to_flag(i)))
+                    return true;
             }
         }
     }
     else
     {
-        if ((mapblk->revealed) & plyr_bit)
-        {
+        if (flag_is_set(mapblk->revealed, to_flag(plyr_idx)))
             return true;
-        }
     }
     return false;
 }
+
+
+TbBool map_block_revealed_directly(const struct Map* mapblk, PlayerNumber plyr_idx)
+{
+    if (map_block_invalid(mapblk))
+        return false;
+    if (flag_is_set(mapblk->revealed, to_flag(plyr_idx)))
+        return true;
+    return false;
+}
+
 
 TbBool valid_dig_position(PlayerNumber plyr_idx, long stl_x, long stl_y)
 {
@@ -386,11 +386,20 @@ TbBool set_coords_with_range_check(struct Coord3d *pos, MapCoord cor_x, MapCoord
     }
     MapSubtlCoord stl_x = coord_subtile(cor_x);
     MapSubtlCoord stl_y = coord_subtile(cor_y);
-    MapCoord height = get_ceiling_height_at_subtile(stl_x, stl_y);
-    if (cor_z > height)
+    MapCoord height;
+    if (cor_z < -1)
     {
-        if (flags & MapCoord_ClipZ) cor_z = height;
+        if (flags & MapCoord_ClipZ) cor_z = -1;
         corrected = true;
+    }
+    else
+    {
+        height = get_ceiling_height_at_subtile(stl_x, stl_y);
+        if (cor_z > height)
+        {
+            if (flags & MapCoord_ClipZ) cor_z = height;
+            corrected = true;
+        }
     }
     if (cor_x < subtile_coord(0,0)) {
         if (flags & MapCoord_ClipX) cor_x = subtile_coord(0,0);
@@ -566,7 +575,7 @@ void clear_mapmap(void)
         for (unsigned long x = 0; x < (gameadd.map_subtiles_x + 1); x++)
         {
             struct Map* mapblk = get_map_block_at(x, y);
-            unsigned char* flg = &game.navigation_map[get_subtile_number(x, y)];
+            NavColour* flg = &game.navigation_map[get_subtile_number(x, y)];
             LbMemorySet(mapblk, 0, sizeof(struct Map));
             *flg = 0;
         }
@@ -649,7 +658,7 @@ void reveal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord e
   clear_dig_for_map_rect(plyr_idx,subtile_slab(start_x),subtile_slab(end_x),
       subtile_slab(start_y),subtile_slab(end_y));
   reveal_map_rect(plyr_idx,start_x,end_x,start_y,end_y);
-  pannel_map_update(start_x,start_y,end_x,end_y);
+  panel_map_update(start_x,start_y,end_x,end_y);
 }
 
 void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y, TbBool all)
@@ -678,10 +687,10 @@ void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord 
                         break;
                 }
             }
-            mapblk->revealed &= ~(1 << plyr_idx);
+            conceal_map_block(mapblk, plyr_idx);
         }
     }
-    pannel_map_update(start_x,start_y,end_x,end_y);
+    panel_map_update(start_x,start_y,end_x,end_y);
 }
 /**
  * Returns if given map position is unsafe (contains a terrain which may lead to creature death).
@@ -748,7 +757,7 @@ TbBool subtile_is_sellable_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapS
         return false;
     struct Room* room = subtile_room_get(stl_x, stl_y);
     struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
-    if ((roomst->flags & RoCFlg_CannotBeSold) != 0)
+    if (flag_is_set(roomst->flags,RoCFlg_CannotBeSold))
     {
         return false;
     }
@@ -763,7 +772,7 @@ TbBool subtile_is_sellable_door_or_trap(PlayerNumber plyr_idx, MapSubtlCoord stl
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_owner(slb) != plyr_idx)
         return false;
-    if ((slab_has_door_thing_on(subtile_slab(stl_x), subtile_slab(stl_y))) || (slab_has_sellable_trap_on(subtile_slab(stl_x), subtile_slab(stl_y))))
+    if ((slab_has_sellable_door(subtile_slab(stl_x), subtile_slab(stl_y))) || (slab_has_sellable_trap_on(subtile_slab(stl_x), subtile_slab(stl_y))))
         return true;
     return false;
 }
@@ -802,8 +811,7 @@ TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     {
         return true;
     }
-    //TODO DOOR Why magic door id different? This doesn't seem to be intended.
-    if (slab_kind_is_nonmagic_door(slb->kind))
+    if (slab_kind_is_door(slb->kind))
     {
         if (slabmap_owner(slb) == plyr_idx)
         {
@@ -875,7 +883,10 @@ void set_map_size(MapSlabCoord x,MapSlabCoord y)
 void init_map_size(LevelNumber lvnum)
 {
     struct LevelInformation* lvinfo = get_level_info(lvnum);
-    set_map_size(lvinfo->mapsize_x,lvinfo->mapsize_y);
+    if (lvinfo == NULL)
+        set_map_size(DEFAULT_MAP_SIZE, DEFAULT_MAP_SIZE);
+    else
+        set_map_size(lvinfo->mapsize_x,lvinfo->mapsize_y);
 }
 
 /******************************************************************************/
