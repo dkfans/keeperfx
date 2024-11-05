@@ -251,7 +251,9 @@ struct Room *find_random_room_of_role_for_thing(struct Thing *thing, PlayerNumbe
 struct Room *find_random_room_of_role_for_thing_with_spare_room_item_capacity(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags);
 struct Room *pick_random_room_of_role(PlayerNumber plyr_idx, RoomRole rrole);
 
+void create_guard_post_flags(struct Room *room);
 void redraw_slab_map_elements(MapSlabCoord slb_x, MapSlabCoord slb_y);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
