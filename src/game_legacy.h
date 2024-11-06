@@ -142,9 +142,9 @@ struct Game {
     unsigned char eastegg02_cntr;
     char audiotrack;
     char last_audiotrack;
-    char numfield_15;
+char numfield_15;
     LevelNumber selected_level_number;
-    char numfield_1A;
+char numfield_1A;
     unsigned char numfield_1B;
     struct PlayerInfo players[PLAYERS_COUNT];
     struct Column columns_data[COLUMNS_COUNT];
