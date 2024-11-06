@@ -387,7 +387,6 @@ static void process_event(const SDL_Event *ev)
                 break;
             }
             default: break;
-            
         }
         /* else if (ev->window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
              // todo (allow window to be freely scaled): add window resize function that does what is needed, and call this new function from window init function too
