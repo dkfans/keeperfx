@@ -563,6 +563,7 @@ void LbGrabMouseCheck(long grab_event)
                     grab_cursor = true;
                 break;
             case MG_OnFocusGained:
+                grab_cursor = lbMouseGrab;
                 if (paused && unlock_cursor_when_game_paused())
                 {
                     grab_cursor = false;
@@ -570,10 +571,6 @@ void LbGrabMouseCheck(long grab_event)
                 if (!paused && possession_mode && lock_cursor_in_possession() && !lbMouseGrab)
                 {
                     grab_cursor = true;
-                }
-                else
-                {
-                    grab_cursor = lbMouseGrab;
                 }
                 break;
             default:
