@@ -4042,10 +4042,6 @@ short process_command_line(unsigned short argc, char *argv[])
           SYNCLOG("Mouse auto reset disabled");
           lbMouseGrab = false;
       }
-      else if (strcasecmp(parstr, "ungrab") == 0)
-      {
-          start_params.ungrab_mouse = true;
-      }
       else if (strcasecmp(parstr,"packetload") == 0)
       {
          if (start_params.packet_save_enable)

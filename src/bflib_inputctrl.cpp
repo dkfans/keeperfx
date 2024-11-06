@@ -558,7 +558,6 @@ void LbGrabMouseCheck(long grab_event)
                 }
                 break;
             case MG_InitMouse:
-                if (!start_params.ungrab_mouse)
                     grab_cursor = true;
                 break;
             case MG_OnFocusGained:
