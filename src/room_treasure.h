@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file room_graveyard.h
- *     Header file for room_graveyard.c.
+/** @file room_garden.h
+ *     Header file for room_garden.c.
  * @par Purpose:
- *     Workshop room maintain functions.
+ *     Hatchery room maintain functions.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
- * @date     01 Feb 2012 - 01 Jul 2012
+ * @date     07 Apr 2011 - 19 Nov 2012
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,8 +16,8 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_ROOM_GRAVEYARD_H
-#define DK_ROOM_GRAVEYARD_H
+#ifndef DK_ROOM_TREASURE_H
+#define DK_ROOM_TREASURE_H
 
 #include "globals.h"
 #include "bflib_basics.h"
@@ -33,12 +33,11 @@ extern "C" {
 
 #pragma pack()
 /******************************************************************************/
-TbBool add_body_to_graveyard(struct Thing *corpse, struct Room *room);
-void reposition_all_bodies_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos);
-TbBool rectreate_repositioned_body_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos);
-int check_bodies_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-void count_and_reposition_bodies_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos);
-void count_bodies_in_room(struct Room *room);
+void count_gold_slabs_wth_effcncy(struct Room *room);
+void count_gold_slabs_full(struct Room *room);
+struct Thing *find_gold_hoarde_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+struct Thing *treasure_room_eats_gold_piles(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y, struct Thing *hoardtng);
+void count_gold_hoardes_in_room(struct Room *room);
 
 /******************************************************************************/
 #ifdef __cplusplus
