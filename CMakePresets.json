@@ -35,8 +35,7 @@
             "displayName": "Config Release",
             "hidden": true,
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-                "CMAKE_INTERPROCEDURAL_OPTIMIZATION": true
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
             }
         },
 
@@ -101,7 +100,7 @@
             },
             "vendor": {
                 "microsoft.com/VisualStudioSettings/CMake/1.0": {
-                    "intelliSenseMode": "windows-gcc-x86"
+                    "intelliSenseMode": "windows-clang-x86"
                 }
             }
         },
@@ -128,6 +127,7 @@
             "name": "Base",
             "hidden": true,
             "jobs": 8,
+            "verbose": true,
             "configurePreset": "Debug"
         },
 
@@ -141,8 +141,7 @@
             "name": "HeavyLog",
             "hidden": true,
             "inherits": "Base",
-            "targets": "keeperfx_hvlog",
-            "verbose": true
+            "targets": "keeperfx_hvlog"
         },
 
         {
@@ -202,7 +201,7 @@
         },
         {
             "name": "Release-MinGW32-Standard",
-            "displayName": "Debug MinGW32 Standard",
+            "displayName": "Release MinGW32 Standard",
             "inherits": "StandardLog",
             "configurePreset": "x86-MinGW32-Release"
         },
