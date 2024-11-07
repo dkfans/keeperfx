@@ -23,6 +23,7 @@
 
 #include "globals.h"
 #include "bflib_memory.h"
+#include "console_cmd.h"
 #include "player_instances.h"
 #include "player_data.h"
 #include "player_utils.h"
@@ -353,7 +354,6 @@ TbBool script_is_preloaded_command(long cmnd_index)
 {
     switch (cmnd_index)
     {
-        case Cmd_SWAP_CREATURE:
         case Cmd_LEVEL_VERSION:
         case Cmd_NEW_TRAP_TYPE:
         case Cmd_NEW_OBJECT_TYPE:
@@ -450,87 +450,107 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
 {
     switch (toupper(type_chr))
     {
-    case 'N':
-    {
-        char* text;
-        scline->np[idx] = strtol(scline->tp[idx], &text, 0);
-        if (!extended)
+        case 'N': //Number
         {
-            if (text != &scline->tp[idx][strlen(scline->tp[idx])])
+            char* text;
+            scline->np[idx] = strtol(scline->tp[idx], &text, 0);
+            //Extended number allows for a custom sprite string
+            if (!extended)
             {
-                SCRPTWRNLOG("Numerical value \"%s\" interpreted as %ld", scline->tp[idx], scline->np[idx]);
-            }
-        }
-        break;
-    }
-    case 'P':
-    {
-        long plr_range_id;
-        if (!get_player_id(scline->tp[idx], &plr_range_id))
-        {
-            return false;
-        }
-        scline->np[idx] = plr_range_id;
-        break;
-    }
-    case 'C':{
-        long crtr_id = get_rid(creature_desc, scline->tp[idx]);
-        if (extended)
-        {
-            if (crtr_id == -1)
-            {
-                if (0 == strcmp(scline->tp[idx], "ANY_CREATURE"))
+                if (text != &scline->tp[idx][strlen(scline->tp[idx])])
                 {
-                    crtr_id = CREATURE_ANY;
+                    SCRPTWRNLOG("Numerical value \"%s\" interpreted as %ld", scline->tp[idx], scline->np[idx]);
                 }
             }
+            break;
         }
-        if (crtr_id == -1)
+        case 'P': //Player
         {
-            SCRPTERRLOG("Unknown creature, \"%s\"", scline->tp[idx]);
-            return false;
+            long plr_range_id;
+            if (!get_player_id(scline->tp[idx], &plr_range_id))
+            {
+                return false;
+            }
+            scline->np[idx] = plr_range_id;
+            break;
         }
-        scline->np[idx] = crtr_id;
-        };break;
-    case 'R':{
-        long room_id = get_rid(room_desc, scline->tp[idx]);
-        if (room_id == -1)
+        case 'C': //Creature
         {
-            SCRPTERRLOG("Unknown room kind, \"%s\"", scline->tp[idx]);
-            return false;
+            long crtr_id = get_rid(creature_desc, scline->tp[idx]);
+            if (extended)
+            {
+                if (crtr_id == -1)
+                {
+                    if (0 == strcmp(scline->tp[idx], "ANY_CREATURE"))
+                    {
+                        crtr_id = CREATURE_ANY;
+                    }
+                }
+            }
+            if (crtr_id == -1)
+            {
+                SCRPTERRLOG("Unknown creature, \"%s\"", scline->tp[idx]);
+                return false;
+            }
+            scline->np[idx] = crtr_id;
+            break;
         }
-        scline->np[idx] = room_id;
-        };break;
-    case 'S': {
-        long slab_id = get_rid(slab_desc, scline->tp[idx]);
-        if (slab_id == -1)
+        case 'R': //Room
         {
-            SCRPTERRLOG("Unknown slab kind, \"%s\"", scline->tp[idx]);
-            return false;
+            long room_id = get_rid(room_desc, scline->tp[idx]);
+            if (room_id == -1)
+            {
+                SCRPTERRLOG("Unknown room kind, \"%s\"", scline->tp[idx]);
+                return false;
+            }
+            scline->np[idx] = room_id;
+            break;
         }
-        scline->np[idx] = slab_id;
-    }; break;
-    case 'L':{
-        TbMapLocation loc;
-        if (!get_map_location_id(scline->tp[idx], &loc)) {
-            return false;
+        case 'S': //Slab
+        {
+            long slab_id = get_rid(slab_desc, scline->tp[idx]);
+            if (slab_id == -1)
+            {
+                SCRPTERRLOG("Unknown slab kind, \"%s\"", scline->tp[idx]);
+                return false;
+            }
+            scline->np[idx] = slab_id;
+            break;
+        };
+        case 'L': //Location
+        {
+            TbMapLocation loc;
+            if (!get_map_location_id(scline->tp[idx], &loc)) {
+                return false;
+            }
+            scline->np[idx] = loc;
+            break;
         }
-        scline->np[idx] = loc;
-        };break;
-    case 'O':{
-        long opertr_id = get_rid(comparison_desc, scline->tp[idx]);
-        if (opertr_id == -1) {
-            SCRPTERRLOG("Unknown operator, \"%s\"", scline->tp[idx]);
-            return false;
+        case 'O': //Operator
+        {
+            long opertr_id = get_rid(comparison_desc, scline->tp[idx]);
+            if (opertr_id == -1) {
+                SCRPTERRLOG("Unknown operator, \"%s\"", scline->tp[idx]);
+                return false;
+            }
+            scline->np[idx] = opertr_id;
+            break;
         }
-        scline->np[idx] = opertr_id;
-        };break;
-    case 'A':
-        break;
-    case '!': // extended sign
-        return true;
-    default:
-        return false;
+        case 'A': //String
+        {
+            if (parameter_is_number(scline->tp[idx]))
+            {
+                scline->np[idx] = atoi(scline->tp[idx]);
+            }
+            break;
+        }
+        case '!': // extended sign
+            return true;
+        default:
+        {
+            SCRPTWRNLOG("Excessive parameter of command \"%s\", value \"%s\"; ignoring", scline->tcmnd, scline->tp[idx]);
+            return true;
+        }
     }
     return true;
 }
@@ -655,7 +675,7 @@ static TbBool process_subfunc(char **line, struct ScriptLine *scline, const stru
                     if (funscline->tp[fi][0] == '\0') {
                         break;
                     }
-                    if ((toupper(chr) == 'A') && (!is_if_statement) ) //Strings don't have a range, but IF statements have 'Aa' to allow both variable compare and numbers. Numbers are allowed, 'a' is a string for sure.
+                    if ((chr == 'A' && !(parameter_is_number(funscline->tp[fi+1]))) && (!is_if_statement) ) //Strings don't have a range, but IF statements have 'Aa' to allow both variable compare and numbers. Numbers are allowed, 'a' is a string for sure.
                     {
                         // Values which do not support range
                         if (strcmp(funscline->tp[fi],"~") == 0) {
@@ -1210,11 +1230,6 @@ static void process_party(struct PartyTrigger* pr_trig)
     case TrgF_DELETE_FROM_PARTY:
         delete_member_from_party(pr_trig->party_id, pr_trig->creatr_id, pr_trig->crtr_level);
         break;
-    case TrgF_CREATE_OBJECT:
-        n |= ((pr_trig->crtr_level & 7) << 7);
-        SYNCDBG(6, "Adding object %d at location %d", (int)n, (int)pr_trig->location);
-        script_process_new_object(n, pr_trig->location, pr_trig->carried_gold, pr_trig->plyr_idx);
-        break;
     case TrgF_CREATE_EFFECT_GENERATOR:
         SYNCDBG(6, "Adding effect generator %d at location %d", pr_trig->crtr_level, (int)pr_trig->location);
         script_process_new_effectgen(pr_trig->crtr_level, pr_trig->location, pr_trig->carried_gold);
@@ -1298,19 +1313,21 @@ void process_win_and_lose_conditions(PlayerNumber plyr_idx)
     struct PlayerInfo* player = get_player(plyr_idx);
     for (i=0; i < gameadd.script.win_conditions_num; i++)
     {
-      k = gameadd.script.win_conditions[i];
-      if (is_condition_met(k)) {
-          SYNCDBG(8,"Win condition %d (cond. %d) met for player %d.",(int)i,(int)k,(int)plyr_idx);
-          set_player_as_won_level(player);
-      }
+        k = gameadd.script.win_conditions[i];
+        if (is_condition_met(k)) {
+            SYNCDBG(8,"Win condition %d (cond. %d) met for player %d.",(int)i,(int)k,(int)plyr_idx);
+            set_player_as_won_level(player);
+        }
     }
     for (i=0; i < gameadd.script.lose_conditions_num; i++)
     {
-      k = gameadd.script.lose_conditions[i];
-      if (is_condition_met(k)) {
-          SYNCDBG(8,"Lose condition %d (cond. %d) met for player %d.",(int)i,(int)k,(int)plyr_idx);
-          set_player_as_lost_level(player);
-      }
+        k = gameadd.script.lose_conditions[i];
+        if (is_condition_met(k))
+        {
+            SYNCDBG(8,"Lose condition %d (cond. %d) met for player %d.",(int)i,(int)k,(int)plyr_idx);
+            set_player_as_lost_level(player);
+            setup_all_player_creatures_and_diggers_leave_or_die(plyr_idx);
+        }
     }
 }
 
@@ -1324,7 +1341,7 @@ void process_values(void)
         {
             if (is_condition_met(value->condit_idx))
             {
-                script_process_value(value->valtype, value->plyr_range, value->arg0, value->arg1, value->arg2, value);
+                script_process_value(value->valtype, value->plyr_range, value->longs[0], value->longs[1], value->longs[2], value);
                 if ((value->flags & TrgF_REUSABLE) == 0)
                   set_flag(value->flags, TrgF_DISABLED);
             }

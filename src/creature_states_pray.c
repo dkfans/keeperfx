@@ -188,6 +188,11 @@ short state_cleanup_in_temple(struct Thing *creatng)
 TbBool summon_creature(long model, struct Coord3d *pos, long owner, long explevel)
 {
     SYNCDBG(4,"Creating model %ld for player %ld",model,owner);
+    if (!creature_count_below_map_limit(0))
+    {
+        SYNCLOG("Summon creature %s failed to due to map creature limit", creature_code_name(model));
+        return false;
+    }
     struct Thing* thing = create_creature(pos, model, owner);
     if (thing_is_invalid(thing))
     {
@@ -261,6 +266,51 @@ TbBool make_all_players_creatures_angry(long plyr_idx)
         }
     }
     SYNCDBG(19,"Finished");
+    return true;
+}
+
+TbBool anger_make_creature_happy(struct Thing* creatng)
+{
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    if ((crstat->annoy_level <= 0))
+        return false;
+    if (!anger_free_for_anger_decrease(creatng))
+    {
+        return false;
+    }
+    creature_be_happy(creatng);
+    anger_set_creature_anger_all_types(creatng, 0);
+    return true;
+}
+
+TbBool make_all_players_creatures_happy(long plyr_idx)
+{
+    SYNCDBG(8, "Starting");
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    unsigned long k = 0;
+    int i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        TRACE_THING(thing);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        anger_make_creature_happy(thing);
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    SYNCDBG(19, "Finished");
     return true;
 }
 
@@ -456,6 +506,9 @@ long create_sacrifice_unique_award(struct Coord3d *pos, PlayerNumber plyr_idx, l
   case UnqF_CostlierImp:
       tally_sacrificed_imps(plyr_idx, -1);
       return SacR_AngryWarn;
+  case UnqF_MkAllHappy:
+      make_all_players_creatures_happy(plyr_idx);
+      return SacR_Awarded;
   default:
       ERRORLOG("Unsupported unique sacrifice award!");
       return SacR_AngryWarn;

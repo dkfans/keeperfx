@@ -157,7 +157,7 @@ static short get_lair_score(TbBool room_has_units_of_same_kind,TbBool room_has_u
     }
 }
 
-TbBool creature_model_is_lair_enemy(const short lair_enemy[], short crmodel)
+TbBool creature_model_is_lair_enemy(const short lair_enemy[LAIR_ENEMY_MAX], short crmodel)
 {
     for (int i = 0; i < LAIR_ENEMY_MAX; i++)
     {
@@ -175,8 +175,8 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
     const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
 
-    short *room_scores = (short *)scratch;
-    memset(scratch, 0, ROOMS_COUNT);
+    short *room_scores = (short *)big_scratch;
+    memset(big_scratch, 0, ROOMS_COUNT);
 
 
     for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)

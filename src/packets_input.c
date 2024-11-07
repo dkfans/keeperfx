@@ -249,16 +249,16 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
             {
                 set_power_hand_graphic(plyr_idx, HndA_Hover);
                 if (!thing_is_invalid(thing))
-                    thing->rendering_flags |= TRF_Unknown01;
+                    thing->rendering_flags |= TRF_Invisible;
             } else
             if ((thing->class_id == TCls_Object) && object_is_gold_pile(thing))
             {
                 set_power_hand_graphic(plyr_idx, HndA_HoldGold);
-                thing->rendering_flags &= ~TRF_Unknown01;
+                thing->rendering_flags &= ~TRF_Invisible;
             } else
             {
                 set_power_hand_graphic(plyr_idx, HndA_Hold);
-                thing->rendering_flags &= ~TRF_Unknown01;
+                thing->rendering_flags &= ~TRF_Invisible;
             }
         }
     }
@@ -716,7 +716,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {
                 i = get_power_overcharge_level(player);
-                magic_use_available_power_on_subtile(plyr_idx, pwkind, i, stl_x, stl_y, PwCast_None);
+                magic_use_available_power_on_subtile(plyr_idx, pwkind, i, stl_x, stl_y, PwCast_None, PwMod_Default);
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
             break;

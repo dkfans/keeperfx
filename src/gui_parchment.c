@@ -222,7 +222,7 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
         && ((game.play_gameturn & 4) != 0))
     {
         pixval = pixmap.ghost[background + 0x1A00];
-        if ((slb->kind == SlbT_GEMS))
+        if (slb->kind == SlbT_GEMS)
         {
             pixval = pixval + 2;
         }
@@ -610,15 +610,21 @@ void draw_overhead_things(const struct TbRect *map_area, long block_size, Player
 
 void draw_2d_map(void)
 {
-  SYNCDBG(8,"Starting");
-  struct PlayerInfo* player = get_my_player();
-  // Size of the parchment map on which we're drawing
-  struct TbRect map_area;
-  long block_size = get_parchment_map_area_rect(&map_area);
-  // Now draw
-  draw_overhead_map(&map_area, block_size, player->id_number);
-  draw_overhead_things(&map_area, block_size, player->id_number);
-  draw_overhead_room_icons(&map_area, block_size, player->id_number);
+    SYNCDBG(8, "Starting");
+    if (!render_fade_tables || !render_ghost || !render_alpha)
+    {
+        render_fade_tables = pixmap.fade_tables;
+        render_ghost = pixmap.ghost;
+        render_alpha = (unsigned char*)&alpha_sprite_table;
+    }
+    struct PlayerInfo* player = get_my_player();
+    // Size of the parchment map on which we're drawing
+    struct TbRect map_area;
+    long block_size = get_parchment_map_area_rect(&map_area);
+    // Now draw
+    draw_overhead_map(&map_area, block_size, player->id_number);
+    draw_overhead_things(&map_area, block_size, player->id_number);
+    draw_overhead_room_icons(&map_area, block_size, player->id_number);
 }
 
 void draw_map_level_name(void)

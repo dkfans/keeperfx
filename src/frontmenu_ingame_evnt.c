@@ -355,7 +355,7 @@ short zoom_to_fight(PlayerNumber plyr_idx)
     if (active_battle_exists(plyr_idx))
     {
         struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
-        set_players_packet_action(player, PckA_Unknown104, dungeon->visible_battles[0], 0, 0, 0);
+        set_players_packet_action(player, PckA_ZoomToBattle, dungeon->visible_battles[0], 0, 0, 0);
         step_battles_forward(plyr_idx);
         return true;
     }
@@ -411,8 +411,8 @@ void draw_bonus_timer(void)
     draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
     int tx_units_per_px;
     int y;
-    if ( (MyScreenHeight < 400) && (dbc_language > 0) ) 
-    {        
+    if ( (MyScreenHeight < 400) && (dbc_language > 0) )
+    {
         tx_units_per_px = scale_ui_value(32);
         y = 0;
     }
@@ -425,7 +425,7 @@ void draw_bonus_timer(void)
     {
         tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
         y = 0;
-    } 
+    }
     LbTextDrawResized(0, y, tx_units_per_px, text);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
@@ -487,8 +487,8 @@ void draw_timer(void)
     draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
     int tx_units_per_px;
     int y;
-    if ( (MyScreenHeight < 400) && (dbc_language > 0) ) 
-    {        
+    if ( (MyScreenHeight < 400) && (dbc_language > 0) )
+    {
         tx_units_per_px = scale_ui_value(32);
         y = 0;
     }
@@ -501,7 +501,7 @@ void draw_timer(void)
     {
         tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
         y = 0;
-    } 
+    }
     LbTextDrawResized(0, y, tx_units_per_px, text);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
@@ -524,7 +524,7 @@ void draw_gameturn_timer(void)
     {
         textCharWidth += LbTextCharWidth(text[i]);
     };
-    
+
     long width = textCharWidth * units_per_pixel / 16;
     long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
     if (MyScreenHeight < 400)
@@ -539,13 +539,13 @@ void draw_gameturn_timer(void)
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
     long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
     long scr_y = MyScreenHeight - height - 16 * units_per_pixel / 16;
-    
+
     LbTextSetWindow(scr_x, scr_y, width, height);
     //draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
     int tx_units_per_px;
     int y;
-    if ( (MyScreenHeight < 400) && (dbc_language > 0) ) 
-    {        
+    if ( (MyScreenHeight < 400) && (dbc_language > 0) )
+    {
         tx_units_per_px = scale_ui_value(32);
         y = 0;
     }
@@ -558,7 +558,7 @@ void draw_gameturn_timer(void)
     {
         tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
         y = 0;
-    } 
+    }
     LbTextDrawResized(0, y, tx_units_per_px, text);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
@@ -635,8 +635,8 @@ void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned l
     draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
     int tx_units_per_px;
     int y;
-    if ( (MyScreenHeight < 400) && (dbc_language > 0) ) 
-    {        
+    if ( (MyScreenHeight < 400) && (dbc_language > 0) )
+    {
         tx_units_per_px = scale_ui_value(32);
         y = 0;
     }
@@ -649,7 +649,7 @@ void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned l
     {
         tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
         y = 0;
-    } 
+    }
     LbTextDrawResized(0, y, tx_units_per_px, text);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
@@ -738,7 +738,7 @@ void draw_consolelog()
 
     int text_height = (consolelog_font_size * units_per_pixel) / LbTextLineHeight();
     int draw_ypos = text_height / 2; // Starting ypos
-    
+
     int totalLinesDrawn = 0;
 
     size_t startIdx = 0;
@@ -752,23 +752,26 @@ void draw_consolelog()
         while (text[offset] != '\0' && totalLinesDrawn < consolelog_simultaneous_message_count) {
             int currentLineWidth = 0; // Reset line width for each new line
             int sub_len = 1;
-            
+
             // Iterate over the characters in the string to find the substring length
             while (text[offset + sub_len] != '\0') {
                 int charWidth = LbTextCharWidth(text[offset + sub_len - 1]);
                 if (currentLineWidth + charWidth > consolelog_max_line_width) {
                     break; // Exit the loop if adding the next character would exceed the line width
                 }
-                
+
                 currentLineWidth += charWidth; // Add the width of the current character
                 sub_len++; // Move to the next character
             }
 
-            char line_buffer[sub_len + 1];
+            //char line_buffer[sub_len + 1];
+            char *line_buffer = (char*)malloc((sub_len + 1) * sizeof(char));
+            if (!line_buffer) continue;
             strncpy(line_buffer, text + offset, sub_len);
             line_buffer[sub_len] = '\0';
 
             LbTextDrawResized(text_height, draw_ypos, text_height, line_buffer);
+            free(line_buffer);
             draw_ypos += text_height; // Move to the next line position
             offset += sub_len;
             totalLinesDrawn++;

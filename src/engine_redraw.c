@@ -450,7 +450,7 @@ void set_sprite_view_3d(void)
         struct Thing* thing = thing_get(i);
         if (thing_exists(thing))
         {
-            if (thing_is_creature(thing) || ((thing->rendering_flags & TRF_Unknown01) == 0))
+            if (thing_is_creature(thing) || ((thing->rendering_flags & TRF_Invisible) == 0))
             {
                 int n = straight_iso_td(thing->anim_sprite);
                 if (n >= 0)
@@ -481,7 +481,7 @@ void set_sprite_view_isometric(void)
         struct Thing* thing = thing_get(i);
         if (thing_exists(thing))
         {
-            if (thing_is_creature(thing) || ((thing->rendering_flags & TRF_Unknown01) == 0))
+            if (thing_is_creature(thing) || ((thing->rendering_flags & TRF_Invisible) == 0))
             {
                 int n = straight_td_iso(thing->anim_sprite);
                 if (n >= 0)
@@ -542,6 +542,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
         if (!is_my_player(player))
             break;
         lens_mode = 0;
+        // no need to set temp_cluedo_mode here; it's done in update_engine_settings
         set_sprite_view_isometric();
         S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
         S3DSetDeadzoneRadius(1280);
@@ -562,6 +563,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
         if (!is_my_player(player))
             break;
         lens_mode = 0;
+        temp_cluedo_mode = 0;
         set_sprite_view_isometric();
         S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
         S3DSetDeadzoneRadius(1280);
@@ -846,8 +848,7 @@ TbBool draw_spell_cursor(PlayerState wrkstate, ThingIndex tng_idx, MapSubtlCoord
         {
             i = get_power_overcharge_level(player);
             set_pointer_graphic(MousePG_SpellCharge0+i);
-            const struct MagicStats* pwrdynst = get_power_dynamic_stats(pwkind);
-            draw_spell_cost = pwrdynst->cost[i];
+            draw_spell_cost = compute_power_price(player->id_number, pwkind, i);
             return true;
         }
     }

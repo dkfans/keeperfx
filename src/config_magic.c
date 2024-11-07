@@ -21,27 +21,27 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_dernc.h"
-
+#include "bflib_memory.h"
 #include "config.h"
-#include "config_effects.h"
-#include "config_objects.h"
-#include "config_players.h"
-#include "config_cubes.h"
 #include "config_creature.h"
 #include "config_crtrmodel.h"
+#include "config_cubes.h"
+#include "config_effects.h"
 #include "config_effects.h"
 #include "config_objects.h"
+#include "config_objects.h"
+#include "config_players.h"
 #include "config_rules.h"
-#include "custom_sprites.h"
-#include "thing_physics.h"
-#include "thing_effects.h"
-#include "power_process.h"
-#include "game_legacy.h"
 #include "console_cmd.h"
-
+#include "custom_sprites.h"
+#include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "power_process.h"
+#include "thing_creature.h"
+#include "thing_effects.h"
+#include "thing_physics.h"
+
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -49,14 +49,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 const char keeper_magic_file[]="magic.cfg";
-
-const struct NamedCommand magic_common_commands[] = {
-  {"SPELLSCOUNT",     1},
-  {"SHOTSCOUNT",      2},
-  {"POWERCOUNT",      3},
-  {"SPECIALSCOUNT",   4},
-  {NULL,              0},
-  };
 
 const struct NamedCommand magic_spell_commands[] = {
   {"NAME",            1},
@@ -160,6 +152,7 @@ const struct NamedCommand magic_power_commands[] = {
   {"SPELL",          20},
   {"EFFECT",         21},
   {"USEFUNCTION",    22},
+  {"CREATURETYPE",   23},
   {NULL,              0},
   };
 
@@ -280,6 +273,7 @@ const struct NamedCommand powermodel_expand_check_func_type[] = {
 };
 
 const struct NamedCommand magic_use_func_commands[] = {
+  {"none",                          0},
   {"magic_use_power_hand",          1},
   {"magic_use_power_heal",          2},
   {"magic_use_power_apply_spell",   3},
@@ -424,208 +418,78 @@ short write_magic_shot_to_log(const struct ShotConfigStats *shotst, int num)
   return true;
 }
 
-TbBool parse_magic_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-    // Block name and parameter word store variables
-    // Initialize block data
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        game.conf.magic_conf.spell_types_count = 1;
-        game.conf.magic_conf.shot_types_count = 1;
-        game.conf.magic_conf.power_types_count = 1;
-        game.conf.magic_conf.special_types_count = 1;
-    }
-    // Find the block
-    char block_buf[COMMAND_WORD_LEN];
-    sprintf(block_buf, "common");
-    long pos = 0;
-    int k = find_conf_block(buf, &pos, len, block_buf);
-    if (k < 0)
-    {
-        if ((flags & CnfLd_AcceptPartial) == 0)
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-        return false;
-    }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_common_commands,cmd_num)
-    while (pos<len)
-    {
-        // Finding command number in this line
-        int cmd_num = recognize_conf_command(buf, &pos, len, magic_common_commands);
-        // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
-        int n = 0;
-        char word_buf[COMMAND_WORD_LEN];
-        switch (cmd_num)
-        {
-        case 1: // SPELLSCOUNT
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if ((k > 0) && (k <= MAGIC_ITEMS_MAX))
-              {
-                game.conf.magic_conf.spell_types_count = k;
-                n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 2: // SHOTSCOUNT
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if ((k > 0) && (k <= MAGIC_ITEMS_MAX))
-              {
-                game.conf.magic_conf.shot_types_count = k;
-                n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 3: // POWERCOUNT
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if ((k > 0) && (k <= MAGIC_ITEMS_MAX))
-              {
-                game.conf.magic_conf.power_types_count = k;
-                n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 4: // SPECIALSCOUNT
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if ((k > 0) && (k <= MAGIC_ITEMS_MAX))
-              {
-                game.conf.magic_conf.special_types_count = k;
-                n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 0: // comment
-            break;
-        case -1: // end of buffer
-            break;
-        default:
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
-            break;
-        }
-        skip_conf_to_next_line(buf,&pos,len);
-    }
-#undef COMMAND_TEXT
-    return true;
-}
-
 TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
   struct SpellConfigStats *spellst;
   struct SpellConfig *spconf;
-  int i;
-  // Block name and parameter word store variables
   // Initialize the array
-  int arr_size = sizeof(game.conf.magic_conf.spell_cfgstats) / sizeof(game.conf.magic_conf.spell_cfgstats[0]);
-    for (i=0; i < arr_size; i++)
-    {
-        if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(game.conf.magic_conf.spell_cfgstats[i].code_name) <= 0))
-        {
-            spellst = get_spell_model_stats(i);
-            LbMemorySet(&game.conf.magic_conf.spell_cfgstats[i].code_name, 0, COMMAND_WORD_LEN);
-            if (i < game.conf.magic_conf.spell_types_count)
-            {
-                spell_desc[i].name = game.conf.magic_conf.spell_cfgstats[i].code_name;
-                spell_desc[i].num = i;
-            }
-            else
-            {
-                spell_desc[i].name = NULL;
-                spell_desc[i].num = 0;
-            }
-
-            spconf = get_spell_config(i);
-            spconf->linked_power = 0;
-            spconf->duration = 0;
-            spconf->caster_affected = 0;
-            spconf->caster_affect_sound = 0;
-            spconf->cast_at_thing = 0;
-            spconf->shot_model = 0;
-            spconf->cast_effect_model = 0;
-            spconf->bigsym_sprite_idx = 0;
-            spconf->medsym_sprite_idx = 0;
-            spconf->crtr_summon_model = 0;
-            spconf->crtr_summon_level = 0;
-            spconf->crtr_summon_amount = 0;
-            spconf->aura_effect = 0;
-            spconf->spell_flags = 0;
-        }
+  for (int i = 0; i < MAGIC_ITEMS_MAX; i++) {
+    spellst = &game.conf.magic_conf.spell_cfgstats[i];
+    if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(spellst->code_name) <= 0)) {
+      LbMemorySet(&spellst->code_name, 0, COMMAND_WORD_LEN);
+      spell_desc[i].name = spellst->code_name;
+      spell_desc[i].num = i;
+      spconf = &game.conf.magic_conf.spell_config[i];
+      spconf->linked_power = 0;
+      spconf->duration = 0;
+      spconf->caster_affected = 0;
+      spconf->caster_affect_sound = 0;
+      spconf->cast_at_thing = 0;
+      spconf->shot_model = 0;
+      spconf->cast_effect_model = 0;
+      spconf->bigsym_sprite_idx = 0;
+      spconf->medsym_sprite_idx = 0;
+      spconf->crtr_summon_model = 0;
+      spconf->crtr_summon_level = 0;
+      spconf->crtr_summon_amount = 0;
+      spconf->aura_effect = 0;
+      spconf->spell_flags = 0;
     }
-    
+  }
+  spell_desc[MAGIC_ITEMS_MAX - 1].name = NULL; // must be null for get_id
   // Load the file
-  arr_size = game.conf.magic_conf.spell_types_count;
-  for (i=0; i < arr_size; i++)
+  const char * blockname = NULL;
+  int blocknamelen = 0;
+  long pos = 0;
+  while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
   {
-      char block_buf[COMMAND_WORD_LEN];
-      sprintf(block_buf, "spell%d", i);
-      long pos = 0;
-      int k = find_conf_block(buf, &pos, len, block_buf);
-      if (k < 0)
-      {
-          if ((flags & CnfLd_AcceptPartial) == 0)
-          {
-              WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
-              return false;
-          }
-          continue;
+    // look for blocks starting with "spell", followed by one or more digits
+    if (blocknamelen < 6) {
+        continue;
+    } else if (memcmp(blockname, "spell", 5) != 0) {
+        continue;
     }
-    spconf = get_spell_config(i);
-    spellst = get_spell_model_stats(i);
+    const int i = natoi(&blockname[5], blocknamelen - 5);
+    if (i < 0 || i >= MAGIC_ITEMS_MAX) {
+        continue;
+    } else if (i >= game.conf.magic_conf.spell_types_count) {
+      game.conf.magic_conf.spell_types_count = i + 1;
+    }
+    spconf = &game.conf.magic_conf.spell_config[i];
+    spellst = &game.conf.magic_conf.spell_cfgstats[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_spell_commands,cmd_num)
-    while (pos<len)
+    while (pos < len)
     {
       // Finding command number in this line
       int cmd_num = recognize_conf_command(buf, &pos, len, magic_spell_commands);
       // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
+      if (cmd_num == ccr_endOfBlock) break; // if next block starts
       if ((flags & CnfLd_ListOnly) != 0) {
           // In "List only" mode, accept only name command
           if (cmd_num > 1) {
               cmd_num = 0;
           }
       }
-      int n = 0;
+      int n = 0, k = 0;
       char word_buf[COMMAND_WORD_LEN];
       switch (cmd_num)
       {
       case 1: // NAME
           if (get_conf_parameter_single(buf,&pos,len,spellst->code_name,COMMAND_WORD_LEN) <= 0)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
               break;
-          }
-          if (spell_desc[i].name == NULL)
-          {
-              spell_desc[i].name = spellst->code_name;
-              spell_desc[i].num = i;
           }
           n++;
           break;
@@ -638,8 +502,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 3: // SELFCASTED
@@ -663,8 +527,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 3)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 4: // CASTATTHING
@@ -676,8 +540,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 5: // SHOTMODEL
@@ -691,8 +555,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect shot model \"%s\" in [%s] block of %s file.",
-                  word_buf,block_buf,config_textname);
+              CONFWRNLOG("Incorrect shot model \"%s\" in [%.*s] block of %s file.",
+                  word_buf, blocknamelen, blockname, config_textname);
               break;
           }
           break;
@@ -716,8 +580,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect effect model \"%s\" in [%s] block of %s file.",
-                  word_buf,block_buf,config_textname);
+              CONFWRNLOG("Incorrect effect model \"%s\" in [%.*s] block of %s file.",
+                  word_buf, blocknamelen, blockname, config_textname);
               break;
           }
           break;
@@ -744,8 +608,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 2)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 8: // SPELLPOWER
@@ -767,8 +631,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 9: // AURAEFFECT
@@ -792,8 +656,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 10: // SPELLFLAGS
@@ -808,8 +672,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
         case 11: // SUMMONCREATURE
@@ -845,17 +709,17 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 3)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
-      case 0: // comment
+      case ccr_comment:
           break;
-      case -1: // end of buffer
+      case ccr_endOfFile:
           break;
       default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
+          CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",
+              cmd_num, blocknamelen, blockname, config_textname);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -868,107 +732,91 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
 TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
   struct ShotConfigStats *shotst;
-  int i;
-  // Block name and parameter word store variables
   // Initialize the array
-  int arr_size = sizeof(game.conf.magic_conf.shot_cfgstats) / sizeof(game.conf.magic_conf.shot_cfgstats[0]);
-    for (i = 0; i < arr_size; i++)
-    {
-        shotst = get_shot_model_stats(i);
-        if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(shotst->code_name) <= 0))
-        {
-            LbMemorySet(shotst->code_name, 0, COMMAND_WORD_LEN);
-            shotst->model_flags = 0;
-            if (i < game.conf.magic_conf.shot_types_count)
-            {
-                shot_desc[i].name = shotst->code_name;
-                shot_desc[i].num = i;
-            }
-            else
-            {
-                shot_desc[i].name = NULL;
-                shot_desc[i].num = 0;
-            }
-            shotst->area_hit_type = THit_CrtrsOnly;
-            shotst->area_range = 0;
-            shotst->area_damage = 0;
-            shotst->area_blow = 0;
-            shotst->bounce_angle = 0;
-            shotst->damage = 0;
-            shotst->fall_acceleration = 0;
-            shotst->hidden_projectile = 0;
-            shotst->hit_door.withstand = 0;
-            shotst->hit_generic.withstand = 0;
-            shotst->hit_lava.withstand = 0;
-            shotst->hit_water.withstand = 0;
-            shotst->no_air_damage = 0;
-            shotst->push_on_hit = 0;
-            shotst->max_range = 0;
-            shotst->size_xy = 0;
-            shotst->size_z = 0;
-            shotst->speed = 0;
-            shotst->destroy_on_first_hit = 0;
-            shotst->experience_given_to_shooter = 0;
-            shotst->wind_immune = 0;
-            shotst->animation_transparency = 0;
-            shotst->fixed_damage = 0;
-            shotst->sound_priority = 0;
-            shotst->light_radius = 0;
-            shotst->light_intensity = 0;
-            shotst->lightf_53 = 0;
-            shotst->inertia_air = 0;
-            shotst->inertia_floor = 0;
-            shotst->target_hitstop_turns = 0;
-            shotst->soft_landing = 0;
-            shotst->periodical = 0;
-        }
+  for (int i = 0; i < MAGIC_ITEMS_MAX; i++) {
+    shotst = &game.conf.magic_conf.shot_cfgstats[i];
+    if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(shotst->code_name) <= 0)) {
+      LbMemorySet(shotst->code_name, 0, COMMAND_WORD_LEN);
+      shotst->model_flags = 0;
+      shot_desc[i].name = shotst->code_name;
+      shot_desc[i].num = i;
+      shotst->area_hit_type = THit_CrtrsOnly;
+      shotst->area_range = 0;
+      shotst->area_damage = 0;
+      shotst->area_blow = 0;
+      shotst->bounce_angle = 0;
+      shotst->damage = 0;
+      shotst->fall_acceleration = 0;
+      shotst->hidden_projectile = 0;
+      shotst->hit_door.withstand = 0;
+      shotst->hit_generic.withstand = 0;
+      shotst->hit_lava.withstand = 0;
+      shotst->hit_water.withstand = 0;
+      shotst->no_air_damage = 0;
+      shotst->push_on_hit = 0;
+      shotst->max_range = 0;
+      shotst->size_xy = 0;
+      shotst->size_z = 0;
+      shotst->speed = 0;
+      shotst->destroy_on_first_hit = 0;
+      shotst->experience_given_to_shooter = 0;
+      shotst->wind_immune = 0;
+      shotst->animation_transparency = 0;
+      shotst->fixed_damage = 0;
+      shotst->sound_priority = 0;
+      shotst->light_radius = 0;
+      shotst->light_intensity = 0;
+      shotst->lightf_53 = 0;
+      shotst->inertia_air = 0;
+      shotst->inertia_floor = 0;
+      shotst->target_hitstop_turns = 0;
+      shotst->soft_landing = 0;
+      shotst->periodical = 0;
     }
+  }
+  shot_desc[MAGIC_ITEMS_MAX - 1].name = NULL; // must be null for get_id
   // Load the file
-  arr_size = game.conf.magic_conf.shot_types_count;
-  for (i=0; i < arr_size; i++)
+  const char * blockname = NULL;
+  int blocknamelen = 0;
+  long pos = 0;
+  while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
   {
-      char block_buf[COMMAND_WORD_LEN];
-      sprintf(block_buf, "shot%d", i);
-      long pos = 0;
-      int k = find_conf_block(buf, &pos, len, block_buf);
-      if (k < 0)
-      {
-          if ((flags & CnfLd_AcceptPartial) == 0)
-          {
-              WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
-              return false;
-          }
-          continue;
-      }
-      shotst = get_shot_model_stats(i);
+    // look for blocks starting with "shot", followed by one or more digits
+    if (blocknamelen < 5) {
+        continue;
+    } else if (memcmp(blockname, "shot", 4) != 0) {
+        continue;
+    }
+    const int i = natoi(&blockname[4], blocknamelen - 4);
+    if (i < 0 || i >= MAGIC_ITEMS_MAX) {
+        continue;
+    } else if (i >= game.conf.magic_conf.shot_types_count) {
+        game.conf.magic_conf.shot_types_count = i + 1;
+    }
+    shotst = &game.conf.magic_conf.shot_cfgstats[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_shot_commands,cmd_num)
-    while (pos<len)
+    while (pos < len)
     {
       // Finding command number in this line
       int cmd_num = recognize_conf_command(buf, &pos, len, magic_shot_commands);
       // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
+      if (cmd_num == ccr_endOfBlock) break; // if next block starts
       if ((flags & CnfLd_ListOnly) != 0) {
           // In "List only" mode, accept only name command
           if (cmd_num > 1) {
               cmd_num = 0;
           }
       }
-      int n = 0;
+      int n = 0, k = 0;
       char word_buf[COMMAND_WORD_LEN];
       switch (cmd_num)
       {
       case 1: // NAME
           if (get_conf_parameter_single(buf,&pos,len,shotst->code_name,COMMAND_WORD_LEN) <= 0)
           {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             break;
-          }
-          if (shot_desc[i].name == NULL) 
-          {
-              shot_desc[i].name = shotst->code_name;
-              shot_desc[i].num = i;
           }
           n++;
           break;
@@ -981,8 +829,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 3: // DAMAGE
@@ -994,8 +842,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 4: // DAMAGETYPE
@@ -1023,8 +871,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 6: // AREADAMAGE
@@ -1048,8 +896,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 3)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 7: // SPEED
@@ -1061,8 +909,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 8: // PROPERTIES
@@ -1160,8 +1008,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 n++;
                 break;
             default:
-                CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), word_buf, blocknamelen, blockname, config_textname);
             }
           }
           break;
@@ -1174,8 +1022,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
        case 10: //FIRINGSOUND
@@ -1187,8 +1035,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
                    break;
       case 11: //SHOTSOUND
@@ -1200,8 +1048,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
                    break;
       case 12: //FIRINGSOUNDVARIANTS
@@ -1213,8 +1061,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
                    break;
       case 13: //MAXRANGE
@@ -1226,8 +1074,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
                    break;
       case 14: //ANIMATION
@@ -1240,8 +1088,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 15: //ANIMATIONSIZE
@@ -1253,8 +1101,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 16: //SPELLEFFECT
@@ -1266,8 +1114,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 17: //BOUNCEANGLE
@@ -1279,8 +1127,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 18: //SIZE_XY
@@ -1292,8 +1140,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 19: //SIZE_Z
@@ -1305,8 +1153,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 20: //FALLACCELERATION
@@ -1318,10 +1166,10 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
-          break; 
+          break;
       case 21: //VISUALEFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
@@ -1331,8 +1179,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 22: //VISUALEFFECTAMOUNT
@@ -1344,8 +1192,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 23: //VISUALEFFECTSPREAD
@@ -1357,8 +1205,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 24: //VISUALEFFECTHEALTH
@@ -1370,8 +1218,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 25: //HITWALLEFFECT
@@ -1383,8 +1231,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 26: //HITWALLSOUND
@@ -1402,8 +1250,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 2)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 27: //HITCREATUREEFFECT
@@ -1415,8 +1263,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 28: //HITCREATURESOUND
@@ -1434,8 +1282,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 2)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 29: //HITDOOREFFECT
@@ -1447,8 +1295,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 30: //HITDOORSOUND
@@ -1466,8 +1314,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 2)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 31: //HITWATEREFFECT
@@ -1479,8 +1327,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 32: //HITWATERSOUND
@@ -1498,8 +1346,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 2)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 33: //HITLAVAEFFECT
@@ -1511,8 +1359,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 34: //HITLAVASOUND
@@ -1530,8 +1378,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 2)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 35: //DIGHITEFFECT
@@ -1543,8 +1391,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 36: //DIGHITSOUND
@@ -1562,8 +1410,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 2)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 37: // EXPLOSIONEFFECTS
@@ -1593,8 +1441,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 4)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 38: //WITHSTANDHITAGAINST
@@ -1628,8 +1476,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   n++;
                   break;
               default:
-                  CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
-                      COMMAND_TEXT(cmd_num), word_buf, block_buf, config_textname);
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%.*s] block of %s file.",
+                      COMMAND_TEXT(cmd_num), word_buf, blocknamelen, blockname, config_textname);
               }
           }
           break;
@@ -1642,8 +1490,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 40: //DESTROYONHIT
@@ -1655,8 +1503,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 41: //BASEEXPERIENCEGAIN
@@ -1668,8 +1516,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 42: //TARGETHITSTOPTURNS
@@ -1681,8 +1529,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 43: //SHOTSOUNDPRIORITY
@@ -1694,8 +1542,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 44: // LIGHTING
@@ -1719,8 +1567,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 3)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 45: // INERTIA
@@ -1738,8 +1586,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 2)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 46: //UNSHADED
@@ -1751,8 +1599,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 47: //SOFTLANDING
@@ -1764,8 +1612,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 48: //EFFECTMODEL
@@ -1777,8 +1625,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 49: //FIRELOGIC
@@ -1790,8 +1638,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 50: //UPDATELOGIC
@@ -1803,8 +1651,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 51: //EFFECTSPACING
@@ -1816,8 +1664,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 52: //EFFECTAMOUNT
@@ -1829,8 +1677,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 53: //HITHEARTEFFECT
@@ -1842,8 +1690,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 54: //HITHEARTSOUND
@@ -1861,8 +1709,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 2)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 55: // BLEEDINGEFFECT
@@ -1874,8 +1722,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 56: // FROZENEFFECT
@@ -1887,8 +1735,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 57: // PERIODICAL
@@ -1900,8 +1748,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 58: // SPEEDDEVIATION
@@ -1913,8 +1761,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 59: // SPREAD_XY
@@ -1926,8 +1774,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 60: // SPREAD_Z
@@ -1939,17 +1787,17 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
-      case 0: // comment
+      case ccr_comment:
           break;
-      case -1: // end of buffer
+      case ccr_endOfFile:
           break;
       default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
+          CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",
+              cmd_num, blocknamelen, blockname,config_textname);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -1963,76 +1811,63 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
 TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
   struct PowerConfigStats *powerst;
-  int i;
-  // Block name and parameter word store variables
+  long long k = 0;
   // Initialize the array
-  int arr_size;
-  arr_size = sizeof(game.conf.magic_conf.power_cfgstats) / sizeof(game.conf.magic_conf.power_cfgstats[0]);
-  for (i = 0; i < arr_size; i++)
-  {
-      if ((flags & CnfLd_AcceptPartial) == 0)
-      {
-          if ((i < game.conf.magic_conf.power_types_count) || (strlen(power_desc[i].name) <= 0))
-          {
-              powerst = get_power_model_stats(i);
-              LbMemorySet(powerst->code_name, 0, COMMAND_WORD_LEN);
-              powerst->artifact_model = 0;
-              powerst->can_cast_flags = 0;
-              powerst->config_flags = 0;
-              powerst->overcharge_check_idx = 0;
-              powerst->work_state = 0;
-              powerst->bigsym_sprite_idx = 0;
-              powerst->medsym_sprite_idx = 0;
-              powerst->name_stridx = 0;
-              powerst->tooltip_stridx = 0;
-              powerst->select_sample_idx = 0;
-              powerst->pointer_sprite_idx = 0;
-              powerst->panel_tab_idx = 0;
-              powerst->select_sound_idx = 0;
-              powerst->cast_cooldown = 0;
-              power_desc[i].name = powerst->code_name;
-              power_desc[i].num = i;
-          } else
-          {
-              power_desc[i].name = NULL;
-              power_desc[i].num = 0;
-          }
-      }
-      arr_size = sizeof(game.conf.object_conf.object_to_power_artifact)/sizeof(game.conf.object_conf.object_to_power_artifact[0]);
-      for (i = 0; i < arr_size; i++)
-      {
-          if ((flags & CnfLd_AcceptPartial) == 0)
-          {
-              game.conf.object_conf.object_to_power_artifact[i] = 0;
-          }
-      }
-  }
-  arr_size = game.conf.magic_conf.power_types_count;
-  // Load the file
-  for (i=0; i < arr_size; i++)
-  {
-      char block_buf[COMMAND_WORD_LEN];
-      sprintf(block_buf, "power%d", i);
-      long pos = 0;
-      long long k = find_conf_block(buf, &pos, len, block_buf);
-      if (k < 0)
-      {
-          if ((flags & CnfLd_AcceptPartial) == 0)
-          {
-              WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
-              return false;
-          }
-          continue;
+  for (int i = 0; i < MAGIC_ITEMS_MAX; i++) {
+    powerst = &game.conf.magic_conf.power_cfgstats[i];
+    if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(powerst->code_name) <= 0)) {
+      LbMemorySet(powerst->code_name, 0, COMMAND_WORD_LEN);
+      powerst->artifact_model = 0;
+      powerst->can_cast_flags = 0;
+      powerst->config_flags = 0;
+      powerst->overcharge_check_idx = 0;
+      powerst->work_state = 0;
+      powerst->bigsym_sprite_idx = 0;
+      powerst->medsym_sprite_idx = 0;
+      powerst->name_stridx = 0;
+      powerst->tooltip_stridx = 0;
+      powerst->select_sample_idx = 0;
+      powerst->pointer_sprite_idx = 0;
+      powerst->panel_tab_idx = 0;
+      powerst->select_sound_idx = 0;
+      powerst->cast_cooldown = 0;
+      power_desc[i].name = powerst->code_name;
+      power_desc[i].num = i;
     }
-    struct MagicStats* pwrdynst = get_power_dynamic_stats(i);
-    powerst = get_power_model_stats(i);
+  }
+  if ((flags & CnfLd_AcceptPartial) == 0) {
+    for (int i = 0; i < MAGIC_ITEMS_MAX; i++) {
+        game.conf.object_conf.object_to_power_artifact[i] = 0;
+    }
+  }
+  power_desc[MAGIC_ITEMS_MAX - 1].name = NULL; // must be null for get_id
+  // Load the file
+  const char * blockname = NULL;
+  int blocknamelen = 0;
+  long pos = 0;
+  while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
+  {
+    // look for blocks starting with "power", followed by one or more digits
+    if (blocknamelen < 6) {
+        continue;
+    } else if (memcmp(blockname, "power", 5) != 0) {
+        continue;
+    }
+    const int i = natoi(&blockname[5], blocknamelen - 5);
+    if (i < 0 || i >= MAGIC_ITEMS_MAX) {
+        continue;
+    } else if (i >= game.conf.magic_conf.power_types_count) {
+        game.conf.magic_conf.power_types_count = i + 1;
+    }
+    struct MagicStats* pwrdynst = &game.conf.magic_conf.keeper_power_stats[i];
+    powerst = &game.conf.magic_conf.power_cfgstats[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_power_commands,cmd_num)
     while (pos<len)
     {
       // Finding command number in this line
       int cmd_num = recognize_conf_command(buf, &pos, len, magic_power_commands);
       // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
+      if (cmd_num == ccr_endOfBlock) break; // if next block starts
       if ((flags & CnfLd_ListOnly) != 0) {
           // In "List only" mode, accept only name command
           if (cmd_num > 1) {
@@ -2046,12 +1881,10 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
       case 1: // NAME
           if (get_conf_parameter_single(buf,&pos,len,powerst->code_name,COMMAND_WORD_LEN) <= 0)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
               break;
           }
-          power_desc[i].name = powerst->code_name;
-          power_desc[i].num = i;
           break;
       case 2: // POWER
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -2059,36 +1892,40 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               k = atoi(word_buf);
               if (n > SPELL_MAX_LEVEL)
               {
-                CONFWRNLOG("Too many \"%s\" parameters in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Too many \"%s\" parameters in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 break;
               }
               pwrdynst->strength[n] = k;
               n++;
           }
-          if (n <= SPELL_MAX_LEVEL)
+          if (n == POWER_MAX_LEVEL+1) // Old power max is one short for spell max, so duplicate final power value to use for lvl10 creatures.
           {
-              CONFWRNLOG("Couldn't read all \"%s\" parameters in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              pwrdynst->strength[n] = pwrdynst->strength[n-1];
+          }
+          if (n <= POWER_MAX_LEVEL)
+          {
+              CONFWRNLOG("Couldn't read all \"%s\" parameters in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 3: // COST
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              if (n > SPELL_MAX_LEVEL)
+              if (n > POWER_MAX_LEVEL)
               {
-                CONFWRNLOG("Too many \"%s\" parameters in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Too many \"%s\" parameters in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 break;
               }
               pwrdynst->cost[n] = k;
               n++;
           }
-          if (n <= SPELL_MAX_LEVEL)
+          if (n <= POWER_MAX_LEVEL)
           {
-              CONFWRNLOG("Couldn't read all \"%s\" parameters in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't read all \"%s\" parameters in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 4: // Duration
@@ -2100,8 +1937,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 5: // CASTABILITY
@@ -2115,8 +1952,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
                   n++;
               } else
               {
-                  CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
-                      COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%.*s] block of %s file.",
+                      COMMAND_TEXT(cmd_num),word_buf, blocknamelen, blockname, config_textname);
               }
           }
           break;
@@ -2132,8 +1969,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect object model \"%s\" in [%s] block of %s file.",
-                  word_buf,block_buf,config_textname);
+              CONFWRNLOG("Incorrect object model \"%s\" in [%.*s] block of %s file.",
+                  word_buf, blocknamelen, blockname, config_textname);
               break;
           }
           break;
@@ -2146,8 +1983,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 8: // TOOLTIPTEXTID
@@ -2159,8 +1996,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 10: // SYMBOLSPRITES
@@ -2186,8 +2023,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 2)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 11: // POINTERSPRITES
@@ -2203,8 +2040,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           if (n < 1)
           {
               powerst->pointer_sprite_idx = bad_icon_id;
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 12: // PANELTABINDEX
@@ -2219,8 +2056,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 13: // SOUNDSAMPLES
@@ -2235,8 +2072,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 14: // PROPERTIES
@@ -2248,8 +2085,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
                   powerst->config_flags |= k;
                   n++;
               } else {
-                  CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
-                      COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%.*s] block of %s file.",
+                      COMMAND_TEXT(cmd_num), word_buf, blocknamelen, blockname, config_textname);
               }
           }
           break;
@@ -2263,8 +2100,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 16: // PLAYERSTATE
@@ -2278,8 +2115,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect player state \"%s\" in [%s] block of %s file.",
-                  word_buf,block_buf,config_textname);
+              CONFWRNLOG("Incorrect player state \"%s\" in [%.*s] block of %s file.",
+                  word_buf, blocknamelen, blockname,config_textname);
               break;
           }
           break;
@@ -2294,8 +2131,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect Keeper Power \"%s\" in [%s] block of %s file.",
-                  word_buf,block_buf,config_textname);
+              CONFWRNLOG("Incorrect Keeper Power \"%s\" in [%.*s] block of %s file.",
+                  word_buf, blocknamelen, blockname,config_textname);
               break;
           }
           break;
@@ -2311,8 +2148,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 19: //COOLDOWN
@@ -2327,8 +2164,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 20: //SPELL
@@ -2343,8 +2180,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 21: //EFFECT
@@ -2356,8 +2193,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 22: //USEFUNCTION
@@ -2372,17 +2209,33 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
-      case 0: // comment
+      case 23: //CREATURETYPE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(creature_desc,word_buf);
+              if (k >= 0)
+              {
+                  powerst->creature_model = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+          }
           break;
-      case -1: // end of buffer
+      case ccr_comment:
+          break;
+      case ccr_endOfFile:
           break;
       default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
+          CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",
+              cmd_num, blocknamelen, blockname, config_textname);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -2392,7 +2245,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
   if ((flags & CnfLd_ListOnly) == 0)
   {
     // Mark powers which have children
-    for (i = 0; i < game.conf.magic_conf.power_types_count; i++)
+    for (int i = 0; i < game.conf.magic_conf.power_types_count; i++)
     {
         powerst = get_power_model_stats(i);
         struct PowerConfigStats* parent_powerst = get_power_model_stats(powerst->parent_power);
@@ -2407,59 +2260,46 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
 TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
   struct SpecialConfigStats *specst;
-  int i;
-  // Block name and parameter word store variables
+  int k = 0;
   // Initialize the array
-  int arr_size;
-  if ((flags & CnfLd_AcceptPartial) == 0)
-  {
-      arr_size = sizeof(game.conf.magic_conf.special_cfgstats)/sizeof(game.conf.magic_conf.special_cfgstats[0]);
-      for (i=0; i < arr_size; i++)
-      {
-          specst = get_special_model_stats(i);
+  if ((flags & CnfLd_AcceptPartial) == 0) {
+      for (int i = 0; i < MAGIC_ITEMS_MAX; i++) {
+          specst = &game.conf.magic_conf.special_cfgstats[i];
           LbMemorySet(specst->code_name, 0, COMMAND_WORD_LEN);
           specst->artifact_model = 0;
           specst->tooltip_stridx = 0;
-          if (i < game.conf.magic_conf.special_types_count)
-          {
-              special_desc[i].name = specst->code_name;
-              special_desc[i].num = i;
-          } else
-          {
-              special_desc[i].name = NULL;
-              special_desc[i].num = 0;
-          }
-      }
-      arr_size = sizeof(game.conf.object_conf.object_to_special_artifact)/sizeof(game.conf.object_conf.object_to_special_artifact[0]);
-      for (i=0; i < arr_size; i++) {
+          special_desc[i].name = specst->code_name;
+          special_desc[i].num = i;
           game.conf.object_conf.object_to_special_artifact[i] = 0;
       }
   }
-  arr_size = game.conf.magic_conf.special_types_count;
+  special_desc[MAGIC_ITEMS_MAX - 1].name = NULL; // must be null for get_id
   // Load the file
-  for (i=0; i < arr_size; i++)
+  const char * blockname = NULL;
+  int blocknamelen = 0;
+  long pos = 0;
+  while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
   {
-      char block_buf[COMMAND_WORD_LEN];
-      sprintf(block_buf, "special%d", i);
-      long pos = 0;
-      int k = find_conf_block(buf, &pos, len, block_buf);
-      if (k < 0)
-      {
-          if ((flags & CnfLd_AcceptPartial) == 0)
-          {
-              WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
-              return false;
-          }
-          continue;
+    // look for blocks starting with "special", followed by one or more digits
+    if (blocknamelen < 8) {
+        continue;
+    } else if (memcmp(blockname, "special", 7) != 0) {
+        continue;
     }
-    specst = get_special_model_stats(i);
+    const int i = natoi(&blockname[7], blocknamelen - 7);
+    if (i < 0 || i >= MAGIC_ITEMS_MAX) {
+        continue;
+    } else if (i >= game.conf.magic_conf.special_types_count) {
+        game.conf.magic_conf.special_types_count = i + 1;
+    }
+    specst = &game.conf.magic_conf.special_cfgstats[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_special_commands,cmd_num)
-    while (pos<len)
+    while (pos < len)
     {
       // Finding command number in this line
       int cmd_num = recognize_conf_command(buf, &pos, len, magic_special_commands);
       // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
+      if (cmd_num == ccr_endOfBlock) break; // if next block starts
       if ((flags & CnfLd_ListOnly) != 0) {
           // In "List only" mode, accept only name command
           if (cmd_num > 1) {
@@ -2473,8 +2313,8 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
       case 1: // NAME
           if (get_conf_parameter_single(buf,&pos,len,specst->code_name,COMMAND_WORD_LEN) <= 0)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
               break;
           }
           break;
@@ -2490,8 +2330,8 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect object model \"%s\" in [%s] block of %s file.",
-                  word_buf,block_buf,config_textname);
+              CONFWRNLOG("Incorrect object model \"%s\" in [%.*s] block of %s file.",
+                  word_buf, blocknamelen, blockname, config_textname);
               break;
           }
           break;
@@ -2507,8 +2347,8 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 4: // SPEECHPLAYED
@@ -2523,8 +2363,8 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 5: // ACTIVATIONEFFECT
@@ -2536,8 +2376,8 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 6: // VALUE
@@ -2547,13 +2387,13 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
               specst->value = k;
           }
           break;
-      case 0: // comment
+      case ccr_comment:
           break;
-      case -1: // end of buffer
+      case ccr_endOfFile:
           break;
       default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
+          CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",
+              cmd_num, blocknamelen, blockname, config_textname);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -2576,21 +2416,19 @@ TbBool load_magic_config_file(const char *textname, const char *fname, unsigned 
     char* buf = (char*)LbMemoryAlloc(len + 256);
     if (buf == NULL)
         return false;
+    
+    game.conf.magic_conf.spell_types_count = MAGIC_ITEMS_MAX;
+    game.conf.magic_conf.shot_types_count = MAGIC_ITEMS_MAX;
+    game.conf.magic_conf.power_types_count = MAGIC_ITEMS_MAX;
+    game.conf.magic_conf.special_types_count = MAGIC_ITEMS_MAX;
+
     // Loading file data
     len = LbFileLoadAt(fname, buf);
     TbBool result = (len > 0);
     // Parse blocks of the config file
     if (result)
     {
-        result = parse_magic_common_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" common blocks failed.",textname,fname);
-    }
-    if (result)
-    {
-        result = parse_magic_spell_blocks(buf, len, textname, flags);
+        result = parse_magic_spell_blocks(buf, len, fname, flags);
         if ((flags & CnfLd_AcceptPartial) != 0)
             result = true;
         if (!result)
@@ -2598,7 +2436,7 @@ TbBool load_magic_config_file(const char *textname, const char *fname, unsigned 
     }
     if (result)
     {
-        result = parse_magic_shot_blocks(buf, len, textname, flags);
+        result = parse_magic_shot_blocks(buf, len, fname, flags);
         if ((flags & CnfLd_AcceptPartial) != 0)
             result = true;
         if (!result)
@@ -2606,15 +2444,15 @@ TbBool load_magic_config_file(const char *textname, const char *fname, unsigned 
     }
     if (result)
     {
-      result = parse_magic_power_blocks(buf, len, textname, flags);
+      result = parse_magic_power_blocks(buf, len, fname, flags);
       if ((flags & CnfLd_AcceptPartial) != 0)
           result = true;
       if (!result)
-          WARNMSG("Parsing %s file \"%s\" power blocks failed.",textname,fname);
+          WARNMSG("Parsing %s file \"%s\" power blocks failed.",fname,fname);
     }
     if (result)
     {
-      result = parse_magic_special_blocks(buf, len, textname, flags);
+      result = parse_magic_special_blocks(buf, len, fname, flags);
       if ((flags & CnfLd_AcceptPartial) != 0)
           result = true;
       if (!result)
@@ -2732,6 +2570,8 @@ TbBool add_power_to_player(PowerKind pwkind, PlayerNumber plyr_idx)
 void remove_power_from_player(PowerKind pwkind, PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    struct PlayerInfo* player;
+    struct Thing* thing;
     if (dungeon_invalid(dungeon))
     {
         ERRORLOG("Cannot remove spell %s from invalid dungeon %d!",power_code_name(pwkind),(int)plyr_idx);
@@ -2758,6 +2598,14 @@ void remove_power_from_player(PowerKind pwkind, PlayerNumber plyr_idx)
     case PwrK_CALL2ARMS:
         if (player_uses_power_call_to_arms(plyr_idx))
             turn_off_power_call_to_arms(plyr_idx);
+        break;
+    case PwrK_POSSESS:
+        player = get_player(plyr_idx);
+        if (player->view_type == PVT_CreatureContrl)
+        {
+            thing = thing_get(player->controlled_thing_idx);
+            prepare_to_controlled_creature_death(thing);
+        }
         break;
     }
     if (game.chosen_spell_type == pwkind)

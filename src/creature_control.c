@@ -155,7 +155,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     set_selected_creature(player, thing);
     player->view_mode_restore = cam->view_mode;
     thing->alloc_flags |= TAlF_IsControlled;
-    thing->rendering_flags |= TRF_Unknown01;
+    thing->rendering_flags |= TRF_Invisible;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->flgfield_2 |= TF2_Spectator;
     cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
@@ -256,6 +256,8 @@ struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx)
         return &game.conf.crtr_conf.creature_sounds[cmodel].foot;
     case CrSnd_Fight:
         return &game.conf.crtr_conf.creature_sounds[cmodel].fight;
+    case CrSnd_Piss:
+        return &game.conf.crtr_conf.creature_sounds[cmodel].piss;
     default:
         // Return dummy element
         return &game.conf.crtr_conf.creature_sounds[0].foot;

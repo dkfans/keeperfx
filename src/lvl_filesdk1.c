@@ -56,6 +56,8 @@ extern "C" {
  * or any other function used beyond first initialization of a level.
   */
 long level_file_version = 0;
+char *level_strings[STRINGS_MAX+1];
+char *level_strings_data;
 /******************************************************************************/
 #pragma pack(1)
 
@@ -126,7 +128,6 @@ unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum,const char *fext
 {
   short fgroup = get_level_fgroup(lvnum);
   char* fname = prepare_file_fmtpath(fgroup, "map%05lu.%s", lvnum, fext);
-  wait_for_cd_to_be_available();
   long fsize = LbFileLengthRnc(fname);
   if (fsize < *ldsize)
   {
@@ -135,14 +136,6 @@ unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum,const char *fext
       else
           SYNCMSG("Optional file \"map%05lu.%s\" doesn't exist or is too small.", lvnum, fext);
       return NULL;
-  }
-  if (fsize > ANY_MAP_FILE_MAX_SIZE)
-  {
-    if ((flags & LMFF_Optional) == 0)
-      WARNMSG("Map file \"map%05lu.%s\" exceeds max size of %d; loading failed.",lvnum,fext,ANY_MAP_FILE_MAX_SIZE);
-    else
-      SYNCMSG("Optional file \"map%05lu.%s\" exceeds max size of %d; not loading.",lvnum,fext,ANY_MAP_FILE_MAX_SIZE);
-    return NULL;
   }
   unsigned char* buf = LbMemoryAlloc(fsize + 16);
   if (buf == NULL)
@@ -358,6 +351,7 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
     int cmd_num;
     int k;
     int n;
+    word_buf[0] = 0;
     SYNCDBG(8,"Starting for \"%s\"",fname);
     if (buf == NULL)
         return false;
@@ -381,7 +375,7 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
         // Finding command number in this line
         cmd_num = recognize_conf_command(buf,&pos,len,cmpgn_map_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         n = 0;
         switch (cmd_num)
         {
@@ -606,9 +600,9 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
                   COMMAND_TEXT(cmd_num),fname);
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             WARNMSG("Unrecognized command (%d) in LOF file '%s', starting on byte %d.",cmd_num,fname,pos);
@@ -1376,15 +1370,12 @@ static void load_ext_slabs(LevelNumber lvnum)
 
 void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short fgroup)
 {
-    if (campgn->strings_data == NULL)
-    {
-        return;
-    }
     char* fname = prepare_file_fmtpath(fgroup, "map%05lu.%s.dat", (unsigned long)lvnum, get_language_lwrstr(install_info.lang_id));
     if (!LbFileExists(fname))
     {
         SYNCMSG("Map string file %s doesn't exist.", fname);
         char buf[2048];
+        buf[0] = 0;
         memcpy(&buf, fname, 2048);
         fname = prepare_file_fmtpath(fgroup, "map%05lu.%s.dat", (unsigned long)lvnum, get_language_lwrstr(campgn->default_language));
         if (strcasecmp(fname, buf) == 0)
@@ -1398,17 +1389,34 @@ void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short 
         }
     }
     long filelen = LbFileLengthRnc(fname);
-    char* strings_data_end = campgn->strings_data + filelen + 255;
-    long loaded_size = LbFileLoadAt(fname, campgn->strings_data);
-    if (loaded_size > 0)
+    if (filelen <= 0)
     {
-        TbBool result = create_strings_list(campgn->strings, campgn->strings_data, strings_data_end, STRINGS_MAX);
-        if (result)
-        {
-            SYNCLOG("Loaded strings from %s", fname);
-            reload_campaign_strings = true;
-        }
+        ERRORLOG("Map Strings file %s does not exist or can't be opened", fname);
+        return;
     }
+    level_strings_data = malloc(filelen + 256);
+    if (level_strings_data == NULL)
+    {
+        ERRORLOG("Can't allocate memory for Map Strings data");
+        return;
+    }
+    long loaded_size = LbFileLoadAt(fname, level_strings_data);
+    if (loaded_size < 16)
+    {
+        ERRORLOG("Map Strings file couldn't be loaded or is too small");
+        return;
+    }
+    unsigned long loaded_strings_count = count_strings(level_strings_data, loaded_size);
+    char* strings_data_end = level_strings_data + filelen + 255;
+    // Resetting all values to empty strings
+    reset_strings(level_strings, STRINGS_MAX);
+    // Analyzing strings data and filling correct values
+    TbBool result = create_strings_list(level_strings, level_strings_data, strings_data_end, STRINGS_MAX);
+    if (result)
+    {
+        SYNCMSG("Loaded %lu strings from %s", loaded_strings_count, fname);
+    }
+    SYNCDBG(19, "Finished");
 }
 
 static TbBool load_level_file(LevelNumber lvnum)
@@ -1417,15 +1425,10 @@ static TbBool load_level_file(LevelNumber lvnum)
     TbBool new_format = true;
     short fgroup = get_level_fgroup(lvnum);
     char* fname = prepare_file_fmtpath(fgroup, "map%05lu.slb", (unsigned long)lvnum);
-    wait_for_cd_to_be_available();
     if (LbFileExists(fname))
     {
         result = true;
         struct GameCampaign *campgn = &campaign;
-        if (reload_campaign_strings)
-        {
-            setup_campaign_strings_data(campgn);
-        }
         load_map_string_data(campgn, lvnum, fgroup);
         load_map_data_file(lvnum);
         load_map_flag_file(lvnum);
@@ -1490,6 +1493,15 @@ TbBool load_map_file(LevelNumber lvnum)
     else
         set_loaded_level_number(SINGLEPLAYER_NOTSTARTED);
     return result;
+}
+
+void free_level_strings_data()
+{
+  // Resetting all values to empty strings
+  reset_strings(level_strings, STRINGS_MAX);
+  // Freeing memory
+  LbMemoryFree(level_strings_data);
+  level_strings_data = NULL;
 }
 /******************************************************************************/
 #ifdef __cplusplus

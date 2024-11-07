@@ -17,28 +17,31 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "thing_stats.h"
 
-#include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
 #include "bflib_memory.h"
-#include "game_merge.h"
-#include "thing_list.h"
-#include "creature_control.h"
 #include "config_creature.h"
+#include "config_crtrstates.h"
+#include "config_effects.h"
+#include "config_magic.h"
+#include "config_objects.h"
 #include "config_terrain.h"
 #include "config_trapdoor.h"
-#include "config_crtrstates.h"
-#include "config_objects.h"
-#include "config_effects.h"
+#include "creature_control.h"
 #include "creature_states.h"
+#include "game_legacy.h"
+#include "game_merge.h"
+#include "globals.h"
 #include "player_data.h"
 #include "player_instances.h"
-#include "config_magic.h"
-#include "vidfade.h"
-#include "game_legacy.h"
+#include "player_utils.h"
+#include "thing_effects.h"
+#include "thing_list.h"
 #include "thing_physics.h"
+#include "thing_stats.h"
+#include "vidfade.h"
+
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -348,8 +351,11 @@ long compute_creature_max_defense(long base_param,unsigned short crlevel)
       base_param = 10000;
     if (crlevel >= CREATURE_MAX_LEVEL)
       crlevel = CREATURE_MAX_LEVEL-1;
-    long max_param = base_param + (game.conf.crtr_conf.exp.defense_increase_on_exp * base_param * (long)crlevel) / 100;
-    return saturate_set_unsigned(max_param, 8);
+    long defense = base_param + (game.conf.crtr_conf.exp.defense_increase_on_exp * base_param * (long)crlevel) / 100;
+    unsigned long long max = (1 << (8)) - 1;
+    if ((defense >= max) && (!emulate_integer_overflow(8)))
+        return max;
+    return defense;
 }
 
 /**
@@ -372,14 +378,19 @@ long compute_creature_max_dexterity(long base_param,unsigned short crlevel)
  */
 long compute_creature_max_strength(long base_param,unsigned short crlevel)
 {
-  if (base_param <= 0)
-      return 0;
-  if (base_param > 60000)
+    if (base_param <= 0)
+        return 0;
+    if (base_param > 60000)
         base_param = 60000;
-  if (crlevel >= CREATURE_MAX_LEVEL)
-    crlevel = CREATURE_MAX_LEVEL-1;
-  long max_param = base_param + (game.conf.crtr_conf.exp.strength_increase_on_exp * base_param * (long)crlevel) / 100;
-  return saturate_set_unsigned(max_param, 15);
+    if (crlevel >= CREATURE_MAX_LEVEL)
+        crlevel = CREATURE_MAX_LEVEL-1;
+    long max_param = base_param + (game.conf.crtr_conf.exp.strength_increase_on_exp * base_param * (long)crlevel) / 100;
+    long strength = saturate_set_unsigned(max_param, 15);
+    if (flag_is_set(game.conf.rules.game.classic_bugs_flags, ClscBug_Overflow8bitVal))
+    {
+        return min(strength, UCHAR_MAX+1); //DK1 limited shot damage to 256, not 255
+    }
+    return strength;
 }
 
 /**
@@ -458,7 +469,7 @@ GoldAmount compute_creature_max_scavenging_cost(GoldAmount base_param,unsigned s
  * @param luck Creature luck, scaled 0..100.
  * @param crlevel Creature level, 0..9.
  */
-long project_creature_attack_melee_damage(long base_param,long luck,unsigned short crlevel, const struct Thing* thing)
+long project_creature_attack_melee_damage(long base_param, short damage_percent, long luck,unsigned short crlevel, const struct Thing* thing)
 {
     struct Dungeon* dungeon;
     if (base_param < -60000)
@@ -466,6 +477,10 @@ long project_creature_attack_melee_damage(long base_param,long luck,unsigned sho
     if (base_param > 60000)
         base_param = 60000;
     long max_param = base_param;
+    if (damage_percent != 0)
+    {
+        max_param = (max_param * damage_percent) / 100;
+    }
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.strength;
@@ -845,12 +860,27 @@ long compute_value_8bpercentage(long base_val, short npercent)
  * @param thing
  * @return
  */
-TbBool update_creature_health_to_max(struct Thing *thing)
+TbBool update_creature_health_to_max(struct Thing * creatng)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    cctrl->max_health = compute_creature_max_health(crstat->health,cctrl->explevel,thing->owner);
-    thing->health = cctrl->max_health;
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    cctrl->max_health = compute_creature_max_health(crstat->health,cctrl->explevel, creatng->owner);
+    creatng->health = cctrl->max_health;
+    return true;
+}
+
+/**
+ * Re-computes new max health of a creature and updates the health value to stay relative to the old max.
+ * @param thing
+ * @return
+ */
+TbBool update_relative_creature_health(struct Thing* creatng)
+{
+    int health_permil = get_creature_health_permil(creatng);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    cctrl->max_health = compute_creature_max_health(crstat->health, cctrl->explevel, creatng->owner);
+    creatng->health = cctrl->max_health * health_permil / 1000;
     return true;
 }
 
@@ -953,6 +983,15 @@ static HitPoints apply_damage_to_door(struct Thing *thing, HitPoints dmg)
     return cdamage;
 }
 
+HitPoints reduce_damage_for_midas(PlayerNumber owner, HitPoints damage, short multiplier)
+{
+    if (multiplier == 0)
+        return 0;
+    HitPoints cost = (damage + multiplier - 1) / multiplier; // This ensures we round up the division
+    GoldAmount received = take_money_from_dungeon(owner, cost, 0); // Take gold from the player
+    return (received * multiplier);
+}
+
 HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const struct Thing *shotng)
 {
     HitPoints dmg;
@@ -960,14 +999,25 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
     const struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
 
     //TODO CONFIG replace deals_physical_damage with check for shotst->damage_type (magic in this sense is DmgT_Electric, DmgT_Combustion and DmgT_Heatburn)
-    if ( !(doorst->model_flags & DoMF_ResistNonMagic)  || (shotst->damage_type == DmgT_Magical))
+    if ( !flag_is_set(doorst->model_flags,DoMF_ResistNonMagic)  || (shotst->damage_type == DmgT_Magical))
     {
         dmg = shotng->shot.damage;
     } else
     {
-        dmg = shotng->shot.damage / 10;
+        dmg = shotng->shot.damage / 8;
         if (dmg < 1)
             dmg = 1;
+    }
+    if (flag_is_set(doorst->model_flags, DoMF_Midas))
+    {
+        HitPoints absorbed = reduce_damage_for_midas(doortng->owner, dmg, doorst->health);
+        dmg -= absorbed;
+      
+        // Generate effects for the gold taken
+        for (int i = absorbed; i > 0; i -= 32)
+        {
+            create_effect(&shotng->mappos, TngEff_CoinFountain, doortng->owner);
+        }
     }
     return dmg;
 }
@@ -997,9 +1047,17 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
     {
     case TCls_Creature:
         cdamage = apply_damage_to_creature(thing, dmg);
+        if (thing->health < 0)
+        {
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+            if ((cctrl->fighting_player_idx == -1) && (dealing_plyr_idx != -1))
+            {
+                cctrl->fighting_player_idx = dealing_plyr_idx;
+            }
+        }
         break;
-    case TCls_Object:
     case TCls_Trap:
+    case TCls_Object:
         cdamage = apply_damage_to_object(thing, dmg);
         break;
     case TCls_Door:
@@ -1008,14 +1066,6 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
     default:
         cdamage = 0;
         break;
-    }
-    if ((thing->class_id == TCls_Creature) && (thing->health < 0))
-    {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if ((cctrl->fighting_player_idx == -1) && (dealing_plyr_idx != -1))
-        {
-            cctrl->fighting_player_idx = dealing_plyr_idx;
-        }
     }
     return cdamage;
 }

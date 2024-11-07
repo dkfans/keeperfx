@@ -86,7 +86,7 @@ GoldAmount compute_creature_max_scavenging_cost(GoldAmount base_scavenging_cost,
 long compute_creature_max_health(HitPoints base_health,unsigned short crlevel, PlayerNumber plyr_idx);
 long compute_creature_attack_melee_damage(long base_param,long luck,unsigned short crlevel, struct Thing* thing);
 long compute_creature_attack_spell_damage(long base_param,long luck,unsigned short crlevel, struct Thing* thing);
-long project_creature_attack_melee_damage(long base_param,long luck,unsigned short crlevel, const struct Thing* thing);
+long project_creature_attack_melee_damage(long base_param,short damage_percent,long luck,unsigned short crlevel, const struct Thing* thing);
 long project_creature_attack_spell_damage(long base_param,long luck,unsigned short crlevel, const struct Thing* thing);
 long compute_creature_attack_range(long base_param,long luck,unsigned short crlevel);
 long compute_creature_work_value(long base_param,long efficiency,unsigned short crlevel);
@@ -114,6 +114,7 @@ long compute_creature_weight(const struct Thing* creatng);
 
 const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveStatId cstat_id);
 
+HitPoints reduce_damage_for_midas(PlayerNumber owner, HitPoints damage, short multiplier);
 long calculate_damage_did_to_slab_with_single_hit(const struct Thing *diggertng, const struct SlabMap *slb);
 GoldAmount calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_slab, const struct SlabMap *slb);
 HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const struct Thing *shotng);
@@ -121,8 +122,9 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
 long get_radially_decaying_value(long magnitude,long decay_start,long decay_length,long distance);
 long get_radially_growing_value(long magnitude, long decay_start, long decay_length, long distance, long acceleration);
 
-TbBool update_creature_health_to_max(struct Thing *thing);
-TbBool set_creature_health_to_max_with_heal_effect(struct Thing* thing);
+TbBool update_creature_health_to_max(struct Thing *creatng);
+TbBool update_relative_creature_health(struct Thing *creatng);
+TbBool set_creature_health_to_max_with_heal_effect(struct Thing *thing);
 TbBool apply_health_to_thing(struct Thing *thing, HitPoints amount);
 void apply_health_to_thing_and_display_health(struct Thing *thing, HitPoints amount);
 HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType damage_type, PlayerNumber dealing_plyr_idx);

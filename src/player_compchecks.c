@@ -214,10 +214,10 @@ int calculate_number_of_creatures_to_move(struct Dungeon *dungeon, int percent_t
             break;
         }
 
-        if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing))
+        if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
             struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-            if ((cctrl->job_assigned == crstat->job_primary) || (cctrl->job_assigned == crstat->job_secondary))
+            if ((cctrl->job_assigned == crstat->job_primary) || (cctrl->job_assigned == crstat->job_secondary) || (cctrl->job_assigned == 0))
             {
                 creatures_doing_primary_or_secondary_job += 1;
             } else {
@@ -529,6 +529,11 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
         SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
         return CTaskRet_Unk4;
     }
+    if (!creature_count_below_map_limit(0))
+    {
+        SYNCDBG(7, "Computer player %d can't create imps due to map limit", (int)dungeon->owner);
+        return CTaskRet_Unk4;
+    }
     long controlled_diggers = dungeon->num_active_diggers - count_player_diggers_not_counting_to_total(dungeon->owner);
     int preferred_imps;
     int minimal_imps;
@@ -692,7 +697,7 @@ struct Room *get_opponent_room(struct Computer2 *comp, PlayerNumber plyr_idx)
     return INVALID_ROOM;
 }
 
-struct Room *get_hated_room_for_quick_attack(struct Computer2 *comp, long min_hate)
+struct Room *get_hated_room_for_quick_attack(struct Computer2 *comp)
 {
     SYNCDBG(8,"Starting for player %d",(int)comp->dungeon->owner);
     struct THate hates[PLAYERS_COUNT];
@@ -703,7 +708,7 @@ struct Room *get_hated_room_for_quick_attack(struct Computer2 *comp, long min_ha
         struct THate* hate = &hates[i];
         if (players_are_enemies(comp->dungeon->owner, hate->plyr_idx))
         {
-            if ((hate->pos_near != NULL) && (hate->amount > min_hate))
+            if (hate->pos_near != NULL)
             {
                 struct Room* room = get_opponent_room(comp, hate->plyr_idx);
                 if (!room_is_invalid(room)) {
@@ -725,8 +730,13 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
 {
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = comp->dungeon;
-    int creatrs_num = check->param1 * dungeon->num_active_creatrs / 100;
-    if (check->param3 >= creatrs_num) {
+    long attack_percentage = check->param1;
+    long cta_duration = check->param2;
+    long min_creatures_to_attack = check->param3;
+    int max_attack_amount = attack_percentage * dungeon->num_active_creatrs / 100;
+    unsigned long creatures_to_fight_amount;
+
+    if (min_creatures_to_attack >= max_attack_amount) {
         return CTaskRet_Unk4;
     }
     if (!computer_able_to_use_power(comp, PwrK_CALL2ARMS, 1, 3)) {
@@ -735,7 +745,7 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
     if ((check_call_to_arms(comp) != 1) || is_there_an_attack_task(comp)) {
         return CTaskRet_Unk4;
     }
-    struct Room* room = get_hated_room_for_quick_attack(comp, check->param3);
+    struct Room* room = get_hated_room_for_quick_attack(comp);
     if (room_is_invalid(room)) {
         return CTaskRet_Unk4;
     }
@@ -744,10 +754,13 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
     pos.x.val = subtile_coord_center(room->central_stl_x);
     pos.y.val = subtile_coord_center(room->central_stl_y);
     pos.z.val = subtile_coord(1,0);
-    if (count_creatures_availiable_for_fight(comp, &pos) <= check->param3) {
+    creatures_to_fight_amount = count_creatures_availiable_for_fight(comp, &pos);
+    if (creatures_to_fight_amount <= min_creatures_to_attack) {
         return CTaskRet_Unk4;
     }
-    if (!create_task_magic_support_call_to_arms(comp, &pos, check->param2, 0, creatrs_num)) {
+    if (creatures_to_fight_amount > max_attack_amount)
+        creatures_to_fight_amount = max_attack_amount;
+    if (!create_task_magic_support_call_to_arms(comp, &pos, cta_duration, creatures_to_fight_amount)) {
         return CTaskRet_Unk4;
     }
     SYNCLOG("Player %d decided to attack %s owned by player %d",(int)dungeon->owner,room_code_name(room->kind),(int)room->owner);
@@ -777,7 +790,7 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
             struct StateInfo* stati = get_thing_state_info_num(n);
             if (stati->state_type == CrStTyp_Work)
             {
-                if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, SPELL_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
+                if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, POWER_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
                 {
                     return thing;
                 }
@@ -816,7 +829,7 @@ struct Thing *computer_check_creatures_in_room_for_flight(struct Computer2 *comp
             struct StateInfo* stati = get_thing_state_info_num(n);
             if (stati->state_type == CrStTyp_Work)
             {
-                if (try_game_action(comp, dungeon->owner, GA_UsePwrFlight, SPELL_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
+                if (try_game_action(comp, dungeon->owner, GA_UsePwrFlight, POWER_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
                 {
                     return thing;
                 }
@@ -855,7 +868,7 @@ struct Thing *computer_check_creatures_in_room_for_vision(struct Computer2 *comp
             struct StateInfo* stati = get_thing_state_info_num(n);
             if (stati->state_type == CrStTyp_Work)
             {
-                if (try_game_action(comp, dungeon->owner, GA_UsePwrVision, SPELL_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
+                if (try_game_action(comp, dungeon->owner, GA_UsePwrVision, POWER_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
                 {
                     return thing;
                 }

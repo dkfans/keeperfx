@@ -17,35 +17,37 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "thing_effects.h"
-#include "globals.h"
 
-#include "bflib_memory.h"
 #include "bflib_math.h"
-#include "bflib_sound.h"
+#include "bflib_memory.h"
 #include "bflib_planar.h"
-#include "math.h"
-#include "thing_objects.h"
-#include "thing_list.h"
-#include "thing_stats.h"
-#include "thing_physics.h"
-#include "thing_factory.h"
-#include "thing_navigate.h"
-#include "thing_shots.h"
-#include "creature_battle.h"
-#include "creature_senses.h"
+#include "bflib_sound.h"
 #include "config_creature.h"
 #include "config_effects.h"
-#include "front_simple.h"
-#include "map_data.h"
-#include "map_blocks.h"
+#include "creature_battle.h"
 #include "creature_graphics.h"
-#include "gui_topmsg.h"
-#include "game_legacy.h"
+#include "creature_senses.h"
 #include "engine_redraw.h"
-#include "keeperfx.hpp"
+#include "front_simple.h"
+#include "game_legacy.h"
+#include "globals.h"
 #include "gui_soundmsgs.h"
+#include "gui_topmsg.h"
+#include "keeperfx.hpp"
+#include "map_blocks.h"
+#include "map_data.h"
+#include "math.h"
+#include "player_utils.h"
 #include "room_util.h"
+#include "thing_effects.h"
+#include "thing_factory.h"
+#include "thing_list.h"
+#include "thing_navigate.h"
+#include "thing_objects.h"
+#include "thing_physics.h"
+#include "thing_shots.h"
+#include "thing_stats.h"
+
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -114,7 +116,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmod
         set_flag_value(thing->rendering_flags, TRF_AnimateOnce, eestat->rendering_flag);
     } else
     {
-        set_flag(thing->rendering_flags, TRF_Unknown01);
+        set_flag(thing->rendering_flags, TRF_Invisible);
     }
 
     thing->fall_acceleration = eestat->fall_acceleration;
@@ -574,7 +576,7 @@ struct Thing *create_effect_generator(struct Coord3d *pos, ThingModel model, uns
     effgentng->mappos = *pos;
     effgentng->creation_turn = game.play_gameturn;
     effgentng->health = -1;
-    effgentng->rendering_flags |= TRF_Unknown01;
+    effgentng->rendering_flags |= TRF_Invisible;
     add_thing_to_its_class_list(effgentng);
     place_thing_in_mapwho(effgentng);
     return effgentng;
@@ -889,7 +891,7 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     thing->fall_acceleration = 0;
     thing->inertia_floor = 0;
     thing->inertia_air = 0;
-    thing->rendering_flags |= TRF_Unknown01;
+    thing->rendering_flags |= TRF_Invisible;
     thing->health = effcst->start_health;
     thing->shot_effect.hit_type = effcst->effect_hit_type;
     if (effcst->ilght.radius != 0)
@@ -1084,6 +1086,17 @@ TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, cons
         if (distance < max_dist)
         {
             HitPoints damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
+            
+            const struct DoorConfigStats* doorst = get_door_model_stats(tngdst->model);
+            if (flag_is_set(doorst->model_flags, DoMF_Midas))
+            {
+                HitPoints absorbed = reduce_damage_for_midas(tngdst->owner, damage, doorst->health);
+                damage -= absorbed;
+                for (int i = absorbed; i > 0; i -= 32)
+                {
+                    create_effect(pos, TngEff_CoinFountain, tngdst->owner);
+                }
+            }
             SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
             apply_damage_to_thing(tngdst, damage, damage_type, -1);
             affected = true;

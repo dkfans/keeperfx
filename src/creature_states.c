@@ -98,6 +98,7 @@ short arrive_at_call_to_arms(struct Thing *creatng);
 short cleanup_hold_audience(struct Thing *creatng);
 short creature_being_dropped(struct Thing *creatng);
 short creature_cannot_find_anything_to_do(struct Thing *creatng);
+short creature_casting_preparation(struct Thing *creatng);
 short creature_change_from_chicken(struct Thing *creatng);
 short creature_change_to_chicken(struct Thing *creatng);
 short creature_doing_nothing(struct Thing *creatng);
@@ -153,7 +154,6 @@ short state_cleanup_wait_at_door(struct Thing* creatng);
 short creature_search_for_spell_to_steal_in_room(struct Thing *creatng);
 short creature_pick_up_spell_to_steal(struct Thing *creatng);
 short creature_timebomb(struct Thing *creatng);
-
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -175,8 +175,8 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 0, 0,  0, 0, 0, 1},
   {imp_digs_mines, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 0, 0,  0, 0, 0, 1},
-  {NULL, NULL, NULL, NULL,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Move, 0, 0, 1, 0,  0, 0, 0, 1},
+  {creature_casting_preparation, NULL, NULL, NULL,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  CrStTyp_Work, 0, 1, 0, 0,  0, 0, 0, 1},
   {imp_drops_gold, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 0, 0,  0, 0, 0, 1},
   {imp_last_did_job, NULL, NULL, NULL,
@@ -467,6 +467,10 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
     0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_Move, 0, 0, 0, 0, 0, 0, 0, 1 },
   { good_arrived_at_attack_dungeon_heart, NULL, NULL, move_check_attack_any_door,
     0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_Move, 0, 0, 0, 0, 0, 0, 0, 1 },
+  {creature_drop_unconscious_in_lair, state_cleanup_dragging_body, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 1, 0,  0, 0, 0, 1},
+  {creature_save_unconscious_creature, NULL, NULL, NULL,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 1, 0,  0, 0, 0, 1},
 };
 
 /** GUI States of creatures - from "Creatures" Tab in UI.
@@ -632,12 +636,14 @@ TbBool creature_is_being_dropped(const struct Thing *thing)
 
 TbBool creature_is_being_unconscious(const struct Thing *thing)
 {
-    CrtrStateId i = thing->active_state;
-    if ((i == CrSt_MoveToPosition) || (i == CrSt_MoveBackwardsToPosition))
-        i = thing->continue_state;
-    if (i == CrSt_CreatureUnconscious)
-        return true;
-    return false;
+        if (thing_is_invalid(thing))
+            return false;
+        CrtrStateId i = thing->active_state;
+        if ((i == CrSt_MoveToPosition) || (i == CrSt_MoveBackwardsToPosition))
+            i = thing->continue_state;
+        if (i == CrSt_CreatureUnconscious)
+            return true;
+        return false;
 }
 
 TbBool creature_is_celebrating(const struct Thing *thing)
@@ -658,7 +664,15 @@ TbBool creature_is_being_tortured(const struct Thing *thing)
     return false;
 }
 
-TbBool creature_is_being_sacrificed(const struct Thing *thing)
+TbBool creature_is_leaving_and_cannot_be_stopped(const struct Thing *thing)
+{
+    CrtrStateId i = get_creature_state_besides_interruptions(thing);
+    if (i == CrSt_LeavesBecauseOwnerLost)
+        return true;
+    return false;
+}
+
+TbBool creature_is_being_sacrificed(const struct Thing* thing)
 {
     CrtrStateId i = get_creature_state_besides_interruptions(thing);
     if ((i == CrSt_CreatureSacrifice) || (i == CrSt_CreatureBeingSacrificed))
@@ -677,7 +691,7 @@ TbBool creature_is_kept_in_prison(const struct Thing *thing)
 TbBool creature_is_being_summoned(const struct Thing *thing)
 {
     CrtrStateId i = get_creature_state_besides_interruptions(thing);
-    if ((i == CrSt_CreatureBeingSummoned))
+    if (i == CrSt_CreatureBeingSummoned)
         return true;
     return false;
 }
@@ -822,9 +836,9 @@ TbBool creature_is_kept_in_custody_by_enemy(const struct Thing *thing)
         creature_is_being_dropped(thing))
     {
         struct Room* room = get_room_thing_is_on(thing);
-        if (room_is_invalid(room)) 
+        if (room_is_invalid(room))
         {
-            //If the creature is not inside a room, or moving 
+            //If the creature is not inside a room, or moving
             struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
             room = get_room_at_pos(&cctrl->moveto_pos);
             if (room_is_invalid(room))
@@ -1590,6 +1604,37 @@ short creature_cannot_find_anything_to_do(struct Thing *creatng)
 	return 1;
 }
 
+/**
+ * @brief process_state function for CreatureCastingPreparation.
+ *
+ * @param creatng The creature being updated.
+ * @return short What we've done to the creature. Enum of CreatureStateReturns.
+ */
+short creature_casting_preparation(struct Thing *creatng)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    TRACE_THING(creatng);
+    SYNCDBG(11, "Process %s(%d), bkp act.st: %s, bkp con.st: %s, instance: %s",
+        thing_model_name(creatng), creatng->index,
+        creature_state_code_name(cctrl->active_state_bkp), creature_state_code_name(cctrl->continue_state_bkp),
+        creature_instance_code_name(cctrl->instance_id));
+
+    if (cctrl->instance_id != CrInst_NULL)
+    {
+        // If the spell has not be casted, keep this state.
+        struct Thing* target = thing_get(cctrl->targtng_idx);
+        if (target != INVALID_THING)
+        {
+            // Try to keep facing to the target.
+            creature_turn_to_face(creatng, &target->mappos);
+        }
+        return CrStRet_Unchanged;
+    }
+    internal_set_thing_state(creatng, cctrl->active_state_bkp);
+    creatng->continue_state = cctrl->continue_state_bkp;
+    return CrStRet_Modified;
+}
+
 void set_creature_size_stuff(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
@@ -1611,7 +1656,7 @@ short creature_change_from_chicken(struct Thing *creatng)
         cctrl->countdown_282--;
     if (cctrl->countdown_282 > 0)
     { // Changing under way - gradually modify size of the creature
-        creatng->rendering_flags |= TRF_Unknown01;
+        creatng->rendering_flags |= TRF_Invisible;
         creatng->size_change |= TSC_ChangeSize;
         struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
         if (!thing_is_invalid(efftng))
@@ -1625,7 +1670,7 @@ short creature_change_from_chicken(struct Thing *creatng)
         return 0;
     } else
     {
-        creatng->rendering_flags &= ~TRF_Unknown01;
+        creatng->rendering_flags &= ~TRF_Invisible;
         cctrl->stateblock_flags &= ~CCSpl_ChickenRel;
         cctrl->spell_flags &= ~CSAfF_Chicken;
         set_creature_size_stuff(creatng);
@@ -1644,7 +1689,7 @@ short creature_change_to_chicken(struct Thing *creatng)
     if (cctrl->countdown_282 > 0)
     {
       creatng->size_change |= TSC_ChangeSize;
-      creatng->rendering_flags |= TRF_Unknown01;
+      creatng->rendering_flags |= TRF_Invisible;
       struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
       if (!thing_is_invalid(efftng))
       {
@@ -1656,7 +1701,7 @@ short creature_change_to_chicken(struct Thing *creatng)
       return 0;
     }
     cctrl->spell_flags |= CSAfF_Chicken;
-    creatng->rendering_flags &= ~TRF_Unknown01;
+    creatng->rendering_flags &= ~TRF_Invisible;
     set_creature_size_stuff(creatng);
     creatng->state_flags &= ~TF1_Unkn10;
     creatng->active_state = CrSt_CreaturePretendChickenSetupMove;
@@ -2251,7 +2296,7 @@ short creature_leaves(struct Thing *creatng)
         struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
         apply_anger_to_all_players_creatures_excluding(creatng->owner, crstat->annoy_others_leaving, AngR_Other, creatng);
     }
-    kill_creature(creatng, INVALID_THING, -1, CrDed_NoEffects||CrDed_NotReallyDying);
+    kill_creature(creatng, INVALID_THING, -1, CrDed_NoEffects | CrDed_NotReallyDying);
     return CrStRet_Deleted;
 }
 
@@ -2333,7 +2378,7 @@ struct Thing *find_random_creature_for_persuade(PlayerNumber plyr_idx, struct Co
         if ((n <= 0) )
         {
             if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing)
-                && !creature_is_being_unconscious(thing) && !creature_is_dying(thing))
+                && !creature_is_being_unconscious(thing) && !creature_is_dying(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
             {
                 return thing;
             }
@@ -3118,11 +3163,11 @@ short creature_wait_at_treasure_room_door(struct Thing *creatng)
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing *doortng;
-    if (cctrl->blocking_door_id > 0) 
+    if (cctrl->blocking_door_id > 0)
     {
         struct Room *room = room_get(cctrl->target_room_id);
         if (!room_is_invalid(room))
-        {   
+        {
             // if there's another route to the current target room, take it
             struct Coord3d roompos;
             roompos.x.val = subtile_coord_center(room->central_stl_x);
@@ -3152,8 +3197,8 @@ short creature_wait_at_treasure_room_door(struct Thing *creatng)
             }
         }
         doortng = thing_get(cctrl->blocking_door_id);
-    } 
-    else 
+    }
+    else
     {
         doortng = INVALID_THING;
     }
@@ -3382,14 +3427,14 @@ long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
 void place_thing_in_creature_controlled_limbo(struct Thing *thing)
 {
     remove_thing_from_mapwho(thing);
-    thing->rendering_flags |= TRF_Unknown01;
+    thing->rendering_flags |= TRF_Invisible;
     thing->state_flags |= TF1_InCtrldLimbo;
 }
 
 void remove_thing_from_creature_controlled_limbo(struct Thing *thing)
 {
     thing->state_flags &= ~TF1_InCtrldLimbo;
-    thing->rendering_flags &= ~TRF_Unknown01;
+    thing->rendering_flags &= ~TRF_Invisible;
     place_thing_in_mapwho(thing);
 }
 
@@ -3481,7 +3526,7 @@ void instruct_creature_to_damage_wall(struct Thing *creatng, MapSubtlCoord wall_
             pos.x.val = subtile_coord_center(stand_x);
             pos.y.val = subtile_coord_center(stand_y);
             pos.z.val = get_thing_height_at(creatng, &pos);
-            if ( creature_can_navigate_to_with_storage(creatng, &pos, 0) != -1 ) {
+            if (creature_can_navigate_to_with_storage(creatng, &pos, 0)) {
                 if ( setup_person_move_to_position(creatng, stand_x, stand_y, 0) )
                 {
                     creatng->continue_state = CrSt_CreatureDamageWalls;
@@ -3674,7 +3719,7 @@ CrCheckRet move_check_wait_at_door_for_wage(struct Thing *creatng)
   {
       room = room_get(cctrl->target_room_id);
       if (!room_is_invalid(room))
-      {   
+      {
           // if there's another route to the current target room, take it
           struct Coord3d roompos;
           roompos.x.val = subtile_coord_center(room->central_stl_x);
@@ -4094,6 +4139,9 @@ TbBool process_creature_hunger(struct Thing *thing)
  */
 TbBool creature_will_attack_creature(const struct Thing *fightng, const struct Thing *enmtng)
 {
+    if (creature_is_leaving_and_cannot_be_stopped(fightng) || creature_is_leaving_and_cannot_be_stopped(enmtng)) {
+        return false;
+    }
     if (creature_is_being_unconscious(fightng) || creature_is_being_unconscious(enmtng)) {
         return false;
     }
@@ -4157,6 +4205,9 @@ TbBool creature_will_attack_creature_incl_til_death(const struct Thing *fightng,
         return false;
     }
     if (thing_is_picked_up(fightng) || thing_is_picked_up(enmtng)) {
+        return false;
+    }
+    if (creature_is_leaving_and_cannot_be_stopped(fightng) || creature_is_leaving_and_cannot_be_stopped(enmtng)) {
         return false;
     }
     struct CreatureControl* fighctrl = creature_control_get_from_thing(fightng);
@@ -4605,6 +4656,9 @@ TbBool cleanup_creature_state_and_interactions(struct Thing *creatng)
     delete_familiars_attached_to_creature(creatng);
     state_cleanup_dragging_body(creatng);
     state_cleanup_dragging_object(creatng);
+    if (flag_is_set((creature_control_get_from_thing(creatng))->flgfield_2, TF2_SummonedCreature)) {
+        remove_creature_from_summon_list(get_dungeon(creatng->owner), creatng->index);
+    }
     return true;
 }
 
@@ -5186,6 +5240,10 @@ void process_person_moods_and_needs(struct Thing *thing)
     }
     if (creature_is_kept_in_custody(thing)) {
         // And creatures being tortured, imprisoned, etc.
+        return;
+    }
+    if (creature_is_leaving_and_cannot_be_stopped(thing))
+    {
         return;
     }
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);

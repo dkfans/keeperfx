@@ -20,47 +20,48 @@
 #include <stddef.h>
 
 #include "engine_render.h"
-
 #include "globals.h"
+
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
-#include "bflib_memory.h"
 #include "bflib_math.h"
+#include "bflib_memory.h"
 #include "bflib_planar.h"
-#include "bflib_video.h"
-#include "bflib_sprite.h"
-#include "bflib_vidraw.h"
 #include "bflib_render.h"
-
-#include "engine_lenses.h"
-#include "engine_camera.h"
-#include "engine_arrays.h"
-#include "engine_textures.h"
-#include "engine_redraw.h"
+#include "bflib_sprite.h"
+#include "bflib_video.h"
+#include "bflib_vidraw.h"
+#include "config_creature.h"
+#include "config_players.h"
+#include "config_settings.h"
+#include "config_spritecolors.h"
+#include "config_terrain.h"
 #include "creature_graphics.h"
 #include "creature_states.h"
-#include "creature_states_mood.h"
+#include "creature_states_combt.h"
 #include "creature_states_gardn.h"
 #include "creature_states_lair.h"
-#include "config_spritecolors.h"
-#include "thing_stats.h"
-#include "thing_traps.h"
-#include "game_lghtshdw.h"
-#include "game_heap.h"
-#include "kjm_input.h"
-#include "gui_draw.h"
+#include "creature_states_mood.h"
+#include "custom_sprites.h"
+#include "engine_arrays.h"
+#include "engine_camera.h"
+#include "engine_lenses.h"
+#include "engine_redraw.h"
+#include "engine_textures.h"
 #include "front_simple.h"
 #include "frontend.h"
-#include "vidmode.h"
-#include "vidfade.h"
-#include "config_settings.h"
-#include "config_terrain.h"
-#include "config_creature.h"
+#include "game_heap.h"
+#include "game_lghtshdw.h"
+#include "gui_draw.h"
 #include "keeperfx.hpp"
-#include "config_players.h"
-#include "custom_sprites.h"
-#include "sprites.h"
+#include "kjm_input.h"
 #include "player_instances.h"
+#include "sprites.h"
+#include "thing_stats.h"
+#include "thing_traps.h"
+#include "vidfade.h"
+#include "vidmode.h"
+
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -4825,62 +4826,70 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
     struct PlayerInfo* player = get_my_player();
     struct Thing* thing = jspr->thing;
     struct ObjectConfigStats* objst;
+    struct TrapConfigStats* trapst;
+    struct FlameProperties flame;
     unsigned long nframe;
     long add_x, add_y;
-    long scale;
-    if (!thing_is_object(thing))
+    long scale = 0;
+    if (thing_is_object(thing))
     {
-        ERRORLOG("Thing %s is not an object.", thing_model_name(thing));
-        return;
-    }
-    objst = get_object_model_stats(thing->model);
-    scale = (objst->flame.sprite_size * base_sprite_size / thing->sprite_size);
-
-    if (player->view_type == PVT_DungeonTop)
+        objst = get_object_model_stats(thing->model);
+        flame = objst->flame;
+    } else
+    if (thing_is_deployed_trap(thing))
     {
-        add_x = (base_sprite_size * objst->flame.td_add_x) >> 5;
-        add_y = (base_sprite_size * objst->flame.td_add_y) >> 5;
+        trapst = get_trap_model_stats(thing->model);
+        flame = trapst->flame;
     }
     else
     {
-        add_x = (base_sprite_size * objst->flame.fp_add_x) >> 5;
-        add_y = (base_sprite_size * objst->flame.fp_add_y) >> 5;
+        ERRORLOG("Thing %s is neither an object nor a flame.", thing_model_name(thing));
+        return;
+    }
+    if (thing->sprite_size != 0)
+    {
+        scale = (flame.sprite_size * base_sprite_size / thing->sprite_size);
     }
 
-    //Object
-    lbDisplay.DrawFlags = 0;
+    if (player->view_type == PVT_DungeonTop)
+    {
+        add_x = (base_sprite_size * flame.td_add_x) >> 5;
+        add_y = (base_sprite_size * flame.td_add_y) >> 5;
+    }
+    else
+    {
+        add_x = (base_sprite_size * flame.fp_add_x) >> 5;
+        add_y = (base_sprite_size * flame.fp_add_y) >> 5;
+    }
+
+    //Object/Trap itself
+    clear_flag(lbDisplay.DrawFlags, TRF_Transpar_Flags);
     EngineSpriteDrawUsingAlpha = 0;
-    if (objst->transparency_flags == TRF_Transpar_8)
-    {
+    if (flag_is_set(thing->rendering_flags,TRF_Transpar_8))
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
-    }
-    else if (objst->transparency_flags == TRF_Transpar_4)
-    {
+    if (flag_is_set(thing->rendering_flags, TRF_Transpar_4))
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-    }
-    else if (objst->transparency_flags == TRF_Transpar_Alpha)
-    {
+    if (flag_is_set(thing->rendering_flags, TRF_Transpar_Alpha))
         EngineSpriteDrawUsingAlpha = 1;
-    }
     process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, base_sprite_size);
 
     //Flame
     lbDisplay.DrawFlags = 0;
     EngineSpriteDrawUsingAlpha = 0;
-    if (objst->flame.transparency_flags == TRF_Transpar_8)
+    if (flame.transparency_flags == TRF_Transpar_8)
     {
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
     }
-    else if (objst->flame.transparency_flags == TRF_Transpar_4)
+    else if (flame.transparency_flags == TRF_Transpar_4)
     {
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
     }
-    else if (objst->flame.transparency_flags == TRF_Transpar_Alpha)
+    else if (flame.transparency_flags == TRF_Transpar_Alpha)
     {
         EngineSpriteDrawUsingAlpha = 1;
     }
-    nframe = (thing->index + game.play_gameturn * objst->flame.anim_speed / 256) % keepersprite_frames(objst->flame.animation_id);
-    process_keeper_sprite(jspr->scr_x + add_x, jspr->scr_y + add_y, objst->flame.animation_id, angle, nframe, scale);
+    nframe = (thing->index + game.play_gameturn * flame.anim_speed / 256) % keepersprite_frames(flame.animation_id);
+    process_keeper_sprite(jspr->scr_x + add_x, jspr->scr_y + add_y, flame.animation_id, angle, nframe, scale);
 }
 
 static unsigned short get_thing_shade(struct Thing* thing);
@@ -5001,17 +5010,25 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
             flame_on_sprite = true;
             process_keeper_flame_on_sprite(jspr, angle, size_on_screen);
         }
+    }
+    else
+    {
+        if (thing->class_id == TCls_Trap)
+        {
+            is_shown = !game.conf.trapdoor_conf.trap_cfgstats[thing->model].hidden;
+            if (is_shown || thing->trap.revealed)
+            {
+                struct TrapConfigStats* trapst = get_trap_model_stats(thing->model);
+                if ((trapst->flame.animation_id != 0) && (thing->trap.num_shots != 0))
+                {
+                    flame_on_sprite = true;
+                    process_keeper_flame_on_sprite(jspr, angle, size_on_screen);
+                }
+            }
+        }
         else
         {
-            if (thing->class_id == TCls_Trap)
-            {
-                is_shown = !game.conf.trapdoor_conf.trap_cfgstats[thing->model].hidden;
-            }
-            else
-            {
-                is_shown = ((thing->rendering_flags & TRF_Unknown01) == 0);
-            }
-
+            is_shown = ((thing->rendering_flags & TRF_Invisible) == 0);
         }
     }
     if (!flame_on_sprite)
@@ -5270,12 +5287,12 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     if ((game.flags_cd & MFlg_NoHeroHealthFlower) != 0)
     {
-      if ( player->thing_under_hand != thing->index )
-      {
-        cctrl->thought_bubble_last_turn_drawn = game.play_gameturn;
-        return;
-      }
-      cctrl->thought_bubble_display_timer = 40;
+        if ( player->thing_under_hand != thing->index )
+        {
+            cctrl->thought_bubble_last_turn_drawn = game.play_gameturn;
+            return;
+        }
+        cctrl->thought_bubble_display_timer = 40;
     }
 
     short health_spridx;
@@ -5347,11 +5364,38 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     }
     else
     {
-      if ( (player->thing_under_hand == thing->index)
-        || ((player->id_number != thing->owner) && !creature_is_invisible(thing))
-        || (cctrl->combat_flags != 0)
-        || (thing->lair.spr_size > 0)
-        || (cam->view_mode == PVM_ParchmentView))
+    // determine if the creature is under the player's hand (being hovered over)
+    TbBool is_thing_under_hand = (player->thing_under_hand == thing->index);
+    // check if the creature is an enemy and is visible
+    TbBool is_enemy_and_visible = players_are_enemies(player->id_number,thing->owner) && !creature_is_invisible(thing);
+    // check if the creature belongs to player and is hurt
+    TbBool is_allied_and_hurt = false;
+    TbBool should_drag_to_lair = false;
+    if (!is_enemy_and_visible)
+    {
+        is_allied_and_hurt = players_are_mutual_allies(player->id_number, thing->owner) && creature_would_benefit_from_healing(thing);
+        should_drag_to_lair = creature_is_being_unconscious(thing) && (player->id_number == thing->owner) && (
+            // check if the creature has a lair room or can heal in a lair
+            (game.conf.rules.workers.drag_to_lair == 1 && !room_is_invalid(get_creature_lair_room(thing))) ||
+            // or check if the creature can have lair and heal in it
+            (game.conf.rules.workers.drag_to_lair == 2 && creature_can_do_healing_sleep(thing)));
+    }   
+
+    // check if the creature is in combat
+    TbBool is_in_combat = (cctrl->combat_flags != 0);
+    // check if the creature has a lair
+    TbBool has_lair = (thing->lair.spr_size > 0);
+    // determine if the current view is the schematic top-down map view
+    TbBool is_parchment_map_view = (cam->view_mode == PVM_ParchmentView);
+
+      if ( (is_thing_under_hand)
+        || (is_enemy_and_visible)
+        || (is_allied_and_hurt)
+        // if drag_to_lair rule is active
+        || (should_drag_to_lair)
+        || (is_in_combat)
+        || (has_lair)
+        || (is_parchment_map_view))
       {
           if (health_spridx > 0) {
               spr = get_button_sprite_for_player(health_spridx, thing->owner);
@@ -7054,7 +7098,7 @@ static TbBool project_point_helper(struct PlayerInfo *player, int zoom, MapCoord
     *x_out = (zoom * horizontal_delta >> 16) + (*(uint16_t *)&window_width / 2);
     vertical_shift = zoom * vertical_delta >> 8;
     *z_out = window_height - ((vertical_shift + ((uint16_t)(window_height & UNKNOWN_PPH_MASK) << 7)) >> 8) + 64;
-    new_zoom = zoom * *(int16_t *)&pos_z << 7;
+    new_zoom = (zoom * ((int16_t) pos_z)) << 7;
     offset = *((uint8_t *)&new_zoom + 4);
     *y_out = (vertical_shift + ((uint16_t)(window_height & UNKNOWN_PPH_MASK) << 7) - ((offset + (signed int)new_zoom) >> 16)) >> 8;
 
@@ -8082,9 +8126,14 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
             process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scaled_size);
             break;
         case TCls_Trap:
-            trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
+            trapst = get_trap_model_stats(thing->model);
             if ((trapst->hidden == 1) && (player->id_number != thing->owner) && (thing->trap.revealed == 0))
             {
+                break;
+            }
+            if ((trapst->flame.animation_id > 0) && (thing->trap.num_shots != 0))
+            {
+                process_keeper_flame_on_sprite(jspr, angle, scaled_size);
                 break;
             }
             process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scaled_size);
@@ -8868,7 +8917,7 @@ static void do_map_who(short tnglist_idx)
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if ((thing->rendering_flags & TRF_Unknown01) == 0)
+        if ((thing->rendering_flags & TRF_Invisible) == 0)
         {
             do_map_who_for_thing(thing);
         }
@@ -8892,7 +8941,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
     long cx;
     long cy;
     long cz;
-    if ((thing->rendering_flags & TRF_Unknown01) != 0)
+    if ((thing->rendering_flags & TRF_Invisible) != 0)
         return;
     switch (thing->draw_class)
     {

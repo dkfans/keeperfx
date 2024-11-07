@@ -45,7 +45,7 @@ extern const struct NamedCommand gui_button_group_desc[];
 extern const struct NamedCommand campaign_flag_desc[];
 extern const struct NamedCommand script_operator_desc[];
 
-extern Mix_Chunk* Ext_Sounds[EXTERNAL_SOUNDS_COUNT+1];
+extern Mix_Chunk* Ext_Sounds[EXTERNAL_SOUNDS_COUNT + 1];
 
 #ifdef __cplusplus
 }

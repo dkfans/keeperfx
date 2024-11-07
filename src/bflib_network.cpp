@@ -60,7 +60,6 @@ void AddMsgCallback(unsigned long, char *, void *);
 void DeleteMsgCallback(unsigned long, void *);
 void HostMsgCallback(unsigned long, void *);
 void RequestCompositeExchangeDataMsgCallback(unsigned long, unsigned long, void *);
-void *UnidirectionalMsgCallback(unsigned long, unsigned long, void *);
 void SystemUserMsgCallback(unsigned long, void *, unsigned long, void *);
 TbError LbNetwork_StartExchange(void *buf);
 TbError LbNetwork_CompleteExchange(void *buf);
@@ -75,7 +74,7 @@ struct ReceiveCallbacks receiveCallbacks = {
   MultiPlayerCallback,
   MultiPlayerReqExDataMsgCallback,
   RequestCompositeExchangeDataMsgCallback,
-  UnidirectionalMsgCallback,
+  NULL,
   SystemUserMsgCallback,
   NULL,
 };
@@ -105,16 +104,10 @@ unsigned char deletePlayerBuffer[8];
 unsigned char requestExchangeDataBuffer[8];
 unsigned char requestCompositeExchangeDataBuffer[8];
 unsigned char systemUserBuffer[1028];
-unsigned char lastMessage[1028];
-unsigned char lastButOneMessage[1028];
 unsigned long remotePlayerIndex;
 unsigned long remotePlayerId;
-unsigned long unidirectionalMsgReceived;
-struct UnidirectionalDataMessage incomingUnidirectionalMessage;
-struct UnidirectionalDataMessage dataMessage;
-//struct UnidirectionalHeader endMessage;
-//struct UnidirectionalHeader abortMessage;
-struct UnidirectionalRTSMessage rtsMessage;
+
+static int ServerPort = 0;
 /******************************************************************************/
 
 // New network code declarations start here ===================================
@@ -611,6 +604,11 @@ static void AddSession(const char * str, size_t len)
     }
 }
 
+void LbNetwork_SetServerPort(int port)
+{
+    ServerPort = port;
+}
+
 void LbNetwork_InitSessionsFromCmdLine(const char * str)
 {
     const char* start;
@@ -808,6 +806,7 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
 
 TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns)
 {
+    char buf[16];
   /*if (spPtr == NULL)
   {
     ERRORLOG("ServiceProvider ptr is NULL");
@@ -846,9 +845,19 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_
         ERRORLOG("No network SP selected");
         return Lb_FAIL;
     }
-
-    if (netstate.sp->host(":5555", optns) == Lb_FAIL) {
-        return Lb_FAIL;
+ 
+    if (ServerPort != 0)
+    {
+        sprintf(buf, "%d", ServerPort);
+        if (netstate.sp->host(buf, optns) == Lb_FAIL) {
+            return Lb_FAIL;
+        }
+    }
+    else
+    {
+        if (netstate.sp->host(":5555", optns) == Lb_FAIL) {
+            return Lb_FAIL;
+        }
     }
 
     netstate.my_id = SERVER_ID;
@@ -1429,28 +1438,6 @@ TbError AddAPlayer(struct TbNetworkPlayerNameEntry *plyrname)
   {
     localPlayerId = plyrname->islocal;
     localPlayerIndex = plr_id;
-  }
-  return Lb_OK;
-}
-
-TbError GenericIPXInit(void *init_data)
-{
-  if (spPtr != NULL)
-  {
-    spPtr->Release();
-    delete spPtr;
-    spPtr = NULL;
-  }
-  spPtr = new IPXServiceProvider();
-  if (spPtr == NULL)
-  {
-    WARNLOG("Failure on SP construction");
-    return Lb_FAIL;
-  }
-  if (spPtr->Init(&receiveCallbacks, nullptr) != Lb_OK)
-  {
-    WARNLOG("Failure on SP::Init()");
-    return Lb_FAIL;
   }
   return Lb_OK;
 }
@@ -2059,17 +2046,6 @@ void RequestCompositeExchangeDataMsgCallback(unsigned long plr_id, unsigned long
     WARNLOG("Failure on SP::Send()");
     return;
   }
-}
-
-void *UnidirectionalMsgCallback(unsigned long a1, unsigned long msg_len, void *a3)
-{
-  if (msg_len > 524)
-  {
-    WARNLOG("Invalid length, %d vs %d", msg_len, 524);
-    return NULL;
-  }
-  unidirectionalMsgReceived = 1;
-  return &incomingUnidirectionalMessage;
 }
 
 void SystemUserMsgCallback(unsigned long plr_id, void *msgbuf, unsigned long msglen, void *a4)

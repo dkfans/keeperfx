@@ -26,9 +26,9 @@
 #include "bflib_dernc.h"
 #include "bflib_keybrd.h"
 #include "bflib_video.h"
-#include "bflib_cpu.h"
 
 #include "config.h"
+#include "engine_camera.h"
 #include "game_merge.h"
 #include "vidmode.h"
 #include "post_inc.h"
@@ -100,6 +100,9 @@ void setup_default_settings(void)
           {KC_MOUSEWHEEL_DOWN, KMod_NONE},   // Gkey_RoomSpaceIncSize
           {KC_MOUSEWHEEL_UP, KMod_NONE},     // Gkey_RoomSpaceDecSize
           {KC_LALT, KMod_NONE},              // Gkey_SellTrapOnSubtile
+          {KC_PGUP, KMod_SHIFT},              // Gkey_TiltUp
+          {KC_PGDOWN, KMod_SHIFT},            // Gkey_TiltDown
+          {KC_INSERT, KMod_SHIFT},            // Gkey_TiltReset
      },                         // kbkeys
      true,                      // tooltips_on
      0,                         // first_person_move_invert
@@ -108,6 +111,7 @@ void setup_default_settings(void)
      8192,                      // isometric_view_zoom_level
      65536,                     // frontview_zoom_level
      127,                       // mentor_volume
+     CAMERA_TILT_DEFAULT,       // isometric_tilt
     };
     LbMemoryCopy(&settings, &default_settings, sizeof(struct GameSettings));
     settings.switching_vidmodes_index = 0;

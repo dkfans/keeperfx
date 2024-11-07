@@ -1035,6 +1035,9 @@ TbBool attempt_job_sleep_in_lair_near_pos(struct Thing *creatng, MapSubtlCoord s
         ERRORLOG("No arrive at state for job %s in %s room",creature_job_code_name(new_job),room_code_name(room->kind));
         return false;
     }
+    if(!creature_can_do_healing_sleep(creatng)){
+        return false;
+    }
     cctrl->slap_turns = 0;
     cctrl->max_speed = calculate_correct_creature_maxspeed(creatng);
     if (creature_has_lair_room(creatng) && (room->index == cctrl->lair_room_id))
@@ -1120,7 +1123,7 @@ TbBool attempt_job_preference(struct Thing *creatng, long jobpref)
     {
         if (n == 0)
             continue;
-        CreatureJob new_job = 1 << (n - 1);
+        CreatureJob new_job = 1ULL << (n - 1);
         if ((jobpref & new_job) != 0)
         {
             SYNCDBG(19,"Check job %s",creature_job_code_name(new_job));
@@ -1155,7 +1158,7 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
     // Probably needs unification
     for (i=1; i < game.conf.crtr_conf.jobs_count; i++)
     {
-        CreatureJob new_job = 1<<(i-1);
+        CreatureJob new_job = 1ULL << (i-1);
         if ((jobpref & new_job) == 0) {
             continue;
         }
@@ -1177,7 +1180,7 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
         CreatureJob new_job = Job_TEMPLE_PRAY;
         if (creature_can_do_job_for_player(creatng, creatng->owner, new_job, JobChk_None))
         {
-            if (send_creature_to_job_for_player(creatng, creatng->owner, new_job)) 
+            if (send_creature_to_job_for_player(creatng, creatng->owner, new_job))
 			{
 				if (!creature_dislikes_job(creatng, new_job))
 				{

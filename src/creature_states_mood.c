@@ -124,11 +124,15 @@ short creature_be_happy(struct Thing *thing)
 short creature_piss(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if ( !S3DEmitterIsPlayingSample(thing->snd_emitter_id, 171, 0) ) {
-        thing_play_sample(thing, 171, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
+    struct CreatureSound* crsound = get_creature_sound(thing, CrSnd_Piss);
+    unsigned short sound_idx = crsound->index + CREATURE_RANDOM(thing, crsound->count);
+    if (!S3DEmitterIsPlayingSample(thing->snd_emitter_id, sound_idx, 0)) {
+        thing_play_sample(thing, sound_idx, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
     }
     long i = cctrl->countdown_282;
-    if (i > 0) i--;
+    if (i > 0) {
+        i--;
+    }
     cctrl->countdown_282 = i;
     if (i > 0) {
         return 1;
@@ -382,7 +386,7 @@ TbBool creature_will_go_postal_on_victim_during_job(const struct Thing *creatng,
 {
     if (thing_is_creature(victng) && (victng->index != creatng->index) && !creature_has_job(victng, job_kind)
         && !creature_is_kept_in_custody(victng) && !creature_is_being_unconscious(victng)
-        && !creature_is_dying(victng) && !creature_is_doing_anger_job(victng))
+        && !creature_is_dying(victng) && !creature_is_doing_anger_job(victng) && !creature_is_leaving_and_cannot_be_stopped(victng))
     {
         if (!creature_is_invisible(victng) || creature_can_see_invisible(creatng)) {
             return true;
@@ -589,6 +593,18 @@ TbBool process_job_stress_and_going_postal(struct Thing *creatng)
         state_cleanup_in_room(creatng);
         return true;
     }
+
+    struct CreatureJobConfig* jobcfg = get_config_for_job(cctrl->job_assigned);
+    if (creature_job_player_check_func_list[jobcfg->func_plyr_check_idx] != NULL)
+    {
+        if (!creature_job_player_check_func_list[jobcfg->func_plyr_check_idx](creatng, creatng->owner, cctrl->job_assigned))
+        {
+            SYNCDBG(13, "Creature %s index %d owner %d can no longer do job %s; check callback failed", thing_model_name(creatng), (int)creatng->index, (int)creatng->owner, creature_job_code_name(cctrl->job_assigned));
+            state_cleanup_in_room(creatng);
+            return true;
+        }
+    }
+
     return false;
 }
 
