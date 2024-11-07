@@ -4906,7 +4906,7 @@ static void add_effectgen_to_level_check(const struct ScriptLine* scline)
     }
     value->shorts[0] = (short)gen_id;
     value->shorts[1] = location;
-    value->shorts[2] = range;
+    value->shorts[2] = range * COORD_PER_STL; 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
