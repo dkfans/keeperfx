@@ -330,7 +330,7 @@ TbBool instance_is_ranged_weapon_vs_objects(CrInstance inum)
 TbBool instance_is_rage_weapon(CrInstance inum)
 {
     struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
-    return (inst_inf->rage_prio > -1);
+    return (inst_inf->rage_priority > 0);
 }
 
 TbBool instance_is_melee_attack(CrInstance inum)

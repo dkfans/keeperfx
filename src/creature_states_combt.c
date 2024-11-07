@@ -1871,8 +1871,8 @@ CrInstance get_rage_instance_to_use(const struct Thing *thing, unsigned long dis
             for (short i = 0; i < game.conf.crtr_conf.instances_count; i++)
             {
                 inst_inf = creature_instance_info_get(i);
-                    // Check if the instance has the "rage" flag
-                    if (inst_inf->rage_prio > -1)
+                    // Check if the instance has a positive rage_priority
+                    if (inst_inf->rage_priority > 0)
                     {
                         // Ensure we don't exceed the maximum array size
                         if (rage_inst_num < INSTANCE_TYPES_MAX) 
@@ -1892,47 +1892,48 @@ CrInstance get_rage_instance_to_use(const struct Thing *thing, unsigned long dis
     //List of usable instances
     CrInstance av_rage_inst[INSTANCE_TYPES_MAX];
     short av_rage_inst_num = 0;
-    char highest_prio = -1;
+    char highest_prio = 0;
     short highest_prio_idx = CrInst_NULL;
     // Loop through the cached rage instances
     for (short j = 0; j < rage_inst_num; j++)
     {
         inst_inf = creature_instance_info_get(rage_inst[j]);
-        
-        // Check if the instance is in range, available, and reset
-        if ((inst_inf->range_min <= dist) && (inst_inf->range_max >= dist))
-        {
-            if (creature_instance_is_available(thing, rage_inst[j]) 
-            && creature_instance_has_reset(thing, rage_inst[j])) 
-            { 
-                if (inst_inf->rage_prio > highest_prio){
-                    highest_prio = inst_inf->rage_prio;
-                    highest_prio_idx = rage_inst[j];
-                    av_rage_inst_num = 0;
-                    av_rage_inst[av_rage_inst_num++] = rage_inst[j];
-                }
-                else if (inst_inf->rage_prio == highest_prio){
-                    av_rage_inst[av_rage_inst_num++] = rage_inst[j];
-                }
-                else {
-                }
 
-                // Add instance to list of usable instances
-                
+        // Check if the instance is available
+        if (creature_instance_is_available(thing, rage_inst[j]))
+        {
+            // If this instance has higher priority than current highest, reset the list
+            if (inst_inf->rage_priority > highest_prio)
+            {
+                highest_prio = inst_inf->rage_priority;
+                av_rage_inst_num = 0; // Clear the list as we found a higher priority
+            }
+
+            // If this instance matches the highest priority, check further conditions
+            if (inst_inf->rage_priority == highest_prio)
+            {
+                // Check if the instance is reset and in range
+                if (creature_instance_has_reset(thing, rage_inst[j]) &&
+                    inst_inf->range_min <= dist && dist <= inst_inf->range_max)
+                {
+                    // Add to the list of available instances
+                    av_rage_inst[av_rage_inst_num++] = rage_inst[j];
+                }
             }
         }
     }
-    if (av_rage_inst_num > 1)
+
+    // Choose a random index from the list of usable instances
+    if (av_rage_inst_num > 0)
     {
-        // Choose a random index from the list of usable instances
-        short rand_inst_idx = CREATURE_RANDOM(thing,av_rage_inst_num);
+        short rand_inst_idx = CREATURE_RANDOM(thing, av_rage_inst_num);
         return av_rage_inst[rand_inst_idx];
     }
-    else if (highest_prio > -1) {
-        return highest_prio_idx;
-    }
+    else
+    {
     // Return NULL if no suitable instance is found 
-    return CrInst_NULL;
+        return CrInst_NULL;
+    }
 }
 
 void reset_rage_instance_cache()
@@ -1942,7 +1943,6 @@ void reset_rage_instance_cache()
     initial = false;
     memset(rage_inst, 0, sizeof(rage_inst));
 }
-
 
 
 /**

@@ -105,7 +105,7 @@ struct InstanceInfo {
     long reset_time;
     long fp_reset_time;
     unsigned char graphics_idx;
-    char rage_prio;
+    char rage_priority;
     short instance_property_flags;
     short force_visibility;
     unsigned char primary_target;
