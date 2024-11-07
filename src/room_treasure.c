@@ -2,9 +2,9 @@
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
 /** @file room_garden.c
- *     Hatchery room maintain functions.
+ *     Treasure room maintain functions.
  * @par Purpose:
- *     Functions to create and use garden rooms.
+ *     Functions to create and use Treasure Rooms.
  * @par Comment:
  *     None.
  * @author   Tomasz Lis
