@@ -233,11 +233,6 @@ TbBool is_hero_thing(const struct Thing *thing)
     return (player_is_roaming(thing->owner));
 }
 
-TbBool is_owner_invalid_player_id(const struct Thing *thing)
-{
-    return (thing->owner >= PLAYERS_COUNT);
-}
-
 /**
  * Returns a value which decays around some epicenter, like blast damage.
  * @param magnitude Magnitude in nearest whereabouts of the epicenter.
@@ -298,10 +293,10 @@ long compute_creature_kind_score(ThingModel crkind, unsigned short crlevel)
     // Modifiers shouldn't affect the computation for the creature kind score so compute_creature_max_health has 'game.neutral_player_num' as last argument.
     struct CreatureStats* crstat = creature_stats_get(crkind);
     return compute_creature_max_health(crstat->health, crlevel, game.neutral_player_num)
-        + compute_creature_max_defense(crstat->defense, crlevel)
-        + compute_creature_max_dexterity(crstat->dexterity, crlevel)
-        + compute_creature_max_armour(crstat->armour, crlevel)
-        + compute_creature_max_strength(crstat->strength, crlevel);
+           + compute_creature_max_defense(crstat->defense, crlevel)
+           + compute_creature_max_dexterity(crstat->dexterity, crlevel)
+           + compute_creature_max_armour(crstat->armour, crlevel)
+           + compute_creature_max_strength(crstat->strength, crlevel);
 }
 
 /* Computes max health of a creature on given level. */
@@ -315,7 +310,9 @@ long compute_creature_max_health(HitPoints base_health, unsigned short crlevel, 
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     HitPoints max_health = base_health + (game.conf.crtr_conf.exp.health_increase_on_exp * base_health * (long)crlevel) / 100;
-    if (plyr_idx != game.neutral_player_num) {
+    // Apply modifier.
+    if (plyr_idx != game.neutral_player_num)
+    {
         dungeon = get_dungeon(plyr_idx);
         unsigned short modifier = dungeon->modifier.health;
         max_health = (max_health * modifier) / 100;
@@ -481,7 +478,7 @@ long project_creature_attack_spell_damage(long base_param, long luck, unsigned s
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
     // Apply modifier.
-    if ((!is_neutral_thing(thing)) && (!is_owner_invalid_player_id(thing)))
+    if (!is_neutral_thing(thing))
     {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.spell_damage;
@@ -533,7 +530,7 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
     // Apply modifier.
-    if ((!is_neutral_thing(thing)) && (!is_owner_invalid_player_id(thing)))
+    if (!is_neutral_thing(thing))
     {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.spell_damage;
@@ -643,7 +640,7 @@ long calculate_correct_creature_strength(const struct Thing *thing)
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_strength(crstat->strength, cctrl->explevel);
     // Apply modifier.
-    if ((!is_neutral_thing(thing)) && (!is_owner_invalid_player_id(thing)))
+    if (!is_neutral_thing(thing))
     {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.strength;
@@ -666,7 +663,7 @@ long calculate_correct_creature_armour(const struct Thing *thing)
     if (max_param < 0)
         max_param = 0;
     // Apply modifier after the buff.
-    if ((!is_neutral_thing(thing)) && (!is_owner_invalid_player_id(thing)))
+    if (!is_neutral_thing(thing))
     {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.armour;
@@ -708,7 +705,7 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
     if (creature_affected_by_spell(thing, SplK_Slow))
         speed /= 2;
     // Apply modifier.
-    if ((!is_neutral_thing(thing)) && (!is_owner_invalid_player_id(thing)))
+    if (!is_neutral_thing(thing))
     {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.speed;
@@ -728,7 +725,7 @@ long calculate_correct_creature_loyalty(const struct Thing *thing)
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_loyalty(crstat->scavenge_require, cctrl->explevel);
     // Apply modifier.
-    if ((!is_neutral_thing(thing)) && (!is_owner_invalid_player_id(thing)))
+    if (!is_neutral_thing(thing))
     {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.loyalty;
@@ -744,7 +741,7 @@ GoldAmount calculate_correct_creature_pay(const struct Thing *thing)
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     GoldAmount pay = compute_creature_max_pay(crstat->pay, cctrl->explevel);
     // Apply modifier.
-    if ((!is_neutral_thing(thing)) && (!is_owner_invalid_player_id(thing)))
+    if (!is_neutral_thing(thing))
     {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.pay;
@@ -763,7 +760,7 @@ GoldAmount calculate_correct_creature_training_cost(const struct Thing *thing)
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     GoldAmount training_cost = compute_creature_max_training_cost(crstat->training_cost, cctrl->explevel);
     // Apply modifier.
-    if ((!is_neutral_thing(thing)) && (!is_owner_invalid_player_id(thing)))
+    if (!is_neutral_thing(thing))
     {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.training_cost;
@@ -782,7 +779,7 @@ GoldAmount calculate_correct_creature_scavenging_cost(const struct Thing *thing)
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     GoldAmount scavenger_cost = compute_creature_max_scavenging_cost(crstat->scavenger_cost, cctrl->explevel);
     // Apply modifier.
-    if ((!is_neutral_thing(thing)) && (!is_owner_invalid_player_id(thing)))
+    if (!is_neutral_thing(thing))
     {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.scavenging_cost;
