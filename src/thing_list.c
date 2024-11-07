@@ -4613,7 +4613,7 @@ void update_creature_tree()
             ERRORLOG("Infinite loop detected when sweeping things list");
             break;
         }
-}
+    }
 }
 
 /******************************************************************************/

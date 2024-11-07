@@ -65,6 +65,29 @@
                     "ignoreFailures": true
                 }
             ]
+        },
+        {
+            "type": "cppdbg",
+            "project": "CMakeLists.txt",
+            "projectTarget": "test_CreatureTree.exe (tests\\test_CreatureTree.exe)",
+            "name": "test_CreatureTree.exe (gdb)",
+            "cwd": "${workspaceRoot}",
+            "program": "${debugInfo.target}",
+            "MIMode": "gdb",
+            "miDebuggerPath": "C:\\msys64\\mingw32\\bin\\gdb.exe",
+            "externalConsole": true,
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
         }
     ]
 }
