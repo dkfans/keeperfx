@@ -186,7 +186,7 @@ typedef struct Thing {
         unsigned char spell_level;
         struct Coord3d originpos;
         int num_wind_affected;
-        int wind_affected_creature[CREATURES_COUNT];  //list of wind affected Creatures
+        ThingIndex wind_affected_creature[CREATURES_COUNT];  //list of wind affected Creatures
       } shot;
       struct {
         long x;
