@@ -25,9 +25,10 @@
 #include "bflib_math.h"
 #include "bflib_sound.h"
 
+#include "api.h"
 #include "player_data.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "player_computer.h"
 #include "dungeon_data.h"
 #include "power_hand.h"
@@ -104,6 +105,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
   struct Dungeon* dungeon = get_dungeon(player->id_number);
   if (my_player)
   {
+      api_event("WIN_GAME");
       frontstats_initialise();
       if ( timer_enabled() )
       {
@@ -151,6 +153,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     SYNCLOG("Player %d lost",(int)player->id_number);
     if (is_my_player(player))
     {
+      api_event("LOSE_GAME");
         frontstats_initialise();
     }
     player->victory_state = VicS_LostLevel;
@@ -163,7 +166,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
         turn_off_all_menus();
         clear_transfered_creatures();
     }
-    if ((gameadd.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0) {
+    if ((game.conf.rules.game.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0) {
         clear_things_in_hand(player);
         dungeon->num_things_in_hand = 0;
     }
@@ -177,7 +180,23 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     }
     if (is_my_player(player))
         gui_set_button_flashing(0, 0);
-    set_player_mode(player, PVT_DungeonTop);
+    if (player->view_type == PVT_CreatureContrl)
+    {
+        struct Thing *thing = thing_get(player->controlled_thing_idx);
+        leave_creature_as_controller(player, thing);
+    }
+    else if (player->view_type == PVT_CreaturePasngr)
+    {
+        struct Thing *thing = thing_get(player->controlled_thing_idx);
+        leave_creature_as_passenger(player, thing);
+    }
+    else
+    {
+        if (!flag_is_set(player->allocflags, PlaF_CompCtrl))
+        {
+            set_player_mode(player, PVT_DungeonTop);
+        }
+    }
     set_player_state(player, PSt_CtrlDungeon, 0);
     if ((game.system_flags & GSF_NetworkActive) == 0)
         player->display_objective_turn = game.play_gameturn + 300;
@@ -281,7 +300,6 @@ GoldAmount take_money_from_room(struct Room *room, GoldAmount amount_take)
 long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, TbBool only_whole_sum, const char *func_name)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         WARNLOG("%s: Cannot take gold from player %d with no dungeon",func_name,(int)plyr_idx);
         return -1;
@@ -315,11 +333,11 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
         dungeon->offmap_money_owned = 0;
     }
 
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,RoRoF_GoldStorage))
         {
-            long i = dungeonadd->room_kind[rkind];
+            long i = dungeon->room_kind[rkind];
             unsigned long k = 0;
             while (i != 0)
             {
@@ -671,7 +689,7 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
             }
         }
     }
-    pannel_map_update(0, 0, 256, 256);
+    panel_map_update(0, 0, 256, 256);
     
 }
 
@@ -710,7 +728,7 @@ void init_player_as_single_keeper(struct PlayerInfo *player)
     player->field_4CD = 0;
     ilght.radius = 2560;
     ilght.intensity = 48;
-    ilght.field_3 = 5;
+    ilght.flags = 5;
     ilght.is_dynamic = 1;
     unsigned short idx = light_create_light(&ilght);
     player->cursor_light_idx = idx;
@@ -731,14 +749,14 @@ void init_player(struct PlayerInfo *player, short no_explore)
     setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
     player->continue_work_state = PSt_CtrlDungeon;
     player->work_state = PSt_CtrlDungeon;
-    player->field_14 = 2;
     player->main_palette = engine_palette;
     player->minimap_zoom = settings.minimap_zoom;
     player->isometric_view_zoom_level = settings.isometric_view_zoom_level;
     player->frontview_zoom_level = settings.frontview_zoom_level;
+    player->isometric_tilt = settings.isometric_tilt;
     if (is_my_player(player))
     {
-        set_flag_byte(&game.operation_flags,GOF_ShowPanel,true);
+        set_flag(game.operation_flags, GOF_ShowPanel);
         set_gui_visible(true);
         init_gui();
         turn_on_menu(GMnu_MAIN);
@@ -832,7 +850,7 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
     {
         mapblk = get_map_block_at_pos(stl_num);
         // Add only tiles which are revealed to the wandering player, unless it's heroes - for them, add all
-        if ((wandr->plyr_idx == game.hero_player_num) || map_block_revealed(mapblk, wandr->plyr_idx))
+        if ((player_is_roaming(wandr->plyr_idx)) || map_block_revealed(mapblk, wandr->plyr_idx))
         {
             slb = get_slabmap_for_subtile(stl_x, stl_y);
             if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((get_navigation_map(stl_x, stl_y) & NAVMAP_UNSAFE_SURFACE) == 0)
@@ -856,7 +874,7 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
     {
         mapblk = get_map_block_at_pos(stl_num);
         // Add only tiles which are not revealed to the wandering player, unless it's heroes - for them, do nothing
-        if ((wandr->plyr_idx != game.hero_player_num) && !map_block_revealed(mapblk, wandr->plyr_idx))
+        if (!player_is_roaming(wandr->plyr_idx) && !map_block_revealed(mapblk, wandr->plyr_idx))
         {
             if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((get_navigation_map(stl_x, stl_y) & NAVMAP_UNSAFE_SURFACE) == 0))
             {
@@ -1019,7 +1037,7 @@ void post_init_player(struct PlayerInfo *player)
         }
         break;
     }
-    pannel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
+    panel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
 }
 
 void post_init_players(void)
@@ -1040,6 +1058,13 @@ void init_players_local_game(void)
     struct PlayerInfo* player = get_my_player();
     player->id_number = my_player_number;
     player->allocflags |= PlaF_Allocated;
+
+    if( player->id_number == PLAYER_GOOD)
+    {
+        player->allocflags &= ~PlaF_CompCtrl;
+        player->player_type = PT_Keeper;
+    }
+
     switch (settings.video_rotate_mode) {
         case 0: player->view_mode_restore = PVM_IsoWibbleView; break;
         case 1: player->view_mode_restore = PVM_IsoStraightView; break;
@@ -1125,11 +1150,10 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         traps_sold = remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), &sell_value);
     }
 
-	struct DungeonAdd* dungeonadd = get_dungeonadd(thing->owner);
-	dungeonadd->traps_sold += traps_sold;
-	dungeonadd->manufacture_gold += sell_value;
+	struct Dungeon* dungeon = get_dungeon(thing->owner);
+	dungeon->traps_sold += traps_sold;
+	dungeon->manufacture_gold += sell_value;
 
-    struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
     if (is_my_player_number(plyr_idx))
     {
         play_non_3d_sample(115);
@@ -1147,7 +1171,7 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     struct Computer2* comp = get_computer_player(plyr_idx);
     if (!computer_player_invalid(comp))
     {
-        add_to_trap_location(comp, &pos);
+        add_to_trap_locations(comp, &pos);
     }
     return true;
 }
@@ -1157,18 +1181,17 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     MapSubtlCoord cstl_x = stl_slab_center_subtile(stl_x);
     MapSubtlCoord cstl_y = stl_slab_center_subtile(stl_y);
     struct Thing* thing = get_door_for_position(cstl_x, cstl_y);
-    if (thing_is_invalid(thing))
+    if (!thing_is_sellable_door(thing))
     {
         return false;
     }
 
 	struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
 	dungeon->camera_deviate_jump = 192;
-    long sell_value = compute_value_percentage(gameadd.doors_config[thing->model].selling_value, gameadd.door_sale_percent);
+    long sell_value = compute_value_percentage(game.conf.doors_config[thing->model].selling_value, game.conf.rules.game.door_sale_percent);
 
-	struct DungeonAdd* dungeonadd = get_dungeonadd(thing->owner);
-	dungeonadd->doors_sold++;
-	dungeonadd->manufacture_gold += sell_value;
+	dungeon->doors_sold++;
+	dungeon->manufacture_gold += sell_value;
 
     destroy_door(thing);
     if (is_my_player_number(plyr_idx))
@@ -1183,7 +1206,7 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     { // Add the trap location to related computer player, in case we'll want to place a trap again
         struct Computer2* comp = get_computer_player(plyr_idx);
         if (!computer_player_invalid(comp)) {
-            add_to_trap_location(comp, &pos);
+            add_to_trap_locations(comp, &pos);
         }
     }
     return true;
@@ -1198,9 +1221,8 @@ void compute_and_update_player_payday_total(PlayerNumber plyr_idx)
 void compute_and_update_player_backpay_total(PlayerNumber plyr_idx)
 {
     SYNCDBG(15, "Starting for player %d", (int)plyr_idx);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
-    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    dungeonadd->creatures_total_backpay = compute_player_payday_total(dungeon);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    dungeon->creatures_total_backpay = compute_player_payday_total(dungeon);
 }
 
 /******************************************************************************/

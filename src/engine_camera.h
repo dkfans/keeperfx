@@ -41,6 +41,9 @@ struct PlayerInfo;
 #define FRONTVIEW_CAMERA_ZOOM_MIN 3000 // Originally 16384, adjusted for view distance
 #define MINMAX_LENGTH 512 // Originally 64, adjusted for view distance
 #define MINMAX_ALMOST_HALF ((MINMAX_LENGTH/2)-1)
+#define CAMERA_TILT_DEFAULT -266
+#define CAMERA_TILT_MIN -350
+#define CAMERA_TILT_MAX -200
 
 extern long zoom_distance_setting; // CFG setting
 extern long frontview_zoom_distance_setting; // CFG setting
@@ -110,7 +113,7 @@ MapCoordDelta get_2d_distance(const struct Coord3d *pos1, const struct Coord3d *
 MapCoordDelta get_2d_distance_squared(const struct Coord3d *pos1, const struct Coord3d *pos2);
 long get_angle_xy_to_vec(const struct CoordDelta3d *vec);
 long get_angle_yz_to_vec(const struct CoordDelta3d *vec);
-void project_point_to_wall_on_angle(const struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4, long a5, long a6);
+void project_point_to_wall_on_angle(const struct Coord3d *pos1, struct Coord3d *pos2, long angle_xy, long angle_z, long distance, long num_steps);
 
 void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min);
 void set_camera_zoom(struct Camera *cam, long val);
@@ -122,6 +125,7 @@ void update_camera_zoom_bounds(struct Camera *cam,unsigned long zoom_max,unsigne
 void view_set_camera_y_inertia(struct Camera *cam, long a2, long a3);
 void view_set_camera_x_inertia(struct Camera *cam, long a2, long a3);
 void view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3);
+void view_set_camera_tilt(struct Camera *cam, unsigned char mode);
 
 void update_all_players_cameras(void);
 void init_player_cameras(struct PlayerInfo *player);

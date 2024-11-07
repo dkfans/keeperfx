@@ -92,6 +92,13 @@ enum SlabTypes {
     SlbT_ROCK_FLOOR         =  57,
 };
 
+enum WlbType {
+    WlbT_None   = 0,
+    WlbT_Lava   = 1,
+    WlbT_Water  = 2,
+    WlbT_Bridge = 3,
+};
+
 /******************************************************************************/
 #pragma pack(1)
 
@@ -99,11 +106,12 @@ struct PlayerInfo;
 struct Thing;
 
 struct SlabMap {
-      SlabKind kind;
       SlabCodedCoords next_in_room;
-      unsigned char room_index;
-      unsigned char health;
-      unsigned char flags;
+      HitPoints health;
+      SlabKind kind;
+      RoomIndex room_index;
+      unsigned char wlb_type;
+      PlayerNumber owner;
 };
 
 struct SlabSet { // sizeof = 18
@@ -111,7 +119,7 @@ struct SlabSet { // sizeof = 18
 };
 
 struct SlabObj {
-  unsigned char isLight;
+  TbBool isLight;
   short slabset_id;
   unsigned char stl_id;
   short offset_x; // position within the subtile
@@ -142,7 +150,7 @@ long slabmap_owner(const struct SlabMap *slb);
 void set_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber owner);
 PlayerNumber get_slab_owner_thing_is_on(const struct Thing *thing);
 unsigned long slabmap_wlb(struct SlabMap *slb);
-void slabmap_set_wlb(struct SlabMap *slb, unsigned long wlbflag);
+void slabmap_set_wlb(struct SlabMap *slb, unsigned long wlb_type);
 SlabCodedCoords get_next_slab_number_in_room(SlabCodedCoords slab_num);
 long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNumber plyr_idx);
 
@@ -151,6 +159,9 @@ TbBool slab_is_door(MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool slab_is_liquid(MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool slab_is_wall(MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool is_slab_type_walkable(SlabKind slbkind);
+
+TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb);
+TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 
 TbBool can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind,
     MapSlabCoord slb_x, MapSlabCoord slb_y);
@@ -175,6 +186,7 @@ TbBool slab_kind_has_no_ownership(SlabKind slbkind);
 TbBool players_land_by_slab_kind(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y,SlabKind slbkind);
 TbBool slab_by_players_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool player_can_claim_slab(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
+SlabKind choose_rock_type(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 
 /******************************************************************************/
 #include "roomspace.h"

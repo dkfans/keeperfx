@@ -24,6 +24,7 @@
 #include "bflib_memory.h"
 #include "bflib_planar.h"
 #include "power_hand.h"
+#include "player_instances.h"
 
 #include "game_legacy.h"
 #include "value_util.h"
@@ -149,12 +150,19 @@ TbBool action_point_exists_number(long apt_num)
     return ((apt->flags & AptF_Exists) != 0);
 }
 
-TbBool action_point_reset_idx(ActionPointId apt_idx)
+TbBool action_point_reset_idx(ActionPointId apt_idx, PlayerNumber plyr_idx)
 {
     struct ActionPoint* apt = action_point_get(apt_idx);
     if (action_point_is_invalid(apt))
         return false;
-    apt->activated = 0;
+    if (plyr_idx == ALL_PLAYERS)
+    {
+        apt->activated = 0;
+    }
+    else
+    {
+        clear_flag(apt->activated, to_flag(plyr_idx));
+    }
     return ((apt->flags & AptF_Exists) != 0);
 }
 

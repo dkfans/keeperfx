@@ -72,7 +72,6 @@ TbBool setup_heap_manager(void)
         return false;
     }
     long i;
-    wait_for_cd_to_be_available();
 #ifdef SPRITE_FORMAT_V2
     fname = prepare_file_fmtpath(FGrp_StdData,"thingspr-%d.jty",32);
 #else

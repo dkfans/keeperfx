@@ -28,7 +28,7 @@ extern "C" {
 /******************************************************************************/
 #define STRINGS_MAX       2000
 #define DK_STRINGS_MAX     941
-#define GUI_STRINGS_COUNT 1044
+#define GUI_STRINGS_COUNT 1078
 
 struct GameCampaign;
 
@@ -427,6 +427,9 @@ enum GUIStrings {
     GUIStr_NetUnsyncedMap = STRINGS_MAX + 1006,
     GUIStr_DisplayResolution = STRINGS_MAX + 1007,
     GUIStr_OptionVoice = STRINGS_MAX + 1008,
+    GUIStr_CtrlTiltUp = STRINGS_MAX + 1063,
+    GUIStr_CtrlTiltDown = STRINGS_MAX + 1064,
+    GUIStr_CtrlTiltReset = STRINGS_MAX + 1065,
 };
 
 enum CampaignStrings {
@@ -483,11 +486,15 @@ enum CampaignStrings {
 };
 
 /******************************************************************************/
+/******************************************************************************/
 TbBool setup_gui_strings_data(void);
 TbBool free_gui_strings_data(void);
 TbBool reset_strings(char **strings, int max);
 const char * get_string(TextStringId stridx);
 TbBool setup_campaign_strings_data(struct GameCampaign *campgn);
+TbBool create_strings_list(char **strings,char *strings_data,char *strings_data_end, int max);
+unsigned long count_strings(char *strings, int size);
+const char * cmpgn_string(unsigned int index);
 /******************************************************************************/
 #ifdef __cplusplus
 }

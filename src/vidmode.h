@@ -120,14 +120,17 @@ struct TbColorTables {
 };
 
 struct TbAlphaTables {
-    unsigned char black[256];
-    unsigned char grey[8*256];
-    unsigned char orange[8*256];
+    unsigned char void_black[256];
+    unsigned char white[8*256];
+    unsigned char yellow[8*256];
     unsigned char red[8*256];
     unsigned char blue[8*256];
     unsigned char green[8*256];
+    unsigned char purple[8*256];
+    unsigned char black[8*256];
+    unsigned char orange[8*256];
     // This is to force the array to have 256x256 size
-    //unsigned char unused[215*256];
+    //unsigned char unused[191*256];
 };
 
 /******************************************************************************/
@@ -135,7 +138,7 @@ extern struct TbSprite *pointer_sprites;
 extern struct TbLoadFiles legal_load_files[];
 extern struct TbLoadFiles map_flag_load_files[];
 extern struct TbLoadFiles netmap_flag_load_files[];
-extern struct TbLoadFiles game_load_files[];
+extern struct TbLoadFilesV2 game_load_files[];
 extern unsigned short units_per_pixel_min;
 extern long base_mouse_sensitivity;
 

@@ -14,7 +14,11 @@ REM More time for heart destroying
 REM Slower demonspawn attacks (was too often)
 REM Two extra archers spawned for final
 REM ********************************************
-REM LEVEL_VERSION(1)
+
+LEVEL_VERSION(1)
+
+SET_PLAYER_COLOR(PLAYER0,WHITE)
+SET_PLAYER_COLOR(PLAYER_GOOD,RED)
 
 SET_GENERATE_SPEED(1000)
 
@@ -24,7 +28,7 @@ MAX_CREATURES(PLAYER0,8)
 SET_CREATURE_MAX_LEVEL(PLAYER0,THIEF,10)
 REM Just thiefs.
 ADD_CREATURE_TO_POOL(THIEF,8)
-CREATURE_AVAILABLE(ALL_PLAYERS,THIEF,1,1)
+CREATURE_AVAILABLE(ALL_PLAYERS,THIEF,1,0)
 
 REM Room permissions: Nothing can be built.
 
@@ -85,13 +89,13 @@ REM Start the primary timer.
 SET_TIMER(PLAYER0,TIMER0)
 BONUS_LEVEL_TIME(22000)
 SET_TIMER(PLAYER0,TIMER1)
-REM	QUICK_OBJECTIVE(1,"A fearsome Horned Reaper commands the forces of evil in this land, hidden beyond labyrinthine maze of traps and many bodyguards. Find a way into his fortress using your Thiefs and kill the demon.",PLAYER0)
-DISPLAY_OBJECTIVE(88,PLAYER0)
+REM	QUICK_OBJECTIVE(1,"A fearsome Horned Reaper commands the forces of evil in this land, hidden beyond labyrinthine maze of traps and many bodyguards. Find a way into his fortress using your Thiefs and kill the demon.")
+DISPLAY_OBJECTIVE(88)
 
 IF(PLAYER0,TIMER0>=22000)
 	IF(PLAYER_GOOD,DUNGEON_DESTROYED==0)
-	REM	QUICK_OBJECTIVE(9,"The forces of evil have grown immensely strong. It is no longer possible to prevail.",PLAYER0)
-		DISPLAY_OBJECTIVE(89,PLAYER0)
+	REM	QUICK_OBJECTIVE(9,"The forces of evil have grown immensely strong. It is no longer possible to prevail.")
+		DISPLAY_OBJECTIVE(89)
 		LOSE_GAME
 	ENDIF
 ENDIF
@@ -112,14 +116,14 @@ REM Attack increase intensity over time. Eventually, they'll be strong enough to
     SET_TIMER(PLAYER0,TIMER1)
     NEXT_COMMAND_REUSABLE
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SCOUT,3,1)
-REM	QUICK_INFORMATION(2,"Beware - the first attackers are approaching the Thiefhaven.",PLAYER0)
-	DISPLAY_INFORMATION(90,PLAYER0)
+REM	QUICK_INFORMATION(2,"Beware - the first attackers are approaching the Thiefhaven.")
+	DISPLAY_INFORMATION(90)
     IF(PLAYER0,FLAG1>=7)
         NEXT_COMMAND_REUSABLE
         ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_FIFTH,3,2)
         SET_FLAG(PLAYER0,FLAG1,8)
-REM		QUICK_INFORMATION(3,"The forces of evil are attacking once again.",PLAYER0)
-		DISPLAY_INFORMATION(91,PLAYER0)
+REM		QUICK_INFORMATION(3,"The forces of evil are attacking once again.")
+		DISPLAY_INFORMATION(91)
     ENDIF
     IF(PLAYER0,FLAG1>=6)
         ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_FOURTH,3,2)
@@ -132,8 +136,8 @@ REM		QUICK_INFORMATION(3,"The forces of evil are attacking once again.",PLAYER0)
         NEXT_COMMAND_REUSABLE
         ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_THIRD,3,1)
         SET_FLAG(PLAYER0,FLAG1,6)
-REM	QUICK_INFORMATION(4,"More demonspawns departed from their lair.",PLAYER0)
-	DISPLAY_INFORMATION(92,PLAYER0)
+REM	QUICK_INFORMATION(4,"More demonspawns departed from their lair.")
+	DISPLAY_INFORMATION(92)
     ENDIF
     IF(PLAYER0,FLAG1==4)
         ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SECOND,3,1)
@@ -143,8 +147,8 @@ REM	QUICK_INFORMATION(4,"More demonspawns departed from their lair.",PLAYER0)
     IF(PLAYER0,FLAG1==3)
         ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SECOND,3,2)
         SET_FLAG(PLAYER0,FLAG1,4)
-REM	QUICK_INFORMATION(5,"The forces of evil are attacking once again.",PLAYER0)
-	DISPLAY_INFORMATION(91,PLAYER0)
+REM	QUICK_INFORMATION(5,"The forces of evil are attacking once again.")
+	DISPLAY_INFORMATION(91)
     ENDIF
     IF(PLAYER0,FLAG1==2)
         ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_FIRST,3,2)
@@ -160,8 +164,8 @@ IF(PLAYER_GOOD,DUNGEON_DESTROYED>=1)
         ADD_CREATURE_TO_LEVEL(PLAYER0,ARCHER,-1,2,8,500)
         ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_PATROL,3,2)
         SET_FLAG(PLAYER0,FLAG2,1)
-REM		QUICK_OBJECTIVE(6,"The fortress of the Horned Reaper is demolished with its heart shattered. Brace yourself, for the demon is really angry with your defiance and his minions will soon attack.",PLAYER0)
-		DISPLAY_OBJECTIVE(93,PLAYER0)
+REM		QUICK_OBJECTIVE(6,"The fortress of the Horned Reaper is demolished with its heart shattered. Brace yourself, for the demon is really angry with your defiance and his minions will soon attack.")
+		DISPLAY_OBJECTIVE(93)
 REM Action points 4 and 5 for post-victory Avatar shtick (which doesn't work, btw; I'll probably put a lv 10 dragon nearby instead, it's more plausible than vamp).
 REM 4 at Steal Hero box, 5 at Destroy Walls, 6 and 7 are spellbooks
 REM You have 30 heroes total, who all demand some salary, and several other including 1 knight hiding far in the secret region with other heroes.
@@ -181,16 +185,16 @@ REM Without exploring, thief/dwarf/barb/giant/archer/wizard is all you get.
 	ADD_CREATURE_TO_POOL(GIANT,5)
 	ADD_CREATURE_TO_POOL(BARBARIAN,5)
 	ADD_CREATURE_TO_POOL(WIZARD,5)
-	CREATURE_AVAILABLE(ALL_PLAYERS,FAIRY,1,1)
-	CREATURE_AVAILABLE(ALL_PLAYERS,GIANT,1,1)
-	CREATURE_AVAILABLE(ALL_PLAYERS,WIZARD,1,1)
-	CREATURE_AVAILABLE(ALL_PLAYERS,DWARFA,1,1)
-	CREATURE_AVAILABLE(ALL_PLAYERS,BARBARIAN,1,1)
+	CREATURE_AVAILABLE(ALL_PLAYERS,FAIRY,1,0)
+	CREATURE_AVAILABLE(ALL_PLAYERS,GIANT,1,0)
+	CREATURE_AVAILABLE(ALL_PLAYERS,WIZARD,1,0)
+	CREATURE_AVAILABLE(ALL_PLAYERS,DWARFA,1,0)
+	CREATURE_AVAILABLE(ALL_PLAYERS,BARBARIAN,1,0)
 	DOOR_AVAILABLE(PLAYER0,WOOD,1,0)
 	MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CALL_TO_ARMS,1,1)
 	SET_TIMER(PLAYER0,TIMER2)
-REM	QUICK_OBJECTIVE(15,"The Horned Reaper is dead, and you now can enlist any hero to accompany you into the next realm. But be wary - this land isn't safe even now.",PLAYER0)
-		DISPLAY_OBJECTIVE(94,PLAYER0)
+REM	QUICK_OBJECTIVE(15,"The Horned Reaper is dead, and you now can enlist any hero to accompany you into the next realm. But be wary - this land isn't safe even now.")
+		DISPLAY_OBJECTIVE(94)
     ENDIF
 ENDIF
 

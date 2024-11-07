@@ -45,7 +45,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos_a, long angle, long side, long a3, long speed, PlayerBitFlags crt_owner_flags);
-static int small_around_index_in_direction(long srcpos_x, long srcpos_y, long dstpos_x, long dstpos_y);
 static long get_angle_of_wall_hug(struct Thing *creatng, long slab_flags, long a3, PlayerBitFlags crt_owner_flags);
 static void set_hugging_pos_using_blocked_flags(struct Coord3d *dstpos, struct Thing *creatng, unsigned short block_flags, int nav_radius);
 static TbBool navigation_push_towards_target(struct Navigation *navi, struct Thing *creatng, const struct Coord3d *pos, MoveSpeed speed, MoveSpeed nav_radius, PlayerBitFlags crt_owner_flags);
@@ -58,67 +57,6 @@ const uint8_t byte_51120A[] = { 2,0,2,1,0,6,1,0,2,2,0,0,0,0 };
 const uint8_t byte_51121A[22] = { 2,0,0,1,0,2,1,0,0,2,0,6,1,0,4,2,0,2,2,0,4,1 };
 
 /******************************************************************************/
-/**
- * Computes index in small_around[] array which contains coordinates directing towards given destination.
- * @param srcpos_x Source position X; either map coordinates or subtiles, but have to match type of other coords.
- * @param srcpos_y Source position Y; either map coordinates or subtiles, but have to match type of other coords.
- * @param dstpos_x Destination position X; either map coordinates or subtiles, but have to match type of other coords.
- * @param dstpos_y Destination position Y; either map coordinates or subtiles, but have to match type of other coords.
- * @return Index for small_around[] array.
- */
-static int small_around_index_in_direction(long srcpos_x, long srcpos_y, long dstpos_x, long dstpos_y)
-{
-    long i = ((LbArcTanAngle(dstpos_x - srcpos_x, dstpos_y - srcpos_y) & LbFPMath_AngleMask) + LbFPMath_PI / 4);
-    return (i >> 9) & 3;
-}
-
-static TbBool can_step_on_unsafe_terrain_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    // We can step on lava if it doesn't hurt us or we can fly
-    if (slb->kind == SlbT_LAVA) {
-        return (crstat->hurt_by_lava <= 0) || ((creatng->movement_flags & TMvF_Flying) != 0);
-    }
-    return false;
-}
-
-TbBool terrain_toxic_for_creature_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    // If the position is over lava, and we can't continuously fly, then it's toxic
-    if ((crstat->hurt_by_lava > 0) && map_pos_is_lava(stl_x,stl_y)) {
-        // Check not only if a creature is now flying, but also whether it's natural ability
-        if (((creatng->movement_flags & TMvF_Flying) == 0) || (!crstat->flying))
-            return true;
-    }
-    return false;
-}
-
-static TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{
-    struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    if (slabmap_block_invalid(slb))
-        return false;
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
-    if ((slbattr->block_flags & SlbAtFlg_IsDoor) != 0)
-    {
-        struct Thing* doortng = get_door_for_position(stl_x, stl_y);
-        if (!thing_is_invalid(doortng) && door_will_open_for_thing(doortng,creatng))
-        {
-            return true;
-        }
-    }
-    else
-    {
-        if (slbattr->is_safe_land || can_step_on_unsafe_terrain_at_position(creatng, stl_x, stl_y))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
 static TbBool wallhug_angle_with_collide_valid(struct Thing *thing, long slab_flags, long speed, long angle, PlayerBitFlags crt_owner_flags)
 {
     struct Coord3d pos;
@@ -189,7 +127,7 @@ static int hug_round_sub(struct Thing *creatng, MapSubtlCoord *pos1_stl_x, MapSu
         return -1;
     }
 
-    unsigned short quadrant = (((LbArcTanAngle(pos2_stl_x - *pos1_stl_x, pos2_stl_y - *pos1_stl_y) & LbFPMath_AngleMask) + 256) >> 9) & 3;
+    SmallAroundIndex quadrant = (((LbArcTanAngle(pos2_stl_x - *pos1_stl_x, pos2_stl_y - *pos1_stl_y) & LbFPMath_AngleMask) + 256) >> 9) & 3;
 
     int v20 = chessboard_distance(*pos1_stl_x, *pos1_stl_y, pos2_stl_x, pos2_stl_y);
     if ((int)abs(v20) <= *delta && hug_can_move_on(
@@ -213,13 +151,13 @@ static int hug_round_sub(struct Thing *creatng, MapSubtlCoord *pos1_stl_x, MapSu
             *hug_val -= *i;
             return 0;
         }
-        int v24 = (*round_idx_plus1_1 + arr_offset_1) & 3;
+        SmallAroundIndex v24 = (*round_idx_plus1_1 + arr_offset_1) & 3;
         for (unsigned short j = 0;; ++j)
         {
-            int v41 = v24;
+            SmallAroundIndex v41 = v24;
             if (j >= 4u)
               break;
-            int v25 = v24;
+            SmallAroundIndex v25 = v24;
             if (hug_can_move_on(
                     creatng,
                     3 * small_around[v25].delta_x + *pos1_stl_x,
@@ -290,6 +228,7 @@ static int hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d
     return 0;
 }
 
+// Used only at `creature_states_combt
 long slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long max_val)
 {
     struct Coord3d curr_pos;
@@ -315,7 +254,7 @@ long slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long max_val)
         if ((curr_pos.x.stl.num == stl_x) && (curr_pos.y.stl.num == stl_y)) {
             return i + 1;
         }
-        int round_idx = small_around_index_in_direction(curr_pos.x.stl.num, curr_pos.y.stl.num, stl_x, stl_y);
+        SmallAroundIndex round_idx = small_around_index_in_direction(curr_pos.x.stl.num, curr_pos.y.stl.num, stl_x, stl_y);
         if (hug_can_move_on(thing, curr_pos.x.stl.num, curr_pos.y.stl.num))
         {
             next_pos.x.val = curr_pos.x.val;
@@ -1483,7 +1422,7 @@ static TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, Ma
     targetpos.y.val = subtile_coord_center(stl_y);
     targetpos.z.val = 0;
     long min_dist = LONG_MAX;
-    for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+    for (SmallAroundIndex n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
         long dx = spacing * (long)small_around[n].delta_x;
         long dy = spacing * (long)small_around[n].delta_y;
@@ -2059,34 +1998,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
     return 1;
 }
 
-TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb)
-{
-    const struct SlabAttr* slbattr = get_slab_attrs(slb);
-    if ( ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) || (slb->kind == SlbT_LAVA) )
-        return true;
-    return false;
-}
-
-static TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
-{
-    struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    const struct SlabAttr* slbattr = get_slab_attrs(slb);
-    if ((slbattr->is_diggable) && !slab_kind_is_indestructible(slb->kind))
-    {
-        struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-        if (((mapblk->flags & SlbAtFlg_Filled) == 0) || (slabmap_owner(slb) == plyr_idx)) {
-            SYNCDBG(17,"Subtile (%d,%d) rejected based on attrs",(int)stl_x,(int)stl_y);
-            return false;
-        }
-    }
-    if (!slab_good_for_computer_dig_path(slb)) {
-        SYNCDBG(17,"Subtile (%d,%d) rejected as not good for dig",(int)stl_x,(int)stl_y);
-        return false;
-    }
-    return true;
-}
-
-long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, int direction_around, TbBool revside)
+SubtlCodedCoords dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, SmallAroundIndex direction_around, TbBool revside)
 {
     long round_change;
     SYNCDBG(14,"Starting for subtile (%d,%d)",(int)basestl_x,(int)basestl_y);
@@ -2095,7 +2007,7 @@ long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoo
     } else {
       round_change = 3;
     }
-    long round_idx = (direction_around + SMALL_AROUND_LENGTH - round_change) % SMALL_AROUND_LENGTH;
+    SmallAroundIndex round_idx = (direction_around + SMALL_AROUND_LENGTH - round_change) % SMALL_AROUND_LENGTH;
     for (long i = 0; i < SMALL_AROUND_LENGTH; i++)
     {
         MapSubtlCoord stl_x = basestl_x + STL_PER_SLB * (int)small_around[round_idx].delta_x;
@@ -2111,12 +2023,13 @@ long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoo
     return -1;
 }
 
+// used only by AI (get_hug_side, tool_dig_to_pos2)
 static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord dst_stl_y, int dirctn, PlayerNumber plyr_idx,
-    char *state, MapSubtlCoord *ostl_x, MapSubtlCoord *ostl_y, short *round, int *maxdist)
+    char *state, MapSubtlCoord *ostl_x, MapSubtlCoord *ostl_y, SmallAroundIndex *round, int *maxdist)
 {
     MapSubtlCoord curr_stl_x = *ostl_x;
     MapSubtlCoord curr_stl_y = *ostl_y;
-    unsigned short round_idx = small_around_index_in_direction(curr_stl_x, curr_stl_y, dst_stl_x, dst_stl_y);
+    SmallAroundIndex round_idx = small_around_index_in_direction(curr_stl_x, curr_stl_y, dst_stl_x, dst_stl_y);
     int dist = chessboard_distance(curr_stl_x, curr_stl_y, dst_stl_x, dst_stl_y);
     int dx = small_around[round_idx].delta_x;
     int dy = small_around[round_idx].delta_y;
@@ -2161,8 +2074,9 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
     *ostl_y = curr_stl_y;
 }
 
+// used only by AI (get_hug_side, tool_dig_to_pos2)
 short get_hug_side_options(MapSubtlCoord src_stl_x, MapSubtlCoord src_stl_y, MapSubtlCoord dst_stl_x, MapSubtlCoord dst_stl_y,
-    unsigned short direction, PlayerNumber plyr_idx, MapSubtlCoord *ostla_x, MapSubtlCoord *ostla_y, MapSubtlCoord *ostlb_x, MapSubtlCoord *ostlb_y)
+    SmallAroundIndex direction, PlayerNumber plyr_idx, MapSubtlCoord *ostla_x, MapSubtlCoord *ostla_y, MapSubtlCoord *ostlb_x, MapSubtlCoord *ostlb_y)
 {
     SYNCDBG(4,"Starting");
 
@@ -2171,12 +2085,12 @@ short get_hug_side_options(MapSubtlCoord src_stl_x, MapSubtlCoord src_stl_y, Map
     char state_a = WaHSS_Val0;
     MapSubtlCoord stl_a_x = src_stl_x;
     MapSubtlCoord stl_a_y = src_stl_y;
-    short round_a = (direction + SMALL_AROUND_LENGTH + 1) % SMALL_AROUND_LENGTH;
+    SmallAroundIndex round_a = (direction + SMALL_AROUND_LENGTH + 1) % SMALL_AROUND_LENGTH;
     int maxdist_a = dist - 1;
     char state_b = WaHSS_Val0;
     MapSubtlCoord stl_b_x = src_stl_x;
     MapSubtlCoord stl_b_y = src_stl_y;
-    short round_b = (direction + SMALL_AROUND_LENGTH - 1) % SMALL_AROUND_LENGTH;
+    SmallAroundIndex round_b = (direction + SMALL_AROUND_LENGTH - 1) % SMALL_AROUND_LENGTH;
     int maxdist_b = dist - 1;
 
     // Try moving in both directions

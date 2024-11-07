@@ -25,21 +25,19 @@
 #include "ariadne.h"
 #include "creature_graphics.h"
 #include "creature_groups.h"
+#include "thing_creature.h"
 #include "thing_stats.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define CREATURE_TYPES_MAX 64
-#define SWAP_CREATURE_TYPES_MAX 64
+#define CREATURE_TYPES_MAX 128
 #define CREATURE_STATES_MAX 256
 
 #define MAX_SIZEXY            768
 /** Max amount of spells casted at the creature at once. */
 #define CREATURE_MAX_SPELLS_CASTED_AT 5
-/** Max amount of creatures supported on any map. */
-#define CREATURES_COUNT       256
 /** Number of possible melee combat opponents. */
 #define COMBAT_MELEE_OPPONENTS_LIMIT       4
 /** Number of possible range combat opponents. */
@@ -47,7 +45,7 @@ extern "C" {
 /** Amount of instances. */
 /** Max amount of rooms needed for a creature to be attracted to a dungeon. */
 #define ENTRANCE_ROOMS_COUNT               3
-#define INSTANCE_TYPES_MAX 64
+#define INSTANCE_TYPES_MAX 2000
 #define LAIR_ENEMY_MAX 5
 
 #define INVALID_CRTR_CONTROL (game.persons.cctrl_lookup[0])
@@ -70,6 +68,7 @@ enum CreatureSoundTypes {
     CrSnd_Die       = 9,
     CrSnd_Foot      = 10,
     CrSnd_Fight     = 11,
+    CrSnd_Piss      = 12,
 };
 
 enum CreatureControlFlags {
@@ -141,19 +140,19 @@ struct CastedSpellData {
 };
 
 struct CreatureControl {
-    unsigned char index;
+    CctrlIndex index;
     unsigned char flgfield_1;
     unsigned char flgfield_2;
     unsigned char combat_flags;
     unsigned char party_objective;
     unsigned long wait_to_turn;
     short distance_to_destination;
-    short opponents_melee[COMBAT_MELEE_OPPONENTS_LIMIT];
-    short opponents_ranged[COMBAT_RANGED_OPPONENTS_LIMIT];
+    ThingIndex opponents_melee[COMBAT_MELEE_OPPONENTS_LIMIT];
+    ThingIndex opponents_ranged[COMBAT_RANGED_OPPONENTS_LIMIT];
     unsigned char opponents_melee_count;
     unsigned char opponents_ranged_count;
-    unsigned short players_prev_creature_idx;
-    unsigned short players_next_creature_idx;
+    ThingIndex players_prev_creature_idx;
+    ThingIndex players_next_creature_idx;
     unsigned short slap_turns;
     unsigned char explevel;
     long exp_points;
@@ -180,13 +179,12 @@ unsigned char sound_flag;
     unsigned short lair_room_id;
     /** Lair object thing index. */
     unsigned short lairtng_idx;
-    short view_angle;
     /** Index of a thing being dragged by the creature, or index of a thing which is dragging this thing.
      *  Specific case is determined by flags. */
     short dragtng_idx;
-    unsigned short arming_thing_id;
-    unsigned short pickup_object_id;
-    unsigned short pickup_creature_id;
+    ThingIndex arming_thing_id;
+    ThingIndex pickup_object_id;
+    ThingIndex pickup_creature_id;
     unsigned short next_in_group;
     unsigned short prev_in_group;
     unsigned long group_info;// offset 7A
@@ -337,28 +335,28 @@ unsigned char sound_flag;
     unsigned char bloody_footsteps_turns;
     short kills_num;
     short max_speed;
-    short max_health;
+    HitPoints max_health;
     short move_speed;
     short orthogn_speed;
-    short field_CC;
-    unsigned long field_CE;
-    unsigned char instance_id;
-    unsigned char inst_repeat;
+    short roll;
+    unsigned long anim_time;
+    CrInstance instance_id;
+    TbBool inst_repeat;
     unsigned short inst_turn;
-    unsigned short inst_action_turns;
+    unsigned short inst_action_turns; /* Turn when instance should be fired*/
     unsigned short inst_total_turns;
     unsigned short targtng_idx;
     MapSubtlCoord targtstl_x;
     MapSubtlCoord targtstl_y;
     unsigned long instance_use_turn[INSTANCE_TYPES_MAX];
-    char instance_available[INSTANCE_TYPES_MAX];
+    TbBool instance_available[INSTANCE_TYPES_MAX];
     unsigned short instance_anim_step_turns;
     SubtlCodedCoords collided_door_subtile;
     char fighting_player_idx;
-    unsigned char shot_model;
+    ThingModel shot_model;
     struct CastedSpellData casted_spells[CREATURE_MAX_SPELLS_CASTED_AT];
     /** Current active skill instance. */
-    char active_instance_id;
+    CrInstance active_instance_id;
     char head_bob;
     struct Navigation navi;
     /* Creature movement path data. */
@@ -367,13 +365,13 @@ unsigned char sound_flag;
     unsigned char active_state_bkp;
     /* State backup when a creature temporarily changes its state due to being slapped. */
     unsigned char continue_state_bkp;
-unsigned char cowers_from_slap_turns;
+    unsigned char cowers_from_slap_turns;
     short conscious_back_turns;
     short countdown_282; // signed
     unsigned short damage_wall_coords;
     unsigned char joining_age;
     unsigned char blood_type;
-    char creature_name[25];
+    char creature_name[CREATURE_NAME_MAX];
     struct Coord3d flee_pos;
     long flee_start_turn;
     struct MemberPos followers_pos[GROUP_MEMBERS_COUNT];
@@ -413,6 +411,10 @@ unsigned char cowers_from_slap_turns;
     ThingIndex timebomb_countdown_id;
     ThingIndex timebomb_target_id;
     TbBool timebomb_death;
+    GameTurn unsummon_turn;
+    ThingIndex summoner_idx;
+    long summon_spl_idx;
+    ThingIndex familiar_idx[FAMILIAR_MAX];
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields
@@ -420,7 +422,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned short job_secondary;
     unsigned short jobs_not_do;
     unsigned char eye_effect;
-    unsigned short health;
+    HitPoints health;
     unsigned char heal_requirement;
     unsigned char heal_threshold;
     unsigned char strength;
@@ -445,22 +447,26 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char scavenge_value;
     unsigned long to_level[CREATURE_MAX_LEVEL];
     unsigned char base_speed;
-    short grow_up;
+    ThingModel grow_up;
     unsigned char grow_up_level;
     TbBool entrance_force;
-    short max_angle_change;
+    short max_turning_speed;
     short base_eye_height;
-  short field_57[14];
-  short field_73;
     unsigned short size_xy;
     unsigned short size_z;
+    unsigned short thing_size_xy;
+    unsigned short thing_size_z;
+    short shot_shift_x; /**< Initial position of shot created by the creature relative to creature position, X coord. */
+    short shot_shift_y; /**< Initial position of shot created by the creature relative to creature position, Y coord. */
+    short shot_shift_z; /**< Initial position of shot created by the creature relative to creature position, Z coord. */
     unsigned short walking_anim_speed;
     TbBool flying;
+    TbBool fixed_anim_speed;
     TbBool immune_to_gas;
     unsigned char attack_preference;
     short field_of_view;
     /** Instance identifiers of the instances creature can learn. */
-    unsigned char learned_instance_id[LEARNED_INSTANCES_COUNT];
+    CrInstance learned_instance_id[LEARNED_INSTANCES_COUNT];
     /** Required level to use the instances creature can learn. Scaled 1..CREATURE_MAX_LEVEL. */
     unsigned char learned_instance_level[LEARNED_INSTANCES_COUNT];
     unsigned char research_value;
@@ -491,7 +497,6 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short annoy_win_battle;
     short annoy_untrained_time;
     short annoy_untrained;
-    short field_C4;
     short annoy_queue;
     /* Annoyance caused by tries to assign creature to a job it won't do */
     short annoy_will_not_do_job;
@@ -504,14 +509,11 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short annoy_others_leaving;
     unsigned char slaps_to_kill;
     short lair_enemy[LAIR_ENEMY_MAX];
-    short hero_vs_keeper_cost;
     unsigned char rebirth;
     TbBool can_see_invisible;
     TbBool can_go_locked_doors;
     TbBool bleeds;
     TbBool affected_by_wind;
-    unsigned short thing_size_xy;
-    unsigned short thing_size_z;
     short annoy_eat_food;
     short annoy_in_hand;
     short damage_to_boulder;
@@ -522,10 +524,17 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short annoy_going_postal;
     short toking_recovery;
     TbBool illuminated;
+    unsigned char transparency_flags;
     char corpse_vanish_effect;
     short footstep_pitch;
     short lair_object;
     short status_offset;
+    unsigned short evil_start_state;
+    unsigned short good_start_state;
+    unsigned char natural_death_kind;
+    unsigned char swipe_idx;
+    ThingModel prison_kind;
+    ThingModel torture_kind;
     struct CreaturePickedUpOffset creature_picked_up_offset;
 };
 
@@ -551,7 +560,10 @@ struct CreatureSounds {
     struct CreatureSound torture;
     struct CreatureSound slap;
     struct CreatureSound fight;
+    struct CreatureSound piss;
 };
+
+extern int creature_swap_idx[CREATURE_TYPES_MAX];
 
 #pragma pack()
 /******************************************************************************/
@@ -566,7 +578,7 @@ struct CreatureControl *allocate_free_control_structure(void);
 void delete_control_structure(struct CreatureControl *cctrl);
 void delete_all_control_structures(void);
 
-struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, long a2, struct Coord3d *pos);
+struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, ThingModel crmodel, struct Coord3d *pos);
 
 TbBool disband_creatures_group(struct Thing *thing);
 struct Thing *get_group_last_member(struct Thing *thing);

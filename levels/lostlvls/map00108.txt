@@ -190,17 +190,18 @@ REM CREATE_TEXT(1,"YOUR COMPETITON HAS BEEN PUT IN ITS RIGHTFUL PLACE, TAKE WHAT
 REM CREATE_TEXT(2"YOU HAVE RESEARCH THE EVIL AUDIENCE, IF YOU ARE SUFFICIENTLY POWERFUL ENOUGH, VICTORY IS NOW YOURS FOR THE TAKING")
 REM CREATE_TEXT(3,"YOU HAVE DISCOVERED AN EVIL TEMPLE, A SOURCE OF GREAT POWER, THE USES OF WHICH WILL ONLY BE REVEALED TO YOU IN THE WORLDS TO COME.")
 
-QUICK_OBJECTIVE(0, "This is a holy place, and the most powerful magic will become available to you here from research. Subordinate your competition and then raise the electric church to reveal its powers.", ALL_PLAYERS)
+REM 0, "This is a holy place, and the most powerful magic will become available to you here from research. Subordinate your competition and then raise the electric church to reveal its powers.", ALL_PLAYERS)
+DISPLAY_OBJECTIVE(104, PLAYER0)
 
 REM IF(PLAYER0,RESEARCH >= 10000)
 IF(PLAYER0,RESEARCH >= 1000)
-	REM DISPLAY_OBJECTIVE(2)
-	QUICK_OBJECTIVE(2, "You have researched the evil audience; if you are powerful enough, victory is now yours for the taking.", ALL_PLAYERS)
+	REM 2, "You have researched the evil audience; if you are powerful enough, victory is now yours for the taking.", ALL_PLAYERS)
+	DISPLAY_OBJECTIVE(105, PLAYER0)
 ENDIF
 
 IF(PLAYER0,TEMPLE >= 1)
-	REM DISPLAY_OBJECTIVE(3)
-	QUICK_OBJECTIVE(3, "You have discovered an evil Temple, a source of great power, the uses of which will only be revealed to you in the worlds to come.", ALL_PLAYERS)
+	REM 3, "You have discovered an evil Temple, a source of great power, the uses of which will only be revealed to you in the worlds to come.", ALL_PLAYERS)
+	DISPLAY_OBJECTIVE(106, PLAYER0)
 	ROOM_AVAILABLE(PLAYER0,TEMPLE,1,1)
 	IF(PLAYER1,DUNGEON_DESTROYED == 1)
 		WIN_GAME
@@ -208,8 +209,8 @@ IF(PLAYER0,TEMPLE >= 1)
 ENDIF	
 
 IF(PLAYER1,DUNGEON_DESTROYED == 1)
-	REM DISPLAY_OBJECTIVE(1)
-	QUICK_OBJECTIVE(1, "Your competition has been put in its rightful place; take what is now yours. You will find the electric church to the south. You will require the ultimate weapon.", ALL_PLAYERS)
+	REM 1, "Your competition has been put in its rightful place; take what is now yours. You will find the electric church to the south. You will require the ultimate weapon.", ALL_PLAYERS)
+	DISPLAY_OBJECTIVE(107, PLAYER0)
 	ROOM_AVAILABLE(PLAYER0,BRIDGE,1,1)
 ENDIF	
 

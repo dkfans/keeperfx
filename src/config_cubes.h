@@ -45,7 +45,7 @@ struct CubeConfigStats {
 struct CubesConfig {
     long cube_types_count;
     struct CubeConfigStats cube_cfgstats[CUBE_ITEMS_MAX];
-    unsigned short cube_bits[CUBE_OWNERSHIP_GROUPS][PLAYERS_EXT_COUNT];
+    unsigned short cube_bits[CUBE_OWNERSHIP_GROUPS][COLOURS_COUNT];
 };
 /******************************************************************************/
 extern const char keeper_cubes_file[];

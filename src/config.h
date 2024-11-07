@@ -147,11 +147,54 @@ enum TbConfigLoadFlags {
     CnfLd_IgnoreErrors  =  0x04, /**< Do not log error message on failures (still, return with error). */
 };
 
-/******************************************************************************/
-
-/******************************************************************************/
 #pragma pack(1)
 
+
+/******************************************************************************/
+
+enum confCommandResults
+{
+    ccr_comment = 0,
+    ccr_ok = 1,
+    ccr_endOfFile = -1,
+    ccr_unrecognised = -2,
+    ccr_endOfBlock = -3,
+    ccr_error = -4,
+};
+
+enum dataTypes
+{
+    dt_default,
+    dt_uchar,
+    dt_schar,
+    dt_short,
+    dt_ushort,
+    dt_int,
+    dt_uint,
+    dt_long,
+    dt_ulong,
+    dt_longlong,
+    dt_ulonglong,
+    dt_float,
+    dt_double,
+    dt_longdouble,
+    dt_void,
+};
+
+#define var_type(expr)\
+    (_Generic((expr),\
+              unsigned char: dt_uchar, signed char: dt_schar, \
+              short: dt_short, unsigned short: dt_ushort, \
+              int: dt_int, unsigned int: dt_uint, \
+              long: dt_long, unsigned long: dt_ulong, \
+              long long: dt_longlong, unsigned long long: dt_ulonglong, \
+              float: dt_float, \
+              double: dt_double, \
+              long double: dt_longdouble, \
+              void*: dt_void, \
+              default: dt_default))
+
+/******************************************************************************/
 struct CommandWord {
     char text[COMMAND_WORD_LEN];
 };
@@ -164,6 +207,14 @@ struct NamedCommand {
 struct LongNamedCommand {
     const char* name;
     long long num;
+};
+
+struct NamedField {
+    const char *name;
+    void* field;
+    uchar type;
+    int64_t min;
+    int64_t max;
 };
 
 struct InstallInfo {
@@ -201,6 +252,9 @@ extern unsigned long text_line_number;
 extern const struct NamedCommand lang_type[];
 extern const struct NamedCommand logicval_type[];
 extern const struct NamedCommand scrshot_type[];
+extern char cmd_char;
+extern short api_enabled;
+extern uint16_t api_port;
 /******************************************************************************/
 char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname);
 char *prepare_file_path(short fgroup,const char *fname);
@@ -273,6 +327,7 @@ TbBool reset_credits(struct CreditsItem *credits);
 TbBool setup_campaign_credits_data(struct GameCampaign *campgn);
 /******************************************************************************/
 short find_conf_block(const char *buf,long *pos,long buflen,const char *blockname);
+TbBool iterate_conf_blocks(const char * buf, long * pos, long buflen, const char ** name, int * namelen);
 int recognize_conf_command(const char *buf,long *pos,long buflen,const struct NamedCommand *commands);
 TbBool skip_conf_to_next_line(const char *buf,long *pos,long buflen);
 int get_conf_parameter_single(const char *buf,long *pos,long buflen,char *dst,long dstlen);
@@ -282,7 +337,10 @@ int get_conf_parameter_quoted(const char *buf,long *pos,long buflen,char *dst,lo
 int get_conf_list_int(const char *buf, const char **state, int *dst);
 
 int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct NamedCommand *commands);
+int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct NamedField *commands);
+int assign_named_field_value(const struct NamedField* named_field, int64_t value);
 const char *get_conf_parameter_text(const struct NamedCommand commands[],int num);
+long get_named_field_id(const struct NamedField *desc, const char *itmname);
 long get_id(const struct NamedCommand *desc, const char *itmname);
 long long get_long_id(const struct LongNamedCommand* desc, const char* itmname);
 long get_rid(const struct NamedCommand *desc, const char *itmname);

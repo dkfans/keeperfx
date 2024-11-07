@@ -42,7 +42,7 @@ unsigned long game_flags2 = 0;
 TbBool emulate_integer_overflow(unsigned short nbits)
 {
     if (nbits == 8)
-        return (gameadd.classic_bugs_flags & ClscBug_Overflow8bitVal) != 0;
+        return (game.conf.rules.game.classic_bugs_flags & ClscBug_Overflow8bitVal) != 0;
     return false;
 }
 
@@ -133,16 +133,16 @@ TbBool set_bonus_level_visibility(LevelNumber bn_lvnum, TbBool visible)
     {
         WARNLOG("Can't set state of non-existing bonus level %d.", (int)bn_lvnum);
         return false;
-  }
-  int n = i / 8;
-  int k = (1 << (i % 8));
-  if ((n < 0) || (n >= BONUS_LEVEL_STORAGE_COUNT))
-  {
-    WARNLOG("Bonus level %d has invalid store position.",(int)bn_lvnum);
-    return false;
-  }
-  set_flag_byte(&intralvl.bonuses_found[n], k, visible);
-  return true;
+    }
+    int n = i / 8;
+    int k = (1 << (i % 8));
+    if ((n < 0) || (n >= BONUS_LEVEL_STORAGE_COUNT))
+    {
+        WARNLOG("Bonus level %d has invalid store position.",(int)bn_lvnum);
+        return false;
+    }
+    set_flag_value(intralvl.bonuses_found[n], k, visible);
+    return true;
 }
 
 /**
@@ -156,10 +156,10 @@ TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *play
         if (visible)
             WARNMSG("Couldn't store bonus award for level %d", sp_lvnum);
         return false;
-  }
-  if (visible)
-    SYNCMSG("Bonus award for level %d enabled",sp_lvnum);
-  return true;
+    }
+    if (visible)
+        SYNCMSG("Bonus award for level %d enabled",sp_lvnum);
+    return true;
 }
 
 void hide_all_bonus_levels(struct PlayerInfo *player)
@@ -190,8 +190,8 @@ unsigned short get_extra_level_kind_visibility(unsigned short elv_kind)
         if (is_near_new_moon)
             return LvSt_HalfShow;
         break;
-  }
-  return LvSt_Hidden;
+    }
+    return LvSt_Hidden;
 }
 
 /**
@@ -206,8 +206,8 @@ short is_extra_level_visible(struct PlayerInfo *player, long ex_lvnum)
         return is_full_moon;
     case ExLv_NewMoon:
         return is_new_moon;
-  }
-  return false;
+    }
+    return false;
 }
 
 void update_extra_levels_visibility(void)

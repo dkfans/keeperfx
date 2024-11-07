@@ -27,8 +27,8 @@ extern "C" {
 #endif
 
 // note - this is temporary value; not correct
-#define CREATURE_FRAMELIST_LENGTH     982
-#define CREATURE_GRAPHICS_INSTANCES     22
+#define CREATURE_FRAMELIST_LENGTH    982
+#define CREATURE_GRAPHICS_INSTANCES   22
 
 enum CreatureGraphicsInstances {
     CGI_Stand       =  0,
@@ -49,10 +49,10 @@ enum CreatureGraphicsInstances {
     CGI_Scream      = 15,
     CGI_DropDead    = 16,
     CGI_DeadSplat   = 17,
-    CGI_GFX18       = 18,
-    CGI_QuerySymbol = 19,
-    CGI_HandSymbol  = 20,
-    CGI_GFX21       = 21,
+    CGI_Roar        = 18,
+    CGI_Piss        = 19,
+    CGI_QuerySymbol = 20,
+    CGI_HandSymbol  = 21,
 };
 /******************************************************************************/
 #pragma pack(1)
@@ -63,47 +63,52 @@ struct CreaturePickedUpOffset
 {
   short delta_x;
   short delta_y;
-  short field_4;
-  short field_6;
 };
 
 /**
  * Enhanced TbSprite structure, with additional fields for thing animation sprites.
  */
+enum FrameFlags {
+    FFL_NoShadows = 1,
+};
+
 struct KeeperSprite { // sizeof = 16
   unsigned long DataOffset;
-#ifdef SPRITE_FORMAT_V2
+
   unsigned short SWidth;
   unsigned short SHeight;
   unsigned short FrameWidth;
   unsigned short FrameHeight;
   unsigned char Rotable;
   unsigned char FramesCount;
-  unsigned short FrameOffsW;
-  unsigned short FrameOffsH;
-#else
-  unsigned char SWidth;
-  unsigned char SHeight;
-  unsigned char FrameWidth;
-  unsigned char FrameHeight;
-  unsigned char Rotable;
-  unsigned char FramesCount;
-  unsigned char FrameOffsW;
-  unsigned char FrameOffsH;
-#endif
+  short FrameOffsW;
+  short FrameOffsH;
+
   short offset_x;
   short offset_y;
+
+  short shadow_offset;
+  short frame_flags;
 };
 
-struct KeeperSpriteExt // More info for custom sprites
-{
-    unsigned char rotation; // Used to implement rotated statues from rotatable
+struct KeeperSpriteDisk {
+    unsigned long DataOffset;
+    unsigned char SWidth;
+    unsigned char SHeight;
+    unsigned char FrameWidth;
+    unsigned char FrameHeight;
+    unsigned char Rotable;
+    unsigned char FramesCount;
+    unsigned char FrameOffsW;
+    unsigned char FrameOffsH;
+    short offset_x;
+    short offset_y;
 };
+
 /******************************************************************************/
 //extern unsigned short creature_graphics[][22];
 extern struct KeeperSprite *creature_table;
 extern struct KeeperSprite creature_table_add[];
-extern struct KeeperSpriteExt creatures_table_ext[];
 /******************************************************************************/
 
 #pragma pack()
@@ -112,7 +117,7 @@ struct CreaturePickedUpOffset *get_creature_picked_up_offset(struct Thing *thing
 
 unsigned long keepersprite_index(unsigned short n);
 struct KeeperSprite * keepersprite_array(unsigned short n);
-unsigned char keepersprite_frames(unsigned short n);
+unsigned char keepersprite_frames(unsigned short n); // This returns number of frames in animation
 unsigned char keepersprite_rotable(unsigned short n);
 void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, short *orig_w, short *orig_h, short *unsc_w, short *unsc_h);
 long get_lifespan_of_animation(long ani, long speed);
@@ -122,6 +127,8 @@ void set_creature_model_graphics(long crmodel, unsigned short frame, unsigned lo
 void set_creature_graphic(struct Thing *thing);
 void update_creature_rendering_flags(struct Thing *thing);
 
+size_t creature_table_load_get_size(size_t disk_size);
+void creature_table_load_unpack(unsigned char *src, size_t disk_size);
 /******************************************************************************/
 #ifdef __cplusplus
 }

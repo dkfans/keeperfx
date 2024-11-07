@@ -41,47 +41,6 @@ extern "C" {
 /******************************************************************************/
 const char keeper_rules_file[]="rules.cfg";
 
-const struct NamedCommand rules_game_commands[] = {
-  {"GOLDPERGOLDBLOCK",            1},
-  {"POTOFGOLDHOLDS",              2},
-  {"CHESTGOLDHOLD",               3},
-  {"GOLDPILEVALUE",               4},
-  {"GOLDPILEMAXIMUM",             5},
-  {"GOLDPERHOARD",                6},
-  {"FOODLIFEOUTOFHATCHERY",       7},
-  {"DOUBLECLICKSPEED",            8},
-  {"DOOROPENFOR",                 9},
-  {"BOULDERREDUCEHEALTHSLAP",    10},
-  {"BOULDERREDUCEHEALTHWALL",    11},
-  {"BOULDERREDUCEHEALTHROOM",    12},
-  {"TILESTRENGTH",               13},
-  {"GOLDTILESTRENGTH",           14},
-  {"MINIMUMGOLD",                15},
-  {"MAXGOLDLOOKUP",              16},
-  {"MINGOLDTORECORD",            17},
-  {"PAYDAYGAP",                  18},
-  {"PAYDAYSPEED",                19},
-  {"SLABCOLLAPSETIME",           20},
-  {"DUNGEONHEARTHEALTH",         21},
-  {"DUNGEONHEARTHEALTIME",       22},
-  {"DUNGEONHEARTHEALHEALTH",     23},
-  {"HERODOORWAITTIME",           24},
-  {"PRESERVECLASSICBUGS",        25},
-  {"DEATHMATCHSTATUEREAPPERTIME",26},
-  {"DEATHMATCHOBJECTREAPPERTIME",27},
-  {"GEMEFFECTIVENESS",           28},
-  {"ROOMSELLGOLDBACKPERCENT",    29},
-  {"DOORSELLVALUEPERCENT",       30},
-  {"TRAPSELLVALUEPERCENT",       31},
-  {"PLACETRAPSONSUBTILES",       32},
-  {"BAGGOLDHOLD",                33},
-  {"ALLIESSHAREVISION",          34},
-  {"ALLIESSHAREDROP",            35},
-  {"ALLIESSHARECTA",             36},
-  {"MAXTHINGSINHAND",            37},
-  {NULL,                          0},
-  };
-
 const struct NamedCommand rules_game_classicbugs_commands[] = {
   {"RESURRECT_FOREVER",             1},
   {"OVERFLOW_8BIT",                 2},
@@ -100,103 +59,136 @@ const struct NamedCommand rules_game_classicbugs_commands[] = {
   {NULL,                          0},
   };
 
-const struct NamedCommand rules_computer_commands[] = {
-  {"AUTODIGLIMIT",               1},
-  {"WAITFORROOMTIME",            2},
-  {"CHECKEXPANDTIME",            3},
-  {"MAXDISTANCETODIG",           4},
-  {"WAITAFTERROOMAREA",          5},
-  {"DISEASEHPTEMPLEPERCENTAGE",  6},
-  {NULL,                         0},
+const struct NamedField rules_game_named_fields[] = {
+    //name                        //field                                         //field type                                              //min    //max     
+  {"GOLDPERGOLDBLOCK",           &game.conf.rules.game.gold_per_gold_block,        var_type(game.conf.rules.game.gold_per_gold_block       ),LONG_MIN,LONG_MAX},
+  {"POTOFGOLDHOLDS",             &game.conf.rules.game.pot_of_gold_holds,          var_type(game.conf.rules.game.pot_of_gold_holds         ),LONG_MIN,LONG_MAX},
+  {"CHESTGOLDHOLD",              &game.conf.rules.game.chest_gold_hold,            var_type(game.conf.rules.game.chest_gold_hold           ),LONG_MIN,LONG_MAX},
+  {"GOLDPILEVALUE",              &game.conf.rules.game.gold_pile_value,            var_type(game.conf.rules.game.gold_pile_value           ),LONG_MIN,LONG_MAX},
+  {"GOLDPILEMAXIMUM",            &game.conf.rules.game.gold_pile_maximum,          var_type(game.conf.rules.game.gold_pile_maximum         ),LONG_MIN,LONG_MAX},
+  {"GOLDPERHOARD",               &game.conf.rules.game.gold_per_hoard,             var_type(game.conf.rules.game.gold_per_hoard            ),LONG_MIN,LONG_MAX},
+  {"FOODLIFEOUTOFHATCHERY",      &game.conf.rules.game.food_life_out_of_hatchery,  var_type(game.conf.rules.game.food_life_out_of_hatchery ),       0,USHRT_MAX},
+  {"BOULDERREDUCEHEALTHSLAP",    &game.conf.rules.game.boulder_reduce_health_wall, var_type(game.conf.rules.game.boulder_reduce_health_wall),LONG_MIN,LONG_MAX},
+  {"BOULDERREDUCEHEALTHWALL",    &game.conf.rules.game.boulder_reduce_health_slap, var_type(game.conf.rules.game.boulder_reduce_health_slap),LONG_MIN,LONG_MAX},
+  {"BOULDERREDUCEHEALTHROOM",    &game.conf.rules.game.boulder_reduce_health_room, var_type(game.conf.rules.game.boulder_reduce_health_room),LONG_MIN,LONG_MAX},
+  {"PAYDAYGAP",                  &game.conf.rules.game.pay_day_gap,                var_type(game.conf.rules.game.pay_day_gap               ),LONG_MIN,LONG_MAX},
+  {"PAYDAYSPEED",                &game.conf.rules.game.pay_day_speed,              var_type(game.conf.rules.game.pay_day_speed             ),       0,ULONG_MAX},
+  {"DUNGEONHEARTHEALTIME",       &game.conf.rules.game.dungeon_heart_heal_time,    var_type(game.conf.rules.game.dungeon_heart_heal_time   ),       0,ULONG_MAX},
+  {"DUNGEONHEARTHEALHEALTH",     &game.conf.rules.game.dungeon_heart_heal_health,  var_type(game.conf.rules.game.dungeon_heart_heal_health ),LONG_MIN,LONG_MAX},
+  {"HERODOORWAITTIME",           &game.conf.rules.game.hero_door_wait_time,        var_type(game.conf.rules.game.hero_door_wait_time       ),       0,ULONG_MAX},
+  {"GEMEFFECTIVENESS",           &game.conf.rules.game.gem_effectiveness,          var_type(game.conf.rules.game.gem_effectiveness         ),       0,ULONG_MAX},
+  {"ROOMSELLGOLDBACKPERCENT",    &game.conf.rules.game.room_sale_percent,          var_type(game.conf.rules.game.room_sale_percent         ),       0,LONG_MAX},
+  {"DOORSELLVALUEPERCENT",       &game.conf.rules.game.door_sale_percent,          var_type(game.conf.rules.game.door_sale_percent         ),       0,LONG_MAX},
+  {"TRAPSELLVALUEPERCENT",       &game.conf.rules.game.trap_sale_percent,          var_type(game.conf.rules.game.trap_sale_percent         ),       0,LONG_MAX},
+  {"BAGGOLDHOLD",                &game.conf.rules.game.bag_gold_hold,              var_type(game.conf.rules.game.bag_gold_hold             ),LONG_MIN,LONG_MAX},
+  {"ALLIESSHAREVISION",          &game.conf.rules.game.allies_share_vision,        var_type(game.conf.rules.game.allies_share_vision       ),       0,       1},
+  {"ALLIESSHAREDROP",            &game.conf.rules.game.allies_share_drop,          var_type(game.conf.rules.game.allies_share_drop         ),       0,       1},
+  {"ALLIESSHARECTA",             &game.conf.rules.game.allies_share_cta,           var_type(game.conf.rules.game.allies_share_cta          ),       0,       1},
+  {"DISPLAYPORTALLIMIT",         &game.conf.rules.game.display_portal_limit,       var_type(game.conf.rules.game.display_portal_limit      ),       0,       1},
+  {"MAXTHINGSINHAND",            &game.conf.rules.game.max_things_in_hand,         var_type(game.conf.rules.game.max_things_in_hand        ),       0,MAX_THINGS_IN_HAND},
+  {"TORTUREPAYDAY",              &game.conf.rules.game.torture_payday,             var_type(game.conf.rules.game.torture_payday            ),       0,USHRT_MAX},
+  {"TORTURETRAININGCOST",        &game.conf.rules.game.torture_training_cost,      var_type(game.conf.rules.game.torture_training_cost     ),SHRT_MIN,SHRT_MAX},
+  {"TORTURESCAVENGINGCOST",      &game.conf.rules.game.torture_scavenging_cost,    var_type(game.conf.rules.game.torture_scavenging_cost   ),SHRT_MIN,SHRT_MAX},
+  {"EASTEREGGSPEECHCHANCE",      &game.conf.rules.game.easter_egg_speech_chance,   var_type(game.conf.rules.game.easter_egg_speech_chance  ),       0,LONG_MAX},
+  {"EASTEREGGSPEECHINTERVAL",    &game.conf.rules.game.easter_egg_speech_interval, var_type(game.conf.rules.game.easter_egg_speech_interval),       0,LONG_MAX},
+  {"GLOBALAMBIENTLIGHT",         &game.conf.rules.game.global_ambient_light,       var_type(game.conf.rules.game.global_ambient_light      ),LONG_MIN,LONG_MAX},
+  {"LIGHTENABLED",               &game.conf.rules.game.light_enabled,              var_type(game.conf.rules.game.light_enabled             ),       0,       1},
+  {"MAPCREATURELIMIT",           &game.conf.rules.game.creatures_count,            var_type(game.conf.rules.game.creatures_count           ),       0,CREATURES_COUNT-2},
+  {NULL,                            NULL,0,0,0 },
+};
+
+//special cases rules_game
+const struct NamedCommand rules_game_commands[] = {
+  {"PRESERVECLASSICBUGS",         1},
+  {NULL,                          0},
+};
+
+const struct NamedField rules_computer_named_fields[] = {
+  {"DISEASEHPTEMPLEPERCENTAGE",  &game.conf.rules.computer.disease_to_temple_pct,    var_type(game.conf.rules.computer.disease_to_temple_pct),     0,USHRT_MAX},
+  {NULL,NULL,0,0,0 },
+};
+
+const struct NamedField rules_creatures_named_fields[] = {
+  {"RECOVERYFREQUENCY",         &game.conf.rules.creature.recovery_frequency,    var_type(game.conf.rules.creature.recovery_frequency    ),       0,UCHAR_MAX},
+  {"FIGHTMAXHATE",              &game.conf.rules.creature.fight_max_hate,        var_type(game.conf.rules.creature.fight_max_hate        ),       SHRT_MIN,SHRT_MAX},
+  {"FIGHTBORDERLINE",           &game.conf.rules.creature.fight_borderline,      var_type(game.conf.rules.creature.fight_borderline      ),       SHRT_MIN,SHRT_MAX},
+  {"FIGHTMAXLOVE",              &game.conf.rules.creature.fight_max_love,        var_type(game.conf.rules.creature.fight_max_love        ),       SHRT_MIN,SHRT_MAX},
+  {"BODYREMAINSFOR",            &game.conf.rules.creature.body_remains_for,      var_type(game.conf.rules.creature.body_remains_for      ),       0,USHRT_MAX},
+  {"FIGHTHATEKILLVALUE",        &game.conf.rules.creature.fight_hate_kill_value, var_type(game.conf.rules.creature.fight_hate_kill_value ),       SHRT_MIN,SHRT_MAX},
+  {"FLEEZONERADIUS",            &game.conf.rules.creature.flee_zone_radius,      var_type(game.conf.rules.creature.flee_zone_radius      ),       0,ULONG_MAX},
+  {"GAMETURNSINFLEE",           &game.conf.rules.creature.game_turns_in_flee,    var_type(game.conf.rules.creature.game_turns_in_flee    ),       0,LONG_MAX},
+  {"GAMETURNSUNCONSCIOUS",      &game.conf.rules.creature.game_turns_unconscious,var_type(game.conf.rules.creature.game_turns_unconscious),       0,USHRT_MAX},
+  {"STUNEVILENEMYCHANCE",       &game.conf.rules.creature.stun_enemy_chance_evil,var_type(game.conf.rules.creature.stun_enemy_chance_evil),       0, 100},
+  {"STUNGOODENEMYCHANCE",       &game.conf.rules.creature.stun_enemy_chance_good,var_type(game.conf.rules.creature.stun_enemy_chance_good),       0, 100},
+  {NULL,NULL,0,0,0 },
+};
+
+const struct NamedCommand rules_creature_commands[] = {
+  {"CRITICALHEALTHPERCENTAGE",  1},
+  {NULL,0},
+};
+
+const struct NamedField rules_magic_named_fields[] = {
+    //name                           //field                                                  //field type                                                     //min    //max                                   
+  {"HOLDAUDIENCETIME",              &game.conf.rules.magic.hold_audience_time,                var_type(game.conf.rules.magic.hold_audience_time                ),       0,LONG_MAX},
+  {"ARMAGEDDONTELEPORTYOURTIMEGAP", &game.conf.rules.magic.armageddon_teleport_your_time_gap, var_type(game.conf.rules.magic.armageddon_teleport_your_time_gap ),LONG_MIN,LONG_MAX},
+  {"ARMAGEDDONTELEPORTENEMYTIMEGAP",&game.conf.rules.magic.armageddon_teleport_enemy_time_gap,var_type(game.conf.rules.magic.armageddon_teleport_enemy_time_gap),       0,LONG_MAX},
+  {"ARMAGEDDONTELEPORTNEUTRALS",    &game.conf.rules.magic.armageddon_teleport_neutrals,      var_type(game.conf.rules.magic.armageddon_teleport_neutrals      ),       0,       1},
+  {"ARMAGEDDONCOUNTDOWN",           &game.armageddon.count_down,                              var_type(game.armageddon.count_down                              ),LONG_MIN,LONG_MAX},
+  {"ARMAGEDDONDURATION",            &game.armageddon.duration,                                var_type(game.armageddon.duration                                ),LONG_MIN,LONG_MAX},
+  {"DISEASETRANSFERPERCENTAGE",     &game.conf.rules.magic.disease_transfer_percentage,       var_type(game.conf.rules.magic.disease_transfer_percentage       ),       0,CHAR_MAX},
+  {"DISEASELOSEPERCENTAGEHEALTH",   &game.conf.rules.magic.disease_lose_percentage_health,    var_type(game.conf.rules.magic.disease_lose_percentage_health    ),LONG_MIN,LONG_MAX},
+  {"DISEASELOSEHEALTHTIME",         &game.conf.rules.magic.disease_lose_health_time,          var_type(game.conf.rules.magic.disease_lose_health_time          ),LONG_MIN,LONG_MAX},
+  {"MINDISTANCEFORTELEPORT",        &game.conf.rules.magic.min_distance_for_teleport,         var_type(game.conf.rules.magic.min_distance_for_teleport         ),LONG_MIN,LONG_MAX},
+  {"COLLAPSEDUNGEONDAMAGE",         &game.conf.rules.magic.collapse_dungeon_damage,           var_type(game.conf.rules.magic.collapse_dungeon_damage           ),LONG_MIN,LONG_MAX},
+  {"TURNSPERCOLLAPSEDUNGEONDAMAGE", &game.conf.rules.magic.turns_per_collapse_dngn_dmg,       var_type(game.conf.rules.magic.turns_per_collapse_dngn_dmg       ),LONG_MIN,LONG_MAX},
+  {"FRIENDLYFIGHTAREARANGEPERCENT", &game.conf.rules.magic.friendly_fight_area_range_percent, var_type(game.conf.rules.magic.friendly_fight_area_range_percent ),LONG_MIN,LONG_MAX},
+  {"FRIENDLYFIGHTAREADAMAGEPERCENT",&game.conf.rules.magic.friendly_fight_area_damage_percent,var_type(game.conf.rules.magic.friendly_fight_area_damage_percent),LONG_MIN,LONG_MAX},
+  {"WEIGHTCALCULATEPUSH",           &game.conf.rules.magic.weight_calculate_push,             var_type(game.conf.rules.magic.weight_calculate_push             ),       0,SHRT_MAX},
+  {NULL,                            NULL,0,0,0 },
   };
 
-const struct NamedCommand rules_creatures_commands[] = {
-  {"RECOVERYFREQUENCY",             1},
-  {"FIGHTMAXHATE",                  2},
-  {"FIGHTBORDERLINE",               3},
-  {"FIGHTMAXLOVE",                  4},
-  {"BODYREMAINSFOR",                5},
-  {"FIGHTHATEKILLVALUE",            6},
-  {"FLEEZONERADIUS",                7},
-  {"GAMETURNSINFLEE",               8},
-  {"GAMETURNSUNCONSCIOUS",          9},
-  {"CRITICALHEALTHPERCENTAGE",     10},
-  {"STUNEVILENEMYCHANCE",          11},
-  {"STUNGOODENEMYCHANCE",          12},
-  {NULL,                            0},
+const struct NamedField rules_rooms_named_fields[] = {
+    //name                                //field                                                  //field type                                                     //min    //max  
+  {"SCAVENGECOSTFREQUENCY",               &game.conf.rules.rooms.scavenge_cost_frequency,         var_type(game.conf.rules.rooms.scavenge_cost_frequency         ),LONG_MIN, LONG_MAX},
+  {"TEMPLESCAVENGEPROTECTIONTIME",        &game.conf.rules.rooms.temple_scavenge_protection_turns,var_type(game.conf.rules.rooms.temple_scavenge_protection_turns),       0,ULONG_MAX},
+  {"TRAINCOSTFREQUENCY",                  &game.conf.rules.rooms.train_cost_frequency,            var_type(game.conf.rules.rooms.train_cost_frequency            ),LONG_MIN, LONG_MAX},
+  {"TORTURECONVERTCHANCE",                &game.conf.rules.rooms.torture_convert_chance,          var_type(game.conf.rules.rooms.torture_convert_chance          ),       0,      100},
+  {"TIMESPENTINPRISONWITHOUTBREAK",       &game.conf.rules.rooms.time_in_prison_without_break,    var_type(game.conf.rules.rooms.time_in_prison_without_break    ),       0,ULONG_MAX},
+  {"GHOSTCONVERTCHANCE",                  &game.conf.rules.rooms.ghost_convert_chance,            var_type(game.conf.rules.rooms.ghost_convert_chance            ),       0,      100},
+  {"DEFAULTGENERATESPEED",                &game.conf.rules.rooms.default_generate_speed,          var_type(game.conf.rules.rooms.default_generate_speed          ),       0,USHRT_MAX},
+  {"DEFAULTMAXCREATURESGENERATEENTRANCE", &game.conf.rules.rooms.default_max_crtrs_gen_entrance,  var_type(game.conf.rules.rooms.default_max_crtrs_gen_entrance  ),       0,ULONG_MAX},
+  {"FOODGENERATIONSPEED",                 &game.conf.rules.rooms.food_generation_speed,           var_type(game.conf.rules.rooms.food_generation_speed           ),LONG_MIN, LONG_MAX},
+  {"PRISONSKELETONCHANCE",                &game.conf.rules.rooms.prison_skeleton_chance,          var_type(game.conf.rules.rooms.prison_skeleton_chance          ),       0,      100},
+  {"BODIESFORVAMPIRE",                    &game.conf.rules.rooms.bodies_for_vampire,              var_type(game.conf.rules.rooms.bodies_for_vampire              ),       0,UCHAR_MAX},
+  {"GRAVEYARDCONVERTTIME",                &game.conf.rules.rooms.graveyard_convert_time,          var_type(game.conf.rules.rooms.graveyard_convert_time          ),       0,USHRT_MAX},
+  {"SCAVENGEGOODALLOWED",                 &game.conf.rules.rooms.scavenge_good_allowed,           var_type(game.conf.rules.rooms.scavenge_good_allowed           ),       0,        1},
+  {"SCAVENGENEUTRALALLOWED",              &game.conf.rules.rooms.scavenge_neutral_allowed,        var_type(game.conf.rules.rooms.scavenge_neutral_allowed        ),       0,        1},
+  {"TIMEBETWEENPRISONBREAK",              &game.conf.rules.rooms.time_between_prison_break,       var_type(game.conf.rules.rooms.time_between_prison_break       ),       0,ULONG_MAX},
+  {"PRISONBREAKCHANCE",                   &game.conf.rules.rooms.prison_break_chance,             var_type(game.conf.rules.rooms.prison_break_chance             ),       0,ULONG_MAX},
+  {"TORTUREDEATHCHANCE",                  &game.conf.rules.rooms.torture_death_chance,            var_type(game.conf.rules.rooms.torture_death_chance            ),       0,      100},
+  {"BARRACKMAXPARTYSIZE",                 &game.conf.rules.rooms.barrack_max_party_size,          var_type(game.conf.rules.rooms.barrack_max_party_size          ),       0,GROUP_MEMBERS_COUNT},
+  {"TRAININGROOMMAXLEVEL",                &game.conf.rules.rooms.training_room_max_level,         var_type(game.conf.rules.rooms.training_room_max_level         ),       0,11},
+  {NULL,NULL,0,0,0 },
+  
   };
 
-const struct NamedCommand rules_magic_commands[] = {
-  {"HOLDAUDIENCETIME",              1},
-  {"ARMAGEDONTELEPORTYOURTIMEGAP",  2},
-  {"ARMAGEDONTELEPORTENEMYTIMEGAP", 3},
-  {"ARMEGEDDONTELEPORTNEUTRALS",    4},
-  {"ARMEGEDDONCOUNTDOWN",           5},
-  {"ARMEGEDDONDURATION",            6},
-  {"DISEASETRANSFERPERCENTAGE",     7},
-  {"DISEASELOSEPERCENTAGEHEALTH",   8},
-  {"DISEASELOSEHEALTHTIME",         9},
-  {"MINDISTANCEFORTELEPORT",       10},
-  {"COLLAPSEDUNGEONDAMAGE",        11},
-  {"TURNSPERCOLLAPSEDUNGEONDAMAGE",12},
-  {"DEFAULTSACRIFICESCOREFORHORNY",13},
-  {"POWERHANDGOLDGRABAMOUNT",      14},
-  {"FRIENDLYFIGHTAREARANGEPERCENT",15},
-  {"FRIENDLYFIGHTAREADAMAGEPERCENT",16},
-  {NULL,                            0},
-  };
+const struct NamedField rules_workers_named_fields[] = {
+  {"HITSPERSLAB",                &game.conf.rules.workers.hits_per_slab,              var_type(game.conf.rules.workers.hits_per_slab              ), 0, UCHAR_MAX},
+  {"DEFAULTIMPDIGDAMAGE",        &game.conf.rules.workers.default_imp_dig_damage,     var_type(game.conf.rules.workers.default_imp_dig_damage     ), 0, ULONG_MAX},
+  {"DEFAULTIMPDIGOWNDAMAGE",     &game.conf.rules.workers.default_imp_dig_own_damage, var_type(game.conf.rules.workers.default_imp_dig_own_damage ), 0, ULONG_MAX},
+  {"IMPWORKEXPERIENCE",          &game.conf.rules.workers.digger_work_experience,     var_type(game.conf.rules.workers.digger_work_experience     ), 0, LONG_MAX},
+  {"DRAGUNCONSCIOUSTOLAIR",      &game.conf.rules.workers.drag_to_lair,               var_type(game.conf.rules.workers.drag_to_lair),                0, 2},
+  {NULL,NULL,0,0,0 },
+};
 
-const struct NamedCommand rules_rooms_commands[] = {
-  {"SCAVENGECOSTFREQUENCY",                1},
-  {"TEMPLESCAVENGEPROTECTIONTIME",         2},
-  {"TRAINCOSTFREQUENCY",                   3},
-  {"TORTURECONVERTCHANCE",                 4},
-  {"TIMESPENTINPRISONWITHOUTBREAK",        5},
-  {"GHOSTCONVERTCHANCE",                   6},
-  {"ARMORYTIME",                           7},
-  {"WORKSHOPTIME",                         8},
-  {"OBSERVATORYTIME",                      9},
-  {"OBSERVATORYGENERATE",                 10},
-  {"DEFAULTGENERATESPEED",                11},
-  {"DEFAULTMAXCREATURESGENERATEENTRANCE", 12},
-  {"DEFAULTNEUTRALENTRANCELEVEL",         13},
-  {"BARRACKTIME",                         14},
-  {"FOODGENERATIONSPEED",                 15},
-  {"PRISONSKELETONCHANCE",                16},
-  {"BODIESFORVAMPIRE",                    17},
-  {"GRAVEYARDCONVERTTIME",                18},
-  {"SCAVENGEGOODALLOWED",                 19},
-  {"SCAVENGENEUTRALALLOWED",              20},
-  {"TIMEBETWEENPRISONBREAK",              21},
-  {"PRISONBREAKCHANCE",                   22},
-  {"TORTUREDEATHCHANCE",                  23},
-  {"BARRACKMAXPARTYSIZE",                 24},
-  {"TRAININGROOMMAXLEVEL",                25},
-  {NULL,                                   0},
-  };
-
-const struct NamedCommand rules_workers_commands[] = {
-  {"HITSPERSLAB",                1},
-  {"IMPJOBNOTSOCLOSE",           2},
-  {"IMPJOBFARAWAY",              3},
-  {"IMPGENERATETIME",            4},
-  {"IMPROVEAREA",                5},
-  {"DEFAULTIMPDIGDAMAGE",        6},
-  {"DEFAULTIMPDIGOWNDAMAGE",     7},
-  {"PERIMPGOLDDIGSIZE",          8},
-  {"IMPWORKEXPERIENCE",          9},
-  {NULL,                         0},
-  };
-
-const struct NamedCommand rules_health_commands[] = {
-  {"HUNGERHEALTHLOSS",              1},
-  {"GAMETURNSPERHUNGERHEALTHLOSS",  2},
-  {"FOODHEALTHGAIN",                3},
-  {"PRISONHEALTHGAIN",              4},
-  {"GAMETURNSPERPRISONHEALTHGAIN",  5},
-  {"TORTUREHEALTHLOSS",             6},
-  {"GAMETURNSPERTORTUREHEALTHLOSS", 7},
-  {NULL,                            0},
+const struct NamedField rules_health_named_fields[] = {
+  {"HUNGERHEALTHLOSS",              &game.conf.rules.health.hunger_health_loss,            var_type(game.conf.rules.health.hunger_health_loss           ), LONG_MIN, LONG_MAX},
+  {"GAMETURNSPERHUNGERHEALTHLOSS",  &game.conf.rules.health.turns_per_hunger_health_loss,  var_type(game.conf.rules.health.turns_per_hunger_health_loss ),        0, USHRT_MAX},
+  {"FOODHEALTHGAIN",                &game.conf.rules.health.food_health_gain,              var_type(game.conf.rules.health.food_health_gain             ), LONG_MIN, LONG_MAX},
+  {"TORTUREHEALTHLOSS",             &game.conf.rules.health.torture_health_loss,           var_type(game.conf.rules.health.torture_health_loss          ), LONG_MIN, LONG_MAX},
+  {"GAMETURNSPERTORTUREHEALTHLOSS", &game.conf.rules.health.turns_per_torture_health_loss, var_type(game.conf.rules.health.turns_per_torture_health_loss),        0, USHRT_MAX},
+  {NULL,NULL,0,0,0 },
   };
 
 const struct NamedCommand rules_research_commands[] = {
@@ -224,12 +216,14 @@ const struct NamedCommand rules_sacrifices_commands[] = {
   };
 
 const struct NamedCommand sacrifice_unique_desc[] = {
-  {"ALL_CREATRS_ANGRY",   UnqF_MkAllAngry},
-  {"COMPLETE_RESEARCH",   UnqF_ComplResrch},
-  {"COMPLETE_MANUFACTR",  UnqF_ComplManufc},
-  {"KILL_ALL_CHICKENS",   UnqF_KillChickns},
-  {"CHEAPER_IMPS",        UnqF_CheaperImp},
-  {"COSTLIER_IMPS",       UnqF_CostlierImp},
+  {"ALL_CREATRS_ANGRY",     UnqF_MkAllAngry},
+  {"ALL_CREATRS_HAPPY",     UnqF_MkAllHappy},
+  {"COMPLETE_RESEARCH",     UnqF_ComplResrch},
+  {"COMPLETE_MANUFACTR",    UnqF_ComplManufc},
+  {"KILL_ALL_CHICKENS",     UnqF_KillChickns},
+  {"CHEAPER_IMPS",          UnqF_CheaperImp},
+  {"COSTLIER_IMPS",         UnqF_CostlierImp},
+  {"ALL_CREATRS_VER_ANGRY", UnqF_MkAllVerAngry},
   {NULL,                  0},
   };
 /******************************************************************************/
@@ -240,11 +234,11 @@ struct SacrificeRecipe *get_unused_sacrifice_recipe_slot(void)
 {
     for (long i = 1; i < MAX_SACRIFICE_RECIPES; i++)
     {
-        struct SacrificeRecipe* sac = &gameadd.sacrifice_recipes[i];
+        struct SacrificeRecipe* sac = &game.conf.rules.sacrifices.sacrifice_recipes[i];
         if (sac->action == SacA_None)
             return sac;
   }
-  return &gameadd.sacrifice_recipes[0];
+  return &game.conf.rules.sacrifices.sacrifice_recipes[0];
 }
 
 /**
@@ -254,7 +248,7 @@ void clear_sacrifice_recipes(void)
 {
     for (long i = 0; i < MAX_SACRIFICE_RECIPES; i++)
     {
-        struct SacrificeRecipe* sac = &gameadd.sacrifice_recipes[i];
+        struct SacrificeRecipe* sac = &game.conf.rules.sacrifices.sacrifice_recipes[i];
         LbMemorySet(sac, '\0', sizeof(struct SacrificeRecipe));
         sac->action = SacA_None;
   }
@@ -265,6 +259,90 @@ static int long_compare_fn(const void *ptr_a, const void *ptr_b)
     long *a = (long*)ptr_a;
     long *b = (long*)ptr_b;
     return *a < *b;
+}
+
+static void set_defaults()
+{
+    // Game block.
+    game.conf.rules.game.gold_per_gold_block = 1000;
+    game.conf.rules.game.pot_of_gold_holds = 1000;
+    game.conf.rules.game.gold_pile_value = 500;
+    game.conf.rules.game.gold_pile_maximum = 5000;
+    game.conf.rules.game.food_life_out_of_hatchery = 100;
+    game.conf.rules.game.boulder_reduce_health_slap = 10;
+    game.conf.rules.game.boulder_reduce_health_wall = 10;
+    game.conf.rules.game.boulder_reduce_health_room = 10;
+    game.conf.rules.game.pay_day_gap = 5000;
+    game.conf.rules.game.chest_gold_hold = 1000;
+    game.conf.rules.game.dungeon_heart_heal_time = 10;
+    game.conf.rules.game.dungeon_heart_heal_health = 1;
+    game.conf.rules.game.hero_door_wait_time = 100;
+    game.conf.rules.game.bag_gold_hold = 200;
+    game.conf.rules.game.classic_bugs_flags = ClscBug_None;
+    game.conf.rules.game.door_sale_percent = 100;
+    game.conf.rules.game.room_sale_percent = 50;
+    game.conf.rules.game.trap_sale_percent = 100;
+    game.conf.rules.game.gem_effectiveness = 17;
+    game.conf.rules.game.pay_day_speed = 100;
+    game.conf.rules.game.gold_per_hoard = 2000;
+    game.conf.rules.game.torture_payday = 50;
+    game.conf.rules.game.torture_training_cost = 100;
+    game.conf.rules.game.torture_scavenging_cost = 100;
+    game.conf.rules.game.creatures_count = 255;
+    // Creature block.
+    game.conf.rules.creature.recovery_frequency = 10;
+    game.conf.rules.creature.fight_max_hate = 200;
+    game.conf.rules.creature.fight_borderline = 0;
+    game.conf.rules.creature.fight_max_love = -100;
+    game.conf.rules.creature.body_remains_for = 1000;
+    game.conf.rules.creature.fight_hate_kill_value = -5;
+    game.conf.rules.creature.flee_zone_radius = 2048;
+    game.conf.rules.creature.game_turns_in_flee = 200;
+    game.conf.rules.creature.game_turns_unconscious = 2000;
+    game.conf.rules.creature.critical_health_permil = 125;
+    game.conf.rules.creature.stun_enemy_chance_good = 100;
+    game.conf.rules.creature.stun_enemy_chance_evil = 100;
+    // Magic block.
+    game.conf.rules.magic.hold_audience_time = 500;
+    game.conf.rules.magic.armageddon_teleport_your_time_gap = 10;
+    game.conf.rules.magic.armageddon_teleport_enemy_time_gap = 10;
+    game.armageddon.count_down = 500;
+    game.armageddon.duration = 4000;
+    game.conf.rules.magic.disease_transfer_percentage = 15;
+    game.conf.rules.magic.disease_lose_percentage_health = 8;
+    game.conf.rules.magic.disease_lose_health_time = 200;
+    game.conf.rules.magic.min_distance_for_teleport = 20;
+    game.conf.rules.magic.collapse_dungeon_damage = 10;
+    game.conf.rules.magic.turns_per_collapse_dngn_dmg = 4;
+    game.conf.rules.magic.weight_calculate_push = 0;
+    // Health block.
+    game.conf.rules.health.hunger_health_loss = 1;
+    game.conf.rules.health.turns_per_hunger_health_loss = 100;
+    game.conf.rules.health.food_health_gain = 10;
+    game.conf.rules.health.torture_health_loss = 5;
+    game.conf.rules.health.turns_per_torture_health_loss = 100;
+    // Rooms block.
+    game.conf.rules.rooms.scavenge_cost_frequency = 64;
+    game.conf.rules.rooms.temple_scavenge_protection_turns = 1000;
+    game.conf.rules.rooms.train_cost_frequency = 64;
+    game.conf.rules.rooms.ghost_convert_chance = 10;
+    game.conf.rules.rooms.default_generate_speed = 350;
+    game.conf.rules.rooms.default_max_crtrs_gen_entrance = 200;
+    game.conf.rules.rooms.food_generation_speed = 2000;
+    game.conf.rules.rooms.prison_skeleton_chance = 100;
+    game.conf.rules.rooms.bodies_for_vampire = 6;
+    game.conf.rules.rooms.graveyard_convert_time = 300;
+    game.conf.rules.rooms.barrack_max_party_size = 10;
+    game.conf.rules.rooms.training_room_max_level = 0;
+    game.conf.rules.rooms.scavenge_good_allowed = 1;
+    game.conf.rules.rooms.scavenge_neutral_allowed = 1;
+    game.conf.rules.rooms.time_between_prison_break = 64;
+    // Computer block - maybe it should be moved to computer config on a later PR?
+    game.conf.rules.computer.disease_to_temple_pct = 500;
+    // Workers block.
+    game.conf.rules.workers.hits_per_slab = 2;
+    game.conf.rules.workers.default_imp_dig_damage = 1;
+    game.conf.rules.workers.default_imp_dig_own_damage = 2;
 }
 
 TbBool add_sacrifice_victim(struct SacrificeRecipe *sac, long crtr_idx)
@@ -285,1584 +363,125 @@ TbBool add_sacrifice_victim(struct SacrificeRecipe *sac, long crtr_idx)
   return false;
 }
 
-TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
+static void game_block_special_cases(int cmd_num,const char *buf,long *pos,long len)
 {
-    // Block name and parameter word store variables
-    // Initialize block data
-    if ((flags & CnfLd_AcceptPartial) == 0)
+    #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(rules_game_commands,cmd_num)
+    char word_buf[COMMAND_WORD_LEN];
+    switch (cmd_num)
     {
-        game.gold_per_gold_block = 1000;
-        game.pot_of_gold_holds = 1000;
-        game.gold_pile_value = 500;
-        game.gold_pile_maximum = 5000;
-        game.food_life_out_of_hatchery = 100;
-        game.boulder_reduce_health_slap = 10;
-        game.boulder_reduce_health_wall = 10;
-        game.boulder_reduce_health_room = 10;
-        game.pay_day_gap = 5000;
-        game.chest_gold_hold = 1000;
-        game.dungeon_heart_heal_time = 10;
-        game.dungeon_heart_heal_health = 1;
-        game.hero_door_wait_time = 100;
-        gameadd.bag_gold_hold = 200;
-        gameadd.classic_bugs_flags = ClscBug_None;
-        gameadd.door_sale_percent = 100;
-        gameadd.room_sale_percent = 50;
-        gameadd.trap_sale_percent = 100;
-        gameadd.gem_effectiveness = 17;
-        gameadd.pay_day_speed = 100;
-        gameadd.place_traps_on_subtiles = false;
-        gameadd.gold_per_hoard = 2000;
+        case 1: // PRESERVECLASSICBUGS
+            game.conf.rules.game.classic_bugs_flags = ClscBug_None;
+            while (get_conf_parameter_single(buf,pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                int k = get_id(rules_game_classicbugs_commands, word_buf);
+                switch (k)
+                {
+                case 1: // RESURRECT_FOREVER
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_ResurrectForever;
+                    break;
+                case 2: // OVERFLOW_8BIT
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_Overflow8bitVal;
+                    break;
+                case 3: // CLAIM_ROOM_ALL_THINGS
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_ClaimRoomAllThings;
+                    break;
+                case 4: // RESURRECT_REMOVED
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_ResurrectRemoved;
+                    break;
+                case 5: // NO_HAND_PURGE_ON_DEFEAT
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_NoHandPurgeOnDefeat;
+                    break;
+                case 6: // MUST_OBEY_KEEPS_NOT_DO_JOBS
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_MustObeyKeepsNotDoJobs;
+                    break;
+                case 7: // BREAK_NEUTRAL_WALLS
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_BreakNeutralWalls;
+                    break;
+                case 8: // ALWAYS_TUNNEL_TO_RED
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_AlwaysTunnelToRed;
+                    break;
+                case 9: // FULLY_HAPPY_WITH_GOLD
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_FullyHappyWithGold;
+                    break;
+                case 10: // FAINTED_IMMUNE_TO_BOULDER
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_FaintedImmuneToBoulder;
+                    break;
+                case 11: // REBIRTH_KEEPS_SPELLS
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_RebirthKeepsSpells;
+                    break;
+                case 12: // STUN_FRIENDLY_UNITS
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_FriendlyFaint;
+                    break;
+                case 13: // PASSIVE_NEUTRALS
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_PassiveNeutrals;
+                    break;
+                case 14: // NEUTRAL_TORTURE_CONVERTS
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_NeutralTortureConverts;
+                    break;
+                default:
+
+                    break;
+                }
+            }
+            break;
     }
-    // Find the block
-    char block_buf[COMMAND_WORD_LEN];
-    sprintf(block_buf, "game");
+#undef COMMAND_TEXT
+}
+
+static void creatures_block_special_cases(int cmd_num,const char *buf,long *pos,long len)
+{
+    char word_buf[COMMAND_WORD_LEN];
+    switch (cmd_num)
+    {
+       case 1: // CRITICALHEALTHPERCENTAGE
+          if (get_conf_parameter_single(buf,pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            int k = atoi(word_buf);
+            game.conf.rules.creature.critical_health_permil = k*10;
+          }
+          break;
+    }
+}
+
+TbBool parse_rules_block(const char *buf, long len, const char *config_textname, unsigned short flags,const char* blockname,
+                         const struct NamedField named_field[],const struct NamedCommand *named_command,void (*specialCases)(int cmd_num,const char *bf,long *ps,long ln))
+{
     long pos = 0;
-    int k = find_conf_block(buf, &pos, len, block_buf);
+    int k = find_conf_block(buf, &pos, len, blockname);
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+            WARNMSG("Block [%s] not found in %s file.",blockname,config_textname);
         return false;
     }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(rules_game_commands,cmd_num)
+
     while (pos<len)
     {
         // Finding command number in this line
-        int cmd_num = recognize_conf_command(buf, &pos, len, rules_game_commands);
-        // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
-        int n = 0;
-        char word_buf[COMMAND_WORD_LEN];
-        switch (cmd_num)
+        int assignresult = assign_conf_command_field(buf, &pos, len, named_field);
+        if( assignresult == ccr_ok || assignresult == ccr_comment )
         {
-        case 1: // GOLDPERGOLDBLOCK
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            skip_conf_to_next_line(buf,&pos,len);
+            continue;
+        }
+        else if( assignresult == ccr_unrecognised)
+        {
+            // Finding command number in this line
+            if (named_command != NULL)
             {
-              k = atoi(word_buf);
-              game.gold_per_gold_block = k;
-              n++;
+                int cmd_num = recognize_conf_command(buf, &pos, len, named_command);
+                specialCases(cmd_num,buf,&pos,len);
             }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 2: // POTOFGOLDHOLDS
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.pot_of_gold_holds = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 3: // CHESTGOLDHOLD
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.chest_gold_hold = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 4: // GOLDPILEVALUE
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.gold_pile_value = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 5: // GOLDPILEMAXIMUM
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.gold_pile_maximum = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 6: // GOLDPERHOARD
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              gameadd.gold_per_hoard = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 7: // FOODLIFEOUTOFHATCHERY
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.food_life_out_of_hatchery = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 8: // DOUBLECLICKSPEED
-            //Unused
-            break;
-        case 9: // DOOROPENFOR
-            //Unused
-            break;
-        case 10: // BOULDERREDUCEHEALTHSLAP
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.boulder_reduce_health_slap = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 11: // BOULDERREDUCEHEALTHWALL
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.boulder_reduce_health_wall = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 12: // BOULDERREDUCEHEALTHROOM
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.boulder_reduce_health_room = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 13: // TILESTRENGTH
-        case 14: // GOLDTILESTRENGTH
-        case 15: // MINIMUMGOLD
-        case 16: // MAXGOLDLOOKUP
-        case 17: // MINGOLDTORECORD
-        //unused
-            break;
-        case 18: // PAYDAYGAP
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.pay_day_gap = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 19: // PAYDAYSPEED
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                gameadd.pay_day_speed = k;
-                n++;
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
-            }
-            break;
-        case 20: // SLABCOLLAPSETIME
-        case 21: // DUNGEONHEARTHEALTH
-            //Unused
-            break;
-        case 22: // DUNGEONHEARTHEALTIME
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.dungeon_heart_heal_time = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 23: // DUNGEONHEARTHEALHEALTH
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.dungeon_heart_heal_health = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 24: // HERODOORWAITTIME
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.hero_door_wait_time = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 25: // PRESERVECLASSICBUGS
-            gameadd.classic_bugs_flags = ClscBug_None;
-            while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = get_id(rules_game_classicbugs_commands, word_buf);
-              switch (k)
-              {
-              case 1: // RESURRECT_FOREVER
-                  gameadd.classic_bugs_flags |= ClscBug_ResurrectForever;
-                  n++;
-                  break;
-              case 2: // OVERFLOW_8BIT
-                  gameadd.classic_bugs_flags |= ClscBug_Overflow8bitVal;
-                  n++;
-                  break;
-              case 3: // CLAIM_ROOM_ALL_THINGS
-                  gameadd.classic_bugs_flags |= ClscBug_ClaimRoomAllThings;
-                  n++;
-                  break;
-              case 4: // RESURRECT_REMOVED
-                  gameadd.classic_bugs_flags |= ClscBug_ResurrectRemoved;
-                  n++;
-                  break;
-              case 5: // NO_HAND_PURGE_ON_DEFEAT
-                  gameadd.classic_bugs_flags |= ClscBug_NoHandPurgeOnDefeat;
-                  n++;
-                  break;
-              case 6: // MUST_OBEY_KEEPS_NOT_DO_JOBS
-                  gameadd.classic_bugs_flags |= ClscBug_MustObeyKeepsNotDoJobs;
-                  n++;
-                  break;
-              case 7: // BREAK_NEUTRAL_WALLS
-                  gameadd.classic_bugs_flags |= ClscBug_BreakNeutralWalls;
-                  n++;
-                  break;
-              case 8: // ALWAYS_TUNNEL_TO_RED
-                  gameadd.classic_bugs_flags |= ClscBug_AlwaysTunnelToRed;
-                  n++;
-                  break;
-              case 9: // FULLY_HAPPY_WITH_GOLD
-                  gameadd.classic_bugs_flags |= ClscBug_FullyHappyWithGold;
-                  n++;
-                  break;
-              case 10: // FAINTED_IMMUNE_TO_BOULDER
-                  gameadd.classic_bugs_flags |= ClscBug_FaintedImmuneToBoulder;
-                  n++;
-                  break;
-              case 11: // REBIRTH_KEEPS_SPELLS
-                  gameadd.classic_bugs_flags |= ClscBug_RebirthKeepsSpells;
-                  n++;
-                  break;
-              case 12: // STUN_FRIENDLY_UNITS
-                  gameadd.classic_bugs_flags |= ClscBug_FriendlyFaint;
-                  n++;
-                  break;
-              case 13: // PASSIVE_NEUTRALS
-                  gameadd.classic_bugs_flags |= ClscBug_PassiveNeutrals;
-                  n++;
-                  break;
-              case 14: // NEUTRAL_TORTURE_CONVERTS
-                  gameadd.classic_bugs_flags |= ClscBug_NeutralTortureConverts;
-                  n++;
-                  break;
-              default:
-                CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
-                break;
-              }
-            }
-            break;
-        case 26: // DEATHMATCHSTATUEREAPPERTIME
-        case 27: // DEATHMATCHOBJECTREAPPERTIME
-            //Unused
-            break;
-        case 28: // GEMEFFECTIVENESS
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                gameadd.gem_effectiveness = k;
-                n++;
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
-            }
-            break;
-        case 29: // ROOMSELLGOLDBACKPERCENT
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                gameadd.room_sale_percent = k;
-                n++;
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
-            }
-            break;
-        case 30: // DOORSELLVALUEPERCENT
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                gameadd.door_sale_percent = k;
-                n++;
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
-            }
-            break;
-        case 31: // TRAPSELLVALUEPERCENT
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                gameadd.trap_sale_percent = k;
-                n++;
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
-            }
-            break;
-        case 32: // PLACETRAPSONSUBTILES
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                gameadd.place_traps_on_subtiles = (TbBool)k;
-                n++;
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
-            }
-            break;
-        case 33: // BAGGOLDHOLD
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                gameadd.bag_gold_hold = k;
-                n++;
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
-            }
-            break;
-        case 34: // ALLIESSHAREVISION
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                gameadd.allies_share_vision = (TbBool)k;
-                n++;
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
-            }
-            break;
-        case 35: // ALLIESSHAREDROP
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                gameadd.allies_share_drop = (TbBool)k;
-                n++;
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
-            }
-            break;
-        case 36: // ALLIESSHARECTA
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                gameadd.allies_share_cta = (TbBool)k;
-                n++;
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
-            }
-            break;
-        case 37: // MAXTHINGSINHAND
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if (k > MAX_THINGS_IN_HAND)
-              {
-                  CONFWRNLOG("Value of \"%s\" parameter in [%s] block of %s file is out of range. Max %d.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname, MAX_THINGS_IN_HAND);
-                  k = MAX_THINGS_IN_HAND;
-              }
-              gameadd.max_things_in_hand = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 0: // comment
-            break;
-        case -1: // end of buffer
-            break;
-        default:
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
+            skip_conf_to_next_line(buf,&pos,len);
+            continue;
+        }
+        else if( assignresult == ccr_endOfBlock || assignresult == ccr_error || assignresult == ccr_endOfFile)
+        {
             break;
         }
-        skip_conf_to_next_line(buf,&pos,len);
     }
-#undef COMMAND_TEXT
     return true;
 }
-
-TbBool parse_rules_computer_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-    // Block name and parameter word store variables
-    // Default values
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        gameadd.disease_to_temple_pct = 500;
-    }
-    // Find the block
-    char block_buf[COMMAND_WORD_LEN];
-    sprintf(block_buf, "computer");
-    long pos = 0;
-    int k = find_conf_block(buf, &pos, len, block_buf);
-    if (k < 0)
-    {
-        if ((flags & CnfLd_AcceptPartial) == 0)
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-        return false;
-    }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(rules_computer_commands,cmd_num)
-    while (pos<len)
-    {
-        // Finding command number in this line
-        int cmd_num = recognize_conf_command(buf, &pos, len, rules_computer_commands);
-        // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
-        int n = 0;
-        char word_buf[COMMAND_WORD_LEN];
-        switch (cmd_num)
-        {
-        case 1: // AUTODIGLIMIT
-        case 2: // WAITFORROOMTIME
-        case 3: // CHECKEXPANDTIME
-        case 4: // MAXDISTANCETODIG
-        case 5: // WAITAFTERROOMAREA
-            //Unused
-            break;
-        case 6: // DISEASEHPTEMPLEPERCENTAGE
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                gameadd.disease_to_temple_pct = k;
-                n++;
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
-            }
-            break;
-        case 0: // comment
-            break;
-        case -1: // end of buffer
-            break;
-        default:
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
-            break;
-        }
-        skip_conf_to_next_line(buf,&pos,len);
-    }
-#undef COMMAND_TEXT
-    return true;
-}
-
-TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-  // Block name and parameter word store variables
-  // Default values
-  if ((flags & CnfLd_AcceptPartial) == 0)
-  {
-      game.recovery_frequency = 10;
-      game.fight_max_hate = 200;
-      game.fight_borderline = 0;
-      game.fight_max_love = -100;
-      game.body_remains_for = 1000;
-      game.fight_hate_kill_value = -5;
-      gameadd.flee_zone_radius = 2048;
-      game.game_turns_in_flee = 200;
-      gameadd.game_turns_unconscious = 2000;
-      gameadd.critical_health_permil = 125;
-      gameadd.stun_enemy_chance_good = 100;
-      gameadd.stun_enemy_chance_evil = 100;
-  }
-  // Find the block
-  char block_buf[COMMAND_WORD_LEN];
-  sprintf(block_buf, "creatures");
-  long pos = 0;
-  int k = find_conf_block(buf, &pos, len, block_buf);
-  if (k < 0)
-  {
-      if ((flags & CnfLd_AcceptPartial) == 0)
-          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-      return false;
-  }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(rules_creatures_commands,cmd_num)
-  while (pos<len)
-  {
-      // Finding command number in this line
-      int cmd_num = recognize_conf_command(buf, &pos, len, rules_creatures_commands);
-      // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
-      int n = 0;
-      char word_buf[COMMAND_WORD_LEN];
-      switch (cmd_num)
-      {
-      case 1: // RECOVERYFREQUENCY
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.recovery_frequency = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 2: // FIGHTMAXHATE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.fight_max_hate = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 3: // FIGHTBORDERLINE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.fight_borderline = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 4: // FIGHTMAXLOVE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.fight_max_love = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 5: // BODYREMAINSFOR
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.body_remains_for = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 6: // FIGHTHATEKILLVALUE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.fight_hate_kill_value = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 7: // FLEEZONERADIUS
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            gameadd.flee_zone_radius = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 8: // GAMETURNSINFLEE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.game_turns_in_flee = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 9: // GAMETURNSUNCONSCIOUS
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            gameadd.game_turns_unconscious = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 10: // CRITICALHEALTHPERCENTAGE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            gameadd.critical_health_permil = k*10;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 11: // STUNEVILENEMYCHANCE
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              gameadd.stun_enemy_chance_evil = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 12: // STUNGOODENEMYCHANCE
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              gameadd.stun_enemy_chance_good = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 0: // comment
-          break;
-      case -1: // end of buffer
-          break;
-      default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
-  }
-#undef COMMAND_TEXT
-  return true;
-}
-
-TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-  // Block name and parameter word store variables
-  // Default values
-  if ((flags & CnfLd_AcceptPartial) == 0)
-  {
-      game.hold_audience_time = 500;
-      game.armagedon_teleport_your_time_gap = 10;
-      game.armagedon_teleport_enemy_time_gap = 10;
-      game.armageddon.count_down = 500;
-      game.armageddon.duration = 4000;
-      game.disease_transfer_percentage = 15;
-      game.disease_lose_percentage_health = 8;
-      game.disease_lose_health_time = 200;
-      game.min_distance_for_teleport = 20;
-      game.collapse_dungeon_damage = 10;
-      game.turns_per_collapse_dngn_dmg = 4;
-      game.power_hand_gold_grab_amount = 100;
-  }
-  // Find the block
-  char block_buf[COMMAND_WORD_LEN];
-  sprintf(block_buf, "magic");
-  long pos = 0;
-  int k = find_conf_block(buf, &pos, len, block_buf);
-  if (k < 0)
-  {
-      if ((flags & CnfLd_AcceptPartial) == 0)
-          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-      return false;
-  }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(rules_magic_commands,cmd_num)
-  while (pos<len)
-  {
-      // Finding command number in this line
-      int cmd_num = recognize_conf_command(buf, &pos, len, rules_magic_commands);
-      // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
-      int n = 0;
-      char word_buf[COMMAND_WORD_LEN];
-      switch (cmd_num)
-      {
-      case 1: // HOLDAUDIENCETIME
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.hold_audience_time = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 2: // ARMAGEDONTELEPORTYOURTIMEGAP
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.armagedon_teleport_your_time_gap = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 3: // ARMAGEDONTELEPORTENEMYTIMEGAP
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.armagedon_teleport_enemy_time_gap = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 4: // ARMEGEDDONTELEPORTNEUTRALS
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            gameadd.armegeddon_teleport_neutrals = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 5: // ARMEGEDDONCOUNTDOWN
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.armageddon.count_down = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 6: // ARMEGEDDONDURATION
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.armageddon.duration = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 7: // DISEASETRANSFERPERCENTAGE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.disease_transfer_percentage = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 8: // DISEASELOSEPERCENTAGEHEALTH
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.disease_lose_percentage_health = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 9: // DISEASELOSEHEALTHTIME
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.disease_lose_health_time = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 10: // MINDISTANCEFORTELEPORT
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.min_distance_for_teleport = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 11: // COLLAPSEDUNGEONDAMAGE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.collapse_dungeon_damage = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 12: // TURNSPERCOLLAPSEDUNGEONDAMAGE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.turns_per_collapse_dngn_dmg = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 13: // DEFAULTSACRIFICESCOREFORHORNY
-          //Unused - scores are computed automatically
-          break;
-      case 14: // POWERHANDGOLDGRABAMOUNT
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.power_hand_gold_grab_amount = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 15: // FRIENDLYFIGHTAREARANGEPERCENT
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            gameadd.friendly_fight_area_range_permil = k * 10;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 16: // FRIENDLYFIGHTAREADAMAGEPERCENT
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            gameadd.friendly_fight_area_damage_permil = k * 10;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 0: // comment
-          break;
-      case -1: // end of buffer
-          break;
-      default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
-  }
-#undef COMMAND_TEXT
-  return true;
-}
-
-TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-  // Block name and parameter word store variables
-  // Default values
-  if ((flags & CnfLd_AcceptPartial) == 0)
-  {
-      game.scavenge_cost_frequency = 64;
-      game.temple_scavenge_protection_turns = 1000;
-      game.train_cost_frequency = 64;
-      game.ghost_convert_chance = 10;
-      game.default_generate_speed = 500;
-      game.default_max_crtrs_gen_entrance = 200;
-      game.food_generation_speed = 2000;
-      game.prison_skeleton_chance = 100;
-      game.bodies_for_vampire = 6;
-      game.graveyard_convert_time = 300;
-      game.barrack_max_party_size = 10;
-      game.training_room_max_level = 0;
-      gameadd.scavenge_good_allowed = 1;
-      gameadd.scavenge_neutral_allowed = 1;
-      gameadd.time_between_prison_break = 64;
-  }
-  // Find the block
-  char block_buf[COMMAND_WORD_LEN];
-  sprintf(block_buf, "rooms");
-  long pos = 0;
-  int k = find_conf_block(buf, &pos, len, block_buf);
-  if (k < 0)
-  {
-      if ((flags & CnfLd_AcceptPartial) == 0)
-          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-      return false;
-  }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(rules_rooms_commands,cmd_num)
-  while (pos<len)
-  {
-      // Finding command number in this line
-      int cmd_num = recognize_conf_command(buf, &pos, len, rules_rooms_commands);
-      // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
-      int n = 0;
-      char word_buf[COMMAND_WORD_LEN];
-      switch (cmd_num)
-      {
-      case 1: // SCAVENGECOSTFREQUENCY
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.scavenge_cost_frequency = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 2: // TEMPLESCAVENGEPROTECTIONTIME
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.temple_scavenge_protection_turns = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 3: // TRAINCOSTFREQUENCY
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.train_cost_frequency = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 4: // TORTURECONVERTCHANCE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            gameadd.torture_convert_chance = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 5: // TIMESPENTINPRISONWITHOUTBREAK
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            gameadd.time_in_prison_without_break = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 6: // GHOSTCONVERTCHANCE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.ghost_convert_chance = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 7: // ARMORYTIME
-          //Unused
-          break;
-      case 8: // WORKSHOPTIME
-          //Unused
-          break;
-      case 9: // OBSERVATORYTIME
-          //Unused
-          break;
-      case 10: // OBSERVATORYGENERATE
-          //Unused
-          break;
-      case 11: // DEFAULTGENERATESPEED
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.default_generate_speed = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 12: // DEFAULTMAXCREATURESGENERATEENTRANCE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.default_max_crtrs_gen_entrance = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 13: // DEFAULTNEUTRALENTRANCELEVEL
-          //Unused
-          break;
-      case 14: // BARRACKTIME
-          //Unused
-          break;
-      case 15: // FOODGENERATIONSPEED
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.food_generation_speed = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 16: // PRISONSKELETONCHANCE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.prison_skeleton_chance = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 17: // BODIESFORVAMPIRE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.bodies_for_vampire = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 18: // GRAVEYARDCONVERTTIME
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.graveyard_convert_time = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 19: // SCAVENGEGOODALLOWED
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            gameadd.scavenge_good_allowed = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 20: // SCAVENGENEUTRALALLOWED
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            gameadd.scavenge_neutral_allowed = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 21: // TIMEBETWEENPRISONBREAK
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            gameadd.time_between_prison_break = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 22: // PRISONBREAKCHANCE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            gameadd.prison_break_chance = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 23: // TORTUREDEATHCHANCE
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              gameadd.torture_death_chance = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 24: // BARRACKMAXPARTYSIZE
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              game.barrack_max_party_size = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 25: // TRAININGROOMMAXLEVEL
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              game.training_room_max_level = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 0: // comment
-          break;
-      case -1: // end of buffer
-          break;
-      default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
-  }
-#undef COMMAND_TEXT
-  //SYNCMSG("Prison skeleton chance = %d",game.prison_skeleton_chance);
-  return true;
-}
-
-TbBool parse_rules_workers_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-  // Block name and parameter word store variables
-  // Default values
-  if ((flags & CnfLd_AcceptPartial) == 0)
-  {
-      game.hits_per_slab = 2;
-      game.default_imp_dig_damage = 1;
-      game.default_imp_dig_own_damage = 2;
-  }
-  // Find the block
-  char block_buf[COMMAND_WORD_LEN];
-  sprintf(block_buf, "workers");
-  long pos = 0;
-  int k = find_conf_block(buf, &pos, len, block_buf);
-  if (k < 0)
-  {
-      if ((flags & CnfLd_AcceptPartial) == 0)
-          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-      return false;
-  }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(rules_workers_commands,cmd_num)
-  while (pos<len)
-  {
-      // Finding command number in this line
-      int cmd_num = recognize_conf_command(buf, &pos, len, rules_workers_commands);
-      // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
-      int n = 0;
-      char word_buf[COMMAND_WORD_LEN];
-      switch (cmd_num)
-      {
-      case 1: // HITSPERSLAB
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.hits_per_slab = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 2: // IMPJOBNOTSOCLOSE
-          //Unused
-          break;
-      case 3: // IMPJOBFARAWAY
-          //Unused
-          break;
-      case 4: // IMPGENERATETIME
-          //Unused
-          break;
-      case 5: // IMPROVEAREA
-          //Unused
-          break;
-      case 6: // DEFAULTIMPDIGDAMAGE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.default_imp_dig_damage = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 7: // DEFAULTIMPDIGOWNDAMAGE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.default_imp_dig_own_damage = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 8: // PERIMPGOLDDIGSIZE
-            //unused
-          break;
-      case 9: // IMPWORKEXPERIENCE
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              gameadd.digger_work_experience = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 0: // comment
-          break;
-      case -1: // end of buffer
-          break;
-      default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
-  }
-#undef COMMAND_TEXT
-  return true;
-}
-
-TbBool parse_rules_health_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-  // Block name and parameter word store variables
-  // Default values
-  if ((flags & CnfLd_AcceptPartial) == 0)
-  {
-      game.hunger_health_loss = 1;
-      game.turns_per_hunger_health_loss = 100;
-      game.food_health_gain = 10;
-      game.torture_health_loss = 5;
-      game.turns_per_torture_health_loss = 100;
-  }
-  // Find the block
-  char block_buf[COMMAND_WORD_LEN];
-  sprintf(block_buf, "health");
-  long pos = 0;
-  int k = find_conf_block(buf, &pos, len, block_buf);
-  if (k < 0)
-  {
-      if ((flags & CnfLd_AcceptPartial) == 0)
-          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-      return false;
-  }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(rules_health_commands,cmd_num)
-  while (pos<len)
-  {
-      // Finding command number in this line
-      int cmd_num = recognize_conf_command(buf, &pos, len, rules_health_commands);
-      // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
-      int n = 0;
-      char word_buf[COMMAND_WORD_LEN];
-      switch (cmd_num)
-      {
-      case 1: // HUNGERHEALTHLOSS
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.hunger_health_loss = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 2: // GAMETURNSPERHUNGERHEALTHLOSS
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.turns_per_hunger_health_loss = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 3: // FOODHEALTHGAIN
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.food_health_gain = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 4: // PRISONHEALTHGAIN
-          //Unused
-          break;
-      case 5: // GAMETURNSPERPRISONHEALTHGAIN
-          //Unused
-          break;
-      case 6: // TORTUREHEALTHLOSS
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.torture_health_loss = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 7: // GAMETURNSPERTORTUREHEALTHLOSS
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.turns_per_torture_health_loss = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 0: // comment
-          break;
-      case -1: // end of buffer
-          break;
-      default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
-  }
-#undef COMMAND_TEXT
-  return true;
-}
-
 long get_research_id(long item_type, const char *trg_name, const char *func_name)
 {
   long item_id;
@@ -1936,7 +555,7 @@ TbBool parse_rules_research_blocks(char *buf, long len, const char *config_textn
       // Finding command number in this line
       int cmd_num = recognize_conf_command(buf, &pos, len, rules_research_commands);
       // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
+      if (cmd_num == ccr_endOfBlock) break; // if next block starts
       int n = 0;
       int l = 0;
       switch (cmd_num)
@@ -1968,9 +587,9 @@ TbBool parse_rules_research_blocks(char *buf, long len, const char *config_textn
               }
               add_research_to_all_players(i, l, k);
               break;
-      case 0: // comment
+      case ccr_comment:
           break;
-      case -1: // end of buffer
+      case ccr_endOfFile:
           break;
       default:
           CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -1988,24 +607,24 @@ TbBool parse_rules_research_blocks(char *buf, long len, const char *config_textn
  */
 static void mark_cheaper_diggers_sacrifice(void)
 {
-    gameadd.cheaper_diggers_sacrifice_model = 0;
+    game.conf.rules.sacrifices.cheaper_diggers_sacrifice_model = 0;
     for (int i = 1; i < MAX_SACRIFICE_RECIPES; i++)
     {
-        struct SacrificeRecipe* sac = &gameadd.sacrifice_recipes[i];
+        struct SacrificeRecipe* sac = &game.conf.rules.sacrifices.sacrifice_recipes[i];
         if (sac->action == SacA_None)
             continue;
         if (((sac->action == SacA_PosUniqFunc) && (sac->param == UnqF_CheaperImp)) 
             || ((sac->action == SacA_NegUniqFunc) && (sac->param == UnqF_CostlierImp)))
         {
-            if ((sac->victims[1] == 0) && (gameadd.cheaper_diggers_sacrifice_model == 0)) {
-                gameadd.cheaper_diggers_sacrifice_model = sac->victims[0];
+            if ((sac->victims[1] == 0) && (game.conf.rules.sacrifices.cheaper_diggers_sacrifice_model == 0)) {
+                game.conf.rules.sacrifices.cheaper_diggers_sacrifice_model = sac->victims[0];
             } else {
                 WARNLOG("Found unsupported %s sacrifice; either there's more than one, or has one than more victim.",
                     get_conf_parameter_text(sacrifice_unique_desc,UnqF_CheaperImp));
             }
         }
     }
-    SYNCDBG(4,"Marked sacrifice of %s",thing_class_and_model_name(TCls_Creature, gameadd.cheaper_diggers_sacrifice_model));
+    SYNCDBG(4,"Marked sacrifice of %s",thing_class_and_model_name(TCls_Creature, game.conf.rules.sacrifices.cheaper_diggers_sacrifice_model));
 }
 
 TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
@@ -2032,7 +651,7 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, rules_sacrifices_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         int n = 0;
         struct SacrificeRecipe* sac;
         switch (cmd_num)
@@ -2051,7 +670,7 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
               break;
             }
             sac = get_unused_sacrifice_recipe_slot();
-            if (sac <= &gameadd.sacrifice_recipes[0])
+            if (sac <= &game.conf.rules.sacrifices.sacrifice_recipes[0])
             {
               CONFWRNLOG("No free slot to store \"%s\" from [%s] block of %s file.",
                   word_buf,block_buf,config_textname);
@@ -2097,7 +716,7 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
               break;
             }
             sac = get_unused_sacrifice_recipe_slot();
-            if (sac <= &gameadd.sacrifice_recipes[0])
+            if (sac <= &game.conf.rules.sacrifices.sacrifice_recipes[0])
             {
               CONFWRNLOG("No free slot to store \"%s\" from [%s] block of %s file.",
                   word_buf,block_buf,config_textname);
@@ -2143,7 +762,7 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
               break;
             }
             sac = get_unused_sacrifice_recipe_slot();
-            if (sac <= &gameadd.sacrifice_recipes[0])
+            if (sac <= &game.conf.rules.sacrifices.sacrifice_recipes[0])
             {
               CONFWRNLOG("No free slot to store \"%s\" from [%s] block of %s file.",
                   word_buf,block_buf,config_textname);
@@ -2175,9 +794,9 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
             }
             n++; // delayed increase for first argument
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -2208,62 +827,15 @@ TbBool load_rules_config_file(const char *textname, const char *fname, unsigned 
     len = LbFileLoadAt(fname, buf);
     TbBool result = (len > 0);
     // Parse blocks of the config file
-    if (result)
-    {
-        result = parse_rules_game_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" game blocks failed.",textname,fname);
-    }
-    if (result)
-    {
-        result = parse_rules_computer_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" computer blocks failed.",textname,fname);
-    }
-    if (result)
-    {
-        result = parse_rules_creatures_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" creatures blocks failed.",textname,fname);
-    }
-    if (result)
-    {
-        result = parse_rules_magic_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" magic blocks failed.",textname,fname);
-    }
-    if (result)
-    {
-        result = parse_rules_rooms_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" rooms blocks failed.",textname,fname);
-    }
-    if (result)
-    {
-        result = parse_rules_workers_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" workers blocks failed.",textname,fname);
-    }
-    if (result)
-    {
-        result = parse_rules_health_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" health blocks failed.",textname,fname);
-    }
+
+    parse_rules_block(buf, len, textname, flags,"game",     rules_game_named_fields,     rules_game_commands,    &game_block_special_cases);
+    parse_rules_block(buf, len, textname, flags,"creatures",rules_creatures_named_fields,rules_creature_commands,&creatures_block_special_cases);
+    parse_rules_block(buf, len, textname, flags,"rooms",    rules_rooms_named_fields,    NULL,                   NULL);
+    parse_rules_block(buf, len, textname, flags,"magic",    rules_magic_named_fields,    NULL,                   NULL);
+    parse_rules_block(buf, len, textname, flags,"computer", rules_computer_named_fields, NULL,                   NULL);
+    parse_rules_block(buf, len, textname, flags,"workers",  rules_workers_named_fields,  NULL,                   NULL);
+    parse_rules_block(buf, len, textname, flags,"health",   rules_health_named_fields,   NULL,                   NULL);
+
     if (result)
     {
         result = parse_rules_research_blocks(buf, len, textname, flags);
@@ -2289,12 +861,21 @@ TbBool load_rules_config(const char *conf_fname, unsigned short flags)
 {
     static const char config_global_textname[] = "global rules config";
     static const char config_campgn_textname[] = "campaign rules config";
+    static const char config_level_textname[] = "level rules config";
+
+    set_defaults();
+
     char* fname = prepare_file_path(FGrp_FxData, conf_fname);
     TbBool result = load_rules_config_file(config_global_textname, fname, flags);
     fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
     if (strlen(fname) > 0)
     {
         load_rules_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
+    if (strlen(fname) > 0)
+    {
+        load_rules_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
     //Freeing and exiting
     return result;

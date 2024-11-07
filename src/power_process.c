@@ -164,7 +164,7 @@ void teleport_armageddon_influenced_creature(struct Thing* creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->armageddon_teleport_turn = 0;
-    create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
+    create_effect(&creatng->mappos, imp_spangle_effects[get_player_color_idx(creatng->owner)], creatng->owner);
     move_thing_in_map(creatng, &game.armageddon.mappos);
     cleanup_current_thing_state(creatng);
     reset_interpolation_of_thing(creatng);
@@ -190,7 +190,7 @@ void process_disease(struct Thing *creatng)
     if (!creature_affected_by_spell(creatng, SplK_Disease)) {
         return;
     }
-    if (CREATURE_RANDOM(creatng, 100) < game.disease_transfer_percentage)
+    if (CREATURE_RANDOM(creatng, 100) < game.conf.rules.magic.disease_transfer_percentage)
     {
         SubtlCodedCoords stl_num = get_subtile_number(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
         for (long n = 0; n < AROUND_MAP_LENGTH; n++)
@@ -226,9 +226,9 @@ void process_disease(struct Thing *creatng)
             }
         }
     }
-    if (((game.play_gameturn - cctrl->disease_start_turn) % game.disease_lose_health_time) == 0)
+    if (((game.play_gameturn - cctrl->disease_start_turn) % game.conf.rules.magic.disease_lose_health_time) == 0)
     {
-        apply_damage_to_thing_and_display_health(creatng, game.disease_lose_percentage_health * cctrl->max_health / 100, DmgT_Biological, cctrl->disease_caster_plyridx);
+        apply_damage_to_thing_and_display_health(creatng, game.conf.rules.magic.disease_lose_percentage_health * cctrl->max_health / 100, DmgT_Biological, cctrl->disease_caster_plyridx);
     }
 }
 
@@ -279,6 +279,7 @@ void update_god_lightning_ball(struct Thing *thing)
         lightning_modify_palette(thing);
         return;
     }
+    struct ShotConfigStats* shotst;
     long i = (game.play_gameturn - thing->creation_turn) % 16;
     struct Thing* target;
     switch (i)
@@ -290,19 +291,20 @@ void update_god_lightning_ball(struct Thing *thing)
         target = thing_get(thing->shot.target_idx);
         if (thing_is_invalid(target))
             break;
-        draw_lightning(&thing->mappos,&target->mappos, 96, TngEffElm_ElectricBall3);
+        shotst = get_shot_model_stats(thing->model);
+        draw_lightning(&thing->mappos,&target->mappos, shotst->effect_spacing, shotst->effect_id);
         break;
     case 2:
     {
         target = thing_get(thing->shot.target_idx);
         if (thing_is_invalid(target))
             break;
-        struct ShotConfigStats* shotst = get_shot_model_stats(ShM_GodLightBall);
+        shotst = get_shot_model_stats(thing->model);
         apply_damage_to_thing_and_display_health(target, shotst->damage, shotst->damage_type, thing->owner);
         if (target->health < 0)
         {
             struct CreatureControl* cctrl = creature_control_get_from_thing(target);
-            cctrl->shot_model = ShM_GodLightBall;
+            cctrl->shot_model = thing->model;
             kill_creature(target, INVALID_THING, thing->owner, CrDed_DiedInBattle);
         }
         thing->shot.target_idx = 0;
@@ -339,8 +341,8 @@ void god_lightning_choose_next_creature(struct Thing *shotng)
             {
                 const struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_LIGHTNING);
                 int spell_lev = shotng->shot.spell_level;
-                if (spell_lev > SPELL_MAX_LEVEL)
-                    spell_lev = SPELL_MAX_LEVEL;
+                if (spell_lev > POWER_MAX_LEVEL)
+                    spell_lev = POWER_MAX_LEVEL;
                 if (subtile_coord(pwrdynst->strength[spell_lev],0) > dist)
                 {
                     if (line_of_sight_2d(&shotng->mappos, &thing->mappos)) {
@@ -381,7 +383,8 @@ void draw_god_lightning(struct Thing *shotng)
         locpos.x.val = (shotng->mappos.x.val + (LbSinL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10))) + 128;
         locpos.y.val = (shotng->mappos.y.val - (LbCosL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10))) + 128;
         locpos.z.val = shotng->mappos.z.val + subtile_coord(12,0);
-        draw_lightning(&locpos, &shotng->mappos, 256, TngEffElm_ElectricBall3);
+        struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model); //default ShM_GodLightning
+        draw_lightning(&locpos, &shotng->mappos, shotst->effect_spacing, shotst->effect_id);
     }
 }
 
@@ -420,7 +423,7 @@ void turn_off_power_call_to_arms(PlayerNumber plyr_idx)
     }
     struct PlayerInfo* player = get_player(plyr_idx);
     {
-        struct Thing* objtng = thing_get(player->field_43C);
+        struct Thing* objtng = thing_get(player->cta_flag_idx);
         set_call_to_arms_as_dying(objtng);
         struct Dungeon* dungeon = get_players_dungeon(player);
         dungeon->cta_start_turn = 0;
@@ -672,6 +675,10 @@ void process_timebomb(struct Thing *creatng)
     if (!creature_affected_by_spell(creatng, SplK_TimeBomb)) {
         return;
     }
+    if (thing_is_picked_up(creatng))
+    {
+        return;
+    }
     update_creature_speed(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* timetng = thing_get(cctrl->timebomb_countdown_id);
@@ -730,38 +737,40 @@ void timebomb_explode(struct Thing *creatng)
     SYNCDBG(8, "Explode Timebomb")
     //struct Thing* castng = creatng; //todo cleanup
     long weight = compute_creature_weight(creatng);
-    long weight_multiplier = weight / 64;
-    
+    #define weight_divisor 64
     if (shotst->area_range != 0) {
         struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-        long dist = (compute_creature_attack_range(shotst->area_range * COORD_PER_STL, crstat->luck, cctrl->explevel) * weight_multiplier);
-        long damage = (compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel, creatng) * weight_multiplier);
+        long dist = (compute_creature_attack_range(shotst->area_range * COORD_PER_STL, crstat->luck, cctrl->explevel) * weight) / weight_divisor;
+        long damage = (compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel, creatng) * weight) / weight_divisor;
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
-        explosion_affecting_area(creatng, &creatng->mappos, dist, damage, shotst->area_blow * weight_multiplier, hit_targets, shotst->damage_type);
+        explosion_affecting_area(creatng, &creatng->mappos, dist, damage, (shotst->area_blow * weight) / weight_divisor, hit_targets, shotst->damage_type);
     }
-
-    create_used_effect_or_element(&creatng->mappos, shotst->explode.effect1_model, creatng->owner);
-    create_used_effect_or_element(&creatng->mappos, shotst->explode.effect2_model, creatng->owner);
-    if (shotst->explode.around_effect1_model != 0)
+    struct Thing *efftng = create_used_effect_or_element(&creatng->mappos, TngEff_Explosion5, creatng->owner);
+    if (!thing_is_invalid(efftng))
     {
-        create_effect_around_thing(creatng, shotst->explode.around_effect1_model);
+        create_used_effect_or_element(&creatng->mappos, shotst->explode.effect1_model, creatng->owner);
+        create_used_effect_or_element(&creatng->mappos, shotst->explode.effect2_model, creatng->owner);
+        if (shotst->explode.around_effect1_model != 0)
+        {
+            create_effect_around_thing(creatng, shotst->explode.around_effect1_model);
+        }
+        if (shotst->explode.around_effect2_model > 0)
+        {
+            create_effect_around_thing(creatng, shotst->explode.around_effect2_model);
+        }
+        if (creature_model_bleeds(creatng->model))
+        {
+            create_effect_around_thing(creatng, TngEff_Blood5);
+        }
+        HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+        cctrl->timebomb_death = ((shotst->model_flags & ShMF_Exploding) != 0);
+        MapCoord max_dist = (shotst->area_range * weight) / weight_divisor;
+        HitPoints max_damage = (shotst->area_damage * weight) / weight_divisor;
+        long blow_strength = (shotst->area_blow * weight) / weight_divisor;
+        kill_creature(creatng, INVALID_THING, -1, CrDed_NoUnconscious);
+        explosion_affecting_area(efftng, &efftng->mappos, max_dist, max_damage, blow_strength, hit_targets, shotst->damage_type);
     }
-    if (shotst->explode.around_effect2_model > 0)
-    {
-        create_effect_around_thing(creatng, shotst->explode.around_effect2_model);
-    }
-    if (creature_model_bleeds(creatng->model))
-    {
-        create_effect_around_thing(creatng, TngEff_Blood5);
-    }
-    HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    cctrl->timebomb_death = ((shotst->model_flags & ShMF_Exploding) != 0);
-    MapCoord max_dist = shotst->area_range * weight_multiplier;
-    HitPoints max_damage = shotst->area_damage * weight_multiplier;
-    long blow_strength = shotst->area_blow * weight_multiplier;
-    struct Thing* deadtng = kill_creature(creatng, INVALID_THING, -1, CrDed_NoUnconscious);
-    explosion_affecting_area(deadtng, &deadtng->mappos, max_dist, max_damage, blow_strength, hit_targets, shotst->damage_type);
 }
 /******************************************************************************/

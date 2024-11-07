@@ -87,7 +87,7 @@ TbBool parse_lenses_common_blocks(char *buf, long len, const char *config_textna
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, lenses_common_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         int n = 0;
         switch (cmd_num)
         {
@@ -110,9 +110,9 @@ TbBool parse_lenses_common_blocks(char *buf, long len, const char *config_textna
             }
             break;
         }
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -182,7 +182,7 @@ TbBool parse_lenses_data_blocks(char *buf, long len, const char *config_textname
       // Finding command number in this line
       int cmd_num = recognize_conf_command(buf, &pos, len, lenses_data_commands);
       // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
+      if (cmd_num == ccr_endOfBlock) break; // if next block starts
       if ((flags & CnfLd_ListOnly) != 0) {
           // In "List only" mode, accept only name command
           if (cmd_num > 1) {
@@ -291,9 +291,9 @@ TbBool parse_lenses_data_blocks(char *buf, long len, const char *config_textname
           }
           break;
       }
-      case 0: // comment
+      case ccr_comment:
           break;
-      case -1: // end of buffer
+      case ccr_endOfFile:
           break;
       default:
           CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -349,12 +349,18 @@ TbBool load_lenses_config(const char *conf_fname, unsigned short flags)
 {
     static const char config_global_textname[] = "global eye lenses config";
     static const char config_campgn_textname[] = "campaign eye lenses config";
+    static const char config_level_textname[] = "level eye lenses config";
     char* fname = prepare_file_path(FGrp_FxData, conf_fname);
     TbBool result = load_lenses_config_file(config_global_textname, fname, flags);
     fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
     if (strlen(fname) > 0)
     {
         load_lenses_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
+    if (strlen(fname) > 0)
+    {
+        load_lenses_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
     //Freeing and exiting
     return result;

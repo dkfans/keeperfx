@@ -20,9 +20,6 @@
 #include "front_credits.h"
 #include "globals.h"
 #include "bflib_basics.h"
-#if AUTOTESTING
-#include "keeperfx.hpp"
-#endif
 
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
@@ -38,6 +35,11 @@
 #include "vidfade.h"
 #include "config_strings.h"
 #include "config_campaigns.h"
+
+#if FUNCTESTING
+#include "ftests/ftest.h"
+#endif
+
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -56,7 +58,6 @@ int credits_end;
 /******************************************************************************/
 void frontstory_load(void)
 {
-    wait_for_cd_to_be_available();
     frontend_load_data_from_cd();
     if (LbDataLoadAll(frontstory_load_files_640))
     {
@@ -66,12 +67,10 @@ void frontstory_load(void)
         LbDataLoadSetModifyFilenameFunction(mdlf_default);
         LbSpriteSetupAll(frontstory_setup_sprites);
         LbPaletteSet(frontend_palette);
-#if AUTOTESTING
-        if (start_params.autotest_flags & ATF_FixedSeed)
-          srand(1);
-        else
-#endif
         srand(LbTimerClock());
+#if FUNCTESTING
+        ftest_srand();
+#endif // FUNCTESTING
         frontstory_text_no = GUIStr_EasterPoems + rand() % 26;
     }
 }

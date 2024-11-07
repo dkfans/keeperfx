@@ -26,11 +26,10 @@
 #include <intrin.h>
 #endif // _MSC_VER
 
-#ifdef AUTOTESTING
-
-#include "event_monitoring.h"
-
+#ifdef FUNCTESTING
+  #include "ftests/ftest.h"
 #endif
+
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -768,16 +767,15 @@ long LbMathOperation(unsigned char opkind, long val1, long val2)
   }
 }
 
-unsigned long LbRandomSeries(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place, const char *tag)
+unsigned long LbRandomSeries(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place)
 {
   if (range == 0)
     return 0;
   unsigned long i = 9377 * (*seed) + 9439;
+#ifndef FUNCTESTING // don't modify seeds when functional testing is enabled
   *seed = (i >> 13) | (i << ((sizeof(long) * 8) - 13));
+#endif // FUNCTESTING
   i = (*seed) % range;
-#ifdef AUTOTESTING
-  evm_stat(0, "rnd.%s,fn=%s,range=%ld val=%ld,range=%ld", tag, func_name, range, i, range);
-#endif
   return i;
 }
 
@@ -833,20 +831,15 @@ long LbDiagonalLength(long a, long b)
     return (tmpval >> 13);
 }
 
-float lerp(float a, float b, float f) 
+#ifndef __cpp_lib_interpolate
+float lerp(float a, float b, float f)
 {
     return (a * (1.0 - f)) + (b * f);
 }
+#endif
 
-long lerp_angle(long from, long to, float weight)
-{
-    long difference = (to - from) % LbFPMath_TAU;
-    long distance = ((2 * difference) % LbFPMath_TAU) - difference;
-    long new = from + (distance * weight);
-    if (new < 0) {
-      new = LbFPMath_TAU + new;
-    }
-    return new % LbFPMath_TAU;
+long lerp_angle(long from, long to, float weight) {
+    return (from + (long)((((to - from + (LbFPMath_TAU >> 1)) & (LbFPMath_TAU - 1)) - (LbFPMath_TAU >> 1)) * weight)) & (LbFPMath_TAU - 1);
 }
 
 double fastPow(double a, double b)

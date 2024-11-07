@@ -445,7 +445,7 @@ TbBool creature_find_and_perform_anger_job(struct Thing *creatng)
     // Select a random job as a starting point
     int n = CREATURE_RANDOM(creatng, i) + 1;
     i = 0;
-    for (k = 0; k < gameadd.crtr_conf.angerjobs_count; k++)
+    for (k = 0; k < game.conf.crtr_conf.angerjobs_count; k++)
     {
         if ((crstat->jobs_anger & (1 << k)) != 0) {
             n--;
@@ -456,14 +456,14 @@ TbBool creature_find_and_perform_anger_job(struct Thing *creatng)
         }
     }
     // Go through all jobs, starting at randomly selected one, attempting to start each one
-    for (k = 0; k < gameadd.crtr_conf.angerjobs_count; k++)
+    for (k = 0; k < game.conf.crtr_conf.angerjobs_count; k++)
     {
         if ((crstat->jobs_anger & (1 << i)) != 0)
         {
           if (attempt_anger_job(creatng, 1 << i))
               return 1;
         }
-        i = (i+1) % gameadd.crtr_conf.angerjobs_count;
+        i = (i+1) % game.conf.crtr_conf.angerjobs_count;
     }
     return 0;
 }
@@ -476,7 +476,7 @@ TbBool creature_find_and_perform_anger_job(struct Thing *creatng)
  */
 TbBool creature_will_reject_job(const struct Thing *creatng, CreatureJob jobpref)
 {
-    if (player_uses_power_obey(creatng->owner) && ((gameadd.classic_bugs_flags & ClscBug_MustObeyKeepsNotDoJobs) == 0)) {
+    if (player_uses_power_obey(creatng->owner) && ((game.conf.rules.game.classic_bugs_flags & ClscBug_MustObeyKeepsNotDoJobs) == 0)) {
         return false;
     }
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
@@ -777,7 +777,7 @@ TbBool creature_can_do_research_near_pos(const struct Thing *creatng, MapSubtlCo
         if (!is_neutral_thing(creatng) && (dungeon->current_research_idx < 0))
         {
             if (is_my_player_number(dungeon->owner) && ((flags & JobChk_PlayMsgOnFail) != 0)) {
-                output_message(SMsg_NoMoreReseach, 500, true);
+                output_message(SMsg_NoMoreReseach, MESSAGE_DELAY_KEEPR_TAUNT, true);
             }
         }
         return false;
@@ -1035,6 +1035,9 @@ TbBool attempt_job_sleep_in_lair_near_pos(struct Thing *creatng, MapSubtlCoord s
         ERRORLOG("No arrive at state for job %s in %s room",creature_job_code_name(new_job),room_code_name(room->kind));
         return false;
     }
+    if(!creature_can_do_healing_sleep(creatng)){
+        return false;
+    }
     cctrl->slap_turns = 0;
     cctrl->max_speed = calculate_correct_creature_maxspeed(creatng);
     if (creature_has_lair_room(creatng) && (room->index == cctrl->lair_room_id))
@@ -1112,15 +1115,15 @@ TbBool attempt_job_in_state_internal_near_pos(struct Thing *creatng, MapSubtlCoo
 TbBool attempt_job_preference(struct Thing *creatng, long jobpref)
 {
     // Start checking at random job
-    if (gameadd.crtr_conf.jobs_count < 1) {
+    if (game.conf.crtr_conf.jobs_count < 1) {
         return false;
     }
-    long n = CREATURE_RANDOM(creatng, gameadd.crtr_conf.jobs_count);
-    for (long i = 0; i < gameadd.crtr_conf.jobs_count; i++, n = (n + 1) % gameadd.crtr_conf.jobs_count)
+    long n = CREATURE_RANDOM(creatng, game.conf.crtr_conf.jobs_count);
+    for (long i = 0; i < game.conf.crtr_conf.jobs_count; i++, n = (n + 1) % game.conf.crtr_conf.jobs_count)
     {
         if (n == 0)
             continue;
-        CreatureJob new_job = 1 << (n - 1);
+        CreatureJob new_job = 1ULL << (n - 1);
         if ((jobpref & new_job) != 0)
         {
             SYNCDBG(19,"Check job %s",creature_job_code_name(new_job));
@@ -1153,9 +1156,9 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
     unsigned long select_curr = select_delta;
     // For some reason, this is a bit different than attempt_job_preference().
     // Probably needs unification
-    for (i=1; i < gameadd.crtr_conf.jobs_count; i++)
+    for (i=1; i < game.conf.crtr_conf.jobs_count; i++)
     {
-        CreatureJob new_job = 1<<(i-1);
+        CreatureJob new_job = 1ULL << (i-1);
         if ((jobpref & new_job) == 0) {
             continue;
         }
@@ -1177,7 +1180,7 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
         CreatureJob new_job = Job_TEMPLE_PRAY;
         if (creature_can_do_job_for_player(creatng, creatng->owner, new_job, JobChk_None))
         {
-            if (send_creature_to_job_for_player(creatng, creatng->owner, new_job)) 
+            if (send_creature_to_job_for_player(creatng, creatng->owner, new_job))
 			{
 				if (!creature_dislikes_job(creatng, new_job))
 				{
