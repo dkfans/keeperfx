@@ -1,8 +1,8 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file room_garden.h
- *     Header file for room_garden.c.
+/** @file room_treasure.h
+ *     Header file for room_treasure.c.
  * @par Purpose:
  *     Hatchery room maintain functions.
  * @par Comment:
