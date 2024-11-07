@@ -2819,13 +2819,24 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
         }
         else if (creatvar == 34) // LAIROBJECT
         {
-            if (parameter_is_number(scline->tp[2])) //support name or number for lair object
+            if (parameter_is_number(scline->tp[2])) // Support name or number for lair object.
             {
                 value1 = atoi(scline->tp[2]);
             }
             else
             {
                 value1 = get_id(object_desc, scline->tp[2]);
+            }
+        }
+        else if ((creatvar == 35) || (creatvar == 36)) // PRISONKIND or TORTUREKIND
+        {
+            if (parameter_is_number(scline->tp[2])) // Support name or number for prison kind or torture kind.
+            {
+                value1 = atoi(scline->tp[2]);
+            }
+            else
+            {
+                value1 = get_id(creature_desc, scline->tp[2]);
             }
         }
         else
@@ -3107,6 +3118,12 @@ static void set_creature_configuration_process(struct ScriptContext* context)
                 }
                 crstat->lair_object = value;
             }
+            break;
+        case 35: // PRISONKIND
+            crstat->prison_kind = value;
+            break;
+        case 36: // TORTUREKIND
+            crstat->torture_kind = value;
             break;
         case ccr_comment:
             break;
@@ -4874,7 +4891,7 @@ static void add_effectgen_to_level_check(const struct ScriptLine* scline)
     }
     value->shorts[0] = (short)gen_id;
     value->shorts[1] = location;
-    value->shorts[2] = range;
+    value->shorts[2] = range * COORD_PER_STL; 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 

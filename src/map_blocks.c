@@ -1038,7 +1038,7 @@ void place_slab_object(SlabCodedCoords slb_num, MapSubtlCoord stl_x,MapSubtlCoor
                 if (sobj->class_id == TCls_EffectGen)
                 {
                     struct Thing *effgentng;
-                    effgentng = create_effect_generator(&pos, sobj->model, sobj->range << 8, plyr_idx, slb_num);
+                    effgentng = create_effect_generator(&pos, sobj->model, (sobj->range * COORD_PER_STL), plyr_idx, slb_num);
                     if (thing_is_invalid(effgentng)) {
                         ERRORLOG("Cannot create effect generator, type %d", sobj->model);
                         continue;

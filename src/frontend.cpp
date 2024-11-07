@@ -800,7 +800,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
             }
         } else
         {
-            if (!isalnum(vischar[0]) && (vischar[0] != ' ')) {
+            if (!isgraph(vischar[0]) && (vischar[0] != ' ')) {
                 clear_key_pressed(key);
                 return false;
             }
