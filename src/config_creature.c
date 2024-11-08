@@ -188,12 +188,11 @@ const struct NamedCommand creature_graphics_desc[] = {
   {"DROPDEAD",          1+CGI_DropDead    },
   {"DEADSPLAT",         1+CGI_DeadSplat   },
   {"ROAR",              1+CGI_Roar        }, // Was previously GFX18.
-  {"QUERYSYMBOL",       1+CGI_QuerySymbol }, // Seems to be not from JTY file.
-  {"HANDSYMBOL",        1+CGI_HandSymbol  }, // Seems to be not from JTY file.
+  {"QUERYSYMBOL",       1+CGI_QuerySymbol }, // Icon
+  {"HANDSYMBOL",        1+CGI_HandSymbol  }, // Icon
   {"PISS",              1+CGI_Piss        }, // Was previously GFX21.
   {"CASTSPELL",         1+CGI_CastSpell   },
   {"RANGEDATTACK",      1+CGI_RangedAttack},
-  {"USEABILITY",        1+CGI_UseAbility  },
   {"CUSTOM",            1+CGI_Custom      },
   {NULL,                                 0},
   };

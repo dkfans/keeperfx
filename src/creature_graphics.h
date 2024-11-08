@@ -50,13 +50,12 @@ enum CreatureGraphicsInstances {
     CGI_DropDead     = 16,
     CGI_DeadSplat    = 17,
     CGI_Roar         = 18, // Was previously GFX18.
-    CGI_QuerySymbol  = 19, // Seems to be not from JTY file.
-    CGI_HandSymbol   = 20, // Seems to be not from JTY file.
+    CGI_QuerySymbol  = 19, // Icon, not a sprite
+    CGI_HandSymbol   = 20, // Icon, not a sprite
     CGI_Piss         = 21, // Was previously GFX21.
     CGI_CastSpell    = 22,
     CGI_RangedAttack = 23,
-    CGI_UseAbility   = 24,
-    CGI_Custom       = 25,
+    CGI_Custom       = 24,
 };
 /******************************************************************************/
 #pragma pack(1)
