@@ -306,7 +306,6 @@ static void set_defaults()
     game.conf.rules.creature.critical_health_permil = 125;
     game.conf.rules.creature.stun_enemy_chance_good = 100;
     game.conf.rules.creature.stun_enemy_chance_evil = 100;
-    game.conf.rules.creature.stun_enemy_chance_evil = 100;
     // Magic block.
     game.conf.rules.magic.hold_audience_time = 500;
     game.conf.rules.magic.armageddon_teleport_your_time_gap = 10;
