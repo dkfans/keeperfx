@@ -135,6 +135,8 @@ enum ThingEffectKind {
     TngEff_FallingIceBlocks,
     TngEff_SlowKeeperPower,
     TngEff_TinySparks,
+    TngEff_CrazyGas,
+    TngEff_WoPHarmless,
     TngEff_CoinFountain,
 };
 
