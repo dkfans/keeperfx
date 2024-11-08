@@ -82,7 +82,7 @@ enum ModeFlags {
     MFlg_NoCdMusic          =  0x10, // unused
     MFlg_unk20              =  0x20,
     MFlg_unk40              =  0x40,
-    MFlg_NoHeroHealthFlower              =  0x80,
+    MFlg_NoHeroHealthFlower =  0x80,
 };
 
 enum FFlags {
@@ -147,7 +147,6 @@ struct StartupParameters {
     TbBool overrides[CMDLINE_OVERRIDES];
     char config_file[CMDLN_MAXLEN+1];
     GameTurn pause_at_gameturn;
-    TbBool ungrab_mouse;
 #ifdef FUNCTESTING
     unsigned char functest_flags;
     char functest_name[FTEST_MAX_NAME_LENGTH];
