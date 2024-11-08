@@ -102,8 +102,11 @@ void multiply_creatures_in_dungeon_list(struct Dungeon *dungeon, long list_start
             k++;
             continue;
         }
+        struct CreatureControl* newcctrl = creature_control_get_from_thing(tncopy);
         set_creature_level(tncopy, cctrl->explevel);
         tncopy->health = thing->health;
+        newcctrl->exp_points = cctrl->exp_points;
+        newcctrl->blood_type = cctrl->blood_type;
         // Thing list loop body ends
         k++;
         if (k > CREATURES_COUNT)
