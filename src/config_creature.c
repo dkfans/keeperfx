@@ -169,32 +169,33 @@ const struct NamedCommand creaturetype_attackpref_commands[] = {
   };
 
 const struct NamedCommand creature_graphics_desc[] = {
-  {"STAND",             1+CGI_Stand      },
-  {"AMBULATE",          1+CGI_Ambulate   },
-  {"DRAG",              1+CGI_Drag       },
-  {"ATTACK",            1+CGI_Attack     },
-  {"DIG",               1+CGI_Dig        },
-  {"SMOKE",             1+CGI_Smoke      },
-  {"RELAX",             1+CGI_Relax      },
-  {"PRETTYDANCE",       1+CGI_PrettyDance},
-  {"GOTHIT",            1+CGI_GotHit     },
-  {"POWERGRAB",         1+CGI_PowerGrab  },
-  {"GOTSLAPPED",        1+CGI_GotSlapped },
-  {"CELEBRATE",         1+CGI_Celebrate  },
-  {"SLEEP",             1+CGI_Sleep      },
-  {"EATCHICKEN",        1+CGI_EatChicken },
-  {"TORTURE",           1+CGI_Torture    },
-  {"SCREAM",            1+CGI_Scream     },
-  {"DROPDEAD",          1+CGI_DropDead   },
-  {"DEADSPLAT",         1+CGI_DeadSplat  },
-  {"ROAR",              1+CGI_Roar       }, // Was previously GFX18.
-  {"QUERYSYMBOL",       1+CGI_QuerySymbol}, // Seems to be not from JTY file.
-  {"HANDSYMBOL",        1+CGI_HandSymbol }, // Seems to be not from JTY file.
-  {"PISS",              1+CGI_Piss       }, // Was previously GFX21.
-  {"CASTSPELL",         1+CGI_CastSpell  },
-  {"USEABILITY",        1+CGI_UseAbility },
-  {"CUSTOM",            1+CGI_Custom     },
-  {NULL,                                0},
+  {"STAND",             1+CGI_Stand       },
+  {"AMBULATE",          1+CGI_Ambulate    },
+  {"DRAG",              1+CGI_Drag        },
+  {"ATTACK",            1+CGI_Attack      },
+  {"DIG",               1+CGI_Dig         },
+  {"SMOKE",             1+CGI_Smoke       },
+  {"RELAX",             1+CGI_Relax       },
+  {"PRETTYDANCE",       1+CGI_PrettyDance },
+  {"GOTHIT",            1+CGI_GotHit      },
+  {"POWERGRAB",         1+CGI_PowerGrab   },
+  {"GOTSLAPPED",        1+CGI_GotSlapped  },
+  {"CELEBRATE",         1+CGI_Celebrate   },
+  {"SLEEP",             1+CGI_Sleep       },
+  {"EATCHICKEN",        1+CGI_EatChicken  },
+  {"TORTURE",           1+CGI_Torture     },
+  {"SCREAM",            1+CGI_Scream      },
+  {"DROPDEAD",          1+CGI_DropDead    },
+  {"DEADSPLAT",         1+CGI_DeadSplat   },
+  {"ROAR",              1+CGI_Roar        }, // Was previously GFX18.
+  {"QUERYSYMBOL",       1+CGI_QuerySymbol }, // Seems to be not from JTY file.
+  {"HANDSYMBOL",        1+CGI_HandSymbol  }, // Seems to be not from JTY file.
+  {"PISS",              1+CGI_Piss        }, // Was previously GFX21.
+  {"CASTSPELL",         1+CGI_CastSpell   },
+  {"RANGEDATTACK",      1+CGI_RangedAttack},
+  {"USEABILITY",        1+CGI_UseAbility  },
+  {"CUSTOM",            1+CGI_Custom      },
+  {NULL,                                 0},
   };
 
 const struct NamedCommand instance_range_desc[] = {
