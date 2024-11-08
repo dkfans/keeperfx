@@ -1265,6 +1265,9 @@
     <ClInclude Include="src\room_scavenge.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\room_treasure.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\room_util.h">
       <Filter>Header Files</Filter>
     </ClInclude>

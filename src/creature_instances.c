@@ -444,6 +444,17 @@ void process_creature_instance(struct Thing *thing)
     TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
     SYNCDBG(19, "Starting for %s index %d instance %d", thing_model_name(thing), (int)thing->index, (int)cctrl->instance_id);
+    if (cctrl->inst_turn > cctrl->inst_total_turns)
+    {
+        if (!cctrl->inst_repeat)
+        {
+            SYNCDBG(18,"Finalize %s for %s index %d.",creature_instance_code_name(cctrl->instance_id),thing_model_name(thing),(int)thing->index);
+            cctrl->instance_id = CrInst_NULL;
+            thing->creature.volley_fire = false;
+            return;
+        }
+    }
+    cctrl->inst_repeat = 0;
     if (cctrl->instance_id != CrInst_NULL)
     {
         cctrl->inst_turn++;
@@ -460,17 +471,9 @@ void process_creature_instance(struct Thing *thing)
                 }
             }
         }
-        if (cctrl->inst_turn >= cctrl->inst_total_turns)
+        if (cctrl->inst_repeat)
         {
-            if (cctrl->inst_repeat)
-            {
-                cctrl->inst_turn--;
-                cctrl->inst_repeat = 0;
-                return;
-            }
-            SYNCDBG(18,"Finalize %s for %s index %d.",creature_instance_code_name(cctrl->instance_id),thing_model_name(thing),(int)thing->index);
-            cctrl->instance_id = CrInst_NULL;
-            thing->creature.volley_fire = false;
+            cctrl->inst_turn--;
         }
         cctrl->inst_repeat = 0;
     }

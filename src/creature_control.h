@@ -140,7 +140,7 @@ struct CastedSpellData {
 };
 
 struct CreatureControl {
-    ThingIndex index;
+    CctrlIndex index;
     unsigned char flgfield_1;
     unsigned char flgfield_2;
     unsigned char combat_flags;
