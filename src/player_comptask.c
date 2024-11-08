@@ -3242,6 +3242,8 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
 {
     struct Dungeon *dungeon = comp->dungeon;
     const struct TrapDoorSelling *tdsell;
+    struct DoorConfigStats *doorst;
+    struct TrapConfigStats *trapst;
     TbBool item_sold;
     long value;
     ThingModel model;
@@ -3268,7 +3270,8 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     ERRORLOG("Internal error - invalid door model %d in slot %d",(int)model,(int)i);
                     break;
                 }
-                if (dungeon->mnfct_info.door_amount_placeable[model] > 0)
+                doorst = get_door_model_stats(model);
+                if ((dungeon->mnfct_info.door_amount_placeable[model] > 0) && (doorst->unsellable == 0))
                 {
                     int crate_source;
                     crate_source = remove_workshop_item_from_amount_stored(dungeon->owner, TCls_Door, model, WrkCrtF_Default);
@@ -3277,14 +3280,14 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     case WrkCrtS_Offmap:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Door, model);
                         item_sold = true;
-                        value = compute_value_percentage(game.conf.doors_config[model].selling_value,game.conf.rules.game.door_sale_percent);
+                        value = compute_value_percentage(doorst->selling_value,game.conf.rules.game.door_sale_percent);
                         SYNCDBG(9,"Offmap door %s crate sold for %d gold",door_code_name(model),(int)value);
                         break;
                     case WrkCrtS_Stored:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Door, model);
                         remove_workshop_object_from_player(dungeon->owner, door_crate_object_model(model));
                         item_sold = true;
-                        value = compute_value_percentage(game.conf.doors_config[model].selling_value, game.conf.rules.game.door_sale_percent);
+                        value = compute_value_percentage(doorst->selling_value, game.conf.rules.game.door_sale_percent);
                         SYNCDBG(9,"Stored door %s crate sold for %ld gold by player %d",door_code_name(model),(long)value,(int)dungeon->owner);
                         break;
                     default:
@@ -3300,7 +3303,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     ERRORLOG("Internal error - invalid trap model %d in slot %d",(int)model,(int)i);
                     break;
                 }
-                struct TrapConfigStats* trapst = &game.conf.trapdoor_conf.trap_cfgstats[model];
+                trapst = get_trap_model_stats(model);
                 if ((dungeon->mnfct_info.trap_amount_placeable[model] > 0) && (trapst->unsellable == 0))
                 {
                     int crate_source;
@@ -3310,14 +3313,14 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     case WrkCrtS_Offmap:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Trap, model);
                         item_sold = true;
-                        value = compute_value_percentage(game.conf.traps_config[model].selling_value, game.conf.rules.game.trap_sale_percent);
+                        value = compute_value_percentage(trapst->selling_value, game.conf.rules.game.trap_sale_percent);
                         SYNCDBG(9,"Offmap trap %s crate sold for %ld gold",trap_code_name(model),value);
                         break;
                     case WrkCrtS_Stored:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Trap, model);
                         remove_workshop_object_from_player(dungeon->owner, trap_crate_object_model(model));
                         item_sold = true;
-                        value = compute_value_percentage(game.conf.traps_config[model].selling_value, game.conf.rules.game.trap_sale_percent);
+                        value = compute_value_percentage(trapst->selling_value, game.conf.rules.game.trap_sale_percent);
                         SYNCDBG(9,"Stored trap %s crate sold for %ld gold by player %d",trap_code_name(model),(long)value,(int)dungeon->owner);
                         break;
                     default:
@@ -3338,13 +3341,14 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 {
                     struct Thing *doortng;
                     doortng = get_random_door_of_model_owned_by_and_locked(model, dungeon->owner, false);
-                    if (!thing_is_invalid(doortng)) {
+                    doorst = get_door_model_stats(doortng->model);
+                    if ((!thing_is_invalid(doortng)) && (doorst->unsellable == 0)) {
                         MapSubtlCoord stl_x;
                         MapSubtlCoord stl_y;
                         item_sold = true;
                         stl_x = stl_slab_center_subtile(doortng->mappos.x.stl.num);
                         stl_y = stl_slab_center_subtile(doortng->mappos.y.stl.num);
-                        value = compute_value_percentage(game.conf.doors_config[model].selling_value, game.conf.rules.game.door_sale_percent);
+                        value = compute_value_percentage(doorst->selling_value, game.conf.rules.game.door_sale_percent);
                         destroy_door(doortng);
                         if (is_my_player_number(dungeon->owner))
                             play_non_3d_sample(115);
@@ -3374,13 +3378,15 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 {
                     struct Thing *traptng;
                     traptng = get_random_trap_of_model_owned_by_and_armed(model, dungeon->owner, true);
-                    if (!thing_is_invalid(traptng)) {
+                    trapst = get_trap_model_stats(traptng->model);
+                    if ((!thing_is_invalid(traptng)) && (trapst->unsellable == 0)) {
                         SYNCDBG(6,"Got %s index %d owner %d",thing_model_name(traptng),(int)traptng->index,(int)traptng->owner);
                         MapSubtlCoord stl_x;
                         MapSubtlCoord stl_y;
                         item_sold = true;
                         stl_x = stl_slab_center_subtile(traptng->mappos.x.stl.num);
                         stl_y = stl_slab_center_subtile(traptng->mappos.y.stl.num);
+                        value = compute_value_percentage(trapst->selling_value, game.conf.rules.game.trap_sale_percent);
                         remove_traps_around_subtile(stl_x, stl_y, &value);
                         if (is_my_player_number(dungeon->owner))
                             play_non_3d_sample(115);

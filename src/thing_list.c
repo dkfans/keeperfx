@@ -306,8 +306,8 @@ long near_thing_pos_thing_filter_is_enemy_which_can_be_shot_by_trap(const struct
                             {
                                 if (creature_is_invisible(thing))
                                 {
-                                    struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
-                                    if (trapstat->detect_invisible == 0)
+                                    struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
+                                    if (trapst->detect_invisible == 0)
                                     {
                                         return -1;
                                     }
@@ -1897,8 +1897,8 @@ struct Thing *get_nth_creature_owned_by_and_failing_bool_filter(PlayerNumber ply
 
 struct Thing* get_nearest_enemy_creature_in_sight_and_range_of_trap(struct Thing* traptng)
 {
-    const struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
-    struct ShotConfigStats* shotst = get_shot_model_stats(trapstat->created_itm_model);
+    struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
+    struct ShotConfigStats* shotst = get_shot_model_stats(trapst->created_itm_model);
 
     SYNCDBG(19, "Starting");
     Thing_Maximizer_Filter filter = near_thing_pos_thing_filter_is_enemy_which_can_be_shot_by_trap;
