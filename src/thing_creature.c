@@ -6343,7 +6343,6 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (fall_from_gate)
     {
-        cctrl->field_AE |= 0x02;
         cctrl->spell_flags |= CSAfF_MagicFall;
         thing->veloc_push_add.x.val += PLAYER_RANDOM(plyr_idx, 193) - 96;
         thing->veloc_push_add.y.val += PLAYER_RANDOM(plyr_idx, 193) - 96;
@@ -6353,16 +6352,6 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
             thing->veloc_push_add.z.val += PLAYER_RANDOM(plyr_idx, 96) + 80;
         }
         thing->state_flags |= TF1_PushAdd;
-    }
-
-    if (thing->owner != PLAYER_NEUTRAL)
-    {   // Was set only when spawned from action point
-
-        struct Thing* heartng = get_player_soul_container(thing->owner);
-        if (thing_exists(heartng) && creature_can_navigate_to(thing, &heartng->mappos, NavRtF_NoOwner))
-        {
-            cctrl->field_AE |= 0x01;
-        }
     }
 
     if ((get_creature_model_flags(thing) & CMF_IsLordOfLand) != 0)
