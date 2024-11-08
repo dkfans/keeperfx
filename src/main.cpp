@@ -62,6 +62,7 @@
 #include "config_compp.h"
 #include "config_effects.h"
 #include "lvl_script.h"
+#include "lvl_filesdk1.h"
 #include "thing_list.h"
 #include "player_instances.h"
 #include "player_utils.h"
@@ -1553,9 +1554,12 @@ void reinit_level_after_load(void)
     parchment_loaded = 0;
     for (i=0; i < PLAYERS_COUNT; i++)
     {
-      player = get_player(i);
-      if (player_exists(player))
-        set_engine_view(player, player->view_mode);
+        player = get_player(i);
+        if (player_exists(player))
+        {
+            set_engine_view(player, player->view_mode);
+            update_panel_color_player_color(player->id_number, get_dungeon(i)->color_idx);
+        }
     }
     start_rooms = &game.rooms[1];
     end_rooms = &game.rooms[ROOMS_COUNT];
@@ -3882,6 +3886,7 @@ void game_loop(void)
       free_custom_music();
       free_sound_chunks();
       memset(&game.loaded_sound,0,DISKPATH_SIZE * EXTERNAL_SOUNDS_COUNT+1);
+      free_level_strings_data();
       turn_off_all_menus();
       delete_all_structures();
       clear_mapwho();
@@ -3918,6 +3923,7 @@ short reset_game(void)
     LbScreenReset(false);
     LbDataFreeAllV2(game_load_files);
     free_gui_strings_data();
+    free_level_strings_data();
     FreeAudio();
     return LbMemoryReset();
 }
@@ -4035,10 +4041,6 @@ short process_command_line(unsigned short argc, char *argv[])
       {
           SYNCLOG("Mouse auto reset disabled");
           lbMouseGrab = false;
-      }
-      else if (strcasecmp(parstr, "ungrab") == 0)
-      {
-          start_params.ungrab_mouse = true;
       }
       else if (strcasecmp(parstr,"packetload") == 0)
       {
@@ -4378,7 +4380,11 @@ LONG __stdcall Vex_handler(
     return 0;
 }
 
+#ifdef _WIN32
+int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+#else
 int main(int argc, char *argv[])
+#endif
 {
   char *text;
 

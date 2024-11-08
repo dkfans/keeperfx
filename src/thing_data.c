@@ -334,7 +334,8 @@ void query_thing(struct Thing *thing)
             else
             if (querytng->class_id == TCls_Creature)
             {
-                sprintf((char*)health, "Health: %ld/%ld", querytng->health, game.conf.creature_stats[querytng->model].health);
+                struct CreatureControl* cctrl = creature_control_get_from_thing(querytng);
+                sprintf((char*)health, "Health: %ld/%ld", querytng->health, cctrl->max_health);
                 sprintf((char*)position, "State: %s", creature_state_code_name(querytng->active_state));
                 sprintf((char*)amount, "Continue: %s", creature_state_code_name(querytng->continue_state));
             }

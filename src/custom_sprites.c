@@ -21,7 +21,6 @@
 #include "creature_graphics.h"
 #include "front_simple.h"
 #include "engine_render.h"
-#include "../deps/zlib/contrib/minizip/unzip.h"
 #include "bflib_fileio.h"
 #include "gui_draw.h"
 #include "frontend.h"
@@ -32,6 +31,7 @@
 #include <spng.h>
 #include <json.h>
 #include <json-dom.h>
+#include <minizip/unzip.h>
 #include "post_inc.h"
 
 // Performance tests
@@ -39,6 +39,10 @@
 // #define INNER
 #if defined(OUTER) || defined(INNER)
 #include <SDL2/SDL.h>
+#endif
+
+#ifndef PATH_MAX
+#define PATH_MAX 4096
 #endif
 
 // Each part of RGB tuple of palette file is 1-63 actually
@@ -1183,7 +1187,7 @@ static int process_sprite_from_list(const char *path, unzFile zip, int idx, VALU
     }
     const char *name = value_string(val);
     const char *blend_scene = NULL;
-    WARNDBG(2, "found sprite: %s", name);
+    SYNCDBG(2, "found sprite: '%s/%s'", path,name);
     val = value_dict_get(root, "blender_scene");
     if ((val != NULL) && (value_type(val) == VALUE_STRING))
     {
@@ -1203,7 +1207,7 @@ static int process_sprite_from_list(const char *path, unzFile zip, int idx, VALU
     {
         // TODO: remove old spr->num (all of them are removed on each map load)
         spr->num = context.td_id;
-        JUSTLOG("Overriding sprite '%s'", name);
+        JUSTLOG("Sprite '%s/%s' overwrites sprite with same name.", path,name);
     }
     else
     {
@@ -1310,7 +1314,7 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
         return 0;
     }
     const char *name = value_string(val);
-    WARNDBG(2, "found icon: %s", name);
+    SYNCDBG(2, "found icon: '%s/%s'", path,name);
 
     TbBool is_lowres = (lbDisplay.PhysicalScreenWidth <= LOWRES_SCREEN_SIZE);
     const char *file_key = is_lowres ? "lowres" : "file";
@@ -1376,7 +1380,7 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
     {
         num_icons_total += icons_count;
         spr->num = first_icon;
-        JUSTLOG("Overriding icon '%s'", name);
+        JUSTLOG("Overriding icon '%s/%s'", path,name);
     }
     else
     {

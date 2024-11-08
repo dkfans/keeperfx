@@ -256,6 +256,8 @@ struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx)
         return &game.conf.crtr_conf.creature_sounds[cmodel].foot;
     case CrSnd_Fight:
         return &game.conf.crtr_conf.creature_sounds[cmodel].fight;
+    case CrSnd_Piss:
+        return &game.conf.crtr_conf.creature_sounds[cmodel].piss;
     default:
         // Return dummy element
         return &game.conf.crtr_conf.creature_sounds[0].foot;
