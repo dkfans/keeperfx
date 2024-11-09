@@ -60,6 +60,7 @@
 #include "sounds.h"
 #include "game_legacy.h"
 #include "sprites.h"
+#include "frontmenu_ingame_tabs.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -1169,13 +1170,41 @@ void draw_mini_things_in_hand(long x, long y)
                 scrpos_y = scrbase_y + scale_ui_value(18) * irow;
                 // Draw creature symbol
                 draw_gui_panel_sprite_left(scrpos_x, scrpos_y, ps_units_per_px, spr_idx);
+                char ownshift_y;
                 if (MyScreenHeight < 400)
                 {
-                    char expshift_y = (irow == 1) ? 32 : -6;                   
+                    char expshift_y = (irow > 0) ? 32 : -6;
                     draw_button_sprite_left(scrpos_x, scrpos_y + scale_ui_value(expshift_y), ps_units_per_px, expspr_idx);
+                    if (thing->owner != my_player_number)
+                    {
+                        ownshift_y = (irow == 0) ? 1 : 56;
+                        LbDrawCircle(scrpos_x + scale_ui_value(16), scrpos_y + scale_ui_value(ownshift_y), ps_units_per_px / 16, player_path_colours[thing->owner]);
+                    }
                 }
                 else
                 {
+                    ownshift_y = (irow > 0) ? 44 : 10;
+                    if (thing->owner != my_player_number)
+                    {
+                        short n = min(scale_ui_value(1),4);
+                        ScreenCoord coord_y = scrpos_y + scale_ui_value(ownshift_y);
+                        for (int p = 0; p < (n*n); p++)
+                        {
+                            ScreenCoord draw_y = coord_y + draw_square[p].delta_y;
+                            if (draw_y >= 0)
+                            {
+                                LbDrawPixel(scrpos_x + ((expshift_x * 3)) + draw_square[p].delta_x, draw_y, player_flash_colours[thing->owner]);
+                            }
+                        }
+                        for (int p = (n * n); p < (n * n)+(4 * n + 4); p++)
+                        {
+                            ScreenCoord draw_y = coord_y + draw_square[p].delta_y;
+                            if (draw_y >= 0)
+                            {
+                                LbDrawPixel(scrpos_x + ((expshift_x * 3)) + draw_square[p].delta_x, draw_y, player_path_colours[thing->owner]);
+                            }
+                        }
+                    }
                     // Draw exp level
                     draw_button_sprite_left(scrpos_x + expshift_x, scrpos_y + scale_ui_value(shift_y), ps_units_per_px, expspr_idx);
                 }
