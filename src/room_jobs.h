@@ -21,8 +21,10 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-
+#include "thing_data.h"
 #include "thing_list.h"
+#include "room_data.h"
+#include "dungeon_data.h"
 
 #ifdef __cplusplus
 extern "C" {
