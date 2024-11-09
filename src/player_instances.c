@@ -237,14 +237,15 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
   }
   case TCls_Shot:
       shotst = get_shot_model_stats(thing->model);
-      if ((shotst->model_flags & ShMF_Boulder) || (shotst->model_flags & ShMF_Slappable))
+      if (shotst->model_flags & ShMF_Boulder)
       {
           thing->move_angle_xy = player->acamera->orient_a;
-          if (thing->model != ShM_SolidBoulder) //TODO CONFIG shot model dependency, make config option instead.
+          if (thing->model != ShM_SolidBoulder) // TODO CONFIG shot model dependency, make config option instead.
           {
               thing->health -= game.conf.rules.game.boulder_reduce_health_slap;
           }
-      } else
+      }
+      else
       {
           detonate_shot(thing,true);
       }
