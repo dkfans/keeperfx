@@ -1448,9 +1448,9 @@ TbBool validate_target_benefits_from_defensive
     // As long as the target is fighting, return true, no matter what thing the target is attacking.
     // Even if the target is attacking a door or dungeon heart, it still needs defensive buffs because
     // the hostile keepers can use keeper offensive spells.
-    if (any_flag_is_set(cctrl->combat_flags, CmbtF_Melee|CmbtF_Ranged|CmbtF_Waiting))
+    if (any_flag_is_set(cctrl->combat_flags, (CmbtF_Melee|CmbtF_Ranged|CmbtF_Waiting|CmbtF_ObjctFight)))
     {
-        return true; // In combat with creatures.
+        return true; // In combat with creatures or objects (hearts).
     }
     return false;
 }
