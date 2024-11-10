@@ -57,6 +57,7 @@
 #include "config_players.h"
 #include "player_utils.h"
 #include "room_data.h"
+#include "room_treasure.h"
 #include "room_util.h"
 #include "slab_data.h"
 #include "thing_factory.h"
