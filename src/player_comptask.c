@@ -3389,7 +3389,6 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         item_sold = true;
                         stl_x = stl_slab_center_subtile(traptng->mappos.x.stl.num);
                         stl_y = stl_slab_center_subtile(traptng->mappos.y.stl.num);
-                        value = compute_value_percentage(trapst->selling_value, game.conf.rules.game.trap_sale_percent);
                         remove_traps_around_subtile(stl_x, stl_y, &value);
                         if (is_my_player_number(dungeon->owner))
                         {
