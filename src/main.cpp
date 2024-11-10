@@ -1579,7 +1579,7 @@ void reinit_level_after_load(void)
     sound_reinit_after_load();
     music_reinit_after_load();
     update_panel_colors();
-    reset_rage_instance_cache();    
+    reset_postal_instance_cache();    
 }
 
 /**

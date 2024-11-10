@@ -327,10 +327,15 @@ TbBool instance_is_ranged_weapon_vs_objects(CrInstance inum)
     return (((inst_inf->instance_property_flags & InstPF_RangedAttack) != 0) && ((inst_inf->instance_property_flags & InstPF_Destructive) != 0) && !(inst_inf->instance_property_flags & InstPF_Dangerous));
 }
 
-TbBool instance_is_rage_weapon(CrInstance inum)
+/**
+ * Informs whether the creature has an instance which can be used when going postal.
+ * Going Postal is the behavior where creatures attack others at their job, like warlocks in the library
+  * @return True if it has a postal_priority value > 0.
+ */
+TbBool instance_is_used_for_going_postal(CrInstance inum)
 {
     struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
-    return (inst_inf->rage_priority > 0);
+    return (inst_inf->postal_priority > 0);
 }
 
 TbBool instance_is_melee_attack(CrInstance inum)
@@ -402,7 +407,7 @@ TbBool creature_has_ranged_object_weapon(const struct Thing *creatng)
     return false;
 }
 
-TbBool creature_has_rage_weapon(const struct Thing *creatng)
+TbBool creature_has_weapon_for_postal(const struct Thing *creatng)
 {
     TRACE_THING(creatng);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
@@ -410,7 +415,7 @@ TbBool creature_has_rage_weapon(const struct Thing *creatng)
     {
         if (cctrl->instance_available[inum])
         {
-            if (instance_is_rage_weapon(inum))
+            if (instance_is_used_for_going_postal(inum))
                 return true;
         }
     }

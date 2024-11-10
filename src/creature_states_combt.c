@@ -1842,25 +1842,25 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
     return CrInst_NULL;
 }
 
-// Static array to store the IDs of "rage" instances
-static CrInstance rage_inst[INSTANCE_TYPES_MAX];
-// Counter for the number of "rage" instances found
-static short rage_inst_num = 0;
+// Static array to store the IDs of "postal" instances
+static CrInstance postal_inststance[INSTANCE_TYPES_MAX];
+// Counter for the number of "postal" instances found
+static short postal_inst_num = 0;
 // Flag to indicate if the cache has been initialized
 static TbBool initial = false;
 
-/** @brief Retrieves a random available "rage" instance within range for a given creature.
+/** @brief Retrieves a random available "postal" instance within range for a given creature.
  * 
- * On the first call, the function creates a cache of all available "rage" instances.
+ * On the first call, the function creates a cache of all available "postal" instances.
  * It then loops through the cache to find instances available for the creature and fitting within the given range.
  * These available instances are added to a list.
  * The function then chooses a random instance from this list.
  * 
  * @param thing Pointer to the creature for which the instance is to be retrieved.
  * @param dist Distance to the target.
- * @return A random available "rage" CrInstance for the given range
+ * @return A random available "postal" CrInstance for the given range
  */
-CrInstance get_rage_instance_to_use(const struct Thing *thing, unsigned long dist)
+CrInstance get_postal_instance_to_use(const struct Thing *thing, unsigned long dist)
 {
     struct InstanceInfo* inst_inf;
 
@@ -1871,14 +1871,14 @@ CrInstance get_rage_instance_to_use(const struct Thing *thing, unsigned long dis
             for (short i = 0; i < game.conf.crtr_conf.instances_count; i++)
             {
                 inst_inf = creature_instance_info_get(i);
-                    // Check if the instance has a positive rage_priority
-                    if (inst_inf->rage_priority > 0)
+                    // Check if the instance has a positive postal_priority
+                    if (inst_inf->postal_priority > 0)
                     {
                         // Ensure we don't exceed the maximum array size
-                        if (rage_inst_num < INSTANCE_TYPES_MAX) 
+                        if (postal_inst_num < INSTANCE_TYPES_MAX) 
                         {
                             // Add the instance ID to the cache
-                            rage_inst[rage_inst_num++] = i;
+                            postal_inststance[postal_inst_num++] = i;
                         }
                         else {
                             break;
@@ -1890,44 +1890,44 @@ CrInstance get_rage_instance_to_use(const struct Thing *thing, unsigned long dis
         }
 
     //List of usable instances
-    CrInstance av_rage_inst[INSTANCE_TYPES_MAX];
-    short av_rage_inst_num = 0;
+    CrInstance av_postal_inst[INSTANCE_TYPES_MAX];
+    short av_postal_inst_num = 0;
     char highest_prio = 0;
     short highest_prio_idx = CrInst_NULL;
-    // Loop through the cached rage instances
-    for (short j = 0; j < rage_inst_num; j++)
+    // Loop through the cached postal instances
+    for (short j = 0; j < postal_inst_num; j++)
     {
-        inst_inf = creature_instance_info_get(rage_inst[j]);
+        inst_inf = creature_instance_info_get(postal_inststance[j]);
 
         // Check if the instance is available
-        if (creature_instance_is_available(thing, rage_inst[j]))
+        if (creature_instance_is_available(thing, postal_inststance[j]))
         {
             // If this instance has higher priority than current highest, reset the list
-            if (inst_inf->rage_priority > highest_prio)
+            if (inst_inf->postal_priority > highest_prio)
             {
-                highest_prio = inst_inf->rage_priority;
-                av_rage_inst_num = 0; // Clear the list as we found a higher priority
+                highest_prio = inst_inf->postal_priority;
+                av_postal_inst_num = 0; // Clear the list as we found a higher priority
             }
 
             // If this instance matches the highest priority, check further conditions
-            if (inst_inf->rage_priority == highest_prio)
+            if (inst_inf->postal_priority == highest_prio)
             {
                 // Check if the instance is reset and in range
-                if (creature_instance_has_reset(thing, rage_inst[j]) &&
+                if (creature_instance_has_reset(thing, postal_inststance[j]) &&
                     inst_inf->range_min <= dist && dist <= inst_inf->range_max)
                 {
                     // Add to the list of available instances
-                    av_rage_inst[av_rage_inst_num++] = rage_inst[j];
+                    av_postal_inst[av_postal_inst_num++] = postal_inststance[j];
                 }
             }
         }
     }
 
     // Choose a random index from the list of usable instances
-    if (av_rage_inst_num > 0)
+    if (av_postal_inst_num > 0)
     {
-        short rand_inst_idx = CREATURE_RANDOM(thing, av_rage_inst_num);
-        return av_rage_inst[rand_inst_idx];
+        short rand_inst_idx = CREATURE_RANDOM(thing, av_postal_inst_num);
+        return av_postal_inst[rand_inst_idx];
     }
     else
     {
@@ -1936,12 +1936,12 @@ CrInstance get_rage_instance_to_use(const struct Thing *thing, unsigned long dis
     }
 }
 
-void reset_rage_instance_cache()
+void reset_postal_instance_cache()
 {
     // Reset the cache variables
-    rage_inst_num = 0;
+    postal_inst_num = 0;
     initial = false;
-    memset(rage_inst, 0, sizeof(rage_inst));
+    memset(postal_inststance, 0, sizeof(postal_inststance));
 }
 
 

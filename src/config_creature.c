@@ -97,7 +97,7 @@ const struct NamedCommand creaturetype_instance_commands[] = {
   {"ValidateSourceFunc",   18},
   {"ValidateTargetFunc",   19},
   {"SearchTargetsFunc",    20},
-  {"RagePriority",       21},
+  {"PostalPriority",       21},
   {NULL,              0},
   };
 
@@ -841,7 +841,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             inst_inf->validate_target_func = 0;
             inst_inf->validate_target_func_params[0] = 0;
             inst_inf->validate_target_func_params[1] = 0;
-            inst_inf->rage_priority = 0;
+            inst_inf->postal_priority = 0;
         }
     }
     instance_desc[INSTANCE_TYPES_MAX - 1].name = NULL; // must be null for get_id
@@ -1213,11 +1213,11 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                 }
             }
             break;
-        case 21: // Rage Instance priority
+        case 21: // Postal Instance priority
         if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                inst_inf->rage_priority = k;
+                inst_inf->postal_priority = k;
                 n++;
             }
             if (n < 1)
@@ -1707,7 +1707,7 @@ TbBool load_creaturetypes_config_file(const char *textname, const char *fname, u
                 game.conf.magic_conf.instance_info[i].reset_time = 0;
                 game.conf.magic_conf.instance_info[i].fp_reset_time = 0;
                 game.conf.magic_conf.instance_info[i].graphics_idx = 0;
-                game.conf.magic_conf.instance_info[i].rage_priority = 0;
+                game.conf.magic_conf.instance_info[i].postal_priority = 0;
                 game.conf.magic_conf.instance_info[i].instance_property_flags = 0;
                 game.conf.magic_conf.instance_info[i].force_visibility = 0;
                 game.conf.magic_conf.instance_info[i].primary_target = 0;

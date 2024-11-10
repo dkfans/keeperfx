@@ -105,7 +105,7 @@ struct InstanceInfo {
     long reset_time;
     long fp_reset_time;
     unsigned char graphics_idx;
-    char rage_priority;
+    char postal_priority;
     short instance_property_flags;
     short force_visibility;
     unsigned char primary_target;
@@ -151,7 +151,7 @@ void creature_increase_available_instances(struct Thing *thing);
 TbBool creature_has_ranged_weapon(const struct Thing *thing);
 TbBool creature_has_disarming_weapon(const struct Thing* creatng);
 TbBool creature_has_ranged_object_weapon(const struct Thing *creatng);
-TbBool creature_has_rage_weapon(const struct Thing *creatng);
+TbBool creature_has_weapon_for_postal(const struct Thing *creatng);
 TbBool creature_has_melee_attack(const struct Thing *creatng);
 
 int creature_instance_get_available_pos_for_id(struct Thing *thing, CrInstance req_inst_id);
