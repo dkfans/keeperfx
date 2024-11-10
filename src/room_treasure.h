@@ -1,10 +1,10 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file room_entrance.h
- *     Header file for room_entrance.c.
+/** @file room_treasure.h
+ *     Header file for room_treasure.c.
  * @par Purpose:
- *     Entrance maintain functions.
+ *     Hatchery room maintain functions.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
@@ -16,14 +16,13 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_ROOM_ENTRANCE_H
-#define DK_ROOM_ENTRANCE_H
+#ifndef DK_ROOM_TREASURE_H
+#define DK_ROOM_TREASURE_H
 
 #include "globals.h"
 #include "bflib_basics.h"
 #include "room_data.h"
 #include "thing_data.h"
-#include "dungeon_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,14 +33,12 @@ extern "C" {
 
 #pragma pack()
 /******************************************************************************/
-void process_entrance_generation(void);
-struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crtr_kind);
+void count_gold_slabs_wth_effcncy(struct Room *room);
+void count_gold_slabs_full(struct Room *room);
+struct Thing *find_gold_hoarde_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+struct Thing *treasure_room_eats_gold_piles(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y, struct Thing *hoardtng);
+void count_gold_hoardes_in_room(struct Room *room);
 
-TbBool remove_creature_from_generate_pool(ThingModel crtr_kind);
-TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingModel crtr_kind);
-long count_player_available_creatures_of_model(PlayerNumber plyr_idx, ThingModel crtr_kind);
-/******************************************************************************/
-TbBool update_creature_pool_state(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

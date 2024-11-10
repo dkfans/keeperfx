@@ -853,6 +853,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                   crstat->prison_kind = k;
                   n++;
               }
+              else if (strcasecmp(word_buf,"NULL") == 0)
+              {
+                  n++;
+              }
           }
           if (n < 1)
           {
@@ -867,6 +871,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               if (k > 0)
               {
                   crstat->torture_kind = k;
+                  n++;
+              }
+              else if (strcasecmp(word_buf,"NULL") == 0)
+              {
                   n++;
               }
           }
@@ -2198,7 +2206,7 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
   {
       for (n = 0; n < CREATURE_GRAPHICS_INSTANCES; n++)
       {
-          set_creature_model_graphics(crtr_model, n, 0);
+          set_creature_model_graphics(crtr_model, n, -1);
       }
   }
   // Find the block

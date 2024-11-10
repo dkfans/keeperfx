@@ -1555,9 +1555,12 @@ void reinit_level_after_load(void)
     parchment_loaded = 0;
     for (i=0; i < PLAYERS_COUNT; i++)
     {
-      player = get_player(i);
-      if (player_exists(player))
-        set_engine_view(player, player->view_mode);
+        player = get_player(i);
+        if (player_exists(player))
+        {
+            set_engine_view(player, player->view_mode);
+            update_panel_color_player_color(player->id_number, get_dungeon(i)->color_idx);
+        }
     }
     start_rooms = &game.rooms[1];
     end_rooms = &game.rooms[ROOMS_COUNT];
@@ -4039,10 +4042,6 @@ short process_command_line(unsigned short argc, char *argv[])
       {
           SYNCLOG("Mouse auto reset disabled");
           lbMouseGrab = false;
-      }
-      else if (strcasecmp(parstr, "ungrab") == 0)
-      {
-          start_params.ungrab_mouse = true;
       }
       else if (strcasecmp(parstr,"packetload") == 0)
       {

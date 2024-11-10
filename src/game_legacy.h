@@ -174,7 +174,7 @@ char numfield_1A;
     char packet_fname[150];
     char packet_fopened;
     TbFileHandle packet_save_fp;
-unsigned int packet_file_pos;
+    unsigned int packet_file_pos;
     struct PacketSaveHead packet_save_head;
     unsigned long turns_stored;
     unsigned long turns_fastforward;
@@ -185,7 +185,7 @@ unsigned int packet_file_pos;
     unsigned long turns_packetoff;
     PlayerNumber local_plyr_idx;
     unsigned char numfield_149F47; // something with packetload
-// Originally, save_catalogue was here.
+    // Originally, save_catalogue was here.
     char campaign_fname[CAMPAIGN_FNAME_LEN];
     struct Event event[EVENTS_COUNT];
     unsigned long ceiling_height_max;
