@@ -1618,10 +1618,36 @@ TbBool validate_target_benefits_from_healing
 }
 
 /**
+ * @brief Check whether the 'creature' is targeted by 'alliedCreature' with the 'instance'.
+ *
+ * @param creature The creature being checked.
+ * @param alliedCreature The allied creature being checked.
+ * @param instance The spell instance index.
+ * @return TbBool True if the 'creature' is targeted by 'alliedCreature' with the 'instance'.
+ */
+TbBool is_targeted_by_ally
+    (
+    Thing* creature,
+    Thing* alliedCreature,
+    CrInstance instance
+    )
+{
+    CreatureControl* cctrl = creature_control_get_from_thing(alliedCreature);
+    if (cctrl->instance_id == instance && cctrl->targtng_idx == creature->index &&
+        cctrl->inst_turn < cctrl->inst_action_turns)
+    {
+        SYNCDBG(9, "The %s(%d) is targeted by allied %s(%d) with instance: %d", thing_model_name(creature), creature->index,
+            thing_model_name(alliedCreature), alliedCreature->index, instance);
+        return true;
+    }
+    return false;
+}
+
+/**
  * @brief Search the suitable targets for given spell.
  *
- * @param source The source creature
- * @param inst_idx The spell instance index
+ * @param source The source creature.
+ * @param inst_idx The spell instance index.
  * @param targets The list of the found creatures. Caller must free this.
  * @param found_count The number of the found creatures.
  * @param param1 Optional 1st parameter.
@@ -1697,13 +1723,26 @@ TbBool search_target_generic
 
         if (source->index != candidate->index) // no need to check the source itself.
         {
-            long range = (long)nearby_creatures[i].distance;
+            const long range = (long)nearby_creatures[i].distance;
             if (range < inst_inf->range_min || range > inst_inf->range_max ||
                 !creature_can_see_combat_path(source, candidate, range))
             {
                 continue;
             }
         }
+
+        bool targeted = false;
+        for (int j = 0; j < count; ++j)
+        {
+            Thing* ally = thing_get(nearby_creatures[j].index);
+            if (candidate->index != ally->index && players_are_mutual_allies(candidate->owner, ally->owner) &&
+                is_targeted_by_ally(candidate, ally, inst_idx))
+            {
+                targeted = true;
+                break;
+            }
+        }
+        if (targeted) continue;
 
         results[(*found_count)] = candidate->index;
         (*found_count)++;
