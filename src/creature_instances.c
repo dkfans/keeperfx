@@ -1445,14 +1445,13 @@ TbBool validate_target_benefits_from_defensive
         ERRORLOG("Invalid creature control");
         return false;
     }
-    // As long as the target is fighting, return true, no matter what thing the target is attacking.
-    // Even if the target is attacking a door or dungeon heart, it still needs defensive buffs because
-    // the hostile keepers can use keeper offensive spells.
-    if (cctrl->combat_flags == 0)
+    // When the target is fighting creatures, return true because it needs defensive buffs. 
+    // Doors and Hearts do not fight back, and keepers only defend by dropping units.
+    if (any_flag_is_set(cctrl->combat_flags, (CmbtF_Melee|CmbtF_Ranged|CmbtF_Waiting)))
     {
-        return false; // Not in any combat.
+        return true; // In combat with creatures.
     }
-    return true;
+    return false;
 }
 
 /**
