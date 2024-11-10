@@ -590,12 +590,18 @@ TbBool process_creature_self_spell_casting(struct Thing* creatng)
 CrInstance process_creature_ranged_buff_spell_casting(struct Thing* creatng)
 {
     TRACE_THING(creatng);
+    const struct InstanceInfo* inst_inf;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     SYNCDBG(8,"Processing %s(%d), act.st: %s, con.st: %s", thing_model_name(creatng), creatng->index,
         creature_state_code_name(creatng->active_state), creature_state_code_name(creatng->continue_state));
     CrInstance i = CrInst_NULL + 1;
     for(; i < game.conf.crtr_conf.instances_count; i++ )
     {
-        const struct InstanceInfo* inst_inf = creature_instance_info_get(i);
+        if (cctrl->instance_available[i] == false)
+        {
+            continue;
+        }
+        inst_inf = creature_instance_info_get(i);
         if(creature_instance_info_invalid(inst_inf) || (inst_inf->instance_property_flags & InstPF_RangedBuff) == 0)
         {
             continue;
