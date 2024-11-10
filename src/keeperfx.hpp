@@ -242,7 +242,7 @@ void clear_creature_pool(void);
 void reset_creature_max_levels(void);
 void reset_script_timers_and_flags(void);
 void reset_hand_rules(void);
-void add_creature_to_pool(long kind, long amount, unsigned long a3);
+void add_creature_to_pool(long kind, long amount);
 void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
 
 short zoom_to_next_annoyed_creature(void);
