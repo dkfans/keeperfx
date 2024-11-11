@@ -5391,6 +5391,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
       if ( (is_thing_under_hand)
         || (is_enemy_and_visible)
         || (is_allied_and_hurt)
+        || (thing->owner == PLAYER_NEUTRAL)
         // if drag_to_lair rule is active
         || (should_drag_to_lair)
         || (is_in_combat)

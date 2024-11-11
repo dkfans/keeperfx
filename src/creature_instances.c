@@ -327,10 +327,15 @@ TbBool instance_is_ranged_weapon_vs_objects(CrInstance inum)
     return (((inst_inf->instance_property_flags & InstPF_RangedAttack) != 0) && ((inst_inf->instance_property_flags & InstPF_Destructive) != 0) && !(inst_inf->instance_property_flags & InstPF_Dangerous));
 }
 
-TbBool instance_is_quick_range_weapon(CrInstance inum)
+/**
+ * Informs whether the creature has an instance which can be used when going postal.
+ * Going Postal is the behavior where creatures attack others at their job, like warlocks in the library
+  * @return True if it has a postal_priority value > 0.
+ */
+TbBool instance_is_used_for_going_postal(CrInstance inum)
 {
     struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
-    return (((inst_inf->instance_property_flags & InstPF_RangedAttack) != 0) && ((inst_inf->instance_property_flags & InstPF_Quick) != 0));
+    return (inst_inf->postal_priority > 0);
 }
 
 TbBool instance_is_melee_attack(CrInstance inum)
@@ -402,7 +407,7 @@ TbBool creature_has_ranged_object_weapon(const struct Thing *creatng)
     return false;
 }
 
-TbBool creature_has_quick_range_weapon(const struct Thing *creatng)
+TbBool creature_has_weapon_for_postal(const struct Thing *creatng)
 {
     TRACE_THING(creatng);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
@@ -410,7 +415,7 @@ TbBool creature_has_quick_range_weapon(const struct Thing *creatng)
     {
         if (cctrl->instance_available[inum])
         {
-            if (instance_is_quick_range_weapon(inum))
+            if (instance_is_used_for_going_postal(inum))
                 return true;
         }
     }
@@ -1445,14 +1450,13 @@ TbBool validate_target_benefits_from_defensive
         ERRORLOG("Invalid creature control");
         return false;
     }
-    // As long as the target is fighting, return true, no matter what thing the target is attacking.
-    // Even if the target is attacking a door or dungeon heart, it still needs defensive buffs because
-    // the hostile keepers can use keeper offensive spells.
-    if (cctrl->combat_flags == 0)
+    // When the target is fighting creatures, return true because it needs defensive buffs. 
+    // Doors and Hearts do not fight back, and keepers only defend by dropping units.
+    if (any_flag_is_set(cctrl->combat_flags, (CmbtF_Melee|CmbtF_Ranged|CmbtF_Waiting)))
     {
-        return false; // Not in any combat.
+        return true; // In combat with creatures.
     }
-    return true;
+    return false;
 }
 
 /**
