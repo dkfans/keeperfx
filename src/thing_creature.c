@@ -2744,31 +2744,31 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
     if ((flags & CrDed_NoEffects) != 0)
     {
         if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
-            add_creature_to_pool(crmodel, 1, 1);
+            add_creature_to_pool(crmodel, 1);
         delete_thing_structure(thing, 0);
     } else
     if (!creature_model_bleeds(thing->model))
     {
         // Non-bleeding creatures have no flesh explosion effects
         if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
-            add_creature_to_pool(crmodel, 1, 1);
+            add_creature_to_pool(crmodel, 1);
         return creature_death_as_nature_intended(thing);
     } else
     if (creature_affected_by_spell(thing, SplK_Freeze))
     {
         if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
-            add_creature_to_pool(crmodel, 1, 1);
+            add_creature_to_pool(crmodel, 1);
         return thing_death_ice_explosion(thing);
     } else
     if ( (shot_model_makes_flesh_explosion(cctrl->shot_model)) || (cctrl->timebomb_death) )
     {
         if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
-            add_creature_to_pool(crmodel, 1, 1);
+            add_creature_to_pool(crmodel, 1);
         return thing_death_flesh_explosion(thing);
     } else
     {
         if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
-            add_creature_to_pool(crmodel, 1, 1);
+            add_creature_to_pool(crmodel, 1);
         return creature_death_as_nature_intended(thing);
     }
     return INVALID_THING;

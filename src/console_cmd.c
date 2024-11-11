@@ -1527,8 +1527,6 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     return true;
                 }
                 game.pool.crtr_kind[crmodel] += atoi(pr3str);
-                if (game.pool.crtr_kind[crmodel] < 0)
-                    game.pool.crtr_kind[crmodel] = 0;
                 return true;
             }
         }
@@ -1547,8 +1545,6 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     return true;
                 }
                 game.pool.crtr_kind[crmodel] -= atoi(pr3str);
-                if (game.pool.crtr_kind[crmodel] < 0)
-                    game.pool.crtr_kind[crmodel] = 0;
                 return true;
             }
         }
