@@ -400,7 +400,9 @@ void draw_swipe_graphic(void)
             long allwidth = 0;
             long i = (abs(n) >> 8) -1;
             if (i >= SWIPE_SPRITE_FRAMES)
+            {
                 i = SWIPE_SPRITE_FRAMES-1;
+            }
             struct TbSprite* sprlist = &swipe_sprites[SWIPE_SPRITES_X * SWIPE_SPRITES_Y * i];
             struct TbSprite* startspr = &sprlist[1];
             struct TbSprite* endspr = &sprlist[1];
@@ -409,14 +411,14 @@ void draw_swipe_graphic(void)
                 allwidth += endspr->SWidth;
                 endspr++;
             }
-            int units_per_px;
-            if (allwidth != 0)
+            if (allwidth == 0)
             {
-                units_per_px = (LbScreenWidth() * 59 / 64) * 16 / allwidth;
+                return; // No point trying to draw a zero-width sprite.
             }
-            else
+            int units_per_px = (LbScreenWidth() * 59 / 64) * 16 / allwidth;
+            if (units_per_px == 0)
             {
-                units_per_px = 1;
+                return;
             }
             int scrpos_y = (MyScreenHeight * 16 / units_per_px - (startspr->SHeight + endspr->SHeight)) / 2;
             struct TbSprite *spr;
@@ -436,7 +438,8 @@ void draw_swipe_graphic(void)
                     }
                     scrpos_y += delta_y;
                 }
-            } else
+            }
+            else
             {
                 lbDisplay.DrawFlags = Lb_SPRITE_TRANSPAR4 | Lb_SPRITE_FLIP_HORIZ;
                 for (i = 0; i < SWIPE_SPRITES_X*SWIPE_SPRITES_Y; i += SWIPE_SPRITES_X)
