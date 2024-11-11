@@ -435,7 +435,6 @@ TbBool update_creature_pool_state(void)
 
 void add_creature_to_pool(ThingModel kind, long amount)
 {
-    long prev_amount;
     kind %= game.conf.crtr_conf.model_count;
     
     if (amount > 0 && game.pool.crtr_kind[kind] > LONG_MAX - amount)
