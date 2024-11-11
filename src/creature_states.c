@@ -4127,6 +4127,19 @@ TbBool process_creature_hunger(struct Thing *thing)
     return false;
 }
 
+TbBool creature_is_hostile_towards(const struct Thing *fightng, const struct Thing *enmtng)
+{
+    struct CreatureStats* crstat = creature_stats_get_from_thing(fightng);
+    for (int i = 0; i < CREATURE_TYPES_MAX; i++)
+    {
+        if ((crstat->hostile_towards[i] == enmtng->model) || (crstat->hostile_towards[i] == CREATURE_ANY))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 /**
  * Checks if creatures can attack each other.
  * Note that this function does not include full check from players_are_enemies(),
@@ -4152,7 +4165,7 @@ TbBool creature_will_attack_creature(const struct Thing *fightng, const struct T
     }
     struct CreatureControl* fighctrl = creature_control_get_from_thing(fightng);
     struct CreatureControl* enmctrl = creature_control_get_from_thing(enmtng);
-    if ((players_creatures_tolerate_each_other(fightng->owner, enmtng->owner)) && (game.conf.rules.creature.battle_royale == 0))
+    if ((players_creatures_tolerate_each_other(fightng->owner, enmtng->owner)) && (!creature_is_hostile_towards(fightng, enmtng)))
     {
         if (((fighctrl->spell_flags & CSAfF_MadKilling) == 0)
         && ((enmctrl->spell_flags & CSAfF_MadKilling) == 0))

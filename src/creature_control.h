@@ -534,6 +534,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char swipe_idx;
     ThingModel prison_kind;
     ThingModel torture_kind;
+    ThingModel hostile_towards[CREATURE_TYPES_MAX];
     struct CreaturePickedUpOffset creature_picked_up_offset;
 };
 

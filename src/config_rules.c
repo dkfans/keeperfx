@@ -120,7 +120,6 @@ const struct NamedField rules_creatures_named_fields[] = {
   {"GAMETURNSUNCONSCIOUS",      &game.conf.rules.creature.game_turns_unconscious,var_type(game.conf.rules.creature.game_turns_unconscious),       0,USHRT_MAX},
   {"STUNEVILENEMYCHANCE",       &game.conf.rules.creature.stun_enemy_chance_evil,var_type(game.conf.rules.creature.stun_enemy_chance_evil),       0, 100},
   {"STUNGOODENEMYCHANCE",       &game.conf.rules.creature.stun_enemy_chance_good,var_type(game.conf.rules.creature.stun_enemy_chance_good),       0, 100},
-  {"BATTLEROYALE",              &game.conf.rules.creature.battle_royale,         var_type(game.conf.rules.creature.battle_royale         ),       0, 1},
   {NULL,NULL,0,0,0 },
 };
 
