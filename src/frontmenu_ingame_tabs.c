@@ -1201,7 +1201,7 @@ void draw_centred_string64k(const char *text, short x, short y, short base_w, sh
     int tx_units_per_px;
     int text_x;
     int text_y = -6*dst_w/base_w;
-    if ( (MyScreenHeight < 400) && (dbc_language > 0) ) 
+    if ( (MyScreenHeight < 400) && (dbc_language > 0) )
     {
         tx_units_per_px = scale_ui_value(32);
         text_x = 12;
@@ -1417,7 +1417,7 @@ void gui_over_room_button(struct GuiButton *gbtn)
     //todo support more then 17 rooms
     if ((long)gbtn->content >= 17)
         gui_room_type_highlighted = 0;
-    else 
+    else
         gui_room_type_highlighted = (long)gbtn->content;
 }
 
@@ -1999,7 +1999,7 @@ void maintain_event_button(struct GuiButton *gbtn)
         gbtn->sprite_idx += 2;
         if(is_game_key_pressed(Gkey_ZoomToFight, &keycode, true) && (is_game_key_pressed(Gkey_SpeedMod, NULL, true)))
         {
-            if ((evidx == dungeon->visible_event_idx))
+            if (evidx == dungeon->visible_event_idx)
             {
             clear_key_pressed(keycode);
             gui_close_objective(gbtn);
@@ -2033,7 +2033,7 @@ void gui_toggle_ally(struct GuiButton *gbtn)
     }
 }
 
-void maintain_player_page2(struct GuiButton *gbtn)
+static unsigned char count_current_players_count()
 {
     unsigned char current_players_count = 0;
     for (size_t i = 0; i < PLAYERS_COUNT; i++)
@@ -2042,6 +2042,12 @@ void maintain_player_page2(struct GuiButton *gbtn)
         if(player_exists(player) && player_is_keeper(i))
             current_players_count++;
     }
+    return current_players_count;
+}
+
+void maintain_player_page2(struct GuiButton *gbtn)
+{
+    unsigned char current_players_count = count_current_players_count();   
     if(current_players_count > 4)
     {
         set_flag(gbtn->flags, (LbBtnF_Visible | LbBtnF_Enabled));
@@ -2054,14 +2060,7 @@ void maintain_player_page2(struct GuiButton *gbtn)
 
 void maintain_query_button(struct GuiButton *gbtn)
 {
-    unsigned char current_players_count = 0;
-    for (size_t i = 0; i < PLAYERS_COUNT; i++)
-    {
-        struct PlayerInfo* player = get_player(i);
-        if(player_exists(player) && player_is_keeper(i))
-            current_players_count++;
-    }
-
+    unsigned char current_players_count = count_current_players_count();
     if(current_players_count > 4)
     {
         gbtn->pos_x = scale_ui_value(74);
@@ -2072,7 +2071,7 @@ void maintain_query_button(struct GuiButton *gbtn)
         gbtn->pos_x = scale_ui_value(44);
         gbtn->scr_pos_x = scale_ui_value(44);
     }
-    
+
 }
 
 void maintain_ally(struct GuiButton *gbtn)
@@ -2115,7 +2114,7 @@ void maintain_room_button(struct GuiButton *gbtn)
     PlayerNumber plyr_idx = (int)gbtn->content;
     struct PlayerInfo* player = get_player(plyr_idx);
     gbtn->sprite_idx = get_player_colored_icon_idx(GPS_plyrsym_symbol_room_red_std_a,plyr_idx);
-    
+
     if (player_exists(player))
     {
         gbtn->btype_value &= LbBFeF_IntValueMask;
@@ -2264,7 +2263,7 @@ void gui_area_player_creature_info(struct GuiButton *gbtn)
             draw_gui_panel_sprite_rmleft_player(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 44, plyr_idx);
         }
         char* text;
-        if (game.conf.rules.game.display_portal_limit == true) 
+        if (game.conf.rules.game.display_portal_limit == true)
         {
             text = buf_sprintf(" %ld/%ld", dungeon->num_active_creatrs, dungeon->max_creatures_attracted);
         } else {
@@ -2316,9 +2315,21 @@ void gui_set_query(struct GuiButton *gbtn)
 void gui_switch_players_visible(struct GuiButton *gbtn)
 {
     if(info_page == 0)
+    {
         info_page = 1;
-    else
-        info_page = 0;
+        return;
+    }
+    else if (info_page == 1)
+    {
+        unsigned char current_players_count = count_current_players_count();
+        if(current_players_count > 7)
+        {
+            info_page = 2;
+            return;
+        }
+    }
+    info_page = 0;
+    return;
 }
 
 void draw_gold_total(PlayerNumber plyr_idx, long scr_x, long scr_y, long units_per_px, long long value)

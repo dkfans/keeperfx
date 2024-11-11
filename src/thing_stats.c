@@ -469,7 +469,7 @@ GoldAmount compute_creature_max_scavenging_cost(GoldAmount base_param,unsigned s
  * @param luck Creature luck, scaled 0..100.
  * @param crlevel Creature level, 0..9.
  */
-long project_creature_attack_melee_damage(long base_param,long luck,unsigned short crlevel, const struct Thing* thing)
+long project_creature_attack_melee_damage(long base_param, short damage_percent, long luck,unsigned short crlevel, const struct Thing* thing)
 {
     struct Dungeon* dungeon;
     if (base_param < -60000)
@@ -477,6 +477,10 @@ long project_creature_attack_melee_damage(long base_param,long luck,unsigned sho
     if (base_param > 60000)
         base_param = 60000;
     long max_param = base_param;
+    if (damage_percent != 0)
+    {
+        max_param = (max_param * damage_percent) / 100;
+    }
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.strength;
@@ -979,6 +983,15 @@ static HitPoints apply_damage_to_door(struct Thing *thing, HitPoints dmg)
     return cdamage;
 }
 
+HitPoints reduce_damage_for_midas(PlayerNumber owner, HitPoints damage, short multiplier)
+{
+    if (multiplier == 0)
+        return 0;
+    HitPoints cost = (damage + multiplier - 1) / multiplier; // This ensures we round up the division
+    GoldAmount received = take_money_from_dungeon(owner, cost, 0); // Take gold from the player
+    return (received * multiplier);
+}
+
 HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const struct Thing *shotng)
 {
     HitPoints dmg;
@@ -997,9 +1010,11 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
     }
     if (flag_is_set(doorst->model_flags, DoMF_Midas))
     {
-        GoldAmount received = take_money_from_dungeon(doortng->owner, dmg, 0);
-        dmg -= received;
-        for (int i = received; i > 0; i -= 32)
+        HitPoints absorbed = reduce_damage_for_midas(doortng->owner, dmg, doorst->health);
+        dmg -= absorbed;
+      
+        // Generate effects for the gold taken
+        for (int i = absorbed; i > 0; i -= 32)
         {
             create_effect(&shotng->mappos, TngEff_CoinFountain, doortng->owner);
         }

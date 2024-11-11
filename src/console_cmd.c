@@ -57,6 +57,7 @@
 #include "config_players.h"
 #include "player_utils.h"
 #include "room_data.h"
+#include "room_treasure.h"
 #include "room_util.h"
 #include "slab_data.h"
 #include "thing_factory.h"
@@ -1526,8 +1527,6 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     return true;
                 }
                 game.pool.crtr_kind[crmodel] += atoi(pr3str);
-                if (game.pool.crtr_kind[crmodel] < 0)
-                    game.pool.crtr_kind[crmodel] = 0;
                 return true;
             }
         }
@@ -1546,8 +1545,6 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     return true;
                 }
                 game.pool.crtr_kind[crmodel] -= atoi(pr3str);
-                if (game.pool.crtr_kind[crmodel] < 0)
-                    game.pool.crtr_kind[crmodel] = 0;
                 return true;
             }
         }
@@ -1822,15 +1819,15 @@ PlayerNumber get_player_number_for_command(char *msg)
 
 TbBool parameter_is_number(const char* parstr)
 {
-    if (parstr == NULL)
-    {
+    if (parstr == NULL) {
+        return false;
+    } else if (parstr[0] == 0) {
+        return false;
+    } else if (!(parstr[0] == '-' || isdigit(parstr[0]))) {
         return false;
     }
-    for (int i = 0; parstr[i] != '\0'; i++)
-    {
-        TbBool digit = (i == 0) ? ( (parstr[i] == 0x2D) || (isdigit(parstr[i])) ) : (isdigit(parstr[i]));
-        if (!digit)
-        {
+    for (int i = 1; parstr[i] != '\0'; ++i) {
+        if (!isdigit(parstr[i])) {
             return false;
         }
     }

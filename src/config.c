@@ -376,7 +376,83 @@ short find_conf_block(const char *buf,long *pos,long buflen,const char *blocknam
 }
 
 /**
+ * Reads the block name from buf, starting at pos.
+ * Sets name and namelen to the block name and name length respectively.
+ * Returns true on success, false when the block name is zero.
+ */
+TbBool conf_get_block_name(const char * buf, long * pos, long buflen, const char ** name, int * namelen)
+{
+  const long start = *pos;
+  *name = NULL;
+  *namelen = 0;
+  while (true) {
+    if (*pos >= buflen) {
+      return false;
+    } else if (isalpha(buf[*pos])) {
+      (*pos)++;
+      continue;
+    } else if (isdigit(buf[*pos])) {
+      (*pos)++;
+      continue;
+    } else {
+      if (*pos - start > 0) {
+        *name = &buf[start];
+        *namelen = *pos - start;
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+}
+
+/**
+ * Searches for the next block in buf, starting at pos.
+ * Sets name and namelen to the block name and name length respectively.
+ * Returns true on success, false when no more blocks are found.
+ */
+TbBool iterate_conf_blocks(const char * buf, long * pos, long buflen, const char ** name, int * namelen)
+{
+  text_line_number = 1;
+  *name = NULL;
+  *namelen = 0;
+  while (true) {
+    // Skip whitespace before block start
+    if (!skip_conf_spaces(buf, pos, buflen)) {
+      return false;
+    }
+    // Check if this line is start of a block
+    if (*pos >= buflen) {
+      return false;
+    } else if (buf[*pos] != '[') {
+      skip_conf_to_next_line(buf, pos, buflen);
+      continue;
+    }
+    (*pos)++;
+    // Skip whitespace before block name
+    if (!skip_conf_spaces(buf, pos, buflen)) {
+      return false;
+    }
+    // Get block name
+    if (!conf_get_block_name(buf, pos, buflen, name, namelen)) {
+      skip_conf_to_next_line(buf, pos, buflen);
+      return false;
+    }
+    // Skip whitespace after block name
+    if (!skip_conf_spaces(buf, pos, buflen)) {
+      return false;
+    } else if (buf[*pos] != ']') {
+      skip_conf_to_next_line(buf, pos, buflen);
+      continue;
+    }
+    skip_conf_to_next_line(buf,pos,buflen);
+    return true;
+  }
+}
+
+/**
  * Recognizes config command and returns its number, or negative status code.
+ * The string comparison is done by case-insensitive.
  * @param buf
  * @param pos
  * @param buflen
@@ -439,6 +515,8 @@ int recognize_conf_command(const char *buf,long *pos,long buflen,const struct Na
         }
         i++;
     }
+    const int len = strcspn(&buf[(*pos)], " \n\r\t");
+    CONFWRNLOG("Unrecognized command '%.*s'", len, &buf[(*pos)]);
     return ccr_unrecognised;
 }
 
@@ -1117,7 +1195,7 @@ short load_configuration(void)
           {
             i = atoi(word_buf);
           }
-          if ((i > 0) && (i <= 50)) {
+          if ((i > 0) && (i < MUSIC_TRACKS_COUNT)) {
               max_track = i;
           } else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
@@ -1338,9 +1416,9 @@ short load_configuration(void)
               CONFWRNLOG("Invalid API port '%s' in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }
           break;
-      case 0: // comment
+      case ccr_comment:
           break;
-      case -1: // end of buffer
+      case ccr_endOfFile:
           break;
       default:
           CONFWRNLOG("Unrecognized command in %s file.",config_textname);

@@ -450,6 +450,7 @@
     <ClInclude Include="src\room_library.h" />
     <ClInclude Include="src\room_list.h" />
     <ClInclude Include="src\room_scavenge.h" />
+    <ClInclude Include="src\room_treasure.h" />
     <ClInclude Include="src\room_util.h" />
     <ClInclude Include="src\room_workshop.h" />
     <ClInclude Include="src\scrcapt.h" />

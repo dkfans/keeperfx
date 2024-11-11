@@ -95,6 +95,11 @@ TbBool script_change_creature_owner_with_criteria(PlayerNumber origin_plyr_idx, 
         SYNCDBG(5,"No matching player %d creature of model %d (%s) found to kill",(int)origin_plyr_idx,(int)crmodel, creature_code_name(crmodel));
         return false;
     }
+    if (is_thing_some_way_controlled(thing))
+    {
+        //does not kill the creature, but does the preparations needed for when it is possessed
+        prepare_to_controlled_creature_death(thing);
+    }
     change_creature_owner(thing, dest_plyr_idx);
     return true;
 }
@@ -505,7 +510,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       }
       break;
   case Cmd_ADD_CREATURE_TO_POOL:
-      add_creature_to_pool(val2, val3, 0);
+      add_creature_to_pool(val2, val3);
       break;
   case Cmd_TUTORIAL_FLASH_BUTTON:
       gui_set_button_flashing(val2, val3);
@@ -612,11 +617,11 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 13: // LORD
           if (val4 >= 1)
           {
-              set_flag(crconf->model_flags,CMF_IsLordOTLand);
+              set_flag(crconf->model_flags,CMF_IsLordOfLand);
           }
           else
           {
-              clear_flag(crconf->model_flags,CMF_IsLordOTLand);
+              clear_flag(crconf->model_flags,CMF_IsLordOfLand);
           }
           break;
       case 14: // SPECTATOR
@@ -785,6 +790,26 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           else
           {
               clear_flag(crconf->model_flags,CMF_Fat);
+          }
+          break;
+      case 32: // NO_STEAL_HERO
+          if (val4 >= 1)
+          {
+              set_flag(crconf->model_flags,CMF_NoStealHero);
+          }
+          else
+          {
+              clear_flag(crconf->model_flags,CMF_NoStealHero);
+          }
+          break;
+      case 33: // PREFER_STEAL
+          if (val4 >= 1)
+          {
+              set_flag(crconf->model_flags,CMF_PreferSteal);
+          }
+          else
+          {
+              clear_flag(crconf->model_flags,CMF_PreferSteal);
           }
           break;
       default:
