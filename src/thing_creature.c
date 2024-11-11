@@ -393,7 +393,7 @@ void draw_swipe_graphic(void)
     if (thing_is_creature(thing))
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if (instance_draws_possession_swipe(cctrl->instance_id))
+        if ((instance_draws_possession_swipe(cctrl->instance_id)) && (cctrl->inst_total_turns > 0))
         {
             lbDisplay.DrawFlags = Lb_SPRITE_TRANSPAR4;
             long n = (int)cctrl->inst_turn * (5 << 8) / cctrl->inst_total_turns;
@@ -404,23 +404,31 @@ void draw_swipe_graphic(void)
             struct TbSprite* sprlist = &swipe_sprites[SWIPE_SPRITES_X * SWIPE_SPRITES_Y * i];
             struct TbSprite* startspr = &sprlist[1];
             struct TbSprite* endspr = &sprlist[1];
-            for (n=0; n < SWIPE_SPRITES_X; n++)
+            for (n = 0; n < SWIPE_SPRITES_X; n++)
             {
                 allwidth += endspr->SWidth;
                 endspr++;
             }
-            int units_per_px = (LbScreenWidth() * 59 / 64) * 16 / allwidth;
+            int units_per_px;
+            if (allwidth != 0)
+            {
+                units_per_px = (LbScreenWidth() * 59 / 64) * 16 / allwidth;
+            }
+            else
+            {
+                units_per_px = 0;
+            }
             int scrpos_y = (MyScreenHeight * 16 / units_per_px - (startspr->SHeight + endspr->SHeight)) / 2;
             struct TbSprite *spr;
             int scrpos_x;
             if (myplyr->swipe_sprite_drawLR)
             {
                 int delta_y = sprlist[1].SHeight;
-                for (i=0; i < SWIPE_SPRITES_X*SWIPE_SPRITES_Y; i+=SWIPE_SPRITES_X)
+                for (i = 0; i < SWIPE_SPRITES_X*SWIPE_SPRITES_Y; i += SWIPE_SPRITES_X)
                 {
                     spr = &startspr[i];
                     scrpos_x = (MyScreenWidth * 16 / units_per_px - allwidth) / 2;
-                    for (n=0; n < SWIPE_SPRITES_X; n++)
+                    for (n = 0; n < SWIPE_SPRITES_X; n++)
                     {
                         LbSpriteDrawResized(scrpos_x * units_per_px / 16, scrpos_y * units_per_px / 16, units_per_px, spr);
                         scrpos_x += spr->SWidth;
@@ -431,12 +439,12 @@ void draw_swipe_graphic(void)
             } else
             {
                 lbDisplay.DrawFlags = Lb_SPRITE_TRANSPAR4 | Lb_SPRITE_FLIP_HORIZ;
-                for (i=0; i < SWIPE_SPRITES_X*SWIPE_SPRITES_Y; i+=SWIPE_SPRITES_X)
+                for (i = 0; i < SWIPE_SPRITES_X*SWIPE_SPRITES_Y; i += SWIPE_SPRITES_X)
                 {
                     spr = &sprlist[SWIPE_SPRITES_X+i];
                     int delta_y = spr->SHeight;
                     scrpos_x = (MyScreenWidth * 16 / units_per_px - allwidth) / 2;
-                    for (n=0; n < SWIPE_SPRITES_X; n++)
+                    for (n = 0; n < SWIPE_SPRITES_X; n++)
                     {
                         LbSpriteDrawResized(scrpos_x * units_per_px / 16, scrpos_y * units_per_px / 16, units_per_px, spr);
                         scrpos_x += spr->SWidth;
@@ -449,7 +457,7 @@ void draw_swipe_graphic(void)
             return;
         }
     }
-    // we get here many times a second when in possession mode and not attacking: to randomise the swipe direction
+    // We get here many times a second when in possession mode and not attacking: to randomise the swipe direction.
     randomise_swipe_graphic_direction();
 }
 
