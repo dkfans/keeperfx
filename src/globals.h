@@ -286,6 +286,7 @@ typedef unsigned short NavColour;
 typedef int8_t SmallAroundIndex;
 /** a player state as defined in config_players*/
 typedef unsigned char PlayerState;
+typedef unsigned short CctrlIndex;
 
 
 /**

@@ -57,6 +57,7 @@
 #include "config_players.h"
 #include "player_utils.h"
 #include "room_data.h"
+#include "room_treasure.h"
 #include "room_util.h"
 #include "slab_data.h"
 #include "thing_factory.h"
@@ -1608,9 +1609,6 @@ TbBool cmd_creature_pool_add(PlayerNumber plyr_idx, char * args)
         return false;
     }
     game.pool.crtr_kind[crmodel] += atoi(pr3str);
-    if (game.pool.crtr_kind[crmodel] < 0) {
-        game.pool.crtr_kind[crmodel] = 0;
-    }
     return true;
 }
 
@@ -1633,9 +1631,6 @@ TbBool cmd_creature_pool_sub(PlayerNumber plyr_idx, char * args)
         return false;
     }
     game.pool.crtr_kind[crmodel] -= atoi(pr3str);
-    if (game.pool.crtr_kind[crmodel] < 0) {
-        game.pool.crtr_kind[crmodel] = 0;
-    }
     return true;
 }
 

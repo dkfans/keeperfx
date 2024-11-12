@@ -304,25 +304,38 @@ void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, 
 
 short get_creature_model_graphics(long crmodel, unsigned short seq_idx)
 {
-  if (seq_idx >= CREATURE_GRAPHICS_INSTANCES) {
-      ERRORLOG("Invalid model %ld graphics sequence %u",crmodel,seq_idx);
-      seq_idx = 0;
-  }
-  if ((crmodel < 0) || (crmodel >= game.conf.crtr_conf.model_count)) {
-      ERRORLOG("Invalid model %ld graphics sequence %u",crmodel,seq_idx);
-      crmodel = 0;
-  }
-  return game.conf.crtr_conf.creature_graphics[crmodel][seq_idx];
+    if (seq_idx >= CREATURE_GRAPHICS_INSTANCES)
+    {
+        ERRORLOG("Invalid model %ld graphics sequence %u", crmodel, seq_idx);
+        seq_idx = 0;
+    }
+    if ((crmodel < 0) || (crmodel >= game.conf.crtr_conf.model_count))
+    {
+        ERRORLOG("Invalid model %ld graphics sequence %u", crmodel, seq_idx);
+        crmodel = 0;
+    }
+    // Backward compatibility for custom creatures. Use the attack animation if the extra animation is undefined, return 0 if the attack animation is also undefined.
+    if (game.conf.crtr_conf.creature_graphics[crmodel][seq_idx] < 0)
+    {
+        if ((seq_idx >= CGI_CastSpell) && (game.conf.crtr_conf.creature_graphics[crmodel][CGI_Attack] > 0))
+        {
+            return game.conf.crtr_conf.creature_graphics[crmodel][CGI_Attack];
+        }
+        return 0;
+    }
+    return game.conf.crtr_conf.creature_graphics[crmodel][seq_idx];
 }
 
 void set_creature_model_graphics(long crmodel, unsigned short seq_idx, unsigned long val)
 {
-    if (seq_idx >= CREATURE_GRAPHICS_INSTANCES) {
-        ERRORLOG("Invalid model %ld graphics sequence %u",crmodel,seq_idx);
+    if (seq_idx >= CREATURE_GRAPHICS_INSTANCES)
+    {
+        ERRORLOG("Invalid model %ld graphics sequence %u", crmodel, seq_idx);
         return;
     }
-    if ((crmodel < 0) || (crmodel >= game.conf.crtr_conf.model_count)) {
-        ERRORLOG("Invalid model %ld graphics sequence %u",crmodel,seq_idx);
+    if ((crmodel < 0) || (crmodel >= game.conf.crtr_conf.model_count))
+    {
+        ERRORLOG("Invalid model %ld graphics sequence %u", crmodel, seq_idx);
         return;
     }
     game.conf.crtr_conf.creature_graphics[crmodel][seq_idx] = val;

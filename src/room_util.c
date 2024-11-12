@@ -22,6 +22,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "room_data.h"
+#include "room_garden.h"
 #include "map_utils.h"
 #include "map_blocks.h"
 #include "player_data.h"

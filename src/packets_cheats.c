@@ -46,6 +46,7 @@
 #include "gui_topmsg.h"
 #include "gui_msgs.h"
 #include "frontmenu_ingame_tabs.h"
+#include "room_treasure.h"
 #include "post_inc.h"
 
 extern void clear_input(struct Packet* packet);

@@ -87,6 +87,7 @@ TbResult LbMouseSetup(struct TbSprite *pointerSprite)
     ret = Lb_FAIL;
   lbMouseInstalled = (ret == Lb_SUCCESS);
   lbMouseOffline = false;
+  LbGrabMouseCheck(MG_OnFocusGained);
   return ret;
 }
 

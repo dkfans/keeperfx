@@ -290,6 +290,7 @@ obj/room_lair.o \
 obj/room_library.o \
 obj/room_list.o \
 obj/room_scavenge.o \
+obj/room_treasure.o \
 obj/room_util.o \
 obj/room_workshop.o \
 obj/roomspace.o \
