@@ -4140,10 +4140,29 @@ TbBool creature_is_hostile_towards(const struct Thing *fightng, const struct Thi
     return false;
 }
 
+TbBool creature_can_be_hostile(const struct Thing *fightng, const struct Thing *enmtng)
+{
+    // Creatures cannot be hostile towards allies if influenced by CTA.
+    if (creature_affected_by_call_to_arms(fightng) || creature_affected_by_call_to_arms(enmtng))
+    {
+        return false;
+    }
+    // Creatures cannot be hostile towards allies if it's part of a group.
+    if (creature_is_group_member(fightng) || creature_is_group_member(enmtng))
+    {
+        return false;
+    }
+    // Lastly, check if both creatures doesn't have hostility set between each other.
+    if (!creature_is_hostile_towards(fightng, enmtng) && !creature_is_hostile_towards(enmtng, fightng))
+    {
+        return false;
+    }
+    return true;
+}
+
 /**
  * Checks if creatures can attack each other.
- * Note that this function does not include full check from players_are_enemies(),
- *  so both should be used when applicable.
+ * Note that this function does not include full check from players_are_enemies(), so both should be used when applicable.
  * @param tng1
  * @param tng2
  * @return
@@ -4165,8 +4184,7 @@ TbBool creature_will_attack_creature(const struct Thing *fightng, const struct T
     }
     struct CreatureControl* fighctrl = creature_control_get_from_thing(fightng);
     struct CreatureControl* enmctrl = creature_control_get_from_thing(enmtng);
-    if ((players_creatures_tolerate_each_other(fightng->owner, enmtng->owner))
-    && (!creature_is_hostile_towards(fightng, enmtng) || creature_is_group_member(fightng) || creature_is_group_member(enmtng)))
+    if ((players_creatures_tolerate_each_other(fightng->owner, enmtng->owner)) && (!creature_can_be_hostile(fightng, enmtng)))
     {
         if (((fighctrl->spell_flags & CSAfF_MadKilling) == 0)
         && ((enmctrl->spell_flags & CSAfF_MadKilling) == 0))
