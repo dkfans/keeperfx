@@ -5373,12 +5373,15 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         TbBool is_thing_under_hand = (player->thing_under_hand == thing->index);
         // Check if the creature is an enemy and is visible.
         TbBool is_enemy_and_visible = players_are_enemies(player->id_number, thing->owner) && !creature_is_invisible(thing);
-        // Check if the creature belongs to player and is hurt.
+        // Check if the creature belongs to the player, is hurt but not unconscious.
+        TbBool is_owned_and_hurt = false;
+        // Check if the creature belongs to an ally and is hurt.
         TbBool is_allied_and_hurt = false;
         TbBool should_drag_to_lair = false;
         if (!is_enemy_and_visible)
         {
-            is_allied_and_hurt = players_are_mutual_allies(player->id_number, thing->owner) && creature_would_benefit_from_healing(thing) && !creature_is_being_unconscious(thing);
+            is_owned_and_hurt = (player->id_number == thing->owner) && creature_would_benefit_from_healing(thing) && !creature_is_being_unconscious(thing);
+            is_allied_and_hurt = (player->id_number != thing->owner) && creature_would_benefit_from_healing(thing) && players_are_mutual_allies(player->id_number, thing->owner);
             should_drag_to_lair = creature_is_being_unconscious(thing) && (player->id_number == thing->owner)
             // Check if the creature has a lair room or can heal in a lair.
             && ((game.conf.rules.workers.drag_to_lair == 1 && !room_is_invalid(get_creature_lair_room(thing)))
