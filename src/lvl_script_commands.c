@@ -2797,9 +2797,19 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                     creatvar = get_id(creature_graphics_desc, scline->tp[1]);
                     if (creatvar == -1)
                     {
-                        SCRPTERRLOG("Unknown creature configuration variable");
-                        DEALLOCATE_SCRIPT_VALUE
-                        return;
+                        block = CrtConf_ANNOYANCE;
+                        creatvar = get_id(creatmodel_annoyance_commands, scline->tp[1]);
+                        if (creatvar == -1)
+                        {
+                            block = CrtConf_EXPERIENCE;
+                            creatvar = get_id(creatmodel_experience_commands, scline->tp[1]);
+                            if (creatvar == -1)
+                            {
+                                SCRPTERRLOG("Unknown creature configuration variable");
+                                DEALLOCATE_SCRIPT_VALUE
+                                return;
+                            }
+                        }
                     }
                 }
             }
@@ -2946,6 +2956,57 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             if (scline->tp[4][0] != '\0')
             {
                 value3 = atoi(scline->tp[4]);
+            }
+        }
+    }
+    else if (block == CrtConf_ANNOYANCE)
+    {
+        if (creatvar == 23) //AngerJobs
+        {
+            long job_value;
+            if (parameter_is_number(scline->tp[2]))
+            {
+                job_value = atoi(scline->tp[2]);
+            }
+            else
+            {
+                job_value = get_id(creaturejob_desc, scline->tp[2]);
+            }
+            long job2_value = 0;
+            long job3_value = 0;
+            if (job_value > SHRT_MAX)
+            {
+                SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
+                DEALLOCATE_SCRIPT_VALUE
+                    return;
+            }
+            value1 = job_value;
+
+            if (scline->tp[3][0] != '\0')
+            {
+                job2_value = get_id(creaturejob_desc, scline->tp[3]);
+                if (job2_value > SHRT_MAX)
+                {
+                    SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
+                    DEALLOCATE_SCRIPT_VALUE
+                        return;
+                }
+                value2 = job2_value;
+            }
+            if (scline->tp[4][0] != '\0')
+            {
+                job3_value = get_id(creaturejob_desc, scline->tp[4]);
+                if (job3_value > SHRT_MAX)
+                {
+                    SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
+                    DEALLOCATE_SCRIPT_VALUE
+                        return;
+                }
+                value3 = job3_value;
+            }
+            else
+            {
+                value1 = atoi(scline->tp[2]);
             }
         }
     }

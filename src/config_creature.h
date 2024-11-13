@@ -272,6 +272,7 @@ extern const struct NamedCommand creatmodel_attraction_commands[];
 extern const struct NamedCommand creatmodel_sounds_commands[];
 extern const struct NamedCommand creatmodel_sprite_commands[];
 extern const struct NamedCommand creature_graphics_desc[];
+extern const struct NamedCommand creatmodel_annoyance_commands[];
 extern Creature_Job_Player_Check_Func creature_job_player_check_func_list[];
 /******************************************************************************/
 struct CreatureStats *creature_stats_get(ThingModel crstat_idx);
