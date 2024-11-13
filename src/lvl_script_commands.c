@@ -2838,6 +2838,25 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                 value1 = get_id(creature_desc, scline->tp[2]);
             }
         }
+        else if (creatvar == 37) // HOSTILETOWARDS
+        {
+            if (parameter_is_number(scline->tp[2])) // Support name or number for hostile towards.
+            {
+                value1 = atoi(scline->tp[2]);
+            }
+            else if (0 == strcmp(word_buf, "ANY_CREATURE")) // Support ANY_CREATURE for hostile towards.
+            {
+                value1 = CREATURE_ANY;
+            }
+            else if (strcasecmp(word_buf, "NULL") == 0)  // Support NULL for hostile towards.
+            {
+                value1 = 0;
+            }
+            else
+            {
+                value1 = get_id(creature_desc, scline->tp[2]);
+            }
+        }
         else
         {
             value1 = atoi(scline->tp[2]);
@@ -3123,6 +3142,20 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             break;
         case 36: // TORTUREKIND
             crstat->torture_kind = value;
+            break;
+        case 37: // HOSTILETOWARDS
+            if (value != 0)
+            {
+                crstat->hostile_towards[0] = value; // Only change the first.
+            }
+            else
+            {
+                // If 0 (NULL) assume the mapmaker wants to remove all.
+                for (int i = 0; i < CREATURE_TYPES_MAX; i++)
+                {
+                    crstat->hostile_towards[i] = 0;
+                }
+            }
             break;
         case ccr_comment:
             break;
