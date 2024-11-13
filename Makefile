@@ -294,6 +294,7 @@ obj/room_lair.o \
 obj/room_library.o \
 obj/room_list.o \
 obj/room_scavenge.o \
+obj/room_treasure.o \
 obj/room_util.o \
 obj/room_workshop.o \
 obj/roomspace.o \
@@ -360,7 +361,8 @@ INCS = \
 	-I"deps/enet/include" \
 	-I"deps/centijson/include" \
 	-I"deps/centitoml" \
-	-I"deps/astronomy/include"
+	-I"deps/astronomy/include" \
+	-I"obj" # To find ver_defs.h
 CXXINCS =  $(INCS)
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
@@ -554,7 +556,7 @@ obj/std/%.o obj/hvlog/%.o: src/%.c libexterns $(GENSRC)
 # Windows resources compilation
 obj/std/%.res obj/hvlog/%.res: res/%.rc res/keeperfx_icon.ico $(GENSRC)
 	-$(ECHO) 'Building resource: $<'
-	$(WINDRES) -i "$<" --input-format=rc -o "$@" -O coff
+	$(WINDRES) -i "$<" --input-format=rc -o "$@" -O coff -I"obj/"
 	-$(ECHO) ' '
 
 # Creation of Windows icon files from PNG files
@@ -612,7 +614,7 @@ deps/spng/include/spng.h: deps/spng-mingw32.tar.gz | deps/spng
 	tar xzmf $< -C deps/spng
 
 deps/astronomy-mingw32.tar.gz:
-	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/astronomy-mingw32.tar.gz"
+	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/astronomy_fix/astronomy-mingw32.tar.gz"
 
 deps/astronomy/include/astronomy.h: deps/astronomy-mingw32.tar.gz | deps/astronomy
 	tar xzmf $< -C deps/astronomy

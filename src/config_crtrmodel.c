@@ -85,6 +85,8 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"CORPSEVANISHEFFECT", 32},
   {"FOOTSTEPPITCH",      33},
   {"LAIROBJECT",         34},
+  {"PRISONKIND",         35},
+  {"TORTUREKIND",        36},
   {NULL,                  0},
   };
 
@@ -120,6 +122,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"TREMBLING",         30},
   {"FAT",               31},
   {"NO_STEAL_HERO",     32},
+  {"PREFER_STEAL",      33},
   {NULL,                 0},
   };
 
@@ -232,6 +235,7 @@ const struct NamedCommand creatmodel_sounds_commands[] = {
   {"DIE",                  CrSnd_Die},
   {"FOOT",                 CrSnd_Foot},
   {"FIGHT",                CrSnd_Fight},
+  {"PISS",                 CrSnd_Piss},
   {NULL,                   0},
   };
 
@@ -279,6 +283,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->flying = false;
       crstat->can_see_invisible = false;
       crstat->can_go_locked_doors = false;
+      crstat->prison_kind = 0;
+      crstat->torture_kind = 0;
       crconf->namestr_idx = 0;
       crconf->model_flags = 0;
   }
@@ -689,7 +695,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               n++;
               break;
             case 13: // LORD
-              crconf->model_flags |= CMF_IsLordOTLand;
+              crconf->model_flags |= CMF_IsLordOfLand;
               n++;
               break;
             case 14: // SPECTATOR
@@ -769,6 +775,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 crconf->model_flags |= CMF_NoStealHero;
                 n++;
                 break;
+            case 33: // PREFER_STEAL
+                crconf->model_flags |= CMF_PreferSteal;
+                n++;
+                break;
             default:
               CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s %s file.",
                   COMMAND_TEXT(cmd_num),word_buf,block_buf, creature_code_name(crtr_model), config_textname);
@@ -825,6 +835,46 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               if (k > 0)
               {
                   crstat->lair_object = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 35: // PRISONKIND
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(creature_desc, word_buf);
+              if (k > 0)
+              {
+                  crstat->prison_kind = k;
+                  n++;
+              }
+              else if (strcasecmp(word_buf,"NULL") == 0)
+              {
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 36: // TORTUREKIND
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(creature_desc, word_buf);
+              if (k > 0)
+              {
+                  crstat->torture_kind = k;
+                  n++;
+              }
+              else if (strcasecmp(word_buf,"NULL") == 0)
+              {
                   n++;
               }
           }
@@ -2156,7 +2206,7 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
   {
       for (n = 0; n < CREATURE_GRAPHICS_INSTANCES; n++)
       {
-          set_creature_model_graphics(crtr_model, n, 0);
+          set_creature_model_graphics(crtr_model, n, -1);
       }
   }
   // Find the block
@@ -2453,6 +2503,25 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             {
               k = atoi(word_buf);
               game.conf.crtr_conf.creature_sounds[crtr_model].fight.count = k;
+              n++;
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case CrSnd_Piss:
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              game.conf.crtr_conf.creature_sounds[crtr_model].piss.index = k;
+              n++;
+            }
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              game.conf.crtr_conf.creature_sounds[crtr_model].piss.count = k;
               n++;
             }
             if (n < 1)

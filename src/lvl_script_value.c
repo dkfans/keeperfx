@@ -510,7 +510,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       }
       break;
   case Cmd_ADD_CREATURE_TO_POOL:
-      add_creature_to_pool(val2, val3, 0);
+      add_creature_to_pool(val2, val3);
       break;
   case Cmd_TUTORIAL_FLASH_BUTTON:
       gui_set_button_flashing(val2, val3);
@@ -617,11 +617,11 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 13: // LORD
           if (val4 >= 1)
           {
-              set_flag(crconf->model_flags,CMF_IsLordOTLand);
+              set_flag(crconf->model_flags,CMF_IsLordOfLand);
           }
           else
           {
-              clear_flag(crconf->model_flags,CMF_IsLordOTLand);
+              clear_flag(crconf->model_flags,CMF_IsLordOfLand);
           }
           break;
       case 14: // SPECTATOR
@@ -800,6 +800,16 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           else
           {
               clear_flag(crconf->model_flags,CMF_NoStealHero);
+          }
+          break;
+      case 33: // PREFER_STEAL
+          if (val4 >= 1)
+          {
+              set_flag(crconf->model_flags,CMF_PreferSteal);
+          }
+          else
+          {
+              clear_flag(crconf->model_flags,CMF_PreferSteal);
           }
           break;
       default:

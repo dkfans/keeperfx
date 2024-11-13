@@ -691,7 +691,7 @@ TbBool creature_is_kept_in_prison(const struct Thing *thing)
 TbBool creature_is_being_summoned(const struct Thing *thing)
 {
     CrtrStateId i = get_creature_state_besides_interruptions(thing);
-    if ((i == CrSt_CreatureBeingSummoned))
+    if (i == CrSt_CreatureBeingSummoned)
         return true;
     return false;
 }
@@ -836,9 +836,9 @@ TbBool creature_is_kept_in_custody_by_enemy(const struct Thing *thing)
         creature_is_being_dropped(thing))
     {
         struct Room* room = get_room_thing_is_on(thing);
-        if (room_is_invalid(room)) 
+        if (room_is_invalid(room))
         {
-            //If the creature is not inside a room, or moving 
+            //If the creature is not inside a room, or moving
             struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
             room = get_room_at_pos(&cctrl->moveto_pos);
             if (room_is_invalid(room))
@@ -2296,7 +2296,7 @@ short creature_leaves(struct Thing *creatng)
         struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
         apply_anger_to_all_players_creatures_excluding(creatng->owner, crstat->annoy_others_leaving, AngR_Other, creatng);
     }
-    kill_creature(creatng, INVALID_THING, -1, CrDed_NoEffects||CrDed_NotReallyDying);
+    kill_creature(creatng, INVALID_THING, -1, CrDed_NoEffects | CrDed_NotReallyDying);
     return CrStRet_Deleted;
 }
 
@@ -3163,11 +3163,11 @@ short creature_wait_at_treasure_room_door(struct Thing *creatng)
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing *doortng;
-    if (cctrl->blocking_door_id > 0) 
+    if (cctrl->blocking_door_id > 0)
     {
         struct Room *room = room_get(cctrl->target_room_id);
         if (!room_is_invalid(room))
-        {   
+        {
             // if there's another route to the current target room, take it
             struct Coord3d roompos;
             roompos.x.val = subtile_coord_center(room->central_stl_x);
@@ -3197,8 +3197,8 @@ short creature_wait_at_treasure_room_door(struct Thing *creatng)
             }
         }
         doortng = thing_get(cctrl->blocking_door_id);
-    } 
-    else 
+    }
+    else
     {
         doortng = INVALID_THING;
     }
@@ -3355,7 +3355,7 @@ long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
 {
     SlabCodedCoords start_slbnum = room->slabs_list;
 
-    //Find a random slab to start out with
+    // Find a random slab to start out with
     long n = CREATURE_RANDOM(thing, room->slabs_count);
     for (unsigned long k = n; k > 0; k--)
     {
@@ -3378,7 +3378,7 @@ long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
     // If the random slab has enough space to drop all gold, go there to drop it
     long wealth_size_holds = game.conf.rules.game.gold_per_hoard / get_wealth_size_types_count();
     GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
-    if((max_hoard_size_in_room - gldtng->valuable.gold_stored) >= thing->creature.gold_carried)
+    if ((max_hoard_size_in_room - gldtng->valuable.gold_stored) >= thing->creature.gold_carried)
     {
         if (setup_person_move_to_position(thing, slab_subtile_center(slb_x), slab_subtile_center(slb_y), NavRtF_Default))
         {
@@ -3386,16 +3386,15 @@ long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
         }
     }
 
-    //If not, find a slab with the lowest amount of gold
-    GoldAmount gold_amount = gldtng->valuable.gold_stored;
-    GoldAmount min_gold_amount = gldtng->valuable.gold_stored;
+    // If not, find a slab with the lowest amount of gold
+    GoldAmount min_gold_amount = max_hoard_size_in_room;
     SlabCodedCoords slbmin = start_slbnum;
     for (long i = room->slabs_count; i > 0; i--)
     {
         slb_x = slb_num_decode_x(slbnum);
         slb_y = slb_num_decode_y(slbnum);
         gldtng = find_gold_hoarde_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
-        gold_amount = gldtng->valuable.gold_stored;
+        GoldAmount gold_amount = gldtng->valuable.gold_stored;
         if (gold_amount <= 0) //Any empty slab will do
         {
             slbmin = slbnum;
@@ -3414,7 +3413,7 @@ long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
 
     }
 
-    //Send imp to slab with lowest amount on it
+    // Send imp to slab with lowest amount on it
     slb_x = slb_num_decode_x(slbmin);
     slb_y = slb_num_decode_y(slbmin);
     if (setup_person_move_to_position(thing, slab_subtile_center(slb_x), slab_subtile_center(slb_y), NavRtF_Default))
@@ -3526,7 +3525,7 @@ void instruct_creature_to_damage_wall(struct Thing *creatng, MapSubtlCoord wall_
             pos.x.val = subtile_coord_center(stand_x);
             pos.y.val = subtile_coord_center(stand_y);
             pos.z.val = get_thing_height_at(creatng, &pos);
-            if ( creature_can_navigate_to_with_storage(creatng, &pos, 0) != -1 ) {
+            if (creature_can_navigate_to_with_storage(creatng, &pos, 0)) {
                 if ( setup_person_move_to_position(creatng, stand_x, stand_y, 0) )
                 {
                     creatng->continue_state = CrSt_CreatureDamageWalls;
@@ -3719,7 +3718,7 @@ CrCheckRet move_check_wait_at_door_for_wage(struct Thing *creatng)
   {
       room = room_get(cctrl->target_room_id);
       if (!room_is_invalid(room))
-      {   
+      {
           // if there's another route to the current target room, take it
           struct Coord3d roompos;
           roompos.x.val = subtile_coord_center(room->central_stl_x);

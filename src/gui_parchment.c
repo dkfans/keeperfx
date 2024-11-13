@@ -222,7 +222,7 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
         && ((game.play_gameturn & 4) != 0))
     {
         pixval = pixmap.ghost[background + 0x1A00];
-        if ((slb->kind == SlbT_GEMS))
+        if (slb->kind == SlbT_GEMS)
         {
             pixval = pixval + 2;
         }

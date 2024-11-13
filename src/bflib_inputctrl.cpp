@@ -338,47 +338,55 @@ static void process_event(const SDL_Event *ev)
         break;
 
     case SDL_WINDOWEVENT:
-        if (ev->window.event == SDL_WINDOWEVENT_FOCUS_GAINED)
+        switch (ev->window.event)
         {
-            lbAppActive = true;
-            isMouseActive = true;
-            isMouseActivated = true;
-            LbGrabMouseCheck(MG_OnFocusGained);
-            if (freeze_game_on_focus_lost() && !LbIsFrozenOrPaused())
+            case SDL_WINDOWEVENT_FOCUS_GAINED:
             {
-                pause_music(false);
-            }
-            if (mute_audio_on_focus_lost() && !LbIsFrozenOrPaused())
-            {
-                mute_audio(false);
-            }
-        }
-        else if (ev->window.event == SDL_WINDOWEVENT_FOCUS_LOST)
-        {
-            lbAppActive = false;
-            isMouseActive = false;
-            isMouseActivated = false;
-            LbGrabMouseCheck(MG_OnFocusLost);
-            if (freeze_game_on_focus_lost())
-            {
-                pause_music(true);
-            }
-            if (mute_audio_on_focus_lost())
-            {
-                mute_audio(true);
-            }
-        }
-        else if (ev->window.event == SDL_WINDOWEVENT_ENTER)
-        {
-            if (lbAppActive)
-            {
+                lbAppActive = true;
                 isMouseActive = true;
                 isMouseActivated = true;
+                LbGrabMouseCheck(MG_OnFocusGained);
+                if (freeze_game_on_focus_lost() && !LbIsFrozenOrPaused())
+                {
+                    pause_music(false);
+                }
+                if (mute_audio_on_focus_lost() && !LbIsFrozenOrPaused())
+                {
+                    mute_audio(false);
+                }
+                break;
             }
-        }
-        else if (ev->window.event == SDL_WINDOWEVENT_LEAVE)
-        {
-            isMouseActive = false;
+            case SDL_WINDOWEVENT_FOCUS_LOST:
+            {
+                lbAppActive = false;
+                isMouseActive = false;
+                isMouseActivated = false;
+                LbGrabMouseCheck(MG_OnFocusLost);
+                if (freeze_game_on_focus_lost())
+                {
+                    pause_music(true);
+                }
+                if (mute_audio_on_focus_lost())
+                {
+                    mute_audio(true);
+                }
+                break;
+            }
+            case SDL_WINDOWEVENT_ENTER:
+            {
+                if (lbAppActive)
+                {
+                    isMouseActive = true;
+                    isMouseActivated = true;
+                }
+                break;
+            }
+            case SDL_WINDOWEVENT_LEAVE:
+            {
+                isMouseActive = false;
+                break;
+            }
+            default: break;
         }
         /* else if (ev->window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
              // todo (allow window to be freely scaled): add window resize function that does what is needed, and call this new function from window init function too
@@ -550,7 +558,6 @@ void LbGrabMouseCheck(long grab_event)
                 }
                 break;
             case MG_InitMouse:
-                if (!start_params.ungrab_mouse)
                     grab_cursor = true;
                 break;
             case MG_OnFocusGained:

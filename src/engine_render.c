@@ -20,47 +20,48 @@
 #include <stddef.h>
 
 #include "engine_render.h"
-
 #include "globals.h"
+
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
-#include "bflib_memory.h"
 #include "bflib_math.h"
+#include "bflib_memory.h"
 #include "bflib_planar.h"
-#include "bflib_video.h"
-#include "bflib_sprite.h"
-#include "bflib_vidraw.h"
 #include "bflib_render.h"
-
-#include "engine_lenses.h"
-#include "engine_camera.h"
-#include "engine_arrays.h"
-#include "engine_textures.h"
-#include "engine_redraw.h"
+#include "bflib_sprite.h"
+#include "bflib_video.h"
+#include "bflib_vidraw.h"
+#include "config_creature.h"
+#include "config_players.h"
+#include "config_settings.h"
+#include "config_spritecolors.h"
+#include "config_terrain.h"
 #include "creature_graphics.h"
 #include "creature_states.h"
-#include "creature_states_mood.h"
+#include "creature_states_combt.h"
 #include "creature_states_gardn.h"
 #include "creature_states_lair.h"
-#include "config_spritecolors.h"
-#include "thing_stats.h"
-#include "thing_traps.h"
-#include "game_lghtshdw.h"
-#include "game_heap.h"
-#include "kjm_input.h"
-#include "gui_draw.h"
+#include "creature_states_mood.h"
+#include "custom_sprites.h"
+#include "engine_arrays.h"
+#include "engine_camera.h"
+#include "engine_lenses.h"
+#include "engine_redraw.h"
+#include "engine_textures.h"
 #include "front_simple.h"
 #include "frontend.h"
-#include "vidmode.h"
-#include "vidfade.h"
-#include "config_settings.h"
-#include "config_terrain.h"
-#include "config_creature.h"
+#include "game_heap.h"
+#include "game_lghtshdw.h"
+#include "gui_draw.h"
 #include "keeperfx.hpp"
-#include "config_players.h"
-#include "custom_sprites.h"
-#include "sprites.h"
+#include "kjm_input.h"
 #include "player_instances.h"
+#include "sprites.h"
+#include "thing_stats.h"
+#include "thing_traps.h"
+#include "vidfade.h"
+#include "vidmode.h"
+
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -5286,12 +5287,12 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     if ((game.flags_cd & MFlg_NoHeroHealthFlower) != 0)
     {
-      if ( player->thing_under_hand != thing->index )
-      {
-        cctrl->thought_bubble_last_turn_drawn = game.play_gameturn;
-        return;
-      }
-      cctrl->thought_bubble_display_timer = 40;
+        if ( player->thing_under_hand != thing->index )
+        {
+            cctrl->thought_bubble_last_turn_drawn = game.play_gameturn;
+            return;
+        }
+        cctrl->thought_bubble_display_timer = 40;
     }
 
     short health_spridx;
@@ -5366,15 +5367,20 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     // determine if the creature is under the player's hand (being hovered over)
     TbBool is_thing_under_hand = (player->thing_under_hand == thing->index);
     // check if the creature is an enemy and is visible
-    TbBool is_enemy_and_visible = (player->id_number != thing->owner) && !creature_is_invisible(thing);
-     // check if the 'drag to lair' rule is active, evaluate if saveable creature is visible  
-    // determine if the creature is unconscious and owned by the player...
-    TbBool should_drag_to_lair = creature_is_being_unconscious(thing) && (player->id_number == thing->owner) && (
-        // check if the creature has a lair room or can heal in a lair
-        (game.conf.rules.workers.drag_to_lair == 1 && !room_is_invalid(get_creature_lair_room(thing))) ||
-        // or check if the creature can have lair and heal in it
-        (game.conf.rules.workers.drag_to_lair == 2 && creature_can_do_healing_sleep(thing))
-    );
+    TbBool is_enemy_and_visible = players_are_enemies(player->id_number,thing->owner) && !creature_is_invisible(thing);
+    // check if the creature belongs to player and is hurt
+    TbBool is_allied_and_hurt = false;
+    TbBool should_drag_to_lair = false;
+    if (!is_enemy_and_visible)
+    {
+        is_allied_and_hurt = players_are_mutual_allies(player->id_number, thing->owner) && creature_would_benefit_from_healing(thing);
+        should_drag_to_lair = creature_is_being_unconscious(thing) && (player->id_number == thing->owner) && (
+            // check if the creature has a lair room or can heal in a lair
+            (game.conf.rules.workers.drag_to_lair == 1 && !room_is_invalid(get_creature_lair_room(thing))) ||
+            // or check if the creature can have lair and heal in it
+            (game.conf.rules.workers.drag_to_lair == 2 && creature_can_do_healing_sleep(thing)));
+    }   
+
     // check if the creature is in combat
     TbBool is_in_combat = (cctrl->combat_flags != 0);
     // check if the creature has a lair
@@ -5384,6 +5390,8 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 
       if ( (is_thing_under_hand)
         || (is_enemy_and_visible)
+        || (is_allied_and_hurt)
+        || (thing->owner == PLAYER_NEUTRAL)
         // if drag_to_lair rule is active
         || (should_drag_to_lair)
         || (is_in_combat)
