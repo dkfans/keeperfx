@@ -240,22 +240,22 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       if (shotst->model_flags & ShMF_Boulder)
       {
           thing->move_angle_xy = player->acamera->orient_a;
-          if (thing->model != ShM_SolidBoulder) //TODO CONFIG shot model dependency, make config option instead
+          if (thing->model != ShM_SolidBoulder) // TODO CONFIG shot model dependency, make config option instead.
           {
               thing->health -= game.conf.rules.game.boulder_reduce_health_slap;
           }
-      } else
+      }
+      else
       {
           detonate_shot(thing,true);
       }
       break;
   case TCls_Trap:
-      trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
+      trapst = get_trap_model_stats(thing->model);
       if ((trapst->slappable > 0) && trap_is_active(thing))
       {
-          struct TrapStats* trapstat = &game.conf.trap_stats[thing->model];
           struct Thing* trgtng = INVALID_THING;
-          shotst = get_shot_model_stats(trapstat->created_itm_model);
+          shotst = get_shot_model_stats(trapst->created_itm_model);
           if (trapst->slappable == 1)
           {
               external_activate_trap_shot_at_angle(thing, player->acamera->orient_a, trgtng);
