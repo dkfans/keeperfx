@@ -643,12 +643,12 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
 
                 if( k < commands[i].min)
                 {
-                    CONFWRNLOG("field '%s' smaller then min value '%lld', was '%lld'",commands[i].name,commands[i].min,k);
+                    CONFWRNLOG("field '%s' smaller then min value '%I64d', was '%I64d'",commands[i].name,commands[i].min,k);
                     k = commands[i].min;
                 }
                 else if( k > commands[i].max)
                 {
-                    CONFWRNLOG("field '%s' bigger then max value '%lld', was '%lld'",commands[i].name,commands[i].max,k);
+                    CONFWRNLOG("field '%s' bigger then max value '%I64d', was '%I64d'",commands[i].name,commands[i].max,k);
                     k = commands[i].max;
                 }
                 

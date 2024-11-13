@@ -24,7 +24,7 @@
 #include "bflib_planar.h"
 #include "bflib_vidsurface.h"
 #include "bflib_video.h"
-#include <mutex>
+#include "mutex.hpp"
 
 /******************************************************************************/
 #define CURSOR_SCALING_XSTEPS MAX_SUPPORTED_SCREEN_WIDTH/10

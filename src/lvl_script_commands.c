@@ -2462,7 +2462,7 @@ static void add_heart_health_process(struct ScriptContext *context)
         long long new_health = heartng->health + context->value->longs[1];
         if (new_health > objst->health)
         {
-            SCRIPTDBG(7,"Player %u's calculated heart health (%lld) is greater than maximum: %ld", heartng->owner, new_health, objst->health);
+            SCRIPTDBG(7,"Player %u's calculated heart health (%I64d) is greater than maximum: %ld", heartng->owner, new_health, objst->health);
             new_health = objst->health;
         }
         heartng->health = new_health;
@@ -5224,15 +5224,15 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
     {
         if ( (powervar == 5) && (value->chars[3] != -1) )
         {
-            SCRIPTDBG(7, "Toggling %s castability flag: %lld", powername, number_value);
+            SCRIPTDBG(7, "Toggling %s castability flag: %I64d", powername, number_value);
         }
         else if ( (powervar == 14) && (value->chars[3] != -1) )
         {
-            SCRIPTDBG(7, "Toggling %s property flag: %lld", powername, number_value);
+            SCRIPTDBG(7, "Toggling %s property flag: %I64d", powername, number_value);
         }
         else
         {
-            SCRIPTDBG(7, "Setting power %s property %s to %lld", powername, property, number_value);
+            SCRIPTDBG(7, "Setting power %s property %s to %I64d", powername, property, number_value);
         }
     }
     #endif
@@ -5457,12 +5457,12 @@ static void set_game_rule_check(const struct ScriptLine* scline)
                 if (ruleval < (ruleblocks[i]+ruledesc)->min)
                 {
                     ruleval = (ruleblocks[i]+ruledesc)->min;
-                    SCRPTERRLOG("Game Rule '%s' value %ld is smaller then minimum of %lld", scline->tp[0], ruleval,(ruleblocks[i]+ruledesc)->min);
+                    SCRPTERRLOG("Game Rule '%s' value %ld is smaller then minimum of %I64d", scline->tp[0], ruleval,(ruleblocks[i]+ruledesc)->min);
                 }
                 else if(ruleval > (ruleblocks[i]+ruledesc)->max)
                 {
                     ruleval = (ruleblocks[i]+ruledesc)->max;
-                    SCRPTERRLOG("Game Rule '%s' value %ld is bigger then maximum of %lld", scline->tp[0], ruleval,(ruleblocks[i]+ruledesc)->max);
+                    SCRPTERRLOG("Game Rule '%s' value %ld is bigger then maximum of %I64d", scline->tp[0], ruleval,(ruleblocks[i]+ruledesc)->max);
                 }
                 break;
             }

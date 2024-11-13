@@ -117,7 +117,7 @@ _backtrace(int depth , LPCONTEXT context)
         {
             if (sscanf(mapFileLine, " %*x __image_base__ = %llx", &keeperFxBaseAddr) == 1)
             {
-                SYNCDBG(0, "KeeperFX base address in map file: %llx", keeperFxBaseAddr);
+                SYNCDBG(0, "KeeperFX base address in map file: %I64x", keeperFxBaseAddr);
                 break;
             }
         }
