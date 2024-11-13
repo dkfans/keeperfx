@@ -5396,6 +5396,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         TbBool is_parchment_map_view = (cam->view_mode == PVM_ParchmentView);
         if ((is_thing_under_hand)
         || (is_enemy_and_visible)
+        || (is_owned_and_hurt)
         || (is_allied_and_hurt)
         || (thing->owner == PLAYER_NEUTRAL)
         // If drag_to_lair rule is active.
