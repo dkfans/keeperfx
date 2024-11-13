@@ -1893,7 +1893,6 @@ CrInstance get_postal_instance_to_use(const struct Thing *thing, unsigned long d
     CrInstance av_postal_inst[INSTANCE_TYPES_MAX];
     short av_postal_inst_num = 0;
     char highest_prio = 0;
-    short highest_prio_idx = CrInst_NULL;
     // Loop through the cached postal instances
     for (short j = 0; j < postal_inst_num; j++)
     {
