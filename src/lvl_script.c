@@ -23,7 +23,6 @@
 
 #include "globals.h"
 #include "bflib_memory.h"
-#include "console_cmd.h"
 #include "player_instances.h"
 #include "player_data.h"
 #include "player_utils.h"
@@ -537,13 +536,7 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
             break;
         }
         case 'A': //String
-        {
-            if (parameter_is_number(scline->tp[idx]))
-            {
-                scline->np[idx] = atoi(scline->tp[idx]);
-            }
             break;
-        }
         case '!': // extended sign
             return true;
         default:
@@ -675,7 +668,7 @@ static TbBool process_subfunc(char **line, struct ScriptLine *scline, const stru
                     if (funscline->tp[fi][0] == '\0') {
                         break;
                     }
-                    if ((chr == 'A' && !(parameter_is_number(funscline->tp[fi+1]))) && (!is_if_statement) ) //Strings don't have a range, but IF statements have 'Aa' to allow both variable compare and numbers. Numbers are allowed, 'a' is a string for sure.
+                    if ((toupper(chr) == 'A') && (!is_if_statement) ) //Strings don't have a range, but IF statements have 'Aa' to allow both variable compare and numbers. Numbers are allowed, 'a' is a string for sure.
                     {
                         // Values which do not support range
                         if (strcmp(funscline->tp[fi],"~") == 0) {
