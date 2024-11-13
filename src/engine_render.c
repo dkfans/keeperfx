@@ -5256,26 +5256,28 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 {
     struct PlayerInfo *player = get_my_player();
     const struct Camera *cam = player->acamera;
-    if (cam == NULL) {
+    if (cam == NULL)
+    {
         return;
     }
 
     float scale_by_zoom;
-    int base_size = creature_status_size*256;
-    switch (cam->view_mode) {
-        case PVM_IsoWibbleView:
-        case PVM_IsoStraightView:
-            // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
-            scale_by_zoom = lerp(0.15, 1.00, hud_scale);
-            break;
-        case PVM_FrontView:
-            scale_by_zoom = lerp(0.15, 1.00, hud_scale);
-            break;
-        case PVM_ParchmentView:
-            scale_by_zoom = 1;
-            break;
-        default:
-            return; // Do not draw if camera is 1st person
+    int base_size = creature_status_size * 256;
+    switch (cam->view_mode)
+    {
+    case PVM_IsoWibbleView:
+    case PVM_IsoStraightView:
+        // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom.
+        scale_by_zoom = lerp(0.15, 1.00, hud_scale);
+        break;
+    case PVM_FrontView:
+        scale_by_zoom = lerp(0.15, 1.00, hud_scale);
+        break;
+    case PVM_ParchmentView:
+        scale_by_zoom = 1;
+        break;
+    default:
+        return; // Do not draw if camera is 1st person.
     }
 
     unsigned short flg_mem;
@@ -5287,7 +5289,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     if ((game.flags_cd & MFlg_NoHeroHealthFlower) != 0)
     {
-        if ( player->thing_under_hand != thing->index )
+        if (player->thing_under_hand != thing->index)
         {
             cctrl->thought_bubble_last_turn_drawn = game.play_gameturn;
             return;
@@ -5304,7 +5306,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     state_spridx = 0;
 
     CrtrExpLevel exp;
-    exp = min(cctrl->explevel,9);
+    exp = min(cctrl->explevel, 9);
     if (cam->view_mode != PVM_ParchmentView)
     {
         fill_status_sprite_indexes(thing, cctrl, &health_spridx, &state_spridx, &anger_spridx);
@@ -5319,16 +5321,17 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     spr = &button_sprite[GBS_creature_states_cloud];
     bs_units_per_px = units_per_pixel_ui * 2 * scale_by_zoom;
 
-    if (cam->view_mode == PVM_FrontView) {
-        float flower_distance = 1280; // Higher number means flower is further away from creature
-        scrpos_y -= (int)(  (flower_distance / spr->SHeight) * ((float)camera_zoom / FRONTVIEW_CAMERA_ZOOM_MAX)  );
+    if (cam->view_mode == PVM_FrontView)
+    {
+        float flower_distance = 1280; // Higher number means flower is further away from creature.
+        scrpos_y -= (int)((flower_distance / spr->SHeight) * ((float)camera_zoom / FRONTVIEW_CAMERA_ZOOM_MAX));
     }
 
-    if ( state_spridx || anger_spridx )
+    if (state_spridx || anger_spridx)
     {
         spr = &button_sprite[GBS_creature_states_cloud];
-        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
+        w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
+        h = (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
     }
 
@@ -5337,16 +5340,17 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     if (((game.play_gameturn & 4) == 0) && (anger_spridx > 0))
     {
         spr = &button_sprite[anger_spridx];
-        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
+        w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
+        h = (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
         spr = get_button_sprite_for_player(state_spridx, thing->owner);
-        h_add += spr->SHeight * bs_units_per_px/16;
-    } else if ( state_spridx )
+        h_add += spr->SHeight * bs_units_per_px / 16;
+    }
+    else if (state_spridx)
     {
         spr = get_button_sprite_for_player(state_spridx, thing->owner);
-        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
+        w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
+        h = (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
         h_add += h;
     }
@@ -5354,61 +5358,55 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     if ((thing->lair.spr_size > 0) && (health_spridx > 0) && ((game.play_gameturn & 1) != 0))
     {
         int flash_color = get_player_color_idx(thing->owner);
-        if (flash_color == PLAYER_NEUTRAL) {
+        if (flash_color == PLAYER_NEUTRAL)
+        {
             flash_color = game.play_gameturn & 3;
         }
         spr = get_button_sprite_for_player(health_spridx, thing->owner);
-        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
+        w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
+        h = (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
         LbSpriteDrawScaledOneColour(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h, player_flash_colours[flash_color]);
     }
     else
     {
-    // determine if the creature is under the player's hand (being hovered over)
-    TbBool is_thing_under_hand = (player->thing_under_hand == thing->index);
-    // check if the creature is an enemy and is visible
-    TbBool is_enemy_and_visible = players_are_enemies(player->id_number,thing->owner) && !creature_is_invisible(thing);
-    // check if the creature belongs to player and is hurt
-    TbBool is_allied_and_hurt = false;
-    TbBool should_drag_to_lair = false;
-    if (!is_enemy_and_visible)
-    {
-        is_allied_and_hurt = players_are_mutual_allies(player->id_number, thing->owner) && creature_would_benefit_from_healing(thing);
-        should_drag_to_lair = creature_is_being_unconscious(thing) && (player->id_number == thing->owner) && (
-            // check if the creature has a lair room or can heal in a lair
-            (game.conf.rules.workers.drag_to_lair == 1 && !room_is_invalid(get_creature_lair_room(thing))) ||
-            // or check if the creature can have lair and heal in it
-            (game.conf.rules.workers.drag_to_lair == 2 && creature_can_do_healing_sleep(thing)));
-    }   
-
-    // check if the creature is in combat
-    TbBool is_in_combat = (cctrl->combat_flags != 0);
-    // check if the creature has a lair
-    TbBool has_lair = (thing->lair.spr_size > 0);
-    // determine if the current view is the schematic top-down map view
-    TbBool is_parchment_map_view = (cam->view_mode == PVM_ParchmentView);
-
-      if ( (is_thing_under_hand)
-        || (is_enemy_and_visible)
-        || (is_allied_and_hurt)
-        || (thing->owner == PLAYER_NEUTRAL)
-        // if drag_to_lair rule is active
-        || (should_drag_to_lair)
-        || (is_in_combat)
-        || (has_lair)
-        || (is_parchment_map_view))
-      {
-          if (health_spridx > 0) {
-              spr = get_button_sprite_for_player(health_spridx, thing->owner);
-              w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-              h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
-              LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
-          }
-          spr = &button_sprite[GBS_creature_flower_level_01 + exp];
-          w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-          h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
-          LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
-      }
+        // Determine if the creature is under the player's hand (being hovered over).
+        TbBool is_thing_under_hand = (player->thing_under_hand == thing->index);
+        // Check if the creature is an enemy and is visible.
+        TbBool is_enemy_and_visible = players_are_enemies(player->id_number, thing->owner) && !creature_is_invisible(thing);
+        // Check if the creature belongs to player and is hurt.
+        TbBool is_allied_and_hurt = false;
+        TbBool should_drag_to_lair = false;
+        if (!is_enemy_and_visible)
+        {
+            is_allied_and_hurt = players_are_mutual_allies(player->id_number, thing->owner) && creature_would_benefit_from_healing(thing) && !creature_is_being_unconscious(thing);
+            should_drag_to_lair = creature_is_being_unconscious(thing) && (player->id_number == thing->owner)
+            // Check if the creature has a lair room or can heal in a lair.
+            && ((game.conf.rules.workers.drag_to_lair == 1 && !room_is_invalid(get_creature_lair_room(thing)))
+            // Or check if the creature can have lair and heal in it.
+            || (game.conf.rules.workers.drag_to_lair == 2 && creature_can_do_healing_sleep(thing)));
+        }
+        // Check if the creature is in combat.
+        TbBool is_in_combat = (cctrl->combat_flags != 0);
+        // Check if the creature has a lair.
+        TbBool has_lair = (thing->lair.spr_size > 0);
+        // Determine if the current view is the schematic top-down map view.
+        TbBool is_parchment_map_view = (cam->view_mode == PVM_ParchmentView);
+        if ((is_thing_under_hand) || (is_enemy_and_visible) || (is_allied_and_hurt) || (thing->owner == PLAYER_NEUTRAL)
+        // If drag_to_lair rule is active.
+        || (should_drag_to_lair) || (is_in_combat) || (has_lair) || (is_parchment_map_view))
+        {
+            if (health_spridx > 0)
+            {
+                spr = get_button_sprite_for_player(health_spridx, thing->owner);
+                w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
+                h = (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
+                LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
+            }
+            spr = &button_sprite[GBS_creature_flower_level_01 + exp];
+            w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
+            h = (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
+            LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
+        }
     }
     lbDisplay.DrawFlags = flg_mem;
 }
