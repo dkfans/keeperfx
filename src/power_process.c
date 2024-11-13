@@ -72,7 +72,7 @@ void set_chosen_power(PowerKind pwkind, TextStringId sptooltip)
     const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
     if (power_model_stats_invalid(powerst))
       pwkind = 0;
-    SYNCDBG(6,"Setting to %ld",pwkind);
+    SYNCDBG(6,"Setting to %u",pwkind);
     game.chosen_spell_type = pwkind;
     game.chosen_spell_spridx = powerst->bigsym_sprite_idx;
     game.chosen_spell_tooltip = sptooltip;

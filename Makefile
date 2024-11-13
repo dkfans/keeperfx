@@ -124,14 +124,11 @@ obj/bflib_network.o \
 obj/bflib_planar.o \
 obj/bflib_render.o \
 obj/bflib_render_gpoly.o \
-obj/bflib_render_gtblock.o \
 obj/bflib_render_trig.o \
-obj/bflib_semphr.o \
 obj/bflib_server_tcp.o \
 obj/bflib_sndlib.o \
 obj/bflib_sound.o \
 obj/bflib_sprfnt.o \
-obj/bflib_sprite.o \
 obj/bflib_string.o \
 obj/bflib_tcpsp.o \
 obj/bflib_threadcond.o \
@@ -197,7 +194,6 @@ obj/engine_render.o \
 obj/engine_render_data.o \
 obj/engine_textures.o \
 obj/front_credits.o \
-obj/front_credits_data.o \
 obj/front_easter.o \
 obj/front_fmvids.o \
 obj/front_highscore.o \
@@ -307,7 +303,6 @@ obj/steam_api.o \
 obj/tasks_list.o \
 obj/thing_corpses.o \
 obj/thing_creature.o \
-obj/thing_creature_data.o \
 obj/thing_data.o \
 obj/thing_doors.o \
 obj/thing_effects.o \
@@ -324,6 +319,7 @@ obj/vidfade.o \
 obj/vidmode_data.o \
 obj/vidmode.o \
 obj/KeeperSpeechImp.o \
+obj/spritesheet.o \
 $(FTEST_OBJS) \
 $(RES)
 
@@ -399,7 +395,7 @@ endif
 STLOGFLAGS = -DBFDEBUG_LEVEL=0
 HVLOGFLAGS = -DBFDEBUG_LEVEL=10
 # compiler warning generation flags
-WARNFLAGS = -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing -Wno-unknown-pragmas
+WARNFLAGS = -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing -Wno-unknown-pragmas -Werror
 # disabled warnings: -Wextra -Wtype-limits
 CXXFLAGS = $(CXXINCS) -c -std=gnu++1y -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(FTEST_DBGFLAGS) $(INCFLAGS)
 CFLAGS = $(INCS) -c -std=gnu11 -fmessage-length=0 $(WARNFLAGS) -Werror=implicit $(DEPFLAGS) $(FTEST_DBGFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
