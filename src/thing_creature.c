@@ -3154,13 +3154,13 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
                 firing->trap.volley_repeat--;
             }
         }
-        struct TrapStats* trapstat = &game.conf.trap_stats[firing->model];
+        struct TrapConfigStats *trapst = get_trap_model_stats(firing->model);
         firing->move_angle_xy = get_angle_xy_to(&firing->mappos, &target->mappos); //visually rotates the trap
-        pos1.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_x, firing->move_angle_xy + LbFPMath_PI / 2);
-        pos1.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_x, firing->move_angle_xy + LbFPMath_PI / 2);
-        pos1.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_y, firing->move_angle_xy);
-        pos1.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_y, firing->move_angle_xy);
-        pos1.z.val += trapstat->shot_shift_z;
+        pos1.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_x, firing->move_angle_xy + LbFPMath_PI / 2);
+        pos1.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_x, firing->move_angle_xy + LbFPMath_PI / 2);
+        pos1.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_y, firing->move_angle_xy);
+        pos1.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_y, firing->move_angle_xy);
+        pos1.z.val += trapst->shot_shift_z;
 
         max_dexterity = UCHAR_MAX;
         dexterity = max_dexterity/4 + CREATURE_RANDOM(firing, max_dexterity/2);
