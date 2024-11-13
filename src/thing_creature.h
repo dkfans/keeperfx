@@ -76,8 +76,7 @@ struct CreatureStorage {
 
 #pragma pack()
 /******************************************************************************/
-extern struct TbSprite *swipe_sprites;
-extern struct TbSprite *end_swipe_sprites;
+extern struct TbSpriteSheet *swipe_sprites;
 extern unsigned long creature_create_errors;
 /******************************************************************************/
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner);
@@ -101,6 +100,7 @@ long get_creature_speed(const struct Thing *thing);
 TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
 TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
 void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
+void prepare_to_controlled_creature_death(struct Thing* thing);
 ThingIndex process_player_use_instance(struct Thing *thing, CrInstance inst_id, struct Packet *packet);
 ThingIndex get_human_controlled_creature_target(struct Thing *thing, CrInstance inst_id, struct Packet *packet);
 struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord x, MapCoord y);
@@ -174,7 +174,7 @@ void init_creature_scores(void);
 long get_creature_thing_score(const struct Thing *thing);
 TbBool add_creature_score_to_owner(struct Thing *thing);
 TbBool remove_creature_score_from_owner(struct Thing *thing);
-long calculate_melee_damage(struct Thing *thing);
+long calculate_melee_damage(struct Thing *thing, short damage_percent);
 long project_melee_damage(const struct Thing *thing);
 long calculate_shot_damage(struct Thing *thing, ThingModel shot_model);
 long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_model);
@@ -219,6 +219,7 @@ void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, lon
 PlayerNumber get_appropriate_player_for_creature(struct Thing *creatng);
 /******************************************************************************/
 void throw_out_gold(struct Thing* thing, long amount);
+ThingModel get_random_creature_kind_with_model_flags(unsigned long model_flags);
 /******************************************************************************/
 #ifdef __cplusplus
 }

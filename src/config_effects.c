@@ -112,7 +112,7 @@ static void load_effectsgenerators(VALUE *value, unsigned short flags)
     for (int id = 0; id < EFFECTSGEN_TYPES_MAX; id++)
     {
         {
-            sprintf_s(key,KEY_SIZE, "effectGenerator%d", id);
+            snprintf(key, sizeof(key), "effectGenerator%d", id);
             section = value_dict_get(value, key);
         }
         if (value_type(section) == VALUE_DICT)
@@ -143,7 +143,7 @@ static void load_effectelements(VALUE *value, unsigned short flags)
     for (int id = 0; id < EFFECTSELLEMENTS_TYPES_MAX; id++)
     {
         {
-            sprintf_s(key,KEY_SIZE, "effectElement%d", id);
+            snprintf(key, sizeof(key), "effectElement%d", id);
             section = value_dict_get(value, key);
         }
         if (value_type(section) == VALUE_DICT)

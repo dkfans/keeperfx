@@ -56,6 +56,8 @@ extern "C" {
  * or any other function used beyond first initialization of a level.
   */
 long level_file_version = 0;
+char *level_strings[STRINGS_MAX+1];
+char *level_strings_data;
 /******************************************************************************/
 #pragma pack(1)
 
@@ -159,7 +161,7 @@ unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum,const char *fext
   return buf;
 }
 
-long get_level_number_from_file_name(char *fname)
+long get_level_number_from_file_name(const char *fname)
 {
   if (strnicmp(fname,"map",3) != 0)
     return SINGLEPLAYER_NOTSTARTED;
@@ -174,7 +176,7 @@ long get_level_number_from_file_name(char *fname)
  * Analyzes one line of .LIF file buffer. The buffer must be null-terminated.
  * @return Length of the parsed line.
  */
-long level_lif_entry_parse(char *fname, char *buf)
+long level_lif_entry_parse(const char *fname, char *buf)
 {
   if (buf[0] == '\0')
     return 0;
@@ -195,7 +197,7 @@ long level_lif_entry_parse(char *fname, char *buf)
         i++;
         if (i >= 10000) // arbritarily big number to prevent an infinte loop if last line is a comment that doesn't have a new line at the end
         {
-          WARNMSG("commented-out line from \"%s\" is too long at %d characters", fname,i);
+          WARNMSG("commented-out line from \"%s\" is too long at %ld characters", fname,i);
           return 0;
         }
       }
@@ -229,7 +231,7 @@ long level_lif_entry_parse(char *fname, char *buf)
       cbuf++;
       if (!set_level_info_string_index(lvnum,cbuf,LvOp_IsFree))
       {
-        WARNMSG("Can't set string index of level %d from file \"%s\"", lvnum, fname);
+        WARNMSG("Can't set string index of level %ld from file \"%s\"", lvnum, fname);
       }
       cbuf--;
     }
@@ -246,7 +248,7 @@ long level_lif_entry_parse(char *fname, char *buf)
   }
   if (i >= LINEMSG_SIZE)
   {
-    WARNMSG("Level name from \"%s\" truncated from %d to %d characters", fname,i,LINEMSG_SIZE);
+    WARNMSG("Level name from \"%s\" truncated from %ld to %d characters", fname,i,LINEMSG_SIZE);
     i = LINEMSG_SIZE-1;
     cbuf[i] = '\0';
   }
@@ -276,7 +278,7 @@ long level_lif_entry_parse(char *fname, char *buf)
  * @param buflen Length of the buffer.
  * @return
  */
-short level_lif_file_parse(char *fname, char *buf, long buflen)
+short level_lif_file_parse(const char *fname, char *buf, long buflen)
 {
   if (buf == NULL)
     return false;
@@ -310,29 +312,25 @@ TbBool find_and_load_lif_files(void)
   }
   short result = false;
   char* fname = prepare_file_path(FGrp_CmpgLvls, "*.lif");
-  struct TbFileFind fileinfo;
-  int rc = LbFileFindFirst(fname, &fileinfo, 0x21u);
-  while (rc != -1)
-  {
-    fname = prepare_file_path(FGrp_CmpgLvls,fileinfo.Filename);
-    long i = LbFileLength(fname);
-    if ((i < 0) || (i >= MAX_LIF_SIZE))
-    {
-      WARNMSG("File \"%s\" too long (Max size %d)", fileinfo.Filename, MAX_LIF_SIZE);
-
-    } else
-    if (LbFileLoadAt(fname, buf) != i)
-    {
-      WARNMSG("Unable to read .LIF file, \"%s\"", fileinfo.Filename);
-    } else
-    {
-      buf[i] = '\0';
-      if (level_lif_file_parse(fileinfo.Filename, (char *)buf, i))
-        result = true;
-    }
-    rc = LbFileFindNext(&fileinfo);
+  struct TbFileEntry fe;
+  struct TbFileFind * ff = LbFileFindFirst(fname, &fe);
+  if (ff) {
+    do {
+      fname = prepare_file_path(FGrp_CmpgLvls, fe.Filename);
+      long i = LbFileLength(fname);
+      if ((i < 0) || (i >= MAX_LIF_SIZE)) {
+        WARNMSG("File \"%s\" too long (Max size %d)", fe.Filename, MAX_LIF_SIZE);
+      } else if (LbFileLoadAt(fname, buf) != i) {
+        WARNMSG("Unable to read .LIF file, \"%s\"", fe.Filename);
+      } else {
+        buf[i] = '\0';
+        if (level_lif_file_parse(fe.Filename, (char *)buf, i)) {
+          result = true;
+        }
+      }
+    } while (LbFileFindNext(ff, &fe) >= 0);
+    LbFileFindEnd(ff);
   }
-  LbFileFindEnd(&fileinfo);
   LbMemoryFree(buf);
   return result;
 }
@@ -340,7 +338,7 @@ TbBool find_and_load_lif_files(void)
 /**
  * Analyzes given LOF file buffer. The buffer must be null-terminated.
  */
-TbBool level_lof_file_parse(char *fname, char *buf, long len)
+TbBool level_lof_file_parse(const char *fname, char *buf, long len)
 {
     struct LevelInformation *lvinfo;
     long pos;
@@ -349,6 +347,7 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
     int cmd_num;
     int k;
     int n;
+    word_buf[0] = 0;
     SYNCDBG(8,"Starting for \"%s\"",fname);
     if (buf == NULL)
         return false;
@@ -602,7 +601,7 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
         case ccr_endOfFile:
             break;
         default:
-            WARNMSG("Unrecognized command (%d) in LOF file '%s', starting on byte %d.",cmd_num,fname,pos);
+            WARNMSG("Unrecognized command (%d) in LOF file '%s', starting on byte %ld.",cmd_num,fname,pos);
             break;
         }
         skip_conf_to_next_line(buf,&pos,len);
@@ -626,29 +625,25 @@ TbBool find_and_load_lof_files(void)
     }
     short result = false;
     char* fname = prepare_file_path(FGrp_CmpgLvls, "*.lof");
-    struct TbFileFind fileinfo;
-    int rc = LbFileFindFirst(fname, &fileinfo, 0x21u);
-    while (rc != -1)
-    {
-        fname = prepare_file_path(FGrp_CmpgLvls,fileinfo.Filename);
-        long i = LbFileLength(fname);
-        if ((i < 0) || (i >= MAX_LIF_SIZE))
-        {
-          WARNMSG("File '%s' too long (Max size %d)", fileinfo.Filename, MAX_LIF_SIZE);
+    struct TbFileEntry fe;
+    struct TbFileFind * ff = LbFileFindFirst(fname, &fe);
+    if (ff) {
+        do {
+            fname = prepare_file_path(FGrp_CmpgLvls, fe.Filename);
+            long i = LbFileLength(fname);
+            if ((i < 0) || (i >= MAX_LIF_SIZE)) {
+              WARNMSG("File '%s' too long (Max size %d)", fe.Filename, MAX_LIF_SIZE);
 
-        } else
-        if (LbFileLoadAt(fname, buf) != i)
-        {
-          WARNMSG("Unable to read .LOF file, '%s'", fileinfo.Filename);
-        } else
-        {
-          buf[i] = '\0';
-          if (level_lof_file_parse(fileinfo.Filename, (char *)buf, i))
-            result = true;
-        }
-        rc = LbFileFindNext(&fileinfo);
+            } else if (LbFileLoadAt(fname, buf) != i) {
+              WARNMSG("Unable to read .LOF file, '%s'", fe.Filename);
+            } else {
+              buf[i] = '\0';
+              if (level_lof_file_parse(fe.Filename, (char *)buf, i))
+                result = true;
+            }
+        } while (LbFileFindNext(ff, &fe) >= 0);
+        LbFileFindEnd(ff);
     }
-    LbFileFindEnd(&fileinfo);
     LbMemoryFree(buf);
     return result;
 }
@@ -793,7 +788,7 @@ static TbBool load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char
     VALUE *common_section = value_dict_get(root_ptr, "common");
     if (!common_section)
     {
-        WARNMSG("No [common] in %s for level %d", msg_name, lv_num);
+        WARNMSG("No [common] in %s for level %ld", msg_name, lv_num);
         value_fini(root_ptr);
         LbMemoryFree(buf);
         return false;
@@ -893,7 +888,7 @@ TbBool load_action_point_file(LevelNumber lv_num)
       iapt.num          = legiapt.num;
       iapt.range        = legiapt.range;
       if (actnpoint_create_actnpoint(&iapt) == INVALID_ACTION_POINT)
-          ERRORLOG("Cannot allocate action point %d during APT load", k);
+          ERRORLOG("Cannot allocate action point %ld during APT load", k);
     i += sizeof(struct LegacyInitActionPoint);
   }
   LbMemoryFree(buf);
@@ -947,7 +942,7 @@ TbBool load_slabclm_file(struct Column *cols, long *ccount)
   }
   if (total > *ccount)
   {
-    WARNMSG("Only %d columns supported, Column Set file has %ld.",*ccount,total);
+    WARNMSG("Only %ld columns supported, Column Set file has %ld.",*ccount,total);
     total = *ccount;
   }
   for (long k = 0; k < total; k++)
@@ -1018,7 +1013,7 @@ TbBool update_slabset_column_indices(struct Column *cols, long ccount)
                     ncol = 0;
                 if (ncol == 0)
                 {
-                    ERRORLOG("column:%d referenced in slabset.toml but not present in columnset.toml",-n);
+                    ERRORLOG("column:%ld referenced in slabset.toml but not present in columnset.toml",-n);
                     continue;
                 }
             }
@@ -1234,7 +1229,7 @@ short load_map_slab_file(unsigned long lv_num)
         n = lword(&buf[i]);
         if (n > game.conf.slab_conf.slab_types_count)
         {
-          WARNMSG("Slab Type %d exceeds limit of %d",(int)n,game.conf.slab_conf.slab_types_count);
+          WARNMSG("Slab Type %d exceeds limit of %ld",(int)n,game.conf.slab_conf.slab_types_count);
           n = SlbT_ROCK;
         }
         slb->kind = n;
@@ -1291,7 +1286,7 @@ static TbBool load_static_light_file(unsigned long lv_num)
     } else
     if (total >= LIGHTS_COUNT/2)
     {
-        WARNMSG("More than %d%% of light slots used by static lights.",100*total/LIGHTS_COUNT);
+        WARNMSG("More than %ld%% of light slots used by static lights.",100*total/LIGHTS_COUNT);
     }
     // Create the lights
     for (long k = 0; k < total; k++)
@@ -1367,15 +1362,12 @@ static void load_ext_slabs(LevelNumber lvnum)
 
 void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short fgroup)
 {
-    if (campgn->strings_data == NULL)
-    {
-        return;
-    }
     char* fname = prepare_file_fmtpath(fgroup, "map%05lu.%s.dat", (unsigned long)lvnum, get_language_lwrstr(install_info.lang_id));
     if (!LbFileExists(fname))
     {
         SYNCMSG("Map string file %s doesn't exist.", fname);
         char buf[2048];
+        buf[0] = 0;
         memcpy(&buf, fname, 2048);
         fname = prepare_file_fmtpath(fgroup, "map%05lu.%s.dat", (unsigned long)lvnum, get_language_lwrstr(campgn->default_language));
         if (strcasecmp(fname, buf) == 0)
@@ -1394,27 +1386,27 @@ void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short 
         ERRORLOG("Map Strings file %s does not exist or can't be opened", fname);
         return;
     }
-    campgn->strings_data = (char*)LbMemoryAlloc(filelen + 256);
-    if (campgn->strings_data == NULL)
+    level_strings_data = malloc(filelen + 256);
+    if (level_strings_data == NULL)
     {
         ERRORLOG("Can't allocate memory for Map Strings data");
         return;
     }
-    char* strings_data_end = campgn->strings_data + filelen + 255;
-    long loaded_size = LbFileLoadAt(fname, campgn->strings_data);
+    long loaded_size = LbFileLoadAt(fname, level_strings_data);
     if (loaded_size < 16)
     {
         ERRORLOG("Map Strings file couldn't be loaded or is too small");
         return;
     }
+    unsigned long loaded_strings_count = count_strings(level_strings_data, loaded_size);
+    char* strings_data_end = level_strings_data + filelen + 255;
     // Resetting all values to empty strings
-    reset_strings(campgn->strings, STRINGS_MAX);
+    reset_strings(level_strings, STRINGS_MAX);
     // Analyzing strings data and filling correct values
-    TbBool result = create_strings_list(campgn->strings, campgn->strings_data, strings_data_end, STRINGS_MAX);
+    TbBool result = create_strings_list(level_strings, level_strings_data, strings_data_end, STRINGS_MAX);
     if (result)
     {
-        SYNCMSG("Loaded strings from %s", fname);
-        reload_campaign_strings = true;
+        SYNCMSG("Loaded %lu strings from %s", loaded_strings_count, fname);
     }
     SYNCDBG(19, "Finished");
 }
@@ -1429,10 +1421,6 @@ static TbBool load_level_file(LevelNumber lvnum)
     {
         result = true;
         struct GameCampaign *campgn = &campaign;
-        if (reload_campaign_strings)
-        {
-            setup_campaign_strings_data(campgn);
-        }
         load_map_string_data(campgn, lvnum, fgroup);
         load_map_data_file(lvnum);
         load_map_flag_file(lvnum);
@@ -1497,6 +1485,15 @@ TbBool load_map_file(LevelNumber lvnum)
     else
         set_loaded_level_number(SINGLEPLAYER_NOTSTARTED);
     return result;
+}
+
+void free_level_strings_data()
+{
+  // Resetting all values to empty strings
+  reset_strings(level_strings, STRINGS_MAX);
+  // Freeing memory
+  LbMemoryFree(level_strings_data);
+  level_strings_data = NULL;
 }
 /******************************************************************************/
 #ifdef __cplusplus

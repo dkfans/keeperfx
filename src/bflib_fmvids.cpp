@@ -1198,13 +1198,13 @@ short anim_open(char *fname, int arg1, short arg2, int width, int height, int bp
 		SYNCLOG("Starting to record new movie, \"%s\".",fname);
 		LbMemorySet(&animation, 0, sizeof(Animation));
 		animation.field_0 |= flags;
-		animation.videobuf = LbMemoryAlloc(2 * height*width);
+		animation.videobuf = static_cast<unsigned char *>(LbMemoryAlloc(2 * height*width));
 		if (animation.videobuf==NULL) {
 			ERRORLOG("Cannot allocate video buffer.");
 			return false;
 		}
 		long max_chunk_size = anim_buffer_size(width,height,bpp);
-		animation.chunkdata = LbMemoryAlloc(max_chunk_size);
+		animation.chunkdata = static_cast<unsigned char *>(LbMemoryAlloc(max_chunk_size));
 		if (animation.chunkdata==NULL) {
 			ERRORLOG("Cannot allocate chunk buffer.");
 			return false;
@@ -1258,7 +1258,7 @@ short anim_open(char *fname, int arg1, short arg2, int width, int height, int bp
 		}
 		// Now we can allocate chunk buffer
 		long max_chunk_size = anim_buffer_size(animation.header.width,animation.header.height,animation.header.depth);
-		animation.chunkdata = LbMemoryAlloc(max_chunk_size);
+		animation.chunkdata = static_cast<unsigned char *>(LbMemoryAlloc(max_chunk_size));
 		if (animation.chunkdata==NULL) {
 			return false;
 		}
@@ -1399,7 +1399,7 @@ extern "C" short anim_stop()
 		ERRORLOG("Can't close movie file");
 		return false;
 	}
-	animation.outfhndl = -1;
+	animation.outfhndl = nullptr;
 	LbMemoryFree(animation.chunkdata);
 	animation.chunkdata=NULL;
 	animation.field_0 = 0;

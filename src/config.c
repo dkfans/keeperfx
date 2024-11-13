@@ -644,12 +644,12 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
 
                 if( k < commands[i].min)
                 {
-                    CONFWRNLOG("field '%s' smaller then min value '%d', was '%d'",commands[i].name,commands[i].min,k);
+                    CONFWRNLOG("field '%s' smaller then min value '%I64d', was '%I64d'",commands[i].name,commands[i].min,k);
                     k = commands[i].min;
                 }
                 else if( k > commands[i].max)
                 {
-                    CONFWRNLOG("field '%s' bigger then max value '%d', was '%d'",commands[i].name,commands[i].max,k);
+                    CONFWRNLOG("field '%s' bigger then max value '%I64d', was '%I64d'",commands[i].name,commands[i].max,k);
                     k = commands[i].max;
                 }
                 
@@ -986,7 +986,7 @@ short load_configuration(void)
   len = LbFileLoadAt(fname, buf);
   if (len>0)
   {
-    SYNCDBG(7,"Processing %s file, %d bytes",config_textname,len);
+    SYNCDBG(7,"Processing %s file, %ld bytes",config_textname,len);
     buf[len] = '\0';
     // Set text line number - we don't have blocks so we need to initialize it manually
     text_line_number = 1;
@@ -1196,7 +1196,7 @@ short load_configuration(void)
           {
             i = atoi(word_buf);
           }
-          if ((i > 0) && (i <= 50)) {
+          if ((i > 0) && (i < MUSIC_TRACKS_COUNT)) {
               max_track = i;
           } else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
@@ -1338,8 +1338,8 @@ short load_configuration(void)
           }
           if ((i >= 0) && (i <= 32768)) {
               if (i > 100) {i = 100;}
-              zoom_distance_setting = lerp(4100, CAMERA_ZOOM_MIN, (float)i/100.0);
-              frontview_zoom_distance_setting = lerp(16384, FRONTVIEW_CAMERA_ZOOM_MIN, (float)i/100.0);
+              zoom_distance_setting = LbLerp(4100, CAMERA_ZOOM_MIN, (float)i/100.0);
+              frontview_zoom_distance_setting = LbLerp(16384, FRONTVIEW_CAMERA_ZOOM_MIN, (float)i/100.0);
           } else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }
@@ -2681,11 +2681,11 @@ short is_freeplay_level(LevelNumber lvnum)
   {
     if (campaign.freeplay_levels[i] == lvnum)
     {
-        SYNCDBG(18,"%d is freeplay",lvnum);
+        SYNCDBG(18,"%ld is freeplay",lvnum);
         return true;
     }
   }
-  SYNCDBG(18,"%d is NOT freeplay",lvnum);
+  SYNCDBG(18,"%ld is NOT freeplay",lvnum);
   return false;
 }
 /******************************************************************************/
