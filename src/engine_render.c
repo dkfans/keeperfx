@@ -5391,9 +5391,15 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         TbBool has_lair = (thing->lair.spr_size > 0);
         // Determine if the current view is the schematic top-down map view.
         TbBool is_parchment_map_view = (cam->view_mode == PVM_ParchmentView);
-        if ((is_thing_under_hand) || (is_enemy_and_visible) || (is_allied_and_hurt) || (thing->owner == PLAYER_NEUTRAL)
+        if ((is_thing_under_hand)
+        || (is_enemy_and_visible)
+        || (is_allied_and_hurt)
+        || (thing->owner == PLAYER_NEUTRAL)
         // If drag_to_lair rule is active.
-        || (should_drag_to_lair) || (is_in_combat) || (has_lair) || (is_parchment_map_view))
+        || (should_drag_to_lair)
+        || (is_in_combat)
+        || (has_lair)
+        || (is_parchment_map_view))
         {
             if (health_spridx > 0)
             {
