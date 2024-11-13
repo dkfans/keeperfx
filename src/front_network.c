@@ -368,7 +368,7 @@ void net_load_config_file(void)
     // Try to load the config file
     char* fname = prepare_file_path(FGrp_Save, keeper_netconf_file);
     TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
-    if (handle != -1)
+    if (handle)
     {
       if (LbFileRead(handle, &net_config_info, sizeof(net_config_info)) == sizeof(net_config_info))
       {
@@ -387,7 +387,7 @@ void net_write_config_file(void)
     // Try to load the config file
     char* fname = prepare_file_path(FGrp_Save, keeper_netconf_file);
     TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_NEW);
-    if (handle != -1)
+    if (handle)
     {
         LbFileWrite(handle, &net_config_info, sizeof(net_config_info));
         LbFileClose(handle);

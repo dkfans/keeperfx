@@ -423,7 +423,7 @@ static inline TbResult LbSpriteDrawPrepare(struct TbSpriteDrawData *spd, long x,
     spd->Ht = btm - top;
     spd->Wd = right - left;
     spd->sp = (char *)spr->Data;
-    SYNCDBG(19,"Sprite coords X=%d...%d Y=%d...%d data=%08x",left,right,top,btm,spd->sp);
+    SYNCDBG(19,"Sprite coords X=%d...%d Y=%d...%d data=%p",left,right,top,btm,spd->sp);
     long htIndex;
     if ( top )
     {
@@ -2243,7 +2243,7 @@ TbResult LbHugeSpriteDraw(const struct TbHugeSprite * spr, long sp_len,
  * @param sprite
  * @note originally named DrawBigSprite()
  */
-void LbTiledSpriteDraw(long start_x, long start_y, long units_per_px, struct TiledSprite *bigspr, struct TbSprite *sprite)
+void LbTiledSpriteDraw(long start_x, long start_y, long units_per_px, struct TiledSprite *bigspr, const struct TbSprite *sprite)
 {
     long x;
     long y;
@@ -2286,7 +2286,7 @@ void LbTiledSpriteDraw(long start_x, long start_y, long units_per_px, struct Til
     }
 }
 
-int LbTiledSpriteHeight(struct TiledSprite *bigspr, struct TbSprite *sprite)
+int LbTiledSpriteHeight(struct TiledSprite *bigspr, const struct TbSprite *sprite)
 {
     long height;
     int spnum_y;

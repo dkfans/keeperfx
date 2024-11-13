@@ -1477,7 +1477,7 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
         if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
         {
             creatng->continue_state = CrSt_TunnellerDoingNothing;
-            ERRORLOG("%s index %d stuck - attempt %d to dislodge",thing_model_name(creatng),(int)creatng->index,identical[creatng->ccontrol_idx]-149);
+            ERRORLOG("%s index %d stuck - attempt %lu to dislodge",thing_model_name(creatng),(int)creatng->index,identical[creatng->ccontrol_idx]-149);
         }
         return 0;
     }

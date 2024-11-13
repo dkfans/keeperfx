@@ -76,8 +76,7 @@ struct CreatureStorage {
 
 #pragma pack()
 /******************************************************************************/
-extern struct TbSprite *swipe_sprites;
-extern struct TbSprite *end_swipe_sprites;
+extern struct TbSpriteSheet *swipe_sprites;
 extern unsigned long creature_create_errors;
 /******************************************************************************/
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner);

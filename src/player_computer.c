@@ -1222,7 +1222,7 @@ long check_call_to_arms(struct Computer2 *comp)
                         ret = 0;
                     }
                     if (ctask->delay + ctask->lastrun_turn - (long)game.play_gameturn < ctask->delay - ctask->delay/10) {
-                        SYNCDBG(8,"Less than 90% turns");
+                        SYNCDBG(8,"Less than 90 turns");
                         ret = -1;
                         break;
                     }
