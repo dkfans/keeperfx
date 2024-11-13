@@ -2844,11 +2844,11 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             {
                 value1 = atoi(scline->tp[2]);
             }
-            else if (0 == strcmp(word_buf, "ANY_CREATURE")) // Support ANY_CREATURE for hostile towards.
+            else if (0 == strcmp(scline->tp[2], "ANY_CREATURE")) // Support ANY_CREATURE for hostile towards.
             {
                 value1 = CREATURE_ANY;
             }
-            else if (strcasecmp(word_buf, "NULL") == 0)  // Support NULL for hostile towards.
+            else if (strcasecmp(scline->tp[2], "NULL") == 0)  // Support NULL for hostile towards.
             {
                 value1 = 0;
             }
