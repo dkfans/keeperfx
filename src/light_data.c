@@ -383,7 +383,8 @@ TbBool lights_stats_debug_dump(void)
     SYNCLOG("Lights: %ld free, %ld used; %ld static, %ld dynamic; for things:%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld",lgh_free,lgh_used,lgh_sttc,lgh_dynm,lgh_things[1],lgh_things[2],lgh_things[3],lgh_things[4],lgh_things[5],lgh_things[6],lgh_things[7],lgh_things[8],lgh_things[9],lgh_things[10],lgh_things[11],lgh_things[12],lgh_things[13]);
     if ((shdc_used != shdc_linked) || (shdc_used != lgh_dynm))
     {
-        WARNLOG("Amount of shadow cache mismatches: %ld free, %ld used, %ld linked to lights, %d dyn. lights.",shdc_free,shdc_used,shdc_linked,light_total_dynamic_lights);
+        WARNLOG("Amount of shadow cache mismatches: %ld free, %ld used, %ld linked to lights, %ld dyn. lights.",
+          shdc_free,shdc_used,shdc_linked,light_total_dynamic_lights);
     }
     if (lgh_sttc != light_total_stat_lights)
     {
@@ -473,7 +474,7 @@ void light_remove_light_from_list(struct Light *lgt, struct StructureList *list)
 {
   if ( list->count == 0 )
   {
-      ERRORLOG("List %d has no structures", list->index);
+      ERRORLOG("List %lu has no structures", list->index);
       return;
   }
   TbBool Removed = false;
@@ -1754,7 +1755,7 @@ static char light_render_light_dynamic(struct Light *lgt, int radius, int render
     struct LightsShadows *lish = &game.lish;
     struct ShadowCache *shadow_cache = &lish->shadow_cache[lgt->shadow_index];
     clear_shadow_limits(lish);
-    memset(shadow_cache->field_1, 0, 0x80u);
+    memset(shadow_cache->field_1, 0, sizeof(shadow_cache->field_1));
     const struct Column *col = get_column_at(lgt->mappos.x.val + 1, lgt->mappos.y.val + 1);
     SubtlCodedCoords stl_num = get_subtile_number(lgt->mappos.x.stl.num, lgt->mappos.y.stl.num);
     if (get_column_floor_filled_subtiles(col) <= lgt->mappos.z.stl.num)
@@ -2113,7 +2114,7 @@ static char light_render_light(struct Light* lgt)
         lighting_tables_idx = *shdc->field_1;
         if ( y_end >= y_start )
         {
-          unsigned int shadow_cache_pointer = (unsigned int)shdc->field_1;
+          uint32_t * shadow_cache_pointer = shdc->field_1;
           MapCoord y = y_start;
           do
           {
@@ -2136,8 +2137,8 @@ static char light_render_light(struct Light* lgt)
 
             lightness += v33;
             y += COORD_PER_STL;
-            lighting_tables_idx = *((unsigned int*)shadow_cache_pointer + 1);
-            shadow_cache_pointer += 4;
+            lighting_tables_idx = shadow_cache_pointer[1];
+            shadow_cache_pointer++;
           }
           while ( y_end >= y );
         }
