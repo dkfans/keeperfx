@@ -3144,17 +3144,14 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             crstat->torture_kind = value;
             break;
         case 37: // HOSTILETOWARDS
+            // Assume the mapmaker wants to reset it.
+            for (int i = 0; i < CREATURE_TYPES_MAX; i++)
+            {
+                crstat->hostile_towards[i] = 0;
+            }
             if (value != 0)
             {
-                crstat->hostile_towards[0] = value; // Only change the first.
-            }
-            else
-            {
-                // If 0 (NULL) assume the mapmaker wants to remove all.
-                for (int i = 0; i < CREATURE_TYPES_MAX; i++)
-                {
-                    crstat->hostile_towards[i] = 0;
-                }
+                crstat->hostile_towards[0] = value; // Then apply the change on the first only.
             }
             break;
         case ccr_comment:
