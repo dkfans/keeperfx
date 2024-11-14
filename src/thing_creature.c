@@ -380,7 +380,7 @@ void draw_swipe_graphic(void)
             lbDisplay.DrawFlags = Lb_SPRITE_TRANSPAR4;
             long n = (int)cctrl->inst_turn * (5 << 8) / cctrl->inst_total_turns;
             long allwidth = 0;
-            long i = (abs(n) >> 8) -1;
+            long i = max(((abs(n) >> 8) -1),0);
             if (i >= SWIPE_SPRITE_FRAMES)
                 i = SWIPE_SPRITE_FRAMES-1;
             // FIXME: sprites may not be adjacent in the future, causing code below incorrect sprites and possibly crash
