@@ -234,7 +234,7 @@ void CHex::BlitHex(void)
           return;
         if ( (scan_num >= 0) && (scan_num < ScrHeight) )
         {
-            SYNCDBG(19,"ScanBuffer %d pos %d,%d from %d,%d",scan_num, posV1, posV2, (int)this->source_strip_w, (int)this->source_strip_h);
+            SYNCDBG(19,"ScanBuffer %ld pos %d,%d from %d,%d",scan_num, posV1, posV2, (int)this->source_strip_w, (int)this->source_strip_h);
             AddScan(&ScanBuffer[scan_num], posV1 >> 16, posV2 >> 16, this->source_strip_w, this->source_strip_h);
         }
         counter1--;
@@ -281,7 +281,7 @@ void CHex::BlitScan(struct CScan *scan, long h)
   long w;
   long end_w;
   long i;
-  SYNCDBG(16,"Starting line %d",h);
+  SYNCDBG(16,"Starting line %ld",h);
   for(i=0; i < scan->strips_num; i++)
   {
       w = scan->strip_len[i];

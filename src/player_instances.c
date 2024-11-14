@@ -1315,7 +1315,7 @@ TbBool is_thing_directly_controlled_by_player(const struct Thing *thing, PlayerN
      struct PlayerInfo* player = get_player(plyr_idx);
      if (player_invalid(player))
      {
-         ERRORLOG("Bad player: $d", plyr_idx);
+         ERRORLOG("Bad player: %d", plyr_idx);
          return false;
      }
      else
@@ -1362,7 +1362,7 @@ TbBool is_thing_passenger_controlled_by_player(const struct Thing *thing, Player
      struct PlayerInfo* player = get_player(plyr_idx);
      if (player_invalid(player))
      {
-         ERRORLOG("Bad player: $d", plyr_idx);
+         ERRORLOG("Bad player: %d", plyr_idx);
          return false;
      }
     else

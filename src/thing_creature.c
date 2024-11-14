@@ -103,10 +103,7 @@ extern "C" {
 
 /******************************************************************************/
 int creature_swap_idx[CREATURE_TYPES_MAX];
-
-/******************************************************************************/
-extern struct TbLoadFiles swipe_load_file[];
-extern struct TbSetupSprite swipe_setup_sprites[];
+struct TbSpriteSheet * swipe_sprites = NULL;
 /******************************************************************************/
 /**
  * Returns creature health scaled 0..1000.
@@ -319,12 +316,8 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
 void free_swipe_graphic(void)
 {
     SYNCDBG(6,"Starting");
-    if (game.loaded_swipe_idx != -1)
-    {
-        LbDataFreeAll(swipe_load_file);
-        game.loaded_swipe_idx = -1;
-    }
-    LbSpriteClearAll(swipe_setup_sprites);
+    free_spritesheet(&swipe_sprites);
+    game.loaded_swipe_idx = -1;
 }
 
 TbBool load_swipe_graphic_for_creature(const struct Thing *thing)
@@ -335,40 +328,29 @@ TbBool load_swipe_graphic_for_creature(const struct Thing *thing)
         return true;
     free_swipe_graphic();
     int swpe_idx = crstat->swipe_idx;
-    {
-        struct TbLoadFiles* t_lfile = &swipe_load_file[0];
+    char dat_fname[2048];
+    char tab_fname[2048];
 #ifdef SPRITE_FORMAT_V2
-        sprintf(t_lfile->FName, "data/swipe%02d-%d.dat", swpe_idx, 32);
-        t_lfile++;
-        sprintf(t_lfile->FName, "data/swipe%02d-%d.tab", swpe_idx, 32);
-        t_lfile++;
+    strcpy(dat_fname, prepare_file_fmtpath(FGrp_CmpgConfig, "swipe%02d-32.dat", swpe_idx));
+    strcpy(tab_fname, prepare_file_fmtpath(FGrp_CmpgConfig, "swipe%02d-32.tab", swpe_idx));
+    if (!LbFileExists(dat_fname)) {
+        strcpy(dat_fname, prepare_file_fmtpath(FGrp_StdData, "swipe%02d-32.dat", swpe_idx));
+        strcpy(tab_fname, prepare_file_fmtpath(FGrp_StdData, "swipe%02d-32.tab", swpe_idx));
+    }
 #else
-
-    char* fname = prepare_file_fmtpath(FGrp_CmpgConfig, "swipe%02d.dat",swpe_idx);
-    if (!LbFileExists(fname))
-    {
-        fname = prepare_file_fmtpath(FGrp_StdData, "swipe%02d.dat",swpe_idx);
+    strcpy(dat_fname, prepare_file_fmtpath(FGrp_CmpgConfig, "swipe%02d.dat", swpe_idx));
+    strcpy(tab_fname, prepare_file_fmtpath(FGrp_CmpgConfig, "swipe%02d.tab", swpe_idx));
+    if (!LbFileExists(dat_fname)) {
+        strcpy(dat_fname, prepare_file_fmtpath(FGrp_StdData, "swipe%02d.dat", swpe_idx));
+        strcpy(tab_fname, prepare_file_fmtpath(FGrp_StdData, "swipe%02d.tab", swpe_idx));
     }
-    sprintf(t_lfile->FName, "%s", fname);
-    t_lfile++;
-
-    fname = prepare_file_fmtpath(FGrp_CmpgConfig, "swipe%02d.tab",swpe_idx);
-    if (!LbFileExists(fname))
-    {
-        fname = prepare_file_fmtpath(FGrp_StdData, "swipe%02d.tab",swpe_idx);
-    }
-    sprintf(t_lfile->FName, "%s", fname);
-    t_lfile++;
-
 #endif
-    }
-    if ( LbDataLoadAll(swipe_load_file) )
-    {
+    swipe_sprites = load_spritesheet(dat_fname, tab_fname);
+    if (!swipe_sprites) {
         free_swipe_graphic();
         ERRORLOG("Unable to load swipe graphics for %s",thing_model_name(thing));
         return false;
     }
-    LbSpriteSetupAll(swipe_setup_sprites);
     game.loaded_swipe_idx = swpe_idx;
     return true;
 }
@@ -401,9 +383,10 @@ void draw_swipe_graphic(void)
             long i = (abs(n) >> 8) -1;
             if (i >= SWIPE_SPRITE_FRAMES)
                 i = SWIPE_SPRITE_FRAMES-1;
-            struct TbSprite* sprlist = &swipe_sprites[SWIPE_SPRITES_X * SWIPE_SPRITES_Y * i];
-            struct TbSprite* startspr = &sprlist[1];
-            struct TbSprite* endspr = &sprlist[1];
+            // FIXME: sprites may not be adjacent in the future, causing code below incorrect sprites and possibly crash
+            const struct TbSprite* sprlist = get_sprite(swipe_sprites, SWIPE_SPRITES_X * SWIPE_SPRITES_Y * i);
+            const struct TbSprite* startspr = &sprlist[1];
+            const struct TbSprite* endspr = &sprlist[1];
             for (n=0; n < SWIPE_SPRITES_X; n++)
             {
                 allwidth += endspr->SWidth;
@@ -411,7 +394,7 @@ void draw_swipe_graphic(void)
             }
             int units_per_px = (LbScreenWidth() * 59 / 64) * 16 / allwidth;
             int scrpos_y = (MyScreenHeight * 16 / units_per_px - (startspr->SHeight + endspr->SHeight)) / 2;
-            struct TbSprite *spr;
+            const struct TbSprite *spr;
             int scrpos_x;
             if (myplyr->swipe_sprite_drawLR)
             {
@@ -1592,7 +1575,7 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
         return;
     }
 
-    SYNCDBG(12,"The %s(%d) fire shot(%s) at %s(%d) with shot level %d, hit type: 0x%X", thing_model_name(castng), castng->index,
+    SYNCDBG(12,"The %s(%u) fire shot(%s) at %s(%u) with shot level %ld, hit type: 0x%02X", thing_model_name(castng), castng->index,
         shot_code_name(spconf->shot_model), thing_model_name(targetng), targetng->index, shot_lvl, hit_type);
     thing_fire_shot(castng, targetng, spconf->shot_model, shot_lvl, hit_type);
 }
