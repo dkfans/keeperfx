@@ -304,7 +304,7 @@ void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, 
 
 short get_creature_model_graphics(long crmodel, unsigned short seq_idx)
 {
-    if (seq_idx >= CREATURE_GRAPHICS_INSTANCES)
+    if (seq_idx > CREATURE_GRAPHICS_INSTANCES)
     {
         ERRORLOG("Invalid model %ld graphics sequence %u", crmodel, seq_idx);
         seq_idx = 0;
@@ -328,7 +328,7 @@ short get_creature_model_graphics(long crmodel, unsigned short seq_idx)
 
 void set_creature_model_graphics(long crmodel, unsigned short seq_idx, unsigned long val)
 {
-    if (seq_idx >= CREATURE_GRAPHICS_INSTANCES)
+    if (seq_idx > CREATURE_GRAPHICS_INSTANCES)
     {
         ERRORLOG("Invalid model %ld graphics sequence %u", crmodel, seq_idx);
         return;
