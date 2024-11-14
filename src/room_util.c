@@ -267,7 +267,7 @@ TbBool delete_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, TbBool is_destro
     struct Room* room = slab_room_get(slb_x, slb_y);
     if (room_is_invalid(room))
     {
-        ERRORLOG("Slab (%ld,%ld) is not a room",slb_x, slb_y);
+        ERRORLOG("Slab (%d,%d) is not a room",slb_x, slb_y);
         return false;
     }
     SYNCDBG(7,"Room on (%d,%d) had %d slabs",(int)slb_x,(int)slb_y,(int)room->slabs_count);

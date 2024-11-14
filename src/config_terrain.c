@@ -1349,7 +1349,7 @@ TbBool is_room_obtainable(PlayerNumber plyr_idx, RoomKind rkind)
         return false;
     }
     if (rkind >= game.conf.slab_conf.room_types_count) {
-        ERRORLOG("Incorrect power %ld (player %ld)",rkind, plyr_idx);
+        ERRORLOG("Incorrect room %u (player %d)",rkind, plyr_idx);
         return false;
     }
     return ( (dungeon->room_buildable[rkind]) || (dungeon->room_resrchable[rkind]) );
