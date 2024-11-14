@@ -38,6 +38,11 @@ enum TbFileSeekMode {
         Lb_FILE_SEEK_END,
 };
 
+struct TbFileFind;
+
+struct TbFileEntry {
+        const char * Filename;
+};
 
 /******************************************************************************/
 
@@ -51,9 +56,9 @@ int LbFileRead(TbFileHandle handle, void *buffer, unsigned long len);
 long LbFileWrite(TbFileHandle handle, const void *buffer, const unsigned long len);
 long LbFileLength(const char *fname);
 long LbFileLengthHandle(TbFileHandle handle);
-int LbFileFindFirst(const char *filespec, struct TbFileFind *ffind,unsigned int attributes);
-int LbFileFindNext(struct TbFileFind *ffind);
-int LbFileFindEnd(struct TbFileFind *ffind);
+struct TbFileFind * LbFileFindFirst(const char * filespec, struct TbFileEntry * fentry);
+int LbFileFindNext(struct TbFileFind * ffind, struct TbFileEntry * fentry);
+void LbFileFindEnd(struct TbFileFind * ffind);
 int LbFileDelete(const char *filename);
 short LbFileFlush(TbFileHandle handle);
 int LbFileMakeFullPath(const short append_cur_dir,
