@@ -4153,6 +4153,11 @@ TbBool creature_can_be_hostile(const struct Thing *fightng, const struct Thing *
     {
         return false;
     }
+    // Creatures cannot be hostile towards allies if they are working.
+    if (get_creature_state_type(fightng) == CrStTyp_Work || get_creature_state_type(enmtng) == CrStTyp_Work)
+    {
+        return false;
+    }
     // Lastly, check if both creatures doesn't have hostility set between each other.
     if (!creature_is_hostile_towards(fightng, enmtng) && !creature_is_hostile_towards(enmtng, fightng))
     {
