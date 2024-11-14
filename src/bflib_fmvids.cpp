@@ -20,7 +20,7 @@ extern "C" {
 #include <memory>
 #include <stdexcept>
 #include <chrono>
-#include <thread>
+#include "thread.hpp"
 #include <vector>
 #include <SDL2/SDL.h>
 #include "post_inc.h"
