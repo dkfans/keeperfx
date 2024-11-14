@@ -309,7 +309,7 @@ short get_creature_model_graphics(long crmodel, unsigned short seq_idx)
         ERRORLOG("Invalid model %ld graphics sequence %u", crmodel, seq_idx);
         seq_idx = 0;
     }
-    if ((crmodel < 0) || (crmodel >= game.conf.crtr_conf.model_count))
+    if ((crmodel < 0) || (crmodel >= CREATURE_TYPES_MAX))
     {
         ERRORLOG("Invalid model %ld graphics sequence %u", crmodel, seq_idx);
         crmodel = 0;
@@ -333,7 +333,7 @@ void set_creature_model_graphics(long crmodel, unsigned short seq_idx, unsigned 
         ERRORLOG("Invalid model %ld graphics sequence %u", crmodel, seq_idx);
         return;
     }
-    if ((crmodel < 0) || (crmodel >= game.conf.crtr_conf.model_count))
+    if ((crmodel < 0) || (crmodel >= CREATURE_TYPES_MAX))
     {
         ERRORLOG("Invalid model %ld graphics sequence %u", crmodel, seq_idx);
         return;
