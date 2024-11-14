@@ -4154,7 +4154,7 @@ TbBool creature_can_be_hostile(const struct Thing *fightng, const struct Thing *
         return false;
     }
     // Creatures cannot be hostile towards allies if they are working.
-    if (get_creature_state_type(fightng) == CrStTyp_Work || get_creature_state_type(enmtng) == CrStTyp_Work)
+    if ((get_creature_state_type(fightng) == CrStTyp_Work) || (get_creature_state_type(enmtng) == CrStTyp_Work))
     {
         return false;
     }
