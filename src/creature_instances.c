@@ -801,7 +801,7 @@ long instf_attack_room_slab(struct Thing *creatng, long *param)
         ERRORLOG("The %s index %d is not on room",thing_model_name(creatng),(int)creatng->index);
         return 0;
     }
-    if (room_cannot_vandalise(room))
+    if (room_cannot_vandalise(room->kind))
     {
         return 0; // Stop the creature from vandalizing the room if the player managed to move it from a breakable room to one that cannot be vandalized.
     }
