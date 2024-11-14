@@ -5374,7 +5374,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         TbBool is_enemy_and_visible = players_are_enemies(player->id_number, thing->owner) && !creature_is_invisible(thing);
         // Check if the creature belongs to the player, is hurt but not unconscious.
         TbBool is_owned_and_hurt = false;
-        // Check if the creature belongs to an ally and is hurt.
+        // Check if the creature belongs to an ally.
         TbBool is_allied = false;
         TbBool should_drag_to_lair = false;
         if (!is_enemy_and_visible)
