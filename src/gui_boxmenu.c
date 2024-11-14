@@ -160,9 +160,6 @@ struct GuiBox *gui_cheat_box_3=NULL;
 struct GuiBox *first_box=NULL;
 struct GuiBox *last_box=NULL;
 struct GuiBox gui_boxes[3];
-//struct TbSprite *font_sprites=NULL;
-//struct TbSprite *end_font_sprites=NULL;
-//unsigned char *font_data=NULL;
 struct DraggingBox dragging_box;
 
 /******************************************************************************/

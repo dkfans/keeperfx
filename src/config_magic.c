@@ -2688,7 +2688,7 @@ TbBool is_power_available(PlayerNumber plyr_idx, PowerKind pwkind)
     }
     if (pwkind >= game.conf.magic_conf.power_types_count)
     {
-        ERRORLOG("Incorrect power %ld (player %ld)", pwkind, plyr_idx);
+        ERRORLOG("Incorrect power %u (player %d)", pwkind, plyr_idx);
         return false;
     }
     if (dungeon->magic_level[pwkind] > 0) {
@@ -2718,7 +2718,7 @@ TbBool is_power_obtainable(PlayerNumber plyr_idx, PowerKind pwkind)
         return false;
     }
     if (pwkind >= game.conf.magic_conf.power_types_count) {
-        ERRORLOG("Incorrect power %ld (player %ld)",pwkind, plyr_idx);
+        ERRORLOG("Incorrect power %u (player %d)",pwkind, plyr_idx);
         return false;
     }
     return (dungeon->magic_level[pwkind] > 0) || (dungeon->magic_resrchable[pwkind]);
