@@ -111,7 +111,6 @@ void gpoly_enable_pentium_pro(TbBool state);
 void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c);
 /******************************************************************************/
 void gtblock_set_clipping_window(unsigned char *screen_addr, long clip_width, long clip_height, long screen_width);
-void gtblock_draw(struct GtBlock *gtb);
 /******************************************************************************/
 void trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c);
 /******************************************************************************/

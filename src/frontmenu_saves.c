@@ -42,7 +42,7 @@
 /******************************************************************************/
 int frontend_load_game_button_to_index(struct GuiButton *gbtn)
 {
-    long gbidx = (unsigned long)gbtn->content;
+    long gbidx = gbtn->content.lval;
     int k = -1;
     for (int i = gbidx + load_game_scroll_offset - 45; i >= 0; i--)
     {
@@ -110,9 +110,9 @@ void draw_load_button(struct GuiButton *gbtn)
     {
         draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, width);
     }
-    if (gbtn->content != NULL)
+    if (gbtn->content.str != NULL)
     {
-        snprintf(gui_textbuf, sizeof(gui_textbuf), "%s", (const char*)gbtn->content);
+        snprintf(gui_textbuf, sizeof(gui_textbuf), "%s", gbtn->content.str);
         draw_button_string(gbtn, (gbtn->width*32 + 16)/gbtn->height, gui_textbuf);
     }
 }
@@ -120,10 +120,10 @@ void draw_load_button(struct GuiButton *gbtn)
 void gui_save_game(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
-    if (strcasecmp((char*)gbtn->content, get_string(GUIStr_SlotUnused)) != 0)
+    if (strcasecmp(gbtn->content.str, get_string(GUIStr_SlotUnused)) != 0)
     {
         long slot_num = (gbtn->btype_value & LbBFeF_IntValueMask) % TOTAL_SAVE_SLOTS_COUNT;
-        fill_game_catalogue_slot(slot_num, (char*)gbtn->content);
+        fill_game_catalogue_slot(slot_num, gbtn->content.str);
         if (save_game(slot_num))
         {
             output_message(SMsg_GameSaved, 0, true);
