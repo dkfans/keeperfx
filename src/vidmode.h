@@ -134,10 +134,8 @@ struct TbAlphaTables {
 };
 
 /******************************************************************************/
-extern struct TbSprite *pointer_sprites;
+extern struct TbSpriteSheet *pointer_sprites;
 extern struct TbLoadFiles legal_load_files[];
-extern struct TbLoadFiles map_flag_load_files[];
-extern struct TbLoadFiles netmap_flag_load_files[];
 extern struct TbLoadFilesV2 game_load_files[];
 extern unsigned short units_per_pixel_min;
 extern long base_mouse_sensitivity;
@@ -167,7 +165,6 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode);
 TbScreenMode setup_screen_mode_zero(TbScreenMode nmode);
 
 short LoadMcgaData(void);
-short LoadMcgaDataMinimal(void);
 TbBool update_screen_mode_data(long width, long height);
 void load_pointer_file(short hi_res);
 TbBool load_testfont_fonts(void);

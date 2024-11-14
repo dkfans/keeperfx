@@ -517,7 +517,7 @@ long get_research_id(long item_type, const char *trg_name, const char *func_name
       break;
   case -1:
   default:
-      ERRORMSG("%s(line %lu): " "Unhandled research type, %d", func_name, text_line_number, item_type);
+      ERRORMSG("%s(line %lu): " "Unhandled research type, %ld", func_name, text_line_number, item_type);
       return -1;
   }
   return item_id;

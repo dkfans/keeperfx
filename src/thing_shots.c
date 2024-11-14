@@ -576,7 +576,8 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                     }
                     default:
                     {
-                        ERRORLOG("Hit from subtile (%ld, %ld) diagonally, but angle was not diagonal: thing move angle was %u, and got a digging angle of %u.", shotng->mappos.x.stl.num, shotng->mappos.y.stl.num, shotng->move_angle_xy, angle);
+                        ERRORLOG("Hit from subtile (%u, %u) diagonally, but angle was not diagonal: thing move angle was %d, and got a digging angle of %u.",
+                            shotng->mappos.x.stl.num, shotng->mappos.y.stl.num, shotng->move_angle_xy, angle);
                         hit_stl_x = shotng->mappos.x.stl.num;
                         hit_stl_y = shotng->mappos.y.stl.num;
                         break;

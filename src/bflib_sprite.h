@@ -21,6 +21,7 @@
 #define BFLIB_SPRITE_H
 
 #include "globals.h"
+#include "bflib_basics.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,6 +45,8 @@ struct TbSprite {
 #endif
 };
 
+struct TbSpriteSheet;
+
 struct TbSetupSprite {
     struct TbSprite **Start;
     struct TbSprite **End;
@@ -62,18 +65,21 @@ struct TiledSprite {
     unsigned char y_num;
     unsigned short spr_idx[10][10];
 };
-
 #pragma pack()
-/******************************************************************************/
-/*
-extern struct TbSetupSprite setup_sprites[];
-extern char mouse_pointer_sprite;
-extern char lang_selection;
-*/
-/******************************************************************************/
-int LbSpriteSetupAll(struct TbSetupSprite t_setup[]);
-int LbSpriteClearAll(struct TbSetupSprite t_setup[]);
-short LbSpriteSetup(struct TbSprite *start, const struct TbSprite *end, const unsigned char * data);
+
+struct TbSpriteSheet * create_spritesheet(void);
+struct TbSpriteSheet * load_spritesheet(const char * data_fname, const char * index_fname);
+void free_spritesheet(struct TbSpriteSheet **);
+const struct TbSprite * get_sprite(const struct TbSpriteSheet *, long index);
+#ifdef SPRITE_FORMAT_V2
+TbBool add_sprite(struct TbSpriteSheet * sheet, unsigned short width, unsigned short height, int size, const void * data);
+#else
+TbBool add_sprite(struct TbSpriteSheet * sheet, unsigned char width, unsigned char height, int size, const void * data);
+#endif
+long num_sprites(const struct TbSpriteSheet *);
+
+#define load_font(data_fname, index_fname) load_spritesheet(data_fname, index_fname)
+#define free_font(font) free_spritesheet(font)
 
 /******************************************************************************/
 #ifdef __cplusplus
