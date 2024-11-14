@@ -2201,14 +2201,6 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
 {
   int n;
   // Block name and parameter word store variables
-  // If the file can't be partial, then initialize block data
-  if ((flags & CnfLd_AcceptPartial) == 0)
-  {
-      for (n = 0; n < CREATURE_GRAPHICS_INSTANCES; n++)
-      {
-          set_creature_model_graphics(crtr_model, n, -1);
-      }
-  }
   // Find the block
   char block_buf[COMMAND_WORD_LEN];
   sprintf(block_buf, "sprites");
