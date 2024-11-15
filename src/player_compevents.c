@@ -707,7 +707,7 @@ long computer_event_save_tortured(struct Computer2* comp, struct ComputerEvent* 
 {
     struct Dungeon* dungeon = comp->dungeon;
     int health_permil = (cevent->param1 * 10);
-
+    // Do not check for PwrK_HAND here; this would prevent the computer from taking other actions without it!
     // Do we have a prison to put the unit back into?
     struct Room* destroom = NULL;
     TbBool can_return = false;
