@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_sound.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -175,8 +176,6 @@ enum TbSpeechMessages {
 #define SMsg_NoRouteToPrison SMsg_None
 #define SMsg_NoRouteToGraveyard SMsg_None
 
-typedef unsigned long Phrase;
-
 enum OutputMessageKinds {
     OMsg_None = 0,
     OMsg_RoomNeeded,
@@ -209,7 +208,7 @@ TbBool message_already_in_queue(long msg_idx);
 TbBool add_message_to_queue(long msg_idx, long delay);
 TbBool message_queue_empty(void);
 long get_phrase_for_message(long msg_idx);
-long get_phrase_sample(long phr_idx);
+SoundSmplID get_phrase_sample(long phr_idx);
 TbBool message_can_be_played(long msg_idx);
 void clear_messages(void);
 void init_messages_turns(long delay);

@@ -52,7 +52,7 @@ static void powerful_magic_breaking_sparks(struct Thing* breaktng)
     pos.y.val = subtile_coord_center(breaktng->mappos.y.stl.num + GAME_RANDOM(11) - 5);
     pos.z.val = get_floor_height_at(&pos);
     draw_lightning(&breaktng->mappos, &pos, objst->effect.spacing, objst->effect.beam);
-    if (!S3DEmitterIsPlayingSample(breaktng->snd_emitter_id, objst->effect.sound_idx, 0)) {
+    if (!S3DEmitterIsPlayingSample(breaktng->snd_emitter_id, objst->effect.sound_idx)) {
         thing_play_sample(breaktng, objst->effect.sound_idx + UNSYNC_RANDOM(objst->effect.sound_range), NORMAL_PITCH, -1, 3, 1, 6, FULL_LOUDNESS);
     }
 }

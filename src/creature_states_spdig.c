@@ -19,7 +19,7 @@
 #include "pre_inc.h"
 #include "creature_states_spdig.h"
 #include "globals.h"
-
+#include "samples.h"
 #include "bflib_sound.h"
 #include "bflib_math.h"
 #include "bflib_planar.h"
@@ -54,8 +54,9 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "player_instances.h"
-#include "post_inc.h"
 #include "creature_states_lair.h"
+#include "samples.h"
+#include "post_inc.h"
 
 const unsigned char reinforce_edges[] = { 3, 0, 0, 3, 0, 1, 2, 2, 1, };
 
@@ -1278,7 +1279,7 @@ short imp_drops_gold(struct Thing *spdigtng)
     }
     if ( (gold_added > 0) || (gold_created) )
     {
-        thing_play_sample(spdigtng, UNSYNC_RANDOM(3) + 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        thing_play_sample(spdigtng, Smpl_0032 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         if (game.conf.rules.workers.digger_work_experience != 0)
         {
             struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
@@ -1290,7 +1291,7 @@ short imp_drops_gold(struct Thing *spdigtng)
     {
         if (is_thing_directly_controlled_by_player(spdigtng, my_player_number))
         {
-            play_non_3d_sample(119);
+            play_non_3d_sample(Smpl_0119);
             internal_set_thing_state(spdigtng, state);
             return 1;
         }
@@ -1421,7 +1422,7 @@ short imp_picks_up_gold_pile(struct Thing *spdigtng)
         spdigtng->creature.gold_carried += gold_taken;
         if (gold_taken > 0)
         {
-            thing_play_sample(spdigtng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+            thing_play_sample(spdigtng, Smpl_0032, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
     }
     internal_set_thing_state(spdigtng, state);
@@ -2116,7 +2117,7 @@ short creature_arms_trap(struct Thing *thing)
     dungeon->lvstats.traps_armed++;
     creature_drop_dragged_object(thing, cratetng);
     delete_thing_structure(cratetng, 0);
-    thing_play_sample(traptng, 1000, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(traptng, Smpl_1000, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     // The action of moving object is now finished
     set_start_state(thing);
     if (game.conf.rules.workers.digger_work_experience != 0)
@@ -2135,7 +2136,7 @@ short creature_arms_trap_first_person(struct Thing *creatng)
     controlled_creature_drop_thing(creatng, cratetng, get_appropriate_player_for_creature(creatng));
     move_thing_in_map(cratetng, &traptng->mappos);
     rearm_trap(traptng);
-    thing_play_sample(traptng, 1000, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(traptng, Smpl_1000, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
     dungeon->lvstats.traps_armed++;
     if (game.conf.rules.workers.digger_work_experience != 0)

@@ -22,7 +22,7 @@
 
 #include <string.h>
 #include <stdio.h>
-
+#include "samples.h"
 #include "bflib_basics.h"
 #include "bflib_memory.h"
 #include "globals.h"
@@ -63,15 +63,15 @@ TbBool check_if_pos_is_over_button(const struct GuiButton *gbtn, TbScreenPos pos
 
 void do_sound_menu_click(void)
 {
-    play_non_3d_sample_no_overlap(61);
+    play_non_3d_sample_no_overlap(Smpl_0061);
 }
 
 void do_sound_button_click(struct GuiButton *gbtn)
 {
     if (gbtn->gbtype == LbBtnT_RadioBtn)
-        play_non_3d_sample(60);
+        play_non_3d_sample(Smpl_0060);
     else
-        play_non_3d_sample(61);
+        play_non_3d_sample(Smpl_0061);
 }
 
 void setup_input_field(struct GuiButton *gbtn, const char * empty_text)

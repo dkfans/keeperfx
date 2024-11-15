@@ -21,7 +21,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
-
+#include "bflib_sound.h"
 #include "ariadne.h"
 #include "creature_graphics.h"
 #include "creature_groups.h"
@@ -543,7 +543,7 @@ struct Persons {
 };
 
 struct CreatureSound {
-    long index;
+    SoundSmplID index;
     long count;
 };
 

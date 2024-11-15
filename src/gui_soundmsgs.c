@@ -19,7 +19,7 @@
 #include "pre_inc.h"
 #include "gui_soundmsgs.h"
 #include "bflib_sndlib.h"
-
+#include "samples.h"
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_planar.h"
@@ -169,16 +169,134 @@ enum SpeechPhraseIndex {
     SpchIdx_HeroHarassment8,
 };
 
-/** Array used for converting speech phrase index into sample data. */
-Phrase phrases[] = {
-    0,  1,  2,  3,  4,  5,  6,  7,  8, 9,  10, 11, 12, 13, 14, 15,
-   16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
-   32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
-   48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
-   64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
-   80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95,
-   96, 97, 98, 99,100,101,102,103,104,105,106,107,108,109,110,111,
-  112,113,114,115,116,117,118,119,120,121,122,123,124,125,
+/** Array used for converting speech phrase index into sample ID. */
+const SoundSmplID phrases[] = {
+    Smpl_Invalid,
+    Smpl_CreatureAngryAnyReson,
+    Smpl_CreatureAngryNoLair,
+    Smpl_CreatureAngryNotPayed,
+    Smpl_CreatureAngryNoFood,
+    Smpl_CreatureDestroyingRooms,
+    Smpl_CreatureLeaving,
+    Smpl_WallsBreach,
+    Smpl_HeartUnderAttack,
+    Smpl_BattleDefeat,
+    Smpl_BattleVictory,
+    Smpl_BattleDeath,
+    Smpl_BattleWon,
+    Smpl_CreatureDefending,
+    Smpl_CreatureAttacking,
+    Smpl_EnemyDestroyingRooms,
+    Smpl_EnemyClaimingGround,
+    Smpl_EnemyRoomTakenOver,
+    Smpl_NewRoomTakenOver,
+    Smpl_LordOfTheLandComming,
+    Smpl_FingthingFriends,
+    Smpl_BattleOver,
+    Smpl_GardenTooSmall,
+    Smpl_LairTooSmall,
+    Smpl_TreasuryTooSmall,
+    Smpl_LibraryTooSmall,
+    Smpl_PrisonTooSmall,
+    Smpl_TortureTooSmall,
+    Smpl_TrainingTooSmall,
+    Smpl_WorkshopTooSmall,
+    Smpl_ScavengeTooSmall,
+    Smpl_TempleTooSmall,
+    Smpl_GraveyardTooSmall,
+    Smpl_BarracksTooSmall,
+    Smpl_NoRouteToGarden,
+    Smpl_NoRouteToTreasury,
+    Smpl_NoRouteToLair,
+    Smpl_EntranceClaimed,
+    Smpl_EntranceLost,
+    Smpl_RoomTreasureNeeded,
+    Smpl_RoomLairNeeded,
+    Smpl_RoomGardenNeeded,
+    Smpl_ResearchedRoom,
+    Smpl_ResearchedSpell,
+    Smpl_ManufacturedDoor,
+    Smpl_ManufacturedTrap,
+    Smpl_NoMoreReseach,
+    Smpl_SpellbookTaken,
+    Smpl_TrapTaken,
+    Smpl_DoorTaken,
+    Smpl_SpellbookStolen,
+    Smpl_TrapStolen,
+    Smpl_DoorStolen,
+    Smpl_TortureInformation,
+    Smpl_TortureConverted,
+    Smpl_PrisonerMadeSkeleton,
+    Smpl_TortureMadeGhost,
+    Smpl_PrisonersEscaping,
+    Smpl_GraveyardMadeVampire,
+    Smpl_CreaturesFreedFromPrison,
+    Smpl_PrisonersStarving,
+    Smpl_CreatureScanvenged,
+    Smpl_MinionScanvenged,
+    Smpl_CreatureJoinedEnemy,
+    Smpl_CreatureRevealedInfo,
+    Smpl_SacrificeGood,
+    Smpl_SacrificeReward,
+    Smpl_SacrificeNeutral,
+    Smpl_SacrificeBad,
+    Smpl_SacrificePunish,
+    Smpl_SacrificeWishing,
+    Smpl_DiscoveredSpecial,
+    Smpl_DiscoveredSpell,
+    Smpl_DiscoveredDoor,
+    Smpl_DiscoveredTrap,
+    Smpl_CreaturesJoinedYou,
+    Smpl_DugIntoNewArea,
+    Smpl_SpecialRevealMap,
+    Smpl_SpecialResurrect,
+    Smpl_SpecialTransfer,
+    Smpl_CommonAcknowledge,
+    Smpl_SpecialHeroStolen,
+    Smpl_SpecialCreaturesDoubled,
+    Smpl_SpecialIncreasedLevel,
+    Smpl_SpecialWallsFortified,
+    Smpl_SpecialHiddenWorld,
+    Smpl_GoldLow,
+    Smpl_GoldNotEnough,
+    Smpl_NoGoldToScavenge,
+    Smpl_NoGoldToTrain,
+    Smpl_Payday,
+    Smpl_FullOfPies,
+    Smpl_SurrealHappen,
+    Smpl_StrangeAccent,
+    Smpl_PantsTooTight,
+    Smpl_CraveChocolate,
+    Smpl_SmellAgain,
+    Smpl_Hello,
+    Smpl_Glaagh,
+    Smpl_Achew,
+    Smpl_Chgreche,
+    Smpl_ImpJobsLimit,
+    Smpl_GameLoaded,
+    Smpl_GameSaved,
+    Smpl_DefeatedKeeper,
+    Smpl_LevelFailed,
+    Smpl_LevelWon,
+    Smpl_SenceAvatar,
+    Smpl_AvatarBodyVanished,
+    Smpl_GameFinalVictory,
+    Smpl_KeeperHarassment1,
+    Smpl_KeeperHarassment2,
+    Smpl_KeeperHarassment3,
+    Smpl_KeeperHarassment4,
+    Smpl_KeeperHarassment5,
+    Smpl_KeeperHarassment6,
+    Smpl_KeeperHarassment7,
+    Smpl_KeeperHarassment8,
+    Smpl_HeroHarassment1,
+    Smpl_HeroHarassment2,
+    Smpl_HeroHarassment3,
+    Smpl_HeroHarassment4,
+    Smpl_HeroHarassment5,
+    Smpl_HeroHarassment6,
+    Smpl_HeroHarassment7,
+    Smpl_HeroHarassment8,
 };
 
 struct SMessage messages[] = {
@@ -353,13 +471,13 @@ TbBool output_message(long msg_idx, long delay, TbBool queue)
     }
     if (!speech_sample_playing())
     {
-        long i = get_phrase_sample(get_phrase_for_message(msg_idx));
-        if (i == 0)
+        SoundSmplID smptbl_id = get_phrase_sample(get_phrase_for_message(msg_idx));
+        if (smptbl_id == 0)
         {
             SYNCDBG(8, "No phrase %d sample, skipping", (int)msg_idx);
             return false;
       }
-      if (play_speech_sample(i))
+      if (play_speech_sample(smptbl_id))
       {
           message_playing = msg_idx;
           smsg->end_time = (long)game.play_gameturn + delay;
@@ -408,13 +526,13 @@ TbBool output_message_far_from_thing(struct Thing* thing, long msg_idx, long del
         }
         if (!speech_sample_playing())
         {
-            long i = get_phrase_sample(get_phrase_for_message(msg_idx));
-            if (i == 0)
+            SoundSmplID smptbl_id = get_phrase_sample(get_phrase_for_message(msg_idx));
+            if (smptbl_id == 0)
             {
                 SYNCDBG(8, "No phrase %d sample, skipping", (int)msg_idx);
                 return false;
             }
-            if (play_speech_sample(i))
+            if (play_speech_sample(smptbl_id))
             {
                 message_playing = msg_idx;
                 smsg->end_time = (long)game.play_gameturn + delay;
@@ -545,7 +663,7 @@ long get_phrase_for_message(long msg_idx)
  * @param phr_idx
  * @return The speech sample number; on error, trturns 0;
  */
-long get_phrase_sample(long phr_idx)
+SoundSmplID get_phrase_sample(long phr_idx)
 {
     if ((phr_idx < 0) || (phr_idx >= sizeof(phrases)/sizeof(phrases[0])))
         phr_idx = 0;

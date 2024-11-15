@@ -47,6 +47,7 @@
 #include "gui_msgs.h"
 #include "frontmenu_ingame_tabs.h"
 #include "room_treasure.h"
+#include "samples.h"
 #include "post_inc.h"
 
 extern void clear_input(struct Packet* packet);
@@ -87,7 +88,7 @@ TbBool packets_process_cheats(
             {
                 if (is_my_player(player))
                 {
-                    play_non_3d_sample(119);
+                    play_non_3d_sample(Smpl_0119);
                 }
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
@@ -146,7 +147,7 @@ TbBool packets_process_cheats(
             {
                 if (is_my_player(player))
                 {
-                    play_non_3d_sample(119);
+                    play_non_3d_sample(Smpl_0119);
                 }
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
@@ -180,7 +181,7 @@ TbBool packets_process_cheats(
             {
                 if (is_my_player(player))
                 {
-                    play_non_3d_sample(119);
+                    play_non_3d_sample(Smpl_0119);
                 }
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);

@@ -39,7 +39,7 @@ struct SampleInfo { // sizeof = 29
   unsigned char field_4[4];
   unsigned char field_8;
   unsigned char field_9[9];
-  SoundSmplTblID smptbl_id;
+  SoundSmplID smptbl_id;
   unsigned char field_14[3];
   unsigned char flags_17;
   unsigned long field_18;
@@ -74,11 +74,11 @@ void SetupAudioOptionDefaults(struct SoundSettings *);
 TbBool IsSamplePlaying(SoundMilesID);
 struct SampleInfo * GetLastSampleInfoStructure(void);
 SoundVolume GetCurrentSoundMasterVolume(void);
-void StopSample(SoundEmitterID, SoundSmplTblID);
-void SetSampleVolume(SoundEmitterID, SoundSmplTblID, SoundVolume);
-void SetSamplePan(SoundEmitterID, SoundSmplTblID, SoundPan);
-void SetSamplePitch(SoundEmitterID, SoundSmplTblID, SoundPitch);
-struct SampleInfo * PlaySampleFromAddress(SoundEmitterID, SoundSmplTblID, SoundVolume, SoundPan, SoundPitch, unsigned char a6, unsigned char a7, void * buf, SoundSFXID);
+void StopSample(SoundEmitterID, SoundSmplID);
+void SetSampleVolume(SoundEmitterID, SoundSmplID, SoundVolume);
+void SetSamplePan(SoundEmitterID, SoundSmplID, SoundPan);
+void SetSamplePitch(SoundEmitterID, SoundSmplID, SoundPitch);
+struct SampleInfo * PlaySampleFromAddress(SoundEmitterID, SoundSmplID, SoundVolume, SoundPan, SoundPitch, unsigned char a6, unsigned char a7, const void * buf, SoundSFXID);
 /******************************************************************************/
 #ifdef __cplusplus
 }

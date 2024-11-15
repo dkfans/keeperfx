@@ -18,7 +18,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "power_hand.h"
-
+#include "samples.h"
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
@@ -863,15 +863,15 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     drop_gold_coins(&pos, 0, plyr_idx);
     if (tribute >= salary)
     {
-        thing_play_sample(creatng, 34, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        thing_play_sample(creatng, Smpl_0034, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     }
     else if ((tribute * 2) >= salary)
     {
-        thing_play_sample(creatng, 33, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        thing_play_sample(creatng, Smpl_0033, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     }
     else
     {
-        thing_play_sample(creatng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS/2);
+        thing_play_sample(creatng, Smpl_0032, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS/2);
     }
     if ( !taking_salary )
     {

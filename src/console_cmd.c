@@ -19,7 +19,7 @@
 #include "pre_inc.h"
 #include "console_cmd.h"
 #include "globals.h"
-
+#include "samples.h"
 #include "actionpt.h"
 #include "bflib_datetm.h"
 #include "bflib_sound.h"
@@ -1662,7 +1662,7 @@ TbBool cmd_freeze_creature(PlayerNumber plyr_idx, char * args)
     if (!thing_is_creature(thing)) {
         return false;
     }
-    thing_play_sample(thing, 50, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+    thing_play_sample(thing, Smpl_0050, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     apply_spell_effect_to_thing(thing, SplK_Freeze, 8);
     return true;
 }
@@ -1677,7 +1677,7 @@ TbBool cmd_slow_creature(PlayerNumber plyr_idx, char * args)
     if (!thing_is_creature(thing)) {
         return false;
     }
-    thing_play_sample(thing, 50, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+    thing_play_sample(thing, Smpl_0050, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     apply_spell_effect_to_thing(thing, SplK_Slow, 8);
     return true;
 }
@@ -1826,7 +1826,7 @@ TbBool cmd_zoom_to_hero_gate(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
-TbBool cmd_sound_test(PlayerNumber plyr_idx, char * args)
+TbBool cmd_sample_test(PlayerNumber plyr_idx, char * args)
 {
     if ((game.flags_font & FFlg_AlexCheat) == 0) {
         return false;
@@ -1836,19 +1836,6 @@ TbBool cmd_sound_test(PlayerNumber plyr_idx, char * args)
         return false;
     }
     play_non_3d_sample(atoi(pr2str));
-    return true;
-}
-
-TbBool cmd_speech_test(PlayerNumber plyr_idx, char * args)
-{
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
-        return false;
-    }
-    char * pr2str = strsep(&args, " ");
-    if (pr2str == NULL) {
-        return false;
-    }
-    play_speech_sample(atoi(pr2str));
     return true;
 }
 
@@ -1949,8 +1936,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
         { "actionpoint.zoomto", cmd_zoom_to_action_point },
         { "actionpoint.reset", cmd_reset_action_point },
         { "herogate.zoomto", cmd_zoom_to_hero_gate },
-        { "sound.test", cmd_sound_test },
-        { "speech.test", cmd_speech_test },
+        { "sample.test", cmd_sample_test },
     };
     SYNCDBG(2, "Command %d: %s",(int)plyr_idx, args);
     const char * command = strsep(&args, " ");

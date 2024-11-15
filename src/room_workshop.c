@@ -18,7 +18,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "room_workshop.h"
-
+#include "samples.h"
 #include "globals.h"
 #include "bflib_basics.h"
 #include "room_data.h"
@@ -146,7 +146,7 @@ TbBool create_workshop_object_in_workshop_room(PlayerNumber plyr_idx, ThingClass
         break;
     }
     create_effect(&pos, TngEff_RoomSparkeLarge, cratetng->owner);
-    thing_play_sample(cratetng, 89, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(cratetng, Smpl_0089, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     return true;
 }
 

@@ -21,7 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-
+#include "bflib_sound.h"
 #include "config.h"
 #include "config_strings.h"
 
@@ -92,8 +92,8 @@ struct GameCampaign {
   struct LevelInformation *lvinfos;
   unsigned long lvinfos_count;
   // Land view
-  unsigned long ambient_good;
-  unsigned long ambient_bad;
+  SoundSmplID ambient_good;
+  SoundSmplID ambient_bad;
   char land_view_start[DISKPATH_SIZE];
   char land_window_start[DISKPATH_SIZE];
   char land_view_end[DISKPATH_SIZE];
