@@ -162,6 +162,7 @@ const void * get_sample_data(SoundSmplID);
 uint32_t get_sample_size(SoundSmplID);
 const char * get_sample_name(SoundSmplID);
 void load_standard_sounds(void);
+void load_campaign_sounds(void);
 
 /******************************************************************************/
 #ifdef __cplusplus

@@ -1151,6 +1151,7 @@ TbBool change_campaign(const char *cmpgn_fname)
         find_and_load_lof_files();
         find_and_load_lif_files();
     }
+    load_campaign_sounds();
     load_or_create_high_score_table();
     // Update GUI arrays to new config
     update_room_tab_to_config();
