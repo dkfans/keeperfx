@@ -161,8 +161,7 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
     set_thing_draw(thing, i, objst->anim_speed, objst->sprite_size_max, 0, start_frame, objst->draw_class);
     set_flag_value(thing->rendering_flags, TRF_Unshaded, objst->light_unaffected);
 
-    set_flag_value(thing->rendering_flags, TRF_Transpar_4, objst->transparancy_flags & 0x01);
-    set_flag_value(thing->rendering_flags, TRF_Transpar_8, objst->transparancy_flags & 0x02);
+    set_flag(thing->rendering_flags, objst->transparency_flags);
 
     thing->active_state = objst->initial_state;
     if (objst->ilght.radius != 0)
@@ -198,17 +197,6 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
       case ObjMdl_GoldBag:
         thing->valuable.gold_stored = gold_object_typical_value(thing->model);
         break;
-      case ObjMdl_HeroGate:
-        i = get_free_hero_gate_number();
-        if (i > 0)
-        {
-            thing->hero_gate.number = i;
-        } else
-        {
-            thing->hero_gate.number = 0;
-            ERRORLOG("Could not allocate number for hero gate");
-        }
-        break;
       case ObjMdl_SpinningKey:
         if ((thing->mappos.z.stl.num == 4) && (subtile_is_door(thing->mappos.x.stl.num, thing->mappos.y.stl.num)))
         {
@@ -219,6 +207,20 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
       default:
         break;
     }
+    if (objst->genre == OCtg_HeroGate)
+    {
+        i = get_free_hero_gate_number();
+        if (i > 0)
+        {
+            thing->hero_gate.number = i;
+        }
+        else
+        {
+            thing->hero_gate.number = 0;
+            ERRORLOG("Could not allocate number for hero gate");
+        }
+    }
+
     add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);
 
@@ -420,7 +422,8 @@ TbBool thing_is_lair_totem(const struct Thing *thing)
 
 TbBool object_is_hero_gate(const struct Thing *thing)
 {
-  return (thing->model == ObjMdl_HeroGate);
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    return (objst->genre == OCtg_HeroGate);
 }
 
 TbBool object_is_infant_food(const struct Thing *thing)
@@ -1472,7 +1475,7 @@ static TngUpdateRet object_update_armour(struct Thing *objtng)
     struct Thing* thing = thing_get(objtng->armor.belongs_to);
     if (thing_is_picked_up(thing))
     {
-        objtng->rendering_flags |= TRF_Unknown01;
+        objtng->rendering_flags |= TRF_Invisible;
         return 1;
     }
     struct Coord3d pos;
@@ -1514,7 +1517,7 @@ static TngUpdateRet object_update_armour(struct Thing *objtng)
     objtng->veloc_push_add.x.val += cvect.x;
     objtng->veloc_push_add.y.val += cvect.y;
     objtng->veloc_push_add.z.val += cvect.z;
-    objtng->rendering_flags &= ~TRF_Unknown01;
+    objtng->rendering_flags &= ~TRF_Invisible;
     return 1;
 }
 
@@ -1575,6 +1578,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
 
     const struct MagicStats *pwrdynst = get_power_dynamic_stats(PwrK_SIGHT);
     int max_time_active = pwrdynst->strength[sight_casted_splevel];
+    int strength = min(pwrdynst->strength[sight_casted_splevel], (MAX_SOE_RADIUS * COORD_PER_STL / 4));
 
     if ( game.play_gameturn - objtng->creation_turn >= max_time_active
         && game.play_gameturn - dungeon->sight_casted_gameturn < max_time_active )
@@ -1623,7 +1627,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
             const int anim_radius = 4 * anim_time;
             const int close_radius = 32 * (power_sight_close_instance_time[dungeon->sight_casted_splevel] - (anim_time - max_time_active));
             const int max_duration_radius = max_time_active / 4;
-            const int strength_radius = pwrdynst->strength[dungeon->sight_casted_splevel] / 4;
+            const int strength_radius = strength/4;
             const int radius = max(0, min(min(min(close_radius, max_duration_radius), anim_radius), strength_radius));
             for (int i = 0; i < 32; ++i) {
                 const int step = ((2*LbFPMath_PI) / 32);
@@ -1643,7 +1647,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
         const int anim_time = (game.play_gameturn - dungeon->sight_casted_gameturn);
         const int anim_radius = 4 * anim_time;
         const int max_duration_radius = max_time_active / 4;
-        const int strength_radius = pwrdynst->strength[dungeon->sight_casted_splevel] / 4;
+        const int strength_radius = strength/4;
         const int radius = max(0, min(min(max_duration_radius, anim_radius), strength_radius));
         for (int i = 0; i < 4; ++i) {
             const int step = ((2*LbFPMath_PI) / 32);
@@ -1656,8 +1660,8 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
             pos.z.val = 1408;
             create_effect_element(&pos, twinkle_eff_elements[get_player_color_idx(objtng->owner)], objtng->owner);
             if ( pos_x >= 0 && pos_x < gameadd.map_subtiles_x * COORD_PER_STL && pos_y >= 0 && pos_y < gameadd.map_subtiles_y * COORD_PER_STL ) {
-                const int shift_x = pos.x.stl.num - objtng->mappos.x.stl.num + 13;
-                const int shift_y = pos.y.stl.num - objtng->mappos.y.stl.num + 13;
+                const int shift_x = pos.x.stl.num - objtng->mappos.x.stl.num + MAX_SOE_RADIUS;
+                const int shift_y = pos.y.stl.num - objtng->mappos.y.stl.num + MAX_SOE_RADIUS;
                 dungeon->soe_explored_flags[shift_y][shift_x] = pos.x.val < gameadd.map_subtiles_x * COORD_PER_STL && pos.y.val < gameadd.map_subtiles_y * COORD_PER_STL;
             }
         }
@@ -1760,7 +1764,8 @@ TngUpdateRet move_object(struct Thing *thing)
                 {
                     if (!find_free_position_on_slab(thing, &pos))
                     {
-                        SYNCDBG(7, "Found no free position next to (%ld,%ld) due to blocked flag %d. Move to valid position.", pos.x.val, pos.y.val, blocked_flags);
+                        SYNCDBG(7, "Found no free position next to (%ld,%ld) due to blocked flag %ld. Move to valid position.",
+                            pos.x.val, pos.y.val, blocked_flags);
                         move_creature_to_nearest_valid_position(thing);
                     }
                 }

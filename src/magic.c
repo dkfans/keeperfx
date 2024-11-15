@@ -342,6 +342,10 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
     }
     if (thing_is_creature(thing))
     {
+        if (creature_is_leaving_and_cannot_be_stopped(thing))
+        {
+            return false;
+        }
         if (creature_is_for_dungeon_diggers_list(thing))
         {
             if (powerst->can_cast_flags & PwCast_DiggersNot)
@@ -418,7 +422,8 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
         }
         if ((powerst->can_cast_flags & PwCast_EnemyCrtrs) != 0)
         {
-            if (players_are_enemies(plyr_idx, thing->owner)) {
+            if (!players_creatures_tolerate_each_other(plyr_idx, thing->owner))
+            {
                 return true;
             }
         }
@@ -602,8 +607,13 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
     if (thing->active_state != CrSt_CreatureSlapCowers)
     {
         clear_creature_instance(thing);
-        cctrl->active_state_bkp = thing->active_state;
-        cctrl->continue_state_bkp = thing->continue_state;
+        if (thing->active_state != CrSt_CreatureCastingPreparation)
+        {
+            // If the creature was in CreatureCastingPreparation state, its active and continue
+            // states have been assigned to those bkp states, so we don't need to assign them again.
+            cctrl->active_state_bkp = thing->active_state;
+            cctrl->continue_state_bkp = thing->continue_state;
+        }
         creature_mark_if_woken_up(thing);
         external_set_thing_state(thing, CrSt_CreatureSlapCowers);
     }
@@ -756,14 +766,10 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
  */
 GoldAmount compute_power_price_scaled_with_amount(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel, long amount)
 {
-    const struct MagicStats *pwrdynst;
-    long i;
-    pwrdynst = get_power_dynamic_stats(pwkind);
-    // Increase price by given amount
-    i = amount + 1;
-    if (i < 1)
-      i = 1;
-    return pwrdynst->cost[pwlevel]*i/2;
+    const struct MagicStats *pwrdynst = get_power_dynamic_stats(pwkind);
+    if (amount < 0)
+        amount = 0;
+    return pwrdynst->cost[pwlevel] + (pwrdynst->cost[0] * amount);
 }
 
 /**
@@ -1036,8 +1042,8 @@ void turn_off_power_sight_of_evil(PlayerNumber plyr_idx)
     const struct MagicStats *pwrdynst;
     pwrdynst = get_power_dynamic_stats(PwrK_SIGHT);
     spl_lev = dungeon->sight_casted_splevel;
-    if (spl_lev > SPELL_MAX_LEVEL)
-        spl_lev = SPELL_MAX_LEVEL;
+    if (spl_lev > POWER_MAX_LEVEL)
+        spl_lev = POWER_MAX_LEVEL;
     i = game.play_gameturn - dungeon->sight_casted_gameturn;
     imax = abs(pwrdynst->strength[spl_lev]/4) >> 2;
     if (i > imax)
@@ -1074,7 +1080,6 @@ static TbResult magic_use_power_hold_audience(PowerKind power_kind, PlayerNumber
     while (i != 0)
     {
         struct CreatureControl *cctrl;
-        struct Thing *thing;
         thing = thing_get(i);
         TRACE_THING(thing);
         cctrl = creature_control_get_from_thing(thing);
@@ -1085,7 +1090,7 @@ static TbResult magic_use_power_hold_audience(PowerKind power_kind, PlayerNumber
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing) && !creature_is_being_unconscious(thing))
+        if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing) && !creature_is_being_unconscious(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
             create_effect(&thing->mappos, imp_spangle_effects[get_player_color_idx(thing->owner)], thing->owner);
             const struct Coord3d *pos;
@@ -1192,41 +1197,29 @@ static TbResult magic_use_power_destroy_walls(PowerKind power_kind, PlayerNumber
             return Lb_FAIL;
         }
     }
-    MapSlabCoord slb_x_start;
-    MapSlabCoord slb_y_start;
-    MapSlabCoord slb_x_end;
-    MapSlabCoord slb_y_end;
-    int i;
-    slb_x_start = subtile_slab(stl_x) - 1;
-    slb_y_start = subtile_slab(stl_y) - 1;
-    slb_x_end = slb_x_start + 3;
-    slb_y_end = slb_y_start + 3;
-    i = 0;
-    MapSlabCoord slb_x;
-    MapSlabCoord slb_y;
-    for (slb_y=slb_y_start; slb_y < slb_y_end ; slb_y++)
+    MapSlabCoord slb_x_start = subtile_slab(stl_x) - 1;
+    MapSlabCoord slb_y_start = subtile_slab(stl_y) - 1;
+    MapSlabCoord slb_x_end = slb_x_start + 3;
+    MapSlabCoord slb_y_end = slb_y_start + 3;
+    int i = 0;
+    TbBool is_revealed = subtile_revealed(stl_x, stl_y, plyr_idx);
+    for (MapSlabCoord slb_y=slb_y_start; slb_y < slb_y_end ; slb_y++)
     {
-        for (slb_x=slb_x_start; slb_x < slb_x_end ; slb_x++,i++)
+        for (MapSlabCoord slb_x=slb_x_start; slb_x < slb_x_end ; slb_x++,i++)
         {
-            struct SlabMap *slb;
-            slb = get_slabmap_block(slb_x, slb_y);
+            struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
             if (slabmap_block_invalid(slb))
                 continue;
-            struct Map *mapblk;
-            mapblk = get_map_block_at(slab_subtile_center(slb_x),slab_subtile_center(slb_y));
+            struct Map *mapblk = get_map_block_at(slab_subtile_center(slb_x),slab_subtile_center(slb_y));
             if (!(mapblk->flags & SlbAtFlg_Blocking) || (mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom|SlbAtFlg_Valuable)) || (slb->kind == SlbT_ROCK) )
               continue;
-            TbBool is_revealed;
-            is_revealed = subtile_revealed(stl_x, stl_y, plyr_idx);
-            unsigned char destreff;
-            destreff = destroy_effect[splevel][i];
+            unsigned char destreff = destroy_effect[splevel][i];
             if (destreff == 79)
             {
-                struct SlabAttr *slbattr;
-                slbattr = get_slab_attrs(slb);
+                struct SlabAttr *slbattr = get_slab_attrs(slb);
                 if (slbattr->category == SlbAtCtg_FortifiedWall)
                 {
-                    place_slab_type_on_map(SlbT_EARTH, slab_subtile_center(slb_x),slab_subtile_center(slb_y), plyr_idx, 0);
+                    place_slab_type_on_map(SlbT_EARTH, slab_subtile_center(slb_x),slab_subtile_center(slb_y), game.neutral_player_num, 0);
                     create_dirt_rubble_for_dug_slab(slb_x, slb_y);
                     do_slab_efficiency_alteration(slb_x, slb_y);
                 } else
@@ -1251,8 +1244,7 @@ static TbResult magic_use_power_destroy_walls(PowerKind power_kind, PlayerNumber
     }
     if (is_my_player_number(plyr_idx))
     {
-        struct PowerConfigStats *powerst;
-        powerst = get_power_model_stats(power_kind);
+        struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
         play_non_3d_sample(powerst->select_sound_idx);
     }
     return Lb_SUCCESS;
@@ -1282,14 +1274,20 @@ static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx,
     struct Thing *heartng;
     struct Coord3d pos;
     struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
+    struct MagicStats *pwrdynst = get_power_dynamic_stats(power_kind);
     if (!i_can_allocate_free_control_structure()
      || !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
+        return Lb_FAIL;
+    }
+    if (!creature_count_below_map_limit(0))
+    {
+        SYNCLOG("Player %d attempts to create creature at map creature limit", plyr_idx);
         return Lb_FAIL;
     }
     if ((mod_flags & PwMod_CastForFree) == 0)
     {
         // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, power_kind, 0)) {
+        if (!pay_for_spell(plyr_idx, power_kind, splevel)) {
             return Lb_FAIL;
         }
     }
@@ -1297,11 +1295,15 @@ static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx,
     pos.x.val = subtile_coord_center(stl_x);
     pos.y.val = subtile_coord_center(stl_y);
     pos.z.val = get_floor_height_at(&pos) + (heartng->clipbox_size_z >> 1);
-    thing = create_creature(&pos, get_players_special_digger_model(plyr_idx), plyr_idx);
+    thing = create_creature(&pos, powerst->creature_model, plyr_idx);
     if (thing_is_invalid(thing))
     {
         ERRORLOG("There was place to create new creature, but creation failed");
         return Lb_OK;
+    }
+    if (pwrdynst->strength[splevel] != 0)
+    {
+        creature_change_multiple_levels(thing, pwrdynst->strength[splevel]);
     }
     thing->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
     thing->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
@@ -1388,7 +1390,7 @@ static TbResult magic_use_power_lightning(PowerKind power_kind, PlayerNumber ply
     dungeon = get_dungeon(player->id_number);
     pos.x.val = subtile_coord_center(stl_x);
     pos.y.val = subtile_coord_center(stl_y);
-    pos.z.val = 0;
+    pos.z.val = get_floor_height_at(&pos);
     // make sure the spell level is correct
     if (splevel >= MAGIC_OVERCHARGE_LEVELS)
         splevel = MAGIC_OVERCHARGE_LEVELS-1;
@@ -1421,12 +1423,12 @@ static TbResult magic_use_power_lightning(PowerKind power_kind, PlayerNumber ply
     // Compensate for effect element position offset
     objpos.x.val = pos.x.val + 128;
     objpos.y.val = pos.y.val + 128;
-    objpos.z.val = 0;
+    objpos.z.val = get_floor_height_at(&pos);
     obtng = create_object(&objpos, ObjMdl_PowerLightning, plyr_idx, -1);
     if (!thing_is_invalid(obtng))
     {
         obtng->lightning.spell_level = splevel;
-        obtng->rendering_flags |= TRF_Unknown01;
+        obtng->rendering_flags |= TRF_Invisible;
     }
     i = electricity_affecting_area(&pos, plyr_idx, range, max_damage);
     SYNCDBG(9,"Affected %ld targets within range %ld, damage %ld",i,range,max_damage);
@@ -1447,7 +1449,6 @@ static TbResult magic_use_power_sight(PowerKind power_kind, PlayerNumber plyr_id
 {
     const struct MagicStats *pwrdynst;
     struct Dungeon *dungeon;
-    struct Thing *sighttng;
     struct Coord3d pos;
     long cit;
     long cdt;
@@ -1505,7 +1506,7 @@ static TbResult magic_use_power_sight(PowerKind power_kind, PlayerNumber plyr_id
         dungeon->sight_casted_splevel = splevel;
         dungeon->sight_casted_thing_idx = thing->index;
         LbMemorySet(dungeon->soe_explored_flags, 0, sizeof(dungeon->soe_explored_flags));
-        thing->rendering_flags |= TRF_Unknown01;
+        thing->rendering_flags |= TRF_Invisible;
         thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, -1, 3, 0, 3, FULL_LOUDNESS);
     }
     return Lb_SUCCESS;
@@ -1523,7 +1524,6 @@ static TbResult magic_use_power_cave_in(PowerKind power_kind, PlayerNumber plyr_
     unsigned long k;
     k = 0;
     i = get_mapwho_thing_index(mapblk);
-    struct Thing *cavetng;
     while (i != 0)
     {
         thing = thing_get(i);
@@ -1811,8 +1811,9 @@ TbBool affect_creature_by_power_call_to_arms(struct Thing *creatng, long range, 
         if (stati->react_to_cta
           && (creature_affected_by_call_to_arms(creatng) || get_chessboard_distance(&creatng->mappos, cta_pos) < range))
         {
-            creature_mark_if_woken_up(creatng);
-            if (update_creature_influenced_by_call_to_arms_at_pos(creatng, cta_pos)) {
+            if (update_creature_influenced_by_call_to_arms_at_pos(creatng, cta_pos)) 
+            {
+                creature_mark_if_woken_up(creatng);
                 return true;
             }
         }
@@ -1846,7 +1847,7 @@ int affect_nearby_creatures_by_power_call_to_arms(PlayerNumber plyr_idx, long ra
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
         if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing) &&
-            !creature_is_being_unconscious(thing) && !creature_is_dying(thing))
+            !creature_is_being_unconscious(thing) && !creature_is_dying(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
             if (affect_creature_by_power_call_to_arms(thing, range, pos)) {
                 n++;
@@ -1958,7 +1959,7 @@ void process_dungeon_power_magic(void)
  * @param stl_y The casting subtile, Y coord.
  */
 TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
-    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags)
+    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long mod_flags)
 {
     TbResult ret;
     if (!is_power_available(plyr_idx, pwkind)) {
@@ -1968,7 +1969,7 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwk
     }
     else
     {
-        ret = magic_use_power_on_thing(plyr_idx, pwkind, splevel, stl_x, stl_y, thing, allow_flags);
+        ret = magic_use_power_on_thing(plyr_idx, pwkind, splevel, stl_x, stl_y, thing, mod_flags);
     }
     if (ret == Lb_FAIL) {
         // Make a rejection sound
@@ -2007,7 +2008,7 @@ TbResult magic_use_power_direct(PlayerNumber plyr_idx, PowerKind pwkind,
  * @param stl_y The casting subtile, Y coord.
  */
 TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
-    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags)
+    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long mod_flags)
 {
     const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
 
@@ -2039,7 +2040,7 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
     }
     if (ret == Lb_OK)
     {
-        magic_use_power_direct(plyr_idx, pwkind, splevel, stl_x, stl_y, thing, allow_flags);
+        ret = magic_use_power_direct(plyr_idx, pwkind, splevel, stl_x, stl_y, thing, mod_flags);
     }
     if (ret == Lb_SUCCESS)
     {
@@ -2060,7 +2061,7 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
  * @return
  */
 TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwkind,
-    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags)
+    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags, unsigned long mod_flags)
 {
     TbResult ret;
     ret = Lb_OK;
@@ -2071,7 +2072,7 @@ TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind p
     }
     if (ret == Lb_OK)
     {
-        ret = magic_use_power_on_subtile(plyr_idx, pwkind, splevel, stl_x, stl_y, allow_flags);
+        ret = magic_use_power_on_subtile(plyr_idx, pwkind, splevel, stl_x, stl_y, allow_flags, mod_flags);
     }
     if (ret == Lb_FAIL) {
         // Make a rejection sound
@@ -2083,7 +2084,7 @@ TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind p
 
 
 TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwkind,
-    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags)
+    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags,unsigned long mod_flags)
 {
     TbResult ret;
     ret = Lb_OK;
@@ -2105,7 +2106,7 @@ TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwkind,
     }
     if (ret == Lb_OK)
     {
-        ret = magic_use_power_direct(plyr_idx,pwkind,splevel,stl_x, stl_y,INVALID_THING, allow_flags);
+        ret = magic_use_power_direct(plyr_idx,pwkind,splevel,stl_x, stl_y,INVALID_THING, mod_flags);
     }
         
     if (ret == Lb_SUCCESS)
@@ -2125,23 +2126,23 @@ TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwkind,
  * @return
  */
 TbResult magic_use_available_power_on_level(PlayerNumber plyr_idx, PowerKind spl_idx,
-    unsigned short splevel, unsigned long allow_flags)
+    unsigned short splevel, unsigned long mod_flags)
 {
     if (!is_power_available(plyr_idx, spl_idx)) {
         // It shouldn't be possible to select unavailable spell
         WARNLOG("Player %d tried to cast unavailable spell %d",(int)plyr_idx,(int)spl_idx);
         return Lb_FAIL;
     }
-    return magic_use_power_on_level(plyr_idx, spl_idx, splevel, allow_flags);
+    return magic_use_power_on_level(plyr_idx, spl_idx, splevel, mod_flags);
 }
 
 TbResult magic_use_power_on_level(PlayerNumber plyr_idx, PowerKind pwkind,
-    unsigned short splevel, unsigned long allow_flags)
+    unsigned short splevel, unsigned long mod_flags)
 {
     if (splevel > MAGIC_OVERCHARGE_LEVELS) {
         splevel = MAGIC_OVERCHARGE_LEVELS;
     }
-    return magic_use_power_direct(plyr_idx,pwkind,splevel,0,0,INVALID_THING,allow_flags);
+    return magic_use_power_direct(plyr_idx,pwkind,splevel,0,0,INVALID_THING,mod_flags);
 }
 
 void directly_cast_spell_on_thing(PlayerNumber plyr_idx, PowerKind pwkind, ThingIndex thing_idx, long splevel)
@@ -2180,17 +2181,17 @@ TbResult script_use_power_on_creature(struct Thing* thing, short pwkind, short s
 
     MapSubtlCoord stl_x = thing->mappos.x.stl.num;
     MapSubtlCoord stl_y = thing->mappos.y.stl.num;
-    unsigned long spell_flags = is_free ? PwMod_CastForFree : 0;
+    unsigned long mod_flags = is_free ? PwMod_CastForFree : 0;
 
-    return magic_use_power_direct(caster,pwkind,splevel,stl_x,stl_y,thing,spell_flags);
+    return magic_use_power_direct(caster,pwkind,splevel,stl_x,stl_y,thing,mod_flags);
 }
 
 int get_power_overcharge_level(struct PlayerInfo *player)
 {
     int i;
     i = (player->cast_expand_level >> 2);
-    if (i > SPELL_MAX_LEVEL)
-        return SPELL_MAX_LEVEL;
+    if (i > POWER_MAX_LEVEL)
+        return POWER_MAX_LEVEL;
     return i;
 }
 
@@ -2204,8 +2205,8 @@ TbBool update_power_overcharge(struct PlayerInfo *player, int pwkind)
   const struct MagicStats *pwrdynst;
   pwrdynst = get_power_dynamic_stats(pwkind);
   i = (player->cast_expand_level+1) >> 2;
-  if (i > SPELL_MAX_LEVEL)
-    i = SPELL_MAX_LEVEL;
+  if (i > POWER_MAX_LEVEL)
+    i = POWER_MAX_LEVEL;
   if (pwrdynst->cost[i] <= dungeon->total_money_owned)
   {
     // If we have more money, increase overcharge
@@ -2223,7 +2224,7 @@ TbBool update_power_overcharge(struct PlayerInfo *player, int pwkind)
     else
       player->cast_expand_level = 0;
   }
-  return (i < SPELL_MAX_LEVEL);
+  return (i < POWER_MAX_LEVEL);
 }
 /******************************************************************************/
 #ifdef __cplusplus

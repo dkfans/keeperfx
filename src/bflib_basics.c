@@ -122,8 +122,7 @@ char *buf_sprintf(const char *format, ...)
     va_list val;
     va_start(val, format);
     static char text[TEXT_BUFFER_LENGTH + 1];
-    vsprintf(text, format, val);
-    text[TEXT_BUFFER_LENGTH]='\0';
+    vsnprintf(text, sizeof(text), format, val);
     va_end(val);
     return text;
 }
@@ -441,36 +440,44 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
       if ((log->flags & LbLog_TimeInHeader) != 0)
       {
         struct TbTime curr_time;
-        LbTime(&curr_time);
-        fprintf(file, "  @ %02d:%02d:%02d",
-            curr_time.Hour,curr_time.Minute,curr_time.Second);
-        at_used = 1;
+        if (LbTime(&curr_time) == Lb_SUCCESS)
+        {
+            fprintf(file, "  @ %02u:%02u:%02u",
+                curr_time.Hour,curr_time.Minute,curr_time.Second);
+            at_used = 1;
+        }
       }
       if ((log->flags & LbLog_DateInHeader) != 0)
       {
         struct TbDate curr_date;
-        LbDate(&curr_date);
-        const char *sep;
-        if ( at_used )
-          sep = " ";
-        else
-          sep = "  @ ";
-        fprintf(file," %s%02d-%02d-%d",sep,curr_date.Day,curr_date.Month,curr_date.Year);
+        if (LbDate(&curr_date) == Lb_SUCCESS)
+        {
+            const char *sep;
+            if ( at_used )
+              sep = " ";
+            else
+              sep = "  @ ";
+            fprintf(file," %s%02u-%02u-%u",sep,curr_date.Day,curr_date.Month,curr_date.Year);
+        }
       }
       fprintf(file, "\n\n");
     }
     if ((log->flags & LbLog_DateInLines) != 0)
     {
         struct TbDate curr_date;
-        LbDate(&curr_date);
-        fprintf(file,"%02d-%02d-%d ",curr_date.Day,curr_date.Month,curr_date.Year);
+        if (LbDate(&curr_date) == Lb_SUCCESS)
+        {
+            fprintf(file,"%02u-%02u-%u ",curr_date.Day,curr_date.Month,curr_date.Year);
+        }
     }
     if ((log->flags & LbLog_TimeInLines) != 0)
     {
         struct TbTime curr_time;
-        LbTime(&curr_time);
-        fprintf(file, "%02d:%02d:%02d ",
-            curr_time.Hour,curr_time.Minute,curr_time.Second);
+        if (LbTime(&curr_time) == Lb_SUCCESS)
+        {
+            fprintf(file, "%02u:%02u:%02u ",
+                curr_time.Hour,curr_time.Minute,curr_time.Second);
+        }
     }
   if (log->prefix[0] != '\0') {
       fputs(log->prefix, file);
@@ -585,6 +592,19 @@ void make_uppercase(char * string) {
   for (char * ptr = string; *ptr != 0; ++ptr) {
     *ptr = toupper(*ptr);
   }
+}
+
+int natoi(const char * str, int len) {
+  int value = -1;
+  for (int i = 0; i < len; ++i) {
+    if (!isdigit(str[i])) {
+      return value;
+    } else if (value < 0) {
+      value = 0;
+    }
+    value = (value * 10) + (str[i] - '0');
+  }
+  return value;
 }
 
 /******************************************************************************/

@@ -82,7 +82,7 @@ enum ModeFlags {
     MFlg_NoCdMusic          =  0x10, // unused
     MFlg_unk20              =  0x20,
     MFlg_unk40              =  0x40,
-    MFlg_NoHeroHealthFlower              =  0x80,
+    MFlg_NoHeroHealthFlower =  0x80,
 };
 
 enum FFlags {
@@ -147,7 +147,6 @@ struct StartupParameters {
     TbBool overrides[CMDLINE_OVERRIDES];
     char config_file[CMDLN_MAXLEN+1];
     GameTurn pause_at_gameturn;
-    TbBool ungrab_mouse;
 #ifdef FUNCTESTING
     unsigned char functest_flags;
     char functest_name[FTEST_MAX_NAME_LENGTH];
@@ -243,7 +242,7 @@ void clear_creature_pool(void);
 void reset_creature_max_levels(void);
 void reset_script_timers_and_flags(void);
 void reset_hand_rules(void);
-void add_creature_to_pool(long kind, long amount, unsigned long a3);
+void add_creature_to_pool(long kind, long amount);
 void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
 
 short zoom_to_next_annoyed_creature(void);
@@ -265,7 +264,6 @@ TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct
 void update_creatr_model_activities_list(void);
 void find_map_location_coords(long location, long *x, long *y, int plyr_idx, const char *func_name);
 TbBool any_player_close_enough_to_see(const struct Coord3d *pos);
-void affect_nearby_enemy_creatures_with_wind(struct Thing *thing);
 void affect_nearby_stuff_with_vortex(struct Thing *thing);
 void affect_nearby_friends_with_alarm(struct Thing *thing);
 long apply_wallhug_force_to_boulder(struct Thing *thing);

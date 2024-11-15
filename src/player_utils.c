@@ -119,7 +119,10 @@ void set_player_as_won_level(struct PlayerInfo *player)
             show_real_time_taken();
         }
         struct GameTime GameT = get_game_time(dungeon->lvstats.hopes_dashed, game_num_fps);
-        SYNCMSG("Won level %ld. Total turns taken: %ld (%02d:%02d:%02d at %d fps). Real time elapsed: %02d:%02d:%02d:%03d.", game.loaded_level_number, dungeon->lvstats.hopes_dashed, GameT.Hours, GameT.Minutes, GameT.Seconds, game_num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
+        SYNCMSG("Won level %u. Total turns taken: %lu (%02u:%02u:%02u at %ld fps). Real time elapsed: %02u:%02u:%02u:%03u.",
+            game.loaded_level_number, dungeon->lvstats.hopes_dashed,
+            GameT.Hours, GameT.Minutes, GameT.Seconds, game_num_fps,
+            Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
       }
   }
   player->victory_state = VicS_WonLevel;
@@ -192,7 +195,10 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     }
     else
     {
-        set_player_mode(player, PVT_DungeonTop);
+        if (!flag_is_set(player->allocflags, PlaF_CompCtrl))
+        {
+            set_player_mode(player, PVT_DungeonTop);
+        }
     }
     set_player_state(player, PSt_CtrlDungeon, 0);
     if ((game.system_flags & GSF_NetworkActive) == 0)
@@ -750,6 +756,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->minimap_zoom = settings.minimap_zoom;
     player->isometric_view_zoom_level = settings.isometric_view_zoom_level;
     player->frontview_zoom_level = settings.frontview_zoom_level;
+    player->isometric_tilt = settings.isometric_tilt;
     if (is_my_player(player))
     {
         set_flag(game.operation_flags, GOF_ShowPanel);
@@ -1181,17 +1188,17 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     {
         return false;
     }
-
-	struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
-	dungeon->camera_deviate_jump = 192;
-    long sell_value = compute_value_percentage(game.conf.doors_config[thing->model].selling_value, game.conf.rules.game.door_sale_percent);
-
-	dungeon->doors_sold++;
-	dungeon->manufacture_gold += sell_value;
-
+    struct DoorConfigStats *doorst = get_door_model_stats(thing->model);
+    struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
+    dungeon->camera_deviate_jump = 192;
+    GoldAmount sell_value = compute_value_percentage(doorst->selling_value, game.conf.rules.game.door_sale_percent);
+    dungeon->doors_sold++;
+    dungeon->manufacture_gold += sell_value;
     destroy_door(thing);
     if (is_my_player_number(plyr_idx))
-        play_non_3d_sample(115);
+    {
+        play_non_3d_sample(115); // TODO config make this sound configurable?
+    }
     struct Coord3d pos;
     set_coords_to_slab_center(&pos,subtile_slab(stl_x),subtile_slab(stl_y));
     if (sell_value != 0)
@@ -1199,9 +1206,10 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         create_price_effect(&pos, plyr_idx, sell_value);
         player_add_offmap_gold(plyr_idx, sell_value);
     }
-    { // Add the trap location to related computer player, in case we'll want to place a trap again
+    { // Add the trap location to related computer player, in case we'll want to place a trap again.
         struct Computer2* comp = get_computer_player(plyr_idx);
-        if (!computer_player_invalid(comp)) {
+        if (!computer_player_invalid(comp))
+        {
             add_to_trap_locations(comp, &pos);
         }
     }

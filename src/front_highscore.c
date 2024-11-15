@@ -37,6 +37,7 @@
 #include "game_merge.h"
 #include "sprites.h"
 #include "gui_frontbtns.h"
+#include "custom_sprites.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -91,10 +92,10 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     scores_count = count_high_scores();
     gui_draw_scroll_box(gbtn, 12, true);
     int fs_units_per_px;
-    struct TbSprite *spr;
+    const struct TbSprite *spr;
     {
         int orig_size = 0;
-        spr = &frontend_sprite[GFS_hugearea_thn_cor_ml];
+        spr = get_frontend_sprite(GFS_hugearea_thn_cor_ml);
         for (int i=0; i < 6; i++)
         {
             orig_size += spr->SWidth;
@@ -104,9 +105,9 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     }
     LbTextSetFont(frontend_font[1]);
     lbDisplay.DrawFlags = 0;
-    spr = &frontend_sprite[GFS_hugearea_thn_cor_ml];
+    spr = get_frontend_sprite(GFS_hugearea_thn_cor_ml);
     int pos_x = gbtn->scr_pos_x + spr->SWidth * fs_units_per_px / 16;
-    spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
+    spr = get_frontend_sprite(GFS_hugearea_thn_cor_tl);
     int pos_y = gbtn->scr_pos_y + (spr->SHeight + 3) * fs_units_per_px / 16;
     int tx_units_per_px = scale_value_menu(16);
     // The GUI item height should be 11 lines of text
@@ -409,27 +410,27 @@ void frontend_high_scores_update()
 void frontend_draw_highscores_scroll_box_tab(struct GuiButton *gbtn)
 {
     int fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_hugearea_thc_tx1_tc, 100);
-    struct TbSprite *spr = &frontend_sprite[GFS_hugearea_thc_tx1_tc];
+    const struct TbSprite *spr = get_frontend_sprite(GFS_hugearea_thc_tx1_tc);
     int pos_x = gbtn->scr_pos_x;
     // Since this tab is attachable from top, it is important to keep bottom position without variation
     int pos_y = gbtn->scr_pos_y + gbtn->height - spr->SHeight * fs_units_per_px / 16;
-    spr = &frontend_sprite[GFS_hugearea_thc_cor_tl];
+    spr = get_frontend_sprite(GFS_hugearea_thc_cor_tl);
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
     pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr = &frontend_sprite[GFS_hugearea_thc_tx1_tc];
+    spr = get_frontend_sprite(GFS_hugearea_thc_tx1_tc);
     for (int i = 3; i > 0; i--)
     {
         LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
         pos_x += spr->SWidth * fs_units_per_px / 16;
     }
-    spr = &frontend_sprite[GFS_hugearea_thc_cor_tr];
+    spr = get_frontend_sprite(GFS_hugearea_thc_cor_tr);
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
 }
 
 void frontend_draw_high_scores_mappack(struct GuiButton *gbtn)
 {
     const char *text;
-    if (campaign.display_name != NULL)
+    if (campaign.display_name[0] != '\0')
         text = campaign.display_name;
     else
         text = frontend_button_caption_text(gbtn);

@@ -62,7 +62,7 @@
 #include "game_legacy.h"
 #include "creature_instances.h"
 #include "packets.h"
-
+#include "custom_sprites.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
@@ -92,10 +92,10 @@ static void draw_creature_view_icons(struct Thing* creatng)
     struct GuiMenu *gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
     ScreenCoord x = gmnu->width + scale_value_by_horizontal_resolution(5);
     ScreenCoord y;
-    struct TbSprite* spr;
+    const struct TbSprite* spr;
     int ps_units_per_px;
     {
-        spr = &gui_panel_sprites[488];
+        spr = get_panel_sprite(488);
         ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
         y = MyScreenHeight - scale_ui_value_lofi(spr->SHeight * 2);
     }
@@ -129,7 +129,7 @@ static void draw_creature_view_icons(struct Thing* creatng)
                 lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
                 lbDisplay.DrawColour = LbTextGetFontFaceColor();
                 lbDisplayEx.ShadowColour = LbTextGetFontBackColor();
-                char* text = buf_sprintf("%d", (cctrl->timebomb_countdown / game_num_fps));
+                char* text = buf_sprintf("%lu", (cctrl->timebomb_countdown / game_num_fps));
                 LbTextDrawResized(0, 0, tx_units_per_px, text);
             }
             draw_gui_panel_sprite_left(x, y, ps_units_per_px, spridx);
@@ -450,7 +450,7 @@ void set_sprite_view_3d(void)
         struct Thing* thing = thing_get(i);
         if (thing_exists(thing))
         {
-            if (thing_is_creature(thing) || ((thing->rendering_flags & TRF_Unknown01) == 0))
+            if (thing_is_creature(thing) || ((thing->rendering_flags & TRF_Invisible) == 0))
             {
                 int n = straight_iso_td(thing->anim_sprite);
                 if (n >= 0)
@@ -459,7 +459,7 @@ void set_sprite_view_3d(void)
                     long nframes = keepersprite_frames(thing->anim_sprite);
                     if (nframes != thing->max_frames)
                     {
-                        ERRORLOG("No frames different between views C%d, M%d, A%d, B%d",thing->class_id,thing->model,thing->max_frames,nframes);
+                        ERRORLOG("No frames different between views C%u, M%d, A%u, B%ld",thing->class_id,thing->model,thing->max_frames,nframes);
                         thing->max_frames = nframes;
                         n = thing->max_frames - 1;
                         if (n > thing->current_frame) {
@@ -481,7 +481,7 @@ void set_sprite_view_isometric(void)
         struct Thing* thing = thing_get(i);
         if (thing_exists(thing))
         {
-            if (thing_is_creature(thing) || ((thing->rendering_flags & TRF_Unknown01) == 0))
+            if (thing_is_creature(thing) || ((thing->rendering_flags & TRF_Invisible) == 0))
             {
                 int n = straight_td_iso(thing->anim_sprite);
                 if (n >= 0)
@@ -490,7 +490,7 @@ void set_sprite_view_isometric(void)
                     long nframes = keepersprite_frames(thing->anim_sprite);
                     if (nframes != thing->max_frames)
                     {
-                        ERRORLOG("No frames different between views C%d, M%d, A%d, B%d",thing->class_id,thing->model,thing->max_frames,nframes);
+                        ERRORLOG("No frames different between views C%u, M%d, A%u, B%ld",thing->class_id,thing->model,thing->max_frames,nframes);
                         thing->max_frames = nframes;
                         n = thing->max_frames - 1;
                         if (n > thing->current_frame) {
@@ -542,6 +542,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
         if (!is_my_player(player))
             break;
         lens_mode = 0;
+        // no need to set temp_cluedo_mode here; it's done in update_engine_settings
         set_sprite_view_isometric();
         S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
         S3DSetDeadzoneRadius(1280);
@@ -562,6 +563,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
         if (!is_my_player(player))
             break;
         lens_mode = 0;
+        temp_cluedo_mode = 0;
         set_sprite_view_isometric();
         S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
         S3DSetDeadzoneRadius(1280);
@@ -846,8 +848,7 @@ TbBool draw_spell_cursor(PlayerState wrkstate, ThingIndex tng_idx, MapSubtlCoord
         {
             i = get_power_overcharge_level(player);
             set_pointer_graphic(MousePG_SpellCharge0+i);
-            const struct MagicStats* pwrdynst = get_power_dynamic_stats(pwkind);
-            draw_spell_cost = pwrdynst->cost[i];
+            draw_spell_cost = compute_power_price(player->id_number, pwkind, i);
             return true;
         }
     }
@@ -974,7 +975,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     case PsPg_Query:
         set_pointer_graphic(MousePG_Query);
         break;
-    case PSt_PlaceTrap:
+    case PsPg_PlaceTrap:
         i = get_place_trap_pointer_graphics(player->chosen_trap_kind);
         set_pointer_graphic(i);
         break;
@@ -1112,7 +1113,7 @@ void redraw_display(void)
         LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
         lbDisplay.DrawFlags = 0;
         LbTextSetFont(winfont);
-        text = buf_sprintf("%d", draw_spell_cost);
+        text = buf_sprintf("%ld", draw_spell_cost);
         long pos_y = GetMouseY() - (LbTextStringHeight(text) * units_per_pixel / 16) / 2 - 2 * units_per_pixel / 16;
         long pos_x = GetMouseX() - (LbTextStringWidth(text) * units_per_pixel / 16) / 2;
         LbTextDrawResized(pos_x, pos_y, tx_units_per_px, text);

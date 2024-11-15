@@ -94,6 +94,9 @@ const long definable_key_string[] = {
     GUIStr_RoomSpaceIncrease,
     GUIStr_RoomSpaceDecrease,
     GUIStr_SellTrapOnSubtile,
+    GUIStr_CtrlTiltUp,
+    GUIStr_CtrlTiltDown,
+    GUIStr_CtrlTiltReset,
 };
 
 long fe_mouse_sensitivity;
@@ -128,7 +131,7 @@ void frontend_define_key_down_maintain(struct GuiButton *gbtn)
 
 void frontend_define_key_maintain(struct GuiButton *gbtn)
 {
-    long key_id = define_key_scroll_offset - ((long)gbtn->content) - 1;
+    long key_id = define_key_scroll_offset - (gbtn->content.lval) - 1;
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (key_id < GAME_KEYS_COUNT)) & LbBtnF_Enabled;
 }
 
@@ -153,7 +156,7 @@ void frontend_define_key_scroll(struct GuiButton *gbtn)
 
 void frontend_define_key(struct GuiButton *gbtn)
 {
-    long key_id = define_key_scroll_offset - ((long)gbtn->content) - 1;
+    long key_id = define_key_scroll_offset - (gbtn->content.lval) - 1;
     defining_a_key = 1;
     defining_a_key_id = key_id;
     lbInkey = 0;
@@ -166,7 +169,7 @@ void frontend_draw_define_key_scroll_tab(struct GuiButton *gbtn)
 
 void frontend_draw_define_key(struct GuiButton *gbtn)
 {
-    long content = (long)gbtn->content;
+    long content = gbtn->content.lval;
     long key_id = define_key_scroll_offset - content - 1;
     if (key_id >= GAME_KEYS_COUNT) {
         return;
@@ -208,6 +211,7 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     unsigned char code = settings.kbkeys[key_id].code;
     const char* keytext;
     char chbuf[2];
+    char mouse_button_label[255] = "";
     switch (code)
     {
       case KC_LSHIFT:
@@ -232,7 +236,6 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
       case KC_MOUSE2:
       case KC_MOUSE1:
       {
-        char mouse_button_label[255] = "";
         const char* mouse_gui_string = get_string(key_to_string[(long)code]);
         int mouse_button_number = (KC_MOUSE1 + 1 - code);
         char mouse_button_number_string[8];
@@ -296,13 +299,13 @@ int make_audio_slider_linear(int a)
 {
     float scaled = fastPow(a / 127.0, 0.5);
     float clamped = max(min(scaled, 1.0), 0.0);
-    return CEILING(lerp(0, 127, clamped));
+    return CEILING(LbLerp(0, 127, clamped));
 }
 int make_audio_slider_nonlinear(int a)
 {
     float scaled = fastPow(a / 127.0, 2.00);
     float clamped = max(min(scaled, 1.0), 0.0);
-    return CEILING(lerp(0, 127, clamped));
+    return CEILING(LbLerp(0, 127, clamped));
 }
 
 void gui_set_sound_volume(struct GuiButton *gbtn)

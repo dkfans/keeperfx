@@ -12,45 +12,46 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "lvl_script_commands.h"
-
-#include "lvl_script_conditions.h"
-#include "lvl_script_lib.h"
-
 #include <math.h>
 #include <string.h>
 
-#include "dungeon_data.h"
-#include "thing_data.h"
-#include "player_instances.h"
-#include "keeperfx.hpp"
-#include "custom_sprites.h"
-#include "gui_soundmsgs.h"
-#include "config_magic.h"
-#include "config_settings.h"
+#include "bflib_memory.h"
+#include "bflib_sound.h"
 #include "config_effects.h"
-#include "config_trapdoor.h"
-#include "config_powerhands.h"
+#include "config_magic.h"
 #include "config_players.h"
-#include "frontmenu_ingame_map.h"
-#include "thing_effects.h"
-#include "thing_physics.h"
-#include "thing_navigate.h"
+#include "config_powerhands.h"
+#include "config_settings.h"
+#include "config_spritecolors.h"
+#include "config_trapdoor.h"
 #include "console_cmd.h"
-#include "creature_states_pray.h"
-#include "creature_states_mood.h"
-#include "room_util.h"
 #include "creature_instances.h"
+#include "creature_states.h"
+#include "creature_states_mood.h"
+#include "creature_states_pray.h"
+#include "custom_sprites.h"
+#include "dungeon_data.h"
+#include "frontmenu_ingame_map.h"
+#include "gui_soundmsgs.h"
+#include "keeperfx.hpp"
+#include "lvl_script_commands.h"
+#include "lvl_script_conditions.h"
+#include "lvl_script_lib.h"
+#include "map_blocks.h"
+#include "music_player.h"
+#include "player_instances.h"
+#include "player_utils.h"
 #include "power_hand.h"
 #include "power_specials.h"
-#include "creature_states.h"
-#include "map_blocks.h"
-#include "bflib_memory.h"
-#include "post_inc.h"
-#include "music_player.h"
-#include "bflib_sound.h"
-#include "config_spritecolors.h"
+#include "room_util.h"
 #include "sounds.h"
+#include "spdigger_stack.h"
+#include "thing_data.h"
+#include "thing_effects.h"
+#include "thing_navigate.h"
+#include "thing_physics.h"
+
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -85,9 +86,18 @@ const struct NamedCommand controls_variable_desc[] = {
     {"TOTAL_DIGGERS",               SVar_CONTROLS_TOTAL_DIGGERS},
     {"TOTAL_CREATURES",             SVar_CONTROLS_TOTAL_CREATURES},
     {"TOTAL_DOORS",                 SVar_TOTAL_DOORS},
+    {"TOTAL_TRAPS",                 SVar_TOTAL_TRAPS},
     {"TOTAL_AREA",                  SVar_TOTAL_AREA},
     {"GOOD_CREATURES",              SVar_CONTROLS_GOOD_CREATURES},
     {"EVIL_CREATURES",              SVar_CONTROLS_EVIL_CREATURES},
+    {NULL,                           0},
+};
+
+const struct NamedCommand available_variable_desc[] = {
+    {"TOTAL_CREATURES",             SVar_AVAILABLE_TOTAL_CREATURES},
+    {"TOTAL_DOORS",                 SVar_AVAILABLE_TOTAL_DOORS},
+    {"TOTAL_TRAPS",                 SVar_AVAILABLE_TOTAL_TRAPS},
+    {"TOTAL_AREA",                  SVar_TOTAL_AREA},
     {NULL,                           0},
 };
 
@@ -250,7 +260,14 @@ const struct NamedCommand trap_config_desc[] = {
   {"AttackAnimationID",   40},
   {"DestroyedEffect",     41},
   {"InitialDelay",        42},
-  {NULL,                   0},
+  {"PlaceOnSubtile",      43},
+  {"FlameAnimationID",       44},
+  {"FlameAnimationSpeed",    45},
+  {"FlameAnimationSize",     46},
+  {"FlameAnimationOffset",   47},
+  {"FlameTransparencyFlags", 48},
+  {"DetectInvisible",        49},
+  {NULL,                      0},
 };
 
 const struct NamedCommand room_config_desc[] = {
@@ -276,7 +293,7 @@ const struct NamedCommand room_config_desc[] = {
 
 
 static const struct NamedField rules_script_only_named_fields[] = {
-    //name            //field                //field type                   //min //max     
+    //name            //field                //field type                   //min //max
   {"PayDayProgress",&game.pay_day_progress,var_type(game.pay_day_progress),0,LONG_MAX},
   {NULL,                            NULL,0,0,0 },
 };
@@ -287,6 +304,7 @@ rules_creatures_named_fields,rules_computer_named_fields,rules_workers_named_fie
 static const struct NamedCommand game_rule_desc[] = {
   {"PreserveClassicBugs",            1},
   {"AlliesShareVision",              2},
+  {"MapCreatureLimit",               3},
   {NULL,                             0},
 };
 
@@ -368,6 +386,7 @@ const struct NamedCommand variable_desc[] = {
     {"TOTAL_CREATURES",             SVar_TOTAL_CREATURES},
     {"TOTAL_RESEARCH",              SVar_TOTAL_RESEARCH},
     {"TOTAL_DOORS",                 SVar_TOTAL_DOORS},
+    {"TOTAL_TRAPS",                 SVar_TOTAL_TRAPS},
     {"TOTAL_AREA",                  SVar_TOTAL_AREA},
     {"TOTAL_CREATURES_LEFT",        SVar_TOTAL_CREATURES_LEFT},
     {"CREATURES_ANNOYED",           SVar_CREATURES_ANNOYED},
@@ -417,6 +436,7 @@ const struct NamedCommand variable_desc[] = {
     {"BONUS_TIME",                  SVar_BONUS_TIME},
     {"CREATURES_TRANSFERRED",       SVar_CREATURES_TRANSFERRED},
     {"ACTIVE_BATTLES",              SVar_ACTIVE_BATTLES},
+    {"VIEW_TYPE",                   SVar_VIEW_TYPE},
     {NULL,                           0},
 };
 
@@ -486,7 +506,7 @@ const struct NamedCommand texture_pack_desc[] = {
   {NULL,           0},
 };
 
-Mix_Chunk* Ext_Sounds[];
+Mix_Chunk* Ext_Sounds[EXTERNAL_SOUNDS_COUNT + 1];
 
 static int sac_compare_fn(const void *ptr_a, const void *ptr_b)
 {
@@ -539,7 +559,7 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
         }
         i = cctrl->players_next_creature_idx;
         // Per creature code
-       
+
         if (thing_matches_model(thing,crmodel))
         {
             i = cctrl->players_next_creature_idx;
@@ -694,16 +714,21 @@ TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
             // activateD
             *varib_type = SVar_BOX_ACTIVATED;
         }
-        else
+        else if (2 == sscanf(varib_name, "KEEPERS_DESTROYED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
         {
-            *varib_id = -1;
+            *varib_id = get_id(player_desc, arg);
+            if (*varib_id == -1)
+            {
+                *varib_id = get_id(cmpgn_human_player_options, arg);
+            }
+            *varib_type = SVar_DESTROYED_KEEPER;
         }
-        if (2 == sscanf(varib_name, "SACRIFICED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
+        else if (2 == sscanf(varib_name, "SACRIFICED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
         {
             *varib_id = get_id(creature_desc, arg);
             *varib_type = SVar_SACRIFICED;
         }
-        if (2 == sscanf(varib_name, "REWARDED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
+        else if (2 == sscanf(varib_name, "REWARDED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
         {
             *varib_id = get_id(creature_desc, arg);
             *varib_type = SVar_REWARDED;
@@ -826,10 +851,10 @@ static void display_objective_process(struct ScriptContext *context)
 {
     if ( (my_player_number >= context->plr_start) && (my_player_number < context->plr_end) )
     {
-        set_general_objective(context->value->arg0,
-        context->value->arg1,
-        stl_num_decode_x(context->value->arg2),
-        stl_num_decode_y(context->value->arg2));
+        set_general_objective(context->value->longs[0],
+        context->value->longs[1],
+        stl_num_decode_x(context->value->longs[2]),
+        stl_num_decode_y(context->value->longs[2]));
     }
 }
 
@@ -851,7 +876,7 @@ static void conceal_map_rect_check(const struct ScriptLine *scline)
     {
         SCRPTWRNLOG("Hide value \"%s\" not recognized", scline->tp[5]);
     }
-    
+
     MapSubtlCoord x = scline->np[1];
     MapSubtlCoord y = scline->np[2];
     MapSubtlDelta width = scline->np[3];
@@ -864,7 +889,8 @@ static void conceal_map_rect_check(const struct ScriptLine *scline)
 
     if ((start_x < 0) || (end_x > gameadd.map_subtiles_x) || (start_y < 0) || (end_y > gameadd.map_subtiles_y))
     {
-        SCRPTERRLOG("Conceal coordinates out of range, trying to conceal from (%d,%d) to (%d,%d) on map that's %dx%d subtiles", start_x, start_y, end_x, end_y, gameadd.map_subtiles_x, gameadd.map_subtiles_y);
+        SCRPTERRLOG("Conceal coordinates out of range, trying to conceal from (%ld,%ld) to (%ld,%ld) on map that's %ldx%ld subtiles",
+            start_x, start_y, end_x, end_y, gameadd.map_subtiles_x, gameadd.map_subtiles_y);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -875,7 +901,7 @@ static void conceal_map_rect_check(const struct ScriptLine *scline)
     value->shorts[3] = start_y;
     value->shorts[4] = end_y;
     value->shorts[5] = conceal_all;
-    
+
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -886,7 +912,7 @@ static void conceal_map_rect_process(struct ScriptContext *context)
     MapSubtlCoord start_y = context->value->shorts[3];
     MapSubtlCoord end_y = context->value->shorts[4];
     TbBool conceal_all = context->value->shorts[5];
-    
+
     conceal_map_area(context->player_idx, start_x, end_x, start_y, end_y, conceal_all);
 }
 
@@ -912,14 +938,14 @@ static int script_transfer_creature(PlayerNumber plyr_idx, ThingModel crmodel, l
             SYNCDBG(5, "No matching player %d creature of model %d found to transfer.", (int)plyr_idx, (int)crmodel);
             break;
         }
-        
+
         if (add_transfered_creature(plyr_idx, thing->model, cctrl->explevel, cctrl->creature_name))
         {
             transferred++;
             dungeon = get_dungeon(plyr_idx);
             dungeon->creatures_transferred++;
             remove_thing_from_power_hand_list(thing, plyr_idx);
-            struct SpecialConfigStats* specst = get_special_model_stats(SpcKind_Resurrect);
+            struct SpecialConfigStats* specst = get_special_model_stats(SpcKind_TrnsfrCrtr);
             create_used_effect_or_element(&thing->mappos, specst->effect_id, plyr_idx);
             kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects | CrDed_NotReallyDying);
         }
@@ -966,7 +992,7 @@ static void script_transfer_creature_check(const struct ScriptLine* scline)
     }
     if (count > 255)
     {
-        SCRPTWRNLOG("Trying to transfer %d creatures out of a possible 255",count);
+        SCRPTWRNLOG("Trying to transfer %ld creatures out of a possible 255",count);
         count = 255;
     }
     command_add_value(Cmd_TRANSFER_CREATURE, scline->np[0], crtr_id, select_id, count);
@@ -976,7 +1002,7 @@ static void script_transfer_creature_process(struct ScriptContext* context)
 {
     for (int i = context->plr_start; i < context->plr_end; i++)
     {
-        script_transfer_creature(i, context->value->arg0, context->value->arg1, context->value->arg2);
+        script_transfer_creature(i, context->value->longs[0], context->value->longs[1], context->value->longs[2]);
     }
 }
 
@@ -1001,7 +1027,7 @@ static void change_creatures_annoyance_process(struct ScriptContext* context)
 {
     for (int i = context->plr_start; i < context->plr_end; i++)
     {
-        script_change_creatures_annoyance(i, context->value->arg0, context->value->arg1, context->value->arg2);
+        script_change_creatures_annoyance(i, context->value->longs[0], context->value->longs[1], context->value->longs[2]);
     }
 }
 
@@ -1030,7 +1056,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
 
     value->shorts[0] = trap_id;
     value->shorts[1] = trapvar;
-    value->uarg1 = scline->np[2];
+    value->ulongs[1] = scline->np[2];
     value->shorts[4] = scline->np[3];
     value->shorts[5] = scline->np[4];
     if (trapvar == 3) // SymbolSprites
@@ -1040,10 +1066,10 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
         strcpy(tmp, scline->tp[2]);
         strcat(tmp, "|");
         strcat(tmp,scline->tp[3]);
-        value->str2 = script_strdup(tmp); // first\0second
-        value->str2[strlen(scline->tp[2])] = 0;
+        value->strs[2] = script_strdup(tmp); // first\0second
+        value->strs[2][strlen(scline->tp[2])] = 0;
         free(tmp);
-        if (value->str2 == NULL)
+        if (value->strs[2] == NULL)
         {
             SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
@@ -1059,7 +1085,14 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
-        value->uarg1 = newvalue;
+        value->ulongs[1] = newvalue;
+    }
+    else if (trapvar == 46) //FlameAnimationOffset
+    {
+        value->chars[8] = atoi(scline->tp[2]);
+        value->chars[9] = scline->np[3];
+        value->chars[10] = scline->np[4];
+        value->chars[11] = scline->np[5];
     }
     else if ((trapvar != 4) && (trapvar != 12) && (trapvar != 39) && (trapvar != 40))  // PointerSprites && AnimationIDs
     {
@@ -1068,7 +1101,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
             newvalue = atoi(valuestring);
             if ((newvalue > LONG_MAX) || (newvalue < 0))
             {
-                SCRPTERRLOG("Value out of range: %d", newvalue);
+                SCRPTERRLOG("Value out of range: %ld", newvalue);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
@@ -1083,7 +1116,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->uarg1 = newvalue;
+            value->ulongs[1] = newvalue;
         }
         else
         {
@@ -1094,8 +1127,8 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
     }
     else
     {
-        value->str2 = script_strdup(scline->tp[2]);
-        if (value->str2 == NULL)
+        value->strs[2] = script_strdup(scline->tp[2]);
+        if (value->strs[2] == NULL)
         {
             SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
@@ -1143,10 +1176,10 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
         strcpy(tmp, scline->tp[2]);
         strcat(tmp, "|");
         strcat(tmp,scline->tp[3]);
-        value->str2 = script_strdup(tmp); // first\0second
-        value->str2[strlen(scline->tp[2])] = 0;
+        value->strs[2] = script_strdup(tmp); // first\0second
+        value->strs[2][strlen(scline->tp[2])] = 0;
         free(tmp);
-        if (value->str2 == NULL)
+        if (value->strs[2] == NULL)
         {
             SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
@@ -1160,13 +1193,13 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             newvalue = atoi(valuestring);
             if ((newvalue > 32) || (newvalue < 0))
             {
-                SCRPTERRLOG("Value out of range: %d", newvalue);
+                SCRPTERRLOG("Value out of range: %ld", newvalue);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
             value->shorts[2] = newvalue;
         }
-        else 
+        else
         {
             SCRPTERRLOG("Room property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
             DEALLOCATE_SCRIPT_VALUE
@@ -1202,13 +1235,13 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             newvalue = atoi(valuestring);
             if ((newvalue >= RoCFlg_ListEnd) || (newvalue < 0))
             {
-                SCRPTERRLOG("Value out of range: %d", newvalue);
+                SCRPTERRLOG("Value out of range: %ld", newvalue);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
             value->shorts[2] = newvalue;
         }
-        else 
+        else
         {
             newvalue = get_id(terrain_room_properties_commands, valuestring);
             if (newvalue == -1)
@@ -1227,13 +1260,13 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             newvalue = atoi(valuestring);
             if ((newvalue > 33554431) || (newvalue < 0))
             {
-                SCRPTERRLOG("Value out of range: %d", newvalue);
+                SCRPTERRLOG("Value out of range: %ld", newvalue);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->uarg1 = newvalue;
+            value->ulongs[1] = newvalue;
         }
-        else 
+        else
         {
             newvalue = get_id(room_roles_desc, valuestring);
             if (newvalue == -1)
@@ -1242,18 +1275,18 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
                     DEALLOCATE_SCRIPT_VALUE
                         return;
                 }
-            value->uarg1 = newvalue;
+            value->ulongs[1] = newvalue;
         }
         if (parameter_is_number(valuestring2))
         {
             newvalue2 = atoi(valuestring2);
             if ((newvalue2 > 33554431) || (newvalue2 < 0))
             {
-                SCRPTERRLOG("Value out of range: %d", newvalue2);
+                SCRPTERRLOG("Value out of range: %ld", newvalue2);
                 DEALLOCATE_SCRIPT_VALUE
                     return;
             }
-            value->uarg2 = newvalue2;
+            value->ulongs[2] = newvalue2;
         }
         else
         {
@@ -1264,7 +1297,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
                 DEALLOCATE_SCRIPT_VALUE
                     return;
             }
-            value->uarg2 = newvalue2;
+            value->ulongs[2] = newvalue2;
         }
     }
     else if (roomvar == 14) // TotalCapacity
@@ -1305,13 +1338,13 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             newvalue = atoi(valuestring);
             if ((newvalue > SHRT_MAX) || (newvalue < 0))
             {
-                SCRPTERRLOG("Value out of range: %d", newvalue);
+                SCRPTERRLOG("Value out of range: %ld", newvalue);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
             value->shorts[2] = newvalue;
         }
-        else 
+        else
         {
             SCRPTERRLOG("Room property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
             DEALLOCATE_SCRIPT_VALUE
@@ -1320,8 +1353,8 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
     }
     else // PointerSprites
     {
-        value->str2 = script_strdup(scline->tp[2]);
-        if (value->str2 == NULL)
+        value->strs[2] = script_strdup(scline->tp[2]);
+        if (value->strs[2] == NULL)
         {
             SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
@@ -1411,7 +1444,7 @@ static void move_creature_check(const struct ScriptLine* scline)
     long count = scline->np[3];
     if (count <= 0)
     {
-        SCRPTERRLOG("Bad creatures count, %d", count);
+        SCRPTERRLOG("Bad creatures count, %ld", count);
         return;
     }
 
@@ -1444,8 +1477,8 @@ static void move_creature_check(const struct ScriptLine* scline)
     {
         effct_id = -1;
     }
-    value->uarg0 = location;
-    value->arg1 = select_id;
+    value->ulongs[0] = location;
+    value->longs[1] = select_id;
     value->shorts[4] = effct_id;
     value->bytes[10] = count;
     value->bytes[11] = crmodel;
@@ -1499,7 +1532,7 @@ static void new_creature_type_check(const struct ScriptLine* scline)
 
     if (load_creaturemodel_config(i, 0))
     {
-        SCRPTLOG("Adding creature type %s and increasing creature types to %d", creature_code_name(i), game.conf.crtr_conf.model_count - 1);
+        SCRPTLOG("Adding creature type %s and increasing creature types to %ld", creature_code_name(i), game.conf.crtr_conf.model_count - 1);
     }
     else
     {
@@ -1515,7 +1548,7 @@ static void new_room_type_check(const struct ScriptLine* scline)
         return;
     }
 
-    SCRPTLOG("Adding room type %s and increasing 'RoomsCount to %d", scline->tp[0], game.conf.slab_conf.room_types_count + 1);
+    SCRPTLOG("Adding room type %s and increasing 'RoomsCount to %ld", scline->tp[0], game.conf.slab_conf.room_types_count + 1);
     game.conf.slab_conf.room_types_count++;
 
     struct RoomConfigStats* roomst;
@@ -1550,7 +1583,7 @@ static void new_object_type_check(const struct ScriptLine* scline)
         return;
     }
 
-    SCRPTLOG("Adding object type %s and increasing 'ObjectsCount to %d", scline->tp[0], game.conf.object_conf.object_types_count + 1);
+    SCRPTLOG("Adding object type %s and increasing 'ObjectsCount to %ld", scline->tp[0], game.conf.object_conf.object_types_count + 1);
     game.conf.object_conf.object_types_count++;
 
     int tmodel = game.conf.object_conf.object_types_count -1;
@@ -1572,13 +1605,10 @@ static void new_trap_type_check(const struct ScriptLine* scline)
         SCRPTERRLOG("Cannot increase trap count for trap type '%s', already at maximum %d traps.", scline->tp[0], TRAPDOOR_TYPES_MAX);
         return;
     }
-
-    SCRPTLOG("Adding trap type %s and increasing 'TrapsCount to %d", scline->tp[0], game.conf.trapdoor_conf.trap_types_count + 1);
+    SCRPTLOG("Adding trap type %s and increasing 'TrapsCount to %ld", scline->tp[0], game.conf.trapdoor_conf.trap_types_count + 1);
     game.conf.trapdoor_conf.trap_types_count++;
-
     short i = game.conf.trapdoor_conf.trap_types_count-1;
-
-    struct TrapConfigStats* trapst = &game.conf.trapdoor_conf.trap_cfgstats[i];
+    struct TrapConfigStats *trapst = get_trap_model_stats(i);
     LbMemorySet(trapst->code_name, 0, COMMAND_WORD_LEN);
     snprintf(trapst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
     trapst->name_stridx = GUIStr_Empty;
@@ -1587,47 +1617,51 @@ static void new_trap_type_check(const struct ScriptLine* scline)
     trapst->medsym_sprite_idx = 0;
     trapst->pointer_sprite_idx = 0;
     trapst->panel_tab_idx = 0;
-    trapst->hidden = 0;
+    trapst->manufct_level = 0;
+    trapst->manufct_required = 0;
+    trapst->shots = 0;
+    trapst->shots_delay = 0;
+    trapst->initial_delay = 0;
+    trapst->trigger_type = 0;
+    trapst->activation_type = 0;
+    trapst->created_itm_model = 0;
+    trapst->hit_type = 0;
+    trapst->hidden = true;
     trapst->slappable = 0;
-    trapst->destructible = 0;
-    trapst->unstable = 0;
-    trapst->unsellable = false;
+    trapst->detect_invisible = true;
     trapst->notify = false;
     trapst->place_on_bridge = false;
     trapst->place_on_subtile = false;
-    trapst->place_sound_idx = 117; 
-    trapst->trigger_sound_idx = 176;
+    trapst->health = 1;
+    trapst->destructible = 0;
+    trapst->unstable = 0;
     trapst->destroyed_effect = -39;
-
-    game.conf.trap_stats[i].health = 0;
-    game.conf.trap_stats[i].sprite_anim_idx = 0;
-    game.conf.trap_stats[i].sprite_size_max = 0;
-    game.conf.trap_stats[i].unanimated = 0;
-    game.conf.trap_stats[i].anim_speed = 0;
-    game.conf.trap_stats[i].unshaded = 0;
-    game.conf.trap_stats[i].transparency_flag = 0;
-    game.conf.trap_stats[i].random_start_frame = 0;
-    game.conf.trap_stats[i].size_xy = 0;
-    game.conf.trap_stats[i].size_z = 0;
-    game.conf.trap_stats[i].trigger_type = 0;
-    game.conf.trap_stats[i].activation_type = 0;
-    game.conf.trap_stats[i].created_itm_model = 0;
-    game.conf.trap_stats[i].hit_type = 0;
-    game.conf.trap_stats[i].light_radius = 0;
-    game.conf.trap_stats[i].light_intensity = 0;
-    game.conf.trap_stats[i].light_flag = 0;
-    game.conf.trap_stats[i].shotvector.x = 0;
-    game.conf.trap_stats[i].shotvector.y = 0;
-    game.conf.trap_stats[i].shotvector.z = 0;
+    trapst->size_xy = 0;
+    trapst->size_z = 0;
+    trapst->sprite_anim_idx = 0;
+    trapst->attack_sprite_anim_idx = 0;
+    trapst->recharge_sprite_anim_idx = 0;
+    trapst->sprite_size_max = 0;
+    trapst->anim_speed = 0;
+    trapst->unanimated = 0;
+    trapst->unshaded = 0;
+    trapst->random_start_frame = 0;
+    trapst->light_radius = 0;
+    trapst->light_intensity = 0;
+    trapst->light_flag = 0;
+    trapst->transparency_flag = 0;
+    trapst->shot_shift_x = 0;
+    trapst->shot_shift_y = 0;
+    trapst->shot_shift_z = 0;
+    trapst->shotvector.x = 0;
+    trapst->shotvector.y = 0;
+    trapst->shotvector.z = 0;
+    trapst->selling_value = 0;
+    trapst->unsellable = false;
+    trapst->place_sound_idx = 117;
+    trapst->trigger_sound_idx = 176;
     trap_desc[i].name = trapst->code_name;
     trap_desc[i].num = i;
-    struct ManfctrConfig* mconf = &game.conf.traps_config[i];
-    mconf->manufct_level = 0;
-    mconf->manufct_required = 0;
-    mconf->shots = 0;
-    mconf->shots_delay = 0;
-    mconf->selling_value = 0;
-
     create_manufacture_array_from_trapdoor_data();
 }
 
@@ -1635,6 +1669,8 @@ void refresh_trap_anim(long trap_id)
 {
     int k = 0;
     const struct StructureList* slist = get_list_for_thing_class(TCls_Trap);
+    struct TrapConfigStats *trapst_old = get_trap_model_stats(trap_id);
+    struct TrapConfigStats *trapst_new;
     int i = slist->index;
     while (i != 0)
     {
@@ -1645,28 +1681,28 @@ void refresh_trap_anim(long trap_id)
             break;
         }
         i = traptng->next_of_class;
-        // Per thing code
+        // Per thing code.
         if (traptng->model == trap_id)
         {
-            if ((traptng->trap.wait_for_rearm == true) || (game.conf.trap_stats[trap_id].recharge_sprite_anim_idx == 0))
+            if ((traptng->trap.wait_for_rearm == true) || (trapst_old->recharge_sprite_anim_idx == 0))
             {
-                traptng->anim_sprite = game.conf.trap_stats[trap_id].sprite_anim_idx;
+                traptng->anim_sprite = trapst_old->sprite_anim_idx;
             }
-            else 
+            else
             {
-                traptng->anim_sprite = game.conf.trap_stats[trap_id].recharge_sprite_anim_idx;
+                traptng->anim_sprite = trapst_old->recharge_sprite_anim_idx;
             }
-            struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
+            trapst_new = get_trap_model_stats(traptng->model);
             char start_frame;
-            if (trapstat->random_start_frame) {
+            if (trapst_new->random_start_frame) {
                 start_frame = -1;
             }
             else {
                 start_frame = 0;
             }
-            set_thing_draw(traptng, trapstat->sprite_anim_idx, trapstat->anim_speed, trapstat->sprite_size_max, trapstat->unanimated, start_frame, ODC_Default);
+            set_thing_draw(traptng, trapst_new->sprite_anim_idx, trapst_new->anim_speed, trapst_new->sprite_size_max, trapst_new->unanimated, start_frame, ODC_Default);
         }
-        // Per thing code ends
+        // Per thing code ends.
         k++;
         if (k > slist->index)
         {
@@ -1679,12 +1715,10 @@ void refresh_trap_anim(long trap_id)
 static void set_trap_configuration_process(struct ScriptContext *context)
 {
     long trap_type = context->value->shorts[0];
-    struct TrapConfigStats *trapst = &game.conf.trapdoor_conf.trap_cfgstats[trap_type];
-    struct ManfctrConfig *mconf = &game.conf.traps_config[trap_type];
-    struct TrapStats* trapstat = &game.conf.trap_stats[trap_type];
+    struct TrapConfigStats *trapst = get_trap_model_stats(trap_type);
     struct ManufactureData *manufctr = get_manufacture_data(trap_type);
     struct ObjectConfigStats obj_tmp;
-    long value = context->value->uarg1;
+    long value = context->value->ulongs[1];
     short value2 = context->value->shorts[4];
     short value3 = context->value->shorts[5];
     int old_value, old_value2;
@@ -1706,8 +1740,8 @@ static void set_trap_configuration_process(struct ScriptContext *context)
         {
             old_value = trapst->medsym_sprite_idx;
             old_value2 = trapst->bigsym_sprite_idx;
-            trapst->bigsym_sprite_idx = get_icon_id(context->value->str2); // First
-            trapst->medsym_sprite_idx = get_icon_id(context->value->str2 + strlen(context->value->str2) + 1); // Second
+            trapst->bigsym_sprite_idx = get_icon_id(context->value->strs[2]); // First
+            trapst->medsym_sprite_idx = get_icon_id(context->value->strs[2] + strlen(context->value->strs[2]) + 1); // Second
             if (trapst->bigsym_sprite_idx < 0)
                 trapst->bigsym_sprite_idx = bad_icon_id;
             if (trapst->medsym_sprite_idx < 0)
@@ -1722,7 +1756,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 4: // PointerSprites
             old_value = trapst->pointer_sprite_idx;
-            trapst->pointer_sprite_idx = get_icon_id(context->value->str2);
+            trapst->pointer_sprite_idx = get_icon_id(context->value->strs[2]);
             if (trapst->pointer_sprite_idx < 0)
                 trapst->pointer_sprite_idx = bad_icon_id;
             if (trapst->pointer_sprite_idx != old_value)
@@ -1745,40 +1779,40 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             game.conf.trapdoor_conf.trap_to_object[trap_type] = value;
             break;
         case 7: // ManufactureLevel
-            mconf->manufct_level = value;
+            trapst->manufct_level = value;
             break;
         case 8: // ManufactureRequired
-            mconf->manufct_required = value;
+            trapst->manufct_required = value;
             break;
         case 9: // Shots
-            mconf->shots = value;
+            trapst->shots = value;
             break;
         case 10: // TimeBetweenShots
-            mconf->shots_delay = value;
+            trapst->shots_delay = value;
             break;
         case 11: // SellingValue
-            mconf->selling_value = value;
+            trapst->selling_value = value;
             break;
         case 12: // AnimationID
-            trapstat->sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
+            trapst->sprite_anim_idx = get_anim_id_(context->value->strs[2]);
             refresh_trap_anim(trap_type);
             break;
         case 13: // ModelSize
-            trapstat->sprite_size_max = value;
+            trapst->sprite_size_max = value;
             refresh_trap_anim(trap_type);
             break;
         case 14: // AnimationSpeed
-            trapstat->anim_speed = value;
+            trapst->anim_speed = value;
             refresh_trap_anim(trap_type);
             break;
         case 15: // TriggerType
-            trapstat->trigger_type = value;
+            trapst->trigger_type = value;
             break;
         case 16: // ActivationType
-            trapstat->activation_type = value;
+            trapst->activation_type = value;
             break;
         case 17: // EffectType
-            trapstat->created_itm_model = value;
+            trapst->created_itm_model = value;
             break;
         case 18: // Hidden
             trapst->hidden = value;
@@ -1790,41 +1824,41 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             trapst->slappable = value;
             break;
         case 21: // Unanimated
-            trapstat->unanimated = value;
+            trapst->unanimated = value;
             refresh_trap_anim(trap_type);
             break;
         case 22: // Health
-            trapstat->health = value;
+            trapst->health = value;
             break;
         case 23: // Unshaded
-            trapstat->unshaded = value;
+            trapst->unshaded = value;
             break;
         case 24: // RandomStartFrame
-            trapstat->random_start_frame = value;
+            trapst->random_start_frame = value;
             break;
         case 25: // ThingSize
-            trapstat->size_xy = value; // First
-            trapstat->size_z = value2; // Second
+            trapst->size_xy = value; // First
+            trapst->size_z = value2; // Second
             break;
         case 26: // HitType
-            trapstat->hit_type = value;
+            trapst->hit_type = value;
             break;
         case 27: // LightRadius
-            trapstat->light_radius = value * COORD_PER_STL;
+            trapst->light_radius = value * COORD_PER_STL;
             break;
         case 28: // LightIntensity
-            trapstat->light_intensity = value;
+            trapst->light_intensity = value;
             break;
         case 29: // LightFlags
-            trapstat->light_flag = value;
+            trapst->light_flag = value;
             break;
         case 30: // TransparencyFlags
-            trapstat->transparency_flag = value;
+            trapst->transparency_flag = value<<4;
             break;
         case 31: // ShotVector
-            trapstat->shotvector.x = value;
-            trapstat->shotvector.y = value2;
-            trapstat->shotvector.z = value3;
+            trapst->shotvector.x = value;
+            trapst->shotvector.y = value2;
+            trapst->shotvector.z = value3;
             break;
         case 32: // Destructible
             trapst->destructible = value;
@@ -1839,9 +1873,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             trapst->place_on_bridge = value;
             break;
         case 36: // ShotOrigin
-            trapstat->shot_shift_x = value;
-            trapstat->shot_shift_y = value2;
-            trapstat->shot_shift_z = value3;
+            trapst->shot_shift_x = value;
+            trapst->shot_shift_y = value2;
+            trapst->shot_shift_z = value3;
             break;
         case 37: // PlaceSound
             trapst->place_sound_idx = value;
@@ -1850,17 +1884,42 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             trapst->trigger_sound_idx = value;
             break;
         case 39: // RechargeAnimationID
-            trapstat->recharge_sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
+            trapst->recharge_sprite_anim_idx = get_anim_id(context->value->strs[2], &obj_tmp);
             refresh_trap_anim(trap_type);
             break;
         case 40: // AttackAnimationID
-            trapstat->attack_sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
+            trapst->attack_sprite_anim_idx = get_anim_id(context->value->strs[2], &obj_tmp);
             break;
         case 41: // DestroyedEffect
             trapst->destroyed_effect = value;
             break;
         case 42: // InitialDelay
-            trapstat->initial_delay = value;
+            trapst->initial_delay = value;
+            break;
+        case 43: // PlaceOnSubtile
+            trapst->place_on_subtile = value;
+            break;
+        case 44: // FlameAnimationID
+            trapst->flame.animation_id = get_anim_id(context->value->strs[2], &obj_tmp);
+            refresh_trap_anim(trap_type);
+            break;
+        case 45: // FlameAnimationSpeed
+            trapst->flame.anim_speed = value;
+            break;
+        case 46: // FlameAnimationSize
+            trapst->flame.sprite_size = value;
+            break;
+        case 47: // FlameAnimationOffset
+            trapst->flame.fp_add_x = context->value->chars[8];
+            trapst->flame.fp_add_y = context->value->chars[9];
+            trapst->flame.td_add_x = context->value->chars[10];
+            trapst->flame.td_add_y = context->value->chars[11];
+            break;
+        case 48: // FlameTransparencyFlags
+            trapst->flame.transparency_flags = value << 4;
+            break;
+        case 49: // DetectInvisible
+            trapst->detect_invisible = value;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
@@ -1899,8 +1958,8 @@ static void set_room_configuration_process(struct ScriptContext *context)
         {
             old_value = roomst->medsym_sprite_idx;
             old_value2 = roomst->bigsym_sprite_idx;
-            roomst->bigsym_sprite_idx = get_icon_id(context->value->str2); // First
-            roomst->medsym_sprite_idx = get_icon_id(context->value->str2 + strlen(context->value->str2) + 1); // Second
+            roomst->bigsym_sprite_idx = get_icon_id(context->value->strs[2]); // First
+            roomst->medsym_sprite_idx = get_icon_id(context->value->strs[2] + strlen(context->value->strs[2]) + 1); // Second
             if (roomst->bigsym_sprite_idx < 0)
                 roomst->bigsym_sprite_idx = bad_icon_id;
             if (roomst->medsym_sprite_idx < 0)
@@ -1913,7 +1972,7 @@ static void set_room_configuration_process(struct ScriptContext *context)
             break;
         case 4: // PointerSprites
             old_value = roomst->pointer_sprite_idx;
-            roomst->pointer_sprite_idx = get_icon_id(context->value->str2);
+            roomst->pointer_sprite_idx = get_icon_id(context->value->strs[2]);
             if (roomst->pointer_sprite_idx < 0)
                 roomst->pointer_sprite_idx = bad_icon_id;
             if (roomst->pointer_sprite_idx != old_value)
@@ -1955,9 +2014,9 @@ static void set_room_configuration_process(struct ScriptContext *context)
             roomst->flags |= value3;
             break;
         case 13: // Roles
-            roomst->roles = context->value->uarg1;
-            if (context->value->uarg2 > 0)
-                roomst->roles |= context->value->uarg2;
+            roomst->roles = context->value->ulongs[1];
+            if (context->value->ulongs[2] > 0)
+                roomst->roles |= context->value->ulongs[2];
             break;
         case 14: // TotalCapacity
             roomst->update_total_capacity_idx = value;
@@ -2021,8 +2080,8 @@ static void set_hand_rule_process(struct ScriptContext* context)
 
 static void move_creature_process(struct ScriptContext* context)
 {
-    TbMapLocation location = context->value->uarg0;
-    long select_id = context->value->arg1;
+    TbMapLocation location = context->value->ulongs[0];
+    long select_id = context->value->longs[1];
     long effect_id = context->value->shorts[4];
     long count = context->value->bytes[10];
     long crmodel = context->value->bytes[11];
@@ -2042,8 +2101,8 @@ static void move_creature_process(struct ScriptContext* context)
             }
 
             struct Coord3d pos;
-            if(!get_coords_at_location(&pos,location)) {
-                SYNCDBG(5,"No valid coords for location",(int)location);
+            if(!get_coords_at_location(&pos,location,false)) {
+                SYNCDBG(5,"No valid coords for location %d",(int)location);
                 return;
             }
             struct CreatureControl *cctrl;
@@ -2056,7 +2115,10 @@ static void move_creature_process(struct ScriptContext* context)
             }
             move_thing_in_map(thing, &pos);
             reset_interpolation_of_thing(thing);
-            initialise_thing_state(thing, CrSt_CreatureDoingNothing);
+            if (!is_thing_some_way_controlled(thing))
+            {
+                initialise_thing_state(thing, CrSt_CreatureDoingNothing);
+            }
             cctrl->turns_at_job = -1;
             check_map_explored(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
         }
@@ -2104,7 +2166,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
 
     value->shorts[0] = door_id;
     value->shorts[1] = doorvar;
-    if (doorvar == 4) // SlabKind
+    if (doorvar == 11) // SlabKind
     {
         const char* slab_name = scline->tp[2];
         const char* slab2_name = scline->tp[3];
@@ -2136,41 +2198,40 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
                     return;
             }
         }
-        value->uarg1 = slab_id;
+        value->ulongs[1] = slab_id;
         value->shorts[4] = slab2_id;
     }
-
-    else if (doorvar == 10) // SymbolSprites
+    else if (doorvar == 4) // SymbolSprites
     {
         char *tmp = malloc(strlen(scline->tp[2]) + strlen(scline->tp[3]) + 3);
         // Pass two vars along as one merged val like: first\nsecond\m
         strcpy(tmp, scline->tp[2]);
         strcat(tmp, "|");
         strcat(tmp,scline->tp[3]);
-        value->str2 = script_strdup(tmp); // first\0second
-        value->str2[strlen(scline->tp[2])] = 0;
+        value->strs[2] = script_strdup(tmp); // first\0second
+        value->strs[2][strlen(scline->tp[2])] = 0;
         free(tmp);
-        if (value->str2 == NULL)
+        if (value->strs[2] == NULL)
         {
             SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
     }
-    else if (doorvar != 11) // Not PointerSprites
+    else if (doorvar != 5) // Not PointerSprites
     {
         if (parameter_is_number(valuestring))
         {
             newvalue = atoi(valuestring);
             if ((newvalue > LONG_MAX) || (newvalue < 0))
             {
-                SCRPTERRLOG("Value out of range: %d", newvalue);
+                SCRPTERRLOG("Value out of range: %ld", newvalue);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->uarg1 = newvalue;
+            value->ulongs[1] = newvalue;
         }
-        else if (doorvar == 9) // Crate
+        else if (doorvar == 7) // Crate
         {
             newvalue = get_id(object_desc, valuestring);
             if ((newvalue > SHRT_MAX) || (newvalue < 0))
@@ -2179,7 +2240,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->uarg1 = newvalue;
+            value->ulongs[1] = newvalue;
         }
         else
         {
@@ -2190,15 +2251,15 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
     }
     else
     {
-        value->str2 = script_strdup(scline->tp[2]);
-        if (value->str2 == NULL)
+        value->strs[2] = script_strdup(scline->tp[2]);
+        if (value->strs[2] == NULL)
         {
             SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
     }
-    SCRIPTDBG(7, "Setting door %s property %s to %lu", doorname, scline->tp[1], value->uarg1);
+    SCRIPTDBG(7, "Setting door %s property %s to %lu", doorname, scline->tp[1], value->ulongs[1]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -2206,53 +2267,23 @@ static void set_door_configuration_process(struct ScriptContext *context)
 {
     long door_type = context->value->shorts[0];
     struct DoorConfigStats *doorst = get_door_model_stats(door_type);
-    struct ManfctrConfig *mconf = &game.conf.doors_config[door_type];
     struct ManufactureData *manufctr = get_manufacture_data(game.conf.trapdoor_conf.trap_types_count - 1 + door_type);
-    short value = context->value->arg1;
+    short value = context->value->longs[1];
     short value2 = context->value->shorts[4];
     switch (context->value->shorts[1])
     {
-        case 2: // ManufactureLevel
-            mconf->manufct_level = value;
-            break;
-        case 3: // ManufactureRequired
-            mconf->manufct_required = value;
-            break;
-        case 4: // SlabKind
-            if (door_type < game.conf.trapdoor_conf.door_types_count)
-            {
-                doorst->slbkind[0] = value2;
-                doorst->slbkind[1] = value;
-            }
-            update_all_door_stats();
-            break;
-        case 5: // Health
-            if (door_type < game.conf.trapdoor_conf.door_types_count)
-            {
-                doorst->health = value;
-            }
-            update_all_door_stats();
-            break;
-        case 6: //SellingValue
-            mconf->selling_value = value;
-            break;
-        case 7: // NametextId
+        case 2: // NametextId
             doorst->name_stridx = value;
             break;
-        case 8: // TooltipTextId
+        case 3: // TooltipTextId
             doorst->tooltip_stridx = value;
             manufctr->tooltip_stridx = doorst->tooltip_stridx;
             update_trap_tab_to_config();
             break;
-        case 9: // Crate
-            game.conf.object_conf.object_to_door_or_trap[value] = door_type;
-            game.conf.object_conf.workshop_object_class[value] = TCls_Door;
-            game.conf.trapdoor_conf.door_to_object[door_type] = value;
-            break;
-        case 10: //SymbolSprites
+        case 4: //SymbolSprites
             {
-                doorst->bigsym_sprite_idx = get_icon_id(context->value->str2); // First
-                doorst->medsym_sprite_idx = get_icon_id(context->value->str2 + strlen(context->value->str2) + 1); // Second
+                doorst->bigsym_sprite_idx = get_icon_id(context->value->strs[2]); // First
+                doorst->medsym_sprite_idx = get_icon_id(context->value->strs[2] + strlen(context->value->strs[2]) + 1); // Second
                 if (doorst->bigsym_sprite_idx < 0)
                     doorst->bigsym_sprite_idx = bad_icon_id;
                 if (doorst->medsym_sprite_idx < 0)
@@ -2262,34 +2293,63 @@ static void set_door_configuration_process(struct ScriptContext *context)
                 update_trap_tab_to_config();
             }
             break;
-        case 11: // PointerSprites
-            doorst->pointer_sprite_idx = get_icon_id(context->value->str2);
+        case 5: // PointerSprites
+            doorst->pointer_sprite_idx = get_icon_id(context->value->strs[2]);
             if (doorst->pointer_sprite_idx < 0)
                 doorst->pointer_sprite_idx = bad_icon_id;
             update_trap_tab_to_config();
             break;
-        case 12: // PanelTabIndex
+        case 6: // PanelTabIndex
             doorst->panel_tab_idx = value;
             manufctr->panel_tab_idx = value;
             update_trap_tab_to_config();
             break;
-        case 13: // OpenSpeed
+        case 7: // Crate
+            game.conf.object_conf.object_to_door_or_trap[value] = door_type;
+            game.conf.object_conf.workshop_object_class[value] = TCls_Door;
+            game.conf.trapdoor_conf.door_to_object[door_type] = value;
+            break;
+        case 8: // ManufactureLevel
+            doorst->manufct_level = value;
+            break;
+        case 9: // ManufactureRequired
+            doorst->manufct_required = value;
+            break;
+        case 10: // Health
+            if (door_type < game.conf.trapdoor_conf.door_types_count)
+            {
+                doorst->health = value;
+            }
+            update_all_door_stats();
+            break;
+        case 11: // SlabKind
+            if (door_type < game.conf.trapdoor_conf.door_types_count)
+            {
+                doorst->slbkind[0] = value2;
+                doorst->slbkind[1] = value;
+            }
+            update_all_door_stats();
+            break;
+        case 12: // OpenSpeed
             if (door_type < game.conf.trapdoor_conf.door_types_count)
             {
                 doorst->open_speed = value;
             }
             break;
-        case 14: // Properties
+        case 13: // Properties
             doorst->model_flags = value;
             break;
-        case 15: // PlaceSound
+        case 14: //SellingValue
+            doorst->selling_value = value;
+            break;
+        case 15: // Unsellable
+            doorst->unsellable = value;
+            break;
+        case 16: // PlaceSound
             if (door_type < game.conf.trapdoor_conf.door_types_count)
             {
                 doorst->place_sound_idx = value;
             }
-            break;
-        case 16: // Unsellable
-            doorst->unsellable = value;
             break;
         default:
             WARNMSG("Unsupported Door configuration, variable %d.", context->value->shorts[1]);
@@ -2297,7 +2357,7 @@ static void set_door_configuration_process(struct ScriptContext *context)
     }
 }
 
-static void create_effect_process(struct ScriptContext *context)
+static void create_effect_at_pos_process(struct ScriptContext* context)
 {
     struct Coord3d pos;
     set_coords_to_subtile_center(&pos, context->value->shorts[1], context->value->shorts[2], 0);
@@ -2309,7 +2369,7 @@ static void create_effect_process(struct ScriptContext *context)
     }
     else
     {
-        pos.z.val += context->value->arg2;
+        pos.z.val += context->value->longs[2];
     }
     struct Thing* efftng = create_used_effect_or_element(&pos, context->value->shorts[0], game.neutral_player_num);
     if (!thing_is_invalid(efftng))
@@ -2320,7 +2380,37 @@ static void create_effect_process(struct ScriptContext *context)
         }
         if (Price)
         {
-            efftng->price_effect.number = context->value->arg2;
+            efftng->price_effect.number = context->value->longs[2];
+        }
+    }
+}
+
+static void create_effect_process(struct ScriptContext *context)
+{
+    struct Coord3d pos;
+    if (!get_coords_at_location(&pos, context->value->ulongs[1],true))
+    {
+        SCRPTWRNLOG("Could not find location %lu to create effect", context->value->ulongs[1]);
+    }
+    TbBool Price = (context->value->shorts[0] == -(TngEffElm_Price));
+    if (Price)
+    {
+        pos.z.val += 128;
+    }
+    else
+    {
+        pos.z.val += context->value->longs[2];
+    }
+    struct Thing* efftng = create_used_effect_or_element(&pos, context->value->shorts[0], game.neutral_player_num);
+    if (!thing_is_invalid(efftng))
+    {
+        if (thing_in_wall_at(efftng, &efftng->mappos))
+        {
+            move_creature_to_nearest_valid_position(efftng);
+        }
+        if (Price)
+        {
+            efftng->price_effect.number = context->value->longs[2];
         }
     }
 }
@@ -2328,54 +2418,54 @@ static void create_effect_process(struct ScriptContext *context)
 static void set_heart_health_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    value->arg0 = scline->np[0];
-    struct Thing* heartng = get_player_soul_container(value->arg0);
+    value->longs[0] = scline->np[0];
+    struct Thing* heartng = get_player_soul_container(value->longs[0]);
     struct ObjectConfigStats* objst = get_object_model_stats(heartng->model);
     if (scline->np[1] > objst->health)
     {
         SCRPTWRNLOG("Value %ld is greater than maximum: %ld", scline->np[1], objst->health);
-        value->arg1 = objst->health;
+        value->longs[1] = objst->health;
     }
     else
     {
-        value->arg1 = scline->np[1];
+        value->longs[1] = scline->np[1];
     }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_heart_health_process(struct ScriptContext *context)
 {
-    struct Thing* heartng = get_player_soul_container(context->value->arg0);
+    struct Thing* heartng = get_player_soul_container(context->value->longs[0]);
     if (!thing_is_invalid(heartng))
     {
-        heartng->health = (short)context->value->arg1;
+        heartng->health = (short)context->value->longs[1];
     }
 }
 
 static void add_heart_health_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    value->arg0 = scline->np[0];
-    value->arg1 = scline->np[1];
-    value->arg2 = scline->np[2];
+    value->longs[0] = scline->np[0];
+    value->longs[1] = scline->np[1];
+    value->longs[2] = scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void add_heart_health_process(struct ScriptContext *context)
 {
-    struct Thing* heartng = get_player_soul_container(context->value->arg0);
+    struct Thing* heartng = get_player_soul_container(context->value->longs[0]);
     if (!thing_is_invalid(heartng))
     {
         struct ObjectConfigStats* objst = get_object_model_stats(heartng->model);
         long old_health = heartng->health;
-        long long new_health = heartng->health + context->value->arg1;
+        long long new_health = heartng->health + context->value->longs[1];
         if (new_health > objst->health)
         {
-            SCRIPTDBG(7,"Player %d's calculated heart health (%ld) is greater than maximum: %ld", heartng->owner, new_health, objst->health);
+            SCRIPTDBG(7,"Player %u's calculated heart health (%I64d) is greater than maximum: %ld", heartng->owner, new_health, objst->health);
             new_health = objst->health;
         }
         heartng->health = new_health;
-        TbBool warn_on_damage = (context->value->arg2);
+        TbBool warn_on_damage = (context->value->longs[2]);
         if (warn_on_damage)
         {
             if (heartng->health < old_health)
@@ -2395,7 +2485,7 @@ static void heart_lost_quick_objective_check(const struct ScriptLine *scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     if ((scline->np[0] < 0) || (scline->np[0] >= QUICK_MESSAGES_COUNT))
     {
-        SCRPTERRLOG("Invalid QUICK OBJECTIVE number (%d)", scline->np[0]);
+        SCRPTERRLOG("Invalid QUICK OBJECTIVE number (%ld)", scline->np[0]);
         return;
     }
     if (strlen(scline->tp[1]) >= MESSAGE_TEXT_LEN)
@@ -2404,18 +2494,18 @@ static void heart_lost_quick_objective_check(const struct ScriptLine *scline)
     }
     if ((gameadd.quick_messages[scline->np[0]][0] != '\0') && (strcmp(gameadd.quick_messages[scline->np[0]],scline->tp[1]) != 0))
     {
-        SCRPTWRNLOG("Quick Objective no %d overwritten by different text", scline->np[0]);
+        SCRPTWRNLOG("Quick Objective no %ld overwritten by different text", scline->np[0]);
     }
     snprintf(gameadd.quick_messages[scline->np[0]], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
-    
-    TbMapLocation location;
+
+    TbMapLocation location = 0;
     if (scline->tp[2][0] != '\0')
     {
         get_map_location_id(scline->tp[2], &location);
     }
 
-    value->arg0 = scline->np[0];
-    value->uarg2 = location;
+    value->longs[0] = scline->np[0];
+    value->ulongs[2] = location;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -2423,20 +2513,20 @@ static void heart_lost_quick_objective_process(struct ScriptContext *context)
 {
     gameadd.heart_lost_display_message = true;
     gameadd.heart_lost_quick_message = true;
-    gameadd.heart_lost_message_id = context->value->arg0;
-    gameadd.heart_lost_message_target = context->value->arg2;
+    gameadd.heart_lost_message_id = context->value->longs[0];
+    gameadd.heart_lost_message_target = context->value->longs[2];
 }
 
 static void heart_lost_objective_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    value->arg0 = scline->np[0];
-    TbMapLocation location;
+    value->longs[0] = scline->np[0];
+    TbMapLocation location = 0;
     if (scline->tp[1][0] != '\0')
     {
         get_map_location_id(scline->tp[1], &location);
     }
-    value->uarg1 = location;
+    value->ulongs[1] = location;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -2444,8 +2534,8 @@ static void heart_lost_objective_process(struct ScriptContext *context)
 {
     gameadd.heart_lost_display_message = true;
     gameadd.heart_lost_quick_message = false;
-    gameadd.heart_lost_message_id = context->value->arg0;
-    gameadd.heart_lost_message_target = context->value->arg1;
+    gameadd.heart_lost_message_id = context->value->longs[0];
+    gameadd.heart_lost_message_target = context->value->longs[1];
 }
 
 static void set_door_check(const struct ScriptLine* scline)
@@ -2491,8 +2581,8 @@ static void create_effects_line_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
 
-    value->arg0 = scline->np[0]; // AP `from`
-    value->arg1 = scline->np[1]; // AP `to`
+    value->longs[0] = scline->np[0]; // AP `from`
+    value->longs[1] = scline->np[1]; // AP `to`
     value->chars[8] = scline->np[2]; // curvature
     value->bytes[9] = scline->np[3]; // spatial stepping
     value->bytes[10] = scline->np[4]; // temporal stepping
@@ -2528,8 +2618,8 @@ static void create_effects_line_process(struct ScriptContext *context)
         ERRORLOG("Too many fx_lines");
         return;
     }
-    find_location_pos(context->value->arg0, context->player_idx, &fx_line->from, __func__);
-    find_location_pos(context->value->arg1, context->player_idx, &fx_line->to, __func__);
+    find_location_pos(context->value->longs[0], context->player_idx, &fx_line->from, __func__);
+    find_location_pos(context->value->longs[1], context->player_idx, &fx_line->to, __func__);
     fx_line->curvature = (int)context->value->chars[8];
     fx_line->spatial_step = context->value->bytes[9] * 32;
     fx_line->steps_per_turn = context->value->bytes[10];
@@ -2568,6 +2658,8 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
     const char *property = scline->tp[1];
     const char *new_value = scline->tp[2];
     short second_value = scline->np[3];
+    short third_value = scline->np[4];
+    short forth_value = scline->np[5];
 
     long objct_id = get_id(object_desc, objectname);
     if (objct_id == -1)
@@ -2595,9 +2687,9 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->arg1 = number_value;
+            value->longs[1] = number_value;
             break;
-        case 3: // RELATEDCREATURE
+        case 3: // RelatedCreature
             number_value = get_id(creature_desc, new_value);
             if (number_value == -1)
             {
@@ -2605,26 +2697,26 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
                 DEALLOCATE_SCRIPT_VALUE
                     return;
             }
-            value->arg1 = number_value;
+            value->longs[1] = number_value;
             break;
-        case  5: // AnimId
+        case  5: // AnimationID
+        case 33: // FlameAnimationID
         {
-            struct ObjectConfigStats obj_tmp;
-            number_value = get_anim_id(new_value, &obj_tmp);
+            number_value = get_anim_id_(new_value);
             if (number_value == 0)
             {
                 SCRPTERRLOG("Invalid animation id");
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->str2 = script_strdup(new_value);
-            if (value->str2 == NULL)
+            value->strs[2] = script_strdup(new_value);
+            if (value->strs[2] == NULL)
             {
                 SCRPTERRLOG("Run out script strings space");
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->arg1 = number_value;
+            value->longs[1] = number_value;
             break;
         }
         case 18: // MapIcon
@@ -2636,10 +2728,10 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->arg1 = number_value;
+            value->longs[1] = number_value;
             break;
         }
-        case 20: // UPDATEFUNCTION
+        case 20: // UpdateFunction
         {
             number_value = get_id(object_update_functions_desc,new_value);
             if (number_value < 0)
@@ -2648,96 +2740,244 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->arg1 = number_value;
+            value->longs[1] = number_value;
             break;
         }
+        case 36: //FlameAnimationOffset
+            value->chars[5] = atoi(new_value);
+            value->chars[6] = second_value;
+            value->chars[7] = third_value;
+            value->chars[8] = forth_value;
+            break;
         default:
-            value->arg1 = atoi(new_value);
+            value->longs[1] = atoi(new_value);
+            value->shorts[5] = second_value;
     }
-    
-    SCRIPTDBG(7, "Setting object %s property %s to %d", objectname, property, number_value);
-    value->arg0 = objct_id;
+
+    SCRIPTDBG(7, "Setting object %s property %s to %ld", objectname, property, number_value);
+    value->longs[0] = objct_id;
     value->shorts[4] = objectvar;
-    value->shorts[5] = second_value;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
+
+enum CreatureConfiguration
+{
+    CrtConf_NONE,
+    CrtConf_ATTRIBUTES,
+    CrtConf_ATTRACTION,
+    CrtConf_ANNOYANCE,
+    CrtConf_SENSES,
+    CrtConf_APPEARANCE,
+    CrtConf_EXPERIENCE,
+    CrtConf_JOBS,
+    CrtConf_SPRITES,
+    CrtConf_SOUNDS,
+    CrtConf_LISTEND
+};
 
 static void set_creature_configuration_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-
     short creatvar = get_id(creatmodel_attributes_commands, scline->tp[1]);
+    short block = CrtConf_ATTRIBUTES;
     if (creatvar == -1)
     {
         creatvar = get_id(creatmodel_jobs_commands, scline->tp[1]);
+        block = CrtConf_JOBS;
         if (creatvar == -1)
         {
-            SCRPTERRLOG("Unknown creature attribute");
-            DEALLOCATE_SCRIPT_VALUE
-            return;
+            block = CrtConf_ATTRACTION;
+            creatvar = get_id(creatmodel_attraction_commands, scline->tp[1]);
+            if (creatvar == -1)
+            {
+                block = CrtConf_SOUNDS;
+                creatvar = get_id(creatmodel_sounds_commands, scline->tp[1]);
+                if (creatvar == -1)
+                {
+                    block = CrtConf_SPRITES;
+                    creatvar = get_id(creature_graphics_desc, scline->tp[1]);
+                    if (creatvar == -1)
+                    {
+                        SCRPTERRLOG("Unknown creature configuration variable");
+                        DEALLOCATE_SCRIPT_VALUE
+                        return;
+                    }
+                }
+            }
         }
-        creatvar = (creatvar << 8);
     }
 
-    short attribute_value;
-    short attribute2_value = 0;
-    if (creatvar == 20) // ATTACKPREFERENCE
+    short value1 = 0;
+    short value2 = 0;
+    short value3 = 0;
+    if (block == CrtConf_ATTRIBUTES)
     {
-        attribute_value = get_id(attackpref_desc, scline->tp[2]);
-    }
-    else if (creatvar == 34) // LAIROBJECT
-    {
-        attribute_value = get_id(object_desc, scline->tp[2]);
-    }
-    else if (((creatvar>>8) > 0 ) && ((creatvar >> 8) <= 4)) // Jobs
-    {
-        long job_value = get_id(creaturejob_desc, scline->tp[2]);
-        if (job_value > SHRT_MAX)
+        if (creatvar == 20) // ATTACKPREFERENCE
         {
-            SCRPTERRLOG("JOB %s not supported",creature_job_code_name(job_value));
-            DEALLOCATE_SCRIPT_VALUE
-            return;
+            value1 = get_id(attackpref_desc, scline->tp[2]);
         }
-        attribute_value = job_value;
-
-        if (scline->tp[3][0] != '\0')
+        else if (creatvar == 34) // LAIROBJECT
         {
-            long job2_value = get_id(creaturejob_desc, scline->tp[3]);
-            if (job2_value > SHRT_MAX)
+            if (parameter_is_number(scline->tp[2])) // Support name or number for lair object.
+            {
+                value1 = atoi(scline->tp[2]);
+            }
+            else
+            {
+                value1 = get_id(object_desc, scline->tp[2]);
+            }
+        }
+        else if ((creatvar == 35) || (creatvar == 36)) // PRISONKIND or TORTUREKIND
+        {
+            if (parameter_is_number(scline->tp[2])) // Support name or number for prison kind or torture kind.
+            {
+                value1 = atoi(scline->tp[2]);
+            }
+            else
+            {
+                value1 = get_id(creature_desc, scline->tp[2]);
+            }
+        }
+        else
+        {
+            value1 = atoi(scline->tp[2]);
+            if (scline->tp[3][0] != '\0')
+            {
+                value2 = atoi(scline->tp[3]);
+            }
+            // nothing there that would need the third value.
+        }
+    }
+    else if (block == CrtConf_JOBS)
+    {
+        if ((creatvar > 0) && (creatvar <= 4)) // Jobs
+        {
+            long job_value;
+            if (parameter_is_number(scline->tp[2]))
+            {
+                job_value = atoi(scline->tp[2]);
+            }
+            else
+            {
+                job_value = get_id(creaturejob_desc, scline->tp[2]);
+            }
+            long job2_value = 0;
+            long job3_value = 0;
+            if (job_value > SHRT_MAX)
             {
                 SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            attribute2_value = job2_value;
-        }
-    }
-    else
-    {
-            attribute_value = atoi(scline->tp[2]);
+            value1 = job_value;
+
             if (scline->tp[3][0] != '\0')
             {
-                attribute2_value = atoi(scline->tp[3]);
+                job2_value = get_id(creaturejob_desc, scline->tp[3]);
+                if (job2_value > SHRT_MAX)
+                {
+                    SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
+                value2 = job2_value;
             }
+            if (scline->tp[4][0] != '\0')
+            {
+                job3_value = get_id(creaturejob_desc, scline->tp[4]);
+                if (job3_value > SHRT_MAX)
+                {
+                    SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
+                value3 = job3_value;
+            }
+        }
+        else
+        {
+            value1 = atoi(scline->tp[2]);
+            // nothing there that would need the second or third value.
+        }
     }
-    if (attribute_value == -1)
+    else if (block == CrtConf_SOUNDS)
     {
-        SCRPTERRLOG("Unknown creature attribute value %s", scline->tp[2]);
+        value1 = atoi(scline->tp[2]);
+        if (scline->tp[3][0] != '\0')
+        {
+            value2 = atoi(scline->tp[3]);
+        }
+        if (scline->tp[3][0] != '\0')
+        {
+            value3 = atoi(scline->tp[4]);
+        }
+    }
+    else if (block == CrtConf_SPRITES)
+    {
+        if ((creatvar == (CGI_HandSymbol + 1)) || (creatvar == (CGI_QuerySymbol + 1)))
+        {
+            value1 = get_icon_id(scline->tp[2]);
+        }
+        else
+        {
+            value1 = get_anim_id_(scline->tp[2]);
+        }
+    }
+    else if (block == CrtConf_ATTRACTION)
+    {
+        if (creatvar == 1) //ENTRANCEROOM
+        {
+            value1 = get_id(room_desc, scline->tp[2]);
+            if (scline->tp[3][0] != '\0')
+            {
+                value2 = get_id(room_desc, scline->tp[3]);
+            }
+            if (scline->tp[4][0] != '\0')
+            {
+                value3 = get_id(room_desc, scline->tp[4]);
+            }
+        }
+        else
+        {
+            value1 = atoi(scline->tp[2]);
+            if (scline->tp[3][0] != '\0')
+            {
+                value2 = atoi(scline->tp[3]);
+            }
+            if (scline->tp[4][0] != '\0')
+            {
+                value3 = atoi(scline->tp[4]);
+            }
+        }
+    }
+
+    if (value1 == -1)
+    {
+        SCRPTERRLOG("Unknown creature configuration value %s", scline->tp[2]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-    if (attribute2_value == -1)
+    if (value2 == -1)
     {
-        SCRPTERRLOG("Unknown second creature attribute value %s", scline->tp[3]);
+        SCRPTERRLOG("Unknown second creature configuration value %s", scline->tp[3]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    if (value3 == -1)
+    {
+        SCRPTERRLOG("Unknown third creature configuration value %s", scline->tp[3]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
 
     value->shorts[0] = scline->np[0];
     value->shorts[1] = creatvar;
-    value->shorts[2] = attribute_value;
-    value->shorts[3] = attribute2_value;
-    SCRIPTDBG(7,"Setting creature %s attribute %d to %d (%d)", creature_code_name(value->shorts[0]), value->shorts[1], value->shorts[2], value->shorts[3]);
+    value->shorts[2] = block;
+    value->shorts[3] = value1;
+    value->shorts[4] = value2;
+    value->shorts[5] = value3;
+
+    SCRIPTDBG(7,"Setting creature %s configuration value %d:%d to %d (%d)", creature_code_name(value->shorts[0]), value->shorts[4], value->shorts[1], value->shorts[2], value->shorts[3]);
 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -2748,19 +2988,28 @@ static void set_creature_configuration_process(struct ScriptContext* context)
     struct CreatureStats* crstat = creature_stats_get(creatid);
     struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[creatid];
 
-    short attribute = context->value->shorts[1];
-    short value = context->value->shorts[2];
-    short value2 = context->value->shorts[3];
+    short creature_variable = context->value->shorts[1];
+    short block  = context->value->shorts[2];
+    short value  = context->value->shorts[3];
+    short value2 = context->value->shorts[4];
+    short value3 = context->value->shorts[5];
 
-    if (attribute <= CHAR_MAX)
+    if (block == CrtConf_ATTRIBUTES)
     {
-        switch (attribute)
+        switch (creature_variable)
         {
         case 1: // NAME
-            CONFWRNLOG("Attribute (%d) not supported", attribute);
+            CONFWRNLOG("Attribute (%d) not supported", creature_variable);
             break;
         case 2: // HEALTH
-            crstat->health = value;
+            if (crstat->health != value)
+            {
+                crstat->health = value;
+                for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+                {
+                    do_to_players_all_creatures_of_model(plyr_idx, creatid, update_relative_creature_health);
+                }
+            }
             break;
         case 3: // HEALREQUIREMENT
             crstat->heal_requirement = value;
@@ -2805,7 +3054,14 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             crstat->hurt_by_lava = value;
             break;
         case 17: // BASESPEED
-            crstat->base_speed = value;
+            if (crstat->base_speed != value)
+            {
+                crstat->base_speed = value;
+                for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+                {
+                    update_speed_of_player_creatures_of_model(plyr_idx, creatid);
+                }
+            }
             break;
         case 18: // GOLDHOLD
             crstat->gold_hold = value;
@@ -2828,7 +3084,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         case 24: // CREATURELOYALTY
         case 25: // LOYALTYLEVEL
         case 28: // PROPERTIES
-            CONFWRNLOG("Attribute (%d) not supported", attribute);
+            CONFWRNLOG("Attribute (%d) not supported", creature_variable);
             break;
         case 26: // DAMAGETOBOULDER
             crstat->damage_to_boulder = value;
@@ -2853,37 +3109,53 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             crstat->footstep_pitch = value;
             break;
         case 34: // LAIROBJECT
-            crstat->lair_object = value;
+            if (crstat->lair_object != value)
+            {
+                for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+                {
+                    do_to_players_all_creatures_of_model(plyr_idx, creatid, remove_creature_lair);
+                }
+                crstat->lair_object = value;
+            }
             break;
-        case 0: // comment
+        case 35: // PRISONKIND
+            crstat->prison_kind = value;
             break;
-        case -1: // end of buffer
+        case 36: // TORTUREKIND
+            crstat->torture_kind = value;
+            break;
+        case ccr_comment:
+            break;
+        case ccr_endOfFile:
             break;
         default:
-            CONFWRNLOG("Unrecognized command (%d)", attribute);
+            CONFWRNLOG("Unrecognized attribute (%d)", creature_variable);
             break;
         }
     }
-    else
+    else if (block == CrtConf_JOBS)
     {
-        attribute = (attribute >> 8); // creatmodel_jobs_commands
-        switch (attribute)
+        switch (creature_variable)
         {
         case 1: // PRIMARYJOBS
             crstat->job_primary = value;
             crstat->job_primary |= value2;
+            crstat->job_primary |= value3;
             break;
         case 2: // SECONDARYJOBS
             crstat->job_secondary = value;
             crstat->job_secondary |= value2;
+            crstat->job_secondary |= value3;
             break;
         case 3: // NOTDOJOBS
             crstat->jobs_not_do = value;
             crstat->jobs_not_do |= value2;
+            crstat->jobs_not_do |= value3;
             break;
         case 4: // STRESSFULJOBS
             crstat->job_stress = value;
             crstat->job_stress |= value2;
+            crstat->job_stress |= value3;
             break;
         case 5: // TRAININGVALUE
             crstat->training_value = value;
@@ -2907,111 +3179,220 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             crstat->partner_training = value;
             break;
         default:
-            CONFWRNLOG("Unrecognized Job command (%d)", attribute);
+            CONFWRNLOG("Unrecognized Job command (%d)", creature_variable);
             break;
         }
+    }
+    else if (block == CrtConf_ATTRACTION)
+    {
+
+        switch (creature_variable)
+        {
+        case 1: // ENTRANCEROOM
+            crstat->entrance_rooms[0] = value;
+            crstat->entrance_rooms[1] = value2;
+            crstat->entrance_rooms[2] = value3;
+            break;
+        case 2: // ROOMSLABSREQUIRED
+            crstat->entrance_slabs_req[0] = value;
+            crstat->entrance_slabs_req[1] = value2;
+            crstat->entrance_slabs_req[2] = value3;
+            break;
+        case 3: // BASEENTRANCESCORE
+            crstat->entrance_score = value;
+            break;
+        case 4: // SCAVENGEREQUIREMENT
+            crstat->scavenge_require = value;
+            break;
+        case 5: // TORTURETIME
+            crstat->torture_break_time = value;
+            break;
+        default:
+            CONFWRNLOG("Unrecognized Attraction command (%d)", creature_variable);
+            break;
+        }
+    }
+    else if (block == CrtConf_SOUNDS)
+    {
+        switch (creature_variable)
+        {
+        case 1: // HURT
+            game.conf.crtr_conf.creature_sounds[creatid].hurt.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].hurt.count = value2;
+            break;
+        case 2: // HIT
+            game.conf.crtr_conf.creature_sounds[creatid].hit.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].hit.count = value2;
+            break;
+        case 3: // HAPPY
+            game.conf.crtr_conf.creature_sounds[creatid].happy.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].happy.count = value2;
+            break;
+        case 4: // SAD
+            game.conf.crtr_conf.creature_sounds[creatid].sad.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].sad.count = value2;
+            break;
+        case 5: // HANG
+            game.conf.crtr_conf.creature_sounds[creatid].hang.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].hang.count = value2;
+            break;
+        case 6: // DROP
+            game.conf.crtr_conf.creature_sounds[creatid].drop.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].drop.count = value2;
+            break;
+        case 7: // TORTURE
+            game.conf.crtr_conf.creature_sounds[creatid].torture.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].torture.count = value2;
+            break;
+        case 8: // SLAP
+            game.conf.crtr_conf.creature_sounds[creatid].slap.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].slap.count = value2;
+            break;
+        case 9: // DIE
+            game.conf.crtr_conf.creature_sounds[creatid].die.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].die.count = value2;
+            break;
+        case 10: // FOOT
+            game.conf.crtr_conf.creature_sounds[creatid].foot.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].foot.count = value2;
+            break;
+        case 11: // FIGHT
+            game.conf.crtr_conf.creature_sounds[creatid].fight.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].fight.count = value2;
+            break;
+        case 12: // PISS
+            game.conf.crtr_conf.creature_sounds[creatid].piss.index = value;
+            game.conf.crtr_conf.creature_sounds[creatid].piss.count = value2;
+            break;
+        }
+    }
+    else if (block == CrtConf_SPRITES)
+    {
+        set_creature_model_graphics(creatid, creature_variable-1, value);
+    }
+    else
+    {
+        ERRORLOG("Trying to configure unsupported creature block (%d)",block);
     }
     check_and_auto_fix_stats();
 }
 
 static void set_object_configuration_process(struct ScriptContext *context)
 {
-    struct ObjectConfigStats* objst = &game.conf.object_conf.object_cfgstats[context->value->arg0];
+    struct ObjectConfigStats* objst = &game.conf.object_conf.object_cfgstats[context->value->longs[0]];
     switch (context->value->shorts[4])
     {
         case 2: // GENRE
-            objst->genre = context->value->arg1;
+            objst->genre = context->value->longs[1];
             break;
         case 3: // RELATEDCREATURE
-            objst->related_creatr_model = context->value->arg1;
+            objst->related_creatr_model = context->value->longs[1];
             break;
         case 4: // PROPERTIES
-            objst->model_flags = context->value->arg1;
+            objst->model_flags = context->value->longs[1];
             break;
         case 5: // ANIMATIONID
-            objst->sprite_anim_idx = context->value->arg1;
+            objst->sprite_anim_idx = context->value->longs[1];
             break;
         case 6: // ANIMATIONSPEED
-            objst->anim_speed = context->value->arg1;
+            objst->anim_speed = context->value->longs[1];
             break;
         case 7: //SIZE_XY
-            objst->size_xy = context->value->arg1;
+            objst->size_xy = context->value->longs[1];
             break;
         case 8: // SIZE_Z
-            objst->size_z = context->value->arg1;
+            objst->size_z = context->value->longs[1];
             break;
         case 9: // MAXIMUMSIZE
-            objst->sprite_size_max = context->value->arg1;
+            objst->sprite_size_max = context->value->longs[1];
             break;
         case 10: // DESTROYONLIQUID
-            objst->destroy_on_liquid = context->value->arg1;
+            objst->destroy_on_liquid = context->value->longs[1];
             break;
         case 11: // DESTROYONLAVA
-            objst->destroy_on_lava = context->value->arg1;
+            objst->destroy_on_lava = context->value->longs[1];
             break;
         case 12: // HEALTH
-            objst->health = context->value->arg1;
+            objst->health = context->value->longs[1];
             break;
         case 13: // FALLACCELERATION
-            objst->fall_acceleration = context->value->arg1;
+            objst->fall_acceleration = context->value->longs[1];
             break;
         case 14: // LIGHTUNAFFECTED
-            objst->light_unaffected = context->value->arg1;
+            objst->light_unaffected = context->value->longs[1];
             break;
         case 15: // LIGHTINTENSITY
-            objst->ilght.intensity = context->value->arg1;
+            objst->ilght.intensity = context->value->longs[1];
             break;
         case 16: // LIGHTRADIUS
-            objst->ilght.radius = context->value->arg1 * COORD_PER_STL;
+            objst->ilght.radius = context->value->longs[1] * COORD_PER_STL;
             break;
         case 17: // LIGHTISDYNAMIC
-            objst->ilght.is_dynamic = context->value->arg1;
+            objst->ilght.is_dynamic = context->value->longs[1];
             break;
         case 18: // MAPICON
-            objst->map_icon = context->value->arg1;
+            objst->map_icon = context->value->longs[1];
             break;
         case 19: // AMBIENCESOUND
-            objst->fp_smpl_idx = context->value->arg1;
+            objst->fp_smpl_idx = context->value->longs[1];
             break;
         case 20: // UPDATEFUNCTION
-            objst->updatefn_idx = context->value->arg1;
+            objst->updatefn_idx = context->value->longs[1];
             break;
         case 21: // DRAWCLASS
-            objst->draw_class = context->value->arg1;
+            objst->draw_class = context->value->longs[1];
             break;
         case 22: // PERSISTENCE
-            objst->persistence = context->value->arg1;
+            objst->persistence = context->value->longs[1];
             break;
         case 23: // Immobile
-            objst->immobile = context->value->arg1;
+            objst->immobile = context->value->longs[1];
             break;
         case 24: // INITIALSTATE
-            objst->initial_state = context->value->arg1;
+            objst->initial_state = context->value->longs[1];
             break;
         case 25: // RANDOMSTARTFRAME
-            objst->random_start_frame = context->value->arg1;
+            objst->random_start_frame = context->value->longs[1];
             break;
         case 26: // TRANSPARENCYFLAGS
-            objst->transparancy_flags = context->value->arg1;
+            objst->transparency_flags = context->value->longs[1]<<4;
             break;
         case 27: // EFFECTBEAM
-            objst->effect.beam = context->value->arg1;
+            objst->effect.beam = context->value->longs[1];
             break;
         case 28: // EFFECTPARTICLE
-            objst->effect.particle = context->value->arg1;
+            objst->effect.particle = context->value->longs[1];
             break;
         case 29: // EFFECTEXPLOSION1
-            objst->effect.explosion1 = context->value->arg1;
+            objst->effect.explosion1 = context->value->longs[1];
             break;
         case 30: // EFFECTEXPLOSION2
-            objst->effect.explosion2 = context->value->arg1;
+            objst->effect.explosion2 = context->value->longs[1];
             break;
         case 31: // EFFECTSPACING
-            objst->effect.spacing = context->value->arg1;
+            objst->effect.spacing = context->value->longs[1];
             break;
         case 32: // EFFECTSOUND
-            objst->effect.sound_idx = context->value->arg1;
+            objst->effect.sound_idx = context->value->longs[1];
             objst->effect.sound_range = (unsigned char)context->value->shorts[5];
+            break;
+        case 33: // FLAMEANIMATIONID
+            objst->flame.animation_id = context->value->longs[1];
+            break;
+        case 34: // FLAMEANIMATIONSPEED
+            objst->flame.anim_speed = context->value->longs[1];
+            break;
+        case 35: // FLAMEANIMATIONSIZE
+            objst->flame.sprite_size = context->value->longs[1];
+            break;
+        case 36: // FLAMEANIMATIONOFFSET
+            objst->flame.fp_add_x = context->value->chars[5];
+            objst->flame.fp_add_y = context->value->chars[6];
+            objst->flame.td_add_x = context->value->chars[7];
+            objst->flame.td_add_y = context->value->chars[8];
+            break;
+        case 37: // FLAMETRANSPARENCYFLAGS
+            objst->flame.transparency_flags = context->value->longs[1] << 4;
             break;
         default:
             WARNMSG("Unsupported Object configuration, variable %d.", context->value->shorts[4]);
@@ -3032,7 +3413,7 @@ static void display_timer_check(const struct ScriptLine *scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     value->bytes[0] = (unsigned char)scline->np[0];
     value->bytes[1] = timr_id;
-    value->arg1 = 0;
+    value->longs[1] = 0;
     value->bytes[2] = (TbBool)scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -3041,7 +3422,7 @@ static void display_timer_process(struct ScriptContext *context)
 {
     gameadd.script_player = context->value->bytes[0];
     gameadd.script_timer_id = context->value->bytes[1];
-    gameadd.script_timer_limit = context->value->arg1;
+    gameadd.script_timer_limit = context->value->longs[1];
     gameadd.timer_real = context->value->bytes[2];
     game.flags_gui |= GGUI_ScriptTimer;
 }
@@ -3056,27 +3437,27 @@ static void add_to_timer_check(const struct ScriptLine *scline)
         return;
     }
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    value->arg0 = scline->np[0];
-    value->arg1 = timr_id;
-    value->arg2 = scline->np[2];
+    value->longs[0] = scline->np[0];
+    value->longs[1] = timr_id;
+    value->longs[2] = scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void add_to_timer_process(struct ScriptContext *context)
 {
-   add_to_script_timer(context->value->arg0, context->value->arg1, context->value->arg2);
+   add_to_script_timer(context->value->longs[0], context->value->longs[1], context->value->longs[2]);
 }
 
 static void add_bonus_time_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    value->arg0 = scline->np[0];
+    value->longs[0] = scline->np[0];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void add_bonus_time_process(struct ScriptContext *context)
 {
-   game.bonus_time += context->value->arg0;
+   game.bonus_time += context->value->longs[0];
 }
 
 static void display_variable_check(const struct ScriptLine *scline)
@@ -3091,8 +3472,8 @@ static void display_variable_check(const struct ScriptLine *scline)
     value->bytes[0] = scline->np[0];
     value->bytes[1] = scline->np[3];
     value->bytes[2] = varib_type;
-    value->arg1 = varib_id;
-    value->arg2 = scline->np[2];
+    value->longs[1] = varib_id;
+    value->longs[2] = scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -3100,8 +3481,8 @@ static void display_variable_process(struct ScriptContext *context)
 {
    gameadd.script_player = context->value->bytes[0];
    gameadd.script_value_type = context->value->bytes[2];
-   gameadd.script_value_id = context->value->arg1;
-   gameadd.script_variable_target = context->value->arg2;
+   gameadd.script_value_id = context->value->longs[1];
+   gameadd.script_variable_target = context->value->longs[2];
    gameadd.script_variable_target_type = context->value->bytes[1];
    game.flags_gui |= GGUI_Variable;
 }
@@ -3123,7 +3504,7 @@ static void display_countdown_check(const struct ScriptLine *scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     value->bytes[0] = (unsigned char)scline->np[0];
     value->bytes[1] = timr_id;
-    value->arg1 = scline->np[2];
+    value->longs[1] = scline->np[2];
     value->bytes[2] = (TbBool)scline->np[3];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -3161,12 +3542,8 @@ static void create_effect_check(const struct ScriptLine *scline)
     {
         return;
     }
-    long stl_x;
-    long stl_y;
-    find_map_location_coords(location, &stl_x, &stl_y, 0, __func__);
-    value->shorts[1] = stl_x;
-    value->shorts[2] = stl_y;
-    value->arg2 = scline->np[2];
+    value->ulongs[1] = location;
+    value->longs[2] = scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -3188,7 +3565,7 @@ static void create_effect_at_pos_check(const struct ScriptLine *scline)
     }
     value->shorts[1] = scline->np[1];
     value->shorts[2] = scline->np[2];
-    value->arg2 = scline->np[3];
+    value->longs[2] = scline->np[3];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -3360,16 +3737,16 @@ static void change_slab_owner_check(const struct ScriptLine *scline)
 
     if (scline->np[0] < 0 || scline->np[0] > gameadd.map_tiles_x) //x coord
     {
-        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[0],gameadd.map_tiles_x);
+        SCRPTERRLOG("Value '%ld' out of range. Range 0-%d allowed.", scline->np[0],gameadd.map_tiles_x);
         return;
     }
     if (scline->np[1] < 0 || scline->np[1] > gameadd.map_tiles_y) //y coord
     {
-        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[1],gameadd.map_tiles_y);
+        SCRPTERRLOG("Value '%ld' out of range. Range 0-%d allowed.", scline->np[1],gameadd.map_tiles_y);
         return;
     }
     long filltype = get_id(fill_desc, scline->tp[3]);
-    if ((scline->tp[3] != NULL) && (strcmp(scline->tp[3], "") != 0) && (filltype == -1))
+    if ((scline->tp[3][0] != '\0') && (filltype == -1))
     {
         SCRPTWRNLOG("Fill type %s not recognized", scline->tp[3]);
     }
@@ -3379,9 +3756,9 @@ static void change_slab_owner_check(const struct ScriptLine *scline)
 
 static void change_slab_owner_process(struct ScriptContext *context)
 {
-    MapSlabCoord x = context->value->arg0;
-    MapSlabCoord y = context->value->arg1;
-    long fill_type = context->value->arg2;
+    MapSlabCoord x = context->value->longs[0];
+    MapSlabCoord y = context->value->longs[1];
+    long fill_type = context->value->longs[2];
     if (fill_type > 0)
     {
         struct CompoundCoordFilterParam iter_param;
@@ -3400,7 +3777,7 @@ static void change_slab_type_check(const struct ScriptLine *scline)
 
     if (scline->np[0] < 0 || scline->np[0] > gameadd.map_tiles_x) //x coord
     {
-        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[0],gameadd.map_tiles_x);
+        SCRPTERRLOG("Value '%ld' out of range. Range 0-%d allowed.", scline->np[0],gameadd.map_tiles_x);
         return;
     }
     else
@@ -3410,7 +3787,7 @@ static void change_slab_type_check(const struct ScriptLine *scline)
 
     if (scline->np[1] < 0 || scline->np[1] > gameadd.map_tiles_y) //y coord
     {
-        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[0],gameadd.map_tiles_y);
+        SCRPTERRLOG("Value '%ld' out of range. Range 0-%d allowed.", scline->np[0],gameadd.map_tiles_y);
         return;
     }
     else
@@ -3420,7 +3797,7 @@ static void change_slab_type_check(const struct ScriptLine *scline)
 
     if (scline->np[2] < 0 || scline->np[2] >= game.conf.slab_conf.slab_types_count) //slab kind
     {
-        SCRPTERRLOG("Unsupported slab '%d'. Slabs range 0-%d allowed.", scline->np[2],game.conf.slab_conf.slab_types_count-1);
+        SCRPTERRLOG("Unsupported slab '%ld'. Slabs range 0-%ld allowed.", scline->np[2],game.conf.slab_conf.slab_types_count-1);
         return;
     }
     else
@@ -3429,7 +3806,7 @@ static void change_slab_type_check(const struct ScriptLine *scline)
     }
 
     value->shorts[3] = get_id(fill_desc, scline->tp[3]);
-    if ((scline->tp[3] != NULL) && (strcmp(scline->tp[3],"") != 0) && (value->shorts[3] == -1))
+    if ((scline->tp[3][0] != '\0') && (value->shorts[3] == -1))
     {
         SCRPTWRNLOG("Fill type %s not recognized", scline->tp[3]);
     }
@@ -3450,7 +3827,7 @@ static void change_slab_type_process(struct ScriptContext *context)
         iter_param.num2 = fill_type;
         iter_param.num3 = get_slabmap_block(x, y)->kind;
         slabs_fill_iterate_from_slab(x, y, slabs_change_type, &iter_param);
-    } 
+    }
     else
     {
         replace_slab_from_script(x, y, slab_kind);
@@ -3468,15 +3845,15 @@ static void reveal_map_location_check(const struct ScriptLine *scline)
 
 static void reveal_map_location_process(struct ScriptContext *context)
 {
-    TbMapLocation target = context->value->arg0;
-    SYNCDBG(0, "Revealing location type %d", target);
+    TbMapLocation target = context->value->longs[0];
+    SYNCDBG(0, "Revealing location type %lu", target);
     long x = 0;
     long y = 0;
-    long r = context->value->arg1;
+    long r = context->value->longs[1];
     find_map_location_coords(target, &x, &y, context->player_idx, __func__);
     if ((x == 0) && (y == 0))
     {
-        WARNLOG("Can't decode location %d", target);
+        WARNLOG("Can't decode location %lu", target);
         return;
     }
     if (r == -1)
@@ -3486,6 +3863,29 @@ static void reveal_map_location_process(struct ScriptContext *context)
         slabs_fill_iterate_from_slab(subtile_slab(x), subtile_slab(y), slabs_reveal_slab_and_corners, &iter_param);
     } else
         reveal_map_area(context->player_idx, x-(r>>1), x+(r>>1)+(r&1), y-(r>>1), y+(r>>1)+(r&1));
+}
+
+static void player_zoom_to_check(const struct ScriptLine *scline)
+{
+    TbMapLocation location;
+    const char *where = scline->tp[1];
+    if (!get_map_location_id(where, &location) || location == MLoc_NONE) {
+        SCRPTERRLOG("invalid zoom location \"%s\"",where);
+        return;
+    }
+
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    value->longs[0] = location;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void player_zoom_to_process(struct ScriptContext *context)
+{
+    TbMapLocation target = context->value->longs[0];
+    struct Coord3d pos;
+
+    find_location_pos(target, context->player_idx, &pos, __func__);
+    set_player_zoom_to_position(get_player(context->player_idx),&pos);
 }
 
 static void level_up_players_creatures_check(const struct ScriptLine* scline)
@@ -3499,18 +3899,18 @@ static void level_up_players_creatures_check(const struct ScriptLine* scline)
         SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
         DEALLOCATE_SCRIPT_VALUE
         return;
-    } 
+    }
     if (scline->np[2] == '\0')
     {
         count = 1;
     }
     if (count == 0)
     {
-        SCRPTERRLOG("Trying to level up %d times '%s'", scline->np[2]);
+        SCRPTERRLOG("Trying to level up %ld times", scline->np[2]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-    
+
     value->shorts[1] = crmodel;
     value->shorts[2] = count;
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -3810,7 +4210,7 @@ static void hide_hero_gate_check(const struct ScriptLine* scline)
     struct Thing* thing = find_hero_gate_of_number(n);
     if (thing_is_invalid(thing))
     {
-        SCRPTERRLOG("Invalid hero gate: %d", scline->np[0]);
+        SCRPTERRLOG("Invalid hero gate: %ld", scline->np[0]);
         return;
     }
     value->bytes[0] = n;
@@ -3846,7 +4246,7 @@ static void if_check(const struct ScriptLine *scline)
     long plr_range_id_right;
     const char *varib_name_right = scline->tp[4];
 
-    long value;
+    long value = 0;
 
     TbBool double_var_mode = false;
     long varib_type;
@@ -3860,7 +4260,7 @@ static void if_check(const struct ScriptLine *scline)
         double_var_mode = true;
 
         if (!get_player_id(scline->tp[3], &plr_range_id_right)) {
-            
+
             SCRPTWRNLOG("failed to parse \"%s\" as a player", scline->tp[3]);
         }
     }
@@ -3901,7 +4301,7 @@ static void if_check(const struct ScriptLine *scline)
                 if (((varib_type != SVar_GAME_TURN) && (varib_type != SVar_ALL_DUNGEONS_DESTROYED)
                  && (varib_type != SVar_DOOR_NUM) && (varib_type != SVar_TRAP_NUM)))
                     SCRPTWRNLOG("Found player without dungeon used in IF clause in script; this will not work correctly");
-                    
+
             }
         }
         if (double_var_mode && get_players_range(plr_range_id_right, &plr_start, &plr_end) >= 0) {
@@ -3911,7 +4311,7 @@ static void if_check(const struct ScriptLine *scline)
                 if (((varib_type_right != SVar_GAME_TURN) && (varib_type_right != SVar_ALL_DUNGEONS_DESTROYED)
                  && (varib_type_right != SVar_DOOR_NUM) && (varib_type_right != SVar_TRAP_NUM)))
                     SCRPTWRNLOG("Found player without dungeon used in IF clause in script; this will not work correctly");
-                    
+
             }
         }
     }
@@ -3934,7 +4334,7 @@ static void if_check(const struct ScriptLine *scline)
 
 static void if_available_check(const struct ScriptLine *scline)
 {
-    
+
     long plr_range_id = scline->np[0];
     const char *varib_name = scline->tp[1];
     const char *operatr = scline->tp[2];
@@ -3954,7 +4354,7 @@ static void if_available_check(const struct ScriptLine *scline)
         double_var_mode = true;
 
         if (!get_player_id(scline->tp[3], &plr_range_id_right)) {
-            
+
             SCRPTWRNLOG("failed to parse \"%s\" as a player", scline->tp[3]);
         }
     }
@@ -3969,14 +4369,18 @@ static void if_available_check(const struct ScriptLine *scline)
         }
     }
 
-    long varib_type;
     if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
     {
       SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
       return;
     }
     // Recognize variable
-    long varib_id = -1;
+    long varib_id;
+    long varib_type = get_id(available_variable_desc, varib_name);
+    if (varib_type == -1)
+        varib_id = -1;
+    else
+        varib_id = 0;
     if (varib_id == -1)
     {
       varib_id = get_id(door_desc, varib_name);
@@ -4051,8 +4455,8 @@ static void if_controls_check(const struct ScriptLine *scline)
     long value;
 
     TbBool double_var_mode = false;
-    long varib_type_right;
-    long varib_id_right;
+    long varib_type_right = 0;
+    long varib_id_right = 0;
 
 
     if (*varib_name_right != '\0')
@@ -4060,7 +4464,7 @@ static void if_controls_check(const struct ScriptLine *scline)
         double_var_mode = true;
 
         if (!get_player_id(scline->tp[3], &plr_range_id_right)) {
-            
+
             SCRPTWRNLOG("failed to parse \"%s\" as a player", scline->tp[3]);
         }
     }
@@ -4120,7 +4524,7 @@ static void if_controls_check(const struct ScriptLine *scline)
                 if (((varib_type_right != SVar_GAME_TURN) && (varib_type_right != SVar_ALL_DUNGEONS_DESTROYED)
                  && (varib_type_right != SVar_DOOR_NUM) && (varib_type_right != SVar_TRAP_NUM)))
                     SCRPTWRNLOG("Found player without dungeon used in IF clause in script; this will not work correctly");
-                    
+
             }
         }
     }
@@ -4245,7 +4649,7 @@ static void set_music_check(const struct ScriptLine *scline)
             game.last_audiotrack++;
         }
         short tracknumber = game.last_audiotrack;
-            
+
         if (tracks[tracknumber] != NULL)
         {
             WARNLOG("Overwriting music track %d.", tracknumber);
@@ -4256,13 +4660,13 @@ static void set_music_check(const struct ScriptLine *scline)
         tracks[tracknumber] = Mix_LoadMUS(game.loaded_track[tracknumber]);
         if (tracks[tracknumber] == NULL)
         {
-            SCRPTERRLOG("Can't load track %ld (%s): %s", tracknumber, game.loaded_track[tracknumber], Mix_GetError());
+            SCRPTERRLOG("Can't load track %d (%s): %s", tracknumber, game.loaded_track[tracknumber], Mix_GetError());
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
         else
         {
-            SCRPTLOG("Loaded file %s into music track %ld.", game.loaded_track[tracknumber], tracknumber);
+            SCRPTLOG("Loaded file %s into music track %d.", game.loaded_track[tracknumber], tracknumber);
         }
         value->chars[0] = tracknumber;
     }
@@ -4271,42 +4675,38 @@ static void set_music_check(const struct ScriptLine *scline)
 
 static void set_music_process(struct ScriptContext *context)
 {
-    
+
     short track_number = context->value->chars[0];
-    if (track_number >= FIRST_TRACK && track_number <= MUSIC_TRACKS_COUNT)
-    {
-        if (track_number != game.audiotrack)
-        {
-            if (IsRedbookMusicActive())
-            {
+    if (track_number >= FIRST_TRACK && track_number <= MUSIC_TRACKS_COUNT) {
+        if (track_number != game.audiotrack) {
+            if (IsRedbookMusicActive()) {
                 SCRPTLOG("Setting music track to %d.", track_number);
-            }
-            else
-            {
+            } else {
+#if SDL_MIXER_VERSION_ATLEAST(2, 6, 0)
                 char info[255];
-                sprintf(info, "%s", Mix_GetMusicTitle(tracks[track_number]));
-                const char* artist = Mix_GetMusicArtistTag(tracks[track_number]);
-                if (artist[0] != '\0')
-                {
-                    sprintf(info, "%s by %s", info, artist);
-                }
-                const char* copyright = Mix_GetMusicCopyrightTag(tracks[track_number]);
-                if (copyright[0] != '\0')
-                {
-                    sprintf(info, "%s (%s)", info, copyright);
+                const char * title = Mix_GetMusicTitle(tracks[track_number]);
+                const char * artist = Mix_GetMusicArtistTag(tracks[track_number]);
+                const char * copyright = Mix_GetMusicCopyrightTag(tracks[track_number]);
+                if (strlen(artist) > 0 && strlen(copyright) > 0) {
+                    snprintf(info, sizeof(info), "%s by %s (%s)", title, artist, copyright);
+                } else if (strlen(artist) > 0) {
+                    snprintf(info, sizeof(info), "%s by %s", title, artist);
+                } else if (strlen(copyright) > 0) {
+                    snprintf(info, sizeof(info), "%s (%s)", title, copyright);
+                } else {
+                    snprintf(info, sizeof(info), "%s", title);
                 }
                 SCRPTLOG("Setting music track to %d: %s", track_number, info);
+#else
+                SCRPTLOG("Setting music track to %d.", track_number);
+#endif
             }
             game.audiotrack = track_number;
         }
-    }
-    else if (track_number == 0)
-    {
+    } else if (track_number == 0) {
         game.audiotrack = track_number;
         SCRPTLOG("Setting music track to %d: No Music", track_number);
-    }
-    else
-    {
+    } else {
         SCRPTERRLOG("Invalid music track: %d. Track must be between %d and %d or 0 to disable.", track_number,FIRST_TRACK,MUSIC_TRACKS_COUNT);
     }
 }
@@ -4490,7 +4890,7 @@ static void add_effectgen_to_level_check(const struct ScriptLine* scline)
     }
     value->shorts[0] = (short)gen_id;
     value->shorts[1] = location;
-    value->shorts[2] = range;
+    value->shorts[2] = range * COORD_PER_STL; 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -4671,13 +5071,13 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
         case 3: // Cost
         {
             value->bytes[3] = atoi(scline->tp[3]) - 1; //-1 because we want slot 1 to 9, not 0 to 8
-            value->arg2 = atoi(new_value);
+            value->longs[2] = atoi(new_value);
             break;
         }
         case 10: // SymbolSprites
         {
-            value->arg1 = atoi(new_value);
-            value->arg2 = atoi(scline->tp[3]);
+            value->longs[1] = atoi(new_value);
+            value->longs[2] = atoi(scline->tp[3]);
             break;
         }
         case 5: // Castability
@@ -4724,18 +5124,18 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                 }
                 value->chars[3] = -1;
             }
-            unsigned long long *new = (unsigned long long*)&value->uarg1;
+            unsigned long long *new = (unsigned long long*)&value->ulongs[1];
             *new = number_value;
             break;
         }
         case 6: // Artifact
         {
             k = get_id(object_desc, new_value);
-            if (k >= 0) 
+            if (k >= 0)
             {
                   number_value = k;
             }
-            value->arg2 = number_value;
+            value->longs[2] = number_value;
             break;
         }
         case 14: // Properties
@@ -4781,7 +5181,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                 }
                 value->chars[3] = -1;
             }
-            value->arg2 = number_value;
+            value->longs[2] = number_value;
             break;
         }
         case 15: // OverchargeCheck
@@ -4793,7 +5193,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->arg2 = number_value;
+            value->longs[2] = number_value;
             break;
         }
         case 16: // PlayerState
@@ -4803,7 +5203,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
             {
                 number_value = k;
             }
-            value->arg2 = number_value;
+            value->longs[2] = number_value;
             break;
         }
         case 17: // ParentPower
@@ -4813,25 +5213,25 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
             {
                 number_value = k;
             }
-            value->arg2 = number_value;
+            value->longs[2] = number_value;
             break;
         }
         default:
-            value->arg2 = atoi(new_value);
+            value->longs[2] = atoi(new_value);
     }
     #if (BFDEBUG_LEVEL >= 7)
     {
         if ( (powervar == 5) && (value->chars[3] != -1) )
         {
-            SCRIPTDBG(7, "Toggling %s castability flag: %lld", powername, number_value);
+            SCRIPTDBG(7, "Toggling %s castability flag: %I64d", powername, number_value);
         }
         else if ( (powervar == 14) && (value->chars[3] != -1) )
         {
-            SCRIPTDBG(7, "Toggling %s property flag: %lld", powername, number_value);
+            SCRIPTDBG(7, "Toggling %s property flag: %I64d", powername, number_value);
         }
         else
         {
-            SCRIPTDBG(7, "Setting power %s property %s to %lld", powername, property, number_value);
+            SCRIPTDBG(7, "Setting power %s property %s to %I64d", powername, property, number_value);
         }
     }
     #endif
@@ -4848,17 +5248,17 @@ static void set_power_configuration_process(struct ScriptContext *context)
     switch (context->value->bytes[2])
     {
         case 2: // Power
-            pwrdynst->strength[context->value->bytes[3]] = context->value->arg2;
+            pwrdynst->strength[context->value->bytes[3]] = context->value->longs[2];
             break;
         case 3: // Cost
-            pwrdynst->cost[context->value->bytes[3]] = context->value->arg2;
+            pwrdynst->cost[context->value->bytes[3]] = context->value->longs[2];
             break;
         case 4: // Duration
-            pwrdynst->duration = context->value->arg2;
+            pwrdynst->duration = context->value->longs[2];
             break;
         case 5: // Castability
         {
-            unsigned long long *value = (unsigned long long*)&context->value->uarg1;
+            unsigned long long *value = (unsigned long long*)&context->value->ulongs[1];
             unsigned long long flag = *value;
             if (context->value->chars[3] == 1)
             {
@@ -4875,56 +5275,56 @@ static void set_power_configuration_process(struct ScriptContext *context)
             break;
         }
         case 6: // Artifact
-            powerst->artifact_model = context->value->arg2;
+            powerst->artifact_model = context->value->longs[2];
             game.conf.object_conf.object_to_power_artifact[powerst->artifact_model] = context->value->shorts[0];
             break;
         case 7: // NameTextID
-            powerst->name_stridx = context->value->arg2;
+            powerst->name_stridx = context->value->longs[2];
             break;
         case 8: // TooltipTextID
-            powerst->tooltip_stridx = context->value->arg2;
+            powerst->tooltip_stridx = context->value->longs[2];
             break;
         case 10: // SymbolSprites
-            powerst->bigsym_sprite_idx = context->value->arg1;
-            powerst->medsym_sprite_idx = context->value->arg2;
+            powerst->bigsym_sprite_idx = context->value->longs[1];
+            powerst->medsym_sprite_idx = context->value->longs[2];
             break;
         case 11: // PointerSprites
-            powerst->pointer_sprite_idx = context->value->arg2;
+            powerst->pointer_sprite_idx = context->value->longs[2];
             break;
         case 12: // PanelTabIndex
-            powerst->panel_tab_idx = context->value->arg2;
+            powerst->panel_tab_idx = context->value->longs[2];
             break;
         case 13: // SoundSamples
-            powerst->select_sample_idx = context->value->arg2;
+            powerst->select_sample_idx = context->value->longs[2];
             break;
         case 14: // Properties
             if (context->value->chars[3] == 1)
             {
-                set_flag(powerst->config_flags, context->value->arg2);
+                set_flag(powerst->config_flags, context->value->longs[2]);
             }
             else if (context->value->chars[3] == 0)
             {
-                clear_flag(powerst->config_flags, context->value->arg2);
+                clear_flag(powerst->config_flags, context->value->longs[2]);
             }
             else
             {
-                powerst->config_flags = context->value->arg2;
+                powerst->config_flags = context->value->longs[2];
             }
             break;
         case 15: // OverchargeCheck
-            powerst->overcharge_check_idx = context->value->arg2;
+            powerst->overcharge_check_idx = context->value->longs[2];
             break;
         case 16: // PlayerState
-            powerst->work_state = context->value->arg2;
+            powerst->work_state = context->value->longs[2];
             break;
         case 17: // ParentPower
-            powerst->parent_power = context->value->arg2;
+            powerst->parent_power = context->value->longs[2];
             break;
         case 18: // SoundPlayed
-            powerst->select_sound_idx = context->value->arg2;
+            powerst->select_sound_idx = context->value->longs[2];
             break;
         case 19: // Cooldown
-            powerst->cast_cooldown = context->value->arg2;
+            powerst->cast_cooldown = context->value->longs[2];
             break;
         default:
             WARNMSG("Unsupported power configuration, variable %d.", context->value->bytes[2]);
@@ -4969,7 +5369,7 @@ static void set_player_color_process(struct ScriptContext *context)
         }
 
         dungeon->color_idx = color_idx;
-        
+
         update_panel_color_player_color(plyr_idx,color_idx);
 
         for (MapSlabCoord slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
@@ -5000,7 +5400,7 @@ static void set_player_color_process(struct ScriptContext *context)
             }
             i = thing->next_of_class;
             // Per-thing code
-            
+
             if (thing->owner == plyr_idx)
             {
                 ThingModel base_model = get_coloured_object_base_model(thing->model);
@@ -5038,7 +5438,7 @@ static void set_game_rule_check(const struct ScriptLine* scline)
                 //this one is a special case because in the cfg it's not done trough number
                 if ((ruleval < 0) || (ruleval >= ClscBug_ListEnd))
                 {
-                    SCRPTERRLOG("Game Rule '%s' value %d out of range", scline->tp[0], ruleval);
+                    SCRPTERRLOG("Game Rule '%s' value %ld out of range", scline->tp[0], ruleval);
                     DEALLOCATE_SCRIPT_VALUE
                     return;
                 }
@@ -5056,12 +5456,12 @@ static void set_game_rule_check(const struct ScriptLine* scline)
                 if (ruleval < (ruleblocks[i]+ruledesc)->min)
                 {
                     ruleval = (ruleblocks[i]+ruledesc)->min;
-                    SCRPTERRLOG("Game Rule '%s' value %d is smaller then minimum of %d", scline->tp[0], ruleval,(ruleblocks[i]+ruledesc)->min);
+                    SCRPTERRLOG("Game Rule '%s' value %ld is smaller then minimum of %I64d", scline->tp[0], ruleval,(ruleblocks[i]+ruledesc)->min);
                 }
                 else if(ruleval > (ruleblocks[i]+ruledesc)->max)
                 {
                     ruleval = (ruleblocks[i]+ruledesc)->max;
-                    SCRPTERRLOG("Game Rule '%s' value %d is bigger then maximum of %d", scline->tp[0], ruleval,(ruleblocks[i]+ruledesc)->max);
+                    SCRPTERRLOG("Game Rule '%s' value %ld is bigger then maximum of %I64d", scline->tp[0], ruleval,(ruleblocks[i]+ruledesc)->max);
                 }
                 break;
             }
@@ -5077,7 +5477,7 @@ static void set_game_rule_check(const struct ScriptLine* scline)
 
     value->shorts[0] = rulegroup;
     value->shorts[1] = ruledesc;
-    value->arg1 = ruleval;
+    value->longs[1] = ruleval;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -5085,12 +5485,12 @@ static void set_game_rule_process(struct ScriptContext* context)
 {
     short rulegroup = context->value->shorts[0];
     short ruledesc  = context->value->shorts[1];
-    long rulevalue  = context->value->arg1;
+    long rulevalue  = context->value->longs[1];
 
 
     if(rulegroup != -1)
     {
-        SCRIPTDBG(7,"Changing Game Rule '%s' to %d", (ruleblocks[rulegroup]+ruledesc)->name, rulevalue);
+        SCRIPTDBG(7,"Changing Game Rule '%s' to %ld", (ruleblocks[rulegroup]+ruledesc)->name, rulevalue);
         assign_named_field_value((ruleblocks[rulegroup]+ruledesc),rulevalue);
         return;
     }
@@ -5103,14 +5503,24 @@ static void set_game_rule_process(struct ScriptContext* context)
     {
     case 1: //PreserveClassicBugs
         //this one is a special case because in the cfg it's not done trough number
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.classic_bugs_flags, rulevalue);
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %lu to %ld", rulename, game.conf.rules.game.classic_bugs_flags, rulevalue);
         game.conf.rules.game.classic_bugs_flags = rulevalue;
         break;
     case 2: //AlliesShareVision
         //this one is a special case because it updates minimap
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.allies_share_vision, rulevalue);
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %ld", rulename, game.conf.rules.game.allies_share_vision, rulevalue);
         game.conf.rules.game.allies_share_vision = (TbBool)rulevalue;
         panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
+        break;
+    case 3: //MapCreatureLimit
+        //this one is a special case because it needs to kill of additional creatures
+        SCRIPTDBG(7, "Changing Game Rule '%s' from %u to %ld", rulename, game.conf.rules.game.creatures_count, rulevalue);
+        game.conf.rules.game.creatures_count = rulevalue;
+        short count = setup_excess_creatures_to_leave_or_die(game.conf.rules.game.creatures_count);
+        if (count > 0)
+        {
+            SCRPTLOG("Map creature limit reduced, causing %d creatures to leave or die",count);
+        }
         break;
     default:
         WARNMSG("Unsupported Game Rule, command %d.", ruledesc);
@@ -5130,7 +5540,7 @@ static void set_increase_on_experience_check(const struct ScriptLine* scline)
     }
     if (scline->np[1] < 0)
     {
-        SCRPTERRLOG("Value %d out of range for variable '%s'.", scline->np[1], scline->tp[0]);
+        SCRPTERRLOG("Value %ld out of range for variable '%s'.", scline->np[1], scline->tp[0]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -5148,55 +5558,55 @@ static void set_increase_on_experience_process(struct ScriptContext* context)
     switch (variable)
     {
     case 1: //SizeIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.size_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %ld to %d.", varname, game.conf.crtr_conf.exp.size_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.size_increase_on_exp = context->value->shorts[1];
         break;
     case 2: //PayIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.pay_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %ld to %d.", varname, game.conf.crtr_conf.exp.pay_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.pay_increase_on_exp = context->value->shorts[1];
         break;
     case 3: //SpellDamageIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.spell_damage_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %ld to %d.", varname, game.conf.crtr_conf.exp.spell_damage_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.spell_damage_increase_on_exp = context->value->shorts[1];
         break;
     case 4: //RangeIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.range_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %ld to %d.", varname, game.conf.crtr_conf.exp.range_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.range_increase_on_exp = context->value->shorts[1];
         break;
     case 5: //JobValueIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.job_value_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %ld to %d.", varname, game.conf.crtr_conf.exp.job_value_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.job_value_increase_on_exp = context->value->shorts[1];
         break;
     case 6: //HealthIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.health_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %ld to %d.", varname, game.conf.crtr_conf.exp.health_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.health_increase_on_exp = context->value->shorts[1];
         break;
     case 7: //StrengthIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.strength_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %ld to %d.", varname, game.conf.crtr_conf.exp.strength_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.strength_increase_on_exp = context->value->shorts[1];
         break;
     case 8: //DexterityIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.dexterity_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %ld to %d.", varname, game.conf.crtr_conf.exp.dexterity_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.dexterity_increase_on_exp = context->value->shorts[1];
         break;
     case 9: //DefenseIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.defense_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %ld to %d.", varname, game.conf.crtr_conf.exp.defense_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.defense_increase_on_exp = context->value->shorts[1];
         break;
     case 10: //LoyaltyIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.loyalty_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %ld to %d.", varname, game.conf.crtr_conf.exp.loyalty_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.loyalty_increase_on_exp = context->value->shorts[1];
         break;
     case 11: //ExpForHittingIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.exp_on_hitting_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %ld to %d.", varname, game.conf.crtr_conf.exp.exp_on_hitting_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.exp_on_hitting_increase_on_exp = context->value->shorts[1];
         break;
     case 12: //TrainingCostIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.training_cost_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %ld to %d.", varname, game.conf.crtr_conf.exp.training_cost_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.training_cost_increase_on_exp = context->value->shorts[1];
         break;
     case 13: //ScavengingCostIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %ld to %d.", varname, game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp = context->value->shorts[1];
         break;
     default:
@@ -5225,7 +5635,7 @@ static void set_player_modifier_check(const struct ScriptLine* scline)
     }
     if (scline->np[0] == game.neutral_player_num)
     {
-        SCRPTERRLOG("Can't manipulate Player Modifier '%s', player %d has no dungeon.", mdfrname, scline->np[0]);
+        SCRPTERRLOG("Can't manipulate Player Modifier '%s', player %ld has no dungeon.", mdfrname, scline->np[0]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -5250,6 +5660,7 @@ static void set_player_modifier_process(struct ScriptContext* context)
             case 1: // Health
                 SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.health, mdfrval);
                 dungeon->modifier.health = mdfrval;
+                do_to_players_all_creatures_of_model(plyr_idx, CREATURE_ANY, update_relative_creature_health);
                 break;
             case 2: // Strength
                 SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.strength, mdfrval);
@@ -5266,6 +5677,7 @@ static void set_player_modifier_process(struct ScriptContext* context)
             case 5: // Speed
                 SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.speed, mdfrval);
                 dungeon->modifier.speed = mdfrval;
+                do_to_players_all_creatures_of_model(plyr_idx, CREATURE_ANY, update_creature_speed);
                 break;
             case 6: // Salary
                 SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.pay, mdfrval);
@@ -5304,7 +5716,7 @@ static void add_to_player_modifier_check(const struct ScriptLine* scline)
     }
     if (scline->np[0] == game.neutral_player_num)
     {
-        SCRPTERRLOG("Can't manipulate Player Modifier '%s', player %d has no dungeon.", mdfrname, scline->np[0]);
+        SCRPTERRLOG("Can't manipulate Player Modifier '%s', player %ld has no dungeon.", mdfrname, scline->np[0]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -5330,6 +5742,7 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
                 if (mdfradd >= 0) {
                     SCRIPTDBG(7,"Adding %d to Player %d Modifier '%s'.", mdfrval, (int)plyr_idx, mdfrname);
                     dungeon->modifier.health = mdfradd;
+                    do_to_players_all_creatures_of_model(plyr_idx, CREATURE_ANY, update_relative_creature_health);
                 } else {
                     SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.health);
                 }
@@ -5366,6 +5779,7 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
                 if (mdfradd >= 0) {
                     SCRIPTDBG(7,"Adding %d to Player %d Modifier '%s'.", mdfrval, (int)plyr_idx, mdfrname);
                     dungeon->modifier.speed = mdfradd;
+                    do_to_players_all_creatures_of_model(plyr_idx, CREATURE_ANY, update_creature_speed);
                 } else {
                     SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.speed);
                 }
@@ -5488,11 +5902,11 @@ static void reset_action_point_check(const struct ScriptLine* scline)
     long apt_idx = action_point_number_to_index(scline->np[0]);
     if (!action_point_exists_idx(apt_idx))
     {
-        SCRPTERRLOG("Non-existing Action Point, no %d", scline->np[0]);
+        SCRPTERRLOG("Non-existing Action Point, no %ld", scline->np[0]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-    value->arg0 = apt_idx;
+    value->longs[0] = apt_idx;
     PlayerNumber plyr_idx = (scline->tp[1][0] == '\0') ? ALL_PLAYERS : get_id(player_desc, scline->tp[1]);
     if (plyr_idx == -1)
     {
@@ -5506,7 +5920,7 @@ static void reset_action_point_check(const struct ScriptLine* scline)
 
 static void reset_action_point_process(struct ScriptContext* context)
 {
-    action_point_reset_idx(context->value->arg0, context->value->chars[4]);
+    action_point_reset_idx(context->value->longs[0], context->value->chars[4]);
 }
 
 static void quick_message_check(const struct ScriptLine* scline)
@@ -5514,7 +5928,7 @@ static void quick_message_check(const struct ScriptLine* scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     if ((scline->np[0] < 0) || (scline->np[0] >= QUICK_MESSAGES_COUNT))
     {
-        SCRPTERRLOG("Invalid information ID number (%d)", scline->np[0]);
+        SCRPTERRLOG("Invalid information ID number (%ld)", scline->np[0]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -5524,30 +5938,30 @@ static void quick_message_check(const struct ScriptLine* scline)
     }
     if ((gameadd.quick_messages[scline->np[0]][0] != '\0') && (strcmp(gameadd.quick_messages[scline->np[0]],scline->tp[1]) != 0))
     {
-        SCRPTWRNLOG("Quick Message no %d overwritten by different text", scline->np[0]);
+        SCRPTWRNLOG("Quick Message no %ld overwritten by different text", scline->np[0]);
     }
     snprintf(gameadd.quick_messages[scline->np[0]], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
-    value->uarg0 = scline->np[0];
+    value->longs[0]= scline->np[0];
     get_player_number_from_value(scline->tp[2], &value->chars[4], &value->chars[5]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void quick_message_process(struct ScriptContext* context)
 {
-    message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", gameadd.quick_messages[context->value->uarg0]);
+    message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", gameadd.quick_messages[context->value->ulongs[0]]);
 }
 
 static void display_message_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    value->uarg0 = scline->np[0];
+    value->ulongs[0] = scline->np[0];
     get_player_number_from_value(scline->tp[1], &value->chars[4], &value->chars[5]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void display_message_process(struct ScriptContext* context)
 {
-    message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", get_string(context->value->uarg0));
+    message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", get_string(context->value->ulongs[0]));
 }
 
 static void change_slab_texture_check(const struct ScriptLine* scline)
@@ -5555,7 +5969,7 @@ static void change_slab_texture_check(const struct ScriptLine* scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     if ( (scline->np[0] < 0) || (scline->np[0] >= gameadd.map_tiles_x) || (scline->np[1] < 0) || (scline->np[1] >= gameadd.map_tiles_y) )
     {
-        SCRPTERRLOG("Invalid co-ordinates: %d, %d", scline->np[0], scline->np[1]);
+        SCRPTERRLOG("Invalid co-ordinates: %ld, %ld", scline->np[0], scline->np[1]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -5575,7 +5989,7 @@ static void change_slab_texture_check(const struct ScriptLine* scline)
     }
     if ( (scline->np[2] < 0) || (scline->np[2] >= TEXTURE_VARIATIONS_COUNT) )
     {
-        SCRPTERRLOG("Invalid texture ID: %d", scline->np[2]);
+        SCRPTERRLOG("Invalid texture ID: %ld", scline->np[2]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -5583,7 +5997,7 @@ static void change_slab_texture_check(const struct ScriptLine* scline)
     value->shorts[1] = scline->np[1];
     value->bytes[4] = (unsigned char)texture_id;
     value->chars[5] = get_id(fill_desc, scline->tp[3]);
-    if ((scline->tp[3] != NULL) && (strcmp(scline->tp[3],"") != 0) && (value->chars[5] == -1))
+    if ((scline->tp[3][0] != '\0') && (value->chars[5] == -1))
     {
         SCRPTWRNLOG("Fill type %s not recognized", scline->tp[3]);
     }
@@ -5601,7 +6015,7 @@ static void change_slab_texture_process(struct ScriptContext* context)
         iter_param.num2 = context->value->chars[5]; // fill type
         iter_param.num3 = get_slabmap_block(slb_x, slb_y)->kind;
         slabs_fill_iterate_from_slab(slb_x, slb_y, slabs_change_texture, &iter_param);
-    } 
+    }
     else
     {
         SlabCodedCoords slb_num = get_slab_number(context->value->shorts[0], context->value->shorts[1]);
@@ -5612,44 +6026,476 @@ static void change_slab_texture_process(struct ScriptContext* context)
 
 static void computer_player_check(const struct ScriptLine* scline)
 {
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     long plr_range_id = scline->np[0];
-    const char *comp_model = scline->tp[1];
-    
-    if (get_script_current_condition() != CONDITION_ALWAYS)
-    {
-        SCRPTWRNLOG("Computer player setup inside conditional block; condition ignored");
-    }
+    const char* comp_model = scline->tp[1];
     int plr_start;
     int plr_end;
-    if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
-        SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
-        return;
-    }
-    if(parameter_is_number(comp_model))
+    char model = 0;
+    char type = PT_Keeper;
+    TbBool toggle = true;
+
+    if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0)
     {
-        for (long i = plr_start; i < plr_end; i++)
+        SCRPTERRLOG("Given owning player range %d is not supported in this command", (int)plr_range_id);
+        DEALLOCATE_SCRIPT_VALUE
+    }
+    for (long i = plr_start; i < plr_end; i++)
+    {
+        set_flag(value->shorts[2], to_flag(i));
+    }
+    if (parameter_is_number(comp_model))
+    {
+        model = atoi(comp_model);
+    }
+    else if (strcasecmp(comp_model, "ROAMING") == 0)
+    {
+        type = PT_Roaming;
+    }
+    else if (strcasecmp(comp_model, "OFF") == 0)
+    {
+        toggle = false;
+    }
+    else
+    {
+        SCRPTERRLOG("invalid COMPUTER_PLAYER param '%s'", comp_model);
+        DEALLOCATE_SCRIPT_VALUE
+    }
+
+    value->bytes[0] = plr_start;
+    value->bytes[1] = plr_end;
+    value->bytes[2] = type;
+    value->bytes[3] = model;
+    value->bytes[6] = toggle;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void computer_player_process(struct ScriptContext* context)
+{
+    char plr_start = context->value->bytes[0];
+    char plr_end = context->value->bytes[1];
+    char playertype = context->value->bytes[2];
+    char model = context->value->bytes[3];
+    short owner_flags = context->value->shorts[2];
+    TbBool toggle = context->value->bytes[6];
+    struct PlayerInfo* player = INVALID_PLAYER;
+    for (int i = plr_start; i < plr_end; i++)
+    {
+        if (i == PLAYER_NEUTRAL)
         {
-            script_support_setup_player_as_computer_keeper(i, atoi(comp_model));
+            continue;
         }
-    }
-    else if(strcasecmp(comp_model,"ROAMING") == 0)
-    {
-        for (long i = plr_start; i < plr_end; i++)
+        if (playertype == PT_Roaming)
         {
-            if(i == PLAYER_NEUTRAL)
-            {
-                continue;
-            }
-            struct PlayerInfo* player = get_player(i);
+            player = get_player(i);
             player->player_type = PT_Roaming;
             player->allocflags |= PlaF_Allocated;
             player->allocflags |= PlaF_CompCtrl;
             player->id_number = i;
         }
+        else
+        {
+            if (flag_is_set(owner_flags, to_flag(i)))
+            {
+                if (toggle == true)
+                {
+                    script_support_setup_player_as_computer_keeper(i, model);
+                    get_dungeon(i)->turns_between_entrance_generation = game.generate_speed;
+                    init_creature_states_for_player(i);
+                    post_init_player(get_player(i));
+                }
+                else
+                {
+                    script_support_setup_player_as_zombie_keeper(i);
+                }
+            }
+        }
+        recalculate_player_creature_digger_lists(i);
+    }
+}
+
+static void add_object_to_level_at_pos_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    short tngmodel = get_rid(object_desc, scline->tp[0]);
+    if (tngmodel == -1)
+    {
+        SCRPTERRLOG("Unknown object: %s", scline->tp[0]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->shorts[0] = tngmodel;
+    if (!subtile_coords_invalid(scline->np[1], scline->np[2]))
+    {
+        value->shorts[1] = scline->np[1];
+        value->shorts[2] = scline->np[2];
     }
     else
     {
-        ERRORLOG("invalid COMPUTER_PLAYER param '%s'",comp_model);
+        SCRPTERRLOG("Invalid subtile co-ordinates: %ld, %ld", scline->np[1], scline->np[2]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->longs[2] = scline->np[3];
+    PlayerNumber plyr_idx = get_rid(player_desc, scline->tp[4]);
+    if ((plyr_idx == -1) || (plyr_idx == ALL_PLAYERS))
+    {
+        plyr_idx = PLAYER_NEUTRAL;
+    }
+    value->chars[6] = plyr_idx;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void add_object_to_level_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    short obj_id = get_rid(object_desc, scline->tp[0]);
+    if (obj_id == -1)
+    {
+        SCRPTERRLOG("Unknown object, '%s'", scline->tp[0]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->shorts[0] = obj_id;
+    TbMapLocation location;
+    if (!get_map_location_id(scline->tp[1], &location))
+    {
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->ulongs[1] = location;
+    value->longs[2] = scline->np[2];
+    PlayerNumber plyr_idx = get_rid(player_desc, scline->tp[3]);
+    if ((plyr_idx == -1) || (plyr_idx == ALL_PLAYERS))
+    {
+        plyr_idx = PLAYER_NEUTRAL;
+    }
+    value->chars[2] = plyr_idx;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void add_object_to_level_process(struct ScriptContext* context)
+{
+    struct Coord3d pos;
+    if (get_coords_at_location(&pos,context->value->ulongs[1],true))
+    {
+        script_process_new_object(context->value->shorts[0], pos.x.stl.num, pos.y.stl.num, context->value->longs[2], context->value->chars[2]);
+    }
+}
+
+static void add_object_to_level_at_pos_process(struct ScriptContext* context)
+{
+    script_process_new_object(context->value->shorts[0], context->value->shorts[1], context->value->shorts[2], context->value->longs[2], context->value->chars[6]);
+}
+
+static void set_computer_globals_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    long plr_range_id = scline->np[0];
+
+    int plr_start;
+    int plr_end;
+    if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
+        SCRPTERRLOG("Given owning player range %d is not supported in this command", (int)plr_range_id);
+        return;
+    }
+
+    value->shorts[0] = plr_start;
+    value->shorts[1] = plr_end;
+    value->longs[1] = scline->np[1];
+    value->longs[2] = scline->np[2];
+    value->longs[3] = scline->np[3];
+    value->longs[4] = scline->np[4];
+    value->longs[5] = scline->np[5];
+    value->longs[6] = scline->np[6];
+    value->longs[7] = -1;
+    if (scline->np[7] != '\0')
+    {
+        value->longs[7] = scline->np[7];
+    }
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_computer_globals_process(struct ScriptContext* context)
+{
+    int plr_start = context->value->shorts[0];
+    int plr_end = context->value->shorts[1];
+    long val1 = context->value->longs[1];
+    long val2 = context->value->longs[2];
+    long val3 = context->value->longs[3];
+    long val4 = context->value->longs[4];
+    long val5 = context->value->longs[5];
+    long val6 = context->value->longs[6];
+    long val7 = context->value->longs[7];
+
+    for (long i = plr_start; i < plr_end; i++)
+    {
+        struct Computer2* comp = get_computer_player(i);
+        if (computer_player_invalid(comp))
+        {
+            continue;
+        }
+        comp->dig_stack_size = val1;
+        comp->processes_time = val2;
+        comp->click_rate = val3;
+        comp->max_room_build_tasks = val4;
+        comp->turn_begin = val5;
+        comp->sim_before_dig = val6;
+        if (val7 != -1)
+        {
+            comp->task_delay = val7;
+        }
+    }
+}
+
+static void set_computer_process_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    long plr_range_id = scline->np[0];
+
+    int plr_start;
+    int plr_end;
+    if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
+        SCRPTERRLOG("Given owning player range %d is not supported in this command", (int)plr_range_id);
+        return;
+    }
+
+    value->shorts[0] = plr_start;
+    value->shorts[1] = plr_end;
+    value->longs[1] = scline->np[2];
+    value->longs[2] = scline->np[3];
+    value->longs[3] = scline->np[4];
+    value->longs[4] = scline->np[5];
+    value->longs[5] = scline->np[6];
+    value->strs[6] = script_strdup(scline->tp[1]);
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_computer_process_process(struct ScriptContext* context)
+{
+    int plr_start = context->value->shorts[0];
+    int plr_end = context->value->shorts[1];
+    const char* procname = context->value->strs[6];
+    long val1 = context->value->longs[1];
+    long val2 = context->value->longs[2];
+    long val3 = context->value->longs[3];
+    long val4 = context->value->longs[4];
+    long val5 = context->value->longs[5];
+    long n = 0;
+    for (long i = plr_start; i < plr_end; i++)
+    {
+        struct Computer2* comp = get_computer_player(i);
+        if (computer_player_invalid(comp)) {
+            continue;
+        }
+        for (long k = 0; k < COMPUTER_PROCESSES_COUNT; k++)
+        {
+            struct ComputerProcess* cproc = &comp->processes[k];
+            if (flag_is_set(cproc->flags, ComProc_Unkn0002))
+                break;
+            if (cproc->name == NULL)
+                break;
+            if (strcasecmp(procname, cproc->name) == 0)
+            {
+                SCRPTLOG("Changing computer %d process '%s' config from (%d,%d,%d,%d,%d) to (%d,%d,%d,%d,%d)", (int)i, cproc->name,
+                    (int)cproc->priority, (int)cproc->confval_2, (int)cproc->confval_3, (int)cproc->confval_4, (int)cproc->confval_5,
+                    (int)val1, (int)val2, (int)val3, (int)val4, (int)val5);
+                cproc->priority = val1;
+                cproc->confval_2 = val2;
+                cproc->confval_3 = val3;
+                cproc->confval_4 = val4;
+                cproc->confval_5 = val5;
+                n++;
+            }
+        }
+    }
+    if (n == 0)
+    {
+        SCRIPTDBG(6, "No computer process found named '%s' in players %d to %d", procname, (int)plr_start, (int)plr_end - 1);
+        return;
+    }
+    SCRIPTDBG(6, "Altered %ld processes named '%s'", n, procname);
+}
+
+static void set_computer_checks_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+
+    long plr_range_id = scline->np[0];
+    int plr_start;
+    int plr_end;
+    if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
+        SCRPTERRLOG("Given owning player range %d is not supported in this command", (int)plr_range_id);
+        return;
+    }
+
+    value->shorts[0] = plr_start;
+    value->shorts[1] = plr_end;
+    value->longs[1] = scline->np[2];
+    value->longs[2] = scline->np[3];
+    value->longs[3] = scline->np[4];
+    value->longs[4] = scline->np[5];
+    value->longs[5] = scline->np[6];
+    value->strs[6] = script_strdup(scline->tp[1]);
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_computer_checks_process(struct ScriptContext* context)
+{
+    int plr_start = context->value->shorts[0];
+    int plr_end = context->value->shorts[1];
+    const char* chkname = context->value->strs[6];
+    long val1 = context->value->longs[1];
+    long val2 = context->value->longs[2];
+    long val3 = context->value->longs[3];
+    long val4 = context->value->longs[4];
+    long val5 = context->value->longs[5];
+
+    long n = 0;
+    for (long i = plr_start; i < plr_end; i++)
+    {
+        struct Computer2* comp = get_computer_player(i);
+        if (computer_player_invalid(comp)) {
+            continue;
+        }
+        for (long k = 0; k < COMPUTER_CHECKS_COUNT; k++)
+        {
+            struct ComputerCheck* ccheck = &comp->checks[k];
+            if ((ccheck->flags & ComChk_Unkn0002) != 0)
+                break;
+            if (ccheck->name == NULL)
+                break;
+            if (strcasecmp(chkname, ccheck->name) == 0)
+            {
+                SCRPTLOG("Changing computer %d check '%s' config from (%d,%d,%d,%d,%d) to (%d,%d,%d,%d,%d)", (int)i, ccheck->name,
+                    (int)ccheck->turns_interval, (int)ccheck->param1, (int)ccheck->param2, (int)ccheck->param3, (int)ccheck->last_run_turn,
+                    (int)val1, (int)val2, (int)val3, (int)val4, (int)val5);
+                ccheck->turns_interval = val1;
+                ccheck->param1 = val2;
+                ccheck->param2 = val3;
+                ccheck->param3 = val4;
+                ccheck->last_run_turn = val5;
+                n++;
+            }
+        }
+    }
+    if (n == 0)
+    {
+        SCRPTERRLOG("No computer check found named '%s' in players %d to %d", chkname, (int)plr_start, (int)plr_end - 1);
+        return;
+    }
+    SCRIPTDBG(6, "Altered %ld checks named '%s'", n, chkname);
+}
+
+static void set_computer_event_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+
+    long plr_range_id = scline->np[0];
+    int plr_start;
+    int plr_end;
+    if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
+        SCRPTERRLOG("Given owning player range %d is not supported in this command", (int)plr_range_id);
+        return;
+    }
+    if (!player_exists(get_player(plr_range_id)))
+    {
+        SCRPTERRLOG("Player %d does not exist; cannot modify events", (int)plr_range_id);
+        return;
+    }
+    value->shorts[0] = plr_start;
+    value->shorts[1] = plr_end;
+    value->longs[1] = scline->np[2];
+    value->longs[2] = scline->np[3];
+    value->longs[3] = scline->np[4];
+    value->longs[4] = scline->np[5];
+    value->longs[5] = scline->np[6];
+    value->strs[6] = script_strdup(scline->tp[1]);
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_computer_event_process(struct ScriptContext* context)
+{
+    int plr_start = context->value->shorts[0];
+    int plr_end = context->value->shorts[1];
+    const char* evntname = context->value->strs[6];
+    long val1 = context->value->longs[1];
+    long val2 = context->value->longs[2];
+    long val3 = context->value->longs[3];
+    long val4 = context->value->longs[4];
+    long val5 = context->value->longs[5];
+
+    long n = 0;
+    for (long i = plr_start; i < plr_end; i++)
+    {
+        struct Computer2* comp = get_computer_player(i);
+        if (computer_player_invalid(comp)) {
+            continue;
+        }
+        for (long k = 0; k < COMPUTER_EVENTS_COUNT; k++)
+        {
+            struct ComputerEvent* event = &comp->events[k];
+            if (event->name == NULL)
+                break;
+            if (strcasecmp(evntname, event->name) == 0)
+            {
+                if (level_file_version > 0)
+                {
+                    SCRPTLOG("Changing computer %d event '%s' config from (%d,%d,%d,%d,%d) to (%d,%d,%d,%d,%d)",
+                        (int)i, event->name,
+                        (int)event->test_interval, (int)event->param1, (int)event->param2, (int)event->param3, (int)event->last_test_gameturn,
+                        (int)val1, (int)val2, (int)val3, (int)val4, (int)val5);
+                    event->test_interval = val1;
+                    event->param1 = val2;
+                    event->param2 = val3;
+                    event->param3 = val4;
+                    event->last_test_gameturn = val5;
+                    n++;
+                }
+                else
+                {
+                    SCRPTLOG("Changing computer %d event '%s' config from (%d,%d) to (%d,%d)", (int)i, event->name,
+                        (int)event->param1, (int)event->param2, (int)val1, (int)val2);
+                    event->param1 = val1;
+                    event->param2 = val2;
+                    n++;
+                }
+            }
+        }
+    }
+    if (n == 0)
+    {
+        SCRPTERRLOG("No computer event found named '%s' in players %d to %d", evntname, (int)plr_start, (int)plr_end - 1);
+        return;
+    }
+    SCRIPTDBG(6, "Altered %ld events named '%s'", n, evntname);
+}
+
+static void swap_creature_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    ThingModel ncrt_id = scline->np[0];
+    ThingModel crtr_id = scline->np[1];
+
+    struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_id];
+    if ((crconf->model_flags & CMF_IsSpecDigger) != 0)
+    {
+        SCRPTERRLOG("Unable to swap special diggers");
+        DEALLOCATE_SCRIPT_VALUE;
+    }
+    value->shorts[0] = ncrt_id;
+    value->shorts[1] = crtr_id;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void swap_creature_process(struct ScriptContext* context)
+{
+    ThingModel ncrt_id = context->value->shorts[0];
+    ThingModel crtr_id = context->value->shorts[1];
+
+    if (!swap_creature(ncrt_id, crtr_id))
+    {
+        SCRPTERRLOG("Error swapping creatures '%s'<->'%s'", creature_code_name(ncrt_id), creature_code_name(crtr_id));
     }
 }
 
@@ -5664,7 +6510,7 @@ const struct CommandDesc command_desc[] = {
   {"DELETE_FROM_PARTY",                 "ACN     ", Cmd_DELETE_FROM_PARTY, &delete_from_party_check, NULL},
   {"ADD_PARTY_TO_LEVEL",                "PAAN    ", Cmd_ADD_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_LEVEL",             "PCANNN  ", Cmd_ADD_CREATURE_TO_LEVEL, NULL, NULL},
-  {"ADD_OBJECT_TO_LEVEL",               "AANp    ", Cmd_ADD_OBJECT_TO_LEVEL, NULL, NULL},
+  {"ADD_OBJECT_TO_LEVEL",               "AANp    ", Cmd_ADD_OBJECT_TO_LEVEL, &add_object_to_level_check, &add_object_to_level_process},
   {"IF",                                "PAOAa   ", Cmd_IF, &if_check, NULL},
   {"IF_ACTION_POINT",                   "NP      ", Cmd_IF_ACTION_POINT, NULL, NULL},
   {"ENDIF",                             "        ", Cmd_ENDIF, NULL, NULL},
@@ -5678,7 +6524,7 @@ const struct CommandDesc command_desc[] = {
   {"TRAP_AVAILABLE",                    "PANN    ", Cmd_TRAP_AVAILABLE, NULL, NULL},
   {"RESEARCH",                          "PAAN    ", Cmd_RESEARCH, NULL, NULL},
   {"RESEARCH_ORDER",                    "PAAN    ", Cmd_RESEARCH_ORDER, NULL, NULL},
-  {"COMPUTER_PLAYER",                   "PA      ", Cmd_COMPUTER_PLAYER, &computer_player_check, NULL},
+  {"COMPUTER_PLAYER",                   "PA      ", Cmd_COMPUTER_PLAYER, &computer_player_check, &computer_player_process},
   {"SET_TIMER",                         "PA      ", Cmd_SET_TIMER, NULL, NULL},
   {"ADD_TUNNELLER_TO_LEVEL",            "PAANNN  ", Cmd_ADD_TUNNELLER_TO_LEVEL, NULL, NULL},
   {"WIN_GAME",                          "        ", Cmd_WIN_GAME, NULL, NULL},
@@ -5706,10 +6552,10 @@ const struct CommandDesc command_desc[] = {
   {"SET_CREATURE_PROPERTY",             "CAN     ", Cmd_SET_CREATURE_PROPERTY, NULL, NULL},
   {"IF_AVAILABLE",                      "PAOAa   ", Cmd_IF_AVAILABLE, &if_available_check, NULL},
   {"IF_CONTROLS",                       "PAOAa   ", Cmd_IF_CONTROLS,  &if_controls_check, NULL},
-  {"SET_COMPUTER_GLOBALS",              "PNNNNNNn", Cmd_SET_COMPUTER_GLOBALS, NULL, NULL},
-  {"SET_COMPUTER_CHECKS",               "PANNNNN ", Cmd_SET_COMPUTER_CHECKS, NULL, NULL},
-  {"SET_COMPUTER_EVENT",                "PANNNNN ", Cmd_SET_COMPUTER_EVENT, NULL, NULL},
-  {"SET_COMPUTER_PROCESS",              "PANNNNN ", Cmd_SET_COMPUTER_PROCESS, NULL, NULL},
+  {"SET_COMPUTER_GLOBALS",              "PNNNNNNn", Cmd_SET_COMPUTER_GLOBALS, &set_computer_globals_check, &set_computer_globals_process},
+  {"SET_COMPUTER_CHECKS",               "PANNNNN ", Cmd_SET_COMPUTER_CHECKS, &set_computer_checks_check, &set_computer_checks_process},
+  {"SET_COMPUTER_EVENT",                "PANNNNN ", Cmd_SET_COMPUTER_EVENT, &set_computer_event_check, &set_computer_event_process},
+  {"SET_COMPUTER_PROCESS",              "PANNNNN ", Cmd_SET_COMPUTER_PROCESS, &set_computer_process_check, &set_computer_process_process},
   {"ALLY_PLAYERS",                      "PPN     ", Cmd_ALLY_PLAYERS, NULL, NULL},
   {"DEAD_CREATURES_RETURN_TO_POOL",     "N       ", Cmd_DEAD_CREATURES_RETURN_TO_POOL, NULL, NULL},
   {"BONUS_LEVEL_TIME",                  "Nn      ", Cmd_BONUS_LEVEL_TIME, NULL, NULL},
@@ -5717,7 +6563,7 @@ const struct CommandDesc command_desc[] = {
   {"QUICK_INFORMATION",                 "NAl     ", Cmd_QUICK_INFORMATION, NULL, NULL},
   {"QUICK_OBJECTIVE_WITH_POS",          "NANN    ", Cmd_QUICK_OBJECTIVE_WITH_POS, NULL, NULL},
   {"QUICK_INFORMATION_WITH_POS",        "NANN    ", Cmd_QUICK_INFORMATION_WITH_POS, NULL, NULL},
-  {"SWAP_CREATURE",                     "AC      ", Cmd_SWAP_CREATURE, NULL, NULL},
+  {"SWAP_CREATURE",                     "CC      ", Cmd_SWAP_CREATURE, &swap_creature_check, &swap_creature_process},
   {"PRINT",                             "A       ", Cmd_PRINT, NULL, NULL},
   {"MESSAGE",                           "A       ", Cmd_MESSAGE, NULL, NULL},
   {"PLAY_MESSAGE",                      "PAA     ", Cmd_PLAY_MESSAGE, &play_message_check, &play_message_process},
@@ -5725,7 +6571,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_CREATURE_TENDENCIES",           "PAN     ", Cmd_SET_CREATURE_TENDENCIES, NULL, NULL},
   {"REVEAL_MAP_RECT",                   "PNNNN   ", Cmd_REVEAL_MAP_RECT, NULL, NULL},
   {"CONCEAL_MAP_RECT",                  "PNNNNa  ", Cmd_CONCEAL_MAP_RECT, &conceal_map_rect_check, &conceal_map_rect_process},
-  {"REVEAL_MAP_LOCATION",               "PNN     ", Cmd_REVEAL_MAP_LOCATION, &reveal_map_location_check, &reveal_map_location_process},
+  {"REVEAL_MAP_LOCATION",               "PLN     ", Cmd_REVEAL_MAP_LOCATION, &reveal_map_location_check, &reveal_map_location_process},
   {"LEVEL_VERSION",                     "N       ", Cmd_LEVEL_VERSION, NULL, NULL},
   {"KILL_CREATURE",                     "PC!AN   ", Cmd_KILL_CREATURE, NULL, NULL},
   {"COMPUTER_DIG_TO_LOCATION",          "PLL     ", Cmd_COMPUTER_DIG_TO_LOCATION, NULL, NULL},
@@ -5753,11 +6599,11 @@ const struct CommandDesc command_desc[] = {
   {"LEVEL_UP_PLAYERS_CREATURES",        "PC!n    ", Cmd_LEVEL_UP_PLAYERS_CREATURES, &level_up_players_creatures_check, level_up_players_creatures_process},
   {"CHANGE_CREATURE_OWNER",             "PC!AP   ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},
   {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, &set_game_rule_check, &set_game_rule_process},
-  {"SET_ROOM_CONFIGURATION",            "AAAa!n! ", Cmd_SET_ROOM_CONFIGURATION, &set_room_configuration_check, &set_room_configuration_process},
-  {"SET_TRAP_CONFIGURATION",            "AAAn!n! ", Cmd_SET_TRAP_CONFIGURATION, &set_trap_configuration_check, &set_trap_configuration_process},
-  {"SET_DOOR_CONFIGURATION",            "AAAn!   ", Cmd_SET_DOOR_CONFIGURATION, &set_door_configuration_check, &set_door_configuration_process},
-  {"SET_OBJECT_CONFIGURATION",          "AAAn!   ", Cmd_SET_OBJECT_CONFIGURATION, &set_object_configuration_check, &set_object_configuration_process},
-  {"SET_CREATURE_CONFIGURATION",        "CAAa    ", Cmd_SET_CREATURE_CONFIGURATION, &set_creature_configuration_check, &set_creature_configuration_process},
+  {"SET_ROOM_CONFIGURATION",            "AAAan   ", Cmd_SET_ROOM_CONFIGURATION, &set_room_configuration_check, &set_room_configuration_process},
+  {"SET_TRAP_CONFIGURATION",            "AAAnnn  ", Cmd_SET_TRAP_CONFIGURATION, &set_trap_configuration_check, &set_trap_configuration_process},
+  {"SET_DOOR_CONFIGURATION",            "AAAn    ", Cmd_SET_DOOR_CONFIGURATION, &set_door_configuration_check, &set_door_configuration_process},
+  {"SET_OBJECT_CONFIGURATION",          "AAAnnn  ", Cmd_SET_OBJECT_CONFIGURATION, &set_object_configuration_check, &set_object_configuration_process},
+  {"SET_CREATURE_CONFIGURATION",        "CAAaa   ", Cmd_SET_CREATURE_CONFIGURATION, &set_creature_configuration_check, &set_creature_configuration_process},
   {"SET_SACRIFICE_RECIPE",              "AAA+    ", Cmd_SET_SACRIFICE_RECIPE, &set_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"REMOVE_SACRIFICE_RECIPE",           "A+      ", Cmd_REMOVE_SACRIFICE_RECIPE, &remove_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"SET_BOX_TOOLTIP",                   "NA      ", Cmd_SET_BOX_TOOLTIP, &set_box_tooltip, &null_process},
@@ -5784,10 +6630,11 @@ const struct CommandDesc command_desc[] = {
   {"HIDE_TIMER",                        "        ", Cmd_HIDE_TIMER, &cmd_no_param_check, &hide_timer_process},
   {"HIDE_VARIABLE",                     "        ", Cmd_HIDE_VARIABLE, &cmd_no_param_check, &hide_variable_process},
   {"CREATE_EFFECT",                     "AAn     ", Cmd_CREATE_EFFECT, &create_effect_check, &create_effect_process},
-  {"CREATE_EFFECT_AT_POS",              "ANNn    ", Cmd_CREATE_EFFECT_AT_POS, &create_effect_at_pos_check, &create_effect_process},
+  {"CREATE_EFFECT_AT_POS",              "ANNn    ", Cmd_CREATE_EFFECT_AT_POS, &create_effect_at_pos_check, &create_effect_at_pos_process},
   {"HEART_LOST_QUICK_OBJECTIVE",        "NAl     ", Cmd_HEART_LOST_QUICK_OBJECTIVE, &heart_lost_quick_objective_check, &heart_lost_quick_objective_process},
   {"HEART_LOST_OBJECTIVE",              "Nl      ", Cmd_HEART_LOST_OBJECTIVE, &heart_lost_objective_check, &heart_lost_objective_process},
   {"SET_DOOR",                          "ANN     ", Cmd_SET_DOOR, &set_door_check, &set_door_process},
+  {"ZOOM_TO_LOCATION",                  "PL      ", Cmd_MOVE_PLAYER_CAMERA_TO, &player_zoom_to_check, &player_zoom_to_process},
   {"SET_CREATURE_INSTANCE",             "CNAN    ", Cmd_SET_CREATURE_INSTANCE, &set_creature_instance_check, &set_creature_instance_process},
   {"SET_HAND_RULE",                     "PC!Aaaa ", Cmd_SET_HAND_RULE, &set_hand_rule_check, &set_hand_rule_process},
   {"MOVE_CREATURE",                     "PC!ANLa ", Cmd_MOVE_CREATURE, &move_creature_check, &move_creature_process},
@@ -5809,6 +6656,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_PLAYER_MODIFIER",               "PAN     ", Cmd_SET_PLAYER_MODIFIER, &set_player_modifier_check, &set_player_modifier_process},
   {"ADD_TO_PLAYER_MODIFIER",            "PAN     ", Cmd_ADD_TO_PLAYER_MODIFIER, &add_to_player_modifier_check, &add_to_player_modifier_process},
   {"CHANGE_SLAB_TEXTURE",               "NNAa    ", Cmd_CHANGE_SLAB_TEXTURE , &change_slab_texture_check, &change_slab_texture_process},
+  {"ADD_OBJECT_TO_LEVEL_AT_POS",        "ANNNp   ", Cmd_ADD_OBJECT_TO_LEVEL_AT_POS, &add_object_to_level_at_pos_check, &add_object_to_level_at_pos_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
@@ -5829,7 +6677,7 @@ const struct CommandDesc dk1_command_desc[] = {
   {"MAGIC_AVAILABLE",              "PANN    ", Cmd_MAGIC_AVAILABLE, NULL, NULL},
   {"TRAP_AVAILABLE",               "PANN    ", Cmd_TRAP_AVAILABLE, NULL, NULL},
   {"RESEARCH",                     "PAAN    ", Cmd_RESEARCH_ORDER, NULL, NULL},
-  {"COMPUTER_PLAYER",              "PN      ", Cmd_COMPUTER_PLAYER, computer_player_check, NULL},
+  {"COMPUTER_PLAYER",              "PN      ", Cmd_COMPUTER_PLAYER, computer_player_check, computer_player_process},
   {"SET_TIMER",                    "PA      ", Cmd_SET_TIMER, NULL, NULL},
   {"ADD_TUNNELLER_TO_LEVEL",       "PAANNN  ", Cmd_ADD_TUNNELLER_TO_LEVEL, NULL, NULL},
   {"WIN_GAME",                     "        ", Cmd_WIN_GAME, NULL, NULL},
@@ -5853,16 +6701,16 @@ const struct CommandDesc dk1_command_desc[] = {
   {"SET_CREATURE_ARMOUR",          "CN      ", Cmd_SET_CREATURE_ARMOUR, NULL, NULL},
   {"SET_CREATURE_FEAR",            "CN      ", Cmd_SET_CREATURE_FEAR_WOUNDED, NULL, NULL},
   {"IF_AVAILABLE",                 "PAOAa   ", Cmd_IF_AVAILABLE, &if_available_check, NULL},
-  {"SET_COMPUTER_GLOBALS",         "PNNNNNN ", Cmd_SET_COMPUTER_GLOBALS, NULL, NULL},
-  {"SET_COMPUTER_CHECKS",          "PANNNNN ", Cmd_SET_COMPUTER_CHECKS, NULL, NULL},
-  {"SET_COMPUTER_EVENT",           "PANN    ", Cmd_SET_COMPUTER_EVENT, NULL, NULL},
-  {"SET_COMPUTER_PROCESS",         "PANNNNN ", Cmd_SET_COMPUTER_PROCESS, NULL, NULL},
+  {"SET_COMPUTER_GLOBALS",         "PNNNNNN ", Cmd_SET_COMPUTER_GLOBALS, &set_computer_globals_check, &set_computer_globals_process},
+  {"SET_COMPUTER_CHECKS",          "PANNNNN ", Cmd_SET_COMPUTER_CHECKS, &set_computer_checks_check, &set_computer_checks_process},
+  {"SET_COMPUTER_EVENT",           "PANN    ", Cmd_SET_COMPUTER_EVENT, &set_computer_event_check, &set_computer_event_process},
+  {"SET_COMPUTER_PROCESS",         "PANNNNN ", Cmd_SET_COMPUTER_PROCESS, &set_computer_process_check, &set_computer_process_process},
   {"ALLY_PLAYERS",                 "PP      ", Cmd_ALLY_PLAYERS, NULL, NULL},
   {"DEAD_CREATURES_RETURN_TO_POOL","N       ", Cmd_DEAD_CREATURES_RETURN_TO_POOL, NULL, NULL},
   {"BONUS_LEVEL_TIME",             "N       ", Cmd_BONUS_LEVEL_TIME, NULL, NULL},
   {"QUICK_OBJECTIVE",              "NAA     ", Cmd_QUICK_OBJECTIVE, NULL, NULL},
   {"QUICK_INFORMATION",            "NA      ", Cmd_QUICK_INFORMATION, NULL, NULL},
-  {"SWAP_CREATURE",                "AC      ", Cmd_SWAP_CREATURE, NULL, NULL},
+  {"SWAP_CREATURE",                "CC      ", Cmd_SWAP_CREATURE, &swap_creature_check, &swap_creature_process},
   {"PRINT",                        "A       ", Cmd_PRINT, NULL, NULL},
   {"MESSAGE",                      "A       ", Cmd_MESSAGE, NULL, NULL},
   {"LEVEL_VERSION",                "N       ", Cmd_LEVEL_VERSION, NULL, NULL},

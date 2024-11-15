@@ -75,7 +75,7 @@ struct ReceiveCallbacks receiveCallbacks = {
   MultiPlayerCallback,
   MultiPlayerReqExDataMsgCallback,
   RequestCompositeExchangeDataMsgCallback,
-  UnidirectionalMsgCallback,
+  NULL,
   SystemUserMsgCallback,
   NULL,
 };
@@ -105,16 +105,10 @@ unsigned char deletePlayerBuffer[8];
 unsigned char requestExchangeDataBuffer[8];
 unsigned char requestCompositeExchangeDataBuffer[8];
 unsigned char systemUserBuffer[1028];
-unsigned char lastMessage[1028];
-unsigned char lastButOneMessage[1028];
 unsigned long remotePlayerIndex;
 unsigned long remotePlayerId;
-unsigned long unidirectionalMsgReceived;
-struct UnidirectionalDataMessage incomingUnidirectionalMessage;
-struct UnidirectionalDataMessage dataMessage;
-//struct UnidirectionalHeader endMessage;
-//struct UnidirectionalHeader abortMessage;
-struct UnidirectionalRTSMessage rtsMessage;
+
+static int ServerPort = 0;
 /******************************************************************************/
 
 // New network code declarations start here ===================================
@@ -611,6 +605,11 @@ static void AddSession(const char * str, size_t len)
     }
 }
 
+void LbNetwork_SetServerPort(int port)
+{
+    ServerPort = port;
+}
+
 void LbNetwork_InitSessionsFromCmdLine(const char * str)
 {
     const char* start;
@@ -705,7 +704,7 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
       NETMSG("Selecting UDP");
       break;
   default:
-      WARNLOG("The serviceIndex value of %d is out of range", srvcindex);
+      WARNLOG("The serviceIndex value of %lu is out of range", srvcindex);
       res = Lb_FAIL;
       break;
   }
@@ -808,6 +807,7 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
 
 TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns)
 {
+    char buf[16];
   /*if (spPtr == NULL)
   {
     ERRORLOG("ServiceProvider ptr is NULL");
@@ -846,9 +846,19 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_
         ERRORLOG("No network SP selected");
         return Lb_FAIL;
     }
-
-    if (netstate.sp->host(":5555", optns) == Lb_FAIL) {
-        return Lb_FAIL;
+ 
+    if (ServerPort != 0)
+    {
+        sprintf(buf, "%d", ServerPort);
+        if (netstate.sp->host(buf, optns) == Lb_FAIL) {
+            return Lb_FAIL;
+        }
+    }
+    else
+    {
+        if (netstate.sp->host(":5555", optns) == Lb_FAIL) {
+            return Lb_FAIL;
+        }
     }
 
     netstate.my_id = SERVER_ID;
@@ -1348,7 +1358,7 @@ TbError GetCurrentPlayers(void)
   }
   if (localPlayerIndex >= maximumPlayers)
   {
-    WARNLOG("localPlayerIndex not updated, max players %d",maximumPlayers);
+    WARNLOG("localPlayerIndex not updated, max players %lu",maximumPlayers);
     return Lb_FAIL;
   }
   return Lb_OK;
@@ -1429,28 +1439,6 @@ TbError AddAPlayer(struct TbNetworkPlayerNameEntry *plyrname)
   {
     localPlayerId = plyrname->islocal;
     localPlayerIndex = plr_id;
-  }
-  return Lb_OK;
-}
-
-TbError GenericIPXInit(void *init_data)
-{
-  if (spPtr != NULL)
-  {
-    spPtr->Release();
-    delete spPtr;
-    spPtr = NULL;
-  }
-  spPtr = new IPXServiceProvider();
-  if (spPtr == NULL)
-  {
-    WARNLOG("Failure on SP construction");
-    return Lb_FAIL;
-  }
-  if (spPtr->Init(&receiveCallbacks, nullptr) != Lb_OK)
-  {
-    WARNLOG("Failure on SP::Init()");
-    return Lb_FAIL;
   }
   return Lb_OK;
 }
@@ -1724,15 +1712,15 @@ TbError CompleteTwoPlayerExchange(void *buf)
         tmPassed = -tmPassed;
       if (tmPassed > actualTimeout)
       {
-        NETMSG("Timed out (%d) waiting for seq %d - %d ms", tmPassed, sequenceNumber, actualTimeout);
+        NETMSG("Timed out (%ld) waiting for seq %lu - %lu ms", tmPassed, sequenceNumber, actualTimeout);
         nRetries++;
         if (nRetries <= 10)
         {
-          NETMSG("Requesting %d resend of packet (%d)", nRetries, sequenceNumber);
+          NETMSG("Requesting %ld resend of packet (%lu)", nRetries, sequenceNumber);
           SendRequestExchangeDataMsg(remotePlayerId, localPlayerId, sequenceNumber, __func__);
         } else
         {
-          NETMSG("Tried to resend %d times, aborting", nRetries);
+          NETMSG("Tried to resend %ld times, aborting", nRetries);
           SendDeletePlayerMsg(localPlayerId, remotePlayerId, __func__);
           return Lb_FAIL;
         }
@@ -1880,7 +1868,7 @@ void PlayerMapMsgHandler(unsigned long plr_id, void *msg, unsigned long msg_len)
   }
   if (msg_len != len)
   {
-    WARNLOG("Invalid length, %d",msg_len);
+    WARNLOG("Invalid length, %lu",msg_len);
     return;
   }
   LbMemoryCopy(clientDataTable, msg, len);
@@ -1897,7 +1885,7 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
   {
     if (xch_size != exchangeSize)
     {
-      WARNLOG("Invalid length, %d",xch_size);
+      WARNLOG("Invalid length, %lu",xch_size);
       return NULL;
     }
     if (plr_id == localPlayerId)
@@ -1916,12 +1904,12 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
     }
     if (!found_id)
     {
-      WARNLOG("Invalid id: %d",plr_id);
+      WARNLOG("Invalid id: %lu",plr_id);
       return NULL;
     }
     if ((seq != sequenceNumber) && (seq != 15))
     {
-      WARNLOG("Unexpected sequence number: Got %d, expected %d",seq,sequenceNumber);
+      WARNLOG("Unexpected sequence number, Got %lu, expected %lu",seq,sequenceNumber);
       return NULL;
     }
     clientDataTable[plr_id].field_8 = 1;
@@ -1931,7 +1919,7 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
   {
     if (xch_size != exchangeSize)
     {
-      WARNLOG("Invalid length: %d",xch_size);
+      WARNLOG("Invalid length: %lu",xch_size);
       return NULL;
     }
     if (plr_id == localPlayerId)
@@ -1950,7 +1938,7 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
     }
     if (!found_id)
     {
-      WARNLOG("Invalid id: %d",plr_id);
+      WARNLOG("Invalid id: %lu",plr_id);
       return NULL;
     }
     clientDataTable[plr_id].field_8 = 1;
@@ -1972,7 +1960,7 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
   }
   if (!found_id)
   {
-    WARNLOG("Invalid id: %d",plr_id);
+    WARNLOG("Invalid id: %lu",plr_id);
     return 0;
   }
   if (sequenceNumber == 15)
@@ -1981,7 +1969,7 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
   } else
   if (sequenceNumber != seq)
   {
-    WARNLOG("Unexpected sequence number: Got %d, expected %d", seq, sequenceNumber);
+    WARNLOG("Unexpected sequence number, Got %lu, expected %lu", seq, sequenceNumber);
     return NULL;
   }
   gotCompositeData = true;
@@ -2001,7 +1989,7 @@ void MultiPlayerReqExDataMsgCallback(unsigned long plr_id, unsigned long seq, vo
     sequenceNumber = seq;
   if (seq != sequenceNumber)
   {
-    WARNLOG("Unexpected sequence number, got %d, expected %d",seq,sequenceNumber);
+    WARNLOG("Unexpected sequence number, got %lu, expected %lu",seq,sequenceNumber);
     return;
   }
   spPtr->EncodeMessageStub(localDataPtr, exchangeSize-4, 0, sequenceNumber);
@@ -2048,10 +2036,10 @@ void HostMsgCallback(unsigned long plr_id, void *a2)
 void RequestCompositeExchangeDataMsgCallback(unsigned long plr_id, unsigned long seq, void *a3)
 {
   if (inside_sr)
-    NETLOG("Got sequence %d, expected %d",seq,sequenceNumber);
+    NETLOG("Got sequence %ld, expected %ld",seq,sequenceNumber);
   if ((seq != sequenceNumber) && (seq != ((sequenceNumber - 1) & 0xF)))
   {
-    WARNLOG("Unexpected sequence number, got %d, expected %d",seq,sequenceNumber);
+    WARNLOG("Unexpected sequence number, got %lu, expected %lu",seq,sequenceNumber);
     return;
   }
   if (spPtr->Send(plr_id, compositeBuffer) != Lb_OK)
@@ -2059,17 +2047,6 @@ void RequestCompositeExchangeDataMsgCallback(unsigned long plr_id, unsigned long
     WARNLOG("Failure on SP::Send()");
     return;
   }
-}
-
-void *UnidirectionalMsgCallback(unsigned long a1, unsigned long msg_len, void *a3)
-{
-  if (msg_len > 524)
-  {
-    WARNLOG("Invalid length, %d vs %d", msg_len, 524);
-    return NULL;
-  }
-  unidirectionalMsgReceived = 1;
-  return &incomingUnidirectionalMessage;
 }
 
 void SystemUserMsgCallback(unsigned long plr_id, void *msgbuf, unsigned long msglen, void *a4)

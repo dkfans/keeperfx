@@ -21,7 +21,6 @@
 #include "creature_graphics.h"
 #include "front_simple.h"
 #include "engine_render.h"
-#include "../deps/zlib/contrib/minizip/unzip.h"
 #include "bflib_fileio.h"
 #include "gui_draw.h"
 #include "frontend.h"
@@ -32,6 +31,7 @@
 #include <spng.h>
 #include <json.h>
 #include <json-dom.h>
+#include <minizip/unzip.h>
 #include "post_inc.h"
 
 // Performance tests
@@ -41,13 +41,18 @@
 #include <SDL2/SDL.h>
 #endif
 
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
+
 // Each part of RGB tuple of palette file is 1-63 actually
 #define MAX_COLOR_VALUE 64
 
 static short next_free_sprite = 0;
 static short next_free_icon = 0;
 
-struct TbSprite gui_panel_sprites[NEW_GUI_PANEL_SPRITES_COUNT];
+struct TbSpriteSheet * gui_panel_sprites = NULL;
+struct TbSpriteSheet * custom_sprites = NULL;
 struct NamedCommand *anim_names = NULL;
 
 short iso_td_add[KEEPERSPRITE_ADD_NUM];
@@ -95,7 +100,6 @@ static struct NamedCommand added_sprites[KEEPERSPRITE_ADD_NUM];
 static struct NamedCommand added_icons[GUI_PANEL_SPRITES_NEW];
 static int num_added_sprite = 0;
 static int num_added_icons = 0;
-int num_icons_total = GUI_PANEL_SPRITES_COUNT;
 unsigned char base_pal[PALETTE_SIZE];
 
 static unsigned char big_scratch_data[1024*1024*16] = {0};
@@ -114,7 +118,7 @@ static TbBool process_icon(const char *path, unzFile zip, VALUE *root);
 
 static int cmp_named_command(const void *a, const void *b);
 
-static const unsigned char bad_icon_data[] = // 16x16
+static unsigned char bad_icon_data[] = // 16x16
         {
                 16, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 0,
                 16, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 0,
@@ -134,7 +138,8 @@ static const unsigned char bad_icon_data[] = // 16x16
                 16, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 0,
         };
 
-short bad_icon_id = GUI_PANEL_SPRITES_COUNT;
+const struct TbSprite bad_icon = { bad_icon_data, 16, 16 };
+short bad_icon_id = INT16_MAX;
 
 /*
  * Speedup zip stuff
@@ -229,33 +234,34 @@ static int cmp_named_command(const void *a, const void *b)
 static void load_system_sprites(short fgroup)
 {
     SYNCDBG(8, "Starting");
-    struct TbFileFind fileinfo;
+    char * fname = prepare_file_path(fgroup, "*.zip");
     int cnt = 0, cnt_ok = 0, cnt_icons = 0;
-    char *fname = prepare_file_path(fgroup, "*.zip");
-    const char *path;
+    const char * path;
     if (0 == *fname) // No campaign
         return;
-    for (int rc = LbFileFindFirst(fname, &fileinfo, 0x21u);
-         rc != -1;
-         rc = LbFileFindNext(&fileinfo))
-    {
-        path = prepare_file_path(fgroup, fileinfo.Filename);
+    struct TbFileEntry fe;
+    struct TbFileFind * ff = LbFileFindFirst(fname, &fe);
+    if (ff) {
+        do {
+            path = prepare_file_path(fgroup, fe.Filename);
 #ifdef OUTER
-        fprintf(stderr, "F:%s\n", path);
-        fprintf(stderr, "A:%d\n", SDL_GetTicks());
+            fprintf(stderr, "F:%s\n", path);
+            fprintf(stderr, "A:%d\n", SDL_GetTicks());
 #endif
-        if (add_custom_sprite(path))
-        {
-            cnt_ok++;
-        }
+            if (add_custom_sprite(path))
+            {
+                cnt_ok++;
+            }
 #ifdef OUTER
-        fprintf(stderr, "B:%d\n", SDL_GetTicks());
+            fprintf(stderr, "B:%d\n", SDL_GetTicks());
 #endif
-        if (add_custom_json(path, "icons.json", &process_icon))
-        {
-            cnt_icons++;
-        }
-        cnt++;
+            if (add_custom_json(path, "icons.json", &process_icon))
+            {
+                cnt_icons++;
+            }
+            cnt++;
+        } while (LbFileFindNext(ff, &fe) >= 0);
+        LbFileFindEnd(ff);
     }
     LbJustLog("Found %d sprite zip file(s), loaded %d with animations and %d with icons. Used %d/%d sprite slots.\n", cnt, cnt_ok, cnt_icons, next_free_sprite, KEEPERSPRITE_ADD_NUM);
 }
@@ -263,6 +269,8 @@ static void load_system_sprites(short fgroup)
 void init_custom_sprites(LevelNumber lvnum)
 {
     SYNCDBG(8, "Starting");
+    free_spritesheet(&custom_sprites);
+    custom_sprites = create_spritesheet();
     // This is a workaround because get_selected_level_number is zeroed on res change
     if (lvnum == SPRITE_LAST_LEVEL)
     {
@@ -274,7 +282,7 @@ void init_custom_sprites(LevelNumber lvnum)
     }
     else
     {
-        ERRORLOG("Invalid level number %d for loading custom sprites", lvnum);
+        ERRORLOG("Invalid level number %ld for loading custom sprites", lvnum);
     }
     // Clear sprite data
     for (int i = 0; i < KEEPERSPRITE_ADD_NUM; i++)
@@ -302,18 +310,12 @@ void init_custom_sprites(LevelNumber lvnum)
         if (added_icons[i].name != NULL)
         {
             free((char *) added_icons[i].name);
-            free((char *) gui_panel_sprites[GUI_PANEL_SPRITES_COUNT + i].Data);
+            added_icons[i].name = NULL;
         }
     }
     num_added_icons = 0;
     memset(added_icons, 0, sizeof(added_icons));
-    memset(&gui_panel_sprites[GUI_PANEL_SPRITES_COUNT], 0, sizeof(gui_panel_sprites[0]) * GUI_PANEL_SPRITES_NEW);
-
-    gui_panel_sprites[GUI_PANEL_SPRITES_COUNT].Data = (unsigned char *) bad_icon_data;
-    gui_panel_sprites[GUI_PANEL_SPRITES_COUNT].SWidth = 16;
-    gui_panel_sprites[GUI_PANEL_SPRITES_COUNT].SHeight = 16;
-    next_free_icon = 1;
-    num_icons_total = GUI_PANEL_SPRITES_COUNT + 1;
+    next_free_icon = 0;
 
     // Clear creature table (there sprites live)
     memset(creature_table_add, 0, sizeof(creature_table_add));
@@ -742,9 +744,8 @@ static int read_png_icon(unzFile zip, const char *path, const char *subpath, int
         return 0;
     }
 
-    gui_panel_sprites[next_free_icon + GUI_PANEL_SPRITES_COUNT].Data = sprite.Data;
-    gui_panel_sprites[next_free_icon + GUI_PANEL_SPRITES_COUNT].SHeight = sprite.SHeight;
-    gui_panel_sprites[next_free_icon + GUI_PANEL_SPRITES_COUNT].SWidth = sprite.SWidth;
+    add_sprite(custom_sprites, sprite.SWidth, sprite.SHeight, sz, sprite.Data);
+    free(sprite.Data);
     *icon_ptr = next_free_icon + GUI_PANEL_SPRITES_COUNT;
     next_free_icon++;
 
@@ -879,8 +880,7 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
     READ_WITH_DEFAULT(offset_x, "offset_x", "fp_offset_x", "td_offset_x", -dst_w / 2, -value_int32)
     READ_WITH_DEFAULT(offset_y, "offset_y", "fp_offset_y", "td_offset_y", 1 - dst_h, -value_int32)
 
-    READ_WITH_DEFAULT(shadow_offset, "shadow_offset", "fp_shadow_offset", "td_shadow_offset",
-                      (1 - ksprite->offset_y), value_int32)
+    READ_WITH_DEFAULT(shadow_offset, "shadow_offset", "fp_shadow_offset", "td_shadow_offset", (dst_h + ksprite->offset_y), value_int32)
 
     READ_WITH_DEFAULT(frame_flags, "frame_flags", "fp_frame_flags", "td_frame_flags", 0, value_uint32)
 
@@ -1183,7 +1183,7 @@ static int process_sprite_from_list(const char *path, unzFile zip, int idx, VALU
     }
     const char *name = value_string(val);
     const char *blend_scene = NULL;
-    WARNDBG(2, "found sprite: %s", name);
+    SYNCDBG(2, "found sprite: '%s/%s'", path,name);
     val = value_dict_get(root, "blender_scene");
     if ((val != NULL) && (value_type(val) == VALUE_STRING))
     {
@@ -1203,7 +1203,7 @@ static int process_sprite_from_list(const char *path, unzFile zip, int idx, VALU
     {
         // TODO: remove old spr->num (all of them are removed on each map load)
         spr->num = context.td_id;
-        JUSTLOG("Overriding sprite '%s'", name);
+        JUSTLOG("Sprite '%s/%s' overwrites sprite with same name.", path,name);
     }
     else
     {
@@ -1310,7 +1310,7 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
         return 0;
     }
     const char *name = value_string(val);
-    WARNDBG(2, "found icon: %s", name);
+    SYNCDBG(2, "found icon: '%s/%s'", path,name);
 
     TbBool is_lowres = (lbDisplay.PhysicalScreenWidth <= LOWRES_SCREEN_SIZE);
     const char *file_key = is_lowres ? "lowres" : "file";
@@ -1374,9 +1374,8 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
                                        &cmp_named_command);
     if (spr)
     {
-        num_icons_total += icons_count;
         spr->num = first_icon;
-        JUSTLOG("Overriding icon '%s'", name);
+        JUSTLOG("Overriding icon '%s/%s'", path,name);
     }
     else
     {
@@ -1385,7 +1384,6 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
             ERRORLOG("Too many custom icons");
             return 0;
         }
-        num_icons_total += icons_count;
         spr = &added_icons[num_added_icons++];
         spr->name = strdup(name);
         spr->num = first_icon;
@@ -1528,41 +1526,64 @@ short get_anim_id(const char *name, struct ObjectConfigStats *objst)
     return 0;
 }
 
-const struct TbSprite *get_button_sprite_for_player(short sprite_idx, PlayerNumber plyr_idx)
+short get_anim_id_(const char* word_buf)
 {
-    sprite_idx = get_player_colored_button_sprite_idx(sprite_idx, plyr_idx);
-
-    return get_button_sprite_direct(sprite_idx);
+    struct ObjectConfigStats obj_tmp;
+    return get_anim_id(word_buf, &obj_tmp);
 }
 
-const struct TbSprite *get_button_sprite_direct(short sprite_idx)
+const struct TbSprite *get_button_sprite_for_player(short sprite_idx, PlayerNumber plyr_idx)
 {
-    if (sprite_idx < GUI_BUTTON_SPRITES_COUNT)
-        return &button_sprite[sprite_idx];
-    else if (sprite_idx < num_icons_total)
-        return &gui_panel_sprites[sprite_idx];
-    else
-        return &button_sprite[0];
+    return get_button_sprite(get_player_colored_button_sprite_idx(sprite_idx, plyr_idx));
+}
+
+const struct TbSprite *get_button_sprite(short sprite_idx)
+{
+    if ((sprite_idx >= 0) && (sprite_idx < GUI_BUTTON_SPRITES_COUNT)) {
+        return get_sprite(button_sprites, sprite_idx);
+    }
+    sprite_idx -= GUI_PANEL_SPRITES_COUNT;
+    if ((sprite_idx >= 0) && (sprite_idx < num_sprites(custom_sprites))) {
+        return get_sprite(custom_sprites, sprite_idx);
+    }
+    return &bad_icon;
 }
 
 const struct TbSprite *get_frontend_sprite(short sprite_idx)
 {
-    if (sprite_idx < GUI_PANEL_SPRITES_COUNT)
-        return &frontend_sprite[sprite_idx];
-    else if (sprite_idx < num_icons_total)
-        return &gui_panel_sprites[sprite_idx];
-    else
-        return &frontend_sprite[0];
+    if ((sprite_idx >= 0) && (sprite_idx < num_sprites(frontend_sprite))) {
+        return get_sprite(frontend_sprite, sprite_idx);
+    }
+    sprite_idx -= GUI_PANEL_SPRITES_COUNT;
+    if ((sprite_idx >= 0) && (sprite_idx < num_sprites(custom_sprites))) {
+        return get_sprite(custom_sprites, sprite_idx);
+    }
+    return &bad_icon;
 }
 
 const struct TbSprite *get_new_icon_sprite(short sprite_idx)
 {
-    if ((sprite_idx < GUI_PANEL_SPRITES_COUNT) || (sprite_idx > num_icons_total))
-        return NULL;
-    return &gui_panel_sprites[sprite_idx];
+    sprite_idx -= GUI_PANEL_SPRITES_COUNT;
+    if ((sprite_idx >= 0) && (sprite_idx < num_sprites(custom_sprites))) {
+        return get_sprite(custom_sprites, sprite_idx);
+    }
+    return &bad_icon;
+}
+
+const struct TbSprite *get_panel_sprite(short sprite_idx)
+{
+    if ((sprite_idx >= 0) && (sprite_idx < num_sprites(gui_panel_sprites))) {
+        return get_sprite(gui_panel_sprites, sprite_idx);
+    }
+    sprite_idx -= GUI_PANEL_SPRITES_COUNT;
+    if ((sprite_idx >= 0) && (sprite_idx < num_sprites(custom_sprites))) {
+        return get_sprite(custom_sprites, sprite_idx);
+    }
+    return &bad_icon;
 }
 
 int is_custom_icon(short icon_idx)
 {
-    return (icon_idx >= GUI_PANEL_SPRITES_COUNT) && (icon_idx < num_icons_total);
+    icon_idx -= GUI_PANEL_SPRITES_COUNT;
+    return (icon_idx >= 0) && (icon_idx < num_sprites(custom_sprites));
 }

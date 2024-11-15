@@ -62,6 +62,7 @@
 #include "config_compp.h"
 #include "config_effects.h"
 #include "lvl_script.h"
+#include "lvl_filesdk1.h"
 #include "thing_list.h"
 #include "player_instances.h"
 #include "player_utils.h"
@@ -100,6 +101,7 @@
 #include "creature_states.h"
 #include "creature_instances.h"
 #include "creature_graphics.h"
+#include "creature_states_combt.h"
 #include "creature_states_mood.h"
 #include "lens_api.h"
 #include "light_data.h"
@@ -122,6 +124,7 @@
 #include "steam_api.hpp"
 #include "game_loop.h"
 #include "music_player.h"
+#include "frontmenu_ingame_map.h"
 
 #ifdef FUNCTESTING
   #include "ftests/ftest.h"
@@ -321,139 +324,6 @@ unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coo
     return get_chessboard_distance(&player->acamera->mappos, pos) < subtile_coord(45,0);
 }
 
-static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam param)
-{
-    SYNCDBG(18,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
-    if (thing->index == param->num2) {
-        return TUFRet_Unchanged;
-    }
-    struct Thing *shotng;
-    shotng = (struct Thing *)param->ptr3;
-    struct ShotConfigStats *shotst = get_shot_model_stats(shotng->model);
-    if ((thing->index == shotng->index) || (thing->index == shotng->parent_idx)) {
-        return TUFRet_Unchanged;
-    }
-    struct CreatureControl* cctrl;
-    // param->num1 = 2048 from affect_nearby_enemy_creatures_with_wind
-    long blow_distance = param->num1;
-    // calculate max distance
-    int maxdistance = shotst->health * shotst->speed;
-    MapCoordDelta creature_distance;
-    creature_distance = LONG_MAX;
-    TbBool apply_velocity;
-    apply_velocity = false;
-    if (thing->class_id == TCls_Creature)
-    {
-        if (!thing_is_picked_up(thing) && !creature_is_being_unconscious(thing))
-        {
-            struct CreatureStats *crstat;
-            crstat = creature_stats_get_from_thing(thing);
-            cctrl = creature_control_get_from_thing(thing);
-            int creatureAlreadyAffected = 0;
-
-            // distance between creature and actual position of the projectile
-            creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;    
-
-            // if weight-affect-push-rule is on
-            if (game.conf.rules.magic.weight_calculate_push > 0)
-            {
-                long weight = compute_creature_weight(thing);
-                //max push distance
-                blow_distance = maxdistance - (maxdistance - weight_calculated_push_strenght(weight, maxdistance)); 
-                // distance between startposition and actual position of the projectile
-                int origin_distance = get_chessboard_distance(&shotng->shot.originpos, &thing->mappos) + 1;
-                creature_distance = origin_distance;
-
-                // Check the the spell instance for already affected creatures
-                for (int i = 0; i < shotng->shot.num_wind_affected; i++)
-                {
-                    if (shotng->shot.wind_affected_creature[i] == cctrl->index)
-                    {
-                        creatureAlreadyAffected = 1;
-                        break;
-                    }
-                }
-            }
-
-            if ((creature_distance < blow_distance) && crstat->affected_by_wind && !creatureAlreadyAffected)           
-            {
-                set_start_state(thing);
-                cctrl->idle.start_gameturn = game.play_gameturn;
-                apply_velocity = true;
-            }
-               // if weight-affect-push-rule is on
-            else if (game.conf.rules.magic.weight_calculate_push > 0 && creature_distance >= blow_distance && !creatureAlreadyAffected){
-                // add creature ID to allready-wind-affected-creature-array
-                shotng->shot.wind_affected_creature[shotng->shot.num_wind_affected++] = cctrl->index;                  
-                }
-        }
-    } else
-    if (thing->class_id == TCls_EffectElem)
-    {
-        if (!thing_is_picked_up(thing))
-        {
-            struct EffectElementConfigStats *eestat;
-            eestat = get_effect_element_model_stats(thing->model);
-            creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
-            if ((creature_distance < blow_distance) && eestat->affected_by_wind)
-            {
-                apply_velocity = true;
-            }
-        }
-    } else
-    if (thing->class_id == TCls_Shot)
-    {
-        if (!thing_is_picked_up(thing))
-        {
-            struct ShotConfigStats *thingshotst = get_shot_model_stats(shotng->model);
-            creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
-            if ((creature_distance < blow_distance) && !thingshotst->wind_immune)
-            {
-                apply_velocity = true;
-            }
-        }
-    } else
-    if (thing->class_id == TCls_Effect)
-    {
-        if (!thing_is_picked_up(thing))
-        {
-
-            struct EffectConfigStats *effcst;
-            effcst = get_effect_model_stats(thing->model);
-            creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
-            if ((creature_distance < blow_distance) && effcst->affected_by_wind)
-            {
-                apply_velocity = true;
-            }
-        }
-    }
-    if (apply_velocity)
-    {
-        struct ComponentVector wind_push;
-        wind_push.x = (shotng->veloc_base.x.val * blow_distance) / creature_distance;
-        wind_push.y = (shotng->veloc_base.y.val * blow_distance) / creature_distance;
-        wind_push.z = (shotng->veloc_base.z.val * blow_distance) / creature_distance;
-        SYNCDBG(8,"Applying (%d,%d,%d) to %s index %d",(int)wind_push.x,(int)wind_push.y,(int)wind_push.z,thing_model_name(thing),(int)thing->index);
-        apply_transitive_velocity_to_thing(thing, &wind_push);
-        return TUFRet_Modified;
-    }
-    return TUFRet_Unchanged;
-}
-
-void affect_nearby_enemy_creatures_with_wind(struct Thing *shotng)
-{
-    Thing_Modifier_Func do_cb;
-    struct CompoundTngFilterParam param;
-    param.plyr_idx = -1;
-    param.class_id = 0;
-    param.model_id = 0;
-    param.num1 = 2048;
-    param.num2 = shotng->parent_idx;
-    param.ptr3 = shotng;
-    do_cb = affect_thing_by_wind;
-    do_to_things_with_param_spiral_near_map_block(&shotng->mappos, param.num1-COORD_PER_STL, do_cb, &param);
-}
-
 void affect_nearby_stuff_with_vortex(struct Thing *thing)
 {
     //TODO implement vortex; it's not implemented in original DK
@@ -488,7 +358,7 @@ void affect_nearby_friends_with_alarm(struct Thing *traptng)
         // Thing list loop body
         if (!thing_is_picked_up(thing) && !is_thing_directly_controlled(thing) &&
             !creature_is_being_unconscious(thing) && !creature_is_kept_in_custody(thing) &&
-            (cctrl->combat_flags == 0) && !creature_is_dragging_something(thing) && !creature_is_dying(thing))
+            (cctrl->combat_flags == 0) && !creature_is_dragging_something(thing) && !creature_is_dying(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
             struct StateInfo *stati;
             stati = get_thing_state_info_num(get_creature_state_besides_interruptions(thing));
@@ -1011,7 +881,6 @@ void init_keeper(void)
     SYNCDBG(8,"Starting");
     engine_init();
     init_iso_3d_conversion_tables();
-    init_objects();
     init_colours();
     init_spiral_steps();
     init_key_to_strings();
@@ -1055,12 +924,6 @@ TbBool initial_setup(void)
         ERRORLOG("Unable to load game_load_files");
         return false;
     }
-    // was LoadMcgaData, but minimal should be enough at this point.
-    if (!LoadMcgaDataMinimal())
-    {
-        ERRORLOG("Loading MCGA files failed");
-        return false;
-    }
     load_pointer_file(0);
     update_screen_mode_data(320, 200);
     clear_game();
@@ -1083,7 +946,7 @@ short setup_game(void)
   OSVERSIONINFO v;
   // Do only a very basic setup
   cpu_detect(&cpu_info);
-  SYNCMSG("CPU %s type %d family %d model %d stepping %d features %08x",cpu_info.vendor,
+  SYNCMSG("CPU %s type %d family %d model %d stepping %d features %08lx",cpu_info.vendor,
       (int)cpu_get_type(&cpu_info),(int)cpu_get_family(&cpu_info),(int)cpu_get_model(&cpu_info),
       (int)cpu_get_stepping(&cpu_info),cpu_info.feature_edx);
   if (cpu_info.BrandString)
@@ -1103,7 +966,8 @@ short setup_game(void)
       if(hNTDLL)
       {
           // Get Wine version
-          PROC wine_get_version = (PROC) GetProcAddress(hNTDLL, "wine_get_version");
+          typedef const char * (CDECL * pwine_get_version)(void);
+          pwine_get_version wine_get_version = (pwine_get_version) (void*) GetProcAddress(hNTDLL, "wine_get_version");
           if (wine_get_version)
           {
               SYNCMSG("Running on Wine v%s", wine_get_version());
@@ -1111,18 +975,13 @@ short setup_game(void)
           }
 
           // Get Wine host OS
-          // We have to use a union to make sure there is no weird cast warnings
-          union
-          {
-              FARPROC func;
-              void (*wine_get_host_version)(const char**, const char**);
-          } wineHostVersionUnion;
-          wineHostVersionUnion.func = GetProcAddress(hNTDLL, "wine_get_host_version");
-          if (wineHostVersionUnion.wine_get_host_version)
+          typedef void (CDECL *pwine_get_host_version)(const char **, const char **);
+          pwine_get_host_version wine_get_host_version = (pwine_get_host_version) (void*) GetProcAddress(hNTDLL, "wine_get_host_version");
+          if (wine_get_host_version)
           {
               const char* sys_name = NULL;
               const char* release_name = NULL;
-              wineHostVersionUnion.wine_get_host_version(&sys_name, &release_name);
+              wine_get_host_version(&sys_name, &release_name);
               SYNCMSG("Wine Host: %s %s", sys_name, release_name);
           }
       }
@@ -1214,7 +1073,7 @@ short setup_game(void)
   {
     // View second splash screen
     result = init_actv_bitmap_screen(RBmp_SplashFx);
-    if ( result )
+    if ( result == 1 )
     {
         result = show_actv_bitmap_screen(4000);
         free_actv_bitmap_screen();
@@ -1244,48 +1103,52 @@ short setup_game(void)
       }
   }
 
-  if ( result )
+  if (result == 1)
   {
       draw_clear_screen();
-      result = wait_for_cd_to_be_available();
+      if (wait_for_installation_files())
+      {
+          //result = -1; // Helps with better warning message later
+      }
   }
 
   game.frame_skip = start_params.frame_skip;
 
-  if ( result && (!game.no_intro) )
+  if ( (result == 1) && (!game.no_intro) )
   {
      result = intro_replay();
   }
   // Intro problems shouldn't force the game to quit,
   // so we're re-setting the result flag
-  result = 1;
+  if (result == 0)
+      result = 1;
 
-  if ( result )
+  if (result == 1)
   {
       display_loading_screen();
   }
   LbDataFreeAll(legal_load_files);
 
-  if ( result )
+  if (result == 1)
   {
       if ( !initial_setup() )
         result = 0;
   }
 
-  if ( result )
+  if (result == 1)
   {
     load_settings();
     if ( !setup_gui_strings_data() )
       result = 0;
   }
 
-  if ( result )
+  if (result == 1)
   {
     if ( !setup_heaps() )
       result = 0;
   }
 
-  if ( result )
+  if (result == 1)
   {
       init_keeper();
       switch (start_params.force_ppro_poly)
@@ -1315,10 +1178,10 @@ short setup_game(void)
       setup_3d();
       setup_stuff();
       init_lookups();
-      result = 1;
   }
 
-  if (result) {
+  if (result == 1)
+  {
       KEEPERSPEECH_REASON reason = KeeperSpeechInit();
       if (reason == KSR_NO_LIB_INSTALLED) {
           SYNCLOG("Speech recognition disabled: %s",
@@ -1682,12 +1545,18 @@ void reinit_level_after_load(void)
     parchment_loaded = 0;
     for (i=0; i < PLAYERS_COUNT; i++)
     {
-      player = get_player(i);
-      if (player_exists(player))
-        set_engine_view(player, player->view_mode);
+        player = get_player(i);
+        if (player_exists(player))
+        {
+            set_engine_view(player, player->view_mode);
+            update_panel_color_player_color(player->id_number, get_dungeon(i)->color_idx);
+        }
     }
     start_rooms = &game.rooms[1];
     end_rooms = &game.rooms[ROOMS_COUNT];
+    update_room_tab_to_config();
+    update_powers_tab_to_config();
+    update_trap_tab_to_config();
     load_texture_map_file(game.texture_id);
     init_animating_texture_maps();
     init_gui();
@@ -1699,6 +1568,8 @@ void reinit_level_after_load(void)
     restore_computer_player_after_load();
     sound_reinit_after_load();
     music_reinit_after_load();
+    update_panel_colors();
+    reset_postal_instance_cache();    
 }
 
 /**
@@ -1771,7 +1642,7 @@ void init_keepers_map_exploration(void)
     for (i=0; i < PLAYERS_COUNT; i++)
     {
       player = get_player(i);
-      if (player_exists(player) && (player->is_active == 1))
+      if ((player_exists(player) && (player->is_active == 1)) || player_is_roaming(i))
       {
           // Additional init - the main one is in init_player()
           if ((player->allocflags & PlaF_CompCtrl) != 0) {
@@ -2043,7 +1914,7 @@ void find_map_location_coords(long location, long *x, long *y, int plyr_idx, con
           pos_y = apt->mappos.y.stl.num;
           pos_x = apt->mappos.x.stl.num;
         } else
-          WARNMSG("%s: Action Point %d location not found",func_name,i);
+          WARNMSG("%s: Action Point %ld location not found",func_name,i);
         break;
     case MLoc_HEROGATE:
         thing = find_hero_gate_of_number(i);
@@ -2052,7 +1923,7 @@ void find_map_location_coords(long location, long *x, long *y, int plyr_idx, con
           pos_y = thing->mappos.y.stl.num;
           pos_x = thing->mappos.x.stl.num;
         } else
-          WARNMSG("%s: Hero Gate %d location not found",func_name,i);
+          WARNMSG("%s: Hero Gate %ld location not found",func_name,i);
         break;
     case MLoc_PLAYERSHEART:
         if (i < PLAYERS_COUNT)
@@ -2065,7 +1936,7 @@ void find_map_location_coords(long location, long *x, long *y, int plyr_idx, con
           pos_y = thing->mappos.y.stl.num;
           pos_x = thing->mappos.x.stl.num;
         } else
-          WARNMSG("%s: Dungeon Heart location for player %d not found",func_name,i);
+          WARNMSG("%s: Dungeon Heart location for player %ld not found",func_name,i);
         break;
     case MLoc_NONE:
         pos_y = *y;
@@ -2078,7 +1949,7 @@ void find_map_location_coords(long location, long *x, long *y, int plyr_idx, con
           pos_y = thing->mappos.y.stl.num;
           pos_x = thing->mappos.x.stl.num;
         } else
-          WARNMSG("%s: Thing %d location not found",func_name,i);
+          WARNMSG("%s: Thing %ld location not found",func_name,i);
         break;
     case MLoc_METALOCATION:
         if (get_coords_at_meta_action(&pos, plyr_idx, i))
@@ -2087,7 +1958,7 @@ void find_map_location_coords(long location, long *x, long *y, int plyr_idx, con
             pos_y = pos.y.stl.num;
         }
         else
-          WARNMSG("%s: Metalocation not found %d",func_name,i);
+          WARNMSG("%s: Metalocation not found %ld",func_name,i);
         break;
     case MLoc_CREATUREKIND:
     case MLoc_OBJECTKIND:
@@ -2340,6 +2211,14 @@ void check_players_lost(void)
       {
           struct Thing *heartng;
           heartng = get_player_soul_container(i);
+          if (heartng->owner != i)
+          {
+              init_player_start(player, true);
+              if (dungeon->dnheart_idx == 0)
+              {
+                  initialise_devastate_dungeon_from_heart(player->id_number);
+              }
+          }
           if ((!thing_exists(heartng) || ((heartng->active_state == ObSt_BeingDestroyed) && !(dungeon->backup_heart_idx > 0))) && (player->victory_state == VicS_Undecided))
           {
             event_kill_all_players_events(i);
@@ -2439,7 +2318,7 @@ void count_players_creatures_being_paid(int *creatures_count)
         }
         i = thing->next_of_class;
         // Per-thing code
-        if (player_is_roaming(thing->owner) && (thing->owner != game.neutral_player_num))
+        if (!player_is_roaming(thing->owner) && (thing->owner != game.neutral_player_num))
         {
             struct CreatureStats *crstat;
             crstat = creature_stats_get_from_thing(thing);
@@ -2687,7 +2566,7 @@ TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFil
     if (thing_is_creature(thing))
     {
         apply_damage_to_thing_and_display_health(thing, param->num2, DmgT_Physical, param->num1);
-        if (thing->health >= 0)
+        if ((thing->health >= 0) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
             if (((thing->alloc_flags & TAlF_IsControlled) == 0) && !creature_is_kept_in_custody(thing))
             {
@@ -2721,7 +2600,7 @@ TbBool valid_cave_in_position(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
 long update_cave_in(struct Thing *thing)
 {
     thing->health--;
-    thing->rendering_flags |= TRF_Unknown01;
+    thing->rendering_flags |= TRF_Invisible;
     if (thing->health < 1)
     {
         delete_thing_structure(thing, 0);
@@ -3741,7 +3620,7 @@ static TbBool wait_at_frontend(void)
                 WARNMSG("Unable to load campaign associated with the specified level CMD Line parameter, default loaded.");
             }
             else {
-                JUSTLOG("No campaign specified. Default campaign loaded for selected level (%d).", start_params.selected_level_number);
+                JUSTLOG("No campaign specified. Default campaign loaded for selected level (%lu).", start_params.selected_level_number);
             }
         }
         set_selected_level_number(start_params.selected_level_number);
@@ -3998,6 +3877,7 @@ void game_loop(void)
       free_custom_music();
       free_sound_chunks();
       memset(&game.loaded_sound,0,DISKPATH_SIZE * EXTERNAL_SOUNDS_COUNT+1);
+      free_level_strings_data();
       turn_off_all_menus();
       delete_all_structures();
       clear_mapwho();
@@ -4006,7 +3886,7 @@ void game_loop(void)
       if ((game.operation_flags & GOF_SingleLevel) != 0)
           exit_keeper=true;
       playtime += endtime-starttime;
-      SYNCDBG(0,"Play time is %d seconds",playtime>>10);
+      SYNCDBG(0,"Play time is %lu seconds",playtime>>10);
       total_play_turns += game.play_gameturn;
       reset_eye_lenses();
       close_packet_file();
@@ -4034,6 +3914,7 @@ short reset_game(void)
     LbScreenReset(false);
     LbDataFreeAllV2(game_load_files);
     free_gui_strings_data();
+    free_level_strings_data();
     FreeAudio();
     return LbMemoryReset();
 }
@@ -4152,10 +4033,6 @@ short process_command_line(unsigned short argc, char *argv[])
           SYNCLOG("Mouse auto reset disabled");
           lbMouseGrab = false;
       }
-      else if (strcasecmp(parstr, "ungrab") == 0)
-      {
-          start_params.ungrab_mouse = true;
-      }
       else if (strcasecmp(parstr,"packetload") == 0)
       {
          if (start_params.packet_save_enable)
@@ -4220,18 +4097,24 @@ short process_command_line(unsigned short argc, char *argv[])
       if (strcasecmp(parstr,"alex") == 0)
       {
          set_flag(start_params.flags_font, FFlg_AlexCheat);
-      } else
-      if (strcasecmp(parstr,"connect") == 0)
+      }
+      else if (strcasecmp(parstr,"connect") == 0)
       {
           narg++;
           LbNetwork_InitSessionsFromCmdLine(pr2str);
           game_flags2 |= GF2_Connect;
-      } else
-      if (strcasecmp(parstr,"server") == 0)
+      }
+      else if (strcasecmp(parstr,"server") == 0)
       {
           game_flags2 |= GF2_Server;
-      } else
-      if (strcasecmp(parstr,"frameskip") == 0)
+          int port = atoi(pr2str);
+          if (port > 0)
+          {
+              LbNetwork_SetServerPort(port);
+              narg++;
+          }
+      }
+      else if (strcasecmp(parstr,"frameskip") == 0)
       {
          start_params.frame_skip = atoi(pr2str);
          narg++;
@@ -4373,11 +4256,11 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     }
 
     retval = setup_game();
-    if (retval)
+    if (retval == 1)
     {
         steam_api_init();
     }
-    if (retval)
+    if (retval == 1)
     {
       if ((install_info.lang_id == Lang_Japanese) ||
           (install_info.lang_id == Lang_ChineseInt) ||
@@ -4405,16 +4288,21 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
         }
       }
     }
-    if ( retval )
+    if ( retval == 1 )
     {
         api_init_server();
         game_loop();
     }
     reset_game();
     LbScreenReset(true);
-    if ( !retval )
+    if ( retval == 0 )
     {
         static const char *msg_text="Setting up game failed.\n";
+        error_dialog_fatal(__func__, 2, msg_text);
+    } else
+    if (retval == -1)
+    {
+        static const char* msg_text = " Game files which have to be copied from original DK are not present.\n\n";
         error_dialog_fatal(__func__, 2, msg_text);
     }
     else
@@ -4474,16 +4362,51 @@ void get_cmdln_args(unsigned short &argc, char *argv[])
     }
 }
 
+const char * exception_name(DWORD exception_code) {
+    switch (exception_code) {
+        case EXCEPTION_ACCESS_VIOLATION: return "EXCEPTION_ACCESS_VIOLATION";
+        case EXCEPTION_ARRAY_BOUNDS_EXCEEDED: return "EXCEPTION_ARRAY_BOUNDS_EXCEEDED";
+        case EXCEPTION_BREAKPOINT: return "EXCEPTION_BREAKPOINT";
+        case EXCEPTION_DATATYPE_MISALIGNMENT: return "EXCEPTION_DATATYPE_MISALIGNMENT";
+        case EXCEPTION_FLT_DENORMAL_OPERAND: return "EXCEPTION_FLT_DENORMAL_OPERAND";
+        case EXCEPTION_FLT_DIVIDE_BY_ZERO: return "EXCEPTION_FLT_DIVIDE_BY_ZERO";
+        case EXCEPTION_FLT_INEXACT_RESULT: return "EXCEPTION_FLT_INEXACT_RESULT";
+        case EXCEPTION_FLT_INVALID_OPERATION: return "EXCEPTION_FLT_INVALID_OPERATION";
+        case EXCEPTION_FLT_OVERFLOW: return "EXCEPTION_FLT_OVERFLOW";
+        case EXCEPTION_FLT_STACK_CHECK: return "EXCEPTION_FLT_STACK_CHECK";
+        case EXCEPTION_FLT_UNDERFLOW: return "EXCEPTION_FLT_UNDERFLOW";
+        case EXCEPTION_ILLEGAL_INSTRUCTION: return "EXCEPTION_ILLEGAL_INSTRUCTION";
+        case EXCEPTION_IN_PAGE_ERROR: return "EXCEPTION_IN_PAGE_ERROR";
+        case EXCEPTION_INT_DIVIDE_BY_ZERO: return "EXCEPTION_INT_DIVIDE_BY_ZERO";
+        case EXCEPTION_INT_OVERFLOW: return "EXCEPTION_INT_OVERFLOW";
+        case EXCEPTION_INVALID_DISPOSITION: return "EXCEPTION_INVALID_DISPOSITION";
+        case EXCEPTION_NONCONTINUABLE_EXCEPTION: return "EXCEPTION_NONCONTINUABLE_EXCEPTION";
+        case EXCEPTION_PRIV_INSTRUCTION: return "EXCEPTION_PRIV_INSTRUCTION";
+        case EXCEPTION_SINGLE_STEP: return "EXCEPTION_SINGLE_STEP";
+        case EXCEPTION_STACK_OVERFLOW: return "EXCEPTION_STACK_OVERFLOW";
+    }
+    return "Unknown";
+}
+
 LONG __stdcall Vex_handler(
     _EXCEPTION_POINTERS *ExceptionInfo
 )
 {
-    LbJustLog("=== Crash ===\n");
-    LbCloseLog();
-    return 0;
+	const auto exception_code = ExceptionInfo->ExceptionRecord->ExceptionCode;
+    if (exception_code == DBG_PRINTEXCEPTION_WIDE_C) {
+        return EXCEPTION_CONTINUE_EXECUTION; // Thrown by OutputDebugStringW, intended for debugger
+    } else if (exception_code == DBG_PRINTEXCEPTION_C) {
+        return EXCEPTION_CONTINUE_EXECUTION; // Thrown by OutputDebugStringA, intended for debugger
+    }
+    LbJustLog("Exception 0x%08lx thrown: %s\n", exception_code, exception_name(exception_code));
+    return EXCEPTION_CONTINUE_SEARCH;
 }
 
+#ifdef _WIN32
+int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+#else
 int main(int argc, char *argv[])
+#endif
 {
   char *text;
 

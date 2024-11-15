@@ -17,35 +17,37 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "thing_effects.h"
-#include "globals.h"
 
-#include "bflib_memory.h"
 #include "bflib_math.h"
-#include "bflib_sound.h"
+#include "bflib_memory.h"
 #include "bflib_planar.h"
-#include "math.h"
-#include "thing_objects.h"
-#include "thing_list.h"
-#include "thing_stats.h"
-#include "thing_physics.h"
-#include "thing_factory.h"
-#include "thing_navigate.h"
-#include "thing_shots.h"
-#include "creature_battle.h"
-#include "creature_senses.h"
+#include "bflib_sound.h"
 #include "config_creature.h"
 #include "config_effects.h"
-#include "front_simple.h"
-#include "map_data.h"
-#include "map_blocks.h"
+#include "creature_battle.h"
 #include "creature_graphics.h"
-#include "gui_topmsg.h"
-#include "game_legacy.h"
+#include "creature_senses.h"
 #include "engine_redraw.h"
-#include "keeperfx.hpp"
+#include "front_simple.h"
+#include "game_legacy.h"
+#include "globals.h"
 #include "gui_soundmsgs.h"
+#include "gui_topmsg.h"
+#include "keeperfx.hpp"
+#include "map_blocks.h"
+#include "map_data.h"
+#include "math.h"
+#include "player_utils.h"
 #include "room_util.h"
+#include "thing_effects.h"
+#include "thing_factory.h"
+#include "thing_list.h"
+#include "thing_navigate.h"
+#include "thing_objects.h"
+#include "thing_physics.h"
+#include "thing_shots.h"
+#include "thing_stats.h"
+
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -110,11 +112,11 @@ struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmod
         long n = EFFECT_RANDOM(thing, eestat->sprite_speed_max - (int)eestat->sprite_speed_min + 1);
         set_thing_draw(thing, eestat->sprite_idx, eestat->sprite_speed_min + n, eestat->sprite_size_min + i, 0, 0, eestat->draw_class);
         set_flag_value(thing->rendering_flags, TRF_Unshaded, eestat->unshaded);
-        thing->rendering_flags ^= (thing->rendering_flags ^ (TRF_Transpar_8 * eestat->transparant)) & (TRF_Transpar_Flags);
+        thing->rendering_flags ^= (thing->rendering_flags ^ (TRF_Transpar_8 * eestat->transparent)) & (TRF_Transpar_Flags);
         set_flag_value(thing->rendering_flags, TRF_AnimateOnce, eestat->rendering_flag);
     } else
     {
-        set_flag(thing->rendering_flags, TRF_Unknown01);
+        set_flag(thing->rendering_flags, TRF_Invisible);
     }
 
     thing->fall_acceleration = eestat->fall_acceleration;
@@ -418,7 +420,7 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     thing->model = nmodel;
     set_thing_draw(thing, eestat->sprite_idx, speed, scale, eestat->rendering_flag, 0, ODC_Default);
     thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Unshaded * eestat->unshaded) & TRF_Unshaded;
-    thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Transpar_8 * eestat->transparant) & (TRF_Transpar_Flags);
+    thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Transpar_8 * eestat->transparent) & (TRF_Transpar_Flags);
     thing->fall_acceleration = eestat->fall_acceleration;
     thing->inertia_floor = eestat->inertia_floor;
     thing->inertia_air = eestat->inertia_air;
@@ -574,7 +576,7 @@ struct Thing *create_effect_generator(struct Coord3d *pos, ThingModel model, uns
     effgentng->mappos = *pos;
     effgentng->creation_turn = game.play_gameturn;
     effgentng->health = -1;
-    effgentng->rendering_flags |= TRF_Unknown01;
+    effgentng->rendering_flags |= TRF_Invisible;
     add_thing_to_its_class_list(effgentng);
     place_thing_in_mapwho(effgentng);
     return effgentng;
@@ -817,7 +819,8 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
         long deviation_mag = EFFECT_RANDOM(thing, thing->effect_generator.range + 1);
         struct Coord3d pos;
         set_coords_to_cylindric_shift(&pos, &thing->mappos, deviation_mag, deviation_angle, 0);
-        SYNCDBG(18,"The %s creates effect %d/%d at (%d,%d,%d)",thing_model_name(thing),(int)pos.x.val,(int)pos.y.val,(int)pos.z.val);
+        SYNCDBG(18,"The %s creates effect at (%d,%d,%d)",
+            thing_model_name(thing),(int)pos.x.val,(int)pos.y.val,(int)pos.z.val);
         struct Thing* elemtng = create_used_effect_or_element(&pos, egenstat->effect_model , thing->owner);
         TRACE_THING(elemtng);
         if (thing_is_invalid(elemtng))
@@ -889,7 +892,7 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     thing->fall_acceleration = 0;
     thing->inertia_floor = 0;
     thing->inertia_air = 0;
-    thing->rendering_flags |= TRF_Unknown01;
+    thing->rendering_flags |= TRF_Invisible;
     thing->health = effcst->start_health;
     thing->shot_effect.hit_type = effcst->effect_hit_type;
     if (effcst->ilght.radius != 0)
@@ -998,9 +1001,12 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
         {
             if (tngdst->class_id == TCls_Creature)
             {
-                HitPoints damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
-                SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
-                apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, owner);
+                if (max_damage > 0)
+                {
+                    HitPoints damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
+                    SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
+                    apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, owner);
+                }
                 affected = true;
                 if (tngdst->health < 0)
                 {
@@ -1008,7 +1014,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     struct CreatureBattle* battle = creature_battle_get_from_thing(origtng);
                     CrDeathFlags dieflags = (!creature_battle_invalid(battle)) ? CrDed_DiedInBattle : CrDed_Default;
                     // Explosions kill rather than only stun friendly creatures when imprison is on
-                    if (((tngsrc->owner == tngdst->owner) &! (game.conf.rules.game.classic_bugs_flags & ClscBug_FriendlyFaint)) || (shot_model_flags & ShMF_NoStun) )
+                    if ((players_creatures_tolerate_each_other(tngsrc->owner,tngdst->owner) &! (game.conf.rules.game.classic_bugs_flags & ClscBug_FriendlyFaint)) || (shot_model_flags & ShMF_NoStun) )
                     {
                         dieflags |= CrDed_NoUnconscious;
                     }
@@ -1085,6 +1091,17 @@ TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, cons
         if (distance < max_dist)
         {
             HitPoints damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
+            
+            const struct DoorConfigStats* doorst = get_door_model_stats(tngdst->model);
+            if (flag_is_set(doorst->model_flags, DoMF_Midas))
+            {
+                HitPoints absorbed = reduce_damage_for_midas(tngdst->owner, damage, doorst->health);
+                damage -= absorbed;
+                for (int i = absorbed; i > 0; i -= 32)
+                {
+                    create_effect(pos, TngEff_CoinFountain, tngdst->owner);
+                }
+            }
             SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
             apply_damage_to_thing(tngdst, damage, damage_type, -1);
             affected = true;

@@ -27,6 +27,7 @@
 #include "bflib_math.h"
 #include "frontend.h"
 #include "config_creature.h"
+#include "config_crtrstates.h"
 #include "config_effects.h"
 #include "thing_stats.h"
 #include "thing_effects.h"
@@ -303,17 +304,16 @@ void query_thing(struct Thing *thing)
         const char* name = thing_model_name(querytng);
         const char owner[24]; 
         const char health[24];
-        const char position[29];
-        const char amount[24] = "\0";
-        char output[36];
+        const char position[40];
+        const char amount[40] = "\0";
         sprintf((char*)title, "Thing ID: %d", querytng->index);
         sprintf((char*)owner, "Owner: %d", querytng->owner);
         sprintf((char*)position, "Pos: X:%d Y:%d Z:%d", querytng->mappos.x.stl.num, querytng->mappos.y.stl.num, querytng->mappos.z.stl.num);
         if (querytng->class_id == TCls_Trap)
         {
-            struct ManfctrConfig *mconf = &game.conf.traps_config[querytng->model];
+            struct TrapConfigStats *trapst = get_trap_model_stats(querytng->model);
             sprintf((char*)health, "Health: %ld", querytng->health);
-            sprintf((char*)amount, "Shots: %d/%d", querytng->trap.num_shots, mconf->shots);
+            sprintf((char*)amount, "Shots: %d/%d", querytng->trap.num_shots, trapst->shots);
         }
         else
         {
@@ -329,7 +329,16 @@ void query_thing(struct Thing *thing)
             else 
             if (querytng->class_id == TCls_Door)
             {
-                sprintf(output, "%s/%ln", health, &game.conf.trapdoor_conf.door_cfgstats[querytng->model].health);
+                struct DoorConfigStats *doorst = get_door_model_stats(querytng->model);
+                sprintf((char*)health, "Health: %ld/%ld", querytng->health, doorst->health);
+            }
+            else
+            if (querytng->class_id == TCls_Creature)
+            {
+                struct CreatureControl* cctrl = creature_control_get_from_thing(querytng);
+                sprintf((char*)health, "Health: %ld/%ld", querytng->health, cctrl->max_health);
+                sprintf((char*)position, "State: %s", creature_state_code_name(querytng->active_state));
+                sprintf((char*)amount, "Continue: %s", creature_state_code_name(querytng->continue_state));
             }
             else
             {

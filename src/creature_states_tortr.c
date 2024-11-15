@@ -118,7 +118,7 @@ short cleanup_torturing(struct Thing *creatng)
         struct Thing* thing = thing_get(cctrl->tortured.assigned_torturer);
         if (thing_exists(thing)) {
             thing->torturer.belongs_to = 0;
-            thing->rendering_flags &= ~TRF_Unknown01;
+            thing->rendering_flags &= ~TRF_Invisible;
         }
         cctrl->tortured.assigned_torturer = 0;
     }
@@ -215,7 +215,7 @@ long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJ
             set_creature_instance(creatng, CrInst_TORTURED, 0, 0);
         }
         if (thing_exists(sectng)) {
-            sectng->rendering_flags |= TRF_Unknown01;
+            sectng->rendering_flags |= TRF_Invisible;
         } else {
             ERRORLOG("No device for torture");
         }
@@ -273,18 +273,32 @@ CrCheckRet process_kinky_function(struct Thing *thing)
 
 void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
 {
-    int crmodel = get_room_create_creature_model(room->kind);
-    struct Thing* newthing = create_creature(&thing->mappos, crmodel, room->owner);
-    if (thing_is_invalid(newthing))
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    ThingModel crmodel = crstat->torture_kind;
+    if ((crmodel > game.conf.crtr_conf.model_count) || (crmodel <= 0))
     {
-        ERRORLOG("Couldn't create creature %s in %s room",creature_code_name(crmodel),room_code_name(room->kind));
-        return;
+        // If not assigned or is unknown, default to the room creature creation.
+        crmodel = get_room_create_creature_model(room->kind);
+    }
+    struct Thing* newthing = INVALID_THING;
+    if (creature_count_below_map_limit(1))
+    {
+        newthing = create_creature(&thing->mappos, crmodel, room->owner);
+        if (thing_is_invalid(newthing))
+        {
+            ERRORLOG("Couldn't create creature %s in %s room", creature_code_name(crmodel), room_code_name(room->kind));
+            return;
+        }
+    } else
+    {
+        WARNLOG("Could not create creature %s to transform %s to due to creature limit", creature_code_name(crmodel), thing_model_name(thing));
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureControl* newcctrl = creature_control_get_from_thing(newthing);
     init_creature_level(newthing, cctrl->explevel);
-    if (creature_model_bleeds(thing->model))
-      create_effect_around_thing(newthing, TngEff_Blood5);
+    if (creature_model_bleeds(thing->model)) {
+        create_effect_around_thing(newthing, TngEff_Blood5); // TODO CONFIG: make this effect configurable?
+    }
     set_start_state(newthing);
     strcpy(newcctrl->creature_name, cctrl->creature_name);
     kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_DiedInBattle);
@@ -292,8 +306,9 @@ void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
     if (!dungeon_invalid(dungeon)) {
         dungeon->lvstats.ghosts_raised++;
     }
-    if (is_my_player_number(room->owner))
+    if (is_my_player_number(room->owner)) {
         output_message(SMsg_TortureMadeGhost, 0, true);
+    }
 }
 
 void convert_tortured_creature_owner(struct Thing *creatng, PlayerNumber new_owner)

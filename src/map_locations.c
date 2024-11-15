@@ -39,7 +39,7 @@ const struct NamedCommand head_for_desc[] = {
   {NULL,                   0},
 };
 
-TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location)
+TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location, TbBool random_factor)
 {
 
     long i = get_map_location_longval(location);
@@ -47,10 +47,10 @@ TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location)
     switch (get_map_location_type(location))
     {
     case MLoc_ACTIONPOINT:
-        return get_coords_at_action_point(pos, i, 1);
+        return get_coords_at_action_point(pos, i, random_factor);
 
     case MLoc_HEROGATE:
-        return get_coords_at_hero_door(pos, i, 1);
+        return get_coords_at_hero_door(pos, i, random_factor);
 
     case MLoc_PLAYERSHEART:
         return get_coords_at_dungeon_heart(pos, i);
@@ -72,7 +72,6 @@ TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location)
     }
     
 }
-
 
 TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_idx, long i)
 {
@@ -172,12 +171,14 @@ TbBool get_coords_at_action_point(struct Coord3d *pos, long apt_idx, unsigned ch
         pos->y.val = apt->mappos.y.val;
     } else
     {
+        long distance = GAME_RANDOM(apt->range);
         long direction = GAME_RANDOM(2 * LbFPMath_PI);
-        long delta_x = (apt->range * LbSinL(direction) >> 8);
-        long delta_y = (apt->range * LbCosL(direction) >> 8);
+        long delta_x = (distance * LbSinL(direction) >> 8);
+        long delta_y = (distance * LbCosL(direction) >> 8);
         pos->x.val = apt->mappos.x.val + (delta_x >> 8);
         pos->y.val = apt->mappos.y.val - (delta_y >> 8);
     }
+    pos->z.val = get_floor_height_at(pos);
     return true;
 }
 
@@ -282,7 +283,7 @@ void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos
         pos->x.val = apt->mappos.x.val;
         pos->y.val = apt->mappos.y.val;
       } else
-        WARNMSG("%s: Action Point %d location not found",func_name,i);
+        WARNMSG("%s: Action Point %lu location not found",func_name,i);
       break;
     case MLoc_HEROGATE:
       thing = find_hero_gate_of_number(i);
@@ -290,7 +291,7 @@ void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos
       {
         *pos = thing->mappos;
       } else
-        WARNMSG("%s: Hero Gate %d location not found",func_name,i);
+        WARNMSG("%s: Hero Gate %lu location not found",func_name,i);
       break;
     case MLoc_PLAYERSHEART:
       if (i < PLAYERS_COUNT)
@@ -302,7 +303,7 @@ void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos
       {
         *pos = thing->mappos;
       } else
-        WARNMSG("%s: Dungeon Heart location for player %d not found",func_name,i);
+        WARNMSG("%s: Dungeon Heart location for player %lu not found",func_name,i);
       break;
     case MLoc_NONE:
       pos->x.val = 0;
@@ -315,11 +316,11 @@ void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos
       {
         *pos = thing->mappos;
       } else
-        WARNMSG("%s: Thing %d location not found",func_name,i);
+        WARNMSG("%s: Thing %lu location not found",func_name,i);
       break;
     case MLoc_METALOCATION:
       if (!get_coords_at_meta_action(pos, plyr_idx, i))
-        WARNMSG("%s: Metalocation not found %d",func_name,i);
+        WARNMSG("%s: Metalocation not found %lu",func_name,i);
       break;
     case MLoc_CREATUREKIND:
     case MLoc_OBJECTKIND:
@@ -332,7 +333,7 @@ void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos
       WARNMSG("%s: Unsupported location, %lu.",func_name,location);
       break;
   }
-  SYNCDBG(15,"From %s; Location %ld, pos(%ld,%ld)",func_name, location, pos->x.stl.num, pos->y.stl.num);
+  SYNCDBG(15,"From %s; Location %ld, pos(%u,%u)",func_name, location, pos->x.stl.num, pos->y.stl.num);
 }
 
 /**

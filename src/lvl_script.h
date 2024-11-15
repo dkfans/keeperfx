@@ -118,49 +118,17 @@ struct ScriptValue {
   {
     struct
     {
-      union
-      {
-          long arg0;
-          char* str0;
-      };
-      union
-      {
-          long arg1;
-          char* str1;
-      };
-      union
-      {
-          long arg2;
-          char* str2;
-      };
-    };
-    struct
-    {
-      union
-      {
-          unsigned long uarg0;
-          unsigned char* ustr0;
-      };
-      union
-      {
-          unsigned long uarg1;
-          unsigned char* ustr1;
-      };
-      union
-      {
-          unsigned long uarg2;
-          unsigned char* ustr2;
-      };
-    };
-    struct
-    {
         char action;
         char param;
         char victims[MAX_SACRIFICE_VICTIMS];
     } sac;
-    unsigned char bytes[16];
-    char chars[16];
-    short shorts[8];
+    unsigned char bytes[32];
+    char chars[32];
+    short shorts[16];
+    long longs[8];
+    unsigned long ulongs[8];
+    unsigned char* ustrs[8];
+    char* strs[8];
   };
 };
 

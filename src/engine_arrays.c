@@ -1121,11 +1121,9 @@ TbBool load_ceiling_table(void)
     TbBool do_next;
     long i;
     long n;
-    // Prepare filename and open the file
-    wait_for_cd_to_be_available();
     fname = prepare_file_path(FGrp_StdData,"ceiling.txt");
     fh = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
-    if (fh == -1) {
+    if (!fh) {
         return false;
     }
 

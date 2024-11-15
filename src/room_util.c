@@ -22,6 +22,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "room_data.h"
+#include "room_garden.h"
 #include "map_utils.h"
 #include "map_blocks.h"
 #include "player_data.h"
@@ -266,7 +267,7 @@ TbBool delete_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, TbBool is_destro
     struct Room* room = slab_room_get(slb_x, slb_y);
     if (room_is_invalid(room))
     {
-        ERRORLOG("Slab (%ld,%ld) is not a room",slb_x, slb_y);
+        ERRORLOG("Slab (%d,%d) is not a room",slb_x, slb_y);
         return false;
     }
     SYNCDBG(7,"Room on (%d,%d) had %d slabs",(int)slb_x,(int)slb_y,(int)room->slabs_count);
@@ -315,6 +316,7 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
             else
             {
                 place_slab_type_on_map(slabkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
+                set_alt_bit_on_slabs_around(slb_x, slb_y);
             }
             return true;
         }
@@ -332,6 +334,7 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
     SYNCDBG(7, "Room on (%d,%d) had %d slabs", (int)slb_x, (int)slb_y, (int)room->slabs_count);
     decrease_room_area(room->owner, 1);
     kill_room_slab_and_contents(room->owner, slb_x, slb_y);
+    remove_slab_from_room_tiles_list(room, slb_x, slb_y);
     if (room->slabs_count <= 1)
     {
         delete_room_flag(room);
