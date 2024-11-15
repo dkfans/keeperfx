@@ -772,9 +772,9 @@ long move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *pos, long max_
             const struct Thing* creatng = thing_get(i);
             TRACE_THING(creatng);
             const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-            if (!thing_is_creature_special_digger(creatng) || creature_control_invalid(cctrl))
+            if (!thing_is_creature(creatng) || creature_control_invalid(cctrl))
             {
-                ERRORLOG("Jump to invalid digger creature detected");
+                ERRORLOG("Jump to invalid creature detected");
                 break;
             }
             i = cctrl->players_next_creature_idx;
@@ -813,9 +813,9 @@ long move_imp_to_mine_here(struct Computer2 *comp, struct Coord3d *pos, long max
             const struct Thing* creatng = thing_get(i);
             TRACE_THING(creatng);
             const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-            if (!thing_is_creature_special_digger(creatng) || creature_control_invalid(cctrl))
+            if (!thing_is_creature(creatng) || creature_control_invalid(cctrl))
             {
-                ERRORLOG("Jump to invalid digger creature detected");
+                ERRORLOG("Jump to invalid creature detected");
                 break;
             }
             i = cctrl->players_next_creature_idx;
