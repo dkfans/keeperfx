@@ -1013,6 +1013,23 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, owner);
                 }
                 affected = true;
+                if (shotst->cast_spell_kind != 0)
+                {
+                    unsigned char spell_level;
+                    struct CreatureControl* cctrl = creature_control_get_from_thing(tngdst);
+                    struct CreatureControl* scctrl = creature_control_get_from_thing(origtng);
+                    if (!creature_control_invalid(scctrl)) {
+                        spell_level = scctrl->explevel;
+                    }
+                    else {
+                        spell_level = 0;
+                    }
+                    if (shotst->cast_spell_kind == SplK_Disease)
+                    {
+                        cctrl->disease_caster_plyridx = tngsrc->owner;
+                    }
+                    apply_spell_effect_to_thing(tngdst, shotst->cast_spell_kind, spell_level);
+                }
                 if (tngdst->health < 0)
                 {
                     struct CreatureBattle* battle = creature_battle_get_from_thing(origtng);
@@ -1028,26 +1045,6 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     }
                     kill_creature(tngdst, origtng, -1, dieflags);
                     affected = true;
-                }
-                else
-                {
-                    if (shotst->cast_spell_kind != 0)
-                    {
-                        short n;
-                        struct CreatureControl* cctrl = creature_control_get_from_thing(tngdst);
-                        struct CreatureControl* scctrl = creature_control_get_from_thing(origtng);
-                        if (!creature_control_invalid(scctrl)) {
-                            n = scctrl->explevel;
-                        }
-                        else {
-                            n = 0;
-                        }
-                        if (shotst->cast_spell_kind == SplK_Disease)
-                        {
-                            cctrl->disease_caster_plyridx = tngsrc->owner;
-                        }
-                        apply_spell_effect_to_thing(tngdst, shotst->cast_spell_kind, n);
-                    }
                 }
             }
             if (thing_is_dungeon_heart(tngdst))
