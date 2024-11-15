@@ -89,6 +89,9 @@ extern "C" {
 #ifndef min
 #define min(a,b) ((a)<(b)?(a):(b))
 #endif
+#ifndef clamp
+#define clamp(v,lo,hi) (max(lo, min(v, hi)))
+#endif
 #endif
 
 // Return values for verification functions
