@@ -104,4 +104,5 @@ target_link_libraries(keeperfx_hvlog
 target_link_libraries(keeperfx_hvlog
     PRIVATE $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>)
 
+add_subdirectory(submodule)
 add_subdirectory(tests)

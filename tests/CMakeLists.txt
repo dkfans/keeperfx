@@ -1,5 +1,3 @@
-add_subdirectory(doctest)
-
 add_executable(test_rtree
 	test_rtree.cpp
 )
