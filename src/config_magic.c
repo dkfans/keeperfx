@@ -425,10 +425,14 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
   // Initialize the array
   for (int i = 0; i < MAGIC_ITEMS_MAX; i++) {
     spellst = &game.conf.magic_conf.spell_cfgstats[i];
-    if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(spellst->code_name) <= 0)) {
-      LbMemorySet(&spellst->code_name, 0, COMMAND_WORD_LEN);
-      spell_desc[i].name = spellst->code_name;
-      spell_desc[i].num = i;
+    if ((!flag_is_set(flags,CnfLd_AcceptPartial)) || (strlen(spellst->code_name) <= 0))
+    {
+        if (flag_is_set(flags, CnfLd_ListOnly))
+        {
+            LbMemorySet(&spellst->code_name, 0, COMMAND_WORD_LEN);
+            spell_desc[i].name = spellst->code_name;
+            spell_desc[i].num = i;
+        }
       spconf = &game.conf.magic_conf.spell_config[i];
       spconf->linked_power = 0;
       spconf->duration = 0;
@@ -729,11 +733,15 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
   // Initialize the array
   for (int i = 0; i < MAGIC_ITEMS_MAX; i++) {
     shotst = &game.conf.magic_conf.shot_cfgstats[i];
-    if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(shotst->code_name) <= 0)) {
-      LbMemorySet(shotst->code_name, 0, COMMAND_WORD_LEN);
+    if ((!flag_is_set(flags,CnfLd_AcceptPartial)) || (strlen(shotst->code_name) <= 0))
+    {
+        if (flag_is_set(flags, CnfLd_ListOnly))
+        {
+            LbMemorySet(shotst->code_name, 0, COMMAND_WORD_LEN);
+            shot_desc[i].name = shotst->code_name;
+            shot_desc[i].num = i;
+        }
       shotst->model_flags = 0;
-      shot_desc[i].name = shotst->code_name;
-      shot_desc[i].num = i;
       shotst->area_hit_type = THit_CrtrsOnly;
       shotst->area_range = 0;
       shotst->area_damage = 0;
@@ -1809,8 +1817,14 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
   // Initialize the array
   for (int i = 0; i < MAGIC_ITEMS_MAX; i++) {
     powerst = &game.conf.magic_conf.power_cfgstats[i];
-    if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(powerst->code_name) <= 0)) {
-      LbMemorySet(powerst->code_name, 0, COMMAND_WORD_LEN);
+    if ((!flag_is_set(flags,CnfLd_AcceptPartial)) || (strlen(powerst->code_name) <= 0))
+    {
+        if (flag_is_set(flags, CnfLd_ListOnly))
+        {
+            LbMemorySet(powerst->code_name, 0, COMMAND_WORD_LEN);
+            power_desc[i].name = powerst->code_name;
+            power_desc[i].num = i;
+        }
       powerst->artifact_model = 0;
       powerst->can_cast_flags = 0;
       powerst->config_flags = 0;
@@ -1825,11 +1839,9 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
       powerst->panel_tab_idx = 0;
       powerst->select_sound_idx = 0;
       powerst->cast_cooldown = 0;
-      power_desc[i].name = powerst->code_name;
-      power_desc[i].num = i;
     }
   }
-  if ((flags & CnfLd_AcceptPartial) == 0) {
+  if (!flag_is_set(flags, CnfLd_AcceptPartial)) {
     for (int i = 0; i < MAGIC_ITEMS_MAX; i++) {
         game.conf.object_conf.object_to_power_artifact[i] = 0;
     }
