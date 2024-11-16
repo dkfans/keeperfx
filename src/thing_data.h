@@ -79,7 +79,7 @@ enum ThingRenderingFlags {
 
  /**
   * Used for EffectElementConfigStats->size_change and Thing->size_change.
-  * 
+  *
   * See effect_element_stats[] for setting of size_change.
   */
 enum ThingSizeChange {
@@ -111,7 +111,7 @@ enum ThingMovementFlags {
 
 struct Room;
 
-struct Thing {
+typedef struct Thing {
     unsigned char alloc_flags;
     unsigned char state_flags;
     unsigned short next_on_mapblk;
@@ -176,7 +176,7 @@ struct Thing {
       short unused3;
       long last_turn_drawn;
       unsigned char display_timer;
-      }roomflag2; // both roomflag and roomflag2 are used in same function on same object but have 2 bytes overlapping between room_idx and last_turn_drawn 
+      }roomflag2; // both roomflag and roomflag2 are used in same function on same object but have 2 bytes overlapping between room_idx and last_turn_drawn
 //TCls_Shot
       struct {
         unsigned char dexterity;
@@ -195,7 +195,7 @@ struct Thing {
       } shot_lizard;
       struct {
         unsigned char range;
-      } shot_lizard2;// both shot_lizard and shot_lizard2 are used in same function on same object but have 1 byte overlapping between x and range 
+      } shot_lizard2;// both shot_lizard and shot_lizard2 are used in same function on same object but have 1 byte overlapping between x and range
 //TCls_EffectElem
 //TCls_DeadCreature
       struct {
@@ -297,8 +297,8 @@ struct Thing {
     unsigned short light_id;
     CctrlIndex ccontrol_idx;
     unsigned char snd_emitter_id;
-    short next_of_class;
-    short prev_of_class;
+    ThingIndex next_of_class;
+    ThingIndex prev_of_class;
     unsigned long flags; //ThingAddFlags
     long last_turn_drawn;
     float time_spent_displaying_hurt_colour; // Used for delta time interpolated render position
@@ -312,7 +312,7 @@ struct Thing {
     long previous_minimap_pos_y;
     long interp_minimap_update_turn;
     PlayerNumber holding_player;
-};
+} Thing;
 
 #define INVALID_THING (game.things.lookup[0])
 

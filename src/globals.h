@@ -300,7 +300,7 @@ typedef unsigned short CctrlIndex;
  * .stl.pos - coord position (relative to subtile)
  * .stl.num - subtile position (relative to whole map)
  */
-struct Coord2d {
+typedef struct Coord2d {
     union { // x position
       unsigned long val; /**< x.val - coord x position (relative to whole map) */
       struct { // subtile
@@ -315,7 +315,8 @@ struct Coord2d {
         unsigned short num; /**< y.stl.num - subtile y position (relative to whole map) */
         } stl;
     } y;
-};
+} Coord2d;
+
 
 /**
  * Stores a 3d coordinate (x,y).
@@ -325,7 +326,7 @@ struct Coord2d {
  * .stl.pos - coord position (relative to subtile)
  * .stl.num - subtile position (relative to whole map)
  */
-struct Coord3d {
+typedef struct Coord3d {
     union { // x position
       long val; /**< x.val - coord x position (relative to whole map) */
       struct { // subtile
@@ -347,7 +348,7 @@ struct Coord3d {
         unsigned short num; /**< z.stl.num - subtile z position (relative to whole map) */
         } stl;
     } z;
-};
+} Coord3d;
 
 struct CoordDelta3d {
     union {

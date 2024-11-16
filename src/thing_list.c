@@ -48,6 +48,7 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "bflib_planar.h"
+#include "creature/creature_tree.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -311,7 +312,7 @@ long near_thing_pos_thing_filter_is_enemy_which_can_be_shot_by_trap(const struct
                                     {
                                         return -1;
                                     }
-                                } 
+                                }
                                 // This function should return max value when the distance is minimal.
                                 return LONG_MAX - distance;
                             }
@@ -1162,6 +1163,7 @@ void update_things(void)
     optimised_lights = 0;
     total_lights = 0;
     do_lights = game.lish.light_enabled;
+    update_creature_tree();
     TbBigChecksum sum = 0;
     sum += update_things_in_list(&game.thing_lists[TngList_Creatures]);
     update_creatures_not_in_list();
@@ -1622,9 +1624,9 @@ struct Thing *find_random_thing_in_room(ThingClass tngclass, ThingModel tngmodel
     {
         current_slb = get_next_slab_number_in_room(current_slb);
     }
-        
+
     static const int STL_PER_SLB_2D = STL_PER_SLB * STL_PER_SLB;
-    
+
     for (size_t i = 0; i < room->slabs_count; i++)
     {
         if ( room->slabs_count == current_slab_idx )
@@ -1635,7 +1637,7 @@ struct Thing *find_random_thing_in_room(ThingClass tngclass, ThingModel tngmodel
 
         MapSlabCoord slb_x = slb_num_decode_x(current_slb);
         MapSlabCoord slb_y = slb_num_decode_y(current_slb);
-        
+
         unsigned char subtile = GAME_RANDOM(STL_PER_SLB_2D);
 
         for (size_t j = 0; j < STL_PER_SLB_2D; j++)
@@ -1760,6 +1762,76 @@ struct Thing *get_nth_thing_of_class_with_filter(Thing_Maximizer_Filter filter, 
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
             break;
+        }
+    }
+    return retng;
+}
+
+/**
+ * @brief This is a creature-specialization of get_nth_thing_of_class_with_filter.
+ * Instead of the entire map, this one only searches the CreatureControl.creatures_nearby array of
+ * the input creature, so the search base is much smaller.
+ *
+ * @param filter Filter function reference.
+ * @param param Filter function parameters struct. The index of source creature must be set in the 1st one.
+ * @param tngindex Best matched thing index to be returned.
+ * @return struct Thing*
+ */
+struct Thing* get_nth_creature_with_filter(Thing_Maximizer_Filter filter, MaxTngFilterParam param, long tngindex)
+{
+    SYNCDBG(19, "Starting");
+    long maximizer = 0;
+    long curindex = 0;
+    struct Thing* source = thing_get(param->num1);
+    if (thing_is_invalid(source))
+    {
+        ERRORLOG("Invalid input creature index: %d", param->num1);
+        return INVALID_THING;
+    }
+
+    NearbyCreature* nearby_creatures = NULL;
+    uint32_t count = 0;
+    TbBool ok = get_nearby_creatures_in_visual_range(
+        source,
+        &count,
+        &nearby_creatures
+        );
+
+    if (!ok)
+    {
+        ERRORLOG("get_nearby_creatures_in_visual_range() failed!");
+        return false;
+    }
+
+    struct Thing* retng = INVALID_THING;
+    for (int i = 0; i < count; ++i)
+    {
+        struct Thing* thing = thing_get(nearby_creatures[i].index);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Invalid creature on index: %d", nearby_creatures[i].index);
+            continue;
+        }
+        // Per-thing code
+        long n = filter(thing, param, maximizer);
+        if (n > maximizer)
+        {
+            retng = thing;
+            maximizer = n;
+            curindex = 0;
+        }
+        else if (n == maximizer)
+        {
+            if (curindex <= tngindex)
+            {
+                retng = thing;
+            }
+            // Only break if we can't get any higher with the filter function result
+            if (( maximizer == LONG_MAX ) && ( curindex >= tngindex ))
+            {
+                break;
+            }
+            curindex++;
         }
     }
     return retng;
@@ -1923,7 +1995,7 @@ struct Thing *get_nearest_enemy_creature_possible_to_attack_by(struct Thing *cre
     param.num1 = creatng->index;
     param.num2 = -1;
     param.num3 = -1;
-    return get_nth_thing_of_class_with_filter(filter, &param, 0);
+    return get_nth_creature_with_filter(filter, &param, 0);
 }
 
 struct Thing* get_nearest_enemy_object_possible_to_attack_by(struct Thing* creatng)
@@ -1951,7 +2023,7 @@ struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attac
     param.num1 = creatng->index;
     param.num2 = dist;
     param.num3 = move_on_ground;
-    return get_nth_thing_of_class_with_filter(filter, &param, 0);
+    return get_nth_creature_with_filter(filter, &param, 0);
 }
 
 struct Thing *get_random_trap_of_model_owned_by_and_armed(ThingModel tngmodel, PlayerNumber plyr_idx, TbBool armed)
@@ -2318,13 +2390,13 @@ long count_player_creatures_of_model(PlayerNumber plyr_idx, int crmodel)
     }
     TbBool is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
     long count = 0;
-    if (((crmodel > 0) && (!is_creature_model_wildcard(crmodel)) && !is_spec_digger) || 
-        (crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER)) 
+    if (((crmodel > 0) && (!is_creature_model_wildcard(crmodel)) && !is_spec_digger) ||
+        (crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER))
     {
         count += count_player_list_creatures_with_filter(dungeon->creatr_list_start, filter, &param);
     }
-    if (((crmodel > 0) && (!is_creature_model_wildcard(crmodel)) && is_spec_digger) || 
-        (crmodel == CREATURE_ANY) || (crmodel == CREATURE_DIGGER)) 
+    if (((crmodel > 0) && (!is_creature_model_wildcard(crmodel)) && is_spec_digger) ||
+        (crmodel == CREATURE_ANY) || (crmodel == CREATURE_DIGGER))
     {
         count += count_player_list_creatures_with_filter(dungeon->digger_list_start, filter, &param);
     }
@@ -2537,7 +2609,7 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
             {
                 match = 1;
             }
-        } 
+        }
         else if (friendly == 0)
         {
             if (players_are_enemies(thing->owner,slbwnr))
@@ -2555,7 +2627,7 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
 
         if ((thing_matches_model(thing, crmodel)) && (match == 1))
         {
-            nth_creature = thing; 
+            nth_creature = thing;
             crtr_idx--;
         }
         // Per creature code ends
@@ -3301,7 +3373,7 @@ TbBool update_thing(struct Thing *thing)
                 {
                     thing->veloc_base.z.val = thing->veloc_base.z.val * (256 - thing->inertia_air) / 256;
                 }
-                else 
+                else
                 {
                     if (thing_above_flight_altitude(thing) && ((thing->alloc_flags & TAlF_IsControlled) == 0))
                     {
@@ -4146,21 +4218,21 @@ struct Thing *get_nearest_thing_at_position(MapSubtlCoord stl_x, MapSubtlCoord s
   struct Thing *thing;
   unsigned char n,k = 0;
   struct Thing *result = NULL;
-  MapSubtlCoord x,y; 
+  MapSubtlCoord x,y;
   do
   {
     n = 0;
-    y = stl_y + k;  
+    y = stl_y + k;
     if ( (y >= 0) && (y < gameadd.map_subtiles_y) )
     {
       do
       {
-        x = stl_x + n;  
+        x = stl_x + n;
         if ( (x >= 0) && (x < gameadd.map_subtiles_x) )
         {
           struct Map *blk = get_map_block_at(x, y);
           thing = thing_get(get_mapwho_thing_index(blk));
-          while (!thing_is_invalid(thing)) 
+          while (!thing_is_invalid(thing))
           {
             TRACE_THING(thing);
             long NewDistance = chessboard_distance(stl_x, stl_y, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
@@ -4443,7 +4515,7 @@ struct Thing* get_timebomb_target(struct Thing *creatng)
     MapCoordDelta dist, new_dist;
     struct Thing* thing;
     struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
-    if (slist != NULL) 
+    if (slist != NULL)
     {
         dist = LONG_MAX;
         unsigned long i = slist->index;
@@ -4506,6 +4578,44 @@ struct Thing* get_timebomb_target(struct Thing *creatng)
     }
     return retng;
 }
+
+void update_creature_tree()
+{
+    clear_creature_tree();
+    uint32_t k = 0;
+    ThingIndex i = game.thing_lists[TngList_Creatures].index;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_of_class;
+
+        // Do some sanity checks.
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (thing->index == 0 || thing->health < 0 || creature_control_invalid(cctrl))
+        {
+            continue;
+        }
+
+        if (!add_creature_to_tree(thing))
+        {
+            ERRORLOG("Unable to add creature %s (%d) to the creature tree.", thing_model_name(thing), thing->index);
+        }
+
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

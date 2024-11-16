@@ -96,3 +96,9 @@ target_link_libraries(centitoml PUBLIC centijson_static)
 target_include_directories(centitoml INTERFACE "centitoml")
 target_link_libraries(keeperfx PUBLIC centitoml)
 target_link_libraries(keeperfx_hvlog PUBLIC centitoml)
+
+## Add THST
+add_library(THST INTERFACE)
+target_include_directories(THST INTERFACE "THST/include")
+target_link_libraries(keeperfx PRIVATE THST)
+target_link_libraries(keeperfx_hvlog PRIVATE THST)
