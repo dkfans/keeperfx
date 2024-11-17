@@ -478,21 +478,10 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
       int cmd_num = recognize_conf_command(buf, &pos, len, magic_spell_commands);
       // Now store the config item in correct place
       if (cmd_num == ccr_endOfBlock) break; // if next block starts
-      if (flag_is_set(flags, CnfLd_ListOnly))
+      //Do the name when listing, the rest when not listing.
+      if ((flag_is_set(flags, CnfLd_ListOnly) && cmd_num > 1) || (!flag_is_set(flags, CnfLd_ListOnly) && cmd_num <= 1))
       {
-          // In "List only" mode, accept only name command
-          if (cmd_num > 1)
-          {
-              cmd_num = ccr_comment;
-          }
-      }
-      else
-      {
-          // Outside of "List only" mode, skip name command
-          if (cmd_num <= 1)
-          {
-              cmd_num = ccr_comment;
-          }
+          cmd_num = ccr_comment;
       }
       int n = 0, k = 0;
       char word_buf[COMMAND_WORD_LEN];
@@ -818,21 +807,10 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       int cmd_num = recognize_conf_command(buf, &pos, len, magic_shot_commands);
       // Now store the config item in correct place
       if (cmd_num == ccr_endOfBlock) break; // if next block starts
-      if (flag_is_set(flags,CnfLd_ListOnly))
+      //Do the name when listing, the rest when not listing.
+      if ((flag_is_set(flags, CnfLd_ListOnly) && cmd_num > 1) || (!flag_is_set(flags, CnfLd_ListOnly) && cmd_num <= 1))
       {
-          // In "List only" mode, accept only name command
-          if (cmd_num > 1)
-          {
-              cmd_num = ccr_comment;
-          }
-      }
-      else
-      {
-          // Outside of "List only" mode, skip name command
-          if (cmd_num <= 1)
-          {
-              cmd_num = ccr_comment;
-          }
+          cmd_num = ccr_comment;
       }
       int n = 0, k = 0;
       char word_buf[COMMAND_WORD_LEN];
@@ -1904,21 +1882,10 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
       int cmd_num = recognize_conf_command(buf, &pos, len, magic_power_commands);
       // Now store the config item in correct place
       if (cmd_num == ccr_endOfBlock) break; // if next block starts
-      if (flag_is_set(flags, CnfLd_ListOnly))
+      //Do the name when listing, the rest when not listing.
+      if ((flag_is_set(flags, CnfLd_ListOnly) && cmd_num > 1) || (!flag_is_set(flags, CnfLd_ListOnly) && cmd_num <= 1))
       {
-          // In "List only" mode, accept only name command
-          if (cmd_num > 1)
-          {
-              cmd_num = ccr_comment;
-          }
-      }
-      else
-      {
-          // Outside of "List only" mode, skip name command
-          if (cmd_num <= 1)
-          {
-              cmd_num = ccr_comment;
-          }
+          cmd_num = ccr_comment;
       }
       int n = 0;
       char word_buf[COMMAND_WORD_LEN];
