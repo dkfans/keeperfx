@@ -452,7 +452,6 @@ long LbFileLengthRnc(const char *fname)
     long flength;
     TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
     if (!handle) {
-        LbSyncLog("%s: failed to open\n", fname);
         return -1;
     }
 #if (BFDEBUG_LEVEL > 19)
