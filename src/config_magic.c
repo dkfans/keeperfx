@@ -425,14 +425,14 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
   // Initialize the array
   for (int i = 0; i < MAGIC_ITEMS_MAX; i++) {
     spellst = &game.conf.magic_conf.spell_cfgstats[i];
+    if (flag_is_set(flags, CnfLd_ListOnly))
+    {
+        LbMemorySet(&spellst->code_name, 0, COMMAND_WORD_LEN);
+        spell_desc[i].name = spellst->code_name;
+        spell_desc[i].num = i;
+    }
     if ((!flag_is_set(flags,CnfLd_AcceptPartial)) || (strlen(spellst->code_name) <= 0))
     {
-        if (flag_is_set(flags, CnfLd_ListOnly))
-        {
-            LbMemorySet(&spellst->code_name, 0, COMMAND_WORD_LEN);
-            spell_desc[i].name = spellst->code_name;
-            spell_desc[i].num = i;
-        }
       spconf = &game.conf.magic_conf.spell_config[i];
       spconf->linked_power = 0;
       spconf->duration = 0;
@@ -478,10 +478,20 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
       int cmd_num = recognize_conf_command(buf, &pos, len, magic_spell_commands);
       // Now store the config item in correct place
       if (cmd_num == ccr_endOfBlock) break; // if next block starts
-      if ((flags & CnfLd_ListOnly) != 0) {
+      if (flag_is_set(flags, CnfLd_ListOnly))
+      {
           // In "List only" mode, accept only name command
-          if (cmd_num > 1) {
-              cmd_num = 0;
+          if (cmd_num > 1)
+          {
+              cmd_num = ccr_comment;
+          }
+      }
+      else
+      {
+          // Outside of "List only" mode, skip name command
+          if (cmd_num <= 1)
+          {
+              cmd_num = ccr_comment;
           }
       }
       int n = 0, k = 0;
@@ -494,6 +504,11 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
               CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
               break;
+          }
+          else
+          {
+              spell_desc[i].name = spellst->code_name;
+              spell_desc[i].num = i;
           }
           n++;
           break;
@@ -808,7 +823,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           // In "List only" mode, accept only name command
           if (cmd_num > 1)
           {
-              cmd_num = 0;
+              cmd_num = ccr_comment;
           }
       }
       else
@@ -816,7 +831,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           // Outside of "List only" mode, skip name command
           if (cmd_num <= 1)
           {
-              cmd_num = 0;
+              cmd_num = ccr_comment;
           }
       }
       int n = 0, k = 0;
@@ -1832,14 +1847,14 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
   // Initialize the array
   for (int i = 0; i < MAGIC_ITEMS_MAX; i++) {
     powerst = &game.conf.magic_conf.power_cfgstats[i];
+    if (flag_is_set(flags, CnfLd_ListOnly))
+    {
+        LbMemorySet(powerst->code_name, 0, COMMAND_WORD_LEN);
+        power_desc[i].name = powerst->code_name;
+        power_desc[i].num = i;
+    }
     if ((!flag_is_set(flags,CnfLd_AcceptPartial)) || (strlen(powerst->code_name) <= 0))
     {
-        if (flag_is_set(flags, CnfLd_ListOnly))
-        {
-            LbMemorySet(powerst->code_name, 0, COMMAND_WORD_LEN);
-            power_desc[i].name = powerst->code_name;
-            power_desc[i].num = i;
-        }
       powerst->artifact_model = 0;
       powerst->can_cast_flags = 0;
       powerst->config_flags = 0;
@@ -1889,10 +1904,20 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
       int cmd_num = recognize_conf_command(buf, &pos, len, magic_power_commands);
       // Now store the config item in correct place
       if (cmd_num == ccr_endOfBlock) break; // if next block starts
-      if ((flags & CnfLd_ListOnly) != 0) {
+      if (flag_is_set(flags, CnfLd_ListOnly))
+      {
           // In "List only" mode, accept only name command
-          if (cmd_num > 1) {
-              cmd_num = 0;
+          if (cmd_num > 1)
+          {
+              cmd_num = ccr_comment;
+          }
+      }
+      else
+      {
+          // Outside of "List only" mode, skip name command
+          if (cmd_num <= 1)
+          {
+              cmd_num = ccr_comment;
           }
       }
       int n = 0;
@@ -1905,6 +1930,11 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
               break;
+          }
+          else
+          {
+              power_desc[i].name = powerst->code_name;
+              power_desc[i].num = i;
           }
           break;
       case 2: // POWER
