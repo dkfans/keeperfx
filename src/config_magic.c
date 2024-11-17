@@ -733,14 +733,14 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
   // Initialize the array
   for (int i = 0; i < MAGIC_ITEMS_MAX; i++) {
     shotst = &game.conf.magic_conf.shot_cfgstats[i];
+    if (flag_is_set(flags, CnfLd_ListOnly))
+    {
+        LbMemorySet(shotst->code_name, 0, COMMAND_WORD_LEN);
+        shot_desc[i].name = shotst->code_name;
+        shot_desc[i].num = i;
+    }
     if ((!flag_is_set(flags,CnfLd_AcceptPartial)) || (strlen(shotst->code_name) <= 0))
     {
-        if (flag_is_set(flags, CnfLd_ListOnly))
-        {
-            LbMemorySet(shotst->code_name, 0, COMMAND_WORD_LEN);
-            shot_desc[i].name = shotst->code_name;
-            shot_desc[i].num = i;
-        }
       shotst->model_flags = 0;
       shotst->area_hit_type = THit_CrtrsOnly;
       shotst->area_range = 0;
@@ -803,9 +803,19 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       int cmd_num = recognize_conf_command(buf, &pos, len, magic_shot_commands);
       // Now store the config item in correct place
       if (cmd_num == ccr_endOfBlock) break; // if next block starts
-      if ((flags & CnfLd_ListOnly) != 0) {
+      if (flag_is_set(flags,CnfLd_ListOnly))
+      {
           // In "List only" mode, accept only name command
-          if (cmd_num > 1) {
+          if (cmd_num > 1)
+          {
+              cmd_num = 0;
+          }
+      }
+      else
+      {
+          // Outside of "List only" mode, skip name command
+          if (cmd_num <= 1)
+          {
               cmd_num = 0;
           }
       }
@@ -814,11 +824,16 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       switch (cmd_num)
       {
       case 1: // NAME
-          if (get_conf_parameter_single(buf,&pos,len,shotst->code_name,COMMAND_WORD_LEN) <= 0)
+          if (get_conf_parameter_single(buf, &pos, len, shotst->code_name, COMMAND_WORD_LEN) <= 0)
           {
             CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
                 COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             break;
+          }
+          else
+          {
+            shot_desc[i].name = shotst->code_name;
+            shot_desc[i].num = i;
           }
           n++;
           break;
