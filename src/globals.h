@@ -19,9 +19,10 @@
 #ifndef KEEPFX_GLOBALS_H
 #define KEEPFX_GLOBALS_H
 
+#include <stdbool.h> // Introduced in C99. Provides true/false.
 #include <stdio.h>
 #include <stdint.h>
-#include <stdlib.h>
+#include <stdlib.h> // Provides NULL.
 #include <string.h>
 #include <ctype.h>
 #include <limits.h>
@@ -70,16 +71,6 @@ extern "C" {
 #define SEPARATOR "/"
 #else
 #define SEPARATOR "\\"
-#endif
-
-#ifndef false
-#define false 0
-#endif
-#ifndef true
-#define true 1
-#endif
-#ifndef NULL
-#define NULL 0
 #endif
 
 #ifndef __cplusplus

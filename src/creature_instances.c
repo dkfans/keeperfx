@@ -449,7 +449,7 @@ void process_creature_instance(struct Thing *thing)
     TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
     SYNCDBG(19, "Starting for %s index %d instance %d", thing_model_name(thing), (int)thing->index, (int)cctrl->instance_id);
-    if (cctrl->inst_turn > cctrl->inst_total_turns)
+    if (cctrl->inst_turn >= cctrl->inst_total_turns)
     {
         if (!cctrl->inst_repeat)
         {

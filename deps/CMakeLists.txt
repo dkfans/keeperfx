@@ -46,6 +46,15 @@ if( NOT EXISTS ${CMAKE_SOURCE_DIR}/deps/centijson )
 	execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_SOURCE_DIR}/deps/centijson-mingw32.tar.gz WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/deps/centijson)
 endif()
 
+if(NOT EXISTS ${CMAKE_SOURCE_DIR}/deps/ffmpeg)
+	file(MAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/deps/ffmpeg)
+	if(NOT EXISTS ${CMAKE_SOURCE_DIR}/deps/ffmpeg-mingw32.tar.gz)
+		file(DOWNLOAD https://github.com/dkfans/kfx-deps/releases/download/initial/ffmpeg-mingw32.tar.gz ${CMAKE_SOURCE_DIR}/deps/ffmpeg-mingw32.tar.gz SHOW_PROGRESS)
+	endif()
+
+	execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_SOURCE_DIR}/deps/ffmpeg-mingw32.tar.gz WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/deps/ffmpeg)
+endif()
+
 ## enet
 add_library(enet_static STATIC IMPORTED)
 set_target_properties(enet_static PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/enet/libenet.a)
@@ -96,3 +105,23 @@ target_link_libraries(centitoml PUBLIC centijson_static)
 target_include_directories(centitoml INTERFACE "centitoml")
 target_link_libraries(keeperfx PUBLIC centitoml)
 target_link_libraries(keeperfx_hvlog PUBLIC centitoml)
+
+## ffmpeg
+add_library(libavcodec_static STATIC IMPORTED)
+set_target_properties(libavcodec_static PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/libavcodec/libavcodec.a)
+set_target_properties(libavcodec_static PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg)
+
+add_library(libavformat_static STATIC IMPORTED)
+set_target_properties(libavformat_static PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/libavformat/libavformat.a)
+set_target_properties(libavformat_static PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg)
+
+add_library(libavutil_static STATIC IMPORTED)
+set_target_properties(libavutil_static PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/libavutil/libavutil.a)
+set_target_properties(libavutil_static PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg)
+
+add_library(libswresample_static STATIC IMPORTED)
+set_target_properties(libswresample_static PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/libswresample/libswresample.a)
+set_target_properties(libswresample_static PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg)
+
+target_link_libraries(keeperfx PUBLIC bcrypt libavcodec_static libavformat_static libavutil_static libswresample_static)
+target_link_libraries(keeperfx_hvlog PUBLIC bcrypt libavcodec_static libavformat_static libavutil_static libswresample_static)
