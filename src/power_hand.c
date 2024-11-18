@@ -1348,7 +1348,7 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
         if (creature_affected_by_spell(thing, SplK_Chicken))
             i = convert_td_iso(122);
         else
-            i = get_creature_anim(thing, 9);
+            i = get_creature_anim(thing, CGI_PowerGrab);
         set_thing_draw(thing, i, 256, -1, -1, 0, ODC_Default);
     } else
     if (thing_is_object(thing))
