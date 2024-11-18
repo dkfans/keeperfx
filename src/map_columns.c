@@ -240,17 +240,20 @@ void make_solidmask(struct Column *col)
 
 unsigned short find_column_height(struct Column *col)
 {
-  unsigned short h;
+  unsigned short h, highest;
   h = 0;
+  highest = 0; // Want to find height even if column has holes in
   if (col->solidmask == 0)
-    return h;
-  while (col->cubes[h] > 0)
+    return highest;
+  while (h < COLUMN_STACK_HEIGHT)
   {
+    if (col->cubes[h]>0)
+    {
+        highest = h;
+    }
     h++;
-    if (h >= COLUMN_STACK_HEIGHT)
-      return COLUMN_STACK_HEIGHT;
   }
-  return h;
+  return highest;
 }
 
 /**
