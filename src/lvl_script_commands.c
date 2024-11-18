@@ -1076,7 +1076,56 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
-    else if (trapvar == 41)  // DestroyedEffect
+    else if (trapvar == 17) // EffectType
+    {
+        if (parameter_is_number(valuestring))
+        {
+            newvalue = atoi(valuestring);
+        }
+        else
+        {
+            struct TrapConfigStats *trapst = get_trap_model_stats(trap_id);
+            switch (trapst->activation_type)
+            {
+                case TrpAcT_EffectonTrap:
+                {
+                    newvalue = get_id(effect_desc, valuestring);
+                    break;
+                }
+                case TrpAcT_SlabChange:
+                {
+                    newvalue = get_id(slab_desc, valuestring);
+                    break;
+                }
+                case TrpAcT_CreatureSpawn:
+                {
+                    newvalue = get_id(creature_desc, valuestring);
+                    break;
+                }
+                case TrpAcT_Power:
+                {
+                    newvalue = get_id(power_desc, valuestring);
+                    break;
+                }
+                case TrpAcT_HeadforTarget90:
+                case TrpAcT_ShotonTrap:
+                case TrpAcT_CreatureShot:
+                default:
+                {
+                    newvalue = get_id(shot_desc, valuestring);
+                    break;
+                }
+            }
+        }
+        if ((newvalue > USHRT_MAX) || (newvalue < 0))
+        {
+            SCRPTERRLOG("Value out of range: %ld", newvalue);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        value->shorts[2] = newvalue;
+    }
+    else if (trapvar == 41) // DestroyedEffect
     {
         newvalue = effect_or_effect_element_id(valuestring);
         if ((newvalue == 0) && (!parameter_is_number(valuestring)))
@@ -1087,7 +1136,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
         }
         value->ulongs[1] = newvalue;
     }
-    else if (trapvar == 46) //FlameAnimationOffset
+    else if (trapvar == 46) // FlameAnimationOffset
     {
         value->chars[8] = atoi(scline->tp[2]);
         value->chars[9] = scline->np[3];
