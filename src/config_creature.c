@@ -375,6 +375,17 @@ void check_and_auto_fix_stats(void)
     SYNCDBG(9,"Finished");
 }
 
+void init_creature_model_graphics(void)
+{
+    for (int i = 0; i < CREATURE_TYPES_MAX; i++)
+    {
+        for (int k = 0; k < CREATURE_GRAPHICS_INSTANCES; k++)
+        {
+            game.conf.crtr_conf.creature_graphics[i][k] = -1;
+        }
+    }
+}
+
 TbBool is_creature_model_wildcard(ThingModel crmodel)
 {
     if((crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER) || (crmodel == CREATURE_DIGGER))

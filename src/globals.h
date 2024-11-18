@@ -19,9 +19,10 @@
 #ifndef KEEPFX_GLOBALS_H
 #define KEEPFX_GLOBALS_H
 
+#include <stdbool.h> // Introduced in C99. Provides true/false.
 #include <stdio.h>
 #include <stdint.h>
-#include <stdlib.h>
+#include <stdlib.h> // Provides NULL.
 #include <string.h>
 #include <ctype.h>
 #include <limits.h>
@@ -72,22 +73,15 @@ extern "C" {
 #define SEPARATOR "\\"
 #endif
 
-#ifndef false
-#define false 0
-#endif
-#ifndef true
-#define true 1
-#endif
-#ifndef NULL
-#define NULL 0
-#endif
-
 #ifndef __cplusplus
 #ifndef max
 #define max(a,b) ((a)>(b)?(a):(b))
 #endif
 #ifndef min
 #define min(a,b) ((a)<(b)?(a):(b))
+#endif
+#ifndef clamp
+#define clamp(v,lo,hi) (max(lo, min(v, hi)))
 #endif
 #endif
 

@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v4
@@ -18,7 +18,7 @@ jobs:
       run: |
         set -eux
         sudo apt update
-        sudo apt install -y build-essential g++-mingw-w64-i686 libpng16-16
+        sudo apt install -y build-essential g++-mingw-w64-i686 libpng16-16t64
 
     - name: build
       run: |
