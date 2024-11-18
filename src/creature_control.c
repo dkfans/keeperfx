@@ -138,7 +138,8 @@ void delete_all_control_structures(void)
 
 struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, ThingModel crmodel, struct Coord3d *pos)
 {
-    SYNCDBG(6,"Request for model %ld (%s) at (%d,%d,%d)",crmodel, creature_code_name(crmodel),(int)pos->x.val,(int)pos->y.val,(int)pos->z.val);
+    SYNCDBG(6,"Request for model %d (%s) at (%d,%d,%d)",
+        crmodel, creature_code_name(crmodel),(int)pos->x.val,(int)pos->y.val,(int)pos->z.val);
     struct Thing* thing = create_creature(pos, crmodel, player->id_number);
     if (thing_is_invalid(thing))
       return INVALID_THING;
@@ -256,6 +257,8 @@ struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx)
         return &game.conf.crtr_conf.creature_sounds[cmodel].foot;
     case CrSnd_Fight:
         return &game.conf.crtr_conf.creature_sounds[cmodel].fight;
+    case CrSnd_Piss:
+        return &game.conf.crtr_conf.creature_sounds[cmodel].piss;
     default:
         // Return dummy element
         return &game.conf.crtr_conf.creature_sounds[0].foot;
@@ -277,7 +280,7 @@ void stop_creature_sound(struct Thing *thing, long snd_idx)
 {
     struct CreatureSound* crsound = get_creature_sound(thing, snd_idx);
     if (crsound->index <= 0) {
-        SYNCDBG(19,"No sample %d for creature %d",snd_idx,thing->model);
+        SYNCDBG(19,"No sample %ld for creature %d",snd_idx,thing->model);
         return;
     }
 
@@ -298,11 +301,11 @@ void play_creature_sound(struct Thing *thing, long snd_idx, long a3, long a4)
     }
     struct CreatureSound* crsound = get_creature_sound(thing, snd_idx);
     if (crsound->index <= 0) {
-        SYNCDBG(19,"No sample %d for creature %d",snd_idx,thing->model);
+        SYNCDBG(19,"No sample %ld for creature %d",snd_idx,thing->model);
         return;
     }
     long i = UNSYNC_RANDOM(crsound->count);
-    SYNCDBG(18,"Playing sample %d (index %d) for creature %d",snd_idx,crsound->index+i,thing->model);
+    SYNCDBG(18,"Playing sample %ld (index %ld) for creature %d",snd_idx,crsound->index+i,thing->model);
     if ( a4 ) {
         thing_play_sample(thing, crsound->index+i, NORMAL_PITCH, 0, 3, 8, a3, FULL_LOUDNESS);
     } else {
@@ -317,7 +320,7 @@ void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_id
     }
     struct CreatureSound* crsound = get_creature_sound(thing, snd_idx);
     if (crsound->index <= 0) {
-        SYNCDBG(14,"No sample %d for creature %d",snd_idx,thing->model);
+        SYNCDBG(14,"No sample %ld for creature %d",snd_idx,thing->model);
         return;
     }
     long i = UNSYNC_RANDOM(crsound->count);

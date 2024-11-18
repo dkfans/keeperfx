@@ -122,8 +122,7 @@ char *buf_sprintf(const char *format, ...)
     va_list val;
     va_start(val, format);
     static char text[TEXT_BUFFER_LENGTH + 1];
-    vsprintf(text, format, val);
-    text[TEXT_BUFFER_LENGTH]='\0';
+    vsnprintf(text, sizeof(text), format, val);
     va_end(val);
     return text;
 }
@@ -593,6 +592,19 @@ void make_uppercase(char * string) {
   for (char * ptr = string; *ptr != 0; ++ptr) {
     *ptr = toupper(*ptr);
   }
+}
+
+int natoi(const char * str, int len) {
+  int value = -1;
+  for (int i = 0; i < len; ++i) {
+    if (!isdigit(str[i])) {
+      return value;
+    } else if (value < 0) {
+      value = 0;
+    }
+    value = (value * 10) + (str[i] - '0');
+  }
+  return value;
 }
 
 /******************************************************************************/

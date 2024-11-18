@@ -311,9 +311,9 @@ void query_thing(struct Thing *thing)
         sprintf((char*)position, "Pos: X:%d Y:%d Z:%d", querytng->mappos.x.stl.num, querytng->mappos.y.stl.num, querytng->mappos.z.stl.num);
         if (querytng->class_id == TCls_Trap)
         {
-            struct ManfctrConfig *mconf = &game.conf.traps_config[querytng->model];
+            struct TrapConfigStats *trapst = get_trap_model_stats(querytng->model);
             sprintf((char*)health, "Health: %ld", querytng->health);
-            sprintf((char*)amount, "Shots: %d/%d", querytng->trap.num_shots, mconf->shots);
+            sprintf((char*)amount, "Shots: %d/%d", querytng->trap.num_shots, trapst->shots);
         }
         else
         {
@@ -329,12 +329,14 @@ void query_thing(struct Thing *thing)
             else 
             if (querytng->class_id == TCls_Door)
             {
-                sprintf((char*)health, "Health: %ld/%ld", querytng->health, game.conf.trapdoor_conf.door_cfgstats[querytng->model].health);
+                struct DoorConfigStats *doorst = get_door_model_stats(querytng->model);
+                sprintf((char*)health, "Health: %ld/%ld", querytng->health, doorst->health);
             }
             else
             if (querytng->class_id == TCls_Creature)
             {
-                sprintf((char*)health, "Health: %ld/%ld", querytng->health, game.conf.creature_stats[querytng->model].health);
+                struct CreatureControl* cctrl = creature_control_get_from_thing(querytng);
+                sprintf((char*)health, "Health: %ld/%ld", querytng->health, cctrl->max_health);
                 sprintf((char*)position, "State: %s", creature_state_code_name(querytng->active_state));
                 sprintf((char*)amount, "Continue: %s", creature_state_code_name(querytng->continue_state));
             }

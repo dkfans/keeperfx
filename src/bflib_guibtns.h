@@ -73,6 +73,7 @@ enum GBoxFlags {
 union GuiVariant {
     long lval;
     long *lptr;
+    void *ptr;
     char *str;
 };
 
@@ -163,7 +164,7 @@ struct GuiButton {
        /** Max value. For cycle button - max value before returning to 0; for area input - max string length. */
        unsigned short maxval;
        struct GuiMenu *parent_menu;
-       unsigned long *content; //TODO FRONTEND change it to GuiVariant
+       union GuiVariant content;
        unsigned short slide_val; // slider value, scaled 0..255
        short has_shown_before; // GUI tooltips take longer to display the next time you show them
 };

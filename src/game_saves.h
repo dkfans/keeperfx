@@ -106,7 +106,6 @@ int count_valid_saved_games(void);
 TbBool is_save_game_loadable(long slot_num);
 /******************************************************************************/
 TbBool save_catalogue_slot_disable(unsigned int slot_idx);
-TbBool save_game_save_catalogue(void);
 TbBool load_game_save_catalogue(void);
 TbBool fill_game_catalogue_slot(long slot_num,const char *textname);
 /******************************************************************************/
