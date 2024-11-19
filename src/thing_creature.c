@@ -6254,7 +6254,8 @@ void illuminate_creature(struct Thing *creatng)
     {
         create_light_for_possession(creatng);
     }
-    light_set_light_intensity(creatng->light_id, (light_get_light_intensity(creatng->light_id) + 20));
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    light_set_light_intensity(creatng->light_id, (light_get_light_intensity(creatng->light_id) + crstat->light_intensity));
     struct Light* lgt = &game.lish.lights[creatng->light_id];
     lgt->radius <<= 1;
 }
