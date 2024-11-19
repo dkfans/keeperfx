@@ -35,14 +35,18 @@ extern "C" {
 /******************************************************************************/
 const char keeper_cubes_file[]="cubes.cfg";
 
-
 const struct NamedCommand cubes_cube_commands[] = {
   {"Name",            1},
   {"Textures",        2},
   {"OwnershipGroup",  3},
   {"Owner",           4},
+  {"IsLava",          5},
+  {"IsWater",         6},
+  {"IsSacrificial",   7},
+  {"IsUnclaimedPath", 8},
   {NULL,              0},
-  };
+};
+
 /******************************************************************************/
 struct NamedCommand cube_desc[CUBE_ITEMS_MAX];
 /******************************************************************************/
@@ -62,8 +66,10 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
     struct CubeConfigStats *cubest;
     int k = 0;
     // Initialize the cubes array
-    if ((flags & CnfLd_AcceptPartial) == 0) {
-        for (int i = 0; i < CUBE_ITEMS_MAX; i++) {
+    if ((flags & CnfLd_AcceptPartial) == 0)
+    {
+        for (int i = 0; i < CUBE_ITEMS_MAX; i++)
+        {
             cubest = &game.conf.cube_conf.cube_cfgstats[i];
             LbMemorySet(cubest->code_name, 0, COMMAND_WORD_LEN);
             cube_desc[i].name = cubest->code_name;
@@ -72,35 +78,44 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
     }
     cube_desc[CUBE_ITEMS_MAX - 1].name = NULL; // must be null for get_id
     // Load the file
-    const char * blockname = NULL;
+    const char *blockname = NULL;
     int blocknamelen = 0;
     long pos = 0;
     while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
     {
         // look for blocks starting with "cube", followed by one or more digits
-        if (blocknamelen < 5) {
+        if (blocknamelen < 5)
+        {
             continue;
-        } else if (memcmp(blockname, "cube", 4) != 0) {
+        }
+        else if (memcmp(blockname, "cube", 4) != 0)
+        {
             continue;
         }
         const int i = natoi(&blockname[4], blocknamelen - 4);
-        if (i < 0 || i >= CUBE_ITEMS_MAX) {
+        if (i < 0 || i >= CUBE_ITEMS_MAX)
+        {
             continue;
-        } else if (i >= game.conf.cube_conf.cube_types_count) {
+        }
+        else if (i >= game.conf.cube_conf.cube_types_count)
+        {
             game.conf.cube_conf.cube_types_count = i + 1;
         }
         cubest = &game.conf.cube_conf.cube_cfgstats[i];
-        struct CubeConfigStats* cubed = get_cube_model_stats(i);
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(cubes_cube_commands,cmd_num)
-        while (pos<len)
+        struct CubeConfigStats *cubed = get_cube_model_stats(i);
+#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(cubes_cube_commands, cmd_num)
+        while (pos < len)
         {
             // Finding command number in this line
             int cmd_num = recognize_conf_command(buf, &pos, len, cubes_cube_commands);
             // Now store the config item in correct place
-            if (cmd_num == ccr_endOfBlock) break; // if next block starts
-            if ((flags & CnfLd_ListOnly) != 0) {
+            if (cmd_num == ccr_endOfBlock)
+                break; // if next block starts
+            if ((flags & CnfLd_ListOnly) != 0)
+            {
                 // In "List only" mode, accept only name command
-                if (cmd_num > 1) {
+                if (cmd_num > 1)
+                {
                     cmd_num = 0;
                 }
             }
@@ -108,23 +123,23 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
             char word_buf[COMMAND_WORD_LEN];
             switch (cmd_num)
             {
-            case 1: // NAME
-                if (get_conf_parameter_single(buf,&pos,len,cubest->code_name,COMMAND_WORD_LEN) <= 0)
+            case 1: // Name
+                if (get_conf_parameter_single(buf, &pos, len, cubest->code_name, COMMAND_WORD_LEN) <= 0)
                 {
                     CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
                         COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                     break;
                 }
                 break;
-            case 2: // TEXTURES
-                while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            case 2: // Textures
+                while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     k = atoi(word_buf);
                     if (n >= CUBE_TEXTURES)
                     {
-                      CONFWRNLOG("Too many \"%s\" parameters in [%.*s] block of %s file.",
-                          COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-                      break;
+                        CONFWRNLOG("Too many \"%s\" parameters in [%.*s] block of %s file.",
+                            COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                        break;
                     }
                     cubed->texture_id[n] = k;
                     n++;
@@ -136,7 +151,7 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
                 }
                 break;
             case 3: // OwnershipGroup
-                while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     k = atoi(word_buf);
                     if (k >= CUBE_OWNERSHIP_GROUPS)
@@ -148,26 +163,77 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
                 }
                 break;
             case 4: // Owner
-                while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    if(cubed->ownershipGroup <= 0)
+                    if (cubed->ownershipGroup <= 0)
                     {
-                      CONFWRNLOG("Player without PlayerOwnership in [%.*s] block of %s file.",
-                        blocknamelen, blockname, config_textname);
-                      break;
+                        CONFWRNLOG("Player without PlayerOwnership in [%.*s] block of %s file.",
+                            blocknamelen, blockname, config_textname);
+                        break;
                     }
-
                     k = get_id(cmpgn_human_player_options, word_buf);
                     if (k < 0 || k >= COLOURS_COUNT)
                     {
-                      CONFWRNLOG("invalid player in [%.*s] block of %s file.",
-                        blocknamelen, blockname, config_textname);
-                      cubed->ownershipGroup = 0;
-                      break;
+                        CONFWRNLOG("invalid player in [%.*s] block of %s file.",
+                            blocknamelen, blockname, config_textname);
+                        cubed->ownershipGroup = 0;
+                        break;
                     }
                     cubed->owner = k;
                     game.conf.cube_conf.cube_bits[cubed->ownershipGroup][k] = i;
                     n++;
+                }
+                break;
+            case 5: // IsLava
+                while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    cubed->is_lava = k;
+                    n++;
+                }
+                if (n < 0)
+                {
+                    CONFWRNLOG("Couldn't read all \"%s\" parameters in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+            case 6: // IsWater
+                while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    cubed->is_water = k;
+                    n++;
+                }
+                if (n < 0)
+                {
+                    CONFWRNLOG("Couldn't read all \"%s\" parameters in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+            case 7: // IsSacrificial
+                while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    cubed->is_sacrificial = k;
+                    n++;
+                }
+                if (n < 0)
+                {
+                    CONFWRNLOG("Couldn't read all \"%s\" parameters in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+            case 8: // IsUnclaimedPath
+                while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    cubed->is_unclaimed_path = k;
+                    n++;
+                }
+                if (n < 0)
+                {
+                    CONFWRNLOG("Couldn't read all \"%s\" parameters in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case ccr_comment:
@@ -179,7 +245,7 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
                     cmd_num, blocknamelen, blockname, config_textname);
                 break;
             }
-            skip_conf_to_next_line(buf,&pos,len);
+            skip_conf_to_next_line(buf, &pos, len);
         }
 #undef COMMAND_TEXT
     }

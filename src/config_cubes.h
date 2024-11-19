@@ -40,6 +40,10 @@ struct CubeConfigStats {
     unsigned short texture_id[CUBE_TEXTURES];
     unsigned char ownershipGroup;
     PlayerNumber owner;
+    TbBool is_lava;
+    TbBool is_water;
+    TbBool is_sacrificial;
+    TbBool is_unclaimed_path;
 };
 
 struct CubesConfig {
