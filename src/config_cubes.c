@@ -65,25 +65,29 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
 {
     struct CubeConfigStats *cubest;
     int k = 0;
-    // Initialize the cubes array
+    // Initialize the cubes array.
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
         for (int i = 0; i < CUBE_ITEMS_MAX; i++)
         {
             cubest = &game.conf.cube_conf.cube_cfgstats[i];
+            cubest->is_lava = false;
+            cubest->is_water = false;
+            cubest->is_sacrificial = false;
+            cubest->is_unclaimed_path = false;
             LbMemorySet(cubest->code_name, 0, COMMAND_WORD_LEN);
             cube_desc[i].name = cubest->code_name;
             cube_desc[i].num = i;
         }
     }
-    cube_desc[CUBE_ITEMS_MAX - 1].name = NULL; // must be null for get_id
-    // Load the file
+    cube_desc[CUBE_ITEMS_MAX - 1].name = NULL; // Must be null for get_id.
+    // Load the file.
     const char *blockname = NULL;
     int blocknamelen = 0;
     long pos = 0;
     while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
     {
-        // look for blocks starting with "cube", followed by one or more digits
+        // Look for blocks starting with "cube", followed by one or more digits.
         if (blocknamelen < 5)
         {
             continue;
@@ -106,14 +110,16 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(cubes_cube_commands, cmd_num)
         while (pos < len)
         {
-            // Finding command number in this line
+            // Finding command number in this line.
             int cmd_num = recognize_conf_command(buf, &pos, len, cubes_cube_commands);
-            // Now store the config item in correct place
+            // Now store the config item in correct place.
             if (cmd_num == ccr_endOfBlock)
-                break; // if next block starts
+            {
+                break; // If next block starts.
+            }
             if ((flags & CnfLd_ListOnly) != 0)
             {
-                // In "List only" mode, accept only name command
+                // In "List only" mode, accept only name command.
                 if (cmd_num > 1)
                 {
                     cmd_num = 0;
