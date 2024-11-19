@@ -68,7 +68,7 @@ TbBool column_invalid(const struct Column *colmn)
  */
 long get_column_floor_filled_subtiles(const struct Column *col)
 {
-    return (col->bitfields & 0xF0) >> 4;
+    return (col->bitfields & CLF_FLOOR_MASK) >> 4;
 }
 
 /**
@@ -81,7 +81,7 @@ long get_map_floor_filled_subtiles(const struct Map *mapblk)
     col = get_map_column(mapblk);
     if (column_invalid(col))
         return 0;
-    return (col->bitfields & 0xF0) >> 4;
+    return (col->bitfields & CLF_FLOOR_MASK) >> 4;
 }
 
 /**
@@ -95,7 +95,7 @@ long get_floor_filled_subtiles_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     col = get_column_at(stl_x, stl_y);
     if (column_invalid(col))
         return 0;
-    return (col->bitfields & 0xF0) >> 4;
+    return (col->bitfields & CLF_FLOOR_MASK) >> 4;
 }
 
 /**
@@ -105,8 +105,8 @@ long get_floor_filled_subtiles_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
  */
 void set_column_floor_filled_subtiles(struct Column *col, MapSubtlCoord n)
 {
-    col->bitfields &= ~0xF0;
-    col->bitfields |= (n<<4) & 0xF0;
+    col->bitfields &= ~CLF_FLOOR_MASK;
+    col->bitfields |= (n<<4) & CLF_FLOOR_MASK;
 }
 
 /**
@@ -120,8 +120,8 @@ void set_map_floor_filled_subtiles(struct Map *mapblk, MapSubtlCoord n)
     col = get_map_column(mapblk);
     if (column_invalid(col))
         return;
-    col->bitfields &= ~0xF0;
-    col->bitfields |= (n<<4) & 0xF0;
+    col->bitfields &= ~CLF_FLOOR_MASK;
+    col->bitfields |= (n<<4) & CLF_FLOOR_MASK;
 }
 
 /**
@@ -475,14 +475,14 @@ void init_columns(void)
             }
             if (n >= COLUMN_STACK_HEIGHT)
             {
-                col->bitfields &= ~0x0E;
+                col->bitfields &= ~CLF_CEILING_MASK;
             } else
             {
                 mskbit = 0;
                 for (n=COLUMN_STACK_HEIGHT-1; n > 0; n--)
                 {
                     if (col->cubes[n] != 0) {
-                        col->bitfields ^= (mskbit ^ col->bitfields) & 0xE;
+                        col->bitfields ^= (mskbit ^ col->bitfields) & CLF_CEILING_MASK;
                     }
                     mskbit += 2;
                 }
