@@ -3623,6 +3623,9 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             crstat->lair_enemy[0] = value;
             crstat->lair_enemy[1] = value2;
             crstat->lair_enemy[2] = value3;
+            //clear out the other ones.
+            crstat->lair_enemy[3] = 0;
+            crstat->lair_enemy[4] = 0;
             break;
         }
         case 22: // ANNOYLEVEL
