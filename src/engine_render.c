@@ -1116,7 +1116,7 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
     }
 }
 
-TbBool has_cube(const struct Column *col) 
+TbBool has_cube(struct Column *col) 
 {
     for (int i = 3; i < COLUMN_STACK_HEIGHT; i++) {
         if (col->cubes[i] > 0) {
