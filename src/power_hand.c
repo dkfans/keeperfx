@@ -1186,22 +1186,36 @@ void draw_mini_things_in_hand(long x, long y)
                     ownshift_y = (irow > 0) ? 44 : 10;
                     if (thing->owner != my_player_number)
                     {
+                        long relative_window_a = lbDisplay.GraphicsScreenWidth;
+                        long relative_window_b = lbDisplay.GraphicsScreenHeight;
                         short n = min(scale_ui_value(1),4);
                         ScreenCoord coord_y = scrpos_y + scale_ui_value(ownshift_y);
+                        ScreenCoord draw_y;
+                        ScreenCoord draw_x;
                         for (int p = 0; p < (n*n); p++)
                         {
-                            ScreenCoord draw_y = coord_y + draw_square[p].delta_y;
+                            draw_y = coord_y + draw_square[p].delta_y;
                             if (draw_y >= 0)
                             {
-                                LbDrawPixel(scrpos_x + ((expshift_x * 3)) + draw_square[p].delta_x, draw_y, player_flash_colours[thing->owner]);
+                                draw_x = scrpos_x + ((expshift_x * 3)) + draw_square[p].delta_x;
+                                // Draw the pixel if it's within the bounds of the window
+                                if ((draw_x >= 0) && (draw_x < relative_window_a) && (draw_y < relative_window_b))
+                                {
+                                    LbDrawPixel(draw_x, draw_y, player_flash_colours[thing->owner]);
+                                }
                             }
                         }
                         for (int p = (n * n); p < (n * n)+(4 * n + 4); p++)
                         {
-                            ScreenCoord draw_y = coord_y + draw_square[p].delta_y;
+                            draw_y = coord_y + draw_square[p].delta_y;
                             if (draw_y >= 0)
                             {
-                                LbDrawPixel(scrpos_x + ((expshift_x * 3)) + draw_square[p].delta_x, draw_y, player_path_colours[thing->owner]);
+                                draw_x = scrpos_x + ((expshift_x * 3)) + draw_square[p].delta_x;
+                                // Draw the pixel if it's within the bounds of the window
+                                if ((draw_x >= 0) && (draw_x < relative_window_a) && (draw_y < relative_window_b))
+                                {
+                                    LbDrawPixel(draw_x, draw_y, player_path_colours[thing->owner]);
+                                }
                             }
                         }
                     }
