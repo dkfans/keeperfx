@@ -2962,9 +2962,14 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
     }
     else if (block == CrtConf_ANNOYANCE)
     {
+        //todo:
+        //17 untrained
+        //21 lairenemy
         if (creatvar == 23) //AngerJobs
         {
-            long job_value;
+            long job_value = 0;
+            long job2_value = 0;
+            long job3_value = 0;
             if (parameter_is_number(scline->tp[2]))
             {
                 job_value = atoi(scline->tp[2]);
@@ -2973,8 +2978,6 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             {
                 job_value = get_id(creaturejob_desc, scline->tp[2]);
             }
-            long job2_value = 0;
-            long job3_value = 0;
             if (job_value > SHRT_MAX)
             {
                 SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
@@ -3004,10 +3007,6 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                     return;
                 }
                 value3 = job3_value;
-            }
-            else
-            {
-                value1 = atoi(scline->tp[2]);
             }
         }
     }
@@ -3408,11 +3407,124 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             game.conf.crtr_conf.creature_sounds[creatid].piss.index = value;
             game.conf.crtr_conf.creature_sounds[creatid].piss.count = value2;
             break;
+        default:
+            CONFWRNLOG("Unrecognized Spound command (%d)", creature_variable);
+            break;
         }
     }
     else if (block == CrtConf_SPRITES)
     {
         set_creature_model_graphics(creatid, creature_variable-1, value);
+    }
+    else if (block == CrtConf_ANNOYANCE)
+    {
+        switch (creature_variable)
+        {
+        case 1: // EATFOOD
+        {
+            crstat->annoy_eat_food = value;
+        }
+        case 2: // WILLNOTDOJOB
+        {
+            crstat->annoy_will_not_do_job = value;
+        }
+        case 3: // INHAND
+        {
+            crstat->annoy_in_hand = value;
+        }
+        case 4: // NOLAIR
+        {
+            crstat->annoy_no_lair = value;
+        }
+        case 5: // NOHATCHERY
+        {
+            crstat->annoy_no_hatchery = value;
+        }
+        case 6: // WOKENUP
+        {
+            crstat->annoy_woken_up = value;
+        }
+        case 7: // STANDINGONDEADENEMY
+        {
+            crstat->annoy_on_dead_enemy = value;
+        }
+        case 8: // SULKING
+        {
+            crstat->annoy_sulking = value;
+        }
+        case 9: // NOSALARY
+        {
+            crstat->annoy_no_salary = value;
+        }
+        case 10: // SLAPPED
+        {
+            crstat->annoy_slapped = value;
+        }
+        case 11: // STANDINGONDEADFRIEND
+        {
+            crstat->annoy_on_dead_friend = value;
+        }
+        case 12: // INTORTURE
+        {
+            crstat->annoy_in_torture = value;
+        }
+        case 13: // INTEMPLE
+        {
+            crstat->annoy_in_temple = value;
+        }
+        case 14: // SLEEPING
+        {
+            crstat->annoy_sleeping = value;
+        }
+        case 15: // GOTWAGE
+        {
+            crstat->annoy_got_wage = value;
+        }
+        case 16: // WINBATTLE
+        {
+            crstat->annoy_win_battle = value;
+        }
+        case 17: // UNTRAINED
+        {
+            crstat->annoy_untrained_time = value;
+            crstat->annoy_untrained = value2;
+        }
+        case 18: // OTHERSLEAVING
+        {
+            crstat->annoy_others_leaving = value;
+        }
+        case 19: // JOBSTRESS
+        {
+            crstat->annoy_job_stress = value;
+        }
+        case 20: // QUEUE
+        {
+            crstat->annoy_queue = value;
+        }
+        case 21: // LAIRENEMY
+        {
+            crstat->lair_enemy[0] = value;
+            crstat->lair_enemy[1] = value2;
+            crstat->lair_enemy[2] = value3;
+        }
+        case 22: // ANNOYLEVEL
+        {
+            crstat->annoy_level = value;
+        }
+        case 23: // ANGERJOBS
+        {
+            crstat->jobs_anger = value;
+            crstat->jobs_anger |= value2;
+            crstat->jobs_anger |= value3;
+        }
+        case 24: // GOINGPOSTAL
+        {
+            crstat->annoy_going_postal = value;
+        }
+        default:
+            CONFWRNLOG("Unrecognized Annoyance command (%d)", creature_variable);
+            break;
+        }
     }
     else
     {
