@@ -1116,6 +1116,16 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
     }
 }
 
+bool has_cube(const struct Column *col) 
+{
+    for (int i = 3; i < COLUMN_STACK_HEIGHT; i++) {
+        if (col->cubes[i] > 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
 static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, struct MinMax *mm)
 {
     if ((bstl_y < 0) || (bstl_y > gameadd.map_subtiles_y-1)) {
@@ -1151,16 +1161,6 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
     struct Column *col;
     unsigned long pfulmask_or;
     unsigned long pfulmask_and;
-    bool has_cube(const struct Column *col) {
-    for (int i = 3; i < COLUMN_STACK_HEIGHT; i++) {
-        if (col->cubes[i] > 0) {
-            return true;
-        }
-    }
-    return false;
-    }
-
-    
     {
         unsigned long mask_cur;
         unsigned long mask_yp;
