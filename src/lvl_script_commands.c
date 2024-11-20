@@ -3103,19 +3103,29 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                 creature_model = parse_creature_name(scline->tp[3]);
                 if (creature_model <  0)
                 {
-                    SCRPTERRLOG("Invalid creature model %s", scline->tp[3]);
-                    DEALLOCATE_SCRIPT_VALUE
-                    return;
+                    if (strcasecmp(scline->tp[3], "NULL") == 0)
+                    {
+                        creature_model = 0;
+                    }
+                    if (creature_model < 0)
+                    {
+                        SCRPTERRLOG("Invalid creature model %s", scline->tp[3]);
+                        DEALLOCATE_SCRIPT_VALUE
+                        return;
+                    }
                 }
             }
             value2 = creature_model;
-            
-            short level = atoi(scline->tp[4]);
-            if ((level < 1) || (level > CREATURE_MAX_LEVEL))
+            short level = 0;
+            if (value2 > 0)
             {
-                SCRPTERRLOG("Value %d out of range.", atoi(scline->tp[4]));
-                DEALLOCATE_SCRIPT_VALUE
-                return;
+                level = atoi(scline->tp[4]);
+                if ((level < 1) || (level > CREATURE_MAX_LEVEL))
+                {
+                    SCRPTERRLOG("Value %d out of range.", atoi(scline->tp[4]));
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
             }
             value3 = level;
         } else
@@ -3593,6 +3603,54 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         }
         default:
             CONFWRNLOG("Unrecognized Annoyance command (%d)", creature_variable);
+            break;
+        }
+    }
+    else if (block == CrtConf_EXPERIENCE)
+    {
+        /*int cmd_num = recognize_conf_command(buf, &pos, len, creatmodel_experience_commands);*/
+        switch (creature_variable)
+        {
+        case 1: // POWERS
+        {
+            crstat->learned_instance_id[value] = value2;
+            break;
+        }
+        case 2: // POWERSLEVELREQUIRED
+        {
+            crstat->learned_instance_level[value] = value2;
+            break;
+        }
+        case 3: // LEVELSTRAINVALUES
+        {
+            crstat->to_level[value] = value2;
+            break;
+        }
+        case 4: // GROWUP
+        {
+            crstat->to_level[CREATURE_MAX_LEVEL - 1] = value;
+            crstat->grow_up = value2;
+            crstat->grow_up_level = value3;
+            break;
+        }
+        case 5: // SLEEPEXPERIENCE
+        {
+            crstat->sleep_exp_slab = value;
+            crstat->sleep_exp_slab = value2;
+            break;
+        }
+        case 6: // EXPERIENCEFORHITTING
+        {
+            crstat->exp_for_hitting = value;
+            break;
+        }
+        case 7: // REBIRTH
+        {
+            crstat->rebirth = value;
+            break;
+        }
+        default:
+            CONFWRNLOG("Unrecognized Experience command (%d)", creature_variable);
             break;
         }
     }
