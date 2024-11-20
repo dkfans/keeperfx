@@ -803,7 +803,7 @@ long instf_attack_room_slab(struct Thing *creatng, long *param)
     }
     if (room_cannot_vandalise(room->kind))
     {
-        set_creature_instance(creatng, CrInst_NULL, 0, 0);
+        set_start_state(creatng);
         return 0; // Stop the creature from vandalizing the room if the player managed to move it from a breakable room to one that cannot be vandalized.
     }
     SYNCDBG(8,"Executing for %s index %d",thing_model_name(creatng),(int)creatng->index);
