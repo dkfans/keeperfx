@@ -888,47 +888,47 @@ static void conceal_map_rect_check(const struct ScriptLine *scline)
 
     if (start_x < 0)
     {
-        SCRPTWRNLOG("Starting X coordinate '%ld' is out of range, fixing it to '0'.", start_x);
+        SCRPTWRNLOG("Starting X coordinate '%ld' (from %ld-%ld/2) is out of range, fixing it to '0'.", start_x,x,width);
         start_x = 0;
     }
     else if (start_x > gameadd.map_subtiles_x)
     {
-        SCRPTWRNLOG("Starting X coordinate '%ld' is out of range, fixing it to '%ld'.", start_x, gameadd.map_subtiles_x);
+        SCRPTWRNLOG("Starting X coordinate '%ld' (from %ld-%ld/2) is out of range, fixing it to '%ld'.", start_x, x, width, gameadd.map_subtiles_x);
         start_x = gameadd.map_subtiles_x;
     }
     if (end_x < 0)
     {
-        SCRPTWRNLOG("Ending X coordinate '%ld' is out of range, fixing it to '0'.", end_x);
+        SCRPTWRNLOG("Ending X coordinate '%ld' (from %ld+%ld/2) is out of range, fixing it to '0'.", end_x, x, width);
         end_x = 0;
     }
     else if (end_x > gameadd.map_subtiles_x)
     {
-        SCRPTWRNLOG("Ending X coordinate '%ld' is out of range, fixing it to '%ld'.", end_x, gameadd.map_subtiles_x);
+        SCRPTWRNLOG("Ending X coordinate '%ld' (from %ld+%ld/2) is out of range, fixing it to '%ld'.", end_x, x, width, gameadd.map_subtiles_x);
         end_x = gameadd.map_subtiles_x;
     }
     if (start_y < 0)
     {
-        SCRPTWRNLOG("Starting Y coordinate '%ld' is out of range, fixing it to '0'.", start_y);
+        SCRPTWRNLOG("Starting Y coordinate '%ld' (from %ld-%ld/2) is out of range, fixing it to '0'.", start_y, y, height);
         start_y = 0;
     }
     else if (start_y > gameadd.map_subtiles_y)
     {
-        SCRPTWRNLOG("Starting Y coordinate '%ld' is out of range, fixing it to '%ld'.", start_y, gameadd.map_subtiles_y);
+        SCRPTWRNLOG("Starting Y coordinate '%ld' (from %ld-%ld/2) is out of range, fixing it to '%ld'.", start_y, y, height, gameadd.map_subtiles_y);
         start_y = gameadd.map_subtiles_y;
     }
     if (end_y < 0)
     {
-        SCRPTWRNLOG("Ending Y coordinate '%ld' is out of range, fixing it to '0'.", end_y);
+        SCRPTWRNLOG("Ending Y coordinate '%ld' (from %ld+%ld/2) is out of range, fixing it to '0'.", end_y, y, height);
         end_y = 0;
     }
     else if (end_y > gameadd.map_subtiles_y)
     {
-        SCRPTWRNLOG("Ending Y coordinate '%ld' is out of range, fixing it to '%ld'.", end_y, gameadd.map_subtiles_y);
+        SCRPTWRNLOG("Ending Y coordinate '%ld' (from %ld+%ld/2) is out of range, fixing it to '%ld'.", end_y, y, height, gameadd.map_subtiles_y);
         end_y = gameadd.map_subtiles_y;
     }
     if ((x < 0) || (x > gameadd.map_subtiles_x) || (y < 0) || (y > gameadd.map_subtiles_y))
     {
-        SCRPTERRLOG("Conceal coordinates out of range, trying to conceal from (%ld,%ld) on map that's %ldx%ld subtiles", x, y, gameadd.map_subtiles_x, gameadd.map_subtiles_y);
+        SCRPTERRLOG("Conceal coordinates out of range, trying to set conceal center point to (%ld,%ld) on map that's %ldx%ld subtiles", x, y, gameadd.map_subtiles_x, gameadd.map_subtiles_y);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
