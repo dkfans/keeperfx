@@ -343,12 +343,16 @@ CU_OBJS = \
 # include and library directories
 LINKLIB = -mwindows \
 	-L"sdl/lib" -lSDL2 -lSDL2_mixer -lSDL2_net -lSDL2_image \
+	-L"deps/ffmpeg/libavformat" -lavformat \
+	-L"deps/ffmpeg/libavcodec" -lavcodec \
+	-L"deps/ffmpeg/libswresample" -lswresample \
+	-L"deps/ffmpeg/libavutil" -lavutil \
 	-L"deps/astronomy" -lastronomy \
 	-L"deps/enet" -lenet \
 	-L"deps/spng" -lspng \
 	-L"deps/centijson" -ljson \
 	-L"deps/zlib" -lminizip -lz \
-	-lwinmm -lmingw32 -limagehlp -lws2_32 -ldbghelp
+	-lwinmm -lmingw32 -limagehlp -lws2_32 -ldbghelp -lbcrypt
 INCS = \
 	-I"deps/zlib/include" \
 	-I"deps/spng/include" \
@@ -358,6 +362,7 @@ INCS = \
 	-I"deps/centijson/include" \
 	-I"deps/centitoml" \
 	-I"deps/astronomy/include" \
+	-I"deps/ffmpeg" \
 	-I"obj" # To find ver_defs.h
 CXXINCS =  $(INCS)
 
@@ -581,7 +586,7 @@ clean-libexterns: libexterns.mk
 	-$(RM) -rf deps/enet deps/zlib deps/spng deps/astronomy deps/centijson
 	-$(RM) libexterns
 
-deps/enet deps/zlib deps/spng deps/astronomy deps/centijson:
+deps/enet deps/zlib deps/spng deps/astronomy deps/centijson deps/ffmpeg:
 	$(MKDIR) $@
 
 src/api.c: deps/centijson/include/json.h
@@ -590,6 +595,8 @@ src/custom_sprites.c: deps/zlib/include/zlib.h deps/spng/include/spng.h deps/cen
 src/moonphase.c: deps/astronomy/include/astronomy.h
 deps/centitoml/toml_api.c: deps/centijson/include/json.h
 deps/centitoml/toml_conv.c: deps/centijson/include/json.h
+src/bflib_fmvids.cpp: deps/ffmpeg/libavformat/avformat.h
+obj/std/bflib_fmvids.o obj/hvlog/bflib_fmvids.o: CXXFLAGS += -Wno-error=deprecated-declarations
 
 deps/enet-mingw32.tar.gz:
 	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/enet-mingw32.tar.gz"
@@ -620,6 +627,12 @@ deps/centijson-mingw32.tar.gz:
 
 deps/centijson/include/json.h: deps/centijson-mingw32.tar.gz | deps/centijson
 	tar xzmf $< -C deps/centijson
+
+deps/ffmpeg-mingw32.tar.gz:
+	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/ffmpeg-mingw32.tar.gz"
+
+deps/ffmpeg/libavformat/avformat.h: deps/ffmpeg-mingw32.tar.gz | deps/ffmpeg
+	tar xzmf $< -C deps/ffmpeg
 
 include tool_png2ico.mk
 include tool_pngpal2raw.mk

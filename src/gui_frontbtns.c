@@ -331,24 +331,16 @@ int guibutton_get_unused_slot(void)
 
 void init_slider_bars(struct GuiMenu *gmnu)
 {
-    struct GuiButton *gbtn;
-    long sldpos;
-    int i;
-    for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
+    for (int i = 0; i < ACTIVE_BUTTONS_COUNT; i++)
     {
-        gbtn = &active_buttons[i];
-        if (gbtn->content.lptr && (gbtn->gmenu_idx == gmnu->number))
+        struct GuiButton *gbtn = &active_buttons[i];
+        if (gbtn->gmenu_idx == gmnu->number)
         {
-          if (gbtn->gbtype == LbBtnT_HorizSlider)
-          {
-              sldpos = *gbtn->content.lptr;
-              if (sldpos < 0)
-                sldpos = 0;
-              else
-              if (sldpos > gbtn->maxval)
-                sldpos = gbtn->maxval;
-              gbtn->slide_val = (sldpos << 8) / (gbtn->maxval + 1);
-          }
+            if (gbtn->gbtype == LbBtnT_HorizSlider)
+            {
+                long sldpos = clamp(gbtn->content.lval, 0, gbtn->maxval);
+                gbtn->slide_val = (sldpos << 8) / (gbtn->maxval + 1);
+            }
         }
     }
 }
@@ -1009,17 +1001,31 @@ void gui_area_flash_cycle_button(struct GuiButton *gbtn)
     SYNCDBG(12,"Finished");
 }
 
-struct GuiButton* get_gui_button(int btn_idx)
+struct GuiButton* get_gui_button(int id)
 {
     for (int i=0; i < ACTIVE_BUTTONS_COUNT; i++)
     {
         struct GuiButton *gbtn = &active_buttons[i];
-        if (gbtn->id_num == btn_idx)
+        if (gbtn->id_num == id)
         {
             return gbtn;
         }
     }
     return NULL;
+}
+
+struct GuiButtonInit * get_gui_button_init(struct GuiMenu * menu, int id)
+{
+    for (int i = 0 ;; i++)
+    {
+        struct GuiButtonInit * button = &menu->buttons[i];
+        if (button->gbtype < 0) {
+            return NULL;
+        } else if (button->id_num == id)
+        {
+            return button;
+        }
+    }
 }
 
 void gui_draw_scroll_box(struct GuiButton *gbtn, int height_lines, TbBool draw_scrollbar)

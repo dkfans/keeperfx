@@ -380,7 +380,7 @@ void draw_swipe_graphic(void)
             lbDisplay.DrawFlags = Lb_SPRITE_TRANSPAR4;
             long n = (int)cctrl->inst_turn * (5 << 8) / cctrl->inst_total_turns;
             long allwidth = 0;
-            long i = (abs(n) >> 8) -1;
+            long i = max(((abs(n) >> 8) -1),0);
             if (i >= SWIPE_SPRITE_FRAMES)
                 i = SWIPE_SPRITE_FRAMES-1;
             // FIXME: sprites may not be adjacent in the future, causing code below incorrect sprites and possibly crash
@@ -2493,7 +2493,7 @@ struct Thing* thing_death_normal(struct Thing *thing)
     memaccl.x.val = thing->veloc_base.x.val;
     memaccl.y.val = thing->veloc_base.y.val;
     memaccl.z.val = thing->veloc_base.z.val;
-    struct Thing* deadtng = destroy_creature_and_create_corpse(thing, DCrSt_DramaticDying);
+    struct Thing* deadtng = destroy_creature_and_create_corpse(thing, DCrSt_Dying);
     if (thing_is_invalid(deadtng))
     {
         ERRORLOG("Cannot create dead thing");
@@ -2533,7 +2533,7 @@ struct Thing* thing_death_flesh_explosion(struct Thing *thing)
         pos.z.val = thing->mappos.z.val+i;
         create_effect(&pos, TngEff_Blood4, thing->owner);
     }
-    struct Thing* deadtng = destroy_creature_and_create_corpse(thing, DCrSt_RigorMortis);
+    struct Thing* deadtng = destroy_creature_and_create_corpse(thing, DCrSt_Dead);
     if (thing_is_invalid(deadtng))
     {
         ERRORLOG("Cannot create dead thing");
@@ -2568,7 +2568,7 @@ struct Thing* thing_death_gas_and_flesh_explosion(struct Thing *thing)
     pos.y.val = thing->mappos.y.val;
     pos.z.val = thing->mappos.z.val+i;
     create_effect(&pos, TngEff_Gas3, thing->owner);
-    struct Thing* deadtng = destroy_creature_and_create_corpse(thing, DCrSt_RigorMortis);
+    struct Thing* deadtng = destroy_creature_and_create_corpse(thing, DCrSt_Dead);
     if (thing_is_invalid(deadtng))
     {
         ERRORLOG("Cannot create dead thing");
@@ -2595,7 +2595,7 @@ struct Thing* thing_death_smoke_explosion(struct Thing *thing)
     pos.y.val = thing->mappos.y.val;
     pos.z.val = thing->mappos.z.val+i;
     create_effect(&pos, TngEff_HarmlessGas1, thing->owner);
-    struct Thing* deadtng = destroy_creature_and_create_corpse(thing, DCrSt_RigorMortis);
+    struct Thing* deadtng = destroy_creature_and_create_corpse(thing, DCrSt_Dead);
     if (thing_is_invalid(deadtng))
     {
         ERRORLOG("Cannot create dead thing");
@@ -2629,7 +2629,7 @@ struct Thing* thing_death_ice_explosion(struct Thing *thing)
         pos.z.val = thing->mappos.z.val+i;
         create_effect(&pos, TngEff_DeathIceExplosion, thing->owner);
     }
-    struct Thing* deadtng = destroy_creature_and_create_corpse(thing, DCrSt_RigorMortis);
+    struct Thing* deadtng = destroy_creature_and_create_corpse(thing, DCrSt_Dead);
     if (thing_is_invalid(deadtng))
     {
         ERRORLOG("Cannot create dead thing");
@@ -3003,7 +3003,7 @@ long calculate_melee_damage(struct Thing *creatng, short damage_percent)
 {
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    long strength = compute_creature_max_strength(crstat->strength, cctrl->explevel);
+    long strength = calculate_correct_creature_strength(creatng);
     long damage = compute_creature_attack_melee_damage(strength, crstat->luck, cctrl->explevel, creatng);
     if (damage_percent != 0)
     {
@@ -3021,7 +3021,7 @@ long project_melee_damage(const struct Thing *creatng)
 {
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    long strength = compute_creature_max_strength(crstat->strength, cctrl->explevel);
+    long strength = calculate_correct_creature_strength(creatng);
     return project_creature_attack_melee_damage(strength, 0, crstat->luck, cctrl->explevel, creatng);
 }
 
@@ -3052,12 +3052,12 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
     long damage;
     if ((shotst->model_flags & ShMF_StrengthBased) != 0 )
     {
-        // Project melee damage
-        long strength = compute_creature_max_strength(crstat->strength, cctrl->explevel);
+        // Project melee damage.
+        long strength = calculate_correct_creature_strength(thing);
         damage = project_creature_attack_melee_damage(strength, shotst->damage, crstat->luck, cctrl->explevel, thing);
     } else
     {
-        // Project shot damage
+        // Project shot damage.
         damage = project_creature_attack_spell_damage(shotst->damage, crstat->luck, cctrl->explevel, thing);
     }
     return damage;
@@ -3158,7 +3158,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
             }
         }
 
-        dexterity = compute_creature_max_dexterity(crstat->dexterity, cctrl->explevel);
+        dexterity = calculate_correct_creature_dexterity(firing);
         max_dexterity = crstat->dexterity + ((crstat->dexterity * cctrl->explevel * game.conf.crtr_conf.exp.dexterity_increase_on_exp) / 100);
 
         pos1.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_x + (cctrl->shot_shift_x * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy + LbFPMath_PI / 2);
@@ -4296,7 +4296,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     cctrl->shot_shift_x = crstat->shot_shift_x;
     cctrl->shot_shift_y = crstat->shot_shift_y;
     cctrl->shot_shift_z = crstat->shot_shift_z;
-    long i = get_creature_anim(crtng, 0);
+    long i = get_creature_anim(crtng, CGI_Stand);
     set_thing_draw(crtng, i, 256, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
     cctrl->explevel = 1;
     crtng->health = crstat->health;
