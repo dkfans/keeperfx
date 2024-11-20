@@ -1151,6 +1151,16 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
     struct Column *col;
     unsigned long pfulmask_or;
     unsigned long pfulmask_and;
+    bool has_cube(const struct Column *col) {
+    for (int i = 3; i < COLUMN_STACK_HEIGHT; i++) {
+        if (col->cubes[i] > 0) {
+            return true;
+        }
+    }
+    return false;
+    }
+
+    
     {
         unsigned long mask_cur;
         unsigned long mask_yp;
@@ -1160,7 +1170,8 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
         if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_cur = col->solidmask;
-            if ((mask_cur >= 8) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & CLF_CEILING_MASK) == 0)) {
+
+            if (has_cubes(col) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & CLF_CEILING_MASK) == 0)) {
                 mask_cur &= 3;
             }
         }
@@ -1168,7 +1179,8 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
         if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_yp = col->solidmask;
-            if ((mask_yp >= 8) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & CLF_CEILING_MASK) == 0)) {
+
+            if (has_cubes(col) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & CLF_CEILING_MASK) == 0)) {
                 mask_yp &= 3;
             }
         }
@@ -1234,7 +1246,7 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
         if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_cur = col->solidmask;
-            if ((mask_cur >= 8) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & CLF_CEILING_MASK) == 0)) {
+            if (has_cubes(col) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & CLF_CEILING_MASK) == 0)) {
                 mask_cur &= 3;
             }
         }
@@ -1242,7 +1254,7 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
         if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_yp = col->solidmask;
-            if ((mask_yp >= 8) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & CLF_CEILING_MASK) == 0)) {
+            if (has_cubes(col) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & CLF_CEILING_MASK) == 0)) {
                 mask_yp &= 3;
             }
         }
