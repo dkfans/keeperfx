@@ -2979,7 +2979,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             {
                 SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
                 DEALLOCATE_SCRIPT_VALUE
-                    return;
+                return;
             }
             value1 = job_value;
 
@@ -2990,7 +2990,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                 {
                     SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
                     DEALLOCATE_SCRIPT_VALUE
-                        return;
+                    return;
                 }
                 value2 = job2_value;
             }
@@ -3001,7 +3001,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                 {
                     SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
                     DEALLOCATE_SCRIPT_VALUE
-                        return;
+                    return;
                 }
                 value3 = job3_value;
             }
@@ -3009,6 +3009,89 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             {
                 value1 = atoi(scline->tp[2]);
             }
+        }
+    }
+
+    else if (block == CrtConf_EXPERIENCE)
+    {
+        if ((creatvar == 1) || (creatvar == 2)) // POWERS / POWERSLEVELREQUIRED
+        {
+            SCRPTERRLOG("Variable %s not supported on this script command.", scline->tp[1]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        } else
+        if (creatvar == 3) // LEVELSTRAINVALUES
+        {
+            if (atoi(scline->tp[2]) >= CREATURE_MAX_LEVEL) //slot
+            {
+                SCRPTERRLOG("Value %d out of range, only %d levels for LevelsTrainValues supported", atoi(scline->tp[2]), CREATURE_MAX_LEVEL - 1);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            if (atoi(scline->tp[3]) < 0) //value
+            {
+                SCRPTERRLOG("Value %d out of range.", atoi(scline->tp[3]));
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value1 = atoi(scline->tp[2]);
+            value2 = atoi(scline->tp[3]);
+
+        } else
+        if (creatvar == 4) // GROWUP
+        {
+            value1 = atoi(scline->tp[2]);
+            ThingModel creature_model = 0;
+            if (parameter_is_number(scline->tp[3]))
+            {
+                creature_model = atoi(scline->tp[3]);
+                if (creature_model > CREATURE_TYPES_MAX)
+                {
+                    SCRPTERRLOG("Value %d out of range.", atoi(scline->tp[3]));
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
+                value2 = creature_model;
+            }
+            else
+            {
+                creature_model = parse_creature_name(scline->tp[3]);
+                if (creature_model <  0)
+                {
+                    SCRPTERRLOG("Invalid creature model %s", scline->tp[3]);
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
+            }
+            value2 = creature_model;
+            
+            short level = atoi(scline->tp[4]);
+            if ((level < 1) || (level > CREATURE_MAX_LEVEL))
+            {
+                SCRPTERRLOG("Value %d out of range.", atoi(scline->tp[4]));
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value3 = level;
+        } else
+        if (creatvar == 5) // SLEEPEXPERIENCE
+        {
+            long slabtype = get_id(slab_desc, scline->tp[2]);
+            if (slabtype < 0)
+            {
+                SCRPTERRLOG("Unknown slab type %s.", scline->tp[2]);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            else
+            {
+                value1 = slabtype;
+            }
+            value2 = atoi(scline->tp[3]);
+        }
+        else
+        {
+            value1 = atoi(scline->tp[2]);
         }
     }
 
