@@ -2962,9 +2962,51 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
     }
     else if (block == CrtConf_ANNOYANCE)
     {
-        //todo:
-        //17 untrained
-        //21 lairenemy
+        if (creatvar == 21) //LairEnemy
+        {
+            ThingModel creature_model[3];
+            for (int j = 0; j < 2; j++)
+            {
+                //Only needs one enemy, but can do up to 3
+                if ((j > 0) && (scline->tp[j + 2][0] != '\0'))
+                    break;
+
+                if (parameter_is_number(scline->tp[j + 2]))
+                {
+                    creature_model[j] = atoi(scline->tp[j + 2]);
+                    if (creature_model[j] > CREATURE_TYPES_MAX)
+                    {
+                        SCRPTERRLOG("Value %d out of range.", atoi(scline->tp[j + 2]));
+                        DEALLOCATE_SCRIPT_VALUE
+                        return;
+                    }
+                }
+                else
+                {
+                    creature_model[j] = parse_creature_name(scline->tp[j + 2]);
+                    if (creature_model[j] < 0)
+                    {
+                        if (0 == strcmp(scline->tp[j + 2], "ANY_CREATURE"))
+                        {
+                            creature_model[j] = CREATURE_ANY;
+                        }
+                        else if (strcasecmp(scline->tp[j + 2], "NULL") == 0)
+                        {
+                            creature_model[j] = 0;
+                        }
+                        if (creature_model[j] < 0)
+                        {
+                            SCRPTERRLOG("Invalid creature model %s", scline->tp[j + 2]);
+                            DEALLOCATE_SCRIPT_VALUE
+                                return;
+                        }
+                    }
+                }
+            }
+            value1 = creature_model[0];
+            value2 = creature_model[1];
+            value3 = creature_model[2];
+        } else
         if (creatvar == 23) //AngerJobs
         {
             long job_value = 0;
@@ -3009,6 +3051,11 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                 value3 = job3_value;
             }
         }
+        else
+        {
+            value1 = atoi(scline->tp[2]);
+            value2 = atoi(scline->tp[3]);
+        }
     }
 
     else if (block == CrtConf_EXPERIENCE)
@@ -3050,7 +3097,6 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                     DEALLOCATE_SCRIPT_VALUE
                     return;
                 }
-                value2 = creature_model;
             }
             else
             {
@@ -3423,103 +3469,127 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         case 1: // EATFOOD
         {
             crstat->annoy_eat_food = value;
+            break;
         }
         case 2: // WILLNOTDOJOB
         {
             crstat->annoy_will_not_do_job = value;
+            break;
         }
         case 3: // INHAND
         {
             crstat->annoy_in_hand = value;
+            break;
         }
         case 4: // NOLAIR
         {
             crstat->annoy_no_lair = value;
+            break;
         }
         case 5: // NOHATCHERY
         {
             crstat->annoy_no_hatchery = value;
+            break;
         }
         case 6: // WOKENUP
         {
             crstat->annoy_woken_up = value;
+            break;
         }
         case 7: // STANDINGONDEADENEMY
         {
             crstat->annoy_on_dead_enemy = value;
+            break;
         }
         case 8: // SULKING
         {
             crstat->annoy_sulking = value;
+            break;
         }
         case 9: // NOSALARY
         {
             crstat->annoy_no_salary = value;
+            break;
         }
         case 10: // SLAPPED
         {
             crstat->annoy_slapped = value;
+            break;
         }
         case 11: // STANDINGONDEADFRIEND
         {
             crstat->annoy_on_dead_friend = value;
+            break;
         }
         case 12: // INTORTURE
         {
             crstat->annoy_in_torture = value;
+            break;
         }
         case 13: // INTEMPLE
         {
             crstat->annoy_in_temple = value;
+            break;
         }
         case 14: // SLEEPING
         {
             crstat->annoy_sleeping = value;
+            break;
         }
         case 15: // GOTWAGE
         {
             crstat->annoy_got_wage = value;
+            break;
         }
         case 16: // WINBATTLE
         {
             crstat->annoy_win_battle = value;
+            break;
         }
         case 17: // UNTRAINED
         {
             crstat->annoy_untrained_time = value;
             crstat->annoy_untrained = value2;
+            break;
         }
         case 18: // OTHERSLEAVING
         {
             crstat->annoy_others_leaving = value;
+            break;
         }
         case 19: // JOBSTRESS
         {
             crstat->annoy_job_stress = value;
+            break;
         }
         case 20: // QUEUE
         {
             crstat->annoy_queue = value;
+            break;
         }
         case 21: // LAIRENEMY
         {
             crstat->lair_enemy[0] = value;
             crstat->lair_enemy[1] = value2;
             crstat->lair_enemy[2] = value3;
+            break;
         }
         case 22: // ANNOYLEVEL
         {
             crstat->annoy_level = value;
+            break;
         }
         case 23: // ANGERJOBS
         {
             crstat->jobs_anger = value;
             crstat->jobs_anger |= value2;
             crstat->jobs_anger |= value3;
+            break;
         }
         case 24: // GOINGPOSTAL
         {
             crstat->annoy_going_postal = value;
+            break;
         }
         default:
             CONFWRNLOG("Unrecognized Annoyance command (%d)", creature_variable);
