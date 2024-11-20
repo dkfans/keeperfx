@@ -1626,6 +1626,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
         crstat->walking_anim_speed = 1;
+        crstat->fixed_anim_speed = false;
         crstat->visual_range = 1;
         crstat->swipe_idx = 0;
         crstat->natural_death_kind = Death_Normal;
@@ -1812,10 +1813,16 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                if (k > 0)
+                if (k >= 0)
                 {
-                    crstat->fixed_anim_speed = true;
+                    crstat->fixed_anim_speed = k;
                 }
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
         case ccr_comment:
