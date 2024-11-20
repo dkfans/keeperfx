@@ -146,7 +146,7 @@ void update_engine_settings(struct PlayerInfo *player);
 void draw_view(struct Camera *cam, unsigned char a2);
 void draw_frontview_engine(struct Camera *cam);
 
-TbBool has_cube(const struct Column *col);
+TbBool has_cube(struct Column *col);
 /******************************************************************************/
 #ifdef __cplusplus
 }
