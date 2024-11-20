@@ -894,26 +894,28 @@ static void conceal_map_rect_check(const struct ScriptLine *scline)
     {
         start_x = gameadd.map_subtiles_x;
     }   
+    SCRPTWRNLOG("Starting X coordinate is out of range, fixing %ld to %ld.", start_x, gameadd.map_subtiles_x);
 
     if (end_x < 0) {
         end_x = 0;
     } else if (end_x > gameadd.map_subtiles_x) 
     {
-    end_x = gameadd.map_subtiles_x;
+        end_x = gameadd.map_subtiles_x;
     }
-
+    SCRPTWRNLOG("Ending X coordinate is out of range, fixing %ld to %ld.", end_x, gameadd.map_subtiles_x);
     if (start_y < 0) {
         start_y = 0;
     } else if (start_y > gameadd.map_subtiles_y) 
     {
         start_y = gameadd.map_subtiles_y;
     }
-
+    SCRPTWRNLOG("Starting Y coordinate is out of range, fixing %ld to %ld.", start_y, gameadd.map_subtiles_y);
     if (end_y < 0) {
         end_y = 0;
     } else if (end_y > gameadd.map_subtiles_y) {
         end_y = gameadd.map_subtiles_y;
     }
+     SCRPTWRNLOG("Ending Y coordinate is out of range, fixing %ld to %ld.", end_y, gameadd.map_subtiles_y);
         if ((x < 0) || (x > gameadd.map_subtiles_x) || (y < 0) || (y > gameadd.map_subtiles_y))
     {
         SCRPTERRLOG("Conceal coordinates out of range, trying to conceal from (%ld,%ld) on map that's %ldx%ld subtiles",
