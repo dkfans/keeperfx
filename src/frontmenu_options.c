@@ -51,8 +51,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-long mentor_level_slider;
-
 const long definable_key_string[] = {
     GUIStr_CtrlUp,
     GUIStr_CtrlDown,
@@ -99,9 +97,6 @@ const long definable_key_string[] = {
     GUIStr_CtrlTiltReset,
 };
 
-long fe_mouse_sensitivity;
-long sound_level_slider;
-long music_level_slider;
 char video_cluedo_mode;
 char video_shadows;
 char video_textures;
@@ -297,47 +292,51 @@ void gui_video_gamma_correction(struct GuiButton *gbtn)
 
 int make_audio_slider_linear(int a)
 {
-    float scaled = fastPow(a / 127.0, 0.5);
+    // slider has a range of 0..255
+    float scaled = fastPow(a / 255.0, 0.5);
     float clamped = max(min(scaled, 1.0), 0.0);
-    return CEILING(LbLerp(0, 127, clamped));
+    return CEILING(LbLerp(0, 255, clamped));
 }
 int make_audio_slider_nonlinear(int a)
 {
-    float scaled = fastPow(a / 127.0, 2.00);
+    // slider has a range of 0..255
+    float scaled = fastPow(a / 255.0, 2.00);
     float clamped = max(min(scaled, 1.0), 0.0);
-    return CEILING(LbLerp(0, 127, clamped));
+    return CEILING(LbLerp(0, 255, clamped));
 }
 
 void gui_set_sound_volume(struct GuiButton *gbtn)
 {
+    const int new_val = make_audio_slider_nonlinear(gbtn->slide_val);
     if (gbtn->id_num == BID_SOUND_VOL)
     {
-      if (settings.sound_volume != sound_level_slider)
-          do_sound_menu_click();
+        if (new_val != settings.sound_volume) {
+            do_sound_menu_click();
+        }
     }
-    settings.sound_volume = make_audio_slider_nonlinear(sound_level_slider);
+    settings.sound_volume = new_val;
     save_settings();
-    SetSoundMasterVolume(settings.sound_volume);
-    SetMusicMasterVolume(settings.sound_volume);
+    SetSoundMasterVolume(new_val);
+    SetMusicMasterVolume(new_val);
     for (int i = 0; i <= EXTERNAL_SOUNDS_COUNT; i++)
     {
         if (Ext_Sounds[i] != NULL)
         {
-            Mix_VolumeChunk(Ext_Sounds[i], settings.sound_volume);
+            Mix_VolumeChunk(Ext_Sounds[i], new_val);
         }
     }
 }
 
 void gui_set_music_volume(struct GuiButton *gbtn)
 {
-    settings.redbook_volume = make_audio_slider_nonlinear(music_level_slider);
+    settings.redbook_volume = make_audio_slider_nonlinear(gbtn->content.lval);
     save_settings();
     SetMusicPlayerVolume(settings.redbook_volume);
 }
 
 void gui_set_mentor_volume(struct GuiButton *gbtn)
 {
-    settings.mentor_volume = make_audio_slider_nonlinear(mentor_level_slider);
+    settings.mentor_volume = make_audio_slider_nonlinear(gbtn->content.lval);
     save_settings();
 }
 
@@ -369,7 +368,7 @@ void gui_display_current_resolution(struct GuiButton *gbtn)
 
 void frontend_set_mouse_sensitivity(struct GuiButton *gbtn)
 {
-    settings.first_person_move_sensitivity = fe_mouse_sensitivity;
+    settings.first_person_move_sensitivity = gbtn->content.lval;
     save_settings();
 }
 
@@ -413,8 +412,8 @@ void init_video_menu(struct GuiMenu *gmnu)
  */
 void init_audio_menu(struct GuiMenu *gmnu)
 {
-    music_level_slider = make_audio_slider_linear(settings.redbook_volume);
-    sound_level_slider = make_audio_slider_linear(settings.sound_volume);
-    mentor_level_slider = make_audio_slider_linear(settings.mentor_volume);
+    get_gui_button_init(gmnu, BID_MUSIC_VOL)->content.lval = make_audio_slider_linear(settings.redbook_volume);
+    get_gui_button_init(gmnu, BID_SOUND_VOL)->content.lval = make_audio_slider_linear(settings.sound_volume);
+    get_gui_button_init(gmnu, BID_MENTOR_VOL)->content.lval = make_audio_slider_linear(settings.mentor_volume);
 }
 /******************************************************************************/
