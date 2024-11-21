@@ -92,6 +92,7 @@ struct Room {
     MapSubtlCoord central_stl_x;
     MapSubtlCoord central_stl_y;
     RoomKind kind;
+    RoomKind synergy;
     HitPoints health;
     unsigned short total_capacity;
     unsigned short used_capacity;

@@ -2030,7 +2030,10 @@ static void set_room_configuration_process(struct ScriptContext *context)
             roomst->update_workers_in_room = terrain_room_used_capacity_func_list[value2];
             reinitialise_rooms_of_kind(room_type);
             break;
-        case 16: // StorageHeight
+        case 16: // SlabSynergy
+            roomst->synergy_slab = value;
+            break;
+        case 17: // StorageHeight
             roomst->storage_height = value;
             break;
         default:

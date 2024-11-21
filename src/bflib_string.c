@@ -139,6 +139,20 @@ TbLocChar *LbLocTextStringDelete(TbLocChar *str, TbCharCount pos, TbCharCount co
     str[slen-clen] = '\0';
     return str;
 }
+
+/**
+ * Checks if the given buffer contains none
+ */
+bool contains_none(const char *buffer) {
+    const char *target = "none";
+    for (int i = 0; target[i] != '\0'; i++) {
+        if (tolower((unsigned char)buffer[i]) != tolower((unsigned char)target[i])) {
+            return false; // Strings are not equal
+        }
+    }
+    return true; // Strings match
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
