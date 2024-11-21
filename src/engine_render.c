@@ -470,7 +470,7 @@ struct EngineCoord object_origin;
 short mx;
 short my;
 short mz;
-unsigned char temp_cluedo_mode; // This is true(1) if the "short wall" have been enabled in the graphics options
+unsigned char temp_cluedo_mode; // This is true(1) if "low walls/"short wall" has been enabled in the graphics options
 struct Thing *thing_being_displayed;
 
 TbSpriteData *keepsprite[KEEPSPRITE_LENGTH];

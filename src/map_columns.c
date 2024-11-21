@@ -63,16 +63,22 @@ TbBool column_invalid(const struct Column *colmn)
 }
 
 /**
- * Returns amount of filled subtiles at bottom of given column.
+ * These commands retrieve and set how much of the column intersects with the standard floor and ceiling
+ * 
+ * 
+ */
+
+/**
+ * Returns amount of filled subtiles at bottom of given column (how many make up the floor).
  * @param col The column which filled height should be returned.
  */
 long get_column_floor_filled_subtiles(const struct Column *col)
 {
-    return (col->bitfields & CLF_FLOOR_MASK) >> 4;
+    return (col->bitfields & CLF_FLOOR_MASK) >> 4; // Returns standard floor level or lower
 }
 
 /**
- * Returns amount of filled subtiles at bottom of column at given map block.
+ * Returns amount of filled subtiles at bottom of column at given map block (how many make up the floor).
  * @param mapblk The map block for which column height should be returned.
  */
 long get_map_floor_filled_subtiles(const struct Map *mapblk)
@@ -81,11 +87,11 @@ long get_map_floor_filled_subtiles(const struct Map *mapblk)
     col = get_map_column(mapblk);
     if (column_invalid(col))
         return 0;
-    return (col->bitfields & CLF_FLOOR_MASK) >> 4;
+    return (col->bitfields & CLF_FLOOR_MASK) >> 4; // Returns standard floor level or lower
 }
 
 /**
- * Returns amount of filled subtiles at bottom of column at given coords.
+ * Returns amount of filled subtiles at bottom of column at given coords (how many make up the floor).
  * @param stl_x Subtile for which column height should be returned, X coord.
  * @param stl_y Subtile for which column height should be returned, Y coord.
  */
@@ -95,22 +101,22 @@ long get_floor_filled_subtiles_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     col = get_column_at(stl_x, stl_y);
     if (column_invalid(col))
         return 0;
-    return (col->bitfields & CLF_FLOOR_MASK) >> 4;
+    return (col->bitfields & CLF_FLOOR_MASK) >> 4; // Returns standard floor level or lower
 }
 
 /**
- * Sets amount of filled subtiles at bottom of given column.
+ * Sets amount of filled subtiles at bottom of given column (how many make up the floor).
  * @param col The column which filled height should be set.
  * @param n Amount of subtiles.
  */
 void set_column_floor_filled_subtiles(struct Column *col, MapSubtlCoord n)
 {
-    col->bitfields &= ~CLF_FLOOR_MASK;
-    col->bitfields |= (n<<4) & CLF_FLOOR_MASK;
+    col->bitfields &= ~CLF_FLOOR_MASK; 
+    col->bitfields |= (n<<4) & CLF_FLOOR_MASK; // sets standard floor level or lower
 }
 
 /**
- * Sets amount of filled subtiles at bottom of a column at given map block.
+ * Sets amount of filled subtiles at bottom of a column at given map block (how many make up the floor).
  * @param mapblk The map block for which filled height should be set.
  * @param n Amount of subtiles.
  */
@@ -121,20 +127,20 @@ void set_map_floor_filled_subtiles(struct Map *mapblk, MapSubtlCoord n)
     if (column_invalid(col))
         return;
     col->bitfields &= ~CLF_FLOOR_MASK;
-    col->bitfields |= (n<<4) & CLF_FLOOR_MASK;
+    col->bitfields |= (n<<4) & CLF_FLOOR_MASK; // sets standard floor level or lower
 }
 
 /**
- * Returns amount of filled subtiles at top of given column.
+ * Returns amount of filled subtiles at top of given column (how many make up the ceiling).
  * @param col The column which filled height should be returned.
  */
 long get_column_ceiling_filled_subtiles(const struct Column *col)
 {
-    return (col->bitfields & CLF_CEILING_MASK) >> 1;
+    return (col->bitfields & CLF_CEILING_MASK) >> 1; // Returns ceiling length or lower if column is shorter
 }
 
 /**
- * Returns amount of filled subtiles at top of column at given map block.
+ * Returns amount of filled subtiles at top of column at given map block (how many make up the ceiling).
  * @param mapblk The map block for which column height should be returned.
  */
 long get_map_ceiling_filled_subtiles(const struct Map *mapblk)
@@ -240,17 +246,20 @@ void make_solidmask(struct Column *col)
 
 unsigned short find_column_height(struct Column *col)
 {
-  unsigned short h;
+  unsigned short h, highest;
   h = 0;
+  highest = 0; // Want to find height even if column has holes in
   if (col->solidmask == 0)
-    return h;
-  while (col->cubes[h] > 0)
+    return highest;
+  while (h < COLUMN_STACK_HEIGHT)
   {
+    if (col->cubes[h]>0)
+    {
+        highest = h;
+    }
     h++;
-    if (h >= COLUMN_STACK_HEIGHT)
-      return COLUMN_STACK_HEIGHT;
   }
-  return h;
+  return highest;
 }
 
 /**
@@ -443,36 +452,36 @@ void init_columns(void)
             mskbit = 1;
             col->solidmask = 0;
             int n;
-            for (n=0; n < COLUMN_STACK_HEIGHT; n++)
+            for (n=0; n < COLUMN_STACK_HEIGHT; n++) 
             {
                 if (col->cubes[n] != 0) {
-                    col->solidmask |= mskbit;
+                    col->solidmask |= mskbit; //set nth bit to 1 if the cube is nonempty
                 }
                 mskbit *= 2;
             }
-            if (col->solidmask)
+            if (col->solidmask) // if column contains any cubes
             {
                 for (n=0; n < COLUMN_STACK_HEIGHT; n++)
                 {
                     if (col->cubes[n] == 0) {
-                        break;
+                        break; // set the number of solid cubes from the floor
                     }
                 }
             } else
             {
                 n = 0;
             }
-            set_column_floor_filled_subtiles(col, n);
-            n = get_column_floor_filled_subtiles(col);
+            set_column_floor_filled_subtiles(col, n); 
+            n = get_column_floor_filled_subtiles(col); // adjusts n against floor level
             for (;n < COLUMN_STACK_HEIGHT; n++)
             {
                 if (col->cubes[n] != 0) {
-                  break;
+                  break; // get first nonempty cube above floor
                 }
             }
             if (n >= COLUMN_STACK_HEIGHT)
             {
-                col->bitfields &= ~CLF_CEILING_MASK;
+                col->bitfields &= ~CLF_CEILING_MASK; // zero out any that are in ceiling
             } else
             {
                 mskbit = 0;
