@@ -495,19 +495,56 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           }
           break;
       case 15: // EFFECTTYPE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-            k = atoi(word_buf);
-            if (k >= 0)
-            {
-                trapst->created_itm_model = k;
-                n++;
-            }
+              if (parameter_is_number(word_buf))
+              {
+                  k = atoi(word_buf);
+              }
+              else
+              {
+                  switch (trapst->activation_type)
+                  {
+                      case TrpAcT_EffectonTrap:
+                      {
+                          k = get_id(effect_desc, word_buf);
+                          break;
+                      }
+                      case TrpAcT_SlabChange:
+                      {
+                          k = get_id(slab_desc, word_buf);
+                          break;
+                      }
+                      case TrpAcT_CreatureSpawn:
+                      {
+                          k = get_id(creature_desc, word_buf);
+                          break;
+                      }
+                      case TrpAcT_Power:
+                      {
+                          k = get_id(power_desc, word_buf);
+                          break;
+                      }
+                      case TrpAcT_HeadforTarget90:
+                      case TrpAcT_ShotonTrap:
+                      case TrpAcT_CreatureShot:
+                      default:
+                      {
+                          k = get_id(shot_desc, word_buf);
+                          break;
+                      }
+                  }
+              }
+              if (k >= 0)
+              {
+                  trapst->created_itm_model = k;
+                  n++;
+              }
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 16: // ANIMATIONID

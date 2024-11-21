@@ -869,8 +869,7 @@ static void conceal_map_rect_check(const struct ScriptLine *scline)
     {
         conceal_all = 0;
     }
-    else
-    if ((strcmp(scline->tp[5], "ALL") == 0) || (strcmp(scline->tp[5], "1") == 0))
+    else if ((strcmp(scline->tp[5], "ALL") == 0) || (strcmp(scline->tp[5], "1") == 0))
     {
         conceal_all = 1;
     }
@@ -889,14 +888,52 @@ static void conceal_map_rect_check(const struct ScriptLine *scline)
     MapSubtlCoord start_y = y - (height / 2);
     MapSubtlCoord end_y = y + (height / 2) + (height & 1);
 
-    if ((start_x < 0) || (end_x > gameadd.map_subtiles_x) || (start_y < 0) || (end_y > gameadd.map_subtiles_y))
+    if (start_x < 0)
     {
-        SCRPTERRLOG("Conceal coordinates out of range, trying to conceal from (%ld,%ld) to (%ld,%ld) on map that's %ldx%ld subtiles",
-            start_x, start_y, end_x, end_y, gameadd.map_subtiles_x, gameadd.map_subtiles_y);
+        SCRPTWRNLOG("Starting X coordinate '%ld' (from %ld-%ld/2) is out of range, fixing it to '0'.", start_x,x,width);
+        start_x = 0;
+    }
+    else if (start_x > gameadd.map_subtiles_x)
+    {
+        SCRPTWRNLOG("Starting X coordinate '%ld' (from %ld-%ld/2) is out of range, fixing it to '%ld'.", start_x, x, width, gameadd.map_subtiles_x);
+        start_x = gameadd.map_subtiles_x;
+    }
+    if (end_x < 0)
+    {
+        SCRPTWRNLOG("Ending X coordinate '%ld' (from %ld+%ld/2) is out of range, fixing it to '0'.", end_x, x, width);
+        end_x = 0;
+    }
+    else if (end_x > gameadd.map_subtiles_x)
+    {
+        SCRPTWRNLOG("Ending X coordinate '%ld' (from %ld+%ld/2) is out of range, fixing it to '%ld'.", end_x, x, width, gameadd.map_subtiles_x);
+        end_x = gameadd.map_subtiles_x;
+    }
+    if (start_y < 0)
+    {
+        SCRPTWRNLOG("Starting Y coordinate '%ld' (from %ld-%ld/2) is out of range, fixing it to '0'.", start_y, y, height);
+        start_y = 0;
+    }
+    else if (start_y > gameadd.map_subtiles_y)
+    {
+        SCRPTWRNLOG("Starting Y coordinate '%ld' (from %ld-%ld/2) is out of range, fixing it to '%ld'.", start_y, y, height, gameadd.map_subtiles_y);
+        start_y = gameadd.map_subtiles_y;
+    }
+    if (end_y < 0)
+    {
+        SCRPTWRNLOG("Ending Y coordinate '%ld' (from %ld+%ld/2) is out of range, fixing it to '0'.", end_y, y, height);
+        end_y = 0;
+    }
+    else if (end_y > gameadd.map_subtiles_y)
+    {
+        SCRPTWRNLOG("Ending Y coordinate '%ld' (from %ld+%ld/2) is out of range, fixing it to '%ld'.", end_y, y, height, gameadd.map_subtiles_y);
+        end_y = gameadd.map_subtiles_y;
+    }
+    if ((x < 0) || (x > gameadd.map_subtiles_x) || (y < 0) || (y > gameadd.map_subtiles_y))
+    {
+        SCRPTERRLOG("Conceal coordinates out of range, trying to set conceal center point to (%ld,%ld) on map that's %ldx%ld subtiles", x, y, gameadd.map_subtiles_x, gameadd.map_subtiles_y);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-
     value->plyr_range = scline->np[0];
     value->shorts[1] = start_x;
     value->shorts[2] = end_x;
@@ -914,7 +951,6 @@ static void conceal_map_rect_process(struct ScriptContext *context)
     MapSubtlCoord start_y = context->value->shorts[3];
     MapSubtlCoord end_y = context->value->shorts[4];
     TbBool conceal_all = context->value->shorts[5];
-
     conceal_map_area(context->player_idx, start_x, end_x, start_y, end_y, conceal_all);
 }
 
@@ -1078,7 +1114,56 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
-    else if (trapvar == 41)  // DestroyedEffect
+    else if (trapvar == 17) // EffectType
+    {
+        if (parameter_is_number(valuestring))
+        {
+            newvalue = atoi(valuestring);
+        }
+        else
+        {
+            struct TrapConfigStats *trapst = get_trap_model_stats(trap_id);
+            switch (trapst->activation_type)
+            {
+                case TrpAcT_EffectonTrap:
+                {
+                    newvalue = get_id(effect_desc, valuestring);
+                    break;
+                }
+                case TrpAcT_SlabChange:
+                {
+                    newvalue = get_id(slab_desc, valuestring);
+                    break;
+                }
+                case TrpAcT_CreatureSpawn:
+                {
+                    newvalue = get_id(creature_desc, valuestring);
+                    break;
+                }
+                case TrpAcT_Power:
+                {
+                    newvalue = get_id(power_desc, valuestring);
+                    break;
+                }
+                case TrpAcT_HeadforTarget90:
+                case TrpAcT_ShotonTrap:
+                case TrpAcT_CreatureShot:
+                default:
+                {
+                    newvalue = get_id(shot_desc, valuestring);
+                    break;
+                }
+            }
+        }
+        if ((newvalue > USHRT_MAX) || (newvalue < 0))
+        {
+            SCRPTERRLOG("Value out of range: %ld", newvalue);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        value->shorts[2] = newvalue;
+    }
+    else if (trapvar == 41) // DestroyedEffect
     {
         newvalue = effect_or_effect_element_id(valuestring);
         if ((newvalue == 0) && (!parameter_is_number(valuestring)))
@@ -1089,7 +1174,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
         }
         value->ulongs[1] = newvalue;
     }
-    else if (trapvar == 46) //FlameAnimationOffset
+    else if (trapvar == 46) // FlameAnimationOffset
     {
         value->chars[8] = atoi(scline->tp[2]);
         value->chars[9] = scline->np[3];
