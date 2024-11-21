@@ -1171,7 +1171,7 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
             col = get_map_column(mapblk);
             mask_cur = col->solidmask;
 
-            if (has_cube_higher_up(col) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0)) {
+            if (has_cube_higher_up(col) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & CLF_CEILING_MASK) == 0)) {
                 mask_cur &= 3;
             }
         }
@@ -1180,7 +1180,7 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
             col = get_map_column(mapblk);
             mask_yp = col->solidmask;
 
-            if (has_cube_higher_up(col) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0)) {
+            if (has_cube_higher_up(col) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & CLF_CEILING_MASK) == 0)) {
                 mask_yp &= 3;
             }
         }
@@ -1246,7 +1246,7 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
         if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_cur = col->solidmask;
-            if (has_cube_higher_up(col) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0)) {
+            if (has_cube_higher_up(col) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & CLF_CEILING_MASK) == 0)) {
                 mask_cur &= 3;
             }
         }
@@ -1254,7 +1254,7 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
         if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_yp = col->solidmask;
-            if (has_cube_higher_up(col) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0)) {
+            if (has_cube_higher_up(col) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & CLF_CEILING_MASK) == 0)) {
                 mask_yp &= 3;
             }
         }
