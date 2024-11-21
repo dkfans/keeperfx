@@ -7010,4 +7010,4 @@ msgstr "黒色"
 #: guitext:1086
 msgctxt "Player colour"
 msgid "Orange"
-msgstr "オレンジ色"
+msgstr "橙色"
