@@ -40,7 +40,6 @@ TbSize LbLocTextPosToLength(const TbLocChar *s, TbCharCount pos);
 TbLocChar *LbLocTextStringConcat(TbLocChar *str, const TbLocChar *catstr, TbSize maxlen);
 TbLocChar *LbLocTextStringInsert(TbLocChar *str, const TbLocChar *catstr, TbCharCount pos, TbSize maxlen);
 TbLocChar *LbLocTextStringDelete(TbLocChar *str, TbCharCount pos, TbCharCount count);
-bool contains_none(const char *buffer);
 /******************************************************************************/
 #ifdef __cplusplus
 }

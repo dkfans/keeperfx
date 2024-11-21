@@ -1099,7 +1099,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
         case 15: // SLABSYNERGY
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              if (contains_none(word_buf)) {
+              if ((strcasecmp(word_buf, "none") == 0)) {
                 roomst->synergy_slab = -2;
                 n++;
               }
