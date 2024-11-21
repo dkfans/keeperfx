@@ -226,6 +226,7 @@
     <ClCompile Include="src\room_library.c" />
     <ClCompile Include="src\room_list.c" />
     <ClCompile Include="src\room_scavenge.c" />
+    <ClCompile Include="src\room_treasure.c" />
     <ClCompile Include="src\room_util.c" />
     <ClCompile Include="src\room_workshop.c" />
     <ClCompile Include="src\scrcapt.c" />
