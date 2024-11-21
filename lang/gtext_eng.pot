@@ -5671,3 +5671,48 @@ msgstr ""
 msgctxt "Door description"
 msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
 msgstr ""
+
+#: guitext:1078
+msgctxt "Player colour"
+msgid "Red"
+msgstr ""
+
+#: guitext:1079
+msgctxt "Player colour"
+msgid "Blue"
+msgstr ""
+
+#: guitext:1080
+msgctxt "Player colour"
+msgid "Green"
+msgstr ""
+
+#: guitext:1081
+msgctxt "Player colour"
+msgid "Yellow"
+msgstr ""
+
+#: guitext:1082
+msgctxt "Player colour"
+msgid "White"
+msgstr ""
+
+#: guitext:1083
+msgctxt "Player colour"
+msgid "Multicoloured"
+msgstr ""
+
+#: guitext:1084
+msgctxt "Player colour"
+msgid "Purple"
+msgstr ""
+
+#: guitext:1085
+msgctxt "Player colour"
+msgid "Black"
+msgstr ""
+
+#: guitext:1086
+msgctxt "Player colour"
+msgid "Orange"
+msgstr ""

@@ -38,6 +38,7 @@
 #include "power_hand.h"
 #include "game_legacy.h"
 #include "config_players.h"
+#include "player_data.h"
 #include "player_instances.h"
 #include "post_inc.h"
 
@@ -426,11 +427,6 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
         char* text;
         switch (event->kind)
         {
-        case EvKind_HeartAttacked:
-        case EvKind_Breach:
-            other_off = 1;
-            turn_on_menu(GMnu_TEXT_INFO);
-            break;
         case EvKind_EnemyFight:
         case EvKind_FriendlyFight:
             turn_off_menu(GMnu_TEXT_INFO);
@@ -561,6 +557,8 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             }
             turn_on_menu(GMnu_TEXT_INFO);
             break;
+        case EvKind_HeartAttacked:
+        case EvKind_Breach:
         case EvKind_NoMoreLivingSet:
         case EvKind_AlarmTriggered:
         case EvKind_RoomUnderAttack:
@@ -568,8 +566,13 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
         case EvKind_RoomLost:
         case EvKind_CreatrHungry:
         case EvKind_SecretDoorDiscovered:
+            other_off = 1;
+            turn_on_menu(GMnu_TEXT_INFO);
+            break;
         case EvKind_SecretDoorSpotted:
             other_off = 1;
+            text = buf_sprintf("%s:\n%s",game.evntbox_scroll_window.text,get_string(GUIStr_PlayerColours + get_player_color_idx(event->target)));
+            snprintf(game.evntbox_scroll_window.text,MESSAGE_TEXT_LEN, "%s", text);
             turn_on_menu(GMnu_TEXT_INFO);
             break;
         case EvKind_Information:

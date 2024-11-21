@@ -6966,3 +6966,48 @@ msgstr "ミダースのドア"
 msgctxt "Door description"
 msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
 msgstr "ミダースのドア： 完全に不滅であるために、所有者の財宝を消費する。"
+
+#: guitext:1078
+msgctxt "Player colour"
+msgid "Red"
+msgstr "赤色"
+
+#: guitext:1079
+msgctxt "Player colour"
+msgid "Blue"
+msgstr "青色"
+
+#: guitext:1080
+msgctxt "Player colour"
+msgid "Green"
+msgstr "緑色"
+
+#: guitext:1081
+msgctxt "Player colour"
+msgid "Yellow"
+msgstr "黄色"
+
+#: guitext:1082
+msgctxt "Player colour"
+msgid "White"
+msgstr "白色"
+
+#: guitext:1083
+msgctxt "Player colour"
+msgid "Multicoloured"
+msgstr "多色"
+
+#: guitext:1084
+msgctxt "Player colour"
+msgid "Purple"
+msgstr "紫色"
+
+#: guitext:1085
+msgctxt "Player colour"
+msgid "Black"
+msgstr "黒色"
+
+#: guitext:1086
+msgctxt "Player colour"
+msgid "Orange"
+msgstr "オレンジ色"
