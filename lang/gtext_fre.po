@@ -7259,27 +7259,27 @@ msgstr "Porte de Midas: Cette porte est indestructible tant que son propriétair
 #: guitext:1078
 msgctxt "Player colour"
 msgid "Red"
-msgstr ""
+msgstr "Rouge"
 
 #: guitext:1079
 msgctxt "Player colour"
 msgid "Blue"
-msgstr ""
+msgstr "Bleu"
 
 #: guitext:1080
 msgctxt "Player colour"
 msgid "Green"
-msgstr ""
+msgstr "Vert"
 
 #: guitext:1081
 msgctxt "Player colour"
 msgid "Yellow"
-msgstr ""
+msgstr "Jaune"
 
 #: guitext:1082
 msgctxt "Player colour"
 msgid "White"
-msgstr ""
+msgstr "Blanc"
 
 #: guitext:1083
 msgctxt "Player colour"
@@ -7289,14 +7289,14 @@ msgstr ""
 #: guitext:1084
 msgctxt "Player colour"
 msgid "Purple"
-msgstr ""
+msgstr "Violet"
 
 #: guitext:1085
 msgctxt "Player colour"
 msgid "Black"
-msgstr ""
+msgstr "Noir"
 
 #: guitext:1086
 msgctxt "Player colour"
 msgid "Orange"
-msgstr ""
+msgstr "Orange"
