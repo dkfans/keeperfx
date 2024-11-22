@@ -891,13 +891,14 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     i = get_free_spell_slot(thing);
     if (spell_idx == SplK_Heal)
     {
-        n = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev], 16);
-        if (n < 0)
+        HitPoints healing_recovery = (thing->health + pwrdynst->strength[spell_lev]);
+        if (healing_recovery < 0)
         {
             thing->health = 0;
-        } else
+        }
+        else
         {
-            thing->health = min(n, cctrl->max_health);
+            thing->health = min(healing_recovery, cctrl->max_health);
         }
         if (spconf->aura_effect != 0)
         {
@@ -1096,12 +1097,14 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         break;
     case SplK_Heal:
     {
-        HitPoints i = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev], 16);
-        if (i < 0)
+        HitPoints healing_recovery = (thing->health + pwrdynst->strength[spell_lev]);
+        if (healing_recovery < 0)
         {
-          thing->health = 0;
-        } else {
-          thing->health = min(i,cctrl->max_health);
+            thing->health = 0;
+        }
+        else
+        {
+            thing->health = min(healing_recovery, cctrl->max_health);
         }
         break;
     }
@@ -3342,32 +3345,39 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
 
 void set_creature_level(struct Thing *thing, long nlvl)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
         ERRORLOG("Creature has no control");
         return;
     }
-    if (nlvl > CREATURE_MAX_LEVEL-1) {
-        ERRORLOG("Level %d too high, bounding",(int)nlvl);
-        nlvl = CREATURE_MAX_LEVEL-1;
+    if (nlvl > CREATURE_MAX_LEVEL - 1)
+    {
+        ERRORLOG("Level %d too high, bounding", (int)nlvl);
+        nlvl = CREATURE_MAX_LEVEL - 1;
     }
-    if (nlvl < 0) {
-        ERRORLOG("Level %d too low, bounding",(int)nlvl);
+    if (nlvl < 0)
+    {
+        ERRORLOG("Level %d too low, bounding", (int)nlvl);
         nlvl = 0;
     }
-    HitPoints old_max_health = compute_creature_max_health(crstat->health, cctrl->explevel, thing->owner);
+    HitPoints old_max_health = calculate_correct_creature_max_health(thing);
     if (old_max_health < 1)
+    {
         old_max_health = 1;
+    }
     cctrl->explevel = nlvl;
-    HitPoints max_health = compute_creature_max_health(crstat->health, cctrl->explevel, thing->owner);
+    HitPoints max_health = calculate_correct_creature_max_health(thing);
     cctrl->max_health = max_health;
     set_creature_size_stuff(thing);
     if (old_max_health > 0)
-        thing->health = saturate_set_signed( (thing->health*max_health)/old_max_health, 16);
+    {
+        thing->health = ((thing->health * max_health) / old_max_health);
+    }
     else
+    {
         thing->health = -1;
+    }
     creature_increase_available_instances(thing);
     add_creature_score_to_owner(thing);
 }
@@ -4248,7 +4258,7 @@ TbBool creature_count_below_map_limit(TbBool temp_creature)
 
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner)
 {
-    struct CreatureStats* crstat = creature_stats_get(model);
+    struct CreatureStats *crstat = creature_stats_get(model);
     if (game.thing_lists[TngList_Creatures].count >= CREATURES_COUNT)
     {
         ERRORLOG("Cannot create %s for player %d. Creature limit %d reached.", creature_code_name(model), (int)owner, CREATURES_COUNT);
@@ -4256,23 +4266,24 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     }
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
-        ERRORDBG(3,"Cannot create %s for player %d. There are too many things allocated.",creature_code_name(model),(int)owner);
+        ERRORDBG(3, "Cannot create %s for player %d. There are too many things allocated.", creature_code_name(model), (int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
     if (!i_can_allocate_free_control_structure())
     {
-        ERRORDBG(3,"Cannot create %s for player %d. There are too many creatures allocated.",creature_code_name(model),(int)owner);
+        ERRORDBG(3, "Cannot create %s for player %d. There are too many creatures allocated.", creature_code_name(model), (int)owner);
         erstat_inc(ESE_NoFreeCreatrs);
         return INVALID_THING;
     }
-    struct Thing* crtng = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
-    if (crtng->index == 0) {
-        ERRORDBG(3,"Should be able to allocate %s for player %d, but failed.",creature_code_name(model),(int)owner);
+    struct Thing *crtng = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+    if (crtng->index == 0)
+    {
+        ERRORDBG(3, "Should be able to allocate %s for player %d, but failed.", creature_code_name(model), (int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
-    struct CreatureControl* cctrl = allocate_free_control_structure();
+    struct CreatureControl *cctrl = allocate_free_control_structure();
     crtng->ccontrol_idx = cctrl->index;
     crtng->class_id = TCls_Creature;
     crtng->model = model;
@@ -4300,7 +4311,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     set_thing_draw(crtng, i, 256, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
     cctrl->explevel = 1;
     crtng->health = crstat->health;
-    cctrl->max_health = compute_creature_max_health(crstat->health,cctrl->explevel, owner);
+    cctrl->max_health = calculate_correct_creature_max_health(crtng);
     crtng->owner = owner;
     crtng->mappos.x.val = pos->x.val;
     crtng->mappos.y.val = pos->y.val;
@@ -4310,15 +4321,16 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     cctrl->blood_type = CREATURE_RANDOM(crtng, BLOOD_TYPES_COUNT);
     if (player_is_roaming(owner))
     {
-      cctrl->hero.sbyte_89 = -1;
-      cctrl->hero.byte_8C = 1;
+        cctrl->hero.sbyte_89 = -1;
+        cctrl->hero.byte_8C = 1;
     }
     cctrl->flee_pos.x.val = crtng->mappos.x.val;
     cctrl->flee_pos.y.val = crtng->mappos.y.val;
     cctrl->flee_pos.z.val = crtng->mappos.z.val;
     cctrl->flee_pos.z.val = get_thing_height_at(crtng, pos);
     cctrl->fighting_player_idx = -1;
-    if (crstat->flying) {
+    if (crstat->flying)
+    {
         crtng->movement_flags |= TMvF_Flying;
     }
     set_creature_level(crtng, 0);
@@ -4326,11 +4338,14 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     add_thing_to_its_class_list(crtng);
     place_thing_in_mapwho(crtng);
     if (owner <= PLAYERS_COUNT)
-      set_first_creature(crtng);
+    {
+        set_first_creature(crtng);
+    }
     set_start_state(crtng);
     add_creature_score_to_owner(crtng);
     cctrl->active_instance_id = creature_choose_first_available_instance(crtng);
-    if (crstat->illuminated) {
+    if (crstat->illuminated)
+    {
         illuminate_creature(crtng);
     }
     return crtng;
