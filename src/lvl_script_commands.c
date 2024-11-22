@@ -2968,7 +2968,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             for (int j = 0; j < 2; j++)
             {
                 //Only needs one enemy, but can do up to 3
-                if ((j > 0) && (scline->tp[j + 2][0] != '\0'))
+                if ((j > 0) && (scline->tp[j + 2][0] == '\0'))
                     break;
 
                 if (parameter_is_number(scline->tp[j + 2]))
