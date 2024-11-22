@@ -469,7 +469,7 @@ void count_slabs_all_wth_effcncy(struct Room *room)
     unsigned long count = room->slabs_count * ((long)room->efficiency);
     count = (count/ROOM_EFFICIENCY_MAX);
     if (count <= 1)
-      count = 1;
+        count = 1;
     room->total_capacity = count;
 }
 
@@ -478,7 +478,7 @@ void count_slabs_no_min_wth_effcncy(struct Room *room)
     unsigned long count = room->slabs_count * ((long)room->efficiency);
     count = (count/ROOM_EFFICIENCY_MAX);
     if (count < 1)
-      count = 0;
+        count = 0;
     room->total_capacity = count;
 }
 
@@ -514,7 +514,7 @@ void count_slabs_pow2_wth_effcncy(struct Room *room)
     unsigned long count = room->slabs_count * ((long)room->efficiency) * ((long)room->efficiency);
     count = (count/ROOM_EFFICIENCY_MAX/ROOM_EFFICIENCY_MAX);
     if (count <= 1)
-      count = 1;
+        count = 1;
     room->total_capacity = count;
 }
 
