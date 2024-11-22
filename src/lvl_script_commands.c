@@ -3679,7 +3679,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         case 5: // SLEEPEXPERIENCE
         {
             crstat->sleep_exp_slab = value;
-            crstat->sleep_exp_slab = value2;
+            crstat->sleep_experience = value2;
             break;
         }
         case 6: // EXPERIENCEFORHITTING
