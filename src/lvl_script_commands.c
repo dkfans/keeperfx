@@ -3092,7 +3092,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
         } else 
         if (creatvar == 2) // POWERSLEVELREQUIRED
         {
-            if ((atoi(scline->tp[2]) > CREATURE_MAX_LEVEL) || (atoi(scline->tp[2]) <=0))//slot
+            if ((atoi(scline->tp[2]) > CREATURE_MAX_LEVEL) || (atoi(scline->tp[2]) <= 0))//slot
             {
                 SCRPTERRLOG("Value %d out of range, only %d levels for PowersLevelRequired supported", atoi(scline->tp[2]), CREATURE_MAX_LEVEL);
                 DEALLOCATE_SCRIPT_VALUE
@@ -3100,7 +3100,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             }
             if ((atoi(scline->tp[3]) <= 0) || (atoi(scline->tp[3]) > CREATURE_MAX_LEVEL)) //value
             {
-                SCRPTERRLOG("Value %d out of range, only %d levels for PowersLevelRequired supported", atoi(scline->tp[2]), CREATURE_MAX_LEVEL);
+                SCRPTERRLOG("Value %d out of range, only %d levels for PowersLevelRequired supported", atoi(scline->tp[3]), CREATURE_MAX_LEVEL);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
@@ -3109,7 +3109,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
         } else
         if (creatvar == 3) // LEVELSTRAINVALUES
         {
-            if (atoi(scline->tp[2]) >= CREATURE_MAX_LEVEL) //slot
+            if ((atoi(scline->tp[2]) <= 0) || (atoi(scline->tp[2]) > CREATURE_MAX_LEVEL)) //slot
             {
                 SCRPTERRLOG("Value %d out of range, only %d levels for LevelsTrainValues supported", atoi(scline->tp[2]), CREATURE_MAX_LEVEL - 1);
                 DEALLOCATE_SCRIPT_VALUE
