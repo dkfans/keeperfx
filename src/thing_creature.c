@@ -4310,8 +4310,8 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     long i = get_creature_anim(crtng, CGI_Stand);
     set_thing_draw(crtng, i, 256, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
     cctrl->explevel = 1;
-    crtng->health = crstat->health;
     cctrl->max_health = calculate_correct_creature_max_health(crtng);
+    crtng->health = cctrl->max_health;
     crtng->owner = owner;
     crtng->mappos.x.val = pos->x.val;
     crtng->mappos.y.val = pos->y.val;
