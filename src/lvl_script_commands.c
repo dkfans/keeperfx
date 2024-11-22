@@ -1217,7 +1217,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             }
         value->shorts[2] = newvalue;
     }
-    else if (roomvar == 10) // SlabAssign
+    else if ((roomvar == 10) || (roomvar == 16)) // SlabAssign & SlabSynergy
     {
         newvalue = get_id(slab_desc, valuestring);
         if (newvalue == -1)
