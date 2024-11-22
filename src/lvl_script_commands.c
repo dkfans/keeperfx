@@ -3018,7 +3018,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             }
             else
             {
-                job_value = get_id(creaturejob_desc, scline->tp[2]);
+                job_value = get_id(angerjob_desc, scline->tp[2]);
             }
             if (job_value > SHRT_MAX)
             {
@@ -3030,7 +3030,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
 
             if (scline->tp[3][0] != '\0')
             {
-                job2_value = get_id(creaturejob_desc, scline->tp[3]);
+                job2_value = get_id(angerjob_desc, scline->tp[3]);
                 if (job2_value > SHRT_MAX)
                 {
                     SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
@@ -3041,7 +3041,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             }
             if (scline->tp[4][0] != '\0')
             {
-                job3_value = get_id(creaturejob_desc, scline->tp[4]);
+                job3_value = get_id(angerjob_desc, scline->tp[4]);
                 if (job3_value > SHRT_MAX)
                 {
                     SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
