@@ -536,8 +536,7 @@ void init_top_texture_to_cube_table(void)
  * @return */
 TbBool cube_is_lava(long cube_id)
 {
-    struct CubeConfigStats *cubest = get_cube_model_stats(cube_id);
-    return cubest->is_lava;
+    return flag_is_set(cube_id, CPF_IsLava);
 }
 
 /* Returns if given cube is water.
@@ -545,8 +544,7 @@ TbBool cube_is_lava(long cube_id)
  * @return */
 TbBool cube_is_water(long cube_id)
 {
-    struct CubeConfigStats *cubest = get_cube_model_stats(cube_id);
-    return cubest->is_water;
+    return flag_is_set(cube_id, CPF_IsWater);
 }
 
 /* Returns if given cube is a sacrificial ground or magic door surface.
@@ -554,8 +552,7 @@ TbBool cube_is_water(long cube_id)
  * @return */
 TbBool cube_is_sacrificial(long cube_id)
 {
-    struct CubeConfigStats *cubest = get_cube_model_stats(cube_id);
-    return cubest->is_sacrificial;
+    return flag_is_set(cube_id, CPF_IsSacrificial);
 }
 
 /* Returns if given cube is unclaimed path.
@@ -563,8 +560,7 @@ TbBool cube_is_sacrificial(long cube_id)
  * @return */
 TbBool cube_is_unclaimed_path(long cube_id)
 {
-    struct CubeConfigStats *cubest = get_cube_model_stats(cube_id);
-    return cubest->is_unclaimed_path;
+    return flag_is_set(cube_id, CPF_IsUnclaimedPath);
 }
 
 /**
