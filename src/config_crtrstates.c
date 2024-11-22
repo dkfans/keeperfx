@@ -75,7 +75,7 @@ TbBool parse_creaturestates_common_blocks(char *buf, long len, const char *confi
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, creatstate_common_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         int n = 0;
         switch (cmd_num)
         {
@@ -98,9 +98,9 @@ TbBool parse_creaturestates_common_blocks(char *buf, long len, const char *confi
             }
             break;
         }
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -164,7 +164,7 @@ TbBool parse_creaturestates_state_blocks(char *buf, long len, const char *config
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, creatstate_state_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         if ((flags & CnfLd_ListOnly) != 0) {
             // In "List only" mode, accept only name command
             if (cmd_num > 1) {
@@ -183,9 +183,9 @@ TbBool parse_creaturestates_state_blocks(char *buf, long len, const char *config
             }
             n++;
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",

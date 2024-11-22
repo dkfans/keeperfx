@@ -270,7 +270,7 @@ TbBool parse_computer_player_common_blocks(char *buf, long len, const char *conf
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, compp_common_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         int n = 0;
         char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
@@ -364,9 +364,9 @@ TbBool parse_computer_player_common_blocks(char *buf, long len, const char *conf
               }
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -404,7 +404,7 @@ short parse_computer_player_process_blocks(char *buf, long len, const char *conf
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, compp_process_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         if (flag_is_set(flags,CnfLd_ListOnly)) {
             // In "List only" mode, accept only name command
             if (cmd_num > 2) {
@@ -543,9 +543,9 @@ short parse_computer_player_process_blocks(char *buf, long len, const char *conf
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -599,7 +599,7 @@ short parse_computer_player_check_blocks(char *buf, long len, const char *config
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, compp_check_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         if (flag_is_set(flags,CnfLd_ListOnly)) {
             // In "List only" mode, accept only name command
             if (cmd_num > 2) {
@@ -689,9 +689,9 @@ short parse_computer_player_check_blocks(char *buf, long len, const char *config
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -745,7 +745,7 @@ short parse_computer_player_event_blocks(char *buf, long len, const char *config
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, compp_event_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         if (flag_is_set(flags,CnfLd_ListOnly)) {
             // In "List only" mode, accept only name command
             if (cmd_num > 2) {
@@ -861,9 +861,9 @@ short parse_computer_player_event_blocks(char *buf, long len, const char *config
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -882,9 +882,9 @@ short write_computer_player_check_to_log(struct ComputerCheck *ccheck)
   JUSTMSG("[checkXX]");
   JUSTMSG("Name = %s",ccheck->name);
   JUSTMSG("Mnemonic = %s","XX");
-  JUSTMSG("Values = %d %d",ccheck->flags,ccheck->turns_interval);
-  JUSTMSG("Functions = %x",ccheck->func);
-  JUSTMSG("Params = %d %d %d %d",ccheck->param1,ccheck->param2,ccheck->param3,ccheck->last_run_turn);
+  JUSTMSG("Values = %lu %ld",ccheck->flags,ccheck->turns_interval);
+  JUSTMSG("Functions = %p",ccheck->func);
+  JUSTMSG("Params = %ld %ld %ld %ld",ccheck->param1,ccheck->param2,ccheck->param3,ccheck->last_run_turn);
   return true;
 }
 
@@ -893,9 +893,9 @@ short write_computer_player_event_to_log(const struct ComputerEvent *event)
   JUSTMSG("[eventXX]");
   JUSTMSG("Name = %s",event->name);
   JUSTMSG("Mnemonic = %s","XX");
-  JUSTMSG("Values = %d %d %d",event->cetype,event->mevent_kind,event->test_interval);
-  JUSTMSG("Functions = %x %x",event->func_event,event->func_test);
-  JUSTMSG("Params = %d %d %d %d",event->param1,event->param2,event->param3,event->last_test_gameturn);
+  JUSTMSG("Values = %lu %lu %ld",event->cetype,event->mevent_kind,event->test_interval);
+  JUSTMSG("Functions = %p %p",event->func_event,event->func_test);
+  JUSTMSG("Params = %ld %ld %ld %ld",event->param1,event->param2,event->param3,event->last_test_gameturn);
   return true;
 }
 
@@ -939,8 +939,9 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, compp_computer_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         if (flag_is_set(flags,CnfLd_ListOnly)) {
+
             // In "List only" mode, accept only name command
             if (cmd_num > 1) {
                 cmd_num = 0;
@@ -1097,9 +1098,9 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",

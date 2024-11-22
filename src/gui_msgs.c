@@ -32,7 +32,7 @@
 #include "game_legacy.h"
 #include "frontmenu_ingame_evnt.h"
 #include "sprites.h"
-
+#include "custom_sprites.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
@@ -43,10 +43,10 @@ void message_draw(void)
     SYNCDBG(7,"Starting");
     LbTextSetFont(winfont);
     int ps_units_per_px;
-    struct TbSprite* spr;
+    const struct TbSprite* spr;
     {
         //just used for height, color irrelevant here
-        spr = &gui_panel_sprites[GPS_plyrsym_symbol_player_red_std_b];
+        spr = get_panel_sprite(GPS_plyrsym_symbol_player_red_std_b);
         ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
     }
     TbBool low_res = (MyScreenHeight < 400);
@@ -154,7 +154,7 @@ void message_draw(void)
                 }
                 case MsgType_Creature:
                 {
-                    spr = &gui_panel_sprites[spr_idx];
+                    spr = get_panel_sprite(spr_idx);
                     LbSpriteDrawResized(x, y, ps_units_per_px, spr);
                     break;
                 }
@@ -164,7 +164,7 @@ void message_draw(void)
                 case MsgType_Query:
                 case MsgType_CreatureInstance:
                 {
-                    spr = &gui_panel_sprites[spr_idx];
+                    spr = get_panel_sprite(spr_idx);
                     LbSpriteDrawResized(x, y, ps_units_per_px, spr);
                     break;
                 }

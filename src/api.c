@@ -162,7 +162,7 @@ int api_init_server()
     }
     else
     {
-        JUSTLOG("API server starting on port: %ld", api_port);
+        JUSTLOG("API server starting on port: %u", api_port);
     }
 
     if (SDLNet_Init() < 0)
@@ -1425,14 +1425,16 @@ void api_process_multipart_json(const char *buffer, int buf_size)
             {
                 // Extract the JSON object from buffer[start] to buffer[i+1]
                 int json_length = i - start + 1;
-                char json_string[json_length + 1]; // +1 for null terminator
+                //char json_string[json_length + 1]; // +1 for null terminator
+                char* json_string = (char*)malloc((json_length + 1) * sizeof(char));
+                if (!json_string) return;
                 strncpy(json_string, buffer + start, json_length);
                 json_string[json_length] = '\0';
 
                 // Process the extracted JSON object
                 JUSTLOG("Received message from client: %s", json_string);
                 api_process_buffer(json_string, json_length);
-
+                free(json_string);
                 // Reset start to look for the next JSON object
                 start = -1;
             }

@@ -251,12 +251,13 @@ TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingM
 
 TbBool remove_creature_from_generate_pool(ThingModel crmodel)
 {
-    if (game.pool.crtr_kind[crmodel] <= 0) {
-        WARNLOG("Could not remove creature %s from the creature pool",creature_code_name(crmodel));
-        return false;
+    if (game.pool.crtr_kind[crmodel] > LONG_MIN)
+    {
+        game.pool.crtr_kind[crmodel]--;
+        return true;
     }
-    game.pool.crtr_kind[crmodel]--;
-    return true;
+    WARNLOG("Could not remove creature %s from the creature pool", creature_code_name(crmodel));
+    return false;
 }
 
 static int calculate_creature_to_generate_for_dungeon(const struct Dungeon * dungeon)
@@ -432,16 +433,20 @@ TbBool update_creature_pool_state(void)
     return true;
 }
 
-void add_creature_to_pool(ThingModel kind, long amount, unsigned long a3)
+void add_creature_to_pool(ThingModel kind, long amount)
 {
-    long prev_amount;
     kind %= game.conf.crtr_conf.model_count;
-    prev_amount = game.pool.crtr_kind[kind];
-    if ((a3 == 0) || (prev_amount != -1))
+    
+    if (amount > 0 && game.pool.crtr_kind[kind] > LONG_MAX - amount)
     {
-        if ((amount != -1) && (amount != 0) && (prev_amount != -1))
-            game.pool.crtr_kind[kind] = prev_amount + amount;
-        else
-            game.pool.crtr_kind[kind] = amount;
+        game.pool.crtr_kind[kind] = LONG_MAX;
+    }
+    else if (amount < 0 && game.pool.crtr_kind[kind] < LONG_MIN - amount)
+    {
+        game.pool.crtr_kind[kind] = LONG_MIN;
+    }
+    else
+    {
+        game.pool.crtr_kind[kind] += amount;
     }
 }

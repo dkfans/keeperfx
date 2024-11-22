@@ -44,21 +44,21 @@ const char keeper_trapdoor_file[]="trapdoor.cfg";
 
 const struct NamedCommand trapdoor_door_commands[] = {
   {"NAME",                  1},
-  {"MANUFACTURELEVEL",      2},
-  {"MANUFACTUREREQUIRED",   3},
-  {"SLABKIND",              4},
-  {"HEALTH",                5},
-  {"SELLINGVALUE",          6},
-  {"NAMETEXTID",            7},
-  {"TOOLTIPTEXTID",         8},
-  {"CRATE",                 9},
-  {"SYMBOLSPRITES",        10},
-  {"POINTERSPRITES",       11},
-  {"PANELTABINDEX",        12},
-  {"OPENSPEED",            13},
-  {"PROPERTIES",           14},
-  {"PLACESOUND",           15},
-  {"UNSELLABLE",           16},
+  {"NAMETEXTID",            2},
+  {"TOOLTIPTEXTID",         3},
+  {"SYMBOLSPRITES",         4},
+  {"POINTERSPRITES",        5},
+  {"PANELTABINDEX",         6},
+  {"CRATE",                 7},
+  {"MANUFACTURELEVEL",      8},
+  {"MANUFACTUREREQUIRED",   9},
+  {"HEALTH",               10},
+  {"SLABKIND",             11},
+  {"OPENSPEED",            12},
+  {"PROPERTIES",           13},
+  {"SELLINGVALUE",         14},
+  {"UNSELLABLE",           15},
+  {"PLACESOUND",           16},
   {NULL,                    0},
 };
 
@@ -113,6 +113,7 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"FLAMEANIMATIONSIZE",   47},
   {"FLAMEANIMATIONOFFSET",    48},
   {"FLAMETRANSPARENCYFLAGS",  49},
+  {"DETECTINVISIBLE",         50},
   {NULL,                       0},
 };
 
@@ -122,8 +123,7 @@ const struct NamedCommand door_properties_commands[] = {
   {"THICK",                3},  
   {"MIDAS",                4},
   {NULL,                   0},
-  };
-
+};
 
 /******************************************************************************/
 struct NamedCommand trap_desc[TRAPDOOR_TYPES_MAX];
@@ -176,26 +176,9 @@ int get_manufacture_data_index_for_thing(ThingClass tngclass, ThingModel tngmode
 
 TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-  struct ManfctrConfig *mconf;
   struct TrapConfigStats *trapst;
   // Block name and parameter word store variables
   SYNCDBG(19,"Starting");
-
-  // Increase trap_types_count if higher trap ID found in file
-    for (int i=0; i < TRAPDOOR_TYPES_MAX; i++)
-    {
-        long pos = 0;
-        char block_name[20];
-        sprintf(block_name, "trap%d", i);
-        if (find_conf_block(buf, &pos, len, block_name) == 1)
-        {
-            if (i >= game.conf.trapdoor_conf.trap_types_count)
-            {
-                game.conf.trapdoor_conf.trap_types_count = i + 1;
-            }
-        }
-    }
-  
   // Initialize the traps array
   if ((flags & CnfLd_AcceptPartial) == 0)
   {
@@ -208,69 +191,75 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           trapst->bigsym_sprite_idx = 0;
           trapst->medsym_sprite_idx = 0;
           trapst->pointer_sprite_idx = 0;
-          // Default trap sounds, so that they aren't broken if custom trap is bundled into map.
-          trapst->place_sound_idx = 117; 
-          trapst->trigger_sound_idx = 176;
           trapst->panel_tab_idx = 0;
-          trapst->hidden = false;
+          trapst->manufct_level = 0;
+          trapst->manufct_required = 0;
+          trapst->shots = 0;
+          trapst->shots_delay = 0;
+          trapst->initial_delay = 0;
+          trapst->trigger_type = 0;
+          trapst->activation_type = 0;
+          trapst->created_itm_model = 0;
+          trapst->hit_type = 0;
+          trapst->hidden = true;
           trapst->slappable = 0;
-          trapst->destructible = 0;
-          trapst->unstable = 0;
-          trapst->unsellable = false;
+          trapst->detect_invisible = true; // Set to true by default: backward compatibility for custom traps made before this implementation.
           trapst->notify = false;
           trapst->place_on_bridge = false;
           trapst->place_on_subtile = false;
-          // Default destroyed_effect is TngEffElm_Blast2.
-          trapst->destroyed_effect = -39;
-
-          game.conf.trap_stats[i].health = 0;
-          game.conf.trap_stats[i].sprite_anim_idx = 0;
-          game.conf.trap_stats[i].recharge_sprite_anim_idx = 0;
-          game.conf.trap_stats[i].attack_sprite_anim_idx = 0;
-          game.conf.trap_stats[i].sprite_size_max = 0;
-          game.conf.trap_stats[i].unanimated = 0;
-          game.conf.trap_stats[i].anim_speed = 0;
-          game.conf.trap_stats[i].unshaded = 0;
-          game.conf.trap_stats[i].transparency_flag = 0;
-          game.conf.trap_stats[i].random_start_frame = 0;
-          game.conf.trap_stats[i].size_xy = 0;
-          game.conf.trap_stats[i].size_z = 0;
-          game.conf.trap_stats[i].trigger_type = 0;
-          game.conf.trap_stats[i].activation_type = 0;
-          game.conf.trap_stats[i].created_itm_model = 0;
-          game.conf.trap_stats[i].hit_type = 0;
-          game.conf.trap_stats[i].light_radius = 0;
-          game.conf.trap_stats[i].light_intensity = 0;
-          game.conf.trap_stats[i].light_flag = 0;
-          game.conf.trap_stats[i].shotvector.x = 0;
-          game.conf.trap_stats[i].shotvector.y = 0;
-          game.conf.trap_stats[i].shotvector.z = 0;
-          game.conf.trap_stats[i].shot_shift_x = 0;
-          game.conf.trap_stats[i].shot_shift_y = 0;
-          game.conf.trap_stats[i].shot_shift_z = 0;
-          game.conf.trap_stats[i].initial_delay = 0;
-          mconf = &game.conf.traps_config[i];
-          mconf->manufct_level = 0;
-          mconf->manufct_required = 0;
-          mconf->shots = 0;
-          mconf->shots_delay = 0;
-          mconf->selling_value = 0;
-          trap_desc[i].name = NULL;
-          trap_desc[i].num = 0;
+          trapst->health = 1;
+          trapst->destructible = 0;
+          trapst->unstable = 0;
+          trapst->destroyed_effect = -39; // Default destroyed_effect is TngEffElm_Blast2.
+          trapst->size_xy = 0;
+          trapst->size_z = 0;
+          trapst->sprite_anim_idx = 0;
+          trapst->attack_sprite_anim_idx = 0;
+          trapst->recharge_sprite_anim_idx = 0;
+          trapst->sprite_size_max = 0;
+          trapst->anim_speed = 0;
+          trapst->unanimated = 0;
+          trapst->unshaded = 0;
+          trapst->random_start_frame = 0;
+          trapst->light_radius = 0;
+          trapst->light_intensity = 0;
+          trapst->light_flag = 0;
+          trapst->transparency_flag = 0;
+          trapst->shot_shift_x = 0;
+          trapst->shot_shift_y = 0;
+          trapst->shot_shift_z = 0;
+          trapst->shotvector.x = 0;
+          trapst->shotvector.y = 0;
+          trapst->shotvector.z = 0;
+          trapst->selling_value = 0;
+          trapst->unsellable = false;
+          trapst->place_sound_idx = 117; // Default trap sounds, so that they aren't broken if custom trap are bundled into map.
+          trapst->trigger_sound_idx = 176;
+          trap_desc[i].name = trapst->code_name;
+          trap_desc[i].num = i;
       }
   }
+  trap_desc[TRAPDOOR_TYPES_MAX - 1].name = NULL; // must be null for get_id
   // Parse every numbered block within range
-  for (int i=0; i < game.conf.trapdoor_conf.trap_types_count; i++)
+  const char * blockname = NULL;
+  int blocknamelen = 0;
+  long pos = 0;
+  int k = 0;
+  while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
   {
-      char block_buf[COMMAND_WORD_LEN];
-      sprintf(block_buf, "trap%d", i);
-      SYNCDBG(19, "Block [%s]", block_buf);
-      long pos = 0;
-      int k = find_conf_block(buf, &pos, len, block_buf);
-    mconf = &game.conf.traps_config[i];
+    // look for blocks starting with "trap", followed by one or more digits
+    if (blocknamelen < 5) {
+        continue;
+    } else if (memcmp(blockname, "trap", 4) != 0) {
+        continue;
+    }
+    const int i = natoi(&blockname[4], blocknamelen - 4);
+    if (i < 0 || i >= TRAPDOOR_TYPES_MAX) {
+        continue;
+    } else if (i >= game.conf.trapdoor_conf.trap_types_count) {
+        game.conf.trapdoor_conf.trap_types_count = i + 1;
+    }
     trapst = &game.conf.trapdoor_conf.trap_cfgstats[i];
-    trap_desc[i].name = trapst->code_name;
-    trap_desc[i].num = i;
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(trapdoor_trap_commands,cmd_num)
     while (pos<len)
     {
@@ -278,7 +267,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
       int cmd_num = recognize_conf_command(buf, &pos, len, trapdoor_trap_commands);
       SYNCDBG(19,"Command %s",COMMAND_TEXT(cmd_num));
       // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
+      if (cmd_num == ccr_endOfBlock) break; // if next block starts
       if ((flags & CnfLd_ListOnly) != 0) {
           // In "List only" mode, accept only name command
           if (cmd_num > 1) {
@@ -292,8 +281,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
       case 1: // NAME
           if (get_conf_parameter_single(buf,&pos,len,trapst->code_name,COMMAND_WORD_LEN) <= 0)
           {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             break;
           }
           break;
@@ -301,65 +290,65 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            mconf->manufct_level = k;
+            trapst->manufct_level = k;
             n++;
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 3: // MANUFACTUREREQUIRED
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            mconf->manufct_required = k;
+            trapst->manufct_required = k;
             n++;
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 4: // SHOTS
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            mconf->shots = k;
+            trapst->shots = k;
             n++;
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 5: // TIMEBETWEENSHOTS
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            mconf->shots_delay = k;
+            trapst->shots_delay = k;
             n++;
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 6: // SELLINGVALUE
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            mconf->selling_value = k;
+            trapst->selling_value = k;
             n++;
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 7: // NAMETEXTID
@@ -374,8 +363,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 8: // TOOLTIPTEXTID
@@ -390,8 +379,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 9: // CRATE
@@ -401,8 +390,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           }
           if (n < 0)
           {
-              CONFWRNLOG("Incorrect crate object \"%s\" in [%s] block of %s file.",
-                  word_buf,block_buf,config_textname);
+              CONFWRNLOG("Incorrect crate object \"%s\" in [%.*s] block of %s file.",
+                  word_buf, blocknamelen, blockname, config_textname);
               break;
           }
           game.conf.object_conf.object_to_door_or_trap[n] = i;
@@ -432,8 +421,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           }
           if (n < 2)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 11: // POINTERSPRITES
@@ -449,8 +438,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           if (n < 1)
           {
             trapst->pointer_sprite_idx = bad_icon_id;
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 12: // PANELTABINDEX
@@ -465,8 +454,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 13: // TRIGGERTYPE
@@ -475,14 +464,14 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
             k = atoi(word_buf);
             if (k >= 0)
             {
-                game.conf.trap_stats[i].trigger_type = k;
+                trapst->trigger_type = k;
                 n++;
             }
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 14: // ACTIVATIONTYPE
@@ -491,30 +480,67 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
             k = atoi(word_buf);
             if (k >= 0)
             {
-                game.conf.trap_stats[i].activation_type = k;
+                trapst->activation_type = k;
                 n++;
             }
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 15: // EFFECTTYPE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-            k = atoi(word_buf);
-            if (k >= 0)
-            {
-                game.conf.trap_stats[i].created_itm_model = k;
-                n++;
-            }
+              if (parameter_is_number(word_buf))
+              {
+                  k = atoi(word_buf);
+              }
+              else
+              {
+                  switch (trapst->activation_type)
+                  {
+                      case TrpAcT_EffectonTrap:
+                      {
+                          k = get_id(effect_desc, word_buf);
+                          break;
+                      }
+                      case TrpAcT_SlabChange:
+                      {
+                          k = get_id(slab_desc, word_buf);
+                          break;
+                      }
+                      case TrpAcT_CreatureSpawn:
+                      {
+                          k = get_id(creature_desc, word_buf);
+                          break;
+                      }
+                      case TrpAcT_Power:
+                      {
+                          k = get_id(power_desc, word_buf);
+                          break;
+                      }
+                      case TrpAcT_HeadforTarget90:
+                      case TrpAcT_ShotonTrap:
+                      case TrpAcT_CreatureShot:
+                      default:
+                      {
+                          k = get_id(shot_desc, word_buf);
+                          break;
+                      }
+                  }
+              }
+              if (k >= 0)
+              {
+                  trapst->created_itm_model = k;
+                  n++;
+              }
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 16: // ANIMATIONID
@@ -523,14 +549,14 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
             k = get_anim_id_(word_buf);
             if (k >= 0)
             {
-                game.conf.trap_stats[i].sprite_anim_idx = k;
+                trapst->sprite_anim_idx = k;
                 n++;
             }
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 17: // MODELSIZE
@@ -539,14 +565,14 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
             k = atoi(word_buf);
             if (k >= 0)
             {
-                game.conf.trap_stats[i].sprite_size_max = k;
+                trapst->sprite_size_max = k;
                 n++;
             }
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 18: // ANIMATIONSPEED
@@ -555,14 +581,14 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
             k = atoi(word_buf);
             if (k >= 0)
             {
-                game.conf.trap_stats[i].anim_speed = k;
+                trapst->anim_speed = k;
                 n++;
             }
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 19: // UNANIMATED
@@ -571,14 +597,14 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
             k = atoi(word_buf);
             if (k >= 0)
             {
-                game.conf.trap_stats[i].unanimated = k;
+                trapst->unanimated = k;
                 n++;
             }
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 20: // HIDDEN
@@ -593,8 +619,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 21: // SLAPPABLE
@@ -609,8 +635,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 22: // TRIGGERALARM
@@ -625,8 +651,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 23: // HEALTH
@@ -635,14 +661,14 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].health = k;
+                  trapst->health = k;
                   n++;
               }
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 24: // UNSHADED
@@ -651,14 +677,14 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].unshaded = k;
+                  trapst->unshaded = k;
                   n++;
               }
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 25: // RANDOMSTARTFRAME
@@ -667,14 +693,14 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].random_start_frame = k;
+                  trapst->random_start_frame = k;
                   n++;
               }
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 26: // THINGSIZE
@@ -683,7 +709,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].size_xy = k;
+                  trapst->size_xy = k;
                   n++;
               }
           }
@@ -692,30 +718,30 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].size_z = k;
+                  trapst->size_z = k;
                   n++;
               }
           }
           if (n < 2)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
-          break; 
+          break;
       case 27: // HITTYPE
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].hit_type = k;
+                  trapst->hit_type = k;
                   n++;
               }
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 28: // LIGHTRADIUS
@@ -724,14 +750,14 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].light_radius = k * COORD_PER_STL;
+                  trapst->light_radius = k * COORD_PER_STL;
                   n++;
               }
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
         case 29: // LIGHTINTENSITY
@@ -740,14 +766,14 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
                 k = atoi(word_buf);
                 if (k >= 0)
                 {
-                    game.conf.trap_stats[i].light_intensity = k;
+                    trapst->light_intensity = k;
                     n++;
                 }
             }
             if (n < 1)
             {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
         case 30: // LIGHTFLAGS
@@ -756,14 +782,14 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
                 k = atoi(word_buf);
                 if (k >= 0)
                 {
-                    game.conf.trap_stats[i].light_flag = k;
+                    trapst->light_flag = k;
                     n++;
                 }
             }
             if (n < 1)
             {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
       case 31: // TRANSPARENCY_FLAGS
@@ -772,14 +798,14 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].transparency_flag = k<<4;
+                  trapst->transparency_flag = k<<4;
                   n++;
               }
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 32: // SHOTVECTOR
@@ -788,7 +814,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].shotvector.x = k;
+                  trapst->shotvector.x = k;
                   n++;
               }
           }
@@ -797,7 +823,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].shotvector.y = k;
+                  trapst->shotvector.y = k;
                   n++;
               }
           }
@@ -806,14 +832,14 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].shotvector.z = k;
+                  trapst->shotvector.z = k;
                   n++;
               }
           }
           if (n < 3)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 33: // DESTRUCTIBLE
@@ -824,8 +850,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           }
           if (!parameter_is_number(word_buf))
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 34: // UNSTABLE
@@ -840,8 +866,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 35: // UNSELLABLE
@@ -856,8 +882,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 36: // PLACEONBRIDGE
@@ -872,8 +898,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 37: // SHOTORIGIN
@@ -882,7 +908,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].shot_shift_x = k;
+                  trapst->shot_shift_x = k;
                   n++;
               }
           }
@@ -891,7 +917,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].shot_shift_y = k;
+                  trapst->shot_shift_y = k;
                   n++;
               }
           }
@@ -900,14 +926,14 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].shot_shift_z = k;
+                  trapst->shot_shift_z = k;
                   n++;
               }
           }
           if (n < 3)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 38: // PLACESOUND
@@ -916,8 +942,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               n = atoi(word_buf);
               if ( n < 0 || n > samples_in_bank - 1 )
               {
-                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
               }
               else
               {
@@ -931,8 +957,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               n = atoi(word_buf);
               if (n < 0 || n > samples_in_bank - 1)
               {
-                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                      COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                      COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
               }
               else
               {
@@ -947,14 +973,14 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = get_anim_id(word_buf, &obj_tmp);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].recharge_sprite_anim_idx = k;
+                  trapst->recharge_sprite_anim_idx = k;
                   n++;
               }
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 41: // ATTACKANIMATIONID
@@ -964,14 +990,14 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = get_anim_id(word_buf, &obj_tmp);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].attack_sprite_anim_idx = k;
+                  trapst->attack_sprite_anim_idx = k;
                   n++;
               }
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 42: // DESTROYEDEFFECT
@@ -991,8 +1017,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 43: // INITIALDELAY
@@ -1001,14 +1027,14 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  game.conf.trap_stats[i].initial_delay = k;
+                  trapst->initial_delay = k;
                   n++;
               }
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 44: // PLACEONSUBTILE
@@ -1023,8 +1049,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 45: // FLAMEANIMATIONID
@@ -1039,8 +1065,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 46: // FLAMEANIMATIONSPEED
@@ -1055,8 +1081,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 47: // FLAMEANIMATIONSIZE
@@ -1071,8 +1097,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 48: // FLAMEANIMATIONOFFSET
@@ -1102,8 +1128,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           }
           if (n < 4)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 49: // FLAMETRANSPARENCYFLAGS
@@ -1118,17 +1144,33 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
-      case 0: // comment
+      case 50: // DETECTINVISIBLE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  trapst->detect_invisible = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+          }
           break;
-      case -1: // end of buffer
+      case ccr_comment:
+          break;
+      case ccr_endOfFile:
           break;
       default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
+          CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",
+              cmd_num, blocknamelen, blockname, config_textname);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -1143,22 +1185,6 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
   struct DoorConfigStats *doorst;
   // Block name and parameter word store variables
   SYNCDBG(19,"Starting");
-
-  // Increase door_types_count if higher door ID found in file
-    for (int i=0; i < TRAPDOOR_TYPES_MAX; i++)
-    {
-        long pos = 0;
-        char block_name[20];
-        sprintf(block_name, "door%d", i);
-        if (find_conf_block(buf, &pos, len, block_name) == 1)
-        {
-            if (i >= game.conf.trapdoor_conf.door_types_count)
-            {
-                game.conf.trapdoor_conf.door_types_count = i + 1;
-            }
-        }
-    }
-
   // Initialize the doors array
   if ((flags & CnfLd_AcceptPartial) == 0)
   {
@@ -1171,33 +1197,45 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           doorst->bigsym_sprite_idx = 0;
           doorst->medsym_sprite_idx = 0;
           doorst->pointer_sprite_idx = 0;
-          doorst->unsellable = 0;
-          // Default door placement sound, so that placement sound isn't broken if custom doors is bundled into maps
-          doorst->place_sound_idx = 117;
           doorst->panel_tab_idx = 0;
-          door_desc[i].name = NULL;
-          door_desc[i].num = 0;
+          doorst->manufct_level = 0;
+          doorst->manufct_required = 0;
+          doorst->health = 1;
+          doorst->open_speed = 256;
+          doorst->selling_value = 0;
+          doorst->unsellable = false;
+          doorst->place_sound_idx = 117; // Default door placement sound, so that placement sound isn't broken if custom doors are bundled into maps.
+          door_desc[i].name = doorst->code_name;
+          door_desc[i].num = i;
       }
   }
-
+  door_desc[TRAPDOOR_TYPES_MAX - 1].name = NULL; // must be null for get_id
   // Parse every numbered block within range
-  for (int i=0; i < game.conf.trapdoor_conf.door_types_count; i++)
+  const char * blockname = NULL;
+  int blocknamelen = 0, k = 0;
+  long pos = 0;
+  while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
   {
-      char block_buf[COMMAND_WORD_LEN];
-      sprintf(block_buf, "door%d", i);
-      long pos = 0;
-      int k = find_conf_block(buf, &pos, len, block_buf);
-    struct ManfctrConfig* mconf = &game.conf.doors_config[i];
+    // look for blocks starting with "door", followed by one or more digits
+    if (blocknamelen < 5) {
+        continue;
+    } else if (memcmp(blockname, "door", 4) != 0) {
+        continue;
+    }
+    const int i = natoi(&blockname[4], blocknamelen - 4);
+    if (i < 0 || i >= TRAPDOOR_TYPES_MAX) {
+        continue;
+    } else if (i >= game.conf.trapdoor_conf.door_types_count) {
+        game.conf.trapdoor_conf.door_types_count = i + 1;
+    }
     doorst = &game.conf.trapdoor_conf.door_cfgstats[i];
-    door_desc[i].name = doorst->code_name;
-    door_desc[i].num = i;
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(trapdoor_door_commands,cmd_num)
     while (pos<len)
     {
       // Finding command number in this line
       int cmd_num = recognize_conf_command(buf, &pos, len, trapdoor_door_commands);
       // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
+      if (cmd_num == ccr_endOfBlock) break; // if next block starts
       if ((flags & CnfLd_ListOnly) != 0) {
           // In "List only" mode, accept only name command
           if (cmd_num > 1) {
@@ -1209,149 +1247,47 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
       switch (cmd_num)
       {
       case 1: // NAME
-          if (get_conf_parameter_single(buf,&pos,len,doorst->code_name,COMMAND_WORD_LEN) <= 0)
+          if (get_conf_parameter_single(buf, &pos, len, doorst->code_name, COMMAND_WORD_LEN) <= 0)
           {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             break;
           }
           break;
-      case 2: // MANUFACTURELEVEL
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            mconf->manufct_level = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-
-      case 3: // MANUFACTUREREQUIRED
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            mconf->manufct_required = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 4: // SLABKIND
+      case 2: // NAMETEXTID
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = get_id(slab_desc, word_buf);
-              doorst->slbkind[1] = k;
-              n++;
+              k = atoi(word_buf);
+              if (k > 0)
+              {
+                  doorst->name_stridx = k;
+                  n++;
+              }
           }
-          else
+          if (n < 1)
           {
-              CONFWRNLOG("Incorrect slab name \"%s\" in [%s] block of %s file.",
-                  word_buf, block_buf, config_textname);
-              break;
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
+          break;
+      case 3: // TOOLTIPTEXTID
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = get_id(slab_desc, word_buf);
-              doorst->slbkind[0] = k;
-              n++;
-          }
-          else
-          {
-              CONFWRNLOG("Incorrect slab name \"%s\" in [%s] block of %s file.",
-                  word_buf, block_buf, config_textname);
-          }
-          if (n < 2)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-              break;
-          }
-          break;
-      case 5: // HEALTH
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            if (i < game.conf.trapdoor_conf.door_types_count)
-            {
-              doorst->health = k;
-            }
-            n++;
+              k = atoi(word_buf);
+              if (k > 0)
+              {
+                  doorst->tooltip_stridx = k;
+                  n++;
+              }
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
-      case 6: // SELLINGVALUE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            mconf->selling_value = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 7: // NAMETEXTID
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            if (k > 0)
-            {
-                doorst->name_stridx = k;
-                n++;
-            }
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 8: // TOOLTIPTEXTID
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            if (k > 0)
-            {
-                doorst->tooltip_stridx = k;
-                n++;
-            }
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 9: // CRATE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              n = get_id(object_desc, word_buf);
-          }
-          if (n < 0)
-          {
-              CONFWRNLOG("Incorrect crate object \"%s\" in [%s] block of %s file.",
-                  word_buf,block_buf,config_textname);
-              break;
-          }
-          game.conf.object_conf.object_to_door_or_trap[n] = i;
-          game.conf.object_conf.workshop_object_class[n] = TCls_Door;
-          game.conf.trapdoor_conf.door_to_object[i] = n;
-          break;
-      case 10: // SYMBOLSPRITES
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+      case 4: // SYMBOLSPRITES
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               doorst->bigsym_sprite_idx = bad_icon_id;
               k = get_icon_id(word_buf);
@@ -1361,7 +1297,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
                   n++;
               }
           }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               doorst->medsym_sprite_idx = bad_icon_id;
               k = get_icon_id(word_buf);
@@ -1373,12 +1309,12 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           }
           if (n < 2)
           {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
-      case 11: // POINTERSPRITES
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+      case 5: // POINTERSPRITES
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = get_icon_id(word_buf);
               if (k >= 0)
@@ -1389,80 +1325,197 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           }
           if (n < 1)
           {
-            doorst->pointer_sprite_idx = bad_icon_id;
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              doorst->pointer_sprite_idx = bad_icon_id;
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
-      case 12: // PANELTABINDEX
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+      case 6: // PANELTABINDEX
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-            k = atoi(word_buf);
-            if (k >= 0)
-            {
-                doorst->panel_tab_idx = k;
-                n++;
-            }
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  doorst->panel_tab_idx = k;
+                  n++;
+              }
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
-      case 13: // OPENSPEED
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+      case 7: // CRATE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-            k = atoi(word_buf);
-            if (k >= 0)
-            {
-                doorst->open_speed = k;
-                n++;
-            }
+              n = get_id(object_desc, word_buf);
+          }
+          if (n < 0)
+          {
+              CONFWRNLOG("Incorrect crate object \"%s\" in [%.*s] block of %s file.",
+                  word_buf, blocknamelen, blockname, config_textname);
+              break;
+          }
+          game.conf.object_conf.object_to_door_or_trap[n] = i;
+          game.conf.object_conf.workshop_object_class[n] = TCls_Door;
+          game.conf.trapdoor_conf.door_to_object[i] = n;
+          break;
+      case 8: // MANUFACTURELEVEL
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              doorst->manufct_level = k;
+              n++;
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
-      case 14: // PROPERTIES
+      case 9: // MANUFACTUREREQUIRED
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              doorst->manufct_required = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+          }
+          break;
+      case 10: // HEALTH
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (i < game.conf.trapdoor_conf.door_types_count)
+              {
+                  doorst->health = k;
+              }
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+          }
+          break;
+      case 11: // SLABKIND
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(slab_desc, word_buf);
+              doorst->slbkind[1] = k;
+              n++;
+          }
+          else
+          {
+              CONFWRNLOG("Incorrect slab name \"%s\" in [%.*s] block of %s file.",
+                  word_buf, blocknamelen, blockname, config_textname);
+              break;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(slab_desc, word_buf);
+              doorst->slbkind[0] = k;
+              n++;
+          }
+          else
+          {
+              CONFWRNLOG("Incorrect slab name \"%s\" in [%.*s] block of %s file.",
+                  word_buf, blocknamelen, blockname, config_textname);
+          }
+          if (n < 2)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+              break;
+          }
+          break;
+      case 12: // OPENSPEED
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  doorst->open_speed = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+          }
+          break;
+      case 13: // PROPERTIES
           doorst->model_flags = 0;
-          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-            k = get_id(door_properties_commands, word_buf);
-            switch (k)
-            {
-            case 1: // RESIST_NON_MAGIC
-                doorst->model_flags |= DoMF_ResistNonMagic;
-                n++;
-                break;
-            case 2: // SECRET
-                doorst->model_flags |= DoMF_Secret;
-                n++;
-                break;
-            case 3: // THICK
-                doorst->model_flags |= DoMF_Thick;
-                n++;
-                break;
-            case 4: // MIDAS
-                doorst->model_flags |= DoMF_Midas;
-                n++;
-                break;
-            default:
-                CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
-            }
+              k = get_id(door_properties_commands, word_buf);
+              switch (k)
+              {
+              case 1: // RESIST_NON_MAGIC
+                  doorst->model_flags |= DoMF_ResistNonMagic;
+                  n++;
+                  break;
+              case 2: // SECRET
+                  doorst->model_flags |= DoMF_Secret;
+                  n++;
+                  break;
+              case 3: // THICK
+                  doorst->model_flags |= DoMF_Thick;
+                  n++;
+                  break;
+              case 4: // MIDAS
+                  doorst->model_flags |= DoMF_Midas;
+                  n++;
+                  break;
+              default:
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%.*s] block of %s file.",
+                      COMMAND_TEXT(cmd_num), word_buf, blocknamelen, blockname, config_textname);
+              }
           }
           break;
-      case 15: // PLACESOUND
+      case 14: // SELLINGVALUE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              doorst->selling_value = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+          }
+          break;
+      case 15: // UNSELLABLE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  doorst->unsellable = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+          }
+          break;
+      case 16: // PLACESOUND
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               n = atoi(word_buf);
               if (n < 0 || n > samples_in_bank - 1)
               {
-                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                      COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                      COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
               }
               else
               {
@@ -1470,29 +1523,13 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
               }
           }
           break;
-      case 16: // UNSELLABLE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            if (k >= 0)
-            {
-                doorst->unsellable = k;
-                n++;
-            }
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
+      case ccr_comment:
           break;
-      case 0: // comment
-          break;
-      case -1: // end of buffer
+      case ccr_endOfFile:
           break;
       default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
+          CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",
+              cmd_num, blocknamelen, blockname, config_textname);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
