@@ -4248,7 +4248,7 @@ TbBool creature_count_below_map_limit(TbBool temp_creature)
 
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner)
 {
-    struct CreatureStats* crstat = creature_stats_get(model);
+    struct CreatureStats *crstat = creature_stats_get(model);
     if (game.thing_lists[TngList_Creatures].count >= CREATURES_COUNT)
     {
         ERRORLOG("Cannot create %s for player %d. Creature limit %d reached.", creature_code_name(model), (int)owner, CREATURES_COUNT);
@@ -4256,23 +4256,24 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     }
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
-        ERRORDBG(3,"Cannot create %s for player %d. There are too many things allocated.",creature_code_name(model),(int)owner);
+        ERRORDBG(3, "Cannot create %s for player %d. There are too many things allocated.", creature_code_name(model), (int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
     if (!i_can_allocate_free_control_structure())
     {
-        ERRORDBG(3,"Cannot create %s for player %d. There are too many creatures allocated.",creature_code_name(model),(int)owner);
+        ERRORDBG(3, "Cannot create %s for player %d. There are too many creatures allocated.", creature_code_name(model), (int)owner);
         erstat_inc(ESE_NoFreeCreatrs);
         return INVALID_THING;
     }
-    struct Thing* crtng = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
-    if (crtng->index == 0) {
-        ERRORDBG(3,"Should be able to allocate %s for player %d, but failed.",creature_code_name(model),(int)owner);
+    struct Thing *crtng = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+    if (crtng->index == 0)
+    {
+        ERRORDBG(3, "Should be able to allocate %s for player %d, but failed.", creature_code_name(model), (int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
-    struct CreatureControl* cctrl = allocate_free_control_structure();
+    struct CreatureControl *cctrl = allocate_free_control_structure();
     crtng->ccontrol_idx = cctrl->index;
     crtng->class_id = TCls_Creature;
     crtng->model = model;
@@ -4300,7 +4301,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     set_thing_draw(crtng, i, 256, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
     cctrl->explevel = 1;
     crtng->health = crstat->health;
-    cctrl->max_health = compute_creature_max_health(crstat->health,cctrl->explevel, owner);
+    cctrl->max_health = compute_creature_max_health(crstat->health, cctrl->explevel, owner);
     crtng->owner = owner;
     crtng->mappos.x.val = pos->x.val;
     crtng->mappos.y.val = pos->y.val;
@@ -4310,15 +4311,16 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     cctrl->blood_type = CREATURE_RANDOM(crtng, BLOOD_TYPES_COUNT);
     if (player_is_roaming(owner))
     {
-      cctrl->hero.sbyte_89 = -1;
-      cctrl->hero.byte_8C = 1;
+        cctrl->hero.sbyte_89 = -1;
+        cctrl->hero.byte_8C = 1;
     }
     cctrl->flee_pos.x.val = crtng->mappos.x.val;
     cctrl->flee_pos.y.val = crtng->mappos.y.val;
     cctrl->flee_pos.z.val = crtng->mappos.z.val;
     cctrl->flee_pos.z.val = get_thing_height_at(crtng, pos);
     cctrl->fighting_player_idx = -1;
-    if (crstat->flying) {
+    if (crstat->flying)
+    {
         crtng->movement_flags |= TMvF_Flying;
     }
     set_creature_level(crtng, 0);
@@ -4326,11 +4328,14 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     add_thing_to_its_class_list(crtng);
     place_thing_in_mapwho(crtng);
     if (owner <= PLAYERS_COUNT)
-      set_first_creature(crtng);
+    {
+        set_first_creature(crtng);
+    }
     set_start_state(crtng);
     add_creature_score_to_owner(crtng);
     cctrl->active_instance_id = creature_choose_first_available_instance(crtng);
-    if (crstat->illuminated) {
+    if (crstat->illuminated)
+    {
         illuminate_creature(crtng);
     }
     return crtng;
@@ -4414,14 +4419,17 @@ TbBool creature_change_multiple_levels(struct Thing *thing, int count)
 TbBool create_random_evil_creature(MapCoord x, MapCoord y, PlayerNumber owner, CrtrExpLevel max_lv)
 {
     ThingModel crmodel;
-    while (1) {
+    while (1)
+    {
         crmodel = GAME_RANDOM(game.conf.crtr_conf.model_count) + 1;
-        // Accept only evil creatures
-        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crmodel];
-        if ((crconf->model_flags & CMF_IsSpectator) != 0) {
+        // Accept only evil creatures.
+        struct CreatureModelConfig *crconf = &game.conf.crtr_conf.model[crmodel];
+        if ((crconf->model_flags & CMF_IsSpectator) != 0)
+        {
             continue;
         }
-        if ((crconf->model_flags & CMF_IsEvil) != 0) {
+        if ((crconf->model_flags & CMF_IsEvil) != 0)
+        {
             break;
         }
     }
@@ -4429,17 +4437,17 @@ TbBool create_random_evil_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
     pos.x.val = x;
     pos.y.val = y;
     pos.z.val = 0;
-    struct Thing* thing = create_creature(&pos, crmodel, owner);
+    struct Thing *thing = create_creature(&pos, crmodel, owner);
     if (thing_is_invalid(thing))
     {
-        ERRORLOG("Cannot create evil creature %s at (%ld,%ld)",creature_code_name(crmodel),x,y);
+        ERRORLOG("Cannot create evil creature %s at (%ld,%ld)", creature_code_name(crmodel), x, y);
         return false;
     }
     pos.z.val = get_thing_height_at(thing, &pos);
     if (thing_in_wall_at(thing, &pos))
     {
         delete_thing_structure(thing, 0);
-        ERRORLOG("Evil creature %s at (%ld,%ld) deleted because is in wall",creature_code_name(crmodel),x,y);
+        ERRORLOG("Evil creature %s at (%ld,%ld) deleted because is in wall", creature_code_name(crmodel), x, y);
         return false;
     }
     thing->mappos.x.val = pos.x.val;
@@ -4463,54 +4471,55 @@ TbBool create_random_evil_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
  */
 TbBool create_random_hero_creature(MapCoord x, MapCoord y, PlayerNumber owner, CrtrExpLevel max_lv)
 {
-  ThingModel crmodel;
-  while (1) {
-      crmodel = GAME_RANDOM(game.conf.crtr_conf.model_count) + 1;
+    ThingModel crmodel;
+    while (1)
+    {
+        crmodel = GAME_RANDOM(game.conf.crtr_conf.model_count) + 1;
+        // model_count is always one higher than the last available index for creature models.
+        // This will allow more creature models to be added, but still catch the out-of-bounds model number.
+        if (crmodel >= game.conf.crtr_conf.model_count)
+        {
+            // Try again.
+            continue;
+        }
+        // Accept only non-evil creatures.
+        struct CreatureModelConfig *crconf = &game.conf.crtr_conf.model[crmodel];
+        if ((crconf->model_flags & CMF_IsSpectator) != 0)
+        {
+            continue;
+        }
 
-      // model_count is always one higher than the last available index for creature models
-      // This will allow more creature models to be added, but still catch the out-of-bounds model number.
-      if (crmodel >= game.conf.crtr_conf.model_count) {
-          // try again
-          continue;
-      }
-
-      // Accept only evil creatures
-      struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crmodel];
-      if ((crconf->model_flags & CMF_IsSpectator) != 0) {
-          continue;
-      }
-
-      if ((crconf->model_flags & CMF_IsEvil) == 0) {
-          //JUSTMSG("*** CREATURE MODEL NUMBER %d", (unsigned char)crmodel);
-          break;
-      }
-  }
-  struct Coord3d pos;
-  pos.x.val = x;
-  pos.y.val = y;
-  pos.z.val = 0;
-  struct Thing* thing = create_creature(&pos, crmodel, owner);
-  if (thing_is_invalid(thing))
-  {
-      ERRORLOG("Cannot create player %d hero %s at (%ld,%ld)",(int)owner,creature_code_name(crmodel),x,y);
-      return false;
-  }
-  pos.z.val = get_thing_height_at(thing, &pos);
-  if (thing_in_wall_at(thing, &pos))
-  {
-      delete_thing_structure(thing, 0);
-      ERRORLOG("Hero %s at (%ld,%ld) deleted because is in wall",creature_code_name(crmodel),x,y);
-      return false;
-  }
-  thing->mappos.x.val = pos.x.val;
-  thing->mappos.y.val = pos.y.val;
-  thing->mappos.z.val = pos.z.val;
-  remove_first_creature(thing);
-  set_first_creature(thing);
-//  set_start_state(thing); - simplified to the following two commands
-  CrtrExpLevel lv = GAME_RANDOM(max_lv);
-  set_creature_level(thing, lv);
-  return true;
+        if ((crconf->model_flags & CMF_IsEvil) == 0)
+        {
+            break;
+        }
+    }
+    struct Coord3d pos;
+    pos.x.val = x;
+    pos.y.val = y;
+    pos.z.val = 0;
+    struct Thing *thing = create_creature(&pos, crmodel, owner);
+    if (thing_is_invalid(thing))
+    {
+        ERRORLOG("Cannot create player %d hero %s at (%ld,%ld)", (int)owner, creature_code_name(crmodel), x, y);
+        return false;
+    }
+    pos.z.val = get_thing_height_at(thing, &pos);
+    if (thing_in_wall_at(thing, &pos))
+    {
+        delete_thing_structure(thing, 0);
+        ERRORLOG("Hero %s at (%ld,%ld) deleted because is in wall", creature_code_name(crmodel), x, y);
+        return false;
+    }
+    thing->mappos.x.val = pos.x.val;
+    thing->mappos.y.val = pos.y.val;
+    thing->mappos.z.val = pos.z.val;
+    remove_first_creature(thing);
+    set_first_creature(thing);
+    set_start_state(thing);
+    CrtrExpLevel lv = GAME_RANDOM(max_lv);
+    set_creature_level(thing, lv);
+    return true;
 }
 
 /**
@@ -4527,17 +4536,17 @@ struct Thing *create_owned_special_digger(MapCoord x, MapCoord y, PlayerNumber o
     pos.x.val = x;
     pos.y.val = y;
     pos.z.val = 0;
-    struct Thing* thing = create_creature(&pos, crmodel, owner);
+    struct Thing *thing = create_creature(&pos, crmodel, owner);
     if (thing_is_invalid(thing))
     {
-        ERRORLOG("Cannot create creature %s at (%ld,%ld)",creature_code_name(crmodel),x,y);
+        ERRORLOG("Cannot create creature %s at (%ld,%ld)", creature_code_name(crmodel), x, y);
         return INVALID_THING;
     }
     pos.z.val = get_thing_height_at(thing, &pos);
     if (thing_in_wall_at(thing, &pos))
     {
         delete_thing_structure(thing, 0);
-        ERRORLOG("Creature %s at (%ld,%ld) deleted because is in wall",creature_code_name(crmodel),x,y);
+        ERRORLOG("Creature %s at (%ld,%ld) deleted because is in wall", creature_code_name(crmodel), x, y);
         return INVALID_THING;
     }
     thing->mappos.x.val = pos.x.val;
@@ -4545,6 +4554,7 @@ struct Thing *create_owned_special_digger(MapCoord x, MapCoord y, PlayerNumber o
     thing->mappos.z.val = pos.z.val;
     remove_first_creature(thing);
     set_first_creature(thing);
+    set_start_state(thing);
     return thing;
 }
 
