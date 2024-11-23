@@ -18,6 +18,7 @@
 #include "bflib_memory.h"
 #include "bflib_sound.h"
 #include "config_effects.h"
+#include "config_lenses.h"
 #include "config_magic.h"
 #include "config_players.h"
 #include "config_powerhands.h"
@@ -34,6 +35,7 @@
 #include "frontmenu_ingame_map.h"
 #include "gui_soundmsgs.h"
 #include "keeperfx.hpp"
+#include "lens_api.h"
 #include "lvl_script_commands.h"
 #include "lvl_script_conditions.h"
 #include "lvl_script_lib.h"
@@ -3903,6 +3905,24 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         case 4: // EYEEFFECT
         {
             crstat->eye_effect = value;
+            struct Thing* thing = thing_get(get_my_player()->influenced_thing_idx);
+            if(!thing_is_invalid(thing))
+            {
+                if (thing->model == creatid)
+                {
+                    struct LensConfig* lenscfg = get_lens_config(value);
+                    initialise_eye_lenses();
+                    if (flag_is_set(lenscfg->flags, LCF_HasPalette))
+                    {
+                        PaletteSetPlayerPalette(get_my_player(), lenscfg->palette);
+                    }
+                    else
+                    {
+                        PaletteSetPlayerPalette(get_my_player(), engine_palette);
+                    }
+                    setup_eye_lens(value);
+                }
+            }
             break;
         }
         case 5: // MAXANGLECHANGE
