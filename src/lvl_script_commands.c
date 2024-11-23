@@ -867,8 +867,7 @@ static void conceal_map_rect_check(const struct ScriptLine *scline)
     {
         conceal_all = 0;
     }
-    else
-    if ((strcmp(scline->tp[5], "ALL") == 0) || (strcmp(scline->tp[5], "1") == 0))
+    else if ((strcmp(scline->tp[5], "ALL") == 0) || (strcmp(scline->tp[5], "1") == 0))
     {
         conceal_all = 1;
     }
@@ -887,14 +886,52 @@ static void conceal_map_rect_check(const struct ScriptLine *scline)
     MapSubtlCoord start_y = y - (height / 2);
     MapSubtlCoord end_y = y + (height / 2) + (height & 1);
 
-    if ((start_x < 0) || (end_x > gameadd.map_subtiles_x) || (start_y < 0) || (end_y > gameadd.map_subtiles_y))
+    if (start_x < 0)
     {
-        SCRPTERRLOG("Conceal coordinates out of range, trying to conceal from (%ld,%ld) to (%ld,%ld) on map that's %ldx%ld subtiles",
-            start_x, start_y, end_x, end_y, gameadd.map_subtiles_x, gameadd.map_subtiles_y);
+        SCRPTWRNLOG("Starting X coordinate '%ld' (from %ld-%ld/2) is out of range, fixing it to '0'.", start_x,x,width);
+        start_x = 0;
+    }
+    else if (start_x > gameadd.map_subtiles_x)
+    {
+        SCRPTWRNLOG("Starting X coordinate '%ld' (from %ld-%ld/2) is out of range, fixing it to '%ld'.", start_x, x, width, gameadd.map_subtiles_x);
+        start_x = gameadd.map_subtiles_x;
+    }
+    if (end_x < 0)
+    {
+        SCRPTWRNLOG("Ending X coordinate '%ld' (from %ld+%ld/2) is out of range, fixing it to '0'.", end_x, x, width);
+        end_x = 0;
+    }
+    else if (end_x > gameadd.map_subtiles_x)
+    {
+        SCRPTWRNLOG("Ending X coordinate '%ld' (from %ld+%ld/2) is out of range, fixing it to '%ld'.", end_x, x, width, gameadd.map_subtiles_x);
+        end_x = gameadd.map_subtiles_x;
+    }
+    if (start_y < 0)
+    {
+        SCRPTWRNLOG("Starting Y coordinate '%ld' (from %ld-%ld/2) is out of range, fixing it to '0'.", start_y, y, height);
+        start_y = 0;
+    }
+    else if (start_y > gameadd.map_subtiles_y)
+    {
+        SCRPTWRNLOG("Starting Y coordinate '%ld' (from %ld-%ld/2) is out of range, fixing it to '%ld'.", start_y, y, height, gameadd.map_subtiles_y);
+        start_y = gameadd.map_subtiles_y;
+    }
+    if (end_y < 0)
+    {
+        SCRPTWRNLOG("Ending Y coordinate '%ld' (from %ld+%ld/2) is out of range, fixing it to '0'.", end_y, y, height);
+        end_y = 0;
+    }
+    else if (end_y > gameadd.map_subtiles_y)
+    {
+        SCRPTWRNLOG("Ending Y coordinate '%ld' (from %ld+%ld/2) is out of range, fixing it to '%ld'.", end_y, y, height, gameadd.map_subtiles_y);
+        end_y = gameadd.map_subtiles_y;
+    }
+    if ((x < 0) || (x > gameadd.map_subtiles_x) || (y < 0) || (y > gameadd.map_subtiles_y))
+    {
+        SCRPTERRLOG("Conceal coordinates out of range, trying to set conceal center point to (%ld,%ld) on map that's %ldx%ld subtiles", x, y, gameadd.map_subtiles_x, gameadd.map_subtiles_y);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-
     value->plyr_range = scline->np[0];
     value->shorts[1] = start_x;
     value->shorts[2] = end_x;
@@ -912,7 +949,6 @@ static void conceal_map_rect_process(struct ScriptContext *context)
     MapSubtlCoord start_y = context->value->shorts[3];
     MapSubtlCoord end_y = context->value->shorts[4];
     TbBool conceal_all = context->value->shorts[5];
-
     conceal_map_area(context->player_idx, start_x, end_x, start_y, end_y, conceal_all);
 }
 
@@ -1076,7 +1112,56 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
-    else if (trapvar == 41)  // DestroyedEffect
+    else if (trapvar == 17) // EffectType
+    {
+        if (parameter_is_number(valuestring))
+        {
+            newvalue = atoi(valuestring);
+        }
+        else
+        {
+            struct TrapConfigStats *trapst = get_trap_model_stats(trap_id);
+            switch (trapst->activation_type)
+            {
+                case TrpAcT_EffectonTrap:
+                {
+                    newvalue = get_id(effect_desc, valuestring);
+                    break;
+                }
+                case TrpAcT_SlabChange:
+                {
+                    newvalue = get_id(slab_desc, valuestring);
+                    break;
+                }
+                case TrpAcT_CreatureSpawn:
+                {
+                    newvalue = get_id(creature_desc, valuestring);
+                    break;
+                }
+                case TrpAcT_Power:
+                {
+                    newvalue = get_id(power_desc, valuestring);
+                    break;
+                }
+                case TrpAcT_HeadforTarget90:
+                case TrpAcT_ShotonTrap:
+                case TrpAcT_CreatureShot:
+                default:
+                {
+                    newvalue = get_id(shot_desc, valuestring);
+                    break;
+                }
+            }
+        }
+        if ((newvalue > USHRT_MAX) || (newvalue < 0))
+        {
+            SCRPTERRLOG("Value out of range: %ld", newvalue);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        value->shorts[2] = newvalue;
+    }
+    else if (trapvar == 41) // DestroyedEffect
     {
         newvalue = effect_or_effect_element_id(valuestring);
         if ((newvalue == 0) && (!parameter_is_number(valuestring)))
@@ -1087,7 +1172,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
         }
         value->ulongs[1] = newvalue;
     }
-    else if (trapvar == 46) //FlameAnimationOffset
+    else if (trapvar == 46) // FlameAnimationOffset
     {
         value->chars[8] = atoi(scline->tp[2]);
         value->chars[9] = scline->np[3];
@@ -2798,9 +2883,19 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                     creatvar = get_id(creature_graphics_desc, scline->tp[1]);
                     if (creatvar == -1)
                     {
-                        SCRPTERRLOG("Unknown creature configuration variable");
-                        DEALLOCATE_SCRIPT_VALUE
-                        return;
+                        block = CrtConf_ANNOYANCE;
+                        creatvar = get_id(creatmodel_annoyance_commands, scline->tp[1]);
+                        if (creatvar == -1)
+                        {
+                            block = CrtConf_EXPERIENCE;
+                            creatvar = get_id(creatmodel_experience_commands, scline->tp[1]);
+                            if (creatvar == -1)
+                            {
+                                SCRPTERRLOG("Unknown creature configuration variable");
+                                DEALLOCATE_SCRIPT_VALUE
+                                return;
+                            }
+                        }
                     }
                 }
             }
@@ -2948,6 +3043,236 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             {
                 value3 = atoi(scline->tp[4]);
             }
+        }
+    }
+    else if (block == CrtConf_ANNOYANCE)
+    {
+        if (creatvar == 21) //LairEnemy
+        {
+            ThingModel creature_model[3];
+            for (int j = 0; j < 2; j++)
+            {
+                //Only needs one enemy, but can do up to 3
+                if ((j > 0) && (scline->tp[j + 2][0] == '\0'))
+                    break;
+
+                if (parameter_is_number(scline->tp[j + 2]))
+                {
+                    creature_model[j] = atoi(scline->tp[j + 2]);
+                    if (creature_model[j] > CREATURE_TYPES_MAX)
+                    {
+                        SCRPTERRLOG("Value %d out of range.", atoi(scline->tp[j + 2]));
+                        DEALLOCATE_SCRIPT_VALUE
+                        return;
+                    }
+                }
+                else
+                {
+                    creature_model[j] = parse_creature_name(scline->tp[j + 2]);
+                    if (creature_model[j] < 0)
+                    {
+                        if (0 == strcmp(scline->tp[j + 2], "ANY_CREATURE"))
+                        {
+                            creature_model[j] = CREATURE_ANY;
+                        }
+                        else if (strcasecmp(scline->tp[j + 2], "NULL") == 0)
+                        {
+                            creature_model[j] = 0;
+                        }
+                        if (creature_model[j] < 0)
+                        {
+                            SCRPTERRLOG("Invalid creature model %s", scline->tp[j + 2]);
+                            DEALLOCATE_SCRIPT_VALUE
+                            return;
+                        }
+                    }
+                }
+            }
+            value1 = creature_model[0];
+            value2 = creature_model[1];
+            value3 = creature_model[2];
+        } else
+        if (creatvar == 23) //AngerJobs
+        {
+            long job_value = 0;
+            long job2_value = 0;
+            long job3_value = 0;
+            if (parameter_is_number(scline->tp[2]))
+            {
+                job_value = atoi(scline->tp[2]);
+            }
+            else
+            {
+                job_value = get_id(angerjob_desc, scline->tp[2]);
+            }
+            if (job_value > SHRT_MAX)
+            {
+                SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value1 = job_value;
+
+            if (scline->tp[3][0] != '\0')
+            {
+                job2_value = get_id(angerjob_desc, scline->tp[3]);
+                if (job2_value > SHRT_MAX)
+                {
+                    SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
+                value2 = job2_value;
+            }
+            if (scline->tp[4][0] != '\0')
+            {
+                job3_value = get_id(angerjob_desc, scline->tp[4]);
+                if (job3_value > SHRT_MAX)
+                {
+                    SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
+                value3 = job3_value;
+            }
+        }
+        else
+        {
+            value1 = atoi(scline->tp[2]);
+            value2 = atoi(scline->tp[3]);
+        }
+    }
+
+    else if (block == CrtConf_EXPERIENCE)
+    {
+        if (creatvar == 1) // POWERS
+        {
+            if ((atoi(scline->tp[2]) >= CREATURE_MAX_LEVEL) || (atoi(scline->tp[2]) <= 0)) //Powers
+            {
+                SCRPTERRLOG("Value %d out of range, only %d slots for Powers.", atoi(scline->tp[2]), CREATURE_MAX_LEVEL - 1);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value1 = atoi(scline->tp[2]);
+            long instance = 0;
+            if (!parameter_is_number(scline->tp[3]))
+            {
+                instance = get_id(instance_desc, scline->tp[3]);
+
+            }
+            else
+            {
+                instance = atoi(scline->tp[3]);
+            }
+            if (instance >= 0)
+            {
+                value2 = instance;
+            }
+            else
+            {
+                SCRPTERRLOG("Unknown instance %s ", scline->tp[3]);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+        } else 
+        if (creatvar == 2) // POWERSLEVELREQUIRED
+        {
+            if ((atoi(scline->tp[2]) > CREATURE_MAX_LEVEL) || (atoi(scline->tp[2]) <= 0))//slot
+            {
+                SCRPTERRLOG("Value %d out of range, only %d levels for PowersLevelRequired supported", atoi(scline->tp[2]), CREATURE_MAX_LEVEL);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            if ((atoi(scline->tp[3]) <= 0) || (atoi(scline->tp[3]) > CREATURE_MAX_LEVEL)) //value
+            {
+                SCRPTERRLOG("Value %d out of range, only %d levels for PowersLevelRequired supported", atoi(scline->tp[3]), CREATURE_MAX_LEVEL);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value1 = atoi(scline->tp[2]);
+            value2 = atoi(scline->tp[3]);
+        } else
+        if (creatvar == 3) // LEVELSTRAINVALUES
+        {
+            if ((atoi(scline->tp[2]) <= 0) || (atoi(scline->tp[2]) > CREATURE_MAX_LEVEL)) //slot
+            {
+                SCRPTERRLOG("Value %d out of range, only %d levels for LevelsTrainValues supported", atoi(scline->tp[2]), CREATURE_MAX_LEVEL - 1);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            if (atoi(scline->tp[3]) < 0) //value
+            {
+                SCRPTERRLOG("Value %d out of range.", atoi(scline->tp[3]));
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value1 = atoi(scline->tp[2]);
+            value2 = atoi(scline->tp[3]);
+
+        } else
+        if (creatvar == 4) // GROWUP
+        {
+            value1 = atoi(scline->tp[2]);
+            ThingModel creature_model = 0;
+            if (parameter_is_number(scline->tp[3]))
+            {
+                creature_model = atoi(scline->tp[3]);
+                if (creature_model > CREATURE_TYPES_MAX)
+                {
+                    SCRPTERRLOG("Value %d out of range.", atoi(scline->tp[3]));
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
+            }
+            else
+            {
+                creature_model = parse_creature_name(scline->tp[3]);
+                if (creature_model <  0)
+                {
+                    if (strcasecmp(scline->tp[3], "NULL") == 0)
+                    {
+                        creature_model = 0;
+                    }
+                    if (creature_model < 0)
+                    {
+                        SCRPTERRLOG("Invalid creature model %s", scline->tp[3]);
+                        DEALLOCATE_SCRIPT_VALUE
+                        return;
+                    }
+                }
+            }
+            value2 = creature_model;
+            short level = 0;
+            if (value2 > 0)
+            {
+                level = atoi(scline->tp[4]);
+                if ((level < 1) || (level > CREATURE_MAX_LEVEL))
+                {
+                    SCRPTERRLOG("Value %d out of range.", atoi(scline->tp[4]));
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
+            }
+            value3 = level;
+        } else
+        if (creatvar == 5) // SLEEPEXPERIENCE
+        {
+            long slabtype = get_id(slab_desc, scline->tp[2]);
+            if (slabtype < 0)
+            {
+                SCRPTERRLOG("Unknown slab type %s.", scline->tp[2]);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            else
+            {
+                value1 = slabtype;
+            }
+            value2 = atoi(scline->tp[3]);
+        }
+        else
+        {
+            value1 = atoi(scline->tp[2]);
         }
     }
 
@@ -3264,11 +3589,198 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             game.conf.crtr_conf.creature_sounds[creatid].piss.index = value;
             game.conf.crtr_conf.creature_sounds[creatid].piss.count = value2;
             break;
+        default:
+            CONFWRNLOG("Unrecognized Spound command (%d)", creature_variable);
+            break;
         }
     }
     else if (block == CrtConf_SPRITES)
     {
         set_creature_model_graphics(creatid, creature_variable-1, value);
+    }
+    else if (block == CrtConf_ANNOYANCE)
+    {
+        switch (creature_variable)
+        {
+        case 1: // EATFOOD
+        {
+            crstat->annoy_eat_food = value;
+            break;
+        }
+        case 2: // WILLNOTDOJOB
+        {
+            crstat->annoy_will_not_do_job = value;
+            break;
+        }
+        case 3: // INHAND
+        {
+            crstat->annoy_in_hand = value;
+            break;
+        }
+        case 4: // NOLAIR
+        {
+            crstat->annoy_no_lair = value;
+            break;
+        }
+        case 5: // NOHATCHERY
+        {
+            crstat->annoy_no_hatchery = value;
+            break;
+        }
+        case 6: // WOKENUP
+        {
+            crstat->annoy_woken_up = value;
+            break;
+        }
+        case 7: // STANDINGONDEADENEMY
+        {
+            crstat->annoy_on_dead_enemy = value;
+            break;
+        }
+        case 8: // SULKING
+        {
+            crstat->annoy_sulking = value;
+            break;
+        }
+        case 9: // NOSALARY
+        {
+            crstat->annoy_no_salary = value;
+            break;
+        }
+        case 10: // SLAPPED
+        {
+            crstat->annoy_slapped = value;
+            break;
+        }
+        case 11: // STANDINGONDEADFRIEND
+        {
+            crstat->annoy_on_dead_friend = value;
+            break;
+        }
+        case 12: // INTORTURE
+        {
+            crstat->annoy_in_torture = value;
+            break;
+        }
+        case 13: // INTEMPLE
+        {
+            crstat->annoy_in_temple = value;
+            break;
+        }
+        case 14: // SLEEPING
+        {
+            crstat->annoy_sleeping = value;
+            break;
+        }
+        case 15: // GOTWAGE
+        {
+            crstat->annoy_got_wage = value;
+            break;
+        }
+        case 16: // WINBATTLE
+        {
+            crstat->annoy_win_battle = value;
+            break;
+        }
+        case 17: // UNTRAINED
+        {
+            crstat->annoy_untrained_time = value;
+            crstat->annoy_untrained = value2;
+            break;
+        }
+        case 18: // OTHERSLEAVING
+        {
+            crstat->annoy_others_leaving = value;
+            break;
+        }
+        case 19: // JOBSTRESS
+        {
+            crstat->annoy_job_stress = value;
+            break;
+        }
+        case 20: // QUEUE
+        {
+            crstat->annoy_queue = value;
+            break;
+        }
+        case 21: // LAIRENEMY
+        {
+            crstat->lair_enemy[0] = value;
+            crstat->lair_enemy[1] = value2;
+            crstat->lair_enemy[2] = value3;
+            //clear out the other ones.
+            crstat->lair_enemy[3] = 0;
+            crstat->lair_enemy[4] = 0;
+            break;
+        }
+        case 22: // ANNOYLEVEL
+        {
+            crstat->annoy_level = value;
+            break;
+        }
+        case 23: // ANGERJOBS
+        {
+            crstat->jobs_anger = value;
+            crstat->jobs_anger |= value2;
+            crstat->jobs_anger |= value3;
+            break;
+        }
+        case 24: // GOINGPOSTAL
+        {
+            crstat->annoy_going_postal = value;
+            break;
+        }
+        default:
+            CONFWRNLOG("Unrecognized Annoyance command (%d)", creature_variable);
+            break;
+        }
+    }
+    else if (block == CrtConf_EXPERIENCE)
+    {
+        switch (creature_variable)
+        {
+        case 1: // POWERS
+        {
+            crstat->learned_instance_id[value-1] = value2;
+            break;
+        }
+        case 2: // POWERSLEVELREQUIRED
+        {
+            crstat->learned_instance_level[value-1] = value2;
+            break;
+        }
+        case 3: // LEVELSTRAINVALUES
+        {
+            crstat->to_level[value-1] = value2;
+            break;
+        }
+        case 4: // GROWUP
+        {
+            crstat->to_level[CREATURE_MAX_LEVEL - 1] = value;
+            crstat->grow_up = value2;
+            crstat->grow_up_level = value3;
+            break;
+        }
+        case 5: // SLEEPEXPERIENCE
+        {
+            crstat->sleep_exp_slab = value;
+            crstat->sleep_experience = value2;
+            break;
+        }
+        case 6: // EXPERIENCEFORHITTING
+        {
+            crstat->exp_for_hitting = value;
+            break;
+        }
+        case 7: // REBIRTH
+        {
+            crstat->rebirth = value;
+            break;
+        }
+        default:
+            CONFWRNLOG("Unrecognized Experience command (%d)", creature_variable);
+            break;
+        }
     }
     else
     {
