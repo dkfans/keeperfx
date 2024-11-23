@@ -2033,6 +2033,7 @@ static void set_room_configuration_process(struct ScriptContext *context)
             break;
         case 16: // SlabSynergy
             roomst->synergy_slab = value;
+            recalculate_effeciency_for_rooms_of_kind(room_type);
             break;
         case 17: // StorageHeight
             roomst->storage_height = value;
