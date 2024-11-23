@@ -2896,7 +2896,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                                 if (creatvar == -1)
                                 {
                                     block = CrtConf_SENSES;
-                                    creatvar = get_id(creatmodel_experience_commands, scline->tp[1]);
+                                    creatvar = get_id(creatmodel_senses_commands, scline->tp[1]);
                                     if (creatvar == -1)
                                     {
                                         SCRPTERRLOG("Unknown creature configuration variable");
