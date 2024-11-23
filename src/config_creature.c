@@ -380,6 +380,7 @@ void init_creature_model_stats(void)
 {
     struct CreatureStats *crstat;
     struct CreatureModelConfig *crconf;
+    int n;
     for (int i = 0; i < CREATURE_TYPES_MAX; i++)
     {
         crstat = creature_stats_get(i);
@@ -425,7 +426,7 @@ void init_creature_model_stats(void)
         crconf->namestr_idx = 0;
         crconf->model_flags = 0;
         // Attraction block.
-        for (int n = 0; n < ENTRANCE_ROOMS_COUNT; n++)
+        for (n = 0; n < ENTRANCE_ROOMS_COUNT; n++)
         {
             crstat->entrance_rooms[n] = 0;
             crstat->entrance_slabs_req[n] = 0;
@@ -434,9 +435,9 @@ void init_creature_model_stats(void)
         crstat->scavenge_require = 1;
         crstat->torture_break_time = 1;
         // Annoyance block.
-        for (int j = 0; j < LAIR_ENEMY_MAX; j++)
+        for (n = 0; n < LAIR_ENEMY_MAX; n++)
         {
-            crstat->lair_enemy[j] = 0;
+            crstat->lair_enemy[n] = 0;
         }
         crstat->annoy_eat_food = 0;
         crstat->annoy_will_not_do_job = 0;
@@ -481,14 +482,14 @@ void init_creature_model_stats(void)
         crstat->corpse_vanish_effect = 0;
         crstat->status_offset = 32;
         // Experience block.
-        for (int k = 0; k < LEARNED_INSTANCES_COUNT; k++)
+        for (n = 0; n < LEARNED_INSTANCES_COUNT; n++)
         {
-            crstat->learned_instance_id[k] = 0;
-            crstat->learned_instance_level[k] = 0;
+            crstat->learned_instance_id[n] = 0;
+            crstat->learned_instance_level[n] = 0;
         }
-        for (int q = 0; q < CREATURE_MAX_LEVEL; q++)
+        for (n = 0; n < CREATURE_MAX_LEVEL; n++)
         {
-            crstat->to_level[q] = 0;
+            crstat->to_level[n] = 0;
         }
         crstat->grow_up = 0;
         crstat->grow_up_level = 0;
