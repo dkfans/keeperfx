@@ -952,7 +952,6 @@ struct Room *prepare_new_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord 
     struct Room* room = allocate_free_room_structure();
     room->owner = owner;
     room->kind = rkind;
-    room->synergy = get_room_kind_stats(rkind)->synergy_slab;
     add_room_to_global_list(room);
     add_room_to_players_list(room, owner);
     MapSlabCoord slb_x = subtile_slab(stl_x);
@@ -1204,7 +1203,7 @@ long calculate_cummulative_room_slabs_effeciency(const struct Room *room)
     while (i != 0)
     {
         // Per room tile code
-        score += calculate_effeciency_score_for_room_slab(i, room->owner, room->synergy);
+        score += calculate_effeciency_score_for_room_slab(i, room->owner, get_room_kind_stats(room->kind)->synergy_slab);
         // Per room tile code ends
         i = get_next_slab_number_in_room(i); // It would be better to have this before per-tile block, but we need old value
         k++;
