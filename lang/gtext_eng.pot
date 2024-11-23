@@ -5671,3 +5671,13 @@ msgstr ""
 msgctxt "Door description"
 msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
 msgstr ""
+
+#: guitext:1078
+msgctxt "Keeper spell name"
+msgid "Recruit Tunneller"
+msgstr ""
+
+#: guitext:1079
+msgctxt "Keeper spell description"
+msgid "Recruit Tunneller: Summon a new Tunneller anywhere in your dungeon.
+msgstr ""
