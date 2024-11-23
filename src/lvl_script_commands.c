@@ -286,7 +286,8 @@ const struct NamedCommand room_config_desc[] = {
   {"Roles",               13},
   {"TotalCapacity",       14},
   {"UsedCapacity",        15},
-  {"StorageHeight",       16},
+  {"SlabSynergy",         16},
+  {"StorageHeight",       17},
   {NULL,                   0},
 };
 
