@@ -684,9 +684,10 @@ short game_is_busy_doing_gui(void)
       return true;
     PowerKind pwkind;
     pwkind = 0;
-    if (player->work_state < PLAYER_STATES_COUNT_MAX) //delete
+    if (player->work_state < PLAYER_STATES_COUNT_MAX)
     {
-        pwkind = player->chosen_power_kind;
+        struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
+        pwkind = plrst_cfg_stat->power_kind;
 
         struct Thing *thing;
         thing = thing_get(battle_creature_over);
@@ -961,8 +962,23 @@ long player_state_to_packet(PlayerState work_state, PowerKind pwkind, TbBool alr
             return PckA_SetPlyrState;
     case PSt_CtrlDirect:
     case PSt_FreeCtrlDirect:
-    case PSt_CastPowerOnSubtile:
-    case PST_CastPowerOnTarget:
+    case PSt_CreateDigger:
+    case PSt_CreateGoodDigger:
+    case PSt_CaveIn:
+    case PSt_Heal:
+    case PSt_Lightning:
+    case PSt_SpeedUp:
+    case PSt_Armour:
+    case PSt_Conceal:
+    case PSt_CastDisease:
+    case PSt_TurnChicken:
+    case PSt_DestroyWalls:
+    case PSt_Rebound:
+    case PSt_Freeze:
+    case PSt_Slow:
+    case PSt_Flight:
+    case PSt_Vision:
+    case PSt_TimeBomb:
         return PckA_SetPlyrState;
     case PSt_None:
         switch (pwkind)

@@ -167,7 +167,8 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
     struct Packet* pckt = get_packet_direct(player->packet_num);
     if ((pckt->control_flags & PCtr_LBtnHeld) != 0)
     {
-        struct PowerConfigStats *powerst = get_power_model_stats(player->chosen_power_kind);
+        struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
+        struct PowerConfigStats *powerst = get_power_model_stats(plrst_cfg_stat->power_kind);
 
         switch (powerst->overcharge_check_idx)
         {
@@ -175,11 +176,11 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
                 if (player_uses_power_call_to_arms(plyr_idx))
                     player->cast_expand_level = (dungeon->cta_splevel << 2);
                 else
-                    update_power_overcharge(player, player->chosen_power_kind);
+                    update_power_overcharge(player, plrst_cfg_stat->power_kind);
                 break;
             case OcC_SightOfEvil_expand:
             case OcC_General_expand:
-                update_power_overcharge(player, player->chosen_power_kind);
+                update_power_overcharge(player, plrst_cfg_stat->power_kind);
                 break;
             case OcC_do_not_expand:
             case OcC_Null:
@@ -903,7 +904,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
           powerst = get_power_model_stats(pckt->actn_par1);
           i = get_power_index_for_work_state(player->work_state);
           if (i > 0)
-            set_player_state(player, powerst->work_state, pckt->actn_par1);
+            set_player_state(player, powerst->work_state, 0);
       }
       return 0;
   case PckA_PlyrFastMsg:

@@ -317,9 +317,6 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
     case PSt_PlaceDoor:
         player->chosen_door_kind = chosen_kind;
         break;
-    case PSt_CastPowerOnSubtile:
-    case PST_CastPowerOnTarget:
-        player->chosen_power_kind = chosen_kind;
     }
     return;
   }
