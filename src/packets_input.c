@@ -712,6 +712,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         case PSt_SightOfEvil:
         case PSt_Lightning:
         case PSt_CreateDigger:
+        case PSt_CreateGoodDigger:
         case PSt_DestroyWalls:
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {

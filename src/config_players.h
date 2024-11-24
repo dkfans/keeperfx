@@ -98,6 +98,7 @@ enum PlayerStates {
     PSt_Slow,
     PSt_Flight,
     PSt_Vision,
+    PSt_CreateGoodDigger,
     PSt_ListEnd
 };
 

@@ -334,7 +334,7 @@ PointerGroup = "SPELL"
 StopOwnUnits = true
 
 [playerstate55]
-Name = "PLAYER_STATE_CREATETUNLR"
+Name = "PLAYER_STATE_CREATEGOODDIGGER"
 PowerKind = "POWER_TUNLR"
 PointerGroup = "SPELL"
 StopOwnUnits = false
