@@ -806,7 +806,8 @@ GoldAmount compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwl
     case PwrK_MKTUNNELLER:
         dungeon = get_players_num_dungeon(plyr_idx);
         powerst = get_power_model_stats(pwkind);
-        price = compute_power_price_scaled_with_amount(plyr_idx, pwkind, pwlevel, dungeon->owned_creatures_of_model[powerst->creature_model]);
+        amount = (dungeon->owned_creatures_of_model[powerst->creature_model] / 7); //Dwarves come in pairs of 7
+        price = compute_power_price_scaled_with_amount(plyr_idx, pwkind, pwlevel, amount);
         break;
     default:
         pwrdynst = get_power_dynamic_stats(pwkind);
