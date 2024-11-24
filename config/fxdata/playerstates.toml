@@ -1,12 +1,11 @@
 [playerstate0]
-Name = "PLAYER_STATE_NONE" 
-#associated power in magic.cfg
+Name = "PLAYER_STATE_NONE"
+# Associated power in magic.cfg.
 PowerKind = "NOPOWER"
-#how the pointer is determined, possible values
-# NONE, CTRLDUNGEON, BUILDROOM, INVISIBLE, SPELL, QUERY, 
-# PLACETRAP, PLACEDOOR, SELL, PLACETERRAIN, MAKEDIGGER, MAKECREATURE, ORDERCREATURE
+# How the pointer is determined, possible values:
+# NONE - CTRLDUNGEON - BUILDROOM - INVISIBLE - SPELL - QUERY - PLACETRAP - PLACEDOOR - SELL - PLACETERRAIN - MAKEDIGGER - MAKECREATURE - ORDERCREATURE.
 PointerGroup = "NONE"
-#own units should freeze while clicking when in this state
+# Own units should freeze while clicking when in this state.
 StopOwnUnits = false
 
 [playerstate1]
@@ -332,3 +331,9 @@ Name = "PLAYER_STATE_VISION"
 PowerKind = "POWER_VISION"
 PointerGroup = "SPELL"
 StopOwnUnits = true
+
+[playerstate55]
+Name = "PLAYER_STATE_CREATEGOODDIGGER"
+PowerKind = "POWER_TUNNELLER"
+PointerGroup = "SPELL"
+StopOwnUnits = false

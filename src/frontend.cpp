@@ -963,6 +963,7 @@ long player_state_to_packet(PlayerState work_state, PowerKind pwkind, TbBool alr
     case PSt_CtrlDirect:
     case PSt_FreeCtrlDirect:
     case PSt_CreateDigger:
+    case PSt_CreateGoodDigger:
     case PSt_CaveIn:
     case PSt_Heal:
     case PSt_Lightning:

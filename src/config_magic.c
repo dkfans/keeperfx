@@ -291,6 +291,7 @@ const struct NamedCommand magic_use_func_commands[] = {
   {"magic_use_power_obey",         15},
   {"magic_use_power_hold_audience",16},
   {"magic_use_power_armageddon",   17},
+  {"magic_use_power_tunneller",    18},
   {NULL,                  0},
   };
 

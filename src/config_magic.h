@@ -123,6 +123,7 @@ enum PowerKinds {
     PwrK_SLOW, // 25
     PwrK_FLIGHT,
     PwrK_VISION,
+    PwrK_MKTUNNELLER,
 };
 
 /** Contains properties of a shot model, to be stored in ShotConfigStats.
