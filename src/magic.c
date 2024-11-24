@@ -1366,7 +1366,7 @@ static TbResult magic_use_power_tunneller(PowerKind power_kind, PlayerNumber ply
     create_effect(&thing->mappos, TngEff_CeilingBreach, thing->owner);
     initialise_thing_state(thing, CrSt_CreatureHeroEntering);
     thing->rendering_flags |= TRF_Invisible;
-    cctrl->countdown_282 = 16;
+    cctrl->countdown = 16;
 
     if (thing_is_invalid(thing))
     {

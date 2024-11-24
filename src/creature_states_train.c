@@ -594,7 +594,7 @@ CrStateRet training(struct Thing *thing)
     } else
     {
         if (external_set_thing_state(thing, CrSt_CreatureBeHappy)) {
-            cctrl->countdown_282 = 50;
+            cctrl->countdown = 50;
         }
         dungeon->lvstats.creatures_trained++;
     }
