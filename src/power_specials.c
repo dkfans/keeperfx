@@ -110,7 +110,7 @@ void multiply_creatures_in_dungeon_list(struct Dungeon *dungeon, long list_start
         newcctrl->hunger_level = cctrl->hunger_level;
         newcctrl->paydays_owed = cctrl->paydays_owed;
         newcctrl->paydays_advanced = cctrl->paydays_advanced;
-        for (unsigned char al = 0; al < 5; al++)
+        for (unsigned char al = 0; al < 4; al++)
         {
             newcctrl->annoyance_level[al] = cctrl->annoyance_level[al];
         }
