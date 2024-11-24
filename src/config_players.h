@@ -33,7 +33,6 @@ extern "C" {
 
 struct PlayerStateConfigStats {
     char code_name[COMMAND_WORD_LEN];
-    PowerKind power_kind;
     unsigned char pointer_group;
     TbBool stop_own_units;
 };
@@ -50,7 +49,7 @@ enum PlayerStates {
     PSt_MkGoodCreatr,
     PSt_HoldInHand, // 5
     PSt_CallToArms,
-    PSt_CaveIn,
+    PSt_CastPowerOnSubtile,
     PSt_SightOfEvil,
     PSt_Slap,
     PSt_CtrlPassngr, // 10
@@ -60,20 +59,11 @@ enum PlayerStates {
     PSt_MkBadCreatr,
     PSt_CreatrInfo, // 15
     PSt_PlaceTrap,
-    PSt_Lightning,
-    PSt_PlaceDoor,
-    PSt_SpeedUp,
-    PSt_Armour, // 20
-    PSt_Conceal,
-    PSt_Heal,
-    PSt_Sell,
-    PSt_CreateDigger,
-    PSt_DestroyWalls, // 25
-    PSt_CastDisease,
-    PSt_TurnChicken,
-    PSt_MkGoldPot,
-    PSt_TimeBomb,
-    PSt_FreeDestroyWalls, // 30
+    PSt_PlaceDoor = 18,
+    PST_CastPowerOnTarget,
+    PSt_Sell = 23,
+    PSt_MkGoldPot = 28,
+    PSt_FreeDestroyWalls = 30, // 30
     PSt_FreeCastDisease,
     PSt_FreeTurnChicken,
     PSt_FreeCtrlPassngr,
@@ -93,12 +83,6 @@ enum PlayerStates {
     PSt_PlaceTerrain,
     PSt_DestroyThing,
     PSt_CreatrInfoAll,
-    PSt_Rebound, // 50
-    PSt_Freeze,
-    PSt_Slow,
-    PSt_Flight,
-    PSt_Vision,
-    PSt_CreateGoodDigger,
     PSt_ListEnd
 };
 
