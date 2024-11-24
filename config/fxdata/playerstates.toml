@@ -332,3 +332,9 @@ Name = "PLAYER_STATE_VISION"
 PowerKind = "POWER_VISION"
 PointerGroup = "SPELL"
 StopOwnUnits = true
+
+[playerstate55]
+Name = "PLAYER_STATE_CREATETUNLR"
+PowerKind = "POWER_TUNLR"
+PointerGroup = "SPELL"
+StopOwnUnits = false
