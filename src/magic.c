@@ -784,13 +784,29 @@ GoldAmount compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwl
 {
     struct Dungeon *dungeon;
     const struct MagicStats *pwrdynst;
+    const struct PowerConfigStats *powerst;
+    long amount;
     long price;
     switch (pwkind)
     {
     case PwrK_MKDIGGER: // Special price algorithm for "create imp" spell
         dungeon = get_players_num_dungeon(plyr_idx);
+        powerst = get_power_model_stats(pwkind);
         // Increase price by amount of diggers, reduce by count of sacrificed diggers. Cheaper diggers may be a negative amount.
-        price = compute_power_price_scaled_with_amount(plyr_idx, pwkind, pwlevel, dungeon->num_active_diggers - dungeon->cheaper_diggers);
+        if (get_players_special_digger_model(plyr_idx) == powerst->creature_model)
+        {
+            amount = (dungeon->num_active_diggers - dungeon->cheaper_diggers);
+        }
+        else
+        {
+            amount = dungeon->owned_creatures_of_model[powerst->creature_model];
+        }
+        price = compute_power_price_scaled_with_amount(plyr_idx, pwkind, pwlevel, amount);
+        break;
+    case PwrK_MKTUNNELLER:
+        dungeon = get_players_num_dungeon(plyr_idx);
+        powerst = get_power_model_stats(pwkind);
+        price = compute_power_price_scaled_with_amount(plyr_idx, pwkind, pwlevel, dungeon->owned_creatures_of_model[powerst->creature_model]);
         break;
     default:
         pwrdynst = get_power_dynamic_stats(pwkind);
