@@ -7155,12 +7155,14 @@ msgstr "Böser Blick: lässt eure Kreaturen andere unsichtbare Kreaturen sehen."
 #: guitext:1072
 msgctxt "Keeper spell name"
 msgid "Recruit Tunneller"
-msgstr ""
+msgstr "Dunkelzwerg erstellen"
 
 #: guitext:1073
 msgctxt "Keeper spell description"
 msgid "Recruit Tunneller: Summon a new Tunneller anywhere in your dungeon."
 msgstr ""
+"Dunkelzwerg erstellen: Erstellt einen Dunkelzwerg irgendwo in Eurem Dungeon. Mit der linken "
+"Maustaste wählen."
 
 #: guitext:1074 guitext:1075
 msgctxt "Unused"

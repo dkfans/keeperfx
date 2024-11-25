@@ -17,11 +17,8 @@
 #
 # ******************************************************************************
 "Project-Id-Version: GUI Strings for KeeperFX\n"
-"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
-"POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2022-05-29 13:52+0200\n"
-"Last-Translator: qqluqq\n"
-"Language-Team: KeeperFX Team <code.google.com>\n"
+"Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues\n"
+"Language-Team: KeeperFX Team <github.com/dkfans>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -7006,12 +7003,12 @@ msgstr "Helderziendheid: Laat het wezen onzichtbare vijanden zien."
 #: guitext:1072
 msgctxt "Keeper spell name"
 msgid "Recruit Tunneller"
-msgstr ""
+msgstr "Mol Creëren"
 
 #: guitext:1073
 msgctxt "Keeper spell description"
 msgid "Recruit Tunneller: Summon a new Tunneller anywhere in your dungeon."
-msgstr ""
+"Mol Creëren: Creëer een Mol in je kerker. LMK: selecteren."
 
 #: guitext:1074 guitext:1075
 msgctxt "Unused"
