@@ -319,6 +319,7 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
         break;
     case PSt_CastPowerOnSubtile:
     case PST_CastPowerOnTarget:
+    case PSt_CallToArms:
         player->chosen_power_kind = chosen_kind;
         break;
     }
@@ -371,6 +372,7 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
       break;
   case PSt_CastPowerOnSubtile:
   case PST_CastPowerOnTarget:
+  case PSt_CallToArms:
       player->chosen_power_kind = chosen_kind;
       break;
   case PSt_MkGoodCreatr:

@@ -706,6 +706,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         case PSt_BuildRoom:
             process_dungeon_control_packet_dungeon_build_room(plyr_idx);
             break;
+        case PSt_CallToArms:
         case PSt_CastPowerOnSubtile:
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {

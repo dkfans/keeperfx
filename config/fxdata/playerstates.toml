@@ -32,7 +32,7 @@ PointerGroup = "INVISIBLE"
 StopOwnUnits = false
 
 [playerstate6]
-Name = "PLAYER_STATE_CALL_TO_ARMS"
+Name = "PLAYER_STATE_CALLTOARMS"
 PointerGroup = "SPELL"
 StopOwnUnits = false
 
