@@ -4394,9 +4394,8 @@ msgstr "怪物附体术: 直接控あ一只怪物。按滑鼠左键选择。[18.
 #: guitext:648
 msgctxt "Keeper spell description"
 msgid ""
-"Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. "
-"[18.2]"
-msgstr "创造小恶魔: 召唤新的小恶魔前来。按滑鼠左键选择。[18.2]"
+"Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
+msgstr "创造小恶魔: 召唤新的小恶魔前来。按滑鼠左键选择。"
 
 #: guitext:649
 msgctxt "Keeper spell description"

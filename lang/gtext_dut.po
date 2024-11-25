@@ -4565,11 +4565,10 @@ msgstr "Wezenbeheersing: Bestuur direct het wezen. LMK: selecteren. [18.1]"
 #: guitext:648
 msgctxt "Keeper spell description"
 msgid ""
-"Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. "
-"[18.2]"
+"Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
 msgstr ""
 "Dondersteentjes Creëren: Creëer een Dondersteen in je kerker. LMK: "
-"selecteren. [18.2]"
+"selecteren."
 
 #: guitext:649
 msgctxt "Keeper spell description"

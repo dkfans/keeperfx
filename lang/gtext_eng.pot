@@ -3528,7 +3528,7 @@ msgstr ""
 
 #: guitext:648
 msgctxt "Keeper spell description"
-msgid "Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. [18.2]"
+msgid "Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
 msgstr ""
 
 #: guitext:649

@@ -4631,11 +4631,10 @@ msgstr ""
 #: guitext:648
 msgctxt "Keeper spell description"
 msgid ""
-"Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. "
-"[18.2]"
+"Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
 msgstr ""
 "Crea Folletto: Evoca un nuovo folletto in un punto qualsiasi della tua "
-"prigione. TSM: seleziona. [18.2]"
+"prigione. TSM: seleziona."
 
 #: guitext:649
 msgctxt "Keeper spell description"

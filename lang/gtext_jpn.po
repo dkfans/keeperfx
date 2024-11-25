@@ -4512,10 +4512,9 @@ msgstr "支配: クリーチャーを直接操作できる。左クリックで�
 #: guitext:648
 msgctxt "Keeper spell description"
 msgid ""
-"Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. "
-"[18.2]"
+"Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
 msgstr ""
-"インプ製造: ダンジョン内に新しいインプを作り出す。左クリックで選択。 [18.2]"
+"インプ製造: ダンジョン内に新しいインプを作り出す。左クリックで選択。"
 
 #: guitext:649
 msgctxt "Keeper spell description"

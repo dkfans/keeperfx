@@ -3929,7 +3929,7 @@ msgstr ""
 
 #: guitext:648
 msgctxt "Keeper spell description"
-msgid "Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. [18.2]"
+msgid "Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
 msgstr ""
 "Crear duende: Invoca un nuevo duende en cualquier lugar de tu mazmorra. Selecciónalo con BIR y pulsa BIR en cualquier baldosa que tengas "
 "reclamada. Pulsa BDR para dejar de lanzar el hechizo, crear duende."

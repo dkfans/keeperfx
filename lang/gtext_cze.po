@@ -4546,10 +4546,9 @@ msgstr ""
 #: guitext:648
 msgctxt "Keeper spell description"
 msgid ""
-"Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. "
-"[18.2]"
+"Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
 msgstr ""
-"Vytvorit skreta: Vyvola kdekoliv na tvem uzemi skreta. Zvoli se LTM. [18.2]"
+"Vytvorit skreta: Vyvola kdekoliv na tvem uzemi skreta. Zvoli se LTM."
 
 #: guitext:649
 msgctxt "Keeper spell description"

@@ -3929,8 +3929,8 @@ msgstr "Besätt varelse: Kontrollera en varelse direkt. VMK väljer. [18.1]"
 
 #: guitext:648
 msgctxt "Keeper spell description"
-msgid "Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. [18.2]"
-msgstr "Skapa smådjävul: Kallar på en ny smådjävul var som helst i din grotta. VMK väljer. [18.2]"
+msgid "Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
+msgstr "Skapa smådjävul: Kallar på en ny smådjävul var som helst i din grotta. VMK väljer."
 
 #: guitext:649
 msgctxt "Keeper spell description"

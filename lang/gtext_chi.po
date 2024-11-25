@@ -3708,8 +3708,8 @@ msgstr "控制怪物: 直接控制一个怪物。左键选择。[18.1]"
 
 #: guitext:648
 msgctxt "Keeper spell description"
-msgid "Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. [18.2]"
-msgstr "制造小鬼: 召唤一个新的小鬼进入你的地下城。左键选择。[18.2]"
+msgid "Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
+msgstr "制造小鬼: 召唤一个新的小鬼进入你的地下城。左键选择。"
 
 #: guitext:649
 msgctxt "Keeper spell description"

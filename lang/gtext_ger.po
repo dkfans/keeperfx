@@ -4605,11 +4605,10 @@ msgstr ""
 #: guitext:648
 msgctxt "Keeper spell description"
 msgid ""
-"Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. "
-"[18.2]"
+"Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
 msgstr ""
 "Imp erstellen: Erstellt einen Imp irgendwo in Eurem Dungeon. Mit der linken "
-"Maustaste wählen. [18.2]"
+"Maustaste wählen."
 
 #: guitext:649
 msgctxt "Keeper spell description"

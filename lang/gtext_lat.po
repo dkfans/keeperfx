@@ -3684,8 +3684,8 @@ msgstr "Creaturam Possidere: Recta impera creaturam. BSM delige. [18.1]"
 
 #: guitext:648
 msgctxt "Keeper spell description"
-msgid "Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. [18.2]"
-msgstr "Diabolullum Creare: Novum diabolullum in robore tuo invocat. BSM delige. [18.2]"
+msgid "Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
+msgstr "Diabolullum Creare: Novum diabolullum in robore tuo invocat. BSM delige."
 
 #: guitext:649
 msgctxt "Keeper spell description"
