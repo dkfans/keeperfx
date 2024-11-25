@@ -319,7 +319,8 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
         break;
     case PSt_CastPowerOnSubtile:
     case PST_CastPowerOnTarget:
-    case PSt_MkDigger:
+    case PSt_CreateDigger:
+    case PSt_SightOfEvil:
     case PSt_CallToArms:
         player->chosen_power_kind = chosen_kind;
         break;
@@ -374,6 +375,8 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
   case PSt_CastPowerOnSubtile:
   case PST_CastPowerOnTarget:
   case PSt_CallToArms:
+  case PSt_SightOfEvil:
+  case PSt_CreateDigger:
       player->chosen_power_kind = chosen_kind;
       break;
   case PSt_MkGoodCreatr:

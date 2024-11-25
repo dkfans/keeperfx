@@ -42,7 +42,7 @@ PointerGroup = "SPELL"
 StopOwnUnits = false
 
 [playerstate8]
-Name = "PLAYER_STATE_SIGHT_OF_EVIL"
+Name = "PLAYER_STATE_SIGHTOFEVIL"
 PointerGroup = "SPELL"
 StopOwnUnits = false
 
@@ -205,3 +205,8 @@ StopOwnUnits = false
 Name = "PLAYER_STATE_CREATURE_INFO_ALL"
 PointerGroup = "QUERY"
 StopOwnUnits = true
+
+[playerstate41]
+Name = "PLAYER_STATE_CREATEDIGGER"
+PointerGroup = "SPELL"
+StopOwnUnits = false

@@ -955,9 +955,9 @@ long player_state_to_packet(PlayerState work_state, PowerKind pwkind, TbBool alr
             return PckA_PwrSOEDis;
         else
             return PckA_SetPlyrState;
-    case PSt_MkDigger:
     case PSt_CtrlDirect:
     case PSt_FreeCtrlDirect:
+    case PSt_CreateDigger:
     case PSt_CastPowerOnSubtile:
     case PST_CastPowerOnTarget:
         return PckA_SetPlyrState;
