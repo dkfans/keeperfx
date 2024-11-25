@@ -4689,7 +4689,7 @@ msgctxt "Keeper spell description"
 msgid ""
 "Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
 msgstr ""
-"Создать беса: Создает беса в любой части Вашего подземелья. ЛКМ - выбор. "
+"Создать беса: Создает беса в любой части Вашего подземелья. ЛКМ - выбор."
 
 #: guitext:649
 msgctxt "Keeper spell description"
@@ -7183,12 +7183,12 @@ msgstr ""
 #: guitext:1072
 msgctxt "Keeper spell name"
 msgid "Recruit Tunneller"
-msgstr ""
+msgstr "Наймите проходчик"
 
 #: guitext:1073
 msgctxt "Keeper spell description"
 msgid "Recruit Tunneller: Summon a new Tunneller anywhere in your dungeon."
-msgstr ""
+msgstr "Наймите проходчик: Вызовите нового проходчика в любом месте вашего подземелья."
 
 #: guitext:1074 guitext:1075
 msgctxt "Unused"
