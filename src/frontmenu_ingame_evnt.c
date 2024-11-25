@@ -141,11 +141,7 @@ void gui_get_creature_in_battle(struct GuiButton *gbtn)
     if (battle_creature_over <= 0) {
         return;
     }
-    PowerKind pwkind = 0;
-    if (myplyr->work_state < PLAYER_STATES_COUNT_MAX) //delete
-    {
-        pwkind = myplyr->chosen_power_kind;
-    }
+    PowerKind pwkind = myplyr->chosen_power_kind;
     struct Thing* thing = thing_get(battle_creature_over);
     if (!thing_exists(thing)) {
         WARNLOG("Nonexisting thing %d in battle",(int)battle_creature_over);

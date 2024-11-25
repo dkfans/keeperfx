@@ -682,16 +682,12 @@ short game_is_busy_doing_gui(void)
       return false;
     if (battle_creature_over <= 0)
       return true;
-    PowerKind pwkind;
-    pwkind = 0;
-    if (player->work_state < PLAYER_STATES_COUNT_MAX) //delete
+    PowerKind pwkind = player->chosen_power_kind;
+    struct Thing *thing;
+    thing = thing_get(battle_creature_over);
+    if (can_cast_power_on_thing(player->id_number, thing, pwkind))
     {
-        pwkind = player->chosen_power_kind;
-
-        struct Thing *thing;
-        thing = thing_get(battle_creature_over);
-        if (can_cast_power_on_thing(player->id_number, thing, pwkind))
-            return true;
+        return true;
     }
     return false;
 }
