@@ -4605,11 +4605,10 @@ msgstr ""
 #: guitext:648
 msgctxt "Keeper spell description"
 msgid ""
-"Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. "
-"[18.2]"
+"Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
 msgstr ""
 "Imp erstellen: Erstellt einen Imp irgendwo in Eurem Dungeon. Mit der linken "
-"Maustaste wählen. [18.2]"
+"Maustaste wählen."
 
 #: guitext:649
 msgctxt "Keeper spell description"
@@ -7153,7 +7152,19 @@ msgctxt "Keeper spell description"
 msgid "Sight: Allows the target creature to temporarily increase its awareness and notice the invisible."
 msgstr "Böser Blick: lässt eure Kreaturen andere unsichtbare Kreaturen sehen."
 
-#: guitext:1072 guitext:1073 guitext:1074 guitext:1075
+#: guitext:1072
+msgctxt "Keeper spell name"
+msgid "Recruit Tunneller"
+msgstr "Dunkelzwerg erstellen"
+
+#: guitext:1073
+msgctxt "Keeper spell description"
+msgid "Recruit Tunneller: Summon a new Tunneller anywhere in your dungeon."
+msgstr ""
+"Dunkelzwerg erstellen: Erstellt einen Dunkelzwerg irgendwo in Eurem Dungeon. Mit der linken "
+"Maustaste wählen."
+
+#: guitext:1074 guitext:1075
 msgctxt "Unused"
 msgid "Moo8"
 msgstr ""

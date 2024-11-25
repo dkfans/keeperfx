@@ -961,7 +961,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             {
                 fill_spell_slot(thing, i, spell_idx, pwrdynst->strength[spell_lev]);
                 external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
-                cctrl->countdown_282 = duration;
+                cctrl->countdown = duration;
                 cctrl->spell_flags |= spconf->spell_flags;
                 if (spconf->aura_effect != 0)
                 {
@@ -1110,7 +1110,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
     }
     case SplK_Chicken:
         external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
-        cctrl->countdown_282 = duration/5;
+        cctrl->countdown = duration/5;
         cspell->duration = pwrdynst->strength[spell_lev];
         break;
     default:
@@ -1219,7 +1219,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
     case SplK_Chicken:
         cctrl->spell_flags &= ~CSAfF_Chicken;
         external_set_thing_state(thing, CrSt_CreatureChangeFromChicken);
-        cctrl->countdown_282 = 10;
+        cctrl->countdown = 10;
         break;
     case SplK_Light:
     crstat = creature_stats_get(thing->model);
@@ -5876,7 +5876,7 @@ long update_creature_levels(struct Thing *thing)
     transfer_creature_data_and_gold(thing, newtng);// Transfer the blood type, creature name, kill count, joined age and carried gold to the new creature.
     update_creature_health_to_max(newtng);
     cctrl = creature_control_get_from_thing(thing);
-    cctrl->countdown_282 = 50;
+    cctrl->countdown = 50;
     external_set_thing_state(newtng, CrSt_CreatureBeHappy);
     struct PlayerInfo* player = get_player(thing->owner);
     // Switch control if this creature is possessed
@@ -6366,7 +6366,7 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
             create_effect(&thing->mappos, TngEff_CeilingBreach, thing->owner);
             initialise_thing_state(thing, CrSt_CreatureHeroEntering);
             thing->rendering_flags |= TRF_Invisible;
-            cctrl->countdown_282 = 24;
+            cctrl->countdown = 24;
         }
     default:
         break;
