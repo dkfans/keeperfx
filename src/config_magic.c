@@ -153,6 +153,7 @@ const struct NamedCommand magic_power_commands[] = {
   {"EFFECT",         21},
   {"USEFUNCTION",    22},
   {"CREATURETYPE",   23},
+  {"COSTFORMULA",    24},
   {NULL,              0},
   };
 
@@ -272,6 +273,12 @@ const struct NamedCommand powermodel_expand_check_func_type[] = {
   {NULL,                       OcC_Null},
 };
 
+const struct NamedCommand magic_cost_formula_commands[] = {
+  {"none",       Cost_Default},
+  {"digger",     Cost_Digger},
+  {"dwarf",      Cost_Dwarf},
+};
+
 const struct NamedCommand magic_use_func_commands[] = {
   {"none",                          0},
   {"magic_use_power_hand",          1},
@@ -291,6 +298,7 @@ const struct NamedCommand magic_use_func_commands[] = {
   {"magic_use_power_obey",         15},
   {"magic_use_power_hold_audience",16},
   {"magic_use_power_armageddon",   17},
+  {"magic_use_power_tunneller",    18},
   {NULL,                  0},
   };
 
@@ -1857,6 +1865,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
       powerst->panel_tab_idx = 0;
       powerst->select_sound_idx = 0;
       powerst->cast_cooldown = 0;
+      powerst->cost_formula = Cost_Default;
     }
   }
   if (!flag_is_set(flags, CnfLd_AcceptPartial)) {
@@ -2248,6 +2257,22 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               if (k >= 0)
               {
                   powerst->creature_model = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+          }
+          break;
+      case 24: //COSTFORMULA
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(magic_cost_formula_commands, word_buf);
+              if (k >= 0)
+              {
+                  powerst->cost_formula = k;
                   n++;
               }
           }
