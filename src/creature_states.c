@@ -564,58 +564,59 @@ TbBool creature_model_bleeds(unsigned long crmodel)
   }
   return crstat->bleeds;
 }
+
 /******************************************************************************/
 /** Returns type of given creature state.
- *
  * @param thing The source thing.
  * @return Type of the creature state.
  */
 long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
 {
-  long state_type;
-  unsigned long state = thing->active_state;
-  if ( (state > 0) && (state < CREATURE_STATES_COUNT) )
-  {
-      state_type = states[state].state_type;
-  } else
-  {
-      state_type = states[0].state_type;
-      WARNLOG("%s: The %s index %d active state %lu (%s) is out of range",
-        func_name,thing_model_name(thing),(int)thing->index,state,creature_state_code_name(state));
-  }
-  if (state_type == CrStTyp_Move)
-  {
-      state = thing->continue_state;
-      if ( (state > 0) && (state < CREATURE_STATES_COUNT) )
-      {
-          state_type = states[state].state_type;
-      } else
-      {
-          state_type = states[0].state_type;
-          // Show message with text name of active state - it's good as the state was checked before
-          WARNLOG("%s: The %s index %d owner %d continue state %lu (%s) is out of range; active state %u (%s)",func_name,
-              thing_model_name(thing),(int)thing->index,(int)thing->owner,state,creature_state_code_name(state),thing->active_state,creature_state_code_name(thing->active_state));
-      }
-  }
-  return state_type;
+    long state_type;
+    unsigned long state = thing->active_state;
+    if ((state >= 0) && (state < CREATURE_STATES_COUNT))
+    {
+        state_type = states[state].state_type;
+    }
+    else
+    {
+        state_type = states[0].state_type;
+        WARNLOG("%s: The %s index %d active state %lu (%s) is out of range",
+            func_name, thing_model_name(thing), (int)thing->index, state, creature_state_code_name(state));
+    }
+    if (state_type == CrStTyp_Move)
+    {
+        state = thing->continue_state;
+        if ((state >= 0) && (state < CREATURE_STATES_COUNT))
+        {
+            state_type = states[state].state_type;
+        }
+        else
+        {
+            state_type = states[0].state_type;
+            // Show message with text name of active state - it's good as the state was checked before.
+            WARNLOG("%s: The %s index %d owner %d continue state %lu (%s) is out of range; active state %u (%s)", func_name,
+                thing_model_name(thing), (int)thing->index, (int)thing->owner, state, creature_state_code_name(state), thing->active_state, creature_state_code_name(thing->active_state));
+        }
+    }
+    return state_type;
 }
 
 /** Returns GUI Job of given creature.
- *  The GUI Job is a simplified version of creature state which
- *  only takes 3 values: 0-idle, 1-working, 2-fighting.
- *
+ * The GUI Job is a simplified version of creature state which only takes 3 values: 0-idle, 1-working, 2-fighting.
  * @param thing The source thing.
- * @return GUI state, in range 0..2.
+ * @return GUI state, in range 0...2.
  */
 long get_creature_gui_job(const struct Thing *thing)
 {
     long state_type = get_creature_state_type(thing);
-    if ( (state_type >= 0) && (state_type < sizeof(state_type_to_gui_state)/sizeof(state_type_to_gui_state[0])) )
+    if ((state_type >= 0) && (state_type < sizeof(state_type_to_gui_state)/sizeof(state_type_to_gui_state[0])))
     {
         return state_type_to_gui_state[state_type];
-    } else
+    }
+    else
     {
-        WARNLOG("The %s index %d has invalid state type(%d)!",thing_model_name(thing),(int)thing->index,(int)state_type);
+        WARNLOG("The %s index %d has invalid state type(%d)!", thing_model_name(thing), (int)thing->index, (int)state_type);
         erstat_inc(ESE_BadCreatrState);
         return state_type_to_gui_state[0];
     }
