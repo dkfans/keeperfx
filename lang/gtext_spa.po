@@ -3929,7 +3929,7 @@ msgstr ""
 
 #: guitext:648
 msgctxt "Keeper spell description"
-msgid "Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. [18.2]"
+msgid "Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
 msgstr ""
 "Crear duende: Invoca un nuevo duende en cualquier lugar de tu mazmorra. Selecciónalo con BIR y pulsa BIR en cualquier baldosa que tengas "
 "reclamada. Pulsa BDR para dejar de lanzar el hechizo, crear duende."
@@ -6169,7 +6169,17 @@ msgctxt "Keeper spell description"
 msgid "Sight: Allows the target creature to temporarily increase its awareness and notice the invisible."
 msgstr ""
 
-#: guitext:1072 guitext:1073 guitext:1074 guitext:1075
+#: guitext:1072
+msgctxt "Keeper spell name"
+msgid "Recruit Tunneller"
+msgstr ""
+
+#: guitext:1073
+msgctxt "Keeper spell description"
+msgid "Recruit Tunneller: Summon a new Tunneller anywhere in your dungeon."
+msgstr ""
+
+#: guitext:1074 guitext:1075
 msgctxt "Unused"
 msgid "Moo8"
 msgstr ""

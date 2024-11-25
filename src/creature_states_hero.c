@@ -1071,7 +1071,7 @@ short good_leave_through_exit_door(struct Thing *thing)
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     thing->creature.gold_carried = 0;
-    cctrl->countdown_282 = game.conf.rules.game.hero_door_wait_time;
+    cctrl->countdown = game.conf.rules.game.hero_door_wait_time;
     cctrl->hero.hero_gate_creation_turn = tmptng->creation_turn;
     struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
     if (cctrl->dragtng_idx != 0)
@@ -1118,10 +1118,10 @@ short good_wait_in_exit_door(struct Thing *thing)
         return 0;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (cctrl->countdown_282 <= 0)
+    if (cctrl->countdown <= 0)
         return 0;
-    cctrl->countdown_282--;
-    if (cctrl->countdown_282 == 0)
+    cctrl->countdown--;
+    if (cctrl->countdown == 0)
     {
         struct Thing* tmptng = find_object_of_genre_on_mapwho(OCtg_HeroGate, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
         if (!thing_is_invalid(tmptng))
@@ -1149,15 +1149,15 @@ short creature_hero_entering(struct Thing *thing)
 {
     TRACE_THING(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (cctrl->countdown_282 > 0)
+    if (cctrl->countdown > 0)
     {
-        cctrl->countdown_282--;
+        cctrl->countdown--;
         return CrStRet_Unchanged;
     }
-    if (cctrl->countdown_282 == 0)
+    if (cctrl->countdown == 0)
     {
         thing->mappos.z.val = get_ceiling_height(&thing->mappos) - (long)thing->clipbox_size_z - 1;
-        cctrl->countdown_282--;
+        cctrl->countdown--;
         return CrStRet_Modified;
     }
     if ( thing_touching_floor(thing) || (((thing->movement_flags & TMvF_Flying) != 0) && thing_touching_flight_altitude(thing)))
@@ -1165,12 +1165,12 @@ short creature_hero_entering(struct Thing *thing)
         set_start_state(thing);
         return CrStRet_ResetOk;
     }
-    if (cctrl->countdown_282 < -500)
+    if (cctrl->countdown < -500)
     {
         set_start_state(thing);
         return CrStRet_ResetFail;
     }
-    cctrl->countdown_282--;
+    cctrl->countdown--;
     return CrStRet_Modified;
 }
 
