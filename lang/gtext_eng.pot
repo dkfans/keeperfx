@@ -5664,7 +5664,7 @@ msgstr ""
 
 #: guitext:1073
 msgctxt "Keeper spell description"
-msgid "Recruit Tunneller: Summon a new Tunneller anywhere in your dungeon.
+msgid "Recruit Tunneller: Summon a new Tunneller anywhere in your dungeon."
 msgstr ""
 
 #: guitext:1074 guitext:1075
