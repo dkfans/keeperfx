@@ -7183,12 +7183,12 @@ msgstr ""
 #: guitext:1072
 msgctxt "Keeper spell name"
 msgid "Recruit Tunneller"
-msgstr "Наймите проходчик"
+msgstr "Наймите проходчика"
 
 #: guitext:1073
 msgctxt "Keeper spell description"
 msgid "Recruit Tunneller: Summon a new Tunneller anywhere in your dungeon."
-msgstr "Наймите проходчик: Вызовите нового проходчика в любом месте вашего подземелья."
+msgstr "Наймите проходчика: Вызовите нового проходчика в любом месте вашего подземелья."
 
 #: guitext:1074 guitext:1075
 msgctxt "Unused"
