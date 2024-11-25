@@ -87,151 +87,121 @@ PointerGroup = "PLACETRAP"
 StopOwnUnits = false
 
 [playerstate17]
-Name = "UNUSED17"
-
-[playerstate18]
 Name = "PLAYER_STATE_PLACEDOOR"
 PointerGroup = "PLACEDOOR"
 StopOwnUnits = false
 
-[playerstate19]
+[playerstate18]
 Name = "PLAYER_STATE_CAST_ON_TARGET"
 PointerGroup = "SPELL"
 StopOwnUnits = true
 
-[playerstate20]
-Name = "UNUSED20"
-
-[playerstate21]
-Name = "UNUSED21"
-
-[playerstate22]
-Name = "UNUSED22"
-
-[playerstate23]
+[playerstate19]
 Name = "PLAYER_STATE_SELL"
 PointerGroup = "SELL"
 StopOwnUnits = false
 
-[playerstate24]
-Name = "UNUSED24"
-
-
-[playerstate25]
-Name = "UNUSED25"
-
-
-[playerstate26]
-Name = "UNUSED26"
-
-
-[playerstate27]
-Name = "UNUSED27"
-
-[playerstate28]
+[playerstate20]
 Name = "PLAYER_STATE_MKGOLDPOT"
 PointerGroup = "NONE"
 StopOwnUnits = false
 
-[playerstate29]
-Name = "UNUSED29"
-
-[playerstate30]
+[playerstate21]
 Name = "PLAYER_STATE_FREEDESTROYWALLS"
 PointerGroup = "SPELL"
 StopOwnUnits = false
 
-[playerstate31]
+[playerstate22]
 Name = "PLAYER_STATE_FREECASTDISEASE"
 PointerGroup = "SPELL"
 StopOwnUnits = false
 
-[playerstate32]
+[playerstate23]
 Name = "PLAYER_STATE_FREETURNCHICKEN"
 PointerGroup = "SPELL"
 StopOwnUnits = false
 
-[playerstate33]
+[playerstate24]
 Name = "PLAYER_STATE_FREECTRLPASSNGR"
 PointerGroup = "SPELL"
 StopOwnUnits = true
 
-[playerstate34]
+[playerstate25]
 Name = "PLAYER_STATE_FREECTRLDIRECT"
 PointerGroup = "SPELL"
 StopOwnUnits = true
 
-[playerstate35]
+[playerstate26]
 Name = "PLAYER_STATE_STEALROOM"
 PointerGroup = "NONE"
 StopOwnUnits = false
 
-[playerstate36]
+[playerstate27]
 Name = "PLAYER_STATE_DESTROYROOM"
 PointerGroup = "NONE"
 StopOwnUnits = false
 
-[playerstate37]
+[playerstate28]
 Name = "PLAYER_STATE_KILLCREATURE"
 PointerGroup = "NONE"
 StopOwnUnits = false
 
-[playerstate38]
+[playerstate29]
 Name = "PLAYER_STATE_CONVERTCREATURE"
 PointerGroup = "NONE"
 StopOwnUnits = false
 
-[playerstate39]
+[playerstate30]
 Name = "PLAYER_STATE_STEALSLAB"
 PointerGroup = "NONE"
 StopOwnUnits = false
 
-[playerstate40]
+[playerstate31]
 Name = "PLAYER_STATE_LEVELCREATUREUP"
 PointerGroup = "NONE"
 StopOwnUnits = false
 
-[playerstate41]
+[playerstate32]
 Name = "PLAYER_STATE_LEVELCREATUREDOWN"
 PointerGroup = "NONE"
 StopOwnUnits = false
 
-[playerstate42]
+[playerstate33]
 Name = "PLAYER_STATE_KILLPLAYER"
 PointerGroup = "NONE"
 StopOwnUnits = false
 
-[playerstate43]
+[playerstate34]
 Name = "PLAYER_STATE_HEARTHEALTH"
 PointerGroup = "NONE"
 StopOwnUnits = false
 
-[playerstate44]
+[playerstate35]
 Name = "PLAYER_STATE_CREATRQUERYALL"
 PointerGroup = "QUERY"
 StopOwnUnits = true
 
-[playerstate45]
+[playerstate36]
 Name = "PLAYER_STATE_MAKEHAPPY"
 PointerGroup = "NONE"
 StopOwnUnits = true
 
-[playerstate46]
+[playerstate37]
 Name = "PLAYER_STATE_MAKEANGRY"
 PointerGroup = "NONE"
 StopOwnUnits = true
 
-[playerstate47]
+[playerstate38]
 Name = "PLAYER_STATE_PLACETERRAIN"
 PointerGroup = "PLACETERRAIN"
 StopOwnUnits = false
 
-[playerstate48]
+[playerstate39]
 Name = "PLAYER_STATE_DESTROY_THING"
 PointerGroup = "NONE"
 StopOwnUnits = false
 
-[playerstate49]
+[playerstate40]
 Name = "PLAYER_STATE_CREATURE_INFO_ALL"
 PointerGroup = "QUERY"
 StopOwnUnits = true

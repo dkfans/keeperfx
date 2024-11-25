@@ -59,30 +59,30 @@ enum PlayerStates {
     PSt_MkBadCreatr,
     PSt_CreatrInfo, // 15
     PSt_PlaceTrap,
-    PSt_PlaceDoor = 18,
+    PSt_PlaceDoor,
     PST_CastPowerOnTarget,
-    PSt_Sell = 23,
-    PSt_MkGoldPot = 28,
-    PSt_FreeDestroyWalls = 30, // 30
+    PSt_Sell,
+    PSt_MkGoldPot, // 20
+    PSt_FreeDestroyWalls,
     PSt_FreeCastDisease,
     PSt_FreeTurnChicken,
     PSt_FreeCtrlPassngr,
-    PSt_FreeCtrlDirect,
-    PSt_StealRoom, // 35
+    PSt_FreeCtrlDirect, // 25
+    PSt_StealRoom,
     PSt_DestroyRoom,
     PSt_KillCreatr,
     PSt_ConvertCreatr,
-    PSt_StealSlab,
-    PSt_LevelCreatureUp, // 40
+    PSt_StealSlab, // 30
+    PSt_LevelCreatureUp,
     PSt_LevelCreatureDown,
     PSt_KillPlayer,
     PSt_HeartHealth,
-    PSt_QueryAll,
-    PSt_MkHappy, // 45
+    PSt_QueryAll, // 35
+    PSt_MkHappy,
     PSt_MkAngry,
     PSt_PlaceTerrain,
     PSt_DestroyThing,
-    PSt_CreatrInfoAll,
+    PSt_CreatrInfoAll, // 40
     PSt_ListEnd
 };
 
