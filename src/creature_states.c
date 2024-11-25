@@ -1595,7 +1595,7 @@ short creature_cannot_find_anything_to_do(struct Thing *creatng)
 {
     TRACE_THING(creatng);
 	struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-	if ((game.play_gameturn - cctrl->countdown_282) >= 128)
+	if ((game.play_gameturn - cctrl->countdown) >= 128)
 	{
 		set_start_state(creatng);
 		return 0;
@@ -1653,16 +1653,16 @@ short creature_change_from_chicken(struct Thing *creatng)
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     creature_set_speed(creatng, 0);
-    if (cctrl->countdown_282 > 0)
-        cctrl->countdown_282--;
-    if (cctrl->countdown_282 > 0)
+    if (cctrl->countdown > 0)
+        cctrl->countdown--;
+    if (cctrl->countdown > 0)
     { // Changing under way - gradually modify size of the creature
         creatng->rendering_flags |= TRF_Invisible;
         creatng->size_change |= TSC_ChangeSize;
         struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
         if (!thing_is_invalid(efftng))
         {
-            long n = (10 - cctrl->countdown_282) * (game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) / 10;
+            long n = (10 - cctrl->countdown) * (game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) / 10;
             unsigned long k = get_creature_anim(creatng, 0);
             set_thing_draw(efftng, k, 256, n, -1, 0, ODC_Default);
             efftng->rendering_flags &= ~TRF_Transpar_Flags;
@@ -1685,9 +1685,9 @@ short creature_change_to_chicken(struct Thing *creatng)
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     creature_set_speed(creatng, 0);
-    if (cctrl->countdown_282 > 0)
-        cctrl->countdown_282--;
-    if (cctrl->countdown_282 > 0)
+    if (cctrl->countdown > 0)
+        cctrl->countdown--;
+    if (cctrl->countdown > 0)
     {
       creatng->size_change |= TSC_ChangeSize;
       creatng->rendering_flags |= TRF_Invisible;
@@ -1695,7 +1695,7 @@ short creature_change_to_chicken(struct Thing *creatng)
       if (!thing_is_invalid(efftng))
       {
           unsigned long k = convert_td_iso(819);
-          set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown_282 / 10 + game.conf.crtr_conf.sprite_size, -1, 0, ODC_Default);
+          set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown / 10 + game.conf.crtr_conf.sprite_size, -1, 0, ODC_Default);
           efftng->rendering_flags &= ~TRF_Transpar_Flags;
           efftng->rendering_flags |= TRF_Transpar_8;
       }
@@ -1861,7 +1861,7 @@ short creature_doing_nothing(struct Thing *creatng)
         }
     }
     internal_set_thing_state(creatng, CrSt_CreatureCannotFindAnythingToDo);
-    cctrl->countdown_282 = game.play_gameturn;
+    cctrl->countdown = game.play_gameturn;
     return 0;
 }
 
@@ -4438,7 +4438,7 @@ short seek_the_enemy(struct Thing *creatng)
         {
             if (cctrl->instance_id == CrInst_NULL)
             {
-                if ((dist < 2304) && (game.play_gameturn-cctrl->countdown_282 < 20))
+                if ((dist < 2304) && (game.play_gameturn-cctrl->countdown < 20))
                 {
                     crsound = get_creature_sound(creatng, CrSnd_Fight);
                     thing_play_sample(creatng, crsound->index + UNSYNC_RANDOM(crsound->count), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
@@ -4450,14 +4450,14 @@ short seek_the_enemy(struct Thing *creatng)
                     if (setup_person_move_close_to_position(creatng, enemytng->mappos.x.stl.num, enemytng->mappos.y.stl.num, NavRtF_Default))
                     {
                         creatng->continue_state = CrSt_SeekTheEnemy;
-                        cctrl->countdown_282 = game.play_gameturn;
+                        cctrl->countdown = game.play_gameturn;
                         return 1;
                     }
                 }
                 if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
                 {
                     creatng->continue_state = CrSt_SeekTheEnemy;
-                    cctrl->countdown_282 = game.play_gameturn;
+                    cctrl->countdown = game.play_gameturn;
                 }
             }
             return 1;
@@ -5227,7 +5227,7 @@ long process_piss_need(struct Thing *thing, const struct CreatureStats *crstat)
     {
         return 0;
     }
-    cctrl->countdown_282 = 50;
+    cctrl->countdown = 50;
     cctrl->last_piss_turn = game.play_gameturn;
     return 1;
 }

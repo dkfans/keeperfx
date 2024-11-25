@@ -860,7 +860,7 @@ TbBool creature_can_do_job_near_position(struct Thing *creatng, MapSubtlCoord st
         if ((flags & JobChk_SetStateOnFail) != 0) {
             anger_apply_anger_to_creature(creatng, crstat->annoy_will_not_do_job, AngR_Other, 1);
             external_set_thing_state(creatng, CrSt_CreatureMoan);
-            cctrl->countdown_282 = 50;
+            cctrl->countdown = 50;
         }
         return false;
     }

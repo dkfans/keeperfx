@@ -208,6 +208,7 @@ short cursor_light_idx;
     unsigned char full_slab_cursor; // 0 for subtile sized cursor, 1 for slab sized cursor
     ThingModel chosen_trap_kind;
     ThingModel chosen_door_kind;
+    PowerKind chosen_power_kind;
     MapSubtlCoord cursor_clicked_subtile_x; // x coord of subtile clicked by mouse cursor
     MapSubtlCoord cursor_clicked_subtile_y; // y coord of subtile clicked by mouse cursor
     unsigned char cursor_button_down; // left or right button down (whilst using the bounding box cursor)

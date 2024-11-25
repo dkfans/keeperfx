@@ -18,6 +18,7 @@
 #include "bflib_memory.h"
 #include "bflib_sound.h"
 #include "config_effects.h"
+#include "config_lenses.h"
 #include "config_magic.h"
 #include "config_players.h"
 #include "config_powerhands.h"
@@ -34,6 +35,7 @@
 #include "frontmenu_ingame_map.h"
 #include "gui_soundmsgs.h"
 #include "keeperfx.hpp"
+#include "lens_api.h"
 #include "lvl_script_commands.h"
 #include "lvl_script_conditions.h"
 #include "lvl_script_lib.h"
@@ -2891,9 +2893,19 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                             creatvar = get_id(creatmodel_experience_commands, scline->tp[1]);
                             if (creatvar == -1)
                             {
-                                SCRPTERRLOG("Unknown creature configuration variable");
-                                DEALLOCATE_SCRIPT_VALUE
-                                return;
+                                block = CrtConf_APPEARANCE;
+                                creatvar = get_id(creatmodel_appearance_commands, scline->tp[1]);
+                                if (creatvar == -1)
+                                {
+                                    block = CrtConf_SENSES;
+                                    creatvar = get_id(creatmodel_senses_commands, scline->tp[1]);
+                                    if (creatvar == -1)
+                                    {
+                                        SCRPTERRLOG("Unknown creature configuration variable");
+                                        DEALLOCATE_SCRIPT_VALUE
+                                        return;
+                                    }
+                                }
                             }
                         }
                     }
@@ -2902,9 +2914,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
         }
     }
 
-    short value1 = 0;
-    short value2 = 0;
-    short value3 = 0;
+    short value1 = 0, value2 = 0, value3 = 0;
     if (block == CrtConf_ATTRIBUTES)
     {
         if (creatvar == 20) // ATTACKPREFERENCE
@@ -3141,9 +3151,8 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             value1 = atoi(scline->tp[2]);
             value2 = atoi(scline->tp[3]);
         }
-    }
-
-    else if (block == CrtConf_EXPERIENCE)
+    } else
+    if (block == CrtConf_EXPERIENCE)
     {
         if (creatvar == 1) // POWERS
         {
@@ -3273,6 +3282,31 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
         else
         {
             value1 = atoi(scline->tp[2]);
+        }
+    } else
+    if (block == CrtConf_APPEARANCE)
+    {
+        if (creatvar == 4) // NATURALDEATHKIND
+        {
+            value1 = get_id(creature_deathkind_desc, scline->tp[2]);
+        }
+        else
+        {
+            value1 = atoi(scline->tp[2]);
+            value2 = atoi(scline->tp[3]);
+            value3 = atoi(scline->tp[4]);
+        }
+    } else
+    if (block == CrtConf_SENSES)
+    {
+        if (creatvar == 4) // EYEEFFECT
+        {
+            value1 = get_id(lenses_desc, scline->tp[2]);
+        }
+        else
+        {
+            value1 = atoi(scline->tp[2]);
+            // nothing to fill for value2 or value3
         }
     }
 
@@ -3779,6 +3813,125 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         }
         default:
             CONFWRNLOG("Unrecognized Experience command (%d)", creature_variable);
+            break;
+        }
+    }
+    else if (block == CrtConf_APPEARANCE)
+    {
+        switch (creature_variable)
+        {
+        case 1: // WALKINGANIMSPEED
+        {
+            crstat->walking_anim_speed = value;
+            break;
+        }
+        case 2: // VISUALRANGE
+        {
+            crstat->visual_range = value;
+            break;
+        }
+        case 3: // SWIPEINDEX
+        {
+            crstat->swipe_idx = value;
+            break;
+        }
+        case 4: // NATURALDEATHKIND
+        {
+            crstat->natural_death_kind = value;
+            break;
+        }
+        case 5: // SHOTORIGIN
+        {
+            crstat->shot_shift_x = value;
+            crstat->shot_shift_y = value2;
+            crstat->shot_shift_z = value3;
+            break;
+        }
+        case 6: // CORPSEVANISHEFFECT
+        {
+            crstat->corpse_vanish_effect = value;
+            break;
+        }
+        case 7: // FOOTSTEPPITCH
+        {
+            crstat->footstep_pitch = value;
+            break;
+        }
+        case 8: // PICKUPOFFSET
+        {
+            crstat->creature_picked_up_offset.delta_x = value;
+            crstat->creature_picked_up_offset.delta_y = value2;
+            break;
+        }
+        case 9: // STATUSOFFSET
+        {
+            crstat->status_offset = value;
+            break;
+        }
+        case 10: // TRANSPARENCYFLAGS
+        {
+            crstat->transparency_flags = value<<4;
+            break;
+        }
+        case 11: // FIXEDANIMSPEED
+        {
+            crstat->fixed_anim_speed = value;
+            break;
+        }
+        default:
+            CONFWRNLOG("Unrecognized Appearence command (%d)", creature_variable);
+            break;
+        }
+    }
+    else if (block == CrtConf_SENSES)
+    {
+        switch (creature_variable)
+        {
+        case 1: // HEARING
+        {
+            crstat->hearing = value;
+            break;
+        }
+        case 2: // EYEHEIGHT
+        {
+            crstat->base_eye_height = value;
+            break;
+        }
+        case 3: // FIELDOFVIEW
+        {
+            crstat->field_of_view = value;
+            break;
+        }
+        case 4: // EYEEFFECT
+        {
+            crstat->eye_effect = value;
+            struct Thing* thing = thing_get(get_my_player()->influenced_thing_idx);
+            if(!thing_is_invalid(thing))
+            {
+                if (thing->model == creatid)
+                {
+                    struct LensConfig* lenscfg = get_lens_config(value);
+                    initialise_eye_lenses();
+                    if (flag_is_set(lenscfg->flags, LCF_HasPalette))
+                    {
+                        PaletteSetPlayerPalette(get_my_player(), lenscfg->palette);
+                    }
+                    else
+                    {
+                        PaletteSetPlayerPalette(get_my_player(), engine_palette);
+                    }
+                    setup_eye_lens(value);
+                }
+            }
+            break;
+        }
+        case 5: // MAXANGLECHANGE
+        {
+            crstat->max_turning_speed = (value * LbFPMath_PI) / 180;
+            break;
+        }
+        default:
+            CONFWRNLOG("Unrecognized Senses command (%d)", creature_variable);
             break;
         }
     }
