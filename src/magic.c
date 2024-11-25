@@ -784,14 +784,13 @@ GoldAmount compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwl
 {
     struct Dungeon *dungeon;
     const struct MagicStats *pwrdynst;
-    const struct PowerConfigStats *powerst;
+    const struct PowerConfigStats *powerst = get_power_model_stats(pwkind);
     long amount;
     long price;
-    switch (pwkind)
+    switch (powerst->cost_formula)
     {
-    case PwrK_MKDIGGER: // Special price algorithm for "create imp" spell
+    case Cost_Digger: // Special price algorithm for "create imp" spell
         dungeon = get_players_num_dungeon(plyr_idx);
-        powerst = get_power_model_stats(pwkind);
         // Increase price by amount of diggers, reduce by count of sacrificed diggers. Cheaper diggers may be a negative amount.
         if (get_players_special_digger_model(plyr_idx) == powerst->creature_model)
         {
@@ -803,12 +802,12 @@ GoldAmount compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwl
         }
         price = compute_power_price_scaled_with_amount(plyr_idx, pwkind, pwlevel, amount);
         break;
-    case PwrK_MKTUNNELLER:
+    case Cost_Dwarf:
         dungeon = get_players_num_dungeon(plyr_idx);
-        powerst = get_power_model_stats(pwkind);
         amount = (dungeon->owned_creatures_of_model[powerst->creature_model] / 7); //Dwarves come in pairs of 7
         price = compute_power_price_scaled_with_amount(plyr_idx, pwkind, pwlevel, amount);
         break;
+    case Cost_Default:
     default:
         pwrdynst = get_power_dynamic_stats(pwkind);
         price = pwrdynst->cost[pwlevel];
