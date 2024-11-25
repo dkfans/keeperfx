@@ -5889,12 +5889,12 @@ msgstr "邪眼术: 使目标怪物暂时提升注意力，能看穿隐身的目�
 #: guitext:1072
 msgctxt "Keeper spell name"
 msgid "Recruit Tunneller"
-msgstr ""
+msgstr "招募挖掘者"
 
 #: guitext:1073
 msgctxt "Keeper spell description"
 msgid "Recruit Tunneller: Summon a new Tunneller anywhere in your dungeon."
-msgstr ""
+msgstr "招募挖掘者: 在你的地下城任何地方召唤一个新的挖掘者。"
 
 #: guitext:1074 guitext:1075
 msgctxt "Unused"
