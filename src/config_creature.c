@@ -386,7 +386,7 @@ void init_creature_model_stats(void)
         crstat = creature_stats_get(i);
         crconf = &game.conf.crtr_conf.model[i];
         // Attributes block.
-        crstat->health = 1;
+        crstat->health = 100;
         crstat->heal_requirement = 1;
         crstat->heal_threshold = 1;
         crstat->strength = 1;
