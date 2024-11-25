@@ -4394,9 +4394,8 @@ msgstr "怪物附体术: 直接控あ一只怪物。按滑鼠左键选择。[18.
 #: guitext:648
 msgctxt "Keeper spell description"
 msgid ""
-"Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. "
-"[18.2]"
-msgstr "创造小恶魔: 召唤新的小恶魔前来。按滑鼠左键选择。[18.2]"
+"Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
+msgstr "创造小恶魔: 召唤新的小恶魔前来。按滑鼠左键选择。"
 
 #: guitext:649
 msgctxt "Keeper spell description"
@@ -6745,7 +6744,17 @@ msgctxt "Keeper spell description"
 msgid "Sight: Allows the target creature to temporarily increase its awareness and notice the invisible."
 msgstr ""
 
-#: guitext:1072 guitext:1073 guitext:1074 guitext:1075
+#: guitext:1072
+msgctxt "Keeper spell name"
+msgid "Recruit Tunneller"
+msgstr ""
+
+#: guitext:1073
+msgctxt "Keeper spell description"
+msgid "Recruit Tunneller: Summon a new Tunneller anywhere in your dungeon."
+msgstr ""
+
+#: guitext:1074 guitext:1075
 msgctxt "Unused"
 msgid "Moo8"
 msgstr ""
