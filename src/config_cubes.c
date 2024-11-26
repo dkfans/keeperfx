@@ -43,10 +43,10 @@ const struct NamedCommand cubes_cube_commands[] = {
 };
 
 const struct NamedCommand cubes_properties_flags[] = {
-    {"LAVA",           1},
-    {"WATER",          2},
-    {"SACRIFICIAL",    3},
-    {"UNCLAIMED_PATH", 4},
+    {"LAVA",           CPF_IsLava},
+    {"WATER",          CPF_IsWater},
+    {"SACRIFICIAL",    CPF_IsSacrificial},
+    {"UNCLAIMED_PATH", CPF_IsUnclaimedPath},
     {NULL,             0},
 };
 

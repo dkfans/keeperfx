@@ -33,6 +33,7 @@ extern "C" {
 #define CUBE_OWNERSHIP_GROUPS 20
 /******************************************************************************/
 enum CubePropertiesFlags {
+    CPF_None =                0x00,
     CPF_IsLava =              0x01,
     CPF_IsWater =             0x02,
     CPF_IsSacrificial =       0x04,
