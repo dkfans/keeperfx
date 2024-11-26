@@ -198,25 +198,25 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
                     k = get_id(cubes_properties_flags, word_buf);
                     switch (k)
                     {
-                        case 1: // LAVA
+                        case CPF_IsLava: // LAVA
                         {
                             cubed->properties_flags |= CPF_IsLava;
                             n++;
                             break;
                         }
-                        case 2: // WATER
+                        case CPF_IsWater: // WATER
                         {
                             cubed->properties_flags |= CPF_IsWater;
                             n++;
                             break;
                         }
-                        case 3: // SACRIFICIAL
+                        case CPF_IsSacrificial: // SACRIFICIAL
                         {
                             cubed->properties_flags |= CPF_IsSacrificial;
                             n++;
                             break;
                         }
-                        case 4: // UNCLAIMED_PATH
+                        case CPF_IsUnclaimedPath: // UNCLAIMED_PATH
                         {
                             cubed->properties_flags |= CPF_IsUnclaimedPath;
                             n++;
