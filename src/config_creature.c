@@ -77,43 +77,52 @@ const struct NamedCommand creaturetype_experience_commands[] = {
   };
 
 const struct NamedCommand creaturetype_instance_commands[] = {
-  {"Name",            1},
-  {"Time",            2},
-  {"ActionTime",      3},
-  {"ResetTime",       4},
-  {"FPTime",          5},
-  {"FPActiontime",    6},
-  {"FPResettime",     7},
-  {"ForceVisibility", 8},
-  {"TooltipTextID",   9},
-  {"SymbolSprites",  10},
-  {"Graphics",       11},
-  {"Function",       12},
-  {"RangeMin",       13},
-  {"RangeMax",       14},
-  {"Properties",     15},
-  {"FpinstantCast",  16},
-  {"PrimaryTarget",  17},
-  {"ValidateSourceFunc",   18},
-  {"ValidateTargetFunc",   19},
-  {"SearchTargetsFunc",    20},
-  {"PostalPriority",       21},
-  {NULL,              0},
+  {"Name",                1},
+  {"Time",                2},
+  {"ActionTime",          3},
+  {"ResetTime",           4},
+  {"FPTime",              5},
+  {"FPActiontime",        6},
+  {"FPResettime",         7},
+  {"ForceVisibility",     8},
+  {"TooltipTextID",       9},
+  {"SymbolSprites",      10},
+  {"Graphics",           11},
+  {"Function",           12},
+  {"RangeMin",           13},
+  {"RangeMax",           14},
+  {"Properties",         15},
+  {"FpinstantCast",      16},
+  {"PrimaryTarget",      17},
+  {"ValidateSourceFunc", 18},
+  {"ValidateTargetFunc", 19},
+  {"SearchTargetsFunc",  20},
+  {"Priority",           21},
+  {NULL,                  0},
   };
 
 const struct NamedCommand creaturetype_instance_properties[] = {
-  {"REPEAT_TRIGGER",       InstPF_RepeatTrigger},
-  {"RANGED_ATTACK",        InstPF_RangedAttack},
-  {"MELEE_ATTACK",         InstPF_MeleeAttack},
-  {"RANGED_DEBUFF",        InstPF_RangedDebuff},
-  {"SELF_BUFF",            InstPF_SelfBuff},
-  {"DANGEROUS",            InstPF_Dangerous},
-  {"DESTRUCTIVE",          InstPF_Destructive},
-  {"DISARMING",            InstPF_Disarming},
-  {"DISPLAY_SWIPE",        InstPF_UsesSwipe},
-  {"RANGED_BUFF",          InstPF_RangedBuff},
-  {"NEEDS_TARGET",         InstPF_NeedsTarget},
-  {NULL,                     0},
+  {"REPEAT_TRIGGER",           InstPF_RepeatTrigger},
+  {"RANGED_ATTACK",            InstPF_RangedAttack},
+  {"MELEE_ATTACK",             InstPF_MeleeAttack},
+  {"RANGED_DEBUFF",            InstPF_RangedDebuff},
+  {"SELF_BUFF",                InstPF_SelfBuff},
+  {"DANGEROUS",                InstPF_Dangerous},
+  {"DESTRUCTIVE",              InstPF_Destructive},
+  {"DISARMING",                InstPF_Disarming},
+  {"DISPLAY_SWIPE",            InstPF_UsesSwipe},
+  {"RANGED_BUFF",              InstPF_RangedBuff},
+  {"NEEDS_TARGET",             InstPF_NeedsTarget},
+  {"DIGGER_TASK",              InstPF_DiggerTask},
+  {"OUT_OF_BATTLE",            InstPF_OutOfBattle},
+  {"WAITING",                  InstPF_Waiting},
+  {"WHILE_IMPRISONED",         InstPF_WhileImprisoned},
+  {"ONLY_INJURED",             InstPF_OnlyInjured},
+  {"ONLY_UNDERGAS",            InstPF_OnlyUnderGas},
+  {"ON_TOXIC_TERRAIN",         InstPF_OnToxicTerrain},
+  {"AGAINST_DOOR",             InstPF_AgainstDoor},
+  {"AGAINST_OBJECT",           InstPF_AgainstObject},
+  {NULL,                       0},
   };
 
 const struct NamedCommand creaturetype_job_commands[] = {
@@ -373,6 +382,163 @@ void check_and_auto_fix_stats(void)
         }
     }
     SYNCDBG(9,"Finished");
+}
+
+/* Initialize all creature model stats, called only once when first loading a map. */
+void init_creature_model_stats(void)
+{
+    struct CreatureStats *crstat;
+    struct CreatureModelConfig *crconf;
+    int n;
+    for (int i = 0; i < CREATURE_TYPES_MAX; i++)
+    {
+        crstat = creature_stats_get(i);
+        crconf = &game.conf.crtr_conf.model[i];
+        // Attributes block.
+        crstat->health = 100;
+        crstat->heal_requirement = 1;
+        crstat->heal_threshold = 1;
+        crstat->strength = 1;
+        crstat->armour = 0;
+        crstat->dexterity = 0;
+        crstat->fear_wounded = 12;
+        crstat->fear_stronger = 65000;
+        crstat->fearsome_factor = 100;
+        crstat->defense = 0;
+        crstat->luck = 0;
+        crstat->sleep_recovery = 1;
+        crstat->toking_recovery = 0;
+        crstat->hunger_rate = 1;
+        crstat->hunger_fill = 1;
+        crstat->lair_size = 1;
+        crstat->hurt_by_lava = 1;
+        crstat->base_speed = 32;
+        crstat->gold_hold = 100;
+        crstat->size_xy = 1;
+        crstat->size_z = 1;
+        crstat->attack_preference = 0;
+        crstat->pay = 1;
+        crstat->slaps_to_kill = 10;
+        crstat->damage_to_boulder = 4;
+        crstat->thing_size_xy = 128;
+        crstat->thing_size_z = 64;
+        crstat->bleeds = true;
+        crstat->affected_by_wind = true;
+        crstat->immune_to_gas = false;
+        crstat->humanoid_creature = true;
+        crstat->piss_on_dead = false;
+        crstat->flying = false;
+        crstat->can_see_invisible = false;
+        crstat->can_go_locked_doors = false;
+        crstat->prison_kind = 0;
+        crstat->torture_kind = 0;
+        for (n = 0; n < CREATURE_TYPES_MAX; n++)
+        {
+            crstat->hostile_towards[n] = 0;
+        }
+        crconf->namestr_idx = 0;
+        crconf->model_flags = 0;
+        // Attraction block.
+        for (n = 0; n < ENTRANCE_ROOMS_COUNT; n++)
+        {
+            crstat->entrance_rooms[n] = 0;
+            crstat->entrance_slabs_req[n] = 0;
+        }
+        crstat->entrance_score = 10;
+        crstat->scavenge_require = 1;
+        crstat->torture_break_time = 1;
+        // Annoyance block.
+        for (n = 0; n < LAIR_ENEMY_MAX; n++)
+        {
+            crstat->lair_enemy[n] = 0;
+        }
+        crstat->annoy_eat_food = 0;
+        crstat->annoy_will_not_do_job = 0;
+        crstat->annoy_in_hand = 0;
+        crstat->annoy_no_lair = 0;
+        crstat->annoy_no_hatchery = 0;
+        crstat->annoy_woken_up = 0;
+        crstat->annoy_on_dead_enemy = 0;
+        crstat->annoy_sulking = 0;
+        crstat->annoy_no_salary = 0;
+        crstat->annoy_slapped = 0;
+        crstat->annoy_on_dead_friend = 0;
+        crstat->annoy_in_torture = 0;
+        crstat->annoy_in_temple = 0;
+        crstat->annoy_sleeping = 0;
+        crstat->annoy_got_wage = 0;
+        crstat->annoy_win_battle = 0;
+        crstat->annoy_untrained_time = 0;
+        crstat->annoy_untrained = 0;
+        crstat->annoy_others_leaving = 0;
+        crstat->annoy_job_stress = 0;
+        crstat->annoy_going_postal = 0;
+        crstat->annoy_queue = 0;
+        crstat->annoy_level = 0;
+        crstat->jobs_anger = 0;
+        // Senses block.
+        crstat->hearing = 12;
+        crstat->base_eye_height = 256;
+        crstat->field_of_view = 1024;
+        crstat->eye_effect = 0;
+        crstat->max_turning_speed = 15;
+        // Appearance block.
+        crstat->walking_anim_speed = 32;
+        crstat->fixed_anim_speed = false;
+        crstat->visual_range = 18;
+        crstat->swipe_idx = 0;
+        crstat->natural_death_kind = Death_Normal;
+        crstat->shot_shift_x = 0;
+        crstat->shot_shift_y = 0;
+        crstat->shot_shift_z = 0;
+        crstat->footstep_pitch = 100;
+        crstat->corpse_vanish_effect = 0;
+        crstat->status_offset = 32;
+        // Experience block.
+        for (n = 0; n < LEARNED_INSTANCES_COUNT; n++)
+        {
+            crstat->learned_instance_id[n] = 0;
+            crstat->learned_instance_level[n] = 0;
+        }
+        for (n = 0; n < CREATURE_MAX_LEVEL; n++)
+        {
+            crstat->to_level[n] = 0;
+        }
+        crstat->grow_up = 0;
+        crstat->grow_up_level = 0;
+        crstat->sleep_exp_slab = 0;
+        crstat->sleep_experience = 0;
+        crstat->exp_for_hitting = 0;
+        crstat->rebirth = 0;
+        // Jobs block.
+        crstat->job_primary = 0;
+        crstat->job_secondary = 0;
+        crstat->jobs_not_do = 0;
+        crstat->job_stress = 0;
+        crstat->training_value = 0;
+        crstat->training_cost = 0;
+        crstat->scavenge_value = 0;
+        crstat->scavenger_cost = 0;
+        crstat->research_value = 0;
+        crstat->manufacture_value = 0;
+        crstat->partner_training = 0;
+        // ANSO specific.
+        crstat->immune_to_charm = false;
+        crstat->immune_to_freeze = false;
+        crstat->immune_to_slow = false;
+        crstat->self_recovery = false;
+        crstat->resist_to_magic = false;
+        crstat->is_mechanical = false;
+        crstat->is_undead = false;
+        crstat->is_thief = false;
+        crstat->ethereal = false;
+        crstat->hoarfrost = false;
+        crstat->boss = false;
+        crstat->lava_recovery = 0;
+        crstat->hurt_by_water = 0;
+        crstat->water_recovery = 0;
+        crstat->magic = 100;
+    }
 }
 
 void init_creature_model_graphics(void)
@@ -852,7 +1018,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             inst_inf->validate_target_func = 0;
             inst_inf->validate_target_func_params[0] = 0;
             inst_inf->validate_target_func_params[1] = 0;
-            inst_inf->postal_priority = 0;
+            inst_inf->priority = 0;
         }
     }
     instance_desc[INSTANCE_TYPES_MAX - 1].name = NULL; // must be null for get_id
@@ -1224,11 +1390,11 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                 }
             }
             break;
-        case 21: // Postal Instance priority
-        if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+        case 21: // PRIORITY
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                inst_inf->postal_priority = k;
+                inst_inf->priority = k;
                 n++;
             }
             if (n < 1)
@@ -1718,7 +1884,7 @@ TbBool load_creaturetypes_config_file(const char *textname, const char *fname, u
                 game.conf.magic_conf.instance_info[i].reset_time = 0;
                 game.conf.magic_conf.instance_info[i].fp_reset_time = 0;
                 game.conf.magic_conf.instance_info[i].graphics_idx = 0;
-                game.conf.magic_conf.instance_info[i].postal_priority = 0;
+                game.conf.magic_conf.instance_info[i].priority = 0;
                 game.conf.magic_conf.instance_info[i].instance_property_flags = 0;
                 game.conf.magic_conf.instance_info[i].force_visibility = 0;
                 game.conf.magic_conf.instance_info[i].primary_target = 0;

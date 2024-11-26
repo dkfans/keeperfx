@@ -67,6 +67,8 @@ TbBool reset_creature_if_affected_by_cta(struct Thing *thing);
 
 TbBool player_uses_power_obey(PlayerNumber plyr_idx);
 
+TbBool player_uses_power_mighty_infusion(PlayerNumber plyr_idx);
+
 TbBool player_uses_power_hold_audience(PlayerNumber plyr_idx);
 
 unsigned char general_expand_check(void);

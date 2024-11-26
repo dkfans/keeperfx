@@ -894,6 +894,7 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
             cctrl->countdown = 50;
         }
     }
+    creatng->creature.gold_carried += tribute;
     return 1;
 }
 
@@ -995,7 +996,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     {
         if (thing_is_creature(overtng) && creature_able_to_eat(overtng))
         {
-            food_eaten_by_creature(droptng, thing_get(player->thing_under_hand));
+            food_eaten_by_creature(droptng, overtng);
         } else
         {
             drop_held_thing_on_ground(dungeon, droptng, &pos);

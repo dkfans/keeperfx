@@ -710,9 +710,19 @@ TbBool map_pos_is_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     return subtile_has_lava_on_top(stl_x, stl_y);
 }
 
+TbBool map_pos_is_water(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    return subtile_has_water_on_top(stl_x, stl_y);
+}
+
 TbBool lava_at_position(const struct Coord3d *pos)
 {
     return subtile_has_lava_on_top(pos->x.stl.num, pos->y.stl.num);
+}
+
+TbBool water_at_position(const struct Coord3d *pos)
+{
+    return subtile_has_water_on_top(pos->x.stl.num, pos->y.stl.num);
 }
 
 /**

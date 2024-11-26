@@ -31,6 +31,7 @@
 #include "dungeon_data.h"
 #include "creature_control.h"
 #include "creature_states_pray.h"
+#include "creature_states.h"
 #include "power_hand.h"
 #include "map_blocks.h"
 #include "spdigger_stack.h"
@@ -73,6 +74,60 @@ TbBool activate_bonus_level(struct PlayerInfo *player)
     ERRORLOG("No Bonus level assigned to level %d",(int)sp_lvnum);
   clear_flag(game.operation_flags, GOF_SingleLevel);
   return result;
+}
+
+void ragnarok_creatures_in_dungeon_list(struct Dungeon *dungeon, long list_start)
+{
+    struct SpecialConfigStats *specst = get_special_model_stats(SpcKind_Ragnarok);
+    struct Thing *rgnrk;
+    struct Coord3d pos;
+    unsigned char creature_id = specst->value;
+    unsigned char creature_level;
+    unsigned long k = 0;
+    int i = list_start;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing) && !creature_is_being_unconscious(thing))
+        {
+            creature_level = cctrl->explevel;
+            pos = thing->mappos;
+            remove_thing_from_power_hand_list(thing, dungeon->owner);
+            rgnrk = create_creature(&pos, creature_id, dungeon->owner);
+            if (thing_is_invalid(rgnrk))
+            {
+                WARNLOG("Can't create a new creature from Ragnarok");
+                break;
+            }
+            transfer_creature_data_and_gold(thing, rgnrk);
+            kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
+            create_effect(&rgnrk->mappos, imp_spangle_effects[get_player_color_idx(dungeon->owner)], dungeon->owner);
+            set_creature_level(rgnrk, creature_level);
+            initialise_thing_state(rgnrk, CrSt_CreatureInHoldAudience);
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+}
+
+void init_ragnarok(struct PlayerInfo *player)
+{
+    struct Dungeon* dungeon = get_players_dungeon(player);
+    //ragnarok_creatures_in_dungeon_list(dungeon, dungeon->creatr_list_start);
+    ragnarok_creatures_in_dungeon_list(dungeon, dungeon->digger_list_start);
 }
 
 void multiply_creatures_in_dungeon_list(struct Dungeon *dungeon, long list_start)
@@ -549,6 +604,12 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
                     add_anger_to_all_creatures_of_player(i, specst->value);
                 }
             }
+            remove_events_thing_is_attached_to(cratetng);
+            used = 1;
+            delete_thing_structure(cratetng, 0);
+            break;
+        case SpcKind_Ragnarok:
+            init_ragnarok(player);
             remove_events_thing_is_attached_to(cratetng);
             used = 1;
             delete_thing_structure(cratetng, 0);

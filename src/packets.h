@@ -182,6 +182,7 @@ enum TbPacketAction {
         PckA_SetRoomspaceDragPaint,
         PckA_PlyrQueryCreature,
         PckA_CheatGiveDoorTrap,
+        PckA_UsePwrInfusion,
 };
 
 /** Packet flags for non-action player operation. */

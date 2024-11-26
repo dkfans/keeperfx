@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-/******************************************************************************/
+
 #pragma pack(1)
 #define INFINITE_CHARGES 255
 
@@ -67,9 +67,8 @@ enum TrapActivationTypes {
 
 struct Thing;
 
-/******************************************************************************/
-
 #pragma pack()
+
 /******************************************************************************/
 TbBool slab_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool slab_has_sellable_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y);
@@ -90,6 +89,7 @@ TbBool thing_is_deployed_trap(const struct Thing *thing);
 short thing_is_destructible_trap(const struct Thing* thing);
 TbBool thing_is_sellable_trap(const struct Thing* thing);
 TbBool trap_on_bridge(ThingModel trpkind);
+TbBool trap_on_room(ThingModel trpkind);
 TbBool rearm_trap(struct Thing *traptng);
 TngUpdateRet update_trap(struct Thing *thing);
 void init_traps(void);

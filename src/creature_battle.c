@@ -145,11 +145,11 @@ TbBool can_add_ranged_combat_attacker(const struct Thing *victim)
 long get_flee_position(struct Thing *creatng, struct Coord3d *pos)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    // Heroes should flee to their gate
+    // Heroes should flee to their gate.
     if (is_hero_thing(creatng))
     {
         struct Thing* gatetng = find_hero_door_hero_can_navigate_to(creatng);
-        if ( !thing_is_invalid(gatetng) )
+        if (!thing_is_invalid(gatetng))
         {
             pos->x.val = gatetng->mappos.x.val;
             pos->y.val = gatetng->mappos.y.val;
@@ -158,28 +158,28 @@ long get_flee_position(struct Thing *creatng, struct Coord3d *pos)
         }
     }
     else
-    // Neutral creatures don't have flee place
+    // Neutral creatures don't have flee place.
     if (is_neutral_thing(creatng))
     {
-        if ( (pos->x.val != 0) || (pos->y.val != 0) )
+        if ((pos->x.val != 0) || (pos->y.val != 0))
         {
             return 1;
         }
         return 0;
     }
-    // Same with creatures without dungeon - try using last place
+    // Same with creatures without dungeon - try using last place.
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
     if (dungeon_invalid(dungeon))
     {
-        if ( (pos->x.val != 0) || (pos->y.val != 0) )
+        if ((pos->x.val != 0) || (pos->y.val != 0))
         {
             return 1;
         }
         return 0;
     }
-    // Other creatures can flee to heart or their lair
+    // Other creatures can flee to heart or their lair.
     struct Thing* lairtng = thing_get(cctrl->lairtng_idx);
-    if ( (!thing_is_invalid(lairtng)) && (creature_can_navigate_to_with_storage(creatng, &lairtng->mappos, NavRtF_Default)) )
+    if ((!thing_is_invalid(lairtng)) && (creature_can_navigate_to_with_storage(creatng, &lairtng->mappos, NavRtF_Default)))
     {
         TRACE_THING(lairtng);
         pos->x.val = lairtng->mappos.x.val;
@@ -197,12 +197,8 @@ long get_flee_position(struct Thing *creatng, struct Coord3d *pos)
     } else
     {
         struct PlayerInfo* player = get_player(creatng->owner);
-        if ( ((player->allocflags & PlaF_Allocated) != 0) && (player->is_active == 1) && (player->victory_state != VicS_LostLevel) )
+        if (((player->allocflags & PlaF_Allocated) != 0) && (player->is_active == 1) && (player->victory_state != VicS_LostLevel))
         {
-            if (!is_hero_thing(creatng))
-            {
-                ERRORLOG("The %s index %d has no dungeon heart or lair to flee to", thing_model_name(creatng), (int)creatng->index);
-            }
             return 0;
         }
         pos->x.stl.pos = creatng->mappos.x.stl.pos;
@@ -221,10 +217,6 @@ TbBool setup_combat_flee_position(struct Thing *thing)
     }
     if (!get_flee_position(thing, &cctrl->flee_pos))
     {
-        if (!is_hero_thing(thing))
-        {
-            ERRORLOG("Couldn't get a flee position for %s index %d", thing_model_name(thing), (int)thing->index);
-        }
         cctrl->flee_pos.x.stl.pos = thing->mappos.x.stl.pos;
         cctrl->flee_pos.y.stl.pos = thing->mappos.y.stl.pos;
         cctrl->flee_pos.z.stl.pos = thing->mappos.z.stl.pos;

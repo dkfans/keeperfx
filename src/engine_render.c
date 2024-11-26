@@ -556,35 +556,37 @@ long interpolate_angle(long variable_to_interpolate, long previous, long current
 
 void interpolate_thing(struct Thing *thing)
 {
-    // Note: if delta_time is off the interpolated position will also reflect that
-
-    if (thing->creation_turn == game.play_gameturn-1 || game.play_gameturn - thing->last_turn_drawn > 1 ) {
-        // Set initial interp position when either Thing has just been created or goes off camera then comes back on camera
+    // Note: If delta_time is off the interpolated position will also reflect that.
+    if (thing->creation_turn == game.play_gameturn - 1 || game.play_gameturn - thing->last_turn_drawn > 1)
+    {
+        // Set initial interp position when either Thing has just been created or goes off camera then comes back on camera.
         thing->interp_mappos = thing->mappos;
         thing->interp_floor_height = thing->floor_height;
-        
-        if (thing->interp_mappos.z.val == 65534) { // Fixes an odd bug where thing->mappos.z.val is briefly 65534 (for 1 turn) in certain situations, which can mess up the interpolation and cause things to fall from the sky.
+
+        if (thing->interp_mappos.z.val == 65534)
+        { // Fixes an odd bug where thing->mappos.z.val is briefly 65534 (for 1 turn) in certain situations, which can mess up the interpolation and cause things to fall from the sky.
             thing->interp_mappos.z.val = thing->interp_floor_height;
         }
-    } else {
-        // Interpolate position every frame
+    }
+    else
+    {
+        // Interpolate position every frame.
         thing->interp_mappos.x.val = interpolate(thing->interp_mappos.x.val, thing->previous_mappos.x.val, thing->mappos.x.val);
         thing->interp_mappos.z.val = interpolate(thing->interp_mappos.z.val, thing->previous_mappos.z.val, thing->mappos.z.val);
         thing->interp_mappos.y.val = interpolate(thing->interp_mappos.y.val, thing->previous_mappos.y.val, thing->mappos.y.val);
         thing->interp_floor_height = interpolate(thing->interp_floor_height, thing->previous_floor_height, thing->floor_height);
-        
         // Cancel interpolation if distance to interpolate is too far. This is a catch-all to solve any remaining interpolation bugs.
-        if ((abs(thing->interp_mappos.x.val-thing->mappos.x.val) >= 10000) ||
-            (abs(thing->interp_mappos.y.val-thing->mappos.y.val) >= 10000) ||
-            (abs(thing->interp_mappos.z.val-thing->mappos.z.val) >= 10000))
-        {
-            ERRORLOG("The %s index %d owned by player %d moved an unrealistic distance((%d,%d,%d) to (%d,%d,%d)), refusing interpolation."
-                ,thing_model_name(thing), (int)thing->index, (int)thing->owner, thing->interp_mappos.x.stl.num, thing->interp_mappos.y.stl.num, thing->interp_mappos.z.stl.num, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num);
+        if ((abs(thing->interp_mappos.x.val - thing->mappos.x.val) >= 10000)
+        || (abs(thing->interp_mappos.y.val - thing->mappos.y.val) >= 10000)
+        || (abs(thing->interp_mappos.z.val - thing->mappos.z.val) >= 10000))
+        { // Suppress the following log error because: 1/ Pointless filling of the log. 2/ I don't care about it.
+            // ERRORLOG("The %s index %d owned by player %d moved an unrealistic distance((%d,%d,%d) to (%d,%d,%d)), refusing interpolation.", thing_model_name(thing), (int)thing->index, (int)thing->owner, thing->interp_mappos.x.stl.num, thing->interp_mappos.y.stl.num, thing->interp_mappos.z.stl.num, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num);
             thing->interp_mappos = thing->mappos;
             thing->interp_floor_height = thing->floor_height;
         }
     }
 }
+
 void interpolate_camera(struct Camera *cam)
 {
     // Smooth zoom

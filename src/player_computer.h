@@ -124,6 +124,7 @@ enum GameActionTypes {
     GA_UsePwrConceal,
     GA_UsePwrFlight,
     GA_UsePwrVision,
+    GA_UsePwrRage,
     GA_UsePwrHoldAudnc,
     GA_UsePwrDisease,
     GA_UsePwrChicken,

@@ -1073,16 +1073,16 @@ TbBool attempt_job_move_to_event_for_player(struct Thing *creatng, PlayerNumber 
 {
     EventKind evkind = get_event_for_job(new_job);
     struct Event* event = get_event_of_type_for_player(evkind, creatng->owner);
-    // Treat heart attack as enemy fight, too
+    // Treat heart attack as enemy fight, too.
     if (event_is_invalid(event) && (evkind == EvKind_EnemyFight)) {
         event = get_event_of_type_for_player(EvKind_HeartAttacked, creatng->owner);
     }
     if (event_is_invalid(event)) {
-        WARNLOG("Could not find event to perform job %s by %s index %d owner %d",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        // WARNLOG("Could not find event to perform job %s by %s index %d owner %d",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
     }
     if (!setup_person_move_to_position(creatng, coord_subtile(event->mappos_x), coord_subtile(event->mappos_y), NavRtF_Default)) {
-        WARNLOG("Could not reach event to perform job %s by %s index %d owner %d",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        // WARNLOG("Could not reach event to perform job %s by %s index %d owner %d",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
     }
     creatng->continue_state = get_initial_state_for_job(new_job);

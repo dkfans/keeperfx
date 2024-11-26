@@ -39,9 +39,9 @@ extern "C" {
 /** Max amount of spells casted at the creature at once. */
 #define CREATURE_MAX_SPELLS_CASTED_AT 5
 /** Number of possible melee combat opponents. */
-#define COMBAT_MELEE_OPPONENTS_LIMIT       4
+#define COMBAT_MELEE_OPPONENTS_LIMIT       5
 /** Number of possible range combat opponents. */
-#define COMBAT_RANGED_OPPONENTS_LIMIT      4
+#define COMBAT_RANGED_OPPONENTS_LIMIT      255
 /** Amount of instances. */
 /** Max amount of rooms needed for a creature to be attracted to a dungeon. */
 #define ENTRANCE_ROOMS_COUNT               3
@@ -174,7 +174,7 @@ struct CreatureControl {
     */
     long annoyance_level[5];
     unsigned char mood_flags;
-unsigned char sound_flag;
+    unsigned char sound_flag;
     /** Lair room index, that is the room which holds creature's lair object. */
     unsigned short lair_room_id;
     /** Lair object thing index. */
@@ -401,6 +401,7 @@ unsigned char sound_flag;
     MapSubtlCoord alarm_stl_x;
     MapSubtlCoord alarm_stl_y;
     unsigned long alarm_over_turn;
+    unsigned long water_escape_since;
     unsigned long lava_escape_since;
     unsigned char stopped_for_hand_turns;
     long following_leader_since;
@@ -414,6 +415,19 @@ unsigned char sound_flag;
     ThingIndex summoner_idx;
     long summon_spl_idx;
     ThingIndex familiar_idx[FAMILIAR_MAX];
+    TbBool force_to_freeze;
+    short strength_upgrade;
+    short magic_upgrade;
+    short armour_upgrade;
+    short defense_upgrade;
+    short dexterity_upgrade;
+    short luck_upgrade;
+    short speed_upgrade;
+    short loyalty_upgrade;
+    short salary_upgrade;
+    short training_cost_upgrade;
+    short scavenging_cost_upgrade;
+    unsigned long total_upgrade;
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields
@@ -439,7 +453,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char sleep_exp_slab;
     short sleep_experience;
     short exp_for_hitting;
-    short gold_hold;
+    long gold_hold;
     short training_cost;
     short scavenger_cost;
     short scavenge_require;
@@ -534,6 +548,26 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char swipe_idx;
     ThingModel prison_kind;
     ThingModel torture_kind;
+    ThingModel hostile_towards[CREATURE_TYPES_MAX];
+    TbBool immune_to_charm;
+    TbBool immune_to_freeze;
+    TbBool immune_to_slow;
+    TbBool self_recovery;
+    TbBool resist_to_magic;
+    TbBool is_mechanical;
+    TbBool is_undead;
+    TbBool is_thief;
+    TbBool ethereal;
+    TbBool hoarfrost;
+    TbBool boss;
+    unsigned char lava_recovery;
+    unsigned char hurt_by_water;
+    unsigned char water_recovery;
+    unsigned short magic;
+    unsigned short poop_amount;
+    unsigned short poop_frequency;
+    unsigned char poop_type;
+    unsigned char poop_random;
     struct CreaturePickedUpOffset creature_picked_up_offset;
 };
 

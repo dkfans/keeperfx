@@ -539,6 +539,16 @@ TbBool player_uses_power_obey(PlayerNumber plyr_idx)
     return (dungeon->must_obey_turn != 0);
 }
 
+TbBool player_uses_power_mighty_infusion(PlayerNumber plyr_idx)
+{
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (!player_exists(player)) {
+        return false;
+    }
+    struct Dungeon* dungeon = get_players_dungeon(player);
+    return (dungeon->infusion_turn != 0);
+}
+
 TbBool player_uses_power_hold_audience(PlayerNumber plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
@@ -739,10 +749,10 @@ void timebomb_explode(struct Thing *creatng)
     long weight = compute_creature_weight(creatng);
     #define weight_divisor 64
     if (shotst->area_range != 0) {
-        struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-        long dist = (compute_creature_attack_range(shotst->area_range * COORD_PER_STL, crstat->luck, cctrl->explevel) * weight) / weight_divisor;
-        long damage = (compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel, creatng) * weight) / weight_divisor;
+        long luck = calculate_correct_creature_luck(creatng);
+        long dist = (compute_creature_attack_range(shotst->area_range * COORD_PER_STL, luck, cctrl->explevel) * weight) / weight_divisor;
+        long damage = (compute_creature_attack_spell_damage(shotst->area_damage, luck, cctrl->explevel, creatng) * weight) / weight_divisor;
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         explosion_affecting_area(creatng, &creatng->mappos, dist, damage, (shotst->area_blow * weight) / weight_divisor, hit_targets, shotst->damage_type);
     }

@@ -564,6 +564,7 @@ TbBool creature_model_bleeds(unsigned long crmodel)
   }
   return crstat->bleeds;
 }
+
 /******************************************************************************/
 /** Returns type of given creature state.
  *
@@ -572,32 +573,34 @@ TbBool creature_model_bleeds(unsigned long crmodel)
  */
 long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
 {
-  long state_type;
-  unsigned long state = thing->active_state;
-  if ( (state > 0) && (state < CREATURE_STATES_COUNT) )
-  {
-      state_type = states[state].state_type;
-  } else
-  {
-      state_type = states[0].state_type;
-      WARNLOG("%s: The %s index %d active state %lu (%s) is out of range",
-        func_name,thing_model_name(thing),(int)thing->index,state,creature_state_code_name(state));
-  }
-  if (state_type == CrStTyp_Move)
-  {
-      state = thing->continue_state;
-      if ( (state > 0) && (state < CREATURE_STATES_COUNT) )
-      {
-          state_type = states[state].state_type;
-      } else
-      {
-          state_type = states[0].state_type;
-          // Show message with text name of active state - it's good as the state was checked before
-          WARNLOG("%s: The %s index %d owner %d continue state %lu (%s) is out of range; active state %u (%s)",func_name,
-              thing_model_name(thing),(int)thing->index,(int)thing->owner,state,creature_state_code_name(state),thing->active_state,creature_state_code_name(thing->active_state));
-      }
-  }
-  return state_type;
+    long state_type;
+    unsigned long state = thing->active_state;
+    if (state < CREATURE_STATES_COUNT)
+    {
+        state_type = states[state].state_type;
+    }
+    else
+    {
+        state_type = states[0].state_type;
+        WARNLOG("%s: The %s index %d active state %lu (%s) is out of range",
+            func_name, thing_model_name(thing), (int)thing->index, state, creature_state_code_name(state));
+    }
+    if (state_type == CrStTyp_Move)
+    {
+        state = thing->continue_state;
+        if (state < CREATURE_STATES_COUNT)
+        {
+            state_type = states[state].state_type;
+        }
+        else
+        {
+            state_type = states[0].state_type;
+            // Show message with text name of active state - it's good as the state was checked before.
+            WARNLOG("%s: The %s index %d owner %d continue state %lu (%s) is out of range; active state %u (%s)", func_name,
+                thing_model_name(thing), (int)thing->index, (int)thing->owner, state, creature_state_code_name(state), thing->active_state, creature_state_code_name(thing->active_state));
+        }
+    }
+    return state_type;
 }
 
 /** Returns GUI Job of given creature.
@@ -693,6 +696,14 @@ TbBool creature_is_being_summoned(const struct Thing *thing)
 {
     CrtrStateId i = get_creature_state_besides_interruptions(thing);
     if (i == CrSt_CreatureBeingSummoned)
+        return true;
+    return false;
+}
+
+TbBool creature_is_fighting(const struct Thing *thing)
+{
+    CrtrStateId i = get_creature_state_type(thing);
+    if ((i == CrStTyp_FightCrtr) || (i == CrStTyp_FightDoor) || (i == CrStTyp_FightObj))
         return true;
     return false;
 }
@@ -1594,15 +1605,17 @@ short creature_being_dropped(struct Thing *creatng)
 short creature_cannot_find_anything_to_do(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-	struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-	if ((game.play_gameturn - cctrl->countdown) >= 128)
-	{
-		set_start_state(creatng);
-		return 0;
-	}
-	if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
-		creatng->continue_state = CrSt_CreatureCannotFindAnythingToDo;
-	return 1;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if ((game.play_gameturn - cctrl->countdown) >= 128)
+    {
+        set_start_state(creatng);
+        return 0;
+    }
+    if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
+    {
+        creatng->continue_state = CrSt_CreatureCannotFindAnythingToDo;
+    }
+    return 1;
 }
 
 /**
@@ -2065,8 +2078,6 @@ short creature_explore_dungeon(struct Thing *creatng)
     }
     if (!ret)
     {
-        SYNCLOG("The %s owned by player %d can't navigate to subtile (%d,%d) for exploring",
-            thing_model_name(creatng),(int)creatng->owner, (int)pos.x.stl.num, (int)pos.y.stl.num);
         set_start_state(creatng);
         return CrCkRet_Available;
     }
@@ -2096,26 +2107,26 @@ short creature_exempt(struct Thing *creatng)
 short creature_follow_leader(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    struct Thing* leadtng = get_group_leader(creatng);
+    struct Thing *leadtng = get_group_leader(creatng);
     if (!thing_is_creature(leadtng))
     {
-        SYNCLOG("The %s index %d owned by player %d can no longer follow leader - it's invalid",
-            thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        /* SYNCLOG("The %s index %d owned by player %d can no longer follow leader - it's invalid",
+            thing_model_name(creatng), (int)creatng->index, (int)creatng->owner); */
         set_start_state(creatng);
         return 1;
     }
     if (leadtng->index == creatng->index)
     {
-        SYNCLOG("The %s index %d owned by player %d became party leader",
-            thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        /* SYNCLOG("The %s index %d owned by player %d became party leader",
+            thing_model_name(creatng), (int)creatng->index, (int)creatng->owner); */
         set_start_state(creatng);
         return 1;
     }
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     if ((cctrl->spell_flags & CSAfF_MadKilling) != 0)
     {
-        SYNCLOG("The %s index %d owned by player %d can no longer be in group - became mad",
-            thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        /* SYNCLOG("The %s index %d owned by player %d can no longer be in group - became mad",
+            thing_model_name(creatng), (int)creatng->index, (int)creatng->owner); */
         remove_creature_from_group(creatng);
         set_start_state(creatng);
         return 1;
@@ -2123,16 +2134,16 @@ short creature_follow_leader(struct Thing *creatng)
     struct Coord3d follwr_pos;
     if (!get_free_position_behind_leader(leadtng, &follwr_pos))
     {
-        SYNCLOG("The %s index %d owned by player %d can no longer follow %s - no place amongst followers",
-            thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(leadtng));
+        /* SYNCLOG("The %s index %d owned by player %d can no longer follow %s - no place amongst followers",
+            thing_model_name(creatng), (int)creatng->index, (int)creatng->owner, thing_model_name(leadtng)); */
         set_start_state(creatng);
         return 1;
     }
     int fails_amount = cctrl->follow_leader_fails;
-    if (fails_amount > 12) //When set too low, group might disband before a white wall is breached
+    if (fails_amount > 12) // When set too low, group might disband before a white wall is breached.
     {
-        SYNCDBG(3,"Removing %s index %d owned by player %d from group due to fails to follow",
-            thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        /* SYNCDBG(3, "Removing %s index %d owned by player %d from group due to fails to follow",
+            thing_model_name(creatng), (int)creatng->index, (int)creatng->owner); */
         remove_creature_from_group(creatng);
         return 0;
     }
@@ -2144,47 +2155,37 @@ short creature_follow_leader(struct Thing *creatng)
     MapCoordDelta distance_to_follower_pos = get_chessboard_distance(&creatng->mappos, &follwr_pos);
     TbBool cannot_reach_leader = creature_cannot_move_directly_to(creatng, &leadtng->mappos);
     int speed = get_creature_speed(leadtng);
-    // If we're too far from the designated position, do a speed run
-    if (distance_to_follower_pos > subtile_coord(12,0))
+    // If we're too far from the designated position, do a speed run.
+    if (distance_to_follower_pos > subtile_coord(12, 0))
     {
         speed = 2 * speed;
         if (speed >= MAX_VELOCITY)
+        {
             speed = MAX_VELOCITY;
+        }
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
-            if (cannot_reach_leader) // only count fails when we're not able to get to the leader, instead of getting a position in the trail it cannot reach.
+            if (cannot_reach_leader) // Only count fails when we're not able to get to the leader, instead of getting a position in the trail it cannot reach.
             {
                 cctrl->follow_leader_fails++;
             }
-          return 0;
+            return 0;
         }
-    } else
-    // If we're far from the designated position, move considerably faster
-    if (distance_to_follower_pos > subtile_coord(6,0))
+    }
+    else if (distance_to_follower_pos > subtile_coord(6, 0)) // If we're far from the designated position, move considerably faster.
     {
-        if (speed > 4) {
+        if (speed > 4)
+        {
             speed = 5 * speed / 4;
-        } else {
+        }
+        else
+        {
             speed = speed + 1;
         }
         if (speed >= MAX_VELOCITY)
+        {
             speed = MAX_VELOCITY;
-        if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
-        {
-            if (cannot_reach_leader)
-            {
-                cctrl->follow_leader_fails++;
-            }
-          return 0;
         }
-    } else
-    // If we're close, continue moving at normal speed
-    if (distance_to_follower_pos <= subtile_coord(2,0))
-    {
-        if (distance_to_follower_pos <= 0)
-        {
-            creature_turn_to_face(creatng, &leadtng->mappos);
-        } else
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
             if (cannot_reach_leader)
@@ -2193,16 +2194,36 @@ short creature_follow_leader(struct Thing *creatng)
             }
             return 0;
         }
-    } else
-    // If we're in between, move just a bit faster than leader
+    }
+    else if (distance_to_follower_pos <= subtile_coord(2, 0)) // If we're close, continue moving at normal speed.
     {
-        if (speed > 8) {
+        if (distance_to_follower_pos <= 0)
+        {
+            creature_turn_to_face(creatng, &leadtng->mappos);
+        }
+        else if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
+        {
+            if (cannot_reach_leader)
+            {
+                cctrl->follow_leader_fails++;
+            }
+            return 0;
+        }
+    }
+    else // If we're in between, move just a bit faster than leader.
+    {
+        if (speed > 8)
+        {
             speed = 9 * speed / 8;
-        } else {
+        }
+        else
+        {
             speed = speed + 1;
         }
         if (speed >= MAX_VELOCITY)
+        {
             speed = MAX_VELOCITY;
+        }
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
             if (cannot_reach_leader)
@@ -2871,20 +2892,25 @@ TbBool init_creature_state(struct Thing *creatng)
 
 TbBool restore_backup_state(struct Thing *creatng, CrtrStateId active_state, CrtrStateId continue_state)
 {
-    struct StateInfo* active_stati = &states[active_state];
-    struct StateInfo* continue_stati = &states[continue_state];
-    if ((active_stati->cleanup_state != NULL) || ((continue_state != CrSt_Unused) && (continue_stati->cleanup_state != NULL)))
+    struct StateInfo *active_stati = &states[active_state];
+    struct StateInfo *continue_stati = &states[continue_state];
+    if ((active_stati->cleanup_state != NULL)
+    || ((continue_state != CrSt_Unused) && (continue_stati->cleanup_state != NULL)))
     {
-        if ((active_state == CrSt_CreatureInPrison) || (active_state == CrSt_Torturing)
-          || (continue_state == CrSt_CreatureInPrison) || (continue_state == CrSt_Torturing))
+        if ((active_state == CrSt_CreatureInPrison)
+        || (active_state == CrSt_Torturing)
+        || (continue_state == CrSt_CreatureInPrison)
+        || (continue_state == CrSt_Torturing))
         {
             init_creature_state(creatng);
-        } else
+        }
+        else
         {
             set_start_state(creatng);
         }
         return true;
-    } else
+    }
+    else
     {
         internal_set_thing_state(creatng, active_state);
         creatng->continue_state = continue_state;
@@ -2993,6 +3019,7 @@ short creature_take_salary(struct Thing *creatng)
     }
     GoldAmount salary = calculate_correct_creature_pay(creatng);
     GoldAmount received = take_money_from_dungeon(creatng->owner, salary, 0);
+    creatng->creature.gold_carried += received;
     if (received < 1) {
         ERRORLOG("The %s index %d has used capacity %d but no gold for %s salary",room_code_name(room->kind),
             (int)room->index,(int)room->used_capacity,thing_model_name(creatng));
@@ -4109,9 +4136,8 @@ TbBool process_creature_hunger(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    if ( (crstat->hunger_rate == 0) || creature_affected_by_spell(thing, SplK_Freeze) || is_neutral_thing(thing))
+    if ((crstat->hunger_rate == 0) || creature_affected_by_spell(thing, SplK_Freeze) || is_neutral_thing(thing))
         return false;
-    SYNCDBG(19,"Hungering %s index %d",thing_model_name(thing), (int)thing->index);
     cctrl->hunger_level++;
     if (!hunger_is_creature_hungry(thing))
         return false;
@@ -4120,18 +4146,55 @@ TbBool process_creature_hunger(struct Thing *thing)
     {
         // Make sure every creature loses health on different turn.
         if (((game.play_gameturn + thing->index) % game.conf.rules.health.turns_per_hunger_health_loss) == 0) {
-            SYNCDBG(9,"The %s index %d lost %d health due to hunger",thing_model_name(thing), (int)thing->index, (int)game.conf.rules.health.hunger_health_loss);
-            remove_health_from_thing_and_display_health(thing, game.conf.rules.health.hunger_health_loss);
+            HitPoints hunger_health_loss = (cctrl->max_health * game.conf.rules.health.hunger_health_loss) / 100;
+            remove_health_from_thing_and_display_health(thing, hunger_health_loss);
             return true;
         }
     }
     return false;
 }
 
+TbBool creature_is_hostile_towards(const struct Thing *fightng, const struct Thing *enmtng)
+{
+    struct CreatureStats* crstat = creature_stats_get_from_thing(fightng);
+    for (int i = 0; i < CREATURE_TYPES_MAX; i++)
+    {
+        if ((crstat->hostile_towards[i] == enmtng->model) || (crstat->hostile_towards[i] == CREATURE_ANY))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+TbBool creature_can_be_hostile(const struct Thing *fightng, const struct Thing *enmtng)
+{
+    // Creatures cannot be hostile towards allies if influenced by CTA.
+    if (creature_affected_by_call_to_arms(fightng) || creature_affected_by_call_to_arms(enmtng))
+    {
+        return false;
+    }
+    // Creatures cannot be hostile towards allies if it's part of a group.
+    if (creature_is_group_member(fightng) || creature_is_group_member(enmtng))
+    {
+        return false;
+    }
+    // Creatures cannot be hostile towards allies if they are working.
+    if ((get_creature_state_type(fightng) == CrStTyp_Work) || (get_creature_state_type(enmtng) == CrStTyp_Work))
+    {
+        return false;
+    }
+    // Lastly, check if both creatures doesn't have hostility set between each other.
+    if (!creature_is_hostile_towards(fightng, enmtng) && !creature_is_hostile_towards(enmtng, fightng))
+    {
+        return false;
+    }
+    return true;
+}
+
 /**
  * Checks if creatures can attack each other.
- * Note that this function does not include full check from players_are_enemies(),
- *  so both should be used when applicable.
+ * Note that this function does not include full check from players_are_enemies(), so both should be used when applicable.
  * @param tng1
  * @param tng2
  * @return
@@ -4139,48 +4202,58 @@ TbBool process_creature_hunger(struct Thing *thing)
  */
 TbBool creature_will_attack_creature(const struct Thing *fightng, const struct Thing *enmtng)
 {
-    if (creature_is_leaving_and_cannot_be_stopped(fightng) || creature_is_leaving_and_cannot_be_stopped(enmtng)) {
+    if (creature_is_leaving_and_cannot_be_stopped(fightng) || creature_is_leaving_and_cannot_be_stopped(enmtng))
+    {
         return false;
     }
-    if (creature_is_being_unconscious(fightng) || creature_is_being_unconscious(enmtng)) {
+    if (creature_is_being_unconscious(fightng) || creature_is_being_unconscious(enmtng))
+    {
         return false;
     }
-    if (thing_is_picked_up(fightng) || thing_is_picked_up(enmtng)) {
+    if (thing_is_picked_up(fightng) || thing_is_picked_up(enmtng))
+    {
         return false;
     }
     struct CreatureControl* fighctrl = creature_control_get_from_thing(fightng);
     struct CreatureControl* enmctrl = creature_control_get_from_thing(enmtng);
-    if (players_creatures_tolerate_each_other(fightng->owner, enmtng->owner))
+    if ((players_creatures_tolerate_each_other(fightng->owner, enmtng->owner)) && (!creature_can_be_hostile(fightng, enmtng)) && (game.conf.rules.creature.battle_royale == 0))
     {
-        if  (((fighctrl->spell_flags & CSAfF_MadKilling) == 0)
-         && ((enmctrl->spell_flags  & CSAfF_MadKilling) == 0)) {
-            if (fighctrl->combat_flags == 0) {
+        if (((fighctrl->spell_flags & CSAfF_MadKilling) == 0)
+        && ((enmctrl->spell_flags & CSAfF_MadKilling) == 0))
+        {
+            if (fighctrl->combat_flags == 0)
+            {
                 return false;
             }
             struct Thing* tmptng = thing_get(fighctrl->combat.battle_enemy_idx);
             TRACE_THING(tmptng);
-            if (tmptng->index != enmtng->index) {
+            if (tmptng->index != enmtng->index)
+            {
                 return false;
             }
         }
-        // No self fight
-        if (enmtng->index == fightng->index) {
-            return false;
-        }
     }
-    // No fight when creature in custody
+    // No self fight.
+    if (enmtng->index == fightng->index)
+    {
+        return false;
+    }
+    // No fight when creature in custody.
     if (creature_is_kept_in_custody_by_player(fightng, enmtng->owner)
-     || creature_is_kept_in_custody_by_player(enmtng, fightng->owner)) {
+    || creature_is_kept_in_custody_by_player(enmtng, fightng->owner))
+    {
         return false;
     }
-    // No fight while dropping
-    if (creature_is_being_dropped(fightng) || creature_is_being_dropped(enmtng)) {
+    // No fight while dropping.
+    if (creature_is_being_dropped(fightng) || creature_is_being_dropped(enmtng))
+    {
         return false;
     }
-    // Final check - if creature is in control and can see the enemy - fight
+    // Final check - if creature is in control and can see the enemy - fight.
     if ((creature_control_exists(enmctrl)) && ((enmctrl->flgfield_1 & CCFlg_NoCompControl) == 0))
     {
-        if (!creature_is_invisible(enmtng) || creature_can_see_invisible(fightng)) {
+        if (!creature_is_invisible(enmtng) || creature_can_see_invisible(fightng))
+        {
             return true;
         }
     }
@@ -4383,6 +4456,7 @@ long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, u
         return 0;
 
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(creatng);
+    nav_thing_can_travel_over_water = creature_can_travel_over_water(creatng);
     if (resetOwnerPlayerNavigating)
         owner_player_navigating = -1;
     else
@@ -4397,8 +4471,9 @@ long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, u
         creatng->mappos.y.val,
         pos->x.val,
         pos->y.val,
-	    -2, nav_sizexy, __func__);
+        -2, nav_sizexy, __func__);
     nav_thing_can_travel_over_lava = 0;
+    nav_thing_can_travel_over_water = 0;
 
     int distance = 0;
     if (!path.waypoints_num)
@@ -4561,6 +4636,8 @@ long process_work_speed_on_work_value(const struct Thing *thing, long base_val)
     long val = base_val;
     if (creature_affected_by_spell(thing, SplK_Speed))
         val = 2 * val;
+    if (creature_affected_by_spell(thing, SplK_MagicMist))
+        val = 3 * val / 2;
     if (creature_affected_by_slap(thing))
         val = 4 * val / 3;
     if (!is_neutral_thing(thing))

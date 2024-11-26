@@ -219,57 +219,60 @@ const struct NamedCommand creature_select_criteria_desc[] = {
 };
 
 const struct NamedCommand trap_config_desc[] = {
-  {"NameTextID",           1},
-  {"TooltipTextID",        2},
-  {"SymbolSprites",        3},
-  {"PointerSprites",       4},
-  {"PanelTabIndex",        5},
-  {"Crate",                6},
-  {"ManufactureLevel",     7},
-  {"ManufactureRequired",  8},
-  {"Shots",                9},
-  {"TimeBetweenShots",    10},
-  {"SellingValue",        11},
-  {"AnimationID",         12},
-  {"Model",               12}, //legacy name
-  {"ModelSize",           13},
-  {"AnimationSpeed",      14},
-  {"TriggerType",         15},
-  {"ActivationType",      16},
-  {"EffectType",          17},
-  {"Hidden",              18},
-  {"TriggerAlarm",        19},
-  {"Slappable",           20},
-  {"Unanimated",          21},
-  {"Health",              22},
-  {"Unshaded",            23},
-  {"RandomStartFrame",    24},
-  {"ThingSize",           25},
-  {"HitType",             26},
-  {"LightRadius",         27},
-  {"LightIntensity",      28},
-  {"LightFlags",          29},
-  {"TransparencyFlags",   30},
-  {"ShotVector",          31},
-  {"Destructible",        32},
-  {"Unstable",            33},
-  {"Unsellable",          34},
-  {"PlaceOnBridge",       35},
-  {"ShotOrigin",          36},
-  {"PlaceSound",          37},
-  {"TriggerSound",        38},
-  {"RechargeAnimationID", 39},
-  {"AttackAnimationID",   40},
-  {"DestroyedEffect",     41},
-  {"InitialDelay",        42},
-  {"PlaceOnSubtile",      43},
-  {"FlameAnimationID",       44},
-  {"FlameAnimationSpeed",    45},
-  {"FlameAnimationSize",     46},
-  {"FlameAnimationOffset",   47},
-  {"FlameTransparencyFlags", 48},
-  {"DetectInvisible",        49},
-  {NULL,                      0},
+  {"NameTextID",               1},
+  {"TooltipTextID",            2},
+  {"SymbolSprites",            3},
+  {"PointerSprites",           4},
+  {"PanelTabIndex",            5},
+  {"Crate",                    6},
+  {"ManufactureLevel",         7},
+  {"ManufactureRequired",      8},
+  {"Shots",                    9},
+  {"TimeBetweenShots",        10},
+  {"SellingValue",            11},
+  {"AnimationID",             12},
+  {"Model",                   12}, // Legacy name.
+  {"ModelSize",               13},
+  {"AnimationSpeed",          14},
+  {"TriggerType",             15},
+  {"ActivationType",          16},
+  {"EffectType",              17},
+  {"Hidden",                  18},
+  {"TriggerAlarm",            19},
+  {"Slappable",               20},
+  {"Unanimated",              21},
+  {"Health",                  22},
+  {"Unshaded",                23},
+  {"RandomStartFrame",        24},
+  {"ThingSize",               25},
+  {"HitType",                 26},
+  {"LightRadius",             27},
+  {"LightIntensity",          28},
+  {"LightFlags",              29},
+  {"TransparencyFlags",       30},
+  {"ShotVector",              31},
+  {"Destructible",            32},
+  {"Unstable",                33},
+  {"Unsellable",              34},
+  {"PlaceOnBridge",           35},
+  {"ShotOrigin",              36},
+  {"PlaceSound",              37},
+  {"TriggerSound",            38},
+  {"RechargeAnimationID",     39},
+  {"AttackAnimationID",       40},
+  {"DestroyedEffect",         41},
+  {"InitialDelay",            42},
+  {"PlaceOnSubtile",          43},
+  {"FlameAnimationID",        44},
+  {"FlameAnimationSpeed",     45},
+  {"FlameAnimationSize",      46},
+  {"FlameAnimationOffset",    47},
+  {"FlameTransparencyFlags",  48},
+  {"DetectInvisible",         49},
+  {"InstantPlacement",        50},
+  {"RemoveOnceDepleted",      51},
+  {"PlaceOnRoom",             52},
+  {NULL,                       0},
 };
 
 const struct NamedCommand room_config_desc[] = {
@@ -338,6 +341,10 @@ const struct NamedCommand modifier_desc[] = {
   {"TrainingCost",    7},
   {"ScavengingCost",  8},
   {"Loyalty",         9},
+  {"Defense",        10},
+  {"Dexterity",      11},
+  {"Luck",           12},
+  {"Magic",          13},
   {NULL,              0},
 };
 
@@ -1719,7 +1726,10 @@ static void new_trap_type_check(const struct ScriptLine* scline)
     trapst->detect_invisible = true;
     trapst->notify = false;
     trapst->place_on_bridge = false;
+    trapst->place_on_room = false;
     trapst->place_on_subtile = false;
+    trapst->instant_placement = false;
+    trapst->remove_once_depleted = false;
     trapst->health = 1;
     trapst->destructible = 0;
     trapst->unstable = 0;
@@ -2008,6 +2018,15 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 49: // DetectInvisible
             trapst->detect_invisible = value;
+            break;
+        case 50: // InstantPlacement
+            trapst->instant_placement = value;
+            break;
+        case 51: // RemoveOnceDepleted
+            trapst->remove_once_depleted = value;
+            break;
+        case 52: // PlaceOnRoom
+            trapst->place_on_room = value;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
@@ -2948,6 +2967,25 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                 value1 = get_id(creature_desc, scline->tp[2]);
             }
         }
+        else if (creatvar == 37) // HOSTILETOWARDS
+        {
+            if (parameter_is_number(scline->tp[2])) // Support name or number for hostile towards.
+            {
+                value1 = atoi(scline->tp[2]);
+            }
+            else if (0 == strcmp(scline->tp[2], "ANY_CREATURE")) // Support ANY_CREATURE for hostile towards.
+            {
+                value1 = CREATURE_ANY;
+            }
+            else if (strcasecmp(scline->tp[2], "NULL") == 0)  // Support NULL for hostile towards.
+            {
+                value1 = 0;
+            }
+            else
+            {
+                value1 = get_id(creature_desc, scline->tp[2]);
+            }
+        }
         else
         {
             value1 = atoi(scline->tp[2]);
@@ -3487,6 +3525,41 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             break;
         case 36: // TORTUREKIND
             crstat->torture_kind = value;
+            break;
+        case 37: // HOSTILETOWARDS
+            // Assume the mapmaker wants to reset it.
+            for (int i = 0; i < CREATURE_TYPES_MAX; i++)
+            {
+                crstat->hostile_towards[i] = 0;
+            }
+            if (value != 0)
+            {
+                crstat->hostile_towards[0] = value; // Then apply the change on the first only.
+            }
+            break;
+        case 38: // LAVARECOVERY
+            crstat->lava_recovery = value;
+            break;
+        case 39: // HURTBYWATER
+            crstat->hurt_by_water = value;
+            break;
+        case 40: // WATERRECOVERY
+            crstat->water_recovery = value;
+            break;
+        case 41: // MAGIC
+            crstat->magic = value;
+            break;
+        case 42: // POOPAMOUNT
+            crstat->poop_amount = value;
+            break;
+        case 43: // POOPFREQUENCY
+            crstat->poop_frequency = value;
+            break;
+        case 44: // POOPRANDOM
+            crstat->poop_random = value;
+            break;
+        case 45: // POOPTYPE
+            crstat->poop_type = value;
             break;
         case ccr_comment:
             break;
@@ -4657,7 +4730,7 @@ static void use_spell_on_players_creatures_check(const struct ScriptLine* scline
 
     if (splevel < 1)
     {
-        if ((mag_id == SplK_Heal) || (mag_id == SplK_Armour) || (mag_id == SplK_Speed) || (mag_id == SplK_Disease) || (mag_id == SplK_Invisibility) || (mag_id == SplK_Chicken))
+        if ((mag_id == SplK_Freeze) || (mag_id == SplK_Armour) || (mag_id == SplK_Rebound) || (mag_id == SplK_Heal) || (mag_id == SplK_Invisibility) || (mag_id == SplK_Speed) || (mag_id == SplK_Slow) || (mag_id == SplK_Fly) || (mag_id == SplK_Sight) || (mag_id == SplK_Disease) || (mag_id == SplK_Chicken) || (mag_id == SplK_TimeBomb) || (mag_id == SplK_Rage) || (mag_id == SplK_DivineShield) || (mag_id == SplK_Indoctrination) || (mag_id == SplK_MagicMist))
         {
             SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", mag_name, splevel);
         }
@@ -6365,6 +6438,22 @@ static void set_player_modifier_process(struct ScriptContext* context)
                 SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.loyalty, mdfrval);
                 dungeon->modifier.loyalty = mdfrval;
                 break;
+            case 10: // Defense
+                SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.defense, mdfrval);
+                dungeon->modifier.defense = mdfrval;
+                break;
+            case 11: // Dexterity
+                SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.dexterity, mdfrval);
+                dungeon->modifier.dexterity = mdfrval;
+                break;
+            case 12: // Luck
+                SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.luck, mdfrval);
+                dungeon->modifier.luck = mdfrval;
+                break;
+            case 13: // Magic
+                SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.magic, mdfrval);
+                dungeon->modifier.magic = mdfrval;
+                break;
             default:
                 WARNMSG("Unsupported Player Modifier, command %d.", mdfrdesc);
                 break;
@@ -6488,6 +6577,42 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
                     dungeon->modifier.loyalty = mdfradd;
                 } else {
                     SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.loyalty);
+                }
+                break;
+            case 10: // Defense
+                mdfradd = dungeon->modifier.defense + mdfrval;
+                if (mdfradd >= 0) {
+                    SCRIPTDBG(7,"Adding %d to Player %d Modifier '%s'.", mdfrval, (int)plyr_idx, mdfrname);
+                    dungeon->modifier.defense = mdfradd;
+                } else {
+                    SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.defense);
+                }
+                break;
+            case 11: // Dexterity
+                mdfradd = dungeon->modifier.dexterity + mdfrval;
+                if (mdfradd >= 0) {
+                    SCRIPTDBG(7,"Adding %d to Player %d Modifier '%s'.", mdfrval, (int)plyr_idx, mdfrname);
+                    dungeon->modifier.dexterity = mdfradd;
+                } else {
+                    SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.dexterity);
+                }
+                break;
+            case 12: // Luck
+                mdfradd = dungeon->modifier.luck + mdfrval;
+                if (mdfradd >= 0) {
+                    SCRIPTDBG(7,"Adding %d to Player %d Modifier '%s'.", mdfrval, (int)plyr_idx, mdfrname);
+                    dungeon->modifier.luck = mdfradd;
+                } else {
+                    SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.luck);
+                }
+                break;
+            case 13: // Magic
+                mdfradd = dungeon->modifier.magic + mdfrval;
+                if (mdfradd >= 0) {
+                    SCRIPTDBG(7,"Adding %d to Player %d Modifier '%s'.", mdfrval, (int)plyr_idx, mdfrname);
+                    dungeon->modifier.magic = mdfradd;
+                } else {
+                    SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.magic);
                 }
                 break;
             default:

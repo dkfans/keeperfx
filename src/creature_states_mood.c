@@ -507,20 +507,18 @@ TbBool find_combat_target_passing_by_room_but_having_unrelated_job(const struct 
 TbBool process_job_causes_going_postal(struct Thing *creatng, struct Room *room, CreatureJob going_postal_job)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    // Find a target
+    // Find a target.
     unsigned long combt_dist = LONG_MAX;
     struct Thing* combt_thing = INVALID_THING;
     if (find_combat_target_passing_by_room_but_having_unrelated_job(creatng, going_postal_job, room, &combt_dist, &combt_thing))
     {
-        SYNCDBG(8,"The %s index %d goes postal on %s index %d during %s",thing_model_name(creatng),(int)creatng->index,thing_model_name(combt_thing),(int)combt_thing->index,creature_job_code_name(going_postal_job));
-        
+        SYNCDBG(8,"The %s index %d goes postal on %s index %d during %s", thing_model_name(creatng), (int)creatng->index,thing_model_name(combt_thing), (int)combt_thing->index,creature_job_code_name(going_postal_job));
         CrInstance inst_use = get_postal_instance_to_use(creatng, combt_dist);
-        if (inst_use <= 0) 
+        if (inst_use <= CrInst_NULL)
         {
-        SYNCDBG(8,"The %s index %d cannot go postal during %s; no ranged instance",thing_model_name(creatng),(int)creatng->index,creature_job_code_name(going_postal_job));
-        return false;
+            SYNCDBG(8,"The %s index %d cannot go postal during %s; no ranged instance", thing_model_name(creatng), (int)creatng->index,creature_job_code_name(going_postal_job));
+            return false;
         }
-
         set_creature_instance(creatng, inst_use, combt_thing->index, 0);
         external_set_thing_state(combt_thing, CrSt_CreatureEvacuateRoom);
         struct CreatureControl* combctrl = creature_control_get_from_thing(combt_thing);
@@ -528,13 +526,15 @@ TbBool process_job_causes_going_postal(struct Thing *creatng, struct Room *room,
         anger_apply_anger_to_creature(creatng, crstat->annoy_going_postal, AngR_Other, 1);
         return true;
     }
-    if (thing_is_invalid(combt_thing)) {
+    if (thing_is_invalid(combt_thing))
+    {
         return false;
     }
-    if (!setup_person_move_to_coord(creatng, &combt_thing->mappos, NavRtF_Default)) {
+    if (!setup_person_move_to_coord(creatng, &combt_thing->mappos, NavRtF_Default))
+    {
         return false;
     }
-    // Back to original job - assume the state data is not damaged
+    // Back to original job - assume the state data is not damaged.
     creatng->continue_state = get_continue_state_for_job(going_postal_job);
     return true;
 }

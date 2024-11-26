@@ -406,33 +406,32 @@ TbBool thing_create_thing_adv(VALUE *init_data)
 
 struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct Coord3d *pos, unsigned char tngclass, ThingModel tngmodel, unsigned char tngowner)
 {
-    struct Thing* thing = create_thing(pos, tngclass, tngmodel, tngowner, -1);
+    struct Thing *thing = create_thing(pos, tngclass, tngmodel, tngowner, -1);
     if (thing_is_invalid(thing))
     {
         return INVALID_THING;
     }
     thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
-    // Try to move thing out of the solid wall if it's inside one
+    // Try to move thing out of the solid wall if it's inside one.
     if (thing_in_wall_at(thing, &thing->mappos))
     {
-        if (!move_creature_to_nearest_valid_position(thing)) {
-            ERRORLOG("The %s was created in wall, removing",thing_model_name(thing));
+        if (!move_creature_to_nearest_valid_position(thing))
+        {
+            // ERRORLOG("The %s was created in wall, removing", thing_model_name(thing));
             delete_thing_structure(thing, 0);
             return INVALID_THING;
         }
     }
-
     if (thing_is_creature(thing))
     {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
         cctrl->flee_pos.x.val = thing->mappos.x.val;
         cctrl->flee_pos.y.val = thing->mappos.y.val;
         cctrl->flee_pos.z.val = thing->mappos.z.val;
         cctrl->flee_pos.z.val = get_thing_height_at(thing, &thing->mappos);
         cctrl->party.target_plyr_idx = -1;
     }
-
-    long light_rand = GAME_RANDOM(8); // this may be unsynced random
+    long light_rand = GAME_RANDOM(8); // This may be unsynced random.
     if (light_rand < 2)
     {
         struct InitLight ilght;
@@ -444,7 +443,8 @@ struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct C
         {
             ilght.intensity = 48;
             ilght.flags = 5;
-        } else
+        }
+        else
         {
             ilght.intensity = 36;
             ilght.flags = 1;
@@ -452,10 +452,9 @@ struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct C
         ilght.is_dynamic = 1;
         ilght.radius = 2560;
         thing->light_id = light_create_light(&ilght);
-        if (thing->light_id != 0) {
+        if (thing->light_id != 0)
+        {
             light_set_light_never_cache(thing->light_id);
-        } else {
-            ERRORLOG("Cannot allocate light to new hero");
         }
     }
     return thing;

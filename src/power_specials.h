@@ -47,6 +47,7 @@ enum SpecialKinds {
     SpcKind_GetGold,
     SpcKind_MakeAngry,
     SpcKind_MakeUnsafe,
+    SpcKind_Ragnarok,
 };
 
 /******************************************************************************/
@@ -56,6 +57,7 @@ extern unsigned short dungeon_special_selected;
 
 #pragma pack()
 /******************************************************************************/
+void init_ragnarok(struct PlayerInfo *player);
 void multiply_creatures(struct PlayerInfo *player);
 void increase_level(struct PlayerInfo *player, int count);
 TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos);

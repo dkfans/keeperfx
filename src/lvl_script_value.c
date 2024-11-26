@@ -171,11 +171,12 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel,
     }
     SpellKind spkind = (fmcl_bytes >> 8) & 255;
     const struct SpellConfig* spconf = get_spell_config(spkind);
-
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     if (spconf->caster_affected ||
-            (spkind == SplK_Freeze) || (spkind == SplK_Slow) || // These two should be also marked at configs somehow?
-            ( (spkind == SplK_Disease) && ((get_creature_model_flags(thing) & CMF_NeverSick) == 0) ) ||
-            ( (spkind == SplK_Chicken) && ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0) ) )
+      ((spkind == SplK_Disease) && ((get_creature_model_flags(thing) & CMF_NeverSick) == 0))
+      || ((spkind == SplK_Chicken) && ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0))
+      || ((spkind == SplK_Freeze) && (crstat->immune_to_freeze == 0))
+      || ((spkind == SplK_Slow) && (crstat->immune_to_slow == 0)))
     {
         if (thing_is_picked_up(thing))
         {
@@ -811,6 +812,39 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               clear_flag(crconf->model_flags,CMF_PreferSteal);
           }
+          break;
+      case 34: // IMMUNE_TO_CHARM
+          crstat->immune_to_charm = val4;
+          break;
+      case 35: // IMMUNE_TO_FREEZE
+          crstat->immune_to_freeze = val4;
+          break;
+      case 36: // IMMUNE_TO_SLOW
+          crstat->immune_to_slow = val4;
+          break;
+      case 37: // SELF_RECOVERY
+          crstat->self_recovery = val4;
+          break;
+      case 38: // RESIST_TO_MAGIC
+          crstat->resist_to_magic = val4;
+          break;
+      case 39: // MECHANICAL
+          crstat->is_mechanical = val4;
+          break;
+      case 40: // UNDEAD
+          crstat->is_undead = val4;
+          break;
+      case 41: // THIEF
+          crstat->is_thief = val4;
+          break;
+      case 42: // ETHEREAL
+          crstat->ethereal = val4;
+          break;
+      case 43: // HOARFROST
+          crstat->hoarfrost = val4;
+          break;
+      case 44: // BOSS
+          crstat->boss = val4;
           break;
       default:
           SCRPTERRLOG("Unknown creature property '%ld'", val3);

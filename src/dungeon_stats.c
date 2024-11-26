@@ -44,6 +44,7 @@ TbBool load_stats_files(void)
     SYNCDBG(8, "Starting");
     TbBool result = true;
     clear_research_for_all_players();
+    init_creature_model_stats();
     init_creature_model_graphics();
     if (!load_creaturetypes_config(keeper_creaturetp_file,CnfLd_ListOnly))
         result = false;

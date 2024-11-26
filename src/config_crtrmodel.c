@@ -87,6 +87,15 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"LAIROBJECT",         34},
   {"PRISONKIND",         35},
   {"TORTUREKIND",        36},
+  {"HOSTILETOWARDS",     37},
+  {"LAVARECOVERY",       38},
+  {"HURTBYWATER",        39},
+  {"WATERRECOVERY",      40},
+  {"MAGIC",              41},
+  {"POOPAMOUNT",         42},
+  {"POOPFREQUENCY",      43},
+  {"POOPRANDOM",         44},
+  {"POOPTYPE",           45},
   {NULL,                  0},
   };
 
@@ -123,6 +132,17 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"FAT",               31},
   {"NO_STEAL_HERO",     32},
   {"PREFER_STEAL",      33},
+  {"IMMUNE_TO_CHARM",   34},
+  {"IMMUNE_TO_FREEZE",  35},
+  {"IMMUNE_TO_SLOW",    36},
+  {"SELF_RECOVERY",     37},
+  {"RESIST_TO_MAGIC",   38},
+  {"MECHANICAL",        39},
+  {"UNDEAD",            40},
+  {"THIEF",             41},
+  {"ETHEREAL",          42},
+  {"HOARFROST",         43},
+  {"BOSS",              44},
   {NULL,                 0},
   };
 
@@ -243,51 +263,8 @@ const struct NamedCommand creatmodel_sounds_commands[] = {
 TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
   // Block name and parameter word store variables
-  // Initialize block data
   struct CreatureStats* crstat = creature_stats_get(crtr_model);
   struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_model];
-  if ((flags & CnfLd_AcceptPartial) == 0)
-  {
-      crstat->health = 1;
-      crstat->heal_requirement = 1;
-      crstat->heal_threshold = 1;
-      crstat->strength = 0;
-      crstat->armour = 0;
-      crstat->dexterity = 0;
-      crstat->fear_wounded = 12;
-      crstat->fear_stronger = 65000;
-      crstat->fearsome_factor = 100;
-      crstat->defense = 0;
-      crstat->luck = 0;
-      crstat->sleep_recovery = 1;
-      crstat->toking_recovery = 0;
-      crstat->hunger_rate = 1;
-      crstat->hunger_fill = 1;
-      crstat->lair_size = 1;
-      crstat->hurt_by_lava = 1;
-      crstat->base_speed = 1;
-      crstat->gold_hold = 100;
-      crstat->size_xy = 1;
-      crstat->size_z = 1;
-      crstat->attack_preference = 0;
-      crstat->pay = 1;
-      crstat->slaps_to_kill = 10;
-      crstat->damage_to_boulder = 4;
-      crstat->thing_size_xy = 128;
-      crstat->thing_size_z = 64;
-      crstat->bleeds = false;
-      crstat->affected_by_wind = true;
-      crstat->immune_to_gas = false;
-      crstat->humanoid_creature = false;
-      crstat->piss_on_dead = false;
-      crstat->flying = false;
-      crstat->can_see_invisible = false;
-      crstat->can_go_locked_doors = false;
-      crstat->prison_kind = 0;
-      crstat->torture_kind = 0;
-      crconf->namestr_idx = 0;
-      crconf->model_flags = 0;
-  }
   // Find the block
   char block_buf[COMMAND_WORD_LEN];
   sprintf(block_buf, "attributes");
@@ -644,6 +621,17 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           crstat->flying = false;
           crstat->can_see_invisible = false;
           crstat->can_go_locked_doors = false;
+          crstat->immune_to_charm = false;
+          crstat->immune_to_freeze = false;
+          crstat->immune_to_slow = false;
+          crstat->self_recovery = false;
+          crstat->resist_to_magic = false;
+          crstat->is_mechanical = false;
+          crstat->is_undead = false;
+          crstat->is_thief = false;
+          crstat->ethereal = false;
+          crstat->hoarfrost = false;
+          crstat->boss = false;
           crconf->model_flags = 0;
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
@@ -779,6 +767,50 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 crconf->model_flags |= CMF_PreferSteal;
                 n++;
                 break;
+            case 34: // IMMUNE_TO_CHARM
+                crstat->immune_to_charm = true;
+                n++;
+                break;
+            case 35: // IMMUNE_TO_FREEZE
+                crstat->immune_to_freeze = true;
+                n++;
+                break;
+            case 36: // IMMUNE_TO_SLOW
+                crstat->immune_to_slow = true;
+                n++;
+                break;
+            case 37: // SELF_RECOVERY
+                crstat->self_recovery = true;
+                n++;
+                break;
+            case 38: // RESIST_TO_MAGIC
+                crstat->resist_to_magic = true;
+                n++;
+                break;
+            case 39: // MECHANICAL
+                crstat->is_mechanical = true;
+                n++;
+                break;
+            case 40: // UNDEAD
+                crstat->is_undead = true;
+                n++;
+                break;
+            case 41: // THIEF
+                crstat->is_thief = true;
+                n++;
+                break;
+            case 42: // ETHEREAL
+                crstat->ethereal = true;
+                n++;
+                break;
+            case 43: // HOARFROST
+                crstat->hoarfrost = true;
+                n++;
+                break;
+            case 44: // BOSS
+                crstat->boss = true;
+                n++;
+                break;
             default:
               CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s %s file.",
                   COMMAND_TEXT(cmd_num),word_buf,block_buf, creature_code_name(crtr_model), config_textname);
@@ -884,6 +916,145 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
+        case 37: // HOSTILETOWARDS
+            for (int i = 0; i < CREATURE_TYPES_MAX; i++)
+            {
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = get_id(creature_desc, word_buf);
+                    if (k >= 0)
+                    {
+                        crstat->hostile_towards[i] = k;
+                        n++;
+                    }
+                    else if (0 == strcmp(word_buf, "ANY_CREATURE"))
+                    {
+                        crstat->hostile_towards[i] = CREATURE_ANY;
+                        n++;
+                    }
+                    else
+                    {
+                        crstat->hostile_towards[i] = 0;
+                        if (strcasecmp(word_buf, "NULL") == 0)
+                        {
+                            n++;
+                        }
+                    }
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
+            }
+            break;
+      case 38: // LAVARECOVERY
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            crstat->lava_recovery = k;
+            n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+          }
+          break;
+      case 39: // HURTBYWATER
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            crstat->hurt_by_water = k;
+            n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+          }
+          break;
+      case 40: // WATERRECOVERY
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            crstat->water_recovery = k;
+            n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+          }
+          break;
+      case 41: // MAGIC
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            crstat->magic = k;
+            n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+          }
+          break;
+      case 42: // POOPAMOUNT
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            crstat->poop_amount = k;
+            n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+          }
+          break;
+      case 43: // POOPFREQUENCY
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            crstat->poop_frequency = k;
+            n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+          }
+          break;
+      case 44: // POOPRANDOM
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            crstat->poop_random = k;
+            n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+          }
+          break;
+      case 45: // POOPTYPE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(object_desc, word_buf);
+              if (k > 0)
+              {
+                  crstat->poop_type = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
       case ccr_comment:
           break;
       case ccr_endOfFile:
@@ -926,19 +1097,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
 {
   int n;
   // Block name and parameter word store variables
-  // Initialize block data
   struct CreatureStats* crstat = creature_stats_get(crtr_model);
-  if ((flags & CnfLd_AcceptPartial) == 0)
-  {
-      for (n=0; n < ENTRANCE_ROOMS_COUNT; n++)
-      {
-        crstat->entrance_rooms[n] = 0;
-        crstat->entrance_slabs_req[n] = 0;
-      }
-      crstat->entrance_score = 10;
-      crstat->scavenge_require = 1;
-      crstat->torture_break_time = 1;
-  }
   // Find the block
   char block_buf[COMMAND_WORD_LEN];
   sprintf(block_buf, "attraction");
@@ -1052,39 +1211,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
 TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
     // Block name and parameter word store variables
-    // Initialize block data
     struct CreatureStats* crstat = creature_stats_get(crtr_model);
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        crstat->annoy_eat_food = 0;
-        crstat->annoy_will_not_do_job = 0;
-        crstat->annoy_in_hand = 0;
-        crstat->annoy_no_lair = 0;
-        crstat->annoy_no_hatchery = 0;
-        crstat->annoy_woken_up = 0;
-        crstat->annoy_on_dead_enemy = 0;
-        crstat->annoy_sulking = 0;
-        crstat->annoy_no_salary = 0;
-        crstat->annoy_slapped = 0;
-        crstat->annoy_on_dead_friend = 0;
-        crstat->annoy_in_torture = 0;
-        crstat->annoy_in_temple = 0;
-        crstat->annoy_sleeping = 0;
-        crstat->annoy_got_wage = 0;
-        crstat->annoy_win_battle = 0;
-        crstat->annoy_untrained_time = 0;
-        crstat->annoy_untrained = 0;
-        crstat->annoy_others_leaving = 0;
-        crstat->annoy_job_stress = 0;
-        crstat->annoy_going_postal = 0;
-        crstat->annoy_queue = 0;
-        for (int i = 0; i < LAIR_ENEMY_MAX; i++)
-        {
-            crstat->lair_enemy[i] = 0;
-        }
-        crstat->annoy_level = 0;
-        crstat->jobs_anger = 0;
-    }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
     sprintf(block_buf, "annoyance");
@@ -1463,16 +1590,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
 TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
     // Block name and parameter word store variables
-    // Initialize block data
     struct CreatureStats* crstat = creature_stats_get(crtr_model);
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        crstat->hearing = 0;
-        crstat->base_eye_height = 0;
-        crstat->field_of_view = 0;
-        crstat->eye_effect = 0;
-        crstat->max_turning_speed = 1;
-    }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
     sprintf(block_buf, "senses");
@@ -1584,22 +1702,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
 TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
     // Block name and parameter word store variables
-    // Initialize block data
     struct CreatureStats* crstat = creature_stats_get(crtr_model);
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        crstat->walking_anim_speed = 1;
-        crstat->fixed_anim_speed = false;
-        crstat->visual_range = 1;
-        crstat->swipe_idx = 0;
-        crstat->natural_death_kind = Death_Normal;
-        crstat->shot_shift_x = 0;
-        crstat->shot_shift_y = 0;
-        crstat->shot_shift_z = 0;
-        crstat->footstep_pitch = 100;
-        crstat->corpse_vanish_effect = 0;
-        crstat->status_offset = 32;
-    }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
     sprintf(block_buf, "appearance");
@@ -1807,26 +1910,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
 {
     int n;
     // Block name and parameter word store variables
-    // Initialize block data
     struct CreatureStats* crstat = creature_stats_get(crtr_model);
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        for (n=0; n < LEARNED_INSTANCES_COUNT; n++)
-        {
-            crstat->learned_instance_id[n] = 0;
-            crstat->learned_instance_level[n] = 0;
-        }
-        for (n=0; n < CREATURE_MAX_LEVEL; n++)
-        {
-            crstat->to_level[n] = 0;
-        }
-        crstat->grow_up = 0;
-        crstat->grow_up_level = 0;
-        crstat->sleep_exp_slab = 0;
-        crstat->sleep_experience = 0;
-        crstat->exp_for_hitting = 0;
-        crstat->rebirth = 0;
-    }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
     sprintf(block_buf, "experience");
@@ -1996,22 +2080,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
 TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
     // Block name and parameter word store variables
-    // Initialize block data
     struct CreatureStats* crstat = creature_stats_get(crtr_model);
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        crstat->job_primary = 0;
-        crstat->job_secondary = 0;
-        crstat->jobs_not_do = 0;
-        crstat->job_stress = 0;
-        crstat->training_value = 0;
-        crstat->training_cost = 0;
-        crstat->scavenge_value = 0;
-        crstat->scavenger_cost = 0;
-        crstat->research_value = 0;
-        crstat->manufacture_value = 0;
-        crstat->partner_training = 0;
-    }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
     sprintf(block_buf, "jobs");
@@ -2207,7 +2276,6 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
 TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
   int n;
-  // Block name and parameter word store variables
   // Find the block
   char block_buf[COMMAND_WORD_LEN];
   sprintf(block_buf, "sprites");

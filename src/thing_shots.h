@@ -66,6 +66,7 @@ enum ShotModels {
     ShM_RangedSpeed = 34,
     ShM_RangedArmour = 35,
     ShM_RangedRebound = 36,
+    ShM_MeteorStorm = 37,
 };
 
 enum ShotFireLogics {
@@ -87,6 +88,7 @@ enum ShotUpdateLogics {
     ShUL_GodLightBall,
     ShUL_TrapTNT,
     ShUL_TrapLightning,
+    ShUL_MeteorStorm,
 };
 
 /******************************************************************************/

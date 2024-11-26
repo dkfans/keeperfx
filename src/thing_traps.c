@@ -738,11 +738,11 @@ void process_trap_charge(struct Thing* traptng)
     if (trapst->attack_sprite_anim_idx != 0)
     {
         GameTurnDelta trigger_duration;
-        if (trapst->activation_type == 2) //Effect stays on trap, so the attack animation remains visible for as long as the effect is alive
+        if (trapst->activation_type == 2) // Effect stays on trap, so the attack animation remains visible for as long as the effect is alive.
         {
             trigger_duration = get_effect_model_stats(trapst->created_itm_model)->start_health;
         } else
-        if (trapst->activation_type == 3) //Shot stays on trap, so the attack animation remains visible for as long as the trap is alive
+        if (trapst->activation_type == 3) // Shot stays on trap, so the attack animation remains visible for as long as the trap is alive.
         {
             trigger_duration = get_shot_model_stats(trapst->created_itm_model)->health;
         }
@@ -773,14 +773,14 @@ void process_trap_charge(struct Thing* traptng)
             set_flag(traptng->rendering_flags, TRF_Transpar_4);
             if (!is_neutral_thing(traptng) && !is_hero_thing(traptng))
             {
-                if (placing_offmap_workshop_item(traptng->owner, TCls_Trap, traptng->model))
+                if ((placing_offmap_workshop_item(traptng->owner, TCls_Trap, traptng->model)) || (trapst->remove_once_depleted))
                 {
-                    //When there's only offmap traps, destroy the disarmed one so the player can place a new one.
+                    // When there's only offmap traps, destroy the disarmed one so the player can place a new one.
                     delete_thing_structure(traptng, 0);
                 }
                 else
                 {
-                    //Trap is available to be rearmed, so earmark a workshop crate for it.
+                    // Trap is available to be rearmed, so earmark a workshop crate for it.
                     remove_workshop_item_from_amount_placeable(traptng->owner, traptng->class_id, traptng->model);
                 }
             }
@@ -1118,6 +1118,49 @@ TbBool trap_on_bridge(ThingModel trpkind)
     return trapst->place_on_bridge;
 }
 
+TbBool trap_on_room(ThingModel trpkind)
+{
+    struct TrapConfigStats* trapst = &game.conf.trapdoor_conf.trap_cfgstats[trpkind];
+    return trapst->place_on_room;
+}
+
+TbBool blocking_thing_on_map_block(struct Map* mapblk)
+{
+    unsigned long k = 0;
+    struct ObjectConfigStats* objst;
+    long i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            WARNLOG("Jump out of things array");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        if (thing->class_id == TCls_Object)
+        {
+            objst = get_object_model_stats(thing->model);
+            if (objst->genre == OCtg_Decoration)
+                return true;
+            if (objst->genre == OCtg_Furniture)
+                return true;
+            if (objst->genre == OCtg_LairTotem)
+                return true;
+            if (objst->genre == OCtg_GoldHoard)
+                return true;
+        }
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
+            break;
+        }
+    }
+    return false;
+}
+
 TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel trpkind)
 {
     MapSlabCoord slb_x = subtile_slab(stl_x);
@@ -1126,8 +1169,8 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     struct SlabAttr* slbattr = get_slab_attrs(slb);
     TbBool HasTrap = true;
     TbBool HasDoor = true;
+    TbBool HasColumn = true;
     struct TrapConfigStats* trap_cfg = get_trap_model_stats(trpkind);
-
     if (!subtile_revealed(stl_x, stl_y, plyr_idx)) {
         return false;
     }
@@ -1137,16 +1180,34 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     if (slab_kind_is_liquid(slb->kind)) {
         return false;
     }
-    if ((slabmap_owner(slb) == plyr_idx) && (((slb->kind == SlbT_BRIDGE) && (trap_on_bridge(trpkind))) || (slb->kind == SlbT_CLAIMED) || (slab_is_door(slb_x, slb_y))))
+    if ((slabmap_owner(slb) == plyr_idx) && (((slb->kind == SlbT_BRIDGE) && (trap_on_bridge(trpkind))) || ((slbattr->trappable != 0) && (trap_on_room(trpkind)))  || (slb->kind == SlbT_CLAIMED) || (slab_is_door(slb_x, slb_y))))
     {
         if (trap_cfg->place_on_subtile == false)
         {
-                HasTrap = slab_has_trap_on(slb_x, slb_y);
-                HasDoor = slab_is_door(slb_x, slb_y);
+            if (blocking_thing_on_map_block(get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y))))
+            {
+                return false;
+            }
+            if (is_dangerous_drop_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y)))
+            {
+                return false;
+            }
+            HasTrap = slab_has_trap_on(slb_x, slb_y);
+            HasDoor = slab_is_door(slb_x, slb_y);
+            HasColumn = (get_floor_filled_subtiles_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y)) > 2);
         }
         else
         {
+            if (blocking_thing_on_map_block(get_map_block_at(stl_x,stl_y)))
+            {
+                return false;
+            }
+            if (is_dangerous_drop_subtile(stl_x,stl_y))
+            {
+                return false;
+            }
             HasTrap = subtile_has_trap_on(stl_x, stl_y);
+            HasColumn = (get_floor_filled_subtiles_at(stl_x, stl_y) > 2);
             switch(get_door_orientation(slb_x, slb_y))
             {
                 case -1:
@@ -1167,7 +1228,7 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
             }
             // HasDoor = ((subtile_has_door_thing_on(stl_x, stl_y)) || (subtile_is_door(stl_x, stl_y)) );
         }
-        if (!HasTrap && !HasDoor)
+        if (!HasTrap && !HasDoor && !HasColumn)
         {
             return true;
         }

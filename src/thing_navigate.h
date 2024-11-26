@@ -63,6 +63,7 @@ void reset_interpolation_of_thing(struct Thing *thing);
 /******************************************************************************/
 extern long owner_player_navigating;
 extern long nav_thing_can_travel_over_lava;
+extern long nav_thing_can_travel_over_water;
 
 #pragma pack()
 /******************************************************************************/
@@ -76,6 +77,7 @@ TbBool setup_person_move_to_coord_f(struct Thing *thing, const struct Coord3d *p
 TbBool setup_person_move_backwards_to_coord(struct Thing *thing, const struct Coord3d *pos, NaviRouteFlags flags);
 
 TbBool creature_can_travel_over_lava(const struct Thing *creatng);
+TbBool creature_can_travel_over_water(const struct Thing *creatng);
 TbBool can_step_on_unsafe_terrain_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool terrain_toxic_for_creature_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 

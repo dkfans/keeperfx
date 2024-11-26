@@ -1106,7 +1106,7 @@ static void command_use_spell_on_creature(long plr_range_id, const char *crtr_na
   long mag_id = get_rid(spell_desc, magname);
   if (splevel < 1)
   {
-    if ( (mag_id == SplK_Heal) || (mag_id == SplK_Armour) || (mag_id == SplK_Speed) || (mag_id == SplK_Disease) || (mag_id == SplK_Invisibility) || (mag_id == SplK_Chicken) )
+    if ((mag_id == SplK_Freeze) || (mag_id == SplK_Armour) || (mag_id == SplK_Rebound) || (mag_id == SplK_Heal) || (mag_id == SplK_Invisibility) || (mag_id == SplK_Speed) || (mag_id == SplK_Slow) || (mag_id == SplK_Fly) || (mag_id == SplK_Sight) || (mag_id == SplK_Disease) || (mag_id == SplK_Chicken) || (mag_id == SplK_TimeBomb) || (mag_id == SplK_Rage) || (mag_id == SplK_DivineShield) || (mag_id == SplK_Indoctrination) || (mag_id == SplK_MagicMist))
     {
         SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", magname, splevel);
     }

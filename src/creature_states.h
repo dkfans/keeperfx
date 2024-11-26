@@ -379,6 +379,7 @@ TbBool creature_is_doing_anger_job(const struct Thing *thing);
 TbBool creature_is_doing_garden_activity(const struct Thing *thing);
 TbBool creature_is_taking_salary_activity(const struct Thing *thing);
 TbBool creature_is_doing_temple_pray_activity(const struct Thing *thing);
+TbBool creature_is_fighting(const struct Thing *thing);
 TbBool creature_is_training(const struct Thing *thing);
 TbBool creature_is_being_scavenged(const struct Thing *thing);
 TbBool creature_is_scavengering(const struct Thing *thing);
@@ -392,6 +393,8 @@ TbBool creature_is_kept_in_custody_by_enemy(const struct Thing *thing);
 TbBool creature_is_kept_in_custody_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
 short player_keeping_creature_in_custody(const struct Thing* thing);
 TbBool creature_state_is_unset(const struct Thing *thing);
+TbBool creature_is_hostile_towards(const struct Thing *tng1, const struct Thing *tng2);
+TbBool creature_can_be_hostile(const struct Thing *tng1, const struct Thing *tng2);
 TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thing *tng2);
 TbBool creature_will_attack_creature_incl_til_death(const struct Thing *tng1, const struct Thing *tng2);
 // Compound checks for specific cases
