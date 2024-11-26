@@ -544,7 +544,8 @@ TbBool cube_is_lava(long cube_id)
  * @return */
 TbBool cube_is_water(long cube_id)
 {
-    return flag_is_set(cube_id, CPF_IsWater);
+    // return flag_is_set(cube_id, CPF_IsWater);
+    return (cube_id == 39);
 }
 
 /* Returns if given cube is a sacrificial ground or magic door surface.
@@ -552,7 +553,8 @@ TbBool cube_is_water(long cube_id)
  * @return */
 TbBool cube_is_sacrificial(long cube_id)
 {
-    return flag_is_set(cube_id, CPF_IsSacrificial);
+    return (cube_id >= 294) && (cube_id <= 302);
+    // return flag_is_set(cube_id, CPF_IsSacrificial);
 }
 
 /* Returns if given cube is unclaimed path.
@@ -560,7 +562,8 @@ TbBool cube_is_sacrificial(long cube_id)
  * @return */
 TbBool cube_is_unclaimed_path(long cube_id)
 {
-    return flag_is_set(cube_id, CPF_IsUnclaimedPath);
+    return ((cube_id == 0) || ((cube_id >= 25) && (cube_id <= 29)));
+    // return flag_is_set(cube_id, CPF_IsUnclaimedPath);
 }
 
 /**
