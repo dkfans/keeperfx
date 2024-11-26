@@ -133,7 +133,7 @@ static void command_add_creature_to_level(long plr_range_id, const char *crtr_na
     }
     if (ncopies > game.conf.rules.game.creatures_count)
     {
-        SCRPTWRNLOG("Trying to add %d creatures which is over map limit %d", ncopies, game.conf.rules.game.creatures_count);
+        SCRPTWRNLOG("Trying to add %ld creatures which is over map limit %u", ncopies, game.conf.rules.game.creatures_count);
     }
     if (gameadd.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
     {
@@ -314,7 +314,7 @@ static void command_research_order(long plr_range_id, const char *trg_type, cons
             continue;
         if (dungeon->research_num >= DUNGEON_RESEARCH_COUNT)
         {
-          SCRPTERRLOG("Too many RESEARCH ITEMS, for player %d", i);
+          SCRPTERRLOG("Too many RESEARCH ITEMS, for player %ld", i);
           return;
         }
     }
@@ -336,7 +336,7 @@ static void command_if_action_point(long apt_num, long plr_range_id)
     long apt_idx = action_point_number_to_index(apt_num);
     if (!action_point_exists_idx(apt_idx))
     {
-        SCRPTERRLOG("Non-existing Action Point, no %d", apt_num);
+        SCRPTERRLOG("Non-existing Action Point, no %ld", apt_num);
         return;
     }
     command_add_condition(plr_range_id, 0, SVar_ACTION_POINT_TRIGGERED, apt_idx, 0);
@@ -558,9 +558,9 @@ static void command_add_creature_to_pool(const char *crtr_name, long amount)
         SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
         return;
     }
-    if ((amount < 0) || (amount >= CREATURES_COUNT))
+    if ((amount <= -CREATURES_COUNT) || (amount >= CREATURES_COUNT))
     {
-        SCRPTERRLOG("Invalid number of '%s' creatures for pool, %d", crtr_name, amount);
+        SCRPTERRLOG("Invalid number of '%s' creatures for pool, %ld", crtr_name, amount);
         return;
     }
     command_add_value(Cmd_ADD_CREATURE_TO_POOL, ALL_PLAYERS, crtr_id, amount, 0);
@@ -578,7 +578,7 @@ static void command_set_music(long val)
   }
   else
   {
-    SCRPTERRLOG("Invalid music track %d, track must be between %d and %d", val,FIRST_TRACK,max_track);
+    SCRPTERRLOG("Invalid music track %ld, track must be between %d and %d", val,FIRST_TRACK,max_track);
     return;
   }
 }
@@ -604,7 +604,7 @@ static void command_set_creature_health(const char *crtr_name, long val)
   }
   if ((val < 0) || (val > 65535))
   {
-    SCRPTERRLOG("Invalid '%s' health value, %d", crtr_name, val);
+    SCRPTERRLOG("Invalid '%s' health value, %ld", crtr_name, val);
     return;
   }
   command_add_value(Cmd_SET_CREATURE_HEALTH, ALL_PLAYERS, crtr_id, val, 0);
@@ -620,7 +620,7 @@ static void command_set_creature_strength(const char *crtr_name, long val)
   }
   if ((val < 0) || (val > 255))
   {
-    SCRPTERRLOG("Invalid '%s' strength value, %d", crtr_name, val);
+    SCRPTERRLOG("Invalid '%s' strength value, %ld", crtr_name, val);
     return;
   }
   command_add_value(Cmd_SET_CREATURE_STRENGTH, ALL_PLAYERS, crtr_id, val, 0);
@@ -636,7 +636,7 @@ static void command_set_creature_armour(const char *crtr_name, long val)
   }
   if ((val < 0) || (val > 255))
   {
-    SCRPTERRLOG("Invalid '%s' armour value, %d", crtr_name, val);
+    SCRPTERRLOG("Invalid '%s' armour value, %ld", crtr_name, val);
     return;
   }
   command_add_value(Cmd_SET_CREATURE_ARMOUR, ALL_PLAYERS, crtr_id, val, 0);
@@ -652,7 +652,7 @@ static void command_set_creature_fear_wounded(const char *crtr_name, long val)
   }
   if ((val < 0) || (val > 255))
   {
-    SCRPTERRLOG("Invalid '%s' fear value, %d", crtr_name, val);
+    SCRPTERRLOG("Invalid '%s' fear value, %ld", crtr_name, val);
     return;
   }
   command_add_value(Cmd_SET_CREATURE_FEAR_WOUNDED, ALL_PLAYERS, crtr_id, val, 0);
@@ -668,7 +668,7 @@ static void command_set_creature_fear_stronger(const char *crtr_name, long val)
   }
   if ((val < 0) || (val > 32767))
   {
-    SCRPTERRLOG("Invalid '%s' fear value, %d", crtr_name, val);
+    SCRPTERRLOG("Invalid '%s' fear value, %ld", crtr_name, val);
     return;
   }
   command_add_value(Cmd_SET_CREATURE_FEAR_STRONGER, ALL_PLAYERS, crtr_id, val, 0);
@@ -684,7 +684,7 @@ static void command_set_creature_fearsome_factor(const char* crtr_name, long val
     }
     if ((val < 0) || (val > 32767))
     {
-        SCRPTERRLOG("Invalid '%s' fearsome value, %d", crtr_name, val);
+        SCRPTERRLOG("Invalid '%s' fearsome value, %ld", crtr_name, val);
         return;
     }
     command_add_value(Cmd_SET_CREATURE_FEARSOME_FACTOR, ALL_PLAYERS, crtr_id, val, 0);
@@ -980,19 +980,19 @@ static void command_use_special_increase_level(long plr_range_id, long count)
 {
     if (count == 0)
     {
-        SCRPTWRNLOG("Invalid count: %d, setting to 1.", count);
+        SCRPTWRNLOG("Invalid count: %ld, setting to 1.", count);
         count = 1;
     }
 
     if (count > 9)
     {
-        SCRPTWRNLOG("Count too high: %d, setting to 9.", count);
+        SCRPTWRNLOG("Count too high: %ld, setting to 9.", count);
         count = 9;
     }
 
     if (count < -9)
     {
-        SCRPTWRNLOG("Count too low: %d, setting to -9.", count);
+        SCRPTWRNLOG("Count too low: %ld, setting to -9.", count);
         count = -9;
     }
     command_add_value(Cmd_USE_SPECIAL_INCREASE_LEVEL, plr_range_id, count, 0, 0);
@@ -1002,13 +1002,13 @@ static void command_use_special_multiply_creatures(long plr_range_id, long count
 {
     if (count < 1)
     {
-        SCRPTWRNLOG("Invalid count: %d, setting to 1.", count);
+        SCRPTWRNLOG("Invalid count: %ld, setting to 1.", count);
         count = 1;
     }
 
     if (count > 9)
     {
-        SCRPTWRNLOG("Count too high: %d, setting to 9.", count);
+        SCRPTWRNLOG("Count too high: %ld, setting to 9.", count);
         count = 9;
     }
     command_add_value(Cmd_USE_SPECIAL_MULTIPLY_CREATURES, plr_range_id, count, 0, 0);
@@ -1453,7 +1453,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_LEVEL_VERSION:
         level_file_version = scline->np[0];
-        SCRPTLOG("Level files version %d.",level_file_version);
+        SCRPTLOG("Level files version %ld.",level_file_version);
         break;
     case Cmd_ADD_TO_FLAG:
         command_add_to_flag(scline->np[0], scline->tp[1], scline->np[2]);

@@ -78,7 +78,7 @@ void setup_input_field(struct GuiButton *gbtn, const char * empty_text)
 {
     lbInkey = 0;
     LbMemorySet(backup_input_field, 0, INPUT_FIELD_LEN);
-    char* content = (char*)gbtn->content;
+    char* content = gbtn->content.str;
     if (content == NULL)
     {
         ERRORLOG("Button has invalid content pointer");

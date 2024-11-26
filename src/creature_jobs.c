@@ -860,7 +860,7 @@ TbBool creature_can_do_job_near_position(struct Thing *creatng, MapSubtlCoord st
         if ((flags & JobChk_SetStateOnFail) != 0) {
             anger_apply_anger_to_creature(creatng, crstat->annoy_will_not_do_job, AngR_Other, 1);
             external_set_thing_state(creatng, CrSt_CreatureMoan);
-            cctrl->countdown_282 = 50;
+            cctrl->countdown = 50;
         }
         return false;
     }
@@ -1123,7 +1123,7 @@ TbBool attempt_job_preference(struct Thing *creatng, long jobpref)
     {
         if (n == 0)
             continue;
-        CreatureJob new_job = 1 << (n - 1);
+        CreatureJob new_job = 1ULL << (n - 1);
         if ((jobpref & new_job) != 0)
         {
             SYNCDBG(19,"Check job %s",creature_job_code_name(new_job));
@@ -1158,7 +1158,7 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
     // Probably needs unification
     for (i=1; i < game.conf.crtr_conf.jobs_count; i++)
     {
-        CreatureJob new_job = 1<<(i-1);
+        CreatureJob new_job = 1ULL << (i-1);
         if ((jobpref & new_job) == 0) {
             continue;
         }
@@ -1180,7 +1180,7 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
         CreatureJob new_job = Job_TEMPLE_PRAY;
         if (creature_can_do_job_for_player(creatng, creatng->owner, new_job, JobChk_None))
         {
-            if (send_creature_to_job_for_player(creatng, creatng->owner, new_job)) 
+            if (send_creature_to_job_for_player(creatng, creatng->owner, new_job))
 			{
 				if (!creature_dislikes_job(creatng, new_job))
 				{

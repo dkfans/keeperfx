@@ -46,6 +46,7 @@
 #include "gui_topmsg.h"
 #include "gui_msgs.h"
 #include "frontmenu_ingame_tabs.h"
+#include "room_treasure.h"
 #include "post_inc.h"
 
 extern void clear_input(struct Packet* packet);
@@ -304,8 +305,7 @@ TbBool packets_process_cheats(
         case PSt_FreeDestroyWalls:
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {
-                struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
-                pwkind = plrst_cfg_stat->power_kind;
+                pwkind = player->chosen_power_kind;
                 i = get_power_overcharge_level(player);
                 magic_use_power_direct(plyr_idx,pwkind,i,stl_x, stl_y,INVALID_THING, PwMod_CastForFree);
                 unset_packet_control(pckt, PCtr_LBtnRelease);
@@ -314,8 +314,7 @@ TbBool packets_process_cheats(
         case PSt_FreeTurnChicken:
         case PSt_FreeCastDisease:
         {
-            struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
-            pwkind = plrst_cfg_stat->power_kind;
+            pwkind = player->chosen_power_kind;
             thing = get_creature_near_to_be_keeper_power_target(x, y, pwkind, plyr_idx);
             if (thing_is_invalid(thing))
             {

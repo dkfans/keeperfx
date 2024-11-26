@@ -167,8 +167,7 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
     struct Packet* pckt = get_packet_direct(player->packet_num);
     if ((pckt->control_flags & PCtr_LBtnHeld) != 0)
     {
-        struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
-        struct PowerConfigStats *powerst = get_power_model_stats(plrst_cfg_stat->power_kind);
+        struct PowerConfigStats *powerst = get_power_model_stats(player->chosen_power_kind);
 
         switch (powerst->overcharge_check_idx)
         {
@@ -176,11 +175,11 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
                 if (player_uses_power_call_to_arms(plyr_idx))
                     player->cast_expand_level = (dungeon->cta_splevel << 2);
                 else
-                    update_power_overcharge(player, plrst_cfg_stat->power_kind);
+                    update_power_overcharge(player, player->chosen_power_kind);
                 break;
             case OcC_SightOfEvil_expand:
             case OcC_General_expand:
-                update_power_overcharge(player, plrst_cfg_stat->power_kind);
+                update_power_overcharge(player, player->chosen_power_kind);
                 break;
             case OcC_do_not_expand:
             case OcC_Null:
@@ -904,7 +903,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
           powerst = get_power_model_stats(pckt->actn_par1);
           i = get_power_index_for_work_state(player->work_state);
           if (i > 0)
-            set_player_state(player, powerst->work_state, 0);
+            set_player_state(player, powerst->work_state, pckt->actn_par1);
       }
       return 0;
   case PckA_PlyrFastMsg:
@@ -1091,7 +1090,7 @@ void process_players_packet(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
-    SYNCDBG(6, "Processing player %d packet of type %d.", plyr_idx, (int)pckt->action);
+    SYNCDBG(6, "Processing player %ld packet of type %d.", plyr_idx, (int)pckt->action);
     player->input_crtr_control = ((pckt->additional_packet_values & PCAdV_CrtrContrlPressed) != 0);
     player->input_crtr_query = ((pckt->additional_packet_values & PCAdV_CrtrQueryPressed) != 0);
     if (((player->allocflags & PlaF_NewMPMessage) != 0) && (pckt->action == PckA_PlyrMsgChar))
@@ -1174,7 +1173,6 @@ void process_players_creature_control_packet_control(long idx)
 {
     struct InstanceInfo *inst_inf;
     long i;
-    long n;
 
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_player(idx);
@@ -1245,16 +1243,14 @@ void process_players_creature_control_packet_control(long idx)
                     if (!creature_affected_by_spell(cctng, SplK_Chicken))
                     {
                         inst_inf = creature_instance_info_get(i);
-                        n = get_human_controlled_creature_target(cctng, i, pckt);
-                        set_creature_instance(cctng, i, n, 0);
+                        process_player_use_instance(cctng, i, pckt);
                     }
                 }
             }
             else
             {
                 inst_inf = creature_instance_info_get(i);
-                n = get_human_controlled_creature_target(cctng, i, pckt);
-                set_creature_instance(cctng, i, n, 0);
+                process_player_use_instance(cctng, i, pckt);
             }
         }
     }
@@ -1271,8 +1267,7 @@ void process_players_creature_control_packet_control(long idx)
                 {
                     if (creature_instance_has_reset(cctng, i))
                     {
-                        n = get_human_controlled_creature_target(cctng, i, pckt);
-                        set_creature_instance(cctng, i, n, 0);
+                        process_player_use_instance(cctng, i, pckt);
                     }
                 }
             }
@@ -1330,7 +1325,6 @@ void process_players_creature_control_packet_action(long plyr_idx)
   struct Thing *thing;
   struct Packet *pckt;
   long i;
-  long k;
   player = get_player(plyr_idx);
   pckt = get_packet_direct(player->packet_num);
   SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
@@ -1365,9 +1359,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
         if (creature_instance_is_available(thing,i) && creature_instance_has_reset(thing, pckt->actn_par1))
         {
           i = pckt->actn_par1;
-          inst_inf = creature_instance_info_get(i);
-          k = get_human_controlled_creature_target(thing, i, pckt);
-          set_creature_instance(thing, i, k, 0);
+          process_player_use_instance(thing, i, pckt);
           if (plyr_idx == my_player_number) {
               instant_instance_selected(i);
           }
@@ -1390,9 +1382,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
       if (cctrl->instance_id == CrInst_NULL)
       {
           i = pckt->actn_par1;
-          inst_inf = creature_instance_info_get(i);
-          k = get_human_controlled_creature_target(thing, i, pckt);
-          set_creature_instance(thing, i, k, 0);
+          process_player_use_instance(thing, i, pckt);
           if (plyr_idx == my_player_number) {
               instant_instance_selected(i);
           }

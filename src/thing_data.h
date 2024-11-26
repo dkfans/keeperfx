@@ -186,7 +186,7 @@ struct Thing {
         unsigned char spell_level;
         struct Coord3d originpos;
         int num_wind_affected;
-        int wind_affected_creature[CREATURES_COUNT];  //list of wind affected Creatures
+        CctrlIndex wind_affected_creature[CREATURES_COUNT];  //list of wind affected Creatures
       } shot;
       struct {
         long x;
@@ -295,7 +295,7 @@ struct Thing {
     HitPoints health;
     unsigned short floor_height;
     unsigned short light_id;
-    short ccontrol_idx;
+    CctrlIndex ccontrol_idx;
     unsigned char snd_emitter_id;
     short next_of_class;
     short prev_of_class;

@@ -55,17 +55,17 @@ class ServiceProvider *spPtr;
 // Nil callbacks content
 void NilAddMsgCallback(unsigned long a1, char *a2, void *a3)
 {
-  WARNLOG("hit(%d, \"%s\", *)",a1,a2);
+  WARNLOG("hit(%lu, \"%s\", *)",a1,a2);
 }
 
 void NilDeleteMsgCallback(unsigned long a1, void *a2)
 {
-  WARNLOG("hit(%d, *)",a1);
+  WARNLOG("hit(%lu, *)",a1);
 }
 
 void NilHostMsgCallback(unsigned long a1, void *a2)
 {
-  WARNLOG("hit(%d, *)",a1);
+  WARNLOG("hit(%lu, *)",a1);
 }
 
 void NilUserSysMsgCallback(void *a1)
@@ -75,29 +75,29 @@ void NilUserSysMsgCallback(void *a1)
 
 void *NilUserDataMsgCallback(unsigned long a1, unsigned long a2, unsigned long a3, void *a4)
 {
-  WARNLOG("hit(%d, %d, %d, *)",a1,a2,a3);
+  WARNLOG("hit(%lu, %lu, %lu, *)",a1,a2,a3);
   return NULL;
 }
 
 void NilRequestExchangeDataMsgCallback(unsigned long a1, unsigned long a2, void *a3)
 {
-  WARNLOG("hit(%d, %d, *)",a1,a2);
+  WARNLOG("hit(%lu, %lu, *)",a1,a2);
 }
 
 void NilRequestCompositeExchangeDataMsgCallback(unsigned long a1, unsigned long a2, void *a3)
 {
-  WARNLOG("hit(%d, %d, *)",a1,a2);
+  WARNLOG("hit(%lu, %lu, *)",a1,a2);
 }
 
 void *NilUnidirectionalMsgCallback(unsigned long a1, unsigned long a2, void *a3)
 {
-  WARNLOG("hit(%d, %d, *)",a1,a2);
+  WARNLOG("hit(%lu, %lu, *)",a1,a2);
   return NULL;
 }
 
 void NilSystemUserMsgCallback(unsigned long a1, void *a2, unsigned long a3, void *a4)
 {
-  WARNLOG("hit(%d, *, %d, *)",a1,a3);
+  WARNLOG("hit(%lu, *, %lu, *)",a1,a3);
 }
 /******************************************************************************/
 // methods of virtual class ServiceProvider
@@ -232,7 +232,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
   void *imsg;
   char str[32];
   long i;
-  if (this->started < 1)
+  if (!this->started)
   {
     WARNLOG("not initialized");
     return Lb_FAIL;
@@ -348,7 +348,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
 
     //result = 0;
 
-    if (this->started < 1)
+    if (!this->started)
     {
       WARNLOG("not initialized");
       return Lb_FAIL;

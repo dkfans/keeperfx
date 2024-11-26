@@ -23,7 +23,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <io.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -452,8 +451,9 @@ long LbFileLengthRnc(const char *fname)
 {
     long flength;
     TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
-    if ( handle == -1 )
+    if (!handle) {
         return -1;
+    }
 #if (BFDEBUG_LEVEL > 19)
     LbSyncLog("%s: file opened\n", fname);
 #endif
@@ -469,7 +469,7 @@ long LbFileLengthRnc(const char *fname)
     if (header.signature == RNC_SIGNATURE)
     {
 #if (BFDEBUG_LEVEL > 19)
-        LbSyncLog("%s: file size from RNC header: %ld bytes\n", fname, header.packed_size);
+        LbSyncLog("%s: file size from RNC header: %u bytes\n", fname, header.packed_size);
 #endif
         flength = ntohl(header.unpacked_size);
     } else {
@@ -511,13 +511,13 @@ long UnpackM1(void * buffer, ulong bufsize)
 long LbFileLoadAt(const char *fname, void *buffer)
 {
   long filelength = LbFileLengthRnc(fname);
-  TbFileHandle handle=-1;
+  TbFileHandle handle = NULL;
   if (filelength!=-1)
   {
       handle = LbFileOpen(fname,Lb_FILE_MODE_READ_ONLY);
   }
   int read_status=-1;
-  if (handle!=-1)
+  if (handle)
   {
       read_status=LbFileRead(handle, buffer, filelength);
       LbFileClose(handle);
@@ -546,8 +546,9 @@ long LbFileLoadAt(const char *fname, void *buffer)
 long LbFileSaveAt(const char *fname, const void *buffer,unsigned long len)
 {
   TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_NEW);
-  if ( handle == -1 )
+  if (!handle) {
     return -1;
+  }
   int result=LbFileWrite(handle,buffer,len);
   LbFileClose(handle);
   return result;

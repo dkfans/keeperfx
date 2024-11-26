@@ -55,9 +55,9 @@ TbBool creature_can_get_angry(const struct Thing *creatng)
 short creature_moan(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    long i = cctrl->countdown_282;
+    long i = cctrl->countdown;
     if (i > 0) i--;
-    cctrl->countdown_282 = i;
+    cctrl->countdown = i;
     if (i <= 0)
     {
         if (cctrl->instance_id == CrInst_NULL) {
@@ -80,10 +80,10 @@ short creature_roar(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
 
-    if (cctrl->countdown_282 > 0) {
-        cctrl->countdown_282--;
+    if (cctrl->countdown > 0) {
+        cctrl->countdown--;
     }
-    if (cctrl->countdown_282 <= 0)
+    if (cctrl->countdown <= 0)
     {
         cctrl->last_roar_turn = game.play_gameturn;
         set_start_state(thing);
@@ -100,9 +100,9 @@ short creature_roar(struct Thing *thing)
 short creature_be_happy(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    long i = cctrl->countdown_282;
+    long i = cctrl->countdown;
     if (i > 0) i--;
-    cctrl->countdown_282 = i;
+    cctrl->countdown = i;
     if (i <= 0)
     {
       if (cctrl->instance_id == CrInst_NULL) {
@@ -124,12 +124,16 @@ short creature_be_happy(struct Thing *thing)
 short creature_piss(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if ( !S3DEmitterIsPlayingSample(thing->snd_emitter_id, 171, 0) ) {
-        thing_play_sample(thing, 171, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
+    struct CreatureSound* crsound = get_creature_sound(thing, CrSnd_Piss);
+    unsigned short sound_idx = crsound->index + CREATURE_RANDOM(thing, crsound->count);
+    if (!S3DEmitterIsPlayingSample(thing->snd_emitter_id, sound_idx, 0)) {
+        thing_play_sample(thing, sound_idx, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
     }
-    long i = cctrl->countdown_282;
-    if (i > 0) i--;
-    cctrl->countdown_282 = i;
+    long i = cctrl->countdown;
+    if (i > 0) {
+        i--;
+    }
+    cctrl->countdown = i;
     if (i > 0) {
         return 1;
     }
@@ -166,14 +170,14 @@ short mad_killing_psycho(struct Thing *creatng)
             creatng->continue_state = CrSt_MadKillingPsycho;
         } else
         {
-            cctrl->countdown_282 = 50;
+            cctrl->countdown = 50;
             creatng->continue_state = CrSt_CreatureRoar;
         }
     } else
     {
         if (game.play_gameturn - cctrl->last_roar_turn > 200)
         {
-            cctrl->countdown_282 = 50;
+            cctrl->countdown = 50;
             internal_set_thing_state(creatng, CrSt_CreatureRoar);
         }
     }
@@ -503,17 +507,20 @@ TbBool find_combat_target_passing_by_room_but_having_unrelated_job(const struct 
 TbBool process_job_causes_going_postal(struct Thing *creatng, struct Room *room, CreatureJob going_postal_job)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    CrInstance inst_use = get_best_quick_range_instance_to_use(creatng);
-    if (inst_use <= 0) {
-        SYNCDBG(8,"The %s index %d cannot go postal during %s; no ranged instance",thing_model_name(creatng),(int)creatng->index,creature_job_code_name(going_postal_job));
-        return false;
-    }
     // Find a target
     unsigned long combt_dist = LONG_MAX;
     struct Thing* combt_thing = INVALID_THING;
     if (find_combat_target_passing_by_room_but_having_unrelated_job(creatng, going_postal_job, room, &combt_dist, &combt_thing))
     {
         SYNCDBG(8,"The %s index %d goes postal on %s index %d during %s",thing_model_name(creatng),(int)creatng->index,thing_model_name(combt_thing),(int)combt_thing->index,creature_job_code_name(going_postal_job));
+        
+        CrInstance inst_use = get_postal_instance_to_use(creatng, combt_dist);
+        if (inst_use <= 0) 
+        {
+        SYNCDBG(8,"The %s index %d cannot go postal during %s; no ranged instance",thing_model_name(creatng),(int)creatng->index,creature_job_code_name(going_postal_job));
+        return false;
+        }
+
         set_creature_instance(creatng, inst_use, combt_thing->index, 0);
         external_set_thing_state(combt_thing, CrSt_CreatureEvacuateRoom);
         struct CreatureControl* combctrl = creature_control_get_from_thing(combt_thing);
@@ -630,8 +637,7 @@ TbBool any_worker_will_go_postal_on_creature_in_room(const struct Room *room, co
         {
             if (creature_will_go_postal_on_victim_during_job(thing, victng, going_postal_job))
             {
-                // We need quick ranged instance to go postal
-                if (creature_has_quick_range_weapon(thing)) {
+                if (creature_has_weapon_for_postal(thing)) {
                     return true;
                 }
             }
