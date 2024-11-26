@@ -536,7 +536,8 @@ void init_top_texture_to_cube_table(void)
  * @return */
 TbBool cube_is_lava(long cube_id)
 {
-    return flag_is_set(cube_id, CPF_IsLava);
+    return (cube_id == 40) || (cube_id == 41);
+    // return flag_is_set(cube_id, CPF_IsLava);
 }
 
 /* Returns if given cube is water.
