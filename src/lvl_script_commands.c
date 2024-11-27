@@ -290,7 +290,8 @@ const struct NamedCommand room_config_desc[] = {
   {"Roles",               13},
   {"TotalCapacity",       14},
   {"UsedCapacity",        15},
-  {"StorageHeight",       16},
+  {"SlabSynergy",         16},
+  {"StorageHeight",       17},
   {NULL,                   0},
 };
 
@@ -1306,7 +1307,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             }
         value->shorts[2] = newvalue;
     }
-    else if (roomvar == 10) // SlabAssign
+    else if ((roomvar == 10) || (roomvar == 16)) // SlabAssign & SlabSynergy
     {
         newvalue = get_id(slab_desc, valuestring);
         if (newvalue == -1)
@@ -2127,7 +2128,11 @@ static void set_room_configuration_process(struct ScriptContext *context)
             roomst->update_workers_in_room = terrain_room_used_capacity_func_list[value2];
             reinitialise_rooms_of_kind(room_type);
             break;
-        case 16: // StorageHeight
+        case 16: // SlabSynergy
+            roomst->synergy_slab = value;
+            recalculate_effeciency_for_rooms_of_kind(room_type);
+            break;
+        case 17: // StorageHeight
             roomst->storage_height = value;
             break;
         default:

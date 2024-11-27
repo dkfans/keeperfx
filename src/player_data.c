@@ -324,6 +324,19 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
     case PSt_CallToArms:
         player->chosen_power_kind = chosen_kind;
         break;
+    case PSt_FreeCtrlPassngr:
+    case PSt_FreeCtrlDirect:
+        player->chosen_power_kind = PwrK_POSSESS;
+        break;
+    case PSt_FreeDestroyWalls:
+        player->chosen_power_kind = PwrK_DESTRWALLS;
+        break;
+    case PSt_FreeCastDisease:
+        player->chosen_power_kind = PwrK_DISEASE;
+        break;
+    case PSt_FreeTurnChicken:
+        player->chosen_power_kind = PwrK_CHICKEN;
+        break;
     }
     return;
   }
@@ -340,6 +353,7 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
   {
   case PSt_CtrlDungeon:
       player->full_slab_cursor = 1;
+      player->chosen_power_kind = PwrK_None; //Cleanup for spells. Traps, doors and rooms do not require cleanup.
       break;
   case PSt_BuildRoom:
       player->chosen_room_kind = chosen_kind;
@@ -380,15 +394,28 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
       player->chosen_power_kind = chosen_kind;
       break;
   case PSt_MkGoodCreatr:
-      clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
+        clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
         player->cheatselection.chosen_player = PLAYER_GOOD;
         break;
-    case PSt_MkBadCreatr:
-    case PSt_MkDigger:
-    clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
+  case PSt_MkBadCreatr:
+  case PSt_MkDigger:
+        clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
         player->cheatselection.chosen_player = player->id_number;
         break;
-  default:
+  case PSt_FreeCtrlPassngr:
+  case PSt_FreeCtrlDirect:
+        player->chosen_power_kind = PwrK_POSSESS;
+        break;
+  case PSt_FreeDestroyWalls:
+      player->chosen_power_kind = PwrK_DESTRWALLS;
+      break;
+  case PSt_FreeCastDisease:
+      player->chosen_power_kind = PwrK_DISEASE;
+      break;
+  case PSt_FreeTurnChicken:
+      player->chosen_power_kind = PwrK_CHICKEN;
+      break;
+   default:
       break;
   }
 }
