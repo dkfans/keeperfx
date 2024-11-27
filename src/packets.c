@@ -1052,14 +1052,26 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         query_creature(player, pckt->actn_par1, pckt->actn_par2, pckt->actn_par3);
         return false;
     }
-    case PckA_SetPlayerColour:
-    {
-        set_player_colour(pckt->actn_par1, pckt->actn_par2);
-        return false;
-    }
     default:
       return process_players_global_cheats_packet_action(plyr_idx, pckt);
   }
+}
+
+TbBool process_players_general_packet_action(PlayerNumber plyr_idx)
+{
+    struct PlayerInfo* player = get_player(plyr_idx);
+    struct Packet* pckt = get_packet_direct(player->packet_num);
+    SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
+    switch (pckt->action)
+    {
+        case PckA_SetPlayerColour:
+        {
+            set_player_colour(pckt->actn_par1, pckt->actn_par2);
+            return true;
+        }
+        default:
+        return false;
+    }
 }
 
 void process_players_map_packet_control(long plyr_idx)
@@ -1107,26 +1119,29 @@ void process_players_packet(long plyr_idx)
       // Different changes to the game are possible for different views.
       // For each there can be a control change (which is view change or mouse event not translated to action),
       // and action perform (which does specific action set in packet).
-      switch (player->view_type)
+      if (!process_players_general_packet_action(plyr_idx))
       {
-      case PVT_DungeonTop:
-        process_players_dungeon_control_packet_control(plyr_idx);
-        process_players_dungeon_control_packet_action(plyr_idx);
-        break;
-      case PVT_CreatureContrl:
-        process_players_creature_control_packet_control(plyr_idx);
-        process_players_creature_control_packet_action(plyr_idx);
-        break;
-      case PVT_CreaturePasngr:
-        //process_players_creature_passenger_packet_control(plyr_idx); -- there are no control changes in passenger mode
-        process_players_creature_passenger_packet_action(plyr_idx);
-        break;
-      case PVT_MapScreen:
-        process_players_map_packet_control(plyr_idx);
-        //process_players_map_packet_action(plyr_idx); -- there are no actions to perform from map screen
-        break;
-      default:
-        break;
+          switch (player->view_type)
+          {
+              case PVT_DungeonTop:
+                process_players_dungeon_control_packet_control(plyr_idx);
+                process_players_dungeon_control_packet_action(plyr_idx);
+                break;
+              case PVT_CreatureContrl:
+                process_players_creature_control_packet_control(plyr_idx);
+                process_players_creature_control_packet_action(plyr_idx);
+                break;
+              case PVT_CreaturePasngr:
+                //process_players_creature_passenger_packet_control(plyr_idx); -- there are no control changes in passenger mode
+                process_players_creature_passenger_packet_action(plyr_idx);
+                break;
+              case PVT_MapScreen:
+                process_players_map_packet_control(plyr_idx);
+                //process_players_map_packet_action(plyr_idx); -- there are no actions to perform from map screen
+                break;
+              default:
+                break;
+          }
       }
   }
   SYNCDBG(8,"Finished");

@@ -1862,7 +1862,6 @@ TbBool cmd_player_colour(PlayerNumber plyr_idx, char * args)
     {
         struct PlayerInfo * player = get_player(plyr_idx);
         set_players_packet_action(player, PckA_SetPlayerColour, id, colour_idx, 0, 0);
-        process_players_global_packet_action(plyr_idx); // Dirty hack
         return true;
     }
     return false;
