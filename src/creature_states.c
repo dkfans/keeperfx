@@ -567,7 +567,6 @@ TbBool creature_model_bleeds(unsigned long crmodel)
 
 /******************************************************************************/
 /** Returns type of given creature state.
- *
  * @param thing The source thing.
  * @return Type of the creature state.
  */
@@ -604,21 +603,20 @@ long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
 }
 
 /** Returns GUI Job of given creature.
- *  The GUI Job is a simplified version of creature state which
- *  only takes 3 values: 0-idle, 1-working, 2-fighting.
- *
+ * The GUI Job is a simplified version of creature state which only takes 3 values: 0-idle, 1-working, 2-fighting.
  * @param thing The source thing.
- * @return GUI state, in range 0..2.
+ * @return GUI state, in range 0...2.
  */
 long get_creature_gui_job(const struct Thing *thing)
 {
     long state_type = get_creature_state_type(thing);
-    if ( (state_type >= 0) && (state_type < sizeof(state_type_to_gui_state)/sizeof(state_type_to_gui_state[0])) )
+    if ((state_type >= 0) && (state_type < sizeof(state_type_to_gui_state)/sizeof(state_type_to_gui_state[0])))
     {
         return state_type_to_gui_state[state_type];
-    } else
+    }
+    else
     {
-        WARNLOG("The %s index %d has invalid state type(%d)!",thing_model_name(thing),(int)thing->index,(int)state_type);
+        WARNLOG("The %s index %d has invalid state type(%d)!", thing_model_name(thing), (int)thing->index, (int)state_type);
         erstat_inc(ESE_BadCreatrState);
         return state_type_to_gui_state[0];
     }
