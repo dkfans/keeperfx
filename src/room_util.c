@@ -18,32 +18,31 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "room_util.h"
-#include "globals.h"
 
-#include "ariadne_wallhug.h"
+#include "globals.h"
 #include "bflib_basics.h"
-#include "config_creature.h"
-#include "config_terrain.h"
-#include "dungeon_data.h"
-#include "frontend.h"
-#include "game_legacy.h"
-#include "gui_soundmsgs.h"
-#include "keeperfx.hpp"
-#include "map_blocks.h"
-#include "map_utils.h"
-#include "math.h"
-#include "player_data.h"
-#include "player_instances.h"
 #include "room_data.h"
 #include "room_garden.h"
-#include "room_list.h"
-#include "room_workshop.h"
+#include "map_utils.h"
+#include "map_blocks.h"
+#include "player_data.h"
+#include "dungeon_data.h"
 #include "thing_data.h"
 #include "thing_doors.h"
+#include "thing_stats.h"
+#include "thing_physics.h"
 #include "thing_effects.h"
 #include "thing_objects.h"
-#include "thing_physics.h"
-#include "thing_stats.h"
+#include "room_list.h"
+#include "room_workshop.h"
+#include "ariadne_wallhug.h"
+#include "config_terrain.h"
+#include "config_creature.h"
+#include "gui_soundmsgs.h"
+#include "game_legacy.h"
+#include "keeperfx.hpp"
+#include "frontend.h"
+#include "math.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -294,19 +293,6 @@ TbBool delete_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, TbBool is_destro
     return true;
 }
 
-ThingModel find_door_kind(SlabKind slb)
-{
-    struct DoorConfigStats* doorst;
-    for (int tngmodel = 0; tngmodel < game.conf.trapdoor_conf.door_types_count; tngmodel++) {
-        doorst = get_door_model_stats(tngmodel);
-
-        if (doorst->slbkind[0] == slb || doorst->slbkind[1] == slb) {
-            return tngmodel;
-        }
-    }
-    return -1;
-}
-
 TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char slabkind)
 {
     struct Room* room = slab_room_get(slb_x, slb_y);
@@ -325,26 +311,12 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
         {
             if (slab_kind_is_animated(slabkind))
             {
-                if (slab_kind_is_door(slabkind))
-                {
-                    player_place_door_at(slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, find_door_kind(slabkind));
-                }
-                else
-                {
-                    place_animating_slab_type_on_map(slabkind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
-                }
+                place_animating_slab_type_on_map(slabkind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);  
             }
             else
             {
-                if (slab_kind_is_door(slabkind))
-                {
-                    player_place_door_at(slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, find_door_kind(slabkind));
-                }
-                else
-                {
-                    place_slab_type_on_map(slabkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
-                    set_alt_bit_on_slabs_around(slb_x, slb_y);
-                }
+                place_slab_type_on_map(slabkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
+                set_alt_bit_on_slabs_around(slb_x, slb_y);
             }
             return true;
         }
