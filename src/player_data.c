@@ -415,6 +415,8 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
   case PSt_FreeTurnChicken:
       player->chosen_power_kind = PwrK_CHICKEN;
       break;
+   default:
+      break;
   }
 }
 
