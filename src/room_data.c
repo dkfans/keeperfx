@@ -63,7 +63,11 @@ extern "C" {
 /******************************************************************************/
 void count_slabs_all_only(struct Room *room);
 void count_slabs_all_wth_effcncy(struct Room *room);
+void count_slabs_no_min_wth_effcncy(struct Room *room);
 void count_slabs_div2_wth_effcncy(struct Room *room);
+void count_slabs_div2_nomin_effcncy(struct Room *room);
+void count_slabs_mul2_wth_effcncy(struct Room *room);
+void count_slabs_pow2_wth_effcncy(struct Room *room);
 void count_workers_in_room(struct Room *room);
 long find_random_valid_position_for_item_in_different_room_avoiding_object(struct Thing* thing, struct Room* skip_room, struct Coord3d* pos);
 /******************************************************************************/
@@ -465,7 +469,16 @@ void count_slabs_all_wth_effcncy(struct Room *room)
     unsigned long count = room->slabs_count * ((long)room->efficiency);
     count = (count/ROOM_EFFICIENCY_MAX);
     if (count <= 1)
-      count = 1;
+        count = 1;
+    room->total_capacity = count;
+}
+
+void count_slabs_no_min_wth_effcncy(struct Room *room)
+{
+    unsigned long count = room->slabs_count * ((long)room->efficiency);
+    count = (count/ROOM_EFFICIENCY_MAX);
+    if (count < 1)
+        count = 0;
     room->total_capacity = count;
 }
 
@@ -473,6 +486,33 @@ void count_slabs_div2_wth_effcncy(struct Room *room)
 {
     unsigned long count = room->slabs_count * ((long)room->efficiency);
     count = ((count/ROOM_EFFICIENCY_MAX) >> 1);
+    if (count <= 1)
+        count = 1;
+    room->total_capacity = count;
+}
+
+void count_slabs_div2_nomin_effcncy(struct Room *room)
+{
+    unsigned long count = room->slabs_count * ((long)room->efficiency);
+    count = ((count/ROOM_EFFICIENCY_MAX) >> 1);
+    if (count < 1)
+        count = 0;
+    room->total_capacity = count;
+}
+
+void count_slabs_mul2_wth_effcncy(struct Room *room)
+{
+    unsigned long count = room->slabs_count * ((long)room->efficiency);
+    count = ((count/ROOM_EFFICIENCY_MAX) << 1);
+    if (count <= 1)
+        count = 1;
+    room->total_capacity = count;
+}
+
+void count_slabs_pow2_wth_effcncy(struct Room *room)
+{
+    unsigned long count = room->slabs_count * ((long)room->efficiency) * ((long)room->efficiency);
+    count = (count/ROOM_EFFICIENCY_MAX/ROOM_EFFICIENCY_MAX);
     if (count <= 1)
         count = 1;
     room->total_capacity = count;
@@ -1012,6 +1052,42 @@ unsigned short i_can_allocate_free_room_structure(void)
 }
 
 
+
+/**
+ * Recalculates all players rooms of specific kind.
+ * @param rkind
+ * @return Total amount of rooms which were reinitialized.
+ */
+long recalculate_effeciency_for_rooms_of_kind(RoomKind rkind)
+{
+    unsigned int k = 0;
+    for (unsigned int n = 0; n < DUNGEONS_COUNT; n++)
+    {
+        struct Dungeon* dungeon = get_dungeon(n);
+        unsigned int i = dungeon->room_kind[rkind];
+        while (i != 0)
+        {
+            struct Room* room = room_get(i);
+            if (room_is_invalid(room))
+            {
+                ERRORLOG("Jump to invalid room detected");
+                break;
+            }
+            i = room->next_of_owner;
+            // Per-room code starts
+            set_room_efficiency(room);
+            // Per-room code ends
+            k++;
+            if (k > ROOMS_COUNT)
+            {
+                ERRORLOG("Infinite loop detected when sweeping rooms list");
+                break;
+            }
+        }
+    }
+    return k;
+}
+
 /**
  * Re-initializes all players rooms of specific kind.
  * @param rkind
@@ -1127,7 +1203,7 @@ long calculate_cummulative_room_slabs_effeciency(const struct Room *room)
     while (i != 0)
     {
         // Per room tile code
-        score += calculate_effeciency_score_for_room_slab(i, room->owner);
+        score += calculate_effeciency_score_for_room_slab(i, room->owner, get_room_kind_stats(room->kind)->synergy_slab);
         // Per room tile code ends
         i = get_next_slab_number_in_room(i); // It would be better to have this before per-tile block, but we need old value
         k++;
