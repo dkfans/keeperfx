@@ -4563,15 +4563,24 @@ TbBool create_random_evil_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
     while (1)
     {
         crmodel = GAME_RANDOM(game.conf.crtr_conf.model_count) + 1;
-        // Accept only evil creatures.
-        struct CreatureModelConfig *crconf = &game.conf.crtr_conf.model[crmodel];
-        if ((flag_is_set(crconf->model_flags, CMF_IsSpecDigger)) || (flag_is_set(crconf->model_flags, CMF_IsSpectator)))
+        // model_count is always one higher than the last available index for creature models.
+        // This will allow more creature models to be added, but still catch the out-of-bounds model number.
+        if (crmodel >= game.conf.crtr_conf.model_count)
         {
+            // Try again.
             continue;
         }
-        if (flag_is_set(crconf->model_flags, CMF_IsEvil))
+        // Accept only evil creatures.
+        struct CreatureModelConfig *crconf = &game.conf.crtr_conf.model[crmodel];
+        if ((flag_is_set(crconf->model_flags, CMF_IsEvil))
+        && (!flag_is_set(crconf->model_flags, CMF_IsSpecDigger))
+        && (!flag_is_set(crconf->model_flags, CMF_IsSpectator)))
         {
             break;
+        }
+        else
+        {
+            continue;
         }
     }
     struct Coord3d pos;
@@ -4625,13 +4634,15 @@ TbBool create_random_hero_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
         }
         // Accept only non-evil creatures.
         struct CreatureModelConfig *crconf = &game.conf.crtr_conf.model[crmodel];
-        if ((flag_is_set(crconf->model_flags, CMF_IsSpecDigger)) || (flag_is_set(crconf->model_flags, CMF_IsSpectator)))
-        {
-            continue;
-        }
-        if (!flag_is_set(crconf->model_flags, CMF_IsEvil))
+        if ((!flag_is_set(crconf->model_flags, CMF_IsEvil))
+        && (!flag_is_set(crconf->model_flags, CMF_IsSpecDigger))
+        && (!flag_is_set(crconf->model_flags, CMF_IsSpectator)))
         {
             break;
+        }
+        else
+        {
+            continue;
         }
     }
     struct Coord3d pos;
