@@ -4424,13 +4424,15 @@ TbBool create_random_evil_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
         crmodel = GAME_RANDOM(game.conf.crtr_conf.model_count) + 1;
         // Accept only evil creatures.
         struct CreatureModelConfig *crconf = &game.conf.crtr_conf.model[crmodel];
-        if ((flag_is_set(crconf->model_flags, CMF_IsSpecDigger)) || (flag_is_set(crconf->model_flags, CMF_IsSpectator)))
-        {
-            continue;
-        }
-        if (flag_is_set(crconf->model_flags, CMF_IsEvil))
+        if ((flag_is_set(crconf->model_flags, CMF_IsEvil))
+        && (!flag_is_set(crconf->model_flags, CMF_IsSpecDigger))
+        && (!flag_is_set(crconf->model_flags, CMF_IsSpectator)))
         {
             break;
+        }
+        else
+        {
+            continue;
         }
     }
     struct Coord3d pos;
@@ -4483,13 +4485,15 @@ TbBool create_random_hero_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
         }
         // Accept only non-evil creatures.
         struct CreatureModelConfig *crconf = &game.conf.crtr_conf.model[crmodel];
-        if ((flag_is_set(crconf->model_flags, CMF_IsSpecDigger)) || (flag_is_set(crconf->model_flags, CMF_IsSpectator)))
-        {
-            continue;
-        }
-        if (!flag_is_set(crconf->model_flags, CMF_IsEvil))
+        if ((!flag_is_set(crconf->model_flags, CMF_IsEvil))
+        && (!flag_is_set(crconf->model_flags, CMF_IsSpecDigger))
+        && (!flag_is_set(crconf->model_flags, CMF_IsSpectator)))
         {
             break;
+        }
+        else
+        {
+            continue;
         }
     }
     struct Coord3d pos;
