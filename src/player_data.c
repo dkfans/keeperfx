@@ -337,11 +337,6 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
     case PSt_FreeTurnChicken:
         player->chosen_power_kind = PwrK_CHICKEN;
         break;
-    default:
-    {
-        player->chosen_power_kind = PwrK_None; //Cleanup for spells. Traps, doors and rooms do not require cleanup.
-        break;
-    }
     }
     return;
   }
@@ -358,6 +353,7 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
   {
   case PSt_CtrlDungeon:
       player->full_slab_cursor = 1;
+      player->chosen_power_kind = PwrK_None; //Cleanup for spells. Traps, doors and rooms do not require cleanup.
       break;
   case PSt_BuildRoom:
       player->chosen_room_kind = chosen_kind;
@@ -418,7 +414,6 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
       break;
   case PSt_FreeTurnChicken:
       player->chosen_power_kind = PwrK_CHICKEN;
-  default:
       break;
   }
 }
