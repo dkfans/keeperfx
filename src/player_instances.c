@@ -1267,7 +1267,7 @@ TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
 {
     if (!is_door_placeable(plyr_idx, tngmodel)) {
         WARNLOG("Player %d tried to build %s but has none to place",(int)plyr_idx,door_code_name(tngmodel));
-        return 0;
+      //  return 0;
     }
     unsigned char orient = find_door_angle(stl_x, stl_y, plyr_idx);
     struct Coord3d pos;
