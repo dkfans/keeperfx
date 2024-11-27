@@ -4422,6 +4422,13 @@ TbBool create_random_evil_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
     while (1)
     {
         crmodel = GAME_RANDOM(game.conf.crtr_conf.model_count) + 1;
+        // model_count is always one higher than the last available index for creature models.
+        // This will allow more creature models to be added, but still catch the out-of-bounds model number.
+        if (crmodel >= game.conf.crtr_conf.model_count)
+        {
+            // Try again.
+            continue;
+        }
         // Accept only evil creatures.
         struct CreatureModelConfig *crconf = &game.conf.crtr_conf.model[crmodel];
         if ((flag_is_set(crconf->model_flags, CMF_IsEvil))
