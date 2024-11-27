@@ -306,6 +306,7 @@ void set_player_ally_locked(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool
 void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_kind)
 {
   SYNCDBG(6,"Player %d state %s to %s",(int)player->id_number,player_state_code_name(player->work_state),player_state_code_name(nwrk_state));
+  player->chosen_power_kind = 0; //Cleanup for spells. Traps, doors and rooms do not require cleanup.
   // Selecting the same state again - update only 2nd parameter
   if (player->work_state == nwrk_state)
   {
