@@ -1052,6 +1052,11 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         query_creature(player, pckt->actn_par1, pckt->actn_par2, pckt->actn_par3);
         return false;
     }
+    case PckA_SetPlayerColour:
+    {
+        set_player_colour(pckt->actn_par1, pckt->actn_par2);
+        return false;
+    }
     default:
       return process_players_global_cheats_packet_action(plyr_idx, pckt);
   }

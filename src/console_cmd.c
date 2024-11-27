@@ -1852,6 +1852,22 @@ TbBool cmd_speech_test(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
+TbBool cmd_player_colour(PlayerNumber plyr_idx, char * args)
+{
+    char * pr2str = strsep(&args, " ");
+    PlayerNumber id = get_player_number_for_command(pr2str);
+    char * pr3str = strsep(&args, " ");
+    char colour_idx = get_rid(cmpgn_human_player_options, pr3str);
+    if (colour_idx > -1)
+    {
+        struct PlayerInfo * player = get_player(plyr_idx);
+        set_players_packet_action(player, PckA_SetPlayerColour, id, colour_idx, 0, 0);
+        process_players_global_packet_action(plyr_idx); // Dirty hack
+        return true;
+    }
+    return false;
+}
+
 TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
 {
     struct ConsoleCommand {
@@ -1951,6 +1967,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
         { "herogate.zoomto", cmd_zoom_to_hero_gate },
         { "sound.test", cmd_sound_test },
         { "speech.test", cmd_speech_test },
+        { "player.color", cmd_player_colour},
+        { "player.colour", cmd_player_colour},
     };
     SYNCDBG(2, "Command %d: %s",(int)plyr_idx, args);
     const char * command = strsep(&args, " ");
