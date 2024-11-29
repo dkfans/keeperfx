@@ -166,7 +166,7 @@ CREATE_PARTY(WEAK_PARTY1)
     ADD_TO_PARTY(WEAK_PARTY1,SAMURAI,2,500,ATTACK_DUNGEON_HEART,0)
 
 REM QUICK_OBJECTIVE(1,"Circle circle of the dead, tell me who I'm gonna get. Having troll is making traps, as the workshop knack he has. Warlock brings a bunch of spells, that's what bookworms always have. Orc will attract better army, which could do some serious harming.",PLAYER0)
-DISPLAY_OBJECTIVE(1,PLAYER0)
+DISPLAY_OBJECTIVE(1)
 
 REM when clicked the initial 'steal hero' box
 IF(PLAYER0,TOTAL_CREATURES > 0)
@@ -179,7 +179,7 @@ IF(PLAYER0,GUARD_POST >= 1)
     IF(PLAYER0,FLAG0 <= 2)
         SET_FLAG(PLAYER0,FLAG0,2)
         REM QUICK_OBJECTIVE(5,"Taking over the guard post seem to made the heroes retreat. But the truth is, they gained reinforcement and are just waiting for your first move. You may use some time of relative silence, so don't proceed further through their fortifications until you're ready.",PLAYER0)
-    DISPLAY_OBJECTIVE(2,PLAYER0)
+    DISPLAY_OBJECTIVE(2)
     ENDIF
 ENDIF
 
@@ -188,7 +188,7 @@ IF(PLAYER0,ENTRANCE >= 10)
     SET_TIMER(PLAYER_GOOD,TIMER0)
     SET_FLAG(PLAYER0,FLAG0,3)
     REM QUICK_OBJECTIVE(6,"Heroes have decided to start final phase of the siege with some initial attacks. Be prepared! And remember, the main force is still waiting on the surface, so prepare for something even bigger!",PLAYER_GOOD)
-    DISPLAY_OBJECTIVE(3,PLAYER0)
+    DISPLAY_OBJECTIVE(3)
 ENDIF
 
 REM When reached the AP27 room that leads directly to hero dungeon heart
@@ -196,7 +196,7 @@ IF_ACTION_POINT(27,PLAYER0)
     SET_TIMER(PLAYER_GOOD,TIMER0)
     SET_FLAG(PLAYER0,FLAG0,4)
     REM QUICK_OBJECTIVE(10,"Beware, the main hero army is coming! I hope you're prepared for this, as otherwise it may be very short fight. Destroy the heart tainted by their rightfulness!",PLAYER_GOOD)
-    DISPLAY_OBJECTIVE(4,PLAYER0)
+    DISPLAY_OBJECTIVE(4)
 ENDIF
 
 REM There may be delay of some turns before all the above conditions are checked,
@@ -229,7 +229,7 @@ IF(PLAYER0,FLAG0 <= 1)
             MAGIC_AVAILABLE(PLAYER0,POWER_CALL_TO_ARMS,1,1)
 
             REM QUICK_OBJECTIVE(2,"The fate has been decided, evil master. Your primary weapon is brute force, you'll be also able to imprison enemies, and use the unholy temple.. if you know how. Use your creatures well, as you cannot back them with traps or spells. Also, watch your gold reserve. The heroes have already noticed you and are preparing for a crusade.",PLAYER0)
-        DISPLAY_OBJECTIVE(5,PLAYER0)
+        DISPLAY_OBJECTIVE(5)
         ENDIF
     
         IF(PLAYER0,SORCEROR >= 1)
@@ -248,7 +248,7 @@ IF(PLAYER0,FLAG0 <= 1)
             DOOR_AVAILABLE(PLAYER0,MAGIC,1,15)
 
             REM QUICK_OBJECTIVE(3,"The fate has been decided, evil master. Your primary weapon is magic, you'll be able to use lots of powerful spells. Use your powers well, as you cannot back them with traps or lots of creatures. The heroes have already noticed you and are preparing for a crusade.",PLAYER0)
-            DISPLAY_OBJECTIVE(6,PLAYER0)
+            DISPLAY_OBJECTIVE(6)
         ENDIF
     
         IF(PLAYER0,TROLL >= 1)
@@ -263,7 +263,7 @@ IF(PLAYER0,FLAG0 <= 1)
             DOOR_AVAILABLE(PLAYER0,MAGIC,1,0)
         
             REM QUICK_OBJECTIVE(4,"The fate has been decided, evil master. Your primary weapon is manufacture, you'll be able to build devastating traps. Use these devices well, as you cannot back them with spells or lots of creatures. The heroes have already noticed you and are preparing for a crusade.",PLAYER0)
-            DISPLAY_OBJECTIVE(7,PLAYER0)
+            DISPLAY_OBJECTIVE(7)
         ENDIF
 
     ENDIF
@@ -333,7 +333,7 @@ ENDIF
 
 IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
     REM QUICK_OBJECTIVE(11,"The abomination of a heart is destroyed. Finish all the disorientated survivors - we must be sure the land is clear before moving forward. Wait and watch for a while to make sure all are dead.",PLAYER0)
-    DISPLAY_OBJECTIVE(8,PLAYER0)
+    DISPLAY_OBJECTIVE(8)
     IF(PLAYER0,FLAG0 < 4)
         SET_TIMER(PLAYER_GOOD,TIMER0)
         SET_FLAG(PLAYER0,FLAG0,4)
