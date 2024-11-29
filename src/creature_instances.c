@@ -1322,6 +1322,33 @@ TbBool validate_target_generic
     return true;
 }
 
+
+/**
+ * @brief Check if the given creature can be the target of the specified spell by checking if it is non-idle.
+ * @param source The source creature
+ * @param target The target creature
+ * @param inst_idx The spell instance index
+ * @param param1 Optional 1st parameter.
+ * @param param2 Optional 2nd parameter.
+ * @return TbBool True if the creature can be, false if otherwise.
+ */
+TbBool validate_target_non_idle(struct Thing* source, struct Thing* target, CrInstance inst_idx, int32_t param1,int32_t param2)
+{
+    if (!validate_target_generic(source, target, inst_idx, param1, param2))
+    {
+        return false;
+    }
+    struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
+    SpellKind spl_idx = inst_inf->func_params[0];
+    struct SpellConfig* spconf = get_spell_config(spl_idx);
+    long state_type = get_creature_state_type(target);
+    if ((state_type != CrStTyp_Idle) && !creature_affected_by_spell(target, spl_idx))
+    {
+        return true;
+    }
+    return false;
+}
+
 /**
  * @brief Check if the given creature can be the target of the specified spell when the creature
  * is in prison/torture room.
