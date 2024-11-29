@@ -1344,7 +1344,6 @@ TbBool validate_target_non_idle(struct Thing* source, struct Thing* target, CrIn
     }
     struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
     SpellKind spl_idx = inst_inf->func_params[0];
-    struct SpellConfig* spconf = get_spell_config(spl_idx);
     long state_type = get_creature_state_type(target);
     if ((state_type != CrStTyp_Idle) && !creature_affected_by_spell(target, spl_idx))
     {
