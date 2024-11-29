@@ -1515,9 +1515,8 @@ TbBool validate_target_benefits_from_higher_altitude
         return false;
     }
     long state_type = get_creature_state_type(target);
-    if (state_type != CrStTyp_Idle ||
-        // Water or lava. Flying on water is beneficial because the target can go on a Guard Post.
-        subtile_is_liquid(target->mappos.x.stl.num, target->mappos.y.stl.num))
+    //Flyin in water has no advantage, since creatures will not fly over guardposts anyway.
+    if ((state_type != CrStTyp_Idle) || terrain_toxic_for_creature_at_position(source, coord_subtile(source->mappos.x.val), coord_subtile(source->mappos.y.val)))
     {
         return true;
     }
