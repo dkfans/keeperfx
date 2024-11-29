@@ -171,7 +171,7 @@ DISPLAY_OBJECTIVE(1,PLAYER0)
 REM when clicked the initial 'steal hero' box
 IF(PLAYER0,TOTAL_CREATURES > 0)
     MAGIC_AVAILABLE(PLAYER0,POWER_IMP,1,1)
-    TUTORIAL_FLASH_BUTTON(​21,-1)
+    TUTORIAL_FLASH_BUTTON(21,-1)
 ENDIF
 
 REM Guard posts are quite far inside hero compound
