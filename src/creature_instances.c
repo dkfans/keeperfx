@@ -124,6 +124,8 @@ const struct NamedCommand creature_instances_validate_func_type[] = {
     {"validate_target_benefits_from_higher_altitude",           8},
     {"validate_target_benefits_from_offensive",                 9},
     {"validate_target_benefits_from_wind",                      10},
+    {"validate_target_non_idle",                                11},
+    {"validate_target_takes_gas_damage",                        12},
     {NULL, 0},
 };
 
@@ -139,6 +141,8 @@ Creature_Validate_Func creature_instances_validate_func_list[] = {
     validate_target_benefits_from_higher_altitude,
     validate_target_benefits_from_offensive,
     validate_target_benefits_from_wind,
+    validate_target_non_idle,
+    validate_target_takes_gas_damage,
     NULL,
 };
 
@@ -1599,6 +1603,34 @@ TbBool validate_target_benefits_from_wind
         return true;
     }
 
+    return false;
+}
+
+
+/**
+ * @brief The classic condition to determine if wind is used.
+ *
+ * @param source The source creature
+ * @param target The target creature
+ * @param inst_idx  The spell instance index
+ * @param param1 Optional 1st parameter.
+ * @param param2 Optional 2nd parameter.
+ * @return TbBool True if the creature can, false if otherwise.
+ */
+TbBool validate_target_takes_gas_damage(struct Thing* source, struct Thing* target, CrInstance inst_idx, int32_t param1, int32_t param2)
+{
+    // Note that we don't need to call validate_target_generic or validate_target_basic because
+    // Wind isn't SELF_BUFF. It doesn't require a target, the target parameter is just the source.
+    struct CreatureControl* cctrl = creature_control_get_from_thing(target);
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("Invalid creature control");
+        return false;
+    }
+    if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
+    {
+        return true;
+    }
     return false;
 }
 
