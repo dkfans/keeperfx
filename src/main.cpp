@@ -2757,6 +2757,7 @@ void update(void)
         if ((game.play_gameturn & 0x01) != 0)
             update_animating_texture_maps();
         update_things();
+        game.map_changed_for_nagivation = 0;
         process_rooms();
         process_dungeons();
         update_research();
@@ -2788,7 +2789,6 @@ void update(void)
     message_update();
     update_all_players_cameras();
     update_player_sounds();
-    game.map_changed_for_nagivation = 0;
     SYNCDBG(6,"Finished");
 }
 
