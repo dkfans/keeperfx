@@ -4792,7 +4792,21 @@ static void use_power_on_players_creatures_check(const struct ScriptLine* scline
     const char* pwr_name = scline->tp[3];
     short pwr_id = get_rid(power_desc, pwr_name);
     short splevel = scline->np[4];
-    TbBool free = scline->np[5];
+    short free;
+    if (parameter_is_number(scline->tp[5]))
+    {
+        free = atoi(scline->tp[5]);
+    }
+    else
+    {
+        free = get_id(is_free_desc, scline->tp[5]);
+    }
+    if ((free < 0) || (free > 1))
+    {
+        SCRPTERRLOG("Unknown free value '%s' not recognized", scline->tp[5]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
 
     if (crtr_id == CREATURE_NONE)
     {
@@ -7337,12 +7351,12 @@ const struct CommandDesc command_desc[] = {
   {"LEVEL_VERSION",                     "N       ", Cmd_LEVEL_VERSION, NULL, NULL},
   {"KILL_CREATURE",                     "PC!AN   ", Cmd_KILL_CREATURE, NULL, NULL},
   {"COMPUTER_DIG_TO_LOCATION",          "PLL     ", Cmd_COMPUTER_DIG_TO_LOCATION, NULL, NULL},
-  {"USE_POWER_ON_CREATURE",             "PC!APANN", Cmd_USE_POWER_ON_CREATURE, NULL, NULL},
-  {"USE_POWER_ON_PLAYERS_CREATURES",    "PC!PANN ", Cmd_USE_POWER_ON_PLAYERS_CREATURES, &use_power_on_players_creatures_check, &use_power_on_players_creatures_process },
-  {"USE_POWER_AT_POS",                  "PNNANN  ", Cmd_USE_POWER_AT_POS, NULL, NULL},
-  {"USE_POWER_AT_SUBTILE",              "PNNANN  ", Cmd_USE_POWER_AT_POS, NULL, NULL},  //todo: Remove after mapmakers have received time to use USE_POWER_AT_POS
-  {"USE_POWER_AT_LOCATION",             "PLANN   ", Cmd_USE_POWER_AT_LOCATION, NULL, NULL},
-  {"USE_POWER",                         "PAN     ", Cmd_USE_POWER, NULL, NULL},
+  {"USE_POWER_ON_CREATURE",             "PC!APANA", Cmd_USE_POWER_ON_CREATURE, NULL, NULL},
+  {"USE_POWER_ON_PLAYERS_CREATURES",    "PC!PANA ", Cmd_USE_POWER_ON_PLAYERS_CREATURES, &use_power_on_players_creatures_check, &use_power_on_players_creatures_process },
+  {"USE_POWER_AT_POS",                  "PNNANA  ", Cmd_USE_POWER_AT_POS, NULL, NULL},
+  {"USE_POWER_AT_SUBTILE",              "PNNANA  ", Cmd_USE_POWER_AT_POS, NULL, NULL},  //todo: Remove after mapmakers have received time to use USE_POWER_AT_POS
+  {"USE_POWER_AT_LOCATION",             "PLANA   ", Cmd_USE_POWER_AT_LOCATION, NULL, NULL},
+  {"USE_POWER",                         "PAA     ", Cmd_USE_POWER, NULL, NULL},
   {"USE_SPECIAL_INCREASE_LEVEL",        "PN      ", Cmd_USE_SPECIAL_INCREASE_LEVEL, NULL, NULL},
   {"USE_SPECIAL_MULTIPLY_CREATURES",    "PN      ", Cmd_USE_SPECIAL_MULTIPLY_CREATURES, NULL, NULL},
   {"MAKE_SAFE",                         "P       ", Cmd_MAKE_SAFE, NULL, NULL},
