@@ -1,8 +1,7 @@
 REM ****************************************************************************
 REM  Campaigns Consolidation Project for KeeperFX strategy game.
 REM ****************************************************************************
-REM  Script for Level The Nameless Hero
-REM  (also called Nameless Dungeon 1)
+REM  Script for Level The Nameless Hero (also called Nameless Dungeon 1)
 REM  Campaign: Twin Keepers
 REM  Authors:  Original author unknown
 REM            KeeperFX CCP Team
@@ -16,7 +15,7 @@ REM    (at your option) any later version.
 REM ****************************************************************************
 
 LEVEL_VERSION(1)
-SET_GAME_RULE(BREAK_NEUTRAL_WALLS,64)
+SET_GAME_RULE(PreserveClassicBugs,64)
 
 START_MONEY(PLAYER0,15000)
 
