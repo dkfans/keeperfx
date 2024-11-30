@@ -2749,12 +2749,19 @@ static void place_door_process(struct ScriptContext* context)
                 }
             }
             success = player_place_door_without_check_at(stl_x, stl_y, plyridx, doorkind);
-            if (success & locked)
+            if (success)
             {
                 struct Thing* doortng = get_door_for_position(stl_x, stl_y);
                 if (!thing_is_invalid(doortng))
                 {
-                    lock_door(doortng);
+                    if (locked)
+                    {
+                        lock_door(doortng);
+                    }
+                    else
+                    {
+                        unlock_door(doortng);
+                    }
                 }
             }
         }
