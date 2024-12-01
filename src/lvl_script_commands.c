@@ -30,6 +30,7 @@
 #include "creature_states.h"
 #include "creature_states_mood.h"
 #include "creature_states_pray.h"
+#include "cursor_tag.h"
 #include "custom_sprites.h"
 #include "dungeon_data.h"
 #include "frontmenu_ingame_map.h"
@@ -486,6 +487,12 @@ const struct NamedCommand fill_desc[] = {
 const struct NamedCommand set_door_desc[] = {
   {"LOCKED", 1},
   {"UNLOCKED", 2},
+  {NULL, 0}
+};
+
+const struct NamedCommand is_free_desc[] = {
+  {"PAID", 0},
+  {"FREE", 1},
   {NULL, 0}
 };
 
@@ -2669,6 +2676,98 @@ static void set_door_process(struct ScriptContext* context)
     }
 }
 
+static void place_door_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    const char* doorname = scline->tp[1];
+    short door_id = get_id(door_desc, doorname);
+    
+    if (door_id == -1)
+    {
+        SCRPTERRLOG("Unknown door, '%s'", doorname);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    if (slab_coords_invalid(scline->np[2], scline->np[3]))
+    {
+        SCRPTERRLOG("Invalid slab coordinates: %ld, %ld", scline->np[2], scline->np[3]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    short locked = get_id(set_door_desc, scline->tp[4]);
+    if (locked == -1)
+    {
+        SCRPTERRLOG("Door locked state %s not recognized", scline->tp[4]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    short free;
+    if (parameter_is_number(scline->tp[5]))
+    {
+        free = atoi(scline->tp[5]);
+    }
+    else
+    {
+        free = get_id(is_free_desc, scline->tp[5]);
+    }
+    if ((free < 0) || (free > 1))
+    {
+        SCRPTERRLOG("Place Door free state '%s' not recognized", scline->tp[5]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    value->shorts[1] = door_id;
+    value->shorts[2] = scline->np[2];
+    value->shorts[3] = scline->np[3];
+    value->shorts[4] = (locked == 1);
+    value->shorts[5] = free;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void place_door_process(struct ScriptContext* context)
+{
+    ThingModel doorkind = context->value->shorts[1];
+    MapCoord slb_x = context->value->shorts[2];
+    MapCoord slb_y = context->value->shorts[3];
+    MapSubtlCoord stl_x = slab_subtile_center(slb_x);
+    MapSubtlCoord stl_y = slab_subtile_center(slb_y);
+    TbBool locked = context->value->shorts[4];
+    TbBool free = context->value->shorts[5];
+    TbBool success;
+
+    for (int plyridx = context->plr_start; plyridx < context->plr_end; plyridx++)
+    {
+        if (tag_cursor_blocks_place_door(plyridx, stl_x, stl_y))
+        {
+            if (!free)
+            {
+                if (!is_door_placeable(plyridx, doorkind))
+                {
+                    continue;
+                }
+            }
+            success = player_place_door_without_check_at(stl_x, stl_y, plyridx, doorkind);
+            if (success)
+            {
+                delete_room_slabbed_objects(get_slab_number(slb_x, slb_y));
+                remove_dead_creatures_from_slab(slb_x, slb_y);
+                if (locked)
+                {
+                    struct Thing* doortng = get_door_for_position(stl_x, stl_y);
+                    if (!thing_is_invalid(doortng))
+                    {
+                        lock_door(doortng);
+                    }
+                }
+            }
+        }
+    }
+}
+
 static void create_effects_line_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
@@ -4700,7 +4799,21 @@ static void use_power_on_players_creatures_check(const struct ScriptLine* scline
     const char* pwr_name = scline->tp[3];
     short pwr_id = get_rid(power_desc, pwr_name);
     short splevel = scline->np[4];
-    TbBool free = scline->np[5];
+    short free;
+    if (parameter_is_number(scline->tp[5]))
+    {
+        free = atoi(scline->tp[5]);
+    }
+    else
+    {
+        free = get_id(is_free_desc, scline->tp[5]);
+    }
+    if ((free < 0) || (free > 1))
+    {
+        SCRPTERRLOG("Unknown free value '%s' not recognized", scline->tp[5]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
 
     if (crtr_id == CREATURE_NONE)
     {
@@ -7245,12 +7358,12 @@ const struct CommandDesc command_desc[] = {
   {"LEVEL_VERSION",                     "N       ", Cmd_LEVEL_VERSION, NULL, NULL},
   {"KILL_CREATURE",                     "PC!AN   ", Cmd_KILL_CREATURE, NULL, NULL},
   {"COMPUTER_DIG_TO_LOCATION",          "PLL     ", Cmd_COMPUTER_DIG_TO_LOCATION, NULL, NULL},
-  {"USE_POWER_ON_CREATURE",             "PC!APANN", Cmd_USE_POWER_ON_CREATURE, NULL, NULL},
-  {"USE_POWER_ON_PLAYERS_CREATURES",    "PC!PANN ", Cmd_USE_POWER_ON_PLAYERS_CREATURES, &use_power_on_players_creatures_check, &use_power_on_players_creatures_process },
-  {"USE_POWER_AT_POS",                  "PNNANN  ", Cmd_USE_POWER_AT_POS, NULL, NULL},
-  {"USE_POWER_AT_SUBTILE",              "PNNANN  ", Cmd_USE_POWER_AT_POS, NULL, NULL},  //todo: Remove after mapmakers have received time to use USE_POWER_AT_POS
-  {"USE_POWER_AT_LOCATION",             "PLANN   ", Cmd_USE_POWER_AT_LOCATION, NULL, NULL},
-  {"USE_POWER",                         "PAN     ", Cmd_USE_POWER, NULL, NULL},
+  {"USE_POWER_ON_CREATURE",             "PC!APANA", Cmd_USE_POWER_ON_CREATURE, NULL, NULL},
+  {"USE_POWER_ON_PLAYERS_CREATURES",    "PC!PANA ", Cmd_USE_POWER_ON_PLAYERS_CREATURES, &use_power_on_players_creatures_check, &use_power_on_players_creatures_process },
+  {"USE_POWER_AT_POS",                  "PNNANA  ", Cmd_USE_POWER_AT_POS, NULL, NULL},
+  {"USE_POWER_AT_SUBTILE",              "PNNANA  ", Cmd_USE_POWER_AT_POS, NULL, NULL},  //todo: Remove after mapmakers have received time to use USE_POWER_AT_POS
+  {"USE_POWER_AT_LOCATION",             "PLANA   ", Cmd_USE_POWER_AT_LOCATION, NULL, NULL},
+  {"USE_POWER",                         "PAA     ", Cmd_USE_POWER, NULL, NULL},
   {"USE_SPECIAL_INCREASE_LEVEL",        "PN      ", Cmd_USE_SPECIAL_INCREASE_LEVEL, NULL, NULL},
   {"USE_SPECIAL_MULTIPLY_CREATURES",    "PN      ", Cmd_USE_SPECIAL_MULTIPLY_CREATURES, NULL, NULL},
   {"MAKE_SAFE",                         "P       ", Cmd_MAKE_SAFE, NULL, NULL},
@@ -7304,6 +7417,7 @@ const struct CommandDesc command_desc[] = {
   {"HEART_LOST_QUICK_OBJECTIVE",        "NAl     ", Cmd_HEART_LOST_QUICK_OBJECTIVE, &heart_lost_quick_objective_check, &heart_lost_quick_objective_process},
   {"HEART_LOST_OBJECTIVE",              "Nl      ", Cmd_HEART_LOST_OBJECTIVE, &heart_lost_objective_check, &heart_lost_objective_process},
   {"SET_DOOR",                          "ANN     ", Cmd_SET_DOOR, &set_door_check, &set_door_process},
+  {"PLACE_DOOR",                        "PANNAA  ", Cmd_PLACE_DOOR, &place_door_check, &place_door_process},
   {"ZOOM_TO_LOCATION",                  "PL      ", Cmd_MOVE_PLAYER_CAMERA_TO, &player_zoom_to_check, &player_zoom_to_process},
   {"SET_CREATURE_INSTANCE",             "CNAN    ", Cmd_SET_CREATURE_INSTANCE, &set_creature_instance_check, &set_creature_instance_process},
   {"SET_HAND_RULE",                     "PC!Aaaa ", Cmd_SET_HAND_RULE, &set_hand_rule_check, &set_hand_rule_process},
