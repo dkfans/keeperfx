@@ -2731,8 +2731,10 @@ static void place_door_check(const struct ScriptLine* scline)
 static void place_door_process(struct ScriptContext* context)
 {
     ThingModel doorkind = context->value->shorts[1];
-    MapSubtlCoord stl_x = slab_subtile_center(context->value->shorts[2]);
-    MapSubtlCoord stl_y = slab_subtile_center(context->value->shorts[3]);
+    MapCoord slb_x = context->value->shorts[2];
+    MapCoord slb_y = context->value->shorts[3];
+    MapSubtlCoord stl_x = slab_subtile_center(slb_x);
+    MapSubtlCoord stl_y = slab_subtile_center(slb_y);
     TbBool locked = context->value->shorts[4];
     TbBool free = context->value->shorts[5];
     TbBool success;
@@ -2751,16 +2753,14 @@ static void place_door_process(struct ScriptContext* context)
             success = player_place_door_without_check_at(stl_x, stl_y, plyridx, doorkind);
             if (success)
             {
-                struct Thing* doortng = get_door_for_position(stl_x, stl_y);
-                if (!thing_is_invalid(doortng))
+                delete_room_slabbed_objects(get_slab_number(slb_x, slb_y));
+                remove_dead_creatures_from_slab(slb_x, slb_y);
+                if (locked)
                 {
-                    if (locked)
+                    struct Thing* doortng = get_door_for_position(stl_x, stl_y);
+                    if (!thing_is_invalid(doortng))
                     {
                         lock_door(doortng);
-                    }
-                    else
-                    {
-                        unlock_door(doortng);
                     }
                 }
             }
