@@ -738,11 +738,11 @@ void process_trap_charge(struct Thing* traptng)
     if (trapst->attack_sprite_anim_idx != 0)
     {
         GameTurnDelta trigger_duration;
-        if (trapst->activation_type == 2) //Effect stays on trap, so the attack animation remains visible for as long as the effect is alive
+        if (trapst->activation_type == 2) // Effect stays on trap, so the attack animation remains visible for as long as the effect is alive.
         {
             trigger_duration = get_effect_model_stats(trapst->created_itm_model)->start_health;
         } else
-        if (trapst->activation_type == 3) //Shot stays on trap, so the attack animation remains visible for as long as the trap is alive
+        if (trapst->activation_type == 3) // Shot stays on trap, so the attack animation remains visible for as long as the trap is alive.
         {
             trigger_duration = get_shot_model_stats(trapst->created_itm_model)->health;
         }
@@ -773,14 +773,14 @@ void process_trap_charge(struct Thing* traptng)
             set_flag(traptng->rendering_flags, TRF_Transpar_4);
             if (!is_neutral_thing(traptng) && !is_hero_thing(traptng))
             {
-                if (placing_offmap_workshop_item(traptng->owner, TCls_Trap, traptng->model))
+                if ((placing_offmap_workshop_item(traptng->owner, TCls_Trap, traptng->model)) || (trapst->remove_once_depleted))
                 {
-                    //When there's only offmap traps, destroy the disarmed one so the player can place a new one.
+                    // When there's only offmap traps, destroy the disarmed one so the player can place a new one.
                     delete_thing_structure(traptng, 0);
                 }
                 else
                 {
-                    //Trap is available to be rearmed, so earmark a workshop crate for it.
+                    // Trap is available to be rearmed, so earmark a workshop crate for it.
                     remove_workshop_item_from_amount_placeable(traptng->owner, traptng->class_id, traptng->model);
                 }
             }

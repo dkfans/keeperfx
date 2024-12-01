@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-/******************************************************************************/
+
 #pragma pack(1)
 #define INFINITE_CHARGES 255
 
@@ -67,9 +67,8 @@ enum TrapActivationTypes {
 
 struct Thing;
 
-/******************************************************************************/
-
 #pragma pack()
+
 /******************************************************************************/
 TbBool slab_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool slab_has_sellable_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y);

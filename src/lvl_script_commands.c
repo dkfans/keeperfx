@@ -220,57 +220,59 @@ const struct NamedCommand creature_select_criteria_desc[] = {
 };
 
 const struct NamedCommand trap_config_desc[] = {
-  {"NameTextID",           1},
-  {"TooltipTextID",        2},
-  {"SymbolSprites",        3},
-  {"PointerSprites",       4},
-  {"PanelTabIndex",        5},
-  {"Crate",                6},
-  {"ManufactureLevel",     7},
-  {"ManufactureRequired",  8},
-  {"Shots",                9},
-  {"TimeBetweenShots",    10},
-  {"SellingValue",        11},
-  {"AnimationID",         12},
-  {"Model",               12}, //legacy name
-  {"ModelSize",           13},
-  {"AnimationSpeed",      14},
-  {"TriggerType",         15},
-  {"ActivationType",      16},
-  {"EffectType",          17},
-  {"Hidden",              18},
-  {"TriggerAlarm",        19},
-  {"Slappable",           20},
-  {"Unanimated",          21},
-  {"Health",              22},
-  {"Unshaded",            23},
-  {"RandomStartFrame",    24},
-  {"ThingSize",           25},
-  {"HitType",             26},
-  {"LightRadius",         27},
-  {"LightIntensity",      28},
-  {"LightFlags",          29},
-  {"TransparencyFlags",   30},
-  {"ShotVector",          31},
-  {"Destructible",        32},
-  {"Unstable",            33},
-  {"Unsellable",          34},
-  {"PlaceOnBridge",       35},
-  {"ShotOrigin",          36},
-  {"PlaceSound",          37},
-  {"TriggerSound",        38},
-  {"RechargeAnimationID", 39},
-  {"AttackAnimationID",   40},
-  {"DestroyedEffect",     41},
-  {"InitialDelay",        42},
-  {"PlaceOnSubtile",      43},
-  {"FlameAnimationID",       44},
-  {"FlameAnimationSpeed",    45},
-  {"FlameAnimationSize",     46},
-  {"FlameAnimationOffset",   47},
-  {"FlameTransparencyFlags", 48},
-  {"DetectInvisible",        49},
-  {NULL,                      0},
+  {"NameTextID",               1},
+  {"TooltipTextID",            2},
+  {"SymbolSprites",            3},
+  {"PointerSprites",           4},
+  {"PanelTabIndex",            5},
+  {"Crate",                    6},
+  {"ManufactureLevel",         7},
+  {"ManufactureRequired",      8},
+  {"Shots",                    9},
+  {"TimeBetweenShots",        10},
+  {"SellingValue",            11},
+  {"AnimationID",             12},
+  {"Model",                   12}, // Legacy name.
+  {"ModelSize",               13},
+  {"AnimationSpeed",          14},
+  {"TriggerType",             15},
+  {"ActivationType",          16},
+  {"EffectType",              17},
+  {"Hidden",                  18},
+  {"TriggerAlarm",            19},
+  {"Slappable",               20},
+  {"Unanimated",              21},
+  {"Health",                  22},
+  {"Unshaded",                23},
+  {"RandomStartFrame",        24},
+  {"ThingSize",               25},
+  {"HitType",                 26},
+  {"LightRadius",             27},
+  {"LightIntensity",          28},
+  {"LightFlags",              29},
+  {"TransparencyFlags",       30},
+  {"ShotVector",              31},
+  {"Destructible",            32},
+  {"Unstable",                33},
+  {"Unsellable",              34},
+  {"PlaceOnBridge",           35},
+  {"ShotOrigin",              36},
+  {"PlaceSound",              37},
+  {"TriggerSound",            38},
+  {"RechargeAnimationID",     39},
+  {"AttackAnimationID",       40},
+  {"DestroyedEffect",         41},
+  {"InitialDelay",            42},
+  {"PlaceOnSubtile",          43},
+  {"FlameAnimationID",        44},
+  {"FlameAnimationSpeed",     45},
+  {"FlameAnimationSize",      46},
+  {"FlameAnimationOffset",    47},
+  {"FlameTransparencyFlags",  48},
+  {"DetectInvisible",         49},
+  {"InstantPlacement",        50},
+  {"RemoveOnceDepleted",      51},
+  {NULL,                       0},
 };
 
 const struct NamedCommand room_config_desc[] = {
@@ -1727,6 +1729,8 @@ static void new_trap_type_check(const struct ScriptLine* scline)
     trapst->notify = false;
     trapst->place_on_bridge = false;
     trapst->place_on_subtile = false;
+    trapst->instant_placement = false;
+    trapst->remove_once_depleted = false;
     trapst->health = 1;
     trapst->destructible = 0;
     trapst->unstable = 0;
@@ -2015,6 +2019,12 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 49: // DetectInvisible
             trapst->detect_invisible = value;
+            break;
+        case 50: // InstantPlacement
+            trapst->instant_placement = value;
+            break;
+        case 51: // RemoveOnceDepleted
+            trapst->remove_once_depleted = value;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
