@@ -1687,7 +1687,7 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                     else
                     {
                         // there's multiple summon types on this creature.
-                        count++;
+                        sumcount++;
                     }
                 }
                 else
