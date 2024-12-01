@@ -2745,9 +2745,9 @@ void update(void)
     player = get_my_player();
     set_previous_camera_values(player);
 
-    if ((game.operation_flags & GOF_Paused) == 0)
+    if (!flag_is_set(game.operation_flags,GOF_Paused))
     {
-        if (player->additional_flags & PlaAF_LightningPaletteIsActive)
+        if (flag_is_set(player->additional_flags,PlaAF_LightningPaletteIsActive))
         {
             PaletteSetPlayerPalette(player, engine_palette);
             clear_flag(player->additional_flags, PlaAF_LightningPaletteIsActive);
@@ -2788,7 +2788,6 @@ void update(void)
     message_update();
     update_all_players_cameras();
     update_player_sounds();
-    game.map_changed_for_nagivation = 0;
     SYNCDBG(6,"Finished");
 }
 

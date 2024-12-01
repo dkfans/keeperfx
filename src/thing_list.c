@@ -1178,6 +1178,7 @@ void update_things(void)
     update_things_sounds_in_list(&game.thing_lists[TngList_AmbientSnds]);
     update_cave_in_things();
     player_packet_checksum_add(my_player_number,sum,"things");
+    game.map_changed_for_nagivation = 0;
     SYNCDBG(9,"Finished");
 }
 
