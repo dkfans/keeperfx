@@ -2731,8 +2731,8 @@ static void place_door_check(const struct ScriptLine* scline)
 static void place_door_process(struct ScriptContext* context)
 {
     ThingModel doorkind = context->value->shorts[1];
-    MapSubtlCoord stl_x = slab_subtile(context->value->shorts[2], 0);
-    MapSubtlCoord stl_y = slab_subtile(context->value->shorts[3], 0);
+    MapSubtlCoord stl_x = slab_subtile_center(context->value->shorts[2]);
+    MapSubtlCoord stl_y = slab_subtile_center(context->value->shorts[3]);
     TbBool locked = context->value->shorts[4];
     TbBool free = context->value->shorts[5];
     TbBool success;
