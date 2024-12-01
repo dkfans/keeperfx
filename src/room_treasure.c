@@ -55,6 +55,11 @@ void count_gold_slabs_full(struct Room *room)
     room->total_capacity = room->slabs_count * get_wealth_size_types_count();
 }
 
+void count_gold_slabs_div2(struct Room* room)
+{
+    room->total_capacity = room->slabs_count * get_wealth_size_types_count() / 2;
+}
+
 struct Thing *find_gold_hoarde_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
