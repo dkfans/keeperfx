@@ -1263,15 +1263,11 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     return true;
 }
 
-TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel)
+TbBool player_place_door_without_check_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel)
 {
-    if (!is_door_placeable(plyr_idx, tngmodel)) {
-        WARNLOG("Player %d tried to build %s but has none to place",(int)plyr_idx,door_code_name(tngmodel));
-        return 0;
-    }
     unsigned char orient = find_door_angle(stl_x, stl_y, plyr_idx);
     struct Coord3d pos;
-    set_coords_to_slab_center(&pos,subtile_slab(stl_x),subtile_slab(stl_y));
+    set_coords_to_slab_center(&pos, subtile_slab(stl_x), subtile_slab(stl_y));
     create_door(&pos, tngmodel, orient, plyr_idx, 0);
     do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
@@ -1286,7 +1282,7 @@ TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
         remove_workshop_object_from_player(plyr_idx, door_crate_object_model(tngmodel));
         break;
     default:
-        WARNLOG("Placeable door %s amount for player %d was incorrect; fixed",door_code_name(tngmodel),(int)dungeon->owner);
+        WARNLOG("Placeable door %s amount for player %d was incorrect; fixed", door_code_name(tngmodel), (int)dungeon->owner);
         dungeon->mnfct_info.door_amount_placeable[tngmodel] = 0;
         break;
     }
@@ -1297,6 +1293,15 @@ TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
         play_non_3d_sample(door_cfg->place_sound_idx);
     }
     return 1;
+}
+
+TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel)
+{
+    if (!is_door_placeable(plyr_idx, tngmodel)) {
+        WARNLOG("Player %d tried to build %s but has none to place",(int)plyr_idx,door_code_name(tngmodel));
+        return 0;
+    }
+    return player_place_door_without_check_at(stl_x, stl_y, plyr_idx, tngmodel);
 }
 
 TbBool is_thing_directly_controlled_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
