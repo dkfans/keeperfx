@@ -1271,13 +1271,8 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     return true;
 }
 
-TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel)
+TbBool player_place_door_without_check_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel)
 {
-    if (!is_door_placeable(plyr_idx, tngmodel))
-    {
-        WARNLOG("Player %d tried to build %s but has none to place", (int)plyr_idx, door_code_name(tngmodel));
-        return 0;
-    }
     unsigned char orient = find_door_angle(stl_x, stl_y, plyr_idx);
     struct Coord3d pos;
     set_coords_to_slab_center(&pos, subtile_slab(stl_x), subtile_slab(stl_y));
@@ -1306,6 +1301,15 @@ TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
         play_non_3d_sample(door_cfg->place_sound_idx);
     }
     return 1;
+}
+
+TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel)
+{
+    if (!is_door_placeable(plyr_idx, tngmodel)) {
+        WARNLOG("Player %d tried to build %s but has none to place",(int)plyr_idx,door_code_name(tngmodel));
+        return 0;
+    }
+    return player_place_door_without_check_at(stl_x, stl_y, plyr_idx, tngmodel);
 }
 
 TbBool is_thing_directly_controlled_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
