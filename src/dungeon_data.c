@@ -51,7 +51,7 @@ struct Dungeon *get_players_dungeon_f(const struct PlayerInfo *player,const char
     PlayerNumber plyr_num = player->id_number;
     if (player_invalid(player) || (plyr_num < 0) || (plyr_num >= DUNGEONS_COUNT))
     {
-        ERRORLOG("%s: Tried to get non-existing dungeon %ld!",func_name,(long)plyr_num);
+        // ERRORLOG("%s: Tried to get non-existing dungeon %ld!",func_name,(long)plyr_num);
         return INVALID_DUNGEON;
     }
     return &(game.dungeon[(int)plyr_num]);
@@ -61,7 +61,7 @@ struct Dungeon *get_dungeon_f(PlayerNumber plyr_num,const char *func_name)
 {
     if ((plyr_num < 0) || (plyr_num >= DUNGEONS_COUNT))
     {
-        ERRORLOG("%s: Tried to get non-existing dungeon %d!", func_name, plyr_num);
+        // ERRORLOG("%s: Tried to get non-existing dungeon %d!", func_name, plyr_num);
         return INVALID_DUNGEON;
     }
     return &(game.dungeon[(int)plyr_num]);
@@ -534,6 +534,10 @@ void init_dungeons(void)
         dungeon->modifier.training_cost = 100;
         dungeon->modifier.scavenging_cost = 100;
         dungeon->modifier.loyalty = 100;
+        dungeon->modifier.defense = 100;
+        dungeon->modifier.dexterity = 100;
+        dungeon->modifier.luck = 100;
+        dungeon->modifier.magic = 100;
         dungeon->color_idx = i;
         LbMemorySet(dungeon->creature_models_joined, 0, CREATURE_TYPES_MAX);
     }

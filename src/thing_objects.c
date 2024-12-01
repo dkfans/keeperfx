@@ -477,7 +477,8 @@ TbBool object_is_gold_pile(const struct Thing *thing)
 
 TbBool object_is_gold_laying_on_ground(const struct Thing *thing)
 {
-    return (thing->model == ObjMdl_Goldl);
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    return (objst->genre == OCtg_Valuable);
 }
 
 /**

@@ -331,15 +331,20 @@ TbBool instance_is_ranged_weapon_vs_objects(CrInstance inum)
     return (((inst_inf->instance_property_flags & InstPF_RangedAttack) != 0) && ((inst_inf->instance_property_flags & InstPF_Destructive) != 0) && !(inst_inf->instance_property_flags & InstPF_Dangerous));
 }
 
-/**
- * Informs whether the creature has an instance which can be used when going postal.
- * Going Postal is the behavior where creatures attack others at their job, like warlocks in the library
-  * @return True if it has a postal_priority value > 0.
- */
+/* Informs whether the creature has an instance which can be used when going postal.
+ * Going Postal is the behavior where creatures attack others at their job, like warlocks in the library.
+ * @return True if it has a postal_priority value > 0. */
 TbBool instance_is_used_for_going_postal(CrInstance inum)
 {
     struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
-    return (inst_inf->postal_priority > 0);
+    if ((!flag_is_set(inst_inf->instance_property_flags, InstPF_Dangerous))
+    || (!flag_is_set(inst_inf->instance_property_flags, InstPF_RangedDebuff))
+    || (!flag_is_set(inst_inf->instance_property_flags, InstPF_RangedBuff))
+    || (!flag_is_set(inst_inf->instance_property_flags, InstPF_SelfBuff)))
+    {
+        return true;
+    }
+    return false;
 }
 
 TbBool instance_is_melee_attack(CrInstance inum)
@@ -651,6 +656,24 @@ CrInstance process_creature_ranged_buff_spell_casting(struct Thing* creatng)
     return (i < game.conf.crtr_conf.instances_count) ? i : CrInst_NULL;
 }
 
+TbBool process_creature_use_instance(struct Thing* creatng)
+{
+    TRACE_THING(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if (((creatng->alloc_flags & TAlF_IsControlled) != 0) || (cctrl->conscious_back_turns != 0) || ((cctrl->stateblock_flags & CCSpl_Freeze) != 0)) {
+        return false;
+    }
+    if (cctrl->instance_id != CrInst_NULL) {
+        return false;
+    }
+    long inst_idx = get_instance_casting(creatng);
+    if (inst_idx == CrInst_NULL) {
+        return false;
+    }
+    set_creature_instance(creatng, inst_idx, creatng->index, 0);
+    return true;
+}
+
 long instf_dig(struct Thing *creatng, long *param)
 {
     long stl_x;
@@ -882,7 +905,8 @@ long instf_eat(struct Thing *creatng, long *param)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->hunger_amount > 0)
         cctrl->hunger_amount--;
-    apply_health_to_thing_and_display_health(creatng, game.conf.rules.health.food_health_gain);
+    HitPoints food_health_gain = (calculate_correct_creature_max_health(creatng) * game.conf.rules.health.food_health_gain) / 100;
+    apply_health_to_thing_and_display_health(creatng, food_health_gain);
     cctrl->hunger_level = 0;
     return 1;
 }

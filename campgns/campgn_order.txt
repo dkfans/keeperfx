@@ -1,4 +1,4 @@
-#order of the campaigns, campaigns not in the list will be at the bottom alphabetically
+# Order of the campaigns, campaigns not in the list will be at the bottom alphabetically.
 keeporig.cfg
 origplus.cfg
 burdnimp.cfg

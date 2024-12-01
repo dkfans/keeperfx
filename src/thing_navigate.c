@@ -51,6 +51,7 @@ extern "C" {
 
 long owner_player_navigating;
 long nav_thing_can_travel_over_lava;
+long nav_thing_can_travel_over_water;
 
 /******************************************************************************/
 
@@ -133,6 +134,7 @@ static void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Co
     long px;
     long py;
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
+    nav_thing_can_travel_over_water = creature_can_travel_over_water(thing);
     if ((flags & AridRtF_NoOwner) != 0)
         owner_player_navigating = -1;
     else
@@ -147,6 +149,7 @@ static void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Co
     if (thing_in_wall_at(thing, pos2))
         get_nearest_valid_position_for_creature_at(thing, pos2);
     nav_thing_can_travel_over_lava = 0;
+    nav_thing_can_travel_over_water = 0;
 }
 
 TbBool setup_person_move_to_position_f(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, NaviRouteFlags flags, const char *func_name)
@@ -342,12 +345,29 @@ TbBool creature_can_travel_over_lava(const struct Thing *creatng)
     return (crstat->hurt_by_lava <= 0) || flag_is_set(creatng->movement_flags, TMvF_Flying);
 }
 
+/**
+ * Returns if a creature can currently travel over water.
+ * @param thing
+ * @return
+ */
+TbBool creature_can_travel_over_water(const struct Thing *creatng)
+{
+    const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    // Check if a creature can fly in this moment - we don't care if it's natural ability
+    // or temporary spell effect
+    return (crstat->hurt_by_water <= 0) || flag_is_set(creatng->movement_flags, TMvF_Flying);
+}
+
 TbBool can_step_on_unsafe_terrain_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    // We can step on lava if it doesn't hurt us or we can fly
+    // We can step on lava if it doesn't hurt us or we can fly.
     if (slb->kind == SlbT_LAVA) {
         return creature_can_travel_over_lava(creatng);
+    }
+    // Same but for water.
+    if (slb->kind == SlbT_WATER) {
+        return creature_can_travel_over_water(creatng);
     }
     return false;
 }
@@ -355,9 +375,15 @@ TbBool can_step_on_unsafe_terrain_at_position(const struct Thing *creatng, MapSu
 TbBool terrain_toxic_for_creature_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    // If the position is over lava, and we can't continuously fly, then it's toxic
+    // If the position is over lava, and we can't continuously fly, then it's toxic if creature is hurt by lava.
     if ((crstat->hurt_by_lava > 0) && map_pos_is_lava(stl_x,stl_y)) {
-        // Check not only if a creature is now flying, but also whether it's natural ability
+        // Check not only if a creature is now flying, but also whether it's natural ability.
+        if (!flag_is_set(creatng->movement_flags, TMvF_Flying) || (!crstat->flying))
+            return true;
+    }
+    // If the position is over water, and we can't continuously fly, then it's toxic if creature is hurt by water.
+    if ((crstat->hurt_by_water > 0) && map_pos_is_water(stl_x,stl_y)) {
+        // Check not only if a creature is now flying, but also whether it's natural ability.
         if (!flag_is_set(creatng->movement_flags, TMvF_Flying) || (!crstat->flying))
             return true;
     }

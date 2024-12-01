@@ -288,6 +288,7 @@ void process_objective(const char *msg_text, long target, long x, long y);
 void set_general_objective(long msg_id, long target, long x, long y);
 void turn_off_power_sight_of_evil(PlayerNumber plridx);
 void turn_off_power_obey(PlayerNumber plyr_idx);
+void turn_off_power_mighty_infusion(PlayerNumber plyr_idx);
 
 short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool update_hand);
 int dump_all_held_things_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);

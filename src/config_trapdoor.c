@@ -116,14 +116,18 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"DETECTINVISIBLE",        50},
   {"INSTANTPLACEMENT",       51},
   {"REMOVEONCEDEPLETED",     52},
+  {"PLACEONROOM",            53},
   {NULL,                      0},
 };
 
 const struct NamedCommand door_properties_commands[] = {
   {"RESIST_NON_MAGIC",     1},
   {"SECRET",               2},
-  {"THICK",                3},  
+  {"THICK",                3},
   {"MIDAS",                4},
+  {"WOODEN",               5},
+  {"STEELEN",              6},
+  {"GOLDEN",               7},
   {NULL,                   0},
 };
 
@@ -208,6 +212,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           trapst->detect_invisible = true; // Set to true by default: backward compatibility for custom traps made before this implementation.
           trapst->notify = false;
           trapst->place_on_bridge = false;
+          trapst->place_on_room = false;
           trapst->place_on_subtile = false;
           trapst->instant_placement = false;
           trapst->remove_once_depleted = false;
@@ -1200,6 +1205,22 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
+      case 53: // PLACEONROOM
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  trapst->place_on_room = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+          }
+          break;
       case ccr_comment:
           break;
       case ccr_endOfFile:
@@ -1507,6 +1528,18 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
                   break;
               case 4: // MIDAS
                   doorst->model_flags |= DoMF_Midas;
+                  n++;
+                  break;
+              case 5: // WOODEN
+                  doorst->model_flags |= DoMF_Wooden;
+                  n++;
+                  break;
+              case 6: // STEELEN
+                  doorst->model_flags |= DoMF_Steelen;
+                  n++;
+                  break;
+              case 7: // GOLDEN
+                  doorst->model_flags |= DoMF_Golden;
                   n++;
                   break;
               default:

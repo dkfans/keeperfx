@@ -649,15 +649,15 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
     eyepos.z.val += get_creature_eye_height(creatng);
     if (thing->class_id == TCls_Door)
     {
-        // If we're immune to lava, or we're already on it - don't care, travel over it
-        if (lava_at_position(srcpos) || creature_can_travel_over_lava(creatng))
+        // If we're immune to lava/water, or we're already on it - don't care, travel over it.
+        if ((lava_at_position(srcpos) || creature_can_travel_over_lava(creatng)) || (water_at_position(srcpos) || creature_can_travel_over_water(creatng)))
         {
-            SYNCDBG(17, "The %s index %d owned by player %d checks w/o lava %s index %d",
+            SYNCDBG(17, "The %s index %d owned by player %d checks w/o lava or water %s index %d",
                 thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(thing),(int)thing->index);
-            // Check bottom of the thing
+            // Check bottom of the thing.
             if (line_of_sight_3d_ignoring_specific_door(&eyepos, &tgtpos, thing))
                 return true;
-            // Check top of the thing
+            // Check top of the thing.
             tgtpos.z.val += thing->clipbox_size_z;
             if (line_of_sight_3d_ignoring_specific_door(&eyepos, &tgtpos, thing))
                 return true;
@@ -666,10 +666,10 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
         {
             SYNCDBG(17, "The %s index %d owned by player %d checks with lava %s index %d",
                 thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(thing),(int)thing->index);
-            // Check bottom of the thing
+            // Check bottom of the thing.
             if (jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(&eyepos, &tgtpos, thing))
                 return true;
-            // Check top of the thing
+            // Check top of the thing.
             tgtpos.z.val += thing->clipbox_size_z;
             if (jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(&eyepos, &tgtpos, thing))
                 return true;
@@ -677,27 +677,27 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
         }
     } else
     {
-        // If we're immune to lava, or we're already on it - don't care, travel over it
-        if (lava_at_position(srcpos) || creature_can_travel_over_lava(creatng))
+        // If we're immune to lava/water, or we're already on it - don't care, travel over it.
+        if ((lava_at_position(srcpos) || creature_can_travel_over_lava(creatng)) || (water_at_position(srcpos) || creature_can_travel_over_water(creatng)))
         {
-            SYNCDBG(17, "The %s index %d owned by player %d checks w/o lava %s index %d",
+            SYNCDBG(17, "The %s index %d owned by player %d checks w/o lava or water %s index %d",
                 thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(thing),(int)thing->index);
-            // Check bottom of the thing
+            // Check bottom of the thing.
             if (line_of_sight_3d(&eyepos, &tgtpos))
                 return true;
-            // Check top of the thing
+            // Check top of the thing.
             tgtpos.z.val += thing->clipbox_size_z;
             if (line_of_sight_3d(&eyepos, &tgtpos))
                 return true;
             long angle = get_angle_xy_to(&tgtpos, &eyepos);
-            // Check left side
-            // We're checking point at 60 degrees left; could use 90 deg, but making even slim edge visible might not be a good idea
-            // Also 60 deg will shorten distance to the check point, which may better describe real visibility
+            // Check left side.
+            // We're checking point at 60 degrees left; could use 90 deg, but making even slim edge visible might not be a good idea.
+            // Also 60 deg will shorten distance to the check point, which may better describe real visibility.
             tgtpos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(thing->clipbox_size_xy / 2, angle + LbFPMath_PI / 3);
             tgtpos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(thing->clipbox_size_xy / 2, angle + LbFPMath_PI / 3);
             if (jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&eyepos, &tgtpos, creatng->owner))
                 return true;
-            // Check right side
+            // Check right side.
             tgtpos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(thing->clipbox_size_xy / 2, angle - LbFPMath_PI / 3);
             tgtpos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(thing->clipbox_size_xy / 2, angle - LbFPMath_PI / 3);
             if (jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&eyepos, &tgtpos, creatng->owner))
@@ -707,24 +707,24 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
         {
             SYNCDBG(17, "The %s index %d owned by player %d checks with lava %s index %d",
                 thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(thing),(int)thing->index);
-            // Check bottom of the thing
+            // Check bottom of the thing.
             if (jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&eyepos, &tgtpos, creatng->owner))
                 return true;
-            // Check top of the thing
+            // Check top of the thing.
             tgtpos.z.val += thing->clipbox_size_z;
             if (jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&eyepos, &tgtpos, creatng->owner))
                 return true;
-            // Check both sides at middle of thing height
+            // Check both sides at middle of thing height.
             tgtpos.z.val -= thing->clipbox_size_z / 2;
             long angle = get_angle_xy_to(&tgtpos, &eyepos);
-            // Check left side
-            // We're checking point at 60 degrees left; could use 90 deg, but making even slim edge visible might not be a good idea
-            // Also 60 deg will shorten distance to the check point, which may better describe real visibility
+            // Check left side.
+            // We're checking point at 60 degrees left; could use 90 deg, but making even slim edge visible might not be a good idea.
+            // Also 60 deg will shorten distance to the check point, which may better describe real visibility.
             tgtpos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(thing->clipbox_size_xy/2, angle + LbFPMath_PI/3);
             tgtpos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(thing->clipbox_size_xy/2, angle + LbFPMath_PI/3);
             if (jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&eyepos, &tgtpos, creatng->owner))
                 return true;
-            // Check right side
+            // Check right side.
             tgtpos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(thing->clipbox_size_xy/2, angle - LbFPMath_PI/3);
             tgtpos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(thing->clipbox_size_xy/2, angle - LbFPMath_PI/3);
             if (jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&eyepos, &tgtpos, creatng->owner))

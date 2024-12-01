@@ -29,8 +29,8 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#define THING_CLASSES_COUNT    14
-#define THINGS_COUNT         8192
+#define THING_CLASSES_COUNT     14
+#define THINGS_COUNT         32767
 
 enum ThingClassIndex {
     TCls_Empty        =  0,

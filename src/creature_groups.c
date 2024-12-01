@@ -259,42 +259,48 @@ void internal_add_member_to_group_chain_head(struct Thing *creatng, struct Thing
 }
 
 /**
- * Removes a creature from group. If the group had size of 2, it is disbanded; otherwise, next
- *   creature becomes a leader without checking whether it's best for it.
+ * Removes a creature from group. If the group had size of 2, it is disbanded.
+ * Otherwise, next creature becomes a leader without checking whether it's best for it.
  * @param creatng The creature to be removed.
  * @return True if the group still exists after removal, false otherwise.
  */
 TbBool remove_creature_from_group_without_leader_consideration(struct Thing *creatng)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    // Remember any other group member, and whether we're removing a leader
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    // Remember any other group member, and whether we're removing a leader.
     TbBool was_leader;
     struct Thing *grptng;
-    if (creature_is_group_leader(creatng)) {
+    if (creature_is_group_leader(creatng))
+    {
         was_leader = true;
-        // If we're removing leader, then all members are next
+        // If we're removing leader, then all members are next.
         grptng = thing_get(cctrl->next_in_group);
-    } else {
+    }
+    else
+    {
         was_leader = false;
-        // If we're removing follower, then at least a leader has to be previous
+        // If we're removing follower, then at least a leader has to be previous.
         grptng = thing_get(cctrl->prev_in_group);
     }
-    // Set new next and previous things
+    // Set new next and previous things.
     internal_remove_member_from_group_chain(creatng);
-    // Finish removing the thing from group
+    // Finish removing the thing from group.
     cctrl->group_info &= ~TngGroup_LeaderIndex;
     cctrl->group_info &= ~TngGroup_MemberCount;
     creatng->alloc_flags &= ~TAlF_IsFollowingLeader;
-    // Find leader of the party
+    // Find leader of the party.
     struct Thing *leadtng;
-    if (was_leader) {
-        // Leader was at start of the chain, and we've removed him
+    if (was_leader)
+    {
+        // Leader was at start of the chain, and we've removed him.
         leadtng = grptng;
-    } else {
-        // Leader hasn't changed, we can use group_info to get him
+    }
+    else
+    {
+        // Leader hasn't changed, we can use group_info to get him.
         leadtng = get_group_leader(grptng);
     }
-    // If there are no creatures besides leader, disband the group
+    // If there are no creatures besides leader, disband the group.
     cctrl = creature_control_get_from_thing(leadtng);
     if (creature_control_invalid(cctrl) || (cctrl->next_in_group <= 0))
     {
@@ -302,14 +308,16 @@ TbBool remove_creature_from_group_without_leader_consideration(struct Thing *cre
         cctrl->prev_in_group = 0;
         cctrl->group_info &= ~TngGroup_LeaderIndex;
         cctrl->group_info &= ~TngGroup_MemberCount;
-        if (creature_control_invalid(cctrl)) {
-            WARNLOG("Group had only one member, %s index %d",thing_model_name(creatng),(int)creatng->index);
-        }
+        // if (creature_control_invalid(cctrl))
+        // {
+        //    WARNLOG("Group had only one member, %s index %d", thing_model_name(creatng), (int)creatng->index);
+        // }
         leadtng->alloc_flags &= ~TAlF_IsFollowingLeader;
         return false;
     }
-    // If there is still more than one creature
-    if (was_leader) {
+    // If there is still more than one creature.
+    if (was_leader)
+    {
         internal_update_leader_index_in_group(leadtng);
         leadtng->alloc_flags &= ~TAlF_IsFollowingLeader;
         leader_find_positions_for_followers(leadtng);

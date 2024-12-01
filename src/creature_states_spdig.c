@@ -1059,53 +1059,52 @@ short imp_converts_dungeon(struct Thing *spdigtng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
-    if ( (stl_x - (MapSubtlDelta)cctrl->moveto_pos.x.stl.num >= 1) || (stl_y - (MapSubtlDelta)cctrl->moveto_pos.y.stl.num >= 1) )
+    if ((stl_x - (MapSubtlDelta)cctrl->moveto_pos.x.stl.num >= 1) || (stl_y - (MapSubtlDelta)cctrl->moveto_pos.y.stl.num >= 1))
     {
         clear_creature_instance(spdigtng);
         internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
         return 0;
     }
-    if ( check_place_to_convert_excluding(spdigtng, slb_x, slb_y) )
+    if (check_place_to_convert_excluding(spdigtng, slb_x, slb_y))
     {
-      if (cctrl->instance_id == CrInst_NULL)
-      {
-          CrInstance inst_idx = get_self_spell_casting(spdigtng);
-          if (inst_idx > CrInst_NULL) 
-          {
-              set_creature_instance(spdigtng, inst_idx, 0, 0);
-              return 1;
-          }
-          else
-          {
-              set_creature_instance(spdigtng, CrInst_DESTROY_AREA, 0, 0);
-              struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-              struct SlabAttr* slbattr = get_slab_attrs(slb);
-              // If the area we're converting is an enemy room, issue event to that player
-              if (slbattr->category == SlbAtCtg_RoomInterior)
-              {
-                  struct Room* room = room_get(slb->room_index);
-                  if (!room_is_invalid(room))
-                  {
-                      MapCoord coord_x = subtile_coord_center(room->central_stl_x);
-                      MapCoord coord_y = subtile_coord_center(room->central_stl_y);
-                      event_create_event_or_update_nearby_existing_event(coord_x, coord_y,
-                          EvKind_RoomUnderAttack, room->owner, 0);
-                      if (is_my_player_number(room->owner))
-                      {
-                          output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
-                      }
+        if (cctrl->instance_id == CrInst_NULL)
+        {
+            CrInstance inst_idx = get_instance_casting(spdigtng);
+            if (inst_idx != CrInst_NULL) 
+            {
+                set_creature_instance(spdigtng, inst_idx, 0, 0);
+                return 1;
+            }
+            else
+            {
+                set_creature_instance(spdigtng, CrInst_DESTROY_AREA, 0, 0);
+                struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+                struct SlabAttr* slbattr = get_slab_attrs(slb);
+                // If the area we're converting is an enemy room, issue event to that player.
+                if (slbattr->category == SlbAtCtg_RoomInterior)
+                {
+                    struct Room* room = room_get(slb->room_index);
+                    if (!room_is_invalid(room))
+                    {
+                        MapCoord coord_x = subtile_coord_center(room->central_stl_x);
+                        MapCoord coord_y = subtile_coord_center(room->central_stl_y);
+                        event_create_event_or_update_nearby_existing_event(coord_x, coord_y, EvKind_RoomUnderAttack, room->owner, 0);
+                        if (is_my_player_number(room->owner))
+                        {
+                            output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
+                        }
+                    }
                 }
-              }
-          }
-      }
-      if (game.conf.rules.workers.digger_work_experience != 0)
-      {
-          cctrl->exp_points += (digger_work_experience(spdigtng) / 6);
-          check_experience_upgrade(spdigtng);
-      }
-      return 1;
+            }
+        }
+        if (game.conf.rules.workers.digger_work_experience != 0)
+        {
+            cctrl->exp_points += (digger_work_experience(spdigtng) / 6);
+            check_experience_upgrade(spdigtng);
+        }
+        return 1;
     }
-    if ( !check_place_to_pretty_excluding(spdigtng, slb_x, slb_y) )
+    if (!check_place_to_pretty_excluding(spdigtng, slb_x, slb_y))
     {
         clear_creature_instance(spdigtng);
         internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
@@ -1502,17 +1501,21 @@ short imp_toking(struct Thing *creatng)
     }
     if (cctrl->instance_id == CrInst_NULL)
     {
-        if ( CREATURE_RANDOM(creatng, 8) )
+        if (CREATURE_RANDOM(creatng, 8))
+        {
             set_creature_instance(creatng, CrInst_RELAXING, 0, 0);
+        }
         else
+        {
             set_creature_instance(creatng, CrInst_TOKING, 0, 0);
+        }
     }
-    
     if ((cctrl->instance_id == CrInst_TOKING) && (cctrl->inst_turn == cctrl->inst_action_turns))
     {
         struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-        if (crstat->toking_recovery != 0) {
-            HitPoints recover = compute_creature_max_health(crstat->toking_recovery, cctrl->explevel, creatng->owner);
+        if (crstat->toking_recovery != 0)
+        {
+            HitPoints recover = compute_creature_max_health(crstat->toking_recovery, cctrl->explevel);
             apply_health_to_thing_and_display_health(creatng, recover);
         }
     }

@@ -1052,6 +1052,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         query_creature(player, pckt->actn_par1, pckt->actn_par2, pckt->actn_par3);
         return false;
     }
+    case PckA_UsePwrInfusion:
+        magic_use_available_power_on_level(plyr_idx, PwrK_MIGHTYINFUSION, 0, PwMod_Default);
+        return 0;
     default:
       return process_players_global_cheats_packet_action(plyr_idx, pckt);
   }

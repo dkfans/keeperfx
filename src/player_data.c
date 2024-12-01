@@ -159,6 +159,9 @@ TbBool players_are_mutual_allies(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx)
     // And neutral player can't be allied
     if ((plyr1_idx == game.neutral_player_num) || (plyr2_idx == game.neutral_player_num))
         return false;
+    // Bandaid fix for all players idx
+    if ((plyr1_idx == 9) || (plyr2_idx == 9))
+        return false;
     struct PlayerInfo* player1 = get_player(plyr1_idx);
     struct PlayerInfo* player2 = get_player(plyr2_idx);
     // Inactive or invalid players are not allies
