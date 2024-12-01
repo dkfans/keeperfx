@@ -15,7 +15,6 @@ REM    (at your option) any later version.
 REM ****************************************************************************
 
 LEVEL_VERSION(1)
-SET_GAME_RULE(PreserveClassicBugs,64)
 
 START_MONEY(PLAYER0,15000)
 
