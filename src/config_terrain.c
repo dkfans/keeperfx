@@ -137,6 +137,7 @@ extern void count_slabs_mul2_wth_effcncy(struct Room *room);
 extern void count_slabs_pow2_wth_effcncy(struct Room *room);
 extern void count_gold_slabs_wth_effcncy(struct Room *room);
 extern void count_gold_slabs_full(struct Room *room);
+extern void count_gold_slabs_div2(struct Room* room);
 
 const struct NamedCommand terrain_room_total_capacity_func_type[] = {
   {"slabs_all_only",          1},
@@ -148,7 +149,8 @@ const struct NamedCommand terrain_room_total_capacity_func_type[] = {
   {"slabs_pow2_wth_effcncy",  7},
   {"gold_slabs_wth_effcncy",  8},
   {"gold_slabs_full",         9},
-  {"none",                   10},
+  {"gold_slabs_div2",        10},
+  {"none",                   11},
   {NULL,                      0},
 };
 
@@ -163,6 +165,7 @@ Room_Update_Func terrain_room_total_capacity_func_list[] = {
   count_slabs_pow2_wth_effcncy,
   count_gold_slabs_wth_effcncy,
   count_gold_slabs_full,
+  count_gold_slabs_div2,
   NULL,
   NULL,
 };

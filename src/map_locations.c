@@ -93,6 +93,9 @@ TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_i
     case MML_RECENT_COMBAT:
         src = &dungeon->last_combat_location;
         break;
+    case MML_LAST_DEATH_EVENT:
+        src = &dungeon->last_eventful_death_location;
+        break;
     case MML_ACTIVE_CTA:
         if ((dungeon->cta_stl_x == 0) && (dungeon->cta_stl_y == 0))
             return false;
@@ -440,6 +443,35 @@ TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const
             }
         }
         *location = (((unsigned long)MML_RECENT_COMBAT) << 12)
+            | ((unsigned long)i << 4)
+            | MLoc_METALOCATION;
+        return true;
+    }
+    else if (strncmp(locname, "LAST_DEATH_EVENT", strlen("LAST_DEATH_EVENT")) == 0)
+    {
+        if (strcmp(locname, "LAST_DEATH_EVENT") == 0)
+        {
+            if (game.game_kind == GKind_MultiGame)
+            {
+                WARNLOG(" %s (line %lu) : LOCATION = '%s' cannot be used on Multiplayer maps", func_name, ln_num, locname);
+                i = PLAYER0;
+            }
+            else
+            {
+                i = my_player_number;
+            }
+        }
+        else
+        {
+            i = get_player_name_from_location_string(locname);
+            if (i == -1)
+            {
+                ERRORMSG("%s(line %lu): Invalid LOCATION = '%s'", func_name, ln_num, locname);
+                *location = MLoc_NONE;
+                return false;
+            }
+        }
+        *location = (((unsigned long)MML_LAST_DEATH_EVENT) << 12)
             | ((unsigned long)i << 4)
             | MLoc_METALOCATION;
         return true;

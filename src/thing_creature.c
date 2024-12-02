@@ -1690,7 +1690,7 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                     else
                     {
                         // there's multiple summon types on this creature.
-                        count++;
+                        sumcount++;
                     }
                 }
                 else
@@ -2710,27 +2710,38 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
     remove_parent_thing_from_things_in_list(&game.thing_lists[TngList_Shots],thing->index);
     ThingModel crmodel = thing->model;
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    if (!thing_exists(thing)) {
-        flags |= CrDed_NoEffects;
+    if (!thing_exists(thing)) 
+    {
+        set_flag(flags,CrDed_NoEffects);
     }
-    if (((flags & CrDed_NoEffects) == 0) && (crstat->rebirth != 0)
+    if ((!flag_is_set(flags,CrDed_NoEffects)) && (crstat->rebirth != 0)
      && (cctrl->lairtng_idx > 0) && (crstat->rebirth-1 <= cctrl->explevel)
-        && ((flags & CrDed_NoRebirth) == 0))
+        && (!flag_is_set(flags,CrDed_NoRebirth)) )
     {
         creature_rebirth_at_lair(thing);
         return INVALID_THING;
     }
     creature_throw_out_gold(thing);
     // Beyond this point, the creature thing is bound to be deleted
-    if (((flags & CrDed_NotReallyDying) == 0) || ((game.conf.rules.game.classic_bugs_flags & ClscBug_ResurrectRemoved) != 0))
+    if ((!flag_is_set(flags,CrDed_NotReallyDying)) || (flag_is_set(game.conf.rules.game.classic_bugs_flags,ClscBug_ResurrectRemoved)))
     {
         // If the creature is leaving dungeon, or being transformed, then CrDed_NotReallyDying should be set
         update_dead_creatures_list_for_owner(thing);
     }
-    if ((flags & CrDed_NoEffects) != 0)
+    if (flag_is_set(get_creature_model_flags(thing), CMF_EventfulDeath)) //updates LAST_DEATH_EVENT for mapmakers
     {
-        if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
+        struct Dungeon* dungeon = get_dungeon(thing->owner);
+        if (!dungeon_invalid(dungeon))
+        {
+            memcpy(&dungeon->last_eventful_death_location, &thing->mappos, sizeof(struct Coord3d));
+        }
+    }
+    if (flag_is_set(flags, CrDed_NoEffects))
+    {
+        if (flag_is_set(game.flags_cd, MFlg_DeadBackToPool))
+        {
             add_creature_to_pool(crmodel, 1);
+        }
         delete_thing_structure(thing, 0);
     } else
     if (!creature_model_bleeds(thing->model))
