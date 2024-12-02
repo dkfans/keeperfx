@@ -123,6 +123,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"FAT",               31},
   {"NO_STEAL_HERO",     32},
   {"PREFER_STEAL",      33},
+  {"EVENTFULL_DEATH",   34},
   {NULL,                 0},
   };
 
@@ -778,6 +779,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 break;
             case 33: // PREFER_STEAL
                 crconf->model_flags |= CMF_PreferSteal;
+                n++;
+                break;
+            case 34: // EVENTFULL_DEATH
+                crconf->model_flags |= CMF_EventfullDeath;
                 n++;
                 break;
             default:

@@ -812,6 +812,16 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               clear_flag(crconf->model_flags,CMF_PreferSteal);
           }
           break;
+      case 34: // EVENTFULL_DEATH
+          if (val4 >= 1)
+          {
+              set_flag(crconf->model_flags, CMF_EventfullDeath);
+          }
+          else
+          {
+              clear_flag(crconf->model_flags, CMF_EventfullDeath);
+          }
+          break;
       default:
           SCRPTERRLOG("Unknown creature property '%ld'", val3);
           break;

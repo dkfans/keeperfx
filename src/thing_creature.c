@@ -2732,10 +2732,14 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
     }
     creature_throw_out_gold(thing);
     // Beyond this point, the creature thing is bound to be deleted
-    if (((flags & CrDed_NotReallyDying) == 0) || ((game.conf.rules.game.classic_bugs_flags & ClscBug_ResurrectRemoved) != 0))
+    if ((!flag_is_set(flags,CrDed_NotReallyDying)) || (flag_is_set(game.conf.rules.game.classic_bugs_flags,ClscBug_ResurrectRemoved)))
     {
         // If the creature is leaving dungeon, or being transformed, then CrDed_NotReallyDying should be set
         update_dead_creatures_list_for_owner(thing);
+    }
+    if (flag_is_set(get_creature_model_flags(thing), CMF_EventfullDeath)) //updates MML_LAST_EVENT for mapmakers
+    {
+        memcpy(&gameadd.triggered_object_location, &thing->mappos, sizeof(struct Coord3d));
     }
     if (flag_is_set(flags, CrDed_NoEffects))
     {
