@@ -3993,7 +3993,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             break;
         }
         default:
-            CONFWRNLOG("Unrecognized Appearence command (%d)", creature_variable);
+            CONFWRNLOG("Unrecognized Appearance command (%d)", creature_variable);
             break;
         }
     }
