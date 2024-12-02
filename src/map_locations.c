@@ -94,7 +94,7 @@ TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_i
         src = &dungeon->last_combat_location;
         break;
     case MML_LAST_DEATH_EVENT:
-        src = &dungeon->last_eventfull_death_location;
+        src = &dungeon->last_eventful_death_location;
         break;
     case MML_ACTIVE_CTA:
         if ((dungeon->cta_stl_x == 0) && (dungeon->cta_stl_y == 0))
