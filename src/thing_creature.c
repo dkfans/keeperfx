@@ -2719,12 +2719,13 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
     remove_parent_thing_from_things_in_list(&game.thing_lists[TngList_Shots],thing->index);
     ThingModel crmodel = thing->model;
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    if (!thing_exists(thing)) {
-        flags |= CrDed_NoEffects;
+    if (!thing_exists(thing)) 
+    {
+        set_flag(flags,CrDed_NoEffects);
     }
-    if (((flags & CrDed_NoEffects) == 0) && (crstat->rebirth != 0)
+    if ((!flag_is_set(flags,CrDed_NoEffects)) && (crstat->rebirth != 0)
      && (cctrl->lairtng_idx > 0) && (crstat->rebirth-1 <= cctrl->explevel)
-        && ((flags & CrDed_NoRebirth) == 0))
+        && (!flag_is_set(flags,CrDed_NoRebirth)) )
     {
         creature_rebirth_at_lair(thing);
         return INVALID_THING;
@@ -2736,10 +2737,12 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
         // If the creature is leaving dungeon, or being transformed, then CrDed_NotReallyDying should be set
         update_dead_creatures_list_for_owner(thing);
     }
-    if ((flags & CrDed_NoEffects) != 0)
+    if (flag_is_set(flags, CrDed_NoEffects))
     {
-        if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
+        if (flag_is_set(game.flags_cd, MFlg_DeadBackToPool))
+        {
             add_creature_to_pool(crmodel, 1);
+        }
         delete_thing_structure(thing, 0);
     } else
     if (!creature_model_bleeds(thing->model))
