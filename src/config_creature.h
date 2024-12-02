@@ -62,7 +62,7 @@ enum CreatureModelFlags {
     CMF_Fat              = 0x040000, // Creature too fat to walk a full animation.
     CMF_NoStealHero      = 0x080000, // Prevent the creature from being stolen with the Steal Hero special.
     CMF_PreferSteal      = 0x100000, // The creature can be generated from Steal Hero special if there's nothing to steal.
-    CMF_EventfullDeath   = 0x200000, // The LAST_EVENT script variable is updated on death.
+    CMF_EventfullDeath   = 0x200000, // The LAST_DEATH_EVENT[] script location is updated on death.
 };
 
 enum CreatureJobFlags {
