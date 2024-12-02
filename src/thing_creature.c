@@ -2515,16 +2515,6 @@ struct Thing* thing_death_normal(struct Thing *thing)
 }
 
 /**
- * Normal death but it is noted as an event to hook script commands.
- * @param thing
- */
-struct Thing* thing_death_with_event(struct Thing* thing)
-{
-    memcpy(&gameadd.triggered_object_location, &thing->mappos, sizeof(struct Coord3d));
-    return thing_death_normal(thing);
-}
-
-/**
  * Creates an effect of death with bloody flesh explosion, killing the creature.
  * @param thing
  */
@@ -2668,8 +2658,6 @@ struct Thing* creature_death_as_nature_intended(struct Thing *thing)
         return thing_death_smoke_explosion(thing);
     case Death_IceExplode:
         return thing_death_ice_explosion(thing);
-    case Death_Event:
-        return thing_death_with_event(thing);
     default:
         WARNLOG("Unexpected %s death cause %d",thing_model_name(thing), crstat->natural_death_kind);
         return INVALID_THING;
