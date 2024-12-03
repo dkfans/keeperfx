@@ -996,7 +996,7 @@ short good_doing_nothing(struct Thing *creatng)
     if (target_plyr_idx == -1)
     {
         nturns = game.play_gameturn - cctrl->hero.wait_time;
-        if ((game.play_gameturn >= 400) && (nturns > 400))
+        if ((nturns > 400) && (cctrl->hero.look_for_enemy_dungeon_turn != 0))
         {
             cctrl->hero.wait_time = game.play_gameturn;
             cctrl->hero.byte_8C = 1;
