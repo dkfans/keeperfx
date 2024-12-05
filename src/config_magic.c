@@ -754,7 +754,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
             shot_desc[i].num = i;
         }
       shotst->model_flags = 0;
-      shotst->area_hit_type = THit_CrtrsOnly;
+      shotst->area_hit_type = THit_Creatures;
       shotst->area_range = 0;
       shotst->area_damage = 0;
       shotst->area_blow = 0;

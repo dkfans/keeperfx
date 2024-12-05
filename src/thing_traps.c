@@ -446,7 +446,7 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
         shotng->veloc_push_add.y.val += cvect.y;
         shotng->veloc_push_add.z.val += cvect.z;
         shotng->state_flags |= TF1_PushAdd;
-        shotng->shot.hit_type = trapst->hit_type;
+        shotng->shot.hit_targets = hit_type_to_hit_targets(trapstat->hit_type);
         if (shotst->firing_sound > 0) {
             thing_play_sample(traptng, shotst->firing_sound+UNSYNC_RANDOM(shotst->firing_sound_variants),
                 NORMAL_PITCH, 0, 3, 0, 6, FULL_LOUDNESS);
@@ -502,7 +502,7 @@ void activate_trap_shot_on_trap(struct Thing *traptng)
     shot_origin.z.val += trapst->shot_shift_z;
     struct Thing* shotng = create_shot(&shot_origin, trapst->created_itm_model, traptng->owner);
     if (!thing_is_invalid(shotng)) {
-        shotng->shot.hit_type = trapst->hit_type;
+        shotng->shot.hit_targets = hit_type_to_hit_targets(trapstat->hit_type);
         shotng->parent_idx = 0;
         shotng->veloc_push_add.x.val += trapst->shotvector.x;
         shotng->veloc_push_add.y.val += trapst->shotvector.y;
@@ -616,7 +616,7 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
         activate_trap_slab_change(traptng);
         break;
     case TrpAcT_CreatureShot:
-        thing_fire_shot(traptng, creatng, trapst->created_itm_model, 1, trapst->hit_type);
+        thing_fire_shot(traptng, creatng, trapstat->created_itm_model, 1, hit_type_to_hit_targets(trapstat->hit_type));
         break;
     case TrpAcT_CreatureSpawn:
         activate_trap_spawn_creature(traptng, trapst->created_itm_model);
@@ -888,7 +888,7 @@ TngUpdateRet update_trap(struct Thing *traptng)
         }
         if (traptng->trap.volley_repeat > 0)
         {
-            thing_fire_shot(traptng, thing_get(traptng->trap.firing_at), trapst->created_itm_model, 1, THit_CrtrsNObjcts);
+            thing_fire_shot(traptng, thing_get(traptng->trap.firing_at) , trapstat->created_itm_model, 1, hit_type_to_hit_targets(THit_CreaturesAndObjects));
             return TUFRet_Modified;
         }
     }
@@ -1094,7 +1094,7 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, short angle, stru
     }
     if (!thing_is_invalid(trgtng))
     {
-        thing_fire_shot(thing, trgtng, trapst->created_itm_model, 1, trapst->hit_type);
+        thing_fire_shot(thing, trgtng, trapstat->created_itm_model, 1, hit_type_to_hit_targets(trapstat->hit_type));
     }
     else
     {
@@ -1266,7 +1266,7 @@ void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, 
             shotng->veloc_push_add.y.val += cvect.y;
             shotng->veloc_push_add.z.val += cvect.z;
             shotng->state_flags |= TF1_PushAdd;
-            shotng->shot.hit_type = trapst->hit_type;
+            shotng->shot.hit_targets = hit_type_to_hit_targets(trapstat->hit_type);
             break;
     }
 }

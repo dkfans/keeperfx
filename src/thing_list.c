@@ -3383,34 +3383,40 @@ HitTargetFlags hit_type_to_hit_targets(long hit_type)
     switch (hit_type)
     {
     case THit_All:
-    case THit_CrtrsNObjctsNShot:
+    case THit_CreaturesAndObjectsCanCollide:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_OwnedCreatures|HitTF_ArmourAffctdCreatrs|HitTF_PreventDmgCreatrs|
             HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|HitTF_OwnedSoulContainer|
             HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
             HitTF_EnemyShotsCollide|HitTF_AlliedShotsCollide|HitTF_OwnedShotsCollide|
             HitTF_EnemyDestructibleTraps|HitTF_AlliedDestructibleTraps|HitTF_OwnedDestructibleTraps|
             HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
-    case THit_CrtrsNObjcts:
+    case THit_CreaturesAndObjects:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_OwnedCreatures|HitTF_ArmourAffctdCreatrs|HitTF_PreventDmgCreatrs|
             HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|HitTF_OwnedSoulContainer|
             HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
             HitTF_EnemyDestructibleTraps|HitTF_AlliedDestructibleTraps|HitTF_OwnedDestructibleTraps|
             HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
-    case THit_CrtrsOnly:
-        return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_OwnedCreatures|HitTF_ArmourAffctdCreatrs;
-    case THit_CrtrsNObjctsNotOwn:
+    case THit_CreaturesAndObjectsNotOwn:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_ArmourAffctdCreatrs|
         HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|
         HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
         HitTF_EnemyDestructibleTraps | HitTF_AlliedDestructibleTraps|
         HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
-    case THit_CrtrsOnlyNotOwn:
+    case THit_Creatures:
+        return HitTF_EnemyCreatures | HitTF_AlliedCreatures| HitTF_OwnedCreatures | HitTF_ArmourAffctdCreatrs;
+    case THit_CreaturesNotOwn:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_ArmourAffctdCreatrs;
-    case THit_CrtrsNotArmourNotOwn:
-        return HitTF_EnemyCreatures|HitTF_AlliedCreatures;
-    case THit_HeartOnly:
+    case THit_CreaturesOwn:
+        return HitTF_OwnedCreatures | HitTF_ArmourAffctdCreatrs;
+    case THit_CreaturesFriendly:
+        return HitTF_OwnedCreatures | HitTF_AlliedCreatures | HitTF_ArmourAffctdCreatrs;
+    case THit_CreaturesHostile:
+        return HitTF_EnemyCreatures | HitTF_ArmourAffctdCreatrs;
+    case THit_CreaturesHostileNotArmour:
+        return HitTF_EnemyCreatures;
+    case THit_Heart:
         return HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|HitTF_OwnedSoulContainer;
-    case THit_HeartOnlyNotOwn:
+    case THit_HeartNotOwn:
         return HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer;
     case THit_TrapsAll:
         return HitTF_EnemyDestructibleTraps|HitTF_AlliedDestructibleTraps|HitTF_OwnedDestructibleTraps|
@@ -3421,6 +3427,140 @@ HitTargetFlags hit_type_to_hit_targets(long hit_type)
         WARNLOG("Illegal hit thing type %d",(int)hit_type);
         return HitTF_None;
     }
+}
+
+/**
+ * @brief Get the hit targets for a spell.
+ * A spell may and may not use Shot object.
+ * The HitType for the main effct of a shot isn't specified in the magic.cfg. Only the HitType for area damage
+ * is specified there. This function is used to compute its reasonable HitTargetFlags of the main effect.
+ * @param caster
+ * @param target
+ * @param spell_idx
+ * @return HitTargetFlags
+ */
+HitTargetFlags get_hit_targets_for_spell(struct Thing *caster, struct Thing *target, SpellKind spell_idx)
+{
+    HitTargetFlags result = 0;
+    if ((caster->alloc_flags & TAlF_IsControlled) != 0)
+    {
+        // The caster is under player's control. Apply looser restrictions.
+        if ((target->class_id == TCls_Object) || (target->class_id == TCls_Trap))
+        {
+            result = hit_type_to_hit_targets(THit_CreaturesAndObjects);
+        }
+        else
+        {
+            result = hit_type_to_hit_targets(THit_Creatures);
+        }
+    }
+    else
+    {
+        if ((target->class_id == TCls_Object) || (target->class_id == TCls_Trap))
+        {
+            result = hit_type_to_hit_targets(THit_CreaturesAndObjectsNotOwn);
+        }
+        else
+        {
+            if (caster->owner == target->owner)
+            {
+                result = hit_type_to_hit_targets(THit_CreaturesOwn);
+            }
+            else if(players_are_mutual_allies(caster->owner, target->owner))
+            {
+                // Allied target.
+                result = HitTF_AlliedCreatures|HitTF_ArmourAffctdCreatrs;
+            }
+            else
+            {
+                // Enemy.
+                result = HitTF_EnemyCreatures|HitTF_ArmourAffctdCreatrs;
+            }
+        }
+    }
+
+    return result;
+}
+
+/**
+ * @brief Get the hit targets for a shot
+ * The HitType for the main effct of a shot isn't specified in the magic.cfg. Only the HitType for area damage
+ * is specified there. This function is used to compute its reasonable HitTargetFlags of the main effect.
+ * @param caster
+ * @param target
+ * @param shot_model
+ * @return HitTargetFlags
+ */
+HitTargetFlags get_hit_targets_for_shot(struct Thing *caster, struct Thing *target, ThingModel shot_model)
+{
+    HitTargetFlags result = 0;
+
+    struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
+    if ((shotst->model_flags & ShMF_Disarming) && thing_is_deployed_trap(target))
+    {
+        result = hit_type_to_hit_targets(THit_TrapsAll);
+        return result;
+    }
+
+    if (target == NULL)
+    {
+        // If no target is specified.
+        if ((caster->alloc_flags & TAlF_IsControlled) != 0)
+        {
+            // The caster is under player's control. Apply looser restrictions.
+            result = hit_type_to_hit_targets(THit_CreaturesAndObjects);
+        }
+        else
+        {
+            result = hit_type_to_hit_targets(THit_CreaturesNotOwn);
+        }
+    }
+    else if ((caster->alloc_flags & TAlF_IsControlled) != 0)
+    {
+        if (target->class_id == TCls_Object)
+        {
+            result = hit_type_to_hit_targets(THit_CreaturesAndObjects);
+        }
+        else if (target->class_id == TCls_Trap)
+        {
+            result = hit_type_to_hit_targets(THit_TrapsAll);
+        }
+        else
+        {
+            result = hit_type_to_hit_targets(THit_Creatures);
+        }
+    }
+    else
+    {
+        if (target->class_id == TCls_Object)
+        {
+            result = hit_type_to_hit_targets(THit_CreaturesAndObjectsNotOwn);
+        }
+        else if (thing_is_destructible_trap(target) > 0)
+        {
+            result = hit_type_to_hit_targets(THit_CreaturesAndObjectsNotOwn);
+        }
+        else if (target->class_id == TCls_Trap)
+        {
+            result = hit_type_to_hit_targets(THit_TrapsAll);
+        }
+        else if (caster->owner == target->owner)
+        {
+            result = hit_type_to_hit_targets(THit_CreaturesOwn);
+        }
+        else if(players_are_mutual_allies(caster->owner, target->owner))
+        {
+            // Allied target.
+            result = HitTF_AlliedCreatures|HitTF_ArmourAffctdCreatrs;
+        }
+        else
+        {
+            // Enemy.
+            result = HitTF_EnemyCreatures|HitTF_ArmourAffctdCreatrs;
+        }
+    }
+
+    return result;
 }
 
 /**

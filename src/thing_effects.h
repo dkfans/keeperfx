@@ -30,18 +30,24 @@ extern "C" {
 #endif
 
 /******************************************************************************/
+
+// This provides a convenient way to specify hit types in the cfg files.
+// They will be converted to a combination of HitTargetFlags for further process.
 enum ThingHitTypes {
     THit_None = 0,
-    THit_CrtrsNObjcts, // Affect all creatures and all objects
-    THit_CrtrsOnly, // Affect only creatures
-    THit_CrtrsNObjctsNotOwn, // Affect not own creatures and objects
-    THit_CrtrsOnlyNotOwn, // Affect not own creatures
-    THit_CrtrsNotArmourNotOwn, // Affect not own creatures which are not protected by Armour spell
+    THit_CreaturesAndObjects, // Affect all creatures and all objects
+    THit_Creatures, // Affect only creatures
+    THit_CreaturesAndObjectsNotOwn, // Affect not own creatures and objects
+    THit_CreaturesNotOwn, // Affect not own creatures
+    THit_CreaturesHostileNotArmour, // Affect hostile creatures which are not protected by Armour spell
     THit_All, // Affect all things
-    THit_HeartOnly, // Affect only dungeon hearts
-    THit_HeartOnlyNotOwn, // Affect only not own dungeon hearts
-    THit_CrtrsNObjctsNShot, // Affect all creatures and all objects, also allow colliding with other shots
-    THit_TrapsAll, // Affect all traps, not just the ones that are destructable
+    THit_Heart, // Affect only dungeon hearts
+    THit_HeartNotOwn, // Affect only not own dungeon hearts
+    THit_CreaturesAndObjectsCanCollide, // Affect all creatures and all objects, also allow colliding with other shots
+    THit_TrapsAll, // Affect all traps, not just the ones that are destructible
+    THit_CreaturesOwn,    // Affect own creatures
+    THit_CreaturesFriendly, // Affect own creatures and allied/neutral creatures.
+    THit_CreaturesHostile, // Affect hostile creatures.
     THit_TypesCount, // Last item in enumeration, allows checking amount of valid types
 };
 

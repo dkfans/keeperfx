@@ -1288,7 +1288,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
                 pos2.z.val += (killertng->clipbox_size_z >> 1);
                 if (thing_is_destructible_trap(killertng))
                 {
-                    shotng->shot.hit_type = THit_CrtrsNObjctsNotOwn;
+                    shotng->shot.hit_targets = hit_type_to_hit_targets(THit_CreaturesAndObjectsNotOwn);
                 }
             }
             else
@@ -1326,7 +1326,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             // TODO make this configurable somehow.
             struct Thing* efftng = create_effect(&trgtng->mappos, TngEff_WoPExplosion, trgtng->owner);
             if (!thing_is_invalid(efftng)) {
-                efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
+                efftng->shot_effect.hit_type = THit_HeartNotOwn;
             }
             shotng->health = -1;
             return 1;
@@ -1611,10 +1611,9 @@ struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *shotng,
  */
 TbBool shot_hit_something_while_moving(struct Thing *shotng, struct Coord3d *nxpos)
 {
-    SYNCDBG(18,"Starting for %s index %d, hit type %d",thing_model_name(shotng),(int)shotng->index, (int)shotng->shot.hit_type);
+    SYNCDBG(18,"Starting for %s index %d, hit targets %d",thing_model_name(shotng),(int)shotng->index, (int)shotng->shot.hit_targets);
     struct Thing* targetng = INVALID_THING;
-    HitTargetFlags hit_targets = hit_type_to_hit_targets(shotng->shot.hit_type);
-    targetng = get_thing_collided_with_at_satisfying_filter(shotng, nxpos, collide_filter_thing_is_shootable, hit_targets, 0);
+    targetng = get_thing_collided_with_at_satisfying_filter(shotng, nxpos, collide_filter_thing_is_shootable, shotng->shot.hit_targets, 0);
     if (thing_is_invalid(targetng)) {
         return false;
     }

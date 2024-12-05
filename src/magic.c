@@ -1473,7 +1473,7 @@ static TbResult magic_use_power_lightning(PowerKind power_kind, PlayerNumber ply
     if (!thing_is_invalid(shtng))
     {
         shtng->mappos.z.val = get_thing_height_at(shtng, &shtng->mappos) + COORD_PER_STL/2;
-        shtng->shot.hit_type = THit_CrtrsOnly;
+        shtng->shot.hit_targets = hit_type_to_hit_targets(THit_Creatures);
         shtng->shot.spell_level = splevel;
     }
     pwrdynst = get_power_dynamic_stats(power_kind);

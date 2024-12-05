@@ -490,54 +490,26 @@ void process_creature_instance(struct Thing *thing)
 
 long instf_creature_fire_shot(struct Thing *creatng, long *param)
 {
-    struct Thing *target;
-    int hittype;
-    TRACE_THING(creatng);
+    struct Thing *target = NULL;
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->targtng_idx == 0)
+    HitTargetFlags hit_targets_flags = 0;
+    TRACE_THING(creatng);
+
+    target = thing_get(cctrl->targtng_idx);
+    if (target == NULL || target == INVALID_THING)
     {
-        if ((creatng->alloc_flags & TAlF_IsControlled) == 0)
-            hittype = THit_CrtrsOnlyNotOwn;
-        else
-            hittype = THit_CrtrsNObjcts;
-    }
-    else if ((creatng->alloc_flags & TAlF_IsControlled) != 0)
-    {
-        target = thing_get(cctrl->targtng_idx);
-        TRACE_THING(target);
-        if (target->class_id == TCls_Object)
-            hittype = THit_CrtrsNObjcts;
-        else if (target->class_id == TCls_Trap)
-            hittype = THit_TrapsAll;
-        else
-            hittype = THit_CrtrsOnly;
+        SYNCDBG(8,"The %s(%d) fires %s",thing_model_name(creatng), creatng->index, shot_code_name(*param));
+        hit_targets_flags = get_hit_targets_for_shot(creatng, NULL, *param);
     }
     else
     {
-        target = thing_get(cctrl->targtng_idx);
+        SYNCDBG(8,"The %s(%d) fires %s at %s(%d)", thing_model_name(creatng), creatng->index,
+            shot_code_name(*param), thing_model_name(target), target->index);
         TRACE_THING(target);
-        if (target->class_id == TCls_Object)
-            hittype = THit_CrtrsNObjctsNotOwn;
-        else if (thing_is_destructible_trap(target) > 0)
-            hittype = THit_CrtrsNObjctsNotOwn;
-        else if (target->class_id == TCls_Trap)
-            hittype = THit_TrapsAll;
-        else if (target->owner == creatng->owner)
-            hittype = THit_CrtrsOnly;
-        else
-            hittype = THit_CrtrsOnlyNotOwn;
+        hit_targets_flags = get_hit_targets_for_shot(creatng, target, *param);
     }
-    if (cctrl->targtng_idx > 0)
-    {
-        target = thing_get(cctrl->targtng_idx);
-        SYNCDBG(8,"The %s index %d fires %s at %s index %d",thing_model_name(creatng),(int)creatng->index,shot_code_name(*param),thing_model_name(target),(int)target->index);
-        TRACE_THING(target);
-    } else
-    {
-        target = NULL;
-        SYNCDBG(8,"The %s index %d fires %s",thing_model_name(creatng),(int)creatng->index,shot_code_name(*param));
-    }
-    thing_fire_shot(creatng, target, *param, 1, hittype);
+
+    thing_fire_shot(creatng, target, *param, 1, hit_targets_flags);
     // Start cooldown after shot is fired
     cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
     return 0;
@@ -554,12 +526,20 @@ long instf_creature_cast_spell(struct Thing *creatng, long *param)
     SYNCDBG(8,"The %s(%d) casts %s at %d", thing_model_name(creatng), (int)creatng->index,
         spell_code_name(spl_idx), cctrl->targtng_idx);
 
-    if (spconf->cast_at_thing && cctrl->targtng_idx != creatng->index)
+    // If the targtng_idx is jus the caster itself, we can call creature_cast_spell
+    // instead of creature_cast_spell_at_thing.
+    if (cctrl->targtng_idx != creatng->index)
     {
-        // If the targtng_idx is just the caster itself, we can call creature_cast_spell
-        // instead of creature_cast_spell_at_thing.
-        target = thing_get(cctrl->targtng_idx);
-        if (thing_is_invalid(target)) target = NULL;
+        if (!spconf->cast_at_thing)
+        {
+            WARNLOG("The spell %s is casted on a thing(%d) but its CastAtThing property is false",
+                spell_code_name(spl_idx), cctrl->targtng_idx);
+        }
+        else
+        {
+            target = thing_get(cctrl->targtng_idx);
+            if (thing_is_invalid(target)) target = NULL;
+        }
     }
 
     if (target != NULL)
@@ -892,7 +872,7 @@ long instf_fart(struct Thing *creatng, long *param)
     TRACE_THING(creatng);
     struct Thing* efftng = create_effect(&creatng->mappos, TngEff_Gas3, creatng->owner);
     if (!thing_is_invalid(efftng))
-        efftng->shot_effect.hit_type = THit_CrtrsOnlyNotOwn;
+        efftng->shot_effect.hit_type = THit_CreaturesNotOwn; // Consider using THit_CreaturesHostile.
     thing_play_sample(creatng,94+UNSYNC_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     // Start cooldown after fart created
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);

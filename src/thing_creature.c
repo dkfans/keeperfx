@@ -1551,33 +1551,16 @@ short creature_take_wage_from_gold_pile(struct Thing *creatng,struct Thing *gold
  */
 void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, SpellKind spl_idx, long shot_lvl)
 {
-    unsigned char hit_type;
-    if ((castng->alloc_flags & TAlF_IsControlled) != 0)
-    {
-        if ((targetng->class_id == TCls_Object) || (targetng->class_id == TCls_Trap))
-            hit_type = THit_CrtrsNObjcts;
-        else
-            hit_type = THit_CrtrsOnly;
-    } else
-    {
-        if ((targetng->class_id == TCls_Object) || (targetng->class_id == TCls_Trap))
-            hit_type = THit_CrtrsNObjctsNotOwn;
-        else
-        if (targetng->owner == castng->owner)
-            hit_type = THit_CrtrsOnly;
-        else
-            hit_type = THit_CrtrsOnlyNotOwn;
-    }
+    HitTargetFlags hit_targets = get_hit_targets_for_spell(castng, targetng, spl_idx);
     const struct SpellConfig* spconf = get_spell_config(spl_idx);
     if (spell_config_is_invalid(spconf))
     {
         ERRORLOG("The %s owned by player %d tried to cast invalid spell %d",thing_model_name(castng),(int)castng->owner,(int)spl_idx);
         return;
     }
-
-    SYNCDBG(12,"The %s(%u) fire shot(%s) at %s(%u) with shot level %ld, hit type: 0x%02X", thing_model_name(castng), castng->index,
-        shot_code_name(spconf->shot_model), thing_model_name(targetng), targetng->index, shot_lvl, hit_type);
-    thing_fire_shot(castng, targetng, spconf->shot_model, shot_lvl, hit_type);
+    SYNCDBG(12,"The %s(%u) fire shot(%s) at %s(%u) with shot level %ld, hit targets: 0x%02X", thing_model_name(castng), castng->index,
+        shot_code_name(spconf->shot_model), thing_model_name(targetng), targetng->index, shot_lvl, hit_targets);
+    thing_fire_shot(castng, targetng, spconf->shot_model, shot_lvl, hit_targets);
 }
 
 /**
@@ -1767,12 +1750,11 @@ void remove_creature_from_summon_list(struct Dungeon* dungeon, ThingIndex famlrt
  * @param castng The caster creature.
  * @param spl_idx Spell index to be casted.
  * @param shot_lvl Spell level to be casted.
- * @param trg_x
- * @param trg_y
+ * @param trg_x Coordinate X of the target location
+ * @param trg_y Coordinate Y of the target location
  */
 void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, long shot_lvl, MapSubtlCoord trg_x, MapSubtlCoord trg_y)
 {
-    long i;
     const struct SpellConfig* spconf = get_spell_config(spl_idx);
     struct CreatureControl* cctrl = creature_control_get_from_thing(castng);
     if (creature_control_invalid(cctrl))
@@ -1785,7 +1767,19 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, long shot_lvl,
         cctrl->teleport_x = trg_x;
         cctrl->teleport_y = trg_y;
     }
-
+    if ((spconf->shot_model > 0) && (cctrl->targtng_idx != castng->index))
+    {
+        // If we reach here, it means that this spell cannot find a Thing as the target,
+        // either due to invalid target index or incorrect CastAtThing setting.
+        // Besides, this spell has a shot model. It means the caster want to fire a shot without
+        // locking on a target.
+        // In this case, it should use instf_creature_fire_shot, not instf_creature_cast_spell.
+        // This is a misuse.
+        WARNLOG("Consider using instf_creature_fire_shot for spell %s", spell_code_name(spl_idx));
+        HitTargetFlags hit_targets_flags = get_hit_targets_for_shot(castng, NULL, spconf->shot_model);
+        thing_fire_shot(castng, INVALID_THING, spconf->shot_model, shot_lvl, hit_targets_flags);
+    }
+    // Check if the spell can be self-casted
     if (spconf->caster_affected)
     {
         if (spconf->caster_affect_sound > 0)
@@ -3101,7 +3095,7 @@ static void shot_set_start_pos(const struct Thing *firing, const struct ShotConf
     }
 }
 
-void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot_model, char shot_lvl, unsigned char hit_type)
+void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot_model, char shot_lvl, HitTargetFlags hit_targets)
 {
     struct Coord3d pos2;
     struct Thing *tmptng;
@@ -3210,10 +3204,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
             damage = calculate_shot_damage(firing, shot_model);
         }
     }
-    if ((shotst->model_flags & ShMF_Disarming) && thing_is_deployed_trap(target))
-    {
-        hit_type = THit_TrapsAll;
-    }
+
     struct Thing* shotng = NULL;
     long target_idx = 0;
     // Set target index for navigating shots
@@ -3268,7 +3259,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
             if (thing_is_invalid(tmptng))
               break;
             shotng = tmptng;
-            shotng->shot.hit_type = hit_type;
+            shotng->shot.hit_targets = hit_targets;
             shotng->move_angle_xy = (short)((angle_xy + CREATURE_RANDOM(firing, 2 * shotst->spread_xy + 1) - shotst->spread_xy) & LbFPMath_AngleMask);
             shotng->move_angle_z = (short)((angle_yz + CREATURE_RANDOM(firing, 2 * shotst->spread_z + 1) - shotst->spread_z) & LbFPMath_AngleMask);
             angles_to_vector(shotng->move_angle_xy, shotng->move_angle_z, speed, &cvect);
@@ -3337,7 +3328,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         WARNLOG("Shot of type %d carries %d damage",(int)shot_model,(int)damage);
       }
 #endif
-      shotng->shot.hit_type = hit_type;
+      shotng->shot.hit_targets = hit_targets;
       if (shotst->firing_sound > 0)
       {
         thing_play_sample(firing, shotst->firing_sound + UNSYNC_RANDOM(shotst->firing_sound_variants),
