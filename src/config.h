@@ -21,6 +21,7 @@
 #define DK_CONFIG_H
 
 #include "bflib_basics.h"
+#include "bflib_sound.h"
 #include "globals.h"
 
 #ifdef __cplusplus
@@ -231,9 +232,9 @@ struct NetLevelDesc { // sizeof = 14
   char *text;
 };
 
-extern unsigned short AtmosRepeat;
-extern unsigned short AtmosStart;
-extern unsigned short AtmosEnd;
+extern SoundSmplID AtmosRepeat;
+extern SoundSmplID AtmosStart;
+extern SoundSmplID AtmosEnd;
 extern TbBool AssignCpuKeepers;
 
 extern unsigned int vid_scale_flags;

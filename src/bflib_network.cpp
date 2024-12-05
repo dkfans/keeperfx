@@ -19,7 +19,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "bflib_network.h"
-
+#include "samples.h"
 #include "bflib_basics.h"
 #include "bflib_enet.h"
 #include "bflib_datetm.h"
@@ -368,7 +368,7 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
     //presume login successful from here
     NETMSG("User %s successfully logged in", netstate.users[source].name);
     netstate.users[source].progress = USER_LOGGEDIN;
-    play_non_3d_sample(76);
+    play_non_3d_sample(Smpl_0076);
 
     //send reply
     ptr = netstate.msg_buffer;

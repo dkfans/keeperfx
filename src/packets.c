@@ -34,7 +34,7 @@
 #include "bflib_sndlib.h"
 #include "bflib_sprfnt.h"
 #include "bflib_planar.h"
-
+#include "samples.h"
 #include "kjm_input.h"
 #include "front_input.h"
 #include "front_simple.h"
@@ -215,7 +215,7 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
     }
     delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), 0);
     if (is_my_player_number(plyr_idx))
-        play_non_3d_sample(115);
+        play_non_3d_sample(Smpl_0115);
     if (revenue != 0)
     {
         struct Coord3d pos;

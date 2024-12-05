@@ -18,7 +18,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "thing_shots.h"
-
+#include "samples.h"
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_memory.h"
@@ -434,12 +434,12 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
                 }
                 give_gold_to_creature_or_drop_on_map_when_digging(diggertng, stl_x, stl_y, damage);
                 mine_out_block(stl_x, stl_y, diggertng->owner);
-                thing_play_sample(diggertng, 72+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+                thing_play_sample(diggertng, Smpl_0072 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
             } else
             if ((mapblk->flags & SlbAtFlg_IsDoor) == 0)
             { // All non-gold and non-door slabs are just destroyed
                 dig_out_block(stl_x, stl_y, diggertng->owner);
-                thing_play_sample(diggertng, 72+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+                thing_play_sample(diggertng, Smpl_0072 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
             }
             check_map_explored(diggertng, stl_x, stl_y);
         } else
@@ -457,7 +457,7 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
     return result;
 }
 
-struct Thing *create_shot_hit_effect(struct Coord3d *effpos, long effowner, EffectOrEffElModel eff_kind, long snd_idx, long snd_range)
+struct Thing *create_shot_hit_effect(struct Coord3d *effpos, long effowner, EffectOrEffElModel eff_kind, SoundSmplID snd_idx, long snd_range)
 {
     struct Thing* efftng = INVALID_THING;
     if (eff_kind != 0) {
@@ -468,10 +468,10 @@ struct Thing *create_shot_hit_effect(struct Coord3d *effpos, long effowner, Effe
     {
         if (!thing_is_invalid(efftng))
         {
-            long i = snd_idx;
-            if (snd_range > 1)
-                i += UNSYNC_RANDOM(snd_range);
-            thing_play_sample(efftng, i, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+            if (snd_range > 1) {
+                snd_idx += UNSYNC_RANDOM(snd_range);
+            }
+            thing_play_sample(efftng, snd_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
     }
     return efftng;
@@ -740,14 +740,14 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
                 efftng = create_used_effect_or_element(&shotng->mappos, shotst->hit_door.effect_model, shotng->owner);
             }
             // If the shot hit is supposed to create sound
-            int n = shotst->hit_door.sndsample_idx;
+            SoundSmplID smpl_idx = shotst->hit_door.sndsample_idx;
             int i;
-            if (n > 0)
+            if (smpl_idx > 0)
             {
                 if (!thing_is_invalid(efftng))
                 {
                     i = shotst->hit_door.sndsample_range;
-                    thing_play_sample(efftng, n + UNSYNC_RANDOM(i), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+                    thing_play_sample(efftng, smpl_idx + UNSYNC_RANDOM(i), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
                 }
             }
             // Shall the shot be destroyed on impact
@@ -851,9 +851,9 @@ static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struc
     if (shotng->parent_idx != shotng->index) {
         shootertng = thing_get(shotng->parent_idx);
     }
-    int i = shotst->hit_generic.sndsample_idx;
-    if (i > 0) {
-        thing_play_sample(target, i, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
+    SoundSmplID smpl_idx = shotst->hit_generic.sndsample_idx;
+    if (smpl_idx > 0) {
+        thing_play_sample(target, smpl_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
     }
 
     HitPoints damage_done = 0;
@@ -927,9 +927,9 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
         }
     } else
     {
-        int i = shotst->hit_generic.sndsample_idx;
-        if (i > 0) {
-            thing_play_sample(target, i, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
+        SoundSmplID smpl_idx = shotst->hit_generic.sndsample_idx;
+        if (smpl_idx > 0) {
+            thing_play_sample(target, smpl_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         }
     }
 
@@ -1675,7 +1675,7 @@ TngUpdateRet update_shot(struct Thing *thing)
     struct PlayerInfo* myplyr = get_my_player();
     if (shotst->shot_sound != 0)
     {
-        if (!S3DEmitterIsPlayingSample(thing->snd_emitter_id, shotst->shot_sound, 0))
+        if (!S3DEmitterIsPlayingSample(thing->snd_emitter_id, shotst->shot_sound))
             thing_play_sample(thing, shotst->shot_sound, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     }
     if (!shotst->no_air_damage)

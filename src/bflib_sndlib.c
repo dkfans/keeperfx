@@ -45,7 +45,7 @@ extern "C"
     typedef int(WINAPI *FARPROCP)(const void *);
     typedef int(WINAPI *FARPROCSIII)(const char *, int, int, int);
     typedef int(WINAPI *FARPROCIIII)(int, int, int, int);
-    typedef struct SampleInfo *(WINAPI *FARPROC_PLAY1)(int, int, int, int, int, unsigned char, unsigned char, void *, int);
+    typedef struct SampleInfo *(WINAPI *FARPROC_PLAY1)(int, int, int, int, int, unsigned char, unsigned char, const void *, int);
 
     HMODULE WSND7R;
 
@@ -403,7 +403,7 @@ extern "C"
         return 0;
     }
 
-    void StopSample(SoundEmitterID emit_id, SoundSmplTblID smptbl_id)
+    void StopSample(SoundEmitterID emit_id, SoundSmplID smptbl_id)
     {
         if (_StopSample != NULL)
         {
@@ -411,7 +411,7 @@ extern "C"
         }
     }
 
-    void SetSampleVolume(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundVolume volume)
+    void SetSampleVolume(SoundEmitterID emit_id, SoundSmplID smptbl_id, SoundVolume volume)
     {
         if (_SetSampleVolume != NULL)
         {
@@ -419,7 +419,7 @@ extern "C"
         }
     }
 
-    void SetSamplePan(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundPan pan)
+    void SetSamplePan(SoundEmitterID emit_id, SoundSmplID smptbl_id, SoundPan pan)
     {
         if (_SetSamplePan != NULL)
         {
@@ -427,7 +427,7 @@ extern "C"
         }
     }
 
-    void SetSamplePitch(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundPitch pitch)
+    void SetSamplePitch(SoundEmitterID emit_id, SoundSmplID smptbl_id, SoundPitch pitch)
     {
         if (_SetSamplePitch != NULL)
         {
@@ -435,7 +435,7 @@ extern "C"
         }
     }
 
-    struct SampleInfo *PlaySampleFromAddress(SoundEmitterID emit_id, SoundSmplTblID smpl_idx, SoundVolume volume, SoundPan pan, SoundPitch pitch, unsigned char a6, unsigned char a7, void *buf, SoundSFXID sfxid)
+    struct SampleInfo *PlaySampleFromAddress(SoundEmitterID emit_id, SoundSmplID smpl_idx, SoundVolume volume, SoundPan pan, SoundPitch pitch, unsigned char a6, unsigned char a7, const void *buf, SoundSFXID sfxid)
     {
         if (_PlaySampleFromAddress != NULL)
         {

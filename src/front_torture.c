@@ -77,7 +77,7 @@ void torture_play_sound(long door_id, TbBool state)
     return;
   if (state)
   {
-    play_sample(0, doors[door_id].smptbl_id, 0, 64, 100, -1, 2, 0);
+    play_sample(0, doors[door_id].smptbl_id, 0, 64, 100, -1, 2);
     door_sound_state[door_id].field_0 = 0;
     door_sound_state[door_id].field_4 = 16;
   }

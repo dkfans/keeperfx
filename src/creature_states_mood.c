@@ -125,8 +125,8 @@ short creature_piss(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureSound* crsound = get_creature_sound(thing, CrSnd_Piss);
-    unsigned short sound_idx = crsound->index + CREATURE_RANDOM(thing, crsound->count);
-    if (!S3DEmitterIsPlayingSample(thing->snd_emitter_id, sound_idx, 0)) {
+    SoundSmplID sound_idx = crsound->index + CREATURE_RANDOM(thing, crsound->count);
+    if (!S3DEmitterIsPlayingSample(thing->snd_emitter_id, sound_idx)) {
         thing_play_sample(thing, sound_idx, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
     }
     long i = cctrl->countdown;

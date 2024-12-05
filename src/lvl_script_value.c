@@ -34,7 +34,7 @@
 #include "bflib_sound.h"
 #include "map_blocks.h"
 #include "room_util.h"
-
+#include "samples.h"
 #include "lvl_script_lib.h"
 #include "post_inc.h"
 
@@ -182,26 +182,22 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel,
             SYNCDBG(5,"Found creature to cast the spell on but it is being held.");
             return Lb_FAIL;
         }
-        unsigned short sound;
+        SoundSmplID sound = Smpl_Invalid;
         if (spconf->caster_affected)
         {
             sound = spconf->caster_affect_sound;
         }
         else if ( (spkind == SplK_Freeze) || (spkind == SplK_Slow) )
         {
-            sound = 50;
+            sound = Smpl_0050;
         }
         else if (spkind == SplK_Disease)
         {
-            sound = 59;
+            sound = Smpl_0059;
         }
         else if (spkind == SplK_Chicken)
         {
-            sound = 109;
-        }
-        else
-        {
-            sound = 0;
+            sound = Smpl_0109;
         }
         long splevel = fmcl_bytes & 255;
         thing_play_sample(thing, sound, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);

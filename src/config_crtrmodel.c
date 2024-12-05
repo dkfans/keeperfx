@@ -2306,234 +2306,270 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
         char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
         {
-        case CrSnd_Hurt:
+        case CrSnd_Hurt: {
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-                k = atoi(word_buf);
-                game.conf.crtr_conf.creature_sounds[crtr_model].hurt.index = k;
+                SoundSmplID smpl_id = get_sample_id(word_buf);
+                if (smpl_id <= 0) {
+                    smpl_id = atoi(word_buf);
+                }
+                game.conf.crtr_conf.creature_sounds[crtr_model].hurt.index = smpl_id;
                 n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-                k = atoi(word_buf);
-                game.conf.crtr_conf.creature_sounds[crtr_model].hurt.count = k;
-                n++;
-            }            
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case CrSnd_Hit:
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                game.conf.crtr_conf.creature_sounds[crtr_model].hit.index = k;
-                n++;
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                game.conf.crtr_conf.creature_sounds[crtr_model].hit.count = k;
+                game.conf.crtr_conf.creature_sounds[crtr_model].hurt.count = atoi(word_buf);
                 n++;
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case CrSnd_Happy:
+        }
+        case CrSnd_Hit: {
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-                k = atoi(word_buf);
-                game.conf.crtr_conf.creature_sounds[crtr_model].happy.index = k;
+                SoundSmplID smpl_id = get_sample_id(word_buf);
+                if (smpl_id <= 0) {
+                    smpl_id = atoi(word_buf);
+                }
+                game.conf.crtr_conf.creature_sounds[crtr_model].hit.index = smpl_id;
                 n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-                k = atoi(word_buf);
-                game.conf.crtr_conf.creature_sounds[crtr_model].happy.count = k;
-                n++;
-            }            
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case CrSnd_Sad:
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                game.conf.crtr_conf.creature_sounds[crtr_model].sad.index = k;
+                game.conf.crtr_conf.creature_sounds[crtr_model].hit.count = atoi(word_buf);
                 n++;
             }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        }
+        case CrSnd_Happy: {
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-                k = atoi(word_buf);
-                game.conf.crtr_conf.creature_sounds[crtr_model].sad.count = k;
+                SoundSmplID smpl_id = get_sample_id(word_buf);
+                if (smpl_id <= 0) {
+                    smpl_id = atoi(word_buf);
+                }
+                game.conf.crtr_conf.creature_sounds[crtr_model].happy.index = smpl_id;
                 n++;
-            }            
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case CrSnd_Hang:
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.conf.crtr_conf.creature_sounds[crtr_model].hang.index = k;
-              n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
-              game.conf.crtr_conf.creature_sounds[crtr_model].hang.count = k;
-              n++;
+                game.conf.crtr_conf.creature_sounds[crtr_model].happy.count = atoi(word_buf);
+                n++;
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case CrSnd_Drop:
+        }
+        case CrSnd_Sad: {
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
-              game.conf.crtr_conf.creature_sounds[crtr_model].drop.index = k;
-              n++;
+                SoundSmplID smpl_id = get_sample_id(word_buf);
+                if (smpl_id <= 0) {
+                    smpl_id = atoi(word_buf);
+                }
+                game.conf.crtr_conf.creature_sounds[crtr_model].sad.index = smpl_id;
+                n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
-              game.conf.crtr_conf.creature_sounds[crtr_model].drop.count = k;
-              n++;
+                game.conf.crtr_conf.creature_sounds[crtr_model].sad.count = atoi(word_buf);
+                n++;
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case CrSnd_Torture:
+        }
+        case CrSnd_Hang: {
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
-              game.conf.crtr_conf.creature_sounds[crtr_model].torture.index = k;
-              n++;
+                SoundSmplID smpl_id = get_sample_id(word_buf);
+                if (smpl_id <= 0) {
+                    smpl_id = atoi(word_buf);
+                }
+                game.conf.crtr_conf.creature_sounds[crtr_model].hang.index = smpl_id;
+                n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
-              game.conf.crtr_conf.creature_sounds[crtr_model].torture.count = k;
-              n++;
+                game.conf.crtr_conf.creature_sounds[crtr_model].hang.count = atoi(word_buf);
+                n++;
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case CrSnd_Slap:
+        }
+        case CrSnd_Drop: {
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
-              game.conf.crtr_conf.creature_sounds[crtr_model].slap.index = k;
-              n++;
+                SoundSmplID smpl_id = get_sample_id(word_buf);
+                if (smpl_id <= 0) {
+                    smpl_id = atoi(word_buf);
+                }
+                game.conf.crtr_conf.creature_sounds[crtr_model].drop.index = smpl_id;
+                n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
-              game.conf.crtr_conf.creature_sounds[crtr_model].slap.count = k;
-              n++;
+                game.conf.crtr_conf.creature_sounds[crtr_model].drop.count = atoi(word_buf);
+                n++;
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case CrSnd_Die:
+        }
+        case CrSnd_Torture: {
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
-              game.conf.crtr_conf.creature_sounds[crtr_model].die.index = k;
-              n++;
+                SoundSmplID smpl_id = get_sample_id(word_buf);
+                if (smpl_id <= 0) {
+                    smpl_id = atoi(word_buf);
+                }
+                game.conf.crtr_conf.creature_sounds[crtr_model].torture.index = smpl_id;
+                n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
-              game.conf.crtr_conf.creature_sounds[crtr_model].die.count = k;
-              n++;
+                game.conf.crtr_conf.creature_sounds[crtr_model].torture.count = atoi(word_buf);
+                n++;
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case CrSnd_Foot:
+        }
+        case CrSnd_Slap: {
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
-              game.conf.crtr_conf.creature_sounds[crtr_model].foot.index = k;
-              n++;
+                SoundSmplID smpl_id = get_sample_id(word_buf);
+                if (smpl_id <= 0) {
+                    smpl_id = atoi(word_buf);
+                }
+                game.conf.crtr_conf.creature_sounds[crtr_model].slap.index = smpl_id;
+                n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
-              game.conf.crtr_conf.creature_sounds[crtr_model].foot.count = k;
-              n++;
+                game.conf.crtr_conf.creature_sounds[crtr_model].slap.count = atoi(word_buf);
+                n++;
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case CrSnd_Fight:
+        }
+        case CrSnd_Die: {
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
-              game.conf.crtr_conf.creature_sounds[crtr_model].fight.index = k;
-              n++;
+                SoundSmplID smpl_id = get_sample_id(word_buf);
+                if (smpl_id <= 0) {
+                    smpl_id = atoi(word_buf);
+                }
+                game.conf.crtr_conf.creature_sounds[crtr_model].die.index = smpl_id;
+                n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
-              game.conf.crtr_conf.creature_sounds[crtr_model].fight.count = k;
-              n++;
+                game.conf.crtr_conf.creature_sounds[crtr_model].die.count = atoi(word_buf);
+                n++;
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case CrSnd_Piss:
+        }
+        case CrSnd_Foot: {
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
-              game.conf.crtr_conf.creature_sounds[crtr_model].piss.index = k;
-              n++;
+                SoundSmplID smpl_id = get_sample_id(word_buf);
+                if (smpl_id <= 0) {
+                    smpl_id = atoi(word_buf);
+                }
+                game.conf.crtr_conf.creature_sounds[crtr_model].foot.index = smpl_id;
+                n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
-              game.conf.crtr_conf.creature_sounds[crtr_model].piss.count = k;
-              n++;
+                game.conf.crtr_conf.creature_sounds[crtr_model].foot.count = atoi(word_buf);
+                n++;
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
+        }
+        case CrSnd_Fight: {
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                SoundSmplID smpl_id = get_sample_id(word_buf);
+                if (smpl_id <= 0) {
+                    smpl_id = atoi(word_buf);
+                }
+                game.conf.crtr_conf.creature_sounds[crtr_model].fight.index = smpl_id;
+                n++;
+            }
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                game.conf.crtr_conf.creature_sounds[crtr_model].fight.count = atoi(word_buf);
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        }
+        case CrSnd_Piss: {
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                SoundSmplID smpl_id = get_sample_id(word_buf);
+                if (smpl_id <= 0) {
+                    smpl_id = atoi(word_buf);
+                }
+                game.conf.crtr_conf.creature_sounds[crtr_model].piss.index = smpl_id;
+                n++;
+            }
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                game.conf.crtr_conf.creature_sounds[crtr_model].piss.count = atoi(word_buf);
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        }
         case ccr_comment:
             break;
         case ccr_endOfFile:

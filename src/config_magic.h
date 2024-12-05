@@ -253,7 +253,7 @@ struct SpellConfigStats {
 
 struct ShotHitConfig {
     ThingModel effect_model; /**< Effect kind to be created when the shot hits. */
-    short sndsample_idx; /**< Base sound sample to be played on hit. */
+    SoundSmplID sndsample_idx; /**< Base sound sample to be played on hit. */
     unsigned char sndsample_range; /**< Range for random sound sample selection. */
     unsigned char withstand; /**< Whether the shot can withstand a hit without getting destroyed; could be converted to flags. */
 };
@@ -301,8 +301,8 @@ struct ShotConfigStats {
     struct ShotHitConfig hit_heart;
     struct ShotDetonateConfig explode;
     struct ShotVisualConfig visual;
-    short firing_sound;
-    short shot_sound;
+    SoundSmplID firing_sound;
+    SoundSmplID shot_sound;
     short sound_priority;
     unsigned char firing_sound_variants;
     short max_range;
@@ -361,10 +361,10 @@ struct PowerConfigStats {
     short medsym_sprite_idx;
     unsigned short name_stridx;
     unsigned short tooltip_stridx;
-    short select_sample_idx;
+    SoundSmplID select_sample_idx;
     short pointer_sprite_idx;
     long panel_tab_idx;
-    unsigned short select_sound_idx;
+    SoundSmplID select_sound_idx;
     short cast_cooldown;
     unsigned char cost_formula;
     SpellKind spell_idx;
@@ -400,7 +400,7 @@ struct SpellConfig {
     /** Effect model created while casting. */
     EffectOrEffElModel cast_effect_model;
     /** If caster is affected by the spell, indicates sound sample to be played. */
-    unsigned short caster_affect_sound;
+    SoundSmplID caster_affect_sound;
     /** Sprite index of big symbol icon representing the spell. */
     short bigsym_sprite_idx;
     /** Sprite index of medium symbol icon representing the spell. */

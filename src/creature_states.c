@@ -19,7 +19,7 @@
 #include "pre_inc.h"
 #include "creature_states.h"
 #include "globals.h"
-
+#include "samples.h"
 #include "bflib_math.h"
 #include "bflib_planar.h"
 #include "thing_list.h"
@@ -2666,7 +2666,7 @@ short creature_present_to_dungeon_heart(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     create_effect(&creatng->mappos, imp_spangle_effects[get_player_color_idx(creatng->owner)], creatng->owner);
-    thing_play_sample(creatng, 76, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(creatng, Smpl_0076, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     if ( !external_set_thing_state(creatng, CrSt_CreatureDoingNothing) )
       set_start_state(creatng);
     return 1;
@@ -3018,7 +3018,7 @@ short creature_take_salary(struct Thing *creatng)
     {
         anger_apply_anger_to_creature_all_types(creatng, crstat->annoy_got_wage);
     }
-    thing_play_sample(efftng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(efftng, Smpl_0032, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     dungeon->lvstats.salary_cost += salary;
     return 1;
 }

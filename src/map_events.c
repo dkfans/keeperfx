@@ -18,7 +18,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "map_events.h"
-
+#include "samples.h"
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_memory.h"
@@ -355,7 +355,7 @@ void event_add_to_event_buttons_list_or_replace_button(struct Event *event, stru
                     struct PlayerInfo* player = get_player(dungeon->owner);
                     if ( (game.play_gameturn > 10) && (player->view_type != PVT_DungeonTop || (game.operation_flags & GOF_ShowGui)) )
                     {
-                        play_non_3d_sample(947);
+                        play_non_3d_sample(Smpl_0947);
                     }
                 }
                 SYNCDBG(1,"New button at position %d",(int)i);
@@ -662,8 +662,8 @@ void maintain_my_event_list(struct Dungeon *dungeon)
                     {
                         if (is_my_player_number(dungeon->owner)) {
                             struct SoundEmitter* emit = S3DGetSoundEmitter(Non3DEmitter);
-                            StopSample(get_emitter_id(emit), 947);
-                            play_non_3d_sample(175);
+                            StopSample(get_emitter_id(emit), Smpl_0947);
+                            play_non_3d_sample(Smpl_0175);
                         }
                         unsigned char prev_ev_idx = dungeon->event_button_index[i - 1];
                         event = &game.event[prev_ev_idx];

@@ -21,7 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-
+#include "bflib_sound.h"
 #include "config.h"
 #include "light_data.h"
 #include "thing_objects.h"
@@ -96,8 +96,8 @@ struct ObjectConfigStats {
     short anim_speed;
     short size_xy;
     short size_z;
-    short sprite_size_max;    
-    unsigned short fp_smpl_idx;
+    short sprite_size_max;
+    SoundSmplID fp_smpl_idx;
     unsigned char draw_class; /**< See enum ObjectsDrawClasses. */
     unsigned char destroy_on_lava;
     /** Creature model related to the object, ie for lairs - which creature lair it is. */

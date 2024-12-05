@@ -21,7 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-
+#include "samples.h"
 #include "bflib_math.h"
 #include "bflib_planar.h"
 #include "thing_objects.h"
@@ -217,7 +217,7 @@ long destroy_door(struct Thing *doortng)
     }
     struct Thing* efftng = create_effect(&pos, TngEff_Dummy, plyr_idx);
     if (!thing_is_invalid(efftng)) {
-        thing_play_sample(efftng, 72 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
+        thing_play_sample(efftng, Smpl_0072 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
     }
     if (plyr_idx != game.neutral_player_num)
     {
@@ -441,7 +441,7 @@ long process_door_open(struct Thing *thing)
         return 0;
     }
     thing->active_state = DorSt_Closing;
-    thing_play_sample(thing, 92, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(thing, Smpl_0092, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     return 1;
 }
 
@@ -450,7 +450,7 @@ long process_door_closed(struct Thing *thing)
     if ( !check_door_should_open(thing) )
       return 0;
     thing->active_state = DorSt_Opening;
-    thing_play_sample(thing, 91, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(thing, Smpl_0091, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     return 1;
 }
 
@@ -484,7 +484,7 @@ long process_door_closing(struct Thing *thing)
     if ( check_door_should_open(thing) )
     {
         thing->active_state = DorSt_Opening;
-        thing_play_sample(thing, 91, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        thing_play_sample(thing, Smpl_0091, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     }
     if (thing->door.closing_counter > delta_h)
     {

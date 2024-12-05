@@ -22,7 +22,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_sound.h"
-
+#include "samples.h"
 #include "bflib_math.h"
 #include "thing_list.h"
 #include "thing_creature.h"
@@ -725,7 +725,7 @@ long instf_dig(struct Thing *creatng, long *param)
         }
     }
     check_map_explored(creatng, stl_x, stl_y);
-    thing_play_sample(creatng, 72 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+    thing_play_sample(creatng, Smpl_0072 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     return 1;
 }
 
@@ -751,7 +751,7 @@ long instf_destroy(struct Thing *creatng, long *param)
             {
                 volume = FULL_LOUDNESS;
             }
-            thing_play_sample(creatng, 5 + UNSYNC_RANDOM(2), 200, 0, 3, 0, 2, volume);
+            thing_play_sample(creatng, Smpl_0005 + UNSYNC_RANDOM(2), 200, 0, 3, 0, 2, volume);
             return 0;
         }
         clear_dig_on_room_slabs(room, creatng->owner);
@@ -765,7 +765,7 @@ long instf_destroy(struct Thing *creatng, long *param)
             event_create_event_or_update_nearby_existing_event(ccor_x, ccor_y, EvKind_RoomLost, room->owner, room->kind);
             claim_enemy_room(room, creatng);
         }
-        thing_play_sample(creatng, 76, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        thing_play_sample(creatng, Smpl_0076, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         create_effects_on_room_slabs(room, imp_spangle_effects[get_player_color_idx(creatng->owner)], 0, creatng->owner);
         return 0;
     }
@@ -776,7 +776,7 @@ long instf_destroy(struct Thing *creatng, long *param)
         {
             volume = FULL_LOUDNESS;
         }
-        thing_play_sample(creatng, 128 + UNSYNC_RANDOM(3), 200, 0, 3, 0, 2, volume);
+        thing_play_sample(creatng, Smpl_0128 + UNSYNC_RANDOM(3), 200, 0, 3, 0, 2, volume);
         return 0;
     }
     if (prev_owner != game.neutral_player_num) {
@@ -787,7 +787,7 @@ long instf_destroy(struct Thing *creatng, long *param)
     {
         volume = FULL_LOUDNESS;
     }
-    thing_play_sample(creatng, 128 + UNSYNC_RANDOM(3), 200, 0, 3, 0, 2, volume);
+    thing_play_sample(creatng, Smpl_0128 + UNSYNC_RANDOM(3), 200, 0, 3, 0, 2, volume);
     decrease_dungeon_area(prev_owner, 1);
     neutralise_enemy_block(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng->owner);
     remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), NULL);
@@ -816,7 +816,7 @@ long instf_attack_room_slab(struct Thing *creatng, long *param)
     {
         //TODO CONFIG damage made to room slabs is constant - doesn't look good
         slb->health -= 2;
-        thing_play_sample(creatng, 128 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        thing_play_sample(creatng, Smpl_0128 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         return 1;
     }
     if (room->owner != game.neutral_player_num)
@@ -835,7 +835,7 @@ long instf_attack_room_slab(struct Thing *creatng, long *param)
         return 0;
     }
     create_effect(&creatng->mappos, TngEff_Explosion3, creatng->owner);
-    thing_play_sample(creatng, 47, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(creatng, Smpl_0047, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     if (z > 0)
     {
         for (long k = 0; k < AROUND_TILES_COUNT; k++)
@@ -870,9 +870,9 @@ long instf_damage_wall(struct Thing *creatng, long *param)
         place_slab_type_on_map(SlbT_EARTH, stl_x, stl_y, creatng->owner, 0);
         do_slab_efficiency_alteration(slb_x, slb_y);
         create_dirt_rubble_for_dug_slab(slb_x, slb_y);
-        thing_play_sample(creatng, 73, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        thing_play_sample(creatng, Smpl_0073, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     }
-    thing_play_sample(creatng, 63+UNSYNC_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(creatng, Smpl_0063 + UNSYNC_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     return 1;
 }
 
@@ -893,7 +893,7 @@ long instf_fart(struct Thing *creatng, long *param)
     struct Thing* efftng = create_effect(&creatng->mappos, TngEff_Gas3, creatng->owner);
     if (!thing_is_invalid(efftng))
         efftng->shot_effect.hit_type = THit_CrtrsOnlyNotOwn;
-    thing_play_sample(creatng,94+UNSYNC_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+    thing_play_sample(creatng, Smpl_0094 + UNSYNC_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     // Start cooldown after fart created
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
@@ -1076,7 +1076,7 @@ long instf_pretty_path(struct Thing *creatng, long *param)
     MapSlabCoord slb_x = subtile_slab(creatng->mappos.x.stl.num);
     MapSlabCoord slb_y = subtile_slab(creatng->mappos.y.stl.num);
     create_effect(&creatng->mappos, imp_spangle_effects[get_player_color_idx(creatng->owner)], creatng->owner);
-    thing_play_sample(creatng, 76, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(creatng, Smpl_0076, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     place_slab_type_on_map(SlbT_CLAIMED, slab_subtile_center(slb_x), slab_subtile_center(slb_y), creatng->owner, 1);
     do_unprettying(creatng->owner, slb_x, slb_y);
     do_slab_efficiency_alteration(slb_x, slb_y);
@@ -1100,7 +1100,7 @@ long instf_reinforce(struct Thing *creatng, long *param)
     if (cctrl->digger.consecutive_reinforcements <= 25)
     {
         cctrl->digger.consecutive_reinforcements++;
-        if (!S3DEmitterIsPlayingSample(creatng->snd_emitter_id, 63, 0))
+        if (!S3DEmitterIsPlayingSample(creatng->snd_emitter_id, 63))
         {
             struct PlayerInfo* player;
             player = get_my_player();
@@ -1109,7 +1109,7 @@ long instf_reinforce(struct Thing *creatng, long *param)
             {
                 volume = FULL_LOUDNESS;
             }
-            thing_play_sample(creatng, 1005 + UNSYNC_RANDOM(7), NORMAL_PITCH, 0, 3, 0, 2, volume);
+            thing_play_sample(creatng, Smpl_1005 + UNSYNC_RANDOM(7), NORMAL_PITCH, 0, 3, 0, 2, volume);
         }
         return 0;
     }
@@ -1127,7 +1127,7 @@ long instf_reinforce(struct Thing *creatng, long *param)
             create_effect(&pos, imp_spangle_effects[get_player_color_idx(creatng->owner)], creatng->owner);
         }
     }
-    thing_play_sample(creatng, 41, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
+    thing_play_sample(creatng, Smpl_0041, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
     return 0;
 }
 
@@ -1148,7 +1148,7 @@ long instf_tunnel(struct Thing *creatng, long *param)
     if (slabmap_block_invalid(slb)) {
         return 0;
     }
-    thing_play_sample(creatng, 69+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(creatng, Smpl_0069 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         if (slb->health > 1) {
         slb->health--;
         } else {

@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_sound.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,7 +44,7 @@ struct DoorDesc {
   long width;
   long height;
   struct TbSpriteSheet * sprites;
-  long smptbl_id;
+  SoundSmplID smptbl_id;
 };
 
 struct TortureState { // sizeof = 4

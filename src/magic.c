@@ -18,14 +18,14 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "magic.h"
-
+#include "samples.h"
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_planar.h"
 #include "bflib_sound.h"
-
+#include "samples.h"
 #include "player_data.h"
 #include "player_instances.h"
 #include "config_players.h"
@@ -1151,7 +1151,7 @@ static TbResult magic_use_power_chicken(PowerKind power_kind, PlayerNumber plyr_
     // Check if the creature kind isn't affected by that spell
     if ((get_creature_model_flags(thing) & CMF_NeverChickens) != 0)
     {
-        thing_play_sample(thing, 58, 20, 0, 3, 0, 2, 128);
+        thing_play_sample(thing, Smpl_0058, 20, 0, 3, 0, 2, 128);
         return Lb_SUCCESS;
     }
     apply_spell_effect_to_thing(thing, SplK_Chicken, splevel);
@@ -1189,7 +1189,7 @@ static TbResult magic_use_power_disease(PowerKind power_kind, PlayerNumber plyr_
     // Check if the creature kind isn't affected by that spell
     if ((get_creature_model_flags(thing) & CMF_NeverSick) != 0)
     {
-        thing_play_sample(thing, 58, 20, 0, 3, 0, 2, 128);
+        thing_play_sample(thing, Smpl_0058, 20, 0, 3, 0, 2, 128);
         return Lb_SUCCESS;
     }
     apply_spell_effect_to_thing(thing, SplK_Disease, splevel);
@@ -2040,7 +2040,7 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwk
         // Make a rejection sound
         if (is_my_player_number(plyr_idx))
         {
-            play_non_3d_sample(119);
+            play_non_3d_sample(Smpl_0119);
         }
     }
     return ret;
@@ -2142,7 +2142,7 @@ TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind p
     if (ret == Lb_FAIL) {
         // Make a rejection sound
         if (is_my_player_number(plyr_idx))
-            play_non_3d_sample(119);
+            play_non_3d_sample(Smpl_0119);
     }
     return ret;
 }

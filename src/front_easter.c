@@ -20,7 +20,7 @@
 #include "front_easter.h"
 #include "globals.h"
 #include "bflib_basics.h"
-
+#include "samples.h"
 #include "bflib_keybrd.h"
 #include "bflib_math.h"
 #include "bflib_sprfnt.h"
@@ -146,14 +146,14 @@ void input_eastegg(void)
     short allow = (lbKeyOn[KC_LSHIFT] != 0);
     unsigned short state = input_eastegg_keycodes(&game.eastegg01_cntr, allow, &eastegg_feckoff_codes);
     if ((state == 2) || (state == 3))
-      play_non_3d_sample(60);
+      play_non_3d_sample(Smpl_0060);
     // Maintain the JLW cheat
     if ((game.flags_font & FFlg_AlexCheat) != 0)
     {
       allow = (lbKeyOn[KC_LSHIFT]) && (lbKeyOn[KC_RSHIFT]);
       state = input_eastegg_keycodes(&game.eastegg02_cntr,allow,&eastegg_jlw_codes);
       if ((state == 1) || (state == 2)  || (state == 3))
-        play_non_3d_sample(159);
+        play_non_3d_sample(Smpl_0159);
     }
     // Maintain the SKEKSIS cheat
     allow = (lbKeyOn[KC_LSHIFT] != 0);
@@ -246,7 +246,7 @@ void draw_eastegg(void)
     {
       LbTextDrawResized(scale_fixed_DK_value(px[i]/pixel_size), scale_fixed_DK_value(py[i]/pixel_size), ee_units_per_px, text);
     }
-    play_non_3d_sample_no_overlap(90);
+    play_non_3d_sample_no_overlap(Smpl_0090);
   }
   if ((game.flags_font & FFlg_AlexCheat) == 0)
     return;
@@ -286,7 +286,7 @@ void draw_eastegg(void)
     {
         LbTextDrawResized(scale_fixed_DK_value(px[i]/pixel_size), scale_fixed_DK_value(py[i]/pixel_size), ee_units_per_px, text);
     }
-    play_non_3d_sample_no_overlap(90);
+    play_non_3d_sample_no_overlap(Smpl_0090);
   }
 }
 

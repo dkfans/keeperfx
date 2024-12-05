@@ -21,7 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-
+#include "bflib_sound.h"
 #include "config.h"
 #include "light_data.h"
 
@@ -48,7 +48,7 @@ struct EffectConfigStats {
     short accel_z_min;
     short accel_z_max;
     unsigned char elements_count;
-    short effect_sound;
+    SoundSmplID effect_sound;
     ThingModel kind_min;
     ThingModel kind_max;
     unsigned char area_affect_type;
@@ -72,7 +72,7 @@ struct EffectGeneratorConfigStats {
     long acc_y_max;
     long acc_z_min;
     long acc_z_max;
-    long sound_sample_idx;
+    SoundSmplID sound_sample_idx;
     long sound_sample_rng;
 };
 
@@ -102,15 +102,15 @@ struct EffectElementConfigStats {
     unsigned short subeffect_delay;
     TbBool impacts;
     ThingModel solidgnd_effmodel;
-    unsigned short solidgnd_snd_smpid;
+    SoundSmplID solidgnd_snd_smpid;
     unsigned short solidgnd_loudness;
     TbBool solidgnd_destroy_on_impact;
     ThingModel water_effmodel;
-    unsigned short water_snd_smpid;
+    SoundSmplID water_snd_smpid;
     unsigned short water_loudness;
     TbBool water_destroy_on_impact;
     ThingModel lava_effmodel;
-    unsigned short lava_snd_smpid;
+    SoundSmplID lava_snd_smpid;
     unsigned short lava_loudness;
     TbBool lava_destroy_on_impact;
     unsigned short transform_model;

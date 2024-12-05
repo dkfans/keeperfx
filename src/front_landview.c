@@ -1140,8 +1140,8 @@ TbBool frontmap_load(void)
     LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
     if ((features_enabled & Ft_AdvAmbSound) != 0)
     {
-        play_sample(0, campaign.ambient_good, 0, 0x40, 100, -1, 2, 0);
-        play_sample(0, campaign.ambient_bad, 0, 0x40, 100, -1, 2, 0);
+        play_sample(0, campaign.ambient_good, 0, 0x40, 100, -1, 2);
+        play_sample(0, campaign.ambient_bad, 0, 0x40, 100, -1, 2);
     }
     SetMusicPlayerVolume(settings.redbook_volume);
     fe_computer_players = 0;

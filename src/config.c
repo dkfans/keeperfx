@@ -35,7 +35,7 @@
 #include "sounds.h"
 #include "engine_render.h"
 #include "bflib_fmvids.h"
-
+#include "samples.h"
 #include "config_campaigns.h"
 #include "front_simple.h"
 #include "scrcapt.h"
@@ -56,9 +56,9 @@ static const char keeper_config_file[]="keeperfx.cfg";
 
 char cmd_char = '!';
 int max_track = 7;
-unsigned short AtmosRepeat = 1013;
-unsigned short AtmosStart = 1014;
-unsigned short AtmosEnd = 1034;
+SoundSmplID AtmosRepeat = Smpl_1013;
+SoundSmplID AtmosStart = Smpl_1014;
+SoundSmplID AtmosEnd = Smpl_1034;
 TbBool AssignCpuKeepers = 0;
 struct InstallInfo install_info;
 char keeper_runtime_directory[152];

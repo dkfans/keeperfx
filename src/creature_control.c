@@ -270,7 +270,7 @@ TbBool playing_creature_sound(struct Thing *thing, long snd_idx)
     struct CreatureSound* crsound = get_creature_sound(thing, snd_idx);
     for (long i = 0; i < crsound->count; i++)
     {
-        if (S3DEmitterIsPlayingSample(thing->snd_emitter_id, crsound->index+i, 0))
+        if (S3DEmitterIsPlayingSample(thing->snd_emitter_id, crsound->index+i))
           return true;
     }
     return false;
@@ -286,9 +286,9 @@ void stop_creature_sound(struct Thing *thing, long snd_idx)
 
     for (int i = 0; i < crsound->count; i++)
     {
-        if (S3DEmitterIsPlayingSample(thing->snd_emitter_id, crsound->index+i, 0))
+        if (S3DEmitterIsPlayingSample(thing->snd_emitter_id, crsound->index+i))
         {
-            S3DDeleteSampleFromEmitter(thing->snd_emitter_id, crsound->index+i, 0);
+            S3DDeleteSampleFromEmitter(thing->snd_emitter_id, crsound->index+i);
         }
     }
 }

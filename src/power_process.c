@@ -25,7 +25,7 @@
 #include "bflib_math.h"
 #include "bflib_planar.h"
 #include "bflib_memory.h"
-
+#include "samples.h"
 #include "player_data.h"
 #include "dungeon_data.h"
 #include "player_utils.h"
@@ -689,7 +689,7 @@ void process_timebomb(struct Thing *creatng)
             long time = (cctrl->timebomb_countdown / game_num_fps);
             timetng = create_price_effect(&creatng->mappos, creatng->owner, time);
             cctrl->timebomb_countdown_id = timetng->index;
-            thing_play_sample(creatng, 853, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+            thing_play_sample(creatng, Smpl_0853, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
     }
     else

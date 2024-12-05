@@ -19,7 +19,7 @@
 #include "pre_inc.h"
 #include "room_data.h"
 #include "globals.h"
-
+#include "samples.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
 #include "bflib_planar.h"
@@ -3930,7 +3930,7 @@ long claim_room(struct Room *room, struct Thing *claimtng)
     event_create_event(subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y),
         EvKind_RoomTakenOver, claimtng->owner, room->kind);
     do_room_integration(room);
-    thing_play_sample(claimtng, 116, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+    thing_play_sample(claimtng, Smpl_0116, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     output_room_takeover_message(room, oldowner, claimtng->owner);
     return 1;
 }

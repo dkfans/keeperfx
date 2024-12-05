@@ -25,7 +25,7 @@
 #include "bflib_math.h"
 #include "bflib_sound.h"
 #include "bflib_planar.h"
-
+#include "samples.h"
 #include "config_strings.h"
 #include "config_objects.h"
 #include "config_terrain.h"
@@ -247,7 +247,7 @@ void destroy_food(struct Thing *foodtng)
         struct Thing* efftng = create_effect(&foodtng->mappos, TngEff_FeatherPuff, plyr_idx);
         if (!thing_is_invalid(efftng))
         {
-            thing_play_sample(efftng, 112 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+            thing_play_sample(efftng, Smpl_0112 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
     }
     create_effect(&pos, TngEff_ChickenBlood, plyr_idx);
@@ -702,7 +702,7 @@ static long food_moves(struct Thing *objtng)
     pos.x.val = objtng->mappos.x.val;
     pos.y.val = objtng->mappos.y.val;
     pos.z.val = objtng->mappos.z.val;
-    unsigned int snd_smplidx = 0;
+    SoundSmplID snd_smplidx = Smpl_Invalid;
     if (objtng->food.some_chicken_was_sacrificed)
     {
         destroy_food(objtng);
@@ -787,7 +787,7 @@ static long food_moves(struct Thing *objtng)
             if (objtng->snd_emitter_id == 0)
             {
                 if (UNSYNC_RANDOM(16) == 0) {
-                  snd_smplidx = 109 + UNSYNC_RANDOM(3);
+                  snd_smplidx = Smpl_0109 + UNSYNC_RANDOM(3);
                 }
             }
         }
@@ -848,7 +848,7 @@ static long food_moves(struct Thing *objtng)
             }
             if (UNSYNC_RANDOM(0x50) == 0)
             {
-              snd_smplidx = 100 + UNSYNC_RANDOM(9);
+              snd_smplidx = Smpl_0100 + UNSYNC_RANDOM(9);
             }
         }
     }
@@ -912,7 +912,7 @@ static long food_grows(struct Thing *objtng)
             nobjtng->move_angle_xy = CREATURE_RANDOM(objtng, 0x800);
             nobjtng->food.byte_15 = CREATURE_RANDOM(objtng, 0x6FF);
             nobjtng->food.byte_16 = 0;
-          thing_play_sample(nobjtng, 80 + UNSYNC_RANDOM(3), 100, 0, 3u, 0, 1, 64);
+          thing_play_sample(nobjtng, Smpl_0080 + UNSYNC_RANDOM(3), 100, 0, 3u, 0, 1, 64);
           if (!is_neutral_thing(nobjtng)) {
               struct Dungeon *dungeon;
               dungeon = get_dungeon(nobjtng->owner);
@@ -1213,11 +1213,11 @@ void update_dungeon_heart_beat(struct Thing *heartng)
                 heartng->heart.beat_direction = (unsigned char)-1;
                 if (bounce)
                 {
-                    thing_play_sample(heartng, 151, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
+                    thing_play_sample(heartng, Smpl_0151, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
                 }
                 else
                 {
-                    thing_play_sample(heartng, 150, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
+                    thing_play_sample(heartng, Smpl_0150, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
                 }
                 bounce = !bounce;
             }
@@ -1226,11 +1226,11 @@ void update_dungeon_heart_beat(struct Thing *heartng)
         heartng->current_frame = (k >> 8) & 0xFF;
         if (LbIsFrozenOrPaused())
         {
-            stop_thing_playing_sample(heartng, 93);
+            stop_thing_playing_sample(heartng, Smpl_0093);
         }
-        else if ( !S3DEmitterIsPlayingSample(heartng->snd_emitter_id, 93, 0) )
+        else if ( !S3DEmitterIsPlayingSample(heartng->snd_emitter_id, 93) )
         {
-            thing_play_sample(heartng, 93, NORMAL_PITCH, -1, 3, 1, 6, FULL_LOUDNESS);
+            thing_play_sample(heartng, Smpl_0093, NORMAL_PITCH, -1, 3, 1, 6, FULL_LOUDNESS);
         }
     }
 }
@@ -1570,7 +1570,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
     struct Dungeon * dungeon = get_dungeon(objtng->owner);
     struct PowerConfigStats* powerst = get_power_model_stats(PwrK_SIGHT);
 
-    if ( !S3DEmitterIsPlayingSample(objtng->snd_emitter_id, powerst->select_sound_idx, 0) ) {
+    if ( !S3DEmitterIsPlayingSample(objtng->snd_emitter_id, powerst->select_sound_idx) ) {
         thing_play_sample(objtng, powerst->select_sound_idx, NORMAL_PITCH, -1, 3, 1, 3, FULL_LOUDNESS);
     }
 
@@ -1778,7 +1778,7 @@ TngUpdateRet move_object(struct Thing *thing)
             // GOLD_POT to make a sound when hitting the floor
             if (thing->model == ObjMdl_GoldPot)
             {
-                thing_play_sample(thing, 79, NORMAL_PITCH, 0, 3, 0, 1, FULL_LOUDNESS);
+                thing_play_sample(thing, Smpl_0079, NORMAL_PITCH, 0, 3, 0, 1, FULL_LOUDNESS);
             }
             if (thing_in_wall_at(thing, &pos) == 0) //TODO: Improve 'slide_thing_against_wall_at' so it does not return a pos inside a wall
             {

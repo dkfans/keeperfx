@@ -19,7 +19,7 @@
 #include "pre_inc.h"
 #include "front_torture.h"
 #include "globals.h"
-
+#include "samples.h"
 #include "bflib_basics.h"
 #include "bflib_filelst.h"
 #include "bflib_sprite.h"
@@ -31,15 +31,15 @@ extern "C" {
 /******************************************************************************/
 
 struct DoorDesc doors[TORTURE_DOORS_COUNT] = {
-  {102,  13, 102,  20,  97, 155, nullptr, 200},
-  {253,   0, 257,   0, 103, 118, nullptr, 201},
-  {399,   0, 413,   0, 114, 144, nullptr, 202},
-  {511,  65, 546,  85,  94, 160, nullptr, 203},
-  {149, 211, 153, 232,  55,  84, nullptr, 204},
-  {258, 176, 262, 178,  60,  84, nullptr, 205},
-  {364, 183, 375, 191,  70,  95, nullptr, 206},
-  {466, 257, 473, 261,  67,  94, nullptr, 207},
-  {254, 368, 260, 391, 128,  80, nullptr, 208},
+  {102,  13, 102,  20,  97, 155, nullptr, Smpl_0200},
+  {253,   0, 257,   0, 103, 118, nullptr, Smpl_0201},
+  {399,   0, 413,   0, 114, 144, nullptr, Smpl_0202},
+  {511,  65, 546,  85,  94, 160, nullptr, Smpl_0203},
+  {149, 211, 153, 232,  55,  84, nullptr, Smpl_0204},
+  {258, 176, 262, 178,  60,  84, nullptr, Smpl_0205},
+  {364, 183, 375, 191,  70,  95, nullptr, Smpl_0206},
+  {466, 257, 473, 261,  67,  94, nullptr, Smpl_0207},
+  {254, 368, 260, 391, 128,  80, nullptr, Smpl_0208},
 };
 struct TbSpriteSheet * fronttor_sprites = NULL;
 

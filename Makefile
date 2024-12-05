@@ -297,6 +297,7 @@ obj/roomspace.o \
 obj/roomspace_detection.o \
 obj/scrcapt.o \
 obj/slab_data.o \
+obj/soundbanks.o \
 obj/sounds.o \
 obj/spdigger_stack.o \
 obj/steam_api.o \

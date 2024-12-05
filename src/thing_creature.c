@@ -30,7 +30,7 @@
 #include "bflib_vidraw.h"
 #include "bflib_sound.h"
 #include "bflib_fileio.h"
-
+#include "samples.h"
 #include "config_creature.h"
 #include "config_crtrstates.h"
 #include "config_effects.h"
@@ -618,7 +618,7 @@ void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng)
         cctrl->hunger_level = 0;
     }
     // Food is destroyed just below, so the sound must be made by creature
-    thing_play_sample(creatng, 112+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(creatng, Smpl_0112 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     anger_apply_anger_to_creature(creatng, crstat->annoy_eat_food, AngR_Hungry, 1);
     struct Dungeon* dungeon = get_players_num_dungeon(creatng->owner);
@@ -1957,7 +1957,7 @@ TbBool creature_pick_up_interesting_object_laying_nearby(struct Thing *creatng)
                     creatng->creature.gold_carried += tgthing->valuable.gold_stored;
                     delete_thing_structure(tgthing, 0);
                 }
-                thing_play_sample(creatng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+                thing_play_sample(creatng, Smpl_0032, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
             }
         } else
         {
@@ -2543,7 +2543,7 @@ struct Thing* thing_death_flesh_explosion(struct Thing *thing)
     deadtng->veloc_base.x.val = memaccl.x.val;
     deadtng->veloc_base.y.val = memaccl.y.val;
     deadtng->veloc_base.z.val = memaccl.z.val;
-    thing_play_sample(deadtng, 47, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+    thing_play_sample(deadtng, Smpl_0047, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     return deadtng;
 }
 
@@ -2578,7 +2578,7 @@ struct Thing* thing_death_gas_and_flesh_explosion(struct Thing *thing)
     deadtng->veloc_base.x.val = memaccl.x.val;
     deadtng->veloc_base.y.val = memaccl.y.val;
     deadtng->veloc_base.z.val = memaccl.z.val;
-    thing_play_sample(deadtng, 47, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+    thing_play_sample(deadtng, Smpl_0047, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     return deadtng;
 }
 
@@ -2605,7 +2605,7 @@ struct Thing* thing_death_smoke_explosion(struct Thing *thing)
     deadtng->veloc_base.x.val = memaccl.x.val;
     deadtng->veloc_base.y.val = memaccl.y.val;
     deadtng->veloc_base.z.val = memaccl.z.val;
-    thing_play_sample(deadtng, 47, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+    thing_play_sample(deadtng, Smpl_0047, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     return deadtng;
 }
 
@@ -2639,7 +2639,7 @@ struct Thing* thing_death_ice_explosion(struct Thing *thing)
     deadtng->veloc_base.x.val = memaccl.x.val;
     deadtng->veloc_base.y.val = memaccl.y.val;
     deadtng->veloc_base.z.val = memaccl.z.val;
-    thing_play_sample(deadtng, 47, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+    thing_play_sample(deadtng, Smpl_0047, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     return deadtng;
 }
 
@@ -6419,7 +6419,7 @@ void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *pick
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->pickup_object_id = picktng->index;
     struct CreatureSound* crsound = get_creature_sound(creatng, CrSnd_Hurt);
-    unsigned short smpl_idx = crsound->index + 1;
+    SoundSmplID smpl_idx = crsound->index + 1;
     thing_play_sample(creatng, smpl_idx, 90, 0, 3, 0, 2, FULL_LOUDNESS * 5/4);
     display_controlled_pick_up_thing_name(picktng, (GUI_MESSAGES_DELAY >> 4), plyr_idx);
 }
@@ -6432,7 +6432,7 @@ void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *pick
  */
 void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng, PlayerNumber plyr_idx)
 {
-    long volume = FULL_LOUDNESS;
+    SoundVolume volume = FULL_LOUDNESS;
     if (droptng->class_id == TCls_Creature)
     {
         stop_creature_being_dragged_by(droptng, creatng);
@@ -6443,10 +6443,11 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
     }
     clear_messages_from_player(MsgType_Room, RoK_LIBRARY);
     clear_messages_from_player(MsgType_Room, RoK_WORKSHOP);
-    unsigned short smpl_idx, pitch;
+    SoundSmplID smpl_idx = Smpl_Invalid;
+    SoundPitch pitch = 0;
     if (subtile_has_water_on_top(droptng->mappos.x.stl.num, droptng->mappos.y.stl.num))
     {
-        smpl_idx = 21 + UNSYNC_RANDOM(4);
+        smpl_idx = Smpl_0021 + UNSYNC_RANDOM(4);
         pitch = 75;
     }
     else
@@ -6455,7 +6456,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
         {
             case TCls_Object:
             {
-                smpl_idx = 992;
+                smpl_idx = Smpl_0992;
                 struct ObjectConfigStats* objst = get_object_model_stats(droptng->model);
                 switch (objst->genre)
                 {
@@ -6495,19 +6496,13 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                 {
                     pitch = 75;
                 }
-                smpl_idx = 17 + UNSYNC_RANDOM(4);
+                smpl_idx = Smpl_0017 + UNSYNC_RANDOM(4);
                 break;
             }
             case TCls_DeadCreature:
             {
-                smpl_idx = 58;
+                smpl_idx = Smpl_0058;
                 pitch = 50;
-                break;
-            }
-            default:
-            {
-                smpl_idx = 0;
-                pitch = 0;
                 break;
             }
         }

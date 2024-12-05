@@ -18,7 +18,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "sounds.h"
-
+#include "samples.h"
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_sound.h"
@@ -69,7 +69,7 @@ static char ambience_timer;
 int sdl_flags = 0;
 Mix_Chunk* streamed_sample;
 /******************************************************************************/
-void thing_play_sample(struct Thing *thing, SoundSmplTblID smptbl_idx, SoundPitch pitch, char fil1D, unsigned char ctype, unsigned char flags, long priority, SoundVolume loudness)
+void thing_play_sample(struct Thing *thing, SoundSmplID smptbl_idx, SoundPitch pitch, char fil1D, unsigned char ctype, unsigned char flags, long priority, SoundVolume loudness)
 {
     if (SoundDisabled)
         return;
@@ -86,17 +86,17 @@ void thing_play_sample(struct Thing *thing, SoundSmplTblID smptbl_idx, SoundPitc
         long eidx = thing->snd_emitter_id;
         if (eidx > 0)
         {
-            S3DAddSampleToEmitterPri(eidx, smptbl_idx, 0, pitch, loudness, fil1D, ctype, flags | 0x01, priority);
+            S3DAddSampleToEmitterPri(eidx, smptbl_idx, pitch, loudness, fil1D, ctype, flags | 0x01, priority);
         } else
         {
             eidx = S3DCreateSoundEmitterPri(thing->mappos.x.val, thing->mappos.y.val, thing->mappos.z.val,
-               smptbl_idx, 0, pitch, loudness, fil1D, flags | 0x01, priority);
+               smptbl_idx, pitch, loudness, fil1D, flags | 0x01, priority);
            thing->snd_emitter_id = eidx;
         }
     }
 }
 
-void play_sound_if_close_to_receiver(struct Coord3d *soundpos, SoundSmplTblID smptbl_idx)
+void play_sound_if_close_to_receiver(struct Coord3d *soundpos, SoundSmplID smptbl_idx)
 {
     if (SoundDisabled)
         return;
@@ -136,24 +136,24 @@ void play_thing_walking(struct Thing *thing)
         // Flying diptera has a buzzing noise sound
         if (get_creature_model_flags(thing) & CMF_IsDiptera)
         {
-            if (!S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25, 0))
+            if (!S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25))
             {
-                thing_play_sample(thing, 25, 100, -1, 2, 0, 2, loudness);
+                thing_play_sample(thing, Smpl_0025, 100, -1, 2, 0, 2, loudness);
             }
         }
     }
     else
     {
-        if ( S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25, 0) ) {
-            S3DDeleteSampleFromEmitter(thing->snd_emitter_id, 25, 0);
+        if (S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25)) {
+            S3DDeleteSampleFromEmitter(thing->snd_emitter_id, 25);
         }
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if ((cctrl->distance_to_destination) && get_foot_creature_has_down(thing))
         {
             int smpl_variant = foot_down_sound_sample_variant[4 * ((cctrl->mood_flags & 0x1C) >> 2) + (cctrl->sound_flag & 0x1F)];
-            long smpl_idx;
+            SoundSmplID smpl_idx;
             if ((thing->movement_flags & TMvF_IsOnSnow) != 0) {
-                smpl_idx = 181 + smpl_variant;
+                smpl_idx = Smpl_0181 + smpl_variant;
             } else {
                 struct CreatureSound* crsound = get_creature_sound(thing, CrSnd_Foot);
                 smpl_idx = crsound->index + smpl_variant;
@@ -168,13 +168,13 @@ void play_thing_walking(struct Thing *thing)
             crstat = creature_stats_get(thing->model);
             thing_play_sample(thing, smpl_idx, crstat->footstep_pitch, 0, 3, 3, 1, loudness);
             if ((thing->movement_flags & TMvF_IsOnWater) != 0) {
-                thing_play_sample(thing, 21 + UNSYNC_RANDOM(4), 90 + UNSYNC_RANDOM(20), 0, 3, 3, 1, FULL_LOUDNESS);
+                thing_play_sample(thing, Smpl_0021 + UNSYNC_RANDOM(4), 90 + UNSYNC_RANDOM(20), 0, 3, 3, 1, FULL_LOUDNESS);
             }
         }
     }
 }
 
-void set_room_playing_ambient_sound(struct Coord3d *pos, long sample_idx)
+void set_room_playing_ambient_sound(struct Coord3d *pos, SoundSmplID sample_idx)
 {
     long i;
     if (game.ambient_sound_thing_idx == 0)
@@ -194,7 +194,7 @@ void set_room_playing_ambient_sound(struct Coord3d *pos, long sample_idx)
         i = thing->snd_emitter_id;
         if (i != 0)
         {
-            if ( !S3DEmitterIsPlayingSample(i, sample_idx, 0) )
+            if (!S3DEmitterIsPlayingSample(i, sample_idx))
             {
                 S3DDeleteAllSamplesFromEmitter(thing->snd_emitter_id);
                 thing_play_sample(thing, sample_idx, NORMAL_PITCH, -1, 3, 0, 6, FULL_LOUDNESS);
@@ -407,121 +407,10 @@ void process_sound_heap(void)
           } else
           {
               smpinfo->flags_17 &= ~0x01;
-              smpinfo->flags_17 &= ~0x04;
           }
       }
     }
     SYNCDBG(9,"Done (%ld playing yet)", i);
-}
-
-void free_sound_bank(struct SampleTable * samples, int sample_count) {
-    if (samples) {
-        for (int i = 0; i < sample_count; ++i) {
-            LbMemoryFree(samples[i].snd_buf);
-        }
-        LbMemoryFree(samples);
-    }
-}
-
-struct SampleTable * parse_sound_file(TbFileHandle fileh, long * nsamples, long a5)
-{
-    int directory_index;
-    switch ( a5 )
-    {
-    case 1610:
-        directory_index = 5;
-        break;
-    case 822:
-        directory_index = 6;
-        break;
-    case 811:
-        directory_index = 7;
-        break;
-    case 800:
-        directory_index = 8;
-        break;
-    case 1611:
-        directory_index = 4;
-        break;
-    case 1620:
-        directory_index = 3;
-        break;
-    case 1622:
-        directory_index = 2;
-        break;
-    case 1640:
-        directory_index = 1;
-        break;
-    case 1644:
-        directory_index = 0;
-        break;
-    default:
-        return NULL;
-    }
-    long fsize = LbFileLengthHandle(fileh);
-    if (fsize < 4) {
-        return NULL;
-    } else if (LbFileSeek(fileh, -4, Lb_FILE_SEEK_END) < 0) {
-        return NULL;
-    }
-    int head_offset;
-    if (LbFileRead(fileh, &head_offset, sizeof(head_offset)) < sizeof(head_offset)) {
-        return NULL;
-    }
-    head_offset = read_int32_le_buf((unsigned char *) &head_offset);
-    if (head_offset > fsize) {
-        return NULL;
-    } else  if (LbFileSeek(fileh, head_offset, Lb_FILE_SEEK_BEGINNING) < 0) {
-        return NULL;
-    }
-    struct SoundBankHead bhead;
-    if (LbFileRead(fileh, &bhead, sizeof(bhead)) < sizeof(bhead)) {
-        return NULL;
-    }
-    struct SoundBankEntry bentries[9];
-    if (LbFileRead(fileh, bentries, sizeof(bentries)) < sizeof(bentries)) {
-        return NULL;
-    }
-    struct SoundBankEntry * directory = &bentries[directory_index];
-    if (directory->field_0 == 0) {
-        return NULL;
-    } else if (directory->field_8 == 0) {
-        return NULL;
-    }
-    int sample_count = directory->field_8 / sizeof(struct SoundBankSample);
-    if (sizeof(struct SampleTable) * sample_count >= head_offset) {
-        return NULL;
-    } else if (LbFileSeek(fileh, directory->field_0, Lb_FILE_SEEK_BEGINNING) < 0) {
-        return NULL;
-    }
-    struct SampleTable * samples = (struct SampleTable *) LbMemoryAlloc(sizeof(struct SampleTable) * sample_count);
-    struct SoundBankSample sample;
-    for (int i = 0; i < sample_count; ++i) {
-        if (LbFileSeek(fileh, directory->field_0 + (sizeof(sample) * i), Lb_FILE_SEEK_BEGINNING) < 0) {
-            free_sound_bank(samples, sample_count);
-            return NULL;
-        } else if (LbFileRead(fileh, &sample, sizeof(sample)) < sizeof(sample)) {
-            free_sound_bank(samples, sample_count);
-            return NULL;
-        } else if (LbFileSeek(fileh, directory->field_4 + sample.field_12, Lb_FILE_SEEK_BEGINNING) < 0) {
-            free_sound_bank(samples, sample_count);
-            return NULL;
-        }
-        samples[i].snd_buf = (SndData) LbMemoryAlloc(sample.data_size);
-        if (!samples[i].snd_buf) {
-            free_sound_bank(samples, sample_count);
-            return NULL;
-        }
-        if (LbFileRead(fileh, samples[i].snd_buf, sample.data_size) < sample.data_size) {
-            free_sound_bank(samples, sample_count);
-            return NULL;
-        }
-        snprintf(samples[i].name, sizeof(samples[i].name), "%s", sample.filename);
-        samples[i].data_size = sample.data_size;
-        samples[i].sfxid = sample.sfxid;
-    }
-    *nsamples = sample_count;
-    return samples;
 }
 
 TbBool init_sound(void)
@@ -556,58 +445,6 @@ TbBool init_sound(void)
     S3DInit();
     S3DSetNumberOfSounds(snd_settng->max_number_of_samples);
     S3DSetMaximumSoundDistance(5120);
-    return true;
-}
-
-TbBool init_first_bank(const char * snd_fname, long a5)
-{
-    TbFileHandle handle = LbFileOpen(snd_fname,Lb_FILE_MODE_READ_ONLY);
-    if (!handle) {
-        ERRORLOG("Couldn't open primary sound bank file \"%s\"",snd_fname);
-        return false;
-    }
-    free_sound_bank(sample_table, samples_in_bank);
-    samples_in_bank = 0;
-    sample_table = parse_sound_file(handle, &samples_in_bank, a5);
-    if (!sample_table) {
-        ERRORLOG("Couldn't parse sound bank file \"%s\"",snd_fname);
-        return false;
-    }
-    SYNCLOG("Loaded %ld sound samples into bank 0", samples_in_bank);
-    return true;
-}
-
-TbBool init_second_bank(const char * spc_fname, long a5)
-{
-    TbFileHandle handle = LbFileOpen(spc_fname,Lb_FILE_MODE_READ_ONLY);
-    if (!handle) {
-        LbFileClose(handle);
-        ERRORLOG("Couldn't open secondary sound bank file \"%s\"",spc_fname);
-        return false;
-    }
-    free_sound_bank(sample_table2, samples_in_bank2);
-    samples_in_bank2 = 0;
-    sample_table2 = parse_sound_file(handle, &samples_in_bank2, a5);
-    if (!sample_table2) {
-        LbFileClose(handle);
-        ERRORLOG("Couldn't parse sound bank file \"%s\"",spc_fname);
-        return false;
-    }
-    LbFileClose(handle);
-    SYNCLOG("Loaded %ld sound samples into bank 1", samples_in_bank2);
-    return true;
-}
-
-TbBool init_sound_banks(char *snd_fname, char *spc_fname, long a5)
-{
-    SYNCDBG(8,"Starting");
-    using_two_banks = 0;
-    if (!init_first_bank(snd_fname, a5)) {
-        return false;
-    } else if (!init_second_bank(spc_fname, a5)) {
-        return false;
-    }
-    using_two_banks = 1;
     return true;
 }
 
@@ -702,13 +539,13 @@ void sound_reinit_after_load(void)
     }
 }
 
-void stop_thing_playing_sample(struct Thing *thing, SoundSmplTblID smpl_idx)
+void stop_thing_playing_sample(struct Thing *thing, SoundSmplID smpl_idx)
 {
     unsigned char eidx = thing->snd_emitter_id;
     if (eidx > 0)
     {
-        if (S3DEmitterIsPlayingSample(eidx, smpl_idx, 0)) {
-            S3DDeleteSampleFromEmitter(eidx, smpl_idx, 0);
+        if (S3DEmitterIsPlayingSample(eidx, smpl_idx)) {
+            S3DDeleteSampleFromEmitter(eidx, smpl_idx);
         }
     }
 }
@@ -816,7 +653,7 @@ void update_first_person_object_ambience(struct Thing *thing)
             if (!thing_is_invalid(audtng))
             {
                 objst = get_object_model_stats(audtng->model);
-                if (!S3DEmitterIsPlayingSample(audtng->snd_emitter_id, objst->fp_smpl_idx, 0))
+                if (!S3DEmitterIsPlayingSample(audtng->snd_emitter_id, objst->fp_smpl_idx))
                 {
                     long volume = line_of_sight_2d(&thing->mappos, &audtng->mappos) ? FULL_LOUDNESS : 128;
                     thing_play_sample(audtng, objst->fp_smpl_idx, NORMAL_PITCH, -1, 3, 1, 2, volume);

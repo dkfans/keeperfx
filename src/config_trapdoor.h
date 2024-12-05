@@ -111,7 +111,7 @@ struct TrapConfigStats {
     GoldAmount selling_value;
     TbBool unsellable;
     short place_sound_idx;
-    short trigger_sound_idx;
+    SoundSmplID trigger_sound_idx;
 };
 
 /* Manufacture types data. Originally was named TrapData, but stores both traps and doors, now no longer matches original. */

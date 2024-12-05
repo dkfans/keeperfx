@@ -346,7 +346,7 @@ void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct C
               efftng = create_effect(prev_pos, effmodel, thing->owner);
               TRACE_THING(efftng);
           }
-          long sample_id = eestat->water_snd_smpid;
+          SoundSmplID sample_id = eestat->water_snd_smpid;
           if (sample_id > 0) {
               thing_play_sample(efftng, sample_id, NORMAL_PITCH, 0, 3, 0, 2, eestat->water_loudness);
           }
@@ -360,7 +360,7 @@ void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct C
                 efftng = create_effect(prev_pos, effmodel, thing->owner);
                 TRACE_THING(efftng);
             }
-            long sample_id = eestat->lava_snd_smpid;
+            SoundSmplID sample_id = eestat->lava_snd_smpid;
             if (sample_id > 0) {
                 thing_play_sample(efftng, sample_id, NORMAL_PITCH, 0, 3, 0, 2, eestat->lava_loudness);
             }
@@ -373,7 +373,7 @@ void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct C
                 efftng = create_effect(prev_pos, effmodel, thing->owner);
                 TRACE_THING(efftng);
             }
-            long sample_id = eestat->solidgnd_snd_smpid;
+            SoundSmplID sample_id = eestat->solidgnd_snd_smpid;
             if (sample_id > 0) {
                 thing_play_sample(efftng, sample_id, NORMAL_PITCH, 0, 3, 0, 2, eestat->solidgnd_loudness);
             }
