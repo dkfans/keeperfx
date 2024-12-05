@@ -386,7 +386,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             if ((player->thing_under_hand != 0) && (player->input_crtr_control != 0)
                 && (dungeon->things_in_hand[0] != player->thing_under_hand))
             {
-                set_player_state(player, PSt_CtrlDirect, 0);
+                set_player_state(player, PSt_CtrlDirect, PwrK_POSSESS);
                 if (magic_use_available_power_on_thing(plyr_idx, PwrK_POSSESS, 0, stl_x, stl_y, thing, PwMod_Default) == Lb_FAIL) {
                     set_player_state(player, player->continue_work_state, 0);
                 }
@@ -696,8 +696,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     long i;
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
-    struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
-    pwkind = plrst_cfg_stat->power_kind;
+    pwkind = player->chosen_power_kind;
 
     switch (player->work_state)
     {
@@ -708,11 +707,9 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             process_dungeon_control_packet_dungeon_build_room(plyr_idx);
             break;
         case PSt_CallToArms:
-        case PSt_CaveIn:
         case PSt_SightOfEvil:
-        case PSt_Lightning:
         case PSt_CreateDigger:
-        case PSt_DestroyWalls:
+        case PSt_CastPowerOnSubtile:
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {
                 i = get_power_overcharge_level(player);
@@ -872,18 +869,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             }
             break;
         }
-        case PSt_SpeedUp:
-        case PSt_Armour:
-        case PSt_Conceal:
-        case PSt_Heal:
-        case PSt_Rebound:
-        case PSt_Freeze:
-        case PSt_Slow:
-        case PSt_Flight:
-        case PSt_Vision:
-        case PSt_TimeBomb:
-        case PSt_CastDisease:
-        case PSt_TurnChicken:
+        case PST_CastPowerOnTarget:
             thing = get_creature_near_to_be_keeper_power_target(x, y, pwkind, plyr_idx);
             if (thing_is_invalid(thing))
             {
@@ -925,6 +911,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             }
         }
     }
+    struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
     if (((pckt->control_flags & PCtr_HeldAnyButton) != 0) && (plrst_cfg_stat->stop_own_units))
     {
         if (((player->secondary_cursor_state == CSt_DefaultArrow) || (player->secondary_cursor_state == CSt_PowerHand)) && (!player->one_click_lock_cursor))

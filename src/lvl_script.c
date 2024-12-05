@@ -947,12 +947,12 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
     if (cmd_desc == NULL)
     {
         if (isalnum(scline->tcmnd[0])) {
-          SCRPTERRLOG("Invalid command, '%s' (lev ver %d)", scline->tcmnd, file_version);
+          SCRPTERRLOG("Invalid command, '%s' (lev ver %ld)", scline->tcmnd, file_version);
         }
         LbMemoryFree(scline);
         return false;
     }
-    SCRIPTDBG(12,"Executing command %lu",cmd_desc->index);
+    SCRIPTDBG(12,"Executing command %u",cmd_desc->index);
     // Handling comments
     if (cmd_desc->index == Cmd_REM)
     {
@@ -1224,7 +1224,7 @@ static void process_party(struct PartyTrigger* pr_trig)
         delete_member_from_party(pr_trig->party_id, pr_trig->creatr_id, pr_trig->crtr_level);
         break;
     case TrgF_CREATE_EFFECT_GENERATOR:
-        SYNCDBG(6, "Adding effect generator %d at location %d", pr_trig->crtr_level, (int)pr_trig->location);
+        SYNCDBG(6, "Adding effect generator %u at location %d", pr_trig->crtr_level, (int)pr_trig->location);
         script_process_new_effectgen(pr_trig->crtr_level, pr_trig->location, pr_trig->carried_gold);
         break;
     case TrgF_CREATE_PARTY:
@@ -1233,7 +1233,7 @@ static void process_party(struct PartyTrigger* pr_trig)
             pr_trig->plyr_idx, pr_trig->location, pr_trig->ncopies);
         break;
     case TrgF_CREATE_CREATURE:
-        SCRIPTDBG(6, "Adding creature %d", n);
+        SCRIPTDBG(6, "Adding creature %ld", n);
         script_process_new_creatures(pr_trig->plyr_idx, n, pr_trig->location,
             pr_trig->ncopies, pr_trig->carried_gold, pr_trig->crtr_level);
         break;
@@ -1270,7 +1270,7 @@ void process_check_new_tunneller_partys(void)
                 if (k > 0)
                 {
                     long n = tn_trig->plyr_idx;
-                    SCRIPTDBG(6, "Adding tunneler party %d", k);
+                    SCRIPTDBG(6, "Adding tunneler party %ld", k);
                     struct Thing* thing = script_process_new_tunneler(n, tn_trig->location, tn_trig->heading,
                         tn_trig->crtr_level, tn_trig->carried_gold);
                     if (!thing_is_invalid(thing))
@@ -1288,7 +1288,7 @@ void process_check_new_tunneller_partys(void)
                 }
                 else
                 {
-                    SCRIPTDBG(6, "Adding tunneler, heading %d", tn_trig->heading);
+                    SCRIPTDBG(6, "Adding tunneler, heading %lu", tn_trig->heading);
                     script_process_new_tunneler(tn_trig->plyr_idx, tn_trig->location, tn_trig->heading,
                         tn_trig->crtr_level, tn_trig->carried_gold);
                 }

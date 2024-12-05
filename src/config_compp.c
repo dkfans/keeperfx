@@ -868,9 +868,9 @@ short write_computer_player_check_to_log(struct ComputerCheck *ccheck)
   JUSTMSG("[checkXX]");
   JUSTMSG("Name = %s",ccheck->name);
   JUSTMSG("Mnemonic = %s","XX");
-  JUSTMSG("Values = %d %d",ccheck->flags,ccheck->turns_interval);
-  JUSTMSG("Functions = %x",ccheck->func);
-  JUSTMSG("Params = %d %d %d %d",ccheck->param1,ccheck->param2,ccheck->param3,ccheck->last_run_turn);
+  JUSTMSG("Values = %lu %ld",ccheck->flags,ccheck->turns_interval);
+  JUSTMSG("Functions = %p",ccheck->func);
+  JUSTMSG("Params = %ld %ld %ld %ld",ccheck->param1,ccheck->param2,ccheck->param3,ccheck->last_run_turn);
   return true;
 }
 
@@ -879,9 +879,9 @@ short write_computer_player_event_to_log(const struct ComputerEvent *event)
   JUSTMSG("[eventXX]");
   JUSTMSG("Name = %s",event->name);
   JUSTMSG("Mnemonic = %s","XX");
-  JUSTMSG("Values = %d %d %d",event->cetype,event->mevent_kind,event->test_interval);
-  JUSTMSG("Functions = %x %x",event->func_event,event->func_test);
-  JUSTMSG("Params = %d %d %d %d",event->param1,event->param2,event->param3,event->last_test_gameturn);
+  JUSTMSG("Values = %lu %lu %ld",event->cetype,event->mevent_kind,event->test_interval);
+  JUSTMSG("Functions = %p %p",event->func_event,event->func_test);
+  JUSTMSG("Params = %ld %ld %ld %ld",event->param1,event->param2,event->param3,event->last_test_gameturn);
   return true;
 }
 

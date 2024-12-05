@@ -237,7 +237,7 @@ long get_lifespan_of_animation(long ani, long speed)
 {
     if (speed == 0)
     {
-        WARNLOG("Animation %d has no speed value", ani);
+        WARNLOG("Animation %ld has no speed value", ani);
         return keepersprite_frames(ani);
     }
     return (keepersprite_frames(ani) << 8) / speed;
@@ -306,12 +306,12 @@ short get_creature_model_graphics(long crmodel, unsigned short seq_idx)
 {
     if (seq_idx >= CREATURE_GRAPHICS_INSTANCES)
     {
-        ERRORLOG("Invalid model %d graphics sequence %d", crmodel,seq_idx);
+        ERRORLOG("Invalid model %ld graphics sequence %u", crmodel, seq_idx);
         seq_idx = 0;
     }
     if ((crmodel < 0) || (crmodel >= game.conf.crtr_conf.model_count))
     {
-        ERRORLOG("Invalid model %d graphics sequence %d", crmodel,seq_idx);
+        ERRORLOG("Invalid model %ld graphics sequence %u", crmodel, seq_idx);
         crmodel = 0;
     }
     // Backward compatibility for custom creatures. Use the attack animation if the extra animation is undefined, return 0 if the attack animation is also undefined.
@@ -330,12 +330,12 @@ void set_creature_model_graphics(long crmodel, unsigned short seq_idx, unsigned 
 {
     if (seq_idx >= CREATURE_GRAPHICS_INSTANCES)
     {
-        ERRORLOG("Invalid model %d graphics sequence %d", crmodel,seq_idx);
+        ERRORLOG("Invalid model %ld graphics sequence %u", crmodel, seq_idx);
         return;
     }
     if ((crmodel < 0) || (crmodel >= game.conf.crtr_conf.model_count))
     {
-        ERRORLOG("Invalid model %d graphics sequence %d", crmodel,seq_idx);
+        ERRORLOG("Invalid model %ld graphics sequence %u", crmodel, seq_idx);
         return;
     }
     game.conf.crtr_conf.creature_graphics[crmodel][seq_idx] = val;
@@ -439,7 +439,7 @@ void update_creature_graphic_anim(struct Thing *thing)
     {
       thing->size_change &= ~TSC_ChangeSize;
     } else
-    if ((thing->active_state == CrSt_CreatureHeroEntering) && (cctrl->countdown_282 >= 0))
+    if ((thing->active_state == CrSt_CreatureHeroEntering) && (cctrl->countdown >= 0))
     {
       thing->rendering_flags |= TRF_Invisible;
     } else

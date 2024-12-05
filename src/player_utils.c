@@ -119,7 +119,10 @@ void set_player_as_won_level(struct PlayerInfo *player)
             show_real_time_taken();
         }
         struct GameTime GameT = get_game_time(dungeon->lvstats.hopes_dashed, game_num_fps);
-        SYNCMSG("Won level %ld. Total turns taken: %ld (%02d:%02d:%02d at %d fps). Real time elapsed: %02d:%02d:%02d:%03d.", game.loaded_level_number, dungeon->lvstats.hopes_dashed, GameT.Hours, GameT.Minutes, GameT.Seconds, game_num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
+        SYNCMSG("Won level %u. Total turns taken: %lu (%02u:%02u:%02u at %ld fps). Real time elapsed: %02u:%02u:%02u:%03u.",
+            game.loaded_level_number, dungeon->lvstats.hopes_dashed,
+            GameT.Hours, GameT.Minutes, GameT.Seconds, game_num_fps,
+            Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
       }
   }
   player->victory_state = VicS_WonLevel;
@@ -564,10 +567,9 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
         { 0, 0}
     };
 
-    char *first_scratch = (char*) big_scratch;
-    
-    struct XY *second_scratch = (struct XY *)big_scratch + gameadd.map_tiles_x * gameadd.map_tiles_y;
-    memset((void *)big_scratch, 0, gameadd.map_tiles_x * gameadd.map_tiles_y);
+    char *first_scratch = (char*) &big_scratch[gameadd.map_tiles_x];
+    struct XY *second_scratch = (struct XY *)big_scratch + gameadd.map_tiles_x * (gameadd.map_tiles_y + 1);
+    memset((void *)&big_scratch[gameadd.map_tiles_x], 0, gameadd.map_tiles_x * gameadd.map_tiles_y);
 
     for(MapSlabCoord slb_y_2 = 0;slb_y_2 < gameadd.map_tiles_y;slb_y_2++)
     {

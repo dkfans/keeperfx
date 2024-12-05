@@ -366,7 +366,7 @@ unsigned char sound_flag;
     unsigned char continue_state_bkp;
     unsigned char cowers_from_slap_turns;
     short conscious_back_turns;
-    short countdown_282; // signed
+    short countdown; // signed
     unsigned short damage_wall_coords;
     unsigned char joining_age;
     unsigned char blood_type;

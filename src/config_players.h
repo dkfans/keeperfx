@@ -33,7 +33,6 @@ extern "C" {
 
 struct PlayerStateConfigStats {
     char code_name[COMMAND_WORD_LEN];
-    PowerKind power_kind;
     unsigned char pointer_group;
     TbBool stop_own_units;
 };
@@ -50,7 +49,7 @@ enum PlayerStates {
     PSt_MkGoodCreatr,
     PSt_HoldInHand, // 5
     PSt_CallToArms,
-    PSt_CaveIn,
+    PSt_CastPowerOnSubtile,
     PSt_SightOfEvil,
     PSt_Slap,
     PSt_CtrlPassngr, // 10
@@ -60,44 +59,31 @@ enum PlayerStates {
     PSt_MkBadCreatr,
     PSt_CreatrInfo, // 15
     PSt_PlaceTrap,
-    PSt_Lightning,
     PSt_PlaceDoor,
-    PSt_SpeedUp,
-    PSt_Armour, // 20
-    PSt_Conceal,
-    PSt_Heal,
+    PST_CastPowerOnTarget,
     PSt_Sell,
-    PSt_CreateDigger,
-    PSt_DestroyWalls, // 25
-    PSt_CastDisease,
-    PSt_TurnChicken,
-    PSt_MkGoldPot,
-    PSt_TimeBomb,
-    PSt_FreeDestroyWalls, // 30
+    PSt_MkGoldPot, // 20
+    PSt_FreeDestroyWalls,
     PSt_FreeCastDisease,
     PSt_FreeTurnChicken,
     PSt_FreeCtrlPassngr,
-    PSt_FreeCtrlDirect,
-    PSt_StealRoom, // 35
+    PSt_FreeCtrlDirect, // 25
+    PSt_StealRoom,
     PSt_DestroyRoom,
     PSt_KillCreatr,
     PSt_ConvertCreatr,
-    PSt_StealSlab,
-    PSt_LevelCreatureUp, // 40
+    PSt_StealSlab, // 30
+    PSt_LevelCreatureUp,
     PSt_LevelCreatureDown,
     PSt_KillPlayer,
     PSt_HeartHealth,
-    PSt_QueryAll,
-    PSt_MkHappy, // 45
+    PSt_QueryAll, // 35
+    PSt_MkHappy,
     PSt_MkAngry,
     PSt_PlaceTerrain,
     PSt_DestroyThing,
-    PSt_CreatrInfoAll,
-    PSt_Rebound, // 50
-    PSt_Freeze,
-    PSt_Slow,
-    PSt_Flight,
-    PSt_Vision,
+    PSt_CreatrInfoAll, // 40
+    PSt_CreateDigger,
     PSt_ListEnd
 };
 

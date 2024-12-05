@@ -113,7 +113,7 @@ long good_find_best_enemy_dungeon(struct Thing* creatng)
             continue;
         }
         player = get_player(plyr_idx);
-        if (game.conf.rules.game.classic_bugs_flags & ClscBug_AlwaysTunnelToRed)
+        if (flag_is_set(game.conf.rules.game.classic_bugs_flags,ClscBug_AlwaysTunnelToRed))
         {
             if (creature_can_get_to_dungeon_heart(creatng, plyr_idx))
             {
@@ -919,7 +919,7 @@ short good_doing_nothing(struct Thing *creatng)
         return 1;
     }
     // Do some wandering also if can't find any task to do
-    if (cctrl->wait_to_turn > (long)game.play_gameturn)
+    if ((long)cctrl->wait_to_turn > (long)game.play_gameturn)
     {
         if (creature_choose_random_destination_on_valid_adjacent_slab(creatng)) {
             creatng->continue_state = CrSt_GoodDoingNothing;
@@ -996,7 +996,7 @@ short good_doing_nothing(struct Thing *creatng)
     if (target_plyr_idx == -1)
     {
         nturns = game.play_gameturn - cctrl->hero.wait_time;
-        if (nturns > 400)
+        if ((nturns > 400) && (cctrl->hero.look_for_enemy_dungeon_turn != 0))
         {
             cctrl->hero.wait_time = game.play_gameturn;
             cctrl->hero.byte_8C = 1;
@@ -1071,7 +1071,7 @@ short good_leave_through_exit_door(struct Thing *thing)
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     thing->creature.gold_carried = 0;
-    cctrl->countdown_282 = game.conf.rules.game.hero_door_wait_time;
+    cctrl->countdown = game.conf.rules.game.hero_door_wait_time;
     cctrl->hero.hero_gate_creation_turn = tmptng->creation_turn;
     struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
     if (cctrl->dragtng_idx != 0)
@@ -1118,10 +1118,10 @@ short good_wait_in_exit_door(struct Thing *thing)
         return 0;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (cctrl->countdown_282 <= 0)
+    if (cctrl->countdown <= 0)
         return 0;
-    cctrl->countdown_282--;
-    if (cctrl->countdown_282 == 0)
+    cctrl->countdown--;
+    if (cctrl->countdown == 0)
     {
         struct Thing* tmptng = find_object_of_genre_on_mapwho(OCtg_HeroGate, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
         if (!thing_is_invalid(tmptng))
@@ -1149,15 +1149,15 @@ short creature_hero_entering(struct Thing *thing)
 {
     TRACE_THING(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (cctrl->countdown_282 > 0)
+    if (cctrl->countdown > 0)
     {
-        cctrl->countdown_282--;
+        cctrl->countdown--;
         return CrStRet_Unchanged;
     }
-    if (cctrl->countdown_282 == 0)
+    if (cctrl->countdown == 0)
     {
         thing->mappos.z.val = get_ceiling_height(&thing->mappos) - (long)thing->clipbox_size_z - 1;
-        cctrl->countdown_282--;
+        cctrl->countdown--;
         return CrStRet_Modified;
     }
     if ( thing_touching_floor(thing) || (((thing->movement_flags & TMvF_Flying) != 0) && thing_touching_flight_altitude(thing)))
@@ -1165,12 +1165,12 @@ short creature_hero_entering(struct Thing *thing)
         set_start_state(thing);
         return CrStRet_ResetOk;
     }
-    if (cctrl->countdown_282 < -500)
+    if (cctrl->countdown < -500)
     {
         set_start_state(thing);
         return CrStRet_ResetFail;
     }
-    cctrl->countdown_282--;
+    cctrl->countdown--;
     return CrStRet_Modified;
 }
 
@@ -1477,7 +1477,7 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
         if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
         {
             creatng->continue_state = CrSt_TunnellerDoingNothing;
-            ERRORLOG("%s index %d stuck - attempt %d to dislodge",thing_model_name(creatng),(int)creatng->index,identical[creatng->ccontrol_idx]-149);
+            ERRORLOG("%s index %d stuck - attempt %lu to dislodge",thing_model_name(creatng),(int)creatng->index,identical[creatng->ccontrol_idx]-149);
         }
         return 0;
     }

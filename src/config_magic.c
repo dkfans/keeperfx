@@ -153,6 +153,7 @@ const struct NamedCommand magic_power_commands[] = {
   {"EFFECT",         21},
   {"USEFUNCTION",    22},
   {"CREATURETYPE",   23},
+  {"COSTFORMULA",    24},
   {NULL,              0},
   };
 
@@ -272,6 +273,12 @@ const struct NamedCommand powermodel_expand_check_func_type[] = {
   {NULL,                       OcC_Null},
 };
 
+const struct NamedCommand magic_cost_formula_commands[] = {
+  {"none",       Cost_Default},
+  {"digger",     Cost_Digger},
+  {"dwarf",      Cost_Dwarf},
+};
+
 const struct NamedCommand magic_use_func_commands[] = {
   {"none",                          0},
   {"magic_use_power_hand",          1},
@@ -291,6 +298,7 @@ const struct NamedCommand magic_use_func_commands[] = {
   {"magic_use_power_obey",         15},
   {"magic_use_power_hold_audience",16},
   {"magic_use_power_armageddon",   17},
+  {"magic_use_power_tunneller",    18},
   {NULL,                  0},
   };
 
@@ -425,10 +433,14 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
   // Initialize the array
   for (int i = 0; i < MAGIC_ITEMS_MAX; i++) {
     spellst = &game.conf.magic_conf.spell_cfgstats[i];
-    if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(spellst->code_name) <= 0)) {
-      LbMemorySet(&spellst->code_name, 0, COMMAND_WORD_LEN);
-      spell_desc[i].name = spellst->code_name;
-      spell_desc[i].num = i;
+    if ((!flag_is_set(flags,CnfLd_AcceptPartial)) || (strlen(spellst->code_name) <= 0))
+    {
+        if (flag_is_set(flags, CnfLd_ListOnly))
+        {
+            LbMemorySet(&spellst->code_name, 0, COMMAND_WORD_LEN);
+            spell_desc[i].name = spellst->code_name;
+            spell_desc[i].num = i;
+        }
       spconf = &game.conf.magic_conf.spell_config[i];
       spconf->linked_power = 0;
       spconf->duration = 0;
@@ -474,11 +486,10 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
       int cmd_num = recognize_conf_command(buf, &pos, len, magic_spell_commands);
       // Now store the config item in correct place
       if (cmd_num == ccr_endOfBlock) break; // if next block starts
-      if ((flags & CnfLd_ListOnly) != 0) {
-          // In "List only" mode, accept only name command
-          if (cmd_num > 1) {
-              cmd_num = 0;
-          }
+      //Do the name when listing, the rest when not listing.
+      if ((flag_is_set(flags, CnfLd_ListOnly) && cmd_num > 1) || (!flag_is_set(flags, CnfLd_ListOnly) && cmd_num <= 1))
+      {
+          cmd_num = ccr_comment;
       }
       int n = 0, k = 0;
       char word_buf[COMMAND_WORD_LEN];
@@ -490,6 +501,11 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
               CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
               break;
+          }
+          else
+          {
+              spell_desc[i].name = spellst->code_name;
+              spell_desc[i].num = i;
           }
           n++;
           break;
@@ -729,11 +745,15 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
   // Initialize the array
   for (int i = 0; i < MAGIC_ITEMS_MAX; i++) {
     shotst = &game.conf.magic_conf.shot_cfgstats[i];
-    if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(shotst->code_name) <= 0)) {
-      LbMemorySet(shotst->code_name, 0, COMMAND_WORD_LEN);
+    if ((!flag_is_set(flags,CnfLd_AcceptPartial)) || (strlen(shotst->code_name) <= 0))
+    {
+        if (flag_is_set(flags, CnfLd_ListOnly))
+        {
+            LbMemorySet(shotst->code_name, 0, COMMAND_WORD_LEN);
+            shot_desc[i].name = shotst->code_name;
+            shot_desc[i].num = i;
+        }
       shotst->model_flags = 0;
-      shot_desc[i].name = shotst->code_name;
-      shot_desc[i].num = i;
       shotst->area_hit_type = THit_CrtrsOnly;
       shotst->area_range = 0;
       shotst->area_damage = 0;
@@ -795,22 +815,26 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       int cmd_num = recognize_conf_command(buf, &pos, len, magic_shot_commands);
       // Now store the config item in correct place
       if (cmd_num == ccr_endOfBlock) break; // if next block starts
-      if ((flags & CnfLd_ListOnly) != 0) {
-          // In "List only" mode, accept only name command
-          if (cmd_num > 1) {
-              cmd_num = 0;
-          }
+      //Do the name when listing, the rest when not listing.
+      if ((flag_is_set(flags, CnfLd_ListOnly) && cmd_num > 1) || (!flag_is_set(flags, CnfLd_ListOnly) && cmd_num <= 1))
+      {
+          cmd_num = ccr_comment;
       }
       int n = 0, k = 0;
       char word_buf[COMMAND_WORD_LEN];
       switch (cmd_num)
       {
       case 1: // NAME
-          if (get_conf_parameter_single(buf,&pos,len,shotst->code_name,COMMAND_WORD_LEN) <= 0)
+          if (get_conf_parameter_single(buf, &pos, len, shotst->code_name, COMMAND_WORD_LEN) <= 0)
           {
             CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
                 COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             break;
+          }
+          else
+          {
+            shot_desc[i].name = shotst->code_name;
+            shot_desc[i].num = i;
           }
           n++;
           break;
@@ -1102,9 +1126,19 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       case 16: //SPELLEFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
-              shotst->cast_spell_kind = k;
-              n++;
+              if (parameter_is_number(word_buf))
+              {
+                  k = atoi(word_buf);
+              }
+              else
+              {
+                  k = get_id(spell_desc, word_buf);
+              }
+              if (k >= 0)
+              {
+                  shotst->cast_spell_kind = k;
+                  n++;
+              }
           }
           if (n < 1)
           {
@@ -1809,8 +1843,14 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
   // Initialize the array
   for (int i = 0; i < MAGIC_ITEMS_MAX; i++) {
     powerst = &game.conf.magic_conf.power_cfgstats[i];
-    if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(powerst->code_name) <= 0)) {
-      LbMemorySet(powerst->code_name, 0, COMMAND_WORD_LEN);
+    if ((!flag_is_set(flags,CnfLd_AcceptPartial)) || (strlen(powerst->code_name) <= 0))
+    {
+        if (flag_is_set(flags, CnfLd_ListOnly))
+        {
+            LbMemorySet(powerst->code_name, 0, COMMAND_WORD_LEN);
+            power_desc[i].name = powerst->code_name;
+            power_desc[i].num = i;
+        }
       powerst->artifact_model = 0;
       powerst->can_cast_flags = 0;
       powerst->config_flags = 0;
@@ -1825,11 +1865,10 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
       powerst->panel_tab_idx = 0;
       powerst->select_sound_idx = 0;
       powerst->cast_cooldown = 0;
-      power_desc[i].name = powerst->code_name;
-      power_desc[i].num = i;
+      powerst->cost_formula = Cost_Default;
     }
   }
-  if ((flags & CnfLd_AcceptPartial) == 0) {
+  if (!flag_is_set(flags, CnfLd_AcceptPartial)) {
     for (int i = 0; i < MAGIC_ITEMS_MAX; i++) {
         game.conf.object_conf.object_to_power_artifact[i] = 0;
     }
@@ -1862,11 +1901,10 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
       int cmd_num = recognize_conf_command(buf, &pos, len, magic_power_commands);
       // Now store the config item in correct place
       if (cmd_num == ccr_endOfBlock) break; // if next block starts
-      if ((flags & CnfLd_ListOnly) != 0) {
-          // In "List only" mode, accept only name command
-          if (cmd_num > 1) {
-              cmd_num = 0;
-          }
+      //Do the name when listing, the rest when not listing.
+      if ((flag_is_set(flags, CnfLd_ListOnly) && cmd_num > 1) || (!flag_is_set(flags, CnfLd_ListOnly) && cmd_num <= 1))
+      {
+          cmd_num = ccr_comment;
       }
       int n = 0;
       char word_buf[COMMAND_WORD_LEN];
@@ -1878,6 +1916,11 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
               break;
+          }
+          else
+          {
+              power_desc[i].name = powerst->code_name;
+              power_desc[i].num = i;
           }
           break;
       case 2: // POWER
@@ -2214,6 +2257,22 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               if (k >= 0)
               {
                   powerst->creature_model = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+          }
+          break;
+      case 24: //COSTFORMULA
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(magic_cost_formula_commands, word_buf);
+              if (k >= 0)
+              {
+                  powerst->cost_formula = k;
                   n++;
               }
           }
@@ -2688,7 +2747,7 @@ TbBool is_power_available(PlayerNumber plyr_idx, PowerKind pwkind)
     }
     if (pwkind >= game.conf.magic_conf.power_types_count)
     {
-        ERRORLOG("Incorrect power %ld (player %ld)", pwkind, plyr_idx);
+        ERRORLOG("Incorrect power %u (player %d)", pwkind, plyr_idx);
         return false;
     }
     if (dungeon->magic_level[pwkind] > 0) {
@@ -2718,7 +2777,7 @@ TbBool is_power_obtainable(PlayerNumber plyr_idx, PowerKind pwkind)
         return false;
     }
     if (pwkind >= game.conf.magic_conf.power_types_count) {
-        ERRORLOG("Incorrect power %ld (player %ld)",pwkind, plyr_idx);
+        ERRORLOG("Incorrect power %u (player %d)",pwkind, plyr_idx);
         return false;
     }
     return (dungeon->magic_level[pwkind] > 0) || (dungeon->magic_resrchable[pwkind]);

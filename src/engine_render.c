@@ -453,7 +453,6 @@ static long map_z_pos;
 static int normal_shade_front;
 static int normal_shade_back;
 static long me_distance;
-static long UseFastBlockDraw;
 static long thelens;
 static long fade_mmm;
 static long spr_map_angle;
@@ -541,8 +540,8 @@ long interpolate(long variable_to_interpolate, long previous, long current)
     // future: by using the predicted future position in the interpolation calculation, we can remove input lag (or visual lag).
     long future = current + (current - previous);
     // 0.5 is definitely accurate. Tested by rotating the camera while comparing the minimap's rotation with the camera's rotation in a video recording.
-    long desired_value = lerp(current, future, 0.5);
-    return lerp(variable_to_interpolate, desired_value, gameadd.delta_time);
+    long desired_value = LbLerp(current, future, 0.5);
+    return LbLerp(variable_to_interpolate, desired_value, gameadd.delta_time);
 }
 
 long interpolate_angle(long variable_to_interpolate, long previous, long current)
@@ -634,7 +633,7 @@ static void get_floor_pointed_at(long x, long y, long *floor_x, long *floor_y)
     div_h = (der_hp - der_hn) >> 8;
     if (div_v == 0 || div_h == 0)
     {
-        ERRORLOG("Invalid floor value from %d,%d", x, y);
+        ERRORLOG("Invalid floor value from %ld,%ld", x, y);
         *floor_x = 0;
         *floor_y = 0;
         return;
@@ -5046,7 +5045,7 @@ static void draw_engine_number(struct BucketKindFloatingGoldText *num)
 {
     struct PlayerInfo *player;
     unsigned short flg_mem;
-    struct TbSprite *spr;
+    const struct TbSprite *spr;
     long val;
     long ndigits;
     long w;
@@ -5054,12 +5053,12 @@ static void draw_engine_number(struct BucketKindFloatingGoldText *num)
     long pos_x;
 
     // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
-    float scale_by_zoom = lerp(0.15, 1.00, hud_scale);
+    float scale_by_zoom = LbLerp(0.15, 1.00, hud_scale);
 
     flg_mem = lbDisplay.DrawFlags;
     player = get_my_player();
     lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
-    spr = &button_sprite[GBS_fontchars_number_dig0];
+    spr = get_button_sprite(GBS_fontchars_number_dig0);
     w = scale_ui_value(spr->SWidth) * scale_by_zoom;
     h = scale_ui_value(spr->SHeight) * scale_by_zoom;
     if (
@@ -5077,7 +5076,7 @@ static void draw_engine_number(struct BucketKindFloatingGoldText *num)
             pos_x = w*(ndigits-1)/2 + num->x;
             for (val = num->lvl; val > 0; val /= 10)
             {
-                spr = &button_sprite[(val%10) + GBS_fontchars_number_dig0];
+                spr = get_button_sprite((val%10) + GBS_fontchars_number_dig0);
                 LbSpriteDrawScaled(pos_x, num->y - h, spr, w, h);
 
                 pos_x -= w;
@@ -5107,7 +5106,7 @@ static void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
         {
             int deltay, height, zoom_factor;
             // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
-            float scale_by_zoom = lerp(0.15, 1.00, hud_scale);
+            float scale_by_zoom = LbLerp(0.15, 1.00, hud_scale);
 
             if (cam->view_mode == PVM_FrontView) {
                 zoom_factor = 4094*scale_by_zoom;
@@ -5256,26 +5255,28 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 {
     struct PlayerInfo *player = get_my_player();
     const struct Camera *cam = player->acamera;
-    if (cam == NULL) {
+    if (cam == NULL)
+    {
         return;
     }
 
     float scale_by_zoom;
-    int base_size = creature_status_size*256;
-    switch (cam->view_mode) {
-        case PVM_IsoWibbleView:
-        case PVM_IsoStraightView:
-            // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
-            scale_by_zoom = lerp(0.15, 1.00, hud_scale);
-            break;
-        case PVM_FrontView:
-            scale_by_zoom = lerp(0.15, 1.00, hud_scale);
-            break;
-        case PVM_ParchmentView:
-            scale_by_zoom = 1;
-            break;
-        default:
-            return; // Do not draw if camera is 1st person
+    int base_size = creature_status_size * 256;
+    switch (cam->view_mode)
+    {
+    case PVM_IsoWibbleView:
+    case PVM_IsoStraightView:
+        // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom.
+        scale_by_zoom = LbLerp(0.15, 1.00, hud_scale);
+        break;
+    case PVM_FrontView:
+        scale_by_zoom = LbLerp(0.15, 1.00, hud_scale);
+        break;
+    case PVM_ParchmentView:
+        scale_by_zoom = 1;
+        break;
+    default:
+        return; // Do not draw if camera is 1st person.
     }
 
     unsigned short flg_mem;
@@ -5287,7 +5288,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     if ((game.flags_cd & MFlg_NoHeroHealthFlower) != 0)
     {
-        if ( player->thing_under_hand != thing->index )
+        if (player->thing_under_hand != thing->index)
         {
             cctrl->thought_bubble_last_turn_drawn = game.play_gameturn;
             return;
@@ -5304,7 +5305,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     state_spridx = 0;
 
     CrtrExpLevel exp;
-    exp = min(cctrl->explevel,9);
+    exp = min(cctrl->explevel, 9);
     if (cam->view_mode != PVM_ParchmentView)
     {
         fill_status_sprite_indexes(thing, cctrl, &health_spridx, &state_spridx, &anger_spridx);
@@ -5316,19 +5317,20 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     int h;
     const struct TbSprite *spr;
     int bs_units_per_px;
-    spr = &button_sprite[GBS_creature_states_cloud];
+    spr = get_button_sprite(GBS_creature_states_cloud);
     bs_units_per_px = units_per_pixel_ui * 2 * scale_by_zoom;
 
-    if (cam->view_mode == PVM_FrontView) {
-        float flower_distance = 1280; // Higher number means flower is further away from creature
-        scrpos_y -= (int)(  (flower_distance / spr->SHeight) * ((float)camera_zoom / FRONTVIEW_CAMERA_ZOOM_MAX)  );
+    if (cam->view_mode == PVM_FrontView)
+    {
+        float flower_distance = 1280; // Higher number means flower is further away from creature.
+        scrpos_y -= (int)((flower_distance / spr->SHeight) * ((float)camera_zoom / FRONTVIEW_CAMERA_ZOOM_MAX));
     }
 
-    if ( state_spridx || anger_spridx )
+    if (state_spridx || anger_spridx)
     {
-        spr = &button_sprite[GBS_creature_states_cloud];
-        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
+        spr = get_button_sprite(GBS_creature_states_cloud);
+        w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
+        h = (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
     }
 
@@ -5336,17 +5338,18 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
     if (((game.play_gameturn & 4) == 0) && (anger_spridx > 0))
     {
-        spr = &button_sprite[anger_spridx];
-        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
+        spr = get_button_sprite(anger_spridx);
+        w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
+        h = (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
         spr = get_button_sprite_for_player(state_spridx, thing->owner);
-        h_add += spr->SHeight * bs_units_per_px/16;
-    } else if ( state_spridx )
+        h_add += spr->SHeight * bs_units_per_px / 16;
+    }
+    else if (state_spridx)
     {
         spr = get_button_sprite_for_player(state_spridx, thing->owner);
-        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
+        w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
+        h = (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
         h_add += h;
     }
@@ -5354,61 +5357,65 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     if ((thing->lair.spr_size > 0) && (health_spridx > 0) && ((game.play_gameturn & 1) != 0))
     {
         int flash_color = get_player_color_idx(thing->owner);
-        if (flash_color == PLAYER_NEUTRAL) {
+        if (flash_color == PLAYER_NEUTRAL)
+        {
             flash_color = game.play_gameturn & 3;
         }
         spr = get_button_sprite_for_player(health_spridx, thing->owner);
-        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
+        w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
+        h = (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
         LbSpriteDrawScaledOneColour(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h, player_flash_colours[flash_color]);
     }
     else
     {
-    // determine if the creature is under the player's hand (being hovered over)
-    TbBool is_thing_under_hand = (player->thing_under_hand == thing->index);
-    // check if the creature is an enemy and is visible
-    TbBool is_enemy_and_visible = players_are_enemies(player->id_number,thing->owner) && !creature_is_invisible(thing);
-    // check if the creature belongs to player and is hurt
-    TbBool is_allied_and_hurt = false;
-    TbBool should_drag_to_lair = false;
-    if (!is_enemy_and_visible)
-    {
-        is_allied_and_hurt = players_are_mutual_allies(player->id_number, thing->owner) && creature_would_benefit_from_healing(thing);
-        should_drag_to_lair = creature_is_being_unconscious(thing) && (player->id_number == thing->owner) && (
-            // check if the creature has a lair room or can heal in a lair
-            (game.conf.rules.workers.drag_to_lair == 1 && !room_is_invalid(get_creature_lair_room(thing))) ||
-            // or check if the creature can have lair and heal in it
-            (game.conf.rules.workers.drag_to_lair == 2 && creature_can_do_healing_sleep(thing)));
-    }   
-
-    // check if the creature is in combat
-    TbBool is_in_combat = (cctrl->combat_flags != 0);
-    // check if the creature has a lair
-    TbBool has_lair = (thing->lair.spr_size > 0);
-    // determine if the current view is the schematic top-down map view
-    TbBool is_parchment_map_view = (cam->view_mode == PVM_ParchmentView);
-
-      if ( (is_thing_under_hand)
+        // Determine if the creature is under the player's hand (being hovered over).
+        TbBool is_thing_under_hand = (player->thing_under_hand == thing->index);
+        // Check if the creature is an enemy and is visible.
+        TbBool is_enemy_and_visible = players_are_enemies(player->id_number, thing->owner) && !creature_is_invisible(thing);
+        // Check if the creature belongs to the player, is hurt but not unconscious.
+        TbBool is_owned_and_hurt = false;
+        // Check if the creature belongs to an ally.
+        TbBool is_allied = false;
+        TbBool should_drag_to_lair = false;
+        if (!is_enemy_and_visible)
+        {
+            is_owned_and_hurt = creature_would_benefit_from_healing(thing) && !creature_is_being_unconscious(thing) && (player->id_number == thing->owner);
+            is_allied = players_are_mutual_allies(player->id_number, thing->owner) && (player->id_number != thing->owner);
+            should_drag_to_lair = creature_is_being_unconscious(thing) && (player->id_number == thing->owner)
+            // Check if the creature has a lair room or can heal in a lair.
+            && ((game.conf.rules.workers.drag_to_lair == 1 && !room_is_invalid(get_creature_lair_room(thing)))
+            // Or check if the creature can have lair and heal in it.
+            || (game.conf.rules.workers.drag_to_lair == 2 && creature_can_do_healing_sleep(thing)));
+        }
+        // Check if the creature is in combat.
+        TbBool is_in_combat = (cctrl->combat_flags != 0);
+        // Check if the creature has a lair.
+        TbBool has_lair = (thing->lair.spr_size > 0);
+        // Determine if the current view is the schematic top-down map view.
+        TbBool is_parchment_map_view = (cam->view_mode == PVM_ParchmentView);
+        if ((is_thing_under_hand)
         || (is_enemy_and_visible)
-        || (is_allied_and_hurt)
+        || (is_owned_and_hurt)
+        || (is_allied)
         || (thing->owner == PLAYER_NEUTRAL)
-        // if drag_to_lair rule is active
+        // If drag_to_lair rule is active.
         || (should_drag_to_lair)
         || (is_in_combat)
         || (has_lair)
         || (is_parchment_map_view))
-      {
-          if (health_spridx > 0) {
-              spr = get_button_sprite_for_player(health_spridx, thing->owner);
-              w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-              h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
-              LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
-          }
-          spr = &button_sprite[GBS_creature_flower_level_01 + exp];
-          w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-          h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
-          LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
-      }
+        {
+            if (health_spridx > 0)
+            {
+                spr = get_button_sprite_for_player(health_spridx, thing->owner);
+                w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
+                h = (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
+                LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
+            }
+            spr = get_button_sprite(GBS_creature_flower_level_01 + exp);
+            w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
+            h = (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
+            LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
+        }
     }
     lbDisplay.DrawFlags = flg_mem;
 }
@@ -5426,16 +5433,16 @@ static void draw_room_flag_top(long x, long y, int units_per_px, const struct Ro
     flg_mem = lbDisplay.DrawFlags;
     int bar_fill;
     int bar_empty;
-    struct TbSprite *spr;
+    const struct TbSprite *spr;
     int ps_units_per_px;
-    spr = &gui_panel_sprites[GPS_rpanel_room_ensign_filled];
+    spr = get_panel_sprite(GPS_rpanel_room_ensign_filled);
     ps_units_per_px = 36*units_per_px/spr->SHeight;
     LbSpriteDrawScaled(x, y, spr, spr->SWidth * ps_units_per_px / 16, spr->SHeight * ps_units_per_px / 16);
     struct RoomConfigStats *roomst;
     roomst = &game.conf.slab_conf.room_cfgstats[room->kind];
     int barpos_x;
     barpos_x = x + spr->SWidth * ps_units_per_px / 16 - (8 * units_per_px - 8) / 16;
-    spr = &gui_panel_sprites[roomst->medsym_sprite_idx];
+    spr = get_panel_sprite(roomst->medsym_sprite_idx);
     LbSpriteDrawResized(x - 2*units_per_px/16, y - 4*units_per_px/16, ps_units_per_px, spr);
     bar_fill = ROOM_FLAG_PROGRESS_BAR_WIDTH;
     bar_empty = 0;
@@ -5489,7 +5496,7 @@ static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
         {
             int top_of_pole_offset, zoom_factor;
             // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
-            float scale_by_zoom = lerp(0.15, 1.00, hud_scale);
+            float scale_by_zoom = LbLerp(0.15, 1.00, hud_scale);
 
             if (cam->view_mode == PVM_FrontView) {
                 zoom_factor = (4094*scale_by_zoom);
@@ -5668,7 +5675,7 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     int line_thickness = max(1, (custom_line_box_size * units_per_pixel_best / 16.0) );
     
     // Make the line slightly thinner when zoomed out
-    line_thickness = lerp(line_thickness, 1, 1.0-hud_scale);
+    line_thickness = LbLerp(line_thickness, 1, 1.0-hud_scale);
     
     int put_pixels_left = line_thickness/2; // Allocate half of the thickness to the left
     int put_pixels_right = line_thickness-put_pixels_left; // Remaining thickness is placed to the right
@@ -5684,7 +5691,7 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
         //    Temporary Error message, this should never appear in the log, but if it does, then the line must have been clipped incorrectly
         //    WARNMSG("draw_stripey_line: Pixel rendered outside engine window. X: %d, Y: %d, window_width: %d, window_height %d, A1: %d, A2 %d, B1 %d, B2 %d, a_start: %d, a_end: %d, b_start: %d, rWA: %d", *x_coord, *y_coord, relative_window_width, relative_window_height, a1, a2, b1, b2, a_start, a_end, b_start, relative_window_a);
         //}
-        color_animation_position += lerp(1.0, 4.0, 1.0-hud_scale) * (16.0/units_per_pixel_best);
+        color_animation_position += LbLerp(1.0, 4.0, 1.0-hud_scale) * (16.0/units_per_pixel_best);
         if (color_animation_position >= 16.0) {
             color_animation_position -= 16.0;
         }
@@ -6914,87 +6921,46 @@ static void clear_fast_bucket_list(void)
 
 static void draw_texturedquad_block(struct BucketKindTexturedQuad *txquad)
 {
-    if (!UseFastBlockDraw)
+    struct PolyPoint point_a;
+    struct PolyPoint point_b;
+    struct PolyPoint point_c;
+    struct PolyPoint point_d;
+    vec_mode = VM_Unknown5;
+    switch (txquad->marked_mode) // Is visible/selected
     {
-        struct PolyPoint point_a;
-        struct PolyPoint point_b;
-        struct PolyPoint point_c;
-        struct PolyPoint point_d;
-        vec_mode = VM_Unknown5;
-        switch (txquad->marked_mode) // Is visible/selected
-        {
-        case 0:
-            vec_map = block_ptrs[TEXTURE_LAND_MARKED_LAND];
-            break;
-        case 1:
-            vec_map = block_ptrs[TEXTURE_LAND_MARKED_GOLD];
-            break;
-        case 3:
-        default:
-            vec_map = block_ptrs[txquad->texture_idx];
-            break;
-        }
-        point_a.X = (txquad->unk_x >> 8) / pixel_size;
-        point_a.Y = (txquad->unk_y >> 8) / pixel_size;
-        point_a.U = orient_to_mapU1[txquad->orient];
-        point_a.V = orient_to_mapV1[txquad->orient];
-        point_a.S = txquad->lightness0;
-        point_d.X = ((txquad->zoom_x + txquad->unk_x) >> 8) / pixel_size;
-        point_d.Y = (txquad->unk_y >> 8) / pixel_size;
-        point_d.U = orient_to_mapU2[txquad->orient];
-        point_d.V = orient_to_mapV2[txquad->orient];
-        point_d.S = txquad->lightness1;
-        point_b.X = ((txquad->zoom_x + txquad->unk_x) >> 8) / pixel_size;
-        point_b.Y = ((txquad->zoom_y + txquad->unk_y) >> 8) / pixel_size;
-        point_b.U = orient_to_mapU3[txquad->orient];
-        point_b.V = orient_to_mapV3[txquad->orient];
-        point_b.S = txquad->lightness2;
-        point_c.X = (txquad->unk_x >> 8) / pixel_size;
-        point_c.Y = ((txquad->zoom_y + txquad->unk_y) >> 8) / pixel_size;
-        point_c.U = orient_to_mapU4[txquad->orient];
-        point_c.V = orient_to_mapV4[txquad->orient];
-        point_c.S = txquad->lightness3;
-        draw_gpoly(&point_a, &point_d, &point_b);
-        draw_gpoly(&point_a, &point_b, &point_c);
-    } else
-    {
-        struct GtBlock gtb;
-        switch (txquad->marked_mode)
-        {
-        case 0:
-            gtb.field_0 = block_ptrs[TEXTURE_LAND_MARKED_LAND];
-            gtb.lightness0 = txquad->lightness0 >> 16;
-            gtb.lightness1 = txquad->lightness1 >> 16;
-            gtb.lightness2 = txquad->lightness2 >> 16;
-            gtb.lightness3 = txquad->lightness3 >> 16;
-            break;
-        case 1:
-            gtb.field_0 = block_ptrs[TEXTURE_LAND_MARKED_GOLD];
-            gtb.lightness0 = txquad->lightness0 >> 16;
-            gtb.lightness1 = txquad->lightness1 >> 16;
-            gtb.lightness2 = txquad->lightness2 >> 16;
-            gtb.lightness3 = txquad->lightness3 >> 16;
-            break;
-        case 3:
-            gtb.field_0 = block_ptrs[txquad->texture_idx];
-            gtb.lightness0 = txquad->lightness0 >> 16;
-            gtb.lightness1 = txquad->lightness1 >> 16;
-            gtb.lightness2 = txquad->lightness2 >> 16;
-            gtb.lightness3 = txquad->lightness3 >> 16;
-            break;
-        default:
-            gtb.field_0 = block_ptrs[txquad->texture_idx];
-            break;
-        }
-        gtb.field_4 = (txquad->unk_x >> 8) / pixel_size;
-        gtb.field_8 = (txquad->unk_y >> 8) / pixel_size;
-        gtb.field_1C = orient_table_xflip[txquad->orient];
-        gtb.field_20 = orient_table_yflip[txquad->orient];
-        gtb.field_24 = orient_table_rotate[txquad->orient];
-        gtb.field_28 = (txquad->zoom_x >> 8) / pixel_size >> 5;
-        gtb.field_2C = (txquad->zoom_y >> 8) / pixel_size >> 4;
-        gtblock_draw(&gtb);
+    case 0:
+        vec_map = block_ptrs[TEXTURE_LAND_MARKED_LAND];
+        break;
+    case 1:
+        vec_map = block_ptrs[TEXTURE_LAND_MARKED_GOLD];
+        break;
+    case 3:
+    default:
+        vec_map = block_ptrs[txquad->texture_idx];
+        break;
     }
+    point_a.X = (txquad->unk_x >> 8) / pixel_size;
+    point_a.Y = (txquad->unk_y >> 8) / pixel_size;
+    point_a.U = orient_to_mapU1[txquad->orient];
+    point_a.V = orient_to_mapV1[txquad->orient];
+    point_a.S = txquad->lightness0;
+    point_d.X = ((txquad->zoom_x + txquad->unk_x) >> 8) / pixel_size;
+    point_d.Y = (txquad->unk_y >> 8) / pixel_size;
+    point_d.U = orient_to_mapU2[txquad->orient];
+    point_d.V = orient_to_mapV2[txquad->orient];
+    point_d.S = txquad->lightness1;
+    point_b.X = ((txquad->zoom_x + txquad->unk_x) >> 8) / pixel_size;
+    point_b.Y = ((txquad->zoom_y + txquad->unk_y) >> 8) / pixel_size;
+    point_b.U = orient_to_mapU3[txquad->orient];
+    point_b.V = orient_to_mapV3[txquad->orient];
+    point_b.S = txquad->lightness2;
+    point_c.X = (txquad->unk_x >> 8) / pixel_size;
+    point_c.Y = ((txquad->zoom_y + txquad->unk_y) >> 8) / pixel_size;
+    point_c.U = orient_to_mapU4[txquad->orient];
+    point_c.V = orient_to_mapV4[txquad->orient];
+    point_c.S = txquad->lightness3;
+    draw_gpoly(&point_a, &point_d, &point_b);
+    draw_gpoly(&point_a, &point_b, &point_c);
 }
 
 static void display_fast_drawlist(struct Camera *cam) // Draws frontview only. Not isometric or 1st person view.
@@ -8250,7 +8216,7 @@ static void sprite_to_sbuff_xflip(const TbSpriteData sprdata, unsigned char *out
           sprd += cval;
           out++;
           // Fill area per-byte until we get 32bit-aligned position
-          while ((unsigned long)out & 3)
+          while ((uintptr_t)out & 3)
           {
               out--;
               *out = 0xFF;
@@ -9078,11 +9044,9 @@ void draw_frontview_engine(struct Camera *cam)
     cam_y = interpolated_cam_mappos_y;
     pointer_x = (GetMouseX() - player->engine_window_x) / pixel_size;
     pointer_y = (GetMouseY() - player->engine_window_y) / pixel_size;
-    UseFastBlockDraw = (camera_zoom == FRONTVIEW_CAMERA_ZOOM_MAX);
     LbScreenStoreGraphicsWindow(&grwnd);
     store_engine_window(&ewnd,pixel_size);
     LbScreenSetGraphicsWindow(ewnd.x, ewnd.y, ewnd.width, ewnd.height);
-    gtblock_set_clipping_window(lbDisplay.GraphicsWindowPtr, ewnd.width, ewnd.height, lbDisplay.GraphicsScreenWidth);
     setup_vecs(lbDisplay.GraphicsWindowPtr, NULL, lbDisplay.GraphicsScreenWidth, ewnd.width, ewnd.height);
     clear_fast_bucket_list();
     store_engine_window(&ewnd,1);
@@ -9197,7 +9161,7 @@ static void render_sprite_debug_id(struct Thing* thing, long scr_x, long scr_y)
     }
     ushort flg_mem = lbDisplay.DrawFlags;
     lbDisplay.DrawFlags = Lb_TEXT_ONE_COLOR;
-    struct TbSprite *spr = &button_sprite[GBS_fontchars_number_dig0];
+    const struct TbSprite *spr = get_button_sprite(GBS_fontchars_number_dig0);
     long w = scale_ui_value(spr->SWidth);
     long h = scale_ui_value(spr->SHeight);
 
@@ -9212,7 +9176,7 @@ static void render_sprite_debug_id(struct Thing* thing, long scr_x, long scr_y)
     long pos_x = w * (ndigits - 1) / 2 + scr_x;
     for (val = value; val > 0; val /= 10)
     {
-        spr = &button_sprite[(val%10) + GBS_fontchars_number_dig0];
+        spr = get_button_sprite((val%10) + GBS_fontchars_number_dig0);
         LbSpriteDrawScaled(pos_x, scr_y - h, spr, w, h);
 
         pos_x -= w;

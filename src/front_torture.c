@@ -63,16 +63,8 @@ static struct DoorSoundState door_sound_state[TORTURE_DOORS_COUNT];
 static struct TortureState torture_state;
 static unsigned char *torture_background;
 static unsigned char *torture_palette;
-
 extern struct DoorDesc doors[TORTURE_DOORS_COUNT];
-extern struct TbSprite *fronttor_sprites;
-extern struct TbSprite *fronttor_end_sprites;
-extern unsigned char *fronttor_data;
-extern unsigned char * fronttor_end_data;
-/******************************************************************************/
-extern struct TbLoadFiles torture_load_files[];
-extern struct TbSetupSprite setup_torture_sprites[];
-
+extern struct TbSpriteSheet *fronttor_sprites;
 long torture_doors_available = TORTURE_DOORS_COUNT;
 /******************************************************************************/
 #ifdef __cplusplus
@@ -85,7 +77,7 @@ void torture_play_sound(long door_id, TbBool state)
     return;
   if (state)
   {
-    play_sample_using_heap(0, doors[door_id].smptbl_id, 0, 64, 100, -1, 2, 0);
+    play_sample(0, doors[door_id].smptbl_id, 0, 64, 100, -1, 2, 0);
     door_sound_state[door_id].field_0 = 0;
     door_sound_state[door_id].field_4 = 16;
   }
@@ -117,7 +109,10 @@ long torture_door_over_point(long x,long y)
 
 void fronttorture_unload(void)
 {
-  LbDataFreeAll(torture_load_files);
+  for (int i = 0; i < TORTURE_DOORS_COUNT; ++i) {
+    free_spritesheet(&doors[i].sprites);
+  }
+  free_spritesheet(&fronttor_sprites);
   memcpy(&frontend_palette, frontend_backup_palette, PALETTE_SIZE);
   StopAllSamples();
   // Clearing the space used for torture graphics
@@ -144,55 +139,17 @@ void fronttorture_load(void)
     fname = prepare_file_path(FGrp_LoData,"torture.pal");
     torture_palette = ptr;
     i = LbFileLoadAt(fname, ptr);
-    ptr += i;
-
     // Load DAT/TAB sprites for doors
-    long k = 0;
-    {
-        fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.dat",k+1);
-        i = LbFileLoadAt(fname, ptr);
-        doors[k].data = ptr;
-        ptr += i;
-        doors[k].data_end = ptr;
-
-        fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.tab",k+1);
-        i = LbFileLoadAt(fname, ptr);
-        doors[k].sprites = (struct TbSprite *)ptr;
-        ptr += i;
-        doors[k].sprites_end =(struct TbSprite *) ptr;
+    for (int idx = 0; idx < TORTURE_DOORS_COUNT; ++idx) {
+        char tab_name[2048];
+        char dat_name[2048];
+        strcpy(tab_name, prepare_file_fmtpath(FGrp_LoData,"door%02d.tab", idx + 1));
+        strcpy(dat_name, prepare_file_fmtpath(FGrp_LoData,"door%02d.dat", idx + 1));
+        doors[idx].sprites = load_spritesheet(dat_name, tab_name);
+        if (!doors[idx].sprites) ERRORLOG("Unable to load torture door %d", idx + 1);
     }
-    ptr = &game.land_map_start;
-    for (k=1; k < 8; k++)
-    {
-        fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.dat",k+1);
-        i = LbFileLoadAt(fname, ptr);
-        doors[k].data = ptr;
-        ptr += i;
-        doors[k].data_end = ptr;
-        fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.tab",k+1);
-        i = LbFileLoadAt(fname, ptr);
-        doors[k].sprites = (struct TbSprite *)ptr;
-        ptr += i;
-        doors[k].sprites_end = (struct TbSprite *)ptr;
-    }
-    ptr = poly_pool;
-    k = 8;
-    {
-        fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.dat",k+1);
-        i = LbFileLoadAt(fname, ptr);
-        doors[k].data = ptr;
-        ptr += i;
-        doors[k].data_end = ptr;
-        fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.tab",k+1);
-        i = LbFileLoadAt(fname, ptr);
-        doors[k].sprites = (struct TbSprite *)ptr;
-        ptr += i;
-        doors[k].sprites_end = (struct TbSprite *)ptr;
-    }
-
-    if ( LbDataLoadAll(torture_load_files) )
-        ERRORLOG("Unable to load torture load files");
-    LbSpriteSetupAll(setup_torture_sprites);
+    fronttor_sprites = load_spritesheet("ldata/fronttor.dat", "ldata/fronttor.tab");
+    if (!fronttor_sprites) ERRORLOG("Unable to load torture sprites");
     frontend_load_data_reset();
     memcpy(&frontend_palette, torture_palette, PALETTE_SIZE);
     torture_state.action = 0;
@@ -204,7 +161,7 @@ void fronttorture_load(void)
     struct PlayerInfo* player = get_my_player();
     if (player->victory_state == VicS_WonLevel)
     {
-        LbMouseChangeSpriteAndHotspot(&fronttor_sprites[1], 0, 0);
+        LbMouseChangeSpriteAndHotspot(get_sprite(fronttor_sprites, 1), 0, 0);
     } else
     {
         LbMouseChangeSpriteAndHotspot(0, 0, 0);
@@ -230,13 +187,13 @@ TbBool fronttorture_draw(void)
 
   for (int i = 0; i < torture_doors_available; i++)
   {
-      struct TbSprite* spr;
+      const struct TbSprite* spr;
       if (i == torture_door_selected)
       {
-          spr = &doors[i].sprites[torture_sprite_frame];
+          spr = get_sprite(doors[i].sprites, torture_sprite_frame);
     } else
     {
-      spr = &doors[i].sprites[1];
+      spr = get_sprite(doors[i].sprites, 1);
     }
     LbSpriteDrawResized(spx + doors[i].pos_spr_x*units_per_px/16, spy + doors[i].pos_spr_y*units_per_px/16, units_per_px, spr);
   }
@@ -411,7 +368,7 @@ void fronttorture_update(void)
             doorsnd->field_0 = volume;
             if (volume > 0)
             {
-              SetSampleVolume(0, door->smptbl_id, volume, 0);
+              SetSampleVolume(0, door->smptbl_id, volume);
             }
         }
     }

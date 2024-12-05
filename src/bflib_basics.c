@@ -122,8 +122,7 @@ char *buf_sprintf(const char *format, ...)
     va_list val;
     va_start(val, format);
     static char text[TEXT_BUFFER_LENGTH + 1];
-    vsprintf(text, format, val);
-    text[TEXT_BUFFER_LENGTH]='\0';
+    vsnprintf(text, sizeof(text), format, val);
     va_end(val);
     return text;
 }
