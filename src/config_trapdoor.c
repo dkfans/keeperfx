@@ -63,58 +63,60 @@ const struct NamedCommand trapdoor_door_commands[] = {
 };
 
 const struct NamedCommand trapdoor_trap_commands[] = {
-  {"NAME",                  1},
-  {"MANUFACTURELEVEL",      2},
-  {"MANUFACTUREREQUIRED",   3},
-  {"SHOTS",                 4},
-  {"TIMEBETWEENSHOTS",      5},
-  {"SELLINGVALUE",          6},
-  {"NAMETEXTID",            7},
-  {"TOOLTIPTEXTID",         8},
-  {"CRATE",                 9},
-  {"SYMBOLSPRITES",        10},
-  {"POINTERSPRITES",       11},
-  {"PANELTABINDEX",        12},
-  {"TRIGGERTYPE",          13},
-  {"ACTIVATIONTYPE",       14},
-  {"EFFECTTYPE",           15},
-  {"ANIMATIONID",          16},
-  {"MODEL",                16},//backward compatibility
-  {"MODELSIZE",            17},
-  {"ANIMATIONSPEED",       18},
-  {"UNANIMATED",           19},
-  {"HIDDEN",               20},
-  {"SLAPPABLE",            21},
-  {"TRIGGERALARM",         22},
-  {"HEALTH",               23},
-  {"UNSHADED",             24},
-  {"RANDOMSTARTFRAME",     25},
-  {"THINGSIZE",            26},
-  {"HITTYPE",              27},
-  {"LIGHTRADIUS",          28},
-  {"LIGHTINTENSITY",       29},
-  {"LIGHTFLAGS",           30},
-  {"TRANSPARENCYFLAGS",    31},
-  {"SHOTVECTOR",           32},
-  {"DESTRUCTIBLE",         33},
-  {"UNSTABLE",             34},
-  {"UNSELLABLE",           35},
-  {"PLACEONBRIDGE",        36},
-  {"SHOTORIGIN",           37},
-  {"PLACESOUND",           38},
-  {"TRIGGERSOUND",         39},
-  {"RECHARGEANIMATIONID",  40},
-  {"ATTACKANIMATIONID",    41},
-  {"DESTROYEDEFFECT",      42},
-  {"INITIALDELAY",         43},
-  {"PLACEONSUBTILE",       44},
-  {"FLAMEANIMATIONID",     45},
-  {"FLAMEANIMATIONSPEED",  46},
-  {"FLAMEANIMATIONSIZE",   47},
-  {"FLAMEANIMATIONOFFSET",    48},
-  {"FLAMETRANSPARENCYFLAGS",  49},
-  {"DETECTINVISIBLE",         50},
-  {NULL,                       0},
+  {"NAME",                    1},
+  {"MANUFACTURELEVEL",        2},
+  {"MANUFACTUREREQUIRED",     3},
+  {"SHOTS",                   4},
+  {"TIMEBETWEENSHOTS",        5},
+  {"SELLINGVALUE",            6},
+  {"NAMETEXTID",              7},
+  {"TOOLTIPTEXTID",           8},
+  {"CRATE",                   9},
+  {"SYMBOLSPRITES",          10},
+  {"POINTERSPRITES",         11},
+  {"PANELTABINDEX",          12},
+  {"TRIGGERTYPE",            13},
+  {"ACTIVATIONTYPE",         14},
+  {"EFFECTTYPE",             15},
+  {"ANIMATIONID",            16},
+  {"MODEL",                  16}, // Backward compatibility.
+  {"MODELSIZE",              17},
+  {"ANIMATIONSPEED",         18},
+  {"UNANIMATED",             19},
+  {"HIDDEN",                 20},
+  {"SLAPPABLE",              21},
+  {"TRIGGERALARM",           22},
+  {"HEALTH",                 23},
+  {"UNSHADED",               24},
+  {"RANDOMSTARTFRAME",       25},
+  {"THINGSIZE",              26},
+  {"HITTYPE",                27},
+  {"LIGHTRADIUS",            28},
+  {"LIGHTINTENSITY",         29},
+  {"LIGHTFLAGS",             30},
+  {"TRANSPARENCYFLAGS",      31},
+  {"SHOTVECTOR",             32},
+  {"DESTRUCTIBLE",           33},
+  {"UNSTABLE",               34},
+  {"UNSELLABLE",             35},
+  {"PLACEONBRIDGE",          36},
+  {"SHOTORIGIN",             37},
+  {"PLACESOUND",             38},
+  {"TRIGGERSOUND",           39},
+  {"RECHARGEANIMATIONID",    40},
+  {"ATTACKANIMATIONID",      41},
+  {"DESTROYEDEFFECT",        42},
+  {"INITIALDELAY",           43},
+  {"PLACEONSUBTILE",         44},
+  {"FLAMEANIMATIONID",       45},
+  {"FLAMEANIMATIONSPEED",    46},
+  {"FLAMEANIMATIONSIZE",     47},
+  {"FLAMEANIMATIONOFFSET",   48},
+  {"FLAMETRANSPARENCYFLAGS", 49},
+  {"DETECTINVISIBLE",        50},
+  {"INSTANTPLACEMENT",       51},
+  {"REMOVEONCEDEPLETED",     52},
+  {NULL,                      0},
 };
 
 const struct NamedCommand door_properties_commands[] = {
@@ -207,6 +209,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           trapst->notify = false;
           trapst->place_on_bridge = false;
           trapst->place_on_subtile = false;
+          trapst->instant_placement = false;
+          trapst->remove_once_depleted = false;
           trapst->health = 1;
           trapst->destructible = 0;
           trapst->unstable = 0;
@@ -1155,6 +1159,38 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               if (k >= 0)
               {
                   trapst->detect_invisible = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+          }
+          break;
+      case 51: // INSTANTPLACEMENT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  trapst->instant_placement = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+          }
+          break;
+      case 52: // REMOVEONCEDEPLETED
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  trapst->remove_once_depleted = k;
                   n++;
               }
           }
