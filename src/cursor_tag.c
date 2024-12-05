@@ -161,7 +161,7 @@ TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     {
         Orientation = find_door_angle(stl_x, stl_y, plyr_idx);
         
-        struct DoorConfigStats* doorst = get_door_model_stats(drmodel);
+        const struct DoorConfigStats* doorst = get_door_model_stats(drmodel);
 
         if (doorst->model_flags & DoMF_Thick)
         {
@@ -180,7 +180,6 @@ TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
                 break;
             }
         }
-        const struct DoorConfigStats* doorst = get_door_model_stats(drmodel);
         if ( ( (slabmap_owner(slb) == plyr_idx) && (slb->kind == SlbT_CLAIMED) )
             && (Orientation != -1 || (doorst->model_flags & DoMF_Freestanding)) && ( Check ) 
             && (!slab_has_door_thing_on(slb_x, slb_y)) )
