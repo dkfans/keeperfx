@@ -1226,8 +1226,9 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
 
 TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel)
 {
-    if (!is_trap_placeable(plyr_idx, tngmodel)) {
-        WARNLOG("Player %d tried to build %s but has none to place",(int)plyr_idx,trap_code_name(tngmodel));
+    if (!is_trap_placeable(plyr_idx, tngmodel))
+    {
+        WARNLOG("Player %d tried to build %s but has none to place", (int)plyr_idx, trap_code_name(tngmodel));
         return false;
     }
     struct TrapConfigStats* trap_cfg = get_trap_model_stats(tngmodel);
@@ -1240,18 +1241,26 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     {
         set_coords_to_slab_center(&pos, subtile_slab(stl_x), subtile_slab(stl_y));
     }
-    delete_room_slabbed_objects(get_slab_number(subtile_slab(stl_x),subtile_slab(stl_y)));
+    delete_room_slabbed_objects(get_slab_number(subtile_slab(stl_x), subtile_slab(stl_y)));
     struct Thing* traptng = create_trap(&pos, tngmodel, plyr_idx);
-    if (thing_is_invalid(traptng)) {
+    if (thing_is_invalid(traptng))
+    {
         return false;
     }
     traptng->mappos.z.val = get_thing_height_at(traptng, &traptng->mappos);
     traptng->trap.revealed = 0;
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-
     remove_workshop_item_from_amount_placeable(plyr_idx, TCls_Trap, tngmodel);
-    if (placing_offmap_workshop_item(plyr_idx, TCls_Trap, tngmodel)) {
+    if (placing_offmap_workshop_item(plyr_idx, TCls_Trap, tngmodel))
+    {
         remove_workshop_item_from_amount_stored(plyr_idx, TCls_Trap, tngmodel, WrkCrtF_NoStored);
+        rearm_trap(traptng);
+        dungeon->lvstats.traps_armed++;
+    }
+    else if (trap_cfg->instant_placement)
+    {
+        remove_workshop_item_from_amount_stored(plyr_idx, TCls_Trap, tngmodel, WrkCrtF_NoOffmap);
+        remove_workshop_object_from_player(plyr_idx, trap_crate_object_model(tngmodel));
         rearm_trap(traptng);
         dungeon->lvstats.traps_armed++;
     }
