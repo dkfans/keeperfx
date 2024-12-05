@@ -1364,6 +1364,11 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         {
             cctrl->disease_caster_plyridx = shotng->owner;
         }
+        if (shotst->cast_spell_kind == SplK_Teleport)
+        {
+            cctrl->teleport_x = cctrl->flee_pos.x.stl.num;
+            cctrl->teleport_y = cctrl->flee_pos.y.stl.num;
+        }
         apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, n);
     }
     if (shotst->model_flags & ShMF_GroupUp)
@@ -1457,7 +1462,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
     if (shotst->model_flags & ShMF_Boulder)
     {
-        if (creature_is_being_unconscious(trgtng)  && !(game.conf.rules.game.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)) //We're not actually hitting the unconscious units with a boulder
+        if (creature_is_being_unconscious(trgtng)  && !flag_is_set(game.conf.rules.game.classic_bugs_flags,ClscBug_FaintedImmuneToBoulder)) //We're not actually hitting the unconscious units with a boulder
         {
             return 0;
         } 
