@@ -39,31 +39,49 @@ extern "C" {
 /******************************************************************************/
 
 /******************************************************************************/
+
+// a path that starts in the north-west, and then stripe vertically - Numpad path: 7,4,1,8,5,2,9,6,3
 struct Around const around[] = {
-  {-1,-1}, {-1, 0}, {-1, 1},
-  { 0,-1}, { 0, 0}, { 0, 1},
-  { 1,-1}, { 1, 0}, { 1, 1},
-  { 0, 0}, // this entry shouldn't be used
+    DV_NORTH_WEST,
+    DV_WEST,
+    DV_SOUTH_WEST,
+    DV_NORTH,
+    DV_BASE,
+    DV_SOUTH,
+    DV_NORTH_EAST,
+    DV_EAST,
+    DV_SOUTH_EAST,
+    DV_BASE, // this entry shouldn't be used
 };
 
+// a path that starts in the centre, then north, then rotate clockwise (ordinal only), then north-west, then stripe horizontally through diagonals - Numpad path: 5,8,6,2,4,7,9,1,3
 struct Around const mid_around[] = {
-  { 0,  0}, { 0, -1}, { 1,  0},
-  { 0,  1}, {-1,  0}, {-1, -1},
-  { 1, -1}, {-1,  1}, { 1,  1},
+    DV_BASE,
+    DV_NORTH,
+    DV_EAST,
+    DV_SOUTH,
+    DV_WEST,
+    DV_NORTH_WEST,
+    DV_NORTH_EAST,
+    DV_SOUTH_WEST,
+    DV_SOUTH_EAST,
 };
 
+// a path that starts in the north, then rotate clockwise through the ordinal directions - Numpad path: 8,6,2,4
 struct Around const small_around[] = {
-  { 0,-1},
-  { 1, 0},
-  { 0, 1},
-  {-1, 0},
+    DV_NORTH,
+    DV_EAST,
+    DV_SOUTH,
+    DV_WEST,
 };
+
+// a path that starts in the north, then rotate clockwise through the ordinal directions, then base) - Numpad path: 8,6,2,4,5
 struct Around const small_around_mid[] = {
-    { 0, -1},
-    { 1,  0},
-    { 0,  1},
-    {-1,  0},
-    { 0,  0},
+    DV_NORTH,
+    DV_EAST,
+    DV_SOUTH,
+    DV_WEST,
+    DV_BASE,
 };
 
 struct Around const large_around[] = {
@@ -75,23 +93,42 @@ struct Around const large_around[] = {
 { 3, 3},{ 2, 3},{ 1, 3},{ 0, 3},{-1, 3},{-2, 3},
 };
 
+// a path that starts in the north, then rotate clockwise through all directions) - Numpad path: 8,9,6,3,2,1,4,7
 struct Around const my_around_eight[] = {
-  { 0,-1}, { 1,-1},
-  { 1, 0}, { 1, 1},
-  { 0, 1}, {-1, 1},
-  {-1, 0}, {-1,-1},
+    DV_NORTH,
+    DV_NORTH_EAST,
+    DV_EAST,
+    DV_SOUTH_EAST,
+    DV_SOUTH,
+    DV_SOUTH_WEST,
+    DV_WEST,
+    DV_NORTH_WEST,
 };
 
+// a path that starts in the north-west, then stripe horizontally - Numpad path: 7,8,9,4,5,6,1,2,3
 struct Around const my_around_nine[] = {
-  {-1,-1}, { 0,-1}, { 1,-1},
-  {-1, 0}, { 0, 0}, { 1, 0},
-  {-1, 1}, { 0, 1}, { 1, 1},
+    DV_NORTH_WEST,
+    DV_NORTH,
+    DV_NORTH_EAST,
+    DV_WEST,
+    DV_BASE,
+    DV_EAST,
+    DV_SOUTH_WEST,
+    DV_SOUTH,
+    DV_SOUTH_EAST,
 };
 
+// a path that starts at the centre, then north-west, then stripe vertically, skipping the centre - Numpad path: 5,7,4,1,8,2,9,6,3
 struct Around const start_at_around[] = {
-    { 0,  0}, {-1, -1}, {-1,  0},
-    {-1,  1}, { 0, -1}, { 0,  1},
-    { 1, -1}, { 1,  0}, { 1,  1},
+    DV_BASE,
+    DV_NORTH_WEST,
+    DV_WEST,
+    DV_SOUTH_WEST,
+    DV_NORTH,
+    DV_SOUTH,
+    DV_NORTH_EAST,
+    DV_EAST,
+    DV_SOUTH_EAST,
 };
 
 struct MapOffset spiral_step[SPIRAL_STEPS_COUNT];
