@@ -239,6 +239,8 @@ long destroy_door(struct Thing *doortng)
         if (!player_exists(player))
             continue;
         struct Thing* thing = thing_get(player->controlled_thing_idx);
+        if (thing == INVALID_THING)
+            continue;
         MapCoordDelta dist = get_chessboard_distance(&pos, &thing->mappos);
         long sight_stl = slab_subtile(get_explore_sight_distance_in_slabs(thing), 0);
         if (dist <= subtile_coord(sight_stl,0)) {

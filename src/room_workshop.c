@@ -508,7 +508,8 @@ TbBool remove_workshop_object_from_player(PlayerNumber owner, ThingModel objmode
  */
 long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *dungeon, int * mnfctr_class, int * mnfctr_kind)
 {
-    struct ManfctrConfig *mconf;
+    struct DoorConfigStats *doorst;
+    struct TrapConfigStats *trapst;
     int tngmodel;
     long amount;
     int chosen_class = TCls_Empty;
@@ -519,34 +520,34 @@ long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *
     // Try getting door kind for manufacture
     for (tngmodel = 1; tngmodel < game.conf.trapdoor_conf.door_types_count; tngmodel++)
     {
-        mconf = &game.conf.doors_config[tngmodel];
-        if (((dungeon->mnfct_info.door_build_flags[tngmodel] & MnfBldF_Manufacturable) != 0) && (dungeon->manufacture_level >= mconf->manufct_level))
+        doorst = get_door_model_stats(tngmodel);
+        if (((dungeon->mnfct_info.door_build_flags[tngmodel] & MnfBldF_Manufacturable) != 0) && (dungeon->manufacture_level >= doorst->manufct_level))
         {
             amount = dungeon->mnfct_info.door_amount_stored[tngmodel];
             if ( (chosen_amount > amount) ||
-                ((chosen_amount == amount) && (chosen_level > mconf->manufct_level)) )
+                ((chosen_amount == amount) && (chosen_level > doorst->manufct_level)) )
             {
                 chosen_class = TCls_Door;
                 chosen_amount = dungeon->mnfct_info.door_amount_stored[tngmodel];
                 chosen_kind = tngmodel;
-                chosen_level = mconf->manufct_level;
+                chosen_level = doorst->manufct_level;
             }
         }
     }
     // Try getting trap kind for manufacture
     for (tngmodel = 1; tngmodel < game.conf.trapdoor_conf.trap_types_count; tngmodel++)
     {
-        mconf = &game.conf.traps_config[tngmodel];
-        if (((dungeon->mnfct_info.trap_build_flags[tngmodel] & MnfBldF_Manufacturable) != 0) && (dungeon->manufacture_level >= mconf->manufct_level))
+        trapst = get_trap_model_stats(tngmodel);
+        if (((dungeon->mnfct_info.trap_build_flags[tngmodel] & MnfBldF_Manufacturable) != 0) && (dungeon->manufacture_level >= trapst->manufct_level))
         {
             amount = dungeon->mnfct_info.trap_amount_stored[tngmodel];
             if ( (chosen_amount > amount) ||
-                ((chosen_amount == amount) && (chosen_level > mconf->manufct_level)) )
+                ((chosen_amount == amount) && (chosen_level > trapst->manufct_level)) )
             {
                 chosen_class = TCls_Trap;
                 chosen_amount = dungeon->mnfct_info.trap_amount_stored[tngmodel];
                 chosen_kind = tngmodel;
-                chosen_level = mconf->manufct_level;
+                chosen_level = trapst->manufct_level;
             }
         }
     }
@@ -588,15 +589,16 @@ TbBool get_next_manufacture(struct Dungeon *dungeon)
 
 long manufacture_points_required_f(long mfcr_type, unsigned long mfcr_kind, const char *func_name)
 {
-    const struct ManfctrConfig *mconf;
+    const struct DoorConfigStats *doorst;
+    const struct TrapConfigStats *trapst;
     switch (mfcr_type)
     {
     case TCls_Trap:
-        mconf = &game.conf.traps_config[mfcr_kind%game.conf.trapdoor_conf.trap_types_count ];
-        return mconf->manufct_required;
+        trapst = get_trap_model_stats(mfcr_kind%game.conf.trapdoor_conf.trap_types_count);
+        return trapst->manufct_required;
     case TCls_Door:
-        mconf = &game.conf.doors_config[mfcr_kind%game.conf.trapdoor_conf.door_types_count];
-        return mconf->manufct_required;
+        doorst = get_door_model_stats(mfcr_kind%game.conf.trapdoor_conf.door_types_count);
+        return doorst->manufct_required;
     default:
         ERRORMSG("%s: Invalid type of manufacture: %d",func_name,(int)mfcr_type);
         return 0;

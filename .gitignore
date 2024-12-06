@@ -31,4 +31,5 @@ res/keeperfx_icon.ico
 /deps/spng
 /deps/astronomy
 /deps/centijson
+/deps/ffmpeg
 /deps/*.tar.gz

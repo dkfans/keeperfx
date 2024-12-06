@@ -99,9 +99,6 @@
     <ClCompile Include="src\bflib_render_gpoly.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\bflib_render_gtblock.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\bflib_render_trig.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -112,9 +109,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\bflib_sprfnt.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\bflib_sprite.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\bflib_string.c">
@@ -603,9 +597,6 @@
     <ClCompile Include="src\bflib_network.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\bflib_semphr.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\bflib_server_tcp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -613,9 +604,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\config_magic_data.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\front_credits_data.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\front_lvlstats_data.cpp">
@@ -658,9 +646,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\player_computer_data.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\thing_creature_data.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\vidmode_data.cpp">
@@ -745,6 +730,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\bflib_enet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\spritesheet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\room_treasure.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -870,9 +861,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bflib_render.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\bflib_semphr.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bflib_server_tcp.hpp">
@@ -1404,6 +1392,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bflib_enet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mutex.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

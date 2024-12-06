@@ -241,7 +241,7 @@ TbBool add_research_to_player(PlayerNumber plyr_idx, long rtyp, long rkind, long
     long i = dungeon->research_num;
     if (i >= DUNGEON_RESEARCH_COUNT)
     {
-      ERRORLOG("Too much research (%d items) for player %d", i, plyr_idx);
+      ERRORLOG("Too much research (%ld items) for player %d", i, plyr_idx);
       return false;
     }
     struct ResearchVal* resrch = &dungeon->research[i];
@@ -255,7 +255,7 @@ TbBool add_research_to_player(PlayerNumber plyr_idx, long rtyp, long rkind, long
 TbBool add_research_to_all_players(long rtyp, long rkind, long amount)
 {
     TbBool result = true;
-    SYNCDBG(17, "Adding type %d, kind %d, amount %d", rtyp, rkind, amount);
+    SYNCDBG(17, "Adding type %ld, kind %ld, amount %ld", rtyp, rkind, amount);
     for (long i = 0; i < PLAYERS_COUNT; i++)
     {
         result &= add_research_to_player(i, rtyp, rkind, amount);

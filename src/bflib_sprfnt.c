@@ -70,7 +70,7 @@ long dbc_colour1 = 0;
 short dbc_language = 0;
 TbBool dbc_initialized = false;
 TbBool dbc_enabled = true;
-const struct TbSprite *lbFontPtr;
+const struct TbSpriteSheet *lbFontPtr;
 
 static TbGraphicsWindow lbTextJustifyWindow;
 static TbGraphicsWindow lbTextClipWindow;
@@ -1400,7 +1400,7 @@ TbBool change_dbcfont(int nfont)
     return false;
 }
 
-TbBool LbTextSetFont(const struct TbSprite *font)
+TbBool LbTextSetFont(const struct TbSpriteSheet *font)
 {
     lbFontPtr = font;
     TbBool result = true;
@@ -1409,53 +1409,39 @@ TbBool LbTextSetFont(const struct TbSprite *font)
         result = false;
         dbc_colour0 = LbTextGetFontFaceColor();
         dbc_colour1 = LbTextGetFontBackColor();
-        if (font == frontend_font[0])
-        {
+        if (lbFontPtr == frontend_font[0]) {
           result = change_dbcfont(2);
-        } else
-        if (font == frontend_font[1])
-        {
+        } else if (lbFontPtr == frontend_font[1]) {
           if (lbDisplay.PhysicalScreenWidth < 512)
             result = change_dbcfont(0);
           else
             result = change_dbcfont(1);
-        } else
-        if (font == frontend_font[2])
-        {
+        } else if (lbFontPtr == frontend_font[2]) {
           if (lbDisplay.PhysicalScreenWidth < 512)
             result = change_dbcfont(0);
           else
             result = change_dbcfont(1);
-        } else
-        if (font == frontend_font[3])
-        {
+        } else if (lbFontPtr == frontend_font[3]) {
           if (lbDisplay.PhysicalScreenWidth < 512)
             result = change_dbcfont(0);
           else
             result = change_dbcfont(1);
-        } else
-        if (font == winfont)
-        {
+        } else if (lbFontPtr == winfont) {
           if (lbDisplay.PhysicalScreenWidth < 512)
             result = change_dbcfont(0);
           else
             result = change_dbcfont(1);
-        } else
-        if (font == font_sprites)
-        {
+        } else if (lbFontPtr == font_sprites) {
           if (lbDisplay.PhysicalScreenWidth < 512)
             result = change_dbcfont(0);
           else
             result = change_dbcfont(1);
-        } else
-        if (font == frontstory_font)
-        {
+        } else if (lbFontPtr == frontstory_font) {
           if (lbDisplay.PhysicalScreenWidth < 512)
             result = change_dbcfont(0);
           else
             result = change_dbcfont(1);
-        } else
-        {
+        } else {
           if (lbDisplay.PhysicalScreenWidth < 512)
             result = change_dbcfont(0);
           else
@@ -1467,52 +1453,32 @@ TbBool LbTextSetFont(const struct TbSprite *font)
 
 unsigned char LbTextGetFontFaceColor(void)
 {
-    const struct TbSprite* font = lbFontPtr;
-    if (font == frontend_font[0])
-    {
+    if (lbFontPtr == frontend_font[0]) {
       return 238;
-    } else
-    if (font == frontend_font[1])
-    {
+    } else if (lbFontPtr == frontend_font[1]) {
       return 243;
-    } else
-    if (font == frontend_font[2])
-    {
+    } else if (lbFontPtr == frontend_font[2]) {
       return 248;
-    } else
-    if (font == frontend_font[3])
-    {
+    } else if (lbFontPtr == frontend_font[3]) {
       return 119;
-    } else
-    if (font == winfont)
-    {
+    } else if (lbFontPtr == winfont) {
       return 73;
-    } else
-    if (font == font_sprites)
-    {
+    } else if (lbFontPtr == font_sprites) {
       return 1;
-    } else
-    if (font == frontstory_font)
-    {
+    } else if (lbFontPtr == frontstory_font) {
       return 237;
-    } else
-    {
+    } else {
       return 70;
     }
 }
 
 unsigned char LbTextGetFontBackColor(void)
 {
-    const struct TbSprite* font = lbFontPtr;
-    if (font == font_sprites)
-    {
+    if (lbFontPtr == font_sprites) {
       return 0;
-    } else
-    if (font == frontstory_font)
-    {
+    } else if (lbFontPtr == frontstory_font) {
         return 232;
-    } else
-    {
+    } else {
         return 1;
     }
 }
@@ -1842,7 +1808,7 @@ long LbGetJustifiedCharHeight(long all_lines_height, long spr_height, long lines
  * @note Works only for characters stored in the sprite list.
  *       Multibyte characters are usually stored somewhere else.
  */
-int LbSprFontWordWidth(const struct TbSprite *font,const char *text)
+int LbSprFontWordWidth(const struct TbSpriteSheet * font, const char * text)
 {
   if ((font == NULL) || (text == NULL))
     return 0;
@@ -1863,7 +1829,7 @@ int LbSprFontWordWidth(const struct TbSprite *font,const char *text)
  * @note Works only for characters stored in the sprite list.
  *       Multibyte characters are usually stored somewhere else.
  */
-int LbSprFontCharWidth(const struct TbSprite *font,const unsigned long chr)
+int LbSprFontCharWidth(const struct TbSpriteSheet * font, const unsigned long chr)
 {
     const struct TbSprite* spr = LbFontCharSprite(font, chr);
     if (spr == NULL)
@@ -1877,7 +1843,7 @@ int LbSprFontCharWidth(const struct TbSprite *font,const unsigned long chr)
  * @note Works only for characters stored in the sprite list.
  *       Multibyte characters are usually stored somewhere else.
  */
-int LbSprFontCharHeight(const struct TbSprite *font,const unsigned long chr)
+int LbSprFontCharHeight(const struct TbSpriteSheet * font, const unsigned long chr)
 {
     const struct TbSprite* spr = LbFontCharSprite(font, chr);
     if (spr == NULL)
@@ -1889,13 +1855,14 @@ int LbSprFontCharHeight(const struct TbSprite *font,const unsigned long chr)
  * Returns sprite of a single character in given font.
  * For characters that don't have a sprite, returns NULL.
  */
-const struct TbSprite *LbFontCharSprite(const struct TbSprite *font,const unsigned long chr)
+const struct TbSprite * LbFontCharSprite(const struct TbSpriteSheet * font, const unsigned long chr)
 {
-  if (font == NULL)
+    if (font == NULL) {
+        return NULL;
+    } else if ((chr >= 31) && (chr < 256)) {
+        return get_sprite(font, chr - 31);
+    }
     return NULL;
-  if ((chr >= 31) && (chr < 256))
-    return &font[(chr-31)];
-  return NULL;
 }
 
 void dbc_shutdown(void)
@@ -1976,7 +1943,7 @@ short load_font_file(struct AsianFont * dbcfont, const char * fpath) {
   // Load font file
   SYNCDBG(9, "Loading font \"%s\"", fname);
   TbFileHandle fhandle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
-  if (fhandle == -1)
+  if (!fhandle)
   {
     ERRORLOG("Cannot open \"%s\"", fname);
     free(fname);

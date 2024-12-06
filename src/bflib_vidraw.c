@@ -28,7 +28,7 @@
 #include <assert.h>
 #include <stddef.h>
 #include "globals.h"
-
+#include "custom_sprites.h"
 #include "bflib_video.h"
 #include "bflib_memory.h"
 #include "bflib_sprite.h"
@@ -423,7 +423,7 @@ static inline TbResult LbSpriteDrawPrepare(struct TbSpriteDrawData *spd, long x,
     spd->Ht = btm - top;
     spd->Wd = right - left;
     spd->sp = (char *)spr->Data;
-    SYNCDBG(19,"Sprite coords X=%d...%d Y=%d...%d data=%08x",left,right,top,btm,spd->sp);
+    SYNCDBG(19,"Sprite coords X=%d...%d Y=%d...%d data=%p",left,right,top,btm,spd->sp);
     long htIndex;
     if ( top )
     {
@@ -2243,7 +2243,7 @@ TbResult LbHugeSpriteDraw(const struct TbHugeSprite * spr, long sp_len,
  * @param sprite
  * @note originally named DrawBigSprite()
  */
-void LbTiledSpriteDraw(long start_x, long start_y, long units_per_px, struct TiledSprite *bigspr, struct TbSprite *sprite)
+void LbTiledSpriteDraw(long start_x, long start_y, long units_per_px, struct TiledSprite *bigspr)
 {
     long x;
     long y;
@@ -2255,25 +2255,24 @@ void LbTiledSpriteDraw(long start_x, long start_y, long units_per_px, struct Til
     y = start_y;
     for (spnum_y = 0; spnum_y < bigspr->y_num; spnum_y++)
     {
-        unsigned short *spr_idx;
+        unsigned short spr_idx = bigspr->spr_idx[spnum_y][0];
         x = start_x;
-        spr_idx = &bigspr->spr_idx[spnum_y][0];
         for (spnum_x = 0; spnum_x < bigspr->x_num; spnum_x++)
         {
-            delta_x = sprite[*spr_idx].SWidth * units_per_px / 16;
-            delta_y = sprite[*spr_idx].SHeight * units_per_px / 16;
-            if (*spr_idx)
+            const struct TbSprite * sprite = get_panel_sprite(spr_idx);
+            delta_x = sprite->SWidth * units_per_px / 16;
+            delta_y = sprite->SHeight * units_per_px / 16;
+            if (spr_idx)
             {
-                LbSpriteDrawScaled(x, y, &sprite[*spr_idx], delta_x, delta_y);
+                LbSpriteDrawScaled(x, y, sprite, delta_x, delta_y);
             } else
             {
-                unsigned short *prev_spr_idx;
-                prev_spr_idx = (spr_idx - 10);
+                unsigned short prev_spr_idx = (spr_idx - 10);
                 signed int spnum_p;
                 for (spnum_p = 1; spnum_p <= spnum_y; spnum_p++)
                 {
-                    if (*prev_spr_idx) {
-                        delta_x = sprite[bigspr->spr_idx[(spnum_y - spnum_p)][spnum_x]].SWidth * units_per_px / 16;
+                    if (prev_spr_idx) {
+                        delta_x = get_panel_sprite(bigspr->spr_idx[(spnum_y - spnum_p)][spnum_x])->SWidth * units_per_px / 16;
                         break;
                     }
                     prev_spr_idx -= 10;
@@ -2286,16 +2285,12 @@ void LbTiledSpriteDraw(long start_x, long start_y, long units_per_px, struct Til
     }
 }
 
-int LbTiledSpriteHeight(struct TiledSprite *bigspr, struct TbSprite *sprite)
+int LbTiledSpriteHeight(struct TiledSprite *bigspr)
 {
-    long height;
-    int spnum_y;
-    height = 0;
-    for (spnum_y = 0; spnum_y < bigspr->y_num; spnum_y++)
+    long height = 0;
+    for (int spnum_y = 0; spnum_y < bigspr->y_num; spnum_y++)
     {
-        unsigned short *spr_idx;
-        spr_idx = &bigspr->spr_idx[spnum_y][0];
-        height += sprite[*spr_idx].SHeight;
+        height += get_panel_sprite(bigspr->spr_idx[spnum_y][0])->SHeight;
     }
     return height;
 }
