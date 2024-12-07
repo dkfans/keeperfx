@@ -718,7 +718,7 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
     case SplK_PoisonCloud:
         return (flag_is_set(cctrl->spell_flags,CSAfF_PoisonCloud));
     case SplK_Fear:
-        return false;//TODO CREATURE_SPELL update when fear continous effect is implemented
+        return (flag_is_set(cctrl->spell_flags,CSAfF_Fear));
     case SplK_Wind:
         return (flag_is_set(cctrl->spell_flags,CSAfF_Wind));
     case SplK_Light:
