@@ -905,7 +905,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             cctrl->spell_aura_duration = spconf->duration;
         }
     } else
-    if (spell_idx == SplK_Disease)
+    if (spconf->spell_flags == CSAfF_Disease)
     {
         if ((get_creature_model_flags(thing) & CMF_NeverSick) == 0)
         {
@@ -951,8 +951,8 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                 cctrl->spell_aura_duration = spconf->duration;
             }
         }
-    } else
-    if (spell_idx == SplK_Chicken)
+    else
+    if (spconf->spell_flags == CSAfF_Chicken)
     {
         if ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0)
         {
