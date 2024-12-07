@@ -414,7 +414,7 @@ struct SpellConfig {
     short linked_power;
     short duration;
     short aura_effect;
-    unsigned short spell_flags;
+    unsigned long spell_flags;
 };
 
 struct MagicStats {
