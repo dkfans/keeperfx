@@ -331,6 +331,11 @@ void query_thing(struct Thing *thing)
             {
                 struct DoorConfigStats *doorst = get_door_model_stats(querytng->model);
                 sprintf((char*)health, "Health: %ld/%ld", querytng->health, doorst->health);
+                sprintf((char*)position, "Locked: %d", querytng->door.is_locked);
+                if(doorst->model_flags & DoMF_Secret)
+                {
+                    sprintf((char*)amount, "Revealed: %d", querytng->door.revealed);
+                }
             }
             else
             if (querytng->class_id == TCls_Creature)
