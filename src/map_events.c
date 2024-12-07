@@ -521,7 +521,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             break;
         case EvKind_CreaturePayday:
             other_off = 1;
-            text = buf_sprintf("%s:\n %d", game.evntbox_scroll_window.text, event->target);
+            text = buf_sprintf("%s:\n %ld", game.evntbox_scroll_window.text, event->target);
             snprintf(game.evntbox_scroll_window.text,MESSAGE_TEXT_LEN, "%s", text);
             turn_on_menu(GMnu_TEXT_INFO);
             break;

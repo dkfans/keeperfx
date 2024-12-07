@@ -497,22 +497,108 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     long blocked_flags = get_thing_blocked_flags_at(shotng, pos);
     TbBool digging = (shotst->model_flags & ShMF_Digging);
-    SubtlCodedCoords hit_stl_num;
     HitPoints old_health;
     EffectOrEffElModel eff_kind;
     short smpl_idx;
     unsigned char range;
     struct SlabMap* slb;
+    MapSubtlCoord hit_stl_x, hit_stl_y;
     if (digging)
     {
-        hit_stl_num = process_dig_shot_hit_wall(shotng, blocked_flags, &old_health);
+        SubtlCodedCoords hit_stl_num = process_dig_shot_hit_wall(shotng, blocked_flags, &old_health);
+        hit_stl_x = stl_num_decode_x(hit_stl_num);
+        hit_stl_y = stl_num_decode_y(hit_stl_num);
+    }
+    else
+    {
+        unsigned short angle;
+        switch ( blocked_flags )
+        {
+            case SlbBloF_WalledX:
+            {
+                angle = shotng->move_angle_xy & 0xFC00;
+                if (angle != 0)
+                {
+                  hit_stl_x = pos->x.stl.num - 1;
+                  hit_stl_y = pos->y.stl.num;
+                }
+                else
+                {
+                  hit_stl_x = pos->x.stl.num + 1;
+                  hit_stl_y = pos->y.stl.num;
+                }
+                break;
+            }
+            case SlbBloF_WalledY:
+            {
+                angle = shotng->move_angle_xy & 0xFE00;
+                if ((angle != ANGLE_NORTH) && (angle != ANGLE_WEST))
+                {
+                  hit_stl_x = pos->x.stl.num;
+                  hit_stl_y = pos->y.stl.num + 1;
+                }
+                else
+                {
+                  hit_stl_x = pos->x.stl.num;
+                  hit_stl_y = pos->y.stl.num - 1;
+                }
+                break;
+            }
+            case SlbBloF_WalledX|SlbBloF_WalledY:
+            case SlbBloF_WalledX|SlbBloF_WalledY|SlbBloF_WalledZ:
+            {
+                angle = (shotng->move_angle_xy & 0x700) | 256;
+                switch(angle)
+                {
+                    case ANGLE_NORTHEAST:
+                    {
+                        hit_stl_x = pos->x.stl.num + 1;
+                        hit_stl_y = pos->y.stl.num - 1;
+                        break;
+                    }
+                    case ANGLE_SOUTHEAST:
+                    {
+                        hit_stl_x = pos->x.stl.num + 1;
+                        hit_stl_y = pos->y.stl.num + 1;
+                        break;
+                    }
+                    case ANGLE_SOUTHWEST:
+                    {
+                        hit_stl_x = pos->x.stl.num - 1;
+                        hit_stl_y = pos->y.stl.num + 1;
+                        break;
+                    }
+                    case ANGLE_NORTHWEST:
+                    {
+                        hit_stl_x = pos->x.stl.num - 1;
+                        hit_stl_y = pos->y.stl.num - 1;
+                        break;
+                    }
+                    default:
+                    {
+                        ERRORLOG("Hit from subtile (%u, %u) diagonally, but angle was not diagonal: thing move angle was %d, and got a digging angle of %u.",
+                            shotng->mappos.x.stl.num, shotng->mappos.y.stl.num, shotng->move_angle_xy, angle);
+                        hit_stl_x = shotng->mappos.x.stl.num;
+                        hit_stl_y = shotng->mappos.y.stl.num;
+                        break;
+                    }
+                }
+                break;
+            }
+            default:
+            {
+                hit_stl_x = shotng->mappos.x.stl.num;
+                hit_stl_y = shotng->mappos.y.stl.num;
+                break;
+            }
+        }
     }
 
     // If blocked by a higher wall
     if ((blocked_flags & SlbBloF_WalledZ) != 0)
     {
         long cube_id = get_top_cube_at(pos->x.stl.num, pos->y.stl.num, NULL);
-        doortng = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
+        doortng = get_door_for_position(hit_stl_x, hit_stl_y);
         if (!thing_is_invalid(doortng))
         {
             efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_door.effect_model, shotst->hit_door.sndsample_idx, shotst->hit_door.sndsample_range);
@@ -542,7 +628,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
             range = shotst->hit_generic.sndsample_range;
             if (digging)
             {
-                slb = get_slabmap_for_subtile(stl_num_decode_x(hit_stl_num), stl_num_decode_y(hit_stl_num));
+                slb = get_slabmap_for_subtile(hit_stl_x, hit_stl_y);
                 if ((old_health > slb->health) || (slb->kind == SlbT_GEMS))
                 {
                     smpl_idx = shotst->dig.sndsample_idx;
@@ -573,7 +659,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                     if (dist <= 800) return detonate_shot(shotng, true);
                 }
             }
-            doortng = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
+            doortng = get_door_for_position(hit_stl_x, hit_stl_y);
             if (!thing_is_invalid(doortng))
             {
                 efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_door.effect_model, shotst->hit_door.sndsample_idx, shotst->hit_door.sndsample_range);
@@ -589,7 +675,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                 range = shotst->hit_generic.sndsample_range;
                 if (digging)
                 {
-                    slb = get_slabmap_for_subtile(stl_num_decode_x(hit_stl_num), stl_num_decode_y(hit_stl_num));
+                    slb = get_slabmap_for_subtile(hit_stl_x, hit_stl_y);
                     if ((old_health > slb->health) || (slb->kind == SlbT_GEMS))
                     {
                         smpl_idx = shotst->dig.sndsample_idx;
@@ -882,10 +968,7 @@ long get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target, 
 {
     if (NeverBlock)
         return shotng->shot.damage;
-
-    const struct CreatureStats* tgcrstat = creature_stats_get_from_thing(target);
-    const struct CreatureControl* tgcctrl = creature_control_get_from_thing(target);
-    long crdefense = compute_creature_max_defense(tgcrstat->defense, tgcctrl->explevel);
+    long crdefense = calculate_correct_creature_defense(target);
     long hitchance = ((long)shotng->shot.dexterity - crdefense) / 2;
     if (hitchance < -96)
     {
@@ -904,9 +987,7 @@ long get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target, 
 
 long project_damage_of_melee_shot(long shot_dexterity, long shot_damage, const struct Thing *target)
 {
-    const struct CreatureStats* tgcrstat = creature_stats_get_from_thing(target);
-    const struct CreatureControl* tgcctrl = creature_control_get_from_thing(target);
-    long crdefense = compute_creature_max_defense(tgcrstat->defense, tgcctrl->explevel);
+    long crdefense = calculate_correct_creature_defense(target);
     long hitchance = (shot_dexterity - crdefense) / 2;
     if (hitchance < -96) {
         hitchance = -96;

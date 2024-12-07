@@ -109,12 +109,12 @@ short update_memory_constraits(void)
   if (lbMemoryAvailable <= (8 * 1024 * 1024))
   {
       mem_size = 8;
-      WARNLOG("Very limited memory available: %d, PhysicalMemory %d\n", lbMemoryAvailable, mem_size);
+      WARNLOG("Very limited memory available: %lu, PhysicalMemory %lu\n", lbMemoryAvailable, mem_size);
   }
   else
   {
       mem_size = 64;
-      LbSyncLog("PhysicalMemory %d\n", mem_size);
+      LbSyncLog("PhysicalMemory %lu\n", mem_size);
   }
   return true;
 }
@@ -213,20 +213,10 @@ int LbMemoryReset(void)
     return 1;
 }
 
-unsigned char * LbMemoryAllocLow(ulong size)
+void * LbMemoryAlloc(ulong size)
 {
-//Simplified as we no longer need such memory routines
-unsigned char* ptr = (unsigned char*)malloc(size);
-if (ptr != NULL)
-    memset(ptr, 0, size);
-return ptr;
-}
-
-unsigned char * LbMemoryAlloc(ulong size)
-{
-    unsigned char* ptr = (unsigned char*)malloc(size);
-    if (ptr != NULL)
-      memset(ptr,0,size);
+    void * ptr = malloc(size);
+    if (ptr) memset(ptr, 0, size);
     return ptr;
 }
 

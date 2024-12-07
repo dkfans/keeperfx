@@ -22,6 +22,7 @@
 
 #include <io.h>
 #include <time.h>
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -88,22 +89,9 @@ typedef time_t TbTimeSec;
 typedef unsigned char TbChecksum;
 typedef unsigned long TbBigChecksum;
 typedef long Offset;
-typedef int TbFileHandle;
+typedef FILE * TbFileHandle;
 typedef unsigned char TbBool;
 typedef short TbScreenPos;
-
-struct TbFileFind {
-          char Filename[144];
-          char AlternateFilename[14];
-          unsigned long Attributes;
-          unsigned long Length;
-          struct TbDate CreationDate;
-          struct TbTime CreationTime;
-          struct TbDate LastWriteDate;
-          struct TbTime LastWriteTime;
-          unsigned long ReservedHandle;
-          struct _finddata_t Reserved;
-};
 
 #define LOG_PREFIX_LEN 32
 
@@ -146,22 +134,22 @@ void error(const char *codefile,const int ecode,const char *message);
 short warning_dialog(const char *codefile,const int ecode,const char *message);
 short error_dialog(const char *codefile,const int ecode,const char *message);
 short error_dialog_fatal(const char *codefile,const int ecode,const char *message);
-char *buf_sprintf(const char *format, ...);
+char *buf_sprintf(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
 /******************************************************************************/
-int LbErrorLog(const char *format, ...);
-int LbWarnLog(const char *format, ...);
-int LbSyncLog(const char *format, ...);
-int LbNetLog(const char *format, ...);
-int LbJustLog(const char *format, ...);
-int LbAiLog(const char *format, ...);
-int LbNaviLog(const char *format, ...);
-int Lbvsprintf(char* buffer, const char *format, ...);
+int LbErrorLog(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
+int LbWarnLog(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
+int LbSyncLog(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
+int LbNetLog(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
+int LbJustLog(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
+int LbAiLog(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
+int LbNaviLog(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
+int Lbvsprintf(char* buffer, const char *format, ...) __attribute__ ((format(printf, 2, 3)));
 #ifdef FUNCTESTING
-int LbFTestLog(const char *format, ...);
+int LbFTestLog(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
 #endif
-int LbScriptLog(unsigned long line,const char *format, ...);
-int LbConfigLog(unsigned long line,const char *format, ...);
-void LbPrint(const char *format, ...);
+int LbScriptLog(unsigned long line,const char *format, ...) __attribute__ ((format(printf, 2, 3)));
+int LbConfigLog(unsigned long line,const char *format, ...) __attribute__ ((format(printf, 2, 3)));
+void LbPrint(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
 
 int LbErrorLogSetup(const char *directory, const char *filename, TbBool flag);
 int LbErrorLogClose(void);
@@ -169,7 +157,7 @@ int LbErrorLogClose(void);
 int LbLogClose(struct TbLog *log);
 int LbLogSetup(struct TbLog *log, const char *filename, ulong flags);
 int LbLogSetPrefix(struct TbLog *log, const char *prefix);
-int LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...);
+int LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...) __attribute__ ((format(printf, 2, 3)));
 
 void LbCloseLog();
 /******************************************************************************/

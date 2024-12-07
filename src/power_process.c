@@ -72,7 +72,7 @@ void set_chosen_power(PowerKind pwkind, TextStringId sptooltip)
     const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
     if (power_model_stats_invalid(powerst))
       pwkind = 0;
-    SYNCDBG(6,"Setting to %ld",pwkind);
+    SYNCDBG(6,"Setting to %u",pwkind);
     game.chosen_spell_type = pwkind;
     game.chosen_spell_spridx = powerst->bigsym_sprite_idx;
     game.chosen_spell_tooltip = sptooltip;
@@ -333,7 +333,7 @@ void god_lightning_choose_next_creature(struct Thing *shotng)
         i = thing->next_of_class;
         // Per-thing code
         //TODO use hit_type instead of hard coded conditions
-        if ((shotng->owner != thing->owner) && !thing_is_picked_up(thing)
+        if (!players_are_mutual_allies(shotng->owner,thing->owner) && !thing_is_picked_up(thing)
             && !creature_is_being_unconscious(thing) && !creature_is_dying(thing))
         {
             long dist = get_2d_distance(&shotng->mappos, &thing->mappos);

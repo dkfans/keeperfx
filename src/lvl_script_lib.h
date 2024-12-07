@@ -187,7 +187,8 @@ enum TbScriptCommands {
     Cmd_CHANGE_SLAB_TEXTURE                = 174,
     Cmd_MOVE_PLAYER_CAMERA_TO              = 175,
     Cmd_ADD_OBJECT_TO_LEVEL_AT_POS         = 176,
-    Cmd_SET_DIGGER                 = 177,
+    Cmd_PLACE_DOOR                         = 177,
+    Cmd_SET_DIGGER                         = 178,
 };
 
 struct ScriptLine {

@@ -97,6 +97,7 @@ const struct NamedCommand creaturetype_instance_commands[] = {
   {"ValidateSourceFunc",   18},
   {"ValidateTargetFunc",   19},
   {"SearchTargetsFunc",    20},
+  {"PostalPriority",       21},
   {NULL,              0},
   };
 
@@ -108,7 +109,6 @@ const struct NamedCommand creaturetype_instance_properties[] = {
   {"SELF_BUFF",            InstPF_SelfBuff},
   {"DANGEROUS",            InstPF_Dangerous},
   {"DESTRUCTIVE",          InstPF_Destructive},
-  {"QUICK",                InstPF_Quick},
   {"DISARMING",            InstPF_Disarming},
   {"DISPLAY_SWIPE",        InstPF_UsesSwipe},
   {"RANGED_BUFF",          InstPF_RangedBuff},
@@ -169,30 +169,32 @@ const struct NamedCommand creaturetype_attackpref_commands[] = {
   };
 
 const struct NamedCommand creature_graphics_desc[] = {
-  {"STAND",             1+CGI_Stand},
-  {"AMBULATE",          1+CGI_Ambulate},
-  {"DRAG",              1+CGI_Drag},
-  {"ATTACK",            1+CGI_Attack},
-  {"DIG",               1+CGI_Dig},
-  {"SMOKE",             1+CGI_Smoke},
-  {"RELAX",             1+CGI_Relax},
-  {"PRETTYDANCE",       1+CGI_PrettyDance},
-  {"GOTHIT",            1+CGI_GotHit},
-  {"POWERGRAB",         1+CGI_PowerGrab},
-  {"GOTSLAPPED",        1+CGI_GotSlapped},
-  {"CELEBRATE",         1+CGI_Celebrate},
-  {"SLEEP",             1+CGI_Sleep},
-  {"EATCHICKEN",        1+CGI_EatChicken},
-  {"TORTURE",           1+CGI_Torture},
-  {"SCREAM",            1+CGI_Scream},
-  {"DROPDEAD",          1+CGI_DropDead},
-  {"DEADSPLAT",         1+CGI_DeadSplat},
-// These below seems to be not from JTY file
-  {"GFX18",             1+CGI_GFX18},
-  {"QUERYSYMBOL",       1+CGI_QuerySymbol},
-  {"HANDSYMBOL",        1+CGI_HandSymbol},
-  {"GFX21",             1+CGI_GFX21},
-  {NULL,                 0},
+  {"STAND",             1+CGI_Stand       },
+  {"AMBULATE",          1+CGI_Ambulate    },
+  {"DRAG",              1+CGI_Drag        },
+  {"ATTACK",            1+CGI_Attack      },
+  {"DIG",               1+CGI_Dig         },
+  {"SMOKE",             1+CGI_Smoke       },
+  {"RELAX",             1+CGI_Relax       },
+  {"PRETTYDANCE",       1+CGI_PrettyDance },
+  {"GOTHIT",            1+CGI_GotHit      },
+  {"POWERGRAB",         1+CGI_PowerGrab   },
+  {"GOTSLAPPED",        1+CGI_GotSlapped  },
+  {"CELEBRATE",         1+CGI_Celebrate   },
+  {"SLEEP",             1+CGI_Sleep       },
+  {"EATCHICKEN",        1+CGI_EatChicken  },
+  {"TORTURE",           1+CGI_Torture     },
+  {"SCREAM",            1+CGI_Scream      },
+  {"DROPDEAD",          1+CGI_DropDead    },
+  {"DEADSPLAT",         1+CGI_DeadSplat   },
+  {"ROAR",              1+CGI_Roar        }, // Was previously GFX18.
+  {"QUERYSYMBOL",       1+CGI_QuerySymbol }, // Icon
+  {"HANDSYMBOL",        1+CGI_HandSymbol  }, // Icon
+  {"PISS",              1+CGI_Piss        }, // Was previously GFX21.
+  {"CASTSPELL",         1+CGI_CastSpell   },
+  {"RANGEDATTACK",      1+CGI_RangedAttack},
+  {"CUSTOM",            1+CGI_Custom      },
+  {NULL,                                 0},
   };
 
 const struct NamedCommand instance_range_desc[] = {
@@ -371,6 +373,17 @@ void check_and_auto_fix_stats(void)
         }
     }
     SYNCDBG(9,"Finished");
+}
+
+void init_creature_model_graphics(void)
+{
+    for (int i = 0; i < CREATURE_TYPES_MAX; i++)
+    {
+        for (int k = 0; k < CREATURE_GRAPHICS_INSTANCES; k++)
+        {
+            game.conf.crtr_conf.creature_graphics[i][k] = -1;
+        }
+    }
 }
 
 TbBool is_creature_model_wildcard(ThingModel crmodel)
@@ -839,6 +852,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             inst_inf->validate_target_func = 0;
             inst_inf->validate_target_func_params[0] = 0;
             inst_inf->validate_target_func_params[1] = 0;
+            inst_inf->postal_priority = 0;
         }
     }
     instance_desc[INSTANCE_TYPES_MAX - 1].name = NULL; // must be null for get_id
@@ -1208,6 +1222,19 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                     inst_inf->search_func_params[1] = k;
                     n++;
                 }
+            }
+            break;
+        case 21: // Postal Instance priority
+        if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                inst_inf->postal_priority = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
         case ccr_comment:
@@ -1691,6 +1718,7 @@ TbBool load_creaturetypes_config_file(const char *textname, const char *fname, u
                 game.conf.magic_conf.instance_info[i].reset_time = 0;
                 game.conf.magic_conf.instance_info[i].fp_reset_time = 0;
                 game.conf.magic_conf.instance_info[i].graphics_idx = 0;
+                game.conf.magic_conf.instance_info[i].postal_priority = 0;
                 game.conf.magic_conf.instance_info[i].instance_property_flags = 0;
                 game.conf.magic_conf.instance_info[i].force_visibility = 0;
                 game.conf.magic_conf.instance_info[i].primary_target = 0;
@@ -1812,7 +1840,7 @@ TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, long
         return false;
     }
     if ((crtr_model < 1) || (crtr_model >= game.conf.crtr_conf.model_count)) {
-        ERRORDBG(4,"Cannot set creature availability; invalid model %d.",(int)plyr_idx,(int)crtr_model);
+        ERRORDBG(4,"Cannot set creature availability; player %d, invalid model %d.",(int)plyr_idx,(int)crtr_model);
         return false;
     }
     if (force_avail < 0)
@@ -2013,12 +2041,12 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
     struct Room* room = get_room_thing_is_on(creatng);
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     RoomKind rkind;
-    if (!room_is_invalid(room)) 
+    if (!room_is_invalid(room))
     {
         required_kind_flags |= JoKF_AssignAreaWithinRoom;
         rkind = room->kind;
-    } 
-    else 
+    }
+    else
     {
         required_kind_flags |= JoKF_AssignAreaOutsideRoom;
         rkind = RoK_NONE;
@@ -2043,8 +2071,8 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
                     return jobpref;
                 }
             }
-        } 
-        else 
+        }
+        else
         {
             required_kind_flags |= JoKF_OwnedCreatures;
         }
@@ -2076,7 +2104,7 @@ CreatureJob get_job_for_room_role(RoomRole rrole, unsigned long required_kind_fl
         struct CreatureJobConfig* jobcfg = &game.conf.crtr_conf.jobs[i];
         if ((jobcfg->job_flags & required_kind_flags) == required_kind_flags)
         {
-            CreatureJob new_job = 1 << (i - 1);
+            CreatureJob new_job = 1ULL << (i - 1);
             if (((jobcfg->job_flags & JoKF_NeedsHaveJob) == 0) || ((has_jobs & new_job) != 0))
             {
                 if (((jobcfg->room_role & rrole) != 0) || ((jobcfg->job_flags & JoKF_AssignAreaOutsideRoom) != 0)) {
@@ -2123,7 +2151,7 @@ CreatureJob get_job_which_qualify_for_room_role(RoomRole rrole, unsigned long qu
             if ((jobcfg->job_flags & prevent_flags) == 0)
             {
                 if ((jobcfg->room_role & rrole) != 0) {
-                    return 1<<(i-1);
+                    return 1ULL << (i-1);
                 }
             }
         }
@@ -2160,7 +2188,7 @@ CreatureJob get_jobs_enemies_may_do_in_room_role(RoomRole rrole)
             // Check whether enemies can do this job
             if ((jobcfg->job_flags & (JoKF_EnemyCreatures|JoKF_EnemyDiggers)) != 0)
             {
-                jobpref |= 1<<(i-1);
+                jobpref |= 1ULL << (i-1);
             }
         }
     }
@@ -2271,7 +2299,7 @@ CreatureJob get_job_for_creature_state(CrtrStateId crstat_id)
         //TODO CREATURE_JOBS Add other job-related states here
         if ((jobcfg->initial_crstate == crstat_id)
          || (jobcfg->continue_crstate == crstat_id)) {
-            return 1<<(i-1);
+            return 1ULL << (i-1);
         }
     }
     // Some additional hacks

@@ -102,8 +102,18 @@ void multiply_creatures_in_dungeon_list(struct Dungeon *dungeon, long list_start
             k++;
             continue;
         }
+        struct CreatureControl* newcctrl = creature_control_get_from_thing(tncopy);
         set_creature_level(tncopy, cctrl->explevel);
         tncopy->health = thing->health;
+        newcctrl->exp_points = cctrl->exp_points;
+        newcctrl->blood_type = cctrl->blood_type;
+        newcctrl->hunger_level = cctrl->hunger_level;
+        newcctrl->paydays_owed = cctrl->paydays_owed;
+        newcctrl->paydays_advanced = cctrl->paydays_advanced;
+        for (unsigned char al = 0; al < AngR_ListEnd; al++)
+        {
+            newcctrl->annoyance_level[al] = cctrl->annoyance_level[al];
+        }
         // Thing list loop body ends
         k++;
         if (k > CREATURES_COUNT)
@@ -188,13 +198,11 @@ void increase_level(struct PlayerInfo *player, int count)
         }
         level_up_familiar(famlrtng);
         i++;
-    }    
+    }
 }
 
 TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
 {
-    // TODO CONFIG creature models dependency put them in config files.
-    static ThingModel prefer_steal_models[] = {3, 12}; // 3 = ARCHER, 12 = THIEF.
     struct Thing* herotng = INVALID_THING;
     int heronum;
     ThingIndex tng_idx;
@@ -203,7 +211,7 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
     for (size_t j = 0; j < PLAYERS_COUNT; j++)
     {
         PlayerNumber roam_plr_idx = (j + rand_offset) % PLAYERS_COUNT;
-        if(!player_is_roaming(roam_plr_idx))
+        if ((!player_is_roaming(roam_plr_idx)) || (!players_are_enemies(player->id_number, roam_plr_idx)))
             continue;
         struct Dungeon* herodngn = get_players_num_dungeon(roam_plr_idx);
         unsigned long k = 0;
@@ -262,8 +270,13 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
             SYNCDBG(7, "Failed to generate a stolen hero due to map creature limit");
             return false;
         }
-        unsigned char steal_idx = GAME_RANDOM(sizeof(prefer_steal_models)/sizeof(prefer_steal_models[0]));
-        struct Thing* creatng = create_creature(pos, prefer_steal_models[steal_idx], player->id_number);
+        ThingModel crkind = get_random_creature_kind_with_model_flags(CMF_PreferSteal);
+        if (crkind == -1)
+        {
+            SYNCDBG(7, "Failed to generate a stolen hero due to lack of model with the property");
+            return false;
+        }
+        struct Thing* creatng = create_creature(pos, crkind, player->id_number);
         if (thing_is_invalid(creatng))
             return false;
         SYNCDBG(3, "Created %s owner %d", thing_model_name(creatng), (int)player->id_number);
@@ -425,7 +438,7 @@ void make_unsafe(PlayerNumber plyr_idx)
             if (slabmap_owner(slb) == plyr_idx)
             {
                 slbattr = get_slab_attrs(slb);
-                if ((slbattr->category == SlbAtCtg_FortifiedWall))
+                if (slbattr->category == SlbAtCtg_FortifiedWall)
                 {
                     SlabKind newslab = choose_rock_type(plyr_idx, slb_x, slb_y);
                     dungeon = get_dungeon(plyr_idx);
@@ -546,7 +559,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
             {
                 if (gameadd.current_player_turn == game.play_gameturn)
                 {
-                    WARNLOG("box activation rejected turn:%d", gameadd.current_player_turn);
+                    WARNLOG("box activation rejected turn:%lu", gameadd.current_player_turn);
                     // If two players suddenly activated box at same turn it is not that we want to
                     return;
                 }

@@ -25,7 +25,7 @@
 #include "bflib_planar.h"
 #include "bflib_vidraw.h"
 #include "bflib_sound.h"
-
+#include "custom_sprites.h"
 #include "magic.h"
 #include "power_specials.h"
 #include "power_process.h"
@@ -60,6 +60,7 @@
 #include "sounds.h"
 #include "game_legacy.h"
 #include "sprites.h"
+#include "frontmenu_ingame_tabs.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -546,8 +547,7 @@ void draw_power_hand(void)
     // Scale factor
     int ps_units_per_px;
     {
-        struct TbSprite *spr;
-        spr = &gui_panel_sprites[GPS_trapdoor_bonus_box_std_s]; // Use dungeon special box as reference
+        const struct TbSprite *spr = get_panel_sprite(GPS_trapdoor_bonus_box_std_s); // Use dungeon special box as reference
         ps_units_per_px = calculate_relative_upp(46, units_per_pixel_ui, spr->SHeight);
     }
     // Now draw
@@ -891,7 +891,7 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     {
         if (external_set_thing_state(creatng, CrSt_CreatureBeHappy)) {
             cctrl = creature_control_get_from_thing(creatng);
-            cctrl->countdown_282 = 50;
+            cctrl->countdown = 50;
         }
     }
     return 1;
@@ -1127,14 +1127,15 @@ void draw_mini_things_in_hand(long x, long y)
     // Scale factor
     int ps_units_per_px;
     {
-        struct TbSprite *spr = &gui_panel_sprites[GPS_trapdoor_bonus_box_std_s]; // Use dungeon special box as reference
+        const struct TbSprite *spr = get_panel_sprite(GPS_trapdoor_bonus_box_std_s); // Use dungeon special box as reference
         ps_units_per_px = calculate_relative_upp(46, units_per_pixel_ui, spr->SHeight);
     }
     unsigned long spr_idx = get_creature_model_graphics(get_players_special_digger_model(dungeon->owner), CGI_HandSymbol);
-    if ((spr_idx > 0) && (spr_idx < GUI_PANEL_SPRITES_COUNT))
-        i = gui_panel_sprites[spr_idx].SWidth - button_sprite[GBS_creature_flower_level_01].SWidth;
-    else
+    if ((spr_idx > 0) && (spr_idx < GUI_PANEL_SPRITES_COUNT)) {
+        i = get_panel_sprite(spr_idx)->SWidth - get_button_sprite(GBS_creature_flower_level_01)->SWidth;
+    } else {
         i = 0;
+    }
     long scrbase_x = x;
     long scrbase_y = y - scale_ui_value(58);
     expshift_x = scale_ui_value(abs(i)) / 2;
@@ -1169,13 +1170,55 @@ void draw_mini_things_in_hand(long x, long y)
                 scrpos_y = scrbase_y + scale_ui_value(18) * irow;
                 // Draw creature symbol
                 draw_gui_panel_sprite_left(scrpos_x, scrpos_y, ps_units_per_px, spr_idx);
+                char ownshift_y;
                 if (MyScreenHeight < 400)
                 {
-                    char expshift_y = (irow == 1) ? 32 : -6;                   
+                    char expshift_y = (irow > 0) ? 32 : -6;
                     draw_button_sprite_left(scrpos_x, scrpos_y + scale_ui_value(expshift_y), ps_units_per_px, expspr_idx);
+                    if (thing->owner != my_player_number)
+                    {
+                        ownshift_y = (irow == 0) ? 1 : 56;
+                        LbDrawCircle(scrpos_x + scale_ui_value(16), scrpos_y + scale_ui_value(ownshift_y), ps_units_per_px / 16, player_path_colours[thing->owner]);
+                    }
                 }
                 else
                 {
+                    ownshift_y = (irow > 0) ? 44 : 10;
+                    if (thing->owner != my_player_number)
+                    {
+                        long relative_window_a = lbDisplay.GraphicsScreenWidth;
+                        long relative_window_b = lbDisplay.GraphicsScreenHeight;
+                        short n = min(scale_ui_value(1),4);
+                        ScreenCoord coord_y = scrpos_y + scale_ui_value(ownshift_y);
+                        ScreenCoord draw_y;
+                        ScreenCoord draw_x;
+                        for (int p = 0; p < (n*n); p++)
+                        {
+                            draw_y = coord_y + draw_square[p].delta_y;
+                            if (draw_y >= 0)
+                            {
+                                draw_x = scrpos_x + ((expshift_x * 3)) + draw_square[p].delta_x;
+                                // Draw the pixel if it's within the bounds of the window
+                                if ((draw_x >= 0) && (draw_x < relative_window_a) && (draw_y < relative_window_b))
+                                {
+                                    LbDrawPixel(draw_x, draw_y, player_flash_colours[thing->owner]);
+                                }
+                            }
+                        }
+                        for (int p = (n * n); p < (n * n)+(4 * n + 4); p++)
+                        {
+                            draw_y = coord_y + draw_square[p].delta_y;
+                            if (draw_y >= 0)
+                            {
+                                draw_x = scrpos_x + ((expshift_x * 3)) + draw_square[p].delta_x;
+                                // Draw the pixel if it's within the bounds of the window
+                                if ((draw_x >= 0) && (draw_x < relative_window_a) && (draw_y < relative_window_b))
+                                {
+                                    LbDrawPixel(draw_x, draw_y, player_path_colours[thing->owner]);
+                                }
+                            }
+                        }
+                    }
                     // Draw exp level
                     draw_button_sprite_left(scrpos_x + expshift_x, scrpos_y + scale_ui_value(shift_y), ps_units_per_px, expspr_idx);
                 }
@@ -1278,7 +1321,7 @@ long prepare_thing_for_power_hand(unsigned short tng_idx, PlayerNumber plyr_idx)
 void add_creature_to_sacrifice_list(PlayerNumber plyr_idx, long model, long explevel)
 {
   struct Dungeon *dungeon;
-  SYNCLOG("Player %d sacrificed %s exp level %d",(int)plyr_idx,thing_class_and_model_name(TCls_Creature, model),explevel);
+  SYNCLOG("Player %d sacrificed %s exp level %ld",(int)plyr_idx,thing_class_and_model_name(TCls_Creature, model),explevel);
   if ((plyr_idx < 0) || (plyr_idx >= DUNGEONS_COUNT))
   {
     ERRORLOG("Player %d cannot sacrifice %s",(int)plyr_idx,thing_class_and_model_name(TCls_Creature, model));
@@ -1319,7 +1362,7 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
         if (creature_affected_by_spell(thing, SplK_Chicken))
             i = convert_td_iso(122);
         else
-            i = get_creature_anim(thing, 9);
+            i = get_creature_anim(thing, CGI_PowerGrab);
         set_thing_draw(thing, i, 256, -1, -1, 0, ODC_Default);
     } else
     if (thing_is_object(thing))

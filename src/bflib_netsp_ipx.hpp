@@ -30,20 +30,20 @@
 class IPXServiceProvider : public ServiceProvider {
 public:
   IPXServiceProvider();
-  virtual ~IPXServiceProvider();
-  virtual TbError Start(struct TbNetworkSessionNameEntry *, char *, void *);
-  virtual TbError Start(char *, char *, unsigned long, void *);
-  virtual TbError Stop(void);
-  virtual TbError Enumerate(TbNetworkCallbackFunc, void *);
-  virtual TbError Enumerate(struct TbNetworkSessionNameEntry *, TbNetworkCallbackFunc, void *);
-  virtual TbError Init(struct ReceiveCallbacks *, void *);
-  virtual TbError Release(void);
-  virtual TbError ChangeSettings(unsigned long, void *);
-  virtual TbError EnableNewPlayers(TbBool allow);
-  virtual bool ReadMessage(unsigned long *, void *, unsigned long *);
-  virtual bool PeekMessage(unsigned long *, void *, unsigned long *);
-  virtual TbError SendMessage(unsigned long, void *, unsigned char);
-  virtual void update();
+  virtual ~IPXServiceProvider() override;
+  virtual TbError Start(struct TbNetworkSessionNameEntry *, char *, void *) override;
+  virtual TbError Start(char *, char *, unsigned long, void *) override;
+  virtual TbError Stop(void) override;
+  virtual TbError Enumerate(TbNetworkCallbackFunc, void *) override;
+  virtual TbError Enumerate(struct TbNetworkSessionNameEntry *, TbNetworkCallbackFunc, void *) override;
+  virtual TbError Init(struct ReceiveCallbacks *, void *) override;
+  virtual TbError Release(void) override;
+  virtual TbError ChangeSettings(unsigned long, void *) override;
+  virtual TbError EnableNewPlayers(TbBool allow) override;
+  virtual bool ReadMessage(unsigned long *, void *, unsigned long *) override;
+  virtual bool PeekMessage(unsigned long *, void *, unsigned long *) override;
+  virtual TbError SendMessage(unsigned long, void *, unsigned char) override;
+  virtual void update() override;
 };
 
 /******************************************************************************/

@@ -819,7 +819,8 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
         long deviation_mag = EFFECT_RANDOM(thing, thing->effect_generator.range + 1);
         struct Coord3d pos;
         set_coords_to_cylindric_shift(&pos, &thing->mappos, deviation_mag, deviation_angle, 0);
-        SYNCDBG(18,"The %s creates effect %d/%d at (%d,%d,%d)",thing_model_name(thing),(int)pos.x.val,(int)pos.y.val,(int)pos.z.val);
+        SYNCDBG(18,"The %s creates effect at (%d,%d,%d)",
+            thing_model_name(thing),(int)pos.x.val,(int)pos.y.val,(int)pos.z.val);
         struct Thing* elemtng = create_used_effect_or_element(&pos, egenstat->effect_model , thing->owner);
         TRACE_THING(elemtng);
         if (thing_is_invalid(elemtng))
@@ -972,16 +973,20 @@ TbBool destroy_effect_thing(struct Thing *efftng)
  * @param tngdst The thing being affected by the effect.
  * @param pos Position of the effect epicenter.
  * @param max_dist Max distance at which creatures are affected, in map coordinates.
- * @param max_damage Damage at epicenter of the explosion.
- * @param blow_strength The strength of hitwave blowing creatures out of affected area.
- * @param damage_type Type of the damage inflicted.
+ * @param shotst the shot stats used to determine damage and shot properties.
  * @param owner The owner of the explosion.
  * @return Gives true if the target thing was affected by the spell, false otherwise.
  * @note If the function returns true, the effect might have caused death of the target.
  */
 TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
-    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner, unsigned long shot_model_flags)
+    MapCoordDelta max_dist, struct ShotConfigStats* shotst)
 {
+    HitPoints max_damage = shotst->area_damage;
+    long blow_strength = shotst->area_blow;
+    DamageType damage_type = shotst->damage_type;
+    unsigned long shot_model_flags = shotst->model_flags;
+    PlayerNumber owner = tngsrc->owner;
+
     if (thing_is_deployed_door(tngdst))
     {
         return explosion_affecting_door(tngsrc, tngdst, pos, max_dist, max_damage, blow_strength, damage_type, owner);
@@ -1000,6 +1005,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
         {
             if (tngdst->class_id == TCls_Creature)
             {
+                struct Thing* origtng = thing_get(tngsrc->parent_idx); //parent of the tngsrc(shot) is the shooting creature.
                 if (max_damage > 0)
                 {
                     HitPoints damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
@@ -1007,13 +1013,29 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, owner);
                 }
                 affected = true;
+                if (shotst->cast_spell_kind != 0)
+                {
+                    unsigned char spell_level;
+                    struct CreatureControl* cctrl = creature_control_get_from_thing(tngdst);
+                    struct CreatureControl* scctrl = creature_control_get_from_thing(origtng);
+                    if (!creature_control_invalid(scctrl)) {
+                        spell_level = scctrl->explevel;
+                    }
+                    else {
+                        spell_level = 0;
+                    }
+                    if (shotst->cast_spell_kind == SplK_Disease)
+                    {
+                        cctrl->disease_caster_plyridx = tngsrc->owner;
+                    }
+                    apply_spell_effect_to_thing(tngdst, shotst->cast_spell_kind, spell_level);
+                }
                 if (tngdst->health < 0)
                 {
-                    struct Thing *origtng = thing_get(tngsrc->parent_idx); //parent of the tngsrc(shot) is the shooting creature.
                     struct CreatureBattle* battle = creature_battle_get_from_thing(origtng);
                     CrDeathFlags dieflags = (!creature_battle_invalid(battle)) ? CrDed_DiedInBattle : CrDed_Default;
                     // Explosions kill rather than only stun friendly creatures when imprison is on
-                    if ((players_creatures_tolerate_each_other(tngsrc->owner,tngdst->owner) &! (game.conf.rules.game.classic_bugs_flags & ClscBug_FriendlyFaint)) || (shot_model_flags & ShMF_NoStun) )
+                    if ((players_creatures_tolerate_each_other(tngsrc->owner,tngdst->owner) && !flag_is_set(game.conf.rules.game.classic_bugs_flags,ClscBug_FriendlyFaint)) || (flag_is_set(shot_model_flags,ShMF_NoStun)) )
                     {
                         dieflags |= CrDed_NoUnconscious;
                     }
@@ -1112,11 +1134,10 @@ TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, cons
  * @param mapblk Map block on which all targets are to be affected by the spell.
  * @param max_dist Range of the spell on map, used to compute damage decaying with distance; in map coordinates.
  * @param max_damage Damage at epicenter of the explosion.
- * @param blow_strength The strength of hitwave blowing creatures out of affected area.
- * @param damage_type Type of the damage inflicted.
+ * @param shotst the shot information used to determine damage, bow and spell effects
  */
 long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tngsrc, struct Map *mapblk,
-    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, unsigned long shot_model_flags)
+    MapCoordDelta max_dist, struct ShotConfigStats* shotst)
 {
     PlayerNumber owner;
     if (!thing_is_invalid(tngsrc))
@@ -1139,14 +1160,14 @@ long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tn
         // Per thing processing block
         if ((thing->class_id == TCls_Door) && (efftng->shot_effect.hit_type != THit_CrtrsOnlyNotOwn)) //TODO: Find pretty way to say that WoP traps should not destroy doors. And make it configurable through configs.
         {
-            if (explosion_affecting_door(tngsrc, thing, &efftng->mappos, max_dist, max_damage, blow_strength, damage_type, owner))
+            if (explosion_affecting_door(tngsrc, thing, &efftng->mappos, max_dist, shotst->area_damage, shotst->area_blow, shotst->damage_type, owner))
             {
                 num_affected++;
             }
         } else
         if (effect_can_affect_thing(efftng, thing))
         {
-            if (explosion_affecting_thing(tngsrc, thing, &efftng->mappos, max_dist, max_damage, blow_strength, damage_type, owner, shot_model_flags))
+            if (explosion_affecting_thing(tngsrc, thing, &efftng->mappos, max_dist, shotst))
             {
                 num_affected++;
             }
@@ -1233,8 +1254,7 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *tngsrc, st
         for (long stl_x = stl_xmin; stl_x <= stl_xmax; stl_x++)
         {
             struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-            explosion_effect_affecting_map_block(efftng, tngsrc, mapblk, max_dist,
-                shotst->area_damage, shotst->area_blow, shotst->damage_type, shotst->model_flags);
+            explosion_effect_affecting_map_block(efftng, tngsrc, mapblk, max_dist, shotst);
         }
     }
 }
@@ -1297,7 +1317,7 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
         if (area_effect_can_affect_thing(thing, hit_targets, owner))
         {
             struct ShotConfigStats* shotst = get_shot_model_stats(tngsrc->model);
-            if (explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, damage_type, owner, shotst->model_flags))
+            if (explosion_affecting_thing(tngsrc, thing, pos, max_dist, shotst))
                 num_affected++;
         }
         // Per thing processing block ends

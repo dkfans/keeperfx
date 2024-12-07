@@ -199,8 +199,8 @@ int LbSpriteDrawScaledRemap(long xpos, long ypos, const struct TbSprite *sprite,
 
 TbResult LbHugeSpriteDraw(const struct TbHugeSprite * spr, long sp_len,
     unsigned char *r, int r_row_delta, int r_height, short xshift, short yshift, int units_per_px);
-void LbTiledSpriteDraw(long x, long y, long units_per_px, struct TiledSprite *bigspr, struct TbSprite *sprite);
-int LbTiledSpriteHeight(struct TiledSprite *bigspr, struct TbSprite *sprite);
+void LbTiledSpriteDraw(long x, long y, long units_per_px, struct TiledSprite *bigspr);
+int LbTiledSpriteHeight(struct TiledSprite *bigspr);
 
 /******************************************************************************/
 #ifdef __cplusplus
