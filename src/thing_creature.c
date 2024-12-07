@@ -1219,22 +1219,23 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         cctrl->countdown = 10;
         break;
     case SplK_Light:
-    crstat = creature_stats_get(thing->model);
-    if (!crstat->illuminated)
-    {
-        if (thing->light_id != 0)
+        crstat = creature_stats_get(thing->model);
+        if (!crstat->illuminated)
         {
-            cctrl->spell_flags &= ~CSAfF_Light;
-            if ((thing->rendering_flags & TRF_Invisible) != 0)
+            if (thing->light_id != 0)
             {
-                light_set_light_intensity(thing->light_id, (light_get_light_intensity(thing->light_id) - 20));
-                struct Light* lgt = &game.lish.lights[thing->light_id];
-                lgt->radius = 2560;
-            }
-            else
-            {
-                light_delete_light(thing->light_id);
-                thing->light_id = 0;
+                cctrl->spell_flags &= ~CSAfF_Light;
+                if (flag_is_set(thing->rendering_flags,TRF_Invisible))
+                {
+                    light_set_light_intensity(thing->light_id, (light_get_light_intensity(thing->light_id) - 20));
+                    struct Light* lgt = &game.lish.lights[thing->light_id];
+                    lgt->radius = 2560;
+                }
+                else
+                {
+                    light_delete_light(thing->light_id);
+                    thing->light_id = 0;
+                }
             }
         }
         break;
