@@ -951,6 +951,16 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                 cctrl->spell_aura_duration = spconf->duration;
             }
         }
+    } else 
+    if (spconf->spell_flags == CSAfF_Fear)
+    {
+        if (external_set_thing_state(thing, CrSt_CreatureCombatFlee))
+        {
+            cctrl->flee_start_turn = game.play_gameturn;
+            fill_spell_slot(thing, i, spell_idx, duration);
+            cctrl->spell_flags |= spconf->spell_flags;
+        }
+    }
     else
     if (spconf->spell_flags == CSAfF_Chicken)
     {
@@ -1239,7 +1249,9 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
             }
         }
         break;
-    }
+    case SplK_Fear:
+        cctrl->spell_flags &= ~CSAfF_Fear;
+        break;
     }
     if (slot_idx >= 0) {
         free_spell_slot(thing, slot_idx);
@@ -5952,7 +5964,7 @@ TngUpdateRet update_creature(struct Thing *thing)
         process_creature_instance(thing);
     }
     update_creature_count(thing);
-    if ((thing->alloc_flags & TAlF_IsControlled) != 0)
+    if (flag_is_set(thing->alloc_flags,TAlF_IsControlled))
     {
         if ((cctrl->stateblock_flags == 0) || creature_state_cannot_be_blocked(thing))
         {

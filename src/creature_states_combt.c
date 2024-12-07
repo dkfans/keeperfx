@@ -1323,6 +1323,10 @@ short creature_combat_flee(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     GameTurnDelta turns_in_flee = game.play_gameturn - (GameTurnDelta)cctrl->flee_start_turn;
+    if (cctrl->flee_start_turn == 0)
+    {
+        turns_in_flee = 0;
+    }
     if (get_chessboard_distance(&creatng->mappos, &cctrl->flee_pos) >= coord_slab(2))
     {
         SYNCDBG(8,"Starting distant flee for %s index %d",thing_model_name(creatng),(int)creatng->index);
