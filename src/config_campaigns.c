@@ -223,6 +223,7 @@ TbBool clear_campaign(struct GameCampaign *campgn)
   campgn->human_player = -1;
   campgn->assignCpuKeepers = 0;
   LbMemorySet(campgn->soundtrack_fname,0,DISKPATH_SIZE);
+  campgn->music_track = 0;
   return true;
 }
 
