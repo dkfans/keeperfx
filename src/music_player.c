@@ -21,7 +21,7 @@
 
 #include "globals.h"
 #include "bflib_sndlib.h"
-
+#include "console_cmd.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "config.h"
@@ -199,6 +199,39 @@ void free_custom_music()
         }
     }
     game.last_audiotrack = max_track;
+}
+
+TbBool load_campaign_soundtrack(struct GameCampaign *campgn)
+{
+    if (tracks[CAMPAIGN_LANDMAP_TRACK] != NULL)
+    {
+        Mix_FreeMusic(tracks[CAMPAIGN_LANDMAP_TRACK]);
+        tracks[CAMPAIGN_LANDMAP_TRACK] = NULL;
+    }
+    if (campgn->soundtrack_fname[0] != '\0')
+    {
+        if (parameter_is_number(campgn->soundtrack_fname))
+        {
+            campgn->music_track = atoi(campgn->soundtrack_fname);
+        }
+        else
+        {
+            const char* fname = prepare_file_fmtpath(FGrp_CmpgMedia, campgn->soundtrack_fname);
+            tracks[CAMPAIGN_LANDMAP_TRACK] = Mix_LoadMUS(fname);
+            campgn->music_track = CAMPAIGN_LANDMAP_TRACK; // We want this here, so there's no music if there's an error
+            if (tracks[CAMPAIGN_LANDMAP_TRACK] == NULL)
+            {
+                WARNLOG("Can't load track %s: %s", campgn->soundtrack_fname, Mix_GetError());
+                return false;
+            }
+            SYNCLOG("Loaded track %s", fname);
+        }
+    }
+    else
+    {
+        campgn->music_track = 2;
+    }
+    return true;
 }
 
 /******************************************************************************/
