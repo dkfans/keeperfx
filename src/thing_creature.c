@@ -679,29 +679,29 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
     switch (spkind)
     {
     case SplK_Freeze:
-        return ((cctrl->stateblock_flags & CCSpl_Freeze) != 0);
+        return (flag_is_set(cctrl->stateblock_flags,CCSpl_Freeze));
     case SplK_Armour:
-        return ((cctrl->spell_flags & CSAfF_Armour) != 0);
+        return (flag_is_set(cctrl->spell_flags,CSAfF_Armour));
     case SplK_Rebound:
-        return ((cctrl->spell_flags & CSAfF_Rebound) != 0);
+        return (flag_is_set(cctrl->spell_flags,CSAfF_Rebound));
     case SplK_Invisibility:
-        return ((cctrl->spell_flags & CSAfF_Invisibility) != 0);
+        return (flag_is_set(cctrl->spell_flags,CSAfF_Invisibility));
     case SplK_Teleport:
-        return ((cctrl->stateblock_flags & CCSpl_Teleport) != 0);
+        return (flag_is_set(cctrl->stateblock_flags,CCSpl_Teleport));
     case SplK_Speed:
-        return ((cctrl->spell_flags & CSAfF_Speed) != 0);
+        return (flag_is_set(cctrl->spell_flags,CSAfF_Speed));
     case SplK_Slow:
-        return ((cctrl->spell_flags & CSAfF_Slow) != 0);
+        return (flag_is_set(cctrl->spell_flags,CSAfF_Slow));
     case SplK_Fly:
-        return ((cctrl->spell_flags & CSAfF_Flying) != 0);
+        return (flag_is_set(cctrl->spell_flags,CSAfF_Flying));
     case SplK_Sight:
-        return ((cctrl->spell_flags & CSAfF_Sight) != 0);
+        return (flag_is_set(cctrl->spell_flags,CSAfF_Sight));
     case SplK_Disease:
-        return ((cctrl->spell_flags & CSAfF_Disease) != 0);
+        return (flag_is_set(cctrl->spell_flags,CSAfF_Disease));
     case SplK_Chicken:
-        return ((cctrl->spell_flags & CSAfF_Chicken) != 0);
+        return (flag_is_set(cctrl->spell_flags,CSAfF_Chicken));
     case SplK_TimeBomb:
-        return ((cctrl->spell_flags & CSAfF_Timebomb) != 0);
+        return (flag_is_set(cctrl->spell_flags,CSAfF_Timebomb));
     // Handle spells with no continuous effect
     case SplK_Lightning:
     case SplK_Heal:
@@ -716,13 +716,13 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
     case SplK_Drain:
         return false;
     case SplK_PoisonCloud:
-        return ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0);
+        return (flag_is_set(cctrl->spell_flags,CSAfF_PoisonCloud));
     case SplK_Fear:
         return false;//TODO CREATURE_SPELL update when fear continous effect is implemented
     case SplK_Wind:
-        return ((cctrl->spell_flags & CSAfF_Wind) != 0);
+        return (flag_is_set(cctrl->spell_flags,CSAfF_Wind));
     case SplK_Light:
-        return ((cctrl->spell_flags & CSAfF_Light) != 0);
+        return (flag_is_set(cctrl->spell_flags,CSAfF_Light));
     case SplK_Hailstorm:
         return false;//TODO CREATURE_SPELL find out how to check this
     case SplK_CrazyGas:
