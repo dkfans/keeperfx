@@ -1341,7 +1341,7 @@ short creature_combat_flee(struct Thing *creatng)
             }
             cctrl->flee_start_turn = game.play_gameturn;
         } else
-        if (turns_in_flee <= game.conf.rules.creature.game_turns_in_flee)
+        if ((turns_in_flee <= game.conf.rules.creature.game_turns_in_flee) || creature_affected_by_spell(creatng, SplK_Fear))
         {
             GameTurnDelta escape_turns = (game.conf.rules.creature.game_turns_in_flee >> 2);
             if (escape_turns <= 50)
@@ -1376,7 +1376,7 @@ short creature_combat_flee(struct Thing *creatng)
                 return 1;
             }
         }
-        if (turns_in_flee <= game.conf.rules.creature.game_turns_in_flee)
+        if ((turns_in_flee <= game.conf.rules.creature.game_turns_in_flee) || creature_affected_by_spell(creatng, SplK_Fear))
         {
             if (creature_choose_random_destination_on_valid_adjacent_slab(creatng)) {
                 creatng->continue_state = CrSt_CreatureCombatFlee;

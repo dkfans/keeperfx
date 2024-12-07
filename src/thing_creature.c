@@ -1089,15 +1089,26 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
     if (spconf->linked_power == 0)
     {
         duration = spconf->duration;
-    } else
+    }
+    else
     if (pwrdynst->duration == 0)
     {
         duration = pwrdynst->strength[spell_lev];
-    } else
+    }
+    else
     {
         duration = pwrdynst->duration;
     }
     cspell->duration = duration;
+    if (spconf->spell_flags == CSAfF_Chicken)
+    {
+        external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
+        cctrl->countdown = duration / 5;
+    }
+    if (spconf->spell_flags == CSAfF_Fear)
+    {
+        cctrl->flee_start_turn = game.play_gameturn;
+    }
 
     switch (spell_idx)
     {
@@ -1115,11 +1126,6 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         }
         break;
     }
-    case SplK_Chicken:
-        external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
-        cctrl->countdown = duration/5;
-        cspell->duration = pwrdynst->strength[spell_lev];
-        break;
     default:
         break;
     }
@@ -1494,7 +1500,8 @@ void process_thing_spell_effects(struct Thing *thing)
             break;
         }
         cspell->duration--;
-        if (cspell->duration <= 0) {
+        if (cspell->duration <= 0)
+        {
             terminate_thing_spell_effect(thing, cspell->spkind);
         }
     }
