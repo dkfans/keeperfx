@@ -96,7 +96,7 @@ char determine_door_angle(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return build_door_angle[wall_flags];
 }
 
-struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned char orient, PlayerNumber plyr_idx, TbBool is_locked)
+struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, char orient, PlayerNumber plyr_idx, TbBool is_locked)
 {
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
@@ -126,7 +126,14 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
     doortng->active_state = DorSt_Closed;
     doortng->creation_turn = game.play_gameturn;
     doortng->health = doorst->health;
-    doortng->door.is_locked = is_locked;
+    if (doorst->model_flags & DoMF_AlwaysLocked)
+    {
+        doortng->door.is_locked = true;
+    }
+    else
+    {
+        doortng->door.is_locked = is_locked;
+    }
     if (doorst->model_flags & DoMF_Thick)
     {
         doortng->clipbox_size_xy = 3*COORD_PER_STL;
@@ -135,7 +142,7 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
     add_thing_to_its_class_list(doortng);
     place_thing_in_mapwho(doortng);
     check_if_enemy_can_see_placement_of_hidden_door(doortng);
-    place_animating_slab_type_on_map(doorst->slbkind[orient], 0,  doortng->mappos.x.stl.num, doortng->mappos.y.stl.num, plyr_idx);
+    place_animating_slab_type_on_map(doorst->slbkind[abs(orient)], 0,  doortng->mappos.x.stl.num, doortng->mappos.y.stl.num, plyr_idx);
     ceiling_partially_recompute_heights(pos->x.stl.num - 1, pos->y.stl.num - 1, pos->x.stl.num + 2, pos->y.stl.num + 2);
     //update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+2,stl_y+2);
     if ( game.neutral_player_num != plyr_idx )
@@ -155,6 +162,11 @@ TbBool remove_key_on_door(struct Thing *thing)
 
 TbBool add_key_on_door(struct Thing *thing)
 {
+    const struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
+    if (doorst->model_flags & DoMF_AlwaysLocked)
+    {
+        return true;
+    }
     struct Thing* keytng = create_object(&thing->mappos, ObjMdl_SpinningKey, thing->owner, 0);
     if (thing_is_invalid(keytng))
       return false;
@@ -166,6 +178,11 @@ TbBool add_key_on_door(struct Thing *thing)
 
 void unlock_door(struct Thing *thing)
 {
+    const struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
+    if (doorst->model_flags & DoMF_AlwaysLocked)
+    {
+        return;
+    }
     thing->door.is_locked = false;
     game.map_changed_for_nagivation = 1;
     update_navigation_triangulation(thing->mappos.x.stl.num-1, thing->mappos.y.stl.num-1,
