@@ -393,7 +393,7 @@ TngUpdateRet move_effect_element(struct Thing *thing)
     if ( positions_equivalent(&thing->mappos, &pos) ) {
         return TUFRet_Unchanged;
     }
-    if ((thing->movement_flags & TMvF_Unknown10) == 0)
+    if (!flag_is_set(thing->movement_flags,TMvF_Unknown10))
     {
         if (!move_allowed)
         {
@@ -530,8 +530,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     case 5:
         break;
     default:
-        ERRORLOG("Invalid effect element move type %d!",(int)eestats->move_type);
-        JUSTLOG("elemtng->model %d",elemtng->model);
+        ERRORLOG("Invalid effect element move type %d of model %d!",(int)eestats->move_type, elemtng->model);
         move_effect_element(elemtng);
         break;
     }
