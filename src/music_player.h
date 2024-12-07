@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "config_campaigns.h"
 #include <SDL2/SDL_mixer.h>
 
 #ifdef __cplusplus
@@ -43,7 +44,7 @@ void StopMusicPlayer(void);
 void SetMusicPlayerVolume(int volume);
 void free_custom_music();
 void music_reinit_after_load();
-TbBool load_campaign_soundtrack(char* sndtrck_fname);
+TbBool load_campaign_soundtrack(struct GameCampaign *campgn);
 
 #ifdef __cplusplus
 }
