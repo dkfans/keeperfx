@@ -597,7 +597,7 @@ struct Thing * find_imp_for_pickup(struct Computer2 *comp, MapSubtlCoord stl_x, 
     {
         struct Thing* thing = thing_get(i);
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        if (!thing_is_creature(thing) || creature_control_invalid(cctrl))
         {
           ERRORLOG("Jump to invalid creature detected");
           break;
@@ -653,6 +653,9 @@ long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * ch
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     if (!computer_able_to_use_power(comp, PwrK_HAND, 1, 1)) {
+        return CTaskRet_Unk4;
+    }
+    if (is_task_in_progress_using_hand(comp)) {
         return CTaskRet_Unk4;
     }
     {
