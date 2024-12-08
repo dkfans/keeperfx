@@ -399,12 +399,9 @@ TngUpdateRet move_effect_element(struct Thing *thing)
         {
             move_effect_blocked(thing, &thing->mappos, &pos);
         } else
-        if ( !thing_covers_same_blocks_in_two_positions(thing, &thing->mappos, &pos) )
+        if ( thing_in_wall_at(thing, &pos) && thing_in_wall_at(thing,&thing->mappos))
         {
-            if ( thing_in_wall_at(thing, &pos) )
-            {
-                move_effect_blocked(thing, &thing->mappos, &pos);
-            }
+            move_effect_blocked(thing, &thing->mappos, &pos);
         }
     }
     move_thing_in_map(thing, &pos);
