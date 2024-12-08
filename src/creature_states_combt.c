@@ -276,6 +276,9 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     {
         return false;
     }
+    // Accept 0 as a way to disable fear of stronger creatures
+    if (crstat->fear_stronger == 0)
+        return false;
     // If the enemy is way stronger, a creature may be scared anyway
     fear = crstat->fear_stronger;
     long long enmstrength = LbSqrL(project_melee_damage(enmtng)) * (enmstat->fearsome_factor) / 100 * ((long long)enmaxhealth + (long long)enmtng->health) / 2;

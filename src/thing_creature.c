@@ -954,11 +954,15 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     } else 
     if (spconf->spell_flags == CSAfF_Fear)
     {
-        if (external_set_thing_state(thing, CrSt_CreatureCombatFlee))
+        crstat = creature_stats_get(thing->model);
+        if (crstat->fear_stronger > 0)
         {
-            cctrl->flee_start_turn = game.play_gameturn;
-            fill_spell_slot(thing, i, spell_idx, duration);
-            cctrl->spell_flags |= spconf->spell_flags;
+            if (external_set_thing_state(thing, CrSt_CreatureCombatFlee))
+            {
+                cctrl->flee_start_turn = game.play_gameturn;
+                fill_spell_slot(thing, i, spell_idx, duration);
+                cctrl->spell_flags |= spconf->spell_flags;
+            }
         }
     }
     else
