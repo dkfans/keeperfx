@@ -20,6 +20,7 @@
 #include "config_strings.h"
 #include "config_magic.h"
 #include "config_terrain.h"
+#include "console_cmd.h"
 #include "player_instances.h"
 #include "player_data.h"
 #include "lvl_filesdk1.h"
@@ -857,7 +858,7 @@ static void command_level_up_creature(long plr_range_id, const char *crtr_name, 
     command_add_value(Cmd_LEVEL_UP_CREATURE, plr_range_id, crtr_id, select_id, count);
 }
 
-static void command_use_power_on_creature(long plr_range_id, const char *crtr_name, const char *criteria, long caster_plyr_idx, const char *magname, int splevel, char free)
+static void command_use_power_on_creature(long plr_range_id, const char *crtr_name, const char *criteria, long caster_plyr_idx, const char *magname, int splevel, const char *freestring)
 {
   SCRIPTDBG(11, "Starting");
   if (splevel < 1)
@@ -887,6 +888,20 @@ static void command_use_power_on_creature(long plr_range_id, const char *crtr_na
     SCRPTERRLOG("Unknown select criteria, '%s'", criteria);
     return;
   }
+  char free;
+  if (parameter_is_number(freestring))
+  {
+      free = atoi(freestring);
+  }
+  else
+  {
+      free = get_id(is_free_desc, freestring);
+  }
+  if ((free < 0) || (free > 1))
+  {
+      SCRPTERRLOG("Unknown free value '%s' not recognized", freestring);
+      return;
+  }
 
   // encode params: free, magic, caster, level -> into 4xbyte: FMCL
   long fmcl_bytes;
@@ -897,7 +912,7 @@ static void command_use_power_on_creature(long plr_range_id, const char *crtr_na
   command_add_value(Cmd_USE_POWER_ON_CREATURE, plr_range_id, crtr_id, select_id, fmcl_bytes);
 }
 
-static void command_use_power_at_pos(long plr_range_id, int stl_x, int stl_y, const char *magname, int splevel, char free)
+static void command_use_power_at_pos(long plr_range_id, int stl_x, int stl_y, const char *magname, int splevel, const char *freestring)
 {
   SCRIPTDBG(11, "Starting");
   if (splevel < 1)
@@ -917,6 +932,20 @@ static void command_use_power_at_pos(long plr_range_id, int stl_x, int stl_y, co
     SCRPTERRLOG("Unknown magic, '%s'", magname);
     return;
   }
+  char free;
+  if (parameter_is_number(freestring))
+  {
+      free = atoi(freestring);
+  }
+  else
+  {
+      free = get_id(is_free_desc, freestring);
+  }
+  if ((free < 0) || (free > 1))
+  {
+      SCRPTERRLOG("Unknown free value '%s' not recognized", freestring);
+      return;
+  }
 
   // encode params: free, magic, level -> into 3xbyte: FML
   long fml_bytes;
@@ -927,7 +956,7 @@ static void command_use_power_at_pos(long plr_range_id, int stl_x, int stl_y, co
   command_add_value(Cmd_USE_POWER_AT_POS, plr_range_id, stl_x, stl_y, fml_bytes);
 }
 
-static void command_use_power_at_location(long plr_range_id, const char *locname, const char *magname, int splevel, char free)
+static void command_use_power_at_location(long plr_range_id, const char *locname, const char *magname, int splevel, const char *freestring)
 {
   SCRIPTDBG(11, "Starting");
   if (splevel < 1)
@@ -954,6 +983,20 @@ static void command_use_power_at_location(long plr_range_id, const char *locname
     SCRPTWRNLOG("Use power script command at invalid location: %s", locname);
     return;
   }
+  char free;
+  if (parameter_is_number(freestring))
+  {
+      free = atoi(freestring);
+  }
+  else
+  {
+      free = get_id(is_free_desc, freestring);
+  }
+  if ((free < 0) || (free > 1))
+  {
+      SCRPTERRLOG("Unknown free value '%s' not recognized", freestring);
+      return;
+  }
 
   // encode params: free, magic, level -> into 3xbyte: FML
   long fml_bytes;
@@ -964,13 +1007,27 @@ static void command_use_power_at_location(long plr_range_id, const char *locname
   command_add_value(Cmd_USE_POWER_AT_LOCATION, plr_range_id, location, fml_bytes, 0);
 }
 
-static void command_use_power(long plr_range_id, const char *magname, char free)
+static void command_use_power(long plr_range_id, const char *magname, const char *freestring)
 {
     SCRIPTDBG(11, "Starting");
     long mag_id = get_rid(power_desc, magname);
     if (mag_id == -1)
     {
         SCRPTERRLOG("Unknown magic, '%s'", magname);
+        return;
+    }
+    char free;
+    if (parameter_is_number(freestring))
+    {
+        free = atoi(freestring);
+    }
+    else
+    {
+        free = get_id(is_free_desc, freestring);
+    }
+    if ((free < 0) || (free > 1))
+    {
+        SCRPTERRLOG("Unknown free value '%s' not recognized", freestring);
         return;
     }
     command_add_value(Cmd_USE_POWER, plr_range_id, mag_id, free, 0);
@@ -1422,19 +1479,19 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_level_up_creature(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
         break;
     case Cmd_USE_POWER_ON_CREATURE:
-        command_use_power_on_creature(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->tp[4], scline->np[5], scline->np[6]);
+        command_use_power_on_creature(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->tp[4], scline->np[5], scline->tp[6]);
         break;
     case Cmd_USE_SPELL_ON_CREATURE:
         command_use_spell_on_creature(scline->np[0], scline->tp[1], scline->tp[2], scline->tp[3], scline->np[4]);
         break;
     case Cmd_USE_POWER_AT_POS:
-        command_use_power_at_pos(scline->np[0], scline->np[1], scline->np[2], scline->tp[3], scline->np[4], scline->np[5]);
+        command_use_power_at_pos(scline->np[0], scline->np[1], scline->np[2], scline->tp[3], scline->np[4], scline->tp[5]);
         break;
     case Cmd_USE_POWER_AT_LOCATION:
-        command_use_power_at_location(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->np[4]);
+        command_use_power_at_location(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->tp[4]);
         break;
     case Cmd_USE_POWER:
-        command_use_power(scline->np[0], scline->tp[1], scline->np[2]);
+        command_use_power(scline->np[0], scline->tp[1], scline->tp[2]);
         break;
     case Cmd_USE_SPECIAL_INCREASE_LEVEL:
         command_use_special_increase_level(scline->np[0], scline->np[1]);

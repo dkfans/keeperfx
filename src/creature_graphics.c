@@ -439,7 +439,7 @@ void update_creature_graphic_anim(struct Thing *thing)
     {
       thing->size_change &= ~TSC_ChangeSize;
     } else
-    if ((thing->active_state == CrSt_CreatureHeroEntering) && (cctrl->countdown_282 >= 0))
+    if ((thing->active_state == CrSt_CreatureHeroEntering) && (cctrl->countdown >= 0))
     {
       thing->rendering_flags |= TRF_Invisible;
     } else

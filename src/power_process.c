@@ -333,7 +333,7 @@ void god_lightning_choose_next_creature(struct Thing *shotng)
         i = thing->next_of_class;
         // Per-thing code
         //TODO use hit_type instead of hard coded conditions
-        if ((shotng->owner != thing->owner) && !thing_is_picked_up(thing)
+        if (!players_are_mutual_allies(shotng->owner,thing->owner) && !thing_is_picked_up(thing)
             && !creature_is_being_unconscious(thing) && !creature_is_dying(thing))
         {
             long dist = get_2d_distance(&shotng->mappos, &thing->mappos);

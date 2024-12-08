@@ -123,6 +123,13 @@ enum PowerKinds {
     PwrK_SLOW, // 25
     PwrK_FLIGHT,
     PwrK_VISION,
+    PwrK_MKTUNNELLER,
+};
+
+enum CostFormulas {
+    Cost_Default = 0,
+    Cost_Digger,
+    Cost_Dwarf,
 };
 
 /** Contains properties of a shot model, to be stored in ShotConfigStats.
@@ -359,6 +366,7 @@ struct PowerConfigStats {
     long panel_tab_idx;
     unsigned short select_sound_idx;
     short cast_cooldown;
+    unsigned char cost_formula;
     SpellKind spell_idx;
     EffectOrEffElModel effect_id;
     short magic_use_func_idx;

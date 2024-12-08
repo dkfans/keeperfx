@@ -2377,11 +2377,11 @@ void draw_whole_status_panel(void)
         mm_units_per_px = (gmnu->width * 16 + 140/2) / 140;
         if (mm_units_per_px < 1)
             mm_units_per_px = 1;
-        fs_units_per_px = (gmnu->height * 16 + 8) / LbTiledSpriteHeight(&status_panel, get_panel_sprite(0));
+        fs_units_per_px = (gmnu->height * 16 + 8) / LbTiledSpriteHeight(&status_panel);
     }
     lbDisplay.DrawColour = colours[15][15][15];
     lbDisplay.DrawFlags = 0;
-    LbTiledSpriteDraw(0, 0, fs_units_per_px, &status_panel, get_panel_sprite(0));
+    LbTiledSpriteDraw(0, 0, fs_units_per_px, &status_panel);
     // Draws gold amount; note that button_sprite[] is used instead of full font
     draw_gold_total(player->id_number, gmnu->pos_x + gmnu->width/2, gmnu->pos_y + gmnu->height*67/200, fs_units_per_px, dungeon->total_money_owned);
     if (16/mm_units_per_px < 3)

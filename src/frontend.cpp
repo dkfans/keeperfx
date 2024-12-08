@@ -682,17 +682,12 @@ short game_is_busy_doing_gui(void)
       return false;
     if (battle_creature_over <= 0)
       return true;
-    PowerKind pwkind;
-    pwkind = 0;
-    if (player->work_state < PLAYER_STATES_COUNT_MAX)
+    PowerKind pwkind = player->chosen_power_kind;
+    struct Thing *thing;
+    thing = thing_get(battle_creature_over);
+    if (can_cast_power_on_thing(player->id_number, thing, pwkind))
     {
-        struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
-        pwkind = plrst_cfg_stat->power_kind;
-
-        struct Thing *thing;
-        thing = thing_get(battle_creature_over);
-        if (can_cast_power_on_thing(player->id_number, thing, pwkind))
-            return true;
+        return true;
     }
     return false;
 }
@@ -963,21 +958,8 @@ long player_state_to_packet(PlayerState work_state, PowerKind pwkind, TbBool alr
     case PSt_CtrlDirect:
     case PSt_FreeCtrlDirect:
     case PSt_CreateDigger:
-    case PSt_CaveIn:
-    case PSt_Heal:
-    case PSt_Lightning:
-    case PSt_SpeedUp:
-    case PSt_Armour:
-    case PSt_Conceal:
-    case PSt_CastDisease:
-    case PSt_TurnChicken:
-    case PSt_DestroyWalls:
-    case PSt_Rebound:
-    case PSt_Freeze:
-    case PSt_Slow:
-    case PSt_Flight:
-    case PSt_Vision:
-    case PSt_TimeBomb:
+    case PSt_CastPowerOnSubtile:
+    case PST_CastPowerOnTarget:
         return PckA_SetPlyrState;
     case PSt_None:
         switch (pwkind)
@@ -1009,7 +991,7 @@ TbBool set_players_packet_change_spell(struct PlayerInfo *player,PowerKind pwkin
     pcktype = player_state_to_packet(powerst->work_state, pwkind, already_in);
     if (pcktype != PckA_None)
     {
-        set_players_packet_action(player, pcktype, powerst->work_state, 0, 0, 0);
+        set_players_packet_action(player, pcktype, powerst->work_state, pwkind, 0, 0);
         if (!already_in) {
             play_non_3d_sample(powerst->select_sample_idx);
         }
@@ -1373,10 +1355,10 @@ void gui_area_text(struct GuiButton *gbtn)
 
 void frontend_init_options_menu(struct GuiMenu *gmnu)
 {
-    music_level_slider = make_audio_slider_linear(settings.redbook_volume);
-    sound_level_slider = make_audio_slider_linear(settings.sound_volume);
-    mentor_level_slider = make_audio_slider_linear(settings.mentor_volume);
-    fe_mouse_sensitivity = settings.first_person_move_sensitivity;
+    get_gui_button_init(gmnu, BID_MUSIC_VOL)->content.lval = make_audio_slider_linear(settings.redbook_volume);
+    get_gui_button_init(gmnu, BID_SOUND_VOL)->content.lval = make_audio_slider_linear(settings.sound_volume);
+    get_gui_button_init(gmnu, BID_MENTOR_VOL)->content.lval = make_audio_slider_linear(settings.mentor_volume);
+    get_gui_button_init(gmnu, BID_MOUSE_MUL)->content.lval = settings.first_person_move_sensitivity;
     if (!is_campaign_loaded())
     {
         if (!change_campaign(""))

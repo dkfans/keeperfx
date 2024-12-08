@@ -13,6 +13,7 @@ extern "C" {
 	#include <libavcodec/avcodec.h>
 	#include <libavutil/imgutils.h>
 	#include <libswresample/swresample.h>
+    #pragma GCC diagnostic warning "-Wdeprecated-declarations"
 }
 
 #include <cstdio>
@@ -481,24 +482,17 @@ struct movie_t {
 
 	void output_audio_frame() {
 		const auto sample_size = av_get_bytes_per_sample(m_output_audio_format);
-		const auto channels = m_frame->ch_layout.nb_channels;
 		const auto buffer_samples = swr_get_out_samples(m_resampler, m_frame->nb_samples);
-		// auto dst_samples = channels * av_rescale_rnd(
-		// 	swr_get_delay(m_resampler, m_frame->sample_rate) + m_frame->nb_samples,
-		// 	m_output_audio_frequency,
-		// 	m_frame->sample_rate,
-		// 	AV_ROUND_UP
-		// );
 		uint8_t * buffer = nullptr;
 		av_samples_alloc(
 			&buffer,
 			nullptr,
-			channels,
+			m_output_audio_channels,
 			buffer_samples,
 			m_output_audio_format,
 			1
 		);
-		const auto num_samples = channels * swr_convert(
+		const auto num_samples = m_output_audio_channels * swr_convert(
 			m_resampler,
 			&buffer,
 			buffer_samples,

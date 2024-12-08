@@ -107,6 +107,13 @@ void multiply_creatures_in_dungeon_list(struct Dungeon *dungeon, long list_start
         tncopy->health = thing->health;
         newcctrl->exp_points = cctrl->exp_points;
         newcctrl->blood_type = cctrl->blood_type;
+        newcctrl->hunger_level = cctrl->hunger_level;
+        newcctrl->paydays_owed = cctrl->paydays_owed;
+        newcctrl->paydays_advanced = cctrl->paydays_advanced;
+        for (unsigned char al = 0; al < AngR_ListEnd; al++)
+        {
+            newcctrl->annoyance_level[al] = cctrl->annoyance_level[al];
+        }
         // Thing list loop body ends
         k++;
         if (k > CREATURES_COUNT)
