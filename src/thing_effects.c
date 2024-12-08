@@ -750,10 +750,8 @@ void effect_generate_effect_elements(const struct Thing *thing)
         }
         break;
     }
-    case 4: // Lightning or CaveIn
+    case 4:
     {
-        if (thing->model != 48) // CaveIn only
-            break;
         HitPoints i = effcst->start_health / 2;
         struct PlayerInfo* player;
         if (thing->health == effcst->start_health)
@@ -780,6 +778,8 @@ void effect_generate_effect_elements(const struct Thing *thing)
         }
         break;
     }
+    case 5: 
+        break;
     default:
         ERRORLOG("Unknown Effect Generation Type %d",(int)effcst->generation_type);
         break;

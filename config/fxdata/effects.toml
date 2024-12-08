@@ -857,7 +857,7 @@ AlwaysGenerate = 0
 [effect49]
 Name = "EFFECT_DUMMY"
 Health = 50
-GenerationType = 4
+GenerationType = 5
 GenerationAccelXYRange = [1,1]
 GenerationAccelZRange = [1,1]
 GenerationKindRange = [0,0]
