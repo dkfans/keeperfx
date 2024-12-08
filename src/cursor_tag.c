@@ -165,7 +165,7 @@ TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
 
         if (doorst->model_flags & DoMF_Thick)
         {
-            Check = slab_has_trap_on(slb_x,slb_y);
+            Check = !slab_has_trap_on(slb_x,slb_y);
         }
         else switch(Orientation)
         {
