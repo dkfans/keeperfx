@@ -266,24 +266,26 @@ struct EffectConfigStats *get_effect_model_stats(ThingModel tngmodel)
     return &game.conf.effects_conf.effect_cfgstats[tngmodel];
 }
 
-short effect_or_effect_element_id(const char * code_name)
+short effect_or_effect_element_id(const char *code_name)
 {
     if (code_name == NULL)
     {
         return 0;
     }
-
     if (parameter_is_number(code_name))
     {
         return atoi(code_name);
     }
-
-    short id = get_id(effect_desc,code_name);
+    short id = get_id(effect_desc, code_name);
     if (id > 0)
+    {
         return id;
-    id = get_id(effectelem_desc,code_name);
+    }
+    id = get_id(effectelem_desc, code_name);
     if (id > 0)
+    {
         return -id;
+    }
     return 0;
 }
 

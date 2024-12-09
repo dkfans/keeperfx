@@ -573,20 +573,9 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
       case 6: // EFFECTMODEL
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              k = get_id(effect_desc, word_buf);
-              if (k < 0)
-              {
-                  if (parameter_is_number(word_buf))
-                  {
-                      k = atoi(word_buf);
-                      spconf->cast_effect_model = k;
-                      n++;
-                  }
-              } else
-              {
-                  spconf->cast_effect_model = k;
-                  n++;
-              }
+              k = effect_or_effect_element_id(word_buf);
+              spconf->cast_effect_model = k;
+              n++;
           }
           if (n < 1)
           {
@@ -648,21 +637,9 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
       case 9: // AURAEFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              if (parameter_is_number(word_buf))
-              {
-                  k = atoi(word_buf);
-                  spconf->aura_effect = k;
-                  n++;
-              }
-              else
-              {
-                  k = get_id(effect_desc, word_buf);
-                  if (k >= 0)
-                  {
-                      spconf->aura_effect = k;
-                      n++;
-                  }
-              }
+              k = effect_or_effect_element_id(word_buf);
+              spconf->aura_effect = k;
+              n++;
           }
           if (n < 1)
           {
