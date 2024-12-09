@@ -534,7 +534,9 @@ TngUpdateRet process_door(struct Thing *thing)
         destroy_door(thing);
         return TUFRet_Deleted;
     }
-    if ((thing->door.orientation > 1) || (thing->door.orientation < 0))
+    const struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
+
+    if (!flag_is_set(doorst->model_flags,DoMF_Freestanding)&&((thing->door.orientation > 1) || (thing->door.orientation < 0)))
     {
         ERRORLOG("Invalid %s (index %d) orientation %d",thing_model_name(thing),(int)thing->index,(int)thing->door.orientation);
         thing->door.orientation &= 1;
