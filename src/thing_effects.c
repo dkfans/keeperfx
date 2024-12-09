@@ -399,7 +399,7 @@ TngUpdateRet move_effect_element(struct Thing *thing)
         {
             move_effect_blocked(thing, &thing->mappos, &pos);
         } else
-        if ( thing_in_wall_at(thing, &pos) && thing_in_wall_at(thing,&thing->mappos))
+        if (thing_in_wall_at(thing, &pos) && thing_in_wall_at(thing,&thing->mappos))
         {
             move_effect_blocked(thing, &thing->mappos, &pos);
         }
