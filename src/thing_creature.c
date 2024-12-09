@@ -126,7 +126,7 @@ TbBool thing_can_be_controlled_as_controller(struct Thing *thing)
 {
     if (!thing_exists(thing))
         return false;
-    if (thing->class_id == TCls_Creature)
+    if ((thing->class_id == TCls_Creature) && !thing_affected_by_spell(thing,SplK_Fear))
         return true;
     if (thing->class_id == TCls_DeadCreature)
         return true;
