@@ -957,6 +957,21 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         crstat = creature_stats_get(thing->model);
         if (crstat->fear_stronger > 0)
         {
+            if (is_thing_some_way_controlled(thing))
+            {
+                struct PlayerInfo* player = get_player(thing->owner);
+                if (player->controlled_thing_idx == thing->index)
+                {
+                    char active_menu = game.active_panel_mnu_idx;
+                    leave_creature_as_controller(player, thing);
+                    control_creature_as_passenger(player, thing);
+                    if (is_my_player(player))
+                    {
+                        turn_off_all_panel_menus();
+                        turn_on_menu(active_menu);
+                    }
+                }
+            }
             if (external_set_thing_state(thing, CrSt_CreatureCombatFlee))
             {
                 cctrl->flee_start_turn = game.play_gameturn;
@@ -1261,6 +1276,21 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         break;
     case SplK_Fear:
         cctrl->spell_flags &= ~CSAfF_Fear;
+        if (is_thing_some_way_controlled(thing))
+        {
+            struct PlayerInfo* player = get_player(thing->owner);
+            if (player->controlled_thing_idx == thing->index)
+            {
+                char active_menu = game.active_panel_mnu_idx;
+                leave_creature_as_passenger(player, thing);
+                control_creature_as_controller(player, thing);
+                if (is_my_player(player))
+                {
+                    turn_off_all_panel_menus();
+                    turn_on_menu(active_menu);
+                }
+            }
+        }
         break;
     }
     if (slot_idx >= 0) {
