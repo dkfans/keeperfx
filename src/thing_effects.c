@@ -389,13 +389,13 @@ TngUpdateRet move_effect_element(struct Thing *thing)
     SYNCDBG(18,"Starting");
     TRACE_THING(thing);
     struct Coord3d pos;
-    TbBool withing_map_limits = get_thing_next_position(&pos, thing);
+    TbBool within_map_limits = get_thing_next_position(&pos, thing);
     if ( positions_equivalent(&thing->mappos, &pos) ) {
         return TUFRet_Unchanged;
     }
     if (!flag_is_set(thing->movement_flags,TMvF_Unknown10))
     {
-        if (!withing_map_limits)
+        if (!within_map_limits)
         {
             move_effect_blocked(thing, &thing->mappos, &pos);
         } else
