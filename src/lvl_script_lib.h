@@ -177,7 +177,7 @@ enum TbScriptCommands {
     Cmd_ADD_EFFECT_GENERATOR_TO_LEVEL      = 164,
     Cmd_SET_EFFECT_GENERATOR_CONFIGURATION = 165,
     Cmd_SET_POWER_CONFIGURATION            = 166,
-    Cmd_SET_PLAYER_COLOR                   = 167,
+    Cmd_SET_PLAYER_COLOUR                  = 167,
     Cmd_MAKE_UNSAFE                        = 168,
     Cmd_LEVEL_UP_PLAYERS_CREATURES         = 169,
     Cmd_SET_INCREASE_ON_EXPERIENCE         = 170,
