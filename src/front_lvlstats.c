@@ -190,6 +190,10 @@ void frontstats_initialise(void)
 {
     // Initialize stats in dungeon
     struct Dungeon* dungeon = get_my_dungeon();
+    if (!dungeon) {
+        ERRORLOG("No dungeon to generate stats for???");
+        return;
+    }
     dungeon->lvstats.end_time = LbTimerClock();
     dungeon->lvstats.num_creatures = dungeon->num_active_creatrs;
     dungeon->lvstats.imps_deployed = dungeon->num_active_diggers;
