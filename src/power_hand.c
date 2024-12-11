@@ -627,7 +627,7 @@ void draw_power_hand(void)
         switch (picktng->class_id)
         {
         case TCls_Creature:
-            if (!creature_affected_by_spell(picktng, SplK_Chicken))
+            if (!creature_affected_with_spell_flags(picktng, CSAfF_Chicken))
             {
                 pickoffs = get_creature_picked_up_offset(picktng);
                 inputpos_x = GetMouseX() + scale_ui_value(pickoffs->delta_x*global_hand_scale);
@@ -933,7 +933,7 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
         }
         dungeon->last_creature_dropped_gameturn = game.play_gameturn;
         struct CreatureStats* crstat = creature_stats_get(droptng->model);
-        if ( (crstat->illuminated) || (creature_affected_by_spell(droptng, SplK_Light)) )
+        if ((crstat->illuminated) || (creature_affected_with_spell_flags(droptng, CSAfF_Light)))
         {
             illuminate_creature(droptng);
         }
@@ -1359,10 +1359,14 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
             return false;
         }
         //Removing combat is called in insert_thing_into_power_hand_list(), so we don't have to do it here
-        if (creature_affected_by_spell(thing, SplK_Chicken))
-            i = convert_td_iso(122);
+        if (creature_affected_with_spell_flags(thing, CSAfF_Chicken))
+        {
+            i = convert_td_iso(122); // Hardcoded value, 122 is grabbed chicken.
+        }
         else
+        {
             i = get_creature_anim(thing, CGI_PowerGrab);
+        }
         set_thing_draw(thing, i, 256, -1, -1, 0, ODC_Default);
     } else
     if (thing_is_object(thing))
@@ -1599,7 +1603,8 @@ static TbBool hand_rule_at_action_point(struct HandRule *hand_rule, const struct
 
 static TbBool hand_rule_affected_by(struct HandRule *hand_rule, const struct Thing *thing)
 {
-    return (creature_affected_by_spell(thing, hand_rule->param)) ? !hand_rule->allow : !!hand_rule->allow;
+    struct SpellConfig *spconf = get_spell_config(hand_rule->param);
+    return (creature_affected_with_spell_flags(thing, spconf->spell_flags)) ? !hand_rule->allow : !!hand_rule->allow;
 }
 
 static TbBool hand_rule_wandering(struct HandRule *hand_rule, const struct Thing *thing)

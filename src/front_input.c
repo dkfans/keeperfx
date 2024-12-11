@@ -1778,7 +1778,7 @@ short get_creature_control_action_inputs(void)
                 set_players_packet_action(player, PckA_SelectFPPickup, player->thing_under_hand, 0, 0, 0);
             }
         }
-        if (!creature_affected_by_spell(thing, SplK_Chicken))
+        if (!creature_affected_with_spell_flags(thing, CSAfF_Chicken))
         {
             if (numkey != -1)
             {

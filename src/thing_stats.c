@@ -655,7 +655,7 @@ long calculate_correct_creature_armour(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_armour(crstat->armour, cctrl->explevel);
-    if (creature_affected_by_spell(thing, SplK_Armour))
+    if (creature_affected_with_spell_flags(thing, CSAfF_Armour))
         max_param = (320 * max_param) / 256;
     // This limit makes armour absorb up to 80% of damage even with the buff.
     if (max_param > 204)
@@ -698,11 +698,11 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
     struct Dungeon* dungeon;
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long speed = crstat->base_speed;
-    if ((creature_affected_by_slap(thing)) || (creature_affected_by_spell(thing, SplK_TimeBomb)))
+    if ((creature_affected_by_slap(thing)) || (creature_affected_with_spell_flags(thing, CSAfF_Timebomb)))
         speed *= 2;
-    if (creature_affected_by_spell(thing, SplK_Speed))
+    if (creature_affected_with_spell_flags(thing, CSAfF_Speed))
         speed *= 2;
-    if (creature_affected_by_spell(thing, SplK_Slow))
+    if (creature_affected_with_spell_flags(thing, CSAfF_Slow))
         speed /= 2;
     // Apply modifier.
     if (!is_neutral_thing(thing))
@@ -879,11 +879,13 @@ TbBool update_relative_creature_health(struct Thing* creatng)
 }
 
 TbBool set_creature_health_to_max_with_heal_effect(struct Thing* thing)
-{
+{ // Hardcoded function for 'SpcKind_HealAll'. TODO: Refactor when specials are made more configurable.
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (cctrl->max_health > thing->health)
+    if (cctrl->max_health > thing->health) // 'SpcKind_HealAll' bypasses immunity.
     {
-        apply_spell_effect_to_thing(thing, SplK_Heal, 1);
+        // apply_spell_effect_to_thing(thing, 7, 1); 7 was 'SplK_Heal' in the enum.
+        cctrl->spell_aura = TngEffElm_Heal;
+        cctrl->spell_aura_duration = 100;
         thing->health = cctrl->max_health;
     }
     return true;
@@ -1096,11 +1098,12 @@ long compute_creature_weight(const struct Thing* creatng)
     long eye_height = get_creature_eye_height(creatng);
     long weight = eye_height >> 2;
     weight += (crstat->hunger_fill + crstat->lair_size + 1) * cctrl->explevel;
-    if (!crstat->affected_by_wind)
+    if (creature_is_immune_to_spell_flags(creatng, CSAfF_Wind))
     {
         weight = weight * 3 / 2;
     }
-    if ((get_creature_model_flags(creatng) & CMF_Trembling) != 0)
+    if (((get_creature_model_flags(creatng) & CMF_Trembling) != 0)
+    || ((get_creature_model_flags(creatng) & CMF_Fat) != 0))
     {
         weight = weight * 3 / 2;
     }

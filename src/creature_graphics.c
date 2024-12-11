@@ -443,7 +443,7 @@ void update_creature_graphic_anim(struct Thing *thing)
     {
       thing->rendering_flags |= TRF_Invisible;
     } else
-    if (!creature_affected_by_spell(thing, SplK_Chicken))
+    if (!creature_affected_with_spell_flags(thing, CSAfF_Chicken))
     {
         if (cctrl->instance_id != CrInst_NULL)
         {
@@ -454,11 +454,11 @@ void update_creature_graphic_anim(struct Thing *thing)
           struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->instance_id);
           update_creature_anim(thing, cctrl->instance_anim_step_turns, inst_inf->graphics_idx);
         } else
-        if ((cctrl->frozen_on_hit != 0) || creature_is_dying(thing) || creature_affected_by_spell(thing, SplK_Freeze))
+        if ((cctrl->frozen_on_hit != 0) || creature_is_dying(thing) || flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
         {
             update_creature_anim(thing, 256, CGI_GotHit);
         } else
-        if ((cctrl->stateblock_flags & CCSpl_ChickenRel) != 0)
+        if (flag_is_set(cctrl->stateblock_flags, CCSpl_ChickenRel))
         {
             update_creature_anim(thing, 256, CGI_Stand);
         } else
@@ -537,7 +537,7 @@ void update_creature_graphic_anim(struct Thing *thing)
 void update_creature_graphic_tint(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (creature_affected_by_spell(thing, SplK_Freeze))
+    if (flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
     {
         tint_thing(thing, colours[4][4][15], 1);
     } else

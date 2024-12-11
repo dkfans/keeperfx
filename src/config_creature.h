@@ -47,22 +47,20 @@ enum CreatureModelFlags {
     CMF_IsLordOfLand     = 0x000008, // Simply, Knight and Avatar.
     CMF_IsSpectator      = 0x000010, // Simply, Floating Spirit.
     CMF_IsEvil           = 0x000020, // All evil creatures.
-    CMF_NeverChickens    = 0x000040, // Cannot be affected by Chicken (for Avatar).
-    CMF_ImmuneToBoulder  = 0x000080, // Boulder traps are destroyed at the moment they touch the creature.
-    CMF_NoCorpseRotting  = 0x000100, // Corpse cannot rot in graveyard.
-    CMF_NoEnmHeartAttack = 0x000200, // Creature will not attack enemy heart on sight.
-    CMF_Trembling        = 0x000400, // Creature causes ground to tremble when dropped.
-    CMF_Female           = 0x000800, // Creature is female.
-    CMF_Insect           = 0x001000, // Creature is kind of insect.
-    CMF_OneOfKind        = 0x002000, // Only one creature of that kind may exist on one level. Unit name is type name.
-    CMF_NoImprisonment   = 0x004000, // Creature will not faint.
-    CMF_NeverSick        = 0x008000, // Creature will not get disease.
-    CMF_NoResurrect      = 0x010000, // Creature will not resurrect.
-    CMF_NoTransfer       = 0x020000, // Creature cannot be transferred.
-    CMF_Fat              = 0x040000, // Creature too fat to walk a full animation.
-    CMF_NoStealHero      = 0x080000, // Prevent the creature from being stolen with the Steal Hero special.
-    CMF_PreferSteal      = 0x100000, // The creature can be generated from Steal Hero special if there's nothing to steal.
-    CMF_EventfulDeath   = 0x200000, // The LAST_DEATH_EVENT[] script location is updated on death.
+    CMF_ImmuneToBoulder  = 0x000040, // Boulder traps are destroyed at the moment they touch the creature.
+    CMF_NoCorpseRotting  = 0x000080, // Corpse cannot rot in graveyard.
+    CMF_NoEnmHeartAttack = 0x000100, // Creature will not attack enemy heart on sight.
+    CMF_Trembling        = 0x000200, // Creature causes ground to tremble when dropped.
+    CMF_Female           = 0x000400, // Creature is female.
+    CMF_Insect           = 0x000800, // Creature is kind of insect.
+    CMF_OneOfKind        = 0x001000, // Only one creature of that kind may exist on one level. Unit name is type name.
+    CMF_NoImprisonment   = 0x002000, // Creature will not faint.
+    CMF_NoResurrect      = 0x004000, // Creature will not resurrect.
+    CMF_NoTransfer       = 0x008000, // Creature cannot be transferred.
+    CMF_Fat              = 0x010000, // Creature too fat to walk a full animation.
+    CMF_NoStealHero      = 0x020000, // Prevent the creature from being stolen with the Steal Hero special.
+    CMF_PreferSteal      = 0x040000, // The creature can be generated from Steal Hero special if there's nothing to steal.
+    CMF_EventfulDeath    = 0x080000, // The LAST_DEATH_EVENT[] script location is updated on death.
 };
 
 enum CreatureJobFlags {
@@ -216,6 +214,7 @@ struct CreatureModelConfig {
     char name[COMMAND_WORD_LEN];
     long namestr_idx;
     unsigned long model_flags;
+    unsigned long immunity_flags;
 };
 
 /**

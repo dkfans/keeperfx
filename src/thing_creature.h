@@ -148,17 +148,33 @@ TbBool creature_has_lair_room(const struct Thing *creatng);
 struct Room *get_creature_lair_room(const struct Thing *creatng);
 TbBool remove_creature_lair(struct Thing *thing);
 
-TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind);
 TbBool creature_affected_by_slap(const struct Thing *thing);
+TbBool creature_affected_with_spell_flags_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name);
+#define creature_affected_with_spell_flags(thing, spell_flags) creature_affected_with_spell_flags_f(thing, spell_flags, __func__)
+TbBool creature_is_immune_to_spell_flags_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name);
+#define creature_is_immune_to_spell_flags(thing, spell_flags) creature_is_immune_to_spell_flags_f(thing, spell_flags, __func__)
+
+TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTurnDelta duration, long spell_lev, const char *func_name);
+#define set_thing_spell_flags(thing, spell_idx, duration, spell_lev) set_thing_spell_flags_f(thing, spell_idx, duration, spell_lev, __func__)
+TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags, const char *func_name);
+#define clear_thing_spell_flags(thing, spell_flags) clear_thing_spell_flags_f(thing, spell_flags, __func__)
+void clean_spell_flags_f(struct Thing *thing, unsigned long spell_flags, const char *func_name);
+#define clean_spell_flags(thing, spell_flags) clean_spell_flags_f(thing, spell_flags, __func__)
+
 void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev);
-void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind);
+void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev);
+void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev, int slot_idx);
+void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx);
 void process_thing_spell_effects(struct Thing *thing);
 void process_thing_spell_effects_while_blocked(struct Thing *thing);
 void delete_effects_attached_to_creature(struct Thing *creatng);
 void delete_familiars_attached_to_creature(struct Thing* sumntng);
-TbBool thing_affected_by_spell(const struct Thing *thing, SpellKind spkind);
-GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, SpellKind spkind, const char *func_name);
-#define get_spell_duration_left_on_thing(thing, spkind) get_spell_duration_left_on_thing_f(thing, spkind, __func__)
+
+CrInstance get_available_instance_with_spell_flags(const struct Thing *thing, unsigned long spell_flags);
+SpellKind get_spell_kind_from_instance(CrInstance inst_idx);
+
+GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, SpellKind spell_idx, const char *func_name);
+#define get_spell_duration_left_on_thing(thing, spell_idx) get_spell_duration_left_on_thing_f(thing, spell_idx, __func__)
 
 void anger_set_creature_anger_all_types(struct Thing *thing, long new_value);
 void change_creature_owner(struct Thing *thing, PlayerNumber nowner);
@@ -187,7 +203,7 @@ void create_light_for_possession(struct Thing *creatng);
 void illuminate_creature(struct Thing *creatng);
 
 long get_spell_slot(const struct Thing *thing, SpellKind spkind);
-TbBool free_spell_slot(struct Thing *thing, long slot_idx);
+TbBool free_spell_slot(struct Thing *thing, int slot_idx);
 
 void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *picktng, PlayerNumber plyr_idx);
 void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng, PlayerNumber plyr_idx);

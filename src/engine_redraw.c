@@ -99,21 +99,22 @@ static void draw_creature_view_icons(struct Thing* creatng)
         ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
         y = MyScreenHeight - scale_ui_value_lofi(spr->SHeight * 2);
     }
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    for (SpellKind Spell = SplK_Freeze; Spell <= SplK_TimeBomb; Spell++)
-    {
-        if (creature_affected_by_spell(creatng, Spell))
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    struct SpellConfig *spconf;
+    for (SpellKind spell_idx = 0; spell_idx < game.conf.magic_conf.spell_types_count; spell_idx++)
+    { // ^Maybe it should only loop with the actives spells? -> 'for (SpellKind spell_idx = 0; spell_idx < CREATURE_MAX_SPELLS_CASTED_AT; spell_idx++)'
+        spconf = get_spell_config(spell_idx);
+        if ((spconf->spell_flags > 0) && (creature_affected_with_spell_flags(creatng, spconf->spell_flags)))
         {
-            struct SpellConfig* spconf = get_spell_config(Spell);
             long spridx = spconf->medsym_sprite_idx;
-            if (Spell == SplK_Invisibility)
-            {
+            if (spconf->spell_flags == CSAfF_Invisibility)
+            { // Spells with multiples flags shouldn't be affected to not confuse players.
                 if (cctrl->force_visible & 2)
                 {
                     spridx++;
                 }
             }
-            else if (Spell == SplK_TimeBomb)
+            else if (flag_is_set(spconf->spell_flags, CSAfF_Timebomb))
             {
                 int tx_units_per_px = (dbc_language > 0) ? scale_ui_value_lofi(16) : (22 * units_per_pixel) / LbTextLineHeight();
                 int h = LbTextLineHeight() * tx_units_per_px / 16;
