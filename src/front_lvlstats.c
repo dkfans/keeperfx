@@ -191,7 +191,7 @@ void frontstats_initialise(void)
     // Initialize stats in dungeon
     struct Dungeon* dungeon = get_my_dungeon();
     if (!dungeon) {
-        ERRORLOG("No dungeon to generate stats for???");
+        ERRORLOG("Tried to generate stats for invalid dungeon");
         return;
     }
     dungeon->lvstats.end_time = LbTimerClock();
