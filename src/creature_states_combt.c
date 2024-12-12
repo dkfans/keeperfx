@@ -177,6 +177,8 @@ TbBool creature_will_do_combat(const struct Thing *thing)
     // Frozen creature cannot attack
     if (creature_affected_by_spell(thing, SplK_Freeze))
         return false;
+    if (creature_affected_by_spell(thing, SplK_Fear))
+        return false;
     return can_change_from_state_to(thing, thing->active_state, CrSt_CreatureInCombat);
 }
 
