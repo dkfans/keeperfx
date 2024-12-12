@@ -3115,11 +3115,23 @@ struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng, Play
         ERRORLOG("Tried to kill non-existing thing!");
         return INVALID_THING;
     }
+    // Remember if the creature is frozen.
+    TbBool frozen = creature_affected_with_spell_flags(creatng, CSAfF_Freeze);
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     // Terminate all the active spell effects on dying creatures.
     for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
         terminate_thing_spell_effect(creatng, cctrl->casted_spells[i].spkind);
+    }
+    if (frozen) // Set back stateblock_flags 'CCSpl_Freeze' if it was frozen, for 'cause_creature_death' function.
+    {
+        set_flag(cctrl->stateblock_flags, CCSpl_Freeze);
+        if ((creatng->movement_flags & TMvF_Flying) != 0)
+        {
+            set_flag(creatng->movement_flags, TMvF_Grounded);
+            clear_flag(creatng->movement_flags, TMvF_Flying);
+        }
+        creature_set_speed(creatng, 0);
     }
     if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn > game.play_gameturn))
     {
