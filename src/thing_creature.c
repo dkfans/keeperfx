@@ -1127,6 +1127,10 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
     if (spconf->spell_flags == CSAfF_Fear)
     {
         cctrl->flee_start_turn = game.play_gameturn;
+        if (get_creature_state_besides_interruptions(thing) != CrSt_CreatureCombatFlee)
+        {
+            external_set_thing_state(thing, CrSt_CreatureCombatFlee);
+        }
     }
 
     switch (spell_idx)
