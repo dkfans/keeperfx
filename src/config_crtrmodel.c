@@ -645,7 +645,6 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           crstat->flying = false;
           crstat->can_see_invisible = false;
           crstat->can_go_locked_doors = false;
-          crstat->immunity_flags = 0; // Done here to preserve backward compatibility fix.
           crconf->model_flags = 0;
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
@@ -891,6 +890,17 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           }
           break;
         case 37: // SPELLIMMUNITY
+            // Backward compatibility check.
+            TbBool unaffected_by_wind = flag_is_set(crstat->immunity_flags, CSAfF_Wind);
+            TbBool immune_to_gas = flag_is_set(crstat->immunity_flags, CSAfF_PoisonCloud);
+            TbBool never_chickens = flag_is_set(crstat->immunity_flags, CSAfF_Chicken);
+            TbBool immune_to_disease = flag_is_set(crstat->immunity_flags, CSAfF_Disease);
+            crstat->immunity_flags = 0; // Clear flags, this is necessary for partial config if modder wants to remove all flags.
+            // Backward compatibility fix.
+            if (unaffected_by_wind) {set_flag(crstat->immunity_flags, CSAfF_Wind);}
+            if (immune_to_gas) {set_flag(crstat->immunity_flags, CSAfF_PoisonCloud);}
+            if (never_chickens) {set_flag(crstat->immunity_flags, CSAfF_Chicken);}
+            if (immune_to_disease) {set_flag(crstat->immunity_flags, CSAfF_Disease);}
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 if (parameter_is_number(word_buf))
