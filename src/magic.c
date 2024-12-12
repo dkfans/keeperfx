@@ -82,15 +82,11 @@ unsigned char destroy_effect[][9] = {
 
 /******************************************************************************/
 static TbResult magic_use_power_hand         (PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
-static TbResult magic_use_power_heal         (PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
 static TbResult magic_use_power_apply_spell  (PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
-static TbResult magic_use_power_disease      (PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
-static TbResult magic_use_power_chicken      (PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
 static TbResult magic_use_power_slap_thing   (PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
 static TbResult magic_use_power_possess_thing(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
 static TbResult magic_use_power_call_to_arms (PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
 static TbResult magic_use_power_lightning    (PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
-static TbResult magic_use_power_time_bomb    (PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
 static TbResult magic_use_power_imp          (PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
 static TbResult magic_use_power_sight        (PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
 static TbResult magic_use_power_cave_in      (PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
@@ -100,21 +96,16 @@ static TbResult magic_use_power_hold_audience(PowerKind power_kind, PlayerNumber
 static TbResult magic_use_power_armageddon   (PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
 static TbResult magic_use_power_tunneller    (PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
 
-
 typedef TbResult (*Magic_use_Func)(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
 
 const Magic_use_Func magic_use_func_list[] = {
      NULL,
      &magic_use_power_hand,
-     &magic_use_power_heal,
      &magic_use_power_apply_spell,
-     &magic_use_power_disease,
-     &magic_use_power_chicken,
      &magic_use_power_slap_thing,
      &magic_use_power_possess_thing,
      &magic_use_power_call_to_arms,
      &magic_use_power_lightning,
-     &magic_use_power_time_bomb,
      &magic_use_power_imp,
      &magic_use_power_sight,
      &magic_use_power_cave_in,
@@ -124,9 +115,8 @@ const Magic_use_Func magic_use_func_list[] = {
      &magic_use_power_armageddon,
      &magic_use_power_tunneller,
 };
-
-
 /******************************************************************************/
+
 /**
  * Returns if spell can be casted or given thing and/or coordinates.
  * @param plyr_idx
@@ -344,6 +334,7 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
     }
     if (thing_is_creature(thing))
     {
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
         if (creature_is_leaving_and_cannot_be_stopped(thing))
         {
             return false;
@@ -394,11 +385,11 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
                 SYNCDBG(8,"Player %d cannot cast %s on %s index %d while entering/leaving",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
                 return false;
             }
-            if (creature_affected_by_spell(thing, SplK_Teleport)) {
+            if (flag_is_set(cctrl->stateblock_flags, CCSpl_Teleport)) {
                 SYNCDBG(8,"Player %d cannot cast %s on %s index %d while teleporting",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
                 return false;
             }
-            if (creature_affected_by_spell(thing, SplK_TimeBomb)) {
+            if (creature_affected_with_spell_flags(thing, CSAfF_Timebomb)) {
                 SYNCDBG(8,"Player %d cannot cast %s on %s index %d because TimeBomb blocks it",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
                 return false;
             }
@@ -973,17 +964,15 @@ static TbResult magic_use_power_armageddon(PowerKind power_kind, PlayerNumber pl
         // Per-thing code
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
-        // Creatures unaffected by Armageddon
-        if (is_neutral_thing(thing) && !game.conf.rules.magic.armageddon_teleport_neutrals)
+        if (is_neutral_thing(thing) && !game.conf.rules.magic.armageddon_teleport_neutrals) // Creatures unaffected by Armageddon.
         {
             cctrl->armageddon_teleport_turn = 0;
-        } else
-        // Creatures killed by Armageddon
-        if (creature_affected_by_spell(thing, SplK_Chicken))
+        }
+        else if (creature_affected_with_spell_flags(thing, CSAfF_Chicken)) // Creatures killed by Armageddon.
         {
             kill_creature(thing, heartng, plyr_idx, CrDed_DiedInBattle);
-        } else
-        // Creatures teleported by Armageddon
+        }
+        else // Creatures teleported by Armageddon.
         {
             cctrl->armageddon_teleport_turn = your_time_gap;
             if (thing->owner == plyr_idx) {
@@ -1135,33 +1124,6 @@ static TbResult magic_use_power_hold_audience(PowerKind power_kind, PlayerNumber
     return Lb_SUCCESS;
 }
 
-static TbResult magic_use_power_chicken(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
-{
-    // If this spell is already casted at that creature, do nothing
-    if (thing_affected_by_spell(thing, SplK_Chicken)) {
-        return Lb_OK;
-    }
-    if ((mod_flags & PwMod_CastForFree) == 0)
-    {
-        // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, power_kind, splevel)) {
-            return Lb_FAIL;
-        }
-    }
-    // Check if the creature kind isn't affected by that spell
-    if ((get_creature_model_flags(thing) & CMF_NeverChickens) != 0)
-    {
-        thing_play_sample(thing, 58, 20, 0, 3, 0, 2, 128);
-        return Lb_SUCCESS;
-    }
-    apply_spell_effect_to_thing(thing, SplK_Chicken, splevel);
-    struct PowerConfigStats *powerst;
-    powerst = get_power_model_stats(power_kind);
-    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-    return Lb_SUCCESS;
-}
-
-
 static TbResult magic_use_power_hand(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
     if (power_hand_is_full(get_player(plyr_idx)))
@@ -1171,37 +1133,6 @@ static TbResult magic_use_power_hand(PowerKind power_kind, PlayerNumber plyr_idx
         return Lb_SUCCESS;
     else
         return Lb_FAIL;
-}
-
-static TbResult magic_use_power_disease(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
-{
-    // If this spell is already casted at that creature, do nothing
-    if (thing_affected_by_spell(thing, SplK_Disease)) {
-        return Lb_OK;
-    }
-    if ((mod_flags & PwMod_CastForFree) == 0)
-    {
-        // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, power_kind, splevel)) {
-            return Lb_FAIL;
-        }
-    }
-    // Check if the creature kind isn't affected by that spell
-    if ((get_creature_model_flags(thing) & CMF_NeverSick) != 0)
-    {
-        thing_play_sample(thing, 58, 20, 0, 3, 0, 2, 128);
-        return Lb_SUCCESS;
-    }
-    apply_spell_effect_to_thing(thing, SplK_Disease, splevel);
-    {
-        struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(thing);
-        cctrl->disease_caster_plyridx = plyr_idx;
-    }
-    struct PowerConfigStats *powerst;
-    powerst = get_power_model_stats(power_kind);
-    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
-    return Lb_SUCCESS;
 }
 
 static TbResult magic_use_power_destroy_walls(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
@@ -1265,25 +1196,6 @@ static TbResult magic_use_power_destroy_walls(PowerKind power_kind, PlayerNumber
         struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
         play_non_3d_sample(powerst->select_sound_idx);
     }
-    return Lb_SUCCESS;
-}
-
-static TbResult magic_use_power_time_bomb(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
-{
-    struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
-    if (thing_affected_by_spell(thing, powerst->spell_idx)) {
-        return Lb_OK;
-    }
-    if ((mod_flags & PwMod_CastForFree) == 0)
-    {
-        // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, power_kind, splevel)) {
-            return Lb_FAIL;
-        }
-    }
-    apply_spell_effect_to_thing(thing, powerst->spell_idx, splevel);
-    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
-    initialise_thing_state(thing, CrSt_Timebomb);
     return Lb_SUCCESS;
 }
 
@@ -1382,59 +1294,54 @@ static TbResult magic_use_power_tunneller(PowerKind power_kind, PlayerNumber ply
     return Lb_SUCCESS;
 }
 
-static TbResult magic_use_power_heal(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
-{
-    // If the creature has full health, do nothing
-    if (!thing_is_creature(thing)) {
-        ERRORLOG("Tried to apply spell to invalid creature.");
-        return Lb_FAIL;
-    }
-    if (get_creature_health_permil(thing) >= 1000) {
-        SYNCDBG(7,"Full health, can't heal %s.",thing_model_name(thing));
-        return Lb_OK;
-    }
-    if ((mod_flags & PwMod_CastForFree) == 0)
-    {
-        // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, power_kind, splevel)) {
-            ERRORLOG("No gold to heal %s.",thing_model_name(thing));
-            return Lb_FAIL;
-        }
-    }
-    // Apply spell effect
-    struct PowerConfigStats *powerst;
-    powerst = get_power_model_stats(power_kind);
-    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-    apply_spell_effect_to_thing(thing, powerst->spell_idx, splevel);
-    return Lb_SUCCESS;
-}
-
 static TbResult magic_use_power_apply_spell(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
-    struct PowerConfigStats *powerst;
-    powerst = get_power_model_stats(power_kind);
-
-    // If this spell is already casted at that creature, do nothing
-    if (thing_affected_by_spell(thing, powerst->spell_idx)) {
+    struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
+    struct SpellConfig *spconf = get_spell_config(powerst->spell_idx);
+    // If this spell is already casted at that creature, do nothing.
+    if (creature_affected_with_spell_flags(thing, spconf->spell_flags))
+    {
+        return Lb_OK;
+    }
+    // If the creature is at full health and 'CSAfF_Heal' is the only flag in spell_idx, do nothing.
+    if ((get_creature_health_permil(thing) >= 1000) && (spconf->spell_flags == CSAfF_Heal))
+    {
+        SYNCDBG(7, "Can't heal with %s on creature %s index %d is full health.", power_code_name(power_kind), thing_model_name(thing), (int)thing->index);
         return Lb_OK;
     }
     if ((mod_flags & PwMod_CastForFree) == 0)
     {
-        // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, power_kind, splevel)) {
+        // If we can't afford the spell, fail.
+        if (!pay_for_spell(plyr_idx, power_kind, splevel))
+        {
             return Lb_FAIL;
         }
     }
-    if(powerst->effect_id != 0)
+    // Check if the creature kind isn't affected by that spell.
+    if (creature_is_immune_to_spell_flags(thing, spconf->spell_flags))
+    {
+        thing_play_sample(thing, 58, 20, 0, 3, 0, 2, 128);
+        return Lb_SUCCESS;
+    }
+    // Create an effect originating from the ceiling.
+    if (powerst->effect_id != 0)
     {
         struct Coord3d effpos = thing->mappos;
         effpos.z.val = get_ceiling_height_above_thing_at(thing, &thing->mappos);
         create_used_effect_or_element(&effpos, powerst->effect_id, thing->owner);
     }
-
-
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     apply_spell_effect_to_thing(thing, powerst->spell_idx, splevel);
+    // Special cases.
+    if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
+    { // Set disease_caster_plyridx if spell_idx has 'CSAfF_Disease'.
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+        cctrl->disease_caster_plyridx = plyr_idx;
+    }
+    if (flag_is_set(spconf->spell_flags, CSAfF_Timebomb))
+    { // Only initialise state if spell_idx has 'CSAfF_Timebomb'.
+        initialise_thing_state(thing, CrSt_Timebomb);
+    } 
     return Lb_SUCCESS;
 }
 
@@ -1665,10 +1572,19 @@ TbBool update_creature_influenced_by_call_to_arms_at_pos(struct Thing *creatng, 
     }
     setup_person_move_to_coord(creatng, cta_pos, NavRtF_Default);
     creatng->continue_state = CrSt_ArriveAtCallToArms;
-    cctrl->spell_flags |= CSAfF_CalledToArms;
-    if ((cctrl->flgfield_1 & CCFlg_NoCompControl) != 0) {
-        WARNLOG("The %s index %d is called to arms with no comp control, fixing",thing_model_name(creatng),(int)creatng->index);
-        cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
+    // Only influence creature that are not immune to it.
+    if (!creature_is_immune_to_spell_flags(creatng, CSAfF_CalledToArms))
+    {
+        set_flag(cctrl->spell_flags, CSAfF_CalledToArms);
+    }
+    else
+    {
+        return false;
+    }
+    if (flag_is_set(cctrl->flgfield_1, CCFlg_NoCompControl))
+    {
+        WARNLOG("The %s index %d is called to arms with no comp control, fixing", thing_model_name(creatng), (int)creatng->index);
+        clear_flag(cctrl->flgfield_1, CCFlg_NoCompControl);
     }
     return true;
 }

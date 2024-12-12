@@ -1694,9 +1694,11 @@ void gui_area_instance_button(struct GuiButton *gbtn)
     const char* text = buf_sprintf("%d", (curbtn_avail_pos + 1) % 10);
     LbTextDrawResized(gbtn->scr_pos_x + 52*units_per_px/16, gbtn->scr_pos_y + 9*units_per_px/16, tx_units_per_px, text);
     spr_idx = gbtn->sprite_idx;
-
-    if ( (!creature_instance_has_reset(ctrltng, curbtn_inst_id)) || ( (thing_affected_by_spell(ctrltng, SplK_Freeze)) && (!inst_inf->instant ) ) )
-      spr_idx++;
+    // Show disabled icon if instance is on cooldown or creature is frozen.
+    if ((!creature_instance_has_reset(ctrltng, curbtn_inst_id)) || ((flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze)) && (!inst_inf->instant)))
+    {
+        spr_idx++;
+    }
     if (MyScreenHeight < 400)
     {
         const struct TbSprite* spr = get_panel_sprite(GPS_plyrsym_symbol_player_red_std_b);

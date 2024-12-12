@@ -3057,6 +3057,11 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                 value1 = get_id(creature_desc, scline->tp[2]);
             }
         }
+        else if (creatvar == 37) // SPELLIMMUNITY
+        {
+            value1 = get_id(magic_spell_flags, scline->tp[2]);
+            value2 = atoi(scline->tp[3]);
+        }
         else
         {
             value1 = atoi(scline->tp[2]);
@@ -3596,6 +3601,214 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             break;
         case 36: // TORTUREKIND
             crstat->torture_kind = value;
+            break;
+        case 37: // SPELLIMMUNITY
+            switch (value)
+            {
+                case 1: // SLOW
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Slow);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Slow);
+                    }
+                    break;
+                case 2: // SPEED
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Speed);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Speed);
+                    }
+                    break;
+                case 3: // ARMOUR
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Armour);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Armour);
+                    }
+                    break;
+                case 4: // REBOUND
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Rebound);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Rebound);
+                    }
+                    break;
+                case 5: // FLYING
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Flying);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Flying);
+                    }
+                    break;
+                case 6: // INVISIBILITY
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Invisibility);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Invisibility);
+                    }
+                    break;
+                case 7: // SIGHT
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Sight);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Sight);
+                    }
+                    break;
+                case 8: // LIGHT
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Light);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Light);
+                    }
+                    break;
+                case 9: // DISEASE
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Disease);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Disease);
+                    }
+                    break;
+                case 10: // CHICKEN
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Chicken);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Chicken);
+                    }
+                    break;
+                case 11: // POISON_CLOUD
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_PoisonCloud);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_PoisonCloud);
+                    }
+                    break;
+                case 12: // CALL_TO_ARMS
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_CalledToArms);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_CalledToArms);
+                    }
+                    break;
+                case 13: // MAD_KILLING
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_MadKilling);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_MadKilling);
+                    }
+                    break;
+                case 14: // HEAL
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Heal);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Heal);
+                    }
+                    break;
+                case 15: // EXP_LEVEL_UP
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_ExpLevelUp);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_ExpLevelUp);
+                    }
+                    break;
+                case 16: // TELEPORT
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Teleport);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Teleport);
+                    }
+                    break;
+                case 17: // TIMEBOMB
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Timebomb);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Timebomb);
+                    }
+                    break;
+                case 18: // WIND
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Wind);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Wind);
+                    }
+                    break;
+                case 19: // FREEZE
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Freeze);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Freeze);
+                    }
+                    break;
+                case 20: // FEAR
+                    if (value2 > 0)
+                    {
+                        set_flag(crstat->immunity_flags, CSAfF_Fear);
+                    }
+                    else
+                    {
+                        clear_flag(crstat->immunity_flags, CSAfF_Fear);
+                    }
+                    break;
+                default:
+                    CONFWRNLOG("Unrecognized attribute (%d)", creature_variable);
+                    break;
+            }
             break;
         case ccr_comment:
             break;
@@ -4745,7 +4958,7 @@ static void level_up_players_creatures_process(struct ScriptContext* context)
     SYNCDBG(19, "Finished");
 }
 
-static void use_spell_on_players_creatures_check(const struct ScriptLine* scline)
+static void use_spell_on_players_creatures_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
     long crtr_id = parse_creature_name(scline->tp[1]);
@@ -4757,47 +4970,40 @@ static void use_spell_on_players_creatures_check(const struct ScriptLine* scline
     const char *mag_name = scline->tp[2];
     short mag_id = get_rid(spell_desc, mag_name);
     short splevel = scline->np[3];
-
     if (mag_id == -1)
     {
         SCRPTERRLOG("Invalid spell: %s", mag_name);
         return;
     }
-
-    if (splevel < 1)
+    struct SpellConfig *spconf = get_spell_config(mag_id);
+    if (spconf->linked_power) // Only check for spells linked to a keeper power.
     {
-        if ((mag_id == SplK_Heal) || (mag_id == SplK_Armour) || (mag_id == SplK_Speed) || (mag_id == SplK_Disease) || (mag_id == SplK_Invisibility) || (mag_id == SplK_Chicken))
+        if (splevel < 1)
         {
             SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", mag_name, splevel);
+            splevel = 1;
         }
-        splevel = 1;
+        if (splevel > (MAGIC_OVERCHARGE_LEVELS + 1)) // Creatures cast spells from level 1 to 10.
+        {
+            SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", mag_name, splevel, (MAGIC_OVERCHARGE_LEVELS + 1));
+            splevel = MAGIC_OVERCHARGE_LEVELS;
+        }
     }
-    if (splevel > (MAGIC_OVERCHARGE_LEVELS + 1)) //Creatures cast spells from level 1 to 10, but 10=9.
-    {
-        SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", mag_name, splevel, (MAGIC_OVERCHARGE_LEVELS + 1));
-        splevel = MAGIC_OVERCHARGE_LEVELS;
-    }
-    splevel--;
-    if (mag_id == -1)
-    {
-        SCRPTERRLOG("Unknown magic, '%s'", mag_name);
-        return;
-    }
+    splevel--; // Why is it required? Should it applies only on spells linked to a keeper power?
     value->shorts[1] = crtr_id;
     value->shorts[2] = mag_id;
     value->shorts[3] = splevel;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
-static void use_spell_on_players_creatures_process(struct ScriptContext* context)
+static void use_spell_on_players_creatures_process(struct ScriptContext *context)
 {
     long crmodel = context->value->shorts[1];
-    long spl_idx = context->value->shorts[2];
+    long spell_idx = context->value->shorts[2];
     long overchrg = context->value->shorts[3];
-
     for (int i = context->plr_start; i < context->plr_end; i++)
     {
-        apply_spell_effect_to_players_creatures(i, crmodel, spl_idx, overchrg);
+        apply_spell_effect_to_players_creatures(i, crmodel, spell_idx, overchrg);
     }
 }
 

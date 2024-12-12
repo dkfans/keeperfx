@@ -1663,7 +1663,8 @@ TbBool cmd_freeze_creature(PlayerNumber plyr_idx, char * args)
         return false;
     }
     thing_play_sample(thing, 50, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
-    apply_spell_effect_to_thing(thing, SplK_Freeze, 8);
+    // Not sure how to handle this yet, for now simply hardcode the intended spell kind with a number.
+    apply_spell_effect_to_thing(thing, 3, 8); // 3 was 'SplK_Freeze' in the enum.
     return true;
 }
 
@@ -1678,7 +1679,8 @@ TbBool cmd_slow_creature(PlayerNumber plyr_idx, char * args)
         return false;
     }
     thing_play_sample(thing, 50, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
-    apply_spell_effect_to_thing(thing, SplK_Slow, 8);
+    // Not sure how to handle this yet, for now simply hardcode the intended spell kind with a number.
+    apply_spell_effect_to_thing(thing, 12, 8); // 12 was 'SplK_Slow' in the enum.
     return true;
 }
 

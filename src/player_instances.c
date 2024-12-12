@@ -214,7 +214,8 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
   case TCls_Creature:
   {
       struct Coord3d pos;
-      if (creature_affected_by_spell(thing, SplK_Freeze))
+      struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+      if (flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
       {
           kill_creature(thing, INVALID_THING, thing->owner, CrDed_Default);
       } else
@@ -433,7 +434,9 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
         load_swipe_graphic_for_creature(thing);
         if (my_player)
         {
-            if (creature_affected_by_spell(thing, SplK_Freeze)) {
+            struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+            if (flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
+            {
                 PaletteSetPlayerPalette(player, blue_palette);
             }
         }
@@ -970,7 +973,8 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
           disband_creatures_group(thing);
         }
     }
-    if ( (thing->light_id != 0) && (!crstat->illuminated) && (!creature_affected_by_spell(thing, SplK_Light)) ) {
+    if ((thing->light_id != 0) && (!crstat->illuminated) && (!creature_affected_with_spell_flags(thing, CSAfF_Light)))
+    {
         light_delete_light(thing->light_id);
         thing->light_id = 0;
     }

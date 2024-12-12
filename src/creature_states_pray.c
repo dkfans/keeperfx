@@ -137,11 +137,16 @@ CrStateRet praying_in_temple(struct Thing *thing)
 long process_temple_cure(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (creature_affected_by_spell(creatng, SplK_Disease))
-        terminate_thing_spell_effect(creatng, SplK_Disease);
-    if (creature_affected_by_spell(creatng, SplK_Chicken))
-        terminate_thing_spell_effect(creatng, SplK_Chicken);
+    if (creature_affected_with_spell_flags(creatng, CSAfF_Disease))
+    {
+        clean_spell_flags(creatng, CSAfF_Disease);
+    }
+    if (creature_affected_with_spell_flags(creatng, CSAfF_Chicken))
+    {
+        clean_spell_flags(creatng, CSAfF_Chicken);
+    }
+    // TODO: Should Temple also cure Slow and Freeze? Maybe we should consider making it configurable by room type.
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     cctrl->temple_cure_gameturn = game.play_gameturn;
     return 1;
 }
@@ -387,12 +392,12 @@ void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, ThingModel c
 
 TbBool kill_creature_if_under_chicken_spell(struct Thing *thing)
 {
-    if (creature_affected_by_spell(thing, SplK_Chicken) && !thing_is_picked_up(thing))
+    if (creature_affected_with_spell_flags(thing, CSAfF_Chicken) && !thing_is_picked_up(thing))
     {
         thing->health = -1;
         return true;
     }
-    SYNCDBG(19,"Skipped %s index %d",thing_model_name(thing),(int)thing->index);
+    SYNCDBG(19, "Skipped %s index %d", thing_model_name(thing), (int)thing->index);
     return false;
 }
 

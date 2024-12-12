@@ -1207,8 +1207,8 @@ TbBool validate_source_basic
 
     if (!creature_instance_is_available(source, inst_idx) ||
         !creature_instance_has_reset(source, inst_idx) ||
-        ((cctrl->stateblock_flags & CCSpl_Freeze) != 0) ||
-        creature_is_fleeing_combat(source) || creature_affected_by_spell(source, SplK_Chicken) ||
+        (flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze)) ||
+        creature_is_fleeing_combat(source) || creature_affected_with_spell_flags(source, CSAfF_Chicken) ||
         creature_is_being_unconscious(source) || creature_is_dying(source) ||
         thing_is_picked_up(source) || creature_is_being_dropped(source) ||
         creature_is_being_sacrificed(source) || creature_is_being_summoned(source))
@@ -1343,9 +1343,11 @@ TbBool validate_target_non_idle(struct Thing* source, struct Thing* target, CrIn
         return false;
     }
     struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
-    SpellKind spl_idx = inst_inf->func_params[0];
+    struct SpellConfig *spconf = get_spell_config(inst_inf->func_params[0]);
     long state_type = get_creature_state_type(target);
-    if ((state_type != CrStTyp_Idle) && !creature_affected_by_spell(target, spl_idx))
+    if ((state_type != CrStTyp_Idle)
+    && !creature_affected_with_spell_flags(target, spconf->spell_flags)
+    && !creature_is_immune_to_spell_flags(target, spconf->spell_flags))
     {
         return true;
     }
@@ -1379,9 +1381,10 @@ TbBool validate_target_even_in_prison
     }
 
     struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
-    SpellKind spl_idx = inst_inf->func_params[0];
-    struct SpellConfig* spconf = get_spell_config(spl_idx);
-    if (spell_config_is_invalid(spconf) || creature_affected_by_spell(target, spl_idx))
+    struct SpellConfig *spconf = get_spell_config(inst_inf->func_params[0]);
+    if (spell_config_is_invalid(spconf)
+    || creature_affected_with_spell_flags(target, spconf->spell_flags)
+    || creature_is_immune_to_spell_flags(target, spconf->spell_flags))
     {
         // If this instance has wrong spell, or the target has been affected by this spell, return false.
         SYNCDBG(12, "%s(%d) is not a valid target for %s because it has been affected by the spell.",
@@ -1591,7 +1594,7 @@ TbBool validate_target_benefits_from_wind
         ERRORLOG("Invalid creature control");
         return false;
     }
-    if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
+    if (creature_affected_with_spell_flags(target, CSAfF_PoisonCloud))
     {
         return true;
     }
@@ -1626,7 +1629,7 @@ TbBool validate_target_takes_gas_damage(struct Thing* source, struct Thing* targ
         ERRORLOG("Invalid creature control");
         return false;
     }
-    if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
+    if (creature_affected_with_spell_flags(target, CSAfF_PoisonCloud))
     {
         return true;
     }

@@ -5182,7 +5182,7 @@ void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cct
             stati = get_creature_state_with_task_completion(thing);
             if (!stati->blocks_all_state_changes)
             {
-                if ((cctrl->spell_flags & CSAfF_MadKilling) != 0)
+                if (creature_affected_with_spell_flags(thing, CSAfF_MadKilling))
                 {
                     stati = &states[CrSt_MadKillingPsycho];
                 }
