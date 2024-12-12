@@ -383,8 +383,12 @@ void draw_swipe_graphic(void)
             long i = max(((abs(n) >> 8) -1),0);
             if (i >= SWIPE_SPRITE_FRAMES)
                 i = SWIPE_SPRITE_FRAMES-1;
-            // FIXME: sprites may not be adjacent in the future, causing code below incorrect sprites and possibly crash
             const struct TbSprite* sprlist = get_sprite(swipe_sprites, SWIPE_SPRITES_X * SWIPE_SPRITES_Y * i);
+            if (sprlist == NULL)
+            {
+                ERRORLOG("Failed to draw swipe sprite for thing %d", (int)thing->index);
+                return;
+            }
             const struct TbSprite* startspr = &sprlist[1];
             const struct TbSprite* endspr = &sprlist[1];
             for (n=0; n < SWIPE_SPRITES_X; n++)
