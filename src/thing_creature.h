@@ -168,7 +168,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx);
 void terminate_all_actives_spell_effects(struct Thing *thing);
 void process_thing_spell_effects(struct Thing *thing);
 void process_thing_spell_effects_while_blocked(struct Thing *thing);
-void delete_armour_effects(struct Thing *thing);
+void delete_armour_effects_attached_to_creature(struct Thing *thing);
 void delete_disease_effects_attached_to_creature(struct Thing *thing);
 void delete_familiars_attached_to_creature(struct Thing* sumntng);
 
