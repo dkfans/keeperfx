@@ -3114,6 +3114,7 @@ struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     TbBool frozen = creature_affected_with_spell_flags(creatng, CSAfF_Freeze);
     // Terminate all the actives spell effects on dying creatures.
     terminate_all_actives_spell_effects(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     if (frozen) // Set back stateblock_flags 'CCSpl_Freeze' if it was frozen, for 'cause_creature_death' function.
     {
         set_flag(cctrl->stateblock_flags, CCSpl_Freeze);
@@ -3124,7 +3125,6 @@ struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng, Play
         }
         creature_set_speed(creatng, 0);
     }
-    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn > game.play_gameturn))
     {
         create_effect_around_thing(creatng, ball_puff_effects[creatng->owner]);
