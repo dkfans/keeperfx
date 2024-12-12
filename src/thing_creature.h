@@ -165,9 +165,11 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
 void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev);
 void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev, int slot_idx);
 void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx);
+void terminate_all_actives_spell_effects(struct Thing *thing);
 void process_thing_spell_effects(struct Thing *thing);
 void process_thing_spell_effects_while_blocked(struct Thing *thing);
-void delete_effects_attached_to_creature(struct Thing *creatng);
+void delete_armour_effects(struct Thing *thing);
+void delete_disease_effects_attached_to_creature(struct Thing *thing);
 void delete_familiars_attached_to_creature(struct Thing* sumntng);
 
 CrInstance get_available_instance_with_spell_flags(const struct Thing *thing, unsigned long spell_flags);

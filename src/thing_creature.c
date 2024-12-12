@@ -1154,17 +1154,7 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
     && (creature_affected_with_spell_flags(thing, CSAfF_Armour)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Armour);
-        for (int i = 0; i < 3; i++)
-        {
-            ThingIndex eff_idx = cctrl->spell_tngidx_armour[i];
-            if (eff_idx > 0)
-            {
-                struct Thing *efftng;
-                efftng = thing_get(eff_idx);
-                delete_thing_structure(efftng, 0);
-                cctrl->spell_tngidx_armour[i] = 0;
-            }
-        }
+        delete_armour_effects_attached_to_creature(thing);
         cleared = true;
     }
     if (flag_is_set(spell_flags, CSAfF_Rebound)
@@ -1224,17 +1214,7 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
     && (creature_affected_with_spell_flags(thing, CSAfF_Disease)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Disease);
-        for (int j = 0; j < 3; j++)
-        {
-            ThingIndex eff_idx = cctrl->spell_tngidx_disease[j];
-            if (eff_idx > 0)
-            {
-                struct Thing *efftng;
-                efftng = thing_get(eff_idx);
-                delete_thing_structure(efftng, 0);
-                cctrl->spell_tngidx_disease[j] = 0;
-            }
-        }
+        delete_disease_effects_attached_to_creature(thing);
         cctrl->active_disease_spell = 0;
         cleared = true;
     }
@@ -1456,6 +1436,15 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx)
         }
     }
     return;
+}
+
+void terminate_all_actives_spell_effects(struct Thing *thing)
+{
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+    {
+        terminate_thing_spell_effect(thing, cctrl->casted_spells[i].spkind);
+    }
 }
 
 /* Clears spell flags on a thing. 
@@ -3044,40 +3033,42 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
   light_turn_light_on(player->cursor_light_idx);
 }
 
-void delete_effects_attached_to_creature(struct Thing *creatng)
+void delete_armour_effects_attached_to_creature(struct Thing *thing)
 {
-    struct Thing *efftng;
-    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
         return;
     }
-    if (creature_affected_with_spell_flags(creatng, CSAfF_Armour))
+    struct Thing *efftng;
+    for (int i = 0; i < 3; i++)
     {
-        clear_flag(cctrl->spell_flags, CSAfF_Armour);
-        for (int i = 0; i < 3; i++)
+        ThingIndex eff_idx = cctrl->spell_tngidx_armour[i];
+        if (eff_idx != 0)
         {
-            long num_armour = cctrl->spell_tngidx_armour[i];
-            if (num_armour != 0)
-            {
-                efftng = thing_get(num_armour);
-                delete_thing_structure(efftng, 0);
-                cctrl->spell_tngidx_armour[i] = 0;
-            }
+            efftng = thing_get(eff_idx);
+            delete_thing_structure(efftng, 0);
+            cctrl->spell_tngidx_armour[i] = 0;
         }
     }
-    if (creature_affected_with_spell_flags(creatng, CSAfF_Disease))
+}
+
+void delete_disease_effects_attached_to_creature(struct Thing *thing)
+{
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
     {
-        clear_flag(cctrl->spell_flags, CSAfF_Disease);
-        for (int j = 0; j < 3; j++)
+        return;
+    }
+    struct Thing *efftng;
+    for (int i = 0; i < 3; i++)
+    {
+        ThingIndex eff_idx = cctrl->spell_tngidx_disease[i];
+        if (eff_idx != 0)
         {
-            long num_disease = cctrl->spell_tngidx_disease[j];
-            if (num_disease != 0)
-            {
-                efftng = thing_get(num_disease);
-                delete_thing_structure(efftng, 0);
-                cctrl->spell_tngidx_disease[j] = 0;
-            }
+            efftng = thing_get(eff_idx);
+            delete_thing_structure(efftng, 0);
+            cctrl->spell_tngidx_disease[i] = 0;
         }
     }
 }
@@ -3121,12 +3112,8 @@ struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     }
     // Remember if the creature is frozen.
     TbBool frozen = creature_affected_with_spell_flags(creatng, CSAfF_Freeze);
-    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
-    // Terminate all the active spell effects on dying creatures.
-    for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
-    {
-        terminate_thing_spell_effect(creatng, cctrl->casted_spells[i].spkind);
-    }
+    // Terminate all the actives spell effects on dying creatures.
+    terminate_all_actives_spell_effects(creatng);
     if (frozen) // Set back stateblock_flags 'CCSpl_Freeze' if it was frozen, for 'cause_creature_death' function.
     {
         set_flag(cctrl->stateblock_flags, CCSpl_Freeze);
@@ -3137,6 +3124,7 @@ struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng, Play
         }
         creature_set_speed(creatng, 0);
     }
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn > game.play_gameturn))
     {
         create_effect_around_thing(creatng, ball_puff_effects[creatng->owner]);

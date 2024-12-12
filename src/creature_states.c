@@ -4663,15 +4663,25 @@ TbBool cleanup_creature_state_and_interactions(struct Thing *creatng)
     cleanup_current_thing_state(creatng);
     set_creature_assigned_job(creatng, Job_NULL);
     remove_all_traces_of_combat(creatng);
-    if (creature_is_group_member(creatng)) {
+    if (creature_is_group_member(creatng))
+    {
         remove_creature_from_group(creatng);
     }
     remove_events_thing_is_attached_to(creatng);
-    delete_effects_attached_to_creature(creatng);
+    // Use the correct function to clear them properly. Terminating the spells also removes the attached effects.
+    if (creature_affected_with_spell_flags(creatng, CSAfF_Armour))
+    {
+        clean_spell_flags(creatng, CSAfF_Armour);
+    }
+    if (creature_affected_with_spell_flags(creatng, CSAfF_Disease))
+    {
+        clean_spell_flags(creatng, CSAfF_Disease);
+    }
     delete_familiars_attached_to_creature(creatng);
     state_cleanup_dragging_body(creatng);
     state_cleanup_dragging_object(creatng);
-    if (flag_is_set((creature_control_get_from_thing(creatng))->flgfield_2, TF2_SummonedCreature)) {
+    if (flag_is_set((creature_control_get_from_thing(creatng))->flgfield_2, TF2_SummonedCreature))
+    {
         remove_creature_from_summon_list(get_dungeon(creatng->owner), creatng->index);
     }
     return true;

@@ -143,7 +143,15 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
     }
     if (!a2)
     {
-        delete_effects_attached_to_creature(thing);
+        // Use the correct function to clear them properly. Terminating the spells also removes the attached effects.
+        if (creature_affected_with_spell_flags(thing, CSAfF_Armour))
+        {
+            clean_spell_flags(thing, CSAfF_Armour);
+        }
+        if (creature_affected_with_spell_flags(thing, CSAfF_Disease))
+        {
+            clean_spell_flags(thing, CSAfF_Disease);
+        }
         delete_familiars_attached_to_creature(thing);
         if (thing->light_id != 0) {
             light_delete_light(thing->light_id);
