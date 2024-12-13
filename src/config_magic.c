@@ -727,11 +727,13 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                             n++;
                             break;
                         case 11: // POISON_CLOUD
-                            set_flag(spconf->spell_flags, CSAfF_PoisonCloud);
+                            //set_flag(spconf->spell_flags, CSAfF_PoisonCloud);
+                            WARNLOG("'POISON_CLOUD' has no effect on spell, flag is not set on %s", spell_code_name(i));
                             n++;
                             break;
                         case 12: // CALL_TO_ARMS
-                            set_flag(spconf->spell_flags, CSAfF_CalledToArms);
+                            //set_flag(spconf->spell_flags, CSAfF_CalledToArms);
+                            WARNLOG("'CALL_TO_ARMS' has no effect on spell, flag is not set on %s", spell_code_name(i));
                             n++;
                             break;
                         case 13: // MAD_KILLING
@@ -755,7 +757,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                             n++;
                             break;
                         case 18: // WIND
-                            set_flag(spconf->spell_flags, CSAfF_Wind);
+                            //set_flag(spconf->spell_flags, CSAfF_Wind);
+                            WARNLOG("'WIND' has no effect on spell, flag is not set on %s", spell_code_name(i));
                             n++;
                             break;
                         case 19: // FREEZE
