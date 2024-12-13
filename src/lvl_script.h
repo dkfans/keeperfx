@@ -202,7 +202,7 @@ TbBool script_scan_line(char *line,TbBool preloaded, long file_version);
 TbBool preload_script(long lvnum);
 /******************************************************************************/
 
-long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned char a3);
+long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short validx);
 void process_level_script(void);
 /******************************************************************************/
 #ifdef __cplusplus

@@ -654,7 +654,7 @@ TbBool display_variable_enabled(void)
   return ((game.flags_gui & GGUI_Variable) != 0);
 }
 
-void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx, long target, unsigned char targettype)
+void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, short validx, long target, unsigned char targettype)
 {
     long value = get_condition_value(plyr_idx, valtype, validx);
     if (target != 0)
