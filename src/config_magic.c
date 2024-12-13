@@ -51,19 +51,25 @@ extern "C" {
 const char keeper_magic_file[]="magic.cfg";
 
 const struct NamedCommand magic_spell_commands[] = {
-  {"NAME",            1},
-  {"DURATION",        2},
-  {"SELFCASTED",      3},
-  {"CASTATTHING",     4},
-  {"SHOTMODEL",       5},
-  {"EFFECTMODEL",     6},
-  {"SYMBOLSPRITES",   7},
-  {"SPELLPOWER",      8},
-  {"AURAEFFECT",      9},
-  {"SPELLFLAGS",     10},
-  {"SUMMONCREATURE", 11},
-  {NULL,              0},
-  };
+    {"NAME",             1},
+    {"DURATION",         2},
+    {"SELFCASTED",       3},
+    {"CASTATTHING",      4},
+    {"SHOTMODEL",        5},
+    {"EFFECTMODEL",      6},
+    {"SYMBOLSPRITES",    7},
+    {"SPELLPOWER",       8},
+    {"AURAEFFECT",       9},
+    {"SPELLFLAGS",      10},
+    {"SUMMONCREATURE",  11},
+    {"COUNTDOWN",       12},
+    {"HEALINGRECOVERY", 13},
+    {"DAMAGE",          14},
+    {"DAMAGEFREQUENCY", 15},
+    {"DAMAGETYPE",      16},
+    {"PROPERTIES",      17},
+    {NULL,               0},
+};
 
 const struct NamedCommand magic_spell_flags[] = {
     {"SLOW",          1},
@@ -86,6 +92,12 @@ const struct NamedCommand magic_spell_flags[] = {
     {"WIND",         18},
     {"FREEZE",       19},
     {"FEAR",         20},
+    {NULL,            0},
+};
+
+const struct NamedCommand magic_spell_properties[] = {
+    {"CLEANSE",       1},
+    {"PERCENT_BASED", 2},
     {NULL,            0},
 };
 
@@ -480,6 +492,12 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
       spconf->crtr_summon_amount = 0;
       spconf->aura_effect = 0;
       spconf->spell_flags = 0;
+      spconf->properties_flags = 0;
+      spconf->countdown = 0;
+      spconf->healing_recovery = 0;
+      spconf->damage = 0;
+      spconf->damage_frequency = 0;
+      spconf->damage_type = 0;
     }
   }
   spell_desc[MAGIC_ITEMS_MAX - 1].name = NULL; // must be null for get_id
@@ -819,6 +837,101 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
+        case 12: // COUNTDOWN
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                spconf->countdown = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 13: // HEALINGRECOVERY
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                spconf->healing_recovery = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 14: // DAMAGE
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                spconf->damage = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 15: // DAMAGEFREQUENCY
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                spconf->damage_frequency = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 16: // DAMAGETYPE
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = get_id(shotmodel_damagetype_commands, word_buf);
+                if (k >= 0)
+                {
+                    spconf->damage_type = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                shotst->damage_type = 0; // Default damage type to "none", to allow empty values in config.
+                break;
+            }
+            break;
+        case 17: // PROPERTIES
+            spconf->properties_flags = 0;
+            while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = get_id(magic_spell_properties, word_buf);
+                switch (k)
+                {
+                    case 1: // CLEANSE
+                        set_flag(spconf->properties_flags, SPF_Cleanse);
+                        n++;
+                        break;
+                    case 2: // PERCENT_BASED
+                        set_flag(spconf->properties_flags, SPF_PercentBased);
+                        n++;
+                        break;
+                    default:
+                        CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                            COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                        break;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
       case ccr_comment:
           break;
       case ccr_endOfFile:

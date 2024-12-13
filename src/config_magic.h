@@ -60,6 +60,11 @@ enum CreatureSpellAffectedFlags {
     CSAfF_Fear         = 0x080000,
 };
 
+enum SpellPropertiesFlags {
+    SPF_Cleanse        = 0x01, // Spell will clear SpellFlags assigned instead of applying them.
+    SPF_PercentBased   = 0x02, // Damage or Healing is % based on max health instead of a flat value.
+};
+
 enum PowerKinds {
     PwrK_None = 0,
     PwrK_HAND,
@@ -375,9 +380,15 @@ struct SpellConfig {
     short crtr_summon_level;
     short crtr_summon_amount;
     PowerKind linked_power;
+    GameTurnDelta countdown;
     GameTurnDelta duration;
     short aura_effect;
     unsigned long spell_flags;
+    unsigned char properties_flags;
+    HitPoints healing_recovery;
+    HitPoints damage;
+    GameTurnDelta damage_frequency;
+    DamageType damage_type;
 };
 
 struct MagicStats {

@@ -910,7 +910,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
                 if (!thing_is_invalid(ntng))
                 {
                     cctrl->spell_tngidx_armour[k] = ntng->index;
-                    ntng->health = pwrdynst->strength[spell_lev] + 1; // TODO: Make it possible to have it unlinked.
+                    ntng->health = duration + 1;
                     ntng->armor.belongs_to = thing->index;
                     ntng->armor.shspeed = k;
                     ntng->move_angle_xy = thing->move_angle_xy;
@@ -1001,7 +1001,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
                 if (!thing_is_invalid(ntng))
                 {
                     cctrl->spell_tngidx_disease[j] = ntng->index;
-                    ntng->health = pwrdynst->strength[spell_lev] + 1; // TODO: Make it possible to have it unlinked.
+                    ntng->health = duration + 1;
                     ntng->disease.belongs_to = thing->index;
                     ntng->disease.effect_slot = j;
                     ntng->move_angle_xy = thing->move_angle_xy;
@@ -1025,12 +1025,12 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         {
             set_flag(cctrl->spell_flags, CSAfF_Chicken);
             external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
-            cctrl->countdown = duration;
+            cctrl->countdown = spconf->countdown;
         }
-        else // If spell is reapplied countdown is duration / 5.
+        else // If spell is reapplied countdown is spconf->countdown / 5.
         {
             external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
-            cctrl->countdown = duration / 5;
+            cctrl->countdown = spconf->countdown / 5;
         }
         affected = true;
     }
@@ -1106,9 +1106,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         HitPoints healing_recovery;
         if (spconf->linked_power == PwrK_None)
         {
-            // TODO: make a new field for unlinked heal spell.
-            HitPoints unlinked = 0;
-            healing_recovery = saturate_set_signed(thing->health + unlinked, 16);
+            healing_recovery = saturate_set_signed(thing->health + spconf->healing_recovery, 16);
         }
         else
         {
