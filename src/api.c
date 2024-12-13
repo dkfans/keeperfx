@@ -705,7 +705,7 @@ int api_is_subscribed_to_var(PlayerNumber plyr_idx, unsigned char valtype, unsig
     return false;
 }
 
-int api_subscribe_var(PlayerNumber plyr_idx, const char *var_name, unsigned char valtype, unsigned char validx)
+int api_subscribe_var(PlayerNumber plyr_idx, const char *var_name, unsigned char valtype, short validx)
 {
     JUSTLOG("Sub: %d, %d, %d", plyr_idx, valtype, validx);
 
