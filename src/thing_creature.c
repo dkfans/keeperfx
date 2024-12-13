@@ -1375,15 +1375,6 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
         ERRORLOG("Spell %s config is invalid", spell_code_name(spell_idx));
         return; // Exit the function, spell config is invalid.
     }
-    // Handle cases where a modder assigns a spell with only these flags set.
-    // These cases are treated differently and have no effect on the spells.
-    if ((spconf->spell_flags == CSAfF_PoisonCloud) || (spconf->spell_flags == CSAfF_CalledToArms) || (spconf->spell_flags == CSAfF_Wind)
-    || (spconf->spell_flags == CSAfF_PoisonCloud + CSAfF_CalledToArms) || (spconf->spell_flags == CSAfF_PoisonCloud + CSAfF_CalledToArms + CSAfF_Wind)
-    || (spconf->spell_flags == CSAfF_PoisonCloud + CSAfF_Wind) || (spconf->spell_flags == CSAfF_CalledToArms + CSAfF_Wind))
-    {
-        WARNLOG("Spell %s is trying to apply spell flags %d that has no effect on it", spell_code_name(spell_idx), (uint)spconf->spell_flags);
-        return; // Exit the function, no further processing is needed for these cases.
-    }
     if (creature_is_immune_to_spell_flags(thing, spconf->spell_flags))
     {
         SYNCDBG(7, "Creature %s index %d is immune to all spell flags %d set on %s", thing_model_name(thing), (int)thing->index, (uint)spconf->spell_flags, spell_code_name(spell_idx));
