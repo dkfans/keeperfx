@@ -1332,7 +1332,7 @@ short creature_combat_flee(struct Thing *creatng)
     {
         turns_in_flee = 0;
     }
-    if (get_chessboard_distance(&creatng->mappos, &cctrl->flee_pos) >= coord_slab(2))
+    if (get_chessboard_distance(&creatng->mappos, &cctrl->flee_pos) >= slab_coord(2))
     {
         SYNCDBG(8,"Starting distant flee for %s index %d",thing_model_name(creatng),(int)creatng->index);
         if (has_melee_combat_attackers(creatng) || has_ranged_combat_attackers(creatng)
