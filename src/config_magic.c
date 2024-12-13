@@ -901,7 +901,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
             }
             if (n < 1)
             {
-                shotst->damage_type = 0; // Default damage type to "none", to allow empty values in config.
+                spconf->damage_type = 0; // Default damage type to "none", to allow empty values in config.
                 break;
             }
             break;
