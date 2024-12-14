@@ -152,8 +152,8 @@ TbBool remove_creature_lair(struct Thing *thing);
 TbBool creature_affected_by_slap(const struct Thing *thing);
 TbBool creature_under_spell_effect_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name);
 #define creature_under_spell_effect(thing, spell_flags) creature_under_spell_effect_f(thing, spell_flags, __func__)
-TbBool creature_is_immune_to_spell_flags_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name);
-#define creature_is_immune_to_spell_flags(thing, spell_flags) creature_is_immune_to_spell_flags_f(thing, spell_flags, __func__)
+TbBool creature_is_immune_to_spell_effect_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name);
+#define creature_is_immune_to_spell_effect(thing, spell_flags) creature_is_immune_to_spell_effect_f(thing, spell_flags, __func__)
 
 TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTurnDelta duration, long spell_lev, const char *func_name);
 #define set_thing_spell_flags(thing, spell_idx, duration, spell_lev) set_thing_spell_flags_f(thing, spell_idx, duration, spell_lev, __func__)

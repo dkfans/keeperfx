@@ -694,7 +694,7 @@ TbBool creature_under_spell_effect_f(const struct Thing *thing, unsigned long sp
 /* Returns if the creature kind is immune to spell flags.
  * @param thing The thing to be checked.
  * @param spell_flags The spell flags to be checked. */
-TbBool creature_is_immune_to_spell_flags_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name)
+TbBool creature_is_immune_to_spell_effect_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name)
 {
     struct CreatureStats *crstat = creature_stats_get(thing->model);
     if (creature_stats_invalid(crstat))
@@ -876,7 +876,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
     struct Thing *ntng;
     TbBool affected = false;
     if (flag_is_set(spconf->spell_flags, CSAfF_Slow)
-    && (!creature_is_immune_to_spell_flags(thing, CSAfF_Slow)))
+    && (!creature_is_immune_to_spell_effect(thing, CSAfF_Slow)))
     {
         if (!creature_under_spell_effect(thing, CSAfF_Slow))
         {
@@ -887,7 +887,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         affected = true;
     }
     if (flag_is_set(spconf->spell_flags, CSAfF_Speed)
-    && (!creature_is_immune_to_spell_flags(thing, CSAfF_Speed)))
+    && (!creature_is_immune_to_spell_effect(thing, CSAfF_Speed)))
     {
         if (!creature_under_spell_effect(thing, CSAfF_Speed))
         {
@@ -897,7 +897,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         affected = true;
     }
     if (flag_is_set(spconf->spell_flags, CSAfF_Armour)
-    && (!creature_is_immune_to_spell_flags(thing, CSAfF_Armour)))
+    && (!creature_is_immune_to_spell_effect(thing, CSAfF_Armour)))
     {
         if (!creature_under_spell_effect(thing, CSAfF_Armour))
         {
@@ -927,7 +927,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         affected = true;
     }
     if (flag_is_set(spconf->spell_flags, CSAfF_Rebound)
-    && (!creature_is_immune_to_spell_flags(thing, CSAfF_Rebound)))
+    && (!creature_is_immune_to_spell_effect(thing, CSAfF_Rebound)))
     {
         if (!creature_under_spell_effect(thing, CSAfF_Rebound))
         {
@@ -936,7 +936,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         affected = true;
     }
     if (flag_is_set(spconf->spell_flags, CSAfF_Flying)
-    && (!creature_is_immune_to_spell_flags(thing, CSAfF_Flying)))
+    && (!creature_is_immune_to_spell_effect(thing, CSAfF_Flying)))
     {
         if (!creature_under_spell_effect(thing, CSAfF_Flying))
         {
@@ -946,7 +946,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         affected = true;
     }
     if (flag_is_set(spconf->spell_flags, CSAfF_Invisibility)
-    && (!creature_is_immune_to_spell_flags(thing, CSAfF_Invisibility)))
+    && (!creature_is_immune_to_spell_effect(thing, CSAfF_Invisibility)))
     {
         if (!creature_under_spell_effect(thing, CSAfF_Invisibility))
         {
@@ -956,7 +956,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         affected = true;
     }
     if (flag_is_set(spconf->spell_flags, CSAfF_Sight)
-    && (!creature_is_immune_to_spell_flags(thing, CSAfF_Sight)))
+    && (!creature_is_immune_to_spell_effect(thing, CSAfF_Sight)))
     {
         if (!creature_under_spell_effect(thing, CSAfF_Sight))
         {
@@ -965,7 +965,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         affected = true;
     }
     if (flag_is_set(spconf->spell_flags, CSAfF_Light)
-    && (!creature_is_immune_to_spell_flags(thing, CSAfF_Light)))
+    && (!creature_is_immune_to_spell_effect(thing, CSAfF_Light)))
     {
         if (!crstat->illuminated)
         {
@@ -978,7 +978,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         }
     }
     if (flag_is_set(spconf->spell_flags, CSAfF_Disease)
-    && (!creature_is_immune_to_spell_flags(thing, CSAfF_Disease)))
+    && (!creature_is_immune_to_spell_effect(thing, CSAfF_Disease)))
     {
         if (!creature_under_spell_effect(thing, CSAfF_Disease))
         {
@@ -1019,7 +1019,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         affected = true;
     }
     if (flag_is_set(spconf->spell_flags, CSAfF_Chicken)
-    && (!creature_is_immune_to_spell_flags(thing, CSAfF_Chicken)))
+    && (!creature_is_immune_to_spell_effect(thing, CSAfF_Chicken)))
     {
         if (!creature_under_spell_effect(thing, CSAfF_Chicken))
         {
@@ -1035,7 +1035,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         affected = true;
     }
     if (flag_is_set(spconf->spell_flags, CSAfF_MadKilling)
-    && (!creature_is_immune_to_spell_flags(thing, CSAfF_MadKilling)))
+    && (!creature_is_immune_to_spell_effect(thing, CSAfF_MadKilling)))
     {
         if (!creature_under_spell_effect(thing, CSAfF_MadKilling))
         {
@@ -1044,7 +1044,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         affected = true;
     }
     if (flag_is_set(spconf->spell_flags, CSAfF_UseMePlease)
-    && (!creature_is_immune_to_spell_flags(thing, CSAfF_UseMePlease)))
+    && (!creature_is_immune_to_spell_effect(thing, CSAfF_UseMePlease)))
     {
         if (!creature_under_spell_effect(thing, CSAfF_UseMePlease))
         {
@@ -1053,7 +1053,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         affected = true;
     }
     if (flag_is_set(spconf->spell_flags, CSAfF_Teleport)
-    && (!creature_is_immune_to_spell_flags(thing, CSAfF_Teleport)))
+    && (!creature_is_immune_to_spell_effect(thing, CSAfF_Teleport)))
     {
         if (!creature_under_spell_effect(thing, CSAfF_Teleport))
         {
@@ -1064,7 +1064,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         affected = true;
     }
     if (flag_is_set(spconf->spell_flags, CSAfF_Timebomb)
-    && (!creature_is_immune_to_spell_flags(thing, CSAfF_Timebomb)))
+    && (!creature_is_immune_to_spell_effect(thing, CSAfF_Timebomb)))
     {
         if (!creature_under_spell_effect(thing, CSAfF_Timebomb))
         {
@@ -1075,7 +1075,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         affected = true;
     }
     if (flag_is_set(spconf->spell_flags, CSAfF_Freeze)
-    && (!creature_is_immune_to_spell_flags(thing, CSAfF_Freeze)))
+    && (!creature_is_immune_to_spell_effect(thing, CSAfF_Freeze)))
     {
         if (!creature_under_spell_effect(thing, CSAfF_Freeze))
         {
@@ -1091,7 +1091,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         affected = true;
     }
     if (flag_is_set(spconf->spell_flags, CSAfF_Fear)
-    && (!creature_is_immune_to_spell_flags(thing, CSAfF_Fear))
+    && (!creature_is_immune_to_spell_effect(thing, CSAfF_Fear))
     && (crstat->fear_stronger > 0))
     {
         if (!creature_under_spell_effect(thing, CSAfF_Fear))
@@ -1129,7 +1129,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         affected = true;
     }
     if (flag_is_set(spconf->spell_flags, CSAfF_Heal)
-    && (!creature_is_immune_to_spell_flags(thing, CSAfF_Heal)))
+    && (!creature_is_immune_to_spell_effect(thing, CSAfF_Heal)))
     {
         // 'CSAfF_Heal' is only for checking config or immunity, flag is never set to creature.
         HitPoints healing_recovery;
@@ -1417,7 +1417,7 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
         ERRORLOG("Spell %s config is invalid", spell_code_name(spell_idx));
         return; // Exit the function, spell config is invalid.
     }
-    if (creature_is_immune_to_spell_flags(thing, spconf->spell_flags))
+    if (creature_is_immune_to_spell_effect(thing, spconf->spell_flags))
     {
         SYNCDBG(7, "Creature %s index %d is immune to all spell flags %d set on %s", thing_model_name(thing), (int)thing->index, (uint)spconf->spell_flags, spell_code_name(spell_idx));
         return; // Exit the function, creature is immune to all spell flags set on spell_idx.
@@ -4876,7 +4876,7 @@ long player_list_creature_filter_in_fight_and_not_affected_by_spell(const struct
         {
             return -1;
         }
-        if (creature_is_immune_to_spell_flags(thing, spconf->spell_flags))
+        if (creature_is_immune_to_spell_effect(thing, spconf->spell_flags))
         {
             return -1;
         }

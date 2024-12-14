@@ -86,7 +86,7 @@ void process_dungeon_destroy(struct Thing* heartng)
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     struct Thing* soultng = thing_get(dungeon->free_soul_idx);
     struct ObjectConfigStats* objst = get_object_model_stats(heartng->model);
-    struct CreatureControl* sctrl; // For 'soultng' strange case.
+    struct CreatureControl* sctrl;
     if (dungeon->heart_destroy_state == 0)
     {
         return;
@@ -129,7 +129,7 @@ void process_dungeon_destroy(struct Thing* heartng)
             }
             else if (dungeon->heart_destroy_turn == 20)
             {
-                // Strange case, not sure why it's required.
+                // Sets soultng to be invisible for a short amount of time.
                 sctrl = creature_control_get_from_thing(soultng);
                 set_flag(sctrl->spell_flags, CSAfF_Invisibility);
                 sctrl->force_visible = 0;
@@ -146,13 +146,13 @@ void process_dungeon_destroy(struct Thing* heartng)
             }
             else if (dungeon->heart_destroy_turn == 28)
             {
-                // Strange case, not sure why it's required.
+                // Clears soultng invisibility.
                 sctrl = creature_control_get_from_thing(soultng);
                 clear_flag(sctrl->spell_flags, CSAfF_Invisibility);
                 sctrl->force_visible = 0;
             }
             else if (dungeon->heart_destroy_turn == 30)
-            { // 'soultng' is deleted shortly after so why even bother making it invisible with spell flags? Perhaps it could use rendering flag instead?
+            {
                 dungeon->free_soul_idx = 0;
                 delete_thing_structure(soultng, 0);
             }

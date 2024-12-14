@@ -1378,7 +1378,7 @@ TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, 
     SYNCDBG(17,"Starting for %s, max damage %d, max blow %d, owner %d",thing_model_name(tngdst),(int)max_damage,(int)blow_strength,(int)owner);
     if (thing_is_creature(tngdst))
     {
-        if (creature_is_immune_to_spell_flags(tngdst, CSAfF_PoisonCloud)) {
+        if (creature_is_immune_to_spell_effect(tngdst, CSAfF_PoisonCloud)) {
             return affected;
         }
     } else {
@@ -1414,7 +1414,7 @@ TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, 
                         apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, tngsrc->owner);
                     }
                     spconf = get_spell_config(spell_idx);
-                    if ((!creature_under_spell_effect(tngdst, spconf->spell_flags)) && (!creature_is_immune_to_spell_flags(tngdst, spconf->spell_flags)))
+                    if ((!creature_under_spell_effect(tngdst, spconf->spell_flags)) && (!creature_is_immune_to_spell_effect(tngdst, spconf->spell_flags)))
                     {
                         struct CreatureControl *srcctrl;
                         srcctrl = creature_control_get_from_thing(tngsrc);
@@ -1423,7 +1423,7 @@ TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, 
                     break;
                 case AAffT_GasEffect:
                     spconf = get_spell_config(spell_idx);
-                    if ((!creature_under_spell_effect(tngdst, spconf->spell_flags)) && (!creature_is_immune_to_spell_flags(tngdst, spconf->spell_flags)))
+                    if ((!creature_under_spell_effect(tngdst, spconf->spell_flags)) && (!creature_is_immune_to_spell_effect(tngdst, spconf->spell_flags)))
                     {
                         struct CreatureControl *srcctrl;
                         srcctrl = creature_control_get_from_thing(tngsrc);

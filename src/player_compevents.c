@@ -438,7 +438,7 @@ PowerKind computer_choose_attack_spell(struct Computer2 *comp, struct ComputerEv
             powerst = get_power_model_stats(caspl->pwkind);
             spconf = get_spell_config(powerst->spell_idx);
             if (!creature_under_spell_effect(creatng, spconf->spell_flags)
-            && !creature_is_immune_to_spell_flags(creatng, spconf->spell_flags))
+            && !creature_is_immune_to_spell_effect(creatng, spconf->spell_flags))
             {
                 if (computer_able_to_use_power(comp, caspl->pwkind, cevent->param1, caspl->amount_able)) {
                     cevent->param3 = i;
@@ -830,7 +830,7 @@ long computer_event_check_imps_in_danger(struct Computer2 *comp, struct Computer
                 if ((CREATURE_RANDOM(creatng, 150) == 1)
                 && computer_able_to_use_power(comp, PwrK_CONCEAL, 8, 1)
                 && !creature_under_spell_effect(creatng, CSAfF_Invisibility)
-                && !creature_is_immune_to_spell_flags(creatng, CSAfF_Invisibility))
+                && !creature_is_immune_to_spell_effect(creatng, CSAfF_Invisibility))
                 { // TODO: check if PwrK_CONCEAL is still applying Invisibility, in case it changes?
                     magic_use_available_power_on_thing(creatng->owner, PwrK_CONCEAL, 8, 0, 0, creatng, PwMod_Default);
                 }

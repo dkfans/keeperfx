@@ -1100,7 +1100,7 @@ long compute_creature_weight(const struct Thing* creatng)
         long eye_height = get_creature_eye_height(creatng);
         long weight = eye_height >> 2;
         weight += (crstat->hunger_fill + crstat->lair_size + 1) * cctrl->explevel;
-        if (creature_is_immune_to_spell_flags(creatng, CSAfF_Wind))
+        if (creature_is_immune_to_spell_effect(creatng, CSAfF_Wind))
         {
             weight = weight * 3 / 2;
         }

@@ -215,7 +215,7 @@ void process_disease(struct Thing *creatng)
                 && ((get_creature_model_flags(thing) & CMF_IsSpecDigger) == 0)
                 && (thing->owner != cctrl->disease_caster_plyridx)
                 && !creature_under_spell_effect(thing, CSAfF_Disease)
-                && !creature_is_immune_to_spell_flags(thing, CSAfF_Disease)
+                && !creature_is_immune_to_spell_effect(thing, CSAfF_Disease)
                 && (cctrl->disease_caster_plyridx != game.neutral_player_num))
                 { // Apply the spell kind stored in 'active_disease_spell'.
                     apply_spell_effect_to_thing(thing, cctrl->active_disease_spell, cctrl->explevel);
