@@ -181,6 +181,11 @@ TbBool creature_will_do_combat(const struct Thing *thing)
     {
         return false;
     }
+    // Creature affected with fear won't fight.
+    if (creature_affected_with_spell_flags(thing, CSAfF_Fear))
+    {
+        return false;
+    }
     // Check related (?) to "zombie player" (turned off).
     if (flag_is_set(cctrl->flgfield_1, CCFlg_NoCompControl))
     {
@@ -285,6 +290,9 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     {
         return false;
     }
+    // Accept 0 as a way to disable fear of stronger creatures
+    if (crstat->fear_stronger == 0)
+        return false;
     // If the enemy is way stronger, a creature may be scared anyway
     fear = crstat->fear_stronger;
     long long enmstrength = LbSqrL(project_melee_damage(enmtng)) * (enmstat->fearsome_factor) / 100 * ((long long)enmaxhealth + (long long)enmtng->health) / 2;
@@ -1332,7 +1340,11 @@ short creature_combat_flee(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     GameTurnDelta turns_in_flee = game.play_gameturn - (GameTurnDelta)cctrl->flee_start_turn;
-    if (get_chessboard_distance(&creatng->mappos, &cctrl->flee_pos) >= 1536)
+    if (cctrl->flee_start_turn == 0)
+    {
+        turns_in_flee = 0;
+    }
+    if (get_chessboard_distance(&creatng->mappos, &cctrl->flee_pos) >= slab_coord(2))
     {
         SYNCDBG(8,"Starting distant flee for %s index %d",thing_model_name(creatng),(int)creatng->index);
         if (has_melee_combat_attackers(creatng) || has_ranged_combat_attackers(creatng)
@@ -1346,7 +1358,7 @@ short creature_combat_flee(struct Thing *creatng)
             }
             cctrl->flee_start_turn = game.play_gameturn;
         } else
-        if (turns_in_flee <= game.conf.rules.creature.game_turns_in_flee)
+        if ((turns_in_flee <= game.conf.rules.creature.game_turns_in_flee) || creature_affected_by_spell(creatng, SplK_Fear))
         {
             GameTurnDelta escape_turns = (game.conf.rules.creature.game_turns_in_flee >> 2);
             if (escape_turns <= 50)
@@ -1381,7 +1393,7 @@ short creature_combat_flee(struct Thing *creatng)
                 return 1;
             }
         }
-        if (turns_in_flee <= game.conf.rules.creature.game_turns_in_flee)
+        if ((turns_in_flee <= game.conf.rules.creature.game_turns_in_flee) || creature_affected_by_spell(creatng, SplK_Fear))
         {
             if (creature_choose_random_destination_on_valid_adjacent_slab(creatng)) {
                 creatng->continue_state = CrSt_CreatureCombatFlee;

@@ -331,7 +331,8 @@ long pinstfs_direct_control_creature(struct PlayerInfo *player, long *n)
 {
     // Reset state of the thing being possessed
     struct Thing* thing = thing_get(player->influenced_thing_idx);
-    if (thing_is_creature(thing)) {
+    if (thing_can_be_controlled_as_controller(thing))
+    {
         SYNCDBG(8,"Cleaning up state %s of %s index %d",creature_state_code_name(thing->active_state),thing_model_name(thing),(int)thing->index);
         initialise_thing_state(thing, CrSt_ManualControl);
         LbGrabMouseCheck(MG_OnPossessionEnter);
@@ -373,7 +374,6 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
         }
         cam->orient_a += mv_a;
         cam->orient_a &= LbFPMath_AngleMask;
-        thing = thing_get(player->influenced_thing_idx);
         // Now mv_a becomes a circle radius
         mv_a = get_creature_eye_height(thing) + thing->mappos.z.val;
         long mv_x = thing->mappos.x.val + distance_with_angle_to_coord_x(mv_a, cam->orient_a) - (MapCoordDelta)cam->mappos.x.val;

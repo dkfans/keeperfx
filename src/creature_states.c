@@ -1527,6 +1527,11 @@ short creature_being_dropped(struct Thing *creatng)
                 }
             }
         }
+        if (creature_affected_by_spell(creatng, SplK_Fear))
+        {
+            external_set_thing_state(creatng, CrSt_CreatureCombatFlee);
+            return 2;
+        }
         // Do combat, if we can
         if (creature_will_do_combat(creatng))
         {

@@ -126,7 +126,7 @@ TbBool thing_can_be_controlled_as_controller(struct Thing *thing)
 {
     if (!thing_exists(thing))
         return false;
-    if (thing->class_id == TCls_Creature)
+    if ((thing->class_id == TCls_Creature) && !thing_affected_by_spell(thing,SplK_Fear))
         return true;
     if (thing->class_id == TCls_DeadCreature)
         return true;
@@ -1091,11 +1091,40 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         affected = true;
     }
     if (flag_is_set(spconf->spell_flags, CSAfF_Fear)
-    && (!creature_is_immune_to_spell_flags(thing, CSAfF_Fear)))
+    && (!creature_is_immune_to_spell_flags(thing, CSAfF_Fear))
+    && (crstat->fear_stronger > 0))
     {
         if (!creature_affected_with_spell_flags(thing, CSAfF_Fear))
         {
             set_flag(cctrl->spell_flags, CSAfF_Fear);
+            setup_combat_flee_position(thing);
+            if (is_thing_some_way_controlled(thing))
+            {
+                struct PlayerInfo* player = get_player(thing->owner);
+                if (player->controlled_thing_idx == thing->index)
+                {
+                    char active_menu = game.active_panel_mnu_idx;
+                    leave_creature_as_controller(player, thing);
+                    control_creature_as_passenger(player, thing);
+                    if (is_my_player(player))
+                    {
+                        turn_off_all_panel_menus();
+                        turn_on_menu(active_menu);
+                    }
+                }
+            }
+            if (external_set_thing_state(thing, CrSt_CreatureCombatFlee))
+            {
+                cctrl->flee_start_turn = game.play_gameturn;
+            }
+        }
+        else // If spell is reapplied reset flee_start_turn and state.
+        {
+            cctrl->flee_start_turn = game.play_gameturn;
+            if (get_creature_state_besides_interruptions(thing) != CrSt_CreatureCombatFlee)
+            {
+                external_set_thing_state(thing, CrSt_CreatureCombatFlee);
+            }
         }
         affected = true;
     }
@@ -1266,6 +1295,21 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
     && (creature_affected_with_spell_flags(thing, CSAfF_Fear)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Fear);
+        if (is_thing_some_way_controlled(thing))
+        {
+            struct PlayerInfo* player = get_player(thing->owner);
+            if (player->controlled_thing_idx == thing->index)
+            {
+                char active_menu = game.active_panel_mnu_idx;
+                leave_creature_as_passenger(player, thing);
+                control_creature_as_controller(player, thing);
+                if (is_my_player(player))
+                {
+                    turn_off_all_panel_menus();
+                    turn_on_menu(active_menu);
+                }
+            }
+        }
         cleared = true;
     }
     if (flag_is_set(spell_flags, CSAfF_Heal))
@@ -6238,7 +6282,7 @@ TngUpdateRet update_creature(struct Thing *thing)
         process_creature_instance(thing);
     }
     update_creature_count(thing);
-    if ((thing->alloc_flags & TAlF_IsControlled) != 0)
+    if (flag_is_set(thing->alloc_flags,TAlF_IsControlled))
     {
         if ((cctrl->stateblock_flags == 0) || creature_state_cannot_be_blocked(thing))
         {

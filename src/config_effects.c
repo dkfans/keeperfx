@@ -164,7 +164,6 @@ static void load_effectelements(VALUE *value, unsigned short flags)
 
             CONDITIONAL_ASSIGN_BOOL(section,"AnimateOnFloor",  effelcst->animate_on_floor);
             CONDITIONAL_ASSIGN_BOOL(section,"Unshaded",        effelcst->unshaded);
-            CONDITIONAL_ASSIGN_INT(section,"Transparant",      effelcst->transparent); //todo remove typo after a while
             CONDITIONAL_ASSIGN_INT(section,"Transparent",      effelcst->transparent);
             CONDITIONAL_ASSIGN_INT(section,"MovementFlags",    effelcst->movement_flags);
             CONDITIONAL_ASSIGN_INT(section,"SizeChange",       effelcst->size_change);
