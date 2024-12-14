@@ -744,14 +744,13 @@ void timebomb_explode(struct Thing *creatng)
     struct ShotConfigStats *shotst = get_shot_model_stats(spconf->shot_model);
     SYNCDBG(8, "Explode Timebomb");
     long weight = compute_creature_weight(creatng);
-    unsigned char weight_divisor = 64; // Not sure why it was #define.
     if (shotst->area_range != 0)
     {
         struct CreatureStats *crstat = creature_stats_get_from_thing(creatng);
-        long dist = (compute_creature_attack_range(shotst->area_range * COORD_PER_STL, crstat->luck, cctrl->explevel) * weight) / weight_divisor;
-        long damage = (compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel, creatng) * weight) / weight_divisor;
+        long dist = (compute_creature_attack_range(shotst->area_range * COORD_PER_STL, crstat->luck, cctrl->explevel) * weight) / WEIGHT_DIVISOR;
+        long damage = (compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel, creatng) * weight) / WEIGHT_DIVISOR;
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
-        explosion_affecting_area(creatng, &creatng->mappos, dist, damage, (shotst->area_blow * weight) / weight_divisor, hit_targets, shotst->damage_type);
+        explosion_affecting_area(creatng, &creatng->mappos, dist, damage, (shotst->area_blow * weight) / WEIGHT_DIVISOR, hit_targets, shotst->damage_type);
     }
     struct Thing *efftng = create_used_effect_or_element(&creatng->mappos, TngEff_Explosion5, creatng->owner);
     if (!thing_is_invalid(efftng))
@@ -772,9 +771,9 @@ void timebomb_explode(struct Thing *creatng)
         }
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         cctrl->timebomb_death = ((shotst->model_flags & ShMF_Exploding) != 0);
-        MapCoord max_dist = (shotst->area_range * weight) / weight_divisor;
-        HitPoints max_damage = (shotst->area_damage * weight) / weight_divisor;
-        long blow_strength = (shotst->area_blow * weight) / weight_divisor;
+        MapCoord max_dist = (shotst->area_range * weight) / WEIGHT_DIVISOR;
+        HitPoints max_damage = (shotst->area_damage * weight) / WEIGHT_DIVISOR;
+        long blow_strength = (shotst->area_blow * weight) / WEIGHT_DIVISOR;
         kill_creature(creatng, INVALID_THING, -1, CrDed_NoUnconscious);
         explosion_affecting_area(efftng, &efftng->mappos, max_dist, max_damage, blow_strength, hit_targets, shotst->damage_type);
     }
