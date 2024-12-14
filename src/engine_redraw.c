@@ -103,7 +103,7 @@ static void draw_creature_view_icons(struct Thing* creatng)
     struct SpellConfig *spconf;
     for (SpellKind spell_idx = 0; spell_idx < CREATURE_MAX_SPELLS_CASTED_AT; spell_idx++)
     {
-        spconf = get_spell_config(cctrl->casted_spells[spell_idx]);
+        spconf = get_spell_config(cctrl->casted_spells[spell_idx].spkind);
         long spridx = spconf->medsym_sprite_idx;
         if (spconf->spell_flags == CSAfF_Invisibility)
         { // Spells with multiples flags shouldn't be affected to not confuse players.
