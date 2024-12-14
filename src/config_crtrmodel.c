@@ -958,20 +958,20 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                             set_flag(crstat->immunity_flags, CSAfF_PoisonCloud);
                             n++;
                             break;
-                        case 12: // CALL_TO_ARMS
-                            set_flag(crstat->immunity_flags, CSAfF_CalledToArms);
+                        case 12: // FREEZE
+                            set_flag(crstat->immunity_flags, CSAfF_Freeze);
                             n++;
                             break;
                         case 13: // MAD_KILLING
                             set_flag(crstat->immunity_flags, CSAfF_MadKilling);
                             n++;
                             break;
-                        case 14: // HEAL
-                            set_flag(crstat->immunity_flags, CSAfF_Heal);
+                        case 14: // FEAR
+                            set_flag(crstat->immunity_flags, CSAfF_Fear);
                             n++;
                             break;
-                        case 15: // USE_ME_PLEASE
-                            set_flag(crstat->immunity_flags, CSAfF_UseMePlease);
+                        case 15: // HEAL
+                            set_flag(crstat->immunity_flags, CSAfF_Heal);
                             n++;
                             break;
                         case 16: // TELEPORT
@@ -984,14 +984,6 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                             break;
                         case 18: // WIND
                             set_flag(crstat->immunity_flags, CSAfF_Wind);
-                            n++;
-                            break;
-                        case 19: // FREEZE
-                            set_flag(crstat->immunity_flags, CSAfF_Freeze);
-                            n++;
-                            break;
-                        case 20: // FEAR
-                            set_flag(crstat->immunity_flags, CSAfF_Fear);
                             n++;
                             break;
                         default:

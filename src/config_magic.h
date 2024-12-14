@@ -48,15 +48,13 @@ enum CreatureSpellAffectedFlags {
     CSAfF_Disease      = 0x000100,
     CSAfF_Chicken      = 0x000200,
     CSAfF_PoisonCloud  = 0x000400,
-    CSAfF_CalledToArms = 0x000800,
+    CSAfF_Freeze       = 0x000800,
     CSAfF_MadKilling   = 0x001000,
-    CSAfF_Heal         = 0x002000,
-    CSAfF_UseMePlease  = 0x004000,
+    CSAfF_Fear         = 0x002000,
+    CSAfF_Heal         = 0x004000,
     CSAfF_Teleport     = 0x008000,
     CSAfF_Timebomb     = 0x010000,
     CSAfF_Wind         = 0x020000,
-    CSAfF_Freeze       = 0x040000,
-    CSAfF_Fear         = 0x080000,
 };
 
 enum SpellPropertiesFlags {

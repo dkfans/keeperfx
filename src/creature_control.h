@@ -316,6 +316,8 @@ unsigned char sound_flag;
   };
     unsigned char fight_til_death;
     TbBool field_AA;
+    TbBool called_to_arms;
+    TbBool exp_level_up;
     unsigned char stateblock_flags;
     unsigned long spell_flags;
     short force_visible;
@@ -371,8 +373,8 @@ unsigned char sound_flag;
     struct MemberPos followers_pos[GROUP_MEMBERS_COUNT];
     unsigned short next_in_room;
     unsigned short prev_in_room;
-    short spell_aura;
-    short spell_aura_duration;
+    EffectOrEffElModel spell_aura;
+    GameTurnDelta spell_aura_duration;
     unsigned short job_assigned;
     unsigned short spell_tngidx_armour[3];
     unsigned short spell_tngidx_disease[3];
@@ -412,7 +414,6 @@ unsigned char sound_flag;
     SpellKind active_disease_spell;
     SpellKind active_teleport_spell;
     SpellKind active_timebomb_spell;
-    TbBool exp_level_up;
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields

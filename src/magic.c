@@ -1556,8 +1556,7 @@ static TbResult magic_use_power_cave_in(PowerKind power_kind, PlayerNumber plyr_
  */
 TbBool update_creature_influenced_by_call_to_arms_at_pos(struct Thing *creatng, const struct Coord3d *cta_pos)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     if (!creature_can_navigate_to_with_storage(creatng, cta_pos, NavRtF_Default) || process_creature_needs_to_heal_critical(creatng) || (creatng->continue_state == CrSt_CreatureCombatFlee))
     {
         creature_stop_affected_by_call_to_arms(creatng);
@@ -1572,8 +1571,7 @@ TbBool update_creature_influenced_by_call_to_arms_at_pos(struct Thing *creatng, 
     }
     setup_person_move_to_coord(creatng, cta_pos, NavRtF_Default);
     creatng->continue_state = CrSt_ArriveAtCallToArms;
-    // Only influence creature that are not immune to it.
-    set_flag(cctrl->spell_flags, CSAfF_CalledToArms);
+    cctrl->called_to_arms = true;
     if (flag_is_set(cctrl->flgfield_1, CCFlg_NoCompControl))
     {
         WARNLOG("The %s index %d is called to arms with no comp control, fixing", thing_model_name(creatng), (int)creatng->index);

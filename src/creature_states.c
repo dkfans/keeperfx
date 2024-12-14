@@ -772,7 +772,8 @@ TbBool creature_is_fleeing_combat(const struct Thing *thing)
  */
 TbBool creature_affected_by_call_to_arms(const struct Thing *thing)
 {
-    return (creature_under_spell_effect(thing, CSAfF_CalledToArms));
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    return cctrl->called_to_arms;
 }
 
 /**

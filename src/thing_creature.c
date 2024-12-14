@@ -1034,46 +1034,6 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         }
         affected = true;
     }
-    if (flag_is_set(spconf->spell_flags, CSAfF_MadKilling)
-    && (!creature_is_immune_to_spell_effect(thing, CSAfF_MadKilling)))
-    {
-        if (!creature_under_spell_effect(thing, CSAfF_MadKilling))
-        {
-            set_flag(cctrl->spell_flags, CSAfF_MadKilling);
-        }
-        affected = true;
-    }
-    if (flag_is_set(spconf->spell_flags, CSAfF_UseMePlease)
-    && (!creature_is_immune_to_spell_effect(thing, CSAfF_UseMePlease)))
-    {
-        if (!creature_under_spell_effect(thing, CSAfF_UseMePlease))
-        {
-            set_flag(cctrl->spell_flags, CSAfF_UseMePlease);
-        }
-        affected = true;
-    }
-    if (flag_is_set(spconf->spell_flags, CSAfF_Teleport)
-    && (!creature_is_immune_to_spell_effect(thing, CSAfF_Teleport)))
-    {
-        if (!creature_under_spell_effect(thing, CSAfF_Teleport))
-        {
-            set_flag(cctrl->spell_flags, CSAfF_Teleport);
-            set_flag(cctrl->stateblock_flags, CCSpl_Teleport);
-        }
-        cctrl->active_teleport_spell = spell_idx; // Remember the spell_idx for a later use.
-        affected = true;
-    }
-    if (flag_is_set(spconf->spell_flags, CSAfF_Timebomb)
-    && (!creature_is_immune_to_spell_effect(thing, CSAfF_Timebomb)))
-    {
-        if (!creature_under_spell_effect(thing, CSAfF_Timebomb))
-        {
-            set_flag(cctrl->spell_flags, CSAfF_Timebomb);
-            cctrl->timebomb_countdown = duration;
-        }
-        cctrl->active_timebomb_spell = spell_idx; // Remember the spell_idx for a later use.
-        affected = true;
-    }
     if (flag_is_set(spconf->spell_flags, CSAfF_Freeze)
     && (!creature_is_immune_to_spell_effect(thing, CSAfF_Freeze)))
     {
@@ -1088,6 +1048,15 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
             }
         }
         creature_set_speed(thing, 0);
+        affected = true;
+    }
+    if (flag_is_set(spconf->spell_flags, CSAfF_MadKilling)
+    && (!creature_is_immune_to_spell_effect(thing, CSAfF_MadKilling)))
+    {
+        if (!creature_under_spell_effect(thing, CSAfF_MadKilling))
+        {
+            set_flag(cctrl->spell_flags, CSAfF_MadKilling);
+        }
         affected = true;
     }
     if (flag_is_set(spconf->spell_flags, CSAfF_Fear)
@@ -1126,6 +1095,28 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
                 external_set_thing_state(thing, CrSt_CreatureCombatFlee);
             }
         }
+        affected = true;
+    }
+    if (flag_is_set(spconf->spell_flags, CSAfF_Teleport)
+    && (!creature_is_immune_to_spell_effect(thing, CSAfF_Teleport)))
+    {
+        if (!creature_under_spell_effect(thing, CSAfF_Teleport))
+        {
+            set_flag(cctrl->spell_flags, CSAfF_Teleport);
+            set_flag(cctrl->stateblock_flags, CCSpl_Teleport);
+        }
+        cctrl->active_teleport_spell = spell_idx; // Remember the spell_idx for a later use.
+        affected = true;
+    }
+    if (flag_is_set(spconf->spell_flags, CSAfF_Timebomb)
+    && (!creature_is_immune_to_spell_effect(thing, CSAfF_Timebomb)))
+    {
+        if (!creature_under_spell_effect(thing, CSAfF_Timebomb))
+        {
+            set_flag(cctrl->spell_flags, CSAfF_Timebomb);
+            cctrl->timebomb_countdown = duration;
+        }
+        cctrl->active_timebomb_spell = spell_idx; // Remember the spell_idx for a later use.
         affected = true;
     }
     if (flag_is_set(spconf->spell_flags, CSAfF_Heal)
@@ -1253,32 +1244,6 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
         cctrl->countdown = 10;
         cleared = true;
     }
-    if (flag_is_set(spell_flags, CSAfF_MadKilling)
-    && (creature_under_spell_effect(thing, CSAfF_MadKilling)))
-    {
-        clear_flag(cctrl->spell_flags, CSAfF_MadKilling);
-        cleared = true;
-    }
-    if (flag_is_set(spell_flags, CSAfF_Teleport)
-    && (creature_under_spell_effect(thing, CSAfF_Teleport)))
-    {
-        clear_flag(cctrl->spell_flags, CSAfF_Teleport);
-        clear_flag(cctrl->stateblock_flags, CCSpl_Teleport);
-        cctrl->active_teleport_spell = 0;
-        cleared = true;
-    }
-    if (flag_is_set(spell_flags, CSAfF_Timebomb)
-    && (creature_under_spell_effect(thing, CSAfF_Timebomb)))
-    {
-        clear_flag(cctrl->spell_flags, CSAfF_Timebomb);
-        thing->veloc_push_add.x.val = 0;
-        thing->veloc_push_add.y.val = 0;
-        clear_flag(thing->state_flags, TF1_PushAdd);
-        cleanup_current_thing_state(thing);
-        set_start_state(thing);
-        cctrl->active_timebomb_spell = 0;
-        cleared = true;
-    }
     if (flag_is_set(spell_flags, CSAfF_Freeze)
     && (creature_under_spell_effect(thing, CSAfF_Freeze)))
     {
@@ -1289,6 +1254,12 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
             set_flag(thing->movement_flags, TMvF_Flying);
             clear_flag(thing->movement_flags, TMvF_Grounded);
         }
+        cleared = true;
+    }
+    if (flag_is_set(spell_flags, CSAfF_MadKilling)
+    && (creature_under_spell_effect(thing, CSAfF_MadKilling)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_MadKilling);
         cleared = true;
     }
     if (flag_is_set(spell_flags, CSAfF_Fear)
@@ -1310,6 +1281,26 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
                 }
             }
         }
+        cleared = true;
+    }
+    if (flag_is_set(spell_flags, CSAfF_Teleport)
+    && (creature_under_spell_effect(thing, CSAfF_Teleport)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_Teleport);
+        clear_flag(cctrl->stateblock_flags, CCSpl_Teleport);
+        cctrl->active_teleport_spell = 0;
+        cleared = true;
+    }
+    if (flag_is_set(spell_flags, CSAfF_Timebomb)
+    && (creature_under_spell_effect(thing, CSAfF_Timebomb)))
+    {
+        clear_flag(cctrl->spell_flags, CSAfF_Timebomb);
+        thing->veloc_push_add.x.val = 0;
+        thing->veloc_push_add.y.val = 0;
+        clear_flag(thing->state_flags, TF1_PushAdd);
+        cleanup_current_thing_state(thing);
+        set_start_state(thing);
+        cctrl->active_timebomb_spell = 0;
         cleared = true;
     }
     if (flag_is_set(spell_flags, CSAfF_Heal))

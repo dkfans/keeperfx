@@ -83,15 +83,13 @@ const struct NamedCommand magic_spell_flags[] = {
     {"DISEASE",       9},
     {"CHICKEN",      10},
     {"POISON_CLOUD", 11},
-    {"CALL_TO_ARMS", 12},
+    {"FREEZE",       12},
     {"MAD_KILLING",  13},
-    {"HEAL",         14},
-    {"USE_ME_PLEASE",15},
+    {"FEAR",         14},
+    {"HEAL",         15},
     {"TELEPORT",     16},
     {"TIMEBOMB",     17},
     {"WIND",         18},
-    {"FREEZE",       19},
-    {"FEAR",         20},
     {NULL,            0},
 };
 
@@ -749,21 +747,20 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                             WARNLOG("'POISON_CLOUD' has no effect on spell, flag is not set on %s", spell_code_name(i));
                             n++;
                             break;
-                        case 12: // CALL_TO_ARMS
-                            //set_flag(spconf->spell_flags, CSAfF_CalledToArms);
-                            WARNLOG("'CALL_TO_ARMS' has no effect on spell, flag is not set on %s", spell_code_name(i));
+                        case 12: // FREEZE
+                            set_flag(spconf->spell_flags, CSAfF_Freeze);
                             n++;
                             break;
                         case 13: // MAD_KILLING
                             set_flag(spconf->spell_flags, CSAfF_MadKilling);
                             n++;
                             break;
-                        case 14: // HEAL
-                            set_flag(spconf->spell_flags, CSAfF_Heal);
+                        case 14: // FEAR
+                            set_flag(spconf->spell_flags, CSAfF_Fear);
                             n++;
                             break;
-                        case 15: // USE_ME_PLEASE
-                            set_flag(spconf->spell_flags, CSAfF_UseMePlease);
+                        case 15: // HEAL
+                            set_flag(spconf->spell_flags, CSAfF_Heal);
                             n++;
                             break;
                         case 16: // TELEPORT
@@ -777,14 +774,6 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                         case 18: // WIND
                             //set_flag(spconf->spell_flags, CSAfF_Wind);
                             WARNLOG("'WIND' has no effect on spell, flag is not set on %s", spell_code_name(i));
-                            n++;
-                            break;
-                        case 19: // FREEZE
-                            set_flag(spconf->spell_flags, CSAfF_Freeze);
-                            n++;
-                            break;
-                        case 20: // FEAR
-                            set_flag(spconf->spell_flags, CSAfF_Fear);
                             n++;
                             break;
                         default:
