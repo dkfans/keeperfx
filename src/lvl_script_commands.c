@@ -3745,14 +3745,14 @@ static void set_creature_configuration_process(struct ScriptContext* context)
                         clear_flag(crstat->immunity_flags, CSAfF_Heal);
                     }
                     break;
-                case 15: // EXP_LEVEL_UP
+                case 15: // USE_ME_PLEASE
                     if (value2 > 0)
                     {
-                        set_flag(crstat->immunity_flags, CSAfF_ExpLevelUp);
+                        set_flag(crstat->immunity_flags, CSAfF_UseMePlease);
                     }
                     else
                     {
-                        clear_flag(crstat->immunity_flags, CSAfF_ExpLevelUp);
+                        clear_flag(crstat->immunity_flags, CSAfF_UseMePlease);
                     }
                     break;
                 case 16: // TELEPORT

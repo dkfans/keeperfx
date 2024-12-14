@@ -86,7 +86,7 @@ const struct NamedCommand magic_spell_flags[] = {
     {"CALL_TO_ARMS", 12},
     {"MAD_KILLING",  13},
     {"HEAL",         14},
-    {"EXP_LEVEL_UP", 15},
+    {"USE_ME_PLEASE",15},
     {"TELEPORT",     16},
     {"TIMEBOMB",     17},
     {"WIND",         18},
@@ -762,8 +762,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                             set_flag(spconf->spell_flags, CSAfF_Heal);
                             n++;
                             break;
-                        case 15: // EXP_LEVEL_UP
-                            set_flag(spconf->spell_flags, CSAfF_ExpLevelUp);
+                        case 15: // USE_ME_PLEASE
+                            set_flag(spconf->spell_flags, CSAfF_UseMePlease);
                             n++;
                             break;
                         case 16: // TELEPORT

@@ -86,11 +86,6 @@ enum CreatureControlSpells {
     CCSpl_ChickenRel    = 0x01, // This is something related to chicken spell, but the spell itself is CSAfF_Chicken.
     CCSpl_Freeze        = 0x02, // Related to CSAfF_Freeze.
     CCSpl_Teleport      = 0x04, // Related to CSAfF_Teleport.
-    CCSpl_Unknown08     = 0x08, // Unused.
-    CCSpl_Unknown10     = 0x10, // Unused.
-    CCSpl_Unknown20     = 0x20, // Unused.
-    CCSpl_Unknown40     = 0x40, // Unused.
-    CCSpl_Unknown80     = 0x80, // Unused.
 };
 
 enum CreatureControlMoodFlags {
@@ -417,6 +412,7 @@ unsigned char sound_flag;
     SpellKind active_disease_spell;
     SpellKind active_teleport_spell;
     SpellKind active_timebomb_spell;
+    TbBool exp_level_up;
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields

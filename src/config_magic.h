@@ -52,7 +52,7 @@ enum CreatureSpellAffectedFlags {
     CSAfF_CalledToArms = 0x000800,
     CSAfF_MadKilling   = 0x001000,
     CSAfF_Heal         = 0x002000,
-    CSAfF_ExpLevelUp   = 0x004000,
+    CSAfF_UseMePlease  = 0x004000,
     CSAfF_Teleport     = 0x008000,
     CSAfF_Timebomb     = 0x010000,
     CSAfF_Wind         = 0x020000,

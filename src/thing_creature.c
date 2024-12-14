@@ -1043,12 +1043,12 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         }
         affected = true;
     }
-    if (flag_is_set(spconf->spell_flags, CSAfF_ExpLevelUp)
-    && (!creature_is_immune_to_spell_flags(thing, CSAfF_ExpLevelUp)))
+    if (flag_is_set(spconf->spell_flags, CSAfF_UseMePlease)
+    && (!creature_is_immune_to_spell_flags(thing, CSAfF_UseMePlease)))
     {
-        if (!creature_affected_with_spell_flags(thing, CSAfF_ExpLevelUp))
+        if (!creature_affected_with_spell_flags(thing, CSAfF_UseMePlease))
         {
-            set_flag(cctrl->spell_flags, CSAfF_ExpLevelUp);
+            set_flag(cctrl->spell_flags, CSAfF_UseMePlease);
         }
         affected = true;
     }
@@ -1422,15 +1422,8 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
         SYNCDBG(7, "Creature %s index %d is immune to all spell flags %d set on %s", thing_model_name(thing), (int)thing->index, (uint)spconf->spell_flags, spell_code_name(spell_idx));
         return; // Exit the function, creature is immune to all spell flags set on spell_idx.
     }
-    if ((spconf->spell_flags == 0)
-    || ((spconf->spell_flags == CSAfF_ExpLevelUp)
-    && (!creature_is_immune_to_spell_flags(thing, CSAfF_ExpLevelUp))))
+    if (spconf->spell_flags == 0)
     {
-        // If 'CSAflag_ExpLevelUp' is set alone, don't fill the spell slot, but still apply the aura effect.
-        if (spconf->spell_flags == CSAfF_ExpLevelUp)
-        {
-            set_flag(cctrl->spell_flags, CSAfF_ExpLevelUp);
-        }
         // Spells with no flags can apply the aura effect.
         if (spconf->aura_effect != 0)
         {
@@ -1994,7 +1987,7 @@ void level_up_familiar(struct Thing* famlrtng)
     if (level <= 0)
     {
         //we know already the Summoner will levelup next turn?
-        if (creature_affected_with_spell_flags(summonertng, CSAfF_ExpLevelUp) && (summonercctrl->explevel + 1 < CREATURE_MAX_LEVEL))
+        if ((summonercctrl->exp_level_up) && (summonercctrl->explevel + 1 < CREATURE_MAX_LEVEL))
         {
             summonerxp += 1;
         }
@@ -4654,11 +4647,8 @@ TbBool creature_increase_level(struct Thing *thing)
         struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
         if ((cctrl->explevel < CREATURE_MAX_LEVEL - 1) || (crstat->grow_up != 0))
         {
-            if (!creature_is_immune_to_spell_flags(thing, CSAfF_ExpLevelUp))
-            {
-                set_flag(cctrl->spell_flags, CSAfF_ExpLevelUp);
-                return true;
-            }
+            cctrl->exp_level_up = true;
+            return true;
         }
     }
     return false;
@@ -4683,12 +4673,9 @@ TbBool creature_change_multiple_levels(struct Thing *thing, int count)
                 struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
                 if ((cctrl->explevel < CREATURE_MAX_LEVEL - 1) || (crstat->grow_up != 0))
                 {
-                    if (!creature_is_immune_to_spell_flags(thing, CSAfF_ExpLevelUp))
-                    {
-                        set_flag(cctrl->spell_flags, CSAfF_ExpLevelUp);
-                        update_creature_levels(thing);
-                        k++;
-                    }
+                    cctrl->exp_level_up = true;
+                    update_creature_levels(thing);
+                    k++;
                 }
             }
         }
@@ -6135,12 +6122,12 @@ void transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)
 long update_creature_levels(struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
-    if (!creature_affected_with_spell_flags(thing, CSAfF_ExpLevelUp))
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    if (!cctrl->exp_level_up)
     {
         return 0;
     }
-    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    clear_flag(cctrl->spell_flags, CSAfF_ExpLevelUp);
+    cctrl->exp_level_up = false;
     // If a creature is not on highest level, just update the level
     if (cctrl->explevel+1 < CREATURE_MAX_LEVEL)
     {

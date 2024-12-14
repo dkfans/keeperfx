@@ -4605,8 +4605,7 @@ TbBool check_experience_upgrade(struct Thing *thing)
     {
         if ((cctrl->explevel < CREATURE_MAX_LEVEL - 1) || (crstat->grow_up != 0))
         {
-            // This function bypasses the immunity.
-            set_flag(cctrl->spell_flags, CSAfF_ExpLevelUp);
+            cctrl->exp_level_up = true;
         }
     }
     return true;

@@ -970,8 +970,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                             set_flag(crstat->immunity_flags, CSAfF_Heal);
                             n++;
                             break;
-                        case 15: // EXP_LEVEL_UP
-                            set_flag(crstat->immunity_flags, CSAfF_ExpLevelUp);
+                        case 15: // USE_ME_PLEASE
+                            set_flag(crstat->immunity_flags, CSAfF_UseMePlease);
                             n++;
                             break;
                         case 16: // TELEPORT
