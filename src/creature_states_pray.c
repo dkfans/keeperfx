@@ -137,11 +137,11 @@ CrStateRet praying_in_temple(struct Thing *thing)
 long process_temple_cure(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    if (creature_affected_with_spell_flags(creatng, CSAfF_Disease))
+    if (creature_under_spell_effect(creatng, CSAfF_Disease))
     {
         clean_spell_flags(creatng, CSAfF_Disease);
     }
-    if (creature_affected_with_spell_flags(creatng, CSAfF_Chicken))
+    if (creature_under_spell_effect(creatng, CSAfF_Chicken))
     {
         clean_spell_flags(creatng, CSAfF_Chicken);
     }
@@ -392,7 +392,7 @@ void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, ThingModel c
 
 TbBool kill_creature_if_under_chicken_spell(struct Thing *thing)
 {
-    if (creature_affected_with_spell_flags(thing, CSAfF_Chicken) && !thing_is_picked_up(thing))
+    if (creature_under_spell_effect(thing, CSAfF_Chicken) && !thing_is_picked_up(thing))
     {
         thing->health = -1;
         return true;

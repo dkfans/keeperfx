@@ -126,7 +126,7 @@ TbBool thing_can_be_controlled_as_controller(struct Thing *thing)
 {
     if (!thing_exists(thing))
         return false;
-    if ((thing->class_id == TCls_Creature) && !creature_affected_with_spell_flags(thing, CSAfF_Fear))
+    if ((thing->class_id == TCls_Creature) && !creature_under_spell_effect(thing, CSAfF_Fear))
         return true;
     if (thing->class_id == TCls_DeadCreature)
         return true;
@@ -238,7 +238,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
       cam->mappos.z.val += get_creature_eye_height(thing);
       return true;
     }
-    TbBool chicken = (creature_affected_with_spell_flags(thing, CSAfF_Chicken));
+    TbBool chicken = (creature_under_spell_effect(thing, CSAfF_Chicken));
     if (!chicken)
     {
         cctrl->moveto_pos.x.val = 0;
@@ -274,7 +274,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
         }
     }
     crstat = creature_stats_get(thing->model);
-    if ((!crstat->illuminated) && (!creature_affected_with_spell_flags(thing, CSAfF_Light)))
+    if ((!crstat->illuminated) && (!creature_under_spell_effect(thing, CSAfF_Light)))
     {
         create_light_for_possession(thing);
     }
@@ -452,7 +452,7 @@ long creature_available_for_combat_this_turn(struct Thing *creatng)
             return false;
         }
     }
-    if (creature_is_fleeing_combat(creatng) || creature_affected_with_spell_flags(creatng, CSAfF_Chicken)) {
+    if (creature_is_fleeing_combat(creatng) || creature_under_spell_effect(creatng, CSAfF_Chicken)) {
         return false;
     }
     if (creature_is_being_unconscious(creatng) || creature_is_dying(creatng)) {
@@ -680,7 +680,7 @@ TbBool creature_affected_by_slap(const struct Thing *thing)
 /* Returns if a spell flags is currently enabled on a thing.
  * @param thing The thing which can have spell flags on.
  * @param spell_flags The spell flags to be checked. */
-TbBool creature_affected_with_spell_flags_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name)
+TbBool creature_under_spell_effect_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
@@ -878,7 +878,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
     if (flag_is_set(spconf->spell_flags, CSAfF_Slow)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_Slow)))
     {
-        if (!creature_affected_with_spell_flags(thing, CSAfF_Slow))
+        if (!creature_under_spell_effect(thing, CSAfF_Slow))
         {
             // Re-set the flag if it was cleared before spell termination.
             set_flag(cctrl->spell_flags, CSAfF_Slow);
@@ -889,7 +889,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
     if (flag_is_set(spconf->spell_flags, CSAfF_Speed)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_Speed)))
     {
-        if (!creature_affected_with_spell_flags(thing, CSAfF_Speed))
+        if (!creature_under_spell_effect(thing, CSAfF_Speed))
         {
             set_flag(cctrl->spell_flags, CSAfF_Speed);
         }
@@ -899,7 +899,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
     if (flag_is_set(spconf->spell_flags, CSAfF_Armour)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_Armour)))
     {
-        if (!creature_affected_with_spell_flags(thing, CSAfF_Armour))
+        if (!creature_under_spell_effect(thing, CSAfF_Armour))
         {
             set_flag(cctrl->spell_flags, CSAfF_Armour);
             long num_protect = 0;
@@ -929,7 +929,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
     if (flag_is_set(spconf->spell_flags, CSAfF_Rebound)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_Rebound)))
     {
-        if (!creature_affected_with_spell_flags(thing, CSAfF_Rebound))
+        if (!creature_under_spell_effect(thing, CSAfF_Rebound))
         {
             set_flag(cctrl->spell_flags, CSAfF_Rebound);
         }
@@ -938,7 +938,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
     if (flag_is_set(spconf->spell_flags, CSAfF_Flying)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_Flying)))
     {
-        if (!creature_affected_with_spell_flags(thing, CSAfF_Flying))
+        if (!creature_under_spell_effect(thing, CSAfF_Flying))
         {
             set_flag(cctrl->spell_flags, CSAfF_Flying);
             thing->movement_flags |= TMvF_Flying;
@@ -948,7 +948,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
     if (flag_is_set(spconf->spell_flags, CSAfF_Invisibility)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_Invisibility)))
     {
-        if (!creature_affected_with_spell_flags(thing, CSAfF_Invisibility))
+        if (!creature_under_spell_effect(thing, CSAfF_Invisibility))
         {
             set_flag(cctrl->spell_flags, CSAfF_Invisibility);
             cctrl->force_visible = 0;
@@ -958,7 +958,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
     if (flag_is_set(spconf->spell_flags, CSAfF_Sight)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_Sight)))
     {
-        if (!creature_affected_with_spell_flags(thing, CSAfF_Sight))
+        if (!creature_under_spell_effect(thing, CSAfF_Sight))
         {
             set_flag(cctrl->spell_flags, CSAfF_Sight);
         }
@@ -969,7 +969,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
     {
         if (!crstat->illuminated)
         {
-            if (!creature_affected_with_spell_flags(thing, CSAfF_Light))
+            if (!creature_under_spell_effect(thing, CSAfF_Light))
             {
                     set_flag(cctrl->spell_flags, CSAfF_Light);
                     illuminate_creature(thing);
@@ -980,7 +980,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
     if (flag_is_set(spconf->spell_flags, CSAfF_Disease)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_Disease)))
     {
-        if (!creature_affected_with_spell_flags(thing, CSAfF_Disease))
+        if (!creature_under_spell_effect(thing, CSAfF_Disease))
         {
             set_flag(cctrl->spell_flags, CSAfF_Disease);
             if (cctrl->disease_caster_plyridx == thing->owner)
@@ -1021,7 +1021,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
     if (flag_is_set(spconf->spell_flags, CSAfF_Chicken)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_Chicken)))
     {
-        if (!creature_affected_with_spell_flags(thing, CSAfF_Chicken))
+        if (!creature_under_spell_effect(thing, CSAfF_Chicken))
         {
             set_flag(cctrl->spell_flags, CSAfF_Chicken);
             external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
@@ -1037,7 +1037,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
     if (flag_is_set(spconf->spell_flags, CSAfF_MadKilling)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_MadKilling)))
     {
-        if (!creature_affected_with_spell_flags(thing, CSAfF_MadKilling))
+        if (!creature_under_spell_effect(thing, CSAfF_MadKilling))
         {
             set_flag(cctrl->spell_flags, CSAfF_MadKilling);
         }
@@ -1046,7 +1046,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
     if (flag_is_set(spconf->spell_flags, CSAfF_UseMePlease)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_UseMePlease)))
     {
-        if (!creature_affected_with_spell_flags(thing, CSAfF_UseMePlease))
+        if (!creature_under_spell_effect(thing, CSAfF_UseMePlease))
         {
             set_flag(cctrl->spell_flags, CSAfF_UseMePlease);
         }
@@ -1055,7 +1055,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
     if (flag_is_set(spconf->spell_flags, CSAfF_Teleport)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_Teleport)))
     {
-        if (!creature_affected_with_spell_flags(thing, CSAfF_Teleport))
+        if (!creature_under_spell_effect(thing, CSAfF_Teleport))
         {
             set_flag(cctrl->spell_flags, CSAfF_Teleport);
             set_flag(cctrl->stateblock_flags, CCSpl_Teleport);
@@ -1066,7 +1066,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
     if (flag_is_set(spconf->spell_flags, CSAfF_Timebomb)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_Timebomb)))
     {
-        if (!creature_affected_with_spell_flags(thing, CSAfF_Timebomb))
+        if (!creature_under_spell_effect(thing, CSAfF_Timebomb))
         {
             set_flag(cctrl->spell_flags, CSAfF_Timebomb);
             cctrl->timebomb_countdown = duration;
@@ -1077,7 +1077,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
     if (flag_is_set(spconf->spell_flags, CSAfF_Freeze)
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_Freeze)))
     {
-        if (!creature_affected_with_spell_flags(thing, CSAfF_Freeze))
+        if (!creature_under_spell_effect(thing, CSAfF_Freeze))
         {
             set_flag(cctrl->spell_flags, CSAfF_Freeze);
             set_flag(cctrl->stateblock_flags, CCSpl_Freeze);
@@ -1094,7 +1094,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
     && (!creature_is_immune_to_spell_flags(thing, CSAfF_Fear))
     && (crstat->fear_stronger > 0))
     {
-        if (!creature_affected_with_spell_flags(thing, CSAfF_Fear))
+        if (!creature_under_spell_effect(thing, CSAfF_Fear))
         {
             set_flag(cctrl->spell_flags, CSAfF_Fear);
             setup_combat_flee_position(thing);
@@ -1164,34 +1164,34 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     TbBool cleared = false;
     if (flag_is_set(spell_flags, CSAfF_Slow)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Slow)))
+    && (creature_under_spell_effect(thing, CSAfF_Slow)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Slow);
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         cleared = true;
     }
     if (flag_is_set(spell_flags, CSAfF_Speed)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Speed)))
+    && (creature_under_spell_effect(thing, CSAfF_Speed)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Speed);
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         cleared = true;
     }
     if (flag_is_set(spell_flags, CSAfF_Armour)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Armour)))
+    && (creature_under_spell_effect(thing, CSAfF_Armour)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Armour);
         delete_armour_effects_attached_to_creature(thing);
         cleared = true;
     }
     if (flag_is_set(spell_flags, CSAfF_Rebound)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Rebound)))
+    && (creature_under_spell_effect(thing, CSAfF_Rebound)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Rebound);
         cleared = true;
     }
     if (flag_is_set(spell_flags, CSAfF_Flying)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Flying)))
+    && (creature_under_spell_effect(thing, CSAfF_Flying)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Flying);
         // TODO: Strange condition regarding the fly, check why it's here?
@@ -1202,20 +1202,20 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
         cleared = true;
     }
     if (flag_is_set(spell_flags, CSAfF_Invisibility)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Invisibility)))
+    && (creature_under_spell_effect(thing, CSAfF_Invisibility)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Invisibility);
         cctrl->force_visible = 0;
         cleared = true;
     }
     if (flag_is_set(spell_flags, CSAfF_Sight)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Sight)))
+    && (creature_under_spell_effect(thing, CSAfF_Sight)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Sight);
         cleared = true;
     }
     if (flag_is_set(spell_flags, CSAfF_Light)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Light)))
+    && (creature_under_spell_effect(thing, CSAfF_Light)))
     {
         if (!crstat->illuminated)
         {
@@ -1238,7 +1238,7 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
         }
     }
     if (flag_is_set(spell_flags, CSAfF_Disease)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Disease)))
+    && (creature_under_spell_effect(thing, CSAfF_Disease)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Disease);
         delete_disease_effects_attached_to_creature(thing);
@@ -1246,7 +1246,7 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
         cleared = true;
     }
     if (flag_is_set(spell_flags, CSAfF_Chicken)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Chicken)))
+    && (creature_under_spell_effect(thing, CSAfF_Chicken)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Chicken);
         external_set_thing_state(thing, CrSt_CreatureChangeFromChicken);
@@ -1254,13 +1254,13 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
         cleared = true;
     }
     if (flag_is_set(spell_flags, CSAfF_MadKilling)
-    && (creature_affected_with_spell_flags(thing, CSAfF_MadKilling)))
+    && (creature_under_spell_effect(thing, CSAfF_MadKilling)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_MadKilling);
         cleared = true;
     }
     if (flag_is_set(spell_flags, CSAfF_Teleport)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Teleport)))
+    && (creature_under_spell_effect(thing, CSAfF_Teleport)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Teleport);
         clear_flag(cctrl->stateblock_flags, CCSpl_Teleport);
@@ -1268,7 +1268,7 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
         cleared = true;
     }
     if (flag_is_set(spell_flags, CSAfF_Timebomb)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Timebomb)))
+    && (creature_under_spell_effect(thing, CSAfF_Timebomb)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Timebomb);
         thing->veloc_push_add.x.val = 0;
@@ -1280,7 +1280,7 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
         cleared = true;
     }
     if (flag_is_set(spell_flags, CSAfF_Freeze)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Freeze)))
+    && (creature_under_spell_effect(thing, CSAfF_Freeze)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Freeze);
         clear_flag(cctrl->stateblock_flags, CCSpl_Freeze);
@@ -1292,7 +1292,7 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
         cleared = true;
     }
     if (flag_is_set(spell_flags, CSAfF_Fear)
-    && (creature_affected_with_spell_flags(thing, CSAfF_Fear)))
+    && (creature_under_spell_effect(thing, CSAfF_Fear)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Fear);
         if (is_thing_some_way_controlled(thing))
@@ -2195,7 +2195,7 @@ struct Thing *find_interesting_object_laying_around_thing(struct Thing *creatng)
 TbBool thing_can_be_eaten(struct Thing *thing)
 {
     if (thing_is_mature_food(thing)
-    || (thing_is_creature(thing) && creature_affected_with_spell_flags(thing, CSAfF_Chicken)))
+    || (thing_is_creature(thing) && creature_under_spell_effect(thing, CSAfF_Chicken)))
     {
         if (is_thing_directly_controlled(thing) || is_thing_passenger_controlled(thing) || thing_is_picked_up(thing))
         {
@@ -2263,7 +2263,7 @@ void creature_look_for_hidden_doors(struct Thing *creatng)
             MapSubtlCoord z = doortng->mappos.z.stl.num;
             doortng->mappos.z.stl.num = 2;
             // TODO: Could add a creature property 'DETECT_MECHANISM' allowing them to see secret door but not invisible creatures.
-            if (creature_affected_with_spell_flags(creatng, CSAfF_Sight))
+            if (creature_under_spell_effect(creatng, CSAfF_Sight))
             {
                 if (creature_can_see_thing_ignoring_specific_door(creatng, doortng, doortng))
                 {
@@ -2686,7 +2686,7 @@ void creature_rebirth_at_lair(struct Thing *thing)
     if (cctrl->explevel > 0)
         set_creature_level(thing, cctrl->explevel-1);
     thing->health = cctrl->max_health;
-    if (creature_affected_with_spell_flags(thing, CSAfF_Timebomb))
+    if (creature_under_spell_effect(thing, CSAfF_Timebomb))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Timebomb);
         thing->veloc_push_add.x.val = 0;
@@ -3137,7 +3137,7 @@ struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng, Play
         return INVALID_THING;
     }
     // Remember if the creature is frozen.
-    TbBool frozen = creature_affected_with_spell_flags(creatng, CSAfF_Freeze);
+    TbBool frozen = creature_under_spell_effect(creatng, CSAfF_Freeze);
     // Terminate all the actives spell effects on dying creatures.
     terminate_all_actives_spell_effects(creatng);
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
@@ -3697,7 +3697,7 @@ short get_creature_eye_height(const struct Thing *creatng)
     if (!creature_control_invalid(cctrl))
     {
         int base_height;
-        if (creature_affected_with_spell_flags(creatng, CSAfF_Chicken))
+        if (creature_under_spell_effect(creatng, CSAfF_Chicken))
         {
             base_height = 100;
         }
@@ -3916,12 +3916,12 @@ void get_creature_instance_times(const struct Thing *thing, long inst_idx, long 
         itime = inst_inf->time;
         aitime = inst_inf->action_time;
     }
-    if (creature_affected_with_spell_flags(thing, CSAfF_Slow))
+    if (creature_under_spell_effect(thing, CSAfF_Slow))
     {
         aitime *= 2;
         itime *= 2;
     }
-    if (creature_affected_with_spell_flags(thing, CSAfF_Speed))
+    if (creature_under_spell_effect(thing, CSAfF_Speed))
     {
         aitime /= 2;
         itime /= 2;
@@ -4872,7 +4872,7 @@ long player_list_creature_filter_in_fight_and_not_affected_by_spell(const struct
         {
             return -1;
         }
-        if ((spconf->spell_flags != 0) && (creature_affected_with_spell_flags(thing, spconf->spell_flags)))
+        if ((spconf->spell_flags != 0) && (creature_under_spell_effect(thing, spconf->spell_flags)))
         {
             return -1;
         }
@@ -5544,7 +5544,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
     int health_permil = get_creature_health_permil(thing);
     // If it's angry but not furious, or has lost health due to disease, then should be placed in temple.
     if ((anger_is_creature_angry(thing)
-    || (creature_affected_with_spell_flags(thing, CSAfF_Disease) && (health_permil <= (game.conf.rules.computer.disease_to_temple_pct * 10))))
+    || (creature_under_spell_effect(thing, CSAfF_Disease) && (health_permil <= (game.conf.rules.computer.disease_to_temple_pct * 10))))
     && creature_can_do_job_for_player(thing, dungeon->owner, Job_TEMPLE_PRAY, JobChk_None))
     {
         // If already at temple, then don't do anything
@@ -6443,13 +6443,13 @@ TbBool creature_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
 TbBool creature_is_invisible(const struct Thing *thing)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    return (creature_affected_with_spell_flags(thing, CSAfF_Invisibility) && (cctrl->force_visible <= 0));
+    return (creature_under_spell_effect(thing, CSAfF_Invisibility) && (cctrl->force_visible <= 0));
 }
 
 TbBool creature_can_see_invisible(const struct Thing *thing)
 {
     struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
-    return (creature_affected_with_spell_flags(thing, CSAfF_Sight) || (crstat->can_see_invisible));
+    return (creature_under_spell_effect(thing, CSAfF_Sight) || (crstat->can_see_invisible));
 }
 
 int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos, int can_see_slabs)

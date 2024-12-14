@@ -188,7 +188,7 @@ void process_disease(struct Thing *creatng)
     SYNCDBG(18, "Starting");
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     struct CreatureControl *tngcctrl;
-    if (!creature_affected_with_spell_flags(creatng, CSAfF_Disease))
+    if (!creature_under_spell_effect(creatng, CSAfF_Disease))
     {
         return;
     }
@@ -214,7 +214,7 @@ void process_disease(struct Thing *creatng)
                 if (thing_is_creature(thing)
                 && ((get_creature_model_flags(thing) & CMF_IsSpecDigger) == 0)
                 && (thing->owner != cctrl->disease_caster_plyridx)
-                && !creature_affected_with_spell_flags(thing, CSAfF_Disease)
+                && !creature_under_spell_effect(thing, CSAfF_Disease)
                 && !creature_is_immune_to_spell_flags(thing, CSAfF_Disease)
                 && (cctrl->disease_caster_plyridx != game.neutral_player_num))
                 { // Apply the spell kind stored in 'active_disease_spell'.
@@ -678,7 +678,7 @@ void remove_explored_flags_for_power_sight(struct PlayerInfo *player)
 void process_timebomb(struct Thing *creatng)
 {
     SYNCDBG(18,"Starting");
-    if (!creature_affected_with_spell_flags(creatng, CSAfF_Timebomb))
+    if (!creature_under_spell_effect(creatng, CSAfF_Timebomb))
     {
         return;
     }

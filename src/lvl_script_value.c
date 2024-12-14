@@ -170,7 +170,7 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel,
         SYNCDBG(5, "No matching player %d creature of model %d (%s) found to use spell on.", (int)plyr_idx, (int)crmodel, creature_code_name(crmodel));
         return Lb_FAIL;
     }
-    SpellKind spkind = (fmcl_bytes >> 8) & 255; // What the hell is this?
+    SpellKind spkind = (fmcl_bytes >> 8) & 255;
     struct SpellConfig *spconf = get_spell_config(spkind);
     if ((spconf->caster_affected) && (!creature_is_immune_to_spell_flags(thing, spconf->spell_flags)))
     { // Immunity is handled in 'apply_spell_effect_to_thing', but this command plays sounds, so check for it.
@@ -179,17 +179,11 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel,
             SYNCDBG(5, "Found creature to cast the spell on but it is being held.");
             return Lb_FAIL;
         }
-        unsigned short sound;
+        long splevel = fmcl_bytes & 255;
         if (spconf->caster_affect_sound)
         {
-            sound = spconf->caster_affect_sound;
+            thing_play_sample(thing, spconf->caster_affect_sound, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
         }
-        else
-        {
-            sound = 0;
-        }
-        long splevel = fmcl_bytes & 255; // -.- Yes. Good luck to whoever wants to refactor this command to the new style.
-        thing_play_sample(thing, sound, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
         apply_spell_effect_to_thing(thing, spkind, splevel);
         if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
         {

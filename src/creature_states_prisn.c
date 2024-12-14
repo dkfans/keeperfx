@@ -118,11 +118,11 @@ short creature_arrived_at_prison(struct Thing *creatng)
     cctrl->imprison.last_mood_sound_turn = game.play_gameturn;
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
     internal_set_thing_state(creatng, get_continue_state_for_job(Job_CAPTIVITY));
-    if (creature_affected_with_spell_flags(creatng, CSAfF_Speed))
+    if (creature_under_spell_effect(creatng, CSAfF_Speed))
     {
         clean_spell_flags(creatng, CSAfF_Speed);
     }
-    if (creature_affected_with_spell_flags(creatng, CSAfF_Invisibility))
+    if (creature_under_spell_effect(creatng, CSAfF_Invisibility))
     {
         clean_spell_flags(creatng, CSAfF_Invisibility);
     }
@@ -164,7 +164,7 @@ short creature_drop_body_in_prison(struct Thing *thing)
 
 }
 
-struct Thing *find_prisoner_for_thing(struct Thing *creatng, SpellKind spell_idx)
+struct Thing *find_prisoner_to_freeze(struct Thing *creatng, SpellKind spell_idx)
 {
     long i;
     TRACE_THING(creatng);
@@ -247,7 +247,7 @@ short creature_freeze_prisoners(struct Thing *creatng)
         return 1;
     }
     SpellKind spell_idx = get_spell_kind_from_instance(inst_idx);
-    struct Thing *victng = find_prisoner_for_thing(creatng, spell_idx);
+    struct Thing *victng = find_prisoner_to_freeze(creatng, spell_idx);
     if (thing_is_invalid(victng)) {
         set_start_state(creatng);
         return 0;

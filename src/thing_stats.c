@@ -655,7 +655,7 @@ long calculate_correct_creature_armour(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_armour(crstat->armour, cctrl->explevel);
-    if (creature_affected_with_spell_flags(thing, CSAfF_Armour))
+    if (creature_under_spell_effect(thing, CSAfF_Armour))
         max_param = (320 * max_param) / 256;
     // This limit makes armour absorb up to 80% of damage even with the buff.
     if (max_param > 204)
@@ -698,11 +698,11 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
     struct Dungeon* dungeon;
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long speed = crstat->base_speed;
-    if ((creature_affected_by_slap(thing)) || (creature_affected_with_spell_flags(thing, CSAfF_Timebomb)))
+    if ((creature_affected_by_slap(thing)) || (creature_under_spell_effect(thing, CSAfF_Timebomb)))
         speed *= 2;
-    if (creature_affected_with_spell_flags(thing, CSAfF_Speed))
+    if (creature_under_spell_effect(thing, CSAfF_Speed))
         speed *= 2;
-    if (creature_affected_with_spell_flags(thing, CSAfF_Slow))
+    if (creature_under_spell_effect(thing, CSAfF_Slow))
         speed /= 2;
     // Apply modifier.
     if (!is_neutral_thing(thing))

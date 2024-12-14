@@ -1082,7 +1082,7 @@ long count_creatures_for_defend_pickup(struct Computer2 *comp)
                 int crtr_state = get_creature_state_besides_move(i);
                 if (( crtr_state != CrSt_CreatureCombatFlee ) &&
                     ( crtr_state != CrSt_ArriveAtAlarm ) &&
-                    (!creature_affected_with_spell_flags(i, CSAfF_CalledToArms) ) &&
+                    (!creature_under_spell_effect(i, CSAfF_CalledToArms) ) &&
                     ( crtr_state != CrSt_CreatureGoingHomeToSleep ) &&
                     ( crtr_state != CrSt_CreatureSleep ) &&
                     ( crtr_state != CrSt_AtLairToSleep ) &&

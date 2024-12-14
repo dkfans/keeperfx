@@ -220,7 +220,7 @@ long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJ
             ERRORLOG("No device for torture");
         }
         dturn = game.play_gameturn - cctrl->tortured.gameturn_A2x;
-        if ((dturn > 32) || (creature_affected_with_spell_flags(creatng, CSAfF_Speed) && (dturn > 16)))
+        if ((dturn > 32) || (creature_under_spell_effect(creatng, CSAfF_Speed) && (dturn > 16)))
         {
             play_creature_sound(creatng, CrSnd_Torture, 2, 0);
             cctrl->tortured.gameturn_A2x = game.play_gameturn;
@@ -475,7 +475,7 @@ long compute_torture_convert_time(const struct Thing *thing, const struct Room *
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     long i = ((long)game.play_gameturn - cctrl->tortured.start_gameturn) * room->efficiency / ROOM_EFFICIENCY_MAX;
-    if (creature_affected_with_spell_flags(thing, CSAfF_Speed))
+    if (creature_under_spell_effect(thing, CSAfF_Speed))
     {
         i = (4 * i) / 3;
     }

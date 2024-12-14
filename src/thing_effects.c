@@ -193,7 +193,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     struct Thing *effeltng;
     struct SpellConfig *spconf;
     // Effect elements related to Rebound.
-    if (creature_affected_with_spell_flags(thing, CSAfF_Rebound))
+    if (creature_under_spell_effect(thing, CSAfF_Rebound))
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
         dturn = game.play_gameturn - thing->creation_turn;
@@ -222,7 +222,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         }
     }
     // Effect elements related to Slow.
-    if (creature_affected_with_spell_flags(thing, CSAfF_Slow))
+    if (creature_under_spell_effect(thing, CSAfF_Slow))
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
         MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 20% smaller than unit
@@ -247,12 +247,12 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         }
     }
     // Effect elements related to Flight.
-    if (creature_affected_with_spell_flags(thing, CSAfF_Flying))
+    if (creature_under_spell_effect(thing, CSAfF_Flying))
     {
         effeltng = create_thing(&thing->mappos, TCls_EffectElem, TngEffElm_CloudDisperse, thing->owner, -1);
     }
     // Effect elements related to Speed.
-    if (creature_affected_with_spell_flags(thing, CSAfF_Speed))
+    if (creature_under_spell_effect(thing, CSAfF_Speed))
     {
         effeltng = create_effect_element(&thing->mappos, TngEffElm_FlashBall2, thing->owner);
         if (!thing_is_invalid(effeltng))
@@ -1414,7 +1414,7 @@ TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, 
                         apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, tngsrc->owner);
                     }
                     spconf = get_spell_config(spell_idx);
-                    if ((!creature_affected_with_spell_flags(tngdst, spconf->spell_flags)) && (!creature_is_immune_to_spell_flags(tngdst, spconf->spell_flags)))
+                    if ((!creature_under_spell_effect(tngdst, spconf->spell_flags)) && (!creature_is_immune_to_spell_flags(tngdst, spconf->spell_flags)))
                     {
                         struct CreatureControl *srcctrl;
                         srcctrl = creature_control_get_from_thing(tngsrc);
@@ -1423,7 +1423,7 @@ TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, 
                     break;
                 case AAffT_GasEffect:
                     spconf = get_spell_config(spell_idx);
-                    if ((!creature_affected_with_spell_flags(tngdst, spconf->spell_flags)) && (!creature_is_immune_to_spell_flags(tngdst, spconf->spell_flags)))
+                    if ((!creature_under_spell_effect(tngdst, spconf->spell_flags)) && (!creature_is_immune_to_spell_flags(tngdst, spconf->spell_flags)))
                     {
                         struct CreatureControl *srcctrl;
                         srcctrl = creature_control_get_from_thing(tngsrc);

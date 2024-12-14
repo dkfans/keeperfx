@@ -2350,7 +2350,7 @@ static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBo
             state = i->active_state;
         struct StateInfo *stati = get_thing_state_info_num(state);
 
-        if (creature_affected_with_spell_flags(i, CSAfF_CalledToArms))
+        if (creature_under_spell_effect(i, CSAfF_CalledToArms))
         {
             if ( !stati->react_to_cta )
                 continue;
@@ -2831,7 +2831,7 @@ struct Thing *find_creature_for_defend_pickup(struct Computer2 *comp)
             {
                 if (!creature_is_fleeing_combat(thing) && !creature_is_at_alarm(thing))
                 {
-                    if (!creature_is_being_unconscious(thing) && !creature_affected_with_spell_flags(thing, CSAfF_Chicken))
+                    if (!creature_is_being_unconscious(thing) && !creature_under_spell_effect(thing, CSAfF_Chicken))
                     {
                         if (!creature_is_doing_lair_activity(thing) && !creature_is_being_dropped(thing))
                         {
@@ -3114,7 +3114,7 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
         return CTaskRet_Unk4;
     }
     if (computer_able_to_use_power(comp, PwrK_SPEEDCRTR, ctask->attack_magic.splevel, 1)
-    && !creature_affected_with_spell_flags(creatng, CSAfF_Speed)
+    && !creature_under_spell_effect(creatng, CSAfF_Speed)
     && !creature_is_immune_to_spell_flags(creatng, CSAfF_Speed))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
@@ -3123,7 +3123,7 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
         }
     }
     else if (computer_able_to_use_power(comp, PwrK_PROTECT, ctask->attack_magic.splevel, 1)
-    && !creature_affected_with_spell_flags(creatng, CSAfF_Armour)
+    && !creature_under_spell_effect(creatng, CSAfF_Armour)
     && !creature_is_immune_to_spell_flags(creatng, CSAfF_Armour))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrArmour, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
@@ -3132,7 +3132,7 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
         }
     }
     else if (computer_able_to_use_power(comp, PwrK_REBOUND, ctask->attack_magic.splevel, 1)
-    && !creature_affected_with_spell_flags(creatng, CSAfF_Rebound)
+    && !creature_under_spell_effect(creatng, CSAfF_Rebound)
     && !creature_is_immune_to_spell_flags(creatng, CSAfF_Rebound))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrRebound, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
@@ -3141,7 +3141,7 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
         }
     }
     if (computer_able_to_use_power(comp, PwrK_FLIGHT, ctask->attack_magic.splevel, 1)
-    && !creature_affected_with_spell_flags(creatng, CSAfF_Flying)
+    && !creature_under_spell_effect(creatng, CSAfF_Flying)
     && !creature_is_immune_to_spell_flags(creatng, CSAfF_Flying))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrFlight, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
@@ -3150,7 +3150,7 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
         }
     }
     if (computer_able_to_use_power(comp, PwrK_VISION, ctask->attack_magic.splevel, 1)
-    && !creature_affected_with_spell_flags(creatng, CSAfF_Sight)
+    && !creature_under_spell_effect(creatng, CSAfF_Sight)
     && !creature_is_immune_to_spell_flags(creatng, CSAfF_Sight))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrVision, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)

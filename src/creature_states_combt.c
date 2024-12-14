@@ -172,7 +172,7 @@ TbBool creature_will_do_combat(const struct Thing *thing)
         return false;
     }
     // Creature turned to chicken is defenseless.
-    if (creature_affected_with_spell_flags(thing, CSAfF_Chicken))
+    if (creature_under_spell_effect(thing, CSAfF_Chicken))
     {
         return false;
     }
@@ -182,7 +182,7 @@ TbBool creature_will_do_combat(const struct Thing *thing)
         return false;
     }
     // Creature affected with fear won't fight.
-    if (creature_affected_with_spell_flags(thing, CSAfF_Fear))
+    if (creature_under_spell_effect(thing, CSAfF_Fear))
     {
         return false;
     }
@@ -246,7 +246,7 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     // Neutral creatures are not easily scared, as they shouldn't have enemies
     if (is_neutral_thing(creatng))
         return false;
-    if (creature_affected_with_spell_flags(enmtng, CSAfF_Timebomb))
+    if (creature_under_spell_effect(enmtng, CSAfF_Timebomb))
     {
         if (creature_has_ranged_weapon(creatng) == false)
         {
@@ -1358,7 +1358,7 @@ short creature_combat_flee(struct Thing *creatng)
             }
             cctrl->flee_start_turn = game.play_gameturn;
         } else
-        if ((turns_in_flee <= game.conf.rules.creature.game_turns_in_flee) || creature_affected_with_spell_flags(creatng, CSAfF_Fear))
+        if ((turns_in_flee <= game.conf.rules.creature.game_turns_in_flee) || creature_under_spell_effect(creatng, CSAfF_Fear))
         {
             GameTurnDelta escape_turns = (game.conf.rules.creature.game_turns_in_flee >> 2);
             if (escape_turns <= 50)
@@ -1393,7 +1393,7 @@ short creature_combat_flee(struct Thing *creatng)
                 return 1;
             }
         }
-        if ((turns_in_flee <= game.conf.rules.creature.game_turns_in_flee) || creature_affected_with_spell_flags(creatng, CSAfF_Fear))
+        if ((turns_in_flee <= game.conf.rules.creature.game_turns_in_flee) || creature_under_spell_effect(creatng, CSAfF_Fear))
         {
             if (creature_choose_random_destination_on_valid_adjacent_slab(creatng)) {
                 creatng->continue_state = CrSt_CreatureCombatFlee;

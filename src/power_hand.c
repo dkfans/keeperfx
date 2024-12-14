@@ -627,7 +627,7 @@ void draw_power_hand(void)
         switch (picktng->class_id)
         {
         case TCls_Creature:
-            if (!creature_affected_with_spell_flags(picktng, CSAfF_Chicken))
+            if (!creature_under_spell_effect(picktng, CSAfF_Chicken))
             {
                 pickoffs = get_creature_picked_up_offset(picktng);
                 inputpos_x = GetMouseX() + scale_ui_value(pickoffs->delta_x*global_hand_scale);
@@ -933,7 +933,7 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
         }
         dungeon->last_creature_dropped_gameturn = game.play_gameturn;
         struct CreatureStats* crstat = creature_stats_get(droptng->model);
-        if ((crstat->illuminated) || (creature_affected_with_spell_flags(droptng, CSAfF_Light)))
+        if ((crstat->illuminated) || (creature_under_spell_effect(droptng, CSAfF_Light)))
         {
             illuminate_creature(droptng);
         }
@@ -1359,7 +1359,7 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
             return false;
         }
         //Removing combat is called in insert_thing_into_power_hand_list(), so we don't have to do it here
-        if (creature_affected_with_spell_flags(thing, CSAfF_Chicken))
+        if (creature_under_spell_effect(thing, CSAfF_Chicken))
         {
             i = convert_td_iso(122); // Hardcoded value, 122 is grabbed chicken.
         }
@@ -1604,7 +1604,7 @@ static TbBool hand_rule_at_action_point(struct HandRule *hand_rule, const struct
 static TbBool hand_rule_affected_by(struct HandRule *hand_rule, const struct Thing *thing)
 {
     struct SpellConfig *spconf = get_spell_config(hand_rule->param);
-    return (creature_affected_with_spell_flags(thing, spconf->spell_flags)) ? !hand_rule->allow : !!hand_rule->allow;
+    return (creature_under_spell_effect(thing, spconf->spell_flags)) ? !hand_rule->allow : !!hand_rule->allow;
 }
 
 static TbBool hand_rule_wandering(struct HandRule *hand_rule, const struct Thing *thing)
