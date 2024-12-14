@@ -1527,7 +1527,7 @@ short creature_being_dropped(struct Thing *creatng)
                 }
             }
         }
-        if (creature_affected_by_spell(creatng, SplK_Fear))
+        if (creature_affected_with_spell_flags(creatng, CSAfF_Fear))
         {
             external_set_thing_state(creatng, CrSt_CreatureCombatFlee);
             return 2;
