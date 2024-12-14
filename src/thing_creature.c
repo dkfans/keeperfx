@@ -685,7 +685,7 @@ TbBool creature_under_spell_effect_f(const struct Thing *thing, unsigned long sp
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
-        ERRORLOG("%s: Invalid creature control for thing %d", func_name, (int)thing->index);
+        ERRORLOG("%s: Invalid creature control for thing %s index %d", func_name, thing_model_name(thing), (int)thing->index);
         return false;
     }
     return flag_is_set(cctrl->spell_flags, spell_flags);
