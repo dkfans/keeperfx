@@ -961,6 +961,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         crstat = creature_stats_get(thing->model);
         if (crstat->fear_stronger > 0)
         {
+            setup_combat_flee_position(thing);
             if (is_thing_some_way_controlled(thing))
             {
                 struct PlayerInfo* player = get_player(thing->owner);
