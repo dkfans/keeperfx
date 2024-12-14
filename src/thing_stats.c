@@ -1093,29 +1093,33 @@ GoldAmount calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_
 
 long compute_creature_weight(const struct Thing* creatng)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    long eye_height = get_creature_eye_height(creatng);
-    long weight = eye_height >> 2;
-    weight += (crstat->hunger_fill + crstat->lair_size + 1) * cctrl->explevel;
-    if (creature_is_immune_to_spell_flags(creatng, CSAfF_Wind))
+    if (!creature_control_invalid(cctrl))
     {
-        weight = weight * 3 / 2;
+        struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+        long eye_height = get_creature_eye_height(creatng);
+        long weight = eye_height >> 2;
+        weight += (crstat->hunger_fill + crstat->lair_size + 1) * cctrl->explevel;
+        if (creature_is_immune_to_spell_flags(creatng, CSAfF_Wind))
+        {
+            weight = weight * 3 / 2;
+        }
+        if (((get_creature_model_flags(creatng) & CMF_Trembling) != 0)
+        || ((get_creature_model_flags(creatng) & CMF_Fat) != 0))
+        {
+            weight = weight * 3 / 2;
+        }
+        if ((get_creature_model_flags(creatng) & CMF_IsDiptera) != 0)
+        {
+            weight = weight / 2;
+        }
+        if (crstat->can_go_locked_doors == true)
+        {
+            weight = weight / 10;
+        }
+        return weight;
     }
-    if (((get_creature_model_flags(creatng) & CMF_Trembling) != 0)
-    || ((get_creature_model_flags(creatng) & CMF_Fat) != 0))
-    {
-        weight = weight * 3 / 2;
-    }
-    if ((get_creature_model_flags(creatng) & CMF_IsDiptera) != 0)
-    {
-        weight = weight / 2;
-    }
-    if (crstat->can_go_locked_doors == true)
-    {
-        weight = weight / 10;
-    }
-    return weight;
+    return 0;
 }
 
 const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveStatId clstat_id)

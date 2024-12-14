@@ -101,8 +101,8 @@ static void draw_creature_view_icons(struct Thing* creatng)
     }
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     struct SpellConfig *spconf;
-    for (SpellKind spell_idx = 0; spell_idx < game.conf.magic_conf.spell_types_count; spell_idx++)
-    { // ^Maybe it should only loop with the actives spells? -> 'for (SpellKind spell_idx = 0; spell_idx < CREATURE_MAX_SPELLS_CASTED_AT; spell_idx++)'
+    for (SpellKind spell_idx = 0; spell_idx < CREATURE_MAX_SPELLS_CASTED_AT; spell_idx++)
+    {
         spconf = get_spell_config(spell_idx);
         if ((spconf->spell_flags > 0) && (creature_affected_with_spell_flags(creatng, spconf->spell_flags)))
         {
@@ -638,11 +638,11 @@ void redraw_creature_view(void)
     message_draw();
     gui_draw_all_boxes();
     draw_tooltip();
-    draw_creature_view_icons(thing);
-    if (!gui_box_is_not_valid(gui_cheat_box_3))
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if (!creature_control_invalid(cctrl))
     {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if (!creature_control_invalid(cctrl))
+        draw_creature_view_icons(thing);
+        if (!gui_box_is_not_valid(gui_cheat_box_3))
         {
             struct GuiBoxOption* guop = gui_cheat_box_3->optn_list;
             while (guop->label[0] != '!')

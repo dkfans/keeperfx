@@ -138,12 +138,14 @@ TbBool is_in_free_things_list(long tng_idx)
 void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_name)
 {
     TRACE_THING(thing);
-    if ((thing->alloc_flags & TAlF_InDungeonList) != 0) {
+    if ((thing->alloc_flags & TAlF_InDungeonList) != 0)
+    {
         remove_first_creature(thing);
     }
     if (!a2)
     {
-        if ((thing_is_creature(thing)) || (thing_is_dead_creature(thing)))
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+        if (!creature_control_invalid(cctrl))
         {
             // Use the correct function to clear them properly. Terminating the spells also removes the attached effects.
             if (creature_affected_with_spell_flags(thing, CSAfF_Armour))
@@ -155,36 +157,35 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
                 clean_spell_flags(thing, CSAfF_Disease);
             }
             delete_familiars_attached_to_creature(thing);
+            remove_creature_lair(thing);
+            if (creature_is_group_member(thing))
+            {
+                remove_creature_from_group(thing);
+            }
+            delete_control_structure(cctrl);
         }
-        if (thing->light_id != 0) {
+        if (thing->light_id != 0)
+        {
             light_delete_light(thing->light_id);
             thing->light_id = 0;
         }
     }
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (!creature_control_invalid(cctrl))
+    if (thing->snd_emitter_id != 0)
     {
-      if ( !a2 )
-      {
-          remove_creature_lair(thing);
-          if (creature_is_group_member(thing)) {
-              remove_creature_from_group(thing);
-          }
-      }
-      delete_control_structure(cctrl);
-    }
-    if (thing->snd_emitter_id != 0) {
         S3DDestroySoundEmitterAndSamples(thing->snd_emitter_id);
         thing->snd_emitter_id = 0;
     }
     remove_thing_from_its_class_list(thing);
     remove_thing_from_mapwho(thing);
-    if (thing->index > 0) {
+    if (thing->index > 0)
+    {
         game.free_things_start_index--;
         game.free_things[game.free_things_start_index] = thing->index;
-    } else {
+    }
+    else
+    {
 #if (BFDEBUG_LEVEL > 0)
-        ERRORMSG("%s: Performed deleting of thing with bad index %d!",func_name,(int)thing->index);
+        ERRORMSG("%s: Performed deleting of thing with bad index %d!", func_name, (int)thing->index);
 #endif
     }
     LbMemorySet(thing, 0, sizeof(struct Thing));

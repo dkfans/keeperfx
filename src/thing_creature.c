@@ -3656,18 +3656,22 @@ long get_creature_speed(const struct Thing *thing)
 
 short get_creature_eye_height(const struct Thing *creatng)
 {
-    int base_height;
-    if (creature_affected_with_spell_flags(creatng, CSAfF_Chicken))
-    {
-        base_height = 100;
-    }
-    else
-    {
-        struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-        base_height = crstat->base_eye_height;
-    }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    return (base_height + (base_height * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
+    if (!creature_control_invalid(cctrl))
+    {
+        int base_height;
+        if (creature_affected_with_spell_flags(creatng, CSAfF_Chicken))
+        {
+            base_height = 100;
+        }
+        else
+        {
+            struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+            base_height = crstat->base_eye_height;
+        }
+        return (base_height + (base_height * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
+    }
+    return 0;
 }
 
 /**
