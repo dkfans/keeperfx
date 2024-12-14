@@ -1393,7 +1393,7 @@ short creature_combat_flee(struct Thing *creatng)
                 return 1;
             }
         }
-        if ((turns_in_flee <= game.conf.rules.creature.game_turns_in_flee) || creature_affected_by_spell(creatng, SplK_Fear))
+        if ((turns_in_flee <= game.conf.rules.creature.game_turns_in_flee) || creature_affected_with_spell_flags(creatng, CSAfF_Fear))
         {
             if (creature_choose_random_destination_on_valid_adjacent_slab(creatng)) {
                 creatng->continue_state = CrSt_CreatureCombatFlee;
