@@ -4969,7 +4969,7 @@ static void use_spell_on_players_creatures_check(const struct ScriptLine *scline
             splevel = MAGIC_OVERCHARGE_LEVELS;
         }
     }
-    splevel--; // Why is it required? Should it applies only on spells linked to a keeper power?
+    splevel--;
     value->shorts[1] = crtr_id;
     value->shorts[2] = mag_id;
     value->shorts[3] = splevel;

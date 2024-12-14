@@ -1408,14 +1408,36 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
         ERRORLOG("Spell %s config is invalid", spell_code_name(spell_idx));
         return; // Exit the function, spell config is invalid.
     }
-    if ((spconf->spell_flags > 0) && (creature_is_immune_to_spell_effect(thing, spconf->spell_flags)))
+    if (flag_is_set(spconf->properties_flags, SPF_Cleanse))
+    {
+        if (spconf->spell_flags > 0)
+        {
+            clean_spell_effect(thing, spconf->spell_flags);
+            if (spconf->aura_effect != 0)
+            {
+                cctrl->spell_aura = spconf->aura_effect;
+                cctrl->spell_aura_duration = spconf->duration;
+            }
+            // It's possible to have a cleanse that deals damage (or healing) overtime to its user.
+            if (spconf->damage == 0)
+            {
+                return; // Exit the function, cleanse did its job.
+            }
+        }
+        else
+        {
+            WARNLOG("Creature %s index %d is trying to cleanse with no spell flags set on %s", thing_model_name(thing), (int)thing->index, spell_code_name(spell_idx));
+        }
+    }
+    if ((spconf->spell_flags > 0) && creature_is_immune_to_spell_effect(thing, spconf->spell_flags))
     {
         SYNCDBG(7, "Creature %s index %d is immune to all spell flags %d set on %s", thing_model_name(thing), (int)thing->index, (uint)spconf->spell_flags, spell_code_name(spell_idx));
         return; // Exit the function, creature is immune to all spell flags set on spell_idx.
     }
-    if (spconf->spell_flags == 0)
+    if ((spconf->spell_flags == 0)
+    && (spconf->damage == 0))
     {
-        // Spells with no flags can apply the aura effect.
+        // Spells with no flags or damage can apply the aura effect.
         if (spconf->aura_effect != 0)
         {
             cctrl->spell_aura = spconf->aura_effect;

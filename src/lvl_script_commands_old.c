@@ -1192,7 +1192,7 @@ static void command_use_spell_on_creature(long plr_range_id, const char *crtr_na
             splevel = MAGIC_OVERCHARGE_LEVELS;
         }
     }
-    splevel--; // Why is it required? Should it applies only on spells linked to a keeper power?
+    splevel--;
     // SpellKind sp = mag_id;
     // encode params: free, magic, caster, level -> into 4xbyte: FMCL
     long fmcl_bytes;
