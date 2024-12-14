@@ -150,11 +150,11 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
             // Use the correct function to clear them properly. Terminating the spells also removes the attached effects.
             if (creature_under_spell_effect(thing, CSAfF_Armour))
             {
-                clean_spell_flags(thing, CSAfF_Armour);
+                clean_spell_effect(thing, CSAfF_Armour);
             }
             if (creature_under_spell_effect(thing, CSAfF_Disease))
             {
-                clean_spell_flags(thing, CSAfF_Disease);
+                clean_spell_effect(thing, CSAfF_Disease);
             }
             delete_familiars_attached_to_creature(thing);
             remove_creature_lair(thing);

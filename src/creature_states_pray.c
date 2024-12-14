@@ -139,13 +139,13 @@ long process_temple_cure(struct Thing *creatng)
     TRACE_THING(creatng);
     if (creature_under_spell_effect(creatng, CSAfF_Disease))
     {
-        clean_spell_flags(creatng, CSAfF_Disease);
+        clean_spell_effect(creatng, CSAfF_Disease);
     }
     if (creature_under_spell_effect(creatng, CSAfF_Chicken))
     {
-        clean_spell_flags(creatng, CSAfF_Chicken);
+        clean_spell_effect(creatng, CSAfF_Chicken);
     }
-    // TODO: Should Temple also cure Slow and Freeze? Maybe we should consider making it configurable by room type.
+    // TODO: Make it configurable by room type.
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     cctrl->temple_cure_gameturn = game.play_gameturn;
     return 1;

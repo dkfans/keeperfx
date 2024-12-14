@@ -677,8 +677,8 @@ TbBool creature_affected_by_slap(const struct Thing *thing)
     return (cctrl->slap_turns != 0);
 }
 
-/* Returns if spell flags is currently enabled on a thing.
- * @param thing The thing which can have spell flags on.
+/* Returns if spell effect is currently set on a thing.
+ * @param thing The thing which can have spell effect on.
  * @param spell_flags The spell flags to be checked. */
 TbBool creature_under_spell_effect_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name)
 {
@@ -691,7 +691,7 @@ TbBool creature_under_spell_effect_f(const struct Thing *thing, unsigned long sp
     return flag_is_set(cctrl->spell_flags, spell_flags);
 }
 
-/* Returns if the creature kind is immune to spell flags.
+/* Returns if the creature kind is immune to spell effect.
  * @param thing The thing to be checked.
  * @param spell_flags The spell flags to be checked. */
 TbBool creature_is_immune_to_spell_effect_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name)
@@ -699,16 +699,16 @@ TbBool creature_is_immune_to_spell_effect_f(const struct Thing *thing, unsigned 
     struct CreatureStats *crstat = creature_stats_get(thing->model);
     if (creature_stats_invalid(crstat))
     {
-        ERRORLOG("%s: Invalid creature kind %s index %d", func_name, thing_model_name(thing), (int)thing->index);
+        ERRORLOG("%s: Invalid creature stats for thing %s index %d", func_name, thing_model_name(thing), (int)thing->index);
         return false;
     }
     return flag_is_set(crstat->immunity_flags, spell_flags);
 }
 
-/* Returns an available instance associated to a spell kind that can set spell flags.
+/* Returns an available instance associated to a spell kind that can set spell effect.
  * @param thing The thing that can use the instance.
  * @param spell_flags The spell flags to be checked. */
-CrInstance get_available_instance_with_spell_flags(const struct Thing *thing, unsigned long spell_flags)
+CrInstance get_available_instance_with_spell_effect(const struct Thing *thing, unsigned long spell_flags)
 {
     struct InstanceInfo *inst_inf;
     struct ShotConfigStats* shotst;
@@ -761,7 +761,7 @@ SpellKind get_spell_kind_from_instance(CrInstance inst_idx)
 }
 
  /* Returns remaining duration of a spell casted on a thing.
- * @param thing The thing which can have spell flags on.
+ * @param thing The thing which can have spell effect on.
  * @param spkind The spell kind to be checked. */
 GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, SpellKind spell_idx, const char *func_name)
 {
@@ -796,7 +796,7 @@ long get_free_spell_slot(struct Thing *creatng)
     {
         cspell = &cctrl->casted_spells[i];
         // If there's unused slot, return it immediately
-        if (cspell->spkind == SPLK_NONE)
+        if (cspell->spkind == 0)
         {
             return i;
         }
@@ -814,7 +814,7 @@ long get_free_spell_slot(struct Thing *creatng)
     for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
         cspell = &cctrl->casted_spells[i];
-        if (cspell->spkind == SPLK_NONE)
+        if (cspell->spkind == 0)
         {
             return i;
         }
@@ -860,7 +860,7 @@ TbBool free_spell_slot(struct Thing *thing, int slot_idx)
     if (creature_control_invalid(cctrl))
         return false;
     struct CastedSpellData* cspell = &cctrl->casted_spells[slot_idx];
-    cspell->spkind = SPLK_NONE;
+    cspell->spkind = 0;
     cspell->duration = 0;
     return true;
 }
@@ -1417,7 +1417,7 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
         ERRORLOG("Spell %s config is invalid", spell_code_name(spell_idx));
         return; // Exit the function, spell config is invalid.
     }
-    if (creature_is_immune_to_spell_effect(thing, spconf->spell_flags))
+    if ((spconf->spell_flags > 0) && (creature_is_immune_to_spell_effect(thing, spconf->spell_flags)))
     {
         SYNCDBG(7, "Creature %s index %d is immune to all spell flags %d set on %s", thing_model_name(thing), (int)thing->index, (uint)spconf->spell_flags, spell_code_name(spell_idx));
         return; // Exit the function, creature is immune to all spell flags set on spell_idx.
@@ -1430,7 +1430,7 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
             cctrl->spell_aura = spconf->aura_effect;
             cctrl->spell_aura_duration = spconf->duration;
         }
-        return; // Exit the function, no further processing is needed for these cases.
+        return; // Exit the function, no further processing is needed for this case.
     }
     // Make sure the creature level isn't larger than max spell level.
     if (spell_lev > SPELL_MAX_LEVEL)
@@ -1473,14 +1473,14 @@ void terminate_all_actives_spell_effects(struct Thing *thing)
     }
 }
 
-/* Clears spell flags on a thing. 
+/* Clears spell effect on a thing. 
  * It first checks for an active spell match and terminates the associated spell.
  * If no exact match is found, it clears only the flag without affecting others.
  * This ensures that spells with multiple flags remain intact.
  * This is used to stop a spell effect before its duration ends, like Temple cures.
- * @param thing The thing which can have spell flags on.
+ * @param thing The thing which can have spell effect on.
  * @param spell_flags The spell flags to be cleaned. */
-void clean_spell_flags_f(struct Thing *thing, unsigned long spell_flags, const char *func_name)
+void clean_spell_effect_f(struct Thing *thing, unsigned long spell_flags, const char *func_name)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
@@ -1735,7 +1735,7 @@ void process_thing_spell_effects(struct Thing *thing)
     for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
         struct CastedSpellData *cspell = &cctrl->casted_spells[i];
-        if (cspell->spkind == SPLK_NONE)
+        if (cspell->spkind == 0)
         {
             continue;
         }
@@ -1766,7 +1766,7 @@ void process_thing_spell_effects_while_blocked(struct Thing *thing)
     for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
         struct CastedSpellData *cspell = &cctrl->casted_spells[i];
-        if (cspell->spkind == SPLK_NONE)
+        if (cspell->spkind == 0)
         {
             continue;
         }

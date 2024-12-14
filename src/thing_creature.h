@@ -159,8 +159,8 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
 #define set_thing_spell_flags(thing, spell_idx, duration, spell_lev) set_thing_spell_flags_f(thing, spell_idx, duration, spell_lev, __func__)
 TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags, const char *func_name);
 #define clear_thing_spell_flags(thing, spell_flags) clear_thing_spell_flags_f(thing, spell_flags, __func__)
-void clean_spell_flags_f(struct Thing *thing, unsigned long spell_flags, const char *func_name);
-#define clean_spell_flags(thing, spell_flags) clean_spell_flags_f(thing, spell_flags, __func__)
+void clean_spell_effect_f(struct Thing *thing, unsigned long spell_flags, const char *func_name);
+#define clean_spell_effect(thing, spell_flags) clean_spell_effect_f(thing, spell_flags, __func__)
 
 void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev);
 void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev);
@@ -173,7 +173,7 @@ void delete_armour_effects_attached_to_creature(struct Thing *thing);
 void delete_disease_effects_attached_to_creature(struct Thing *thing);
 void delete_familiars_attached_to_creature(struct Thing* sumntng);
 
-CrInstance get_available_instance_with_spell_flags(const struct Thing *thing, unsigned long spell_flags);
+CrInstance get_available_instance_with_spell_effect(const struct Thing *thing, unsigned long spell_flags);
 SpellKind get_spell_kind_from_instance(CrInstance inst_idx);
 
 GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, SpellKind spell_idx, const char *func_name);

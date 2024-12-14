@@ -35,7 +35,6 @@ extern "C" {
 #define POWER_MAX_LEVEL         8
 #define MAGIC_OVERCHARGE_LEVELS (POWER_MAX_LEVEL+1)
 #define POWER_TYPES_MAX         2000
-#define SPLK_NONE               0
 
 enum CreatureSpellAffectedFlags {
     CSAfF_Slow         = 0x000001,

@@ -4675,11 +4675,11 @@ TbBool cleanup_creature_state_and_interactions(struct Thing *creatng)
     // Use the correct function to clear them properly. Terminating the spells also removes the attached effects.
     if (creature_under_spell_effect(creatng, CSAfF_Armour))
     {
-        clean_spell_flags(creatng, CSAfF_Armour);
+        clean_spell_effect(creatng, CSAfF_Armour);
     }
     if (creature_under_spell_effect(creatng, CSAfF_Disease))
     {
-        clean_spell_flags(creatng, CSAfF_Disease);
+        clean_spell_effect(creatng, CSAfF_Disease);
     }
     delete_familiars_attached_to_creature(creatng);
     state_cleanup_dragging_body(creatng);
