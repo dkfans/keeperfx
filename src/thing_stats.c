@@ -1104,8 +1104,7 @@ long compute_creature_weight(const struct Thing* creatng)
         {
             weight = weight * 3 / 2;
         }
-        if (((get_creature_model_flags(creatng) & CMF_Trembling) != 0)
-        || ((get_creature_model_flags(creatng) & CMF_Fat) != 0))
+        if ((get_creature_model_flags(creatng) & CMF_Trembling) != 0)
         {
             weight = weight * 3 / 2;
         }

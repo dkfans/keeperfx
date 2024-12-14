@@ -677,7 +677,7 @@ TbBool creature_affected_by_slap(const struct Thing *thing)
     return (cctrl->slap_turns != 0);
 }
 
-/* Returns if a spell flags is currently enabled on a thing.
+/* Returns if spell flags is currently enabled on a thing.
  * @param thing The thing which can have spell flags on.
  * @param spell_flags The spell flags to be checked. */
 TbBool creature_under_spell_effect_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name)
@@ -691,7 +691,7 @@ TbBool creature_under_spell_effect_f(const struct Thing *thing, unsigned long sp
     return flag_is_set(cctrl->spell_flags, spell_flags);
 }
 
-/* Returns if the creature kind is immune to a spell flags.
+/* Returns if the creature kind is immune to spell flags.
  * @param thing The thing to be checked.
  * @param spell_flags The spell flags to be checked. */
 TbBool creature_is_immune_to_spell_flags_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name)
@@ -705,7 +705,7 @@ TbBool creature_is_immune_to_spell_flags_f(const struct Thing *thing, unsigned l
     return flag_is_set(crstat->immunity_flags, spell_flags);
 }
 
-/* Returns an available instance associated to a spell kind that can set a spell flags.
+/* Returns an available instance associated to a spell kind that can set spell flags.
  * @param thing The thing that can use the instance.
  * @param spell_flags The spell flags to be checked. */
 CrInstance get_available_instance_with_spell_flags(const struct Thing *thing, unsigned long spell_flags)
