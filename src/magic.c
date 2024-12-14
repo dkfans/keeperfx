@@ -1573,14 +1573,7 @@ TbBool update_creature_influenced_by_call_to_arms_at_pos(struct Thing *creatng, 
     setup_person_move_to_coord(creatng, cta_pos, NavRtF_Default);
     creatng->continue_state = CrSt_ArriveAtCallToArms;
     // Only influence creature that are not immune to it.
-    if (!creature_is_immune_to_spell_flags(creatng, CSAfF_CalledToArms))
-    {
-        set_flag(cctrl->spell_flags, CSAfF_CalledToArms);
-    }
-    else
-    {
-        return false;
-    }
+    set_flag(cctrl->spell_flags, CSAfF_CalledToArms);
     if (flag_is_set(cctrl->flgfield_1, CCFlg_NoCompControl))
     {
         WARNLOG("The %s index %d is called to arms with no comp control, fixing", thing_model_name(creatng), (int)creatng->index);

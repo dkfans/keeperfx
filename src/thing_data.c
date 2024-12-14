@@ -143,7 +143,7 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
     }
     if (!a2)
     {
-        if (thing_is_creature(thing))
+        if ((thing_is_creature(thing)) || (thing_is_dead_creature(thing)))
         {
             // Use the correct function to clear them properly. Terminating the spells also removes the attached effects.
             if (creature_affected_with_spell_flags(thing, CSAfF_Armour))

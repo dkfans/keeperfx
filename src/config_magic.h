@@ -61,8 +61,8 @@ enum CreatureSpellAffectedFlags {
 };
 
 enum SpellPropertiesFlags {
-    SPF_Cleanse        = 0x01, // Spell will clear SpellFlags assigned instead of applying them.
-    SPF_PercentBased   = 0x02, // Damage or Healing is % based on max health instead of a flat value.
+    SPF_Cleanse        = 0x01, // Spell will clear the assigned SpellFlags instead of applying them.
+    SPF_PercentBased   = 0x02, // Damage or healing is based on a percentage of max health instead of a flat value.
 };
 
 enum PowerKinds {
