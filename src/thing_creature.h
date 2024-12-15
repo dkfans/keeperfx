@@ -98,6 +98,7 @@ void init_creature_level(struct Thing *thing, long nlev);
 long get_creature_speed(const struct Thing *thing);
 
 TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
+TbBool thing_can_be_controlled_as_controller(struct Thing* thing);
 TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
 void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
 void prepare_to_controlled_creature_death(struct Thing* thing);

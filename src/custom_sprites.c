@@ -27,7 +27,7 @@
 #include "bflib_dernc.h"
 #include "sprites.h"
 #include "config_spritecolors.h"
-
+#include "bflib_memory.h"
 #include <spng.h>
 #include <json.h>
 #include <json-dom.h>
@@ -47,7 +47,7 @@
 
 // Each part of RGB tuple of palette file is 1-63 actually
 #define MAX_COLOR_VALUE 64
-
+static uint8_t * rgb_to_pal_table = NULL;
 static short next_free_sprite = 0;
 static short next_free_icon = 0;
 
@@ -82,20 +82,6 @@ struct SpriteContext
     TbBool rotatable;
 };
 
-struct PaletteRecord
-{
-    uint32_t color;
-    unsigned char color_idx;
-};
-
-struct PaletteNode
-{
-    struct PaletteRecord *rec;
-    int size;
-};
-
-static struct PaletteRecord pal_records[PALETTE_COLORS]; // for each color of a palette
-static struct PaletteNode pal_tree[MAX_COLOR_VALUE]; // For each component of a palette
 static struct NamedCommand added_sprites[KEEPERSPRITE_ADD_NUM];
 static struct NamedCommand added_icons[GUI_PANEL_SPRITES_NEW];
 static int num_added_sprite = 0;
@@ -104,8 +90,6 @@ unsigned char base_pal[PALETTE_SIZE];
 
 static unsigned char big_scratch_data[1024*1024*16] = {0};
 unsigned char *big_scratch = big_scratch_data;
-
-static void init_pal_conversion();
 
 static void compress_raw(struct TbHugeSprite *sprite, unsigned char *src_buf, int x, int y, int w, int h);
 
@@ -208,20 +192,6 @@ static int fastUnzClearCache()
 }
 
 /* end of zip stuff */
-
-static int pal_compare_fn(const void *a, const void *b)
-{
-    const struct PaletteRecord *rec_a = a;
-    const struct PaletteRecord *rec_b = b;
-    // FYI: minimal density is G axis (15)
-    long delta = (rec_a->color & 0x00FF00) - (rec_b->color & 0x00FF00);
-    if (delta != 0)  //G first
-        return delta;
-    delta = (rec_a->color & 0xFF0000) - (rec_b->color & 0xFF0000);
-    if (delta != 0)
-        return delta;
-    return (rec_a->color & 0x0000FF) - (rec_b->color & 0x0000FF);
-}
 
 static int cmp_named_command(const void *a, const void *b)
 {
@@ -326,7 +296,6 @@ void init_custom_sprites(LevelNumber lvnum)
         free(anim_names);
     }
 
-    init_pal_conversion();
     load_system_sprites(FGrp_FxData);
     load_system_sprites(FGrp_CmpgConfig);
 
@@ -347,81 +316,6 @@ void init_custom_sprites(LevelNumber lvnum)
     {
         SYNCDBG(0, "Unable to load per-map icons file");
     }
-}
-
-/**
- * Setup data for rgb -> indexed conversion
- */
-static void init_pal_conversion()
-{
-    SYNCDBG(8, "Starting");
-    // 1. Loading palette into pal_records
-    memset(pal_records, 0, sizeof(pal_records));
-
-    struct PaletteNode pal_tree_tmp[MAX_COLOR_VALUE] = {0}; // one color
-    char* fname;
-    TbBool result = true;
-    fname = prepare_file_fmtpath(FGrp_StdData, "png_conv_pal.dat");
-    if (!LbFileExists(fname))
-    {
-        WARNMSG("Palette file \"%s\" doesn't exist.", fname);
-        result = false;
-    }
-    if (result)
-    {
-        result = (LbFileLoadAt(fname, base_pal) != -1);
-    }
-    else
-    {
-        ERRORLOG("Can't load palette file.");
-    }
-
-    unsigned char *pal = base_pal;
-    for (int i = 0; i < PALETTE_COLORS; i++)
-    {
-        if ((pal[i * 3 + 0] > MAX_COLOR_VALUE)
-            || (pal[i * 3 + 1] > MAX_COLOR_VALUE)
-            || (pal[i * 3 + 2] > MAX_COLOR_VALUE)
-                )
-        {
-            WARNLOG("Unexpected: palette file records is out of range");
-        }
-        pal_records[i].color = pal[i * 3 + 0] | (pal[i * 3 + 1] << 8) | (pal[i * 3 + 2] << 16);
-        pal_records[i].color_idx = i;
-    }
-    // 2. Sorting by color
-    qsort(pal_records, PALETTE_COLORS, sizeof(pal_records[0]), &pal_compare_fn);
-    // 3. setting up tree
-    for (int i = 0; i < PALETTE_COLORS; i++)
-    {
-        int idx = (pal_records[i].color & 0x00FF00) >> 8;
-        struct PaletteNode *node = &pal_tree_tmp[idx];
-        if (node->rec == NULL)
-        {
-            node->rec = &pal_records[i];
-        }
-        node->size++;
-    }
-    // 4. Expanding borders
-#define NEAREST_DEPTH 5
-    for (int i = 0; i < MAX_COLOR_VALUE; i++)
-    {
-        pal_tree[i].rec = NULL;
-        pal_tree[i].size = 0;
-        for (int j = 0; j < NEAREST_DEPTH; j++)
-        {
-            int k = i + j - NEAREST_DEPTH / 2;
-            if ((k < 0) || (k >= MAX_COLOR_VALUE))
-                continue;
-            if (pal_tree[i].rec == NULL)
-            {
-                pal_tree[i].rec = pal_tree_tmp[k].rec;
-            }
-            pal_tree[i].size += pal_tree_tmp[k].size;
-        }
-    }
-#undef NEAREST_DEPTH
-    SYNCDBG(8, "Finished");
 }
 
 /**
@@ -893,35 +787,74 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
 
 static void convert_row(unsigned char *dst_buf, uint32_t *src_buf, int len)
 {
-#define SCALE 4
-    for (int i = 0; i < len; i++, src_buf++, dst_buf++)
+    for (int i = 0; i < len; i++)
     {
-        uint32_t data = *src_buf;
-        int idx = ((data & 0x00FF00) >> 8) / SCALE;
-        const struct PaletteNode *node = &pal_tree[idx];
-        uint8_t max_val = 255;
-        uint32_t max_dst = 3 * 64 * 64;
-
-        for (struct PaletteRecord *rec = node->rec; rec != node->rec + node->size; rec++)
-        {
-            int8_t dr = (rec->color & 0x00000FF) - (data & 0x0000FF) / SCALE;
-            int8_t dg = ((rec->color & 0xFF00) >> 8) - ((data & 0xFF00) >> 8) / SCALE;
-            int8_t db = ((rec->color & 0xFF0000) >> 16) - ((data & 0xFF0000) >> 16) / SCALE;
-            if (dr * dr + dg * dg + db * db < max_dst)
-            {
-                max_dst = dr * dr + dg * dg + db * db;
-                max_val = rec->color_idx;
-            }
-        }
-        *dst_buf = max_val;
+        const uint32_t color = *src_buf++;
+        const uint32_t key =
+            (((color >> 2) & (MAX_COLOR_VALUE - 1)) << 0) +
+            (((color >> 10) & (MAX_COLOR_VALUE - 1)) << 6) +
+            (((color >> 18) & (MAX_COLOR_VALUE - 1)) << 12);
+        *dst_buf++ = rgb_to_pal_table[key];
     }
-#undef SCALE
+}
+
+static uint8_t nearest_color(uint32_t value, const uint8_t * palette)
+{
+    // naive approach
+    uint8_t nearest = 0;
+    uint32_t nearest_delta = UINT32_MAX;
+    const uint8_t vr = value & (MAX_COLOR_VALUE - 1);
+    const uint8_t vg = (value >> 6) & (MAX_COLOR_VALUE - 1);
+    const uint8_t vb = (value >> 12) & (MAX_COLOR_VALUE - 1);
+    for (int i = 0; i < 256; ++i) {
+        const uint8_t pr = palette[(i * 3) + 0];
+        const uint8_t pg = palette[(i * 3) + 1];
+        const uint8_t pb = palette[(i * 3) + 2];
+        const uint32_t delta =
+            (max(pr, vr) - min(pr, vr)) +
+            (max(pg, vg) - min(pg, vg)) +
+            (max(pb, vb) - min(pb, vb));
+        if (delta < nearest_delta) {
+            nearest = i;
+            nearest_delta = delta;
+        }
+    }
+    return nearest;
+}
+
+static void load_rgb_to_pal_table()
+{
+    if (rgb_to_pal_table) {
+        return; // already done, skip
+    }
+    // load palette
+    const uint32_t table_size = MAX_COLOR_VALUE * MAX_COLOR_VALUE * MAX_COLOR_VALUE;
+    rgb_to_pal_table = LbMemoryAlloc(table_size);
+    if (!rgb_to_pal_table) {
+        ERRORLOG("Cannot allocate rgb conversion table");
+        return;
+    }
+    const char * fname = prepare_file_fmtpath(FGrp_StdData, "png_conv_pal.dat");
+    if (!LbFileExists(fname))
+    {
+        WARNMSG("Palette file \"%s\" doesn't exist.", fname);
+        return;
+    }
+    uint8_t palette[768];
+    if (LbFileLoadAt(fname, palette) < sizeof(palette)) {
+        ERRORLOG("Can't load palette file.");
+        return;
+    }
+    // populate table
+    for (uint32_t i = 0; i < table_size; ++i) {
+        rgb_to_pal_table[i] = nearest_color(i, palette);
+    }
 }
 
 static void compress_raw(struct TbHugeSprite *sprite, unsigned char *inp_buf, int x, int y, int w, int h)
 {
-#define TEST_TRANSP(x) ((x & 0xFF000000u) < 0x40000000u)
-
+    #define TEST_TRANSP(x) ((x & 0xFF000000u) < 0x40000000u)
+    load_rgb_to_pal_table();
     unsigned char *buf = sprite->Data;
     uint32_t *src_buf = (uint32_t *) inp_buf;
     TbBool is_transp;
@@ -981,6 +914,7 @@ static void compress_raw(struct TbHugeSprite *sprite, unsigned char *inp_buf, in
         buf++;
         src_buf += tail;
     }
+    #undef TEST_TRANSP
 }
 
 #if BFDEBUG_LEVEL > 0
