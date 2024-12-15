@@ -94,9 +94,11 @@ const struct NamedCommand magic_spell_flags[] = {
 };
 
 const struct NamedCommand magic_spell_properties[] = {
-    {"CLEANSE",       1},
-    {"PERCENT_BASED", 2},
-    {NULL,            0},
+    {"CLEANSE",         1},
+    {"PERCENT_BASED",   2},
+    {"MAX_HEALTH",      3},
+    {"REPEATABLE_AURA", 4},
+    {NULL,              0},
 };
 
 const struct NamedCommand magic_shot_commands[] = {
@@ -907,6 +909,14 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                         break;
                     case 2: // PERCENT_BASED
                         set_flag(spconf->properties_flags, SPF_PercentBased);
+                        n++;
+                        break;
+                    case 3: // MAX_HEALTH
+                        set_flag(spconf->properties_flags, SPF_MaxHealth);
+                        n++;
+                        break;
+                    case 4: // REPEATABLE_AURA
+                        set_flag(spconf->properties_flags, SPF_RepeatableAura);
                         n++;
                         break;
                     default:
