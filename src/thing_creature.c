@@ -1374,7 +1374,6 @@ void update_aura_effect_to_thing(struct Thing *thing, SpellKind spell_idx)
 
 void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev)
 {
-    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     if (spell_lev > SPELL_MAX_LEVEL)
     {
         spell_lev = SPELL_MAX_LEVEL;
@@ -1396,7 +1395,6 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
 
 void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev, int slot_idx)
 {
-    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     if (spell_lev > SPELL_MAX_LEVEL)
     {
         spell_lev = SPELL_MAX_LEVEL;
@@ -1406,6 +1404,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, lon
     if (set_thing_spell_flags(thing, spell_idx, duration, spell_lev)
     || spell_is_continuous(spell_idx, duration))
     {
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
         struct CastedSpellData *cspell = &cctrl->casted_spells[slot_idx];
         cspell->duration = duration;
         update_aura_effect_to_thing(thing, spell_idx);
@@ -1845,7 +1844,7 @@ void process_thing_spell_effects(struct Thing *thing)
         }
         // Set the duration to 0 if each flags of the spell are cleared and there are no other continuous effects.
         if (((spconf->spell_flags > 0) && (!flag_is_set(spconf->spell_flags, cctrl->spell_flags)))
-        && !spell_is_continuous(spell_idx, cspell->duration))
+        && !spell_is_continuous(cspell->spkind, cspell->duration))
         {
             cspell->duration = 0;
         }
