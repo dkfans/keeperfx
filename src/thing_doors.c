@@ -158,6 +158,19 @@ TbBool add_key_on_door(struct Thing *thing)
     struct Thing* keytng = create_object(&thing->mappos, ObjMdl_SpinningKey, thing->owner, 0);
     if (thing_is_invalid(keytng))
       return false;
+    struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
+    if (flag_is_set(doorst->model_flags, DoMF_Secret))
+    {
+        if (is_my_player_number(thing->owner) || !door_is_hidden_to_player(thing,my_player_number))
+        {
+            keytng->rendering_flags &= ~TRF_Transpar_Flags;
+            keytng->rendering_flags |= TRF_Transpar_4;
+        }
+        else
+        {
+            keytng->rendering_flags |= TRF_Invisible;
+        }
+    }
     keytng->mappos.x.stl.pos = COORD_PER_STL/2;
     keytng->mappos.y.stl.pos = COORD_PER_STL/2;
     keytng->mappos.z.stl.num = 5;
@@ -414,6 +427,12 @@ void reveal_secret_door_to_player(struct Thing *doortng,PlayerNumber plyr_idx)
     if(!door_is_hidden_to_player(doortng,plyr_idx))
     {
         return;
+    }
+    struct Thing* keytng = find_base_thing_on_mapwho(TCls_Object, ObjMdl_SpinningKey, doortng->mappos.x.stl.num, doortng->mappos.y.stl.num);
+    if (is_my_player_number(plyr_idx)) //reveal key too
+    {
+        clear_flag(keytng->rendering_flags, TRF_Invisible);
+        set_flag(keytng->rendering_flags, TRF_Transpar_4);
     }
     event_create_event(doortng->mappos.x.val, doortng->mappos.y.val, EvKind_SecretDoorDiscovered, plyr_idx, 0);
     event_create_event(doortng->mappos.x.val, doortng->mappos.y.val, EvKind_SecretDoorSpotted, doortng->owner, 0);
