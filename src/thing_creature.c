@@ -1324,6 +1324,7 @@ GameTurnDelta get_spell_full_duration(SpellKind spell_idx, long spell_lev)
     // If not linked to a keeper power, use the duration set on the spell, otherwise use the strength or duration of the linked power.
     struct SpellConfig *spconf = get_spell_config(spell_idx);
     const struct MagicStats *pwrdynst = get_power_dynamic_stats(spconf->linked_power);
+    GameTurnDelta duration;
     if (spconf->linked_power == 0)
     {
         duration = spconf->duration;
