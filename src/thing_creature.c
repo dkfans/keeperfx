@@ -1339,7 +1339,7 @@ GameTurnDelta get_spell_full_duration(SpellKind spell_idx, long spell_lev)
     return duration;
 }
 
-TbBool spell_is_continuous(SpellKind spell_idx)
+TbBool spell_is_continuous(SpellKind spell_idx, GameTurnDelta duration)
 {
     if (duration > 0)
     {
@@ -1373,7 +1373,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     {
         // Fill the spell slot if the spell has a continuous effect.
         if (set_thing_spell_flags(thing, spell_idx, duration, spell_lev)
-        || spell_is_continuous(spell_idx))
+        || spell_is_continuous(spell_idx, duration))
         {
             fill_spell_slot(thing, i, spell_idx, duration);
             struct SpellConfig *spconf = get_spell_config(spell_idx);
@@ -1397,7 +1397,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, lon
     GameTurnDelta duration = get_spell_full_duration(spell_idx, spell_lev);
     // Reset the spell duration if the spell has a continuous effect.
     if (set_thing_spell_flags(thing, spell_idx, duration, spell_lev)
-    || spell_is_continuous(spell_idx))
+    || spell_is_continuous(spell_idx, duration))
     {
         struct CastedSpellData *cspell = &cctrl->casted_spells[slot_idx];
         cspell->duration = duration;
@@ -1478,7 +1478,7 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
     }
     if (duration == 0)
     {
-        WARNLOG("Creature %s index %d is trying to cast %s but it has no duration", thing_model_name(thing), (int)thing->index, spell_code_name(spell_idx))
+        WARNLOG("Creature %s index %d is trying to cast %s but it has no duration", thing_model_name(thing), (int)thing->index, spell_code_name(spell_idx));
         return; // Exit the function, spell has no duration.
     }
     // Check for immunities against each spell flags set on spell_idx.
@@ -1489,7 +1489,7 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
         return; // Exit the function, creature is immune to each spell flags set on spell_idx and there is no damage frequency.
     }
     // Lastly, check if spell is not continuous.
-    if (!spell_is_continuous(spell_idx))
+    if (!spell_is_continuous(spell_idx, duration))
     {
         // Spell not continuous can still apply an aura effect.
         if (spconf->aura_effect != 0)
@@ -1516,7 +1516,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx)
     TRACE_THING(thing);
     struct SpellConfig *spconf = get_spell_config(spell_idx);
     if (clear_thing_spell_flags(thing, spconf->spell_flags)
-    || spell_is_continuous(spell_idx))
+    || spell_is_continuous(spell_idx, get_spell_full_duration(spell_idx, 1)))
     {
         int slot_idx = get_spell_slot(thing, spell_idx);
         if (slot_idx >= 0)
