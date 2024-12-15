@@ -61,7 +61,6 @@ enum SpellPropertiesFlags {
     SPF_Cleanse        = 0x01, // Spell will clear the assigned SpellFlags instead of applying them.
     SPF_PercentBased   = 0x02, // Damage or healing is based on a percentage of current health instead of a flat value.
     SPF_MaxHealth      = 0x04, // Damage or healing is based on a percentage of max health instead of a flat value.
-    SPF_RepeatableAura = 0x08, // During the spell's duration, reapply the aura effect once the aura's duration ends.
 };
 
 enum PowerKinds {
@@ -381,13 +380,15 @@ struct SpellConfig {
     PowerKind linked_power;
     GameTurnDelta countdown;
     GameTurnDelta duration;
-    short aura_effect;
-    unsigned long spell_flags;
-    unsigned char properties_flags;
+    EffectOrEffElModel aura_effect;
+    GameTurnDelta aura_duration;
+    GameTurnDelta aura_frequency;
     HitPoints healing_recovery;
     HitPoints damage;
     GameTurnDelta damage_frequency;
     DamageType damage_type;
+    unsigned long spell_flags;
+    unsigned char properties_flags;
 };
 
 struct MagicStats {

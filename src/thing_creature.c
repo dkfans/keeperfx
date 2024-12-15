@@ -1345,7 +1345,7 @@ TbBool spell_is_continuous(SpellKind spell_idx, GameTurnDelta duration)
     if (duration > 0)
     {
         struct SpellConfig *spconf = get_spell_config(spell_idx);
-        if (spconf->spell_flags > 0)
+        if (flag_is_set(spconf->properties_flags, SPF_Cleanse))
         {
             return true;
         }
@@ -1353,12 +1353,23 @@ TbBool spell_is_continuous(SpellKind spell_idx, GameTurnDelta duration)
         {
             return true;
         }
-        else if (flag_is_set(spconf->properties_flags, SPF_Cleanse))
+        else if (spconf->aura_effect != 0 && spconf->aura_duration > 0 && spconf->aura_frequency > 0)
         {
             return true;
         }
     }
     return false;
+}
+
+void update_aura_effect_to_thing(struct Thing *thing, SpellKind spell_idx)
+{
+    struct SpellConfig *spconf = get_spell_config(spell_idx);
+    if ((spconf->aura_effect != 0) && (spconf->aura_duration > 0))
+    {
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+        cctrl->spell_aura = spconf->aura_effect;
+        cctrl->spell_aura_duration = spconf->aura_duration;
+    }
 }
 
 void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev)
@@ -1377,12 +1388,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         || spell_is_continuous(spell_idx, duration))
         {
             fill_spell_slot(thing, i, spell_idx, duration);
-            struct SpellConfig *spconf = get_spell_config(spell_idx);
-            if (spconf->aura_effect != 0)
-            {
-                cctrl->spell_aura = spconf->aura_effect;
-                cctrl->spell_aura_duration = spconf->duration;
-            }
+            update_aura_effect_to_thing(thing, spell_idx);
         }
     }
     return;
@@ -1402,12 +1408,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, lon
     {
         struct CastedSpellData *cspell = &cctrl->casted_spells[slot_idx];
         cspell->duration = duration;
-        struct SpellConfig *spconf = get_spell_config(spell_idx);
-        if (spconf->aura_effect != 0)
-        {
-            cctrl->spell_aura = spconf->aura_effect;
-            cctrl->spell_aura_duration = spconf->duration;
-        }
+        update_aura_effect_to_thing(thing, spell_idx);
     }
     return;
 }
@@ -1433,27 +1434,23 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
         return; // Exit the function, creature is immune to spell_idx.
     }
     */
-    // Check for one-time damage/heal.
-    if ((spconf->damage > 0) && (spconf->damage_frequency == 0))
-    {
-        process_thing_spell_damage_or_heal_effects(thing, spell_idx);
-        if ((spconf->spell_flags == 0) && !flag_is_set(spconf->properties_flags, SPF_Cleanse))
-        {
-            // Apply the aura effect if there is no spell flags (else it's applied later).
-            if (spconf->aura_effect != 0)
-            {
-                cctrl->spell_aura = spconf->aura_effect;
-                cctrl->spell_aura_duration = spconf->duration;
-            }
-            return; // Exit the function, no continuous effect to apply.
-        }
-    }
     // Make sure the creature level isn't larger than max spell level.
     if (spell_lev > SPELL_MAX_LEVEL)
     {
         spell_lev = SPELL_MAX_LEVEL;
     }
     GameTurnDelta duration = get_spell_full_duration(spell_idx, spell_lev);
+    // Check for one-time damage/heal.
+    if ((spconf->damage > 0) && (spconf->damage_frequency == 0))
+    {
+        process_thing_spell_damage_or_heal_effects(thing, spell_idx);
+        if (spconf->spell_flags == 0
+        && !spell_is_continuous(spell_idx, duration))
+        {
+            update_aura_effect_to_thing(thing, spell_idx);
+            return; // Exit the function, no continuous effect to apply.
+        }
+    }
     // Check for cleanse property.
     if ((flag_is_set(spconf->properties_flags, SPF_Cleanse))
     && (any_flag_is_set(spconf->spell_flags, cctrl->spell_flags)))
@@ -1461,14 +1458,9 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
         if (spconf->spell_flags > 0)
         {
             clean_spell_effect(thing, spconf->spell_flags);
-            if (duration == 0)
+            if (!spell_is_continuous(spell_idx, duration))
             {
-                // Apply the aura effect if duration is 0 (else it's applied later).
-                if (spconf->aura_effect != 0)
-                {
-                    cctrl->spell_aura = spconf->aura_effect;
-                    cctrl->spell_aura_duration = spconf->duration;
-                }
+                update_aura_effect_to_thing(thing, spell_idx);
                 return; // Exit the function, cleanse did its job.
             }
         }
@@ -1477,28 +1469,18 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
             WARNLOG("Creature %s index %d is trying to cleanse with no spell flags set on %s", thing_model_name(thing), (int)thing->index, spell_code_name(spell_idx));
         }
     }
-    if (duration == 0)
-    {
-        WARNLOG("Creature %s index %d is trying to cast %s but it has no duration", thing_model_name(thing), (int)thing->index, spell_code_name(spell_idx));
-        return; // Exit the function, spell has no duration.
-    }
     // Check for immunities against each spell flags set on spell_idx.
     if (((spconf->spell_flags > 0) && creature_is_immune_to_spell_effect(thing, spconf->spell_flags))
-    && (spconf->damage_frequency == 0))
+    && !spell_is_continuous(spell_idx, duration))
     {
         SYNCDBG(7, "Creature %s index %d is immune to each spell flags %d set on %s", thing_model_name(thing), (int)thing->index, (uint)spconf->spell_flags, spell_code_name(spell_idx));
-        return; // Exit the function, creature is immune to each spell flags set on spell_idx and there is no damage frequency.
+        return; // Exit the function, creature is immune to each spell flags set on spell_idx and there are no other continuous effects.
     }
     // Lastly, check if spell is not continuous.
     if (!spell_is_continuous(spell_idx, duration))
     {
-        // Spell not continuous can still apply an aura effect.
-        if (spconf->aura_effect != 0)
-        {
-            cctrl->spell_aura = spconf->aura_effect;
-            cctrl->spell_aura_duration = spconf->duration;
-        }
-        return; // Exit the function, no further processing is needed for this case.
+        update_aura_effect_to_thing(thing, spell_idx);
+        return; // Exit the function, no further processing is required.
     }
     SYNCDBG(6, "Applying %s to %s index %d", spell_code_name(spell_idx), thing_model_name(thing), (int)thing->index);
     for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
@@ -1863,7 +1845,7 @@ void process_thing_spell_effects(struct Thing *thing)
         }
         // Set the duration to 0 if each flags of the spell are cleared and there are no other continuous effects.
         if (((spconf->spell_flags > 0) && (!flag_is_set(spconf->spell_flags, cctrl->spell_flags)))
-        && (spconf->damage_frequency == 0) && (!flag_is_set(spconf->properties_flags, SPF_Cleanse)))
+        && !spell_is_continuous(spell_idx, cspell->duration))
         {
             cspell->duration = 0;
         }
@@ -1876,13 +1858,12 @@ void process_thing_spell_effects(struct Thing *thing)
         {
             terminate_thing_spell_effect(thing, cspell->spkind);
         }
-        else if (cctrl->spell_aura_duration <= 0 && flag_is_set(spconf->properties_flags, SPF_RepeatableAura))
+        else if (spconf->aura_frequency > 0)
         {
-            // Reapply aura effect if possible.
-            if (spconf->aura_effect != 0)
+            if (cspell->duration % spconf->aura_frequency == 0)
             {
-                cctrl->spell_aura = spconf->aura_effect;
-                cctrl->spell_aura_duration = spconf->duration;
+                // Reapply aura effect if possible.
+                update_aura_effect_to_thing(thing, cspell->spkind);
             }
         }
     }
