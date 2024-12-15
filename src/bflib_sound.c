@@ -813,7 +813,6 @@ struct SampleInfo *play_sample(SoundEmitterID emit_id, SoundSmplTblID smptbl_id,
 
     struct SampleTable* smp_table = sample_table_get(smptbl_id, bank_id);
     if (smp_table == NULL) {
-        ERRORLOG("Sample table not loaded");
         return NULL;
     }
     // Start the play
