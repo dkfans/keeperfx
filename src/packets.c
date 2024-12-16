@@ -165,7 +165,7 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
     struct Dungeon* dungeon = get_players_dungeon(player);
     SYNCDBG(6,"Starting for player %d state %s",(int)plyr_idx,player_state_code_name(player->work_state));
     struct Packet* pckt = get_packet_direct(player->packet_num);
-    if ((pckt->control_flags & PCtr_LBtnHeld) != 0)
+    if (flag_is_set(pckt->control_flags,PCtr_LBtnHeld))
     {
         struct PowerConfigStats *powerst = get_power_model_stats(player->chosen_power_kind);
 
