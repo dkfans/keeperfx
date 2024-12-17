@@ -2751,7 +2751,7 @@ static void place_door_process(struct ScriptContext* context)
 
     for (int plyridx = context->plr_start; plyridx < context->plr_end; plyridx++)
     {
-        if (tag_cursor_blocks_place_door(plyridx, stl_x, stl_y))
+        if (tag_cursor_blocks_place_door(plyridx, stl_x, stl_y,doorkind))
         {
             if (!free)
             {
