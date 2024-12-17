@@ -921,11 +921,12 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
             if ((player->input_crtr_control) && (!thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand))
             {
                 PowerKind pwkind = PwrK_POSSESS;
-                if (can_cast_spell(player->id_number, pwkind,
-                  thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
+                if (can_cast_spell(player->id_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))
+                {
                     // The condition above makes can_cast_spell() within draw_spell_cursor() to never fail; this is intentional
                     player->chosen_power_kind = pwkind;
                     draw_spell_cursor(0, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+                    player->chosen_power_kind = 0;
                 } else {
                     set_pointer_graphic(MousePG_Arrow);
                 }
