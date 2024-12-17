@@ -56,6 +56,7 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
 TbBool thing_is_deployed_door(const struct Thing *thing);
 TbBool thing_is_sellable_door(const struct Thing* thing);
 TbBool slab_has_sellable_door(MapSlabCoord slb_x, MapSlabCoord slb_y);
+void init_keys();
 void lock_door(struct Thing *thing);
 void unlock_door(struct Thing *thing);
 long destroy_door(struct Thing *thing);
