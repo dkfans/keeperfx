@@ -1459,6 +1459,7 @@ static TbBool load_level_file(LevelNumber lvnum)
         }
         reinitialise_map_rooms();
         ceiling_init();
+        init_keys();
         if (result)
         {
             load_ext_slabs(lvnum);
