@@ -186,7 +186,6 @@ TbBool creature_will_do_combat(const struct Thing *thing)
     {
         return false;
     }
-    // Creatures without a computer player won't fight.
     if (flag_is_set(cctrl->flgfield_1, CCFlg_NoCompControl))
     {
         return false;

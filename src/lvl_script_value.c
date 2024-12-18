@@ -172,7 +172,7 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel,
     }
     SpellKind spkind = (fmcl_bytes >> 8) & 255;
     struct SpellConfig *spconf = get_spell_config(spkind);
-    if ((spconf->caster_affected) && (!creature_is_immune_to_spell_effect(thing, spconf->spell_flags)))
+    if (!creature_is_immune_to_spell_effect(thing, spconf->spell_flags))
     { // Immunity is handled in 'apply_spell_effect_to_thing', but this command plays sounds, so check for it.
         if (thing_is_picked_up(thing))
         {
