@@ -6854,7 +6854,7 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
     return thing;
 }
 
-struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long carried_gold, long crtr_level)
+struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long carried_gold, CrtrExpLevel crtr_level)
 {
     struct Thing* creatng = script_create_creature_at_location(plyr_idx, crmodel, location);
     if (thing_is_invalid(creatng))
@@ -6864,7 +6864,7 @@ struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmod
     return creatng;
 }
 
-void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, long location, long copies_num, long carried_gold, long crtr_level)
+void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, long location, long copies_num, long carried_gold, CrtrExpLevel crtr_level)
 {
     for (long i = 0; i < copies_num; i++)
     {
