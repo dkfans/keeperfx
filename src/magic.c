@@ -1332,7 +1332,7 @@ static TbResult magic_use_power_apply_spell(PowerKind power_kind, PlayerNumber p
         create_used_effect_or_element(&effpos, powerst->effect_id, thing->owner);
     }
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-    apply_spell_effect_to_thing(thing, powerst->spell_idx, splevel);
+    apply_spell_effect_to_thing(thing, powerst->spell_idx, splevel, plyr_idx);
     // Special cases.
     if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
     { // Set disease_caster_plyridx if spell_idx has 'CSAfF_Disease'.

@@ -58,7 +58,7 @@ enum CreatureSpellAffectedFlags {
 };
 
 enum SpellPropertiesFlags {
-    SPF_Cleanse        = 0x01, // Spell will clear the assigned SpellFlags instead of applying them.
+    SPF_FixedDamage    = 0x01, // Damage or healing does not increase based on the creature's level.
     SPF_PercentBased   = 0x02, // Damage or healing is based on a percentage of current health instead of a flat value.
     SPF_MaxHealth      = 0x04, // Damage or healing is based on a percentage of max health instead of a flat value.
 };
@@ -388,6 +388,7 @@ struct SpellConfig {
     GameTurnDelta damage_frequency;
     DamageType damage_type;
     unsigned long spell_flags;
+    unsigned long cleanse_flags;
     unsigned char properties_flags;
 };
 

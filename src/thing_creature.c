@@ -839,7 +839,7 @@ long get_spell_slot(const struct Thing *thing, SpellKind spkind)
     return -1;
 }
 
-TbBool fill_spell_slot(struct Thing *thing, int slot_idx, SpellKind spell_idx, long spell_power)
+TbBool fill_spell_slot(struct Thing *thing, SpellKind spell_idx, GameTurnDelta spell_power, CrtrExpLevel spell_lev, PlayerNumber plyr_idx, int slot_idx)
 {
     if ((slot_idx < 0) || (slot_idx >= CREATURE_MAX_SPELLS_CASTED_AT))
         return false;
@@ -849,6 +849,8 @@ TbBool fill_spell_slot(struct Thing *thing, int slot_idx, SpellKind spell_idx, l
     struct CastedSpellData* cspell = &cctrl->casted_spells[slot_idx];
     cspell->spkind = spell_idx;
     cspell->duration = spell_power;
+    cspell->caster_level = spell_lev;
+    cspell->caster_owner = plyr_idx;
     return true;
 }
 
@@ -862,10 +864,12 @@ TbBool free_spell_slot(struct Thing *thing, int slot_idx)
     struct CastedSpellData* cspell = &cctrl->casted_spells[slot_idx];
     cspell->spkind = 0;
     cspell->duration = 0;
+    cspell->caster_level = 0;
+    cspell->caster_owner = 0;
     return true;
 }
 
-TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTurnDelta duration, long spell_lev, const char *func_name)
+TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTurnDelta duration, CrtrExpLevel spell_lev, const char *func_name)
 {
     struct CreatureStats *crstat = creature_stats_get(thing->model);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
@@ -875,10 +879,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
     struct Coord3d pos;
     struct Thing *ntng;
     TbBool affected = false;
-    if (flag_is_set(spconf->properties_flags, SPF_Cleanse))
-    {
-        return true; // Exit the function, cleanse is set, spell flags should not be applied.
-    }
+    // SLOW.
     if (flag_is_set(spconf->spell_flags, CSAfF_Slow)
     && (!creature_is_immune_to_spell_effect(thing, CSAfF_Slow)))
     {
@@ -890,6 +891,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         affected = true;
     }
+    // SPEED.
     if (flag_is_set(spconf->spell_flags, CSAfF_Speed)
     && (!creature_is_immune_to_spell_effect(thing, CSAfF_Speed)))
     {
@@ -900,6 +902,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         affected = true;
     }
+    // ARMOUR.
     if (flag_is_set(spconf->spell_flags, CSAfF_Armour)
     && (!creature_is_immune_to_spell_effect(thing, CSAfF_Armour)))
     {
@@ -930,6 +933,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         }
         affected = true;
     }
+    // REBOUND.
     if (flag_is_set(spconf->spell_flags, CSAfF_Rebound)
     && (!creature_is_immune_to_spell_effect(thing, CSAfF_Rebound)))
     {
@@ -939,6 +943,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         }
         affected = true;
     }
+    // FLYING.
     if (flag_is_set(spconf->spell_flags, CSAfF_Flying)
     && (!creature_is_immune_to_spell_effect(thing, CSAfF_Flying)))
     {
@@ -949,6 +954,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         }
         affected = true;
     }
+    // INVISIBILITY.
     if (flag_is_set(spconf->spell_flags, CSAfF_Invisibility)
     && (!creature_is_immune_to_spell_effect(thing, CSAfF_Invisibility)))
     {
@@ -959,6 +965,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         }
         affected = true;
     }
+    // SIGHT.
     if (flag_is_set(spconf->spell_flags, CSAfF_Sight)
     && (!creature_is_immune_to_spell_effect(thing, CSAfF_Sight)))
     {
@@ -968,6 +975,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         }
         affected = true;
     }
+    // LIGHT.
     if (flag_is_set(spconf->spell_flags, CSAfF_Light)
     && (!creature_is_immune_to_spell_effect(thing, CSAfF_Light)))
     {
@@ -981,6 +989,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
             affected = true;
         }
     }
+    // DISEASE.
     if (flag_is_set(spconf->spell_flags, CSAfF_Disease)
     && (!creature_is_immune_to_spell_effect(thing, CSAfF_Disease)))
     {
@@ -1022,6 +1031,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         cctrl->active_disease_spell = spell_idx; // Remember the spell_idx for a later use.
         affected = true;
     }
+    // CHICKEN.
     if (flag_is_set(spconf->spell_flags, CSAfF_Chicken)
     && (!creature_is_immune_to_spell_effect(thing, CSAfF_Chicken)))
     {
@@ -1038,6 +1048,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         }
         affected = true;
     }
+    // FREEZE.
     if (flag_is_set(spconf->spell_flags, CSAfF_Freeze)
     && (!creature_is_immune_to_spell_effect(thing, CSAfF_Freeze)))
     {
@@ -1054,6 +1065,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         creature_set_speed(thing, 0);
         affected = true;
     }
+    // MAD_KILLING.
     if (flag_is_set(spconf->spell_flags, CSAfF_MadKilling)
     && (!creature_is_immune_to_spell_effect(thing, CSAfF_MadKilling)))
     {
@@ -1063,6 +1075,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         }
         affected = true;
     }
+    // FEAR.
     if (flag_is_set(spconf->spell_flags, CSAfF_Fear)
     && (!creature_is_immune_to_spell_effect(thing, CSAfF_Fear))
     && (crstat->fear_stronger > 0))
@@ -1101,6 +1114,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         }
         affected = true;
     }
+    // TELEPORT.
     if (flag_is_set(spconf->spell_flags, CSAfF_Teleport)
     && (!creature_is_immune_to_spell_effect(thing, CSAfF_Teleport)))
     {
@@ -1112,6 +1126,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         cctrl->active_teleport_spell = spell_idx; // Remember the spell_idx for a later use.
         affected = true;
     }
+    // TIMEBOMB.
     if (flag_is_set(spconf->spell_flags, CSAfF_Timebomb)
     && (!creature_is_immune_to_spell_effect(thing, CSAfF_Timebomb)))
     {
@@ -1123,6 +1138,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         cctrl->active_timebomb_spell = spell_idx; // Remember the spell_idx for a later use.
         affected = true;
     }
+    // HEAL.
     if (flag_is_set(spconf->spell_flags, CSAfF_Heal)
     && (!creature_is_immune_to_spell_effect(thing, CSAfF_Heal)))
     {
@@ -1158,6 +1174,7 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
     struct CreatureStats *crstat = creature_stats_get(thing->model);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     TbBool cleared = false;
+    // SLOW.
     if (flag_is_set(spell_flags, CSAfF_Slow)
     && (creature_under_spell_effect(thing, CSAfF_Slow)))
     {
@@ -1165,6 +1182,7 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         cleared = true;
     }
+    // SPEED.
     if (flag_is_set(spell_flags, CSAfF_Speed)
     && (creature_under_spell_effect(thing, CSAfF_Speed)))
     {
@@ -1172,6 +1190,7 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         cleared = true;
     }
+    // ARMOUR.
     if (flag_is_set(spell_flags, CSAfF_Armour)
     && (creature_under_spell_effect(thing, CSAfF_Armour)))
     {
@@ -1179,12 +1198,14 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
         delete_armour_effects_attached_to_creature(thing);
         cleared = true;
     }
+    // REBOUND.
     if (flag_is_set(spell_flags, CSAfF_Rebound)
     && (creature_under_spell_effect(thing, CSAfF_Rebound)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Rebound);
         cleared = true;
     }
+    // FLYING.
     if (flag_is_set(spell_flags, CSAfF_Flying)
     && (creature_under_spell_effect(thing, CSAfF_Flying)))
     {
@@ -1196,6 +1217,7 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
         }
         cleared = true;
     }
+    // INVISIBILITY.
     if (flag_is_set(spell_flags, CSAfF_Invisibility)
     && (creature_under_spell_effect(thing, CSAfF_Invisibility)))
     {
@@ -1203,12 +1225,14 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
         cctrl->force_visible = 0;
         cleared = true;
     }
+    // SIGHT.
     if (flag_is_set(spell_flags, CSAfF_Sight)
     && (creature_under_spell_effect(thing, CSAfF_Sight)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Sight);
         cleared = true;
     }
+    // LIGHT.
     if (flag_is_set(spell_flags, CSAfF_Light)
     && (creature_under_spell_effect(thing, CSAfF_Light)))
     {
@@ -1232,6 +1256,7 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
             cleared = true;
         }
     }
+    // DISEASE.
     if (flag_is_set(spell_flags, CSAfF_Disease)
     && (creature_under_spell_effect(thing, CSAfF_Disease)))
     {
@@ -1240,6 +1265,7 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
         cctrl->active_disease_spell = 0;
         cleared = true;
     }
+    // CHICKEN.
     if (flag_is_set(spell_flags, CSAfF_Chicken)
     && (creature_under_spell_effect(thing, CSAfF_Chicken)))
     {
@@ -1248,6 +1274,7 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
         cctrl->countdown = 10;
         cleared = true;
     }
+    // FREEZE.
     if (flag_is_set(spell_flags, CSAfF_Freeze)
     && (creature_under_spell_effect(thing, CSAfF_Freeze)))
     {
@@ -1260,6 +1287,7 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
         }
         cleared = true;
     }
+    // MAD_KILLING.
     if (flag_is_set(spell_flags, CSAfF_MadKilling)
     && (creature_under_spell_effect(thing, CSAfF_MadKilling)))
     {
@@ -1267,6 +1295,7 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
         remove_all_traces_of_combat(thing);
         cleared = true;
     }
+    // FEAR.
     if (flag_is_set(spell_flags, CSAfF_Fear)
     && (creature_under_spell_effect(thing, CSAfF_Fear)))
     {
@@ -1288,6 +1317,7 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
         }
         cleared = true;
     }
+    // TELEPORT.
     if (flag_is_set(spell_flags, CSAfF_Teleport)
     && (creature_under_spell_effect(thing, CSAfF_Teleport)))
     {
@@ -1296,6 +1326,7 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
         cctrl->active_teleport_spell = 0;
         cleared = true;
     }
+    // TIMEBOMB.
     if (flag_is_set(spell_flags, CSAfF_Timebomb)
     && (creature_under_spell_effect(thing, CSAfF_Timebomb)))
     {
@@ -1308,6 +1339,7 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
         cctrl->active_timebomb_spell = 0;
         cleared = true;
     }
+    // HEAL.
     if (flag_is_set(spell_flags, CSAfF_Heal))
     {
         // 'CSAfF_Heal' is never set but we still want to mark it cleared to free the spell slot.
@@ -1320,7 +1352,7 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
     return cleared;
 }
 
-GameTurnDelta get_spell_full_duration(SpellKind spell_idx, long spell_lev)
+GameTurnDelta get_spell_full_duration(SpellKind spell_idx, CrtrExpLevel spell_lev)
 {
     // If not linked to a keeper power, use the duration set on the spell, otherwise use the strength or duration of the linked power.
     struct SpellConfig *spconf = get_spell_config(spell_idx);
@@ -1346,18 +1378,12 @@ TbBool spell_is_continuous(SpellKind spell_idx, GameTurnDelta duration)
     if (duration > 0)
     {
         struct SpellConfig *spconf = get_spell_config(spell_idx);
-        if (flag_is_set(spconf->properties_flags, SPF_Cleanse))
+        if ((spconf->damage > 0 && spconf->damage_frequency > 0)
+        || (spconf->aura_effect != 0 && spconf->aura_duration > 0 && spconf->aura_frequency > 0))
         {
             return true;
         }
-        else if (spconf->damage > 0 && spconf->damage_frequency > 0)
-        {
-            return true;
-        }
-        else if (spconf->aura_effect != 0 && spconf->aura_duration > 0 && spconf->aura_frequency > 0)
-        {
-            return true;
-        }
+        return false;
     }
     return false;
 }
@@ -1373,7 +1399,7 @@ void update_aura_effect_to_thing(struct Thing *thing, SpellKind spell_idx)
     }
 }
 
-void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev)
+void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrExpLevel spell_lev, PlayerNumber plyr_idx)
 {
     if (spell_lev > SPELL_MAX_LEVEL)
     {
@@ -1387,14 +1413,14 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         if (set_thing_spell_flags(thing, spell_idx, duration, spell_lev)
         || spell_is_continuous(spell_idx, duration))
         {
-            fill_spell_slot(thing, i, spell_idx, duration);
+            fill_spell_slot(thing, spell_idx, duration, spell_lev, plyr_idx, i);
             update_aura_effect_to_thing(thing, spell_idx);
         }
     }
     return;
 }
 
-void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev, int slot_idx)
+void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrExpLevel spell_lev, PlayerNumber plyr_idx, int slot_idx)
 {
     if (spell_lev > SPELL_MAX_LEVEL)
     {
@@ -1408,12 +1434,14 @@ void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, lon
         struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
         struct CastedSpellData *cspell = &cctrl->casted_spells[slot_idx];
         cspell->duration = duration;
+        cspell->caster_level = spell_lev;
+        cspell->caster_owner = plyr_idx;
         update_aura_effect_to_thing(thing, spell_idx);
     }
     return;
 }
 
-void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev)
+void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrExpLevel spell_lev, PlayerNumber plyr_idx)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
@@ -1440,10 +1468,11 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
         spell_lev = SPELL_MAX_LEVEL;
     }
     GameTurnDelta duration = get_spell_full_duration(spell_idx, spell_lev);
-    // Check for one-time damage/heal.
-    if ((spconf->damage > 0) && (spconf->damage_frequency == 0))
+    // Check for cleansing one-time effect.
+    if (spconf->cleanse_flags > 0
+    && any_flag_is_set(spconf->cleanse_flags, cctrl->spell_flags))
     {
-        process_thing_spell_damage_or_heal_effects(thing, spell_idx);
+        clean_spell_effect(thing, spconf->cleanse_flags);
         if (spconf->spell_flags == 0
         && !spell_is_continuous(spell_idx, duration))
         {
@@ -1451,22 +1480,15 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
             return; // Exit the function, no continuous effect to apply.
         }
     }
-    // Check for cleanse property.
-    if ((flag_is_set(spconf->properties_flags, SPF_Cleanse))
-    && (any_flag_is_set(spconf->spell_flags, cctrl->spell_flags)))
+    // Check for damage/heal one-time effect.
+    if ((spconf->damage > 0) && (spconf->damage_frequency == 0))
     {
-        if (spconf->spell_flags > 0)
+        process_thing_spell_damage_or_heal_effects(thing, spell_idx, spell_lev, plyr_idx);
+        if (spconf->spell_flags == 0
+        && !spell_is_continuous(spell_idx, duration))
         {
-            clean_spell_effect(thing, spconf->spell_flags);
-            if (!spell_is_continuous(spell_idx, duration))
-            {
-                update_aura_effect_to_thing(thing, spell_idx);
-                return; // Exit the function, cleanse did its job.
-            }
-        }
-        else
-        {
-            WARNLOG("Creature %s index %d is trying to cleanse with no spell flags set on %s", thing_model_name(thing), (int)thing->index, spell_code_name(spell_idx));
+            update_aura_effect_to_thing(thing, spell_idx);
+            return; // Exit the function, no continuous effect to apply.
         }
     }
     // Check for immunities against each spell flags set on spell_idx.
@@ -1487,11 +1509,11 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
     {
         if (cctrl->casted_spells[i].spkind == spell_idx)
         {
-            reapply_spell_effect_to_thing(thing, spell_idx, spell_lev, i);
+            reapply_spell_effect_to_thing(thing, spell_idx, spell_lev, plyr_idx, i);
             return; // Exit the function, spell is already active.
         }
     }
-    first_apply_spell_effect_to_thing(thing, spell_idx, spell_lev);
+    first_apply_spell_effect_to_thing(thing, spell_idx, spell_lev, plyr_idx);
 }
 
 void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx)
@@ -1775,11 +1797,11 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
     }
 }
 
-void process_thing_spell_damage_or_heal_effects(struct Thing *thing, SpellKind spell_idx)
+void process_thing_spell_damage_or_heal_effects(struct Thing *thing, SpellKind spell_idx, CrtrExpLevel caster_level, PlayerNumber caster_owner)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     struct SpellConfig *spconf = get_spell_config(spell_idx);
-    HitPoints damage = compute_creature_attack_spell_damage(spconf->damage, 0, cctrl->explevel, thing);
+    HitPoints damage;
     // If percent based, update the damage value.
     if (flag_is_set(spconf->properties_flags, SPF_PercentBased)
     || flag_is_set(spconf->properties_flags, SPF_MaxHealth))
@@ -1801,6 +1823,15 @@ void process_thing_spell_damage_or_heal_effects(struct Thing *thing, SpellKind s
                 damage = thing->health;
             }
         }
+    }
+    // Or if it's fixed damage.
+    else if (flag_is_set(spconf->properties_flags, SPF_FixedDamage))
+    {
+        damage = compute_creature_spell_damage_overtime(spconf->damage, 0, caster_owner);
+    }
+    else // Else computes normally.
+    {
+        damage = compute_creature_spell_damage_overtime(spconf->damage, caster_level, caster_owner);
     }
     // Apply damage.
     if (spconf->damage_type != DmgT_Restoration) // TODO: Check for immunities when types are implemented.
@@ -1829,20 +1860,20 @@ void process_thing_spell_effects(struct Thing *thing)
         {
             if (cspell->duration % spconf->damage_frequency == 0)
             {
-                process_thing_spell_damage_or_heal_effects(thing, cspell->spkind);
+                process_thing_spell_damage_or_heal_effects(thing, cspell->spkind, cspell->caster_level, cspell->caster_owner);
             }
-        }
-        // Process spell with cleanse property.
-        if ((flag_is_set(spconf->properties_flags, SPF_Cleanse))
-        && (any_flag_is_set(spconf->spell_flags, cctrl->spell_flags)))
-        {
-            clean_spell_effect(thing, spconf->spell_flags);
         }
         // Process spell with teleport flag.
         if (cspell->spkind == cctrl->active_teleport_spell)
         {
             process_thing_spell_teleport_effects(thing, cspell);
         }
+        /* Process spell with cleansing & CSAfF_SpellBlocks.
+        if (flag_is_set(spconf->spell_flags, CSAfF_SpellBlocks)
+        && any_flag_is_set(spconf->cleanse_flags, cctrl->spell_flags))
+        {
+            clean_spell_effect(thing, spconf->cleanse_flags);
+        } TODO: Implements CSAfF_SpellBlocks. */
         // Set the duration to 0 if each flags of the spell are cleared and there are no other continuous effects.
         if (((spconf->spell_flags > 0) && (!flag_is_set(spconf->spell_flags, cctrl->spell_flags)))
         && !spell_is_continuous(cspell->spkind, cspell->duration))
@@ -2177,8 +2208,10 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, long shot_lvl,
     if (spconf->caster_affected)
     {
         if (spconf->caster_affect_sound > 0)
-          thing_play_sample(castng, spconf->caster_affect_sound, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
-        apply_spell_effect_to_thing(castng, spl_idx, cctrl->explevel);
+        {
+            thing_play_sample(castng, spconf->caster_affect_sound, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+        }
+        apply_spell_effect_to_thing(castng, spl_idx, cctrl->explevel, castng->owner);
     }
     else if (spconf->shot_model > 0)
     {

@@ -130,8 +130,10 @@ enum ObjectCombatStates {
 };
 
 struct CastedSpellData {
-    unsigned char spkind;
-    short duration;
+    SpellKind spkind;
+    GameTurnDelta duration;
+    CrtrExpLevel caster_level;
+    PlayerNumber caster_owner;
 };
 
 struct CreatureControl {

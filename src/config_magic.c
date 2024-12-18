@@ -69,7 +69,8 @@ const struct NamedCommand magic_spell_commands[] = {
     {"DAMAGETYPE",      16},
     {"AURADURATION",    17},
     {"AURAFREQUENCY",   18},
-    {"PROPERTIES",      19},
+    {"CLEANSEFLAGS",    19},
+    {"PROPERTIES",      20},
     {NULL,               0},
 };
 
@@ -96,7 +97,7 @@ const struct NamedCommand magic_spell_flags[] = {
 };
 
 const struct NamedCommand magic_spell_properties[] = {
-    {"CLEANSE",         1},
+    {"FIXED_DAMAGE",    1},
     {"PERCENT_BASED",   2},
     {"MAX_HEALTH",      3},
     {NULL,              0},
@@ -700,6 +701,16 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                 {
                     k = atoi(word_buf);
                     spconf->spell_flags = k;
+                    if (flag_is_set(spconf->spell_flags, CSAfF_PoisonCloud))
+                    {
+                        clear_flag(spconf->spell_flags, CSAfF_PoisonCloud);
+                        WARNLOG("'POISON_CLOUD' has no effect on spells, spell flag is not set on %s", spell_code_name(i));
+                    }
+                    if (flag_is_set(spconf->spell_flags, CSAfF_Wind))
+                    {
+                        clear_flag(spconf->spell_flags, CSAfF_Wind);
+                        WARNLOG("'WIND' has no effect on spells, spell flag is not set on %s", spell_code_name(i));
+                    }
                     n++;
                 }
                 else
@@ -749,7 +760,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                             break;
                         case 11: // POISON_CLOUD
                             //set_flag(spconf->spell_flags, CSAfF_PoisonCloud);
-                            WARNLOG("'POISON_CLOUD' has no effect on spell, flag is not set on %s", spell_code_name(i));
+                            WARNLOG("'POISON_CLOUD' has no effect on spells, spell flag is not set on %s", spell_code_name(i));
                             n++;
                             break;
                         case 12: // FREEZE
@@ -778,7 +789,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                             break;
                         case 18: // WIND
                             //set_flag(spconf->spell_flags, CSAfF_Wind);
-                            WARNLOG("'WIND' has no effect on spell, flag is not set on %s", spell_code_name(i));
+                            WARNLOG("'WIND' has no effect on spells, spell flag is not set on %s", spell_code_name(i));
                             n++;
                             break;
                         default:
@@ -925,29 +936,150 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                     COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
-        case 19: // PROPERTIES
+        case 19: // CLEANSEFLAGS
+            spconf->cleanse_flags = 0;
+            while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                if (parameter_is_number(word_buf))
+                {
+                    k = atoi(word_buf);
+                    spconf->cleanse_flags = k;
+                    if (flag_is_set(spconf->cleanse_flags, CSAfF_PoisonCloud))
+                    {
+                        clear_flag(spconf->cleanse_flags, CSAfF_PoisonCloud);
+                        WARNLOG("'POISON_CLOUD' has no effect on spells, cleanse flag is not set on %s", spell_code_name(i));
+                    }
+                    if (flag_is_set(spconf->cleanse_flags, CSAfF_Wind))
+                    {
+                        clear_flag(spconf->cleanse_flags, CSAfF_Wind);
+                        WARNLOG("'WIND' has no effect on spells, cleanse flag is not set on %s", spell_code_name(i));
+                    }
+                    n++;
+                }
+                else
+                {
+                    k = get_id(magic_spell_flags, word_buf);
+                    switch (k)
+                    {
+                        case 1: // SLOW
+                            set_flag(spconf->cleanse_flags, CSAfF_Slow);
+                            n++;
+                            break;
+                        case 2: // SPEED
+                            set_flag(spconf->cleanse_flags, CSAfF_Speed);
+                            n++;
+                            break;
+                        case 3: // ARMOUR
+                            set_flag(spconf->cleanse_flags, CSAfF_Armour);
+                            n++;
+                            break;
+                        case 4: // REBOUND
+                            set_flag(spconf->cleanse_flags, CSAfF_Rebound);
+                            n++;
+                            break;
+                        case 5: // FLYING
+                            set_flag(spconf->cleanse_flags, CSAfF_Flying);
+                            n++;
+                            break;
+                        case 6: // INVISIBILITY
+                            set_flag(spconf->cleanse_flags, CSAfF_Invisibility);
+                            n++;
+                            break;
+                        case 7: // SIGHT
+                            set_flag(spconf->cleanse_flags, CSAfF_Sight);
+                            n++;
+                            break;
+                        case 8: // LIGHT
+                            set_flag(spconf->cleanse_flags, CSAfF_Light);
+                            n++;
+                            break;
+                        case 9: // DISEASE
+                            set_flag(spconf->cleanse_flags, CSAfF_Disease);
+                            n++;
+                            break;
+                        case 10: // CHICKEN
+                            set_flag(spconf->cleanse_flags, CSAfF_Chicken);
+                            n++;
+                            break;
+                        case 11: // POISON_CLOUD
+                            //set_flag(spconf->cleanse_flags, CSAfF_PoisonCloud);
+                            WARNLOG("'POISON_CLOUD' has no effect on spells, cleanse flag is not set on %s", spell_code_name(i));
+                            n++;
+                            break;
+                        case 12: // FREEZE
+                            set_flag(spconf->cleanse_flags, CSAfF_Freeze);
+                            n++;
+                            break;
+                        case 13: // MAD_KILLING
+                            set_flag(spconf->cleanse_flags, CSAfF_MadKilling);
+                            n++;
+                            break;
+                        case 14: // FEAR
+                            set_flag(spconf->cleanse_flags, CSAfF_Fear);
+                            n++;
+                            break;
+                        case 15: // HEAL
+                            set_flag(spconf->cleanse_flags, CSAfF_Heal);
+                            n++;
+                            break;
+                        case 16: // TELEPORT
+                            set_flag(spconf->cleanse_flags, CSAfF_Teleport);
+                            n++;
+                            break;
+                        case 17: // TIMEBOMB
+                            set_flag(spconf->cleanse_flags, CSAfF_Timebomb);
+                            n++;
+                            break;
+                        case 18: // WIND
+                            //set_flag(spconf->cleanse_flags, CSAfF_Wind);
+                            WARNLOG("'WIND' has no effect on spells, cleanse flag is not set on %s", spell_code_name(i));
+                            n++;
+                            break;
+                        default:
+                            CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                            break;
+                    }
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 20: // PROPERTIES
             spconf->properties_flags = 0;
             while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
-                k = get_id(magic_spell_properties, word_buf);
-                switch (k)
+                if (parameter_is_number(word_buf))
                 {
-                    case 1: // CLEANSE
-                        set_flag(spconf->properties_flags, SPF_Cleanse);
-                        n++;
-                        break;
-                    case 2: // PERCENT_BASED
-                        set_flag(spconf->properties_flags, SPF_PercentBased);
-                        n++;
-                        break;
-                    case 3: // MAX_HEALTH
-                        set_flag(spconf->properties_flags, SPF_MaxHealth);
-                        n++;
-                        break;
-                    default:
-                        CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                            COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-                        break;
+                    k = atoi(word_buf);
+                    spconf->properties_flags = k;
+                    n++;
+                }
+                else
+                {
+                    k = get_id(magic_spell_properties, word_buf);
+                    switch (k)
+                    {
+                        case 1: // FIXED_DAMAGE
+                            set_flag(spconf->properties_flags, SPF_FixedDamage);
+                            n++;
+                            break;
+                        case 2: // PERCENT_BASED
+                            set_flag(spconf->properties_flags, SPF_PercentBased);
+                            n++;
+                            break;
+                        case 3: // MAX_HEALTH
+                            set_flag(spconf->properties_flags, SPF_MaxHealth);
+                            n++;
+                            break;
+                        default:
+                            CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                            break;
+                    }
                 }
             }
             if (n < 1)
