@@ -1264,6 +1264,7 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
     && (creature_under_spell_effect(thing, CSAfF_MadKilling)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_MadKilling);
+        remove_all_traces_of_combat(thing);
         cleared = true;
     }
     if (flag_is_set(spell_flags, CSAfF_Fear)
