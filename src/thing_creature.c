@@ -1476,7 +1476,7 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
         return; // Exit the function, creature is immune to each spell flags set on spell_idx and there are no other continuous effects.
     }
     // Lastly, check if spell is not continuous.
-    if (!spell_is_continuous(spell_idx, duration))
+    if ((spconf->spell_flags == 0) && (!spell_is_continuous(spell_idx, duration)))
     {
         update_aura_effect_to_thing(thing, spell_idx);
         return; // Exit the function, no further processing is required.
