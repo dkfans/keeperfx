@@ -113,7 +113,7 @@ long good_find_best_enemy_dungeon(struct Thing* creatng)
             continue;
         }
         player = get_player(plyr_idx);
-        if (game.conf.rules.game.classic_bugs_flags & ClscBug_AlwaysTunnelToRed)
+        if (flag_is_set(game.conf.rules.game.classic_bugs_flags,ClscBug_AlwaysTunnelToRed))
         {
             if (creature_can_get_to_dungeon_heart(creatng, plyr_idx))
             {
@@ -306,18 +306,18 @@ TbBool good_setup_sabotage_rooms(struct Thing* creatng, long dngn_id)
 
 TbBool good_setup_defend_rooms(struct Thing* creatng)
 {
-    struct Room* room = find_nearest_room_to_vandalise(creatng, creatng->owner, NavRtF_NoOwner);
+    struct Room* room = find_nearest_room_to_vandalise(creatng, creatng->owner, NavRtF_Default);
     if (room_is_invalid(room))
     {
         return false;
     }
     struct Coord3d pos;
-    if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos) || !creature_can_navigate_to_with_storage(creatng, &pos, NavRtF_NoOwner))
+    if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos) || !creature_can_navigate_to_with_storage(creatng, &pos, NavRtF_Default))
     {
         ERRORLOG("The %s index %d cannot defend %s because it cannot reach position within it", thing_model_name(creatng), (int)creatng->index, room_code_name(room->kind));
         return false;
     }
-    if (!setup_random_head_for_room(creatng, room, NavRtF_NoOwner))
+    if (!setup_random_head_for_room(creatng, room, NavRtF_Default))
     {
         ERRORLOG("The %s index %d cannot defend %s because it cannot head for it", thing_model_name(creatng), (int)creatng->index, room_code_name(room->kind));
         return false;
@@ -919,7 +919,7 @@ short good_doing_nothing(struct Thing *creatng)
         return 1;
     }
     // Do some wandering also if can't find any task to do
-    if (cctrl->wait_to_turn > (long)game.play_gameturn)
+    if ((long)cctrl->wait_to_turn > (long)game.play_gameturn)
     {
         if (creature_choose_random_destination_on_valid_adjacent_slab(creatng)) {
             creatng->continue_state = CrSt_GoodDoingNothing;
@@ -996,7 +996,7 @@ short good_doing_nothing(struct Thing *creatng)
     if (target_plyr_idx == -1)
     {
         nturns = game.play_gameturn - cctrl->hero.wait_time;
-        if (nturns > 400)
+        if ((nturns > 400) && (cctrl->hero.look_for_enemy_dungeon_turn != 0))
         {
             cctrl->hero.wait_time = game.play_gameturn;
             cctrl->hero.byte_8C = 1;

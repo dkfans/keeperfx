@@ -126,7 +126,7 @@ TbBool thing_can_be_controlled_as_controller(struct Thing *thing)
 {
     if (!thing_exists(thing))
         return false;
-    if (thing->class_id == TCls_Creature)
+    if ((thing->class_id == TCls_Creature) && !thing_affected_by_spell(thing,SplK_Fear))
         return true;
     if (thing->class_id == TCls_DeadCreature)
         return true;
@@ -383,8 +383,12 @@ void draw_swipe_graphic(void)
             long i = max(((abs(n) >> 8) -1),0);
             if (i >= SWIPE_SPRITE_FRAMES)
                 i = SWIPE_SPRITE_FRAMES-1;
-            // FIXME: sprites may not be adjacent in the future, causing code below incorrect sprites and possibly crash
             const struct TbSprite* sprlist = get_sprite(swipe_sprites, SWIPE_SPRITES_X * SWIPE_SPRITES_Y * i);
+            if (sprlist == NULL)
+            {
+                ERRORLOG("Failed to draw swipe sprite for thing %d", (int)thing->index);
+                return;
+            }
             const struct TbSprite* startspr = &sprlist[1];
             const struct TbSprite* endspr = &sprlist[1];
             for (n=0; n < SWIPE_SPRITES_X; n++)
@@ -679,29 +683,29 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
     switch (spkind)
     {
     case SplK_Freeze:
-        return ((cctrl->stateblock_flags & CCSpl_Freeze) != 0);
+        return (flag_is_set(cctrl->stateblock_flags,CCSpl_Freeze));
     case SplK_Armour:
-        return ((cctrl->spell_flags & CSAfF_Armour) != 0);
+        return (flag_is_set(cctrl->spell_flags,CSAfF_Armour));
     case SplK_Rebound:
-        return ((cctrl->spell_flags & CSAfF_Rebound) != 0);
+        return (flag_is_set(cctrl->spell_flags,CSAfF_Rebound));
     case SplK_Invisibility:
-        return ((cctrl->spell_flags & CSAfF_Invisibility) != 0);
+        return (flag_is_set(cctrl->spell_flags,CSAfF_Invisibility));
     case SplK_Teleport:
-        return ((cctrl->stateblock_flags & CCSpl_Teleport) != 0);
+        return (flag_is_set(cctrl->stateblock_flags,CCSpl_Teleport));
     case SplK_Speed:
-        return ((cctrl->spell_flags & CSAfF_Speed) != 0);
+        return (flag_is_set(cctrl->spell_flags,CSAfF_Speed));
     case SplK_Slow:
-        return ((cctrl->spell_flags & CSAfF_Slow) != 0);
+        return (flag_is_set(cctrl->spell_flags,CSAfF_Slow));
     case SplK_Fly:
-        return ((cctrl->spell_flags & CSAfF_Flying) != 0);
+        return (flag_is_set(cctrl->spell_flags,CSAfF_Flying));
     case SplK_Sight:
-        return ((cctrl->spell_flags & CSAfF_Sight) != 0);
+        return (flag_is_set(cctrl->spell_flags,CSAfF_Sight));
     case SplK_Disease:
-        return ((cctrl->spell_flags & CSAfF_Disease) != 0);
+        return (flag_is_set(cctrl->spell_flags,CSAfF_Disease));
     case SplK_Chicken:
-        return ((cctrl->spell_flags & CSAfF_Chicken) != 0);
+        return (flag_is_set(cctrl->spell_flags,CSAfF_Chicken));
     case SplK_TimeBomb:
-        return ((cctrl->spell_flags & CSAfF_Timebomb) != 0);
+        return (flag_is_set(cctrl->spell_flags,CSAfF_Timebomb));
     // Handle spells with no continuous effect
     case SplK_Lightning:
     case SplK_Heal:
@@ -716,13 +720,13 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
     case SplK_Drain:
         return false;
     case SplK_PoisonCloud:
-        return ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0);
+        return (flag_is_set(cctrl->spell_flags,CSAfF_PoisonCloud));
     case SplK_Fear:
-        return false;//TODO CREATURE_SPELL update when fear continous effect is implemented
+        return (flag_is_set(cctrl->spell_flags,CSAfF_Fear));
     case SplK_Wind:
-        return ((cctrl->spell_flags & CSAfF_Wind) != 0);
+        return (flag_is_set(cctrl->spell_flags,CSAfF_Wind));
     case SplK_Light:
-        return ((cctrl->spell_flags & CSAfF_Light) != 0);
+        return (flag_is_set(cctrl->spell_flags,CSAfF_Light));
     case SplK_Hailstorm:
         return false;//TODO CREATURE_SPELL find out how to check this
     case SplK_CrazyGas:
@@ -905,7 +909,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             cctrl->spell_aura_duration = spconf->duration;
         }
     } else
-    if (spell_idx == SplK_Disease)
+    if (spconf->spell_flags == CSAfF_Disease)
     {
         if ((get_creature_model_flags(thing) & CMF_NeverSick) == 0)
         {
@@ -951,8 +955,38 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                 cctrl->spell_aura_duration = spconf->duration;
             }
         }
-    } else
-    if (spell_idx == SplK_Chicken)
+    } else 
+    if (spconf->spell_flags == CSAfF_Fear)
+    {
+        crstat = creature_stats_get(thing->model);
+        if (crstat->fear_stronger > 0)
+        {
+            setup_combat_flee_position(thing);
+            if (is_thing_some_way_controlled(thing))
+            {
+                struct PlayerInfo* player = get_player(thing->owner);
+                if (player->controlled_thing_idx == thing->index)
+                {
+                    char active_menu = game.active_panel_mnu_idx;
+                    leave_creature_as_controller(player, thing);
+                    control_creature_as_passenger(player, thing);
+                    if (is_my_player(player))
+                    {
+                        turn_off_all_panel_menus();
+                        turn_on_menu(active_menu);
+                    }
+                }
+            }
+            if (external_set_thing_state(thing, CrSt_CreatureCombatFlee))
+            {
+                cctrl->flee_start_turn = game.play_gameturn;
+                fill_spell_slot(thing, i, spell_idx, duration);
+                cctrl->spell_flags |= spconf->spell_flags;
+            }
+        }
+    }
+    else
+    if (spconf->spell_flags == CSAfF_Chicken)
     {
         if ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0)
         {
@@ -1079,15 +1113,30 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
     if (spconf->linked_power == 0)
     {
         duration = spconf->duration;
-    } else
+    }
+    else
     if (pwrdynst->duration == 0)
     {
         duration = pwrdynst->strength[spell_lev];
-    } else
+    }
+    else
     {
         duration = pwrdynst->duration;
     }
     cspell->duration = duration;
+    if (spconf->spell_flags == CSAfF_Chicken)
+    {
+        external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
+        cctrl->countdown = duration / 5;
+    }
+    if (spconf->spell_flags == CSAfF_Fear)
+    {
+        cctrl->flee_start_turn = game.play_gameturn;
+        if (get_creature_state_besides_interruptions(thing) != CrSt_CreatureCombatFlee)
+        {
+            external_set_thing_state(thing, CrSt_CreatureCombatFlee);
+        }
+    }
 
     switch (spell_idx)
     {
@@ -1105,11 +1154,6 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         }
         break;
     }
-    case SplK_Chicken:
-        external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
-        cctrl->countdown = duration/5;
-        cspell->duration = pwrdynst->strength[spell_lev];
-        break;
     default:
         break;
     }
@@ -1219,26 +1263,44 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         cctrl->countdown = 10;
         break;
     case SplK_Light:
-    crstat = creature_stats_get(thing->model);
-    if (!crstat->illuminated)
-    {
-        if (thing->light_id != 0)
+        crstat = creature_stats_get(thing->model);
+        if (!crstat->illuminated)
         {
-            cctrl->spell_flags &= ~CSAfF_Light;
-            if ((thing->rendering_flags & TRF_Invisible) != 0)
+            if (thing->light_id != 0)
             {
-                light_set_light_intensity(thing->light_id, (light_get_light_intensity(thing->light_id) - 20));
-                struct Light* lgt = &game.lish.lights[thing->light_id];
-                lgt->radius = 2560;
-            }
-            else
-            {
-                light_delete_light(thing->light_id);
-                thing->light_id = 0;
+                cctrl->spell_flags &= ~CSAfF_Light;
+                if (flag_is_set(thing->rendering_flags,TRF_Invisible))
+                {
+                    light_set_light_intensity(thing->light_id, (light_get_light_intensity(thing->light_id) - 20));
+                    struct Light* lgt = &game.lish.lights[thing->light_id];
+                    lgt->radius = 2560;
+                }
+                else
+                {
+                    light_delete_light(thing->light_id);
+                    thing->light_id = 0;
+                }
             }
         }
         break;
-    }
+    case SplK_Fear:
+        cctrl->spell_flags &= ~CSAfF_Fear;
+        if (is_thing_some_way_controlled(thing))
+        {
+            struct PlayerInfo* player = get_player(thing->owner);
+            if (player->controlled_thing_idx == thing->index)
+            {
+                char active_menu = game.active_panel_mnu_idx;
+                leave_creature_as_passenger(player, thing);
+                control_creature_as_controller(player, thing);
+                if (is_my_player(player))
+                {
+                    turn_off_all_panel_menus();
+                    turn_on_menu(active_menu);
+                }
+            }
+        }
+        break;
     }
     if (slot_idx >= 0) {
         free_spell_slot(thing, slot_idx);
@@ -1481,7 +1543,8 @@ void process_thing_spell_effects(struct Thing *thing)
             break;
         }
         cspell->duration--;
-        if (cspell->duration <= 0) {
+        if (cspell->duration <= 0)
+        {
             terminate_thing_spell_effect(thing, cspell->spkind);
         }
     }
@@ -1687,7 +1750,7 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                     else
                     {
                         // there's multiple summon types on this creature.
-                        count++;
+                        sumcount++;
                     }
                 }
                 else
@@ -2707,27 +2770,38 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
     remove_parent_thing_from_things_in_list(&game.thing_lists[TngList_Shots],thing->index);
     ThingModel crmodel = thing->model;
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    if (!thing_exists(thing)) {
-        flags |= CrDed_NoEffects;
+    if (!thing_exists(thing)) 
+    {
+        set_flag(flags,CrDed_NoEffects);
     }
-    if (((flags & CrDed_NoEffects) == 0) && (crstat->rebirth != 0)
+    if ((!flag_is_set(flags,CrDed_NoEffects)) && (crstat->rebirth != 0)
      && (cctrl->lairtng_idx > 0) && (crstat->rebirth-1 <= cctrl->explevel)
-        && ((flags & CrDed_NoRebirth) == 0))
+        && (!flag_is_set(flags,CrDed_NoRebirth)) )
     {
         creature_rebirth_at_lair(thing);
         return INVALID_THING;
     }
     creature_throw_out_gold(thing);
     // Beyond this point, the creature thing is bound to be deleted
-    if (((flags & CrDed_NotReallyDying) == 0) || ((game.conf.rules.game.classic_bugs_flags & ClscBug_ResurrectRemoved) != 0))
+    if ((!flag_is_set(flags,CrDed_NotReallyDying)) || (flag_is_set(game.conf.rules.game.classic_bugs_flags,ClscBug_ResurrectRemoved)))
     {
         // If the creature is leaving dungeon, or being transformed, then CrDed_NotReallyDying should be set
         update_dead_creatures_list_for_owner(thing);
     }
-    if ((flags & CrDed_NoEffects) != 0)
+    if (flag_is_set(get_creature_model_flags(thing), CMF_EventfulDeath)) //updates LAST_DEATH_EVENT for mapmakers
     {
-        if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
+        struct Dungeon* dungeon = get_dungeon(thing->owner);
+        if (!dungeon_invalid(dungeon))
+        {
+            memcpy(&dungeon->last_eventful_death_location, &thing->mappos, sizeof(struct Coord3d));
+        }
+    }
+    if (flag_is_set(flags, CrDed_NoEffects))
+    {
+        if (flag_is_set(game.flags_cd, MFlg_DeadBackToPool))
+        {
             add_creature_to_pool(crmodel, 1);
+        }
         delete_thing_structure(thing, 0);
     } else
     if (!creature_model_bleeds(thing->model))
@@ -5940,7 +6014,7 @@ TngUpdateRet update_creature(struct Thing *thing)
         process_creature_instance(thing);
     }
     update_creature_count(thing);
-    if ((thing->alloc_flags & TAlF_IsControlled) != 0)
+    if (flag_is_set(thing->alloc_flags,TAlF_IsControlled))
     {
         if ((cctrl->stateblock_flags == 0) || creature_state_cannot_be_blocked(thing))
         {

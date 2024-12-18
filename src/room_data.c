@@ -1639,8 +1639,8 @@ TbBool find_random_position_at_area_of_room(struct Coord3d *pos, const struct Ro
             // In case we will select a column on that subtile, do 3 tries
             for (int k = 0; k < 3; k++)
             {
-                pos->x.val = subtile_coord(slab_subtile(slb_x,0),CREATURE_RANDOM(thing, STL_PER_SLB*COORD_PER_STL));
-                pos->y.val = subtile_coord(slab_subtile(slb_y,0),CREATURE_RANDOM(thing, STL_PER_SLB*COORD_PER_STL));
+                pos->x.val = subtile_coord(slab_subtile(slb_x,0),CREATURE_RANDOM(thing, COORD_PER_SLB));
+                pos->y.val = subtile_coord(slab_subtile(slb_y,0),CREATURE_RANDOM(thing, COORD_PER_SLB));
                 pos->z.val = subtile_coord(1,0);
                 struct Map* mapblk = get_map_block_at(pos->x.stl.num, pos->y.stl.num);
                 if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((mapblk->flags & SlbAtFlg_IsDoor) == 0)
