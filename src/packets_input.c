@@ -668,10 +668,10 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     packet_left_button_double_clicked[plyr_idx] = 0;
     player->mouse_on_map = is_mouse_on_map(pckt);
     remember_cursor_subtile(player);
-    if ((pckt->control_flags & PCtr_Gui) != 0)
+    process_dungeon_control_packet_spell_overcharge(plyr_idx);
+    if (flag_is_set(pckt->control_flags,PCtr_Gui))
         return false;
     TbBool ret = true;
-    process_dungeon_control_packet_spell_overcharge(plyr_idx);
     if ((pckt->control_flags & PCtr_RBtnHeld) != 0)
     {
         player->field_4D6++;

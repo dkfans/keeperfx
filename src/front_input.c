@@ -1810,7 +1810,7 @@ void get_packet_control_mouse_clicks(void)
     static int synthetic_right = 0;
     SYNCDBG(8,"Starting");
 
-    if ( flag_is_set(game.operation_flags,GOF_Paused)  || busy_doing_gui )
+    if (flag_is_set(game.operation_flags, GOF_Paused))
     {
         return;
     }

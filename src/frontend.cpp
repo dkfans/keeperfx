@@ -685,7 +685,7 @@ short game_is_busy_doing_gui(void)
     PowerKind pwkind = player->chosen_power_kind;
     struct Thing *thing;
     thing = thing_get(battle_creature_over);
-    if (can_cast_power_on_thing(player->id_number, thing, pwkind))
+    if (!thing_is_invalid(thing) && can_cast_power_on_thing(player->id_number, thing, pwkind))
     {
         return true;
     }
