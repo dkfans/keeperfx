@@ -389,22 +389,19 @@ TngUpdateRet move_effect_element(struct Thing *thing)
     SYNCDBG(18,"Starting");
     TRACE_THING(thing);
     struct Coord3d pos;
-    TbBool move_allowed = get_thing_next_position(&pos, thing);
+    TbBool within_map_limits = get_thing_next_position(&pos, thing);
     if ( positions_equivalent(&thing->mappos, &pos) ) {
         return TUFRet_Unchanged;
     }
-    if ((thing->movement_flags & TMvF_Unknown10) == 0)
+    if (!flag_is_set(thing->movement_flags,TMvF_Unknown10))
     {
-        if (!move_allowed)
+        if (!within_map_limits)
         {
             move_effect_blocked(thing, &thing->mappos, &pos);
         } else
-        if ( !thing_covers_same_blocks_in_two_positions(thing, &thing->mappos, &pos) )
+        if (thing_in_wall_at(thing, &pos) && thing_in_wall_at(thing,&thing->mappos))
         {
-            if ( thing_in_wall_at(thing, &pos) )
-            {
-                move_effect_blocked(thing, &thing->mappos, &pos);
-            }
+            move_effect_blocked(thing, &thing->mappos, &pos);
         }
     }
     move_thing_in_map(thing, &pos);
@@ -530,8 +527,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     case 5:
         break;
     default:
-        ERRORLOG("Invalid effect element move type %d!",(int)eestats->move_type);
-        JUSTLOG("elemtng->model %d",elemtng->model);
+        ERRORLOG("Invalid effect element move type %d of model %d!",(int)eestats->move_type, elemtng->model);
         move_effect_element(elemtng);
         break;
     }
@@ -754,10 +750,8 @@ void effect_generate_effect_elements(const struct Thing *thing)
         }
         break;
     }
-    case 4: // Lightning or CaveIn
+    case 4:
     {
-        if (thing->model != 48) // CaveIn only
-            break;
         HitPoints i = effcst->start_health / 2;
         struct PlayerInfo* player;
         if (thing->health == effcst->start_health)
@@ -784,6 +778,8 @@ void effect_generate_effect_elements(const struct Thing *thing)
         }
         break;
     }
+    case 5: 
+        break;
     default:
         ERRORLOG("Unknown Effect Generation Type %d",(int)effcst->generation_type);
         break;
