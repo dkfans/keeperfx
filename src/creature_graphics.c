@@ -454,7 +454,7 @@ void update_creature_graphic_anim(struct Thing *thing)
           struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->instance_id);
           update_creature_anim(thing, cctrl->instance_anim_step_turns, inst_inf->graphics_idx);
         } else
-        if ((cctrl->frozen_on_hit != 0) || creature_is_dying(thing) || flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
+        if ((cctrl->frozen_on_hit != 0) || creature_is_dying(thing) || creature_under_spell_effect(thing, CSAfF_Freeze))
         {
             update_creature_anim(thing, 256, CGI_GotHit);
         } else
@@ -537,7 +537,7 @@ void update_creature_graphic_anim(struct Thing *thing)
 void update_creature_graphic_tint(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
+    if (creature_under_spell_effect(thing, CSAfF_Freeze))
     {
         tint_thing(thing, colours[4][4][15], 1);
     } else

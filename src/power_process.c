@@ -212,7 +212,7 @@ void process_disease(struct Thing *creatng)
                 // Per thing code.
                 tngcctrl = creature_control_get_from_thing(thing);
                 if (thing_is_creature(thing)
-                && ((get_creature_model_flags(thing) & CMF_IsSpecDigger) == 0)
+                && !thing_is_creature_special_digger(thing)
                 && (thing->owner != cctrl->disease_caster_plyridx)
                 && !creature_under_spell_effect(thing, CSAfF_Disease)
                 && !creature_is_immune_to_spell_effect(thing, CSAfF_Disease)
@@ -737,6 +737,8 @@ void process_timebomb(struct Thing *creatng)
         timebomb_explode(creatng);
     }
 }
+
+#define WEIGHT_DIVISOR 64
 
 void timebomb_explode(struct Thing *creatng)
 {

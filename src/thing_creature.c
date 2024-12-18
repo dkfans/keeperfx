@@ -3138,7 +3138,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
             add_creature_to_pool(crmodel, 1);
         return creature_death_as_nature_intended(thing);
     } else
-    if (flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
+    if (creature_under_spell_effect(thing, CSAfF_Freeze))
     {
         if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1);
@@ -3258,8 +3258,9 @@ struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     // Terminate all the actives spell effects on dying creatures.
     terminate_all_actives_spell_effects(creatng);
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
-    if (frozen) // Set back stateblock_flags 'CCSpl_Freeze' if it was frozen, for 'cause_creature_death' function.
+    if (frozen) // Set back freeze flags if it was frozen, for 'cause_creature_death' function.
     {
+        set_flag(cctrl->spell_flags, CSAfF_Freeze);
         set_flag(cctrl->stateblock_flags, CCSpl_Freeze);
         if ((creatng->movement_flags & TMvF_Flying) != 0)
         {
@@ -6400,9 +6401,8 @@ TngUpdateRet update_creature(struct Thing *thing)
                 return TUFRet_Deleted;
             }
         }
-        cctrl = creature_control_get_from_thing(thing);
         struct PlayerInfo* player = get_player(thing->owner);
-        if (flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
+        if (creature_under_spell_effect(thing, CSAfF_Freeze))
         {
             if (!flag_is_set(player->additional_flags, PlaAF_FreezePaletteIsActive))
             {

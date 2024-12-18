@@ -1320,6 +1320,7 @@ static TbResult magic_use_power_apply_spell(PowerKind power_kind, PlayerNumber p
     // Check if the creature kind isn't affected by that spell.
     if (creature_is_immune_to_spell_effect(thing, spconf->spell_flags))
     {
+        // Refusal sound.
         thing_play_sample(thing, 58, 20, 0, 3, 0, 2, 128);
         return Lb_SUCCESS;
     }

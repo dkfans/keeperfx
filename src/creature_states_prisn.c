@@ -196,12 +196,12 @@ struct Thing *find_prisoner_to_freeze(struct Thing *creatng, SpellKind spell_idx
         if (out_delay < 0)
         {
             // If we have a victim which isn't frozen, accept only other unfrozen creatures
-            if ((dist <= LONG_MAX) && !flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze)) {
+            if ((dist <= LONG_MAX) && !creature_under_spell_effect(thing, CSAfF_Freeze)) {
                 out_creatng = thing;
                 out_delay = -1;
             }
         } else
-        if (flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
+        if (creature_under_spell_effect(thing, CSAfF_Freeze))
         {
             // If the victim is frozen, select one which will unfreeze sooner
             long durt = get_spell_duration_left_on_thing(thing, spell_idx);

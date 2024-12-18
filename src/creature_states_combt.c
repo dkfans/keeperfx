@@ -177,7 +177,7 @@ TbBool creature_will_do_combat(const struct Thing *thing)
         return false;
     }
     // Frozen creature cannot attack.
-    if (flag_is_set(cctrl->stateblock_flags, CCSpl_Freeze))
+    if (creature_under_spell_effect(thing, CSAfF_Freeze))
     {
         return false;
     }
@@ -186,7 +186,7 @@ TbBool creature_will_do_combat(const struct Thing *thing)
     {
         return false;
     }
-    // Check related (?) to "zombie player" (turned off).
+    // Creatures without a computer player won't fight.
     if (flag_is_set(cctrl->flgfield_1, CCFlg_NoCompControl))
     {
         return false;
