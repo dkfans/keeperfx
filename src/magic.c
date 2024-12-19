@@ -598,7 +598,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
     if (crstat->slaps_to_kill > 0)
     {
         HitPoints slap_damage = calculate_correct_creature_max_health(thing) / crstat->slaps_to_kill;
-        apply_damage_to_thing_and_display_health(thing, slap_damage, DmgT_Physical, player->id_number);
+        apply_damage_to_thing_and_display_health(thing, slap_damage, player->id_number);
     }
     pwrdynst = get_power_dynamic_stats(PwrK_SLAP);
     i = cctrl->slap_turns;
