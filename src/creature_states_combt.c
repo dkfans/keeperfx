@@ -165,20 +165,31 @@ TbBool creature_can_see_combat_path(const struct Thing *creatng, const struct Th
 
 TbBool creature_will_do_combat(const struct Thing *thing)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    // Creature turned to chicken is defenseless
-    if (creature_affected_by_spell(thing, SplK_Chicken))
-        return false;
-    // Neutral creatures won't fight
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    // Neutral creatures won't fight.
     if (is_neutral_thing(thing))
+    {
         return false;
-    if ((cctrl->flgfield_1 & CCFlg_NoCompControl) != 0)
+    }
+    // Creature turned to chicken is defenseless.
+    if (creature_under_spell_effect(thing, CSAfF_Chicken))
+    {
         return false;
-    // Frozen creature cannot attack
-    if (creature_affected_by_spell(thing, SplK_Freeze))
+    }
+    // Frozen creature cannot attack.
+    if (creature_under_spell_effect(thing, CSAfF_Freeze))
+    {
         return false;
-    if (creature_affected_by_spell(thing, SplK_Fear))
+    }
+    // Creature affected with fear won't fight.
+    if (creature_under_spell_effect(thing, CSAfF_Fear))
+    {
         return false;
+    }
+    if (flag_is_set(cctrl->flgfield_1, CCFlg_NoCompControl))
+    {
+        return false;
+    }
     return can_change_from_state_to(thing, thing->active_state, CrSt_CreatureInCombat);
 }
 
@@ -234,7 +245,7 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     // Neutral creatures are not easily scared, as they shouldn't have enemies
     if (is_neutral_thing(creatng))
         return false;
-    if (creature_affected_by_spell(enmtng, SplK_TimeBomb))
+    if (creature_under_spell_effect(enmtng, CSAfF_Timebomb))
     {
         if (creature_has_ranged_weapon(creatng) == false)
         {
@@ -1346,7 +1357,7 @@ short creature_combat_flee(struct Thing *creatng)
             }
             cctrl->flee_start_turn = game.play_gameturn;
         } else
-        if ((turns_in_flee <= game.conf.rules.creature.game_turns_in_flee) || creature_affected_by_spell(creatng, SplK_Fear))
+        if ((turns_in_flee <= game.conf.rules.creature.game_turns_in_flee) || creature_under_spell_effect(creatng, CSAfF_Fear))
         {
             GameTurnDelta escape_turns = (game.conf.rules.creature.game_turns_in_flee >> 2);
             if (escape_turns <= 50)
@@ -1381,7 +1392,7 @@ short creature_combat_flee(struct Thing *creatng)
                 return 1;
             }
         }
-        if ((turns_in_flee <= game.conf.rules.creature.game_turns_in_flee) || creature_affected_by_spell(creatng, SplK_Fear))
+        if ((turns_in_flee <= game.conf.rules.creature.game_turns_in_flee) || creature_under_spell_effect(creatng, CSAfF_Fear))
         {
             if (creature_choose_random_destination_on_valid_adjacent_slab(creatng)) {
                 creatng->continue_state = CrSt_CreatureCombatFlee;

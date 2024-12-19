@@ -772,8 +772,8 @@ TbBool creature_is_fleeing_combat(const struct Thing *thing)
  */
 TbBool creature_affected_by_call_to_arms(const struct Thing *thing)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    return ((cctrl->spell_flags & CSAfF_CalledToArms) != 0);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    return cctrl->called_to_arms;
 }
 
 /**
@@ -941,13 +941,14 @@ TbBool creature_state_is_unset(const struct Thing *thing)
 
 TbBool restore_creature_flight_flag(struct Thing *creatng)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    // Creature can fly either by spell or natural ability
-    if ((crstat->flying) || creature_affected_by_spell(creatng, SplK_Fly))
+    struct CreatureStats *crstat = creature_stats_get_from_thing(creatng);
+    // Creature can fly either by spell or naturally.
+    if ((crstat->flying) || creature_under_spell_effect(creatng, CSAfF_Flying))
     {
-        // Even flying creature is grounded while frozen
-        if (!creature_affected_by_spell(creatng, SplK_Freeze)) {
-            creatng->movement_flags |= TMvF_Flying;
+        // Even flying creature is grounded while frozen.
+        if (!creature_under_spell_effect(creatng, CSAfF_Freeze))
+        {
+            set_flag(creatng->movement_flags, TMvF_Flying);
             return true;
         }
     }
@@ -1463,7 +1464,7 @@ short creature_being_dropped(struct Thing *creatng)
         new_job = get_job_for_subtile(creatng, stl_x, stl_y, JoKF_AssignHumanDrop);
     }
     // Most tasks are disabled while creature is a chicken
-    if (!creature_affected_by_spell(creatng, SplK_Chicken))
+    if (!creature_under_spell_effect(creatng, CSAfF_Chicken))
     {
         // For creatures with trembling and not changed to chickens, tremble the camera
         if ((get_creature_model_flags(creatng) & CMF_Trembling) != 0)
@@ -1506,7 +1507,7 @@ short creature_being_dropped(struct Thing *creatng)
         }
     }
     // TODO CREATURE_JOBS it would be great if these jobs were also returned by get_job_for_subtile()
-    if (!creature_affected_by_spell(creatng, SplK_Chicken))
+    if (!creature_under_spell_effect(creatng, CSAfF_Chicken))
     {
         // Special tasks for diggers
         if ((get_creature_model_flags(creatng) & CMF_IsSpecDigger) != 0)
@@ -1526,7 +1527,7 @@ short creature_being_dropped(struct Thing *creatng)
                 }
             }
         }
-        if (creature_affected_by_spell(creatng, SplK_Fear))
+        if (creature_under_spell_effect(creatng, CSAfF_Fear))
         {
             external_set_thing_state(creatng, CrSt_CreatureCombatFlee);
             return 2;
@@ -1644,41 +1645,45 @@ short creature_casting_preparation(struct Thing *creatng)
 void set_creature_size_stuff(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (creature_affected_by_spell(creatng, SplK_Chicken))
+    if (creature_under_spell_effect(creatng, CSAfF_Chicken))
     {
-      creatng->sprite_size = game.conf.crtr_conf.sprite_size;
-    } else
+        creatng->sprite_size = game.conf.crtr_conf.sprite_size;
+    }
+    else
     {
-      creatng->sprite_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+        creatng->sprite_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
     }
 }
 
 short creature_change_from_chicken(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     creature_set_speed(creatng, 0);
     if (cctrl->countdown > 0)
+    {
         cctrl->countdown--;
+    }
     if (cctrl->countdown > 0)
-    { // Changing under way - gradually modify size of the creature
-        creatng->rendering_flags |= TRF_Invisible;
-        creatng->size_change |= TSC_ChangeSize;
-        struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
+    { // Changing under way - gradually modify size of the creature.
+        set_flag(creatng->rendering_flags, TRF_Invisible);
+        set_flag(creatng->size_change, TSC_ChangeSize);
+        struct Thing *efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
         if (!thing_is_invalid(efftng))
         {
             long n = (10 - cctrl->countdown) * (game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) / 10;
             unsigned long k = get_creature_anim(creatng, 0);
             set_thing_draw(efftng, k, 256, n, -1, 0, ODC_Default);
-            efftng->rendering_flags &= ~TRF_Transpar_Flags;
-            efftng->rendering_flags |= TRF_Transpar_8;
+            clear_flag(efftng->rendering_flags, TRF_Transpar_Flags);
+            set_flag(efftng->rendering_flags, TRF_Transpar_8);
         }
         return 0;
-    } else
+    }
+    else
     {
-        creatng->rendering_flags &= ~TRF_Invisible;
-        cctrl->stateblock_flags &= ~CCSpl_ChickenRel;
-        cctrl->spell_flags &= ~CSAfF_Chicken;
+        clear_flag(creatng->rendering_flags, TRF_Invisible);
+        clear_flag(cctrl->stateblock_flags, CCSpl_ChickenRel);
+        clear_flag(cctrl->spell_flags, CSAfF_Chicken);
         set_creature_size_stuff(creatng);
         set_start_state(creatng);
         return 1;
@@ -1688,28 +1693,31 @@ short creature_change_from_chicken(struct Thing *creatng)
 short creature_change_to_chicken(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     creature_set_speed(creatng, 0);
     if (cctrl->countdown > 0)
+    {
         cctrl->countdown--;
+    }
     if (cctrl->countdown > 0)
     {
-      creatng->size_change |= TSC_ChangeSize;
-      creatng->rendering_flags |= TRF_Invisible;
-      struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
-      if (!thing_is_invalid(efftng))
-      {
-          unsigned long k = convert_td_iso(819);
-          set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown / 10 + game.conf.crtr_conf.sprite_size, -1, 0, ODC_Default);
-          efftng->rendering_flags &= ~TRF_Transpar_Flags;
-          efftng->rendering_flags |= TRF_Transpar_8;
-      }
-      return 0;
+        set_flag(creatng->size_change, TSC_ChangeSize);
+        set_flag(creatng->rendering_flags, TRF_Invisible);
+        struct Thing *efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
+        if (!thing_is_invalid(efftng))
+        {
+            unsigned long k = convert_td_iso(819);
+            set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown / 10 + game.conf.crtr_conf.sprite_size, -1, 0, ODC_Default);
+            clear_flag(efftng->rendering_flags, TRF_Transpar_Flags);
+            set_flag(efftng->rendering_flags, TRF_Transpar_8);
+        }
+        return 0;
     }
-    cctrl->spell_flags |= CSAfF_Chicken;
-    creatng->rendering_flags &= ~TRF_Invisible;
+    // Apparently, this function bypasses the immunity, as no check was made against CMF_NeverChickens.
+    set_flag(cctrl->spell_flags, CSAfF_Chicken);
+    clear_flag(creatng->rendering_flags, TRF_Invisible);
     set_creature_size_stuff(creatng);
-    creatng->state_flags &= ~TF1_Unkn10;
+    clear_flag(creatng->state_flags, TF1_Unkn10);
     creatng->active_state = CrSt_CreaturePretendChickenSetupMove;
     creatng->continue_state = CrSt_Unused;
     cctrl->stopped_for_hand_turns = 0;
@@ -1770,7 +1778,7 @@ short creature_doing_nothing(struct Thing *creatng)
     if (game.play_gameturn - cctrl->idle.start_gameturn <= 1) {
         return 1;
     }
-    if ((cctrl->spell_flags & CSAfF_MadKilling) != 0) {
+    if (creature_under_spell_effect(creatng, CSAfF_MadKilling)) {
         SYNCDBG(8,"The %s index %d goes mad killing",thing_model_name(creatng),creatng->index);
         internal_set_thing_state(creatng, CrSt_MadKillingPsycho);
         return 1;
@@ -2117,7 +2125,7 @@ short creature_follow_leader(struct Thing *creatng)
         return 1;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if ((cctrl->spell_flags & CSAfF_MadKilling) != 0)
+    if (creature_under_spell_effect(creatng, CSAfF_MadKilling))
     {
         SYNCLOG("The %s index %d owned by player %d can no longer be in group - became mad",
             thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
@@ -2681,7 +2689,7 @@ short creature_pretend_chicken_move(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if ((cctrl->stateblock_flags & CCSpl_ChickenRel) != 0)
+    if (flag_is_set(cctrl->stateblock_flags, CCSpl_ChickenRel))
     {
         return 1;
     }
@@ -2705,7 +2713,7 @@ short creature_pretend_chicken_setup_move(struct Thing *creatng)
 
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
 
-    if ((cctrl->stateblock_flags & CCSpl_ChickenRel) != 0)
+    if (flag_is_set(cctrl->stateblock_flags, CCSpl_ChickenRel))
     {
         return 1;
     }
@@ -4114,7 +4122,7 @@ TbBool process_creature_hunger(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    if ( (crstat->hunger_rate == 0) || creature_affected_by_spell(thing, SplK_Freeze) || is_neutral_thing(thing))
+    if ((crstat->hunger_rate == 0) || creature_under_spell_effect(thing, CSAfF_Freeze) || is_neutral_thing(thing))
         return false;
     SYNCDBG(19,"Hungering %s index %d",thing_model_name(thing), (int)thing->index);
     cctrl->hunger_level++;
@@ -4157,8 +4165,9 @@ TbBool creature_will_attack_creature(const struct Thing *fightng, const struct T
     struct CreatureControl* enmctrl = creature_control_get_from_thing(enmtng);
     if (players_creatures_tolerate_each_other(fightng->owner, enmtng->owner))
     {
-        if  (((fighctrl->spell_flags & CSAfF_MadKilling) == 0)
-         && ((enmctrl->spell_flags  & CSAfF_MadKilling) == 0)) {
+        if ((!creature_under_spell_effect(fightng, CSAfF_MadKilling))
+        && (!creature_under_spell_effect(enmtng, CSAfF_MadKilling)))
+        {
             if (fighctrl->combat_flags == 0) {
                 return false;
             }
@@ -4220,9 +4229,10 @@ TbBool creature_will_attack_creature_incl_til_death(const struct Thing *fightng,
 
     if (players_creatures_tolerate_each_other(fightng->owner, enmtng->owner))
     {
-        if  ((fighctrl->fight_til_death == 0) // This differs in creature_will_attack_creature()
-         && ((fighctrl->spell_flags & CSAfF_MadKilling) == 0)
-         && ((enmctrl->spell_flags  & CSAfF_MadKilling) == 0)) {
+        if ((fighctrl->fight_til_death == 0) // This differs in creature_will_attack_creature()
+        && (!creature_under_spell_effect(fightng, CSAfF_MadKilling))
+        && (!creature_under_spell_effect(enmtng, CSAfF_MadKilling)))
+        {
             struct Thing* tmptng = thing_get(fighctrl->combat.battle_enemy_idx);
             TRACE_THING(tmptng);
             if ((fighctrl->combat_flags == 0) || (tmptng->index != enmtng->index)) {
@@ -4564,7 +4574,7 @@ short state_cleanup_unconscious(struct Thing *creatng)
 long process_work_speed_on_work_value(const struct Thing *thing, long base_val)
 {
     long val = base_val;
-    if (creature_affected_by_spell(thing, SplK_Speed))
+    if (creature_under_spell_effect(thing, CSAfF_Speed))
         val = 2 * val;
     if (creature_affected_by_slap(thing))
         val = 4 * val / 3;
@@ -4582,17 +4592,21 @@ long process_work_speed_on_work_value(const struct Thing *thing, long base_val)
 
 TbBool check_experience_upgrade(struct Thing *thing)
 {
-    struct Dungeon* dungeon = get_dungeon(thing->owner);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct Dungeon *dungeon = get_dungeon(thing->owner);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
     long i = crstat->to_level[cctrl->explevel] << 8;
     if (cctrl->exp_points < i)
+    {
         return false;
+    }
     cctrl->exp_points -= i;
     if (cctrl->explevel < dungeon->creature_max_level[thing->model])
     {
-      if ((cctrl->explevel < CREATURE_MAX_LEVEL-1) || (crstat->grow_up != 0))
-        cctrl->spell_flags |= CSAfF_ExpLevelUp;
+        if ((cctrl->explevel < CREATURE_MAX_LEVEL - 1) || (crstat->grow_up != 0))
+        {
+            cctrl->exp_level_up = true;
+        }
     }
     return true;
 }
@@ -4653,15 +4667,25 @@ TbBool cleanup_creature_state_and_interactions(struct Thing *creatng)
     cleanup_current_thing_state(creatng);
     set_creature_assigned_job(creatng, Job_NULL);
     remove_all_traces_of_combat(creatng);
-    if (creature_is_group_member(creatng)) {
+    if (creature_is_group_member(creatng))
+    {
         remove_creature_from_group(creatng);
     }
     remove_events_thing_is_attached_to(creatng);
-    delete_effects_attached_to_creature(creatng);
+    // Use the correct function to clear them properly. Terminating the spells also removes the attached effects.
+    if (creature_under_spell_effect(creatng, CSAfF_Armour))
+    {
+        clean_spell_effect(creatng, CSAfF_Armour);
+    }
+    if (creature_under_spell_effect(creatng, CSAfF_Disease))
+    {
+        clean_spell_effect(creatng, CSAfF_Disease);
+    }
     delete_familiars_attached_to_creature(creatng);
     state_cleanup_dragging_body(creatng);
     state_cleanup_dragging_object(creatng);
-    if (flag_is_set((creature_control_get_from_thing(creatng))->flgfield_2, TF2_SummonedCreature)) {
+    if (flag_is_set((creature_control_get_from_thing(creatng))->flgfield_2, TF2_SummonedCreature))
+    {
         remove_creature_from_summon_list(get_dungeon(creatng->owner), creatng->index);
     }
     return true;
@@ -4735,13 +4759,13 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
         initialise_thing_state(thing, CrSt_ManualControl);
         return thing->active_state;
     }
-    if (creature_affected_by_spell(thing, SplK_Chicken))
+    if (creature_under_spell_effect(thing, CSAfF_Chicken))
     {
         cleanup_current_thing_state(thing);
         initialise_thing_state(thing, CrSt_CreaturePretendChickenSetupMove);
         return thing->active_state;
     }
-    if (creature_affected_by_spell(thing, SplK_TimeBomb))
+    if (creature_under_spell_effect(thing, CSAfF_Timebomb))
     {
         cleanup_current_thing_state(thing);
         initialise_thing_state(thing, CrSt_Timebomb);
@@ -4955,9 +4979,9 @@ long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureS
 char creature_free_for_lunchtime(struct Thing *creatng)
 {
     return !creature_affected_by_slap(creatng)
-        && !creature_is_called_to_arms(creatng)
-        && !creature_affected_by_spell(creatng, SplK_Chicken)
-        && can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureToGarden);
+    && !creature_is_called_to_arms(creatng)
+    && !creature_under_spell_effect(creatng, CSAfF_Chicken)
+    && can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureToGarden);
 }
 
 long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureStats *crstat)
@@ -5049,7 +5073,8 @@ long anger_process_creature_anger(struct Thing *creatng, const struct CreatureSt
     }
     if (!anger_is_creature_angry(creatng)) {
         // If the creature is mad killing, don't allow it not to be angry
-        if ((cctrl->spell_flags & CSAfF_MadKilling) != 0) {
+        if (creature_under_spell_effect(creatng, CSAfF_MadKilling))
+        {
             // Mad creature's mind is tortured, so apply torture anger
             anger_apply_anger_to_creature(creatng, crstat->annoy_in_torture, AngR_Other, 1);
         }
