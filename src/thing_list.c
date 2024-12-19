@@ -753,7 +753,7 @@ long anywhere_thing_filter_is_food_available_to_eat_and_owned_by(const struct Th
     }
     if (thing->class_id == TCls_Creature)
     {
-        if (creature_affected_by_spell(thing,SplK_Chicken) && (thing->health > 0))
+        if (creature_under_spell_effect(thing, CSAfF_Chicken) && (thing->health > 0))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
@@ -2204,7 +2204,7 @@ long electricity_affecting_area(const struct Coord3d *pos, PlayerNumber immune_p
         {
             if (thing->owner != immune_plyr_idx)
             {
-              if (!creature_affected_by_spell(thing, SplK_Armour))
+              if (!creature_under_spell_effect(thing, CSAfF_Armour))
               {
                   if (electricity_affecting_thing(INVALID_THING, thing, pos, range, max_damage, immune_plyr_idx))
                       naffected++;
@@ -3439,7 +3439,7 @@ TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, Hi
             return false;
         // Armour spell may prevent from hitting
         if ((hit_targets & HitTF_ArmourAffctdCreatrs) == 0) {
-            if (creature_affected_by_spell(thing, SplK_Armour))
+            if (creature_under_spell_effect(thing, CSAfF_Armour))
                 return false;
         }
         // Prevent Damage flag may be either respected or ignored

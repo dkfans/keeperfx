@@ -83,14 +83,9 @@ enum CreatureControlFlags {
 };
 
 enum CreatureControlSpells {
-    CCSpl_ChickenRel    = 0x01,// This is something related to chicken spell, but the spell itself is CSAfF_Chicken
-    CCSpl_Freeze        = 0x02,
-    CCSpl_Teleport      = 0x04,
-    CCSpl_Unknown08     = 0x08,
-    CCSpl_Unknown10     = 0x10,
-    CCSpl_Unknown20     = 0x20,
-    CCSpl_Unknown40     = 0x40,
-    CCSpl_Unknown80     = 0x80,
+    CCSpl_ChickenRel    = 0x01, // This is something related to chicken spell, but the spell itself is CSAfF_Chicken.
+    CCSpl_Freeze        = 0x02, // Related to CSAfF_Freeze.
+    CCSpl_Teleport      = 0x04, // Related to CSAfF_Teleport.
 };
 
 enum CreatureControlMoodFlags {
@@ -135,8 +130,10 @@ enum ObjectCombatStates {
 };
 
 struct CastedSpellData {
-    unsigned char spkind;
-    short duration;
+    SpellKind spkind;
+    GameTurnDelta duration;
+    CrtrExpLevel caster_level;
+    PlayerNumber caster_owner;
 };
 
 struct CreatureControl {
@@ -321,8 +318,10 @@ unsigned char sound_flag;
   };
     unsigned char fight_til_death;
     TbBool field_AA;
+    TbBool called_to_arms;
+    TbBool exp_level_up;
     unsigned char stateblock_flags;
-    unsigned long spell_flags; // Sometimes treated as two bytes, but it's a short (AC + AD)
+    unsigned long spell_flags;
     short force_visible;
     unsigned char frozen_on_hit;
     long last_piss_turn;
@@ -376,8 +375,8 @@ unsigned char sound_flag;
     struct MemberPos followers_pos[GROUP_MEMBERS_COUNT];
     unsigned short next_in_room;
     unsigned short prev_in_room;
-    short spell_aura;
-    short spell_aura_duration;
+    EffectOrEffElModel spell_aura;
+    GameTurnDelta spell_aura_duration;
     unsigned short job_assigned;
     unsigned short spell_tngidx_armour[3];
     unsigned short spell_tngidx_disease[3];
@@ -412,8 +411,11 @@ unsigned char sound_flag;
     TbBool timebomb_death;
     GameTurn unsummon_turn;
     ThingIndex summoner_idx;
-    long summon_spl_idx;
+    SpellKind summon_spl_idx;
     ThingIndex familiar_idx[FAMILIAR_MAX];
+    SpellKind active_disease_spell;
+    SpellKind active_teleport_spell;
+    SpellKind active_timebomb_spell;
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields
@@ -461,7 +463,6 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned short walking_anim_speed;
     TbBool flying;
     TbBool fixed_anim_speed;
-    TbBool immune_to_gas;
     unsigned char attack_preference;
     short field_of_view;
     /** Instance identifiers of the instances creature can learn. */
@@ -512,7 +513,6 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     TbBool can_see_invisible;
     TbBool can_go_locked_doors;
     TbBool bleeds;
-    TbBool affected_by_wind;
     short annoy_eat_food;
     short annoy_in_hand;
     short damage_to_boulder;
@@ -534,6 +534,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char swipe_idx;
     ThingModel prison_kind;
     ThingModel torture_kind;
+    unsigned long immunity_flags;
     struct CreaturePickedUpOffset creature_picked_up_offset;
 };
 

@@ -3057,6 +3057,11 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                 value1 = get_id(creature_desc, scline->tp[2]);
             }
         }
+        else if (creatvar == 37) // SPELLIMMUNITY
+        {
+            value1 = get_id(magic_spell_flags, scline->tp[2]);
+            value2 = atoi(scline->tp[3]);
+        }
         else
         {
             value1 = atoi(scline->tp[2]);
@@ -3596,6 +3601,16 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             break;
         case 36: // TORTUREKIND
             crstat->torture_kind = value;
+            break;
+        case 37: // SPELLIMMUNITY
+            if (value2 > 0)
+            {
+                set_flag(crstat->immunity_flags, 1 << (value - 1));
+            }
+            else
+            {
+                clear_flag(crstat->immunity_flags, 1 << (value - 1));
+            }
             break;
         case ccr_comment:
             break;
@@ -4745,7 +4760,7 @@ static void level_up_players_creatures_process(struct ScriptContext* context)
     SYNCDBG(19, "Finished");
 }
 
-static void use_spell_on_players_creatures_check(const struct ScriptLine* scline)
+static void use_spell_on_players_creatures_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
     long crtr_id = parse_creature_name(scline->tp[1]);
@@ -4757,47 +4772,40 @@ static void use_spell_on_players_creatures_check(const struct ScriptLine* scline
     const char *mag_name = scline->tp[2];
     short mag_id = get_rid(spell_desc, mag_name);
     short splevel = scline->np[3];
-
     if (mag_id == -1)
     {
         SCRPTERRLOG("Invalid spell: %s", mag_name);
         return;
     }
-
-    if (splevel < 1)
+    struct SpellConfig *spconf = get_spell_config(mag_id);
+    if (spconf->linked_power) // Only check for spells linked to a keeper power.
     {
-        if ((mag_id == SplK_Heal) || (mag_id == SplK_Armour) || (mag_id == SplK_Speed) || (mag_id == SplK_Disease) || (mag_id == SplK_Invisibility) || (mag_id == SplK_Chicken))
+        if (splevel < 1)
         {
             SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", mag_name, splevel);
+            splevel = 1;
         }
-        splevel = 1;
-    }
-    if (splevel > (MAGIC_OVERCHARGE_LEVELS + 1)) //Creatures cast spells from level 1 to 10, but 10=9.
-    {
-        SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", mag_name, splevel, (MAGIC_OVERCHARGE_LEVELS + 1));
-        splevel = MAGIC_OVERCHARGE_LEVELS;
+        if (splevel > (MAGIC_OVERCHARGE_LEVELS + 1)) // Creatures cast spells from level 1 to 10.
+        {
+            SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", mag_name, splevel, (MAGIC_OVERCHARGE_LEVELS + 1));
+            splevel = MAGIC_OVERCHARGE_LEVELS;
+        }
     }
     splevel--;
-    if (mag_id == -1)
-    {
-        SCRPTERRLOG("Unknown magic, '%s'", mag_name);
-        return;
-    }
     value->shorts[1] = crtr_id;
     value->shorts[2] = mag_id;
     value->shorts[3] = splevel;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
-static void use_spell_on_players_creatures_process(struct ScriptContext* context)
+static void use_spell_on_players_creatures_process(struct ScriptContext *context)
 {
     long crmodel = context->value->shorts[1];
-    long spl_idx = context->value->shorts[2];
+    long spell_idx = context->value->shorts[2];
     long overchrg = context->value->shorts[3];
-
     for (int i = context->plr_start; i < context->plr_end; i++)
     {
-        apply_spell_effect_to_players_creatures(i, crmodel, spl_idx, overchrg);
+        apply_spell_effect_to_players_creatures(i, crmodel, spell_idx, overchrg);
     }
 }
 

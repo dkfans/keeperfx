@@ -186,7 +186,7 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
     if (near_food_tng->class_id == TCls_Creature)
     {
         cctrl = creature_control_get_from_thing(near_food_tng);
-        cctrl->stateblock_flags |= CCSpl_ChickenRel;
+        set_flag(cctrl->stateblock_flags, CCSpl_ChickenRel);
     } else
     {
         near_food_tng->food.byte_15 = 255;
