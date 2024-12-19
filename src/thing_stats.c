@@ -1012,7 +1012,6 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
  * Can be used only to make damage - never to heal creature.
  * @param thing
  * @param dmg
- * @param damage_type
  * @param inflicting_plyr_idx
  * @return Amount of damage really inflicted.
  */

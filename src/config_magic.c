@@ -408,7 +408,7 @@ short write_magic_shot_to_log(const struct ShotConfigStats *shotst, int num)
 {
   JUSTMSG("[shot%d]",(int)num);
   JUSTMSG("Name = %s",shotst->code_name);
-  JUSTMSG("Values = %d %d",(int)shotst->damage_type,(int)shotst->experience_given_to_shooter);
+  JUSTMSG("Values = %d %d",(int)shotst->is_magical,(int)shotst->experience_given_to_shooter);
   return true;
 }
 
