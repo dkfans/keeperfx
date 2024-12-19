@@ -293,7 +293,7 @@ struct ShotConfigStats {
     /** Type of the damage inflicted by this shot. */
     short damage;
     short speed;
-    DamageType damage_type;
+    TbBool is_magical;
     struct ShotHitConfig hit_generic;
     struct ShotHitConfig hit_door;
     struct ShotHitConfig hit_water;

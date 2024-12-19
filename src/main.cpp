@@ -2565,7 +2565,7 @@ TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFil
     }
     if (thing_is_creature(thing))
     {
-        apply_damage_to_thing_and_display_health(thing, param->num2, DmgT_Physical, param->num1);
+        apply_damage_to_thing_and_display_health(thing, param->num2, param->num1);
         if ((thing->health >= 0) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
             if (((thing->alloc_flags & TAlF_IsControlled) == 0) && !creature_is_kept_in_custody(thing))
