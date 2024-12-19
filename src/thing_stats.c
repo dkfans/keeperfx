@@ -981,7 +981,7 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
     HitPoints dmg;
     const struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     const struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
-    if (flag_is_set(doorst->model_flags, DoMF_ResistNonMagic) && (shotst->is_magical))
+    if (flag_is_set(doorst->model_flags, DoMF_ResistNonMagic) && (!shotst->is_magical))
     {
         dmg = shotng->shot.damage / 8;
         if (dmg < 1)
