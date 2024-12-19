@@ -1520,14 +1520,11 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx)
 {
     TRACE_THING(thing);
     struct SpellConfig *spconf = get_spell_config(spell_idx);
-    if (clear_thing_spell_flags(thing, spconf->spell_flags)
-    || spell_is_continuous(spell_idx, get_spell_full_duration(spell_idx, 1)))
+    clear_thing_spell_flags(thing, spconf->spell_flags);
+    int slot_idx = get_spell_slot(thing, spell_idx);
+    if (slot_idx >= 0)
     {
-        int slot_idx = get_spell_slot(thing, spell_idx);
-        if (slot_idx >= 0)
-        {
-            free_spell_slot(thing, slot_idx);
-        }
+        free_spell_slot(thing, slot_idx);
     }
     return;
 }
@@ -1874,18 +1871,10 @@ void process_thing_spell_effects(struct Thing *thing)
         {
             clean_spell_effect(thing, spconf->cleanse_flags);
         } TODO: Implements CSAfF_SpellBlocks. */
-        // Set the duration to 0 if each flags of the spell are cleared and there are no other continuous effects.
-        if (((spconf->spell_flags > 0) && (!flag_is_set(spconf->spell_flags, cctrl->spell_flags)))
-        && !spell_is_continuous(cspell->spkind, cspell->duration))
-        {
-            cspell->duration = 0;
-        }
-        else
-        {
-            cspell->duration--;
-        }
-        // Terminate the spell.
-        if (cspell->duration <= 0)
+        cspell->duration--;
+        // Terminate the spell if its duration expires, or if the spell flags are cleared and no other continuous effects are active.
+        if ((cspell->duration <= 0)
+        || ((spconf->spell_flags > 0) && !flag_is_set(cctrl->spell_flags, spconf->spell_flags) && !spell_is_continuous(cspell->spkind, cspell->duration)))
         {
             terminate_thing_spell_effect(thing, cspell->spkind);
         }
