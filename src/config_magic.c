@@ -107,7 +107,7 @@ const struct NamedCommand magic_shot_commands[] = {
   {"NAME",                   1},
   {"HEALTH",                 2},
   {"DAMAGE",                 3},
-  {"DAMAGETYPE",             4},
+  {"ISMAGICAL",              4},
   {"HITTYPE",                5},
   {"AREADAMAGE",             6},
   {"SPEED",                  7},
@@ -289,20 +289,6 @@ const struct NamedCommand powermodel_properties_commands[] = {
     {NULL,                0},
 };
 
-const struct NamedCommand shotmodel_damagetype_commands[] = {
-  {"NONE",        DmgT_None},
-  {"PHYSICAL",    DmgT_Physical},
-  {"ELECTRIC",    DmgT_Electric},
-  {"COMBUSTION",  DmgT_Combustion},
-  {"FROSTBITE",   DmgT_Frostbite},
-  {"HEATBURN",    DmgT_Heatburn},
-  {"BIOLOGICAL",  DmgT_Biological},
-  {"MAGICAL",     DmgT_Magical},
-  {"RESPIRATORY", DmgT_Respiratory},
-  {"RESTORATION", DmgT_Restoration},
-  {NULL,          DmgT_None},
-  };
-
 const struct NamedCommand powermodel_expand_check_func_type[] = {
   {"general_expand",           OcC_General_expand},
   {"sight_of_evil_expand",     OcC_SightOfEvil_expand},
@@ -460,7 +446,7 @@ short write_magic_shot_to_log(const struct ShotConfigStats *shotst, int num)
 {
   JUSTMSG("[shot%d]",(int)num);
   JUSTMSG("Name = %s",shotst->code_name);
-  JUSTMSG("Values = %d %d",(int)shotst->damage_type,(int)shotst->experience_given_to_shooter);
+  JUSTMSG("Values = %d %d",(int)shotst->is_magical,(int)shotst->experience_given_to_shooter);
   return true;
 }
 
@@ -1229,20 +1215,17 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
-      case 4: // DAMAGETYPE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+      case 4: // ISMAGICAL
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = get_id(shotmodel_damagetype_commands, word_buf);
-              if (k >= 0) {
-                  shotst->damage_type = k;
-                  n++;
-              }
+              k = atoi(word_buf);
+              shotst->is_magical = k;
+              n++;
           }
           if (n < 1)
           {
-              //CONFWRNLOG("Incorrect shot model \"%s\" in [%s] block of %s file.",word_buf,block_buf,config_textname);
-              shotst->damage_type = 0; //Default damage type to "none", to allow empty values in config.
-              break;
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 5: // HITTYPE

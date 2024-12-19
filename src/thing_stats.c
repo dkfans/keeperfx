@@ -1007,15 +1007,17 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
     HitPoints dmg;
     const struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     const struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
-    // TODO: Replace deals_physical_damage with check for shotst->damage_type (magic in this sense is DmgT_Electric, DmgT_Combustion and DmgT_Heatburn).
-    if (!flag_is_set(doorst->model_flags, DoMF_ResistNonMagic) || (shotst->damage_type == DmgT_Magical))
-    {
-        dmg = shotng->shot.damage;
-    } else
+    if (flag_is_set(doorst->model_flags, DoMF_ResistNonMagic) && (!shotst->is_magical))
     {
         dmg = shotng->shot.damage / 8;
         if (dmg < 1)
+        {
             dmg = 1;
+        }
+    }
+    else
+    {
+        dmg = shotng->shot.damage;
     }
     if (flag_is_set(doorst->model_flags, DoMF_Midas))
     {
@@ -1036,11 +1038,10 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
  * Can be used only to make damage - never to heal creature.
  * @param thing
  * @param dmg
- * @param damage_type
  * @param inflicting_plyr_idx
  * @return Amount of damage really inflicted.
  */
-HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType damage_type, PlayerNumber dealing_plyr_idx)
+HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx)
 {
     // We're here to damage, not to heal.
     SYNCDBG(19, "Dealing %d damage to %s by player %d", (int)dmg, thing_model_name(thing), (int)dealing_plyr_idx);

@@ -260,8 +260,6 @@ typedef long ActionPointId;
 typedef long FilterParam;
 /** Type which stores IAvail_* values. */
 typedef char ItemAvailability;
-/** Type which stores types of damage as DmgT_* values. */
-typedef unsigned char DamageType;
 /** Type which stores hit filters for things as THit_* values. */
 typedef unsigned char ThingHitType;
 /** Type which stores hit filters for things as HitTF_* flags. */
