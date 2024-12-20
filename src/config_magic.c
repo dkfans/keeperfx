@@ -66,11 +66,10 @@ const struct NamedCommand magic_spell_commands[] = {
     {"HEALINGRECOVERY", 13},
     {"DAMAGE",          14},
     {"DAMAGEFREQUENCY", 15},
-    {"DAMAGETYPE",      16},
-    {"AURADURATION",    17},
-    {"AURAFREQUENCY",   18},
-    {"CLEANSEFLAGS",    19},
-    {"PROPERTIES",      20},
+    {"AURADURATION",    16},
+    {"AURAFREQUENCY",   17},
+    {"CLEANSEFLAGS",    18},
+    {"PROPERTIES",      19},
     {NULL,               0},
 };
 
@@ -487,7 +486,6 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
       spconf->healing_recovery = 0;
       spconf->damage = 0;
       spconf->damage_frequency = 0;
-      spconf->damage_type = 0;
     }
   }
   spell_desc[MAGIC_ITEMS_MAX - 1].name = NULL; // must be null for get_id
@@ -880,23 +878,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                     COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
-        case 16: // DAMAGETYPE
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = get_id(shotmodel_damagetype_commands, word_buf);
-                if (k >= 0)
-                {
-                    spconf->damage_type = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                spconf->damage_type = 0; // Default damage type to "none", to allow empty values in config.
-                break;
-            }
-            break;
-        case 17: // AURADURATION
+        case 16: // AURADURATION
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -909,7 +891,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                     COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
-        case 18: // AURAFREQUENCY
+        case 17: // AURAFREQUENCY
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -922,7 +904,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                     COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
-        case 19: // CLEANSEFLAGS
+        case 18: // CLEANSEFLAGS
             spconf->cleanse_flags = 0;
             while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
@@ -1034,7 +1016,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                     COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
-        case 20: // PROPERTIES
+        case 19: // PROPERTIES
             spconf->properties_flags = 0;
             while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {

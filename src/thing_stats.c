@@ -558,12 +558,12 @@ long compute_creature_attack_range(long base_param, long luck, unsigned short cr
 }
 
 /**
- * Computes damage of a spell with damage overtime.
+ * Computes damage of a spell with damage over time.
  * @param spell_damage Base Damage.
  * @param caster_level Caster Level.
  * @param caster_owner Caster Owner.
  */
-HitPoints compute_creature_spell_damage_overtime(HitPoints spell_damage, CrtrExpLevel caster_level, PlayerNumber caster_owner)
+HitPoints compute_creature_spell_damage_over_time(HitPoints spell_damage, CrtrExpLevel caster_level, PlayerNumber caster_owner)
 {
     struct Dungeon* dungeon;
     if (caster_level >= CREATURE_MAX_LEVEL)

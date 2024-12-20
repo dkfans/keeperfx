@@ -386,7 +386,6 @@ struct SpellConfig {
     HitPoints healing_recovery;
     HitPoints damage;
     GameTurnDelta damage_frequency;
-    DamageType damage_type;
     unsigned long spell_flags;
     unsigned long cleanse_flags;
     unsigned char properties_flags;

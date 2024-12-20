@@ -1378,7 +1378,7 @@ TbBool spell_is_continuous(SpellKind spell_idx, GameTurnDelta duration)
     if (duration > 0)
     {
         struct SpellConfig *spconf = get_spell_config(spell_idx);
-        if ((spconf->damage > 0 && spconf->damage_frequency > 0)
+        if ((spconf->damage != 0 && spconf->damage_frequency > 0)
         || (spconf->aura_effect != 0 && spconf->aura_duration > 0 && spconf->aura_frequency > 0))
         {
             return true;
@@ -1481,7 +1481,7 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrE
         }
     }
     // Check for damage/heal one-time effect.
-    if ((spconf->damage > 0) && (spconf->damage_frequency == 0))
+    if ((spconf->damage != 0) && (spconf->damage_frequency == 0))
     {
         process_thing_spell_damage_or_heal_effects(thing, spell_idx, spell_lev, plyr_idx);
         if (spconf->spell_flags == 0
@@ -1824,20 +1824,20 @@ void process_thing_spell_damage_or_heal_effects(struct Thing *thing, SpellKind s
     // Or if it's fixed damage.
     else if (flag_is_set(spconf->properties_flags, SPF_FixedDamage))
     {
-        damage = compute_creature_spell_damage_overtime(spconf->damage, 0, caster_owner);
+        damage = compute_creature_spell_damage_over_time(spconf->damage, 0, caster_owner);
     }
     else // Else computes normally.
     {
-        damage = compute_creature_spell_damage_overtime(spconf->damage, caster_level, caster_owner);
+        damage = compute_creature_spell_damage_over_time(spconf->damage, caster_level, caster_owner);
     }
     // Apply damage.
-    if (spconf->damage_type != DmgT_Restoration) // TODO: Check for immunities when types are implemented.
+    if (damage >= 0)
     {
-        apply_damage_to_thing_and_display_health(thing, damage, spconf->damage_type, -1);
+        apply_damage_to_thing_and_display_health(thing, damage, caster_owner);
     }
-    else // Or heal if damage type is of restoration.
+    else // Or heal if damage is negative.
     {
-        apply_health_to_thing_and_display_health(thing, damage);
+        apply_health_to_thing_and_display_health(thing, -damage);
     }
 }
 
@@ -1852,8 +1852,8 @@ void process_thing_spell_effects(struct Thing *thing)
             continue;
         }
         struct SpellConfig *spconf = get_spell_config(cspell->spkind);
-        // Process spell with damage (or heal) overtime.
-        if ((spconf->damage > 0) && (spconf->damage_frequency > 0))
+        // Process spell with damage (or heal) over time.
+        if ((spconf->damage != 0) && (spconf->damage_frequency > 0))
         {
             if (cspell->duration % spconf->damage_frequency == 0)
             {
