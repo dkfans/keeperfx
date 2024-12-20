@@ -3189,7 +3189,6 @@ TbBool creature_look_for_enemy_heart_combat(struct Thing *thing)
     return true;
 }
 
-
 TbBool creature_look_for_enemy_heart_snipe(struct Thing* thing)
 {
     SYNCDBG(19, "Starting for %s index %d", thing_model_name(thing), (int)thing->index);
@@ -3216,13 +3215,41 @@ TbBool creature_look_for_enemy_heart_snipe(struct Thing* thing)
     return true;
 }
 
-struct Thing* check_for_object_to_fight(struct Thing* thing) //just traps now, could be expanded to non-trap objects
-{
-    long m = CREATURE_RANDOM(thing, SMALL_AROUND_SLAB_LENGTH);
-    for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
-    {
-        MapSlabCoord slb_x = subtile_slab(thing->mappos.x.stl.num) + (long)small_around[m].delta_x;
-        MapSlabCoord slb_y = subtile_slab(thing->mappos.y.stl.num) + (long)small_around[m].delta_y;
+
+
+
+
+TbBool creature_look_for_enemy_object_combat(struct Thing* thing) {
+    SYNCDBG(19, "Starting for %s index %d", thing_model_name(thing), (int)thing->index);
+    TRACE_THING(thing);
+
+    struct Thing* objtng;
+
+    // If already fighting dungeon heart, skip the rest
+    if (get_creature_state_besides_interruptions(thing) == CrSt_CreatureObjectCombat) {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        objtng = thing_get(cctrl->combat.battle_enemy_idx);
+        if (thing_is_dungeon_heart(objtng)) {
+            return false;
+        }
+    }
+
+    // Call the new Function to trigger traps
+
+    objtng = check_for_object_to_fight(thing);
+
+    if (thing_is_invalid(objtng)) {
+        if (check_for_possible_combat_with_enemy_object_within_distance(thing, &objtng, LONG_MAX) == AttckT_Unset) {
+            return false;
+        }
+    }
+
+    if (thing_is_invalid(objtng) || !(creature_can_navigate_to(thing, &objtng->mappos, NavRtF_Default))) {
+        return false;
+    }
+
+
+
         struct Thing* trpthing = get_trap_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
         if ((thing_is_destructible_trap(trpthing) > 0) || (creature_has_disarming_weapon(thing) && (thing_is_destructible_trap(trpthing) >= 0)))
         {
@@ -3235,41 +3262,17 @@ struct Thing* check_for_object_to_fight(struct Thing* thing) //just traps now, c
                 }
             }
         }
-        m = (m + 1) % SMALL_AROUND_SLAB_LENGTH;
-    }
-    return INVALID_THING;
-}
 
-TbBool creature_look_for_enemy_object_combat(struct Thing* thing)
-{
-    SYNCDBG(19, "Starting for %s index %d", thing_model_name(thing), (int)thing->index);
-    TRACE_THING(thing);
-
-    struct Thing* objtng;
-    // If already fighting dungeon heart, skip the rest
-    if (get_creature_state_besides_interruptions(thing) == CrSt_CreatureObjectCombat) {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        objtng = thing_get(cctrl->combat.battle_enemy_idx);
-        if (thing_is_dungeon_heart(objtng)) {
-            return false;
-        }
-    }
-    objtng = check_for_object_to_fight(thing);
-    if (thing_is_invalid(objtng))
-    {
-        if (check_for_possible_combat_with_enemy_object_within_distance(thing, &objtng, LONG_MAX) == AttckT_Unset)
-        {
-            return false;
-        }
-    }
-    if (thing_is_invalid(objtng) || !(creature_can_navigate_to(thing, &objtng->mappos, NavRtF_Default)))
-    {
-        return false;
-    }
     TRACE_THING(objtng);
     set_creature_object_combat(thing, objtng);
+
     return true;
 }
+
+
+
+
+
 
 struct Thing *check_for_door_to_fight(struct Thing *thing)
 {
