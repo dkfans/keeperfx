@@ -1323,7 +1323,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     {
         if ((get_creature_model_flags(trgtng) & CMF_ImmuneToBoulder) != 0)
         {
-            struct Thing* efftng = create_effect(&trgtng->mappos, shotst->hit_lava.effect_model, trgtng->owner);
+            create_effect(&trgtng->mappos, shotst->hit_lava.effect_model, trgtng->owner);
             shotng->health = -1;
             return 1;
         }
