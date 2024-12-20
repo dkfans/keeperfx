@@ -969,19 +969,17 @@ TbBool destroy_effect_thing(struct Thing *efftng)
  * @param tngdst The thing being affected by the effect.
  * @param pos Position of the effect epicenter.
  * @param max_dist Max distance at which creatures are affected, in map coordinates.
- * @param shotst the shot stats used to determine damage and shot properties.
+ * @param max_damage Damage at epicenter of the explosion.
+ * @param blow_strength The strength of hitwave blowing creatures out of affected area.
  * @param owner The owner of the explosion.
  * @return Gives true if the target thing was affected by the spell, false otherwise.
  * @note If the function returns true, the effect might have caused death of the target.
  */
 TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
-    MapCoordDelta max_dist, struct ShotConfigStats* shotst)
+    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, struct ShotConfigStats* shotst)
 {
-    HitPoints max_damage = shotst->area_damage;
-    long blow_strength = shotst->area_blow;
     unsigned long shot_model_flags = shotst->model_flags;
     PlayerNumber owner = tngsrc->owner;
-
     if (thing_is_deployed_door(tngdst))
     {
         return explosion_affecting_door(tngsrc, tngdst, pos, max_dist, max_damage, blow_strength, owner);
@@ -1129,10 +1127,11 @@ TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, cons
  * @param mapblk Map block on which all targets are to be affected by the spell.
  * @param max_dist Range of the spell on map, used to compute damage decaying with distance; in map coordinates.
  * @param max_damage Damage at epicenter of the explosion.
- * @param shotst the shot information used to determine damage, bow and spell effects
+ * @param blow_strength The strength of hitwave blowing creatures out of affected area.
+ * @param damage_type Type of the damage inflicted.
  */
 long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tngsrc, struct Map *mapblk,
-    MapCoordDelta max_dist, struct ShotConfigStats* shotst)
+    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, struct ShotConfigStats* shotst)
 {
     PlayerNumber owner;
     if (!thing_is_invalid(tngsrc))
@@ -1155,14 +1154,14 @@ long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tn
         // Per thing processing block
         if ((thing->class_id == TCls_Door) && (efftng->shot_effect.hit_type != THit_CrtrsOnlyNotOwn)) //TODO: Find pretty way to say that WoP traps should not destroy doors. And make it configurable through configs.
         {
-            if (explosion_affecting_door(tngsrc, thing, &efftng->mappos, max_dist, shotst->area_damage, shotst->area_blow, owner))
+            if (explosion_affecting_door(tngsrc, thing, &efftng->mappos, max_dist, max_damage, blow_strength, owner))
             {
                 num_affected++;
             }
         } else
         if (effect_can_affect_thing(efftng, thing))
         {
-            if (explosion_affecting_thing(tngsrc, thing, &efftng->mappos, max_dist, shotst))
+            if (explosion_affecting_thing(tngsrc, thing, &efftng->mappos, max_dist, max_damage, blow_strength, shotst))
             {
                 num_affected++;
             }
@@ -1249,7 +1248,7 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *tngsrc, st
         for (long stl_x = stl_xmin; stl_x <= stl_xmax; stl_x++)
         {
             struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-            explosion_effect_affecting_map_block(efftng, tngsrc, mapblk, max_dist, shotst);
+            explosion_effect_affecting_map_block(efftng, tngsrc, mapblk, max_dist, shotst->area_damage, shotst->area_blow, shotst);
         }
     }
 }
@@ -1311,7 +1310,7 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
         if (area_effect_can_affect_thing(thing, hit_targets, owner))
         {
             struct ShotConfigStats* shotst = get_shot_model_stats(tngsrc->model);
-            if (explosion_affecting_thing(tngsrc, thing, pos, max_dist, shotst))
+            if (explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, shotst))
                 num_affected++;
         }
         // Per thing processing block ends
