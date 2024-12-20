@@ -1365,40 +1365,6 @@ ElementsCount = 2
 AlwaysGenerate = 0
 
 [effect79]
-Name = "EFFECT_CRAZY_GAS"
-Health = 40
-GenerationType = 1
-GenerationAccelXYRange = [44,44]
-GenerationAccelZRange = [-32,32]
-GenerationKindRange = [7,7]
-AreaAffectType = 1
-HitType = 4
-Sound = 52
-AffectedByWind = 1
-LightRadius = 0
-LightIntensity = 0
-LightFlags = 0
-ElementsCount = 2
-AlwaysGenerate = 0
-
-[effect80]
-Name = "EFFECT_WORD_OF_POWER_HARMLESS"
-Health = 10
-GenerationType = 1
-GenerationAccelXYRange = [100,100]
-GenerationAccelZRange = [1,1]
-GenerationKindRange = [10,10]
-AreaAffectType = 4
-HitType = 8
-Sound = 178
-AffectedByWind = 1
-LightRadius = 10
-LightIntensity = 52
-LightFlags = 0
-ElementsCount = 20
-AlwaysGenerate = 0
-
-[effect81]
 Name = "EFFECT_COIN_FOUNTAIN"
 Health = 2
 GenerationType = 1
@@ -1430,6 +1396,40 @@ LightRadius = 10
 LightIntensity = 52
 LightFlags = 0
 ElementsCount = 8
+AlwaysGenerate = 0
+
+[effect81]
+Name = "EFFECT_CRAZY_GAS"
+Health = 40
+GenerationType = 1
+GenerationAccelXYRange = [44,44]
+GenerationAccelZRange = [-32,32]
+GenerationKindRange = [7,7]
+AreaAffectType = 1
+HitType = 4
+Sound = 52
+AffectedByWind = 1
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+ElementsCount = 2
+AlwaysGenerate = 0
+
+[effect82]
+Name = "EFFECT_WORD_OF_POWER_HARMLESS"
+Health = 10
+GenerationType = 1
+GenerationAccelXYRange = [100,100]
+GenerationAccelZRange = [1,1]
+GenerationKindRange = [10,10]
+AreaAffectType = 4
+HitType = 8
+Sound = 178
+AffectedByWind = 1
+LightRadius = 10
+LightIntensity = 52
+LightFlags = 0
+ElementsCount = 20
 AlwaysGenerate = 0
 
 #EffectGenerators
