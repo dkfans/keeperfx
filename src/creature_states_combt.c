@@ -3243,9 +3243,6 @@ TbBool creature_look_for_enemy_object_combat(struct Thing* thing) {
     if (thing_is_invalid(objtng) || !(creature_can_navigate_to(thing, &objtng->mappos, NavRtF_Default))) {
         return false;
     }
-
-
-
         struct Thing* trpthing = get_trap_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
         if ((thing_is_destructible_trap(trpthing) > 0) || (creature_has_disarming_weapon(thing) && (thing_is_destructible_trap(trpthing) >= 0)))
         {
