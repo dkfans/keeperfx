@@ -126,7 +126,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
             damage = compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel, castng);
         }
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
-        explosion_affecting_area(shotng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets, shotst->damage_type);
+        explosion_affecting_area(shotng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets);
     }
     create_used_effect_or_element(&shotng->mappos, shotst->explode.effect1_model, shotng->owner);
     create_used_effect_or_element(&shotng->mappos, shotst->explode.effect2_model, shotng->owner);
@@ -576,7 +576,8 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                     }
                     default:
                     {
-                        ERRORLOG("Hit from subtile (%ld, %ld) diagonally, but angle was not diagonal: thing move angle was %u, and got a digging angle of %u.", shotng->mappos.x.stl.num, shotng->mappos.y.stl.num, shotng->move_angle_xy, angle);
+                        ERRORLOG("Hit from subtile (%u, %u) diagonally, but angle was not diagonal: thing move angle was %d, and got a digging angle of %u.",
+                            shotng->mappos.x.stl.num, shotng->mappos.y.stl.num, shotng->move_angle_xy, angle);
                         hit_stl_x = shotng->mappos.x.stl.num;
                         hit_stl_y = shotng->mappos.y.stl.num;
                         break;
@@ -604,7 +605,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
             if (!shotst->hit_door.withstand)
               destroy_shot = 1;
             i = calculate_shot_real_damage_to_door(doortng, shotng);
-            apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
+            apply_damage_to_thing(doortng, i, -1);
             reveal_secret_door_to_player(doortng,shotng->owner);
         } else
         if (cube_is_water(cube_id))
@@ -665,7 +666,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                 if (!shotst->hit_door.withstand)
                     destroy_shot = 1;
                 i = calculate_shot_real_damage_to_door(doortng, shotng);
-                apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
+                apply_damage_to_thing(doortng, i, -1);
                 reveal_secret_door_to_player(doortng,shotng->owner);
             } else
             {
@@ -756,7 +757,7 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
             }
             // Apply damage to the door
             i = calculate_shot_real_damage_to_door(doortng, shotng);
-            apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
+            apply_damage_to_thing(doortng, i, -1);
             reveal_secret_door_to_player(doortng,shotng->owner);
       }
     }
@@ -861,7 +862,7 @@ static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struc
   
         if ((thing_is_destructible_trap(target) > 0) || ((thing_is_destructible_trap(target) > -1) && (shotst->model_flags & ShMF_Disarming)))
         {
-            damage_done = apply_damage_to_thing(target, shotng->shot.damage, shotst->damage_type, -1);
+            damage_done = apply_damage_to_thing(target, shotng->shot.damage, -1);
 
             // Drain allows caster to regain half of damage
             if ((shotst->model_flags & ShMF_LifeDrain) && thing_is_creature(shootertng))
@@ -937,7 +938,7 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     {
         if (object_can_be_damaged(target)) // do not damage objects that cannot be destroyed
         {
-            damage_done = apply_damage_to_thing(target, shotng->shot.damage, shotst->damage_type, -1);
+            damage_done = apply_damage_to_thing(target, shotng->shot.damage, -1);
 
             // Drain allows caster to regain half of damage
             if ((shotst->model_flags & ShMF_LifeDrain) && thing_is_creature(shootertng))
@@ -967,10 +968,7 @@ long get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target, 
 {
     if (NeverBlock)
         return shotng->shot.damage;
-
-    const struct CreatureStats* tgcrstat = creature_stats_get_from_thing(target);
-    const struct CreatureControl* tgcctrl = creature_control_get_from_thing(target);
-    long crdefense = compute_creature_max_defense(tgcrstat->defense, tgcctrl->explevel);
+    long crdefense = calculate_correct_creature_defense(target);
     long hitchance = ((long)shotng->shot.dexterity - crdefense) / 2;
     if (hitchance < -96)
     {
@@ -989,9 +987,7 @@ long get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target, 
 
 long project_damage_of_melee_shot(long shot_dexterity, long shot_damage, const struct Thing *target)
 {
-    const struct CreatureStats* tgcrstat = creature_stats_get_from_thing(target);
-    const struct CreatureControl* tgcctrl = creature_control_get_from_thing(target);
-    long crdefense = compute_creature_max_defense(tgcrstat->defense, tgcctrl->explevel);
+    long crdefense = calculate_correct_creature_defense(target);
     long hitchance = (shot_dexterity - crdefense) / 2;
     if (hitchance < -96) {
         hitchance = -96;
@@ -1146,9 +1142,9 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
         }
         create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
         if (!thing_is_invalid(shooter)) {
-            damage = apply_damage_to_thing_and_display_health(trgtng, damage, shotst->damage_type, shooter->owner);
+            damage = apply_damage_to_thing_and_display_health(trgtng, damage, shooter->owner);
         } else {
-            damage = apply_damage_to_thing_and_display_health(trgtng, damage, shotst->damage_type, -1);
+            damage = apply_damage_to_thing_and_display_health(trgtng, damage, -1);
         }
         if (shotst->model_flags & ShMF_LifeDrain)
         {
@@ -1336,9 +1332,9 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     {
         HitPoints damage_done;
         if (!thing_is_invalid(shooter)) {
-            damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, shooter->owner);
+            damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shooter->owner);
         } else {
-            damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, -1);
+            damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, -1);
         }
         if (shotst->model_flags & ShMF_LifeDrain)
         {
@@ -1827,7 +1823,7 @@ TngUpdateRet update_shot(struct Thing *thing)
               {
                   shotst = get_shot_model_stats(ShM_GodLightBall);
                   draw_lightning(&thing->mappos,&target->mappos, shotst->effect_spacing, shotst->effect_id);
-                  apply_damage_to_thing_and_display_health(target, shotst->damage, shotst->damage_type, thing->owner);
+                  apply_damage_to_thing_and_display_health(target, shotst->damage, thing->owner);
               }
             }
             break;

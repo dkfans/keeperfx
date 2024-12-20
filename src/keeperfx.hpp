@@ -147,7 +147,6 @@ struct StartupParameters {
     TbBool overrides[CMDLINE_OVERRIDES];
     char config_file[CMDLN_MAXLEN+1];
     GameTurn pause_at_gameturn;
-    TbBool ungrab_mouse;
 #ifdef FUNCTESTING
     unsigned char functest_flags;
     char functest_name[FTEST_MAX_NAME_LENGTH];
@@ -161,6 +160,7 @@ extern unsigned char *blue_palette;
 extern unsigned char *red_palette;
 extern unsigned char *dog_palette;
 extern unsigned char *vampire_palette;
+extern unsigned char* engine_palette;
 extern unsigned char exit_keeper;
 extern unsigned char quit_game;
 extern unsigned char is_running_under_wine;
@@ -243,7 +243,7 @@ void clear_creature_pool(void);
 void reset_creature_max_levels(void);
 void reset_script_timers_and_flags(void);
 void reset_hand_rules(void);
-void add_creature_to_pool(long kind, long amount, unsigned long a3);
+void add_creature_to_pool(long kind, long amount);
 void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
 
 short zoom_to_next_annoyed_creature(void);

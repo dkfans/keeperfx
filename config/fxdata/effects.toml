@@ -857,7 +857,7 @@ AlwaysGenerate = 0
 [effect49]
 Name = "EFFECT_DUMMY"
 Health = 50
-GenerationType = 4
+GenerationType = 5
 GenerationAccelXYRange = [1,1]
 GenerationAccelZRange = [1,1]
 GenerationKindRange = [0,0]
@@ -1413,6 +1413,23 @@ LightRadius = 0
 LightIntensity = 0
 LightFlags = 0
 ElementsCount = 1
+AlwaysGenerate = 0
+
+[effect80]
+Name = "EFFECT_FEAR_CIRCLE"
+Health = 15
+GenerationType = 1
+GenerationAccelXYRange = [80,120]
+GenerationAccelZRange = [-120,120]
+GenerationKindRange = [122,122]
+AreaAffectType = 4
+HitType = 4
+Sound = 0
+AffectedByWind = 1
+LightRadius = 10
+LightIntensity = 52
+LightFlags = 0
+ElementsCount = 8
 AlwaysGenerate = 0
 
 #EffectGenerators
@@ -5141,6 +5158,35 @@ SubeffectModel = 0
 SubeffectDelay = 0
 Movable = false
 Impacts = false
+TransformModel = 0
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+AffectedByWind = 0
+
+[effectElement122]
+Name = "EFFECTELEMENT_GHOST"
+DrawClass = 2
+MoveType = 1
+Unanimated = 0
+Lifespan = [8,10]
+AnimationId = 70
+SpriteSize = [110,140]
+RenderFlags = 1
+SpriteSpeed = [60,120]
+AnimateOnFloor = true
+Unshaded = true
+Transparent = 3
+MovementFlags = 0
+SizeChange = 0
+FallAcceleration = 2
+InertiaFloor = 0
+InertiaAir = 0
+SubeffectModel = 0
+SubeffectDelay = 0
+Movable = false
+Impacts = true
+SolidGroundDestroyOnImpact = true
 TransformModel = 0
 LightRadius = 0
 LightIntensity = 0

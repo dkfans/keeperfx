@@ -323,7 +323,6 @@ unsigned char sound_flag;
     TbBool field_AA;
     unsigned char stateblock_flags;
     unsigned long spell_flags; // Sometimes treated as two bytes, but it's a short (AC + AD)
-    unsigned char field_AE;
     short force_visible;
     unsigned char frozen_on_hit;
     long last_piss_turn;
@@ -367,7 +366,7 @@ unsigned char sound_flag;
     unsigned char continue_state_bkp;
     unsigned char cowers_from_slap_turns;
     short conscious_back_turns;
-    short countdown_282; // signed
+    short countdown; // signed
     unsigned short damage_wall_coords;
     unsigned char joining_age;
     unsigned char blood_type;

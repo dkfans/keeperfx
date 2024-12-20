@@ -102,8 +102,18 @@ void multiply_creatures_in_dungeon_list(struct Dungeon *dungeon, long list_start
             k++;
             continue;
         }
+        struct CreatureControl* newcctrl = creature_control_get_from_thing(tncopy);
         set_creature_level(tncopy, cctrl->explevel);
         tncopy->health = thing->health;
+        newcctrl->exp_points = cctrl->exp_points;
+        newcctrl->blood_type = cctrl->blood_type;
+        newcctrl->hunger_level = cctrl->hunger_level;
+        newcctrl->paydays_owed = cctrl->paydays_owed;
+        newcctrl->paydays_advanced = cctrl->paydays_advanced;
+        for (unsigned char al = 0; al < AngR_ListEnd; al++)
+        {
+            newcctrl->annoyance_level[al] = cctrl->annoyance_level[al];
+        }
         // Thing list loop body ends
         k++;
         if (k > CREATURES_COUNT)
@@ -549,7 +559,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
             {
                 if (gameadd.current_player_turn == game.play_gameturn)
                 {
-                    WARNLOG("box activation rejected turn:%d", gameadd.current_player_turn);
+                    WARNLOG("box activation rejected turn:%lu", gameadd.current_player_turn);
                     // If two players suddenly activated box at same turn it is not that we want to
                     return;
                 }

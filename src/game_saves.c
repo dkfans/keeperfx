@@ -74,27 +74,6 @@ TbBool is_primitive_save_version(long filesize)
         return true;
     return false;
 }
-/*
-short save_version_compatible(long filesize,struct Game *header)
-{
-  // Native version
-  if ((filesize == sizeof(struct Game)) &&
-    (header->version_major == VersionMajor) &&
-    (header->version_minor == VersionMinor))
-    return true;
-  // Compatibility list
-  if ((filesize == sizeof(struct Game)) &&
-    (header->version_major == VersionMajor) &&
-    (header->version_minor <= 8) &&
-    (VersionMinor == 10))
-    return true;
-  if ((filesize == sizeof(struct Game)) &&
-    (header->version_major == VersionMajor) &&
-    (header->version_minor <= 10) &&
-    (VersionMinor == 12))
-    return true;
-  return false;
-}*/
 
 TbBool save_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
 {
@@ -317,14 +296,9 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
  */
 TbBool save_game(long slot_num)
 {
-    if (!save_game_save_catalogue())
-        return false;
-/*  game.version_major = VersionMajor;
-    game.version_minor = VersionMinor;
-    game.load_restart_level = get_loaded_level_number();*/
     char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
     TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_NEW);
-    if (handle == -1)
+    if (!handle)
     {
         WARNMSG("Cannot open file to save, \"%s\".",fname);
         return false;
@@ -345,7 +319,7 @@ TbBool is_save_game_loadable(long slot_num)
     // Prepare filename and open the file
     char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
     TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
-    if (fh != -1)
+    if (fh)
     {
         // Let's try to read the file, just to be sure
         struct FileChunkHeader hdr;
@@ -370,7 +344,7 @@ TbBool load_game(long slot_num)
         // Use fname only here - it is overwritten by next use of prepare_file_fmtpath()
         char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
         fh = LbFileOpen(fname,Lb_FILE_MODE_READ_ONLY);
-        if (fh == -1)
+        if (!fh)
         {
           WARNMSG("Cannot open saved game file \"%s\".",fname);
           save_catalogue_slot_disable(slot_num);
@@ -380,32 +354,11 @@ TbBool load_game(long slot_num)
     long file_len = LbFileLengthHandle(fh);
     if (is_primitive_save_version(file_len))
     {
-        //if (LbFileRead(handle, buf, sizeof(buf)) != sizeof(buf))
         {
           LbFileClose(fh);
           save_catalogue_slot_disable(slot_num);
           return false;
         }
-        /*LbFileSeek(fh, (char *)&game.campaign_fname[0] - (char *)&game, Lb_FILE_SEEK_BEGINNING);
-        LbFileRead(fh, cmpgn_fname, CAMPAIGN_FNAME_LEN);
-        cmpgn_fname[CAMPAIGN_FNAME_LEN-1] = '\0';
-        if (!change_campaign(cmpgn_fname))
-        {
-          ERRORLOG("Unable to load campaign associated with saved game");
-        }
-        LbFileClose(fh);
-        WARNMSG("Saved game file \"%s\" has incompatible version; restarting level.",fname);
-        player = get_my_player();
-        player->lens_palette = 0;
-        my_player_number = default_loc_player;
-        player = get_my_player();
-        game.flagfield_14EA4A = 2;
-        clear_flag(game.system_flags, GSF_NetworkActive);
-        player->is_active = 1;
-        set_selected_level_number(((struct Game *)buf)->load_restart_level);
-        set_continue_level_number(((struct Game *)buf)->continue_level_number);
-        startup_network_game();
-        return true;*/
     }
     struct CatalogueEntry* centry = &save_game_catalogue[slot_num];
     LbFileSeek(fh, 0, Lb_FILE_SEEK_BEGINNING);
@@ -448,7 +401,7 @@ TbBool load_game(long slot_num)
       dungeon->lvstats.allow_save_score = 1;
     }
     game.loaded_swipe_idx = -1;
-    JUSTMSG("Loaded level %d from %s", game.continue_level_number, campaign.name);
+    JUSTMSG("Loaded level %ld from %s", game.continue_level_number, campaign.name);
 
     api_event("GAME_LOADED");
 
@@ -490,29 +443,17 @@ TbBool fill_game_catalogue_slot(long slot_num,const char *textname)
     return fill_game_catalogue_entry(centry,textname);
 }
 
-TbBool game_save_catalogue(struct CatalogueEntry *game_catalg,int nentries)
-{
-  //Saved games descriptions are no longer stored in catalogue file - so writing is disabled.
-    return true;
-}
-
 TbBool game_catalogue_slot_disable(struct CatalogueEntry *game_catalg,unsigned int slot_idx)
 {
   if (slot_idx >= TOTAL_SAVE_SLOTS_COUNT)
     return false;
   clear_flag(game_catalg[slot_idx].flags, CEF_InUse);
-  game_save_catalogue(game_catalg,TOTAL_SAVE_SLOTS_COUNT);
   return true;
 }
 
 TbBool save_catalogue_slot_disable(unsigned int slot_idx)
 {
   return game_catalogue_slot_disable(save_game_catalogue,slot_idx);
-}
-
-TbBool save_game_save_catalogue(void)
-{
-  return game_save_catalogue(save_game_catalogue,TOTAL_SAVE_SLOTS_COUNT);
 }
 
 TbBool load_catalogue_entry(TbFileHandle fh,struct FileChunkHeader *hdr,struct CatalogueEntry *centry)
@@ -536,7 +477,6 @@ TbBool load_catalogue_entry(TbFileHandle fh,struct FileChunkHeader *hdr,struct C
 
 TbBool load_game_save_catalogue(void)
 {
-    //return load_game_catalogue(save_game_catalogue);
     long saves_found = 0;
     for (long slot_num = 0; slot_num < TOTAL_SAVE_SLOTS_COUNT; slot_num++)
     {
@@ -544,7 +484,7 @@ TbBool load_game_save_catalogue(void)
         LbMemorySet(centry, 0, sizeof(struct CatalogueEntry));
         char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
         TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
-        if (fh == -1)
+        if (!fh)
             continue;
         struct FileChunkHeader hdr;
         if (LbFileRead(fh, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
@@ -572,7 +512,7 @@ short save_continue_game(LevelNumber lvnum)
     char* fname = prepare_file_path(FGrp_Save, continue_game_filename);
     long fsize = LbFileSaveAt(fname, &game, sizeof(struct Game) + sizeof(struct IntralevelData));
     // Appending IntralevelData
-    TbFileHandle fh = LbFileOpen(fname,Lb_FILE_MODE_NEW);
+    TbFileHandle fh = LbFileOpen(fname,Lb_FILE_MODE_OLD);
     LbFileSeek(fh, sizeof(struct Game), Lb_FILE_SEEK_BEGINNING);
     LbFileWrite(fh, &intralvl, sizeof(struct IntralevelData));
     LbFileClose(fh);
@@ -588,7 +528,7 @@ short read_continue_game_part(unsigned char *buf,long pos,long buf_len)
         return false;
   }
   TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
-  if (fh == -1)
+  if (!fh)
   {
     SYNCDBG(7,"Can't open .SAV file; there's no continue");
     return false;
@@ -671,7 +611,7 @@ short load_continue_game(void)
         sizeof(struct IntralevelData));
     LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
     update_extra_levels_visibility();
-    JUSTMSG("Continued level %d from %s", lvnum, campaign.name);
+    JUSTMSG("Continued level %ld from %s", lvnum, campaign.name);
     return true;
 }
 

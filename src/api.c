@@ -162,7 +162,7 @@ int api_init_server()
     }
     else
     {
-        JUSTLOG("API server starting on port: %ld", api_port);
+        JUSTLOG("API server starting on port: %u", api_port);
     }
 
     if (SDLNet_Init() < 0)
@@ -666,7 +666,7 @@ int api_unsubscribe_event(const char *event_name)
     return false;
 }
 
-int api_is_subscribed_to_var(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx)
+int api_is_subscribed_to_var(PlayerNumber plyr_idx, unsigned char valtype, short validx)
 {
     // Look up if we are subscribed to updates of this variable
     int api_sub_found_count = 0;
@@ -705,7 +705,7 @@ int api_is_subscribed_to_var(PlayerNumber plyr_idx, unsigned char valtype, unsig
     return false;
 }
 
-int api_subscribe_var(PlayerNumber plyr_idx, const char *var_name, unsigned char valtype, unsigned char validx)
+int api_subscribe_var(PlayerNumber plyr_idx, const char *var_name, unsigned char valtype, short validx)
 {
     JUSTLOG("Sub: %d, %d, %d", plyr_idx, valtype, validx);
 
@@ -748,7 +748,7 @@ int api_subscribe_var(PlayerNumber plyr_idx, const char *var_name, unsigned char
     return false;
 }
 
-int api_unsubscribe_var(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx)
+int api_unsubscribe_var(PlayerNumber plyr_idx, unsigned char valtype, short validx)
 {
     // First make sure we are actually subscribed to this var
     if (api_is_subscribed_to_var(plyr_idx, valtype, validx) == false)

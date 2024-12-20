@@ -1279,23 +1279,23 @@ short imp_drops_gold(struct Thing *spdigtng)
     if ( (gold_added > 0) || (gold_created) )
     {
         thing_play_sample(spdigtng, UNSYNC_RANDOM(3) + 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        if (game.conf.rules.workers.digger_work_experience != 0)
+        {
+            struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
+            cctrl->exp_points += digger_work_experience(spdigtng);
+            check_experience_upgrade(spdigtng);
+        }
     }
     else
     {
         if (is_thing_directly_controlled_by_player(spdigtng, my_player_number))
         {
             play_non_3d_sample(119);
+            internal_set_thing_state(spdigtng, state);
+            return 1;
         }
-        internal_set_thing_state(spdigtng, state);
-        return 1;
     }
-    if (game.conf.rules.workers.digger_work_experience != 0)
-    {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
-        cctrl->exp_points += digger_work_experience(spdigtng);
-        check_experience_upgrade(spdigtng);
-    }
-    if ((spdigtng->creature.gold_carried != 0) && (room->used_capacity < room->total_capacity))
+    if ((spdigtng->creature.gold_carried > 0) && (room->used_capacity < room->total_capacity))
     {
         if ((spdigtng->alloc_flags & TAlF_IsControlled) == 0)
         {

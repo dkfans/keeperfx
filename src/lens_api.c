@@ -325,7 +325,7 @@ void draw_lens_effect(unsigned char *dstbuf, long dstpitch, unsigned char *srcbu
     if ((effect < 1) || (effect > lenses_conf.lenses_count))
     {
         if (effect != 0)
-            ERRORLOG("Invalid lens effect %d",effect);
+            ERRORLOG("Invalid lens effect %ld",effect);
         effect = 0;
     }
     struct LensConfig* lenscfg = &lenses_conf.lenses[effect];

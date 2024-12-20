@@ -30,7 +30,7 @@ extern "C" {
 
 struct TbLoadFiles;
 
-typedef char *ModifyDataLoadFnameFunc(struct TbLoadFiles *);
+typedef const char * ModifyDataLoadFnameFunc(const char *);
 
 typedef size_t (*LoadFilesGetSizeFunc)(size_t data);
 typedef void (*LoadFilesUnpackFunc)(unsigned char *data, size_t size);
@@ -54,8 +54,9 @@ struct TbLoadFilesV2 {
 
 #pragma pack()
 /******************************************************************************/
-char *defaultModifyDataLoadFilename(struct TbLoadFiles *ldfiles);
+const char * defaultModifyDataLoadFilename(const char *);
 ModifyDataLoadFnameFunc *LbDataLoadSetModifyFilenameFunction(ModifyDataLoadFnameFunc *newfunc);
+extern ModifyDataLoadFnameFunc *modify_data_load_filename_function;
 
 /******************************************************************************/
 
@@ -67,8 +68,6 @@ void LbDataFreeAllV2(struct TbLoadFilesV2 load_files[]);
 int LbDataLoadAll(struct TbLoadFiles load_files[]);
 int LbDataLoadAllV2(struct TbLoadFilesV2 load_files[]);
 
-int LbDataFindNameIndex(struct TbLoadFiles load_files[],char *fname);
-int LbDataFindStartIndex(struct TbLoadFiles load_files[],unsigned char **start);
 /******************************************************************************/
 #ifdef __cplusplus
 }

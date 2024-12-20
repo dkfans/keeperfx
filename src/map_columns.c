@@ -531,42 +531,40 @@ void init_top_texture_to_cube_table(void)
     }
 }
 
-TbBool cube_is_water(long cube_id)
-{
-    return (cube_id == 39);
-}
-
+/* Returns if given cube is lava.
+ * @param cube_id
+ * @return */
 TbBool cube_is_lava(long cube_id)
 {
-    return (cube_id == 40) || (cube_id == 41);
+    struct CubeConfigStats *cubest = get_cube_model_stats(cube_id);
+    return flag_is_set(cubest->properties_flags, CPF_IsLava);
 }
 
-TbBool cube_is_unclaimed_path(long cube_id)
-{
-    return ( (cube_id == 0) || ( (cube_id >= 25) && (cube_id <= 29) ) );
-}
-
-/**
- * Returns if given cube is a sacrificial ground or magic door surface.
+/* Returns if given cube is water.
  * @param cube_id
- * @return
- */
+ * @return */
+TbBool cube_is_water(long cube_id)
+{
+    struct CubeConfigStats *cubest = get_cube_model_stats(cube_id);
+    return flag_is_set(cubest->properties_flags, CPF_IsWater);
+}
+
+/* Returns if given cube is a sacrificial ground or magic door surface.
+ * @param cube_id
+ * @return */
 TbBool cube_is_sacrificial(long cube_id)
 {
-    return (cube_id >= 294) && (cube_id <= 302);
+    struct CubeConfigStats *cubest = get_cube_model_stats(cube_id);
+    return flag_is_set(cubest->properties_flags, CPF_IsSacrificial);
 }
 
-/**
- * Returns if given subtile has water cube on its top.
- * @param stl_x Subtile X coordinate.
- * @param stl_y Subtile Y coordinate.
- * @return True if the top cube is water; false otherwise.
- */
-TbBool subtile_has_water_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+/* Returns if given cube is unclaimed path.
+ * @param cube_id
+ * @return */
+TbBool cube_is_unclaimed_path(long cube_id)
 {
-    long i;
-    i = get_top_cube_at(stl_x, stl_y, NULL);
-    return cube_is_water(i);
+    struct CubeConfigStats *cubest = get_cube_model_stats(cube_id);
+    return flag_is_set(cubest->properties_flags, CPF_IsUnclaimedPath);
 }
 
 /**
@@ -583,6 +581,19 @@ TbBool subtile_has_lava_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 }
 
 /**
+ * Returns if given subtile has water cube on its top.
+ * @param stl_x Subtile X coordinate.
+ * @param stl_y Subtile Y coordinate.
+ * @return True if the top cube is water; false otherwise.
+ */
+TbBool subtile_has_water_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    long i;
+    i = get_top_cube_at(stl_x, stl_y, NULL);
+    return cube_is_water(i);
+}
+
+/**
  * Returns if given subtile has sacrificial (temple) cube on its top.
  * @param stl_x Subtile X coordinate.
  * @param stl_y Subtile Y coordinate.
@@ -593,13 +604,13 @@ TbBool subtile_has_sacrificial_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     long i;
     long cube_pos;
     i = get_top_cube_at(stl_x, stl_y, &cube_pos);
-    // Only low ground cubes are really sacrificial - high ground is most likely magic door
+    // Only low ground cubes are really sacrificial - high ground is most likely magic door.
     return cube_pos<4 && cube_is_sacrificial(i);
 }
 
 TbBool subtile_is_liquid(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    return ( (subtile_has_water_on_top(stl_x, stl_y)) || (subtile_has_lava_on_top(stl_x, stl_y)) );
+    return ((subtile_has_water_on_top(stl_x, stl_y)) || (subtile_has_lava_on_top(stl_x, stl_y)));
 }
 
 TbBool subtile_is_unclaimed_path(MapSubtlCoord stl_x, MapSubtlCoord stl_y)

@@ -245,47 +245,39 @@ extern "C"
         return 1;
     }
 
-    int FreeAudio(void)
+    void FreeAudio(void)
     {
         if (_FreeAudio != NULL)
         {
-            return _FreeAudio();
+            _FreeAudio();
         }
-
-        return 0;
     }
 
-    int SetRedbookVolume(int volume)
+    void SetRedbookVolume(SoundVolume volume)
     {
         if (_SetRedbookVolume != NULL)
         {
-            return ((FARPROCI)_SetRedbookVolume)(volume);
+            ((FARPROCI)_SetRedbookVolume)(volume);
         }
-
-        return 0;
     }
 
-    int SetSoundMasterVolume(int volume)
+    void SetSoundMasterVolume(SoundVolume volume)
     {
         if (_SetSoundMasterVolume != NULL)
         {
-            return ((FARPROCI)_SetSoundMasterVolume)(volume);
+            ((FARPROCI)_SetSoundMasterVolume)(volume);
         }
-
-        return 0;
     }
 
-    int SetMusicMasterVolume(int volume)
+    void SetMusicMasterVolume(SoundVolume volume)
     {
         if (_SetMusicMasterVolume != NULL)
         {
-            return ((FARPROCI)_SetMusicMasterVolume)(volume);
+            ((FARPROCI)_SetMusicMasterVolume)(volume);
         }
-
-        return 0;
     }
 
-    int GetSoundInstalled(void)
+    TbBool GetSoundInstalled(void)
     {
         if (_GetSoundInstalled != NULL)
         {
@@ -295,54 +287,44 @@ extern "C"
         return 0;
     }
 
-    int PlayRedbookTrack(int track)
+    void PlayRedbookTrack(int track)
     {
         if (_PlayRedbookTrack != NULL)
         {
-            return ((FARPROCI)_PlayRedbookTrack)(track);
+            ((FARPROCI)_PlayRedbookTrack)(track);
         }
-
-        return 0;
     }
 
-    int PauseRedbookTrack(void)
+    void PauseRedbookTrack(void)
     {
         if (_PauseRedbookTrack != NULL)
         {
-            return _PauseRedbookTrack();
+            _PauseRedbookTrack();
         }
-
-        return 0;
     }
 
-    int ResumeRedbookTrack(void)
+    void ResumeRedbookTrack(void)
     {
         if (_ResumeRedbookTrack != NULL)
         {
-            return _ResumeRedbookTrack();
+            _ResumeRedbookTrack();
         }
-
-        return 0;
     }
 
-    int MonitorStreamedSoundTrack(void)
+    void MonitorStreamedSoundTrack(void)
     {
         if (_MonitorStreamedSoundTrack != NULL)
         {
-            return _MonitorStreamedSoundTrack();
+            _MonitorStreamedSoundTrack();
         }
-
-        return 0;
     }
 
-    int StopRedbookTrack(void)
+    void StopRedbookTrack(void)
     {
         if (_StopRedbookTrack != NULL)
         {
-            return _StopRedbookTrack();
+            _StopRedbookTrack();
         }
-
-        return 0;
     }
 
     void *GetSoundDriver(void)
@@ -355,14 +337,12 @@ extern "C"
         return 0;
     }
 
-    int StopAllSamples(void)
+    void StopAllSamples(void)
     {
         if (_StopAllSamples != NULL)
         {
-            return _StopAllSamples();
+            _StopAllSamples();
         }
-
-        return 0;
     }
 
     struct SampleInfo *GetFirstSampleInfoStructure(void)
@@ -375,34 +355,32 @@ extern "C"
         return 0;
     }
 
-    int InitAudio(void *i)
+    TbBool InitAudio(struct SoundSettings * settings)
     {
         if (_InitAudio != NULL)
         {
-            return ((FARPROCP)_InitAudio)(i);
+            return ((FARPROCP)_InitAudio)(settings);
         }
 
-        return 0;
+        return false;
     }
 
-    int SetupAudioOptionDefaults(void *i)
+    void SetupAudioOptionDefaults(struct SoundSettings * settings)
     {
         if (_SetupAudioOptionDefaults != NULL)
         {
-            return ((FARPROCP)_SetupAudioOptionDefaults)(i);
+            ((FARPROCP)_SetupAudioOptionDefaults)(settings);
         }
-
-        return 0;
     }
 
-    int IsSamplePlaying(int a1, int a2, int a3)
+    TbBool IsSamplePlaying(SoundMilesID a3)
     {
         if (_IsSamplePlaying != NULL)
         {
-            return (unsigned char)((FARPROCIII)_IsSamplePlaying)(a1, a2, a3);
+            return (unsigned char)((FARPROCIII)_IsSamplePlaying)(0, 0, a3);
         }
 
-        return 0;
+        return false;
     }
 
     struct SampleInfo *GetLastSampleInfoStructure(void)
@@ -412,10 +390,10 @@ extern "C"
             return (struct SampleInfo *)_GetLastSampleInfoStructure();
         }
 
-        return 0;
+        return NULL;
     }
 
-    int GetCurrentSoundMasterVolume(void)
+    SoundVolume GetCurrentSoundMasterVolume(void)
     {
         if (_GetCurrentSoundMasterVolume != NULL)
         {
@@ -425,54 +403,46 @@ extern "C"
         return 0;
     }
 
-    int StopSample(SoundEmitterID emit_id, long smptbl_id)
+    void StopSample(SoundEmitterID emit_id, SoundSmplTblID smptbl_id)
     {
         if (_StopSample != NULL)
         {
-            return ((FARPROCII)_StopSample)(emit_id, smptbl_id);
+            ((FARPROCII)_StopSample)(emit_id, smptbl_id);
         }
-
-        return 0;
     }
 
-    int SetSampleVolume(SoundEmitterID emit_id, long smptbl_id, long volume, long d)
+    void SetSampleVolume(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundVolume volume)
     {
         if (_SetSampleVolume != NULL)
         {
-            return ((FARPROCIIII)_SetSampleVolume)(emit_id, smptbl_id, volume, d);
+            ((FARPROCIIII)_SetSampleVolume)(emit_id, smptbl_id, volume, 0);
         }
-
-        return 0;
     }
 
-    int SetSamplePan(SoundEmitterID emit_id, long smptbl_id, long pan, int d)
+    void SetSamplePan(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundPan pan)
     {
         if (_SetSamplePan != NULL)
         {
-            return ((FARPROCIIII)_SetSamplePan)(emit_id, smptbl_id, pan, d);
+            ((FARPROCIIII)_SetSamplePan)(emit_id, smptbl_id, pan, 0);
         }
-
-        return 0;
     }
 
-    int SetSamplePitch(SoundEmitterID emit_id, long smptbl_id, long pitch, int d)
+    void SetSamplePitch(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundPitch pitch)
     {
         if (_SetSamplePitch != NULL)
         {
-            return ((FARPROCIIII)_SetSamplePitch)(emit_id, smptbl_id, pitch, d);
+            ((FARPROCIIII)_SetSamplePitch)(emit_id, smptbl_id, pitch, 0);
         }
-
-        return 0;
     }
 
-    struct SampleInfo *PlaySampleFromAddress(SoundEmitterID emit_id, int smpl_idx, int a3, int a4, int a5, unsigned char a6, unsigned char a7, void *buf, int sfxid)
+    struct SampleInfo *PlaySampleFromAddress(SoundEmitterID emit_id, SoundSmplTblID smpl_idx, SoundVolume volume, SoundPan pan, SoundPitch pitch, unsigned char a6, unsigned char a7, void *buf, SoundSFXID sfxid)
     {
         if (_PlaySampleFromAddress != NULL)
         {
-            return ((FARPROC_PLAY1)(void *)_PlaySampleFromAddress)(emit_id, smpl_idx, a3, a4, a5, a6, a7, buf, sfxid);
+            return ((FARPROC_PLAY1)(void *)_PlaySampleFromAddress)(emit_id, smpl_idx, volume, pan, pitch, a6, a7, buf, sfxid);
         }
 
-        return 0;
+        return NULL;
     }
 
     void unload_miles_sound_system()

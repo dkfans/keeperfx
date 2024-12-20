@@ -28,31 +28,34 @@ extern "C" {
 
 // note - this is temporary value; not correct
 #define CREATURE_FRAMELIST_LENGTH    982
-#define CREATURE_GRAPHICS_INSTANCES   22
+#define CREATURE_GRAPHICS_INSTANCES   25
 
 enum CreatureGraphicsInstances {
-    CGI_Stand       =  0,
-    CGI_Ambulate    =  1,
-    CGI_Drag        =  2,
-    CGI_Attack      =  3,
-    CGI_Dig         =  4,
-    CGI_Smoke       =  5,
-    CGI_Relax       =  6,
-    CGI_PrettyDance =  7,
-    CGI_GotHit      =  8,
-    CGI_PowerGrab   =  9,
-    CGI_GotSlapped  = 10,
-    CGI_Celebrate   = 11,
-    CGI_Sleep       = 12,
-    CGI_EatChicken  = 13,
-    CGI_Torture     = 14,
-    CGI_Scream      = 15,
-    CGI_DropDead    = 16,
-    CGI_DeadSplat   = 17,
-    CGI_Roar        = 18,
-    CGI_Piss        = 19,
-    CGI_QuerySymbol = 20,
-    CGI_HandSymbol  = 21,
+    CGI_Stand        =  0,
+    CGI_Ambulate     =  1,
+    CGI_Drag         =  2,
+    CGI_Attack       =  3,
+    CGI_Dig          =  4,
+    CGI_Smoke        =  5,
+    CGI_Relax        =  6,
+    CGI_PrettyDance  =  7,
+    CGI_GotHit       =  8,
+    CGI_PowerGrab    =  9,
+    CGI_GotSlapped   = 10,
+    CGI_Celebrate    = 11,
+    CGI_Sleep        = 12,
+    CGI_EatChicken   = 13,
+    CGI_Torture      = 14,
+    CGI_Scream       = 15,
+    CGI_DropDead     = 16,
+    CGI_DeadSplat    = 17,
+    CGI_Roar         = 18, // Was previously GFX18.
+    CGI_QuerySymbol  = 19, // Icon, not a sprite
+    CGI_HandSymbol   = 20, // Icon, not a sprite
+    CGI_Piss         = 21, // Was previously GFX21.
+    CGI_CastSpell    = 22,
+    CGI_RangedAttack = 23,
+    CGI_Custom       = 24,
 };
 /******************************************************************************/
 #pragma pack(1)

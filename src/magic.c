@@ -98,6 +98,7 @@ static TbResult magic_use_power_destroy_walls(PowerKind power_kind, PlayerNumber
 static TbResult magic_use_power_obey         (PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
 static TbResult magic_use_power_hold_audience(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
 static TbResult magic_use_power_armageddon   (PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
+static TbResult magic_use_power_tunneller    (PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
 
 
 typedef TbResult (*Magic_use_Func)(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
@@ -121,6 +122,7 @@ const Magic_use_Func magic_use_func_list[] = {
      &magic_use_power_obey,
      &magic_use_power_hold_audience,
      &magic_use_power_armageddon,
+     &magic_use_power_tunneller,
 };
 
 
@@ -597,7 +599,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
     if (crstat->slaps_to_kill > 0)
     {
       i = compute_creature_max_health(crstat->health,cctrl->explevel,thing->owner) / crstat->slaps_to_kill;
-      apply_damage_to_thing_and_display_health(thing, i, DmgT_Physical, player->id_number);
+      apply_damage_to_thing_and_display_health(thing, i, player->id_number);
     }
     pwrdynst = get_power_dynamic_stats(PwrK_SLAP);
     i = cctrl->slap_turns;
@@ -782,14 +784,30 @@ GoldAmount compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwl
 {
     struct Dungeon *dungeon;
     const struct MagicStats *pwrdynst;
+    const struct PowerConfigStats *powerst = get_power_model_stats(pwkind);
+    long amount;
     long price;
-    switch (pwkind)
+    switch (powerst->cost_formula)
     {
-    case PwrK_MKDIGGER: // Special price algorithm for "create imp" spell
+    case Cost_Digger: // Special price algorithm for "create imp" spell
         dungeon = get_players_num_dungeon(plyr_idx);
         // Increase price by amount of diggers, reduce by count of sacrificed diggers. Cheaper diggers may be a negative amount.
-        price = compute_power_price_scaled_with_amount(plyr_idx, pwkind, pwlevel, dungeon->num_active_diggers - dungeon->cheaper_diggers);
+        if (get_players_special_digger_model(plyr_idx) == powerst->creature_model)
+        {
+            amount = (dungeon->num_active_diggers - dungeon->cheaper_diggers);
+        }
+        else
+        {
+            amount = dungeon->owned_creatures_of_model[powerst->creature_model];
+        }
+        price = compute_power_price_scaled_with_amount(plyr_idx, pwkind, pwlevel, amount);
         break;
+    case Cost_Dwarf:
+        dungeon = get_players_num_dungeon(plyr_idx);
+        amount = (dungeon->owned_creatures_of_model[powerst->creature_model] / 7); //Dwarves come in pairs of 7
+        price = compute_power_price_scaled_with_amount(plyr_idx, pwkind, pwlevel, amount);
+        break;
+    case Cost_Default:
     default:
         pwrdynst = get_power_dynamic_stats(pwkind);
         price = pwrdynst->cost[pwlevel];
@@ -1281,7 +1299,7 @@ static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx,
     }
     if (!creature_count_below_map_limit(0))
     {
-        SYNCLOG("Player %d attempts to create creature at map creature limit", plyr_idx);
+        SYNCLOG("Player %d attempts to create creature %s at map creature limit", plyr_idx, creature_code_name(powerst->creature_model));
         return Lb_FAIL;
     }
     if ((mod_flags & PwMod_CastForFree) == 0)
@@ -1311,6 +1329,53 @@ static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx,
     thing->state_flags |= TF1_PushAdd;
     thing->move_angle_xy = 0;
     initialise_thing_state(thing, CrSt_ImpBirth);
+
+    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    play_creature_sound(thing, 3, 2, 0);
+    return Lb_SUCCESS;
+}
+
+static TbResult magic_use_power_tunneller(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
+{
+    struct Coord3d pos;
+    struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
+    struct MagicStats *pwrdynst = get_power_dynamic_stats(power_kind);
+    if (!i_can_allocate_free_control_structure()
+     || !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
+        return Lb_FAIL;
+    }
+    if (!creature_count_below_map_limit(0))
+    {
+        SYNCLOG("Player %d attempts to create creature %s at map creature limit", plyr_idx, creature_code_name(powerst->creature_model));
+        return Lb_FAIL;
+    }
+    if ((mod_flags & PwMod_CastForFree) == 0)
+    {
+        // If we can't afford the spell, fail
+        if (!pay_for_spell(plyr_idx, power_kind, splevel)) {
+            return Lb_FAIL;
+        }
+    }
+    pos.x.val = subtile_coord_center(stl_x);
+    pos.y.val = subtile_coord_center(stl_y);
+    pos.z.val = get_ceiling_height(&pos);
+    thing = create_creature(&pos, powerst->creature_model, plyr_idx);
+
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    create_effect(&thing->mappos, TngEff_CeilingBreach, thing->owner);
+    initialise_thing_state(thing, CrSt_CreatureHeroEntering);
+    thing->rendering_flags |= TRF_Invisible;
+    cctrl->countdown = 16;
+
+    if (thing_is_invalid(thing))
+    {
+        ERRORLOG("There was place to create new creature, but creation failed");
+        return Lb_OK;
+    }
+    if (pwrdynst->strength[splevel] != 0)
+    {
+        creature_change_multiple_levels(thing, pwrdynst->strength[splevel]);
+    }
     
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     play_creature_sound(thing, 3, 2, 0);
