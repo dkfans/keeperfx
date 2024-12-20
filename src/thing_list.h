@@ -274,6 +274,7 @@ struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attac
 struct Thing *get_nth_creature_owned_by_and_matching_bool_filter(PlayerNumber plyr_idx, Thing_Bool_Filter matcher_cb, long n);
 struct Thing *get_nth_creature_owned_by_and_failing_bool_filter(PlayerNumber plyr_idx, Thing_Bool_Filter matcher_cb, long n);
 struct Thing* get_nearest_enemy_object_possible_to_attack_by(struct Thing* creatng);
+struct Thing* get_nearest_enemy_trap_possible_to_attack_by(struct Thing* creatng);
 
 // Routines to select all players creatures of model matching the criteria
 long count_creatures_in_dungeon_of_model_flags(const struct Dungeon *dungeon, unsigned long need_mdflags, unsigned long excl_mdflags);

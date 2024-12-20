@@ -1317,6 +1317,9 @@ CrAttackType check_for_possible_combat_within_distance(struct Thing *creatng, st
     {
         attack_type = check_for_possible_combat_with_enemy_creature_within_distance(creatng, &enmtng, dist);
     }
+    {
+        attack_type = check_for_possible_combat_with_enemy_trap_within_distance(creatng, &enmtng, dist);
+    }
     if (attack_type <= AttckT_Unset) {
         return AttckT_Unset;
     }
@@ -1601,6 +1604,25 @@ CrAttackType check_for_possible_combat_with_enemy_creature_within_distance(struc
 {
     long move_on_ground = 0;
     struct Thing* thing = get_highest_score_enemy_creature_within_distance_possible_to_attack_by(fightng, maxdist, move_on_ground);
+    if (!thing_is_invalid(thing))
+    {
+        SYNCDBG(9,"Best enemy for %s index %d is %s index %d",thing_model_name(fightng),(int)fightng->index,thing_model_name(thing),(int)thing->index);
+        // When counting distance, take size of creatures into account
+        long distance = get_combat_distance(fightng, thing);
+        CrAttackType attack_type = creature_can_have_combat_with_creature(fightng, thing, distance, move_on_ground, 0);
+        if (attack_type > AttckT_Unset) {
+            *outenmtng = thing;
+            return attack_type;
+        } else {
+            ERRORLOG("The %s index %d cannot fight with %s index %d returned as fight partner",thing_model_name(fightng),(int)fightng->index,thing_model_name(thing),(int)thing->index);
+        }
+    }
+    return AttckT_Unset;
+}
+
+CrAttackType check_for_possible_combat_with_enemy_traps_within_distance(struct Thing *fightng, struct Thing **outenmtng, long maxdist)
+{
+    struct Thing* thing = get_nearest_enemy_trap_possible_to_attack_by(fightng);
     if (!thing_is_invalid(thing))
     {
         SYNCDBG(9,"Best enemy for %s index %d is %s index %d",thing_model_name(fightng),(int)fightng->index,thing_model_name(thing),(int)thing->index);
@@ -2612,8 +2634,10 @@ CrAttackType check_for_possible_combat(struct Thing *creatng, struct Thing **fig
     CrAttackType attack_type = check_for_possible_combat_with_attacker_within_distance(creatng, &enmtng, LONG_MAX, &outscore);
     if (attack_type <= AttckT_Unset)
     {
-        // Look for a new fight - with creature we're not fighting yet
+        // Look for a new fight - with creature we're not fighting yet or a trap
         attack_type = check_for_possible_combat_with_enemy_creature_within_distance(creatng, &enmtng, LONG_MAX);
+        if (attack_type <= AttckT_Unset) {
+        attack_type = check_for_possible_combat_with_enemy_trap_within_distance(creatng, &enmtng, LONG_MAX);
     }
     if (attack_type <= AttckT_Unset) {
         return AttckT_Unset;

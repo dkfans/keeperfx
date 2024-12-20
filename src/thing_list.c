@@ -386,6 +386,37 @@ long near_thing_pos_thing_filter_is_enemy_object_which_can_be_attacked_by_creatu
     return -1;
 }
 
+/**                                                 THIS NEEDS TO BE REWRITTEN TO WORK FOR TRAPS
+ * Filter function.
+ * @param thing The thing being checked.
+ * @param param Parameters exchanged between filter calls.
+ * @param maximizer Previous value which made a thing pass the filter.
+ */
+long near_thing_pos_thing_filter_is_enemy_trap_which_can_be_attacked_by_creature(const struct Thing* objtng, MaxTngFilterParam param, long maximizer)
+{
+    if ((param->class_id == -1) || (objtng->class_id == param->class_id))
+    {
+        if (thing_matches_model(objtng, param->model_id))
+        {
+            if ((param->plyr_idx == -1) || (objtng->owner == param->plyr_idx))
+            {
+                struct Thing* creatng = thing_get(param->num1);
+                if (players_are_enemies(creatng->owner, objtng->owner))
+                {
+                    MapCoordDelta distance = get_2d_distance(&creatng->mappos, &objtng->mappos);
+                    //Just dungeon hearts now. Todo: expand with other types of destructible objects
+                    if (thing_is_dungeon_heart(objtng) && creature_can_have_combat_with_creature(creatng, (struct Thing*)objtng, distance,1,0) && !(get_creature_model_flags(creatng) & CMF_NoEnmHeartAttack))
+                    {
+                        return LONG_MAX - distance;
+                    }
+                }
+            }
+        }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
 /**
  * Filter function.
  * @param thing The thing being checked.
@@ -1940,6 +1971,21 @@ struct Thing* get_nearest_enemy_object_possible_to_attack_by(struct Thing* creat
     param.num3 = -1;
     return get_nth_thing_of_class_with_filter(filter, &param, 0);
 }
+
+struct Thing* get_nearest_enemy_trap_possible_to_attack_by(struct Thing* creatng)
+{
+    SYNCDBG(19, "Starting");
+    Thing_Maximizer_Filter filter = near_thing_pos_thing_filter_is_enemy_trap_which_can_be_attacked_by_creature;
+    struct CompoundTngFilterParam param;
+    param.class_id = TCls_Object;
+    param.model_id = -1;
+    param.plyr_idx = -1;
+    param.num1 = creatng->index;
+    param.num2 = -1;
+    param.num3 = -1;
+    return get_nth_thing_of_class_with_filter(filter, &param, 0);
+}
+
 
 struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attack_by(struct Thing *creatng, MapCoordDelta dist, long move_on_ground)
 {
