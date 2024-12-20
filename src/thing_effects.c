@@ -971,7 +971,7 @@ TbBool destroy_effect_thing(struct Thing *efftng)
  * @param max_dist Max distance at which creatures are affected, in map coordinates.
  * @param max_damage Damage at epicenter of the explosion.
  * @param blow_strength The strength of hitwave blowing creatures out of affected area.
- * @param owner The owner of the explosion.
+ * @param shotst the shot stats used to determine damage and shot properties.
  * @return Gives true if the target thing was affected by the spell, false otherwise.
  * @note If the function returns true, the effect might have caused death of the target.
  */
@@ -1128,7 +1128,7 @@ TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, cons
  * @param max_dist Range of the spell on map, used to compute damage decaying with distance; in map coordinates.
  * @param max_damage Damage at epicenter of the explosion.
  * @param blow_strength The strength of hitwave blowing creatures out of affected area.
- * @param damage_type Type of the damage inflicted.
+ * @param shotst the shot information used to determine damage, bow and spell effects
  */
 long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tngsrc, struct Map *mapblk,
     MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, struct ShotConfigStats* shotst)
