@@ -3220,7 +3220,6 @@ TbBool creature_look_for_enemy_object_combat(struct Thing* thing) {
     TRACE_THING(thing);
 
     struct Thing* objtng;
-
     // If already fighting dungeon heart, skip the rest
     if (get_creature_state_besides_interruptions(thing) == CrSt_CreatureObjectCombat) {
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
