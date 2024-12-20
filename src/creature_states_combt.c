@@ -3215,10 +3215,6 @@ TbBool creature_look_for_enemy_heart_snipe(struct Thing* thing)
     return true;
 }
 
-
-
-
-
 TbBool creature_look_for_enemy_object_combat(struct Thing* thing) {
     SYNCDBG(19, "Starting for %s index %d", thing_model_name(thing), (int)thing->index);
     TRACE_THING(thing);
@@ -3262,17 +3258,11 @@ TbBool creature_look_for_enemy_object_combat(struct Thing* thing) {
                 }
             }
         }
-
     TRACE_THING(objtng);
     set_creature_object_combat(thing, objtng);
 
     return true;
 }
-
-
-
-
-
 
 struct Thing *check_for_door_to_fight(struct Thing *thing)
 {
