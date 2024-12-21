@@ -414,6 +414,7 @@ struct SpellConfig {
     short linked_power;
     short duration;
     short aura_effect;
+    unsigned char caster_sounds_count;
     unsigned long spell_flags;
 };
 
