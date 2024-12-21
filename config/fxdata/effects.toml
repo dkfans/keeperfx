@@ -17,7 +17,7 @@ GenerationKindRange = [0,0]
 # 3 - Gas that applies a spell effect, defined by 'SpellEffect'.
 # 4 - Word Of Power.
 AreaAffectType = 0
-# Controls which things will be affected by the effect.
+# Controls which things will be affected by the effect, unless overridden.
 # 1 - Affect all creatures and all objects.
 # 2 - Affect only creatures.
 # 3 - Affect not own creatures and objects.
@@ -280,7 +280,7 @@ GenerationAccelXYRange = [100,100]
 GenerationAccelZRange = [1,1]
 GenerationKindRange = [10,10]
 AreaAffectType = 4
-HitType = 4
+HitType = 3
 SpellEffect = 0
 Sound = 178
 AffectedByWind = 1
@@ -1476,6 +1476,23 @@ LightRadius = 10
 LightIntensity = 52
 LightFlags = 0
 ElementsCount = 8
+AlwaysGenerate = 0
+
+[effect81]
+Name = "EFFECT_CRAZY_GAS"
+Health = 40
+GenerationType = 1
+GenerationAccelXYRange = [44,44]
+GenerationAccelZRange = [-32,32]
+GenerationKindRange = [7,7]
+AreaAffectType = 1
+HitType = 4
+Sound = 52
+AffectedByWind = 1
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+ElementsCount = 2
 AlwaysGenerate = 0
 
 # EffectGenerators.

@@ -2198,7 +2198,7 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, long shot_lvl,
     {
         if (spconf->caster_affect_sound > 0)
         {
-            thing_play_sample(castng, spconf->caster_affect_sound, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+            thing_play_sample(castng, spconf->caster_affect_sound + UNSYNC_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
         }
         apply_spell_effect_to_thing(castng, spl_idx, cctrl->explevel, castng->owner);
     }
@@ -2232,8 +2232,6 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, long shot_lvl,
         struct Thing* efthing = create_used_effect_or_element(&castng->mappos, spconf->cast_effect_model, castng->owner);
         if (!thing_is_invalid(efthing))
         {
-            struct ShotConfigStats* shotst = get_shot_model_stats(spconf->shot_model);
-            efthing->shot_effect.hit_type = shotst->area_hit_type;
             efthing->parent_idx = castng->index;
         }
     }
