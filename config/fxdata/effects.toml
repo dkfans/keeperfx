@@ -1415,23 +1415,6 @@ LightFlags = 0
 ElementsCount = 2
 AlwaysGenerate = 0
 
-[effect82]
-Name = "EFFECT_WORD_OF_POWER_HARMLESS"
-Health = 10
-GenerationType = 1
-GenerationAccelXYRange = [100,100]
-GenerationAccelZRange = [1,1]
-GenerationKindRange = [10,10]
-AreaAffectType = 4
-HitType = 8
-Sound = 178
-AffectedByWind = 1
-LightRadius = 10
-LightIntensity = 52
-LightFlags = 0
-ElementsCount = 20
-AlwaysGenerate = 0
-
 #EffectGenerators
 
 [effectGenerator0]
