@@ -182,7 +182,7 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel,
         long splevel = fmcl_bytes & 255;
         if (spconf->caster_affect_sound)
         {
-            thing_play_sample(thing, spconf->caster_affect_sound, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+            thing_play_sample(thing, spconf->caster_affect_sound + UNSYNC_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
         }
         apply_spell_effect_to_thing(thing, spkind, splevel, plyr_idx);
         if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
