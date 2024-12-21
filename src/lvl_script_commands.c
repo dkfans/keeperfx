@@ -3059,8 +3059,16 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
         }
         else if (creatvar == 37) // SPELLIMMUNITY
         {
-            value1 = get_id(magic_spell_flags, scline->tp[2]) - 1;
-            value2 = atoi(scline->tp[3]);
+            if (parameter_is_number(scline->tp[2]))
+            {
+                value1 = atoi(scline->tp[2]);
+                value2 = -1;
+            }
+            else
+            {
+                value1 = get_id(magic_spell_flags, scline->tp[2]) - 1;
+                value2 = atoi(scline->tp[3]);
+            }
         }
         else
         {
@@ -3603,7 +3611,11 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             crstat->torture_kind = value;
             break;
         case 37: // SPELLIMMUNITY
-            if (value2 > 0)
+            if (value2 < 0)
+            {
+                crstat->immunity_flags = value;
+            }
+            else if (value2 > 0)
             {
                 set_flag(crstat->immunity_flags, to_flag(value));
             }
