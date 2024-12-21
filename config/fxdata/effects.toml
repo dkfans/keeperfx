@@ -1487,6 +1487,7 @@ GenerationAccelZRange = [-32,32]
 GenerationKindRange = [7,7]
 AreaAffectType = 1
 HitType = 4
+SpellEffect = 0
 Sound = 52
 AffectedByWind = 1
 LightRadius = 0
