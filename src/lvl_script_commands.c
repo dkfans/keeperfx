@@ -3059,7 +3059,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
         }
         else if (creatvar == 37) // SPELLIMMUNITY
         {
-            value1 = get_id(magic_spell_flags, scline->tp[2]);
+            value1 = get_id(magic_spell_flags, scline->tp[2]) - 1;
             value2 = atoi(scline->tp[3]);
         }
         else
@@ -3605,11 +3605,11 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         case 37: // SPELLIMMUNITY
             if (value2 > 0)
             {
-                set_flag(crstat->immunity_flags, to_flag(value - 1));
+                set_flag(crstat->immunity_flags, to_flag(value));
             }
             else
             {
-                clear_flag(crstat->immunity_flags, to_flag(value - 1));
+                clear_flag(crstat->immunity_flags, to_flag(value));
             }
             break;
         case ccr_comment:
