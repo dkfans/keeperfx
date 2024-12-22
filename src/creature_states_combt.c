@@ -1617,6 +1617,24 @@ CrAttackType check_for_possible_combat_with_enemy_creature_within_distance(struc
     return AttckT_Unset;
 }
 
+CrAttackType check_for_possible_combat_with_enemy_trap_within_distance(struct Thing *fightng, struct Thing **outenmtng, long maxdist)
+{
+    long move_on_ground = 0;
+    if (!thing_is_invalid(thing))
+    {
+        // When counting distance, take size of creatures into account
+        long distance = get_combat_distance(fightng, thing);
+        CrAttackType attack_type = creature_can_have_combat_with_object(fightng, thing, distance, move_on_ground, 0);
+        if (attack_type > AttckT_Unset) {
+            *outenmtng = thing;
+            return attack_type;
+        } else {
+            ERRORLOG("The %s index %d cannot fight with %s index %d returned as fight partner",thing_model_name(fightng),(int)fightng->index,thing_model_name(thing),(int)thing->index);
+        }
+    }
+    return AttckT_Unset;
+}
+
 CrAttackType check_for_possible_combat_with_attacker_within_distance(struct Thing *figtng, struct Thing **outenmtng, long maxdist, unsigned long *outscore)
 {
     unsigned long max_score;
@@ -2623,6 +2641,25 @@ CrAttackType check_for_possible_combat(struct Thing *creatng, struct Thing **fig
     return attack_type;
 }
 
+CrAttackType check_for_possible_combat_with_traps(struct Thing *creatng, struct Thing **fightng)
+{
+    SYNCDBG(19,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
+    TRACE_THING(creatng);
+    unsigned long outscore = 0;
+    // Check for combat with a trap
+    struct Thing* enmtng;
+    {
+        attack_type = check_for_possible_combat_with_enemy_trap_within_distance(creatng, &enmtng, LONG_MAX);
+    }
+    if (attack_type <= AttckT_Unset) {
+        return AttckT_Unset;
+    }
+    *fightng = enmtng;
+    SYNCDBG(19,"The %s index %d can fight %s index %d",thing_model_name(creatng),(int)creatng->index,thing_model_name(enmtng),(int)enmtng->index);
+    return attack_type;
+}
+
+
 /**
  * Switches fight partner to the one suggested by creature_is_most_suitable_for_combat().
  * @param thing The creature to be switched.
@@ -3216,28 +3253,78 @@ TbBool creature_look_for_enemy_heart_snipe(struct Thing* thing)
     return true;
 }
 
-struct Thing* check_for_object_to_fight(struct Thing* thing) //just traps now, could be expanded to non-trap objects
+//Code especially to make creatures fight in range against destroyable traps
+
+TbBool creature_look_for_combat(struct Thing *creatng)
 {
-    long m = CREATURE_RANDOM(thing, SMALL_AROUND_SLAB_LENGTH);
-    for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+    SYNCDBG(9,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
+    TRACE_THING(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    CrtrStateId crstate;
+    struct Thing* enmtng;
+    CrAttackType attack_type = check_for_possible_combat_with_traps(creatng, &enmtng);
+    if (attack_type <= AttckT_Unset)
     {
-        MapSlabCoord slb_x = subtile_slab(thing->mappos.x.stl.num) + (long)small_around[m].delta_x;
-        MapSlabCoord slb_y = subtile_slab(thing->mappos.y.stl.num) + (long)small_around[m].delta_y;
-        struct Thing* trpthing = get_trap_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
-        if ((thing_is_destructible_trap(trpthing) > 0) || (creature_has_disarming_weapon(thing) && (thing_is_destructible_trap(trpthing) >= 0)))
-        {
-            if (players_are_enemies(thing->owner, trpthing->owner))
-            {
-                struct TrapConfigStats* trapst = &game.conf.trapdoor_conf.trap_cfgstats[trpthing->model];
-                if (creature_can_see_invisible(thing) || (trapst->hidden == 0) || (trpthing->trap.revealed == 1))
-                {
-                    return trpthing;
-                }
-            }
+        if ( (cctrl->opponents_melee_count == 0) && (cctrl->opponents_ranged_count == 0) ) {
+            return false;
         }
-        m = (m + 1) % SMALL_AROUND_SLAB_LENGTH;
+        CrInstance inst_id = get_self_spell_casting(creatng);
+        if (inst_id > CrInst_NULL)
+        {
+            set_creature_instance(creatng, inst_id, creatng->index, 0);
+            return false;
+        } else
+        if (!external_set_thing_state(creatng, CrSt_CreatureCombatFlee)) {
+            return false;
+        }
+        setup_combat_flee_position(creatng);
+        cctrl->flee_start_turn = game.play_gameturn;
+        return true;
     }
-    return INVALID_THING;
+
+    if (cctrl->combat_flags != 0)
+    {
+        if (get_combat_state_for_combat(creatng, enmtng, attack_type) == CmbtSt_Waiting) {
+          return false;
+        }
+    }
+
+    // Don't start combat if not already in combat and high fear + invisible or sneaky
+    if ((cctrl->opponents_melee_count == 0) && (cctrl->opponents_ranged_count == 0))
+    {
+        if (creature_is_invisible(creatng))
+        {
+            struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+            if (crstat->fear_wounded >= 101)
+                return false;
+        }
+        crstate = get_creature_state_besides_move(creatng);
+        if (states[crstate].sneaky == 1)
+            return false;
+    }
+
+    // If not too scared for combat, then do the combat
+    if ((!creature_too_scared_for_combat(creatng, enmtng)) || (cctrl->dropped_turn + FIGHT_FEAR_DELAY >= game.play_gameturn) )
+    {
+        set_creature_in_combat(creatng, enmtng, attack_type);
+        return true;
+    }
+
+    // If any creature is scared, invisible and not in combat, then don't let it start one
+    if (creature_is_invisible(creatng))
+    {
+        if ( (cctrl->opponents_melee_count == 0) && (cctrl->opponents_ranged_count == 0) ) {
+            return false;
+        }
+    }
+    // Setup fleeing from combat
+    if ( !external_set_thing_state(creatng, CrSt_CreatureCombatFlee) ) {
+        ERRORLOG("The %s index %d is scared but cannot flee",thing_model_name(creatng),(int)creatng->index);
+        return false;
+    }
+    setup_combat_flee_position(creatng);
+    cctrl->flee_start_turn = game.play_gameturn;
+    return true;
 }
 
 TbBool creature_look_for_enemy_object_combat(struct Thing* thing)
