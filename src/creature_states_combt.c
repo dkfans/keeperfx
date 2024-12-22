@@ -3255,7 +3255,7 @@ TbBool creature_look_for_enemy_heart_snipe(struct Thing* thing)
 
 //Code especially to make creatures fight in range against destroyable traps
 
-TbBool creature_look_for_combat(struct Thing *creatng)
+TbBool creature_look_for_combat_with_traps(struct Thing *creatng)
 {
     SYNCDBG(9,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
     TRACE_THING(creatng);

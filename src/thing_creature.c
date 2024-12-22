@@ -2088,6 +2088,9 @@ TngUpdateRet process_creature_state(struct Thing *thing)
         if (!fighting) {
             fighting = creature_look_for_enemy_object_combat(thing);
         }
+                if (!fighting) {
+            fighting = creature_look_for_combat_with_traps(thing);
+        }
     }
     creature_look_for_hidden_doors(thing);
     if ((cctrl->combat_flags & CmbtF_DoorFight) == 0)
