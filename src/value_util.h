@@ -119,6 +119,20 @@ TbBool load_toml_file(const char *textname, const char *fname,VALUE *value, unsi
     }\
 }
 
+#define CONDITIONAL_ASSIGN_SPELL(section,name,field) \
+{\
+    VALUE *val = value_dict_get(section,name);\
+    if (value_type(val) == VALUE_INT32)\
+    {\
+        field = value_int32(val);\
+    }\
+    else\
+    if (value_type(val) == VALUE_STRING)\
+    {\
+        field = get_id(spell_desc,value_string(val));\
+    }\
+}
+
 #define SET_NAME(section,desc,namefield) \
 {\
     const char* name = value_string(value_dict_get(section, "Name"));\
