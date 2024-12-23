@@ -28,6 +28,7 @@
 #include "config.h"
 #include "player_computer.h"
 #include "thing_data.h"
+#include "game_merge.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -245,7 +246,7 @@ TbBool parse_computer_player_common_blocks(char *buf, long len, const char *conf
 {
     // Block name and parameter word store variables
     // Initialize block data
-    if ((flags & CnfLd_AcceptPartial) == 0)
+    if (!flag_is_set(flags,CnfLd_AcceptPartial))
     {
         comp_player_conf.processes_count = 1;
         comp_player_conf.checks_count = 1;
@@ -259,7 +260,7 @@ TbBool parse_computer_player_common_blocks(char *buf, long len, const char *conf
     int k = find_conf_block(buf, &pos, len, block_buf);
     if (k < 0)
     {
-        if ((flags & CnfLd_AcceptPartial) == 0)
+        if (!flag_is_set(flags,CnfLd_IgnoreErrors))
             WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
         return false;
     }
@@ -389,7 +390,10 @@ short parse_computer_player_process_blocks(char *buf, long len, const char *conf
         int k = find_conf_block(buf, &pos, len, block_buf);
         if (k < 0)
         {
-            WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
+            if(!flag_is_set(flags,CnfLd_IgnoreErrors))
+            {
+                WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
+            }
             continue;
       }
       struct ComputerProcess* cproc = computer_process_config_list[i].process;
@@ -401,7 +405,7 @@ short parse_computer_player_process_blocks(char *buf, long len, const char *conf
         int cmd_num = recognize_conf_command(buf, &pos, len, compp_process_commands);
         // Now store the config item in correct place
         if (cmd_num == ccr_endOfBlock) break; // if next block starts
-        if ((flags & CnfLd_ListOnly) != 0) {
+        if (flag_is_set(flags,CnfLd_ListOnly)) {
             // In "List only" mode, accept only name command
             if (cmd_num > 2) {
                 cmd_num = 0;
@@ -562,14 +566,18 @@ short parse_computer_player_check_blocks(char *buf, long len, const char *config
     // Block name and parameter word store variables
     // Initialize the checks array
     const int arr_size = sizeof(computer_check_config_list)/sizeof(computer_check_config_list[0]);
-    for (i=0; i < arr_size; i++)
+    if(!flag_is_set(flags,CnfLd_AcceptPartial))
     {
-      ccheck = &computer_checks[i];
-      computer_check_config_list[i].name[0] = '\0';
-      computer_check_config_list[i].check = ccheck;
-      ccheck->name = computer_check_names[i];
-      LbMemorySet(computer_check_names[i], 0, LINEMSG_SIZE);
+      for (i=0; i < arr_size; i++)
+      {
+        ccheck = &computer_checks[i];
+        computer_check_config_list[i].name[0] = '\0';
+        computer_check_config_list[i].check = ccheck;
+        ccheck->name = computer_check_names[i];
+        LbMemorySet(computer_check_names[i], 0, LINEMSG_SIZE);
+      }
     }
+
     strcpy(computer_check_names[0],"INCORRECT CHECK");
     // Load the file
     for (i=1; i < arr_size; i++)
@@ -580,7 +588,8 @@ short parse_computer_player_check_blocks(char *buf, long len, const char *config
         int k = find_conf_block(buf, &pos, len, block_buf);
         if (k < 0)
         {
-            WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
+            if(!flag_is_set(flags,CnfLd_IgnoreErrors))
+              WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
             continue;
       }
       ccheck = computer_check_config_list[i].check;
@@ -591,7 +600,7 @@ short parse_computer_player_check_blocks(char *buf, long len, const char *config
         int cmd_num = recognize_conf_command(buf, &pos, len, compp_check_commands);
         // Now store the config item in correct place
         if (cmd_num == ccr_endOfBlock) break; // if next block starts
-        if ((flags & CnfLd_ListOnly) != 0) {
+        if (flag_is_set(flags,CnfLd_ListOnly)) {
             // In "List only" mode, accept only name command
             if (cmd_num > 2) {
                 cmd_num = 0;
@@ -703,15 +712,19 @@ short parse_computer_player_event_blocks(char *buf, long len, const char *config
     // Block name and parameter word store variables
     // Initialize the events array
     const int arr_size = (int)(sizeof(computer_event_config_list)/sizeof(computer_event_config_list[0]));
-    for (i=0; i < arr_size; i++)
+    if(!flag_is_set(flags,CnfLd_AcceptPartial))
     {
-      cevent = &computer_events[i];
-      computer_event_config_list[i].name[0] = '\0';
-      computer_event_config_list[i].event = cevent;
-      cevent->name = computer_event_names[i];
-      LbMemorySet(computer_event_names[i], 0, LINEMSG_SIZE);
+      for (i=0; i < arr_size; i++)
+      {
+        cevent = &computer_events[i];
+        computer_event_config_list[i].name[0] = '\0';
+        computer_event_config_list[i].event = cevent;
+        cevent->name = computer_event_names[i];
+        LbMemorySet(computer_event_names[i], 0, LINEMSG_SIZE);
+      }
+      strcpy(computer_event_names[0],"INCORRECT EVENT");
     }
-    strcpy(computer_event_names[0],"INCORRECT EVENT");
+
     // Load the file
     for (i=1; i < arr_size; i++)
     {
@@ -721,7 +734,8 @@ short parse_computer_player_event_blocks(char *buf, long len, const char *config
         int k = find_conf_block(buf, &pos, len, block_buf);
         if (k < 0)
         {
-            WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
+            if(!flag_is_set(flags,CnfLd_IgnoreErrors))
+              WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
             continue;
       }
       cevent = computer_event_config_list[i].event;
@@ -732,7 +746,7 @@ short parse_computer_player_event_blocks(char *buf, long len, const char *config
         int cmd_num = recognize_conf_command(buf, &pos, len, compp_event_commands);
         // Now store the config item in correct place
         if (cmd_num == ccr_endOfBlock) break; // if next block starts
-        if ((flags & CnfLd_ListOnly) != 0) {
+        if (flag_is_set(flags,CnfLd_ListOnly)) {
             // In "List only" mode, accept only name command
             if (cmd_num > 2) {
                 cmd_num = 0;
@@ -893,16 +907,32 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
     const int arr_size = (int)(sizeof(ComputerProcessLists)/sizeof(ComputerProcessLists[0]));
     for (int i = 0; i < arr_size; i++)
     {
+        struct ComputerProcessTypes* cpt;
         char block_buf[32];
         sprintf(block_buf, "computer%d", i);
         long pos = 0;
         int k = find_conf_block(buf, &pos, len, block_buf);
         if (k < 0)
         {
-            WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
+            if (!flag_is_set(flags,CnfLd_AcceptPartial))
+            {
+                WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
+            }
+            else
+            {
+                cpt = &ComputerProcessLists[i];
+                computer_type_clear_events(cpt);
+                for (int j = 0; j < COMPUTER_EVENTS_TYPES_COUNT; j++)
+                {
+                    if ((strcmp(computer_event_config_list[j].event->name, "UNUSED") != 0) && (computer_event_config_list[j].event->name != NULL))
+                    {
+                        computer_type_add_event(cpt, computer_event_config_list[j].event);
+                    }
+                }
+            }
             continue;
-      }
-      struct ComputerProcessTypes* cpt = &ComputerProcessLists[i];
+        }
+      cpt = &ComputerProcessLists[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(compp_computer_commands,cmd_num)
       while (pos<len)
       {
@@ -910,7 +940,8 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
         int cmd_num = recognize_conf_command(buf, &pos, len, compp_computer_commands);
         // Now store the config item in correct place
         if (cmd_num == ccr_endOfBlock) break; // if next block starts
-        if ((flags & CnfLd_ListOnly) != 0) {
+        if (flag_is_set(flags,CnfLd_ListOnly)) {
+
             // In "List only" mode, accept only name command
             if (cmd_num > 1) {
                 cmd_num = 0;
@@ -1083,17 +1114,19 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
     return 1;
 }
 
-TbBool load_computer_player_config(unsigned short flags)
+TbBool load_computer_player_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     SYNCDBG(8, "Starting");
-    static const char *textname = "Computer Player";
-    init_computer_process_lists();
+    if (!flag_is_set(flags,CnfLd_AcceptPartial))
+    {
+        init_computer_process_lists();
+    }
     // Load the config file
-    const char* fname = prepare_file_path(FGrp_FxData, keeper_compplayer_file);
     long len = LbFileLengthRnc(fname);
     if (len < 2)
     {
-        ERRORLOG("Computer Player file \"%s\" doesn't exist or is too small.",keeper_compplayer_file);
+        if (!flag_is_set(flags,CnfLd_IgnoreErrors))
+          ERRORLOG("Computer Player file \"%s\" doesn't exist or is too small.",keeper_compplayer_file);
         return false;
     }
     if (len > 65536)
@@ -1117,6 +1150,27 @@ TbBool load_computer_player_config(unsigned short flags)
     //Freeing and exiting
     LbMemoryFree(buf);
     return true;
+}
+
+
+TbBool load_computer_player_config(unsigned short flags)
+{
+    static const char config_global_textname[] = "global Computer Player config";
+    static const char config_campgn_textname[] = "campaign Computer Player config";
+    static const char config_level_textname[] = "level Computer Player config";
+    char* fname = prepare_file_path(FGrp_FxData, keeper_compplayer_file);
+    TbBool result = load_computer_player_config_file(config_global_textname, fname, flags);
+    fname = prepare_file_path(FGrp_CmpgConfig,keeper_compplayer_file);
+    if (strlen(fname) > 0)
+    {
+        load_computer_player_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), keeper_compplayer_file);
+    if (strlen(fname) > 0)
+    {
+        load_computer_player_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+    return result;
 }
 
 /******************************************************************************/
