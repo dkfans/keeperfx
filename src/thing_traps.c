@@ -478,6 +478,8 @@ void activate_trap_effect_on_trap(struct Thing *traptng)
     if (!thing_is_invalid(efftng)) 
     {
         efftng->shot_effect.hit_type = trapst->hit_type;
+        efftng->shot_effect.parent_class_id = TCls_Trap;
+        efftng->shot_effect.parent_model = traptng->model;
         efftng->parent_idx = traptng->index;
         SYNCDBG(18,"Created %s",thing_model_name(efftng));
     }

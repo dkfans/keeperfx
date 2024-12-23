@@ -316,7 +316,7 @@ void process_keeper_spell_aura(struct Thing *thing)
     pos.y.val = thing->mappos.y.val - (delta_y >> 8);
     pos.z.val = thing->mappos.z.val;
 
-    create_used_effect_or_element(&pos, cctrl->spell_aura, thing->owner);
+    create_used_effect_or_element(&pos, cctrl->spell_aura, thing->owner, thing->index);
 }
 
 unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos)
@@ -547,7 +547,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
     return 0; // Default: No collision OR boulder destroyed on door
 }
 
-void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step, short ef_or_efel_model)
+void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step, short ef_or_efel_model, ThingIndex parent_idx)
 {
   MapCoordDelta dist_x;
   MapCoordDelta dist_y;
@@ -643,7 +643,7 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
                 {
                     struct Thing *eelemtng;
 
-                    eelemtng = create_used_effect_or_element(&tngpos, ef_or_efel_model, game.neutral_player_num);
+                    eelemtng = create_used_effect_or_element(&tngpos, ef_or_efel_model, game.neutral_player_num, parent_idx);
                     if (!thing_is_invalid(eelemtng)) {
                         eelemtng->sprite_size = sprsize >> 8;
                     }
@@ -721,7 +721,7 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
             tngpos.z.val = curpos.z.val + deviat_z;
             if ((tngpos.x.val < subtile_coord(gameadd.map_subtiles_x,0)) && (tngpos.y.val < subtile_coord(gameadd.map_subtiles_y,0)))
             {
-                create_used_effect_or_element(&tngpos, ef_or_efel_model, game.neutral_player_num);
+                create_used_effect_or_element(&tngpos, ef_or_efel_model, game.neutral_player_num, 0);
             }
             if (UNSYNC_RANDOM(6) >= 3) {
                 deviat_x -= 32;

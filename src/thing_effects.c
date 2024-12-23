@@ -817,7 +817,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
         set_coords_to_cylindric_shift(&pos, &thing->mappos, deviation_mag, deviation_angle, 0);
         SYNCDBG(18,"The %s creates effect at (%d,%d,%d)",
             thing_model_name(thing),(int)pos.x.val,(int)pos.y.val,(int)pos.z.val);
-        struct Thing* elemtng = create_used_effect_or_element(&pos, egenstat->effect_model , thing->owner);
+        struct Thing* elemtng = create_used_effect_or_element(&pos, egenstat->effect_model, thing->owner, thing->index);
         TRACE_THING(elemtng);
         if (thing_is_invalid(elemtng))
             break;
@@ -914,7 +914,7 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     return thing;
 }
 
-struct Thing *create_used_effect_or_element(const struct Coord3d *pos, EffectOrEffElModel effect, PlayerNumber plyr_idx)
+struct Thing *create_used_effect_or_element(const struct Coord3d *pos, EffectOrEffElModel effect, PlayerNumber plyr_idx, ThingIndex parent_idx)
 {
     if (effect == 0)
         return INVALID_THING;
@@ -929,6 +929,13 @@ struct Thing *create_used_effect_or_element(const struct Coord3d *pos, EffectOrE
         efftng = create_effect_element(pos, ~(effect) + 1, plyr_idx);
     }
     TRACE_THING(efftng);
+    if (parent_idx > 0)
+    {
+        efftng->parent_idx = parent_idx;
+        struct Thing* parent = thing_get(parent_idx);
+        efftng->shot_effect.parent_class_id = parent->class_id;
+        efftng->shot_effect.parent_model = parent->model;
+    }
     return efftng;
 }
 
@@ -1195,16 +1202,26 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *tngsrc, st
     if (efftng->creation_turn != game.play_gameturn) {
         return;
     }
+    
     struct ShotConfigStats* shotst;
-    if (thing_is_deployed_trap(tngsrc))
+    if (efftng->shot_effect.parent_class_id == TCls_Shot)
     {
-        shotst = get_shot_model_stats(ShM_TrapWordOfPower);
+        shotst = get_shot_model_stats(efftng->shot_effect.parent_model);
     }
     else
     {
-        shotst = get_shot_model_stats(ShM_WordOfPower);
+        // should not happen, but just in case
+        if (thing_is_deployed_trap(tngsrc))
+        {
+            shotst = get_shot_model_stats(ShM_TrapWordOfPower);
+        }
+        else
+        {
+            shotst = get_shot_model_stats(ShM_WordOfPower);
+        }
     }
-    if ((shotst->area_range <= 0) || ((shotst->area_damage == 0) && (shotst->area_blow == 0))) {
+    if (shotst->area_range <= 0)
+    {
         ERRORLOG("Word of power shot configuration does not include area influence.");
         return;
     }
