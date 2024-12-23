@@ -64,6 +64,8 @@ void init_players_local_game(void);
 void init_keeper_map_exploration_by_terrain(struct PlayerInfo *player);
 void init_keeper_map_exploration_by_creatures(struct PlayerInfo *player);
 void process_players(void);
+
+void set_player_colour(PlayerNumber plyr_idx, unsigned char colour_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }
