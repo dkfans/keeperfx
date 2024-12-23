@@ -932,6 +932,9 @@ struct Thing *create_used_effect_or_element(const struct Coord3d *pos, EffectOrE
     if (parent_idx > 0)
     {
         efftng->parent_idx = parent_idx;
+        struct Thing* parent = thing_get(parent_idx);
+        efftng->shot_effect.parent_class_id = parent->class_id;
+        efftng->shot_effect.parent_model = parent->model;
     }
     return efftng;
 }
@@ -1199,11 +1202,11 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *tngsrc, st
     if (efftng->creation_turn != game.play_gameturn) {
         return;
     }
+    
     struct ShotConfigStats* shotst;
-    struct Thing* shottng = thing_get(efftng->parent_idx);
-    if (thing_is_shot(shottng))
+    if (efftng->shot_effect.parent_class_id == TCls_Shot)
     {
-        shotst = get_shot_model_stats(shottng->model);
+        shotst = get_shot_model_stats(efftng->shot_effect.parent_model);
     }
     else
     {

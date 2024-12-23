@@ -693,6 +693,8 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     }
     if (!thing_is_invalid(efftng)) {
         efftng->shot_effect.hit_type = shotst->area_hit_type;
+        efftng->shot_effect.parent_class_id = TCls_Shot;
+        efftng->shot_effect.parent_model = shotng->model;
     }
     if ( destroy_shot )
     {
@@ -763,6 +765,8 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
     }
     if (!thing_is_invalid(efftng)) {
         efftng->shot_effect.hit_type = shotst->area_hit_type;
+        efftng->shot_effect.parent_class_id = TCls_Shot;
+        efftng->shot_effect.parent_model = shotng->model;
     }
     if ( shot_explodes )
     {
