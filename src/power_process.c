@@ -733,7 +733,6 @@ void process_timebomb(struct Thing *creatng)
 void timebomb_explode(struct Thing *creatng)
 {
     struct SpellConfig* spconf = get_spell_config(SplK_TimeBomb);
-    //todo Create a shot that explodes, instead of only using the stats
     struct ShotConfigStats* shotst = get_shot_model_stats(spconf->shot_model);
     SYNCDBG(8, "Explode Timebomb")
     //struct Thing* castng = creatng; //todo cleanup
