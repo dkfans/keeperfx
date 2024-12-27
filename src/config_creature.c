@@ -1266,12 +1266,12 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                 k = get_id(creaturetype_instance_properties, word_buf);
                 if (k > 0)
                 {
-                    inst_inf->instance_property_flags |= k;
-                    n++;
-                } else {
+                    set_flag(inst_inf->instance_property_flags, k);
+                }
+                else
+                {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%.*s] block of %s file.",
                         COMMAND_TEXT(cmd_num), word_buf, blocknamelen, blockname, config_textname);
-                    break;
                 }
             }
             break;
