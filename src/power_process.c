@@ -755,11 +755,11 @@ void timebomb_explode(struct Thing *creatng)
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         explosion_affecting_area(creatng, &creatng->mappos, dist, damage, (shotst->area_blow * weight) / WEIGHT_DIVISOR, hit_targets);
     }
-    struct Thing *efftng = create_used_effect_or_element(&creatng->mappos, TngEff_Explosion5, creatng->owner);
+    struct Thing *efftng = create_used_effect_or_element(&creatng->mappos, TngEff_Explosion5, creatng->owner, creatng->index);
     if (!thing_is_invalid(efftng))
     {
-        create_used_effect_or_element(&creatng->mappos, shotst->explode.effect1_model, creatng->owner);
-        create_used_effect_or_element(&creatng->mappos, shotst->explode.effect2_model, creatng->owner);
+        create_used_effect_or_element(&creatng->mappos, shotst->explode.effect1_model, creatng->owner, creatng->index);
+        create_used_effect_or_element(&creatng->mappos, shotst->explode.effect2_model, creatng->owner, creatng->index);
         if (shotst->explode.around_effect1_model != 0)
         {
             create_effect_around_thing(creatng, shotst->explode.around_effect1_model);

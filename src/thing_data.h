@@ -213,8 +213,8 @@ struct Thing {
       } creature;
 //TCls_Effect
       struct {
-        char unused;
-        short unused2;
+        int parent_class_id;
+        ThingModel parent_model;
         unsigned char hit_type;
       } shot_effect;
       struct {

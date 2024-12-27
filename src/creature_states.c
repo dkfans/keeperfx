@@ -4099,7 +4099,7 @@ void create_effect_around_thing(struct Thing *thing, long eff_kind)
             {
                 if (eff_kind != 0)
                 {
-                    create_used_effect_or_element(&pos, eff_kind, thing->owner);
+                    create_used_effect_or_element(&pos, eff_kind, thing->owner, thing->index);
                 }
                 pos.z.val += COORD_PER_STL;
             }

@@ -234,6 +234,17 @@ TbBool load_effects_config(const char *conf_fname, unsigned short flags)
 }
 
 /**
+ * Returns Code Name (name to use in script file) of given effect element model.
+ */
+const char* effect_element_code_name(ThingModel tngmodel)
+{
+    const char* name = get_conf_parameter_text(effectelem_desc, tngmodel);
+    if (name[0] != '\0')
+        return name;
+    return "INVALID";
+}
+
+/**
  * Returns Code Name (name to use in script file) of given effect model.
  */
 const char *effect_code_name(ThingModel tngmodel)

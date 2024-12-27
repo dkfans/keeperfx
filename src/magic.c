@@ -1329,7 +1329,7 @@ static TbResult magic_use_power_apply_spell(PowerKind power_kind, PlayerNumber p
     {
         struct Coord3d effpos = thing->mappos;
         effpos.z.val = get_ceiling_height_above_thing_at(thing, &thing->mappos);
-        create_used_effect_or_element(&effpos, powerst->effect_id, thing->owner);
+        create_used_effect_or_element(&effpos, powerst->effect_id, thing->owner, 0);
     }
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     apply_spell_effect_to_thing(thing, powerst->spell_idx, splevel, plyr_idx);
