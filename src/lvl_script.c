@@ -396,7 +396,7 @@ static void process_fx_line(struct ScriptFxLine *fx_line)
         {
             if (fx_line->effect != 0)
             {
-                create_used_effect_or_element(&fx_line->here, fx_line->effect, PLAYER_NEUTRAL);
+                create_used_effect_or_element(&fx_line->here, fx_line->effect, PLAYER_NEUTRAL, 0);
             }
         }
 
