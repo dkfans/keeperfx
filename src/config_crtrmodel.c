@@ -2680,7 +2680,7 @@ TbBool load_creaturemodel_config(ThingModel crmodel, unsigned short flags)
     }
     if (!result)
     {
-        ERRORLOG("Unable to load a creature model config file for '%s'", creature_code_name(crmodel));
+        ERRORLOG("Unable to load a complete '%s' creature model config file.", creature_code_name(crmodel));
     }
     return result;
 }
