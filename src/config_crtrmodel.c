@@ -2677,10 +2677,6 @@ TbBool load_creaturemodel_config(ThingModel crmodel, unsigned short flags)
     if (strlen(fname) > 0)
     {
         result |= load_creaturemodel_config_file(crmodel,config_level_textname,fname,flags);
-        if (result)
-        {
-            set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
-        }
     }
     if (!result)
     {
