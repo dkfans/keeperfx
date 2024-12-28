@@ -644,6 +644,12 @@ TbBool parse_set_varib(const char *varib_name, long *varib_id, long *varib_type)
             *varib_type = SVar_BOX_ACTIVATED;
         }
         else
+        if (2 == sscanf(varib_name, "TRAP%ld_ACTIVATE%c", varib_id, &c) && (c == 'D'))
+        {
+            // activateD
+            *varib_type = SVar_TRAP_ACTIVATED;
+        }
+        else
         {
             *varib_id = -1;
         }
@@ -722,6 +728,11 @@ TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
     if (*varib_id == -1)
     {
         if (2 == sscanf(varib_name, "BOX%ld_ACTIVATE%c", varib_id, &c) && (c == 'D'))
+        {
+            // activateD
+            *varib_type = SVar_BOX_ACTIVATED;
+        }
+        else if (2 == sscanf(varib_name, "TRAP%ld_ACTIVATE%c", varib_id, &c) && (c == 'D'))
         {
             // activateD
             *varib_type = SVar_BOX_ACTIVATED;

@@ -99,6 +99,7 @@ struct TrapConfigStats {
     unsigned char unanimated;
     unsigned char unshaded;
     unsigned char random_start_frame;
+    unsigned char flag_number;
     short light_radius; // Creates light if not null.
     unsigned char light_intensity;
     unsigned char light_flag;

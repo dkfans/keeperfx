@@ -826,6 +826,11 @@ void update_trap_trigger(struct Thing* traptng)
     }
     if (do_trig)
     {
+        struct Dungeon *dungeon = get_dungeon(traptng->owner);
+        if (!dungeon_invalid(dungeon))
+        {
+            dungeon->trap_info.activated[traptng->trap.flag_number]++;
+        }
         process_trap_charge(traptng);
     }
 }
@@ -931,6 +936,7 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     thing->next_on_mapblk = 0;
     thing->parent_idx = thing->index;
     thing->owner = plyr_idx;
+    thing->trap.flag_number = trapst->flag_number;
     char start_frame;
     if (trapst->random_start_frame) {
         start_frame = -1;
