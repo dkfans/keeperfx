@@ -2555,8 +2555,6 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
-        if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
     char* buf = (char*)LbMemoryAlloc(len + 256);
@@ -2662,15 +2660,31 @@ TbBool load_creaturemodel_config(ThingModel crmodel, unsigned short flags)
     }
     char* fname = prepare_file_fmtpath(FGrp_CrtrData, "%s.cfg", conf_fnstr);
     TbBool result = load_creaturemodel_config_file(crmodel, config_global_textname, fname, flags);
+    if (result)
+    {
+        set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
+    }
     fname = prepare_file_fmtpath(FGrp_CmpgCrtrs,"%s.cfg",conf_fnstr);
     if (strlen(fname) > 0)
     {
-        result |= load_creaturemodel_config_file(crmodel,config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+        result |= load_creaturemodel_config_file(crmodel,config_campgn_textname,fname,flags);
+        if (result)
+        {
+            set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
+        }
     }
     fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s.cfg", get_selected_level_number(), conf_fnstr);
     if (strlen(fname) > 0)
     {
         result |= load_creaturemodel_config_file(crmodel,config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+        if (result)
+        {
+            set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
+        }
+    }
+    if (!result)
+    {
+        WARNMSG("Unable to load a creature model config file for '%s'", creature_code_name(crmodel));
     }
     return result;
 }
