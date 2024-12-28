@@ -735,7 +735,7 @@ TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
         else if (2 == sscanf(varib_name, "TRAP%ld_ACTIVATE%c", varib_id, &c) && (c == 'D'))
         {
             // activateD
-            *varib_type = SVar_BOX_ACTIVATED;
+            *varib_type = SVar_TRAP_ACTIVATED;
         }
         else if (2 == sscanf(varib_name, "KEEPERS_DESTROYED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
         {
