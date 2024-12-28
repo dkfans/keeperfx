@@ -120,7 +120,7 @@ struct TrapInfo
 
 struct BoxInfo
 {
-    uint8_t               activated[CUSTOM_BOX_COUNT];
+    uint16_t              activated[CUSTOM_BOX_COUNT];
 };
 
 struct ComputerInfo
