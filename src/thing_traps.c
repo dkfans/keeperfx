@@ -740,11 +740,11 @@ void process_trap_charge(struct Thing* traptng)
     if (trapst->attack_sprite_anim_idx != 0)
     {
         GameTurnDelta trigger_duration;
-        if (trapst->activation_type == 2) // Effect stays on trap, so the attack animation remains visible for as long as the effect is alive.
+        if (trapst->activation_type == TrpAcT_EffectonTrap) // Effect stays on trap, so the attack animation remains visible for as long as the effect is alive.
         {
             trigger_duration = get_effect_model_stats(trapst->created_itm_model)->start_health;
         } else
-        if (trapst->activation_type == 3) // Shot stays on trap, so the attack animation remains visible for as long as the trap is alive.
+        if (trapst->activation_type == TrpAcT_ShotonTrap) // Shot stays on trap, so the attack animation remains visible for as long as the trap is alive.
         {
             trigger_duration = get_shot_model_stats(trapst->created_itm_model)->health;
         }
