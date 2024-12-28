@@ -1212,7 +1212,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
                   n++;
               }
           }
-          if (n < 0)
+          if (n < 1)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
