@@ -2563,7 +2563,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     // Loading file data
     len = LbFileLoadAt(fname, buf);
     TbBool result = (len > 0);
-    if ((flags & CnfLd_AcceptPartial) == 0)
+    if (!flag_is_set(flags,CnfLd_AcceptPartial))
     {
         struct CreatureStats* crstat = creature_stats_get(crtr_model);
         LbMemorySet(crstat, '\0', sizeof(struct CreatureStats));
@@ -2572,7 +2572,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     if (result)
     {
         result = parse_creaturemodel_attributes_blocks(crtr_model, buf, len, fname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
+        if (flag_is_set(flags, CnfLd_AcceptPartial))
             result = true;
         if (!result)
             WARNMSG("Parsing %s file \"%s\" attributes blocks failed.",textname,fname);
@@ -2580,7 +2580,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     if (result)
     {
         result = parse_creaturemodel_attraction_blocks(crtr_model, buf, len, fname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
+        if (flag_is_set(flags, CnfLd_AcceptPartial))
             result = true;
         if (!result)
             WARNMSG("Parsing %s file \"%s\" attraction blocks failed.",textname,fname);
@@ -2588,7 +2588,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     if (result)
     {
         result = parse_creaturemodel_annoyance_blocks(crtr_model, buf, len, fname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
+        if (flag_is_set(flags, CnfLd_AcceptPartial))
             result = true;
         if (!result)
             WARNMSG("Parsing %s file \"%s\" annoyance blocks failed.",textname,fname);
@@ -2596,7 +2596,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     if (result)
     {
         result = parse_creaturemodel_senses_blocks(crtr_model, buf, len, fname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
+        if (flag_is_set(flags, CnfLd_AcceptPartial))
             result = true;
         if (!result)
             WARNMSG("Parsing %s file \"%s\" senses blocks failed.",textname,fname);
@@ -2604,7 +2604,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     if (result)
     {
         result = parse_creaturemodel_appearance_blocks(crtr_model, buf, len, fname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
+        if (flag_is_set(flags, CnfLd_AcceptPartial))
             result = true;
         if (!result)
             WARNMSG("Parsing %s file \"%s\" appearance blocks failed.",textname,fname);
@@ -2612,7 +2612,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     if (result)
     {
         result = parse_creaturemodel_experience_blocks(crtr_model, buf, len, fname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
+        if (flag_is_set(flags, CnfLd_AcceptPartial))
             result = true;
         if (!result)
             WARNMSG("Parsing %s file \"%s\" experience blocks failed.",textname,fname);
@@ -2620,7 +2620,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     if (result)
     {
         result = parse_creaturemodel_jobs_blocks(crtr_model, buf, len, fname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
+        if (flag_is_set(flags, CnfLd_AcceptPartial))
             result = true;
         if (!result)
             WARNMSG("Parsing %s file \"%s\" jobs blocks failed.",textname,fname);
@@ -2628,7 +2628,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     if (result)
     {
         result = parse_creaturemodel_sprites_blocks(crtr_model, buf, len, fname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
+        if (flag_is_set(flags, CnfLd_AcceptPartial))
             result = true;
         if (!result)
             WARNMSG("Parsing %s file \"%s\" sprites blocks failed.",textname,fname);
@@ -2636,7 +2636,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     if (result)
     {
         result = parse_creaturemodel_sounds_blocks(crtr_model, buf, len, fname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
+        if (flag_is_set(flags, CnfLd_AcceptPartial))
             result = true;
         if (!result)
             WARNMSG("Parsing %s file \"%s\" sounds blocks failed.",textname,fname);
