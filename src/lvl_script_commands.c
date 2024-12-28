@@ -272,6 +272,7 @@ const struct NamedCommand trap_config_desc[] = {
   {"DetectInvisible",         49},
   {"InstantPlacement",        50},
   {"RemoveOnceDepleted",      51},
+  {"FlagNumber",              52},
   {NULL,                       0},
 };
 
@@ -2036,6 +2037,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 51: // RemoveOnceDepleted
             trapst->remove_once_depleted = value;
+            break;
+        case 52: // FlagNumber
+            trapst->flag_number = value;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
