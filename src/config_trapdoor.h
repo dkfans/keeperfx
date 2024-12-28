@@ -71,7 +71,7 @@ struct TrapConfigStats {
     unsigned char manufct_level;
     unsigned long manufct_required;
     int shots;
-    int shots_delay;
+    GameTurnDelta shots_delay;
     unsigned short initial_delay; // Trap is placed on reload phase, value in game turns.
     unsigned char trigger_type;
     unsigned char activation_type;

@@ -248,7 +248,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
   const char * blockname = NULL;
   int blocknamelen = 0;
   long pos = 0;
-  int k = 0;
+  long k = 0;
   while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
   {
     // look for blocks starting with "trap", followed by one or more digits
