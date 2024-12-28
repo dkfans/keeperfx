@@ -2676,7 +2676,7 @@ TbBool load_creaturemodel_config(ThingModel crmodel, unsigned short flags)
     fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s.cfg", get_selected_level_number(), conf_fnstr);
     if (strlen(fname) > 0)
     {
-        result |= load_creaturemodel_config_file(crmodel,config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+        result |= load_creaturemodel_config_file(crmodel,config_level_textname,fname,flags);
         if (result)
         {
             set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
