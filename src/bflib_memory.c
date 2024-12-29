@@ -30,21 +30,6 @@
 char lbEmptyString[] = "";
 /******************************************************************************/
 
-void * LbStringToLowerCopy(char *dst, const char *src, const ulong dst_buflen)
-{
-  if (dst_buflen < 1)
-    return dst;
-  for (int i = 0; i < dst_buflen; i++)
-  {
-      char chr = tolower(src[i]);
-      dst[i] = chr;
-      if (chr == '\0')
-          break;
-  }
-  dst[dst_buflen-1]='\0';
-  return dst;
-}
-
 void * LbMemoryAlloc(ulong size)
 {
     void * ptr = malloc(size);
