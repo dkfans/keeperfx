@@ -447,7 +447,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
         }
     }
     creature_desc[CREATURE_TYPES_MAX - 1].name = NULL; // must be null for get_id
-    LbStringCopy(game.conf.crtr_conf.model[0].name, "NOCREATURE", COMMAND_WORD_LEN);
+    snprintf(game.conf.crtr_conf.model[0].name, COMMAND_WORD_LEN, "%s", "NOCREATURE");
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
     sprintf(block_buf, "common");

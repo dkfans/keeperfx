@@ -433,7 +433,7 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
           }
           else
           {
-              LbStringCopy(campgn->display_name,campgn->name,LINEMSG_SIZE);
+              snprintf(campgn->display_name, LINEMSG_SIZE, "%s", campgn->name);
           }
           break;
       case 2: // SINGLE_LEVELS
@@ -667,7 +667,7 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
                 if (k > 0) {
                     const char* newname = get_string(STRINGS_MAX+k);
                     if (strcasecmp(newname,"") != 0) {
-                        LbStringCopy(campgn->display_name,newname,LINEMSG_SIZE); // use the index provided in the config file to get a specific UI string
+                        snprintf(campgn->display_name, LINEMSG_SIZE, "%s", newname); // use the index provided in the config file to get a specific UI string
                     }
                     else {
                     CONFWRNLOG("Couldn't read \"%s\" command parameter in %s %s file. NAME_TEXT_ID is too high, NAME used instead.",
@@ -1069,8 +1069,8 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
 {
     // Preparing campaign file name and checking the file
     clear_campaign(campgn);
-    LbStringCopy(campgn->fname,cmpgn_fname,DISKPATH_SIZE);
-    LbStringCopy(campgn->name,cmpgn_fname,DISKPATH_SIZE);
+    snprintf(campgn->fname, DISKPATH_SIZE, "%s", cmpgn_fname);
+    snprintf(campgn->name, DISKPATH_SIZE, "%s", cmpgn_fname);
     SYNCDBG(0,"%s campaign file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",cmpgn_fname);
     char* fname = prepare_file_path(fgroup, cmpgn_fname);
     long len = LbFileLengthRnc(fname);

@@ -368,7 +368,7 @@ static TbError tcpSP_join(const char * session, void * options)
 
     size_t size = strlen(session) + 1;
     char* hostname = (char*)LbMemoryAlloc(size);
-    LbStringCopy(hostname, session, size);
+    snprintf(hostname, size, "%s", session);
 
     char* portstr = hostname;
     while (*portstr != 0 && *portstr != ':') {

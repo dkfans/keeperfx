@@ -214,12 +214,12 @@ static void enum_services_callback(struct TbNetworkCallbackData *netcdat, void *
     }
     if (strcasecmp("TCP", netcdat->svc_name) == 0)
     {
-        LbStringCopy(net_service[net_number_of_services], "TCP/IP", NET_MESSAGE_LEN);//TODO TRANSLATION put this in GUI strings
+        snprintf(net_service[net_number_of_services], NET_MESSAGE_LEN, "%s", "TCP/IP");//TODO TRANSLATION put this in GUI strings
         net_number_of_services++;
     }
     else if (strcasecmp("ENET/UDP", netcdat->svc_name) == 0)
     {
-        LbStringCopy(net_service[net_number_of_services], netcdat->svc_name, NET_MESSAGE_LEN);//TODO TRANSLATION put this in GUI strings
+        snprintf(net_service[net_number_of_services], NET_MESSAGE_LEN, "%s", netcdat->svc_name);//TODO TRANSLATION put this in GUI strings
         net_number_of_services++;
     } else
     {
@@ -379,7 +379,7 @@ void net_load_config_file(void)
     }
     // If can't load, then use default config
     memcpy(&net_config_info, &default_net_config_info, sizeof(net_config_info));
-    LbStringCopy(net_config_info.net_player_name, get_string(GUIStr_MnuNoName), 20);
+    snprintf(net_config_info.net_player_name, sizeof(net_config_info.net_player_name), "%s", get_string(GUIStr_MnuNoName));
 }
 
 void net_write_config_file(void)
@@ -405,7 +405,7 @@ void frontnet_service_setup(void)
     // Create skirmish option if it should be enabled
     if ((game.system_flags & GSF_AllowOnePlayer) != 0)
     {
-        LbStringCopy(net_service[net_number_of_services], get_string(GUIStr_Net1Player), NET_SERVICE_LEN);
+        snprintf(net_service[net_number_of_services], NET_SERVICE_LEN, "%s", get_string(GUIStr_Net1Player));
         net_number_of_services++;
     }
     net_load_config_file();

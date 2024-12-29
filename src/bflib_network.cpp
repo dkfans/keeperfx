@@ -260,9 +260,7 @@ static void SendUserUpdate(NetUserId dest, NetUserId updated_user)
     *ptr = netstate.users[updated_user].progress;
     ptr += 1;
 
-    LbStringCopy(ptr, netstate.users[updated_user].name,
-        sizeof(netstate.users[updated_user].name));
-    ptr += strlen(netstate.users[updated_user].name) + 1;
+    ptr += snprintf(ptr, sizeof(netstate.users[updated_user].name), "%s", netstate.users[updated_user].name) + 1;
 
     netstate.sp->sendmsg_single(dest, netstate.msg_buffer,
         ptr - netstate.msg_buffer);
@@ -355,7 +353,7 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
         return;
     }
 
-    LbStringCopy(netstate.users[source].name, ptr, sizeof(netstate.users[source].name));
+    snprintf(netstate.users[source].name, sizeof(netstate.users[source].name), "%s", ptr);
     if (!isalnum(netstate.users[source].name[0])) {
         //TODO NET drop player for bad name
         //also replace isalnum with something that considers foreign non-ASCII chars
@@ -422,7 +420,7 @@ static void HandleUserUpdate(NetUserId source, char * ptr, char * end)
     netstate.users[id].progress = (enum NetUserProgress) *ptr;
     ptr += 1;
 
-    LbStringCopy(netstate.users[id].name, ptr, sizeof(netstate.users[id].name));
+    snprintf(netstate.users[id].name, sizeof(netstate.users[id].name), "%s", ptr);
 
     //send up the stuff the other parts of the game expect
     //TODO NET try to get rid of this because it makes understanding code much more complicated
@@ -862,8 +860,7 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_
     }
 
     netstate.my_id = SERVER_ID;
-    LbStringCopy(netstate.users[netstate.my_id].name, plyr_name,
-        sizeof(netstate.users[netstate.my_id].name));
+    snprintf(netstate.users[netstate.my_id].name, sizeof(netstate.users[netstate.my_id].name), "%s", plyr_name);
     netstate.users[netstate.my_id].progress = USER_SERVER;
 
     *plyr_num = netstate.my_id;
@@ -1272,8 +1269,7 @@ TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNet
         if (netstate.users[id].progress != USER_UNUSED &&
                 netstate.users[id].progress != USER_CONNECTED) { //no point in showing user if there's no name
             memset(&data, 0, sizeof(data));
-            LbStringCopy(data.plyr_name, netstate.users[id].name,
-                sizeof(data.plyr_name));
+            snprintf(data.plyr_name, sizeof(data.plyr_name), "%s", netstate.users[id].name);
             callback(&data, buf);
         }
     }
@@ -1381,7 +1377,7 @@ TbError GetPlayerInfo(void)
             netstate.users[i].progress == USER_LOGGEDIN )
     {
       lpinfo->active = 1;
-      LbStringCopy(lpinfo->name, netstate.users[i].name, 32);
+      snprintf(lpinfo->name, sizeof(lpinfo->name), "%s", netstate.users[i].name);
     } else
     {
       lpinfo->active = 0;

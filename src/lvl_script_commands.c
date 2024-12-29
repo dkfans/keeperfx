@@ -1635,7 +1635,7 @@ static void new_creature_type_check(const struct ScriptLine* scline)
 
     int i = game.conf.crtr_conf.model_count;
     game.conf.crtr_conf.model_count++;
-    LbStringCopy(game.conf.crtr_conf.model[i].name, scline->tp[0], COMMAND_WORD_LEN);
+    snprintf(game.conf.crtr_conf.model[i].name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
     creature_desc[i-1].name = game.conf.crtr_conf.model[i].name;
     creature_desc[i-1].num = i;
 
@@ -5464,7 +5464,7 @@ static void set_music_check(const struct ScriptLine *scline)
             Mix_FreeMusic(tracks[tracknumber]);
         }
         const char* fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s", scline->tp[0]);
-        LbStringCopy(game.loaded_track[tracknumber], fname, DISKPATH_SIZE);
+        snprintf(game.loaded_track[tracknumber], DISKPATH_SIZE, "%s", fname);
         tracks[tracknumber] = Mix_LoadMUS(game.loaded_track[tracknumber]);
         if (tracks[tracknumber] == NULL)
         {

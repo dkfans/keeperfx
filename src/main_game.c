@@ -204,7 +204,7 @@ static void init_level(void)
     }
 
     init_navigation();
-    LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
+    snprintf(game.campaign_fname, sizeof(game.campaign_fname), "%s", campaign.fname);
     light_set_lights_on(1);
     {
         for (size_t i = 0; i < PLAYERS_COUNT; i++)

@@ -32,7 +32,6 @@ typedef unsigned char * MemAllocFunc(ulong);
 extern char lbEmptyString[];
 /******************************************************************************/
 void * LbMemoryAlloc(ulong size);
-void * LbStringCopy(char *dst, const char *src, const ulong dst_buflen);
 void * LbStringToLowerCopy(char *dst, const char *src, const ulong dst_buflen);
 /******************************************************************************/
 #ifdef __cplusplus

@@ -501,7 +501,7 @@ int LbLogSetPrefix(struct TbLog *log, const char *prefix)
     return -1;
   if (prefix)
   {
-    LbStringCopy(log->prefix, prefix, LOG_PREFIX_LEN);
+    snprintf(log->prefix, LOG_PREFIX_LEN, "%s", prefix);
   } else
   {
     memset(log->prefix, 0, LOG_PREFIX_LEN);
@@ -537,7 +537,7 @@ int LbLogSetup(struct TbLog *log, const char *filename, ulong flags)
   if (filename == NULL || strlen(filename) > DISKPATH_SIZE) {
     return -1;
   }
-  LbStringCopy(log->filename, filename, DISKPATH_SIZE);
+  snprintf(log->filename, DISKPATH_SIZE, "%s", filename);
   log->flags = flags;
   log->Initialised = true;
   log->position = 0;
