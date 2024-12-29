@@ -119,11 +119,6 @@ short update_memory_constraits(void)
   return true;
 }
 
-void * LbMemoryCopy(void *in_dst, const void *in_src, ulong len)
-{
-  return memcpy(in_dst,in_src,len);
-}
-
 /**
  *
  * Appends characters of source to destination, plus a terminating null-character.

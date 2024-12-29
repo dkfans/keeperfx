@@ -208,8 +208,8 @@ short save_packets(void)
     LbFileSeek(game.packet_save_fp, 0, Lb_FILE_SEEK_END);
     // Prepare data in the buffer
     for (int i = 0; i < NET_PLAYERS_COUNT; i++)
-        LbMemoryCopy(&pckt_buf[i*sizeof(struct Packet)], &game.packets[i], sizeof(struct Packet));
-    LbMemoryCopy(&pckt_buf[NET_PLAYERS_COUNT*sizeof(struct Packet)], &chksum, sizeof(TbBigChecksum));
+        memcpy(&pckt_buf[i*sizeof(struct Packet)], &game.packets[i], sizeof(struct Packet));
+    memcpy(&pckt_buf[NET_PLAYERS_COUNT*sizeof(struct Packet)], &chksum, sizeof(TbBigChecksum));
     // Write buffer into file
     if (LbFileWrite(game.packet_save_fp, &pckt_buf, turn_data_size) != turn_data_size)
     {
@@ -337,7 +337,7 @@ void load_packets_for_turn(GameTurn nturn)
     }
     game.packet_file_pos += turn_data_size;
     for (long i = 0; i < NET_PLAYERS_COUNT; i++)
-        LbMemoryCopy(&game.packets[i], &pckt_buf[i * sizeof(struct Packet)], sizeof(struct Packet));
+        memcpy(&game.packets[i], &pckt_buf[i * sizeof(struct Packet)], sizeof(struct Packet));
     TbBigChecksum tot_chksum = llong(&pckt_buf[NET_PLAYERS_COUNT * sizeof(struct Packet)]);
     if (game.turns_fastforward > 0)
         game.turns_fastforward--;

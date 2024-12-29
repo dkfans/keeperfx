@@ -500,9 +500,9 @@ long UnpackM1(void * buffer, ulong bufsize)
     if (unpacked==NULL) return -1;
     retcode = rnc_unpack(buffer, unpacked, 0);
     if (header.unpacked_size > bufsize) {
-        LbMemoryCopy(buffer, unpacked, bufsize);
+        memcpy(buffer, unpacked, bufsize);
     } else {
-        LbMemoryCopy(buffer, unpacked, header.unpacked_size);
+        memcpy(buffer, unpacked, header.unpacked_size);
     }
     LbMemoryFree(unpacked);
     return retcode;

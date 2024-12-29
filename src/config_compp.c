@@ -190,7 +190,7 @@ int computer_type_add_check(struct ComputerProcessTypes *cpt, struct ComputerChe
     {
         if (cpt->checks[i].name == NULL)
         {
-            LbMemoryCopy(&cpt->checks[i], check, sizeof(struct ComputerCheck));
+            memcpy(&cpt->checks[i], check, sizeof(struct ComputerCheck));
             return i;
         }
   }
@@ -212,7 +212,7 @@ int computer_type_add_event(struct ComputerProcessTypes *cpt, struct ComputerEve
     {
         if (cpt->events[i].name == NULL)
         {
-            LbMemoryCopy(&cpt->events[i], event, sizeof(struct ComputerEvent));
+            memcpy(&cpt->events[i], event, sizeof(struct ComputerEvent));
             return i;
         }
   }

@@ -378,7 +378,7 @@ void net_load_config_file(void)
       LbFileClose(handle);
     }
     // If can't load, then use default config
-    LbMemoryCopy(&net_config_info, &default_net_config_info, sizeof(net_config_info));
+    memcpy(&net_config_info, &default_net_config_info, sizeof(net_config_info));
     LbStringCopy(net_config_info.net_player_name, get_string(GUIStr_MnuNoName), 20);
 }
 

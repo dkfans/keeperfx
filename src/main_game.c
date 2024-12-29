@@ -148,8 +148,8 @@ static void init_level(void)
 {
     SYNCDBG(6,"Starting");
     struct IntralevelData transfer_mem;
-    //LbMemoryCopy(&transfer_mem,&game.intralvl.transferred_creature,sizeof(struct CreatureStorage));
-    LbMemoryCopy(&transfer_mem,&intralvl,sizeof(struct IntralevelData));
+    //memcpy(&transfer_mem,&game.intralvl.transferred_creature,sizeof(struct CreatureStorage));
+    memcpy(&transfer_mem,&intralvl,sizeof(struct IntralevelData));
     game.flags_gui = GGUI_SoloChatEnabled;
     clear_flag(game.system_flags, GSF_RunAfterVictory);
     free_swipe_graphic();
@@ -218,8 +218,8 @@ static void init_level(void)
         }
     }
     game.numfield_D |= GNFldD_Unkn04;
-    //LbMemoryCopy(&game.intralvl.transferred_creature,&transfer_mem,sizeof(struct CreatureStorage));
-    LbMemoryCopy(&intralvl,&transfer_mem,sizeof(struct IntralevelData));
+    //memcpy(&game.intralvl.transferred_creature,&transfer_mem,sizeof(struct CreatureStorage));
+    memcpy(&intralvl,&transfer_mem,sizeof(struct IntralevelData));
     event_initialise_all();
     battle_initialise();
     ambient_sound_prepare();

@@ -521,9 +521,9 @@ void get_opponent(struct Computer2 *comp, struct THate hates[])
             {
                 // Switch hates so larger one is first
                 struct THate tmp;
-                LbMemoryCopy(&tmp,hat2,sizeof(struct THate));
-                LbMemoryCopy(hat2,hat1,sizeof(struct THate));
-                LbMemoryCopy(hat1,&tmp,sizeof(struct THate));
+                memcpy(&tmp,hat2,sizeof(struct THate));
+                memcpy(hat2,hat1,sizeof(struct THate));
+                memcpy(hat1,&tmp,sizeof(struct THate));
             }
         }
     }
@@ -1303,7 +1303,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
           newproc->name = NULL;
           break;
         }
-        LbMemoryCopy(newproc, cproc, sizeof(struct ComputerProcess));
+        memcpy(newproc, cproc, sizeof(struct ComputerProcess));
         newproc->parent = cproc;
     }
     newproc = &comp->processes[i];
@@ -1318,7 +1318,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
             newchk->name = NULL;
             break;
         }
-        LbMemoryCopy(newchk, ccheck, sizeof(struct ComputerCheck));
+        memcpy(newchk, ccheck, sizeof(struct ComputerCheck));
     }
     // Note that we don't have special, empty check at end of array
     // The check with 0x02 flag identifies end of active checks
@@ -1335,7 +1335,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
             newevnt->name = NULL;
             break;
         }
-        LbMemoryCopy(newevnt, event, sizeof(struct ComputerEvent));
+        memcpy(newevnt, event, sizeof(struct ComputerEvent));
     }
     return true;
 }

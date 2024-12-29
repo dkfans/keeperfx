@@ -829,7 +829,7 @@ void unload_map_and_window(void)
     clear_slabs();
     clear_rooms();
     clear_dungeons();
-    LbMemoryCopy(frontend_palette, frontend_backup_palette, PALETTE_SIZE);
+    memcpy(frontend_palette, frontend_backup_palette, PALETTE_SIZE);
     map_window_len = 0;
 }
 

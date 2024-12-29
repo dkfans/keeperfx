@@ -1271,9 +1271,9 @@ TbBool swap_campaigns_in_list(struct CampaignsList *clist, int idx1, int idx2)
     if ((idx1 < 0) || (idx1 >= clist->items_num) || (idx2 < 0) || (idx2 >= clist->items_num))
       return false;
     struct GameCampaign campbuf;
-    LbMemoryCopy(&campbuf, &clist->items[idx1], sizeof(struct GameCampaign));
-    LbMemoryCopy(&clist->items[idx1],&clist->items[idx2],sizeof(struct GameCampaign));
-    LbMemoryCopy(&clist->items[idx2],&campbuf,sizeof(struct GameCampaign));
+    memcpy(&campbuf, &clist->items[idx1], sizeof(struct GameCampaign));
+    memcpy(&clist->items[idx1],&clist->items[idx2],sizeof(struct GameCampaign));
+    memcpy(&clist->items[idx2],&campbuf,sizeof(struct GameCampaign));
     return true;
 }
 
@@ -1419,8 +1419,8 @@ TbBool is_campaign_in_list(const char *cmpgn_fname, struct CampaignsList *clist)
 TbBool check_lif_files_in_mappack(struct GameCampaign *campgn)
 {
     struct GameCampaign campbuf;
-    LbMemoryCopy(&campbuf, &campaign, sizeof(struct GameCampaign));
-    LbMemoryCopy(&campaign, campgn, sizeof(struct GameCampaign));
+    memcpy(&campbuf, &campaign, sizeof(struct GameCampaign));
+    memcpy(&campaign, campgn, sizeof(struct GameCampaign));
     find_and_load_lif_files();
     find_and_load_lof_files();
     TbBool result  = (campaign.freeplay_levels_count != 0);
@@ -1428,8 +1428,8 @@ TbBool check_lif_files_in_mappack(struct GameCampaign *campgn)
         // Could be either: no valid levels in LEVELS_LOCATION, no LEVELS_LOCATION specified, or LEVELS_LOCATION does not exist
         WARNMSG("Couldn't load Map Pack \"%s\", no .LIF files could be found.", campgn->fname);
     }
-    LbMemoryCopy(campgn, &campaign, sizeof(struct GameCampaign));
-    LbMemoryCopy(&campaign, &campbuf, sizeof(struct GameCampaign));
+    memcpy(campgn, &campaign, sizeof(struct GameCampaign));
+    memcpy(&campaign, &campbuf, sizeof(struct GameCampaign));
     return result;
 }
 

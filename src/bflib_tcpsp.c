@@ -528,7 +528,7 @@ static size_t tcpSP_readmsg(NetUserId source, char * buffer, size_t max_size)
 
     if (msg->state == READ_FINISHED) {
         size = min(msg->msg_size, max_size);
-        LbMemoryCopy(buffer, msg->buffer, size);
+        memcpy(buffer, msg->buffer, size);
         reset_msg(msg);
         return size;
     }
@@ -545,7 +545,7 @@ static size_t tcpSP_readmsg(NetUserId source, char * buffer, size_t max_size)
     assert(msg->state == READ_FINISHED);
 
     size = min(msg->msg_size, max_size);
-    LbMemoryCopy(buffer, msg->buffer, size);
+    memcpy(buffer, msg->buffer, size);
     reset_msg(msg);
     return size;
 }

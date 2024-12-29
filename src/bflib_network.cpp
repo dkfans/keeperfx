@@ -282,7 +282,7 @@ static void SendClientFrame(const char * send_buf, size_t buf_size, int seq_nbr)
     *(int *) ptr = seq_nbr;
     ptr += 4;
 
-    LbMemoryCopy(ptr, send_buf, buf_size);
+    memcpy(ptr, send_buf, buf_size);
     ptr += buf_size;
 
     netstate.sp->sendmsg_single(SERVER_ID, netstate.msg_buffer,
@@ -321,7 +321,7 @@ static void SendServerFrame(const void *send_buf, size_t frame_size, int num_fra
     *ptr = num_frames;
     ptr += sizeof(char);
 
-    LbMemoryCopy(ptr, send_buf, frame_size * num_frames);
+    memcpy(ptr, send_buf, frame_size * num_frames);
     ptr += frame_size * num_frames;
 
     netstate.sp->sendmsg_all(netstate.msg_buffer, ptr - netstate.msg_buffer);
@@ -373,7 +373,7 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
     //send reply
     ptr = netstate.msg_buffer;
     ptr += 1; //skip header byte which should still be ok
-    LbMemoryCopy(ptr, &source, 1); //assumes LE
+    memcpy(ptr, &source, 1); //assumes LE
     ptr += 1;
     netstate.sp->sendmsg_single(source, netstate.msg_buffer, ptr - netstate.msg_buffer);
 
@@ -437,7 +437,7 @@ static void HandleClientFrame(NetUserId source, char *dst_ptr, const char * ptr,
     netstate.users[source].ack = *(int *) ptr;
     ptr += 4;
 
-    LbMemoryCopy(dst_ptr, ptr, frame_size);
+    memcpy(dst_ptr, ptr, frame_size);
     ptr += frame_size;
 
     if (ptr >= end) {
@@ -482,7 +482,7 @@ static void HandleServerFrame(char * ptr, char * end, size_t user_frame_size)
     frame->buffer = (char *) LbMemoryAlloc(frame->size);
     frame->seq_nbr = seq_nbr;
 
-    LbMemoryCopy(frame->buffer, ptr, frame->size);
+    memcpy(frame->buffer, ptr, frame->size);
 
     NETDBG(9, "Handled server frame of %u bytes", frame->size);
 }
@@ -1060,7 +1060,7 @@ static void ConsumeServerFrame(void *server_buf, int frame_size)
 
     netstate.exchg_queue = frame->next;
     netstate.seq_nbr = frame->seq_nbr;
-    LbMemoryCopy(server_buf, frame->buffer, frame->size);
+    memcpy(server_buf, frame->buffer, frame->size);
     LbMemoryFree(frame->buffer);
     LbMemoryFree(frame);
 }
@@ -1162,7 +1162,7 @@ TbBool LbNetwork_Resync(void * buf, size_t len)
 
     if (netstate.users[netstate.my_id].progress == USER_SERVER) {
         full_buf[0] = NETMSG_RESYNC;
-        LbMemoryCopy(full_buf + 1, buf, len);
+        memcpy(full_buf + 1, buf, len);
 
         for (i = 0; i < MAX_N_USERS; ++i) {
             if (netstate.users[i].progress != USER_LOGGEDIN) {
@@ -1181,7 +1181,7 @@ TbBool LbNetwork_Resync(void * buf, size_t len)
             }
         } while (full_buf[0] != NETMSG_RESYNC);
 
-        LbMemoryCopy(buf, full_buf + 1, len);
+        memcpy(buf, full_buf + 1, len);
     }
 
     LbMemoryFree(full_buf);
@@ -1602,7 +1602,7 @@ TbError HostDataBroadcast(void)
   long i;
   ret = Lb_OK;
   spPtr->EncodeMessageStub(exchangeBuffer, maximumPlayers*exchangeSize-4, 0, sequenceNumber);
-  LbMemoryCopy(compositeBuffer, exchangeBuffer, maximumPlayers*exchangeSize);
+  memcpy(compositeBuffer, exchangeBuffer, maximumPlayers*exchangeSize);
   for (i=0; i < maximumPlayers; i++)
   {
     if ((clientDataTable[i].isactive) && (clientDataTable[i].plyrid != hostId))
@@ -1655,7 +1655,7 @@ TbError StartMultiPlayerExchange(void *buf)
     if (clidat->isactive)
       clidat->field_8 = 0;
   }
-  LbMemoryCopy((uchar *)exchangeBuffer + exchangeSize * localPlayerIndex, buf, exchangeSize);
+  memcpy((uchar *)exchangeBuffer + exchangeSize * localPlayerIndex, buf, exchangeSize);
   clientDataTable[localPlayerIndex].field_8 = 1;
   startTime = LbTimerClock();
   actualTimeout = basicTimeout;
@@ -1871,7 +1871,7 @@ void PlayerMapMsgHandler(unsigned long plr_id, void *msg, unsigned long msg_len)
     WARNLOG("Invalid length, %lu",msg_len);
     return;
   }
-  LbMemoryCopy(clientDataTable, msg, len);
+  memcpy(clientDataTable, msg, len);
   waitingForPlayerMapResponse = 0;
 }
 

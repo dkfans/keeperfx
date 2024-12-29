@@ -857,7 +857,7 @@ void update_all_object_stats()
         {
             struct InitLight ilight;
             memset(&ilight, 0, sizeof(struct InitLight));
-            LbMemoryCopy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
+            memcpy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
             ilight.radius = objst->ilght.radius;
             ilight.intensity = objst->ilght.intensity;
             ilight.flags = objst->ilght.flags;

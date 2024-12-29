@@ -34,7 +34,6 @@ extern char lbEmptyString[];
 extern unsigned long mem_size;
 /******************************************************************************/
 short update_memory_constraits(void);
-void * LbMemoryCopy(void *in_dst, const void *in_src, ulong len);
 int LbMemorySetup();
 int LbMemoryReset(void);
 short LbMemoryCheck(void);

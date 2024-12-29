@@ -313,7 +313,7 @@ void draw_copy(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long
     unsigned char* src = srcbuf;
     for (long i = 0; i < height; i++)
     {
-        LbMemoryCopy(dst,src,width*sizeof(TbPixel));
+        memcpy(dst,src,width*sizeof(TbPixel));
         dst += dstpitch;
         src += srcpitch;
     }

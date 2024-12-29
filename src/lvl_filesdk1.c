@@ -675,7 +675,7 @@ TbBool load_column_file(LevelNumber lv_num)
     for (long k = 0; k < total; k++)
     {
         struct Column* colmn = &game.columns_data[k];
-        LbMemoryCopy(colmn, &buf[i], sizeof(struct Column));
+        memcpy(colmn, &buf[i], sizeof(struct Column));
         //Update top cube in the column
         unsigned short n = find_column_height(colmn);
         set_column_floor_filled_subtiles(colmn, n);
@@ -748,7 +748,7 @@ static TbBool load_thing_file(LevelNumber lv_num)
     {
         struct LegacyInitThing litng;
         struct InitThing itng;
-        LbMemoryCopy(&litng, &buf[i], sizeof(struct LegacyInitThing));
+        memcpy(&litng, &buf[i], sizeof(struct LegacyInitThing));
         itng.mappos.x.val = litng.mappos.x.val;
         itng.mappos.y.val = litng.mappos.y.val;
         itng.mappos.z.val = litng.mappos.z.val;
@@ -757,7 +757,7 @@ static TbBool load_thing_file(LevelNumber lv_num)
         itng.owner  = litng.owner;
         itng.range  = litng.range;
         itng.index  = litng.index;
-        LbMemoryCopy(&itng.params, &litng.params, 8);
+        memcpy(&itng.params, &litng.params, 8);
 
         thing_create_thing(&itng);
         i += sizeof(struct LegacyInitThing);
@@ -882,7 +882,7 @@ TbBool load_action_point_file(LevelNumber lv_num)
   {
       struct LegacyInitActionPoint legiapt;
       struct InitActionPoint iapt;
-      LbMemoryCopy(&legiapt, &buf[i], sizeof(struct LegacyInitActionPoint));
+      memcpy(&legiapt, &buf[i], sizeof(struct LegacyInitActionPoint));
       iapt.mappos.x.val = legiapt.mappos.x.val;
       iapt.mappos.y.val = legiapt.mappos.y.val;
       iapt.num          = legiapt.num;
@@ -947,7 +947,7 @@ TbBool load_slabclm_file(struct Column *cols, long *ccount)
   }
   for (long k = 0; k < total; k++)
   {
-    LbMemoryCopy(&cols[k],&buf[i],sizeof(struct Column));
+    memcpy(&cols[k],&buf[i],sizeof(struct Column));
     i += sizeof(struct Column);
   }
   *ccount = total;
@@ -1293,7 +1293,7 @@ static TbBool load_static_light_file(unsigned long lv_num)
     {
         struct LegacyInitLight legilght;
         struct InitLight ilght;
-        LbMemoryCopy(&legilght, &buf[i], sizeof(struct LegacyInitLight));
+        memcpy(&legilght, &buf[i], sizeof(struct LegacyInitLight));
         ilght.attached_slb = legilght.attached_slb;
         ilght.flags      = legilght.flags;
         ilght.intensity    = legilght.intensity;

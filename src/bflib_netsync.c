@@ -56,7 +56,7 @@ static enum DeltaEncoding encode(enum DeltaEncoding encoding, char * code,
     const char * old_state, const char * new_state, size_t len)
 {
     if (encoding == DELTA_NONE) {
-        LbMemoryCopy(code, new_state, len);
+        memcpy(code, new_state, len);
         return DELTA_NONE;
     }
 
@@ -75,7 +75,7 @@ static enum DeltaEncoding encode(enum DeltaEncoding encoding, char * code,
     //compare information content and select best
     if (self_information(new_state, len) <= self_information(code, len)) {
         NETDBG(6, "No delta selected");
-        LbMemoryCopy(code, new_state, len); //undo
+        memcpy(code, new_state, len); //undo
         return DELTA_NONE;
     }
 
@@ -87,7 +87,7 @@ static void decode(enum DeltaEncoding encoding, const char * code,
     const char * old_state, char * new_state, size_t len)
 {
     if (encoding == DELTA_NONE) {
-        LbMemoryCopy(new_state, code, len);
+        memcpy(new_state, code, len);
     }
     else {
         //delta decode
@@ -142,7 +142,7 @@ void LbNetsyncCollect(const struct NetsyncInstr ** instr, char * out_buffer,
 
         //copy body to new state
         if (instr[i]->ptr != NULL) {
-            LbMemoryCopy(new_state, instr[i]->ptr, instr[i]->len);
+            memcpy(new_state, instr[i]->ptr, instr[i]->len);
         }
 
         //call on_collect to alter new state
@@ -211,7 +211,7 @@ void LbNetsyncRestore(const struct NetsyncInstr ** instr, const char * in_buffer
 
         //copy new state to body
         if (instr[i]->ptr != NULL) {
-            LbMemoryCopy(instr[i]->ptr, new_state, instr[i]->len);
+            memcpy(instr[i]->ptr, new_state, instr[i]->len);
         }
 
         //call on_restore to alter body

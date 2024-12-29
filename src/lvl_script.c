@@ -624,7 +624,7 @@ static TbBool process_subfunc(char **line, struct ScriptLine *scline, const stru
         return false;
     }
     memset(funscline, 0, sizeof(struct ScriptLine));
-    LbMemoryCopy(funscline->tcmnd, scline->tp[dst], MAX_TEXT_LENGTH);
+    memcpy(funscline->tcmnd, scline->tp[dst], MAX_TEXT_LENGTH);
     char *nxt = get_next_token(*line, &token);
     if (token.type != TkOpen)
     {
