@@ -21,7 +21,6 @@
 #include "globals.h"
 
 #include "bflib_math.h"
-#include "bflib_memory.h"
 #include "creature_states.h"
 #include "thing_list.h"
 #include "creature_control.h"
@@ -343,7 +342,7 @@ void battle_initialise(void)
 {
     for (int battle_idx = 0; battle_idx < BATTLES_COUNT; battle_idx++)
     {
-        LbMemorySet(&game.battles[battle_idx], 0, sizeof(struct CreatureBattle));
+        memset(&game.battles[battle_idx], 0, sizeof(struct CreatureBattle));
     }
 }
 

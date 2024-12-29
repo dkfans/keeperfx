@@ -15,7 +15,6 @@
 #include <math.h>
 #include <string.h>
 
-#include "bflib_memory.h"
 #include "bflib_sound.h"
 #include "config_effects.h"
 #include "config_lenses.h"
@@ -1635,7 +1634,7 @@ static void new_creature_type_check(const struct ScriptLine* scline)
 
     int i = game.conf.crtr_conf.model_count;
     game.conf.crtr_conf.model_count++;
-    LbStringCopy(game.conf.crtr_conf.model[i].name, scline->tp[0], COMMAND_WORD_LEN);
+    snprintf(game.conf.crtr_conf.model[i].name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
     creature_desc[i-1].name = game.conf.crtr_conf.model[i].name;
     creature_desc[i-1].num = i;
 
@@ -1664,7 +1663,7 @@ static void new_room_type_check(const struct ScriptLine* scline)
     int i = game.conf.slab_conf.room_types_count - 1;
 
     roomst = &game.conf.slab_conf.room_cfgstats[i];
-    LbMemorySet(roomst->code_name, 0, COMMAND_WORD_LEN);
+    memset(roomst->code_name, 0, COMMAND_WORD_LEN);
     snprintf(roomst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
     roomst->name_stridx = GUIStr_Empty;
     roomst->tooltip_stridx = GUIStr_Empty;
@@ -1697,7 +1696,7 @@ static void new_object_type_check(const struct ScriptLine* scline)
 
     int tmodel = game.conf.object_conf.object_types_count -1;
     struct ObjectConfigStats* objst = get_object_model_stats(tmodel);
-    LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
+    memset(objst->code_name, 0, COMMAND_WORD_LEN);
     snprintf(objst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
     objst->name_stridx = 201;
     objst->map_icon = 0;
@@ -1718,7 +1717,7 @@ static void new_trap_type_check(const struct ScriptLine* scline)
     game.conf.trapdoor_conf.trap_types_count++;
     short i = game.conf.trapdoor_conf.trap_types_count-1;
     struct TrapConfigStats *trapst = get_trap_model_stats(i);
-    LbMemorySet(trapst->code_name, 0, COMMAND_WORD_LEN);
+    memset(trapst->code_name, 0, COMMAND_WORD_LEN);
     snprintf(trapst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
     trapst->name_stridx = GUIStr_Empty;
     trapst->tooltip_stridx = GUIStr_Empty;
@@ -5484,7 +5483,7 @@ static void set_music_check(const struct ScriptLine *scline)
             Mix_FreeMusic(tracks[tracknumber]);
         }
         const char* fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s", scline->tp[0]);
-        LbStringCopy(game.loaded_track[tracknumber], fname, DISKPATH_SIZE);
+        snprintf(game.loaded_track[tracknumber], DISKPATH_SIZE, "%s", fname);
         tracks[tracknumber] = Mix_LoadMUS(game.loaded_track[tracknumber]);
         if (tracks[tracknumber] == NULL)
         {

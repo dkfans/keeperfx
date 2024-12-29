@@ -20,7 +20,6 @@
 #include "slab_data.h"
 #include "globals.h"
 
-#include "bflib_memory.h"
 #include "player_instances.h"
 #include "config_terrain.h"
 #include "map_blocks.h"
@@ -429,7 +428,7 @@ void clear_slabs(void)
         for (unsigned long x = 0; x < gameadd.map_tiles_x; x++)
         {
             struct SlabMap* slb = &game.slabmap[y * gameadd.map_tiles_x + x];
-            LbMemorySet(slb, 0, sizeof(struct SlabMap));
+            memset(slb, 0, sizeof(struct SlabMap));
             slb->kind = SlbT_ROCK;
         }
     }

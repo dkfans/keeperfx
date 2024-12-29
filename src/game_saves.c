@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "bflib_bufrw.h"
@@ -376,7 +375,7 @@ TbBool load_game(long slot_num)
     }
     my_player_number = game.local_plyr_idx;
     LbFileClose(fh);
-    LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
+    snprintf(game.campaign_fname, sizeof(game.campaign_fname), "%s", campaign.fname);
     reinit_level_after_load();
     output_message(SMsg_GameLoaded, 0, true);
     panel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
@@ -481,7 +480,7 @@ TbBool load_game_save_catalogue(void)
     for (long slot_num = 0; slot_num < TOTAL_SAVE_SLOTS_COUNT; slot_num++)
     {
         struct CatalogueEntry* centry = &save_game_catalogue[slot_num];
-        LbMemorySet(centry, 0, sizeof(struct CatalogueEntry));
+        memset(centry, 0, sizeof(struct CatalogueEntry));
         char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
         TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
         if (!fh)
@@ -609,7 +608,7 @@ short load_continue_game(void)
     // Restoring intralevel data
     read_continue_game_part((unsigned char *)&intralvl, sizeof(struct Game),
         sizeof(struct IntralevelData));
-    LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
+    snprintf(game.campaign_fname, sizeof(game.campaign_fname), "%s", campaign.fname);
     update_extra_levels_visibility();
     JUSTMSG("Continued level %ld from %s", lvnum, campaign.name);
     return true;
