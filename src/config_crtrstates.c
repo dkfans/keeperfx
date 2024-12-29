@@ -233,7 +233,7 @@ TbBool load_creaturestates_config_file(const char *textname, const char *fname, 
           WARNMSG("Parsing %s file \"%s\" state blocks failed.",textname,fname);
     }
     //Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     return result;
 }
 

@@ -54,7 +54,7 @@ short LbDataFree(struct TbLoadFiles *load_file)
 //#ifdef __DEBUG
         LbJustLog("LbDataFree: freeing \"%s\"...",load_file->FName);
 //#endif
-        LbMemoryFree(*data);
+        free(*data);
         (*data) = NULL;
 //#ifdef __DEBUG
         LbJustLog("done\n");

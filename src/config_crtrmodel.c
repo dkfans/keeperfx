@@ -2642,7 +2642,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
             WARNMSG("Parsing %s file \"%s\" sounds blocks failed.",textname,fname);
     }
     // Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     return result;
 }
 

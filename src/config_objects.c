@@ -812,7 +812,7 @@ TbBool load_objects_config_file(const char *textname, const char *fname, unsigne
             WARNMSG("Parsing %s file \"%s\" object blocks failed.",textname,fname);
     }
     //Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     return result;
 }
 

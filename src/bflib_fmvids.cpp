@@ -1394,7 +1394,7 @@ extern "C" short anim_stop()
 		return false;
 	}
 	animation.outfhndl = nullptr;
-	LbMemoryFree(animation.chunkdata);
+	free(animation.chunkdata);
 	animation.chunkdata=NULL;
 	animation.field_0 = 0;
 	return true;

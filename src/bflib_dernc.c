@@ -504,7 +504,7 @@ long UnpackM1(void * buffer, ulong bufsize)
     } else {
         memcpy(buffer, unpacked, header.unpacked_size);
     }
-    LbMemoryFree(unpacked);
+    free(unpacked);
     return retcode;
 }
 

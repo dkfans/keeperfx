@@ -38,7 +38,7 @@ TbBool load_toml_file(const char *textname, const char *fname,VALUE *value, unsi
     if (fsize < len)
     {
         WARNMSG("failed to read the %s file \"%s\".",textname,fname);
-        LbMemoryFree(buf);
+        free(buf);
         return false;
     }
     
@@ -50,10 +50,10 @@ TbBool load_toml_file(const char *textname, const char *fname,VALUE *value, unsi
     if (toml_parse((char*)buf, err, sizeof(err), value))
     {
         WARNMSG("Unable to load %s file\n %s", fname, err);
-        LbMemoryFree(buf);
+        free(buf);
         return false;
     }
-    LbMemoryFree(buf);
+    free(buf);
     return true;
 }
 

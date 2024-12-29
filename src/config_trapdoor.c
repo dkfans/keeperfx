@@ -1636,7 +1636,7 @@ TbBool load_trapdoor_config_file(const char *textname, const char *fname, unsign
             WARNMSG("Parsing %s file \"%s\" door blocks failed.",textname,fname);
     }
     //Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     SYNCDBG(19,"Done");
     return result;
 }

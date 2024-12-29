@@ -1431,7 +1431,7 @@ short load_configuration(void)
   }
   SYNCDBG(7,"Config loaded");
   // Freeing
-  LbMemoryFree(buf);
+  free(buf);
   // Updating game according to loaded settings
   switch (install_info.lang_id)
   {
@@ -1467,7 +1467,7 @@ short load_configuration(void)
 }
 
 /** CmdLine overrides allow settings from the command line to override the default settings, or those set in the config file.
- * 
+ *
  * See enum CmdLineOverrides and struct StartupParameters -> TbBool overrides[CMDLINE_OVERRIDES].
  */
 void process_cmdline_overrides(void)
@@ -1680,7 +1680,7 @@ unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *
   if (fsize < *ldsize)
   {
     WARNMSG("Reading file \"%s\" failed.",fname);
-    LbMemoryFree(buf);
+    free(buf);
     return NULL;
   }
   memset(buf+fsize, '\0', 15);
@@ -1781,7 +1781,7 @@ TbBool load_high_score_table(void)
     long arr_size = campaign.hiscore_count * sizeof(struct HighScore);
     if (arr_size <= 0)
     {
-        LbMemoryFree(campaign.hiscore_table);
+        free(campaign.hiscore_table);
         campaign.hiscore_table = NULL;
         return true;
     }

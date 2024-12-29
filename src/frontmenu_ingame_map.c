@@ -947,11 +947,11 @@ void setup_background(long units_per_px)
     if (MapDiagonalLength != 2*(PANEL_MAP_RADIUS*units_per_px/16))
     {
         MapDiagonalLength = 2*(PANEL_MAP_RADIUS*units_per_px/16);
-        LbMemoryFree(MapBackground);
+        free(MapBackground);
         MapBackground = LbMemoryAlloc(MapDiagonalLength*MapDiagonalLength*sizeof(TbPixel));
-        LbMemoryFree(MapShapeStart);
+        free(MapShapeStart);
         MapShapeStart = (long *)LbMemoryAlloc(MapDiagonalLength*sizeof(long));
-        LbMemoryFree(MapShapeEnd);
+        free(MapShapeEnd);
         MapShapeEnd = (long *)LbMemoryAlloc(MapDiagonalLength*sizeof(long));
     }
     if ((MapBackground == NULL) || (MapShapeStart == NULL) || (MapShapeEnd == NULL)) {

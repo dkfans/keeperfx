@@ -38,7 +38,6 @@ int LbMemorySetup();
 int LbMemoryReset(void);
 short LbMemoryCheck(void);
 void * LbMemoryAlloc(ulong size);
-int LbMemoryFree(void *mem_ptr);
 void * LbMemoryGrow(void *ptr, unsigned long size);
 void * LbMemoryShrink(void *ptr, unsigned long size);
 int LbMemoryCompare(void *ptr1, void *ptr2, unsigned long size);

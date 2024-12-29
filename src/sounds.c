@@ -417,9 +417,9 @@ void process_sound_heap(void)
 void free_sound_bank(struct SampleTable * samples, int sample_count) {
     if (samples) {
         for (int i = 0; i < sample_count; ++i) {
-            LbMemoryFree(samples[i].snd_buf);
+            free(samples[i].snd_buf);
         }
-        LbMemoryFree(samples);
+        free(samples);
     }
 }
 

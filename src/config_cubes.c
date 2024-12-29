@@ -287,7 +287,7 @@ TbBool load_cubes_config_file(const char *textname, const char *fname, unsigned 
         }
     }
     // Freeing and exiting.
-    LbMemoryFree(buf);
+    free(buf);
     return result;
 }
 

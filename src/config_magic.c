@@ -2478,7 +2478,7 @@ TbBool load_magic_config_file(const char *textname, const char *fname, unsigned 
           WARNMSG("Parsing %s file \"%s\" special blocks failed.",textname,fname);
     }
     //Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     return result;
 }
 

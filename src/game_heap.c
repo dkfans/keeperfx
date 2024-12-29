@@ -117,7 +117,7 @@ TbBool setup_heap_memory(void)
   if (heap != NULL)
   {
     SYNCDBG(0,"Freeing old Graphics heap");
-    LbMemoryFree(heap);
+    free(heap);
     heap = NULL;
   }
   long i = mem_size;
@@ -161,7 +161,7 @@ void reset_heap_manager(void)
 void reset_heap_memory(void)
 {
   SYNCDBG(8,"Starting");
-  LbMemoryFree(heap);
+  free(heap);
   heap = NULL;
 }
 
@@ -177,7 +177,7 @@ TbBool setup_heaps(void)
     if (heap != NULL)
     {
       ERRORLOG("Graphics heap already allocated");
-      LbMemoryFree(heap);
+      free(heap);
       heap = NULL;
     }
     // Allocate graphics heap
@@ -212,7 +212,7 @@ TbBool setup_heaps(void)
         }
         if (heap != NULL)
         {
-          LbMemoryFree(heap);
+          free(heap);
           heap = NULL;
         }
         heap = LbMemoryAlloc(heap_size);

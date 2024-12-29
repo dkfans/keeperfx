@@ -341,7 +341,7 @@ TbBool load_lenses_config_file(const char *textname, const char *fname, unsigned
             WARNMSG("Parsing Lenses file \"%s\" data blocks failed.",fname);
     }
     //Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     return result;
 }
 

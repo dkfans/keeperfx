@@ -210,13 +210,6 @@ void * LbMemoryAlloc(ulong size)
     return ptr;
 }
 
-int LbMemoryFree(void *mem_ptr)
-{
-    if (mem_ptr==NULL) return -1;
-    free(mem_ptr);
-    return 1;
-}
-
 short LbMemoryCheck(void)
 {
 #if defined(_WIN32)

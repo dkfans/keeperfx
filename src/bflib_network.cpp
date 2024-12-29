@@ -896,7 +896,7 @@ TbError LbNetwork_Stop(void)
     delete spPtr;
   spPtr = NULL;
   if (compositeBuffer != NULL)
-    LbMemoryFree(compositeBuffer);
+    free(compositeBuffer);
   actualTimeout = 0;
   localDataPtr = 0;
   compositeBuffer = NULL;
@@ -926,8 +926,8 @@ TbError LbNetwork_Stop(void)
     frame = netstate.exchg_queue;
     while (frame != NULL) {
         nextframe = frame->next;
-        LbMemoryFree(frame->buffer);
-        LbMemoryFree(frame);
+        free(frame->buffer);
+        free(frame);
         frame = nextframe;
     }
 
@@ -1061,8 +1061,8 @@ static void ConsumeServerFrame(void *server_buf, int frame_size)
     netstate.exchg_queue = frame->next;
     netstate.seq_nbr = frame->seq_nbr;
     memcpy(server_buf, frame->buffer, frame->size);
-    LbMemoryFree(frame->buffer);
-    LbMemoryFree(frame);
+    free(frame->buffer);
+    free(frame);
 }
 
 /*
@@ -1184,7 +1184,7 @@ TbBool LbNetwork_Resync(void * buf, size_t len)
         memcpy(buf, full_buf + 1, len);
     }
 
-    LbMemoryFree(full_buf);
+    free(full_buf);
 
     return true;
 }

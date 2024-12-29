@@ -118,7 +118,7 @@ TbBool free_gui_strings_data(void)
   // Resetting all values to empty strings
   reset_strings(gui_strings, GUI_STRINGS_COUNT-1);
   // Freeing memory
-  LbMemoryFree(gui_strings_data);
+  free(gui_strings_data);
   gui_strings_data = NULL;
   return true;
 }

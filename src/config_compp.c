@@ -1115,7 +1115,7 @@ TbBool load_computer_player_config(unsigned short flags)
         parse_computer_player_computer_blocks(buf, len, textname, flags);
     }
     //Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     return true;
 }
 

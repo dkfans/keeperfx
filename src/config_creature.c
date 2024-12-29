@@ -1784,7 +1784,7 @@ TbBool load_creaturetypes_config_file(const char *textname, const char *fname, u
           WARNMSG("Parsing %s file \"%s\" attackpref blocks failed.",textname,fname);
     }
     //Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     return result;
 }
 

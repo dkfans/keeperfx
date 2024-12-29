@@ -1216,7 +1216,7 @@ TbBool load_terrain_config_file(const char *textname, const char *fname, unsigne
             WARNMSG("Parsing %s file \"%s\" room blocks failed.",textname,fname);
     }
     //Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     return result;
 }
 

@@ -97,7 +97,7 @@ static TbBool clear_peer(NetUserId id)
                     SDLNet_TCP_Close(spstate.peers[i].socket);
                 }
 
-                LbMemoryFree(spstate.peers[i].msg.buffer);
+                free(spstate.peers[i].msg.buffer);
                 memset(&spstate.peers[i], 0, sizeof(spstate.peers[i]));
 
                 return 1;
@@ -112,7 +112,7 @@ static TbBool clear_peer(NetUserId id)
             spstate.socket = NULL; //assume disconnected
         }
 
-        LbMemoryFree(spstate.servermsg.buffer);
+        free(spstate.servermsg.buffer);
         memset(&spstate.servermsg, 0, sizeof(spstate.servermsg));
 
         return 1;
@@ -318,12 +318,12 @@ static void tcpSP_exit(void)
         for (unsigned int i = 0; i < MAX_N_PEERS; ++i)
         {
             SDLNet_TCP_Close(spstate.peers[i].socket);
-            LbMemoryFree(spstate.peers[i].msg.buffer);
+            free(spstate.peers[i].msg.buffer);
         }
     }
 
     SDLNet_TCP_Close(spstate.socket);
-    LbMemoryFree(spstate.servermsg.buffer);
+    free(spstate.servermsg.buffer);
 
     SDLNet_FreeSocketSet(spstate.socketset);
 
@@ -384,11 +384,11 @@ static TbError tcpSP_join(const char * session, void * options)
 
     spstate.socket = SDLNet_TCP_Open(&addr);
     if (spstate.socket == NULL) {
-        LbMemoryFree(hostname);
+        free(hostname);
         NETMSG("Failed to initialize TCP client socket to host %s and port %s", hostname, portstr);
         return Lb_FAIL;
     }
-    LbMemoryFree(hostname);
+    free(hostname);
 
     spstate.socketset = SDLNet_AllocSocketSet(1);
     SDLNet_TCP_AddSocket(spstate.socketset, spstate.socket);

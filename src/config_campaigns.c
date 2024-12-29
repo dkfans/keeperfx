@@ -132,10 +132,10 @@ struct CampaignsList mappacks_list;
  */
 TbBool free_campaign(struct GameCampaign *campgn)
 {
-  LbMemoryFree(campgn->lvinfos);
-  LbMemoryFree(campgn->hiscore_table);
-  LbMemoryFree(campgn->strings_data);
-  LbMemoryFree(campgn->credits_data);
+  free(campgn->lvinfos);
+  free(campgn->hiscore_table);
+  free(campgn->strings_data);
+  free(campgn->credits_data);
   return true;
 }
 
@@ -351,7 +351,7 @@ struct LevelInformation *new_level_info_entry(struct GameCampaign *campgn, Level
 TbBool init_level_info_entries(struct GameCampaign *campgn, long num_entries)
 {
     if (campgn->lvinfos != NULL)
-      LbMemoryFree(campgn->lvinfos);
+      free(campgn->lvinfos);
     campgn->lvinfos = (struct LevelInformation *)LbMemoryAlloc(num_entries*sizeof(struct LevelInformation));
     if (campgn->lvinfos == NULL)
     {
@@ -390,7 +390,7 @@ TbBool grow_level_info_entries(struct GameCampaign *campgn, long add_entries)
 TbBool free_level_info_entries(struct GameCampaign *campgn)
 {
   if (campgn->lvinfos != NULL)
-    LbMemoryFree(campgn->lvinfos);
+    free(campgn->lvinfos);
   campgn->lvinfos = NULL;
   campgn->lvinfos_count = 0;
   return true;
@@ -399,7 +399,7 @@ TbBool free_level_info_entries(struct GameCampaign *campgn)
 short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long len, const char* config_textname)
 {
   // Initialize block data in campaign
-  LbMemoryFree(campgn->hiscore_table);
+  free(campgn->hiscore_table);
   campgn->hiscore_table = NULL;
   campgn->hiscore_count = VISIBLE_HIGH_SCORES_COUNT;
   campgn->human_player = 0;
@@ -1115,7 +1115,7 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
           WARNMSG("Parsing campaign file \"%s\" map blocks failed.",cmpgn_fname);
     }
     //Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     if ((flags & CnfLd_ListOnly) == 0)
     {
         setup_campaign_strings_data(campgn);
@@ -1185,7 +1185,7 @@ TbBool is_campaign_loaded(void)
 TbBool init_campaigns_list_entries(struct CampaignsList *clist, long num_entries)
 {
     if (clist->items != NULL)
-        LbMemoryFree(clist->items);
+        free(clist->items);
     clist->items = (struct GameCampaign *)LbMemoryAlloc(num_entries*sizeof(struct GameCampaign));
     if (clist->items == NULL)
     {
@@ -1230,7 +1230,7 @@ TbBool grow_campaigns_list_entries(struct CampaignsList *clist, long add_entries
 TbBool free_campaigns_list_entries(struct CampaignsList *clist)
 {
   if (clist->items != NULL)
-    LbMemoryFree(clist->items);
+    free(clist->items);
   clist->items = NULL;
   clist->items_count = 0;
   return true;

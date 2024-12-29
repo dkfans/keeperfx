@@ -1874,7 +1874,7 @@ void dbc_shutdown(void)
     active_dbcfont = &dbcfonts[i];
     if (active_dbcfont->data != NULL)
     {
-      LbMemoryFree(active_dbcfont->data);
+      free(active_dbcfont->data);
       active_dbcfont->data = NULL;
     }
   }

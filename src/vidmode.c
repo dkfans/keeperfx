@@ -199,7 +199,7 @@ short LoadMcgaData(void)
         i++;
         t_lfile = &gui_load_files_320[i];
   }
-  if (mem != NULL) LbMemoryFree(mem);
+  free(mem);
   button_sprites = load_spritesheet("data/gui1-32.dat", "data/gui1-32.tab");
   winfont = load_font("data/font2-32.dat", "data/font2-32.tab");
   font_sprites = load_font("data/font1-32.dat", "data/font1-32.tab");

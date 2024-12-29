@@ -176,12 +176,12 @@ void reset_eye_lenses(void)
     clear_lens_palette();
     if (eye_lens_memory != NULL)
     {
-        LbMemoryFree(eye_lens_memory);
+        free(eye_lens_memory);
         eye_lens_memory = NULL;
     }
     if (eye_lens_spare_screen_memory != NULL)
     {
-        LbMemoryFree(eye_lens_spare_screen_memory);
+        free(eye_lens_spare_screen_memory);
         eye_lens_spare_screen_memory = NULL;
     }
     clear_flag(game.flags_cd, MFlg_EyeLensReady);
