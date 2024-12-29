@@ -162,13 +162,6 @@ ulong LbStringLength(const char *str)
     return strlen(str);
 }
 
-void LbMemRegister_Setup(void)
-{
-    /*memset(lbMemList, 0, 0x800);
-    lbMemAllocation = 0;
-    lbMemCount = 0;*/
-}
-
 int LbMemorySetup()
 {
     if (lbMemorySetup != 0)
@@ -178,7 +171,6 @@ int LbMemorySetup()
     if (heap_handle == NULL)
     {
         heap_handle = HeapCreate(heap_handle, heap_handle, heap_handle);
-        LbMemRegister_Setup();
     }
     if (heap_handle == NULL)
         return -1;
@@ -198,7 +190,6 @@ int LbMemoryReset(void)
             return -1;
         heap_handle = NULL;
     }
-    LbMemRegister_Setup();
     */
     return 1;
 }
