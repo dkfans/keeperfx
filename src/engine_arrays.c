@@ -22,7 +22,6 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "engine_lenses.h"
 #include "config.h"
@@ -1084,9 +1083,9 @@ void generate_wibble_table(void)
         empty_wibl = &blank_wibble_table[32*n];
         for (i=0; i < 32; i++)
         {
-            LbMemorySet(wibl, 0, sizeof(struct WibbleTable));
+            memset(wibl, 0, sizeof(struct WibbleTable));
             wibl++;
-            LbMemorySet(empty_wibl, 0, sizeof(struct WibbleTable));
+            memset(empty_wibl, 0, sizeof(struct WibbleTable));
             empty_wibl++;
         }
     }
@@ -1139,7 +1138,7 @@ TbBool load_ceiling_table(void)
             if ( (nchr == 10) || (nchr == 44) || (nchr == 32) || (nchr == 9) || (nchr == 13) )
                 continue;
         }
-        LbMemorySet(numstr, 0, sizeof(numstr));
+        memset(numstr, 0, sizeof(numstr));
         for (i=0; i < sizeof(numstr); i++)
         {
             numstr[i] = nchr;

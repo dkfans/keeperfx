@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_datetm.h"
 #include "bflib_planar.h"
 #include "bflib_video.h"
@@ -829,7 +828,7 @@ void unload_map_and_window(void)
     clear_slabs();
     clear_rooms();
     clear_dungeons();
-    LbMemoryCopy(frontend_palette, frontend_backup_palette, PALETTE_SIZE);
+    memcpy(frontend_palette, frontend_backup_palette, PALETTE_SIZE);
     map_window_len = 0;
 }
 
@@ -1085,7 +1084,7 @@ TbBool frontmap_update_zoom(void)
 TbBool frontmap_load(void)
 {
     SYNCDBG(4,"Starting");
-    LbMemorySet(scratch, 0, PALETTE_SIZE);
+    memset(scratch, 0, PALETTE_SIZE);
     LbPaletteSet(scratch);
     initialize_description_speech();
     mouse_over_lvnum = SINGLEPLAYER_NOTSTARTED;
@@ -1604,7 +1603,7 @@ long frontmap_update(void)
 
 TbBool frontmap_exchange_screen_packet(void)
 {
-    LbMemorySet(net_screen_packet, 0, sizeof(net_screen_packet));
+    memset(net_screen_packet, 0, sizeof(net_screen_packet));
     struct ScreenPacket* nspck = &net_screen_packet[my_player_number];
     nspck->field_4 |= 0x01;
     nspck->param1 = fe_net_level_selected;
@@ -1663,7 +1662,7 @@ TbBool frontmap_exchange_screen_packet(void)
 
 TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
 {
-    LbMemorySet(scratch, 0, PALETTE_SIZE);
+    memset(scratch, 0, PALETTE_SIZE);
     long tmp2 = -1;
     for (long i = 0; i < NET_PLAYERS_COUNT; i++)
     {

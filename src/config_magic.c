@@ -22,7 +22,6 @@
 
 #include "bflib_basics.h"
 #include "bflib_dernc.h"
-#include "bflib_memory.h"
 #include "config.h"
 #include "config_creature.h"
 #include "config_crtrmodel.h"
@@ -423,7 +422,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
     {
         if (flag_is_set(flags, CnfLd_ListOnly))
         {
-            LbMemorySet(&spellst->code_name, 0, COMMAND_WORD_LEN);
+            memset(&spellst->code_name, 0, COMMAND_WORD_LEN);
             spell_desc[i].name = spellst->code_name;
             spell_desc[i].num = i;
         }
@@ -718,7 +717,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
     {
         if (flag_is_set(flags, CnfLd_ListOnly))
         {
-            LbMemorySet(shotst->code_name, 0, COMMAND_WORD_LEN);
+            memset(shotst->code_name, 0, COMMAND_WORD_LEN);
             shot_desc[i].name = shotst->code_name;
             shot_desc[i].num = i;
         }
@@ -1813,7 +1812,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
     {
         if (flag_is_set(flags, CnfLd_ListOnly))
         {
-            LbMemorySet(powerst->code_name, 0, COMMAND_WORD_LEN);
+            memset(powerst->code_name, 0, COMMAND_WORD_LEN);
             power_desc[i].name = powerst->code_name;
             power_desc[i].num = i;
         }
@@ -2284,7 +2283,7 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
   if ((flags & CnfLd_AcceptPartial) == 0) {
       for (int i = 0; i < MAGIC_ITEMS_MAX; i++) {
           specst = &game.conf.magic_conf.special_cfgstats[i];
-          LbMemorySet(specst->code_name, 0, COMMAND_WORD_LEN);
+          memset(specst->code_name, 0, COMMAND_WORD_LEN);
           specst->artifact_model = 0;
           specst->tooltip_stridx = 0;
           special_desc[i].name = specst->code_name;
@@ -2432,7 +2431,7 @@ TbBool load_magic_config_file(const char *textname, const char *fname, unsigned 
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
+    char* buf = (char*)calloc(len + 256, 1);
     if (buf == NULL)
         return false;
     
@@ -2478,7 +2477,7 @@ TbBool load_magic_config_file(const char *textname, const char *fname, unsigned 
           WARNMSG("Parsing %s file \"%s\" special blocks failed.",textname,fname);
     }
     //Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     return result;
 }
 

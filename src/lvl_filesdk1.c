@@ -23,7 +23,6 @@
 #include "bflib_basics.h"
 
 #include "bflib_dernc.h"
-#include "bflib_memory.h"
 #include "bflib_bufrw.h"
 #include "bflib_fileio.h"
 
@@ -137,7 +136,7 @@ unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum,const char *fext
           SYNCMSG("Optional file \"map%05lu.%s\" doesn't exist or is too small.", lvnum, fext);
       return NULL;
   }
-  unsigned char* buf = LbMemoryAlloc(fsize + 16);
+  unsigned char* buf = calloc(fsize + 16, 1);
   if (buf == NULL)
   {
     if ((flags & LMFF_Optional) == 0)
@@ -153,7 +152,7 @@ unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum,const char *fext
       WARNMSG("Reading map file \"map%05lu.%s\" failed.",lvnum,fext);
     else
       SYNCMSG("Reading optional file \"map%05lu.%s\" failed.",lvnum,fext);
-    LbMemoryFree(buf);
+    free(buf);
     return NULL;
   }
   *ldsize = fsize;
@@ -304,7 +303,7 @@ short level_lif_file_parse(const char *fname, char *buf, long buflen)
  */
 TbBool find_and_load_lif_files(void)
 {
-    unsigned char* buf = LbMemoryAlloc(MAX_LIF_SIZE);
+    unsigned char* buf = calloc(MAX_LIF_SIZE, 1);
     if (buf == NULL)
     {
         ERRORLOG("Can't allocate memory for .LIF files parsing.");
@@ -331,7 +330,7 @@ TbBool find_and_load_lif_files(void)
     } while (LbFileFindNext(ff, &fe) >= 0);
     LbFileFindEnd(ff);
   }
-  LbMemoryFree(buf);
+  free(buf);
   return result;
 }
 
@@ -617,7 +616,7 @@ TbBool level_lof_file_parse(const char *fname, char *buf, long len)
 TbBool find_and_load_lof_files(void)
 {
     SYNCDBG(16,"Starting");
-    unsigned char* buf = LbMemoryAlloc(MAX_LIF_SIZE);
+    unsigned char* buf = calloc(MAX_LIF_SIZE, 1);
     if (buf == NULL)
     {
       ERRORLOG("Can't allocate memory for .LOF files parsing.");
@@ -644,7 +643,7 @@ TbBool find_and_load_lof_files(void)
         } while (LbFileFindNext(ff, &fe) >= 0);
         LbFileFindEnd(ff);
     }
-    LbMemoryFree(buf);
+    free(buf);
     return result;
 }
 
@@ -675,13 +674,13 @@ TbBool load_column_file(LevelNumber lv_num)
     for (long k = 0; k < total; k++)
     {
         struct Column* colmn = &game.columns_data[k];
-        LbMemoryCopy(colmn, &buf[i], sizeof(struct Column));
+        memcpy(colmn, &buf[i], sizeof(struct Column));
         //Update top cube in the column
         unsigned short n = find_column_height(colmn);
         set_column_floor_filled_subtiles(colmn, n);
         i += sizeof(struct Column);
     }
-    LbMemoryFree(buf);
+    free(buf);
     return true;
 }
 
@@ -705,7 +704,7 @@ TbBool load_map_data_file(LevelNumber lv_num)
             i += 2;
         }
     }
-    LbMemoryFree(buf);
+    free(buf);
     // Clear some bits and do some other setup
     for (y=0; y < (gameadd.map_subtiles_y+1); y++)
     {
@@ -748,7 +747,7 @@ static TbBool load_thing_file(LevelNumber lv_num)
     {
         struct LegacyInitThing litng;
         struct InitThing itng;
-        LbMemoryCopy(&litng, &buf[i], sizeof(struct LegacyInitThing));
+        memcpy(&litng, &buf[i], sizeof(struct LegacyInitThing));
         itng.mappos.x.val = litng.mappos.x.val;
         itng.mappos.y.val = litng.mappos.y.val;
         itng.mappos.z.val = litng.mappos.z.val;
@@ -757,12 +756,12 @@ static TbBool load_thing_file(LevelNumber lv_num)
         itng.owner  = litng.owner;
         itng.range  = litng.range;
         itng.index  = litng.index;
-        LbMemoryCopy(&itng.params, &litng.params, 8);
+        memcpy(&itng.params, &litng.params, 8);
 
         thing_create_thing(&itng);
         i += sizeof(struct LegacyInitThing);
     }
-    LbMemoryFree(buf);
+    free(buf);
     return true;
 }
 
@@ -782,7 +781,7 @@ static TbBool load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char
     if (toml_parse((char*)buf, err, sizeof(err), root_ptr))
     {
         WARNMSG("Unable to load %s file\n %s", msg_name, err);
-        LbMemoryFree(buf);
+        free(buf);
         return false;
     }
     VALUE *common_section = value_dict_get(root_ptr, "common");
@@ -790,7 +789,7 @@ static TbBool load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char
     {
         WARNMSG("No [common] in %s for level %ld", msg_name, lv_num);
         value_fini(root_ptr);
-        LbMemoryFree(buf);
+        free(buf);
         return false;
     }
     int32_t total;
@@ -810,7 +809,7 @@ static TbBool load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char
     {
         WARNMSG("Bad amount of secions in %s file", msg_name);
         value_fini(root_ptr);
-        LbMemoryFree(buf);
+        free(buf);
         return false;
     }
     if (total >= max_count)
@@ -845,7 +844,7 @@ static TbBool load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char
         }
     }
     value_fini(root_ptr);
-    LbMemoryFree(buf);
+    free(buf);
     return true;
 }
 
@@ -882,7 +881,7 @@ TbBool load_action_point_file(LevelNumber lv_num)
   {
       struct LegacyInitActionPoint legiapt;
       struct InitActionPoint iapt;
-      LbMemoryCopy(&legiapt, &buf[i], sizeof(struct LegacyInitActionPoint));
+      memcpy(&legiapt, &buf[i], sizeof(struct LegacyInitActionPoint));
       iapt.mappos.x.val = legiapt.mappos.x.val;
       iapt.mappos.y.val = legiapt.mappos.y.val;
       iapt.num          = legiapt.num;
@@ -891,7 +890,7 @@ TbBool load_action_point_file(LevelNumber lv_num)
           ERRORLOG("Cannot allocate action point %ld during APT load", k);
     i += sizeof(struct LegacyInitActionPoint);
   }
-  LbMemoryFree(buf);
+  free(buf);
   return true;
 }
 
@@ -947,11 +946,11 @@ TbBool load_slabclm_file(struct Column *cols, long *ccount)
   }
   for (long k = 0; k < total; k++)
   {
-    LbMemoryCopy(&cols[k],&buf[i],sizeof(struct Column));
+    memcpy(&cols[k],&buf[i],sizeof(struct Column));
     i += sizeof(struct Column);
   }
   *ccount = total;
-  LbMemoryFree(buf);
+  free(buf);
   return true;
 }
 
@@ -962,11 +961,11 @@ TbBool columns_add_static_entries(void)
     for (long i=0; i < 3; i++)
       c[i] = 0;
     struct Column lcolmn;
-    LbMemorySet(&lcolmn, 0, sizeof(struct Column));
+    memset(&lcolmn, 0, sizeof(struct Column));
     short* wptr = &game.col_static_entries[0];
     for (long i=0; i < 3; i++)
     {
-        LbMemorySet(&lcolmn, 0, sizeof(struct Column));
+        memset(&lcolmn, 0, sizeof(struct Column));
         lcolmn.floor_texture = c[i];
         for (long k = 0; k < 6; k++)
         {
@@ -987,7 +986,7 @@ TbBool columns_add_static_entries(void)
 TbBool update_slabset_column_indices(struct Column *cols, long ccount)
 {
     struct Column lcolmn;
-    LbMemorySet(&lcolmn,0,sizeof(struct Column));
+    memset(&lcolmn,0,sizeof(struct Column));
     for (long i = 0; i < game.slabset_num; i++)
     {
         struct SlabSet* sset = &game.slabset[i];
@@ -1044,7 +1043,7 @@ TbBool load_slab_datclm_files(void)
     SYNCDBG(5,"Starting");
     // Load Column Set
     long cols_tot = 0;
-    struct Column* cols = (struct Column*)LbMemoryAlloc(COLUMNS_COUNT * sizeof(struct Column));
+    struct Column* cols = (struct Column*)calloc(COLUMNS_COUNT, sizeof(struct Column));
     if (cols == NULL)
     {
       WARNMSG("Can't allocate memory for %d column sets.",COLUMNS_COUNT);
@@ -1052,7 +1051,7 @@ TbBool load_slab_datclm_files(void)
     }
     if (!load_columns_config(keeper_columns_file,CnfLd_Standard,cols,&cols_tot))
     {
-      LbMemoryFree(cols);
+      free(cols);
       return false;
     }
     long slbset_tot = game.conf.slab_conf.slab_types_count * SLABSETS_PER_SLAB;
@@ -1060,7 +1059,7 @@ TbBool load_slab_datclm_files(void)
     update_columns_use(cols,cols_tot,game.slabset,slbset_tot);
     create_columns_from_list(cols,cols_tot);
     update_slabset_column_indices(cols,cols_tot);
-    LbMemoryFree(cols);
+    free(cols);
     return true;
 }
 
@@ -1096,7 +1095,7 @@ long load_map_wibble_file(unsigned long lv_num)
         set_mapblk_wibble_value(mapblk, k);
         i++;
       }
-    LbMemoryFree(buf);
+    free(buf);
     return true;
 }
 
@@ -1123,7 +1122,7 @@ short load_map_ownership_file(LevelNumber lv_num)
             set_slab_owner(subtile_slab(x),subtile_slab(y),PLAYER_NEUTRAL);
         i++;
       }
-    LbMemoryFree(buf);
+    free(buf);
     return true;
 }
 
@@ -1190,7 +1189,7 @@ TbBool load_map_wlb_file(unsigned long lv_num)
             }
         i++;
       }
-    LbMemoryFree(buf);
+    free(buf);
     if (nfixes > 0)
     {
       ERRORLOG("WLB file is muddled - Fixed values for %lu tiles",nfixes);
@@ -1235,7 +1234,7 @@ short load_map_slab_file(unsigned long lv_num)
         slb->kind = n;
         i += 2;
       }
-    LbMemoryFree(buf);
+    free(buf);
     initialise_map_collides();
     initialise_map_health();
     initialise_extra_slab_info(lv_num);
@@ -1259,7 +1258,7 @@ short load_map_flag_file(unsigned long lv_num)
             i += 2;
         }
     }
-    LbMemoryFree(buf);
+    free(buf);
     return true;
 }
 
@@ -1293,7 +1292,7 @@ static TbBool load_static_light_file(unsigned long lv_num)
     {
         struct LegacyInitLight legilght;
         struct InitLight ilght;
-        LbMemoryCopy(&legilght, &buf[i], sizeof(struct LegacyInitLight));
+        memcpy(&legilght, &buf[i], sizeof(struct LegacyInitLight));
         ilght.attached_slb = legilght.attached_slb;
         ilght.flags      = legilght.flags;
         ilght.intensity    = legilght.intensity;
@@ -1309,7 +1308,7 @@ static TbBool load_static_light_file(unsigned long lv_num)
         }
         i += sizeof(struct LegacyInitLight);
     }
-    LbMemoryFree(buf);
+    free(buf);
     return true;
 }
 
@@ -1335,7 +1334,7 @@ short load_and_setup_map_info(unsigned long lv_num)
         return false;
     }
     game.texture_id = buf[0];
-    LbMemoryFree(buf);
+    free(buf);
     return true;
 }
 
@@ -1493,7 +1492,7 @@ void free_level_strings_data()
   // Resetting all values to empty strings
   reset_strings(level_strings, STRINGS_MAX);
   // Freeing memory
-  LbMemoryFree(level_strings_data);
+  free(level_strings_data);
   level_strings_data = NULL;
 }
 /******************************************************************************/

@@ -22,7 +22,6 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
-#include "bflib_memory.h"
 #include "bflib_planar.h"
 
 #include "thing_data.h"
@@ -478,6 +477,8 @@ void activate_trap_effect_on_trap(struct Thing *traptng)
     if (!thing_is_invalid(efftng)) 
     {
         efftng->shot_effect.hit_type = trapst->hit_type;
+        efftng->shot_effect.parent_class_id = TCls_Trap;
+        efftng->shot_effect.parent_model = traptng->model;
         efftng->parent_idx = traptng->index;
         SYNCDBG(18,"Created %s",thing_model_name(efftng));
     }
@@ -738,11 +739,11 @@ void process_trap_charge(struct Thing* traptng)
     if (trapst->attack_sprite_anim_idx != 0)
     {
         GameTurnDelta trigger_duration;
-        if (trapst->activation_type == 2) // Effect stays on trap, so the attack animation remains visible for as long as the effect is alive.
+        if (trapst->activation_type == TrpAcT_EffectonTrap) // Effect stays on trap, so the attack animation remains visible for as long as the effect is alive.
         {
             trigger_duration = get_effect_model_stats(trapst->created_itm_model)->start_health;
         } else
-        if (trapst->activation_type == 3) // Shot stays on trap, so the attack animation remains visible for as long as the trap is alive.
+        if (trapst->activation_type == TrpAcT_ShotonTrap) // Shot stays on trap, so the attack animation remains visible for as long as the trap is alive.
         {
             trigger_duration = get_shot_model_stats(trapst->created_itm_model)->health;
         }
@@ -824,6 +825,15 @@ void update_trap_trigger(struct Thing* traptng)
     }
     if (do_trig)
     {
+        struct Dungeon *dungeon = get_dungeon(traptng->owner);
+        if (!dungeon_invalid(dungeon))
+        {
+            dungeon->trap_info.activated[traptng->trap.flag_number]++;
+            if (traptng->trap.flag_number > 0)
+            {
+                memcpy(&dungeon->last_trap_event_location, &traptng->mappos, sizeof(struct Coord3d));
+            }
+        }
         process_trap_charge(traptng);
     }
 }
@@ -914,7 +924,7 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
         return INVALID_THING;
     }
     struct InitLight ilght;
-    LbMemorySet(&ilght, 0, sizeof(struct InitLight));
+    memset(&ilght, 0, sizeof(struct InitLight));
     struct Thing* thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
     if (thing->index == 0) {
         ERRORDBG(3,"Should be able to allocate trap %s for player %d, but failed.",trap_code_name(trpkind),(int)plyr_idx);
@@ -929,6 +939,7 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     thing->next_on_mapblk = 0;
     thing->parent_idx = thing->index;
     thing->owner = plyr_idx;
+    thing->trap.flag_number = trapst->flag_number;
     char start_frame;
     if (trapst->random_start_frame) {
         start_frame = -1;

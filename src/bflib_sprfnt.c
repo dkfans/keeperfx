@@ -25,7 +25,6 @@
 #include "globals.h"
 
 #include "bflib_sprite.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_vidraw.h"
 
@@ -1874,7 +1873,7 @@ void dbc_shutdown(void)
     active_dbcfont = &dbcfonts[i];
     if (active_dbcfont->data != NULL)
     {
-      LbMemoryFree(active_dbcfont->data);
+      free(active_dbcfont->data);
       active_dbcfont->data = NULL;
     }
   }
@@ -1933,7 +1932,7 @@ short load_font_file(struct AsianFont * dbcfont, const char * fpath) {
     return 2;
   }
   // Allocate memory for the font, dbc_shutdown will free this memory later
-  dbcfont->data = LbMemoryAlloc(dbcfont->data_length);
+  dbcfont->data = calloc(dbcfont->data_length, 1);
   if (dbcfont->data == NULL)
   {
     ERRORLOG("Can't allocate memory for font %s", dbcfont->fname);

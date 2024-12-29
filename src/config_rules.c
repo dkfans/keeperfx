@@ -21,7 +21,6 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 
@@ -253,7 +252,7 @@ void clear_sacrifice_recipes(void)
     for (long i = 0; i < MAX_SACRIFICE_RECIPES; i++)
     {
         struct SacrificeRecipe* sac = &game.conf.rules.sacrifices.sacrifice_recipes[i];
-        LbMemorySet(sac, '\0', sizeof(struct SacrificeRecipe));
+        memset(sac, '\0', sizeof(struct SacrificeRecipe));
         sac->action = SacA_None;
   }
 }
@@ -824,7 +823,7 @@ TbBool load_rules_config_file(const char *textname, const char *fname, unsigned 
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
+    char* buf = (char*)calloc(len + 256, 1);
     if (buf == NULL)
         return false;
     // Loading file data.
@@ -857,7 +856,7 @@ TbBool load_rules_config_file(const char *textname, const char *fname, unsigned 
             WARNMSG("Parsing %s file \"%s\" sacrifices blocks failed.",textname,fname);
     }
     //Freeing and exiting.
-    LbMemoryFree(buf);
+    free(buf);
     return result;
 }
 
