@@ -423,6 +423,7 @@ void init_creature_model_stats(void)
         crstat->can_go_locked_doors = false;
         crstat->prison_kind = 0;
         crstat->torture_kind = 0;
+        crstat->immunity_flags = 0;
         crconf->namestr_idx = 0;
         crconf->model_flags = 0;
         // Attraction block.
