@@ -23,7 +23,6 @@
 #include "game_legacy.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
@@ -241,6 +240,13 @@ const struct NamedCommand creatmodel_sounds_commands[] = {
   };
 
 /******************************************************************************/
+
+void strtolower(char * str) {
+    for (; *str; ++str) {
+        *str = tolower(*str);
+    }
+}
+
 TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
   // Block name and parameter word store variables
@@ -2411,7 +2417,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     {
         return false;
     }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
+    char* buf = (char*)calloc(len + 256, 1);
     if (buf == NULL)
         return false;
     // Loading file data
@@ -2420,7 +2426,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     if (!flag_is_set(flags,CnfLd_AcceptPartial))
     {
         struct CreatureStats* crstat = creature_stats_get(crtr_model);
-        LbMemorySet(crstat, '\0', sizeof(struct CreatureStats));
+        memset(crstat, '\0', sizeof(struct CreatureStats));
     }
     // Parse blocks of the config file
     if (result)
@@ -2496,7 +2502,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
             WARNMSG("Parsing %s file \"%s\" sounds blocks failed.",textname,fname);
     }
     // Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     return result;
 }
 
@@ -2506,7 +2512,8 @@ TbBool load_creaturemodel_config(ThingModel crmodel, unsigned short flags)
     static const char config_campgn_textname[] = "campaign creature model config";
     static const char config_level_textname[] = "level creature model config";
     char conf_fnstr[COMMAND_WORD_LEN];
-    LbStringToLowerCopy(conf_fnstr,get_conf_parameter_text(creature_desc,crmodel),COMMAND_WORD_LEN);
+    snprintf(conf_fnstr, COMMAND_WORD_LEN, "%s", get_conf_parameter_text(creature_desc,crmodel));
+    strtolower(conf_fnstr);
     if (strlen(conf_fnstr) == 0)
     {
         WARNMSG("Cannot get config file name for creature %d.",crmodel);
@@ -2545,7 +2552,8 @@ TbBool swap_creaturemodel_config(ThingModel nwcrmodel, ThingModel crmodel, unsig
     static const char config_campgn_textname[] = "campaing creature model config";
     static const char config_level_textname[] = "level creature model config";
     char conf_fnstr[COMMAND_WORD_LEN];
-    LbStringToLowerCopy(conf_fnstr, get_conf_parameter_text(creature_desc, nwcrmodel), COMMAND_WORD_LEN);
+    snprintf(conf_fnstr, COMMAND_WORD_LEN, "%s", get_conf_parameter_text(creature_desc, nwcrmodel));
+    strtolower(conf_fnstr);
     if (strlen(conf_fnstr) == 0)
     {
         WARNMSG("Cannot get config file name for creature %d.", crmodel);

@@ -24,7 +24,6 @@
 
 #include "bflib_math.h"
 #include "bflib_planar.h"
-#include "bflib_memory.h"
 
 #include "player_data.h"
 #include "dungeon_data.h"
@@ -614,7 +613,7 @@ void update_explored_flags_for_power_sight(struct PlayerInfo *player)
 {
     SYNCDBG(9,"Starting");
     struct Dungeon* dungeon = get_players_dungeon(player);
-    LbMemorySet(backup_explored, 0, sizeof(backup_explored));
+    memset(backup_explored, 0, sizeof(backup_explored));
     if (dungeon->sight_casted_thing_idx == 0) {
         return;
     }

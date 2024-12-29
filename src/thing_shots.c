@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_planar.h"
 #include "bflib_sound.h"
@@ -1889,7 +1888,7 @@ struct Thing *create_shot(struct Coord3d *pos, ThingModel model, unsigned short 
     if (shotst->light_radius)
     {
         struct InitLight ilght;
-        LbMemorySet(&ilght, 0, sizeof(struct InitLight));
+        memset(&ilght, 0, sizeof(struct InitLight));
         memcpy(&ilght.mappos,&thing->mappos,sizeof(struct Coord3d));
         ilght.radius = shotst->light_radius;
         ilght.intensity = shotst->light_intensity;

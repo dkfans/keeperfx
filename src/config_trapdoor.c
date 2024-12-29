@@ -21,7 +21,6 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "bflib_sound.h"
@@ -188,7 +187,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
       for (int i=0; i < TRAPDOOR_TYPES_MAX; i++)
       {
           trapst = &game.conf.trapdoor_conf.trap_cfgstats[i];
-          LbMemorySet(trapst->code_name, 0, COMMAND_WORD_LEN);
+          memset(trapst->code_name, 0, COMMAND_WORD_LEN);
           trapst->name_stridx = GUIStr_Empty;
           trapst->tooltip_stridx = GUIStr_Empty;
           trapst->bigsym_sprite_idx = 0;
@@ -1245,7 +1244,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
       for (int i=0; i < TRAPDOOR_TYPES_MAX; i++)
       {
           doorst = &game.conf.trapdoor_conf.door_cfgstats[i];
-          LbMemorySet(doorst->code_name, 0, COMMAND_WORD_LEN);
+          memset(doorst->code_name, 0, COMMAND_WORD_LEN);
           doorst->name_stridx = GUIStr_Empty;
           doorst->tooltip_stridx = GUIStr_Empty;
           doorst->bigsym_sprite_idx = 0;
@@ -1603,7 +1602,7 @@ TbBool load_trapdoor_config_file(const char *textname, const char *fname, unsign
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
+    char* buf = (char*)calloc(len + 256, 1);
     if (buf == NULL)
         return false;
     
@@ -1636,7 +1635,7 @@ TbBool load_trapdoor_config_file(const char *textname, const char *fname, unsign
             WARNMSG("Parsing %s file \"%s\" door blocks failed.",textname,fname);
     }
     //Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     SYNCDBG(19,"Done");
     return result;
 }

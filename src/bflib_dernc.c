@@ -34,7 +34,6 @@
 
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
-#include "bflib_memory.h"
 #include "globals.h"
 #include "post_inc.h"
 
@@ -496,15 +495,15 @@ long UnpackM1(void * buffer, ulong bufsize)
     header.packed_crc32 = ntohs(header.packed_crc32);
     header.unpacked_size = ntohl(header.unpacked_size);
     header.unpacked_crc32 = ntohs(header.unpacked_crc32);
-    void * unpacked = LbMemoryAlloc(header.unpacked_size);
+    void * unpacked = calloc(header.unpacked_size, 1);
     if (unpacked==NULL) return -1;
     retcode = rnc_unpack(buffer, unpacked, 0);
     if (header.unpacked_size > bufsize) {
-        LbMemoryCopy(buffer, unpacked, bufsize);
+        memcpy(buffer, unpacked, bufsize);
     } else {
-        LbMemoryCopy(buffer, unpacked, header.unpacked_size);
+        memcpy(buffer, unpacked, header.unpacked_size);
     }
-    LbMemoryFree(unpacked);
+    free(unpacked);
     return retcode;
 }
 

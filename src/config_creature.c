@@ -21,7 +21,6 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
@@ -576,7 +575,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
         game.conf.crtr_conf.sprite_size = 300;
         for (int i = 0; i < CREATURE_TYPES_MAX; i++)
         {
-          LbMemorySet(game.conf.crtr_conf.model[i].name, 0, COMMAND_WORD_LEN);
+          memset(game.conf.crtr_conf.model[i].name, 0, COMMAND_WORD_LEN);
         }
         for (int i = 1; i < CREATURE_TYPES_MAX; i++) {
           creature_desc[i].name = NULL;
@@ -584,7 +583,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
         }
     }
     creature_desc[CREATURE_TYPES_MAX - 1].name = NULL; // must be null for get_id
-    LbStringCopy(game.conf.crtr_conf.model[0].name, "NOCREATURE", COMMAND_WORD_LEN);
+    snprintf(game.conf.crtr_conf.model[0].name, COMMAND_WORD_LEN, "%s", "NOCREATURE");
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
     sprintf(block_buf, "common");
@@ -961,7 +960,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
     for (int i = 0; i < INSTANCE_TYPES_MAX; i++) {
         inst_cfg = &game.conf.crtr_conf.instances[i];
         if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(inst_cfg->name) <= 0)) {
-            LbMemorySet(inst_cfg->name, 0, COMMAND_WORD_LEN);
+            memset(inst_cfg->name, 0, COMMAND_WORD_LEN);
             instance_desc[i].name = inst_cfg->name;
             instance_desc[i].num = i;
             inst_inf = &game.conf.magic_conf.instance_info[i];
@@ -1398,7 +1397,7 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
     if ((flags & CnfLd_AcceptPartial) == 0) {
         for (int i = 0; i < INSTANCE_TYPES_MAX; i++) {
             jobcfg = &game.conf.crtr_conf.jobs[i];
-            LbMemorySet(jobcfg->name, 0, COMMAND_WORD_LEN);
+            memset(jobcfg->name, 0, COMMAND_WORD_LEN);
             jobcfg->room_role = RoRoF_None;
             jobcfg->initial_crstate = CrSt_Unused;
             jobcfg->continue_crstate = CrSt_Unused;
@@ -1417,7 +1416,7 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
     int blocknamelen = 0;
     long pos = 0;
     TbBool seen[INSTANCE_TYPES_MAX];
-    LbMemorySet(seen, 0, sizeof(seen));
+    memset(seen, 0, sizeof(seen));
     while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
     {
         // look for blocks starting with "job", followed by one or more digits
@@ -1657,7 +1656,7 @@ TbBool parse_creaturetype_angerjob_blocks(char *buf, long len, const char *confi
     if ((flags & CnfLd_AcceptPartial) == 0) {
         for (int i = 0; i < INSTANCE_TYPES_MAX; i++) {
             agjobcfg = &game.conf.crtr_conf.angerjobs[i];
-            LbMemorySet(agjobcfg->name, 0, COMMAND_WORD_LEN);
+            memset(agjobcfg->name, 0, COMMAND_WORD_LEN);
             angerjob_desc[i].name = agjobcfg->name;
             angerjob_desc[i].num = (1 << (i-1)); // anger jobs are a bit mask
         }
@@ -1669,7 +1668,7 @@ TbBool parse_creaturetype_angerjob_blocks(char *buf, long len, const char *confi
     int blocknamelen = 0;
     long pos = 0;
     TbBool seen[INSTANCE_TYPES_MAX];
-    LbMemorySet(seen, 0, sizeof(seen));
+    memset(seen, 0, sizeof(seen));
     while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
     {
         // look for blocks starting with "angerjob", followed by one or more digits
@@ -1746,7 +1745,7 @@ TbBool parse_creaturetype_attackpref_blocks(char *buf, long len, const char *con
     if ((flags & CnfLd_AcceptPartial) == 0) {
         for (int i = 0; i < INSTANCE_TYPES_MAX; i++) {
             attacktype = &game.conf.crtr_conf.attacktypes[i];
-            LbMemorySet(attacktype->text, 0, COMMAND_WORD_LEN);
+            memset(attacktype->text, 0, COMMAND_WORD_LEN);
             attackpref_desc[i].name = attacktype->text;
             attackpref_desc[i].num = i;
         }
@@ -1757,7 +1756,7 @@ TbBool parse_creaturetype_attackpref_blocks(char *buf, long len, const char *con
     int blocknamelen = 0;
     long pos = 0;
     TbBool seen[INSTANCE_TYPES_MAX];
-    LbMemorySet(seen, 0, sizeof(seen));
+    memset(seen, 0, sizeof(seen));
     while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
     {
         // look for blocks starting with "attackpref", followed by one or more digits
@@ -1837,7 +1836,7 @@ TbBool load_creaturetypes_config_file(const char *textname, const char *fname, u
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
+    char* buf = (char*)calloc(len + 256, 1);
     if (buf == NULL)
         return false;
 
@@ -1921,7 +1920,7 @@ TbBool load_creaturetypes_config_file(const char *textname, const char *fname, u
           WARNMSG("Parsing %s file \"%s\" attackpref blocks failed.",textname,fname);
     }
     //Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     return result;
 }
 

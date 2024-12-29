@@ -20,7 +20,6 @@
 
 #include "bflib_basics.h"
 #include "bflib_math.h"
-#include "bflib_memory.h"
 #include "config_creature.h"
 #include "config_crtrstates.h"
 #include "config_effects.h"
@@ -1249,11 +1248,11 @@ const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveSta
         break;
     case CrLStat_BestDamage:
         // TODO: (???) compute damage of best attack.
-        text = lbEmptyString;
+        text = "";
         break;
     default:
         ERRORLOG("Invalid statistic %d", (int)clstat_id);
-        text = lbEmptyString;
+        text = "";
         break;
     }
     return text;
