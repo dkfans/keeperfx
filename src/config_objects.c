@@ -167,7 +167,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
     if ((flags & CnfLd_AcceptPartial) == 0) {
         for (int i = 0; i < OBJECT_TYPES_MAX; i++) {
             objst = &game.conf.object_conf.object_cfgstats[i];
-            LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
+            memset(objst->code_name, 0, COMMAND_WORD_LEN);
             objst->name_stridx = 201;
             objst->map_icon = 0;
             objst->genre = 0;
@@ -856,7 +856,7 @@ void update_all_object_stats()
         if (objst->ilght.radius != 0)
         {
             struct InitLight ilight;
-            LbMemorySet(&ilight, 0, sizeof(struct InitLight));
+            memset(&ilight, 0, sizeof(struct InitLight));
             LbMemoryCopy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
             ilight.radius = objst->ilght.radius;
             ilight.intensity = objst->ilght.intensity;

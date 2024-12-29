@@ -108,7 +108,7 @@ struct CreatureControl *allocate_free_control_structure(void)
         {
             if ((cctrl->flgfield_1 & CCFlg_Exists) == 0)
             {
-                LbMemorySet(cctrl, 0, sizeof(struct CreatureControl));
+                memset(cctrl, 0, sizeof(struct CreatureControl));
                 cctrl->flgfield_1 |= CCFlg_Exists;
                 cctrl->index = i;
                 return cctrl;
@@ -120,7 +120,7 @@ struct CreatureControl *allocate_free_control_structure(void)
 
 void delete_control_structure(struct CreatureControl *cctrl)
 {
-    LbMemorySet(cctrl, 0, sizeof(struct CreatureControl));
+    memset(cctrl, 0, sizeof(struct CreatureControl));
 }
 
 void delete_all_control_structures(void)
@@ -164,7 +164,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     set_start_state(thing);
     // Preparing light object
     struct InitLight ilght;
-    LbMemorySet(&ilght, 0, sizeof(struct InitLight));
+    memset(&ilght, 0, sizeof(struct InitLight));
     ilght.mappos.x.val = thing->mappos.x.val;
     ilght.mappos.y.val = thing->mappos.y.val;
     ilght.mappos.z.val = thing->mappos.z.val;

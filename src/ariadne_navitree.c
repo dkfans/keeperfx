@@ -129,7 +129,7 @@ void tags_init(void)
     //Note that tag_current is a tag value, not tag index
     if (tag_current >= 255)
     {
-        LbMemorySet(Tags, 0, sizeof(Tags));
+        memset(Tags, 0, sizeof(Tags));
         tag_current = 0;
     }
     tag_current++;

@@ -400,7 +400,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
         for (int i = 0; i < TERRAIN_ITEMS_MAX; i++)
         {
             slabst = &game.conf.slab_conf.slab_cfgstats[i];
-            LbMemorySet(slabst->code_name, 0, COMMAND_WORD_LEN);
+            memset(slabst->code_name, 0, COMMAND_WORD_LEN);
             slabst->tooltip_stridx = GUIStr_Empty;
             slab_desc[i].name = slabst->code_name;
             slab_desc[i].num = i;
@@ -802,7 +802,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             if (i < game.conf.slab_conf.room_types_count)
             {
                 roomst = &game.conf.slab_conf.room_cfgstats[i];
-                LbMemorySet(roomst->code_name, 0, COMMAND_WORD_LEN);
+                memset(roomst->code_name, 0, COMMAND_WORD_LEN);
                 roomst->name_stridx = GUIStr_Empty;
                 roomst->tooltip_stridx = GUIStr_Empty;
                 roomst->creature_creation_model = 0;

@@ -921,7 +921,7 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
         return INVALID_THING;
     }
     struct InitLight ilght;
-    LbMemorySet(&ilght, 0, sizeof(struct InitLight));
+    memset(&ilght, 0, sizeof(struct InitLight));
     struct Thing* thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
     if (thing->index == 0) {
         ERRORDBG(3,"Should be able to allocate trap %s for player %d, but failed.",trap_code_name(trpkind),(int)plyr_idx);

@@ -98,7 +98,7 @@ static TbBool clear_peer(NetUserId id)
                 }
 
                 LbMemoryFree(spstate.peers[i].msg.buffer);
-                LbMemorySet(&spstate.peers[i], 0, sizeof(spstate.peers[i]));
+                memset(&spstate.peers[i], 0, sizeof(spstate.peers[i]));
 
                 return 1;
             }
@@ -113,7 +113,7 @@ static TbBool clear_peer(NetUserId id)
         }
 
         LbMemoryFree(spstate.servermsg.buffer);
-        LbMemorySet(&spstate.servermsg, 0, sizeof(spstate.servermsg));
+        memset(&spstate.servermsg, 0, sizeof(spstate.servermsg));
 
         return 1;
     }
@@ -301,7 +301,7 @@ static TbError tcpSP_init(NetDropCallback drop_callback)
 {
     NETDBG(3, "Starting");
 
-    LbMemorySet(&spstate, 0, sizeof(spstate));
+    memset(&spstate, 0, sizeof(spstate));
 
     if (SDLNet_Init() < 0) {
         return Lb_FAIL;
@@ -329,7 +329,7 @@ static void tcpSP_exit(void)
 
     SDLNet_Quit();
 
-    LbMemorySet(&spstate, 0, sizeof(spstate));
+    memset(&spstate, 0, sizeof(spstate));
 }
 
 static TbError tcpSP_host(const char * session, void * options)

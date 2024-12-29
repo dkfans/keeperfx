@@ -76,7 +76,7 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
         for (int i = 0; i < CUBE_ITEMS_MAX; i++)
         {
             cubest = &game.conf.cube_conf.cube_cfgstats[i];
-            LbMemorySet(cubest->code_name, 0, COMMAND_WORD_LEN);
+            memset(cubest->code_name, 0, COMMAND_WORD_LEN);
             cube_desc[i].name = cubest->code_name;
             cube_desc[i].num = i;
         }

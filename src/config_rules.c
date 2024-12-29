@@ -253,7 +253,7 @@ void clear_sacrifice_recipes(void)
     for (long i = 0; i < MAX_SACRIFICE_RECIPES; i++)
     {
         struct SacrificeRecipe* sac = &game.conf.rules.sacrifices.sacrifice_recipes[i];
-        LbMemorySet(sac, '\0', sizeof(struct SacrificeRecipe));
+        memset(sac, '\0', sizeof(struct SacrificeRecipe));
         sac->action = SacA_None;
   }
 }

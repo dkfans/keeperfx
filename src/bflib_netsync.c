@@ -33,7 +33,7 @@ static float self_information(const char * buffer, size_t len)
     size_t counts[0x100];
     size_t i;
 
-    LbMemorySet(counts, 0, sizeof(counts));
+    memset(counts, 0, sizeof(counts));
 
     for (i = 0; i < len; i++) {
         counts[((unsigned) buffer[i]) & 0xFF] += 1; //handles other char sizes than 8 bit.. probably redundant

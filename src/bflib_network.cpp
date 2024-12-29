@@ -676,7 +676,7 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
   GetPlayerInfo();*/
 
   //clear network object and init it to neutral config
-  LbMemorySet(&netstate, 0, sizeof(netstate));
+  memset(&netstate, 0, sizeof(netstate));
   for (usr = 0; usr < MAX_N_USERS; ++usr) {
       netstate.users[usr].id = usr;
   }
@@ -931,7 +931,7 @@ TbError LbNetwork_Stop(void)
         frame = nextframe;
     }
 
-    LbMemorySet(&netstate, 0, sizeof(netstate));
+    memset(&netstate, 0, sizeof(netstate));
 
     return Lb_OK;
 }
@@ -979,7 +979,7 @@ static void OnDroppedUser(NetUserId id, enum NetDropReason reason)
 
 
     if (netstate.my_id == SERVER_ID) {
-        LbMemorySet(&netstate.users[id], 0, sizeof(netstate.users[id]));
+        memset(&netstate.users[id], 0, sizeof(netstate.users[id]));
         netstate.users[id].id = id; //repair effect by LbMemorySet
 
         for (i = 0; i < MAX_N_USERS; ++i) {
@@ -993,7 +993,7 @@ static void OnDroppedUser(NetUserId id, enum NetDropReason reason)
         //set up the stuff the other parts of the game expect
         //TODO NET try to get rid of this because it makes understanding code much more complicated
         localPlayerInfoPtr[id].active = 0;
-        LbMemorySet(localPlayerInfoPtr[id].name, 0, sizeof(localPlayerInfoPtr[id].name));
+        memset(localPlayerInfoPtr[id].name, 0, sizeof(localPlayerInfoPtr[id].name));
     }
     else {
         NETMSG("Quitting after connection loss");
@@ -1271,7 +1271,7 @@ TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNet
     for (id = 0; id < MAX_N_USERS; ++id) {
         if (netstate.users[id].progress != USER_UNUSED &&
                 netstate.users[id].progress != USER_CONNECTED) { //no point in showing user if there's no name
-            LbMemorySet(&data, 0, sizeof(data));
+            memset(&data, 0, sizeof(data));
             LbStringCopy(data.plyr_name, netstate.users[id].name,
                 sizeof(data.plyr_name));
             callback(&data, buf);
@@ -1334,7 +1334,7 @@ TbError LbNetwork_CompleteExchange(void *buf)
 TbError ClearClientData(void)
 {
   long i;
-  LbMemorySet(clientDataTable, 0, 32*sizeof(struct ClientDataEntry));
+  memset(clientDataTable, 0, 32*sizeof(struct ClientDataEntry));
   for (i=0; i < maximumPlayers; i++)
   {
     clientDataTable[i].isactive = 0;

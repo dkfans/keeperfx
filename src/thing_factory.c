@@ -436,7 +436,7 @@ struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct C
     if (light_rand < 2)
     {
         struct InitLight ilght;
-        LbMemorySet(&ilght, 0, sizeof(struct InitLight));
+        memset(&ilght, 0, sizeof(struct InitLight));
         ilght.mappos.x.val = thing->mappos.x.val;
         ilght.mappos.y.val = thing->mappos.y.val;
         ilght.mappos.z.val = thing->mappos.z.val;

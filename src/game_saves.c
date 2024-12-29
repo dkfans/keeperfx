@@ -481,7 +481,7 @@ TbBool load_game_save_catalogue(void)
     for (long slot_num = 0; slot_num < TOTAL_SAVE_SLOTS_COUNT; slot_num++)
     {
         struct CatalogueEntry* centry = &save_game_catalogue[slot_num];
-        LbMemorySet(centry, 0, sizeof(struct CatalogueEntry));
+        memset(centry, 0, sizeof(struct CatalogueEntry));
         char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
         TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
         if (!fh)

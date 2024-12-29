@@ -53,22 +53,22 @@ void create_shadow_limits(struct LightsShadows * lish, long start, long end)
 {
     if (start <= end)
     {
-        LbMemorySet(&lish->shadow_limits[start], 1, end-start);
+        memset(&lish->shadow_limits[start], 1, end-start);
     } else
     {
-        LbMemorySet(&lish->shadow_limits[start], 1, SHADOW_LIMITS_COUNT-1-start);
-        LbMemorySet(&lish->shadow_limits[0], 1, end);
+        memset(&lish->shadow_limits[start], 1, SHADOW_LIMITS_COUNT-1-start);
+        memset(&lish->shadow_limits[0], 1, end);
     }
 }
 
 void clear_shadow_limits(struct LightsShadows * lish)
 {
-    LbMemorySet(lish->shadow_limits, 0, SHADOW_LIMITS_COUNT);
+    memset(lish->shadow_limits, 0, SHADOW_LIMITS_COUNT);
 }
 
 void clear_light_system(struct LightsShadows * lish)
 {
-    LbMemorySet(lish, 0, sizeof(struct LightsShadows));
+    memset(lish, 0, sizeof(struct LightsShadows));
 }
 
 /******************************************************************************/

@@ -1664,7 +1664,7 @@ static void new_room_type_check(const struct ScriptLine* scline)
     int i = game.conf.slab_conf.room_types_count - 1;
 
     roomst = &game.conf.slab_conf.room_cfgstats[i];
-    LbMemorySet(roomst->code_name, 0, COMMAND_WORD_LEN);
+    memset(roomst->code_name, 0, COMMAND_WORD_LEN);
     snprintf(roomst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
     roomst->name_stridx = GUIStr_Empty;
     roomst->tooltip_stridx = GUIStr_Empty;
@@ -1697,7 +1697,7 @@ static void new_object_type_check(const struct ScriptLine* scline)
 
     int tmodel = game.conf.object_conf.object_types_count -1;
     struct ObjectConfigStats* objst = get_object_model_stats(tmodel);
-    LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
+    memset(objst->code_name, 0, COMMAND_WORD_LEN);
     snprintf(objst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
     objst->name_stridx = 201;
     objst->map_icon = 0;
@@ -1718,7 +1718,7 @@ static void new_trap_type_check(const struct ScriptLine* scline)
     game.conf.trapdoor_conf.trap_types_count++;
     short i = game.conf.trapdoor_conf.trap_types_count-1;
     struct TrapConfigStats *trapst = get_trap_model_stats(i);
-    LbMemorySet(trapst->code_name, 0, COMMAND_WORD_LEN);
+    memset(trapst->code_name, 0, COMMAND_WORD_LEN);
     snprintf(trapst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
     trapst->name_stridx = GUIStr_Empty;
     trapst->tooltip_stridx = GUIStr_Empty;

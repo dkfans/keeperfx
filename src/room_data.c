@@ -550,7 +550,7 @@ void delete_room_structure(struct Room *room)
                   secroom->next_of_owner = room->next_of_owner;
           }
       }
-      LbMemorySet(room, 0, sizeof(struct Room));
+      memset(room, 0, sizeof(struct Room));
     }
 }
 
@@ -1028,7 +1028,7 @@ struct Room *allocate_free_room_structure(void)
         struct Room* room = &game.rooms[i];
         if ((room->alloc_flags & 0x01) == 0)
         {
-            LbMemorySet(room, 0, sizeof(struct Room));
+            memset(room, 0, sizeof(struct Room));
             room->alloc_flags |= 0x01;
             room->index = i;
             return room;

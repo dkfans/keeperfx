@@ -136,7 +136,7 @@ _backtrace(int depth , LPCONTEXT context)
     }
 
     STACKFRAME frame;
-    LbMemorySet(&frame,0,sizeof(frame));
+    memset(&frame,0,sizeof(frame));
 
     frame.AddrPC.Offset = context->Eip;
 

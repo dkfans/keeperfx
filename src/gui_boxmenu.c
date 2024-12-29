@@ -396,7 +396,7 @@ void gui_remove_box_from_list(struct GuiBox *gbox)
 void gui_delete_box(struct GuiBox *gbox)
 {
     gui_remove_box_from_list(gbox);
-    LbMemorySet(gbox, 0, sizeof(struct GuiBox));
+    memset(gbox, 0, sizeof(struct GuiBox));
 }
 
 struct GuiBox *gui_create_box(long x, long y, struct GuiBoxOption *optn_list)

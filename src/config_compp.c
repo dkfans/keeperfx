@@ -179,7 +179,7 @@ short computer_type_clear_checks(struct ComputerProcessTypes *cpt)
 {
     for (int i = 0; i < COMPUTER_CHECKS_COUNT; i++)
     {
-        LbMemorySet(&cpt->checks[i], 0, sizeof(struct ComputerCheck));
+        memset(&cpt->checks[i], 0, sizeof(struct ComputerCheck));
   }
   return true;
 }
@@ -201,7 +201,7 @@ short computer_type_clear_events(struct ComputerProcessTypes *cpt)
 {
     for (int i = 0; i < COMPUTER_EVENTS_COUNT; i++)
     {
-        LbMemorySet(&cpt->events[i], 0, sizeof(struct ComputerEvent));
+        memset(&cpt->events[i], 0, sizeof(struct ComputerEvent));
   }
   return true;
 }
@@ -226,8 +226,8 @@ short init_computer_process_lists(void)
   for (i=0; i<COMPUTER_MODELS_COUNT; i++)
   {
     cpt = &ComputerProcessLists[i];
-    LbMemorySet(cpt, 0, sizeof(struct ComputerProcessTypes));
-    LbMemorySet(ComputerProcessListsNames[i], 0, LINEMSG_SIZE);
+    memset(cpt, 0, sizeof(struct ComputerProcessTypes));
+    memset(ComputerProcessListsNames[i], 0, LINEMSG_SIZE);
   }
   // Changing this to not subtract 1. This is possibly the bug for the highest computer model assignment
   // not appropriately being applied.
@@ -568,7 +568,7 @@ short parse_computer_player_check_blocks(char *buf, long len, const char *config
       computer_check_config_list[i].name[0] = '\0';
       computer_check_config_list[i].check = ccheck;
       ccheck->name = computer_check_names[i];
-      LbMemorySet(computer_check_names[i], 0, LINEMSG_SIZE);
+      memset(computer_check_names[i], 0, LINEMSG_SIZE);
     }
     strcpy(computer_check_names[0],"INCORRECT CHECK");
     // Load the file
@@ -709,7 +709,7 @@ short parse_computer_player_event_blocks(char *buf, long len, const char *config
       computer_event_config_list[i].name[0] = '\0';
       computer_event_config_list[i].event = cevent;
       cevent->name = computer_event_names[i];
-      LbMemorySet(computer_event_names[i], 0, LINEMSG_SIZE);
+      memset(computer_event_names[i], 0, LINEMSG_SIZE);
     }
     strcpy(computer_event_names[0],"INCORRECT EVENT");
     // Load the file

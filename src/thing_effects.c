@@ -87,7 +87,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmod
     }
     struct EffectElementConfigStats* eestat = get_effect_element_model_stats(eelmodel);
     struct InitLight ilght;
-    LbMemorySet(&ilght, 0, sizeof(struct InitLight));
+    memset(&ilght, 0, sizeof(struct InitLight));
     struct Thing* thing = allocate_free_thing_structure(FTAF_Default);
     if (thing->index == 0) {
         ERRORDBG(8,"Should be able to allocate effect element %d for player %d, but failed.",(int)eelmodel,(int)owner);
@@ -756,7 +756,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
         struct PlayerInfo* player;
         if (thing->health == effcst->start_health)
         {
-            LbMemorySet(temp_pal, 63, PALETTE_SIZE);
+            memset(temp_pal, 63, PALETTE_SIZE);
         } else
         if (thing->health > i)
         {

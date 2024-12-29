@@ -79,10 +79,10 @@ void clear_dungeons(void)
   SYNCDBG(6,"Starting");
   for (int i = 0; i < DUNGEONS_COUNT; i++)
   {
-      LbMemorySet(&game.dungeon[i], 0, sizeof(struct Dungeon));
+      memset(&game.dungeon[i], 0, sizeof(struct Dungeon));
       game.dungeon[i].owner = PLAYERS_COUNT;
   }
-  LbMemorySet(&bad_dungeon, 0, sizeof(struct Dungeon));
+  memset(&bad_dungeon, 0, sizeof(struct Dungeon));
   bad_dungeon.owner = PLAYERS_COUNT;
 }
 
@@ -535,7 +535,7 @@ void init_dungeons(void)
         dungeon->modifier.scavenging_cost = 100;
         dungeon->modifier.loyalty = 100;
         dungeon->color_idx = i;
-        LbMemorySet(dungeon->creature_models_joined, 0, CREATURE_TYPES_MAX);
+        memset(dungeon->creature_models_joined, 0, CREATURE_TYPES_MAX);
     }
 }
 

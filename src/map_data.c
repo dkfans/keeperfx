@@ -576,7 +576,7 @@ void clear_mapmap(void)
         {
             struct Map* mapblk = get_map_block_at(x, y);
             NavColour* flg = &game.navigation_map[get_subtile_number(x, y)];
-            LbMemorySet(mapblk, 0, sizeof(struct Map));
+            memset(mapblk, 0, sizeof(struct Map));
             *flg = 0;
         }
     }

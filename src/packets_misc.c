@@ -118,13 +118,13 @@ void clear_packets(void)
 {
     for (int i = 0; i < PACKETS_COUNT; i++)
     {
-        LbMemorySet(&game.packets[i], 0, sizeof(struct Packet));
+        memset(&game.packets[i], 0, sizeof(struct Packet));
     }
 }
 
 TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry)
 {
-    LbMemorySet(centry, 0, sizeof(struct CatalogueEntry));
+    memset(centry, 0, sizeof(struct CatalogueEntry));
     strcpy(game.packet_fname, fname);
     game.packet_save_fp = LbFileOpen(game.packet_fname, Lb_FILE_MODE_READ_ONLY);
     if (!game.packet_save_fp)

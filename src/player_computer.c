@@ -1259,7 +1259,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
         ERRORLOG("Tried to setup player %d which has no computer capability",(int)plyr_idx);
         return false;
     }
-    LbMemorySet(comp, 0, sizeof(struct Computer2));
+    memset(comp, 0, sizeof(struct Computer2));
     comp->events = &get_dungeon(plyr_idx)->computer_info.events[0];
     comp->checks = &get_dungeon(plyr_idx)->computer_info.checks[0];
 
@@ -1617,7 +1617,7 @@ void setup_computer_players2(void)
   check_map_for_gold();
   for (i=0; i < COMPUTER_TASKS_COUNT; i++)
   {
-    LbMemorySet(&game.computer_task[i], 0, sizeof(struct ComputerTask));
+    memset(&game.computer_task[i], 0, sizeof(struct ComputerTask));
   }
 #ifdef PETTER_AI
   SAI_init_for_map();
@@ -1681,13 +1681,13 @@ void restore_computer_player_after_load(void)
             continue;
         }
         if (!player_exists(player)) {
-            LbMemorySet(comp, 0, sizeof(struct Computer2));
+            memset(comp, 0, sizeof(struct Computer2));
             comp->dungeon = INVALID_DUNGEON;
             continue;
         }
         if (player->is_active != 1)
         {
-            LbMemorySet(comp, 0, sizeof(struct Computer2));
+            memset(comp, 0, sizeof(struct Computer2));
             comp->dungeon = get_players_dungeon(player);
             continue;
         }

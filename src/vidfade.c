@@ -273,7 +273,7 @@ void ProperForcedFadePalette(unsigned char *pal, long fade_steps, enum TbPalette
         LbPaletteSet(pal);
     } else
     {
-        LbMemorySet(palette_buf, 0, sizeof(palette_buf));
+        memset(palette_buf, 0, sizeof(palette_buf));
         LbPaletteSet(palette_buf);
     }
 }

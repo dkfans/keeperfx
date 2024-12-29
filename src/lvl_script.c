@@ -623,7 +623,7 @@ static TbBool process_subfunc(char **line, struct ScriptLine *scline, const stru
         SCRPTERRLOG("Can't allocate buffer to recognize line");
         return false;
     }
-    LbMemorySet(funscline, 0, sizeof(struct ScriptLine));
+    memset(funscline, 0, sizeof(struct ScriptLine));
     LbMemoryCopy(funscline->tcmnd, scline->tp[dst], MAX_TEXT_LENGTH);
     char *nxt = get_next_token(*line, &token);
     if (token.type != TkOpen)
@@ -827,7 +827,7 @@ static int script_recognize_params(char **line, const struct CommandDesc *cmd_de
         const struct CommandDesc *funcmd_desc;
         char* funline = *line;
         char funcmd_buf[MAX_TEXT_LENGTH];
-        LbMemorySet(funcmd_buf, 0, MAX_TEXT_LENGTH);
+        memset(funcmd_buf, 0, MAX_TEXT_LENGTH);
 
         if (reparse)
         {
@@ -921,7 +921,7 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
       return false;
     }
     int para_level = 0;
-    LbMemorySet(scline, 0, sizeof(struct ScriptLine));
+    memset(scline, 0, sizeof(struct ScriptLine));
     if (next_command_reusable > 0)
         next_command_reusable--;
 
@@ -1019,7 +1019,7 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
 
 short clear_script(void)
 {
-    LbMemorySet(&gameadd.script, 0, sizeof(struct LevelScript));
+    memset(&gameadd.script, 0, sizeof(struct LevelScript));
     gameadd.script.next_string = gameadd.script.strings;
     set_script_current_condition(CONDITION_ALWAYS);
     text_line_number = 1;
@@ -1029,7 +1029,7 @@ short clear_script(void)
 short clear_quick_messages(void)
 {
     for (long i = 0; i < QUICK_MESSAGES_COUNT; i++)
-        LbMemorySet(gameadd.quick_messages[i], 0, MESSAGE_TEXT_LEN);
+        memset(gameadd.quick_messages[i], 0, MESSAGE_TEXT_LEN);
     return true;
 }
 

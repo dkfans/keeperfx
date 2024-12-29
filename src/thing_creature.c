@@ -3874,7 +3874,7 @@ void draw_creature_view(struct Thing *thing)
   TbGraphicsWindow grwnd;
   LbScreenStoreGraphicsWindow(&grwnd);
   // Prepare new settings
-  LbMemorySet(scrmem, 0, eye_lens_width*eye_lens_height*sizeof(TbPixel));
+  memset(scrmem, 0, eye_lens_width*eye_lens_height*sizeof(TbPixel));
   lbDisplay.WScreen = scrmem;
   lbDisplay.GraphicsScreenHeight = eye_lens_height;
   lbDisplay.GraphicsScreenWidth = eye_lens_width;
@@ -6295,7 +6295,7 @@ TbBool creature_stats_debug_dump(void)
 void create_light_for_possession(struct Thing *creatng)
 {
     struct InitLight ilght;
-    LbMemorySet(&ilght, 0, sizeof(struct InitLight));
+    memset(&ilght, 0, sizeof(struct InitLight));
     ilght.mappos.x.val = creatng->mappos.x.val;
     ilght.mappos.y.val = creatng->mappos.y.val;
     ilght.mappos.z.val = creatng->mappos.z.val;

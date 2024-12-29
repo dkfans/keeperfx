@@ -250,7 +250,7 @@ void event_initialise_event(struct Event *event, MapCoord map_x, MapCoord map_y,
 
 void event_delete_event_structure(long ev_idx)
 {
-    LbMemorySet(&game.event[ev_idx], 0, sizeof(struct Event));
+    memset(&game.event[ev_idx], 0, sizeof(struct Event));
 }
 
 void event_update_last_use(struct Event *event)

@@ -1623,15 +1623,15 @@ void clear_computer(void)
     SYNCDBG(8,"Starting");
     for (i=0; i < COMPUTER_TASKS_COUNT; i++)
     {
-        LbMemorySet(&game.computer_task[i], 0, sizeof(struct ComputerTask));
+        memset(&game.computer_task[i], 0, sizeof(struct ComputerTask));
     }
     for (i=0; i < GOLD_LOOKUP_COUNT; i++)
     {
-        LbMemorySet(&game.gold_lookup[i], 0, sizeof(struct GoldLookup));
+        memset(&game.gold_lookup[i], 0, sizeof(struct GoldLookup));
     }
     for (i=0; i < PLAYERS_COUNT; i++)
     {
-        LbMemorySet(&game.computer[i], 0, sizeof(struct Computer2));
+        memset(&game.computer[i], 0, sizeof(struct Computer2));
     }
 }
 

@@ -962,11 +962,11 @@ TbBool columns_add_static_entries(void)
     for (long i=0; i < 3; i++)
       c[i] = 0;
     struct Column lcolmn;
-    LbMemorySet(&lcolmn, 0, sizeof(struct Column));
+    memset(&lcolmn, 0, sizeof(struct Column));
     short* wptr = &game.col_static_entries[0];
     for (long i=0; i < 3; i++)
     {
-        LbMemorySet(&lcolmn, 0, sizeof(struct Column));
+        memset(&lcolmn, 0, sizeof(struct Column));
         lcolmn.floor_texture = c[i];
         for (long k = 0; k < 6; k++)
         {
@@ -987,7 +987,7 @@ TbBool columns_add_static_entries(void)
 TbBool update_slabset_column_indices(struct Column *cols, long ccount)
 {
     struct Column lcolmn;
-    LbMemorySet(&lcolmn,0,sizeof(struct Column));
+    memset(&lcolmn,0,sizeof(struct Column));
     for (long i = 0; i < game.slabset_num; i++)
     {
         struct SlabSet* sset = &game.slabset[i];

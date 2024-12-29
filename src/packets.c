@@ -693,11 +693,11 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       }
       else if (player->mp_message_text[0] != '\0')
           message_add(MsgType_Player, player->id_number, player->mp_message_text);
-      LbMemorySet(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
+      memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
       return 0;
   case PckA_PlyrMsgClear:
       player->allocflags &= ~PlaF_NewMPMessage;
-      LbMemorySet(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
+      memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
       return 0;
   case PckA_ToggleLights:
       if (is_my_player(player))

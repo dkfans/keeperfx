@@ -167,7 +167,7 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
     if (objst->ilght.radius != 0)
     {
         struct InitLight ilight;
-        LbMemorySet(&ilight, 0, sizeof(struct InitLight));
+        memset(&ilight, 0, sizeof(struct InitLight));
         LbMemoryCopy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
         ilight.radius = objst->ilght.radius;
         ilight.intensity = objst->ilght.intensity;

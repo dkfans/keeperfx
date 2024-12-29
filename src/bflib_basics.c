@@ -504,7 +504,7 @@ int LbLogSetPrefix(struct TbLog *log, const char *prefix)
     LbStringCopy(log->prefix, prefix, LOG_PREFIX_LEN);
   } else
   {
-    LbMemorySet(log->prefix, 0, LOG_PREFIX_LEN);
+    memset(log->prefix, 0, LOG_PREFIX_LEN);
   }
   return 1;
 }
@@ -521,7 +521,7 @@ int LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...)
       va_end(val);
   } else
   {
-    LbMemorySet(log->prefix, 0, LOG_PREFIX_LEN);
+    memset(log->prefix, 0, LOG_PREFIX_LEN);
   }
   return 1;
 }
@@ -529,8 +529,8 @@ int LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...)
 int LbLogSetup(struct TbLog *log, const char *filename, ulong flags)
 {
   log->Initialised = false;
-  LbMemorySet(log->filename, 0, DISKPATH_SIZE);
-  LbMemorySet(log->prefix, 0, LOG_PREFIX_LEN);
+  memset(log->filename, 0, DISKPATH_SIZE);
+  memset(log->prefix, 0, LOG_PREFIX_LEN);
   log->Initialised=false;
   log->Created=false;
   log->Suspended=false;
@@ -547,8 +547,8 @@ int LbLogClose(struct TbLog *log)
 {
   if ( !log->Initialised )
     return -1;
-  LbMemorySet(log->filename, 0, DISKPATH_SIZE);
-  LbMemorySet(log->prefix, 0, LOG_PREFIX_LEN);
+  memset(log->filename, 0, DISKPATH_SIZE);
+  memset(log->prefix, 0, LOG_PREFIX_LEN);
   log->flags = 0;
   log->Initialised = false;
   log->Created = false;

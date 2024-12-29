@@ -188,7 +188,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
       for (int i=0; i < TRAPDOOR_TYPES_MAX; i++)
       {
           trapst = &game.conf.trapdoor_conf.trap_cfgstats[i];
-          LbMemorySet(trapst->code_name, 0, COMMAND_WORD_LEN);
+          memset(trapst->code_name, 0, COMMAND_WORD_LEN);
           trapst->name_stridx = GUIStr_Empty;
           trapst->tooltip_stridx = GUIStr_Empty;
           trapst->bigsym_sprite_idx = 0;
@@ -1245,7 +1245,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
       for (int i=0; i < TRAPDOOR_TYPES_MAX; i++)
       {
           doorst = &game.conf.trapdoor_conf.door_cfgstats[i];
-          LbMemorySet(doorst->code_name, 0, COMMAND_WORD_LEN);
+          memset(doorst->code_name, 0, COMMAND_WORD_LEN);
           doorst->name_stridx = GUIStr_Empty;
           doorst->tooltip_stridx = GUIStr_Empty;
           doorst->bigsym_sprite_idx = 0;

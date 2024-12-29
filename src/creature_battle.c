@@ -343,7 +343,7 @@ void battle_initialise(void)
 {
     for (int battle_idx = 0; battle_idx < BATTLES_COUNT; battle_idx++)
     {
-        LbMemorySet(&game.battles[battle_idx], 0, sizeof(struct CreatureBattle));
+        memset(&game.battles[battle_idx], 0, sizeof(struct CreatureBattle));
     }
 }
 

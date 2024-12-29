@@ -229,7 +229,7 @@ void clear_players(void)
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = &game.players[i];
-        LbMemorySet(player, 0, sizeof(struct PlayerInfo));
+        memset(player, 0, sizeof(struct PlayerInfo));
         player->id_number = PLAYERS_COUNT;
         switch (i)
         {
@@ -244,7 +244,7 @@ void clear_players(void)
             break;
         }
     }
-    LbMemorySet(&bad_player, 0, sizeof(struct PlayerInfo));
+    memset(&bad_player, 0, sizeof(struct PlayerInfo));
     bad_player.id_number = PLAYERS_COUNT;
     game.active_players_count = 0;
     //game.game_kind = GKind_LocalGame;

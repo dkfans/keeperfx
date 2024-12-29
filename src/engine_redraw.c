@@ -720,7 +720,7 @@ void redraw_isometric_view(void)
     struct Coord3d pos;
     memcpy(&pos, &player->acamera->mappos, sizeof(struct Coord3d));
     TbGraphicsWindow ewnd;
-    LbMemorySet(&ewnd, 0, sizeof(TbGraphicsWindow));
+    memset(&ewnd, 0, sizeof(TbGraphicsWindow));
     if (player->field_45F != 1)
       player->field_45F = 1;
     struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);

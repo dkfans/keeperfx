@@ -138,14 +138,14 @@ TbBool parse_lenses_data_blocks(char *buf, long len, const char *config_textname
       for (i=0; i < arr_size; i++)
       {
           lenscfg = &lenses_conf.lenses[i];
-          LbMemorySet(lenscfg->code_name, 0, COMMAND_WORD_LEN);
-          LbMemorySet(lenscfg->mist_file, 0, DISKPATH_SIZE);
+          memset(lenscfg->code_name, 0, COMMAND_WORD_LEN);
+          memset(lenscfg->mist_file, 0, DISKPATH_SIZE);
           lenscfg->mist_lightness = 0;
           lenscfg->mist_ghost = 0;
           lenscfg->displace_kind = 0;
           lenscfg->displace_magnitude = 0;
           lenscfg->displace_period = 1;
-          LbMemorySet(lenscfg->palette, 0, PALETTE_SIZE*sizeof(TbPixel));
+          memset(lenscfg->palette, 0, PALETTE_SIZE*sizeof(TbPixel));
           lenscfg->flags = 0;
           if (i < lenses_conf.lenses_count)
           {

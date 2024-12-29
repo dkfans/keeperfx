@@ -80,7 +80,7 @@ struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const ch
         ERRORMSG("%s: Found existing thing %d in free things list at pos %d!",func_name,(int)game.free_things[i],(int)i);
     }
 #endif
-    LbMemorySet(thing, 0, sizeof(struct Thing));
+    memset(thing, 0, sizeof(struct Thing));
     if (thing_is_invalid(thing)) {
         ERRORMSG("%s: Got invalid thing slot instead of free one!",func_name);
         return INVALID_THING;
@@ -176,7 +176,7 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
         ERRORMSG("%s: Performed deleting of thing with bad index %d!",func_name,(int)thing->index);
 #endif
     }
-    LbMemorySet(thing, 0, sizeof(struct Thing));
+    memset(thing, 0, sizeof(struct Thing));
 }
 
 /**

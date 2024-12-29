@@ -273,7 +273,7 @@ void clear_action_points(void)
 {
     for (long i = 0; i < ACTN_POINTS_COUNT; i++)
     {
-        LbMemorySet(&gameadd.action_points[i], 0, sizeof(struct ActionPoint));
+        memset(&gameadd.action_points[i], 0, sizeof(struct ActionPoint));
     }
 }
 
@@ -281,7 +281,7 @@ void delete_action_point_structure(struct ActionPoint *apt)
 {
     if ((apt->flags & AptF_Exists) != 0)
     {
-        LbMemorySet(apt, 0, sizeof(struct ActionPoint));
+        memset(apt, 0, sizeof(struct ActionPoint));
     }
 }
 

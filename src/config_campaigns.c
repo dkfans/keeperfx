@@ -141,13 +141,13 @@ TbBool free_campaign(struct GameCampaign *campgn)
 
 void clear_level_info(struct LevelInformation *lvinfo)
 {
-  LbMemorySet(lvinfo,0,sizeof(struct LevelInformation));
+  memset(lvinfo,0,sizeof(struct LevelInformation));
   lvinfo->lvnum = 0;
-  LbMemorySet(lvinfo->name, 0, LINEMSG_SIZE);
-  LbMemorySet(lvinfo->speech_before, 0, DISKPATH_SIZE);
-  LbMemorySet(lvinfo->speech_after, 0, DISKPATH_SIZE);
-  LbMemorySet(lvinfo->land_view, 0, DISKPATH_SIZE);
-  LbMemorySet(lvinfo->land_window, 0, DISKPATH_SIZE);
+  memset(lvinfo->name, 0, LINEMSG_SIZE);
+  memset(lvinfo->speech_before, 0, DISKPATH_SIZE);
+  memset(lvinfo->speech_after, 0, DISKPATH_SIZE);
+  memset(lvinfo->land_view, 0, DISKPATH_SIZE);
+  memset(lvinfo->land_window, 0, DISKPATH_SIZE);
   lvinfo->name_stridx = 0;
   lvinfo->players = 1;
   lvinfo->ensign_x = (LANDVIEW_MAP_WIDTH>>1);
@@ -168,14 +168,14 @@ TbBool clear_campaign(struct GameCampaign *campgn)
 {
   int i;
   SYNCDBG(10,"Starting");
-  LbMemorySet(campgn->name,0,LINEMSG_SIZE);
-  LbMemorySet(campgn->fname,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->levels_location,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->speech_location,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->land_location,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->creatures_location,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->configs_location,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->media_location,0,DISKPATH_SIZE);
+  memset(campgn->name,0,LINEMSG_SIZE);
+  memset(campgn->fname,0,DISKPATH_SIZE);
+  memset(campgn->levels_location,0,DISKPATH_SIZE);
+  memset(campgn->speech_location,0,DISKPATH_SIZE);
+  memset(campgn->land_location,0,DISKPATH_SIZE);
+  memset(campgn->creatures_location,0,DISKPATH_SIZE);
+  memset(campgn->configs_location,0,DISKPATH_SIZE);
+  memset(campgn->media_location,0,DISKPATH_SIZE);
   for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
   {
     campgn->single_levels[i] = 0;
@@ -204,25 +204,25 @@ TbBool clear_campaign(struct GameCampaign *campgn)
   campgn->lvinfos = NULL;
   campgn->ambient_good = 0;
   campgn->ambient_bad = 0;
-  LbMemorySet(campgn->land_view_start,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->land_window_start,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->land_view_end,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->land_window_end,0,DISKPATH_SIZE);
+  memset(campgn->land_view_start,0,DISKPATH_SIZE);
+  memset(campgn->land_window_start,0,DISKPATH_SIZE);
+  memset(campgn->land_view_end,0,DISKPATH_SIZE);
+  memset(campgn->land_window_end,0,DISKPATH_SIZE);
   campgn->land_markers = LndMk_ENSIGNS;
-  LbMemorySet(campgn->movie_intro_fname,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->movie_outro_fname,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->strings_fname,0,DISKPATH_SIZE);
+  memset(campgn->movie_intro_fname,0,DISKPATH_SIZE);
+  memset(campgn->movie_outro_fname,0,DISKPATH_SIZE);
+  memset(campgn->strings_fname,0,DISKPATH_SIZE);
   campgn->strings_data = NULL;
   reset_strings(campgn->strings, STRINGS_MAX);
-  LbMemorySet(campgn->hiscore_fname,0,DISKPATH_SIZE);
+  memset(campgn->hiscore_fname,0,DISKPATH_SIZE);
   campgn->hiscore_table = NULL;
   campgn->hiscore_count = 0;
-  LbMemorySet(campgn->credits_fname,0,DISKPATH_SIZE);
+  memset(campgn->credits_fname,0,DISKPATH_SIZE);
   campgn->credits_data = NULL;
   reset_credits(campgn->credits);
   campgn->human_player = -1;
   campgn->assignCpuKeepers = 0;
-  LbMemorySet(campgn->soundtrack_fname,0,DISKPATH_SIZE);
+  memset(campgn->soundtrack_fname,0,DISKPATH_SIZE);
   campgn->music_track = 0;
   return true;
 }

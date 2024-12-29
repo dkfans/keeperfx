@@ -1683,7 +1683,7 @@ unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *
     LbMemoryFree(buf);
     return NULL;
   }
-  LbMemorySet(buf+fsize, '\0', 15);
+  memset(buf+fsize, '\0', 15);
   *ldsize = fsize;
   return buf;
 }
@@ -2053,7 +2053,7 @@ TbBool reset_credits(struct CreditsItem *credits)
 {
     for (long i = 0; i < CAMPAIGN_CREDITS_COUNT; i++)
     {
-        LbMemorySet(&credits[i], 0, sizeof(struct CreditsItem));
+        memset(&credits[i], 0, sizeof(struct CreditsItem));
         credits[i].kind = CIK_None;
   }
   return true;

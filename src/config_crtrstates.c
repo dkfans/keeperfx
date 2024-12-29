@@ -129,7 +129,7 @@ TbBool parse_creaturestates_state_blocks(char *buf, long len, const char *config
         arr_size = sizeof(game.conf.crtr_conf.states)/sizeof(game.conf.crtr_conf.states[0]);
         for (i=0; i < arr_size; i++)
         {
-            LbMemorySet(game.conf.crtr_conf.states[i].name, 0, COMMAND_WORD_LEN);
+            memset(game.conf.crtr_conf.states[i].name, 0, COMMAND_WORD_LEN);
             if (i < game.conf.crtr_conf.states_count)
             {
                 creatrstate_desc[i].name = game.conf.crtr_conf.states[i].name;

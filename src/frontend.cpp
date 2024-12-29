@@ -2600,10 +2600,10 @@ void initialise_tab_tags_and_menu(MenuID menu_id)
 
 void init_gui(void)
 {
-  LbMemorySet(breed_activities, 0, CREATURE_TYPES_MAX *sizeof(unsigned short));
-  LbMemorySet(menu_stack, 0, ACTIVE_MENUS_COUNT*sizeof(unsigned char));
-  LbMemorySet(active_menus, 0, ACTIVE_MENUS_COUNT*sizeof(struct GuiMenu));
-  LbMemorySet(active_buttons, 0, ACTIVE_BUTTONS_COUNT*sizeof(struct GuiButton));
+  memset(breed_activities, 0, CREATURE_TYPES_MAX *sizeof(unsigned short));
+  memset(menu_stack, 0, ACTIVE_MENUS_COUNT*sizeof(unsigned char));
+  memset(active_menus, 0, ACTIVE_MENUS_COUNT*sizeof(struct GuiMenu));
+  memset(active_buttons, 0, ACTIVE_BUTTONS_COUNT*sizeof(struct GuiButton));
   breed_activities[0] = get_players_special_digger_model(my_player_number);
   no_of_breeds_owned = 1;
   top_of_breed_list = 0;
@@ -3682,7 +3682,7 @@ FrontendMenuState get_startup_menu_state(void)
           frontnet_service_setup();
           frontnet_session_setup();
           net_number_of_sessions = 0;
-          LbMemorySet(net_session, 0, sizeof(net_session));
+          memset(net_session, 0, sizeof(net_session));
           // TODO: should disable actual network enumerating if either
           if (LbNetwork_EnumerateSessions(enum_sessions_callback, 0))
           {

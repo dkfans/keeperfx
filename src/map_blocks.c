@@ -941,7 +941,7 @@ void place_slab_object(SlabCodedCoords slb_num, MapSubtlCoord stl_x,MapSubtlCoor
             if (sobj->isLight == 1)
             {
                 struct InitLight ilght;
-                LbMemorySet(&ilght,0,sizeof(struct InitLight));
+                memset(&ilght,0,sizeof(struct InitLight));
                 ilght.mappos.x.val = pos.x.val;
                 ilght.mappos.y.val = pos.y.val;
                 ilght.mappos.z.val = pos.z.val;

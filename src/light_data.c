@@ -84,7 +84,7 @@ int light_count_lights()
 
 void light_free_light(struct Light *lgt)
 {
-    LbMemorySet(lgt, 0, sizeof(struct Light));
+    memset(lgt, 0, sizeof(struct Light));
 }
 
 TbBool light_is_invalid(const struct Light *lgt)
@@ -129,7 +129,7 @@ long light_shadow_cache_index(struct ShadowCache *shdc)
 
 void light_shadow_cache_free(struct ShadowCache *shdc)
 {
-    LbMemorySet(shdc, 0, sizeof(struct ShadowCache));
+    memset(shdc, 0, sizeof(struct ShadowCache));
 }
 
 TbBool light_add_light_to_list(struct Light *lgt, struct StructureList *list)

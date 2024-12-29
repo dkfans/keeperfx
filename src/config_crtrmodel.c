@@ -2566,7 +2566,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     if (!flag_is_set(flags,CnfLd_AcceptPartial))
     {
         struct CreatureStats* crstat = creature_stats_get(crtr_model);
-        LbMemorySet(crstat, '\0', sizeof(struct CreatureStats));
+        memset(crstat, '\0', sizeof(struct CreatureStats));
     }
     // Parse blocks of the config file
     if (result)
