@@ -239,18 +239,4 @@ void * LbMemoryGrow(void *ptr, unsigned long size)
     return realloc(ptr,size);
 }
 
-/** Reduce previously allocated memory block.
- *  The size of the memory block pointed to by the ptr parameter is
- *  changed to the size bytes, reducing the amount of memory available
- *  in the block. A pointer to the reallocated memory block is returned,
- *  which usually is the same as the ptr argument.
- *
- * @param ptr The previously allocated memory block.
- * @param size New size of the block.
- */
-int LbMemoryCompare(void *ptr1, void *ptr2, unsigned long size)
-{
-    return memcmp(ptr1,ptr2,size);
-}
-
 /******************************************************************************/

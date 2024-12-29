@@ -751,7 +751,7 @@ long anim_make_FLI_COPY(unsigned char *screenbuf)
 
 long anim_make_FLI_COLOUR256(unsigned char *palette)
 {
-	if (LbMemoryCompare(animation.palette, palette, 768) == 0) {
+	if (memcmp(animation.palette, palette, 768) == 0) {
 		return 0;
 	}
 	unsigned short *change_count;
@@ -769,7 +769,7 @@ long anim_make_FLI_COLOUR256(unsigned char *palette)
 		unsigned char *srcpal;
 		anipal = &animation.palette[3 * colridx];
 		srcpal = &palette[3 * colridx];
-		if (LbMemoryCompare(anipal, srcpal, 3) == 0) {
+		if (memcmp(anipal, srcpal, 3) == 0) {
 			change_chunk_len = 0;
 			kept_chunk_len++;
 		} else {
