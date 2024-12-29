@@ -1867,6 +1867,7 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
             break;
         case SlbT_PATH:
         case SlbT_CLAIMED:
+        case 92:
         case SlbT_PURPLE:
             remove_unwanted_things_from_floor_slab(slb_x, slb_y);
             break;

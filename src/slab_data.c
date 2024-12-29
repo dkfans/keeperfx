@@ -825,7 +825,7 @@ TbBool player_can_claim_slab(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabC
     }
 
     struct Room *room = room_get(slb->room_index);
-    if ((slb->kind != SlbT_CLAIMED) && (room_is_invalid(room) || (flag_is_set(get_room_kind_stats(room->kind)->flags, RoCFlg_CannotBeClaimed)))) {
+    if (((slb->kind != SlbT_CLAIMED) && (slb->kind != 92)) && (room_is_invalid(room) || (flag_is_set(get_room_kind_stats(room->kind)->flags, RoCFlg_CannotBeClaimed)))) {
         SYNCDBG(8,"The slab %d,%d is not a valid kind %d to be converted",(int)slb_x, (int)slb_y, (int)slb->kind);
         return false;
     }
