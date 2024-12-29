@@ -20,7 +20,6 @@
 #include "creature_control.h"
 #include "globals.h"
 
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_sound.h"
 #include "config_creature.h"

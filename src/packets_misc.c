@@ -20,7 +20,6 @@
 #include "packets.h"
 
 #include "bflib_fileio.h"
-#include "bflib_memory.h"
 #include "front_landview.h"
 #include "game_legacy.h"
 #include "game_saves.h"

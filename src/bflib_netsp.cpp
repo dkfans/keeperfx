@@ -21,7 +21,6 @@
 #include "bflib_netsp.hpp"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_netsession.h"
 #include "post_inc.h"
 
@@ -554,7 +553,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
           }
 
           msgLen = dataLen + 4;
-          somePtr = LbMemoryAlloc(msgLen); //TODO NET check that this is freed somewhere...
+          somePtr = calloc(msgLen, 1); //TODO NET check that this is freed somewhere...
           ReadMessage(&playerId, somePtr, &msgLen);
           recvCallbacks->field_24(playerId, somePtr);
 

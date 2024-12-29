@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_guibtns.h"
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"

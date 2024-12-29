@@ -18,10 +18,9 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "globals.h"
 #include "bflib_filelst.h"
-
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "post_inc.h"
@@ -100,7 +99,7 @@ int LbDataLoad(struct TbLoadFiles *load_file, LoadFilesGetSizeFunc get_size_fn, 
 #ifdef __DEBUG
       LbJustLog("LbDataLoad: * in fname \"%s\"\n",fname);
 #endif
-    *(load_file->Start) = LbMemoryAlloc(load_file->SLength);
+    *(load_file->Start) = calloc(load_file->SLength, 1);
     if ( (*(load_file->Start)) == NULL )
         return -100;
   } else
@@ -114,7 +113,7 @@ int LbDataLoad(struct TbLoadFiles *load_file, LoadFilesGetSizeFunc get_size_fn, 
         return -101;
     if (!is_static)
     {
-        *(load_file->Start) = LbMemoryAlloc(load_file->SLength + 512);
+        *(load_file->Start) = calloc(load_file->SLength + 512, 1);
     }
     if ((*(load_file->Start)) == NULL)
         return -100;

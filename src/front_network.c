@@ -28,7 +28,6 @@
 #include "bflib_keybrd.h"
 #include "bflib_vidraw.h"
 #include "bflib_sprfnt.h"
-#include "bflib_memory.h"
 #include "bflib_datetm.h"
 #include "bflib_fileio.h"
 

@@ -21,7 +21,6 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "bflib_guibtns.h"
@@ -91,7 +90,7 @@ TbBool setup_gui_strings_data(void)
     SYNCLOG("Strings file name is \"%s\"",fname);
     return false;
   }
-  gui_strings_data = (char *)LbMemoryAlloc(filelen + 256);
+  gui_strings_data = (char *)calloc(filelen + 256, 1);
   if (gui_strings_data == NULL)
   {
     ERRORLOG("Can't allocate memory for GUI Strings data");
@@ -136,7 +135,7 @@ TbBool setup_campaign_strings_data(struct GameCampaign *campgn)
     ERRORLOG("Campaign Strings file %s does not exist or can't be opened", campgn->strings_fname);
     return false;
   }
-  campgn->strings_data = (char *)LbMemoryAlloc(filelen + 256);
+  campgn->strings_data = (char *)calloc(filelen + 256, 1);
   if (campgn->strings_data == NULL)
   {
     ERRORLOG("Can't allocate memory for Campaign Strings data");

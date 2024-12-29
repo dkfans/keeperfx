@@ -22,7 +22,6 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 
@@ -352,7 +351,7 @@ TbBool init_level_info_entries(struct GameCampaign *campgn, long num_entries)
 {
     if (campgn->lvinfos != NULL)
       free(campgn->lvinfos);
-    campgn->lvinfos = (struct LevelInformation *)LbMemoryAlloc(num_entries*sizeof(struct LevelInformation));
+    campgn->lvinfos = (struct LevelInformation *)calloc(num_entries, sizeof(struct LevelInformation));
     if (campgn->lvinfos == NULL)
     {
       WARNMSG("Can't allocate memory for LevelInformation list.");
@@ -1084,7 +1083,7 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
         WARNMSG("Campaign file \"%s\" is too large.",cmpgn_fname);
         return false;
     }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
+    char* buf = (char*)calloc(len + 256, 1);
     if (buf == NULL)
       return false;
     // Loading file data
@@ -1186,7 +1185,7 @@ TbBool init_campaigns_list_entries(struct CampaignsList *clist, long num_entries
 {
     if (clist->items != NULL)
         free(clist->items);
-    clist->items = (struct GameCampaign *)LbMemoryAlloc(num_entries*sizeof(struct GameCampaign));
+    clist->items = (struct GameCampaign *)calloc(num_entries, sizeof(struct GameCampaign));
     if (clist->items == NULL)
     {
         WARNMSG("Can't allocate memory for GameCampaigns list.");

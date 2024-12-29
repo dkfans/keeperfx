@@ -19,7 +19,6 @@
 
 #include "bflib_coroutine.h"
 #include "bflib_math.h"
-#include "bflib_memory.h"
 #include "bflib_keybrd.h"
 #include "bflib_inputctrl.h"
 #include "bflib_datetm.h"

@@ -19,8 +19,8 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "globals.h"
 #include "bflib_netsync.h"
-#include "bflib_memory.h"
 #include <math.h>
 #include "post_inc.h"
 

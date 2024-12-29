@@ -21,7 +21,6 @@
 #include "globals.h"
 
 #include "bflib_math.h"
-#include "bflib_memory.h"
 #include "creature_states.h"
 #include "thing_list.h"
 #include "creature_control.h"

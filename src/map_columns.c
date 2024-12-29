@@ -20,7 +20,6 @@
 #include "map_columns.h"
 #include "globals.h"
 
-#include "bflib_memory.h"
 #include "config_terrain.h"
 #include "slab_data.h"
 #include "game_legacy.h"

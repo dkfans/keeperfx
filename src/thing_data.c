@@ -23,7 +23,6 @@
 #include "bflib_keybrd.h"
 #include "bflib_basics.h"
 #include "bflib_sound.h"
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "frontend.h"
 #include "config_creature.h"

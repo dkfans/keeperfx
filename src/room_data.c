@@ -23,7 +23,6 @@
 #include "bflib_basics.h"
 #include "bflib_math.h"
 #include "bflib_planar.h"
-#include "bflib_memory.h"
 #include "config_creature.h"
 #include "power_specials.h"
 #include "room_garden.h"

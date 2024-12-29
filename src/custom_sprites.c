@@ -27,7 +27,6 @@
 #include "bflib_dernc.h"
 #include "sprites.h"
 #include "config_spritecolors.h"
-#include "bflib_memory.h"
 #include <spng.h>
 #include <json.h>
 #include <json-dom.h>
@@ -829,7 +828,7 @@ static void load_rgb_to_pal_table()
     }
     // load palette
     const uint32_t table_size = MAX_COLOR_VALUE * MAX_COLOR_VALUE * MAX_COLOR_VALUE;
-    rgb_to_pal_table = LbMemoryAlloc(table_size);
+    rgb_to_pal_table = calloc(table_size, 1);
     if (!rgb_to_pal_table) {
         ERRORLOG("Cannot allocate rgb conversion table");
         return;

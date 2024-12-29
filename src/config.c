@@ -23,7 +23,6 @@
 #include <stdarg.h>
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
@@ -956,7 +955,7 @@ short load_configuration(void)
     WARNMSG("%s file \"%s\" is too large.",config_textname,sname);
     return false;
   }
-  char* buf = (char*)LbMemoryAlloc(len + 256);
+  char* buf = (char*)calloc(len + 256, 1);
   if (buf == NULL)
     return false;
   // Loading file data
@@ -1647,7 +1646,7 @@ unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *
        WARNMSG("File \"%s\" doesn't exist or is too small.", fname);
        return NULL;
   }
-  unsigned char* buf = LbMemoryAlloc(fsize + 16);
+  unsigned char* buf = calloc(fsize + 16, 1);
   if (buf == NULL)
   {
     WARNMSG("Can't allocate %ld bytes to load \"%s\".",fsize,fname);
@@ -1763,7 +1762,7 @@ TbBool load_high_score_table(void)
         return true;
     }
     if (campaign.hiscore_table == NULL)
-        campaign.hiscore_table = (struct HighScore *)LbMemoryAlloc(arr_size);
+        campaign.hiscore_table = (struct HighScore *)calloc(arr_size, 1);
     if (LbFileLengthRnc(fname) != arr_size)
         return false;
     if (campaign.hiscore_table == NULL)
@@ -1797,7 +1796,7 @@ TbBool create_empty_high_score_table(void)
   int nlevel = 1 * VISIBLE_HIGH_SCORES_COUNT;
   long arr_size = campaign.hiscore_count * sizeof(struct HighScore);
   if (campaign.hiscore_table == NULL)
-    campaign.hiscore_table = (struct HighScore *)LbMemoryAlloc(arr_size);
+    campaign.hiscore_table = (struct HighScore *)calloc(arr_size, 1);
   if (campaign.hiscore_table == NULL)
     return false;
   for (i=0; i < VISIBLE_HIGH_SCORES_COUNT; i++)
@@ -2140,7 +2139,7 @@ TbBool setup_campaign_credits_data(struct GameCampaign *campgn)
     ERRORLOG("Campaign Credits file \"%s\" does not exist or can't be opened",campgn->credits_fname);
     return false;
   }
-  campgn->credits_data = (char *)LbMemoryAlloc(filelen + 256);
+  campgn->credits_data = (char *)calloc(filelen + 256, 1);
   if (campgn->credits_data == NULL)
   {
     ERRORLOG("Can't allocate memory for Campaign Credits file \"%s\"",campgn->credits_fname);

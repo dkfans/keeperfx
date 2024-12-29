@@ -34,7 +34,6 @@
 #include "bflib_mouse.h"
 #include "bflib_vidraw.h"
 #include "bflib_fileio.h"
-#include "bflib_memory.h"
 #include "bflib_filelst.h"
 #include "bflib_sound.h"
 #include "bflib_network.h"

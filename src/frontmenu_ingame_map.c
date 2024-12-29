@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_video.h"
 #include "bflib_sprite.h"
 #include "bflib_vidraw.h"
@@ -948,11 +947,11 @@ void setup_background(long units_per_px)
     {
         MapDiagonalLength = 2*(PANEL_MAP_RADIUS*units_per_px/16);
         free(MapBackground);
-        MapBackground = LbMemoryAlloc(MapDiagonalLength*MapDiagonalLength*sizeof(TbPixel));
+        MapBackground = calloc(MapDiagonalLength*MapDiagonalLength, sizeof(TbPixel));
         free(MapShapeStart);
-        MapShapeStart = (long *)LbMemoryAlloc(MapDiagonalLength*sizeof(long));
+        MapShapeStart = (long *)calloc(MapDiagonalLength, sizeof(long));
         free(MapShapeEnd);
-        MapShapeEnd = (long *)LbMemoryAlloc(MapDiagonalLength*sizeof(long));
+        MapShapeEnd = (long *)calloc(MapDiagonalLength, sizeof(long));
     }
     if ((MapBackground == NULL) || (MapShapeStart == NULL) || (MapShapeEnd == NULL)) {
         MapDiagonalLength = 0;

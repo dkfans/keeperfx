@@ -23,7 +23,6 @@
 #include "bflib_basics.h"
 #include "bflib_enet.h"
 #include "bflib_datetm.h"
-#include "bflib_memory.h"
 #include "bflib_netsession.h"
 #include "bflib_netsp.hpp"
 #include "bflib_netsp_ipx.hpp"
@@ -462,7 +461,7 @@ static void HandleServerFrame(char * ptr, char * end, size_t user_frame_size)
     num_user_frames = *ptr;
     ptr += 1;
 
-    frame = (NetFrame *) LbMemoryAlloc(sizeof(*frame));
+    frame = (NetFrame *) calloc(sizeof(*frame), 1);
     if (netstate.exchg_queue == NULL)
     {
         netstate.exchg_queue = frame;
@@ -477,7 +476,7 @@ static void HandleServerFrame(char * ptr, char * end, size_t user_frame_size)
 
     frame->next = NULL;
     frame->size = num_user_frames * user_frame_size;
-    frame->buffer = (char *) LbMemoryAlloc(frame->size);
+    frame->buffer = (char *) calloc(frame->size, 1);
     frame->seq_nbr = seq_nbr;
 
     memcpy(frame->buffer, ptr, frame->size);
@@ -662,7 +661,7 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
   compositeBufferSize = exchng_size * maxplayrs;
   if (compositeBufferSize > 0)
   {
-    compositeBuffer = LbMemoryAlloc(compositeBufferSize);
+    compositeBuffer = calloc(compositeBufferSize, 1);
   }
   if ((compositeBufferSize <= 0) || (compositeBuffer == NULL))
   {
@@ -1155,7 +1154,7 @@ TbBool LbNetwork_Resync(void * buf, size_t len)
 
     NETLOG("Starting");
 
-    full_buf = (char *) LbMemoryAlloc(len + 1);
+    full_buf = (char *) calloc(len + 1, 1);
 
     if (netstate.users[netstate.my_id].progress == USER_SERVER) {
         full_buf[0] = NETMSG_RESYNC;

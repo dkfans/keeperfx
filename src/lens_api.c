@@ -22,7 +22,6 @@
 #include <math.h>
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 
@@ -208,8 +207,8 @@ void initialise_eye_lenses(void)
   eye_lens_width = lbDisplay.GraphicsScreenWidth;
   unsigned long screen_size = eye_lens_width * eye_lens_height + 2;
   if (screen_size < 256*256) screen_size = 256*256 + 2;
-  eye_lens_memory = (unsigned long *)LbMemoryAlloc(screen_size*sizeof(unsigned long));
-  eye_lens_spare_screen_memory = (unsigned char *)LbMemoryAlloc(screen_size*sizeof(TbPixel));
+  eye_lens_memory = (unsigned long *)calloc(screen_size, sizeof(unsigned long));
+  eye_lens_spare_screen_memory = (unsigned char *)calloc(screen_size, sizeof(TbPixel));
   if ((eye_lens_memory == NULL) || (eye_lens_spare_screen_memory == NULL))
   {
     reset_eye_lenses();

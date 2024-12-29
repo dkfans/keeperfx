@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
 #include "bflib_fileio.h"
@@ -124,7 +123,7 @@ TbBool setup_heap_memory(void)
   heap_size = get_best_heap_size(i);
   while ( 1 )
   {
-    heap = LbMemoryAlloc(heap_size);
+    heap = calloc(heap_size, 1);
     if (heap != NULL)
       break;
     i = get_smaller_memory_amount(i);
@@ -186,7 +185,7 @@ TbBool setup_heaps(void)
     {
       heap_size = get_best_heap_size(i);
       i = get_smaller_memory_amount(i);
-      heap = LbMemoryAlloc(heap_size);
+      heap = calloc(heap_size, 1);
       if ((i <= 8) && (heap == NULL))
       {
         low_memory = true;
@@ -215,7 +214,7 @@ TbBool setup_heaps(void)
           free(heap);
           heap = NULL;
         }
-        heap = LbMemoryAlloc(heap_size);
+        heap = calloc(heap_size, 1);
     }
     if (!SoundDisabled)
     {

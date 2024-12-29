@@ -28,7 +28,6 @@
 #include <SDL2/SDL.h>
 
 #include "bflib_datetm.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "post_inc.h"
 

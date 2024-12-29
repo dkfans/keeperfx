@@ -21,7 +21,6 @@
 #include "bflib_netsession.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "post_inc.h"
 
 /******************************************************************************/

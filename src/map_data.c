@@ -21,7 +21,6 @@
 #include "globals.h"
 #include "map_columns.h"
 #include "bflib_math.h"
-#include "bflib_memory.h"
 #include "slab_data.h"
 #include "config_terrain.h"
 #include "game_legacy.h"

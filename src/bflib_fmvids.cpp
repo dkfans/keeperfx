@@ -5,7 +5,6 @@
 #include "bflib_keybrd.h"
 #include "bflib_vidsurface.h"
 #include "bflib_fileio.h"
-#include "bflib_memory.h"
 
 // See: https://trac.ffmpeg.org/ticket/3626
 extern "C" {
@@ -1192,13 +1191,13 @@ short anim_open(char *fname, int arg1, short arg2, int width, int height, int bp
 		SYNCLOG("Starting to record new movie, \"%s\".",fname);
 		memset(&animation, 0, sizeof(Animation));
 		animation.field_0 |= flags;
-		animation.videobuf = static_cast<unsigned char *>(LbMemoryAlloc(2 * height*width));
+		animation.videobuf = static_cast<unsigned char *>(calloc(2 * height*width, 1));
 		if (animation.videobuf==NULL) {
 			ERRORLOG("Cannot allocate video buffer.");
 			return false;
 		}
 		long max_chunk_size = anim_buffer_size(width,height,bpp);
-		animation.chunkdata = static_cast<unsigned char *>(LbMemoryAlloc(max_chunk_size));
+		animation.chunkdata = static_cast<unsigned char *>(calloc(max_chunk_size, 1));
 		if (animation.chunkdata==NULL) {
 			ERRORLOG("Cannot allocate chunk buffer.");
 			return false;
@@ -1252,7 +1251,7 @@ short anim_open(char *fname, int arg1, short arg2, int width, int height, int bp
 		}
 		// Now we can allocate chunk buffer
 		long max_chunk_size = anim_buffer_size(animation.header.width,animation.header.height,animation.header.depth);
-		animation.chunkdata = static_cast<unsigned char *>(LbMemoryAlloc(max_chunk_size));
+		animation.chunkdata = static_cast<unsigned char *>(calloc(max_chunk_size, 1));
 		if (animation.chunkdata==NULL) {
 			return false;
 		}

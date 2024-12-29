@@ -21,7 +21,6 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 
@@ -1101,7 +1100,7 @@ TbBool load_computer_player_config(unsigned short flags)
         ERRORLOG("Computer Player file \"%s\" is too large.",keeper_compplayer_file);
         return false;
     }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
+    char* buf = (char*)calloc(len + 256, 1);
     if (buf == NULL)
       return false;
     // Loading file data

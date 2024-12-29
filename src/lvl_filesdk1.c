@@ -23,7 +23,6 @@
 #include "bflib_basics.h"
 
 #include "bflib_dernc.h"
-#include "bflib_memory.h"
 #include "bflib_bufrw.h"
 #include "bflib_fileio.h"
 
@@ -137,7 +136,7 @@ unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum,const char *fext
           SYNCMSG("Optional file \"map%05lu.%s\" doesn't exist or is too small.", lvnum, fext);
       return NULL;
   }
-  unsigned char* buf = LbMemoryAlloc(fsize + 16);
+  unsigned char* buf = calloc(fsize + 16, 1);
   if (buf == NULL)
   {
     if ((flags & LMFF_Optional) == 0)
@@ -304,7 +303,7 @@ short level_lif_file_parse(const char *fname, char *buf, long buflen)
  */
 TbBool find_and_load_lif_files(void)
 {
-    unsigned char* buf = LbMemoryAlloc(MAX_LIF_SIZE);
+    unsigned char* buf = calloc(MAX_LIF_SIZE, 1);
     if (buf == NULL)
     {
         ERRORLOG("Can't allocate memory for .LIF files parsing.");
@@ -617,7 +616,7 @@ TbBool level_lof_file_parse(const char *fname, char *buf, long len)
 TbBool find_and_load_lof_files(void)
 {
     SYNCDBG(16,"Starting");
-    unsigned char* buf = LbMemoryAlloc(MAX_LIF_SIZE);
+    unsigned char* buf = calloc(MAX_LIF_SIZE, 1);
     if (buf == NULL)
     {
       ERRORLOG("Can't allocate memory for .LOF files parsing.");
@@ -1044,7 +1043,7 @@ TbBool load_slab_datclm_files(void)
     SYNCDBG(5,"Starting");
     // Load Column Set
     long cols_tot = 0;
-    struct Column* cols = (struct Column*)LbMemoryAlloc(COLUMNS_COUNT * sizeof(struct Column));
+    struct Column* cols = (struct Column*)calloc(COLUMNS_COUNT, sizeof(struct Column));
     if (cols == NULL)
     {
       WARNMSG("Can't allocate memory for %d column sets.",COLUMNS_COUNT);

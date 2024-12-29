@@ -22,7 +22,6 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
-#include "bflib_memory.h"
 #include "thing_data.h"
 #include "thing_stats.h"
 #include "thing_list.h"

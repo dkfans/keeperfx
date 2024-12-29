@@ -22,7 +22,6 @@
 #include "thing_creature.h"
 #include "globals.h"
 
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_filelst.h"
 #include "bflib_sprite.h"

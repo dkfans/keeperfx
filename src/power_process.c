@@ -24,7 +24,6 @@
 
 #include "bflib_math.h"
 #include "bflib_planar.h"
-#include "bflib_memory.h"
 
 #include "player_data.h"
 #include "dungeon_data.h"

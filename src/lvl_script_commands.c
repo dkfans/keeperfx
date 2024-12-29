@@ -15,7 +15,6 @@
 #include <math.h>
 #include <string.h>
 
-#include "bflib_memory.h"
 #include "bflib_sound.h"
 #include "config_effects.h"
 #include "config_lenses.h"

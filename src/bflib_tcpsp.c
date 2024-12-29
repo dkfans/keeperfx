@@ -20,8 +20,6 @@
 #include "pre_inc.h"
 #include "bflib_network.h"
 
-#include "bflib_memory.h"
-
 #include <assert.h>
 #include <SDL2/SDL_net.h>
 #include "post_inc.h"
@@ -367,7 +365,7 @@ static TbError tcpSP_join(const char * session, void * options)
     NETDBG(4, "Creating TCP client SP for session %s", session);
 
     size_t size = strlen(session) + 1;
-    char* hostname = (char*)LbMemoryAlloc(size);
+    char* hostname = (char*)calloc(size, 1);
     snprintf(hostname, size, "%s", session);
 
     char* portstr = hostname;

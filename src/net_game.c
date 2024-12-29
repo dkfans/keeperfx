@@ -22,7 +22,6 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_coroutine.h"
-#include "bflib_memory.h"
 #include "bflib_network.h"
 
 #include "player_data.h"

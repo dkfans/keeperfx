@@ -18,7 +18,6 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "globals.h"
@@ -265,7 +264,7 @@ TbBool load_cubes_config_file(const char *textname, const char *fname, unsigned 
         }
         return false;
     }
-    char *buf = (char *)LbMemoryAlloc(len + 256);
+    char *buf = (char *)calloc(len + 256, 1);
     if (buf == NULL)
     {
         return false;
