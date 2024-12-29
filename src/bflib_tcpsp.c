@@ -384,8 +384,8 @@ static TbError tcpSP_join(const char * session, void * options)
 
     spstate.socket = SDLNet_TCP_Open(&addr);
     if (spstate.socket == NULL) {
-        free(hostname);
         NETMSG("Failed to initialize TCP client socket to host %s and port %s", hostname, portstr);
+        free(hostname);
         return Lb_FAIL;
     }
     free(hostname);
