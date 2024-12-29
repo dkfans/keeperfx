@@ -90,7 +90,6 @@ void LbDataFreeAllV2(struct TbLoadFilesV2 load_files[])
 
 int LbDataLoad(struct TbLoadFiles *load_file, LoadFilesGetSizeFunc get_size_fn, LoadFilesUnpackFunc unpack_fn)
 {
-  LbMemorySetup();
   LbDataFree(load_file);
   const char *fname = modify_data_load_filename_function(load_file->FName);
   TbBool is_static = (fname[0] == '!');
@@ -143,7 +142,6 @@ int LbDataLoad(struct TbLoadFiles *load_file, LoadFilesGetSizeFunc get_size_fn, 
  */
 int LbDataLoadAll(struct TbLoadFiles load_files[])
 {
-  LbMemorySetup();
   LbDataFreeAll(load_files);
   int ferror = 0;
   int i = 0;

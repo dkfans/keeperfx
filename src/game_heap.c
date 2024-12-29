@@ -120,7 +120,7 @@ TbBool setup_heap_memory(void)
     free(heap);
     heap = NULL;
   }
-  long i = mem_size;
+  long i = 64;
   heap_size = get_best_heap_size(i);
   while ( 1 )
   {
@@ -181,7 +181,7 @@ TbBool setup_heaps(void)
       heap = NULL;
     }
     // Allocate graphics heap
-    i = mem_size;
+    i = 64;
     while (heap == NULL)
     {
       heap_size = get_best_heap_size(i);

@@ -31,12 +31,6 @@ typedef unsigned char * MemAllocFunc(ulong);
 /******************************************************************************/
 extern char lbEmptyString[];
 /******************************************************************************/
-extern unsigned long mem_size;
-/******************************************************************************/
-short update_memory_constraits(void);
-int LbMemorySetup();
-int LbMemoryReset(void);
-short LbMemoryCheck(void);
 void * LbMemoryAlloc(ulong size);
 void * LbStringCopy(char *dst, const char *src, const ulong dst_buflen);
 ulong LbStringLength(const char *str);

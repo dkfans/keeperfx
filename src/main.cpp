@@ -987,9 +987,13 @@ short setup_game(void)
       }
   #endif
 
-  update_memory_constraits();
-  // Enable features that require more resources
-  update_features(mem_size);
+  // Enable features that require more than 32 megs of memory
+  features_enabled |= Ft_HiResCreatr;
+  // Enable features that require more than 16 megs of memory
+  features_enabled |= Ft_EyeLens;
+  features_enabled |= Ft_HiResVideo;
+  features_enabled |= Ft_BigPointer;
+  features_enabled |= Ft_AdvAmbSound;
 
   // Default feature settings (in case the options are absent from keeperfx.cfg)
   features_enabled &= ~Ft_FreezeOnLoseFocus; // don't freeze the game, if the game window loses focus
@@ -3915,7 +3919,7 @@ short reset_game(void)
     free_gui_strings_data();
     free_level_strings_data();
     FreeAudio();
-    return LbMemoryReset();
+    return 1;
 }
 
 short process_command_line(unsigned short argc, char *argv[])
