@@ -119,20 +119,6 @@ short update_memory_constraits(void)
   return true;
 }
 
-/**
- *
- * Appends characters of source to destination, plus a terminating null-character.
- * Prevents string in dst of getting bigger than maxlen characters.
- */
-void * LbStringConcat(char *dst, const char *src, const ulong dst_buflen)
-{
-  int max_num=dst_buflen-strlen(dst);
-  if (max_num<=0) return dst;
-  strncat(dst, src, max_num);
-  dst[dst_buflen-1]='\0';
-  return dst;
-}
-
 void * LbStringCopy(char *dst, const char *src, const ulong dst_buflen)
 {
   if (dst_buflen < 1)
