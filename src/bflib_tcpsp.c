@@ -366,7 +366,7 @@ static TbError tcpSP_join(const char * session, void * options)
     assert(session);
     NETDBG(4, "Creating TCP client SP for session %s", session);
 
-    size_t size = LbStringLength(session) + 1;
+    size_t size = strlen(session) + 1;
     char* hostname = (char*)LbMemoryAlloc(size);
     LbStringCopy(hostname, session, size);
 

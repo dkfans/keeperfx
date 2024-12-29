@@ -53,12 +53,6 @@ void * LbStringToLowerCopy(char *dst, const char *src, const ulong dst_buflen)
   return dst;
 }
 
-ulong LbStringLength(const char *str)
-{
-    if (str == NULL) return 0;
-    return strlen(str);
-}
-
 void * LbMemoryAlloc(ulong size)
 {
     void * ptr = malloc(size);

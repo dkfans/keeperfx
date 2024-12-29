@@ -534,8 +534,9 @@ int LbLogSetup(struct TbLog *log, const char *filename, ulong flags)
   log->Initialised=false;
   log->Created=false;
   log->Suspended=false;
-  if (LbStringLength(filename)>DISKPATH_SIZE)
+  if (filename == NULL || strlen(filename) > DISKPATH_SIZE) {
     return -1;
+  }
   LbStringCopy(log->filename, filename, DISKPATH_SIZE);
   log->flags = flags;
   log->Initialised = true;

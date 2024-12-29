@@ -33,7 +33,6 @@ extern char lbEmptyString[];
 /******************************************************************************/
 void * LbMemoryAlloc(ulong size);
 void * LbStringCopy(char *dst, const char *src, const ulong dst_buflen);
-ulong LbStringLength(const char *str);
 void * LbStringToLowerCopy(char *dst, const char *src, const ulong dst_buflen);
 /******************************************************************************/
 #ifdef __cplusplus

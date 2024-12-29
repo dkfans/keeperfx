@@ -236,10 +236,10 @@ static void SendLoginRequest(const char * name, const char * password)
     buffer_ptr += 1;
 
     strcpy(buffer_ptr, password);
-    buffer_ptr += LbStringLength(password) + 1;
+    buffer_ptr += strlen(password) + 1;
 
     strcpy(buffer_ptr, name); //don't want to bother saving length ahead
-    buffer_ptr += LbStringLength(name) + 1;
+    buffer_ptr += strlen(name) + 1;
 
     netstate.sp->sendmsg_single(SERVER_ID, netstate.msg_buffer,
         buffer_ptr - netstate.msg_buffer);
@@ -262,7 +262,7 @@ static void SendUserUpdate(NetUserId dest, NetUserId updated_user)
 
     LbStringCopy(ptr, netstate.users[updated_user].name,
         sizeof(netstate.users[updated_user].name));
-    ptr += LbStringLength(netstate.users[updated_user].name) + 1;
+    ptr += strlen(netstate.users[updated_user].name) + 1;
 
     netstate.sp->sendmsg_single(dest, netstate.msg_buffer,
         ptr - netstate.msg_buffer);
@@ -347,7 +347,7 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
         return;
     }
 
-    len = LbStringLength(ptr) + 1;
+    len = strlen(ptr) + 1;
     ptr += len;
     if (len > sizeof(netstate.password)) {
         NETDBG(6, "Connected peer attempted to flood password");
