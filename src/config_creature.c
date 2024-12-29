@@ -414,8 +414,6 @@ void init_creature_model_stats(void)
         crstat->thing_size_xy = 128;
         crstat->thing_size_z = 64;
         crstat->bleeds = true;
-        crstat->affected_by_wind = true;
-        crstat->immune_to_gas = false;
         crstat->humanoid_creature = true;
         crstat->piss_on_dead = false;
         crstat->flying = false;
