@@ -194,7 +194,7 @@ static void inflate_msg(struct Msg * msg)
 
     if (msg->msg_size > msg->buffer_size) {
         msg->buffer_size = msg->msg_size;
-        msg->buffer = (char*) LbMemoryGrow(msg->buffer, msg->buffer_size);
+        msg->buffer = (char*) realloc(msg->buffer, msg->buffer_size);
     }
 }
 

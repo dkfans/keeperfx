@@ -223,20 +223,4 @@ short LbMemoryCheck(void)
   return 1;
 }
 
-/** Enlarge previously allocated memory block.
- *  The size of the memory block pointed to by the ptr parameter is
- *  changed to the size bytes, expanding the amount of memory available
- *  in the block. A pointer to the reallocated memory block is returned,
- *  which may be either the same as the ptr argument or a new location.
- *  If the function failed to allocate the requested block of memory,
- *  a NULL pointer is returned.
- *
- * @param ptr The previously allocated memory block.
- * @param size New size of the block.
- */
-void * LbMemoryGrow(void *ptr, unsigned long size)
-{
-    return realloc(ptr,size);
-}
-
 /******************************************************************************/

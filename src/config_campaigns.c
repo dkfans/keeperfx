@@ -371,7 +371,7 @@ TbBool grow_level_info_entries(struct GameCampaign *campgn, long add_entries)
 {
     long i = campgn->lvinfos_count;
     long num_entries = campgn->lvinfos_count + add_entries;
-    campgn->lvinfos = (struct LevelInformation*)LbMemoryGrow(campgn->lvinfos, num_entries * sizeof(struct LevelInformation));
+    campgn->lvinfos = (struct LevelInformation*)realloc(campgn->lvinfos, num_entries * sizeof(struct LevelInformation));
     if (campgn->lvinfos == NULL)
     {
         WARNMSG("Can't enlarge memory for LevelInformation list.");
@@ -1208,7 +1208,7 @@ TbBool grow_campaigns_list_entries(struct CampaignsList *clist, long add_entries
 {
     long i = clist->items_count;
     long num_entries = clist->items_count + add_entries;
-    clist->items = (struct GameCampaign *)LbMemoryGrow(clist->items, num_entries*sizeof(struct GameCampaign));
+    clist->items = (struct GameCampaign *)realloc(clist->items, num_entries*sizeof(struct GameCampaign));
     if (clist->items == NULL)
     {
         WARNMSG("Can't enlarge memory for GameCampaigns list.");
