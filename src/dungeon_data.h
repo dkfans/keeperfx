@@ -287,6 +287,7 @@ struct Dungeon {
     struct BoxInfo        trap_info;
     struct Coord3d        last_combat_location;
     struct Coord3d        last_eventful_death_location;
+    struct Coord3d        last_trap_event_location;
     int                   creature_awarded[CREATURE_TYPES_MAX];
     unsigned char         creature_entrance_level;
     unsigned long         evil_creatures_converted;

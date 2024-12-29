@@ -829,6 +829,10 @@ void update_trap_trigger(struct Thing* traptng)
         if (!dungeon_invalid(dungeon))
         {
             dungeon->trap_info.activated[traptng->trap.flag_number]++;
+            if (traptng->trap.flag_number > 0)
+            {
+                memcpy(&dungeon->last_trap_event_location, &traptng->mappos, sizeof(struct Coord3d));
+            }
         }
         process_trap_charge(traptng);
     }
