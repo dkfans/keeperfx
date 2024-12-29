@@ -82,6 +82,7 @@ enum CreatureControlFlags {
     CCFlg_Unknown80     = 0x80,
 };
 
+/* The creature will not move if any of these flags are set. */
 enum CreatureControlSpells {
     CCSpl_ChickenRel    = 0x01, // This is something related to chicken spell, but the spell itself is CSAfF_Chicken.
     CCSpl_Freeze        = 0x02, // Related to CSAfF_Freeze.
