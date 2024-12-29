@@ -234,6 +234,7 @@ struct Thing {
         short volley_repeat;
         unsigned short volley_delay;
         unsigned short firing_at;
+        unsigned char flag_number;
       } trap;
 //TCls_Door
       struct {

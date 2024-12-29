@@ -116,6 +116,7 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"DETECTINVISIBLE",        50},
   {"INSTANTPLACEMENT",       51},
   {"REMOVEONCEDEPLETED",     52},
+  {"FLAGNUMBER",             53},
   {NULL,                      0},
 };
 
@@ -225,6 +226,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           trapst->unanimated = 0;
           trapst->unshaded = 0;
           trapst->random_start_frame = 0;
+          trapst->flag_number = 0;
           trapst->light_radius = 0;
           trapst->light_intensity = 0;
           trapst->light_flag = 0;
@@ -248,7 +250,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
   const char * blockname = NULL;
   int blocknamelen = 0;
   long pos = 0;
-  int k = 0;
+  long k = 0;
   while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
   {
     // look for blocks starting with "trap", followed by one or more digits
@@ -1191,6 +1193,22 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               if (k >= 0)
               {
                   trapst->remove_once_depleted = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+          }
+          break;
+      case 53: // FLAGNUMBER
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if ((k >= 0) && (k <= UCHAR_MAX))
+              {
+                  trapst->flag_number = k;
                   n++;
               }
           }
