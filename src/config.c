@@ -804,7 +804,7 @@ const char *get_conf_parameter_text(const struct NamedCommand commands[],int num
             return commands[i].name;
         i++;
   }
-  return lbEmptyString;
+  return "";
 }
 
 /**

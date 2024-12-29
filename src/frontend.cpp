@@ -1711,7 +1711,7 @@ void frontend_start_new_game(struct GuiButton *gbtn)
     SYNCDBG(6,"Clicked");
     // Check if we can just start the game without campaign selection screen
     if (campaigns_list.items_num < 1)
-      cmpgn_fname = lbEmptyString;
+      cmpgn_fname = "";
     else
     if (campaigns_list.items_num == 1)
       cmpgn_fname = campaigns_list.items[0].fname;
@@ -1737,7 +1737,7 @@ void frontend_load_mappacks(struct GuiButton *gbtn)
     SYNCDBG(6,"Clicked");
     // Check if we can show some levels without showing the map pack selection screen
     if (mappacks_list.items_num < 1)
-      cmpgn_fname = lbEmptyString;
+      cmpgn_fname = "";
     else
     if (mappacks_list.items_num == 1)
       cmpgn_fname = mappacks_list.items[0].fname;

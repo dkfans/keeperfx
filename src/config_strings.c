@@ -45,7 +45,7 @@ TbBool reset_strings(char **strings, int max)
     int text_idx = max;
     while (text_idx >= 0)
     {
-        *text_arr = lbEmptyString;
+        *text_arr = "";
         text_arr++;
         text_idx--;
   }

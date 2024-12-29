@@ -1249,11 +1249,11 @@ const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveSta
         break;
     case CrLStat_BestDamage:
         // TODO: (???) compute damage of best attack.
-        text = lbEmptyString;
+        text = "";
         break;
     default:
         ERRORLOG("Invalid statistic %d", (int)clstat_id);
-        text = lbEmptyString;
+        text = "";
         break;
     }
     return text;
