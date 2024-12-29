@@ -738,11 +738,11 @@ void process_trap_charge(struct Thing* traptng)
     if (trapst->attack_sprite_anim_idx != 0)
     {
         GameTurnDelta trigger_duration;
-        if (trapst->activation_type == 2) // Effect stays on trap, so the attack animation remains visible for as long as the effect is alive.
+        if (trapst->activation_type == TrpAcT_EffectonTrap) // Effect stays on trap, so the attack animation remains visible for as long as the effect is alive.
         {
             trigger_duration = get_effect_model_stats(trapst->created_itm_model)->start_health;
         } else
-        if (trapst->activation_type == 3) // Shot stays on trap, so the attack animation remains visible for as long as the trap is alive.
+        if (trapst->activation_type == TrpAcT_ShotonTrap) // Shot stays on trap, so the attack animation remains visible for as long as the trap is alive.
         {
             trigger_duration = get_shot_model_stats(trapst->created_itm_model)->health;
         }
@@ -824,6 +824,11 @@ void update_trap_trigger(struct Thing* traptng)
     }
     if (do_trig)
     {
+        struct Dungeon *dungeon = get_dungeon(traptng->owner);
+        if (!dungeon_invalid(dungeon))
+        {
+            dungeon->trap_info.activated[traptng->trap.flag_number]++;
+        }
         process_trap_charge(traptng);
     }
 }
@@ -929,6 +934,7 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     thing->next_on_mapblk = 0;
     thing->parent_idx = thing->index;
     thing->owner = plyr_idx;
+    thing->trap.flag_number = trapst->flag_number;
     char start_frame;
     if (trapst->random_start_frame) {
         start_frame = -1;

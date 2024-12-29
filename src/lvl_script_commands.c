@@ -272,6 +272,7 @@ const struct NamedCommand trap_config_desc[] = {
   {"DetectInvisible",         49},
   {"InstantPlacement",        50},
   {"RemoveOnceDepleted",      51},
+  {"FlagNumber",              52},
   {NULL,                       0},
 };
 
@@ -644,6 +645,12 @@ TbBool parse_set_varib(const char *varib_name, long *varib_id, long *varib_type)
             *varib_type = SVar_BOX_ACTIVATED;
         }
         else
+        if (2 == sscanf(varib_name, "TRAP%ld_ACTIVATE%c", varib_id, &c) && (c == 'D'))
+        {
+            // activateD
+            *varib_type = SVar_TRAP_ACTIVATED;
+        }
+        else
         {
             *varib_id = -1;
         }
@@ -725,6 +732,11 @@ TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
         {
             // activateD
             *varib_type = SVar_BOX_ACTIVATED;
+        }
+        else if (2 == sscanf(varib_name, "TRAP%ld_ACTIVATE%c", varib_id, &c) && (c == 'D'))
+        {
+            // activateD
+            *varib_type = SVar_TRAP_ACTIVATED;
         }
         else if (2 == sscanf(varib_name, "KEEPERS_DESTROYED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
         {
@@ -2025,6 +2037,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 51: // RemoveOnceDepleted
             trapst->remove_once_depleted = value;
+            break;
+        case 52: // FlagNumber
+            trapst->flag_number = value;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);

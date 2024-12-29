@@ -120,7 +120,7 @@ struct TrapInfo
 
 struct BoxInfo
 {
-    uint8_t               activated[CUSTOM_BOX_COUNT];
+    uint16_t              activated[CUSTOM_BOX_COUNT];
 };
 
 struct ComputerInfo
@@ -284,6 +284,7 @@ struct Dungeon {
     struct Modifiers      modifier;
     struct TrapInfo       mnfct_info;
     struct BoxInfo        box_info;
+    struct BoxInfo        trap_info;
     struct Coord3d        last_combat_location;
     struct Coord3d        last_eventful_death_location;
     int                   creature_awarded[CREATURE_TYPES_MAX];

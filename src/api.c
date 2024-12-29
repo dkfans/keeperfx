@@ -1289,6 +1289,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
             variable_type != SVar_FLAG &&
             variable_type != SVar_CAMPAIGN_FLAG &&
             variable_type != SVar_BOX_ACTIVATED &&
+            variable_type != SVar_TRAP_ACTIVATED &&
             variable_type != SVar_SACRIFICED &&
             variable_type != SVar_REWARDED)
         {
