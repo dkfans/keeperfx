@@ -266,6 +266,7 @@ short cursor_light_idx;
     TbBool roomspace_horizontal_first;
     TbBool pickup_all_gold;
     unsigned char player_type; //enum PlayerTypes
+    ThingModel special_digger;
     int isometric_tilt;
     };
 

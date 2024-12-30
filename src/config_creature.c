@@ -1991,6 +1991,11 @@ TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, long
 
 ThingModel get_players_special_digger_model(PlayerNumber plyr_idx)
 {
+    struct PlayerInfo* player = get_player(plyr_idx);
+
+    if(player->special_digger != 0)
+        return player->special_digger;
+
     ThingModel crmodel;
 
     if (player_is_roaming(plyr_idx))
@@ -2184,9 +2189,9 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
     }
     if (creatng->owner == slabmap_owner(slb))
     {
-        if (thing_is_creature_special_digger(creatng))
+        if (thing_is_creature_digger(creatng)) 
         {
-            if (creatng->model == get_players_special_digger_model(creatng->owner))
+            if (creature_is_for_dungeon_diggers_list(creatng))
             {
                 required_kind_flags |= JoKF_OwnedDiggers;
             }
@@ -2209,7 +2214,7 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
         }
     } else
     {
-        if (creatng->model == get_players_special_digger_model(creatng->owner)) {
+        if (creature_is_for_dungeon_diggers_list(creatng)) {
             required_kind_flags |= JoKF_EnemyDiggers;
         } else {
             required_kind_flags |= JoKF_EnemyCreatures;

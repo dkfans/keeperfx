@@ -41,7 +41,7 @@ extern "C" {
 #define CREATURE_PROPERTY_INCREASE_ON_EXP  35
 /******************************************************************************/
 enum CreatureModelFlags {
-    CMF_IsSpecDigger     = 0x000001, // Imp and Tunneller.
+    CMF_IsSpecDigger     = 0x000001, // is a dedicated digger that doesn't do things normal units do (like imp)
     CMF_IsArachnid       = 0x000002, // Simply, Spider.
     CMF_IsDiptera        = 0x000004, // Simply, Fly.
     CMF_IsLordOfLand     = 0x000008, // Simply, Knight and Avatar.
@@ -63,6 +63,7 @@ enum CreatureModelFlags {
     CMF_NoStealHero      = 0x080000, // Prevent the creature from being stolen with the Steal Hero special.
     CMF_PreferSteal      = 0x100000, // The creature can be generated from Steal Hero special if there's nothing to steal.
     CMF_EventfulDeath   = 0x200000, // The LAST_DEATH_EVENT[] script location is updated on death.
+    CMF_IsDiggingCreature = 0x400000, // unit still counts as a regular creature but can also do digger tasks (like tunneler)
 };
 
 enum CreatureJobFlags {
