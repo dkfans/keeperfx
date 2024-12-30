@@ -2774,7 +2774,7 @@ static void place_door_process(struct ScriptContext* context)
                     continue;
                 }
             }
-            success = player_place_door_without_check_at(stl_x, stl_y, plyridx, doorkind);
+            success = player_place_door_without_check_at(stl_x, stl_y, plyridx, doorkind, free);
             if (success)
             {
                 delete_room_slabbed_objects(get_slab_number(slb_x, slb_y));
@@ -2823,7 +2823,7 @@ static void place_trap_check(const struct ScriptLine* scline)
     }
     if ((free < 0) || (free > 1))
     {
-        SCRPTERRLOG("Place Trapr free state '%s' not recognized", scline->tp[5]);
+        SCRPTERRLOG("Place Trap free state '%s' not recognized", scline->tp[5]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
