@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_video.h"
 #include "bflib_sprite.h"
@@ -165,10 +164,9 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
     struct Dungeon* dungeon = get_players_dungeon(player);
     SYNCDBG(6,"Starting for player %d state %s",(int)plyr_idx,player_state_code_name(player->work_state));
     struct Packet* pckt = get_packet_direct(player->packet_num);
-    if ((pckt->control_flags & PCtr_LBtnHeld) != 0)
+    if (flag_is_set(pckt->control_flags,PCtr_LBtnHeld))
     {
-        struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
-        struct PowerConfigStats *powerst = get_power_model_stats(plrst_cfg_stat->power_kind);
+        struct PowerConfigStats *powerst = get_power_model_stats(player->chosen_power_kind);
 
         switch (powerst->overcharge_check_idx)
         {
@@ -176,11 +174,11 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
                 if (player_uses_power_call_to_arms(plyr_idx))
                     player->cast_expand_level = (dungeon->cta_splevel << 2);
                 else
-                    update_power_overcharge(player, plrst_cfg_stat->power_kind);
+                    update_power_overcharge(player, player->chosen_power_kind);
                 break;
             case OcC_SightOfEvil_expand:
             case OcC_General_expand:
-                update_power_overcharge(player, plrst_cfg_stat->power_kind);
+                update_power_overcharge(player, player->chosen_power_kind);
                 break;
             case OcC_do_not_expand:
             case OcC_Null:
@@ -694,11 +692,11 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       }
       else if (player->mp_message_text[0] != '\0')
           message_add(MsgType_Player, player->id_number, player->mp_message_text);
-      LbMemorySet(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
+      memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
       return 0;
   case PckA_PlyrMsgClear:
       player->allocflags &= ~PlaF_NewMPMessage;
-      LbMemorySet(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
+      memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
       return 0;
   case PckA_ToggleLights:
       if (is_my_player(player))
@@ -904,7 +902,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
           powerst = get_power_model_stats(pckt->actn_par1);
           i = get_power_index_for_work_state(player->work_state);
           if (i > 0)
-            set_player_state(player, powerst->work_state, 0);
+            set_player_state(player, powerst->work_state, pckt->actn_par1);
       }
       return 0;
   case PckA_PlyrFastMsg:
@@ -1091,7 +1089,7 @@ void process_players_packet(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
-    SYNCDBG(6, "Processing player %d packet of type %d.", plyr_idx, (int)pckt->action);
+    SYNCDBG(6, "Processing player %ld packet of type %d.", plyr_idx, (int)pckt->action);
     player->input_crtr_control = ((pckt->additional_packet_values & PCAdV_CrtrContrlPressed) != 0);
     player->input_crtr_query = ((pckt->additional_packet_values & PCAdV_CrtrQueryPressed) != 0);
     if (((player->allocflags & PlaF_NewMPMessage) != 0) && (pckt->action == PckA_PlyrMsgChar))
@@ -1185,6 +1183,8 @@ void process_players_creature_control_packet_control(long idx)
     if (creature_is_dying(cctng))
         return;
     if ((ccctrl->stateblock_flags != 0) || (cctng->active_state == CrSt_CreatureUnconscious))
+        return;
+    if (flag_is_set(pckt->control_flags, PCtr_Gui))
         return;
     long speed_limit = get_creature_speed(cctng);
     if ((pckt->control_flags & PCtr_MoveUp) != 0)

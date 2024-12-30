@@ -75,7 +75,7 @@ TbBool creature_can_do_healing_sleep(const struct Thing *creatng)
 TbBool creature_is_sleeping(const struct Thing *thing)
 {
     long i = thing->active_state;
-    if ((i == CrSt_CreatureSleep))
+    if (i == CrSt_CreatureSleep)
         return true;
     return false;
 }
@@ -137,9 +137,9 @@ long creature_will_sleep(struct Thing *thing)
 
 /**
  * @brief special digger drop unconscious creatures in their lair
- * 
+ *
  * only if drag_to_lair rule in activated
- * 
+ *
  * @param thing special digger who drag the creature
  * @return returns 1 if creature successfully arrived at its lair and woke up
  */
@@ -159,11 +159,11 @@ short creature_drop_unconscious_in_lair(struct Thing *thing)
     // if place is not a room
     if  (!subtile_is_room(thing->mappos.x.stl.num, thing->mappos.y.stl.num)
             // or room is not a lair
-        || (!room_role_matches(room->kind, RoRoF_LairStorage) 
+        || (!room_role_matches(room->kind, RoRoF_LairStorage)
             //or room owner is not creature owner
-            || room->owner != dragtng->owner 
+            || room->owner != dragtng->owner
             //or creature has no lair room
-            || (dragctrl->lair_room_id == 0 
+            || (dragctrl->lair_room_id == 0
                 // and the lair has no capacity
                 && (room->used_capacity >= room ->total_capacity)))
         // or there is a lair already but it doesn't belong to the creature
@@ -217,7 +217,7 @@ long process_lair_enemy(struct Thing *thing, struct Room *room)
         return 0;
     }
     struct Thing* enemytng;
-    long combat_factor = find_fellow_creature_to_fight_in_room(thing, room, crstat->lair_enemy, &enemytng); 
+    long combat_factor = find_fellow_creature_to_fight_in_room(thing, room, crstat->lair_enemy, &enemytng);
     if (combat_factor < 1)
         return 0;
     if (!set_creature_in_combat_to_the_death(thing, enemytng, combat_factor))

@@ -21,6 +21,9 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "room_data.h"
+#include "thing_data.h"
+#include "dungeon_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,10 +31,6 @@ extern "C" {
 
 /******************************************************************************/
 #pragma pack(1)
-
-struct Room;
-struct Thing;
-struct Dungeon;
 
 #pragma pack()
 /******************************************************************************/

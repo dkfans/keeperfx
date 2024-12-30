@@ -68,6 +68,7 @@ enum CreatureSoundTypes {
     CrSnd_Die       = 9,
     CrSnd_Foot      = 10,
     CrSnd_Fight     = 11,
+    CrSnd_Piss      = 12,
 };
 
 enum CreatureControlFlags {
@@ -139,7 +140,7 @@ struct CastedSpellData {
 };
 
 struct CreatureControl {
-    unsigned short index;
+    CctrlIndex index;
     unsigned char flgfield_1;
     unsigned char flgfield_2;
     unsigned char combat_flags;
@@ -150,8 +151,8 @@ struct CreatureControl {
     ThingIndex opponents_ranged[COMBAT_RANGED_OPPONENTS_LIMIT];
     unsigned char opponents_melee_count;
     unsigned char opponents_ranged_count;
-    unsigned short players_prev_creature_idx;
-    unsigned short players_next_creature_idx;
+    ThingIndex players_prev_creature_idx;
+    ThingIndex players_next_creature_idx;
     unsigned short slap_turns;
     unsigned char explevel;
     long exp_points;
@@ -181,9 +182,9 @@ unsigned char sound_flag;
     /** Index of a thing being dragged by the creature, or index of a thing which is dragging this thing.
      *  Specific case is determined by flags. */
     short dragtng_idx;
-    unsigned short arming_thing_id;
-    unsigned short pickup_object_id;
-    unsigned short pickup_creature_id;
+    ThingIndex arming_thing_id;
+    ThingIndex pickup_object_id;
+    ThingIndex pickup_creature_id;
     unsigned short next_in_group;
     unsigned short prev_in_group;
     unsigned long group_info;// offset 7A
@@ -322,7 +323,6 @@ unsigned char sound_flag;
     TbBool field_AA;
     unsigned char stateblock_flags;
     unsigned long spell_flags; // Sometimes treated as two bytes, but it's a short (AC + AD)
-    unsigned char field_AE;
     short force_visible;
     unsigned char frozen_on_hit;
     long last_piss_turn;
@@ -366,7 +366,7 @@ unsigned char sound_flag;
     unsigned char continue_state_bkp;
     unsigned char cowers_from_slap_turns;
     short conscious_back_turns;
-    short countdown_282; // signed
+    short countdown; // signed
     unsigned short damage_wall_coords;
     unsigned char joining_age;
     unsigned char blood_type;
@@ -532,6 +532,8 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned short good_start_state;
     unsigned char natural_death_kind;
     unsigned char swipe_idx;
+    ThingModel prison_kind;
+    ThingModel torture_kind;
     struct CreaturePickedUpOffset creature_picked_up_offset;
 };
 
@@ -557,6 +559,7 @@ struct CreatureSounds {
     struct CreatureSound torture;
     struct CreatureSound slap;
     struct CreatureSound fight;
+    struct CreatureSound piss;
 };
 
 extern int creature_swap_idx[CREATURE_TYPES_MAX];

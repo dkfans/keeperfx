@@ -19,7 +19,6 @@
 
 #include "bflib_coroutine.h"
 #include "bflib_math.h"
-#include "bflib_memory.h"
 #include "bflib_keybrd.h"
 #include "bflib_inputctrl.h"
 #include "bflib_datetm.h"
@@ -101,6 +100,7 @@
 #include "creature_states.h"
 #include "creature_instances.h"
 #include "creature_graphics.h"
+#include "creature_states_combt.h"
 #include "creature_states_mood.h"
 #include "lens_api.h"
 #include "light_data.h"
@@ -315,7 +315,7 @@ void process_keeper_spell_aura(struct Thing *thing)
     pos.y.val = thing->mappos.y.val - (delta_y >> 8);
     pos.z.val = thing->mappos.z.val;
 
-    create_used_effect_or_element(&pos, cctrl->spell_aura, thing->owner);
+    create_used_effect_or_element(&pos, cctrl->spell_aura, thing->owner, thing->index);
 }
 
 unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos)
@@ -546,7 +546,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
     return 0; // Default: No collision OR boulder destroyed on door
 }
 
-void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step, short ef_or_efel_model)
+void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step, short ef_or_efel_model, ThingIndex parent_idx)
 {
   MapCoordDelta dist_x;
   MapCoordDelta dist_y;
@@ -642,7 +642,7 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
                 {
                     struct Thing *eelemtng;
 
-                    eelemtng = create_used_effect_or_element(&tngpos, ef_or_efel_model, game.neutral_player_num);
+                    eelemtng = create_used_effect_or_element(&tngpos, ef_or_efel_model, game.neutral_player_num, parent_idx);
                     if (!thing_is_invalid(eelemtng)) {
                         eelemtng->sprite_size = sprsize >> 8;
                     }
@@ -720,7 +720,7 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
             tngpos.z.val = curpos.z.val + deviat_z;
             if ((tngpos.x.val < subtile_coord(gameadd.map_subtiles_x,0)) && (tngpos.y.val < subtile_coord(gameadd.map_subtiles_y,0)))
             {
-                create_used_effect_or_element(&tngpos, ef_or_efel_model, game.neutral_player_num);
+                create_used_effect_or_element(&tngpos, ef_or_efel_model, game.neutral_player_num, 0);
             }
             if (UNSYNC_RANDOM(6) >= 3) {
                 deviat_x -= 32;
@@ -923,12 +923,6 @@ TbBool initial_setup(void)
         ERRORLOG("Unable to load game_load_files");
         return false;
     }
-    // was LoadMcgaData, but minimal should be enough at this point.
-    if (!LoadMcgaDataMinimal())
-    {
-        ERRORLOG("Loading MCGA files failed");
-        return false;
-    }
     load_pointer_file(0);
     update_screen_mode_data(320, 200);
     clear_game();
@@ -951,7 +945,7 @@ short setup_game(void)
   OSVERSIONINFO v;
   // Do only a very basic setup
   cpu_detect(&cpu_info);
-  SYNCMSG("CPU %s type %d family %d model %d stepping %d features %08x",cpu_info.vendor,
+  SYNCMSG("CPU %s type %d family %d model %d stepping %d features %08lx",cpu_info.vendor,
       (int)cpu_get_type(&cpu_info),(int)cpu_get_family(&cpu_info),(int)cpu_get_model(&cpu_info),
       (int)cpu_get_stepping(&cpu_info),cpu_info.feature_edx);
   if (cpu_info.BrandString)
@@ -971,7 +965,8 @@ short setup_game(void)
       if(hNTDLL)
       {
           // Get Wine version
-          PROC wine_get_version = (PROC) GetProcAddress(hNTDLL, "wine_get_version");
+          typedef const char * (CDECL * pwine_get_version)(void);
+          pwine_get_version wine_get_version = (pwine_get_version) (void*) GetProcAddress(hNTDLL, "wine_get_version");
           if (wine_get_version)
           {
               SYNCMSG("Running on Wine v%s", wine_get_version());
@@ -979,26 +974,25 @@ short setup_game(void)
           }
 
           // Get Wine host OS
-          // We have to use a union to make sure there is no weird cast warnings
-          union
-          {
-              FARPROC func;
-              void (*wine_get_host_version)(const char**, const char**);
-          } wineHostVersionUnion;
-          wineHostVersionUnion.func = GetProcAddress(hNTDLL, "wine_get_host_version");
-          if (wineHostVersionUnion.wine_get_host_version)
+          typedef void (CDECL *pwine_get_host_version)(const char **, const char **);
+          pwine_get_host_version wine_get_host_version = (pwine_get_host_version) (void*) GetProcAddress(hNTDLL, "wine_get_host_version");
+          if (wine_get_host_version)
           {
               const char* sys_name = NULL;
               const char* release_name = NULL;
-              wineHostVersionUnion.wine_get_host_version(&sys_name, &release_name);
+              wine_get_host_version(&sys_name, &release_name);
               SYNCMSG("Wine Host: %s %s", sys_name, release_name);
           }
       }
   #endif
 
-  update_memory_constraits();
-  // Enable features that require more resources
-  update_features(mem_size);
+  // Enable features that require more than 32 megs of memory
+  features_enabled |= Ft_HiResCreatr;
+  // Enable features that require more than 16 megs of memory
+  features_enabled |= Ft_EyeLens;
+  features_enabled |= Ft_HiResVideo;
+  features_enabled |= Ft_BigPointer;
+  features_enabled |= Ft_AdvAmbSound;
 
   // Default feature settings (in case the options are absent from keeperfx.cfg)
   features_enabled &= ~Ft_FreezeOnLoseFocus; // don't freeze the game, if the game window loses focus
@@ -1554,9 +1548,12 @@ void reinit_level_after_load(void)
     parchment_loaded = 0;
     for (i=0; i < PLAYERS_COUNT; i++)
     {
-      player = get_player(i);
-      if (player_exists(player))
-        set_engine_view(player, player->view_mode);
+        player = get_player(i);
+        if (player_exists(player))
+        {
+            set_engine_view(player, player->view_mode);
+            update_panel_color_player_color(player->id_number, get_dungeon(i)->color_idx);
+        }
     }
     start_rooms = &game.rooms[1];
     end_rooms = &game.rooms[ROOMS_COUNT];
@@ -1575,7 +1572,7 @@ void reinit_level_after_load(void)
     sound_reinit_after_load();
     music_reinit_after_load();
     update_panel_colors();
-
+    reset_postal_instance_cache();    
 }
 
 /**
@@ -1629,15 +1626,15 @@ void clear_computer(void)
     SYNCDBG(8,"Starting");
     for (i=0; i < COMPUTER_TASKS_COUNT; i++)
     {
-        LbMemorySet(&game.computer_task[i], 0, sizeof(struct ComputerTask));
+        memset(&game.computer_task[i], 0, sizeof(struct ComputerTask));
     }
     for (i=0; i < GOLD_LOOKUP_COUNT; i++)
     {
-        LbMemorySet(&game.gold_lookup[i], 0, sizeof(struct GoldLookup));
+        memset(&game.gold_lookup[i], 0, sizeof(struct GoldLookup));
     }
     for (i=0; i < PLAYERS_COUNT; i++)
     {
-        LbMemorySet(&game.computer[i], 0, sizeof(struct Computer2));
+        memset(&game.computer[i], 0, sizeof(struct Computer2));
     }
 }
 
@@ -1673,13 +1670,13 @@ void clear_players_for_save(void)
       id_mem = player->id_number;
       mem2 = player->is_active;
       memflg = player->allocflags;
-      LbMemoryCopy(&cammem,&player->cameras[CamIV_FirstPerson],sizeof(struct Camera));
+      memcpy(&cammem,&player->cameras[CamIV_FirstPerson],sizeof(struct Camera));
       memset(player, 0, sizeof(struct PlayerInfo));
       player->id_number = id_mem;
       player->is_active = mem2;
       set_flag_value(player->allocflags, PlaF_Allocated, ((memflg & PlaF_Allocated) != 0));
       set_flag_value(player->allocflags, PlaF_CompCtrl, ((memflg & PlaF_CompCtrl) != 0));
-      LbMemoryCopy(&player->cameras[CamIV_FirstPerson],&cammem,sizeof(struct Camera));
+      memcpy(&player->cameras[CamIV_FirstPerson],&cammem,sizeof(struct Camera));
       player->acamera = &player->cameras[CamIV_FirstPerson];
     }
 }
@@ -1920,7 +1917,7 @@ void find_map_location_coords(long location, long *x, long *y, int plyr_idx, con
           pos_y = apt->mappos.y.stl.num;
           pos_x = apt->mappos.x.stl.num;
         } else
-          WARNMSG("%s: Action Point %d location not found",func_name,i);
+          WARNMSG("%s: Action Point %ld location not found",func_name,i);
         break;
     case MLoc_HEROGATE:
         thing = find_hero_gate_of_number(i);
@@ -1929,7 +1926,7 @@ void find_map_location_coords(long location, long *x, long *y, int plyr_idx, con
           pos_y = thing->mappos.y.stl.num;
           pos_x = thing->mappos.x.stl.num;
         } else
-          WARNMSG("%s: Hero Gate %d location not found",func_name,i);
+          WARNMSG("%s: Hero Gate %ld location not found",func_name,i);
         break;
     case MLoc_PLAYERSHEART:
         if (i < PLAYERS_COUNT)
@@ -1942,7 +1939,7 @@ void find_map_location_coords(long location, long *x, long *y, int plyr_idx, con
           pos_y = thing->mappos.y.stl.num;
           pos_x = thing->mappos.x.stl.num;
         } else
-          WARNMSG("%s: Dungeon Heart location for player %d not found",func_name,i);
+          WARNMSG("%s: Dungeon Heart location for player %ld not found",func_name,i);
         break;
     case MLoc_NONE:
         pos_y = *y;
@@ -1955,7 +1952,7 @@ void find_map_location_coords(long location, long *x, long *y, int plyr_idx, con
           pos_y = thing->mappos.y.stl.num;
           pos_x = thing->mappos.x.stl.num;
         } else
-          WARNMSG("%s: Thing %d location not found",func_name,i);
+          WARNMSG("%s: Thing %ld location not found",func_name,i);
         break;
     case MLoc_METALOCATION:
         if (get_coords_at_meta_action(&pos, plyr_idx, i))
@@ -1964,7 +1961,7 @@ void find_map_location_coords(long location, long *x, long *y, int plyr_idx, con
             pos_y = pos.y.stl.num;
         }
         else
-          WARNMSG("%s: Metalocation not found %d",func_name,i);
+          WARNMSG("%s: Metalocation not found %ld",func_name,i);
         break;
     case MLoc_CREATUREKIND:
     case MLoc_OBJECTKIND:
@@ -2571,7 +2568,7 @@ TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFil
     }
     if (thing_is_creature(thing))
     {
-        apply_damage_to_thing_and_display_health(thing, param->num2, DmgT_Physical, param->num1);
+        apply_damage_to_thing_and_display_health(thing, param->num2, param->num1);
         if ((thing->health >= 0) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
             if (((thing->alloc_flags & TAlF_IsControlled) == 0) && !creature_is_kept_in_custody(thing))
@@ -2751,9 +2748,9 @@ void update(void)
     player = get_my_player();
     set_previous_camera_values(player);
 
-    if ((game.operation_flags & GOF_Paused) == 0)
+    if (!flag_is_set(game.operation_flags,GOF_Paused))
     {
-        if (player->additional_flags & PlaAF_LightningPaletteIsActive)
+        if (flag_is_set(player->additional_flags,PlaAF_LightningPaletteIsActive))
         {
             PaletteSetPlayerPalette(player, engine_palette);
             clear_flag(player->additional_flags, PlaAF_LightningPaletteIsActive);
@@ -2794,7 +2791,6 @@ void update(void)
     message_update();
     update_all_players_cameras();
     update_player_sounds();
-    game.map_changed_for_nagivation = 0;
     SYNCDBG(6,"Finished");
 }
 
@@ -3626,7 +3622,7 @@ static TbBool wait_at_frontend(void)
                 WARNMSG("Unable to load campaign associated with the specified level CMD Line parameter, default loaded.");
             }
             else {
-                JUSTLOG("No campaign specified. Default campaign loaded for selected level (%d).", start_params.selected_level_number);
+                JUSTLOG("No campaign specified. Default campaign loaded for selected level (%lu).", start_params.selected_level_number);
             }
         }
         set_selected_level_number(start_params.selected_level_number);
@@ -3892,7 +3888,7 @@ void game_loop(void)
       if ((game.operation_flags & GOF_SingleLevel) != 0)
           exit_keeper=true;
       playtime += endtime-starttime;
-      SYNCDBG(0,"Play time is %d seconds",playtime>>10);
+      SYNCDBG(0,"Play time is %lu seconds",playtime>>10);
       total_play_turns += game.play_gameturn;
       reset_eye_lenses();
       close_packet_file();
@@ -3922,7 +3918,7 @@ short reset_game(void)
     free_gui_strings_data();
     free_level_strings_data();
     FreeAudio();
-    return LbMemoryReset();
+    return 1;
 }
 
 short process_command_line(unsigned short argc, char *argv[])
@@ -4038,10 +4034,6 @@ short process_command_line(unsigned short argc, char *argv[])
       {
           SYNCLOG("Mouse auto reset disabled");
           lbMouseGrab = false;
-      }
-      else if (strcasecmp(parstr, "ungrab") == 0)
-      {
-          start_params.ungrab_mouse = true;
       }
       else if (strcasecmp(parstr,"packetload") == 0)
       {
@@ -4372,16 +4364,51 @@ void get_cmdln_args(unsigned short &argc, char *argv[])
     }
 }
 
+const char * exception_name(DWORD exception_code) {
+    switch (exception_code) {
+        case EXCEPTION_ACCESS_VIOLATION: return "EXCEPTION_ACCESS_VIOLATION";
+        case EXCEPTION_ARRAY_BOUNDS_EXCEEDED: return "EXCEPTION_ARRAY_BOUNDS_EXCEEDED";
+        case EXCEPTION_BREAKPOINT: return "EXCEPTION_BREAKPOINT";
+        case EXCEPTION_DATATYPE_MISALIGNMENT: return "EXCEPTION_DATATYPE_MISALIGNMENT";
+        case EXCEPTION_FLT_DENORMAL_OPERAND: return "EXCEPTION_FLT_DENORMAL_OPERAND";
+        case EXCEPTION_FLT_DIVIDE_BY_ZERO: return "EXCEPTION_FLT_DIVIDE_BY_ZERO";
+        case EXCEPTION_FLT_INEXACT_RESULT: return "EXCEPTION_FLT_INEXACT_RESULT";
+        case EXCEPTION_FLT_INVALID_OPERATION: return "EXCEPTION_FLT_INVALID_OPERATION";
+        case EXCEPTION_FLT_OVERFLOW: return "EXCEPTION_FLT_OVERFLOW";
+        case EXCEPTION_FLT_STACK_CHECK: return "EXCEPTION_FLT_STACK_CHECK";
+        case EXCEPTION_FLT_UNDERFLOW: return "EXCEPTION_FLT_UNDERFLOW";
+        case EXCEPTION_ILLEGAL_INSTRUCTION: return "EXCEPTION_ILLEGAL_INSTRUCTION";
+        case EXCEPTION_IN_PAGE_ERROR: return "EXCEPTION_IN_PAGE_ERROR";
+        case EXCEPTION_INT_DIVIDE_BY_ZERO: return "EXCEPTION_INT_DIVIDE_BY_ZERO";
+        case EXCEPTION_INT_OVERFLOW: return "EXCEPTION_INT_OVERFLOW";
+        case EXCEPTION_INVALID_DISPOSITION: return "EXCEPTION_INVALID_DISPOSITION";
+        case EXCEPTION_NONCONTINUABLE_EXCEPTION: return "EXCEPTION_NONCONTINUABLE_EXCEPTION";
+        case EXCEPTION_PRIV_INSTRUCTION: return "EXCEPTION_PRIV_INSTRUCTION";
+        case EXCEPTION_SINGLE_STEP: return "EXCEPTION_SINGLE_STEP";
+        case EXCEPTION_STACK_OVERFLOW: return "EXCEPTION_STACK_OVERFLOW";
+    }
+    return "Unknown";
+}
+
 LONG __stdcall Vex_handler(
     _EXCEPTION_POINTERS *ExceptionInfo
 )
 {
-    LbJustLog("=== Crash ===\n");
-    LbCloseLog();
-    return 0;
+	const auto exception_code = ExceptionInfo->ExceptionRecord->ExceptionCode;
+    if (exception_code == DBG_PRINTEXCEPTION_WIDE_C) {
+        return EXCEPTION_CONTINUE_EXECUTION; // Thrown by OutputDebugStringW, intended for debugger
+    } else if (exception_code == DBG_PRINTEXCEPTION_C) {
+        return EXCEPTION_CONTINUE_EXECUTION; // Thrown by OutputDebugStringA, intended for debugger
+    }
+    LbJustLog("Exception 0x%08lx thrown: %s\n", exception_code, exception_name(exception_code));
+    return EXCEPTION_CONTINUE_SEARCH;
 }
 
+#ifdef _WIN32
+int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+#else
 int main(int argc, char *argv[])
+#endif
 {
   char *text;
 

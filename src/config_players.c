@@ -21,7 +21,6 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 
 #include <toml.h>
@@ -63,7 +62,6 @@ TbBool load_playerstate_config_file(const char *textname, const char *fname, uns
     VALUE file_root;
     if (!load_toml_file(textname, fname,&file_root,flags))
         return false;
-    
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
         memset(player_state_commands,0,sizeof(player_state_commands));
@@ -80,11 +78,7 @@ TbBool load_playerstate_config_file(const char *textname, const char *fname, uns
         if (value_type(section) == VALUE_DICT)
         {
             struct PlayerStateConfigStats *plrst_cfg_stat = &game.conf.plyr_conf.plrst_cfg_stats[id];
-            
-            SET_NAME(section,player_state_commands,plrst_cfg_stat->code_name);
-            VALUE *power_kind_val = value_dict_get(section, "PowerKind");
-            plrst_cfg_stat->power_kind = get_id(power_desc,value_string(power_kind_val));
-
+            SET_NAME(section, player_state_commands, plrst_cfg_stat->code_name);
             VALUE *pointer_group_val = value_dict_get(section, "PointerGroup");
             plrst_cfg_stat->pointer_group = get_id(pointer_group_commands,value_string(pointer_group_val));
 

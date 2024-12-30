@@ -21,7 +21,6 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "console_cmd.h"
@@ -112,7 +111,7 @@ static void load_effectsgenerators(VALUE *value, unsigned short flags)
     for (int id = 0; id < EFFECTSGEN_TYPES_MAX; id++)
     {
         {
-            sprintf_s(key,KEY_SIZE, "effectGenerator%d", id);
+            snprintf(key, sizeof(key), "effectGenerator%d", id);
             section = value_dict_get(value, key);
         }
         if (value_type(section) == VALUE_DICT)
@@ -143,7 +142,7 @@ static void load_effectelements(VALUE *value, unsigned short flags)
     for (int id = 0; id < EFFECTSELLEMENTS_TYPES_MAX; id++)
     {
         {
-            sprintf_s(key,KEY_SIZE, "effectElement%d", id);
+            snprintf(key, sizeof(key), "effectElement%d", id);
             section = value_dict_get(value, key);
         }
         if (value_type(section) == VALUE_DICT)
@@ -163,7 +162,6 @@ static void load_effectelements(VALUE *value, unsigned short flags)
 
             CONDITIONAL_ASSIGN_BOOL(section,"AnimateOnFloor",  effelcst->animate_on_floor);
             CONDITIONAL_ASSIGN_BOOL(section,"Unshaded",        effelcst->unshaded);
-            CONDITIONAL_ASSIGN_INT(section,"Transparant",      effelcst->transparent); //todo remove typo after a while
             CONDITIONAL_ASSIGN_INT(section,"Transparent",      effelcst->transparent);
             CONDITIONAL_ASSIGN_INT(section,"MovementFlags",    effelcst->movement_flags);
             CONDITIONAL_ASSIGN_INT(section,"SizeChange",       effelcst->size_change);
@@ -234,6 +232,17 @@ TbBool load_effects_config(const char *conf_fname, unsigned short flags)
 }
 
 /**
+ * Returns Code Name (name to use in script file) of given effect element model.
+ */
+const char* effect_element_code_name(ThingModel tngmodel)
+{
+    const char* name = get_conf_parameter_text(effectelem_desc, tngmodel);
+    if (name[0] != '\0')
+        return name;
+    return "INVALID";
+}
+
+/**
  * Returns Code Name (name to use in script file) of given effect model.
  */
 const char *effect_code_name(ThingModel tngmodel)
@@ -266,24 +275,26 @@ struct EffectConfigStats *get_effect_model_stats(ThingModel tngmodel)
     return &game.conf.effects_conf.effect_cfgstats[tngmodel];
 }
 
-short effect_or_effect_element_id(const char * code_name)
+short effect_or_effect_element_id(const char *code_name)
 {
     if (code_name == NULL)
     {
         return 0;
     }
-
     if (parameter_is_number(code_name))
     {
         return atoi(code_name);
     }
-
-    short id = get_id(effect_desc,code_name);
+    short id = get_id(effect_desc, code_name);
     if (id > 0)
+    {
         return id;
-    id = get_id(effectelem_desc,code_name);
+    }
+    id = get_id(effectelem_desc, code_name);
     if (id > 0)
+    {
         return -id;
+    }
     return 0;
 }
 

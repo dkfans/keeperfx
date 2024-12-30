@@ -186,7 +186,7 @@ struct Thing {
         unsigned char spell_level;
         struct Coord3d originpos;
         int num_wind_affected;
-        int wind_affected_creature[CREATURES_COUNT];  //list of wind affected Creatures
+        CctrlIndex wind_affected_creature[CREATURES_COUNT];  //list of wind affected Creatures
       } shot;
       struct {
         long x;
@@ -211,8 +211,8 @@ struct Thing {
       } creature;
 //TCls_Effect
       struct {
-        char unused;
-        short unused2;
+        int parent_class_id;
+        ThingModel parent_model;
         unsigned char hit_type;
       } shot_effect;
       struct {
@@ -234,6 +234,7 @@ struct Thing {
         short volley_repeat;
         unsigned short volley_delay;
         unsigned short firing_at;
+        unsigned char flag_number;
       } trap;
 //TCls_Door
       struct {
@@ -295,7 +296,7 @@ struct Thing {
     HitPoints health;
     unsigned short floor_height;
     unsigned short light_id;
-    short ccontrol_idx;
+    CctrlIndex ccontrol_idx;
     unsigned char snd_emitter_id;
     short next_of_class;
     short prev_of_class;

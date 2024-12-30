@@ -21,7 +21,6 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 
@@ -80,9 +79,10 @@ const struct NamedCommand terrain_room_commands[] = {
   {"PANELTABINDEX",    12},
   {"TOTALCAPACITY",    13},
   {"USEDCAPACITY",     14},
-  {"AMBIENTSNDSAMPLE", 15},
-  {"ROLES",            16},
-  {"STORAGEHEIGHT",    17},
+  {"SLABSYNERGY",      15},
+  {"AMBIENTSNDSAMPLE", 16},
+  {"ROLES",            17},
+  {"STORAGEHEIGHT",    18},
   {NULL,                0},
 };
 
@@ -129,17 +129,27 @@ const struct NamedCommand room_roles_desc[] = {
 
 extern void count_slabs_all_only(struct Room *room);
 extern void count_slabs_all_wth_effcncy(struct Room *room);
+extern void count_slabs_no_min_wth_effcncy(struct Room *room);
 extern void count_slabs_div2_wth_effcncy(struct Room *room);
+extern void count_slabs_div2_nomin_effcncy(struct Room *room);
+extern void count_slabs_mul2_wth_effcncy(struct Room *room);
+extern void count_slabs_pow2_wth_effcncy(struct Room *room);
 extern void count_gold_slabs_wth_effcncy(struct Room *room);
 extern void count_gold_slabs_full(struct Room *room);
+extern void count_gold_slabs_div2(struct Room* room);
 
 const struct NamedCommand terrain_room_total_capacity_func_type[] = {
   {"slabs_all_only",          1},
   {"slabs_all_wth_effcncy",   2},
-  {"slabs_div2_wth_effcncy",  3},
-  {"gold_slabs_wth_effcncy",  4},
-  {"gold_slabs_full",         5},
-  {"none",                    6},
+  {"slabs_no_min_wth_effcncy",3},
+  {"slabs_div2_wth_effcncy",  4},
+  {"slabs_div2_nomin_effcncy",5},
+  {"slabs_mul2_wth_effcncy",  6},
+  {"slabs_pow2_wth_effcncy",  7},
+  {"gold_slabs_wth_effcncy",  8},
+  {"gold_slabs_full",         9},
+  {"gold_slabs_div2",        10},
+  {"none",                   11},
   {NULL,                      0},
 };
 
@@ -147,9 +157,14 @@ Room_Update_Func terrain_room_total_capacity_func_list[] = {
   NULL,
   count_slabs_all_only,
   count_slabs_all_wth_effcncy,
+  count_slabs_no_min_wth_effcncy,
   count_slabs_div2_wth_effcncy,
+  count_slabs_div2_nomin_effcncy,
+  count_slabs_mul2_wth_effcncy,
+  count_slabs_pow2_wth_effcncy,
   count_gold_slabs_wth_effcncy,
   count_gold_slabs_full,
+  count_gold_slabs_div2,
   NULL,
   NULL,
 };
@@ -384,7 +399,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
         for (int i = 0; i < TERRAIN_ITEMS_MAX; i++)
         {
             slabst = &game.conf.slab_conf.slab_cfgstats[i];
-            LbMemorySet(slabst->code_name, 0, COMMAND_WORD_LEN);
+            memset(slabst->code_name, 0, COMMAND_WORD_LEN);
             slabst->tooltip_stridx = GUIStr_Empty;
             slab_desc[i].name = slabst->code_name;
             slab_desc[i].num = i;
@@ -786,7 +801,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             if (i < game.conf.slab_conf.room_types_count)
             {
                 roomst = &game.conf.slab_conf.room_cfgstats[i];
-                LbMemorySet(roomst->code_name, 0, COMMAND_WORD_LEN);
+                memset(roomst->code_name, 0, COMMAND_WORD_LEN);
                 roomst->name_stridx = GUIStr_Empty;
                 roomst->tooltip_stridx = GUIStr_Empty;
                 roomst->creature_creation_model = 0;
@@ -1083,7 +1098,27 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 15: // AMBIENTSNDSAMPLE
+        case 15: // SLABSYNERGY
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              if ((strcasecmp(word_buf, "none") == 0)) {
+                roomst->synergy_slab = -2;
+                n++;
+              }
+              k = get_id(slab_desc, word_buf);
+              if (k >= 0)
+              {
+                  roomst->synergy_slab = k;
+                  n++;
+              }
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 16: // AMBIENTSNDSAMPLE
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
@@ -1095,11 +1130,12 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             }
             if (n < 1)
             {
+              roomst->synergy_slab = -3;
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 16: // ROLES
+        case 17: // ROLES
             roomst->roles = RoRoF_None;
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
@@ -1113,7 +1149,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
                 }
             }
             break;
-        case 17: // STORAGEHEIGHT
+        case 18: // STORAGEHEIGHT
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -1147,7 +1183,7 @@ TbBool load_terrain_config_file(const char *textname, const char *fname, unsigne
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
+    char* buf = (char*)calloc(len + 256, 1);
     if (buf == NULL)
         return false;
     // Loading file data
@@ -1179,7 +1215,7 @@ TbBool load_terrain_config_file(const char *textname, const char *fname, unsigne
             WARNMSG("Parsing %s file \"%s\" room blocks failed.",textname,fname);
     }
     //Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     return result;
 }
 
@@ -1349,7 +1385,7 @@ TbBool is_room_obtainable(PlayerNumber plyr_idx, RoomKind rkind)
         return false;
     }
     if (rkind >= game.conf.slab_conf.room_types_count) {
-        ERRORLOG("Incorrect power %ld (player %ld)",rkind, plyr_idx);
+        ERRORLOG("Incorrect room %u (player %d)",rkind, plyr_idx);
         return false;
     }
     return ( (dungeon->room_buildable[rkind]) || (dungeon->room_resrchable[rkind]) );

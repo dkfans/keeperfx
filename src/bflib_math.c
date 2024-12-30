@@ -599,15 +599,16 @@ long LbCosL(long x)
 
 long LbArcTanL(long arg)
 {
+    const int num_factors = sizeof(lbArcTanFactors)/sizeof(lbArcTanFactors[0]);
     if (arg < 0)
     {
-        if (arg <= -sizeof(lbArcTanFactors)/sizeof(lbArcTanFactors[0]))
-            arg = -sizeof(lbArcTanFactors)/sizeof(lbArcTanFactors[0]) + 1;
+        if (-arg >= num_factors)
+            arg = -(num_factors - 1);
         return -(long)lbArcTanFactors[-arg];
     } else
     {
-        if (arg >= sizeof(lbArcTanFactors)/sizeof(lbArcTanFactors[0]))
-            arg = sizeof(lbArcTanFactors)/sizeof(lbArcTanFactors[0]) - 1;
+        if (arg >= num_factors)
+            arg = num_factors - 1;
         return (long)lbArcTanFactors[arg];
     }
 }
@@ -831,7 +832,7 @@ long LbDiagonalLength(long a, long b)
     return (tmpval >> 13);
 }
 
-float lerp(float a, float b, float f) 
+float LbLerp(float a, float b, float f)
 {
     return (a * (1.0 - f)) + (b * f);
 }

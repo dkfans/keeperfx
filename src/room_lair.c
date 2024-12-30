@@ -32,6 +32,7 @@
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "front_simple.h"
+#include "thing_effects.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -256,5 +257,92 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
         }
     }
     return nearest_room;
+}
+
+void count_lair_occupants_on_slab(struct Room *room,MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    SYNCDBG(17,"Starting for %s index %d at %d,%d",room_code_name(room->kind),(int)room->index,(int)slb_x,(int)slb_y);
+    for (int n = 0; n < MID_AROUND_LENGTH; n++)
+    {
+        MapSubtlDelta ssub_x = 1 + start_at_around[n].delta_x;
+        MapSubtlDelta ssub_y = 1 + start_at_around[n].delta_y;
+        struct Thing* lairtng = find_lair_totem_at(slab_subtile(slb_x, ssub_x), slab_subtile(slb_y, ssub_y));
+        if (!thing_is_invalid(lairtng))
+        {
+            struct Thing* creatng = thing_get(lairtng->lair.belongs_to);
+            int required_cap = get_required_room_capacity_for_object(RoRoF_LairStorage, 0, creatng->model);
+            if (room->used_capacity + required_cap > room->total_capacity)
+            {
+                create_effect(&lairtng->mappos, imp_spangle_effects[get_player_color_idx(lairtng->owner)], lairtng->owner);
+                delete_lair_totem(lairtng);
+            } else
+            {
+                struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+                cctrl->lair_room_id = room->index;
+                room->content_per_model[creatng->model]++;
+                room->used_capacity += required_cap;
+            }
+        }
+    }
+}
+
+void count_lair_occupants(struct Room *room)
+{
+    room->used_capacity = 0;
+    memset(room->content_per_model, 0, sizeof(room->content_per_model));
+    unsigned long k = 0;
+    unsigned long i = room->slabs_list;
+    while (i > 0)
+    {
+        MapSubtlCoord slb_x = slb_num_decode_x(i);
+        MapSubtlCoord slb_y = slb_num_decode_y(i);
+        struct SlabMap* slb = get_slabmap_direct(i);
+        if (slabmap_block_invalid(slb))
+        {
+            ERRORLOG("Jump to invalid room slab detected");
+            break;
+        }
+        i = get_next_slab_number_in_room(i);
+        // Per slab code
+        count_lair_occupants_on_slab(room, slb_x, slb_y);
+        // Per slab code ends
+        k++;
+        if (k > gameadd.map_tiles_x * gameadd.map_tiles_y)
+        {
+            ERRORLOG("Infinite loop detected when sweeping room slabs");
+            break;
+        }
+    }
+}
+
+struct Thing *find_lair_totem_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    unsigned long k = 0;
+    long i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Per thing code start
+        if (thing_is_lair_totem(thing)) {
+            return thing;
+        }
+        // Per thing code end
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
+            break;
+        }
+    }
+    return INVALID_THING;
 }
 /******************************************************************************/

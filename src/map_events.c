@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_planar.h"
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
@@ -250,7 +249,7 @@ void event_initialise_event(struct Event *event, MapCoord map_x, MapCoord map_y,
 
 void event_delete_event_structure(long ev_idx)
 {
-    LbMemorySet(&game.event[ev_idx], 0, sizeof(struct Event));
+    memset(&game.event[ev_idx], 0, sizeof(struct Event));
 }
 
 void event_update_last_use(struct Event *event)
@@ -521,7 +520,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             break;
         case EvKind_CreaturePayday:
             other_off = 1;
-            text = buf_sprintf("%s:\n %d", game.evntbox_scroll_window.text, event->target);
+            text = buf_sprintf("%s:\n %ld", game.evntbox_scroll_window.text, event->target);
             snprintf(game.evntbox_scroll_window.text,MESSAGE_TEXT_LEN, "%s", text);
             turn_on_menu(GMnu_TEXT_INFO);
             break;

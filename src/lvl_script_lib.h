@@ -177,7 +177,7 @@ enum TbScriptCommands {
     Cmd_ADD_EFFECT_GENERATOR_TO_LEVEL      = 164,
     Cmd_SET_EFFECT_GENERATOR_CONFIGURATION = 165,
     Cmd_SET_POWER_CONFIGURATION            = 166,
-    Cmd_SET_PLAYER_COLOR                   = 167,
+    Cmd_SET_PLAYER_COLOUR                  = 167,
     Cmd_MAKE_UNSAFE                        = 168,
     Cmd_LEVEL_UP_PLAYERS_CREATURES         = 169,
     Cmd_SET_INCREASE_ON_EXPERIENCE         = 170,
@@ -187,6 +187,7 @@ enum TbScriptCommands {
     Cmd_CHANGE_SLAB_TEXTURE                = 174,
     Cmd_MOVE_PLAYER_CAMERA_TO              = 175,
     Cmd_ADD_OBJECT_TO_LEVEL_AT_POS         = 176,
+    Cmd_PLACE_DOOR                         = 177,
 };
 
 struct ScriptLine {
@@ -267,6 +268,7 @@ enum ScriptVariables {
   SVar_TOTAL_SALARY                    = 64,
   SVar_CURRENT_SALARY                  = 65,
   SVar_BOX_ACTIVATED                   = 66,
+  SVar_TRAP_ACTIVATED                  = 86,
   SVar_SACRIFICED                      = 67,  // Per model
   SVar_REWARDED                        = 68,  // Per model
   SVar_EVIL_CREATURES_CONVERTED        = 69,

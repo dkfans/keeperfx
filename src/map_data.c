@@ -21,7 +21,6 @@
 #include "globals.h"
 #include "map_columns.h"
 #include "bflib_math.h"
-#include "bflib_memory.h"
 #include "slab_data.h"
 #include "config_terrain.h"
 #include "game_legacy.h"
@@ -576,7 +575,7 @@ void clear_mapmap(void)
         {
             struct Map* mapblk = get_map_block_at(x, y);
             NavColour* flg = &game.navigation_map[get_subtile_number(x, y)];
-            LbMemorySet(mapblk, 0, sizeof(struct Map));
+            memset(mapblk, 0, sizeof(struct Map));
             *flg = 0;
         }
     }

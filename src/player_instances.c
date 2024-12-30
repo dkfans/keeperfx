@@ -240,22 +240,22 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       if (shotst->model_flags & ShMF_Boulder)
       {
           thing->move_angle_xy = player->acamera->orient_a;
-          if (thing->model != ShM_SolidBoulder) //TODO CONFIG shot model dependency, make config option instead
+          if (thing->model != ShM_SolidBoulder) // TODO CONFIG shot model dependency, make config option instead.
           {
               thing->health -= game.conf.rules.game.boulder_reduce_health_slap;
           }
-      } else
+      }
+      else
       {
           detonate_shot(thing,true);
       }
       break;
   case TCls_Trap:
-      trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
+      trapst = get_trap_model_stats(thing->model);
       if ((trapst->slappable > 0) && trap_is_active(thing))
       {
-          struct TrapStats* trapstat = &game.conf.trap_stats[thing->model];
           struct Thing* trgtng = INVALID_THING;
-          shotst = get_shot_model_stats(trapstat->created_itm_model);
+          shotst = get_shot_model_stats(trapst->created_itm_model);
           if (trapst->slappable == 1)
           {
               external_activate_trap_shot_at_angle(thing, player->acamera->orient_a, trgtng);
@@ -330,7 +330,8 @@ long pinstfs_direct_control_creature(struct PlayerInfo *player, long *n)
 {
     // Reset state of the thing being possessed
     struct Thing* thing = thing_get(player->influenced_thing_idx);
-    if (thing_is_creature(thing)) {
+    if (thing_can_be_controlled_as_controller(thing))
+    {
         SYNCDBG(8,"Cleaning up state %s of %s index %d",creature_state_code_name(thing->active_state),thing_model_name(thing),(int)thing->index);
         initialise_thing_state(thing, CrSt_ManualControl);
         LbGrabMouseCheck(MG_OnPossessionEnter);
@@ -372,7 +373,6 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
         }
         cam->orient_a += mv_a;
         cam->orient_a &= LbFPMath_AngleMask;
-        thing = thing_get(player->influenced_thing_idx);
         // Now mv_a becomes a circle radius
         mv_a = get_creature_eye_height(thing) + thing->mappos.z.val;
         long mv_x = thing->mappos.x.val + distance_with_angle_to_coord_x(mv_a, cam->orient_a) - (MapCoordDelta)cam->mappos.x.val;
@@ -1226,8 +1226,9 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
 
 TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel)
 {
-    if (!is_trap_placeable(plyr_idx, tngmodel)) {
-        WARNLOG("Player %d tried to build %s but has none to place",(int)plyr_idx,trap_code_name(tngmodel));
+    if (!is_trap_placeable(plyr_idx, tngmodel))
+    {
+        WARNLOG("Player %d tried to build %s but has none to place", (int)plyr_idx, trap_code_name(tngmodel));
         return false;
     }
     struct TrapConfigStats* trap_cfg = get_trap_model_stats(tngmodel);
@@ -1240,18 +1241,26 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     {
         set_coords_to_slab_center(&pos, subtile_slab(stl_x), subtile_slab(stl_y));
     }
-    delete_room_slabbed_objects(get_slab_number(subtile_slab(stl_x),subtile_slab(stl_y)));
+    delete_room_slabbed_objects(get_slab_number(subtile_slab(stl_x), subtile_slab(stl_y)));
     struct Thing* traptng = create_trap(&pos, tngmodel, plyr_idx);
-    if (thing_is_invalid(traptng)) {
+    if (thing_is_invalid(traptng))
+    {
         return false;
     }
     traptng->mappos.z.val = get_thing_height_at(traptng, &traptng->mappos);
     traptng->trap.revealed = 0;
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-
     remove_workshop_item_from_amount_placeable(plyr_idx, TCls_Trap, tngmodel);
-    if (placing_offmap_workshop_item(plyr_idx, TCls_Trap, tngmodel)) {
+    if (placing_offmap_workshop_item(plyr_idx, TCls_Trap, tngmodel))
+    {
         remove_workshop_item_from_amount_stored(plyr_idx, TCls_Trap, tngmodel, WrkCrtF_NoStored);
+        rearm_trap(traptng);
+        dungeon->lvstats.traps_armed++;
+    }
+    else if (trap_cfg->instant_placement)
+    {
+        remove_workshop_item_from_amount_stored(plyr_idx, TCls_Trap, tngmodel, WrkCrtF_NoOffmap);
+        remove_workshop_object_from_player(plyr_idx, trap_crate_object_model(tngmodel));
         rearm_trap(traptng);
         dungeon->lvstats.traps_armed++;
     }
@@ -1263,15 +1272,11 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     return true;
 }
 
-TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel)
+TbBool player_place_door_without_check_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel)
 {
-    if (!is_door_placeable(plyr_idx, tngmodel)) {
-        WARNLOG("Player %d tried to build %s but has none to place",(int)plyr_idx,door_code_name(tngmodel));
-        return 0;
-    }
     unsigned char orient = find_door_angle(stl_x, stl_y, plyr_idx);
     struct Coord3d pos;
-    set_coords_to_slab_center(&pos,subtile_slab(stl_x),subtile_slab(stl_y));
+    set_coords_to_slab_center(&pos, subtile_slab(stl_x), subtile_slab(stl_y));
     create_door(&pos, tngmodel, orient, plyr_idx, 0);
     do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
@@ -1286,7 +1291,7 @@ TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
         remove_workshop_object_from_player(plyr_idx, door_crate_object_model(tngmodel));
         break;
     default:
-        WARNLOG("Placeable door %s amount for player %d was incorrect; fixed",door_code_name(tngmodel),(int)dungeon->owner);
+        WARNLOG("Placeable door %s amount for player %d was incorrect; fixed", door_code_name(tngmodel), (int)dungeon->owner);
         dungeon->mnfct_info.door_amount_placeable[tngmodel] = 0;
         break;
     }
@@ -1299,6 +1304,15 @@ TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     return 1;
 }
 
+TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel)
+{
+    if (!is_door_placeable(plyr_idx, tngmodel)) {
+        WARNLOG("Player %d tried to build %s but has none to place",(int)plyr_idx,door_code_name(tngmodel));
+        return 0;
+    }
+    return player_place_door_without_check_at(stl_x, stl_y, plyr_idx, tngmodel);
+}
+
 TbBool is_thing_directly_controlled_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
 {
     if (!thing_exists(thing))
@@ -1306,7 +1320,7 @@ TbBool is_thing_directly_controlled_by_player(const struct Thing *thing, PlayerN
      struct PlayerInfo* player = get_player(plyr_idx);
      if (player_invalid(player))
      {
-         ERRORLOG("Bad player: $d", plyr_idx);
+         ERRORLOG("Bad player: %d", plyr_idx);
          return false;
      }
      else
@@ -1353,7 +1367,7 @@ TbBool is_thing_passenger_controlled_by_player(const struct Thing *thing, Player
      struct PlayerInfo* player = get_player(plyr_idx);
      if (player_invalid(player))
      {
-         ERRORLOG("Bad player: $d", plyr_idx);
+         ERRORLOG("Bad player: %d", plyr_idx);
          return false;
      }
     else

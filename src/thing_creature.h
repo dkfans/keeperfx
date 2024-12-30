@@ -76,8 +76,7 @@ struct CreatureStorage {
 
 #pragma pack()
 /******************************************************************************/
-extern struct TbSprite *swipe_sprites;
-extern struct TbSprite *end_swipe_sprites;
+extern struct TbSpriteSheet *swipe_sprites;
 extern unsigned long creature_create_errors;
 /******************************************************************************/
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner);
@@ -99,8 +98,10 @@ void init_creature_level(struct Thing *thing, long nlev);
 long get_creature_speed(const struct Thing *thing);
 
 TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
+TbBool thing_can_be_controlled_as_controller(struct Thing* thing);
 TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
 void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
+void prepare_to_controlled_creature_death(struct Thing* thing);
 ThingIndex process_player_use_instance(struct Thing *thing, CrInstance inst_id, struct Packet *packet);
 ThingIndex get_human_controlled_creature_target(struct Thing *thing, CrInstance inst_id, struct Packet *packet);
 struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord x, MapCoord y);
@@ -130,7 +131,7 @@ void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng);
 short creature_take_wage_from_gold_pile(struct Thing *crthing,struct Thing *obthing);
 void anger_apply_anger_to_creature_f(struct Thing *thing, long anger, AnnoyMotive reason, long a3, const char *func_name);
 #define anger_apply_anger_to_creature(thing, anger, reason, a3) anger_apply_anger_to_creature_f(thing, anger, reason, a3, __func__)
-HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, DamageType damage_type, PlayerNumber inflicting_plyr_idx);
+HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, PlayerNumber inflicting_plyr_idx);
 void process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d *pos);
 long creature_instance_has_reset(const struct Thing *thing, long a2);
 void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long targtng_idx, const struct Coord3d *pos);
@@ -219,6 +220,7 @@ void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, lon
 PlayerNumber get_appropriate_player_for_creature(struct Thing *creatng);
 /******************************************************************************/
 void throw_out_gold(struct Thing* thing, long amount);
+ThingModel get_random_creature_kind_with_model_flags(unsigned long model_flags);
 /******************************************************************************/
 #ifdef __cplusplus
 }

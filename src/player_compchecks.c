@@ -486,7 +486,7 @@ long computer_check_sacrifice_for_cheap_diggers(struct Computer2 *comp, struct C
 
     GoldAmount power_price = compute_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
     GoldAmount lowest_price = compute_lowest_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
-    SYNCDBG(18, "Digger creation power price: %d, lowest: %d", power_price, lowest_price);
+    SYNCDBG(18, "Digger creation power price: %ld, lowest: %ld", power_price, lowest_price);
 
 	if ((power_price > lowest_price) && !is_task_in_progress_using_hand(comp)
 		&& computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, 2)) //TODO COMPUTER_PLAYER add amount of imps to afford to the checks config params
@@ -597,7 +597,7 @@ struct Thing * find_imp_for_pickup(struct Computer2 *comp, MapSubtlCoord stl_x, 
     {
         struct Thing* thing = thing_get(i);
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        if (!thing_is_creature(thing) || creature_control_invalid(cctrl))
         {
           ERRORLOG("Jump to invalid creature detected");
           break;
@@ -653,6 +653,9 @@ long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * ch
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     if (!computer_able_to_use_power(comp, PwrK_HAND, 1, 1)) {
+        return CTaskRet_Unk4;
+    }
+    if (is_task_in_progress_using_hand(comp)) {
         return CTaskRet_Unk4;
     }
     {

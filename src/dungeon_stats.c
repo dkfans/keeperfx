@@ -44,60 +44,61 @@ TbBool load_stats_files(void)
     SYNCDBG(8, "Starting");
     TbBool result = true;
     clear_research_for_all_players();
+    init_creature_model_stats();
+    init_creature_model_graphics();
     if (!load_creaturetypes_config(keeper_creaturetp_file,CnfLd_ListOnly))
-      result = false;
+        result = false;
     if (!load_terrain_config(keeper_terrain_file,CnfLd_ListOnly))
-      result = false;
+        result = false;
     if (!load_objects_config(keeper_objects_file,CnfLd_ListOnly))
-      result = false;
+        result = false;
     if (!load_trapdoor_config(keeper_trapdoor_file,CnfLd_ListOnly))
-      result = false;
+        result = false;
     if (!load_effects_config(keeper_effects_file,CnfLd_ListOnly))
-      result = false;
+        result = false;
     if (!load_lenses_config(keeper_lenses_file,CnfLd_ListOnly))
-      result = false;
+        result = false;
     if (!load_magic_config(keeper_magic_file,CnfLd_ListOnly))
-      result = false;
+        result = false;
     if (!load_creaturestates_config(creature_states_file,CnfLd_ListOnly))
-      result = false;
+        result = false;
     if (!load_playerstate_config(keeper_playerstates_file,CnfLd_ListOnly))
-      result = false;
+        result = false;
     if (!load_terrain_config(keeper_terrain_file,CnfLd_Standard))
-      result = false;
+        result = false;
     if (!load_objects_config(keeper_objects_file,CnfLd_Standard))
-      result = false;
+        result = false;
     if (!load_trapdoor_config(keeper_trapdoor_file,CnfLd_Standard))
-      result = false;
+        result = false;
     if (!load_effects_config(keeper_effects_file,CnfLd_Standard))
-      result = false;
+        result = false;
     if (!load_lenses_config(keeper_lenses_file,CnfLd_Standard))
-      result = false;
+        result = false;
     if (!load_magic_config(keeper_magic_file,CnfLd_Standard))
-      result = false;
+        result = false;
     if (!load_creaturetypes_config(keeper_creaturetp_file,CnfLd_Standard))
-      result = false;
+        result = false;
     if (!load_creaturestates_config(creature_states_file,CnfLd_Standard))
-      result = false;
-    // note that rules file requires definitions of magic and creature types
+        result = false;
+    // Note that rules file requires definitions of magic and creature types.
     if (!load_rules_config(keeper_rules_file,CnfLd_Standard))
-      result = false;
+        result = false;
     if (!load_slabset_config(keeper_slabset_file,CnfLd_Standard))
-      result = false;
+        result = false;
     if (!load_textureanim_config(keeper_textureanim_file,CnfLd_Standard))
-      result = false;
+        result = false;
     if (!load_powerhands_config(keeper_powerhands_file,CnfLd_Standard))
-      result = false;
+        result = false;
     if (!load_spritecolors_config(keeper_spritecolors_file,CnfLd_Standard))
-      result = false;
+        result = false;
     if (!load_cubes_config(CnfLd_Standard))
-      result = false;
+        result = false;
     if (!load_playerstate_config(keeper_playerstates_file,CnfLd_Standard))
-      result = false;
-    
+        result = false;
     for (int i = 1; i < game.conf.crtr_conf.model_count; i++)
     {
-      if (!load_creaturemodel_config(i,0))
-        result = false;
+        if (!load_creaturemodel_config(i,0))
+            result = false;
     }
     SYNCDBG(3,"Finished");
     return result;
