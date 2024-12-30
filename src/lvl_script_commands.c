@@ -2792,6 +2792,72 @@ static void place_door_process(struct ScriptContext* context)
     }
 }
 
+static void place_trap_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    const char* trapname = scline->tp[1];
+    short trap_id = get_id(trap_desc, trapname);
+
+    if (trap_id == -1)
+    {
+        SCRPTERRLOG("Unknown trap, '%s'", trapname);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    if (subtile_coords_invalid(scline->np[2], scline->np[3]))
+    {
+        SCRPTERRLOG("Invalid subtile coordinates: %ld, %ld", scline->np[2], scline->np[3]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    short free;
+    if (parameter_is_number(scline->tp[4]))
+    {
+        free = atoi(scline->tp[4]);
+    }
+    else
+    {
+        free = get_id(is_free_desc, scline->tp[4]);
+    }
+    if ((free < 0) || (free > 1))
+    {
+        SCRPTERRLOG("Place Trapr free state '%s' not recognized", scline->tp[5]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    value->shorts[1] = trap_id;
+    value->shorts[2] = scline->np[2];
+    value->shorts[3] = scline->np[3];
+    value->shorts[4] = free;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void place_trap_process(struct ScriptContext* context)
+{
+    ThingModel trapkind = context->value->shorts[1];
+    MapSubtlCoord stl_x = context->value->shorts[2];
+    MapSubtlCoord stl_y = context->value->shorts[3];
+    TbBool free = context->value->shorts[4];
+
+    for (int plyridx = context->plr_start; plyridx < context->plr_end; plyridx++)
+    {
+        if (can_place_trap_on(plyridx, stl_x, stl_y, trapkind))
+        {
+            if (free)
+            {
+                player_place_trap_without_check_at(stl_x, stl_y, plyridx, trapkind, free);
+            }
+            else
+            {
+                player_place_trap_at(stl_x, stl_y, plyridx, trapkind);
+            }
+        }
+    }
+}
+
 static void create_effects_line_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
@@ -7445,6 +7511,7 @@ const struct CommandDesc command_desc[] = {
   {"HEART_LOST_OBJECTIVE",              "Nl      ", Cmd_HEART_LOST_OBJECTIVE, &heart_lost_objective_check, &heart_lost_objective_process},
   {"SET_DOOR",                          "ANN     ", Cmd_SET_DOOR, &set_door_check, &set_door_process},
   {"PLACE_DOOR",                        "PANNAA  ", Cmd_PLACE_DOOR, &place_door_check, &place_door_process},
+  {"PLACE_TRAP",                        "PANNA   ", Cmd_PLACE_TRAP, &place_trap_check, &place_trap_process },
   {"ZOOM_TO_LOCATION",                  "PL      ", Cmd_MOVE_PLAYER_CAMERA_TO, &player_zoom_to_check, &player_zoom_to_process},
   {"SET_CREATURE_INSTANCE",             "CNAN    ", Cmd_SET_CREATURE_INSTANCE, &set_creature_instance_check, &set_creature_instance_process},
   {"SET_HAND_RULE",                     "PC!Aaaa ", Cmd_SET_HAND_RULE, &set_hand_rule_check, &set_hand_rule_process},
