@@ -4619,6 +4619,169 @@ void poly_render() {
 }
 #endif
 
+#if 0
+#include <stdint.h>
+#include <stdbool.h>
+
+// --- Globals (same as in your code) ---
+extern int LOC_vec_screen_width;
+extern uint8_t *LOC_vec_screen;
+extern int LOC_vec_window_height;
+extern int point1x, point1y, point2x, point2y, point3x, point3y;
+extern int crease_len;
+extern uint32_t gploc_pt_shax, gploc_pt_shbx;
+extern uint32_t gploc_8C, gploc_88, gploc_80, gploc_7C;
+extern uint32_t gploc_FC, gploc_F8, gploc_F4, gploc_34, gploc_D8, gploc_E4;
+extern uint32_t gploc_5C, gploc_2C, gploc_12C, gploc_128;
+extern uint32_t gploc_60, gploc_64, gploc_98, gploc_94, gploc_104, gploc_180;
+extern uint32_t gploc_C0, gploc_74;
+extern uint32_t render_fade_tables, gpoly_countdown;
+extern uint8_t *LOC_vec_map;
+extern void JUSTLOG(const char*, ...);
+
+// Helper macro replicating the 32-bit addition + carry check used in the original
+#define ADD_CARRY_32(sumVar, addend, carryOut) \
+  do {                                         \
+    uint64_t __s = (uint64_t)(sumVar) + (uint64_t)(addend); \
+    carryOut = (__s > 0xffffffffU) ? 1 : 0;    \
+    sumVar = (uint32_t)__s;                    \
+  } while (0)
+
+// Extract the texture index transformation. This is how the original code derived `texture_x`.
+static inline uint32_t GET_TEXTURE_X(uint32_t val) {
+  // Original pattern: (uVar & 0xff0000ff) << 8 | (uVar >> 24)
+  return ((val & 0xff0000ffU) << 8) | (val >> 24);
+}
+
+// Read a single pixel from the fade table based on (uVar7 & 0xff00) + textureIndex
+static inline uint8_t GET_FADE_PIXEL(uint32_t uVar7, uint8_t textureByte) {
+  uint32_t fadeIndex = (uVar7 & 0xff00U) | textureByte;
+  return *(uint8_t *)(render_fade_tables + fadeIndex);
+}
+
+// Core function
+void poly_render(void)
+{
+    JUSTLOG("(%d, %d), (%d, %d), (%d, %d), crease_len = %d",
+            point1x, point1y, point2x, point2y, point3x, point3y, crease_len);
+
+    // Early pointer setup to the first scanline
+    // (same as iVar12 = LOC_vec_screen + LOC_vec_screen_width * point1y)
+    gploc_F4 = (uint32_t)(LOC_vec_screen + (point1y * LOC_vec_screen_width));
+
+    // If top polygon portion is in view:
+    if (point1y <= LOC_vec_window_height)
+    {
+        // Limit second vertex Y by screen bounds
+        gploc_C0 = (point2y > LOC_vec_window_height) ? LOC_vec_window_height : point2y;
+        gploc_C0 -= point1y;       // number of lines to draw in the top portion
+        gploc_74 = point1x;        // original code: gploc_74 = point1x
+        gploc_FC = gploc_pt_shax;  // texture start (or "iVar3" in old code)
+        gploc_F8 = gploc_pt_shax;  // second edge's texture, used as "iVar10"
+
+        if (gploc_C0 != 0)
+        {
+            // For each scanline in the top portion
+            while (gploc_C0--)
+            {
+                // xStart = (gploc_FC >> 16), xEnd = (gploc_F8 >> 16)
+                // but we only do the loop if xEnd >= xStart (same check: iVar2 <= iVar10>>16).
+                uint32_t xStart = gploc_FC >> 16;
+                uint32_t xEnd   = gploc_F8 >> 16;
+                if (xEnd >= xStart)
+                {
+                    uint32_t pixels_to_place = xEnd - xStart;
+                    if (pixels_to_place != 0)
+                    {
+                        // This replicates the " *(int*)(&gpoly_countdown + (pixels_to_place & 0xf)*4) " trick
+                        uint32_t offsetIndex = (pixels_to_place & 0xF) << 2;
+                        int additionalOffset = *(int *)((uintptr_t)&gpoly_countdown + offsetIndex);
+
+                        // Destination pointer = start of line + xStart + that offset
+                        uint8_t *dst = (uint8_t *)((uintptr_t)gploc_F4 + xStart + additionalOffset);
+
+                        // Local copies of uVar7 / uVar9 from original
+                        uint32_t uVar7 = gploc_D8;  //  => used in the fade index’s high byte
+                        uint32_t uVar9 = gploc_E4;  //  => used in the fade index’s texture base
+
+                        // Place pixels in a simple for-loop
+                        for (uint32_t i = 0; i < pixels_to_place; i++)
+                        {
+                            uint32_t texX = GET_TEXTURE_X(uVar9);
+                            uint8_t texByte = *(uint8_t *)( (uintptr_t)LOC_vec_map + texX );
+                            *dst++ = GET_FADE_PIXEL(uVar7, texByte);
+
+                            // Reproduce the original carry-based increments:
+                            int carry;
+                            ADD_CARRY_32(uVar7, gploc_5C, carry);         // uVar7 += gploc_5C
+                            ADD_CARRY_32(uVar9, (gploc_2C + (uint32_t)carry), carry);
+                            // (the second add in original was 'uVar9 + gploc_2C + bVar14')
+                        }
+                    }
+                }
+                // Move to next scanline: update everything
+                gploc_FC += gploc_12C;   // texture for left side
+                gploc_F8 += gploc_128;   // texture for right side
+                gploc_34 += gploc_60;    // used for something in the original
+                {
+                    // This was "uVar8 = gploc_D8 + gploc_CC + carry( gploc_34 + gploc_60 )" etc.
+                    // We'll do it inline:
+                    int c;
+                    ADD_CARRY_32(gploc_34, 0, c);   // get carry from just that assignment
+                    uint32_t tempD8 = gploc_D8 + gploc_CC + (uint32_t)c;
+                    int c2 = (tempD8 < gploc_D8) ? 1 : 0;
+
+                    uint32_t tempE4 = gploc_E4 + gploc_C4 + c2;  // next carry
+                    gploc_D8 = tempD8;
+                    gploc_E4 = tempE4;
+                }
+                // Advance the screen pointer by gploc_104
+                gploc_F4 += gploc_104;
+            }
+        }
+    }
+
+    // Now the lower part of the polygon, handled by gploc_180 times in the original
+    while (gploc_180--)
+    {
+        // In original: for each iteration, we either do the "bottom" portion if (crease_len < 0)
+        // or skip. We'll replicate that logic:
+
+        if (crease_len < 0)
+        {
+            int bottomY = (point3y > LOC_vec_window_height)
+                              ? LOC_vec_window_height
+                              : point3y;
+            gploc_C0 = bottomY - point2y;
+            gploc_128 = (uint32_t)/* factor_cb or whichever was in old code */ 0; 
+            if (gploc_C0 == 0 || bottomY < point2y)
+            {
+                gploc_FC = gploc_pt_shax; // restore or skip
+                return;
+            }
+            // Render loop for the bottom portion (similar to above) ...
+            // Left out here for brevity—same pixel loop approach
+        }
+        else
+        {
+            // Positive crease_len => something else
+            int bottomY = (point3y > LOC_vec_window_height)
+                              ? LOC_vec_window_height
+                              : point3y;
+            gploc_C0 = bottomY - point2y;
+            if (gploc_C0 == 0 || bottomY < point2y)
+            {
+                gploc_FC = gploc_pt_shax;
+                gploc_74 = point2x;
+                return;
+            }
+            // Render loop for bottom portion
+            // (Same approach with the single for-loop per scanline)
+        }
+    }
+}
+#endif
+
 
 void poly_render() {
   uint32_t texture;  // Address as 32-bit unsigned?
