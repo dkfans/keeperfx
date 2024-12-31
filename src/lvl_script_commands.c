@@ -498,6 +498,18 @@ const struct NamedCommand is_free_desc[] = {
   {NULL, 0}
 };
 
+const struct NamedCommand orientation_desc[] = {
+  {"North",     ANGLE_NORTH},
+  {"NorthEast", ANGLE_NORTHEAST},
+  {"East",      ANGLE_EAST},
+  {"SouthEast", ANGLE_SOUTHEAST},
+  {"South",     ANGLE_SOUTH},
+  {"SouthWest", ANGLE_SOUTHWEST},
+  {"West",      ANGLE_WEST},
+  {"NorthWest", ANGLE_NORTHWEST},
+  {NULL, 0}
+};
+
 const struct NamedCommand texture_pack_desc[] = {
   {"NONE",         0},
   {"STANDARD",     1},
@@ -7017,8 +7029,24 @@ static void add_object_to_level_at_pos_check(const struct ScriptLine* scline)
     {
         plyr_idx = PLAYER_NEUTRAL;
     }
+    short angle = 0;
+    if (parameter_is_number(scline->tp[5]))
+    {
+        angle = atoi(scline->tp[5]);
+    }
+    else
+    {
+        angle = get_rid(orientation_desc, scline->tp[5]);
+        if (angle < 0)
+        {
+            SCRPTERRLOG("Unknown orientation: %s", scline->tp[5]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+    }
+
     value->chars[2] = plyr_idx;
-    value->shorts[6] = atoi(scline->tp[5]);
+    value->shorts[6] = angle;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -7046,8 +7074,25 @@ static void add_object_to_level_check(const struct ScriptLine* scline)
     {
         plyr_idx = PLAYER_NEUTRAL;
     }
+
+    short angle = 0;
+    if (parameter_is_number(scline->tp[4]))
+    {
+        angle = atoi(scline->tp[4]);
+    }
+    else
+    {
+        angle = get_rid(orientation_desc, scline->tp[4]);
+        if (angle < 0)
+        {
+            SCRPTERRLOG("Unknown orientation: %s", scline->tp[4]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+    }
+
     value->chars[2] = plyr_idx;
-    value->shorts[6] = atoi(scline->tp[4]);
+    value->shorts[6] = angle;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
