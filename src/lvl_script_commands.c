@@ -7032,7 +7032,7 @@ static void add_object_to_level_at_pos_check(const struct ScriptLine* scline)
     short angle = 0;
     if (parameter_is_number(scline->tp[5]))
     {
-        angle = atoi(scline->tp[5]);
+        angle = atoi(scline->tp[5]) % LbFPMath_TAU;
     }
     else
     {
@@ -7078,7 +7078,7 @@ static void add_object_to_level_check(const struct ScriptLine* scline)
     short angle = 0;
     if (parameter_is_number(scline->tp[4]))
     {
-        angle = atoi(scline->tp[4]);
+        angle = atoi(scline->tp[4]) % LbFPMath_TAU;
     }
     else
     {
