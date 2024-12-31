@@ -7017,7 +7017,7 @@ static void add_object_to_level_at_pos_check(const struct ScriptLine* scline)
     {
         plyr_idx = PLAYER_NEUTRAL;
     }
-    value->chars[6] = plyr_idx;
+    value->chars[7] = plyr_idx;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -7060,7 +7060,7 @@ static void add_object_to_level_process(struct ScriptContext* context)
 
 static void add_object_to_level_at_pos_process(struct ScriptContext* context)
 {
-    script_process_new_object(context->value->shorts[0], context->value->shorts[1], context->value->shorts[2], context->value->longs[2], context->value->chars[6]);
+    script_process_new_object(context->value->shorts[0], context->value->shorts[1], context->value->shorts[2], context->value->longs[2], context->value->chars[7]);
 }
 
 static void set_computer_globals_check(const struct ScriptLine* scline)
