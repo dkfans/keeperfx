@@ -112,7 +112,6 @@ obj/bflib_inputctrl.o \
 obj/bflib_keybrd.o \
 obj/bflib_main.o \
 obj/bflib_math.o \
-obj/bflib_memory.o \
 obj/bflib_mouse.o \
 obj/bflib_mshandler.o \
 obj/bflib_mspointer.o \
@@ -124,14 +123,11 @@ obj/bflib_network.o \
 obj/bflib_planar.o \
 obj/bflib_render.o \
 obj/bflib_render_gpoly.o \
-obj/bflib_render_gtblock.o \
 obj/bflib_render_trig.o \
-obj/bflib_semphr.o \
 obj/bflib_server_tcp.o \
 obj/bflib_sndlib.o \
 obj/bflib_sound.o \
 obj/bflib_sprfnt.o \
-obj/bflib_sprite.o \
 obj/bflib_string.o \
 obj/bflib_tcpsp.o \
 obj/bflib_threadcond.o \
@@ -197,7 +193,6 @@ obj/engine_render.o \
 obj/engine_render_data.o \
 obj/engine_textures.o \
 obj/front_credits.o \
-obj/front_credits_data.o \
 obj/front_easter.o \
 obj/front_fmvids.o \
 obj/front_highscore.o \
@@ -294,6 +289,7 @@ obj/room_lair.o \
 obj/room_library.o \
 obj/room_list.o \
 obj/room_scavenge.o \
+obj/room_treasure.o \
 obj/room_util.o \
 obj/room_workshop.o \
 obj/roomspace.o \
@@ -306,7 +302,6 @@ obj/steam_api.o \
 obj/tasks_list.o \
 obj/thing_corpses.o \
 obj/thing_creature.o \
-obj/thing_creature_data.o \
 obj/thing_data.o \
 obj/thing_doors.o \
 obj/thing_effects.o \
@@ -323,6 +318,7 @@ obj/vidfade.o \
 obj/vidmode_data.o \
 obj/vidmode.o \
 obj/KeeperSpeechImp.o \
+obj/spritesheet.o \
 $(FTEST_OBJS) \
 $(RES)
 
@@ -346,12 +342,16 @@ CU_OBJS = \
 # include and library directories
 LINKLIB = -mwindows \
 	-L"sdl/lib" -lSDL2 -lSDL2_mixer -lSDL2_net -lSDL2_image \
+	-L"deps/ffmpeg/libavformat" -lavformat \
+	-L"deps/ffmpeg/libavcodec" -lavcodec \
+	-L"deps/ffmpeg/libswresample" -lswresample \
+	-L"deps/ffmpeg/libavutil" -lavutil \
 	-L"deps/astronomy" -lastronomy \
 	-L"deps/enet" -lenet \
 	-L"deps/spng" -lspng \
 	-L"deps/centijson" -ljson \
 	-L"deps/zlib" -lminizip -lz \
-	-lwinmm -lmingw32 -limagehlp -lws2_32 -ldbghelp
+	-lwinmm -lmingw32 -limagehlp -lws2_32 -ldbghelp -lbcrypt
 INCS = \
 	-I"deps/zlib/include" \
 	-I"deps/spng/include" \
@@ -361,6 +361,7 @@ INCS = \
 	-I"deps/centijson/include" \
 	-I"deps/centitoml" \
 	-I"deps/astronomy/include" \
+	-I"deps/ffmpeg" \
 	-I"obj" # To find ver_defs.h
 CXXINCS =  $(INCS)
 
@@ -398,7 +399,7 @@ endif
 STLOGFLAGS = -DBFDEBUG_LEVEL=0
 HVLOGFLAGS = -DBFDEBUG_LEVEL=10
 # compiler warning generation flags
-WARNFLAGS = -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing -Wno-unknown-pragmas
+WARNFLAGS = -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing -Wno-unknown-pragmas -Werror
 # disabled warnings: -Wextra -Wtype-limits
 CXXFLAGS = $(CXXINCS) -c -std=gnu++1y -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(FTEST_DBGFLAGS) $(INCFLAGS)
 CFLAGS = $(INCS) -c -std=gnu11 -fmessage-length=0 $(WARNFLAGS) -Werror=implicit $(DEPFLAGS) $(FTEST_DBGFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
@@ -584,7 +585,7 @@ clean-libexterns: libexterns.mk
 	-$(RM) -rf deps/enet deps/zlib deps/spng deps/astronomy deps/centijson
 	-$(RM) libexterns
 
-deps/enet deps/zlib deps/spng deps/astronomy deps/centijson:
+deps/enet deps/zlib deps/spng deps/astronomy deps/centijson deps/ffmpeg:
 	$(MKDIR) $@
 
 src/api.c: deps/centijson/include/json.h
@@ -593,6 +594,8 @@ src/custom_sprites.c: deps/zlib/include/zlib.h deps/spng/include/spng.h deps/cen
 src/moonphase.c: deps/astronomy/include/astronomy.h
 deps/centitoml/toml_api.c: deps/centijson/include/json.h
 deps/centitoml/toml_conv.c: deps/centijson/include/json.h
+src/bflib_fmvids.cpp: deps/ffmpeg/libavformat/avformat.h
+obj/std/bflib_fmvids.o obj/hvlog/bflib_fmvids.o: CXXFLAGS += -Wno-error=deprecated-declarations
 
 deps/enet-mingw32.tar.gz:
 	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/enet-mingw32.tar.gz"
@@ -623,6 +626,12 @@ deps/centijson-mingw32.tar.gz:
 
 deps/centijson/include/json.h: deps/centijson-mingw32.tar.gz | deps/centijson
 	tar xzmf $< -C deps/centijson
+
+deps/ffmpeg-mingw32.tar.gz:
+	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/ffmpeg-mingw32.tar.gz"
+
+deps/ffmpeg/libavformat/avformat.h: deps/ffmpeg-mingw32.tar.gz | deps/ffmpeg
+	tar xzmf $< -C deps/ffmpeg
 
 include tool_png2ico.mk
 include tool_pngpal2raw.mk

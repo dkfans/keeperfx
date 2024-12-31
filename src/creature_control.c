@@ -20,7 +20,6 @@
 #include "creature_control.h"
 #include "globals.h"
 
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_sound.h"
 #include "config_creature.h"
@@ -108,7 +107,7 @@ struct CreatureControl *allocate_free_control_structure(void)
         {
             if ((cctrl->flgfield_1 & CCFlg_Exists) == 0)
             {
-                LbMemorySet(cctrl, 0, sizeof(struct CreatureControl));
+                memset(cctrl, 0, sizeof(struct CreatureControl));
                 cctrl->flgfield_1 |= CCFlg_Exists;
                 cctrl->index = i;
                 return cctrl;
@@ -120,7 +119,7 @@ struct CreatureControl *allocate_free_control_structure(void)
 
 void delete_control_structure(struct CreatureControl *cctrl)
 {
-    LbMemorySet(cctrl, 0, sizeof(struct CreatureControl));
+    memset(cctrl, 0, sizeof(struct CreatureControl));
 }
 
 void delete_all_control_structures(void)
@@ -138,7 +137,8 @@ void delete_all_control_structures(void)
 
 struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, ThingModel crmodel, struct Coord3d *pos)
 {
-    SYNCDBG(6,"Request for model %ld (%s) at (%d,%d,%d)",crmodel, creature_code_name(crmodel),(int)pos->x.val,(int)pos->y.val,(int)pos->z.val);
+    SYNCDBG(6,"Request for model %d (%s) at (%d,%d,%d)",
+        crmodel, creature_code_name(crmodel),(int)pos->x.val,(int)pos->y.val,(int)pos->z.val);
     struct Thing* thing = create_creature(pos, crmodel, player->id_number);
     if (thing_is_invalid(thing))
       return INVALID_THING;
@@ -163,7 +163,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     set_start_state(thing);
     // Preparing light object
     struct InitLight ilght;
-    LbMemorySet(&ilght, 0, sizeof(struct InitLight));
+    memset(&ilght, 0, sizeof(struct InitLight));
     ilght.mappos.x.val = thing->mappos.x.val;
     ilght.mappos.y.val = thing->mappos.y.val;
     ilght.mappos.z.val = thing->mappos.z.val;
@@ -279,7 +279,7 @@ void stop_creature_sound(struct Thing *thing, long snd_idx)
 {
     struct CreatureSound* crsound = get_creature_sound(thing, snd_idx);
     if (crsound->index <= 0) {
-        SYNCDBG(19,"No sample %d for creature %d",snd_idx,thing->model);
+        SYNCDBG(19,"No sample %ld for creature %d",snd_idx,thing->model);
         return;
     }
 
@@ -300,11 +300,11 @@ void play_creature_sound(struct Thing *thing, long snd_idx, long a3, long a4)
     }
     struct CreatureSound* crsound = get_creature_sound(thing, snd_idx);
     if (crsound->index <= 0) {
-        SYNCDBG(19,"No sample %d for creature %d",snd_idx,thing->model);
+        SYNCDBG(19,"No sample %ld for creature %d",snd_idx,thing->model);
         return;
     }
     long i = UNSYNC_RANDOM(crsound->count);
-    SYNCDBG(18,"Playing sample %d (index %d) for creature %d",snd_idx,crsound->index+i,thing->model);
+    SYNCDBG(18,"Playing sample %ld (index %ld) for creature %d",snd_idx,crsound->index+i,thing->model);
     if ( a4 ) {
         thing_play_sample(thing, crsound->index+i, NORMAL_PITCH, 0, 3, 8, a3, FULL_LOUDNESS);
     } else {
@@ -319,7 +319,7 @@ void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_id
     }
     struct CreatureSound* crsound = get_creature_sound(thing, snd_idx);
     if (crsound->index <= 0) {
-        SYNCDBG(14,"No sample %d for creature %d",snd_idx,thing->model);
+        SYNCDBG(14,"No sample %ld for creature %d",snd_idx,thing->model);
         return;
     }
     long i = UNSYNC_RANDOM(crsound->count);

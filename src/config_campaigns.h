@@ -117,6 +117,8 @@ struct GameCampaign {
   short human_player;
   TbBool assignCpuKeepers;
   unsigned char default_language;
+  char soundtrack_fname[DISKPATH_SIZE];
+  unsigned char music_track;
 };
 
 struct HighScore {

@@ -92,6 +92,8 @@ enum CreatureSpellAffectedFlags {
     CSAfF_Grounded     = 0x8000,
     CSAfF_Timebomb     = 0x10000,
     CSAfF_Wind         = 0x20000,
+    CSAfF_Freeze       = 0x40000, //todo, use this. Still unused.
+    CSAfF_Fear         = 0x80000,
 };
 
 enum PowerKinds {
@@ -123,6 +125,13 @@ enum PowerKinds {
     PwrK_SLOW, // 25
     PwrK_FLIGHT,
     PwrK_VISION,
+    PwrK_MKTUNNELLER,
+};
+
+enum CostFormulas {
+    Cost_Default = 0,
+    Cost_Digger,
+    Cost_Dwarf,
 };
 
 /** Contains properties of a shot model, to be stored in ShotConfigStats.
@@ -284,7 +293,7 @@ struct ShotConfigStats {
     /** Type of the damage inflicted by this shot. */
     short damage;
     short speed;
-    DamageType damage_type;
+    TbBool is_magical;
     struct ShotHitConfig hit_generic;
     struct ShotHitConfig hit_door;
     struct ShotHitConfig hit_water;
@@ -359,6 +368,7 @@ struct PowerConfigStats {
     long panel_tab_idx;
     unsigned short select_sound_idx;
     short cast_cooldown;
+    unsigned char cost_formula;
     SpellKind spell_idx;
     EffectOrEffElModel effect_id;
     short magic_use_func_idx;
@@ -404,7 +414,8 @@ struct SpellConfig {
     short linked_power;
     short duration;
     short aura_effect;
-    unsigned short spell_flags;
+    unsigned char caster_sounds_count;
+    unsigned long spell_flags;
 };
 
 struct MagicStats {

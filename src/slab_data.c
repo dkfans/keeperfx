@@ -20,7 +20,6 @@
 #include "slab_data.h"
 #include "globals.h"
 
-#include "bflib_memory.h"
 #include "player_instances.h"
 #include "config_terrain.h"
 #include "map_blocks.h"
@@ -206,7 +205,7 @@ SlabCodedCoords get_next_slab_number_in_room(SlabCodedCoords slab_num)
 {
     if (slab_num >= gameadd.map_tiles_x * gameadd.map_tiles_y)
     {
-        ERRORLOG("Slabnumber %d exceeds map dimensions %d*%d", slab_num, gameadd.map_tiles_x, gameadd.map_tiles_y);
+        ERRORLOG("Slabnumber %lu exceeds map dimensions %d*%d", slab_num, gameadd.map_tiles_x, gameadd.map_tiles_y);
         return 0;
     }
     return game.slabmap[slab_num].next_in_room;
@@ -429,7 +428,7 @@ void clear_slabs(void)
         for (unsigned long x = 0; x < gameadd.map_tiles_x; x++)
         {
             struct SlabMap* slb = &game.slabmap[y * gameadd.map_tiles_x + x];
-            LbMemorySet(slb, 0, sizeof(struct SlabMap));
+            memset(slb, 0, sizeof(struct SlabMap));
             slb->kind = SlbT_ROCK;
         }
     }
@@ -462,7 +461,7 @@ SlabKind find_core_slab_type(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return corekind;
 }
 
-long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNumber plyr_idx)
+long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNumber plyr_idx, SlabKind synergy_slab_num)
 {
     TbBool is_room_inside = true;
     long eff_score = 0;
@@ -478,6 +477,9 @@ long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNu
             MapSlabCoord slb_y = slb_num_decode_y(round_slab_num);
             // Per slab code
             if ((slabmap_owner(round_slb) == slabmap_owner(slb)) && (round_slb->kind == slb->kind))
+            {
+                eff_score += 2;
+            } else if(((slabmap_owner(round_slb) == slabmap_owner(slb)) || !(get_slab_kind_attrs(synergy_slab_num)->is_ownable)) && (round_slb->kind == synergy_slab_num))
             {
                 eff_score += 2;
             } else

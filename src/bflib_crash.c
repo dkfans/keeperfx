@@ -34,9 +34,8 @@
 #include <stdarg.h>
 #include <string.h>
 #include <stdbool.h>
-
+#include <inttypes.h>
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_video.h"
 #include "post_inc.h"
 
@@ -117,7 +116,7 @@ _backtrace(int depth , LPCONTEXT context)
         {
             if (sscanf(mapFileLine, " %*x __image_base__ = %llx", &keeperFxBaseAddr) == 1)
             {
-                SYNCDBG(0, "KeeperFX base address in map file: %llx", keeperFxBaseAddr);
+                SYNCDBG(0, "KeeperFX base address in map file: %I64x", keeperFxBaseAddr);
                 break;
             }
         }
@@ -136,7 +135,7 @@ _backtrace(int depth , LPCONTEXT context)
     }
 
     STACKFRAME frame;
-    LbMemorySet(&frame,0,sizeof(frame));
+    memset(&frame,0,sizeof(frame));
 
     frame.AddrPC.Offset = context->Eip;
 
@@ -221,7 +220,7 @@ _backtrace(int depth , LPCONTEXT context)
                             if (strncmp(prevName, "0x", 2) == 0 && splitPos != NULL){
 
                                     // Remove everything before the space
-                                    memmove(prevName, splitPos + 1, strlen(splitPos)); 
+                                    memmove(prevName, splitPos + 1, strlen(splitPos));
 
                                     // Find the last slash in the string to isolate the filename
                                     char *lastSlash = strrchr(prevName, '/');
@@ -237,8 +236,8 @@ _backtrace(int depth , LPCONTEXT context)
 
                             // Log it
                             LbJustLog(
-                                "[#%-2d] %12-s : %-36s [0x%llx+0x%llx]\t map lookup for: %04x:%08x, base: %08x\n",
-                                depth, module_name, prevName, prevAddr, displacement, context->SegCs, frame.AddrPC.Offset, module_base);
+                                "[#%-2d] %-12s : %-36s [0x%I64x+0x%I64x]\t map lookup for: %04x:%08x, base: %08x\n",
+                                depth, module_name, prevName, prevAddr, displacement, (uint16_t)context->SegCs, (uint32_t)frame.AddrPC.Offset, (uint32_t)module_base);
 
                             addrFound = true;
                             break;
@@ -273,13 +272,13 @@ _backtrace(int depth , LPCONTEXT context)
         // This works if there are any debug symbols available and also works for most OS libraries
         if (SymFromAddr(process, frame.AddrPC.Offset, &sfaDisplacement, pSymbol))
         {
-            LbJustLog("[#%-2d] %12-s : %-36s [%04x:%08x+0x%llx, base %08x]\t symbol lookup\n",
-                      depth, module_name, pSymbol->Name, context->SegCs, frame.AddrPC.Offset, sfaDisplacement, module_base);
+            LbJustLog("[#%-2d] %-12s : %-36s [%04x:%08x+0x%I64x, base %08x]\t symbol lookup\n",
+                      depth, module_name, pSymbol->Name, (uint16_t)context->SegCs, (uint32_t)frame.AddrPC.Offset, sfaDisplacement, (uint32_t)module_base);
         }
         else
         {
             // Fallback
-            LbJustLog("[#%-2d] %12-s : at %04x:%08x, base %08x\n", depth, module_name, context->SegCs, frame.AddrPC.Offset, module_base);
+            LbJustLog("[#%-2d] %-12s : at %04x:%08x, base %08x\n", depth, module_name, (uint16_t)context->SegCs, (uint32_t)frame.AddrPC.Offset, (uint32_t)module_base);
         }
     }
 
@@ -312,7 +311,7 @@ static LONG CALLBACK ctrl_handler_w32(LPEXCEPTION_POINTERS info)
         LbErrorLog("Attempt of integer division by zero.\n");
         break;
     default:
-        LbErrorLog("Failure code %x received.\n",info->ExceptionRecord->ExceptionCode);
+        LbErrorLog("Failure code %lx received.\n",info->ExceptionRecord->ExceptionCode);
         break;
     }
     if (!SymInitialize(GetCurrentProcess(), 0, TRUE)) {

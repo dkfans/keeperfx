@@ -21,14 +21,16 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "config_campaigns.h"
 #include <SDL2/SDL_mixer.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#define CAMPAIGN_LANDMAP_TRACK 1
 #define FIRST_TRACK 2
-#define MUSIC_TRACKS_COUNT 51
+#define MUSIC_TRACKS_COUNT 126
 extern Mix_Music* tracks[];
 extern int max_track;
 
@@ -42,6 +44,7 @@ void StopMusicPlayer(void);
 void SetMusicPlayerVolume(int volume);
 void free_custom_music();
 void music_reinit_after_load();
+TbBool load_campaign_soundtrack(struct GameCampaign *campgn);
 
 #ifdef __cplusplus
 }

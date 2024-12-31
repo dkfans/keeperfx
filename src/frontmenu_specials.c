@@ -20,7 +20,7 @@
 #include "frontmenu_specials.h"
 #include "globals.h"
 #include "bflib_basics.h"
-
+#include "custom_sprites.h"
 #include "bflib_sprfnt.h"
 #include "bflib_vidraw.h"
 #include "bflib_guibtns.h"
@@ -153,7 +153,7 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[cstore->model];
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
         long spr_idx = get_creature_model_graphics(cstore->model, CGI_HandSymbol);
-        struct TbSprite* spr = &gui_panel_sprites[spr_idx];
+        const struct TbSprite* spr = get_panel_sprite(spr_idx);
         int x;
         if (MyScreenWidth <= 640)
         {
@@ -284,7 +284,7 @@ void draw_transfer_creature(struct GuiButton *gbtn)
         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[thing->model];
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
         long spr_idx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
-        struct TbSprite* spr = &gui_panel_sprites[spr_idx];
+        const struct TbSprite* spr = get_panel_sprite(spr_idx);
         int x;
         if (MyScreenWidth <= 640)
         {

@@ -102,8 +102,18 @@ void multiply_creatures_in_dungeon_list(struct Dungeon *dungeon, long list_start
             k++;
             continue;
         }
+        struct CreatureControl* newcctrl = creature_control_get_from_thing(tncopy);
         set_creature_level(tncopy, cctrl->explevel);
         tncopy->health = thing->health;
+        newcctrl->exp_points = cctrl->exp_points;
+        newcctrl->blood_type = cctrl->blood_type;
+        newcctrl->hunger_level = cctrl->hunger_level;
+        newcctrl->paydays_owed = cctrl->paydays_owed;
+        newcctrl->paydays_advanced = cctrl->paydays_advanced;
+        for (unsigned char al = 0; al < AngR_ListEnd; al++)
+        {
+            newcctrl->annoyance_level[al] = cctrl->annoyance_level[al];
+        }
         // Thing list loop body ends
         k++;
         if (k > CREATURES_COUNT)
@@ -549,7 +559,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
             {
                 if (gameadd.current_player_turn == game.play_gameturn)
                 {
-                    WARNLOG("box activation rejected turn:%d", gameadd.current_player_turn);
+                    WARNLOG("box activation rejected turn:%lu", gameadd.current_player_turn);
                     // If two players suddenly activated box at same turn it is not that we want to
                     return;
                 }
@@ -575,7 +585,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
             {
                 output_message(specst->speech, 0, true);
             }
-            create_used_effect_or_element(&pos, specst->effect_id, player->id_number);
+            create_used_effect_or_element(&pos, specst->effect_id, player->id_number, cratetng->index);
         }
     }
 }
@@ -599,7 +609,7 @@ void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crm
           output_message(SMsg_CommonAcknowledge, 0, true);
     }
     struct SpecialConfigStats* specst = get_special_model_stats(SpcKind_Resurrect);
-    create_used_effect_or_element(&boxtng->mappos, specst->effect_id, owner);
+    create_used_effect_or_element(&boxtng->mappos, specst->effect_id, owner, boxtng->index);
     remove_events_thing_is_attached_to(boxtng);
     force_any_creature_dragging_owned_thing_to_drop_it(boxtng);
     if ((game.conf.rules.game.classic_bugs_flags & ClscBug_ResurrectForever) == 0) {
@@ -641,7 +651,7 @@ void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned c
     if (!from_script)
     {
         struct SpecialConfigStats* specst = get_special_model_stats(SpcKind_TrnsfrCrtr);
-        create_used_effect_or_element(&boxtng->mappos, specst->effect_id, plyr_idx);
+        create_used_effect_or_element(&boxtng->mappos, specst->effect_id, plyr_idx, boxtng->index);
         remove_events_thing_is_attached_to(boxtng);
         force_any_creature_dragging_owned_thing_to_drop_it(boxtng);
         delete_thing_structure(boxtng, 0);

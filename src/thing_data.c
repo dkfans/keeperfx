@@ -23,7 +23,6 @@
 #include "bflib_keybrd.h"
 #include "bflib_basics.h"
 #include "bflib_sound.h"
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "frontend.h"
 #include "config_creature.h"
@@ -80,7 +79,7 @@ struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const ch
         ERRORMSG("%s: Found existing thing %d in free things list at pos %d!",func_name,(int)game.free_things[i],(int)i);
     }
 #endif
-    LbMemorySet(thing, 0, sizeof(struct Thing));
+    memset(thing, 0, sizeof(struct Thing));
     if (thing_is_invalid(thing)) {
         ERRORMSG("%s: Got invalid thing slot instead of free one!",func_name);
         return INVALID_THING;
@@ -176,7 +175,7 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
         ERRORMSG("%s: Performed deleting of thing with bad index %d!",func_name,(int)thing->index);
 #endif
     }
-    LbMemorySet(thing, 0, sizeof(struct Thing));
+    memset(thing, 0, sizeof(struct Thing));
 }
 
 /**
@@ -311,9 +310,9 @@ void query_thing(struct Thing *thing)
         sprintf((char*)position, "Pos: X:%d Y:%d Z:%d", querytng->mappos.x.stl.num, querytng->mappos.y.stl.num, querytng->mappos.z.stl.num);
         if (querytng->class_id == TCls_Trap)
         {
-            struct ManfctrConfig *mconf = &game.conf.traps_config[querytng->model];
+            struct TrapConfigStats *trapst = get_trap_model_stats(querytng->model);
             sprintf((char*)health, "Health: %ld", querytng->health);
-            sprintf((char*)amount, "Shots: %d/%d", querytng->trap.num_shots, mconf->shots);
+            sprintf((char*)amount, "Shots: %d/%d", querytng->trap.num_shots, trapst->shots);
         }
         else
         {
@@ -329,7 +328,8 @@ void query_thing(struct Thing *thing)
             else 
             if (querytng->class_id == TCls_Door)
             {
-                sprintf((char*)health, "Health: %ld/%ld", querytng->health, game.conf.trapdoor_conf.door_cfgstats[querytng->model].health);
+                struct DoorConfigStats *doorst = get_door_model_stats(querytng->model);
+                sprintf((char*)health, "Health: %ld/%ld", querytng->health, doorst->health);
             }
             else
             if (querytng->class_id == TCls_Creature)

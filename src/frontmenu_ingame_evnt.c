@@ -24,7 +24,7 @@
 #include "bflib_guibtns.h"
 #include "bflib_vidraw.h"
 #include "bflib_sprfnt.h"
-
+#include "custom_sprites.h"
 #include "player_data.h"
 #include "config_players.h"
 #include "player_utils.h"
@@ -55,7 +55,7 @@ void gui_open_event(struct GuiButton *gbtn)
     struct Dungeon* dungeon = get_my_dungeon();
     EventIndex evidx;
     SYNCDBG(5,"Starting");
-    unsigned int evbtn_idx = (unsigned long)gbtn->content;
+    unsigned int evbtn_idx = gbtn->content.lval;
     if (evbtn_idx <= EVENT_BUTTONS_COUNT) {
         evidx = dungeon->event_button_index[evbtn_idx];
     } else {
@@ -75,7 +75,7 @@ void gui_kill_event(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
     struct Dungeon* dungeon = get_players_dungeon(player);
-    unsigned long i = (unsigned long)gbtn->content;
+    unsigned long i = gbtn->content.lval;
     set_players_packet_action(player, PckA_Unknown092, dungeon->event_button_index[i], 0, 0, 0);
 }
 
@@ -141,12 +141,7 @@ void gui_get_creature_in_battle(struct GuiButton *gbtn)
     if (battle_creature_over <= 0) {
         return;
     }
-    PowerKind pwkind = 0;
-    if (myplyr->work_state < PLAYER_STATES_COUNT_MAX)
-    {
-        struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(myplyr->work_state);
-        pwkind = plrst_cfg_stat->power_kind;
-    }
+    PowerKind pwkind = myplyr->chosen_power_kind;
     struct Thing* thing = thing_get(battle_creature_over);
     if (!thing_exists(thing)) {
         WARNLOG("Nonexisting thing %d in battle",(int)battle_creature_over);
@@ -208,7 +203,7 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
         return;
     }
     short spr_idx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
-    struct TbSprite* spr = &gui_panel_sprites[spr_idx];
+    const struct TbSprite* spr = get_panel_sprite(spr_idx);
     if (spr->SHeight == 0)
     {
         ERRORLOG("Trying to draw non existing icon in battle menu for %s", thing_model_name(thing));
@@ -235,12 +230,12 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
         max_health = 1;
     LbDrawBox(curscr_x + 2*units_per_px/16, curscr_y + 2*units_per_px/16, ((12 * health)/max_health)*units_per_px/16, 2*units_per_px/16, player_room_colours[get_player_color_idx(thing->owner)]);
     // Draw experience level
-    spr = &button_sprite[GBS_creature_flower_level_01];
+    spr = get_button_sprite(GBS_creature_flower_level_01);
     int bs_units_per_px = (17 * units_per_px + spr->SHeight / 2) / spr->SHeight;
     TbBool high_res = (MyScreenHeight >= 400);
     curscr_y = (scr_y - ((spr->SHeight*bs_units_per_px/16) >> (unsigned char)high_res));
     curscr_x = (scr_x - ((spr->SWidth*bs_units_per_px/16) >> (unsigned char)high_res));
-    spr = &button_sprite[GBS_creature_flower_level_01 + cctrl->explevel];
+    spr = get_button_sprite(GBS_creature_flower_level_01 + cctrl->explevel);
     LbSpriteDrawResized(curscr_x, curscr_y, ps_units_per_px, spr);
 }
 

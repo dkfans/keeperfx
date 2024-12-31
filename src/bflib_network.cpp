@@ -23,7 +23,6 @@
 #include "bflib_basics.h"
 #include "bflib_enet.h"
 #include "bflib_datetm.h"
-#include "bflib_memory.h"
 #include "bflib_netsession.h"
 #include "bflib_netsp.hpp"
 #include "bflib_netsp_ipx.hpp"
@@ -60,6 +59,7 @@ void AddMsgCallback(unsigned long, char *, void *);
 void DeleteMsgCallback(unsigned long, void *);
 void HostMsgCallback(unsigned long, void *);
 void RequestCompositeExchangeDataMsgCallback(unsigned long, unsigned long, void *);
+void *UnidirectionalMsgCallback(unsigned long, unsigned long, void *);
 void SystemUserMsgCallback(unsigned long, void *, unsigned long, void *);
 TbError LbNetwork_StartExchange(void *buf);
 TbError LbNetwork_CompleteExchange(void *buf);
@@ -235,10 +235,10 @@ static void SendLoginRequest(const char * name, const char * password)
     buffer_ptr += 1;
 
     strcpy(buffer_ptr, password);
-    buffer_ptr += LbStringLength(password) + 1;
+    buffer_ptr += strlen(password) + 1;
 
     strcpy(buffer_ptr, name); //don't want to bother saving length ahead
-    buffer_ptr += LbStringLength(name) + 1;
+    buffer_ptr += strlen(name) + 1;
 
     netstate.sp->sendmsg_single(SERVER_ID, netstate.msg_buffer,
         buffer_ptr - netstate.msg_buffer);
@@ -259,9 +259,7 @@ static void SendUserUpdate(NetUserId dest, NetUserId updated_user)
     *ptr = netstate.users[updated_user].progress;
     ptr += 1;
 
-    LbStringCopy(ptr, netstate.users[updated_user].name,
-        sizeof(netstate.users[updated_user].name));
-    ptr += LbStringLength(netstate.users[updated_user].name) + 1;
+    ptr += snprintf(ptr, sizeof(netstate.users[updated_user].name), "%s", netstate.users[updated_user].name) + 1;
 
     netstate.sp->sendmsg_single(dest, netstate.msg_buffer,
         ptr - netstate.msg_buffer);
@@ -281,7 +279,7 @@ static void SendClientFrame(const char * send_buf, size_t buf_size, int seq_nbr)
     *(int *) ptr = seq_nbr;
     ptr += 4;
 
-    LbMemoryCopy(ptr, send_buf, buf_size);
+    memcpy(ptr, send_buf, buf_size);
     ptr += buf_size;
 
     netstate.sp->sendmsg_single(SERVER_ID, netstate.msg_buffer,
@@ -320,7 +318,7 @@ static void SendServerFrame(const void *send_buf, size_t frame_size, int num_fra
     *ptr = num_frames;
     ptr += sizeof(char);
 
-    LbMemoryCopy(ptr, send_buf, frame_size * num_frames);
+    memcpy(ptr, send_buf, frame_size * num_frames);
     ptr += frame_size * num_frames;
 
     netstate.sp->sendmsg_all(netstate.msg_buffer, ptr - netstate.msg_buffer);
@@ -346,7 +344,7 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
         return;
     }
 
-    len = LbStringLength(ptr) + 1;
+    len = strlen(ptr) + 1;
     ptr += len;
     if (len > sizeof(netstate.password)) {
         NETDBG(6, "Connected peer attempted to flood password");
@@ -354,7 +352,7 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
         return;
     }
 
-    LbStringCopy(netstate.users[source].name, ptr, sizeof(netstate.users[source].name));
+    snprintf(netstate.users[source].name, sizeof(netstate.users[source].name), "%s", ptr);
     if (!isalnum(netstate.users[source].name[0])) {
         //TODO NET drop player for bad name
         //also replace isalnum with something that considers foreign non-ASCII chars
@@ -372,7 +370,7 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
     //send reply
     ptr = netstate.msg_buffer;
     ptr += 1; //skip header byte which should still be ok
-    LbMemoryCopy(ptr, &source, 1); //assumes LE
+    memcpy(ptr, &source, 1); //assumes LE
     ptr += 1;
     netstate.sp->sendmsg_single(source, netstate.msg_buffer, ptr - netstate.msg_buffer);
 
@@ -421,7 +419,7 @@ static void HandleUserUpdate(NetUserId source, char * ptr, char * end)
     netstate.users[id].progress = (enum NetUserProgress) *ptr;
     ptr += 1;
 
-    LbStringCopy(netstate.users[id].name, ptr, sizeof(netstate.users[id].name));
+    snprintf(netstate.users[id].name, sizeof(netstate.users[id].name), "%s", ptr);
 
     //send up the stuff the other parts of the game expect
     //TODO NET try to get rid of this because it makes understanding code much more complicated
@@ -436,7 +434,7 @@ static void HandleClientFrame(NetUserId source, char *dst_ptr, const char * ptr,
     netstate.users[source].ack = *(int *) ptr;
     ptr += 4;
 
-    LbMemoryCopy(dst_ptr, ptr, frame_size);
+    memcpy(dst_ptr, ptr, frame_size);
     ptr += frame_size;
 
     if (ptr >= end) {
@@ -463,7 +461,7 @@ static void HandleServerFrame(char * ptr, char * end, size_t user_frame_size)
     num_user_frames = *ptr;
     ptr += 1;
 
-    frame = (NetFrame *) LbMemoryAlloc(sizeof(*frame));
+    frame = (NetFrame *) calloc(sizeof(*frame), 1);
     if (netstate.exchg_queue == NULL)
     {
         netstate.exchg_queue = frame;
@@ -478,10 +476,10 @@ static void HandleServerFrame(char * ptr, char * end, size_t user_frame_size)
 
     frame->next = NULL;
     frame->size = num_user_frames * user_frame_size;
-    frame->buffer = (char *) LbMemoryAlloc(frame->size);
+    frame->buffer = (char *) calloc(frame->size, 1);
     frame->seq_nbr = seq_nbr;
 
-    LbMemoryCopy(frame->buffer, ptr, frame->size);
+    memcpy(frame->buffer, ptr, frame->size);
 
     NETDBG(9, "Handled server frame of %u bytes", frame->size);
 }
@@ -663,7 +661,7 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
   compositeBufferSize = exchng_size * maxplayrs;
   if (compositeBufferSize > 0)
   {
-    compositeBuffer = LbMemoryAlloc(compositeBufferSize);
+    compositeBuffer = calloc(compositeBufferSize, 1);
   }
   if ((compositeBufferSize <= 0) || (compositeBuffer == NULL))
   {
@@ -675,7 +673,7 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
   GetPlayerInfo();*/
 
   //clear network object and init it to neutral config
-  LbMemorySet(&netstate, 0, sizeof(netstate));
+  memset(&netstate, 0, sizeof(netstate));
   for (usr = 0; usr < MAX_N_USERS; ++usr) {
       netstate.users[usr].id = usr;
   }
@@ -703,7 +701,7 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
       NETMSG("Selecting UDP");
       break;
   default:
-      WARNLOG("The serviceIndex value of %d is out of range", srvcindex);
+      WARNLOG("The serviceIndex value of %lu is out of range", srvcindex);
       res = Lb_FAIL;
       break;
   }
@@ -861,8 +859,7 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_
     }
 
     netstate.my_id = SERVER_ID;
-    LbStringCopy(netstate.users[netstate.my_id].name, plyr_name,
-        sizeof(netstate.users[netstate.my_id].name));
+    snprintf(netstate.users[netstate.my_id].name, sizeof(netstate.users[netstate.my_id].name), "%s", plyr_name);
     netstate.users[netstate.my_id].progress = USER_SERVER;
 
     *plyr_num = netstate.my_id;
@@ -895,7 +892,7 @@ TbError LbNetwork_Stop(void)
     delete spPtr;
   spPtr = NULL;
   if (compositeBuffer != NULL)
-    LbMemoryFree(compositeBuffer);
+    free(compositeBuffer);
   actualTimeout = 0;
   localDataPtr = 0;
   compositeBuffer = NULL;
@@ -925,12 +922,12 @@ TbError LbNetwork_Stop(void)
     frame = netstate.exchg_queue;
     while (frame != NULL) {
         nextframe = frame->next;
-        LbMemoryFree(frame->buffer);
-        LbMemoryFree(frame);
+        free(frame->buffer);
+        free(frame);
         frame = nextframe;
     }
 
-    LbMemorySet(&netstate, 0, sizeof(netstate));
+    memset(&netstate, 0, sizeof(netstate));
 
     return Lb_OK;
 }
@@ -978,7 +975,7 @@ static void OnDroppedUser(NetUserId id, enum NetDropReason reason)
 
 
     if (netstate.my_id == SERVER_ID) {
-        LbMemorySet(&netstate.users[id], 0, sizeof(netstate.users[id]));
+        memset(&netstate.users[id], 0, sizeof(netstate.users[id]));
         netstate.users[id].id = id; //repair effect by LbMemorySet
 
         for (i = 0; i < MAX_N_USERS; ++i) {
@@ -992,7 +989,7 @@ static void OnDroppedUser(NetUserId id, enum NetDropReason reason)
         //set up the stuff the other parts of the game expect
         //TODO NET try to get rid of this because it makes understanding code much more complicated
         localPlayerInfoPtr[id].active = 0;
-        LbMemorySet(localPlayerInfoPtr[id].name, 0, sizeof(localPlayerInfoPtr[id].name));
+        memset(localPlayerInfoPtr[id].name, 0, sizeof(localPlayerInfoPtr[id].name));
     }
     else {
         NETMSG("Quitting after connection loss");
@@ -1059,9 +1056,9 @@ static void ConsumeServerFrame(void *server_buf, int frame_size)
 
     netstate.exchg_queue = frame->next;
     netstate.seq_nbr = frame->seq_nbr;
-    LbMemoryCopy(server_buf, frame->buffer, frame->size);
-    LbMemoryFree(frame->buffer);
-    LbMemoryFree(frame);
+    memcpy(server_buf, frame->buffer, frame->size);
+    free(frame->buffer);
+    free(frame);
 }
 
 /*
@@ -1157,11 +1154,11 @@ TbBool LbNetwork_Resync(void * buf, size_t len)
 
     NETLOG("Starting");
 
-    full_buf = (char *) LbMemoryAlloc(len + 1);
+    full_buf = (char *) calloc(len + 1, 1);
 
     if (netstate.users[netstate.my_id].progress == USER_SERVER) {
         full_buf[0] = NETMSG_RESYNC;
-        LbMemoryCopy(full_buf + 1, buf, len);
+        memcpy(full_buf + 1, buf, len);
 
         for (i = 0; i < MAX_N_USERS; ++i) {
             if (netstate.users[i].progress != USER_LOGGEDIN) {
@@ -1180,10 +1177,10 @@ TbBool LbNetwork_Resync(void * buf, size_t len)
             }
         } while (full_buf[0] != NETMSG_RESYNC);
 
-        LbMemoryCopy(buf, full_buf + 1, len);
+        memcpy(buf, full_buf + 1, len);
     }
 
-    LbMemoryFree(full_buf);
+    free(full_buf);
 
     return true;
 }
@@ -1270,9 +1267,8 @@ TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNet
     for (id = 0; id < MAX_N_USERS; ++id) {
         if (netstate.users[id].progress != USER_UNUSED &&
                 netstate.users[id].progress != USER_CONNECTED) { //no point in showing user if there's no name
-            LbMemorySet(&data, 0, sizeof(data));
-            LbStringCopy(data.plyr_name, netstate.users[id].name,
-                sizeof(data.plyr_name));
+            memset(&data, 0, sizeof(data));
+            snprintf(data.plyr_name, sizeof(data.plyr_name), "%s", netstate.users[id].name);
             callback(&data, buf);
         }
     }
@@ -1333,7 +1329,7 @@ TbError LbNetwork_CompleteExchange(void *buf)
 TbError ClearClientData(void)
 {
   long i;
-  LbMemorySet(clientDataTable, 0, 32*sizeof(struct ClientDataEntry));
+  memset(clientDataTable, 0, 32*sizeof(struct ClientDataEntry));
   for (i=0; i < maximumPlayers; i++)
   {
     clientDataTable[i].isactive = 0;
@@ -1357,7 +1353,7 @@ TbError GetCurrentPlayers(void)
   }
   if (localPlayerIndex >= maximumPlayers)
   {
-    WARNLOG("localPlayerIndex not updated, max players %d",maximumPlayers);
+    WARNLOG("localPlayerIndex not updated, max players %lu",maximumPlayers);
     return Lb_FAIL;
   }
   return Lb_OK;
@@ -1380,7 +1376,7 @@ TbError GetPlayerInfo(void)
             netstate.users[i].progress == USER_LOGGEDIN )
     {
       lpinfo->active = 1;
-      LbStringCopy(lpinfo->name, netstate.users[i].name, 32);
+      snprintf(lpinfo->name, sizeof(lpinfo->name), "%s", netstate.users[i].name);
     } else
     {
       lpinfo->active = 0;
@@ -1601,7 +1597,7 @@ TbError HostDataBroadcast(void)
   long i;
   ret = Lb_OK;
   spPtr->EncodeMessageStub(exchangeBuffer, maximumPlayers*exchangeSize-4, 0, sequenceNumber);
-  LbMemoryCopy(compositeBuffer, exchangeBuffer, maximumPlayers*exchangeSize);
+  memcpy(compositeBuffer, exchangeBuffer, maximumPlayers*exchangeSize);
   for (i=0; i < maximumPlayers; i++)
   {
     if ((clientDataTable[i].isactive) && (clientDataTable[i].plyrid != hostId))
@@ -1654,7 +1650,7 @@ TbError StartMultiPlayerExchange(void *buf)
     if (clidat->isactive)
       clidat->field_8 = 0;
   }
-  LbMemoryCopy((uchar *)exchangeBuffer + exchangeSize * localPlayerIndex, buf, exchangeSize);
+  memcpy((uchar *)exchangeBuffer + exchangeSize * localPlayerIndex, buf, exchangeSize);
   clientDataTable[localPlayerIndex].field_8 = 1;
   startTime = LbTimerClock();
   actualTimeout = basicTimeout;
@@ -1711,15 +1707,15 @@ TbError CompleteTwoPlayerExchange(void *buf)
         tmPassed = -tmPassed;
       if (tmPassed > actualTimeout)
       {
-        NETMSG("Timed out (%d) waiting for seq %d - %d ms", tmPassed, sequenceNumber, actualTimeout);
+        NETMSG("Timed out (%ld) waiting for seq %lu - %lu ms", tmPassed, sequenceNumber, actualTimeout);
         nRetries++;
         if (nRetries <= 10)
         {
-          NETMSG("Requesting %d resend of packet (%d)", nRetries, sequenceNumber);
+          NETMSG("Requesting %ld resend of packet (%lu)", nRetries, sequenceNumber);
           SendRequestExchangeDataMsg(remotePlayerId, localPlayerId, sequenceNumber, __func__);
         } else
         {
-          NETMSG("Tried to resend %d times, aborting", nRetries);
+          NETMSG("Tried to resend %ld times, aborting", nRetries);
           SendDeletePlayerMsg(localPlayerId, remotePlayerId, __func__);
           return Lb_FAIL;
         }
@@ -1867,10 +1863,10 @@ void PlayerMapMsgHandler(unsigned long plr_id, void *msg, unsigned long msg_len)
   }
   if (msg_len != len)
   {
-    WARNLOG("Invalid length, %d",msg_len);
+    WARNLOG("Invalid length, %lu",msg_len);
     return;
   }
-  LbMemoryCopy(clientDataTable, msg, len);
+  memcpy(clientDataTable, msg, len);
   waitingForPlayerMapResponse = 0;
 }
 
@@ -1884,7 +1880,7 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
   {
     if (xch_size != exchangeSize)
     {
-      WARNLOG("Invalid length, %d",xch_size);
+      WARNLOG("Invalid length, %lu",xch_size);
       return NULL;
     }
     if (plr_id == localPlayerId)
@@ -1903,12 +1899,12 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
     }
     if (!found_id)
     {
-      WARNLOG("Invalid id: %d",plr_id);
+      WARNLOG("Invalid id: %lu",plr_id);
       return NULL;
     }
     if ((seq != sequenceNumber) && (seq != 15))
     {
-      WARNLOG("Unexpected sequence number: Got %d, expected %d",seq,sequenceNumber);
+      WARNLOG("Unexpected sequence number, Got %lu, expected %lu",seq,sequenceNumber);
       return NULL;
     }
     clientDataTable[plr_id].field_8 = 1;
@@ -1918,7 +1914,7 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
   {
     if (xch_size != exchangeSize)
     {
-      WARNLOG("Invalid length: %d",xch_size);
+      WARNLOG("Invalid length: %lu",xch_size);
       return NULL;
     }
     if (plr_id == localPlayerId)
@@ -1937,7 +1933,7 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
     }
     if (!found_id)
     {
-      WARNLOG("Invalid id: %d",plr_id);
+      WARNLOG("Invalid id: %lu",plr_id);
       return NULL;
     }
     clientDataTable[plr_id].field_8 = 1;
@@ -1959,7 +1955,7 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
   }
   if (!found_id)
   {
-    WARNLOG("Invalid id: %d",plr_id);
+    WARNLOG("Invalid id: %lu",plr_id);
     return 0;
   }
   if (sequenceNumber == 15)
@@ -1968,7 +1964,7 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
   } else
   if (sequenceNumber != seq)
   {
-    WARNLOG("Unexpected sequence number: Got %d, expected %d", seq, sequenceNumber);
+    WARNLOG("Unexpected sequence number, Got %lu, expected %lu", seq, sequenceNumber);
     return NULL;
   }
   gotCompositeData = true;
@@ -1988,7 +1984,7 @@ void MultiPlayerReqExDataMsgCallback(unsigned long plr_id, unsigned long seq, vo
     sequenceNumber = seq;
   if (seq != sequenceNumber)
   {
-    WARNLOG("Unexpected sequence number, got %d, expected %d",seq,sequenceNumber);
+    WARNLOG("Unexpected sequence number, got %lu, expected %lu",seq,sequenceNumber);
     return;
   }
   spPtr->EncodeMessageStub(localDataPtr, exchangeSize-4, 0, sequenceNumber);
@@ -2035,10 +2031,10 @@ void HostMsgCallback(unsigned long plr_id, void *a2)
 void RequestCompositeExchangeDataMsgCallback(unsigned long plr_id, unsigned long seq, void *a3)
 {
   if (inside_sr)
-    NETLOG("Got sequence %d, expected %d",seq,sequenceNumber);
+    NETLOG("Got sequence %ld, expected %ld",seq,sequenceNumber);
   if ((seq != sequenceNumber) && (seq != ((sequenceNumber - 1) & 0xF)))
   {
-    WARNLOG("Unexpected sequence number, got %d, expected %d",seq,sequenceNumber);
+    WARNLOG("Unexpected sequence number, got %lu, expected %lu",seq,sequenceNumber);
     return;
   }
   if (spPtr->Send(plr_id, compositeBuffer) != Lb_OK)

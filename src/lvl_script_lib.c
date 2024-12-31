@@ -139,7 +139,10 @@ void set_variable(int player_idx, long var_type, long var_idx, long new_val)
         intralvl.campaign_flags[player_idx][var_idx] = new_val;
         break;
     case SVar_BOX_ACTIVATED:
-        dungeon->box_info.activated[var_idx] = saturate_set_unsigned(new_val, 8);
+        dungeon->box_info.activated[var_idx] = saturate_set_unsigned(new_val, 16);
+        break;
+    case SVar_TRAP_ACTIVATED:
+        dungeon->trap_info.activated[var_idx] = saturate_set_unsigned(new_val, 16);
         break;
     case SVar_SACRIFICED:
         dungeon->creature_sacrifice[var_idx] = saturate_set_unsigned(new_val, 8);

@@ -99,9 +99,9 @@ msgid ""
 "dungeon. Creatures perform the task most relevant to the situation they're "
 "dropped into."
 msgstr ""
-"Attrapez vos créatures du Donjon à l'aide du bouton Gauche de la souris, et "
-"avec le bouton Droit, laissez-les tomber dans une pièce ou sur une dalle de "
-"votre Donjon. Les créatures effectuent les tâches les plus appropriées."
+"Attrapez vos créatures du donjon à l'aide du bouton gauche de la souris, "
+"et avec le bouton droit, laissez-les tomber dans une pièce ou sur une dalle de votre Donjon. "
+"Les créatures effectuent les tâches les plus appropriées."
 
 #. Level Eversmile objective after digging gold
 #: guitext:7
@@ -282,9 +282,8 @@ msgid ""
 "You require more Imps. Use the Create Imp spell to conjure them into your "
 "domain. Remember, each Imp you create is more expensive than the last."
 msgstr ""
-"Il vous faut plus de lutins. Utilisez le sort de Création de Lutin pour les "
-"attirer dans votre domaine. N'oubliez pas que chaque nouveau lutin est plus "
-"cher que le précédent."
+"Il vous faut plus de lutins. Utilisez le sort de Création de lutin pour les attirer dans votre domaine. "
+"N'oubliez pas que chaque nouveau lutin est plus cher que le précédent."
 
 #. Level Cosyton information soon after start
 #: guitext:22
@@ -4026,8 +4025,7 @@ msgid ""
 "Hero Gate: Heroes use this portal to invade your dungeon. It cannot be closed "
 "on your side."
 msgstr ""
-"Portail des héros : Les héros passent par là pour envahir votre donjon. Ne "
-"peut être bloqué de votre côté.[15.4]"
+"Portail des héros : Les héros passent par là pour envahir votre donjon. Ne peut être bloqué de votre côté. [15.4]"
 
 #: guitext:546
 msgctxt "Creature name"
@@ -4665,12 +4663,9 @@ msgstr ""
 #: guitext:648
 msgctxt "Keeper spell description"
 msgid ""
-"Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. "
-"[18.2]"
+"Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
 msgstr ""
-"Création de lutin : Faites apparaître un nouveau lutin dans un endroit "
-"quelconque de votre donjon. Sélectionnez avec le bouton gauche de la souris. "
-"[18.2]"
+"Création de lutin : Invoquez un nouveau lutin dans un endroit quelconque de votre donjon. Sélectionnez avec le bouton gauche de la souris."
 
 #: guitext:649
 msgctxt "Keeper spell description"
@@ -7241,7 +7236,17 @@ msgctxt "Keeper spell description"
 msgid "Sight: Allows the target creature to temporarily increase its awareness and notice the invisible."
 msgstr "Vision : Permet à la créature ciblée d'augmenter temporairement sa vision pour débusquer l'invisible."
 
-#: guitext:1072 guitext:1073 guitext:1074 guitext:1075
+#: guitext:1072
+msgctxt "Keeper spell name"
+msgid "Recruit Tunneller"
+msgstr "Recruter un piocheur"
+
+#: guitext:1073
+msgctxt "Keeper spell description"
+msgid "Recruit Tunneller: Summon a new Tunneller anywhere in your dungeon."
+msgstr "Recruter un piocheur : Convoquez un nouveau piocheur dans un endroit quelconque de votre donjon."
+
+#: guitext:1074 guitext:1075
 msgctxt "Unused"
 msgid "Moo8"
 msgstr "Moooooooooo!"

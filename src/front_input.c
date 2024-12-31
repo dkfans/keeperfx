@@ -29,7 +29,6 @@
 #include "bflib_sprfnt.h"
 #include "bflib_datetm.h"
 #include "bflib_fileio.h"
-#include "bflib_memory.h"
 #include "bflib_network.h"
 #include "bflib_inputctrl.h"
 #include "bflib_sound.h"
@@ -589,9 +588,10 @@ short get_global_inputs(void)
   // Code for debugging purposes
   if ( is_key_pressed(KC_D,KMod_ALT) )
   {
-    JUSTMSG("REPORT for gameturn %d",game.play_gameturn);
+    JUSTMSG("REPORT for gameturn %lu",game.play_gameturn);
     // Timing report
-    JUSTMSG("Now time is %d, last loop time was %d, clock is %d, requested fps is %d",LbTimerClock(),last_loop_time,clock(),game_num_fps);
+    JUSTMSG("Now time is %ld, last loop time was %ld, clock is %ld, requested fps is %ld",
+        LbTimerClock(),last_loop_time,clock(),game_num_fps);
     test_variable = !test_variable;
   }
 
@@ -656,7 +656,8 @@ short get_global_inputs(void)
         {
             update_time();
             struct GameTime GameT = get_game_time(game.play_gameturn, game_num_fps);
-            SYNCMSG("Finished level %ld. Total turns taken: %ld (%02d:%02d:%02d at %d fps). Real time elapsed: %02d:%02d:%02d:%03d.",game.loaded_level_number, game.play_gameturn, GameT.Hours, GameT.Minutes, GameT.Seconds, game_num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
+            SYNCMSG("Finished level %d. Total turns taken: %lu (%02u:%02u:%02u at %ld fps). Real time elapsed: %02u:%02u:%02u:%03u.",
+                game.loaded_level_number, game.play_gameturn, GameT.Hours, GameT.Minutes, GameT.Seconds, game_num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
         }
         set_players_packet_action(player, PckA_FinishGame, 0, 0, 0, 0);
         clear_key_pressed(KC_SPACE);
@@ -1808,7 +1809,7 @@ void get_packet_control_mouse_clicks(void)
     static int synthetic_right = 0;
     SYNCDBG(8,"Starting");
 
-    if ( flag_is_set(game.operation_flags,GOF_Paused)  || busy_doing_gui )
+    if (flag_is_set(game.operation_flags, GOF_Paused))
     {
         return;
     }
