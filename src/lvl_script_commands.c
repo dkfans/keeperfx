@@ -7002,8 +7002,8 @@ static void add_object_to_level_at_pos_check(const struct ScriptLine* scline)
     value->shorts[0] = tngmodel;
     if (!subtile_coords_invalid(scline->np[1], scline->np[2]))
     {
-        value->shorts[1] = scline->np[1];
-        value->shorts[2] = scline->np[2];
+        value->shorts[4] = scline->np[1];
+        value->shorts[5] = scline->np[2];
     }
     else
     {
@@ -7017,7 +7017,8 @@ static void add_object_to_level_at_pos_check(const struct ScriptLine* scline)
     {
         plyr_idx = PLAYER_NEUTRAL;
     }
-    value->chars[7] = plyr_idx;
+    value->chars[2] = plyr_idx;
+    value->shorts[6] = atoi(scline->tp[5]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -7046,6 +7047,7 @@ static void add_object_to_level_check(const struct ScriptLine* scline)
         plyr_idx = PLAYER_NEUTRAL;
     }
     value->chars[2] = plyr_idx;
+    value->shorts[6] = atoi(scline->tp[4]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -7054,13 +7056,13 @@ static void add_object_to_level_process(struct ScriptContext* context)
     struct Coord3d pos;
     if (get_coords_at_location(&pos,context->value->ulongs[1],true))
     {
-        script_process_new_object(context->value->shorts[0], pos.x.stl.num, pos.y.stl.num, context->value->longs[2], context->value->chars[2]);
+        script_process_new_object(context->value->shorts[0], pos.x.stl.num, pos.y.stl.num, context->value->longs[2], context->value->chars[2], context->value->shorts[6]);
     }
 }
 
 static void add_object_to_level_at_pos_process(struct ScriptContext* context)
 {
-    script_process_new_object(context->value->shorts[0], context->value->shorts[1], context->value->shorts[2], context->value->longs[2], context->value->chars[7]);
+    script_process_new_object(context->value->shorts[0], context->value->shorts[4], context->value->shorts[5], context->value->longs[2], context->value->chars[2],context->value->shorts[6]);
 }
 
 static void set_computer_globals_check(const struct ScriptLine* scline)
@@ -7385,7 +7387,7 @@ const struct CommandDesc command_desc[] = {
   {"DELETE_FROM_PARTY",                 "ACN     ", Cmd_DELETE_FROM_PARTY, &delete_from_party_check, NULL},
   {"ADD_PARTY_TO_LEVEL",                "PAAN    ", Cmd_ADD_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_LEVEL",             "PCANNN  ", Cmd_ADD_CREATURE_TO_LEVEL, NULL, NULL},
-  {"ADD_OBJECT_TO_LEVEL",               "AANp    ", Cmd_ADD_OBJECT_TO_LEVEL, &add_object_to_level_check, &add_object_to_level_process},
+  {"ADD_OBJECT_TO_LEVEL",               "AANpa   ", Cmd_ADD_OBJECT_TO_LEVEL, &add_object_to_level_check, &add_object_to_level_process},
   {"IF",                                "PAOAa   ", Cmd_IF, &if_check, NULL},
   {"IF_ACTION_POINT",                   "NP      ", Cmd_IF_ACTION_POINT, NULL, NULL},
   {"ENDIF",                             "        ", Cmd_ENDIF, NULL, NULL},
@@ -7535,7 +7537,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_PLAYER_MODIFIER",               "PAN     ", Cmd_SET_PLAYER_MODIFIER, &set_player_modifier_check, &set_player_modifier_process},
   {"ADD_TO_PLAYER_MODIFIER",            "PAN     ", Cmd_ADD_TO_PLAYER_MODIFIER, &add_to_player_modifier_check, &add_to_player_modifier_process},
   {"CHANGE_SLAB_TEXTURE",               "NNAa    ", Cmd_CHANGE_SLAB_TEXTURE , &change_slab_texture_check, &change_slab_texture_process},
-  {"ADD_OBJECT_TO_LEVEL_AT_POS",        "ANNNp   ", Cmd_ADD_OBJECT_TO_LEVEL_AT_POS, &add_object_to_level_at_pos_check, &add_object_to_level_at_pos_process},
+  {"ADD_OBJECT_TO_LEVEL_AT_POS",        "ANNNpa  ", Cmd_ADD_OBJECT_TO_LEVEL_AT_POS, &add_object_to_level_at_pos_check, &add_object_to_level_at_pos_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
