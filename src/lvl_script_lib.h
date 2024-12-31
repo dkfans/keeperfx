@@ -188,6 +188,7 @@ enum TbScriptCommands {
     Cmd_MOVE_PLAYER_CAMERA_TO              = 175,
     Cmd_ADD_OBJECT_TO_LEVEL_AT_POS         = 176,
     Cmd_PLACE_DOOR                         = 177,
+    Cmd_PLACE_TRAP                         = 178,
 };
 
 struct ScriptLine {
