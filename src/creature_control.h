@@ -424,7 +424,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     HitPoints health;
     unsigned char heal_requirement;
     unsigned char heal_threshold;
-    unsigned char strength;
+    unsigned short strength;
     unsigned char armour;
     unsigned char dexterity;
     unsigned char fear_wounded;
