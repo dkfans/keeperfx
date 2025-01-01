@@ -7014,8 +7014,8 @@ static void add_object_to_level_at_pos_check(const struct ScriptLine* scline)
     value->shorts[0] = tngmodel;
     if (!subtile_coords_invalid(scline->np[1], scline->np[2]))
     {
-        value->shorts[4] = scline->np[1];
-        value->shorts[5] = scline->np[2];
+        value->shorts[2] = scline->np[1];
+        value->shorts[3] = scline->np[2];
     }
     else
     {
@@ -7024,24 +7024,27 @@ static void add_object_to_level_at_pos_check(const struct ScriptLine* scline)
         return;
     }
     value->longs[2] = scline->np[3];
-    PlayerNumber plyr_idx = get_rid(player_desc, scline->tp[4]);
+    PlayerNumber plyr_idx = get_rid(player_desc, scline->tp[4]); // Optional variable
     if ((plyr_idx == -1) || (plyr_idx == ALL_PLAYERS))
     {
         plyr_idx = PLAYER_NEUTRAL;
     }
     short angle = 0;
-    if (parameter_is_number(scline->tp[5]))
+    if (strcmp(scline->tp[5], "") != 0) // Optional variable
     {
-        angle = atoi(scline->tp[5]) % LbFPMath_TAU;
-    }
-    else
-    {
-        angle = get_rid(orientation_desc, scline->tp[5]);
-        if (angle < 0)
+        if (parameter_is_number(scline->tp[5]))
         {
-            SCRPTERRLOG("Unknown orientation: %s", scline->tp[5]);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
+            angle = atoi(scline->tp[5]) % LbFPMath_TAU;
+        }
+        else
+        {
+            angle = get_rid(orientation_desc, scline->tp[5]);
+            if (angle < 0)
+            {
+                SCRPTERRLOG("Unknown orientation: %s", scline->tp[5]);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
         }
     }
 
@@ -7070,24 +7073,27 @@ static void add_object_to_level_check(const struct ScriptLine* scline)
     value->ulongs[1] = location;
     value->longs[2] = scline->np[2];
     PlayerNumber plyr_idx = get_rid(player_desc, scline->tp[3]);
-    if ((plyr_idx == -1) || (plyr_idx == ALL_PLAYERS))
+    if ((plyr_idx == -1) || (plyr_idx == ALL_PLAYERS)) //Optional variable
     {
         plyr_idx = PLAYER_NEUTRAL;
     }
 
     short angle = 0;
-    if (parameter_is_number(scline->tp[4]))
+    if (strcmp(scline->tp[4], "") != 0) //Optional variable
     {
-        angle = atoi(scline->tp[4]) % LbFPMath_TAU;
-    }
-    else
-    {
-        angle = get_rid(orientation_desc, scline->tp[4]);
-        if (angle < 0)
+        if (parameter_is_number(scline->tp[4]))
         {
-            SCRPTERRLOG("Unknown orientation: %s", scline->tp[4]);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
+            angle = atoi(scline->tp[4]) % LbFPMath_TAU;
+        }
+        else
+        {
+            angle = get_rid(orientation_desc, scline->tp[4]);
+            if (angle < 0)
+            {
+                SCRPTERRLOG("Unknown orientation: %s", scline->tp[4]);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
         }
     }
 
@@ -7107,7 +7113,7 @@ static void add_object_to_level_process(struct ScriptContext* context)
 
 static void add_object_to_level_at_pos_process(struct ScriptContext* context)
 {
-    script_process_new_object(context->value->shorts[0], context->value->shorts[4], context->value->shorts[5], context->value->longs[2], context->value->chars[2],context->value->shorts[6]);
+    script_process_new_object(context->value->shorts[0], context->value->shorts[2], context->value->shorts[3], context->value->longs[2], context->value->chars[2],context->value->shorts[6]);
 }
 
 static void set_computer_globals_check(const struct ScriptLine* scline)
