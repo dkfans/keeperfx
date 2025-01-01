@@ -441,10 +441,6 @@ GoldAmount compute_creature_max_scavenging_cost(GoldAmount base_param, unsigned 
  */
 long project_creature_attack_melee_damage(long base_param, short damage_percent, long luck, unsigned short crlevel, const struct Thing* thing)
 {
-    if (base_param < -60000)
-        base_param = -60000;
-    if (base_param > 60000)
-        base_param = 60000;
     long max_param = base_param;
     if (damage_percent != 0)
     {
@@ -469,10 +465,6 @@ long project_creature_attack_melee_damage(long base_param, short damage_percent,
 long project_creature_attack_spell_damage(long base_param, long luck, unsigned short crlevel, const struct Thing* thing)
 {
     struct Dungeon* dungeon;
-    if (base_param < -60000)
-        base_param = -60000;
-    if (base_param > 60000)
-        base_param = 60000;
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
@@ -499,10 +491,6 @@ long project_creature_attack_spell_damage(long base_param, long luck, unsigned s
  */
 long compute_creature_attack_melee_damage(long base_param, long luck, unsigned short crlevel, struct Thing* thing)
 {
-    if (base_param < -60000)
-        base_param = -60000;
-    if (base_param > 60000)
-        base_param = 60000;
     long max_param = base_param;
     if (luck > 0)
     {
@@ -521,10 +509,6 @@ long compute_creature_attack_melee_damage(long base_param, long luck, unsigned s
 long compute_creature_attack_spell_damage(long base_param, long luck, unsigned short crlevel, struct Thing* thing)
 {
     struct Dungeon* dungeon;
-    if (base_param < -60000)
-        base_param = -60000;
-    if (base_param > 60000)
-        base_param = 60000;
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
