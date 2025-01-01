@@ -894,7 +894,7 @@ TbBool update_creature_health_to_max(struct Thing * creatng)
  */
 TbBool update_relative_creature_health(struct Thing* creatng)
 {
-    int health_permil = get_creature_health_permil(creatng);
+    HitPoints health_permil = get_creature_health_permil(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->max_health = calculate_correct_creature_max_health(creatng);
     creatng->health = cctrl->max_health * health_permil / 1000;
