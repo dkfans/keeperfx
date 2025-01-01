@@ -451,7 +451,7 @@ long project_creature_attack_melee_damage(long base_param, short damage_percent,
         if (luck > 100) luck = 100;
             max_param += luck*max_param/100;
     }
-    return saturate_set_signed(max_param, 16);
+    return max_param;
 }
 
 /**
@@ -480,7 +480,7 @@ long project_creature_attack_spell_damage(long base_param, long luck, unsigned s
         if (luck > 100) luck = 100;
             max_param += luck*max_param/100;
     }
-    return saturate_set_signed(max_param, 16);
+    return max_param;
 }
 
 /**
@@ -497,7 +497,7 @@ long compute_creature_attack_melee_damage(long base_param, long luck, unsigned s
         if (CREATURE_RANDOM(thing, 100) < luck)
             max_param *= 2;
     }
-    return saturate_set_signed(max_param, 16);
+    return max_param;
 }
 
 /**
@@ -524,7 +524,7 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
         if (CREATURE_RANDOM(thing, 100) < luck)
             max_param *= 2;
     }
-    return saturate_set_signed(max_param, 16);
+    return max_param;
 }
 
 /* Computes spell range/area of effect for a creature on given level. */
