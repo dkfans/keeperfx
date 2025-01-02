@@ -909,9 +909,8 @@ TbBool set_creature_health_to_max_with_heal_effect(struct Thing* thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (cctrl->max_health > thing->health) // 'SpcKind_HealAll' bypasses immunity.
     {
-        // apply_spell_effect_to_thing(thing, 7, 1); 7 was 'SplK_Heal' in the enum.
-        cctrl->spell_aura = ~TngEffElm_Heal;
-        cctrl->spell_aura_duration = 100;
+        cctrl->spell_aura = -TngEffElm_Heal;
+        cctrl->spell_aura_duration = 50;
         thing->health = cctrl->max_health;
     }
     return true;
