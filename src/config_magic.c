@@ -126,6 +126,7 @@ const struct NamedCommand magic_shot_commands[] = {
   {"SPEEDDEVIATION",        58},
   {"SPREAD_XY",             59},
   {"SPREAD_Z",              60},
+  {"SPREAD_CIRCULAR",       60},
   {NULL,                     0},
   };
 
@@ -1784,7 +1785,33 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
-      case ccr_comment:
+        case 61: // SPREAD_CIRCULAR (Combined scattering)
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0) {
+                k = atoi(word_buf);
+                shotst->spread_circular = k; // Set the value for combined scattering
+                n++;
+
+                // Generate random position within a circle for XY
+                float angle = ((float)rand() / RAND_MAX) * 2 * M_PI; // Random angle between 0 and 2π
+                float radius_xy = shotst->spread_circular; // Radius for XY
+                float x = radius_xy * cos(angle); // Calculate X coordinate
+                float y = radius_xy * sin(angle); // Calculate Y coordinate
+
+                // For Z, generate a random value in the range of -k to +k (or another desired range)
+                float z_radius = k * 0.5f; // Example: Z scattering half as large as XY scattering
+                float z = ((float)rand() / RAND_MAX) * (2 * z_radius) - z_radius; // Calculate Z coordinate
+
+                // Use x, y, and z for your further logic...
+                shotst->position.x = x;
+                shotst->position.y = y;
+                shotst->position.z = z;
+            }
+            if (n < 1) {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+            case ccr_comment:
           break;
       case ccr_endOfFile:
           break;
