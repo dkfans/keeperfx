@@ -126,7 +126,7 @@ const struct NamedCommand magic_shot_commands[] = {
   {"SPEEDDEVIATION",        58},
   {"SPREAD_XY",             59},
   {"SPREAD_Z",              60},
-  {"SPREAD_CIRCULAR",       60},
+  {"SPREAD_CIRCULAR",       61},
   {NULL,                     0},
   };
 
