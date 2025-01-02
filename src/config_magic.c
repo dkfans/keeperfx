@@ -1792,14 +1792,18 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 n++;
 
                 // Generate random position within a circle for XY
-                float angle = ((float)rand() / RAND_MAX) * 2 * M_PI; // Random angle between 0 and 2π
-                float radius_xy = shotst->spread_circular; // Radius for XY
-                float x = radius_xy * cos(angle); // Calculate X coordinate
-                float y = radius_xy * sin(angle); // Calculate Y coordinate
+                int angle = rand() % 360; // Random angle between 0 and 359 degrees
+                int radius_xy = shotst->spread_circular; // Radius for XY
+
+                // Calculate X and Y coordinates using integer math
+                int x = (int)(radius_xy * cos(angle * M_PI / 180.0)); // Convert angle to radians
+                int y = (int)(radius_xy * sin(angle * M_PI / 180.0)); // Convert angle to radians
 
                 // For Z, generate a random value in the range of -k to +k (or another desired range)
-                float z_radius = k * 0.5f; // Example: Z scattering half as large as XY scattering
-                float z = ((float)rand() / RAND_MAX) * (2 * z_radius) - z_radius; // Calculate Z coordinate
+                int z_radius = k / 2; // Example: Z scattering half as large as XY scattering
+
+                // Generate a random integer in the range [-z_radius, z_radius]
+                int z = (rand() % (2 * z_radius + 1)) - z_radius; // Calculate Z coordinate
 
                 // Use x, y, and z for your further logic...
                 shotst->position.x = x;
