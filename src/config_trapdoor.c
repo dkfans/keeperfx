@@ -124,6 +124,8 @@ const struct NamedCommand door_properties_commands[] = {
   {"SECRET",               2},
   {"THICK",                3},  
   {"MIDAS",                4},
+  {"FREESTANDING",         5},
+  {"ALWAYS_LOCKED",        6},
   {NULL,                   0},
 };
 
@@ -1524,6 +1526,14 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
                   break;
               case 4: // MIDAS
                   doorst->model_flags |= DoMF_Midas;
+                  n++;
+                  break;
+              case 5: // FREESTANDING
+                  doorst->model_flags |= DoMF_Freestanding;
+                  n++;
+                  break;
+              case 6: // ALWAYS_LOCKED
+                  doorst->model_flags |= DoMF_AlwaysLocked;
                   n++;
                   break;
               default:
