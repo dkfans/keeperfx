@@ -1420,7 +1420,23 @@ short get_creature_control_action_inputs(void)
         toggle_creature_cheat_menu();
         clear_key_pressed(KC_F12);
     }
-
+    if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
+    {
+        if (a_menu_window_is_active())
+        {
+            clear_key_pressed(KC_ESCAPE);
+            turn_off_all_window_menus();
+        }
+    }
+    if (is_key_pressed(KC_ESCAPE, KMod_SHIFT))
+    {
+        clear_key_pressed(KC_ESCAPE);
+        if (menu_is_active(GMnu_MAIN))
+        {
+            fake_button_click(BID_OPTIONS);
+        }
+        turn_on_menu(GMnu_OPTIONS);
+    }
     if (player->controlled_thing_idx != 0)
     {
         short make_packet = right_button_released || is_key_pressed(KC_ESCAPE, KMod_DONTCARE);
@@ -2412,12 +2428,12 @@ void get_creature_control_nonaction_inputs(void)
     TbBool cheat_menu_active = cheat_menu_is_active();
     if (((MyScreenWidth >> 1) != x) || ((MyScreenHeight >> 1) != y)) 
     {
-        if (!cheat_menu_active)
+        if (!cheat_menu_active && !a_menu_window_is_active())
         {
             LbMouseSetPositionInitial((MyScreenWidth / pixel_size) >> 1, (MyScreenHeight / pixel_size) >> 1);
         }
     }
-    if (!cheat_menu_active)
+    if (!cheat_menu_active && !a_menu_window_is_active())
     {
         long centerX = MyScreenWidth / 2;
         long centerY = MyScreenHeight / 2;
@@ -2479,6 +2495,22 @@ void get_creature_control_nonaction_inputs(void)
             set_packet_control(pckt, PCtr_MoveUp);
         if (is_game_key_pressed(Gkey_MoveDown, NULL, true) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
             set_packet_control(pckt, PCtr_MoveDown);
+    }
+    if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
+    {
+        clear_key_pressed(KC_ESCAPE);
+        if (a_menu_window_is_active())
+        {
+            turn_off_all_window_menus();
+        }
+        else
+        {
+            if (menu_is_active(GMnu_MAIN))
+            {
+                fake_button_click(BID_OPTIONS);
+            }
+            turn_on_menu(GMnu_OPTIONS);
+        }
     }
 }
 
