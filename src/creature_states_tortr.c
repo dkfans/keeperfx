@@ -21,7 +21,6 @@
 #include "globals.h"
 
 #include "bflib_math.h"
-#include "bflib_memory.h"
 #include "creature_states.h"
 #include "thing_list.h"
 #include "creature_states_prisn.h"
@@ -366,7 +365,7 @@ long reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr
     TbBool reveal_success = 0;
 
     unsigned char* ownership_map = (unsigned char*)malloc(gameadd.map_tiles_y * gameadd.map_tiles_x);
-    LbMemorySet(ownership_map,0,gameadd.map_tiles_y*gameadd.map_tiles_x);
+    memset(ownership_map,0,gameadd.map_tiles_y*gameadd.map_tiles_x);
     for (slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
     {
         for (slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)

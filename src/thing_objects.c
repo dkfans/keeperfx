@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_sound.h"
 #include "bflib_planar.h"
@@ -130,7 +129,7 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
       thing->parent_idx = -1;
     else
       thing->parent_idx = parent_idx;
-    LbMemoryCopy(&thing->mappos, pos, sizeof(struct Coord3d));
+    memcpy(&thing->mappos, pos, sizeof(struct Coord3d));
     struct ObjectConfigStats* objst = get_object_model_stats(model);
     thing->clipbox_size_xy = objst->size_xy;
     thing->clipbox_size_z = objst->size_z;
@@ -167,8 +166,8 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
     if (objst->ilght.radius != 0)
     {
         struct InitLight ilight;
-        LbMemorySet(&ilight, 0, sizeof(struct InitLight));
-        LbMemoryCopy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
+        memset(&ilight, 0, sizeof(struct InitLight));
+        memcpy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
         ilight.radius = objst->ilght.radius;
         ilight.intensity = objst->ilght.intensity;
         ilight.flags = objst->ilght.flags;
@@ -1287,10 +1286,10 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
         if (heartng->health <= 0)
         {
             struct Thing* efftng;
-            efftng = create_used_effect_or_element(&heartng->mappos, objst->effect.explosion1, heartng->owner);
+            efftng = create_used_effect_or_element(&heartng->mappos, objst->effect.explosion1, heartng->owner, heartng->index);
             if (!thing_is_invalid(efftng))
                 efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
-            efftng = create_used_effect_or_element(&heartng->mappos, objst->effect.explosion2, heartng->owner);
+            efftng = create_used_effect_or_element(&heartng->mappos, objst->effect.explosion2, heartng->owner, heartng->index);
             if (!thing_is_invalid(efftng))
                 efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
             destroy_dungeon_heart_room(heartng->owner, heartng);

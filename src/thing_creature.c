@@ -22,7 +22,6 @@
 #include "thing_creature.h"
 #include "globals.h"
 
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_filelst.h"
 #include "bflib_sprite.h"
@@ -1879,15 +1878,7 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, long shot_lvl,
     {
         thing_summon_temporary_creature(castng, spconf->crtr_summon_model, spconf->crtr_summon_level, spconf->crtr_summon_amount, spconf->duration, spl_idx);
     }
-    // Check if the spell has an effect associated
-    if (spconf->cast_effect_model != 0)
-    {
-        struct Thing* efthing = create_used_effect_or_element(&castng->mappos, spconf->cast_effect_model, castng->owner);
-        if (!thing_is_invalid(efthing))
-        {
-            efthing->parent_idx = castng->index;
-        }
-    }
+    create_used_effect_or_element(&castng->mappos, spconf->cast_effect_model, castng->owner, castng->index);
 }
 
 void update_creature_count(struct Thing *creatng)
@@ -3306,7 +3297,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         if (thing_is_invalid(shotng))
           return;
 
-        draw_flame_breath(&pos1, &pos2, shotst->effect_spacing, shotst->effect_amount,shotst->effect_id);
+        draw_flame_breath(&pos1, &pos2, shotst->effect_spacing, shotst->effect_amount,shotst->effect_id, shotng->index);
         shotng->health = shotst->health;
         shotng->shot.damage = damage;
         shotng->parent_idx = firing->index;
@@ -3882,7 +3873,7 @@ void draw_creature_view(struct Thing *thing)
   TbGraphicsWindow grwnd;
   LbScreenStoreGraphicsWindow(&grwnd);
   // Prepare new settings
-  LbMemorySet(scrmem, 0, eye_lens_width*eye_lens_height*sizeof(TbPixel));
+  memset(scrmem, 0, eye_lens_width*eye_lens_height*sizeof(TbPixel));
   lbDisplay.WScreen = scrmem;
   lbDisplay.GraphicsScreenHeight = eye_lens_height;
   lbDisplay.GraphicsScreenWidth = eye_lens_width;
@@ -6303,7 +6294,7 @@ TbBool creature_stats_debug_dump(void)
 void create_light_for_possession(struct Thing *creatng)
 {
     struct InitLight ilght;
-    LbMemorySet(&ilght, 0, sizeof(struct InitLight));
+    memset(&ilght, 0, sizeof(struct InitLight));
     ilght.mappos.x.val = creatng->mappos.x.val;
     ilght.mappos.y.val = creatng->mappos.y.val;
     ilght.mappos.z.val = creatng->mappos.z.val;

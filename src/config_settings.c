@@ -21,7 +21,6 @@
 #include "globals.h"
 #include "sounds.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "bflib_keybrd.h"
@@ -113,7 +112,7 @@ void setup_default_settings(void)
      127,                       // mentor_volume
      CAMERA_TILT_DEFAULT,       // isometric_tilt
     };
-    LbMemoryCopy(&settings, &default_settings, sizeof(struct GameSettings));
+    memcpy(&settings, &default_settings, sizeof(struct GameSettings));
     settings.switching_vidmodes_index = 0;
 }
 

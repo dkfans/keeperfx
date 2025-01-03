@@ -20,7 +20,6 @@
 
 #include "bflib_basics.h"
 #include "bflib_math.h"
-#include "bflib_memory.h"
 #include "config_creature.h"
 #include "config_crtrstates.h"
 #include "config_effects.h"
@@ -124,6 +123,9 @@ const char *thing_class_and_model_name(int class_id, int model)
         break;
     case TCls_Effect:
         snprintf(name_buffer[bid], sizeof(name_buffer[0]), "%s effect", effect_code_name(model));
+        break;
+    case TCls_EffectElem:
+        snprintf(name_buffer[bid], sizeof(name_buffer[0]), "%s effect element", effect_element_code_name(model));
         break;
     case TCls_EffectGen:
         snprintf(name_buffer[bid], sizeof(name_buffer[0]), "%s effectgenerator", effectgenerator_code_name(model));
@@ -1246,11 +1248,11 @@ const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveSta
         break;
     case CrLStat_BestDamage:
         // TODO: (???) compute damage of best attack.
-        text = lbEmptyString;
+        text = "";
         break;
     default:
         ERRORLOG("Invalid statistic %d", (int)clstat_id);
-        text = lbEmptyString;
+        text = "";
         break;
     }
     return text;

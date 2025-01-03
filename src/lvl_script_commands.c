@@ -15,7 +15,6 @@
 #include <math.h>
 #include <string.h>
 
-#include "bflib_memory.h"
 #include "bflib_sound.h"
 #include "config_effects.h"
 #include "config_lenses.h"
@@ -272,6 +271,7 @@ const struct NamedCommand trap_config_desc[] = {
   {"DetectInvisible",         49},
   {"InstantPlacement",        50},
   {"RemoveOnceDepleted",      51},
+  {"FlagNumber",              52},
   {NULL,                       0},
 };
 
@@ -498,6 +498,18 @@ const struct NamedCommand is_free_desc[] = {
   {NULL, 0}
 };
 
+const struct NamedCommand orientation_desc[] = {
+  {"North",     ANGLE_NORTH},
+  {"NorthEast", ANGLE_NORTHEAST},
+  {"East",      ANGLE_EAST},
+  {"SouthEast", ANGLE_SOUTHEAST},
+  {"South",     ANGLE_SOUTH},
+  {"SouthWest", ANGLE_SOUTHWEST},
+  {"West",      ANGLE_WEST},
+  {"NorthWest", ANGLE_NORTHWEST},
+  {NULL, 0}
+};
+
 const struct NamedCommand texture_pack_desc[] = {
   {"NONE",         0},
   {"STANDARD",     1},
@@ -644,6 +656,12 @@ TbBool parse_set_varib(const char *varib_name, long *varib_id, long *varib_type)
             *varib_type = SVar_BOX_ACTIVATED;
         }
         else
+        if (2 == sscanf(varib_name, "TRAP%ld_ACTIVATE%c", varib_id, &c) && (c == 'D'))
+        {
+            // activateD
+            *varib_type = SVar_TRAP_ACTIVATED;
+        }
+        else
         {
             *varib_id = -1;
         }
@@ -725,6 +743,11 @@ TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
         {
             // activateD
             *varib_type = SVar_BOX_ACTIVATED;
+        }
+        else if (2 == sscanf(varib_name, "TRAP%ld_ACTIVATE%c", varib_id, &c) && (c == 'D'))
+        {
+            // activateD
+            *varib_type = SVar_TRAP_ACTIVATED;
         }
         else if (2 == sscanf(varib_name, "KEEPERS_DESTROYED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
         {
@@ -994,7 +1017,7 @@ static int script_transfer_creature(PlayerNumber plyr_idx, ThingModel crmodel, l
             dungeon->creatures_transferred++;
             remove_thing_from_power_hand_list(thing, plyr_idx);
             struct SpecialConfigStats* specst = get_special_model_stats(SpcKind_TrnsfrCrtr);
-            create_used_effect_or_element(&thing->mappos, specst->effect_id, plyr_idx);
+            create_used_effect_or_element(&thing->mappos, specst->effect_id, plyr_idx, thing->index);
             kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects | CrDed_NotReallyDying);
         }
     }
@@ -1623,7 +1646,7 @@ static void new_creature_type_check(const struct ScriptLine* scline)
 
     int i = game.conf.crtr_conf.model_count;
     game.conf.crtr_conf.model_count++;
-    LbStringCopy(game.conf.crtr_conf.model[i].name, scline->tp[0], COMMAND_WORD_LEN);
+    snprintf(game.conf.crtr_conf.model[i].name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
     creature_desc[i-1].name = game.conf.crtr_conf.model[i].name;
     creature_desc[i-1].num = i;
 
@@ -1652,7 +1675,7 @@ static void new_room_type_check(const struct ScriptLine* scline)
     int i = game.conf.slab_conf.room_types_count - 1;
 
     roomst = &game.conf.slab_conf.room_cfgstats[i];
-    LbMemorySet(roomst->code_name, 0, COMMAND_WORD_LEN);
+    memset(roomst->code_name, 0, COMMAND_WORD_LEN);
     snprintf(roomst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
     roomst->name_stridx = GUIStr_Empty;
     roomst->tooltip_stridx = GUIStr_Empty;
@@ -1685,7 +1708,7 @@ static void new_object_type_check(const struct ScriptLine* scline)
 
     int tmodel = game.conf.object_conf.object_types_count -1;
     struct ObjectConfigStats* objst = get_object_model_stats(tmodel);
-    LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
+    memset(objst->code_name, 0, COMMAND_WORD_LEN);
     snprintf(objst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
     objst->name_stridx = 201;
     objst->map_icon = 0;
@@ -1706,7 +1729,7 @@ static void new_trap_type_check(const struct ScriptLine* scline)
     game.conf.trapdoor_conf.trap_types_count++;
     short i = game.conf.trapdoor_conf.trap_types_count-1;
     struct TrapConfigStats *trapst = get_trap_model_stats(i);
-    LbMemorySet(trapst->code_name, 0, COMMAND_WORD_LEN);
+    memset(trapst->code_name, 0, COMMAND_WORD_LEN);
     snprintf(trapst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
     trapst->name_stridx = GUIStr_Empty;
     trapst->tooltip_stridx = GUIStr_Empty;
@@ -2025,6 +2048,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 51: // RemoveOnceDepleted
             trapst->remove_once_depleted = value;
+            break;
+        case 52: // FlagNumber
+            trapst->flag_number = value;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
@@ -2480,7 +2506,7 @@ static void create_effect_at_pos_process(struct ScriptContext* context)
     {
         pos.z.val += context->value->longs[2];
     }
-    struct Thing* efftng = create_used_effect_or_element(&pos, context->value->shorts[0], game.neutral_player_num);
+    struct Thing* efftng = create_used_effect_or_element(&pos, context->value->shorts[0], game.neutral_player_num, 0);
     if (!thing_is_invalid(efftng))
     {
         if (thing_in_wall_at(efftng, &efftng->mappos))
@@ -2510,7 +2536,7 @@ static void create_effect_process(struct ScriptContext *context)
     {
         pos.z.val += context->value->longs[2];
     }
-    struct Thing* efftng = create_used_effect_or_element(&pos, context->value->shorts[0], game.neutral_player_num);
+    struct Thing* efftng = create_used_effect_or_element(&pos, context->value->shorts[0], game.neutral_player_num, 0);
     if (!thing_is_invalid(efftng))
     {
         if (thing_in_wall_at(efftng, &efftng->mappos))
@@ -2760,7 +2786,7 @@ static void place_door_process(struct ScriptContext* context)
                     continue;
                 }
             }
-            success = player_place_door_without_check_at(stl_x, stl_y, plyridx, doorkind);
+            success = player_place_door_without_check_at(stl_x, stl_y, plyridx, doorkind, free);
             if (success)
             {
                 delete_room_slabbed_objects(get_slab_number(slb_x, slb_y));
@@ -2773,6 +2799,72 @@ static void place_door_process(struct ScriptContext* context)
                         lock_door(doortng);
                     }
                 }
+            }
+        }
+    }
+}
+
+static void place_trap_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    const char* trapname = scline->tp[1];
+    short trap_id = get_id(trap_desc, trapname);
+
+    if (trap_id == -1)
+    {
+        SCRPTERRLOG("Unknown trap, '%s'", trapname);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    if (subtile_coords_invalid(scline->np[2], scline->np[3]))
+    {
+        SCRPTERRLOG("Invalid subtile coordinates: %ld, %ld", scline->np[2], scline->np[3]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    short free;
+    if (parameter_is_number(scline->tp[4]))
+    {
+        free = atoi(scline->tp[4]);
+    }
+    else
+    {
+        free = get_id(is_free_desc, scline->tp[4]);
+    }
+    if ((free < 0) || (free > 1))
+    {
+        SCRPTERRLOG("Place Trap free state '%s' not recognized", scline->tp[5]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    value->shorts[1] = trap_id;
+    value->shorts[2] = scline->np[2];
+    value->shorts[3] = scline->np[3];
+    value->shorts[4] = free;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void place_trap_process(struct ScriptContext* context)
+{
+    ThingModel trapkind = context->value->shorts[1];
+    MapSubtlCoord stl_x = context->value->shorts[2];
+    MapSubtlCoord stl_y = context->value->shorts[3];
+    TbBool free = context->value->shorts[4];
+
+    for (int plyridx = context->plr_start; plyridx < context->plr_end; plyridx++)
+    {
+        if (can_place_trap_on(plyridx, stl_x, stl_y, trapkind))
+        {
+            if (free)
+            {
+                player_place_trap_without_check_at(stl_x, stl_y, plyridx, trapkind, free);
+            }
+            else
+            {
+                player_place_trap_at(stl_x, stl_y, plyridx, trapkind);
             }
         }
     }
@@ -5479,7 +5571,7 @@ static void set_music_check(const struct ScriptLine *scline)
             Mix_FreeMusic(tracks[tracknumber]);
         }
         const char* fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s", scline->tp[0]);
-        LbStringCopy(game.loaded_track[tracknumber], fname, DISKPATH_SIZE);
+        snprintf(game.loaded_track[tracknumber], DISKPATH_SIZE, "%s", fname);
         tracks[tracknumber] = Mix_LoadMUS(game.loaded_track[tracknumber]);
         if (tracks[tracknumber] == NULL)
         {
@@ -6952,8 +7044,8 @@ static void add_object_to_level_at_pos_check(const struct ScriptLine* scline)
     value->shorts[0] = tngmodel;
     if (!subtile_coords_invalid(scline->np[1], scline->np[2]))
     {
-        value->shorts[1] = scline->np[1];
-        value->shorts[2] = scline->np[2];
+        value->shorts[2] = scline->np[1];
+        value->shorts[3] = scline->np[2];
     }
     else
     {
@@ -6962,12 +7054,32 @@ static void add_object_to_level_at_pos_check(const struct ScriptLine* scline)
         return;
     }
     value->longs[2] = scline->np[3];
-    PlayerNumber plyr_idx = get_rid(player_desc, scline->tp[4]);
+    PlayerNumber plyr_idx = get_rid(player_desc, scline->tp[4]); // Optional variable
     if ((plyr_idx == -1) || (plyr_idx == ALL_PLAYERS))
     {
         plyr_idx = PLAYER_NEUTRAL;
     }
-    value->chars[6] = plyr_idx;
+    short angle = 0;
+    if (strcmp(scline->tp[5], "") != 0) // Optional variable
+    {
+        if (parameter_is_number(scline->tp[5]))
+        {
+            angle = atoi(scline->tp[5]) % LbFPMath_TAU;
+        }
+        else
+        {
+            angle = get_rid(orientation_desc, scline->tp[5]);
+            if (angle < 0)
+            {
+                SCRPTERRLOG("Unknown orientation: %s", scline->tp[5]);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+        }
+    }
+
+    value->chars[2] = plyr_idx;
+    value->shorts[6] = angle;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -6991,11 +7103,32 @@ static void add_object_to_level_check(const struct ScriptLine* scline)
     value->ulongs[1] = location;
     value->longs[2] = scline->np[2];
     PlayerNumber plyr_idx = get_rid(player_desc, scline->tp[3]);
-    if ((plyr_idx == -1) || (plyr_idx == ALL_PLAYERS))
+    if ((plyr_idx == -1) || (plyr_idx == ALL_PLAYERS)) //Optional variable
     {
         plyr_idx = PLAYER_NEUTRAL;
     }
+
+    short angle = 0;
+    if (strcmp(scline->tp[4], "") != 0) //Optional variable
+    {
+        if (parameter_is_number(scline->tp[4]))
+        {
+            angle = atoi(scline->tp[4]) % LbFPMath_TAU;
+        }
+        else
+        {
+            angle = get_rid(orientation_desc, scline->tp[4]);
+            if (angle < 0)
+            {
+                SCRPTERRLOG("Unknown orientation: %s", scline->tp[4]);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+        }
+    }
+
     value->chars[2] = plyr_idx;
+    value->shorts[6] = angle;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -7004,13 +7137,13 @@ static void add_object_to_level_process(struct ScriptContext* context)
     struct Coord3d pos;
     if (get_coords_at_location(&pos,context->value->ulongs[1],true))
     {
-        script_process_new_object(context->value->shorts[0], pos.x.stl.num, pos.y.stl.num, context->value->longs[2], context->value->chars[2]);
+        script_process_new_object(context->value->shorts[0], pos.x.stl.num, pos.y.stl.num, context->value->longs[2], context->value->chars[2], context->value->shorts[6]);
     }
 }
 
 static void add_object_to_level_at_pos_process(struct ScriptContext* context)
 {
-    script_process_new_object(context->value->shorts[0], context->value->shorts[1], context->value->shorts[2], context->value->longs[2], context->value->chars[6]);
+    script_process_new_object(context->value->shorts[0], context->value->shorts[2], context->value->shorts[3], context->value->longs[2], context->value->chars[2],context->value->shorts[6]);
 }
 
 static void set_computer_globals_check(const struct ScriptLine* scline)
@@ -7335,7 +7468,7 @@ const struct CommandDesc command_desc[] = {
   {"DELETE_FROM_PARTY",                 "ACN     ", Cmd_DELETE_FROM_PARTY, &delete_from_party_check, NULL},
   {"ADD_PARTY_TO_LEVEL",                "PAAN    ", Cmd_ADD_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_LEVEL",             "PCANNN  ", Cmd_ADD_CREATURE_TO_LEVEL, NULL, NULL},
-  {"ADD_OBJECT_TO_LEVEL",               "AANp    ", Cmd_ADD_OBJECT_TO_LEVEL, &add_object_to_level_check, &add_object_to_level_process},
+  {"ADD_OBJECT_TO_LEVEL",               "AANpa   ", Cmd_ADD_OBJECT_TO_LEVEL, &add_object_to_level_check, &add_object_to_level_process},
   {"IF",                                "PAOAa   ", Cmd_IF, &if_check, NULL},
   {"IF_ACTION_POINT",                   "NP      ", Cmd_IF_ACTION_POINT, NULL, NULL},
   {"ENDIF",                             "        ", Cmd_ENDIF, NULL, NULL},
@@ -7461,6 +7594,7 @@ const struct CommandDesc command_desc[] = {
   {"HEART_LOST_OBJECTIVE",              "Nl      ", Cmd_HEART_LOST_OBJECTIVE, &heart_lost_objective_check, &heart_lost_objective_process},
   {"SET_DOOR",                          "ANN     ", Cmd_SET_DOOR, &set_door_check, &set_door_process},
   {"PLACE_DOOR",                        "PANNAA  ", Cmd_PLACE_DOOR, &place_door_check, &place_door_process},
+  {"PLACE_TRAP",                        "PANNA   ", Cmd_PLACE_TRAP, &place_trap_check, &place_trap_process },
   {"ZOOM_TO_LOCATION",                  "PL      ", Cmd_MOVE_PLAYER_CAMERA_TO, &player_zoom_to_check, &player_zoom_to_process},
   {"SET_CREATURE_INSTANCE",             "CNAN    ", Cmd_SET_CREATURE_INSTANCE, &set_creature_instance_check, &set_creature_instance_process},
   {"SET_HAND_RULE",                     "PC!Aaaa ", Cmd_SET_HAND_RULE, &set_hand_rule_check, &set_hand_rule_process},
@@ -7484,7 +7618,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_PLAYER_MODIFIER",               "PAN     ", Cmd_SET_PLAYER_MODIFIER, &set_player_modifier_check, &set_player_modifier_process},
   {"ADD_TO_PLAYER_MODIFIER",            "PAN     ", Cmd_ADD_TO_PLAYER_MODIFIER, &add_to_player_modifier_check, &add_to_player_modifier_process},
   {"CHANGE_SLAB_TEXTURE",               "NNAa    ", Cmd_CHANGE_SLAB_TEXTURE , &change_slab_texture_check, &change_slab_texture_process},
-  {"ADD_OBJECT_TO_LEVEL_AT_POS",        "ANNNp   ", Cmd_ADD_OBJECT_TO_LEVEL_AT_POS, &add_object_to_level_at_pos_check, &add_object_to_level_at_pos_process},
+  {"ADD_OBJECT_TO_LEVEL_AT_POS",        "ANNNpa  ", Cmd_ADD_OBJECT_TO_LEVEL_AT_POS, &add_object_to_level_at_pos_check, &add_object_to_level_at_pos_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

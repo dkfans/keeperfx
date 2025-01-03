@@ -20,7 +20,6 @@
 #include "map_columns.h"
 #include "globals.h"
 
-#include "bflib_memory.h"
 #include "config_terrain.h"
 #include "slab_data.h"
 #include "game_legacy.h"
@@ -419,7 +418,7 @@ void clear_columns(void)
   for (i=0; i < COLUMNS_COUNT; i++)
   {
     colmn = &game.columns_data[i];
-    LbMemorySet(colmn, 0, sizeof(struct Column));
+    memset(colmn, 0, sizeof(struct Column));
     colmn->floor_texture = 1;
     make_solidmask(colmn);
   }
@@ -493,7 +492,7 @@ void init_whole_blocks(void)
     struct Column *colmn;
     struct Column lcolmn;
     long i;
-    LbMemorySet(&lcolmn, 0, sizeof(struct Column));
+    memset(&lcolmn, 0, sizeof(struct Column));
     // Prepare the local column
     lcolmn.floor_texture = 22;
     lcolmn.cubes[0] = 10;
@@ -514,7 +513,7 @@ void init_whole_blocks(void)
 
 void init_top_texture_to_cube_table(void)
 {
-    LbMemorySet(game.top_cube, 0, sizeof(game.top_cube));
+    memset(game.top_cube, 0, sizeof(game.top_cube));
     int n;
     for (n=1; n < TEXTURE_BLOCKS_COUNT; n++)
     {

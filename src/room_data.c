@@ -23,7 +23,6 @@
 #include "bflib_basics.h"
 #include "bflib_math.h"
 #include "bflib_planar.h"
-#include "bflib_memory.h"
 #include "config_creature.h"
 #include "power_specials.h"
 #include "room_garden.h"
@@ -550,7 +549,7 @@ void delete_room_structure(struct Room *room)
                   secroom->next_of_owner = room->next_of_owner;
           }
       }
-      LbMemorySet(room, 0, sizeof(struct Room));
+      memset(room, 0, sizeof(struct Room));
     }
 }
 
@@ -1028,7 +1027,7 @@ struct Room *allocate_free_room_structure(void)
         struct Room* room = &game.rooms[i];
         if ((room->alloc_flags & 0x01) == 0)
         {
-            LbMemorySet(room, 0, sizeof(struct Room));
+            memset(room, 0, sizeof(struct Room));
             room->alloc_flags |= 0x01;
             room->index = i;
             return room;

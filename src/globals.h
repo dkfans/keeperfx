@@ -19,6 +19,7 @@
 #ifndef KEEPFX_GLOBALS_H
 #define KEEPFX_GLOBALS_H
 
+#include "bflib_basics.h"
 #include <stdbool.h> // Introduced in C99. Provides true/false.
 #include <stdio.h>
 #include <stdint.h>

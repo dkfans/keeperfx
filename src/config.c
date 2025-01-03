@@ -23,7 +23,6 @@
 #include <stdarg.h>
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
@@ -202,29 +201,6 @@ short is_near_new_moon = 0;
 }
 #endif
 /******************************************************************************/
-/**
- * Updates enabled features flags. Returns true if ALL features are enabled.
- * @param mem_size Amount of memory available for the game.
- * @return
- */
-TbBool update_features(unsigned long uf_mem_size)
-{
-    short result = false;
-    if (uf_mem_size >= 32)
-    {
-        result = true;
-        features_enabled |= Ft_HiResCreatr;
-  }
-  if (uf_mem_size >= 16)
-  {
-    features_enabled |= Ft_EyeLens;
-    features_enabled |= Ft_HiResVideo;
-    features_enabled |= Ft_BigPointer;
-    features_enabled |= Ft_AdvAmbSound;
-  }
-  SYNCMSG("Memory-demanding features %s.",result?"enabled":"disabled");
-  return result;
-}
 
 /**
  * Returns if the censorship is on. This mostly affects blood.
@@ -827,7 +803,7 @@ const char *get_conf_parameter_text(const struct NamedCommand commands[],int num
             return commands[i].name;
         i++;
   }
-  return lbEmptyString;
+  return "";
 }
 
 /**
@@ -979,7 +955,7 @@ short load_configuration(void)
     WARNMSG("%s file \"%s\" is too large.",config_textname,sname);
     return false;
   }
-  char* buf = (char*)LbMemoryAlloc(len + 256);
+  char* buf = (char*)calloc(len + 256, 1);
   if (buf == NULL)
     return false;
   // Loading file data
@@ -1431,7 +1407,7 @@ short load_configuration(void)
   }
   SYNCDBG(7,"Config loaded");
   // Freeing
-  LbMemoryFree(buf);
+  free(buf);
   // Updating game according to loaded settings
   switch (install_info.lang_id)
   {
@@ -1467,7 +1443,7 @@ short load_configuration(void)
 }
 
 /** CmdLine overrides allow settings from the command line to override the default settings, or those set in the config file.
- * 
+ *
  * See enum CmdLineOverrides and struct StartupParameters -> TbBool overrides[CMDLINE_OVERRIDES].
  */
 void process_cmdline_overrides(void)
@@ -1670,7 +1646,7 @@ unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *
        WARNMSG("File \"%s\" doesn't exist or is too small.", fname);
        return NULL;
   }
-  unsigned char* buf = LbMemoryAlloc(fsize + 16);
+  unsigned char* buf = calloc(fsize + 16, 1);
   if (buf == NULL)
   {
     WARNMSG("Can't allocate %ld bytes to load \"%s\".",fsize,fname);
@@ -1680,10 +1656,10 @@ unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *
   if (fsize < *ldsize)
   {
     WARNMSG("Reading file \"%s\" failed.",fname);
-    LbMemoryFree(buf);
+    free(buf);
     return NULL;
   }
-  LbMemorySet(buf+fsize, '\0', 15);
+  memset(buf+fsize, '\0', 15);
   *ldsize = fsize;
   return buf;
 }
@@ -1781,12 +1757,12 @@ TbBool load_high_score_table(void)
     long arr_size = campaign.hiscore_count * sizeof(struct HighScore);
     if (arr_size <= 0)
     {
-        LbMemoryFree(campaign.hiscore_table);
+        free(campaign.hiscore_table);
         campaign.hiscore_table = NULL;
         return true;
     }
     if (campaign.hiscore_table == NULL)
-        campaign.hiscore_table = (struct HighScore *)LbMemoryAlloc(arr_size);
+        campaign.hiscore_table = (struct HighScore *)calloc(arr_size, 1);
     if (LbFileLengthRnc(fname) != arr_size)
         return false;
     if (campaign.hiscore_table == NULL)
@@ -1820,7 +1796,7 @@ TbBool create_empty_high_score_table(void)
   int nlevel = 1 * VISIBLE_HIGH_SCORES_COUNT;
   long arr_size = campaign.hiscore_count * sizeof(struct HighScore);
   if (campaign.hiscore_table == NULL)
-    campaign.hiscore_table = (struct HighScore *)LbMemoryAlloc(arr_size);
+    campaign.hiscore_table = (struct HighScore *)calloc(arr_size, 1);
   if (campaign.hiscore_table == NULL)
     return false;
   for (i=0; i < VISIBLE_HIGH_SCORES_COUNT; i++)
@@ -2053,7 +2029,7 @@ TbBool reset_credits(struct CreditsItem *credits)
 {
     for (long i = 0; i < CAMPAIGN_CREDITS_COUNT; i++)
     {
-        LbMemorySet(&credits[i], 0, sizeof(struct CreditsItem));
+        memset(&credits[i], 0, sizeof(struct CreditsItem));
         credits[i].kind = CIK_None;
   }
   return true;
@@ -2163,7 +2139,7 @@ TbBool setup_campaign_credits_data(struct GameCampaign *campgn)
     ERRORLOG("Campaign Credits file \"%s\" does not exist or can't be opened",campgn->credits_fname);
     return false;
   }
-  campgn->credits_data = (char *)LbMemoryAlloc(filelen + 256);
+  campgn->credits_data = (char *)calloc(filelen + 256, 1);
   if (campgn->credits_data == NULL)
   {
     ERRORLOG("Can't allocate memory for Campaign Credits file \"%s\"",campgn->credits_fname);

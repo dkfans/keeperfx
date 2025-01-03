@@ -22,7 +22,6 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
-#include "bflib_memory.h"
 #include "thing_data.h"
 #include "thing_stats.h"
 #include "thing_list.h"
@@ -372,7 +371,7 @@ TbBool remove_item_from_dead_creature_list(struct Dungeon *dungeon, ThingModel c
     {
         for (long i = rmpos; i < DEAD_CREATURES_MAX_COUNT - 1; i++)
         {
-            LbMemoryCopy(&dungeon->dead_creatures[i], &dungeon->dead_creatures[i + 1], sizeof(struct CreatureStorage));
+            memcpy(&dungeon->dead_creatures[i], &dungeon->dead_creatures[i + 1], sizeof(struct CreatureStorage));
         }
         cstore = &dungeon->dead_creatures[DEAD_CREATURES_MAX_COUNT - 1];
         cstore->model = 0;
@@ -531,7 +530,7 @@ void delete_corpse(struct Thing *deadtng)
     struct CreatureStats* crstat = creature_stats_get(deadtng->model);
     if (crstat->corpse_vanish_effect != 0)
     {
-        create_used_effect_or_element(&deadtng->mappos, crstat->corpse_vanish_effect, deadtng->owner);
+        create_used_effect_or_element(&deadtng->mappos, crstat->corpse_vanish_effect, deadtng->owner, deadtng->index);
     }
     delete_thing_structure(deadtng, 0);
 }
