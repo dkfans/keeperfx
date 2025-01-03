@@ -1435,7 +1435,7 @@ short get_creature_control_action_inputs(void)
         {
             fake_button_click(BID_OPTIONS);
         }
-            turn_on_menu(GMnu_OPTIONS);
+        turn_on_menu(GMnu_OPTIONS);
     }
     if (player->controlled_thing_idx != 0)
     {
@@ -2433,7 +2433,7 @@ void get_creature_control_nonaction_inputs(void)
             LbMouseSetPositionInitial((MyScreenWidth / pixel_size) >> 1, (MyScreenHeight / pixel_size) >> 1);
         }
     }
-    if (!cheat_menu_active)
+    if (!cheat_menu_active && !a_menu_window_is_active())
     {
         long centerX = MyScreenWidth / 2;
         long centerY = MyScreenHeight / 2;
