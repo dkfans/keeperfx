@@ -3154,16 +3154,20 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             if (parameter_is_number(scline->tp[2]))
             {
                 value1 = atoi(scline->tp[2]);
-                value3 = 1; // To tell we are using a number.
             }
             else
             {
-                value1 = get_id(magic_spell_flags, scline->tp[2]) - 1; // -1 because 2^1 = 2 and we want to start with 1 and 2^0 = 1.
+                value1 = get_id(magic_spell_flags, scline->tp[2]);
             }
-            value2 = UCHAR_MAX; // If scline->tp[3] is empty then set flag as the only immunity.
+            // value 2: 'empty' is 'set', '1' is 'add', '0' is 'clear'.
             if (scline->tp[3][0] != '\0')
             {
                 value2 = atoi(scline->tp[3]);
+            }
+            else
+            {
+                // tp[3] is empty, set it to UCHAR_MAX to process.
+                value2 = UCHAR_MAX;
             }
         }
         else
@@ -3707,8 +3711,6 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             crstat->torture_kind = value;
             break;
         case 37: // SPELLIMMUNITY
-            if (value3 != 0) // Supports Numbers.
-            {
                 if (value2 == 0)
                 {
                     clear_flag(crstat->immunity_flags, value);
@@ -3721,22 +3723,6 @@ static void set_creature_configuration_process(struct ScriptContext* context)
                 {
                     crstat->immunity_flags = value;
                 }
-            }
-            else
-            {
-                if (value2 == 0)
-                {
-                    clear_flag(crstat->immunity_flags, to_flag(value));
-                }
-                else if (value2 == 1)
-                {
-                    set_flag(crstat->immunity_flags, to_flag(value));
-                }
-                else
-                {
-                    crstat->immunity_flags = to_flag(value);
-                }
-            }
             break;
         case ccr_comment:
             break;

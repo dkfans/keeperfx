@@ -73,24 +73,24 @@ const struct NamedCommand magic_spell_commands[] = {
 };
 
 const struct NamedCommand magic_spell_flags[] = {
-    {"SLOW",          1},
-    {"SPEED",         2},
-    {"ARMOUR",        3},
-    {"REBOUND",       4},
-    {"FLYING",        5},
-    {"INVISIBILITY",  6},
-    {"SIGHT",         7},
-    {"LIGHT",         8},
-    {"DISEASE",       9},
-    {"CHICKEN",      10},
-    {"POISON_CLOUD", 11},
-    {"FREEZE",       12},
-    {"MAD_KILLING",  13},
-    {"FEAR",         14},
-    {"HEAL",         15},
-    {"TELEPORT",     16},
-    {"TIMEBOMB",     17},
-    {"WIND",         18},
+    {"SLOW",          CSAfF_Slow},
+    {"SPEED",         CSAfF_Speed},
+    {"ARMOUR",        CSAfF_Armour},
+    {"REBOUND",       CSAfF_Rebound},
+    {"FLYING",        CSAfF_Flying},
+    {"INVISIBILITY",  CSAfF_Invisibility},
+    {"SIGHT",         CSAfF_Sight},
+    {"LIGHT",         CSAfF_Light},
+    {"DISEASE",       CSAfF_Disease},
+    {"CHICKEN",       CSAfF_Chicken},
+    {"POISON_CLOUD",  CSAfF_PoisonCloud},
+    {"FREEZE",        CSAfF_Freeze},
+    {"MAD_KILLING",   CSAfF_MadKilling},
+    {"FEAR",          CSAfF_Fear},
+    {"HEAL",          CSAfF_Heal},
+    {"TELEPORT",      CSAfF_Teleport},
+    {"TIMEBOMB",      CSAfF_Timebomb},
+    {"WIND",          CSAfF_Wind},
     {NULL,            0},
 };
 
@@ -689,104 +689,23 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                 if (parameter_is_number(word_buf))
                 {
                     k = atoi(word_buf);
-                    spconf->spell_flags = k;
-                    if (flag_is_set(spconf->spell_flags, CSAfF_PoisonCloud))
-                    {
-                        clear_flag(spconf->spell_flags, CSAfF_PoisonCloud);
-                        WARNLOG("'POISON_CLOUD' has no effect on spells, spell flag is not set on %s", spell_code_name(i));
-                    }
-                    if (flag_is_set(spconf->spell_flags, CSAfF_Wind))
-                    {
-                        clear_flag(spconf->spell_flags, CSAfF_Wind);
-                        WARNLOG("'WIND' has no effect on spells, spell flag is not set on %s", spell_code_name(i));
-                    }
-                    n++;
                 }
                 else
                 {
                     k = get_id(magic_spell_flags, word_buf);
-                    switch (k)
-                    {
-                        case 1: // SLOW
-                            set_flag(spconf->spell_flags, CSAfF_Slow);
-                            n++;
-                            break;
-                        case 2: // SPEED
-                            set_flag(spconf->spell_flags, CSAfF_Speed);
-                            n++;
-                            break;
-                        case 3: // ARMOUR
-                            set_flag(spconf->spell_flags, CSAfF_Armour);
-                            n++;
-                            break;
-                        case 4: // REBOUND
-                            set_flag(spconf->spell_flags, CSAfF_Rebound);
-                            n++;
-                            break;
-                        case 5: // FLYING
-                            set_flag(spconf->spell_flags, CSAfF_Flying);
-                            n++;
-                            break;
-                        case 6: // INVISIBILITY
-                            set_flag(spconf->spell_flags, CSAfF_Invisibility);
-                            n++;
-                            break;
-                        case 7: // SIGHT
-                            set_flag(spconf->spell_flags, CSAfF_Sight);
-                            n++;
-                            break;
-                        case 8: // LIGHT
-                            set_flag(spconf->spell_flags, CSAfF_Light);
-                            n++;
-                            break;
-                        case 9: // DISEASE
-                            set_flag(spconf->spell_flags, CSAfF_Disease);
-                            n++;
-                            break;
-                        case 10: // CHICKEN
-                            set_flag(spconf->spell_flags, CSAfF_Chicken);
-                            n++;
-                            break;
-                        case 11: // POISON_CLOUD
-                            //set_flag(spconf->spell_flags, CSAfF_PoisonCloud);
-                            WARNLOG("'POISON_CLOUD' has no effect on spells, spell flag is not set on %s", spell_code_name(i));
-                            n++;
-                            break;
-                        case 12: // FREEZE
-                            set_flag(spconf->spell_flags, CSAfF_Freeze);
-                            n++;
-                            break;
-                        case 13: // MAD_KILLING
-                            set_flag(spconf->spell_flags, CSAfF_MadKilling);
-                            n++;
-                            break;
-                        case 14: // FEAR
-                            set_flag(spconf->spell_flags, CSAfF_Fear);
-                            n++;
-                            break;
-                        case 15: // HEAL
-                            set_flag(spconf->spell_flags, CSAfF_Heal);
-                            n++;
-                            break;
-                        case 16: // TELEPORT
-                            set_flag(spconf->spell_flags, CSAfF_Teleport);
-                            n++;
-                            break;
-                        case 17: // TIMEBOMB
-                            set_flag(spconf->spell_flags, CSAfF_Timebomb);
-                            n++;
-                            break;
-                        case 18: // WIND
-                            //set_flag(spconf->spell_flags, CSAfF_Wind);
-                            WARNLOG("'WIND' has no effect on spells, spell flag is not set on %s", spell_code_name(i));
-                            n++;
-                            break;
-                        default:
-                            CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-                            break;
-                    }
                 }
+                spconf->spell_flags = k;
+                if (flag_is_set(spconf->spell_flags, CSAfF_PoisonCloud))
+                {
+                    clear_flag(spconf->spell_flags, CSAfF_PoisonCloud);
+                    WARNLOG("'POISON_CLOUD' has no effect on spells, spell flag is not set on %s", spell_code_name(i));
+                }
+                if (flag_is_set(spconf->spell_flags, CSAfF_Wind))
+                {
+                    clear_flag(spconf->spell_flags, CSAfF_Wind);
+                    WARNLOG("'WIND' has no effect on spells, spell flag is not set on %s", spell_code_name(i));
+                }
+                n++;
             }
             if (n < 1)
             {
