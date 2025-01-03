@@ -689,12 +689,15 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                 if (parameter_is_number(word_buf))
                 {
                     k = atoi(word_buf);
+                    spconf->spell_flags = k;
+                    n++;
                 }
                 else
                 {
                     k = get_id(magic_spell_flags, word_buf);
+                    set_flag(spconf->spell_flags, k);
+                    n++;
                 }
-                spconf->spell_flags = k;
                 if (flag_is_set(spconf->spell_flags, CSAfF_PoisonCloud))
                 {
                     clear_flag(spconf->spell_flags, CSAfF_PoisonCloud);
@@ -705,7 +708,6 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                     clear_flag(spconf->spell_flags, CSAfF_Wind);
                     WARNLOG("'WIND' has no effect on spells, spell flag is not set on %s", spell_code_name(i));
                 }
-                n++;
             }
             if (n < 1)
             {
