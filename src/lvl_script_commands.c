@@ -3555,9 +3555,9 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
     value->shorts[0] = scline->np[0];
     value->shorts[1] = creatvar;
     value->shorts[2] = block;
-    value->longs[1] = value1;
-    value->longs[2] = value2;
-    value->longs[3] = value3;
+    value->longs[2] = value1;
+    value->longs[3] = value2;
+    value->longs[4] = value3;
 
     SCRIPTDBG(7,"Setting creature %s configuration value %d:%d to %d (%d)", creature_code_name(value->shorts[0]), value->shorts[4], value->shorts[1], value->shorts[2], value->shorts[3]);
 
@@ -3572,9 +3572,9 @@ static void set_creature_configuration_process(struct ScriptContext* context)
 
     short creature_variable = context->value->shorts[1];
     short block  = context->value->shorts[2];
-    long value  = context->value->longs[1];
-    long value2 = context->value->longs[2];
-    long value3 = context->value->longs[3];
+    long value  = context->value->longs[2];
+    long value2 = context->value->longs[3];
+    long value3 = context->value->longs[4];
 
     if (block == CrtConf_ATTRIBUTES)
     {
