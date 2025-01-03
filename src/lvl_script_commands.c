@@ -3159,6 +3159,12 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             {
                 value1 = get_id(magic_spell_flags, scline->tp[2]);
             }
+            if ((value1 <= 0) || (value1 > LONG_MAX))
+            {
+                SCRPTERRLOG("SpellImmunity flag %d is out of range or doesn't exist.", value1);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
             // value 2: 'empty' is 'set', '1' is 'add', '0' is 'clear'.
             if (scline->tp[3][0] != '\0')
             {
