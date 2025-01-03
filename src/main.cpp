@@ -1560,7 +1560,7 @@ void reinit_level_after_load(void)
     update_room_tab_to_config();
     update_powers_tab_to_config();
     update_trap_tab_to_config();
-    load_texture_map_file(game.texture_id);
+    load_texture_map_file(game.texture_id, get_loaded_level_number(), get_level_fgroup(get_loaded_level_number()));
     init_animating_texture_maps();
     init_gui();
     reset_gui_based_on_player_mode();
