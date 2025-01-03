@@ -3120,7 +3120,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
         }
     }
 
-    short value1 = 0, value2 = 0, value3 = 0;
+    long value1 = 0, value2 = 0, value3 = 0;
     if (block == CrtConf_ATTRIBUTES)
     {
         if (creatvar == 20) // ATTACKPREFERENCE
