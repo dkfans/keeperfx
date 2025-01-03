@@ -56,6 +56,7 @@ struct EffectConfigStats {
     struct InitLight ilght;
     unsigned char affected_by_wind;
     ThingHitType effect_hit_type;
+    SpellKind spell_effect;
 };
 
 struct EffectGeneratorConfigStats {

@@ -3120,7 +3120,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
         }
     }
 
-    short value1 = 0, value2 = 0, value3 = 0;
+    long value1 = 0, value2 = 0, value3 = 0;
     if (block == CrtConf_ATTRIBUTES)
     {
         if (creatvar == 20) // ATTACKPREFERENCE
@@ -3147,6 +3147,33 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             else
             {
                 value1 = get_id(creature_desc, scline->tp[2]);
+            }
+        }
+        else if (creatvar == 37) // SPELLIMMUNITY
+        {
+            if (parameter_is_number(scline->tp[2]))
+            {
+                value1 = atoi(scline->tp[2]);
+            }
+            else
+            {
+                value1 = get_id(spell_effect_flags, scline->tp[2]);
+            }
+            if (value1 < 0)
+            {
+                SCRPTERRLOG("SpellImmunity flag %ld is out of range or doesn't exist.", value1);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            // value 2: 'empty' is 'set', '1' is 'add', '0' is 'clear'.
+            if (scline->tp[3][0] != '\0')
+            {
+                value2 = atoi(scline->tp[3]);
+            }
+            else
+            {
+                // tp[3] is empty, set it to UCHAR_MAX to process.
+                value2 = UCHAR_MAX;
             }
         }
         else
@@ -3538,9 +3565,9 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
     value->shorts[0] = scline->np[0];
     value->shorts[1] = creatvar;
     value->shorts[2] = block;
-    value->shorts[3] = value1;
-    value->shorts[4] = value2;
-    value->shorts[5] = value3;
+    value->longs[2] = value1;
+    value->longs[3] = value2;
+    value->longs[4] = value3;
 
     SCRIPTDBG(7,"Setting creature %s configuration value %d:%d to %d (%d)", creature_code_name(value->shorts[0]), value->shorts[4], value->shorts[1], value->shorts[2], value->shorts[3]);
 
@@ -3555,9 +3582,9 @@ static void set_creature_configuration_process(struct ScriptContext* context)
 
     short creature_variable = context->value->shorts[1];
     short block  = context->value->shorts[2];
-    short value  = context->value->shorts[3];
-    short value2 = context->value->shorts[4];
-    short value3 = context->value->shorts[5];
+    long value  = context->value->longs[2];
+    long value2 = context->value->longs[3];
+    long value3 = context->value->longs[4];
 
     if (block == CrtConf_ATTRIBUTES)
     {
@@ -3688,6 +3715,20 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             break;
         case 36: // TORTUREKIND
             crstat->torture_kind = value;
+            break;
+        case 37: // SPELLIMMUNITY
+            if (value2 == 0)
+            {
+                clear_flag(crstat->immunity_flags, value);
+            }
+            else if (value2 == 1)
+            {
+                set_flag(crstat->immunity_flags, value);
+            }
+            else
+            {
+                crstat->immunity_flags = value;
+            }
             break;
         case ccr_comment:
             break;
@@ -4837,7 +4878,7 @@ static void level_up_players_creatures_process(struct ScriptContext* context)
     SYNCDBG(19, "Finished");
 }
 
-static void use_spell_on_players_creatures_check(const struct ScriptLine* scline)
+static void use_spell_on_players_creatures_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
     long crtr_id = parse_creature_name(scline->tp[1]);
@@ -4849,47 +4890,40 @@ static void use_spell_on_players_creatures_check(const struct ScriptLine* scline
     const char *mag_name = scline->tp[2];
     short mag_id = get_rid(spell_desc, mag_name);
     short splevel = scline->np[3];
-
     if (mag_id == -1)
     {
         SCRPTERRLOG("Invalid spell: %s", mag_name);
         return;
     }
-
-    if (splevel < 1)
+    struct SpellConfig *spconf = get_spell_config(mag_id);
+    if (spconf->linked_power) // Only check for spells linked to a keeper power.
     {
-        if ((mag_id == SplK_Heal) || (mag_id == SplK_Armour) || (mag_id == SplK_Speed) || (mag_id == SplK_Disease) || (mag_id == SplK_Invisibility) || (mag_id == SplK_Chicken))
+        if (splevel < 1)
         {
             SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", mag_name, splevel);
+            splevel = 1;
         }
-        splevel = 1;
-    }
-    if (splevel > (MAGIC_OVERCHARGE_LEVELS + 1)) //Creatures cast spells from level 1 to 10, but 10=9.
-    {
-        SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", mag_name, splevel, (MAGIC_OVERCHARGE_LEVELS + 1));
-        splevel = MAGIC_OVERCHARGE_LEVELS;
+        if (splevel > (MAGIC_OVERCHARGE_LEVELS + 1)) // Creatures cast spells from level 1 to 10.
+        {
+            SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", mag_name, splevel, (MAGIC_OVERCHARGE_LEVELS + 1));
+            splevel = MAGIC_OVERCHARGE_LEVELS;
+        }
     }
     splevel--;
-    if (mag_id == -1)
-    {
-        SCRPTERRLOG("Unknown magic, '%s'", mag_name);
-        return;
-    }
     value->shorts[1] = crtr_id;
     value->shorts[2] = mag_id;
     value->shorts[3] = splevel;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
-static void use_spell_on_players_creatures_process(struct ScriptContext* context)
+static void use_spell_on_players_creatures_process(struct ScriptContext *context)
 {
     long crmodel = context->value->shorts[1];
-    long spl_idx = context->value->shorts[2];
+    long spell_idx = context->value->shorts[2];
     long overchrg = context->value->shorts[3];
-
     for (int i = context->plr_start; i < context->plr_end; i++)
     {
-        apply_spell_effect_to_players_creatures(i, crmodel, spl_idx, overchrg);
+        apply_spell_effect_to_players_creatures(i, crmodel, spell_idx, overchrg);
     }
 }
 
