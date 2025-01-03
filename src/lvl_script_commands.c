@@ -3711,18 +3711,18 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             crstat->torture_kind = value;
             break;
         case 37: // SPELLIMMUNITY
-                if (value2 == 0)
-                {
-                    clear_flag(crstat->immunity_flags, value);
-                }
-                else if (value2 == 1)
-                {
-                    set_flag(crstat->immunity_flags, value);
-                }
-                else
-                {
-                    crstat->immunity_flags = value;
-                }
+            if (value2 == 0)
+            {
+                clear_flag(crstat->immunity_flags, value);
+            }
+            else if (value2 == 1)
+            {
+                set_flag(crstat->immunity_flags, value);
+            }
+            else
+            {
+                crstat->immunity_flags = value;
+            }
             break;
         case ccr_comment:
             break;
