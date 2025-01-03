@@ -695,8 +695,11 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                 else
                 {
                     k = get_id(magic_spell_flags, word_buf);
-                    set_flag(spconf->spell_flags, k);
-                    n++;
+                    if (k > 0)
+                    {
+                        set_flag(spconf->spell_flags, k);
+                        n++;
+                    }
                 }
                 if (flag_is_set(spconf->spell_flags, CSAfF_PoisonCloud))
                 {
