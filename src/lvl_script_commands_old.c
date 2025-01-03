@@ -618,13 +618,13 @@ static void command_set_creature_strength(const char *crtr_name, long val)
     {
         SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
         return;
-  }
-  if ((val < 0) || (val > 255))
-  {
-    SCRPTERRLOG("Invalid '%s' strength value, %ld", crtr_name, val);
-    return;
-  }
-  command_add_value(Cmd_SET_CREATURE_STRENGTH, ALL_PLAYERS, crtr_id, val, 0);
+    }
+    if ((val < 0) || (val > 65535))
+    {
+        SCRPTERRLOG("Invalid '%s' strength value, %ld", crtr_name, val);
+        return;
+    }
+    command_add_value(Cmd_SET_CREATURE_STRENGTH, ALL_PLAYERS, crtr_id, val, 0);
 }
 
 static void command_set_creature_armour(const char *crtr_name, long val)

@@ -325,19 +325,16 @@ long compute_creature_max_health(HitPoints base_health, unsigned short crlevel, 
 /* Computes strength of a creature on given level. */
 long compute_creature_max_strength(long base_param, unsigned short crlevel)
 {
-    if (base_param <= 0)
-        return 0;
-    if (base_param > 60000)
-        base_param = 60000;
     if (crlevel >= CREATURE_MAX_LEVEL)
+    {
         crlevel = CREATURE_MAX_LEVEL-1;
+    }
     long max_param = base_param + (game.conf.crtr_conf.exp.strength_increase_on_exp * base_param * (long)crlevel) / 100;
-    long strength = saturate_set_unsigned(max_param, 15);
     if (flag_is_set(game.conf.rules.game.classic_bugs_flags, ClscBug_Overflow8bitVal))
     {
-        return min(strength, UCHAR_MAX+1); // DK1 limited shot damage to 256, not 255.
+        return min(max_param, UCHAR_MAX+1); // DK1 limited shot damage to 256, not 255.
     }
-    return strength;
+    return max_param;
 }
 
 /* Computes armour of a creature on given level. */
@@ -444,10 +441,6 @@ GoldAmount compute_creature_max_scavenging_cost(GoldAmount base_param, unsigned 
  */
 long project_creature_attack_melee_damage(long base_param, short damage_percent, long luck, unsigned short crlevel, const struct Thing* thing)
 {
-    if (base_param < -60000)
-        base_param = -60000;
-    if (base_param > 60000)
-        base_param = 60000;
     long max_param = base_param;
     if (damage_percent != 0)
     {
@@ -458,7 +451,7 @@ long project_creature_attack_melee_damage(long base_param, short damage_percent,
         if (luck > 100) luck = 100;
             max_param += luck*max_param/100;
     }
-    return saturate_set_signed(max_param, 16);
+    return max_param;
 }
 
 /**
@@ -472,10 +465,6 @@ long project_creature_attack_melee_damage(long base_param, short damage_percent,
 long project_creature_attack_spell_damage(long base_param, long luck, unsigned short crlevel, const struct Thing* thing)
 {
     struct Dungeon* dungeon;
-    if (base_param < -60000)
-        base_param = -60000;
-    if (base_param > 60000)
-        base_param = 60000;
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
@@ -491,7 +480,7 @@ long project_creature_attack_spell_damage(long base_param, long luck, unsigned s
         if (luck > 100) luck = 100;
             max_param += luck*max_param/100;
     }
-    return saturate_set_signed(max_param, 16);
+    return max_param;
 }
 
 /**
@@ -502,17 +491,13 @@ long project_creature_attack_spell_damage(long base_param, long luck, unsigned s
  */
 long compute_creature_attack_melee_damage(long base_param, long luck, unsigned short crlevel, struct Thing* thing)
 {
-    if (base_param < -60000)
-        base_param = -60000;
-    if (base_param > 60000)
-        base_param = 60000;
     long max_param = base_param;
     if (luck > 0)
     {
         if (CREATURE_RANDOM(thing, 100) < luck)
             max_param *= 2;
     }
-    return saturate_set_signed(max_param, 16);
+    return max_param;
 }
 
 /**
@@ -524,10 +509,6 @@ long compute_creature_attack_melee_damage(long base_param, long luck, unsigned s
 long compute_creature_attack_spell_damage(long base_param, long luck, unsigned short crlevel, struct Thing* thing)
 {
     struct Dungeon* dungeon;
-    if (base_param < -60000)
-        base_param = -60000;
-    if (base_param > 60000)
-        base_param = 60000;
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
@@ -543,7 +524,7 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
         if (CREATURE_RANDOM(thing, 100) < luck)
             max_param *= 2;
     }
-    return saturate_set_signed(max_param, 16);
+    return max_param;
 }
 
 /* Computes spell range/area of effect for a creature on given level. */
