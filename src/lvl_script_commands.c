@@ -3157,7 +3157,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             }
             else
             {
-                value1 = get_id(magic_spell_flags, scline->tp[2]);
+                value1 = get_id(spell_effect_flags, scline->tp[2]);
             }
             if (value1 < 0)
             {

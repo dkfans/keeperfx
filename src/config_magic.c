@@ -72,7 +72,7 @@ const struct NamedCommand magic_spell_commands[] = {
     {NULL,               0},
 };
 
-const struct NamedCommand magic_spell_flags[] = {
+const struct NamedCommand spell_effect_flags[] = {
     {"SLOW",          CSAfF_Slow},
     {"SPEED",         CSAfF_Speed},
     {"ARMOUR",        CSAfF_Armour},
@@ -694,7 +694,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                 }
                 else
                 {
-                    k = get_id(magic_spell_flags, word_buf);
+                    k = get_id(spell_effect_flags, word_buf);
                     if (k > 0)
                     {
                         set_flag(spconf->spell_flags, k);
@@ -845,7 +845,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                 }
                 else
                 {
-                    k = get_id(magic_spell_flags, word_buf);
+                    k = get_id(spell_effect_flags, word_buf);
                     if (k > 0)
                     {
                         set_flag(spconf->cleanse_flags, k);

@@ -876,7 +876,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 }
                 else
                 {
-                    k = get_id(magic_spell_flags, word_buf);
+                    k = get_id(spell_effect_flags, word_buf);
                     if (k > 0)
                     {
                         set_flag(crstat->immunity_flags, k);
