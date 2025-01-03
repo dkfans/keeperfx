@@ -2977,7 +2977,6 @@ void frontend_input(void)
     SYNCDBG(7,"Starting");
     TbBool input_consumed;
     input_consumed = false;
-    JUSTLOG("TESTLOG frontend_menu_state %d", frontend_menu_state);
     switch (frontend_menu_state)
     {
     case FeSt_MAIN_MENU:
