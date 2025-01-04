@@ -3161,7 +3161,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             }
             if (value1 < 0)
             {
-                SCRPTERRLOG("SpellImmunity flag %ld is out of range or doesn't exist.", value1);
+                SCRPTERRLOG("SpellImmunity flag %s is out of range or doesn't exist.", scline->tp[2]);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
@@ -3211,7 +3211,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                 }
                 else if (value1 < 0)
                 {
-                    SCRPTERRLOG("Job %d is out of range or doesn't exist.", scline->tp[2]);
+                    SCRPTERRLOG("Job %s is out of range or doesn't exist.", scline->tp[2]);
                     DEALLOCATE_SCRIPT_VALUE
                     return;
                 }
@@ -3353,7 +3353,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                 }
                 else if (value1 < 0)
                 {
-                    SCRPTERRLOG("Job %d is out of range or doesn't exist.", scline->tp[2]);
+                    SCRPTERRLOG("Job %s is out of range or doesn't exist.", scline->tp[2]);
                     DEALLOCATE_SCRIPT_VALUE
                     return;
                 }
