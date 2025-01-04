@@ -1015,7 +1015,7 @@ void process_pointer_graphic(void)
         break;
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
-        if (cheat_menu_is_active())
+        if (cheat_menu_is_active() || a_menu_window_is_active())
           set_pointer_graphic(MousePG_Arrow);
         else
           set_pointer_graphic(MousePG_Invisible);
