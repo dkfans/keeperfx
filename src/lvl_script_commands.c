@@ -3195,7 +3195,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                 value1 = atoi(scline->tp[2]);
                 if ((value1 < 0) || (value1 > SHRT_MAX))
                 {
-                    SCRPTERRLOG("Job value %ld out of range `0~%d`.",value1, SHRT_MAX);
+                    SCRPTERRLOG("Job value %ld out of range `0~%d`.", value1, SHRT_MAX);
                     DEALLOCATE_SCRIPT_VALUE
                     return;
                 }
@@ -3208,15 +3208,14 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                     SCRPTERRLOG("Job %s not supported", creature_job_code_name(value1));
                     DEALLOCATE_SCRIPT_VALUE
                     return;
-                } else
-                if (value1 < 0)
+                }
+                else if (value1 < 0)
                 {
-                    SCRPTERRLOG("Job %s is out of range or doesn't exist.", scline->tp[2]);
+                    SCRPTERRLOG("Job %d is out of range or doesn't exist.", scline->tp[2]);
                     DEALLOCATE_SCRIPT_VALUE
                     return;
                 }
             }
- 
             // value 2: 'empty' is 'set', '1' is 'add', '0' is 'clear'.
             if (scline->tp[3][0] != '\0')
             {
@@ -3231,7 +3230,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
         else
         {
             value1 = atoi(scline->tp[2]);
-            // nothing there that would need the second or third value.
+            // Nothing there that would need the second or third value.
         }
     }
     else if (block == CrtConf_SOUNDS)
@@ -3331,14 +3330,14 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             value2 = creature_model[1];
             value3 = creature_model[2];
         } else
-        if (creatvar == 23) //AngerJobs
+        if (creatvar == 23) // AngerJobs
         {
             if (parameter_is_number(scline->tp[2]))
             {
                 value1 = atoi(scline->tp[2]);
                 if ((value1 < 0) || (value1 > SHRT_MAX))
                 {
-                    SCRPTERRLOG("Job value %ld out of range `0~%d`.",value1, SHRT_MAX);
+                    SCRPTERRLOG("Job value %ld out of range `0~%d`.", value1, SHRT_MAX);
                     DEALLOCATE_SCRIPT_VALUE
                     return;
                 }
@@ -3352,15 +3351,13 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                     DEALLOCATE_SCRIPT_VALUE
                     return;
                 }
-                else
-                if (value1 < 0)
+                else if (value1 < 0)
                 {
-                    SCRPTERRLOG("Job %s is out of range or doesn't exist.", scline->tp[2]);
+                    SCRPTERRLOG("Job %d is out of range or doesn't exist.", scline->tp[2]);
                     DEALLOCATE_SCRIPT_VALUE
                     return;
                 }
             }
-
             // value 2: 'empty' is 'set', '1' is 'add', '0' is 'clear'.
             if (scline->tp[3][0] != '\0')
             {
