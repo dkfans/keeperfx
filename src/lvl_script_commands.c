@@ -3190,46 +3190,42 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
     {
         if ((creatvar > 0) && (creatvar <= 4)) // Jobs
         {
-            long job_value;
             if (parameter_is_number(scline->tp[2]))
             {
-                job_value = atoi(scline->tp[2]);
+                value1 = atoi(scline->tp[2]);
+                if ((value1 < 0) || (value1 > SHRT_MAX))
+                {
+                    SCRPTERRLOG("Job value %ld out of range `0~%d`.",value1, SHRT_MAX);
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
             }
             else
             {
-                job_value = get_id(creaturejob_desc, scline->tp[2]);
+                value1 = get_id(creaturejob_desc, scline->tp[2]);
+                if (value1 > SHRT_MAX)
+                {
+                    SCRPTERRLOG("Job %s not supported", creature_job_code_name(value1));
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                } else
+                if (value1 < 0)
+                {
+                    SCRPTERRLOG("Job %s is out of range or doesn't exist.", scline->tp[2]);
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
             }
-            long job2_value = 0;
-            long job3_value = 0;
-            if (job_value > SHRT_MAX)
-            {
-                SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value1 = job_value;
-
+ 
+            // value 2: 'empty' is 'set', '1' is 'add', '0' is 'clear'.
             if (scline->tp[3][0] != '\0')
             {
-                job2_value = get_id(creaturejob_desc, scline->tp[3]);
-                if (job2_value > SHRT_MAX)
-                {
-                    SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
-                    DEALLOCATE_SCRIPT_VALUE
-                    return;
-                }
-                value2 = job2_value;
+                value2 = atoi(scline->tp[3]);
             }
-            if (scline->tp[4][0] != '\0')
+            else
             {
-                job3_value = get_id(creaturejob_desc, scline->tp[4]);
-                if (job3_value > SHRT_MAX)
-                {
-                    SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
-                    DEALLOCATE_SCRIPT_VALUE
-                    return;
-                }
-                value3 = job3_value;
+                // tp[3] is empty, set it to UCHAR_MAX to process.
+                value2 = UCHAR_MAX;
             }
         }
         else
@@ -3337,46 +3333,43 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
         } else
         if (creatvar == 23) //AngerJobs
         {
-            long job_value = 0;
-            long job2_value = 0;
-            long job3_value = 0;
             if (parameter_is_number(scline->tp[2]))
             {
-                job_value = atoi(scline->tp[2]);
+                value1 = atoi(scline->tp[2]);
+                if ((value1 < 0) || (value1 > SHRT_MAX))
+                {
+                    SCRPTERRLOG("Job value %ld out of range `0~%d`.",value1, SHRT_MAX);
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
             }
             else
             {
-                job_value = get_id(angerjob_desc, scline->tp[2]);
+                value1 = get_id(angerjob_desc, scline->tp[2]);
+                if (value1 > SHRT_MAX)
+                {
+                    SCRPTERRLOG("Job %s not supported", creature_job_code_name(value1));
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
+                else
+                if (value1 < 0)
+                {
+                    SCRPTERRLOG("Job %s is out of range or doesn't exist.", scline->tp[2]);
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
             }
-            if (job_value > SHRT_MAX)
-            {
-                SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value1 = job_value;
 
+            // value 2: 'empty' is 'set', '1' is 'add', '0' is 'clear'.
             if (scline->tp[3][0] != '\0')
             {
-                job2_value = get_id(angerjob_desc, scline->tp[3]);
-                if (job2_value > SHRT_MAX)
-                {
-                    SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
-                    DEALLOCATE_SCRIPT_VALUE
-                    return;
-                }
-                value2 = job2_value;
+                value2 = atoi(scline->tp[3]);
             }
-            if (scline->tp[4][0] != '\0')
+            else
             {
-                job3_value = get_id(angerjob_desc, scline->tp[4]);
-                if (job3_value > SHRT_MAX)
-                {
-                    SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
-                    DEALLOCATE_SCRIPT_VALUE
-                    return;
-                }
-                value3 = job3_value;
+                // tp[3] is empty, set it to UCHAR_MAX to process.
+                value2 = UCHAR_MAX;
             }
         }
         else
@@ -3744,24 +3737,60 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         switch (creature_variable)
         {
         case 1: // PRIMARYJOBS
-            crstat->job_primary = value;
-            crstat->job_primary |= value2;
-            crstat->job_primary |= value3;
+            if (value2 == 0)
+            {
+                clear_flag(crstat->job_primary, value);
+            }
+            else if (value2 == 1)
+            {
+                set_flag(crstat->job_primary, value);
+            }
+            else
+            {
+                crstat->job_primary = value;
+            }
             break;
         case 2: // SECONDARYJOBS
-            crstat->job_secondary = value;
-            crstat->job_secondary |= value2;
-            crstat->job_secondary |= value3;
+            if (value2 == 0)
+            {
+                clear_flag(crstat->job_secondary, value);
+            }
+            else if (value2 == 1)
+            {
+                set_flag(crstat->job_secondary, value);
+            }
+            else
+            {
+                crstat->job_secondary = value;
+            }
             break;
         case 3: // NOTDOJOBS
-            crstat->jobs_not_do = value;
-            crstat->jobs_not_do |= value2;
-            crstat->jobs_not_do |= value3;
+            if (value2 == 0)
+            {
+                clear_flag(crstat->jobs_not_do, value);
+            }
+            else if (value2 == 1)
+            {
+                set_flag(crstat->jobs_not_do, value);
+            }
+            else
+            {
+                crstat->jobs_not_do = value;
+            }
             break;
         case 4: // STRESSFULJOBS
-            crstat->job_stress = value;
-            crstat->job_stress |= value2;
-            crstat->job_stress |= value3;
+            if (value2 == 0)
+            {
+                clear_flag(crstat->job_stress, value);
+            }
+            else if (value2 == 1)
+            {
+                set_flag(crstat->job_stress, value);
+            }
+            else
+            {
+                crstat->job_stress = value;
+            }
             break;
         case 5: // TRAININGVALUE
             crstat->training_value = value;
@@ -4001,9 +4030,18 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         }
         case 23: // ANGERJOBS
         {
-            crstat->jobs_anger = value;
-            crstat->jobs_anger |= value2;
-            crstat->jobs_anger |= value3;
+            if (value2 == 0)
+            {
+                clear_flag(crstat->jobs_anger, value);
+            }
+            else if (value2 == 1)
+            {
+                set_flag(crstat->jobs_anger, value);
+            }
+            else
+            {
+                crstat->jobs_anger = value;
+            }
             break;
         }
         case 24: // GOINGPOSTAL
