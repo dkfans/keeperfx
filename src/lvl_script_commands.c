@@ -3738,7 +3738,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
                 crstat->immunity_flags = value;
             }
             break;
-        case 37: // HOSTILETOWARDS
+        case 38: // HOSTILETOWARDS
             // Assume the mapmaker wants to reset it.
             for (int i = 0; i < CREATURE_TYPES_MAX; i++)
             {
