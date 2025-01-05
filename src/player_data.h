@@ -217,7 +217,7 @@ struct PlayerInfo {
     /** If view mode is temporarily covered by another, the original mode which is to be restored later will be saved here.*/
     char view_mode_restore;
     long dungeon_camera_zoom;
-    long field_4BD;
+    long palette_fade_step_map;
     long palette_fade_step_pain;
     long palette_fade_step_possession;
     unsigned char *main_palette;

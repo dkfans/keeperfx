@@ -1065,11 +1065,11 @@ void redraw_display(void)
         break;
     case PVM_ParchFadeIn:
         parchment_loaded = 0;
-        player->field_4BD = map_fade_in(player->field_4BD);
+        player->palette_fade_step_map = map_fade_in(player->palette_fade_step_map);
         break;
     case PVM_ParchFadeOut:
         parchment_loaded = 0;
-        player->field_4BD = map_fade_out(player->field_4BD);
+        player->palette_fade_step_map = map_fade_out(player->palette_fade_step_map);
         break;
     default:
         ERRORLOG("Unsupported drawing state, %d",(int)player->view_mode);
