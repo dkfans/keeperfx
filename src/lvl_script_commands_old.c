@@ -603,7 +603,7 @@ static void command_set_creature_health(const char *crtr_name, long val)
         SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
         return;
   }
-  if ((val < 0) || (val > 65535))
+  if ((val < 0) || (val > USHRT_MAX))
   {
     SCRPTERRLOG("Invalid '%s' health value, %ld", crtr_name, val);
     return;
@@ -618,13 +618,13 @@ static void command_set_creature_strength(const char *crtr_name, long val)
     {
         SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
         return;
-  }
-  if ((val < 0) || (val > 255))
-  {
-    SCRPTERRLOG("Invalid '%s' strength value, %ld", crtr_name, val);
-    return;
-  }
-  command_add_value(Cmd_SET_CREATURE_STRENGTH, ALL_PLAYERS, crtr_id, val, 0);
+    }
+    if ((val < 0) || (val > USHRT_MAX))
+    {
+        SCRPTERRLOG("Invalid '%s' strength value, %ld", crtr_name, val);
+        return;
+    }
+    command_add_value(Cmd_SET_CREATURE_STRENGTH, ALL_PLAYERS, crtr_id, val, 0);
 }
 
 static void command_set_creature_armour(const char *crtr_name, long val)
@@ -635,7 +635,7 @@ static void command_set_creature_armour(const char *crtr_name, long val)
         SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
         return;
   }
-  if ((val < 0) || (val > 255))
+  if ((val < 0) || (val > UCHAR_MAX))
   {
     SCRPTERRLOG("Invalid '%s' armour value, %ld", crtr_name, val);
     return;
@@ -651,7 +651,7 @@ static void command_set_creature_fear_wounded(const char *crtr_name, long val)
         SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
         return;
   }
-  if ((val < 0) || (val > 255))
+  if ((val < 0) || (val > UCHAR_MAX))
   {
     SCRPTERRLOG("Invalid '%s' fear value, %ld", crtr_name, val);
     return;
@@ -667,7 +667,7 @@ static void command_set_creature_fear_stronger(const char *crtr_name, long val)
         SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
         return;
   }
-  if ((val < 0) || (val > 32767))
+  if ((val < 0) || (val > SHRT_MAX))
   {
     SCRPTERRLOG("Invalid '%s' fear value, %ld", crtr_name, val);
     return;
@@ -683,7 +683,7 @@ static void command_set_creature_fearsome_factor(const char* crtr_name, long val
         SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
         return;
     }
-    if ((val < 0) || (val > 32767))
+    if ((val < 0) || (val > SHRT_MAX))
     {
         SCRPTERRLOG("Invalid '%s' fearsome value, %ld", crtr_name, val);
         return;
@@ -1159,45 +1159,48 @@ static void command_export_variable(long plr_range_id, const char *varib_name, c
 
 static void command_use_spell_on_creature(long plr_range_id, const char *crtr_name, const char *criteria, const char *magname, int splevel)
 {
-  SCRIPTDBG(11, "Starting");
-  long mag_id = get_rid(spell_desc, magname);
-  if (splevel < 1)
-  {
-    if ( (mag_id == SplK_Heal) || (mag_id == SplK_Armour) || (mag_id == SplK_Speed) || (mag_id == SplK_Disease) || (mag_id == SplK_Invisibility) || (mag_id == SplK_Chicken) )
+    SCRIPTDBG(11, "Starting");
+    long mag_id = get_rid(spell_desc, magname);
+    if (mag_id == -1)
     {
-        SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", magname, splevel);
+        SCRPTERRLOG("Unknown magic, '%s'", magname);
+        return;
     }
-    splevel = 1;
-  }
-  if (splevel > (MAGIC_OVERCHARGE_LEVELS+1)) //Creatures cast spells from level 1 to 10, but 10=9.
-  {
-    SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", magname, splevel, (MAGIC_OVERCHARGE_LEVELS+1));
-    splevel = MAGIC_OVERCHARGE_LEVELS;
-  }
-  splevel--;
-  if (mag_id == -1)
-  {
-    SCRPTERRLOG("Unknown magic, '%s'", magname);
-    return;
-  }
-  long crtr_id = parse_creature_name(crtr_name);
-  if (crtr_id == CREATURE_NONE) {
-    SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
-    return;
-  }
-  long select_id = parse_criteria(criteria);
-  if (select_id == -1) {
-    SCRPTERRLOG("Unknown select criteria, '%s'", criteria);
-    return;
-  }
-  // SpellKind sp = mag_id;
-  // encode params: free, magic, caster, level -> into 4xbyte: FMCL
-  long fmcl_bytes;
-  {
-      signed char m = mag_id, lvl = splevel;
-      fmcl_bytes = (m << 8) | lvl;
-  }
-  command_add_value(Cmd_USE_SPELL_ON_CREATURE, plr_range_id, crtr_id, select_id, fmcl_bytes);
+    long crtr_id = parse_creature_name(crtr_name);
+    if (crtr_id == CREATURE_NONE)
+    {
+        SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
+        return;
+    }
+    long select_id = parse_criteria(criteria);
+    if (select_id == -1)
+    {
+        SCRPTERRLOG("Unknown select criteria, '%s'", criteria);
+        return;
+    }
+    struct SpellConfig *spconf = get_spell_config(mag_id);
+    if (spconf->linked_power) // Only check for spells linked to a keeper power.
+    {
+        if (splevel < 1)
+        {
+            SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", magname, splevel);
+            splevel = 1;
+        }
+        if (splevel > (MAGIC_OVERCHARGE_LEVELS + 1)) // Creatures cast spells from level 1 to 10.
+        {
+            SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", magname, splevel, (MAGIC_OVERCHARGE_LEVELS + 1));
+            splevel = MAGIC_OVERCHARGE_LEVELS;
+        }
+    }
+    splevel--;
+    // SpellKind sp = mag_id;
+    // encode params: free, magic, caster, level -> into 4xbyte: FMCL
+    long fmcl_bytes;
+    {
+        signed char m = mag_id, lvl = splevel;
+        fmcl_bytes = (m << 8) | lvl;
+    }
+    command_add_value(Cmd_USE_SPELL_ON_CREATURE, plr_range_id, crtr_id, select_id, fmcl_bytes);
 }
 
 static void command_creature_entrance_level(long plr_range_id, unsigned char val)

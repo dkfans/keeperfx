@@ -1017,7 +1017,7 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
         if (shotst->hit_creature.effect_model != 0) {
             create_used_effect_or_element(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner, shotng->index);
         }
-        if (creature_affected_by_spell(target, SplK_Freeze))
+        if (creature_under_spell_effect(target, CSAfF_Freeze))
         {
             if (shotst->effect_frozen != 0) {
                 create_used_effect_or_element(&shotng->mappos, shotst->effect_frozen, shotng->owner, shotng->index);
@@ -1162,11 +1162,12 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
             else {
                 n = 0;
             }
-            if (shotst->cast_spell_kind == SplK_Disease)
+            apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, n, shotng->owner);
+            struct SpellConfig *spconf = get_spell_config(shotst->cast_spell_kind);
+            if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
             {
                 tgcctrl->disease_caster_plyridx = shotng->owner;
             }
-            apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, n);
         }
         if (shotst->model_flags & ShMF_GroupUp)
         {
@@ -1270,7 +1271,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     if (((shotst->model_flags & ShMF_NoHit) != 0) || (trgtng->health < 0)) {
         return 0;
     }
-    if (creature_affected_by_spell(trgtng, SplK_Rebound) && !(shotst->model_flags & ShMF_ReboundImmune))
+    if (creature_under_spell_effect(trgtng, CSAfF_Rebound) && !flag_is_set(shotst->model_flags, ShMF_ReboundImmune))
     {
         struct Thing* killertng = INVALID_THING;
         if (shotng->index != shotng->parent_idx) {
@@ -1359,11 +1360,12 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         } else {
             n = 0;
         }
-        if (shotst->cast_spell_kind == SplK_Disease)
+        apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, n, shotng->owner);
+        struct SpellConfig *spconf = get_spell_config(shotst->cast_spell_kind);
+        if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
         {
             cctrl->disease_caster_plyridx = shotng->owner;
         }
-        apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, n);
     }
     if (shotst->model_flags & ShMF_GroupUp)
     {
@@ -1928,7 +1930,6 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
         {
             if (!thing_is_picked_up(thing) && !creature_is_being_unconscious(thing))
             {
-                struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
                 struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
                 TbBool creatureAlreadyAffected = false;
 
@@ -1956,18 +1957,18 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
                         }
                     }
                 }
-                if ((creature_distance < blow_distance) && crstat->affected_by_wind && !creatureAlreadyAffected)           
+                if ((creature_distance < blow_distance) && !creature_is_immune_to_spell_effect(thing, CSAfF_Wind) && !creatureAlreadyAffected)
                 {
                     set_start_state(thing);
                     cctrl->idle.start_gameturn = game.play_gameturn;
                     apply_velocity = true;
                     set_flag(cctrl->spell_flags, CSAfF_Wind);
+                } // If weight_affect_push_rule is on.
+                else if (game.conf.rules.magic.weight_calculate_push > 0 && creature_distance >= blow_distance && !creatureAlreadyAffected)
+                {
+                    // Add creature index to wind_affected_creature array.
+                    shotng->shot.wind_affected_creature[shotng->shot.num_wind_affected++] = cctrl->index;
                 }
-                   // if weight-affect-push-rule is on
-                else if (game.conf.rules.magic.weight_calculate_push > 0 && creature_distance >= blow_distance && !creatureAlreadyAffected){
-                    // add creature ID to allready-wind-affected-creature-array
-                    shotng->shot.wind_affected_creature[shotng->shot.num_wind_affected++] = cctrl->index;                  
-                    }
             }
             break;
         } 
