@@ -22,7 +22,6 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
-#include "bflib_memory.h"
 #include "bflib_sprfnt.h"
 #include "bflib_sound.h"
 #include "bflib_mouse.h"
@@ -62,7 +61,7 @@
 #include "game_legacy.h"
 #include "creature_instances.h"
 #include "packets.h"
-
+#include "custom_sprites.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
@@ -92,49 +91,47 @@ static void draw_creature_view_icons(struct Thing* creatng)
     struct GuiMenu *gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
     ScreenCoord x = gmnu->width + scale_value_by_horizontal_resolution(5);
     ScreenCoord y;
-    struct TbSprite* spr;
+    const struct TbSprite* spr;
     int ps_units_per_px;
     {
-        spr = &gui_panel_sprites[488];
+        spr = get_panel_sprite(488);
         ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
         y = MyScreenHeight - scale_ui_value_lofi(spr->SHeight * 2);
     }
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    for (SpellKind Spell = SplK_Freeze; Spell < game.conf.magic_conf.spell_types_count; Spell++)
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    struct SpellConfig *spconf;
+    for (SpellKind spell_idx = 0; spell_idx < CREATURE_MAX_SPELLS_CASTED_AT; spell_idx++)
     {
-        if (creature_affected_by_spell(creatng, Spell))
+        spconf = get_spell_config(cctrl->casted_spells[spell_idx].spkind);
+        long spridx = spconf->medsym_sprite_idx;
+        if (flag_is_set(spconf->spell_flags, CSAfF_Invisibility))
         {
-            struct SpellConfig* spconf = get_spell_config(Spell);
-            long spridx = spconf->medsym_sprite_idx;
-            if (Spell == SplK_Invisibility)
+            if (cctrl->force_visible & 2)
             {
-                if (cctrl->force_visible & 2)
-                {
-                    spridx++;
-                }
+                spridx++;
             }
-            else if (Spell == SplK_TimeBomb)
-            {
-                int tx_units_per_px = (dbc_language > 0) ? scale_ui_value_lofi(16) : (22 * units_per_pixel) / LbTextLineHeight();
-                int h = LbTextLineHeight() * tx_units_per_px / 16;
-                int w = scale_ui_value_lofi(spr->SWidth);
-                if (dbc_language > 0)
-                {
-                    if (MyScreenHeight < 400)
-                    {
-                        w *= 2;
-                    }
-                }
-                LbTextSetWindow(x + scale_ui_value_lofi(spr->SWidth / 2), y - scale_ui_value_lofi(spr->SHeight), w, h);
-                lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
-                lbDisplay.DrawColour = LbTextGetFontFaceColor();
-                lbDisplayEx.ShadowColour = LbTextGetFontBackColor();
-                char* text = buf_sprintf("%d", (cctrl->timebomb_countdown / game_num_fps));
-                LbTextDrawResized(0, 0, tx_units_per_px, text);
-            }
-            draw_gui_panel_sprite_left(x, y, ps_units_per_px, spridx);
-            x += scale_ui_value_lofi(spr->SWidth);
         }
+        if (flag_is_set(spconf->spell_flags, CSAfF_Timebomb))
+        {
+            int tx_units_per_px = (dbc_language > 0) ? scale_ui_value_lofi(16) : (22 * units_per_pixel) / LbTextLineHeight();
+            int h = LbTextLineHeight() * tx_units_per_px / 16;
+            int w = scale_ui_value_lofi(spr->SWidth);
+            if (dbc_language > 0)
+            {
+                if (MyScreenHeight < 400)
+                {
+                    w *= 2;
+                }
+            }
+            LbTextSetWindow(x + scale_ui_value_lofi(spr->SWidth / 2), y - scale_ui_value_lofi(spr->SHeight), w, h);
+            lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+            lbDisplay.DrawColour = LbTextGetFontFaceColor();
+            lbDisplayEx.ShadowColour = LbTextGetFontBackColor();
+            char* text = buf_sprintf("%lu", (cctrl->timebomb_countdown / game_num_fps));
+            LbTextDrawResized(0, 0, tx_units_per_px, text);
+        }
+        draw_gui_panel_sprite_left(x, y, ps_units_per_px, spridx);
+        x += scale_ui_value_lofi(spr->SWidth);
     }
     if ( (cctrl->dragtng_idx != 0) && ((creatng->alloc_flags & TAlF_IsDragged) == 0) )
     {
@@ -459,7 +456,7 @@ void set_sprite_view_3d(void)
                     long nframes = keepersprite_frames(thing->anim_sprite);
                     if (nframes != thing->max_frames)
                     {
-                        ERRORLOG("No frames different between views C%d, M%d, A%d, B%d",thing->class_id,thing->model,thing->max_frames,nframes);
+                        ERRORLOG("No frames different between views C%u, M%d, A%u, B%ld",thing->class_id,thing->model,thing->max_frames,nframes);
                         thing->max_frames = nframes;
                         n = thing->max_frames - 1;
                         if (n > thing->current_frame) {
@@ -490,7 +487,7 @@ void set_sprite_view_isometric(void)
                     long nframes = keepersprite_frames(thing->anim_sprite);
                     if (nframes != thing->max_frames)
                     {
-                        ERRORLOG("No frames different between views C%d, M%d, A%d, B%d",thing->class_id,thing->model,thing->max_frames,nframes);
+                        ERRORLOG("No frames different between views C%u, M%d, A%u, B%ld",thing->class_id,thing->model,thing->max_frames,nframes);
                         thing->max_frames = nframes;
                         n = thing->max_frames - 1;
                         if (n > thing->current_frame) {
@@ -637,11 +634,11 @@ void redraw_creature_view(void)
     message_draw();
     gui_draw_all_boxes();
     draw_tooltip();
-    draw_creature_view_icons(thing);
-    if (!gui_box_is_not_valid(gui_cheat_box_3))
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if (!creature_control_invalid(cctrl))
     {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if (!creature_control_invalid(cctrl))
+        draw_creature_view_icons(thing);
+        if (!gui_box_is_not_valid(gui_cheat_box_3))
         {
             struct GuiBoxOption* guop = gui_cheat_box_3->optn_list;
             while (guop->label[0] != '!')
@@ -720,7 +717,7 @@ void redraw_isometric_view(void)
     struct Coord3d pos;
     memcpy(&pos, &player->acamera->mappos, sizeof(struct Coord3d));
     TbGraphicsWindow ewnd;
-    LbMemorySet(&ewnd, 0, sizeof(TbGraphicsWindow));
+    memset(&ewnd, 0, sizeof(TbGraphicsWindow));
     if (player->field_45F != 1)
       player->field_45F = 1;
     struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
@@ -816,22 +813,19 @@ int get_place_door_pointer_graphics(ThingModel drmodel)
  *
  * @return Gives true if cursor spell was drawn, false if the spell wasn't available and either no cursor or block cursor was drawn.
  */
-TbBool draw_spell_cursor(PlayerState wrkstate, ThingIndex tng_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbBool draw_spell_cursor(ThingIndex tng_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     long i;
     long pwkind = -1;
-    if (wrkstate < PLAYER_STATES_COUNT_MAX)
-    {
-        struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(wrkstate);
-        pwkind = plrst_cfg_stat->power_kind;
-    }
+    struct PlayerInfo* player = get_my_player();
+    pwkind = player->chosen_power_kind;
     SYNCDBG(5,"Starting for power %d",(int)pwkind);
     if (pwkind <= 0)
     {
         set_pointer_graphic(MousePG_Invisible);
         return false;
     }
-    struct PlayerInfo* player = get_my_player();
+    
     struct Thing* thing = thing_get(tng_idx);
     TbBool allow_cast = false;
     const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
@@ -886,16 +880,12 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     // Mouse over battle message box
     if (battle_creature_over > 0)
     {
-        PowerKind pwkind = 0;
-        if (player->work_state < PLAYER_STATES_COUNT_MAX)
-        {
-            pwkind = plrst_cfg_stat->power_kind;
-        }
+        PowerKind pwkind = player->chosen_power_kind;
         thing = thing_get(battle_creature_over);
         TRACE_THING(thing);
         if (can_cast_spell(player->id_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))
         {
-            draw_spell_cursor(player->work_state, battle_creature_over, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+            draw_spell_cursor(battle_creature_over, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
         } else
         {
             set_pointer_graphic(MousePG_Arrow);
@@ -929,12 +919,13 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
             TRACE_THING(thing);
             if ((player->input_crtr_control) && (!thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand))
             {
-                struct PlayerStateConfigStats* plrst_cfg_stat_CtrlDirect = get_player_state_stats(PSt_CtrlDirect);
-                PowerKind pwkind = plrst_cfg_stat_CtrlDirect->power_kind;
-                if (can_cast_spell(player->id_number, pwkind,
-                  thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
+                PowerKind pwkind = PwrK_POSSESS;
+                if (can_cast_spell(player->id_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))
+                {
                     // The condition above makes can_cast_spell() within draw_spell_cursor() to never fail; this is intentional
-                    draw_spell_cursor(PSt_CtrlDirect, 0, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+                    player->chosen_power_kind = pwkind;
+                    draw_spell_cursor(0, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+                    player->chosen_power_kind = 0;
                 } else {
                     set_pointer_graphic(MousePG_Arrow);
                 }
@@ -970,7 +961,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         set_pointer_graphic(MousePG_Invisible);
         break;
     case PsPg_Spell:
-        draw_spell_cursor(player->work_state, 0, game.mouse_light_pos.x.stl.num, game.mouse_light_pos.y.stl.num);
+        draw_spell_cursor(0, game.mouse_light_pos.x.stl.num, game.mouse_light_pos.y.stl.num);
         break;
     case PsPg_Query:
         set_pointer_graphic(MousePG_Query);
@@ -1024,7 +1015,7 @@ void process_pointer_graphic(void)
         break;
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
-        if (cheat_menu_is_active())
+        if (cheat_menu_is_active() || a_menu_window_is_active())
           set_pointer_graphic(MousePG_Arrow);
         else
           set_pointer_graphic(MousePG_Invisible);
@@ -1113,7 +1104,7 @@ void redraw_display(void)
         LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
         lbDisplay.DrawFlags = 0;
         LbTextSetFont(winfont);
-        text = buf_sprintf("%d", draw_spell_cost);
+        text = buf_sprintf("%ld", draw_spell_cost);
         long pos_y = GetMouseY() - (LbTextStringHeight(text) * units_per_pixel / 16) / 2 - 2 * units_per_pixel / 16;
         long pos_x = GetMouseX() - (LbTextStringWidth(text) * units_per_pixel / 16) / 2;
         LbTextDrawResized(pos_x, pos_y, tx_units_per_px, text);
