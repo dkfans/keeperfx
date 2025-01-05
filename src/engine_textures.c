@@ -122,11 +122,11 @@ static TbBool load_one_file(unsigned long tmapidx,char letter, void *dst, LevelN
     char* fname = prepare_file_fmtpath(fgroup, "map%05lu.tmap%c%03d.dat",(unsigned long)lvnum, letter, tmapidx);
     if (!LbFileExists(fname))
     {
-        fname = prepare_file_fmtpath(FGrp_StdData, "tmap%c%03d.dat", letter, tmapidx);
+        fname = prepare_file_fmtpath(FGrp_CmpgConfig, "tmap%c%03d.dat", letter, tmapidx);
     }
     if (!LbFileExists(fname))
     {
-        fname = prepare_file_fmtpath(FGrp_CmpgConfig, "tmap%c%03d.dat", letter, tmapidx);
+        fname = prepare_file_fmtpath(FGrp_StdData, "tmap%c%03d.dat", letter, tmapidx);
     }
 
     if (!LbFileExists(fname))
