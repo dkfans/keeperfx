@@ -3379,43 +3379,43 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
     {
         if (creatvar == 1) // POWERS
         {
-            if ((atoi(scline->tp[2]) >= CREATURE_MAX_LEVEL) || (atoi(scline->tp[2]) <= 0)) //Powers
-            {
-                SCRPTERRLOG("Value %d out of range, only %d slots for Powers.", atoi(scline->tp[2]), CREATURE_MAX_LEVEL - 1);
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value1 = atoi(scline->tp[2]);
             long instance = 0;
-            if (!parameter_is_number(scline->tp[3]))
+            if (!parameter_is_number(scline->tp[2]))
             {
-                instance = get_id(instance_desc, scline->tp[3]);
+                instance = get_id(instance_desc, scline->tp[2]);
 
             }
             else
             {
-                instance = atoi(scline->tp[3]);
+                instance = atoi(scline->tp[2]);
             }
             if (instance >= 0)
             {
-                value2 = instance;
+                value1 = instance;
             }
             else
             {
-                SCRPTERRLOG("Unknown instance %s ", scline->tp[3]);
+                SCRPTERRLOG("Unknown instance %s ", scline->tp[2]);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
+            if ((atoi(scline->tp[3]) >= CREATURE_MAX_LEVEL) || (atoi(scline->tp[3]) <= 0)) //Powers
+            {
+                SCRPTERRLOG("Value %d out of range, only %d slots for Powers.", atoi(scline->tp[3]), CREATURE_MAX_LEVEL - 1);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value2 = atoi(scline->tp[3]);
         } else 
         if (creatvar == 2) // POWERSLEVELREQUIRED
         {
-            if ((atoi(scline->tp[2]) > CREATURE_MAX_LEVEL) || (atoi(scline->tp[2]) <= 0))//slot
+            if ((atoi(scline->tp[2]) <= 0) || (atoi(scline->tp[2]) > CREATURE_MAX_LEVEL)) //value
             {
                 SCRPTERRLOG("Value %d out of range, only %d levels for PowersLevelRequired supported", atoi(scline->tp[2]), CREATURE_MAX_LEVEL);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            if ((atoi(scline->tp[3]) <= 0) || (atoi(scline->tp[3]) > CREATURE_MAX_LEVEL)) //value
+            if ((atoi(scline->tp[3]) > CREATURE_MAX_LEVEL) || (atoi(scline->tp[3]) <= 0)) //slot
             {
                 SCRPTERRLOG("Value %d out of range, only %d levels for PowersLevelRequired supported", atoi(scline->tp[3]), CREATURE_MAX_LEVEL);
                 DEALLOCATE_SCRIPT_VALUE
@@ -3426,21 +3426,20 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
         } else
         if (creatvar == 3) // LEVELSTRAINVALUES
         {
-            if ((atoi(scline->tp[2]) <= 0) || (atoi(scline->tp[2]) > CREATURE_MAX_LEVEL)) //slot
+            if (atoi(scline->tp[2]) < 0) //value
             {
-                SCRPTERRLOG("Value %d out of range, only %d levels for LevelsTrainValues supported", atoi(scline->tp[2]), CREATURE_MAX_LEVEL - 1);
+                SCRPTERRLOG("Value %d out of range.", atoi(scline->tp[2]));
                 DEALLOCATE_SCRIPT_VALUE
-                return;
+                    return;
             }
-            if (atoi(scline->tp[3]) < 0) //value
+            if ((atoi(scline->tp[3]) <= 0) || (atoi(scline->tp[3]) > CREATURE_MAX_LEVEL)) //slot
             {
-                SCRPTERRLOG("Value %d out of range.", atoi(scline->tp[3]));
+                SCRPTERRLOG("Value %d out of range, only %d levels for LevelsTrainValues supported", atoi(scline->tp[3]), CREATURE_MAX_LEVEL - 1);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
             value1 = atoi(scline->tp[2]);
             value2 = atoi(scline->tp[3]);
-
         } else
         if (creatvar == 4) // GROWUP
         {
@@ -4057,17 +4056,17 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         {
         case 1: // POWERS
         {
-            crstat->learned_instance_id[value-1] = value2;
+            crstat->learned_instance_id[value2-1] = value;
             break;
         }
         case 2: // POWERSLEVELREQUIRED
         {
-            crstat->learned_instance_level[value-1] = value2;
+            crstat->learned_instance_level[value2-1] = value;
             break;
         }
         case 3: // LEVELSTRAINVALUES
         {
-            crstat->to_level[value-1] = value2;
+            crstat->to_level[value2-1] = value;
             break;
         }
         case 4: // GROWUP
