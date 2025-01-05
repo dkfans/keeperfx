@@ -76,7 +76,8 @@ TbBool creature_is_debuffed(const struct Thing* thing);
 
 long project_creature_attack_target_damage(const struct Thing *firing, const struct Thing *target);
 
-CrInstance get_best_quick_range_instance_to_use(const struct Thing *thing);
+void reset_postal_instance_cache();
+CrInstance get_postal_instance_to_use(const struct Thing *thing, unsigned long dist);
 
 TbBool creature_will_do_combat(const struct Thing *thing);
 TbBool creature_look_for_combat(struct Thing *creatng);

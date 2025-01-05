@@ -3292,10 +3292,6 @@ struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng, Play
         set_flag(flags, CrDed_NotReallyDying | CrDed_NoEffects);
         return cause_creature_death(creatng, flags);
     }
-    if (creature_affected_by_spell(creatng, SplK_Cleanse))
-    {
-        terminate_thing_spell_effect(creatng, SplK_Cleanse);
-    }
     struct Dungeon* dungeon = (!is_neutral_thing(creatng)) ? get_players_num_dungeon(creatng->owner) : INVALID_DUNGEON;
     if (!dungeon_invalid(dungeon))
     {

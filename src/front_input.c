@@ -29,7 +29,6 @@
 #include "bflib_sprfnt.h"
 #include "bflib_datetm.h"
 #include "bflib_fileio.h"
-#include "bflib_memory.h"
 #include "bflib_network.h"
 #include "bflib_inputctrl.h"
 #include "bflib_sound.h"
@@ -589,9 +588,10 @@ short get_global_inputs(void)
   // Code for debugging purposes
   if ( is_key_pressed(KC_D,KMod_ALT) )
   {
-    JUSTMSG("REPORT for gameturn %d",game.play_gameturn);
+    JUSTMSG("REPORT for gameturn %lu",game.play_gameturn);
     // Timing report
-    JUSTMSG("Now time is %d, last loop time was %d, clock is %d, requested fps is %d",LbTimerClock(),last_loop_time,clock(),game_num_fps);
+    JUSTMSG("Now time is %ld, last loop time was %ld, clock is %ld, requested fps is %ld",
+        LbTimerClock(),last_loop_time,clock(),game_num_fps);
     test_variable = !test_variable;
   }
 
@@ -656,7 +656,8 @@ short get_global_inputs(void)
         {
             update_time();
             struct GameTime GameT = get_game_time(game.play_gameturn, game_num_fps);
-            SYNCMSG("Finished level %ld. Total turns taken: %ld (%02d:%02d:%02d at %d fps). Real time elapsed: %02d:%02d:%02d:%03d.",game.loaded_level_number, game.play_gameturn, GameT.Hours, GameT.Minutes, GameT.Seconds, game_num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
+            SYNCMSG("Finished level %d. Total turns taken: %lu (%02u:%02u:%02u at %ld fps). Real time elapsed: %02u:%02u:%02u:%03u.",
+                game.loaded_level_number, game.play_gameturn, GameT.Hours, GameT.Minutes, GameT.Seconds, game_num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
         }
         set_players_packet_action(player, PckA_FinishGame, 0, 0, 0, 0);
         clear_key_pressed(KC_SPACE);
@@ -1419,7 +1420,23 @@ short get_creature_control_action_inputs(void)
         toggle_creature_cheat_menu();
         clear_key_pressed(KC_F12);
     }
-
+    if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
+    {
+        if (a_menu_window_is_active())
+        {
+            clear_key_pressed(KC_ESCAPE);
+            turn_off_all_window_menus();
+        }
+    }
+    if (is_key_pressed(KC_ESCAPE, KMod_SHIFT))
+    {
+        clear_key_pressed(KC_ESCAPE);
+        if (menu_is_active(GMnu_MAIN))
+        {
+            fake_button_click(BID_OPTIONS);
+        }
+        turn_on_menu(GMnu_OPTIONS);
+    }
     if (player->controlled_thing_idx != 0)
     {
         short make_packet = right_button_released || is_key_pressed(KC_ESCAPE, KMod_DONTCARE);
@@ -1441,10 +1458,10 @@ short get_creature_control_action_inputs(void)
     struct Thing* thing = thing_get(player->controlled_thing_idx);
     if (menu_is_active(GMnu_CREATURE_QUERY1))
     {
-      if ( ( (is_key_pressed(KC_7,KMod_DONTCARE) || (is_key_pressed(KC_NUMPAD7,KMod_DONTCARE))) & (creature_instance_get_available_id_for_pos(thing,6) > 0) ) ||
-           ( (is_key_pressed(KC_8,KMod_DONTCARE) || (is_key_pressed(KC_NUMPAD8,KMod_DONTCARE))) & (creature_instance_get_available_id_for_pos(thing,7) > 0) ) ||
-           ( (is_key_pressed(KC_9,KMod_DONTCARE) || (is_key_pressed(KC_NUMPAD9,KMod_DONTCARE))) & (creature_instance_get_available_id_for_pos(thing,8) > 0) ) ||
-           ( (is_key_pressed(KC_0,KMod_DONTCARE) || (is_key_pressed(KC_NUMPAD0,KMod_DONTCARE))) & (creature_instance_get_available_id_for_pos(thing,9) > 0) )  )
+      if ( ( (is_key_pressed(KC_7,KMod_DONTCARE) || (is_key_pressed(KC_NUMPAD7,KMod_DONTCARE))) && (creature_instance_get_available_id_for_pos(thing,6) > 0) ) ||
+           ( (is_key_pressed(KC_8,KMod_DONTCARE) || (is_key_pressed(KC_NUMPAD8,KMod_DONTCARE))) && (creature_instance_get_available_id_for_pos(thing,7) > 0) ) ||
+           ( (is_key_pressed(KC_9,KMod_DONTCARE) || (is_key_pressed(KC_NUMPAD9,KMod_DONTCARE))) && (creature_instance_get_available_id_for_pos(thing,8) > 0) ) ||
+           ( (is_key_pressed(KC_0,KMod_DONTCARE) || (is_key_pressed(KC_NUMPAD0,KMod_DONTCARE))) && (creature_instance_get_available_id_for_pos(thing,9) > 0) )  )
       {
         turn_off_menu(GMnu_CREATURE_QUERY1);
         turn_on_menu(GMnu_CREATURE_QUERY2);
@@ -1776,7 +1793,7 @@ short get_creature_control_action_inputs(void)
                 set_players_packet_action(player, PckA_SelectFPPickup, player->thing_under_hand, 0, 0, 0);
             }
         }
-        if (!creature_affected_by_spell(thing, SplK_Chicken))
+        if (!creature_under_spell_effect(thing, CSAfF_Chicken))
         {
             if (numkey != -1)
             {
@@ -1808,7 +1825,7 @@ void get_packet_control_mouse_clicks(void)
     static int synthetic_right = 0;
     SYNCDBG(8,"Starting");
 
-    if ( flag_is_set(game.operation_flags,GOF_Paused)  || busy_doing_gui )
+    if (flag_is_set(game.operation_flags, GOF_Paused))
     {
         return;
     }
@@ -2411,12 +2428,12 @@ void get_creature_control_nonaction_inputs(void)
     TbBool cheat_menu_active = cheat_menu_is_active();
     if (((MyScreenWidth >> 1) != x) || ((MyScreenHeight >> 1) != y)) 
     {
-        if (!cheat_menu_active)
+        if (!cheat_menu_active && !a_menu_window_is_active())
         {
             LbMouseSetPositionInitial((MyScreenWidth / pixel_size) >> 1, (MyScreenHeight / pixel_size) >> 1);
         }
     }
-    if (!cheat_menu_active)
+    if (!cheat_menu_active && !a_menu_window_is_active())
     {
         long centerX = MyScreenWidth / 2;
         long centerY = MyScreenHeight / 2;
@@ -2478,6 +2495,22 @@ void get_creature_control_nonaction_inputs(void)
             set_packet_control(pckt, PCtr_MoveUp);
         if (is_game_key_pressed(Gkey_MoveDown, NULL, true) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
             set_packet_control(pckt, PCtr_MoveDown);
+    }
+    if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
+    {
+        clear_key_pressed(KC_ESCAPE);
+        if (a_menu_window_is_active())
+        {
+            turn_off_all_window_menus();
+        }
+        else
+        {
+            if (menu_is_active(GMnu_MAIN))
+            {
+                fake_button_click(BID_OPTIONS);
+            }
+            turn_on_menu(GMnu_OPTIONS);
+        }
     }
 }
 

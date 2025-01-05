@@ -27,6 +27,7 @@ gui_panel_sprites = [
     [488, 488, 489, 490, 491, 533, 468, 689, 719, 749],#plyrsym_symbol_player_ally
     [257, 257, 590, 591, 593, 592,   0, 686, 716, 746],#rpanel_msg_creatr
     [251, 251, 594, 595, 597, 596,   0, 687, 717, 747],#rpanel_msg_room
+    [801, 801, 802, 803, 804, 805,   0, 806, 807, 808],#cta_tabfall
 ]
 
 # Stuff in pointerxx.dat
@@ -36,6 +37,8 @@ pointer_sprites = [
     [ 80,  80, 235, 243, 259, 251,   0, 287, 325, 306],#quadptr_power_mkdigger
     [ 38,  38, 271, 272, 274, 273,   0, 296, 334, 315],#tileptr_room_guardpst
     [  9,   9, 275, 276, 278, 277,   0, 297, 335, 316],#tileptr_trap_alarm
+    [344, 344, 352, 360, 368, 376,   0, 384, 400, 392],#quadptr_power_mktunlr
+    [408, 408, 416, 424, 432, 440,   0, 448, 464, 456],#quadptr_power_mkdiggergeneric
 ]
 
 # Stuff in gui1-xx.dat

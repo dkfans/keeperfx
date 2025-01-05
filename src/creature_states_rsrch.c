@@ -272,7 +272,7 @@ short researching(struct Thing *thing)
       && ((game.play_gameturn + thing->index) & 0x03) == 0)
     {
         external_set_thing_state(thing, CrSt_CreatureBeHappy);
-        cctrl->countdown_282 = 50;
+        cctrl->countdown = 50;
         cctrl->mood.last_mood_sound_turn = 0;
         return CrStRet_Modified;
     }

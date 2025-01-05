@@ -23,7 +23,6 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_planar.h"
-#include "bflib_memory.h"
 #include "bflib_sound.h"
 #include "bflib_math.h"
 
@@ -557,7 +556,7 @@ void clear_messages(void)
     int i;
     for (i=0; i < MESSAGE_QUEUE_COUNT; i++)
     {
-        LbMemorySet(&message_queue[i], 0, sizeof(struct MessageQueueEntry));
+        memset(&message_queue[i], 0, sizeof(struct MessageQueueEntry));
     }
     // Set end turn to 0 for all messages
     for (i=0; i < sizeof(messages)/sizeof(messages[0]); i++)

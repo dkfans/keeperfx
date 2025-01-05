@@ -39,7 +39,7 @@ static unsigned short condition_stack_pos;
 static unsigned short condition_stack[CONDITIONS_COUNT];
 
 
-long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx)
+long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short validx)
 {
     SYNCDBG(10,"Checking condition %d for player %d",(int)valtype,(int)plyr_idx);
     struct Dungeon* dungeon;
@@ -253,6 +253,9 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_BOX_ACTIVATED:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->box_info.activated[validx];
+    case SVar_TRAP_ACTIVATED:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->trap_info.activated[validx];
     case SVar_SACRIFICED:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->creature_sacrifice[validx];

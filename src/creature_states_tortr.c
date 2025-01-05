@@ -21,7 +21,6 @@
 #include "globals.h"
 
 #include "bflib_math.h"
-#include "bflib_memory.h"
 #include "creature_states.h"
 #include "thing_list.h"
 #include "creature_states_prisn.h"
@@ -220,7 +219,7 @@ long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJ
             ERRORLOG("No device for torture");
         }
         dturn = game.play_gameturn - cctrl->tortured.gameturn_A2x;
-        if ((dturn > 32) || ((cctrl->spell_flags & CSAfF_Speed) && (dturn > 16)))
+        if ((dturn > 32) || (creature_under_spell_effect(creatng, CSAfF_Speed) && (dturn > 16)))
         {
             play_creature_sound(creatng, CrSnd_Torture, 2, 0);
             cctrl->tortured.gameturn_A2x = game.play_gameturn;
@@ -273,14 +272,20 @@ CrCheckRet process_kinky_function(struct Thing *thing)
 
 void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
 {
-    int crmodel = get_room_create_creature_model(room->kind);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    ThingModel crmodel = crstat->torture_kind;
+    if ((crmodel > game.conf.crtr_conf.model_count) || (crmodel <= 0))
+    {
+        // If not assigned or is unknown, default to the room creature creation.
+        crmodel = get_room_create_creature_model(room->kind);
+    }
     struct Thing* newthing = INVALID_THING;
     if (creature_count_below_map_limit(1))
     {
         newthing = create_creature(&thing->mappos, crmodel, room->owner);
         if (thing_is_invalid(newthing))
         {
-            ERRORLOG("Couldn't create creature %s in %s room",creature_code_name(crmodel),room_code_name(room->kind));
+            ERRORLOG("Couldn't create creature %s in %s room", creature_code_name(crmodel), room_code_name(room->kind));
             return;
         }
     } else
@@ -290,8 +295,9 @@ void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureControl* newcctrl = creature_control_get_from_thing(newthing);
     init_creature_level(newthing, cctrl->explevel);
-    if (creature_model_bleeds(thing->model))
-      create_effect_around_thing(newthing, TngEff_Blood5);
+    if (creature_model_bleeds(thing->model)) {
+        create_effect_around_thing(newthing, TngEff_Blood5); // TODO CONFIG: make this effect configurable?
+    }
     set_start_state(newthing);
     strcpy(newcctrl->creature_name, cctrl->creature_name);
     kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_DiedInBattle);
@@ -299,8 +305,9 @@ void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
     if (!dungeon_invalid(dungeon)) {
         dungeon->lvstats.ghosts_raised++;
     }
-    if (is_my_player_number(room->owner))
+    if (is_my_player_number(room->owner)) {
         output_message(SMsg_TortureMadeGhost, 0, true);
+    }
 }
 
 void convert_tortured_creature_owner(struct Thing *creatng, PlayerNumber new_owner)
@@ -358,7 +365,7 @@ long reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr
     TbBool reveal_success = 0;
 
     unsigned char* ownership_map = (unsigned char*)malloc(gameadd.map_tiles_y * gameadd.map_tiles_x);
-    LbMemorySet(ownership_map,0,gameadd.map_tiles_y*gameadd.map_tiles_x);
+    memset(ownership_map,0,gameadd.map_tiles_y*gameadd.map_tiles_x);
     for (slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
     {
         for (slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
@@ -465,12 +472,16 @@ long reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr
  */
 long compute_torture_convert_time(const struct Thing *thing, const struct Room *room)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     long i = ((long)game.play_gameturn - cctrl->tortured.start_gameturn) * room->efficiency / ROOM_EFFICIENCY_MAX;
-    if (creature_affected_by_spell(thing, SplK_Speed))
-      i = (4 * i) / 3;
+    if (creature_under_spell_effect(thing, CSAfF_Speed))
+    {
+        i = (4 * i) / 3;
+    }
     if (creature_affected_by_slap(thing))
-      i = (5 * i) / 4;
+    {
+        i = (5 * i) / 4;
+    }
     return i;
 }
 

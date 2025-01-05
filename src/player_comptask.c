@@ -28,7 +28,6 @@
 #include "bflib_planar.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
-#include "bflib_memory.h"
 #include "bflib_sound.h"
 #include "bflib_math.h"
 
@@ -1769,7 +1768,10 @@ ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * c
     }
     gldstl_x = stl_slab_center_subtile(cdig->pos_begin.x.stl.num);
     gldstl_y = stl_slab_center_subtile(cdig->pos_begin.y.stl.num);
-    SYNCDBG(4,"%s: Dig slabs from (%d,%d) to (%d,%d)",func_name,subtile_slab(gldstl_x),subtile_slab(gldstl_y),subtile_slab(cdig->pos_dest.x.stl.num),subtile_slab(cdig->pos_dest.y.stl.num));
+    SYNCDBG(4,"%s: Dig slabs from (%ld,%ld) to (%d,%d)",
+        func_name,
+        subtile_slab(gldstl_x),subtile_slab(gldstl_y),
+        subtile_slab(cdig->pos_dest.x.stl.num),subtile_slab(cdig->pos_dest.y.stl.num));
     if (get_2d_distance(&cdig->pos_begin, &cdig->pos_dest) <= cdig->distance)
     {
         SYNCDBG(4,"%s: Player %d does small distance digging",func_name,(int)dungeon->owner);
@@ -2073,7 +2075,7 @@ TbBool find_next_gold(struct Computer2 *comp, struct ComputerTask *ctask)
     do
     {
         dig_result = tool_dig_to_pos2(comp, &cdig, true, ToolDig_BasicOnly); // actions are simulated
-        SYNCDBG(5,"retval=%d, dig.distance=%d, dig.calls_count=%d",
+        SYNCDBG(5,"retval=%d, dig.distance=%ld, dig.calls_count=%ld",
             dig_result, cdig.distance, cdig.calls_count);
     } while (dig_result == TDR_DigSlab); // loop until we have reached our destination, or an error has occurred
 
@@ -2347,7 +2349,7 @@ static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBo
             state = i->active_state;
         struct StateInfo *stati = get_thing_state_info_num(state);
 
-        if (flag_is_set(cctrl->spell_flags, CSAfF_CalledToArms))
+        if (cctrl->called_to_arms)
         {
             if ( !stati->react_to_cta )
                 continue;
@@ -2828,7 +2830,7 @@ struct Thing *find_creature_for_defend_pickup(struct Computer2 *comp)
             {
                 if (!creature_is_fleeing_combat(thing) && !creature_is_at_alarm(thing))
                 {
-                    if (!creature_is_being_unconscious(thing) && !creature_affected_by_spell(thing, SplK_Chicken))
+                    if (!creature_is_being_unconscious(thing) && !creature_under_spell_effect(thing, CSAfF_Chicken))
                     {
                         if (!creature_is_doing_lair_activity(thing) && !creature_is_being_dropped(thing))
                         {
@@ -3110,35 +3112,45 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
         remove_task(comp, ctask);
         return CTaskRet_Unk4;
     }
-    if (computer_able_to_use_power(comp, PwrK_SPEEDCRTR, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_SPEEDCRTR))
+    if (computer_able_to_use_power(comp, PwrK_SPEEDCRTR, ctask->attack_magic.splevel, 1)
+    && !creature_under_spell_effect(creatng, CSAfF_Speed)
+    && !creature_is_immune_to_spell_effect(creatng, CSAfF_Speed))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
             k = 1;
         }
     }
-    else if (computer_able_to_use_power(comp, PwrK_PROTECT, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_PROTECT))
+    else if (computer_able_to_use_power(comp, PwrK_PROTECT, ctask->attack_magic.splevel, 1)
+    && !creature_under_spell_effect(creatng, CSAfF_Armour)
+    && !creature_is_immune_to_spell_effect(creatng, CSAfF_Armour))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrArmour, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
             k = 1;
         }
     }
-    else if (computer_able_to_use_power(comp, PwrK_REBOUND, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_REBOUND))
+    else if (computer_able_to_use_power(comp, PwrK_REBOUND, ctask->attack_magic.splevel, 1)
+    && !creature_under_spell_effect(creatng, CSAfF_Rebound)
+    && !creature_is_immune_to_spell_effect(creatng, CSAfF_Rebound))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrRebound, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
             k = 1;
         }
     }
-    if (computer_able_to_use_power(comp, PwrK_FLIGHT, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_FLIGHT))
+    if (computer_able_to_use_power(comp, PwrK_FLIGHT, ctask->attack_magic.splevel, 1)
+    && !creature_under_spell_effect(creatng, CSAfF_Flying)
+    && !creature_is_immune_to_spell_effect(creatng, CSAfF_Flying))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrFlight, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
             k = 1;
         }
     }
-    if (computer_able_to_use_power(comp, PwrK_VISION, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_VISION))
+    if (computer_able_to_use_power(comp, PwrK_VISION, ctask->attack_magic.splevel, 1)
+    && !creature_under_spell_effect(creatng, CSAfF_Sight)
+    && !creature_is_immune_to_spell_effect(creatng, CSAfF_Sight))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrVision, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
@@ -3242,6 +3254,8 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
 {
     struct Dungeon *dungeon = comp->dungeon;
     const struct TrapDoorSelling *tdsell;
+    struct DoorConfigStats *doorst;
+    struct TrapConfigStats *trapst;
     TbBool item_sold;
     long value;
     ThingModel model;
@@ -3268,7 +3282,8 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     ERRORLOG("Internal error - invalid door model %d in slot %d",(int)model,(int)i);
                     break;
                 }
-                if (dungeon->mnfct_info.door_amount_placeable[model] > 0)
+                doorst = get_door_model_stats(model);
+                if ((dungeon->mnfct_info.door_amount_placeable[model] > 0) && (doorst->unsellable == 0))
                 {
                     int crate_source;
                     crate_source = remove_workshop_item_from_amount_stored(dungeon->owner, TCls_Door, model, WrkCrtF_Default);
@@ -3277,14 +3292,14 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     case WrkCrtS_Offmap:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Door, model);
                         item_sold = true;
-                        value = compute_value_percentage(game.conf.doors_config[model].selling_value,game.conf.rules.game.door_sale_percent);
+                        value = compute_value_percentage(doorst->selling_value, game.conf.rules.game.door_sale_percent);
                         SYNCDBG(9,"Offmap door %s crate sold for %d gold",door_code_name(model),(int)value);
                         break;
                     case WrkCrtS_Stored:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Door, model);
                         remove_workshop_object_from_player(dungeon->owner, door_crate_object_model(model));
                         item_sold = true;
-                        value = compute_value_percentage(game.conf.doors_config[model].selling_value, game.conf.rules.game.door_sale_percent);
+                        value = compute_value_percentage(doorst->selling_value, game.conf.rules.game.door_sale_percent);
                         SYNCDBG(9,"Stored door %s crate sold for %ld gold by player %d",door_code_name(model),(long)value,(int)dungeon->owner);
                         break;
                     default:
@@ -3300,7 +3315,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     ERRORLOG("Internal error - invalid trap model %d in slot %d",(int)model,(int)i);
                     break;
                 }
-                struct TrapConfigStats* trapst = &game.conf.trapdoor_conf.trap_cfgstats[model];
+                trapst = get_trap_model_stats(model);
                 if ((dungeon->mnfct_info.trap_amount_placeable[model] > 0) && (trapst->unsellable == 0))
                 {
                     int crate_source;
@@ -3310,14 +3325,14 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     case WrkCrtS_Offmap:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Trap, model);
                         item_sold = true;
-                        value = compute_value_percentage(game.conf.traps_config[model].selling_value, game.conf.rules.game.trap_sale_percent);
+                        value = compute_value_percentage(trapst->selling_value, game.conf.rules.game.trap_sale_percent);
                         SYNCDBG(9,"Offmap trap %s crate sold for %ld gold",trap_code_name(model),value);
                         break;
                     case WrkCrtS_Stored:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Trap, model);
                         remove_workshop_object_from_player(dungeon->owner, trap_crate_object_model(model));
                         item_sold = true;
-                        value = compute_value_percentage(game.conf.traps_config[model].selling_value, game.conf.rules.game.trap_sale_percent);
+                        value = compute_value_percentage(trapst->selling_value, game.conf.rules.game.trap_sale_percent);
                         SYNCDBG(9,"Stored trap %s crate sold for %ld gold by player %d",trap_code_name(model),(long)value,(int)dungeon->owner);
                         break;
                     default:
@@ -3338,16 +3353,19 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 {
                     struct Thing *doortng;
                     doortng = get_random_door_of_model_owned_by_and_locked(model, dungeon->owner, false);
-                    if (!thing_is_invalid(doortng)) {
+                    doorst = get_door_model_stats(doortng->model);
+                    if ((!thing_is_invalid(doortng)) && (doorst->unsellable == 0)) {
                         MapSubtlCoord stl_x;
                         MapSubtlCoord stl_y;
                         item_sold = true;
                         stl_x = stl_slab_center_subtile(doortng->mappos.x.stl.num);
                         stl_y = stl_slab_center_subtile(doortng->mappos.y.stl.num);
-                        value = compute_value_percentage(game.conf.doors_config[model].selling_value, game.conf.rules.game.door_sale_percent);
+                        value = compute_value_percentage(doorst->selling_value, game.conf.rules.game.door_sale_percent);
                         destroy_door(doortng);
                         if (is_my_player_number(dungeon->owner))
+                        {
                             play_non_3d_sample(115);
+                        }
                         dungeon->camera_deviate_jump = 192;
                         if (value != 0)
                         {
@@ -3356,7 +3374,8 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                             create_price_effect(&pos, dungeon->owner, value);
                             add_to_trap_locations(comp, &pos);
                             SYNCDBG(4,"Placed door at (%d,%d) sold for %d gold by player %d",(int)stl_x,(int)stl_y,(int)value,(int)dungeon->owner);
-                        } else
+                        }
+                        else
                         {
                             WARNLOG("Sold door at (%d,%d) which didn't cost anything",(int)stl_x,(int)stl_y);
                         }
@@ -3374,7 +3393,8 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 {
                     struct Thing *traptng;
                     traptng = get_random_trap_of_model_owned_by_and_armed(model, dungeon->owner, true);
-                    if (!thing_is_invalid(traptng)) {
+                    trapst = get_trap_model_stats(traptng->model);
+                    if ((!thing_is_invalid(traptng)) && (trapst->unsellable == 0)) {
                         SYNCDBG(6,"Got %s index %d owner %d",thing_model_name(traptng),(int)traptng->index,(int)traptng->owner);
                         MapSubtlCoord stl_x;
                         MapSubtlCoord stl_y;
@@ -3383,7 +3403,9 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         stl_y = stl_slab_center_subtile(traptng->mappos.y.stl.num);
                         remove_traps_around_subtile(stl_x, stl_y, &value);
                         if (is_my_player_number(dungeon->owner))
+                        {
                             play_non_3d_sample(115);
+                        }
                         dungeon->camera_deviate_jump = 192;
                         if (value != 0)
                         {
@@ -3392,7 +3414,8 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                             create_price_effect(&pos, dungeon->owner, value);
                             add_to_trap_locations(comp, &pos);
                             SYNCDBG(4,"Placed traps at (%d,%d) sold for %d gold by player %d",(int)stl_x,(int)stl_y,(int)value,(int)dungeon->owner);
-                        } else
+                        }
+                        else
                         {
                             WARNLOG("Sold traps at (%d,%d) which didn't cost anything",(int)stl_x,(int)stl_y);
                         }

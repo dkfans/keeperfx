@@ -58,7 +58,7 @@ long tri_new(void)
         }
         if (i > (TRIANLGLES_COUNT * 999 / 1000))
         {
-            WARNLOG("TRIANGLES near limit: %d", i);
+            WARNLOG("TRIANGLES near limit: %ld", i);
         }
         ix_Triangles++;
     } else

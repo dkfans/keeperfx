@@ -1,5 +1,6 @@
 #include "pre_inc.h"
 #include "moonphase.h"
+#include <astronomy.h>
 #include "post_inc.h"
 
 /**

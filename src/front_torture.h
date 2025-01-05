@@ -35,17 +35,14 @@ struct DoorSoundState { // sizeof = 8
   long field_4;
 };
 
-struct DoorDesc { // sizeof = 44
+struct DoorDesc {
   long pos_spr_x;
   long pos_spr_y;
   long pos_x;
   long pos_y;
   long width;
   long height;
-  struct TbSprite *sprites;
-  struct TbSprite *sprites_end;
-  unsigned char *data;
-  unsigned char *data_end;
+  struct TbSpriteSheet * sprites;
   long smptbl_id;
 };
 

@@ -68,16 +68,15 @@ enum CreatureDeathFlags {
 };
 
 struct CreatureStorage {
-  ThingModel model;
-  unsigned char explevel;
-  unsigned char count;
-  char creature_name[CREATURE_NAME_MAX];
+    ThingModel model;
+    CrtrExpLevel explevel;
+    unsigned char count;
+    char creature_name[CREATURE_NAME_MAX];
 };
 
 #pragma pack()
 /******************************************************************************/
-extern struct TbSprite *swipe_sprites;
-extern struct TbSprite *end_swipe_sprites;
+extern struct TbSpriteSheet *swipe_sprites;
 extern unsigned long creature_create_errors;
 /******************************************************************************/
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner);
@@ -99,8 +98,10 @@ void init_creature_level(struct Thing *thing, long nlev);
 long get_creature_speed(const struct Thing *thing);
 
 TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
+TbBool thing_can_be_controlled_as_controller(struct Thing* thing);
 TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
 void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
+void prepare_to_controlled_creature_death(struct Thing* thing);
 ThingIndex process_player_use_instance(struct Thing *thing, CrInstance inst_id, struct Packet *packet);
 ThingIndex get_human_controlled_creature_target(struct Thing *thing, CrInstance inst_id, struct Packet *packet);
 struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord x, MapCoord y);
@@ -130,7 +131,7 @@ void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng);
 short creature_take_wage_from_gold_pile(struct Thing *crthing,struct Thing *obthing);
 void anger_apply_anger_to_creature_f(struct Thing *thing, long anger, AnnoyMotive reason, long a3, const char *func_name);
 #define anger_apply_anger_to_creature(thing, anger, reason, a3) anger_apply_anger_to_creature_f(thing, anger, reason, a3, __func__)
-HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, DamageType damage_type, PlayerNumber inflicting_plyr_idx);
+HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, PlayerNumber inflicting_plyr_idx);
 void process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d *pos);
 long creature_instance_has_reset(const struct Thing *thing, long a2);
 void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long targtng_idx, const struct Coord3d *pos);
@@ -142,22 +143,42 @@ TbBool creature_kind_is_for_dungeon_diggers_list(PlayerNumber plyr_idx, ThingMod
 void set_first_creature(struct Thing *thing);
 void remove_first_creature(struct Thing *thing);
 long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct Thing *thing, MaxTngFilterParam param, long maximizer);
+void recalculate_player_creature_digger_lists(PlayerNumber plr_idx);
 
 TbBool creature_has_lair_room(const struct Thing *creatng);
 struct Room *get_creature_lair_room(const struct Thing *creatng);
 TbBool remove_creature_lair(struct Thing *thing);
 
-TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind);
 TbBool creature_affected_by_slap(const struct Thing *thing);
-void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev);
-void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind);
+TbBool creature_under_spell_effect_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name);
+#define creature_under_spell_effect(thing, spell_flags) creature_under_spell_effect_f(thing, spell_flags, __func__)
+TbBool creature_is_immune_to_spell_effect_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name);
+#define creature_is_immune_to_spell_effect(thing, spell_flags) creature_is_immune_to_spell_effect_f(thing, spell_flags, __func__)
+
+TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTurnDelta duration, CrtrExpLevel spell_lev, const char *func_name);
+#define set_thing_spell_flags(thing, spell_idx, duration, spell_lev) set_thing_spell_flags_f(thing, spell_idx, duration, spell_lev, __func__)
+TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags, const char *func_name);
+#define clear_thing_spell_flags(thing, spell_flags) clear_thing_spell_flags_f(thing, spell_flags, __func__)
+void clean_spell_effect_f(struct Thing *thing, unsigned long spell_flags, const char *func_name);
+#define clean_spell_effect(thing, spell_flags) clean_spell_effect_f(thing, spell_flags, __func__)
+
+void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrExpLevel spell_lev, PlayerNumber plyr_idx);
+void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrExpLevel spell_lev, PlayerNumber plyr_idx);
+void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrExpLevel spell_lev, PlayerNumber plyr_idx, int slot_idx);
+void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx);
+void terminate_all_actives_spell_effects(struct Thing *thing);
+void process_thing_spell_damage_or_heal_effects(struct Thing *thing, SpellKind spell_idx, CrtrExpLevel caster_level, PlayerNumber caster_owner);
 void process_thing_spell_effects(struct Thing *thing);
 void process_thing_spell_effects_while_blocked(struct Thing *thing);
-void delete_effects_attached_to_creature(struct Thing *creatng);
+void delete_armour_effects_attached_to_creature(struct Thing *thing);
+void delete_disease_effects_attached_to_creature(struct Thing *thing);
 void delete_familiars_attached_to_creature(struct Thing* sumntng);
-TbBool thing_affected_by_spell(const struct Thing *thing, SpellKind spkind);
-GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, SpellKind spkind, const char *func_name);
-#define get_spell_duration_left_on_thing(thing, spkind) get_spell_duration_left_on_thing_f(thing, spkind, __func__)
+
+CrInstance get_available_instance_with_spell_effect(const struct Thing *thing, unsigned long spell_flags);
+SpellKind get_spell_kind_from_instance(CrInstance inst_idx);
+
+GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, SpellKind spell_idx, const char *func_name);
+#define get_spell_duration_left_on_thing(thing, spell_idx) get_spell_duration_left_on_thing_f(thing, spell_idx, __func__)
 
 void anger_set_creature_anger_all_types(struct Thing *thing, long new_value);
 void change_creature_owner(struct Thing *thing, PlayerNumber nowner);
@@ -173,7 +194,7 @@ void init_creature_scores(void);
 long get_creature_thing_score(const struct Thing *thing);
 TbBool add_creature_score_to_owner(struct Thing *thing);
 TbBool remove_creature_score_from_owner(struct Thing *thing);
-long calculate_melee_damage(struct Thing *thing);
+long calculate_melee_damage(struct Thing *thing, short damage_percent);
 long project_melee_damage(const struct Thing *thing);
 long calculate_shot_damage(struct Thing *thing, ThingModel shot_model);
 long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_model);
@@ -188,7 +209,7 @@ void illuminate_creature(struct Thing *creatng);
 void cleanse_creature(struct Thing* creatng);
 
 long get_spell_slot(const struct Thing *thing, SpellKind spkind);
-TbBool free_spell_slot(struct Thing *thing, long slot_idx);
+TbBool free_spell_slot(struct Thing *thing, int slot_idx);
 
 void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *picktng, PlayerNumber plyr_idx);
 void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng, PlayerNumber plyr_idx);
@@ -214,12 +235,13 @@ TbBool creature_can_see_invisible(const struct Thing *thing);
 TbBool creature_can_be_transferred(const struct Thing* thing);
 int get_creature_health_permil(const struct Thing *thing);
 /******************************************************************************/
-struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long carried_gold, long crtr_level);
+struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long carried_gold, CrtrExpLevel crtr_level);
 struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location);
-void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, long location, long copies_num, long carried_gold, long crtr_level);
+void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, long location, long copies_num, long carried_gold, CrtrExpLevel crtr_level);
 PlayerNumber get_appropriate_player_for_creature(struct Thing *creatng);
 /******************************************************************************/
 void throw_out_gold(struct Thing* thing, long amount);
+ThingModel get_random_creature_kind_with_model_flags(unsigned long model_flags);
 /******************************************************************************/
 #ifdef __cplusplus
 }

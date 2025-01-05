@@ -21,7 +21,6 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 
@@ -42,189 +41,194 @@ extern "C" {
 const char keeper_rules_file[]="rules.cfg";
 
 const struct NamedCommand rules_game_classicbugs_commands[] = {
-  {"RESURRECT_FOREVER",             1},
-  {"OVERFLOW_8BIT",                 2},
-  {"CLAIM_ROOM_ALL_THINGS",         3},
-  {"RESURRECT_REMOVED",             4},
-  {"NO_HAND_PURGE_ON_DEFEAT",       5},
-  {"MUST_OBEY_KEEPS_NOT_DO_JOBS",   6},
-  {"BREAK_NEUTRAL_WALLS",           7},
-  {"ALWAYS_TUNNEL_TO_RED",          8},
-  {"FULLY_HAPPY_WITH_GOLD",         9},
+  {"RESURRECT_FOREVER",              1},
+  {"OVERFLOW_8BIT",                  2},
+  {"CLAIM_ROOM_ALL_THINGS",          3},
+  {"RESURRECT_REMOVED",              4},
+  {"NO_HAND_PURGE_ON_DEFEAT",        5},
+  {"MUST_OBEY_KEEPS_NOT_DO_JOBS",    6},
+  {"BREAK_NEUTRAL_WALLS",            7},
+  {"ALWAYS_TUNNEL_TO_RED",           8},
+  {"FULLY_HAPPY_WITH_GOLD",          9},
   {"FAINTED_IMMUNE_TO_BOULDER",     10},
   {"REBIRTH_KEEPS_SPELLS",          11},
   {"STUN_FRIENDLY_UNITS",           12},
   {"PASSIVE_NEUTRALS",              13},
   {"NEUTRAL_TORTURE_CONVERTS",      14},
-  {NULL,                          0},
-  };
-
-const struct NamedField rules_game_named_fields[] = {
-    //name                        //field                                         //field type                                              //min    //max     
-  {"GOLDPERGOLDBLOCK",           &game.conf.rules.game.gold_per_gold_block,        var_type(game.conf.rules.game.gold_per_gold_block       ),LONG_MIN,LONG_MAX},
-  {"POTOFGOLDHOLDS",             &game.conf.rules.game.pot_of_gold_holds,          var_type(game.conf.rules.game.pot_of_gold_holds         ),LONG_MIN,LONG_MAX},
-  {"CHESTGOLDHOLD",              &game.conf.rules.game.chest_gold_hold,            var_type(game.conf.rules.game.chest_gold_hold           ),LONG_MIN,LONG_MAX},
-  {"GOLDPILEVALUE",              &game.conf.rules.game.gold_pile_value,            var_type(game.conf.rules.game.gold_pile_value           ),LONG_MIN,LONG_MAX},
-  {"GOLDPILEMAXIMUM",            &game.conf.rules.game.gold_pile_maximum,          var_type(game.conf.rules.game.gold_pile_maximum         ),LONG_MIN,LONG_MAX},
-  {"GOLDPERHOARD",               &game.conf.rules.game.gold_per_hoard,             var_type(game.conf.rules.game.gold_per_hoard            ),LONG_MIN,LONG_MAX},
-  {"FOODLIFEOUTOFHATCHERY",      &game.conf.rules.game.food_life_out_of_hatchery,  var_type(game.conf.rules.game.food_life_out_of_hatchery ),       0,USHRT_MAX},
-  {"BOULDERREDUCEHEALTHSLAP",    &game.conf.rules.game.boulder_reduce_health_wall, var_type(game.conf.rules.game.boulder_reduce_health_wall),LONG_MIN,LONG_MAX},
-  {"BOULDERREDUCEHEALTHWALL",    &game.conf.rules.game.boulder_reduce_health_slap, var_type(game.conf.rules.game.boulder_reduce_health_slap),LONG_MIN,LONG_MAX},
-  {"BOULDERREDUCEHEALTHROOM",    &game.conf.rules.game.boulder_reduce_health_room, var_type(game.conf.rules.game.boulder_reduce_health_room),LONG_MIN,LONG_MAX},
-  {"PAYDAYGAP",                  &game.conf.rules.game.pay_day_gap,                var_type(game.conf.rules.game.pay_day_gap               ),LONG_MIN,LONG_MAX},
-  {"PAYDAYSPEED",                &game.conf.rules.game.pay_day_speed,              var_type(game.conf.rules.game.pay_day_speed             ),       0,ULONG_MAX},
-  {"DUNGEONHEARTHEALTIME",       &game.conf.rules.game.dungeon_heart_heal_time,    var_type(game.conf.rules.game.dungeon_heart_heal_time   ),       0,ULONG_MAX},
-  {"DUNGEONHEARTHEALHEALTH",     &game.conf.rules.game.dungeon_heart_heal_health,  var_type(game.conf.rules.game.dungeon_heart_heal_health ),LONG_MIN,LONG_MAX},
-  {"HERODOORWAITTIME",           &game.conf.rules.game.hero_door_wait_time,        var_type(game.conf.rules.game.hero_door_wait_time       ),       0,ULONG_MAX},
-  {"GEMEFFECTIVENESS",           &game.conf.rules.game.gem_effectiveness,          var_type(game.conf.rules.game.gem_effectiveness         ),       0,ULONG_MAX},
-  {"ROOMSELLGOLDBACKPERCENT",    &game.conf.rules.game.room_sale_percent,          var_type(game.conf.rules.game.room_sale_percent         ),       0,LONG_MAX},
-  {"DOORSELLVALUEPERCENT",       &game.conf.rules.game.door_sale_percent,          var_type(game.conf.rules.game.door_sale_percent         ),       0,LONG_MAX},
-  {"TRAPSELLVALUEPERCENT",       &game.conf.rules.game.trap_sale_percent,          var_type(game.conf.rules.game.trap_sale_percent         ),       0,LONG_MAX},
-  {"BAGGOLDHOLD",                &game.conf.rules.game.bag_gold_hold,              var_type(game.conf.rules.game.bag_gold_hold             ),LONG_MIN,LONG_MAX},
-  {"ALLIESSHAREVISION",          &game.conf.rules.game.allies_share_vision,        var_type(game.conf.rules.game.allies_share_vision       ),       0,       1},
-  {"ALLIESSHAREDROP",            &game.conf.rules.game.allies_share_drop,          var_type(game.conf.rules.game.allies_share_drop         ),       0,       1},
-  {"ALLIESSHARECTA",             &game.conf.rules.game.allies_share_cta,           var_type(game.conf.rules.game.allies_share_cta          ),       0,       1},
-  {"DISPLAYPORTALLIMIT",         &game.conf.rules.game.display_portal_limit,       var_type(game.conf.rules.game.display_portal_limit      ),       0,       1},
-  {"MAXTHINGSINHAND",            &game.conf.rules.game.max_things_in_hand,         var_type(game.conf.rules.game.max_things_in_hand        ),       0,MAX_THINGS_IN_HAND},
-  {"TORTUREPAYDAY",              &game.conf.rules.game.torture_payday,             var_type(game.conf.rules.game.torture_payday            ),       0,USHRT_MAX},
-  {"TORTURETRAININGCOST",        &game.conf.rules.game.torture_training_cost,      var_type(game.conf.rules.game.torture_training_cost     ),SHRT_MIN,SHRT_MAX},
-  {"TORTURESCAVENGINGCOST",      &game.conf.rules.game.torture_scavenging_cost,    var_type(game.conf.rules.game.torture_scavenging_cost   ),SHRT_MIN,SHRT_MAX},
-  {"EASTEREGGSPEECHCHANCE",      &game.conf.rules.game.easter_egg_speech_chance,   var_type(game.conf.rules.game.easter_egg_speech_chance  ),       0,LONG_MAX},
-  {"EASTEREGGSPEECHINTERVAL",    &game.conf.rules.game.easter_egg_speech_interval, var_type(game.conf.rules.game.easter_egg_speech_interval),       0,LONG_MAX},
-  {"GLOBALAMBIENTLIGHT",         &game.conf.rules.game.global_ambient_light,       var_type(game.conf.rules.game.global_ambient_light      ),LONG_MIN,LONG_MAX},
-  {"LIGHTENABLED",               &game.conf.rules.game.light_enabled,              var_type(game.conf.rules.game.light_enabled             ),       0,       1},
-  {"MAPCREATURELIMIT",           &game.conf.rules.game.creatures_count,            var_type(game.conf.rules.game.creatures_count           ),       0,CREATURES_COUNT-2},
-  {NULL,                            NULL,0,0,0 },
+  {NULL,                             0},
 };
 
-//special cases rules_game
+const struct NamedField rules_game_named_fields[] = {
+    //name                        //field                                           //field type                                               //min               //max
+  {"GOLDPERGOLDBLOCK",           &game.conf.rules.game.gold_per_gold_block,        var_type(game.conf.rules.game.gold_per_gold_block       ), LONG_MIN,           LONG_MAX},
+  {"POTOFGOLDHOLDS",             &game.conf.rules.game.pot_of_gold_holds,          var_type(game.conf.rules.game.pot_of_gold_holds         ), LONG_MIN,           LONG_MAX},
+  {"CHESTGOLDHOLD",              &game.conf.rules.game.chest_gold_hold,            var_type(game.conf.rules.game.chest_gold_hold           ), LONG_MIN,           LONG_MAX},
+  {"GOLDPILEVALUE",              &game.conf.rules.game.gold_pile_value,            var_type(game.conf.rules.game.gold_pile_value           ), LONG_MIN,           LONG_MAX},
+  {"GOLDPILEMAXIMUM",            &game.conf.rules.game.gold_pile_maximum,          var_type(game.conf.rules.game.gold_pile_maximum         ), LONG_MIN,           LONG_MAX},
+  {"GOLDPERHOARD",               &game.conf.rules.game.gold_per_hoard,             var_type(game.conf.rules.game.gold_per_hoard            ), LONG_MIN,           LONG_MAX},
+  {"FOODLIFEOUTOFHATCHERY",      &game.conf.rules.game.food_life_out_of_hatchery,  var_type(game.conf.rules.game.food_life_out_of_hatchery ),        0,          USHRT_MAX},
+  {"BOULDERREDUCEHEALTHSLAP",    &game.conf.rules.game.boulder_reduce_health_wall, var_type(game.conf.rules.game.boulder_reduce_health_wall), LONG_MIN,           LONG_MAX},
+  {"BOULDERREDUCEHEALTHWALL",    &game.conf.rules.game.boulder_reduce_health_slap, var_type(game.conf.rules.game.boulder_reduce_health_slap), LONG_MIN,           LONG_MAX},
+  {"BOULDERREDUCEHEALTHROOM",    &game.conf.rules.game.boulder_reduce_health_room, var_type(game.conf.rules.game.boulder_reduce_health_room), LONG_MIN,           LONG_MAX},
+  {"PAYDAYGAP",                  &game.conf.rules.game.pay_day_gap,                var_type(game.conf.rules.game.pay_day_gap               ), LONG_MIN,           LONG_MAX},
+  {"PAYDAYSPEED",                &game.conf.rules.game.pay_day_speed,              var_type(game.conf.rules.game.pay_day_speed             ),        0,          ULONG_MAX},
+  {"DUNGEONHEARTHEALTIME",       &game.conf.rules.game.dungeon_heart_heal_time,    var_type(game.conf.rules.game.dungeon_heart_heal_time   ),        0,          ULONG_MAX},
+  {"DUNGEONHEARTHEALHEALTH",     &game.conf.rules.game.dungeon_heart_heal_health,  var_type(game.conf.rules.game.dungeon_heart_heal_health ), LONG_MIN,           LONG_MAX},
+  {"HERODOORWAITTIME",           &game.conf.rules.game.hero_door_wait_time,        var_type(game.conf.rules.game.hero_door_wait_time       ),        0,          ULONG_MAX},
+  {"GEMEFFECTIVENESS",           &game.conf.rules.game.gem_effectiveness,          var_type(game.conf.rules.game.gem_effectiveness         ),        0,          ULONG_MAX},
+  {"ROOMSELLGOLDBACKPERCENT",    &game.conf.rules.game.room_sale_percent,          var_type(game.conf.rules.game.room_sale_percent         ),        0,           LONG_MAX},
+  {"DOORSELLVALUEPERCENT",       &game.conf.rules.game.door_sale_percent,          var_type(game.conf.rules.game.door_sale_percent         ),        0,           LONG_MAX},
+  {"TRAPSELLVALUEPERCENT",       &game.conf.rules.game.trap_sale_percent,          var_type(game.conf.rules.game.trap_sale_percent         ),        0,           LONG_MAX},
+  {"BAGGOLDHOLD",                &game.conf.rules.game.bag_gold_hold,              var_type(game.conf.rules.game.bag_gold_hold             ), LONG_MIN,           LONG_MAX},
+  {"ALLIESSHAREVISION",          &game.conf.rules.game.allies_share_vision,        var_type(game.conf.rules.game.allies_share_vision       ),        0,                  1},
+  {"ALLIESSHAREDROP",            &game.conf.rules.game.allies_share_drop,          var_type(game.conf.rules.game.allies_share_drop         ),        0,                  1},
+  {"ALLIESSHARECTA",             &game.conf.rules.game.allies_share_cta,           var_type(game.conf.rules.game.allies_share_cta          ),        0,                  1},
+  {"DISPLAYPORTALLIMIT",         &game.conf.rules.game.display_portal_limit,       var_type(game.conf.rules.game.display_portal_limit      ),        0,                  1},
+  {"MAXTHINGSINHAND",            &game.conf.rules.game.max_things_in_hand,         var_type(game.conf.rules.game.max_things_in_hand        ),        0, MAX_THINGS_IN_HAND},
+  {"TORTUREPAYDAY",              &game.conf.rules.game.torture_payday,             var_type(game.conf.rules.game.torture_payday            ),        0,          USHRT_MAX},
+  {"TORTURETRAININGCOST",        &game.conf.rules.game.torture_training_cost,      var_type(game.conf.rules.game.torture_training_cost     ), SHRT_MIN,           SHRT_MAX},
+  {"TORTURESCAVENGINGCOST",      &game.conf.rules.game.torture_scavenging_cost,    var_type(game.conf.rules.game.torture_scavenging_cost   ), SHRT_MIN,           SHRT_MAX},
+  {"EASTEREGGSPEECHCHANCE",      &game.conf.rules.game.easter_egg_speech_chance,   var_type(game.conf.rules.game.easter_egg_speech_chance  ),        0,           LONG_MAX},
+  {"EASTEREGGSPEECHINTERVAL",    &game.conf.rules.game.easter_egg_speech_interval, var_type(game.conf.rules.game.easter_egg_speech_interval),        0,           LONG_MAX},
+  {"GLOBALAMBIENTLIGHT",         &game.conf.rules.game.global_ambient_light,       var_type(game.conf.rules.game.global_ambient_light      ), LONG_MIN,           LONG_MAX},
+  {"LIGHTENABLED",               &game.conf.rules.game.light_enabled,              var_type(game.conf.rules.game.light_enabled             ),        0,                  1},
+  {"MAPCREATURELIMIT",           &game.conf.rules.game.creatures_count,            var_type(game.conf.rules.game.creatures_count           ),        0,  CREATURES_COUNT-2},
+  {NULL,                         NULL,                                                                                                     0,        0,                  0},
+};
+
+// Special cases rules_game.
 const struct NamedCommand rules_game_commands[] = {
-  {"PRESERVECLASSICBUGS",         1},
-  {NULL,                          0},
+  {"PRESERVECLASSICBUGS",          1},
+  {NULL,                           0},
 };
 
 const struct NamedField rules_computer_named_fields[] = {
-  {"DISEASEHPTEMPLEPERCENTAGE",  &game.conf.rules.computer.disease_to_temple_pct,    var_type(game.conf.rules.computer.disease_to_temple_pct),     0,USHRT_MAX},
-  {NULL,NULL,0,0,0 },
+    //name                        //field                                           //field type                                              //min     //max
+  {"DISEASEHPTEMPLEPERCENTAGE",  &game.conf.rules.computer.disease_to_temple_pct,  var_type(game.conf.rules.computer.disease_to_temple_pct),        0, USHRT_MAX},
+  {NULL,                         NULL,                                                                                                    0,        0,         0},
 };
 
 const struct NamedField rules_creatures_named_fields[] = {
-  {"RECOVERYFREQUENCY",         &game.conf.rules.creature.recovery_frequency,    var_type(game.conf.rules.creature.recovery_frequency    ),       0,UCHAR_MAX},
-  {"FIGHTMAXHATE",              &game.conf.rules.creature.fight_max_hate,        var_type(game.conf.rules.creature.fight_max_hate        ),       SHRT_MIN,SHRT_MAX},
-  {"FIGHTBORDERLINE",           &game.conf.rules.creature.fight_borderline,      var_type(game.conf.rules.creature.fight_borderline      ),       SHRT_MIN,SHRT_MAX},
-  {"FIGHTMAXLOVE",              &game.conf.rules.creature.fight_max_love,        var_type(game.conf.rules.creature.fight_max_love        ),       SHRT_MIN,SHRT_MAX},
-  {"BODYREMAINSFOR",            &game.conf.rules.creature.body_remains_for,      var_type(game.conf.rules.creature.body_remains_for      ),       0,USHRT_MAX},
-  {"FIGHTHATEKILLVALUE",        &game.conf.rules.creature.fight_hate_kill_value, var_type(game.conf.rules.creature.fight_hate_kill_value ),       SHRT_MIN,SHRT_MAX},
-  {"FLEEZONERADIUS",            &game.conf.rules.creature.flee_zone_radius,      var_type(game.conf.rules.creature.flee_zone_radius      ),       0,ULONG_MAX},
-  {"GAMETURNSINFLEE",           &game.conf.rules.creature.game_turns_in_flee,    var_type(game.conf.rules.creature.game_turns_in_flee    ),       0,LONG_MAX},
-  {"GAMETURNSUNCONSCIOUS",      &game.conf.rules.creature.game_turns_unconscious,var_type(game.conf.rules.creature.game_turns_unconscious),       0,USHRT_MAX},
-  {"STUNEVILENEMYCHANCE",       &game.conf.rules.creature.stun_enemy_chance_evil,var_type(game.conf.rules.creature.stun_enemy_chance_evil),       0, 100},
-  {"STUNGOODENEMYCHANCE",       &game.conf.rules.creature.stun_enemy_chance_good,var_type(game.conf.rules.creature.stun_enemy_chance_good),       0, 100},
-  {NULL,NULL,0,0,0 },
+    //name                        //field                                           //field type                                               //min     //max
+  {"RECOVERYFREQUENCY",          &game.conf.rules.creature.recovery_frequency,     var_type(game.conf.rules.creature.recovery_frequency    ),        0, UCHAR_MAX},
+  {"FIGHTMAXHATE",               &game.conf.rules.creature.fight_max_hate,         var_type(game.conf.rules.creature.fight_max_hate        ), SHRT_MIN,  SHRT_MAX},
+  {"FIGHTBORDERLINE",            &game.conf.rules.creature.fight_borderline,       var_type(game.conf.rules.creature.fight_borderline      ), SHRT_MIN,  SHRT_MAX},
+  {"FIGHTMAXLOVE",               &game.conf.rules.creature.fight_max_love,         var_type(game.conf.rules.creature.fight_max_love        ), SHRT_MIN,  SHRT_MAX},
+  {"BODYREMAINSFOR",             &game.conf.rules.creature.body_remains_for,       var_type(game.conf.rules.creature.body_remains_for      ),        0, USHRT_MAX},
+  {"FIGHTHATEKILLVALUE",         &game.conf.rules.creature.fight_hate_kill_value,  var_type(game.conf.rules.creature.fight_hate_kill_value ), SHRT_MIN,  SHRT_MAX},
+  {"FLEEZONERADIUS",             &game.conf.rules.creature.flee_zone_radius,       var_type(game.conf.rules.creature.flee_zone_radius      ),        0, ULONG_MAX},
+  {"GAMETURNSINFLEE",            &game.conf.rules.creature.game_turns_in_flee,     var_type(game.conf.rules.creature.game_turns_in_flee    ),        0,  LONG_MAX},
+  {"GAMETURNSUNCONSCIOUS",       &game.conf.rules.creature.game_turns_unconscious, var_type(game.conf.rules.creature.game_turns_unconscious),        0, USHRT_MAX},
+  {"STUNEVILENEMYCHANCE",        &game.conf.rules.creature.stun_enemy_chance_evil, var_type(game.conf.rules.creature.stun_enemy_chance_evil),        0,       100},
+  {"STUNGOODENEMYCHANCE",        &game.conf.rules.creature.stun_enemy_chance_good, var_type(game.conf.rules.creature.stun_enemy_chance_good),        0,       100},
+  {NULL,                         NULL,                                                                                                     0,        0,         0},
 };
 
 const struct NamedCommand rules_creature_commands[] = {
-  {"CRITICALHEALTHPERCENTAGE",  1},
-  {NULL,0},
+  {"CRITICALHEALTHPERCENTAGE",     1},
+  {NULL,                           0},
 };
 
 const struct NamedField rules_magic_named_fields[] = {
-    //name                           //field                                                  //field type                                                     //min    //max                                   
-  {"HOLDAUDIENCETIME",              &game.conf.rules.magic.hold_audience_time,                var_type(game.conf.rules.magic.hold_audience_time                ),       0,LONG_MAX},
-  {"ARMAGEDDONTELEPORTYOURTIMEGAP", &game.conf.rules.magic.armageddon_teleport_your_time_gap, var_type(game.conf.rules.magic.armageddon_teleport_your_time_gap ),LONG_MIN,LONG_MAX},
-  {"ARMAGEDDONTELEPORTENEMYTIMEGAP",&game.conf.rules.magic.armageddon_teleport_enemy_time_gap,var_type(game.conf.rules.magic.armageddon_teleport_enemy_time_gap),       0,LONG_MAX},
-  {"ARMAGEDDONTELEPORTNEUTRALS",    &game.conf.rules.magic.armageddon_teleport_neutrals,      var_type(game.conf.rules.magic.armageddon_teleport_neutrals      ),       0,       1},
-  {"ARMAGEDDONCOUNTDOWN",           &game.armageddon.count_down,                              var_type(game.armageddon.count_down                              ),LONG_MIN,LONG_MAX},
-  {"ARMAGEDDONDURATION",            &game.armageddon.duration,                                var_type(game.armageddon.duration                                ),LONG_MIN,LONG_MAX},
-  {"DISEASETRANSFERPERCENTAGE",     &game.conf.rules.magic.disease_transfer_percentage,       var_type(game.conf.rules.magic.disease_transfer_percentage       ),       0,CHAR_MAX},
-  {"DISEASELOSEPERCENTAGEHEALTH",   &game.conf.rules.magic.disease_lose_percentage_health,    var_type(game.conf.rules.magic.disease_lose_percentage_health    ),LONG_MIN,LONG_MAX},
-  {"DISEASELOSEHEALTHTIME",         &game.conf.rules.magic.disease_lose_health_time,          var_type(game.conf.rules.magic.disease_lose_health_time          ),LONG_MIN,LONG_MAX},
-  {"MINDISTANCEFORTELEPORT",        &game.conf.rules.magic.min_distance_for_teleport,         var_type(game.conf.rules.magic.min_distance_for_teleport         ),LONG_MIN,LONG_MAX},
-  {"COLLAPSEDUNGEONDAMAGE",         &game.conf.rules.magic.collapse_dungeon_damage,           var_type(game.conf.rules.magic.collapse_dungeon_damage           ),LONG_MIN,LONG_MAX},
-  {"TURNSPERCOLLAPSEDUNGEONDAMAGE", &game.conf.rules.magic.turns_per_collapse_dngn_dmg,       var_type(game.conf.rules.magic.turns_per_collapse_dngn_dmg       ),LONG_MIN,LONG_MAX},
-  {"FRIENDLYFIGHTAREARANGEPERCENT", &game.conf.rules.magic.friendly_fight_area_range_percent, var_type(game.conf.rules.magic.friendly_fight_area_range_percent ),LONG_MIN,LONG_MAX},
-  {"FRIENDLYFIGHTAREADAMAGEPERCENT",&game.conf.rules.magic.friendly_fight_area_damage_percent,var_type(game.conf.rules.magic.friendly_fight_area_damage_percent),LONG_MIN,LONG_MAX},
-  {"WEIGHTCALCULATEPUSH",           &game.conf.rules.magic.weight_calculate_push,             var_type(game.conf.rules.magic.weight_calculate_push             ),       0,SHRT_MAX},
-  {NULL,                            NULL,0,0,0 },
-  };
+    //name                            //field                                                    //field type                                                        //min     //max
+  {"HOLDAUDIENCETIME",               &game.conf.rules.magic.hold_audience_time,                 var_type(game.conf.rules.magic.hold_audience_time                ),        0, LONG_MAX},
+  {"ARMAGEDDONTELEPORTYOURTIMEGAP",  &game.conf.rules.magic.armageddon_teleport_your_time_gap,  var_type(game.conf.rules.magic.armageddon_teleport_your_time_gap ), LONG_MIN, LONG_MAX},
+  {"ARMAGEDDONTELEPORTENEMYTIMEGAP", &game.conf.rules.magic.armageddon_teleport_enemy_time_gap, var_type(game.conf.rules.magic.armageddon_teleport_enemy_time_gap),        0, LONG_MAX},
+  {"ARMAGEDDONTELEPORTNEUTRALS",     &game.conf.rules.magic.armageddon_teleport_neutrals,       var_type(game.conf.rules.magic.armageddon_teleport_neutrals      ),        0,        1},
+  {"ARMAGEDDONCOUNTDOWN",            &game.armageddon.count_down,                               var_type(game.armageddon.count_down                              ), LONG_MIN, LONG_MAX},
+  {"ARMAGEDDONDURATION",             &game.armageddon.duration,                                 var_type(game.armageddon.duration                                ), LONG_MIN, LONG_MAX},
+  {"DISEASETRANSFERPERCENTAGE",      &game.conf.rules.magic.disease_transfer_percentage,        var_type(game.conf.rules.magic.disease_transfer_percentage       ),        0, CHAR_MAX},
+  {"DISEASELOSEPERCENTAGEHEALTH",    &game.conf.rules.magic.disease_lose_percentage_health,     var_type(game.conf.rules.magic.disease_lose_percentage_health    ), LONG_MIN, LONG_MAX},
+  {"DISEASELOSEHEALTHTIME",          &game.conf.rules.magic.disease_lose_health_time,           var_type(game.conf.rules.magic.disease_lose_health_time          ), LONG_MIN, LONG_MAX},
+  {"MINDISTANCEFORTELEPORT",         &game.conf.rules.magic.min_distance_for_teleport,          var_type(game.conf.rules.magic.min_distance_for_teleport         ), LONG_MIN, LONG_MAX},
+  {"COLLAPSEDUNGEONDAMAGE",          &game.conf.rules.magic.collapse_dungeon_damage,            var_type(game.conf.rules.magic.collapse_dungeon_damage           ), LONG_MIN, LONG_MAX},
+  {"TURNSPERCOLLAPSEDUNGEONDAMAGE",  &game.conf.rules.magic.turns_per_collapse_dngn_dmg,        var_type(game.conf.rules.magic.turns_per_collapse_dngn_dmg       ), LONG_MIN, LONG_MAX},
+  {"FRIENDLYFIGHTAREARANGEPERCENT",  &game.conf.rules.magic.friendly_fight_area_range_percent,  var_type(game.conf.rules.magic.friendly_fight_area_range_percent ), LONG_MIN, LONG_MAX},
+  {"FRIENDLYFIGHTAREADAMAGEPERCENT", &game.conf.rules.magic.friendly_fight_area_damage_percent, var_type(game.conf.rules.magic.friendly_fight_area_damage_percent), LONG_MIN, LONG_MAX},
+  {"WEIGHTCALCULATEPUSH",            &game.conf.rules.magic.weight_calculate_push,              var_type(game.conf.rules.magic.weight_calculate_push             ),        0, SHRT_MAX},
+  {NULL,                             NULL,                                                                                                                       0,        0,        0},
+};
 
 const struct NamedField rules_rooms_named_fields[] = {
-    //name                                //field                                                  //field type                                                     //min    //max  
-  {"SCAVENGECOSTFREQUENCY",               &game.conf.rules.rooms.scavenge_cost_frequency,         var_type(game.conf.rules.rooms.scavenge_cost_frequency         ),LONG_MIN, LONG_MAX},
-  {"TEMPLESCAVENGEPROTECTIONTIME",        &game.conf.rules.rooms.temple_scavenge_protection_turns,var_type(game.conf.rules.rooms.temple_scavenge_protection_turns),       0,ULONG_MAX},
-  {"TRAINCOSTFREQUENCY",                  &game.conf.rules.rooms.train_cost_frequency,            var_type(game.conf.rules.rooms.train_cost_frequency            ),LONG_MIN, LONG_MAX},
-  {"TORTURECONVERTCHANCE",                &game.conf.rules.rooms.torture_convert_chance,          var_type(game.conf.rules.rooms.torture_convert_chance          ),       0,      100},
-  {"TIMESPENTINPRISONWITHOUTBREAK",       &game.conf.rules.rooms.time_in_prison_without_break,    var_type(game.conf.rules.rooms.time_in_prison_without_break    ),       0,ULONG_MAX},
-  {"GHOSTCONVERTCHANCE",                  &game.conf.rules.rooms.ghost_convert_chance,            var_type(game.conf.rules.rooms.ghost_convert_chance            ),       0,      100},
-  {"DEFAULTGENERATESPEED",                &game.conf.rules.rooms.default_generate_speed,          var_type(game.conf.rules.rooms.default_generate_speed          ),       0,USHRT_MAX},
-  {"DEFAULTMAXCREATURESGENERATEENTRANCE", &game.conf.rules.rooms.default_max_crtrs_gen_entrance,  var_type(game.conf.rules.rooms.default_max_crtrs_gen_entrance  ),       0,ULONG_MAX},
-  {"FOODGENERATIONSPEED",                 &game.conf.rules.rooms.food_generation_speed,           var_type(game.conf.rules.rooms.food_generation_speed           ),LONG_MIN, LONG_MAX},
-  {"PRISONSKELETONCHANCE",                &game.conf.rules.rooms.prison_skeleton_chance,          var_type(game.conf.rules.rooms.prison_skeleton_chance          ),       0,      100},
-  {"BODIESFORVAMPIRE",                    &game.conf.rules.rooms.bodies_for_vampire,              var_type(game.conf.rules.rooms.bodies_for_vampire              ),       0,UCHAR_MAX},
-  {"GRAVEYARDCONVERTTIME",                &game.conf.rules.rooms.graveyard_convert_time,          var_type(game.conf.rules.rooms.graveyard_convert_time          ),       0,USHRT_MAX},
-  {"SCAVENGEGOODALLOWED",                 &game.conf.rules.rooms.scavenge_good_allowed,           var_type(game.conf.rules.rooms.scavenge_good_allowed           ),       0,        1},
-  {"SCAVENGENEUTRALALLOWED",              &game.conf.rules.rooms.scavenge_neutral_allowed,        var_type(game.conf.rules.rooms.scavenge_neutral_allowed        ),       0,        1},
-  {"TIMEBETWEENPRISONBREAK",              &game.conf.rules.rooms.time_between_prison_break,       var_type(game.conf.rules.rooms.time_between_prison_break       ),       0,ULONG_MAX},
-  {"PRISONBREAKCHANCE",                   &game.conf.rules.rooms.prison_break_chance,             var_type(game.conf.rules.rooms.prison_break_chance             ),       0,ULONG_MAX},
-  {"TORTUREDEATHCHANCE",                  &game.conf.rules.rooms.torture_death_chance,            var_type(game.conf.rules.rooms.torture_death_chance            ),       0,      100},
-  {"BARRACKMAXPARTYSIZE",                 &game.conf.rules.rooms.barrack_max_party_size,          var_type(game.conf.rules.rooms.barrack_max_party_size          ),       0,GROUP_MEMBERS_COUNT},
-  {"TRAININGROOMMAXLEVEL",                &game.conf.rules.rooms.training_room_max_level,         var_type(game.conf.rules.rooms.training_room_max_level         ),       0,11},
-  {NULL,NULL,0,0,0 },
-  
-  };
+    //name                                 //field                                                  //field type                                                      //min                //max
+  {"SCAVENGECOSTFREQUENCY",               &game.conf.rules.rooms.scavenge_cost_frequency,          var_type(game.conf.rules.rooms.scavenge_cost_frequency         ), LONG_MIN,            LONG_MAX},
+  {"TEMPLESCAVENGEPROTECTIONTIME",        &game.conf.rules.rooms.temple_scavenge_protection_turns, var_type(game.conf.rules.rooms.temple_scavenge_protection_turns),        0,           ULONG_MAX},
+  {"TRAINCOSTFREQUENCY",                  &game.conf.rules.rooms.train_cost_frequency,             var_type(game.conf.rules.rooms.train_cost_frequency            ), LONG_MIN,            LONG_MAX},
+  {"TORTURECONVERTCHANCE",                &game.conf.rules.rooms.torture_convert_chance,           var_type(game.conf.rules.rooms.torture_convert_chance          ),        0,                 100},
+  {"TIMESPENTINPRISONWITHOUTBREAK",       &game.conf.rules.rooms.time_in_prison_without_break,     var_type(game.conf.rules.rooms.time_in_prison_without_break    ),        0,           ULONG_MAX},
+  {"GHOSTCONVERTCHANCE",                  &game.conf.rules.rooms.ghost_convert_chance,             var_type(game.conf.rules.rooms.ghost_convert_chance            ),        0,                 100},
+  {"DEFAULTGENERATESPEED",                &game.conf.rules.rooms.default_generate_speed,           var_type(game.conf.rules.rooms.default_generate_speed          ),        0,           USHRT_MAX},
+  {"DEFAULTMAXCREATURESGENERATEENTRANCE", &game.conf.rules.rooms.default_max_crtrs_gen_entrance,   var_type(game.conf.rules.rooms.default_max_crtrs_gen_entrance  ),        0,           ULONG_MAX},
+  {"FOODGENERATIONSPEED",                 &game.conf.rules.rooms.food_generation_speed,            var_type(game.conf.rules.rooms.food_generation_speed           ), LONG_MIN,            LONG_MAX},
+  {"PRISONSKELETONCHANCE",                &game.conf.rules.rooms.prison_skeleton_chance,           var_type(game.conf.rules.rooms.prison_skeleton_chance          ),        0,                 100},
+  {"BODIESFORVAMPIRE",                    &game.conf.rules.rooms.bodies_for_vampire,               var_type(game.conf.rules.rooms.bodies_for_vampire              ),        0,           UCHAR_MAX},
+  {"GRAVEYARDCONVERTTIME",                &game.conf.rules.rooms.graveyard_convert_time,           var_type(game.conf.rules.rooms.graveyard_convert_time          ),        0,           USHRT_MAX},
+  {"SCAVENGEGOODALLOWED",                 &game.conf.rules.rooms.scavenge_good_allowed,            var_type(game.conf.rules.rooms.scavenge_good_allowed           ),        0,                   1},
+  {"SCAVENGENEUTRALALLOWED",              &game.conf.rules.rooms.scavenge_neutral_allowed,         var_type(game.conf.rules.rooms.scavenge_neutral_allowed        ),        0,                   1},
+  {"TIMEBETWEENPRISONBREAK",              &game.conf.rules.rooms.time_between_prison_break,        var_type(game.conf.rules.rooms.time_between_prison_break       ),        0,           ULONG_MAX},
+  {"PRISONBREAKCHANCE",                   &game.conf.rules.rooms.prison_break_chance,              var_type(game.conf.rules.rooms.prison_break_chance             ),        0,           ULONG_MAX},
+  {"TORTUREDEATHCHANCE",                  &game.conf.rules.rooms.torture_death_chance,             var_type(game.conf.rules.rooms.torture_death_chance            ),        0,                 100},
+  {"BARRACKMAXPARTYSIZE",                 &game.conf.rules.rooms.barrack_max_party_size,           var_type(game.conf.rules.rooms.barrack_max_party_size          ),        0, GROUP_MEMBERS_COUNT},
+  {"TRAININGROOMMAXLEVEL",                &game.conf.rules.rooms.training_room_max_level,          var_type(game.conf.rules.rooms.training_room_max_level         ),        0,                  11},
+  {NULL,                                  NULL,                                                                                                                   0,        0,                   0},
+};
 
 const struct NamedField rules_workers_named_fields[] = {
-  {"HITSPERSLAB",                &game.conf.rules.workers.hits_per_slab,              var_type(game.conf.rules.workers.hits_per_slab              ), 0, UCHAR_MAX},
-  {"DEFAULTIMPDIGDAMAGE",        &game.conf.rules.workers.default_imp_dig_damage,     var_type(game.conf.rules.workers.default_imp_dig_damage     ), 0, ULONG_MAX},
-  {"DEFAULTIMPDIGOWNDAMAGE",     &game.conf.rules.workers.default_imp_dig_own_damage, var_type(game.conf.rules.workers.default_imp_dig_own_damage ), 0, ULONG_MAX},
-  {"IMPWORKEXPERIENCE",          &game.conf.rules.workers.digger_work_experience,     var_type(game.conf.rules.workers.digger_work_experience     ), 0, LONG_MAX},
-  {"DRAGUNCONSCIOUSTOLAIR",      &game.conf.rules.workers.drag_to_lair,               var_type(game.conf.rules.workers.drag_to_lair),                0, 2},
-  {NULL,NULL,0,0,0 },
+    //name                        //field                                              //field type                                                   //min     //max
+  {"HITSPERSLAB",                &game.conf.rules.workers.hits_per_slab,              var_type(game.conf.rules.workers.hits_per_slab              ),        0, UCHAR_MAX},
+  {"DEFAULTIMPDIGDAMAGE",        &game.conf.rules.workers.default_imp_dig_damage,     var_type(game.conf.rules.workers.default_imp_dig_damage     ),        0, ULONG_MAX},
+  {"DEFAULTIMPDIGOWNDAMAGE",     &game.conf.rules.workers.default_imp_dig_own_damage, var_type(game.conf.rules.workers.default_imp_dig_own_damage ),        0, ULONG_MAX},
+  {"IMPWORKEXPERIENCE",          &game.conf.rules.workers.digger_work_experience,     var_type(game.conf.rules.workers.digger_work_experience     ),        0,  LONG_MAX},
+  {"DRAGUNCONSCIOUSTOLAIR",      &game.conf.rules.workers.drag_to_lair,               var_type(game.conf.rules.workers.drag_to_lair               ),        0,         2},
+  {NULL,                         NULL,                                                                                                            0,        0,         0},
 };
 
 const struct NamedField rules_health_named_fields[] = {
-  {"HUNGERHEALTHLOSS",              &game.conf.rules.health.hunger_health_loss,            var_type(game.conf.rules.health.hunger_health_loss           ), LONG_MIN, LONG_MAX},
+    //name                           //field                                                //field type                                                    //min      //max
+  {"HUNGERHEALTHLOSS",              &game.conf.rules.health.hunger_health_loss,            var_type(game.conf.rules.health.hunger_health_loss           ), LONG_MIN,  LONG_MAX},
   {"GAMETURNSPERHUNGERHEALTHLOSS",  &game.conf.rules.health.turns_per_hunger_health_loss,  var_type(game.conf.rules.health.turns_per_hunger_health_loss ),        0, USHRT_MAX},
-  {"FOODHEALTHGAIN",                &game.conf.rules.health.food_health_gain,              var_type(game.conf.rules.health.food_health_gain             ), LONG_MIN, LONG_MAX},
-  {"TORTUREHEALTHLOSS",             &game.conf.rules.health.torture_health_loss,           var_type(game.conf.rules.health.torture_health_loss          ), LONG_MIN, LONG_MAX},
+  {"FOODHEALTHGAIN",                &game.conf.rules.health.food_health_gain,              var_type(game.conf.rules.health.food_health_gain             ), LONG_MIN,  LONG_MAX},
+  {"TORTUREHEALTHLOSS",             &game.conf.rules.health.torture_health_loss,           var_type(game.conf.rules.health.torture_health_loss          ), LONG_MIN,  LONG_MAX},
   {"GAMETURNSPERTORTUREHEALTHLOSS", &game.conf.rules.health.turns_per_torture_health_loss, var_type(game.conf.rules.health.turns_per_torture_health_loss),        0, USHRT_MAX},
-  {NULL,NULL,0,0,0 },
-  };
+  {NULL,                            NULL,                                                                                                               0,        0,         0},
+};
 
 const struct NamedCommand rules_research_commands[] = {
-  {"RESEARCH",            1},
-  {NULL,                  0},
-  };
+  {"RESEARCH",                     1},
+  {NULL,                           0},
+};
 
 const struct NamedCommand research_desc[] = {
-  {"MAGIC",               1},
-  {"ROOM",                2},
-  {"CREATURE",            3},
-  {NULL,                  0},
-  };
+  {"MAGIC",                        1},
+  {"ROOM",                         2},
+  {"CREATURE",                     3},
+  {NULL,                           0},
+};
 
 const struct NamedCommand rules_sacrifices_commands[] = {
-  {"MKCREATURE",          SacA_MkCreature},
-  {"MKGOODHERO",          SacA_MkGoodHero},
-  {"NEGSPELLALL",         SacA_NegSpellAll},
-  {"POSSPELLALL",         SacA_PosSpellAll},
-  {"NEGUNIQFUNC",         SacA_NegUniqFunc},
-  {"POSUNIQFUNC",         SacA_PosUniqFunc},
-  {"CUSTOMREWARD",        SacA_CustomReward},
-  {"CUSTOMPUNISH",        SacA_CustomPunish},
-  {NULL,                  0},
-  };
+  {"MKCREATURE",                   SacA_MkCreature},
+  {"MKGOODHERO",                   SacA_MkGoodHero},
+  {"NEGSPELLALL",                  SacA_NegSpellAll},
+  {"POSSPELLALL",                  SacA_PosSpellAll},
+  {"NEGUNIQFUNC",                  SacA_NegUniqFunc},
+  {"POSUNIQFUNC",                  SacA_PosUniqFunc},
+  {"CUSTOMREWARD",                 SacA_CustomReward},
+  {"CUSTOMPUNISH",                 SacA_CustomPunish},
+  {NULL,                           0},
+};
 
 const struct NamedCommand sacrifice_unique_desc[] = {
-  {"ALL_CREATRS_ANGRY",     UnqF_MkAllAngry},
-  {"COMPLETE_RESEARCH",     UnqF_ComplResrch},
-  {"COMPLETE_MANUFACTR",    UnqF_ComplManufc},
-  {"KILL_ALL_CHICKENS",     UnqF_KillChickns},
-  {"CHEAPER_IMPS",          UnqF_CheaperImp},
-  {"COSTLIER_IMPS",         UnqF_CostlierImp},
-  {"ALL_CREATRS_VER_ANGRY", UnqF_MkAllVerAngry},
-  {NULL,                  0},
-  };
+  {"ALL_CREATRS_ANGRY",            UnqF_MkAllAngry},
+  {"ALL_CREATRS_HAPPY",            UnqF_MkAllHappy},
+  {"COMPLETE_RESEARCH",            UnqF_ComplResrch},
+  {"COMPLETE_MANUFACTR",           UnqF_ComplManufc},
+  {"KILL_ALL_CHICKENS",            UnqF_KillChickns},
+  {"CHEAPER_IMPS",                 UnqF_CheaperImp},
+  {"COSTLIER_IMPS",                UnqF_CostlierImp},
+  {"ALL_CREATRS_VER_ANGRY",        UnqF_MkAllVerAngry},
+  {NULL,                           0},
+};
+
 /******************************************************************************/
 /**
  * Returns the first unused sacrifice slot, or invalid slot if no empty one.
@@ -248,7 +252,7 @@ void clear_sacrifice_recipes(void)
     for (long i = 0; i < MAX_SACRIFICE_RECIPES; i++)
     {
         struct SacrificeRecipe* sac = &game.conf.rules.sacrifices.sacrifice_recipes[i];
-        LbMemorySet(sac, '\0', sizeof(struct SacrificeRecipe));
+        memset(sac, '\0', sizeof(struct SacrificeRecipe));
         sac->action = SacA_None;
   }
 }
@@ -349,7 +353,7 @@ TbBool add_sacrifice_victim(struct SacrificeRecipe *sac, long crtr_idx)
     // If all slots are taken, then just drop it.
     if (sac->victims[MAX_SACRIFICE_VICTIMS - 1] != 0)
         return false;
-    // Otherwise, find place for our item (array is sorted)
+    // Otherwise, find place for our item (array is sorted).
     for (long i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
     {
         if (sac->victims[i] == 0)
@@ -456,7 +460,7 @@ TbBool parse_rules_block(const char *buf, long len, const char *config_textname,
 
     while (pos<len)
     {
-        // Finding command number in this line
+        // Finding command number in this line.
         int assignresult = assign_conf_command_field(buf, &pos, len, named_field);
         if( assignresult == ccr_ok || assignresult == ccr_comment )
         {
@@ -465,7 +469,7 @@ TbBool parse_rules_block(const char *buf, long len, const char *config_textname,
         }
         else if( assignresult == ccr_unrecognised)
         {
-            // Finding command number in this line
+            // Finding command number in this line.
             if (named_command != NULL)
             {
                 int cmd_num = recognize_conf_command(buf, &pos, len, named_command);
@@ -512,7 +516,7 @@ long get_research_id(long item_type, const char *trg_name, const char *func_name
       break;
   case -1:
   default:
-      ERRORMSG("%s(line %lu): " "Unhandled research type, %d", func_name, text_line_number, item_type);
+      ERRORMSG("%s(line %lu): " "Unhandled research type, %ld", func_name, text_line_number, item_type);
       return -1;
   }
   return item_id;
@@ -532,10 +536,10 @@ const char *player_code_name(PlayerNumber plyr_idx)
 TbBool parse_rules_research_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
   int i;
-  // Block name and parameter word store variables
+  // Block name and parameter word store variables.
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
-  // Find the block
+  // Find the block.
   sprintf(block_buf,"research");
   long pos = 0;
   int k = find_conf_block(buf, &pos, len, block_buf);
@@ -545,16 +549,16 @@ TbBool parse_rules_research_blocks(char *buf, long len, const char *config_textn
           WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
       return false;
   }
-  // Clear research list if there's new one in this file
+  // Clear research list if there's new one in this file.
   clear_research_for_all_players();
-  // Now we can start with analysis of commands
+  // Now we can start with analysis of commands.
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(rules_research_commands,cmd_num)
   while (pos<len)
   {
-      // Finding command number in this line
+      // Finding command number in this line.
       int cmd_num = recognize_conf_command(buf, &pos, len, rules_research_commands);
-      // Now store the config item in correct place
-      if (cmd_num == ccr_endOfBlock) break; // if next block starts
+      // Now store the config item in correct place.
+      if (cmd_num == ccr_endOfBlock) break; // If next block starts.
       int n = 0;
       int l = 0;
       switch (cmd_num)
@@ -629,10 +633,10 @@ static void mark_cheaper_diggers_sacrifice(void)
 TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     int i;
-    // Block name and parameter word store variables
+    // Block name and parameter word store variables.
     char block_buf[COMMAND_WORD_LEN];
     char word_buf[COMMAND_WORD_LEN];
-    // Find the block
+    // Find the block.
     sprintf(block_buf,"sacrifices");
     long pos = 0;
     int k = find_conf_block(buf, &pos, len, block_buf);
@@ -642,15 +646,15 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
             WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
         return false;
     }
-    // If the block exists, clear previous data
+    // If the block exists, clear previous data.
     clear_sacrifice_recipes();
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(rules_sacrifices_commands,cmd_num)
     while (pos<len)
     {
-        // Finding command number in this line
+        // Finding command number in this line.
         int cmd_num = recognize_conf_command(buf, &pos, len, rules_sacrifices_commands);
-        // Now store the config item in correct place
-        if (cmd_num == ccr_endOfBlock) break; // if next block starts
+        // Now store the config item in correct place.
+        if (cmd_num == ccr_endOfBlock) break; // If next block starts.
         int n = 0;
         struct SacrificeRecipe* sac;
         switch (cmd_num)
@@ -699,7 +703,7 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
                   word_buf,block_buf,config_textname);
               break;
             }
-            n++; // delayed increase for first argument
+            n++; // Delayed increase for first argument.
             break;
         case 3: // NEGSPELLALL
         case 4: // POSSPELLALL
@@ -745,7 +749,7 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
                   word_buf,block_buf,config_textname);
               break;
             }
-            n++; // delayed increase for first argument
+            n++; // Delayed increase for first argument.
             break;
         case 5: // NEGUNIQFUNC
         case 6: // POSUNIQFUNC
@@ -791,7 +795,7 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
                   word_buf,block_buf,config_textname);
               break;
             }
-            n++; // delayed increase for first argument
+            n++; // Delayed increase for first argument.
             break;
         case ccr_comment:
             break;
@@ -819,13 +823,13 @@ TbBool load_rules_config_file(const char *textname, const char *fname, unsigned 
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
+    char* buf = (char*)calloc(len + 256, 1);
     if (buf == NULL)
         return false;
-    // Loading file data
+    // Loading file data.
     len = LbFileLoadAt(fname, buf);
     TbBool result = (len > 0);
-    // Parse blocks of the config file
+    // Parse blocks of the config file.
 
     parse_rules_block(buf, len, textname, flags,"game",     rules_game_named_fields,     rules_game_commands,    &game_block_special_cases);
     parse_rules_block(buf, len, textname, flags,"creatures",rules_creatures_named_fields,rules_creature_commands,&creatures_block_special_cases);
@@ -851,8 +855,8 @@ TbBool load_rules_config_file(const char *textname, const char *fname, unsigned 
         if (!result)
             WARNMSG("Parsing %s file \"%s\" sacrifices blocks failed.",textname,fname);
     }
-    //Freeing and exiting
-    LbMemoryFree(buf);
+    //Freeing and exiting.
+    free(buf);
     return result;
 }
 
@@ -876,10 +880,9 @@ TbBool load_rules_config(const char *conf_fname, unsigned short flags)
     {
         load_rules_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
-    //Freeing and exiting
+    //Freeing and exiting.
     return result;
 }
-
 
 /******************************************************************************/
 #ifdef __cplusplus
