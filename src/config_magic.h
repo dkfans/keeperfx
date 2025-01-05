@@ -36,65 +36,32 @@ extern "C" {
 #define MAGIC_OVERCHARGE_LEVELS (POWER_MAX_LEVEL+1)
 #define POWER_TYPES_MAX         2000
 
-enum SpellKinds {
-    SplK_None = 0,
-    SplK_Fireball,
-    SplK_FireBomb,
-    SplK_Freeze,
-    SplK_Armour,
-    SplK_Lightning, // 5
-    SplK_Rebound,
-    SplK_Heal,
-    SplK_PoisonCloud,
-    SplK_Invisibility,
-    SplK_Teleport, // 10
-    SplK_Speed,
-    SplK_Slow,
-    SplK_Drain,
-    SplK_Fear,
-    SplK_Missile, // 15
-    SplK_NavigMissile,
-    SplK_FlameBreath,
-    SplK_Wind,
-    SplK_Light,
-    SplK_Fly, // 20
-    SplK_Sight,
-    SplK_Grenade,
-    SplK_Hailstorm,
-    SplK_WordOfPower,
-    SplK_CrazyGas, // 25
-    SplK_Disease,
-    SplK_Chicken,
-    SplK_TimeBomb,
-    SplK_Lizard,
-    Splk_SummonFamiliar, // 30
-    Splk_SummonCreature,
-    SplK_Cleanse,
+enum CreatureSpellAffectedFlags {
+    CSAfF_Slow         = 0x000001,
+    CSAfF_Speed        = 0x000002,
+    CSAfF_Armour       = 0x000004,
+    CSAfF_Rebound      = 0x000008,
+    CSAfF_Flying       = 0x000010,
+    CSAfF_Invisibility = 0x000020,
+    CSAfF_Sight        = 0x000040,
+    CSAfF_Light        = 0x000080,
+    CSAfF_Disease      = 0x000100,
+    CSAfF_Chicken      = 0x000200,
+    CSAfF_PoisonCloud  = 0x000400,
+    CSAfF_Freeze       = 0x000800,
+    CSAfF_MadKilling   = 0x001000,
+    CSAfF_Fear         = 0x002000,
+    CSAfF_Heal         = 0x004000,
+    CSAfF_Teleport     = 0x008000,
+    CSAfF_Timebomb     = 0x010000,
+    CSAfF_Wind         = 0x020000,
+    CSAfF_SpellBlocks  = 0x040000,
 };
 
-enum CreatureSpellAffectedFlags {
-    CSAfF_Slow         = 0x0001,
-    CSAfF_Speed        = 0x0002,
-    CSAfF_Armour       = 0x0004,
-    CSAfF_Rebound      = 0x0008,
-    CSAfF_Flying       = 0x0010,
-    CSAfF_Invisibility = 0x0020,
-    CSAfF_Sight        = 0x0040,
-    CSAfF_Light        = 0x0080, // this was originally Freeze, but that is now done via stateblock_flags
-    CSAfF_Disease      = 0x0100,
-    CSAfF_Chicken      = 0x0200,
-    CSAfF_PoisonCloud  = 0x0400,
-    CSAfF_CalledToArms = 0x0800,
-    CSAfF_MadKilling   = 0x1000,
-    /** The creature does a free fall with magical effect, ie. it was just created with some initial velocity. */
-    CSAfF_MagicFall    = 0x2000,
-    CSAfF_ExpLevelUp   = 0x4000,
-    /** For creature which are normally flying, this informs that its grounded due to spells or its condition. */
-    CSAfF_Grounded     = 0x8000,
-    CSAfF_Timebomb     = 0x10000,
-    CSAfF_Wind         = 0x20000,
-    /** Cleanse effect can linger for some time. */
-    CSAfF_Cleanse      = 0x40000,
+enum SpellPropertiesFlags {
+    SPF_FixedDamage    = 0x01, // Damage or healing does not increase based on the creature's level.
+    SPF_PercentBased   = 0x02, // Damage or healing is based on a percentage of current health instead of a flat value.
+    SPF_MaxHealth      = 0x04, // Damage or healing is based on a percentage of max health instead of a flat value.
 };
 
 enum PowerKinds {
@@ -126,6 +93,13 @@ enum PowerKinds {
     PwrK_SLOW, // 25
     PwrK_FLIGHT,
     PwrK_VISION,
+    PwrK_MKTUNNELLER,
+};
+
+enum CostFormulas {
+    Cost_Default = 0,
+    Cost_Digger,
+    Cost_Dwarf,
 };
 
 /** Contains properties of a shot model, to be stored in ShotConfigStats.
@@ -246,7 +220,6 @@ struct SpellConfigStats {
     char code_name[COMMAND_WORD_LEN];
 };
 
-
 struct ShotHitConfig {
     ThingModel effect_model; /**< Effect kind to be created when the shot hits. */
     short sndsample_idx; /**< Base sound sample to be played on hit. */
@@ -287,7 +260,7 @@ struct ShotConfigStats {
     /** Type of the damage inflicted by this shot. */
     short damage;
     short speed;
-    DamageType damage_type;
+    TbBool is_magical;
     struct ShotHitConfig hit_generic;
     struct ShotHitConfig hit_door;
     struct ShotHitConfig hit_water;
@@ -362,9 +335,11 @@ struct PowerConfigStats {
     long panel_tab_idx;
     unsigned short select_sound_idx;
     short cast_cooldown;
+    unsigned char cost_formula;
     SpellKind spell_idx;
     EffectOrEffElModel effect_id;
     short magic_use_func_idx;
+    ThingModel creature_model;
 };
 
 /**
@@ -400,21 +375,28 @@ struct SpellConfig {
     /** Sprite index of medium symbol icon representing the spell. */
     short medsym_sprite_idx;
     short cast_sound;
+    unsigned char caster_sounds_count;
     ThingModel crtr_summon_model;
     short crtr_summon_level;
     short crtr_summon_amount;
-    short linked_power;
-    short duration;
-    short aura_effect;
+    PowerKind linked_power;
+    GameTurnDelta countdown;
+    GameTurnDelta duration;
+    EffectOrEffElModel aura_effect;
+    GameTurnDelta aura_duration;
+    GameTurnDelta aura_frequency;
+    HitPoints healing_recovery;
+    HitPoints damage;
+    GameTurnDelta damage_frequency;
     unsigned long spell_flags;
-    /** Whether this spell negatively impacts a creature's combat performance in some way*/
-    unsigned char debuff;
+    unsigned long cleanse_flags;
+    unsigned char properties_flags;
 };
 
 struct MagicStats {
   long cost[MAGIC_OVERCHARGE_LEVELS];
   long duration;
-  long strength[MAGIC_OVERCHARGE_LEVELS];
+  long strength[MAGIC_OVERCHARGE_LEVELS+1];
 };
 
 struct MagicConfig {
@@ -439,14 +421,15 @@ extern struct NamedCommand spell_desc[];
 extern struct NamedCommand shot_desc[];
 extern struct NamedCommand power_desc[];
 extern struct SpellConfig spell_config[];
+extern const struct NamedCommand spell_effect_flags[];
 extern const struct NamedCommand powermodel_properties_commands[];
 extern const struct LongNamedCommand powermodel_castability_commands[];
 extern const struct NamedCommand powermodel_expand_check_func_type[];
 extern const struct NamedCommand magic_power_commands[];
 extern const Expand_Check_Func powermodel_expand_check_func_list[];
 /******************************************************************************/
-struct SpellConfig *get_spell_config(int mgc_idx);
-TbBool spell_config_is_invalid(const struct SpellConfig *mgcinfo);
+struct SpellConfig *get_spell_config(SpellKind spell_idx);
+TbBool spell_config_is_invalid(struct SpellConfig *mgcinfo);
 TextStringId get_power_description_strindex(PowerKind pwkind);
 TextStringId get_power_name_strindex(PowerKind pwkind);
 TbBool power_is_instinctive(int pwkind);
