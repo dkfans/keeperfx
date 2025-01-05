@@ -201,8 +201,7 @@ struct PlayerInfo {
     unsigned char primary_cursor_state;
     unsigned char secondary_cursor_state;
     PlayerState continue_work_state;
-char field_45F;
-short cursor_light_idx;
+    short cursor_light_idx;
     char mp_message_text[PLAYER_MP_MESSAGE_LEN];
     unsigned char chosen_room_kind;
     unsigned char full_slab_cursor; // 0 for subtile sized cursor, 1 for slab sized cursor
@@ -222,11 +221,8 @@ short cursor_light_idx;
     long palette_fade_step_pain;
     long palette_fade_step_possession;
     unsigned char *main_palette;
-    long field_4CD;
-    char field_4D1;
     /** Overcharge level while casting keeper powers. */
     long cast_expand_level;
-    long field_4D6;
     char video_cluedo_mode;
     MapCoordDelta zoom_to_movement_x;
     MapCoordDelta zoom_to_movement_y;

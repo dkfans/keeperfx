@@ -726,7 +726,6 @@ void init_player_as_single_keeper(struct PlayerInfo *player)
 {
     struct InitLight ilght;
     memset(&ilght, 0, sizeof(struct InitLight));
-    player->field_4CD = 0;
     ilght.radius = 2560;
     ilght.intensity = 48;
     ilght.flags = 5;
@@ -746,7 +745,6 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->minimap_pos_x = 11;
     player->minimap_pos_y = 11;
     player->minimap_zoom = settings.minimap_zoom;
-    player->field_4D1 = player->id_number;
     setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
     player->continue_work_state = PSt_CtrlDungeon;
     player->work_state = PSt_CtrlDungeon;

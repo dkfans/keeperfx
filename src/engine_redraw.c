@@ -608,8 +608,6 @@ void redraw_creature_view(void)
 {
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_my_player();
-    if (player->field_45F != 2)
-      player->field_45F = 2;
     update_explored_flags_for_power_sight(player);
     struct Thing* thing = thing_get(player->controlled_thing_idx);
     TRACE_THING(thing);
@@ -718,8 +716,6 @@ void redraw_isometric_view(void)
     memcpy(&pos, &player->acamera->mappos, sizeof(struct Coord3d));
     TbGraphicsWindow ewnd;
     memset(&ewnd, 0, sizeof(TbGraphicsWindow));
-    if (player->field_45F != 1)
-      player->field_45F = 1;
     struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
     // Camera position modifications
     make_camera_deviations(player,dungeon);
