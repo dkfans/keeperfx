@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-10-28 21:21+0100\n"
+"PO-Revision-Date: 2024-09-02 22:31+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: ja_JP\n"
@@ -29,7 +29,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 1.5.7\n"
+"X-Generator: Poedit 3.5\n"
 
 #. Generic victory message
 #: guitext:0
@@ -53,7 +53,7 @@ msgid ""
 "Treasure Room icon from the Rooms Panel and fill the empty area to the west "
 "with Treasure Room tiles."
 msgstr ""
-"まずはインプどもが金鉱から掘り出した 財宝の保管場所が必要だ。 宝物庫を作るに"
+"まずはインプどもが金鉱から掘り出した財宝の保管場所が必要だ。 宝物庫を作るに"
 "は、 部屋パネルから宝物庫アイコンを選び、 西の空いたエリアに宝物庫タイルを置"
 "け。"
 
@@ -101,8 +101,8 @@ msgid ""
 "dropped into."
 msgstr ""
 "手下をダンジョンから拾い上げるには、 左クリックを使え。 クリーチャーをダン"
-"ジョン内の部屋または タイル上に落とすには、右クリックを使え。 クリーチャーは"
-"落とされた場所で、 自分に最も適した仕事を行う。"
+"ジョン内の部屋またはタイル上に落とすには、右クリックを使え。 クリーチャーは落"
+"とされた場所で、 自分に最も適した仕事を行う。"
 
 #. Level Eversmile objective after digging gold
 #: guitext:7
@@ -127,9 +127,9 @@ msgid ""
 "claimed by a Keeper. Your imps claim a Portal as soon as it connects to your "
 "dungeon."
 msgstr ""
-"北のゲートへつながるトンネルを掘れ。 マップ上の光っている四角形が 占領されて"
-"いないゲートだ。 キーパーが占領したゲートしか クリーチャーは通れない。 お前の"
-"ダンジョンとゲートがつながると すぐに手下インプが占領を宣言する。"
+"北のゲートへつながるトンネルを掘れ。 マップ上の光っている四角形が占領されてい"
+"ないゲートだ。 キーパーが占領したゲートしかクリーチャーは通れない。 お前のダ"
+"ンジョンとゲートがつながるとすぐに手下インプが占領を宣言する。"
 
 #. Level Eversmile objective when digging w/o Treasure Room
 #: guitext:9
@@ -140,7 +140,7 @@ msgid ""
 "Dungeon Heart."
 msgstr ""
 "まず宝物庫を作れ。 部屋パネルから宝物庫アイコンを選び、 ダンジョンハート西側"
-"のタイル上で 左クリックせよ。"
+"のタイル上で左クリックせよ。"
 
 #. Level Eversmile information after some digging
 #: guitext:10
@@ -151,7 +151,7 @@ msgid ""
 "to the situation they're dropped into."
 msgstr ""
 "クリーチャーを左クリックでピックアップせよ。 右クリックでお前のダンジョン内の"
-"部屋 またはタイル上にクリーチャーを落とせ。 クリーチャーは落とされた場所で、 "
+"部屋またはタイル上にクリーチャーを落とせ。 クリーチャーは落とされた場所で、 "
 "自分に適した仕事を行う。"
 
 #. Level Eversmile information after some digging
@@ -162,8 +162,8 @@ msgid ""
 "the hand. Your creatures take damage from each slap they receive."
 msgstr ""
 "手下どもをもっと働かせたければ、 悪魔の手をクリーチャー上に置き、 右クリック"
-"で活を入れよ。 ただし、活を入れられるたびにクリーチャーは ダメージを受けるで"
-"あろう。"
+"で活を入れよ。 ただし、活を入れられるたびにクリーチャーはダメージを受けるであ"
+"ろう。"
 
 #. Level Eversmile objective after digging gold w/o Treasure Room
 #: guitext:12
@@ -173,8 +173,8 @@ msgid ""
 "be unable to pay any creatures. Only imps give their loyalty freely. No "
 "other creatures will serve you unpaid."
 msgstr ""
-"まだ宝物庫を作っていないな。 宝物庫を作るまではクリーチャーに 給料が支払えな"
-"い。 ただで忠誠をつくすのはインプだけだ。 他のクリーチャーは 給料なしでは決し"
+"まだ宝物庫を作っていないな。 宝物庫を作るまではクリーチャーに給料が支払えな"
+"い。 ただで忠誠をつくすのはインプだけだ。 他のクリーチャーは給料なしでは決し"
 "てお前に仕えない。"
 
 #. Level Eversmile objective after getting first creature
@@ -186,7 +186,7 @@ msgid ""
 "intercept the most nimble trespassers."
 msgstr ""
 "最初の手下がやって来た。巨大なフライだ。 腐った唾液を吐き、気味が悪いほど大き"
-"な昆虫だが、 最も素早い侵入者すら捕らえることのできる 速さで飛ぶ。"
+"な昆虫だが、 最も素早い侵入者すら捕らえることのできる速さで飛ぶ。"
 
 #. Level Eversmile objective after getting first beetle
 #: guitext:14
@@ -198,9 +198,9 @@ msgid ""
 "emerge from its enchanted soil."
 msgstr ""
 "ビートルが急ぎ足でお前の王国に入ってきた。 丈夫で、かなりのダメージに耐えるこ"
-"とができる。 たいていのクリーチャーと同じく ビートルも食料が必要だ。新たな場"
-"所を掘り、 ニワトリ小屋アイコンを選んで ニワトリ小屋を作れ。 すぐにおいしい食"
-"料が魔法の土から 現れ出てくるはずだ。"
+"とができる。 たいていのクリーチャーと同じくビートルも食料が必要だ。新たな場所"
+"を掘り、 ニワトリ小屋アイコンを選んでニワトリ小屋を作れ。 すぐにおいしい食料"
+"が魔法の土から現れ出てくるはずだ。"
 
 #. Level Eversmile objective after Hatchery built
 #: guitext:15
@@ -212,8 +212,8 @@ msgid ""
 "previous one."
 msgstr ""
 "侵入者がトンネルを掘って入ってこないように、 インプは壁の補強をする。 手下イ"
-"ンプをもっと増やしたければ 研究パネルのインプ製造アイコンを選び、 ダンジョン"
-"内で左クリックせよ。 全インプ数に比例して製造コストは高くなる。"
+"ンプをもっと増やしたければ研究パネルのインプ製造アイコンを選び、 ダンジョン内"
+"で左クリックせよ。 全インプ数に比例して製造コストは高くなる。"
 
 #. Level Eversmile information after having few creatures
 #: guitext:16
@@ -223,9 +223,9 @@ msgid ""
 "pick up creatures quickly, left click on them from within the Creatures "
 "Panel. You can only drop creatures within the confines of your own dungeon."
 msgstr ""
-"クリーチャーをまとめて侵入者の上に落とす用意を しておいてはどうだ？ 速くピッ"
-"クアップするには、 クリーチャーパネル上のクリーチャーを 左クリックせよ。 ク"
-"リーチャーを落とせるのはお前の領地内だけだ。"
+"クリーチャーをまとめて侵入者の上に落とす用意をしておいてはどうだ？ 速くピック"
+"アップするには、 クリーチャーパネル上のクリーチャーを左クリックせよ。 クリー"
+"チャーを落とせるのはお前の領地内だけだ。"
 
 #. Level Eversmile objective some time after all rooms are built
 #: guitext:17
@@ -237,7 +237,7 @@ msgid ""
 msgstr ""
 "侵入者どもが近付いているぞ。 お前のダンジョンに侵入するため、 防壁の裂け目を"
 "探している。 マップ上の白い点が侵入者の動きを示している。 マップを拡大するに"
-"は、 コントロールパネルの上部にあるアイコンを クリックせよ。"
+"は、 コントロールパネルの上部にあるアイコンをクリックせよ。"
 
 #. Level Eversmile objective after first wave defeat
 #: guitext:18
@@ -246,8 +246,8 @@ msgid ""
 "Savour your first victory while you can. You have attracted the wrath of the "
 "Lord of this realm. His party will soon be here."
 msgstr ""
-"今のうちに最初の勝利を十分味わっておけ。 お前はこの王国のロードの怒りを 呼び"
-"起こしてしまった。 勇者どもがじきにやってくるであろう。"
+"今のうちに最初の勝利を十分味わっておけ。 お前はこの王国のロードの怒りを呼び起"
+"こしてしまった。 勇者どもがじきにやってくるであろう。"
 
 #. Levels Eversmile and Tickle objective, when LOTL comes
 #: guitext:19
@@ -278,7 +278,7 @@ msgid ""
 "domain. Remember, each Imp you create is more expensive than the last."
 msgstr ""
 "インプがもっと必要だ。 インプ製造の魔法を使い、 お前の領地にインプを呼び出"
-"せ。 ただし、インプを製造するたびに コストが前回より高くなることを忘れるな。"
+"せ。 ただし、インプを製造するたびにコストが前回より高くなることを忘れるな。"
 
 #. Level Cosyton information soon after start
 #: guitext:22
@@ -335,9 +335,8 @@ msgid ""
 "walls of your dungeon. This increases the efficiency of rooms and repels "
 "would-be invaders."
 msgstr ""
-"計画は順調に進んでいるな、キーパーよ。 インプどもにダンジョンの壁を 補強する"
-"時間をやれ。 これにより部屋の機能性が高まり、 侵入をくわだてる者を撃退でき"
-"る。"
+"計画は順調に進んでいるな、キーパーよ。 インプどもにダンジョンの壁を補強する時"
+"間をやれ。 これにより部屋の機能性が高まり、 侵入をくわだてる者を撃退できる。"
 
 #. Level Cosyton information after Training Room built
 #: guitext:27
@@ -347,7 +346,7 @@ msgid ""
 "Spawn. Build it and they will come."
 msgstr ""
 "訓練室は、 より一層凶暴なクリーチャーを引き寄せる。 部屋ができればデーモンス"
-"ポーンが やってくるであろう。"
+"ポーンがやってくるであろう。"
 
 #. Level Cosyton information after attracting Demon Spawn
 #: guitext:28
@@ -358,7 +357,7 @@ msgid ""
 "cost for that creature to train."
 msgstr ""
 "訓練するには、 クリーチャーを訓練室に落とせ。 クリーチャーの頭上に時々現れる"
-"数字は、 そのクリーチャーを訓練するのに 必要な財宝の量だ。"
+"数字は、 そのクリーチャーを訓練するのに必要な財宝の量だ。"
 
 #. Level Cosyton information some time after Demon Spawn
 #: guitext:29
@@ -415,7 +414,7 @@ msgid ""
 "the morale of your minions."
 msgstr ""
 "宝物庫、ねぐら、ニワトリ小屋、 訓練室のあるダンジョンを作れ。 必ずどの部屋も"
-"十分な広さにせよ。 せまくるしい環境だと手下は ヤル気を失うぞ。"
+"十分な広さにせよ。 せまくるしい環境だと手下はヤル気を失うぞ。"
 
 #. Level Waterdream Warm objective after basic 5 rooms are built/claimed
 #: guitext:35
@@ -438,8 +437,8 @@ msgid ""
 "researching magic and dungeon designs. These evil mages are real bookworms, "
 "as well as being magically proficient themselves."
 msgstr ""
-"図書館は、魔法とダンジョン設計の研究に 興味を持つウォーロックのような クリー"
-"チャーを引き寄せる。 この邪悪な賢者は、 大の本好きで魔法使いとしても 優秀であ"
+"図書館は、魔法とダンジョン設計の研究に興味を持つウォーロックのようなクリー"
+"チャーを引き寄せる。 この邪悪な賢者は、 大の本好きで魔法使いとしても優秀であ"
 "る。"
 
 #. Level Waterdream Warm objective after finished building library
@@ -463,9 +462,9 @@ msgid ""
 "Don't forget to train your Warlocks occasionally. Their spell casting "
 "abilities make them fine long range fighters."
 msgstr ""
-"神秘の知識の香りが欲深いウォーロックを お前のダンジョンへ誘う。 ウォーロック"
-"を時々訓練することを忘れるな。 魔法を使えるウォーロックは 遠くから攻撃できる"
-"ため、いい戦士になる。"
+"神秘の知識の香りが欲深いウォーロックをお前のダンジョンへ誘う。 ウォーロックを"
+"時々訓練することを忘れるな。 魔法を使えるウォーロックは遠くから攻撃できるた"
+"め、いい戦士になる。"
 
 #. Level Waterdream Warm objective
 #: guitext:39
@@ -476,7 +475,7 @@ msgid ""
 "launch another assault."
 msgstr ""
 "勇者どもの第一陣は切り刻まれて床に倒れ、 お前の領地は落ち着きを取り戻した。 "
-"しかし馬鹿な連中どもはすぐにも 第二陣を送ってくるであろう。"
+"しかし馬鹿な連中どもはすぐにも第二陣を送ってくるであろう。"
 
 #. Level Waterdream Warm objective
 #: guitext:40
@@ -535,7 +534,7 @@ msgid ""
 "would be wiser not to disturb them until you are prepared."
 msgstr ""
 "作れる部屋をすべて作り、近くのゲートを占領せよ。 しかし、 まだ北へ進んではな"
-"らない。 そこには強敵がひそんでいる。 準備が整うまでは 連中を刺激しないほうが"
+"らない。 そこには強敵がひそんでいる。 準備が整うまでは連中を刺激しないほうが"
 "賢明だ。"
 
 #. Level Flowerhat information
@@ -557,9 +556,9 @@ msgid ""
 "least nine tiles, its mere presence will lure the underworld's finest "
 "artisans into your dungeon."
 msgstr ""
-"ダンジョン設計について研究した結果、 ドアや罠などの重要な物品は工房で 製造す"
-"ることがわかった。 工房を９タイル以上の四角い部屋に 造ればよい。 あとは地底世"
-"界一腕のいい職人どもが 自然と集まってくるであろう。"
+"ダンジョン設計について研究した結果、 ドアや罠などの重要な物品は工房で製造する"
+"ことがわかった。 工房を９タイル以上の四角い部屋に造ればよい。 あとは地底世界"
+"一腕のいい職人どもが自然と集まってくるであろう。"
 
 #. Level Flowerhat information
 #: guitext:48
@@ -569,8 +568,8 @@ msgid ""
 "creatures to it, by dropping them into the room. Manufactured items can be "
 "selected from the Workshop Panel as soon as they're ready."
 msgstr ""
-"工房で罠やドアを 製造するには、 クリーチャーを工房に落として 仕事をさせなけれ"
-"ばならない。 できた物品は準備ができしだい、 工房パネルから選べるようになる。"
+"工房で罠やドアを製造するには、 クリーチャーを工房に落として仕事をさせなければ"
+"ならない。 できた物品は準備ができしだい、 工房パネルから選べるようになる。"
 
 #. Level Flowerhat objective
 #: guitext:49
@@ -588,8 +587,7 @@ msgctxt "In-game message"
 msgid ""
 "You will have to find a way to cross the river of molten lava that bars your "
 "way."
-msgstr ""
-"お前の行く手を妨げる ドロドロの溶岩の川を 渡る方法を見つけねばならない。"
+msgstr "お前の行く手を妨げるドロドロの溶岩の川を渡る方法を見つけねばならない。"
 
 #. Level Flowerhat objective
 #: guitext:51
@@ -598,8 +596,8 @@ msgid ""
 "The enemy's Dungeon Heart throbs before you. Assemble your minions nearby "
 "and administer the coup de grace."
 msgstr ""
-"敵のダンジョンハートが お前の目の前で脈打っている。 近くにいる手下を集め、と"
-"どめの一撃を与えよ。"
+"敵のダンジョンハートがお前の目の前で脈打っている。 近くにいる手下を集め、とど"
+"めの一撃を与えよ。"
 
 #. Level Flowerhat information
 #: guitext:52
@@ -610,8 +608,8 @@ msgid ""
 "the hours, because their labours keep them away from combat."
 msgstr ""
 "トロルがお前の手下に加わった。 手先が器用なトロルは、 工房で仕事をさせるのに"
-"最適である。 戦闘をせずにすむならばトロルは 長時間労働にも文句を言わないであ"
-"ろう。"
+"最適である。 戦闘をせずにすむならばトロルは長時間労働にも文句を言わないであろ"
+"う。"
 
 #. Level Flowerhat objective
 #: guitext:53
@@ -655,7 +653,7 @@ msgid ""
 "territory."
 msgstr ""
 "出陣の魔法の研究が終わった。 初めてこの魔法をかけると、 手下どもが魔法によっ"
-"て作られた 旗のまわりに集結する。 攻撃目標地点にこの魔法をかけよ。 出陣の魔法"
+"て作られた旗のまわりに集結する。 攻撃目標地点にこの魔法をかけよ。 出陣の魔法"
 "が財宝を消費するのは、 お前の領土の外を攻撃する時だけだ。"
 
 #. Level Lushmeadow-on-Down objective
@@ -677,8 +675,8 @@ msgid ""
 "You have slain your rival. His defeat is a testimony to your clever dungeon "
 "design. You have the makings of a Dungeon Keeper worthy of the name."
 msgstr ""
-"ライバルを殺した。 奴の敗北はお前のダンジョン設計が 優れている証拠だ。 お前に"
-"はダンジョンキーパーに ふさわしい素質があるな。"
+"ライバルを殺した。 奴の敗北はお前のダンジョン設計が優れている証拠だ。 お前に"
+"はダンジョンキーパーにふさわしい素質があるな。"
 
 #. Level Lushmeadow-on-Down information
 #: guitext:59
@@ -689,7 +687,7 @@ msgid ""
 "unconventionally."
 msgstr ""
 "バイルデーモンがお前の側についた。 バイルデーモンには、 広いねぐらと食料豊富"
-"なニワトリ小屋が必要だ。 このでっぷり太った怪物は 少々型破りな攻撃をする。"
+"なニワトリ小屋が必要だ。 このでっぷり太った怪物は少々型破りな攻撃をする。"
 
 #. Level Lushmeadow-on-Down information
 #: guitext:60
@@ -711,8 +709,8 @@ msgid ""
 "warriors for you to command."
 msgstr ""
 "牢獄がお前のものになった。 情報パネルから生け捕りアイコンを選ぶと、 インプど"
-"もが捕らえた敵を牢獄へ引きずっていく。 飢え死にした囚人は スケルトン戦士とし"
-"て復活することがある。 そいつらはお前が自由に命令できる。"
+"もが捕らえた敵を牢獄へ引きずっていく。 飢え死にした囚人はスケルトン戦士として"
+"復活することがある。 そいつらはお前が自由に命令できる。"
 
 #. Level Lushmeadow-on-Down information
 #: guitext:62
@@ -745,8 +743,8 @@ msgid ""
 "challenge you for this corner of your subterranean empire. The price of "
 "failure shall be oblivion."
 msgstr ""
-"地下帝国の一角を奪取しようと挑んできた 生意気なキーパーに、 究極の罰を与える"
-"時だ。 奴には死あるのみ。 失敗すれば、 お前がこの世から消し去られるであろう。"
+"地下帝国の一角を奪取しようと挑んできた生意気なキーパーに、 究極の罰を与える時"
+"だ。 奴には死あるのみ。 失敗すれば、 お前がこの世から消し去られるであろう。"
 
 #. Level Snuggledell objective
 #: guitext:65
@@ -768,9 +766,9 @@ msgid ""
 "Alternatively, place your own creatures within the room whenever "
 "disciplinary measures become necessary."
 msgstr ""
-"拷問室がお前のものになった。 捕らえた勇者やクリーチャーをこ の恐怖の部屋に放"
-"り込み、 お前の奉り信ずる邪悪の道へ 奴らを引きずり込むのだ。 また、手下クリー"
-"チャーが いうことをきかなくなったら、 いつでもこの部屋へ送れ。"
+"拷問室がお前のものになった。 捕らえた勇者やクリーチャーをこの恐怖の部屋に放り"
+"込み、 お前の奉り信ずる邪悪の道へ奴らを引きずり込むのだ。 また、手下クリー"
+"チャーがいうことをきかなくなったら、 いつでもこの部屋へ送れ。"
 
 #. Level Snuggledell information
 #: guitext:67
@@ -780,7 +778,7 @@ msgid ""
 "Mistress. You must discipline these wicked wenches frequently. They respond "
 "particularly well to a good slapping."
 msgstr ""
-"ついに、 ダークミストレスを引き寄せることのできる ダンジョンが完成した。 この"
+"ついに、 ダークミストレスを引き寄せることのできるダンジョンが完成した。 この"
 "邪悪な女はたびたび訓練せねばならない。 たっぷり活を入れてやると特に反応がよく"
 "なる。"
 
@@ -803,8 +801,8 @@ msgid ""
 "thunderstorm on the target of your choice. Select the spell, aim at a "
 "hostile creature and flash-fry him with a Lightning Strike."
 msgstr ""
-"研究の結果、雷のエネルギーを 自在に発射する魔法を編み出した。 この魔法を選び"
-"敵を狙うと、 標的は雷撃で焼け焦げる。"
+"研究の結果、雷のエネルギーを自在に発射する魔法を編み出した。 この魔法を選び敵"
+"を狙うと、 標的は雷撃で焼け焦げる。"
 
 #. Level Snuggledell information
 #: guitext:70
@@ -822,8 +820,8 @@ msgid ""
 "would be wise to stay out of the way until you are strong enough to "
 "eliminate both sides."
 msgstr ""
-"激しい戦闘の真っ只中に 出くわしてしまったようだ。 両方を始末できる強さになる"
-"まで、 近寄らないほうが身のためだ。"
+"激しい戦闘の真っ只中に出くわしてしまったようだ。 両方を始末できる強さになるま"
+"で、 近寄らないほうが身のためだ。"
 
 #. Level Wishvale information
 #: guitext:72
@@ -833,7 +831,7 @@ msgid ""
 "Barracks. In this room you can form creatures into teams."
 msgstr ""
 "司令官オークがお前の手下に加わり、 兵舎の建築計画を持ってきた。 この部屋では"
-"クリーチャーたちに グループを組ませることができる。"
+"クリーチャーたちにグループを組ませることができる。"
 
 #. Level Wishvale objective
 #: guitext:73
@@ -843,8 +841,8 @@ msgid ""
 "finally roused himself from the fireside to find out where all his loyal "
 "servants have gone."
 msgstr ""
-"プレートメイルの カシャンカシャンという音が聞こえる。 この土地のロードがつい"
-"に目を覚まし、 すべての勇者どもがどこへ消えてしまったのかを 知ったのだ。"
+"プレートメイルのカシャンカシャンという音が聞こえる。 この土地のロードがついに"
+"目を覚まし、 すべての勇者どもがどこへ消えてしまったのかを知ったのだ。"
 
 #. Level Wishvale objective
 #: guitext:74
@@ -853,7 +851,7 @@ msgid ""
 "You have turned local heroes into something of an endangered species, now "
 "make the enemy Dungeon Keeper extinct."
 msgstr ""
-"お前は土地の勇者どもを 絶滅に瀕した種族にしてしまった。 次は敵ダンジョンキー"
+"お前は土地の勇者どもを絶滅に瀕した種族にしてしまった。 次は敵ダンジョンキー"
 "パーを根絶やしにする番だ。"
 
 #. Level Wishvale objective
@@ -864,8 +862,8 @@ msgid ""
 "forlorn alcoves of your domain, in tribute to their futile efforts to keep "
 "you at bay."
 msgstr ""
-"お前の勝利だ、キーパーよ。 お前を食い止めようとした連中の 無駄な努力をたた"
-"え、 領地内の最もみじめな小部屋に 奴らの死骸を捨てよ。"
+"お前の勝利だ、キーパーよ。 お前を食い止めようとした連中の無駄な努力をたた"
+"え、 領地内の最もみじめな小部屋に奴らの死骸を捨てよ。"
 
 #. Level Tickle objective
 #: guitext:76
@@ -876,7 +874,7 @@ msgid ""
 "him up. It's in the only language he understands."
 msgstr ""
 "地底世界のこの土地で、 お前の敵になりそうな奴を捜し出せ。 早く引退した方が身"
-"のためだと説明してしまえ。 面倒ならば つるし首にでもしてやれ。 そうでもしなけ"
+"のためだと説明してしまえ。 面倒ならばつるし首にでもしてやれ。 そうでもしなけ"
 "れば奴には分からない。"
 
 #. Level Tickle information
@@ -908,7 +906,7 @@ msgid ""
 "save them..."
 msgstr ""
 "首尾よく敵を一掃した。 身を守るすべを持たぬこの地の住人は、 堕落の権化たるお"
-"前のもとに ひれ伏すだろう。 そうすれば救われると 思っているのか・・・。"
+"前のもとにひれ伏すだろう。 そうすれば救われると思っているのか・・・。"
 
 #. Level Tickle information
 #: guitext:80
@@ -919,9 +917,9 @@ msgid ""
 "You might have to experiment with the offerings you make. The dark gods are "
 "not easy to please."
 msgstr ""
-"ついに暗黒の神々をまつる神殿の建築方法を 開発した。 生贄のクリーチャーを神殿"
-"の泉に捧げよ。 神々からの贈り物があるはずだ。 いろいろな捧げ物を試してみよ。 "
-"暗黒の神々を喜ばせるのは容易ではない。"
+"ついに暗黒の神々をまつる神殿の建築方法を開発した。 生贄のクリーチャーを神殿の"
+"泉に捧げよ。 神々からの贈り物があるはずだ。 いろいろな捧げ物を試してみよ。 暗"
+"黒の神々を喜ばせるのは容易ではない。"
 
 #. Level Moonbrush Wood objective
 #: guitext:81
@@ -932,7 +930,7 @@ msgid ""
 "locals. But you're not from these parts..."
 msgstr ""
 "この王国は４人のウィザードが支配している。 連中のくそ弱い魔力にさえ、 住民ど"
-"もは恐れている。 ウィザードどもは全てを支配していると うぬぼれている。 お前の"
+"もは恐れている。 ウィザードどもは全てを支配しているとうぬぼれている。 お前の"
 "存在を知らずに・・・・。"
 
 #. Level Moonbrush Wood objective
@@ -942,7 +940,7 @@ msgid ""
 "Well, you're done down here. Time to introduce yourself to the locals and re-"
 "organise their nice little lives."
 msgstr ""
-"この土地を支配した。 善良な小さき者どもに死の恐怖を プレゼントしようではない"
+"この土地を支配した。 善良な小さき者どもに死の恐怖をプレゼントしようではない"
 "か。"
 
 #. Levels Tickle and Moonbrush Wood information
@@ -955,7 +953,7 @@ msgid ""
 "ballistic."
 msgstr ""
 "見よ、お前はホーンドリーパーを召喚した。 怒らせないよう気をつけよ。 だが、い"
-"ずれにしろホーンドリーパーは 怒るのだが。 ホーニーが怒る時、 近くにいれば味方"
+"ずれにしろホーンドリーパーは怒るのだが。 ホーニーが怒る時、 近くにいれば味方"
 "だろうと命はない。 近くにいるのは敵だけにしておけ。"
 
 #. Level Moonbrush Wood information
@@ -979,7 +977,7 @@ msgid ""
 msgstr ""
 "墓場で腐った死体が混ざり合い、 バンパイアが誕生した。 バンパイアは財宝を与"
 "え、 常におだてねばなるまい。 さもなくば、 へそを曲げて去ってしまう。 面倒で"
-"はあるが、 バンパイアを雇えば非常に強力で 恐ろしい手下になる。"
+"はあるが、 バンパイアを雇えば非常に強力で恐ろしい手下になる。"
 
 #. Level Moonbrush Wood information
 #: guitext:86
@@ -990,7 +988,7 @@ msgid ""
 "That's style."
 msgstr ""
 "墓場が建造できるようになった。 墓場に死体を運び込んで腐らせよ。 いずれお前の"
-"命令に従うバンパイアとして 復活するかもしれない。 うまくやれ。"
+"命令に従うバンパイアとして復活するかもしれない。 うまくやれ。"
 
 #. Levels Tickle and Moonbrush Wood information
 #: guitext:87
@@ -1009,8 +1007,8 @@ msgid ""
 "something stupid."
 msgstr ""
 "強力なクリーチャーが南の洞窟にいる。 他のキーパーより先に手下に入れよ。 連中"
-"が手下になれば、 お前の侵略は もう誰にも止めらないであろう。 だがしかし、 お"
-"前と連中の間には勇者の一団がいる。 気をつけていけ。"
+"が手下になれば、 お前の侵略はもう誰にも止めらないであろう。 だがしかし、 お前"
+"と連中の間には勇者の一団がいる。 気をつけていけ。"
 
 #. Level Elf's Dance objective
 #: guitext:89
@@ -1020,7 +1018,7 @@ msgid ""
 "to flex the old misery muscle on the pathetic inhabitants of the land above."
 msgstr ""
 "支配を拒むものを全て打ち負かしたな、 卑劣な者よ。 この上にある土地の哀れな住"
-"人にも 同じように災いを及ぼし力を見せつけるのだ。"
+"人にも同じように災いを及ぼし力を見せつけるのだ。"
 
 #. Level Nevergrim information
 #: guitext:90
@@ -1041,7 +1039,7 @@ msgid ""
 "will crush to death any creatures caught beneath it."
 msgstr ""
 "優れた頭脳を用いて、 落盤の魔法の研究が完成した。 落盤の下にいるクリーチャー"
-"は 押しつぶされて死ぬのみ。 実に面白い。"
+"は押しつぶされて死ぬのみ。 実に面白い。"
 
 #. Level Nevergrim information
 #: guitext:92
@@ -1052,8 +1050,8 @@ msgid ""
 "the outside world, into your domain."
 msgstr ""
 "疲れを知らぬ手下どもが洗脳室の研究を終えた。 洗脳室へ入れられたクリーチャー"
-"は、 他のダンジョンや外の世界から 同類のクリーチャーをお前の領地へ 引き寄せる"
-"であろう。"
+"は、 他のダンジョンや外の世界から同類のクリーチャーをお前の領地へ引き寄せるで"
+"あろう。"
 
 #. Level Nevergrim information
 #: guitext:93
@@ -1099,7 +1097,7 @@ msgid ""
 "You have discovered a devastating magical power. Target it against a "
 "creature to transform a fearsome monster into a clucking chicken. Marvellous."
 msgstr ""
-"素晴らしい魔法を発見した。 この魔法を使えば、 どんなに恐ろしい怪物も ニワトリ"
+"素晴らしい魔法を発見した。 この魔法を使えば、 どんなに恐ろしい怪物もニワトリ"
 "に変えることができる。 まるで奇跡だ。"
 
 #. Level Hearth information
@@ -1120,7 +1118,7 @@ msgid ""
 "magical attacks. I recommend sealing off your Treasure Room or Dungeon Heart."
 msgstr ""
 "魔法のドアを作った。 魔法の攻撃以外にはほぼ無敵のドアだ。 宝物庫やダンジョン"
-"ハートを 封鎖するのに使うとよい。"
+"ハートを封鎖するのに使うとよい。"
 
 #. Level Nevergrim objective
 #: guitext:100
@@ -1139,7 +1137,7 @@ msgid ""
 "Notch up another victory, most malicious one. You have another land to add "
 "to your dismal collection."
 msgstr ""
-"またもや勝利を得たな、 悪意に満ちた者よ。 お前の不気味なコレクションに 新たな"
+"またもや勝利を得たな、 悪意に満ちた者よ。 お前の不気味なコレクションに新たな"
 "土地が加わった。"
 
 #. Level Hearth objective
@@ -1181,7 +1179,7 @@ msgid ""
 msgstr ""
 "もし土地に脚があるならば、 この地はお前にひざまずくであろう。 やけになった住"
 "人どもは、 お前のダンジョンへの全面攻撃を準備している。 言語に絶する悪を思い"
-"きり見せつける 理想的な機会だ。 さあ、やるがよい、支配者よ。"
+"きり見せつける理想的な機会だ。 さあ、やるがよい、支配者よ。"
 
 #. Level Woodly Rhyme information
 #: guitext:106
@@ -1193,7 +1191,7 @@ msgid ""
 "caught in its area of effect. What a scream that should be."
 msgstr ""
 "新たに言霊の罠を発見した。 この罠が作動すると炎の輪を放出し、 影響範囲内のす"
-"べてのものを 焼き尽くし灰にする。 実に心地よい。"
+"べてのものを焼き尽くし灰にする。 実に心地よい。"
 
 #. Level Moonbrush Wood information
 #: guitext:107
@@ -1203,8 +1201,8 @@ msgid ""
 "all of your creatures back to your Dungeon Heart. Let's hope you never need "
 "it."
 msgstr ""
-"招集の魔法の研究が完了した。 この魔法は、手下全員を お前のダンジョンハートへ "
-"瞬間移動させる。 この魔法が必要にならないことを祈ろう。"
+"招集の魔法の研究が完了した。 この魔法は、手下全員をお前のダンジョンハートへ瞬"
+"間移動させる。 この魔法が必要にならないことを祈ろう。"
 
 #. Level Sleepiburgh objective
 #: guitext:108
@@ -1213,8 +1211,8 @@ msgid ""
 "You can't swing a cat for Dungeon Keepers fighting over the destiny of this "
 "region. It should fall to you to settle the disagreement once and for all."
 msgstr ""
-"この地域の運命をめぐって、 他のダンジョンキーパー同士を 戦わせておくことはな"
-"い。 お前がきっぱりと争いに 決着をつけてやればよい。"
+"この地域の運命をめぐって、 他のダンジョンキーパー同士を戦わせておくことはな"
+"い。 お前がきっぱりと争いに決着をつけてやればよい。"
 
 #. Level Buffy Oak information
 #: guitext:109
@@ -1278,8 +1276,8 @@ msgid ""
 "I spy a keeper with hardly any creatures left under his control. I spy a "
 "Keeper who's about to die."
 msgstr ""
-"配下のクリーチャーが ほとんど残っていないキーパーがいる。 もう死んだも同然"
-"だ。さあ、引導を渡すのだ。"
+"配下のクリーチャーがほとんど残っていないキーパーがいる。 もう死んだも同然だ。"
+"さあ、引導を渡すのだ。"
 
 #. Level Woodly Rhyme information
 #: guitext:116
@@ -1289,8 +1287,8 @@ msgid ""
 "simply means there should be some interesting treasure worth stealing. Now "
 "that's what I call practical archaeology."
 msgstr ""
-"この古代のダンジョンは考古学的にみて 非常に重要だ。 つまりは盗むに値する興味"
-"深い宝が あるだろうということだ。 これぞ実用的考古学なり。"
+"この古代のダンジョンは考古学的にみて非常に重要だ。 つまりは盗むに値する興味深"
+"い宝があるだろうということだ。 これぞ実用的考古学なり。"
 
 #. Level Woodly Rhyme information
 #: guitext:117
@@ -1299,7 +1297,7 @@ msgid ""
 "Your librarians have learned a spell that can break through fortified walls. "
 "Give them a slap for not learning it earlier."
 msgstr ""
-"補強された壁を粉砕する魔法を やっと研究できた。 研究が遅い！ と活を入れてや"
+"補強された壁を粉砕する魔法をやっと研究できた。 研究が遅い！ と活を入れてや"
 "れ。"
 
 #. Level Woodly Rhyme information
@@ -1308,7 +1306,7 @@ msgctxt "In-game message"
 msgid ""
 "One of your opponents has developed a spell that can break through fortified "
 "walls. Typical. Be on your guard."
-msgstr "お前の敵の１人が 補強された壁を突破する魔法を開発した。 警戒せよ。"
+msgstr "お前の敵の１人が補強された壁を突破する魔法を開発した。 警戒せよ。"
 
 #. Level Woodly Rhyme information
 #: guitext:119
@@ -1329,8 +1327,8 @@ msgid ""
 "simply got to get through days like this."
 msgstr ""
 "この地域を通り抜ける楽な道などない。 敵を破るには、精一杯戦わねばならない。 "
-"しかし世界を支配するつもりならば、 こういう経験もくぐり抜けなければ ならない"
-"のだ。"
+"しかし世界を支配するつもりならば、 こういう経験もくぐり抜けなければならないの"
+"だ。"
 
 #. Level Elf's Dance information
 #: guitext:121
@@ -1371,7 +1369,7 @@ msgid ""
 "should belong to you. I'm certain you will settle the matter of their "
 "ownership in your own way."
 msgstr ""
-"この地の勇者どもは 偉大な力を持つ宝を所有している。 言うまでもなく、 宝はお前"
+"この地の勇者どもは偉大な力を持つ宝を所有している。 言うまでもなく、 宝はお前"
 "のものとなるべきだ。 さあ、連中から所有権を奪え。"
 
 #. Level Tulipscent objective
@@ -1388,7 +1386,7 @@ msgstr ""
 #: guitext:126
 msgctxt "In-game message"
 msgid "This ancient realm is rich in magical artifacts. Go forth and plunder."
-msgstr "この古代王国には 魅力的な工芸品が豊富にある。 略奪せよ。"
+msgstr "この古代王国には魅力的な工芸品が豊富にある。 略奪せよ。"
 
 #. Level Blaise End objective
 #: guitext:127
@@ -1399,7 +1397,7 @@ msgid ""
 "to slaughter."
 msgstr ""
 "今この王国の守護者たちは眠っている。 できる限り早く攻撃せよ。 連中が目を覚ま"
-"し 本来の力を取り戻してからでは、 虐殺は難しくなる。"
+"し本来の力を取り戻してからでは、 虐殺は難しくなる。"
 
 #. Level Blaise End information
 #: guitext:128
@@ -1449,8 +1447,7 @@ msgid ""
 "You are about to face the greatest challenge yet to your evil aspirations. "
 "Here it comes, ready or not."
 msgstr ""
-"お前の野望を打ち砕かんとする 過去最強の敵にこれから直面する。 ぐずぐずする"
-"な！"
+"お前の野望を打ち砕かんとする過去最強の敵にこれから直面する。 ぐずぐずするな！"
 
 #. Level Bonus 6 objective
 #: guitext:133
@@ -1460,9 +1457,9 @@ msgid ""
 "their empires into this realm. Ultimately, only the one who rules the "
 "underworld can conquer the realms above."
 msgstr ""
-"お前に劣らず邪悪で強力な ３人のダンジョンキーパーが、 各自の帝国をこの地まで"
-"広げてきた。 この地底世界を支配する者だけが、 この先にある全王国を征服できる"
-"のだ。 さあ、全ての敵を滅せよ。"
+"お前に劣らず邪悪で強力な３人のダンジョンキーパーが、 各自の帝国をこの地まで広"
+"げてきた。 この地底世界を支配する者だけが、 この先にある全王国を征服できるの"
+"だ。 さあ、全ての敵を滅せよ。"
 
 #. Level Skybird Trill objective
 #: guitext:134
@@ -1471,9 +1468,9 @@ msgid ""
 "This realm is begging to be plunged into darkness. The Avatar himself has a "
 "castle here. Another Keeper also seeks his soul. This could get messy."
 msgstr ""
-"この王国は暗黒の中へ 投げ込まれるのを待っている。 ここにはアバタールの城があ"
-"るはずだ。 もう１人のキーパーも奴の魂を狙っている。 厄介なことになるかもしれ"
-"ない。"
+"この王国は暗黒の中へ投げ込まれるのを待っている。 ここにはアバタールの城がある"
+"はずだ。 もう１人のキーパーも奴の魂を狙っている。 厄介なことになるかもしれな"
+"い。"
 
 #. Level Skybird Trill objective
 #: guitext:135
@@ -1498,9 +1495,9 @@ msgid ""
 "oaf a proper kicking, master."
 msgstr ""
 "アバタールは、 隠れていた忠実な副官たちの手で蘇っていた。 しかし、これで連中"
-"がこの王国にいることがわかった。 今、アバタールはお前に抗う者どもを 再結集し"
-"ている。 支配者よ、この一人よがりな愚か者に 思い知らせてやるがよい、 勇者ども"
-"の無力さを！"
+"がこの王国にいることがわかった。 今、アバタールはお前に抗う者どもを再結集して"
+"いる。 支配者よ、この一人よがりな愚か者に思い知らせてやるがよい、 勇者どもの"
+"無力さを！"
 
 #. Level Bonus 5 objective
 #: guitext:137
@@ -1510,8 +1507,8 @@ msgid ""
 "dungeon from being constructed here. You will have to conquer this realm "
 "another way."
 msgstr ""
-"強力な魔法が上層の王国から 岩をしみ通ってくるため、 ここにはダンジョンを築く"
-"ことができない。 この王国は別な方法で征服せねばならない。"
+"強力な魔法が上層の王国から岩をしみ通ってくるため、 ここにはダンジョンを築くこ"
+"とができない。 この王国は別な方法で征服せねばならない。"
 
 #. Level Bonus 5 information
 #: guitext:138
@@ -1522,7 +1519,7 @@ msgid ""
 "it."
 msgstr ""
 "このドラゴンの体を支配すれば、 炎の奈落を乗り越える助けとなる。 しかし、いざ"
-"という時は すぐにお前の魂を より適切なクリーチャーへ移せるよう 用意しておけ。"
+"という時はすぐにお前の魂をより適切なクリーチャーへ移せるよう用意しておけ。"
 
 #. Level Bonus 5 objective
 #: guitext:139
@@ -1532,7 +1529,7 @@ msgid ""
 "region, the Vampire will accompany you to the realm beyond."
 msgstr ""
 "地下にいるバンパイアの体を支配せよ。 この地域の全ての勇者を殺すことができれ"
-"ば、 バンパイアはその先の王国まで お前について行くであろう。"
+"ば、 バンパイアはその先の王国までお前について行くであろう。"
 
 #. Level Bonus 2 objective
 #: guitext:140
@@ -1543,8 +1540,8 @@ msgid ""
 "greater tasks ahead."
 msgstr ""
 "このインプどもは皆、 裏切り者である。 裏切り者は死ななければならない。 連中を"
-"どれだけ早く絶滅させられるかで、 この先のより大きな仕事への適性が 決定される"
-"であろう。"
+"どれだけ早く絶滅させられるかで、 この先のより大きな仕事への適性が決定されるで"
+"あろう。"
 
 #. Level Bonus 2 information
 #: guitext:141
@@ -1573,8 +1570,8 @@ msgid ""
 "your next conquest."
 msgstr ""
 "すばらしい支配者よ、 お前の心はみごとなまでにねじ曲がっている。 インプを絶滅"
-"させたお前のその堂々たる態度を見て、 バンパイアがお前の次なる野望に 身を捧げ"
-"る気になった。 これで次の征服へ進めるぞ。"
+"させたお前のその堂々たる態度を見て、 バンパイアがお前の次なる野望に身を捧げる"
+"気になった。 これで次の征服へ進めるぞ。"
 
 #. Level Bonus 3 objective
 #: guitext:144
@@ -1583,8 +1580,8 @@ msgid ""
 "You must have lightning reflexes to complete the task ahead of you. Kill "
 "these Imps as quickly as you can."
 msgstr ""
-"お前は目の前のいかなる仕事も 瞬時に片付けられるに違いない。 このインプども全"
-"てを早急に殺せ。"
+"お前は目の前のいかなる仕事も瞬時に片付けられるに違いない。 このインプども全て"
+"を早急に殺せ。"
 
 #. Level Bonus 3 information
 #: guitext:145
@@ -1608,7 +1605,7 @@ msgid ""
 "you a vicious creature to help you conquer the next realm."
 msgstr ""
 "上できだ！インプがいた場所には、 もはや小さな黒焦げの塊がくすぶるのみ。 確か"
-"にお前の勝ちだ。 次なる王国征服のため、 暗黒の神々はヘルハウンドを お前に遣わ"
+"にお前の勝ちだ。 次なる王国征服のため、 暗黒の神々はヘルハウンドをお前に遣わ"
 "すであろう。"
 
 #. Level Bonus 3 objective
@@ -1626,9 +1623,9 @@ msgid ""
 "Demons by crushing them with Boulder Traps scattered around the perimeter of "
 "the dungeon. You have very little time, so rock and roll!"
 msgstr ""
-"お前がこの王国に呼ばれたのは、 反乱を起こしたバイルデーモンの群れを 懲らしめ"
-"るためだ。 ダンジョンの境界付近に仕掛けられた 丸石の罠で連中を押しつぶせ。 時"
-"間がないぞ、さあ急げ！"
+"お前がこの王国に呼ばれたのは、 反乱を起こしたバイルデーモンの群れを懲らしめる"
+"ためだ。 ダンジョンの境界付近に仕掛けられた丸石の罠で連中を押しつぶせ。 時間"
+"がないぞ、さあ急げ！"
 
 #. Level Bonus 4 objective
 #: guitext:150
@@ -1642,7 +1639,7 @@ msgctxt "In-game message"
 msgid ""
 "Your time is up. You have failed. I'm embarrassed to come from the same "
 "inter-dimensional void as you."
-msgstr "しくじったな。 お前と同じ道を歩んできたと思うと 恥ずかしい限りだ。"
+msgstr "しくじったな。 お前と同じ道を歩んできたと思うと恥ずかしい限りだ。"
 
 #. Level Bonus 4 objective
 #: guitext:152
@@ -1667,7 +1664,7 @@ msgid ""
 "the future."
 msgstr ""
 "この地底世界では、 網目状の洞窟を通り抜ける能力が試される。 ここでのお前の敵"
-"は時間だ。 これに打ち勝てば、 伝説の女魔道師が囚われている場所が わかるはず"
+"は時間だ。 これに打ち勝てば、 伝説の女魔道師が囚われている場所がわかるはず"
 "だ。 うまくいけば彼女はいずれお前に仕えるであろう。"
 
 #. Level Mistle objective
@@ -1679,9 +1676,9 @@ msgid ""
 "history. This will be no mean feat. Resources are scarce because of his "
 "activities."
 msgstr ""
-"この王国の者たちが ワイゼルという名のダンジョンキーパーの 噂をしている。 そい"
-"つはいずれお前の邪魔をするはずだ。 その時は奴を過去へと葬らねばならない。 成"
-"功すれば大した手柄だ。 奴のおかげで資源が不足しているのだ。"
+"この王国の者たちがワイゼルという名のダンジョンキーパーの噂をしている。 そいつ"
+"はいずれお前の邪魔をするはずだ。 その時は奴を過去へと葬らねばならない。 成功"
+"すれば大した手柄だ。 奴のおかげで資源が不足しているのだ。"
 
 #. Level Mistle objective
 #: guitext:155
@@ -1702,7 +1699,7 @@ msgid ""
 msgstr ""
 "残虐の限りを尽くせ！支配者よ。 お前の邪悪さがサムライを堕落させた。 奴は名誉"
 "を捨て、お前の目的に賛同した。 お前の手下が大きな被害を受けると、 この戦士が"
-"武装した兄弟に 援軍を求めてくれるであろう。 何と親切で、ばかな奴だ！"
+"武装した兄弟に援軍を求めてくれるであろう。 何と親切で、ばかな奴だ！"
 
 #. Level Mistle information
 #: guitext:157
@@ -1721,8 +1718,8 @@ msgid ""
 "It is rumoured that two Dragons are held captive somewhere east of here. "
 "Were you to find them and free them, they would make powerful servants."
 msgstr ""
-"この東のどこかで ２匹のドラゴンが囚われの身に なっているという噂だ。 連中を見"
-"つけて自由にしてやれば、 お前の強力な手下となるだろう。"
+"この東のどこかで２匹のドラゴンが囚われの身になっているという噂だ。 連中を見つ"
+"けて自由にしてやれば、 お前の強力な手下となるだろう。"
 
 #. Level Mistle information
 #: guitext:159
@@ -1733,7 +1730,7 @@ msgid ""
 "subterranean enemy."
 msgstr ""
 "北へのトンネルは、 この王国のロードの領地へと続いている。 このゲートは警備が"
-"固い。 人間どもの注意を地下の敵へ向けさせるのが 賢いやり方だ。"
+"固い。 人間どもの注意を地下の敵へ向けさせるのが賢いやり方だ。"
 
 #. Level Mistle information
 #: guitext:160
@@ -1773,9 +1770,9 @@ msgid ""
 "region and recruit as many Bile Demons as you can. If you free the Wizard "
 "held captive in this realm, he will serve you for some time to come."
 msgstr ""
-"この地域でぶらぶらしている 不愉快なドワーフどもはクビにして、 できるだけ多く"
-"のバイルデーモンを雇え。 この王国に囚われているウィザードを 解放してやれば、 "
-"しばらくの間お前に仕えるであろう。"
+"この地域でぶらぶらしている不愉快なドワーフどもはクビにして、 できるだけ多くの"
+"バイルデーモンを雇え。 この王国に囚われているウィザードを解放してやれば、 し"
+"ばらくの間お前に仕えるであろう。"
 
 #: guitext:165
 msgctxt "In-game message"
@@ -1852,7 +1849,9 @@ msgid ""
 "Marvellous, Keeper! The Avatar and all his pathetic army are finally dead! "
 "There's only one Keeper to get rid of before becoming the absolute master! "
 "So, what are you waiting for?"
-msgstr "素晴らしい、キーパー！アバタールと彼の軍隊は遂に死ぬんだ！倒す可きキーパーはたった一人居る、絶対的な支配者に成る前に。何を待っていますか？"
+msgstr ""
+"素晴らしい、キーパー！アバタールと彼の軍隊は遂に死ぬんだ！倒す可きキーパーは"
+"たった一人居る、絶対的な支配者に成る前に。何を待っていますか？"
 
 #. Levels Moonbrush Wood and Bonus 1 information
 #: guitext:174
@@ -1860,7 +1859,9 @@ msgctxt "In-game message"
 msgid ""
 "Did you see? Your Demon Spawn has evolved to become a powerful Dragon ready "
 "to reduce your enemies into ashes!"
-msgstr "見ましたね？貴方のデーモンスポーンは強いドラゴンに成ってで進化されました。彼は敵を焼き払う出来ています！"
+msgstr ""
+"見ましたね？貴方のデーモンスポーンは強いドラゴンに成ってで進化されました。彼"
+"は敵を焼き払う出来ています！"
 
 #. Level Bonus 6 objective
 #: guitext:175
@@ -1868,7 +1869,9 @@ msgctxt "In-game message"
 msgid ""
 "Well done! Your immense wealth has drawn the attention of a Thief. He will "
 "serve you well in the next realm!"
-msgstr "良くやった！貴方の莫大な富はシーフを注意を引いた。同氏は次なる地に良く役立つ。"
+msgstr ""
+"良くやった！貴方の莫大な富はシーフを注意を引いた。同氏は次なる地に良く役立"
+"つ。"
 
 #. Level Flowerhat information
 #: guitext:176
@@ -1877,7 +1880,9 @@ msgid ""
 "Your researchers have discovered the Heal Creature spell that allows to "
 "replenish the health of your creatures and keep them from dying for a while "
 "longer."
-msgstr "貴方の研究者は治癒魔力を生み出した。其れはクリーチャーの体力を充填する、彼らが死ぬのを一頻り防ぐ。"
+msgstr ""
+"貴方の研究者は治癒魔力を生み出した。其れはクリーチャーの体力を充填する、彼ら"
+"が死ぬのを一頻り防ぐ。"
 
 #. Level Tulipscent information
 #: guitext:177
@@ -1887,7 +1892,10 @@ msgid ""
 "to obey to all your orders, making all of them working faster without the "
 "possibility for them to take a nap. Be sure to have plenty of money so that "
 "the spell will stay activated."
-msgstr "絶対服従魔力を試みれ。此れは常にクリーチャーに貴方の全ての命令に従う事を強制します。彼らはもっと早く働く及び眠る出来ない。呪文は続けて有効化された儘様に、沢山のお金が必要だ。"
+msgstr ""
+"絶対服従魔力を試みれ。此れは常にクリーチャーに貴方の全ての命令に従う事を強制"
+"します。彼らはもっと早く働く及び眠る出来ない。呪文は続けて有効化された儘様"
+"に、沢山のお金が必要だ。"
 
 #. Level Tulipscent information
 #: guitext:178
@@ -1896,7 +1904,9 @@ msgid ""
 "A Tentacle has joined your dungeon. These rare little creatures enjoy to be "
 "in water and their spine can even pierce the most solid armours and paralyse "
 "your enemies! Marvellous!"
-msgstr "テンタクルは貴方のダンジョンを入った。これ等の稀なクリーチャーは水が好き、背骨は最も頑丈な鎧も突き刺さる及び敵を痺れさせる！素晴らしい！"
+msgstr ""
+"テンタクルは貴方のダンジョンを入った。これ等の稀なクリーチャーは水が好き、背"
+"骨は最も頑丈な鎧も突き刺さる及び敵を痺れさせる！素晴らしい！"
 
 #. Level Bonus 1 objective
 #: guitext:179
@@ -1905,7 +1915,9 @@ msgid ""
 "You have entered this realm to gain a creature for your further efforts. You "
 "got the creature from start, so you must only keep it safe. And the only way "
 "to make this place safe is to kill every hero in the realm."
-msgstr "クリーチャーを得る為に此の国土を入った。同氏を開始から得られた。従って、其れを守るだけでいいのです。行う唯一の方法は、全ての勇者を殺す事だ。"
+msgstr ""
+"クリーチャーを得る為に此の国土を入った。同氏を開始から得られた。従って、其れ"
+"を守るだけでいいのです。行う唯一の方法は、全ての勇者を殺す事だ。"
 
 #: guitext:180 guitext:181 guitext:182 guitext:183 guitext:184 guitext:185
 #: guitext:186 guitext:187 guitext:188 guitext:189 guitext:190 guitext:191
@@ -2051,21 +2063,26 @@ msgctxt "Creature spell"
 msgid ""
 "Freeze: Changes the target creature to ice. It is then in suspended "
 "animation and can be shattered with a well-aimed blow."
-msgstr "凍結: 対象のクリーチャーを氷に変える。 其れは中断されたアニメーションに成り、良く狙った一撃で粉砕する事が出来る。[26.8]"
+msgstr ""
+"凍結: 対象のクリーチャーを氷に変える。 其れは中断されたアニメーションに成り、"
+"良く狙った一撃で粉砕する事が出来る。[26.8]"
 
 #: guitext:228
 msgctxt "Creature spell"
 msgid ""
 "Armour: This lowers the amount of damage a creature takes each time it is "
 "hit, and provides complete immunity to electric shocks."
-msgstr "鎧: クリーチャーが攻撃を受ける度に受ける損傷量が減少し、雷撃の飛散損傷に対する完全な耐性が得られ。[26.1]"
+msgstr ""
+"鎧: クリーチャーが攻撃を受ける度に受ける損傷量が減少し、雷撃の飛散損傷に対す"
+"る完全な耐性が得られ。[26.1]"
 
 #: guitext:229
 msgctxt "Creature spell"
 msgid ""
 "Lightning: A powerful magical weapon with electric attack. Casts a bolt of "
 "lighting from the creature."
-msgstr "雷撃: 電気の攻撃を持つ強力な魔法武器。 落雷をクリーチャーから放つ。[26.13]"
+msgstr ""
+"雷撃: 電気の攻撃を持つ強力な魔法武器。 落雷をクリーチャーから放つ。[26.13]"
 
 #: guitext:230
 msgctxt "Creature spell"
@@ -2084,21 +2101,26 @@ msgctxt "Creature spell"
 msgid ""
 "Sight: Allows the creature to temporarily increase its awareness and notice "
 "the invisible."
-msgstr "照準: 一時的に意識を高め、目に見えないクリーチャーを見る事が可能にする。"
+msgstr ""
+"照準: 一時的に意識を高め、目に見えないクリーチャーを見る事が可能にする。"
 
 #: guitext:233
 msgctxt "Creature spell"
 msgid ""
 "Missile: A simple spell that sends a screaming magic reptile at the "
 "invaders. Very disconcerting."
-msgstr "ミサイル: 侵略者に悲鳴を上げる魔法爬虫類を送る簡単な呪文。 迚も不安だ。[26.15]"
+msgstr ""
+"ミサイル: 侵略者に悲鳴を上げる魔法爬虫類を送る簡単な呪文。 迚も不安だ。"
+"[26.15]"
 
 #: guitext:234
 msgctxt "Creature spell"
 msgid ""
 "Grenade: Throws a powerful explosive at the approaching enemy. It can also "
 "bounce off walls and has the traditional delayed fuse."
-msgstr "手りゅう弾: 強力な爆発物を迫りくる敵に投げる。 又、壁に跳ね返る事が出来、伝統的な遅延導火線が有る。[26.9]"
+msgstr ""
+"手りゅう弾: 強力な爆発物を迫りくる敵に投げる。 又、壁に跳ね返る事が出来、伝統"
+"的な遅延導火線が有る。[26.9]"
 
 #: guitext:235
 msgctxt "Creature spell"
@@ -2112,14 +2134,18 @@ msgctxt "Creature spell"
 msgid ""
 "Speed: Speeds up the creature so that it can perform fighting and working "
 "tasks really quickly."
-msgstr "加速: クリーチャーの速力を上げて、戦闘と作業の任務を非常に迅速に実行出来る様にする。[26:21]"
+msgstr ""
+"加速: クリーチャーの速力を上げて、戦闘と作業の任務を非常に迅速に実行出来る様"
+"にする。[26:21]"
 
 #: guitext:237
 msgctxt "Creature spell"
 msgid ""
 "Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
 "enemy and your own creatures. The gas affects all who breathe it."
-msgstr "毒の雲: 敵と自分のクリーチャーの両方に損傷を加える事が出来る有毒ガスの雲を形成する。 ガスは、其れを吸う全ての人に影響を及ぼす。[26.17]"
+msgstr ""
+"毒の雲: 敵と自分のクリーチャーの両方に損傷を加える事が出来る有毒ガスの雲を形"
+"成する。 ガスは、其れを吸う全ての人に影響を及ぼす。[26.17]"
 
 #: guitext:238
 msgctxt "Creature spell"
@@ -2150,14 +2176,17 @@ msgctxt "Creature spell"
 msgid ""
 "Illumination: Brings light onto darkness, allowing the creature to see but "
 "also be seen by others."
-msgstr "照明: 暗闇に光を当てる、クリーチャーは見る事が可能にするだけでなく、他にも目に見えるに成る。"
+msgstr ""
+"照明: 暗闇に光を当てる、クリーチャーは見る事が可能にするだけでなく、他にも目"
+"に見えるに成る。"
 
 #: guitext:243
 msgctxt "Creature spell"
 msgid ""
 "Flight: Causes the creature to take off from the ground and attack creatures "
 "from the air."
-msgstr "飛行: クリーチャーは地面から離陸させ、空から攻撃する事が可能にする。[26.7]"
+msgstr ""
+"飛行: クリーチャーは地面から離陸させ、空から攻撃する事が可能にする。[26.7]"
 
 #: guitext:244
 msgctxt "Creature spell"
@@ -2167,7 +2196,8 @@ msgstr "ひょう: 雹を作成する。[26.10]"
 #: guitext:245
 msgctxt "Creature spell"
 msgid ""
-"Slow: Slows down the target creature, making its attacks and movement delayed."
+"Slow: Slows down the target creature, making its attacks and movement "
+"delayed."
 msgstr "減速: 対象の速力を下げる、其の攻撃と移動を遅らせる。[26.20]"
 
 #: guitext:246
@@ -2183,14 +2213,16 @@ msgid ""
 "Word of Power: Causes rings of demonic energy to emanate from the creature's "
 "body and inflicts massive damage on the vicinity. Very effective against "
 "crowded hordes of enemies, also pushes them back."
-msgstr "言霊: クリーチャーの体から悪魔のエネルギーの輪を放ち、周囲に大損傷を加える。 敵の群れに対して非常に効果的で有り、其れを押し戻す。[26.24]"
+msgstr ""
+"言霊: クリーチャーの体から悪魔のエネルギーの輪を放ち、周囲に大損傷を加える。 "
+"敵の群れに対して非常に効果的で有り、其れを押し戻す。[26.24]"
 
 #: guitext:248
 msgctxt "Creature spell"
 msgid ""
 "Heal: When this is cast, the creature is massively healed. Also, any nearby "
 "creatures are healed by a quarter."
-msgstr "治癒: クリーチャーを大分治す。[26.11]"
+msgstr "自然治癒: クリーチャーを大分治す。[26.11]"
 
 #: guitext:249
 msgctxt "Creature spell"
@@ -2218,12 +2250,12 @@ msgctxt "Creature spell"
 msgid ""
 "Hand to Hand: The basic battle ability that allows to attack the enemy with "
 "either bare hands or a sword."
-msgstr "肉弾戦: 基本的な戦闘能力。素手でも剣でも敵を攻撃する事が可能にする。[25.3]"
+msgstr ""
+"肉弾戦: 基本的な戦闘能力。素手でも剣でも敵を攻撃する事が可能にする。[25.3]"
 
 #: guitext:253
 msgctxt "Creature spell"
-msgid ""
-"Fart: A close range gas attack that only damages enemy creatures."
+msgid "Fart: A close range gas attack that only damages enemy creatures."
 msgstr "放屁: 敵のクリーチャーにのみ損傷を加える近距離ガス攻撃。[26.17.1]"
 
 #: guitext:254
@@ -2239,7 +2271,9 @@ msgid ""
 "Disease: Fired at a foe, gives them a Disease which is then spread to other "
 "creatures. The infected are slowly dying and can only be healed in the "
 "Temple."
-msgstr "疫病: 敵に伝染病を与え。 感染したクリーチャーはゆっくり死ぬ、神殿でのみ治す事が出来ます。[26.3]"
+msgstr ""
+"疫病: 敵に伝染病を与え。 感染したクリーチャーはゆっくり死ぬ、神殿でのみ治す事"
+"が出来ます。[26.3]"
 
 #: guitext:256
 msgctxt "Creature spell"
@@ -2247,7 +2281,9 @@ msgid ""
 "Chicken: Turns enemy into chicken for a while. The enemy isn't able to "
 "attack but has the same strength and thus won't be as easy to kill as a "
 "normal chicken."
-msgstr "呪い: 敵を一時的にニワトリに変える。 敵は攻撃する事は出来ないが、同じ強さで有る何故なら、通常のニワトリ程簡単に殺す事は出来ない。[26.2]"
+msgstr ""
+"呪い: 敵を一時的にニワトリに変える。 敵は攻撃する事は出来ないが、同じ強さで有"
+"る何故なら、通常のニワトリ程簡単に殺す事は出来ない。[26.2]"
 
 #: guitext:257
 msgctxt "Creature spell"
@@ -2600,13 +2636,13 @@ msgstr "影: 各クリーチャーが投影できる影の数。左クリック�
 #: guitext:314
 msgctxt "In-game interface description"
 msgid ""
-"View Type: Swap between perspective views. Default view has warped walls "
-"and can be rotated. Disable the warp effect for clean lines. Forced perspective "
+"View Type: Swap between perspective views. Default view has warped walls and "
+"can be rotated. Disable the warp effect for clean lines. Forced perspective "
 "can only be rotated 90 degrees and changes the viewing angle. LMB toggle."
 msgstr ""
-"表示方式: 表示方式を切り替える。基本な表示は壁がグラグラしており、360度で回転させる。"
-"きれいな線を得るには、反り効果を無効にする。固定の表示は各方向に90度ずつだけ回転できる、"
-"視野角をまっすぐにする。左クリックで切り替え。"
+"表示方式: 表示方式を切り替える。基本な表示は壁がグラグラしており、360度で回転"
+"させる。きれいな線を得るには、反り効果を無効にする。固定の表示は各方向に90度"
+"ずつだけ回転できる、視野角をまっすぐにする。左クリックで切り替え。"
 
 #: guitext:315
 #, fuzzy
@@ -2750,12 +2786,12 @@ msgstr "More..."
 #: guitext:334
 msgctxt "In-game message"
 msgid "Level completed - press Escape to continue"
-msgstr "レベル終了－続けるには Escキーを押せ。"
+msgstr "レベル終了－続けるにはEscキーを押せ。"
 
 #: guitext:335
 msgctxt "In-game message"
 msgid "You have been defeated. Press Space to restart."
-msgstr "お前は、ぶざまにも敗北した。 再度挑むのなら スペースキーを押せ。"
+msgstr "お前は、ぶざまにも敗北した。 再度挑むのならスペースキーを押せ。"
 
 #: guitext:336
 msgctxt "On-screen message"
@@ -4476,10 +4512,9 @@ msgstr "支配: クリーチャーを直接操作できる。左クリックで�
 #: guitext:648
 msgctxt "Keeper spell description"
 msgid ""
-"Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. "
-"[18.2]"
+"Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
 msgstr ""
-"インプ製造: ダンジョン内に新しいインプを作り出す。左クリックで選択。 [18.2]"
+"インプ製造: ダンジョン内に新しいインプを作り出す。左クリックで選択。"
 
 #: guitext:649
 msgctxt "Keeper spell description"
@@ -5347,7 +5382,9 @@ msgstr "すべてを失くしたその時は、シンジケートウォーズで
 #: guitext:807
 msgctxt "Easter egg"
 msgid "Armoured Knights who have true grit, Roast more quickly on a spit."
-msgstr "鎧を着けたナイトには真の勇気が宿っている、つばを吐きかけいつも以上の早業で串刺しにしてあぶるがよい。"
+msgstr ""
+"鎧を着けたナイトには真の勇気が宿っている、つばを吐きかけいつも以上の早業で串"
+"刺しにしてあぶるがよい。"
 
 #: guitext:808
 msgctxt "Easter egg"
@@ -5399,7 +5436,9 @@ msgctxt "Easter egg"
 msgid ""
 "Your tunnels will be dark and cold, And no place for a Knight of old, Even "
 "if he claims he's bold."
-msgstr "お前のダンジョンは暗く冷たく、いかに大胆不敵を自称していようとも、老ナイトのいるような場所ではない。"
+msgstr ""
+"お前のダンジョンは暗く冷たく、いかに大胆不敵を自称していようとも、老ナイトの"
+"いるような場所ではない。"
 
 #: guitext:818
 msgctxt "Easter egg"
@@ -5422,7 +5461,9 @@ msgstr "善人がお前の宝を狙ったら、楽しみながら狩り立て殺
 msgctxt "Easter egg"
 msgid ""
 "Protect your gold and Dungeon Heart, And slap your minions till they fart."
-msgstr "財宝とダンジョンハートを守り抜け。そして手下に活を入れよ、奴らが思わず屁をこくまで。"
+msgstr ""
+"財宝とダンジョンハートを守り抜け。そして手下に活を入れよ、奴らが思わず屁をこ"
+"くまで。"
 
 #: guitext:822
 msgctxt "Easter egg"
@@ -5464,7 +5505,8 @@ msgctxt "In-game hint message"
 msgid ""
 "Imps are the lifeblood of your dungeon. Like blood, they must be allowed to "
 "circulate."
-msgstr "インプはお前のダンジョンの命の源なり。それは血のごとく、循環しているに違いな"
+msgstr ""
+"インプはお前のダンジョンの命の源なり。それは血のごとく、循環しているに違いな"
 "い。"
 
 #: guitext:830
@@ -5472,49 +5514,62 @@ msgctxt "In-game hint message"
 msgid ""
 "Feeling mean? Set your minions to imprison and when your cells are full, "
 "spend some time torturing..."
-msgstr "気分が悪い？ 手下どもを投獄するがよい。牢が満員の時は、しばらく拷問して過ごせ。"
+msgstr ""
+"気分が悪い？ 手下どもを投獄するがよい。牢が満員の時は、しばらく拷問して過ご"
+"せ。"
 
 #: guitext:831
 msgctxt "In-game hint message"
 msgid ""
 "If your creatures get unhappy, slap some sense into them. They'll soon "
 "realise how lucky they are."
-msgstr "手下クリーチャーが不幸を感じていたら、活を入れてやれ。じきに連中は自分たちの幸運に気づくであろう。"
+msgstr ""
+"手下クリーチャーが不幸を感じていたら、活を入れてやれ。じきに連中は自分たちの"
+"幸運に気づくであろう。"
 
 #: guitext:832
 msgctxt "In-game hint message"
 msgid ""
 "The underworld is your domain and the adventurers come to steal it. Never "
 "show pity, even when the intruders are defenceless and pathetic."
-msgstr "お前の領地たる地底世界を、冒険者どもは奪いにやってくる。決して同情するな、たとえ侵入者どもが身を守る力もなく哀れを誘おうとも。"
+msgstr ""
+"お前の領地たる地底世界を、冒険者どもは奪いにやってくる。決して同情するな、た"
+"とえ侵入者どもが身を守る力もなく哀れを誘おうとも。"
 
 #: guitext:833
 msgctxt "In-game hint message"
 msgid ""
 "Compassion is the hallmark of the good Keeper. But good Keepers never win. "
 "Only evil ones."
-msgstr "哀れみは良きキーパーの証明なり。しかし良きキーパーが勝利することはない。勝利するには邪悪であらねば。"
+msgstr ""
+"哀れみは良きキーパーの証明なり。しかし良きキーパーが勝利することはない。勝利"
+"するには邪悪であらねば。"
 
 #: guitext:834
 msgctxt "In-game hint message"
 msgid ""
 "There's never a moment to waste. Already the bravest of the brave are "
 "queuing up to enter your dungeon. So stop reading this and get going."
-msgstr "一瞬たりとも無駄にはできぬ。すでに勇者の中の勇者がお前のダンジョンへ入ろうと列をなしている。こんなものを読んでいないで、早く行け。"
+msgstr ""
+"一瞬たりとも無駄にはできぬ。すでに勇者の中の勇者がお前のダンジョンへ入ろうと"
+"列をなしている。こんなものを読んでいないで、早く行け。"
 
 #: guitext:835
 msgctxt "In-game hint message"
 msgid ""
 "Build fast. You'll want the biggest possible welcoming committee ready for "
 "the intruders."
-msgstr "建築を急げ。できるだけ大きな歓迎委員会を組織して、侵入者どもを迎えたいであろう？"
+msgstr ""
+"建築を急げ。できるだけ大きな歓迎委員会を組織して、侵入者どもを迎えたいであろ"
+"う？"
 
 #: guitext:836
 msgctxt "In-game hint message"
 msgid ""
 "Keep your Imps digging. There are always surprises to be found deep in the "
 "earth."
-msgstr "インプに掘り続けさせろ。地中の奥深くでは、えてして驚くようなものが見つかる。"
+msgstr ""
+"インプに掘り続けさせろ。地中の奥深くでは、えてして驚くようなものが見つかる。"
 
 #: guitext:837
 msgctxt "In-game hint message"
@@ -5532,7 +5587,6 @@ msgid ""
 "Foolish is the Keeper who sells all his rooms and refuses to pay his "
 "creatures."
 msgstr "部屋を売り払い手下クリーチャーに給料を払わないキーパーは愚かだ。"
-""
 
 #: guitext:840
 msgctxt "Menu interface item"
@@ -5798,8 +5852,8 @@ msgid ""
 "heroes hidden in the caverns."
 msgstr ""
 "この王国を獲得せんとするおまえの前に、 相対する２人のダンジョンキーパーの勢力"
-"が 立ちはだかっている。 完全な制覇のために、 目に映る敵の全てを抹殺せよ。 洞"
-"窟に潜む勇者の集団にも気をつけろ。"
+"が立ちはだかっている。 完全な制覇のために、 目に映る敵の全てを抹殺せよ。 洞窟"
+"に潜む勇者の集団にも気をつけろ。"
 
 #. DD Level Kari-Mar first objective
 #: guitext:893
@@ -5809,7 +5863,7 @@ msgid ""
 "destroy him and take what is rightfully yours. Great riches lie in the "
 "caverns around the land; explore to gain more power."
 msgstr ""
-"この王国はすでに 他のキーパーによって支配されている。 支配者を打ち砕き、 この"
+"この王国はすでに他のキーパーによって支配されている。 支配者を打ち砕き、 この"
 "地のあらゆる資源を奪え。 周囲の洞窟には巨万の富が眠っている。 更なる力を得る"
 "ために探索せよ。"
 
@@ -5821,8 +5875,8 @@ msgid ""
 "Dungeon Keepers you must battle with to claim supremacy. Keep an eye out for "
 "any rogue bands of heroes waiting to ambush a careless Keeper."
 msgstr ""
-"このダンジョンを制覇するためには、 ３人のダンジョンキーパーを 倒さなければな"
-"らない。 キーパーを待ち伏せ攻撃してくる 冒険者どもにも 気を付けろ。"
+"このダンジョンを制覇するためには、 ３人のダンジョンキーパーを倒さなければなら"
+"ない。 キーパーを待ち伏せ攻撃してくる 冒険者どもにも 気を付けろ。"
 
 #. DD Level Pladitz waypoint objective
 #: guitext:895
@@ -5832,9 +5886,9 @@ msgid ""
 "riddance to them and their sad, happy lives. Now seize your chance and "
 "attack your rival Keeper. Domination awaits."
 msgstr ""
-"この土地の王と その従者の一団は 死んで横たわっている。 彼らのその悲しくも幸せ"
-"な 人生に対する厄介払いである。 今こそチャンスをつかみ 敵キーパーを攻撃せ"
-"よ。 制覇が待っているぞ。"
+"この土地の王とその従者の一団は死んで横たわっている。 彼らのその悲しくも幸せな"
+"人生に対する厄介払いである。 今こそチャンスをつかみ敵キーパーを攻撃せよ。 制"
+"覇が待っているぞ。"
 
 #. DD Level Pladitz first objective
 #: guitext:896
@@ -5844,9 +5898,9 @@ msgid ""
 "Lord of the Land has constructed his own dungeon between you to halt your "
 "conquest. Destroy him and the enemy Keeper to reign supreme."
 msgstr ""
-"おまえの他にもこの王国を狙っている 敵キーパーがいる。 しかも都合の悪いこと"
-"に、 この地のロードは 外敵の征服を阻む強大なダンジョンを すでに建築してい"
-"る。 ロードと敵キーパーを倒し 覇権を手に入れよ。"
+"おまえの他にもこの王国を狙っている敵キーパーがいる。 しかも都合の悪いこと"
+"に、 この地のロードは外敵の征服を阻む強大なダンジョンをすでに建築している。 "
+"ロードと敵キーパーを倒し覇権を手に入れよ。"
 
 #. DD Level Pladitz waypoint objective
 #: guitext:897
@@ -5866,7 +5920,7 @@ msgid ""
 "gain more power. Keep an eye out for any loathsome heroes who may try to "
 "thwart your progress."
 msgstr ""
-"力を得るためにも、 更なる力を探索せねばならぬ。 おまえの行く手を妨げる 極悪勇"
+"力を得るためにも、 更なる力を探索せねばならぬ。 おまえの行く手を妨げる極悪勇"
 "者どもには気をつけろ。"
 
 #. DD Level Daka-Gorn first objective
@@ -5876,8 +5930,8 @@ msgid ""
 "Beware Keeper. This realm is infested with the sickly goodness of heroes and "
 "fairies. Hunt them down and feed them their own entrails."
 msgstr ""
-"この王国はメソメソした 弱い勇者どもと妖精に 汚染されている。 奴らのハラワタを"
-"ひきずり出し、 それを口に突っ込んでやれ。"
+"この王国はメソメソした弱い勇者どもと妖精に汚染されている。 奴らのハラワタをひ"
+"きずり出し、 それを口に突っ込んでやれ。"
 
 #. DD Level Morkardar first objective
 #: guitext:900
@@ -5886,8 +5940,8 @@ msgid ""
 "Your opponent for this realm has foolishly challenged your superior skill. "
 "Such disrespect should be punished so make an example of his insolence."
 msgstr ""
-"この王国には、 力の差もわきまえず、 愚かにもおまえに挑んでくる 敵キーパーがい"
-"る。 そのような不敬な輩は 見せしめとして 罰せられるべきである。"
+"この王国には、 力の差もわきまえず、 愚かにもおまえに挑んでくる敵キーパーがい"
+"る。 そのような不敬な輩は見せしめとして罰せられるべきである。"
 
 #. DD Level Morkardar information soon after start
 #: guitext:901
@@ -5906,8 +5960,8 @@ msgid ""
 "A foolish challenger stands between you and total dominance. Annihilate his "
 "forces and feed his body to your ravenous minions."
 msgstr ""
-"完全制覇の前に 愚かな挑戦者が立ちはだかっている。 奴の軍を全滅させ、 その体を"
-"おまえの飢えた手下に 食わせてやれ。"
+"完全制覇の前に愚かな挑戦者が立ちはだかっている。 奴の軍を全滅させ、 その体を"
+"おまえの飢えた手下に食わせてやれ。"
 
 #. DD Level Daka-Gorn information after AP reached
 #: guitext:903
@@ -5917,8 +5971,8 @@ msgid ""
 "this land. Tread carefully Keeper and rid the land of goodness once and for "
 "all."
 msgstr ""
-"この土地を支配する 勇者の城の壁の向こうから 足音が聞こえる。 一歩一歩勇者ども"
-"を踏みつけ、 善良な心を この土地から根こそぎ 拭い去ってしまえ。"
+"この土地を支配する勇者の城の壁の向こうから足音が聞こえる。 一歩一歩勇者どもを"
+"踏みつけ、 善良な心をこの土地から根こそぎ拭い去ってしまえ。"
 
 #. DD Level Netzcaro first objective
 #: guitext:904
@@ -5928,8 +5982,8 @@ msgid ""
 "down it's walls and let your creatures feast on the heroes within."
 msgstr ""
 "この王国の勇者の要塞は、 かつて強大であった。 だが今は朽ち果て弱っている。 さ"
-"あ、このチャンスに壁を打ち砕き、 中の勇者どもに おまえのクリーチャーをくれて"
-"やれ。"
+"あ、このチャンスに壁を打ち砕き、 中の勇者どもにおまえのクリーチャーをくれてや"
+"れ。"
 
 #. DD Level Netzcaro information after AP reached
 #: guitext:905
@@ -5938,8 +5992,8 @@ msgid ""
 "This realm will be a test of your cunning and deviousness. Your dungeon has "
 "been fortified with seven steel doors to aid you in your conquest."
 msgstr ""
-"この王国はおまえのずるがしこさと 残虐さを試すものとなりそうだ。７枚の鉄のドア"
-"で防御を固めたダンジョンが おまえの征服を助けるであろう。"
+"この王国はおまえのずるがしこさと残虐さを試すものとなりそうだ。７枚の鉄のドア"
+"で防御を固めたダンジョンがおまえの征服を助けるであろう。"
 
 #. DD Level Netzcaro objective after AP reached
 #: guitext:906
@@ -5949,8 +6003,8 @@ msgid ""
 "boost. You can now construct Bridges that enable you to traverse water and "
 "fire."
 msgstr ""
-"キーパーよ、おめでとう。 この水薬の入った瓶は、 おまえの研究員らにとって 大き"
-"な助力となるであろう。 これで水と火を渡れる橋を 建てることができる。"
+"キーパーよ、おめでとう。 この水薬の入った瓶は、 おまえの研究員らにとって大き"
+"な助力となるであろう。 これで水と火を渡れる橋を建てることができる。"
 
 #. DD Level Belial information soon after start
 #: guitext:907
@@ -5959,8 +6013,8 @@ msgid ""
 "Food is scarce in this land and the only Hatchery available to you is inside "
 "a hero dungeon. Find this food before your creatures turn against you."
 msgstr ""
-"この土地は食料に乏しく、 ニワトリ小屋は 勇者のダンジョンの中にしかない。 ク"
-"リーチャーどもが 反逆をおこす前に ニワトリ小屋を占領せよ。"
+"この土地は食料に乏しく、 ニワトリ小屋は勇者のダンジョンの中にしかない。 ク"
+"リーチャーどもが反逆をおこす前にニワトリ小屋を占領せよ。"
 
 #. DD Level Belial information after getting vampire
 #: guitext:908
@@ -5970,9 +6024,9 @@ msgid ""
 "demands revenge for his imprisonment. His anger will make him a valuable "
 "asset to your army of evil."
 msgstr ""
-"残忍な勇者の集団によって 石の墓へ閉じこめられたバンパイアを救い出した。 奴は"
-"勇者どもへの復讐に燃えている。 奴の怒りはおまえの悪の力に 大いに助けとなるで"
-"あろう。"
+"残忍な勇者の集団によって石の墓へ閉じこめられたバンパイアを救い出した。 奴は勇"
+"者どもへの復讐に燃えている。 奴の怒りはおまえの悪の力に大いに助けとなるであろ"
+"う。"
 
 #. DD Level Batezek first objective
 #: guitext:909
@@ -5981,8 +6035,8 @@ msgid ""
 "You are surrounded on all sides by valiant heroes so show them the true "
 "meaning of evil and terror."
 msgstr ""
-"果敢な勇者どもに まわり全てを囲まれている。 奴らに悪と恐怖の本当の意味を 思い"
-"知らせてやれ。"
+"果敢な勇者どもにまわり全てを囲まれている。 奴らに悪と恐怖の本当の意味を思い知"
+"らせてやれ。"
 
 #. DD Level Batezek objective after cleaning all good creatures
 #: guitext:910
@@ -5991,8 +6045,8 @@ msgid ""
 "The Lord of the Land has sent his fiercest warriors against you. Show them "
 "no mercy and flay them alive."
 msgstr ""
-"この土地のロードは もっとも残忍な兵士を送り込んできた。 容赦なくそいつらを半"
-"殺しにしろ。"
+"この土地のロードはもっとも残忍な兵士を送り込んできた。 容赦なくそいつらを半殺"
+"しにしろ。"
 
 #. DD Level Benetzaron first objective
 #: guitext:911
@@ -6021,7 +6075,7 @@ msgid ""
 "Choices, choices Keeper. Choose your path wisely. Some routes are more "
 "perilous than others ..."
 msgstr ""
-"選択せよ、キーパーよ。 自らの道を賢く選べ。 いくつかの経路は 他の経路より危険"
+"選択せよ、キーパーよ。 自らの道を賢く選べ。 いくつかの経路は他の経路より危険"
 "である・・・・"
 
 #. DD Level Caddis Fell objective after good destroyed
@@ -6052,8 +6106,8 @@ msgid ""
 "Pound him into the ground and then destroy the rival Keeper to achieve total "
 "domination."
 msgstr ""
-"この土地のロードは ウサギを可愛がっているような女々しい奴だ。 ロードを地面に"
-"叩きつけ、 完全制覇のために敵キーパーを倒せ。"
+"この土地のロードはウサギを可愛がっているような女々しい奴だ。 ロードを地面に叩"
+"きつけ、 完全制覇のために敵キーパーを倒せ。"
 
 #. DD Level Kanasko first objective
 #: guitext:917
@@ -6074,8 +6128,8 @@ msgid ""
 "Destroy his mighty fortress and wipe the smile from his face before your "
 "creatures turn against you."
 msgstr ""
-"アバタールは幸福の絶頂で 朗らかな気分に浸り、 ひどく惨めである。 奴の土地の食"
-"料は乏しく、 使えるニワトリ小屋は 奴のダンジョンの中にのみある。 クリーチャー"
+"アバタールは幸福の絶頂で朗らかな気分に浸り、 ひどく惨めである。 奴の土地の食"
+"料は乏しく、 使えるニワトリ小屋は奴のダンジョンの中にのみある。 クリーチャー"
 "が反逆する前に、 この強力な要塞を破壊し、 奴の顔から笑いを剥ぎとるのだ。"
 
 #. DD Level Belial objective after AP reached
@@ -6121,7 +6175,7 @@ msgctxt "In-game message"
 msgid ""
 "Well done, Keeper. The Mistress you have discovered is an excellent prize."
 msgstr ""
-"よくやった！キーパー。 発見したダークミストレスは 素晴らしく役に立つだろう。"
+"よくやった！キーパー。 発見したダークミストレスは素晴らしく役に立つだろう。"
 
 #. DD Levels generic information after finding a Bile Demon
 #: guitext:924
@@ -6130,7 +6184,7 @@ msgid ""
 "The Bile Demon you have rescued will be a valuable but hungry asset to your "
 "dungeon. Make sure your Hatchery can satisfy his voracious appetite."
 msgstr ""
-" かつて助けたバイル・デーモンは 役に立つが、 おまえのダンジョンを狙ってもい"
+" かつて助けたバイル・デーモンは役に立つが、 おまえのダンジョンを狙ってもい"
 "る。 奴の貪欲を常に満たすよう注意しろ。"
 
 #. DD Level Dixaroc first objective
@@ -6148,14 +6202,14 @@ msgstr ""
 #: guitext:926
 msgctxt "In-game message"
 msgid "You have found some Imps who consider it a great honour to serve you."
-msgstr "おまえを崇拝しているインプを 数匹見つけた。"
+msgstr "おまえを崇拝しているインプを数匹見つけた。"
 
 #. DD Levels Dixaroc information after finding Bile Demons
 #: guitext:927
 msgctxt "In-game message"
 msgid ""
 "You have discovered a group of Bile Demons who will aid you in your fight."
-msgstr "バイル・デーモンの一団を 発見した。 戦闘時におまえを助けるだろう。"
+msgstr "バイル・デーモンの一団を発見した。 戦闘時におまえを助けるだろう。"
 
 #. DD Level Dixaroc information just after PLAYER1 destroyed
 #: guitext:928
@@ -6166,7 +6220,7 @@ msgid ""
 "secrets to strengthen your powers."
 msgstr ""
 "この女々しいキーパーを倒したことで、 使えるボーナスがついてきた。 橋を建てら"
-"れる能力が身に付いた。 より深く掘り進めれば、 力を強大にする秘密が 数多く見つ"
+"れる能力が身に付いた。 より深く掘り進めれば、 力を強大にする秘密が数多く見つ"
 "かるかもしれない。"
 
 #. DD Level Dixaroc information some time after PLAYER1 destroyed
@@ -6192,7 +6246,7 @@ msgid ""
 "Before you lies the Wizard's domain. Defeat him and you will regain your "
 "powers."
 msgstr ""
-"魔法使いの領域で 戦いに敗れ永久に横たわる前に、 奴を殺せ。 そうすれば力を回復"
+"魔法使いの領域で戦いに敗れ永久に横たわる前に、 奴を殺せ。 そうすれば力を回復"
 "できるであろう。"
 
 #. DD Level Dixaroc objective after wizard is dead
@@ -6204,7 +6258,7 @@ msgid ""
 "what you are made of."
 msgstr ""
 "おまえの魔法の力は回復したぞ。 これでやっと、 あの馬鹿どもに本当のおまえの力"
-"を 見せてやれる"
+"を見せてやれる"
 
 #. DD Level Caddis Fell objective after AP reached
 #: guitext:933
@@ -6214,9 +6268,8 @@ msgid ""
 "control of your Vampire and use him to find and kill the Lord of the Land. "
 "If you succeed, the Vampire will join you in the next realm."
 msgstr ""
-"黒い影がこの土地に忍び寄っている。 今が攻撃の時だ。 バンパイアを使い この土地"
-"のロードを見つけて殺せ。 うまくいけば バンパイアは次の王国でも参戦するだろ"
-"う。"
+"黒い影がこの土地に忍び寄っている。 今が攻撃の時だ。 バンパイアを使いこの土地"
+"のロードを見つけて殺せ。 うまくいけばバンパイアは次の王国でも参戦するだろう。"
 
 #. DD Level Belial information after winning
 #: guitext:934
@@ -6228,7 +6281,7 @@ msgstr ""
 "おまえの業績は伝説的だ。 おまえの悪徳とずる賢さこそは、 世代を越えた恐怖の物"
 "語となるであろう。"
 
-#: guitext:935 
+#: guitext:935
 msgctxt "Door name"
 msgid "Secret Door"
 msgstr "秘密のドア"
@@ -6236,10 +6289,11 @@ msgstr "秘密のドア"
 #: guitext:936
 msgctxt "Door description"
 msgid ""
-"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
-"opening. RMB zoom."
+"Secret Door: This door remains hidden to enemies unless they observe it "
+"closely or see it opening. RMB zoom."
 msgstr ""
-"秘密のドア： このドアは、敵がよく観察するか、ドアが開くのを見ない限り、敵には見えない。 右クリックで表示する。"
+"秘密のドア： このドアは、敵がよく観察するか、ドアが開くのを見ない限り、敵には"
+"見えない。 右クリックで表示する。"
 
 #: guitext:937
 msgctxt "Game event description"
@@ -6309,7 +6363,9 @@ msgctxt "In-game interface description"
 msgid ""
 "Armour: Part of the damage which won't affect creature health. The higher "
 "the number, the larger part of damage is discarded."
-msgstr "鎧: クリーチャーの体力に障る無い損傷の一部。 数値が高い程、損傷のもっと部分を相殺されます。"
+msgstr ""
+"鎧: クリーチャーの体力に障る無い損傷の一部。 数値が高い程、損傷のもっと部分を"
+"相殺されます。"
 
 #: guitext:950
 msgctxt "In-game interface description"
@@ -6323,8 +6379,9 @@ msgstr "忠誠: 敵に因る洗脳に対して抵抗。"
 
 #: guitext:952
 msgctxt "In-game interface description"
-msgid "Research Skill: How fast the creature works in Library. The higher the Skill level, "
-"the better the creature's performance."
+msgid ""
+"Research Skill: How fast the creature works in Library. The higher the Skill "
+"level, the better the creature's performance."
 msgstr "研究技能: このクリーチャーが研究をこなす能力。"
 
 #: guitext:953
@@ -6373,7 +6430,9 @@ msgctxt "In-game interface description"
 msgid ""
 "Weight: Mass of the creature. Some people say overweight can lead to heart "
 "attack."
-msgstr "体量: クリーチャーの質量。 幾つかの人々は、太りすぎが心臓発作に繋がる可能性の有ると言います。"
+msgstr ""
+"体量: クリーチャーの質量。 幾つかの人々は、太りすぎが心臓発作に繋がる可能性の"
+"有ると言います。"
 
 #: guitext:960
 msgctxt "Keeper spell name"
@@ -6391,35 +6450,27 @@ msgctxt "Keeper spell description"
 msgid ""
 "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
 "Just don't hold them forever or they may get irritated."
-msgstr "悪魔の手: 貴方のクリーチャーを手持ち為れ能力。 余りにも長くそれ等を保持しないで。然うした場合、彼らは怒る可能性が有ります。"
+msgstr ""
+"悪魔の手: 貴方のクリーチャーを手持ち為れ能力。 余りにも長くそれ等を保持しない"
+"で。然うした場合、彼らは怒る可能性が有ります。"
 
-#: guitext:963
-#, fuzzy
+#: guitext:964
 msgctxt "Keeper spell description"
 msgid ""
 "Slap: Makes your creatures work harder, for some time. Your creatures take "
 "some damage from each slap they receive."
 msgstr ""
-"手下どもをもっと働かせたければ、 悪魔の手をクリーチャー上に置き、 右クリック"
-"で活を入れよ。 ただし、活を入れられるたびにクリーチャーは ダメージを受けるで"
-"あろう。"
-
-#: guitext:964
-msgctxt "Keeper spell description"
-msgid "Slap: Makes your creatures work harder, for some time. "
-"Your creatures take some damage from each slap they receive."
-msgstr "平手打ち: 貴方のクリーチャーをしばらくの間、もっと頑張らせます。 貴方のクリーチャーは、受け取った平手打ちから其々損傷を受けます。"
+"平手打ち: 貴方のクリーチャーをしばらくの間、もっと頑張らせます。 貴方のクリー"
+"チャーは、受け取った平手打ちから其々損傷を受けます。"
 
 #: guitext:965
 msgctxt "In-game interface description"
-msgid ""
-"Health: How much health points the creature has left to lose."
+msgid "Health: How much health points the creature has left to lose."
 msgstr "体力: クリーチャーの残りの体カ点数。"
 
 #: guitext:966
 msgctxt "In-game interface description"
-msgid ""
-"Health: The maximum amount of health points for this creature."
+msgid "Health: The maximum amount of health points for this creature."
 msgstr "体力: クリーチャーの最高な体カ点数。"
 
 #: guitext:967
@@ -6594,8 +6645,7 @@ msgstr "観点を90度間隔で又はに廻る"
 
 #: guitext:1005
 msgctxt "Dungeon special decription"
-msgid ""
-"Mysterious Box: There's no telling what this will do."
+msgid "Mysterious Box: There's no telling what this will do."
 msgstr "不思議な箱: 此れの作用は不明だ。"
 
 #: guitext:1006
@@ -6605,8 +6655,12 @@ msgstr "参加しているプレイヤーのマップ版はホストの版とは
 
 #: guitext:1007
 msgctxt "In-game interface description"
-msgid "Display Resolution: Switch to the next configured display resolution. LMB toggle. RMB display current resolution."
-msgstr "画面解像度: 次の設定された画面解像度に切り替わる。左クリックで切り替え。右クリックで現行の設定を示す。"
+msgid ""
+"Display Resolution: Switch to the next configured display resolution. LMB "
+"toggle. RMB display current resolution."
+msgstr ""
+"画面解像度: 次の設定された画面解像度に切り替わる。左クリックで切り替え。右ク"
+"リックで現行の設定を示す。"
 
 #: guitext:1008
 msgctxt "In-game interface item"
@@ -6750,14 +6804,12 @@ msgstr "取壊しの罠"
 
 #: guitext:1037
 msgctxt "Trap description"
-msgid ""
-"Demolition Trap: An explosive with unrivaled destructive power."
+msgid "Demolition Trap: An explosive with unrivaled destructive power."
 msgstr "取壊しの罠: 無類な破壊力がある爆薬。"
 
 #: guitext:1038
 msgctxt "Trap description"
-msgid ""
-"Sentry Trap: Stands guard and shoots at enemies in sight."
+msgid "Sentry Trap: Stands guard and shoots at enemies in sight."
 msgstr "防御の罠: 見張ると視界内の敵を撃つ。"
 
 #: guitext:1039 guitext:1040
@@ -6780,7 +6832,8 @@ msgctxt "Creature name"
 msgid "Time Mage"
 msgstr "タイムメイジ"
 
-#: guitext:1044 guitext:1045 guitext:1046 guitext:1047 guitext:1048 guitext:1049
+#: guitext:1044 guitext:1045 guitext:1046 guitext:1047 guitext:1048
+#: guitext:1049
 msgctxt "Unused"
 msgid "Moo7"
 msgstr ""
@@ -6793,7 +6846,9 @@ msgstr "岩の形成。"
 #: guitext:1051
 msgctxt "Slab description"
 msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
-msgstr "基盤岩： 誰の所有でもない岩石の地面。それを占領できられない、それ上に建てられない。"
+msgstr ""
+"基盤岩： 誰の所有でもない岩石の地面。それを占領できられない、それ上に建てられ"
+"ない。"
 
 #: guitext:1052
 msgctxt "Slab description"
@@ -6834,22 +6889,22 @@ msgstr "照準"
 #: guitext:1059
 msgctxt "Dungeon special decription"
 msgid "Heal All: Restore full health to all your creatures."
-msgstr "全員回復：すべてのクリーチャーが回復します。"
+msgstr "全員回復： 手下の全クリーチャーを全回復する。"
 
 #: guitext:1060
 msgctxt "Dungeon special decription"
 msgid "Increase Gold: Generates gold in your treasury."
-msgstr "ゴールド増加：財宝でゴールドを生成します。"
+msgstr "ゴールド獲得： 金庫に財宝を生成する。"
 
 #: guitext:1061
 msgctxt "Dungeon special decription"
 msgid "Make Unhappy: All creatures of the enemy become upset."
-msgstr "不幸にする： 敵のすべてのクリーチャーが不幸になります。"
+msgstr "不幸化： 敵の全クリーチャーが不幸になる。"
 
 #: guitext:1062
 msgctxt "Dungeon special decription"
 msgid "Weaken Walls: Destroys the fortifications of enemy walls."
-msgstr "壁を弱める：敵の城壁の防御施設を破壊します。"
+msgstr "壁弱体化： 敵の壁の防御施設を破壊する。"
 
 #: guitext:1063
 msgctxt "Game controls"
@@ -6869,34 +6924,44 @@ msgstr "傾きをリセット"
 #: guitext:1066
 msgctxt "Creature spell"
 msgid "Heal Monster: The target creature is massively healed."
-msgstr ""
+msgstr "治癒: 対象のクリーチャーを大分治す。"
 
 #: guitext:1067
 msgctxt "Creature spell"
 msgid "Cleanse: Cures all negative effects inflicted on the creature."
-msgstr "クレンズ：クリーチャーに与えられたすべての負の効果を治療します。"
+msgstr "自浄： クリーチャーに与えられている全ての悪影響を治す。"
 
 #: guitext:1068
 msgctxt "Creature spell"
 msgid "Cleanse Monster: Cures all negative effects inflicted on target creature."
-msgstr ""
+msgstr "浄化: 対象のクリーチャーに与えられている全ての悪影響を治す。"
 
 #: guitext:1069
 msgctxt "Keeper spell description"
 msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
-msgstr ""
+msgstr "魔法の盾: 対象に向けて発射された魔法の武器が攻撃者に跳ね返る。"
 
 #: guitext:1070
 msgctxt "Keeper spell description"
 msgid "Levitate: Causes the target creature to take off from the ground and attack creatures from the air or cross lava unharmed."
-msgstr ""
+msgstr "空中浮揚: 対象のクリーチャーは地面から離陸させ、空から攻撃する及び無傷で溶岩を越える事が可能にする。"
 
 #: guitext:1071
 msgctxt "Keeper spell description"
 msgid "Sight: Allows the target creature to temporarily increase its awareness and notice the invisible."
+msgstr "照準: 対象の一時的に意識を高め、目に見えないクリーチャーを見る事が可能にする。"
+
+#: guitext:1072
+msgctxt "Keeper spell name"
+msgid "Recruit Tunneller"
 msgstr ""
 
-#: guitext:1072 guitext:1073 guitext:1074 guitext:1075
+#: guitext:1073
+msgctxt "Keeper spell description"
+msgid "Recruit Tunneller: Summon a new Tunneller anywhere in your dungeon."
+msgstr ""
+
+#: guitext:1074 guitext:1075
 msgctxt "Unused"
 msgid "Moo8"
 msgstr ""
@@ -6904,9 +6969,9 @@ msgstr ""
 #: guitext:1076
 msgctxt "Door name"
 msgid "Midas Door"
-msgstr ""
+msgstr "ミダースのドア"
 
 #: guitext:1077
 msgctxt "Door description"
 msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
-msgstr ""
+msgstr "ミダースのドア： 完全に不滅であるために、所有者の財宝を消費する。"
