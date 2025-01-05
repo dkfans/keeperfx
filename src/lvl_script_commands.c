@@ -6070,8 +6070,8 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                     }
                 }
                 value->chars[3] = -1;
-                value->ulonglongs[1] = number_value;
             }
+            value->ulonglongs[1] = number_value;
             break;
         }
         case 6: // Artifact
