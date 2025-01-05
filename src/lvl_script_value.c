@@ -501,7 +501,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       crstat = creature_stats_get(val2);
       if (creature_stats_invalid(crstat))
           break;
-      crstat->strength = saturate_set_unsigned(val3, 8);
+      crstat->strength = saturate_set_unsigned(val3, 16);
       break;
   case Cmd_SET_CREATURE_ARMOUR:
       crstat = creature_stats_get(val2);
