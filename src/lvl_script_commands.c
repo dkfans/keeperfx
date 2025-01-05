@@ -6076,9 +6076,8 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                     }
                 }
                 value->chars[3] = -1;
+                value->ulonglongs[1] = number_value;
             }
-            unsigned long long *new = (unsigned long long*)&value->ulongs[1];
-            *new = number_value;
             break;
         }
         case 6: // Artifact
@@ -6211,8 +6210,7 @@ static void set_power_configuration_process(struct ScriptContext *context)
             break;
         case 5: // Castability
         {
-            unsigned long long *value = (unsigned long long*)&context->value->ulongs[1];
-            unsigned long long flag = *value;
+            unsigned long long flag = context->value->ulonglongs[1];
             if (context->value->chars[3] == 1)
             {
                 set_flag(powerst->can_cast_flags, flag);
