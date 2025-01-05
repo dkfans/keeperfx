@@ -197,7 +197,7 @@ typedef unsigned long RoomRole;
 typedef unsigned short RoomIndex;
 /** Type which stores slab kind index. */
 typedef unsigned char SlabKind;
-/** Type which stores SplK_* values. */
+/** Type which stores spell kind index. */
 typedef unsigned short SpellKind;
 /** Type which stores PwrK_* values. */
 typedef unsigned short PowerKind;

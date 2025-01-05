@@ -33,6 +33,7 @@
 #include "thing_stats.h"
 #include "config_campaigns.h"
 #include "config_creature.h"
+#include "config_magic.h"
 #include "config_terrain.h"
 #include "config_lenses.h"
 #include "creature_control.h"
@@ -40,6 +41,7 @@
 #include "creature_states.h"
 #include "creature_states_mood.h"
 #include "player_data.h"
+#include "console_cmd.h"
 #include "custom_sprites.h"
 #include "lvl_script_lib.h"
 #include "post_inc.h"
@@ -71,7 +73,7 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"SIZE",               19},
   {"ATTACKPREFERENCE",   20},
   {"PAY",                21},
-  {"HEROVSKEEPERCOST",   22},//removed
+  {"HEROVSKEEPERCOST",   22}, // Removed.
   {"SLAPSTOKILL",        23},
   {"CREATURELOYALTY",    24},
   {"LOYALTYLEVEL",       25},
@@ -86,13 +88,14 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"LAIROBJECT",         34},
   {"PRISONKIND",         35},
   {"TORTUREKIND",        36},
+  {"SPELLIMMUNITY",      37},
   {NULL,                  0},
   };
 
 const struct NamedCommand creatmodel_properties_commands[] = {
   {"BLEEDS",             1},
-  {"UNAFFECTED_BY_WIND", 2},
-  {"IMMUNE_TO_GAS",      3},
+  {"UNAFFECTED_BY_WIND", 2}, // Deprecated, but retained in NamedCommand for backward compatibility.
+  {"IMMUNE_TO_GAS",      3}, // Deprecated, but retained in NamedCommand for backward compatibility.
   {"HUMANOID_SKELETON",  4},
   {"PISS_ON_DEAD",       5},
   {"FLYING",             7},
@@ -104,7 +107,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"LORD",              13},
   {"SPECTATOR",         14},
   {"EVIL",              15},
-  {"NEVER_CHICKENS",    16},
+  {"NEVER_CHICKENS",    16}, // Deprecated, but retained in NamedCommand for backward compatibility.
   {"IMMUNE_TO_BOULDER", 17},
   {"NO_CORPSE_ROTTING", 18},
   {"NO_ENMHEART_ATTCK", 19},
@@ -113,7 +116,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"INSECT",            22},
   {"ONE_OF_KIND",       23},
   {"NO_IMPRISONMENT",   24},
-  {"IMMUNE_TO_DISEASE", 25},
+  {"IMMUNE_TO_DISEASE", 25}, // Deprecated, but retained in NamedCommand for backward compatibility.
   {"ILLUMINATED",       26},
   {"ALLURING_SCVNGR",   27},
   {"NO_RESURRECT",      28},
@@ -122,7 +125,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"FAT",               31},
   {"NO_STEAL_HERO",     32},
   {"PREFER_STEAL",      33},
-  {"EVENTFUL_DEATH",   34},
+  {"EVENTFUL_DEATH",    34},
   {NULL,                 0},
   };
 
@@ -601,8 +604,6 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           break;
       case 28: // PROPERTIES
           crstat->bleeds = false;
-          crstat->affected_by_wind = true;
-          crstat->immune_to_gas = false;
           crstat->humanoid_creature = false;
           crstat->piss_on_dead = false;
           crstat->flying = false;
@@ -619,11 +620,11 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               n++;
               break;
             case 2: // UNAFFECTED_BY_WIND
-              crstat->affected_by_wind = false;
+              set_flag(crstat->immunity_flags, CSAfF_Wind);
               n++;
               break;
             case 3: // IMMUNE_TO_GAS
-              crstat->immune_to_gas = true;
+              set_flag(crstat->immunity_flags, CSAfF_PoisonCloud);
               n++;
               break;
             case 4: // HUMANOID_SKELETON
@@ -671,7 +672,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               n++;
               break;
             case 16: // NEVER_CHICKENS
-              crconf->model_flags |= CMF_NeverChickens;
+              set_flag(crstat->immunity_flags, CSAfF_Chicken);
               n++;
               break;
             case 17: // IMMUNE_TO_BOULDER
@@ -708,7 +709,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 n++;
                 break;
             case 25: // IMMUNE_TO_DISEASE
-                crconf->model_flags |= CMF_NeverSick;
+                set_flag(crstat->immunity_flags, CSAfF_Disease);
                 n++;
                 break;
             case 26: // ILLUMINATED
@@ -852,6 +853,44 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
+        case 37: // SPELLIMMUNITY
+        {
+            // Backward compatibility check.
+            TbBool unaffected_by_wind = flag_is_set(crstat->immunity_flags, CSAfF_Wind);
+            TbBool immune_to_gas = flag_is_set(crstat->immunity_flags, CSAfF_PoisonCloud);
+            TbBool never_chickens = flag_is_set(crstat->immunity_flags, CSAfF_Chicken);
+            TbBool immune_to_disease = flag_is_set(crstat->immunity_flags, CSAfF_Disease);
+            crstat->immunity_flags = 0; // Clear flags, this is necessary for partial config if modder wants to remove all flags.
+            // Backward compatibility fix.
+            if (unaffected_by_wind) { set_flag(crstat->immunity_flags, CSAfF_Wind); }
+            if (immune_to_gas) { set_flag(crstat->immunity_flags, CSAfF_PoisonCloud); }
+            if (never_chickens) { set_flag(crstat->immunity_flags, CSAfF_Chicken); }
+            if (immune_to_disease) { set_flag(crstat->immunity_flags, CSAfF_Disease); }
+            while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                if (parameter_is_number(word_buf))
+                {
+                    k = atoi(word_buf);
+                    crstat->immunity_flags = k;
+                    n++;
+                }
+                else
+                {
+                    k = get_id(spell_effect_flags, word_buf);
+                    if (k > 0)
+                    {
+                        set_flag(crstat->immunity_flags, k);
+                        n++;
+                    }
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+            }
+            break;
+        }
       case ccr_comment:
           break;
       case ccr_endOfFile:
