@@ -126,7 +126,9 @@ struct ScriptValue {
     char chars[32];
     short shorts[16];
     long longs[8];
+    long long longlongs[4];
     unsigned long ulongs[8];
+    unsigned long long ulonglongs[4];
     unsigned char* ustrs[8];
     char* strs[8];
   };
