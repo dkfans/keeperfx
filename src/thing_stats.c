@@ -560,6 +560,30 @@ long compute_creature_attack_range(long base_param, long luck, unsigned short cr
 }
 
 /**
+ * Computes damage of a spell with damage over time.
+ * @param spell_damage Base Damage.
+ * @param caster_level Caster Level.
+ * @param caster_owner Caster Owner.
+ */
+HitPoints compute_creature_spell_damage_over_time(HitPoints spell_damage, CrtrExpLevel caster_level, PlayerNumber caster_owner)
+{
+    struct Dungeon* dungeon;
+    if (caster_level >= CREATURE_MAX_LEVEL)
+    {
+        caster_level = CREATURE_MAX_LEVEL-1;
+    }
+    HitPoints max_damage = spell_damage + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * spell_damage * caster_level) / 100;
+    // Apply modifier.
+    if (!player_is_neutral(caster_owner))
+    {
+        dungeon = get_dungeon(caster_owner);
+        unsigned short modifier = dungeon->modifier.spell_damage;
+        max_damage = (max_damage * modifier) / 100;
+    }
+    return max_damage;
+}
+
+/**
  * Computes work value, taking creature level into account.
  * The job value is an efficiency of doing a job by a creature.
  * @param base_param Base value of the parameter.
@@ -657,7 +681,7 @@ long calculate_correct_creature_armour(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_armour(crstat->armour, cctrl->explevel);
-    if (creature_affected_by_spell(thing, SplK_Armour))
+    if (creature_under_spell_effect(thing, CSAfF_Armour))
         max_param = (320 * max_param) / 256;
     // This limit makes armour absorb up to 80% of damage even with the buff.
     if (max_param > 204)
@@ -700,11 +724,11 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
     struct Dungeon* dungeon;
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long speed = crstat->base_speed;
-    if ((creature_affected_by_slap(thing)) || (creature_affected_by_spell(thing, SplK_TimeBomb)))
+    if ((creature_affected_by_slap(thing)) || (creature_under_spell_effect(thing, CSAfF_Timebomb)))
         speed *= 2;
-    if (creature_affected_by_spell(thing, SplK_Speed))
+    if (creature_under_spell_effect(thing, CSAfF_Speed))
         speed *= 2;
-    if (creature_affected_by_spell(thing, SplK_Slow))
+    if (creature_under_spell_effect(thing, CSAfF_Slow))
         speed /= 2;
     // Apply modifier.
     if (!is_neutral_thing(thing))
@@ -881,11 +905,12 @@ TbBool update_relative_creature_health(struct Thing* creatng)
 }
 
 TbBool set_creature_health_to_max_with_heal_effect(struct Thing* thing)
-{
+{ // Hardcoded function for 'SpcKind_HealAll'. TODO: Refactor when specials are made more configurable.
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (cctrl->max_health > thing->health)
+    if (cctrl->max_health > thing->health) // 'SpcKind_HealAll' bypasses immunity.
     {
-        apply_spell_effect_to_thing(thing, SplK_Heal, 1);
+        cctrl->spell_aura = -TngEffElm_Heal;
+        cctrl->spell_aura_duration = 50;
         thing->health = cctrl->max_health;
     }
     return true;
@@ -1094,28 +1119,32 @@ GoldAmount calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_
 
 long compute_creature_weight(const struct Thing* creatng)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    long eye_height = get_creature_eye_height(creatng);
-    long weight = eye_height >> 2;
-    weight += (crstat->hunger_fill + crstat->lair_size + 1) * cctrl->explevel;
-    if (!crstat->affected_by_wind)
+    if (!creature_control_invalid(cctrl))
     {
-        weight = weight * 3 / 2;
+        struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+        long eye_height = get_creature_eye_height(creatng);
+        long weight = eye_height >> 2;
+        weight += (crstat->hunger_fill + crstat->lair_size + 1) * cctrl->explevel;
+        if (creature_is_immune_to_spell_effect(creatng, CSAfF_Wind))
+        {
+            weight = weight * 3 / 2;
+        }
+        if ((get_creature_model_flags(creatng) & CMF_Trembling) != 0)
+        {
+            weight = weight * 3 / 2;
+        }
+        if ((get_creature_model_flags(creatng) & CMF_IsDiptera) != 0)
+        {
+            weight = weight / 2;
+        }
+        if (crstat->can_go_locked_doors == true)
+        {
+            weight = weight / 10;
+        }
+        return weight;
     }
-    if ((get_creature_model_flags(creatng) & CMF_Trembling) != 0)
-    {
-        weight = weight * 3 / 2;
-    }
-    if ((get_creature_model_flags(creatng) & CMF_IsDiptera) != 0)
-    {
-        weight = weight / 2;
-    }
-    if (crstat->can_go_locked_doors == true)
-    {
-        weight = weight / 10;
-    }
-    return weight;
+    return 0;
 }
 
 const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveStatId clstat_id)

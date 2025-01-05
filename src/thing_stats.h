@@ -88,6 +88,7 @@ long project_creature_attack_spell_damage(long base_param, long luck, unsigned s
 long compute_creature_attack_melee_damage(long base_param, long luck, unsigned short crlevel, struct Thing* thing);
 long compute_creature_attack_spell_damage(long base_param, long luck, unsigned short crlevel, struct Thing* thing);
 long compute_creature_attack_range(long base_param, long luck, unsigned short crlevel);
+HitPoints compute_creature_spell_damage_over_time(HitPoints spell_damage, CrtrExpLevel caster_level, PlayerNumber caster_owner);
 long compute_creature_work_value(long base_param, long efficiency, unsigned short crlevel);
 long compute_creature_max_health(HitPoints base_health, unsigned short crlevel, PlayerNumber plyr_idx);
 long compute_creature_max_strength(long base_param, unsigned short crlevel);
