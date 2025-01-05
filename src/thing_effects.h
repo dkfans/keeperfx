@@ -48,11 +48,9 @@ enum ThingHitTypes {
 enum AreaAffectTypes {
     AAffT_None = 0,
     AAffT_GasDamage,
-    AAffT_Unkn2,
-    AAffT_GasSlow,
+    AAffT_GasDamageEffect,
+    AAffT_GasEffect,
     AAffT_WOPDamage,
-    AAffT_GasSlowDamage,
-    AAffT_GasDisease,
 };
 
 enum ThingEffectKind {

@@ -165,52 +165,31 @@ TbResult script_use_power_on_creature_matching_criterion(PlayerNumber plyr_idx, 
 TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel, long criteria, long fmcl_bytes)
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
-    if (thing_is_invalid(thing)) {
-        SYNCDBG(5,"No matching player %d creature of model %d (%s) found to use spell on.",(int)plyr_idx,(int)crmodel, creature_code_name(crmodel));
+    if (thing_is_invalid(thing))
+    {
+        SYNCDBG(5, "No matching player %d creature of model %d (%s) found to use spell on.", (int)plyr_idx, (int)crmodel, creature_code_name(crmodel));
         return Lb_FAIL;
     }
     SpellKind spkind = (fmcl_bytes >> 8) & 255;
-    const struct SpellConfig* spconf = get_spell_config(spkind);
-
-    if (spconf->caster_affected ||
-            (spkind == SplK_Freeze) || (spkind == SplK_Slow) || // These two should be also marked at configs somehow?
-            ( (spkind == SplK_Disease) && ((get_creature_model_flags(thing) & CMF_NeverSick) == 0) ) ||
-            ( (spkind == SplK_Chicken) && ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0) ) )
-    {
+    struct SpellConfig *spconf = get_spell_config(spkind);
+    if (!creature_is_immune_to_spell_effect(thing, spconf->spell_flags))
+    { // Immunity is handled in 'apply_spell_effect_to_thing', but this command plays sounds, so check for it.
         if (thing_is_picked_up(thing))
         {
-            SYNCDBG(5,"Found creature to cast the spell on but it is being held.");
+            SYNCDBG(5, "Found creature to cast the spell on but it is being held.");
             return Lb_FAIL;
         }
-        unsigned short sound;
-        if (spconf->caster_affected)
-        {
-            sound = spconf->caster_affect_sound;
-        }
-        else if ( (spkind == SplK_Freeze) || (spkind == SplK_Slow) )
-        {
-            sound = 50;
-        }
-        else if (spkind == SplK_Disease)
-        {
-            sound = 59;
-        }
-        else if (spkind == SplK_Chicken)
-        {
-            sound = 109;
-        }
-        else
-        {
-            sound = 0;
-        }
         long splevel = fmcl_bytes & 255;
-        thing_play_sample(thing, sound, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
-        apply_spell_effect_to_thing(thing, spkind, splevel);
-        if (spkind == SplK_Disease)
+        if (spconf->caster_affect_sound)
+        {
+            thing_play_sample(thing, spconf->caster_affect_sound + UNSYNC_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+        }
+        apply_spell_effect_to_thing(thing, spkind, splevel, plyr_idx);
+        if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
         {
             struct CreatureControl *cctrl;
             cctrl = creature_control_get_from_thing(thing);
-            cctrl->disease_caster_plyridx = game.neutral_player_num;
+            cctrl->disease_caster_plyridx = game.neutral_player_num; // Does not spread.
         }
         return Lb_SUCCESS;
     }
@@ -522,7 +501,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       crstat = creature_stats_get(val2);
       if (creature_stats_invalid(crstat))
           break;
-      crstat->strength = saturate_set_unsigned(val3, 8);
+      crstat->strength = saturate_set_unsigned(val3, 16);
       break;
   case Cmd_SET_CREATURE_ARMOUR:
       crstat = creature_stats_get(val2);
@@ -557,17 +536,24 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           crstat->bleeds = val4;
           break;
       case 2: // UNAFFECTED_BY_WIND
-          if (val4)
+          if (val4 >= 1)
           {
-              crstat->affected_by_wind = 0;
+              set_flag(crstat->immunity_flags, CSAfF_Wind);
           }
           else
           {
-              crstat->affected_by_wind = 1;
+              clear_flag(crstat->immunity_flags, CSAfF_Wind);
           }
           break;
       case 3: // IMMUNE_TO_GAS
-          crstat->immune_to_gas = val4;
+          if (val4 >= 1)
+          {
+              set_flag(crstat->immunity_flags, CSAfF_PoisonCloud);
+          }
+          else
+          {
+              clear_flag(crstat->immunity_flags, CSAfF_PoisonCloud);
+          }
           break;
       case 4: // HUMANOID_SKELETON
           crstat->humanoid_creature = val4;
@@ -647,11 +633,11 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 16: // NEVER_CHICKENS
           if (val4 >= 1)
           {
-              set_flag(crconf->model_flags,CMF_NeverChickens);
+              set_flag(crstat->immunity_flags, CSAfF_Chicken);
           }
           else
           {
-              clear_flag(crconf->model_flags,CMF_NeverChickens);
+              clear_flag(crstat->immunity_flags, CSAfF_Chicken);
           }
           break;
       case 17: // IMMUNE_TO_BOULDER
@@ -739,11 +725,11 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 25: // NEVER_SICK
           if (val4 >= 1)
           {
-              set_flag(crconf->model_flags,CMF_NeverSick);
+              set_flag(crstat->immunity_flags, CSAfF_Disease);
           }
           else
           {
-              clear_flag(crconf->model_flags,CMF_NeverSick);
+              clear_flag(crstat->immunity_flags, CSAfF_Disease);
           }
           break;
       case 26: // ILLUMINATED
