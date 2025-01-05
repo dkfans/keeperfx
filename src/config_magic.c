@@ -469,7 +469,6 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
       spconf->caster_affected = 0;
       spconf->caster_affect_sound = 0;
       spconf->cast_at_thing = 0;
-      spconf->debuff = 0;
       spconf->shot_model = 0;
       spconf->cast_effect_model = 0;
       spconf->bigsym_sprite_idx = 0;
@@ -923,32 +922,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
     }
 #undef COMMAND_TEXT
   }
-  
   return true;
-}
-
-void load_debuffs() {
-    int count = 0;
-    for (int i = 0; i < game.conf.magic_conf.spell_types_count; ++i) {
-        struct SpellConfig *spconf = get_spell_config(i);
-        if (spconf->debuff == 1) {
-            ++count;
-        }
-    }
-    game.conf.magic_conf.debuff_count = count;
-    if (game.conf.magic_conf.debuff_count > 0) {
-        game.conf.magic_conf.debuffs = malloc(game.conf.magic_conf.debuff_count * sizeof(*game.conf.magic_conf.debuffs));
-        if (game.conf.magic_conf.debuffs == NULL) {
-            fprintf(stderr, "Memory allocation failed for debuffs\n");
-            exit(EXIT_FAILURE);
-        }
-        for (int i = 0, j = 0; i < game.conf.magic_conf.spell_types_count; ++i) {
-            struct SpellConfig *spconf = get_spell_config(i);
-            if (spconf->debuff == 1) {
-                game.conf.magic_conf.debuffs[j++] = i;
-            }
-        }
-    }
 }
 
 TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
