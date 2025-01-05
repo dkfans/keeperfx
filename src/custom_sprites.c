@@ -1380,7 +1380,7 @@ short get_icon_id(const char *name)
     if (0 == strcmp(name, "0"))
         return 0;
 
-    return -2; // -1 is used by SPELLBOOK_POSS etc
+    return bad_icon_id; // -1 is used by SPELLBOOK_POSS etc
 }
 
 short get_anim_id(const char *name, struct ObjectConfigStats *objst)

@@ -461,15 +461,13 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     k = get_icon_id(word_buf);
-                    if (k >= -1)
+                    if (k != bad_icon_id)
                     {
-                        objst->map_icon = k;
                         n++;
                     }
                 }
                 if (n <= 0)
                 {
-                    objst->map_icon = bad_icon_id;
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
                         COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
