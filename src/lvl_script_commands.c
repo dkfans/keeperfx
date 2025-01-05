@@ -6027,12 +6027,6 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
             value->longs[2] = atoi(new_value);
             break;
         }
-        case 10: // SymbolSprites
-        {
-            value->longs[1] = atoi(new_value);
-            value->longs[2] = atoi(scline->tp[3]);
-            break;
-        }
         case 5: // Castability
         {
             long long j;
@@ -6088,6 +6082,12 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                   number_value = k;
             }
             value->longs[2] = number_value;
+            break;
+        }
+        case 10: // SymbolSprites
+        {
+            value->longs[1] = atoi(new_value);
+            value->longs[2] = atoi(scline->tp[3]);
             break;
         }
         case 14: // Properties
