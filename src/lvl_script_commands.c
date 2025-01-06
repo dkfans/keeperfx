@@ -4225,7 +4225,8 @@ static void set_creature_configuration_process(struct ScriptContext* context)
 
 static void set_object_configuration_process(struct ScriptContext *context)
 {
-    struct ObjectConfigStats* objst = &game.conf.object_conf.object_cfgstats[context->value->longs[0]];
+    ThingModel model = context->value->longs[0];
+    struct ObjectConfigStats* objst = &game.conf.object_conf.object_cfgstats[model];
     switch (context->value->shorts[4])
     {
         case 2: // GENRE
@@ -4344,7 +4345,7 @@ static void set_object_configuration_process(struct ScriptContext *context)
             WARNMSG("Unsupported Object configuration, variable %d.", context->value->shorts[4]);
             break;
     }
-    update_all_object_stats();
+    update_all_objects_of_model(model);
 }
 
 static void display_timer_check(const struct ScriptLine *scline)
