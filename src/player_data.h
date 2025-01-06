@@ -175,8 +175,9 @@ struct PlayerInfo {
     unsigned char id_number;
     unsigned char is_active;
     short controlled_thing_idx;
-    long controlled_thing_creatrn;
+    GameTurn controlled_thing_creatrn;
     short thing_under_hand;
+    TbBool possession_lock;
     unsigned char view_mode;
     /** Pointer to the currently active camera. */
     struct Camera *acamera;

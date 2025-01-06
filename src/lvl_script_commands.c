@@ -2615,6 +2615,30 @@ static void add_heart_health_process(struct ScriptContext *context)
     }
 }
 
+static void lock_possession_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    if ((scline->np[1] < 0) || (scline->np[1] > 1))
+    {
+        SCRPTERRLOG("Invalid Possession lock value (%ld), use 0 / 1 for true / false", scline->np[0]);
+    }
+    value->chars[1] = scline->np[1];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void lock_possession_process(struct ScriptContext* context)
+{
+    struct PlayerInfo *player;
+    for (int plyridx = context->plr_start; plyridx < context->plr_end; plyridx++)
+    {
+        player = get_player(plyridx);
+        if (player_exists(player))
+        {
+            player->possession_lock = context->value->chars[1];
+        }
+    }
+}
+
 static void heart_lost_quick_objective_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
@@ -7655,6 +7679,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_TO_PLAYER_MODIFIER",            "PAN     ", Cmd_ADD_TO_PLAYER_MODIFIER, &add_to_player_modifier_check, &add_to_player_modifier_process},
   {"CHANGE_SLAB_TEXTURE",               "NNAa    ", Cmd_CHANGE_SLAB_TEXTURE , &change_slab_texture_check, &change_slab_texture_process},
   {"ADD_OBJECT_TO_LEVEL_AT_POS",        "ANNNpa  ", Cmd_ADD_OBJECT_TO_LEVEL_AT_POS, &add_object_to_level_at_pos_check, &add_object_to_level_at_pos_process},
+  {"LOCK_POSSESSION",                   "PN      ", Cmd_LOCK_POSSESSION, &lock_possession_check, &lock_possession_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
