@@ -1440,18 +1440,20 @@ short get_creature_control_action_inputs(void)
     if (player->controlled_thing_idx != 0)
     {
         short make_packet = right_button_released || is_key_pressed(KC_ESCAPE, KMod_DONTCARE);
+        struct Thing* thing = thing_get(player->controlled_thing_idx);
         if (!make_packet)
         {
-            struct Thing* thing = thing_get(player->controlled_thing_idx);
             TRACE_THING(thing);
-            if ((player->controlled_thing_creatrn != thing->creation_turn) || (!flag_is_set(thing->alloc_flags,TAlF_Exists)) || (thing->active_state == CrSt_CreatureUnconscious))
+            if ((player->controlled_thing_creatrn != thing->creation_turn) || (!flag_is_set(thing->alloc_flags, TAlF_Exists)) || (thing->active_state == CrSt_CreatureUnconscious))
+            {
                 make_packet = true;
+            }
         }
         if (make_packet)
         {
             right_button_released = 0;
             clear_key_pressed(KC_ESCAPE);
-            if (player->possession_lock == true)
+            if ((player->possession_lock == true) && thing_is_creature(thing))
             {
                 if (is_my_player(player))
                     play_non_3d_sample(119); //refusal
