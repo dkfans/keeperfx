@@ -1860,11 +1860,13 @@ TbBool cmd_player_colour(PlayerNumber plyr_idx, char * args)
     PlayerNumber id = get_player_number_for_command(pr2str);
     char * pr3str = strsep(&args, " ");
     char colour_idx = get_rid(cmpgn_human_player_options, pr3str);
-    if (colour_idx > -1)
+    if (id >= 0)
     {
-        struct PlayerInfo * player = get_player(plyr_idx);
-        set_players_packet_action(player, PckA_SetPlayerColour, id, colour_idx, 0, 0);
-        return true;
+        if (colour_idx >= 0)
+        {
+            set_player_colour(id, (unsigned char)colour_idx);
+            return true;
+        }
     }
     return false;
 }
