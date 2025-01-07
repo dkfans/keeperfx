@@ -1857,14 +1857,27 @@ TbBool cmd_speech_test(PlayerNumber plyr_idx, char * args)
 TbBool cmd_player_colour(PlayerNumber plyr_idx, char * args)
 {
     char * pr2str = strsep(&args, " ");
-    PlayerNumber id = get_player_number_for_command(pr2str);
+    PlayerNumber plyr_start = get_player_number_for_command(pr2str);
     char * pr3str = strsep(&args, " ");
     char colour_idx = get_rid(cmpgn_human_player_options, pr3str);
-    if (id >= 0)
+    if (plyr_start >= 0)
     {
         if (colour_idx >= 0)
         {
-            set_player_colour(id, (unsigned char)colour_idx);
+            PlayerNumber plyr_end;
+            if (plyr_start == ALL_PLAYERS)
+            {
+                plyr_start = PLAYER0;
+                plyr_end = PLAYER6;
+            }
+            else
+            {
+                plyr_end = plyr_start;
+            }
+            for (unsigned char plyr_id = plyr_start; plyr_id <= plyr_end; plyr_id++)
+            {
+                set_player_colour(plyr_id, (unsigned char)colour_idx);
+            }
             return true;
         }
     }
