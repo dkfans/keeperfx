@@ -21,7 +21,6 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 
@@ -400,7 +399,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
         for (int i = 0; i < TERRAIN_ITEMS_MAX; i++)
         {
             slabst = &game.conf.slab_conf.slab_cfgstats[i];
-            LbMemorySet(slabst->code_name, 0, COMMAND_WORD_LEN);
+            memset(slabst->code_name, 0, COMMAND_WORD_LEN);
             slabst->tooltip_stridx = GUIStr_Empty;
             slab_desc[i].name = slabst->code_name;
             slab_desc[i].num = i;
@@ -802,7 +801,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             if (i < game.conf.slab_conf.room_types_count)
             {
                 roomst = &game.conf.slab_conf.room_cfgstats[i];
-                LbMemorySet(roomst->code_name, 0, COMMAND_WORD_LEN);
+                memset(roomst->code_name, 0, COMMAND_WORD_LEN);
                 roomst->name_stridx = GUIStr_Empty;
                 roomst->tooltip_stridx = GUIStr_Empty;
                 roomst->creature_creation_model = 0;
@@ -1184,7 +1183,7 @@ TbBool load_terrain_config_file(const char *textname, const char *fname, unsigne
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
+    char* buf = (char*)calloc(len + 256, 1);
     if (buf == NULL)
         return false;
     // Loading file data
@@ -1216,7 +1215,7 @@ TbBool load_terrain_config_file(const char *textname, const char *fname, unsigne
             WARNMSG("Parsing %s file \"%s\" room blocks failed.",textname,fname);
     }
     //Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     return result;
 }
 

@@ -24,7 +24,6 @@
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
 #include "bflib_fileio.h"
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_planar.h"
 #include "bflib_bufrw.h"
@@ -417,9 +416,9 @@ void process_sound_heap(void)
 void free_sound_bank(struct SampleTable * samples, int sample_count) {
     if (samples) {
         for (int i = 0; i < sample_count; ++i) {
-            LbMemoryFree(samples[i].snd_buf);
+            free(samples[i].snd_buf);
         }
-        LbMemoryFree(samples);
+        free(samples);
     }
 }
 
@@ -494,7 +493,7 @@ struct SampleTable * parse_sound_file(TbFileHandle fileh, long * nsamples, long 
     } else if (LbFileSeek(fileh, directory->field_0, Lb_FILE_SEEK_BEGINNING) < 0) {
         return NULL;
     }
-    struct SampleTable * samples = (struct SampleTable *) LbMemoryAlloc(sizeof(struct SampleTable) * sample_count);
+    struct SampleTable * samples = (struct SampleTable *) calloc(sample_count, sizeof(struct SampleTable));
     struct SoundBankSample sample;
     for (int i = 0; i < sample_count; ++i) {
         if (LbFileSeek(fileh, directory->field_0 + (sizeof(sample) * i), Lb_FILE_SEEK_BEGINNING) < 0) {
@@ -507,7 +506,7 @@ struct SampleTable * parse_sound_file(TbFileHandle fileh, long * nsamples, long 
             free_sound_bank(samples, sample_count);
             return NULL;
         }
-        samples[i].snd_buf = (SndData) LbMemoryAlloc(sample.data_size);
+        samples[i].snd_buf = (SndData) calloc(sample.data_size, 1);
         if (!samples[i].snd_buf) {
             free_sound_bank(samples, sample_count);
             return NULL;

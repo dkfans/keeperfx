@@ -25,7 +25,6 @@
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
 #include "bflib_math.h"
-#include "bflib_memory.h"
 #include "bflib_planar.h"
 #include "bflib_render.h"
 #include "bflib_sprite.h"
@@ -5182,7 +5181,7 @@ void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cct
             stati = get_creature_state_with_task_completion(thing);
             if (!stati->blocks_all_state_changes)
             {
-                if ((cctrl->spell_flags & CSAfF_MadKilling) != 0)
+                if (creature_under_spell_effect(thing, CSAfF_MadKilling))
                 {
                     stati = &states[CrSt_MadKillingPsycho];
                 }
@@ -6848,8 +6847,8 @@ void draw_view(struct Camera *cam, unsigned char a2)
     long z = interpolated_cam_mappos_z;
 
     getpoly = poly_pool;
-    LbMemorySet(buckets, 0, sizeof(buckets));
-    LbMemorySet(poly_pool, 0, sizeof(poly_pool));
+    memset(buckets, 0, sizeof(buckets));
+    memset(poly_pool, 0, sizeof(poly_pool));
     if (map_volume_box.visible)
     {
         poly_pool_end_reserve(14);
@@ -6916,7 +6915,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
 static void clear_fast_bucket_list(void)
 {
     getpoly = poly_pool;
-    LbMemorySet(buckets, 0, sizeof(buckets));
+    memset(buckets, 0, sizeof(buckets));
 }
 
 static void draw_texturedquad_block(struct BucketKindTexturedQuad *txquad)
@@ -8300,7 +8299,7 @@ static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angl
             skip_h = kspr->FrameOffsH;
             for (i = fill_h; i > 0; i--)
             {
-                LbMemorySet(tmpbuf, 0, fill_w);
+                memset(tmpbuf, 0, fill_w);
                 tmpbuf += 256;
             }
             sprite_to_sbuff_xflip(sprite_data, &outbuf[256 * skip_h + skip_w], kspr->SHeight, 256);
@@ -8313,7 +8312,7 @@ static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angl
             skip_h = kspr->FrameOffsH;
             for (i = fill_h; i > 0; i--)
             {
-                LbMemorySet(tmpbuf, 0, fill_w);
+                memset(tmpbuf, 0, fill_w);
                 tmpbuf += 256;
             }
             sprite_to_sbuff(sprite_data, &outbuf[256 * skip_h + skip_w], kspr->SHeight, 256);
@@ -8346,7 +8345,7 @@ static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angl
             tmpbuf = outbuf;
             for (i = fill_h; i > 0; i--)
             {
-                LbMemorySet(tmpbuf, 0, fill_w);
+                memset(tmpbuf, 0, fill_w);
                 tmpbuf += 256;
             }
             sprite_to_sbuff_xflip(sprite_data, &outbuf[kspr->SWidth], kspr->SHeight, 256);
@@ -8356,7 +8355,7 @@ static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angl
             tmpbuf = outbuf;
             for (i = fill_h; i > 0; i--)
             {
-                LbMemorySet(tmpbuf, 0, fill_w);
+                memset(tmpbuf, 0, fill_w);
                 tmpbuf += 256;
             }
             sprite_to_sbuff(sprite_data, &outbuf[0], kspr->SHeight, 256);

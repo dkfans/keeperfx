@@ -21,7 +21,6 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "console_cmd.h"
@@ -101,6 +100,7 @@ static void load_effects(VALUE *value, unsigned short flags)
             CONDITIONAL_ASSIGN_INT(section,"ElementsCount" ,effcst->elements_count  );
             CONDITIONAL_ASSIGN_INT(section,"AlwaysGenerate",effcst->always_generate );
             CONDITIONAL_ASSIGN_INT(section,"HitType",effcst->effect_hit_type);
+            CONDITIONAL_ASSIGN_SPELL(section,"SpellEffect",effcst->spell_effect);
         }
     }
 }
@@ -230,6 +230,17 @@ TbBool load_effects_config(const char *conf_fname, unsigned short flags)
     }
     //Freeing and exiting
     return result;
+}
+
+/**
+ * Returns Code Name (name to use in script file) of given effect element model.
+ */
+const char* effect_element_code_name(ThingModel tngmodel)
+{
+    const char* name = get_conf_parameter_text(effectelem_desc, tngmodel);
+    if (name[0] != '\0')
+        return name;
+    return "INVALID";
 }
 
 /**

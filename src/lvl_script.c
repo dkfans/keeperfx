@@ -22,7 +22,6 @@
 #include "lvl_script.h"
 
 #include "globals.h"
-#include "bflib_memory.h"
 #include "player_instances.h"
 #include "player_data.h"
 #include "player_utils.h"
@@ -396,7 +395,7 @@ static void process_fx_line(struct ScriptFxLine *fx_line)
         {
             if (fx_line->effect != 0)
             {
-                create_used_effect_or_element(&fx_line->here, fx_line->effect, PLAYER_NEUTRAL);
+                create_used_effect_or_element(&fx_line->here, fx_line->effect, PLAYER_NEUTRAL, 0);
             }
         }
 
@@ -618,25 +617,25 @@ static int script_recognize_params(char **line, const struct CommandDesc *cmd_de
 static TbBool process_subfunc(char **line, struct ScriptLine *scline, const struct CommandDesc *cmd_desc, const struct CommandDesc *funcmd_desc, int *para_level, int src, int dst, long file_version)
 {
     struct CommandToken token;
-    struct ScriptLine* funscline = (struct ScriptLine*)LbMemoryAlloc(sizeof(struct ScriptLine));
+    struct ScriptLine* funscline = (struct ScriptLine*)calloc(sizeof(struct ScriptLine), 1);
     if (funscline == NULL) {
         SCRPTERRLOG("Can't allocate buffer to recognize line");
         return false;
     }
-    LbMemorySet(funscline, 0, sizeof(struct ScriptLine));
-    LbMemoryCopy(funscline->tcmnd, scline->tp[dst], MAX_TEXT_LENGTH);
+    memset(funscline, 0, sizeof(struct ScriptLine));
+    memcpy(funscline->tcmnd, scline->tp[dst], MAX_TEXT_LENGTH);
     char *nxt = get_next_token(*line, &token);
     if (token.type != TkOpen)
     {
         SCRPTERRLOG("Expecting (");
-        LbMemoryFree(funscline);
+        free(funscline);
         return false;
     }
     *line = nxt;
     int args_count = script_recognize_params(line, funcmd_desc, funscline, para_level, *para_level, file_version);
     if (args_count < 0)
     {
-        LbMemoryFree(funscline);
+        free(funscline);
         return false;
     }
     // Count valid args
@@ -646,7 +645,7 @@ static TbBool process_subfunc(char **line, struct ScriptLine *scline, const stru
         if (args_count < required)
         {
             SCRPTERRLOG("Not enough parameters for \"%s\", got only %d", funcmd_desc->textptr,(int)args_count);
-            LbMemoryFree(funscline);
+            free(funscline);
             return false;
         }
     }
@@ -673,7 +672,7 @@ static TbBool process_subfunc(char **line, struct ScriptLine *scline, const stru
                         // Values which do not support range
                         if (strcmp(funscline->tp[fi],"~") == 0) {
                             SCRPTERRLOG("Parameter %d of function \"%s\" within command \"%s\" does not support range", fi+1, funcmd_desc->textptr, scline->tcmnd);
-                            LbMemoryFree(funscline);
+                            free(funscline);
                             return false;
                         }
                         // Values of that type cannot define ranges, as we cannot interpret them
@@ -692,7 +691,7 @@ static TbBool process_subfunc(char **line, struct ScriptLine *scline, const stru
                         }
                         if (!script_command_param_to_number(chr, funscline, fi, false)) {
                             SCRPTERRLOG("Parameter %d of function \"%s\" within command \"%s\" has unexpected range end value; discarding command", fi+1, funcmd_desc->textptr, scline->tcmnd);
-                            LbMemoryFree(funscline);
+                            free(funscline);
                             return false;
                         }
                         ranges[ri].max = funscline->np[fi];
@@ -706,7 +705,7 @@ static TbBool process_subfunc(char **line, struct ScriptLine *scline, const stru
                         // Single value or first step of defining range
                         if (!script_command_param_to_number(chr, funscline, fi, false)) {
                             SCRPTERRLOG("Parameter %d of function \"%s\" within command \"%s\" has unexpected value; discarding command", fi+1, funcmd_desc->textptr, scline->tcmnd);
-                            LbMemoryFree(funscline);
+                            free(funscline);
                             return false;
                         }
                         if (funscline->np[fi] == '\0')
@@ -803,7 +802,7 @@ static TbBool process_subfunc(char **line, struct ScriptLine *scline, const stru
             SCRPTWRNLOG("Parameter value \"%s\" is a command which isn't supported as function", scline->tp[dst]);
             break;
     }
-    LbMemoryFree(funscline);
+    free(funscline);
     return true;
 }
 
@@ -827,7 +826,7 @@ static int script_recognize_params(char **line, const struct CommandDesc *cmd_de
         const struct CommandDesc *funcmd_desc;
         char* funline = *line;
         char funcmd_buf[MAX_TEXT_LENGTH];
-        LbMemorySet(funcmd_buf, 0, MAX_TEXT_LENGTH);
+        memset(funcmd_buf, 0, MAX_TEXT_LENGTH);
 
         if (reparse)
         {
@@ -914,14 +913,14 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
     const char *line_start = line;
     struct CommandToken token = { 0 };
     SCRIPTDBG(12,"Starting");
-    struct ScriptLine* scline = (struct ScriptLine*)LbMemoryAlloc(sizeof(struct ScriptLine));
+    struct ScriptLine* scline = (struct ScriptLine*)calloc(sizeof(struct ScriptLine), 1);
     if (scline == NULL)
     {
       SCRPTERRLOG("Can't allocate buffer to recognize line");
       return false;
     }
     int para_level = 0;
-    LbMemorySet(scline, 0, sizeof(struct ScriptLine));
+    memset(scline, 0, sizeof(struct ScriptLine));
     if (next_command_reusable > 0)
         next_command_reusable--;
 
@@ -933,7 +932,7 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
     if (token.type != TkCommand)
     {
         SCRPTERRLOG("Syntax error: Script command expected");
-        LbMemoryFree(scline);
+        free(scline);
         return false;
     }
     memcpy(scline->tcmnd, token.start, min((token.end - token.start), MAX_TEXT_LENGTH));
@@ -949,14 +948,14 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
         if (isalnum(scline->tcmnd[0])) {
           SCRPTERRLOG("Invalid command, '%s' (lev ver %ld)", scline->tcmnd, file_version);
         }
-        LbMemoryFree(scline);
+        free(scline);
         return false;
     }
     SCRIPTDBG(12,"Executing command %u",cmd_desc->index);
     // Handling comments
     if (cmd_desc->index == Cmd_REM)
     {
-        LbMemoryFree(scline);
+        free(scline);
         return false;
     }
     line = get_next_token(line, &token);
@@ -964,7 +963,7 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
     // selecting only preloaded/not preloaded commands
     if (script_is_preloaded_command(cmd_desc->index) != preloaded)
     {
-        LbMemoryFree(scline);
+        free(scline);
         return true;
     }
     int args_count;
@@ -980,7 +979,7 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
         {
             SCRPTERRLOG("Syntax error at \"%s\"", line_start);
             SCRPTERRLOG("   near - -      %*c", line - line_start, '^');
-            LbMemoryFree(scline);
+            free(scline);
             return false;
         }
     }
@@ -988,7 +987,7 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
     {
         SCRPTERRLOG("Syntax error: ( expected at \"%s\"", line_start);
         SCRPTERRLOG("   near - - - - - - -        %*c", line - line_start, '^');
-        LbMemoryFree(scline);
+        free(scline);
         return false;
     }
     if (args_count < COMMANDDESC_ARGS_COUNT)
@@ -997,7 +996,7 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
         if (args_count < required) // Required arguments have upper-case type letters
         {
             SCRPTERRLOG("Not enough parameters for \"%s\", got only %d", cmd_desc->textptr,(int)args_count);
-            LbMemoryFree(scline);
+            free(scline);
             return false;
         }
     }
@@ -1008,18 +1007,18 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
     if (token.type != TkEnd)
     {
         SCRPTERRLOG("Syntax error: Unexpected end of line");
-        LbMemoryFree(scline);
+        free(scline);
         return false;
     }
     script_add_command(cmd_desc, scline, file_version);
-    LbMemoryFree(scline);
+    free(scline);
     SCRIPTDBG(13,"Finished");
     return true;
 }
 
 short clear_script(void)
 {
-    LbMemorySet(&gameadd.script, 0, sizeof(struct LevelScript));
+    memset(&gameadd.script, 0, sizeof(struct LevelScript));
     gameadd.script.next_string = gameadd.script.strings;
     set_script_current_condition(CONDITION_ALWAYS);
     text_line_number = 1;
@@ -1029,7 +1028,7 @@ short clear_script(void)
 short clear_quick_messages(void)
 {
     for (long i = 0; i < QUICK_MESSAGES_COUNT; i++)
-        LbMemorySet(gameadd.quick_messages[i], 0, MESSAGE_TEXT_LEN);
+        memset(gameadd.quick_messages[i], 0, MESSAGE_TEXT_LEN);
     return true;
 }
 
@@ -1092,7 +1091,7 @@ static void parse_txt_data(char *script_data, long script_len)
       text_line_number++;
       buf += lnlen;
     }
-    LbMemoryFree(script_data);
+    free(script_data);
 }
 
 TbBool preload_script(long lvnum)
@@ -1163,7 +1162,7 @@ short load_script(long lvnum)
       text_line_number++;
       buf = p;
     }
-    LbMemoryFree(script_data);
+    free(script_data);
     if (gameadd.script.win_conditions_num == 0)
       WARNMSG("No WIN GAME conditions in script file.");
     if (get_script_current_condition() != CONDITION_ALWAYS)

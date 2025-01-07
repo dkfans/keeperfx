@@ -22,7 +22,6 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_sound.h"
-#include "bflib_memory.h"
 
 #include "slab_data.h"
 #include "room_data.h"
@@ -941,7 +940,7 @@ void place_slab_object(SlabCodedCoords slb_num, MapSubtlCoord stl_x,MapSubtlCoor
             if (sobj->isLight == 1)
             {
                 struct InitLight ilght;
-                LbMemorySet(&ilght,0,sizeof(struct InitLight));
+                memset(&ilght,0,sizeof(struct InitLight));
                 ilght.mappos.x.val = pos.x.val;
                 ilght.mappos.y.val = pos.y.val;
                 ilght.mappos.z.val = pos.z.val;

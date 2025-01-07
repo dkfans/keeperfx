@@ -30,7 +30,6 @@
 #include "globals.h"
 #include "custom_sprites.h"
 #include "bflib_video.h"
-#include "bflib_memory.h"
 #include "bflib_sprite.h"
 #include "bflib_mouse.h"
 #include "bflib_render.h"

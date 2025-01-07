@@ -20,7 +20,6 @@
 
 #include "bflib_basics.h"
 #include "bflib_math.h"
-#include "bflib_memory.h"
 #include "config_creature.h"
 #include "config_crtrstates.h"
 #include "config_effects.h"
@@ -124,6 +123,9 @@ const char *thing_class_and_model_name(int class_id, int model)
         break;
     case TCls_Effect:
         snprintf(name_buffer[bid], sizeof(name_buffer[0]), "%s effect", effect_code_name(model));
+        break;
+    case TCls_EffectElem:
+        snprintf(name_buffer[bid], sizeof(name_buffer[0]), "%s effect element", effect_element_code_name(model));
         break;
     case TCls_EffectGen:
         snprintf(name_buffer[bid], sizeof(name_buffer[0]), "%s effectgenerator", effectgenerator_code_name(model));
@@ -323,19 +325,16 @@ long compute_creature_max_health(HitPoints base_health, unsigned short crlevel, 
 /* Computes strength of a creature on given level. */
 long compute_creature_max_strength(long base_param, unsigned short crlevel)
 {
-    if (base_param <= 0)
-        return 0;
-    if (base_param > 60000)
-        base_param = 60000;
     if (crlevel >= CREATURE_MAX_LEVEL)
+    {
         crlevel = CREATURE_MAX_LEVEL-1;
+    }
     long max_param = base_param + (game.conf.crtr_conf.exp.strength_increase_on_exp * base_param * (long)crlevel) / 100;
-    long strength = saturate_set_unsigned(max_param, 15);
     if (flag_is_set(game.conf.rules.game.classic_bugs_flags, ClscBug_Overflow8bitVal))
     {
-        return min(strength, UCHAR_MAX+1); // DK1 limited shot damage to 256, not 255.
+        return min(max_param, UCHAR_MAX+1); // DK1 limited shot damage to 256, not 255.
     }
-    return strength;
+    return max_param;
 }
 
 /* Computes armour of a creature on given level. */
@@ -442,10 +441,6 @@ GoldAmount compute_creature_max_scavenging_cost(GoldAmount base_param, unsigned 
  */
 long project_creature_attack_melee_damage(long base_param, short damage_percent, long luck, unsigned short crlevel, const struct Thing* thing)
 {
-    if (base_param < -60000)
-        base_param = -60000;
-    if (base_param > 60000)
-        base_param = 60000;
     long max_param = base_param;
     if (damage_percent != 0)
     {
@@ -456,7 +451,7 @@ long project_creature_attack_melee_damage(long base_param, short damage_percent,
         if (luck > 100) luck = 100;
             max_param += luck*max_param/100;
     }
-    return saturate_set_signed(max_param, 16);
+    return max_param;
 }
 
 /**
@@ -470,10 +465,6 @@ long project_creature_attack_melee_damage(long base_param, short damage_percent,
 long project_creature_attack_spell_damage(long base_param, long luck, unsigned short crlevel, const struct Thing* thing)
 {
     struct Dungeon* dungeon;
-    if (base_param < -60000)
-        base_param = -60000;
-    if (base_param > 60000)
-        base_param = 60000;
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
@@ -489,7 +480,7 @@ long project_creature_attack_spell_damage(long base_param, long luck, unsigned s
         if (luck > 100) luck = 100;
             max_param += luck*max_param/100;
     }
-    return saturate_set_signed(max_param, 16);
+    return max_param;
 }
 
 /**
@@ -500,17 +491,13 @@ long project_creature_attack_spell_damage(long base_param, long luck, unsigned s
  */
 long compute_creature_attack_melee_damage(long base_param, long luck, unsigned short crlevel, struct Thing* thing)
 {
-    if (base_param < -60000)
-        base_param = -60000;
-    if (base_param > 60000)
-        base_param = 60000;
     long max_param = base_param;
     if (luck > 0)
     {
         if (CREATURE_RANDOM(thing, 100) < luck)
             max_param *= 2;
     }
-    return saturate_set_signed(max_param, 16);
+    return max_param;
 }
 
 /**
@@ -522,10 +509,6 @@ long compute_creature_attack_melee_damage(long base_param, long luck, unsigned s
 long compute_creature_attack_spell_damage(long base_param, long luck, unsigned short crlevel, struct Thing* thing)
 {
     struct Dungeon* dungeon;
-    if (base_param < -60000)
-        base_param = -60000;
-    if (base_param > 60000)
-        base_param = 60000;
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
@@ -541,7 +524,7 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
         if (CREATURE_RANDOM(thing, 100) < luck)
             max_param *= 2;
     }
-    return saturate_set_signed(max_param, 16);
+    return max_param;
 }
 
 /* Computes spell range/area of effect for a creature on given level. */
@@ -555,6 +538,30 @@ long compute_creature_attack_range(long base_param, long luck, unsigned short cr
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.range_increase_on_exp * base_param * (long)crlevel) / 100;
     return saturate_set_signed(max_param, 16);
+}
+
+/**
+ * Computes damage of a spell with damage over time.
+ * @param spell_damage Base Damage.
+ * @param caster_level Caster Level.
+ * @param caster_owner Caster Owner.
+ */
+HitPoints compute_creature_spell_damage_over_time(HitPoints spell_damage, CrtrExpLevel caster_level, PlayerNumber caster_owner)
+{
+    struct Dungeon* dungeon;
+    if (caster_level >= CREATURE_MAX_LEVEL)
+    {
+        caster_level = CREATURE_MAX_LEVEL-1;
+    }
+    HitPoints max_damage = spell_damage + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * spell_damage * caster_level) / 100;
+    // Apply modifier.
+    if (!player_is_neutral(caster_owner))
+    {
+        dungeon = get_dungeon(caster_owner);
+        unsigned short modifier = dungeon->modifier.spell_damage;
+        max_damage = (max_damage * modifier) / 100;
+    }
+    return max_damage;
 }
 
 /**
@@ -655,7 +662,7 @@ long calculate_correct_creature_armour(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long max_param = compute_creature_max_armour(crstat->armour, cctrl->explevel);
-    if (creature_affected_by_spell(thing, SplK_Armour))
+    if (creature_under_spell_effect(thing, CSAfF_Armour))
         max_param = (320 * max_param) / 256;
     // This limit makes armour absorb up to 80% of damage even with the buff.
     if (max_param > 204)
@@ -698,11 +705,11 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
     struct Dungeon* dungeon;
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long speed = crstat->base_speed;
-    if ((creature_affected_by_slap(thing)) || (creature_affected_by_spell(thing, SplK_TimeBomb)))
+    if ((creature_affected_by_slap(thing)) || (creature_under_spell_effect(thing, CSAfF_Timebomb)))
         speed *= 2;
-    if (creature_affected_by_spell(thing, SplK_Speed))
+    if (creature_under_spell_effect(thing, CSAfF_Speed))
         speed *= 2;
-    if (creature_affected_by_spell(thing, SplK_Slow))
+    if (creature_under_spell_effect(thing, CSAfF_Slow))
         speed /= 2;
     // Apply modifier.
     if (!is_neutral_thing(thing))
@@ -879,11 +886,12 @@ TbBool update_relative_creature_health(struct Thing* creatng)
 }
 
 TbBool set_creature_health_to_max_with_heal_effect(struct Thing* thing)
-{
+{ // Hardcoded function for 'SpcKind_HealAll'. TODO: Refactor when specials are made more configurable.
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (cctrl->max_health > thing->health)
+    if (cctrl->max_health > thing->health) // 'SpcKind_HealAll' bypasses immunity.
     {
-        apply_spell_effect_to_thing(thing, SplK_Heal, 1);
+        cctrl->spell_aura = -TngEffElm_Heal;
+        cctrl->spell_aura_duration = 50;
         thing->health = cctrl->max_health;
     }
     return true;
@@ -981,15 +989,17 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
     HitPoints dmg;
     const struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     const struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
-    // TODO: Replace deals_physical_damage with check for shotst->damage_type (magic in this sense is DmgT_Electric, DmgT_Combustion and DmgT_Heatburn).
-    if (!flag_is_set(doorst->model_flags, DoMF_ResistNonMagic) || (shotst->damage_type == DmgT_Magical))
-    {
-        dmg = shotng->shot.damage;
-    } else
+    if (flag_is_set(doorst->model_flags, DoMF_ResistNonMagic) && (!shotst->is_magical))
     {
         dmg = shotng->shot.damage / 8;
         if (dmg < 1)
+        {
             dmg = 1;
+        }
+    }
+    else
+    {
+        dmg = shotng->shot.damage;
     }
     if (flag_is_set(doorst->model_flags, DoMF_Midas))
     {
@@ -1010,11 +1020,10 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
  * Can be used only to make damage - never to heal creature.
  * @param thing
  * @param dmg
- * @param damage_type
  * @param inflicting_plyr_idx
  * @return Amount of damage really inflicted.
  */
-HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType damage_type, PlayerNumber dealing_plyr_idx)
+HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx)
 {
     // We're here to damage, not to heal.
     SYNCDBG(19, "Dealing %d damage to %s by player %d", (int)dmg, thing_model_name(thing), (int)dealing_plyr_idx);
@@ -1091,28 +1100,32 @@ GoldAmount calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_
 
 long compute_creature_weight(const struct Thing* creatng)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    long eye_height = get_creature_eye_height(creatng);
-    long weight = eye_height >> 2;
-    weight += (crstat->hunger_fill + crstat->lair_size + 1) * cctrl->explevel;
-    if (!crstat->affected_by_wind)
+    if (!creature_control_invalid(cctrl))
     {
-        weight = weight * 3 / 2;
+        struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+        long eye_height = get_creature_eye_height(creatng);
+        long weight = eye_height >> 2;
+        weight += (crstat->hunger_fill + crstat->lair_size + 1) * cctrl->explevel;
+        if (creature_is_immune_to_spell_effect(creatng, CSAfF_Wind))
+        {
+            weight = weight * 3 / 2;
+        }
+        if ((get_creature_model_flags(creatng) & CMF_Trembling) != 0)
+        {
+            weight = weight * 3 / 2;
+        }
+        if ((get_creature_model_flags(creatng) & CMF_IsDiptera) != 0)
+        {
+            weight = weight / 2;
+        }
+        if (crstat->can_go_locked_doors == true)
+        {
+            weight = weight / 10;
+        }
+        return weight;
     }
-    if ((get_creature_model_flags(creatng) & CMF_Trembling) != 0)
-    {
-        weight = weight * 3 / 2;
-    }
-    if ((get_creature_model_flags(creatng) & CMF_IsDiptera) != 0)
-    {
-        weight = weight / 2;
-    }
-    if (crstat->can_go_locked_doors == true)
-    {
-        weight = weight / 10;
-    }
-    return weight;
+    return 0;
 }
 
 const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveStatId clstat_id)
@@ -1245,11 +1258,11 @@ const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveSta
         break;
     case CrLStat_BestDamage:
         // TODO: (???) compute damage of best attack.
-        text = lbEmptyString;
+        text = "";
         break;
     default:
         ERRORLOG("Invalid statistic %d", (int)clstat_id);
-        text = lbEmptyString;
+        text = "";
         break;
     }
     return text;

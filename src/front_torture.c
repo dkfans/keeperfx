@@ -23,7 +23,6 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
-#include "bflib_memory.h"
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
 #include "bflib_filelst.h"
@@ -156,7 +155,7 @@ void fronttorture_load(void)
     torture_door_selected = -1;
     torture_end_sprite = -1;
     torture_sprite_direction = 0;
-    LbMemorySet(door_sound_state, 0, TORTURE_DOORS_COUNT*sizeof(struct DoorSoundState));
+    memset(door_sound_state, 0, TORTURE_DOORS_COUNT*sizeof(struct DoorSoundState));
 
     struct PlayerInfo* player = get_my_player();
     if (player->victory_state == VicS_WonLevel)

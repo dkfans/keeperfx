@@ -20,8 +20,6 @@
 #include "pre_inc.h"
 #include "bflib_network.h"
 
-#include "bflib_memory.h"
-
 #include <assert.h>
 #include <SDL2/SDL_net.h>
 #include "post_inc.h"
@@ -97,8 +95,8 @@ static TbBool clear_peer(NetUserId id)
                     SDLNet_TCP_Close(spstate.peers[i].socket);
                 }
 
-                LbMemoryFree(spstate.peers[i].msg.buffer);
-                LbMemorySet(&spstate.peers[i], 0, sizeof(spstate.peers[i]));
+                free(spstate.peers[i].msg.buffer);
+                memset(&spstate.peers[i], 0, sizeof(spstate.peers[i]));
 
                 return 1;
             }
@@ -112,8 +110,8 @@ static TbBool clear_peer(NetUserId id)
             spstate.socket = NULL; //assume disconnected
         }
 
-        LbMemoryFree(spstate.servermsg.buffer);
-        LbMemorySet(&spstate.servermsg, 0, sizeof(spstate.servermsg));
+        free(spstate.servermsg.buffer);
+        memset(&spstate.servermsg, 0, sizeof(spstate.servermsg));
 
         return 1;
     }
@@ -194,7 +192,7 @@ static void inflate_msg(struct Msg * msg)
 
     if (msg->msg_size > msg->buffer_size) {
         msg->buffer_size = msg->msg_size;
-        msg->buffer = (char*) LbMemoryGrow(msg->buffer, msg->buffer_size);
+        msg->buffer = (char*) realloc(msg->buffer, msg->buffer_size);
     }
 }
 
@@ -301,7 +299,7 @@ static TbError tcpSP_init(NetDropCallback drop_callback)
 {
     NETDBG(3, "Starting");
 
-    LbMemorySet(&spstate, 0, sizeof(spstate));
+    memset(&spstate, 0, sizeof(spstate));
 
     if (SDLNet_Init() < 0) {
         return Lb_FAIL;
@@ -318,18 +316,18 @@ static void tcpSP_exit(void)
         for (unsigned int i = 0; i < MAX_N_PEERS; ++i)
         {
             SDLNet_TCP_Close(spstate.peers[i].socket);
-            LbMemoryFree(spstate.peers[i].msg.buffer);
+            free(spstate.peers[i].msg.buffer);
         }
     }
 
     SDLNet_TCP_Close(spstate.socket);
-    LbMemoryFree(spstate.servermsg.buffer);
+    free(spstate.servermsg.buffer);
 
     SDLNet_FreeSocketSet(spstate.socketset);
 
     SDLNet_Quit();
 
-    LbMemorySet(&spstate, 0, sizeof(spstate));
+    memset(&spstate, 0, sizeof(spstate));
 }
 
 static TbError tcpSP_host(const char * session, void * options)
@@ -366,9 +364,9 @@ static TbError tcpSP_join(const char * session, void * options)
     assert(session);
     NETDBG(4, "Creating TCP client SP for session %s", session);
 
-    size_t size = LbStringLength(session) + 1;
-    char* hostname = (char*)LbMemoryAlloc(size);
-    LbStringCopy(hostname, session, size);
+    size_t size = strlen(session) + 1;
+    char* hostname = (char*)calloc(size, 1);
+    snprintf(hostname, size, "%s", session);
 
     char* portstr = hostname;
     while (*portstr != 0 && *portstr != ':') {
@@ -384,11 +382,11 @@ static TbError tcpSP_join(const char * session, void * options)
 
     spstate.socket = SDLNet_TCP_Open(&addr);
     if (spstate.socket == NULL) {
-        LbMemoryFree(hostname);
         NETMSG("Failed to initialize TCP client socket to host %s and port %s", hostname, portstr);
+        free(hostname);
         return Lb_FAIL;
     }
-    LbMemoryFree(hostname);
+    free(hostname);
 
     spstate.socketset = SDLNet_AllocSocketSet(1);
     SDLNet_TCP_AddSocket(spstate.socketset, spstate.socket);
@@ -528,7 +526,7 @@ static size_t tcpSP_readmsg(NetUserId source, char * buffer, size_t max_size)
 
     if (msg->state == READ_FINISHED) {
         size = min(msg->msg_size, max_size);
-        LbMemoryCopy(buffer, msg->buffer, size);
+        memcpy(buffer, msg->buffer, size);
         reset_msg(msg);
         return size;
     }
@@ -545,7 +543,7 @@ static size_t tcpSP_readmsg(NetUserId source, char * buffer, size_t max_size)
     assert(msg->state == READ_FINISHED);
 
     size = min(msg->msg_size, max_size);
-    LbMemoryCopy(buffer, msg->buffer, size);
+    memcpy(buffer, msg->buffer, size);
     reset_msg(msg);
     return size;
 }

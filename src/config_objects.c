@@ -21,7 +21,6 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_dernc.h"
 #include "bflib_sound.h"
 
@@ -167,7 +166,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
     if ((flags & CnfLd_AcceptPartial) == 0) {
         for (int i = 0; i < OBJECT_TYPES_MAX; i++) {
             objst = &game.conf.object_conf.object_cfgstats[i];
-            LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
+            memset(objst->code_name, 0, COMMAND_WORD_LEN);
             objst->name_stridx = 201;
             objst->map_icon = 0;
             objst->genre = 0;
@@ -795,7 +794,7 @@ TbBool load_objects_config_file(const char *textname, const char *fname, unsigne
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
+    char* buf = (char*)calloc(len + 256, 1);
     if (buf == NULL)
         return false;
     // Loading file data
@@ -812,20 +811,24 @@ TbBool load_objects_config_file(const char *textname, const char *fname, unsigne
             WARNMSG("Parsing %s file \"%s\" object blocks failed.",textname,fname);
     }
     //Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     return result;
 }
 
-void update_all_object_stats()
+void update_all_objects_of_model(ThingModel model)
 {
     const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
+    struct ObjectConfigStats* objst = get_object_model_stats(model);
     struct Dungeon* dungeon;
     for (int i = slist->index; i > 0;)
     {
         struct Thing* thing = thing_get(i);
         i = thing->next_of_class;
-            TRACE_THING(thing);
-        struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+        if (thing->model != model)
+        {
+            continue;
+        }
+        TRACE_THING(thing);
         int start_frame = 0;
         if(objst->random_start_frame)
         {
@@ -856,8 +859,8 @@ void update_all_object_stats()
         if (objst->ilght.radius != 0)
         {
             struct InitLight ilight;
-            LbMemorySet(&ilight, 0, sizeof(struct InitLight));
-            LbMemoryCopy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
+            memset(&ilight, 0, sizeof(struct InitLight));
+            memcpy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
             ilight.radius = objst->ilght.radius;
             ilight.intensity = objst->ilght.intensity;
             ilight.flags = objst->ilght.flags;
