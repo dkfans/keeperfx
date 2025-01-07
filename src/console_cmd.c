@@ -1868,14 +1868,18 @@ TbBool cmd_player_colour(PlayerNumber plyr_idx, char * args)
             if (plyr_start == ALL_PLAYERS)
             {
                 plyr_start = PLAYER0;
-                plyr_end = PLAYER6;
+                plyr_end = ALL_PLAYERS;
             }
             else
             {
                 plyr_end = plyr_start;
             }
-            for (PlayerNumber plyr_id = plyr_start; plyr_id <= plyr_end; plyr_id++)
+            for (PlayerNumber plyr_id = plyr_start; plyr_id < plyr_end; plyr_id++)
             {
+                if (plyr_idx == PLAYER_NEUTRAL)
+                {
+                    continue;
+                }
                 set_player_colour(plyr_id, (unsigned char)colour_idx);
             }
             return true;
