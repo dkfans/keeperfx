@@ -6288,7 +6288,6 @@ static void set_power_configuration_process(struct ScriptContext *context)
 static void set_player_colour_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
-
     long color_idx = get_rid(cmpgn_human_player_options, scline->tp[1]);
     if (color_idx == -1)
     {
@@ -6302,74 +6301,15 @@ static void set_player_colour_check(const struct ScriptLine *scline)
             return;
         }
     }
-    value->shorts[0] = color_idx;
+    value->bytes[0] = (unsigned char)color_idx;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_player_colour_process(struct ScriptContext *context)
 {
-    long color_idx = context->value->shorts[0];
-    struct Dungeon* dungeon;
-
     for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
     {
-        dungeon = get_dungeon(plyr_idx);
-
-        if(dungeon->color_idx == color_idx)
-        {
-            continue;
-        }
-
-        dungeon->color_idx = color_idx;
-
-        update_panel_color_player_color(plyr_idx,color_idx);
-
-        for (MapSlabCoord slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
-        {
-            for (MapSlabCoord slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
-            {
-                struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
-                if (slabmap_owner(slb) == plyr_idx)
-                {
-                    redraw_slab_map_elements(slb_x,slb_y);
-                }
-
-            }
-        }
-
-        const struct StructureList *slist;
-        slist = get_list_for_thing_class(TCls_Object);
-        int k = 0;
-        unsigned long i = slist->index;
-        while (i > 0)
-        {
-            struct Thing *thing;
-            thing = thing_get(i);
-            TRACE_THING(thing);
-            if (thing_is_invalid(thing)) {
-                ERRORLOG("Jump to invalid thing detected");
-                break;
-            }
-            i = thing->next_of_class;
-            // Per-thing code
-
-            if (thing->owner == plyr_idx)
-            {
-                ThingModel base_model = get_coloured_object_base_model(thing->model);
-                if(base_model != 0)
-                {
-                    create_coloured_object(&thing->mappos, plyr_idx, thing->parent_idx,base_model);
-                    delete_thing_structure(thing, 0);
-                }
-            }
-            // Per-thing code ends
-            k++;
-            if (k > slist->count)
-            {
-                ERRORLOG("Infinite loop detected when sweeping things list");
-                break;
-            }
-        }
+         set_player_colour(plyr_idx , context->value->bytes[0]);
     }
 }
 
