@@ -1874,7 +1874,7 @@ TbBool cmd_player_colour(PlayerNumber plyr_idx, char * args)
             {
                 plyr_end = plyr_start;
             }
-            for (unsigned char plyr_id = plyr_start; plyr_id <= plyr_end; plyr_id++)
+            for (PlayerNumber plyr_id = plyr_start; plyr_id <= plyr_end; plyr_id++)
             {
                 set_player_colour(plyr_id, (unsigned char)colour_idx);
             }
