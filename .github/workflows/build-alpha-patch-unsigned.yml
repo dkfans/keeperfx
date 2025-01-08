@@ -15,7 +15,7 @@ jobs:
       with:
         fetch-depth: 0
         
-    - uses: Trass3r/setup-cpp@master
+    - uses: dkfans/setup-cpp@master
 
     - name: Update system
       run: |
