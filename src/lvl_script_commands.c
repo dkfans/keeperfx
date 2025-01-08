@@ -6289,6 +6289,12 @@ static void set_player_colour_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
     long color_idx = get_rid(cmpgn_human_player_options, scline->tp[1]);
+    if (scline->np[0] == game.neutral_player_num)
+    {
+        SCRPTERRLOG("Can't change color of Neutral player.");
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
     if (color_idx == -1)
     {
         if (parameter_is_number(scline->tp[1]))
@@ -6309,7 +6315,11 @@ static void set_player_colour_process(struct ScriptContext *context)
 {
     for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
     {
-         set_player_colour(plyr_idx , context->value->bytes[0]);
+        if (plyr_idx == PLAYER_NEUTRAL)
+        {
+            continue;
+        }
+        set_player_colour(plyr_idx , context->value->bytes[0]);
     }
 }
 
