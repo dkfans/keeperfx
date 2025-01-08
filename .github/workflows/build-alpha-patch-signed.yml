@@ -6,16 +6,20 @@ on:
       - master
 
 jobs:
-  build-alpha-patch-signed:
 
-    name: "Build Alpha Patch (Signed)"
+  call-alpha-patch-build:
+
+    name: Trigger Alpha Patch Build (Unsigned)
+    if: github.repository == 'dkfans/keeperfx'
+    uses: ./.github/workflows/build-alpha-patch-unsigned.yml
+
+  sign-alpha-patch-artifact:
+
+    name: "Sign Alpha Patch"
     if: github.repository == 'dkfans/keeperfx'
     runs-on: ubuntu-24.04
 
     steps:
-    - name: Trigger Alpha Patch Build (Unsigned)
-      uses: ./.github/workflows/build-alpha-patch-unsigned.yml
-
     - name: Sign artifact
       uses: signpath/github-action-submit-signing-request@v1.1
       with:
