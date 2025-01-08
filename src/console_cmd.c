@@ -1869,7 +1869,7 @@ TbBool cmd_player_colour(PlayerNumber plyr_idx, char * args)
     {
             for (PlayerNumber plyr_id = plr_start; plyr_id < plr_end; plyr_id++)
             {
-                if (plyr_idx == PLAYER_NEUTRAL)
+                if (plyr_id == PLAYER_NEUTRAL)
                 {
                     continue;
                 }
