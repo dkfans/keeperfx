@@ -674,12 +674,10 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     TbBool ret = true;
     if ((pckt->control_flags & PCtr_RBtnHeld) != 0)
     {
-        player->field_4D6++;
     } else
     if ((pckt->control_flags & PCtr_RBtnRelease) == 0)
     {
         player->boxsize = 1;
-        player->field_4D6 = 0;
     }
     if (player->id_number == my_player_number)
     {
