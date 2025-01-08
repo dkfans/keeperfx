@@ -1,4 +1,4 @@
-name: Alpha Patches
+name: Alpha Patches (Unsigned)
 
 on:
   workflow_call:
