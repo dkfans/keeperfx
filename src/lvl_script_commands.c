@@ -908,19 +908,28 @@ static void display_objective_process(struct ScriptContext *context)
 static void conceal_map_rect_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    TbBool conceal_all = 0;
+    TbBool conceal_all = false;
 
-    if ((strcmp(scline->tp[5], "") == 0) || (strcmp(scline->tp[5], "0") == 0))
+    if (scline->np[5] == -1)
     {
-        conceal_all = 0;
-    }
-    else if ((strcmp(scline->tp[5], "ALL") == 0) || (strcmp(scline->tp[5], "1") == 0))
-    {
-        conceal_all = 1;
+        if ((strcmp(scline->tp[5], "") == 0))
+        {
+            conceal_all = false;
+        }
+        else if ((strcmp(scline->tp[5], "ALL") == 0))
+        {
+            conceal_all = true;
+        }
+        else
+        {
+            SCRPTWRNLOG("Hide value \"%s\" not recognized", scline->tp[5]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
     }
     else
     {
-        SCRPTWRNLOG("Hide value \"%s\" not recognized", scline->tp[5]);
+        conceal_all = scline->np[5];
     }
 
     MapSubtlCoord x = scline->np[1];
@@ -7541,7 +7550,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_GOLD_TO_PLAYER",                "PN      ", Cmd_ADD_GOLD_TO_PLAYER, NULL, NULL},
   {"SET_CREATURE_TENDENCIES",           "PAN     ", Cmd_SET_CREATURE_TENDENCIES, NULL, NULL},
   {"REVEAL_MAP_RECT",                   "PNNNN   ", Cmd_REVEAL_MAP_RECT, NULL, NULL},
-  {"CONCEAL_MAP_RECT",                  "PNNNNa  ", Cmd_CONCEAL_MAP_RECT, &conceal_map_rect_check, &conceal_map_rect_process},
+  {"CONCEAL_MAP_RECT",                  "PNNNNb! ", Cmd_CONCEAL_MAP_RECT, &conceal_map_rect_check, &conceal_map_rect_process},
   {"REVEAL_MAP_LOCATION",               "PLN     ", Cmd_REVEAL_MAP_LOCATION, &reveal_map_location_check, &reveal_map_location_process},
   {"LEVEL_VERSION",                     "N       ", Cmd_LEVEL_VERSION, NULL, NULL},
   {"KILL_CREATURE",                     "PC!AN   ", Cmd_KILL_CREATURE, NULL, NULL},
