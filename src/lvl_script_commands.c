@@ -2869,20 +2869,16 @@ static void place_trap_check(const struct ScriptLine* scline)
         return;
     }
 
-    short free;
-    if (parameter_is_number(scline->tp[4]))
-    {
-        free = atoi(scline->tp[4]);
-    }
-    else
+    TbBool free = scline->np[4];
+    if (free != -1)
     {
         free = get_id(is_free_desc, scline->tp[4]);
-    }
-    if ((free < 0) || (free > 1))
-    {
-        SCRPTERRLOG("Place Trap free state '%s' not recognized", scline->tp[5]);
-        DEALLOCATE_SCRIPT_VALUE
-        return;
+        if (free == -1)
+        {
+            SCRPTERRLOG("Place Trap free state '%s' not recognized", scline->tp[5]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
     }
 
     value->shorts[1] = trap_id;
@@ -7616,7 +7612,7 @@ const struct CommandDesc command_desc[] = {
   {"HEART_LOST_OBJECTIVE",              "Nl      ", Cmd_HEART_LOST_OBJECTIVE, &heart_lost_objective_check, &heart_lost_objective_process},
   {"SET_DOOR",                          "ANN     ", Cmd_SET_DOOR, &set_door_check, &set_door_process},
   {"PLACE_DOOR",                        "PANNb!b!", Cmd_PLACE_DOOR, &place_door_check, &place_door_process},
-  {"PLACE_TRAP",                        "PANNA   ", Cmd_PLACE_TRAP, &place_trap_check, &place_trap_process },
+  {"PLACE_TRAP",                        "PANNb!  ", Cmd_PLACE_TRAP, &place_trap_check, &place_trap_process },
   {"ZOOM_TO_LOCATION",                  "PL      ", Cmd_MOVE_PLAYER_CAMERA_TO, &player_zoom_to_check, &player_zoom_to_process},
   {"SET_CREATURE_INSTANCE",             "CNAN    ", Cmd_SET_CREATURE_INSTANCE, &set_creature_instance_check, &set_creature_instance_process},
   {"SET_HAND_RULE",                     "PC!Aaaa ", Cmd_SET_HAND_RULE, &set_hand_rule_check, &set_hand_rule_process},
