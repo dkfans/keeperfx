@@ -18,6 +18,7 @@ jobs:
     name: "Sign Alpha Patch"
     if: github.repository == 'dkfans/keeperfx'
     runs-on: ubuntu-24.04
+    needs: call-alpha-patch-build
 
     steps:
     - name: Sign artifact
