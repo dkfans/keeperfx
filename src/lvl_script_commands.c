@@ -383,6 +383,18 @@ const struct NamedCommand script_operator_desc[] = {
   {NULL,          0},
 };
 
+const struct NamedCommand script_boolean_desc[] = {
+  {"0",      0},
+  {"OFF",    0},
+  {"NO",     0},
+  {"FALSE",  0},
+  {"1",      1},
+  {"ON",     1},
+  {"TRUE",   1},
+  {"YES",    1},
+  {NULL,     0},
+};
+
 const struct NamedCommand variable_desc[] = {
     {"MONEY",                       SVar_MONEY},
     {"GAME_TURN",                   SVar_GAME_TURN},
@@ -2618,6 +2630,7 @@ static void add_heart_health_process(struct ScriptContext *context)
 static void lock_possession_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    //boolean
     if ((scline->np[1] < 0) || (scline->np[1] > 1))
     {
         SCRPTERRLOG("Invalid Possession lock value (%ld), use 0 / 1 for true / false", scline->np[0]);
@@ -7460,7 +7473,7 @@ static void swap_creature_process(struct ScriptContext* context)
 
 /**
  * Descriptions of script commands for parser.
- * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
+ * Arguments are: A-string, N-integer, C-creature model, P-player, R-room kind, L-location, O-operator, S-slab kind, B-boolean
  * Lower case letters are optional arguments, Exclamation points sets 'extended' option, for example 'ANY_CREATURE' for creatures.
  */
 const struct CommandDesc command_desc[] = {

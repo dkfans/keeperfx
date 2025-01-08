@@ -534,6 +534,17 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
             scline->np[idx] = opertr_id;
             break;
         }
+        case 'B': //Boolean
+        {
+            char boolean = get_rid(script_boolean_desc, scline->tp[idx]);
+            if (boolean == -1)
+            {
+                SCRPTERRLOG("Unknown boolean value, \"%s\"", scline->tp[idx]);
+                return false;
+            }
+            scline->np[idx] = (boolean == true);
+            break;
+        }
         case 'A': //String
             break;
         case '!': // extended sign
