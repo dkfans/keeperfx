@@ -5,9 +5,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-alpha-patch:
+  build-alpha-patch-unsigned:
 
-    name: "Build Alpha Patch"
+    name: "Build Alpha Patch (Unsigned)"
     runs-on: ubuntu-24.04
 
     steps:

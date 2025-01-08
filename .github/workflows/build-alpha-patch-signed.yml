@@ -13,8 +13,8 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-    - name: Trigger Alpha Patch Build
-      uses: ./.github/workflows/build-alpha-patch.yml
+    - name: Trigger Alpha Patch Build (Unsigned)
+      uses: ./.github/workflows/build-alpha-patch-unsigned.yml
 
     - name: Sign artifact
       uses: signpath/github-action-submit-signing-request@v1.1
