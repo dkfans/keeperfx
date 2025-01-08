@@ -539,8 +539,17 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
             char boolean = get_rid(script_boolean_desc, scline->tp[idx]);
             if (boolean == -1)
             {
-                SCRPTERRLOG("Unknown boolean value, \"%s\"", scline->tp[idx]);
-                return false;
+                //Extended number allows for a custom sprite string
+                if (!extended)
+                {
+                    SCRPTERRLOG("Unknown boolean value, \"%s\"", scline->tp[idx]);
+                    return false;
+                }
+                else
+                {
+                    scline->np[idx] = -1;
+                    break;
+                }
             }
             scline->np[idx] = (boolean == true);
             break;

@@ -500,7 +500,7 @@ const struct NamedCommand fill_desc[] = {
 
 const struct NamedCommand set_door_desc[] = {
   {"LOCKED", 1},
-  {"UNLOCKED", 2},
+  {"UNLOCKED", 0},
   {NULL, 0}
 };
 
@@ -2769,34 +2769,34 @@ static void place_door_check(const struct ScriptLine* scline)
         return;
     }
 
-    short locked = get_id(set_door_desc, scline->tp[4]);
+    short locked = scline->np[4];
     if (locked == -1)
     {
-        SCRPTERRLOG("Door locked state %s not recognized", scline->tp[4]);
-        DEALLOCATE_SCRIPT_VALUE
-        return;
+        locked = get_id(set_door_desc, scline->tp[4]);
+        if (locked == -1)
+        {
+            SCRPTERRLOG("Door locked state %s not recognized", scline->tp[4]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
     }
 
-    short free;
-    if (parameter_is_number(scline->tp[5]))
-    {
-        free = atoi(scline->tp[5]);
-    }
-    else
+    short free = scline->np[5];
+    if (free == -1)
     {
         free = get_id(is_free_desc, scline->tp[5]);
-    }
-    if ((free < 0) || (free > 1))
-    {
-        SCRPTERRLOG("Place Door free state '%s' not recognized", scline->tp[5]);
-        DEALLOCATE_SCRIPT_VALUE
-        return;
+        if (free == -1)
+        {
+            SCRPTERRLOG("Place Door free state '%s' not recognized", scline->tp[5]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
     }
 
     value->shorts[1] = door_id;
     value->shorts[2] = scline->np[2];
     value->shorts[3] = scline->np[3];
-    value->shorts[4] = (locked == 1);
+    value->shorts[4] = locked;
     value->shorts[5] = free;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -7607,7 +7607,7 @@ const struct CommandDesc command_desc[] = {
   {"HEART_LOST_QUICK_OBJECTIVE",        "NAl     ", Cmd_HEART_LOST_QUICK_OBJECTIVE, &heart_lost_quick_objective_check, &heart_lost_quick_objective_process},
   {"HEART_LOST_OBJECTIVE",              "Nl      ", Cmd_HEART_LOST_OBJECTIVE, &heart_lost_objective_check, &heart_lost_objective_process},
   {"SET_DOOR",                          "ANN     ", Cmd_SET_DOOR, &set_door_check, &set_door_process},
-  {"PLACE_DOOR",                        "PANNAA  ", Cmd_PLACE_DOOR, &place_door_check, &place_door_process},
+  {"PLACE_DOOR",                        "PANNb!b!", Cmd_PLACE_DOOR, &place_door_check, &place_door_process},
   {"PLACE_TRAP",                        "PANNA   ", Cmd_PLACE_TRAP, &place_trap_check, &place_trap_process },
   {"ZOOM_TO_LOCATION",                  "PL      ", Cmd_MOVE_PLAYER_CAMERA_TO, &player_zoom_to_check, &player_zoom_to_process},
   {"SET_CREATURE_INSTANCE",             "CNAN    ", Cmd_SET_CREATURE_INSTANCE, &set_creature_instance_check, &set_creature_instance_process},
