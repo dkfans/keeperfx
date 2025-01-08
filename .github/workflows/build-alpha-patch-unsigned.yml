@@ -21,7 +21,7 @@ jobs:
       run: |
         set -eux
         sudo apt update
-        sudo apt install -y build-essential g++-mingw-w64-i686 libpng16-16t64
+        sudo apt install -y build-essential g++-mingw-w64-i686 libpng16-16t64 7zip
 
     - name: Build gfx
       run: |
