@@ -1,18 +1,20 @@
-name: Alpha builds
+name: Alpha Patches
 
 on:
-  push:
-    branches:
-      - master
+  workflow_call:
   workflow_dispatch:
+
 jobs:
-  build:
+  build-alpha-patch:
+
+    name: "Build Alpha Patch"
     runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
+        
     - uses: Trass3r/setup-cpp@master
 
     - name: Update system
@@ -39,27 +41,9 @@ jobs:
         echo "ZIP_NAME=$(basename -s .7z pkg/keeperfx*.7z)" >> $GITHUB_ENV
         rm pkg/keeperfx*.7z
 
-    - name: Upload unsigned artifact
-      id: upload-unsigned-artifact
+    - name: Upload artifact
+      id: upload-artifact
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.ZIP_NAME }}
-        path: pkg/**
-
-    - name: Sign
-      uses: signpath/github-action-submit-signing-request@v1.1
-      with:
-        api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
-        organization-id: '${{ vars.SIGNPATH_ORGANIZATION_ID }}'
-        project-slug: '${{ vars.SIGNPATH_PROJECT_SLUG }}'
-        signing-policy-slug:  'test-signing'
-        artifact-configuration-slug: 'standard'
-        github-artifact-id: '${{ steps.upload-unsigned-artifact.outputs.artifact-id }}'
-        wait-for-completion: true
-        output-artifact-directory: 'pkg/'
-
-    - name: Upload signed artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ env.ZIP_NAME }}-signed
         path: pkg/**
