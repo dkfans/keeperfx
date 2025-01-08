@@ -29,7 +29,7 @@ jobs:
         project-slug: '${{ vars.SIGNPATH_PROJECT_SLUG }}'
         signing-policy-slug: 'test-signing'
         artifact-configuration-slug: 'standard'
-        github-artifact-id: '${{ steps.upload-artifact.outputs.artifact-id }}'
+        github-artifact-id: '${{ needs.call-alpha-patch-build.outputs.artifact-id }}'
         wait-for-completion: true
         output-artifact-directory: 'pkg/'
 
