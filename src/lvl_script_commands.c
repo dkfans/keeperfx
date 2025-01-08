@@ -384,14 +384,16 @@ const struct NamedCommand script_operator_desc[] = {
 };
 
 const struct NamedCommand script_boolean_desc[] = {
-  {"0",      0},
-  {"OFF",    0},
-  {"NO",     0},
-  {"FALSE",  0},
-  {"1",      1},
-  {"ON",     1},
-  {"TRUE",   1},
-  {"YES",    1},
+  {"0",        0},
+  {"OFF",      0},
+  {"NO",       0},
+  {"FALSE",    0},
+  {"DISABLE",  0},
+  {"1",        1},
+  {"ON",       1},
+  {"TRUE",     1},
+  {"YES",      1},
+  {"ENABLE",   1},
   {NULL,     0},
 };
 
