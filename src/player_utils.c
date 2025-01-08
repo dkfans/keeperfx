@@ -40,6 +40,7 @@
 #include "gui_soundmsgs.h"
 #include "gui_frontmenu.h"
 #include "config_settings.h"
+#include "config_spritecolors.h"
 #include "config_terrain.h"
 #include "map_blocks.h"
 #include "map_utils.h"
@@ -1218,11 +1219,67 @@ void compute_and_update_player_payday_total(PlayerNumber plyr_idx)
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     dungeon->creatures_total_pay = compute_player_payday_total(dungeon);
 }
+
 void compute_and_update_player_backpay_total(PlayerNumber plyr_idx)
 {
     SYNCDBG(15, "Starting for player %d", (int)plyr_idx);
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     dungeon->creatures_total_backpay = compute_player_payday_total(dungeon);
+}
+
+void set_player_colour(PlayerNumber plyr_idx, unsigned char colour_idx)
+{
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    if (!dungeon_invalid(dungeon))
+    {
+        if (dungeon->color_idx != colour_idx)
+        {
+            dungeon->color_idx = colour_idx;
+            update_panel_color_player_color(plyr_idx,colour_idx);
+            for (MapSlabCoord slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
+            {
+                for (MapSlabCoord slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
+                {
+                    struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
+                    if (slabmap_owner(slb) == plyr_idx)
+                    {
+                        redraw_slab_map_elements(slb_x,slb_y);
+                    }
+
+                }
+            }
+            const struct StructureList *slist = get_list_for_thing_class(TCls_Object);
+            int k = 0;
+            unsigned long i = slist->index;
+            while (i > 0)
+            {
+                struct Thing *thing = thing_get(i);
+                TRACE_THING(thing);
+                if (thing_is_invalid(thing)) {
+                    ERRORLOG("Jump to invalid thing detected");
+                    break;
+                }
+                i = thing->next_of_class;
+                // Per-thing code
+                if (thing->owner == plyr_idx)
+                {
+                    ThingModel base_model = get_coloured_object_base_model(thing->model);
+                    if(base_model != 0)
+                    {
+                        create_coloured_object(&thing->mappos, plyr_idx, thing->parent_idx,base_model);
+                        delete_thing_structure(thing, 0);
+                    }
+                }
+                // Per-thing code ends
+                k++;
+                if (k > slist->count)
+                {
+                    ERRORLOG("Infinite loop detected when sweeping things list");
+                    break;
+                }
+            }
+        }
+    }
 }
 
 /******************************************************************************/
