@@ -2630,7 +2630,6 @@ static void add_heart_health_process(struct ScriptContext *context)
 static void lock_possession_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    //boolean
     if ((scline->np[1] < 0) || (scline->np[1] > 1))
     {
         SCRPTERRLOG("Invalid Possession lock value (%ld), use 0 / 1 for true / false", scline->np[0]);
