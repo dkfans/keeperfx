@@ -3268,7 +3268,6 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
         ERRORLOG("Tried to kill non-existing thing!");
         return INVALID_THING;
     }
-    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     // Creature must be visible and not chicken & clear Rebound for some reason.
     if (creature_under_spell_effect(creatng, CSAfF_Invisibility))
     {
@@ -3282,6 +3281,7 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     {
         clean_spell_effect(creatng, CSAfF_Rebound);
     }
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn > game.play_gameturn))
     {
         create_effect_around_thing(creatng, ball_puff_effects[creatng->owner]);
