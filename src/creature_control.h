@@ -237,8 +237,8 @@ unsigned char sound_flag;
   union {
   struct {
     GameTurn start_gameturn;
-    GameTurn gameturn_9Ex;
-    GameTurn gameturn_A2x;
+    GameTurn state_start_turn;
+    GameTurn torturer_start_turn;
     ThingIndex assigned_torturer;
     unsigned char vis_state;
   } tortured;
@@ -275,7 +275,7 @@ unsigned char sound_flag;
     GameTurn last_mood_sound_turn;
   } imprison;
   struct {
-    unsigned char byte_9A;
+    unsigned char job_stage;
     unsigned char swing_weapon_counter;
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
@@ -306,15 +306,6 @@ unsigned char sound_flag;
     short word_9A;
     short word_9C;
   }sacrifice;
-  struct {
-    unsigned char byte_9A;
-  }mad_psycho;
-
-  struct {
-    unsigned char byte_9A;
-  }unknown_state;
-
-
 
   };
     unsigned char fight_til_death;
