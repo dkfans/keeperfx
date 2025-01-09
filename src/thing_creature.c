@@ -3265,22 +3265,20 @@ struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng, Play
         ERRORLOG("Tried to kill non-existing thing!");
         return INVALID_THING;
     }
-    // Remember if the creature is frozen.
-    TbBool frozen = creature_under_spell_effect(creatng, CSAfF_Freeze);
-    // Terminate all the actives spell effects on dying creatures.
-    terminate_all_actives_spell_effects(creatng);
-    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
-    if (frozen) // Set back freeze flags if it was frozen, for 'cause_creature_death' function.
+    // Creature must be visible and not chicken & clear Rebound for some reason.
+    if (creature_under_spell_effect(creatng, CSAfF_Invisibility))
     {
-        set_flag(cctrl->spell_flags, CSAfF_Freeze);
-        set_flag(cctrl->stateblock_flags, CCSpl_Freeze);
-        if ((creatng->movement_flags & TMvF_Flying) != 0)
-        {
-            set_flag(creatng->movement_flags, TMvF_Grounded);
-            clear_flag(creatng->movement_flags, TMvF_Flying);
-        }
-        creature_set_speed(creatng, 0);
+        clean_spell_effect(creatng, CSAfF_Invisibility);
     }
+    if (creature_under_spell_effect(creatng, CSAfF_Chicken))
+    {
+        clean_spell_effect(creatng, CSAfF_Chicken);
+    }
+    if (creature_under_spell_effect(creatng, CSAfF_Rebound))
+    {
+        clean_spell_effect(creatng, CSAfF_Rebound);
+    }
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn > game.play_gameturn))
     {
         create_effect_around_thing(creatng, ball_puff_effects[creatng->owner]);
