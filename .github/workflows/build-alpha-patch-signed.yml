@@ -21,6 +21,7 @@ jobs:
     needs: call-alpha-patch-build
 
     steps:
+
     - name: Sign artifact
       uses: signpath/github-action-submit-signing-request@v1.1
       with:

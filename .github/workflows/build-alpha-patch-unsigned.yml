@@ -2,6 +2,10 @@ name: Alpha Patches (Unsigned)
 
 on:
   workflow_call:
+    outputs:
+      artifact-id:
+        description: "The ID of the uploaded artifact"
+        value: ${{ jobs.build-alpha-patch-unsigned.outputs.artifact-id }}
   workflow_dispatch:
 
 jobs:
@@ -47,6 +51,6 @@ jobs:
       with:
         name: ${{ env.ZIP_NAME }}
         path: pkg/**
-
+      
     outputs:
-      artifact-id: ${{ steps.upload-artifact.outputs.artifact-id }}  # Export the artifact ID as an output
+      artifact-id: ${{ steps.upload-artifact.outputs.artifact-id }}
