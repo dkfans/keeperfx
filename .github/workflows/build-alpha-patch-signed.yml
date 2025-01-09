@@ -28,7 +28,7 @@ jobs:
         api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
         organization-id: '${{ vars.SIGNPATH_ORGANIZATION_ID }}'
         project-slug: '${{ vars.SIGNPATH_PROJECT_SLUG }}'
-        signing-policy-slug: 'test-signing'
+        signing-policy-slug: '${{ vars.SIGNPATH_SIGNING_POLICY_SLUG }}'
         artifact-configuration-slug: 'standard'
         github-artifact-id: '${{ needs.call-alpha-patch-build.outputs.artifact-id }}'
         wait-for-completion: true
