@@ -647,6 +647,35 @@ TbBool creature_is_being_unconscious(const struct Thing *thing)
         return false;
 }
 
+TbBool creature_can_be_set_unconscious(const struct Thing *creatng, const struct Thing *killertng, CrDeathFlags flags)
+{
+    if (flag_is_set(flags, CrDed_NoUnconscious))
+    {
+        return false;
+    }
+    if (!player_has_room_of_role(killertng->owner, RoRoF_Prison))
+    {
+        return false;
+    }
+    if (!player_creature_tends_to(killertng->owner, CrTend_Imprison))
+    {
+        return false;
+    }
+    if ((get_creature_model_flags(creatng) & CMF_IsEvil) && (CREATURE_RANDOM(creatng, 100) >= game.conf.rules.creature.stun_enemy_chance_evil))
+    {
+        return false;
+    }
+    if (!(get_creature_model_flags(creatng) & CMF_IsEvil) && (CREATURE_RANDOM(creatng, 100) >= game.conf.rules.creature.stun_enemy_chance_good))
+    {
+        return false;
+    }
+    if (get_creature_model_flags(creatng) & CMF_NoImprisonment)
+    {
+        return false;
+    }
+    return true;
+}
+
 TbBool creature_is_celebrating(const struct Thing *thing)
 {
     CrtrStateId i = thing->active_state;
