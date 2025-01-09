@@ -669,7 +669,7 @@ TbBool creature_can_be_set_unconscious(const struct Thing *creatng, const struct
     {
         return false;
     }
-    if (get_creature_model_flags(creatng) & CMF_NoImprisonment)
+    if (flag_is_set(get_creature_model_flags(creatng), CMF_NoImprisonment))
     {
         return false;
     }
