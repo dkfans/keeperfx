@@ -3269,40 +3269,18 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
         return INVALID_THING;
     }
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
-    TbBool unconscious = creature_can_be_set_unconscious(creatng, killertng, flags);
-    if (unconscious) // 'creature_can_be_set_unconscious' involves randomness so we store its result for later.
+    // Creature must be visible and not chicken & clear Rebound for some reason.
+    if (creature_under_spell_effect(creatng, CSAfF_Invisibility))
     {
-        // Restore original behaviour for unconscious: Must be visible and not chicken & remove Rebound for some reason.
-        if (creature_under_spell_effect(creatng, CSAfF_Invisibility))
-        {
-            clean_spell_effect(creatng, CSAfF_Invisibility);
-        }
-        if (creature_under_spell_effect(creatng, CSAfF_Chicken))
-        {
-            clean_spell_effect(creatng, CSAfF_Chicken);
-        }
-        if (creature_under_spell_effect(creatng, CSAfF_Rebound))
-        {
-            clean_spell_effect(creatng, CSAfF_Rebound);
-        }
+        clean_spell_effect(creatng, CSAfF_Invisibility);
     }
-    else
+    if (creature_under_spell_effect(creatng, CSAfF_Chicken))
     {
-        // Remember if the creature is frozen.
-        TbBool frozen = creature_under_spell_effect(creatng, CSAfF_Freeze);
-        // Terminate all the actives spell effects on dying creatures.
-        terminate_all_actives_spell_effects(creatng);
-        if (frozen) // Set back freeze flags if it was frozen, for 'cause_creature_death' function.
-        {
-            set_flag(cctrl->spell_flags, CSAfF_Freeze);
-            set_flag(cctrl->stateblock_flags, CCSpl_Freeze);
-            if ((creatng->movement_flags & TMvF_Flying) != 0)
-            {
-                set_flag(creatng->movement_flags, TMvF_Grounded);
-                clear_flag(creatng->movement_flags, TMvF_Flying);
-            }
-            creature_set_speed(creatng, 0);
-        }
+        clean_spell_effect(creatng, CSAfF_Chicken);
+    }
+    if (creature_under_spell_effect(creatng, CSAfF_Rebound))
+    {
+        clean_spell_effect(creatng, CSAfF_Rebound);
     }
     if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn > game.play_gameturn))
     {
@@ -3371,7 +3349,7 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
         dungeon->hates_player[killertng->owner] += game.conf.rules.creature.fight_hate_kill_value;
     }
     SYNCDBG(18, "Almost finished");
-    if (!unconscious)
+    if (!creature_can_be_set_unconscious(creatng, killertng, flags))
     {
         if (!flag_is_set(flags, CrDed_NoEffects))
         {
