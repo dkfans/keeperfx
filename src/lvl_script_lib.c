@@ -49,7 +49,7 @@ void command_init_value(struct ScriptValue* value, unsigned long var_index, unsi
     value->condit_idx = get_script_current_condition();
 }
 
-struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long arg, PlayerNumber plyr_idx)
+struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long arg, PlayerNumber plyr_idx, short move_angle)
 {
     struct Coord3d pos;
     pos.x.val = subtile_coord_center(stl_x);
@@ -61,6 +61,7 @@ struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x
         ERRORLOG("Couldn't create %s at location %ld, %ld",thing_class_and_model_name(TCls_Object, tngmodel),stl_x, stl_y);
         return INVALID_THING;
     }
+    thing->move_angle_xy = move_angle;
     if (thing_is_dungeon_heart(thing))
     {
         struct Dungeon* dungeon = get_dungeon(thing->owner);

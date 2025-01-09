@@ -415,7 +415,7 @@ long player_list_creature_filter_best_for_sacrifice(const struct Thing *thing, M
 
     if ((cctrl->combat_flags == 0) && (param->num2 || thing->creature.gold_carried == 0)) //no gold carried if no gem access
     {
-        if (creature_is_being_unconscious(thing) || creature_affected_by_spell(thing, SplK_Chicken))
+        if (creature_is_being_unconscious(thing) || creature_under_spell_effect(thing, CSAfF_Chicken))
             return -1;
         if (creature_is_being_dropped(thing) || !can_thing_be_picked_up_by_player(thing, param->plyr_idx))
             return -1;
@@ -606,7 +606,7 @@ struct Thing * find_imp_for_pickup(struct Computer2 *comp, MapSubtlCoord stl_x, 
         // Thing list loop body
         if (cctrl->combat_flags == 0)
         {
-            if (!creature_is_being_unconscious(thing) && !creature_affected_by_spell(thing, SplK_Chicken))
+            if (!creature_is_being_unconscious(thing) && !creature_under_spell_effect(thing, CSAfF_Chicken))
             {
                 if (!creature_is_being_dropped(thing) && can_thing_be_picked_up_by_player(thing, dungeon->owner))
                 {
@@ -787,7 +787,8 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
         }
         i = cctrl->next_in_room;
         // Per creature code
-        if (!thing_affected_by_spell(thing, SplK_Speed))
+        if (!creature_under_spell_effect(thing, CSAfF_Speed)
+        && !creature_is_immune_to_spell_effect(thing, CSAfF_Speed))
         {
             long n = get_creature_state_besides_move(thing);
             struct StateInfo* stati = get_thing_state_info_num(n);
@@ -826,7 +827,8 @@ struct Thing *computer_check_creatures_in_room_for_flight(struct Computer2 *comp
         }
         i = cctrl->next_in_room;
         // Per creature code
-        if (!thing_affected_by_spell(thing, SplK_Fly))
+        if (!creature_under_spell_effect(thing, CSAfF_Flying)
+        && !creature_is_immune_to_spell_effect(thing, CSAfF_Flying))
         {
             long n = get_creature_state_besides_move(thing);
             struct StateInfo* stati = get_thing_state_info_num(n);
@@ -865,7 +867,8 @@ struct Thing *computer_check_creatures_in_room_for_vision(struct Computer2 *comp
         }
         i = cctrl->next_in_room;
         // Per creature code
-        if (!thing_affected_by_spell(thing, SplK_Sight))
+        if (!creature_under_spell_effect(thing, CSAfF_Sight)
+        && !creature_is_immune_to_spell_effect(thing, CSAfF_Sight))
         {
             long n = get_creature_state_besides_move(thing);
             struct StateInfo* stati = get_thing_state_info_num(n);

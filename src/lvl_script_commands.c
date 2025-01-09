@@ -498,6 +498,18 @@ const struct NamedCommand is_free_desc[] = {
   {NULL, 0}
 };
 
+const struct NamedCommand orientation_desc[] = {
+  {"North",     ANGLE_NORTH},
+  {"NorthEast", ANGLE_NORTHEAST},
+  {"East",      ANGLE_EAST},
+  {"SouthEast", ANGLE_SOUTHEAST},
+  {"South",     ANGLE_SOUTH},
+  {"SouthWest", ANGLE_SOUTHWEST},
+  {"West",      ANGLE_WEST},
+  {"NorthWest", ANGLE_NORTHWEST},
+  {NULL, 0}
+};
+
 const struct NamedCommand texture_pack_desc[] = {
   {"NONE",         0},
   {"STANDARD",     1},
@@ -2603,6 +2615,30 @@ static void add_heart_health_process(struct ScriptContext *context)
     }
 }
 
+static void lock_possession_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    if ((scline->np[1] < 0) || (scline->np[1] > 1))
+    {
+        SCRPTERRLOG("Invalid Possession lock value (%ld), use 0 / 1 for true / false", scline->np[0]);
+    }
+    value->chars[1] = scline->np[1];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void lock_possession_process(struct ScriptContext* context)
+{
+    struct PlayerInfo *player;
+    for (int plyridx = context->plr_start; plyridx < context->plr_end; plyridx++)
+    {
+        player = get_player(plyridx);
+        if (player_exists(player))
+        {
+            player->possession_lock = context->value->chars[1];
+        }
+    }
+}
+
 static void heart_lost_quick_objective_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
@@ -2774,7 +2810,7 @@ static void place_door_process(struct ScriptContext* context)
                     continue;
                 }
             }
-            success = player_place_door_without_check_at(stl_x, stl_y, plyridx, doorkind);
+            success = player_place_door_without_check_at(stl_x, stl_y, plyridx, doorkind, free);
             if (success)
             {
                 delete_room_slabbed_objects(get_slab_number(slb_x, slb_y));
@@ -2787,6 +2823,72 @@ static void place_door_process(struct ScriptContext* context)
                         lock_door(doortng);
                     }
                 }
+            }
+        }
+    }
+}
+
+static void place_trap_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    const char* trapname = scline->tp[1];
+    short trap_id = get_id(trap_desc, trapname);
+
+    if (trap_id == -1)
+    {
+        SCRPTERRLOG("Unknown trap, '%s'", trapname);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    if (subtile_coords_invalid(scline->np[2], scline->np[3]))
+    {
+        SCRPTERRLOG("Invalid subtile coordinates: %ld, %ld", scline->np[2], scline->np[3]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    short free;
+    if (parameter_is_number(scline->tp[4]))
+    {
+        free = atoi(scline->tp[4]);
+    }
+    else
+    {
+        free = get_id(is_free_desc, scline->tp[4]);
+    }
+    if ((free < 0) || (free > 1))
+    {
+        SCRPTERRLOG("Place Trap free state '%s' not recognized", scline->tp[5]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    value->shorts[1] = trap_id;
+    value->shorts[2] = scline->np[2];
+    value->shorts[3] = scline->np[3];
+    value->shorts[4] = free;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void place_trap_process(struct ScriptContext* context)
+{
+    ThingModel trapkind = context->value->shorts[1];
+    MapSubtlCoord stl_x = context->value->shorts[2];
+    MapSubtlCoord stl_y = context->value->shorts[3];
+    TbBool free = context->value->shorts[4];
+
+    for (int plyridx = context->plr_start; plyridx < context->plr_end; plyridx++)
+    {
+        if (can_place_trap_on(plyridx, stl_x, stl_y, trapkind))
+        {
+            if (free)
+            {
+                player_place_trap_without_check_at(stl_x, stl_y, plyridx, trapkind, free);
+            }
+            else
+            {
+                player_place_trap_at(stl_x, stl_y, plyridx, trapkind);
             }
         }
     }
@@ -3042,7 +3144,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
         }
     }
 
-    short value1 = 0, value2 = 0, value3 = 0;
+    long value1 = 0, value2 = 0, value3 = 0;
     if (block == CrtConf_ATTRIBUTES)
     {
         if (creatvar == 20) // ATTACKPREFERENCE
@@ -3071,6 +3173,33 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                 value1 = get_id(creature_desc, scline->tp[2]);
             }
         }
+        else if (creatvar == 37) // SPELLIMMUNITY
+        {
+            if (parameter_is_number(scline->tp[2]))
+            {
+                value1 = atoi(scline->tp[2]);
+            }
+            else
+            {
+                value1 = get_id(spell_effect_flags, scline->tp[2]);
+            }
+            if (value1 < 0)
+            {
+                SCRPTERRLOG("SpellImmunity flag %s is out of range or doesn't exist.", scline->tp[2]);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            // value 2: 'empty' is 'set', '1' is 'add', '0' is 'clear'.
+            if (scline->tp[3][0] != '\0')
+            {
+                value2 = atoi(scline->tp[3]);
+            }
+            else
+            {
+                // tp[3] is empty, set it to UCHAR_MAX to process.
+                value2 = UCHAR_MAX;
+            }
+        }
         else
         {
             value1 = atoi(scline->tp[2]);
@@ -3085,52 +3214,47 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
     {
         if ((creatvar > 0) && (creatvar <= 4)) // Jobs
         {
-            long job_value;
             if (parameter_is_number(scline->tp[2]))
             {
-                job_value = atoi(scline->tp[2]);
+                value1 = atoi(scline->tp[2]);
+                if ((value1 < 0) || (value1 > SHRT_MAX))
+                {
+                    SCRPTERRLOG("Job value %ld out of range `0~%d`.", value1, SHRT_MAX);
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
             }
             else
             {
-                job_value = get_id(creaturejob_desc, scline->tp[2]);
+                value1 = get_id(creaturejob_desc, scline->tp[2]);
+                if (value1 > SHRT_MAX)
+                {
+                    SCRPTERRLOG("Job %s not supported", creature_job_code_name(value1));
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
+                else if (value1 < 0)
+                {
+                    SCRPTERRLOG("Job %s is out of range or doesn't exist.", scline->tp[2]);
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
             }
-            long job2_value = 0;
-            long job3_value = 0;
-            if (job_value > SHRT_MAX)
-            {
-                SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value1 = job_value;
-
+            // value 2: 'empty' is 'set', '1' is 'add', '0' is 'clear'.
             if (scline->tp[3][0] != '\0')
             {
-                job2_value = get_id(creaturejob_desc, scline->tp[3]);
-                if (job2_value > SHRT_MAX)
-                {
-                    SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
-                    DEALLOCATE_SCRIPT_VALUE
-                    return;
-                }
-                value2 = job2_value;
+                value2 = atoi(scline->tp[3]);
             }
-            if (scline->tp[4][0] != '\0')
+            else
             {
-                job3_value = get_id(creaturejob_desc, scline->tp[4]);
-                if (job3_value > SHRT_MAX)
-                {
-                    SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
-                    DEALLOCATE_SCRIPT_VALUE
-                    return;
-                }
-                value3 = job3_value;
+                // tp[3] is empty, set it to UCHAR_MAX to process.
+                value2 = UCHAR_MAX;
             }
         }
         else
         {
             value1 = atoi(scline->tp[2]);
-            // nothing there that would need the second or third value.
+            // Nothing there that would need the second or third value.
         }
     }
     else if (block == CrtConf_SOUNDS)
@@ -3230,48 +3354,43 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             value2 = creature_model[1];
             value3 = creature_model[2];
         } else
-        if (creatvar == 23) //AngerJobs
+        if (creatvar == 23) // AngerJobs
         {
-            long job_value = 0;
-            long job2_value = 0;
-            long job3_value = 0;
             if (parameter_is_number(scline->tp[2]))
             {
-                job_value = atoi(scline->tp[2]);
+                value1 = atoi(scline->tp[2]);
+                if ((value1 < 0) || (value1 > SHRT_MAX))
+                {
+                    SCRPTERRLOG("Job value %ld out of range `0~%d`.", value1, SHRT_MAX);
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
             }
             else
             {
-                job_value = get_id(angerjob_desc, scline->tp[2]);
+                value1 = get_id(angerjob_desc, scline->tp[2]);
+                if (value1 > SHRT_MAX)
+                {
+                    SCRPTERRLOG("Job %s not supported", creature_job_code_name(value1));
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
+                else if (value1 < 0)
+                {
+                    SCRPTERRLOG("Job %s is out of range or doesn't exist.", scline->tp[2]);
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
             }
-            if (job_value > SHRT_MAX)
-            {
-                SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value1 = job_value;
-
+            // value 2: 'empty' is 'set', '1' is 'add', '0' is 'clear'.
             if (scline->tp[3][0] != '\0')
             {
-                job2_value = get_id(angerjob_desc, scline->tp[3]);
-                if (job2_value > SHRT_MAX)
-                {
-                    SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
-                    DEALLOCATE_SCRIPT_VALUE
-                    return;
-                }
-                value2 = job2_value;
+                value2 = atoi(scline->tp[3]);
             }
-            if (scline->tp[4][0] != '\0')
+            else
             {
-                job3_value = get_id(angerjob_desc, scline->tp[4]);
-                if (job3_value > SHRT_MAX)
-                {
-                    SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
-                    DEALLOCATE_SCRIPT_VALUE
-                    return;
-                }
-                value3 = job3_value;
+                // tp[3] is empty, set it to UCHAR_MAX to process.
+                value2 = UCHAR_MAX;
             }
         }
         else
@@ -3284,43 +3403,43 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
     {
         if (creatvar == 1) // POWERS
         {
-            if ((atoi(scline->tp[2]) >= CREATURE_MAX_LEVEL) || (atoi(scline->tp[2]) <= 0)) //Powers
-            {
-                SCRPTERRLOG("Value %d out of range, only %d slots for Powers.", atoi(scline->tp[2]), CREATURE_MAX_LEVEL - 1);
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value1 = atoi(scline->tp[2]);
             long instance = 0;
-            if (!parameter_is_number(scline->tp[3]))
+            if (!parameter_is_number(scline->tp[2]))
             {
-                instance = get_id(instance_desc, scline->tp[3]);
+                instance = get_id(instance_desc, scline->tp[2]);
 
             }
             else
             {
-                instance = atoi(scline->tp[3]);
+                instance = atoi(scline->tp[2]);
             }
             if (instance >= 0)
             {
-                value2 = instance;
+                value1 = instance;
             }
             else
             {
-                SCRPTERRLOG("Unknown instance %s ", scline->tp[3]);
+                SCRPTERRLOG("Unknown instance %s ", scline->tp[2]);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
+            if ((atoi(scline->tp[3]) >= CREATURE_MAX_LEVEL) || (atoi(scline->tp[3]) <= 0)) //Powers
+            {
+                SCRPTERRLOG("Value %d out of range, only %d slots for Powers.", atoi(scline->tp[3]), CREATURE_MAX_LEVEL - 1);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value2 = atoi(scline->tp[3]);
         } else 
         if (creatvar == 2) // POWERSLEVELREQUIRED
         {
-            if ((atoi(scline->tp[2]) > CREATURE_MAX_LEVEL) || (atoi(scline->tp[2]) <= 0))//slot
+            if ((atoi(scline->tp[2]) <= 0) || (atoi(scline->tp[2]) > CREATURE_MAX_LEVEL)) //value
             {
                 SCRPTERRLOG("Value %d out of range, only %d levels for PowersLevelRequired supported", atoi(scline->tp[2]), CREATURE_MAX_LEVEL);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            if ((atoi(scline->tp[3]) <= 0) || (atoi(scline->tp[3]) > CREATURE_MAX_LEVEL)) //value
+            if ((atoi(scline->tp[3]) > CREATURE_MAX_LEVEL) || (atoi(scline->tp[3]) <= 0)) //slot
             {
                 SCRPTERRLOG("Value %d out of range, only %d levels for PowersLevelRequired supported", atoi(scline->tp[3]), CREATURE_MAX_LEVEL);
                 DEALLOCATE_SCRIPT_VALUE
@@ -3331,21 +3450,20 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
         } else
         if (creatvar == 3) // LEVELSTRAINVALUES
         {
-            if ((atoi(scline->tp[2]) <= 0) || (atoi(scline->tp[2]) > CREATURE_MAX_LEVEL)) //slot
+            if (atoi(scline->tp[2]) < 0) //value
             {
-                SCRPTERRLOG("Value %d out of range, only %d levels for LevelsTrainValues supported", atoi(scline->tp[2]), CREATURE_MAX_LEVEL - 1);
+                SCRPTERRLOG("Value %d out of range.", atoi(scline->tp[2]));
                 DEALLOCATE_SCRIPT_VALUE
-                return;
+                    return;
             }
-            if (atoi(scline->tp[3]) < 0) //value
+            if ((atoi(scline->tp[3]) <= 0) || (atoi(scline->tp[3]) > CREATURE_MAX_LEVEL)) //slot
             {
-                SCRPTERRLOG("Value %d out of range.", atoi(scline->tp[3]));
+                SCRPTERRLOG("Value %d out of range, only %d levels for LevelsTrainValues supported", atoi(scline->tp[3]), CREATURE_MAX_LEVEL - 1);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
             value1 = atoi(scline->tp[2]);
             value2 = atoi(scline->tp[3]);
-
         } else
         if (creatvar == 4) // GROWUP
         {
@@ -3460,9 +3578,9 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
     value->shorts[0] = scline->np[0];
     value->shorts[1] = creatvar;
     value->shorts[2] = block;
-    value->shorts[3] = value1;
-    value->shorts[4] = value2;
-    value->shorts[5] = value3;
+    value->longs[2] = value1;
+    value->longs[3] = value2;
+    value->longs[4] = value3;
 
     SCRIPTDBG(7,"Setting creature %s configuration value %d:%d to %d (%d)", creature_code_name(value->shorts[0]), value->shorts[4], value->shorts[1], value->shorts[2], value->shorts[3]);
 
@@ -3477,9 +3595,9 @@ static void set_creature_configuration_process(struct ScriptContext* context)
 
     short creature_variable = context->value->shorts[1];
     short block  = context->value->shorts[2];
-    short value  = context->value->shorts[3];
-    short value2 = context->value->shorts[4];
-    short value3 = context->value->shorts[5];
+    long value  = context->value->longs[2];
+    long value2 = context->value->longs[3];
+    long value3 = context->value->longs[4];
 
     if (block == CrtConf_ATTRIBUTES)
     {
@@ -3611,6 +3729,20 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         case 36: // TORTUREKIND
             crstat->torture_kind = value;
             break;
+        case 37: // SPELLIMMUNITY
+            if (value2 == 0)
+            {
+                clear_flag(crstat->immunity_flags, value);
+            }
+            else if (value2 == 1)
+            {
+                set_flag(crstat->immunity_flags, value);
+            }
+            else
+            {
+                crstat->immunity_flags = value;
+            }
+            break;
         case ccr_comment:
             break;
         case ccr_endOfFile:
@@ -3625,24 +3757,60 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         switch (creature_variable)
         {
         case 1: // PRIMARYJOBS
-            crstat->job_primary = value;
-            crstat->job_primary |= value2;
-            crstat->job_primary |= value3;
+            if (value2 == 0)
+            {
+                clear_flag(crstat->job_primary, value);
+            }
+            else if (value2 == 1)
+            {
+                set_flag(crstat->job_primary, value);
+            }
+            else
+            {
+                crstat->job_primary = value;
+            }
             break;
         case 2: // SECONDARYJOBS
-            crstat->job_secondary = value;
-            crstat->job_secondary |= value2;
-            crstat->job_secondary |= value3;
+            if (value2 == 0)
+            {
+                clear_flag(crstat->job_secondary, value);
+            }
+            else if (value2 == 1)
+            {
+                set_flag(crstat->job_secondary, value);
+            }
+            else
+            {
+                crstat->job_secondary = value;
+            }
             break;
         case 3: // NOTDOJOBS
-            crstat->jobs_not_do = value;
-            crstat->jobs_not_do |= value2;
-            crstat->jobs_not_do |= value3;
+            if (value2 == 0)
+            {
+                clear_flag(crstat->jobs_not_do, value);
+            }
+            else if (value2 == 1)
+            {
+                set_flag(crstat->jobs_not_do, value);
+            }
+            else
+            {
+                crstat->jobs_not_do = value;
+            }
             break;
         case 4: // STRESSFULJOBS
-            crstat->job_stress = value;
-            crstat->job_stress |= value2;
-            crstat->job_stress |= value3;
+            if (value2 == 0)
+            {
+                clear_flag(crstat->job_stress, value);
+            }
+            else if (value2 == 1)
+            {
+                set_flag(crstat->job_stress, value);
+            }
+            else
+            {
+                crstat->job_stress = value;
+            }
             break;
         case 5: // TRAININGVALUE
             crstat->training_value = value;
@@ -3882,9 +4050,18 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         }
         case 23: // ANGERJOBS
         {
-            crstat->jobs_anger = value;
-            crstat->jobs_anger |= value2;
-            crstat->jobs_anger |= value3;
+            if (value2 == 0)
+            {
+                clear_flag(crstat->jobs_anger, value);
+            }
+            else if (value2 == 1)
+            {
+                set_flag(crstat->jobs_anger, value);
+            }
+            else
+            {
+                crstat->jobs_anger = value;
+            }
             break;
         }
         case 24: // GOINGPOSTAL
@@ -3903,17 +4080,17 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         {
         case 1: // POWERS
         {
-            crstat->learned_instance_id[value-1] = value2;
+            crstat->learned_instance_id[value2-1] = value;
             break;
         }
         case 2: // POWERSLEVELREQUIRED
         {
-            crstat->learned_instance_level[value-1] = value2;
+            crstat->learned_instance_level[value2-1] = value;
             break;
         }
         case 3: // LEVELSTRAINVALUES
         {
-            crstat->to_level[value-1] = value2;
+            crstat->to_level[value2-1] = value;
             break;
         }
         case 4: // GROWUP
@@ -4072,7 +4249,8 @@ static void set_creature_configuration_process(struct ScriptContext* context)
 
 static void set_object_configuration_process(struct ScriptContext *context)
 {
-    struct ObjectConfigStats* objst = &game.conf.object_conf.object_cfgstats[context->value->longs[0]];
+    ThingModel model = context->value->longs[0];
+    struct ObjectConfigStats* objst = &game.conf.object_conf.object_cfgstats[model];
     switch (context->value->shorts[4])
     {
         case 2: // GENRE
@@ -4191,7 +4369,7 @@ static void set_object_configuration_process(struct ScriptContext *context)
             WARNMSG("Unsupported Object configuration, variable %d.", context->value->shorts[4]);
             break;
     }
-    update_all_object_stats();
+    update_all_objects_of_model(model);
 }
 
 static void display_timer_check(const struct ScriptLine *scline)
@@ -4759,7 +4937,7 @@ static void level_up_players_creatures_process(struct ScriptContext* context)
     SYNCDBG(19, "Finished");
 }
 
-static void use_spell_on_players_creatures_check(const struct ScriptLine* scline)
+static void use_spell_on_players_creatures_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
     long crtr_id = parse_creature_name(scline->tp[1]);
@@ -4771,47 +4949,40 @@ static void use_spell_on_players_creatures_check(const struct ScriptLine* scline
     const char *mag_name = scline->tp[2];
     short mag_id = get_rid(spell_desc, mag_name);
     short splevel = scline->np[3];
-
     if (mag_id == -1)
     {
         SCRPTERRLOG("Invalid spell: %s", mag_name);
         return;
     }
-
-    if (splevel < 1)
+    struct SpellConfig *spconf = get_spell_config(mag_id);
+    if (spconf->linked_power) // Only check for spells linked to a keeper power.
     {
-        if ((mag_id == SplK_Heal) || (mag_id == SplK_Armour) || (mag_id == SplK_Speed) || (mag_id == SplK_Disease) || (mag_id == SplK_Invisibility) || (mag_id == SplK_Chicken))
+        if (splevel < 1)
         {
             SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", mag_name, splevel);
+            splevel = 1;
         }
-        splevel = 1;
-    }
-    if (splevel > (MAGIC_OVERCHARGE_LEVELS + 1)) //Creatures cast spells from level 1 to 10, but 10=9.
-    {
-        SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", mag_name, splevel, (MAGIC_OVERCHARGE_LEVELS + 1));
-        splevel = MAGIC_OVERCHARGE_LEVELS;
+        if (splevel > (MAGIC_OVERCHARGE_LEVELS + 1)) // Creatures cast spells from level 1 to 10.
+        {
+            SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", mag_name, splevel, (MAGIC_OVERCHARGE_LEVELS + 1));
+            splevel = MAGIC_OVERCHARGE_LEVELS;
+        }
     }
     splevel--;
-    if (mag_id == -1)
-    {
-        SCRPTERRLOG("Unknown magic, '%s'", mag_name);
-        return;
-    }
     value->shorts[1] = crtr_id;
     value->shorts[2] = mag_id;
     value->shorts[3] = splevel;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
-static void use_spell_on_players_creatures_process(struct ScriptContext* context)
+static void use_spell_on_players_creatures_process(struct ScriptContext *context)
 {
     long crmodel = context->value->shorts[1];
-    long spl_idx = context->value->shorts[2];
+    long spell_idx = context->value->shorts[2];
     long overchrg = context->value->shorts[3];
-
     for (int i = context->plr_start; i < context->plr_end; i++)
     {
-        apply_spell_effect_to_players_creatures(i, crmodel, spl_idx, overchrg);
+        apply_spell_effect_to_players_creatures(i, crmodel, spell_idx, overchrg);
     }
 }
 
@@ -5881,12 +6052,6 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
             value->longs[2] = atoi(new_value);
             break;
         }
-        case 10: // SymbolSprites
-        {
-            value->longs[1] = atoi(new_value);
-            value->longs[2] = atoi(scline->tp[3]);
-            break;
-        }
         case 5: // Castability
         {
             long long j;
@@ -5931,8 +6096,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                 }
                 value->chars[3] = -1;
             }
-            unsigned long long *new = (unsigned long long*)&value->ulongs[1];
-            *new = number_value;
+            value->ulonglongs[1] = number_value;
             break;
         }
         case 6: // Artifact
@@ -5943,6 +6107,12 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                   number_value = k;
             }
             value->longs[2] = number_value;
+            break;
+        }
+        case 10: // SymbolSprites
+        {
+            value->longs[1] = atoi(new_value);
+            value->longs[2] = atoi(scline->tp[3]);
             break;
         }
         case 14: // Properties
@@ -6065,8 +6235,7 @@ static void set_power_configuration_process(struct ScriptContext *context)
             break;
         case 5: // Castability
         {
-            unsigned long long *value = (unsigned long long*)&context->value->ulongs[1];
-            unsigned long long flag = *value;
+            unsigned long long flag = context->value->ulonglongs[1];
             if (context->value->chars[3] == 1)
             {
                 set_flag(powerst->can_cast_flags, flag);
@@ -6143,7 +6312,6 @@ static void set_power_configuration_process(struct ScriptContext *context)
 static void set_player_colour_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
-
     long color_idx = get_rid(cmpgn_human_player_options, scline->tp[1]);
     if (color_idx == -1)
     {
@@ -6157,74 +6325,15 @@ static void set_player_colour_check(const struct ScriptLine *scline)
             return;
         }
     }
-    value->shorts[0] = color_idx;
+    value->bytes[0] = (unsigned char)color_idx;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_player_colour_process(struct ScriptContext *context)
 {
-    long color_idx = context->value->shorts[0];
-    struct Dungeon* dungeon;
-
     for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
     {
-        dungeon = get_dungeon(plyr_idx);
-
-        if(dungeon->color_idx == color_idx)
-        {
-            continue;
-        }
-
-        dungeon->color_idx = color_idx;
-
-        update_panel_color_player_color(plyr_idx,color_idx);
-
-        for (MapSlabCoord slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
-        {
-            for (MapSlabCoord slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
-            {
-                struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
-                if (slabmap_owner(slb) == plyr_idx)
-                {
-                    redraw_slab_map_elements(slb_x,slb_y);
-                }
-
-            }
-        }
-
-        const struct StructureList *slist;
-        slist = get_list_for_thing_class(TCls_Object);
-        int k = 0;
-        unsigned long i = slist->index;
-        while (i > 0)
-        {
-            struct Thing *thing;
-            thing = thing_get(i);
-            TRACE_THING(thing);
-            if (thing_is_invalid(thing)) {
-                ERRORLOG("Jump to invalid thing detected");
-                break;
-            }
-            i = thing->next_of_class;
-            // Per-thing code
-
-            if (thing->owner == plyr_idx)
-            {
-                ThingModel base_model = get_coloured_object_base_model(thing->model);
-                if(base_model != 0)
-                {
-                    create_coloured_object(&thing->mappos, plyr_idx, thing->parent_idx,base_model);
-                    delete_thing_structure(thing, 0);
-                }
-            }
-            // Per-thing code ends
-            k++;
-            if (k > slist->count)
-            {
-                ERRORLOG("Infinite loop detected when sweeping things list");
-                break;
-            }
-        }
+         set_player_colour(plyr_idx , context->value->bytes[0]);
     }
 }
 
@@ -6936,8 +7045,8 @@ static void add_object_to_level_at_pos_check(const struct ScriptLine* scline)
     value->shorts[0] = tngmodel;
     if (!subtile_coords_invalid(scline->np[1], scline->np[2]))
     {
-        value->shorts[1] = scline->np[1];
-        value->shorts[2] = scline->np[2];
+        value->shorts[2] = scline->np[1];
+        value->shorts[3] = scline->np[2];
     }
     else
     {
@@ -6946,12 +7055,32 @@ static void add_object_to_level_at_pos_check(const struct ScriptLine* scline)
         return;
     }
     value->longs[2] = scline->np[3];
-    PlayerNumber plyr_idx = get_rid(player_desc, scline->tp[4]);
+    PlayerNumber plyr_idx = get_rid(player_desc, scline->tp[4]); // Optional variable
     if ((plyr_idx == -1) || (plyr_idx == ALL_PLAYERS))
     {
         plyr_idx = PLAYER_NEUTRAL;
     }
-    value->chars[6] = plyr_idx;
+    short angle = 0;
+    if (strcmp(scline->tp[5], "") != 0) // Optional variable
+    {
+        if (parameter_is_number(scline->tp[5]))
+        {
+            angle = atoi(scline->tp[5]) % LbFPMath_TAU;
+        }
+        else
+        {
+            angle = get_rid(orientation_desc, scline->tp[5]);
+            if (angle < 0)
+            {
+                SCRPTERRLOG("Unknown orientation: %s", scline->tp[5]);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+        }
+    }
+
+    value->chars[2] = plyr_idx;
+    value->shorts[6] = angle;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -6975,11 +7104,32 @@ static void add_object_to_level_check(const struct ScriptLine* scline)
     value->ulongs[1] = location;
     value->longs[2] = scline->np[2];
     PlayerNumber plyr_idx = get_rid(player_desc, scline->tp[3]);
-    if ((plyr_idx == -1) || (plyr_idx == ALL_PLAYERS))
+    if ((plyr_idx == -1) || (plyr_idx == ALL_PLAYERS)) //Optional variable
     {
         plyr_idx = PLAYER_NEUTRAL;
     }
+
+    short angle = 0;
+    if (strcmp(scline->tp[4], "") != 0) //Optional variable
+    {
+        if (parameter_is_number(scline->tp[4]))
+        {
+            angle = atoi(scline->tp[4]) % LbFPMath_TAU;
+        }
+        else
+        {
+            angle = get_rid(orientation_desc, scline->tp[4]);
+            if (angle < 0)
+            {
+                SCRPTERRLOG("Unknown orientation: %s", scline->tp[4]);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+        }
+    }
+
     value->chars[2] = plyr_idx;
+    value->shorts[6] = angle;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -6988,13 +7138,13 @@ static void add_object_to_level_process(struct ScriptContext* context)
     struct Coord3d pos;
     if (get_coords_at_location(&pos,context->value->ulongs[1],true))
     {
-        script_process_new_object(context->value->shorts[0], pos.x.stl.num, pos.y.stl.num, context->value->longs[2], context->value->chars[2]);
+        script_process_new_object(context->value->shorts[0], pos.x.stl.num, pos.y.stl.num, context->value->longs[2], context->value->chars[2], context->value->shorts[6]);
     }
 }
 
 static void add_object_to_level_at_pos_process(struct ScriptContext* context)
 {
-    script_process_new_object(context->value->shorts[0], context->value->shorts[1], context->value->shorts[2], context->value->longs[2], context->value->chars[6]);
+    script_process_new_object(context->value->shorts[0], context->value->shorts[2], context->value->shorts[3], context->value->longs[2], context->value->chars[2],context->value->shorts[6]);
 }
 
 static void set_computer_globals_check(const struct ScriptLine* scline)
@@ -7319,7 +7469,7 @@ const struct CommandDesc command_desc[] = {
   {"DELETE_FROM_PARTY",                 "ACN     ", Cmd_DELETE_FROM_PARTY, &delete_from_party_check, NULL},
   {"ADD_PARTY_TO_LEVEL",                "PAAN    ", Cmd_ADD_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_LEVEL",             "PCANNN  ", Cmd_ADD_CREATURE_TO_LEVEL, NULL, NULL},
-  {"ADD_OBJECT_TO_LEVEL",               "AANp    ", Cmd_ADD_OBJECT_TO_LEVEL, &add_object_to_level_check, &add_object_to_level_process},
+  {"ADD_OBJECT_TO_LEVEL",               "AANpa   ", Cmd_ADD_OBJECT_TO_LEVEL, &add_object_to_level_check, &add_object_to_level_process},
   {"IF",                                "PAOAa   ", Cmd_IF, &if_check, NULL},
   {"IF_ACTION_POINT",                   "NP      ", Cmd_IF_ACTION_POINT, NULL, NULL},
   {"ENDIF",                             "        ", Cmd_ENDIF, NULL, NULL},
@@ -7445,6 +7595,7 @@ const struct CommandDesc command_desc[] = {
   {"HEART_LOST_OBJECTIVE",              "Nl      ", Cmd_HEART_LOST_OBJECTIVE, &heart_lost_objective_check, &heart_lost_objective_process},
   {"SET_DOOR",                          "ANN     ", Cmd_SET_DOOR, &set_door_check, &set_door_process},
   {"PLACE_DOOR",                        "PANNAA  ", Cmd_PLACE_DOOR, &place_door_check, &place_door_process},
+  {"PLACE_TRAP",                        "PANNA   ", Cmd_PLACE_TRAP, &place_trap_check, &place_trap_process },
   {"ZOOM_TO_LOCATION",                  "PL      ", Cmd_MOVE_PLAYER_CAMERA_TO, &player_zoom_to_check, &player_zoom_to_process},
   {"SET_CREATURE_INSTANCE",             "CNAN    ", Cmd_SET_CREATURE_INSTANCE, &set_creature_instance_check, &set_creature_instance_process},
   {"SET_HAND_RULE",                     "PC!Aaaa ", Cmd_SET_HAND_RULE, &set_hand_rule_check, &set_hand_rule_process},
@@ -7468,7 +7619,8 @@ const struct CommandDesc command_desc[] = {
   {"SET_PLAYER_MODIFIER",               "PAN     ", Cmd_SET_PLAYER_MODIFIER, &set_player_modifier_check, &set_player_modifier_process},
   {"ADD_TO_PLAYER_MODIFIER",            "PAN     ", Cmd_ADD_TO_PLAYER_MODIFIER, &add_to_player_modifier_check, &add_to_player_modifier_process},
   {"CHANGE_SLAB_TEXTURE",               "NNAa    ", Cmd_CHANGE_SLAB_TEXTURE , &change_slab_texture_check, &change_slab_texture_process},
-  {"ADD_OBJECT_TO_LEVEL_AT_POS",        "ANNNp   ", Cmd_ADD_OBJECT_TO_LEVEL_AT_POS, &add_object_to_level_at_pos_check, &add_object_to_level_at_pos_process},
+  {"ADD_OBJECT_TO_LEVEL_AT_POS",        "ANNNpa  ", Cmd_ADD_OBJECT_TO_LEVEL_AT_POS, &add_object_to_level_at_pos_check, &add_object_to_level_at_pos_process},
+  {"LOCK_POSSESSION",                   "PN      ", Cmd_LOCK_POSSESSION, &lock_possession_check, &lock_possession_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

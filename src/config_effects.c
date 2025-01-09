@@ -100,6 +100,7 @@ static void load_effects(VALUE *value, unsigned short flags)
             CONDITIONAL_ASSIGN_INT(section,"ElementsCount" ,effcst->elements_count  );
             CONDITIONAL_ASSIGN_INT(section,"AlwaysGenerate",effcst->always_generate );
             CONDITIONAL_ASSIGN_INT(section,"HitType",effcst->effect_hit_type);
+            CONDITIONAL_ASSIGN_SPELL(section,"SpellEffect",effcst->spell_effect);
         }
     }
 }

@@ -54,7 +54,7 @@ extern long block_dimension;
 void setup_texture_block_mem(void);
 short init_animating_texture_maps(void);
 short update_animating_texture_maps(void);
-TbBool load_texture_map_file(unsigned long tmapidx);
+TbBool load_texture_map_file(unsigned long tmapidx, LevelNumber lvnum, short fgroup);
 
 /******************************************************************************/
 #ifdef __cplusplus

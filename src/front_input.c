@@ -1420,22 +1420,48 @@ short get_creature_control_action_inputs(void)
         toggle_creature_cheat_menu();
         clear_key_pressed(KC_F12);
     }
-
+    if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
+    {
+        if (a_menu_window_is_active())
+        {
+            clear_key_pressed(KC_ESCAPE);
+            turn_off_all_window_menus();
+        }
+    }
+    if (is_key_pressed(KC_ESCAPE, KMod_SHIFT))
+    {
+        clear_key_pressed(KC_ESCAPE);
+        if (menu_is_active(GMnu_MAIN))
+        {
+            fake_button_click(BID_OPTIONS);
+        }
+        turn_on_menu(GMnu_OPTIONS);
+    }
     if (player->controlled_thing_idx != 0)
     {
         short make_packet = right_button_released || is_key_pressed(KC_ESCAPE, KMod_DONTCARE);
+        struct Thing* thing = thing_get(player->controlled_thing_idx);
         if (!make_packet)
         {
-            struct Thing* thing = thing_get(player->controlled_thing_idx);
             TRACE_THING(thing);
-            if ((player->controlled_thing_creatrn != thing->creation_turn) || ((thing->alloc_flags & TAlF_Exists) == 0) || (thing->active_state == CrSt_CreatureUnconscious))
+            if ((player->controlled_thing_creatrn != thing->creation_turn) || (!flag_is_set(thing->alloc_flags, TAlF_Exists)) || (thing->active_state == CrSt_CreatureUnconscious))
+            {
                 make_packet = true;
+            }
         }
         if (make_packet)
         {
             right_button_released = 0;
             clear_key_pressed(KC_ESCAPE);
-            set_players_packet_action(player, PckA_DirectCtrlExit, player->controlled_thing_idx,0,0,0);
+            if ((player->possession_lock == true) && thing_is_creature(thing))
+            {
+                if (is_my_player(player))
+                    play_non_3d_sample(119); //refusal
+            }
+            else
+            {
+                set_players_packet_action(player, PckA_DirectCtrlExit, player->controlled_thing_idx, 0, 0, 0);
+            }
         }
     }
     // Use the Query/Message keys and mouse wheel to scroll through query pages and go to correct query page when selecting an instance.
@@ -1777,7 +1803,7 @@ short get_creature_control_action_inputs(void)
                 set_players_packet_action(player, PckA_SelectFPPickup, player->thing_under_hand, 0, 0, 0);
             }
         }
-        if (!creature_affected_by_spell(thing, SplK_Chicken))
+        if (!creature_under_spell_effect(thing, CSAfF_Chicken))
         {
             if (numkey != -1)
             {
@@ -2412,12 +2438,12 @@ void get_creature_control_nonaction_inputs(void)
     TbBool cheat_menu_active = cheat_menu_is_active();
     if (((MyScreenWidth >> 1) != x) || ((MyScreenHeight >> 1) != y)) 
     {
-        if (!cheat_menu_active)
+        if (!cheat_menu_active && !a_menu_window_is_active())
         {
             LbMouseSetPositionInitial((MyScreenWidth / pixel_size) >> 1, (MyScreenHeight / pixel_size) >> 1);
         }
     }
-    if (!cheat_menu_active)
+    if (!cheat_menu_active && !a_menu_window_is_active())
     {
         long centerX = MyScreenWidth / 2;
         long centerY = MyScreenHeight / 2;
@@ -2479,6 +2505,22 @@ void get_creature_control_nonaction_inputs(void)
             set_packet_control(pckt, PCtr_MoveUp);
         if (is_game_key_pressed(Gkey_MoveDown, NULL, true) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
             set_packet_control(pckt, PCtr_MoveDown);
+    }
+    if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
+    {
+        clear_key_pressed(KC_ESCAPE);
+        if (a_menu_window_is_active())
+        {
+            turn_off_all_window_menus();
+        }
+        else
+        {
+            if (menu_is_active(GMnu_MAIN))
+            {
+                fake_button_click(BID_OPTIONS);
+            }
+            turn_on_menu(GMnu_OPTIONS);
+        }
     }
 }
 

@@ -1663,7 +1663,8 @@ TbBool cmd_freeze_creature(PlayerNumber plyr_idx, char * args)
         return false;
     }
     thing_play_sample(thing, 50, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
-    apply_spell_effect_to_thing(thing, SplK_Freeze, 8);
+    // Not sure how to handle this yet, for now simply hardcode the intended spell kind with a number.
+    apply_spell_effect_to_thing(thing, 3, 8, plyr_idx); // 3 was 'SplK_Freeze' in the enum.
     return true;
 }
 
@@ -1678,7 +1679,8 @@ TbBool cmd_slow_creature(PlayerNumber plyr_idx, char * args)
         return false;
     }
     thing_play_sample(thing, 50, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
-    apply_spell_effect_to_thing(thing, SplK_Slow, 8);
+    // Not sure how to handle this yet, for now simply hardcode the intended spell kind with a number.
+    apply_spell_effect_to_thing(thing, 12, 8, plyr_idx); // 12 was 'SplK_Slow' in the enum.
     return true;
 }
 
@@ -1852,6 +1854,36 @@ TbBool cmd_speech_test(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
+TbBool cmd_player_colour(PlayerNumber plyr_idx, char * args)
+{
+    char * pr2str = strsep(&args, " ");
+    PlayerNumber plyr_start = get_player_number_for_command(pr2str);
+    char * pr3str = strsep(&args, " ");
+    char colour_idx = get_rid(cmpgn_human_player_options, pr3str);
+    if (plyr_start >= 0)
+    {
+        if (colour_idx >= 0)
+        {
+            PlayerNumber plyr_end;
+            if (plyr_start == ALL_PLAYERS)
+            {
+                plyr_start = PLAYER0;
+                plyr_end = PLAYER6;
+            }
+            else
+            {
+                plyr_end = plyr_start;
+            }
+            for (PlayerNumber plyr_id = plyr_start; plyr_id <= plyr_end; plyr_id++)
+            {
+                set_player_colour(plyr_id, (unsigned char)colour_idx);
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
 TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
 {
     struct ConsoleCommand {
@@ -1951,6 +1983,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
         { "herogate.zoomto", cmd_zoom_to_hero_gate },
         { "sound.test", cmd_sound_test },
         { "speech.test", cmd_speech_test },
+        { "player.color", cmd_player_colour},
+        { "player.colour", cmd_player_colour},
     };
     SYNCDBG(2, "Command %d: %s",(int)plyr_idx, args);
     const char * command = strsep(&args, " ");
