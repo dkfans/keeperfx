@@ -1537,6 +1537,22 @@ void terminate_all_actives_spell_effects(struct Thing *thing)
     }
 }
 
+void terminate_all_actives_damage_over_time_spell_effects(struct Thing *thing)
+{
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    struct CastedSpellData *cspell;
+    struct SpellConfig *spconf;
+    for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+    {
+        cspell = &cctrl->casted_spells[i];
+        spconf = get_spell_config(cspell->spkind);
+        if (spconf->damage != 0)
+        {
+            terminate_thing_spell_effect(thing, cspell->spkind);
+        }
+    }
+}
+
 /* Clears spell effect on a thing. 
  * It first checks for an active spell match and terminates the associated spell.
  * If no exact match is found, it clears only the flag without affecting others.
@@ -3247,21 +3263,24 @@ void delete_familiars_attached_to_creature(struct Thing* sumntng)
     }
 }
 
-struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng, PlayerNumber killer_plyr_idx, CrDeathFlags flags)
+struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, PlayerNumber killer_plyr_idx, CrDeathFlags flags)
 {
-    SYNCDBG(18,"Starting");
+    SYNCDBG(18, "Starting");
     TRACE_THING(creatng);
     cleanup_creature_state_and_interactions(creatng);
     if (!thing_is_invalid(killertng))
     {
-        if (killertng->owner == game.neutral_player_num) {
-            flags &= ~CrDed_DiedInBattle;
+        if (killertng->owner == game.neutral_player_num)
+        {
+            clear_flag(flags, CrDed_DiedInBattle);
         }
     }
-    if (killer_plyr_idx == game.neutral_player_num) {
-        flags &= ~CrDed_DiedInBattle;
+    if (killer_plyr_idx == game.neutral_player_num)
+    {
+        clear_flag(flags, CrDed_DiedInBattle);
     }
-    if (!thing_exists(creatng)) {
+    if (!thing_exists(creatng))
+    {
         ERRORLOG("Tried to kill non-existing thing!");
         return INVALID_THING;
     }
@@ -3278,6 +3297,8 @@ struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     {
         clean_spell_effect(creatng, CSAfF_Rebound);
     }
+    // Terminate all the actives spell effects with damage > 0.
+    terminate_all_actives_damage_over_time_spell_effects(creatng);
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn > game.play_gameturn))
     {
@@ -3285,74 +3306,78 @@ struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng, Play
         set_flag(flags, CrDed_NotReallyDying | CrDed_NoEffects);
         return cause_creature_death(creatng, flags);
     }
-    struct Dungeon* dungeon = (!is_neutral_thing(creatng)) ? get_players_num_dungeon(creatng->owner) : INVALID_DUNGEON;
+    struct Dungeon *dungeon = (!is_neutral_thing(creatng)) ? get_players_num_dungeon(creatng->owner) : INVALID_DUNGEON;
     if (!dungeon_invalid(dungeon))
     {
-        if ((flags & CrDed_DiedInBattle) != 0) {
+        if (flag_is_set(flags, CrDed_DiedInBattle))
+        {
             dungeon->battles_lost++;
         }
     }
     update_kills_counters(creatng, killertng, killer_plyr_idx, flags);
-    if (thing_is_invalid(killertng) || (killertng->owner == game.neutral_player_num) ||
-        (killer_plyr_idx == game.neutral_player_num) || dungeon_invalid(dungeon))
+    if (thing_is_invalid(killertng) || (killertng->owner == game.neutral_player_num) || (killer_plyr_idx == game.neutral_player_num) || dungeon_invalid(dungeon))
     {
-        if ((flags & CrDed_NoEffects) && ((creatng->alloc_flags & TAlF_IsControlled) != 0)) {
+        if (flag_is_set(flags, CrDed_NoEffects) && flag_is_set(creatng->alloc_flags, TAlF_IsControlled))
+        {
             prepare_to_controlled_creature_death(creatng);
         }
         return cause_creature_death(creatng, flags);
     }
-    // Now we are sure that killertng and dungeon pointers are correct
+    // Now we are sure that killertng and dungeon pointers are correct.
     if (creatng->owner == killertng->owner)
     {
-        if ((get_creature_model_flags(creatng) & CMF_IsDiptera) && (get_creature_model_flags(killertng) & CMF_IsArachnid)) {
+        if ((get_creature_model_flags(creatng) & CMF_IsDiptera) && (get_creature_model_flags(killertng) & CMF_IsArachnid))
+        {
             dungeon->lvstats.flies_killed_by_spiders++;
         }
     }
-    struct CreatureControl* cctrlgrp = creature_control_get_from_thing(killertng);
-    if (!creature_control_invalid(cctrlgrp)) {
+    struct CreatureControl *cctrlgrp = creature_control_get_from_thing(killertng);
+    if (!creature_control_invalid(cctrlgrp))
+    {
         cctrlgrp->kills_num++;
     }
     if (is_my_player_number(creatng->owner))
     {
-        if ((flags & CrDed_DiedInBattle) != 0)
+        if (flag_is_set(flags, CrDed_DiedInBattle))
         {
             output_message_far_from_thing(creatng, SMsg_BattleDeath, MESSAGE_DELAY_BATTLE, true);
         }
-    } else
-    if (is_my_player_number(killertng->owner))
+    }
+    else if (is_my_player_number(killertng->owner))
     {
         output_message_far_from_thing(creatng, SMsg_BattleWon, MESSAGE_DELAY_BATTLE, true);
     }
     if (is_hero_thing(killertng))
     {
-        if (player_creature_tends_to(killertng->owner,CrTend_Imprison)) {
-            ERRORLOG("Hero have tend to imprison");
+        if (player_creature_tends_to(killertng->owner, CrTend_Imprison))
+        {
+            ERRORLOG("Hero have tend to imprison"); // What is the point of this log error? Check if it can be removed.
         }
     }
     {
-        struct CreatureStats* crstat = creature_stats_get_from_thing(killertng);
+        struct CreatureStats *crstat = creature_stats_get_from_thing(killertng);
         anger_apply_anger_to_creature(killertng, crstat->annoy_win_battle, AngR_Other, 1);
     }
-    if (!creature_control_invalid(cctrlgrp) && ((flags & CrDed_DiedInBattle) != 0)) {
+    if (!creature_control_invalid(cctrlgrp) && flag_is_set(flags, CrDed_DiedInBattle))
+    {
         cctrlgrp->unknown_state.byte_9A++;
     }
-    if (!dungeon_invalid(dungeon)) {
+    if (!dungeon_invalid(dungeon))
+    {
         dungeon->hates_player[killertng->owner] += game.conf.rules.creature.fight_hate_kill_value;
     }
-    SYNCDBG(18,"Almost finished");
-    if (((flags & CrDed_NoUnconscious) != 0) || (!player_has_room_of_role(killertng->owner,RoRoF_Prison))
-      || (!player_creature_tends_to(killertng->owner,CrTend_Imprison)) ||
-        ((get_creature_model_flags(creatng) & CMF_IsEvil) && (CREATURE_RANDOM(creatng, 100) >= game.conf.rules.creature.stun_enemy_chance_evil)) ||
-        (!(get_creature_model_flags(creatng) & CMF_IsEvil) && (CREATURE_RANDOM(creatng, 100) >= game.conf.rules.creature.stun_enemy_chance_good)) ||
-        (get_creature_model_flags(creatng) & CMF_NoImprisonment) )
+    SYNCDBG(18, "Almost finished");
+    if (!creature_can_be_set_unconscious(creatng, killertng, flags))
     {
-        if ((flags & CrDed_NoEffects) == 0) {
+        if (!flag_is_set(flags, CrDed_NoEffects))
+        {
             return cause_creature_death(creatng, flags);
         }
     }
-    if ((flags & CrDed_NoEffects) != 0)
+    if (flag_is_set(flags, CrDed_NoEffects))
     {
-        if ((creatng->alloc_flags & TAlF_IsControlled) != 0) {
+        if (flag_is_set(creatng->alloc_flags, TAlF_IsControlled))
+        {
             prepare_to_controlled_creature_death(creatng);
         }
         return cause_creature_death(creatng, flags);
