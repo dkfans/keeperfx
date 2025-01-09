@@ -6,6 +6,9 @@ on:
       artifact-id:
         description: "The ID of the uploaded artifact"
         value: ${{ jobs.build-alpha-patch-unsigned.outputs.artifact-id }}
+      zip-name:
+        description: "The name of the ZIP file without extension"
+        value: ${{ jobs.build-alpha-patch-unsigned.outputs.zip-name }}
   workflow_dispatch:
 
 jobs:
@@ -54,3 +57,4 @@ jobs:
       
     outputs:
       artifact-id: ${{ steps.upload-artifact.outputs.artifact-id }}
+      zip-name: ${{ env.ZIP_NAME }}
