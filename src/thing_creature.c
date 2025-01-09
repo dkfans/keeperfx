@@ -1537,6 +1537,22 @@ void terminate_all_actives_spell_effects(struct Thing *thing)
     }
 }
 
+void terminate_all_actives_damage_over_time_spell_effects(struct Thing *thing)
+{
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    struct CastedSpellData *cspell;
+    struct SpellConfig *spconf;
+    for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+    {
+        cspell = &cctrl->casted_spells[i];
+        spconf = get_spell_config(cspell->spkind);
+        if (spconf->damage != 0)
+        {
+            terminate_thing_spell_effect(thing, cspell->spkind);
+        }
+    }
+}
+
 /* Clears spell effect on a thing. 
  * It first checks for an active spell match and terminates the associated spell.
  * If no exact match is found, it clears only the flag without affecting others.
@@ -3281,6 +3297,8 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     {
         clean_spell_effect(creatng, CSAfF_Rebound);
     }
+    // Terminate all the actives spell effects with damage > 0.
+    terminate_all_actives_damage_over_time_spell_effects(creatng);
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn > game.play_gameturn))
     {
