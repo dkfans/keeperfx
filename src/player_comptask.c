@@ -2838,12 +2838,9 @@ struct Thing *find_creature_for_defend_pickup(struct Computer2 *comp)
                             {
                                 struct PerExpLevelValues* expvalues;
                                 expvalues = &game.creature_scores[thing->model];
-                                long expval;
-                                long healthprm;
-                                long new_factor;
-                                expval = expvalues->value[cctrl->explevel];
-                                healthprm = get_creature_health_permil(thing);
-                                new_factor = healthprm * expval / 1000;
+                                long expval = expvalues->value[cctrl->explevel];
+                                HitPoints healthprm = get_creature_health_permil(thing);
+                                HitPoints new_factor = healthprm * expval / 1000;
                                 if ((new_factor > best_factor) && (healthprm > 20))
                                 {
                                     best_factor = new_factor;
