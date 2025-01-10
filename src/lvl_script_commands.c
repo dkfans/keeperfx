@@ -383,6 +383,22 @@ const struct NamedCommand script_operator_desc[] = {
   {NULL,          0},
 };
 
+const struct NamedCommand script_boolean_desc[] = {
+    {"0",        0},
+    {"OFF",      0},
+    {"NO",       0},
+    {"FALSE",    0},
+    {"DISABLE",  0},
+    {"DISABLED", 0},
+    {"1",        1},
+    {"ON",       1},
+    {"YES",      1},
+    {"TRUE",     1},
+    {"ENABLE",   1},
+    {"ENABLED",  1},
+    {NULL,       0},
+};
+
 const struct NamedCommand variable_desc[] = {
     {"MONEY",                       SVar_MONEY},
     {"GAME_TURN",                   SVar_GAME_TURN},
@@ -486,9 +502,9 @@ const struct NamedCommand fill_desc[] = {
   {NULL,            0},
 };
 
-const struct NamedCommand set_door_desc[] = {
+const struct NamedCommand locked_desc[] = {
   {"LOCKED", 1},
-  {"UNLOCKED", 2},
+  {"UNLOCKED", 0},
   {NULL, 0}
 };
 
@@ -896,19 +912,28 @@ static void display_objective_process(struct ScriptContext *context)
 static void conceal_map_rect_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    TbBool conceal_all = 0;
+    TbBool conceal_all = false;
 
-    if ((strcmp(scline->tp[5], "") == 0) || (strcmp(scline->tp[5], "0") == 0))
+    if (scline->np[5] == -1)
     {
-        conceal_all = 0;
-    }
-    else if ((strcmp(scline->tp[5], "ALL") == 0) || (strcmp(scline->tp[5], "1") == 0))
-    {
-        conceal_all = 1;
+        if ((strcmp(scline->tp[5], "") == 0))
+        {
+            conceal_all = false;
+        }
+        else if ((strcmp(scline->tp[5], "ALL") == 0))
+        {
+            conceal_all = true;
+        }
+        else
+        {
+            SCRPTWRNLOG("Hide value \"%s\" not recognized", scline->tp[5]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
     }
     else
     {
-        SCRPTWRNLOG("Hide value \"%s\" not recognized", scline->tp[5]);
+        conceal_all = scline->np[5];
     }
 
     MapSubtlCoord x = scline->np[1];
@@ -2615,6 +2640,38 @@ static void add_heart_health_process(struct ScriptContext *context)
     }
 }
 
+static void lock_possession_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    short locked = scline->np[1];
+    if (locked == -1)
+    {
+        locked = get_id(locked_desc, scline->tp[1]);
+        if (locked == -1)
+        {
+            SCRPTERRLOG("Invalid Possession lock value (%s) not recognized.", scline->tp[1]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+    }
+
+    value->chars[1] = locked;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void lock_possession_process(struct ScriptContext* context)
+{
+    struct PlayerInfo *player;
+    for (int plyridx = context->plr_start; plyridx < context->plr_end; plyridx++)
+    {
+        player = get_player(plyridx);
+        if (player_exists(player))
+        {
+            player->possession_lock = context->value->chars[1];
+        }
+    }
+}
+
 static void heart_lost_quick_objective_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
@@ -2676,7 +2733,7 @@ static void heart_lost_objective_process(struct ScriptContext *context)
 static void set_door_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    long doorAction = get_id(set_door_desc, scline->tp[0]);
+    long doorAction = get_id(locked_desc, scline->tp[0]);
     if (doorAction == -1)
     {
         SCRPTERRLOG("Set Door state %s not recognized", scline->tp[0]);
@@ -2732,34 +2789,34 @@ static void place_door_check(const struct ScriptLine* scline)
         return;
     }
 
-    short locked = get_id(set_door_desc, scline->tp[4]);
+    short locked = scline->np[4];
     if (locked == -1)
     {
-        SCRPTERRLOG("Door locked state %s not recognized", scline->tp[4]);
-        DEALLOCATE_SCRIPT_VALUE
-        return;
+        locked = get_id(locked_desc, scline->tp[4]);
+        if (locked == -1)
+        {
+            SCRPTERRLOG("Door locked state %s not recognized", scline->tp[4]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
     }
 
-    short free;
-    if (parameter_is_number(scline->tp[5]))
-    {
-        free = atoi(scline->tp[5]);
-    }
-    else
+    short free = scline->np[5];
+    if (free == -1)
     {
         free = get_id(is_free_desc, scline->tp[5]);
-    }
-    if ((free < 0) || (free > 1))
-    {
-        SCRPTERRLOG("Place Door free state '%s' not recognized", scline->tp[5]);
-        DEALLOCATE_SCRIPT_VALUE
-        return;
+        if (free == -1)
+        {
+            SCRPTERRLOG("Place Door free state '%s' not recognized", scline->tp[5]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
     }
 
     value->shorts[1] = door_id;
     value->shorts[2] = scline->np[2];
     value->shorts[3] = scline->np[3];
-    value->shorts[4] = (locked == 1);
+    value->shorts[4] = locked;
     value->shorts[5] = free;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -2824,20 +2881,16 @@ static void place_trap_check(const struct ScriptLine* scline)
         return;
     }
 
-    short free;
-    if (parameter_is_number(scline->tp[4]))
-    {
-        free = atoi(scline->tp[4]);
-    }
-    else
+    short free = scline->np[4];
+    if (free != -1)
     {
         free = get_id(is_free_desc, scline->tp[4]);
-    }
-    if ((free < 0) || (free > 1))
-    {
-        SCRPTERRLOG("Place Trap free state '%s' not recognized", scline->tp[5]);
-        DEALLOCATE_SCRIPT_VALUE
-        return;
+        if (free == -1)
+        {
+            SCRPTERRLOG("Place Trap free state '%s' not recognized", scline->tp[5]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
     }
 
     value->shorts[1] = trap_id;
@@ -4255,7 +4308,8 @@ static void set_creature_configuration_process(struct ScriptContext* context)
 
 static void set_object_configuration_process(struct ScriptContext *context)
 {
-    struct ObjectConfigStats* objst = &game.conf.object_conf.object_cfgstats[context->value->longs[0]];
+    ThingModel model = context->value->longs[0];
+    struct ObjectConfigStats* objst = &game.conf.object_conf.object_cfgstats[model];
     switch (context->value->shorts[4])
     {
         case 2: // GENRE
@@ -4374,7 +4428,7 @@ static void set_object_configuration_process(struct ScriptContext *context)
             WARNMSG("Unsupported Object configuration, variable %d.", context->value->shorts[4]);
             break;
     }
-    update_all_object_stats();
+    update_all_objects_of_model(model);
 }
 
 static void display_timer_check(const struct ScriptLine *scline)
@@ -4999,20 +5053,16 @@ static void use_power_on_players_creatures_check(const struct ScriptLine* scline
     const char* pwr_name = scline->tp[3];
     short pwr_id = get_rid(power_desc, pwr_name);
     short splevel = scline->np[4];
-    short free;
-    if (parameter_is_number(scline->tp[5]))
-    {
-        free = atoi(scline->tp[5]);
-    }
-    else
+    short free = scline->np[5];
+    if (free != -1)
     {
         free = get_id(is_free_desc, scline->tp[5]);
-    }
-    if ((free < 0) || (free > 1))
-    {
-        SCRPTERRLOG("Unknown free value '%s' not recognized", scline->tp[5]);
-        DEALLOCATE_SCRIPT_VALUE
-        return;
+        if (free == -1)
+        {
+            SCRPTERRLOG("Unknown free value '%s' not recognized", scline->tp[5]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
     }
 
     if (crtr_id == CREATURE_NONE)
@@ -6057,12 +6107,6 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
             value->longs[2] = atoi(new_value);
             break;
         }
-        case 10: // SymbolSprites
-        {
-            value->longs[1] = atoi(new_value);
-            value->longs[2] = atoi(scline->tp[3]);
-            break;
-        }
         case 5: // Castability
         {
             long long j;
@@ -6107,8 +6151,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                 }
                 value->chars[3] = -1;
             }
-            unsigned long long *new = (unsigned long long*)&value->ulongs[1];
-            *new = number_value;
+            value->ulonglongs[1] = number_value;
             break;
         }
         case 6: // Artifact
@@ -6119,6 +6162,12 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                   number_value = k;
             }
             value->longs[2] = number_value;
+            break;
+        }
+        case 10: // SymbolSprites
+        {
+            value->longs[1] = atoi(new_value);
+            value->longs[2] = atoi(scline->tp[3]);
             break;
         }
         case 14: // Properties
@@ -6241,8 +6290,7 @@ static void set_power_configuration_process(struct ScriptContext *context)
             break;
         case 5: // Castability
         {
-            unsigned long long *value = (unsigned long long*)&context->value->ulongs[1];
-            unsigned long long flag = *value;
+            unsigned long long flag = context->value->ulonglongs[1];
             if (context->value->chars[3] == 1)
             {
                 set_flag(powerst->can_cast_flags, flag);
@@ -6319,7 +6367,6 @@ static void set_power_configuration_process(struct ScriptContext *context)
 static void set_player_colour_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
-
     long color_idx = get_rid(cmpgn_human_player_options, scline->tp[1]);
     if (color_idx == -1)
     {
@@ -6333,74 +6380,15 @@ static void set_player_colour_check(const struct ScriptLine *scline)
             return;
         }
     }
-    value->shorts[0] = color_idx;
+    value->bytes[0] = (unsigned char)color_idx;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_player_colour_process(struct ScriptContext *context)
 {
-    long color_idx = context->value->shorts[0];
-    struct Dungeon* dungeon;
-
     for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
     {
-        dungeon = get_dungeon(plyr_idx);
-
-        if(dungeon->color_idx == color_idx)
-        {
-            continue;
-        }
-
-        dungeon->color_idx = color_idx;
-
-        update_panel_color_player_color(plyr_idx,color_idx);
-
-        for (MapSlabCoord slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
-        {
-            for (MapSlabCoord slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
-            {
-                struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
-                if (slabmap_owner(slb) == plyr_idx)
-                {
-                    redraw_slab_map_elements(slb_x,slb_y);
-                }
-
-            }
-        }
-
-        const struct StructureList *slist;
-        slist = get_list_for_thing_class(TCls_Object);
-        int k = 0;
-        unsigned long i = slist->index;
-        while (i > 0)
-        {
-            struct Thing *thing;
-            thing = thing_get(i);
-            TRACE_THING(thing);
-            if (thing_is_invalid(thing)) {
-                ERRORLOG("Jump to invalid thing detected");
-                break;
-            }
-            i = thing->next_of_class;
-            // Per-thing code
-
-            if (thing->owner == plyr_idx)
-            {
-                ThingModel base_model = get_coloured_object_base_model(thing->model);
-                if(base_model != 0)
-                {
-                    create_coloured_object(&thing->mappos, plyr_idx, thing->parent_idx,base_model);
-                    delete_thing_structure(thing, 0);
-                }
-            }
-            // Per-thing code ends
-            k++;
-            if (k > slist->count)
-            {
-                ERRORLOG("Infinite loop detected when sweeping things list");
-                break;
-            }
-        }
+         set_player_colour(plyr_idx , context->value->bytes[0]);
     }
 }
 
@@ -7527,7 +7515,7 @@ static void swap_creature_process(struct ScriptContext* context)
 
 /**
  * Descriptions of script commands for parser.
- * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
+ * Arguments are: A-string, N-integer, C-creature model, P-player, R-room kind, L-location, O-operator, S-slab kind, B-boolean
  * Lower case letters are optional arguments, Exclamation points sets 'extended' option, for example 'ANY_CREATURE' for creatures.
  */
 const struct CommandDesc command_desc[] = {
@@ -7575,7 +7563,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_CREATURE_FEAR_WOUNDED",         "CN      ", Cmd_SET_CREATURE_FEAR_WOUNDED, NULL, NULL},
   {"SET_CREATURE_FEAR_STRONGER",        "CN      ", Cmd_SET_CREATURE_FEAR_STRONGER, NULL, NULL},
   {"SET_CREATURE_FEARSOME_FACTOR",      "CN      ", Cmd_SET_CREATURE_FEARSOME_FACTOR, NULL, NULL},
-  {"SET_CREATURE_PROPERTY",             "CAN     ", Cmd_SET_CREATURE_PROPERTY, NULL, NULL},
+  {"SET_CREATURE_PROPERTY",             "CAB     ", Cmd_SET_CREATURE_PROPERTY, NULL, NULL},
   {"IF_AVAILABLE",                      "PAOAa   ", Cmd_IF_AVAILABLE, &if_available_check, NULL},
   {"IF_CONTROLS",                       "PAOAa   ", Cmd_IF_CONTROLS,  &if_controls_check, NULL},
   {"SET_COMPUTER_GLOBALS",              "PNNNNNNn", Cmd_SET_COMPUTER_GLOBALS, &set_computer_globals_check, &set_computer_globals_process},
@@ -7583,8 +7571,8 @@ const struct CommandDesc command_desc[] = {
   {"SET_COMPUTER_EVENT",                "PANNNNN ", Cmd_SET_COMPUTER_EVENT, &set_computer_event_check, &set_computer_event_process},
   {"SET_COMPUTER_PROCESS",              "PANNNNN ", Cmd_SET_COMPUTER_PROCESS, &set_computer_process_check, &set_computer_process_process},
   {"ALLY_PLAYERS",                      "PPN     ", Cmd_ALLY_PLAYERS, NULL, NULL},
-  {"DEAD_CREATURES_RETURN_TO_POOL",     "N       ", Cmd_DEAD_CREATURES_RETURN_TO_POOL, NULL, NULL},
-  {"BONUS_LEVEL_TIME",                  "Nn      ", Cmd_BONUS_LEVEL_TIME, NULL, NULL},
+  {"DEAD_CREATURES_RETURN_TO_POOL",     "B       ", Cmd_DEAD_CREATURES_RETURN_TO_POOL, NULL, NULL},
+  {"BONUS_LEVEL_TIME",                  "Nb      ", Cmd_BONUS_LEVEL_TIME, NULL, NULL},
   {"QUICK_OBJECTIVE",                   "NAl     ", Cmd_QUICK_OBJECTIVE, NULL, NULL},
   {"QUICK_INFORMATION",                 "NAl     ", Cmd_QUICK_INFORMATION, NULL, NULL},
   {"QUICK_OBJECTIVE_WITH_POS",          "NANN    ", Cmd_QUICK_OBJECTIVE_WITH_POS, NULL, NULL},
@@ -7594,15 +7582,15 @@ const struct CommandDesc command_desc[] = {
   {"MESSAGE",                           "A       ", Cmd_MESSAGE, NULL, NULL},
   {"PLAY_MESSAGE",                      "PAA     ", Cmd_PLAY_MESSAGE, &play_message_check, &play_message_process},
   {"ADD_GOLD_TO_PLAYER",                "PN      ", Cmd_ADD_GOLD_TO_PLAYER, NULL, NULL},
-  {"SET_CREATURE_TENDENCIES",           "PAN     ", Cmd_SET_CREATURE_TENDENCIES, NULL, NULL},
+  {"SET_CREATURE_TENDENCIES",           "PAB     ", Cmd_SET_CREATURE_TENDENCIES, NULL, NULL},
   {"REVEAL_MAP_RECT",                   "PNNNN   ", Cmd_REVEAL_MAP_RECT, NULL, NULL},
-  {"CONCEAL_MAP_RECT",                  "PNNNNa  ", Cmd_CONCEAL_MAP_RECT, &conceal_map_rect_check, &conceal_map_rect_process},
+  {"CONCEAL_MAP_RECT",                  "PNNNNb! ", Cmd_CONCEAL_MAP_RECT, &conceal_map_rect_check, &conceal_map_rect_process},
   {"REVEAL_MAP_LOCATION",               "PLN     ", Cmd_REVEAL_MAP_LOCATION, &reveal_map_location_check, &reveal_map_location_process},
   {"LEVEL_VERSION",                     "N       ", Cmd_LEVEL_VERSION, NULL, NULL},
   {"KILL_CREATURE",                     "PC!AN   ", Cmd_KILL_CREATURE, NULL, NULL},
   {"COMPUTER_DIG_TO_LOCATION",          "PLL     ", Cmd_COMPUTER_DIG_TO_LOCATION, NULL, NULL},
   {"USE_POWER_ON_CREATURE",             "PC!APANA", Cmd_USE_POWER_ON_CREATURE, NULL, NULL},
-  {"USE_POWER_ON_PLAYERS_CREATURES",    "PC!PANA ", Cmd_USE_POWER_ON_PLAYERS_CREATURES, &use_power_on_players_creatures_check, &use_power_on_players_creatures_process},
+  {"USE_POWER_ON_PLAYERS_CREATURES",    "PC!PANB!", Cmd_USE_POWER_ON_PLAYERS_CREATURES, &use_power_on_players_creatures_check, &use_power_on_players_creatures_process},
   {"USE_POWER_AT_POS",                  "PNNANA  ", Cmd_USE_POWER_AT_POS, NULL, NULL},
   {"USE_POWER_AT_SUBTILE",              "PNNANA  ", Cmd_USE_POWER_AT_POS, NULL, NULL},  //todo: Remove after mapmakers have received time to use USE_POWER_AT_POS
   {"USE_POWER_AT_LOCATION",             "PLANA   ", Cmd_USE_POWER_AT_LOCATION, NULL, NULL},
@@ -7620,7 +7608,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_CAMPAIGN_FLAG",                 "PAN     ", Cmd_SET_CAMPAIGN_FLAG, NULL, NULL},
   {"ADD_TO_CAMPAIGN_FLAG",              "PAN     ", Cmd_ADD_TO_CAMPAIGN_FLAG, NULL, NULL},
   {"EXPORT_VARIABLE",                   "PAA     ", Cmd_EXPORT_VARIABLE, NULL, NULL},
-  {"RUN_AFTER_VICTORY",                 "N       ", Cmd_RUN_AFTER_VICTORY, NULL, NULL},
+  {"RUN_AFTER_VICTORY",                 "B       ", Cmd_RUN_AFTER_VICTORY, NULL, NULL},
   {"LEVEL_UP_CREATURE",                 "PC!AN   ", Cmd_LEVEL_UP_CREATURE, NULL, NULL},
   {"LEVEL_UP_PLAYERS_CREATURES",        "PC!n    ", Cmd_LEVEL_UP_PLAYERS_CREATURES, &level_up_players_creatures_check, level_up_players_creatures_process},
   {"CHANGE_CREATURE_OWNER",             "PC!AP   ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},
@@ -7644,16 +7632,16 @@ const struct CommandDesc command_desc[] = {
   {"USE_SPELL_ON_CREATURE",             "PC!AAn  ", Cmd_USE_SPELL_ON_CREATURE, NULL, NULL},
   {"USE_SPELL_ON_PLAYERS_CREATURES",    "PC!An   ", Cmd_USE_SPELL_ON_PLAYERS_CREATURES, &use_spell_on_players_creatures_check, &use_spell_on_players_creatures_process},
   {"SET_HEART_HEALTH",                  "PN      ", Cmd_SET_HEART_HEALTH, &set_heart_health_check, &set_heart_health_process},
-  {"ADD_HEART_HEALTH",                  "PNn     ", Cmd_ADD_HEART_HEALTH, &add_heart_health_check, &add_heart_health_process},
+  {"ADD_HEART_HEALTH",                  "PNb     ", Cmd_ADD_HEART_HEALTH, &add_heart_health_check, &add_heart_health_process},
   {"CREATURE_ENTRANCE_LEVEL",           "PN      ", Cmd_CREATURE_ENTRANCE_LEVEL, NULL, NULL},
   {"RANDOMISE_FLAG",                    "PAn     ", Cmd_RANDOMISE_FLAG, NULL, NULL},
   {"RANDOMIZE_FLAG",                    "PAn     ", Cmd_RANDOMISE_FLAG, NULL, NULL},
-  {"COMPUTE_FLAG",                      "PAAPAn  ", Cmd_COMPUTE_FLAG, NULL, NULL},
-  {"DISPLAY_TIMER",                     "PAn     ", Cmd_DISPLAY_TIMER, &display_timer_check, &display_timer_process},
+  {"COMPUTE_FLAG",                      "PAAPAb  ", Cmd_COMPUTE_FLAG, NULL, NULL},
+  {"DISPLAY_TIMER",                     "PAb     ", Cmd_DISPLAY_TIMER, &display_timer_check, &display_timer_process},
   {"ADD_TO_TIMER",                      "PAN     ", Cmd_ADD_TO_TIMER, &add_to_timer_check, &add_to_timer_process},
   {"ADD_BONUS_TIME",                    "N       ", Cmd_ADD_BONUS_TIME, &add_bonus_time_check, &add_bonus_time_process},
   {"DISPLAY_VARIABLE",                  "PAnn    ", Cmd_DISPLAY_VARIABLE, &display_variable_check, &display_variable_process},
-  {"DISPLAY_COUNTDOWN",                 "PANn    ", Cmd_DISPLAY_COUNTDOWN, &display_countdown_check, &display_timer_process},
+  {"DISPLAY_COUNTDOWN",                 "PANb    ", Cmd_DISPLAY_COUNTDOWN, &display_countdown_check, &display_timer_process},
   {"HIDE_TIMER",                        "        ", Cmd_HIDE_TIMER, &cmd_no_param_check, &hide_timer_process},
   {"HIDE_VARIABLE",                     "        ", Cmd_HIDE_VARIABLE, &cmd_no_param_check, &hide_variable_process},
   {"CREATE_EFFECT",                     "AAn     ", Cmd_CREATE_EFFECT, &create_effect_check, &create_effect_process},
@@ -7661,8 +7649,8 @@ const struct CommandDesc command_desc[] = {
   {"HEART_LOST_QUICK_OBJECTIVE",        "NAl     ", Cmd_HEART_LOST_QUICK_OBJECTIVE, &heart_lost_quick_objective_check, &heart_lost_quick_objective_process},
   {"HEART_LOST_OBJECTIVE",              "Nl      ", Cmd_HEART_LOST_OBJECTIVE, &heart_lost_objective_check, &heart_lost_objective_process},
   {"SET_DOOR",                          "ANN     ", Cmd_SET_DOOR, &set_door_check, &set_door_process},
-  {"PLACE_DOOR",                        "PANNAA  ", Cmd_PLACE_DOOR, &place_door_check, &place_door_process},
-  {"PLACE_TRAP",                        "PANNA   ", Cmd_PLACE_TRAP, &place_trap_check, &place_trap_process },
+  {"PLACE_DOOR",                        "PANNb!b!", Cmd_PLACE_DOOR, &place_door_check, &place_door_process},
+  {"PLACE_TRAP",                        "PANNb!  ", Cmd_PLACE_TRAP, &place_trap_check, &place_trap_process },
   {"ZOOM_TO_LOCATION",                  "PL      ", Cmd_MOVE_PLAYER_CAMERA_TO, &player_zoom_to_check, &player_zoom_to_process},
   {"SET_CREATURE_INSTANCE",             "CNAN    ", Cmd_SET_CREATURE_INSTANCE, &set_creature_instance_check, &set_creature_instance_process},
   {"SET_HAND_RULE",                     "PC!Aaaa ", Cmd_SET_HAND_RULE, &set_hand_rule_check, &set_hand_rule_process},
@@ -7670,7 +7658,7 @@ const struct CommandDesc command_desc[] = {
   {"COUNT_CREATURES_AT_ACTION_POINT",   "NPC!PA  ", Cmd_COUNT_CREATURES_AT_ACTION_POINT, &count_creatures_at_action_point_check, &count_creatures_at_action_point_process},
   {"IF_ALLIED",                         "PPON    ", Cmd_IF_ALLIED, &if_allied_check, NULL},
   {"SET_TEXTURE",                       "PA      ", Cmd_SET_TEXTURE, &set_texture_check, &set_texture_process},
-  {"HIDE_HERO_GATE",                    "Nn      ", Cmd_HIDE_HERO_GATE, &hide_hero_gate_check, &hide_hero_gate_process},
+  {"HIDE_HERO_GATE",                    "NB      ", Cmd_HIDE_HERO_GATE, &hide_hero_gate_check, &hide_hero_gate_process},
   {"NEW_TRAP_TYPE",                     "A       ", Cmd_NEW_TRAP_TYPE, &new_trap_type_check, &null_process},
   {"NEW_OBJECT_TYPE",                   "A       ", Cmd_NEW_OBJECT_TYPE, &new_object_type_check, &null_process},
   {"NEW_ROOM_TYPE",                     "A       ", Cmd_NEW_ROOM_TYPE, &new_room_type_check, &null_process},
@@ -7687,6 +7675,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_TO_PLAYER_MODIFIER",            "PAN     ", Cmd_ADD_TO_PLAYER_MODIFIER, &add_to_player_modifier_check, &add_to_player_modifier_process},
   {"CHANGE_SLAB_TEXTURE",               "NNAa    ", Cmd_CHANGE_SLAB_TEXTURE , &change_slab_texture_check, &change_slab_texture_process},
   {"ADD_OBJECT_TO_LEVEL_AT_POS",        "ANNNpa  ", Cmd_ADD_OBJECT_TO_LEVEL_AT_POS, &add_object_to_level_at_pos_check, &add_object_to_level_at_pos_process},
+  {"LOCK_POSSESSION",                   "PB!     ", Cmd_LOCK_POSSESSION, &lock_possession_check, &lock_possession_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

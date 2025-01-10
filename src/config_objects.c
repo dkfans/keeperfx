@@ -815,16 +815,20 @@ TbBool load_objects_config_file(const char *textname, const char *fname, unsigne
     return result;
 }
 
-void update_all_object_stats()
+void update_all_objects_of_model(ThingModel model)
 {
     const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
+    struct ObjectConfigStats* objst = get_object_model_stats(model);
     struct Dungeon* dungeon;
     for (int i = slist->index; i > 0;)
     {
         struct Thing* thing = thing_get(i);
         i = thing->next_of_class;
-            TRACE_THING(thing);
-        struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+        if (thing->model != model)
+        {
+            continue;
+        }
+        TRACE_THING(thing);
         int start_frame = 0;
         if(objst->random_start_frame)
         {
