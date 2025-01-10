@@ -175,8 +175,9 @@ struct PlayerInfo {
     unsigned char id_number;
     unsigned char is_active;
     short controlled_thing_idx;
-    long controlled_thing_creatrn;
+    GameTurn controlled_thing_creatrn;
     short thing_under_hand;
+    TbBool possession_lock;
     unsigned char view_mode;
     /** Pointer to the currently active camera. */
     struct Camera *acamera;
@@ -201,8 +202,7 @@ struct PlayerInfo {
     unsigned char primary_cursor_state;
     unsigned char secondary_cursor_state;
     PlayerState continue_work_state;
-char field_45F;
-short cursor_light_idx;
+    short cursor_light_idx;
     char mp_message_text[PLAYER_MP_MESSAGE_LEN];
     unsigned char chosen_room_kind;
     unsigned char full_slab_cursor; // 0 for subtile sized cursor, 1 for slab sized cursor
@@ -218,15 +218,12 @@ short cursor_light_idx;
     /** If view mode is temporarily covered by another, the original mode which is to be restored later will be saved here.*/
     char view_mode_restore;
     long dungeon_camera_zoom;
-    long field_4BD;
+    long palette_fade_step_map;
     long palette_fade_step_pain;
     long palette_fade_step_possession;
     unsigned char *main_palette;
-    long field_4CD;
-    char field_4D1;
     /** Overcharge level while casting keeper powers. */
     long cast_expand_level;
-    long field_4D6;
     char video_cluedo_mode;
     MapCoordDelta zoom_to_movement_x;
     MapCoordDelta zoom_to_movement_y;
