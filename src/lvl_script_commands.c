@@ -502,7 +502,7 @@ const struct NamedCommand fill_desc[] = {
   {NULL,            0},
 };
 
-const struct NamedCommand set_door_desc[] = {
+const struct NamedCommand locked_desc[] = {
   {"LOCKED", 1},
   {"UNLOCKED", 0},
   {NULL, 0}
@@ -2643,11 +2643,19 @@ static void add_heart_health_process(struct ScriptContext *context)
 static void lock_possession_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    if ((scline->np[1] < 0) || (scline->np[1] > 1))
+    short locked = scline->np[1];
+    if (locked == -1)
     {
-        SCRPTERRLOG("Invalid Possession lock value (%ld), use 0 / 1 for true / false", scline->np[0]);
+        locked = get_id(locked_desc, scline->tp[1]);
+        if (locked == -1)
+        {
+            SCRPTERRLOG("Invalid Possession lock value (%s) not recognized.", scline->tp[1]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
     }
-    value->chars[1] = scline->np[1];
+
+    value->chars[1] = locked;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -2725,7 +2733,7 @@ static void heart_lost_objective_process(struct ScriptContext *context)
 static void set_door_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    long doorAction = get_id(set_door_desc, scline->tp[0]);
+    long doorAction = get_id(locked_desc, scline->tp[0]);
     if (doorAction == -1)
     {
         SCRPTERRLOG("Set Door state %s not recognized", scline->tp[0]);
@@ -2784,7 +2792,7 @@ static void place_door_check(const struct ScriptLine* scline)
     short locked = scline->np[4];
     if (locked == -1)
     {
-        locked = get_id(set_door_desc, scline->tp[4]);
+        locked = get_id(locked_desc, scline->tp[4]);
         if (locked == -1)
         {
             SCRPTERRLOG("Door locked state %s not recognized", scline->tp[4]);
@@ -7525,7 +7533,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_CREATURE_FEAR_WOUNDED",         "CN      ", Cmd_SET_CREATURE_FEAR_WOUNDED, NULL, NULL},
   {"SET_CREATURE_FEAR_STRONGER",        "CN      ", Cmd_SET_CREATURE_FEAR_STRONGER, NULL, NULL},
   {"SET_CREATURE_FEARSOME_FACTOR",      "CN      ", Cmd_SET_CREATURE_FEARSOME_FACTOR, NULL, NULL},
-  {"SET_CREATURE_PROPERTY",             "CAN     ", Cmd_SET_CREATURE_PROPERTY, NULL, NULL},
+  {"SET_CREATURE_PROPERTY",             "CAB     ", Cmd_SET_CREATURE_PROPERTY, NULL, NULL},
   {"IF_AVAILABLE",                      "PAOAa   ", Cmd_IF_AVAILABLE, &if_available_check, NULL},
   {"IF_CONTROLS",                       "PAOAa   ", Cmd_IF_CONTROLS,  &if_controls_check, NULL},
   {"SET_COMPUTER_GLOBALS",              "PNNNNNNn", Cmd_SET_COMPUTER_GLOBALS, &set_computer_globals_check, &set_computer_globals_process},
@@ -7544,7 +7552,7 @@ const struct CommandDesc command_desc[] = {
   {"MESSAGE",                           "A       ", Cmd_MESSAGE, NULL, NULL},
   {"PLAY_MESSAGE",                      "PAA     ", Cmd_PLAY_MESSAGE, &play_message_check, &play_message_process},
   {"ADD_GOLD_TO_PLAYER",                "PN      ", Cmd_ADD_GOLD_TO_PLAYER, NULL, NULL},
-  {"SET_CREATURE_TENDENCIES",           "PAN     ", Cmd_SET_CREATURE_TENDENCIES, NULL, NULL},
+  {"SET_CREATURE_TENDENCIES",           "PAB     ", Cmd_SET_CREATURE_TENDENCIES, NULL, NULL},
   {"REVEAL_MAP_RECT",                   "PNNNN   ", Cmd_REVEAL_MAP_RECT, NULL, NULL},
   {"CONCEAL_MAP_RECT",                  "PNNNNb! ", Cmd_CONCEAL_MAP_RECT, &conceal_map_rect_check, &conceal_map_rect_process},
   {"REVEAL_MAP_LOCATION",               "PLN     ", Cmd_REVEAL_MAP_LOCATION, &reveal_map_location_check, &reveal_map_location_process},
@@ -7637,7 +7645,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_TO_PLAYER_MODIFIER",            "PAN     ", Cmd_ADD_TO_PLAYER_MODIFIER, &add_to_player_modifier_check, &add_to_player_modifier_process},
   {"CHANGE_SLAB_TEXTURE",               "NNAa    ", Cmd_CHANGE_SLAB_TEXTURE , &change_slab_texture_check, &change_slab_texture_process},
   {"ADD_OBJECT_TO_LEVEL_AT_POS",        "ANNNpa  ", Cmd_ADD_OBJECT_TO_LEVEL_AT_POS, &add_object_to_level_at_pos_check, &add_object_to_level_at_pos_process},
-  {"LOCK_POSSESSION",                   "PB      ", Cmd_LOCK_POSSESSION, &lock_possession_check, &lock_possession_process},
+  {"LOCK_POSSESSION",                   "PB!     ", Cmd_LOCK_POSSESSION, &lock_possession_check, &lock_possession_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
