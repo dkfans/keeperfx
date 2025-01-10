@@ -86,7 +86,9 @@ const char *thing_classes[] = {
 const char *thing_class_code_name(int class_id)
 {
     if ((class_id < 0) || (class_id >= sizeof(thing_classes)/sizeof(thing_classes[0])))
+    {
         return "INVALID";
+    }
     return thing_classes[class_id];
 }
 
@@ -163,7 +165,8 @@ TbBool things_stats_debug_dump(void)
     int count[THING_CLASSES_COUNT];
     int realcnt[THING_CLASSES_COUNT];
     int i;
-    for (i=0; i < THING_CLASSES_COUNT; i++) {
+    for (i=0; i < THING_CLASSES_COUNT; i++)
+    {
         count[i] = 0;
         realcnt[i] = 0;
     }
@@ -179,7 +182,8 @@ TbBool things_stats_debug_dump(void)
     count[TCls_AmbientSnd] = game.thing_lists[TngList_AmbientSnds].count;
     count[TCls_CaveIn] = game.thing_lists[TngList_CaveIns].count;
     int total = 0;
-    for (i=0; i < THING_CLASSES_COUNT; i++) {
+    for (i=0; i < THING_CLASSES_COUNT; i++)
+    {
         total += count[i];
     }
     JUSTMSG("Check things: Creats%d, Objs%d, Bods%d, Trps%d, Drs%d, Shts%d, Effs%d, EffEls%d Othrs%d Total%d",
@@ -191,21 +195,26 @@ TbBool things_stats_debug_dump(void)
         count[TCls_Shot],
         count[TCls_Effect],
         count[TCls_EffectElem],
-        count[TCls_EffectGen] +  count[TCls_AmbientSnd] + count[TCls_CaveIn],
+        count[TCls_EffectGen] + count[TCls_AmbientSnd] + count[TCls_CaveIn],
         total
         );
-    for (i=1; i < THINGS_COUNT; i++) {
+    for (i=1; i < THINGS_COUNT; i++)
+    {
         struct Thing* thing = thing_get(i);
-        if (thing_exists(thing)) {
+        if (thing_exists(thing))
+        {
             realcnt[thing->class_id]++;
         }
     }
     int rltotal = 0;
     int rldiffers = 0;
-    for (i=0; i < THING_CLASSES_COUNT; i++) {
+    for (i=0; i < THING_CLASSES_COUNT; i++)
+    {
         rltotal += realcnt[i];
         if (realcnt[i] != count[i])
+        {
             rldiffers++;
+        }
     }
     if (rldiffers) {
         WARNMSG("Real: Creats%d, Objs%d, Bods%d, Trps%d, Drs%d, Shts%d, Effs%d, EffEls%d Othrs%d Total%d",
@@ -217,7 +226,7 @@ TbBool things_stats_debug_dump(void)
             realcnt[TCls_Shot],
             realcnt[TCls_Effect],
             realcnt[TCls_EffectElem],
-            realcnt[TCls_EffectGen] +  realcnt[TCls_AmbientSnd] + realcnt[TCls_CaveIn],
+            realcnt[TCls_EffectGen] + realcnt[TCls_AmbientSnd] + realcnt[TCls_CaveIn],
             rltotal
             );
         return true;
@@ -245,13 +254,18 @@ TbBool is_hero_thing(const struct Thing *thing)
  */
 long get_radially_decaying_value(long magnitude, long decay_start, long decay_length, long distance)
 {
-  if (distance >= decay_start+decay_length)
-    return 0;
-  else
-  if (distance >= decay_start)
-    return magnitude * (decay_length - (distance-decay_start)) / decay_length;
-  else
-    return magnitude;
+    if (distance >= decay_start + decay_length)
+    {
+        return 0;
+    }
+    else if (distance >= decay_start)
+    {
+        return magnitude * (decay_length - (distance-decay_start)) / decay_length;
+    }
+    else
+    {
+        return magnitude;
+    }
 }
 
 /**
@@ -265,24 +279,28 @@ long get_radially_decaying_value(long magnitude, long decay_start, long decay_le
  */
 long get_radially_growing_value(long magnitude, long decay_start, long decay_length, long distance, long friction)
 {
-    if (distance >= decay_start + decay_length) {
+    if (distance >= decay_start + decay_length)
+    {
         return 0; // Outside the max range, nothing is pulled inwards.
     }
     if (distance >= decay_start) // Too far away to pull with full power.
     {
-        if (decay_length == 0) {
+        if (decay_length == 0)
+        {
             decay_length = 1;
         }
         magnitude = magnitude * (decay_length - (distance - decay_start)) / decay_length;
     }
-    if (friction == 0) {
+    if (friction == 0)
+    {
         friction = 1;
     }
     long total_distance = abs((COORD_PER_STL / friction * magnitude + magnitude) / 2); // The intended distance to push the thing.
     if (total_distance > distance) // Never return a value that would go past the epicentre.
     {
         short factor = COORD_PER_STL / friction * 3 / 4; // Creatures slide so move further then expected.
-        if (factor == 0) {
+        if (factor == 0)
+        {
             factor = 1;
         }
         return -(distance / factor);
@@ -292,9 +310,8 @@ long get_radially_growing_value(long magnitude, long decay_start, long decay_len
 
 long compute_creature_kind_score(ThingModel crkind, unsigned short crlevel)
 {
-    // Modifiers shouldn't affect the computation for the creature kind score so compute_creature_max_health has 'game.neutral_player_num' as last argument.
     struct CreatureStats* crstat = creature_stats_get(crkind);
-    return compute_creature_max_health(crstat->health, crlevel, game.neutral_player_num)
+    return compute_creature_max_health(crstat->health, crlevel)
            + compute_creature_max_defense(crstat->defense, crlevel)
            + compute_creature_max_dexterity(crstat->dexterity, crlevel)
            + compute_creature_max_armour(crstat->armour, crlevel)
@@ -302,23 +319,21 @@ long compute_creature_kind_score(ThingModel crkind, unsigned short crlevel)
 }
 
 /* Computes max health of a creature on given level. */
-long compute_creature_max_health(HitPoints base_health, unsigned short crlevel, PlayerNumber plyr_idx)
+HitPoints compute_creature_max_health(HitPoints base_health, unsigned short crlevel)
 {
-    struct Dungeon* dungeon;
     if (base_health < -100000)
-        base_health = -100000;
-    if (base_health > 100000)
-        base_health = 100000;
-    if (crlevel >= CREATURE_MAX_LEVEL)
-        crlevel = CREATURE_MAX_LEVEL-1;
-    HitPoints max_health = base_health + (game.conf.crtr_conf.exp.health_increase_on_exp * base_health * (long)crlevel) / 100;
-    // Apply modifier.
-    if (plyr_idx != game.neutral_player_num)
     {
-        dungeon = get_dungeon(plyr_idx);
-        unsigned short modifier = dungeon->modifier.health;
-        max_health = (max_health * modifier) / 100;
+        base_health = -100000;
     }
+    if (base_health > 100000)
+    {
+        base_health = 100000;
+    }
+    if (crlevel >= CREATURE_MAX_LEVEL)
+    {
+        crlevel = CREATURE_MAX_LEVEL-1;
+    }
+    HitPoints max_health = base_health + (game.conf.crtr_conf.exp.health_increase_on_exp * base_health * (long)crlevel) / 100;
     return saturate_set_signed(max_health, 16);
 }
 
@@ -640,6 +655,22 @@ long compute_controlled_speed_decrease(long prev_speed, long speed_limit)
     return speed;
 }
 
+HitPoints calculate_correct_creature_max_health(const struct Thing *thing)
+{
+    struct Dungeon* dungeon;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    HitPoints max_health = compute_creature_max_health(crstat->health, cctrl->explevel);
+    // Apply modifier.
+    if (!is_neutral_thing(thing))
+    {
+        dungeon = get_dungeon(thing->owner);
+        unsigned short modifier = dungeon->modifier.health;
+        max_health = (max_health * modifier) / 100;
+    }
+    return saturate_set_signed(max_health, 16);
+}
+
 long calculate_correct_creature_strength(const struct Thing *thing)
 {
     struct Dungeon* dungeon;
@@ -863,9 +894,8 @@ long compute_value_8bpercentage(long base_val, short npercent)
  */
 TbBool update_creature_health_to_max(struct Thing * creatng)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    cctrl->max_health = compute_creature_max_health(crstat->health, cctrl->explevel, creatng->owner);
+    cctrl->max_health = calculate_correct_creature_max_health(creatng);
     creatng->health = cctrl->max_health;
     return true;
 }
@@ -877,10 +907,9 @@ TbBool update_creature_health_to_max(struct Thing * creatng)
  */
 TbBool update_relative_creature_health(struct Thing* creatng)
 {
-    int health_permil = get_creature_health_permil(creatng);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    HitPoints health_permil = get_creature_health_permil(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    cctrl->max_health = compute_creature_max_health(crstat->health, cctrl->explevel, creatng->owner);
+    cctrl->max_health = calculate_correct_creature_max_health(creatng);
     creatng->health = cctrl->max_health * health_permil / 1000;
     return true;
 }
@@ -1155,7 +1184,7 @@ const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveSta
         text = loc_text;
         break;
     case CrLStat_MaxHealth:
-        i = compute_creature_max_health(crstat->health, cctrl->explevel, creatng->owner);
+        i = calculate_correct_creature_max_health(creatng);
         snprintf(loc_text, sizeof(loc_text), "%ld", i);
         text = loc_text;
         break;

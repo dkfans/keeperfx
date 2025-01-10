@@ -584,38 +584,39 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
     long i;
     crstat = creature_stats_get_from_thing(thing);
     cctrl = creature_control_get_from_thing(thing);
-
     anger_apply_anger_to_creature(thing, crstat->annoy_slapped, AngR_Other, 1);
     if (crstat->slaps_to_kill > 0)
     {
-      i = compute_creature_max_health(crstat->health,cctrl->explevel,thing->owner) / crstat->slaps_to_kill;
-      apply_damage_to_thing_and_display_health(thing, i, player->id_number);
+        HitPoints slap_damage = calculate_correct_creature_max_health(thing) / crstat->slaps_to_kill;
+        apply_damage_to_thing_and_display_health(thing, slap_damage, player->id_number);
     }
     pwrdynst = get_power_dynamic_stats(PwrK_SLAP);
     i = cctrl->slap_turns;
     cctrl->slap_turns = pwrdynst->duration;
     if (i == 0)
-      cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+    {
+        cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+    }
     if (thing->active_state != CrSt_CreatureSlapCowers)
     {
         clear_creature_instance(thing);
         if (thing->active_state != CrSt_CreatureCastingPreparation)
         {
-            // If the creature was in CreatureCastingPreparation state, its active and continue
-            // states have been assigned to those bkp states, so we don't need to assign them again.
+            // If the creature was in CreatureCastingPreparation state,
+            // its active and continue states have been assigned to those bkp states,
+            // so we don't need to assign them again.
             cctrl->active_state_bkp = thing->active_state;
             cctrl->continue_state_bkp = thing->continue_state;
         }
         creature_mark_if_woken_up(thing);
         external_set_thing_state(thing, CrSt_CreatureSlapCowers);
     }
-    cctrl->frozen_on_hit = 6;
-    cctrl->cowers_from_slap_turns = 18;
+    cctrl->frozen_on_hit = 6; // Could be configurable.
+    cctrl->cowers_from_slap_turns = 18; // Could be configurable.
     play_creature_sound(thing, CrSnd_Slap, 3, 0);
 }
 
-TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
-    MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags)
+TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags)
 {
     struct Map *mapblk;
     struct SlabMap *slb;

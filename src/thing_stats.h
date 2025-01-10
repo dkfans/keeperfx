@@ -90,7 +90,7 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
 long compute_creature_attack_range(long base_param, long luck, unsigned short crlevel);
 HitPoints compute_creature_spell_damage_over_time(HitPoints spell_damage, CrtrExpLevel caster_level, PlayerNumber caster_owner);
 long compute_creature_work_value(long base_param, long efficiency, unsigned short crlevel);
-long compute_creature_max_health(HitPoints base_health, unsigned short crlevel, PlayerNumber plyr_idx);
+HitPoints compute_creature_max_health(HitPoints base_health, unsigned short crlevel);
 long compute_creature_max_strength(long base_param, unsigned short crlevel);
 long compute_creature_max_armour(long base_param, unsigned short crlevel);
 long compute_creature_max_defense(long base_param, unsigned short crlevel);
@@ -105,6 +105,7 @@ long compute_value_8bpercentage(long base_val, short npercent);
 GoldAmount calculate_correct_creature_pay(const struct Thing *thing);
 GoldAmount calculate_correct_creature_training_cost(const struct Thing *thing);
 GoldAmount calculate_correct_creature_scavenging_cost(const struct Thing *thing);
+HitPoints calculate_correct_creature_max_health(const struct Thing *thing);
 long calculate_correct_creature_strength(const struct Thing *thing);
 long calculate_correct_creature_armour(const struct Thing *thing);
 long calculate_correct_creature_defense(const struct Thing *thing);
