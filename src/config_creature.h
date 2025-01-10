@@ -63,54 +63,55 @@ enum CreatureModelFlags {
     CMF_EventfulDeath    = 0x080000, // The LAST_DEATH_EVENT[] script location is updated on death.
 };
 
-enum CreatureJobFlags {
-    Job_NULL             = 0LL,
-    Job_TUNNEL           = 1LL<<0,
-    Job_DIG              = 1LL<<1,
-    Job_RESEARCH         = 1LL<<2,
-    Job_TRAIN            = 1LL<<3,
-    Job_MANUFACTURE      = 1LL<<4,
-    Job_SCAVENGE         = 1LL<<5,
-    Job_KINKY_TORTURE    = 1LL<<6,
-    Job_JOIN_FIGHT       = 1LL<<7,
-    Job_SEEK_THE_ENEMY   = 1LL<<8,
-    Job_GUARD            = 1LL<<9,
-    Job_GROUP            = 1LL<<10, //This job doesn't do anything, to be implemented.
-    Job_BARRACK          = 1LL<<11,
-    Job_TEMPLE_PRAY      = 1LL<<12,
-    Job_FREEZE_PRISONERS = 1LL<<13,
-    Job_EXPLORE          = 1LL<<14,
-    // Jobs which can't be assigned to a creature, are only working one time
-    Job_EXEMPT           = 1LL<<15,
-    Job_TEMPLE_SACRIFICE = 1LL<<16,
-    Job_PAINFUL_TORTURE  = 1LL<<17,
-    Job_CAPTIVITY        = 1LL<<18,
-    Job_PLACE_IN_VAULT   = 1LL<<19,
-    Job_TAKE_SALARY      = 1LL<<20,
-    Job_TAKE_FEED        = 1LL<<21,
-    Job_TAKE_SLEEP       = 1LL<<22,
-    //TODO Nonexisting - TO ADD LATER - digger jobs
-    Job_MINE             = 1LL<<23,
-    Job_CONVERT_GROUND   = 1LL<<24,
-    Job_IMPROVE_GROUND   = 1LL<<25,
-    Job_REINFORCE_WALL   = 1LL<<26,
-    //TODO Nonexisting - TO ADD LATER - anger jobs
-    Job_KILL_OWN_CREATURE= 1LL<<27,
-    Job_DESTROY_OWN_ROOM = 1LL<<28,
-    Job_LEAVE_DUNGEON    = 1LL<<29,
-    Job_STEAL_OWN_GOLD   = 1LL<<30,
-    Job_DAMAGE_OWN_WALLS = 1LL<<31,
-    Job_MAD_PSYCHO       = 1LL<<32,
-    Job_PERSUADE_LEAVE   = 1LL<<33,
-    Job_JOIN_ENEMY       = 1LL<<34,
-    //TODO Nonexisting - TO ADD LATER - hero objectives
-    Job_ATTACK_ROOM      = 1LL<<35,
-    Job_ATTACK_CREATURE  = 1LL<<36,
-    Job_ATTACK_DNHEART   = 1LL<<37,
-    Job_STEAL_GOLD       = 1LL<<38,
-    Job_STEAL_SPELLS     = 1LL<<39,
-    Job_DEFEND_PARTY     = 1LL<<40,
-};
+// Before C23 standard, we cannot specify the underlaying type (in this case we want 64bit int) of enum.
+// Some compilers may handle it well but some may not. We use #define to avoid the portability issue.
+// Refer https://open-std.org/JTC1/SC22/WG14/www/docs/n3030.htm
+#define Job_NULL                (0LL)
+#define Job_TUNNEL              (1LL << 0)
+#define Job_DIG                 (1LL << 1)
+#define Job_RESEARCH            (1LL << 2)
+#define Job_TRAIN               (1LL << 3)
+#define Job_MANUFACTURE         (1LL << 4)
+#define Job_SCAVENGE            (1LL << 5)
+#define Job_KINKY_TORTURE       (1LL << 6)
+#define Job_JOIN_FIGHT          (1LL << 7)
+#define Job_SEEK_THE_ENEMY      (1LL << 8)
+#define Job_GUARD               (1LL << 9)
+#define Job_GROUP               (1LL << 10) //This job doesn't do anything, to be implemented.
+#define Job_BARRACK             (1LL << 11)
+#define Job_TEMPLE_PRAY         (1LL << 12)
+#define Job_FREEZE_PRISONERS    (1LL << 13)
+#define Job_EXPLORE             (1LL << 14)
+// Jobs which can't be assigned to a creature, are only working one time
+#define Job_EXEMPT              (1LL << 15)
+#define Job_TEMPLE_SACRIFICE    (1LL << 16)
+#define Job_PAINFUL_TORTURE     (1LL << 17)
+#define Job_CAPTIVITY           (1LL << 18)
+#define Job_PLACE_IN_VAULT      (1LL << 19)
+#define Job_TAKE_SALARY         (1LL << 20)
+#define Job_TAKE_FEED           (1LL << 21)
+#define Job_TAKE_SLEEP          (1LL << 22)
+//TODO Nonexisting - TO ADD LATER - digger jobs
+#define Job_MINE                (1LL << 23)
+#define Job_CONVERT_GROUND      (1LL << 24)
+#define Job_IMPROVE_GROUND      (1LL << 25)
+#define Job_REINFORCE_WALL      (1LL << 26)
+//TODO Nonexisting - TO ADD LATER - anger jobs
+#define Job_KILL_OWN_CREATURE   (1LL << 27)
+#define Job_DESTROY_OWN_ROOM    (1LL << 28)
+#define Job_LEAVE_DUNGEON       (1LL << 29)
+#define Job_STEAL_OWN_GOLD      (1LL << 30)
+#define Job_DAMAGE_OWN_WALLS    (1LL << 31)
+#define Job_MAD_PSYCHO          (1LL << 32)
+#define Job_PERSUADE_LEAVE      (1LL << 33)
+#define Job_JOIN_ENEMY          (1LL << 34)
+//TODO Nonexisting - TO ADD LATER - hero objectives
+#define Job_ATTACK_ROOM         (1LL << 35)
+#define Job_ATTACK_CREATURE     (1LL << 36)
+#define Job_ATTACK_DNHEART      (1LL << 37)
+#define Job_STEAL_GOLD          (1LL << 38)
+#define Job_STEAL_SPELLS        (1LL << 39)
+#define Job_DEFEND_PARTY        (1LL << 40)
 
 enum JobKindFlags {
     JoKF_None                   = 0x00000000,
