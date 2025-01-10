@@ -1012,6 +1012,10 @@ short good_doing_nothing(struct Thing *creatng)
         {
             SYNCDBG(4,"No enemy dungeon to perform %s index %d task",
                 thing_model_name(creatng),(int)creatng->index);
+            if (cctrl->original_party_objective > CHeroTsk_Default)
+            {
+                cctrl->party_objective = cctrl->original_party_objective;
+            }
             cctrl->wait_to_turn = game.play_gameturn + 16;
             if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
             {
