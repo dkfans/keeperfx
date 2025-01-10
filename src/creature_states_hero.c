@@ -877,7 +877,7 @@ TbBool good_creature_setup_task_in_dungeon(struct Thing *creatng, PlayerNumber t
             return true;
         }
         SYNCDBG(8,"Can't defend own heart, switching to attack player %d heart", (int)cctrl->party.target_plyr_idx);
-        cctrl->party_objective = CHeroTsk_AttackDnHeart;
+        cctrl->party_objective = CHeroTsk_AttackEnemies;
         return false;
     case CHeroTsk_DefendRooms:
         if (good_setup_defend_rooms(creatng))
@@ -885,7 +885,7 @@ TbBool good_creature_setup_task_in_dungeon(struct Thing *creatng, PlayerNumber t
             return true;
         }
         SYNCDBG(8,"Can't defend rooms, switching to defending heart");
-        cctrl->party_objective = CHeroTsk_DefendHeart;
+        cctrl->party_objective = CHeroTsk_AttackEnemies;
         return false;
     case CHeroTsk_Default:
     default:
