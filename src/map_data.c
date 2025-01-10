@@ -650,10 +650,10 @@ void reveal_map_rect(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord e
  */
 void reveal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y)
 {
-  start_x = stl_slab_starting_subtile(start_x);
-  start_y = stl_slab_starting_subtile(start_y);
-  end_x = stl_slab_ending_subtile(end_x)+1;
-  end_y = stl_slab_ending_subtile(end_y)+1;
+  start_x = max(stl_slab_starting_subtile(start_x),0);
+  start_y = max(stl_slab_starting_subtile(start_y),0);
+  end_x = min(stl_slab_ending_subtile(end_x)+1, gameadd.map_subtiles_x);
+  end_y = min(stl_slab_ending_subtile(end_y)+1, gameadd.map_subtiles_y);
   clear_dig_for_map_rect(plyr_idx,subtile_slab(start_x),subtile_slab(end_x),
       subtile_slab(start_y),subtile_slab(end_y));
   reveal_map_rect(plyr_idx,start_x,end_x,start_y,end_y);

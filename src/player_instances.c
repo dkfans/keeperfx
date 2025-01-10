@@ -723,7 +723,7 @@ long pinstfe_control_creature_fade(struct PlayerInfo *player, long *n)
 long pinstfs_fade_to_map(struct PlayerInfo *player, long *n)
 {
     struct Camera* cam = player->acamera;
-    player->field_4BD = 0;
+    player->palette_fade_step_map = 0;
     player->allocflags |= PlaF_MouseInputDisabled;
     player->view_mode_restore = cam->view_mode;
     if (is_my_player(player))
@@ -760,7 +760,7 @@ long pinstfs_fade_from_map(struct PlayerInfo *player, long *n)
     settings.tooltips_on = false; // don't show tooltips during the fade
     game.operation_flags &= ~GOF_ShowPanel;
   }
-  player->field_4BD = 32;
+  player->palette_fade_step_map = 32;
   set_player_mode(player, PVT_DungeonTop);
   set_engine_view(player, PVM_ParchFadeOut);
   return 0;

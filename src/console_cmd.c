@@ -1854,6 +1854,36 @@ TbBool cmd_speech_test(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
+TbBool cmd_player_colour(PlayerNumber plyr_idx, char * args)
+{
+    char * pr2str = strsep(&args, " ");
+    PlayerNumber plyr_start = get_player_number_for_command(pr2str);
+    char * pr3str = strsep(&args, " ");
+    char colour_idx = get_rid(cmpgn_human_player_options, pr3str);
+    if (plyr_start >= 0)
+    {
+        if (colour_idx >= 0)
+        {
+            PlayerNumber plyr_end;
+            if (plyr_start == ALL_PLAYERS)
+            {
+                plyr_start = PLAYER0;
+                plyr_end = PLAYER6;
+            }
+            else
+            {
+                plyr_end = plyr_start;
+            }
+            for (PlayerNumber plyr_id = plyr_start; plyr_id <= plyr_end; plyr_id++)
+            {
+                set_player_colour(plyr_id, (unsigned char)colour_idx);
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
 TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
 {
     struct ConsoleCommand {
@@ -1953,6 +1983,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
         { "herogate.zoomto", cmd_zoom_to_hero_gate },
         { "sound.test", cmd_sound_test },
         { "speech.test", cmd_speech_test },
+        { "player.color", cmd_player_colour},
+        { "player.colour", cmd_player_colour},
     };
     SYNCDBG(2, "Command %d: %s",(int)plyr_idx, args);
     const char * command = strsep(&args, " ");
