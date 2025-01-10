@@ -137,10 +137,7 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
     place_animating_slab_type_on_map(doorst->slbkind[orient], 0,  doortng->mappos.x.stl.num, doortng->mappos.y.stl.num, plyr_idx);
     ceiling_partially_recompute_heights(pos->x.stl.num - 1, pos->y.stl.num - 1, pos->x.stl.num + 2, pos->y.stl.num + 2);
     update_navigation_triangulation(pos->x.stl.num - 1, pos->y.stl.num - 1, pos->x.stl.num + 2, pos->y.stl.num + 2);
-    if (game.neutral_player_num != plyr_idx)
-    {
-        ++game.dungeon[plyr_idx].total_doors;
-    }
+    ++game.dungeon[plyr_idx].total_doors;
     return doortng; 
 }
 
