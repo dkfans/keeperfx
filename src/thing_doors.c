@@ -131,15 +131,13 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
     {
         doortng->clipbox_size_xy = 3*COORD_PER_STL;
     }
-
     add_thing_to_its_class_list(doortng);
     place_thing_in_mapwho(doortng);
     check_if_enemy_can_see_placement_of_hidden_door(doortng);
     place_animating_slab_type_on_map(doorst->slbkind[orient], 0,  doortng->mappos.x.stl.num, doortng->mappos.y.stl.num, plyr_idx);
     ceiling_partially_recompute_heights(pos->x.stl.num - 1, pos->y.stl.num - 1, pos->x.stl.num + 2, pos->y.stl.num + 2);
-    //update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+2,stl_y+2);
-    if ( game.neutral_player_num != plyr_idx )
-        ++game.dungeon[plyr_idx].total_doors;
+    update_navigation_triangulation(pos->x.stl.num - 1, pos->y.stl.num - 1, pos->x.stl.num + 2, pos->y.stl.num + 2);
+    ++game.dungeon[plyr_idx].total_doors;
     return doortng; 
 }
 
@@ -450,7 +448,7 @@ static void check_if_enemy_can_see_placement_of_hidden_door(struct Thing *doortn
 TbBool door_is_hidden_to_player(struct Thing *doortng,PlayerNumber plyr_idx)
 {
     struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
-    if((plyr_idx != doortng->owner) && (doorst->model_flags & DoMF_Secret))
+    if((plyr_idx != doortng->owner) && flag_is_set(doorst->model_flags,DoMF_Secret))
     {
         return !flag_is_set(doortng->door.revealed,to_flag(plyr_idx));
     }
