@@ -187,7 +187,6 @@ static void init_level(void)
     init_seeds();
     // Load the actual level files
     TbBool script_preloaded = preload_script(get_selected_level_number());
-    init_navigation();
     if (!load_map_file(get_selected_level_number()))
     {
         // TODO: whine about missing file to screen
@@ -202,7 +201,7 @@ static void init_level(void)
             JUSTMSG("Unable to load script level %lu from %s", get_selected_level_number(), campaign.name);
         }
     }
-
+    init_navigation();
     snprintf(game.campaign_fname, sizeof(game.campaign_fname), "%s", campaign.fname);
     light_set_lights_on(1);
     {

@@ -136,7 +136,10 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
     check_if_enemy_can_see_placement_of_hidden_door(doortng);
     place_animating_slab_type_on_map(doorst->slbkind[orient], 0,  doortng->mappos.x.stl.num, doortng->mappos.y.stl.num, plyr_idx);
     ceiling_partially_recompute_heights(pos->x.stl.num - 1, pos->y.stl.num - 1, pos->x.stl.num + 2, pos->y.stl.num + 2);
-    update_navigation_triangulation(pos->x.stl.num - 1, pos->y.stl.num - 1, pos->x.stl.num + 2, pos->y.stl.num + 2);
+    if (nav_map_initialised) // Can't update triangulation before map start
+    {
+        update_navigation_triangulation(pos->x.stl.num - 1, pos->y.stl.num - 1, pos->x.stl.num + 2, pos->y.stl.num + 2);
+    }
     ++game.dungeon[plyr_idx].total_doors;
     return doortng; 
 }
