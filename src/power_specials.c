@@ -590,7 +590,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
     }
 }
 
-void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crmodel, unsigned char crlevel)
+void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crmodel, CrtrExpLevel crlevel)
 {
     if (!thing_exists(boxtng) || (box_thing_to_special(boxtng) != SpcKind_Resurrect) ) {
         ERRORMSG("Invalid resurrect box object!");

@@ -324,7 +324,7 @@ TbBool packets_process_cheats(
             player->thing_under_hand = thing->index;
             if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
             {
-                unsigned short splevel = get_power_overcharge_level(player);
+                CrtrExpLevel splevel = get_power_overcharge_level(player);
                 magic_use_power_direct(plyr_idx,pwkind,splevel,stl_x,stl_y,thing,PwMod_CastForFree);
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }

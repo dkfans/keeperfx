@@ -150,7 +150,7 @@ TbResult script_use_power_on_creature_matching_criterion(PlayerNumber plyr_idx, 
     char is_free = (fmcl_bytes >> 24) != 0;
     PowerKind pwkind = (fmcl_bytes >> 16) & 255;
     PlayerNumber caster = (fmcl_bytes >> 8) & 255;
-    long splevel = fmcl_bytes & 255;
+    CrtrExpLevel splevel = fmcl_bytes & 255;
     return script_use_power_on_creature(thing, pwkind, splevel, caster, is_free);
 }
 
@@ -179,7 +179,7 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel,
             SYNCDBG(5, "Found creature to cast the spell on but it is being held.");
             return Lb_FAIL;
         }
-        long splevel = fmcl_bytes & 255;
+        CrtrExpLevel splevel = fmcl_bytes & 255;
         if (spconf->caster_affect_sound)
         {
             thing_play_sample(thing, spconf->caster_affect_sound + UNSYNC_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
@@ -256,7 +256,7 @@ TbResult script_use_power_at_pos(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
 {
     char is_free = (fml_bytes >> 16) != 0;
     PowerKind powerKind = (fml_bytes >> 8) & 255;
-    long splevel = fml_bytes & 255;
+    CrtrExpLevel splevel = fml_bytes & 255;
 
     unsigned long allow_flags = PwCast_AllGround | PwCast_Unrevealed;
     unsigned long mod_flags = 0;

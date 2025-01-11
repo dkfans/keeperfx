@@ -153,7 +153,7 @@ struct CreatureControl {
     ThingIndex players_prev_creature_idx;
     ThingIndex players_next_creature_idx;
     unsigned short slap_turns;
-    unsigned char explevel;
+    CrtrExpLevel explevel;
     long exp_points;
     long prev_exp_points;
     struct Coord3d moveto_pos;
@@ -451,7 +451,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned long to_level[CREATURE_MAX_LEVEL];
     unsigned char base_speed;
     ThingModel grow_up;
-    unsigned char grow_up_level;
+    CrtrExpLevel grow_up_level;
     TbBool entrance_force;
     short max_turning_speed;
     short base_eye_height;

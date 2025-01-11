@@ -1974,7 +1974,7 @@ short creature_take_wage_from_gold_pile(struct Thing *creatng,struct Thing *gold
  * @param spl_idx Spell index to be casted.
  * @param shot_lvl Spell level to be casted.
  */
-void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, SpellKind spl_idx, long shot_lvl)
+void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, SpellKind spl_idx, CrtrExpLevel shot_lvl)
 {
     unsigned char hit_type;
     if ((castng->alloc_flags & TAlF_IsControlled) != 0)
@@ -2000,8 +2000,8 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
         return;
     }
 
-    SYNCDBG(12,"The %s(%u) fire shot(%s) at %s(%u) with shot level %ld, hit type: 0x%02X", thing_model_name(castng), castng->index,
-        shot_code_name(spconf->shot_model), thing_model_name(targetng), targetng->index, shot_lvl, hit_type);
+    SYNCDBG(12,"The %s(%u) fire shot(%s) at %s(%u) with shot level %d, hit type: 0x%02X", thing_model_name(castng), castng->index,
+        shot_code_name(spconf->shot_model), thing_model_name(targetng), targetng->index, (int)shot_lvl, hit_type);
     thing_fire_shot(castng, targetng, spconf->shot_model, shot_lvl, hit_type);
 }
 
@@ -2195,7 +2195,7 @@ void remove_creature_from_summon_list(struct Dungeon* dungeon, ThingIndex famlrt
  * @param trg_x
  * @param trg_y
  */
-void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, long shot_lvl, MapSubtlCoord trg_x, MapSubtlCoord trg_y)
+void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, CrtrExpLevel shot_lvl, MapSubtlCoord trg_x, MapSubtlCoord trg_y)
 {
     long i;
     struct SpellConfig* spconf = get_spell_config(spl_idx);
@@ -3534,7 +3534,7 @@ static void shot_set_start_pos(const struct Thing *firing, const struct ShotConf
     }
 }
 
-void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot_model, char shot_lvl, unsigned char hit_type)
+void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot_model, CrtrExpLevel shot_lvl, unsigned char hit_type)
 {
     struct Coord3d pos2;
     struct Thing *tmptng;
@@ -3784,7 +3784,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
     }
 }
 
-void set_creature_level(struct Thing *thing, long nlvl)
+void set_creature_level(struct Thing *thing, CrtrExpLevel nlvl)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
@@ -3797,11 +3797,6 @@ void set_creature_level(struct Thing *thing, long nlvl)
         ERRORLOG("Level %d too high, bounding", (int)nlvl);
         nlvl = CREATURE_MAX_LEVEL - 1;
     }
-    if (nlvl < 0)
-    {
-        ERRORLOG("Level %d too low, bounding", (int)nlvl);
-        nlvl = 0;
-    }
     cctrl->explevel = nlvl;
     set_creature_size_stuff(thing);
     update_relative_creature_health(thing);
@@ -3809,7 +3804,7 @@ void set_creature_level(struct Thing *thing, long nlvl)
     add_creature_score_to_owner(thing);
 }
 
-void init_creature_level(struct Thing *thing, long nlev)
+void init_creature_level(struct Thing *thing, CrtrExpLevel nlev)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
@@ -5074,7 +5069,7 @@ long player_list_creature_filter_most_experienced(const struct Thing *thing, Max
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // New 'maximizer' value. Should be at least 1; maximum is, in this case, CREATURE_MAX_LEVEL.
-    long nmaxim = cctrl->explevel + 1;
+    CrtrExpLevel nmaxim = cctrl->explevel + 1;
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
         && (thing->class_id == param->class_id)
         && ((thing_matches_model(thing,param->model_id)))
@@ -5099,7 +5094,7 @@ long player_list_creature_filter_most_experienced_and_pickable1(const struct Thi
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // New 'maximizer' value. Should be at least 1; maximum is, in this case, CREATURE_MAX_LEVEL.
-    long nmaxim = cctrl->explevel + 1;
+    CrtrExpLevel nmaxim = cctrl->explevel + 1;
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
         && (thing->class_id == param->class_id)
         && ((thing_matches_model(thing,param->model_id)))
@@ -5128,7 +5123,7 @@ long player_list_creature_filter_most_experienced_and_pickable2(const struct Thi
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // New 'maximizer' value. Should be at least 1; maximum is, in this case, CREATURE_MAX_LEVEL.
-    long nmaxim = cctrl->explevel + 1;
+    CrtrExpLevel nmaxim = cctrl->explevel + 1;
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
         && (thing->class_id == param->class_id)
         && ((thing_matches_model(thing,param->model_id)))
@@ -5157,7 +5152,7 @@ long player_list_creature_filter_least_experienced(const struct Thing *thing, Ma
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // New 'maximizer' value. Should be at least 1; maximum is, in this case, CREATURE_MAX_LEVEL.
-    long nmaxim = CREATURE_MAX_LEVEL - cctrl->explevel;
+    CrtrExpLevel nmaxim = CREATURE_MAX_LEVEL - cctrl->explevel;
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
       && ((thing_matches_model(thing,param->model_id)))
@@ -5182,7 +5177,7 @@ long player_list_creature_filter_least_experienced_and_pickable1(const struct Th
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // New 'maximizer' value. Should be at least 1; maximum is, in this case, CREATURE_MAX_LEVEL.
-    long nmaxim = CREATURE_MAX_LEVEL - cctrl->explevel;
+    CrtrExpLevel nmaxim = CREATURE_MAX_LEVEL - cctrl->explevel;
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
       && ((thing_matches_model(thing,param->model_id)))
@@ -5211,7 +5206,7 @@ long player_list_creature_filter_least_experienced_and_pickable2(const struct Th
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // New 'maximizer' value. Should be at least 1; maximum is, in this case, CREATURE_MAX_LEVEL.
-    long nmaxim = CREATURE_MAX_LEVEL - cctrl->explevel;
+    CrtrExpLevel nmaxim = CREATURE_MAX_LEVEL - cctrl->explevel;
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
       && ((thing_matches_model(thing,param->model_id)))
@@ -5720,7 +5715,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
             if (!creature_is_doing_lair_activity(thing))
             {
                 // cast heal if we can, don't always use max level to appear lifelike
-                int splevel = PLAYER_RANDOM(dungeon->owner, 4) + 5;
+                CrtrExpLevel splevel = PLAYER_RANDOM(dungeon->owner, 4) + 5;
                 if (computer_able_to_use_power(comp, PwrK_HEALCRTR, splevel, 1))
                 {
                     if (try_game_action(comp, dungeon->owner, GA_UsePwrHealCrtr, splevel, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->index, 1) > Lb_OK)
@@ -6216,7 +6211,7 @@ void init_creature_scores(void)
     // now compute scores for experience levels
     for (i=0; i < game.conf.crtr_conf.model_count; i++)
     {
-        for (long k = 0; k < CREATURE_MAX_LEVEL; k++)
+        for (CrtrExpLevel k = 0; k < CREATURE_MAX_LEVEL; k++)
         {
           score = compute_creature_kind_score(i,k);
           score = saturate_set_unsigned(200*score / max_score, 8);
@@ -6238,11 +6233,9 @@ long get_creature_thing_score(const struct Thing *thing)
         crmodel = 0;
     if (crmodel < 0)
         crmodel = 0;
-    long exp = cctrl->explevel;
+    CrtrExpLevel exp = cctrl->explevel;
     if (exp >= CREATURE_MAX_LEVEL)
-        exp = 0;
-    if (exp < 0)
-        exp = 0;
+        exp = CREATURE_MAX_LEVEL;
     return game.creature_scores[crmodel].value[exp];
 }
 

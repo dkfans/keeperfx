@@ -94,7 +94,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
     SYNCDBG(8,"Starting for %s index %d owner %d",thing_model_name(shotng),(int)shotng->index,(int)shotng->owner);
     struct Thing* castng = INVALID_THING;
     struct PlayerInfo* myplyr = get_my_player();
-    short spell_level;
+    CrtrExpLevel spell_level;
     long damage;
     // Identify the creator of the shot
     if (shotng->index != shotng->parent_idx) {
@@ -782,14 +782,14 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
     return false;
 }
 
-TbBool apply_shot_experience(struct Thing *shooter, long exp_factor, long exp_increase, long shot_model)
+TbBool apply_shot_experience(struct Thing *shooter, long exp_factor, CrtrExpLevel crlevel, long shot_model)
 {
     if (!creature_can_gain_experience(shooter))
         return false;
     struct CreatureControl* shcctrl = creature_control_get_from_thing(shooter);
     struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
     long exp_mag = shotst->experience_given_to_shooter;
-    long exp_gained = (exp_mag * (exp_factor + game.conf.crtr_conf.exp.exp_on_hitting_increase_on_exp * exp_factor * exp_increase / 100) << 8) / 256;
+    long exp_gained = (exp_mag * (exp_factor + game.conf.crtr_conf.exp.exp_on_hitting_increase_on_exp * exp_factor * (long)crlevel / 100) << 8) / 256;
     shcctrl->prev_exp_points = shcctrl->exp_points;
     shcctrl->exp_points += exp_gained;
     if ( check_experience_upgrade(shooter) ) {
@@ -1129,7 +1129,6 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     long throw_strength = shotst->push_on_hit;
     int adjusted_throw_strength;
-    long n;
     if (trgtng->health < 0)
         return 0;
     struct Thing* shooter = INVALID_THING;
@@ -1156,13 +1155,12 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
         if (shotst->cast_spell_kind != 0)
         {
             struct CreatureControl* scctrl = creature_control_get_from_thing(shooter);
-            if (!creature_control_invalid(scctrl)) {
-                n = scctrl->explevel;
+            CrtrExpLevel spell_level = 0;
+            if (!creature_control_invalid(scctrl))
+            {
+                spell_level = scctrl->explevel;
             }
-            else {
-                n = 0;
-            }
-            apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, n, shotng->owner);
+            apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, spell_level, shotng->owner);
             struct SpellConfig *spconf = get_spell_config(shotst->cast_spell_kind);
             if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
             {
@@ -1355,12 +1353,12 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     if (shotst->cast_spell_kind != 0)
     {
         struct CreatureControl* scctrl = creature_control_get_from_thing(shooter);
-        if (!creature_control_invalid(scctrl)) {
-            n = scctrl->explevel;
-        } else {
-            n = 0;
+        CrtrExpLevel spell_level = 0;
+        if (!creature_control_invalid(scctrl))
+        {
+            spell_level = scctrl->explevel;
         }
-        apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, n, shotng->owner);
+        apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, spell_level, shotng->owner);
         struct SpellConfig *spconf = get_spell_config(shotst->cast_spell_kind);
         if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
         {

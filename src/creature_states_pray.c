@@ -190,7 +190,7 @@ short state_cleanup_in_temple(struct Thing *creatng)
     return 1;
 }
 
-TbBool summon_creature(long model, struct Coord3d *pos, long owner, long explevel)
+TbBool summon_creature(long model, struct Coord3d *pos, long owner, CrtrExpLevel explevel)
 {
     SYNCDBG(4,"Creating model %ld for player %ld",model,owner);
     if (!creature_count_below_map_limit(0))
@@ -486,7 +486,7 @@ TbBool tally_sacrificed_imps(PlayerNumber plyr_idx, short count)
     return true;
 }
 
-long create_sacrifice_unique_award(struct Coord3d *pos, PlayerNumber plyr_idx, long sacfunc, long explevel)
+long create_sacrifice_unique_award(struct Coord3d *pos, PlayerNumber plyr_idx, long sacfunc, CrtrExpLevel explevel)
 {
   switch (sacfunc)
   {
@@ -615,7 +615,7 @@ long process_sacrifice_award(struct Coord3d *pos, long model, PlayerNumber plyr_
       if (sacrifice_victim_conditions_met(dungeon, sac))
       {
         SYNCDBG(6,"Sacrifice recipe %d condition met, action %d for player %d",(int)(sac-&game.conf.rules.sacrifices.sacrifice_recipes[0]),(int)sac->action,(int)plyr_idx);
-        long explevel = creature_sacrifice_average_explevel(dungeon, sac);
+        CrtrExpLevel explevel = creature_sacrifice_average_explevel(dungeon, sac);
         switch (sac->action)
         {
         case SacA_MkCreature:

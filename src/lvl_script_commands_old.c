@@ -858,7 +858,7 @@ static void command_level_up_creature(long plr_range_id, const char *crtr_name, 
     command_add_value(Cmd_LEVEL_UP_CREATURE, plr_range_id, crtr_id, select_id, count);
 }
 
-static void command_use_power_on_creature(long plr_range_id, const char *crtr_name, const char *criteria, long caster_plyr_idx, const char *magname, int splevel, const char *freestring)
+static void command_use_power_on_creature(long plr_range_id, const char *crtr_name, const char *criteria, long caster_plyr_idx, const char *magname, CrtrExpLevel splevel, const char *freestring)
 {
   SCRIPTDBG(11, "Starting");
   if (splevel < 1)
@@ -912,7 +912,7 @@ static void command_use_power_on_creature(long plr_range_id, const char *crtr_na
   command_add_value(Cmd_USE_POWER_ON_CREATURE, plr_range_id, crtr_id, select_id, fmcl_bytes);
 }
 
-static void command_use_power_at_pos(long plr_range_id, int stl_x, int stl_y, const char *magname, int splevel, const char *freestring)
+static void command_use_power_at_pos(long plr_range_id, int stl_x, int stl_y, const char *magname, CrtrExpLevel splevel, const char *freestring)
 {
   SCRIPTDBG(11, "Starting");
   if (splevel < 1)
@@ -956,7 +956,7 @@ static void command_use_power_at_pos(long plr_range_id, int stl_x, int stl_y, co
   command_add_value(Cmd_USE_POWER_AT_POS, plr_range_id, stl_x, stl_y, fml_bytes);
 }
 
-static void command_use_power_at_location(long plr_range_id, const char *locname, const char *magname, int splevel, const char *freestring)
+static void command_use_power_at_location(long plr_range_id, const char *locname, const char *magname, CrtrExpLevel splevel, const char *freestring)
 {
   SCRIPTDBG(11, "Starting");
   if (splevel < 1)
@@ -1157,7 +1157,7 @@ static void command_export_variable(long plr_range_id, const char *varib_name, c
     command_add_value(Cmd_EXPORT_VARIABLE, plr_range_id, src_type, src_id, flg_id);
 }
 
-static void command_use_spell_on_creature(long plr_range_id, const char *crtr_name, const char *criteria, const char *magname, int splevel)
+static void command_use_spell_on_creature(long plr_range_id, const char *crtr_name, const char *criteria, const char *magname, CrtrExpLevel splevel)
 {
     SCRIPTDBG(11, "Starting");
     long mag_id = get_rid(spell_desc, magname);

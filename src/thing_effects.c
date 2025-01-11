@@ -1004,14 +1004,12 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 affected = true;
                 if (shotst->cast_spell_kind != 0)
                 {
-                    unsigned char spell_level;
                     struct CreatureControl* cctrl = creature_control_get_from_thing(tngdst);
                     struct CreatureControl* scctrl = creature_control_get_from_thing(origtng);
-                    if (!creature_control_invalid(scctrl)) {
+                    CrtrExpLevel spell_level = 0;
+                    if (!creature_control_invalid(scctrl))
+                    {
                         spell_level = scctrl->explevel;
-                    }
-                    else {
-                        spell_level = 0;
                     }
                     apply_spell_effect_to_thing(tngdst, shotst->cast_spell_kind, spell_level, owner);
                     struct SpellConfig *spconf = get_spell_config(shotst->cast_spell_kind);

@@ -1176,7 +1176,7 @@ TbBool computer_find_safe_non_solid_block(const struct Computer2* comp, struct C
  * @param amount
  * @return
  */
-TbBool computer_able_to_use_power(struct Computer2 *comp, PowerKind pwkind, long pwlevel, long amount)
+TbBool computer_able_to_use_power(struct Computer2 *comp, PowerKind pwkind, CrtrExpLevel pwlevel, long amount)
 {
     struct Dungeon* dungeon = comp->dungeon;
     if (!is_power_available(dungeon->owner, pwkind)) {
@@ -1184,8 +1184,6 @@ TbBool computer_able_to_use_power(struct Computer2 *comp, PowerKind pwkind, long
     }
     if (pwlevel >= MAGIC_OVERCHARGE_LEVELS)
         pwlevel = MAGIC_OVERCHARGE_LEVELS;
-    if (pwlevel < 0)
-        pwlevel = 0;
     GoldAmount money = get_computer_money_less_cost(comp);
     GoldAmount price = compute_power_price(dungeon->owner, pwkind, pwlevel);
     if ((price > 0) && (amount * price > money)) {

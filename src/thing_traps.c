@@ -1184,7 +1184,7 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     return false;
 }
 
-void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, char shot_lvl, short angle_xy)
+void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, CrtrExpLevel shot_lvl, short angle_xy)
 {
     struct Thing* shotng;
     struct ComponentVector cvect;

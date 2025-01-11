@@ -614,7 +614,7 @@ short load_continue_game(void)
     return true;
 }
 
-TbBool add_transfered_creature(PlayerNumber plyr_idx, ThingModel model, long explevel, char *name)
+TbBool add_transfered_creature(PlayerNumber plyr_idx, ThingModel model, CrtrExpLevel explevel, char *name)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon))

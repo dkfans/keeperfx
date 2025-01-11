@@ -4977,7 +4977,7 @@ static void use_spell_on_players_creatures_check(const struct ScriptLine *scline
     }
     const char *mag_name = scline->tp[2];
     short mag_id = get_rid(spell_desc, mag_name);
-    short splevel = scline->np[3];
+    CrtrExpLevel splevel = scline->np[3];
     if (mag_id == -1)
     {
         SCRPTERRLOG("Invalid spell: %s", mag_name);
@@ -5022,7 +5022,7 @@ static void use_power_on_players_creatures_check(const struct ScriptLine* scline
     PlayerNumber caster_player = scline->np[2];
     const char* pwr_name = scline->tp[3];
     short pwr_id = get_rid(power_desc, pwr_name);
-    short splevel = scline->np[4];
+    CrtrExpLevel splevel = scline->np[4];
     short free = scline->np[5];
     if (free != -1)
     {
