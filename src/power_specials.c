@@ -642,7 +642,7 @@ void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned c
     }
 
     struct CreatureControl* cctrl = creature_control_get_from_thing(transftng);
-    if (add_transfered_creature(plyr_idx, transftng->model, cctrl->explevel,cctrl->creature_name))
+    if (add_transfered_creature(plyr_idx, cctrl->original_model, cctrl->explevel, cctrl->creature_name))
     {
         dungeon->creatures_transferred++;
     }
