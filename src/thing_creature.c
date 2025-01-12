@@ -7776,7 +7776,8 @@ void transform_creature(struct Thing *thing, ThingModel transform_model, GameTur
         }
     }
     struct InstanceInfo *inst_inf = creature_instance_info_get(cctrl->active_instance_id);
-    set_thing_draw(thing, get_creature_anim(thing, inst_inf->graphics_idx), 256, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
+    update_creature_anim(thing, 256, get_creature_anim(thing, inst_inf->graphics_idx));
+    // Investigate why it doesn't work and only seems to select [instance1] for creatures that don't even know it.
     cctrl->active_instance_id = creature_choose_first_available_instance(thing);
     return;
 }
