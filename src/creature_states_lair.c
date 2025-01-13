@@ -247,7 +247,7 @@ CrStateRet creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     pos.x.val = creatng->mappos.x.val;
     pos.y.val = creatng->mappos.y.val;
     pos.z.val = creatng->mappos.z.val;
-    struct CreatureStats* crstat = creature_stats_get(creatng->model);
+    struct CreatureStats* crstat = creature_stats_get(cctrl->original_model);
     lairtng = create_object(&pos, crstat->lair_object, creatng->owner, -1);
     if (thing_is_invalid(lairtng))
     {
