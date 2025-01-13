@@ -324,8 +324,8 @@ CrStateRet creature_in_prison(struct Thing *thing)
 
 TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thing)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get(cctrl->original_model);
     struct Thing* crthing = INVALID_THING;
     ThingModel crmodel = crstat->prison_kind;
     if ((crmodel > game.conf.crtr_conf.model_count) || (crmodel <= 0))
