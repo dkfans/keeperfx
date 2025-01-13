@@ -124,6 +124,11 @@ struct SlabAttr {
     unsigned char wlb_type;
     unsigned char is_ownable;
     unsigned char indestructible;
+    HitPoints health_loss;
+    GameTurn damage_turns;
+    SlabKind turn_to;
+    ThingModel transform_effect;
+    TbBool transform_effect_mode;
 };
 
 #pragma pack()

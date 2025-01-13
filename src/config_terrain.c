@@ -61,6 +61,10 @@ const struct NamedCommand terrain_slab_commands[] = {
   {"ANIMATED",       14},
   {"ISOWNABLE",      15},
   {"INDESTRUCTIBLE", 16},
+  {"HEALTHLOSS",     17},
+  {"DAMAGETURNS",    18},
+  {"TURNTO",         19},
+  {"TRANSFORMEFFECT", 20},
   {NULL,              0},
 };
 
@@ -715,6 +719,79 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
                     COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 17: // HEALTHLOSS
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                    slbattr->health_loss = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 18: // DAMAGETURNS
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                    slbattr->damage_turns = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 19: // TURNTO
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                    slbattr->turn_to = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 20: // TRANSFORMEFFECT
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = get_id(effect_desc, word_buf);
+              if (k >= 0)
+              {
+                slbattr->transform_effect = k;
+                n++;
+              } else
+              {
+                slbattr->transform_effect = 0;
+              }
+            }
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              slbattr->transform_effect_mode = k;
+              n++;
+            }
+            if (n < 2)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),word_buf,config_textname);
             }
             break;
         case ccr_comment:
