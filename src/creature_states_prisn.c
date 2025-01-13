@@ -361,7 +361,8 @@ TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thin
 
 TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get(cctrl->original_model);
     if ((thing->health >= 0) || ((!crstat->humanoid_creature) && ((crstat->prison_kind > game.conf.crtr_conf.model_count) || (crstat->prison_kind <= 0)))) {
         return false;
     }
@@ -458,7 +459,8 @@ CrCheckRet process_prison_function(struct Thing *creatng)
         return CrCkRet_Continue;
     }
     process_creature_hunger(creatng);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureStats* crstat = creature_stats_get(cctrl->original_model);
     if (process_prisoner_skelification(creatng, room))
     {
         return CrCkRet_Deleted;
@@ -470,7 +472,6 @@ CrCheckRet process_prison_function(struct Thing *creatng)
             output_message(SMsg_PrisonersStarving, MESSAGE_DELAY_STARVING, 1);
         }
     }
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if ((cctrl->instance_id == CrInst_NULL) && process_prison_food(creatng, room))
         return CrCkRet_Continue;
     // Breaking from jail is only possible once per some amount of turns, and only if creature sits in jail for long enough.
