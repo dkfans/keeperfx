@@ -24,6 +24,8 @@
 #include "game_legacy.h"
 #include "config.h"
 #include "config_cubes.h"
+#include "config_magic.h"
+#include "console_cmd.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -37,8 +39,11 @@ const struct NamedCommand cubes_cube_commands[] = {
     {"Textures",       2},
     {"OwnershipGroup", 3},
     {"Owner",          4},
-    {"Properties",     5},
-    {NULL, 0},
+    {"SpellEffect",    5},
+    {"SpellLevel",     6},
+    {"Target",         7},
+    {"Properties",     8},
+    {NULL,             0},
 };
 
 const struct NamedCommand cubes_properties_flags[] = {
@@ -47,6 +52,13 @@ const struct NamedCommand cubes_properties_flags[] = {
     {"SACRIFICIAL",    CPF_IsSacrificial},
     {"UNCLAIMED_PATH", CPF_IsUnclaimedPath},
     {NULL,             0},
+};
+
+const struct NamedCommand cubes_target[] = {
+    {"NEUTRAL",  CT_Neutral},
+    {"FRIENDLY", CT_Friendly},
+    {"HOSTILE",  CT_Hostile},
+    {NULL,       0},
 };
 
 /******************************************************************************/
@@ -76,6 +88,10 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
         {
             cubest = &game.conf.cube_conf.cube_cfgstats[i];
             memset(cubest->code_name, 0, COMMAND_WORD_LEN);
+            cubest->spell_effect = 0;
+            cubest->spell_level = 0;
+            cubest->target = 0;
+            cubest->properties_flags = 0;
             cube_desc[i].name = cubest->code_name;
             cube_desc[i].num = i;
         }
@@ -190,7 +206,62 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
                     n++;
                 }
                 break;
-            case 5: // Properties
+            case 5: // SpellEffect
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    if (parameter_is_number(word_buf))
+                    {
+                        k = atoi(word_buf);
+                    }
+                    else
+                    {
+                        k = get_id(spell_desc, word_buf);
+                    }
+                    if (k >= 0)
+                    {
+                        cubed->spell_effect = k;
+                        n++;
+                    }
+                }
+                if (n < 1)
+                {
+                    CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+            case 6: // SpellLevel
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    if (k >= 0)
+                    {
+                        cubed->spell_level = k;
+                        n++;             
+                    }
+                }
+                if (n < 1)
+                {
+                    CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+            case 7: // Target
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = get_id(cubes_target, word_buf);
+                    if (k >= 0)
+                    {
+                        cubed->target = k;
+                        n++;
+                    }
+                }
+                if (n < 1)
+                {
+                    CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+            case 8: // Properties
                 cubed->properties_flags = 0;
                 while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {

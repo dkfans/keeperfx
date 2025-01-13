@@ -40,11 +40,20 @@ enum CubePropertiesFlags {
     CPF_IsUnclaimedPath =     0x08,
 };
 
+enum CubeTarget {
+    CT_Neutral,
+    CT_Friendly,
+    CT_Hostile,
+};
+
 struct CubeConfigStats {
     char code_name[COMMAND_WORD_LEN];
     unsigned short texture_id[CUBE_TEXTURES];
     unsigned char ownershipGroup;
     PlayerNumber owner;
+    SpellKind spell_effect;
+    CrtrExpLevel spell_level;
+    unsigned char target;
     unsigned char properties_flags;
 };
 

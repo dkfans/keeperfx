@@ -6125,9 +6125,9 @@ void process_magic_fall_effect(struct Thing *thing)
 void process_landscape_affecting_creature(struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
-    thing->movement_flags &= ~TMvF_IsOnWater;
-    thing->movement_flags &= ~TMvF_IsOnLava;
-    thing->movement_flags &= ~TMvF_IsOnSnow;
+    clear_flag(thing->movement_flags, TMvF_IsOnWater);
+    clear_flag(thing->movement_flags, TMvF_IsOnLava);
+    clear_flag(thing->movement_flags, TMvF_IsOnSnow);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
@@ -6135,7 +6135,6 @@ void process_landscape_affecting_creature(struct Thing *thing)
         return;
     }
     cctrl->corpse_to_piss_on = 0;
-
     int stl_idx = get_subtile_number(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     unsigned long navheight = get_navigation_map_floor_height(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     if (subtile_coord(navheight,0) == thing->mappos.z.val)
@@ -6145,11 +6144,22 @@ void process_landscape_affecting_creature(struct Thing *thing)
         {
             struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
             apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_lava, -1);
-            thing->movement_flags |= TMvF_IsOnLava;
-        } else
-        if (cube_is_water(i))
+            set_flag(thing->movement_flags, TMvF_IsOnLava);
+        }
+        else if (cube_is_water(i))
         {
-            thing->movement_flags |= TMvF_IsOnWater;
+            set_flag(thing->movement_flags, TMvF_IsOnWater);
+        }
+        struct CubeConfigStats* cubest = get_cube_model_stats(i);
+        if (cubest->spell_effect > 0)
+        {
+            PlayerNumber plyr_idx = get_slab_owner_thing_is_on(thing);
+            if ((players_are_mutual_allies(thing->owner, plyr_idx) && cubest->target == CT_Friendly)
+            || (!players_are_mutual_allies(thing->owner, plyr_idx) && cubest->target == CT_Hostile)
+            || (cubest->target == CT_Neutral))
+            {
+                apply_spell_effect_to_thing(thing, cubest->spell_effect, cubest->spell_level, plyr_idx);
+            }
         }
         process_creature_leave_footsteps(thing);
         process_creature_standing_on_corpses_at(thing, &thing->mappos);
