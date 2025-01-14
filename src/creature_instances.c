@@ -680,7 +680,16 @@ long instf_dig(struct Thing *creatng, long *param)
     if ((slb->health > dig_damage) || slab_kind_is_indestructible(slb->kind))
     {
         if (!slab_kind_is_indestructible(slb->kind))
-            slb->health -= dig_damage;
+        {
+            if (slb->kind != SlbT_DAMAGEDWALL)
+            {
+                slb->health -= dig_damage;
+            }
+            else
+            {
+                slb->health = 0;
+            }
+        }
         struct ShotConfigStats* shotst = get_shot_model_stats(ShM_Dig);
         thing_play_sample(creatng, shotst->dig.sndsample_idx + UNSYNC_RANDOM(shotst->dig.sndsample_range), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         create_effect(&creatng->mappos, shotst->dig.effect_model, creatng->owner);
@@ -1147,11 +1156,22 @@ long instf_tunnel(struct Thing *creatng, long *param)
         return 0;
     }
     thing_play_sample(creatng, 69+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        if (slb->health > 1) {
+    if (slb->kind == SlbT_DAMAGEDWALL)
+    {
+        if (slb->health > 0)
+        {
+            slb->health = 0;
+            return 1;
+        }  
+    }        
+    if (slb->health > 1) 
+    {
         slb->health--;
-        } else {
+    } 
+    else 
+    {
         dig_out_block(stl_x, stl_y, creatng->owner);
-        }
+    }
     return 1;
 }
 
