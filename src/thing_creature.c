@@ -6150,20 +6150,35 @@ void process_landscape_affecting_creature(struct Thing *thing)
         {
             set_flag(thing->movement_flags, TMvF_IsOnWater);
         }
+        // Cubes can apply spell effect if set.
         struct CubeConfigStats* cubest = get_cube_model_stats(i);
         if (cubest->spell_effect > 0)
         {
-            PlayerNumber plyr_idx = get_slab_owner_thing_is_on(thing);
-            if ((players_are_mutual_allies(thing->owner, plyr_idx) && cubest->target == CT_Friendly)
-            || (!players_are_mutual_allies(thing->owner, plyr_idx) && cubest->target == CT_Hostile)
-            || (cubest->target == CT_Neutral))
+            // Check if already affected.
+            TbBool affected = false;
+            for (int k = 0; k < CREATURE_MAX_SPELLS_CASTED_AT; k++)
             {
-                struct SpellConfig* spconf = get_spell_config(cubest->spell_effect);
-                if (spconf->caster_affect_sound > 0)
+                if (cctrl->casted_spells[k].spkind == cubest->spell_effect)
                 {
-                    thing_play_sample(thing, spconf->caster_affect_sound + UNSYNC_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+                    affected = true;
+                    break;
                 }
-                apply_spell_effect_to_thing(thing, cubest->spell_effect, cubest->spell_level, plyr_idx);
+            }
+            // Do not cast if already affected.
+            if (!affected)
+            {
+                PlayerNumber plyr_idx = get_slab_owner_thing_is_on(thing);
+                if ((players_are_mutual_allies(thing->owner, plyr_idx) && cubest->target == CT_Friendly)
+                || (!players_are_mutual_allies(thing->owner, plyr_idx) && cubest->target == CT_Hostile)
+                || (cubest->target == CT_Neutral))
+                {
+                    struct SpellConfig* spconf = get_spell_config(cubest->spell_effect);
+                    if (spconf->caster_affect_sound > 0)
+                    {
+                        thing_play_sample(thing, spconf->caster_affect_sound + UNSYNC_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+                    }
+                    apply_spell_effect_to_thing(thing, cubest->spell_effect, cubest->spell_level, plyr_idx);
+                }
             }
         }
         process_creature_leave_footsteps(thing);
