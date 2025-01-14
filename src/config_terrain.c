@@ -218,6 +218,7 @@ const struct NamedCommand terrain_health_commands[] = {
   {"DOOR_BRACE",      7},
   {"DOOR_STEEL",      8},
   {"DOOR_MAGIC",      9},
+  {"DAMAGED",        10},
   {NULL,              0},
 };
 
@@ -828,15 +829,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
         n = 0;
         switch (cmd_num)
         {
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-        case 9:
+        case 1 ... HEALTH_BLOCKS:
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);

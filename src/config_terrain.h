@@ -32,6 +32,7 @@ extern "C" {
 
 #define TERRAIN_ITEMS_MAX    256
 #define SLABSETS_PER_SLAB   (9*3+1)
+#define HEALTH_BLOCKS 10
 
 
 /******************************************************************************/
