@@ -41,7 +41,7 @@ const struct NamedCommand cubes_cube_commands[] = {
     {"Owner",          4},
     {"SpellEffect",    5},
     {"SpellLevel",     6},
-    {"Target",         7},
+    {"Castability",    7},
     {"Properties",     8},
     {NULL,             0},
 };
@@ -54,11 +54,17 @@ const struct NamedCommand cubes_properties_flags[] = {
     {NULL,             0},
 };
 
-const struct NamedCommand cubes_target[] = {
-    {"NEUTRAL",  CT_Neutral},
-    {"FRIENDLY", CT_Friendly},
-    {"HOSTILE",  CT_Hostile},
-    {NULL,       0},
+const struct NamedCommand cubes_castability_flags[] = {
+    {"FRIENDLY",    CCF_Friendly},
+    {"HOSTILE",     CCF_Hostile},
+    {"NEUTRAL",     CCF_Neutral},
+    {"ONLY_DIGGER", CCF_OnlyDigger},
+    {"NOT_DIGGER",  CCF_NotDigger},
+    {"ONLY_EVIL",   CCF_OnlyEvil},
+    {"NOT_EVIL",    CCF_NotEvil},
+    {"ONLY_FLYING", CCF_OnlyFlying},
+    {"NOT_FLYING",  CCF_NotFlying},
+    {NULL,          0},
 };
 
 /******************************************************************************/
@@ -90,7 +96,7 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
             memset(cubest->code_name, 0, COMMAND_WORD_LEN);
             cubest->spell_effect = 0;
             cubest->spell_level = 0;
-            cubest->target = 0;
+            cubest->castability_flags = 0;
             cubest->properties_flags = 0;
             cube_desc[i].name = cubest->code_name;
             cube_desc[i].num = i;
@@ -245,14 +251,24 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
                         COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
-            case 7: // Target
-                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            case 7: // Castability
+                cubed->castability_flags = 0;
+                while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    k = get_id(cubes_target, word_buf);
-                    if (k >= 0)
+                    if (parameter_is_number(word_buf))
                     {
-                        cubed->target = k;
+                        k = atoi(word_buf);
+                        cubed->castability_flags = k;
                         n++;
+                    }
+                    else
+                    {
+                        k = get_id(cubes_castability_flags, word_buf);
+                        if (k > 0)
+                        {
+                            set_flag(cubed->castability_flags, k);
+                            n++;
+                        }
                     }
                 }
                 if (n < 1)

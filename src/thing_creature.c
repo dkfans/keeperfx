@@ -6122,6 +6122,87 @@ void process_magic_fall_effect(struct Thing *thing)
     }
 }
 
+TbBool cube_castability_can_target_creature(struct Thing *thing, PlayerNumber plyr_idx, unsigned short castability_flags)
+{
+    // Exclude spectators immediately.
+    if (flag_is_set(get_creature_model_flags(thing), CMF_IsSpectator))
+    {
+        return false;
+    }
+    // Handle digger-related flags.
+    if (flag_is_set(get_creature_model_flags(thing), CMF_IsSpecDigger))
+    {
+        if (flag_is_set(castability_flags, CCF_NotDigger))
+        {
+            return false;
+        }
+    }
+    else
+    {
+        if (flag_is_set(castability_flags, CCF_OnlyDigger))
+        {
+            return false;
+        }
+    }
+    // Handle evil-related flags.
+    if (flag_is_set(get_creature_model_flags(thing), CMF_IsEvil))
+    {
+        if (flag_is_set(castability_flags, CCF_NotEvil))
+        {
+            return false;
+        }
+    }
+    else
+    {
+        if (flag_is_set(castability_flags, CCF_OnlyEvil))
+        {
+            return false;
+        }
+    }
+    // Handle flying-related flags.
+    if (flag_is_set(thing->movement_flags, TMvF_Flying))
+    {
+        if (flag_is_set(castability_flags, CCF_NotFlying))
+        {
+            return false;
+        }
+    }
+    else
+    {
+        if (flag_is_set(castability_flags, CCF_OnlyFlying))
+        {
+            return false;
+        }
+    }
+    // Handle owner-related flags.
+    if (!is_neutral_thing(thing))
+    {
+        if (players_are_mutual_allies(thing->owner, plyr_idx))
+        {
+            if (flag_is_set(castability_flags, CCF_Friendly))
+            {
+                return true;
+            }
+        }
+        else
+        {
+            if (flag_is_set(castability_flags, CCF_Hostile))
+            {
+                return true;
+            }
+        }
+    }
+    else
+    {
+        if (flag_is_set(castability_flags, CCF_Neutral))
+        {
+            return true;
+        }
+    }
+    // Exclude target by default if no flags match.
+    return false;
+}
+
 void process_landscape_affecting_creature(struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
@@ -6137,7 +6218,7 @@ void process_landscape_affecting_creature(struct Thing *thing)
     cctrl->corpse_to_piss_on = 0;
     int stl_idx = get_subtile_number(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     unsigned long navheight = get_navigation_map_floor_height(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-    if (subtile_coord(navheight,0) == thing->mappos.z.val)
+    if (subtile_coord(navheight, 0) == thing->mappos.z.val)
     {
         int i = get_top_cube_at_pos(stl_idx);
         if (cube_is_lava(i))
@@ -6168,16 +6249,21 @@ void process_landscape_affecting_creature(struct Thing *thing)
             if (!affected)
             {
                 PlayerNumber plyr_idx = get_slab_owner_thing_is_on(thing);
-                if ((players_are_mutual_allies(thing->owner, plyr_idx) && cubest->target == CT_Friendly)
-                || (!players_are_mutual_allies(thing->owner, plyr_idx) && cubest->target == CT_Hostile)
-                || (cubest->target == CT_Neutral))
+                if (cube_castability_can_target_creature(thing, plyr_idx, cubest->castability_flags))
                 {
                     struct SpellConfig* spconf = get_spell_config(cubest->spell_effect);
                     if (spconf->caster_affect_sound > 0)
                     {
                         thing_play_sample(thing, spconf->caster_affect_sound + UNSYNC_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
                     }
-                    apply_spell_effect_to_thing(thing, cubest->spell_effect, cubest->spell_level, plyr_idx);
+                    if (cubest->spell_level > 0)
+                    {
+                        apply_spell_effect_to_thing(thing, cubest->spell_effect, cubest->spell_level-1, plyr_idx);
+                    }
+                    else
+                    {
+                        apply_spell_effect_to_thing(thing, cubest->spell_effect, cctrl->explevel, plyr_idx);
+                    }
                 }
             }
         }
