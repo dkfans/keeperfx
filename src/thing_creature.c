@@ -689,6 +689,11 @@ TbBool creature_under_spell_effect_f(const struct Thing *thing, unsigned long sp
         ERRORLOG("%s: Invalid creature control for thing %s index %d", func_name, thing_model_name(thing), (int)thing->index);
         return false;
     }
+    // Return false for instances affecting the caster when no spell flags are set.
+    if (spell_flags == 0)
+    {
+        return false;
+    }
     return flag_is_set(cctrl->spell_flags, spell_flags);
 }
 
@@ -701,6 +706,11 @@ TbBool creature_is_immune_to_spell_effect_f(const struct Thing *thing, unsigned 
     if (creature_stats_invalid(crstat))
     {
         ERRORLOG("%s: Invalid creature stats for thing %s index %d", func_name, thing_model_name(thing), (int)thing->index);
+        return false;
+    }
+    // Return false for instances affecting the caster when no spell flags are set.
+    if (spell_flags == 0)
+    {
         return false;
     }
     return flag_is_set(crstat->immunity_flags, spell_flags);
