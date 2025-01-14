@@ -6158,6 +6158,11 @@ void process_landscape_affecting_creature(struct Thing *thing)
             || (!players_are_mutual_allies(thing->owner, plyr_idx) && cubest->target == CT_Hostile)
             || (cubest->target == CT_Neutral))
             {
+                struct SpellConfig* spconf = get_spell_config(cubest->spell_effect);
+                if (spconf->caster_affect_sound > 0)
+                {
+                    thing_play_sample(thing, spconf->caster_affect_sound + UNSYNC_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+                }
                 apply_spell_effect_to_thing(thing, cubest->spell_effect, cubest->spell_level, plyr_idx);
             }
         }
