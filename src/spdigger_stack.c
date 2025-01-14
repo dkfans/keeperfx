@@ -1341,9 +1341,8 @@ long add_to_reinforce_stack_if_need_to(long slb_x, long slb_y, struct Dungeon *d
 {
     if (r_stackpos < DIGGER_TASK_MAX_COUNT - dungeon->digger_stack_length)
     {
-        struct SlabMap *slb;
-        slb = get_slabmap_block(slb_x, slb_y);
-        if (slab_kind_is_friable_dirt(slb->kind))
+        struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
+        if ( (slab_kind_is_friable_dirt(slb->kind)) || ( (slb->kind == SlbT_DAMAGEDWALL) && (slabmap_owner(slb) == dungeon->owner) ) )
         {
             if (subtile_revealed(slab_subtile_center(slb_x), slab_subtile_center(slb_y), dungeon->owner))
             {
