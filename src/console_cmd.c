@@ -1884,6 +1884,20 @@ TbBool cmd_player_colour(PlayerNumber plyr_idx, char * args)
     return false;
 }
 
+TbBool cmd_possession_lock(PlayerNumber plyr_idx, char * args)
+{
+    struct PlayerInfo * player = get_player(plyr_idx);
+    player->possession_lock = true;
+    return true;
+}
+
+TbBool cmd_possession_unlock(PlayerNumber plyr_idx, char * args)
+{
+    struct PlayerInfo * player = get_player(plyr_idx);
+    player->possession_lock = false;
+    return true;
+}
+
 TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
 {
     struct ConsoleCommand {
@@ -1985,6 +1999,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
         { "speech.test", cmd_speech_test },
         { "player.color", cmd_player_colour},
         { "player.colour", cmd_player_colour},
+        { "possession.lock", cmd_possession_lock},
+        { "possession.unlock", cmd_possession_unlock},
     };
     SYNCDBG(2, "Command %d: %s",(int)plyr_idx, args);
     const char * command = strsep(&args, " ");
