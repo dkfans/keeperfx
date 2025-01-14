@@ -923,6 +923,16 @@ void stop_streamed_sample()
         streamed_sample = NULL;
     }
 }
+
+void play_digger_reinforce_sound(struct Thing *spdigtng)
+{
+    if (!S3DEmitterIsPlayingSample(spdigtng->snd_emitter_id, 63, 0))
+    {
+        struct PlayerInfo* player = get_my_player();
+        int volume = ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr)) ? FULL_LOUDNESS : 32;
+        thing_play_sample(spdigtng, 1005 + UNSYNC_RANDOM(7), NORMAL_PITCH, 0, 3, 0, 2, volume);
+    }
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -1084,21 +1084,32 @@ long instf_reinforce(struct Thing *creatng, long *param)
     if (check_place_to_reinforce(creatng, slb_x, slb_y) <= 0) {
         return 0;
     }
-    if (cctrl->digger.consecutive_reinforcements <= 25)
+    struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
+    switch (slb->kind)
     {
-        cctrl->digger.consecutive_reinforcements++;
-        if (!S3DEmitterIsPlayingSample(creatng->snd_emitter_id, 63, 0))
+        case SlbT_EARTH:
+        case SlbT_TORCHDIRT:
         {
-            struct PlayerInfo* player;
-            player = get_my_player();
-            int volume = 32;
-            if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr))
+            if (cctrl->digger.consecutive_reinforcements <= 25)
             {
-                volume = FULL_LOUDNESS;
+                cctrl->digger.consecutive_reinforcements++;
+                play_digger_reinforce_sound(creatng);
+                return 0;
             }
-            thing_play_sample(creatng, 1005 + UNSYNC_RANDOM(7), NORMAL_PITCH, 0, 3, 0, 2, volume);
+            break;
         }
-        return 0;
+        case SlbT_DAMAGEDWALL:
+        {
+            struct SlabAttr* slbattr = get_slab_attrs(slb);
+            if (slb->health < game.block_health[slbattr->block_health_index])
+            {
+                slb->health++;
+                cctrl->digger.consecutive_reinforcements++;
+                play_digger_reinforce_sound(creatng);
+                return 0;
+            }
+            break;
+        }
     }
     cctrl->digger.consecutive_reinforcements = 0;
     place_and_process_pretty_wall_slab(creatng, slb_x, slb_y);
