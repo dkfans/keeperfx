@@ -1155,18 +1155,17 @@ long instf_tunnel(struct Thing *creatng, long *param)
     if (slabmap_block_invalid(slb)) {
         return 0;
     }
-    thing_play_sample(creatng, 69+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-    if (slb->kind == SlbT_DAMAGEDWALL)
-    {
-        if (slb->health > 1)
-        {
-            slb->health = 0;
-            return 1;
-        }  
-    }        
+    thing_play_sample(creatng, 69+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);   
     if (slb->health > 1) 
     {
-        slb->health--;
+        if (slb->kind == SlbT_DAMAGEDWALL)
+        {
+            slb->health = 0;
+        }
+        else
+        {
+            slb->health--;
+        }
     } 
     else 
     {
