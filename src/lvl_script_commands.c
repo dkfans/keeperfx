@@ -2862,12 +2862,12 @@ static void place_trap_check(const struct ScriptLine* scline)
     }
 
     short free = scline->np[4];
-    if (free != -1)
+    if (free == -1)
     {
         free = get_id(is_free_desc, scline->tp[4]);
         if (free == -1)
         {
-            SCRPTERRLOG("Place Trap free state '%s' not recognized", scline->tp[5]);
+            SCRPTERRLOG("Place Trap free state '%s' not recognized", scline->tp[4]);
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
@@ -5004,7 +5004,7 @@ static void use_power_on_players_creatures_check(const struct ScriptLine* scline
     short pwr_id = get_rid(power_desc, pwr_name);
     CrtrExpLevel splevel = scline->np[4];
     short free = scline->np[5];
-    if (free != -1)
+    if (free == -1)
     {
         free = get_id(is_free_desc, scline->tp[5]);
         if (free == -1)
