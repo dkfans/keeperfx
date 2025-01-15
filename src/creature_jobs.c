@@ -327,7 +327,6 @@ TbBool attempt_anger_job_mad_psycho(struct Thing *creatng)
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     // Mad Psycho's anger job bypasses immunity.
     set_flag(cctrl->spell_flags, CSAfF_MadKilling);
-    cctrl->mad_psycho.byte_9A = 0;
     return true;
 }
 
