@@ -1889,10 +1889,6 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             old_value2 = trapst->bigsym_sprite_idx;
             trapst->bigsym_sprite_idx = get_icon_id(context->value->strs[2]); // First
             trapst->medsym_sprite_idx = get_icon_id(context->value->strs[2] + strlen(context->value->strs[2]) + 1); // Second
-            if (trapst->bigsym_sprite_idx < 0)
-                trapst->bigsym_sprite_idx = bad_icon_id;
-            if (trapst->medsym_sprite_idx < 0)
-                trapst->medsym_sprite_idx = bad_icon_id;
             manufctr->bigsym_sprite_idx = trapst->bigsym_sprite_idx;
             manufctr->medsym_sprite_idx = trapst->medsym_sprite_idx;
             if ( (trapst->medsym_sprite_idx != old_value) || (trapst->bigsym_sprite_idx != old_value2) )
@@ -1904,8 +1900,6 @@ static void set_trap_configuration_process(struct ScriptContext *context)
         case 4: // PointerSprites
             old_value = trapst->pointer_sprite_idx;
             trapst->pointer_sprite_idx = get_icon_id(context->value->strs[2]);
-            if (trapst->pointer_sprite_idx < 0)
-                trapst->pointer_sprite_idx = bad_icon_id;
             if (trapst->pointer_sprite_idx != old_value)
             {
                 update_trap_tab_to_config();
@@ -2111,26 +2105,18 @@ static void set_room_configuration_process(struct ScriptContext *context)
             }
             break;
         case 3: // SymbolSprites
-        {
             old_value = roomst->medsym_sprite_idx;
             old_value2 = roomst->bigsym_sprite_idx;
             roomst->bigsym_sprite_idx = get_icon_id(context->value->strs[2]); // First
             roomst->medsym_sprite_idx = get_icon_id(context->value->strs[2] + strlen(context->value->strs[2]) + 1); // Second
-            if (roomst->bigsym_sprite_idx < 0)
-                roomst->bigsym_sprite_idx = bad_icon_id;
-            if (roomst->medsym_sprite_idx < 0)
-                roomst->medsym_sprite_idx = bad_icon_id;
             if ( (roomst->medsym_sprite_idx != old_value) || (roomst->bigsym_sprite_idx != old_value2) )
             {
                 update_room_tab_to_config();
             }
-        }
             break;
         case 4: // PointerSprites
             old_value = roomst->pointer_sprite_idx;
             roomst->pointer_sprite_idx = get_icon_id(context->value->strs[2]);
-            if (roomst->pointer_sprite_idx < 0)
-                roomst->pointer_sprite_idx = bad_icon_id;
             if (roomst->pointer_sprite_idx != old_value)
             {
                 update_room_tab_to_config();
@@ -2444,10 +2430,6 @@ static void set_door_configuration_process(struct ScriptContext *context)
             {
                 doorst->bigsym_sprite_idx = get_icon_id(context->value->strs[2]); // First
                 doorst->medsym_sprite_idx = get_icon_id(context->value->strs[2] + strlen(context->value->strs[2]) + 1); // Second
-                if (doorst->bigsym_sprite_idx < 0)
-                    doorst->bigsym_sprite_idx = bad_icon_id;
-                if (doorst->medsym_sprite_idx < 0)
-                    doorst->medsym_sprite_idx = bad_icon_id;
                 manufctr->bigsym_sprite_idx = doorst->bigsym_sprite_idx;
                 manufctr->medsym_sprite_idx = doorst->medsym_sprite_idx;
                 update_trap_tab_to_config();
@@ -2455,8 +2437,6 @@ static void set_door_configuration_process(struct ScriptContext *context)
             break;
         case 5: // PointerSprites
             doorst->pointer_sprite_idx = get_icon_id(context->value->strs[2]);
-            if (doorst->pointer_sprite_idx < 0)
-                doorst->pointer_sprite_idx = bad_icon_id;
             update_trap_tab_to_config();
             break;
         case 6: // PanelTabIndex
@@ -2759,11 +2739,11 @@ static void set_door_process(struct ScriptContext* context)
     {
         switch (context->value->shorts[0])
         {
+        case 0:
+            unlock_door(doortng);
+            break;
         case 1:
             lock_door(doortng);
-            break;
-        case 2:
-            unlock_door(doortng);
             break;
         }
     }
@@ -6338,6 +6318,12 @@ static void set_player_colour_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
     long color_idx = get_rid(cmpgn_human_player_options, scline->tp[1]);
+    if (scline->np[0] == game.neutral_player_num)
+    {
+        SCRPTERRLOG("Can't change color of Neutral player.");
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
     if (color_idx == -1)
     {
         if (parameter_is_number(scline->tp[1]))
@@ -6358,7 +6344,11 @@ static void set_player_colour_process(struct ScriptContext *context)
 {
     for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
     {
-         set_player_colour(plyr_idx , context->value->bytes[0]);
+        if (plyr_idx == PLAYER_NEUTRAL)
+        {
+            continue;
+        }
+        set_player_colour(plyr_idx , context->value->bytes[0]);
     }
 }
 
