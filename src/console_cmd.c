@@ -46,6 +46,7 @@
 #include "gui_msgs.h"
 #include "gui_soundmsgs.h"
 #include "keeperfx.hpp"
+#include "lvl_script_lib.h"
 #include "map_blocks.h"
 #include "map_columns.h"
 #include "map_utils.h"
@@ -1857,29 +1858,24 @@ TbBool cmd_speech_test(PlayerNumber plyr_idx, char * args)
 TbBool cmd_player_colour(PlayerNumber plyr_idx, char * args)
 {
     char * pr2str = strsep(&args, " ");
-    PlayerNumber plyr_start = get_player_number_for_command(pr2str);
+    int plr_start;
+    int plr_end;
+    PlayerNumber plr_range_id = get_player_number_for_command(pr2str);
+    get_players_range(plr_range_id, &plr_start, &plr_end);
+    
     char * pr3str = strsep(&args, " ");
     char colour_idx = get_rid(cmpgn_human_player_options, pr3str);
-    if (plyr_start >= 0)
+    if (plr_start >= 0)
     {
-        if (colour_idx >= 0)
-        {
-            PlayerNumber plyr_end;
-            if (plyr_start == ALL_PLAYERS)
+            for (PlayerNumber plyr_id = plr_start; plyr_id < plr_end; plyr_id++)
             {
-                plyr_start = PLAYER0;
-                plyr_end = PLAYER6;
-            }
-            else
-            {
-                plyr_end = plyr_start;
-            }
-            for (PlayerNumber plyr_id = plyr_start; plyr_id <= plyr_end; plyr_id++)
-            {
+                if (plyr_id == PLAYER_NEUTRAL)
+                {
+                    continue;
+                }
                 set_player_colour(plyr_id, (unsigned char)colour_idx);
             }
             return true;
-        }
     }
     return false;
 }
