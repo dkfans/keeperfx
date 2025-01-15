@@ -2759,11 +2759,11 @@ static void set_door_process(struct ScriptContext* context)
     {
         switch (context->value->shorts[0])
         {
+        case 0:
+            unlock_door(doortng);
+            break;
         case 1:
             lock_door(doortng);
-            break;
-        case 2:
-            unlock_door(doortng);
             break;
         }
     }
