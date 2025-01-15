@@ -406,21 +406,17 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
       case 10: // SYMBOLSPRITES
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              trapst->bigsym_sprite_idx = bad_icon_id;
-              k = get_icon_id(word_buf);
-              if (k >= 0)
+              trapst->bigsym_sprite_idx = get_icon_id(word_buf);
+              if (trapst->bigsym_sprite_idx != bad_icon_id)
               {
-                  trapst->bigsym_sprite_idx = k;
                   n++;
               }
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              trapst->medsym_sprite_idx = bad_icon_id;
-              k = get_icon_id(word_buf);
-              if (k >= 0)
+              trapst->medsym_sprite_idx = get_icon_id(word_buf);
+              if (trapst->medsym_sprite_idx != bad_icon_id)
               {
-                  trapst->medsym_sprite_idx = k;
                   n++;
               }
           }
@@ -433,16 +429,14 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
       case 11: // POINTERSPRITES
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              k = get_icon_id(word_buf);
-              if (k >= 0)
+              trapst->pointer_sprite_idx = get_icon_id(word_buf);
+              if (trapst->pointer_sprite_idx != bad_icon_id)
               {
-                  trapst->pointer_sprite_idx = k;
                   n++;
               }
           }
           if (n < 1)
           {
-            trapst->pointer_sprite_idx = bad_icon_id;
             CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
                 COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
@@ -1342,21 +1336,17 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
       case 4: // SYMBOLSPRITES
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              doorst->bigsym_sprite_idx = bad_icon_id;
-              k = get_icon_id(word_buf);
-              if (k >= 0)
+              doorst->bigsym_sprite_idx = get_icon_id(word_buf);
+              if (doorst->bigsym_sprite_idx != bad_icon_id)
               {
-                  doorst->bigsym_sprite_idx = k;
                   n++;
               }
           }
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              doorst->medsym_sprite_idx = bad_icon_id;
-              k = get_icon_id(word_buf);
-              if (k >= 0)
+              doorst->medsym_sprite_idx = get_icon_id(word_buf);
+              if (doorst->medsym_sprite_idx != bad_icon_id)
               {
-                  doorst->medsym_sprite_idx = k;
                   n++;
               }
           }
@@ -1369,16 +1359,14 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
       case 5: // POINTERSPRITES
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = get_icon_id(word_buf);
-              if (k >= 0)
+              doorst->pointer_sprite_idx = get_icon_id(word_buf);
+              if (doorst->pointer_sprite_idx != bad_icon_id)
               {
-                  doorst->pointer_sprite_idx = k;
                   n++;
               }
           }
           if (n < 1)
           {
-              doorst->pointer_sprite_idx = bad_icon_id;
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
