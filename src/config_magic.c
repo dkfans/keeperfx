@@ -622,21 +622,17 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
       case 7: // SYMBOLSPRITES
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              spconf->bigsym_sprite_idx = bad_icon_id;
-              k = get_icon_id(word_buf);
-              if (k >= 0)
+              spconf->bigsym_sprite_idx = get_icon_id(word_buf);
+              if (spconf->bigsym_sprite_idx != bad_icon_id)
               {
-                  spconf->bigsym_sprite_idx = k;
                   n++;
               }
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              spconf->medsym_sprite_idx = bad_icon_id;
-              k = get_icon_id(word_buf);
-              if (k >= 0)
+              spconf->medsym_sprite_idx = get_icon_id(word_buf);
+              if (spconf->medsym_sprite_idx != bad_icon_id)
               {
-                  spconf->medsym_sprite_idx = k;
                   n++;
               }
           }
@@ -2223,21 +2219,17 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
       case 10: // SYMBOLSPRITES
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              powerst->bigsym_sprite_idx = bad_icon_id;
-              k = get_icon_id(word_buf);
-              if (k >= 0)
+              powerst->bigsym_sprite_idx = get_icon_id(word_buf);
+              if (powerst->bigsym_sprite_idx != bad_icon_id)
               {
-                  powerst->bigsym_sprite_idx = k;
                   n++;
               }
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              powerst->medsym_sprite_idx = bad_icon_id;
-              k = get_icon_id(word_buf);
-              if (k >= 0)
+              powerst->medsym_sprite_idx = get_icon_id(word_buf);
+              if (powerst->medsym_sprite_idx != bad_icon_id)
               {
-                  powerst->medsym_sprite_idx = k;
                   n++;
               }
           }
@@ -2267,10 +2259,9 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
       case 12: // PANELTABINDEX
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-            k = atoi(word_buf);
-            if (k >= 0)
+            powerst->panel_tab_idx = get_icon_id(word_buf);
+            if (powerst->panel_tab_idx != bad_icon_id)
             {
-                powerst->panel_tab_idx = k;
                 n++;
             }
           }
