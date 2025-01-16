@@ -936,7 +936,7 @@ void zoom_to_parchment_map(void)
     }
 }
 
-void zoom_from_patchment_map(void)
+void zoom_from_parchment_map(void)
 {
     struct PlayerInfo* player = get_my_player();
     if (((game.system_flags & GSF_NetworkActive) != 0)
