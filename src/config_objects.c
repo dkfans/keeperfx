@@ -460,10 +460,9 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             case 18: // MAPICON
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    k = get_icon_id(word_buf);
-                    if (k != bad_icon_id)
+                    objst->map_icon = get_icon_id(word_buf);
+                    if (objst->map_icon != bad_icon_id)
                     {
-                        objst->map_icon = k;
                         n++;
                     }
                 }
