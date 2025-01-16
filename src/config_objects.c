@@ -463,6 +463,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     k = get_icon_id(word_buf);
                     if (k != bad_icon_id)
                     {
+                        objst->map_icon = k;
                         n++;
                     }
                 }
