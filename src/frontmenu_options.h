@@ -31,21 +31,20 @@ extern "C" {
 #define GAMMA_LEVELS_COUNT      5
 
 enum OptionsButtonDesignationIDs {
-    BID_SOUND_VOL = BID_DEFAULT+75,
+    BID_SOUND_VOL  = BID_DEFAULT + 75,
+    BID_MUSIC_VOL  = BID_DEFAULT + 76,
+    BID_MENTOR_VOL = BID_DEFAULT + 77,
+    BID_MOUSE_MUL  = BID_DEFAULT + 78,
 };
 
 struct GuiMenu;
 struct GuiButton;
 
 /******************************************************************************/
-extern long fe_mouse_sensitivity;
-extern long sound_level_slider;
-extern long music_level_slider;
 extern char video_cluedo_mode;
 extern char video_shadows;
 extern char video_textures;
 extern char video_view_distance_level;
-extern long mentor_level_slider; // This is not the mentor_volume you are looking for. Try GameSettings.
 
 #pragma pack()
 /******************************************************************************/

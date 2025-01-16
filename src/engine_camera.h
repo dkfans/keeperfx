@@ -41,6 +41,9 @@ struct PlayerInfo;
 #define FRONTVIEW_CAMERA_ZOOM_MIN 3000 // Originally 16384, adjusted for view distance
 #define MINMAX_LENGTH 512 // Originally 64, adjusted for view distance
 #define MINMAX_ALMOST_HALF ((MINMAX_LENGTH/2)-1)
+#define CAMERA_TILT_DEFAULT -266
+#define CAMERA_TILT_MIN -350
+#define CAMERA_TILT_MAX -200
 
 extern long zoom_distance_setting; // CFG setting
 extern long frontview_zoom_distance_setting; // CFG setting
@@ -122,6 +125,7 @@ void update_camera_zoom_bounds(struct Camera *cam,unsigned long zoom_max,unsigne
 void view_set_camera_y_inertia(struct Camera *cam, long a2, long a3);
 void view_set_camera_x_inertia(struct Camera *cam, long a2, long a3);
 void view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3);
+void view_set_camera_tilt(struct Camera *cam, unsigned char mode);
 
 void update_all_players_cameras(void);
 void init_player_cameras(struct PlayerInfo *player);

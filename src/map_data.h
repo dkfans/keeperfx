@@ -39,7 +39,9 @@ enum MapCoordClipFlags {
 
 struct Map {
       unsigned char flags; // flags in enum SlabAttrFlags
-      unsigned long data; // 4b unused 4b filled_subtiles 2b wibble_value 11b unused 11b column
+      unsigned char filled_subtiles;
+      unsigned char wibble_value;
+      ColumnIndex col_idx;
       ThingIndex mapwho;
       PlayerBitFlags revealed;
 };
@@ -48,6 +50,7 @@ struct Map {
 #define MOVE_VELOCITY_LIMIT 256
 #define STL_PER_SLB 3
 #define COORD_PER_STL 256
+#define COORD_PER_SLB (COORD_PER_STL*STL_PER_SLB)
 #define FILLED_COLUMN_HEIGHT 1280
 #define DEFAULT_MAP_SIZE 85
 
@@ -65,9 +68,14 @@ extern long nav_map_initialised;
 /** Converts slab to its central subtile. */
 #define slab_subtile_center(slb) ((MapSubtlCoord)(slb)*STL_PER_SLB+(MapSubtlCoord)1)
 /******************************************************************************/
+/** Converts coord value to number of subtiles. */
 #define coord_subtile(coord) ((coord)/COORD_PER_STL)
-#define coord_slab(coord) ((coord)/(COORD_PER_STL*STL_PER_SLB))
+/** Converts coord value to number of slabs. */
+#define coord_slab(coord) ((coord)/(COORD_PER_SLB))
+/** Converts subtile to coord value. */
 #define subtile_coord(stl,spos) ((stl)*COORD_PER_STL+(spos))
+/** Converts slab to coord value. */
+#define slab_coord(slb) ((slb) * (COORD_PER_SLB))
 #define subtile_coord_center(stl) ((stl)*COORD_PER_STL+COORD_PER_STL/2)
 #define navmap_tile_number(stl_x,stl_y) ((stl_y)*gameadd.navigation_map_size_x+(stl_x))
 /******************************************************************************/
@@ -84,6 +92,7 @@ void conceal_map_block(struct Map *mapblk, PlayerNumber plyr_idx);
 TbBool slabs_reveal_slab_and_corners(MapSlabCoord slab_x, MapSlabCoord slab_y, MaxCoordFilterParam param);
 TbBool slabs_change_owner(MapSlabCoord slab_x, MapSlabCoord slab_y, MaxCoordFilterParam param);
 TbBool slabs_change_type(MapSlabCoord slab_x, MapSlabCoord slab_y, MaxCoordFilterParam param);
+TbBool slabs_change_texture(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterParam param);
 TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx);
 TbBool map_block_revealed_directly(const struct Map* mapblk, PlayerNumber plyr_idx);
 
@@ -98,8 +107,8 @@ void set_mapblk_filled_subtiles(struct Map *map, long height);
 long get_mapblk_wibble_value(const struct Map *mapblk);
 void set_mapblk_wibble_value(struct Map *mapblk, long wib);
 
-unsigned long get_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long navcolour);
+NavColour get_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, NavColour navcolour);
 unsigned long get_navigation_map_floor_height(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 TbBool set_coords_with_clip(struct Coord3d *pos, MapCoord cor_x, MapCoord cor_y, MapCoord cor_z);

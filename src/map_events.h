@@ -28,7 +28,7 @@ extern "C" {
 /******************************************************************************/
 #define EVENT_BUTTONS_COUNT    12
 #define EVENT_KIND_COUNT       36
-#define EVENTS_COUNT          100
+#define EVENTS_COUNT          1000
 #define INVALID_EVENT &game.event[0]
 
 enum EventKinds {
@@ -92,7 +92,6 @@ struct Event { // sizeof=0x15
     long target;
     /** Button lifespan, decreased over time. When reaches 0, the button disappears. */
     unsigned long lifespan_turns;
-    unsigned char falling_button; // Old way - make it unused when only EvF_BtnFirstFall is used
 };
 
 struct Bookmark {

@@ -21,7 +21,6 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 
@@ -80,9 +79,10 @@ const struct NamedCommand terrain_room_commands[] = {
   {"PANELTABINDEX",    12},
   {"TOTALCAPACITY",    13},
   {"USEDCAPACITY",     14},
-  {"AMBIENTSNDSAMPLE", 15},
-  {"ROLES",            16},
-  {"STORAGEHEIGHT",    17},
+  {"SLABSYNERGY",      15},
+  {"AMBIENTSNDSAMPLE", 16},
+  {"ROLES",            17},
+  {"STORAGEHEIGHT",    18},
   {NULL,                0},
 };
 
@@ -91,6 +91,7 @@ const struct NamedCommand terrain_room_properties_commands[] = {
   {"CANNOT_VANDALIZE",  RoCFlg_CantVandalize},
   {"BUILD_TILL_BROKE",  RoCFlg_BuildTillBroke},
   {"CANNOT_BE_SOLD",    RoCFlg_CannotBeSold},
+  {"CANNOT_BE_CLAIMED", RoCFlg_CannotBeClaimed},
   {NULL,                0},
 };
 
@@ -128,15 +129,27 @@ const struct NamedCommand room_roles_desc[] = {
 
 extern void count_slabs_all_only(struct Room *room);
 extern void count_slabs_all_wth_effcncy(struct Room *room);
+extern void count_slabs_no_min_wth_effcncy(struct Room *room);
 extern void count_slabs_div2_wth_effcncy(struct Room *room);
+extern void count_slabs_div2_nomin_effcncy(struct Room *room);
+extern void count_slabs_mul2_wth_effcncy(struct Room *room);
+extern void count_slabs_pow2_wth_effcncy(struct Room *room);
 extern void count_gold_slabs_wth_effcncy(struct Room *room);
+extern void count_gold_slabs_full(struct Room *room);
+extern void count_gold_slabs_div2(struct Room* room);
 
 const struct NamedCommand terrain_room_total_capacity_func_type[] = {
   {"slabs_all_only",          1},
   {"slabs_all_wth_effcncy",   2},
-  {"slabs_div2_wth_effcncy",  3},
-  {"gold_slabs_wth_effcncy",  4},
-  {"none",                    5},
+  {"slabs_no_min_wth_effcncy",3},
+  {"slabs_div2_wth_effcncy",  4},
+  {"slabs_div2_nomin_effcncy",5},
+  {"slabs_mul2_wth_effcncy",  6},
+  {"slabs_pow2_wth_effcncy",  7},
+  {"gold_slabs_wth_effcncy",  8},
+  {"gold_slabs_full",         9},
+  {"gold_slabs_div2",        10},
+  {"none",                   11},
   {NULL,                      0},
 };
 
@@ -144,8 +157,14 @@ Room_Update_Func terrain_room_total_capacity_func_list[] = {
   NULL,
   count_slabs_all_only,
   count_slabs_all_wth_effcncy,
+  count_slabs_no_min_wth_effcncy,
   count_slabs_div2_wth_effcncy,
+  count_slabs_div2_nomin_effcncy,
+  count_slabs_mul2_wth_effcncy,
+  count_slabs_pow2_wth_effcncy,
   count_gold_slabs_wth_effcncy,
+  count_gold_slabs_full,
+  count_gold_slabs_div2,
   NULL,
   NULL,
 };
@@ -313,7 +332,7 @@ TbBool parse_terrain_common_blocks(char *buf, long len, const char *config_textn
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, terrain_common_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         int n = 0;
         char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
@@ -350,9 +369,9 @@ TbBool parse_terrain_common_blocks(char *buf, long len, const char *config_textn
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -367,52 +386,44 @@ TbBool parse_terrain_common_blocks(char *buf, long len, const char *config_textn
 
 TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-    struct SlabAttr *slbattr;
-    struct SlabConfigStats *slabst;
-    long pos;
-    int i;
-    int k;
-    int n;
-    int cmd_num;
-    // Block name and parameter word store variables
-    char block_buf[COMMAND_WORD_LEN];
+    struct SlabAttr *slbattr = NULL;
+    struct SlabConfigStats *slabst = NULL;
+    long pos = 0;
+    int k = 0;
+    int n = 0;
+    int cmd_num = 0;
     char word_buf[COMMAND_WORD_LEN];
     // Initialize the array
-    int arr_size;
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        arr_size = sizeof(game.conf.slab_conf.slab_cfgstats)/sizeof(game.conf.slab_conf.slab_cfgstats[0]);
-        for (i=0; i < arr_size; i++)
+        for (int i = 0; i < TERRAIN_ITEMS_MAX; i++)
         {
             slabst = &game.conf.slab_conf.slab_cfgstats[i];
-            LbMemorySet(slabst->code_name, 0, COMMAND_WORD_LEN);
+            memset(slabst->code_name, 0, COMMAND_WORD_LEN);
             slabst->tooltip_stridx = GUIStr_Empty;
-            slab_desc[i].name = NULL;
-            slab_desc[i].num = 0;
-        }
-        arr_size = sizeof(slab_attrs)/sizeof(slab_attrs[0]);
-        for (i=0; i < arr_size; i++)
-        {
-            slbattr = get_slab_kind_attrs(i);
-            slbattr->tooltip_stridx = GUIStr_Empty;
+            slab_desc[i].name = slabst->code_name;
+            slab_desc[i].num = i;
+            slab_attrs[i].tooltip_stridx = GUIStr_Empty;
         }
     }
-    // Parse every numbered block within range
-    arr_size = game.conf.slab_conf.slab_types_count;
-    for (i=0; i < arr_size; i++)
+    slab_desc[TERRAIN_ITEMS_MAX - 1].name = NULL; // must be null for get_id
+    const char * blockname = NULL;
+    int blocknamelen = 0;
+    while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
     {
-      sprintf(block_buf,"slab%d",i);
-      pos = 0;
-      k = find_conf_block(buf,&pos,len,block_buf);
-      if (k < 0)
-      {
-          if ((flags & CnfLd_AcceptPartial) == 0) {
-              WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-              return false;
-          }
+      // look for blocks starting with "slab", followed by one or more digits
+      if (blocknamelen < 5) {
+          continue;
+      } else if (memcmp(blockname, "slab", 4) != 0) {
           continue;
       }
-      slbattr = get_slab_kind_attrs(i);
+      const int i = natoi(&blockname[4], blocknamelen - 4);
+      if (i < 0 || i >= TERRAIN_ITEMS_MAX) {
+          continue;
+      } else if (i >= game.conf.slab_conf.slab_types_count) {
+          game.conf.slab_conf.slab_types_count = i + 1;
+      }
+      slbattr = &slab_attrs[i];
       slabst = &game.conf.slab_conf.slab_cfgstats[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(terrain_slab_commands,cmd_num)
       while (pos<len)
@@ -420,7 +431,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
         // Finding command number in this line
         cmd_num = recognize_conf_command(buf,&pos,len,terrain_slab_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         if ((flags & CnfLd_ListOnly) != 0) {
             // In "List only" mode, accept only name command
             if (cmd_num > 1) {
@@ -431,15 +442,10 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
         switch (cmd_num)
         {
         case 1: // NAME
-            if (get_conf_parameter_single(buf,&pos,len,slabst->code_name,COMMAND_WORD_LEN) > 0)
+            if (get_conf_parameter_single(buf,&pos,len,slabst->code_name,COMMAND_WORD_LEN) <= 0)
             {
-                slab_desc[i].name = slabst->code_name;
-                slab_desc[i].num = i;
-            }
-            else
-            {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
         case 2: // TOOLTIPTEXTID
@@ -454,8 +460,8 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             }
             if (n < 1)
             {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
         case 3: //BLOCKFLAGSHEIGHT
@@ -470,8 +476,8 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             }
             if (n < 1)
             {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
         case 4: //BLOCKHEALTHINDEX
@@ -486,8 +492,8 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             }
             if (n < 1)
             {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
         case 5: //BLOCKFLAGS
@@ -542,8 +548,8 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                         }
                         default:
                         {
-                            CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
-                            COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                            CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%.*s] block of %s file.",
+                              COMMAND_TEXT(cmd_num), word_buf, blocknamelen, blockname, config_textname);
                             break;
                         }
                     }
@@ -563,8 +569,8 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             }
             if (n < 1)
             {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
         case 8: //CATEGORY
@@ -579,8 +585,8 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             }
             if (n < 1)
             {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
         case 9: // SLBID
@@ -595,8 +601,8 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             }
             if (n < 1)
             {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
         case 10: //WIBBLE
@@ -611,8 +617,8 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             }
             if (n < 1)
             {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
         case 11: //ISSAFELAND
@@ -627,8 +633,8 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             }
             if (n < 1)
             {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
         case 12: //ISDIGGABLE
@@ -643,8 +649,8 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             }
             if (n < 1)
             {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
         case 13: //WLBTYPE
@@ -659,8 +665,8 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             }
             if (n < 1)
             {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
         case 14: //ANIMATED
@@ -675,8 +681,8 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             }
             if (n < 1)
             {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
         case 15: //ISOWNABLE
@@ -691,8 +697,8 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             }
             if (n < 1)
             {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
         case 16: //INDESTRUCTIBLE
@@ -707,17 +713,17 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             }
             if (n < 1)
             {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
+            CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",
+                cmd_num, blocknamelen, blockname, config_textname);
             break;
         }
         skip_conf_to_next_line(buf,&pos,len);
@@ -725,6 +731,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
 #undef COMMAND_TEXT
     }
     // Block health - will be later integrated with slab blocks
+      char block_buf[COMMAND_WORD_LEN];
       sprintf(block_buf,"block_health");
       pos = 0;
       k = find_conf_block(buf,&pos,len,block_buf);
@@ -740,7 +747,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
         // Finding command number in this line
         cmd_num = recognize_conf_command(buf,&pos,len,terrain_health_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         n = 0;
         switch (cmd_num)
         {
@@ -765,9 +772,9 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -794,7 +801,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             if (i < game.conf.slab_conf.room_types_count)
             {
                 roomst = &game.conf.slab_conf.room_cfgstats[i];
-                LbMemorySet(roomst->code_name, 0, COMMAND_WORD_LEN);
+                memset(roomst->code_name, 0, COMMAND_WORD_LEN);
                 roomst->name_stridx = GUIStr_Empty;
                 roomst->tooltip_stridx = GUIStr_Empty;
                 roomst->creature_creation_model = 0;
@@ -842,7 +849,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, terrain_room_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         if ((flags & CnfLd_ListOnly) != 0) {
             // In "List only" mode, accept only name command
             if (cmd_num > 1) {
@@ -999,26 +1006,22 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
         case 10: // SYMBOLSPRITES
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-                k = get_icon_id(word_buf);
-                if (k >= 0)
+                roomst->bigsym_sprite_idx = get_icon_id(word_buf);
+                if (roomst->bigsym_sprite_idx != bad_icon_id)
                 {
-                    roomst->bigsym_sprite_idx = k;
                     n++;
                 }
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-                k = get_icon_id(word_buf);
-                if (k >= 0)
+                roomst->medsym_sprite_idx = get_icon_id(word_buf);
+                if (roomst->medsym_sprite_idx != bad_icon_id)
                 {
-                    roomst->medsym_sprite_idx = k;
                     n++;
                 }
             }
             if (n < 2)
             {
-                roomst->bigsym_sprite_idx = bad_icon_id;
-                roomst->medsym_sprite_idx = bad_icon_id;
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
@@ -1091,7 +1094,27 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 15: // AMBIENTSNDSAMPLE
+        case 15: // SLABSYNERGY
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              if ((strcasecmp(word_buf, "none") == 0)) {
+                roomst->synergy_slab = -2;
+                n++;
+              }
+              k = get_id(slab_desc, word_buf);
+              if (k >= 0)
+              {
+                  roomst->synergy_slab = k;
+                  n++;
+              }
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 16: // AMBIENTSNDSAMPLE
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
@@ -1103,11 +1126,12 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             }
             if (n < 1)
             {
+              roomst->synergy_slab = -3;
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 16: // ROLES
+        case 17: // ROLES
             roomst->roles = RoRoF_None;
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
@@ -1121,7 +1145,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
                 }
             }
             break;
-        case 17: // STORAGEHEIGHT
+        case 18: // STORAGEHEIGHT
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -1129,9 +1153,9 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
                 n++;
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -1155,7 +1179,7 @@ TbBool load_terrain_config_file(const char *textname, const char *fname, unsigne
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
+    char* buf = (char*)calloc(len + 256, 1);
     if (buf == NULL)
         return false;
     // Loading file data
@@ -1187,7 +1211,7 @@ TbBool load_terrain_config_file(const char *textname, const char *fname, unsigne
             WARNMSG("Parsing %s file \"%s\" room blocks failed.",textname,fname);
     }
     //Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     return result;
 }
 
@@ -1278,21 +1302,6 @@ TbBool make_all_rooms_researchable(PlayerNumber plyr_idx)
     return true;
 }
 
-TbBool reactivate_build_process(struct Computer2* comp, RoomKind rkind)
-{
-    for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
-    {
-        struct ComputerProcess* cproc = &comp->processes[i];
-        if ((cproc->func_check == &computer_check_any_room) && (cproc->confval_4 == rkind))
-        {
-            clear_flag(cproc->flags, ComProc_Unkn0004);
-            cproc->last_run_turn = 0;
-            return true;
-        }
-    }
-    return false;
-}
-
 /**
  * Sets room availability state.
  */
@@ -1372,7 +1381,7 @@ TbBool is_room_obtainable(PlayerNumber plyr_idx, RoomKind rkind)
         return false;
     }
     if (rkind >= game.conf.slab_conf.room_types_count) {
-        ERRORLOG("Incorrect power %ld (player %ld)",rkind, plyr_idx);
+        ERRORLOG("Incorrect room %u (player %d)",rkind, plyr_idx);
         return false;
     }
     return ( (dungeon->room_buildable[rkind]) || (dungeon->room_resrchable[rkind]) );

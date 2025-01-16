@@ -39,7 +39,7 @@ enum CreatureStates {
     CrSt_ImpArrivesAtMineGold,
     CrSt_ImpDigsDirt,
     CrSt_ImpMinesGold,
-    CrSt_Null6,
+    CrSt_CreatureCastingPreparation,
     CrSt_ImpDropsGold,
     CrSt_ImpLastDidJob,
     CrSt_ImpArrivesAtImproveDungeon,
@@ -183,8 +183,10 @@ enum CreatureStates {
     CrSt_GoodArrivedAtAttackRoom,
     CrSt_CreatureGoingToSafetyForToking,
     CrSt_Timebomb,
-    CrSt_GoodWanderToCreatureCombat,
+    CrSt_GoodWanderToCreatureCombat,//[150]
     CrSt_GoodWanderToObjectCombat,
+    CrSt_CreatureDropBodyInLair,
+    CrSt_CreatureSaveUnconsciousCreature,
     CrSt_ListEnd,
 };
 
@@ -338,7 +340,7 @@ void set_creature_size_stuff(struct Thing *creatng);
 long process_work_speed_on_work_value(const struct Thing *thing, long base_val);
 TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *thing, const struct Room *room, struct Coord3d *pos);
 SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, PlayerNumber owner, RoomKind rkind, struct Thing *thing);
-void remove_health_from_thing_and_display_health(struct Thing *thing, long delta);
+void remove_health_from_thing_and_display_health(struct Thing *thing, HitPoints delta);
 
 TbBool process_creature_hunger(struct Thing *thing);
 void process_person_moods_and_needs(struct Thing *thing);
@@ -367,9 +369,11 @@ struct Room* get_room_for_thing_salary(struct Thing* creatng, unsigned char *nav
 TbBool creature_is_dying(const struct Thing *thing);
 TbBool creature_is_being_dropped(const struct Thing *thing);
 TbBool creature_is_being_unconscious(const struct Thing *thing);
+TbBool creature_can_be_set_unconscious(const struct Thing *creatng, const struct Thing *killertng, CrDeathFlags flags);
 TbBool creature_is_celebrating(const struct Thing *thing);
 TbBool creature_is_being_tortured(const struct Thing *thing);
 TbBool creature_is_being_sacrificed(const struct Thing *thing);
+TbBool creature_is_leaving_and_cannot_be_stopped(const struct Thing* thing);
 TbBool creature_is_kept_in_prison(const struct Thing *thing);
 TbBool creature_is_being_summoned(const struct Thing *thing);
 TbBool creature_is_doing_anger_job(const struct Thing *thing);

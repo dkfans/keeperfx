@@ -26,7 +26,6 @@
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_planar.h"
 
@@ -435,7 +434,7 @@ long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d 
     return dig_distance;
 }
 
-long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos)
+unsigned long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos)
 {
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = comp->dungeon;
@@ -521,9 +520,9 @@ void get_opponent(struct Computer2 *comp, struct THate hates[])
             {
                 // Switch hates so larger one is first
                 struct THate tmp;
-                LbMemoryCopy(&tmp,hat2,sizeof(struct THate));
-                LbMemoryCopy(hat2,hat1,sizeof(struct THate));
-                LbMemoryCopy(hat1,&tmp,sizeof(struct THate));
+                memcpy(&tmp,hat2,sizeof(struct THate));
+                memcpy(hat2,hat1,sizeof(struct THate));
+                memcpy(hat1,&tmp,sizeof(struct THate));
             }
         }
     }
@@ -1082,7 +1081,7 @@ long count_creatures_for_defend_pickup(struct Computer2 *comp)
                 int crtr_state = get_creature_state_besides_move(i);
                 if (( crtr_state != CrSt_CreatureCombatFlee ) &&
                     ( crtr_state != CrSt_ArriveAtAlarm ) &&
-                    ((cctrl->spell_flags & CSAfF_CalledToArms) == 0 ) &&
+                    (!cctrl->called_to_arms ) &&
                     ( crtr_state != CrSt_CreatureGoingHomeToSleep ) &&
                     ( crtr_state != CrSt_CreatureSleep ) &&
                     ( crtr_state != CrSt_AtLairToSleep ) &&
@@ -1222,7 +1221,7 @@ long check_call_to_arms(struct Computer2 *comp)
                         ret = 0;
                     }
                     if (ctask->delay + ctask->lastrun_turn - (long)game.play_gameturn < ctask->delay - ctask->delay/10) {
-                        SYNCDBG(8,"Less than 90% turns");
+                        SYNCDBG(8,"Less than 90 turns");
                         ret = -1;
                         break;
                     }
@@ -1245,17 +1244,21 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     struct ComputerProcess *newproc;
     struct ComputerCheck *newchk;
     long i;
-    if ((plyr_idx >= PLAYERS_COUNT) || (plyr_idx == game.hero_player_num)
-        || (plyr_idx == game.neutral_player_num)) {
+    if ((plyr_idx >= PLAYERS_COUNT)) {
         WARNLOG("Tried to setup player %d which can't be used this way",(int)plyr_idx);
         return false;
+    }
+    if(!player_is_keeper(plyr_idx))
+    {
+        struct PlayerInfo* player = get_player(plyr_idx);
+        player->player_type = PT_Keeper;
     }
     struct Computer2* comp = get_computer_player(plyr_idx);
     if (computer_player_invalid(comp)) {
         ERRORLOG("Tried to setup player %d which has no computer capability",(int)plyr_idx);
         return false;
     }
-    LbMemorySet(comp, 0, sizeof(struct Computer2));
+    memset(comp, 0, sizeof(struct Computer2));
     comp->events = &get_dungeon(plyr_idx)->computer_info.events[0];
     comp->checks = &get_dungeon(plyr_idx)->computer_info.checks[0];
 
@@ -1299,7 +1302,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
           newproc->name = NULL;
           break;
         }
-        LbMemoryCopy(newproc, cproc, sizeof(struct ComputerProcess));
+        memcpy(newproc, cproc, sizeof(struct ComputerProcess));
         newproc->parent = cproc;
     }
     newproc = &comp->processes[i];
@@ -1314,7 +1317,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
             newchk->name = NULL;
             break;
         }
-        LbMemoryCopy(newchk, ccheck, sizeof(struct ComputerCheck));
+        memcpy(newchk, ccheck, sizeof(struct ComputerCheck));
     }
     // Note that we don't have special, empty check at end of array
     // The check with 0x02 flag identifies end of active checks
@@ -1331,31 +1334,31 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
             newevnt->name = NULL;
             break;
         }
-        LbMemoryCopy(newevnt, event, sizeof(struct ComputerEvent));
+        memcpy(newevnt, event, sizeof(struct ComputerEvent));
     }
     return true;
 }
 
 
-TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyridx, long comp_model)
+TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyr_idx, long comp_model)
 {
-    struct PlayerInfo* player = get_player(plyridx);
-    if (player_invalid(player)) {
-        SCRPTWRNLOG("Tried to set up invalid player %d",(int)plyridx);
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (player_invalid(player) || player_is_neutral(plyr_idx)) {
+        SCRPTWRNLOG("Tried to set up invalid player %d",(int)plyr_idx);
         return false;
     }
     // It uses >= because the count will be one higher than
     // the actual highest possible computer model number.
     if ((comp_model < 0) || (comp_model >= COMPUTER_MODELS_COUNT)) {
-        SCRPTWRNLOG("Tried to set up player %d as outranged computer model %d",(int)plyridx,(int)comp_model);
+        SCRPTWRNLOG("Tried to set up player %d as outranged computer model %d",(int)plyr_idx,(int)comp_model);
         comp_model = 0;
     }
     player->allocflags |= PlaF_Allocated;
-    player->id_number = plyridx;
+    player->id_number = plyr_idx;
     player->is_active = 1;
     player->allocflags |= PlaF_CompCtrl;
     init_player_start(player, false);
-    if (!setup_a_computer_player(plyridx, comp_model)) {
+    if (!setup_a_computer_player(plyr_idx, comp_model)) {
         player->allocflags &= ~PlaF_CompCtrl;
         player->allocflags &= ~PlaF_Allocated;
         return false;
@@ -1613,7 +1616,7 @@ void setup_computer_players2(void)
   check_map_for_gold();
   for (i=0; i < COMPUTER_TASKS_COUNT; i++)
   {
-    LbMemorySet(&game.computer_task[i], 0, sizeof(struct ComputerTask));
+    memset(&game.computer_task[i], 0, sizeof(struct ComputerTask));
   }
 #ifdef PETTER_AI
   SAI_init_for_map();
@@ -1677,13 +1680,13 @@ void restore_computer_player_after_load(void)
             continue;
         }
         if (!player_exists(player)) {
-            LbMemorySet(comp, 0, sizeof(struct Computer2));
+            memset(comp, 0, sizeof(struct Computer2));
             comp->dungeon = INVALID_DUNGEON;
             continue;
         }
         if (player->is_active != 1)
         {
-            LbMemorySet(comp, 0, sizeof(struct Computer2));
+            memset(comp, 0, sizeof(struct Computer2));
             comp->dungeon = get_players_dungeon(player);
             continue;
         }

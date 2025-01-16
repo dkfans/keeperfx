@@ -23,7 +23,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_keybrd.h"
 #include "bflib_inputctrl.h"
 #include "bflib_datetm.h"
@@ -148,14 +147,14 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
     for (sh = 0; sh < sph; sh++)
     {
         dst = dst_buf + (sh)*scanline;
-        LbMemorySet(dst, 0, scanline);
+        memset(dst, 0, scanline);
   }
   // Clearing bottom of the canvas
   // (Note: it must be done before drawing, to make sure we won't overwrite last line)
   for (sh=sph+dst_height; sh<nlines; sh++)
   {
       dst = dst_buf + (sh)*scanline;
-      LbMemorySet(dst, 0, scanline);
+      memset(dst, 0, scanline);
   }
   // Now drawing
   int dhstart = sph;
@@ -171,7 +170,7 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
           dst = dst_buf + (dhstart+k)*scanline;
           int dwstart = spw;
           if (dwstart > 0) {
-              LbMemorySet(dst, 0, dwstart);
+              memset(dst, 0, dwstart);
           }
           for (sw=0; sw<src_width; sw++)
           {
@@ -186,7 +185,7 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
               dwstart = dwend;
           }
           if (dwstart < scanline) {
-              LbMemorySet(dst+dwstart, 0, scanline-dwstart);
+              memset(dst+dwstart, 0, scanline-dwstart);
           }
       }
       dhstart = dhend;
@@ -292,7 +291,7 @@ TbBool show_rawimage_screen(unsigned char *raw,unsigned char *pal,int width,int 
  */
 short clear_bitmap_screen(struct ActiveBitmap *actv_bmp)
 {
-  LbMemorySet(actv_bmp, 0, sizeof(struct ActiveBitmap));
+  memset(actv_bmp, 0, sizeof(struct ActiveBitmap));
   return true;
 }
 
@@ -302,8 +301,8 @@ short clear_bitmap_screen(struct ActiveBitmap *actv_bmp)
  */
 short free_bitmap_screen(struct ActiveBitmap *actv_bmp)
 {
-  LbMemoryFree(actv_bmp->raw_data);
-  LbMemoryFree(actv_bmp->pal_data);
+  free(actv_bmp->raw_data);
+  free(actv_bmp->pal_data);
   return clear_bitmap_screen(actv_bmp);
 }
 
@@ -346,7 +345,7 @@ TbBool init_bitmap_screen(struct ActiveBitmap *actv_bmp,int stype)
   if (buf == NULL)
   {
     ERRORLOG("Couldn't load raw bitmap file for %s screen",rbmp->name);
-    LbMemoryFree(actv_bmp->pal_data);
+    free(actv_bmp->pal_data);
     clear_bitmap_screen(actv_bmp);
     return false;
   }
@@ -455,8 +454,6 @@ TbBool show_actv_bitmap_screen(TbClockMSec tmdelay)
 TbBool display_loading_screen(void)
 {
     draw_clear_screen();
-    if (!wait_for_cd_to_be_available())
-      return false;
     TbBool done = init_bitmap_screen(&astd_bmp, RBmp_WaitLoading);
     if (done)
     {
@@ -469,19 +466,19 @@ TbBool display_loading_screen(void)
     return done;
 }
 
-TbBool wait_for_cd_to_be_available(void)
+TbBool wait_for_installation_files(void)
 {
   char ffullpath[2048];
   short was_locked = LbScreenIsLocked();
-  prepare_file_path_buf(ffullpath,FGrp_LoData,"lndflag_ens.dat");
+  prepare_file_path_buf(ffullpath,FGrp_StdData,"bluepal.dat");
   if ( LbFileExists(ffullpath) )
     return true;
   if ( was_locked )
     LbScreenUnlock();
-  SYNCMSG("CD not found in drive, waiting");
+  SYNCMSG("Installation file not found, waiting");
   if (!init_bitmap_screen(&nocd_bmp,RBmp_WaitNoCD))
   {
-      ERRORLOG("Unable to display CD wait monit");
+      ERRORLOG("Unable to display CD wait splash");
       return false;
   }
   draw_bitmap_screen(&nocd_bmp);
@@ -500,11 +497,12 @@ TbBool wait_for_cd_to_be_available(void)
             if ((exit_keeper) || (quit_game))
               break;
         } while (!LbIsActive());
-        if (is_key_pressed(KC_Q,KMod_DONTCARE) || is_key_pressed(KC_X,KMod_DONTCARE))
+        if (is_key_pressed(KC_Q,KMod_DONTCARE) || is_key_pressed(KC_X,KMod_DONTCARE) || is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
         {
           ERRORLOG("User requested quit, giving up");
           clear_key_pressed(KC_Q);
           clear_key_pressed(KC_X);
+          clear_key_pressed(KC_ESCAPE);
           exit_keeper = 1;
           break;
         }
@@ -512,13 +510,13 @@ TbBool wait_for_cd_to_be_available(void)
       }
       // One 'counter' cycle lasts approx. 1 second.
       counter++;
-      if (counter>300)
+      if (counter > 5)
       {
           ERRORLOG("Wait time too long, giving up");
           exit_keeper = 1;
       }
   }
-  SYNCMSG("Finished waiting for CD after %lu seconds",counter);
+  SYNCMSG("Finished waiting for installation after %lu seconds",counter);
   free_bitmap_screen(&nocd_bmp);
   if ( was_locked )
     LbScreenLock();

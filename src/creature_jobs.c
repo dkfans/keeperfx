@@ -203,9 +203,9 @@ TbBool creature_has_job(const struct Thing *thing, CreatureJob job_kind)
 TbBool creature_free_for_anger_job(struct Thing *creatng)
 {
     return !creature_affected_by_call_to_arms(creatng)
-        && !player_uses_power_obey(creatng->owner)
-        && !creature_affected_by_spell(creatng, SplK_Chicken)
-        && !thing_is_picked_up(creatng) && !is_thing_directly_controlled(creatng);
+    && !player_uses_power_obey(creatng->owner)
+    && !creature_under_spell_effect(creatng, CSAfF_Chicken)
+    && !thing_is_picked_up(creatng) && !is_thing_directly_controlled(creatng);
 }
 
 TbBool attempt_anger_job_destroy_rooms(struct Thing *creatng)
@@ -320,12 +320,13 @@ TbBool attempt_anger_job_damage_walls(struct Thing *creatng)
 TbBool attempt_anger_job_mad_psycho(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    if (!external_set_thing_state(creatng, CrSt_MadKillingPsycho)) {
+    if (!external_set_thing_state(creatng, CrSt_MadKillingPsycho))
+    {
         return false;
     }
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    cctrl->spell_flags |= CSAfF_MadKilling;
-    cctrl->mad_psycho.byte_9A = 0;
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    // Mad Psycho's anger job bypasses immunity.
+    set_flag(cctrl->spell_flags, CSAfF_MadKilling);
     return true;
 }
 
@@ -686,7 +687,8 @@ TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber 
         return false;
     }
     // Don't allow creatures changed to chickens to have any job assigned, besides those specifically marked
-    if (creature_affected_by_spell(creatng, SplK_Chicken) && ((get_flags_for_job(new_job) & JoKF_AllowChickenized) == 0))
+    if (creature_under_spell_effect(creatng, CSAfF_Chicken)
+    && !flag_is_set(get_flags_for_job(new_job), JoKF_AllowChickenized))
     {
         SYNCDBG(13,"Cannot assign %s for %s index %d owner %d; under chicken spell",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
@@ -860,12 +862,13 @@ TbBool creature_can_do_job_near_position(struct Thing *creatng, MapSubtlCoord st
         if ((flags & JobChk_SetStateOnFail) != 0) {
             anger_apply_anger_to_creature(creatng, crstat->annoy_will_not_do_job, AngR_Other, 1);
             external_set_thing_state(creatng, CrSt_CreatureMoan);
-            cctrl->countdown_282 = 50;
+            cctrl->countdown = 50;
         }
         return false;
     }
     // Don't allow creatures changed to chickens to have any job assigned, besides those specifically marked
-    if (creature_affected_by_spell(creatng, SplK_Chicken) && ((get_flags_for_job(new_job) & JoKF_AllowChickenized) == 0))
+    if (creature_under_spell_effect(creatng, CSAfF_Chicken)
+    && !flag_is_set(get_flags_for_job(new_job), JoKF_AllowChickenized))
     {
         SYNCDBG(3,"Cannot assign %s at (%d,%d) for %s index %d owner %d; under chicken spell",creature_job_code_name(new_job),(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
@@ -1035,6 +1038,9 @@ TbBool attempt_job_sleep_in_lair_near_pos(struct Thing *creatng, MapSubtlCoord s
         ERRORLOG("No arrive at state for job %s in %s room",creature_job_code_name(new_job),room_code_name(room->kind));
         return false;
     }
+    if(!creature_can_do_healing_sleep(creatng)){
+        return false;
+    }
     cctrl->slap_turns = 0;
     cctrl->max_speed = calculate_correct_creature_maxspeed(creatng);
     if (creature_has_lair_room(creatng) && (room->index == cctrl->lair_room_id))
@@ -1120,7 +1126,7 @@ TbBool attempt_job_preference(struct Thing *creatng, long jobpref)
     {
         if (n == 0)
             continue;
-        CreatureJob new_job = 1 << (n - 1);
+        CreatureJob new_job = 1ULL << (n - 1);
         if ((jobpref & new_job) != 0)
         {
             SYNCDBG(19,"Check job %s",creature_job_code_name(new_job));
@@ -1155,7 +1161,7 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
     // Probably needs unification
     for (i=1; i < game.conf.crtr_conf.jobs_count; i++)
     {
-        CreatureJob new_job = 1<<(i-1);
+        CreatureJob new_job = 1ULL << (i-1);
         if ((jobpref & new_job) == 0) {
             continue;
         }
@@ -1177,7 +1183,7 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
         CreatureJob new_job = Job_TEMPLE_PRAY;
         if (creature_can_do_job_for_player(creatng, creatng->owner, new_job, JobChk_None))
         {
-            if (send_creature_to_job_for_player(creatng, creatng->owner, new_job)) 
+            if (send_creature_to_job_for_player(creatng, creatng->owner, new_job))
 			{
 				if (!creature_dislikes_job(creatng, new_job))
 				{

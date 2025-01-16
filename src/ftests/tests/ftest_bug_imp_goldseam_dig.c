@@ -86,7 +86,7 @@ FTestActionResult ftest_bug_imp_goldseam_dig_action002__send_imp_to_dig(struct F
 
     // store/report the blocks health to user
     struct SlabAttr *slbattr = get_slab_attrs(slabMapBlock);
-    unsigned short goldBlockHealth = game.block_health[slbattr->block_health_index];
+    HitPoints goldBlockHealth = game.block_health[slbattr->block_health_index];
     message_add_fmt(MsgType_Player, PLAYER0, "Gold block at (%d,%d) has %d health", slb_x_gold_block, slb_y_gold_block, goldBlockHealth);
 
     // mark the block for digging

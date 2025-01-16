@@ -99,9 +99,6 @@
     <ClCompile Include="src\bflib_render_gpoly.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\bflib_render_gtblock.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\bflib_render_trig.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -112,9 +109,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\bflib_sprfnt.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\bflib_sprite.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\bflib_string.c">
@@ -459,9 +453,6 @@
     <ClCompile Include="src\player_instances.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\player_states.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\player_utils.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -606,12 +597,6 @@
     <ClCompile Include="src\bflib_network.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\bflib_pom.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\bflib_semphr.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\bflib_server_tcp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -619,9 +604,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\config_magic_data.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\front_credits_data.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\front_lvlstats_data.cpp">
@@ -664,9 +646,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\player_computer_data.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\thing_creature_data.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\vidmode_data.cpp">
@@ -745,6 +724,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\api.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\moonphase.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bflib_enet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\spritesheet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\room_treasure.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -869,13 +860,7 @@
     <ClInclude Include="src\bflib_planar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\bflib_pom.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\bflib_render.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\bflib_semphr.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bflib_server_tcp.hpp">
@@ -1229,9 +1214,6 @@
     <ClInclude Include="src\player_instances.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\player_states.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\player_utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1269,6 +1251,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\room_scavenge.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\room_treasure.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\room_util.h">
@@ -1401,6 +1386,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\api.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\moonphase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\bflib_enet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mutex.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

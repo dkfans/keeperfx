@@ -160,26 +160,22 @@ TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     if (floor_height_z == 1)
     {
         Orientation = find_door_angle(stl_x, stl_y, plyr_idx);
-        if (game.conf.rules.game.place_traps_on_subtiles)
+        switch(Orientation)
         {
-            switch(Orientation)
+            case 0:
             {
-                case 0:
-                {
-                    Check = (!slab_middle_row_has_trap_on(slb_x, slb_y) );
-                    break;
-                }
-                case 1:
-                {
-                    Check = (!slab_middle_column_has_trap_on(slb_x, slb_y) );
-                    break;
-                }
+                Check = (!slab_middle_row_has_trap_on(slb_x, slb_y) );
+                break;
+            }
+            case 1:
+            {
+                Check = (!slab_middle_column_has_trap_on(slb_x, slb_y) );
+                break;
             }
         }
         if ( ( (slabmap_owner(slb) == plyr_idx) && (slb->kind == SlbT_CLAIMED) )
-            && (Orientation != -1)
-            && ( ( (game.conf.rules.game.place_traps_on_subtiles) ? (Check) : (!slab_has_trap_on(slb_x, slb_y) ) ) && (!slab_has_door_thing_on(slb_x, slb_y) ) )
-            )
+            && (Orientation != -1) && ( Check ) 
+            && (!slab_has_door_thing_on(slb_x, slb_y)) )
         {
             allowed = true;
         }

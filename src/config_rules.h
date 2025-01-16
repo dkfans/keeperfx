@@ -25,7 +25,7 @@
 #include "config.h"
 
 #define MAX_SACRIFICE_VICTIMS 6
-#define MAX_SACRIFICE_RECIPES 60
+#define MAX_SACRIFICE_RECIPES 100
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,6 +52,7 @@ enum UniqueFunctions {
     UnqF_KillChickns,
     UnqF_CheaperImp,
     UnqF_CostlierImp,
+    UnqF_MkAllHappy,
 };
 
 enum SacrificeReturn {
@@ -77,12 +78,12 @@ struct GameRulesConfig {
     GoldAmount gold_per_hoard;
     GoldAmount bag_gold_hold;
     unsigned short food_life_out_of_hatchery;
-    long boulder_reduce_health_wall;
-    long boulder_reduce_health_slap;
-    long boulder_reduce_health_room;
+    HitPoints boulder_reduce_health_wall;
+    HitPoints boulder_reduce_health_slap;
+    HitPoints boulder_reduce_health_room;
     GameTurnDelta pay_day_gap;
     unsigned long dungeon_heart_heal_time;
-    long dungeon_heart_heal_health;
+    HitPoints dungeon_heart_heal_health;
     unsigned long hero_door_wait_time;
     unsigned long classic_bugs_flags;
     unsigned long gem_effectiveness;
@@ -90,16 +91,19 @@ struct GameRulesConfig {
     long room_sale_percent;
     long trap_sale_percent;
     unsigned long pay_day_speed;
-    TbBool place_traps_on_subtiles;
     TbBool allies_share_vision;
     TbBool allies_share_drop;
     TbBool allies_share_cta;
+    TbBool display_portal_limit;
     unsigned char max_things_in_hand;
-    short torture_payday;
+    unsigned short torture_payday;
     short torture_training_cost;
     short torture_scavenging_cost;
     unsigned long easter_egg_speech_chance;
     unsigned long easter_egg_speech_interval;
+    long global_ambient_light;
+    TbBool light_enabled;
+    unsigned short creatures_count;
 };
 
 struct ComputerRulesConfig {
@@ -116,7 +120,7 @@ struct CreatureRulesConfig {
     unsigned long flee_zone_radius;
     GameTurnDelta game_turns_in_flee;
     unsigned short game_turns_unconscious;
-    long critical_health_permil;
+    HitPoints critical_health_permil;
     unsigned char stun_enemy_chance_evil;
     unsigned char stun_enemy_chance_good;
     unsigned char max_melee_opponents;
@@ -133,10 +137,10 @@ struct MagicRulesConfig {
     MapSubtlDelta min_distance_for_teleport;
     long collapse_dungeon_damage;
     GameTurnDelta turns_per_collapse_dngn_dmg;
-    GoldAmount power_hand_gold_grab_amount;
     long friendly_fight_area_damage_percent;
     long friendly_fight_area_range_percent;
     TbBool armageddon_teleport_neutrals;
+    short weight_calculate_push;
 };
 
 struct RoomRulesConfig {
@@ -165,13 +169,14 @@ struct WorkersRulesConfig {
     unsigned long default_imp_dig_damage;
     unsigned long default_imp_dig_own_damage;
     long digger_work_experience;
+    unsigned short drag_to_lair;
 };
 
 struct HealthRulesConfig {
-    unsigned short hunger_health_loss;
+    HitPoints hunger_health_loss;
     unsigned short turns_per_hunger_health_loss;
-    unsigned short food_health_gain;
-    unsigned short torture_health_loss;
+    HitPoints food_health_gain;
+    HitPoints torture_health_loss;
     unsigned short turns_per_torture_health_loss;
 };
 

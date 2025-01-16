@@ -1,7 +1,7 @@
 # *****************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # *****************************************************************************
-#   @file ancntkpr/text_eng.pot
+#   @file campgns/ancntkpr/text_chi.po
 #      KeeperFX Campaign Strings translation file
 #  @par Purpose:
 #      Contains translation of the national strings in the game.
@@ -1355,9 +1355,42 @@ msgctxt "Level name"
 msgid "L'Cyfre's Challenge"
 msgstr "里西弗的考验"
 
+#: guitext:222 
+msgctxt "Level name"
+msgid "Armageddon"
+msgstr "末日审判"
 
-#: guitext:222 guitext:223 guitext:224
-#: guitext:225 guitext:226 guitext:227 guitext:228 guitext:229
+#: guitext:223 
+msgctxt "Level name"
+msgid "Collect"
+msgstr "收集"
+
+#: guitext:224
+msgctxt "Level name"
+msgid "Sacrifice"
+msgstr "献祭"
+
+#: guitext:225
+msgctxt "Level name"
+msgid "Defection"
+msgstr "叛变"
+
+#: guitext:226 
+msgctxt "Level name"
+msgid "Imps"
+msgstr "小鬼"
+
+#: guitext:227 
+msgctxt "Level name"
+msgid "Clone"
+msgstr "克隆"
+
+#guitext:228
+msgctxt "Level name"
+msgid "Dig"
+msgstr "挖掘"
+
+#: guitext:229
 #: guitext:230 guitext:231 guitext:232 guitext:233 guitext:234
 #: guitext:235 guitext:236 guitext:237 guitext:238 guitext:239
 #: guitext:240 guitext:241 guitext:242 guitext:243 guitext:244

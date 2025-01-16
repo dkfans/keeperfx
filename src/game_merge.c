@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "game_legacy.h"
 #include "post_inc.h"
 
@@ -133,16 +132,16 @@ TbBool set_bonus_level_visibility(LevelNumber bn_lvnum, TbBool visible)
     {
         WARNLOG("Can't set state of non-existing bonus level %d.", (int)bn_lvnum);
         return false;
-  }
-  int n = i / 8;
-  int k = (1 << (i % 8));
-  if ((n < 0) || (n >= BONUS_LEVEL_STORAGE_COUNT))
-  {
-    WARNLOG("Bonus level %d has invalid store position.",(int)bn_lvnum);
-    return false;
-  }
-  set_flag_value(intralvl.bonuses_found[n], k, visible);
-  return true;
+    }
+    int n = i / 8;
+    int k = (1 << (i % 8));
+    if ((n < 0) || (n >= BONUS_LEVEL_STORAGE_COUNT))
+    {
+        WARNLOG("Bonus level %d has invalid store position.",(int)bn_lvnum);
+        return false;
+    }
+    set_flag_value(intralvl.bonuses_found[n], k, visible);
+    return true;
 }
 
 /**
@@ -154,12 +153,12 @@ TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *play
     if (!set_bonus_level_visibility(bn_lvnum, visible))
     {
         if (visible)
-            WARNMSG("Couldn't store bonus award for level %d", sp_lvnum);
+            WARNMSG("Couldn't store bonus award for level %lu", sp_lvnum);
         return false;
-  }
-  if (visible)
-    SYNCMSG("Bonus award for level %d enabled",sp_lvnum);
-  return true;
+    }
+    if (visible)
+        SYNCMSG("Bonus award for level %lu enabled",sp_lvnum);
+    return true;
 }
 
 void hide_all_bonus_levels(struct PlayerInfo *player)
@@ -190,8 +189,8 @@ unsigned short get_extra_level_kind_visibility(unsigned short elv_kind)
         if (is_near_new_moon)
             return LvSt_HalfShow;
         break;
-  }
-  return LvSt_Hidden;
+    }
+    return LvSt_Hidden;
 }
 
 /**
@@ -206,8 +205,8 @@ short is_extra_level_visible(struct PlayerInfo *player, long ex_lvnum)
         return is_full_moon;
     case ExLv_NewMoon:
         return is_new_moon;
-  }
-  return false;
+    }
+    return false;
 }
 
 void update_extra_levels_visibility(void)

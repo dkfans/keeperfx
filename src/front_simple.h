@@ -79,7 +79,7 @@ TbBool show_actv_bitmap_screen(TbClockMSec tmdelay);
 /******************************************************************************/
 
 TbBool display_loading_screen(void);
-TbBool wait_for_cd_to_be_available(void);
+TbBool wait_for_installation_files(void);
 TbBool display_centered_message(long showTime, char *text);
 /******************************************************************************/
 #ifdef __cplusplus

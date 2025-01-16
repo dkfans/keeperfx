@@ -23,7 +23,6 @@
 #include "game_legacy.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
@@ -34,12 +33,15 @@
 #include "thing_stats.h"
 #include "config_campaigns.h"
 #include "config_creature.h"
+#include "config_magic.h"
 #include "config_terrain.h"
 #include "config_lenses.h"
 #include "creature_control.h"
 #include "creature_graphics.h"
 #include "creature_states.h"
+#include "creature_states_mood.h"
 #include "player_data.h"
+#include "console_cmd.h"
 #include "custom_sprites.h"
 #include "lvl_script_lib.h"
 #include "post_inc.h"
@@ -71,7 +73,7 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"SIZE",               19},
   {"ATTACKPREFERENCE",   20},
   {"PAY",                21},
-  {"HEROVSKEEPERCOST",   22},//removed
+  {"HEROVSKEEPERCOST",   22}, // Removed.
   {"SLAPSTOKILL",        23},
   {"CREATURELOYALTY",    24},
   {"LOYALTYLEVEL",       25},
@@ -84,13 +86,16 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"CORPSEVANISHEFFECT", 32},
   {"FOOTSTEPPITCH",      33},
   {"LAIROBJECT",         34},
+  {"PRISONKIND",         35},
+  {"TORTUREKIND",        36},
+  {"SPELLIMMUNITY",      37},
   {NULL,                  0},
   };
 
 const struct NamedCommand creatmodel_properties_commands[] = {
   {"BLEEDS",             1},
-  {"UNAFFECTED_BY_WIND", 2},
-  {"IMMUNE_TO_GAS",      3},
+  {"UNAFFECTED_BY_WIND", 2}, // Deprecated, but retained in NamedCommand for backward compatibility.
+  {"IMMUNE_TO_GAS",      3}, // Deprecated, but retained in NamedCommand for backward compatibility.
   {"HUMANOID_SKELETON",  4},
   {"PISS_ON_DEAD",       5},
   {"FLYING",             7},
@@ -102,7 +107,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"LORD",              13},
   {"SPECTATOR",         14},
   {"EVIL",              15},
-  {"NEVER_CHICKENS",    16},
+  {"NEVER_CHICKENS",    16}, // Deprecated, but retained in NamedCommand for backward compatibility.
   {"IMMUNE_TO_BOULDER", 17},
   {"NO_CORPSE_ROTTING", 18},
   {"NO_ENMHEART_ATTCK", 19},
@@ -111,13 +116,16 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"INSECT",            22},
   {"ONE_OF_KIND",       23},
   {"NO_IMPRISONMENT",   24},
-  {"IMMUNE_TO_DISEASE", 25},
+  {"IMMUNE_TO_DISEASE", 25}, // Deprecated, but retained in NamedCommand for backward compatibility.
   {"ILLUMINATED",       26},
   {"ALLURING_SCVNGR",   27},
   {"NO_RESURRECT",      28},
   {"NO_TRANSFER",       29},
   {"TREMBLING",         30},
   {"FAT",               31},
+  {"NO_STEAL_HERO",     32},
+  {"PREFER_STEAL",      33},
+  {"EVENTFUL_DEATH",    34},
   {NULL,                 0},
   };
 
@@ -177,6 +185,8 @@ const struct NamedCommand creatmodel_appearance_commands[] = {
   {"FOOTSTEPPITCH",        7},
   {"PICKUPOFFSET",         8},
   {"STATUSOFFSET",         9},
+  {"TRANSPARENCYFLAGS",   10},
+  {"FIXEDANIMSPEED",      11},
   {NULL,                   0},
   };
 
@@ -228,56 +238,23 @@ const struct NamedCommand creatmodel_sounds_commands[] = {
   {"DIE",                  CrSnd_Die},
   {"FOOT",                 CrSnd_Foot},
   {"FIGHT",                CrSnd_Fight},
+  {"PISS",                 CrSnd_Piss},
   {NULL,                   0},
   };
 
 /******************************************************************************/
+
+void strtolower(char * str) {
+    for (; *str; ++str) {
+        *str = tolower(*str);
+    }
+}
+
 TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
   // Block name and parameter word store variables
-  // Initialize block data
   struct CreatureStats* crstat = creature_stats_get(crtr_model);
   struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_model];
-  if ((flags & CnfLd_AcceptPartial) == 0)
-  {
-      crstat->health = 1;
-      crstat->heal_requirement = 1;
-      crstat->heal_threshold = 1;
-      crstat->strength = 0;
-      crstat->armour = 0;
-      crstat->dexterity = 0;
-      crstat->fear_wounded = 12;
-      crstat->fear_stronger = 65000;
-      crstat->fearsome_factor = 100;
-      crstat->defense = 0;
-      crstat->luck = 0;
-      crstat->sleep_recovery = 1;
-      crstat->toking_recovery = 10;
-      crstat->hunger_rate = 1;
-      crstat->hunger_fill = 1;
-      crstat->lair_size = 1;
-      crstat->hurt_by_lava = 1;
-      crstat->base_speed = 1;
-      crstat->gold_hold = 100;
-      crstat->size_xy = 1;
-      crstat->size_z = 1;
-      crstat->attack_preference = 0;
-      crstat->pay = 1;
-      crstat->slaps_to_kill = 10;
-      crstat->damage_to_boulder = 4;
-      crstat->thing_size_xy = 128;
-      crstat->thing_size_z = 64;
-      crstat->bleeds = false;
-      crstat->affected_by_wind = true;
-      crstat->immune_to_gas = false;
-      crstat->humanoid_creature = false;
-      crstat->piss_on_dead = false;
-      crstat->flying = false;
-      crstat->can_see_invisible = false;
-      crstat->can_go_locked_doors = false;
-      crconf->namestr_idx = 0;
-      crconf->model_flags = 0;
-  }
   // Find the block
   char block_buf[COMMAND_WORD_LEN];
   sprintf(block_buf, "attributes");
@@ -295,7 +272,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       // Finding command number in this line
       int cmd_num = recognize_conf_command(buf, &pos, len, creatmodel_attributes_commands);
       // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
+      if (cmd_num == ccr_endOfBlock) break; // if next block starts
       int n = 0;
       char word_buf[COMMAND_WORD_LEN];
       switch (cmd_num)
@@ -627,8 +604,6 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           break;
       case 28: // PROPERTIES
           crstat->bleeds = false;
-          crstat->affected_by_wind = true;
-          crstat->immune_to_gas = false;
           crstat->humanoid_creature = false;
           crstat->piss_on_dead = false;
           crstat->flying = false;
@@ -645,11 +620,11 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               n++;
               break;
             case 2: // UNAFFECTED_BY_WIND
-              crstat->affected_by_wind = false;
+              set_flag(crstat->immunity_flags, CSAfF_Wind);
               n++;
               break;
             case 3: // IMMUNE_TO_GAS
-              crstat->immune_to_gas = true;
+              set_flag(crstat->immunity_flags, CSAfF_PoisonCloud);
               n++;
               break;
             case 4: // HUMANOID_SKELETON
@@ -685,7 +660,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               n++;
               break;
             case 13: // LORD
-              crconf->model_flags |= CMF_IsLordOTLand;
+              crconf->model_flags |= CMF_IsLordOfLand;
               n++;
               break;
             case 14: // SPECTATOR
@@ -697,7 +672,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               n++;
               break;
             case 16: // NEVER_CHICKENS
-              crconf->model_flags |= CMF_NeverChickens;
+              set_flag(crstat->immunity_flags, CSAfF_Chicken);
               n++;
               break;
             case 17: // IMMUNE_TO_BOULDER
@@ -734,7 +709,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 n++;
                 break;
             case 25: // IMMUNE_TO_DISEASE
-                crconf->model_flags |= CMF_NeverSick;
+                set_flag(crstat->immunity_flags, CSAfF_Disease);
                 n++;
                 break;
             case 26: // ILLUMINATED
@@ -759,6 +734,18 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 break;
             case 31: // FAT
                 crconf->model_flags |= CMF_Fat;
+                n++;
+                break;
+            case 32: // NO_STEAL_HERO
+                crconf->model_flags |= CMF_NoStealHero;
+                n++;
+                break;
+            case 33: // PREFER_STEAL
+                crconf->model_flags |= CMF_PreferSteal;
+                n++;
+                break;
+            case 34: // EVENTFUL_DEATH
+                crconf->model_flags |= CMF_EventfulDeath;
                 n++;
                 break;
             default:
@@ -826,9 +813,87 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 0: // comment
+      case 35: // PRISONKIND
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(creature_desc, word_buf);
+              if (k > 0)
+              {
+                  crstat->prison_kind = k;
+                  n++;
+              }
+              else if (strcasecmp(word_buf,"NULL") == 0)
+              {
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
           break;
-      case -1: // end of buffer
+      case 36: // TORTUREKIND
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(creature_desc, word_buf);
+              if (k > 0)
+              {
+                  crstat->torture_kind = k;
+                  n++;
+              }
+              else if (strcasecmp(word_buf,"NULL") == 0)
+              {
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+        case 37: // SPELLIMMUNITY
+        {
+            // Backward compatibility check.
+            TbBool unaffected_by_wind = flag_is_set(crstat->immunity_flags, CSAfF_Wind);
+            TbBool immune_to_gas = flag_is_set(crstat->immunity_flags, CSAfF_PoisonCloud);
+            TbBool never_chickens = flag_is_set(crstat->immunity_flags, CSAfF_Chicken);
+            TbBool immune_to_disease = flag_is_set(crstat->immunity_flags, CSAfF_Disease);
+            crstat->immunity_flags = 0; // Clear flags, this is necessary for partial config if modder wants to remove all flags.
+            // Backward compatibility fix.
+            if (unaffected_by_wind) { set_flag(crstat->immunity_flags, CSAfF_Wind); }
+            if (immune_to_gas) { set_flag(crstat->immunity_flags, CSAfF_PoisonCloud); }
+            if (never_chickens) { set_flag(crstat->immunity_flags, CSAfF_Chicken); }
+            if (immune_to_disease) { set_flag(crstat->immunity_flags, CSAfF_Disease); }
+            while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                if (parameter_is_number(word_buf))
+                {
+                    k = atoi(word_buf);
+                    crstat->immunity_flags = k;
+                    n++;
+                }
+                else
+                {
+                    k = get_id(spell_effect_flags, word_buf);
+                    if (k > 0)
+                    {
+                        set_flag(crstat->immunity_flags, k);
+                        n++;
+                    }
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+            }
+            break;
+        }
+      case ccr_comment:
+          break;
+      case ccr_endOfFile:
           break;
       default:
           CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -854,12 +919,12 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
   // Set creature start states based on the flags
   if ((crconf->model_flags & CMF_IsSpecDigger) != 0)
   {
-      creatures[crtr_model].evil_start_state = CrSt_ImpDoingNothing;
-      creatures[crtr_model].good_start_state = CrSt_TunnellerDoingNothing;
+      crstat->evil_start_state = CrSt_ImpDoingNothing;
+      crstat->good_start_state = CrSt_TunnellerDoingNothing;
   } else
   {
-      creatures[crtr_model].evil_start_state = CrSt_CreatureDoingNothing;
-      creatures[crtr_model].good_start_state = CrSt_GoodDoingNothing;
+      crstat->evil_start_state = CrSt_CreatureDoingNothing;
+      crstat->good_start_state = CrSt_GoodDoingNothing;
   }
   return true;
 }
@@ -868,19 +933,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
 {
   int n;
   // Block name and parameter word store variables
-  // Initialize block data
   struct CreatureStats* crstat = creature_stats_get(crtr_model);
-  if ((flags & CnfLd_AcceptPartial) == 0)
-  {
-      for (n=0; n < ENTRANCE_ROOMS_COUNT; n++)
-      {
-        crstat->entrance_rooms[n] = 0;
-        crstat->entrance_slabs_req[n] = 0;
-      }
-      crstat->entrance_score = 10;
-      crstat->scavenge_require = 1;
-      crstat->torture_break_time = 1;
-  }
   // Find the block
   char block_buf[COMMAND_WORD_LEN];
   sprintf(block_buf, "attraction");
@@ -898,7 +951,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
       // Finding command number in this line
       int cmd_num = recognize_conf_command(buf, &pos, len, creatmodel_attraction_commands);
       // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
+      if (cmd_num == ccr_endOfBlock) break; // if next block starts
       n = 0;
       char word_buf[COMMAND_WORD_LEN];
       switch (cmd_num)
@@ -976,9 +1029,9 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 0: // comment
+      case ccr_comment:
           break;
-      case -1: // end of buffer
+      case ccr_endOfFile:
           break;
       default:
           CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -994,39 +1047,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
 TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
     // Block name and parameter word store variables
-    // Initialize block data
     struct CreatureStats* crstat = creature_stats_get(crtr_model);
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        crstat->annoy_eat_food = 0;
-        crstat->annoy_will_not_do_job = 0;
-        crstat->annoy_in_hand = 0;
-        crstat->annoy_no_lair = 0;
-        crstat->annoy_no_hatchery = 0;
-        crstat->annoy_woken_up = 0;
-        crstat->annoy_on_dead_enemy = 0;
-        crstat->annoy_sulking = 0;
-        crstat->annoy_no_salary = 0;
-        crstat->annoy_slapped = 0;
-        crstat->annoy_on_dead_friend = 0;
-        crstat->annoy_in_torture = 0;
-        crstat->annoy_in_temple = 0;
-        crstat->annoy_sleeping = 0;
-        crstat->annoy_got_wage = 0;
-        crstat->annoy_win_battle = 0;
-        crstat->annoy_untrained_time = 0;
-        crstat->annoy_untrained = 0;
-        crstat->annoy_others_leaving = 0;
-        crstat->annoy_job_stress = 0;
-        crstat->annoy_going_postal = 0;
-        crstat->annoy_queue = 0;
-        for (int i = 0; i < LAIR_ENEMY_MAX; i++)
-        {
-            crstat->lair_enemy[i] = 0;
-        }
-        crstat->annoy_level = 0;
-        crstat->jobs_anger = 0;
-    }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
     sprintf(block_buf, "annoyance");
@@ -1044,7 +1065,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, creatmodel_annoyance_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         int n = 0;
         char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
@@ -1387,9 +1408,9 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
                     COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
@@ -1405,16 +1426,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
 TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
     // Block name and parameter word store variables
-    // Initialize block data
     struct CreatureStats* crstat = creature_stats_get(crtr_model);
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        crstat->hearing = 0;
-        crstat->base_eye_height = 0;
-        crstat->field_of_view = 0;
-        crstat->eye_effect = 0;
-        crstat->max_turning_speed = 1;
-    }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
     sprintf(block_buf, "senses");
@@ -1432,7 +1444,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, creatmodel_senses_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         int n = 0;
         char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
@@ -1508,9 +1520,9 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -1526,21 +1538,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
 TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
     // Block name and parameter word store variables
-    // Initialize block data
     struct CreatureStats* crstat = creature_stats_get(crtr_model);
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        crstat->walking_anim_speed = 1;
-        crstat->visual_range = 1;
-        creatures[crtr_model].swipe_idx = 0;
-        creatures[crtr_model].natural_death_kind = Death_Normal;
-        creatures[crtr_model].shot_shift_x = 0;
-        creatures[crtr_model].shot_shift_y = 0;
-        creatures[crtr_model].shot_shift_z = 0;
-        crstat->footstep_pitch = 100;
-        crstat->corpse_vanish_effect = 0;
-        crstat->status_offset = 32;
-    }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
     sprintf(block_buf, "appearance");
@@ -1558,7 +1556,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, creatmodel_appearance_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         int n = 0;
         char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
@@ -1595,7 +1593,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                 k = atoi(word_buf);
                 if (k >= 0)
                 {
-                    creatures[crtr_model].swipe_idx = k;
+                    crstat->swipe_idx = k;
                     n++;
                 }
             }
@@ -1611,9 +1609,9 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                 k = get_id(creature_deathkind_desc, word_buf);
                 if (k > 0)
                 {
-                    creatures[crtr_model].natural_death_kind = k;
-                    n++;
+                    crstat->natural_death_kind = k;
                 }
+                n++;
             }
             if (n < 1)
             {
@@ -1625,19 +1623,19 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                creatures[crtr_model].shot_shift_x = k;
+                crstat->shot_shift_x = k;
                 n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                creatures[crtr_model].shot_shift_y = k;
+                crstat->shot_shift_y = k;
                 n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                creatures[crtr_model].shot_shift_z = k;
+                crstat->shot_shift_z = k;
                 n++;
             }
             if (n < 3)
@@ -1688,8 +1686,8 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                 if (k > 0)
                 {
                     crstat->status_offset = k;
-                    n++;
                 }
+                n++;
             }
             if (n < 1)
             {
@@ -1697,9 +1695,41 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
-        case 0: // comment
+        case 10: // TRANSPARENCYFLAGS
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                    crstat->transparency_flags = k<<4; // Bitshift to get the transparancy bit in the render flag
+                }
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
             break;
-        case -1: // end of buffer
+        case 11: // FIXEDANIMSPEED
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    crstat->fixed_anim_speed = k;
+                }
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
+        case ccr_comment:
+            break;
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -1716,26 +1746,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
 {
     int n;
     // Block name and parameter word store variables
-    // Initialize block data
     struct CreatureStats* crstat = creature_stats_get(crtr_model);
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        for (n=0; n < LEARNED_INSTANCES_COUNT; n++)
-        {
-            crstat->learned_instance_id[n] = 0;
-            crstat->learned_instance_level[n] = 0;
-        }
-        for (n=0; n < CREATURE_MAX_LEVEL; n++)
-        {
-            crstat->to_level[n] = 0;
-        }
-        crstat->grow_up = 0;
-        crstat->grow_up_level = 0;
-        crstat->sleep_exp_slab = 0;
-        crstat->sleep_experience = 0;
-        crstat->exp_for_hitting = 0;
-        crstat->rebirth = 0;
-    }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
     sprintf(block_buf, "experience");
@@ -1753,7 +1764,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, creatmodel_experience_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         n = 0;
         char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
@@ -1887,9 +1898,9 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -1905,22 +1916,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
 TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
     // Block name and parameter word store variables
-    // Initialize block data
     struct CreatureStats* crstat = creature_stats_get(crtr_model);
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        crstat->job_primary = 0;
-        crstat->job_secondary = 0;
-        crstat->jobs_not_do = 0;
-        crstat->job_stress = 0;
-        crstat->training_value = 0;
-        crstat->training_cost = 0;
-        crstat->scavenge_value = 0;
-        crstat->scavenger_cost = 0;
-        crstat->research_value = 0;
-        crstat->manufacture_value = 0;
-        crstat->partner_training = 0;
-    }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
     sprintf(block_buf, "jobs");
@@ -1938,7 +1934,7 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, creatmodel_jobs_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         int n = 0;
         char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
@@ -2098,9 +2094,9 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -2116,15 +2112,6 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
 TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
   int n;
-  // Block name and parameter word store variables
-  // If the file can't be partial, then initialize block data
-  if ((flags & CnfLd_AcceptPartial) == 0)
-  {
-      for (n = 0; n < CREATURE_GRAPHICS_INSTANCES; n++)
-      {
-          set_creature_model_graphics(crtr_model, n, 0);
-      }
-  }
   // Find the block
   char block_buf[COMMAND_WORD_LEN];
   sprintf(block_buf, "sprites");
@@ -2142,7 +2129,7 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
       // Finding command number in this line
       int cmd_num = recognize_conf_command(buf, &pos, len, creature_graphics_desc);
       // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
+      if (cmd_num == ccr_endOfBlock) break; // if next block starts
       n = 0;
       if ((cmd_num == (CGI_HandSymbol + 1)) || (cmd_num == (CGI_QuerySymbol + 1)))
       {
@@ -2167,8 +2154,7 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
           char word_buf[COMMAND_WORD_LEN];
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-            struct ObjectConfigStats obj_tmp;
-            k = get_anim_id(word_buf, &obj_tmp);
+            k = get_anim_id_(word_buf);
             set_creature_model_graphics(crtr_model, cmd_num-1, k);
             n++;
           }
@@ -2180,9 +2166,9 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
       } else
       switch (cmd_num)
       {
-      case 0: // comment
+      case ccr_comment:
           break;
-      case -1: // end of buffer
+      case ccr_endOfFile:
           break;
       default:
           CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -2214,7 +2200,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, creatmodel_sounds_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         int n = 0;
         char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
@@ -2428,9 +2414,28 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 0: // comment
+        case CrSnd_Piss:
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              game.conf.crtr_conf.creature_sounds[crtr_model].piss.index = k;
+              n++;
+            }
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              game.conf.crtr_conf.creature_sounds[crtr_model].piss.count = k;
+              n++;
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
             break;
-        case -1: // end of buffer
+        case ccr_comment:
+            break;
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -2449,96 +2454,94 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
-        if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
+    char* buf = (char*)calloc(len + 256, 1);
     if (buf == NULL)
         return false;
     // Loading file data
     len = LbFileLoadAt(fname, buf);
     TbBool result = (len > 0);
-    if ((flags & CnfLd_AcceptPartial) == 0)
+    if (!flag_is_set(flags,CnfLd_AcceptPartial))
     {
         struct CreatureStats* crstat = creature_stats_get(crtr_model);
-        LbMemorySet(crstat, '\0', sizeof(struct CreatureStats));
+        memset(crstat, '\0', sizeof(struct CreatureStats));
     }
     // Parse blocks of the config file
     if (result)
     {
-        result = parse_creaturemodel_attributes_blocks(crtr_model, buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
+        result = parse_creaturemodel_attributes_blocks(crtr_model, buf, len, fname, flags);
+        if (flag_is_set(flags, CnfLd_AcceptPartial))
             result = true;
         if (!result)
             WARNMSG("Parsing %s file \"%s\" attributes blocks failed.",textname,fname);
     }
     if (result)
     {
-        result = parse_creaturemodel_attraction_blocks(crtr_model, buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
+        result = parse_creaturemodel_attraction_blocks(crtr_model, buf, len, fname, flags);
+        if (flag_is_set(flags, CnfLd_AcceptPartial))
             result = true;
         if (!result)
             WARNMSG("Parsing %s file \"%s\" attraction blocks failed.",textname,fname);
     }
     if (result)
     {
-        result = parse_creaturemodel_annoyance_blocks(crtr_model, buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
+        result = parse_creaturemodel_annoyance_blocks(crtr_model, buf, len, fname, flags);
+        if (flag_is_set(flags, CnfLd_AcceptPartial))
             result = true;
         if (!result)
             WARNMSG("Parsing %s file \"%s\" annoyance blocks failed.",textname,fname);
     }
     if (result)
     {
-        result = parse_creaturemodel_senses_blocks(crtr_model, buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
+        result = parse_creaturemodel_senses_blocks(crtr_model, buf, len, fname, flags);
+        if (flag_is_set(flags, CnfLd_AcceptPartial))
             result = true;
         if (!result)
             WARNMSG("Parsing %s file \"%s\" senses blocks failed.",textname,fname);
     }
     if (result)
     {
-        result = parse_creaturemodel_appearance_blocks(crtr_model, buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
+        result = parse_creaturemodel_appearance_blocks(crtr_model, buf, len, fname, flags);
+        if (flag_is_set(flags, CnfLd_AcceptPartial))
             result = true;
         if (!result)
             WARNMSG("Parsing %s file \"%s\" appearance blocks failed.",textname,fname);
     }
     if (result)
     {
-        result = parse_creaturemodel_experience_blocks(crtr_model, buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
+        result = parse_creaturemodel_experience_blocks(crtr_model, buf, len, fname, flags);
+        if (flag_is_set(flags, CnfLd_AcceptPartial))
             result = true;
         if (!result)
             WARNMSG("Parsing %s file \"%s\" experience blocks failed.",textname,fname);
     }
     if (result)
     {
-        result = parse_creaturemodel_jobs_blocks(crtr_model, buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
+        result = parse_creaturemodel_jobs_blocks(crtr_model, buf, len, fname, flags);
+        if (flag_is_set(flags, CnfLd_AcceptPartial))
             result = true;
         if (!result)
             WARNMSG("Parsing %s file \"%s\" jobs blocks failed.",textname,fname);
     }
     if (result)
     {
-        result = parse_creaturemodel_sprites_blocks(crtr_model, buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
+        result = parse_creaturemodel_sprites_blocks(crtr_model, buf, len, fname, flags);
+        if (flag_is_set(flags, CnfLd_AcceptPartial))
             result = true;
         if (!result)
             WARNMSG("Parsing %s file \"%s\" sprites blocks failed.",textname,fname);
     }
     if (result)
     {
-        result = parse_creaturemodel_sounds_blocks(crtr_model, buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
+        result = parse_creaturemodel_sounds_blocks(crtr_model, buf, len, fname, flags);
+        if (flag_is_set(flags, CnfLd_AcceptPartial))
             result = true;
         if (!result)
             WARNMSG("Parsing %s file \"%s\" sounds blocks failed.",textname,fname);
     }
     // Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     return result;
 }
 
@@ -2548,7 +2551,8 @@ TbBool load_creaturemodel_config(ThingModel crmodel, unsigned short flags)
     static const char config_campgn_textname[] = "campaign creature model config";
     static const char config_level_textname[] = "level creature model config";
     char conf_fnstr[COMMAND_WORD_LEN];
-    LbStringToLowerCopy(conf_fnstr,get_conf_parameter_text(creature_desc,crmodel),COMMAND_WORD_LEN);
+    snprintf(conf_fnstr, COMMAND_WORD_LEN, "%s", get_conf_parameter_text(creature_desc,crmodel));
+    strtolower(conf_fnstr);
     if (strlen(conf_fnstr) == 0)
     {
         WARNMSG("Cannot get config file name for creature %d.",crmodel);
@@ -2556,17 +2560,28 @@ TbBool load_creaturemodel_config(ThingModel crmodel, unsigned short flags)
     }
     char* fname = prepare_file_fmtpath(FGrp_CrtrData, "%s.cfg", conf_fnstr);
     TbBool result = load_creaturemodel_config_file(crmodel, config_global_textname, fname, flags);
+    if (result)
+    {
+        set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
+    }
     fname = prepare_file_fmtpath(FGrp_CmpgCrtrs,"%s.cfg",conf_fnstr);
     if (strlen(fname) > 0)
     {
-        load_creaturemodel_config_file(crmodel,config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+        result |= load_creaturemodel_config_file(crmodel,config_campgn_textname,fname,flags);
+        if (result)
+        {
+            set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
+        }
     }
     fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s.cfg", get_selected_level_number(), conf_fnstr);
     if (strlen(fname) > 0)
     {
-        load_creaturemodel_config_file(crmodel,config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+        result |= load_creaturemodel_config_file(crmodel,config_level_textname,fname,flags);
     }
-    //Freeing and exiting
+    if (!result)
+    {
+        ERRORLOG("Unable to load a complete '%s' creature model config file.", creature_code_name(crmodel));
+    }
     return result;
 }
 
@@ -2576,7 +2591,8 @@ TbBool swap_creaturemodel_config(ThingModel nwcrmodel, ThingModel crmodel, unsig
     static const char config_campgn_textname[] = "campaing creature model config";
     static const char config_level_textname[] = "level creature model config";
     char conf_fnstr[COMMAND_WORD_LEN];
-    LbStringToLowerCopy(conf_fnstr, get_conf_parameter_text(newcrtr_desc, nwcrmodel), COMMAND_WORD_LEN);
+    snprintf(conf_fnstr, COMMAND_WORD_LEN, "%s", get_conf_parameter_text(creature_desc, nwcrmodel));
+    strtolower(conf_fnstr);
     if (strlen(conf_fnstr) == 0)
     {
         WARNMSG("Cannot get config file name for creature %d.", crmodel);
@@ -2601,7 +2617,7 @@ TbBool swap_creaturemodel_config(ThingModel nwcrmodel, ThingModel crmodel, unsig
 static void do_creature_swap(ThingModel ncrt_id, ThingModel crtr_id)
 {
     swap_creaturemodel_config(ncrt_id, crtr_id, 0);
-    SCRPTLOG("Swapped creature %s out for creature %s", creature_code_name(crtr_id), new_creature_code_name(ncrt_id));
+    SCRPTLOG("Swapped creature %s out for creature %s", creature_code_name(crtr_id), creature_code_name(ncrt_id));
 }
 
 TbBool swap_creature(ThingModel ncrt_id, ThingModel crtr_id)
@@ -2611,12 +2627,27 @@ TbBool swap_creature(ThingModel ncrt_id, ThingModel crtr_id)
         ERRORLOG("Creature index %d is invalid", crtr_id);
         return false;
     }
-    if (creature_swap_idx[crtr_id] > 0)
+    if ((ncrt_id < 0) || (ncrt_id >= game.conf.crtr_conf.model_count))
     {
-        ERRORLOG("Creature of index %d already swapped", crtr_id);
+        ERRORLOG("Creature index %d is invalid", ncrt_id);
         return false;
     }
+    struct CreatureStats* crstat = creature_stats_get(crtr_id);
+    ThingModel oldlair = crstat->lair_object;
     do_creature_swap(ncrt_id, crtr_id);
+    struct CreatureStats* ncrstat = creature_stats_get(crtr_id);
+    ThingModel newlair = ncrstat->lair_object;
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        do_to_players_all_creatures_of_model(plyr_idx, crtr_id, update_relative_creature_health);
+        update_speed_of_player_creatures_of_model(plyr_idx, crtr_id);
+        if (oldlair != newlair)
+        {
+            do_to_players_all_creatures_of_model(plyr_idx, crtr_id, remove_creature_lair);
+        }
+        do_to_players_all_creatures_of_model(plyr_idx, crtr_id, process_job_stress_and_going_postal);
+    }
+
     return true;
 }
 
@@ -2638,7 +2669,7 @@ TbBool make_all_creatures_free(void)
 /**
  * Changes max health of creatures, and updates all creatures to max.
  */
-TbBool change_max_health_of_creature_kind(ThingModel crmodel, long new_max)
+TbBool change_max_health_of_creature_kind(ThingModel crmodel, HitPoints new_max)
 {
     struct CreatureStats* crstat = creature_stats_get(crmodel);
     if (creature_stats_invalid(crstat)) {

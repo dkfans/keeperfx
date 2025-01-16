@@ -21,7 +21,6 @@
 #include "globals.h"
 
 #include "bflib_math.h"
-#include "bflib_memory.h"
 #include "creature_states.h"
 #include "thing_list.h"
 #include "creature_control.h"
@@ -249,14 +248,19 @@ long get_combat_state_for_combat(struct Thing *fightng, struct Thing *enmtng, Cr
             return CmbtSt_Ranged;
         }
     }
-    if (can_add_melee_combat_attacker(enmtng)) {
-        return CmbtSt_Melee;
+    if (can_add_melee_combat_attacker(enmtng))
+    {
+        if (creature_has_melee_attack(fightng))
+        {
+            return CmbtSt_Melee;
+        }
     }
-    if ( !creature_has_ranged_weapon(fightng) ) {
-        return CmbtSt_Waiting;
-    }
-    if (can_add_ranged_combat_attacker(enmtng)) {
-        return CmbtSt_Ranged;
+    if (can_add_ranged_combat_attacker(enmtng)) 
+    {
+        if (creature_has_ranged_weapon(fightng))
+        {
+            return CmbtSt_Ranged;
+        }
     }
     return CmbtSt_Waiting;
 }
@@ -338,7 +342,7 @@ void battle_initialise(void)
 {
     for (int battle_idx = 0; battle_idx < BATTLES_COUNT; battle_idx++)
     {
-        LbMemorySet(&game.battles[battle_idx], 0, sizeof(struct CreatureBattle));
+        memset(&game.battles[battle_idx], 0, sizeof(struct CreatureBattle));
     }
 }
 

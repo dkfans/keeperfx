@@ -1756,8 +1756,9 @@ msgid "Group: Not used"
 msgstr "Grupo: Sin usar"
 
 #: guitext:239
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Invisibility: Cast on one of your minions, it makes the host creature invisible to all enemies. Unless they possess a subnatural Sight."
+msgid "Invisibility: Makes the creature invisible to all enemies. Unless they possess a subnatural Sight."
 msgstr ""
 "Invisibilidad: Lanzado en uno de tus esbirros, convierte a la criatura anfitrión invisible a todos los enemigos. A menos que estos posean una "
 "vista sobrenatural."
@@ -1793,7 +1794,7 @@ msgstr "Tormenta de granizo: Crea una lluvia de granizo allá donde el hechizo i
 
 #: guitext:245
 msgctxt "Creature spell"
-msgid "Slow: Slows down the target creature, making it attacks and movement delayed."
+msgid "Slow: Slows down the target creature, making its attacks and movement delayed."
 msgstr "Lentitud: Ralentiza la criatura objetivo, haciendo que su ataque y movimiento sean más lentos."
 
 #: guitext:246
@@ -3928,7 +3929,7 @@ msgstr ""
 
 #: guitext:648
 msgctxt "Keeper spell description"
-msgid "Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. [18.2]"
+msgid "Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
 msgstr ""
 "Crear duende: Invoca un nuevo duende en cualquier lugar de tu mazmorra. Selecciónalo con BIR y pulsa BIR en cualquier baldosa que tengas "
 "reclamada. Pulsa BDR para dejar de lanzar el hechizo, crear duende."
@@ -3970,24 +3971,21 @@ msgstr "Debe obedecer: Obliga a tus criaturas a obedecer cada una de tus órdene
 
 #: guitext:654
 msgctxt "Keeper spell description"
-msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
+msgid "Speed Monster: Increases the speed of your monsters."
 msgstr ""
-"Acelerar: Incrementa la velocidad de tus criaturas.  Selecciónalo con BIR y pulsa BIR sobre la criatura que deseas aumentarle la velocidad, "
-"mantén pulsado BIR para aumentar el poder del hechizo, antes de ser lanzado."
+"Acelerar: Incrementa la velocidad de tus criaturas."
 
 #: guitext:655
 msgctxt "Keeper spell description"
-msgid "Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
+msgid "Protect Monster: Shields your creatures from attack."
 msgstr ""
-"Proteger: Aumenta la protección a tus criaturas. Selecciónalo con BIR y pulsa BIR sobre la criatura que deseas aumentarle la protección, mantén "
-"pulsado BIR para aumentar el poder del hechizo, antes de ser lanzado."
+"Proteger: Aumenta la protección a tus criaturas."
 
 #: guitext:656
 msgctxt "Keeper spell description"
-msgid "Conceal Monster: Makes your creatures invisible to the enemy. LMB select. [18.7]"
+msgid "Conceal Monster: Makes your creatures invisible to the enemy."
 msgstr ""
-"Ocultar: Hace a tus criaturas invisibles para el enemigo. Selecciónalo con BIR y pulsa BIR sobre la criatura que deseas que sea invisible, "
-"mantén pulsado BIR para aumentar el poder del hechizo, antes de ser lanzado."
+"Ocultar: Hace a tus criaturas invisibles para el enemigo."
 
 #: guitext:657
 msgctxt "Keeper spell description"
@@ -6076,8 +6074,9 @@ msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "Veta de oro densa: Contiene mucha riqueza para que tus Duendes la extraigan."
 
 #: guitext:1053
+#, fuzzy
 msgctxt "Keeper spell name"
-msgid "Rebound"
+msgid "Magic Shield"
 msgstr "Rebote"
 
 #: guitext:1054
@@ -6092,7 +6091,7 @@ msgstr "Lentitud"
 
 #: guitext:1056
 msgctxt "Keeper spell name"
-msgid "Flight"
+msgid "Levitate"
 msgstr "Vuelo"
 
 #: guitext:1057
@@ -6124,3 +6123,73 @@ msgstr "Hacer Infelices: Todas las criaturas del enemigo se vuelven infelices."
 msgctxt "Dungeon special decription"
 msgid "Weaken Walls: Destroys the fortifications of enemy walls."
 msgstr "Debilitar Murallas: Destruye las fortificaciones de las murallas enemigas."
+
+#: guitext:1063
+msgctxt "Game controls"
+msgid "Tilt Up"
+msgstr "Inclinar Arriba"
+
+#: guitext:1064
+msgctxt "Game controls"
+msgid "Tilt Down"
+msgstr "Inclinar Abajo"
+
+#: guitext:1065
+msgctxt "Game controls"
+msgid "Reset Tilt"
+msgstr "Reiniciar Inclinación"
+
+#: guitext:1066
+msgctxt "Creature spell"
+msgid "Heal Monster: The target creature is massively healed."
+msgstr ""
+
+#: guitext:1067
+msgctxt "Creature spell"
+msgid "Cleanse: Cures all negative effects inflicted on the creature."
+msgstr "Purificar: Cura todos los efectos negativos infligidos a la criatura."
+
+#: guitext:1068
+msgctxt "Creature spell"
+msgid "Cleanse Monster: Cures all negative effects inflicted on target creature."
+msgstr ""
+
+#: guitext:1069
+msgctxt "Keeper spell description"
+msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
+msgstr ""
+
+#: guitext:1070
+msgctxt "Keeper spell description"
+msgid "Levitate: Causes the target creature to take off from the ground and attack creatures from the air or cross lava unharmed."
+msgstr ""
+
+#: guitext:1071
+msgctxt "Keeper spell description"
+msgid "Sight: Allows the target creature to temporarily increase its awareness and notice the invisible."
+msgstr ""
+
+#: guitext:1072
+msgctxt "Keeper spell name"
+msgid "Recruit Tunneller"
+msgstr ""
+
+#: guitext:1073
+msgctxt "Keeper spell description"
+msgid "Recruit Tunneller: Summon a new Tunneller anywhere in your dungeon."
+msgstr ""
+
+#: guitext:1074 guitext:1075
+msgctxt "Unused"
+msgid "Moo8"
+msgstr ""
+
+#: guitext:1076
+msgctxt "Door name"
+msgid "Midas Door"
+msgstr ""
+
+#: guitext:1077
+msgctxt "Door description"
+msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
+msgstr ""

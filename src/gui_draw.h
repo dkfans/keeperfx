@@ -46,20 +46,10 @@ extern "C" {
 
 struct GuiButton;
 /******************************************************************************/
-extern struct TbSprite gui_panel_sprites[];
-extern int num_icons_total;
-
-extern unsigned char * gui_panel_sprite_data;
-extern unsigned char * end_gui_panel_sprite_data;
-
+extern struct TbSpriteSheet * gui_panel_sprites;
 extern unsigned char *gui_slab;
-
 extern unsigned char *frontend_background;
-
-extern struct TbSprite *frontend_sprite;
-extern struct TbSprite *frontend_end_sprite;
-extern unsigned char * frontend_sprite_data;
-extern unsigned char * frontend_end_sprite_data;
+extern struct TbSpriteSheet * frontend_sprite;
 
 #pragma pack()
 /******************************************************************************/
@@ -86,7 +76,7 @@ TbBool draw_text_box(const char *text);
 void draw_scroll_box(struct GuiButton *gbtn, int units_per_px, int num_rows);
 int scroll_box_get_units_per_px(struct GuiButton *gbtn);
 
-#define draw_gui_panel_sprite_left(x, y, units_per_px, spridx) draw_gui_panel_sprite_left_player(x, y, units_per_px, spridx, my_player_number) 
+#define draw_gui_panel_sprite_left(x, y, units_per_px, spridx) draw_gui_panel_sprite_left_player(x, y, units_per_px, spridx, my_player_number)
 void draw_gui_panel_sprite_left_player(long x, long y, int units_per_px, long spridx, PlayerNumber plyr_idx);
 #define draw_gui_panel_sprite_rmleft(x, y, units_per_px, spridx, remap) draw_gui_panel_sprite_rmleft_player(x, y, units_per_px, spridx, remap, my_player_number)
 void draw_gui_panel_sprite_rmleft_player(long x, long y, int units_per_px, long spridx, unsigned long remap, PlayerNumber plyr_idx);

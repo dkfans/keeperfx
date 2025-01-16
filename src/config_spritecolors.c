@@ -19,7 +19,6 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "value_util.h"
@@ -43,15 +42,10 @@ static short gui_panel_sprites_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
 static short pointer_sprites_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
 static short button_sprite_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
 static short animationIds_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
+static short objects_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
 /******************************************************************************/
 static short get_player_colored_idx(short base_icon_idx,unsigned char color_idx,short *arr);
 /******************************************************************************/
-static short get_anim_id_(const char *word_buf)
-{
-    struct ObjectConfigStats obj_tmp;
-    return get_anim_id(word_buf, &obj_tmp);
-
-}
 
 static void load_array(VALUE* file_root, const char *arr_name,short *arr, unsigned short flags,short (*string_to_id_f)(const char *))
 {
@@ -103,6 +97,7 @@ static TbBool load_spritecolors_config_file(const char *textname, const char *fn
     load_array(&file_root,"button_sprite",button_sprite_eq,flags,get_icon_id);
     load_array(&file_root,"button_sprite",button_sprite_eq,flags,get_icon_id);
     load_array(&file_root,"animationIds",animationIds_eq,flags,get_anim_id_);
+    load_array(&file_root,"objects",objects_eq,flags,get_anim_id_);
 
     extern struct CallToArmsGraphics call_to_arms_graphics[];
     for (size_t plr_idx = 0; plr_idx < PLAYER_COLORS_COUNT; plr_idx++)
@@ -172,7 +167,7 @@ short get_player_colored_pointer_icon_idx(short base_icon_idx,PlayerNumber plyr_
 short get_player_colored_button_sprite_idx(const short base_icon_idx,const PlayerNumber plyr_idx)
 {
     unsigned char color_idx;
-    if (plyr_idx == NEUTRAL_PLAYER)
+    if (plyr_idx == PLAYER_NEUTRAL)
     {
         color_idx = game.play_gameturn & 3;
     }
@@ -184,6 +179,28 @@ short get_player_colored_button_sprite_idx(const short base_icon_idx,const Playe
     return get_player_colored_idx(base_icon_idx,color_idx + 1,button_sprite_eq);
 }
 
+ThingModel get_player_colored_object_model(ThingModel base_model_idx,PlayerNumber plyr_idx)
+{
+    return get_player_colored_idx(base_model_idx,get_player_color_idx(plyr_idx) + 1,objects_eq);
+}
+
+ThingModel get_coloured_object_base_model(ThingModel model_idx)
+{
+    for (size_t i = 0; i < MAX_COLORED_SPRITES; i++)
+    {
+        ThingModel base = objects_eq[i*PLAYER_COLORS_COUNT];
+        if (base == 0)
+            return 0;
+
+        for (size_t j = 0; j < PLAYER_COLORS_COUNT; j++)
+        {
+            if (model_idx == objects_eq[i*PLAYER_COLORS_COUNT+j])
+                return base;
+        }
+    }
+    return 0;
+
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

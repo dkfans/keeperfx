@@ -1,0 +1,212 @@
+[playerstate0]
+Name = "PLAYER_STATE_NONE"
+# How the pointer is determined, possible values:
+# NONE - CTRLDUNGEON - BUILDROOM - INVISIBLE - SPELL - QUERY - PLACETRAP - PLACEDOOR - SELL - PLACETERRAIN - MAKEDIGGER - MAKECREATURE - ORDERCREATURE.
+PointerGroup = "NONE"
+# Own units should freeze while clicking when in this state.
+StopOwnUnits = false
+
+[playerstate1]
+Name = "PLAYER_STATE_CTRLDUNGEON"
+PointerGroup = "CTRLDUNGEON"
+StopOwnUnits = true
+
+[playerstate2]
+Name = "PLAYER_STATE_BUILDROOM"
+PointerGroup = "BUILDROOM"
+StopOwnUnits = false
+
+[playerstate3]
+Name = "PLAYER_STATE_MKGOODDIGGER"
+PointerGroup = "MAKEDIGGER"
+StopOwnUnits = false
+
+[playerstate4]
+Name = "PLAYER_STATE_MKGOODCREATR"
+PointerGroup = "MAKECREATURE"
+StopOwnUnits = false
+
+[playerstate5]
+Name = "PLAYER_STATE_HOLDINHAND"
+PointerGroup = "INVISIBLE"
+StopOwnUnits = false
+
+[playerstate6]
+Name = "PLAYER_STATE_CALLTOARMS"
+PointerGroup = "SPELL"
+StopOwnUnits = false
+
+[playerstate7]
+Name = "PLAYER_STATE_CAST_SUBTILE"
+PointerGroup = "SPELL"
+StopOwnUnits = false
+
+[playerstate8]
+Name = "PLAYER_STATE_SIGHTOFEVIL"
+PointerGroup = "SPELL"
+StopOwnUnits = false
+
+[playerstate9]
+Name = "PLAYER_STATE_SLAP"
+PointerGroup = "INVISIBLE"
+StopOwnUnits = true
+
+[playerstate10]
+Name = "PLAYER_STATE_CTRLPASSNGR"
+PointerGroup = "SPELL"
+StopOwnUnits = true
+
+[playerstate11]
+Name = "PLAYER_STATE_CTRLDIRECT"
+PointerGroup = "SPELL"
+StopOwnUnits = true
+
+[playerstate12]
+Name = "PLAYER_STATE_CREATRQUERY"
+PointerGroup = "QUERY"
+StopOwnUnits = true
+
+[playerstate13]
+Name = "PLAYER_STATE_ORDERCREATR"
+PointerGroup = "ORDERCREATURE"
+StopOwnUnits = true
+
+[playerstate14]
+Name = "PLAYER_STATE_MKBADCREATR"
+PointerGroup = "MAKECREATURE"
+StopOwnUnits = false
+
+[playerstate15]
+Name = "PLAYER_STATE_CREATRINFO"
+PointerGroup = "QUERY"
+StopOwnUnits = true
+
+[playerstate16]
+Name = "PLAYER_STATE_PLACETRAP"
+PointerGroup = "PLACETRAP"
+StopOwnUnits = false
+
+[playerstate17]
+Name = "PLAYER_STATE_PLACEDOOR"
+PointerGroup = "PLACEDOOR"
+StopOwnUnits = false
+
+[playerstate18]
+Name = "PLAYER_STATE_CAST_ON_TARGET"
+PointerGroup = "SPELL"
+StopOwnUnits = true
+
+[playerstate19]
+Name = "PLAYER_STATE_SELL"
+PointerGroup = "SELL"
+StopOwnUnits = false
+
+[playerstate20]
+Name = "PLAYER_STATE_MKGOLDPOT"
+PointerGroup = "NONE"
+StopOwnUnits = false
+
+[playerstate21]
+Name = "PLAYER_STATE_FREEDESTROYWALLS"
+PointerGroup = "SPELL"
+StopOwnUnits = false
+
+[playerstate22]
+Name = "PLAYER_STATE_FREECASTDISEASE"
+PointerGroup = "SPELL"
+StopOwnUnits = false
+
+[playerstate23]
+Name = "PLAYER_STATE_FREETURNCHICKEN"
+PointerGroup = "SPELL"
+StopOwnUnits = false
+
+[playerstate24]
+Name = "PLAYER_STATE_FREECTRLPASSNGR"
+PointerGroup = "SPELL"
+StopOwnUnits = true
+
+[playerstate25]
+Name = "PLAYER_STATE_FREECTRLDIRECT"
+PointerGroup = "SPELL"
+StopOwnUnits = true
+
+[playerstate26]
+Name = "PLAYER_STATE_STEALROOM"
+PointerGroup = "NONE"
+StopOwnUnits = false
+
+[playerstate27]
+Name = "PLAYER_STATE_DESTROYROOM"
+PointerGroup = "NONE"
+StopOwnUnits = false
+
+[playerstate28]
+Name = "PLAYER_STATE_KILLCREATURE"
+PointerGroup = "NONE"
+StopOwnUnits = false
+
+[playerstate29]
+Name = "PLAYER_STATE_CONVERTCREATURE"
+PointerGroup = "NONE"
+StopOwnUnits = false
+
+[playerstate30]
+Name = "PLAYER_STATE_STEALSLAB"
+PointerGroup = "NONE"
+StopOwnUnits = false
+
+[playerstate31]
+Name = "PLAYER_STATE_LEVELCREATUREUP"
+PointerGroup = "NONE"
+StopOwnUnits = false
+
+[playerstate32]
+Name = "PLAYER_STATE_LEVELCREATUREDOWN"
+PointerGroup = "NONE"
+StopOwnUnits = false
+
+[playerstate33]
+Name = "PLAYER_STATE_KILLPLAYER"
+PointerGroup = "NONE"
+StopOwnUnits = false
+
+[playerstate34]
+Name = "PLAYER_STATE_HEARTHEALTH"
+PointerGroup = "NONE"
+StopOwnUnits = false
+
+[playerstate35]
+Name = "PLAYER_STATE_CREATRQUERYALL"
+PointerGroup = "QUERY"
+StopOwnUnits = true
+
+[playerstate36]
+Name = "PLAYER_STATE_MAKEHAPPY"
+PointerGroup = "NONE"
+StopOwnUnits = true
+
+[playerstate37]
+Name = "PLAYER_STATE_MAKEANGRY"
+PointerGroup = "NONE"
+StopOwnUnits = true
+
+[playerstate38]
+Name = "PLAYER_STATE_PLACETERRAIN"
+PointerGroup = "PLACETERRAIN"
+StopOwnUnits = false
+
+[playerstate39]
+Name = "PLAYER_STATE_DESTROY_THING"
+PointerGroup = "NONE"
+StopOwnUnits = false
+
+[playerstate40]
+Name = "PLAYER_STATE_CREATURE_INFO_ALL"
+PointerGroup = "QUERY"
+StopOwnUnits = true
+
+[playerstate41]
+Name = "PLAYER_STATE_CREATEDIGGER"
+PointerGroup = "SPELL"
+StopOwnUnits = false

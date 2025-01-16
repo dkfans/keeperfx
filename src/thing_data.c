@@ -23,10 +23,10 @@
 #include "bflib_keybrd.h"
 #include "bflib_basics.h"
 #include "bflib_sound.h"
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "frontend.h"
 #include "config_creature.h"
+#include "config_crtrstates.h"
 #include "config_effects.h"
 #include "thing_stats.h"
 #include "thing_effects.h"
@@ -79,7 +79,7 @@ struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const ch
         ERRORMSG("%s: Found existing thing %d in free things list at pos %d!",func_name,(int)game.free_things[i],(int)i);
     }
 #endif
-    LbMemorySet(thing, 0, sizeof(struct Thing));
+    memset(thing, 0, sizeof(struct Thing));
     if (thing_is_invalid(thing)) {
         ERRORMSG("%s: Got invalid thing slot instead of free one!",func_name);
         return INVALID_THING;
@@ -137,45 +137,57 @@ TbBool is_in_free_things_list(long tng_idx)
 void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_name)
 {
     TRACE_THING(thing);
-    if ((thing->alloc_flags & TAlF_InDungeonList) != 0) {
+    if ((thing->alloc_flags & TAlF_InDungeonList) != 0)
+    {
         remove_first_creature(thing);
     }
     if (!a2)
     {
-        delete_effects_attached_to_creature(thing);
-        delete_familiars_attached_to_creature(thing);
-        if (thing->light_id != 0) {
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+        if (!creature_control_invalid(cctrl))
+        {
+            // Use the correct function to clear them properly. Terminating the spells also removes the attached effects.
+            if (creature_under_spell_effect(thing, CSAfF_Armour))
+            {
+                clean_spell_effect(thing, CSAfF_Armour);
+            }
+            if (creature_under_spell_effect(thing, CSAfF_Disease))
+            {
+                clean_spell_effect(thing, CSAfF_Disease);
+            }
+            delete_familiars_attached_to_creature(thing);
+            remove_creature_lair(thing);
+            if (creature_is_group_member(thing))
+            {
+                remove_creature_from_group(thing);
+            }
+            delete_control_structure(cctrl);
+        }
+        if (thing->light_id != 0)
+        {
             light_delete_light(thing->light_id);
             thing->light_id = 0;
         }
     }
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (!creature_control_invalid(cctrl))
+    if (thing->snd_emitter_id != 0)
     {
-      if ( !a2 )
-      {
-          remove_creature_lair(thing);
-          if (creature_is_group_member(thing)) {
-              remove_creature_from_group(thing);
-          }
-      }
-      delete_control_structure(cctrl);
-    }
-    if (thing->snd_emitter_id != 0) {
         S3DDestroySoundEmitterAndSamples(thing->snd_emitter_id);
         thing->snd_emitter_id = 0;
     }
     remove_thing_from_its_class_list(thing);
     remove_thing_from_mapwho(thing);
-    if (thing->index > 0) {
+    if (thing->index > 0)
+    {
         game.free_things_start_index--;
         game.free_things[game.free_things_start_index] = thing->index;
-    } else {
+    }
+    else
+    {
 #if (BFDEBUG_LEVEL > 0)
-        ERRORMSG("%s: Performed deleting of thing with bad index %d!",func_name,(int)thing->index);
+        ERRORMSG("%s: Performed deleting of thing with bad index %d!", func_name, (int)thing->index);
 #endif
     }
-    LbMemorySet(thing, 0, sizeof(struct Thing));
+    memset(thing, 0, sizeof(struct Thing));
 }
 
 /**
@@ -303,17 +315,16 @@ void query_thing(struct Thing *thing)
         const char* name = thing_model_name(querytng);
         const char owner[24]; 
         const char health[24];
-        const char position[29];
-        const char amount[24] = "\0";
-        char output[36];
+        const char position[40];
+        const char amount[40] = "\0";
         sprintf((char*)title, "Thing ID: %d", querytng->index);
         sprintf((char*)owner, "Owner: %d", querytng->owner);
         sprintf((char*)position, "Pos: X:%d Y:%d Z:%d", querytng->mappos.x.stl.num, querytng->mappos.y.stl.num, querytng->mappos.z.stl.num);
         if (querytng->class_id == TCls_Trap)
         {
-            struct ManfctrConfig *mconf = &game.conf.traps_config[querytng->model];
+            struct TrapConfigStats *trapst = get_trap_model_stats(querytng->model);
             sprintf((char*)health, "Health: %ld", querytng->health);
-            sprintf((char*)amount, "Shots: %d/%d", querytng->trap.num_shots, mconf->shots);
+            sprintf((char*)amount, "Shots: %d/%d", querytng->trap.num_shots, trapst->shots);
         }
         else
         {
@@ -329,7 +340,16 @@ void query_thing(struct Thing *thing)
             else 
             if (querytng->class_id == TCls_Door)
             {
-                sprintf(output, "%s/%ln", health, &game.conf.trapdoor_conf.door_cfgstats[querytng->model].health);
+                struct DoorConfigStats *doorst = get_door_model_stats(querytng->model);
+                sprintf((char*)health, "Health: %ld/%ld", querytng->health, doorst->health);
+            }
+            else
+            if (querytng->class_id == TCls_Creature)
+            {
+                struct CreatureControl* cctrl = creature_control_get_from_thing(querytng);
+                sprintf((char*)health, "Health: %ld/%ld", querytng->health, cctrl->max_health);
+                sprintf((char*)position, "State: %s", creature_state_code_name(querytng->active_state));
+                sprintf((char*)amount, "Continue: %s", creature_state_code_name(querytng->continue_state));
             }
             else
             {

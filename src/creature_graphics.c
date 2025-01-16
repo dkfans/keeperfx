@@ -237,7 +237,7 @@ long get_lifespan_of_animation(long ani, long speed)
 {
     if (speed == 0)
     {
-        WARNLOG("Animation %d has no speed value", ani);
+        WARNLOG("Animation %ld has no speed value", ani);
         return keepersprite_frames(ani);
     }
     return (keepersprite_frames(ani) << 8) / speed;
@@ -304,25 +304,38 @@ void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, 
 
 short get_creature_model_graphics(long crmodel, unsigned short seq_idx)
 {
-  if (seq_idx >= CREATURE_GRAPHICS_INSTANCES) {
-      ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
-      seq_idx = 0;
-  }
-  if ((crmodel < 0) || (crmodel >= game.conf.crtr_conf.model_count)) {
-      ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
-      crmodel = 0;
-  }
-  return game.conf.crtr_conf.creature_graphics[crmodel][seq_idx];
+    if (seq_idx >= CREATURE_GRAPHICS_INSTANCES)
+    {
+        ERRORLOG("Invalid model %ld graphics sequence %u", crmodel, seq_idx);
+        seq_idx = 0;
+    }
+    if ((crmodel < 0) || (crmodel >= game.conf.crtr_conf.model_count))
+    {
+        ERRORLOG("Invalid model %ld graphics sequence %u", crmodel, seq_idx);
+        crmodel = 0;
+    }
+    // Backward compatibility for custom creatures. Use the attack animation if the extra animation is undefined, return 0 if the attack animation is also undefined.
+    if (game.conf.crtr_conf.creature_graphics[crmodel][seq_idx] < 0)
+    {
+        if ((seq_idx >= CGI_CastSpell) && (game.conf.crtr_conf.creature_graphics[crmodel][CGI_Attack] > 0))
+        {
+            return game.conf.crtr_conf.creature_graphics[crmodel][CGI_Attack];
+        }
+        return 0;
+    }
+    return game.conf.crtr_conf.creature_graphics[crmodel][seq_idx];
 }
 
 void set_creature_model_graphics(long crmodel, unsigned short seq_idx, unsigned long val)
 {
-    if (seq_idx >= CREATURE_GRAPHICS_INSTANCES) {
-        ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
+    if (seq_idx >= CREATURE_GRAPHICS_INSTANCES)
+    {
+        ERRORLOG("Invalid model %ld graphics sequence %u", crmodel, seq_idx);
         return;
     }
-    if ((crmodel < 0) || (crmodel >= game.conf.crtr_conf.model_count)) {
-        ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
+    if ((crmodel < 0) || (crmodel >= game.conf.crtr_conf.model_count))
+    {
+        ERRORLOG("Invalid model %ld graphics sequence %u", crmodel, seq_idx);
         return;
     }
     game.conf.crtr_conf.creature_graphics[crmodel][seq_idx] = val;
@@ -371,17 +384,21 @@ TbBool update_creature_anim_td(struct Thing *thing, long speed, long td_idx)
 void update_creature_rendering_flags(struct Thing *thing)
 {
     // Clear related flags
-    thing->rendering_flags &= ~TRF_Unknown01;
+    thing->rendering_flags &= ~TRF_Invisible;
     thing->rendering_flags &= ~TRF_Transpar_Flags;
     thing->rendering_flags &= ~TRF_AnimateOnce;
     // Now set only those that should be
     if ( (is_thing_directly_controlled_by_player(thing, my_player_number)) || (is_thing_passenger_controlled_by_player(thing, my_player_number)) )
     {
-        thing->rendering_flags |= TRF_Unknown01;
+        thing->rendering_flags |= TRF_Invisible;
     }
-    if (creatures[thing->model].field_7)
+    if (thing_is_creature(thing))
     {
-        thing->rendering_flags |= TRF_Transpar_Alpha;
+        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+        if (crstat->transparency_flags != 0)
+        {
+            set_flag(thing->rendering_flags, crstat->transparency_flags);
+        }
     }
     if (creature_is_invisible(thing))
     {
@@ -391,7 +408,7 @@ void update_creature_rendering_flags(struct Thing *thing)
           thing->rendering_flags |= TRF_Transpar_4;
       } else
       {
-            thing->rendering_flags |= TRF_Unknown01;
+            thing->rendering_flags |= TRF_Invisible;
             struct PlayerInfo* player = get_my_player();
             struct Thing* creatng = thing_get(player->influenced_thing_idx);
             if (creatng != thing)
@@ -400,7 +417,7 @@ void update_creature_rendering_flags(struct Thing *thing)
                 {
                     if (creature_can_see_invisible(creatng))
                     {
-                        thing->rendering_flags &= ~TRF_Unknown01;
+                        thing->rendering_flags &= ~TRF_Invisible;
                         thing->rendering_flags &= ~TRF_Transpar_Flags;
                         thing->rendering_flags |= TRF_Transpar_4;
                     }
@@ -422,11 +439,11 @@ void update_creature_graphic_anim(struct Thing *thing)
     {
       thing->size_change &= ~TSC_ChangeSize;
     } else
-    if ((thing->active_state == CrSt_CreatureHeroEntering) && (cctrl->countdown_282 >= 0))
+    if ((thing->active_state == CrSt_CreatureHeroEntering) && (cctrl->countdown >= 0))
     {
-      thing->rendering_flags |= TRF_Unknown01;
+      thing->rendering_flags |= TRF_Invisible;
     } else
-    if (!creature_affected_by_spell(thing, SplK_Chicken))
+    if (!creature_under_spell_effect(thing, CSAfF_Chicken))
     {
         if (cctrl->instance_id != CrInst_NULL)
         {
@@ -437,11 +454,11 @@ void update_creature_graphic_anim(struct Thing *thing)
           struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->instance_id);
           update_creature_anim(thing, cctrl->instance_anim_step_turns, inst_inf->graphics_idx);
         } else
-        if ((cctrl->frozen_on_hit != 0) || creature_is_dying(thing) || creature_affected_by_spell(thing, SplK_Freeze))
+        if ((cctrl->frozen_on_hit != 0) || creature_is_dying(thing) || creature_under_spell_effect(thing, CSAfF_Freeze))
         {
             update_creature_anim(thing, 256, CGI_GotHit);
         } else
-        if ((cctrl->stateblock_flags & CCSpl_ChickenRel) != 0)
+        if (flag_is_set(cctrl->stateblock_flags, CCSpl_ChickenRel))
         {
             update_creature_anim(thing, 256, CGI_Stand);
         } else
@@ -449,9 +466,13 @@ void update_creature_graphic_anim(struct Thing *thing)
         {
             update_creature_anim(thing, 256, CGI_GotSlapped);
         } else
-        if ((thing->active_state == CrSt_CreaturePiss) || (thing->active_state == CrSt_CreatureRoar))
+        if (thing->active_state == CrSt_CreatureRoar)
         {
-            update_creature_anim(thing, 128, CGI_Dig);
+            update_creature_anim(thing, 128, CGI_Roar);
+        } else
+        if (thing->active_state == CrSt_CreaturePiss)
+        {
+            update_creature_anim(thing, 128, CGI_Piss);
         } else
         if (thing->active_state == CrSt_CreatureUnconscious)
         {
@@ -476,7 +497,7 @@ void update_creature_graphic_anim(struct Thing *thing)
             i = (((long)cctrl->distance_to_destination) << 8) / (crstat->walking_anim_speed+1);
             update_creature_anim(thing, i, CGI_Drag);
         } else
-        if (creatures[thing->model].field_6 == 4)
+        if (crstat->fixed_anim_speed)
         {
             update_creature_anim(thing, 256, CGI_Ambulate);
         } else
@@ -498,7 +519,7 @@ void update_creature_graphic_anim(struct Thing *thing)
         {
             update_creature_anim_td(thing, 256, 820);
         } else
-        if (creatures[thing->model].field_6 == 4)
+        if (crstat->fixed_anim_speed)
         {
             update_creature_anim_td(thing, 256, 819);
         } else
@@ -516,7 +537,7 @@ void update_creature_graphic_anim(struct Thing *thing)
 void update_creature_graphic_tint(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (creature_affected_by_spell(thing, SplK_Freeze))
+    if (creature_under_spell_effect(thing, CSAfF_Freeze))
     {
         tint_thing(thing, colours[4][4][15], 1);
     } else

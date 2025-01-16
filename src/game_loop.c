@@ -21,6 +21,7 @@
 #include "thing_list.h"
 #include "player_computer.h"
 #include "thing_effects.h"
+#include "thing_navigate.h"
 #include "thing_objects.h"
 #include "room_data.h"
 #include "room_library.h"
@@ -85,6 +86,7 @@ void process_dungeon_destroy(struct Thing* heartng)
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     struct Thing* soultng = thing_get(dungeon->free_soul_idx);
     struct ObjectConfigStats* objst = get_object_model_stats(heartng->model);
+    struct CreatureControl* sctrl;
     if (dungeon->heart_destroy_state == 0)
     {
         return;
@@ -95,8 +97,7 @@ void process_dungeon_destroy(struct Thing* heartng)
     }
     TbBool no_backup = !(dungeon->backup_heart_idx > 0);
     powerful_magic_breaking_sparks(heartng);
-    const struct Coord3d* central_pos;
-    central_pos = &heartng->mappos;
+    struct Coord3d* central_pos = &heartng->mappos;
     switch (dungeon->heart_destroy_state)
     {
     case 1:
@@ -108,11 +109,16 @@ void process_dungeon_destroy(struct Thing* heartng)
         {
             if ((dungeon->heart_destroy_turn == 10) && (dungeon->free_soul_idx == 0))
             {
-                soultng = create_creature(&dungeon->mappos, get_players_spectator_model(plyr_idx), plyr_idx);
+                if (thing_is_invalid(soultng))
+                {
+                    soultng = create_creature(central_pos, get_players_spectator_model(plyr_idx), plyr_idx);
+                }
                 if (!thing_is_invalid(soultng))
                 {
                     dungeon->num_active_creatrs--;
                     dungeon->owned_creatures_of_model[soultng->model]--;
+                    sctrl = creature_control_get_from_thing(soultng);
+                    set_flag(sctrl->flgfield_2,TF2_Spectator);
                     dungeon->free_soul_idx = soultng->index;
                     short xplevel = 0;
                     if (dungeon->lvstats.player_score > 1000)
@@ -125,21 +131,31 @@ void process_dungeon_destroy(struct Thing* heartng)
             }
             else if (dungeon->heart_destroy_turn == 20)
             {
-                apply_spell_effect_to_thing(soultng, SplK_Invisibility, 1);
+                // Sets soultng to be invisible for a short amount of time.
+                sctrl = creature_control_get_from_thing(soultng);
+                set_flag(sctrl->spell_flags, CSAfF_Invisibility);
+                sctrl->force_visible = 0;
             }
             else if (dungeon->heart_destroy_turn == 25)
             {
                 struct Thing* bheartng = thing_get(dungeon->backup_heart_idx);
-                soultng->mappos = bheartng->mappos;
-                soultng->mappos.z.val = get_ceiling_height_at(&bheartng->mappos);
+                if (thing_is_creature_spectator(soultng))
+                {
+                    struct Coord3d movepos = bheartng->mappos;
+                    movepos.z.val = get_ceiling_height_at(&movepos);
+                    move_thing_in_map(soultng, &movepos);
+                }
             }
             else if (dungeon->heart_destroy_turn == 28)
             {
-                terminate_thing_spell_effect(soultng, SplK_Invisibility);
+                // Clears soultng invisibility.
+                sctrl = creature_control_get_from_thing(soultng);
+                clear_flag(sctrl->spell_flags, CSAfF_Invisibility);
+                sctrl->force_visible = 0;
             }
             else if (dungeon->heart_destroy_turn == 30)
             {
-                dungeon->free_soul_idx = 0; 
+                dungeon->free_soul_idx = 0;
                 delete_thing_structure(soultng, 0);
             }
         }
@@ -147,7 +163,7 @@ void process_dungeon_destroy(struct Thing* heartng)
         if (dungeon->heart_destroy_turn < 32)
         {
             if (GAME_RANDOM(96) < (dungeon->heart_destroy_turn << 6) / 32 + 32) {
-                create_used_effect_or_element(central_pos, objst->effect.particle, plyr_idx);
+                create_used_effect_or_element(central_pos, objst->effect.particle, plyr_idx, heartng->index);
             }
         }
         else
@@ -160,7 +176,7 @@ void process_dungeon_destroy(struct Thing* heartng)
         dungeon->heart_destroy_turn++;
         if (dungeon->heart_destroy_turn < 32)
         {
-            create_used_effect_or_element(central_pos, objst->effect.particle, plyr_idx);
+            create_used_effect_or_element(central_pos, objst->effect.particle, plyr_idx, heartng->index);
         }
         else
         { // Got to next phase
@@ -189,10 +205,10 @@ void process_dungeon_destroy(struct Thing* heartng)
         // Final phase - destroy the heart, both pedestal room and container thing
     {
         struct Thing* efftng;
-        efftng = create_used_effect_or_element(central_pos, objst->effect.explosion1, plyr_idx);
+        efftng = create_used_effect_or_element(central_pos, objst->effect.explosion1, plyr_idx, heartng->index);
         if (!thing_is_invalid(efftng))
             efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
-        efftng = create_used_effect_or_element(central_pos, objst->effect.explosion2, plyr_idx);
+        efftng = create_used_effect_or_element(central_pos, objst->effect.explosion2, plyr_idx, heartng->index);
         if (!thing_is_invalid(efftng))
             efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
         destroy_dungeon_heart_room(plyr_idx, heartng);
@@ -202,7 +218,7 @@ void process_dungeon_destroy(struct Thing* heartng)
         struct PlayerInfo* player;
         player = get_player(plyr_idx);
         init_player_start(player, true);
-        if (player_has_heart(plyr_idx))
+        if (player_has_heart(plyr_idx) && (dungeon->heart_destroy_turn <= 0))
         {
             // If another heart was found, stop the process
             dungeon->devastation_turn = 0;

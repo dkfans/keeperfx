@@ -19,7 +19,7 @@
 #include "pre_inc.h"
 #include "packets.h"
 #include "player_data.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "thing_creature.h"
 #include "player_utils.h"
 #include "game_legacy.h"
@@ -45,6 +45,8 @@
 #include "bflib_math.h"
 #include "gui_topmsg.h"
 #include "gui_msgs.h"
+#include "frontmenu_ingame_tabs.h"
+#include "room_treasure.h"
 #include "post_inc.h"
 
 extern void clear_input(struct Packet* packet);
@@ -58,8 +60,7 @@ TbBool packets_process_cheats(
         MapCoord x, MapCoord y,
         struct Packet* pckt,
         MapSubtlCoord stl_x, MapSubtlCoord stl_y,
-        MapSlabCoord slb_x, MapSlabCoord slb_y,
-        short *influence_own_creatures)
+        MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct Thing *thing;
     struct Room* room = NULL;
@@ -186,7 +187,6 @@ TbBool packets_process_cheats(
         }
         break;
         case PSt_OrderCreatr:
-        *influence_own_creatures = 1;
         thing = get_creature_near(x, y);
         if (!thing_is_creature(thing))
             player->thing_under_hand = 0;
@@ -305,14 +305,16 @@ TbBool packets_process_cheats(
         case PSt_FreeDestroyWalls:
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {
+                pwkind = player->chosen_power_kind;
                 i = get_power_overcharge_level(player);
-                magic_use_power_destroy_walls(plyr_idx, stl_x, stl_y, i, PwMod_CastForFree);
+                magic_use_power_direct(plyr_idx,pwkind,i,stl_x, stl_y,INVALID_THING, PwMod_CastForFree);
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
             break;
         case PSt_FreeTurnChicken:
         case PSt_FreeCastDisease:
-            pwkind = player_state_to_power_kind[player->work_state];
+        {
+            pwkind = player->chosen_power_kind;
             thing = get_creature_near_to_be_keeper_power_target(x, y, pwkind, plyr_idx);
             if (thing_is_invalid(thing))
             {
@@ -322,19 +324,12 @@ TbBool packets_process_cheats(
             player->thing_under_hand = thing->index;
             if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
             {
-                i = get_power_overcharge_level(player);
-                switch (pwkind)
-                {
-                    case PwrK_DISEASE:
-                        magic_use_power_disease(plyr_idx, thing, stl_x, stl_y, i, PwMod_CastForFree);
-                        break;
-                    case PwrK_CHICKEN:
-                        magic_use_power_chicken(plyr_idx, thing, stl_x, stl_y, i, PwMod_CastForFree);
-                        break;
-                }
+                unsigned short splevel = get_power_overcharge_level(player);
+                magic_use_power_direct(plyr_idx,pwkind,splevel,stl_x,stl_y,thing,PwMod_CastForFree);
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
             break;
+        }
         case PSt_StealRoom:
         clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
         slb = get_slabmap_block(slb_x, slb_y);
@@ -342,7 +337,7 @@ TbBool packets_process_cheats(
         allowed = ( (room_exists(room)) && (room->owner != player->cheatselection.chosen_player) );
         if (allowed)
         {
-            snprintf(str, sizeof(str), "%s", get_string(419));
+            snprintf(str, sizeof(str), "%s", get_string(GUIStr_MnuOk));
         }
         targeted_message_add(MsgType_Player, player->cheatselection.chosen_player, plyr_idx, 1, str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
@@ -362,7 +357,7 @@ TbBool packets_process_cheats(
         allowed = (room_exists(room));
         if (allowed)
         {
-            targeted_message_add(MsgType_Blank, 0, plyr_idx, 1, get_string(419));
+            targeted_message_add(MsgType_Blank, 0, plyr_idx, 1, get_string(GUIStr_MnuOk));
         }
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
@@ -544,7 +539,7 @@ TbBool packets_process_cheats(
         {
             break;
         }
-        short new_health = thing->health;
+        HitPoints new_health = thing->health;
         if (process_cheat_heart_health_inputs(&new_health, objst->health))
         {
             set_packet_action(pckt, PckA_CheatHeartHealth, player->cheatselection.chosen_player, new_health, 0, 0);
@@ -552,7 +547,6 @@ TbBool packets_process_cheats(
         break;
         case PSt_QueryAll:
         case PSt_CreatrInfoAll:
-            *influence_own_creatures = 1;
             thing = get_creature_near(x, y);
             TbBool CanQuery = false;
             if (thing_is_creature(thing))
@@ -587,10 +581,7 @@ TbBool packets_process_cheats(
                             query_creature(player, player->thing_under_hand, true, false);
                         }
                     }
-                    else
-                    {
-                        query_thing(thing);
-                    }
+                    query_thing(thing);
                     unset_packet_control(pckt, PCtr_LBtnRelease);
                 }
                 else if (room_exists(room) )
@@ -624,7 +615,6 @@ TbBool packets_process_cheats(
             break;
         case PSt_MkHappy:
         case PSt_MkAngry:
-            *influence_own_creatures = 1;
             thing = get_creature_near(x, y);
             if (!thing_is_creature(thing))
             {
@@ -857,6 +847,26 @@ TbBool process_players_global_cheats_packet_action(PlayerNumber plyr_idx, struct
             make_available_all_traps(plyr_idx);
             return false;
         }
+        case PckA_CheatGiveDoorTrap:
+        {
+            long model;
+            for (model = 1; model < game.conf.trapdoor_conf.door_types_count; model++)
+            {
+                if (is_door_buildable(plyr_idx, model))
+                {
+                    set_door_buildable_and_add_to_amount(plyr_idx, model, 1, 1);
+                }
+            }
+            for (model = 1; model < game.conf.trapdoor_conf.trap_types_count; model++)
+            {
+                if (is_trap_buildable(plyr_idx, model))
+                {
+                    set_trap_buildable_and_add_to_amount(plyr_idx, model, 1, 1);
+                }
+            }
+            update_trap_tab_to_config();
+            return false;
+        }
         default:
           return false;
   }
@@ -1002,14 +1012,30 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
             {
                 thing->health = (short)pckt->actn_par2;
             }
+            if (thing->health <= 0)
+            {
+                    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+                    dungeon->lvstats.keeper_destroyed[pckt->actn_par1]++;
+                    dungeon->lvstats.keepers_destroyed++;
+            }
             break;
         }
         case PckA_CheatKillPlayer:
         {
             thing = get_player_soul_container(pckt->actn_par1);
+            struct Dungeon* dungeon = get_dungeon(plyr_idx);
             if (!thing_is_invalid(thing))
             {
                 thing->health = 0;
+                dungeon->lvstats.keeper_destroyed[pckt->actn_par1]++;
+                dungeon->lvstats.keepers_destroyed++;
+            }
+            struct Thing* heartng = find_players_backup_dungeon_heart(pckt->actn_par1);
+            if (!thing_is_invalid(heartng))
+            {
+                heartng->health = 0;
+                dungeon->lvstats.keeper_destroyed[pckt->actn_par1]++;
+                dungeon->lvstats.keepers_destroyed++;
             }
             break;
         }

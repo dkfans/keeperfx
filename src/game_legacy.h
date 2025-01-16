@@ -36,6 +36,7 @@
 #include "config_effects.h"
 #include "config_objects.h"
 #include "config_rules.h"
+#include "config_players.h"
 #include "dungeon_data.h"
 #include "thing_data.h"
 #include "thing_traps.h"
@@ -116,16 +117,13 @@ struct Configs {
     struct PowerHandConfig power_hand_conf;
     struct MagicConfig magic_conf;
     struct CubesConfig cube_conf;
-    struct ManfctrConfig traps_config[TRAPDOOR_TYPES_MAX];
-    struct ManfctrConfig doors_config[TRAPDOOR_TYPES_MAX];
-    struct TrapStats trap_stats[TRAPDOOR_TYPES_MAX];
     struct TrapDoorConfig trapdoor_conf;
     struct EffectsConfig effects_conf;
     struct CreatureStats creature_stats[CREATURE_TYPES_MAX];
     struct CreatureConfig crtr_conf;
     struct ObjectsConfig object_conf;
-    struct CreatureModelConfig swap_creature_models[SWAP_CREATURE_TYPES_MAX];
     struct RulesConfig rules;
+    struct PlayerStateConfig plyr_conf;
 };
 
 struct Game {
@@ -167,13 +165,13 @@ char numfield_1A;
     struct Room rooms[ROOMS_COUNT];
     struct Dungeon dungeon[DUNGEONS_COUNT];
     struct StructureList thing_lists[13];
-    unsigned int unrevealed_column_idx;
+    ColumnIndex unrevealed_column_idx;
     unsigned char packet_save_enable;
     unsigned char packet_load_enable;
     char packet_fname[150];
     char packet_fopened;
     TbFileHandle packet_save_fp;
-unsigned int packet_file_pos;
+    unsigned int packet_file_pos;
     struct PacketSaveHead packet_save_head;
     unsigned long turns_stored;
     unsigned long turns_fastforward;
@@ -184,7 +182,7 @@ unsigned int packet_file_pos;
     unsigned long turns_packetoff;
     PlayerNumber local_plyr_idx;
     unsigned char numfield_149F47; // something with packetload
-// Originally, save_catalogue was here.
+    // Originally, save_catalogue was here.
     char campaign_fname[CAMPAIGN_FNAME_LEN];
     struct Event event[EVENTS_COUNT];
     unsigned long ceiling_height_max;
@@ -196,7 +194,6 @@ unsigned int packet_file_pos;
     //unsigned char level_file_number; // merged with level_number to get maps > 255
     short loaded_level_number;
     short texture_animation[TEXTURE_BLOCKS_ANIM_FRAMES*TEXTURE_BLOCKS_ANIM_COUNT];
-    unsigned short columns_used;
     unsigned char texture_id;
     unsigned short free_things[THINGS_COUNT-1];
     /** Index of the first used element in free things array. All elements BEYOND this index are free. If all things are free, it is set to 0. */
@@ -215,11 +212,10 @@ unsigned int packet_file_pos;
     struct Coord3d mouse_light_pos;
     struct Packet packets[PACKETS_COUNT];
     char active_players_count;
-    PlayerNumber hero_player_num;
     PlayerNumber neutral_player_num;
     struct GoldLookup gold_lookup[GOLD_LOOKUP_COUNT];
     unsigned short ambient_sound_thing_idx;
-    unsigned short block_health[9];
+    HitPoints block_health[9];
     unsigned short generate_speed;
     unsigned long entrance_last_generate_turn;
     unsigned short entrance_room_id;

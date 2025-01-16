@@ -1080,7 +1080,9 @@ TbBool line_of_room_move_2d(const struct Coord3d *frpos, const struct Coord3d *t
 
 long get_explore_sight_distance_in_slabs(const struct Thing *thing)
 {
-    if (!thing_exists(thing)) {
+    if (!thing_exists(thing))
+    {
+        WARNLOG("The %s index %d exploring dug slabs no longer exists", thing_model_name(thing), (int)thing->index);
         return 0;
     }
     long dist;

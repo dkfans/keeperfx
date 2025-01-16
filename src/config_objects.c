@@ -21,7 +21,6 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_dernc.h"
 #include "bflib_sound.h"
 
@@ -78,6 +77,12 @@ const struct NamedCommand objects_object_commands[] = {
   {"EFFECTEXPLOSION2",  30},
   {"EFFECTSPACING",     31},
   {"EFFECTSOUND",       32},
+  {"FLAMEANIMATIONID",       33},
+  {"FLAMEANIMATIONSPEED",    34},
+  {"FLAMEANIMATIONSIZE",     35},
+  {"FLAMEANIMATIONOFFSET",   36},
+  {"FLAMETRANSPARENCYFLAGS", 37},
+  {"LIGHTFLAGS",             38},
   {NULL,                 0},
   };
 
@@ -105,6 +110,7 @@ const struct NamedCommand objects_genres_desc[] = {
   {"POWER",           OCtg_Power},
   {"LAIR_TOTEM",      OCtg_LairTotem},
   {"EFFECT",          OCtg_Effect},
+  {"HEROGATE",        OCtg_HeroGate},
   {NULL,              0},
   };
 
@@ -152,154 +158,65 @@ ThingModel crate_thing_to_workshop_item_model(const struct Thing *thing)
     return game.conf.object_conf.object_to_door_or_trap[tngmodel];
 }
 
-TbBool parse_objects_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-    // Block name and parameter word store variables
-    // Initialize block data
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        game.conf.object_conf.object_types_count = OBJECT_TYPES_MAX - 1;
-    }
-    // Find the block
-    char block_buf[COMMAND_WORD_LEN];
-    sprintf(block_buf, "common");
-    long pos = 0;
-    int k = find_conf_block(buf, &pos, len, block_buf);
-    if (k < 0)
-    {
-        if ((flags & CnfLd_AcceptPartial) == 0)
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-        return false;
-    }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(objects_common_commands,cmd_num)
-    while (pos<len)
-    {
-        // Finding command number in this line
-        int cmd_num = recognize_conf_command(buf, &pos, len, objects_common_commands);
-        // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
-        int n = 0;
-        switch (cmd_num)
-        {
-        case 1: // OBJECTSCOUNT
-        {
-            char word_buf[COMMAND_WORD_LEN];
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if ((k > 0) && (k <= OBJECT_TYPES_MAX))
-              {
-                  game.conf.object_conf.object_types_count = k;
-                  n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        }
-        case 0: // comment
-            break;
-        case -1: // end of buffer
-            break;
-        default:
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
-            break;
-        }
-        skip_conf_to_next_line(buf,&pos,len);
-    }
-#undef COMMAND_TEXT
-    return true;
-}
-
+// This function loops over all the [objects0] fields in objects.cfg
 TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     struct ObjectConfigStats *objst;
-    int tmodel;
-    // Block name and parameter word store variables
     // Initialize the objects array
-    int arr_size;
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        arr_size = sizeof(game.conf.object_conf.object_cfgstats)/sizeof(game.conf.object_conf.object_cfgstats[0]);
-        for (tmodel=0; tmodel < arr_size; tmodel++)
-        {
-            objst = &game.conf.object_conf.object_cfgstats[tmodel];
-            LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
+    if ((flags & CnfLd_AcceptPartial) == 0) {
+        for (int i = 0; i < OBJECT_TYPES_MAX; i++) {
+            objst = &game.conf.object_conf.object_cfgstats[i];
+            memset(objst->code_name, 0, COMMAND_WORD_LEN);
             objst->name_stridx = 201;
             objst->map_icon = 0;
             objst->genre = 0;
-            if (tmodel < game.conf.object_conf.object_types_count)
-            {
-                object_desc[tmodel].name = objst->code_name;
-                object_desc[tmodel].num = tmodel;
-            } else
-            {
-                object_desc[tmodel].name = NULL;
-                object_desc[tmodel].num = 0;
-            }
+            objst->draw_class = ODC_Default;
+            object_desc[i].name = objst->code_name;
+            object_desc[i].num = i;
         }
     }
+    object_desc[OBJECT_TYPES_MAX - 1].name = NULL; // must be null for get_id
     // Load the file
-    for (tmodel = 0; tmodel < OBJECT_TYPES_MAX; tmodel++)
+    const char * blockname = NULL;
+    int blocknamelen = 0;
+    long pos = 0;
+    while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
     {
-        char block_buf[COMMAND_WORD_LEN];
-        sprintf(block_buf, "object%d", tmodel);
-        long pos = 0;
-        int k = find_conf_block(buf, &pos, len, block_buf);
-        if (k < 0)
-        {
-            if ((flags & CnfLd_AcceptPartial) == 0)
-            {
-                // Just count all found blocks if we didn't that already
-                if (game.conf.object_conf.object_types_count == OBJECT_TYPES_MAX - 1)
-                {
-                    game.conf.object_conf.object_types_count = tmodel;
-                    JUSTMSG("Loaded %d object types from %s", game.conf.object_conf.object_types_count, config_textname);
-                    break;
-                }
-                WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
-                return false;
-            }
-            else
-            {
-                if (tmodel > game.conf.object_conf.object_types_count)
-                {
-                    game.conf.object_conf.object_types_count = tmodel;
-                    JUSTMSG("Extended to %d object types from %s", game.conf.object_conf.object_types_count, config_textname);
-                    break;
-                }
-            }
+        // look for blocks starting with "object", followed by one or more digits
+        if (blocknamelen < 7) {
+            continue;
+        } else if (memcmp(blockname, "object", 6) != 0) {
             continue;
         }
-
-        objst = &game.conf.object_conf.object_cfgstats[tmodel];
-        objst->draw_class = ODC_Default;    
+        const int i = natoi(&blockname[6], blocknamelen - 6);
+        if (i < 0 || i >= OBJECT_TYPES_MAX) {
+            continue;
+        } else if (i >= game.conf.object_conf.object_types_count) {
+            game.conf.object_conf.object_types_count = i + 1;
+        }
+        objst = &game.conf.object_conf.object_cfgstats[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(objects_object_commands,cmd_num)
         while (pos<len)
         {
             // Finding command number in this line
             int cmd_num = recognize_conf_command(buf, &pos, len, objects_object_commands);
             // Now store the config item in correct place
-            if (cmd_num == -3) break; // if next block starts
+            if (cmd_num == ccr_endOfBlock) break; // if next block starts
             if ((flags & CnfLd_ListOnly) != 0) {
                 // In "List only" mode, accept only name command
                 if (cmd_num > 1) {
                     cmd_num = 0;
                 }
             }
-            int n = 0;
+            int n = 0, k = 0;
             char word_buf[COMMAND_WORD_LEN];
             switch (cmd_num)
             {
             case 1: // NAME
                 if (get_conf_parameter_single(buf,&pos,len,objst->code_name,COMMAND_WORD_LEN) <= 0)
                 {
-                    CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                    CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                     break;
                 }
                 break;
@@ -310,8 +227,8 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                     break;
                 }
                 objst->genre = n;
@@ -323,8 +240,8 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 }
                 if (n < 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                     break;
                 }
                 objst->related_creatr_model = n;
@@ -364,8 +281,8 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                       n++;
                       break;
                   default:
-                      CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
-                          COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                      CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%.*s] block of %s file.",
+                          COMMAND_TEXT(cmd_num), word_buf, blocknamelen, blockname, config_textname);
                       break;
                   }
                 }
@@ -374,200 +291,199 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
 
-                    n = get_anim_id(word_buf, objst);
-                    objst->sprite_anim_idx = n;
+                    k = get_anim_id(word_buf, objst);
+                    objst->sprite_anim_idx = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 6: // ANIMATIONSPEED
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objst->anim_speed = n;
+                    k = atoi(word_buf);
+                    objst->anim_speed = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 7: // SIZE_XY
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objst->size_xy = n;
+                    k = atoi(word_buf);
+                    objst->size_xy = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 8: // SIZE_Z
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objst->size_z = n;
+                    k = atoi(word_buf);
+                    objst->size_z = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 9: // MAXIMUMSIZE
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objst->sprite_size_max = n;
+                    k = atoi(word_buf);
+                    objst->sprite_size_max = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 10: // DESTROYONLIQUID
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objst->destroy_on_liquid = n;
+                    k = atoi(word_buf);
+                    objst->destroy_on_liquid = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 11: // DESTROYONLAVA
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objst->destroy_on_lava = n;
+                    k = atoi(word_buf);
+                    objst->destroy_on_lava = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 12: // HEALTH
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objst->health = n;
+                    k = atoi(word_buf);
+                    objst->health = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 13: // FALLACCELERATION
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objst->fall_acceleration = n;
+                    k = atoi(word_buf);
+                    objst->fall_acceleration = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 14: // LIGHTUNAFFECTED
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objst->light_unaffected = n;
+                    k = atoi(word_buf);
+                    objst->light_unaffected = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 15: // LIGHTINTENSITY
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objst->ilght.intensity = n;
+                    k = atoi(word_buf);
+                    objst->ilght.intensity = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 16: // LIGHTRADIUS
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objst->ilght.radius = n * COORD_PER_STL;
+                    k = atoi(word_buf);
+                    objst->ilght.radius = k * COORD_PER_STL;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 17: // LIGHTISDYNAMIC
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objst->ilght.is_dynamic = n;
+                    k = atoi(word_buf);
+                    objst->ilght.is_dynamic = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 18: // MAPICON
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = get_icon_id(word_buf);
-                    if (n >= -1)
+                    objst->map_icon = get_icon_id(word_buf);
+                    if (objst->map_icon != bad_icon_id)
                     {
-                        objst->map_icon = n;
+                        n++;
                     }
                 }
-                if (n < -1)
+                if (n <= 0)
                 {
-                    objst->map_icon = bad_icon_id;
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 19: // AMBIENCESOUND
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    if ( (!SoundDisabled) && ( (n < 0) || (n > (samples_in_bank - 1)) ) )
+                    k = atoi(word_buf);
+                    if ( (!SoundDisabled) && ( (k < 0) || (k > (samples_in_bank - 1)) ) )
                     {
-                        CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                        CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                     }
                     else
                     {
-                        objst->fp_smpl_idx = n;
+                        objst->fp_smpl_idx = k;
                     }
                 }
                 break;
@@ -578,8 +494,8 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 }
                 if (n < 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                     break;
                 }
                 objst->updatefn_idx = n;
@@ -587,144 +503,144 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             case 21: // DRAWCLASS
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objst->draw_class = n;
+                    k = atoi(word_buf);
+                    objst->draw_class = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 22: // PERSISTENCE
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objst->persistence = n;
+                    k = atoi(word_buf);
+                    objst->persistence = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
-            case 23: // Immobile
+            case 23: // IMMOBILE
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objst->immobile = n;
+                    k = atoi(word_buf);
+                    objst->immobile = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 24: // INITIALSTATE
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objst->initial_state = n;
+                    k = atoi(word_buf);
+                    objst->initial_state = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 25: // RANDOMSTARTFRAME
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objst->random_start_frame = n;
+                    k = atoi(word_buf);
+                    objst->random_start_frame = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 26: // TRANSPARENCYFLAGS
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objst->transparancy_flags = n;
+                    k = atoi(word_buf);
+                    objst->transparency_flags = k<<4;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 27: // EFFECTBEAM
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = effect_or_effect_element_id(word_buf);
-                    objst->effect.beam = n;
+                    k = effect_or_effect_element_id(word_buf);
+                    objst->effect.beam = k;
                     n++;
                 }
                 if (n == 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 28: // EFFECTPARTICLE
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = effect_or_effect_element_id(word_buf);
-                    objst->effect.particle = n;
+                    k = effect_or_effect_element_id(word_buf);
+                    objst->effect.particle = k;
                     n++;
                 }
-                if (n == 0)
+                if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 29: // EFFECTEXPLOSION1
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = effect_or_effect_element_id(word_buf);
-                    objst->effect.explosion1 = n;
+                    k = effect_or_effect_element_id(word_buf);
+                    objst->effect.explosion1 = k;
                     n++;
                 }
-                if (n == 0)
+                if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 30: // EFFECTEXPLOSION2
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = effect_or_effect_element_id(word_buf);
-                    objst->effect.explosion2 = n;
+                    k = effect_or_effect_element_id(word_buf);
+                    objst->effect.explosion2 = k;
                     n++;
                 }
-                if (n == 0)
+                if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 31: // EFFECTSPACING
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
-                    objst->effect.spacing = n;
+                    k = atoi(word_buf);
+                    objst->effect.spacing = k;
                     n++;
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                 }
                 break;
             case 32: // EFFECTSOUND
@@ -733,8 +649,8 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     n = atoi(word_buf);
                     if ( (!SoundDisabled) && ( (n < 0) || (n > (samples_in_bank - 1)) ) )
                     {
-                        CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                        CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                     }
                     else
                     {
@@ -754,12 +670,109 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     }
                 }
                 break;
-           case 0: // comment
+            case 33: // FLAMEANIMATIONID
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = get_anim_id(word_buf, objst);
+                    objst->flame.animation_id = k;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
                 break;
-            case -1: // end of buffer
+            case 34: // FLAMEANIMATIONSPEED
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = get_anim_id(word_buf, objst);
+                    objst->flame.anim_speed = k;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+            case 35: // FLAMEANIMATIONSIZE
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->flame.sprite_size = k;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+            case 36: // FLAMEANIMATIONOFFSET
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->flame.fp_add_x = k;
+                    n++;
+                }
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->flame.fp_add_y = k;
+                    n++;
+                }
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->flame.td_add_x = k;
+                    n++;
+                }
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->flame.td_add_y = k;
+                    n++;
+                }
+                if (n < 4)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+            case 37: // FLAMETRANSPARENCYFLAGS
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->flame.transparency_flags = k<<4;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+            case 38: // LIGHTFLAGS
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    objst->ilght.flags = k;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                }
+                break;
+           case ccr_comment:
+                break;
+            case ccr_endOfFile:
                 break;
             default:
-                CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.", cmd_num,block_buf,config_textname);
+                CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",
+                    cmd_num, blocknamelen, blockname, config_textname);
                 break;
             }
             skip_conf_to_next_line(buf,&pos,len);
@@ -779,21 +792,14 @@ TbBool load_objects_config_file(const char *textname, const char *fname, unsigne
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
+    char* buf = (char*)calloc(len + 256, 1);
     if (buf == NULL)
         return false;
     // Loading file data
     len = LbFileLoadAt(fname, buf);
     TbBool result = (len > 0);
+    
     // Parse blocks of the config file
-    if (result)
-    {
-        result = parse_objects_common_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" common blocks failed.",textname,fname);
-    }
     if (result)
     {
         result = parse_objects_object_blocks(buf, len, textname, flags);
@@ -803,20 +809,24 @@ TbBool load_objects_config_file(const char *textname, const char *fname, unsigne
             WARNMSG("Parsing %s file \"%s\" object blocks failed.",textname,fname);
     }
     //Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     return result;
 }
 
-void update_all_object_stats()
+void update_all_objects_of_model(ThingModel model)
 {
     const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
+    struct ObjectConfigStats* objst = get_object_model_stats(model);
     struct Dungeon* dungeon;
     for (int i = slist->index; i > 0;)
     {
         struct Thing* thing = thing_get(i);
         i = thing->next_of_class;
-            TRACE_THING(thing);
-        struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+        if (thing->model != model)
+        {
+            continue;
+        }
+        TRACE_THING(thing);
         int start_frame = 0;
         if(objst->random_start_frame)
         {
@@ -847,8 +857,8 @@ void update_all_object_stats()
         if (objst->ilght.radius != 0)
         {
             struct InitLight ilight;
-            LbMemorySet(&ilight, 0, sizeof(struct InitLight));
-            LbMemoryCopy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
+            memset(&ilight, 0, sizeof(struct InitLight));
+            memcpy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
             ilight.radius = objst->ilght.radius;
             ilight.intensity = objst->ilght.intensity;
             ilight.flags = objst->ilght.flags;
@@ -957,15 +967,6 @@ int get_required_room_capacity_for_object(RoomRole room_role, ThingModel objmode
         break;
     }
     return 0;
-}
-
-void init_objects(void)
-{
-    game.conf.object_conf.object_cfgstats[ObjMdl_Torch].ilght.flags = 5;
-    game.conf.object_conf.object_cfgstats[ObjMdl_HeroGate].ilght.flags = 5;
-    game.conf.object_conf.object_cfgstats[ObjMdl_StatueLit].ilght.flags = 5;
-    game.conf.object_conf.object_cfgstats[ObjMdl_SoulCountainer].ilght.flags = 5;
-    game.conf.object_conf.object_cfgstats[ObjMdl_Candlestick].ilght.flags = 5;
 }
 
 /******************************************************************************/

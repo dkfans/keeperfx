@@ -21,7 +21,6 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 
@@ -87,7 +86,7 @@ TbBool parse_lenses_common_blocks(char *buf, long len, const char *config_textna
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, lenses_common_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         int n = 0;
         switch (cmd_num)
         {
@@ -110,9 +109,9 @@ TbBool parse_lenses_common_blocks(char *buf, long len, const char *config_textna
             }
             break;
         }
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -138,14 +137,14 @@ TbBool parse_lenses_data_blocks(char *buf, long len, const char *config_textname
       for (i=0; i < arr_size; i++)
       {
           lenscfg = &lenses_conf.lenses[i];
-          LbMemorySet(lenscfg->code_name, 0, COMMAND_WORD_LEN);
-          LbMemorySet(lenscfg->mist_file, 0, DISKPATH_SIZE);
+          memset(lenscfg->code_name, 0, COMMAND_WORD_LEN);
+          memset(lenscfg->mist_file, 0, DISKPATH_SIZE);
           lenscfg->mist_lightness = 0;
           lenscfg->mist_ghost = 0;
           lenscfg->displace_kind = 0;
           lenscfg->displace_magnitude = 0;
           lenscfg->displace_period = 1;
-          LbMemorySet(lenscfg->palette, 0, PALETTE_SIZE*sizeof(TbPixel));
+          memset(lenscfg->palette, 0, PALETTE_SIZE*sizeof(TbPixel));
           lenscfg->flags = 0;
           if (i < lenses_conf.lenses_count)
           {
@@ -182,7 +181,7 @@ TbBool parse_lenses_data_blocks(char *buf, long len, const char *config_textname
       // Finding command number in this line
       int cmd_num = recognize_conf_command(buf, &pos, len, lenses_data_commands);
       // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
+      if (cmd_num == ccr_endOfBlock) break; // if next block starts
       if ((flags & CnfLd_ListOnly) != 0) {
           // In "List only" mode, accept only name command
           if (cmd_num > 1) {
@@ -291,9 +290,9 @@ TbBool parse_lenses_data_blocks(char *buf, long len, const char *config_textname
           }
           break;
       }
-      case 0: // comment
+      case ccr_comment:
           break;
-      case -1: // end of buffer
+      case ccr_endOfFile:
           break;
       default:
           CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -317,7 +316,7 @@ TbBool load_lenses_config_file(const char *textname, const char *fname, unsigned
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
+    char* buf = (char*)calloc(len + 256, 1);
     if (buf == NULL)
         return false;
     // Loading file data
@@ -341,7 +340,7 @@ TbBool load_lenses_config_file(const char *textname, const char *fname, unsigned
             WARNMSG("Parsing Lenses file \"%s\" data blocks failed.",fname);
     }
     //Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     return result;
 }
 

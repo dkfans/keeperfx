@@ -29,13 +29,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define PLAYERS_COUNT           9
-#define PLAYERS_EXT_COUNT       9
+#define PLAYERS_COUNT       9
 #define COLOURS_COUNT       9
-/** This acts as default value for neutral_player_number */
-#define NEUTRAL_PLAYER          5
-/** This acts as default value for hero_player_number */
-#define HERO_PLAYER             4
 
 #define INVALID_PLAYER (&bad_player)
 
@@ -115,6 +110,12 @@ enum PlayerAdditionalFlags {
     PlaAF_Unkn80                    = 0x80,
 };
 
+enum PlayerTypes {
+    PT_Keeper,
+    PT_Roaming,
+    PT_Neutral
+};
+
 /******************************************************************************/
 #pragma pack(1)
 
@@ -155,6 +156,7 @@ struct PlayerInfo {
     unsigned char allocflags;
     TbBool tooltips_restore; /**< Used to store/restore the value of settings.tooltips_on when transitioning to/from the map. */
     TbBool status_menu_restore; /**< Used to store/restore the current status menu visibility when the map is shown/hidden. */
+    TbBool paused_state_restore; /**< Used to restore pause state after saving */
     TbBool swipe_sprite_drawLR; /**< Used to decide whether to draw the swipe sprite left to right (TRUE), or [default] right to left (FALSE). */
     unsigned char boxsize; //field_2 seems to be used in DK, so now renamed and used in KeeperFX
     unsigned char additional_flags; // Uses PlayerAdditionalFlags
@@ -173,8 +175,9 @@ struct PlayerInfo {
     unsigned char id_number;
     unsigned char is_active;
     short controlled_thing_idx;
-    long controlled_thing_creatrn;
+    GameTurn controlled_thing_creatrn;
     short thing_under_hand;
+    TbBool possession_lock;
     unsigned char view_mode;
     /** Pointer to the currently active camera. */
     struct Camera *acamera;
@@ -195,17 +198,17 @@ struct PlayerInfo {
     short minimap_pos_y;
     unsigned short minimap_zoom;
     unsigned char view_type;
-    unsigned char work_state;
+    PlayerState work_state;
     unsigned char primary_cursor_state;
     unsigned char secondary_cursor_state;
-    unsigned char continue_work_state;
-char field_45F;
-short cursor_light_idx;
+    PlayerState continue_work_state;
+    short cursor_light_idx;
     char mp_message_text[PLAYER_MP_MESSAGE_LEN];
     unsigned char chosen_room_kind;
     unsigned char full_slab_cursor; // 0 for subtile sized cursor, 1 for slab sized cursor
-    char chosen_trap_kind;
-    char chosen_door_kind;
+    ThingModel chosen_trap_kind;
+    ThingModel chosen_door_kind;
+    PowerKind chosen_power_kind;
     MapSubtlCoord cursor_clicked_subtile_x; // x coord of subtile clicked by mouse cursor
     MapSubtlCoord cursor_clicked_subtile_y; // y coord of subtile clicked by mouse cursor
     unsigned char cursor_button_down; // left or right button down (whilst using the bounding box cursor)
@@ -215,15 +218,12 @@ short cursor_light_idx;
     /** If view mode is temporarily covered by another, the original mode which is to be restored later will be saved here.*/
     char view_mode_restore;
     long dungeon_camera_zoom;
-    long field_4BD;
+    long palette_fade_step_map;
     long palette_fade_step_pain;
     long palette_fade_step_possession;
     unsigned char *main_palette;
-    long field_4CD;
-    char field_4D1;
     /** Overcharge level while casting keeper powers. */
     long cast_expand_level;
-    long field_4D6;
     char video_cluedo_mode;
     MapCoordDelta zoom_to_movement_x;
     MapCoordDelta zoom_to_movement_y;
@@ -262,6 +262,8 @@ short cursor_light_idx;
     unsigned char roomspace_l_shape;
     TbBool roomspace_horizontal_first;
     TbBool pickup_all_gold;
+    unsigned char player_type; //enum PlayerTypes
+    int isometric_tilt;
     };
 
 /******************************************************************************/
@@ -277,9 +279,6 @@ extern TbPixel player_flash_colours[];
 extern TbPixel player_highlight_colours[];
 extern TbPixel possession_hit_colours[];
 extern unsigned short const player_cubes[];
-extern long neutral_player_number;
-extern long hero_player_number;
-extern struct PlayerInfo bad_player;
 extern struct PlayerInfo bad_player;
 /******************************************************************************/
 struct PlayerInfo *get_player_f(long plyr_idx,const char *func_name);
@@ -298,6 +297,10 @@ TbBool set_ally_with_player(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool
 void toggle_ally_with_player(PlayerNumber plyr_idx, PlayerNumber ally_idx);
 TbBool is_player_ally_locked(PlayerNumber plyr_idx, PlayerNumber ally_idx);
 void set_player_ally_locked(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool lock_alliance);
+
+TbBool player_is_roaming(PlayerNumber plyr_num);
+TbBool player_is_keeper(PlayerNumber plyr_num);
+TbBool player_is_neutral(PlayerNumber plyr_num);
 
 void set_player_state(struct PlayerInfo *player, short a1, long a2);
 void set_player_mode(struct PlayerInfo *player, unsigned short nview);

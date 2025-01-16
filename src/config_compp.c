@@ -21,7 +21,6 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 
@@ -179,7 +178,7 @@ short computer_type_clear_checks(struct ComputerProcessTypes *cpt)
 {
     for (int i = 0; i < COMPUTER_CHECKS_COUNT; i++)
     {
-        LbMemorySet(&cpt->checks[i], 0, sizeof(struct ComputerCheck));
+        memset(&cpt->checks[i], 0, sizeof(struct ComputerCheck));
   }
   return true;
 }
@@ -190,7 +189,7 @@ int computer_type_add_check(struct ComputerProcessTypes *cpt, struct ComputerChe
     {
         if (cpt->checks[i].name == NULL)
         {
-            LbMemoryCopy(&cpt->checks[i], check, sizeof(struct ComputerCheck));
+            memcpy(&cpt->checks[i], check, sizeof(struct ComputerCheck));
             return i;
         }
   }
@@ -201,7 +200,7 @@ short computer_type_clear_events(struct ComputerProcessTypes *cpt)
 {
     for (int i = 0; i < COMPUTER_EVENTS_COUNT; i++)
     {
-        LbMemorySet(&cpt->events[i], 0, sizeof(struct ComputerEvent));
+        memset(&cpt->events[i], 0, sizeof(struct ComputerEvent));
   }
   return true;
 }
@@ -212,7 +211,7 @@ int computer_type_add_event(struct ComputerProcessTypes *cpt, struct ComputerEve
     {
         if (cpt->events[i].name == NULL)
         {
-            LbMemoryCopy(&cpt->events[i], event, sizeof(struct ComputerEvent));
+            memcpy(&cpt->events[i], event, sizeof(struct ComputerEvent));
             return i;
         }
   }
@@ -226,8 +225,8 @@ short init_computer_process_lists(void)
   for (i=0; i<COMPUTER_MODELS_COUNT; i++)
   {
     cpt = &ComputerProcessLists[i];
-    LbMemorySet(cpt, 0, sizeof(struct ComputerProcessTypes));
-    LbMemorySet(ComputerProcessListsNames[i], 0, LINEMSG_SIZE);
+    memset(cpt, 0, sizeof(struct ComputerProcessTypes));
+    memset(ComputerProcessListsNames[i], 0, LINEMSG_SIZE);
   }
   // Changing this to not subtract 1. This is possibly the bug for the highest computer model assignment
   // not appropriately being applied.
@@ -269,7 +268,7 @@ TbBool parse_computer_player_common_blocks(char *buf, long len, const char *conf
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, compp_common_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         int n = 0;
         char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
@@ -363,9 +362,9 @@ TbBool parse_computer_player_common_blocks(char *buf, long len, const char *conf
               }
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -400,7 +399,7 @@ short parse_computer_player_process_blocks(char *buf, long len, const char *conf
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, compp_process_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         if ((flags & CnfLd_ListOnly) != 0) {
             // In "List only" mode, accept only name command
             if (cmd_num > 2) {
@@ -539,9 +538,9 @@ short parse_computer_player_process_blocks(char *buf, long len, const char *conf
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -568,7 +567,7 @@ short parse_computer_player_check_blocks(char *buf, long len, const char *config
       computer_check_config_list[i].name[0] = '\0';
       computer_check_config_list[i].check = ccheck;
       ccheck->name = computer_check_names[i];
-      LbMemorySet(computer_check_names[i], 0, LINEMSG_SIZE);
+      memset(computer_check_names[i], 0, LINEMSG_SIZE);
     }
     strcpy(computer_check_names[0],"INCORRECT CHECK");
     // Load the file
@@ -590,7 +589,7 @@ short parse_computer_player_check_blocks(char *buf, long len, const char *config
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, compp_check_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         if ((flags & CnfLd_ListOnly) != 0) {
             // In "List only" mode, accept only name command
             if (cmd_num > 2) {
@@ -680,9 +679,9 @@ short parse_computer_player_check_blocks(char *buf, long len, const char *config
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -709,7 +708,7 @@ short parse_computer_player_event_blocks(char *buf, long len, const char *config
       computer_event_config_list[i].name[0] = '\0';
       computer_event_config_list[i].event = cevent;
       cevent->name = computer_event_names[i];
-      LbMemorySet(computer_event_names[i], 0, LINEMSG_SIZE);
+      memset(computer_event_names[i], 0, LINEMSG_SIZE);
     }
     strcpy(computer_event_names[0],"INCORRECT EVENT");
     // Load the file
@@ -731,7 +730,7 @@ short parse_computer_player_event_blocks(char *buf, long len, const char *config
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, compp_event_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         if ((flags & CnfLd_ListOnly) != 0) {
             // In "List only" mode, accept only name command
             if (cmd_num > 2) {
@@ -847,9 +846,9 @@ short parse_computer_player_event_blocks(char *buf, long len, const char *config
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -868,9 +867,9 @@ short write_computer_player_check_to_log(struct ComputerCheck *ccheck)
   JUSTMSG("[checkXX]");
   JUSTMSG("Name = %s",ccheck->name);
   JUSTMSG("Mnemonic = %s","XX");
-  JUSTMSG("Values = %d %d",ccheck->flags,ccheck->turns_interval);
-  JUSTMSG("Functions = %x",ccheck->func);
-  JUSTMSG("Params = %d %d %d %d",ccheck->param1,ccheck->param2,ccheck->param3,ccheck->last_run_turn);
+  JUSTMSG("Values = %lu %ld",ccheck->flags,ccheck->turns_interval);
+  JUSTMSG("Functions = %p",ccheck->func);
+  JUSTMSG("Params = %ld %ld %ld %ld",ccheck->param1,ccheck->param2,ccheck->param3,ccheck->last_run_turn);
   return true;
 }
 
@@ -879,9 +878,9 @@ short write_computer_player_event_to_log(const struct ComputerEvent *event)
   JUSTMSG("[eventXX]");
   JUSTMSG("Name = %s",event->name);
   JUSTMSG("Mnemonic = %s","XX");
-  JUSTMSG("Values = %d %d %d",event->cetype,event->mevent_kind,event->test_interval);
-  JUSTMSG("Functions = %x %x",event->func_event,event->func_test);
-  JUSTMSG("Params = %d %d %d %d",event->param1,event->param2,event->param3,event->last_test_gameturn);
+  JUSTMSG("Values = %lu %lu %ld",event->cetype,event->mevent_kind,event->test_interval);
+  JUSTMSG("Functions = %p %p",event->func_event,event->func_test);
+  JUSTMSG("Params = %ld %ld %ld %ld",event->param1,event->param2,event->param3,event->last_test_gameturn);
   return true;
 }
 
@@ -909,7 +908,7 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, compp_computer_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         if ((flags & CnfLd_ListOnly) != 0) {
             // In "List only" mode, accept only name command
             if (cmd_num > 1) {
@@ -1067,9 +1066,9 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -1101,7 +1100,7 @@ TbBool load_computer_player_config(unsigned short flags)
         ERRORLOG("Computer Player file \"%s\" is too large.",keeper_compplayer_file);
         return false;
     }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
+    char* buf = (char*)calloc(len + 256, 1);
     if (buf == NULL)
       return false;
     // Loading file data
@@ -1115,7 +1114,7 @@ TbBool load_computer_player_config(unsigned short flags)
         parse_computer_player_computer_blocks(buf, len, textname, flags);
     }
     //Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     return true;
 }
 

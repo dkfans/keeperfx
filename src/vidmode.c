@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fmvids.h"
 #include "bflib_video.h"
 #include "bflib_mouse.h"
@@ -89,17 +88,7 @@ unsigned long landview_frame_movement_scale_y;
 long base_mouse_sensitivity = 256;
 
 static TbBool force_video_mode_reset = true;
-
-struct TbSprite *pointer_sprites;
-struct TbSprite *end_pointer_sprites;
-unsigned char * pointer_data;
-
-struct TbSprite *end_map_font;
-struct TbSprite *end_map_hand;
-TbSpriteData map_font_data;
-TbSpriteData end_map_font_data;
-TbSpriteData map_hand_data;
-TbSpriteData end_map_hand_data;
+struct TbSpriteSheet * pointer_sprites = NULL;
 struct MapLevelInfo map_info;
 
 TbBool MinimalResolutionSetup;
@@ -110,19 +99,14 @@ unsigned char white_pal[256];
 unsigned char red_pal[256];
 /******************************************************************************/
 
-extern struct TbSetupSprite setup_sprites_minimal[];
-extern struct TbSetupSprite setup_sprites[];
 #if (BFDEBUG_LEVEL > 0)
 // Declarations for font testing screen (debug version only)
-extern struct TbSetupSprite setup_testfont[];
 extern struct TbLoadFiles testfont_load_files[];
 #endif
 
 extern struct TbLoadFiles gui_load_files_320[];
 extern struct TbLoadFiles gui_load_files_640[];
-extern struct TbLoadFiles front_load_files_minimal_320[];
 extern struct TbLoadFiles front_load_files_minimal_640[];
-extern struct TbLoadFiles pointer_load_files_640[];
 /******************************************************************************/
 
 /**
@@ -134,15 +118,52 @@ short LoadVRes256Data(long scrbuf_size)
     // Update size of the parchment buffer, as it is also used as screen buffer
     if (scrbuf_size < 640*480)
         scrbuf_size = 640*480;
-    int i = LbDataFindStartIndex(gui_load_files_640, (unsigned char**)&hires_parchment);
-    if (i>=0) {
-        gui_load_files_640[i].SLength = scrbuf_size;
-    }
+    gui_load_files_640[1].SLength = scrbuf_size;
     // Load the files
-    if (LbDataLoadAll(gui_load_files_640)) {
+    winfont = load_font("data/font2-64.dat", "data/font2-64.tab");
+    font_sprites = load_font("data/font1-64.dat", "data/font1-64.tab");
+    button_sprites = load_spritesheet("data/gui1-64.dat", "data/gui1-64.tab");
+    gui_panel_sprites = load_spritesheet("data/gui2-64.dat", "data/gui2-64.tab");
+    if (!winfont || !font_sprites || !button_sprites || !gui_panel_sprites || LbDataLoadAll(gui_load_files_640)) {
         return 0;
     }
     return 1;
+}
+
+void FreeVRes256Data(void)
+{
+    free_font(&winfont);
+    free_font(&font_sprites);
+    free_spritesheet(&button_sprites);
+    free_spritesheet(&gui_panel_sprites);
+    LbDataFreeAll(gui_load_files_640);
+}
+
+short LoadVResMinimal(void)
+{
+    button_sprites = load_spritesheet("data/gui1-32.dat", "data/gui1-32.tab");
+#ifdef SPRITE_FORMAT_V2
+    frontend_font[0] = load_font("ldata/frontft1-64.dat", "ldata/frontft1-64.tab");
+    frontend_font[1] = load_font("ldata/frontft2-64.dat", "ldata/frontft2-64.tab");
+    frontend_font[2] = load_font("ldata/frontft3-64.dat", "ldata/frontft3-64.tab");
+    frontend_font[3] = load_font("ldata/frontft4-64.dat", "ldata/frontft4-64.tab");
+#else
+    frontend_font[0] = load_font("ldata/frontft1.dat", "ldata/frontft1.tab");
+    frontend_font[1] = load_font("ldata/frontft2.dat", "ldata/frontft2.tab");
+    frontend_font[2] = load_font("ldata/frontft3.dat", "ldata/frontft3.tab");
+    frontend_font[3] = load_font("ldata/frontft4.dat", "ldata/frontft4.tab");
+#endif
+    return button_sprites && frontend_font[0] && frontend_font[1] && frontend_font[2] &&
+        frontend_font[3] && LbDataLoadAll(front_load_files_minimal_640) == 0;
+}
+
+void FreeVResMinimal(void)
+{
+    for (int i = 0; i < FRONTEND_FONTS_COUNT; ++i) {
+        free_font(&frontend_font[i]);
+    }
+    free_spritesheet(&button_sprites);
+    LbDataFreeAll(front_load_files_minimal_640);
 }
 
 /**
@@ -153,14 +174,12 @@ short LoadVRes256Data(long scrbuf_size)
  */
 short LoadMcgaData(void)
 {
-    struct TbLoadFiles* load_files = gui_load_files_320;
-    LbDataFreeAll(load_files);
     int ferror = 0;
     int i = 0;
-    struct TbLoadFiles* t_lfile = &load_files[i];
+    struct TbLoadFiles* t_lfile = &gui_load_files_320[i];
     // Allocate some low memory, only to be sure that
     // it will be free when this function ends
-    void* mem = LbMemoryAllocLow(0x10000u);
+    void* mem = calloc(0x10000u, 1);
     while (t_lfile->Start != NULL)
     {
         // Don't allow loading flags
@@ -177,24 +196,23 @@ short LoadMcgaData(void)
             ferror++;
         }
         i++;
-        t_lfile = &load_files[i];
+        t_lfile = &gui_load_files_320[i];
   }
-  if (mem != NULL)
-    LbMemoryFree(mem);
-  return (ferror == 0);
+  free(mem);
+  button_sprites = load_spritesheet("data/gui1-32.dat", "data/gui1-32.tab");
+  winfont = load_font("data/font2-32.dat", "data/font2-32.tab");
+  font_sprites = load_font("data/font1-32.dat", "data/font1-32.tab");
+  gui_panel_sprites = load_spritesheet("data/gui2-32.dat", "data/gui2-32.tab");
+  return button_sprites && winfont && font_sprites && gui_panel_sprites && (ferror == 0);
 }
 
-/**
- * Loads MCGA graphics files, for low resolution mode.
- * Loads only most importand files, where no GUI is needed.
- * @return Returns true if all files were loaded, false otherwise.
- */
-short LoadMcgaDataMinimal(void)
+void FreeMcgaData(void)
 {
-  // Load the files
-  if (LbDataLoadAll(front_load_files_minimal_320))
-    return 0;
-  return 1;
+    LbDataFreeAll(gui_load_files_320);
+    free_font(&winfont);
+    free_font(&font_sprites);
+    free_spritesheet(&button_sprites);
+    free_spritesheet(&gui_panel_sprites);
 }
 
 void set_game_vidmode(uint i, TbScreenMode nmode)
@@ -250,11 +268,12 @@ void set_frontend_vidmode(TbScreenMode nmode)
 
 void load_pointer_file(short hi_res)
 {
-  struct TbLoadFiles *ldfiles;
-  ldfiles = pointer_load_files_640;
-  if ( LbDataLoadAll(ldfiles) )
-    ERRORLOG("Unable to load pointer files");
-  LbSpriteSetup(pointer_sprites, end_pointer_sprites, pointer_data);
+#ifdef SPRITE_FORMAT_V2
+    pointer_sprites = load_spritesheet("data/pointer-64.dat", "data/pointer-64.tab");
+#else
+    pointer_sprites = load_spritesheet("data/pointer64.dat", "data/pointer64.tab");
+#endif
+    if (!pointer_sprites) ERRORLOG("Unable to load pointer sprites");
 }
 
 TbBool set_pointer_graphic_none(void)
@@ -271,7 +290,7 @@ TbBool set_pointer_graphic_menu(void)
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
     return false;
   }
-  LbMouseChangeSpriteAndHotspot(&frontend_sprite[GFS_cursor_horny], 0, 0);
+  LbMouseChangeSpriteAndHotspot(get_frontend_sprite(GFS_cursor_horny), 0, 0);
   return true;
 }
 
@@ -298,20 +317,20 @@ TbBool set_pointer_graphic_spell(long spridx, long frame)
     x = 26;
     i = spridx;
   }
-  const struct TbSprite* spr;
+  const struct TbSprite* spr = NULL;
 
   if (is_custom_icon(i))
   {
       spr = get_new_icon_sprite(i);
-      SYNCDBG(8,"Activating pointer %d", i);
+      SYNCDBG(8,"Activating pointer %ld", i);
       LbMouseChangeSpriteAndHotspot(spr, x/2, y/2);
   }
   else
   {
-      spr = &pointer_sprites[i];
-      SYNCDBG(8,"Activating pointer %d", 40+i);
-      if ((spr >= pointer_sprites) && (spr < end_pointer_sprites))
+      SYNCDBG(8,"Activating pointer %ld", 40+i);
+      if (i >= 0 && i < num_sprites(pointer_sprites))
       {
+          spr = get_sprite(pointer_sprites, i);
           LbMouseChangeSpriteAndHotspot(spr, x/2, y/2);
       } else
       {
@@ -344,12 +363,10 @@ TbBool set_pointer_graphic(long ptr_idx)
   case MousePG_Query:
   case MousePG_DenyMark:
     ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
-      spr = &pointer_sprites[ptr_idx];
       x = 12; y = 15;
       break;
   case MousePG_Sell:
       ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
-      spr = &pointer_sprites[ptr_idx];
       x = 17; y = 29;
       break;
   case MousePG_PlaceTrap01:
@@ -389,7 +406,6 @@ TbBool set_pointer_graphic(long ptr_idx)
   case 180:
   case 181:
       ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
-      spr = &pointer_sprites[ptr_idx];
       x = 12; y = 38;
       break;
   case  MousePG_SpellCharge0:
@@ -402,7 +418,6 @@ TbBool set_pointer_graphic(long ptr_idx)
   case  MousePG_SpellCharge7:
   case  MousePG_SpellCharge8:
       ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
-      spr = &pointer_sprites[ptr_idx];
       x = 20; y = 20;
       break;
   case  MousePG_PlaceRoom01:
@@ -421,14 +436,12 @@ TbBool set_pointer_graphic(long ptr_idx)
   case  MousePG_PlaceRoom14:
   case  MousePG_PlaceRoom15:
       ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
-      spr = &pointer_sprites[ptr_idx];
       x = 12; y = 38;
       break;
   case  MousePG_LockMark:
   // 40..144 are spell pointers
   case  MousePG_Unkn47:
       ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
-      spr = &pointer_sprites[ptr_idx];
       x = 12; y = 15;
       break;
   case  96:
@@ -440,7 +453,6 @@ TbBool set_pointer_graphic(long ptr_idx)
   case 102:
   case 103:
       ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
-      spr = &pointer_sprites[ptr_idx];
       x = 12; y = 15;
       break;
   case MousePG_PlaceImpRock:
@@ -456,7 +468,6 @@ TbBool set_pointer_graphic(long ptr_idx)
   case MousePG_MkCreature:
   case MousePG_MvCreature:
       ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
-      spr = &pointer_sprites[ptr_idx];
       x = 12; y = 38;
       break;
   default:
@@ -467,15 +478,14 @@ TbBool set_pointer_graphic(long ptr_idx)
           LbMouseChangeSpriteAndHotspot(spr, spr->SWidth/2, spr->SHeight);
           return true;
       }
-    WARNLOG("Unrecognized Mouse Pointer index, %d",ptr_idx);
+    WARNLOG("Unrecognized Mouse Pointer index, %ld",ptr_idx);
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
     return false;
   }
-  if ((spr >= pointer_sprites) && (spr < end_pointer_sprites))
-  {
+  if (ptr_idx >= 0 && ptr_idx < num_sprites(pointer_sprites)) {
+    spr = get_sprite(pointer_sprites, ptr_idx);
     LbMouseChangeSpriteAndHotspot(spr, x, y);
-  } else
-  {
+  } else {
     WARNLOG("Sprite %d exceeds buffer, setting pointer to none",(int)ptr_idx);
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
   }
@@ -484,10 +494,8 @@ TbBool set_pointer_graphic(long ptr_idx)
 
 void unload_pointer_file(short hi_res)
 {
-  struct TbLoadFiles *ldfiles;
-  set_pointer_graphic_none();
-  ldfiles = pointer_load_files_640;
-  LbDataFreeAll(ldfiles);
+    set_pointer_graphic_none();
+    free_spritesheet(&pointer_sprites);
 }
 
 TbBool init_fades_table(void)
@@ -641,10 +649,17 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
     }
     if (nmode != old_mode)
         LbScreenReset(false);
-    if (MinimalResolutionSetup)
-      LbDataFreeAll(hi_res ? front_load_files_minimal_640 : front_load_files_minimal_320);
-    else
-      LbDataFreeAll(hi_res ? gui_load_files_640 : gui_load_files_320);
+    if (MinimalResolutionSetup) {
+      if (hi_res) {
+        FreeVResMinimal();
+      }
+    } else {
+      if (hi_res) {
+        FreeVRes256Data();
+      } else {
+        FreeMcgaData();
+      }
+    }
     if (!hi_res) ERRORLOG("MCGA Minimal not allowed (Reset)");
     MinimalResolutionSetup = false;
   }
@@ -749,11 +764,6 @@ TbBool update_screen_mode_data(long width, long height)
   // Main menu scaling: Campaign map "land view" screen (including the window frame)
   calculate_landview_upp(width, height, LANDVIEW_MAP_WIDTH, LANDVIEW_MAP_HEIGHT); // 16 is "kfx default" for 640x480 game window (1x), a 960x720 frame (1.5x), and a 1280x960 landview (2x)
 
-
-  if (MinimalResolutionSetup)
-    LbSpriteSetupAll(setup_sprites_minimal);
-  else
-    LbSpriteSetupAll(setup_sprites);
   LbMouseChangeMoveRatio(base_mouse_sensitivity*units_per_pixel/16, base_mouse_sensitivity*units_per_pixel/16);
   LbMouseSetPointerHotspot(0, 0);
   LbScreenSetGraphicsWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
@@ -818,17 +828,15 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode)
       LbScreenReset(false);
     if (hi_res)
     {
-      if (MinimalResolutionSetup)
-        LbDataFreeAll(front_load_files_minimal_640);
-      else
-        LbDataFreeAll(gui_load_files_640);
+      if (MinimalResolutionSetup) {
+        FreeVResMinimal();
+      } else {
+        FreeVRes256Data();
+      }
     }
     else
     {
-      if (MinimalResolutionSetup)
-        LbDataFreeAll(front_load_files_minimal_320);
-      else
-        LbDataFreeAll(gui_load_files_320);
+      if (!MinimalResolutionSetup) FreeMcgaData();
     }
     MinimalResolutionSetup = false;
   }
@@ -845,7 +853,7 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode)
     if (hi_res)
     {
       frontend_load_data_from_cd();
-      if ( LbDataLoadAll(front_load_files_minimal_640) )
+      if (!LoadVResMinimal())
       {
         ERRORLOG("Unable to load VRes256 front_load minimal files");
         force_video_mode_reset = true;
@@ -853,15 +861,7 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode)
       }
       frontend_load_data_reset();
     }
-    else
-    {
-      if ( !LoadMcgaDataMinimal() )
-      {
-        ERRORLOG("Unable to load minimal MCGA files");
-        return Lb_SCREEN_MODE_INVALID;
-      }
-    }
-    
+
     if ((nmode != old_mode) || (force_video_mode_reset))
     {
         if (LbScreenSetup(nmode, new_mdinfo->Width, new_mdinfo->Height, engine_palette, (hi_res ? 1 : 2), 0) < Lb_SUCCESS)
@@ -1053,18 +1053,37 @@ void switch_to_next_video_mode_wrapper(void)
 #if (BFDEBUG_LEVEL > 0)
 TbBool load_testfont_fonts(void)
 {
-  if ( LbDataLoadAll(testfont_load_files) )
-  {
-    ERRORLOG("Unable to load testfont_load_files files");
-    return false;
-  }
-  LbSpriteSetupAll(setup_testfont);
-  return true;
+    testfont[0] = load_font("ldata/frontft1.dat", "ldata/frontft1.tab");
+    testfont[1] = load_font("ldata/frontft2.dat", "ldata/frontft2.tab");
+    testfont[2] = load_font("ldata/frontft3.dat", "ldata/frontft3.tab");
+    testfont[3] = load_font("ldata/frontft4.dat", "ldata/frontft4.tab");
+    testfont[4] = load_font("data/font0-0.dat", "data/font-0-0.tab");
+    testfont[5] = load_font("data/font0-1.dat", "data/font-0-1.tab");
+    testfont[6] = load_font("data/font2-32.dat", "data/font2-32.tab");
+    testfont[7] = load_font("data/font2-64.dat", "data/font2-64.tab");
+    testfont[8] = load_font("data/font1-64.dat", "data/font1-64.tab");
+    testfont[9] = load_font("data/font1-32.dat", "data/font1-32.tab");
+    testfont[10] = load_font("ldata/netfont.dat", "ldata/netfont.tab");
+    for (int i = 0; i < TESTFONTS_COUNT; ++i) {
+        if (!testfont[i]) {
+            ERRORLOG("Unable to load test font %d", i);
+            return false;
+        }
+    }
+    if (!LbDataLoadAll(testfont_load_files) )
+    {
+      ERRORLOG("Unable to load testfont_load_files files");
+      return false;
+    }
+    return true;
 }
 
 void free_testfont_fonts(void)
 {
-  LbDataFreeAll(testfont_load_files);
+    for (int i = 0; i < TESTFONTS_COUNT; ++i) {
+        free_font(&testfont[i]);
+    }
+    LbDataFreeAll(testfont_load_files);
 }
 #endif
 

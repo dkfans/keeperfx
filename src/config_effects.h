@@ -41,7 +41,7 @@ extern const struct NamedCommand effect_generator_commands[];
 struct EffectConfigStats {
     char code_name[COMMAND_WORD_LEN];
     /** Health; decreases by 1 on every turn, so it works also as lifespan. */
-    short start_health;
+    HitPoints start_health;
     unsigned char generation_type;
     short accel_xy_min;
     short accel_xy_max;
@@ -56,6 +56,7 @@ struct EffectConfigStats {
     struct InitLight ilght;
     unsigned char affected_by_wind;
     ThingHitType effect_hit_type;
+    SpellKind spell_effect;
 };
 
 struct EffectGeneratorConfigStats {
@@ -91,7 +92,7 @@ struct EffectElementConfigStats {
     unsigned short sprite_speed_max;
     TbBool animate_on_floor;
     TbBool unshaded;
-    unsigned char transparant;  // transparency flags in bits 4-5
+    unsigned char transparent;  // transparency flags in bits 4-5
     TbBool movable;
     unsigned char movement_flags;
     unsigned char size_change; /**< See enum ThingSizeChange. */
@@ -138,6 +139,7 @@ TbBool load_effects_config(const char *conf_fname,unsigned short flags);
 struct EffectConfigStats *get_effect_model_stats(ThingModel tngmodel);
 struct EffectGeneratorConfigStats *get_effectgenerator_model_stats(ThingModel tngmodel);
 const char *effect_code_name(ThingModel tngmodel);
+const char* effect_element_code_name(ThingModel tngmodel);
 const char *effectgenerator_code_name(ThingModel tngmodel);
 short effect_or_effect_element_id(const char * code_name);
 /******************************************************************************/

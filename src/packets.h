@@ -132,7 +132,7 @@ enum TbPacketAction {
         PckA_Unknown101,
         PckA_Unknown102,
         PckA_Unknown103,
-        PckA_Unknown104,
+        PckA_ZoomToBattle,
         PckA_Unknown105,//105
         PckA_ZoomToSpell,
         PckA_ToggleComputer,
@@ -181,6 +181,7 @@ enum TbPacketAction {
         PckA_SetNearestTeleport,
         PckA_SetRoomspaceDragPaint,
         PckA_PlyrQueryCreature,
+        PckA_CheatGiveDoorTrap,
 };
 
 /** Packet flags for non-action player operation. */
@@ -202,6 +203,9 @@ enum TbPacketControl {
         PCtr_RBtnRelease    = 0x2000,
         PCtr_Gui            = 0x4000,
         PCtr_MapCoordsValid = 0x8000,
+        PCtr_ViewTiltUp     = 0x10000,
+        PCtr_ViewTiltDown   = 0x20000,
+        PCtr_ViewTiltReset  = 0x40000,
 };
 
 /**
@@ -256,7 +260,7 @@ struct Packet {
     long actn_par2; //! Players action parameter #2
     long pos_x; //! Mouse Cursor Position X
     long pos_y; //! Mouse Cursor Position Y
-    unsigned short control_flags;
+    unsigned long control_flags;
     unsigned char additional_packet_values; // uses the flags and values from TbPacketAddValues
     long actn_par3; //! Players action parameter #3
     long actn_par4; //! Players action parameter #4
@@ -272,6 +276,7 @@ struct PacketSaveHead {
     PlayerBitFlags players_comp;
     unsigned long isometric_view_zoom_level;
     unsigned long frontview_zoom_level;
+    int isometric_tilt;
     unsigned char video_rotate_mode;
     TbBool chksum_available; // if needed, this can be replaced with flags
     unsigned long action_seed;

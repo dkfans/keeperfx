@@ -18,11 +18,11 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "bflib_datetm.h"
-
 #include <chrono>
-#include "bflib_basics.h"
+#include <time.h>
 #include "globals.h"
+#include "bflib_datetm.h"
+#include "bflib_basics.h"
 #include "game_legacy.h"
 
 #if defined(_WIN32)
@@ -152,8 +152,16 @@ TbClockMSec LbTimerClock_1024(void)
  */
 TbClockMSec LbTimerClock_any(void)
 {
-  long long clk = 500 * clock();
-  return (clk / CLOCKS_PER_SEC) << 1;
+  clock_t cclk = clock();
+  if (CLOCKS_PER_SEC > 1000) {
+    return cclk / (CLOCKS_PER_SEC / 1000);
+  } else if (CLOCKS_PER_SEC > 100) {
+    return (cclk / (CLOCKS_PER_SEC / 100)) * 10;
+  } else if (CLOCKS_PER_SEC > 10) {
+    return (cclk / (CLOCKS_PER_SEC / 10)) * 100;
+  } else {
+    return (cclk / CLOCKS_PER_SEC) * 1000;
+  }
 }
 
 /** Fills structure with current time.
@@ -197,20 +205,24 @@ TbResult LbDateTime(struct TbDate *curr_date, struct TbTime *curr_time)
 
 TbResult LbDateTimeDecode(const time_t *datetime,struct TbDate *curr_date,struct TbTime *curr_time)
 {
-  struct tm *ltime=localtime(datetime);
-  if (curr_date!=NULL)
+  struct tm *ltime = localtime(datetime);
+  if (ltime == NULL)
   {
-    curr_date->Day=ltime->tm_mday;
-    curr_date->Month=ltime->tm_mon+1;
-    curr_date->Year=1900+ltime->tm_year;
-    curr_date->DayOfWeek=ltime->tm_wday;
+      return Lb_FAIL;
   }
-  if (curr_time!=NULL)
+  if (curr_date != NULL)
   {
-    curr_time->Hour=ltime->tm_hour;
-    curr_time->Minute=ltime->tm_min;
-    curr_time->Second=ltime->tm_sec;
-    curr_time->HSecond=0;
+    curr_date->Day = ltime->tm_mday;
+    curr_date->Month = ltime->tm_mon+1;
+    curr_date->Year = 1900+ltime->tm_year;
+    curr_date->DayOfWeek = ltime->tm_wday;
+  }
+  if (curr_time != NULL)
+  {
+    curr_time->Hour = ltime->tm_hour;
+    curr_time->Minute = ltime->tm_min;
+    curr_time->Second = ltime->tm_sec;
+    curr_time->HSecond = 0;
   }
   return Lb_SUCCESS;
 }

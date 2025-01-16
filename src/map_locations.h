@@ -51,6 +51,8 @@ enum MetaLocation {
   MML_LAST_EVENT = 1,
   MML_RECENT_COMBAT,
   MML_ACTIVE_CTA,
+  MML_LAST_DEATH_EVENT,
+  MML_LAST_TRAP_EVENT,
 };
 
 /******************************************************************************/
@@ -60,7 +62,7 @@ unsigned long get_map_location_plyrval(TbMapLocation location);
 unsigned short get_map_location_plyridx(TbMapLocation location);
 TbBool get_map_location_code_name(TbMapLocation location, char *name);
 
-TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location);
+TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location, TbBool random_factor);
 TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_idx, long i);
 TbBool get_coords_at_action_point(struct Coord3d *pos, long apt_idx, unsigned char random_factor);
 TbBool get_coords_at_hero_door(struct Coord3d *pos, long gate_num, unsigned char random_factor);

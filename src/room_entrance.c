@@ -75,8 +75,6 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
     if (room->owner != game.neutral_player_num)
     {
         dungeon->lvstats.creatures_attracted++;
-        dungeon->lvstats.field_8++;
-        dungeon->lvstats.field_88 = crkind;
     }
     struct Thing* heartng = get_player_soul_container(room->owner);
     TRACE_THING(heartng);
@@ -101,11 +99,17 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
  */
 TbBool generation_due_in_game(void)
 {
-    return ( (game.play_gameturn-game.entrance_last_generate_turn) >= game.generate_speed );
+    return ((game.play_gameturn - game.entrance_last_generate_turn) >= game.generate_speed);
 }
 
 TbBool generation_due_for_dungeon(struct Dungeon * dungeon)
 {
+    if (!creature_count_below_map_limit(0))
+    {
+        SYNCDBG(9, "At map limit");
+        return false;
+    }
+
     if ( (game.armageddon_cast_turn == 0) || (game.armageddon.count_down + game.armageddon_cast_turn > game.play_gameturn) )
     {
         if ( (dungeon->turns_between_entrance_generation != -1) &&
@@ -186,6 +190,23 @@ static long calculate_excess_attraction_for_creature(ThingModel crmodel, PlayerN
     return excess_attraction;
 }
 
+long count_player_available_creatures_of_model(PlayerNumber plyr_idx, ThingModel crmodel)
+{
+    struct Dungeon *dungeon = get_dungeon(plyr_idx);
+    long count = 0;
+    for (ThingModel i = 0; i < CREATURE_TYPES_MAX; i++)
+    {
+        if (!creature_model_matches_model(i, plyr_idx, crmodel))
+            continue;
+
+        if (creature_will_generate_for_dungeon(dungeon, i))
+        {
+            count+= game.pool.crtr_kind[i];
+        }
+    }
+    return min(count, dungeon->max_creatures_attracted - (long)dungeon->num_active_creatrs);
+}
+
 TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingModel crmodel)
 {
     SYNCDBG(11, "Starting for creature model %s", creature_code_name(crmodel));
@@ -230,12 +251,13 @@ TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingM
 
 TbBool remove_creature_from_generate_pool(ThingModel crmodel)
 {
-    if (game.pool.crtr_kind[crmodel] <= 0) {
-        WARNLOG("Could not remove creature %s from the creature pool",creature_code_name(crmodel));
-        return false;
+    if (game.pool.crtr_kind[crmodel] > LONG_MIN)
+    {
+        game.pool.crtr_kind[crmodel]--;
+        return true;
     }
-    game.pool.crtr_kind[crmodel]--;
-    return true;
+    WARNLOG("Could not remove creature %s from the creature pool", creature_code_name(crmodel));
+    return false;
 }
 
 static int calculate_creature_to_generate_for_dungeon(const struct Dungeon * dungeon)
@@ -411,16 +433,20 @@ TbBool update_creature_pool_state(void)
     return true;
 }
 
-void add_creature_to_pool(ThingModel kind, long amount, unsigned long a3)
+void add_creature_to_pool(ThingModel kind, long amount)
 {
-    long prev_amount;
     kind %= game.conf.crtr_conf.model_count;
-    prev_amount = game.pool.crtr_kind[kind];
-    if ((a3 == 0) || (prev_amount != -1))
+    
+    if (amount > 0 && game.pool.crtr_kind[kind] > LONG_MAX - amount)
     {
-        if ((amount != -1) && (amount != 0) && (prev_amount != -1))
-            game.pool.crtr_kind[kind] = prev_amount + amount;
-        else
-            game.pool.crtr_kind[kind] = amount;
+        game.pool.crtr_kind[kind] = LONG_MAX;
+    }
+    else if (amount < 0 && game.pool.crtr_kind[kind] < LONG_MIN - amount)
+    {
+        game.pool.crtr_kind[kind] = LONG_MIN;
+    }
+    else
+    {
+        game.pool.crtr_kind[kind] += amount;
     }
 }

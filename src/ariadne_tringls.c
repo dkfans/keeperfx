@@ -58,7 +58,7 @@ long tri_new(void)
         }
         if (i > (TRIANLGLES_COUNT * 999 / 1000))
         {
-            WARNLOG("TRIANGLES near limit: %d", i);
+            WARNLOG("TRIANGLES near limit: %ld", i);
         }
         ix_Triangles++;
     } else
@@ -384,9 +384,9 @@ void triangulation_init_triangles(long pt_id1, long pt_id2, long pt_id3, long pt
     Triangles[1].points[1] = 3;
     Triangles[0].tags[1] = -1;
     Triangles[0].tags[2] = -1;
-    Triangles[0].tree_alt = 15;
+    Triangles[0].tree_alt = NAVMAP_FLOORHEIGHT_MAX;
     Triangles[1].tags[0] = 0;
-    Triangles[1].tree_alt = 15;
+    Triangles[1].tree_alt = NAVMAP_FLOORHEIGHT_MAX;
     Triangles[1].tags[1] = -1;
     Triangles[1].tags[2] = -1;
     Triangles[0].field_D = 7;

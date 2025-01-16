@@ -59,7 +59,7 @@ extern const struct CommandDesc dk1_command_desc[];
 
 static void player_reveal_map_area(PlayerNumber plyr_idx, long x, long y, long w, long h)
 {
-  SYNCDBG(0,"Revealing around (%d,%d)",x,y);
+  SYNCDBG(0,"Revealing around (%ld,%ld)",x,y);
   reveal_map_area(plyr_idx, x-(w>>1), x+(w>>1)+(w%1), y-(h>>1), y+(h>>1)+(h%1));
 }
 
@@ -94,6 +94,11 @@ TbBool script_change_creature_owner_with_criteria(PlayerNumber origin_plyr_idx, 
     if (thing_is_invalid(thing)) {
         SYNCDBG(5,"No matching player %d creature of model %d (%s) found to kill",(int)origin_plyr_idx,(int)crmodel, creature_code_name(crmodel));
         return false;
+    }
+    if (is_thing_some_way_controlled(thing))
+    {
+        //does not kill the creature, but does the preparations needed for when it is possessed
+        prepare_to_controlled_creature_death(thing);
     }
     change_creature_owner(thing, dest_plyr_idx);
     return true;
@@ -160,52 +165,31 @@ TbResult script_use_power_on_creature_matching_criterion(PlayerNumber plyr_idx, 
 TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel, long criteria, long fmcl_bytes)
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
-    if (thing_is_invalid(thing)) {
-        SYNCDBG(5,"No matching player %d creature of model %d (%s) found to use spell on.",(int)plyr_idx,(int)crmodel, creature_code_name(crmodel));
+    if (thing_is_invalid(thing))
+    {
+        SYNCDBG(5, "No matching player %d creature of model %d (%s) found to use spell on.", (int)plyr_idx, (int)crmodel, creature_code_name(crmodel));
         return Lb_FAIL;
     }
     SpellKind spkind = (fmcl_bytes >> 8) & 255;
-    const struct SpellConfig* spconf = get_spell_config(spkind);
-
-    if (spconf->caster_affected ||
-            (spkind == SplK_Freeze) || (spkind == SplK_Slow) || // These two should be also marked at configs somehow?
-            ( (spkind == SplK_Disease) && ((get_creature_model_flags(thing) & CMF_NeverSick) == 0) ) ||
-            ( (spkind == SplK_Chicken) && ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0) ) )
-    {
+    struct SpellConfig *spconf = get_spell_config(spkind);
+    if (!creature_is_immune_to_spell_effect(thing, spconf->spell_flags))
+    { // Immunity is handled in 'apply_spell_effect_to_thing', but this command plays sounds, so check for it.
         if (thing_is_picked_up(thing))
         {
-            SYNCDBG(5,"Found creature to cast the spell on but it is being held.");
+            SYNCDBG(5, "Found creature to cast the spell on but it is being held.");
             return Lb_FAIL;
         }
-        unsigned short sound;
-        if (spconf->caster_affected)
-        {
-            sound = spconf->caster_affect_sound;
-        }
-        else if ( (spkind == SplK_Freeze) || (spkind == SplK_Slow) )
-        {
-            sound = 50;
-        }
-        else if (spkind == SplK_Disease)
-        {
-            sound = 59;
-        }
-        else if (spkind == SplK_Chicken)
-        {
-            sound = 109;
-        }
-        else
-        {
-            sound = 0;
-        }
         long splevel = fmcl_bytes & 255;
-        thing_play_sample(thing, sound, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
-        apply_spell_effect_to_thing(thing, spkind, splevel);
-        if (spkind == SplK_Disease)
+        if (spconf->caster_affect_sound)
+        {
+            thing_play_sample(thing, spconf->caster_affect_sound + UNSYNC_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+        }
+        apply_spell_effect_to_thing(thing, spkind, splevel, plyr_idx);
+        if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
         {
             struct CreatureControl *cctrl;
             cctrl = creature_control_get_from_thing(thing);
-            cctrl->disease_caster_plyridx = game.neutral_player_num;
+            cctrl->disease_caster_plyridx = game.neutral_player_num; // Does not spread.
         }
         return Lb_SUCCESS;
     }
@@ -233,7 +217,7 @@ TbResult script_computer_dig_to_location(long plyr_idx, long origin, long destin
     find_map_location_coords(origin, &orig_x, &orig_y, plyr_idx, __func__);
     if ((orig_x == 0) && (orig_y == 0))
     {
-        WARNLOG("Can't decode origin location %d", origin);
+        WARNLOG("Can't decode origin location %ld", origin);
         return Lb_FAIL;
     }
     struct Coord3d startpos;
@@ -245,7 +229,7 @@ TbResult script_computer_dig_to_location(long plyr_idx, long origin, long destin
     find_map_location_coords(destination, &dest_x, &dest_y, plyr_idx, __func__);
     if ((dest_x == 0) && (dest_y == 0))
     {
-        WARNLOG("Can't decode destination location %d", destination);
+        WARNLOG("Can't decode destination location %ld", destination);
         return Lb_FAIL;
     }
     struct Coord3d endpos;
@@ -274,11 +258,12 @@ TbResult script_use_power_at_pos(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
     PowerKind powerKind = (fml_bytes >> 8) & 255;
     long splevel = fml_bytes & 255;
 
-    unsigned long spell_flags = PwCast_AllGround | PwCast_Unrevealed;
+    unsigned long allow_flags = PwCast_AllGround | PwCast_Unrevealed;
+    unsigned long mod_flags = 0;
     if (is_free)
-        spell_flags |= PwMod_CastForFree;
+        set_flag(mod_flags,PwMod_CastForFree);
 
-    return magic_use_power_on_subtile(plyr_idx, powerKind, splevel, stl_x, stl_y, spell_flags);
+    return magic_use_power_on_subtile(plyr_idx, powerKind, splevel, stl_x, stl_y, allow_flags, mod_flags);
 }
 
 /**
@@ -290,13 +275,13 @@ TbResult script_use_power_at_pos(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
  */
 TbResult script_use_power_at_location(PlayerNumber plyr_idx, TbMapLocation target, long fml_bytes)
 {
-    SYNCDBG(0, "Using power at location of type %d", target);
+    SYNCDBG(0, "Using power at location of type %lu", target);
     long x = 0;
     long y = 0;
     find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     if ((x == 0) && (y == 0))
     {
-        WARNLOG("Can't decode location %d", target);
+        WARNLOG("Can't decode location %lu", target);
         return Lb_FAIL;
     }
     return script_use_power_at_pos(plyr_idx, x, y, fml_bytes);
@@ -385,7 +370,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           break;
   if (desc == NULL)
   {
-      WARNLOG("Unexpected index:%d", var_index);
+      WARNLOG("Unexpected index:%lu", var_index);
       return;
   }
   if (desc->process_fn)
@@ -504,7 +489,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       }
       break;
   case Cmd_ADD_CREATURE_TO_POOL:
-      add_creature_to_pool(val2, val3, 0);
+      add_creature_to_pool(val2, val3);
       break;
   case Cmd_TUTORIAL_FLASH_BUTTON:
       gui_set_button_flashing(val2, val3);
@@ -516,7 +501,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       crstat = creature_stats_get(val2);
       if (creature_stats_invalid(crstat))
           break;
-      crstat->strength = saturate_set_unsigned(val3, 8);
+      crstat->strength = saturate_set_unsigned(val3, 16);
       break;
   case Cmd_SET_CREATURE_ARMOUR:
       crstat = creature_stats_get(val2);
@@ -551,17 +536,24 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           crstat->bleeds = val4;
           break;
       case 2: // UNAFFECTED_BY_WIND
-          if (val4)
+          if (val4 >= 1)
           {
-              crstat->affected_by_wind = 0;
+              set_flag(crstat->immunity_flags, CSAfF_Wind);
           }
           else
           {
-              crstat->affected_by_wind = 1;
+              clear_flag(crstat->immunity_flags, CSAfF_Wind);
           }
           break;
       case 3: // IMMUNE_TO_GAS
-          crstat->immune_to_gas = val4;
+          if (val4 >= 1)
+          {
+              set_flag(crstat->immunity_flags, CSAfF_PoisonCloud);
+          }
+          else
+          {
+              clear_flag(crstat->immunity_flags, CSAfF_PoisonCloud);
+          }
           break;
       case 4: // HUMANOID_SKELETON
           crstat->humanoid_creature = val4;
@@ -581,163 +573,163 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 10: // SPECIAL_DIGGER
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_IsSpecDigger;
+              set_flag(crconf->model_flags,CMF_IsSpecDigger);
           }
           else
           {
-              crconf->model_flags ^= CMF_IsSpecDigger;
+              clear_flag(crconf->model_flags,CMF_IsSpecDigger);
           }
           break;
       case 11: // ARACHNID
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_IsArachnid;
+              set_flag(crconf->model_flags,CMF_IsArachnid);
           }
           else
           {
-              crconf->model_flags ^= CMF_IsArachnid;
+              clear_flag(crconf->model_flags,CMF_IsArachnid);
           }
           break;
       case 12: // DIPTERA
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_IsDiptera;
+              set_flag(crconf->model_flags,CMF_IsDiptera);
           }
           else
           {
-              crconf->model_flags ^= CMF_IsDiptera;
+              clear_flag(crconf->model_flags,CMF_IsDiptera);
           }
           break;
       case 13: // LORD
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_IsLordOTLand;
+              set_flag(crconf->model_flags,CMF_IsLordOfLand);
           }
           else
           {
-              crconf->model_flags ^= CMF_IsLordOTLand;
+              clear_flag(crconf->model_flags,CMF_IsLordOfLand);
           }
           break;
       case 14: // SPECTATOR
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_IsSpectator;
+              set_flag(crconf->model_flags,CMF_IsSpectator);
           }
           else
           {
-              crconf->model_flags ^= CMF_IsSpectator;
+              clear_flag(crconf->model_flags,CMF_IsSpectator);
           }
           break;
       case 15: // EVIL
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_IsEvil;
+              set_flag(crconf->model_flags,CMF_IsEvil);
           }
           else
           {
-              crconf->model_flags ^= CMF_IsEvil;
+              clear_flag(crconf->model_flags,CMF_IsEvil);
           }
           break;
       case 16: // NEVER_CHICKENS
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_NeverChickens;
+              set_flag(crstat->immunity_flags, CSAfF_Chicken);
           }
           else
           {
-              crconf->model_flags ^= CMF_NeverChickens;
+              clear_flag(crstat->immunity_flags, CSAfF_Chicken);
           }
           break;
       case 17: // IMMUNE_TO_BOULDER
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_ImmuneToBoulder;
+              set_flag(crconf->model_flags,CMF_ImmuneToBoulder);
           }
           else
           {
-              crconf->model_flags ^= CMF_ImmuneToBoulder;
+              clear_flag(crconf->model_flags,CMF_ImmuneToBoulder);
           }
           break;
       case 18: // NO_CORPSE_ROTTING
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_NoCorpseRotting;
+              set_flag(crconf->model_flags,CMF_NoCorpseRotting);
           }
           else
           {
-              crconf->model_flags ^= CMF_NoCorpseRotting;
+              clear_flag(crconf->model_flags,CMF_NoCorpseRotting);
           }
           break;
       case 19: // NO_ENMHEART_ATTCK
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_NoEnmHeartAttack;
+              set_flag(crconf->model_flags,CMF_NoEnmHeartAttack);
           }
           else
           {
-              crconf->model_flags ^= CMF_NoEnmHeartAttack;
+              clear_flag(crconf->model_flags,CMF_NoEnmHeartAttack);
           }
           break;
       case 20: // TREMBLING_FAT
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_Trembling;
-              crconf->model_flags |= CMF_Fat;
+              set_flag(crconf->model_flags,CMF_Trembling);
+              set_flag(crconf->model_flags,CMF_Fat);
           }
           else
           {
-              crconf->model_flags ^= CMF_Trembling;
-              crconf->model_flags ^= CMF_Fat;
+              clear_flag(crconf->model_flags,CMF_Trembling);
+              clear_flag(crconf->model_flags,CMF_Fat);
           }
           break;
       case 21: // FEMALE
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_Female;
+              set_flag(crconf->model_flags,CMF_Female);
           }
           else
           {
-              crconf->model_flags ^= CMF_Female;
+              clear_flag(crconf->model_flags,CMF_Female);
           }
           break;
       case 22: // INSECT
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_Insect;
+              set_flag(crconf->model_flags,CMF_Insect);
           }
           else
           {
-              crconf->model_flags ^= CMF_Insect;
+              clear_flag(crconf->model_flags,CMF_Insect);
           }
           break;
       case 23: // ONE_OF_KIND
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_OneOfKind;
+              set_flag(crconf->model_flags,CMF_OneOfKind);
           }
           else
           {
-              crconf->model_flags ^= CMF_OneOfKind;
+              clear_flag(crconf->model_flags,CMF_OneOfKind);
           }
           break;
       case 24: // NO_IMPRISONMENT
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_NoImprisonment;
+              set_flag(crconf->model_flags,CMF_NoImprisonment);
           }
           else
           {
-              crconf->model_flags ^= CMF_NoImprisonment;
+              clear_flag(crconf->model_flags,CMF_NoImprisonment);
           }
           break;
       case 25: // NEVER_SICK
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_NeverSick;
+              set_flag(crstat->immunity_flags, CSAfF_Disease);
           }
           else
           {
-              crconf->model_flags ^= CMF_NeverSick;
+              clear_flag(crstat->immunity_flags, CSAfF_Disease);
           }
           break;
       case 26: // ILLUMINATED
@@ -746,28 +738,78 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 27: // ALLURING_SCVNGR
           crstat->entrance_force = val4;
           break;
-      case 30: // TREMBLING
+      case 28: // NO_RESURRECT
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_Trembling;
+              set_flag(crconf->model_flags, CMF_NoResurrect);
           }
           else
           {
-              crconf->model_flags ^= CMF_Trembling;
+              clear_flag(crconf->model_flags, CMF_NoResurrect);
+          }
+          break;
+      case 29: // NO_TRANSFER
+          if (val4 >= 1)
+          {
+              set_flag(crconf->model_flags, CMF_NoTransfer);
+          }
+          else
+          {
+              clear_flag(crconf->model_flags, CMF_NoTransfer);
+          }
+          break;
+      case 30: // TREMBLING
+          if (val4 >= 1)
+          {
+              set_flag(crconf->model_flags,CMF_Trembling);
+          }
+          else
+          {
+              clear_flag(crconf->model_flags,CMF_Trembling);
           }
           break;
       case 31: // FAT
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_Fat;
+              set_flag(crconf->model_flags,CMF_Fat);
           }
           else
           {
-              crconf->model_flags ^= CMF_Fat;
+              clear_flag(crconf->model_flags,CMF_Fat);
+          }
+          break;
+      case 32: // NO_STEAL_HERO
+          if (val4 >= 1)
+          {
+              set_flag(crconf->model_flags,CMF_NoStealHero);
+          }
+          else
+          {
+              clear_flag(crconf->model_flags,CMF_NoStealHero);
+          }
+          break;
+      case 33: // PREFER_STEAL
+          if (val4 >= 1)
+          {
+              set_flag(crconf->model_flags,CMF_PreferSteal);
+          }
+          else
+          {
+              clear_flag(crconf->model_flags,CMF_PreferSteal);
+          }
+          break;
+      case 34: // EVENTFUL_DEATH
+          if (val4 >= 1)
+          {
+              set_flag(crconf->model_flags, CMF_EventfulDeath);
+          }
+          else
+          {
+              clear_flag(crconf->model_flags, CMF_EventfulDeath);
           }
           break;
       default:
-          SCRPTERRLOG("Unknown creature property '%d'", val3);
+          SCRPTERRLOG("Unknown creature property '%ld'", val3);
           break;
       }
       break;
@@ -786,10 +828,10 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_BONUS_LEVEL_TIME:
       if (val2 > 0) {
           game.bonus_time = game.play_gameturn + val2;
-          game.flags_gui |= GGUI_CountdownTimer;
+          set_flag(game.flags_gui,GGUI_CountdownTimer);
       } else {
           game.bonus_time = 0;
-          game.flags_gui &= ~GGUI_CountdownTimer;
+          clear_flag(game.flags_gui,GGUI_CountdownTimer);
       }
       if (level_file_version > 0)
       {
@@ -816,7 +858,14 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               val2 = SENSIBLE_GOLD;
               SCRPTWRNLOG("Gold added to player %d reduced to %d", (int)plr_range_id, SENSIBLE_GOLD);
           }
-          player_add_offmap_gold(i, val2);
+          if (val2 >= 0)
+          {
+              player_add_offmap_gold(i, val2);
+          }
+          else
+          {
+              take_money_from_dungeon(i, -val2, 0);
+          }
       }
       break;
   case Cmd_SET_CREATURE_TENDENCIES:
@@ -944,7 +993,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
     {
         if (plr_range_id == ALL_PLAYERS)
         {
-            for (i = PLAYER3; i >= PLAYER0; i--)
+            for (i = 0; i < PLAYERS_COUNT; i++)
             {
                 dungeon = get_dungeon(i);
                 if (!dungeon_invalid(dungeon))
@@ -1002,13 +1051,14 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
             if (operation == SOpr_INCREASE) computed = current_flag_val + sum;
             if (operation == SOpr_DECREASE) computed = current_flag_val - sum;
             if (operation == SOpr_MULTIPLY) computed = current_flag_val * sum;
-            SCRIPTDBG(7,"Changing player%d's %d flag from %d to %d based on flag of type %d.", i, val3, current_flag_val, computed, src_flag_type);
+            SCRIPTDBG(7,"Changing player%ld's %ld flag from %ld to %ld based on flag of type %u.",
+                i, val3, current_flag_val, computed, src_flag_type);
             set_variable(i, flag_type, val3, computed);
         }
       }
       break;
   default:
-      WARNMSG("Unsupported Game VALUE, command %d.",var_index);
+      WARNMSG("Unsupported Game VALUE, command %lu.",var_index);
       break;
   }
 }

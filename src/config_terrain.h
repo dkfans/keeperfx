@@ -65,12 +65,13 @@ enum SlabFillStyle {
 };
 
 enum RoomCfgFlags {
-    RoCFlg_None           = 0x00,
-    RoCFlg_NoEnsign       = 0x01,
-    RoCFlg_CantVandalize  = 0x02,
-    RoCFlg_BuildTillBroke = 0x04,
-    RoCFlg_CannotBeSold   = 0x08,
-    RoCFlg_ListEnd        = 0x10,
+    RoCFlg_None            = 0x00,
+    RoCFlg_NoEnsign        = 0x01,
+    RoCFlg_CantVandalize   = 0x02,
+    RoCFlg_BuildTillBroke  = 0x04,
+    RoCFlg_CannotBeSold    = 0x08,
+    RoCFlg_CannotBeClaimed = 0x10,
+    RoCFlg_ListEnd         = 0x20,
 };
 
 /**
@@ -139,6 +140,7 @@ struct RoomConfigStats {
     TextStringId tooltip_stridx;
     long creature_creation_model;
     SlabKind assigned_slab;
+    SlabKind synergy_slab;
     char storage_height;
     unsigned long flags;
     RoomRole roles;
@@ -153,7 +155,7 @@ struct RoomConfigStats {
     long msg_too_small;
     long msg_no_route;
     short cost;
-    unsigned short health;
+    HitPoints health;
     int update_total_capacity_idx;
     int update_storage_in_room_idx;
     int update_workers_in_room_idx;
@@ -176,7 +178,7 @@ extern const struct NamedCommand terrain_room_properties_commands[];
 extern const struct NamedCommand room_roles_desc[];
 extern const struct NamedCommand terrain_room_total_capacity_func_type[];
 extern const struct NamedCommand terrain_room_used_capacity_func_type[];
-extern Room_Update_Func terrain_room_total_capacity_func_list[7];
+extern Room_Update_Func terrain_room_total_capacity_func_list[13];
 extern Room_Update_Func terrain_room_used_capacity_func_list[10];
 
 /******************************************************************************/

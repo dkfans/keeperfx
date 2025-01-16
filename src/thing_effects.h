@@ -48,11 +48,9 @@ enum ThingHitTypes {
 enum AreaAffectTypes {
     AAffT_None = 0,
     AAffT_GasDamage,
-    AAffT_Unkn2,
-    AAffT_GasSlow,
+    AAffT_GasDamageEffect,
+    AAffT_GasEffect,
     AAffT_WOPDamage,
-    AAffT_GasSlowDamage,
-    AAffT_GasDisease,
 };
 
 enum ThingEffectKind {
@@ -105,7 +103,7 @@ enum ThingEffectKind {
     TngEff_SpangleRedBig,
     TngEff_ColouredRingOfFire, // spiral fx
     TngEff_Flash, // flash with whiteout
-    TngEff_DamageBlood,
+    TngEff_Dummy,
     TngEff_Explosion7, // temple? explosion with sound
     TngEff_FeatherPuff,
     TngEff_Explosion8,
@@ -134,6 +132,10 @@ enum ThingEffectKind {
     TngEff_BallPuffOrange,
     TngEff_FallingIceBlocks,
     TngEff_SlowKeeperPower,
+    TngEff_TinySparks,
+    TngEff_CoinFountain,
+    TngEff_FearCircle,
+    TngEff_CrazyGas,
 };
 
 enum ThingEffectElements {
@@ -237,7 +239,7 @@ enum ThingEffectElements {
     TngEffElm_WhiteTwinkle2,
     TngEffElm_WhiteFlame,
     TngEffElm_WhiteSmokePuff,
-    TngEffElm_PurpleFlame,
+    TngEffElm_PurpleFlame, // 100
     TngEffElm_PurpleSmokePuff,
     TngEffElm_PurpleTwinkle,
     TngEffElm_PurpleTwinkle2,
@@ -247,11 +249,15 @@ enum ThingEffectElements {
     TngEffElm_BlackTwinkle,
     TngEffElm_BlackTwinkle2,
     TngEffElm_BlackPuff,
-    TngEffElm_OrangeFlame,
+    TngEffElm_OrangeFlame, // 110
     TngEffElm_OrangeSmokePuff,
     TngEffElm_OrangeTwinkle,
     TngEffElm_OrangeTwinkle2,
-    TngEffElm_OrangePuff
+    TngEffElm_OrangePuff,
+    TngEffElm_TinyFlash3,
+    TngEffElm_StepSand,
+    TngEffElm_StepGypsum,
+    TngEffElm_GoldCoin
 };
 
 /******************************************************************************/
@@ -269,7 +275,7 @@ TbBool thing_is_effect(const struct Thing *thing);
 struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, PlayerNumber owner);
 struct Thing *create_effect_generator(struct Coord3d *pos, ThingModel model, unsigned short range, unsigned short owner, long parent_idx);
 struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmodel, PlayerNumber owner);
-struct Thing* create_used_effect_or_element(const struct Coord3d* pos, EffectOrEffElModel effect_id, PlayerNumber plyr_idx);
+struct Thing* create_used_effect_or_element(const struct Coord3d* pos, EffectOrEffElModel effect_id, PlayerNumber plyr_idx, ThingIndex parent_idx);
 TngUpdateRet update_effect_element(struct Thing *thing);
 TngUpdateRet update_effect(struct Thing *thing);
 TngUpdateRet process_effect_generator(struct Thing *thing);
@@ -279,10 +285,10 @@ struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long
 
 TbBool area_effect_can_affect_thing(const struct Thing *thing, HitTargetFlags hit_targets, PlayerNumber shot_owner);
 long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, MapCoord max_dist,
-    HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets, DamageType damage_type);
+    HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets);
     
 TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
-    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner);    
+    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, PlayerNumber owner);    
 /******************************************************************************/
 #ifdef __cplusplus
 }

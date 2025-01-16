@@ -17,11 +17,8 @@
 #
 # ******************************************************************************
 "Project-Id-Version: GUI Strings for KeeperFX\n"
-"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
-"POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2022-05-29 13:52+0200\n"
-"Last-Translator: qqluqq\n"
-"Language-Team: KeeperFX Team <code.google.com>\n"
+"Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues\n"
+"Language-Team: KeeperFX Team <github.com/dkfans>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -286,7 +283,6 @@ msgstr ""
 
 #. Level Cosyton information soon after start
 #: guitext:22
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "When Imps have no other orders, they run around reinforcing your dungeon. "
@@ -2143,7 +2139,7 @@ msgstr "Bliksem: [26.13]"
 #, fuzzy
 msgctxt "Creature spell"
 msgid "Rebound: Causes any spell fired at you to bounce back at the attacker."
-msgstr "Terugkaatsen: [26.18]"
+msgstr "Terugkaatsen: Stuurt projectielen terug naar de aanvaller."
 
 #: guitext:231
 #, fuzzy
@@ -2206,12 +2202,9 @@ msgid "Group: Not used"
 msgstr "Groep: Niet gebruikt"
 
 #: guitext:239
-#, fuzzy
 msgctxt "Creature spell"
-msgid ""
-"Invisibility: Cast on one of your minions, it makes the host creature "
-"invisible to all enemies. Unless they possess a subnatural Sight."
-msgstr "Onzichtbaar: [26.12]"
+msgid "Invisibility: Makes the creature invisible to all enemies. Unless they possess a subnatural Sight."
+msgstr "Onzichtbaar: Zorgt ervoor dat het wezen niet meer door vijanden gezien wordt, tenzij ze bovennatuurlijk zicht hebben."
 
 #: guitext:240
 #, fuzzy
@@ -2234,15 +2227,14 @@ msgctxt "Creature spell"
 msgid ""
 "Illumination: Brings light onto darkness, allowing the creature to see but "
 "also be seen by others."
-msgstr "Verlichting: Niet gebruikt"
+msgstr "Verlichting"
 
 #: guitext:243
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Flight: Causes the creature to take off from the ground and attack creatures "
 "from the air."
-msgstr "Vliegen: [26.7]"
+msgstr "Vliegen: Zorgt dat het wezen van de grond komt en vanuit de lucht kan aanvallen."
 
 #: guitext:244
 #, fuzzy
@@ -2254,7 +2246,7 @@ msgstr "Hagelstorm: [26.10]"
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Slow: Slows down the target creature, making it attacks and movement delayed."
+"Slow: Slows down the target creature, making its attacks and movement delayed."
 msgstr "Vertragen: [26.19]"
 
 #: guitext:246
@@ -2275,12 +2267,9 @@ msgid ""
 msgstr "Krachtterm: [26.23]"
 
 #: guitext:248
-#, fuzzy
 msgctxt "Creature spell"
-msgid ""
-"Heal: When this is cast, the creature is massively healed. Also, any nearby "
-"creatures are healed by a quarter."
-msgstr "Genezing: [26.11]"
+msgid "Heal: When this is cast, the creature is massively healed."
+msgstr "Genezing: Deze spreuk geneest je wezen voor een aanzienlijk deel."
 
 #: guitext:249
 #, fuzzy
@@ -4573,11 +4562,10 @@ msgstr "Wezenbeheersing: Bestuur direct het wezen. LMK: selecteren. [18.1]"
 #: guitext:648
 msgctxt "Keeper spell description"
 msgid ""
-"Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. "
-"[18.2]"
+"Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
 msgstr ""
 "Dondersteentjes Creëren: Creëer een Dondersteen in je kerker. LMK: "
-"selecteren. [18.2]"
+"selecteren."
 
 #: guitext:649
 msgctxt "Keeper spell description"
@@ -4622,27 +4610,23 @@ msgstr ""
 
 #: guitext:654
 msgctxt "Keeper spell description"
-msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
+msgid "Speed Monster: Increases the speed of your monsters."
 msgstr ""
-"Monsterversneller: Verhoogt de snelheid van je slaafjes. LMK: selecteren. "
-"[18.4]"
+"Monsterversneller: Verhoogt de snelheid van je slaafjes."
 
 #: guitext:655
 msgctxt "Keeper spell description"
 msgid ""
-"Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
+"Protect Monster: Shields your creatures from attack."
 msgstr ""
-"Monsterbescherming: Beschermt je wezens tegen aanvallen. LMK: selecteren. "
-"[18.11]"
+"Monsterbescherming: Beschermt je wezens tegen aanvallen."
 
 #: guitext:656
 msgctxt "Keeper spell description"
 msgid ""
-"Conceal Monster: Makes your creatures invisible to the enemy. LMB select. "
-"[18.7]"
+"Conceal Monster: Makes your creatures invisible to the enemy."
 msgstr ""
-"Onzichtbaar: Maakt je wezens onzichtbaar voor de vijand. LMK: selecteren. "
-"[18.7]"
+"Onzichtbaar: Maakt je wezens onzichtbaar voor de vijand."
 
 #: guitext:657
 msgctxt "Keeper spell description"
@@ -6745,117 +6729,117 @@ msgid "Moo4"
 msgstr ""
 
 #: guitext:1011
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Dungeon Keeper - Original Campaign"
 msgstr "Dungeon Keeper - Originele Campagne"
 
 #: guitext:1012
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Assmist Isle"
 msgstr ""
 
 #: guitext:1013
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Ancient Keeper campaign"
 msgstr ""
 
 #: guitext:1014
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Burdened Imps' Level Pack"
 msgstr ""
 
 #: guitext:1015
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Conquest of the Arctic"
 msgstr ""
 
 #: guitext:1016
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "The Destiny of Ninja"
 msgstr "The Legende van de Ninja"
 
 #: guitext:1017
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "DzjeeAr's  6-level campaign"
 msgstr "DzjeeAr's campagne met  6 levels"
 
 #: guitext:1018
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "DzjeeAr's 10-level campaign"
 msgstr "DzjeeAr's campagne met 10 levels"
 
 #: guitext:1019
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "DzjeeAr's 25-level campaign"
 msgstr "DzjeeAr's campagne met 25 levels"
 
 #: guitext:1020
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Evil Keeper campaign"
 msgstr ""
 
 #: guitext:1021
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Grinics' KReign campaign"
 msgstr ""
 
 #: guitext:1022
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Japanese DKMaps8 pack"
 msgstr ""
 
 #: guitext:1023
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "KDK Levels"
 msgstr ""
 
 #: guitext:1024
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Good Campaign"
 msgstr "Helden Campagne"
 
 #: guitext:1025
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Lord Vexer campaign"
 msgstr ""
 
 #: guitext:1026
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Nikolai's Castles campaign"
 msgstr "Nikolais Kasteel"
 
 #: guitext:1027
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Dungeon Keeper - NG+"
 msgstr ""
 
 #: guitext:1028
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Post Ancient Keeper campaign"
 msgstr ""
 
 #: guitext:1029
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Post Undead Keeper campaign"
 msgstr ""
 
 #: guitext:1030
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Quest for the Hero campaign"
 msgstr ""
 
 #: guitext:1031
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Revenge of the Lord"
 msgstr ""
 
 #: guitext:1032
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Twin Keepers Campaign"
 msgstr ""
 
 #: guitext:1033
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Undead Keeper campaign"
 msgstr ""
 
@@ -6923,8 +6907,8 @@ msgstr "Dichte Goudader: Bevat veel rijkdom voor je Dondersteentjes om te delven
 
 #: guitext:1053
 msgctxt "Keeper spell name"
-msgid "Rebound"
-msgstr "Terugkaatsen"
+msgid "Magic Shield"
+msgstr "Magisch Schild"
 
 #: guitext:1054
 msgctxt "Keeper spell name"
@@ -6938,8 +6922,8 @@ msgstr "Vertragen"
 
 #: guitext:1056
 msgctxt "Keeper spell name"
-msgid "Flight"
-msgstr "Vliegen"
+msgid "Levitate"
+msgstr "Opstijgen"
 
 #: guitext:1057
 msgctxt "Keeper spell name"
@@ -6970,3 +6954,73 @@ msgstr "Maak Ongelukkig: Alle wezens van de vijand worden ongelukkig."
 msgctxt "Dungeon special decription"
 msgid "Weaken Walls: Destroys the fortifications of enemy walls."
 msgstr "Zwakke Muren: Vernietigt de versterkingen van vijandelijke muren."
+
+#: guitext:1063
+msgctxt "Game controls"
+msgid "Tilt Up"
+msgstr "Kantel Omhoog"
+
+#: guitext:1064
+msgctxt "Game controls"
+msgid "Tilt Down"
+msgstr "Kantel Omlaag"
+
+#: guitext:1065
+msgctxt "Game controls"
+msgid "Reset Tilt"
+msgstr "Kantel Reset"
+
+#: guitext:1066
+msgctxt "Creature spell"
+msgid "Heal Monster: The target creature is massively healed."
+msgstr "Genees Monster: Geneest het doelwit voor een aanzienlijk deel."
+
+#: guitext:1067
+msgctxt "Creature spell"
+msgid "Cleanse: Cures all negative effects inflicted on the creature."
+msgstr "Zuiveren: Geneest alle negatieve effecten die op het wezen zijn toegebracht."
+
+#: guitext:1068
+msgctxt "Creature spell"
+msgid "Cleanse Monster: Cures all negative effects inflicted on target creature."
+msgstr "Zuiver Monster: Geneest alle negatieve effecten die op het doelwit zijn toegebracht."
+
+#: guitext:1069
+msgctxt "Keeper spell description"
+msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
+msgstr "Terugkaats-schild: Stuurt projectielen afgevuurd op het doelwit terug naar de aanvaller."
+
+#: guitext:1070
+msgctxt "Keeper spell description"
+msgid "Levitate: Causes the target creature to take off from the ground and attack creatures from the air or cross lava unharmed."
+msgstr "Opstijgen: Zorgt dat het doelwit van de grond komt en vanuit de lucht kan aanvallen."
+
+#: guitext:1071
+msgctxt "Keeper spell description"
+msgid "Sight: Allows the target creature to temporarily increase its awareness and notice the invisible."
+msgstr "Helderziendheid: Laat het wezen onzichtbare vijanden zien."
+
+#: guitext:1072
+msgctxt "Keeper spell name"
+msgid "Recruit Tunneller"
+msgstr "Mol Creëren"
+
+#: guitext:1073
+msgctxt "Keeper spell description"
+msgid "Recruit Tunneller: Summon a new Tunneller anywhere in your dungeon."
+"Mol Creëren: Creëer een Mol in je kerker. LMK: selecteren."
+
+#: guitext:1074 guitext:1075
+msgctxt "Unused"
+msgid "Moo8"
+msgstr ""
+
+#: guitext:1076
+msgctxt "Door name"
+msgid "Midas Door"
+msgstr "Deur van Midas"
+
+#: guitext:1077
+msgctxt "Door description"
+msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
+msgstr "Deur van Midas: Vreet goud van de eigenaar om onverwoestbaar te blijven. RMK: inzoomen."

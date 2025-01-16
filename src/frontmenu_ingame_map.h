@@ -42,6 +42,7 @@ short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, lon
 short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, long zoom);
 short do_right_map_click(long start_x, long start_y, long curr_x, long curr_y, long zoom);
 
+void update_panel_colors(void);
 void update_panel_color_player_color(PlayerNumber plyr_idx, unsigned char color_idx);
 void setup_panel_colors();
 

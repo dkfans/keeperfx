@@ -85,7 +85,7 @@ void TCP_NetServer::recvThreadFunc(RecvThreadArg * arg)
 
 			if (SDLNet_TCP_Send(sendSock, buffer, bufferLen) < bufferLen) {
 				svr->removeRemoteSocket(sendSock);
-				NETMSG("TCP send error, will drop remote client with ID %d", playerId);
+				NETMSG("TCP send error, will drop remote client with ID %lu", playerId);
 				break;
 			}
 		}
@@ -146,7 +146,7 @@ bool TCP_NetServer::sendDKMessage(unsigned long playerId, const char buffer[], s
 
 	TCPsocket socket = getRemoteSocketByPlayer(playerId);
 	if (socket == NULL) {
-		NETLOG("No socket to player with ID %d", playerId);
+		NETLOG("No socket to player with ID %lu", playerId);
 		retval = false;
 	}
 	else {
@@ -155,7 +155,7 @@ bool TCP_NetServer::sendDKMessage(unsigned long playerId, const char buffer[], s
 
 		if (SDLNet_TCP_Send(socket, msg, len) < len) {
 			removeRemoteSocket(socket);
-			NETMSG("Remote client with ID %d closed", playerId);
+			NETMSG("Remote client with ID %lu closed", playerId);
 			retval = false;
 		}
 

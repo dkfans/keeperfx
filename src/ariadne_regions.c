@@ -18,6 +18,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "ariadne_regions.h"
+#include "ariadne.h"
 
 #include "globals.h"
 #include "bflib_basics.h"
@@ -106,7 +107,7 @@ void region_lnk(int nreg)
         TbBool notfound;
         while (1)
         {
-            if ((Triangles[ctri_id].tree_alt & 0xF) == 15)
+            if ((Triangles[ctri_id].tree_alt & NAVMAP_FLOORHEIGHT_MASK) == NAVMAP_FLOORHEIGHT_MAX)
             {
                 notfound = 1;
                 break;
@@ -176,7 +177,7 @@ static void region_connect(unsigned long tree_reg)
             int ntri_id = Triangles[creg_id].tags[ncor1];
             if (ntri_id != -1)
             {
-              if ((Triangles[ntri_id].tree_alt & 0xF) != 15)
+              if ((Triangles[ntri_id].tree_alt & NAVMAP_FLOORHEIGHT_MASK) != NAVMAP_FLOORHEIGHT_MAX)
               {
                   long preg_id = get_triangle_region_id(ntri_id);
                   if (preg_id != nreg_id)
@@ -215,8 +216,8 @@ TbBool regions_connected(long tree_reg1, long tree_reg2)
         return false;
     if ((tree_reg2 < 0) || (tree_reg2 >= TRIANLGLES_COUNT))
         return false;
-    if (((get_triangle_tree_alt(tree_reg1) & 0x0F) == 0x0F)
-    ||  ((get_triangle_tree_alt(tree_reg2) & 0x0F) == 0x0F))
+    if (((get_triangle_tree_alt(tree_reg1) & NAVMAP_FLOORHEIGHT_MASK) == NAVMAP_FLOORHEIGHT_MAX)
+    ||  ((get_triangle_tree_alt(tree_reg2) & NAVMAP_FLOORHEIGHT_MASK) == NAVMAP_FLOORHEIGHT_MAX))
         return false;
     long reg_id1 = get_triangle_region_id(tree_reg1);
     long reg_id2 = get_triangle_region_id(tree_reg2);

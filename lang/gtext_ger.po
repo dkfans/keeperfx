@@ -2268,11 +2268,10 @@ msgid "Group: Not used"
 msgstr "Gruppe: Ungebraucht"
 
 #: guitext:239
+#, fuzzy
 msgctxt "Creature spell"
-msgid ""
-"Invisibility: Cast on one of your minions, it makes the host creature "
-"invisible to all enemies. Unless they possess a subnatural Sight."
-msgstr "Tarnung: Auf eine Eurer Kreaturen angewendet, wird diese für alle Feinde unsichtbar, ausser gegen Feinde mit aktivierter Sicht.[26.12]"
+msgid "Invisibility: Makes the creature invisible to all enemies. Unless they possess a subnatural Sight."
+msgstr "Tarnung: Auf eine Eurer Kreaturen angewendet, wird diese für alle Feinde unsichtbar, ausser gegen Feinde mit aktivierter Sicht."
 
 #: guitext:240
 msgctxt "Creature spell"
@@ -2309,7 +2308,7 @@ msgstr "Hagelsturm: Entfesselt einen Sturm aus Hagelkörnern. [26.10]"
 #: guitext:245
 msgctxt "Creature spell"
 msgid ""
-"Slow: Slows down the target creature, making it attacks and movement delayed."
+"Slow: Slows down the target creature, making its attacks and movement delayed."
 msgstr "Verlangsamen: Bremst die Angriffe und Bewegungen der Zielkreatur erheblich. [26.19]"
 
 #: guitext:246
@@ -4606,11 +4605,10 @@ msgstr ""
 #: guitext:648
 msgctxt "Keeper spell description"
 msgid ""
-"Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. "
-"[18.2]"
+"Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
 msgstr ""
 "Imp erstellen: Erstellt einen Imp irgendwo in Eurem Dungeon. Mit der linken "
-"Maustaste wählen. [18.2]"
+"Maustaste wählen."
 
 #: guitext:649
 msgctxt "Keeper spell description"
@@ -4658,18 +4656,16 @@ msgstr ""
 
 #: guitext:654
 msgctxt "Keeper spell description"
-msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
+msgid "Speed Monster: Increases the speed of your monsters."
 msgstr ""
-"Monster beschleunigen: Macht Euren Monstern Beine. Mit der linken Maustaste "
-"wählen. [18.4]"
+"Monster beschleunigen: Macht Euren Monstern Beine."
 
 #: guitext:655
 msgctxt "Keeper spell description"
 msgid ""
-"Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
+"Protect Monster: Shields your creatures from attack."
 msgstr ""
-"Schutzschild: Bewahrt Eure Kreaturen vor Schaden. Mit der linken Maustaste wählen. "
-"[18.11]"
+"Schutzschild: Bewahrt Eure Kreaturen vor Schaden."
 
 #: guitext:656
 msgctxt "Keeper spell description"
@@ -4677,8 +4673,7 @@ msgid ""
 "Conceal Monster: Makes your creatures invisible to the enemy. LMB select. "
 "[18.7]"
 msgstr ""
-"Monster verbergen: Macht Eure Kreatur für den Gegner unsichtbar. Mit der "
-"linken Maustaste wählen. [18.7]"
+"Monster verbergen: Macht Eure Kreatur für den Gegner unsichtbar."
 
 #: guitext:657
 msgctxt "Keeper spell description"
@@ -7064,7 +7059,7 @@ msgstr "Dichte Goldader: Enthält viel Reichtum, den Eure Imps abbauen können."
 
 #: guitext:1053
 msgctxt "Keeper spell name"
-msgid "Rebound"
+msgid "Magic Shield"
 msgstr "Abprall"
 
 #: guitext:1054
@@ -7079,7 +7074,7 @@ msgstr "Verlangsamen"
 
 #: guitext:1056
 msgctxt "Keeper spell name"
-msgid "Flight"
+msgid "Levitate"
 msgstr "Flug"
 
 #: guitext:1057
@@ -7111,3 +7106,75 @@ msgstr "Kreaturen verärgern: Alle Kreaturen des Feindes werden ärgerlich."
 msgctxt "Dungeon special decription"
 msgid "Weaken Walls: Destroys the fortifications of enemy walls."
 msgstr "Mauern schwächen: Zerstört die Befestigungen der feindlichen Mauern."
+
+#: guitext:1063
+msgctxt "Game controls"
+msgid "Tilt Up"
+msgstr "Neigung erhöhen"
+
+#: guitext:1064
+msgctxt "Game controls"
+msgid "Tilt Down"
+msgstr "Neigung senken"
+
+#: guitext:1065
+msgctxt "Game controls"
+msgid "Reset Tilt"
+msgstr "Neigung zurücksetzen"
+
+#: guitext:1066
+msgctxt "Creature spell"
+msgid "Heal Monster: The target creature is massively healed."
+msgstr "Monster heilen: ein Zauberspruch um andere Verbündete zu heilen"
+
+#: guitext:1067
+msgctxt "Creature spell"
+msgid "Cleanse: Cures all negative effects inflicted on the creature."
+msgstr "Reinigen: Heilt alle negativen Effekte, die der Kreatur zugefügt wurden."
+
+#: guitext:1068
+msgctxt "Creature spell"
+msgid "Cleanse Monster: Cures all negative effects inflicted on target creature."
+msgstr "Monster reinigen: Kuriert alle Statuseffekte von Verbündeten."
+
+#: guitext:1069
+msgctxt "Keeper spell description"
+msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
+msgstr "Abprall: Fliegende Geschossen werden auf den ursprünglichen Beschwörer zurückgeworfen."
+
+#: guitext:1070
+msgctxt "Keeper spell description"
+msgid "Levitate: Causes the target creature to take off from the ground and attack creatures from the air or cross lava unharmed."
+msgstr "Fliegen: Lässt Kreaturen schweben."
+
+#: guitext:1071
+msgctxt "Keeper spell description"
+msgid "Sight: Allows the target creature to temporarily increase its awareness and notice the invisible."
+msgstr "Böser Blick: lässt eure Kreaturen andere unsichtbare Kreaturen sehen."
+
+#: guitext:1072
+msgctxt "Keeper spell name"
+msgid "Recruit Tunneller"
+msgstr "Dunkelzwerg erstellen"
+
+#: guitext:1073
+msgctxt "Keeper spell description"
+msgid "Recruit Tunneller: Summon a new Tunneller anywhere in your dungeon."
+msgstr ""
+"Dunkelzwerg erstellen: Erstellt einen Dunkelzwerg irgendwo in Eurem Dungeon. Mit der linken "
+"Maustaste wählen."
+
+#: guitext:1074 guitext:1075
+msgctxt "Unused"
+msgid "Moo8"
+msgstr ""
+
+#: guitext:1076
+msgctxt "Door name"
+msgid "Midas Door"
+msgstr "Habgierige Tür"
+
+#: guitext:1077
+msgctxt "Door description"
+msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
+msgstr "Habgierige Tür: Diese Tür verbraucht Gold um unzerstörbar zu werden."

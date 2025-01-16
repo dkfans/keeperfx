@@ -21,6 +21,9 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "room_data.h"
+#include "thing_data.h"
+#include "dungeon_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,10 +32,6 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-struct Room;
-struct Thing;
-struct Dungeon;
-
 #pragma pack()
 /******************************************************************************/
 void process_entrance_generation(void);
@@ -40,6 +39,7 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crtr_ki
 
 TbBool remove_creature_from_generate_pool(ThingModel crtr_kind);
 TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingModel crtr_kind);
+long count_player_available_creatures_of_model(PlayerNumber plyr_idx, ThingModel crtr_kind);
 /******************************************************************************/
 TbBool update_creature_pool_state(void);
 /******************************************************************************/

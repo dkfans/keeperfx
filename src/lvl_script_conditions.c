@@ -39,11 +39,12 @@ static unsigned short condition_stack_pos;
 static unsigned short condition_stack[CONDITIONS_COUNT];
 
 
-long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx)
+long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short validx)
 {
     SYNCDBG(10,"Checking condition %d for player %d",(int)valtype,(int)plyr_idx);
     struct Dungeon* dungeon;
     struct Thing* thing;
+    struct PlayerInfo* player;
     switch (valtype)
     {
     case SVar_MONEY:
@@ -68,6 +69,8 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_TOTAL_DOORS:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->total_doors;
+    case SVar_TOTAL_TRAPS:
+        return count_player_deployed_traps_of_model(plyr_idx, -1);
     case SVar_TOTAL_AREA:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->total_area;
@@ -125,6 +128,9 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_KEEPERS_DESTROYED:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->lvstats.keepers_destroyed;
+    case SVar_DESTROYED_KEEPER:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->lvstats.keeper_destroyed[validx];
     case SVar_TIMES_LEVELUP_CREATURE:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->lvstats.creatures_trained;
@@ -185,22 +191,20 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         }
         return 0;
     case SVar_AVAILABLE_TRAP: // IF_AVAILABLE(TRAP)
-        dungeon = get_dungeon(plyr_idx);
-        return dungeon->mnfct_info.trap_amount_stored[validx%game.conf.trapdoor_conf.trap_types_count]
-              + dungeon->mnfct_info.trap_amount_offmap[validx%game.conf.trapdoor_conf.trap_types_count];
+        return count_player_available_traps_of_model(plyr_idx, (validx % game.conf.trapdoor_conf.trap_types_count));
     case SVar_AVAILABLE_DOOR: // IF_AVAILABLE(DOOR)
-        dungeon = get_dungeon(plyr_idx);
-        return dungeon->mnfct_info.door_amount_stored[validx%game.conf.trapdoor_conf.door_types_count]
-              + dungeon->mnfct_info.door_amount_offmap[validx%game.conf.trapdoor_conf.door_types_count];
+        return count_player_available_doors_of_model(plyr_idx, (validx % game.conf.trapdoor_conf.door_types_count));
     case SVar_AVAILABLE_ROOM: // IF_AVAILABLE(ROOM)
         dungeon = get_dungeon(plyr_idx);
         return (dungeon->room_buildable[validx%game.conf.slab_conf.room_types_count] & 1);
     case SVar_AVAILABLE_CREATURE: // IF_AVAILABLE(CREATURE)
-        dungeon = get_dungeon(plyr_idx);
-        if (creature_will_generate_for_dungeon(dungeon, validx)) {
-            return min(game.pool.crtr_kind[validx%game.conf.crtr_conf.model_count],dungeon->max_creatures_attracted - (long)dungeon->num_active_creatrs);
-        }
-        return 0;
+        return count_player_available_creatures_of_model(plyr_idx, (validx % game.conf.crtr_conf.model_count));
+    case SVar_AVAILABLE_TOTAL_TRAPS:
+        return count_player_available_traps_of_model(plyr_idx, -1);
+    case SVar_AVAILABLE_TOTAL_DOORS:
+        return count_player_available_doors_of_model(plyr_idx, -1);
+    case SVar_AVAILABLE_TOTAL_CREATURES:
+        return count_player_available_creatures_of_model(plyr_idx, CREATURE_ANY);
     case SVar_SLAB_OWNER: //IF_SLAB_OWNER
     {
         long varib_id = get_slab_number((unsigned char)plyr_idx, validx);
@@ -225,7 +229,7 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         return dungeon->num_active_diggers - count_player_diggers_not_counting_to_total(plyr_idx);
     case SVar_ALL_DUNGEONS_DESTROYED:
     {
-        struct PlayerInfo* player = get_player(plyr_idx);
+        player = get_player(plyr_idx);
         return all_dungeons_destroyed(player);
     }
     case SVar_DOOR_NUM:
@@ -249,6 +253,9 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_BOX_ACTIVATED:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->box_info.activated[validx];
+    case SVar_TRAP_ACTIVATED:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->trap_info.activated[validx];
     case SVar_SACRIFICED:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->creature_sacrifice[validx];
@@ -283,11 +290,14 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         return dungeon->creatures_transferred;
     case SVar_ALLIED_PLAYER:
     {
-        struct PlayerInfo* player = get_player(plyr_idx);
+        player = get_player(plyr_idx);
         return player_allied_with(player, validx);
     }
     case SVar_ACTIVE_BATTLES:
         return count_active_battles(plyr_idx);
+    case SVar_VIEW_TYPE:
+        player = get_player(plyr_idx);
+        return player->view_type;
     default:
         break;
     };

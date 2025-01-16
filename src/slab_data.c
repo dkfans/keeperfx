@@ -20,7 +20,6 @@
 #include "slab_data.h"
 #include "globals.h"
 
-#include "bflib_memory.h"
 #include "player_instances.h"
 #include "config_terrain.h"
 #include "map_blocks.h"
@@ -153,7 +152,7 @@ TbBool slab_coords_invalid(MapSlabCoord slb_x, MapSlabCoord slb_y)
 long slabmap_owner(const struct SlabMap *slb)
 {
     if (slabmap_block_invalid(slb))
-        return NEUTRAL_PLAYER;
+        return PLAYER_NEUTRAL;
     return slb->owner;
 }
 
@@ -164,24 +163,18 @@ void set_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber owner)
 {
     struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
     if (slabmap_block_invalid(slb))
+    {
         return;
-    if (owner == NEUTRAL_PLAYER)
+    }
+    struct Dungeon *dungeon = get_dungeon(owner);
+    if (dungeon->texture_pack == 0)
     {
         gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = gameadd.slab_ext_data_initial[get_slab_number(slb_x,slb_y)];
     }
     else
     {
-        struct Dungeon *dungeon = get_dungeon(owner);
-        if (dungeon->texture_pack == 0)
-        {
-            gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = gameadd.slab_ext_data_initial[get_slab_number(slb_x,slb_y)];
-        }
-        else
-        {
-            gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = dungeon->texture_pack;
-        }
+        gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = dungeon->texture_pack;
     }
-
     slb->owner = owner;
 }
 
@@ -212,7 +205,7 @@ SlabCodedCoords get_next_slab_number_in_room(SlabCodedCoords slab_num)
 {
     if (slab_num >= gameadd.map_tiles_x * gameadd.map_tiles_y)
     {
-        ERRORLOG("Slabnumber %d exceeds map dimensions %d*%d", slab_num, gameadd.map_tiles_x, gameadd.map_tiles_y);
+        ERRORLOG("Slabnumber %lu exceeds map dimensions %d*%d", slab_num, gameadd.map_tiles_x, gameadd.map_tiles_y);
         return 0;
     }
     return game.slabmap[slab_num].next_in_room;
@@ -435,7 +428,7 @@ void clear_slabs(void)
         for (unsigned long x = 0; x < gameadd.map_tiles_x; x++)
         {
             struct SlabMap* slb = &game.slabmap[y * gameadd.map_tiles_x + x];
-            LbMemorySet(slb, 0, sizeof(struct SlabMap));
+            memset(slb, 0, sizeof(struct SlabMap));
             slb->kind = SlbT_ROCK;
         }
     }
@@ -468,7 +461,7 @@ SlabKind find_core_slab_type(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return corekind;
 }
 
-long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNumber plyr_idx)
+long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNumber plyr_idx, SlabKind synergy_slab_num)
 {
     TbBool is_room_inside = true;
     long eff_score = 0;
@@ -484,6 +477,9 @@ long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNu
             MapSlabCoord slb_y = slb_num_decode_y(round_slab_num);
             // Per slab code
             if ((slabmap_owner(round_slb) == slabmap_owner(slb)) && (round_slb->kind == slb->kind))
+            {
+                eff_score += 2;
+            } else if(((slabmap_owner(round_slb) == slabmap_owner(slb)) || !(get_slab_kind_attrs(synergy_slab_num)->is_ownable)) && (round_slb->kind == synergy_slab_num))
             {
                 eff_score += 2;
             } else
@@ -828,7 +824,7 @@ TbBool player_can_claim_slab(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabC
     }
 
     struct Room *room = room_get(slb->room_index);
-    if ((slb->kind != SlbT_CLAIMED) && (room_is_invalid(room) || (room->kind == RoK_DUNGHEART))) {
+    if ((slb->kind != SlbT_CLAIMED) && (room_is_invalid(room) || (flag_is_set(get_room_kind_stats(room->kind)->flags, RoCFlg_CannotBeClaimed)))) {
         SYNCDBG(8,"The slab %d,%d is not a valid kind %d to be converted",(int)slb_x, (int)slb_y, (int)slb->kind);
         return false;
     }

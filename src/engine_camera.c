@@ -22,7 +22,6 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
-#include "bflib_memory.h"
 #include "bflib_video.h"
 #include "bflib_sprite.h"
 #include "bflib_vidraw.h"
@@ -398,6 +397,42 @@ void view_set_camera_rotation_inertia(struct Camera *cam, long delta, long ilimi
     }
 }
 
+void view_set_camera_tilt(struct Camera *cam, unsigned char mode)
+{
+    int tilt;
+    switch (mode)
+    {
+        case 0: // reset
+        {
+            tilt = CAMERA_TILT_DEFAULT;
+            break;
+        }
+        case 1: // up
+        {
+            tilt = cam->orient_b;
+            if (tilt < CAMERA_TILT_MAX)
+            {
+                tilt++;
+            }
+            break;
+        }
+        case 2: // down
+        {
+            tilt = cam->orient_b;
+            if (tilt > CAMERA_TILT_MIN)
+            {
+                tilt--;
+            }
+            break;
+        }
+        default:
+        {
+            return;
+        }
+    }
+    cam->orient_b = tilt;
+}
+
 void init_player_cameras(struct PlayerInfo *player)
 {
     struct Thing* heartng = get_player_soul_container(player->id_number);
@@ -417,7 +452,7 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->mappos.z.val = 0;
     cam->orient_c = 0;
     cam->horizontal_fov = 94;
-    cam->orient_b = -266;
+    cam->orient_b = player->isometric_tilt;
     cam->orient_a = LbFPMath_PI/4;
     if (settings.video_rotate_mode == 1) {
         cam->view_mode = PVM_IsoStraightView;

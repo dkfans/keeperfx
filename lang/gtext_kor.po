@@ -2175,10 +2175,9 @@ msgid "Group: Not used"
 msgstr "그룹 : 사용 안함"
 
 #: guitext:239
+#, fuzzy
 msgctxt "Creature spell"
-msgid ""
-"Invisibility: Cast on one of your minions, it makes the host creature "
-"invisible to all enemies. Unless they possess a subnatural Sight."
+msgid "Invisibility: Makes the creature invisible to all enemies. Unless they possess a subnatural Sight."
 msgstr ""
 "투명화: 여러분의 하수인들 중 하나에 던져지면, 모든 적에게 해당 피조물이 보이"
 "지 않게 됩니다. 특이 시야가 없는 한 말이죠."
@@ -2224,7 +2223,7 @@ msgstr "우박 폭풍: 우박이 맹위를 떨칩니다."
 #: guitext:245
 msgctxt "Creature spell"
 msgid ""
-"Slow: Slows down the target creature, making it attacks and movement delayed."
+"Slow: Slows down the target creature, making its attacks and movement delayed."
 msgstr "느려림: 대상 피조물의 속도가 느려져 공격 및 이동이 지연됩니다."
 
 #: guitext:246
@@ -4558,11 +4557,10 @@ msgstr ""
 #: guitext:648
 msgctxt "Keeper spell description"
 msgid ""
-"Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. "
-"[18.2]"
+"Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
 msgstr ""
 "임프 생성 : 던전 어디에든 새로운 임프를 만듭니다. 왼쪽 마우스 단추로 선택합니"
-"다. [18.2]"
+"다."
 
 #: guitext:649
 msgctxt "Keeper spell description"
@@ -4610,27 +4608,23 @@ msgstr ""
 
 #: guitext:654
 msgctxt "Keeper spell description"
-msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
+msgid "Speed Monster: Increases the speed of your monsters."
 msgstr ""
-"몬스터 가속 : 몬스터의 속도가 빨라집니다. 왼쪽 마우스 단추로 선택합니다. "
-"[18.4]"
+"몬스터 가속 : 몬스터의 속도가 빨라집니다."
 
 #: guitext:655
 msgctxt "Keeper spell description"
 msgid ""
-"Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
+"Protect Monster: Shields your creatures from attack."
 msgstr ""
-"몬스터 보호 : 여러분의 피조물을 공격으로부터 보호합니다. 왼쪽 마우스 단추로 "
-"선택합니다. [18.11]"
+"몬스터 보호 : 여러분의 피조물을 공격으로부터 보호합니다."
 
 #: guitext:656
 msgctxt "Keeper spell description"
 msgid ""
-"Conceal Monster: Makes your creatures invisible to the enemy. LMB select. "
-"[18.7]"
+"Conceal Monster: Makes your creatures invisible to the enemy."
 msgstr ""
-"몬스터 은닉: 적에게 당신의 생명체를 보이지 않게 만듭니다. 왼쪽 마우스 단추로 "
-"선택합니다. [18.7]"
+"몬스터 은닉: 적에게 당신의 생명체를 보이지 않게 만듭니다."
 
 #: guitext:657
 msgctxt "Keeper spell description"
@@ -6945,8 +6939,9 @@ msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "높은 금맥: 당신의 임프가 추출할 수 있는 많은 부를 보유하고 있습니다."
 
 #: guitext:1053
+#, fuzzy
 msgctxt "Keeper spell name"
-msgid "Rebound"
+msgid "Magic Shield"
 msgstr "반사"
 
 #: guitext:1054
@@ -6961,7 +6956,7 @@ msgstr "느려림"
 
 #: guitext:1056
 msgctxt "Keeper spell name"
-msgid "Flight"
+msgid "Levitate"
 msgstr "비행"
 
 #: guitext:1057
@@ -6993,3 +6988,73 @@ msgstr "불행하게 만들기: 적의 모든 생물이 화가 납니다."
 msgctxt "Dungeon special decription"
 msgid "Weaken Walls: Destroys the fortifications of enemy walls."
 msgstr "벽 약화: 적의 벽 방어를 파괴합니다."
+
+#: guitext:1063
+msgctxt "Game controls"
+msgid "Tilt Up"
+msgstr ""
+
+#: guitext:1064
+msgctxt "Game controls"
+msgid "Tilt Down"
+msgstr ""
+
+#: guitext:1065
+msgctxt "Game controls"
+msgid "Reset Tilt"
+msgstr ""
+
+#: guitext:1066
+msgctxt "Creature spell"
+msgid "Heal Monster: The target creature is massively healed."
+msgstr ""
+
+#: guitext:1067
+msgctxt "Creature spell"
+msgid "Cleanse: Cures all negative effects inflicted on the creature."
+msgstr "정화: 생물에게 가해진 모든 부정적인 효과를 치료합니다."
+
+#: guitext:1068
+msgctxt "Creature spell"
+msgid "Cleanse Monster: Cures all negative effects inflicted on target creature."
+msgstr ""
+
+#: guitext:1069
+msgctxt "Keeper spell description"
+msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
+msgstr ""
+
+#: guitext:1070
+msgctxt "Keeper spell description"
+msgid "Levitate: Causes the target creature to take off from the ground and attack creatures from the air or cross lava unharmed."
+msgstr ""
+
+#: guitext:1071
+msgctxt "Keeper spell description"
+msgid "Sight: Allows the target creature to temporarily increase its awareness and notice the invisible."
+msgstr ""
+
+#: guitext:1072
+msgctxt "Keeper spell name"
+msgid "Recruit Tunneller"
+msgstr ""
+
+#: guitext:1073
+msgctxt "Keeper spell description"
+msgid "Recruit Tunneller: Summon a new Tunneller anywhere in your dungeon."
+msgstr ""
+
+#: guitext:1074 guitext:1075
+msgctxt "Unused"
+msgid "Moo8"
+msgstr ""
+
+#: guitext:1076
+msgctxt "Door name"
+msgid "Midas Door"
+msgstr ""
+
+#: guitext:1077
+msgctxt "Door description"
+msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
+msgstr ""

@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_planar.h"
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
@@ -37,7 +36,7 @@
 #include "room_workshop.h"
 #include "power_hand.h"
 #include "game_legacy.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "player_instances.h"
 #include "post_inc.h"
 
@@ -250,7 +249,7 @@ void event_initialise_event(struct Event *event, MapCoord map_x, MapCoord map_y,
 
 void event_delete_event_structure(long ev_idx)
 {
-    LbMemorySet(&game.event[ev_idx], 0, sizeof(struct Event));
+    memset(&game.event[ev_idx], 0, sizeof(struct Event));
 }
 
 void event_update_last_use(struct Event *event)
@@ -353,7 +352,7 @@ void event_add_to_event_buttons_list_or_replace_button(struct Event *event, stru
                 if (is_my_player_number(dungeon->owner))
                 {
                     struct PlayerInfo* player = get_player(dungeon->owner);
-                    if ( (game.play_gameturn > 10) && (player->view_type == PVT_DungeonTop) && ((game.operation_flags & GOF_ShowGui)) )
+                    if ( (game.play_gameturn > 10) && (player->view_type != PVT_DungeonTop || (game.operation_flags & GOF_ShowGui)) )
                     {
                         play_non_3d_sample(947);
                     }
@@ -521,7 +520,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             break;
         case EvKind_CreaturePayday:
             other_off = 1;
-            text = buf_sprintf("%s:\n %d", game.evntbox_scroll_window.text, event->target);
+            text = buf_sprintf("%s:\n %ld", game.evntbox_scroll_window.text, event->target);
             snprintf(game.evntbox_scroll_window.text,MESSAGE_TEXT_LEN, "%s", text);
             turn_on_menu(GMnu_TEXT_INFO);
             break;
@@ -656,7 +655,7 @@ void maintain_my_event_list(struct Dungeon *dungeon)
                 dungeon->event_button_index[i-1] = curr_ev_idx;
                 dungeon->event_button_index[i] = 0;
                 struct Event* event = &game.event[curr_ev_idx];
-                if (((event->flags & EvF_BtnFirstFall) != 0) || event->falling_button)
+                if (flag_is_set(event->flags,EvF_BtnFirstFall))
                 {
                     if ((i == 1) || ((i >= 2) && dungeon->event_button_index[i-2] != 0))
                     {
@@ -668,7 +667,6 @@ void maintain_my_event_list(struct Dungeon *dungeon)
                         unsigned char prev_ev_idx = dungeon->event_button_index[i - 1];
                         event = &game.event[prev_ev_idx];
                         event->flags &= ~EvF_BtnFirstFall;
-                        event->falling_button = 0;
                     }
                 }
             }
@@ -747,8 +745,12 @@ void event_process_events(void)
         if ((event->flags & EvF_Exists) == 0) {
             continue;
         }
-        if (event->lifespan_turns > 0) {
-            event->lifespan_turns--;
+        struct PlayerInfo*player = get_player(event->owner);
+        if (player->view_type == PVT_DungeonTop)
+        {
+            if (event->lifespan_turns > 0) {
+                event->lifespan_turns--;
+            }
         }
         if (event->lifespan_turns <= 0)
         {

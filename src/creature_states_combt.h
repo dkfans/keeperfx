@@ -73,7 +73,8 @@ TbBool creature_would_benefit_from_healing(const struct Thing* thing);
 
 long project_creature_attack_target_damage(const struct Thing *firing, const struct Thing *target);
 
-CrInstance get_best_quick_range_instance_to_use(const struct Thing *thing);
+void reset_postal_instance_cache();
+CrInstance get_postal_instance_to_use(const struct Thing *thing, unsigned long dist);
 
 TbBool creature_will_do_combat(const struct Thing *thing);
 TbBool creature_look_for_combat(struct Thing *creatng);
@@ -81,6 +82,7 @@ TbBool creature_look_for_enemy_heart_combat(struct Thing *thing);
 TbBool creature_look_for_enemy_heart_snipe(struct Thing* thing);
 TbBool creature_look_for_enemy_door_combat(struct Thing *thing);
 TbBool creature_look_for_enemy_object_combat(struct Thing* thing);
+TbBool creature_start_combat_with_trap_if_available(struct Thing* creatng, struct Thing* traptng);
 
 struct Thing *check_for_door_to_fight(struct Thing *thing);
 struct Thing* check_for_object_to_fight(struct Thing* thing);

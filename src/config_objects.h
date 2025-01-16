@@ -30,7 +30,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define OBJECT_TYPES_MAX  256
+#define OBJECT_TYPES_MAX  2000
 
 enum ObjectCategoryIndex {
     OCtg_Unknown = 0,
@@ -45,6 +45,7 @@ enum ObjectCategoryIndex {
     OCtg_Power,      //< Object is a keeper power effect, ie. hand of evil or keeper spell
     OCtg_LairTotem,  //< Object is a creature lair
     OCtg_Effect,     //< Object is some kind of effect which has influence on things or on terrain
+    OCtg_HeroGate,   //< Object functions as a hero gate
 };
 
 enum ObjectModelFlags {
@@ -69,13 +70,24 @@ struct Effects {
     unsigned char sound_range;
 };
 
+struct FlameProperties {
+    unsigned short animation_id;
+    short anim_speed;
+    int sprite_size;
+    int td_add_x;
+    int td_add_y;
+    int fp_add_x;
+    int fp_add_y;
+    unsigned char transparency_flags;
+};
+
 struct ObjectConfigStats {
     char code_name[COMMAND_WORD_LEN];
     unsigned long model_flags;
     long genre;
     long name_stridx;
     long map_icon;
-    long health;
+    HitPoints health;
     char fall_acceleration;
     char light_unaffected;
     char immobile;
@@ -96,8 +108,9 @@ struct ObjectConfigStats {
     unsigned char updatefn_idx;
     unsigned char initial_state;
     unsigned char random_start_frame;
-    unsigned char transparancy_flags;  // Lower 2 bits are transparency flags.
+    unsigned char transparency_flags;  // Lower 2 bits are transparency flags.
     struct Effects effect;
+    struct FlameProperties flame;
 };
 
 struct ObjectsConfig {
@@ -122,9 +135,8 @@ ThingClass crate_to_workshop_item_class(ThingModel tngmodel);
 ThingModel crate_to_workshop_item_model(ThingModel tngmodel);
 ThingClass crate_thing_to_workshop_item_class(const struct Thing *thing);
 ThingModel crate_thing_to_workshop_item_model(const struct Thing *thing);
-void init_objects(void);
 int get_required_room_capacity_for_object(RoomRole room_role, ThingModel objmodel, ThingModel relmodel);
-void update_all_object_stats();
+void update_all_objects_of_model(ThingModel model);
 /******************************************************************************/
 #ifdef __cplusplus
 }

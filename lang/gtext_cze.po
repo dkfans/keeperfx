@@ -2199,10 +2199,10 @@ msgid "Group: Not used"
 msgstr "Skupina: Nepoužito"
 
 #: guitext:239
+#, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Invisibility: Cast on one of your minions, it makes the host creature "
-"invisible to all enemies. Unless they possess a subnatural Sight."
+msgid "Invisibility: Makes the creature invisible to all enemies. Unless they possess a subnatural Sight."
 msgstr "Neviditelnost:"
 
 #: guitext:240
@@ -2240,7 +2240,7 @@ msgstr "Krupobiti:"
 #: guitext:245
 msgctxt "Creature spell"
 msgid ""
-"Slow: Slows down the target creature, making it attacks and movement delayed."
+"Slow: Slows down the target creature, making its attacks and movement delayed."
 msgstr "Zpomaleni:"
 
 #: guitext:246
@@ -4546,10 +4546,9 @@ msgstr ""
 #: guitext:648
 msgctxt "Keeper spell description"
 msgid ""
-"Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. "
-"[18.2]"
+"Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
 msgstr ""
-"Vytvorit skreta: Vyvola kdekoliv na tvem uzemi skreta. Zvoli se LTM. [18.2]"
+"Vytvorit skreta: Vyvola kdekoliv na tvem uzemi skreta. Zvoli se LTM."
 
 #: guitext:649
 msgctxt "Keeper spell description"
@@ -4595,25 +4594,23 @@ msgstr ""
 
 #: guitext:654
 msgctxt "Keeper spell description"
-msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
+msgid "Speed Monster: Increases the speed of your monsters."
 msgstr ""
-"Urychlit obludu: Zvysi rychlost tvych vybranych oblud. Vyber kouzla se "
-"provadi LTM. [18.4]"
+"Urychlit obludu: Zvysi rychlost tvych vybranych oblud."
 
 #: guitext:655
 msgctxt "Keeper spell description"
 msgid ""
-"Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
+"Protect Monster: Shields your creatures from attack."
 msgstr ""
-"Ochránit obludu: Ochrání tvé příšeny před útokem. LTM pro zvolení. [18.11]"
+"Ochránit obludu: Ochrání tvé příšeny před útokem."
 
 #: guitext:656
 msgctxt "Keeper spell description"
 msgid ""
-"Conceal Monster: Makes your creatures invisible to the enemy. LMB select. "
-"[18.7]"
+"Conceal Monster: Makes your creatures invisible to the enemy."
 msgstr ""
-"Skryj obludu: Zneviditelní tvé obludy pro nepřátele. LTM pro volbu. [18.7]"
+"Skryj obludu: Zneviditelní tvé obludy pro nepřátele."
 
 #: guitext:657
 msgctxt "Keeper spell description"
@@ -6728,117 +6725,117 @@ msgid "Moo4"
 msgstr ""
 
 #: guitext:1011
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Dungeon Keeper - Original Campaign"
 msgstr ""
 
 #: guitext:1012
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Assmist Isle"
 msgstr ""
 
 #: guitext:1013
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Ancient Keeper campaign"
 msgstr ""
 
 #: guitext:1014
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Burdened Imps' Level Pack"
 msgstr ""
 
 #: guitext:1015
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Conquest of the Arctic"
 msgstr ""
 
 #: guitext:1016
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "The Destiny of Ninja"
 msgstr ""
 
 #: guitext:1017
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "DzjeeAr's  6-level campaign"
 msgstr ""
 
 #: guitext:1018
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "DzjeeAr's 10-level campaign"
 msgstr ""
 
 #: guitext:1019
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "DzjeeAr's 25-level campaign"
 msgstr ""
 
 #: guitext:1020
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Evil Keeper campaign"
 msgstr ""
 
 #: guitext:1021
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Grinics' KReign campaign"
 msgstr ""
 
 #: guitext:1022
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Japanese DKMaps8 pack"
 msgstr ""
 
 #: guitext:1023
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "KDK Levels"
 msgstr ""
 
 #: guitext:1024
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Good Campaign"
 msgstr ""
 
 #: guitext:1025
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Lord Vexer campaign"
 msgstr ""
 
 #: guitext:1026
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Nikolai's Castles campaign"
 msgstr ""
 
 #: guitext:1027
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Dungeon Keeper - NG+"
 msgstr ""
 
 #: guitext:1028
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Post Ancient Keeper campaign"
 msgstr ""
 
 #: guitext:1029
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Post Undead Keeper campaign"
 msgstr ""
 
 #: guitext:1030
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Quest for the Hero campaign"
 msgstr ""
 
 #: guitext:1031
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Revenge of the Lord"
 msgstr ""
 
 #: guitext:1032
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Twin Keepers Campaign"
 msgstr ""
 
 #: guitext:1033
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Undead Keeper campaign"
 msgstr ""
 
@@ -6905,8 +6902,9 @@ msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "Hustý zlatý základ: Obsahuje mnoho bohatství, které mohou tví Skřeti těžit."
 
 #: guitext:1053
+#, fuzzy
 msgctxt "Keeper spell name"
-msgid "Rebound"
+msgid "Magic Shield"
 msgstr "Odražení"
 
 #: guitext:1054
@@ -6921,7 +6919,7 @@ msgstr "Zpomaleni"
 
 #: guitext:1056
 msgctxt "Keeper spell name"
-msgid "Flight"
+msgid "Levitate"
 msgstr "Letani"
 
 #: guitext:1057
@@ -6953,3 +6951,73 @@ msgstr "Rozlít nespokojenost: Všechna stvoření nepřítele jsou rozčílená
 msgctxt "Dungeon special decription"
 msgid "Weaken Walls: Destroys the fortifications of enemy walls."
 msgstr "Oslabí zdi: Ničí opevnění nepřátelských zdí."
+
+#: guitext:1063
+msgctxt "Game controls"
+msgid "Tilt Up"
+msgstr ""
+
+#: guitext:1064
+msgctxt "Game controls"
+msgid "Tilt Down"
+msgstr ""
+
+#: guitext:1065
+msgctxt "Game controls"
+msgid "Reset Tilt"
+msgstr ""
+
+#: guitext:1066
+msgctxt "Creature spell"
+msgid "Heal Monster: The target creature is massively healed."
+msgstr ""
+
+#: guitext:1067
+msgctxt "Creature spell"
+msgid "Cleanse: Cures all negative effects inflicted on the creature."
+msgstr "Čištění: Vyléčí všechny negativní účinky postihující bytost."
+
+#: guitext:1068
+msgctxt "Creature spell"
+msgid "Cleanse Monster: Cures all negative effects inflicted on target creature."
+msgstr ""
+
+#: guitext:1069
+msgctxt "Keeper spell description"
+msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
+msgstr ""
+
+#: guitext:1070
+msgctxt "Keeper spell description"
+msgid "Levitate: Causes the target creature to take off from the ground and attack creatures from the air or cross lava unharmed."
+msgstr ""
+
+#: guitext:1071
+msgctxt "Keeper spell description"
+msgid "Sight: Allows the target creature to temporarily increase its awareness and notice the invisible."
+msgstr ""
+
+#: guitext:1072
+msgctxt "Keeper spell name"
+msgid "Recruit Tunneller"
+msgstr ""
+
+#: guitext:1073
+msgctxt "Keeper spell description"
+msgid "Recruit Tunneller: Summon a new Tunneller anywhere in your dungeon."
+msgstr ""
+
+#: guitext:1074 guitext:1075
+msgctxt "Unused"
+msgid "Moo8"
+msgstr ""
+
+#: guitext:1076
+msgctxt "Door name"
+msgid "Midas Door"
+msgstr ""
+
+#: guitext:1077
+msgctxt "Door description"
+msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
+msgstr ""

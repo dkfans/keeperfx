@@ -22,7 +22,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_planar.h"
 #include "config_terrain.h"
@@ -302,8 +301,8 @@ void ariadne_compare_ways(const struct Ariadne *arid1, const struct Ariadne *ari
     if (arid1->wallhug_angle != arid2->wallhug_angle) {
         ERRORLOG("wallhug_angle DIFFERS");
     }
-    if (arid1->field_62 != arid2->field_62) {
-        ERRORLOG("field_62 DIFFERS");
+    if (arid1->straight_dist_to_next_waypoint != arid2->straight_dist_to_next_waypoint) {
+        ERRORLOG("straight_dist_to_next_waypoint DIFFERS");
     }
 }
 
@@ -359,7 +358,7 @@ void init_navigation_map(void)
 {
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
-    LbMemorySet(game.navigation_map, 0, sizeof(NavColour)*gameadd.navigation_map_size_x*gameadd.navigation_map_size_y);
+    memset(game.navigation_map, 0, sizeof(NavColour)*gameadd.navigation_map_size_x*gameadd.navigation_map_size_y);
     for (stl_y=0; stl_y < gameadd.navigation_map_size_y; stl_y++)
     {
         for (stl_x=0; stl_x < gameadd.navigation_map_size_x; stl_x++)
@@ -483,7 +482,7 @@ static void edge_points8(long ntri_src, long ntri_dst, long *tipA_x, long *tipA_
     }
     else
     {
-        ERRORLOG("edge not found %d->%d", ntri_src, ntri_dst);
+        ERRORLOG("edge not found %ld->%ld", ntri_src, ntri_dst);
     }
 }
 
@@ -580,7 +579,7 @@ long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y,
       if (reg2 == -1)
       {
         if (wp_num == ARID_PATH_WAYPOINTS_COUNT) {
-            ERRORLOG("Exceeded max path length (i:%d,L:%d) (%d,%d)->(%d,%d)",
+            ERRORLOG("Exceeded max path length (i:%ld,L:%ld) (%ld,%ld)->(%ld,%ld)",
             wpi, wp_lim, ptfind_x, ptfind_y, ptstart_x, ptstart_y);
         }
         *total_len += LbSqrL((fov_AC.tipB.x - fov_AC.tipA.x) * (fov_AC.tipB.x - fov_AC.tipA.x)
@@ -599,7 +598,7 @@ long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y,
       if (reg1 == 1)
       {
         if (wp_num == ARID_PATH_WAYPOINTS_COUNT) {
-            ERRORLOG("Exceeded max path length (i:%d,R:%d) (%d,%d)->(%d,%d)",
+            ERRORLOG("Exceeded max path length (i:%ld,R:%ld) (%ld,%ld)->(%ld,%ld)",
             wpi, wp_lim, ptfind_x, ptfind_y, ptstart_x, ptstart_y);
         }
         *total_len += LbSqrL((fov_AC.tipC.x - fov_AC.tipA.x) * (fov_AC.tipC.x - fov_AC.tipA.x)
@@ -1092,7 +1091,7 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, 
         if ( reg1 || reg2 || reg3 || reg4 )
         {
             if (pt_num == 256) {
-                ERRORLOG("grtc:Exceeded max path length (i:%d,rl:%d)", wpi, a6);
+                ERRORLOG("grtc:Exceeded max path length (i:%d,rl:%ld)", wpi, a6);
             }
             gt->field_0 = fov1.tipB.x;
             gt->field_4 = fov1.tipB.y;
@@ -1220,7 +1219,7 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, 
         fov1.tipC.y = edge_y2;
     }
     if (pt_num == 256) {
-        ERRORLOG("grtc:Exceeded max path length (i:%d,rl:%d)", wpi, a6);
+        ERRORLOG("grtc:Exceeded max path length (i:%d,rl:%ld)", wpi, a6);
     }
     pt_num++;
     gt->field_8 = trBx;
@@ -1351,7 +1350,7 @@ void tag_open_closed_init(void)
 
 unsigned long nav_same_component(long ptAx, long ptAy, long ptBx, long ptBy)
 {
-    NAVIDBG(19,"F=%d Connect %03d,%03d %03d,%03d", game.play_gameturn, ptAx, ptAy, ptBx, ptBy);
+    NAVIDBG(19,"F=%lu Connect %03ld,%03ld %03ld,%03ld", game.play_gameturn, ptAx, ptAy, ptBx, ptBy);
     long tri1_id;
     long tri2_id;
     tri1_id = triangle_findSE8(ptAx, ptAy);
@@ -2053,7 +2052,7 @@ void ariadne_init_current_waypoint(const struct Thing *thing, struct Ariadne *ar
 {
     ariadne_pull_out_waypoint(thing, arid, arid->current_waypoint, &arid->current_waypoint_pos);
     arid->current_waypoint_pos.z.val = get_thing_height_at(thing, &arid->current_waypoint_pos);
-    arid->field_62 = get_2d_distance(&thing->mappos, &arid->current_waypoint_pos);
+    arid->straight_dist_to_next_waypoint = get_2d_distance(&thing->mappos, &arid->current_waypoint_pos);
 }
 
 long angle_to_quadrant(long angle)
@@ -2671,7 +2670,7 @@ AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thi
     long nav_sizexy;
     NAVIDBG(18,"%s: The %s index %d from %3d,%3d to %3d,%3d", func_name, thing_model_name(thing), (int)thing->index,
         (int)srcpos->x.stl.num, (int)srcpos->y.stl.num, (int)dstpos->x.stl.num, (int)dstpos->y.stl.num);
-    LbMemorySet(&path, 0, sizeof(struct Path));
+    memset(&path, 0, sizeof(struct Path));
     // Set the required parameters
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
     if ((flags & AridRtF_NoOwner) != 0)
@@ -2747,7 +2746,7 @@ long ariadne_count_waypoints_on_creature_route_to_target_f(const struct Thing *t
     long nav_sizexy;
     NAVIDBG(18,"%s: The %s index %d from %3d,%3d to %3d,%3d", func_name, thing_model_name(thing), (int)thing->index,
         (int)srcpos->x.stl.num, (int)srcpos->y.stl.num, (int)dstpos->x.stl.num, (int)dstpos->y.stl.num);
-    LbMemorySet(&path, 0, sizeof(struct Path));
+    memset(&path, 0, sizeof(struct Path));
     // Set the required parameters
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
     if ((flags & AridRtF_NoOwner) != 0)
@@ -2774,7 +2773,7 @@ AriadneReturn ariadne_invalidate_creature_route(struct Thing *thing)
     TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
     arid = &cctrl->arid;
-    LbMemorySet(arid, 0, sizeof(struct Ariadne));
+    memset(arid, 0, sizeof(struct Ariadne));
     return AridRet_OK;
 }
 
@@ -2788,7 +2787,7 @@ AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, const str
     TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
     arid = &cctrl->arid;
-    LbMemorySet(arid, 0, sizeof(struct Ariadne));
+    memset(arid, 0, sizeof(struct Ariadne));
     if (ariadne_creature_reached_position(thing, pos))
     {
         ret = ariadne_prepare_creature_route_target_reached(thing, arid, &thing->mappos, pos);
@@ -2868,8 +2867,8 @@ AriadneReturn ariadne_update_state_manoeuvre_to_position(struct Thing *thing, st
         }
     }
     dist = get_2d_distance(&thing->mappos, &arid->current_waypoint_pos);
-    if (arid->field_62 > dist)
-        arid->field_62 = dist;
+    if (arid->straight_dist_to_next_waypoint > dist)
+        arid->straight_dist_to_next_waypoint = dist;
     if ((thing->mappos.x.val != arid->pos_53.x.val)
      || (thing->mappos.y.val != arid->pos_53.y.val))
     {
@@ -2903,7 +2902,7 @@ AriadneReturn ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *
     NAVIDBG(19,"Starting");
     angle = get_angle_xy_to(&thing->mappos, &arid->current_waypoint_pos);
     distance = get_2d_distance(&thing->mappos, &arid->current_waypoint_pos);
-    if ((distance - arid->field_62) > 4*COORD_PER_STL)
+    if ((distance - arid->straight_dist_to_next_waypoint) > 4 * COORD_PER_STL)
     {
         struct Coord3d pos;
         arid->pos_12.x.val = thing->mappos.x.val;
@@ -2930,8 +2929,8 @@ AriadneReturn ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *
             arid->pos_12.z.val = get_thing_height_at(thing, &arid->pos_12);
         }
     }
-    if (arid->field_62 > distance) {
-        arid->field_62 = distance;
+    if (arid->straight_dist_to_next_waypoint > distance) {
+        arid->straight_dist_to_next_waypoint = distance;
     }
     if (ariadne_creature_blocked_by_wall_at(thing, &arid->pos_12))
     {
@@ -3100,7 +3099,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
     NAVIDBG(18,"Route for %s index %d from %3d,%3d to %3d,%3d", thing_model_name(thing),(int)thing->index,
         (int)thing->mappos.x.val, (int)thing->mappos.y.val, (int)arid->current_waypoint_pos.x.val, (int)arid->current_waypoint_pos.y.val);
     distance = get_2d_distance(&thing->mappos, &arid->current_waypoint_pos);
-    if ((distance - arid->field_62) > 4*COORD_PER_STL)
+    if ((distance - arid->straight_dist_to_next_waypoint) > 4 * COORD_PER_STL)
     {
         struct Coord3d pos;
         arid->pos_12.x.val = thing->mappos.x.val;
@@ -3156,7 +3155,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
             ariadne_init_movement_to_current_waypoint(thing, arid);
             return 0;
         }
-        if (distance < arid->field_62)
+        if (distance < arid->straight_dist_to_next_waypoint)
         {
             if (ariadne_creature_can_continue_direct_line_to_waypoint(thing, arid, arid->move_speed)) {
                 if (ariadne_init_movement_to_current_waypoint(thing, arid) < 1) {
@@ -3164,7 +3163,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
                 }
                 return AridRet_OK;
             }
-            arid->field_62 = distance;
+            arid->straight_dist_to_next_waypoint = distance;
         }
         long hug_angle;
         hug_angle = ariadne_get_wallhug_angle(thing, arid);
@@ -3396,7 +3395,7 @@ void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x
     if (subroute == -2)
     {
         tree_routelen = ma_triangle_route(tree_triA, tree_triB, &tree_routecost);
-        NAVIDBG(19,"%s: route=%d", func_name, tree_routelen);
+        NAVIDBG(19,"%s: route=%ld", func_name, tree_routelen);
         if (tree_routelen != -1)
         {
             path->waypoints_num = route_to_path(start_x, start_y, end_x, end_y, tree_route, tree_routelen, path, &route_dist);
@@ -3408,10 +3407,17 @@ void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x
         route_through_gates(&ap_GPathway, path, subroute);
     }
     if (path->waypoints_num > 0) {
-        NAVIDBG(9,"%s: Finished with %3ld waypoints, start: (%d,%d), (%d,%d), (%d,%d), (%d,%d), (%d,%d), (%d,%d), (%d,%d), (%d,%d)", func_name,(long)path->waypoints_num,
-            (int)path->waypoints[0].x,(int)path->waypoints[0].y,(int)path->waypoints[1].x,(int)path->waypoints[1].y,(int)path->waypoints[2].x,(int)path->waypoints[2].y,
-            (int)path->waypoints[3].x,(int)path->waypoints[3].y,(int)path->waypoints[4].x,(int)path->waypoints[4].y,(int)path->waypoints[5].x,(int)path->waypoints[5].y,
-            (int)path->waypoints[6].x,(int)path->waypoints[6].y,(int)path->waypoints[7].x,(int)path->waypoints[7].y,(int)path->waypoints[8].x,(int)path->waypoints[8].y);
+        NAVIDBG(9,"%s: Finished with %3ld waypoints, start: (%d,%d), (%d,%d), (%d,%d), (%d,%d), (%d,%d), (%d,%d), (%d,%d), (%d,%d), (%d,%d)",
+            func_name,(long)path->waypoints_num,
+            (int)path->waypoints[0].x,(int)path->waypoints[0].y,
+            (int)path->waypoints[1].x,(int)path->waypoints[1].y,
+            (int)path->waypoints[2].x,(int)path->waypoints[2].y,
+            (int)path->waypoints[3].x,(int)path->waypoints[3].y,
+            (int)path->waypoints[4].x,(int)path->waypoints[4].y,
+            (int)path->waypoints[5].x,(int)path->waypoints[5].y,
+            (int)path->waypoints[6].x,(int)path->waypoints[6].y,
+            (int)path->waypoints[7].x,(int)path->waypoints[7].y,
+            (int)path->waypoints[8].x,(int)path->waypoints[8].y);
     } else {
         NAVIDBG(9,"%s: Finished with %3ld waypoints", func_name,(long)path->waypoints_num);
     }
@@ -4458,7 +4464,7 @@ long triangle_area1(long tri_idx)
     return llabs(area1+area2);
 }
 
-static void brute_fill_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned short ntree_alt)
+static void brute_fill_rectangle(long start_x, long start_y, long end_x, long end_y, NavColour ntree_alt)
 {
     // Replace start and end if they are switched
     if (end_x < start_x)
@@ -4846,7 +4852,7 @@ NavColour uniform_area_colour(const NavColour *imap, long start_x, long start_y,
         {
             if (imap[navmap_tile_number(x,y)] != uniform)
             {
-                return -1;
+                return NAV_COL_UNSET;
             }
         }
     }

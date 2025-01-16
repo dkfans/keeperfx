@@ -21,7 +21,6 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "value_util.h"
@@ -87,19 +86,9 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
     // Create sections
     for (int slab_kind = 0; slab_kind < game.conf.slab_conf.slab_types_count; slab_kind++)
     {
-       
-        {
-            sprintf(key, "slab%d", slab_kind);
-            slb_section = value_dict_get(&file_root, key);
-        }
-        if (value_type(slb_section) != VALUE_DICT)
-        {
-            if ((flags & CnfLd_IgnoreErrors) == 0)
-            {
-                WARNMSG("Invalid section %d", slab_kind);
-            }
-        }
-        else
+        sprintf(key, "slab%d", slab_kind);
+        slb_section = value_dict_get(&file_root, key);
+        if (value_type(slb_section) == VALUE_DICT)
         {
             for (int slabstyle_no = 0; slabstyle_no < SLABSETS_PER_SLAB; slabstyle_no++)
             {
@@ -119,34 +108,40 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
 
                 sprintf(key, "%s_objects", slab_styles_commands[slabstyle_no].name);
                 VALUE * objects_arr = value_dict_get(slb_section, key);
-                for (size_t i = 0; i < value_array_size(objects_arr); i++)
+                if(value_type(section) == VALUE_DICT && value_array_size(objects_arr) == 0)
                 {
-                    if (game.slabobjs_num >= SLABOBJS_COUNT)
+                    game.slabobjs_idx[slabset_no] = -1;
+                }
+                else
+                {
+                    for (size_t i = 0; i < value_array_size(objects_arr); i++)
                     {
-                        ERRORLOG("Exceeding max of %d slabobjects",SLABOBJS_COUNT);
-                        break;
-                    }
-                    struct SlabObj* slabobj = &game.slabobjs[game.slabobjs_num];
-                    VALUE * object = value_array_get(objects_arr, i);
-                    CONDITIONAL_ASSIGN_CLASS(object,"ThingType",slabobj->class_id);
-                    CONDITIONAL_ASSIGN_BOOL(object, "IsLight", slabobj->isLight);
-                    CONDITIONAL_ASSIGN_MODEL(object,"Subtype",slabobj->model,slabobj->class_id);
-                    CONDITIONAL_ASSIGN_ARR3_INT(object,"RelativePosition",slabobj->offset_x,slabobj->offset_y,slabobj->offset_z)
-                    CONDITIONAL_ASSIGN_INT(object, "EffectRange", slabobj->range);
-                    CONDITIONAL_ASSIGN_INT(object, "Subtile",     slabobj->stl_id);
+                        if (game.slabobjs_num >= SLABOBJS_COUNT)
+                        {
+                            ERRORLOG("Exceeding max of %d slabobjects",SLABOBJS_COUNT);
+                            break;
+                        }
+                        struct SlabObj* slabobj = &game.slabobjs[game.slabobjs_num];
+                        VALUE * object = value_array_get(objects_arr, i);
+                        CONDITIONAL_ASSIGN_CLASS(object,"ThingType",slabobj->class_id);
+                        CONDITIONAL_ASSIGN_BOOL(object, "IsLight", slabobj->isLight);
+                        CONDITIONAL_ASSIGN_MODEL(object,"Subtype",slabobj->model,slabobj->class_id);
+                        CONDITIONAL_ASSIGN_ARR3_INT(object,"RelativePosition",slabobj->offset_x,slabobj->offset_y,slabobj->offset_z)
+                        CONDITIONAL_ASSIGN_INT(object, "EffectRange", slabobj->range);
+                        CONDITIONAL_ASSIGN_INT(object, "Subtile",     slabobj->stl_id);
 
-                    slabobj->slabset_id = slabset_no;
-                    if (i == 0)
-                    {
-                        game.slabobjs_idx[slabset_no] = game.slabobjs_num;
+                        slabobj->slabset_id = slabset_no;
+                        if (i == 0)
+                        {
+                            game.slabobjs_idx[slabset_no] = game.slabobjs_num;
+                        }
+                        game.slabobjs_num++;
                     }
-                    game.slabobjs_num++;
                 }
             }
         }
     }
     value_fini(&file_root);
-    
     return true;
 }
 
@@ -157,48 +152,23 @@ TbBool load_columns_config_file(const char *textname, const char *fname, unsigne
     if (!load_toml_file(textname, fname,&file_root,flags))
         return false;
 
-    VALUE *common_section = value_dict_get(&file_root, "common");
-    if (!common_section)
-    {
-        WARNMSG("No [common] in %s for file %d", textname, fname);
-        value_fini(&file_root);
-        return false;
-    }
-
-    long count = value_int32(value_dict_get(common_section, "ColumnsCount"));
-    if (count > *ccount)
-    {
-        *ccount = count;
-    }
-    if (*ccount > COLUMNS_COUNT)
-    {
-        ERRORLOG("more columns then allowed in %s %d/%d",textname,*ccount,COLUMNS_COUNT);
-        *ccount = COLUMNS_COUNT;
-    }
-
     char key[64];
     VALUE *section;
     // Create sections
-    for (int col_no = 0; col_no < *ccount; col_no++)
+    for (int col_no = 0; col_no < COLUMNS_COUNT; col_no++)
     {
-       
         {
             sprintf(key, "column%d", col_no);
             section = value_dict_get(&file_root, key);
         }
-        if (value_type(section) != VALUE_DICT)
-        {
-            if ((flags & CnfLd_IgnoreErrors) == 0)
-            {
-                WARNMSG("Invalid column section %d", col_no);
-            }
-        }
-        else
+        if (value_type(section) == VALUE_DICT)
         {
             unsigned char bitfields = 0;
             TbBool permanent = true;
             bitfields |= permanent;
 
+            if (col_no + 1 > *ccount)
+                *ccount = col_no + 1;
             
             VALUE *lintel_val = value_dict_get(section, "Lintel");
             if (value_type(lintel_val) == VALUE_INT32)
@@ -241,8 +211,7 @@ TbBool load_columns_config_file(const char *textname, const char *fname, unsigne
             }
         }
     }
-    value_fini(&file_root);
-    
+    value_fini(&file_root);    
     return true;
 }
 

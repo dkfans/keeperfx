@@ -34,7 +34,6 @@
 #include "bflib_mouse.h"
 #include "bflib_vidraw.h"
 #include "bflib_fileio.h"
-#include "bflib_memory.h"
 #include "bflib_filelst.h"
 #include "bflib_sound.h"
 #include "bflib_network.h"
@@ -77,7 +76,7 @@
 #include "magic.h"
 #include "player_instances.h"
 #include "player_utils.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "gui_frontmenu.h"
 #include "gui_frontbtns.h"
 #include "gui_soundmsgs.h"
@@ -139,7 +138,7 @@ struct GuiButtonInit frontend_high_score_score_buttons[] = {
 };
 
 struct GuiButtonInit frontend_error_box_buttons[] = {
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0, 999,   0, 999,   0,450, 92, frontend_draw_error_text_box,      0, GUIStr_Empty,  0,{(long)gui_message_text},0, frontend_maintain_error_text_box},
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0, 999,   0, 999,   0,450, 92, frontend_draw_error_text_box,      0, GUIStr_Empty,  0,{.str = gui_message_text},0, frontend_maintain_error_text_box},
   {-1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, NULL },
 };
 
@@ -329,42 +328,42 @@ struct FrontEndButtonData frontend_button_info[] = {
 
 // bttn_sprite, tooltip_stridx, msg_stridx, lifespan_turns, turns_between_events, replace_event_kind_button;
 struct EventTypeInfo event_button_info[] = {
-  {260, GUIStr_Empty,                       GUIStr_Empty,                      1,   1, EvKind_Nothing},
-  {260, GUIStr_EventDnHeartAttackedDesc,    GUIStr_EventHeartAttacked,       300, 250, EvKind_Nothing},
-  {262, GUIStr_EventFightDesc,              GUIStr_EventFight,                -1,   0, EvKind_FriendlyFight},
-  {258, GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective},
-  {260, GUIStr_EventBreachDesc,             GUIStr_EventBreach,              300,   0, EvKind_Nothing},
-  {250, GUIStr_EventNewRoomResrchDesc,      GUIStr_EventNewRoomResearched,  1200,   0, EvKind_Nothing},
-  {256, GUIStr_EventNewCreatureDesc,        GUIStr_EventNewCreature,        1200,   0, EvKind_Nothing},
-  {252, GUIStr_EventNewSpellResrchDesc,     GUIStr_EventNewSpellResearched, 1200,   0, EvKind_Nothing},
-  {254, GUIStr_EventNewTrapDesc,            GUIStr_EventNewTrap,            1200,   0, EvKind_Nothing},
-  {254, GUIStr_EventNewDoorDesc,            GUIStr_EventNewDoor,            1200,   0, EvKind_Nothing},
-  {260, GUIStr_EventCreatrScavngDesc,       GUIStr_EventScavengingDetected, 1200,   0, EvKind_Nothing}, // EvKind_CreatrScavenged
-  {266, GUIStr_EventTreasrRoomFullDesc,     GUIStr_EventTreasureRoomFull,   1200, 500, EvKind_Nothing},
-  {266, GUIStr_EventCreaturePaydayDesc,     GUIStr_EventCreaturePayday,     1200,   0, EvKind_Nothing},
-  {266, GUIStr_EventAreaDiscoveredDesc,     GUIStr_EventAreaDiscovered,     1200,   0, EvKind_Nothing},
-  {266, GUIStr_EventSpellPickedUpDesc,      GUIStr_EventNewSpellPickedUp,   1200,   0, EvKind_Nothing},
-  {266, GUIStr_EventRoomTakenOverDesc,      GUIStr_EventNewRoomTakenOver,   1200,   0, EvKind_Nothing},
-  {260, GUIStr_EventCreatrAnnoyedDesc,      GUIStr_EventCreatureAnnoyed,    1200,   0, EvKind_Nothing},
-  {260, GUIStr_EventNoMoreLivingSetDesc,    GUIStr_EventNoMoreLivingSpace,  1200, 500, EvKind_Nothing},
-  {260, GUIStr_EventAlarmTriggeredDesc,     GUIStr_EventAlarmTriggered,      300, 200, EvKind_Nothing},
-  {260, GUIStr_EventRoomUnderAttackDesc,    GUIStr_EventRoomUnderAttack,     300, 250, EvKind_Nothing},
-  {260, GUIStr_EventNeedTreasrRoomDesc,     GUIStr_EventTreasureRoomNeeded,  300, 500, EvKind_Nothing}, // EvKind_NeedTreasureRoom
-  {268, GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {260, GUIStr_EventRoomLostDesc,           GUIStr_EventRoomLost,           1200,   0, EvKind_Nothing},
-  {260, GUIStr_EventCreaturesHungryDesc,    GUIStr_EventCreaturesHungry,     300, 500, EvKind_Nothing},
-  {266, GUIStr_EventTrapCrateFoundDesc,     GUIStr_EventTrapCrateFound,      300,   0, EvKind_Nothing},
-  {266, GUIStr_EventDoorCrateFoundDesc,     GUIStr_EventDoorCrateFound,      300,   0, EvKind_Nothing}, // EvKind_DoorCrateFound
-  {266, GUIStr_EventDnSpecialFoundDesc,     GUIStr_EventDnSpecialFound,      300,   0, EvKind_Nothing},
-  {268, GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {262, GUIStr_EventFightDesc,              GUIStr_EventFight,                -1,   0, EvKind_EnemyFight},
-  {260, GUIStr_EventWorkRoomUnreachblDesc,  GUIStr_EventWorkRoomUnreachbl,  1200, 500, EvKind_Nothing}, // EvKind_WorkRoomUnreachable
-  {260, GUIStr_EventStorgRoomUnreachblDesc, GUIStr_EventStorgRoomUnreachbl, 1200, 500, EvKind_Nothing}, // EvKind_StorageRoomUnreachable
-  {  0, GUIStr_Empty,                       GUIStr_Empty,                     50,  10, EvKind_Nothing}, // EvKind_PrisonerStarving
-  {  0, GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing}, // EvKind_TorturedHurt
-  {  0, GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing}, // EvKind_EnemyDoor
-  {260, GUIStr_EventSecretDoorDiscovDesc,   GUIStr_EventSecretDoorDiscovered,300, 200, EvKind_Nothing},
-  {260, GUIStr_EventSecretDoorSpottedDesc,  GUIStr_EventSecretDoorSpotted,   300, 200, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_Empty,                       GUIStr_Empty,                      1,   1, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam2_act,    GUIStr_EventDnHeartAttackedDesc,    GUIStr_EventHeartAttacked,       300, 250, EvKind_Nothing},
+  {GPS_message_rpanel_msg_battle_act,     GUIStr_EventFightDesc,              GUIStr_EventFight,                -1,   0, EvKind_FriendlyFight},
+  {GPS_message_rpanel_msg_questn_act,     GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventBreachDesc,             GUIStr_EventBreach,              300,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_room_act,       GUIStr_EventNewRoomResrchDesc,      GUIStr_EventNewRoomResearched,  1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_creatr_act,     GUIStr_EventNewCreatureDesc,        GUIStr_EventNewCreature,        1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_spell_act,      GUIStr_EventNewSpellResrchDesc,     GUIStr_EventNewSpellResearched, 1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_manufct_act,    GUIStr_EventNewTrapDesc,            GUIStr_EventNewTrap,            1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_manufct_act,    GUIStr_EventNewDoorDesc,            GUIStr_EventNewDoor,            1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventCreatrScavngDesc,       GUIStr_EventScavengingDetected, 1200,   0, EvKind_Nothing}, // EvKind_CreatrScavenged
+  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventTreasrRoomFullDesc,     GUIStr_EventTreasureRoomFull,   1200, 500, EvKind_Nothing},
+  {GPS_message_rpanel_msg_payday_act,     GUIStr_EventCreaturePaydayDesc,     GUIStr_EventCreaturePayday,     1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventAreaDiscoveredDesc,     GUIStr_EventAreaDiscovered,     1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventSpellPickedUpDesc,      GUIStr_EventNewSpellPickedUp,   1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventRoomTakenOverDesc,      GUIStr_EventNewRoomTakenOver,   1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventCreatrAnnoyedDesc,      GUIStr_EventCreatureAnnoyed,    1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventNoMoreLivingSetDesc,    GUIStr_EventNoMoreLivingSpace,  1200, 500, EvKind_Nothing},
+  {GPS_message_rpanel_msg_alarm_act,      GUIStr_EventAlarmTriggeredDesc,     GUIStr_EventAlarmTriggered,      300, 200, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventRoomUnderAttackDesc,    GUIStr_EventRoomUnderAttack,     300, 250, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventNeedTreasrRoomDesc,     GUIStr_EventTreasureRoomNeeded,  300, 500, EvKind_Nothing}, // EvKind_NeedTreasureRoom
+  {GPS_message_rpanel_msg_inforg_act,     GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventRoomLostDesc,           GUIStr_EventRoomLost,           1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventCreaturesHungryDesc,    GUIStr_EventCreaturesHungry,     300, 500, EvKind_Nothing},
+  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventTrapCrateFoundDesc,     GUIStr_EventTrapCrateFound,      300,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventDoorCrateFoundDesc,     GUIStr_EventDoorCrateFound,      300,   0, EvKind_Nothing}, // EvKind_DoorCrateFound
+  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventDnSpecialFoundDesc,     GUIStr_EventDnSpecialFound,      300,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_inforg_act,     GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_battle_act,     GUIStr_EventFightDesc,              GUIStr_EventFight,                -1,   0, EvKind_EnemyFight},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventWorkRoomUnreachblDesc,  GUIStr_EventWorkRoomUnreachbl,  1200, 500, EvKind_Nothing}, // EvKind_WorkRoomUnreachable
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventStorgRoomUnreachblDesc, GUIStr_EventStorgRoomUnreachbl, 1200, 500, EvKind_Nothing}, // EvKind_StorageRoomUnreachable
+  {0,                                     GUIStr_Empty,                       GUIStr_Empty,                     50,  10, EvKind_Nothing}, // EvKind_PrisonerStarving
+  {0,                                     GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing}, // EvKind_TorturedHurt
+  {0,                                     GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing}, // EvKind_EnemyDoor
+  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventSecretDoorDiscovDesc,   GUIStr_EventSecretDoorDiscovered,300, 200, EvKind_Nothing},
+  {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventSecretDoorSpottedDesc,  GUIStr_EventSecretDoorSpotted,   300, 200, EvKind_Nothing},
 };
 
 const unsigned long alliance_grid[4][4] = {
@@ -376,9 +375,7 @@ const unsigned long alliance_grid[4][4] = {
 
 #if (BFDEBUG_LEVEL > 0)
 // Declarations for font testing screen (debug version only)
-struct TbSprite *testfont[TESTFONTS_COUNT];
-struct TbSprite *testfont_end[TESTFONTS_COUNT];
-unsigned char * testfont_data[TESTFONTS_COUNT];
+struct TbSpriteSheet *testfont[TESTFONTS_COUNT];
 unsigned char *testfont_palette[3];
 long num_chars_in_font = 128;
 #endif
@@ -418,27 +415,10 @@ int load_game_scroll_offset;
 unsigned char video_gamma_correction;
 
 // *** SPRITES ***
-struct TbSprite *font_sprites;
-struct TbSprite *end_font_sprites;
-unsigned char * font_data;
-struct TbSprite *frontend_font[FRONTEND_FONTS_COUNT];
-struct TbSprite *frontend_end_font[FRONTEND_FONTS_COUNT];
-unsigned char * frontend_font_data[FRONTEND_FONTS_COUNT];
-unsigned char * frontend_end_font_data[FRONTEND_FONTS_COUNT];
-struct TbSprite *button_sprite;
-struct TbSprite *end_button_sprites;
-unsigned char * button_sprite_data;
-unsigned long end_button_sprite_data;
-struct TbSprite *winfont;
-struct TbSprite *end_winfonts;
-unsigned char * winfont_data;
-unsigned char * end_winfont_data;
-struct TbSprite *edit_icon_sprites;
-struct TbSprite *end_edit_icon_sprites;
-unsigned char * edit_icon_data;
-struct TbSprite *port_sprite;
-struct TbSprite *end_port_sprites;
-unsigned char * port_sprite_data;
+struct TbSpriteSheet * font_sprites = NULL;
+struct TbSpriteSheet * frontend_font[FRONTEND_FONTS_COUNT] = {};
+struct TbSpriteSheet * button_sprites = NULL;
+struct TbSpriteSheet * winfont = NULL;
 unsigned long playing_bad_descriptive_speech;
 unsigned long playing_good_descriptive_speech;
 long scrolling_index;
@@ -476,12 +456,11 @@ TbBool a_menu_window_is_active(void)
 
 int frontend_font_char_width(int fnt_idx,char c)
 {
-    struct TbSprite *fnt;
     int i;
-    fnt = frontend_font[fnt_idx];
     i = (unsigned short)c - 31;
-    if (i >= 0)
-        return fnt[i].SWidth;
+    if (i >= 0) {
+        return get_sprite(frontend_font[fnt_idx], i)->SWidth;
+    }
     return 0;
 }
 
@@ -489,34 +468,6 @@ int frontend_font_string_width(int fnt_idx, const char *str)
 {
     LbTextSetFont(frontend_font[fnt_idx]);
     return LbTextStringWidth(str);
-}
-
-TbBool frontend_font_string_draw(int scr_x, int scr_y, int dst_width, int dst_height, int fnt_idx, const char *str, unsigned short fdflags)
-{
-    int units_per_px;
-    units_per_px = dst_height * 16 / LbTextLineHeight();
-    if (units_per_px < 1)
-        units_per_px = 1;
-    lbDisplay.DrawFlags = 0;
-    LbTextSetFont(frontend_font[fnt_idx]);
-    int w;
-    int h;
-    h = LbTextLineHeight() * units_per_px / 16;
-    w = LbTextStringWidth(str) * units_per_px / 16;
-    if (w > dst_width) w = dst_width;
-    switch (fdflags & 0x03)
-    {
-    case Fnt_LeftJustify:
-        LbTextSetWindow(scr_x, scr_y, w, h);
-        break;
-    case Fnt_RightJustify:
-        LbTextSetWindow(scr_x+dst_width-w, scr_y, w, h);
-        break;
-    case Fnt_CenterPos:
-        LbTextSetWindow(scr_x+((dst_width-w)>>1), scr_y, w, h);
-        break;
-    }
-    return LbTextDrawResized(0, 0, units_per_px, str);
 }
 
 void get_player_gui_clicks(void)
@@ -730,15 +681,12 @@ short game_is_busy_doing_gui(void)
       return false;
     if (battle_creature_over <= 0)
       return true;
-    PowerKind pwkind;
-    pwkind = 0;
-    if (player->work_state < PLAYER_STATES_COUNT)
-      pwkind = player_state_to_power_kind[player->work_state];
+    PowerKind pwkind = player->chosen_power_kind;
+    struct Thing *thing;
+    thing = thing_get(battle_creature_over);
+    if (!thing_is_invalid(thing) && can_cast_power_on_thing(player->id_number, thing, pwkind))
     {
-        struct Thing *thing;
-        thing = thing_get(battle_creature_over);
-        if (can_cast_power_on_thing(player->id_number, thing, pwkind))
-            return true;
+        return true;
     }
     return false;
 }
@@ -750,7 +698,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
     unsigned short outchar;
     TbLocChar vischar[4];
     strcpy(vischar," ");
-    str = (char *)gbtn->content;
+    str = gbtn->content.str;
     key = lbInkey;
     outchar = key_to_ascii(key, key_modifiers);
     vischar[0] = outchar;
@@ -818,7 +766,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
             }
         } else
         {
-            if (!isalnum(vischar[0]) && (vischar[0] != ' ')) {
+            if (!isgraph(vischar[0]) && (vischar[0] != ' ')) {
                 clear_key_pressed(key);
                 return false;
             }
@@ -859,11 +807,11 @@ void maintain_zoom_to_event(struct GuiButton *gbtn)
 void maintain_scroll_up(struct GuiButton *gbtn)
 {
     struct TextScrollWindow * scrollwnd;
-    scrollwnd = (struct TextScrollWindow *)gbtn->content;
+    scrollwnd = (struct TextScrollWindow *)gbtn->content.ptr;
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (scrollwnd->start_y < 0)) & LbBtnF_Enabled;
     if (!check_current_gui_layer(GuiLayer_OneClick))
     {
-        if (wheel_scrolled_up & lbKeyOn[KC_LCONTROL])
+        if (wheel_scrolled_up && (is_game_key_pressed(Gkey_RotateMod, NULL, true)))
         {
             scrollwnd->action = 1;
         }
@@ -873,12 +821,12 @@ void maintain_scroll_up(struct GuiButton *gbtn)
 void maintain_scroll_down(struct GuiButton *gbtn)
 {
     struct TextScrollWindow * scrollwnd;
-    scrollwnd = (struct TextScrollWindow *)gbtn->content;
+    scrollwnd = (struct TextScrollWindow *)gbtn->content.ptr;
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled
         * (scrollwnd->window_height - scrollwnd->text_height + 2 < scrollwnd->start_y)) & LbBtnF_Enabled;
     if (!check_current_gui_layer(GuiLayer_OneClick))
     {
-        if (wheel_scrolled_down & lbKeyOn[KC_LCONTROL])
+        if (wheel_scrolled_down && (is_game_key_pressed(Gkey_RotateMod, NULL, true)))
         {
             scrollwnd->action = 2;
         }
@@ -928,9 +876,9 @@ TbBool frontend_is_player_allied(long idx1, long idx2)
 {
     if (idx1 == idx2)
       return true;
-    if ((idx1 < 0) || (idx1 >= HERO_PLAYER))
+    if ((idx1 < 0) || (idx1 >= PLAYER_GOOD))
       return false;
-    if ((idx2 < 0) || (idx2 >= HERO_PLAYER))
+    if ((idx2 < 0) || (idx2 >= PLAYER_GOOD))
       return false;
     return ((frontend_alliances & alliance_grid[idx1][idx2]) != 0);
 }
@@ -948,8 +896,9 @@ TbResult frontend_load_data(void)
     char *fname;
     TbResult ret;
     long len;
+    // TODO: There is no "frontend_unload_data", find a better spot for this
+    free_spritesheet(&frontend_sprite);
     ret = Lb_SUCCESS;
-    wait_for_cd_to_be_available();
     frontend_background = (unsigned char *)game.map;
 #ifdef SPRITE_FORMAT_V2
     fname = prepare_file_fmtpath(FGrp_LoData,"front-%d.raw",64);
@@ -963,36 +912,20 @@ TbResult frontend_load_data(void)
     if (len > sizeof(game.map)) {
         WARNLOG("Reused memory area exceeded for frontend background.");
     }
-    frontend_sprite_data = (unsigned char *)poly_pool;
+    char dat_fname[2048];
+    char tab_fname[2048];
 #ifdef SPRITE_FORMAT_V2
-    fname = prepare_file_fmtpath(FGrp_LoData,"frontbit-%d.dat",64);
+    strcpy(dat_fname, prepare_file_fmtpath(FGrp_LoData,"frontbit-%d.dat",64));
+    strcpy(tab_fname, prepare_file_fmtpath(FGrp_LoData,"frontbit-%d.tab",64));
 #else
-    fname = prepare_file_path(FGrp_LoData,"frontbit.dat");
-#endif
-    len = LbFileLoadAt(fname, frontend_sprite_data);
-    if (len < 12) {
-        frontend_end_sprite_data = frontend_sprite_data;
-        ret = Lb_FAIL;
-    } else {
-        frontend_end_sprite_data = ((unsigned char *)frontend_sprite_data + len);
+    strcpy(dat_fname, prepare_file_path(FGrp_LoData,"frontbit.dat"));
+    strcpy(tab_fname, prepare_file_path(FGrp_LoData,"frontbit.tab"));
+ #endif
+    frontend_sprite = load_spritesheet(dat_fname, tab_fname);
+    if (!frontend_sprite) {
+        ERRORLOG("Cannot load frontend sprites.");
+        return Lb_FAIL;
     }
-    frontend_sprite = (struct TbSprite *)frontend_end_sprite_data;
-#ifdef SPRITE_FORMAT_V2
-    fname = prepare_file_fmtpath(FGrp_LoData,"frontbit-%d.tab",64);
-#else
-    fname = prepare_file_path(FGrp_LoData,"frontbit.tab");
-#endif
-    len = LbFileLoadAt(fname, frontend_sprite);
-    if (len < 12) {
-        frontend_end_sprite = frontend_sprite;
-        ret = Lb_FAIL;
-    } else {
-        frontend_end_sprite = (struct TbSprite *)((unsigned char *)frontend_sprite + len);
-    }
-    if (((long)frontend_end_sprite - (long)frontend_sprite_data) > sizeof(poly_pool)) {
-        WARNLOG("Reused memory area exceeded for frontend sprites.");
-    }
-    LbSpriteSetup(frontend_sprite, frontend_end_sprite, frontend_sprite_data);
     return ret;
 }
 
@@ -1007,7 +940,7 @@ void activate_room_build_mode(RoomKind rkind, TextStringId tooltip_id)
     game.chosen_room_tooltip = tooltip_id;
 }
 
-long player_state_to_packet(long work_state, PowerKind pwkind, TbBool already_in)
+long player_state_to_packet(PlayerState work_state, PowerKind pwkind, TbBool already_in)
 {
     switch (work_state)
     {
@@ -1024,21 +957,8 @@ long player_state_to_packet(long work_state, PowerKind pwkind, TbBool already_in
     case PSt_CtrlDirect:
     case PSt_FreeCtrlDirect:
     case PSt_CreateDigger:
-    case PSt_CaveIn:
-    case PSt_Heal:
-    case PSt_Lightning:
-    case PSt_SpeedUp:
-    case PSt_Armour:
-    case PSt_Conceal:
-    case PSt_CastDisease:
-    case PSt_TurnChicken:
-    case PSt_DestroyWalls:
-    case PSt_Rebound:
-    case PSt_Freeze:
-    case PSt_Slow:
-    case PSt_Flight:
-    case PSt_Vision:
-    case PSt_TimeBomb:
+    case PSt_CastPowerOnSubtile:
+    case PST_CastPowerOnTarget:
         return PckA_SetPlyrState;
     case PSt_None:
         switch (pwkind)
@@ -1070,7 +990,7 @@ TbBool set_players_packet_change_spell(struct PlayerInfo *player,PowerKind pwkin
     pcktype = player_state_to_packet(powerst->work_state, pwkind, already_in);
     if (pcktype != PckA_None)
     {
-        set_players_packet_action(player, pcktype, powerst->work_state, 0, 0, 0);
+        set_players_packet_action(player, pcktype, powerst->work_state, pwkind, 0, 0);
         if (!already_in) {
             play_non_3d_sample(powerst->select_sample_idx);
         }
@@ -1144,13 +1064,13 @@ void choose_spell(PowerKind pwkind, TextStringId tooltip_id)
 
 void frontend_draw_scroll_tab(struct GuiButton *gbtn, long scroll_offset, long first_elem, long last_elem)
 {
-    struct TbSprite *spr;
+    const struct TbSprite *spr;
     long i;
     long k;
     long n;
     int units_per_px;
     units_per_px = simple_frontend_sprite_width_units_per_px(gbtn, GFS_slider_indicator_std, 100);
-    spr = &frontend_sprite[GFS_slider_indicator_std];
+    spr = get_frontend_sprite(GFS_slider_indicator_std);
     i = last_elem - first_elem;
     k = gbtn->height - spr->SHeight * units_per_px / 16;
     if (i <= 1)
@@ -1205,10 +1125,10 @@ void draw_slider64k(long scr_x, long scr_y, int units_per_px, long width)
     int cur_x = base_x;
     int cur_y = base_y;
     // int end_x = base_x + base_w - 64*units_per_px/16;
-    struct TbSprite *spr = &button_sprite[GBS_borders_bar_std_l];
+    const struct TbSprite *spr = get_button_sprite(GBS_borders_bar_std_l);
     LbSpriteDrawResized(cur_x, cur_y, units_per_px, spr);
     cur_x += spr->SWidth*units_per_px/16;
-    spr = &button_sprite[GBS_borders_bar_std_c];
+    spr = get_button_sprite(GBS_borders_bar_std_c);
     while (cur_x < end_x)
     {
         LbSpriteDrawResized(cur_x, cur_y, units_per_px, spr);
@@ -1217,7 +1137,7 @@ void draw_slider64k(long scr_x, long scr_y, int units_per_px, long width)
     cur_x = end_x;
     LbSpriteDrawResized(cur_x/pixel_size, cur_y/pixel_size, units_per_px, spr);
     cur_x += spr->SWidth*units_per_px/16;
-    spr = &button_sprite[GBS_borders_bar_std_r];
+    spr = get_button_sprite(GBS_borders_bar_std_r);
     LbSpriteDrawResized(cur_x/pixel_size, cur_y/pixel_size, units_per_px, spr);
 }
 
@@ -1235,11 +1155,11 @@ void gui_area_slider(struct GuiButton *gbtn)
     }
     draw_slider64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, bar_width);
     int shift_x = (gbtn->width - 64*units_per_px/16) * gbtn->slide_val >> 8;
-    struct TbSprite *spr;
+    const struct TbSprite *spr;
     if (gbtn->flags != 0) {
-        spr = &button_sprite[GBS_guisymbols_jewel_on];
+        spr = get_button_sprite(GBS_guisymbols_jewel_on);
     } else {
-        spr = &button_sprite[GBS_guisymbols_jewel_off];
+        spr = get_button_sprite(GBS_guisymbols_jewel_off);
     }
     LbSpriteDrawResized(gbtn->scr_pos_x + shift_x + 24*units_per_px/16, gbtn->scr_pos_y + 6*units_per_px/16, bs_units_per_px, spr);
 }
@@ -1268,7 +1188,7 @@ TbBool fronttestfont_draw(void)
   for (i=31; i < num_chars_in_font+31; i++)
   {
     k = (i-31);
-    SYNCDBG(9,"Drawing char %d",i);
+    SYNCDBG(9,"Drawing char %lu",i);
     x = (k%32)*w + 2;
     y = (k/32)*h + 2;
     if (lbFontPtr != NULL)
@@ -1295,8 +1215,8 @@ TbBool fronttestfont_input(void)
     if (lbKeyOn[keys[i]])
     {
       lbKeyOn[keys[i]] = 0;
-      num_chars_in_font = testfont_end[i]-testfont[i];
-      SYNCDBG(9,"Characters in font %d: %d",i,num_chars_in_font);
+      num_chars_in_font = num_sprites(testfont[i]);
+      SYNCDBG(9,"Characters in font %d: %ld",i,num_chars_in_font);
       if (i < 4)
         LbPaletteSet(frontend_palette);//testfont_palette[0]
       else
@@ -1326,23 +1246,23 @@ void frontend_draw_slider(struct GuiButton *gbtn)
     const int fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_slider_horiz_c, 100);
     const float scale = float(fs_units_per_px) / 16;
 
-    const auto left_sprite = &frontend_sprite[GFS_slider_horiz_l]; // 40 units wide
+    const auto left_sprite = get_frontend_sprite(GFS_slider_horiz_l); // 40 units wide
     LbSpriteDrawResized(gbtn->scr_pos_x, gbtn->scr_pos_y, fs_units_per_px, left_sprite);
 
     // Draw center sprite draw as many times as necessary
-    const auto center_sprite = &frontend_sprite[GFS_slider_horiz_c]; // 110 units wide
+    const auto center_sprite = get_frontend_sprite(GFS_slider_horiz_c); // 110 units wide
     const int right_sprite_x = (gbtn->scr_pos_x + gbtn->width) - (40 * scale);
     for (int x = gbtn->scr_pos_x + (40 * scale); x < right_sprite_x; x += (110 * scale))
     {
         LbSpriteDrawResized(x, gbtn->scr_pos_y, fs_units_per_px, center_sprite);
     }
 
-    const auto right_sprite = &frontend_sprite[GFS_slider_horiz_r]; // 40 units wide
+    const auto right_sprite = get_frontend_sprite(GFS_slider_horiz_r); // 40 units wide
     LbSpriteDrawResized(right_sprite_x, gbtn->scr_pos_y, fs_units_per_px, right_sprite);
 
     const int knob_position = gbtn->slide_val * (gbtn->width - int(64 * scale)) >> 8;
     const auto knob_sprite = (gbtn->gbactn_1 != 0) ?
-        &frontend_sprite[GFS_slider_indicator_act] : &frontend_sprite[GFS_slider_indicator_std];
+        get_frontend_sprite(GFS_slider_indicator_act) : get_frontend_sprite(GFS_slider_indicator_std);
     LbSpriteDrawResized(
         (gbtn->scr_pos_x + knob_position + (24 * scale)) / pixel_size,
         (gbtn->scr_pos_y + (3 * scale)) / pixel_size,
@@ -1362,21 +1282,21 @@ void frontend_draw_small_slider(struct GuiButton *gbtn)
     int scr_y;
     scr_x = gbtn->scr_pos_x;
     scr_y = gbtn->scr_pos_y;
-    struct TbSprite *spr;
-    spr = &frontend_sprite[GFS_slider_horiz_l];
+    const struct TbSprite *spr;
+    spr = get_frontend_sprite(GFS_slider_horiz_l);
     LbSpriteDrawResized(scr_x, scr_y, fs_units_per_px, spr);
     scr_x += spr->SWidth * fs_units_per_px / 16;
-    spr = &frontend_sprite[GFS_slider_horiz_c];
+    spr = get_frontend_sprite(GFS_slider_horiz_c);
     LbSpriteDrawResized(scr_x, scr_y, fs_units_per_px, spr);
     scr_x += spr->SWidth * fs_units_per_px / 16;
-    spr = &frontend_sprite[GFS_slider_horiz_r];
+    spr = get_frontend_sprite(GFS_slider_horiz_r);
     LbSpriteDrawResized(scr_x, scr_y, fs_units_per_px, spr);
     int val;
     val = gbtn->slide_val * (gbtn->width - 64*fs_units_per_px/16) >> 8;
     if (gbtn->gbactn_1 != 0) {
-        spr = &frontend_sprite[GFS_slider_indicator_act];
+        spr = get_frontend_sprite(GFS_slider_indicator_act);
     } else {
-        spr = &frontend_sprite[GFS_slider_indicator_std];
+        spr = get_frontend_sprite(GFS_slider_indicator_std);
     }
     LbSpriteDrawResized((gbtn->scr_pos_x + val + 24*fs_units_per_px/16) / pixel_size, (gbtn->scr_pos_y + 3*fs_units_per_px/16) / pixel_size, fs_units_per_px, spr);
 }
@@ -1423,9 +1343,9 @@ void gui_area_text(struct GuiButton *gbtn)
             snprintf(gui_textbuf,sizeof(gui_textbuf), "%s", get_string(-gbtn->tooltip_stridx));
         draw_button_string(gbtn, (gbtn->width*32 + 16)/gbtn->height, gui_textbuf);
     } else
-    if (gbtn->content != NULL)
+    if (gbtn->content.str != NULL)
     {
-        snprintf(gui_textbuf,sizeof(gui_textbuf), "%s", (char *)gbtn->content);
+        snprintf(gui_textbuf,sizeof(gui_textbuf), "%s", gbtn->content.str);
         // Since this button can have various width, but its height is always 32,
         // unscaled width is deduced based on height scale
         draw_button_string(gbtn, (gbtn->width*32 + 16)/gbtn->height, gui_textbuf);
@@ -1434,10 +1354,10 @@ void gui_area_text(struct GuiButton *gbtn)
 
 void frontend_init_options_menu(struct GuiMenu *gmnu)
 {
-    music_level_slider = make_audio_slider_linear(settings.redbook_volume);
-    sound_level_slider = make_audio_slider_linear(settings.sound_volume);
-    mentor_level_slider = make_audio_slider_linear(settings.mentor_volume);
-    fe_mouse_sensitivity = settings.first_person_move_sensitivity;
+    get_gui_button_init(gmnu, BID_MUSIC_VOL)->content.lval = make_audio_slider_linear(settings.redbook_volume);
+    get_gui_button_init(gmnu, BID_SOUND_VOL)->content.lval = make_audio_slider_linear(settings.sound_volume);
+    get_gui_button_init(gmnu, BID_MENTOR_VOL)->content.lval = make_audio_slider_linear(settings.mentor_volume);
+    get_gui_button_init(gmnu, BID_MOUSE_MUL)->content.lval = settings.first_person_move_sensitivity;
     if (!is_campaign_loaded())
     {
         if (!change_campaign(""))
@@ -1460,7 +1380,7 @@ const char *frontend_button_caption_text(const struct GuiButton *gbtn)
 {
     unsigned long febtn_idx;
     int text_idx;
-    febtn_idx = (unsigned long)gbtn->content;
+    febtn_idx = gbtn->content.lval;
     if (febtn_idx < FRONTEND_BUTTON_INFO_COUNT)
         text_idx = frontend_button_info[febtn_idx].capstr_idx;
     else
@@ -1472,7 +1392,7 @@ int frontend_button_caption_font(const struct GuiButton *gbtn, long mouse_over_b
 {
     unsigned long febtn_idx;
     int font_idx;
-    febtn_idx = (unsigned long)gbtn->content;
+    febtn_idx = gbtn->content.lval;
     if (febtn_idx < FRONTEND_BUTTON_INFO_COUNT)
         font_idx = frontend_button_info[febtn_idx].font_index;
     else
@@ -1512,11 +1432,11 @@ void frontend_draw_enter_text(struct GuiButton *gbtn)
     if ((gbtn->flags & LbBtnF_Enabled) == 0) {
         font_idx = 3;
     } else
-    if ((gbtn->content != NULL) && ((gbtn->btype_value & LbBFeF_IntValueMask) == frontend_mouse_over_button)) {
+    if ((gbtn->content.str != NULL) && ((gbtn->btype_value & LbBFeF_IntValueMask) == frontend_mouse_over_button)) {
         font_idx = 2;
     }
     char *srctext;
-    srctext = (char *)gbtn->content;
+    srctext = gbtn->content.str;
     while (LbTextStringWidth(srctext) > 240)
         srctext[strlen(srctext)-2] = 0;
     char text[2048];
@@ -1595,7 +1515,7 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
   lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
   lbDisplay.DrawFlags |= Lb_TEXT_HALIGN_CENTER;
   LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
-  scrollwnd = (struct TextScrollWindow *)gbtn->content;
+  scrollwnd = (struct TextScrollWindow *)gbtn->content.ptr;
   if (scrollwnd == NULL)
   {
       ERRORLOG("Cannot have a TEXT_SCROLLING box type without a pointer to a TextScrollWindow");
@@ -1620,7 +1540,7 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
       SYNCDBG(18,"Computed message height %ld for \"%s\"",text_height,text);
       scrollwnd->text_height = text_height;
   }
-  SYNCDBG(18,"Message h=%ld Area h=%d",text_height,area_height);
+  SYNCDBG(18,"Message h=%ld Area h=%ld",text_height,area_height);
   // If the text is smaller that the area we have for it - just place it at center
   if (text_height <= area_height)
   {
@@ -1679,7 +1599,7 @@ void gui_area_scroll_window(struct GuiButton *gbtn)
     if ((gbtn->flags & LbBtnF_Enabled) == 0) {
         return;
     }
-    scrollwnd = (struct TextScrollWindow *)gbtn->content;
+    scrollwnd = (struct TextScrollWindow *)gbtn->content.ptr;
     if (scrollwnd == NULL) {
         ERRORLOG("Button doesn't point to a TextScrollWindow data item");
         return;
@@ -1712,14 +1632,14 @@ void gui_close_objective(struct GuiButton *gbtn)
 void gui_scroll_text_up(struct GuiButton *gbtn)
 {
     struct TextScrollWindow *scroll_window;
-    scroll_window = (struct TextScrollWindow *)gbtn->content;
+    scroll_window = (struct TextScrollWindow *)gbtn->content.ptr;
     scroll_window->action = 1;
 }
 
 void gui_scroll_text_down(struct GuiButton *gbtn)
 {
     struct TextScrollWindow *scroll_window;
-    scroll_window = (struct TextScrollWindow *)gbtn->content;
+    scroll_window = (struct TextScrollWindow *)gbtn->content.ptr;
     scroll_window->action = 2;
 }
 
@@ -1790,7 +1710,7 @@ void frontend_start_new_game(struct GuiButton *gbtn)
     SYNCDBG(6,"Clicked");
     // Check if we can just start the game without campaign selection screen
     if (campaigns_list.items_num < 1)
-      cmpgn_fname = lbEmptyString;
+      cmpgn_fname = "";
     else
     if (campaigns_list.items_num == 1)
       cmpgn_fname = campaigns_list.items[0].fname;
@@ -1816,7 +1736,7 @@ void frontend_load_mappacks(struct GuiButton *gbtn)
     SYNCDBG(6,"Clicked");
     // Check if we can show some levels without showing the map pack selection screen
     if (mappacks_list.items_num < 1)
-      cmpgn_fname = lbEmptyString;
+      cmpgn_fname = "";
     else
     if (mappacks_list.items_num == 1)
       cmpgn_fname = mappacks_list.items[0].fname;
@@ -1898,7 +1818,7 @@ void frontend_load_continue_game(struct GuiButton *gbtn)
 
 void frontend_load_game_maintain(struct GuiButton *gbtn)
 {
-    long game_index=load_game_scroll_offset+(long)(gbtn->content)-45;
+    int32_t game_index=load_game_scroll_offset+(gbtn->content.lval)-45;
     if (game_index < number_of_saved_games)
         gbtn->flags |= LbBtnF_Enabled;
     else
@@ -1925,10 +1845,10 @@ void do_button_click_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Ca
             *s = 1;
             break;
         case LbBtnT_RadioBtn:
-            if ((gbtn->content != NULL) && (!*s))
+            if ((gbtn->content.ptr != NULL) && (!*s))
             {
                 unsigned char *rbstate;
-                rbstate = (unsigned char *)gbtn->content;
+                rbstate = (unsigned char *)gbtn->content.ptr;
                 do_sound_button_click(gbtn);
                 struct GuiMenu *amnu;
                 amnu = get_active_menu(gbtn->gmenu_idx);
@@ -1996,11 +1916,11 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
       *s = 0;
       break;
   case LbBtnT_ToggleBtn:
-      i = *(unsigned char *)gbtn->content;
+      i = *(unsigned char *)gbtn->content.ptr;
       i++;
       if (i > gbtn->maxval)
           i = 0;
-      *(unsigned char *)gbtn->content = i;
+      *(unsigned char *)gbtn->content.ptr = i;
       if ((*s != 0) && (callback != NULL))
       {
           do_sound_button_click(gbtn);
@@ -2124,11 +2044,11 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
     gbtn->sprite_idx = get_player_colored_icon_idx(gbinit->sprite_idx,my_player_number);
     gbtn->tooltip_stridx = gbinit->tooltip_stridx;
     gbtn->parent_menu = gbinit->parent_menu;
-    gbtn->content = (unsigned long *)gbinit->content.lptr;
+    gbtn->content = gbinit->content;
     gbtn->maxval = gbinit->maxval;
     gbtn->maintain_call = gbinit->maintain_call;
     gbtn->flags |= LbBtnF_Enabled;
-    gbtn->flags &= ~LbBtnF_Unknown10;
+    gbtn->flags &= ~LbBtnF_MouseOver;
     gbtn->gbactn_1 = 0;
     gbtn->flags |= LbBtnF_Visible;
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown20 * (gbinit->gbifield_5 >> 8)) & LbBtnF_Unknown20;
@@ -2155,7 +2075,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
     if (gbtn->gbtype == LbBtnT_RadioBtn)
     {
         struct TextScrollWindow *scrollwnd;
-        scrollwnd = (struct TextScrollWindow *)gbtn->content;
+        scrollwnd = (struct TextScrollWindow *)gbtn->content.ptr;
         if ((scrollwnd != NULL) && (scrollwnd->text[0] == 1))
         {
             gbtn->gbactn_1 = 1;
@@ -2605,21 +2525,13 @@ void reinit_all_menus(void)
     set_gui_visible(visible);
 }
 
-char *mdlf_for_cd(struct TbLoadFiles * tb_load_files)
+const char * mdlf_for_cd(const char * input)
 {
-    TbLoadFiles *result; // eax
-    result = tb_load_files;
-    if ( tb_load_files->FName[0] != 42 )
-    {
-        sprintf(path_string, "%s/%s", install_info.inst_path, tb_load_files->FName);
+    if (input[0] != '*') {
+        snprintf(path_string, sizeof(path_string), "%s/%s", install_info.inst_path, input); // todo check out
         return path_string;
     }
-    return result->FName;
-}
-
-char *mdlf_default(struct TbLoadFiles * tb_load_files)
-{
-    return tb_load_files->FName;
+    return input;
 }
 
 void frontend_load_data_from_cd(void)
@@ -2629,7 +2541,7 @@ void frontend_load_data_from_cd(void)
 
 void frontend_load_data_reset(void)
 {
-  LbDataLoadSetModifyFilenameFunction(mdlf_default);
+  LbDataLoadSetModifyFilenameFunction(defaultModifyDataLoadFilename);
 }
 
 void initialise_tab_tags(MenuID menu_id)
@@ -2687,10 +2599,10 @@ void initialise_tab_tags_and_menu(MenuID menu_id)
 
 void init_gui(void)
 {
-  LbMemorySet(breed_activities, 0, CREATURE_TYPES_MAX *sizeof(unsigned short));
-  LbMemorySet(menu_stack, 0, ACTIVE_MENUS_COUNT*sizeof(unsigned char));
-  LbMemorySet(active_menus, 0, ACTIVE_MENUS_COUNT*sizeof(struct GuiMenu));
-  LbMemorySet(active_buttons, 0, ACTIVE_BUTTONS_COUNT*sizeof(struct GuiButton));
+  memset(breed_activities, 0, CREATURE_TYPES_MAX *sizeof(unsigned short));
+  memset(menu_stack, 0, ACTIVE_MENUS_COUNT*sizeof(unsigned char));
+  memset(active_menus, 0, ACTIVE_MENUS_COUNT*sizeof(struct GuiMenu));
+  memset(active_buttons, 0, ACTIVE_BUTTONS_COUNT*sizeof(struct GuiButton));
   breed_activities[0] = get_players_special_digger_model(my_player_number);
   no_of_breeds_owned = 1;
   top_of_breed_list = 0;
@@ -2712,11 +2624,9 @@ void frontend_shutdown_state(FrontendMenuState pstate)
     {
     case FeSt_INITIAL:
         init_gui();
-        wait_for_cd_to_be_available();
         fname = prepare_file_path(FGrp_LoData,"front.pal");
         if (LbFileLoadAt(fname, frontend_palette) != PALETTE_SIZE)
             ERRORLOG("Unable to load FRONTEND PALETTE");
-        wait_for_cd_to_be_available();
         LbMoveGameCursorToHostCursor(); // set the initial cursor position for the main menu
         update_mouse();
         break;
@@ -3277,8 +3187,8 @@ void draw_active_menus_buttons(void)
 
 void spangle_button(struct GuiButton *gbtn)
 {
-    struct TbSprite *spr;
-    spr = &button_sprite[GBS_guisymbols_new_function_1];
+    const struct TbSprite *spr;
+    spr = get_button_sprite(GBS_guisymbols_new_function_1);
     int bs_units_per_px;
     bs_units_per_px = 50 * units_per_pixel / spr->SHeight;
     long x;
@@ -3287,7 +3197,7 @@ void spangle_button(struct GuiButton *gbtn)
     x = gbtn->pos_x + (gbtn->width >> 1)  - ((spr->SWidth*bs_units_per_px/16) / 2);
     y = gbtn->pos_y + (gbtn->height >> 1) - ((spr->SHeight*bs_units_per_px/16) / 2);
     i = GBS_guisymbols_new_function_1+((game.play_gameturn >> 1) & 7);
-    spr = &button_sprite[i];
+    spr = get_button_sprite(i);
     LbSpriteDrawResized(x, y, bs_units_per_px, spr);
 }
 
@@ -3771,7 +3681,7 @@ FrontendMenuState get_startup_menu_state(void)
           frontnet_service_setup();
           frontnet_session_setup();
           net_number_of_sessions = 0;
-          LbMemorySet(net_session, 0, sizeof(net_session));
+          memset(net_session, 0, sizeof(net_session));
           // TODO: should disable actual network enumerating if either
           if (LbNetwork_EnumerateSessions(enum_sessions_callback, 0))
           {
@@ -3893,7 +3803,7 @@ void create_frontend_error_box(long showTime, const char * text)
 
 void frontend_draw_error_text_box(struct GuiButton *gbtn)
 {
-    draw_text_box((char *)gbtn->content);
+    draw_text_box(gbtn->content.str);
 }
 
 void frontend_maintain_error_text_box(struct GuiButton *gbtn)

@@ -214,10 +214,10 @@ int calculate_number_of_creatures_to_move(struct Dungeon *dungeon, int percent_t
             break;
         }
 
-        if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing))
+        if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
             struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-            if ((cctrl->job_assigned == crstat->job_primary) || (cctrl->job_assigned == crstat->job_secondary))
+            if ((cctrl->job_assigned == crstat->job_primary) || (cctrl->job_assigned == crstat->job_secondary) || (cctrl->job_assigned == 0))
             {
                 creatures_doing_primary_or_secondary_job += 1;
             } else {
@@ -415,7 +415,7 @@ long player_list_creature_filter_best_for_sacrifice(const struct Thing *thing, M
 
     if ((cctrl->combat_flags == 0) && (param->num2 || thing->creature.gold_carried == 0)) //no gold carried if no gem access
     {
-        if (creature_is_being_unconscious(thing) || creature_affected_by_spell(thing, SplK_Chicken))
+        if (creature_is_being_unconscious(thing) || creature_under_spell_effect(thing, CSAfF_Chicken))
             return -1;
         if (creature_is_being_dropped(thing) || !can_thing_be_picked_up_by_player(thing, param->plyr_idx))
             return -1;
@@ -486,7 +486,7 @@ long computer_check_sacrifice_for_cheap_diggers(struct Computer2 *comp, struct C
 
     GoldAmount power_price = compute_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
     GoldAmount lowest_price = compute_lowest_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
-    SYNCDBG(18, "Digger creation power price: %d, lowest: %d", power_price, lowest_price);
+    SYNCDBG(18, "Digger creation power price: %ld, lowest: %ld", power_price, lowest_price);
 
 	if ((power_price > lowest_price) && !is_task_in_progress_using_hand(comp)
 		&& computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, 2)) //TODO COMPUTER_PLAYER add amount of imps to afford to the checks config params
@@ -527,6 +527,11 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
     struct Dungeon* dungeon = comp->dungeon;
     if (dungeon_invalid(dungeon) || !player_has_heart(dungeon->owner)) {
         SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
+        return CTaskRet_Unk4;
+    }
+    if (!creature_count_below_map_limit(0))
+    {
+        SYNCDBG(7, "Computer player %d can't create imps due to map limit", (int)dungeon->owner);
         return CTaskRet_Unk4;
     }
     long controlled_diggers = dungeon->num_active_diggers - count_player_diggers_not_counting_to_total(dungeon->owner);
@@ -592,7 +597,7 @@ struct Thing * find_imp_for_pickup(struct Computer2 *comp, MapSubtlCoord stl_x, 
     {
         struct Thing* thing = thing_get(i);
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        if (!thing_is_creature(thing) || creature_control_invalid(cctrl))
         {
           ERRORLOG("Jump to invalid creature detected");
           break;
@@ -601,7 +606,7 @@ struct Thing * find_imp_for_pickup(struct Computer2 *comp, MapSubtlCoord stl_x, 
         // Thing list loop body
         if (cctrl->combat_flags == 0)
         {
-            if (!creature_is_being_unconscious(thing) && !creature_affected_by_spell(thing, SplK_Chicken))
+            if (!creature_is_being_unconscious(thing) && !creature_under_spell_effect(thing, CSAfF_Chicken))
             {
                 if (!creature_is_being_dropped(thing) && can_thing_be_picked_up_by_player(thing, dungeon->owner))
                 {
@@ -650,6 +655,9 @@ long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * ch
     if (!computer_able_to_use_power(comp, PwrK_HAND, 1, 1)) {
         return CTaskRet_Unk4;
     }
+    if (is_task_in_progress_using_hand(comp)) {
+        return CTaskRet_Unk4;
+    }
     {
         long stack_len = dungeon->digger_stack_length;
         if (stack_len <= check->param1 * dungeon->total_area / 100) {
@@ -692,7 +700,7 @@ struct Room *get_opponent_room(struct Computer2 *comp, PlayerNumber plyr_idx)
     return INVALID_ROOM;
 }
 
-struct Room *get_hated_room_for_quick_attack(struct Computer2 *comp, long min_hate)
+struct Room *get_hated_room_for_quick_attack(struct Computer2 *comp)
 {
     SYNCDBG(8,"Starting for player %d",(int)comp->dungeon->owner);
     struct THate hates[PLAYERS_COUNT];
@@ -703,7 +711,7 @@ struct Room *get_hated_room_for_quick_attack(struct Computer2 *comp, long min_ha
         struct THate* hate = &hates[i];
         if (players_are_enemies(comp->dungeon->owner, hate->plyr_idx))
         {
-            if ((hate->pos_near != NULL) && (hate->amount > min_hate))
+            if (hate->pos_near != NULL)
             {
                 struct Room* room = get_opponent_room(comp, hate->plyr_idx);
                 if (!room_is_invalid(room)) {
@@ -725,8 +733,13 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
 {
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = comp->dungeon;
-    int creatrs_num = check->param1 * dungeon->num_active_creatrs / 100;
-    if (check->param3 >= creatrs_num) {
+    long attack_percentage = check->param1;
+    long cta_duration = check->param2;
+    long min_creatures_to_attack = check->param3;
+    int max_attack_amount = attack_percentage * dungeon->num_active_creatrs / 100;
+    unsigned long creatures_to_fight_amount;
+
+    if (min_creatures_to_attack >= max_attack_amount) {
         return CTaskRet_Unk4;
     }
     if (!computer_able_to_use_power(comp, PwrK_CALL2ARMS, 1, 3)) {
@@ -735,7 +748,7 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
     if ((check_call_to_arms(comp) != 1) || is_there_an_attack_task(comp)) {
         return CTaskRet_Unk4;
     }
-    struct Room* room = get_hated_room_for_quick_attack(comp, check->param3);
+    struct Room* room = get_hated_room_for_quick_attack(comp);
     if (room_is_invalid(room)) {
         return CTaskRet_Unk4;
     }
@@ -744,10 +757,13 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
     pos.x.val = subtile_coord_center(room->central_stl_x);
     pos.y.val = subtile_coord_center(room->central_stl_y);
     pos.z.val = subtile_coord(1,0);
-    if (count_creatures_availiable_for_fight(comp, &pos) <= check->param3) {
+    creatures_to_fight_amount = count_creatures_availiable_for_fight(comp, &pos);
+    if (creatures_to_fight_amount <= min_creatures_to_attack) {
         return CTaskRet_Unk4;
     }
-    if (!create_task_magic_support_call_to_arms(comp, &pos, check->param2, 0, creatrs_num)) {
+    if (creatures_to_fight_amount > max_attack_amount)
+        creatures_to_fight_amount = max_attack_amount;
+    if (!create_task_magic_support_call_to_arms(comp, &pos, cta_duration, creatures_to_fight_amount)) {
         return CTaskRet_Unk4;
     }
     SYNCLOG("Player %d decided to attack %s owned by player %d",(int)dungeon->owner,room_code_name(room->kind),(int)room->owner);
@@ -771,13 +787,14 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
         }
         i = cctrl->next_in_room;
         // Per creature code
-        if (!thing_affected_by_spell(thing, SplK_Speed))
+        if (!creature_under_spell_effect(thing, CSAfF_Speed)
+        && !creature_is_immune_to_spell_effect(thing, CSAfF_Speed))
         {
             long n = get_creature_state_besides_move(thing);
             struct StateInfo* stati = get_thing_state_info_num(n);
             if (stati->state_type == CrStTyp_Work)
             {
-                if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, SPELL_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
+                if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, POWER_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
                 {
                     return thing;
                 }
@@ -810,13 +827,14 @@ struct Thing *computer_check_creatures_in_room_for_flight(struct Computer2 *comp
         }
         i = cctrl->next_in_room;
         // Per creature code
-        if (!thing_affected_by_spell(thing, SplK_Fly))
+        if (!creature_under_spell_effect(thing, CSAfF_Flying)
+        && !creature_is_immune_to_spell_effect(thing, CSAfF_Flying))
         {
             long n = get_creature_state_besides_move(thing);
             struct StateInfo* stati = get_thing_state_info_num(n);
             if (stati->state_type == CrStTyp_Work)
             {
-                if (try_game_action(comp, dungeon->owner, GA_UsePwrFlight, SPELL_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
+                if (try_game_action(comp, dungeon->owner, GA_UsePwrFlight, POWER_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
                 {
                     return thing;
                 }
@@ -849,13 +867,14 @@ struct Thing *computer_check_creatures_in_room_for_vision(struct Computer2 *comp
         }
         i = cctrl->next_in_room;
         // Per creature code
-        if (!thing_affected_by_spell(thing, SplK_Sight))
+        if (!creature_under_spell_effect(thing, CSAfF_Sight)
+        && !creature_is_immune_to_spell_effect(thing, CSAfF_Sight))
         {
             long n = get_creature_state_besides_move(thing);
             struct StateInfo* stati = get_thing_state_info_num(n);
             if (stati->state_type == CrStTyp_Work)
             {
-                if (try_game_action(comp, dungeon->owner, GA_UsePwrVision, SPELL_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
+                if (try_game_action(comp, dungeon->owner, GA_UsePwrVision, POWER_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
                 {
                     return thing;
                 }

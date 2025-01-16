@@ -27,7 +27,7 @@
 #include "bflib_sprfnt.h"
 #include "bflib_dernc.h"
 #include "bflib_planar.h"
-
+#include "custom_sprites.h"
 #include "frontend.h"
 #include "front_simple.h"
 #include "config.h"
@@ -57,6 +57,7 @@
 #include "frontmenu_ingame_tabs.h"
 #include "vidfade.h"
 #include "sprites.h"
+#include "player_instances.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -191,9 +192,9 @@ TbBool parchment_copy_background_at(const struct TbRect *bkgnd_area, int units_p
     copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
         img_width*units_per_px/16,img_height*units_per_px/16,bkgnd_area->left,bkgnd_area->top,srcbuf,img_width,img_height);
     // Burning candle flames
-    const struct TbSprite* spr = &button_sprite[GBS_parchment_map_screen_flame_1 + (game.play_gameturn & 3)];
+    const struct TbSprite* spr = get_button_sprite(GBS_parchment_map_screen_flame_1 + (game.play_gameturn & 3));
     LbSpriteDrawScaled(bkgnd_area->left+(36*units_per_px/(pixel_size << shift)),(bkgnd_area->top+0*units_per_px/(16*pixel_size)), spr, spr->SWidth*units_per_px/16, spr->SHeight*units_per_px/16);
-    spr = &button_sprite[GBS_parchment_map_screen_flame_5+(game.play_gameturn & 3)];
+    spr = get_button_sprite(GBS_parchment_map_screen_flame_5+(game.play_gameturn & 3));
     LbSpriteDrawScaled(bkgnd_area->left+(574*units_per_px/(pixel_size << shift)),(bkgnd_area->top+0*units_per_px/(16*pixel_size)), spr, spr->SWidth*units_per_px/16, spr->SHeight*units_per_px/16);
     return true;
 }
@@ -221,7 +222,7 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
         && ((game.play_gameturn & 4) != 0))
     {
         pixval = pixmap.ghost[background + 0x1A00];
-        if ((slb->kind == SlbT_GEMS))
+        if (slb->kind == SlbT_GEMS)
         {
             pixval = pixval + 2;
         }
@@ -247,7 +248,7 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
       } else
       {
         unsigned char color_idx = get_player_color_idx(owner);
-        if (color_idx == NEUTRAL_PLAYER)
+        if (color_idx == PLAYER_NEUTRAL)
         {
             pixval = player_room_colours[game.play_gameturn & 3];
         } else
@@ -352,7 +353,7 @@ void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, Pl
 {
     int ps_units_per_px;
     {
-        struct TbSprite* spr = &gui_panel_sprites[GPS_room_treasury_std_s];//only for size, room irrelevant
+        const struct TbSprite* spr = get_panel_sprite(GPS_room_treasury_std_s);//only for size, room irrelevant
         ps_units_per_px = 32 * block_size * 4 / spr->SHeight;
     }
     long rkind_select = (game.play_gameturn >> 1) % game.conf.slab_conf.room_types_count;
@@ -373,7 +374,7 @@ void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, Pl
                 if (roomst->medsym_sprite_idx > 0)
                 {
                     long sprite_idx = get_player_colored_icon_idx(roomst->medsym_sprite_idx,room->owner);
-                    struct TbSprite* spr = &gui_panel_sprites[sprite_idx];
+                    const struct TbSprite* spr = get_panel_sprite(sprite_idx);
                     long pos_x = map_area->left + (block_size * room->central_stl_x / STL_PER_SLB) - (spr->SWidth * ps_units_per_px / 16 / 2);
                     long pos_y = map_area->top + (block_size * room->central_stl_y / STL_PER_SLB) - (spr->SHeight * ps_units_per_px / 16 / 2);
                     LbSpriteDrawResized(pos_x, pos_y, ps_units_per_px, spr);
@@ -609,15 +610,21 @@ void draw_overhead_things(const struct TbRect *map_area, long block_size, Player
 
 void draw_2d_map(void)
 {
-  SYNCDBG(8,"Starting");
-  struct PlayerInfo* player = get_my_player();
-  // Size of the parchment map on which we're drawing
-  struct TbRect map_area;
-  long block_size = get_parchment_map_area_rect(&map_area);
-  // Now draw
-  draw_overhead_map(&map_area, block_size, player->id_number);
-  draw_overhead_things(&map_area, block_size, player->id_number);
-  draw_overhead_room_icons(&map_area, block_size, player->id_number);
+    SYNCDBG(8, "Starting");
+    if (!render_fade_tables || !render_ghost || !render_alpha)
+    {
+        render_fade_tables = pixmap.fade_tables;
+        render_ghost = pixmap.ghost;
+        render_alpha = (unsigned char*)&alpha_sprite_table;
+    }
+    struct PlayerInfo* player = get_my_player();
+    // Size of the parchment map on which we're drawing
+    struct TbRect map_area;
+    long block_size = get_parchment_map_area_rect(&map_area);
+    // Now draw
+    draw_overhead_map(&map_area, block_size, player->id_number);
+    draw_overhead_things(&map_area, block_size, player->id_number);
+    draw_overhead_room_icons(&map_area, block_size, player->id_number);
 }
 
 void draw_map_level_name(void)
@@ -660,7 +667,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
 {
     int ps_units_per_px;
     {
-        struct TbSprite* spr = &gui_panel_sprites[GPS_trapdoor_bonus_box_std_s]; // Use dungeon special box as reference
+        const struct TbSprite* spr = get_panel_sprite(GPS_trapdoor_bonus_box_std_s); // Use dungeon special box as reference
         ps_units_per_px = (46 * units_per_pixel) / spr->SHeight;
     }
     struct PlayerInfo* player = get_my_player();
@@ -866,7 +873,7 @@ void draw_zoom_box(void)
     // Draw sprites surrounding the box
     int bs_units_per_px;
     {
-        struct TbSprite* spr = &button_sprite[GBS_parchment_map_frame_deco_b_tl];
+        const struct TbSprite* spr = get_button_sprite(GBS_parchment_map_frame_deco_b_tl);
         bs_units_per_px = (74 * units_per_pixel) / spr->SWidth;
     }
     LbScreenSetGraphicsWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
@@ -874,10 +881,10 @@ void draw_zoom_box(void)
     int beg_y = scrtop_y - scale_value_for_resolution(24);
     int end_x = scrtop_x - scale_value_for_resolution(46) + draw_tiles_x * subtile_size;
     int end_y = scrtop_y - scale_value_for_resolution(58) + draw_tiles_y * subtile_size;
-    LbSpriteDrawResized(beg_x, beg_y, bs_units_per_px, &button_sprite[GBS_parchment_map_frame_deco_b_tl]);
-    LbSpriteDrawResized(end_x, beg_y, bs_units_per_px, &button_sprite[GBS_parchment_map_frame_deco_b_tr]);
-    LbSpriteDrawResized(beg_x, end_y, bs_units_per_px, &button_sprite[GBS_parchment_map_frame_deco_b_bl]);
-    LbSpriteDrawResized(end_x, end_y, bs_units_per_px, &button_sprite[GBS_parchment_map_frame_deco_b_br]);
+    LbSpriteDrawResized(beg_x, beg_y, bs_units_per_px, get_button_sprite(GBS_parchment_map_frame_deco_b_tl));
+    LbSpriteDrawResized(end_x, beg_y, bs_units_per_px, get_button_sprite(GBS_parchment_map_frame_deco_b_tr));
+    LbSpriteDrawResized(beg_x, end_y, bs_units_per_px, get_button_sprite(GBS_parchment_map_frame_deco_b_bl));
+    LbSpriteDrawResized(end_x, end_y, bs_units_per_px, get_button_sprite(GBS_parchment_map_frame_deco_b_br));
     // Finish
     LbScreenSetGraphicsWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
@@ -929,7 +936,7 @@ void zoom_to_parchment_map(void)
     }
 }
 
-void zoom_from_patchment_map(void)
+void zoom_from_parchment_map(void)
 {
     struct PlayerInfo* player = get_my_player();
     if (((game.system_flags & GSF_NetworkActive) != 0)

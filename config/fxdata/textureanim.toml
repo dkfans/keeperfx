@@ -174,25 +174,25 @@ name = "gems4"
 frames = [277,277,503,503,543,543,276,276]
 
 [texture586]
-name = ""
-frames = [0,0,0,0,0,0,0,0]
+name = "gems_near_lava"
+frames = [1021,1022,1022,1023,1023,1024,1024,1021]
 
 [texture587]
-name = ""
-frames = [0,0,0,0,0,0,0,0]
+name = "gems_near_lava2"
+frames = [1023,1024,1024,1021,1021,1022,1022,1023]
 
 [texture588]
-name = ""
-frames = [0,0,0,0,0,0,0,0]
+name = "gems_near_lava3"
+frames = [1022,1022,1023,1023,1024,1024,1021,1021]
 
 [texture589]
-name = ""
-frames = [0,0,0,0,0,0,0,0]
+name = "midas_door_cl"
+frames = [1028,1028,1034,1034,1037,1037,1040,1040]
 
 [texture590]
-name = ""
-frames = [0,0,0,0,0,0,0,0]
+name = "midas_door_c"
+frames = [1029,1029,1035,1035,1038,1038,1041,1041]
 
 [texture591]
-name = ""
-frames = [0,0,0,0,0,0,0,0]
+name = "midas_door_cr"
+frames = [1030,1030,1036,1036,1039,1039,1042,1042]

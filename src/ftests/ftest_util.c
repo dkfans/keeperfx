@@ -5,7 +5,6 @@
 #include "../pre_inc.h"
 
 #include "../game_legacy.h"
-#include "../bflib_memory.h"
 #include "../bflib_math.h"
 #include "../keeperfx.hpp"
 #include "../lvl_filesdk1.h"
@@ -435,7 +434,7 @@ TbBool ftest_util_action__create_and_fill_torture_room(struct FTestActionArgs* c
     return true;
 }
 
-struct Thing* ftest_util_create_door_for_player_with_health(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber owner, long health)
+struct Thing* ftest_util_create_door_for_player_with_health(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber owner, HitPoints health)
 {
     // create enemy wooden door with low health
     struct Coord3d doorPos;

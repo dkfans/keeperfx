@@ -35,8 +35,8 @@ struct Dungeon;
 
 enum DeadCreatureStates {
     DCrSt_Unused = 0,
-    DCrSt_DramaticDying,
-    DCrSt_RigorMortis,
+    DCrSt_Dying,
+    DCrSt_Dead,
 };
 
 #pragma pack()

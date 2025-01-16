@@ -22,7 +22,6 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
-#include "bflib_memory.h"
 
 #include "thing_data.h"
 #include "thing_doors.h"
@@ -132,16 +131,6 @@ struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, ThingMo
 
 TbBool thing_create_thing(struct InitThing *itng)
 {
-    if (itng->owner == 7)
-    {
-        ERRORLOG("Invalid owning player %d, fixing to %d", (int)itng->owner, (int)game.hero_player_num);
-        itng->owner = game.hero_player_num;
-    } else
-    if (itng->owner == 8)
-    {
-        ERRORLOG("Invalid owning player %d, fixing to %d", (int)itng->owner, (int)game.neutral_player_num);
-        itng->owner = game.neutral_player_num;
-    }
     if (itng->owner > 5)
     {
         ERRORLOG("Invalid owning player %d, thing discarded", (int)itng->owner);
@@ -308,7 +297,14 @@ TbBool thing_create_thing_adv(VALUE *init_data)
             struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
             if (thing_is_invalid(thing))
             {
-                ERRORLOG("Couldn't create creature model %d (%s)", (int)model, creature_code_name(model));
+                if (creature_count_below_map_limit(0))
+                {
+                    WARNLOG("Map Creature limit reached. Couldn't create creature model %d (%s)", (int)model, creature_code_name(model));
+                }
+                else
+                {
+                    ERRORLOG("Couldn't create creature model %d (%s)", (int)model, creature_code_name(model));
+                }
                 return false;
             }
             {
@@ -439,7 +435,7 @@ struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct C
     if (light_rand < 2)
     {
         struct InitLight ilght;
-        LbMemorySet(&ilght, 0, sizeof(struct InitLight));
+        memset(&ilght, 0, sizeof(struct InitLight));
         ilght.mappos.x.val = thing->mappos.x.val;
         ilght.mappos.y.val = thing->mappos.y.val;
         ilght.mappos.z.val = thing->mappos.z.val;

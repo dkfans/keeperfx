@@ -49,34 +49,27 @@ void command_init_value(struct ScriptValue* value, unsigned long var_index, unsi
     value->condit_idx = get_script_current_condition();
 }
 
-struct Thing *script_process_new_object(ThingModel tngmodel, TbMapLocation location, long arg, unsigned long plr_range_id)
+struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long arg, PlayerNumber plyr_idx, short move_angle)
 {
-    
-    int tngowner = plr_range_id;
     struct Coord3d pos;
-
-    const unsigned char tngclass = TCls_Object;
-
-    if(!get_coords_at_location(&pos,location))
-    {
-        return INVALID_THING;
-    }
-
-    struct Thing* thing = create_thing(&pos, tngclass, tngmodel, tngowner, -1);
+    pos.x.val = subtile_coord_center(stl_x);
+    pos.y.val = subtile_coord_center(stl_y);
+    pos.z.val = get_floor_height_at(&pos);
+    struct Thing* thing = create_object(&pos, tngmodel, plyr_idx, -1);
     if (thing_is_invalid(thing))
     {
-        ERRORLOG("Couldn't create %s at location %d",thing_class_and_model_name(tngclass, tngmodel),(int)location);
+        ERRORLOG("Couldn't create %s at location %ld, %ld",thing_class_and_model_name(TCls_Object, tngmodel),stl_x, stl_y);
         return INVALID_THING;
     }
+    thing->move_angle_xy = move_angle;
     if (thing_is_dungeon_heart(thing))
     {
-        struct Dungeon* dungeon = get_dungeon(tngowner);
+        struct Dungeon* dungeon = get_dungeon(thing->owner);
         if (dungeon->backup_heart_idx == 0)
         {
             dungeon->backup_heart_idx = thing->index;
         }
     }
-    thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
     // Try to move thing out of the solid wall if it's inside one
     if (thing_in_wall_at(thing, &thing->mappos))
     {
@@ -95,6 +88,7 @@ struct Thing *script_process_new_object(ThingModel tngmodel, TbMapLocation locat
         case ObjMdl_GoldChest:
         case ObjMdl_GoldPot:
         case ObjMdl_Goldl:
+        case ObjMdl_GoldBag:
             thing->valuable.gold_stored = arg;
             break;
     }
@@ -105,7 +99,7 @@ struct Thing* script_process_new_effectgen(ThingModel tngmodel, TbMapLocation lo
 {
     struct Coord3d pos;
     const unsigned char tngclass = TCls_EffectGen;
-    if (!get_coords_at_location(&pos, location))
+    if (!get_coords_at_location(&pos, location, false))
     {
         ERRORLOG("Couldn't find location %d to create %s", (int)location, thing_class_and_model_name(tngclass, tngmodel));
         return INVALID_THING;
@@ -132,80 +126,6 @@ struct Thing* script_process_new_effectgen(ThingModel tngmodel, TbMapLocation lo
     return thing;
 }
 
-/**
- * Casts keeper power on a specific creature, or position of the creature depending on the power.
- * @param thing The creature to target.
- * @param pwkind The ID of the Keeper Power.
- * @param splevel The overcharge level of the keeperpower. Is ignored when not applicable.
- * @param caster The player number of the player who is made to cast the spell.
- * @param is_free If gold is used when casting the spell. It will fail to cast if it is not free and money is not available.
- * @return TbResult whether the spell was successfully cast
- */
-TbResult script_use_power_on_creature(struct Thing* thing, short pwkind, short splevel, PlayerNumber caster, TbBool is_free)
-{
-    if (thing_is_in_power_hand_list(thing, thing->owner))
-    {
-        char block = pwkind == PwrK_SLAP;
-        block |= pwkind == PwrK_CALL2ARMS;
-        block |= pwkind == PwrK_CAVEIN;
-        block |= pwkind == PwrK_LIGHTNING;
-        block |= pwkind == PwrK_MKDIGGER;
-        block |= pwkind == PwrK_SIGHT;
-        if (block)
-        {
-            SYNCDBG(5, "Found creature to use power on but it is being held.");
-            return Lb_FAIL;
-        }
-    }
-
-    MapSubtlCoord stl_x = thing->mappos.x.stl.num;
-    MapSubtlCoord stl_y = thing->mappos.y.stl.num;
-    unsigned long spell_flags = is_free ? PwMod_CastForFree : 0;
-
-    switch (pwkind)
-    {
-    case PwrK_HEALCRTR:
-        return magic_use_power_heal(caster, thing, 0, 0, splevel, spell_flags);
-    case PwrK_SPEEDCRTR:
-        return magic_use_power_speed(caster, thing, 0, 0, splevel, spell_flags);
-    case PwrK_PROTECT:
-        return magic_use_power_armour(caster, thing, 0, 0, splevel, spell_flags);
-    case PwrK_REBOUND:
-        return magic_use_power_rebound(caster, thing, 0, 0, splevel, spell_flags);
-    case PwrK_CONCEAL:
-        return magic_use_power_conceal(caster, thing, 0, 0, splevel, spell_flags);
-    case PwrK_DISEASE:
-        return magic_use_power_disease(caster, thing, 0, 0, splevel, spell_flags);
-    case PwrK_CHICKEN:
-        return magic_use_power_chicken(caster, thing, 0, 0, splevel, spell_flags);
-    case PwrK_FREEZE:
-        return magic_use_power_freeze(caster, thing, 0, 0, splevel, spell_flags);
-    case PwrK_SLOW:
-        return magic_use_power_slow(caster, thing, 0, 0, splevel, spell_flags);
-    case PwrK_FLIGHT:
-        return magic_use_power_flight(caster, thing, 0, 0, splevel, spell_flags);
-    case PwrK_VISION:
-        return magic_use_power_vision(caster, thing, 0, 0, splevel, spell_flags);
-    case PwrK_SLAP:
-        return magic_use_power_slap_thing(caster, thing, spell_flags);
-    case PwrK_CALL2ARMS:
-        return magic_use_power_call_to_arms(caster, stl_x, stl_y, splevel, spell_flags);
-    case PwrK_LIGHTNING:
-        return magic_use_power_lightning(caster, stl_x, stl_y, splevel, spell_flags);
-    case PwrK_CAVEIN:
-        return magic_use_power_cave_in(caster, stl_x, stl_y, splevel, spell_flags);
-    case PwrK_MKDIGGER:
-        return magic_use_power_imp(caster, stl_x, stl_y, spell_flags);
-    case PwrK_SIGHT:
-        return magic_use_power_sight(caster, stl_x, stl_y, splevel, spell_flags);
-    case PwrK_TIMEBOMB:
-        return magic_use_power_time_bomb(caster, thing, splevel, spell_flags);
-    default:
-        SCRPTERRLOG("Power not supported for this command: %s", power_code_name(pwkind));
-        return Lb_FAIL;
-    }
-}
-
 void set_variable(int player_idx, long var_type, long var_idx, long new_val)
 {
     struct Dungeon *dungeon = get_dungeon(player_idx);
@@ -220,7 +140,10 @@ void set_variable(int player_idx, long var_type, long var_idx, long new_val)
         intralvl.campaign_flags[player_idx][var_idx] = new_val;
         break;
     case SVar_BOX_ACTIVATED:
-        dungeon->box_info.activated[var_idx] = saturate_set_unsigned(new_val, 8);
+        dungeon->box_info.activated[var_idx] = saturate_set_unsigned(new_val, 16);
+        break;
+    case SVar_TRAP_ACTIVATED:
+        dungeon->trap_info.activated[var_idx] = saturate_set_unsigned(new_val, 16);
         break;
     case SVar_SACRIFICED:
         dungeon->creature_sacrifice[var_idx] = saturate_set_unsigned(new_val, 8);
@@ -267,12 +190,6 @@ long get_players_range_single_f(long plr_range_id, const char *func_name, long l
     }
     if (plr_range_id == ALL_PLAYERS) {
         return -3;
-    }
-    if (plr_range_id == PLAYER_GOOD) {
-        return game.hero_player_num;
-    }
-    if (plr_range_id == PLAYER_NEUTRAL) {
-        return game.neutral_player_num;
     }
     if (plr_range_id < PLAYERS_COUNT)
     {

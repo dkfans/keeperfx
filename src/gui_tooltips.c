@@ -20,7 +20,6 @@
 #include "gui_tooltips.h"
 #include "globals.h"
 #include <stdarg.h>
-#include "bflib_memory.h"
 #include "bflib_guibtns.h"
 #include "bflib_sprfnt.h"
 
@@ -39,7 +38,7 @@
 #include "config_trapdoor.h"
 #include "room_workshop.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "config_settings.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
@@ -262,19 +261,20 @@ short setup_land_tooltips(struct Coord3d *pos)
   struct SlabAttr* slbattr = get_slab_kind_attrs(skind);
   if (slbattr->tooltip_stridx == GUIStr_Empty)
     return false;
-  update_gui_tooltip_target((void *)skind);
+  update_gui_tooltip_target((void *)(uintptr_t)skind);
   struct PlayerInfo* player = get_my_player();
   struct Thing *handthing = thing_get(player->thing_under_hand);
-  if (cursor_moved_to_new_subtile(player) || !thing_is_invalid(handthing)) {
-      return false;
+  TbBool in_query_mode = (player->work_state == PSt_CreatrQuery || player->work_state == PSt_QueryAll);
+  if (in_query_mode == false) {
+      if (cursor_moved_to_new_subtile(player) || !thing_is_invalid(handthing)) {
+          return false;
+      }
+      if (help_tip_time <= 50) {
+          help_tip_time++;
+          return true;
+      }
   }
-  if ( (help_tip_time > 50) || (player->work_state == PSt_CreatrQuery) )
-  {
-      set_gui_tooltip_box_fmt(2,"%s",get_string(slbattr->tooltip_stridx));
-  } else
-  {
-    help_tip_time++;
-  }
+  set_gui_tooltip_box_fmt(2, "%s", get_string(slbattr->tooltip_stridx));
   return true;
 }
 
@@ -293,16 +293,18 @@ short setup_room_tooltips(struct Coord3d *pos)
   update_gui_tooltip_target(room);
   struct PlayerInfo* player = get_my_player();
   struct Thing *handthing = thing_get(player->thing_under_hand);
-  if (cursor_moved_to_new_subtile(player) || !thing_is_invalid(handthing)) {
-      return false;
+  
+  TbBool in_query_mode = (player->work_state == PSt_CreatrQuery || player->work_state == PSt_QueryAll);
+  if (in_query_mode == false) {
+      if (cursor_moved_to_new_subtile(player) || !thing_is_invalid(handthing)) {
+          return false;
+      }
+      if (help_tip_time <= 50) {
+          help_tip_time++;
+          return true;
+      }
   }
-  if ( (help_tip_time > 50) || (player->work_state == PSt_CreatrQuery) )
-  {
-    set_gui_tooltip_box_fmt(1,"%s",get_string(stridx));
-  } else
-  {
-    help_tip_time++;
-  }
+  set_gui_tooltip_box_fmt(1,"%s",get_string(stridx));
   return true;
 }
 
@@ -338,7 +340,7 @@ void setup_gui_tooltip(struct GuiButton* gbtn)
     if ((i == GUIStr_NumberOfCreaturesDesc) || (i == GUIStr_NumberOfRoomsDesc))
     {
         if (tool_tip_box.gbutton != NULL)
-            k = (long)tool_tip_box.gbutton->content;
+            k = tool_tip_box.gbutton->content.lval;
         else
             k = -1;
         struct PlayerInfo* player = get_player(k);

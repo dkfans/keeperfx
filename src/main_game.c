@@ -17,11 +17,11 @@
 #include "bflib_coroutine.h"
 #include "bflib_datetm.h"
 #include "bflib_math.h"
-#include "bflib_memory.h"
 #include "bflib_sound.h"
 
 #include "config_compp.h"
 #include "config_settings.h"
+#include "creature_states_combt.h"
 #include "dungeon_data.h"
 #include "engine_lenses.h"
 #include "engine_redraw.h"
@@ -41,6 +41,7 @@
 #include "room_list.h"
 #include "power_specials.h"
 #include "player_data.h"
+#include "player_instances.h"
 #include "player_utils.h"
 #include "vidfade.h"
 #include "vidmode.h"
@@ -77,7 +78,6 @@ void reset_script_timers_and_flags(void)
         add_power_to_player(PwrK_SLAP, plyr_idx);
         add_power_to_player(PwrK_POSSESS, plyr_idx);
         dungeon = get_dungeon(plyr_idx);
-        dungeon = get_dungeon(plyr_idx);
         for (k=0; k<TURN_TIMERS_COUNT; k++)
         {
             memset(&dungeon->turn_timers[k], 0, sizeof(struct TurnTimer));
@@ -94,14 +94,28 @@ void reset_script_timers_and_flags(void)
     }
 }
 
-void init_good_player_as(PlayerNumber plr_idx)
+void init_player_types()
 {
-    struct PlayerInfo *player;
-    game.hero_player_num = plr_idx;
-    player = get_player(plr_idx);
-    player->allocflags |= PlaF_Allocated;
-    player->allocflags |= PlaF_CompCtrl;
-    player->id_number = game.hero_player_num;
+    for (size_t plr_idx = 0; plr_idx < PLAYERS_COUNT; plr_idx++)
+    {
+        struct PlayerInfo *player;
+        player = get_player(plr_idx);
+        switch (plr_idx)
+        {
+        case PLAYER_GOOD:
+            player->allocflags |= PlaF_Allocated;
+            player->allocflags |= PlaF_CompCtrl;
+            player->player_type = PT_Roaming;
+            player->id_number = plr_idx;
+            break;
+        case PLAYER_NEUTRAL:
+            player->player_type = PT_Neutral;
+            break;
+        default:
+            player->player_type = PT_Keeper;
+            break;
+        }
+    }
 }
 
 /******************************************************************************/
@@ -133,8 +147,8 @@ static void init_level(void)
 {
     SYNCDBG(6,"Starting");
     struct IntralevelData transfer_mem;
-    //LbMemoryCopy(&transfer_mem,&game.intralvl.transferred_creature,sizeof(struct CreatureStorage));
-    LbMemoryCopy(&transfer_mem,&intralvl,sizeof(struct IntralevelData));
+    //memcpy(&transfer_mem,&game.intralvl.transferred_creature,sizeof(struct CreatureStorage));
+    memcpy(&transfer_mem,&intralvl,sizeof(struct IntralevelData));
     game.flags_gui = GGUI_SoloChatEnabled;
     clear_flag(game.system_flags, GSF_RunAfterVictory);
     free_swipe_graphic();
@@ -160,7 +174,7 @@ static void init_level(void)
 
     init_creature_scores();
 
-    init_good_player_as(hero_player_number);
+    init_player_types();
     light_set_lights_on(1);
     start_rooms = &game.rooms[1];
     end_rooms = &game.rooms[ROOMS_COUNT];
@@ -176,29 +190,34 @@ static void init_level(void)
     if (!load_map_file(get_selected_level_number()))
     {
         // TODO: whine about missing file to screen
-        JUSTMSG("Unable to load level %d from %s", get_selected_level_number(), campaign.name);
+        JUSTMSG("Unable to load level %lu from %s", get_selected_level_number(), campaign.name);
         return;
     }
     else
     {
         if (script_preloaded == false)
         {
-            show_onscreen_msg(200,"%s: No Script %d", get_string(GUIStr_Error), get_selected_level_number());
-            JUSTMSG("Unable to load script level %d from %s", get_selected_level_number(), campaign.name);
+            show_onscreen_msg(200,"%s: No Script %lu", get_string(GUIStr_Error), get_selected_level_number());
+            JUSTMSG("Unable to load script level %lu from %s", get_selected_level_number(), campaign.name);
         }
     }
-
     init_navigation();
-    LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
+    snprintf(game.campaign_fname, sizeof(game.campaign_fname), "%s", campaign.fname);
     light_set_lights_on(1);
     {
-        struct PlayerInfo *player;
-        player = get_player(game.hero_player_num);
-        init_player_start(player, false);
+        for (size_t i = 0; i < PLAYERS_COUNT; i++)
+        {
+            if(player_is_roaming(i))
+            {
+                struct PlayerInfo *player;
+                player = get_player(i);
+                init_player_start(player, false);
+            }
+        }
     }
     game.numfield_D |= GNFldD_Unkn04;
-    //LbMemoryCopy(&game.intralvl.transferred_creature,&transfer_mem,sizeof(struct CreatureStorage));
-    LbMemoryCopy(&intralvl,&transfer_mem,sizeof(struct IntralevelData));
+    //memcpy(&game.intralvl.transferred_creature,&transfer_mem,sizeof(struct CreatureStorage));
+    memcpy(&intralvl,&transfer_mem,sizeof(struct IntralevelData));
     event_initialise_all();
     battle_initialise();
     ambient_sound_prepare();
@@ -216,7 +235,8 @@ static void init_level(void)
     game.manufactr_element = 0;
     game.manufactr_spridx = 0;
     game.manufactr_tooltip = 0;
-    JUSTMSG("Started level %d from %s", get_selected_level_number(), campaign.name);
+    reset_postal_instance_cache();
+    JUSTMSG("Started level %lu from %s", get_selected_level_number(), campaign.name);
 
     api_event("GAME_STARTED");
 }
@@ -262,15 +282,15 @@ void startup_saved_packet_game(void)
     game.pckt_gameturn = 0;
 #if (BFDEBUG_LEVEL > 0)
     SYNCDBG(0,"Initialising level %d", (int)get_selected_level_number());
-    SYNCMSG("Packet Loading Active (File contains %d turns)", game.turns_stored);
+    SYNCMSG("Packet Loading Active (File contains %lu turns)", game.turns_stored);
     SYNCMSG("Packet Checksum Verification %s",game.packet_checksum_verify ? "Enabled" : "Disabled");
-    SYNCMSG("Fast Forward through %d game turns", game.turns_fastforward);
+    SYNCMSG("Fast Forward through %lu game turns", game.turns_fastforward);
     if (game.turns_packetoff != -1)
-        SYNCMSG("Packet Quit at %d", game.turns_packetoff);
+        SYNCMSG("Packet Quit at %lu", game.turns_packetoff);
     if (game.packet_load_enable)
     {
       if (game.log_things_end_turn != game.log_things_start_turn)
-        SYNCMSG("Logging things, game turns %d -> %d", game.log_things_start_turn, game.log_things_end_turn);
+        SYNCMSG("Logging things, game turns %lu -> %lu", game.log_things_start_turn, game.log_things_end_turn);
     }
     SYNCMSG("Packet file prepared on KeeperFX %d.%d.%d.%d",(int)game.packet_save_head.game_ver_major,(int)game.packet_save_head.game_ver_minor,
         (int)game.packet_save_head.game_ver_release,(int)game.packet_save_head.game_ver_build);
@@ -287,6 +307,7 @@ void startup_saved_packet_game(void)
         my_player_number = game.local_plyr_idx;
     settings.isometric_view_zoom_level = game.packet_save_head.isometric_view_zoom_level;
     settings.frontview_zoom_level = game.packet_save_head.frontview_zoom_level;
+    settings.isometric_tilt = game.packet_save_head.isometric_tilt;
     init_level();
     setup_zombie_players();//TODO GUI What about packet file from network game? No zombies there..
     init_players();
@@ -338,8 +359,8 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
         // Fix desyncs when two players have a different zoom distance cfg setting
         // This temporary solution just disregards their cfg value and sets it here
         int max_zoom_in_multiplayer = 60;
-        zoom_distance_setting = lerp(4100, CAMERA_ZOOM_MIN, (float)max_zoom_in_multiplayer/100.0);
-        frontview_zoom_distance_setting = lerp(16384, FRONTVIEW_CAMERA_ZOOM_MIN, (float)max_zoom_in_multiplayer/100.0);
+        zoom_distance_setting = LbLerp(4100, CAMERA_ZOOM_MIN, (float)max_zoom_in_multiplayer/100.0);
+        frontview_zoom_distance_setting = LbLerp(16384, FRONTVIEW_CAMERA_ZOOM_MIN, (float)max_zoom_in_multiplayer/100.0);
     }
     setup_count_players(); // It is reset by init_level
     int args[COROUTINE_ARGS] = {ShouldAssignCpuKeepers, 0};

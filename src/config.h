@@ -261,7 +261,6 @@ char *prepare_file_path(short fgroup,const char *fname);
 char *prepare_file_fmtpath(short fgroup, const char *fmt_str, ...);
 unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *fmt_str, ...);
 /******************************************************************************/
-TbBool update_features(unsigned long uf_mem_size);
 TbBool is_feature_on(unsigned long feature);
 TbBool censorship_enabled(void);
 TbBool atmos_sounds_enabled(void);
@@ -327,6 +326,7 @@ TbBool reset_credits(struct CreditsItem *credits);
 TbBool setup_campaign_credits_data(struct GameCampaign *campgn);
 /******************************************************************************/
 short find_conf_block(const char *buf,long *pos,long buflen,const char *blockname);
+TbBool iterate_conf_blocks(const char * buf, long * pos, long buflen, const char ** name, int * namelen);
 int recognize_conf_command(const char *buf,long *pos,long buflen,const struct NamedCommand *commands);
 TbBool skip_conf_to_next_line(const char *buf,long *pos,long buflen);
 int get_conf_parameter_single(const char *buf,long *pos,long buflen,char *dst,long dstlen);

@@ -61,10 +61,8 @@ enum TbButtonFlags {
     LbBtnF_Unknown02  =  0x02,
     LbBtnF_Visible    =  0x04,  /**< Informs if the button is visible and uses its drawing callback. If not set, the button is not being displayed. */
     LbBtnF_Enabled    =  0x08,  /**< Informs if the button is enabled and can be clicked, or disabled and grayed out with no reaction to input. */
-    LbBtnF_Unknown10  =  0x10,  // Mouse over
+    LbBtnF_MouseOver  =  0x10,
     LbBtnF_Unknown20  =  0x20,
-    LbBtnF_Unknown40  =  0x40,
-    LbBtnF_Unknown80  =  0x80,
 };
 
 enum GBoxFlags {
@@ -75,6 +73,7 @@ enum GBoxFlags {
 union GuiVariant {
     long lval;
     long *lptr;
+    void *ptr;
     char *str;
 };
 
@@ -165,7 +164,7 @@ struct GuiButton {
        /** Max value. For cycle button - max value before returning to 0; for area input - max string length. */
        unsigned short maxval;
        struct GuiMenu *parent_menu;
-       unsigned long *content; //TODO FRONTEND change it to GuiVariant
+       union GuiVariant content;
        unsigned short slide_val; // slider value, scaled 0..255
        short has_shown_before; // GUI tooltips take longer to display the next time you show them
 };

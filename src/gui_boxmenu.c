@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_guibtns.h"
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
@@ -31,7 +30,7 @@
 #include "creature_instances.h"
 #include "player_data.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "player_utils.h"
 #include "kjm_input.h"
 #include "packets.h"
@@ -68,6 +67,7 @@ long gf_decide_victory(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned
 long gfa_single_player_mode(struct GuiBox* gbox, struct GuiBoxOption* goptn, long* tag);
 long gf_all_doors(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
 long gf_all_traps(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
+long gf_give_door_trap(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
 
 struct GuiBoxOption gui_main_cheat_list[] = { //gui_main_option_list in beta
   {"Null mode",                1,           NULL,              gf_change_player_state, 0, 0, 0,               PSt_None, 0, 0, 0, true},
@@ -110,6 +110,7 @@ struct GuiBoxOption gui_creature_cheat_option_list[] = {
  {"Research all rooms",        1,           NULL,           gf_research_rooms, 0, 0, 0,               0, 0, 0, 0, 0},
  {"All doors manufacturable",  1,           NULL,           gf_all_doors,      0, 0, 0,               0, 0, 0, 0, 0},
  {"All traps manufacturable",  1,           NULL,           gf_all_traps,      0, 0, 0,               0, 0, 0, 0, 0},
+ {"Increment doors and traps count",  1,    NULL,           gf_give_door_trap, 0, 0, 0,               0, 0, 0, 0, 0},
  {"Win the level instantly",   1,           NULL,           gf_decide_victory, 0, 0, 0,               1, 0, 0, 0, 0},
  {"Lose the level instantly",  1,           NULL,           gf_decide_victory, 0, 0, 0,               0, 0, 0, 0, 0},
  {"!",                         0,           NULL,                        NULL, 0, 0, 0,               0, 0, 0, 0, 0},
@@ -158,9 +159,6 @@ struct GuiBox *gui_cheat_box_3=NULL;
 struct GuiBox *first_box=NULL;
 struct GuiBox *last_box=NULL;
 struct GuiBox gui_boxes[3];
-//struct TbSprite *font_sprites=NULL;
-//struct TbSprite *end_font_sprites=NULL;
-//unsigned char *font_data=NULL;
 struct DraggingBox dragging_box;
 
 /******************************************************************************/
@@ -289,6 +287,14 @@ long gf_all_traps(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char
     return 1;
 }
 
+long gf_give_door_trap(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
+{
+    struct PlayerInfo* player = get_my_player();
+    //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+    set_players_packet_action(player, PckA_CheatGiveDoorTrap, 0, 0, 0, 0);
+    return 1;
+}
+
 void gui_draw_all_boxes(void)
 {
   SYNCDBG(5,"Starting");
@@ -389,7 +395,7 @@ void gui_remove_box_from_list(struct GuiBox *gbox)
 void gui_delete_box(struct GuiBox *gbox)
 {
     gui_remove_box_from_list(gbox);
-    LbMemorySet(gbox, 0, sizeof(struct GuiBox));
+    memset(gbox, 0, sizeof(struct GuiBox));
 }
 
 struct GuiBox *gui_create_box(long x, long y, struct GuiBoxOption *optn_list)

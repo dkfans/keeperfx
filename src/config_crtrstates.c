@@ -22,7 +22,6 @@
 #include "game_legacy.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 
@@ -75,7 +74,7 @@ TbBool parse_creaturestates_common_blocks(char *buf, long len, const char *confi
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, creatstate_common_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         int n = 0;
         switch (cmd_num)
         {
@@ -98,9 +97,9 @@ TbBool parse_creaturestates_common_blocks(char *buf, long len, const char *confi
             }
             break;
         }
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -129,7 +128,7 @@ TbBool parse_creaturestates_state_blocks(char *buf, long len, const char *config
         arr_size = sizeof(game.conf.crtr_conf.states)/sizeof(game.conf.crtr_conf.states[0]);
         for (i=0; i < arr_size; i++)
         {
-            LbMemorySet(game.conf.crtr_conf.states[i].name, 0, COMMAND_WORD_LEN);
+            memset(game.conf.crtr_conf.states[i].name, 0, COMMAND_WORD_LEN);
             if (i < game.conf.crtr_conf.states_count)
             {
                 creatrstate_desc[i].name = game.conf.crtr_conf.states[i].name;
@@ -164,7 +163,7 @@ TbBool parse_creaturestates_state_blocks(char *buf, long len, const char *config
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, creatstate_state_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         if ((flags & CnfLd_ListOnly) != 0) {
             // In "List only" mode, accept only name command
             if (cmd_num > 1) {
@@ -183,9 +182,9 @@ TbBool parse_creaturestates_state_blocks(char *buf, long len, const char *config
             }
             n++;
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
@@ -209,7 +208,7 @@ TbBool load_creaturestates_config_file(const char *textname, const char *fname, 
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
+    char* buf = (char*)calloc(len + 256, 1);
     if (buf == NULL)
         return false;
     // Loading file data
@@ -233,7 +232,7 @@ TbBool load_creaturestates_config_file(const char *textname, const char *fname, 
           WARNMSG("Parsing %s file \"%s\" state blocks failed.",textname,fname);
     }
     //Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     return result;
 }
 

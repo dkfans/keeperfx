@@ -25,6 +25,7 @@
 #include "creature_states.h"
 #include "creature_states_combt.h"
 #include "creature_states_mood.h"
+#include "creature_states_spdig.h"
 #include "thing_list.h"
 #include "creature_control.h"
 #include "config_creature.h"
@@ -74,7 +75,7 @@ TbBool creature_can_do_healing_sleep(const struct Thing *creatng)
 TbBool creature_is_sleeping(const struct Thing *thing)
 {
     long i = thing->active_state;
-    if ((i == CrSt_CreatureSleep))
+    if (i == CrSt_CreatureSleep)
         return true;
     return false;
 }
@@ -134,6 +135,63 @@ long creature_will_sleep(struct Thing *thing)
     return (abs(dist_x) < 1) && (abs(dist_y) < 1);
 }
 
+/**
+ * @brief special digger drop unconscious creatures in their lair
+ *
+ * only if drag_to_lair rule in activated
+ *
+ * @param thing special digger who drag the creature
+ * @return returns 1 if creature successfully arrived at its lair and woke up
+ */
+short creature_drop_unconscious_in_lair(struct Thing *thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
+
+    if (!thing_exists(dragtng) || !creature_is_being_unconscious(dragtng))
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    struct CreatureControl* dragctrl = creature_control_get_from_thing(dragtng);
+    struct Room* room = get_room_thing_is_on(thing);
+    struct Thing* totemtng = find_lair_totem_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+    // if place is not a room
+    if  (!subtile_is_room(thing->mappos.x.stl.num, thing->mappos.y.stl.num)
+            // or room is not a lair
+        || (!room_role_matches(room->kind, RoRoF_LairStorage)
+            //or room owner is not creature owner
+            || room->owner != dragtng->owner
+            //or creature has no lair room
+            || (dragctrl->lair_room_id == 0
+                // and the lair has no capacity
+                && (room->used_capacity >= room ->total_capacity)))
+        // or there is a lair already but it doesn't belong to the creature
+        || ((totemtng->index > 0) && (totemtng->index != dragctrl->lairtng_idx)))
+    {
+        //just drop the creature
+        creature_drop_dragged_object(thing, dragtng);
+        set_start_state(thing);
+        return 0;
+    }
+
+    make_creature_conscious(dragtng);
+    // if the creature already has a lair here it's going to sleep
+    if (dragctrl->lair_room_id == room->index)
+    {
+        initialise_thing_state(dragtng, CrSt_CreatureGoingHomeToSleep);
+    }
+    // if the creature dont has a lair here make a new one
+    else
+    {
+        initialise_thing_state(dragtng, CrSt_CreatureAtNewLair);
+    }
+    set_flag(dragctrl->flgfield_1,CCFlg_NoCompControl);
+    set_start_state(thing);
+    return 1;
+
+}
+
 long process_lair_enemy(struct Thing *thing, struct Room *room)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -159,7 +217,7 @@ long process_lair_enemy(struct Thing *thing, struct Room *room)
         return 0;
     }
     struct Thing* enemytng;
-    long combat_factor = find_fellow_creature_to_fight_in_room(thing, room, crstat->lair_enemy, &enemytng); 
+    long combat_factor = find_fellow_creature_to_fight_in_room(thing, room, crstat->lair_enemy, &enemytng);
     if (combat_factor < 1)
         return 0;
     if (!set_creature_in_combat_to_the_death(thing, enemytng, combat_factor))
@@ -454,42 +512,48 @@ long room_has_slab_adjacent(const struct Room *room, long slbkind)
 
 short creature_sleep(struct Thing *thing)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (creature_affected_by_slap(thing) || !creature_will_sleep(thing)) {
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    if (creature_affected_by_slap(thing) || !creature_will_sleep(thing))
+    {
         set_start_state(thing);
         return 0;
     }
-    struct Room* room = get_room_thing_is_on(thing);
-    if (room_is_invalid(room) || (!room_role_matches(room->kind,get_room_role_for_job(Job_TAKE_SLEEP)))
-        || (cctrl->lair_room_id != room->index) || (room->owner != thing->owner)) {
+    struct Room *room = get_room_thing_is_on(thing);
+    if (room_is_invalid(room)
+    || (!room_role_matches(room->kind, get_room_role_for_job(Job_TAKE_SLEEP)))
+    || (cctrl->lair_room_id != room->index)
+    || (room->owner != thing->owner))
+    {
         set_start_state(thing);
         return 0;
     }
     thing->movement_flags &= ~0x0020;
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
     // Recovery is disabled if frequency is set to 0 on rules.cfg.
     if (game.conf.rules.creature.recovery_frequency > 0)
     {
         if (((game.play_gameturn + thing->index) % game.conf.rules.creature.recovery_frequency) == 0)
         {
-            HitPoints recover = compute_creature_max_health(crstat->sleep_recovery, cctrl->explevel, thing->owner);
+            HitPoints recover = compute_creature_max_health(crstat->sleep_recovery, cctrl->explevel);
             apply_health_to_thing_and_display_health(thing, recover);
         }
     }
     anger_set_creature_anger(thing, 0, AngR_NoLair);
     anger_apply_anger_to_creature(thing, crstat->annoy_sleeping, AngR_Other, 1);
-    if (cctrl->turns_at_job > 0) {
+    if (cctrl->turns_at_job > 0)
+    {
         cctrl->turns_at_job--;
     }
     if (((game.play_gameturn + thing->index) & 0x3F) == 0)
     {
-        if (CREATURE_RANDOM(thing, 100) < 5) {
-            struct Dungeon* dungeon = get_dungeon(thing->owner);
+        if (CREATURE_RANDOM(thing, 100) < 5)
+        {
+            struct Dungeon *dungeon = get_dungeon(thing->owner);
             dungeon->lvstats.backs_stabbed++;
         }
     }
     if (crstat->sleep_exp_slab != SlbT_ROCK)
-    {
+    { // To think about: Should SlbT_ROCK be ignored? Settings the experience gain to 0 is enough to disable the feature.
         if (creature_can_gain_experience(thing) && room_has_slab_adjacent(room, crstat->sleep_exp_slab))
         {
             cctrl->exp_points += crstat->sleep_experience;

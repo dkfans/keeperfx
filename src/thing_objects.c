@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_sound.h"
 #include "bflib_planar.h"
@@ -51,6 +50,7 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "game_loop.h"
+#include "config_spritecolors.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -97,14 +97,6 @@ static Thing_Class_Func object_update_functions[] = {
     object_update_power_lightning,
 };
 
-/** Guard flag objects model per player index. Originally named guard_post_objects.
- */
-unsigned short player_guardflag_objects[] = {ObjMdl_GuardFlagRed, ObjMdl_GuardFlagBlue, ObjMdl_GuardFlagGreen, ObjMdl_GuardFlagYellow,  ObjMdl_GuardFlagWhite, ObjMdl_GuardFlagPole,
-                                             ObjMdl_GuardFlagPurple,ObjMdl_GuardFlagBlack,ObjMdl_GuardFlagOrange};
-/** Dungeon Heart flame objects model per player index.
- */
-unsigned short dungeon_flame_objects[] =    {ObjMdl_HeartFlameRed, ObjMdl_HeartFlameBlue, ObjMdl_HeartFlameGreen, ObjMdl_HeartFlameYellow,  ObjMdl_HeartFlameWhite,   0,
-                                             ObjMdl_HeartFlamePurple, ObjMdl_HeartFlameBlack, ObjMdl_HeartFlameOrange};
 unsigned short lightning_spangles[] =   {TngEffElm_RedTwinkle3, TngEffElm_BlueTwinke2, TngEffElm_GreenTwinkle2, TngEffElm_YellowTwinkle2, TngEffElm_WhiteTwinkle2, TngEffElm_None,TngEffElm_PurpleTwinkle2,TngEffElm_BlackTwinkle2,TngEffElm_OrangeTwinkle2,};
 unsigned short twinkle_eff_elements[] = {TngEffElm_RedTwinkle,  TngEffElm_BlueTwinkle, TngEffElm_GreenTwinkle,  TngEffElm_YellowTwinkle,  TngEffElm_WhiteTwinkle,  TngEffElm_None,TngEffElm_PurpleTwinkle, TngEffElm_BlackTwinkle, TngEffElm_OrangeTwinkle, };
 
@@ -137,7 +129,7 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
       thing->parent_idx = -1;
     else
       thing->parent_idx = parent_idx;
-    LbMemoryCopy(&thing->mappos, pos, sizeof(struct Coord3d));
+    memcpy(&thing->mappos, pos, sizeof(struct Coord3d));
     struct ObjectConfigStats* objst = get_object_model_stats(model);
     thing->clipbox_size_xy = objst->size_xy;
     thing->clipbox_size_z = objst->size_z;
@@ -168,15 +160,14 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
     set_thing_draw(thing, i, objst->anim_speed, objst->sprite_size_max, 0, start_frame, objst->draw_class);
     set_flag_value(thing->rendering_flags, TRF_Unshaded, objst->light_unaffected);
 
-    set_flag_value(thing->rendering_flags, TRF_Transpar_4, objst->transparancy_flags & 0x01);
-    set_flag_value(thing->rendering_flags, TRF_Transpar_8, objst->transparancy_flags & 0x02);
+    set_flag(thing->rendering_flags, objst->transparency_flags);
 
     thing->active_state = objst->initial_state;
     if (objst->ilght.radius != 0)
     {
         struct InitLight ilight;
-        LbMemorySet(&ilight, 0, sizeof(struct InitLight));
-        LbMemoryCopy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
+        memset(&ilight, 0, sizeof(struct InitLight));
+        memcpy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
         ilight.radius = objst->ilght.radius;
         ilight.intensity = objst->ilght.intensity;
         ilight.flags = objst->ilght.flags;
@@ -205,17 +196,6 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
       case ObjMdl_GoldBag:
         thing->valuable.gold_stored = gold_object_typical_value(thing->model);
         break;
-      case ObjMdl_HeroGate:
-        i = get_free_hero_gate_number();
-        if (i > 0)
-        {
-            thing->hero_gate.number = i;
-        } else
-        {
-            thing->hero_gate.number = 0;
-            ERRORLOG("Could not allocate number for hero gate");
-        }
-        break;
       case ObjMdl_SpinningKey:
         if ((thing->mappos.z.stl.num == 4) && (subtile_is_door(thing->mappos.x.stl.num, thing->mappos.y.stl.num)))
         {
@@ -226,6 +206,20 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
       default:
         break;
     }
+    if (objst->genre == OCtg_HeroGate)
+    {
+        i = get_free_hero_gate_number();
+        if (i > 0)
+        {
+            thing->hero_gate.number = i;
+        }
+        else
+        {
+            thing->hero_gate.number = 0;
+            ERRORLOG("Could not allocate number for hero gate");
+        }
+    }
+
     add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);
 
@@ -427,7 +421,8 @@ TbBool thing_is_lair_totem(const struct Thing *thing)
 
 TbBool object_is_hero_gate(const struct Thing *thing)
 {
-  return (thing->model == ObjMdl_HeroGate);
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    return (objst->genre == OCtg_HeroGate);
 }
 
 TbBool object_is_infant_food(const struct Thing *thing)
@@ -505,6 +500,17 @@ TbBool object_is_guard_flag(const struct Thing *thing)
       default:
           return false;
     }
+}
+
+
+/**
+ * Returns if given thing is a coloured object.
+ * @param thing
+ * @return
+ */
+TbBool object_is_coloured_object(const struct Thing *thing)
+{
+    return (get_coloured_object_base_model(thing->model) != 0);
 }
 
 /**
@@ -1280,10 +1286,10 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
         if (heartng->health <= 0)
         {
             struct Thing* efftng;
-            efftng = create_used_effect_or_element(&heartng->mappos, objst->effect.explosion1, heartng->owner);
+            efftng = create_used_effect_or_element(&heartng->mappos, objst->effect.explosion1, heartng->owner, heartng->index);
             if (!thing_is_invalid(efftng))
                 efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
-            efftng = create_used_effect_or_element(&heartng->mappos, objst->effect.explosion2, heartng->owner);
+            efftng = create_used_effect_or_element(&heartng->mappos, objst->effect.explosion2, heartng->owner, heartng->index);
             if (!thing_is_invalid(efftng))
                 efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
             destroy_dungeon_heart_room(heartng->owner, heartng);
@@ -1468,7 +1474,7 @@ static TngUpdateRet object_update_armour(struct Thing *objtng)
     struct Thing* thing = thing_get(objtng->armor.belongs_to);
     if (thing_is_picked_up(thing))
     {
-        objtng->rendering_flags |= TRF_Unknown01;
+        objtng->rendering_flags |= TRF_Invisible;
         return 1;
     }
     struct Coord3d pos;
@@ -1510,7 +1516,7 @@ static TngUpdateRet object_update_armour(struct Thing *objtng)
     objtng->veloc_push_add.x.val += cvect.x;
     objtng->veloc_push_add.y.val += cvect.y;
     objtng->veloc_push_add.z.val += cvect.z;
-    objtng->rendering_flags &= ~TRF_Unknown01;
+    objtng->rendering_flags &= ~TRF_Invisible;
     return 1;
 }
 
@@ -1571,6 +1577,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
 
     const struct MagicStats *pwrdynst = get_power_dynamic_stats(PwrK_SIGHT);
     int max_time_active = pwrdynst->strength[sight_casted_splevel];
+    int strength = min(pwrdynst->strength[sight_casted_splevel], (MAX_SOE_RADIUS * COORD_PER_STL / 4));
 
     if ( game.play_gameturn - objtng->creation_turn >= max_time_active
         && game.play_gameturn - dungeon->sight_casted_gameturn < max_time_active )
@@ -1619,7 +1626,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
             const int anim_radius = 4 * anim_time;
             const int close_radius = 32 * (power_sight_close_instance_time[dungeon->sight_casted_splevel] - (anim_time - max_time_active));
             const int max_duration_radius = max_time_active / 4;
-            const int strength_radius = pwrdynst->strength[dungeon->sight_casted_splevel] / 4;
+            const int strength_radius = strength/4;
             const int radius = max(0, min(min(min(close_radius, max_duration_radius), anim_radius), strength_radius));
             for (int i = 0; i < 32; ++i) {
                 const int step = ((2*LbFPMath_PI) / 32);
@@ -1639,7 +1646,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
         const int anim_time = (game.play_gameturn - dungeon->sight_casted_gameturn);
         const int anim_radius = 4 * anim_time;
         const int max_duration_radius = max_time_active / 4;
-        const int strength_radius = pwrdynst->strength[dungeon->sight_casted_splevel] / 4;
+        const int strength_radius = strength/4;
         const int radius = max(0, min(min(max_duration_radius, anim_radius), strength_radius));
         for (int i = 0; i < 4; ++i) {
             const int step = ((2*LbFPMath_PI) / 32);
@@ -1652,8 +1659,8 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
             pos.z.val = 1408;
             create_effect_element(&pos, twinkle_eff_elements[get_player_color_idx(objtng->owner)], objtng->owner);
             if ( pos_x >= 0 && pos_x < gameadd.map_subtiles_x * COORD_PER_STL && pos_y >= 0 && pos_y < gameadd.map_subtiles_y * COORD_PER_STL ) {
-                const int shift_x = pos.x.stl.num - objtng->mappos.x.stl.num + 13;
-                const int shift_y = pos.y.stl.num - objtng->mappos.y.stl.num + 13;
+                const int shift_x = pos.x.stl.num - objtng->mappos.x.stl.num + MAX_SOE_RADIUS;
+                const int shift_y = pos.y.stl.num - objtng->mappos.y.stl.num + MAX_SOE_RADIUS;
                 dungeon->soe_explored_flags[shift_y][shift_x] = pos.x.val < gameadd.map_subtiles_x * COORD_PER_STL && pos.y.val < gameadd.map_subtiles_y * COORD_PER_STL;
             }
         }
@@ -1756,7 +1763,8 @@ TngUpdateRet move_object(struct Thing *thing)
                 {
                     if (!find_free_position_on_slab(thing, &pos))
                     {
-                        SYNCDBG(7, "Found no free position next to (%ld,%ld) due to blocked flag %d. Move to valid position.", pos.x.val, pos.y.val, blocked_flags);
+                        SYNCDBG(7, "Found no free position next to (%ld,%ld) due to blocked flag %ld. Move to valid position.",
+                            pos.x.val, pos.y.val, blocked_flags);
                         move_creature_to_nearest_valid_position(thing);
                     }
                 }
@@ -1838,23 +1846,19 @@ TngUpdateRet update_object(struct Thing *thing)
 }
 
 /**
- * Creates a guard post flag object.
- * @param pos Position where the guard post flag is to be created.
+ * Creates a coloured object.
+ * @param pos Position where the object is to be created.
  * @param plyr_idx Player who will own the flag.
  * @param parent_idx Slab number associated with the flag.
- * @return Guard flag object thing.
+ * @return object thing.
  */
-struct Thing *create_guard_flag_object(const struct Coord3d *pos, PlayerNumber plyr_idx, long parent_idx)
+struct Thing *create_coloured_object(const struct Coord3d *pos, PlayerNumber plyr_idx, long parent_idx, ThingModel base_model)
 {
-    ThingModel grdflag_kind;
-    if (plyr_idx >= sizeof(player_guardflag_objects)/sizeof(player_guardflag_objects[0]))
-        grdflag_kind = player_guardflag_objects[NEUTRAL_PLAYER];
-    else
-        grdflag_kind = player_guardflag_objects[get_player_color_idx(plyr_idx)];
-    if (grdflag_kind <= 0)
+    ThingModel model = get_player_colored_object_model(base_model,plyr_idx);
+    if (model <= 0)
         return INVALID_THING;
     // Guard posts have slab number set as parent
-    struct Thing* thing = create_object(pos, grdflag_kind, plyr_idx, parent_idx);
+    struct Thing* thing = create_object(pos, model, plyr_idx, parent_idx);
     if (thing_is_invalid(thing))
         return INVALID_THING;
     return thing;

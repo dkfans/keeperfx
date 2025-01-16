@@ -23,7 +23,6 @@
 #include <stdarg.h>
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
@@ -34,12 +33,14 @@
 #include "bflib_sound.h"
 #include "sounds.h"
 #include "engine_render.h"
+#include "bflib_fmvids.h"
 
 #include "config_campaigns.h"
 #include "front_simple.h"
 #include "scrcapt.h"
 #include "vidmode.h"
 #include "music_player.h"
+#include "moonphase.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -166,25 +167,25 @@ const struct NamedCommand logicval_type[] = {
   };
 
   const struct NamedCommand vidscale_type[] = {
-  {"OFF",          256}, // = 0x100 = No scaling of Smacker Video
-  {"DISABLED",     256},
-  {"FALSE",        256},
-  {"NO",           256},
-  {"0",            256},
-  {"FIT",           16}, // = 0x10 = SMK_FullscreenFit - fit to fullscreen, using letterbox and pillarbox as necessary
-  {"ON",            16}, // Duplicate of FIT, for legacy reasons
-  {"ENABLED",       16},
-  {"TRUE",          16},
-  {"YES",           16},
-  {"1",             16},
-  {"STRETCH",       32}, // = 0x20 = SMK_FullscreenStretch  - stretch to fullscreen - ignores aspect ratio difference between source and destination
-  {"CROP",          64}, // = 0x40 = SMK_FullscreenCrop - fill fullscreen and crop - no letterbox or pillarbox
-  {"4BY3",          48}, // = 0x10 & 0x20 = [Aspect Ratio correction mode] - stretch 320x200 to 4:3 (i.e. increase height by 1.2)
-  {"PIXELPERFECT",  80}, // = 0x10 & 0x40 = integer multiple scale only (FIT)
-  {"4BY3PP",       112}, // = 0x10 & 0x20 & 0x40 = integer multiple scale only (4BY3)
-  {NULL,             0},
+  {"OFF",          0}, // No scaling of Smacker Video
+  {"DISABLED",     0},
+  {"FALSE",        0},
+  {"NO",           0},
+  {"0",            0},
+  {"FIT",          SMK_FullscreenFit}, // Fit to fullscreen, using letterbox and pillarbox as necessary
+  {"ON",           SMK_FullscreenFit}, // Duplicate of FIT, for legacy reasons
+  {"ENABLED",      SMK_FullscreenFit},
+  {"TRUE",         SMK_FullscreenFit},
+  {"YES",          SMK_FullscreenFit},
+  {"1",            SMK_FullscreenFit},
+  {"STRETCH",      SMK_FullscreenStretch}, // Stretch to fullscreen - ignores aspect ratio difference between source and destination
+  {"CROP",         SMK_FullscreenCrop}, // Fill fullscreen and crop - no letterbox or pillarbox
+  {"4BY3",         SMK_FullscreenFit | SMK_FullscreenStretch}, // [Aspect Ratio correction mode] - stretch 320x200 to 4:3 (i.e. increase height by 1.2)
+  {"PIXELPERFECT", SMK_FullscreenFit | SMK_FullscreenCrop}, // integer multiple scale only (FIT)
+  {"4BY3PP",       SMK_FullscreenFit | SMK_FullscreenStretch | SMK_FullscreenCrop}, // integer multiple scale only (4BY3)
+  {NULL,           0},
   };
-unsigned int vid_scale_flags = 0;
+unsigned int vid_scale_flags = SMK_FullscreenFit;
 
 unsigned long features_enabled = 0;
 /** Line number, used when loading text files. */
@@ -200,29 +201,6 @@ short is_near_new_moon = 0;
 }
 #endif
 /******************************************************************************/
-/**
- * Updates enabled features flags. Returns true if ALL features are enabled.
- * @param mem_size Amount of memory available for the game.
- * @return
- */
-TbBool update_features(unsigned long uf_mem_size)
-{
-    short result = false;
-    if (uf_mem_size >= 32)
-    {
-        result = true;
-        features_enabled |= Ft_HiResCreatr;
-  }
-  if (uf_mem_size >= 16)
-  {
-    features_enabled |= Ft_EyeLens;
-    features_enabled |= Ft_HiResVideo;
-    features_enabled |= Ft_BigPointer;
-    features_enabled |= Ft_AdvAmbSound;
-  }
-  SYNCMSG("Memory-demanding features %s.",result?"enabled":"disabled");
-  return result;
-}
 
 /**
  * Returns if the censorship is on. This mostly affects blood.
@@ -375,7 +353,83 @@ short find_conf_block(const char *buf,long *pos,long buflen,const char *blocknam
 }
 
 /**
+ * Reads the block name from buf, starting at pos.
+ * Sets name and namelen to the block name and name length respectively.
+ * Returns true on success, false when the block name is zero.
+ */
+TbBool conf_get_block_name(const char * buf, long * pos, long buflen, const char ** name, int * namelen)
+{
+  const long start = *pos;
+  *name = NULL;
+  *namelen = 0;
+  while (true) {
+    if (*pos >= buflen) {
+      return false;
+    } else if (isalpha(buf[*pos])) {
+      (*pos)++;
+      continue;
+    } else if (isdigit(buf[*pos])) {
+      (*pos)++;
+      continue;
+    } else {
+      if (*pos - start > 0) {
+        *name = &buf[start];
+        *namelen = *pos - start;
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+}
+
+/**
+ * Searches for the next block in buf, starting at pos.
+ * Sets name and namelen to the block name and name length respectively.
+ * Returns true on success, false when no more blocks are found.
+ */
+TbBool iterate_conf_blocks(const char * buf, long * pos, long buflen, const char ** name, int * namelen)
+{
+  text_line_number = 1;
+  *name = NULL;
+  *namelen = 0;
+  while (true) {
+    // Skip whitespace before block start
+    if (!skip_conf_spaces(buf, pos, buflen)) {
+      return false;
+    }
+    // Check if this line is start of a block
+    if (*pos >= buflen) {
+      return false;
+    } else if (buf[*pos] != '[') {
+      skip_conf_to_next_line(buf, pos, buflen);
+      continue;
+    }
+    (*pos)++;
+    // Skip whitespace before block name
+    if (!skip_conf_spaces(buf, pos, buflen)) {
+      return false;
+    }
+    // Get block name
+    if (!conf_get_block_name(buf, pos, buflen, name, namelen)) {
+      skip_conf_to_next_line(buf, pos, buflen);
+      return false;
+    }
+    // Skip whitespace after block name
+    if (!skip_conf_spaces(buf, pos, buflen)) {
+      return false;
+    } else if (buf[*pos] != ']') {
+      skip_conf_to_next_line(buf, pos, buflen);
+      continue;
+    }
+    skip_conf_to_next_line(buf,pos,buflen);
+    return true;
+  }
+}
+
+/**
  * Recognizes config command and returns its number, or negative status code.
+ * The string comparison is done by case-insensitive.
  * @param buf
  * @param pos
  * @param buflen
@@ -438,6 +492,8 @@ int recognize_conf_command(const char *buf,long *pos,long buflen,const struct Na
         }
         i++;
     }
+    const int len = strcspn(&buf[(*pos)], " \n\r\t");
+    CONFWRNLOG("Unrecognized command '%.*s'", len, &buf[(*pos)]);
     return ccr_unrecognised;
 }
 
@@ -564,12 +620,12 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
 
                 if( k < commands[i].min)
                 {
-                    CONFWRNLOG("field '%s' smaller then min value '%d', was '%d'",commands[i].name,commands[i].min,k);
+                    CONFWRNLOG("field '%s' smaller then min value '%I64d', was '%I64d'",commands[i].name,commands[i].min,k);
                     k = commands[i].min;
                 }
                 else if( k > commands[i].max)
                 {
-                    CONFWRNLOG("field '%s' bigger then max value '%d', was '%d'",commands[i].name,commands[i].max,k);
+                    CONFWRNLOG("field '%s' bigger then max value '%I64d', was '%I64d'",commands[i].name,commands[i].max,k);
                     k = commands[i].max;
                 }
                 
@@ -747,7 +803,7 @@ const char *get_conf_parameter_text(const struct NamedCommand commands[],int num
             return commands[i].name;
         i++;
   }
-  return lbEmptyString;
+  return "";
 }
 
 /**
@@ -899,14 +955,14 @@ short load_configuration(void)
     WARNMSG("%s file \"%s\" is too large.",config_textname,sname);
     return false;
   }
-  char* buf = (char*)LbMemoryAlloc(len + 256);
+  char* buf = (char*)calloc(len + 256, 1);
   if (buf == NULL)
     return false;
   // Loading file data
   len = LbFileLoadAt(fname, buf);
   if (len>0)
   {
-    SYNCDBG(7,"Processing %s file, %d bytes",config_textname,len);
+    SYNCDBG(7,"Processing %s file, %ld bytes",config_textname,len);
     buf[len] = '\0';
     // Set text line number - we don't have blocks so we need to initialize it manually
     text_line_number = 1;
@@ -1098,12 +1154,12 @@ short load_configuration(void)
           break;
       case 14: // Resize Movies
           i = recognize_conf_parameter(buf,&pos,len,vidscale_type);
-          if (i <= 0 || i > 256)
+          if (i < 0)
           {
             CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
             break;
           }
-          if (i < 256) {
+          if (i > 0) {
             features_enabled |= Ft_Resizemovies;
             vid_scale_flags = i;
           }
@@ -1116,7 +1172,7 @@ short load_configuration(void)
           {
             i = atoi(word_buf);
           }
-          if ((i > 0) && (i <= 50)) {
+          if ((i > 0) && (i < MUSIC_TRACKS_COUNT)) {
               max_track = i;
           } else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
@@ -1258,8 +1314,8 @@ short load_configuration(void)
           }
           if ((i >= 0) && (i <= 32768)) {
               if (i > 100) {i = 100;}
-              zoom_distance_setting = lerp(4100, CAMERA_ZOOM_MIN, (float)i/100.0);
-              frontview_zoom_distance_setting = lerp(16384, FRONTVIEW_CAMERA_ZOOM_MIN, (float)i/100.0);
+              zoom_distance_setting = LbLerp(4100, CAMERA_ZOOM_MIN, (float)i/100.0);
+              frontview_zoom_distance_setting = LbLerp(16384, FRONTVIEW_CAMERA_ZOOM_MIN, (float)i/100.0);
           } else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }
@@ -1337,9 +1393,9 @@ short load_configuration(void)
               CONFWRNLOG("Invalid API port '%s' in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }
           break;
-      case 0: // comment
+      case ccr_comment:
           break;
-      case -1: // end of buffer
+      case ccr_endOfFile:
           break;
       default:
           CONFWRNLOG("Unrecognized command in %s file.",config_textname);
@@ -1351,7 +1407,7 @@ short load_configuration(void)
   }
   SYNCDBG(7,"Config loaded");
   // Freeing
-  LbMemoryFree(buf);
+  free(buf);
   // Updating game according to loaded settings
   switch (install_info.lang_id)
   {
@@ -1387,7 +1443,7 @@ short load_configuration(void)
 }
 
 /** CmdLine overrides allow settings from the command line to override the default settings, or those set in the config file.
- * 
+ *
  * See enum CmdLineOverrides and struct StartupParameters -> TbBool overrides[CMDLINE_OVERRIDES].
  */
 void process_cmdline_overrides(void)
@@ -1584,18 +1640,13 @@ unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *
   prepare_file_path_buf(ffullpath, fgroup, fname);
   va_end(arg);
   // Load the file
-  if (file_group_needs_cd(fgroup))
-  {
-    if (!wait_for_cd_to_be_available())
-      return NULL;
-   }
    long fsize = LbFileLengthRnc(ffullpath);
    if (fsize < *ldsize)
    {
        WARNMSG("File \"%s\" doesn't exist or is too small.", fname);
        return NULL;
   }
-  unsigned char* buf = LbMemoryAlloc(fsize + 16);
+  unsigned char* buf = calloc(fsize + 16, 1);
   if (buf == NULL)
   {
     WARNMSG("Can't allocate %ld bytes to load \"%s\".",fsize,fname);
@@ -1605,68 +1656,89 @@ unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *
   if (fsize < *ldsize)
   {
     WARNMSG("Reading file \"%s\" failed.",fname);
-    LbMemoryFree(buf);
+    free(buf);
     return NULL;
   }
-  LbMemorySet(buf+fsize, '\0', 15);
+  memset(buf+fsize, '\0', 15);
   *ldsize = fsize;
   return buf;
 }
 
-short calculate_moon_phase(short do_calculate,short add_to_log)
+short calculate_moon_phase(short do_calculate, short add_to_log)
 {
-  //Moon phase calculation
-  if (do_calculate)
-  {
-    phase_of_moon = (float)LbMoonPhase();
-  }
-  if ((phase_of_moon > -0.05) && (phase_of_moon < 0.05))
-  {
-    if (add_to_log)
-      SYNCMSG("Full moon %.4f", phase_of_moon);
-    is_full_moon = 1;
-    is_near_full_moon = 0;
-    is_new_moon = 0;
-    is_near_new_moon = 0;
-  } else
-  if ((phase_of_moon > -0.1) && (phase_of_moon < 0.1))
-  {
-    if (add_to_log)
-      SYNCMSG("Near Full moon %.4f", phase_of_moon);
-    is_full_moon = 0;
-    is_near_full_moon = 1;
-    is_new_moon = 0;
-    is_near_new_moon = 0;
-  } else
-  if ((phase_of_moon < -0.95) || (phase_of_moon > 0.95))
-  {
-    if (add_to_log)
-      SYNCMSG("New moon %.4f", phase_of_moon);
-    is_full_moon = 0;
-    is_near_full_moon = 0;
-    is_new_moon = 1;
-    is_near_new_moon = 0;
-  } else
-  if ((phase_of_moon < -0.9) || (phase_of_moon > 0.9))
-  {
-    if (add_to_log)
-      SYNCMSG("Near new moon %.4f", phase_of_moon);
-    is_full_moon = 0;
-    is_near_full_moon = 0;
-    is_new_moon = 0;
-    is_near_new_moon = 1;
-  } else
-  {
-    if (add_to_log)
-      SYNCMSG("Moon phase %.4f", phase_of_moon);
-    is_full_moon = 0;
-    is_near_full_moon = 0;
-    is_new_moon = 0;
-    is_near_new_moon = 0;
-  }
-//!CHEAT! always show extra levels
-//  is_full_moon = 1; is_new_moon = 1;
-  return is_full_moon;
+    // Moon phase calculation
+    if (do_calculate)
+    {
+        phase_of_moon = (float)moonphase_calculate();
+    }
+
+    // Handle moon phases
+    if ((phase_of_moon > 0.475) && (phase_of_moon < 0.525)) // Approx 33 hours
+    {
+        if (add_to_log)
+        {
+            SYNCMSG("Full moon %.4f", phase_of_moon);
+        }
+
+        is_full_moon = 1;
+        is_near_full_moon = 0;
+        is_new_moon = 0;
+        is_near_new_moon = 0;
+    }
+    else if ((phase_of_moon > 0.45) && (phase_of_moon < 0.55)) // Approx 70 hours
+    {
+        if (add_to_log)
+        {
+            SYNCMSG("Near Full moon %.4f", phase_of_moon);
+        }
+
+        is_full_moon = 0;
+        is_near_full_moon = 1;
+        is_new_moon = 0;
+        is_near_new_moon = 0;
+    }
+    else if ((phase_of_moon < 0.025) || (phase_of_moon > 0.975))
+    {
+        if (add_to_log)
+        {
+            SYNCMSG("New moon %.4f", phase_of_moon);
+        }
+
+        is_full_moon = 0;
+        is_near_full_moon = 0;
+        is_new_moon = 1;
+        is_near_new_moon = 0;
+    }
+    else if ((phase_of_moon < 0.05) || (phase_of_moon > 0.95))
+    {
+        if (add_to_log)
+        {
+            SYNCMSG("Near new moon %.4f", phase_of_moon);
+        }
+
+        is_full_moon = 0;
+        is_near_full_moon = 0;
+        is_new_moon = 0;
+        is_near_new_moon = 1;
+    }
+    else
+    {
+        if (add_to_log)
+        {
+            SYNCMSG("Moon phase %.4f", phase_of_moon);
+        }
+
+        is_full_moon = 0;
+        is_near_full_moon = 0;
+        is_new_moon = 0;
+        is_near_new_moon = 0;
+    }
+
+    //! CHEAT! always show extra levels
+    // TODO: make this a command line option?
+    //  is_full_moon = 1; is_new_moon = 1;
+
+    return is_full_moon;
 }
 
 void load_or_create_high_score_table(void)
@@ -1685,12 +1757,12 @@ TbBool load_high_score_table(void)
     long arr_size = campaign.hiscore_count * sizeof(struct HighScore);
     if (arr_size <= 0)
     {
-        LbMemoryFree(campaign.hiscore_table);
+        free(campaign.hiscore_table);
         campaign.hiscore_table = NULL;
         return true;
     }
     if (campaign.hiscore_table == NULL)
-        campaign.hiscore_table = (struct HighScore *)LbMemoryAlloc(arr_size);
+        campaign.hiscore_table = (struct HighScore *)calloc(arr_size, 1);
     if (LbFileLengthRnc(fname) != arr_size)
         return false;
     if (campaign.hiscore_table == NULL)
@@ -1724,7 +1796,7 @@ TbBool create_empty_high_score_table(void)
   int nlevel = 1 * VISIBLE_HIGH_SCORES_COUNT;
   long arr_size = campaign.hiscore_count * sizeof(struct HighScore);
   if (campaign.hiscore_table == NULL)
-    campaign.hiscore_table = (struct HighScore *)LbMemoryAlloc(arr_size);
+    campaign.hiscore_table = (struct HighScore *)calloc(arr_size, 1);
   if (campaign.hiscore_table == NULL)
     return false;
   for (i=0; i < VISIBLE_HIGH_SCORES_COUNT; i++)
@@ -1957,7 +2029,7 @@ TbBool reset_credits(struct CreditsItem *credits)
 {
     for (long i = 0; i < CAMPAIGN_CREDITS_COUNT; i++)
     {
-        LbMemorySet(&credits[i], 0, sizeof(struct CreditsItem));
+        memset(&credits[i], 0, sizeof(struct CreditsItem));
         credits[i].kind = CIK_None;
   }
   return true;
@@ -2067,7 +2139,7 @@ TbBool setup_campaign_credits_data(struct GameCampaign *campgn)
     ERRORLOG("Campaign Credits file \"%s\" does not exist or can't be opened",campgn->credits_fname);
     return false;
   }
-  campgn->credits_data = (char *)LbMemoryAlloc(filelen + 256);
+  campgn->credits_data = (char *)calloc(filelen + 256, 1);
   if (campgn->credits_data == NULL)
   {
     ERRORLOG("Can't allocate memory for Campaign Credits file \"%s\"",campgn->credits_fname);
@@ -2585,11 +2657,11 @@ short is_freeplay_level(LevelNumber lvnum)
   {
     if (campaign.freeplay_levels[i] == lvnum)
     {
-        SYNCDBG(18,"%d is freeplay",lvnum);
+        SYNCDBG(18,"%ld is freeplay",lvnum);
         return true;
     }
   }
-  SYNCDBG(18,"%d is NOT freeplay",lvnum);
+  SYNCDBG(18,"%ld is NOT freeplay",lvnum);
   return false;
 }
 /******************************************************************************/
