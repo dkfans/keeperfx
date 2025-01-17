@@ -844,22 +844,31 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     pos.y.val = creatng->mappos.y.val;
     pos.z.val = creatng->mappos.z.val;
     pos.z.val = get_ceiling_height_at(&pos);
-    if (creature_is_taking_salary_activity(creatng))
+    GoldAmount salary = calculate_correct_creature_pay(creatng);
+    GoldAmount tribute = goldtng->valuable.gold_stored;
+    //Handpayed creatures skip the next paydays
+    if (game.conf.rules.game.classic_bugs_flags & ClscBug_PayDaySkip)
     {
-        cctrl = creature_control_get_from_thing(creatng);
-        if (cctrl->paydays_owed > 0)
+        if (creature_is_taking_salary_activity(creatng))
+        {
+            cctrl = creature_control_get_from_thing(creatng);
+            if (cctrl->paydays_owed > 0)
             cctrl->paydays_owed--;
-        set_start_state(creatng);
-        taking_salary = true;
+            set_start_state(creatng);
+            taking_salary = true;
+        }
+        if (salary < 1) // we devide by this number later on
+        {
+            salary = 1;
+        }
+        if ( !taking_salary )
+        {
+            cctrl = creature_control_get_from_thing(creatng);
+            if (cctrl->paydays_advanced < SCHAR_MAX) {
+                cctrl->paydays_advanced++;
+            }
+        }
     }
-    GoldAmount salary;
-    salary = calculate_correct_creature_pay(creatng);
-    if (salary < 1) // we devide by this number later on
-    {
-        salary = 1;
-    }
-    long tribute;
-    tribute = goldtng->valuable.gold_stored;
     drop_gold_coins(&pos, 0, plyr_idx);
     if (tribute >= salary)
     {
@@ -872,13 +881,6 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     else
     {
         thing_play_sample(creatng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS/2);
-    }
-    if ( !taking_salary )
-    {
-        cctrl = creature_control_get_from_thing(creatng);
-        if (cctrl->paydays_advanced < SCHAR_MAX) {
-            cctrl->paydays_advanced++;
-        }
     }
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);

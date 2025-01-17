@@ -55,6 +55,7 @@ const struct NamedCommand rules_game_classicbugs_commands[] = {
   {"STUN_FRIENDLY_UNITS",           12},
   {"PASSIVE_NEUTRALS",              13},
   {"NEUTRAL_TORTURE_CONVERTS",      14},
+  {"PAY_DAY_SKIP",                  15},  
   {NULL,                             0},
 };
 
@@ -421,6 +422,9 @@ static void game_block_special_cases(int cmd_num,const char *buf,long *pos,long 
                 case 14: // NEUTRAL_TORTURE_CONVERTS
                     game.conf.rules.game.classic_bugs_flags |= ClscBug_NeutralTortureConverts;
                     break;
+                case 15: // PAY_DAY_SKIP
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_PayDaySkip;
+                    break;                    
                 default:
 
                     break;
