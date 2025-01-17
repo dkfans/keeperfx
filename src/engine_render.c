@@ -60,6 +60,7 @@
 #include "thing_traps.h"
 #include "vidfade.h"
 #include "vidmode.h"
+#include "map_blocks.h"
 
 #include "post_inc.h"
 
@@ -1150,25 +1151,36 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
     struct Column *col;
     unsigned long pfulmask_or;
     unsigned long pfulmask_and;
+    MapSubtlCoord cur_stl_x;
+    MapSubtlCoord cur_stl_y;
     {
         unsigned long mask_cur;
         unsigned long mask_yp;
         mask_cur = mask_unrev;
         mask_yp = mask_unrev;
-        mapblk = get_map_block_at(stl_x-1, stl_y+1);
+        cur_stl_x = stl_x - 1;
+        cur_stl_y = stl_y - 1;
+        mapblk = get_map_block_at(cur_stl_x, cur_stl_y);
         if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_cur = col->solidmask;
-            if ((mask_cur >= 8) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & 0xE) == 0)) {
+            if (mask_cur >= 8) 
+            {
+                if (subtile_is_cluedo_wall(cur_stl_y, cur_stl_y)) {
                 mask_cur &= 3;
+                }
             }
         }
-        mapblk = get_map_block_at(stl_x-1, stl_y);
+        cur_stl_x = stl_x - 1;
+        cur_stl_y = stl_y;
+        mapblk = get_map_block_at(cur_stl_x, cur_stl_y);
         if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_yp = col->solidmask;
-            if ((mask_yp >= 8) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & 0xE) == 0)) {
+            if (mask_yp >= 8) {
+                if (subtile_is_cluedo_wall(cur_stl_y, cur_stl_y)) {
                 mask_yp &= 3;
+                }
             }
         }
         pfulmask_or = mask_cur | mask_yp;
@@ -1228,21 +1240,29 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
         unsigned long mask_yp;
         mask_cur = mask_unrev;
         mask_yp = mask_unrev;
-        mapblk = get_map_block_at(stl_x, stl_y+1);
+        cur_stl_x = stl_x;
+        cur_stl_y = stl_y + 1;
+        mapblk = get_map_block_at(cur_stl_x, cur_stl_y);
         wib_v = get_mapblk_wibble_value(mapblk);
         if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_cur = col->solidmask;
-            if ((mask_cur >= 8) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & 0xE) == 0)) {
+            if (mask_cur >= 8) {
+                if (subtile_is_cluedo_wall(cur_stl_y, cur_stl_y)) {
                 mask_cur &= 3;
             }
+            }
         }
-        mapblk = get_map_block_at(stl_x, stl_y);
+        cur_stl_x = stl_x;
+        cur_stl_y = stl_y;
+        mapblk = get_map_block_at(cur_stl_x, cur_stl_y);
         if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_yp = col->solidmask;
-            if ((mask_yp >= 8) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & 0xE) == 0)) {
+            if (mask_yp >= 8) {
+                if (subtile_is_cluedo_wall(cur_stl_y, cur_stl_y)) {
                 mask_yp &= 3;
+            }
             }
         }
         unsigned long nfulmask_or;
@@ -4436,8 +4456,10 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
     unrev_colmn = get_column(game.unrevealed_column_idx);
     for (xidx=0; xidx < xdelta; xidx++)
     {
+        MapSubtlCoord cur_stl_x = stl_x + xaval + xidx;
+        MapSubtlCoord cur_stl_y = stl_y;
         struct Map *cur_mapblk;
-        cur_mapblk = get_map_block_at(stl_x + xaval + xidx, stl_y);
+        cur_mapblk = get_map_block_at(cur_stl_x, cur_stl_y);
         // Get solidmasks of sibling columns
         unsigned short solidmsk_cur_raw;
         unsigned short solidmsk_cur;
@@ -4466,56 +4488,69 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
             solidmsk_cur = solidmsk_cur_raw;
             if (solidmsk_cur >= (1<<3))
             {
-                if (((cur_mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((cur_colmn->bitfields & 0xE) == 0)) {
+                // if (((cur_mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((cur_colmn->bitfields & 0xE) == 0)) {
+                    if (subtile_is_cluedo_wall(cur_stl_y, cur_stl_y)) {
                     solidmsk_cur &= 3;
                 }
             }
         }
+        cur_stl_x = stl_x + xaval + xidx;
+        cur_stl_y = stl_y - 1;
         struct Map *sib_mapblk;
-        sib_mapblk = get_map_block_at(stl_x + xaval + xidx, stl_y - 1);
+        sib_mapblk = get_map_block_at(cur_stl_x, cur_stl_y);
         if (map_block_revealed(sib_mapblk, my_player_number)) {
             struct Column *colmn;
             colmn = get_map_column(sib_mapblk);
             solidmsk_back = colmn->solidmask;
             if (solidmsk_back >= (1<<3))
             {
-                if (((sib_mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((colmn->bitfields & 0xE) == 0)) {
+                // if (((sib_mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((colmn->bitfields & 0xE) == 0)) {
+                    if (subtile_is_cluedo_wall(cur_stl_y, cur_stl_y)) {
                     solidmsk_back &= 3;
                 }
             }
         }
-        sib_mapblk = get_map_block_at(stl_x + xaval + xidx, stl_y + 1);
+        cur_stl_x = stl_x + xaval + xidx;
+        cur_stl_y = stl_y + 1;
+        sib_mapblk = get_map_block_at(cur_stl_x, cur_stl_y);
         if (map_block_revealed(sib_mapblk, my_player_number)) {
             struct Column *colmn;
             colmn = get_map_column(sib_mapblk);
             solidmsk_front = colmn->solidmask;
             if (solidmsk_front >= (1<<3))
             {
-                if (((sib_mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((colmn->bitfields & 0xE) == 0)) {
+                // if (((sib_mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((colmn->bitfields & 0xE) == 0)) {
+                    if (subtile_is_cluedo_wall(cur_stl_y, cur_stl_y)) {
                     solidmsk_front &= 3;
                 }
             }
         }
-        sib_mapblk = get_map_block_at(stl_x + xaval + xidx - 1, stl_y);
+        cur_stl_x = stl_x + xaval + xidx - 1;
+        cur_stl_y = stl_y;
+        sib_mapblk = get_map_block_at(cur_stl_x, cur_stl_y);
         if (map_block_revealed(sib_mapblk, my_player_number)) {
             struct Column *colmn;
             colmn = get_map_column(sib_mapblk);
             solidmsk_left = colmn->solidmask;
             if (solidmsk_left >= (1<<3))
             {
-                if (((sib_mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((colmn->bitfields & 0xE) == 0)) {
+                // if (((sib_mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((colmn->bitfields & 0xE) == 0)) {
+                    if (subtile_is_cluedo_wall(cur_stl_y, cur_stl_y)) {
                     solidmsk_left &= 3;
                 }
             }
         }
-        sib_mapblk = get_map_block_at(stl_x + xaval + xidx + 1, stl_y);
+        cur_stl_x = stl_x + xaval + xidx + 1;
+        cur_stl_y = stl_y;
+        sib_mapblk = get_map_block_at(cur_stl_x, cur_stl_y);
         if (map_block_revealed(sib_mapblk, my_player_number)) {
             struct Column *colmn;
             colmn = get_map_column(sib_mapblk);
             solidmsk_right = colmn->solidmask;
             if (solidmsk_right >= (1<<3))
             {
-                if (((sib_mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((colmn->bitfields & 0xE) == 0)) {
+                // if (((sib_mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((colmn->bitfields & 0xE) == 0)) {
+                    if (subtile_is_cluedo_wall(cur_stl_y, cur_stl_y)) {
                     solidmsk_right &= 3;
                 }
             }
