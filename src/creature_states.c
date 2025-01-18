@@ -4947,6 +4947,44 @@ long creature_setup_head_for_treasure_room_door(struct Thing *creatng, struct Ro
     return 0;
 }
 
+/*
+If hand_payment = 3
+Creatures take salary from their own pockets
+return 1 if the creature has enough gold in its pocket to pay the salary
+*/
+TbBool process_custom_salary(struct Thing *creatng)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if(cctrl->custom_salary == 0)
+    {
+    cctrl->custom_salary = calculate_correct_creature_pay(creatng);
+    }
+    struct Dungeon* dungeon = get_dungeon(creatng->owner);
+        if(creatng->creature.gold_carried > 0)
+        {
+            if(creatng->creature.gold_carried >= cctrl->custom_salary)
+            {
+                creatng->creature.gold_carried -= cctrl->custom_salary;
+                cctrl->paydays_owed--;
+                cctrl->custom_salary = 0;
+                set_start_state(creatng);
+                struct Thing* efftng = create_price_effect(&creatng->mappos, creatng->owner, cctrl->custom_salary);
+                thing_play_sample(efftng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);                
+                dungeon->lvstats.salary_cost += cctrl->custom_salary;
+                return 1;
+            } else 
+            {
+                //continue to take the remaining salary from the dungeon
+                cctrl->custom_salary -= creatng->creature.gold_carried;
+                struct Thing* efftng = create_price_effect(&creatng->mappos, creatng->owner, creatng->creature.gold_carried);
+                thing_play_sample(efftng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+                creatng->creature.gold_carried = 0;
+                return 0;
+            }
+        }
+    return 0;
+}
+
 long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureStats *crstat)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
@@ -4959,31 +4997,11 @@ long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureS
     //Creatures take salary from their own pockets
     if(game.conf.rules.game.hand_payment == 3)
     {
-    GoldAmount salary = calculate_correct_creature_pay(creatng);
-    struct Dungeon* dungeon = get_dungeon(creatng->owner);
-        if(creatng->creature.gold_carried > 0)
+        if(process_custom_salary(creatng))
         {
-        cctrl->custom_salary = salary;
-            // return 1 if the creature has enough gold in its pocket to pay the salary
-            if(creatng->creature.gold_carried >= salary)
-            {
-                creatng->creature.gold_carried -= salary;
-                cctrl->paydays_owed--;
-                set_start_state(creatng);
-                struct Thing* efftng = create_price_effect(&creatng->mappos, creatng->owner, salary);
-                thing_play_sample(efftng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-                dungeon->lvstats.salary_cost += salary;
-                return 1;
-            } else 
-            {
-                //continue to take the remaining salary from the dungeon
-                cctrl->custom_salary -= creatng->creature.gold_carried;
-                struct Thing* efftng = create_price_effect(&creatng->mappos, creatng->owner, creatng->creature.gold_carried);
-                thing_play_sample(efftng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-                creatng->creature.gold_carried = 0;
-            }
-        }    
-    }    
+            return 1;
+        } 
+    }   
     if (!can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureWantsSalary)) {
         return 0;
     }

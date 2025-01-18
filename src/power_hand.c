@@ -941,6 +941,18 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
             addGold = maxAddGold;
             }
         creatng->creature.gold_carried += addGold;
+        if(creature_is_taking_salary_activity(creatng))
+        {   
+            //end payday state if creature has enough gold later on
+            if(process_custom_salary(creatng))
+            {
+                set_start_state(creatng);
+            } else //creature complains if not enough gold
+            {
+                creature_moan(creatng);
+                cctrl->countdown = 50;
+            }
+        }
         //remaining tribute fill happyness
         tribute -= addGold;
     }

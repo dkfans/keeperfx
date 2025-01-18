@@ -4686,6 +4686,7 @@ void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
         cctrl = creature_control_get_from_thing(creatng);
         cctrl->paydays_owed = 0;
         cctrl->paydays_advanced = 0;
+        cctrl->custom_salary = 0;
     }
 }
 
@@ -4746,7 +4747,6 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->inertia_floor = 32;
     crtng->inertia_air = 8;
     crtng->movement_flags |= TMvF_Unknown08;
-    crtng->owner = owner;
     crtng->move_angle_xy = 0;
     crtng->move_angle_z = 0;
     cctrl->max_speed = calculate_correct_creature_maxspeed(crtng);
@@ -4763,6 +4763,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->mappos.y.val = pos->y.val;
     crtng->mappos.z.val = pos->z.val;
     crtng->creation_turn = game.play_gameturn;
+    cctrl->custom_salary = 0;
     cctrl->joining_age = 17 + CREATURE_RANDOM(crtng, 13);
     cctrl->blood_type = CREATURE_RANDOM(crtng, BLOOD_TYPES_COUNT);
     if (player_is_roaming(owner))
