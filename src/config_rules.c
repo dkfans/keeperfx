@@ -191,6 +191,7 @@ const struct NamedField rules_health_named_fields[] = {
   {"FOODHEALTHGAIN",                &game.conf.rules.health.food_health_gain,              var_type(game.conf.rules.health.food_health_gain             ), LONG_MIN,  LONG_MAX},
   {"TORTUREHEALTHLOSS",             &game.conf.rules.health.torture_health_loss,           var_type(game.conf.rules.health.torture_health_loss          ), LONG_MIN,  LONG_MAX},
   {"GAMETURNSPERTORTUREHEALTHLOSS", &game.conf.rules.health.turns_per_torture_health_loss, var_type(game.conf.rules.health.turns_per_torture_health_loss),        0, USHRT_MAX},
+  {"GOEATDURINGPAYDAY",              &game.conf.rules.health.dont_starve_during_payday,    var_type(game.conf.rules.health.dont_starve_during_payday    ),        0,         1},
   {NULL,                            NULL,                                                                                                               0,        0,         0},
 };
 
@@ -326,6 +327,7 @@ static void set_defaults()
     game.conf.rules.health.food_health_gain = 10;
     game.conf.rules.health.torture_health_loss = 5;
     game.conf.rules.health.turns_per_torture_health_loss = 100;
+    game.conf.rules.health.dont_starve_during_payday = 0;
     // Rooms block.
     game.conf.rules.rooms.scavenge_cost_frequency = 64;
     game.conf.rules.rooms.temple_scavenge_protection_turns = 1000;

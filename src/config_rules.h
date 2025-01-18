@@ -177,6 +177,7 @@ struct HealthRulesConfig {
     HitPoints food_health_gain;
     HitPoints torture_health_loss;
     unsigned short turns_per_torture_health_loss;
+    TbBool dont_starve_during_payday;
 };
 
 struct SacrificesRulesConfig {

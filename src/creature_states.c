@@ -5055,6 +5055,15 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureS
     if (creature_is_doing_garden_activity(creatng)) {
         return 1;
     }
+    // Creatures don't starve while getting paid
+    if ((game.conf.rules.health.dont_starve_during_payday == 1) 
+        && creature_is_taking_salary_activity(creatng)) 
+    {
+        {
+            set_start_state(creatng);
+            initialise_thing_state(creatng, CrSt_CreatureToGarden);
+        }
+    }
     if (!creature_free_for_lunchtime(creatng)) {
       return 0;
     }
@@ -5346,11 +5355,18 @@ void process_person_moods_and_needs(struct Thing *thing)
     if (creature_affected_by_call_to_arms(thing)) {
         SYNCDBG(17,"The %s index %ld is called to arms, most needs suspended",thing_model_name(thing),(long)thing->index);
     } else
-        if (process_creature_needs_to_eat(thing, crstat)) {
+    // dont_starve_during_payday rule active
+    if ((game.conf.rules.health.dont_starve_during_payday == 1) && process_creature_needs_to_eat(thing, crstat)) {
+        JUSTLOG("dont_starve_during_payday rule active");
         SYNCDBG(17,"The %s index %ld has a need to eat",thing_model_name(thing),(long)thing->index);
     } else
     if (process_creature_needs_a_wage(thing, crstat)) {
         SYNCDBG(17,"The %s index %ld has a need to get its wage",thing_model_name(thing),(long)thing->index);
+    } else
+    //dont_starve_during_payday rule inactive
+    if ((game.conf.rules.health.dont_starve_during_payday == 0) && process_creature_needs_to_eat(thing, crstat)) {
+        JUSTLOG("dont_starve_during_payday rule inactive");
+        SYNCDBG(17,"The %s index %ld has a need to eat",thing_model_name(thing),(long)thing->index);
     } else
     if (anger_process_creature_anger(thing, crstat)) {
         SYNCDBG(17,"The %s index %ld has a need to cool its anger",thing_model_name(thing),(long)thing->index);
