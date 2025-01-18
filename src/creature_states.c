@@ -5314,11 +5314,11 @@ void process_person_moods_and_needs(struct Thing *thing)
     if (creature_affected_by_call_to_arms(thing)) {
         SYNCDBG(17,"The %s index %ld is called to arms, most needs suspended",thing_model_name(thing),(long)thing->index);
     } else
+        if (process_creature_needs_to_eat(thing, crstat)) {
+        SYNCDBG(17,"The %s index %ld has a need to eat",thing_model_name(thing),(long)thing->index);
+    } else
     if (process_creature_needs_a_wage(thing, crstat)) {
         SYNCDBG(17,"The %s index %ld has a need to get its wage",thing_model_name(thing),(long)thing->index);
-    } else
-    if (process_creature_needs_to_eat(thing, crstat)) {
-        SYNCDBG(17,"The %s index %ld has a need to eat",thing_model_name(thing),(long)thing->index);
     } else
     if (anger_process_creature_anger(thing, crstat)) {
         SYNCDBG(17,"The %s index %ld has a need to cool its anger",thing_model_name(thing),(long)thing->index);
