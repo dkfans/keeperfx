@@ -36,7 +36,7 @@ extern "C" {
 #pragma pack()
 /******************************************************************************/
 long calculate_free_lair_space(struct Dungeon * dungeon);
-TbBool creature_model_is_lair_enemy(const short lair_enemy[LAIR_ENEMY_MAX], short crmodel);
+TbBool creature_model_is_lair_enemy(const ThingModel lair_enemy[LAIR_ENEMY_MAX], ThingModel crmodel);
 struct Room *get_best_new_lair_for_creature(struct Thing *thing);
 void count_lair_occupants_on_slab(struct Room *room,MapSlabCoord slb_x, MapSlabCoord slb_y);
 void count_lair_occupants(struct Room *room);

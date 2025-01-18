@@ -99,7 +99,7 @@ long calculate_free_lair_space(struct Dungeon * dungeon)
         // Thing list loop body
         if (cctrl->lair_room_id == 0)
         {
-            struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+            struct CreatureStats* crstat = creature_stats_get(cctrl->original_model);
             cap_required += crstat->lair_size;
         }
         // Thing list loop body ends
@@ -158,7 +158,7 @@ static short get_lair_score(TbBool room_has_units_of_same_kind,TbBool room_has_u
     }
 }
 
-TbBool creature_model_is_lair_enemy(const short lair_enemy[LAIR_ENEMY_MAX], short crmodel)
+TbBool creature_model_is_lair_enemy(const ThingModel lair_enemy[LAIR_ENEMY_MAX], ThingModel crmodel)
 {
     for (int i = 0; i < LAIR_ENEMY_MAX; i++)
     {
@@ -174,6 +174,7 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
     char best_score = 0;
 
     const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
 
     short *room_scores = (short *)big_scratch;
@@ -187,18 +188,20 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
             room = room_get(dungeon->room_kind[rkind]);
             while (!room_is_invalid(room))
             {
-                if ( room_has_enough_free_capacity_for_creature_job(room, creatng, Job_TAKE_SLEEP) && creature_can_head_for_room(creatng, room, 0) )
+                if (room_has_enough_free_capacity_for_creature_job(room, creatng, Job_TAKE_SLEEP) && creature_can_head_for_room(creatng, room, 0))
                 {
                     TbBool room_has_units_of_same_kind = false;
                     TbBool room_has_units_of_different_kind = false;
                     TbBool room_has_lair_enemy = false;
-                    for ( ThingModel model = 0; model < game.conf.crtr_conf.model_count; ++model )
+                    for (ThingModel model = 0; model < game.conf.crtr_conf.model_count; ++model)
                     {
-                        if ( room_has_units_of_same_kind && room_has_units_of_different_kind && room_has_lair_enemy )
-                            break;
-                        if ( room->content_per_model[model] > 0) 
+                        if (room_has_units_of_same_kind && room_has_units_of_different_kind && room_has_lair_enemy)
                         {
-                            if ( creatng->model == model )
+                            break;
+                        }
+                        if (room->content_per_model[model] > 0) 
+                        {
+                            if (cctrl->original_model == model)
                             {
                                 room_has_units_of_same_kind = true;
                             }
@@ -221,7 +224,7 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
             }
         }
     }
-        
+
     if (best_score == 0)
     {
         return INVALID_ROOM;
@@ -239,14 +242,14 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
             room = room_get(dungeon->room_kind[rkind]);
             while (!room_is_invalid(room))
             {
-                if ( room_scores[room->index] == best_score )
+                if (room_scores[room->index] == best_score)
                 {
                     room_center_pos.x.val = subtile_coord_center(room->central_stl_x);
                     room_center_pos.y.val = subtile_coord_center(room->central_stl_y);
                     room_center_pos.z.val = get_floor_height_at(&room_center_pos);
                     distance = get_chessboard_distance(&creatng->mappos, &room_center_pos);
 
-                    if ( min_distance > distance )
+                    if (min_distance > distance)
                     {
                         min_distance = distance;
                         nearest_room = room;
@@ -270,16 +273,17 @@ void count_lair_occupants_on_slab(struct Room *room,MapSlabCoord slb_x, MapSlabC
         if (!thing_is_invalid(lairtng))
         {
             struct Thing* creatng = thing_get(lairtng->lair.belongs_to);
-            int required_cap = get_required_room_capacity_for_object(RoRoF_LairStorage, 0, creatng->model);
+            struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+            int required_cap = get_required_room_capacity_for_object(RoRoF_LairStorage, 0, cctrl->original_model);
             if (room->used_capacity + required_cap > room->total_capacity)
             {
                 create_effect(&lairtng->mappos, imp_spangle_effects[get_player_color_idx(lairtng->owner)], lairtng->owner);
                 delete_lair_totem(lairtng);
-            } else
+            }
+            else
             {
-                struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
                 cctrl->lair_room_id = room->index;
-                room->content_per_model[creatng->model]++;
+                room->content_per_model[cctrl->original_model]++;
                 room->used_capacity += required_cap;
             }
         }
