@@ -235,7 +235,7 @@ CrStateRet creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
         return CrStRet_Unchanged;
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     room->content_per_model[cctrl->original_model]++;
-    room->used_capacity += get_required_room_capacity_for_object(RoRoF_LairStorage, 0, creatng->model);
+    room->used_capacity += get_required_room_capacity_for_object(RoRoF_LairStorage, 0, cctrl->original_model);
     if ((cctrl->lair_room_id > 0) && (cctrl->lairtng_idx > 0))
     {
         struct Room* origroom = room_get(cctrl->lair_room_id);
