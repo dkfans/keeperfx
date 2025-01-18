@@ -93,7 +93,7 @@ const struct NamedField rules_game_named_fields[] = {
   {"GLOBALAMBIENTLIGHT",         &game.conf.rules.game.global_ambient_light,       var_type(game.conf.rules.game.global_ambient_light      ), LONG_MIN,           LONG_MAX},
   {"LIGHTENABLED",               &game.conf.rules.game.light_enabled,              var_type(game.conf.rules.game.light_enabled             ),        0,                  1},
   {"MAPCREATURELIMIT",           &game.conf.rules.game.creatures_count,            var_type(game.conf.rules.game.creatures_count           ),        0,  CREATURES_COUNT-2},
-  {"HANDPAYMENT",           &game.conf.rules.game.hand_payment,               var_type(game.conf.rules.game.hand_payment              ),        0,                  2},
+  {"HANDPAYMENT",                &game.conf.rules.game.hand_payment,               var_type(game.conf.rules.game.hand_payment              ),        0,                  3},
   {NULL,                         NULL,                                                                                                     0,        0,                  0},
 };
 

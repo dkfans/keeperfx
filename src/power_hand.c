@@ -850,8 +850,8 @@ void creature_get_hand_paid(struct Thing *creatng, long salary, long tribute)
     {   
         switch(game.conf.rules.game.hand_payment)
         {
-        case 0:
         //Creatures take any amount of payment to stop salary states
+        case 0:
         cctrl = creature_control_get_from_thing(creatng);
             if (cctrl->paydays_owed > 0)
             {
@@ -866,18 +866,19 @@ void creature_get_hand_paid(struct Thing *creatng, long salary, long tribute)
                 }
             }
             break;
+        //ignore tribute for salaries and only change angerlevel
         case 1:
-            //ignore tribute for salaries and only change angerlevel
             break;
+        // Creatures need at least the exact payment to stop salary states
         case 2:
-            // Creatures need at least the exact payment to stop salary states
             if (cctrl->paydays_owed > 0)
             {
                 if (tribute >= salary)
                 {
                 handle_salary_state (creatng, &taking_salary);
-                } else{
+                }
                 //creature complains if tribute is not enough
+                else{
                     creature_moan(creatng);
                     cctrl->countdown = 50;
                 }
@@ -891,6 +892,9 @@ void creature_get_hand_paid(struct Thing *creatng, long salary, long tribute)
                 }
             }
             break; 
+            //ignore because tribute fills creature pockets to get paid from
+            case 3:
+            break;
         }
     }
 }
@@ -927,6 +931,20 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     }
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
+    // Gold fill creature pockets    
+    if(game.conf.rules.game.hand_payment == 3)
+    {
+        struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+        GoldAmount addGold = tribute;
+        GoldAmount maxAddGold = crstat->gold_hold - creatng->creature.gold_carried;
+        if (addGold > maxAddGold)
+            {
+            addGold = maxAddGold;
+            }
+        creatng->creature.gold_carried += addGold;
+        //remaining tribute fill happyness
+        tribute -= addGold;
+    }
     anger_apply_anger_to_creature_all_types(creatng, (crstat->annoy_got_wage * tribute / salary * 2));
     if (game.conf.rules.game.classic_bugs_flags & ClscBug_FullyHappyWithGold)
     {

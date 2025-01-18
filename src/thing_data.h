@@ -206,7 +206,7 @@ struct Thing {
       } corpse;
 //TCls_Creature
       struct {
-        long gold_carried;
+        GoldAmount gold_carried;
         short health_bar_turns;
         short volley_repeat;
         TbBool volley_fire;
