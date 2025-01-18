@@ -5786,8 +5786,8 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
         if (creature_is_doing_garden_activity(thing))
             return -1;
         // don't force it if it wants to take salary
-        if (creature_is_taking_salary_activity(thing))
-            return -1;
+        //if (creature_is_taking_salary_activity(thing))
+        //    return -1;
         // otherwise, put it into room we want
         if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_TAKE_FEED)))
         {

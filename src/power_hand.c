@@ -834,41 +834,84 @@ void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx)
     }
 }
 
+void handle_salary_state(struct Thing *creatng, TbBool *taking_salary){
+        struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+        cctrl->paydays_owed--; 
+        set_start_state(creatng); 
+        *taking_salary = true;
+} 
+
+
+void creature_get_hand_paid(struct Thing *creatng, long salary, long tribute)
+{
+    TbBool taking_salary = false;
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    if (creature_is_taking_salary_activity(creatng))
+    {   
+        switch(game.conf.rules.game.hand_payment)
+        {
+        case 0:
+        //Creatures take any amount of payment to stop salary states
+        cctrl = creature_control_get_from_thing(creatng);
+            if (cctrl->paydays_owed > 0)
+            {
+            handle_salary_state(creatng, &taking_salary);
+            }
+            if ( !taking_salary )
+            {
+                cctrl = creature_control_get_from_thing(creatng);
+                if (cctrl->paydays_advanced < SCHAR_MAX) 
+                {
+                    cctrl->paydays_advanced++;
+                }
+            }
+            break;
+        case 1:
+            //ignore tribute for salaries and only change angerlevel
+            break;
+        case 2:
+            // Creatures need at least the exact payment to stop salary states
+            if (cctrl->paydays_owed > 0)
+            {
+                if (tribute >= salary)
+                {
+                handle_salary_state (creatng, &taking_salary);
+                } else{
+                //creature complains if tribute is not enough
+                    creature_moan(creatng);
+                    cctrl->countdown = 50;
+                }
+                if ( !taking_salary )
+                { 
+                    cctrl = creature_control_get_from_thing(creatng);
+                    if ((cctrl->paydays_advanced < SCHAR_MAX) && (tribute >= salary))
+                    {
+                        cctrl->paydays_advanced++;
+                    }
+                }
+            }
+            break; 
+        }
+    }
+}
+
+
+
 long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct Thing *creatng)
 {
-    struct CreatureControl *cctrl;
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     struct Coord3d pos;
-    TbBool taking_salary;
-    taking_salary = false;
     pos.x.val = creatng->mappos.x.val;
     pos.y.val = creatng->mappos.y.val;
     pos.z.val = creatng->mappos.z.val;
     pos.z.val = get_ceiling_height_at(&pos);
-    GoldAmount salary = calculate_correct_creature_pay(creatng);
     GoldAmount tribute = goldtng->valuable.gold_stored;
-    //Handpayed creatures skip the next paydays
-    if (game.conf.rules.game.classic_bugs_flags & ClscBug_PayDaySkip)
+    GoldAmount salary = calculate_correct_creature_pay(creatng);
+    if (salary < 1) // we devide by this number later on
     {
-        if (creature_is_taking_salary_activity(creatng))
-        {
-            cctrl = creature_control_get_from_thing(creatng);
-            if (cctrl->paydays_owed > 0)
-            cctrl->paydays_owed--;
-            set_start_state(creatng);
-            taking_salary = true;
-        }
-        if (salary < 1) // we devide by this number later on
-        {
-            salary = 1;
-        }
-        if ( !taking_salary )
-        {
-            cctrl = creature_control_get_from_thing(creatng);
-            if (cctrl->paydays_advanced < SCHAR_MAX) {
-                cctrl->paydays_advanced++;
-            }
-        }
+        salary = 1;
     }
+    creature_get_hand_paid(creatng, salary, tribute);
     drop_gold_coins(&pos, 0, plyr_idx);
     if (tribute >= salary)
     {
