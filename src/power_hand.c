@@ -929,12 +929,11 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     {
         thing_play_sample(creatng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS/2);
     }
-    struct CreatureStats *crstat;
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     crstat = creature_stats_get_from_thing(creatng);
     // Gold fill creature pockets    
     if(game.conf.rules.game.hand_payment == 3)
     {
-        struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
         GoldAmount addGold = tribute;
         GoldAmount maxAddGold = crstat->gold_hold - creatng->creature.gold_carried;
         if (addGold > maxAddGold)
