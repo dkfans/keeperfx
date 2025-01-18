@@ -1035,7 +1035,7 @@ static int script_transfer_creature(PlayerNumber plyr_idx, ThingModel crmodel, l
             break;
         }
 
-        if (add_transfered_creature(plyr_idx, thing->model, cctrl->explevel, cctrl->creature_name))
+        if (add_transfered_creature(plyr_idx, cctrl->original_model, cctrl->explevel, cctrl->creature_name))
         {
             transferred++;
             dungeon = get_dungeon(plyr_idx);

@@ -168,7 +168,7 @@ TbBool add_creature_to_work_room(struct Thing *creatng, struct Room *room, Creat
         ERRORLOG("Attempt to add creature to a room when he is in the list of another");
         return false;
     }
-    int required_cap = get_required_room_capacity_for_job(jobpref, creatng->model);
+    int required_cap = get_required_room_capacity_for_job(jobpref, cctrl->original_model);
     if (room->used_capacity + required_cap > room->total_capacity)
         return false;
     room->used_capacity += required_cap;
@@ -205,7 +205,7 @@ TbBool remove_creature_from_specific_room(struct Thing *creatng, struct Room *ro
         ERRORLOG("Attempt to remove a creature from room, but it isn't in any");
         return false;
     }
-    int required_cap = get_required_room_capacity_for_job(jobpref, creatng->model);
+    int required_cap = get_required_room_capacity_for_job(jobpref, cctrl->original_model);
     if (room->used_capacity >= required_cap) {
         room->used_capacity -= required_cap;
     } else {
