@@ -3050,7 +3050,15 @@ short creature_take_salary(struct Thing *creatng)
         if ((dungeon->total_money_owned >= salary) && (cctrl->paydays_advanced < 0)) //If the creature has missed payday, and there is money again, time to pay up.
         {
             cctrl->paydays_owed++;
-            cctrl->paydays_advanced++;
+            if (cctrl->paydays_owed > game.conf.rules.game.max_paydays_owed)
+                {
+                    cctrl->paydays_owed = game.conf.rules.game.max_paydays_owed;
+                }
+            cctrl->paydays_advanced++;            
+            if (cctrl->paydays_advanced > game.conf.rules.game.max_paydays_advanced)
+                {
+                    cctrl->paydays_advanced = game.conf.rules.game.max_paydays_advanced;
+                }
         }
     }
     set_start_state(creatng);
@@ -5123,9 +5131,17 @@ long anger_process_creature_anger(struct Thing *creatng, const struct CreatureSt
                 if ((dungeon->total_money_owned >= dungeon->creatures_total_backpay) && !room_is_invalid(room))
                 {
                     cctrl->paydays_advanced++;
+                    if (cctrl->paydays_advanced > game.conf.rules.game.max_paydays_advanced)
+                    {
+                        cctrl->paydays_advanced = game.conf.rules.game.max_paydays_advanced;
+                    }
                     if (cctrl->paydays_owed < SCHAR_MAX)
                     {
                         cctrl->paydays_owed++; // if there's enough money to pay, go to treasure room now, instead of complaining
+                        if (cctrl->paydays_owed > game.conf.rules.game.max_paydays_owed)
+                        {
+                            cctrl->paydays_owed = game.conf.rules.game.max_paydays_owed;
+                        }
                     }
                 }
                 else

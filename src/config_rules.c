@@ -93,6 +93,8 @@ const struct NamedField rules_game_named_fields[] = {
   {"GLOBALAMBIENTLIGHT",         &game.conf.rules.game.global_ambient_light,       var_type(game.conf.rules.game.global_ambient_light      ), LONG_MIN,           LONG_MAX},
   {"LIGHTENABLED",               &game.conf.rules.game.light_enabled,              var_type(game.conf.rules.game.light_enabled             ),        0,                  1},
   {"MAPCREATURELIMIT",           &game.conf.rules.game.creatures_count,            var_type(game.conf.rules.game.creatures_count           ),        0,  CREATURES_COUNT-2},
+  {"PAYDAYADVANCED",             &game.conf.rules.game.max_paydays_advanced,       var_type(game.conf.rules.game.max_paydays_advanced      ),        0,          UCHAR_MAX},
+  {"PAYDAYOWED",                 &game.conf.rules.game.max_paydays_owed,           var_type(game.conf.rules.game.max_paydays_owed          ),        0,          UCHAR_MAX},
   {NULL,                         NULL,                                                                                                     0,        0,                  0},
 };
 
@@ -292,6 +294,7 @@ static void set_defaults()
     game.conf.rules.game.torture_training_cost = 100;
     game.conf.rules.game.torture_scavenging_cost = 100;
     game.conf.rules.game.creatures_count = 255;
+    game.conf.rules.game.max_paydays_advanced = 5;
     // Creature block.
     game.conf.rules.creature.recovery_frequency = 10;
     game.conf.rules.creature.fight_max_hate = 200;

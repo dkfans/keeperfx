@@ -2335,6 +2335,10 @@ void count_players_creatures_being_paid(int *creatures_count)
                 } else
                 {
                     cctrl->paydays_owed++;
+                    if (cctrl->paydays_owed > game.conf.rules.game.max_paydays_owed)
+                    {
+                        cctrl->paydays_owed = game.conf.rules.game.max_paydays_owed;
+                    }
                     creatures_count[thing->owner]++;
                 }
             }
