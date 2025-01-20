@@ -719,12 +719,12 @@ TbBool get_level_lost_inputs(void)
         if (is_game_key_pressed(Gkey_SwitchToMap, &keycode, false))
         {
             lbKeyOn[keycode] = 0;
-            zoom_from_patchment_map();
+            zoom_from_parchment_map();
         } else
         if ( right_button_released )
         {
             right_button_released = 0;
-            zoom_from_patchment_map();
+            zoom_from_parchment_map();
         } else
         if ( left_button_released )
         {
@@ -1927,7 +1927,7 @@ short get_map_action_inputs(void)
     }
     if (right_button_released) {
         right_button_released = 0;
-        zoom_from_patchment_map();
+        zoom_from_parchment_map();
         return true;
     }
     if (get_players_packet_action(player) != PckA_None)
@@ -1954,7 +1954,7 @@ short get_map_action_inputs(void)
       {
           clear_key_pressed(keycode);
           turn_off_all_window_menus();
-          zoom_from_patchment_map();
+          zoom_from_parchment_map();
           return true;
       }
       return false;
