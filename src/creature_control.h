@@ -165,6 +165,7 @@ struct CreatureControl {
     unsigned char thought_bubble_display_timer;
     unsigned char paydays_owed;
     char paydays_advanced;
+    GoldAmount paid_wage;
     long annoy_untrained_turn;
     unsigned long last_roar_turn;
    /** The game enumerates the elements of annoyance array periodically and looks for the highest value.

@@ -636,7 +636,7 @@ void draw_power_hand(void)
                 if (crstat->transparency_flags == TRF_Transpar_8)
                 {
                     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
-                    lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;  
+                    lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
                 }
                 else if (crstat->transparency_flags == TRF_Transpar_4)
                 {
@@ -834,32 +834,104 @@ void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx)
     }
 }
 
+/**
+ * @brief Processes the gold dropped on a creature.
+ *
+ * This function manages gold dropped on creatures both during and outside of a payday.
+ * It takes into account the configuration settings for partial payments and limits the advanced paydays.
+ *
+ * @param salary The salary to be paid.
+ * @param tribute The incoming tribute.
+ * @param cctrl Pointer to the CreatureControl structure.
+ * @param during_payday Indicates whether the function is called during a payday.
+ */
+void creature_get_handgold_combined(GoldAmount salary, GoldAmount tribute, struct Thing* creatng, TbBool during_payday)
+{
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    if (!game.conf.rules.game.accept_partial_payday)
+    {
+        // Add tribute to the paid wage
+        cctrl->paid_wage += tribute;
+
+        if (during_payday && cctrl->paid_wage >= salary)
+        {
+            // Decrement paydays owed if during payday and sufficient wage is paid
+            cctrl->paydays_owed--;
+
+            // Calculate how many full salaries can be covered by the paid wage
+            int paid = (cctrl->paid_wage / salary) - 1;
+            if (cctrl->paydays_advanced + paid > game.conf.rules.game.max_paydays_advanced) {
+                cctrl->paydays_advanced = game.conf.rules.game.max_paydays_advanced;
+            } else {
+                cctrl->paydays_advanced += paid;
+            }
+
+            // Reduce the amount of gold for all paid advanced paydays
+            cctrl->paid_wage -= paid * salary;
+        }
+        else
+        {
+            // Calculate how many full salaries can be covered by the paid wage
+            int paid = cctrl->paid_wage / salary;
+            if (cctrl->paydays_advanced + paid > game.conf.rules.game.max_paydays_advanced) {
+                cctrl->paydays_advanced = game.conf.rules.game.max_paydays_advanced;
+            } else {
+                cctrl->paydays_advanced += paid;
+            }
+
+            // Reduce the amount of gold for all paid advanced paydays
+            cctrl->paid_wage -= paid * salary;
+        }
+    }
+    // game.conf.rules.game.accept_partial_payday == true
+    else // accept_partial_payday is true
+    {
+        if (during_payday)
+        {
+            // During payday, decrement paydays owed
+            cctrl->paydays_owed--;
+        }
+        else
+        {
+            // Not during payday, increment paydays_advanced if possible
+            if (cctrl->paydays_advanced < game.conf.rules.game.max_paydays_advanced)
+            {
+                cctrl->paydays_advanced++;
+            }
+        }
+    }
+}
+
 long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct Thing *creatng)
 {
-    struct CreatureControl *cctrl;
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     struct Coord3d pos;
-    TbBool taking_salary;
-    taking_salary = false;
-    pos.x.val = creatng->mappos.x.val;
-    pos.y.val = creatng->mappos.y.val;
-    pos.z.val = creatng->mappos.z.val;
-    pos.z.val = get_ceiling_height_at(&pos);
-    if (creature_is_taking_salary_activity(creatng))
-    {
-        cctrl = creature_control_get_from_thing(creatng);
-        if (cctrl->paydays_owed > 0)
-            cctrl->paydays_owed--;
-        set_start_state(creatng);
-        taking_salary = true;
-    }
-    GoldAmount salary;
-    salary = calculate_correct_creature_pay(creatng);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    //actuel amount of gold in hand
+    GoldAmount tribute = goldtng->valuable.gold_stored;
+    GoldAmount over_tribute = 0;
+    GoldAmount salary = calculate_correct_creature_pay(creatng);
     if (salary < 1) // we devide by this number later on
     {
         salary = 1;
     }
-    long tribute;
-    tribute = goldtng->valuable.gold_stored;
+    pos.x.val = creatng->mappos.x.val;
+    pos.y.val = creatng->mappos.y.val;
+    pos.z.val = creatng->mappos.z.val;
+    pos.z.val = get_ceiling_height_at(&pos);
+
+    TbBool during_payday = creature_is_taking_salary_activity(creatng);
+    if (during_payday && cctrl->paydays_owed > 0)
+    {
+        creature_get_handgold_combined(salary, tribute, creatng, during_payday);
+        set_start_state(creatng);
+    }
+    //not during payday
+    else
+    {
+        creature_get_handgold_combined(salary, tribute, creatng, during_payday);
+    }
+
     drop_gold_coins(&pos, 0, plyr_idx);
     if (tribute >= salary)
     {
@@ -873,19 +945,6 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     {
         thing_play_sample(creatng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS/2);
     }
-    if ( !taking_salary )
-    {
-        cctrl = creature_control_get_from_thing(creatng);
-        if (cctrl->paydays_advanced < SCHAR_MAX) {
-            cctrl->paydays_advanced++;
-            if (cctrl->paydays_advanced > game.conf.rules.game.max_paydays_advanced)
-            {
-                cctrl->paydays_advanced = game.conf.rules.game.max_paydays_advanced;
-            }
-        }
-    }
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(creatng);
     anger_apply_anger_to_creature_all_types(creatng, (crstat->annoy_got_wage * tribute / salary * 2));
     if (game.conf.rules.game.classic_bugs_flags & ClscBug_FullyHappyWithGold)
     {
@@ -1525,7 +1584,7 @@ TbBool can_drop_thing_here(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumbe
                     return true;
                 }
             }
-        } 
+        }
     }
     else
     {

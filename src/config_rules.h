@@ -106,6 +106,7 @@ struct GameRulesConfig {
     unsigned short creatures_count;
     unsigned char max_paydays_advanced;
     unsigned char max_paydays_owed;
+    TbBool accept_partial_payday;
 };
 
 struct ComputerRulesConfig {
