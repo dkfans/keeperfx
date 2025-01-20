@@ -5303,8 +5303,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     health_spridx = 0;
     state_spridx = 0;
 
-    CrtrExpLevel exp;
-    exp = min(cctrl->explevel, 9);
+    CrtrExpLevel exp = min(cctrl->explevel, 9);
     if (cam->view_mode != PVM_ParchmentView)
     {
         fill_status_sprite_indexes(thing, cctrl, &health_spridx, &state_spridx, &anger_spridx);

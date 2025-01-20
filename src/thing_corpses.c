@@ -287,13 +287,13 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
     if (subtile_is_door(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
     {
         delete_thing_structure(thing, 0);
-        create_dead_creature(&thing->mappos, thing->model, 2, thing->owner, thing->corpse.exp_level);
+        create_dead_creature(&thing->mappos, thing->model, 2, thing->owner, thing->corpse.explevel);
         return TUFRet_Deleted;
     }
     return move_dead_creature(thing);;
 }
 
-long find_item_in_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, long crlevel)
+long find_item_in_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, CrtrExpLevel crlevel)
 {
     if (dungeon_invalid(dungeon))
         return -1;
@@ -310,7 +310,7 @@ long find_item_in_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel
     return -1;
 }
 
-TbBool add_item_to_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, long crlevel)
+TbBool add_item_to_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, CrtrExpLevel crlevel)
 {
     SYNCDBG(18,"Starting");
     if (dungeon_invalid(dungeon))
@@ -348,7 +348,7 @@ TbBool add_item_to_dead_creature_list(struct Dungeon *dungeon, ThingModel crmode
     return true;
 }
 
-TbBool remove_item_from_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, long crlevel)
+TbBool remove_item_from_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, CrtrExpLevel crlevel)
 {
     SYNCDBG(18,"Starting");
     if (dungeon_invalid(dungeon))
@@ -422,7 +422,7 @@ TbBool update_dead_creatures_list_for_owner(const struct Thing *thing)
     return update_dead_creatures_list(dungeon, thing);
 }
 
-struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, unsigned short crpscondition, unsigned short owner, long explevel)
+struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, unsigned short crpscondition, unsigned short owner, CrtrExpLevel explevel)
 {
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
@@ -440,7 +440,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     thing->model = model;
     thing->parent_idx = thing->index;
     thing->owner = owner;
-    thing->corpse.exp_level = explevel;
+    thing->corpse.explevel = explevel;
     thing->mappos.x.val = pos->x.val;
     thing->mappos.y.val = pos->y.val;
     thing->mappos.z.val = 0;
@@ -478,7 +478,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
         play_creature_sound(thing, CrSnd_Die, 3, 0);
         break;
     }
-    thing->sprite_size = (game.conf.crtr_conf.sprite_size * (long)thing->corpse.exp_level) / 20 + game.conf.crtr_conf.sprite_size;
+    thing->sprite_size = (game.conf.crtr_conf.sprite_size * (long)thing->corpse.explevel) / 20 + game.conf.crtr_conf.sprite_size;
     return thing;
 }
 
@@ -500,7 +500,7 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long crpsc
     long prev_idx = thing->index;
     short angle = thing->move_angle_xy;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    long explevel = cctrl->explevel;
+    CrtrExpLevel explevel = cctrl->explevel;
     struct PlayerInfo* player = NULL;
     remove_creature_score_from_owner(thing);
     delete_thing_structure(thing, 0);

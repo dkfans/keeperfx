@@ -308,7 +308,7 @@ long get_radially_growing_value(long magnitude, long decay_start, long decay_len
     return magnitude;
 }
 
-long compute_creature_kind_score(ThingModel crkind, unsigned short crlevel)
+long compute_creature_kind_score(ThingModel crkind, CrtrExpLevel crlevel)
 {
     struct CreatureStats* crstat = creature_stats_get(crkind);
     return compute_creature_max_health(crstat->health, crlevel)
@@ -319,7 +319,7 @@ long compute_creature_kind_score(ThingModel crkind, unsigned short crlevel)
 }
 
 /* Computes max health of a creature on given level. */
-HitPoints compute_creature_max_health(HitPoints base_health, unsigned short crlevel)
+HitPoints compute_creature_max_health(HitPoints base_health, CrtrExpLevel crlevel)
 {
     if (crlevel >= CREATURE_MAX_LEVEL)
     {
@@ -336,7 +336,7 @@ HitPoints compute_creature_max_health(HitPoints base_health, unsigned short crle
 }
 
 /* Computes strength of a creature on given level. */
-long compute_creature_max_strength(long base_param, unsigned short crlevel)
+long compute_creature_max_strength(long base_param, CrtrExpLevel crlevel)
 {
     if (crlevel >= CREATURE_MAX_LEVEL)
     {
@@ -351,7 +351,7 @@ long compute_creature_max_strength(long base_param, unsigned short crlevel)
 }
 
 /* Computes armour of a creature on given level. */
-long compute_creature_max_armour(long base_param, unsigned short crlevel)
+long compute_creature_max_armour(long base_param, CrtrExpLevel crlevel)
 {
     if (base_param <= 0)
         return 0;
@@ -364,7 +364,7 @@ long compute_creature_max_armour(long base_param, unsigned short crlevel)
 }
 
 /* Computes defense of a creature on given level. */
-long compute_creature_max_defense(long base_param, unsigned short crlevel)
+long compute_creature_max_defense(long base_param, CrtrExpLevel crlevel)
 {
     if (base_param <= 0)
         return 0;
@@ -380,7 +380,7 @@ long compute_creature_max_defense(long base_param, unsigned short crlevel)
 }
 
 /* Computes dexterity of a creature on given level. */
-long compute_creature_max_dexterity(long base_param, unsigned short crlevel)
+long compute_creature_max_dexterity(long base_param, CrtrExpLevel crlevel)
 {
     if (base_param <= 0)
         return 0;
@@ -393,7 +393,7 @@ long compute_creature_max_dexterity(long base_param, unsigned short crlevel)
 }
 
 /* Computes loyalty of a creature on given level. */
-long compute_creature_max_loyalty(long base_param, unsigned short crlevel)
+long compute_creature_max_loyalty(long base_param, CrtrExpLevel crlevel)
 {
     if (base_param <= 0)
         return 0;
@@ -406,7 +406,7 @@ long compute_creature_max_loyalty(long base_param, unsigned short crlevel)
 }
 
 /* Computes salary of a creature on given level. */
-GoldAmount compute_creature_max_pay(GoldAmount base_param, unsigned short crlevel)
+GoldAmount compute_creature_max_pay(GoldAmount base_param, CrtrExpLevel crlevel)
 {
     if (base_param <= 0)
         return 0;
@@ -419,7 +419,7 @@ GoldAmount compute_creature_max_pay(GoldAmount base_param, unsigned short crleve
 }
 
 /* Computes training cost of a creature on given level. */
-GoldAmount compute_creature_max_training_cost(GoldAmount base_param, unsigned short crlevel)
+GoldAmount compute_creature_max_training_cost(GoldAmount base_param, CrtrExpLevel crlevel)
 {
     if (base_param <= 0)
         return 0;
@@ -432,7 +432,7 @@ GoldAmount compute_creature_max_training_cost(GoldAmount base_param, unsigned sh
 }
 
 /* Computes scavenging cost of a creature on given level. */
-GoldAmount compute_creature_max_scavenging_cost(GoldAmount base_param, unsigned short crlevel)
+GoldAmount compute_creature_max_scavenging_cost(GoldAmount base_param, CrtrExpLevel crlevel)
 {
     if (base_param <= 0)
         return 0;
@@ -452,7 +452,7 @@ GoldAmount compute_creature_max_scavenging_cost(GoldAmount base_param, unsigned 
  * @param luck Creature luck, scaled 0..100.
  * @param crlevel Creature level, 0..9.
  */
-long project_creature_attack_melee_damage(long base_param, short damage_percent, long luck, unsigned short crlevel, const struct Thing* thing)
+long project_creature_attack_melee_damage(long base_param, short damage_percent, long luck, CrtrExpLevel crlevel, const struct Thing* thing)
 {
     long max_param = base_param;
     if (damage_percent != 0)
@@ -475,7 +475,7 @@ long project_creature_attack_melee_damage(long base_param, short damage_percent,
  * @param luck Creature luck, scaled 0..100.
  * @param crlevel Creature level, 0..9.
  */
-long project_creature_attack_spell_damage(long base_param, long luck, unsigned short crlevel, const struct Thing* thing)
+long project_creature_attack_spell_damage(long base_param, long luck, CrtrExpLevel crlevel, const struct Thing* thing)
 {
     struct Dungeon* dungeon;
     if (crlevel >= CREATURE_MAX_LEVEL)
@@ -502,7 +502,7 @@ long project_creature_attack_spell_damage(long base_param, long luck, unsigned s
  * @param luck Creature luck, scaled 0..100.
  * @param crlevel Creature level, 0..9.
  */
-long compute_creature_attack_melee_damage(long base_param, long luck, unsigned short crlevel, struct Thing* thing)
+long compute_creature_attack_melee_damage(long base_param, long luck, CrtrExpLevel crlevel, struct Thing* thing)
 {
     long max_param = base_param;
     if (luck > 0)
@@ -519,7 +519,7 @@ long compute_creature_attack_melee_damage(long base_param, long luck, unsigned s
  * @param luck Creature luck, scaled 0..100.
  * @param crlevel Creature level, 0..9.
  */
-long compute_creature_attack_spell_damage(long base_param, long luck, unsigned short crlevel, struct Thing* thing)
+long compute_creature_attack_spell_damage(long base_param, long luck, CrtrExpLevel crlevel, struct Thing* thing)
 {
     struct Dungeon* dungeon;
     if (crlevel >= CREATURE_MAX_LEVEL)
@@ -541,7 +541,7 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
 }
 
 /* Computes spell range/area of effect for a creature on given level. */
-long compute_creature_attack_range(long base_param, long luck, unsigned short crlevel)
+long compute_creature_attack_range(long base_param, long luck, CrtrExpLevel crlevel)
 {
     if (base_param <= 0)
         return 0;
@@ -584,7 +584,7 @@ HitPoints compute_creature_spell_damage_over_time(HitPoints spell_damage, CrtrEx
  * @param efficiency Room efficiency, scaled 0..ROOM_EFFICIENCY_MAX.
  * @param crlevel Creature level.
  */
-long compute_creature_work_value(long base_param, long efficiency, unsigned short crlevel)
+long compute_creature_work_value(long base_param, long efficiency, CrtrExpLevel crlevel)
 {
     if (base_param < -100000)
         base_param = -100000;
@@ -841,7 +841,7 @@ long calculate_correct_creature_scavenge_required(const struct Thing *thing, Pla
 }
 
 /* Computes parameter (luck, armour) of a creature on given level. Applies for situations where the level doesn't really matters. */
-long compute_creature_max_unaffected(long base_param, unsigned short crlevel)
+long compute_creature_max_unaffected(long base_param, CrtrExpLevel crlevel)
 {
     if (base_param <= 0)
         return 0;

@@ -161,7 +161,7 @@ struct Thing {
         unsigned char number;
       } hero_gate;
       struct {
-        unsigned char spell_level;
+        CrtrExpLevel spell_level;
       } lightning;
       struct {
         short belongs_to;
@@ -185,7 +185,7 @@ struct Thing {
         short damage;
         unsigned char hit_type;
         short target_idx;
-        unsigned char spell_level;
+        CrtrExpLevel spell_level;
         struct Coord3d originpos;
         int num_wind_affected;
         CctrlIndex wind_affected_creature[CREATURES_COUNT];  //list of wind affected Creatures
@@ -201,7 +201,7 @@ struct Thing {
 //TCls_EffectElem
 //TCls_DeadCreature
       struct {
-          unsigned char exp_level;
+          CrtrExpLevel explevel;
           unsigned char laid_to_rest;
       } corpse;
 //TCls_Creature
