@@ -8144,3 +8144,116 @@ Objects = []
 [slab59.SE]
 Columns = [365, 365, 365, 365, 365, 365, 365, 365, 365]
 Objects = []
+
+[slab60]
+[slab60.S]
+Columns = [2, 2, 2, 2, 817, 2, 57, 57, 57]
+Objects = []
+
+[slab60.W]
+Columns = [57, 2, 2, 57, 817, 2, 57, 2, 2]
+Objects = []
+
+[slab60.N]
+Columns = [57, 57, 57, 2, 817, 2, 2, 2, 2]
+Objects = []
+
+[slab60.E]
+Columns = [2, 2, 57, 2, 817, 57, 2, 2, 57]
+Objects = []
+
+[slab60.SW]
+Columns = [57, 2, 2, 57, 817, 2, 5, 57, 57]
+Objects = []
+
+[slab60.NW]
+Columns = [5, 57, 57, 57, 817, 2, 57, 2, 2]
+Objects = []
+
+[slab60.NE]
+Columns = [57, 57, 5, 2, 817, 57, 2, 2, 57]
+Objects = []
+
+[slab60.SE]
+Columns = [2, 2, 57, 2, 817, 57, 57, 57, 5]
+Objects = []
+
+[slab60.ALL]
+Columns = [5, 57, 5, 57, 817, 57, 5, 57, 5]
+Objects = []
+
+[slab60.S_LAVA]
+Columns = [2, 2, 2, 2, 817, 2, 58, 58, 58]
+Objects = []
+
+[slab60.W_LAVA]
+Columns = [58, 2, 2, 58, 817, 2, 58, 2, 2]
+Objects = []
+
+[slab60.N_LAVA]
+Columns = [58, 58, 58, 2, 817, 2, 2, 2, 2]
+Objects = []
+
+[slab60.E_LAVA]
+Columns = [2, 2, 58, 2, 817, 58, 2, 2, 58]
+Objects = []
+
+[slab60.SW_LAVA]
+Columns = [58, 2, 2, 58, 817, 2, 38, 58, 58]
+Objects = []
+
+[slab60.NW_LAVA]
+Columns = [38, 58, 58, 58, 817, 2, 58, 2, 2]
+Objects = []
+
+[slab60.NE_LAVA]
+Columns = [58, 58, 38, 2, 817, 58, 2, 2, 58]
+Objects = []
+
+[slab60.SE_LAVA]
+Columns = [2, 2, 58, 2, 817, 58, 58, 58, 38]
+Objects = []
+
+[slab60.ALL_LAVA]
+Columns = [38, 58, 38, 58, 817, 58, 38, 58, 38]
+Objects = []
+
+[slab60.S_WATER]
+Columns = [2, 2, 2, 2, 817, 2, 59, 59, 59]
+Objects = []
+
+[slab60.W_WATER]
+Columns = [59, 2, 2, 59, 817, 2, 59, 2, 2]
+Objects = []
+
+[slab60.N_WATER]
+Columns = [59, 59, 59, 2, 817, 2, 2, 2, 2]
+Objects = []
+
+[slab60.E_WATER]
+Columns = [2, 2, 59, 2, 817, 59, 2, 2, 59]
+Objects = []
+
+[slab60.SW_WATER]
+Columns = [25, 2, 2, 36, 817, 2, 29, 34, 25]
+Objects = []
+
+[slab60.NW_WATER]
+Columns = [29, 34, 25, 34, 817, 2, 25, 2, 2]
+Objects = []
+
+[slab60.NE_WATER]
+Columns = [25, 36, 29, 2, 817, 34, 2, 2, 25]
+Objects = []
+
+[slab60.SE_WATER]
+Columns = [2, 2, 25, 2, 817, 36, 25, 36, 29]
+Objects = []
+
+[slab60.ALL_WATER]
+Columns = [29, 25, 29, 25, 817, 25, 29, 25, 29]
+Objects = []
+
+[slab60.CENTER]
+Columns = [2, 2, 2, 2, 817, 2, 2, 2, 2]
+Objects = []
