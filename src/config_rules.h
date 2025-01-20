@@ -77,6 +77,7 @@ struct GameRulesConfig {
     GoldAmount gold_pile_maximum;
     GoldAmount gold_per_hoard;
     GoldAmount bag_gold_hold;
+    unsigned char hand_payment;
     unsigned short food_life_out_of_hatchery;
     HitPoints boulder_reduce_health_wall;
     HitPoints boulder_reduce_health_slap;
@@ -176,6 +177,7 @@ struct HealthRulesConfig {
     HitPoints food_health_gain;
     HitPoints torture_health_loss;
     unsigned short turns_per_torture_health_loss;
+    TbBool dont_starve_during_payday;
 };
 
 struct SacrificesRulesConfig {

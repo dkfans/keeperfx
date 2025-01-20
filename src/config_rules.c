@@ -54,7 +54,7 @@ const struct NamedCommand rules_game_classicbugs_commands[] = {
   {"REBIRTH_KEEPS_SPELLS",          11},
   {"STUN_FRIENDLY_UNITS",           12},
   {"PASSIVE_NEUTRALS",              13},
-  {"NEUTRAL_TORTURE_CONVERTS",      14},
+  {"NEUTRAL_TORTURE_CONVERTS",      14}, 
   {NULL,                             0},
 };
 
@@ -93,6 +93,7 @@ const struct NamedField rules_game_named_fields[] = {
   {"GLOBALAMBIENTLIGHT",         &game.conf.rules.game.global_ambient_light,       var_type(game.conf.rules.game.global_ambient_light      ), LONG_MIN,           LONG_MAX},
   {"LIGHTENABLED",               &game.conf.rules.game.light_enabled,              var_type(game.conf.rules.game.light_enabled             ),        0,                  1},
   {"MAPCREATURELIMIT",           &game.conf.rules.game.creatures_count,            var_type(game.conf.rules.game.creatures_count           ),        0,  CREATURES_COUNT-2},
+  {"HANDPAYMENT",                &game.conf.rules.game.hand_payment,               var_type(game.conf.rules.game.hand_payment              ),        0,                  3},
   {NULL,                         NULL,                                                                                                     0,        0,                  0},
 };
 
@@ -190,6 +191,7 @@ const struct NamedField rules_health_named_fields[] = {
   {"FOODHEALTHGAIN",                &game.conf.rules.health.food_health_gain,              var_type(game.conf.rules.health.food_health_gain             ), LONG_MIN,  LONG_MAX},
   {"TORTUREHEALTHLOSS",             &game.conf.rules.health.torture_health_loss,           var_type(game.conf.rules.health.torture_health_loss          ), LONG_MIN,  LONG_MAX},
   {"GAMETURNSPERTORTUREHEALTHLOSS", &game.conf.rules.health.turns_per_torture_health_loss, var_type(game.conf.rules.health.turns_per_torture_health_loss),        0, USHRT_MAX},
+  {"GOEATDURINGPAYDAY",              &game.conf.rules.health.dont_starve_during_payday,    var_type(game.conf.rules.health.dont_starve_during_payday    ),        0,         1},
   {NULL,                            NULL,                                                                                                               0,        0,         0},
 };
 
@@ -292,6 +294,7 @@ static void set_defaults()
     game.conf.rules.game.torture_training_cost = 100;
     game.conf.rules.game.torture_scavenging_cost = 100;
     game.conf.rules.game.creatures_count = 255;
+    game.conf.rules.game.hand_payment = 0;
     // Creature block.
     game.conf.rules.creature.recovery_frequency = 10;
     game.conf.rules.creature.fight_max_hate = 200;
@@ -324,6 +327,7 @@ static void set_defaults()
     game.conf.rules.health.food_health_gain = 10;
     game.conf.rules.health.torture_health_loss = 5;
     game.conf.rules.health.turns_per_torture_health_loss = 100;
+    game.conf.rules.health.dont_starve_during_payday = 0;
     // Rooms block.
     game.conf.rules.rooms.scavenge_cost_frequency = 64;
     game.conf.rules.rooms.temple_scavenge_protection_turns = 1000;
@@ -420,7 +424,7 @@ static void game_block_special_cases(int cmd_num,const char *buf,long *pos,long 
                     break;
                 case 14: // NEUTRAL_TORTURE_CONVERTS
                     game.conf.rules.game.classic_bugs_flags |= ClscBug_NeutralTortureConverts;
-                    break;
+                    break;                
                 default:
 
                     break;

@@ -164,6 +164,7 @@ struct CreatureControl {
     long thought_bubble_last_turn_drawn;
     unsigned char thought_bubble_display_timer;
     unsigned char paydays_owed;
+    GoldAmount custom_salary; // used if gamerule PayedFromPockets is activated
     char paydays_advanced;
     long annoy_untrained_turn;
     unsigned long last_roar_turn;
