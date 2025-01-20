@@ -839,6 +839,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
             elemtng->veloc_push_add.x.val += acc_x;
             elemtng->veloc_push_add.y.val += acc_y;
             elemtng->veloc_push_add.z.val += acc_z;
+            elemtng->move_angle_xy = LbArcTanAngle(acc_x, acc_y) & LbFPMath_AngleMask;
             elemtng->state_flags |= TF1_PushAdd;
             if (egenstat->sound_sample_idx > 0)
             {
