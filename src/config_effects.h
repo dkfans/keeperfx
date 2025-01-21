@@ -94,7 +94,7 @@ struct EffectElementConfigStats {
     TbBool unshaded;
     unsigned char transparent;  // transparency flags in bits 4-5
     TbBool movable;
-    unsigned char movement_flags;
+    unsigned char through_walls;
     unsigned char size_change; /**< See enum ThingSizeChange. */
     unsigned char fall_acceleration;
     short inertia_floor;

@@ -165,7 +165,8 @@ static void load_effectelements(VALUE *value, unsigned short flags)
             CONDITIONAL_ASSIGN_BOOL(section,"AnimateOnFloor",  effelcst->animate_on_floor);
             CONDITIONAL_ASSIGN_BOOL(section,"Unshaded",        effelcst->unshaded);
             CONDITIONAL_ASSIGN_INT(section,"Transparent",      effelcst->transparent);
-            CONDITIONAL_ASSIGN_INT(section,"MovementFlags",    effelcst->movement_flags);
+            CONDITIONAL_ASSIGN_INT(section,"MovementFlags",    effelcst->through_walls); //todo Remove after people have had time to handle the rename
+            CONDITIONAL_ASSIGN_INT(section,"ThroughWalls",     effelcst->through_walls);
             CONDITIONAL_ASSIGN_INT(section,"SizeChange",       effelcst->size_change);
             CONDITIONAL_ASSIGN_INT(section,"FallAcceleration", effelcst->fall_acceleration);
             CONDITIONAL_ASSIGN_INT(section,"InertiaFloor",     effelcst->inertia_floor);

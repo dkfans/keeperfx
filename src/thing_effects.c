@@ -122,7 +122,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmod
     thing->inertia_floor = eestat->inertia_floor;
     thing->inertia_air = eestat->inertia_air;
     thing->movement_flags |= TMvF_Unknown08;
-    set_flag_value(thing->movement_flags, TMvF_GoThroughWalls, eestat->movement_flags);
+    set_flag_value(thing->movement_flags, TMvF_GoThroughWalls, eestat->through_walls);
     thing->creation_turn = game.play_gameturn;
 
     if (eestat->lifespan > 0)
