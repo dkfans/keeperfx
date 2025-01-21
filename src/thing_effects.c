@@ -393,6 +393,7 @@ TngUpdateRet move_effect_element(struct Thing *thing)
             move_effect_blocked(thing, &thing->mappos, &pos);
         }
     }
+    thing->move_angle_xy = get_angle_xy_to(&thing->mappos, &pos);
     move_thing_in_map(thing, &pos);
     return TUFRet_Modified;
 }
@@ -462,8 +463,10 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     i = eestats->subeffect_delay;
     if (i > 0)
     {
-      if (((elemtng->creation_turn - game.play_gameturn) % i) == 0) {
-          create_effect_element(&elemtng->mappos, eestats->subeffect_model, elemtng->owner);
+      if (((elemtng->creation_turn - game.play_gameturn) % i) == 0) 
+      {
+          struct Thing *subeff = create_effect_element(&elemtng->mappos, eestats->subeffect_model, elemtng->owner);
+          subeff->move_angle_xy = elemtng->move_angle_xy;
       }
     }
     switch (eestats->move_type)
@@ -689,8 +692,8 @@ void effect_generate_effect_elements(const struct Thing *thing)
             TRACE_THING(elemtng);
             if (thing_is_invalid(elemtng))
                 break;
-            arg = EFFECT_RANDOM(thing, 0x800);
-            argZ = EFFECT_RANDOM(thing, 0x400);
+            arg = EFFECT_RANDOM(thing, LbFPMath_TAU);
+            argZ = EFFECT_RANDOM(thing, LbFPMath_PI);
             // Setting XY acceleration
             long k = abs(effcst->accel_xy_max - effcst->accel_xy_min);
             if (k <= 1) k = 1;
@@ -703,6 +706,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
             mag = effcst->accel_z_min + EFFECT_RANDOM(thing, k);
             elemtng->veloc_push_add.z.val += distance_with_angle_to_coord_z(mag,argZ);
             elemtng->state_flags |= TF1_PushAdd;
+            elemtng->move_angle_xy = LbArcTanAngle(elemtng->veloc_push_add.x.val, elemtng->veloc_push_add.y.val) & LbFPMath_AngleMask;
         }
         break;
     }
@@ -717,9 +721,10 @@ void effect_generate_effect_elements(const struct Thing *thing)
             arg = (mag << 7) + k/effcst->elements_count;
             set_coords_to_cylindric_shift(&pos, &thing->mappos, mag, arg, 0);
             elemtng = create_effect_element(&pos, n, thing->owner);
+            elemtng->move_angle_xy = thing->move_angle_xy;
             TRACE_THING(elemtng);
             SYNCDBG(18,"Created %s",thing_model_name(elemtng));
-            k += 2048;
+            k += LbFPMath_TAU;
         }
         break;
     }
@@ -734,8 +739,9 @@ void effect_generate_effect_elements(const struct Thing *thing)
             arg = (mag << 7) + k/effcst->elements_count;
             set_coords_to_cylindric_shift(&pos, &thing->mappos, 16*mag, arg, 0);
             elemtng = create_effect_element(&pos, n, thing->owner);
+            elemtng->move_angle_xy = arg;
             TRACE_THING(elemtng);
-            k += 2048;
+            k += LbFPMath_TAU;
         }
         break;
     }
