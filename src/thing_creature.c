@@ -7604,7 +7604,6 @@ TbBool grow_up_creature(struct Thing *thing, ThingModel grow_up_model, CrtrExpLe
         ERRORLOG("Could not create creature to transform %s to", thing_model_name(thing));
         return false;
     }
-    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     // Randomise new level if 'grow_up_level' was set to 0 on the creature config.
     if (grow_up_level == 0)
     {
@@ -7616,7 +7615,8 @@ TbBool grow_up_creature(struct Thing *thing, ThingModel grow_up_model, CrtrExpLe
     }
     transfer_creature_data_and_gold(thing, newtng); // Transfer the blood type, creature name, kill count, joined age and carried gold to the new creature.
     update_creature_health_to_max(newtng);
-    cctrl->countdown = 50; // No clue what it does? The creature is bound to be removed at this point.
+    struct CreatureControl *cctrl = creature_control_get_from_thing(newtng);
+    cctrl->countdown = 50;
     external_set_thing_state(newtng, CrSt_CreatureBeHappy);
     struct PlayerInfo *player = get_player(thing->owner);
     // Switch control if this creature is possessed.
