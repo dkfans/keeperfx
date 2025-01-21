@@ -821,7 +821,7 @@ TbBool creature_is_called_to_arms(const struct Thing *thing)
 TbBool creature_is_taking_salary_activity(const struct Thing *thing)
 {
     CrtrStateId crstate = get_creature_state_besides_move(thing);
-    if ((crstate == CrSt_CreatureWantsSalary) || (crstate == CrSt_CreatureTakeSalary))
+    if ((crstate == CrSt_CreatureWantsSalary) || (crstate == CrSt_CreatureTakeSalary) || (crstate == CrSt_CreatureWaitAtTreasureRoomDoor))
         return true;
     return false;
 }
