@@ -1341,9 +1341,8 @@ long add_to_reinforce_stack_if_need_to(long slb_x, long slb_y, struct Dungeon *d
 {
     if (r_stackpos < DIGGER_TASK_MAX_COUNT - dungeon->digger_stack_length)
     {
-        struct SlabMap *slb;
-        slb = get_slabmap_block(slb_x, slb_y);
-        if (slab_kind_is_friable_dirt(slb->kind))
+        struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
+        if ( (slab_kind_is_friable_dirt(slb->kind)) || ( (slb->kind == SlbT_DAMAGEDWALL) && (slabmap_owner(slb) == dungeon->owner) ) )
         {
             if (subtile_revealed(slab_subtile_center(slb_x), slab_subtile_center(slb_y), dungeon->owner))
             {
@@ -2603,31 +2602,36 @@ struct Thing *check_place_to_save_unconscious_creature(struct Thing *spdigtng, M
 
 long check_place_to_reinforce(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    struct SlabMap *slb;
     TRACE_THING(creatng);
-    slb = get_slabmap_block(slb_x, slb_y);
-    if ((slb->kind != SlbT_EARTH) && (slb->kind != SlbT_TORCHDIRT)) {
-        SYNCDBG(8,"The slab %d,%d is not a valid type to be reinforced",(int)slb_x, (int)slb_y);
-        return 0;
+    struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
+    switch (slb->kind)
+    {
+        case SlbT_EARTH:
+        case SlbT_TORCHDIRT:
+        case SlbT_DAMAGEDWALL:
+        {
+            struct Map *mapblk = get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+            if (!map_block_revealed(mapblk, creatng->owner)) {
+                SYNCDBG(8,"The slab %d,%d is not revealed",(int)slb_x, (int)slb_y);
+                return 0;
+            }
+            if (!slab_by_players_land(creatng->owner, slb_x, slb_y)) {
+                SYNCDBG(8,"The slab %d,%d is not by players land",(int)slb_x, (int)slb_y);
+                return 0;
+            }
+            SubtlCodedCoords task_pos = get_subtile_number_at_slab_center(slb_x, slb_y);
+            long task_idx = find_dig_from_task_list(creatng->owner, task_pos);
+            if (task_idx != -1) {
+                return -1;
+            }
+            return 1;
+        }
+        default:
+        {
+            SYNCDBG(8,"The slab %d,%d is not a valid type to be reinforced",(int)slb_x, (int)slb_y);
+            return 0;
+        }
     }
-    struct Map *mapblk;
-    mapblk = get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
-    if (!map_block_revealed(mapblk, creatng->owner)) {
-        SYNCDBG(8,"The slab %d,%d is not revealed",(int)slb_x, (int)slb_y);
-        return 0;
-    }
-    if (!slab_by_players_land(creatng->owner, slb_x, slb_y)) {
-        SYNCDBG(8,"The slab %d,%d is not by players land",(int)slb_x, (int)slb_y);
-        return 0;
-    }
-    SubtlCodedCoords task_pos;
-    long task_idx;
-    task_pos = get_subtile_number_at_slab_center(slb_x, slb_y);
-    task_idx = find_dig_from_task_list(creatng->owner, task_pos);
-    if (task_idx != -1) {
-        return -1;
-    }
-    return 1;
 }
 
 struct Thing *check_place_to_pickup_crate(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short flags, long n)

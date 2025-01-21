@@ -29,6 +29,7 @@
 #include "map_columns.h"
 #include "creature_states.h"
 #include "magic.h"
+#include "map_blocks.h"
 #include "game_merge.h"
 #include "sounds.h"
 #include "game_legacy.h"
@@ -272,6 +273,76 @@ void update_manufacturing(void)
         if (player_exists(player) && (player->is_active == 1))
         {
             process_player_manufacturing(i);
+        }
+    }
+}
+
+void update_terrain(void)
+{
+    for (MapSlabCoord slb_x = 0; slb_x < gameadd.map_tiles_x; slb_x++)
+    {
+        for (MapSlabCoord slb_y = 0; slb_y < gameadd.map_tiles_y; slb_y++)
+        {
+            struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+            if (!slabmap_block_invalid(slb))
+            {
+                struct SlabAttr* slbattr = get_slab_kind_attrs(slb->kind);
+                if (slbattr->health_loss != 0)
+                {
+                    if (game.play_gameturn % slbattr->damage_turns == 0)
+                    {
+                        slb->health -= slbattr->health_loss;
+                        if (slb->health <= 0)
+                        {
+                            if (slbattr->transform_effect != 0)
+                            {
+                                struct Coord3d pos;
+                                MapSubtlCoord stl_x;
+                                MapSubtlCoord stl_y;
+                                if (slbattr->transform_effect_mode)
+                                {
+                                    stl_x = STL_PER_SLB * slb_x;
+                                    stl_y = STL_PER_SLB * slb_y;
+                                    for (MapSubtlCoord y = stl_y; y < stl_y+STL_PER_SLB; y++)
+                                    {
+                                        for (MapSubtlCoord x = stl_x; x < stl_x+STL_PER_SLB; x++)
+                                        {
+                                            MapSubtlCoord z = get_floor_filled_subtiles_at(x, y);
+                                            if (z > 0)
+                                            {
+                                                pos.x.val = subtile_coord_center(x);
+                                                pos.y.val = subtile_coord_center(y);
+                                                pos.z.val = subtile_coord_center(1);
+                                                MapCoord max_height = subtile_coord(z,0);
+                                                while (pos.z.val < max_height)
+                                                {
+                                                    create_effect(&pos, slbattr->transform_effect, game.neutral_player_num);
+                                                    pos.z.val += COORD_PER_STL;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    place_slab_type_on_map(slbattr->turn_to, slab_subtile(slb_x,0), slab_subtile(slb_y,0), game.neutral_player_num, 0);
+                                }
+                                else
+                                {
+                                    place_slab_type_on_map(slbattr->turn_to, slab_subtile(slb_x,0), slab_subtile(slb_y,0), game.neutral_player_num, 0);
+                                    stl_x = slab_subtile_center(slb_x);
+                                    stl_y = slab_subtile_center(slb_y);
+                                    pos.x.val = subtile_coord_center(stl_x);
+                                    pos.y.val = subtile_coord_center(stl_y);
+                                    pos.z.val = get_floor_height_at(&pos);
+                                    create_effect(&pos, slbattr->transform_effect, game.neutral_player_num);
+                                }
+                            }
+                            else
+                            {
+                                place_slab_type_on_map(slbattr->turn_to, slab_subtile(slb_x,0), slab_subtile(slb_y,0), game.neutral_player_num, 0);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

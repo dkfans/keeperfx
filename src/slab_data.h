@@ -41,7 +41,7 @@ enum SlabTypes {
     SlbT_WALLWTWINS         =   6,
     SlbT_WALLWWOMAN         =   7,
     SlbT_WALLPAIRSHR        =   8,
-    SlbT_DAMAGEDWALL        =   9,
+    SlbT_BLANKWALL          =   9,
     SlbT_PATH               =  10,
     SlbT_CLAIMED            =  11,
     SlbT_LAVA               =  12,
@@ -90,6 +90,9 @@ enum SlabTypes {
     SlbT_DOORSECRET1        =  55,
     SlbT_DOORSECRET2        =  56,
     SlbT_ROCK_FLOOR         =  57,
+    SlbT_DOORMIDAS1         =  58,
+    SlbT_DOORMIDAS2         =  59,
+    SlbT_DAMAGEDWALL        =  60,
 };
 
 enum WlbType {
