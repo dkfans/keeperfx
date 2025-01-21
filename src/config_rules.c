@@ -94,9 +94,10 @@ const struct NamedField rules_game_named_fields[] = {
   {"LIGHTENABLED",               &game.conf.rules.game.light_enabled,              var_type(game.conf.rules.game.light_enabled             ),        0,                  1},
   {"MAPCREATURELIMIT",           &game.conf.rules.game.creatures_count,            var_type(game.conf.rules.game.creatures_count           ),        0,  CREATURES_COUNT-2},
   {"PAYDAYADVANCED",             &game.conf.rules.game.max_paydays_advanced,       var_type(game.conf.rules.game.max_paydays_advanced      ),        0,          UCHAR_MAX},
-  {"PAYDAYOWED",                 &game.conf.rules.game.max_paydays_owed,           var_type(game.conf.rules.game.max_paydays_owed          ),        0+1,        UCHAR_MAX},
+  {"PAYDAYOWED",                 &game.conf.rules.game.max_paydays_owed,           var_type(game.conf.rules.game.max_paydays_owed          ),        0,          UCHAR_MAX},
   {"ACCEPTPARTIALPAYDAY",        &game.conf.rules.game.accept_partial_payday,      var_type(game.conf.rules.game.accept_partial_payday     ),        0,                  1},
-  {"POCKETGOLD",        &game.conf.rules.game.pocket_gold,                var_type(game.conf.rules.game.pocket_gold               ),        0,                  1},
+  {"POCKETGOLD",                 &game.conf.rules.game.pocket_gold,                var_type(game.conf.rules.game.pocket_gold               ),        0,                  1},
+  {"TAKEPAYFROMPOCKET",          &game.conf.rules.game.take_pay_from_pocket,       var_type(game.conf.rules.game.take_pay_from_pocket      ),        0,                  1},
   {NULL,                         NULL,                                                                                                     0,        0,                  0},
 };
 // Special cases rules_game.
@@ -297,8 +298,9 @@ static void set_defaults()
     game.conf.rules.game.creatures_count = 255;
     game.conf.rules.game.max_paydays_advanced = 5;
     game.conf.rules.game.max_paydays_owed = 5;
-    game.conf.rules.game.accept_partial_payday = false;
+    game.conf.rules.game.accept_partial_payday = true;
     game.conf.rules.game.pocket_gold = false;
+    game.conf.rules.game.take_pay_from_pocket = false;
     // Creature block.
     game.conf.rules.creature.recovery_frequency = 10;
     game.conf.rules.creature.fight_max_hate = 200;

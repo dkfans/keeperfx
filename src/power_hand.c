@@ -844,7 +844,8 @@ void process_ruled_payday_advances(GoldAmount salary, struct Thing *creatng, str
     if (cctrl->paydays_advanced + paid > game.conf.rules.game.max_paydays_advanced)
     {
         cctrl->paydays_advanced = game.conf.rules.game.max_paydays_advanced;
-    } else
+    }
+    else
     {
         cctrl->paydays_advanced += paid;
     }
@@ -863,12 +864,14 @@ void process_ruled_payday_advances(GoldAmount salary, struct Thing *creatng, str
  */
 void handle_pocket_gold_rule(GoldAmount* tribute, struct Thing* creatng, struct CreatureStats* crstat, struct CreatureControl* cctrl)
 {
-    GoldAmount fill_space = creatng->creature.gold_carried - crstat->gold_hold;
+    GoldAmount fill_space = crstat->gold_hold - creatng->creature.gold_carried;
     //fill the pockets
-    if(tribute < fill_space)
+    if(*tribute < fill_space)
     {
         creatng->creature.gold_carried += *tribute;
-    } else //pocket ist full
+    }
+    //pocket ist full
+    else
     {
         creatng->creature.gold_carried = crstat->gold_hold;
         *tribute -= fill_space;
@@ -888,17 +891,18 @@ void handle_pocket_gold_rule(GoldAmount* tribute, struct Thing* creatng, struct 
  */
 void creature_get_handgold(GoldAmount salary, GoldAmount tribute, struct Thing* creatng, struct CreatureStats* crstat, struct CreatureControl* cctrl, TbBool during_payday)
 {
-    GoldAmount complete_cost = 0;
     if (!game.conf.rules.game.accept_partial_payday)
     {
         //if rule active
         //add tribute to the gold carried by the creature
         if(game.conf.rules.game.pocket_gold){
             handle_pocket_gold_rule(&tribute, creatng, crstat, cctrl);
+
             // paid_wage equals the amount of gold in the pocket
             cctrl->paid_wage = creatng->creature.gold_carried;
+        }
         // pocket rule deactivated
-        }else
+        else
         {
             // Add tribute to the paid wage
             cctrl->paid_wage += tribute;
@@ -906,13 +910,22 @@ void creature_get_handgold(GoldAmount salary, GoldAmount tribute, struct Thing* 
         // process the tribute during payday
         if (during_payday && cctrl->paid_wage >= salary)
         {
-            // Decrement paydays owed if during payday and sufficient wage is paid
-            cctrl->paydays_owed--;
-            process_payday_advances(salary, creatng, cctrl, crstat);
+            // rule activated
+            if(game.conf.rules.game.take_pay_from_pocket)
+            {
+                process_custom_salary(creatng);
+            }
+            else
+            {
+                // Decrement paydays owed if during payday and sufficient wage is paid
+                cctrl->paydays_owed--;
+            }
+            process_ruled_payday_advances(salary, creatng, cctrl, crstat);
+
         }
         else if (cctrl->paid_wage >= salary)
         {
-        process_payday_advances(salary, creatng, cctrl, crstat);
+        process_ruled_payday_advances(salary, creatng, cctrl, crstat);
         }
     }
 
@@ -945,7 +958,6 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     //actuel amount of gold in hand
     GoldAmount tribute = goldtng->valuable.gold_stored;
-    GoldAmount over_tribute = 0;
     GoldAmount salary = calculate_correct_creature_pay(creatng);
     if (salary < 1) // we devide by this number later on
     {
@@ -955,7 +967,6 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     pos.y.val = creatng->mappos.y.val;
     pos.z.val = creatng->mappos.z.val;
     pos.z.val = get_ceiling_height_at(&pos);
-
     TbBool during_payday = creature_is_taking_salary_activity(creatng);
     if (during_payday && cctrl->paydays_owed > 0)
     {
