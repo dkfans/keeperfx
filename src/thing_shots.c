@@ -1644,7 +1644,7 @@ TngUpdateRet move_shot(struct Thing *shotng)
             }
         }
     }
-    if ((shotng->movement_flags & TMvF_Unknown10) != 0)
+    if (flag_is_set(shotng->movement_flags,TMvF_GoThroughWalls))
     {
       if ((shotst->model_flags & ShMF_StrengthBased) && thing_in_wall_at(shotng, &pos)) {
           if (shot_hit_door_at(shotng, &pos)) {
