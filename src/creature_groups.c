@@ -903,7 +903,7 @@ struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_id
               break;
           }
           struct PartyMember* member = &(party->members[k]);
-          struct Thing* thing = script_create_new_creature(plyr_idx, member->crtr_kind, location, member->carried_gold, member->crtr_level);
+          struct Thing* thing = script_create_new_creature(plyr_idx, member->crtr_kind, location, member->carried_gold, member->crtr_level, false);
           if (!thing_is_invalid(thing))
           {
               struct CreatureControl* cctrl = creature_control_get_from_thing(thing);

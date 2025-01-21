@@ -119,7 +119,7 @@ static void command_add_party_to_level(long plr_range_id, const char *prtname, c
     }
 }
 
-static void command_add_creature_to_level(long plr_range_id, const char *crtr_name, const char *locname, long ncopies, long crtr_level, long carried_gold)
+static void command_add_creature_to_level(long plr_range_id, const char *crtr_name, const char *locname, long ncopies, long crtr_level, long carried_gold, TbBool init)
 {
     TbMapLocation location;
     if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
@@ -158,11 +158,19 @@ static void command_add_creature_to_level(long plr_range_id, const char *crtr_na
         return;
     if (get_script_current_condition() == CONDITION_ALWAYS)
     {
-        script_process_new_creatures(plr_id, crtr_id, location, ncopies, carried_gold, crtr_level-1);
+        script_process_new_creatures(plr_id, crtr_id, location, ncopies, carried_gold, crtr_level-1, init);
     } else
     {
         struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[gameadd.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
-        pr_trig->flags = TrgF_CREATE_CREATURE;
+        if (init)
+        {
+            pr_trig->flags = TrgF_CREATE_CREATURE_TO_ROOM;
+        }
+        else
+        {
+            pr_trig->flags = TrgF_CREATE_CREATURE;
+        }
+        
         pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
 
         pr_trig->plyr_idx = plr_id;
@@ -1319,7 +1327,10 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_add_party_to_level(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
         break;
     case Cmd_ADD_CREATURE_TO_LEVEL:
-        command_add_creature_to_level(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->np[4], scline->np[5]);
+        command_add_creature_to_level(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->np[4], scline->np[5], false);
+        break;
+    case Cmd_ADD_CREATURE_TO_LEVEL_AND_INIT:
+        command_add_creature_to_level(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->np[4], scline->np[5], true);
         break;
     case Cmd_ENDIF:
         pop_condition();

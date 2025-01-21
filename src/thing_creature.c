@@ -6762,7 +6762,7 @@ void illuminate_creature(struct Thing *creatng)
     lgt->radius <<= 1;
 }
 
-struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location)
+struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, TbBool init)
 {
     long effect;
     long i = get_map_location_longval(location);
@@ -6842,7 +6842,7 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
         set_flag(thing->state_flags, TF1_PushAdd);
     }
     // Lord of the land random speech message.
-    if ((get_creature_model_flags(thing) & CMF_IsLordOfLand) != 0)
+    if (flag_is_set(get_creature_model_flags(thing),CMF_IsLordOfLand))
     {
         output_message(SMsg_LordOfLandComming, MESSAGE_DELAY_LORD, 1);
         output_message(SMsg_EnemyLordQuote + UNSYNC_RANDOM(8), MESSAGE_DELAY_LORD, 1);
@@ -6854,20 +6854,33 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
         {
             thing->mappos.z.val = get_ceiling_height(&thing->mappos);
             create_effect(&thing->mappos, TngEff_CeilingBreach, thing->owner);
-            initialise_thing_state(thing, CrSt_CreatureHeroEntering);
+            if (init)
+            {
+                init_creature_state(thing);
+            }
+            else
+            {
+                initialise_thing_state(thing, CrSt_CreatureHeroEntering);
+            }
+
             set_flag(thing->rendering_flags, TRF_Invisible);
             struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
             cctrl->countdown = 24;
         }
+        break;
     default:
+        if (init)
+        {
+            init_creature_state(thing);
+        }
         break;
     }
     return thing;
 }
 
-struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long carried_gold, CrtrExpLevel crtr_level)
+struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long carried_gold, CrtrExpLevel crtr_level, TbBool init)
 {
-    struct Thing* creatng = script_create_creature_at_location(plyr_idx, crmodel, location);
+    struct Thing* creatng = script_create_creature_at_location(plyr_idx, crmodel, location, init);
     if (thing_is_invalid(creatng))
         return INVALID_THING;
     creatng->creature.gold_carried = carried_gold;
@@ -6875,11 +6888,11 @@ struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmod
     return creatng;
 }
 
-void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, long location, long copies_num, long carried_gold, CrtrExpLevel crtr_level)
+void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, long location, long copies_num, long carried_gold, CrtrExpLevel crtr_level, TbBool init)
 {
     for (long i = 0; i < copies_num; i++)
     {
-        script_create_new_creature(plyr_idx, crmodel, location, carried_gold, crtr_level);
+        script_create_new_creature(plyr_idx, crmodel, location, carried_gold, crtr_level, init);
     }
 }
 
